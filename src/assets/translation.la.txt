@@ -1,0 +1,28 @@
+[You must attack a weaker monster with this weapon.] {Oportet te monstra imbecilliora hac arma oppugnare.}
+[Use this card to heal?] {Utitur hac tabella ad sanandum?}
+[Are you sure you wish to flee?] {Certus es te velle fugere?}
+[You are defeated.] {Victus es.}
+[You have no weapon.] {Nullam armam habes.}
+[(C)] {(C)}
+[You win!] {Vicis!}
+[Attack with which weapon?] {Attaquam qua armamentum?}
+[Yes] {Ita}
+[Scoundrel] {Scelestus}
+[(Z)] {(Z)}
+[No] {Non}
+[Press any button to continue.] {Preme aliquem puga ut pergat.}
+[(X)] {(X)}
+[This will replace your current weapon.] {Hoc armam tuam currentem substituet.}
+[Press any button.] {Preme aliquem puga.}
+[Pick up this weapon?] {Hanc armam sumis?}
+[Loading] {Onus}
+[Flee] {Fuge}
+[Wins] {}
+[(Select)] {}
+[You Lose.] {}
+[(RT)] {}
+[(B)] {}
+[(LT)] {}
+[(Y)] {}
+[(Start)] {}
+[(A)] {}

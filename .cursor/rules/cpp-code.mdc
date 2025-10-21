@@ -1,0 +1,18 @@
+---
+alwaysApply: false
+description: "CPP Code guidelines."
+globs: ["src/**/*.cpp", "src/**/*.h"]
+---
+# Cpp code guidelines
+- use camelCase for variable names and UpperCase for class or struct names
+- prefer usage of std::vector over std::array or raw arrays
+- prefer using std::unique_ptr or std::optional instead of raw pointers
+- all cpp functions must be in a cpp file and not declared inline.
+- every cpp file must be explicitly defined in the source file.
+- all classes must exist within a namespace, if the namespace is the top level use the "program" namespace.
+- prefer declaring variables with auto instead of the type, like: "auto a = int{1}".
+- use structs for any groups of data or classes that have no methods.
+- prefer const references if passing by reference.
+- prefer using LOG macro from "lib/sdl2w/Logger.h" instead of iostream or printf
+- prefer cpp standard library instead of c standard library
+- mark override when a method is overridden

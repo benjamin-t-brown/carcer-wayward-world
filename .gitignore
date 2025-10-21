@@ -1,0 +1,17 @@
+VORTEXXE
+VORTEXXE.js
+VORTEXXE.data
+dist/
+workspace/
+.build/
+.cache/
+*.o
+*.d
+*.exe
+*.wasm
+compile_commands.json
+output.log
+*.zip
+*.tar.gz
+*.ini
+hiscore.txt

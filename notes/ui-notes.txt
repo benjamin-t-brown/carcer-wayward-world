@@ -1,0 +1,566 @@
+UI Element Abstract
+  * Constructor
+    - window
+    - parent
+  * Templates
+    - P: props
+    - S: CustomStyles
+  * Local Properties
+    - window (sdl2w Window)
+    - parent (optional UIElement)
+    - children (UIElement unique ptr array)
+    - stateInterface (optional StateInterface)
+    - style
+    - customStyle
+  * Methods
+    - setStateInterface
+    - dispatchAction
+    - dispatchUiAction
+    - getEntityById
+    - getTemplateById
+  * Methods (Override)
+    - setStyle
+    - getStyle
+    - setCustomStyle
+    - getCustomStyle
+    - setProps
+    - getProps
+    - getChildren
+    - checkClickEvent
+    - checkHoverEvent
+    - build
+    - render
+
+STYLES
+Position
+  - x
+  - y
+Size
+  - width
+  - height
+Scale
+  - scale
+TextParams
+  - font family (enum PARAGRAPH H1 H2 H3)
+  - font size
+  - font color (string)
+  - align (enum LEFT CENTER RIGHT)
+List
+  - line height
+  - line spacing
+  - line background color
+
+EVENTS
+  - clickable (requires Position & Size)
+  - hoverable (requires Position & Size)
+
+ELEMENTS
+Sprite
+  * Description: Renders a stylized sprite.
+  * Props
+    - sprite (string)
+  * Styles
+    - Position, Size, Scale
+Quad
+  * Description: Renders a stylized rectangle with children on it.
+  * Props
+    - children (list if UiElements to be rendered on this quad)
+  * Styles
+    - Position, Size, Scale
+    - bg color (string)
+    - bg sprite (string)
+    - border color (string)
+    - border size
+SectionStatic
+  * Description: Renders a quad with an opinionated background.
+  * Props
+    - children (list if UiElements to be rendered on this quad)
+  * Styles
+    - Position, Size, Scale
+    - bg color (string)
+    - bg sprite (string)
+SectionScrollable
+  * Description: Renders a quad with an opinionated way of scrolling it vertically.
+  * Props
+    - children (list if UiElements to be rendered on this quad)
+  * Styles
+    - Position, Size, Scale
+    - bg color (string)
+    - bg sprite (string)
+    - border color (string)
+    - border size
+  * Actions
+    - UIScrollSectionTo
+TextLine
+  * Description: Renders a stylized line of text.
+  * Props
+    - text blocks (a list of structs that group strings with individual override styles)
+  * Styles
+    - Position, TextParams
+TextParagraph
+  * Description: Renders a block of wrapped text.
+  * Props
+    - text blocks (a list of structs that group strings with individual override styles)
+  * Styles
+    - Position, Size, TextParams
+TextSelectable
+  * Description: Renders a selectable wrapped portion of text.  Different from a button, in that it can wrap text, typically used in the talk choices.
+  * Events
+    - clickable, hoverable
+  * Props
+    - text
+    - isSelected
+  * Styles
+    - Position, Size, TextParams    
+LabelPHeader
+  * Description: Renders a line of text that represents a header of a paragraph.
+  * Props
+    - text
+  * Styles
+    - Position, TextParams
+LabelModalHeader
+  * Description: Renders a line of text that represents a header of a modal window.
+  * Props
+    - text
+  * Styles
+    - Position, TextParams
+LabelRuneCost
+  * Description: Renders a line of text that represents cost of an ability in runes.
+  * Props
+    - text
+  * Styles
+    - Position, TextParams
+LabelManaCost
+  * Description: Renders a line of text that represents cost of an ability in mana.
+  * Props
+    - text
+  * Styles
+    - Position, TextParams
+ButtonText
+  * Description: Renders a clickable button of only text.
+  * Events
+    - clickable, hoverable
+  * Props
+    - text
+    - isSelected
+  * Styles
+    - Position, Size, TextParams
+ButtonModal
+  * Description: Renders a clickable button typically used inside modal windows.
+  * Events
+    - clickable, hoverable
+  * Props
+    - text
+    - isSelected
+  * Styles
+    - Position, Size, Scale, TextParams
+ButtonScroll
+  * Description: Renders a clickable button used to scroll windows up/down
+  * Events
+    - clickable, hoverable
+  * Props
+    - direction (enum UP or DOWN)
+  * Styles
+    - Position, Size, Scale
+ButtonClose
+  * Description: Renders a clickable button typically used to close a modal or popup window.
+  * Events
+    - clickable, hoverable
+  * Props
+    - closeType (enum MODAL or POPUP)
+  * Styles
+    - Position, Size, Scale
+ButtonRuneSlotMOdify
+  * Description: Renders a clickable button typically used to add a rune to a character.
+  * Events
+    - clickable, hoverable
+  * Props
+    - runeType (enum)
+  * Styles
+    - Position, Size, Scale
+ButtonWorldAction
+  * Description: Renders a clickable button typically used to interact with the world.
+  * Events
+    - clickable, hoverable  
+  * Props
+    - worldActionType (enum EXAMINE, GET, SNEAK, UNLOCK, TALK, JUMP, ABILITY, INVENTORY, SHOOT, FIGHT)
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - WorldActionExamine
+    - WorldActionGet
+    - WorldActionSneak
+    - WorldActionUnlock
+    - WorldActionTalk
+    - WorldActionJump
+    - WorldActionUseAbility
+    - WorldActionShowInventory
+    - WorldActionShoot
+    - WorldActionToggleFightMode
+ButtonGroup
+  * Description: Renders a horizontal list of buttons.
+  * Events
+      - clickable, hoverable
+  * Props
+    - buttons (list of ButtonModal)
+  * Styles
+    - Position, Size, Scale
+IconHeader
+  * Description: Renders an icon typically used to decorate a layout.
+  * Props
+    - sprite (string)
+  * Styles
+    - Position, Size, Scale
+IconPortrait
+  * Description: Renders an icon for a portrait when speaking to somebody.
+  * Props
+    - sprite (string)
+  * Styles
+    - Position, Size, Scale
+IconCharacter
+  * Description: Renders an icon typically used to identify a character.
+  * Props
+    - sprite (string)
+  * Styles
+    - Position, Size, Scale
+IconList
+  * Description: Renders a small icon to be used in a list.
+  * Props
+    - sprite (string)
+  * Styles
+    - Position, Size, Scale
+IconStatus
+  * Description: Renders an icon typically used to identify a status effect on a character.
+  * Props
+    - statusType (enum BLESSED, CURSED, POISONED, etc)
+  * Styles
+    - Position, Size, Scale
+IconRune
+  * Description: Renders a small icon to be used in a list.
+  * Props
+    - runeType (FIRE, WATER, AIR, etc)
+  * Styles
+    - Position, Size, Scale
+ArrowCursor
+  * Description: Renders a small icon to be used in a list.
+  * Props
+    - sprite (string)
+  * Styles
+    - Position, Size, Scale
+
+COMPONENTS
+HeaderModalStandard
+  * Description: Renders a header for a Standard Modal
+  * Props
+    - titleLabel
+    - subTitleElement
+  * Styles
+    - Position, Size, Scale
+HeaderModalSmall
+  * Description: Renders a header for a Small Modal
+  * Props
+    - titleLabel
+    - subTitleElement
+  * Styles
+    - Position, Size, Scale
+HeaderPartyMemberSwitch
+  * Description: Shows currently-selected party member and allows to switch
+  * Props
+    - selectedCharacterId
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - UIChangeSelectedPartyMember
+InGameBorder
+  * Description: Shows the in game border.
+  * Props
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - UIShowMenuInGame
+InGamePartyMemberSection
+  * Description: Shows the party members in the in game section.
+  * Props
+    - playerId
+    - selectedCharacterId
+  * Styles
+    - Position, Size, Scale
+HeaderTalk
+  * Description: Shows the text buttons available for keyword-text conversations.
+  * Props
+    - isKeywordMode (boolean)
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - TalkSelectKeyword
+    - TalkShowAskAbout
+    - TalkRecordText
+UseOnTarget
+  * Description: Shows button in In Game bottom bar to cast a targeted spell.
+  * Props
+    - abilityId
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - ConfirmTargetedAbility
+WorldCharacterStatus
+  * Description: Shows a character with hp + mana, and status summary.
+  * Props
+    - characterId
+  * Styles
+    - Position, Size, Scale
+RuneListCharacter
+  * Description: Shows editable place for runes to be stored on a character.
+  * Props
+    - characterId
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - EditCharacterRunes
+RuneListParty
+  * Description: Shows runes available to the party.
+  * Props
+    - playerId
+  * Styles
+    - Position, Size, Scale
+
+LISTS
+ListInventoryItems
+  * Description: Shows items in inventory for a character.
+  * Props
+    - selectedCharacterId
+  * Styles
+    - Position, Size, Scale, List
+  * Actions
+    - UIShowPopupInventory
+ListAbilitiesUsable
+  * Description: Shows abilities available to character.
+  * Props
+    - selectedCharacterId
+  * Styles
+    - Position, Size, Scale, List
+  * Actions
+    - UIShowAbilityInfo
+ListFeats
+  * Description: Shows feats on a character.
+  * Props
+    - selectedCharacterId
+  * Styles
+    - Position, Size, Scale, List
+  * Actions
+    - UIShowPopupFeat
+ListStats
+  * Description: Shows stats on a character.
+  * Props
+    - selectedCharacterId
+  * Styles
+    - Position, Size, Scale, List
+  * Actions
+    - UIShowPopupStat
+ListStatuses
+  * Description: Shows statuses on a character.
+  * Props
+    - selectedCharacterId
+  * Styles
+    - Position, Size, Scale, List
+  * Actions
+    - UIShowPopupStatusEffect
+ListResistances
+  * Description: Shows resistances on a character.
+  * Props
+    - selectedCharacterId
+  * Styles
+    - Position, Size, Scale, List
+  * Actions
+    - UIShowPopupResistance
+
+POPUP MODALS
+PopupGiveToWhom
+  * Description: Select character to give item to.
+  * Props
+    - itemLabel (string)
+    - characters (string array)
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - UIHidePopup
+    - ItemTransferBetweenCharacters
+PopupUseOnWhom
+  * Description: Select character to use an ability on.
+  * Props
+    - abilityLabel (string)
+    - characters (string array)
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - UIHidePopup
+    - ConfirmOnWhomAbility
+PopupAskAbout
+  * Description: Shows a text input to ask about something.
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - UIHidePopup
+    - TalkAskAbout
+PopupInventoryItem
+  * Description: Shows info about an item and actions that can be done from inventory.
+  * Props
+    - itemId (EntityId)
+    - characterId (EntityId)
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - UIHidePopup
+    - UIShowPopupGiveToWhom
+    - ItemUse
+    - ItemDrop
+    - ItemEquip
+PopupPickUpItemInfo
+  * Description: Shows info about an item from get items modal.
+  * Props
+    - itemId (EntityId)
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - UIHidePopup
+PopupEditRuneSlot
+  * Description: Shows modal to edit runes for a character.
+  * Props
+    - characterId (EntityId)
+    - playerId (EntityId)
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - UIHidePopup
+    - EditCharacterModifyRuneSlot
+PopupFeatInfo
+  * Description: Shows a modal to describe a feat.
+  * Props
+    - featId (EntityId)
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - UIHidePopup
+PopupAbilityInfo
+  * Description: Shows a modal to describe an ability.
+  * Props
+    - abilityId (EntityId)
+    - showCost (boolean)
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - UIHidePopup
+PopupResistance
+  * Description: Shows a modal to describe a resistance for a character.
+  * Props
+    - characterId (EntityId)
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - UIHidePopup
+PopupStatusEffect
+  * Description: Shows a modal to describe a status effect for a character.
+  * Props
+    - characterId (EntityId)
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - UIHidePopup
+PopupStat
+  * Description: Shows a modal to describe a stat for a character.
+  * Props
+    - characterId (EntityId)
+    - statId (EntityId)
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - UIHidePopup
+
+LAYOUTS
+InGame
+  * Description: Renders the ui for the game area.
+  * Props
+    - party (Character array)
+    - topBarElement
+    - bottomBarElement
+  * Styles
+    - Position, Size, Scale
+ModalStandard
+  * Description: Renders a quad intended to appear fully over an in game window.
+  * Props
+    - decorationSprite (string)
+    - title
+    - subtitleElement
+    - children (UIElement array)
+  * Styles
+    - Position, Size, Scale
+ModalSmall
+  * Description: Renders a quad intended to appear above an in game window, but still show some context of the in game window.
+  * Props
+    - decorationSprite (string)
+    - title
+    - subtitleElement
+    - children (UIElement array)
+  * Styles
+    - Position, Size, Scale
+ModalPopup
+  * Description: Renders a quad intended to pop up over another quad.
+  * Props
+    - children (UIElement array)
+  * Styles
+    - Position, Size, Scale
+
+
+LAYERS
+LayerMainMenu
+LayerInGameUI
+LayerInventory
+LayerPickUpItems
+LayerSpecialEvent
+LayerPartyMemberInfo
+LayerCharacterExamine
+LayerTargetingUI
+LayerTalk
+LayerMap
+LayerJournal
+
+Inventory
+Talk keywords
+Talk choices
+Status - Ability List
+Event
+Get Nearby Items
+Use Ability
+Examine Monster
+
+in game
+  - border
+  - party area
+  - action buttons area
+modal: game event
+  - icon
+  - title (resizable)
+  - text (resizable)
+  - buttons area (resizable)
+modal: split top
+  - icon
+  - party switcher
+  - close button
+  - title (resizable)
+  - sub title (resizable)
+  - body (resizable)
+  - buttons area (resizable)
+full screen - split top
+  - icon
+  - party switcher
+  - title (resizable)
+  - subtitle (resizable)
+  - 
+
+
+
+
+
+
+
+

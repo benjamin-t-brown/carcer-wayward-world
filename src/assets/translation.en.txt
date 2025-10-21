@@ -1,0 +1,28 @@
+[You must attack a weaker monster with this weapon.] {You must attack a weaker monster with this weapon.}
+[Use this card to heal?] {Use this card to heal?}
+[Are you sure you wish to flee?] {Are you sure you wish to flee?}
+[You are defeated.] {You are defeated.}
+[You have no weapon.] {You have no weapon.}
+[(C)] {(C)}
+[You win!] {You win!}
+[Attack with which weapon?] {Attack with which weapon?}
+[Yes] {Yes}
+[Scoundrel] {Scoundrel}
+[(Z)] {(Z)}
+[No] {No}
+[Press any button to continue.] {Press any button to continue.}
+[(X)] {(X)}
+[This will replace your current weapon.] {This will replace your current weapon.}
+[Press any button.] {Press any button.}
+[Pick up this weapon?] {Pick up this weapon?}
+[Loading] {Loading}
+[Flee] {Flee}
+[Wins] {Wins}
+[(Select)] {(Select)}
+[You Lose.] {You Lose.}
+[(RT)] {(RT)}
+[(B)] {(B)}
+[(LT)] {(LT)}
+[(Y)] {(Y)}
+[(Start)] {(Start)}
+[(A)] {(A)}

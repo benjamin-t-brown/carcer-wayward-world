@@ -1,0 +1,17 @@
+---
+alwaysApply: false
+description: 'CPP UI guidelines.'
+globs: ['src/ui/**/*.cpp', 'src/ui/**/*.h']
+---
+
+# Cpp UI guidelines
+
+- all ui elements must be put in the ui folder.
+- all ui elements must exist in the 'ui' namespace.
+- all ui elements must extend the class UiElement.
+- all ui elements must be constructed with at least an sdl2w window pointer and an optional parent element.
+
+## UiElement
+- when overriding "set" methods, ensure that "build" is called to rebuild the component after changing properties.
+- when adding children to a children property, use "getChildren().push_back".
+- when overriding any methods, ensure that the overrides account for style, props, and children if they are applicable.
