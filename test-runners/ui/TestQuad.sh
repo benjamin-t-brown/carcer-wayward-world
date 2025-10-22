@@ -8,7 +8,7 @@ echo "compile objects"
 (cd $SRC_DIR  && make object_files -j8)
 
 echo "compile test"
-COMPILER_ARGS=$(cd $SRC_DIR  && make compiler_args)
+COMPILER_ARGS=$(cd $SRC_DIR && make compiler_args)
 COMPILE_TEST="g++ test/ui/$TEST_FILE_NAME.cpp $COMPILER_ARGS -o $TEST_EXE_NAME"
 echo $COMPILE_TEST
 (cd $SRC_DIR  && $COMPILE_TEST)

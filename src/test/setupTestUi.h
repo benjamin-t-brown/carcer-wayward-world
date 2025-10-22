@@ -36,7 +36,7 @@ setupTestUi(int argc,
                            .renderH = params.height,
                        });
 
-  sdl2w::L10n::init(std::vector<std::string>({"en", "la"}));
+  sdl2w::L10n::init(std::vector<std::string>({"en"}));
   sdl2w::setupStartupArgs(argc, argv, window);
   sdl2w::L10n::setLanguage("default");
   window.getDraw().setBackgroundColor({0, 0, 0});
@@ -70,7 +70,4 @@ setupTestUi(int argc,
   };
 
   window.startRenderLoop(_initializeLoop, _onInitialized, _mainLoop);
-
-  sdl2w::Window::unInit();
-  LOG(INFO) << "UI Test Complete" << LOG_ENDL;
 }

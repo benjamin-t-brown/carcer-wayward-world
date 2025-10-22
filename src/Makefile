@@ -4,10 +4,14 @@ EXE_SUFFIX=
 MAIN_ALL=main.cpp
 
 CODE=\
-LibHTML.cpp
+LibHTML.cpp \
+ui/UiElement.cpp \
+ui/elements/Sprite.cpp \
+ui/elements/Quad.cpp \
+ui/elements/TextLine.cpp \
+ui/elements/TextParagraph.cpp
 
 LIB_CODE=\
-lib/hiscore/hiscore.cpp
 
 TEST_CODE=\
 
@@ -65,12 +69,12 @@ DEBUG=true
 LIBS=-Llib/sdl2w
 INCLUDES= -I.
 ifeq ($(TARGET),wasm)
-    FLAGS = -Wall -std=c++17 -Oz -flto
+    FLAGS = -Wall -std=c++20 -Oz -flto
     LIBS = $(EMCC_LIBS) --preload-file assets
 		EXE_SUFFIX=.js
     CXX = em++
 else
-    FLAGS = -O1 -Wall -std=c++17 -I.
+    FLAGS = -O1 -Wall -std=c++20 -fuse-ld=lld -I.
     CXX = g++
     ifeq ($(OS),Windows_NT)
         LIBS += -lsdl2w -mconsole -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lSDL2_gfx
@@ -97,7 +101,7 @@ else
 endif
 
 # Updated .PHONY to include helper targets and remove the old $(SDL2W_BUILD_OUTPUT_DIR)
-.PHONY: $(EXE) all sdl2w sdl2w_wasm _ensure_sdl2w_source _copy_sdl2w_artifacts
+.PHONY: $(EXE) all object_files compiler_args sdl2w sdl2w_wasm _ensure_sdl2w_source _copy_sdl2w_artifacts
 
 $(EXE): $(OBJECTS) $(LIB_OBJECTS) $(MAIN_ALL_OBJECT)
 	$(CXX) $(FLAGS) $(INCLUDES) $(MAIN_ALL_OBJECT) $(OBJECTS) $(LIB_OBJECTS) -o $(EXE)$(EXE_SUFFIX) $(LIBS)
@@ -105,7 +109,9 @@ $(EXE): $(OBJECTS) $(LIB_OBJECTS) $(MAIN_ALL_OBJECT)
 all: $(EXE) sdl2w
 
 compiler_args:
-	echo $(FLAGS) $(INCLUDES) $(OBJECTS) $(LIB_OBJECTS) $(LIBS)
+	@echo $(FLAGS) $(INCLUDES) $(OBJECTS) $(LIB_OBJECTS) $(LIBS)
+
+object_files: $(OBJECTS) $(LIB_OBJECTS)
 
 sdl2w: _ensure_sdl2w_source
 	@echo "Building standard sdl2w library (running 'make all' in $(SDL2W_DIR_NAME)/src)...";

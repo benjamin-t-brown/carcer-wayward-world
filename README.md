@@ -1,25 +1,4 @@
-# VortexXe
-
-Deluxe version!
-
-The web version of this game is available here: https://benjamin-t-brown.github.io/vortexxe/
-
-A twist on the arcade game Asteroids, inspired by the old mac game [Maelstrom](https://www.libsdl.org/projects/Maelstrom/).
-
-----
-![image](https://github.com/user-attachments/assets/0fe5685a-ede7-48f9-942a-01524bb2b672)
-----
-![image](https://github.com/user-attachments/assets/ab793726-ff7d-4345-9e7d-d7c44be68504)
-----
-
-Keyboard controls: arrow keys left/right: move ship, arrow key up: boost, space: shoot, left shift: shield
-
-Gamepad controls:
-    Direction Pad Left/Right: Rotate Ship<br>
-    Direction Pad Down: Switch Weapon<br>
-    A: Fire<br>
-    B or Direction Pad Up: Accelerate<br>
-    Y: Shield<br>
+# Carcer: Wayward World
 
 ## Development
 
@@ -30,14 +9,11 @@ Development Requirements
 - SDL2_image
 - SDL2_ttf
 - SDL2_mixer
+- SDL2_gfx
 
 For Building WASM Executable
 
 - Emscripten
-
-For Building MiyooA30 Executable
-
-- Docker
 
 This program is built with the Makefile in the src directory.
 
@@ -108,7 +84,8 @@ pacman -S base-devel\
  ucrt64/mingw-w64-x86_64-SDL2\
  ucrt64/mingw-w64-x86_64-SDL2_image\
  ucrt64/mingw-w64-x86_64-SDL2_mixer\
- ucrt64/mingw-w64-x86_64-SDL2_ttf
+ ucrt64/mingw-w64-x86_64-SDL2_ttf\
+ ucrt64/mingw-w64-x86_64-SDL2_gfx
 
 # additional development tools
 pacman -S mingw-w64-x86_64-clang\
@@ -117,7 +94,7 @@ pacman -S mingw-w64-x86_64-clang\
  msys/python
 
 # this linker is much faster on Windows
-pacman -S ucrt64/mingw-w64-x86_64-lld
+pacman -S ucrt64/mingw-w64-ucrt-x86_64-lld
 ```
 
 ### Clangd Setup

@@ -1,8 +1,8 @@
+#include "../setupTestUi.h"
 #include "lib/sdl2w/Defines.h"
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
-#include "../setupTestUi.h"
 #include "ui/UiElement.h"
 #include "ui/elements/Quad.h"
 #include "ui/elements/TextParagraph.h"
@@ -42,8 +42,7 @@ int main(int argc, char** argv) {
       style.fontColor = SDL_Color{255, 255, 255, 255};
       paragraph->setStyle(style);
       ui::TextParagraphProps props;
-      props.textBlocks.push_back(
-          {"Hello. "});
+      props.textBlocks.push_back({"Hello. "});
       // props.textBlocks.push_back({"\nNew line with different style!",
       //                             ui::FontFamily::H1,
       //                             sdl2w::TEXT_SIZE_20,
@@ -65,6 +64,7 @@ int main(int argc, char** argv) {
 
   setupTestUi(argc, argv, TestUiParams{640, 480}, _init, _updateRender);
   LOG(INFO) << "End test" << LOG_ENDL;
+  sdl2w::Window::unInit();
 
   return 0;
 }
