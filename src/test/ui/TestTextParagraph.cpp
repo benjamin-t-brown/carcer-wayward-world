@@ -47,6 +47,11 @@ int main(int argc, char** argv) {
       //                             ui::FontFamily::H1,
       //                             sdl2w::TEXT_SIZE_20,
       //                             SDL_Color{255, 0, 0, 255}});
+
+      // paragraph->build();
+      paragraph->setProps(props);
+      LOG(INFO) << " NUM LINES " << paragraph->getNumLines() << LOG_ENDL;
+
       q->getChildren().push_back(std::move(paragraph));
     }
 
