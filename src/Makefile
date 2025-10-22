@@ -74,7 +74,7 @@ ifeq ($(TARGET),wasm)
 		EXE_SUFFIX=.js
     CXX = em++
 else
-    FLAGS = -O1 -Wall -std=c++20 -fuse-ld=lld -I.
+    FLAGS = -O0 -Wall -std=c++20 -fuse-ld=lld -I.
     CXX = g++
     ifeq ($(OS),Windows_NT)
         LIBS += -lsdl2w -mconsole -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lSDL2_gfx

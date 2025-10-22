@@ -15,7 +15,12 @@ fi
 
 TEST_FILE_NAME=$1
 TEST_EXE_NAME=TestUi
-SRC_DIR=../src
+SCRIPT_DIR=$(dirname "$0")
+
+TOP_LEVEL_DIR=$(dirname $0)/..
+SRC_DIR=$TOP_LEVEL_DIR/src
+
+echo "SCRIPT DIR: $SCRIPT_DIR"
 
 rm -rf $SRC_DIR/$TEST_EXE_NAME.*
 

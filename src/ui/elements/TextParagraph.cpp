@@ -1,6 +1,5 @@
 #include "TextParagraph.h"
 #include "lib/sdl2w/Draw.h"
-#include <sstream>
 
 namespace ui {
 
@@ -20,14 +19,14 @@ size_t TextParagraph::getNumLines() const {
   if (generatedBlocks.empty()) {
     return 0;
   }
-  
+
   int maxLineNumber = 0;
   for (const auto& block : generatedBlocks) {
     if (block.lineNumber > maxLineNumber) {
       maxLineNumber = block.lineNumber;
     }
   }
-  
+
   return static_cast<size_t>(maxLineNumber + 1);
 }
 
@@ -36,8 +35,9 @@ void TextParagraph::build() {
   auto& draw = window->getDraw();
 
   int lineNumber = 0;
-  std::stringstream lineAggregate;
-  std::stringstream potentialLineAggregate;
+  int aggregateWidth = 0;
+  std::string lineAggregate;
+  std::string nextWord;
   for (const auto& block : props.textBlocks) {
     if (block.text.empty()) {
       continue;
@@ -55,166 +55,168 @@ void TextParagraph::build() {
     params.centered = false;
 
     for (size_t i = 0; i < block.text.size(); i++) {
-      char c = block.text[i];
-      if (i > 0 && block.text[i - 1] == ' ') {
+      auto c = block.text[i];
+      if (i > 0 && block.text[i - 1] == ' ' && c == ' ') {
         // skip multiple spaces in a row
         continue;
       }
-      if (c == ' ' || i + 1 == block.text.size()) {
-        auto [textWidth, textHeight] = draw.measureText(
-            lineAggregate.str() + " " + potentialLineAggregate.str(), params);
-        if (textWidth <= style.width) {
-          lineAggregate << potentialLineAggregate.str() << ' ';
-          potentialLineAggregate.clear();
+      auto isLastLetter = i + 1 == block.text.size();
+      if (c == ' ' || isLastLetter) {
+        auto [wordTextWidth, textHeight] = draw.measureText(nextWord, params);
+        auto [wordAndSpaceTextWidth, textHeight2] =
+            draw.measureText(nextWord + c, params);
+        auto totalPotentialWidth =
+            aggregateWidth + (isLastLetter ? wordAndSpaceTextWidth : wordTextWidth);
+        if (totalPotentialWidth <= style.width) {
+          // add word to current line
+          lineAggregate += nextWord + c;
+          aggregateWidth += wordAndSpaceTextWidth;
+          nextWord.clear();
         } else {
-          size_t len = lineAggregate.str().size();
+          // word overflows, so new line
+          size_t len = lineAggregate.size() + aggregateWidth;
           if (len == 0) {
+            // if the word overflows but there's nothing on the line, just drop it in the
+            // current line anyway and finalize it
             generatedBlocks.push_back( //
                 TextParagraphGeneratedBlock{
-                    lineNumber, params, potentialLineAggregate.str()});
+                    lineNumber, block, nextWord + c, wordAndSpaceTextWidth, textHeight});
             lineNumber++;
             lineAggregate.clear();
+            aggregateWidth = 0;
           } else {
+            // finalize block for current line, add potential word to next line
             generatedBlocks.push_back( //
-                TextParagraphGeneratedBlock{lineNumber, params, lineAggregate.str()});
+                TextParagraphGeneratedBlock{
+                    lineNumber, block, lineAggregate, aggregateWidth, textHeight});
             lineNumber++;
             lineAggregate.clear();
-            lineAggregate << potentialLineAggregate.str();
+            lineAggregate = nextWord + c;
+            aggregateWidth = wordAndSpaceTextWidth;
           }
-          potentialLineAggregate.clear();
+          nextWord.clear();
         }
       } else if (c == '\n') {
-        auto [textWidth, textHeight] = draw.measureText(
-            lineAggregate.str() + " " + potentialLineAggregate.str(), params);
-        if (textWidth <= style.width) {
-          lineAggregate << potentialLineAggregate.str() << ' ';
-          potentialLineAggregate.clear();
+        auto [wordTextWidth, textHeight] = draw.measureText(nextWord, params);
+        auto [wordAndSpaceTextWidth, textHeight2] =
+            draw.measureText(nextWord + c, params);
+        auto totalPotentialWidth = aggregateWidth + wordTextWidth;
+        if (totalPotentialWidth <= style.width) {
+          lineAggregate += nextWord;
+          nextWord.clear();
         }
         generatedBlocks.push_back( //
-            TextParagraphGeneratedBlock{lineNumber, params, lineAggregate.str()});
+            TextParagraphGeneratedBlock{lineNumber,
+                                        block,
+                                        lineAggregate,
+                                        totalPotentialWidth,
+                                        textHeight});
         lineNumber++;
         lineAggregate.clear();
+        aggregateWidth = 0;
       } else {
-        potentialLineAggregate << c;
+        nextWord += c;
       }
     }
 
-    if (lineAggregate.str().size() > 0) {
+    if (lineAggregate.size() > 0) {
+      auto fontFamily = block.fontFamily.value_or(style.fontFamily);
+      auto fontSize = block.fontSize.value_or(style.fontSize);
+      auto fontColor = block.fontColor.value_or(style.fontColor);
+      auto fontName = TextLine::getFontNameFromFamily(fontFamily);
+
+      sdl2w::RenderTextParams params;
+      params.fontName = fontName;
+      params.fontSize = fontSize;
+      params.color = fontColor;
+      params.centered = false;
+      auto [textWidth, textHeight] = draw.measureText(lineAggregate, params);
       generatedBlocks.push_back( //
-          TextParagraphGeneratedBlock{lineNumber, params, lineAggregate.str()});
+          TextParagraphGeneratedBlock{
+              lineNumber, block, lineAggregate, aggregateWidth, textHeight});
+      lineAggregate.clear();
+    }
+  }
+
+  // Clear existing children
+  children.clear();
+
+  // Create TextLine children for each generated line
+  if (!generatedBlocks.empty()) {
+    // Group blocks by line number
+    auto currentLineNumber = -1;
+    std::vector<TextBlock> currentLineBlocks;
+    auto currentY = style.y;
+
+    for (const auto& genBlock : generatedBlocks) {
+      if (genBlock.lineNumber != currentLineNumber) {
+        // Create TextLine for previous line if it has blocks
+        if (!currentLineBlocks.empty()) {
+          auto textLine = std::make_unique<TextLine>(window, this);
+
+          // Set position for this line
+          ui::BaseStyle lineStyle;
+          lineStyle.x = style.x;
+          lineStyle.y = currentY;
+          lineStyle.width = style.width;
+          lineStyle.height = genBlock.textHeight;
+          lineStyle.fontFamily = genBlock.textBlock.fontFamily.value_or(style.fontFamily);
+          lineStyle.fontSize = genBlock.textBlock.fontSize.value_or(style.fontSize);
+          lineStyle.fontColor = genBlock.textBlock.fontColor.value_or(style.fontColor);
+          lineStyle.textAlign = style.textAlign;
+          textLine->setStyle(lineStyle);
+
+          // Set text blocks
+          TextLineProps lineProps;
+          lineProps.textBlocks = currentLineBlocks;
+          textLine->setProps(lineProps);
+
+          children.push_back(std::move(textLine));
+          currentLineBlocks.clear();
+
+          // Update Y position for next line (height + line spacing)
+          currentY += genBlock.textHeight + style.lineSpacing;
+        }
+        currentLineNumber = genBlock.lineNumber;
+      }
+
+      // Create TextBlock from generated block
+      TextBlock textBlock;
+      textBlock.text = genBlock.text;
+      textBlock.fontFamily = genBlock.textBlock.fontFamily.value_or(style.fontFamily);
+      textBlock.fontSize = genBlock.textBlock.fontSize.value_or(style.fontSize);
+      textBlock.fontColor = genBlock.textBlock.fontColor.value_or(style.fontColor);
+      currentLineBlocks.push_back(textBlock);
     }
 
-    // auto [textWidth, textHeight] = draw.measureText(block.text, params);
-    // if (textWidth <= style.width) {
-    // }
+    // Create TextLine for the last line
+    if (!currentLineBlocks.empty() && !generatedBlocks.empty()) {
+      auto textLine = std::make_unique<TextLine>(window, this);
+      const auto& lastGenBlock = generatedBlocks.back();
+
+      ui::BaseStyle lineStyle;
+      lineStyle.x = style.x;
+      lineStyle.y = currentY;
+      lineStyle.width = style.width;
+      lineStyle.height = lastGenBlock.textHeight;
+      lineStyle.fontFamily = lastGenBlock.textBlock.fontFamily.value_or(style.fontFamily);
+      lineStyle.fontSize = lastGenBlock.textBlock.fontSize.value_or(style.fontSize);
+      lineStyle.fontColor = lastGenBlock.textBlock.fontColor.value_or(style.fontColor);
+      lineStyle.textAlign = style.textAlign;
+      textLine->setStyle(lineStyle);
+
+      TextLineProps lineProps;
+      lineProps.textBlocks = currentLineBlocks;
+      textLine->setProps(lineProps);
+
+      children.push_back(std::move(textLine));
+    }
   }
 }
 
 void TextParagraph::render() {
-  if (props.textBlocks.empty()) {
-    return;
-  }
-
-  auto& draw = window->getDraw();
-
-  // Starting position for text rendering
-  auto currentX = style.x;
-  auto currentY = style.y;
-  auto maxWidth = style.width;
-  auto maxHeight = style.height;
-
-  // Track the line height for wrapping
-  auto lineStartX = style.x;
-
-  // Render each text block with wrapping
-  for (const auto& block : props.textBlocks) {
-    if (block.text.empty()) {
-      continue;
-    }
-
-    // Determine which styles to use (block overrides or base style)
-    auto fontFamily = block.fontFamily.value_or(style.fontFamily);
-    auto fontSize = block.fontSize.value_or(style.fontSize);
-    auto fontColor = block.fontColor.value_or(style.fontColor);
-
-    // Convert FontFamily enum to font name string
-    auto fontName = TextLine::getFontNameFromFamily(fontFamily);
-
-    // Set up text rendering parameters
-    sdl2w::RenderTextParams params;
-    params.fontName = fontName;
-    params.fontSize = fontSize;
-    params.color = fontColor;
-    params.centered = false;
-
-    // Split text into words for wrapping
-    auto text = block.text;
-    auto wordStart = size_t{0};
-    auto pos = size_t{0};
-
-    while (pos <= text.length()) {
-      // Find the next word boundary (space or end of string)
-      if (pos == text.length() || text[pos] == ' ' || text[pos] == '\n') {
-        auto word = text.substr(wordStart, pos - wordStart);
-
-        // Handle explicit newlines
-        if (pos < text.length() && text[pos] == '\n') {
-          // Render current word if any
-          if (!word.empty()) {
-            params.x = currentX;
-            params.y = currentY;
-            auto [wordWidth, wordHeight] = draw.measureText(word, params);
-            draw.drawText(word, params);
-            currentX += wordWidth;
-          }
-
-          // Move to next line
-          currentY += static_cast<int>(fontSize);
-          currentX = lineStartX;
-          wordStart = pos + 1;
-          pos++;
-          continue;
-        }
-
-        if (!word.empty()) {
-          // Measure the word
-          params.x = currentX;
-          params.y = currentY;
-          auto [wordWidth, wordHeight] = draw.measureText(word, params);
-
-          // Check if we need to wrap
-          if (maxWidth > 0 && currentX + wordWidth > style.x + maxWidth &&
-              currentX > lineStartX) {
-            // Wrap to next line
-            currentY += static_cast<int>(fontSize);
-            currentX = lineStartX;
-            params.x = currentX;
-            params.y = currentY;
-
-            // Check if we've exceeded max height
-            if (maxHeight > 0 && currentY + wordHeight > style.y + maxHeight) {
-              return; // Stop rendering if we've run out of space
-            }
-          }
-
-          // Render the word
-          draw.drawText(word, params);
-          currentX += wordWidth;
-
-          // Add space after word if not at end
-          if (pos < text.length() && text[pos] == ' ') {
-            params.x = currentX;
-            params.y = currentY;
-            auto [spaceWidth, spaceHeight] = draw.measureText(" ", params);
-            currentX += spaceWidth;
-          }
-        }
-
-        wordStart = pos + 1;
-      }
-      pos++;
-    }
-  }
+  // Render all TextLine children
+  UiElement::render();
 }
 
 } // namespace ui

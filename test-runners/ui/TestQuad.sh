@@ -1,3 +1,3 @@
 #!/bin/bash
 SCRIPT_DIR=$(dirname "$0")
-source $SCRIPT_DIR/../UiTestRunnerHelper.sh TestQuad "$@"
+node "$SCRIPT_DIR/../UiTestRunnerHelper.js" TestQuad "$@"

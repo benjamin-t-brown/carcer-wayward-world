@@ -13,8 +13,11 @@ struct TextParagraphProps {
 
 struct TextParagraphGeneratedBlock {
   int lineNumber;
-  sdl2w::RenderTextParams params;
+  // sdl2w::RenderTextParams params;
+  TextBlock textBlock;
   std::string text;
+  int textWidth;
+  int textHeight;
 };
 
 // TextParagraph element - renders a block of wrapped text
