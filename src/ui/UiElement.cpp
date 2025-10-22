@@ -51,13 +51,15 @@ BaseStyle& UiElement::getStyle() { return style; }
 
 const BaseStyle& UiElement::getStyle() const { return style; }
 
+const std::pair<int, int> UiElement::getDims() const {
+  return {style.width, style.height};
+}
+
 void UiElement::setId(const std::string& _id) { id = _id; }
 
 const std::string& UiElement::getId() const { return id; }
 
-std::vector<std::unique_ptr<UiElement>>& UiElement::getChildren() {
-  return children;
-}
+std::vector<std::unique_ptr<UiElement>>& UiElement::getChildren() { return children; }
 
 const std::vector<std::unique_ptr<UiElement>>& UiElement::getChildren() const {
   return children;
@@ -126,4 +128,3 @@ void UiElement::render() {
 }
 
 } // namespace ui
-

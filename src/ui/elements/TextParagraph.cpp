@@ -98,19 +98,14 @@ void TextParagraph::build() {
         }
       } else if (c == '\n') {
         auto [wordTextWidth, textHeight] = draw.measureText(nextWord, params);
-        auto [wordAndSpaceTextWidth, textHeight2] =
-            draw.measureText(nextWord + c, params);
         auto totalPotentialWidth = aggregateWidth + wordTextWidth;
         if (totalPotentialWidth <= style.width) {
           lineAggregate += nextWord;
           nextWord.clear();
         }
         generatedBlocks.push_back( //
-            TextParagraphGeneratedBlock{lineNumber,
-                                        block,
-                                        lineAggregate,
-                                        totalPotentialWidth,
-                                        textHeight});
+            TextParagraphGeneratedBlock{
+                lineNumber, block, lineAggregate, totalPotentialWidth, textHeight});
         lineNumber++;
         lineAggregate.clear();
         aggregateWidth = 0;

@@ -11,7 +11,7 @@ namespace ui {
 // Individual text block with optional style overrides
 struct TextBlock {
   std::string text;
-  
+
   // Optional style overrides - if not set, uses base style from UiElement
   std::optional<FontFamily> fontFamily;
   std::optional<sdl2w::TextSize> fontSize;
@@ -23,11 +23,17 @@ struct TextLineProps {
   std::vector<TextBlock> textBlocks;
 };
 
+struct TextLineRenderTextParams {
+  std::string text;
+  sdl2w::RenderTextParams params;
+};
+
 // TextLine element - renders a stylized line of text
 // Uses Position and TextParams from BaseStyle
 class TextLine : public UiElement {
 private:
   TextLineProps props;
+  std::vector<std::unique_ptr<TextLineRenderTextParams>> textRenderables;
 
 public:
   TextLine(sdl2w::Window* _window, UiElement* _parent = nullptr);
@@ -46,4 +52,3 @@ public:
 };
 
 } // namespace ui
-

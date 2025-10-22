@@ -36,8 +36,54 @@ TextLineProps& TextLine::getProps() { return props; }
 const TextLineProps& TextLine::getProps() const { return props; }
 
 void TextLine::build() {
-  // Build logic can be extended here if needed
-  // Called when props or style changes
+  textRenderables.clear();
+
+  // Starting position for text rendering
+  auto currentX = style.x;
+  auto currentY = style.y;
+
+  int totalWidth = 0;
+  int totalHeight = 0;
+
+  // Render each text block
+  for (const auto& block : props.textBlocks) {
+    if (block.text.empty()) {
+      continue;
+    }
+
+    auto& draw = window->getDraw();
+
+    // Determine which styles to use (block overrides or base style)
+    auto fontFamily = block.fontFamily.value_or(style.fontFamily);
+    auto fontSize = block.fontSize.value_or(style.fontSize);
+    auto fontColor = block.fontColor.value_or(style.fontColor);
+    auto fontName = getFontNameFromFamily(fontFamily);
+
+    // Set up text rendering parameters
+    auto tlParams = std::make_unique<TextLineRenderTextParams>();
+    tlParams->text = block.text;
+    auto& renderTextParams = tlParams->params;
+    renderTextParams.fontName = fontName;
+    renderTextParams.fontSize = fontSize;
+    renderTextParams.x = currentX;
+    renderTextParams.y = currentY;
+    renderTextParams.color = fontColor;
+    renderTextParams.centered = style.textAlign == TextAlign::CENTER;
+    auto [textWidth, textHeight] = draw.measureText(block.text, renderTextParams);
+    if (style.textAlign == TextAlign::LEFT_CENTER) {
+      renderTextParams.y -= textHeight / 2;
+    } else if (style.textAlign == TextAlign::LEFT_BOTTOM) {
+      renderTextParams.y -= textHeight;
+    }
+    textRenderables.push_back(std::move(tlParams));
+
+    totalHeight = std::max(totalHeight, textHeight);
+    totalWidth += textWidth;
+    currentX += textWidth;
+  }
+
+  style.width = totalWidth;
+  style.height = totalHeight;
 }
 
 void TextLine::render() {
@@ -47,46 +93,9 @@ void TextLine::render() {
 
   auto& draw = window->getDraw();
 
-  // Starting position for text rendering
-  auto currentX = style.x;
-  auto currentY = style.y;
-
-  // Render each text block
-  for (const auto& block : props.textBlocks) {
-    if (block.text.empty()) {
-      continue;
-    }
-
-    // Determine which styles to use (block overrides or base style)
-    auto fontFamily = block.fontFamily.value_or(style.fontFamily);
-    auto fontSize = block.fontSize.value_or(style.fontSize);
-    auto fontColor = block.fontColor.value_or(style.fontColor);
-
-    // Convert FontFamily enum to font name string
-    auto fontName = getFontNameFromFamily(fontFamily);
-
-    // Set up text rendering parameters
-    sdl2w::RenderTextParams params;
-    params.fontName = fontName;
-    params.fontSize = fontSize;
-    params.x = currentX;
-    params.y = currentY;
-    params.color = fontColor;
-    params.centered = style.textAlign == TextAlign::CENTER;
-    auto [textWidth, textHeight] = draw.measureText(block.text, params);
-    if (style.textAlign == TextAlign::LEFT_CENTER) {
-      params.y -= textHeight / 2;
-    } else if (style.textAlign == TextAlign::LEFT_BOTTOM) {
-      params.y -= textHeight;
-    }
-
-    // Render the text block
-    draw.drawText(block.text, params);
-
-    // Move currentX to the right for the next block
-    currentX += textWidth;
+  for (const auto& rtParams : textRenderables) {
+    draw.drawText(rtParams->text, rtParams->params);
   }
 }
 
 } // namespace ui
-

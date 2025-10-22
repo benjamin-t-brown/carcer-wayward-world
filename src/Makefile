@@ -9,7 +9,8 @@ ui/UiElement.cpp \
 ui/elements/Sprite.cpp \
 ui/elements/Quad.cpp \
 ui/elements/TextLine.cpp \
-ui/elements/TextParagraph.cpp
+ui/elements/TextParagraph.cpp \
+ui/elements/ButtonModal.cpp
 
 LIB_CODE=\
 

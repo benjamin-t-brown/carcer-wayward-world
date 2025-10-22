@@ -78,6 +78,7 @@ public:
   virtual void setStyle(const BaseStyle& _style);
   virtual BaseStyle& getStyle();
   virtual const BaseStyle& getStyle() const;
+  virtual const std::pair<int, int> getDims() const;
 
   // Id methods
   virtual void setId(const std::string& _id);
