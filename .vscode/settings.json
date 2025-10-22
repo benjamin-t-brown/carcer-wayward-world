@@ -1,6 +1,8 @@
 {
   "cSpell.words": [
     "hiscore",
-    "hiscores"
-  ]
+    "hiscores",
+    "Renderable"
+  ],
+  "C_Cpp_Runner.msvcBatchPath": ""
 }

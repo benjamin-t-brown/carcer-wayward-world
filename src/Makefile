@@ -104,6 +104,9 @@ $(EXE): $(OBJECTS) $(LIB_OBJECTS) $(MAIN_ALL_OBJECT)
 
 all: $(EXE) sdl2w
 
+compiler_args:
+	echo $(FLAGS) $(INCLUDES) $(OBJECTS) $(LIB_OBJECTS) $(LIBS)
+
 sdl2w: _ensure_sdl2w_source
 	@echo "Building standard sdl2w library (running 'make all' in $(SDL2W_DIR_NAME)/src)...";
 	$(MAKE) -C "$(SDL2W_DIR_NAME)/src" -j8 all
@@ -156,7 +159,9 @@ clean:
 	rm -rf main.d
 	rm -rf .build
 	rm -rf dist
+	rm -rf ../web/$(EXE).*
+
+clean_sdl2w:
 	rm -rf lib/sdl2w
 	rm -rf $(SDL2W_BUILD_OUTPUT_DIR)
 	rm -rf $(SDL2W_DIR_NAME)/src/build/
-	rm -rf ../web/$(EXE).*

@@ -31,6 +31,7 @@ struct RenderableParamsEx {
   int clipW = 0;
   int clipH = 0;
   bool centered = true;
+  bool flipped = false;
 };
 
 struct RenderableParams {
@@ -38,6 +39,7 @@ struct RenderableParams {
   int x = 0;
   int y = 0;
   bool centered = true;
+  bool flipped = false;
 };
 
 struct RenderTextParams {
@@ -103,12 +105,8 @@ class Draw {
   void drawSpriteInner(const Sprite& sprite, const RenderableParamsEx& params);
 
 public:
-  void drawTexture(SDL_Texture* tex,
-                   const RenderableParams& params,
-                   bool flipped = false);
-  void drawTexture(SDL_Texture* tex,
-                   const RenderableParamsEx& params,
-                   bool flipped = false);
+  void drawTexture(SDL_Texture* tex, const RenderableParams& params);
+  void drawTexture(SDL_Texture* tex, const RenderableParamsEx& params);
   void drawSurface(SDL_Surface* surf, const RenderableParams& params);
   void drawSurface(SDL_Surface* surf, const RenderableParamsEx& params);
 
@@ -136,7 +134,11 @@ public:
   void drawAnimation(const Animation& anim, const RenderableParams& params);
   void drawAnimation(const Animation& anim, const RenderableParamsEx& params);
   void drawText(const std::string& text, const RenderTextParams& params);
+  std::pair<int, int> measureText(const std::string& text,
+                                  const RenderTextParams& params);
   void drawRect(int x, int y, int w, int h, const SDL_Color& color);
+  void drawCircle(
+      int x, int y, int radius, const SDL_Color& color, bool filled = true);
 
   void clearScreen();
 

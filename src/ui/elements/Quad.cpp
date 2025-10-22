@@ -1,0 +1,134 @@
+#include "Quad.h"
+#include "lib/sdl2w/Draw.h"
+#include "lib/sdl2w/Logger.h"
+
+namespace ui {
+
+Quad::Quad(sdl2w::Window* _window, UiElement* _parent)
+    : UiElement(_window, _parent) {
+  build();
+}
+
+Quad::~Quad() { destroyRenderTexture(); }
+
+void Quad::setProps(const QuadProps& _props) {
+  props = _props;
+  build();
+}
+
+QuadProps& Quad::getProps() { return props; }
+
+const QuadProps& Quad::getProps() const { return props; }
+
+void Quad::createRenderTexture() {
+  auto scaledWidth = static_cast<int>(style.width * style.scale);
+  auto scaledHeight = static_cast<int>(style.height * style.scale);
+
+  // Only recreate if size changed
+  if (renderTexture == nullptr || currentWidth != scaledWidth ||
+      currentHeight != scaledHeight) {
+    destroyRenderTexture();
+
+    auto& draw = window->getDraw();
+    auto renderer = draw.getSdlRenderer();
+
+    if (scaledWidth > 0 && scaledHeight > 0) {
+      renderTexture = SDL_CreateTexture(renderer,
+                                        SDL_PIXELFORMAT_RGBA8888,
+                                        SDL_TEXTUREACCESS_TARGET,
+                                        scaledWidth,
+                                        scaledHeight);
+
+      if (renderTexture) {
+        SDL_SetTextureBlendMode(renderTexture, SDL_BLENDMODE_BLEND);
+        currentWidth = scaledWidth;
+        currentHeight = scaledHeight;
+      } else {
+        LOG(ERROR) << "Quad::createRenderTexture - Failed to create texture: "
+                   << SDL_GetError() << LOG_ENDL;
+      }
+    }
+  }
+}
+
+void Quad::destroyRenderTexture() {
+  if (renderTexture != nullptr) {
+    SDL_DestroyTexture(renderTexture);
+    renderTexture = nullptr;
+    currentWidth = 0;
+    currentHeight = 0;
+  }
+}
+
+void Quad::build() {
+  // Recreate render texture when size changes
+  createRenderTexture();
+}
+
+void Quad::render() {
+  if (renderTexture == nullptr) {
+    return;
+  }
+
+  auto& draw = window->getDraw();
+  auto& store = window->getStore();
+  auto renderer = draw.getSdlRenderer();
+
+  // Calculate scaled dimensions
+  auto scaledWidth = static_cast<int>(style.width * style.scale);
+  auto scaledHeight = static_cast<int>(style.height * style.scale);
+
+  // Save current render target
+  auto previousTarget = SDL_GetRenderTarget(renderer);
+
+  // Set render target to our texture
+  SDL_SetRenderTarget(renderer, renderTexture);
+
+  // Clear the texture with transparency
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+  SDL_RenderClear(renderer);
+
+  draw.drawRect(0, 0, scaledWidth, scaledHeight, props.bgColor);
+
+  // Render background sprite if specified
+  if (!props.bgSprite.empty()) {
+    auto& spriteData = store.getSprite(props.bgSprite);
+
+    sdl2w::RenderableParamsEx params;
+    params.x = 0;
+    params.y = 0;
+    params.w = scaledWidth;
+    params.h = scaledHeight;
+    params.scale = {1.0, 1.0};
+    params.centered = false;
+
+    draw.drawSprite(spriteData, params);
+  }
+
+  // Draw border as four rectangles (top, right, bottom, left)
+  auto bs = props.borderSize;
+
+  if (bs > 0) {
+    // Top border
+    draw.drawRect(0, 0, scaledWidth, bs, props.borderColor);
+    // Bottom border
+    draw.drawRect(0, scaledHeight - bs, scaledWidth, bs, props.borderColor);
+    // Left border
+    draw.drawRect(0, 0, bs, scaledHeight, props.borderColor);
+    // Right border
+    draw.drawRect(scaledWidth - bs, 0, bs, scaledHeight, props.borderColor);
+  }
+
+  // Render children (they render relative to 0,0 on the texture)
+  UiElement::render();
+
+  // Restore previous render target
+  SDL_SetRenderTarget(renderer, previousTarget);
+
+  // Now render the texture to the screen at the actual position
+  SDL_Rect destRect = {style.x, style.y, scaledWidth, scaledHeight};
+  SDL_RenderCopy(renderer, renderTexture, nullptr, &destRect);
+}
+
+} // namespace ui
+
