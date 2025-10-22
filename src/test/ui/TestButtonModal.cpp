@@ -67,11 +67,11 @@ int main(int argc, char** argv) {
     button4Style.y = 270;
     button4Style.width = 150;
     button4Style.height = 40;
-    button4Style.scale = 1.5f;
+    button4Style.scale = 2.f;
     button4->setStyle(button4Style);
     ui::ButtonModalProps button4Props;
     button4Props.text = "Scaled Button";
-    button4Props.isSelected = false;
+    button4Props.isSelected = true;
     button4->setProps(button4Props);
     elements.push_back(std::move(button4));
 
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     auto button5 = std::make_unique<ui::ButtonModal>(&window);
     ui::BaseStyle button5Style;
     button5Style.x = 50;
-    button5Style.y = 350;
+    button5Style.y = 360;
     button5Style.width = 200;
     button5Style.height = 50;
     button5->setStyle(button5Style);

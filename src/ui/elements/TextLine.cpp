@@ -38,9 +38,9 @@ const TextLineProps& TextLine::getProps() const { return props; }
 void TextLine::build() {
   textRenderables.clear();
 
-  // Starting position for text rendering
-  auto currentX = style.x;
-  auto currentY = style.y;
+  // Starting position for text rendering (apply scale)
+  auto currentX = static_cast<int>(style.x * style.scale);
+  auto currentY = static_cast<int>(style.y * style.scale);
 
   int totalWidth = 0;
   int totalHeight = 0;
@@ -71,15 +71,15 @@ void TextLine::build() {
     renderTextParams.centered = style.textAlign == TextAlign::CENTER;
     auto [textWidth, textHeight] = draw.measureText(block.text, renderTextParams);
     if (style.textAlign == TextAlign::LEFT_CENTER) {
-      renderTextParams.y -= textHeight / 2;
+      renderTextParams.y -= static_cast<int>((textHeight / 2.0) * style.scale);
     } else if (style.textAlign == TextAlign::LEFT_BOTTOM) {
-      renderTextParams.y -= textHeight;
+      renderTextParams.y -= static_cast<int>(textHeight * style.scale);
     }
     textRenderables.push_back(std::move(tlParams));
 
-    totalHeight = std::max(totalHeight, textHeight);
-    totalWidth += textWidth;
-    currentX += textWidth;
+    totalHeight = std::max(totalHeight, static_cast<int>(textHeight * style.scale));
+    totalWidth += static_cast<int>(textWidth * style.scale);
+    currentX += static_cast<int>(textWidth * style.scale);
   }
 
   style.width = totalWidth;
