@@ -15,6 +15,7 @@ ui/elements/ButtonModal.cpp \
 ui/elements/ButtonScroll.cpp \
 ui/elements/ButtonGroup.cpp \
 ui/elements/SectionDropShadow.cpp \
+ui/elements/SectionScrollable.cpp \
 
 LIB_CODE=\
 

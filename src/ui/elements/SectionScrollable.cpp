@@ -1,6 +1,7 @@
 #include "SectionScrollable.h"
 #include "ButtonScroll.h"
 #include "Quad.h"
+#include "lib/sdl2w/Logger.h"
 #include "ui/colors.h"
 #include <memory>
 
@@ -26,9 +27,27 @@ public:
   void onClick(int x, int y, int button) override {}
 };
 
+class SectionScrollableScrollWheelObserver : public UiEventObserver {
+  SectionScrollable* sectionScrollable;
+
+public:
+  SectionScrollableScrollWheelObserver(SectionScrollable* _sectionScrollable)
+      : sectionScrollable(_sectionScrollable) {}
+  ~SectionScrollableScrollWheelObserver() override = default;
+
+  void onMouseWheel(int x, int y, int delta) override {
+    if (delta > 0) {
+      sectionScrollable->scrollUp();
+    } else {
+      sectionScrollable->scrollDown();
+    }
+  }
+};
+
 SectionScrollable::SectionScrollable(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
   shouldPropagateEventsToChildren = true;
+  addEventObserver(std::make_unique<SectionScrollableScrollWheelObserver>(this));
 }
 
 ui::UiElement* SectionScrollable::getInnerQuad() {
@@ -48,12 +67,16 @@ int SectionScrollable::calculateContentHeight() {
   auto innerQuad = getInnerQuad();
 
   if (innerQuad) {
-    int height = 0;
     auto& children = innerQuad->getChildren();
-    for (auto& child : children) {
-      height += child->getDims().second;
+    int maxYPlusHeight = 0;
+    for (const auto& child : children) {
+      const auto& childStyle = child->getStyle();
+      int childBottom = childStyle.y + childStyle.height;
+      if (childBottom > maxYPlusHeight) {
+        maxYPlusHeight = childBottom;
+      }
     }
-    return height;
+    return maxYPlusHeight;
   }
   return 0;
 }
@@ -77,7 +100,9 @@ void SectionScrollable::scrollUp() {
     if (innerQuad) {
       Quad* quad = dynamic_cast<Quad*>(innerQuad);
       if (quad) {
-        quad->updatePosition(0, scrollOffset);
+        LOG(INFO) << "SectionScrollable::scrollUp: scrollOffset: " << scrollOffset
+                  << LOG_ENDL;
+        quad->updatePosition(0, -scrollOffset);
       }
     }
   }
@@ -94,7 +119,9 @@ void SectionScrollable::scrollDown() {
   if (innerQuad) {
     Quad* quad = dynamic_cast<Quad*>(innerQuad);
     if (quad) {
-      quad->updatePosition(0, scrollOffset);
+      LOG(INFO) << "SectionScrollable::scrollDown: scrollOffset: " << scrollOffset
+                << LOG_ENDL;
+      quad->updatePosition(0, -scrollOffset);
     }
   }
 }
@@ -111,7 +138,8 @@ void SectionScrollable::scrollTo(int offset) {
   if (innerQuad) {
     Quad* quad = dynamic_cast<Quad*>(innerQuad);
     if (quad) {
-      quad->updatePosition(0, scrollOffset);
+
+      quad->updatePosition(0, -scrollOffset);
     }
   }
 }
@@ -121,25 +149,28 @@ void SectionScrollable::addChild(std::unique_ptr<UiElement> child) {
   if (innerQuad) {
     innerQuad->getChildren().push_back(std::move(child));
     build();
+  } else {
+    LOG(ERROR) << "SectionScrollable::addChild: innerQuad not found to add child"
+               << LOG_ENDL;
   }
 }
 
 void SectionScrollable::build() {
   // Calculate content area width (totalWidth - scrollBarWidth)
-  int contentWidth = props.totalWidth - props.scrollBarWidth;
+  int contentWidth = style.width - props.scrollBarWidth;
   int previousHeight = calculateContentHeight();
 
   // Create inner quad (scrollable content area)
   auto innerQuad = std::make_unique<Quad>(window);
   ui::BaseStyle innerStyle;
   innerStyle.x = 0;
-  innerStyle.y = -scrollOffset; // Apply scroll offset
+  innerStyle.y = scrollOffset; // Apply scroll offset
   innerStyle.width = contentWidth;
-  innerStyle.height = std::max(previousHeight, props.totalHeight);
+  innerStyle.height = std::max(previousHeight, style.height);
   innerStyle.scale = style.scale;
   innerQuad->setStyle(innerStyle);
   ui::QuadProps innerProps;
-  innerProps.bgColor = Colors::Transparent;
+  innerProps.bgColor = Colors::Blue;
   innerProps.borderColor = Colors::Transparent;
   innerProps.borderSize = 0;
   innerQuad->setProps(innerProps);
@@ -151,11 +182,11 @@ void SectionScrollable::build() {
   outerStyle.x = style.x;
   outerStyle.y = style.y;
   outerStyle.width = contentWidth;
-  outerStyle.height = props.totalHeight;
+  outerStyle.height = style.height;
   outerStyle.scale = style.scale;
   outerQuad->setStyle(outerStyle);
   ui::QuadProps outerProps;
-  outerProps.bgColor = Colors::Transparent;
+  outerProps.bgColor = Colors::White;
   outerProps.borderColor = props.borderColor;
   outerProps.borderSize = props.borderSize;
   outerProps.borderColor = props.borderColor;
@@ -183,7 +214,7 @@ void SectionScrollable::build() {
   auto scrollDownButton = std::make_unique<ButtonScroll>(window);
   ui::BaseStyle downButtonStyle;
   downButtonStyle.x = style.x + contentWidth;
-  downButtonStyle.y = style.y + props.totalHeight - props.scrollBarWidth;
+  downButtonStyle.y = style.y + style.height - props.scrollBarWidth;
   downButtonStyle.width = props.scrollBarWidth;
   downButtonStyle.height = props.scrollBarWidth;
   downButtonStyle.scale = style.scale;
@@ -199,13 +230,14 @@ void SectionScrollable::build() {
   // move children from old quad to new quad, recalculate height if necessary
   UiElement* oldInnerQuad = getInnerQuad();
   if (oldInnerQuad) {
+    innerStyle.height = std::max(calculateContentHeight(), style.height);
+    innerQuad->setStyle(innerStyle);
+
     for (auto& child : oldInnerQuad->getChildren()) {
       innerQuad->getChildren().push_back(std::move(child));
     }
-    oldInnerQuad->getChildren().clear();
 
-    innerStyle.height = calculateContentHeight();
-    innerQuad->setStyle(innerStyle);
+    oldInnerQuad->getChildren().clear();
   }
 
   children.clear();
@@ -216,7 +248,7 @@ void SectionScrollable::build() {
   children.push_back(std::move(scrollDownButton));
 
   int contentHeight = innerStyle.height; // Inner quad height
-  int viewportHeight = props.totalHeight;
+  int viewportHeight = style.height;
   maxScrollOffset = std::max(0, contentHeight - viewportHeight);
 }
 
@@ -230,7 +262,8 @@ void SectionScrollable::render() {
   //     innerQuad->setStyle(innerStyle);
   //   }
   // }
-
+  auto& draw = window->getDraw();
+  draw.drawRect(style.x, style.y, style.width, style.height, Colors::White);
   UiElement::render();
 }
 

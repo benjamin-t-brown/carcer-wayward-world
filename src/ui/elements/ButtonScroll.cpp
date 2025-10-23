@@ -51,13 +51,13 @@ void ButtonScroll::build() {
   if (isActive) {
     quadProps.bgColor = Colors::ButtonModalGrey3;
   } else if (isHovered) {
-    quadProps.bgColor = Colors::ButtonModalGrey2;
-  } else {
     quadProps.bgColor = Colors::ButtonModalGrey1;
+  } else {
+    quadProps.bgColor = Colors::ButtonModalGrey2;
   }
 
   quadProps.borderColor = Colors::ButtonModalGrey2;
-  quadProps.borderSize = 4;
+  quadProps.borderSize = 0;
   q->setProps(quadProps);
 
   children.push_back(std::move(q));

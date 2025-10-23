@@ -7,8 +7,6 @@ namespace ui {
 
 // SectionScrollable-specific properties
 struct SectionScrollableProps {
-  int totalWidth = 300;
-  int totalHeight = 200;
   int scrollBarWidth = 20;
   SDL_Color borderColor = Colors::Transparent;
   int borderSize = 0;

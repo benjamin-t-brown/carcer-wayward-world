@@ -56,6 +56,7 @@ public:
   virtual void onMouseDown(int x, int y, int button);
   virtual void onMouseUp(int x, int y, int button);
   virtual void onClick(int x, int y, int button);
+  virtual void onMouseWheel(int x, int y, int delta);
 };
 
 // Main UiElement base class
@@ -105,6 +106,7 @@ public:
   virtual bool checkMouseDownEvent(int mouseX, int mouseY, int button);
   virtual bool checkMouseUpEvent(int mouseX, int mouseY, int button);
   virtual bool checkHoverEvent(int mouseX, int mouseY);
+  virtual bool checkMouseWheelEvent(int mouseX, int mouseY, int delta);
   virtual void checkResizeEvent(int width, int height);
   virtual void addEventObserver(std::unique_ptr<UiEventObserver> observer);
   virtual void removeEventObserver(UiEventObserver* observer);

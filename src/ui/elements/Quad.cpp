@@ -1,11 +1,11 @@
 #include "Quad.h"
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
+#include "ui/uiUtils.h"
 
 namespace ui {
 
-Quad::Quad(sdl2w::Window* _window, UiElement* _parent)
-    : UiElement(_window, _parent) {
+Quad::Quad(sdl2w::Window* _window, UiElement* _parent) : UiElement(_window, _parent) {
   build();
 }
 
@@ -63,6 +63,96 @@ void Quad::destroyRenderTexture() {
     currentWidth = 0;
     currentHeight = 0;
   }
+}
+
+bool Quad::checkMouseDownEvent(int mouseX, int mouseY, int button) {
+  // Check if click is within bounds using utility function
+  if (isInBoundsScaled(mouseX, mouseY, this)) {
+    isClicked = true;
+    // Check children first (front to back)
+    if (shouldPropagateEventsToChildren) {
+      for (auto it = children.rbegin(); it != children.rend(); ++it) {
+        if ((*it)->checkMouseDownEvent(mouseX - style.x, mouseY - style.y, button)) {
+          return true;
+        }
+      }
+    }
+
+    for (auto& observer : eventObservers) {
+      observer->onMouseDown(mouseX - style.x, mouseY - style.y, button);
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
+bool Quad::checkMouseUpEvent(int mouseX, int mouseY, int button) {
+  // Check if click is within bounds using utility function
+  if (isInBoundsScaled(mouseX, mouseY, this)) {
+    if (shouldPropagateEventsToChildren) {
+      // Check children first (front to back)
+      for (auto it = children.rbegin(); it != children.rend(); ++it) {
+        if ((*it)->checkMouseUpEvent(mouseX - style.x, mouseY - style.y, button)) {
+          return true;
+        }
+      }
+    }
+
+    if (isClicked) {
+      // click event happens when mouse up occurs inside this element
+      // after a mouse down also occurred inside this element.
+      for (auto& observer : eventObservers) {
+        observer->onClick(mouseX - style.x, mouseY - style.y, button);
+      }
+    }
+
+    isClicked = false;
+
+    for (auto& observer : eventObservers) {
+      observer->onMouseUp(mouseX - style.x, mouseY - style.y, button);
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
+bool Quad::checkHoverEvent(int mouseX, int mouseY) {
+  if (shouldPropagateEventsToChildren) {
+    for (auto& child : children) {
+      child->checkHoverEvent(mouseX - style.x, mouseY - style.y);
+    }
+  }
+
+  if (isInBoundsScaled(mouseX, mouseY, this)) {
+    isHovered = true;
+
+    return true;
+  } else {
+    isHovered = false;
+  }
+
+  return false;
+}
+
+bool Quad::checkMouseWheelEvent(int mouseX, int mouseY, int delta) {
+  if (isInBoundsScaled(mouseX, mouseY, this)) {
+    if (shouldPropagateEventsToChildren) {
+      for (auto& child : children) {
+        child->checkMouseWheelEvent(mouseX - style.x, mouseY - style.y, delta);
+      }
+    }
+
+    for (auto& observer : eventObservers) {
+      observer->onMouseWheel(mouseX - style.x, mouseY - style.y, delta);
+    }
+
+    return true;
+  }
+  return false;
 }
 
 void Quad::build() {
@@ -136,4 +226,3 @@ void Quad::render() {
 }
 
 } // namespace ui
-

@@ -45,9 +45,13 @@ public:
 
   void updatePosition(int x, int y);
 
+  bool checkMouseDownEvent(int mouseX, int mouseY, int button) override;
+  bool checkMouseUpEvent(int mouseX, int mouseY, int button) override;
+  bool checkHoverEvent(int mouseX, int mouseY) override;
+  bool checkMouseWheelEvent(int mouseX, int mouseY, int delta) override;
+
   void build() override;
   void render() override;
 };
 
 } // namespace ui
-

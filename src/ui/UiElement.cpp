@@ -12,6 +12,9 @@ void UiEventObserver::onMouseUp(int x, int y, int button) {
 void UiEventObserver::onClick(int x, int y, int button) {
   // noop
 }
+void UiEventObserver::onMouseWheel(int x, int y, int delta) {
+  // noop
+}
 
 UiElement::UiElement(sdl2w::Window* _window, UiElement* _parent)
     : window(_window), parent(_parent), stateInterface(std::nullopt) {}
@@ -84,7 +87,6 @@ void UiElement::removeChildAtIndex(size_t index) {
 }
 
 bool UiElement::checkMouseDownEvent(int mouseX, int mouseY, int button) {
-  // Check if click is within bounds using utility function
   if (isInBoundsScaled(mouseX, mouseY, this)) {
     isClicked = true;
     // Check children first (front to back)
@@ -107,7 +109,6 @@ bool UiElement::checkMouseDownEvent(int mouseX, int mouseY, int button) {
 }
 
 bool UiElement::checkMouseUpEvent(int mouseX, int mouseY, int button) {
-  // Check if click is within bounds using utility function
   if (isInBoundsScaled(mouseX, mouseY, this)) {
     if (shouldPropagateEventsToChildren) {
       // Check children first (front to back)
@@ -139,21 +140,36 @@ bool UiElement::checkMouseUpEvent(int mouseX, int mouseY, int button) {
 }
 
 bool UiElement::checkHoverEvent(int mouseX, int mouseY) {
-  // Check if hover is within bounds using utility function
-  if (isInBoundsScaled(mouseX, mouseY, this)) {
-    if (shouldPropagateEventsToChildren) {
-      for (auto& child : children) {
-        if (child->checkHoverEvent(mouseX, mouseY)) {
-          return true;
-        }
-      }
+  if (shouldPropagateEventsToChildren) {
+    for (auto& child : children) {
+      child->checkHoverEvent(mouseX, mouseY);
     }
+  }
 
+  if (isInBoundsScaled(mouseX, mouseY, this)) {
     isHovered = true;
 
     return true;
   } else {
     isHovered = false;
+  }
+
+  return false;
+}
+
+bool UiElement::checkMouseWheelEvent(int mouseX, int mouseY, int delta) {
+  if (isInBoundsScaled(mouseX, mouseY, this)) {
+    if (shouldPropagateEventsToChildren) {
+      for (auto& child : children) {
+        child->checkMouseWheelEvent(mouseX, mouseY, delta);
+      }
+    }
+
+    for (auto& observer : eventObservers) {
+      observer->onMouseWheel(mouseX, mouseY, delta);
+    }
+
+    return true;
   }
 
   return false;
