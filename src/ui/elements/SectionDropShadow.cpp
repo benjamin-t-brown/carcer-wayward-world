@@ -37,6 +37,16 @@ void SectionDropShadow::build() {
   quadProps.borderColor = Colors::Transparent;
   quadProps.borderSize = 0;
   q->setProps(quadProps);
+
+  if (children.size() > 0) {
+    auto oldQuad = children[0].get();
+    for (auto& child : oldQuad->getChildren()) {
+      q->getChildren().push_back(std::move(child));
+    }
+    oldQuad->getChildren().clear();
+    children.clear();
+  }
+
   children.push_back(std::move(q));
 }
 

@@ -84,7 +84,9 @@ SectionDropShadow
 SectionScrollable
   * Description: Renders a quad with an opinionated way of scrolling it vertically.
   * Props
-    - children (list if UiElements to be rendered on this quad)
+    - totalWidth
+    - totalHeight
+    - scrollBarWidth
   * Styles
     - Position, Size, Scale
     - border color (string)

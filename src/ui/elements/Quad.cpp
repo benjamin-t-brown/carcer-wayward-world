@@ -20,6 +20,11 @@ QuadProps& Quad::getProps() { return props; }
 
 const QuadProps& Quad::getProps() const { return props; }
 
+void Quad::updatePosition(int x, int y) {
+  style.x = x;
+  style.y = y;
+}
+
 void Quad::createRenderTexture() {
   auto scaledWidth = static_cast<int>(style.width * style.scale);
   auto scaledHeight = static_cast<int>(style.height * style.scale);
@@ -125,7 +130,7 @@ void Quad::render() {
   // Restore previous render target
   SDL_SetRenderTarget(renderer, previousTarget);
 
-  // Now render the texture to the screen at the actual position
+  // Now render the texture at the actual position
   SDL_Rect destRect = {style.x, style.y, scaledWidth, scaledHeight};
   SDL_RenderCopy(renderer, renderTexture, nullptr, &destRect);
 }

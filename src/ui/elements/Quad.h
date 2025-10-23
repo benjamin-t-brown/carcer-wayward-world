@@ -43,6 +43,8 @@ public:
   QuadProps& getProps();
   const QuadProps& getProps() const;
 
+  void updatePosition(int x, int y);
+
   void build() override;
   void render() override;
 };
