@@ -1,15 +1,37 @@
 #include "ButtonModal.h"
+#include "../uiUtils.h"
 #include "Quad.h"
 #include "TextLine.h"
+#include "lib/sdl2w/Logger.h"
 #include "ui/colors.h"
 #include <memory>
 
 namespace ui {
 
+class ButtonModalDefaultObserver : public UiEventObserver {
+  ButtonModal* buttonModal;
+
+public:
+  ButtonModalDefaultObserver(ButtonModal* _buttonModal) : buttonModal(_buttonModal) {}
+  ~ButtonModalDefaultObserver() override = default;
+  void onMouseDown(int x, int y, int button) override {
+    buttonModal->isActive = true;
+    LOG(INFO) << "ButtonModalDefaultObserver mouse down at: " << x << ", " << y
+              << " - button: " << button << LOG_ENDL;
+  }
+  void onMouseUp(int x, int y, int button) override {
+    buttonModal->isActive = false;
+    LOG(INFO) << "ButtonModalDefaultObserver mouse up at: " << x << ", " << y
+              << " - button: " << button << LOG_ENDL;
+  }
+};
+
 ButtonModal::ButtonModal(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
+  addEventObserver(std::make_unique<ButtonModalDefaultObserver>(this));
   style.textAlign = TextAlign::CENTER;
   style.fontSize = sdl2w::TEXT_SIZE_20;
+  shouldPropagateEventsToChildren = false;
 }
 
 void ButtonModal::setProps(const ButtonModalProps& _props) {
@@ -79,6 +101,8 @@ const ButtonModalProps& ButtonModal::getProps() const { return props; }
 // }
 
 void ButtonModal::build() {
+  children.clear();
+
   auto q = std::make_unique<Quad>(window);
   BaseStyle quadStyle;
   quadStyle.x = style.x;
@@ -88,7 +112,16 @@ void ButtonModal::build() {
   quadStyle.scale = style.scale;
   q->setStyle(quadStyle);
   QuadProps quadProps;
-  quadProps.bgColor = Colors::ButtonModalGrey1;
+
+  // Change background color based on hover state
+  if (isActive) {
+    quadProps.bgColor = Colors::ButtonModalGrey3;
+  } else if (isHovered) {
+    quadProps.bgColor = Colors::ButtonModalGrey2;
+  } else {
+    quadProps.bgColor = Colors::ButtonModalGrey1;
+  }
+
   quadProps.borderColor = Colors::ButtonModalGrey2;
   quadProps.borderSize = 4;
   q->setProps(quadProps);
@@ -112,7 +145,30 @@ void ButtonModal::build() {
 }
 
 void ButtonModal::render() {
-  // Render any additional children
+  if (isHovered) {
+    if (!isInHoverMode) {
+      isInHoverMode = true;
+      build();
+    }
+  } else {
+    if (isInHoverMode) {
+      isInHoverMode = false;
+      build();
+    }
+  }
+
+  if (isActive) {
+    if (!isInActiveMode) {
+      isInActiveMode = true;
+      build();
+    }
+  } else {
+    if (isInActiveMode) {
+      isInActiveMode = false;
+      build();
+    }
+  }
+
   if (props.isSelected) {
     auto& draw = window->getDraw();
     auto scaledWidth = static_cast<int>(style.width * style.scale);

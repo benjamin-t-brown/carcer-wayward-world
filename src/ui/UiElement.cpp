@@ -1,6 +1,14 @@
 #include "UiElement.h"
+#include "uiUtils.h"
 
 namespace ui {
+
+void UiEventObserver::onMouseDown(int x, int y, int button) {
+  // noop
+}
+void UiEventObserver::onMouseUp(int x, int y, int button) {
+  // noop
+}
 
 UiElement::UiElement(sdl2w::Window* _window, UiElement* _parent)
     : window(_window), parent(_parent), stateInterface(std::nullopt) {}
@@ -72,18 +80,44 @@ void UiElement::removeChildAtIndex(size_t index) {
   }
 }
 
-bool UiElement::checkClickEvent(int mouseX, int mouseY) {
-  // Check if click is within bounds
-  auto isInBounds = mouseX >= style.x && mouseX < style.x + style.width &&
-                    mouseY >= style.y && mouseY < style.y + style.height;
-
-  if (isInBounds) {
+bool UiElement::checkMouseDownEvent(int mouseX, int mouseY, int button) {
+  // Check if click is within bounds using utility function
+  if (isInBoundsScaled(mouseX, mouseY, this)) {
     // Check children first (front to back)
-    for (auto it = children.rbegin(); it != children.rend(); ++it) {
-      if ((*it)->checkClickEvent(mouseX, mouseY)) {
-        return true;
+    if (shouldPropagateEventsToChildren) {
+      for (auto it = children.rbegin(); it != children.rend(); ++it) {
+        if ((*it)->checkMouseDownEvent(mouseX, mouseY, button)) {
+          return true;
+        }
       }
     }
+
+    for (auto& observer : eventObservers) {
+      observer->onMouseDown(mouseX, mouseY, button);
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
+bool UiElement::checkMouseUpEvent(int mouseX, int mouseY, int button) {
+  // Check if click is within bounds using utility function
+  if (isInBoundsScaled(mouseX, mouseY, this)) {
+    if (shouldPropagateEventsToChildren) {
+      // Check children first (front to back)
+      for (auto it = children.rbegin(); it != children.rend(); ++it) {
+        if ((*it)->checkMouseUpEvent(mouseX, mouseY, button)) {
+          return true;
+        }
+      }
+    }
+
+    for (auto& observer : eventObservers) {
+      observer->onMouseUp(mouseX, mouseY, button);
+    }
+
     return true;
   }
 
@@ -91,18 +125,21 @@ bool UiElement::checkClickEvent(int mouseX, int mouseY) {
 }
 
 bool UiElement::checkHoverEvent(int mouseX, int mouseY) {
-  // Check if hover is within bounds
-  auto isInBounds = mouseX >= style.x && mouseX < style.x + style.width &&
-                    mouseY >= style.y && mouseY < style.y + style.height;
-
-  if (isInBounds) {
-    // Check children first
-    for (auto it = children.rbegin(); it != children.rend(); ++it) {
-      if ((*it)->checkHoverEvent(mouseX, mouseY)) {
-        return true;
+  // Check if hover is within bounds using utility function
+  if (isInBoundsScaled(mouseX, mouseY, this)) {
+    if (shouldPropagateEventsToChildren) {
+      for (auto& child : children) {
+        if (child->checkHoverEvent(mouseX, mouseY)) {
+          return true;
+        }
       }
     }
+
+    isHovered = true;
+
     return true;
+  } else {
+    isHovered = false;
   }
 
   return false;
@@ -113,6 +150,20 @@ void UiElement::checkResizeEvent(int width, int height) {
   for (auto& child : children) {
     child->checkResizeEvent(width, height);
   }
+}
+
+void UiElement::addEventObserver(std::unique_ptr<UiEventObserver> observer) {
+  eventObservers.push_back(std::move(observer));
+}
+
+void UiElement::removeEventObserver(UiEventObserver* observer) {
+  eventObservers.erase(
+      std::remove_if(eventObservers.begin(),
+                     eventObservers.end(),
+                     [observer](const std::unique_ptr<UiEventObserver>& obs) {
+                       return obs.get() == observer;
+                     }),
+      eventObservers.end());
 }
 
 void UiElement::build() {

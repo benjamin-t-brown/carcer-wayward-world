@@ -13,12 +13,14 @@ struct ButtonModalProps {
 
 // ButtonModal element - renders a clickable button typically used inside modal windows
 // Uses Position, Size, Scale from BaseStyle
-// Has centered text of size 20, grey background, and 3D border effect
 class ButtonModal : public UiElement {
 private:
   ButtonModalProps props;
+  bool isInHoverMode = false;
+  bool isInActiveMode = false;
 
 public:
+  bool isActive = false;
   ButtonModal(sdl2w::Window* _window, UiElement* _parent = nullptr);
   ~ButtonModal() override = default;
 

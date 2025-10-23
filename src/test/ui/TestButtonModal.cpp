@@ -1,12 +1,34 @@
+#include "../setupTestUi.h"
 #include "lib/sdl2w/Draw.h"
+#include "lib/sdl2w/Events.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
-
-#include "../setupTestUi.h"
 #include "ui/UiElement.h"
 #include "ui/elements/ButtonModal.h"
 #include <SDL2/SDL_pixels.h>
 #include <memory>
+
+class TestButtonObserver : public ui::UiEventObserver {
+  std::string id;
+
+public:
+  TestButtonObserver(std::string _id);
+  ~TestButtonObserver() override = default;
+  void onMouseDown(int x, int y, int button) override;
+  void onMouseUp(int x, int y, int button) override;
+};
+
+TestButtonObserver::TestButtonObserver(std::string _id) : id(_id) {}
+
+void TestButtonObserver::onMouseDown(int x, int y, int button) {
+  LOG(INFO) << "TestButtonObserver mousedown at: " << x << ", " << y
+            << " - button: " << button << LOG_ENDL;
+}
+
+void TestButtonObserver::onMouseUp(int x, int y, int button) {
+  LOG(INFO) << "TestButtonObserver mouseup at: " << x << ", " << y
+            << " - button: " << button << LOG_ENDL;
+}
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start ButtonModal test" << LOG_ENDL;
@@ -20,6 +42,7 @@ int main(int argc, char** argv) {
 
     // Create first button (not selected)
     auto button1 = std::make_unique<ui::ButtonModal>(&window);
+    button1->setId("button1");
     ui::BaseStyle button1Style;
     button1Style.x = 50;
     button1Style.y = 50;
@@ -30,10 +53,15 @@ int main(int argc, char** argv) {
     button1Props.text = "Button 1 (Normal)";
     button1Props.isSelected = false;
     button1->setProps(button1Props);
+    button1->addEventObserver(std::make_unique<TestButtonObserver>("button1"));
     elements.push_back(std::move(button1));
 
     // Create second button (selected)
     auto button2 = std::make_unique<ui::ButtonModal>(&window);
+    button2->setId("button2");
+
+    button2->addEventObserver(std::make_unique<TestButtonObserver>("button2"));
+
     ui::BaseStyle button2Style;
     button2Style.x = 50;
     button2Style.y = 120;
@@ -44,10 +72,12 @@ int main(int argc, char** argv) {
     button2Props.text = "Button 2 (Selected)";
     button2Props.isSelected = true;
     button2->setProps(button2Props);
+    button2->addEventObserver(std::make_unique<TestButtonObserver>("button2"));
     elements.push_back(std::move(button2));
 
     // Create third button (different size)
     auto button3 = std::make_unique<ui::ButtonModal>(&window);
+    button3->setId("button3");
     ui::BaseStyle button3Style;
     button3Style.x = 50;
     button3Style.y = 190;
@@ -58,10 +88,12 @@ int main(int argc, char** argv) {
     button3Props.text = "Wide Button";
     button3Props.isSelected = false;
     button3->setProps(button3Props);
+    button3->addEventObserver(std::make_unique<TestButtonObserver>("button3"));
     elements.push_back(std::move(button3));
 
     // Create fourth button (scaled)
     auto button4 = std::make_unique<ui::ButtonModal>(&window);
+    button4->setId("button4");
     ui::BaseStyle button4Style;
     button4Style.x = 50;
     button4Style.y = 270;
@@ -73,10 +105,12 @@ int main(int argc, char** argv) {
     button4Props.text = "Scaled Button";
     button4Props.isSelected = true;
     button4->setProps(button4Props);
+    button4->addEventObserver(std::make_unique<TestButtonObserver>("button4"));
     elements.push_back(std::move(button4));
 
     // Create fifth button (empty text)
     auto button5 = std::make_unique<ui::ButtonModal>(&window);
+    button5->setId("button5");
     ui::BaseStyle button5Style;
     button5Style.x = 50;
     button5Style.y = 360;
@@ -87,10 +121,12 @@ int main(int argc, char** argv) {
     button5Props.text = ""; // Empty text
     button5Props.isSelected = false;
     button5->setProps(button5Props);
+    button5->addEventObserver(std::make_unique<TestButtonObserver>("button5"));
     elements.push_back(std::move(button5));
 
     // Create sixth button (long text)
     auto button6 = std::make_unique<ui::ButtonModal>(&window);
+    button6->setId("button6");
     ui::BaseStyle button6Style;
     button6Style.x = 50;
     button6Style.y = 420;
@@ -101,15 +137,43 @@ int main(int argc, char** argv) {
     button6Props.text = "This is selected.";
     button6Props.isSelected = true;
     button6->setProps(button6Props);
+    button6->addEventObserver(std::make_unique<TestButtonObserver>("button6"));
     elements.push_back(std::move(button6));
+
+    auto& events = window.getEvents();
+    events.setMouseEvent(
+        //
+        sdl2w::MouseEventCb::ON_MOUSE_DOWN,
+        [&](int x, int y, int button) {
+          LOG(INFO) << "Mouse down at: " << x << ", " << y << " - button: " << button << LOG_ENDL;
+          for (auto& elem : elements) {
+            elem->checkMouseDownEvent(x, y, button);
+          }
+        });
+    events.setMouseEvent(
+        //
+        sdl2w::MouseEventCb::ON_MOUSE_UP,
+        [&](int x, int y, int button) {
+          for (auto& elem : elements) {
+            elem->checkMouseUpEvent(x, y, button);
+          }
+        });
   };
 
   auto _updateRender = [&](sdl2w::Window& window, sdl2w::Store& store) {
+    // Get mouse position for hover events
+    auto& events = window.getEvents();
+    auto mouseX = events.mouseX;
+    auto mouseY = events.mouseY;
+
+    // Check hover events for all buttons
     for (auto& elem : elements) {
       if (elem) {
+        elem->checkHoverEvent(mouseX, mouseY);
         elem->render();
       }
     }
+
     return true;
   };
 

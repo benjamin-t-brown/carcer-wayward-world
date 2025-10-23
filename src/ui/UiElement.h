@@ -50,6 +50,13 @@ struct BaseStyle {
   SDL_Color lineBackgroundColor = SDL_Color{255, 255, 255, 0};
 };
 
+class UiEventObserver {
+public:
+  virtual ~UiEventObserver() = default;
+  virtual void onMouseDown(int x, int y, int button);
+  virtual void onMouseUp(int x, int y, int button);
+};
+
 // Main UiElement base class
 class UiElement {
 protected:
@@ -59,8 +66,11 @@ protected:
   std::optional<StateInterface*> stateInterface;
   BaseStyle style;
   std::string id;
+  std::vector<std::unique_ptr<UiEventObserver>> eventObservers;
+  bool shouldPropagateEventsToChildren = true;
 
 public:
+  bool isHovered = false;
   // Constructor
   UiElement(sdl2w::Window* _window, UiElement* _parent = nullptr);
   virtual ~UiElement() = default;
@@ -90,9 +100,12 @@ public:
   virtual void removeChildAtIndex(size_t index);
 
   // Event handlers
-  virtual bool checkClickEvent(int mouseX, int mouseY);
+  virtual bool checkMouseDownEvent(int mouseX, int mouseY, int button);
+  virtual bool checkMouseUpEvent(int mouseX, int mouseY, int button);
   virtual bool checkHoverEvent(int mouseX, int mouseY);
   virtual void checkResizeEvent(int width, int height);
+  virtual void addEventObserver(std::unique_ptr<UiEventObserver> observer);
+  virtual void removeEventObserver(UiEventObserver* observer);
 
   // Build and render
   virtual void build();
@@ -104,4 +117,3 @@ public:
 };
 
 } // namespace ui
-
