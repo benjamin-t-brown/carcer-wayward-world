@@ -71,22 +71,22 @@ Quad
     - bg sprite (string)
     - border color (string)
     - border size
-SectionStatic
+SectionDropShadow
   * Description: Renders a quad with an opinionated background.
-  * Props
-    - children (list if UiElements to be rendered on this quad)
   * Styles
     - Position, Size, Scale
     - bg color (string)
     - bg sprite (string)
+    - drop shadow offset
+    - drop shadow color
+    - border color
+    - border size
 SectionScrollable
   * Description: Renders a quad with an opinionated way of scrolling it vertically.
   * Props
     - children (list if UiElements to be rendered on this quad)
   * Styles
     - Position, Size, Scale
-    - bg color (string)
-    - bg sprite (string)
     - border color (string)
     - border size
   * Actions
@@ -155,7 +155,7 @@ ButtonModal
   * Styles
     - Position, Size, Scale, TextParams
 ButtonScroll
-  * Description: Renders a clickable button used to scroll windows up/down
+  * Description: Renders a square clickable button used to scroll windows up/down
   * Events
     - clickable, hoverable
   * Props
@@ -170,7 +170,7 @@ ButtonClose
     - closeType (enum MODAL or POPUP)
   * Styles
     - Position, Size, Scale
-ButtonRuneSlotMOdify
+ButtonRuneSlotModify
   * Description: Renders a clickable button typically used to add a rune to a character.
   * Events
     - clickable, hoverable
@@ -202,6 +202,7 @@ ButtonGroup
   * Events
       - clickable, hoverable
   * Props
+    - groupAlign (LEFT, CENTER, RIGHT)
     - buttons (list of ButtonModal)
   * Styles
     - Position, Size, Scale
@@ -247,8 +248,6 @@ ArrowCursor
     - sprite (string)
   * Styles
     - Position, Size, Scale
-
-COMPONENTS
 HeaderModalStandard
   * Description: Renders a header for a Standard Modal
   * Props
@@ -263,6 +262,15 @@ HeaderModalSmall
     - subTitleElement
   * Styles
     - Position, Size, Scale
+InGameBorder
+  * Description: Shows the in game border.
+  * Props
+  * Styles
+    - Position, Size, Scale
+  * Actions
+    - UIShowMenuInGame
+
+COMPONENTS
 HeaderPartyMemberSwitch
   * Description: Shows currently-selected party member and allows to switch
   * Props
@@ -271,13 +279,6 @@ HeaderPartyMemberSwitch
     - Position, Size, Scale
   * Actions
     - UIChangeSelectedPartyMember
-InGameBorder
-  * Description: Shows the in game border.
-  * Props
-  * Styles
-    - Position, Size, Scale
-  * Actions
-    - UIShowMenuInGame
 InGamePartyMemberSection
   * Description: Shows the party members in the in game section.
   * Props

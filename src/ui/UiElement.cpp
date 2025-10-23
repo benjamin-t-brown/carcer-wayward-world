@@ -9,6 +9,9 @@ void UiEventObserver::onMouseDown(int x, int y, int button) {
 void UiEventObserver::onMouseUp(int x, int y, int button) {
   // noop
 }
+void UiEventObserver::onClick(int x, int y, int button) {
+  // noop
+}
 
 UiElement::UiElement(sdl2w::Window* _window, UiElement* _parent)
     : window(_window), parent(_parent), stateInterface(std::nullopt) {}
@@ -83,6 +86,7 @@ void UiElement::removeChildAtIndex(size_t index) {
 bool UiElement::checkMouseDownEvent(int mouseX, int mouseY, int button) {
   // Check if click is within bounds using utility function
   if (isInBoundsScaled(mouseX, mouseY, this)) {
+    isClicked = true;
     // Check children first (front to back)
     if (shouldPropagateEventsToChildren) {
       for (auto it = children.rbegin(); it != children.rend(); ++it) {
@@ -113,6 +117,16 @@ bool UiElement::checkMouseUpEvent(int mouseX, int mouseY, int button) {
         }
       }
     }
+
+    if (isClicked) {
+      // click event happens when mouse up occurs inside this element
+      // after a mouse down also occurred inside this element.
+      for (auto& observer : eventObservers) {
+        observer->onClick(mouseX, mouseY, button);
+      }
+    }
+
+    isClicked = false;
 
     for (auto& observer : eventObservers) {
       observer->onMouseUp(mouseX, mouseY, button);

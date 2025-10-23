@@ -1,39 +1,40 @@
-#include "ButtonModal.h"
+#include "ButtonScroll.h"
 #include "Quad.h"
-#include "TextLine.h"
 #include "ui/colors.h"
 #include <memory>
 
 namespace ui {
 
-class ButtonModalDefaultObserver : public UiEventObserver {
-  ButtonModal* buttonModal;
+class ButtonScrollDefaultObserver : public UiEventObserver {
+  ButtonScroll* buttonScroll;
 
 public:
-  ButtonModalDefaultObserver(ButtonModal* _buttonModal) : buttonModal(_buttonModal) {}
-  ~ButtonModalDefaultObserver() override = default;
-  void onMouseDown(int x, int y, int button) override { buttonModal->isActive = true; }
-  void onMouseUp(int x, int y, int button) override { buttonModal->isActive = false; }
+  ButtonScrollDefaultObserver(ButtonScroll* _buttonScroll) : buttonScroll(_buttonScroll) {}
+  ~ButtonScrollDefaultObserver() override = default;
+  void onMouseDown(int x, int y, int button) override { buttonScroll->isActive = true; }
+  void onMouseUp(int x, int y, int button) override { buttonScroll->isActive = false; }
 };
 
-ButtonModal::ButtonModal(sdl2w::Window* _window, UiElement* _parent)
+ButtonScroll::ButtonScroll(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
-  addEventObserver(std::make_unique<ButtonModalDefaultObserver>(this));
-  style.textAlign = TextAlign::CENTER;
-  style.fontSize = sdl2w::TEXT_SIZE_20;
+  addEventObserver(std::make_unique<ButtonScrollDefaultObserver>(this));
   shouldPropagateEventsToChildren = false;
+  
+  // Set default size to 32x32px
+  style.width = 32;
+  style.height = 32;
 }
 
-void ButtonModal::setProps(const ButtonModalProps& _props) {
+void ButtonScroll::setProps(const ButtonScrollProps& _props) {
   props = _props;
   build();
 }
 
-ButtonModalProps& ButtonModal::getProps() { return props; }
+ButtonScrollProps& ButtonScroll::getProps() { return props; }
 
-const ButtonModalProps& ButtonModal::getProps() const { return props; }
+const ButtonScrollProps& ButtonScroll::getProps() const { return props; }
 
-void ButtonModal::build() {
+void ButtonScroll::build() {
   children.clear();
 
   auto q = std::make_unique<Quad>(window);
@@ -59,25 +60,10 @@ void ButtonModal::build() {
   quadProps.borderSize = 4;
   q->setProps(quadProps);
 
-  auto textLine = std::make_unique<TextLine>(window, this);
-  BaseStyle textStyle;
-  textStyle.x = style.width / 2;
-  textStyle.y = style.height / 2;
-  textStyle.textAlign = style.textAlign;
-  textStyle.fontSize = style.fontSize;
-  textStyle.fontColor = style.fontColor;
-  textStyle.textAlign = TextAlign::CENTER;
-  textStyle.scale = style.scale;
-  textLine->setStyle(textStyle);
-  TextLineProps textLineProps;
-  textLineProps.textBlocks = {TextBlock{props.text}};
-  textLine->setProps(textLineProps);
-  q->getChildren().push_back(std::move(textLine));
-
   children.push_back(std::move(q));
 }
 
-void ButtonModal::render() {
+void ButtonScroll::render() {
   if (isHovered) {
     if (!isInHoverMode) {
       isInHoverMode = true;

@@ -10,7 +10,11 @@ ui/elements/Sprite.cpp \
 ui/elements/Quad.cpp \
 ui/elements/TextLine.cpp \
 ui/elements/TextParagraph.cpp \
-ui/elements/ButtonModal.cpp
+ui/elements/ButtonClose.cpp \
+ui/elements/ButtonModal.cpp \
+ui/elements/ButtonScroll.cpp \
+ui/elements/ButtonGroup.cpp \
+ui/elements/SectionDropShadow.cpp \
 
 LIB_CODE=\
 

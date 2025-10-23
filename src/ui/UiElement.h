@@ -55,6 +55,7 @@ public:
   virtual ~UiEventObserver() = default;
   virtual void onMouseDown(int x, int y, int button);
   virtual void onMouseUp(int x, int y, int button);
+  virtual void onClick(int x, int y, int button);
 };
 
 // Main UiElement base class
@@ -71,6 +72,7 @@ protected:
 
 public:
   bool isHovered = false;
+  bool isClicked = false;
   // Constructor
   UiElement(sdl2w::Window* _window, UiElement* _parent = nullptr);
   virtual ~UiElement() = default;

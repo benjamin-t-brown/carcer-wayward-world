@@ -5,6 +5,8 @@
 #include "lib/sdl2w/Window.h"
 #include "ui/UiElement.h"
 #include "ui/elements/ButtonModal.h"
+#include "ui/elements/ButtonScroll.h"
+#include "ui/elements/ButtonClose.h"
 #include <SDL2/SDL_pixels.h>
 #include <memory>
 
@@ -16,6 +18,7 @@ public:
   ~TestButtonObserver() override = default;
   void onMouseDown(int x, int y, int button) override;
   void onMouseUp(int x, int y, int button) override;
+  void onClick(int x, int y, int button) override;
 };
 
 TestButtonObserver::TestButtonObserver(std::string _id) : id(_id) {}
@@ -27,6 +30,11 @@ void TestButtonObserver::onMouseDown(int x, int y, int button) {
 
 void TestButtonObserver::onMouseUp(int x, int y, int button) {
   LOG(INFO) << "TestButtonObserver mouseup at: " << x << ", " << y
+            << " - button: " << button << LOG_ENDL;
+}
+
+void TestButtonObserver::onClick(int x, int y, int button) {
+  LOG(INFO) << "TestButtonObserver click at: " << x << ", " << y
             << " - button: " << button << LOG_ENDL;
 }
 
@@ -139,6 +147,69 @@ int main(int argc, char** argv) {
     button6->setProps(button6Props);
     button6->addEventObserver(std::make_unique<TestButtonObserver>("button6"));
     elements.push_back(std::move(button6));
+
+    // Create scroll up button
+    auto scrollUp = std::make_unique<ui::ButtonScroll>(&window);
+    scrollUp->setId("scrollUp");
+    ui::BaseStyle scrollUpStyle;
+    scrollUpStyle.x = 350;
+    scrollUpStyle.y = 50;
+    // ButtonScroll defaults to 32x32, but we can override if needed
+    scrollUpStyle.width = 32;
+    scrollUpStyle.height = 32;
+    scrollUp->setStyle(scrollUpStyle);
+    ui::ButtonScrollProps scrollUpProps;
+    scrollUpProps.direction = ui::ScrollDirection::UP;
+    scrollUpProps.isSelected = false;
+    scrollUp->setProps(scrollUpProps);
+    scrollUp->addEventObserver(std::make_unique<TestButtonObserver>("scrollUp"));
+    elements.push_back(std::move(scrollUp));
+
+    // Create scroll down button
+    auto scrollDown = std::make_unique<ui::ButtonScroll>(&window);
+    scrollDown->setId("scrollDown");
+    ui::BaseStyle scrollDownStyle;
+    scrollDownStyle.x = 350;
+    scrollDownStyle.y = 100;
+    scrollDownStyle.width = 32;
+    scrollDownStyle.height = 32;
+    scrollDown->setStyle(scrollDownStyle);
+    ui::ButtonScrollProps scrollDownProps;
+    scrollDownProps.direction = ui::ScrollDirection::DOWN;
+    scrollDownProps.isSelected = true; // Make this one selected to show the selection state
+    scrollDown->setProps(scrollDownProps);
+    scrollDown->addEventObserver(std::make_unique<TestButtonObserver>("scrollDown"));
+    elements.push_back(std::move(scrollDown));
+
+    // Create modal close button
+    auto modalClose = std::make_unique<ui::ButtonClose>(&window);
+    modalClose->setId("modalClose");
+    ui::BaseStyle modalCloseStyle;
+    modalCloseStyle.x = 400;
+    modalCloseStyle.y = 50;
+    modalCloseStyle.width = 32;
+    modalCloseStyle.height = 32;
+    modalClose->setStyle(modalCloseStyle);
+    ui::ButtonCloseProps modalCloseProps;
+    modalCloseProps.closeType = ui::CloseType::MODAL;
+    modalClose->setProps(modalCloseProps);
+    modalClose->addEventObserver(std::make_unique<TestButtonObserver>("modalClose"));
+    elements.push_back(std::move(modalClose));
+
+    // Create popup close button
+    auto popupClose = std::make_unique<ui::ButtonClose>(&window);
+    popupClose->setId("popupClose");
+    ui::BaseStyle popupCloseStyle;
+    popupCloseStyle.x = 400;
+    popupCloseStyle.y = 100;
+    popupCloseStyle.width = 32;
+    popupCloseStyle.height = 32;
+    popupClose->setStyle(popupCloseStyle);
+    ui::ButtonCloseProps popupCloseProps;
+    popupCloseProps.closeType = ui::CloseType::POPUP;
+    popupClose->setProps(popupCloseProps);
+    popupClose->addEventObserver(std::make_unique<TestButtonObserver>("popupClose"));
+    elements.push_back(std::move(popupClose));
 
     auto& events = window.getEvents();
     events.setMouseEvent(
