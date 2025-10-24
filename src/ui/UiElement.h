@@ -2,6 +2,7 @@
 
 #include "../lib/sdl2w/Defines.h"
 #include "../lib/sdl2w/Window.h"
+#include "ui/colors.h"
 #include <SDL2/SDL_pixels.h>
 #include <memory>
 #include <optional>
@@ -41,11 +42,10 @@ struct BaseStyle {
   // Text params
   FontFamily fontFamily = FontFamily::PARAGRAPH;
   sdl2w::TextSize fontSize = sdl2w::TEXT_SIZE_16;
-  SDL_Color fontColor = SDL_Color{255, 255, 255};
+  SDL_Color fontColor = Colors::Black;
   TextAlign textAlign = TextAlign::LEFT_TOP;
 
   // List
-  int lineHeight = 0;
   int lineSpacing = 0;
   SDL_Color lineBackgroundColor = SDL_Color{255, 255, 255, 0};
 };

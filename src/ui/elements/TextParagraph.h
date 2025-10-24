@@ -27,6 +27,8 @@ private:
   TextParagraphProps props;
   std::vector<TextParagraphGeneratedBlock> generatedBlocks;
 
+  int lineHeightFromFont = 0;
+
 public:
   TextParagraph(sdl2w::Window* _window, UiElement* _parent = nullptr);
   ~TextParagraph() override = default;
@@ -36,6 +38,7 @@ public:
   TextParagraphProps& getProps();
   const TextParagraphProps& getProps() const;
   size_t getNumLines() const;
+  virtual const std::pair<int, int> getDims() const override;
 
   void build() override;
   void render() override;

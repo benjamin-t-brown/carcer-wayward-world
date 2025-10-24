@@ -17,7 +17,8 @@ namespace ui {
  * @param rectHeight Rectangle height
  * @return true if point is inside the rectangle
  */
-inline bool isInBounds(int x, int y, int rectX, int rectY, int rectWidth, int rectHeight) {
+inline bool
+isInBounds(int x, int y, int rectX, int rectY, int rectWidth, int rectHeight) {
   return x >= rectX && x < rectX + rectWidth && y >= rectY && y < rectY + rectHeight;
 }
 
@@ -29,10 +30,12 @@ inline bool isInBounds(int x, int y, int rectX, int rectY, int rectWidth, int re
  * @return true if point is inside the element
  */
 inline bool isInBounds(int x, int y, const UiElement* element) {
-  if (!element) return false;
-  
+  if (!element)
+    return false;
+
   const auto& style = element->getStyle();
-  return isInBounds(x, y, style.x, style.y, style.width, style.height);
+  auto dims = element->getDims();
+  return isInBounds(x, y, style.x, style.y, dims.first, dims.second);
 }
 
 /**
@@ -44,7 +47,8 @@ inline bool isInBounds(int x, int y, const UiElement* element) {
  */
 inline bool isInBounds(int x, int y, const UiElement& element) {
   const auto& style = element.getStyle();
-  return isInBounds(x, y, style.x, style.y, style.width, style.height);
+  auto dims = element.getDims();
+  return isInBounds(x, y, style.x, style.y, dims.first, dims.second);
 }
 
 /**
@@ -55,12 +59,14 @@ inline bool isInBounds(int x, int y, const UiElement& element) {
  * @return true if point is inside the scaled element
  */
 inline bool isInBoundsScaled(int x, int y, const UiElement* element) {
-  if (!element) return false;
-  
+  if (!element)
+    return false;
+
   const auto& style = element->getStyle();
-  int scaledWidth = static_cast<int>(style.width * style.scale);
-  int scaledHeight = static_cast<int>(style.height * style.scale);
-  
+  auto dims = element->getDims();
+  int scaledWidth = static_cast<int>(dims.first * style.scale);
+  int scaledHeight = static_cast<int>(dims.second * style.scale);
+
   return isInBounds(x, y, style.x, style.y, scaledWidth, scaledHeight);
 }
 
@@ -73,9 +79,10 @@ inline bool isInBoundsScaled(int x, int y, const UiElement* element) {
  */
 inline bool isInBoundsScaled(int x, int y, const UiElement& element) {
   const auto& style = element.getStyle();
-  int scaledWidth = static_cast<int>(style.width * style.scale);
-  int scaledHeight = static_cast<int>(style.height * style.scale);
-  
+  auto dims = element.getDims();
+  int scaledWidth = static_cast<int>(dims.first * style.scale);
+  int scaledHeight = static_cast<int>(dims.second * style.scale);
+
   return isInBounds(x, y, style.x, style.y, scaledWidth, scaledHeight);
 }
 

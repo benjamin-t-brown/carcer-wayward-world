@@ -30,6 +30,10 @@ size_t TextParagraph::getNumLines() const {
   return static_cast<size_t>(maxLineNumber + 1);
 }
 
+const std::pair<int, int> TextParagraph::getDims() const {
+  return {style.width, getNumLines() * (style.lineSpacing + lineHeightFromFont)};
+}
+
 void TextParagraph::build() {
   generatedBlocks.clear();
   auto& draw = window->getDraw();
@@ -54,6 +58,8 @@ void TextParagraph::build() {
     params.color = fontColor;
     params.centered = false;
 
+    lineHeightFromFont = 0;
+
     for (size_t i = 0; i < block.text.size(); i++) {
       auto c = block.text[i];
       if (i > 0 && block.text[i - 1] == ' ' && c == ' ') {
@@ -63,11 +69,12 @@ void TextParagraph::build() {
       auto isLastLetter = i + 1 == block.text.size();
       if (c == ' ' || isLastLetter) {
         auto [wordTextWidth, textHeight] = draw.measureText(nextWord, params);
+        lineHeightFromFont = std::max(lineHeightFromFont, textHeight);
         auto [wordAndSpaceTextWidth, textHeight2] =
             draw.measureText(nextWord + c, params);
         auto totalPotentialWidth =
             aggregateWidth + (isLastLetter ? wordAndSpaceTextWidth : wordTextWidth);
-        if (totalPotentialWidth <= style.width) {
+        if (totalPotentialWidth < style.width) {
           // add word to current line
           lineAggregate += nextWord + c;
           aggregateWidth += wordAndSpaceTextWidth;
@@ -98,6 +105,7 @@ void TextParagraph::build() {
         }
       } else if (c == '\n') {
         auto [wordTextWidth, textHeight] = draw.measureText(nextWord, params);
+        lineHeightFromFont = std::max(lineHeightFromFont, textHeight);
         auto totalPotentialWidth = aggregateWidth + wordTextWidth;
         if (totalPotentialWidth <= style.width) {
           lineAggregate += nextWord;
@@ -126,6 +134,7 @@ void TextParagraph::build() {
       params.color = fontColor;
       params.centered = false;
       auto [textWidth, textHeight] = draw.measureText(lineAggregate, params);
+      lineHeightFromFont = std::max(lineHeightFromFont, textHeight);
       generatedBlocks.push_back( //
           TextParagraphGeneratedBlock{
               lineNumber, block, lineAggregate, aggregateWidth, textHeight});

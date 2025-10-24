@@ -104,16 +104,7 @@ TextParagraph
   * Props
     - text blocks (a list of structs that group strings with individual override styles)
   * Styles
-    - Position, Size, TextParams
-TextSelectable
-  * Description: Renders a selectable wrapped portion of text.  Different from a button, in that it can wrap text, typically used in the talk choices.
-  * Events
-    - clickable, hoverable
-  * Props
-    - text
-    - isSelected
-  * Styles
-    - Position, Size, TextParams    
+    - Position, Size, TextParams 
 LabelPHeader
   * Description: Renders a line of text that represents a header of a paragraph.
   * Props
@@ -140,6 +131,15 @@ LabelManaCost
     - Position, TextParams
 ButtonText
   * Description: Renders a clickable button of only text.
+  * Events
+    - clickable, hoverable
+  * Props
+    - text
+    - isSelected
+  * Styles
+    - Position, Size, TextParams
+ButtonTextWrap
+  * Description: Renders a selectable wrapped portion of text.
   * Events
     - clickable, hoverable
   * Props

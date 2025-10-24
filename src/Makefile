@@ -16,6 +16,7 @@ ui/elements/ButtonScroll.cpp \
 ui/elements/ButtonGroup.cpp \
 ui/elements/SectionDropShadow.cpp \
 ui/elements/SectionScrollable.cpp \
+ui/elements/ButtonTextWrap.cpp \
 
 LIB_CODE=\
 
