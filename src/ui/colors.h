@@ -18,5 +18,8 @@ struct Colors {
   static constexpr SDL_Color ButtonCloseRedActive{255, 0, 0, 255};
   static constexpr SDL_Color ButtonCloseTextWhite{255, 255, 255, 255};
   static constexpr SDL_Color ButtonCloseTextGrey{100, 100, 100, 255};
+  static constexpr SDL_Color BorderModalStandard{45, 55, 64, 255};
+  static constexpr SDL_Color BorderModalStandardLight{91, 109, 127, 255};
+  static constexpr SDL_Color BorderModalStandardDark{23, 28, 33, 255};
 };
 } // namespace ui

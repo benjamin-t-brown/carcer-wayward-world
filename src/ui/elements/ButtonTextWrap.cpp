@@ -82,8 +82,8 @@ void ButtonTextWrap::render() {
   int borderSize = 0;
   draw.drawRect(style.x - borderSize,
                 style.y - borderSize,
-                dims.first + borderSize * 2,
-                dims.second + borderSize * 2,
+                dims.first * style.scale + borderSize * 2,
+                dims.second * style.scale + borderSize * 2,
                 bgColor);
 
   UiElement::render();

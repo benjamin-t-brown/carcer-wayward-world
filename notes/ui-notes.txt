@@ -264,13 +264,16 @@ HeaderModalSmall
     - subTitleElement
   * Styles
     - Position, Size, Scale
-InGameBorder
+BorderInGame
   * Description: Shows the in game border.
   * Props
   * Styles
     - Position, Size, Scale
-  * Actions
-    - UIShowMenuInGame
+BorderModalStandard
+  * Description: Shows the in game border.
+  * Props
+  * Styles
+    - Position, Size, Scale
 
 COMPONENTS
 HeaderPartyMemberSwitch

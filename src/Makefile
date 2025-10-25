@@ -17,6 +17,8 @@ ui/elements/ButtonGroup.cpp \
 ui/elements/SectionDropShadow.cpp \
 ui/elements/SectionScrollable.cpp \
 ui/elements/ButtonTextWrap.cpp \
+ui/elements/OutsetRectangle.cpp \
+ui/components/BorderModalStandard.cpp \
 
 LIB_CODE=\
 
