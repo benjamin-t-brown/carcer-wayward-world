@@ -274,6 +274,11 @@ BorderModalStandard
   * Props
   * Styles
     - Position, Size, Scale
+BorderModalSmall
+  * Description: Shows the in game border.
+  * Props
+  * Styles
+    - Position, Size, Scale
 
 COMPONENTS
 HeaderPartyMemberSwitch

@@ -1,5 +1,6 @@
 #include "BorderModalStandard.h"
-#include "../elements/OutsetRectangle.h"
+#include "ui/elements/ButtonClose.h"
+#include "ui/elements/OutsetRectangle.h"
 
 namespace ui {
 
@@ -10,6 +11,51 @@ BorderModalStandard::BorderModalStandard(sdl2w::Window* _window, UiElement* _par
 
 const std::pair<int, int> BorderModalStandard::getDims() const {
   return {style.width, style.height};
+}
+
+const std::pair<int, int> BorderModalStandard::getContentDims() const {
+  return {style.width - 16, style.height - 78};
+}
+
+const std::pair<int, int> BorderModalStandard::getIconLocation(int iconWidth,
+                                                               int iconHeight) const {
+  // Icon goes in the top-left 78x78 square, centered
+  int iconX = style.x + (78 - iconWidth) / 2;
+  int iconY = style.y + (78 - iconHeight) / 2;
+  return {iconX, iconY};
+}
+
+const std::pair<int, int> BorderModalStandard::getCloseButtonLocation() const {
+  ButtonClose closeButton = ButtonClose(window);
+  auto closeWidth = closeButton.getDims().first;
+
+  // Close button goes in the top-right corner of the top rectangle
+  int closeX = style.x + static_cast<int>(style.width * style.scale) - closeWidth -
+               6; // Right edge of top rectangle
+  int closeY = style.y + 6;
+  return {closeX, closeY};
+}
+
+const std::pair<int, int> BorderModalStandard::getTitleLocation() const {
+  // Title goes in the top rectangle, left-aligned with some padding
+  int titleX = style.x + 78 + 10; // Left edge of top rectangle + padding
+  int titleY = style.y + 10;      // Top edge + padding
+  return {titleX, titleY};
+}
+
+const std::pair<int, int> BorderModalStandard::getSubTitleLocation() const {
+  // Subtitle goes below the title in the top rectangle
+  int subTitleX = style.x + 78 + 10; // Same as title
+  int subTitleY = style.y + 40;      // Below title
+  return {subTitleX, subTitleY};
+}
+
+const std::pair<int, int> BorderModalStandard::getContentLocation() const {
+  // Content area is the main area inside the border, with padding
+  // Note: BorderModalStandard has a 16px left border, not 4px like BorderModalSmall
+  int contentX = style.x + 16; // Left border + padding
+  int contentY = style.y + 78; // Below top rectangle + padding
+  return {contentX, contentY};
 }
 
 void BorderModalStandard::build() {

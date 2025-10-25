@@ -19,6 +19,8 @@ ui/elements/SectionScrollable.cpp \
 ui/elements/ButtonTextWrap.cpp \
 ui/elements/OutsetRectangle.cpp \
 ui/components/BorderModalStandard.cpp \
+ui/components/BorderModalSmall.cpp \
+ui/layouts/ModalStandard.cpp \
 
 LIB_CODE=\
 

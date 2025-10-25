@@ -2,9 +2,10 @@
 
 /**
  * Generic UI Test Runner Helper
- * Usage: node UiTestRunnerHelper.js <test_file_name> [--build-only]
+ * Usage: node UiTestRunnerHelper.js <folder> <test_file_name> [--build-only]
  *
  * Arguments:
+ *   folder: Folder containing the test (Elements or Components)
  *   test_file_name: Name of the test file (without .cpp extension)
  *   --build-only: Optional flag to only build the test without running it
  */
@@ -16,13 +17,14 @@ const fs = require('fs');
 // Get command-line arguments
 const args = process.argv.slice(2);
 
-if (args.length === 0) {
-  console.error('Error: Test file name is required');
-  console.error('Usage: node UiTestRunnerHelper.js <test_file_name> [--build-only]');
+if (args.length < 2) {
+  console.error('Error: Both folder and test file name are required');
+  console.error('Usage: node UiTestRunnerHelper.js <folder> <test_file_name> [--build-only]');
   process.exit(1);
 }
 
-const TEST_FILE_NAME = args[0];
+const TEST_FOLDER = args[0];
+const TEST_FILE_NAME = args[1];
 const TEST_EXE_NAME = 'TestUi';
 const BUILD_ONLY = args.includes('--build-only');
 
@@ -63,7 +65,7 @@ try {
   process.exit(1);
 }
 
-const COMPILE_TEST = `g++ test/ui/${TEST_FILE_NAME}.cpp ${compilerArgs} -o ${TEST_EXE_NAME}`;
+const COMPILE_TEST = `g++ test/ui/${TEST_FOLDER}/${TEST_FILE_NAME}.cpp ${compilerArgs} -o ${TEST_EXE_NAME}`;
 console.log(COMPILE_TEST);
 
 try {

@@ -12,6 +12,12 @@ public:
   ~BorderModalStandard() override = default;
 
   const std::pair<int, int> getDims() const override;
+  const std::pair<int, int> getContentDims() const;
+  const std::pair<int, int> getIconLocation(int iconWidth, int IconHeight) const;
+  const std::pair<int, int> getCloseButtonLocation() const;
+  const std::pair<int, int> getTitleLocation() const;
+  const std::pair<int, int> getSubTitleLocation() const;
+  const std::pair<int, int> getContentLocation() const;
 
   void build() override;
   void render() override;
