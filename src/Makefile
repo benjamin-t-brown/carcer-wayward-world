@@ -21,6 +21,7 @@ ui/elements/OutsetRectangle.cpp \
 ui/components/BorderModalStandard.cpp \
 ui/components/BorderModalSmall.cpp \
 ui/layouts/ModalStandard.cpp \
+ui/layouts/ModalSmall.cpp \
 
 LIB_CODE=\
 

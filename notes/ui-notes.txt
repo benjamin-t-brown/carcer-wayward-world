@@ -522,18 +522,18 @@ ModalPopup
     - Position, Size, Scale
 
 
-LAYERS
-LayerMainMenu
-LayerInGameUI
-LayerInventory
-LayerPickUpItems
-LayerSpecialEvent
-LayerPartyMemberInfo
-LayerCharacterExamine
-LayerTargetingUI
-LayerTalk
-LayerMap
-LayerJournal
+UI LAYERS
+UiLayerMainMenu
+UiLayerInGameUI
+UiLayerInventory
+UiLayerPickUpItems
+UiLayerSpecialEvent
+UiLayerPartyMemberInfo
+UiLayerCharacterExamine
+UiLayerTargetingUI
+UiLayerTalk
+UiLayerMap
+UiLayerJournal
 
 Inventory
 Talk keywords

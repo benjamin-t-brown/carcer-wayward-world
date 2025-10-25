@@ -27,12 +27,41 @@ int main(int argc, char** argv) {
     style.y = (windowHeight - style.height) / 2;
     style.scale = 1.0f;
     borderModal->setStyle(style);
-    
+
     elements.push_back(std::move(borderModal));
+
+    auto& events = window.getEvents();
+    events.setMouseEvent(
+        //
+        sdl2w::MouseEventCb::ON_MOUSE_DOWN,
+        [&](int x, int y, int button) {
+          LOG(INFO) << "Mouse down at: " << x << ", " << y << " - button: " << button
+                    << LOG_ENDL;
+          for (auto& elem : elements) {
+            elem->checkMouseDownEvent(x, y, button);
+          }
+        });
+    events.setMouseEvent(
+        //
+        sdl2w::MouseEventCb::ON_MOUSE_UP,
+        [&](int x, int y, int button) {
+          for (auto& elem : elements) {
+            elem->checkMouseUpEvent(x, y, button);
+          }
+        });
   };
 
   auto _update = [&](sdl2w::Window& window, sdl2w::Store& store) {
-    // Update logic if needed
+    auto& events = window.getEvents();
+    auto mouseX = events.mouseX;
+    auto mouseY = events.mouseY;
+
+    // Check hover events for all buttons
+    for (auto& elem : elements) {
+      if (elem) {
+        elem->checkHoverEvent(mouseX, mouseY);
+      }
+    }
   };
 
   auto _render = [&](sdl2w::Window& window, sdl2w::Store& store) {
