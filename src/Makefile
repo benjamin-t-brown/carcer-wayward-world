@@ -6,7 +6,7 @@ MAIN_ALL=main.cpp
 CODE=\
 LibHTML.cpp \
 ui/UiElement.cpp \
-ui/elements/Sprite.cpp \
+ui/elements/SpriteElement.cpp \
 ui/elements/Quad.cpp \
 ui/elements/TextLine.cpp \
 ui/elements/TextParagraph.cpp \
@@ -17,9 +17,12 @@ ui/elements/ButtonGroup.cpp \
 ui/elements/SectionDropShadow.cpp \
 ui/elements/SectionScrollable.cpp \
 ui/elements/ButtonTextWrap.cpp \
+ui/elements/ButtonWorldAction.cpp \
 ui/elements/OutsetRectangle.cpp \
 ui/components/BorderModalStandard.cpp \
 ui/components/BorderModalSmall.cpp \
+ui/components/BorderInGame.cpp \
+ui/layouts/InGameLayout.cpp \
 ui/layouts/ModalStandard.cpp \
 ui/layouts/ModalSmall.cpp \
 

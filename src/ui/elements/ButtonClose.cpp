@@ -22,7 +22,7 @@ ButtonClose::ButtonClose(sdl2w::Window* _window, UiElement* _parent)
   style.textAlign = TextAlign::CENTER;
   style.fontSize = sdl2w::TEXT_SIZE_20;
   shouldPropagateEventsToChildren = false;
-  
+
   // Set default size to 32x32px
   style.width = 32;
   style.height = 32;
@@ -54,11 +54,11 @@ void ButtonClose::build() {
   if (props.closeType == CloseType::MODAL) {
     // Modal: red square with white X
     if (isActive) {
-      quadProps.bgColor = Colors::ButtonCloseRed;
+      quadProps.bgColor = Colors::ButtonCloseRedActive;
     } else if (isHovered) {
       quadProps.bgColor = Colors::ButtonCloseRedHover;
     } else {
-      quadProps.bgColor = Colors::ButtonCloseRedActive;
+      quadProps.bgColor = Colors::ButtonCloseRed;
     }
     quadProps.borderColor = Colors::ButtonCloseRed;
     quadProps.borderSize = 0; // No border for modal
@@ -68,19 +68,22 @@ void ButtonClose::build() {
     quadProps.borderColor = Colors::ButtonCloseTextGrey;
     quadProps.borderSize = 0;
   }
-  
+
   q->setProps(quadProps);
 
   // Add X text
   auto textLine = std::make_unique<TextLine>(window, this);
+  TextLineProps textLineProps;
+  textLineProps.textBlocks = {TextBlock{"X"}};
+  textLine->setProps(textLineProps);
   BaseStyle textStyle;
-  textStyle.x = style.width / 2;
-  textStyle.y = style.height / 2;
+  textStyle.x = style.width / 2 - 0;
+  textStyle.y = style.height / 2 - 2;
   textStyle.textAlign = TextAlign::CENTER;
   textStyle.fontSize = style.fontSize;
   textStyle.fontFamily = FontFamily::PARAGRAPH;
   textStyle.scale = style.scale;
-  
+
   // Set text color based on closeType
   if (props.closeType == CloseType::MODAL) {
     textStyle.fontColor = Colors::ButtonCloseTextWhite;
@@ -93,11 +96,9 @@ void ButtonClose::build() {
       textStyle.fontColor = Colors::ButtonCloseTextGrey;
     }
   }
-  
+
   textLine->setStyle(textStyle);
-  TextLineProps textLineProps;
-  textLineProps.textBlocks = {TextBlock{"X"}};
-  textLine->setProps(textLineProps);
+
   q->getChildren().push_back(std::move(textLine));
 
   children.push_back(std::move(q));

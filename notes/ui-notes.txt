@@ -185,20 +185,9 @@ ButtonWorldAction
   * Events
     - clickable, hoverable  
   * Props
-    - worldActionType (enum EXAMINE, GET, SNEAK, UNLOCK, TALK, JUMP, ABILITY, INVENTORY, SHOOT, FIGHT)
+    - worldActionType (enum EXAMINE, GET, SNEAK, UNLOCK, TALK, JUMP, ABILITY, STATUS, FIGHT, SHOOT, INVENTORY)
   * Styles
     - Position, Size, Scale
-  * Actions
-    - WorldActionExamine
-    - WorldActionGet
-    - WorldActionSneak
-    - WorldActionUnlock
-    - WorldActionTalk
-    - WorldActionJump
-    - WorldActionUseAbility
-    - WorldActionShowInventory
-    - WorldActionShoot
-    - WorldActionToggleFightMode
 ButtonGroup
   * Description: Renders a horizontal list of buttons.
   * Events

@@ -2,67 +2,84 @@
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
+#include "types/WorldActions.h"
 #include "ui/UiElement.h"
 #include "ui/elements/TextLine.h"
-#include "ui/layouts/ModalSmall.h"
+#include "ui/elements/TextParagraph.h"
+#include "ui/layouts/InGameLayout.h"
 #include <SDL2/SDL_pixels.h>
 #include <memory>
 
 int main(int argc, char** argv) {
-  LOG(INFO) << "Start ModalSmall test" << LOG_ENDL;
+  LOG(INFO) << "Start InGameLayout test" << LOG_ENDL;
   sdl2w::Window::init();
   srand(time(NULL));
 
   std::vector<std::unique_ptr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
-    LOG(INFO) << "ModalSmall test initialized" << LOG_ENDL;
+    LOG(INFO) << "InGameLayout test initialized" << LOG_ENDL;
 
     auto [windowWidth, windowHeight] = window.getDims();
+    // Create InGameLayout component
+    auto inGameLayout = std::make_unique<ui::InGameLayout>(&window);
+    ui::BaseStyle style;
+    style.width = windowWidth;
+    style.height = windowHeight;
+    style.x = 0;
+    style.y = 0;
+    inGameLayout->setStyle(style);
+    ui::InGameLayoutProps inGameLayoutProps;
+    inGameLayoutProps.worldActionTypes = {
+        types::WorldActionType::EXAMINE,
+        types::WorldActionType::TALK,
+        types::WorldActionType::ABILITY,
+        types::WorldActionType::SNEAK,
+        // types::WorldActionType::UNLOCK,
+        types::WorldActionType::JUMP,
+        types::WorldActionType::GET,
+        types::WorldActionType::START_FIGHT,
+        types::WorldActionType::INTERACT,
+        types::WorldActionType::SHOOT,
+        types::WorldActionType::JOURNAL,
+        types::WorldActionType::INVENTORY,
+        types::WorldActionType::STATUS,
+        types::WorldActionType::MAP,
+    };
+    inGameLayout->setProps(inGameLayoutProps);
 
-    // Create ModalSmall layout
-    auto modalLayout = std::make_unique<ui::ModalSmall>(&window);
-    ui::BaseStyle layoutStyle;
-    layoutStyle.width = 500;
-    layoutStyle.height = windowHeight - 50;
-    layoutStyle.x = (windowWidth - layoutStyle.width) / 2;
-    layoutStyle.y = (windowHeight - layoutStyle.height) / 2;
-    modalLayout->setStyle(layoutStyle);
-
-    // Set layout properties
-    ui::ModalSmallProps props;
-    props.backgroundColor = ui::Colors::ModalStandardBackground;
-    props.decorationSprite = "";
-    modalLayout->setProps(props);
-
-    // Create title and subtitle elements
-    auto title = std::make_unique<ui::TextLine>(&window);
+    // Create title element
+    auto titleElement = std::make_unique<ui::TextLine>(&window);
     ui::BaseStyle titleStyle;
-    titleStyle.fontFamily = ui::FontFamily::H1;
-    titleStyle.fontSize = sdl2w::TEXT_SIZE_24;
+    titleStyle.width = 200;
     titleStyle.fontColor = ui::Colors::White;
-    title->setStyle(titleStyle);
+    titleElement->setStyle(titleStyle);
     ui::TextLineProps titleProps;
     ui::TextBlock titleBlock;
-    titleBlock.text = "Small Modal Title";
+    titleBlock.text = "Game Title";
+    titleBlock.fontSize = sdl2w::TextSize::TEXT_SIZE_28;
     titleProps.textBlocks.push_back(titleBlock);
-    title->setProps(titleProps);
-    modalLayout->setTitleElement(std::move(title));
+    titleElement->setProps(titleProps);
 
-    auto subtitle = std::make_unique<ui::TextLine>(&window);
+    // Create subtitle element
+    auto subtitleElement = std::make_unique<ui::TextParagraph>(&window);
     ui::BaseStyle subtitleStyle;
-    subtitleStyle.fontFamily = ui::FontFamily::PARAGRAPH;
-    subtitleStyle.fontSize = sdl2w::TEXT_SIZE_16;
+    subtitleStyle.width = 200;
+    subtitleStyle.height = 20;
     subtitleStyle.fontColor = ui::Colors::White;
-    subtitle->setStyle(subtitleStyle);
-    ui::TextLineProps subtitleProps;
+    subtitleElement->setStyle(subtitleStyle);
+    ui::TextParagraphProps subtitleProps;
     ui::TextBlock subtitleBlock;
-    subtitleBlock.text = "This is a small modal subtitle";
+    subtitleBlock.text = "Subtitle Text";
+    subtitleBlock.fontSize = sdl2w::TextSize::TEXT_SIZE_24;
     subtitleProps.textBlocks.push_back(subtitleBlock);
-    subtitle->setProps(subtitleProps);
-    modalLayout->setSubtitleElement(std::move(subtitle));
+    subtitleElement->setProps(subtitleProps);
 
-    elements.push_back(std::move(modalLayout));
+    // Set title and subtitle elements
+    inGameLayout->setTitleElement(std::move(titleElement));
+    inGameLayout->setSubtitleElement(std::move(subtitleElement));
+
+    elements.push_back(std::move(inGameLayout));
 
     auto& events = window.getEvents();
     events.setMouseEvent(
@@ -115,8 +132,8 @@ int main(int argc, char** argv) {
   };
 
   setupTestUi(
-      argc, argv, TestUiParams{800, 600, "ModalSmall Test"}, _init, _updateRender);
-  LOG(INFO) << "End ModalSmall test" << LOG_ENDL;
+      argc, argv, TestUiParams{800, 600, "InGameLayout Test"}, _init, _updateRender);
+  LOG(INFO) << "End InGameLayout test" << LOG_ENDL;
   sdl2w::Window::unInit();
   return 0;
 }

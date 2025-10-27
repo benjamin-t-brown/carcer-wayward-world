@@ -8,19 +8,19 @@ TextLine::TextLine(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {}
 
 std::string TextLine::getFontNameFromFamily(FontFamily fontFamily) {
-  auto fontName = std::string("monofonto");
+  auto fontName = std::string("default");
   switch (fontFamily) {
   case FontFamily::PARAGRAPH:
-    fontName = "monofonto";
+    fontName = "default";
     break;
   case FontFamily::H1:
-    fontName = "monofonto";
+    fontName = "alternate";
     break;
   case FontFamily::H2:
-    fontName = "monofonto";
+    fontName = "alternate";
     break;
   case FontFamily::H3:
-    fontName = "monofonto";
+    fontName = "alternate";
     break;
   }
   return fontName;

@@ -22,5 +22,9 @@ struct Colors {
   static constexpr SDL_Color BorderModalStandardLight{91, 109, 127, 255};
   static constexpr SDL_Color BorderModalStandardDark{23, 28, 33, 255};
   static constexpr SDL_Color ModalStandardBackground{248, 248, 248, 255};
+  static constexpr SDL_Color ButtonWorldActionDefault{100, 120, 140, 255};
+  static constexpr SDL_Color ButtonWorldActionHover{120, 140, 160, 255};
+  static constexpr SDL_Color ButtonWorldActionActive{80, 100, 120, 255};
+  static constexpr SDL_Color ButtonWorldActionText{255, 255, 255, 255};
 };
 } // namespace ui

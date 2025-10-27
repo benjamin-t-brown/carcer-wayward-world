@@ -28,8 +28,8 @@ void runProgram(int argc, char** argv) {
   window.getDraw().setBackgroundColor({0, 0, 0});
 
   sdl2w::AssetLoader assetLoader(window.getDraw(), window.getStore());
-  window.getStore().loadAndStoreFont("default", "assets/monofonto.ttf");
-  window.getStore().loadAndStoreFont("monofonto", "assets/cabal.ttf");
+  window.getStore().loadAndStoreFont("default", "assets/cabal.ttf");
+  window.getStore().loadAndStoreFont("alternate", "assets/monofonto.ttf");
 
   sdl2w::Draw& d = window.getDraw();
   window.setSoundPct(33);

@@ -1,0 +1,50 @@
+#pragma once
+
+#include "../UiElement.h"
+#include "types/WorldActions.h"
+
+namespace ui {
+
+// ButtonWorldAction-specific properties
+struct ButtonWorldActionProps {
+  types::WorldActionType worldActionType;
+};
+
+struct ButtonWorldActionMapping {
+  std::string label;
+  int spriteIndex;
+  bool isSmall = false;
+};
+
+// ButtonWorldAction element - renders a clickable button typically used to interact with
+// the world Uses Position, Size, Scale from BaseStyle
+class ButtonWorldAction : public UiElement {
+private:
+  ButtonWorldActionProps props;
+  bool isInHoverMode = false;
+  bool isInActiveMode = false;
+  const std::string spriteSheetName = "ui_action_buttons";
+  const int normalStartingSpriteIndex = 8;
+  const int smallStartingSpriteIndex = 0;
+  const int normalSpriteOffsetToActive = 16;
+  const int smallSpriteOffsetToActive = 8;
+
+  static ButtonWorldActionMapping
+  getButtonWorldActionMapping(types::WorldActionType worldActionType);
+
+public:
+  bool isActive = false;
+  ButtonWorldAction(sdl2w::Window* _window, UiElement* _parent = nullptr);
+  ~ButtonWorldAction() override = default;
+
+  static bool checkIfWorldActionButtonIsSmall(types::WorldActionType worldActionType);
+
+  void setProps(const ButtonWorldActionProps& _props);
+  ButtonWorldActionProps& getProps();
+  const ButtonWorldActionProps& getProps() const;
+
+  void build() override;
+  void render() override;
+};
+
+} // namespace ui
