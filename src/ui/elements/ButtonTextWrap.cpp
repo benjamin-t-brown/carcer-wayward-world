@@ -68,7 +68,7 @@ void ButtonTextWrap::build() {
   children.push_back(std::move(textParagraph));
 }
 
-void ButtonTextWrap::render() {
+void ButtonTextWrap::render(int dt) {
   SDL_Color bgColor = Colors::Transparent;
 
   if (isActive) {
@@ -86,7 +86,7 @@ void ButtonTextWrap::render() {
                 dims.second * style.scale + borderSize * 2,
                 bgColor);
 
-  UiElement::render();
+  UiElement::render(dt);
 }
 
 } // namespace ui

@@ -1,0 +1,26 @@
+Dialog Guidelines
+
+- Try to be succinct with dialog.  It should not be often that characters spew monologues.
+  - this isn't an attempt to be more realistic, it's more to keep the word count down and easier to read.
+- By default, skill checks should not be told to the player, but they can be turned in in difficulty settings
+  - The player will always choose skill check for their highest skill, it takes the fun out of it if the skill check is told to them at the start.  This is part of role playing.
+    - PROBLEM Skill check text might not be consistent with what a player thinks should be the skill check
+      - This happens in DnD all the time and it's a minor problem.
+      - Can be mitigated with the difficulty setting to show skill checks.
+      - Can be mitigated by saying that the choice has skill checks somewhere in the responses, but not indicating what they are
+    - Players should know a skill check happened though, and what kind it was but only AFTER it happens.
+    - Will players just save skum this or wiki this anyway?
+  - Maybe not a "difficulty" setting, maybe a "gameplay" setting
+
+Gameplay Guidelines
+
+- Instead of a mission-based thing, players should go to zones where quests are located.
+  - Open world games are very daunting at first.  It is more digestible to have these zones instead of, from player's standpoint, seemingly distributed randomly
+  - Inter-zonal quests should be limited early-on and easy to distinguish.
+    - As the player gets more comfortable with the world, these quests can be opened up
+      - NOTE zelda solves this by having the same pattern of quest show up in each zone, worth considering?
+- If a player discovers a cave with a quest, it should be clear why they are there, or at least it should be clear that the cave holds a quest (even if not yet discovered).
+    - THOUGHT When going through missions for Mass Effect/WOTR I was often confused about why I was there in the first place.  Stuff would happen, characters would appear, and I wouldn't know or understand the situation.  On the first play through, I often ended up confused and with a sense of anticlimatic "okay I guess that happened" when I didn't get why I knew about a certain location somebody told me about 3 hours ago.  I feel like this happens mostly with mission-based games.  You see a dot on the map you can go to, tells you which companions you need to take, then you just sort of end up there in the middle of the story without any setup (because the setup is talking to the quest giver who tells you about the location).  It would be nice to have a summary of why I know about this place, who gave me the quest, and why I care.
+- Reduce inventory junk.  Inventory management: some like it some don't.  I don't like clicking "loot all" on everything because I never look at what I picked up and it just ends up in an endless list somewhere.  It should be obvious when getting something that is a great upgrade or when getting something rare.
+  - Sometimes players miss quests that give them weapon upgrades.  If you hype up a lvl 4 weapon to a lvl 6 player, it can have some narrative dissonance.  It would be nice to inform the player that the item isn't up to snuff for them if they are past the level of the quest.  Cross Code does this explicitly by telling the player up front what level the quest is and what the rewards are.  That does remove some mystique about it though.
+  

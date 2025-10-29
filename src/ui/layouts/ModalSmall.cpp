@@ -128,10 +128,10 @@ UiElement* ModalSmall::getContentElement() { return getChildById("content"); }
 
 UiElement* ModalSmall::getCloseButtonElement() { return getChildById("closeButton"); }
 
-void ModalSmall::render() {
+void ModalSmall::render(int dt) {
   auto& draw = window->getDraw();
   draw.drawRect(style.x, style.y, style.width, style.height, props.backgroundColor);
-  UiElement::render();
+  UiElement::render(dt);
 }
 
 } // namespace ui

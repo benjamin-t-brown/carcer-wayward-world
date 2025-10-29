@@ -104,7 +104,7 @@ void ButtonClose::build() {
   children.push_back(std::move(q));
 }
 
-void ButtonClose::render() {
+void ButtonClose::render(int dt) {
   if (isHovered) {
     if (!isInHoverMode) {
       isInHoverMode = true;
@@ -129,7 +129,7 @@ void ButtonClose::render() {
     }
   }
 
-  UiElement::render();
+  UiElement::render(dt);
 }
 
 } // namespace ui

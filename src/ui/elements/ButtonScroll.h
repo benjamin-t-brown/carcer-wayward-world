@@ -35,7 +35,7 @@ public:
   const ButtonScrollProps& getProps() const;
 
   void build() override;
-  void render() override;
+  void render(int dt) override;
 };
 
 } // namespace ui

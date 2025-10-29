@@ -24,7 +24,7 @@ private:
   bool isInHoverMode = false;
   bool isInActiveMode = false;
   const std::string spriteSheetName = "ui_action_buttons";
-  const int normalStartingSpriteIndex = 8;
+  const int normalStartingSpriteIndex = 16;
   const int smallStartingSpriteIndex = 0;
   const int normalSpriteOffsetToActive = 16;
   const int smallSpriteOffsetToActive = 8;
@@ -44,7 +44,7 @@ public:
   const ButtonWorldActionProps& getProps() const;
 
   void build() override;
-  void render() override;
+  void render(int dt) override;
 };
 
 } // namespace ui

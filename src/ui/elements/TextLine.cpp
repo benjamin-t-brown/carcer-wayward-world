@@ -86,7 +86,7 @@ void TextLine::build() {
   style.height = totalHeight;
 }
 
-void TextLine::render() {
+void TextLine::render(int dt) {
   if (props.textBlocks.empty()) {
     return;
   }

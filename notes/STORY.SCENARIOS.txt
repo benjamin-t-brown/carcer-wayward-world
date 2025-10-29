@@ -1,0 +1,75 @@
+Overview and setting
+
+The island of Sadelica is a magical island.  It has many deposits of Sapphiron which is a magical metal that grants things it's made of amazing properties.  Magic, if you will.  Stuff like being able to cast fireballs, intense durability, healing, force push, and so on.  The rest of the world does not have this power, it only comes from this island.
+
+This magical legend made real has created great wealth for the first-goers, the Primes, they named themselves, the explorers who sought this island before others.  They pillaged Sapphiron Fragments with this magical power, and shipped them to the Mainland for insane profits.  This wealth gathered the attention of the Powers of the Mainland, disparate factions all at odds with each other. They all individually sent expeditions out to Sadelica in search of harnessing this Sapphiron Magic for their own wealth.  Over the last 25 years, these factions have been establishing Settlements, cities, and watches on Sadelica, attempting to control swathes of the territory on it before others from the Mainland can stop them.
+
+But there is a sinister aspect to this place.  When the Sapphiron power on the island was disturbed, it awakened a Guardian, one who's charge is to prevent the power on the island from being taken advantage of.  With each Sapphiron Fragment that's taken off the island or discharged, the Guardian gains power.  It activates the defenses of the island, the creatures whose charge is to eradicate those on it.  But the powers from the Mainland have been enough to repel them for the past 25 years.  As time goes on, soon, eventually the Guardian will have enough power to active the ultimate failsafe, the Ultimatum: a volcano which will eradicate the whole island, destroying the Sapphiron Fragments on it and everyone there.
+
+Some factions of the Mainland have realized this inevitability, but they seek to deal with it in different ways.  The Realm chooses to ignore it, as something they can deal with as a whole.  If they establish enough of a force on the Island, they can control it, like they do the Mainland.  The Blackrose seek a similar outcome, save for the fact THEY want to control the volcano on the island.  They wish to capture the Guardian's power and prevent it from destroying the island.  The Guildimarche are set on extracting as much magic as possible from the place until it is inevitability destroyed.  And Radmilla seeks to reconcile with the Guardian to prevent it from activating the failsafe.  
+
+The whole Island is going to emit enough power to destroy everyone on it.  This is a defense mechanism to remove people from the island.  The sapphiron there is world-deadly and needs to stay on that island.
+
+
+
+  - Sol wants to move people off the Island and make sure they don't know anything about it.  This force is purely utilitarian and deaths of the few do not out weigh the deaths of the many.
+  - Radmilla has figured out how to suppress the Island, at cost to her own power.  She thinks the cost of the power there is worth pursuing, because it has demonstrated capability beyond her own.  She also knows it is dangerous.  Her goal is to stop Sol, but also gain control of the Island for herself to prevent others from hurting themselves.
+  - Blackrose is the "corporation".  They want to invest in Sapphiron because it will turn a profit for them.  Though they are unimaginative, they are the strongest force on the island and not trivial to remove.
+  - Realm is the beurocrats, but they represent stability and "the people."  The Realm wants the same thing Radmilla does, but they think they should have control over the Sapphiron that they know is dangerous.
+  - Guildimarche wants to find a way to steal the Sapphiron, get as much of it as possible, and then leave.  But they don't know how to transport it, since the further away from the Island it gets, the less potency it has.
+  - Merchantry and Thievery represent making money through different means, often at odds
+  - Villagery represents the value of keeping the status quo
+
+Major ideas
+
+- Murder Mystery town where bodies just end up dead on the street in alleys, but there is no murderer: only a new drug that is so addictive people are dying to it.  You can remove the drug, but then everybody will die who is addicted to it, or you can keep it going, but then everybody will likely die, or you can seek some sort of painful/selective rehab cure for it owned by some stuffy nobles who funded it.
+- Undead used as farm workers and miners.  Uncontrollable undead are buried, but sometimes they dig themselves up and wander the countryside.  They are mostly benign but certainly spooky to encounter.  These undead can be unleashed to a frenzy to kill people, or completely deactivated.  The local mining/farmer guilds are not happy about it.
+- A place where a Wizard can convert you into a small amount of essence and send you into an env he has created, making him the God of a world.  The world can exist on its own and be completely forgotten, it can be destroyed, or it can be stolen and the player can have it.
+- You come to a town where the Realm is corrupt.  On the surface, the Realm controls the town, but there is a Mafia with real power.  A journalist is attempting to showcase that this is a problem.  He is backed by a Blackrose agent who don't like the Mafia operating here. 
+  * If the player antagonizes the Mafia, they have a great power to scam them out of things in the area.
+    - Items are extremely expensive.  Assassins will come for you if you stay at inns.  Access to areas is blocked off.  Party members are threatened and maimed.  Any carts you bring here are apprehended by the Realm.
+  * The player can only get rid of the Mafia by pissing off the Realm and aiding the Blackrose effort . 
+- The best storyline in Exile is the Trogladyte vs Giants one, can this be incorporated?
+  - City in the middle of a battle
+  - Infiltration of Trogladyte fortress
+  - Secret puzzle entrance to base between the two foes
+  - Conflict was incited by an outside source seeking both factions' destruction
+    - Guildimarche agent wants zone in chaos so Merchantry cannot trade?
+- Dilemma: A group of "monsters" that terrorizes a region is discovered to be sentient beings who are fleeing from another threat. Should the player side with the local human population to eliminate them or aid the monsters in finding a safe refuge?
+  - Twist: Helping the monsters may bring unintended consequences, such as attracting their pursuers to the region.
+- The Sentient Weapon: Problem: The player acquires a powerful sentient sword that desires constant bloodshed to stay powerful. It offers great strength but at a moral cost. Should the player wield the sword, keep it despite its dark influence, or destroy it?
+  - Maybe it doesn't desire blood, but something else less edgy and Brandon-Sandersony
+- The Greater Good vs. Individual Rights Dilemma: A town relies on magical energy sourced from a mystical forest, but the forest’s guardian spirits are dying as a result. The player must choose whether to protect the forest and its spirits or prioritize the town’s prosperity, leaving its residents without energy.
+  - Twist: Some spirits are willing to sacrifice themselves for the town, creating tension within the forest community.
+- The Disappearing Island: A once-thriving island is slowly sinking into the sea due to a magical curse. The inhabitants are divided: some want to evacuate and abandon their culture, while others believe in finding and fixing the root of the curse to save their homeland. The player must decide which faction to help.
+  - Twist: The curse was caused by the island’s ancient protectors, who are bound by an ancient pact. Breaking the curse might unleash the protectors’ wrath on the mainland.
+- The Ethical Necromancer: A necromancer claims to have found a way to achieve immortality without the negative consequences typically associated with raising the dead. His method involves creating "living" undead who retain their personalities and free will. The player must decide whether to support this method or destroy it, fearing that it could lead to societal chaos if immortality became widely available.
+  - Twist: The undead have a secret—they slowly lose their humanity over time, but it happens so gradually they don’t notice until it’s too late.
+- Magical Artifice and the Conscious Golem: The player encounters a city powered by sentient golems, constructed by an ancient mage long dead. The golems have begun to develop self-awareness and question their purpose. Should the player side with those who believe golems are just tools, or help the golems gain freedom at the cost of the city’s destruction?
+  - Twist: The golems’ awakening might be part of a hidden magical safeguard put in place by the ancient mage.
+- Entering a place with an AI voiceover that at first acts like a background AI
+  - "Door locked."
+  - "Access Denied."
+  - "J Jacobs, please report to the Infirmary."
+  - "Particle engine's offline."
+  - "Watch your step when exiting the tram."
+  But it subtly turns into a more rogue ai, with a focus seemingly only on the player.
+    - "Progress is impossible."
+    - "Do not enter, there is danger."
+    - "Should you have injury, it is strongly advised you seek medical attention to your left."
+    - "You are not skilled enough to fix the engine."
+    - "Your safety is not ensured when exiting the tram."
+
+Minor ideas
+
+- A suspicious party is encountered in the wilderness.  The dialog makes you think like they are evil and gives every opportunity to attack with several skill checks, but they turn out to be just fine.
+  - THOUGHTS: What moral is this teaching?  Not to be suspicious?  Is this just a simple subversion?  What can be done here that is interesting?
+- Pillars of Eternity features these sentient statues that cannot move, but provide stewardship over some area.  Seems cool.
+  - This can be used like old Fallout AI's, really digging into what happens when a human soul is trapped in one area for a very long time.
+  - Approach it from the opposite direction of an AI, where an AI controls the area and does its job, the human is simply not fit to stay in one place, despite defense mechanisms developed to combat it.
+- Drakes vs Dragon fight from Exile 3, choose a side to support
+- "You walked up to the wrong camp, friend.  Give us all your money now."
+- Break a bandit out of jail to gain his trust only to sneak through camp undercover
+- A local lord is beloved by his people but is secretly using dark magic to control them and maintain order. If the player reveals the truth, chaos may ensue. Should the player expose the lord or maintain the peace for the greater good?
+- A village relies on a magical well for water, but using it too often drains the life force of nearby land and creatures. Should the player allow the villagers to continue using it, causing environmental damage, or find an alternative solution that might lead to political or social instability?
+- A shifty character like Patches or Milodeus: they show up and always mean trouble, but usually after the trouble the player gets something out of it.

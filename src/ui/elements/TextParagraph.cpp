@@ -218,9 +218,9 @@ void TextParagraph::build() {
   }
 }
 
-void TextParagraph::render() {
+void TextParagraph::render(int dt) {
   // Render all TextLine children
-  UiElement::render();
+  UiElement::render(dt);
 }
 
 } // namespace ui

@@ -50,7 +50,7 @@ void SectionDropShadow::build() {
   children.push_back(std::move(q));
 }
 
-void SectionDropShadow::render() {
+void SectionDropShadow::render(int dt) {
   auto& draw = window->getDraw();
 
   auto scaledWidth = static_cast<int>(style.width * style.scale);
@@ -75,7 +75,7 @@ void SectionDropShadow::render() {
   }
 
   // Render child elements on top
-  UiElement::render();
+  UiElement::render(dt);
 }
 
 } // namespace ui

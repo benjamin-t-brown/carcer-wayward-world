@@ -24,7 +24,7 @@ void OutsetRectangle::build() {
   // OutsetRectangle doesn't need to build children, it renders directly
 }
 
-void OutsetRectangle::render() {
+void OutsetRectangle::render(int dt) {
   auto& draw = window->getDraw();
 
   // Calculate scaled dimensions
@@ -62,7 +62,7 @@ void OutsetRectangle::render() {
   }
 
   // Render children
-  UiElement::render();
+  UiElement::render(dt);
 }
 
 } // namespace ui

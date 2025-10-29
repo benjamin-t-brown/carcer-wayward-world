@@ -51,7 +51,7 @@ public:
   bool checkMouseWheelEvent(int mouseX, int mouseY, int delta) override;
 
   void build() override;
-  void render() override;
+  void render(int dt) override;
 };
 
 } // namespace ui

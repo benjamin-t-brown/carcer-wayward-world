@@ -1,0 +1,33 @@
+In many places (primarily towns and cities) merchants may offer to sell you trade supplies. These are packages of a specific kind of item.  They offer a convenient way to sell large amounts of supplies to other towns without the items taking up a lot of inventory slots, although they do take up weight.  A merchant will offer to sell Supplies<type> to the player, the player can invest in these supplies, take them to another town, and sell them, potentially for a profit.
+
+Supplies take up 1 slot of inventory space, but start out with 10 "uses".  Each time it is used, a random item of that type is put into the player's inventory.  Potentially the player could get a valuable item, since it is random, but the vast majority of the time it is something mundane.  Each time supplies are "used", they lose a charge and become less valuable, but also less heavy.  Typically a bundle of supplies will be worth more than selling the items individually (because of this chance of rarity)
+
+Types of Supplies
+
+Light
+- Ammunition
+- Alchemy / Herbs
+- Clothing
+Medium
+- Food
+- Drink
+- Jewelry/Gems
+Heavy
+- Weapons
+- Building Materials
+- Sapphiron
+
+Merchants can sell these supplies for a number of price points that indicate their demand in a certain area.  This makes it slightly easier for players to track whether or not selling supplies grants a profit.  For example, a player can buy something for Average price, and sell for Exorbitant in a different town, and expect to turn a steady profit (amplified by how expensive/rare the items they are selling are)
+
+- Extremely Cheap
+- Cheap
+- Below Average
+- Average
+- Above Average
+- Pricey
+- Exorbitant
+- Utterly Ridiculous
+
+Players must transport these supplies between towns themselves.  These sorts of supplies have associated weight that inhibits they player bringing vast amounts of goods between places.  The player can buy carts/caravans that travel with them outside that carry larger amounts of these supplies.  These carts require an upkeep (per day), and if they travel off of the road, cause more time to pass.  They can be abandoned in the wilderness and never found again, or they can be stored/sold to taverns or other merchants if the player no longer wants them.
+
+If the player is traveling with lots of supplies, there are spots on the map that they are likely to be waylaid by bandits.  These are random encounters that get increasingly more difficult each time the encounter happens.  The idea is that the player learns slowly over time of the risk of bringing caravans with them.  During an ambush, players can choose to give up the caravan so they can get away alive.

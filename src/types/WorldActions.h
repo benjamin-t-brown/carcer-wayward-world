@@ -11,6 +11,7 @@ enum class WorldActionType {
   END_FIGHT,
   GET,
   MAP,
+  MAP_OUTDOOR,
   SNEAK,
   START_FIGHT,
   UNLOCK,

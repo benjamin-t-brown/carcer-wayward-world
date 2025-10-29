@@ -1,0 +1,37 @@
+Melee Weapons range from cheap/common to extremely rare.
+
+Cheap weapons:
+stone +1
+bronze +2
+iron +3
+
+Nice weapons:
+steel +5
+
+Expensive weapons:
+reinforced steel +7
+
+Rare:
+sapphiron +10
+
+Extremely Rare:
+red sapphiron +15
+
+Each tier of weapon grants additional damage, typically in the vein of 1d4.  Higher, rare weapon tiers might just nerf this to +1 instead.
+
+Weapons can be augmented an a number of ways.  Each augmentation is a temporary status effect that applies to the weapon.
+
+Sharpened - Damage dice are rolled with advantage.
+Dipped in Poison - Attacking and hitting somebody gives them Poisoned status effect.
+Charged - Sapphiron energy grants the weapon + 1 damage.
+
+Range Weapons have different classes that fill certain niches of apt-ness
+
+Bows+Arrows - the most difficult to master, but will grant the player the most benefit in the long run.
+Crossbows+Bolts - once the player has Crossbow Training, crossbows will always be useful, but never amazing 
+Thrown darts - Throwing darts is the entry-level throwing weapon, useful early if you have no skill with them but they have a limited damage cap
+Thrown knives - If you are better at thrown weapons, you might opt to use knives which have higher damage potential but are harder to use.
+Thrown shurikans - Shurikans are the hardest to master, but have the most potential for damage.
+
+Weapon Type | Base Damage | DR Bypass | Off Hand Penalty
+Swords, 1d10

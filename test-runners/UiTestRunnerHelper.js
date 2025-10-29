@@ -65,7 +65,7 @@ try {
   process.exit(1);
 }
 
-const COMPILE_TEST = `g++ test/ui/${TEST_FOLDER}/${TEST_FILE_NAME}.cpp ${compilerArgs} -o ${TEST_EXE_NAME}`;
+const COMPILE_TEST = `g++ __test__/ui/${TEST_FOLDER}/${TEST_FILE_NAME}.cpp ${compilerArgs} -o ${TEST_EXE_NAME}`;
 console.log(COMPILE_TEST);
 
 try {

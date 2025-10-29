@@ -12,6 +12,7 @@ InGameLayout::InGameLayout(sdl2w::Window* _window, UiElement* _parent)
 
 void InGameLayout::setProps(const InGameLayoutProps& _props) {
   props = _props;
+  children.clear();
   build();
 }
 
@@ -129,6 +130,6 @@ void InGameLayout::setSubtitleElement(std::unique_ptr<UiElement> _subtitleElemen
 
 UiElement* InGameLayout::getSubtitleElement() { return getChildById("subtitle"); }
 
-void InGameLayout::render() { UiElement::render(); }
+void InGameLayout::render(int dt) { UiElement::render(dt); }
 
 } // namespace ui

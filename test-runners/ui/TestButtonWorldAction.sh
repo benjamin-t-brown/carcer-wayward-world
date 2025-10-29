@@ -1,3 +1,3 @@
 #!/bin/bash
 SCRIPT_DIR=$(dirname "$0")
-node "$SCRIPT_DIR/../UiTestRunnerHelper.js" Elements TestButtonWorldAction "$@"
+node "$SCRIPT_DIR/../UiTestRunnerHelper.js" elements TestButtonWorldAction "$@"

@@ -41,7 +41,7 @@ public:
   void addChild(std::unique_ptr<UiElement> child);
 
   void build() override;
-  void render() override;
+  void render(int dt) override;
 };
 
 } // namespace ui

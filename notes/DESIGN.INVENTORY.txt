@@ -1,0 +1,12 @@
+STASH
+
+Players like to be loot goblins.  If they cannot pick something up, many will excessively go back to pick it up.  If the game doesn't account for this tedious grind, then those players will likely not like it.  It does feel kind of bad to have to leave something on the ground.
+
+Pathfinder WOTR has a "shared stash" with a weight system.  If you pick up too heavy of items, you need to drop them, but you at least have an indicator of when that might happen, and you can go back and sell things.  Problem is, travel in that game is more than tedious, it affects the story.
+
+Pillars 1 has an unlimited stash, but each character has a number of equipment slots, and no items have weight.  A player can pick up infinite of anything, but can only use what is in their slots.  Problem is, stuff can be moved in and out of the stash for free (maybe this is different on other difficulties, not sure).  With this system, the player does a lot of sifting through a huge stash trying to find what to sell and what to keep.  Partly unavoidable, but effectively the player has infinite inventory space.
+
+Geneforge/Avernum remakes have a stash, but you cannot pull items out of the stash unless you are in a town.  This is a bit better, since you cannot use it as inventory space in a dungeon, and some decisions have to be made regarding the inventory.
+
+This last one can be taken a step further.  Before picking stuff up, it can be marked for "Caravan" which means any following caravan will pick up the items and transport them to the nearest trade hub.  Players must then visit the trade hub to either grab the items they want, sell them, or keep them in the bank.  Trade hubs need to be in every major region.
+

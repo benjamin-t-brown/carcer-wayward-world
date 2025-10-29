@@ -129,10 +129,10 @@ UiElement* ModalStandard::getContentElement() { return getChildById("content"); 
 
 UiElement* ModalStandard::getCloseButtonElement() { return getChildById("closeButton"); }
 
-void ModalStandard::render() {
+void ModalStandard::render(int dt) {
   auto& draw = window->getDraw();
   draw.drawRect(style.x, style.y, style.width, style.height, props.backgroundColor);
-  UiElement::render();
+  UiElement::render(dt);
 }
 
 } // namespace ui

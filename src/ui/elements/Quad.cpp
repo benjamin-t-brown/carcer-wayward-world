@@ -90,16 +90,14 @@ bool Quad::checkMouseDownEvent(int mouseX, int mouseY, int button) {
 
 bool Quad::checkMouseUpEvent(int mouseX, int mouseY, int button) {
   // Check if click is within bounds using utility function
-  if (isInBoundsScaled(mouseX, mouseY, this)) {
-    if (shouldPropagateEventsToChildren) {
-      // Check children first (front to back)
-      for (auto it = children.rbegin(); it != children.rend(); ++it) {
-        if ((*it)->checkMouseUpEvent(mouseX - style.x, mouseY - style.y, button)) {
-          return true;
-        }
-      }
+  if (shouldPropagateEventsToChildren) {
+    // Check children first (front to back)
+    for (auto it = children.rbegin(); it != children.rend(); ++it) {
+      (*it)->checkMouseUpEvent(mouseX - style.x, mouseY - style.y, button);
     }
+  }
 
+  if (isInBoundsScaled(mouseX, mouseY, this)) {
     if (isClicked) {
       // click event happens when mouse up occurs inside this element
       // after a mouse down also occurred inside this element.
@@ -107,17 +105,14 @@ bool Quad::checkMouseUpEvent(int mouseX, int mouseY, int button) {
         observer->onClick(mouseX - style.x, mouseY - style.y, button);
       }
     }
-
-    isClicked = false;
-
-    for (auto& observer : eventObservers) {
-      observer->onMouseUp(mouseX - style.x, mouseY - style.y, button);
-    }
-
-    return true;
   }
 
-  return false;
+  for (auto& observer : eventObservers) {
+    observer->onMouseUp(mouseX - style.x, mouseY - style.y, button);
+  }
+  isClicked = false;
+
+  return true;
 }
 
 bool Quad::checkHoverEvent(int mouseX, int mouseY) {
@@ -160,7 +155,7 @@ void Quad::build() {
   createRenderTexture();
 }
 
-void Quad::render() {
+void Quad::render(int dt) {
   if (renderTexture == nullptr) {
     return;
   }
@@ -215,7 +210,7 @@ void Quad::render() {
   }
 
   // Render children (they render relative to 0,0 on the texture)
-  UiElement::render();
+  UiElement::render(dt);
 
   // Restore previous render target
   SDL_SetRenderTarget(renderer, previousTarget);

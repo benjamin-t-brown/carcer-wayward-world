@@ -107,8 +107,8 @@ void BorderInGame::build() {
   children.push_back(std::move(bottomRectangle));
 }
 
-void BorderInGame::render() {
-  UiElement::render();
+void BorderInGame::render(int dt) {
+  UiElement::render(dt);
 }
 
 } // namespace ui

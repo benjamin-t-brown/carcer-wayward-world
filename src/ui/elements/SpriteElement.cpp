@@ -26,7 +26,7 @@ void SpriteElement::build() {
   // noop
 }
 
-void SpriteElement::render() {
+void SpriteElement::render(int dt) {
   auto& draw = window->getDraw();
 
   if (sprite.name.empty()) {

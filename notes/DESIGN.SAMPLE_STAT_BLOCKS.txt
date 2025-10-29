@@ -1,0 +1,71 @@
+STR - weapon damage
+  - Each point grants 1 additional base damage to melee weapons
+MND - magic damage
+  - Each point grants 1 additional base damage to magic spells
+CON - health
+  - Each point grants 1 hp per level
+AGI - movement
+  - Each point grants 1 ap
+LCK - rolls
+  - Each point raises the minimum of every dice roll that is made by 1d2 - 1
+
+Wretch - Lvl 3
+Equipped with: Stone Knife (+1 damage), leather jerkin (+1 AC)
+- GENERAL
+STR - 4
+MND - 5
+CON - 3
+AGI - 3
+LCK - 0
+- COMBAT
+Edged Weapons - 1
+Mana - 0
+Magic Potency - 0
+Resistances - _
+Heal Attune - 0
+Pierce DR - 0
+Armor - 0
+- DERIVED
+Action Points - Base 1 + 3(AGI) = 4
+Might/Damage - Base 1 + 4(STR) = 5
+HP - Base 10 + 3(lvl) * 5(CON) = 25
+Ability Power - Base 0 + 5(MND) = 5
+Damage Reduction - Base 0
+Armor Class - Base 10 + 1 (leather jerkin) = 11
+Status Effect Length - Base 1
+Mana - Base 0
+Resistances - Base _
+Jump Distance - Base 2
+Heal Effectiveness - Base 100%
+
+Guildimarche Agent - Lvl 14
+Equipped with: Flame Steel Sword (+5), Steel Chain (+5 AC, 2DR)
+- GENERAL
+STR - 8
+MND - 12
+CON - 7
+AGI - 5
+LCK - 0
+- COMBAT
+Edged Weapons - 1
+Mana - 25
+Magic Potency - 10
+Resistances - Fire
+Heal Attune - 25
+Pierce DR - 5
+Armor - 10
+- DERIVED
+Action Points - Base 1 + 5(AGI) = 6
+Might/Damage - Base 1 + 8(STR) = 9
+HP - Base 10 + 14(lvl) * 7(CON) = 108
+Ability Power - Base 0 + 12(MND) = 12
+Damage Reduction
+  Pierce DR - 5
+  Other DR - 0 + 2(Steel Chain)
+Armor Class - Base 10 + 5(Steel Chain)
+Status Effect Length - Base 1 + 10(Magic Potency)
+Mana - Base 0 + 25
+Resistances - Base _ + Fire
+Jump Distance - Base 2
+Heal Attune - Base 100% + 25 = 125%
+

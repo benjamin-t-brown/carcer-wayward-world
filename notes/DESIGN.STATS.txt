@@ -1,0 +1,192 @@
+Generic Combat Stats
+
+STR - weapon damage
+  - Each point grants 1 additional base damage to melee weapons
+MND - magic damage
+  - Each point grants 1 additional base damage to magic spells
+CON - health
+  - Each point grants 5 hp per level
+AGI - movement
+  - Each point grants 1 ap
+LCK - rolls
+  - Each point raises the minimum of every COMBAT dice roll that is made by 1d2 - 1
+
+** Combat Stats/Train Training
+
+Level
+
+Accuracy/Mastery: Each point grants +1 to attack roll
+- Edged Weapons
+- Pole Weapons
+- Blunt Weapons
+- Range Weapons
+- Unarmed
+
+Magic Mastery
+- Mana
+- Natural Attunement (status effect length)
+- Ability Power
+
+Body Mastery
+- Resistances
+- Healing Effectiveness Percent
+- DR (damage type specific)
+- Armor Training (reduce armor weight)
+
+Derived:
+
+Action Points - Base 1
+Might/Damage - Base 1
+Magic/Damage - Base 0
+HP - Base 10
+
+Attack Hit Chance - Base 50%
+Ability Power - Base 0
+Damage Reduction - Base 0
+Armor Class - Base 10
+Spell Potency/Status Effect Length/Field Length - Base 1
+Mana - Base 10
+Resistances - Base (none)
+Jump Distance - Base 2
+Healing Effectiveness Percent - Base 100%
+Status Effect Shield - 0
+Materia Slots - Base 0
+Shield Bonus: Base 0
+
+Skills Specific
+Each level grants 5 points, thresholds are met at certain levels, capped at 25.  Advance training feat required for level 20, master training feat required for level 25.
+- Trickery / Lockpick
+  * Each level grants 1 less tool required to open locks.
+  * Each 5th level grants bonus to sleight of hand checks (stealing/dialogue)
+- Stealth
+  * Each level increases amount of time it takes for someone to notice you while in stealth in their vision radius
+  * Each 5th level decreases the vision radius of everyone on you by one
+- Social
+  * Each level grants 1% discount on buying TRADE goods.
+  * Every 5th level grants a 10% boost of people's disposition towards you.
+- Magic Item Use / Magic Affinity / Arcana / Mage Lore
+  * Each level grants 1 higher threshold of learning arcane knowledge from runes.
+  * Every 5th level doubles potency of magical items (potions, wands)
+- Cooking
+  * Each level reduces amount of food required to be satiated while traveling by 1%.
+  * Every 5th level grants the ability to cook better food, which grants: more hp and higher disposition, resistance points? when a day starts.
+- Acrobatics / Shortcut Usage / Terrain Traversal / Athletics
+  * Each level reduces time taken to pass through over world tiles by 1 tick.
+  * Every 5th level allows you to jump an additional tile.
+- Survival / Foraging / First Aid?
+  * Every level grants 1% chance of finding alchemy or cooking ingredients when a day ends while traveling.
+  * Every 5th level grants 1d4 per level higher health and mana gained after a fight concludes
+- Focus
+  * Every level grants 4 additional mana
+  * Every 5th level grants a Resistance point to an elemental type per day
+- Conditioning
+  * Every level grants 1 additional HP when using a healing potion or item
+  * Every 5th level grants a +1 bonus to one combat stat
+
+Resistance Points:
+  * 1 resistance point reduces damage to an aspect by 20% ONE time.  Then it is removed.
+
+Derived Skill Stats
+- Enemy Vision Reduction Base 0
+- Mage Lore
+- Tool Use
+- Trade Discount: Base 0%
+- Item Usage: Base 100%
+- Food Consumption: Base 100
+- First Aid: Base 1d4 * level
+- Alchemy/Cooking ingredient find chance: Base 10%
+- Food Consumption per day: Base 100
+
+- Alchemy / First Aid
+  * Every level grants 
+
+Feats (gained every 3 levels)
+- Light/Heavy armor
+- Fast Travel: More tiles traveled outside before days pass.
+- Advanced Training: Can level up a skill up to 20 per skill
+- Master Training: Can level up a skill up to 25 per skill (requires Advanced Training)
+- Personal Space: You deal an extra 1d4 damage per 4 levels to enemies exactly 2 tiles away, counting diagonal.
+- Inopportunist: You gain an additional approach attack while defending.
+- Magical Efficiency: You use 25% less Sapphiron charge
+- Healthy Specimen: Regular poison does not affect you, and you cannot be diseased
+- Large Build: You are pushed 1 less distance if a force pushes you. (cant have small build)
+- Small Build: You are pushed 1 further distance if a force pushes you. (cant have large build)
+- Toughness: All damage dealt to you is reduced by 2, to a minimum of 1.
+- Inner Calm: Gain additional maximum mana.
+- Squib: Direct Sapphiron Magic is half effective on you, but you are half effective when using it.
+- Assassination: When attacking an actor a lower level than you, you deal additional 1d4 per 4 levels true damage.
+- Master Assassination: Assassination is calculated at 4 levels above your level.
+- Homely: Almost everybody starts off with 0 disposition towards you.
+- Crazy Critter: Criticals inflict a random status effect (positive or negative)
+- Dodger: Your AC is increased by +2 permanently
+- Ravenous Appetite: You eat twice as much food, but it provides double the effect.
+- Quickstep: Your first movement per turn costs 0 AP.
+- Seasoned Traveler: You can carry 2 more slots of rations.
+- Device Illiterate: Sapphiron fragments don't always work for you, sometimes they do something random?
+- Adrenalist: Defeating an enemy grants 1 AP.
+- Groupie: Attacking an enemy who is adjacent to an ally has a +4 attack bonus.
+- Sinister: Negative Status Effects last 1 turn longer per 4 levels.
+- Ephemeral: Walking through fields is half effective against you.
+- Hot: You have resistance to fire damage.
+- Huskarl: You gain resistance to piercing damage.
+- Armor Bearer: Wearing any armor grants 2 additional DR per level 
+- Evasive: Your AC is raised by 2 permanently
+- Mutant: You are resistant to radiation damage
+- Burning Rage: While under effects of Burning or Inferno, your STR stat is doubled
+
+ENEMY ONLY
+- Poisoned Weapons: Your weapons always have poison applied
+
+** Damage Types
+
+PHYSICAL
+- Edged
+- Bashing
+- Piercing
+
+ELEMENTAL
+- Fire
+- Poison
+- Static
+- Radioactive
+
+UNNATURAL
+- Necrotic
+- True
+
+** Statuses and Conditions
+
+FIELD BASED
+- Burning -> Inferno
+- Sapped -> Exhausted
+- Cold -> Frozen
+- Webbed
+- Irradiated
+- Wet
+- Obscured
+- Levitating
+
+SPELL BASED
+- Blessed -> Chosen
+- Cursed -> Damned
+- Poisoned -> Diseased
+- Hasted -> Megahasted
+- Slowed -> Slothed
+- Martyr's Shield
+- Fire Shield
+
+MISC
+- Drunk -> Intoxicated
+- Hidden
+- Stunned
+- Sundered
+
+** Fields
+- Conflagration Cloud
+- Lava
+- Smoke Cloud
+- Blade Wall
+- Webs
+- High Winds
+- Soaked
+- Electrified Water

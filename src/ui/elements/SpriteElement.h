@@ -20,7 +20,7 @@ public:
   const sdl2w::Sprite& getSprite() const;
 
   void build() override;
-  void render() override;
+  void render(int dt) override;
 };
 
 } // namespace ui

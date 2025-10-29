@@ -136,9 +136,9 @@ void BorderModalStandard::build() {
   children.push_back(std::move(bottomRectangle));
 }
 
-void BorderModalStandard::render() {
+void BorderModalStandard::render(int dt) {
   // Render all child OutsetRectangle elements
-  UiElement::render();
+  UiElement::render(dt);
 }
 
 } // namespace ui

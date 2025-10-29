@@ -1,0 +1,21 @@
+# sdl2w asset file
+
+# Sound,airplane,assets/snd/airplane.wav
+
+Pic,ui_action_buttons,assets/img/ui/action_buttons.png
+Sprites,ui_action_buttons,48,32,32
+
+Pic,ui_action_buttons_half,assets/img/ui/action_buttons.png
+Sprites,ui_action_buttons_half,32,32,16
+
+Pic,ui_item_icons,assets/img/ui/item_icons.png
+Sprites,ui_item_icons,64,16,16
+
+# Pic,train0,assets/img/train0.png
+# Sprites,train0,16,40,33
+# Anim,train0_left,loop
+# train0_0 100
+# train0_1 100
+# train0_2 100
+# train0_1 100
+# EndAnim

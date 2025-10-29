@@ -113,7 +113,7 @@ public:
 
   // Build and render
   virtual void build();
-  virtual void render();
+  virtual void render(int dt);
 
   // Getters for window and parent
   sdl2w::Window* getWindow() const { return window; }

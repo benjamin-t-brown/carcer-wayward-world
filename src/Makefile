@@ -5,6 +5,9 @@ MAIN_ALL=main.cpp
 
 CODE=\
 LibHTML.cpp \
+db/Database.cpp \
+db/spriteMappings.cpp \
+db/loaders/itemTemplates.cpp \
 ui/UiElement.cpp \
 ui/elements/SpriteElement.cpp \
 ui/elements/Quad.cpp \
@@ -22,9 +25,11 @@ ui/elements/OutsetRectangle.cpp \
 ui/components/BorderModalStandard.cpp \
 ui/components/BorderModalSmall.cpp \
 ui/components/BorderInGame.cpp \
+ui/components/VerticalList.cpp \
 ui/layouts/InGameLayout.cpp \
 ui/layouts/ModalStandard.cpp \
 ui/layouts/ModalSmall.cpp \
+ui/lists/ListInventory.cpp \
 
 LIB_CODE=\
 

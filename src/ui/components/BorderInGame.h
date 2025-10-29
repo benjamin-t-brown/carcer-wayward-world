@@ -28,7 +28,7 @@ public:
   const std::pair<int, int> getContentAreaLocation() const;
 
   void build() override;
-  void render() override;
+  void render(int dt) override;
 };
 
 } // namespace ui

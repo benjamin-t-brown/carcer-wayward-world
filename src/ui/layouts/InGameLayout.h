@@ -40,7 +40,7 @@ public:
   const std::pair<int, int> getDims() const override;
 
   void build() override;
-  void render() override;
+  void render(int dt) override;
 };
 
 } // namespace ui

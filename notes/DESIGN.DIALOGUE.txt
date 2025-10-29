@@ -1,0 +1,39 @@
+Dialog Guidelines
+
+- Try to be succinct with dialog.  It should not be often that characters spew monologues.
+  - this isn't an attempt to be more realistic, it's more to keep the word count down and easier to read.
+- By default, skill checks should not be told to the player, but they can be turned in in difficulty settings
+  - The player will always choose skill check for their highest skill, it takes the fun out of it if the skill check is told to them at the start.  This is part of role playing.
+    - PROBLEM Skill check text might not be consistent with what a player thinks should be the skill check
+      - This happens in DnD all the time and it's a minor problem.
+      - Can be mitigated with the difficulty setting to show skill checks.
+    - Players should know a skill check happened though, and what kind it was but only AFTER it happens.
+    - Will players just save scum this or wiki this anyway?
+  - Maybe not a "difficulty" setting, maybe a "gameplay" setting
+
+Disposition
+
+Each character you can speak to has a disposition score against you.  It starts at 50 and is swayed directions based on some factors:
+  - Which factions you have assisted
+  - If you have damaged them or caused them harm
+  - If you have assisted them
+  - If the character is aligned with your chat classification 
+
+Dialogue Choice Classifications
+
+Dragon - Shark - Amber - ORANGE cruel/serious/ruthless/haughty
+Golem - Whale - Ruby - RED blunt/rude/honest
+Fae - Dolphin - Topaz - YELLOW sarcastic/joking/light-hearted
+Dryad - Seal - Emerald - GREEN nice/benevolent/naieve
+Pandora - Jellyfish - Turquoise - BLUE insightful/curious/nosey
+Umbra - Eel - Amethyst - PURPLE deceptive/tactful/reserved
+Ani - Greedy/Opportunistic/Cheap
+Phoenix
+Aeon
+
+Characters with high disposition towards you are more likely to think of you as a friend. This opens up dialog options that wouldn't be there.  With low dispositions, characters treat you as an enemy, but this might also open up dialog options.
+
+Special Dialog
+
+[Terrifying Presence] Dialog which inflicts fear on the other person and ends the dialog immediately.
+[Magnanimous] Drastically increases disposition to characters who like benevolent.

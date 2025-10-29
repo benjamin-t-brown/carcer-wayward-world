@@ -1,0 +1,52 @@
+Nobility - The nobles of Sadelica all came from the mainland for power, each typically believing their their rule in the area would be the best.  
+Merchantry - Merchants seek wealth for their own gain.  They work with nobility but are a much more selfish lot.
+Realm - The neutral parties of the island do not wish any other party to gain too much power, and act against those who gain advantage.  But they also wish that everyone on Sadelica lives their own lives without bothering anybody else.  The minions of the Realm employ fabled assassins against those who displease them.
+Magicians - The magicians on the island seek to study the effects of the magic there, often at the cost and livlihood of others.
+Island - The Island faction wishes for anyone on the island to be off the island.  It is headed by a being named Chorus, a god of the magical force that that permeates the island.  Chorus works in more ways than simply assaulting the people on the island because it knows that invoking the full wrath of the magic here surely means the destruction of the seals in the volcano.  Chorus often appears to people in visions or as avatars that approach those who are dissatisfied with their life there.  Chorus offers a better life for those who join it.
+Villager - only possible to remove renown from the other powers (or not affect Renown at all)
+
+Immigrants to Sadelica are called "Larks"
+
+Alinea characters and quests:
+
+You can ask any character here about warehouse "9" and they will all tell you something vague about how there's only 8 warehouses, but it might be referencing the odd building at the end of town that nobody goes to.  You cannot get into the front door of this building, you have to go underground to the basement.  Here you find a small, easy battle by gate with Dunns on the other side.  Dunns teaches you how to fight (if you have not already).  He won't let you through the door unless you have enough Total Renown.  Once you get inside, Dunns takes you to Radmila, who tells you why she brought you here and has a quest for you. (Find Eskivius in Carrion Valley).  She teleports you there and that is the end of this Chapter.
+
+Lady Radmila Omvaire - The one who had you kidnapped and brought to Sadelica.  Technically part of all factions and none at the same time.  Wishes to be empress of her own Realm on Sadelica.  She appears to know things about each faction that she should not.  She typically works in secret, acting without getting any Renown.  She lets you do that for her.
+
+Dunns Murose - Radmila's bodyguard/partner.  You meet him in warehouse 9 where he teaches you the basics of combat.  Also appears as you gain Renown, telling you if you have gained enough to get access to the warehouse.
+
+Dock Master Claire (Realm) - Claire is concerned that Idoreo might be overstepping his bounds and is suspicious of the packages he has.  She wants proof that his packages contain magic items.  She asks you to search them and see if you can find evidence.  You can search crates in the warehouses after having spoken with her to find a Fire Stone.  You can keep this or hand it back to her for Renown.
+
+Lieutenant Mullen (Realm) - Mullen wishes that the Blackrose estate would move it's military force away from Alinea.  He wants you to to contact his spy in the camp and get an update about what they are up to.
+
+Spy Rigby (Realm) - Spy Rigby reports that the Blackrose estate has some plans but she doesn't know what those plans are.  She has a lead on something but needs you to distract the guy guarding a tent in the Blackrose camp.  At any time, you can report to Lavolan that Rigby is a spy and you gain Renown with Nobility.
+
+Lord Schovan Abivola (Nobility) - A minor noble, but the owner of most warehouses inside Alinea.  Seeks to increase taxes on storage space, but is currently stopped by Claire.  Will give you a quest to clear out the northern road of bandits because he doesn't want to pay the Blackrose estate, who he thinks placed them there on purpose.  Is afraid of overstepping his bounds with Realm and speaks of the Terraveil, and, if you have enough Renown with nobility, will tell you of Boom Powder, and that if the slightest hint of fire hits it, the powder explodes.
+
+Lady Aldebeth Blackrose (Nobility) - A major noble of the Blackrose family.  Provides a mercenary guard force that is hired out by the Merchantry sometimes.  Has a camp beside the town that's ready to provide services.  Gets mad if you provide combat services for anybody except the Realm.  Place to buy weapons+armor.  Blackrose is insulted that Abivola won't give them fair prices for storage.  They will give you a contract to defeat a monster that has taken up residence.  This monster happens to be a group of Golems in a nearby cave guarding a Realm weapons cache.  If you find the lever to unlock the door (Igmund will tell you about this lever if you throw a rock at Bartolo Caldeburn).  You can take the cache, tell Blackrose about it for Renown, or tell Realm about it for Renown.
+
+Sir Lavolan (Nobility: Blackrose) - Resides in Aldebeth's camp.  The guy you can go to to report things to because Aldebeth does not deal with 'trifling matters'.
+
+Apprentice Chem (Magicians) - Magician's apprentice who was not talented enough to stay in one of the main universities.  Seeks something that will bring him notice.  Wants you to break into a Realm warehouse and steal an OmniFlower (item that full heals you).  He would search himself, but he is working on a potential potion using this rare ingredient.  You can keep this OmniFlower, give it back to him, or notify Mullen of this for Renown.
+
+Scopey (Merchantry) - Scopey has a caravan buys supplies from a ship captain, Elvyosa.  She has offloaded most of her cargo as he loads it into his caravan.  He says he keeps his nose out of everyone's business, and is surprisingly laid-back.  He's suspicious of Sol and Chem as untrustworthy people, but doesn't care enough to do anything about it.  You can get Renown for Merchantry if you help Elvyosa move crates to his place.
+
+Elvyosa (Merchantry) - Ship captain of the convoy occupying the port.  Has a few broken ships she needs fixed, but nobody in town has the materials she requires.  Wants to be on her way, but wants Gruff to buy her broken ships.  Will give you money for carrying supplies from her ships to Scopey's caravan.  Also gives you some Renown with Merchantry.
+
+Idoreo (Merchantry) - Has an agreement with Lord Abivola, pays extra so that certain of his packages aren't searched.  These packages contain fragments of broken magical items which are typically confiscated by the Blackrose family or by the Realm.  Intends to ship these fragments to the Guildimarche estate, but the northern roads are blocked, and Elvyosa refuses to take his cargo.  Wants you to smuggle just one box aboard her ship.
+
+Sol (Island) - Sol watches for new people coming into the port and determines people who are "noteworthy" to Chorus.  If you do any quests in Alinea he will approach you and warn you that the island is more than it seems, and that there are those who would rather see the people here removed.  He insinuates that you can aid in this cause and that someone will approach you later.
+
+Lord Barto Caldeburn (Nobility) - A man waiting for the road to get unblocked so he can head north to Boromak.  Dislikes Elvyosa for not letting him book passage.  Arrogant, impatient, but if you are nice to him you get a small amount of Nobility renown.
+
+Igmund (Villager) - Is fed up with Bartolo Caldeburn's arrogance.  He asks you to go outside, grab a rock, and throw it at Bartolo.  If you do this, you are thrown out of the tavern and Gruff won't let you back inside to heal.  Igmund tells you that you can use his house to sleep/heal.  If you search his house, you discover that he has a cache of money beneath a rock outside that he has stolen from Abivola's cachiers.  You can take this, but Abivola will request it back if you tell him that Igmund stole from him (for Renown).
+
+Gruff (Villager) - Bartender at the tavern.  Subservient to nobles.
+
+Bandits: The bandits blocking the northern road are the remains of a merchant family that has been caused bankruptcy due to the Guildimarch estate.  They are bitter and resentful towards nobility, and their leader, Edwin Killroy, is a strong fighter.  If you ransack it there may be more than people say.
+
+Cave: There's a small cave nearby that holds a weapons cache/bunker that has apparently been set aside by Captain Mullen in case of Blackrose Uprising where he could hold out until some of the Terraveil arrive.  This cave is guarded by a group of malfunctioning Realm Golems.
+
+The bandits have destroyed the bridge to the north as a sign of defiance to the Guildimarch estate.  The north road leads to Boarmark, a small trading hub that the Guildimarch use to coordinate shipments.
+
+If you break into one of the warehouses that contains magical items, something has gone wrong.  You get into a magical encounter which you can flee or fight.  If you flee, you do not get implicated in the break in, if you fight, you lose favor with Nobility

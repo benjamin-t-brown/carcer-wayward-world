@@ -34,7 +34,7 @@ public:
   void addObserverToButtonAtIndex(int index, std::unique_ptr<UiEventObserver> observer);
 
   void build() override;
-  void render() override;
+  void render(int dt) override;
 };
 
 } // namespace ui

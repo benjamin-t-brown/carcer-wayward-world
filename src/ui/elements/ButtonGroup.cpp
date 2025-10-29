@@ -65,6 +65,6 @@ void ButtonGroup::build() {
   }
 }
 
-void ButtonGroup::render() { UiElement::render(); }
+void ButtonGroup::render(int dt) { UiElement::render(dt); }
 
 } // namespace ui

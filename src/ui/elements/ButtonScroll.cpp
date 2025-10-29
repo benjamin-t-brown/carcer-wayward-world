@@ -63,7 +63,7 @@ void ButtonScroll::build() {
   children.push_back(std::move(q));
 }
 
-void ButtonScroll::render() {
+void ButtonScroll::render(int dt) {
   if (isHovered) {
     if (!isInHoverMode) {
       isInHoverMode = true;
@@ -100,7 +100,7 @@ void ButtonScroll::render() {
                   scaledHeight + borderSize * 2,
                   Colors::ButtonModalSelected);
   }
-  UiElement::render();
+  UiElement::render(dt);
 }
 
 } // namespace ui

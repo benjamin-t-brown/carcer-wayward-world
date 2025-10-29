@@ -21,6 +21,7 @@ ButtonModal::ButtonModal(sdl2w::Window* _window, UiElement* _parent)
   addEventObserver(std::make_unique<ButtonModalDefaultObserver>(this));
   style.textAlign = TextAlign::CENTER;
   style.fontSize = sdl2w::TEXT_SIZE_20;
+  style.fontColor = Colors::White;
   shouldPropagateEventsToChildren = false;
 }
 
@@ -77,7 +78,7 @@ void ButtonModal::build() {
   children.push_back(std::move(q));
 }
 
-void ButtonModal::render() {
+void ButtonModal::render(int dt) {
   if (isHovered) {
     if (!isInHoverMode) {
       isInHoverMode = true;
@@ -114,7 +115,7 @@ void ButtonModal::render() {
                   scaledHeight + borderSize * 2,
                   Colors::ButtonModalSelected);
   }
-  UiElement::render();
+  UiElement::render(dt);
 }
 
 } // namespace ui

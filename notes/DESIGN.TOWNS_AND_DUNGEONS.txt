@@ -1,0 +1,24 @@
+The game area is split up into two major modes of transportation and time:
+
+- Overworld Travel
+- Town/Dungeon Travel
+
+Time passing and Food: 
+
+Time is tracked by days since arrival on Sadelica.  Each day requires the player to eat 1 ration of food.  If the player does not have enough food, they gain Exhaustion status.  If they have 4 points of this status, they die.
+
+Towns/Dungeons
+
+Time is delineated by how often the player has to consume rations.  In a town, this is once every 10 minutes.
+  - In a town, players do not consume food from inventory, instead it is handled automatically (comes from tavern or whatever)
+  - In a dungeon, food is consumed from the player's inventory.
+  - Player 1 and Player 2 do not share a food storage.  They consume food at different rates if they leave the town at different times.
+
+Overworld
+
+Rations are consumed by number of tiles traveled in the Overworld.
+
+
+
+
+While in a town the Player and any Coop partner can freely roam throughout the town.  They can each have conversations separately and explore the map with shared vision.  

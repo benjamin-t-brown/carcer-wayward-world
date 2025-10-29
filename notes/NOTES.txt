@@ -1,0 +1,256 @@
+Damage Types:
+Piercing
+Hack
+Force
+Destruction (Elemental)
+Drain
+True
+
+Damage Attacks:
+Bow - Piercing
+Sword - Hack, Piercing
+Pike - Hack, Piercing
+Hammer - Hack
+
+Basic Unit Types
+
+Peasant
+
+AP: 4,
+AC: 10,
+DEX: 10,
+CHA: 8,
+STR: 12,
+WIS: 8,
+CON: 12,
+
+0 spell slots
+
+- (PASSIVE) VICARIOUS - Peasants gain +1 to each stat for each other nearby Peasant.
+- ATTACK: CLUB - base + DEX, bonus: none, dmg=1d6 + STR
+- SKILL: SHOUT - reduce WIS of nearby enemies by 1 for 1 turn.
+
+Guard
+
+AP: 4,
+AC: 13,
+DEX: 12,
+CHA: 12,
+STR: 12,
+WIS: 8,
+CON: 13,
+
+0 spell slots
+
+- (PASSIVE) AUTHORITARIAN - deal 1d4 extra damage to enemies with less than half hp.
+- ATTACK: SWORD - base + 3 + STR, bonus: none, dmg=1d8 + STR
+- ATTACK: BOW - base + DEX, bonus: none, dmg=1d6 + DEX
+- SKILL: SWAP WEAPON - can swap weapon to bow or back to sword.
+- SKILL: ORDER - reduce AC of enemy by 2 for 2 turns.  Does not stack.
+
+Scout
+
+AP: 5,
+AC: 11,
+DEX: 14,
+CHA: 10,
+STR: 14,
+WIS: 12,
+CON: 12,
+
+1 spell slot + WIS
+
+- (PASSIVE) SURVIVALIST - scouts take no movement penalties through difficult terrain
+- ATTACK: BOW - base + 4 + DEX, bonus: wizard, dmg=1d8 + DEX
+- SPELL: MARK - allies deal 1d4 additional damage to this unit for 2 turns.
+- SKILL: DASH - double AP at start of next turn.
+
+Cleric
+
+AP: 4,
+AC: 14,
+DEX: 10,
+CHA: 11,
+STR: 12,
+WIS: 14,
+CON: 12,
+
+2 spell slots + WIS
+
+- (PASSIVE) AID - Passively heal nearby units per turn (WIS)
+- ATTACK: MACE, base + 4, bonus: fiends, dmg=1d8 + STR
+- SPELL: SHIELD - increase AC of ally by 4, 3 turns
+- SPELL: WOUND - vitim takes 1d8 + WIS damage, no saving throw
+- SPELL: RADIANCE - Nearby enemies take 1d6 + WIS + CHA damage 
+
+Wizard
+
+AP: 4,
+AC: 12,
+DEX: 11,
+WIS: 16,
+CHA: 11,
+STR: 10,
+CON: 10,
+
+2 spell slots + WIS
+
+- (PASSIVE) ENERGIZE - Gain Spell Slot every other turn.
+- ATTACK: WAND - base + CHA, bonus: humans, dmg=1d4 + 3
+- SPELL: BOLT - 1d6 + 4 Damage + CHA, Victim must save DEX 10 + Wizard's WIS or take additional 1d6 damage + CHA.
+- SPELL: HEAVY BOLT - costs 2 slots, BOLT over area of 9
+- SPELL: MAGIC ARMOR - increase AC of self by 3, 3 turns
+- SPELL: HASTE - increase AP of ally by 4
+- SPELL: HASTE ALL - costs 3 spell slots, increase AP of party by 4
+
+Dancer
+
+AP: 5,
+AC: 12,
+DEX: 13,
+CHA: 14,
+STR: 11,
+WIS: 11,
+CON: 11,
+
+2 spell slots + CHA
+
+- (PASSIVE) SUGGESTIVE - Nearby allies get +1 AP next turn.
+- ATTACK: DAGGERx2, base + 2 + DEX, bonus: wizard, dmg=1d4 + STR
+- SPELL: SANCTUARY - Enemies cannot attack you directly for 3 turns. Spells/area exempt.
+- SPELL: INSPIRE - ally gets +2 STR and +2 CON
+- SPELL: INSPIRE ALL - allies get +2 STR and +2 CON
+
+Lord
+
+AP: 4,
+AC: 12,
+DEX: 12,
+CHA: 14,
+STR: 12,
+WIS: 12,
+CON: 12,
+
+0 spell slots
+
+- (PASSIVE) PRIVILEGED - This unit always goes first.
+- ATTACK: RAPIER, base + 4 + DEX, bonus: peasant, dmg=1d6 + STR + DEX
+- SKILL: HALT - 1 turn cooldown, Stun one enemy, any range, Victim must save CHA + Lord's CHA
+- SKILL: REPOSE - 2 turn cooldown, Next 2 turns, RAPIER hits twice
+
+Knight
+
+AP: 4
+AC: 16
+DEX: 8,
+CHA: 12,
+STR: 14,
+WIS: 10,
+CON: 13,
+
+0 spell slots
+- (PASSIVE) SPITEFUL - Enemies attacking in close combat take 1d4 damage per hit
+- ATTACK: GREAT SWORD - base + 3 + STR, bonus: scout, 2d8 + STR damage
+- SKILL: TRIP - 1 turn cooldown, Cripple enemy (half ap next 2 turns), attack base + STR + DEX
+- SKILL: DEFEND - Enemies hitting nearby allies also take SPITEFUL damage
+
+Saint
+
+AP: 4
+DEX: 8
+CHA: 10
+STR: 10
+WIS: 17
+CON: 12
+
+2 spell slots + WIS
+- (PASSIVE) SERENITY - Melee attacks deal half damage.
+- ATTACK: PUNCH - base + DEX, bonus: none, 1d4 damage
+- SKILL: ZAP - 1 turn cooldown, 1d4 damage + WIS
+- SPELL: SMITE - spell attack, 1d12 damage + WIS 
+- SPELL: HEAL - heal unit 1d6 + WIS hp.
+- SPELL: HEAL ALL, costs 3 spell slots, heal all units
+
+############ ENEMIES ############
+
+Burlywart
+
+AP: 5
+AC: 14,
+DEX: 12,
+CHA: 8,
+STR: 12,
+WIS: 8,
+CON: 16,
+
+0 spell slots
+- (PASSIVE) BLUNDERING - When moving into a space, adjacent enemies take 1d4 damage.
+- ATTACK: FIST - base + 3, bonus: scout, 2d4 + STR DMG
+- SKILL: DOUBLE FIST - 2 turn cooldown, cast FIST twice
+
+
+Kobold
+
+AP 4
+AC: 10
+DEX: 10,
+CHA: 10,
+STR: 10,
+WIS: 10,
+CON: 10,
+
+- (PASSIVE) INNOCUOUS - When standing in same place, gain 4 AC & 4 STR for next turn.
+- ATTACK: SCIMITAR - base + 2, bonus peasant, 1d6 DMG
+- SKILL: TRIP - 1 turn cooldown, Cripple enemy (half ap next 2 turns), attack base + STR + DEX
+
+Dark Mage
+
+AP 4
+AC: 12
+DEX: 12,
+CHA: 12,
+STR: 8,
+WIS: 13,
+CON: 10,
+
+6 spell slots + WIS
+- (PASSIVE) ENERGIZE
+- ATTACK: FIST - base, bonus none, 1d4 DMG + STR
+- SPELL: BLAST - 1d6 + 4 Damage + WIS,
+- SPELL: HASTE - increase AP of ally by 4 for 3 turns
+- SPELL: BLESS - increase STR & DEX of ally by 4 for 3 turns 
+- SPELL: CURSE - decrease STR & DEX of enemy by 3 for 3 turns
+
+Dark Soldier
+
+AP: 4
+AC: 15
+DEX: 8,
+CHA: 12,
+STR: 13,
+WIS: 10,
+CON: 14,
+
+0 spell slots
+- (PASSIVE) STAUNCH - Misses against this unit grant it +1 AP.
+- ATTACK: BATTLE HAMMER - base + 4 + STR, bonus: none, 2d8 + STR damage
+- SKILL: SHOVE - 1 turn cooldown, enemy is pushed 1 tile away.
+- SKILL: GUARD - AC +2 for next turn
+
+Dark Archer
+
+AP: 4,
+AC: 12,
+DEX: 14,
+CHA: 10,
+STR: 12,
+WIS: 12,
+CON: 12,
+
+0 spell slots
+
+- (PASSIVE) SNIPER - The first attack against any enemy deals 1d4 extra damage.
+- ATTACK: BOW - base + 4 + DEX, bonus: wizard, dmg=1d8 + DEX.
+- SKILL: ENVENOM - BOW attacks for next 2 turns deal 1d4 + WIS extra damage.
+- SKILL: DASH - double AP at start of next turn.
+

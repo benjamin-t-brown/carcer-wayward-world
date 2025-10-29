@@ -140,6 +140,6 @@ void BorderModalSmall::build() {
   children.push_back(std::move(bottomRectangle));
 }
 
-void BorderModalSmall::render() { UiElement::render(); }
+void BorderModalSmall::render(int dt) { UiElement::render(dt); }
 
 } // namespace ui

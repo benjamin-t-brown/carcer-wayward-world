@@ -40,7 +40,7 @@ ButtonWorldActionMapping
 ButtonWorldAction::getButtonWorldActionMapping(types::WorldActionType worldActionType) {
   switch (worldActionType) {
   case WorldActionType::JUMP:
-    return ButtonWorldActionMapping{TRANSLATE("Jump"), 0};
+    return ButtonWorldActionMapping{TRANSLATE("Jump"), 17, true};
     break;
   case WorldActionType::ABILITY:
     return ButtonWorldActionMapping{TRANSLATE("Ability"), 1};
@@ -55,7 +55,7 @@ ButtonWorldAction::getButtonWorldActionMapping(types::WorldActionType worldActio
     return ButtonWorldActionMapping{TRANSLATE("End Fight"), 4};
     break;
   case WorldActionType::GET:
-    return ButtonWorldActionMapping{TRANSLATE("Get"), 5};
+    return ButtonWorldActionMapping{TRANSLATE("Get"), 16, true};
     break;
   // case WorldActionType::MAP:
   //   return ButtonWorldActionMapping{TRANSLATE("Map"), 6};
@@ -98,6 +98,9 @@ ButtonWorldAction::getButtonWorldActionMapping(types::WorldActionType worldActio
     break;
   case WorldActionType::MAP:
     return ButtonWorldActionMapping{TRANSLATE("Map"), 7, true};
+    break;
+  case WorldActionType::MAP_OUTDOOR:
+    return ButtonWorldActionMapping{TRANSLATE("Map"), 6};
     break;
   }
   return ButtonWorldActionMapping{TRANSLATE("Examine"), 0};
@@ -163,7 +166,7 @@ void ButtonWorldAction::build() {
   children.push_back(std::move(spriteElement));
 }
 
-void ButtonWorldAction::render() {
+void ButtonWorldAction::render(int dt) {
   if (isActive) {
     if (!isInActiveMode) {
       isInActiveMode = true;
@@ -176,7 +179,7 @@ void ButtonWorldAction::render() {
     }
   }
 
-  UiElement::render();
+  UiElement::render(dt);
 }
 
 } // namespace ui

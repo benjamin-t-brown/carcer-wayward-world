@@ -1,0 +1,311 @@
+SINGLETONS
+
+EventHandler
+  - onButtonPress
+    - based on state this will handle different button press actions
+Camera
+  - px, py, widthPx, heightPx
+State
+  - What round it is
+  - Turn Order
+  - Turn order index
+  - apRemaining
+  - turnStatus: EXAMINING, SELECTING_MOVE, SELECTING_ACTION, SELECTING_TARGET, WAITING_FOR_RESOLUTION
+  - Ui State
+    map: {
+      - Cursor px, py
+      - hoveredTile
+      - hoveredTileTimestampSelected
+      - hoveredTileTimestampUnselected
+      - hoveredCharacter
+      - hoveredCharacterTimestampSelected
+      - hoveredCharacterTimestampUnselected
+      - Marked Units {
+        markedEnemyId: ID
+        movePositions: Tile[]  
+      }[]
+    }
+    miscMenu: {
+      - visible: boolean
+      - timestampOpened: number
+      - timestampClosed: number
+      - selectedIndex: number
+    }
+    examineMenu: {
+      - visible: boolean
+      - timestampOpened: number
+      - timestampClosed: number
+      - helpVisible
+      - helpSelectedIndex
+    }
+    movementSelectMenu {
+      - startingAp: number
+      - movablePositions
+      - movePath: Tile[]
+    }
+    actionSelectMenu {
+      - visible: boolean
+      - timestampOpened: number
+      - timestampClosed: number
+      - selectedActionIndex: number
+    }
+    targetSelectMenu {
+      - targetSelectionType: UNIT | ALL_UNIT | ZONE | ADJACENT (select UNIT or select ZONE or select all ADJACENT)
+      - selectableTargets: Tile[]
+      - selectedTargetIndex: number
+      - selectedZoneLocation
+          - Target Cursors: Cursor x,y[] (list of cursors to place on targets)
+      - Attack Preview {
+      - previewTargetIndex
+      - attacks: {
+          chance to hit, + damage, + hp,
+          chance to apply status
+        }[]
+      }
+    }
+ActionDepicter
+  - isDepicting
+  - startedAt
+  - Action
+  - depictionStateInd
+  - depictionStates: List Of
+    - hasStarted: boolean
+    - timestampStarted, duration,
+      One of
+        - SetAnimationState
+        - ShowProjectile
+        - ShowAnimatedDamages
+        - ShowStaticDamages
+        - ShowHealAmounts
+        - ShowStatusApplied
+  - Once completed, action depicter clears itself
+DiceCalculator
+  - calculateHitChance
+  - calculateSaveChance
+  - calculateDamageRange
+  - rollForHit
+  - rollForDamage
+  - rollForSave
+RoundManager
+  - increments turnInd when a turn is completed 
+  - resets the round when it's completed
+
+
+COMPONENTS
+
+// Drawing-related stuff
+TilePosition
+  - x, y of tile.  z index for drawing
+  - highlightColor?:
+  - highlightColorTimestampStart?
+  - highlightColorTransitionDuration?
+PixelPosition
+  - px, py on screen, z index for drawing
+Sprite
+  - spriteBase, 
+  - animationState
+  - textParams, text to draw
+LimitedLifetime
+  - timeCreated, duration ms
+TransformPosition
+  - start x,y, end x,y, timeCreated, duration ms
+CameraVisibility
+  - boolean whether or not this is visible/ should be drawn based on position of Camera
+
+Pathfindable
+  - Cost to traverse
+FieldList
+  - List of Fields applied to this component:  
+    Field: {
+      type: NONE, CONFLAGRATION, ZAP,
+      roundCreated
+      numRoundsItLasts
+    }
+
+Stats
+  - AP, AC, DEX, CHA, STR, WIS, CON, Starting Spell Slots
+  - derived MaxHP, derived Spell Slots
+  - current HP, current Spell Slots
+StatusList
+  List of statuses: 
+  {
+    roundCreated
+    numRoundsItLasts
+    Status {
+      onTurnStart
+      onTurnEnd
+      onAttackStart
+      onAttackEnd
+      onMoveToTile
+      onDamageTaken
+      onDamageDealt
+    }
+  }
+AbilitiesList
+  List of abilities innate to this Component
+  {
+      costAp: number,
+      costSpellSlots: number,
+      costTurns: number,
+      lastTurnUsed: number,
+      range: number,
+      targetType: UNIT | ALL_UNIT | ZONE | ADJACENT (select UNIT or select ZONE or select all ADJACENT)
+      zoneSize?: 1 | 2 | 3 (zone size 1 is one tile, zone size 2 is 3x3, zone size 3 is 5x5)
+      boonSpells: {
+        statusesToApply: Status[]
+        healAmt: number
+      }[],
+      fieldSpells: {
+        fieldToApply: FIELD,
+      }[],
+      attacks: {
+        type: ATTACK | DAMAGE_SPELL | EFFECT_SPELL
+        attackBonus: number
+        attackTypeBonusAgainst: UnitType
+        damageBase: [list of dice to use]
+        damageBonus: number,
+        damageBonusState: STAT
+        save: {
+          useSave: boolean
+          saveReq: number,
+          saveStat: STAT,
+          saveAgainstState: STAT,
+          statusesToApply: Status[]
+          damageToApply: [list of dice to use]
+          damageToApplyBonus: number
+        }
+      }[]
+    }  
+  }[]
+
+Removable
+  - boolean whether or not to remove this
+
+SYSTEMS
+
+DrawSprites
+  step0: check if can use cached result
+  step1: aggregate list of sprites
+    - for each TilePosition + Sprite + CameraVisibility
+    - for each PixelPosition + Sprite + CameraVisibility
+  step2: sort by z index
+  step2.5: cache result somewhere
+  step3: draw
+
+CameraVisibilitySetter
+  - for each TilePosition + VisibleOnScreenIndicator, check collision with Camera
+  - for each PixelPosition + Sprite, check collision with Camera
+
+LifetimeChecker
+  - for each LimitedLifetime + Removable, if it's completed, mark for removal
+
+PixelPositionTransformer
+  - for each PixelPosition + TransformPosition
+
+ENTITIES
+
+
+
+PROCESS OF DOING AN ACTION.
+
+EX1: making an attack.
+
+To make an Attack you need an Attacker and a Victim.
+  1. Move character whose turn it is to position
+    - set state to SELECTING_MOVE
+    - set movableTiles on state. Each tile has cost to move to that reduces ap.
+      - for each movableTile, set that tile to be highlighted
+    - as cursor moves, reduce ap 
+    - if unit moves to end of ap range, no actions are available
+    - if back pressed, for each movable tile, un-highlight tile
+  2. Select Attack skill
+    - set state to SELECTING_ACTION
+    - Use ui to select attack skill
+    - When an attack skill is selected, create ActiveSkill
+      - the Skill inside each entity is a template for the Active Skill
+      - the values in the ActiveSkill are calculated based on unit's current stats
+  3. Select Target & Preview Attack 
+    - set state to SELECTING_TARGET
+    - Calculate list of targets based on skill.
+    - Calculate hit chance of skill
+      - if type is ATTACK chance to hit: (21 + attackBonus - victimAC) / 20
+      - if type is SAVE chance to hit:
+      - There may be more than one, set the preview in the ui for each one
+  3. Target is selected, an attack is made. For each Attack that is made:
+    A DAMAGE action is comprised of
+      - attackerId
+      - useProjectile?
+      - projectileType?
+      List of: 
+        - victimId
+        - didMiss
+        - didSave
+        - damageDealt
+        - damageType: normal, magic, bonus (affects how it's depicted)
+    Calculate if it hit.
+      - if it hits, calculate full damage
+      - if it misses, reduce damage by 2
+    Check if victim has onDamageTaken status.  If so, invoke status.
+    Check if attacker has onAttackMade status.  If so, invoke status.
+    Check if there is bonus damage after attack.  If so create another DAMAGE action
+    Check if there is bonus damage against attacker.  If so create another DAMAGE action
+  4. Add actions to ActionDepicter
+    - Add character animation setter to depicter
+    - add all Damage Actions to action depicter
+    - Add character animation resetter to depicter
+
+EX2: making a spell attack with a 3x3 zone
+  1. Select position to move to
+    - Cursor moves reduce api by 1
+    - set state to SELECTING_MOVE
+    - set movableTiles on state. Each tile has cost to move to that reduces ap.
+      - for each movableTile, set that tile to be highlighted
+    - as cursor moves, reduce ap 
+    - if unit moves to end of ap range, no actions are available
+    - if back pressed, for each movable tile, un-highlight tile
+  2. Select Spell skill
+    - set state to SELECTING_ACTION
+    - Use ui to select spell
+    - When an attack skill is selected, create ActiveSkill
+      - the Skill inside each entity is a template for the Active Skill
+      - the values in the ActiveSkill are calculated based on unit's current stats
+  3. Select Target & Preview Attack 
+    - set state to SELECTING_TARGET
+    - Show Zone selector
+    - Calculate hit chance of skill
+      - if type is ATTACK chance to hit: (21 + attackBonus - victimAC) / 20
+      - if type is SAVE chance to hit:
+      - There may be more than one, set the preview in the ui for each one
+      - Each time zone is moved, recalculate zone
+  3. Target is selected, an attack is made. For each Attack that is made:
+    A DAMAGE action is comprised of
+      - attackerId
+      - useProjectile?
+      - projectileType?
+      List of: 
+        - victimId
+        - didMiss
+        - didSave
+        - damageDealt
+        - damageType: normal, magic, bonus (affects how it's depicted)
+    Calculate if it hit.
+      - if it hits, calculate full damage
+      - if it misses, reduce damage by 2
+    Check if victim has onDamageTaken status.  If so, invoke status.
+    Check if attacker has onAttackMade status.  If so, invoke status.
+    Check if there is bonus damage after attack.  If so create another DAMAGE action
+    Check if there is bonus damage against attacker.  If so create another DAMAGE action
+  4. Add actions to ActionDepicter
+    - Create Move Action for each tile character needs to move to.
+    - For Each move action, check character's onMove Statuses and Invoke them
+    - Add character animation setter to depicter
+    - add all Damage Actions to action depicter
+    - Add character animation resetter to depicter
+
+Fun Mechanics: 
+
+Arrows of Dispelling - Certain nasty effects cannot be cleared by a simple cure spell, or that cure spell is very expensive.  You can get around this with arrows of dispelling which you must fire at your own allies
+  - also removes buffs
+Enemies who Quaff Potions as prebuffs - these can be stolen or dispelled
+Invisibility detector in an area around a fragile character
+Enemies who are not "weak" to things but are strong against everything else except certain statuses.  So detect weakness spells don't work but knowledge of their susceptibility does.

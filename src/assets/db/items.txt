@@ -1,0 +1,10 @@
+// type
+// std::string name;
+// std::string label;
+// std::string iconName;
+// std::string description;
+// int weight;
+// int value;
+// usability?
+// usability args?
+Potion,PotionHealing,Potion: Healing,potionGreen,A standard healing potion.,1,10

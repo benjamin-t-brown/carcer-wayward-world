@@ -252,7 +252,7 @@ void SectionScrollable::build() {
   maxScrollOffset = std::max(0, contentHeight - viewportHeight);
 }
 
-void SectionScrollable::render() {
+void SectionScrollable::render(int dt) {
   // Update inner quad position based on scroll offset
   // if (children.size() > 0) {
   //   auto innerQuad = children[0].get();
@@ -264,7 +264,7 @@ void SectionScrollable::render() {
   // }
   auto& draw = window->getDraw();
   draw.drawRect(style.x, style.y, style.width, style.height, Colors::White);
-  UiElement::render();
+  UiElement::render(dt);
 }
 
 } // namespace ui

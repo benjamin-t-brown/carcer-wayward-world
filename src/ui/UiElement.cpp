@@ -109,16 +109,14 @@ bool UiElement::checkMouseDownEvent(int mouseX, int mouseY, int button) {
 }
 
 bool UiElement::checkMouseUpEvent(int mouseX, int mouseY, int button) {
-  if (isInBoundsScaled(mouseX, mouseY, this)) {
-    if (shouldPropagateEventsToChildren) {
-      // Check children first (front to back)
-      for (auto it = children.rbegin(); it != children.rend(); ++it) {
-        if ((*it)->checkMouseUpEvent(mouseX, mouseY, button)) {
-          return true;
-        }
-      }
+  if (shouldPropagateEventsToChildren) {
+    // Check children first (front to back)
+    for (auto it = children.rbegin(); it != children.rend(); ++it) {
+      (*it)->checkMouseUpEvent(mouseX, mouseY, button);
     }
+  }
 
+  if (isInBoundsScaled(mouseX, mouseY, this)) {
     if (isClicked) {
       // click event happens when mouse up occurs inside this element
       // after a mouse down also occurred inside this element.
@@ -126,17 +124,15 @@ bool UiElement::checkMouseUpEvent(int mouseX, int mouseY, int button) {
         observer->onClick(mouseX, mouseY, button);
       }
     }
-
-    isClicked = false;
-
-    for (auto& observer : eventObservers) {
-      observer->onMouseUp(mouseX, mouseY, button);
-    }
-
-    return true;
   }
 
-  return false;
+  for (auto& observer : eventObservers) {
+    observer->onMouseUp(mouseX, mouseY, button);
+  }
+
+  isClicked = false;
+
+  return true;
 }
 
 bool UiElement::checkHoverEvent(int mouseX, int mouseY) {
@@ -201,10 +197,10 @@ void UiElement::build() {
   // This is called whenever style or children change
 }
 
-void UiElement::render() {
+void UiElement::render(int dt) {
   // Default implementation - render all children
   for (auto& child : children) {
-    child->render();
+    child->render(dt);
   }
 }
 

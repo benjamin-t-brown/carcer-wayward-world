@@ -1,0 +1,103 @@
+# Sapphiron Crystals:
+
+Heat (Fire)
+Displace (Push/Pull Wind/Thunder)
+Regrowth (Heal/Necro)
+Chaos/Entropy (Radioactive)
+
+Expand (All)
+Focus (Higher Single Target)
+Offset
+Attach (Status Effect over time)
+Compact (Defense)
+Transform?
+
+Charge (Acts as battery)
+
+## Spells
+
+Light -> Long Light
+Flame -> Fireball -> Fire Storm
+
+Wound
+Bless
+Curse
+Haste
+
+
+## Combinations 2
+
+Heat + Expand
+  Charge 1: Light
+  Charge 5: Heat Cloud around you
+Heat + Focus
+  Charge 1: Flame Punch
+Heat + Offset
+  Charge 3: Flame
+Heat + Attach
+  Charge 1: Set Burning
+Heat + Compact ????
+
+Displace + Expand
+  Charge 1: Remove field
+  Charge 5: Push objects away from self
+Displace + Focus 
+  Charge 1: Move Mountains
+  Charge 2: Jump 3 spaces
+Displace + Offset
+  Charge 1: Push object away from self, both move
+Displace + Attach
+  Charge 1: Slow
+  Charge 2: Haste
+Displace + Compact
+  Charge 1: Magic Armor
+
+Regrowth + Expand
+  Charge 1: Light Heal Around You
+  Charge 2: Light Heal All
+Regrowth + Focus
+  Charge 1: Heal one
+Regrowth + Disperse ???
+Regrowth + Attach ???
+Regrowth + Compact ???
+
+### Specials
+
+Heat + Displace
+  Charge 1: Prestidigitation?
+Heat + Regrowth ??
+Heat + Chaos ?? (Ever flame?)
+Displace + Regrowth ??
+Displace + Chaos ??
+Regrowth + Chaos
+  Charge 5: Super Fireball
+
+## Combinations 3
+
+1xHeat + 1xExpand + 1xDisperse
+  Charge 2: Fireball 
+1xHeat + 2xExpand
+  Charge 2: Long Light
+2xHeat + 1xFocus
+  Charge 1: Super Heat Punch
+2xHeat + 1xDisperse
+  Charge 1: Flame Wall
+2xHeat + 1xAttach
+  Charge 1: Intense Burning
+1xHeat + 2xAttach
+  Charge 1: Burning (for longer)
+1xHeat + 1xAttach + 1xExpand
+  Charge 1: Burning Cloud
+1xHeat + 1xExpand
+
+1xDisplace + 2xExpand
+  Charge 2: Push Wave
+1xDisplace + 1xAttach + 1xOffset
+  Charge 1: Slow (range)
+  Charge 2: Haste (range)
+1xDisplace + 2xAttach
+  Charge 1: Slow Longer
+  Charge 2: Haste Longer
+1xDisplace + 1xAttach + 1xExpand
+  Charge 1: Slow Area
+  Charge 2: Haste Area
