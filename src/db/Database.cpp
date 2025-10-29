@@ -14,7 +14,7 @@ void Database::load() {
   LOG(INFO) << "Loaded database." << LOG_ENDL;
 }
 
-const types::ItemTemplate& Database::getItemTemplate(const std::string& itemId) const {
+const model::ItemTemplate& Database::getItemTemplate(const std::string& itemId) const {
   if (itemTemplates.find(itemId) == itemTemplates.end()) {
     throw std::runtime_error("Item template not found: " + itemId);
   }

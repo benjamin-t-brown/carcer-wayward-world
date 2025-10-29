@@ -1,5 +1,5 @@
 #include "ListInventory.h"
-#include "types/Items.h"
+#include "model/Items.h"
 #include "ui/colors.h"
 #include "ui/components/VerticalList.h"
 #include "ui/elements/ButtonModal.h"
@@ -29,6 +29,10 @@ const ListInventoryProps& ListInventory::getProps() const { return props; }
 void ListInventory::build() {
   children.clear();
 
+  if (props.character == nullptr) {
+    return;
+  }
+
   // Create VerticalList component
   auto list = std::make_unique<VerticalList>(window, this);
   list->setId("list");
@@ -49,13 +53,14 @@ void ListInventory::build() {
   std::vector<UiElement*> itemElementsToAdd;
 
   // Add ListInventoryItem children for each item
-  for (int i = 0; i < static_cast<int>(props.itemNames.size()); i++) {
-    const auto& itemTemplate = database->getItemTemplate(props.itemNames[i]);
+  for (int i = 0; i < static_cast<int>(props.character->inventory.size()); i++) {
+    const auto& chInvItem = props.character->inventory[i];
+    const auto& itemTemplate = database->getItemTemplate(chInvItem.itemName);
     auto itemElement = new ListInventoryItem(window);
     itemElement->setId("item" + std::to_string(i));
     // BaseStyle itemStyle = itemElement->getStyle();
     // itemStyle.width = style.width;
-    itemElement->setProps(ListInventoryItemProps{&itemTemplate});
+    itemElement->setProps(ListInventoryItemProps{&itemTemplate, chInvItem.quantity});
     itemElementsToAdd.push_back(itemElement);
   }
   list->addListItems(itemElementsToAdd);

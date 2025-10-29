@@ -2,7 +2,7 @@
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
-#include "types/Items.h"
+#include "model/Items.h"
 #include "ui/UiElement.h"
 #include "ui/lists/ListInventory.h"
 #include <SDL2/SDL_pixels.h>
@@ -16,12 +16,17 @@ int main(int argc, char** argv) {
   db::Database database;
   database.load();
 
+  state::StateManager stateManager;
+  model::CharacterPlayer characterPlayer;
+  characterPlayer.addItemToInventory(database.getItemTemplate("PotionHealing"), 1);
+  characterPlayer.addItemToInventory(database.getItemTemplate("PotionHealing"), 1);
+
   std::vector<std::unique_ptr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ListInventory test initialized" << LOG_ENDL;
 
-    auto [windowWidth, windowHeight] = window.getDims();
+    // auto [windowWidth, windowHeight] = window.getDims();
 
     // Create ListInventory component
     auto listInventory = std::make_unique<ui::ListInventory>(&window, nullptr, &database);
@@ -29,16 +34,13 @@ int main(int argc, char** argv) {
     ui::BaseStyle style = listInventory->getStyle();
     style.width = 500;
     style.height = 400;
-    style.x = 1;
-    style.y = 1;
+    style.x = 100;
+    style.y = 50;
     listInventory->setStyle(style);
+    listInventory->setStateManager(&stateManager);
 
     ui::ListInventoryProps listInventoryProps;
-    listInventoryProps.itemNames = {
-        "PotionHealing",
-        "PotionHealing",
-        "PotionHealing",
-    };
+    listInventoryProps.character = &characterPlayer;
     listInventory->setProps(listInventoryProps);
 
     elements.push_back(std::move(listInventory));

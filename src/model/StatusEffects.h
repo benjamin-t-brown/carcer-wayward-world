@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace types {
+namespace model {
 
 enum class StatusEffectType { MODIFY_RESISTANCE_FIRE_PLUS_1 };
 
@@ -13,4 +13,4 @@ struct StatusEffectTemplate {
   std::string description;
 };
 
-} // namespace types
+} // namespace model

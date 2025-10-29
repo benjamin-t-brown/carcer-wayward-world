@@ -2,7 +2,7 @@
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
-#include "types/WorldActions.h"
+#include "model/WorldActions.h"
 #include "ui/UiElement.h"
 #include "ui/elements/ButtonModal.h"
 #include "ui/elements/TextLine.h"
@@ -14,42 +14,42 @@
 std::vector<std::unique_ptr<ui::UiElement>> elements;
 int actionModeNum = 0;
 
-const std::vector<types::WorldActionType> townModeActionTypes = {
-    types::WorldActionType::EXAMINE,
-    types::WorldActionType::TALK,
-    types::WorldActionType::ABILITY,
-    types::WorldActionType::SNEAK,
-    types::WorldActionType::START_FIGHT,
-    types::WorldActionType::JUMP,
-    types::WorldActionType::SHOOT,
-    types::WorldActionType::INTERACT,
-    types::WorldActionType::GET,
-    types::WorldActionType::JOURNAL,
-    types::WorldActionType::INVENTORY,
-    types::WorldActionType::STATUS,
-    types::WorldActionType::MAP,
+const std::vector<model::WorldActionType> townModeActionTypes = {
+    model::WorldActionType::EXAMINE,
+    model::WorldActionType::TALK,
+    model::WorldActionType::ABILITY,
+    model::WorldActionType::SNEAK,
+    model::WorldActionType::START_FIGHT,
+    model::WorldActionType::JUMP,
+    model::WorldActionType::SHOOT,
+    model::WorldActionType::INTERACT,
+    model::WorldActionType::GET,
+    model::WorldActionType::JOURNAL,
+    model::WorldActionType::INVENTORY,
+    model::WorldActionType::STATUS,
+    model::WorldActionType::MAP,
 };
 
-const std::vector<types::WorldActionType> townModeFightActionTypes = {
-    types::WorldActionType::EXAMINE,
-    types::WorldActionType::ABILITY,
-    types::WorldActionType::END_FIGHT,
-    types::WorldActionType::JUMP,
-    types::WorldActionType::SHOOT,
-    types::WorldActionType::DEFEND,
-    types::WorldActionType::GET,
-    types::WorldActionType::INVENTORY,
-    types::WorldActionType::STATUS,
+const std::vector<model::WorldActionType> townModeFightActionTypes = {
+    model::WorldActionType::EXAMINE,
+    model::WorldActionType::ABILITY,
+    model::WorldActionType::END_FIGHT,
+    model::WorldActionType::JUMP,
+    model::WorldActionType::SHOOT,
+    model::WorldActionType::DEFEND,
+    model::WorldActionType::GET,
+    model::WorldActionType::INVENTORY,
+    model::WorldActionType::STATUS,
 };
 
-const std::vector<types::WorldActionType> outdoorModeActionTypes = {
-    types::WorldActionType::EXAMINE,
-    types::WorldActionType::ABILITY,
-    types::WorldActionType::MAP_OUTDOOR,
-    types::WorldActionType::REST,
-    types::WorldActionType::INVENTORY,
-    types::WorldActionType::STATUS,
-    types::WorldActionType::JOURNAL,
+const std::vector<model::WorldActionType> outdoorModeActionTypes = {
+    model::WorldActionType::EXAMINE,
+    model::WorldActionType::ABILITY,
+    model::WorldActionType::MAP_OUTDOOR,
+    model::WorldActionType::REST,
+    model::WorldActionType::INVENTORY,
+    model::WorldActionType::STATUS,
+    model::WorldActionType::JOURNAL,
 };
 
 class SwitchActionListObserver : public ui::UiEventObserver {

@@ -6,7 +6,7 @@ namespace db {
 
 void loadItemTemplates(
     const std::string& itemsFilePath,
-    std::unordered_map<std::string, types::ItemTemplate>& itemTemplates) {
+    std::unordered_map<std::string, model::ItemTemplate>& itemTemplates) {
   std::string fileContent = sdl2w::loadFileAsString(itemsFilePath);
   std::vector<std::string> lines;
   sdl2w::split(fileContent, "\n", lines);
@@ -19,9 +19,9 @@ void loadItemTemplates(
     if (tokens.size() < 6) {
       throw std::runtime_error("Invalid item template line: " + line);
     }
-    types::ItemTemplate itemTemplate;
-    auto itemType = types::getItemTypeFromString(tokens[0]);
-    if (itemType == types::ItemType::UNKNOWN) {
+    model::ItemTemplate itemTemplate;
+    auto itemType = model::getItemTypeFromString(tokens[0]);
+    if (itemType == model::ItemType::UNKNOWN) {
       throw std::runtime_error("Invalid item type: " + tokens[0]);
     }
     itemTemplate.itemType = itemType;

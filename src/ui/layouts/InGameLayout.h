@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../UiElement.h"
-#include "types/WorldActions.h"
+#include "model/WorldActions.h"
 #include <SDL2/SDL_pixels.h>
 #include <memory>
 #include <string>
@@ -10,7 +10,7 @@ namespace ui {
 
 // InGameLayout layout properties
 struct InGameLayoutProps {
-  std::vector<types::WorldActionType> worldActionTypes;
+  std::vector<model::WorldActionType> worldActionTypes;
 };
 
 // InGameLayout layout - renders an in-game layout with background, border, title,

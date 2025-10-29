@@ -2,6 +2,7 @@
 
 #include "../lib/sdl2w/Defines.h"
 #include "../lib/sdl2w/Window.h"
+#include "state/StateManager.h"
 #include "ui/colors.h"
 #include <SDL2/SDL_pixels.h>
 #include <memory>
@@ -59,8 +60,19 @@ public:
   virtual void onMouseWheel(int x, int y, int delta);
 };
 
+class UiDispatch {
+private:
+  static state::StateManager* stateManager;
+
+protected:
+  static state::StateManager* getStateManager();
+
+public:
+  static void setStateManager(state::StateManager* _stateManager);
+};
+
 // Main UiElement base class
-class UiElement {
+class UiElement : public UiDispatch {
 protected:
   sdl2w::Window* window;
   UiElement* parent;
@@ -77,11 +89,6 @@ public:
   // Constructor
   UiElement(sdl2w::Window* _window, UiElement* _parent = nullptr);
   virtual ~UiElement() = default;
-
-  // State interface methods
-  virtual void setStateInterface(StateInterface* _stateInterface);
-  virtual void dispatchAction(const std::string& action, void* payload = nullptr);
-  virtual void dispatchUiAction(const std::string& action, void* payload = nullptr);
 
   // Entity and template getters
   virtual UiElement* getEntityById(const std::string& id);

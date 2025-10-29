@@ -1,9 +1,12 @@
 #pragma once
 
-namespace types {
+#include <cstdlib>
+#include <string>
+
+namespace model {
 struct TimerStruct {
   int duration;
-  int t;
+  int t = 0;
 
   TimerStruct(int _duration = 1000) : duration(_duration) {}
   void start(int _duration = 0) {
@@ -17,4 +20,9 @@ struct TimerStruct {
   bool isComplete() const { return t >= duration; }
   double getPct() const { return static_cast<double>(t) / duration; }
 };
-} // namespace types
+
+inline std::string createRandomId() {
+  return std::to_string((rand() % 1000000) + (rand() % 1000000) + (rand() % 1000000));
+}
+
+} // namespace model

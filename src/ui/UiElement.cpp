@@ -16,25 +16,21 @@ void UiEventObserver::onMouseWheel(int x, int y, int delta) {
   // noop
 }
 
+state::StateManager* UiDispatch::stateManager = nullptr;
+
+void UiDispatch::setStateManager(state::StateManager* _stateManager) {
+  stateManager = _stateManager;
+}
+
+state::StateManager* UiDispatch::getStateManager() {
+  if (stateManager == nullptr) {
+    throw std::runtime_error("StateManager not set for UiElement.");
+  }
+  return stateManager;
+}
+
 UiElement::UiElement(sdl2w::Window* _window, UiElement* _parent)
     : window(_window), parent(_parent), stateInterface(std::nullopt) {}
-
-void UiElement::setStateInterface(StateInterface* _stateInterface) {
-  stateInterface = _stateInterface;
-}
-
-void UiElement::dispatchAction(const std::string& action, void* payload) {
-  if (stateInterface.has_value()) {
-    (*stateInterface)->dispatchAction(action, payload);
-  } else if (parent != nullptr) {
-    parent->dispatchAction(action, payload);
-  }
-}
-
-void UiElement::dispatchUiAction(const std::string& action, void* payload) {
-  // UI actions are handled internally, can be overridden by specific elements
-  dispatchAction(action, payload);
-}
 
 UiElement* UiElement::getEntityById(const std::string& searchId) {
   if (id == searchId) {

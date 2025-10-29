@@ -1,13 +1,13 @@
 #pragma once
 
 #include "../UiElement.h"
-#include "types/WorldActions.h"
+#include "model/WorldActions.h"
 
 namespace ui {
 
 // ButtonWorldAction-specific properties
 struct ButtonWorldActionProps {
-  types::WorldActionType worldActionType;
+  model::WorldActionType worldActionType;
 };
 
 struct ButtonWorldActionMapping {
@@ -30,14 +30,14 @@ private:
   const int smallSpriteOffsetToActive = 8;
 
   static ButtonWorldActionMapping
-  getButtonWorldActionMapping(types::WorldActionType worldActionType);
+  getButtonWorldActionMapping(model::WorldActionType worldActionType);
 
 public:
   bool isActive = false;
   ButtonWorldAction(sdl2w::Window* _window, UiElement* _parent = nullptr);
   ~ButtonWorldAction() override = default;
 
-  static bool checkIfWorldActionButtonIsSmall(types::WorldActionType worldActionType);
+  static bool checkIfWorldActionButtonIsSmall(model::WorldActionType worldActionType);
 
   void setProps(const ButtonWorldActionProps& _props);
   ButtonWorldActionProps& getProps();

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "types/StatusEffects.h"
+#include "model/StatusEffects.h"
 #include <string>
 #include <vector>
 
-namespace types {
+namespace model {
 
 enum class ItemType {
   WEAPON_MELEE,
@@ -105,7 +105,7 @@ struct ItemTemplate {
   int value = 0;
   ItemUsability itemUsability = ItemUsability::NOT_USABLE;
   ItemUsabilityArgs itemUsabilityArgs;
-  std::vector<types::StatusEffectTemplate> statusEffects;
+  std::vector<model::StatusEffectTemplate> statusEffects;
 };
 
-} // namespace types
+} // namespace model

@@ -65,8 +65,8 @@ void VerticalList::addListItems(const std::vector<UiElement*>& items) {
   for (int i = 0; i < static_cast<int>(items.size()); i++) {
     UiElement* item = items[i];
     auto listItemStyle = item->getStyle();
-    listItemStyle.y = style.y + i * (props.lineHeight + props.lineGap);
-    listItemStyle.x = style.x;
+    listItemStyle.y = 0 + i * (props.lineHeight + props.lineGap);
+    listItemStyle.x = 0;
     listItemStyle.width = style.width;
     listItemStyle.height = props.lineHeight;
     item->setStyle(listItemStyle);

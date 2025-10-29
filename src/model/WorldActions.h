@@ -1,6 +1,6 @@
 #pragma once
 
-namespace types {
+namespace model {
 
 // World action types enum
 enum class WorldActionType {
@@ -24,4 +24,4 @@ enum class WorldActionType {
   JOURNAL
 };
 
-} // namespace types
+} // namespace model

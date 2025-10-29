@@ -1,14 +1,14 @@
 #pragma once
 
 #include "db/Database.h"
-#include "types/Items.h"
+#include "model/Character.h"
+#include "model/Items.h"
 #include "ui/UiElement.h"
-#include <vector>
 
 namespace ui {
 
 struct ListInventoryProps {
-  std::vector<std::string> itemNames;
+  const model::CharacterPlayer* character = nullptr;
 };
 
 // ListInventory - renders a vertical list of inventory items
@@ -31,7 +31,8 @@ public:
 };
 
 struct ListInventoryItemProps {
-  const types::ItemTemplate* itemTemplate = nullptr;
+  const model::ItemTemplate* itemTemplate = nullptr;
+  int quantity = 1;
 };
 // ListInventoryItem - renders a single inventory item with icon, label, and context
 // button

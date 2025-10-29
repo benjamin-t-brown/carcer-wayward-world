@@ -8,6 +8,9 @@ LibHTML.cpp \
 db/Database.cpp \
 db/spriteMappings.cpp \
 db/loaders/itemTemplates.cpp \
+model/Player.cpp \
+model/Character.cpp \
+state/StateManager.cpp \
 ui/UiElement.cpp \
 ui/elements/SpriteElement.cpp \
 ui/elements/Quad.cpp \
