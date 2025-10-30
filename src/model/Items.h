@@ -24,55 +24,55 @@ enum class ItemType {
 inline std::string getStringFromItemType(ItemType itemType) {
   switch (itemType) {
   case ItemType::WEAPON_MELEE:
-    return "Melee Weapon";
+    return "WEAPON_MELEE";
   case ItemType::WEAPON_RANGED:
-    return "Ranged Weapon";
+    return "WEAPON_RANGED";
   case ItemType::WEAPON_AMMO:
-    return "Ammo";
+    return "WEAPON_AMMO";
   case ItemType::GARB:
-    return "Garb";
+    return "GARB";
   case ItemType::PANTS:
-    return "Pants";
+    return "PANTS";
   case ItemType::GLOVES:
-    return "Gloves";
+    return "GLOVES";
   case ItemType::HAT:
-    return "Hat";
+    return "HAT";
   case ItemType::SHOES:
-    return "Shoes";
+    return "SHOES";
   case ItemType::NECKLACE:
-    return "Necklace";
+    return "NECKLACE";
   case ItemType::POTION:
-    return "Potion";
+    return "POTION";
   case ItemType::UTILITY:
-    return "Utility";
+    return "UTILITY";
   default:
-    return "Unknown";
+    return "UNKNOWN";
   }
-  return "Unknown";
+  return "UNKNOWN";
 }
 
 inline ItemType getItemTypeFromString(const std::string& itemTypeString) {
-  if (itemTypeString == "Melee Weapon") {
+  if (itemTypeString == "WEAPON_MELEE") {
     return ItemType::WEAPON_MELEE;
-  } else if (itemTypeString == "Ranged Weapon") {
+  } else if (itemTypeString == "WEAPON_RANGED") {
     return ItemType::WEAPON_RANGED;
-  } else if (itemTypeString == "Ammo") {
+  } else if (itemTypeString == "WEAPON_AMMO") {
     return ItemType::WEAPON_AMMO;
-  } else if (itemTypeString == "Garb") {
+  } else if (itemTypeString == "GARB") {
     return ItemType::GARB;
-  } else if (itemTypeString == "Pants") {
+  } else if (itemTypeString == "PANTS") {
     return ItemType::PANTS;
-  } else if (itemTypeString == "Gloves") {
+  } else if (itemTypeString == "GLOVES") {
     return ItemType::GLOVES;
-  } else if (itemTypeString == "Hat") {
+  } else if (itemTypeString == "HAT") {
     return ItemType::HAT;
-  } else if (itemTypeString == "Shoes") {
+  } else if (itemTypeString == "SHOES") {
     return ItemType::SHOES;
-  } else if (itemTypeString == "Necklace") {
+  } else if (itemTypeString == "NECKLACE") {
     return ItemType::NECKLACE;
-  } else if (itemTypeString == "Potion") {
+  } else if (itemTypeString == "POTION") {
     return ItemType::POTION;
-  } else if (itemTypeString == "Utility") {
+  } else if (itemTypeString == "UTILITY") {
     return ItemType::UTILITY;
   }
   return ItemType::UNKNOWN;

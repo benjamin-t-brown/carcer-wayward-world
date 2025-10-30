@@ -79,6 +79,10 @@ std::string getItemIconSpriteName(const std::string& itemIcon,
       spriteOffset = 34;
     } else if (itemIcon == "herbs") {
       spriteOffset = 35;
+    } else if (itemIcon == "hatLeather") {
+      spriteOffset = 36;
+    } else if (itemIcon == "necklace") {
+      spriteOffset = 37;
     }
   }
 

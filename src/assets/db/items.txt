@@ -1,3 +1,17 @@
+// enum class ItemType {
+//   WEAPON_MELEE,
+//   WEAPON_RANGED,
+//   WEAPON_AMMO,
+//   GARB,
+//   PANTS,
+//   GLOVES,
+//   HAT,
+//   SHOES,
+//   NECKLACE,
+//   POTION,
+//   UTILITY,
+//   UNKNOWN
+// };
 // type
 // std::string name;
 // std::string label;
@@ -7,4 +21,16 @@
 // int value;
 // usability?
 // usability args?
-Potion,PotionHealing,Potion: Healing,potionGreen,A standard healing potion.,1,10
+POTION,PotionHealing,Potion: Healing,potionGreen,A standard healing potion.,1,10
+WEAPON_MELEE,DaggerBronze,Bronze Dagger,dagger,A bronze dagger.,1,10
+WEAPON_MELEE,ShortSwordBronze,Bronze Short Sword,sword,A bronze short sword.,1,10
+WEAPON_MELEE,SwordBronze,Bronze Sword,sword,A bronze short sword.,1,10
+WEAPON_RANGED,LongbowOak,Oak Longbow,bow,An oak longbow.,1,10
+WEAPON_AMMO,ArrowsStone,Stone Arrows,arrow,Arrows with stone tips.,1,10
+GARB,ShirtSimple0,Shirt,shirtBlue,A simple shirt.,1,10
+GARB,ShirtSimple1,Shirt,shirtBlue,A simple shirt.,1,10
+PANTS,PantsSimple0,Pants,pants,A simple pair of pants.,1,10
+GLOVES,GlovesLeather,Leather Gloves,gloves,A simple pair of leather gloves.,1,10
+HAT,HatLeather,Leather Cap,hatLeather,A simple leather hat.,1,10
+SHOES,BootsLeather,Leather Boots,bootsLeather,A simple pair of leather boots.,1,10
+NECKLACE,NecklaceSilver,Silver Necklace,necklace,A simple silver necklace.,1,10
