@@ -22,6 +22,7 @@ ButtonModal::ButtonModal(sdl2w::Window* _window, UiElement* _parent)
   style.textAlign = TextAlign::CENTER;
   style.fontSize = sdl2w::TEXT_SIZE_20;
   style.fontColor = Colors::White;
+  style.fontFamily = FontFamily::H2;
   shouldPropagateEventsToChildren = false;
 }
 
@@ -67,6 +68,7 @@ void ButtonModal::build() {
   textStyle.textAlign = style.textAlign;
   textStyle.fontSize = style.fontSize;
   textStyle.fontColor = style.fontColor;
+  textStyle.fontFamily = style.fontFamily;
   textStyle.textAlign = TextAlign::CENTER;
   textStyle.scale = style.scale;
   textLine->setStyle(textStyle);

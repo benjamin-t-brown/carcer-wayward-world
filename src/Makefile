@@ -7,10 +7,16 @@ CODE=\
 LibHTML.cpp \
 db/Database.cpp \
 db/spriteMappings.cpp \
-db/loaders/itemTemplates.cpp \
+db/loaders/LoadItemTemplates.cpp \
+layers/Layer.cpp \
+layers/LayerManager.cpp \
+layers/ui/LayerInventoryItemContextMenu.cpp \
 model/Player.cpp \
 model/Character.cpp \
+state/DatabaseInterface.cpp \
 state/StateManager.cpp \
+state/StateManagerInterface.cpp \
+state/LayerManagerInterface.cpp \
 ui/UiElement.cpp \
 ui/elements/SpriteElement.cpp \
 ui/elements/Quad.cpp \
@@ -29,6 +35,7 @@ ui/components/BorderModalStandard.cpp \
 ui/components/BorderModalSmall.cpp \
 ui/components/BorderInGame.cpp \
 ui/components/VerticalList.cpp \
+ui/popups/PopupInventoryItem.cpp \
 ui/layouts/InGameLayout.cpp \
 ui/layouts/ModalStandard.cpp \
 ui/layouts/ModalSmall.cpp \
@@ -97,10 +104,10 @@ ifeq ($(TARGET),wasm)
 		EXE_SUFFIX=.js
     CXX = em++
 else
-    FLAGS = -O0 -Wall -std=c++20 -fuse-ld=lld -I.
+    FLAGS = -O0 -Wall -std=c++20 -I.
     CXX = g++
     ifeq ($(OS),Windows_NT)
-        LIBS += -lsdl2w -mconsole -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lSDL2_gfx
+        LIBS += -fuse-ld=lld -lsdl2w -mconsole -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lSDL2_gfx
     else
         UNAME_S := $(shell uname -s)
         ifeq ($(UNAME_S),Darwin)

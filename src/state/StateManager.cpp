@@ -1,5 +1,6 @@
 #include "state/StateManager.h"
 #include "model/UtilityTypes.h"
+#include "state/AbstractAction.h"
 
 namespace state {
 
@@ -7,13 +8,14 @@ StateManager::StateManager() {
   // Constructor implementation
 }
 
-state::State& StateManager::getState() {
-  return state;
-}
+state::State& StateManager::getState() { return state; }
 
-void StateManager::enqueueAction(state::State& state, state::AbstractAction* action, int ms) {
-  auto actionPtr = new state::AsyncAction{
-      std::unique_ptr<state::AbstractAction>(action), model::TimerStruct(ms)};
+void StateManager::enqueueAction(state::State& state,
+                                 state::AbstractAction* action,
+                                 int ms) {
+  action->setDatabase(getDatabase());
+  auto actionPtr = new state::AsyncAction{std::unique_ptr<state::AbstractAction>(action),
+                                          model::TimerStruct(ms)};
   sequentialActionsNext.push_back(std::unique_ptr<state::AsyncAction>(actionPtr));
   // if (actionPtr->action) {
   //   LOG(INFO) << "Enqueued action: " << actionPtr->action->getName() << " for
@@ -22,7 +24,10 @@ void StateManager::enqueueAction(state::State& state, state::AbstractAction* act
   // }
 }
 
-void StateManager::addParallelAction(State& state, std::unique_ptr<state::AbstractAction> action, int ms) {
+void StateManager::addParallelAction(State& state,
+                                     std::unique_ptr<state::AbstractAction> action,
+                                     int ms) {
+  action->setDatabase(getDatabase());
   parallelActions.push_back(std::unique_ptr<state::AsyncAction>(
       new state::AsyncAction{std::move(action), model::TimerStruct(ms)}));
 }

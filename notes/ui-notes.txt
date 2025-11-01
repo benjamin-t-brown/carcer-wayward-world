@@ -405,8 +405,8 @@ PopupAskAbout
 PopupInventoryItem
   * Description: Shows info about an item and actions that can be done from inventory.
   * Props
-    - itemId (EntityId)
-    - characterId (EntityId)
+    - itemName
+    - itemId
   * Styles
     - Position, Size, Scale
   * Actions

@@ -63,8 +63,15 @@ void ButtonClose::build() {
     quadProps.borderColor = Colors::ButtonCloseRed;
     quadProps.borderSize = 0; // No border for modal
   } else {
+    if (isActive) {
+      quadProps.bgColor = SDL_Color{0, 0, 100, 75};
+    } else if (isHovered) {
+      quadProps.bgColor = SDL_Color{0, 0, 100, 35};
+    } else {
+      quadProps.bgColor = Colors::Transparent;
+    }
     // Popup: transparent square with grey X
-    quadProps.bgColor = Colors::Transparent;
+    // quadProps.bgColor = Colors::Transparent;
     quadProps.borderColor = Colors::ButtonCloseTextGrey;
     quadProps.borderSize = 0;
   }

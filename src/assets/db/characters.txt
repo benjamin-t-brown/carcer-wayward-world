@@ -1,0 +1,8 @@
+//types: TOWNSPERSON|TOWNSPERSON_STATIC|ENEMY|ENEMY_STATIC
+//CHARACTER|type|name|label|spritesheet|sprite offset
+//TALK|talkName|portraitName
+//COMBAT|str,mnd,con,agi,lck|hp,mp|behaviorType|dropTable
+//COMBAT_TEMPLATE|id
+//SOUND|deathSound|weaponSound
+//STATUSES|status0|status1|status2
+//VISION|visionRadius

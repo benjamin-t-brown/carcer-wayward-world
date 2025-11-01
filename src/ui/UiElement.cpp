@@ -16,19 +16,6 @@ void UiEventObserver::onMouseWheel(int x, int y, int delta) {
   // noop
 }
 
-state::StateManager* UiDispatch::stateManager = nullptr;
-
-void UiDispatch::setStateManager(state::StateManager* _stateManager) {
-  stateManager = _stateManager;
-}
-
-state::StateManager* UiDispatch::getStateManager() {
-  if (stateManager == nullptr) {
-    throw std::runtime_error("StateManager not set for UiElement.");
-  }
-  return stateManager;
-}
-
 UiElement::UiElement(sdl2w::Window* _window, UiElement* _parent)
     : window(_window), parent(_parent), stateInterface(std::nullopt) {}
 

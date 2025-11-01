@@ -51,38 +51,36 @@ std::string getItemIconSpriteName(const std::string& itemIcon,
       spriteOffset = 20;
     } else if (itemIcon == "armorPlate") {
       spriteOffset = 21;
-    } else if (itemIcon == "armorMail") {
-      spriteOffset = 22;
     } else if (itemIcon == "bracer") {
-      spriteOffset = 23;
+      spriteOffset = 22;
     } else if (itemIcon == "bracerLarge") {
-      spriteOffset = 24;
+      spriteOffset = 23;
     } else if (itemIcon == "bucklerWood") {
-      spriteOffset = 25;
+      spriteOffset = 24;
     } else if (itemIcon == "bucklerMetal") {
-      spriteOffset = 26;
+      spriteOffset = 25;
     } else if (itemIcon == "shieldMetal") {
-      spriteOffset = 27;
+      spriteOffset = 26;
     } else if (itemIcon == "gloves") {
-      spriteOffset = 28;
+      spriteOffset = 27;
     } else if (itemIcon == "gauntlets") {
-      spriteOffset = 29;
+      spriteOffset = 28;
     } else if (itemIcon == "bootsLeather") {
-      spriteOffset = 30;
+      spriteOffset = 29;
     } else if (itemIcon == "bootsMetal") {
-      spriteOffset = 31;
+      spriteOffset = 30;
     } else if (itemIcon == "beer") {
-      spriteOffset = 32;
+      spriteOffset = 31;
     } else if (itemIcon == "bookGreen") {
-      spriteOffset = 33;
+      spriteOffset = 32;
     } else if (itemIcon == "bookRed") {
-      spriteOffset = 34;
+      spriteOffset = 33;
     } else if (itemIcon == "herbs") {
-      spriteOffset = 35;
+      spriteOffset = 34;
     } else if (itemIcon == "hatLeather") {
-      spriteOffset = 36;
+      spriteOffset = 35;
     } else if (itemIcon == "necklace") {
-      spriteOffset = 37;
+      spriteOffset = 36;
     }
   }
 

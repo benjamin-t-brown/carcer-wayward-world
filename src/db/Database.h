@@ -13,7 +13,8 @@ public:
   Database();
   ~Database() = default;
 
-  const model::ItemTemplate& getItemTemplate(const std::string& itemId) const;
+  const model::ItemTemplate& getItemTemplate(const std::string& itemName) const;
+  void addItemTemplate(const model::ItemTemplate& itemTemplate);
   void load();
 };
 

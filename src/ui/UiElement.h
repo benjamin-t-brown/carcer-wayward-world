@@ -1,14 +1,19 @@
 #pragma once
 
-#include "../lib/sdl2w/Defines.h"
-#include "../lib/sdl2w/Window.h"
-#include "state/StateManager.h"
+#include "lib/sdl2w/Defines.h"
+#include "lib/sdl2w/Window.h"
+#include "state/DatabaseInterface.h"
+#include "state/LayerManagerInterface.h"
+#include "state/StateManagerInterface.h"
 #include "ui/colors.h"
 #include <SDL2/SDL_pixels.h>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
+
+// prevents circular dependency
+#include "state/AbstractAction.h"
 
 namespace ui {
 
@@ -60,19 +65,10 @@ public:
   virtual void onMouseWheel(int x, int y, int delta);
 };
 
-class UiDispatch {
-private:
-  static state::StateManager* stateManager;
-
-protected:
-  static state::StateManager* getStateManager();
-
-public:
-  static void setStateManager(state::StateManager* _stateManager);
-};
-
 // Main UiElement base class
-class UiElement : public UiDispatch {
+class UiElement : public state::StateManagerInterface,
+                  public state::DatabaseInterface,
+                  public state::LayerManagerInterface {
 protected:
   sdl2w::Window* window;
   UiElement* parent;

@@ -2,6 +2,8 @@
 
 #include "lib/sdl2w/Logger.h"
 #include "model/UtilityTypes.h"
+#include "state/DatabaseInterface.h"
+#include "state/LayerManagerInterface.h"
 #include <memory>
 #ifdef __GNUG__
 #include <cxxabi.h>
@@ -11,7 +13,8 @@ namespace state {
 
 struct State;
 
-class AbstractAction {
+class AbstractAction : public state::DatabaseInterface,
+                       public state::LayerManagerInterface {
 protected:
   State* state = nullptr;
 

@@ -1,5 +1,6 @@
 #include "ListInventory.h"
 #include "model/Items.h"
+#include "state/actions/ui/UiShowInventoryItemContextMenu.hpp"
 #include "ui/colors.h"
 #include "ui/components/VerticalList.h"
 #include "ui/elements/ButtonModal.h"
@@ -8,15 +9,40 @@
 
 namespace ui {
 
-// ListInventory Implementation
-ListInventory::ListInventory(sdl2w::Window* _window,
-                             UiElement* _parent,
-                             db::Database* _database)
-    : UiElement(_window, _parent) {
-  database = _database;
-  if (database == nullptr) {
-    throw std::runtime_error("Database is required for ListInventory.");
+class ListInventoryItemContextButtonObserver : public UiEventObserver,
+                                               public state::StateManagerInterface {
+public:
+  sdl2w::Window* window;
+  std::string itemName;
+  std::string itemId;
+
+  ListInventoryItemContextButtonObserver(sdl2w::Window* _window,
+                                         std::string _itemName,
+                                         std::string _itemId)
+      : window(_window), itemName(_itemName), itemId(_itemId) {}
+
+  void onClick(int x, int y, int button) override {
+    LOG(INFO) << "ListInventoryItemContextButtonObserver::onClick"
+              << " itemName: " << itemName << " itemId: " << itemId << LOG_ENDL;
+    getStateManager()->enqueueAction(
+        getStateManager()->getState(),
+        new state::actions::UiShowInventoryItemContextMenu(window, itemName, itemId),
+        0);
   }
+};
+
+// ListInventory Implementation
+ListInventory::ListInventory(sdl2w::Window* _window, UiElement* _parent)
+    : UiElement(_window, _parent) {}
+
+const std::pair<int, int> ListInventory::getDims() const {
+  if (children.empty()) {
+    return {style.width, 0};
+  }
+
+  const auto& list = children[0];
+
+  return list->getDims();
 }
 
 void ListInventory::setProps(const ListInventoryProps& _props) {
@@ -55,12 +81,11 @@ void ListInventory::build() {
   // Add ListInventoryItem children for each item
   for (int i = 0; i < static_cast<int>(props.character->inventory.size()); i++) {
     const auto& chInvItem = props.character->inventory[i];
-    const auto& itemTemplate = database->getItemTemplate(chInvItem.itemName);
+    const auto& itemTemplate = getDatabase()->getItemTemplate(chInvItem.itemName);
     auto itemElement = new ListInventoryItem(window);
     itemElement->setId("item" + std::to_string(i));
-    // BaseStyle itemStyle = itemElement->getStyle();
-    // itemStyle.width = style.width;
-    itemElement->setProps(ListInventoryItemProps{&itemTemplate, chInvItem.quantity});
+    itemElement->setProps(
+        ListInventoryItemProps{&itemTemplate, chInvItem.id, chInvItem.quantity});
     itemElementsToAdd.push_back(itemElement);
   }
   list->addListItems(itemElementsToAdd);
@@ -94,17 +119,18 @@ void ListInventoryItem::build() {
   }
 
   const auto& itemTemplate = *props.itemTemplate;
-  const int listItemHeight = 32;
+  const int listItemHeight = 28;
 
   // Create icon element
   auto icon = std::make_unique<SpriteElement>(window, this);
   icon->setId("icon");
+  int iconHeight = 32;
   BaseStyle iconStyle;
   iconStyle.x = style.x;
-  iconStyle.y = style.y + (listItemHeight - 16) / 2;
+  iconStyle.y = style.y + (listItemHeight - iconHeight) / 2;
   iconStyle.width = 16;
   iconStyle.height = 16;
-  iconStyle.scale = 1.0f;
+  iconStyle.scale = 2.0f;
   icon->setStyle(iconStyle);
   icon->setSprite(itemTemplate.iconSpriteName);
   children.push_back(std::move(icon));
@@ -113,8 +139,7 @@ void ListInventoryItem::build() {
   auto label = std::make_unique<TextLine>(window, this);
   label->setId("label");
   BaseStyle labelStyle;
-  labelStyle.x = style.x + 16 + 8;              // After icon + padding
-  labelStyle.width = style.width - 16 - 8 - 32; // Leave space for context button
+  labelStyle.x = style.x + 32 + 8;
   labelStyle.fontFamily = FontFamily::PARAGRAPH;
   labelStyle.fontSize = sdl2w::TEXT_SIZE_16;
   labelStyle.fontColor = Colors::Black;
@@ -145,6 +170,10 @@ void ListInventoryItem::build() {
   buttonProps.text = "*"; // Context menu indicator
   buttonProps.isSelected = false;
   contextBtn->setProps(buttonProps);
+  contextBtn->addEventObserver(std::unique_ptr<UiEventObserver>(
+      //
+      new ListInventoryItemContextButtonObserver(
+          window, itemTemplate.name, props.itemId)));
   children.push_back(std::move(contextBtn));
 }
 

@@ -11,3 +11,4 @@ void loadItemTemplates(
     std::unordered_map<std::string, model::ItemTemplate>& itemTemplates);
 
 } // namespace db
+

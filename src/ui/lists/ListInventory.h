@@ -15,16 +15,15 @@ struct ListInventoryProps {
 class ListInventory : public UiElement {
 private:
   ListInventoryProps props;
-  db::Database* database = nullptr;
 
 public:
-  ListInventory(sdl2w::Window* _window,
-                UiElement* _parent = nullptr,
-                db::Database* _database = nullptr);
+  ListInventory(sdl2w::Window* _window, UiElement* _parent = nullptr);
   ~ListInventory() override = default;
 
   void setProps(const ListInventoryProps& props);
   const ListInventoryProps& getProps() const;
+
+  const std::pair<int, int> getDims() const override;
 
   void build() override;
   void render(int dt) override;
@@ -32,6 +31,7 @@ public:
 
 struct ListInventoryItemProps {
   const model::ItemTemplate* itemTemplate = nullptr;
+  std::string itemId;
   int quantity = 1;
 };
 // ListInventoryItem - renders a single inventory item with icon, label, and context

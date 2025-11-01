@@ -1,0 +1,2 @@
+//types: TILE_WALKABLE, TILE_WALL, TILE_WALL_TRANSPARENT, TILE_DOOR, TILE_CONTAINER
+//TILE,type,spritesheet,sprite offset,stepSound
