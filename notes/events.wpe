@@ -1,0 +1,50 @@
+// this is an example event based around a "choice" child
+#Event0,icon_0
+>0,choice
+  +p: "This is a basic choice that you can make.  Press 1 to continue or 2 to skip stuff."
+  +c: 1|Continue.
+  +c: 4|I already know what to do.
+>1,bool
+  +check: vars.hasBeenHereBefore
+  +pass: pass1
+  +fail: fail1
+>pass1,exec
+  +p: "Looks like you've been here before."
+  +n: 4
+>fail1,exec
+  +p: "Never been here before, have you?"
+  +n: 4
+>4,exec
+  +p: "This is the last node."
+  +n: endEvent
+>endEvent,end
+
+// this is an example event based around a "keyword" child
+#Event1,icon_1
+@QUEST_STARTED_FINISHED=vars.WoodThief.questStartedFinished
+@QUEST_STARTED_CAN_COMPLETE=vars.WoodThief.questStartedCanComplete
+@QUEST_STARTED_NOT_FINISHED=vars.WoodThief.questStartedNotFinished
+>1,keyword
+  +k: look|This man looks like he could use a stiff glass of wine.  His hair is a mop, and he has creases of stress around his temples.
+  +k: name|"Call me Ed." He eyes you suspiciously. "You want to buy some logs?  Or are you here to steal from me."
+  +k: job|"I sell logs.  Oak and willow.  You interested or just shopping about?"
+  +k: logs|"Let me know what you want to buy."
+  +kDup: steal|_checkQuest
+  +kDup: stress|_checkQuest
+  +kSwitch: _checkQuest
+    |@QUEST_STARTED_FINISHED:_questStartedFinished
+    |@QUEST_STARTED_CAN_COMPLETE:_questStartedCanComplete
+    |@QUEST_STARTED_NOT_FINISHED:_questStartedNotFinished
+    |default:_questNotStarted
+  +k: _questStartedFinished|"Thanks for helping me with the quest."
+  +kChild: _questStartedCanComplete|3
+  +k: _questStartedNotFinished|"Did you take care of those bandits yet?"
+  +kChild: _questNotStarted|2
+  +k: _questStartText|"My last shipment got waylaid by bandits.  They're somewhere to the west.  If you help I can give you a reward."
+  +k: _questCompleteText|"Wow you did a really good job!  Here's some gold."
+>2,exec
+  +e: START_QUEST:WoodThief|SET:@QUEST_STARTED_NOT_FINISHED
+  +n: 1:_questStartText
+>3,exec
+  +e: MOD:100,GOLD|SET:@QUEST_STARTED_FINISHED
+  +n: 1:_questCompleteText

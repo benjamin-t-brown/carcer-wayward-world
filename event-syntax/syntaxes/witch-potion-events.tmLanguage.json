@@ -1,0 +1,162 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Witch Potion Events",
+  "scopeName": "source.witch-potion-events",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#event-header" },
+    { "include": "#variables" },
+    { "include": "#operators" },
+    { "include": "#child-definition" },
+    { "include": "#commands" },
+    { "include": "#resources" },
+    { "include": "#dice-faces" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.witch-potion-events",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.witch-potion-events",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "variables": {
+      "patterns": [
+        {
+          "name": "variable.other.witch-potion-events",
+          "match": "(@[A-Z][0-9]*)\\s*=\\s*(.+)$",
+          "captures": {
+            "1": { "name": "entity.name.variable.witch-potion-events" },
+            "2": { "name": "string.quoted.variable-value.witch-potion-events" }
+          }
+        },
+        {
+          "name": "variable.usage.witch-potion-events",
+          "match": "(@[A-Z][0-9]*)\\b",
+          "captures": {
+            "1": { "name": "entity.name.variable.witch-potion-events" }
+          }
+        },
+        {
+          "name": "entity.name.variable.witch-potion-events",
+          "match": "(@[A-Z][0-9]*)\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.pipe.witch-potion-events",
+          "match": "\\|"
+        }
+      ]
+    },
+    "child-definition": {
+      "patterns": [
+        {
+          "name": "keyword.control.child.witch-potion-events",
+          "match": "^>([a-z0-9]+),([a-z]+):?$",
+          "captures": {
+            "1": { "name": "constant.numeric.child-id.witch-potion-events" },
+            "2": { "name": "entity.name.type.child-type.witch-potion-events" }
+          }
+        }
+      ]
+    },
+    "commands": {
+      "patterns": [
+        {
+          "name": "keyword.control.command.witch-potion-events",
+          "match": "^\\s*\\+([a-z]+):",
+          "captures": {
+            "1": { "name": "entity.name.function.command-name.witch-potion-events" }
+          }
+        },
+        {
+          "name": "string.quoted.description.witch-potion-events",
+          "match": "^\\s*\\+p:\\s*(.+)$",
+          "captures": {
+            "1": { "name": "string.quoted.description-text.witch-potion-events" }
+          }
+        },
+        {
+          "name": "string.quoted.choice.witch-potion-events",
+          "match": "^\\s*\\+c:\\s*([a-z0-9]+)\\|(.+?)(?:\\|HAS\\((.+?)\\))?$",
+          "captures": {
+            "1": { "name": "constant.numeric.choice-target.witch-potion-events" },
+            "2": { "name": "string.quoted.choice-text.witch-potion-events" },
+            "3": { "name": "string.quoted.has-condition.witch-potion-events" }
+          }
+        },
+        {
+          "name": "string.quoted.dice.witch-potion-events",
+          "match": "^\\s*\\+dice:\\s*(.+)$",
+          "captures": {
+            "1": { "name": "string.quoted.dice-spec.witch-potion-events" }
+          }
+        },
+        {
+          "name": "constant.numeric.threshold.witch-potion-events",
+          "match": "^\\s*\\+(pass|fail):\\s*([a-z0-9]+)$",
+          "captures": {
+            "1": { "name": "keyword.control.threshold-type.witch-potion-events" },
+            "2": { "name": "constant.numeric.threshold-value.witch-potion-events" }
+          }
+        },
+        {
+          "name": "constant.numeric.next.witch-potion-events",
+          "match": "^\\s*\\+n:\\s*([a-z0-9]+)$",
+          "captures": {
+            "1": { "name": "constant.numeric.next-target.witch-potion-events" }
+          }
+        }
+      ]
+    },
+    "resources": {
+      "patterns": [
+        {
+          "name": "keyword.control.resource-command.witch-potion-events",
+          "match": "^\\s*\\+(add|rem):\\s*(.+)$",
+          "captures": {
+            "1": { "name": "entity.name.function.resource-action.witch-potion-events" },
+            "2": { "name": "string.quoted.resource-spec.witch-potion-events" }
+          }
+        },
+        {
+          "name": "constant.language.resource-type.witch-potion-events",
+          "match": "\\b(GOLD|HERB_SPARKLEWEED|HERB_FEYMOSS|HERB_BRAMBLEBERRY|HERB_GLITTERBLOOM|HERB_SHADOWPETAL|REAG_SKY_DUST|REAG_FAIRY_SALT|REAG_SUN_POWDER|POT_COLD_CURE|POT_DRAGON_SWEAT|POT_MIASMA_OF_MIDNIGHT|POT_LEVIBALM|POT_TINCTURE_OF_TASTE|POT_LIQUID_LUCK|POT_PROTECTION_POTION|POT_POWER_POTION|DICE_FIRE_MAGIC|DICE_HEART_MAGIC|DICE_LUCK|DICE_CAT|DICE_GROW|BLUEPRINT_SPARKLEWEED|BLUEPRINT_FEYMOSS|BLUEPRINT_BRAMBLEBERRY|BLUEPRINT_GLITTERBLOOM|BLUEPRINT_SHADOWPETAL|CONTRACT_VILLAGER|CONTRACT_CAT|FAVOR_CAT|HERB1|HERB2|HERB3|HERB|REAG1|REAG2|REAG|POT1|POT2|POT3|POT|FIRE|HEART)\\b"
+        },
+        {
+          "name": "constant.numeric.resource-amount.witch-potion-events",
+          "match": "\\b(\\d+)\\s+(GOLD|HERB_SPARKLEWEED|HERB_FEYMOSS|HERB_BRAMBLEBERRY|HERB_GLITTERBLOOM|HERB_SHADOWPETAL|REAG_SKY_DUST|REAG_FAIRY_SALT|REAG_SUN_POWDER|POT_COLD_CURE|POT_DRAGON_SWEAT|POT_MIASMA_OF_MIDNIGHT|POT_LEVIBALM|POT_TINCTURE_OF_TASTE|POT_LIQUID_LUCK|POT_PROTECTION_POTION|POT_POWER_POTION|DICE_FIRE_MAGIC|DICE_HEART_MAGIC|DICE_LUCK|DICE_CAT|DICE_GROW|BLUEPRINT_SPARKLEWEED|BLUEPRINT_FEYMOSS|BLUEPRINT_BRAMBLEBERRY|BLUEPRINT_GLITTERBLOOM|BLUEPRINT_SHADOWPETAL|CONTRACT_VILLAGER|CONTRACT_CAT|FAVOR_CAT|HERB1|HERB2|HERB3|HERB|REAG1|REAG2|REAG|POT1|POT2|POT3|POT|FIRE|HEART)\\b",
+          "captures": {
+            "1": { "name": "constant.numeric.amount.witch-potion-events" },
+            "2": { "name": "constant.language.resource-type.witch-potion-events" }
+          }
+        }
+      ]
+    },
+    "dice-faces": {
+      "patterns": [
+        {
+          "name": "constant.language.dice-face.witch-potion-events",
+          "match": "\\b(DICE_FIRE_MAGIC|DICE_HEART_MAGIC|DICE_LUCK|DICE_CAT|DICE_GROW|FIRE|HEART)\\b"
+        },
+        {
+          "name": "constant.numeric.dice-count.witch-potion-events",
+          "match": "\\b(\\d+)\\s+(DICE_FIRE_MAGIC|DICE_HEART_MAGIC|DICE_LUCK|DICE_CAT|DICE_GROW|FIRE|HEART)\\b",
+          "captures": {
+            "1": { "name": "constant.numeric.count.witch-potion-events" },
+            "2": { "name": "constant.language.dice-face.witch-potion-events" }
+          }
+        }
+      ]
+    }
+  }
+}

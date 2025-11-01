@@ -40,8 +40,10 @@ ui/layouts/InGameLayout.cpp \
 ui/layouts/ModalStandard.cpp \
 ui/layouts/ModalSmall.cpp \
 ui/lists/ListInventory.cpp \
+ui/lists/ListPickUp.cpp \
 ui/popups/PopupInventoryItem.cpp \
 ui/pages/PageInventory.cpp \
+ui/pages/PagePickUp.cpp \
 ui/popups/PopupPickupItem.cpp \
 
 LIB_CODE=\

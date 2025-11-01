@@ -1,0 +1,41 @@
+{
+  "name": "witch-potion-events",
+  "displayName": "Witch Potion Events",
+  "description": "Syntax highlighting and language support for Witch Potion event files",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "witch-potion-events",
+        "aliases": [
+          "Witch Potion Events",
+          "wpe"
+        ],
+        "extensions": [
+          ".wpe",
+          ".events"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "witch-potion-events",
+        "scopeName": "source.witch-potion-events",
+        "path": "./syntaxes/witch-potion-events.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "witch-potion-events",
+        "path": "./snippets/events.json"
+      }
+    ]
+  }
+}

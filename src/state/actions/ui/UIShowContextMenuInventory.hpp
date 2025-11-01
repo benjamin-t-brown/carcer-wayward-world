@@ -7,7 +7,7 @@ namespace state {
 
 namespace actions {
 
-class UIShowContextMenuInventory : public AbstractAction {
+class UiShowContextMenuInventory : public AbstractAction {
   sdl2w::Window* window;
   std::string itemName;
   std::string itemId; // id of item in inventory
@@ -19,7 +19,7 @@ class UIShowContextMenuInventory : public AbstractAction {
   }
 
 public:
-  UIShowContextMenuInventory(sdl2w::Window* _window,
+UiShowContextMenuInventory(sdl2w::Window* _window,
                              std::string itemName,
                              std::string itemId)
       : window(_window), itemName(itemName), itemId(itemId) {}
