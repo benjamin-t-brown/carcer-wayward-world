@@ -1,6 +1,6 @@
 #include "ListInventory.h"
 #include "model/Items.h"
-#include "state/actions/ui/UiShowInventoryItemContextMenu.hpp"
+#include "state/actions/ui/UIShowContextMenuInventory.hpp"
 #include "ui/colors.h"
 #include "ui/components/VerticalList.h"
 #include "ui/elements/ButtonModal.h"
@@ -26,7 +26,7 @@ public:
               << " itemName: " << itemName << " itemId: " << itemId << LOG_ENDL;
     getStateManager()->enqueueAction(
         getStateManager()->getState(),
-        new state::actions::UiShowInventoryItemContextMenu(window, itemName, itemId),
+        new state::actions::UIShowContextMenuInventory(window, itemName, itemId),
         0);
   }
 };

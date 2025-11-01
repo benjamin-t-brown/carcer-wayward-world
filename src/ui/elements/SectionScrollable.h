@@ -23,6 +23,7 @@ private:
 
   ui::UiElement* getInnerQuad();
   int calculateContentHeight();
+  void updateScrollIndicatorPosition();
 
 public:
   SectionScrollable(sdl2w::Window* _window, UiElement* _parent = nullptr);

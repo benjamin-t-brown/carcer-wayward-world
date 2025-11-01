@@ -29,6 +29,7 @@ public:
   // Event handling - pass events to layers from top to bottom
   void handleMouseDown(int x, int y, int button);
   void handleMouseUp(int x, int y, int button);
+  void handleMouseWheel(int x, int y, int dir);
   void handleKeyDown(const std::string& key, int keyCode);
   void handleKeyUp(const std::string& key, int keyCode);
 

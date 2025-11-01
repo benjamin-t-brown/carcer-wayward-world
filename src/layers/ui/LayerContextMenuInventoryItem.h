@@ -4,12 +4,12 @@
 
 namespace layers {
 
-class LayerInventoryItemContextMenu : public Layer {
+class LayerContextMenuInventoryItem : public Layer {
 public:
-  explicit LayerInventoryItemContextMenu(sdl2w::Window* _window,
+  explicit LayerContextMenuInventoryItem(sdl2w::Window* _window,
                                          std::string itemId,
                                          std::string itemName);
-  virtual ~LayerInventoryItemContextMenu() = default;
+  virtual ~LayerContextMenuInventoryItem() = default;
 
   // Override update and render methods
   void update(int deltaTime) override;
@@ -17,3 +17,4 @@ public:
 };
 
 } // namespace layers
+

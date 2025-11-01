@@ -9,7 +9,7 @@ namespace ui {
 
 // ModalStandard layout properties
 struct ModalStandardProps {
-  SDL_Color backgroundColor = Colors::White;
+  SDL_Color contentBackgroundColor = Colors::White;
   std::string decorationSprite = "";
 };
 
@@ -41,6 +41,7 @@ public:
   UiElement* getCloseButtonElement();
 
   const std::pair<int, int> getDims() const override;
+  const std::pair<int, int> getContentDims();
 
   void build() override;
   void render(int dt) override;

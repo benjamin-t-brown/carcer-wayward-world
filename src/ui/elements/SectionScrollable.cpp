@@ -71,7 +71,8 @@ int SectionScrollable::calculateContentHeight() {
     int maxYPlusHeight = 0;
     for (const auto& child : children) {
       const auto& childStyle = child->getStyle();
-      int childBottom = childStyle.y + childStyle.height;
+      auto childDims = child->getDims();
+      int childBottom = childStyle.y + childDims.second;
       if (childBottom > maxYPlusHeight) {
         maxYPlusHeight = childBottom;
       }
@@ -79,6 +80,30 @@ int SectionScrollable::calculateContentHeight() {
     return maxYPlusHeight;
   }
   return 0;
+}
+
+void SectionScrollable::updateScrollIndicatorPosition() {
+  // Find the scroll indicator by ID
+  for (auto& child : children) {
+    if (child->getId() == "scrollIndicator") {
+      Quad* indicator = dynamic_cast<Quad*>(child.get());
+      if (indicator) {
+        // Calculate new Y position based on scroll offset
+        int contentWidth = style.width - props.scrollBarWidth;
+        int availableSpace = style.height - 3 * props.scrollBarWidth;
+        int indicatorY = style.y + props.scrollBarWidth;
+        
+        if (maxScrollOffset > 0 && availableSpace > 0) {
+          float scrollRatio = static_cast<float>(scrollOffset) / static_cast<float>(maxScrollOffset);
+          indicatorY = style.y + props.scrollBarWidth + static_cast<int>(scrollRatio * availableSpace);
+        }
+        
+        // Update the indicator position
+        indicator->updatePosition(style.x + contentWidth, indicatorY);
+      }
+      break;
+    }
+  }
 }
 
 void SectionScrollable::setProps(const SectionScrollableProps& _props) {
@@ -105,6 +130,8 @@ void SectionScrollable::scrollUp() {
         quad->updatePosition(0, -scrollOffset);
       }
     }
+    // Update indicator position
+    updateScrollIndicatorPosition();
   }
 }
 
@@ -124,6 +151,8 @@ void SectionScrollable::scrollDown() {
       quad->updatePosition(0, -scrollOffset);
     }
   }
+  // Update indicator position
+  updateScrollIndicatorPosition();
 }
 
 void SectionScrollable::scrollTo(int offset) {
@@ -142,6 +171,8 @@ void SectionScrollable::scrollTo(int offset) {
       quad->updatePosition(0, -scrollOffset);
     }
   }
+  // Update indicator position
+  updateScrollIndicatorPosition();
 }
 
 void SectionScrollable::addChild(std::unique_ptr<UiElement> child) {
@@ -170,7 +201,7 @@ void SectionScrollable::build() {
   innerStyle.scale = style.scale;
   innerQuad->setStyle(innerStyle);
   ui::QuadProps innerProps;
-  innerProps.bgColor = Colors::Blue;
+  innerProps.bgColor = Colors::Transparent;
   innerProps.borderColor = Colors::Transparent;
   innerProps.borderSize = 0;
   innerQuad->setProps(innerProps);
@@ -240,28 +271,46 @@ void SectionScrollable::build() {
     oldInnerQuad->getChildren().clear();
   }
 
+  // Calculate maxScrollOffset before creating indicator
+  int contentHeight = innerStyle.height; // Inner quad height
+  int viewportHeight = style.height;
+  maxScrollOffset = std::max(0, contentHeight - viewportHeight);
+
+  // Create scroll indicator (black rectangle showing scroll position)
+  auto scrollIndicator = std::make_unique<Quad>(window);
+  ui::BaseStyle indicatorStyle;
+  indicatorStyle.x = style.x + contentWidth;
+  indicatorStyle.width = props.scrollBarWidth;
+  indicatorStyle.height = props.scrollBarWidth;
+  indicatorStyle.scale = style.scale;
+  
+  // Calculate indicator Y position based on scroll offset
+  int availableSpace = style.height - 2 * props.scrollBarWidth;
+  int indicatorY = style.y + props.scrollBarWidth;
+  if (maxScrollOffset > 0 && availableSpace > 0) {
+    float scrollRatio = static_cast<float>(scrollOffset) / static_cast<float>(maxScrollOffset);
+    indicatorY = style.y + props.scrollBarWidth + static_cast<int>(scrollRatio * availableSpace);
+  }
+  indicatorStyle.y = indicatorY;
+  
+  scrollIndicator->setStyle(indicatorStyle);
+  ui::QuadProps indicatorProps;
+  indicatorProps.bgColor = Colors::LIGHT_GREY;
+  indicatorProps.borderColor = Colors::Transparent;
+  indicatorProps.borderSize = 0;
+  scrollIndicator->setProps(indicatorProps);
+  scrollIndicator->setId("scrollIndicator");
+
   children.clear();
 
   outerQuad->getChildren().push_back(std::move(innerQuad));
   children.push_back(std::move(outerQuad));
   children.push_back(std::move(scrollUpButton));
   children.push_back(std::move(scrollDownButton));
-
-  int contentHeight = innerStyle.height; // Inner quad height
-  int viewportHeight = style.height;
-  maxScrollOffset = std::max(0, contentHeight - viewportHeight);
+  children.push_back(std::move(scrollIndicator));
 }
 
 void SectionScrollable::render(int dt) {
-  // Update inner quad position based on scroll offset
-  // if (children.size() > 0) {
-  //   auto innerQuad = children[0].get();
-  //   if (innerQuad) {
-  //     auto innerStyle = innerQuad->getStyle();
-  //     innerStyle.y = style.y - scrollOffset;
-  //     innerQuad->setStyle(innerStyle);
-  //   }
-  // }
   auto& draw = window->getDraw();
   draw.drawRect(style.x, style.y, style.width, style.height, Colors::White);
   UiElement::render(dt);

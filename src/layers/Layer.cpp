@@ -31,6 +31,19 @@ void Layer::onMouseUp(int x, int y, int button) {
   }
 }
 
+void Layer::onMouseWheel(int x, int y, int dir) {
+  if (state != LayerState::ON) {
+    return;
+  }
+
+  // Check UI elements from back to front (reverse order for proper z-ordering)
+  for (auto it = uiElements.rbegin(); it != uiElements.rend(); ++it) {
+    if ((*it)->checkMouseWheelEvent(x, y, dir)) {
+      // return; // Event handled, stop propagation
+    }
+  }
+}
+
 void Layer::onMouseHover(int x, int y) {
   if (state != LayerState::ON) {
     return;

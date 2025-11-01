@@ -1,15 +1,15 @@
-#include "LayerInventoryItemContextMenu.h"
+#include "LayerContextMenuInventoryItem.h"
 #include "ui/popups/PopupInventoryItem.h"
 
 namespace layers {
 
-LayerInventoryItemContextMenu::LayerInventoryItemContextMenu(sdl2w::Window* _window,
+LayerContextMenuInventoryItem::LayerContextMenuInventoryItem(sdl2w::Window* _window,
                                                              std::string itemId,
                                                              std::string itemName)
     : Layer(_window) {
 
   if (itemId.empty() || itemName.empty()) {
-    LOG(ERROR) << "LayerInventoryItemContextMenu::LayerInventoryItemContextMenu: itemId "
+    LOG(ERROR) << "LayerContextMenuInventoryItem::LayerContextMenuInventoryItem: itemId "
                   "or itemName is empty"
                << LOG_ENDL;
     return;
@@ -37,8 +37,9 @@ LayerInventoryItemContextMenu::LayerInventoryItemContextMenu(sdl2w::Window* _win
   addUiElement(std::move(popupInventoryItem));
 }
 
-void LayerInventoryItemContextMenu::update(int deltaTime) { Layer::update(deltaTime); }
+void LayerContextMenuInventoryItem::update(int deltaTime) { Layer::update(deltaTime); }
 
-void LayerInventoryItemContextMenu::render(int deltaTime) { Layer::render(deltaTime); }
+void LayerContextMenuInventoryItem::render(int deltaTime) { Layer::render(deltaTime); }
 
 } // namespace layers
+

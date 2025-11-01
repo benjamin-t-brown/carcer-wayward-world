@@ -5,6 +5,7 @@
 #include "lib/sdl2w/Window.h"
 #include "ui/UiElement.h"
 #include "ui/elements/ButtonModal.h"
+#include "ui/elements/Quad.h"
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
 #include <SDL2/SDL_pixels.h>
@@ -65,26 +66,56 @@ int main(int argc, char** argv) {
     sectionProps.scrollStep = 30;
     scrollableSection->setProps(sectionProps);
 
+    auto quad1 = std::make_unique<ui::Quad>(&window);
+    quad1->setId("quad1");
+    ui::BaseStyle quad1Style;
+    quad1Style.x = 0;
+    quad1Style.y = 0;
+    quad1Style.width = 300;
+    quad1Style.height = 300;
+    quad1->setStyle(quad1Style);
+    ui::QuadProps quad1Props;
+    quad1Props.bgColor = ui::Colors::Red;
+    quad1Props.borderColor = ui::Colors::Transparent;
+    quad1Props.borderSize = 0;
+    quad1->setProps(quad1Props);
+    scrollableSection->addChild(std::move(quad1));
+
+    auto quad2 = std::make_unique<ui::Quad>(&window);
+    quad2->setId("quad2");
+    ui::BaseStyle quad2Style;
+    quad2Style.x = 0;
+    quad2Style.y = 300;
+    quad2Style.width = 300;
+    quad2Style.height = 300;
+    quad2->setStyle(quad2Style);
+    ui::QuadProps quad2Props;
+    quad2Props.bgColor = ui::Colors::Blue;
+    quad2Props.borderColor = ui::Colors::Transparent;
+    quad2Props.borderSize = 0;
+    quad2->setProps(quad2Props);
+    scrollableSection->addChild(std::move(quad2));
+
     // Add test content to the scrollable section
-    for (int i = 0; i < 10; i++) {
-      auto testButton = std::make_unique<ui::ButtonModal>(&window);
-      testButton->setId("testButton" + std::to_string(i));
-      ui::BaseStyle buttonStyle;
-      buttonStyle.x = 20;
-      buttonStyle.y = i * 60; // Stack buttons vertically
-      buttonStyle.width = 300;
-      buttonStyle.height = 50;
-      testButton->setStyle(buttonStyle);
+    // for (int i = 0; i < 10; i++) {
+    //   auto testButton = std::make_unique<ui::ButtonModal>(&window);
+    //   testButton->setId("testButton" + std::to_string(i));
+    //   ui::BaseStyle buttonStyle;
+    //   buttonStyle.x = 20;
+    //   buttonStyle.y = i * 60; // Stack buttons vertically
+    //   buttonStyle.width = 300;
+    //   buttonStyle.height = 50;
+    //   testButton->setStyle(buttonStyle);
 
-      ui::ButtonModalProps buttonProps;
-      buttonProps.text = "Test Button " + std::to_string(i + 1);
-      buttonProps.isSelected = (i % 3 == 0); // Every 3rd button is selected
-      testButton->setProps(buttonProps);
-      testButton->addEventObserver(
-          std::make_unique<TestButtonObserver>("testButton" + std::to_string(i)));
+    //   ui::ButtonModalProps buttonProps;
+    //   buttonProps.text = "Test Button " + std::to_string(i + 1);
+    //   buttonProps.isSelected = (i % 3 == 0); // Every 3rd button is selected
+    //   testButton->setProps(buttonProps);
+    //   testButton->addEventObserver(
+    //       std::make_unique<TestButtonObserver>("testButton" + std::to_string(i)));
 
-      scrollableSection->addChild(std::move(testButton));
-    }
+    //   scrollableSection->addChild(std::move(testButton));
+    // }
 
     // // Add some text elements as well
     // for (int i = 0; i < 5; i++) {

@@ -10,7 +10,8 @@ db/spriteMappings.cpp \
 db/loaders/LoadItemTemplates.cpp \
 layers/Layer.cpp \
 layers/LayerManager.cpp \
-layers/ui/LayerInventoryItemContextMenu.cpp \
+layers/ui/LayerContextMenuInventoryItem.cpp \
+layers/ui/LayerContextMenuPickUpItem.cpp \
 model/Player.cpp \
 model/Character.cpp \
 state/DatabaseInterface.cpp \
@@ -35,11 +36,13 @@ ui/components/BorderModalStandard.cpp \
 ui/components/BorderModalSmall.cpp \
 ui/components/BorderInGame.cpp \
 ui/components/VerticalList.cpp \
-ui/popups/PopupInventoryItem.cpp \
 ui/layouts/InGameLayout.cpp \
 ui/layouts/ModalStandard.cpp \
 ui/layouts/ModalSmall.cpp \
 ui/lists/ListInventory.cpp \
+ui/popups/PopupInventoryItem.cpp \
+ui/pages/PageInventory.cpp \
+ui/popups/PopupPickupItem.cpp \
 
 LIB_CODE=\
 

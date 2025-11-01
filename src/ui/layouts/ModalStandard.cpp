@@ -39,6 +39,14 @@ const std::pair<int, int> ModalStandard::getDims() const {
   return {style.width, style.height};
 }
 
+const std::pair<int, int> ModalStandard::getContentDims() {
+  auto borderElement = dynamic_cast<BorderModalStandard*>(getChildById("border"));
+  if (borderElement == nullptr) {
+    return {0, 0};
+  }
+  return borderElement->getContentDims();
+}
+
 void ModalStandard::build() {
   removeChildById("border");
   removeChildById("closeButton");
@@ -131,7 +139,7 @@ UiElement* ModalStandard::getCloseButtonElement() { return getChildById("closeBu
 
 void ModalStandard::render(int dt) {
   auto& draw = window->getDraw();
-  draw.drawRect(style.x, style.y, style.width, style.height, props.backgroundColor);
+  draw.drawRect(style.x, style.y, style.width, style.height, props.contentBackgroundColor);
   UiElement::render(dt);
 }
 

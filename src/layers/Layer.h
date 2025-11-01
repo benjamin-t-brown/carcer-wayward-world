@@ -32,6 +32,7 @@ public:
   virtual void onMouseDown(int x, int y, int button);
   virtual void onMouseUp(int x, int y, int button);
   virtual void onMouseHover(int x, int y);
+  virtual void onMouseWheel(int x, int y, int dir);
   virtual void onKeyDown(const std::string& key, int keyCode);
   virtual void onKeyUp(const std::string& key, int keyCode);
 

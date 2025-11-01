@@ -58,26 +58,30 @@ void LayerManager::moveToFront(Layer* layer) {
   }
 }
 
-// remove a layer from the "front" layer, and turn on the previous layer
+// remove a layer from the "front" layer, and turn on the previously suspended layer
 void LayerManager::popFront() {
   LOG(DEBUG) << "LayerManager::popFront: popping front layer" << LOG_ENDL;
   if (layerEventsStack.empty()) {
-    // if there's no event stack, just turn them all back on
+    // if there's no event stack, just turn all suspended layers back on
     for (auto l : layers) {
-      l->turnOn();
+      if (l->getState() == LayerState::SUSPENDED) {
+        l->turnOn();
+      }
     }
   } else {
     layerEventsStack.pop_back();
     if (layerEventsStack.empty()) {
       for (auto l : layers) {
-        l->turnOn();
+        if (l->getState() == LayerState::SUSPENDED) {
+          l->turnOn();
+        }
       }
       return;
     }
     auto layer = layerEventsStack.back();
     bool found = false;
     for (auto l : layers) {
-      if (l != layer) {
+      if (l != layer && l->getState() == LayerState::ON) {
         l->suspend();
       } else if (l == layer) {
         found = true;
@@ -114,6 +118,15 @@ void LayerManager::handleMouseUp(int x, int y, int button) {
   }
 }
 
+void LayerManager::handleMouseWheel(int x, int y, int dir) {
+  // Process layers from top to bottom (reverse iteration)
+  for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
+    auto& layer = *it;
+    if (layer->getState() == LayerState::ON) {
+      layer->onMouseWheel(x, y, dir);
+    }
+  }
+}
 void LayerManager::handleKeyDown(const std::string& key, int keyCode) {
   // Process layers from top to bottom (reverse iteration)
   for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
