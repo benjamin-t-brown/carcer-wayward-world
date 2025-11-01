@@ -1,5 +1,5 @@
 // this is an example event based around a "choice" child
-#Event0,icon_0
+#event0,Event 0,icon_0
 >0,choice
   +p: "This is a basic choice that you can make.  Press 1 to continue or 2 to skip stuff."
   +c: 1|Continue.
@@ -20,7 +20,7 @@
 >endEvent,end
 
 // this is an example event based around a "keyword" child
-#Event1,icon_1
+#event1,Event 1,icon_1
 @QUEST_STARTED_FINISHED=vars.WoodThief.questStartedFinished
 @QUEST_STARTED_CAN_COMPLETE=vars.WoodThief.questStartedCanComplete
 @QUEST_STARTED_NOT_FINISHED=vars.WoodThief.questStartedNotFinished

@@ -8,6 +8,7 @@ LibHTML.cpp \
 db/Database.cpp \
 db/spriteMappings.cpp \
 db/loaders/LoadItemTemplates.cpp \
+db/loaders/LoadSpecialEvents.cpp \
 layers/Layer.cpp \
 layers/LayerManager.cpp \
 layers/ui/LayerContextMenuInventoryItem.cpp \

@@ -25,4 +25,14 @@ void Database::addItemTemplate(const model::ItemTemplate& itemTemplate) {
   itemTemplates[itemTemplate.name] = itemTemplate;
 }
 
+const model::GameEvent& Database::getGameEvent(const std::string& eventId) const {
+  if (gameEvents.find(eventId) == gameEvents.end()) {
+    throw std::runtime_error("Game event not found: " + eventId);
+  }
+  return gameEvents.at(eventId);
+}
+
+void Database::addGameEvent(const model::GameEvent& gameEvent) {
+  gameEvents[gameEvent.id] = gameEvent;
+}
 } // namespace db
