@@ -144,7 +144,7 @@
         </dict>
         <dict>
           <key>begin</key>
-          <string>(\+n:)</string>
+          <string>(\+(n|default):)</string>
           <key>beginCaptures</key>
           <dict>
             <key>1</key>
@@ -575,7 +575,7 @@
           <key>match</key>
           <string>([\w\s\d_]{1})</string>
           <key>name</key>
-          <string>support.class.carcerSpecialEvents</string>
+          <string>entity.name.function.definition.carcerSpecialEvents</string>
         </dict>
         <dict>
           <key>match</key>
@@ -719,7 +719,13 @@
         </dict>
         <dict>
           <key>match</key>
-          <string>(,[\w\.\x{003a}\x{003b}\x{003f}]*)</string>
+          <string>(;)</string>
+          <key>name</key>
+          <string>invalid.carcerSpecialEvents</string>
+        </dict>
+        <dict>
+          <key>match</key>
+          <string>(,[\w\.\x{003a}\x{003f}]*)</string>
           <key>name</key>
           <string>keyword.carcerSpecialEvents</string>
         </dict>
@@ -731,7 +737,7 @@
       <array> 
         <dict>
           <key>match</key>
-          <string>(\w)</string>
+          <string>([\w\-\x{0028}\x{0029}\x{0021}\x{003f}\x{0027}])</string>
           <key>name</key>
           <string>text.carcerSpecialEvents</string>
         </dict>
@@ -763,6 +769,12 @@
       <array> 
         <dict>
           <key>match</key>
+          <string>(;)</string>
+          <key>name</key>
+          <string>invalid.carcerSpecialEvents</string>
+        </dict>
+        <dict>
+          <key>match</key>
           <string>(\|)</string>
           <key>name</key>
           <string>keyword.carcerSpecialEvents</string>
@@ -784,6 +796,36 @@
       <key>patterns</key>
       <array> 
         <dict>
+          <key>match</key>
+          <string>([\w\s]+:)</string>
+          <key>name</key>
+          <string>keyword.carcerSpecialEvents</string>
+        </dict>
+        <dict>
+          <key>match</key>
+          <string>([\w\s\.]+$)</string>
+          <key>name</key>
+          <string>support.class.carcerSpecialEvents</string>
+        </dict>
+        <dict>
+          <key>match</key>
+          <string>([\w\s\.]+)</string>
+          <key>name</key>
+          <string>variable.parameter.carcerSpecialEvents</string>
+        </dict>
+        <dict>
+          <key>match</key>
+          <string>([\|\x{002c}])</string>
+          <key>name</key>
+          <string>keyword.carcerSpecialEvents</string>
+        </dict>
+        <dict>
+          <key>match</key>
+          <string>(;)</string>
+          <key>name</key>
+          <string>invalid.carcerSpecialEvents</string>
+        </dict>
+        <dict>
           <key>include</key>
           <string>#child</string>
         </dict>
@@ -795,9 +837,15 @@
       <array> 
         <dict>
           <key>match</key>
-          <string>([\w\s]+)</string>
+          <string>([\w\s\d]+)</string>
           <key>name</key>
           <string>support.class.carcerSpecialEvents</string>
+        </dict>
+        <dict>
+          <key>match</key>
+          <string>(;)</string>
+          <key>name</key>
+          <string>invalid.carcerSpecialEvents</string>
         </dict>
         <dict>
           <key>include</key>

@@ -10,7 +10,7 @@ namespace model {
 
 enum class GameEventType { MODAL, TALK };
 
-enum class GameEventChildType { KEYWORD, CHOICE, END, EXEC, BOOL, SWITCH };
+enum class GameEventChildType { KEYWORD, CHOICE, END, EXEC, SWITCH };
 
 enum class KeywordType { K, K_DUP, K_SWITCH, K_CHILD };
 
@@ -57,7 +57,8 @@ struct KeywordData {
 
 struct Choice {
   std::string text;
-  std::optional<std::string> conditionStr; // string that represents a condition to evaluate
+  std::optional<std::string>
+      conditionStr; // string that represents a condition to evaluate
   std::string next;
 };
 
@@ -82,25 +83,25 @@ struct SwitchCase {
 struct GameEventChildSwitch {
   GameEventChildType eventChildType = GameEventChildType::SWITCH;
   std::string id;
-  std::string switchStr;
+  std::string defaultNext;
   std::vector<SwitchCase> cases;
 };
 
 struct GameEventChildExec {
   GameEventChildType eventChildType = GameEventChildType::EXEC;
   std::string id;
-  std::string text;
+  std::vector<std::string> paragraphs;
   std::string execStr;
   std::string next;
 };
 
-struct GameEventChildBool {
-  GameEventChildType eventChildType = GameEventChildType::BOOL;
-  std::string id;
-  std::string checkStr;
-  std::string pass; // id of next child
-  std::string fail; // id of next child
-};
+// struct GameEventChildBool {
+//   GameEventChildType eventChildType = GameEventChildType::BOOL;
+//   std::string id;
+//   std::string checkStr;
+//   std::string pass; // id of next child
+//   std::string fail; // id of next child
+// };
 
 struct GameEventChildEnd {
   GameEventChildType eventChildType = GameEventChildType::END;
@@ -109,18 +110,20 @@ struct GameEventChildEnd {
 };
 
 // Discriminated union for GameEventChild
-using GameEventChild = std::variant<GameEventChildKeyword, GameEventChildChoice,
-                                     GameEventChildSwitch, GameEventChildExec,
-                                     GameEventChildBool, GameEventChildEnd>;
+using GameEventChild = std::variant<GameEventChildKeyword,
+                                    GameEventChildChoice,
+                                    GameEventChildSwitch,
+                                    GameEventChildExec,
+                                    GameEventChildEnd>;
 
 struct GameEvent {
   std::string id;
   std::string title;
   GameEventType eventType; // indicates which ui layer to use for the event
-  std::string icon; // name of sprite to use for the event
-  std::map<std::string, VariableValue> vars; // a mapping from variable name to its original text and it's evaluated value
+  std::string icon;        // name of sprite to use for the event
+  std::map<std::string, VariableValue>
+      vars; // a mapping from variable name to its original text and it's evaluated value
   std::vector<GameEventChild> children;
 };
 
 } // namespace model
-

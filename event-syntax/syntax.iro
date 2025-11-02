@@ -85,6 +85,13 @@ styles [] {
    pygments_scope        = String
 }
 
+.event : style {
+   color                 = green
+   ace_scope             = entity.name.function.definition
+   textmate_scope        = entity.name.function.definition
+   pygments_scope        = String
+}
+
 
 
 .keyword : style {
@@ -153,7 +160,7 @@ main : context {
  
       : pattern {
          regex          \= ([\w\s\d_]{1})
-         styles []       = .node;
+         styles []       = .event;
       }
       
       : pattern {
@@ -176,7 +183,11 @@ main : context {
          styles []       = .node;
       }
       : pattern {
-         regex          \= (,[\w\.:;?]*)
+         regex          \= (;)
+         styles []       = .illegal;
+      }
+      : pattern {
+         regex          \= (,[\w\.:?]*)
          styles []       = .control;
       }
    }
@@ -190,7 +201,7 @@ main : context {
          styles []    = .punctuation;
       }
       : pattern {
-         regex          \= (\w)
+         regex          \= ([\w\-()!?'])
          styles []       = .str;
       }
       : include "child" ;
@@ -211,13 +222,17 @@ main : context {
       : include "child" ;
    }
    
-   // n child
+   // n/default child
    : inline_push {
-      regex          \= (\+n:)
+      regex          \= (\+(n|default):)
       styles []       = .control;
       : pop {
          regex       \= (^)
          styles []    = .punctuation;
+      }
+      : pattern {
+         regex          \= (;)
+         styles []       = .illegal;
       }
       : pattern {
          regex          \= (\|)
@@ -238,6 +253,26 @@ main : context {
          regex       \= (^)
          styles []    = .punctuation;
       }
+      : pattern {
+         regex          \= ([\w\s]+:)
+         styles []       = .control;
+      }
+      : pattern {
+         regex          \= ([\w\s\.]+$)
+         styles []       = .node;
+      }
+      : pattern {
+         regex          \= ([\w\s\.]+)
+         styles []       = .arg;
+      }
+      : pattern {
+         regex          \= ([\|,])
+         styles []       = .control;
+      }
+      : pattern {
+         regex          \= (;)
+         styles []       = .illegal;
+      }
       : include "child" ;
    }
    
@@ -250,9 +285,13 @@ main : context {
          styles []    = .punctuation;
       }
       : pattern {
-         regex          \= ([\w\s]+)
+         regex          \= ([\w\s\d]+)
          styles []       = .node;
       }  
+      : pattern {
+         regex          \= (;)
+         styles []       = .illegal;
+      }
       : include "child" ;
    }
    

@@ -1,5 +1,5 @@
 // this is an example event based around a "choice" child
-!event0,Event 0,icon_0
+!event0,modal,Event 0,icon_0
 @QUEST_STARTED_FINISHED=vars.WoodThief.questStartedFinished
 @QUEST_STARTED_FINISHED2 = vars.WoodThief.questStartedFinished
 >0,choice
@@ -23,7 +23,7 @@
 >endEvent,end
 
 // this is an example event based around a "keyword" child
-!event1,Event 1,icon_1
+!event1,talk,Event 1,icon_1
 @QUEST_STARTED_FINISHED=vars.WoodThief.questStartedFinished
 @QUEST_STARTED_CAN_COMPLETE=vars.WoodThief.questStartedCanComplete
 @QUEST_STARTED_NOT_FINISHED=vars.WoodThief.questStartedNotFinished

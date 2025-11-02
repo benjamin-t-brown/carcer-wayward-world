@@ -31,8 +31,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": ".",
-      "program": "build/Debug/outDebug",
+      "cwd": "c:/progs/carcer-wayward-world/src/db/loaders",
+      "program": "c:/progs/carcer-wayward-world/src/db/loaders/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

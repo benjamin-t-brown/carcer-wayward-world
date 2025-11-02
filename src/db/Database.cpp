@@ -11,6 +11,7 @@ Database::Database() {}
 void Database::load() {
   LOG(INFO) << "Loading database..." << LOG_ENDL;
   loadItemTemplates("assets/db/items.txt", itemTemplates);
+  // load special events
   LOG(INFO) << "Loaded database." << LOG_ENDL;
 }
 

@@ -12,8 +12,7 @@ static model::GameEventType parseEventType(const std::string& typeStr) {
   } else if (trimmed == "talk") {
     return model::GameEventType::TALK;
   }
-  // Default to TALK if not specified
-  return model::GameEventType::TALK;
+  throw std::runtime_error("Unknown event type: " + typeStr);
 }
 
 static model::GameEventChildType parseChildType(const std::string& typeStr) {
@@ -26,45 +25,43 @@ static model::GameEventChildType parseChildType(const std::string& typeStr) {
     return model::GameEventChildType::END;
   } else if (trimmed == "exec") {
     return model::GameEventChildType::EXEC;
-  } else if (trimmed == "bool") {
-    return model::GameEventChildType::BOOL;
   } else if (trimmed == "switch") {
     return model::GameEventChildType::SWITCH;
   }
   throw std::runtime_error("Unknown child type: " + typeStr);
 }
 
-static bool isCommentOrEmpty(const std::string& line) {
-  auto trimmed = sdl2w::trim(line);
-  if (trimmed.empty()) {
-    return true;
-  }
-  // Check if line is a comment (// at start or after whitespace)
-  size_t commentPos = trimmed.find("//");
-  if (commentPos == 0) {
-    return true;
-  }
-  return false;
-}
+// static bool isCommentOrEmpty(const std::string& line) {
+//   auto trimmed = sdl2w::trim(line);
+//   if (trimmed.empty()) {
+//     return true;
+//   }
+//   // Check if line is a comment (// at start or after whitespace)
+//   size_t commentPos = trimmed.find("//");
+//   if (commentPos == 0) {
+//     return true;
+//   }
+//   return false;
+// }
 
-static std::string extractQuotedString(const std::string& str) {
-  size_t firstQuote = str.find('"');
-  if (firstQuote == std::string::npos) {
-    return sdl2w::trim(str);
-  }
-  size_t secondQuote = str.find('"', firstQuote + 1);
-  if (secondQuote == std::string::npos) {
-    return str.substr(firstQuote + 1);
-  }
-  return str.substr(firstQuote + 1, secondQuote - firstQuote - 1);
-}
+// static std::string extractQuotedString(const std::string& str) {
+//   size_t firstQuote = str.find('"');
+//   if (firstQuote == std::string::npos) {
+//     return sdl2w::trim(str);
+//   }
+//   size_t secondQuote = str.find('"', firstQuote + 1);
+//   if (secondQuote == std::string::npos) {
+//     return str.substr(firstQuote + 1);
+//   }
+//   return str.substr(firstQuote + 1, secondQuote - firstQuote - 1);
+// }
 
-static bool isIndented(const std::string& line) {
-  if (line.empty()) {
-    return false;
-  }
-  return line[0] == ' ' || line[0] == '\t';
-}
+// static bool isIndented(const std::string& line) {
+//   if (line.empty()) {
+//     return false;
+//   }
+//   return line[0] == ' ' || line[0] == '\t';
+// }
 
 void loadSpecialEvents(const std::string& eventsFilePath,
                        std::unordered_map<std::string, model::GameEvent>& gameEvents) {
@@ -75,7 +72,7 @@ void loadSpecialEvents(const std::string& eventsFilePath,
   model::GameEvent currentEvent;
   std::optional<model::GameEventChild> currentChild;
   bool inEvent = false;
-  bool inMultiLineProperty = false;
+  // bool inMultiLineProperty = false;
   std::string multiLinePropertyName;
   std::string multiLinePropertyValue;
   model::GameEventChildType currentChildType;
@@ -85,27 +82,27 @@ void loadSpecialEvents(const std::string& eventsFilePath,
     // auto trimmed = sdl2w::trim(line);
 
     // Skip comments and empty lines (but check for multi-line first)
-    if (!inMultiLineProperty && isCommentOrEmpty(line)) {
-      continue;
-    }
+    // if (!inMultiLineProperty && isCommentOrEmpty(line)) {
+    //   continue;
+    // }
 
-    // Handle multi-line properties (continuation lines)
-    if (inMultiLineProperty) {
-      auto trimmedLine = sdl2w::trim(line);
-      if (isIndented(line) || trimmedLine[0] == '|') {
-        // This is a continuation of the multi-line property
-        multiLinePropertyValue += line;
-        continue;
-      } else {
-        // End of multi-line property, process it
-        inMultiLineProperty = false;
-        // Process the accumulated multi-line value
-        // This will be handled below when we process the property
-      }
-    }
+    // // Handle multi-line properties (continuation lines)
+    // if (inMultiLineProperty) {
+    //   auto trimmedLine = sdl2w::trim(line);
+    //   if (trimmedLine[0] == '|') {
+    //     // This is a continuation of the multi-line property
+    //     multiLinePropertyValue += line;
+    //     continue;
+    //   } else {
+    //     // End of multi-line property, process it
+    //     inMultiLineProperty = false;
+    //     // Process the accumulated multi-line value
+    //     // This will be handled below when we process the property
+    //   }
+    // }
 
     // Parse event definition: #eventId,title,icon or #eventId,title,icon,eventType
-    if (line[0] == '#') {
+    if (line[0] == '!') {
       // Save previous event if exists
       if (inEvent) {
         if (currentChild.has_value()) {
@@ -118,19 +115,17 @@ void loadSpecialEvents(const std::string& eventsFilePath,
       inEvent = true;
       currentEvent = model::GameEvent();
       currentChild.reset();
-      currentEvent.eventType = model::GameEventType::TALK; // default
+      currentEvent.eventType = model::GameEventType::MODAL; // default
 
       std::vector<std::string> parts;
       sdl2w::split(line.substr(1), ",", parts);
-      if (parts.size() < 3) {
+      if (parts.size() < 4) {
         throw std::runtime_error("Invalid event definition: " + line);
       }
       currentEvent.id = sdl2w::trim(parts[0]);
-      currentEvent.title = extractQuotedString(parts[1]);
-      currentEvent.icon = sdl2w::trim(parts[2]);
-      if (parts.size() >= 4) {
-        currentEvent.eventType = parseEventType(parts[3]);
-      }
+      currentEvent.eventType = parseEventType(parts[1]);
+      currentEvent.title = sdl2w::trim(parts[2]);
+      currentEvent.icon = sdl2w::trim(parts[3]);
       continue;
     }
 
@@ -189,12 +184,6 @@ void loadSpecialEvents(const std::string& eventsFilePath,
       }
       case model::GameEventChildType::EXEC: {
         model::GameEventChildExec child;
-        child.id = childId;
-        currentChild = child;
-        break;
-      }
-      case model::GameEventChildType::BOOL: {
-        model::GameEventChildBool child;
         child.id = childId;
         currentChild = child;
         break;
@@ -258,7 +247,7 @@ void loadSpecialEvents(const std::string& eventsFilePath,
             throw std::runtime_error("Invalid k property: " + line);
           }
           std::string keywordName = sdl2w::trim(parts[0]);
-          std::string keywordText = extractQuotedString(parts[1]);
+          std::string keywordText = sdl2w::trim(parts[1]);
           model::KeywordData keywordData;
           keywordData.keywordType = model::KeywordType::K;
           model::KeywordDataK kData;
@@ -372,32 +361,35 @@ void loadSpecialEvents(const std::string& eventsFilePath,
         currentChild = child;
       }
       // Handle switch child properties
-      // else if
-      // (std::holds_alternative<model::GameEventChildSwitch>(currentChild.value())) {
-      //   auto& child = std::get<model::GameEventChildSwitch>(currentChild.value());
+      else if (std::holds_alternative<model::GameEventChildSwitch>(
+                   currentChild.value())) {
+        auto& child = std::get<model::GameEventChildSwitch>(currentChild.value());
+        if (propName == "check") {
+          std::vector<std::string> parts;
+          sdl2w::split(propValue, ":", parts);
+          if (parts.size() < 2) {
+            throw std::runtime_error("Invalid check property: " + line);
+          }
+          model::SwitchCase check;
+          check.conditionStr = sdl2w::trim(parts[0]);
+          check.next = sdl2w::trim(parts[1]);
+          child.cases.push_back(check);
+        } else if (propName == "default") {
+          child.defaultNext = sdl2w::trim(propValue);
+        }
 
-      //   if (propName == "switchStr") {
-      //     child.switchStr = sdl2w::trim(propValue);
-      //   } else if (propName == "case" || (line[0] == '|' && isIndented(line))) {
-      //     // Parse case
-      //     std::string caseContent = sdl2w::trim(line.substr(1));
-      //     std::vector<std::string> caseParts;
-      //     sdl2w::split(caseContent, ":", caseParts);
-      //     if (caseParts.size() >= 2) {
-      //       model::SwitchCase switchCase;
-      //       switchCase.conditionStr = sdl2w::trim(caseParts[0]);
-      //       switchCase.next = sdl2w::trim(caseParts[1]);
-      //       child.cases.push_back(switchCase);
-      //     }
-      //   }
-      //   currentChild = child;
-      // }
+        if (child.defaultNext.empty()) {
+          throw std::runtime_error("Default next is required for switch: " + line);
+        }
+
+        currentChild = child;
+      }
       // Handle exec child properties
       else if (std::holds_alternative<model::GameEventChildExec>(currentChild.value())) {
         auto& child = std::get<model::GameEventChildExec>(currentChild.value());
 
         if (propName == "p") {
-          child.text = sdl2w::trim(propValue);
+          child.paragraphs.push_back(sdl2w::trim(propValue));
         } else if (propName == "e") {
           child.execStr = propValue; // Keep full value including pipes
         } else if (propName == "n") {
@@ -410,18 +402,19 @@ void loadSpecialEvents(const std::string& eventsFilePath,
         currentChild = child;
       }
       // Handle bool child properties
-      else if (std::holds_alternative<model::GameEventChildBool>(currentChild.value())) {
-        auto& child = std::get<model::GameEventChildBool>(currentChild.value());
+      // else if (std::holds_alternative<model::GameEventChildBool>(currentChild.value()))
+      // {
+      //   auto& child = std::get<model::GameEventChildBool>(currentChild.value());
 
-        if (propName == "check") {
-          child.checkStr = sdl2w::trim(propValue);
-        } else if (propName == "pass") {
-          child.pass = sdl2w::trim(propValue);
-        } else if (propName == "fail") {
-          child.fail = sdl2w::trim(propValue);
-        }
-        currentChild = child;
-      }
+      //   if (propName == "check") {
+      //     child.checkStr = sdl2w::trim(propValue);
+      //   } else if (propName == "pass") {
+      //     child.pass = sdl2w::trim(propValue);
+      //   } else if (propName == "fail") {
+      //     child.fail = sdl2w::trim(propValue);
+      //   }
+      //   currentChild = child;
+      // }
       // Handle end child properties
       else if (std::holds_alternative<model::GameEventChildEnd>(currentChild.value())) {
         auto& child = std::get<model::GameEventChildEnd>(currentChild.value());
