@@ -1,0 +1,541 @@
+#################################################################
+## Iro
+################################################################ 
+##
+## * Press Ctrl + '+'/'-' To Zoom in
+## * Press Ctrl + S to save and recalculate... 
+## * Documents are saved to web storage.
+## * Only one save slot supported.
+## * Matches cannot span lines.
+## * Unicode chars must be defined in \u0000 to \uffff format.
+## * All matches must be contained by a single group ( ... )
+## * Look behinds not permitted, (?<= or (?<!
+## * Look forwards are permitted (?= or (?!
+## * Constants are defined as __my_const = (......)
+## * The \= format allows unescaped regular expressions
+## * Constants referenced by match \= $${__my_const}
+## * Constants can reference other constants
+## * You are free to delete all the default scopes.
+## * Twitter : ainslec , Web: http://eeyo.io/iro
+##
+################################################################
+
+name                   = carcerSpecialEvents
+file_extensions []     = carcerSpecialEvents;
+
+################################################################
+## Constants
+################################################################
+
+__MY_CONSTANT \= (\b[a-z][a-z0-9]*)
+
+################################################################
+## Styles
+################################################################
+
+styles [] {
+
+.comment : style {
+   color                 = light_green
+   italic                = true
+   ace_scope             = comment
+   textmate_scope        = comment
+   pygments_scope        = Comment
+}
+
+.control : style {
+   color                 = red
+   ace_scope             = keyword
+   textmate_scope        = keyword
+   pygments_scope        = Keyword
+}
+
+.arg : style {
+   color                 = orange
+   ace_scope             = variable.parameter
+   textmate_scope        = variable.parameter
+   pygments_scope        = String
+}
+
+.variable : style {
+   color                 = purple
+   ace_scope             = constant.numeric
+   textmate_scope        = constant.numeric
+   pygments_scope        = Keyword
+}
+
+.str : style {
+   color                 = white
+   ace_scope             = text
+   textmate_scope        = text
+   pygments_scope        = Keyword
+}
+
+.quote : style {
+   color                 = yellow
+   ace_scope             = string
+   textmate_scope        = string
+   pygments_scope        = String
+}
+
+.node : style {
+   color                 = cyan
+   ace_scope             = support.class
+   textmate_scope        = support.class
+   pygments_scope        = String
+}
+
+
+
+.keyword : style {
+   color                 = cyan
+   ace_scope             = keyword
+   textmate_scope        = keyword
+   pygments_scope        = Keyword
+}
+
+.numeric : style {
+   color                 = gold
+   ace_scope             = constant.numeric
+   textmate_scope        = constant.numeric
+   pygments_scope        = Number
+}
+
+.punctuation : style {
+   color                 = red_2
+   ace_scope             = punctuation
+   textmate_scope        = punctuation
+   pygments_scope        = Punctuation
+}
+
+.text : style {
+   color                 = blue
+   ace_scope             = text
+   textmate_scope        = text
+   pygments_scope        = String
+}
+
+.illegal : style {
+   color                 = white
+   background_color      = red
+   ace_scope             = invalid
+   textmate_scope        = invalid
+   pygments_scope        = Generic.Error
+}
+
+}
+
+#################################################
+## Parse contexts
+#################################################
+
+contexts [] {
+
+##############################################
+## Main Context - Entry point context
+##############################################
+
+main : context {
+
+   // game event
+   // : pattern {
+   //    regex          \= (#[\w\d_]+)
+   //    styles []       = .control;
+   // }
+   
+   : inline_push {
+      regex          \= (!)
+      styles []       = .control;
+      : pop {
+         regex       \= (^)
+         styles []    = .punctuation;
+      }
+ 
+      : pattern {
+         regex          \= ([\w\s\d_]{1})
+         styles []       = .node;
+      }
+      
+      : pattern {
+         regex          \= (,[\w\s\d_]*)
+         styles []       = .str;
+      }
+   }
+   
+   
+   // game event child
+   : inline_push {
+      regex          \= (>)
+      styles []       = .control;
+      : pop {
+         regex       \= (^)
+         styles []    = .punctuation;
+      }
+      : pattern {
+         regex          \= ([\w\s\d_])
+         styles []       = .node;
+      }
+      : pattern {
+         regex          \= (,[\w\.:;?]*)
+         styles []       = .control;
+      }
+   }
+   
+   // p child
+   : inline_push {
+      regex          \= (\+p:)
+      styles []       = .control;
+      : pop {
+         regex       \= (^)
+         styles []    = .punctuation;
+      }
+      : pattern {
+         regex          \= (\w)
+         styles []       = .str;
+      }
+      : include "child" ;
+   }
+   
+   // c child
+   : inline_push {
+      regex          \= (\+c:)
+      styles []       = .control;
+      : pop {
+         regex       \= (^)
+         styles []    = .punctuation;
+      }
+      : pattern {
+         regex          \= (\|)
+         styles []       = .control;
+      }
+      : include "child" ;
+   }
+   
+   // n child
+   : inline_push {
+      regex          \= (\+n:)
+      styles []       = .control;
+      : pop {
+         regex       \= (^)
+         styles []    = .punctuation;
+      }
+      : pattern {
+         regex          \= (\|)
+         styles []       = .control;
+      }
+      : pattern {
+         regex          \= ([\w\s]+)
+         styles []       = .node;
+      }     
+      : include "child" ;
+   }
+ 
+   // check child
+   : inline_push {
+      regex          \= (\+check:)
+      styles []       = .control;
+      : pop {
+         regex       \= (^)
+         styles []    = .punctuation;
+      }
+      : include "child" ;
+   }
+   
+   // pass/fail child
+   : inline_push {
+      regex          \= (\+(pass|fail):)
+      styles []       = .control;
+      : pop {
+         regex       \= (^)
+         styles []    = .punctuation;
+      }
+      : pattern {
+         regex          \= ([\w\s]+)
+         styles []       = .node;
+      }  
+      : include "child" ;
+   }
+   
+   // e child
+   : inline_push {
+      regex          \= (\+e:)
+      styles []       = .control;
+      : pop {
+         regex       \= (^)
+         styles []    = .punctuation;
+      }
+      : pattern {
+         regex          \= ([\w\s]+:)
+         styles []       = .control;
+      }
+      : pattern {
+         regex          \= ([\|,])
+         styles []       = .control;
+      }
+      : pattern {
+         regex          \= ([\w\s]+)
+         styles []       = .arg;
+      }
+      : include "child" ;
+   }
+  
+  
+   // k child
+   : inline_push {
+      regex          \= (\+k:)
+      styles []       = .control;
+      : pop {
+         regex       \= (^)
+         styles []    = .punctuation;
+      }
+      : pattern {
+         regex          \= ([\w\s]+:)
+         styles []       = .control;
+      }
+      : pattern {
+         regex          \= ([\|])
+         styles []       = .control;
+      }
+      : include "child" ;
+   }
+   
+   // kDup child
+   : inline_push {
+      regex          \= (\+kDup:)
+      styles []       = .control;
+      : pop {
+         regex       \= (^)
+         styles []    = .punctuation;
+      }
+      : pattern {
+         regex          \= ([\w\s]+:)
+         styles []       = .control;
+      }
+      : pattern {
+         regex          \= ([\|])
+         styles []       = .control;
+      }
+      : include "child" ;
+   }
+
+   // kChild child
+   : inline_push {
+      regex          \= (\+kChild:)
+      styles []       = .control;
+      : pop {
+         regex       \= (^)
+         styles []    = .punctuation;
+      }
+      : pattern {
+         regex          \= ([\w\s]+)
+         styles []       = .node;
+      }
+      : pattern {
+         regex          \= ([\|])
+         styles []       = .control;
+      }
+      : include "child" ;
+   }
+
+   // kSwitch child
+   : inline_push {
+      regex          \= (\+kSwitch:)
+      styles []       = .control;
+      : pop {
+         regex       \= (^)
+         styles []    = .punctuation;
+      }
+      : pattern {
+         regex          \= ([\w\s]+:)
+         styles []       = .control;
+      }
+      : pattern {
+         regex          \= ([\|])
+         styles []       = .control;
+      }
+      : include "child" ;
+   }
+   
+   // kSwitch multiline
+   : inline_push {
+      regex          \= ((\s)*[|])
+      styles []       = .control;
+      : pop {
+         regex       \= (^)
+         styles []    = .punctuation;
+      }
+      : pattern {
+         regex          \= ([\w\s]+:)
+         styles []       = .control;
+      }
+      : include "child" ;
+   }
+ 
+   // argument to function
+   // : inline_push {
+   //    regex          \= (,)
+   //    styles []       = .punctuation;
+   //    default_style   = .punctuation
+   //    : pop {
+   //       regex       \= (.$)
+   //       styles []    = .punctuation;
+   //    }
+   // }
+   
+   
+   // variable declaration child
+   : inline_push {
+      regex          \= (@)
+      styles []       = .variable;
+      : pop {
+         regex       \= (^)
+         styles []    = .punctuation;
+      }
+      : pattern {
+         regex          \= ([\w\s\d_]+[\s]*=)
+         styles []       = .variable;
+      }
+      : pattern {
+         regex          \= (.*)
+         styles []       = .arg;
+      }
+   }
+   
+   
+   // : inline_push {
+   //    regex          \= (#[\w\d_]+)
+   //    styles []       = .control;
+   //    : pop {  
+   //       regex       \= (.)$
+   //       styles []    = .punctuation;
+   //    }
+   //    : pattern {
+   //       regex          \= (,)
+   //       styles []       = .keyword;
+   //    }
+   // }
+
+   // : pattern {
+   //    regex          \= $${__MY_CONSTANT}
+   //    styles []       = .keyword;
+   // }
+   
+   : include "numeric" ;
+   
+   // : inline_push {
+   //    regex          \= (\{)
+   //    styles []       = .punctuation;
+   //    : pop {  
+   //       regex       \= (\})
+   //       styles []    = .punctuation;
+   //    }
+   //    : include "main" ;
+   // }
+   
+   : pattern {
+      regex          \= (;)
+      styles []       = .punctuation;
+   }
+   
+   
+   : inline_push {
+      regex          \= (\")
+      styles []       = .text;
+      default_style   = .text
+      : pop {
+         regex       \= (\")
+         styles []    = .text;
+      }
+   }
+   
+   : inline_push {
+      regex          \= (\()
+      styles []       = .punctuation;
+      : pop {
+         regex       \= (\))
+         styles []    = .punctuation;
+      }
+      : include "numeric" ;
+      : pattern {
+         regex       \= (,)
+         styles []    = .punctuation;
+      }
+   }
+
+   // : pattern {
+   //    regex          \= (\w)
+   //    styles []       = .str;
+   // }
+   
+   : include "multi_line_comment" ;
+   
+   : pattern {
+      regex          \= (//.*)
+      styles []       = .comment;
+   }
+   
+   : pattern {
+      regex          \= ([^\s])
+      styles []       = .illegal;
+   }
+   
+}
+
+#################################################
+## End of Contexts
+#################################################
+
+child : context {
+   : inline_push {
+      regex          \= (\")
+      styles []       = .quote;
+      default_style   = .quote
+      : pop {
+         regex       \= (\")
+         styles []    = .quote;
+      }
+   }
+   //variable with @
+   : pattern {
+      regex          \= (@[\w\d_]*)
+      styles []       = .variable;
+   }
+   : pattern {
+      regex          \= ([\w\.:;?,])
+      styles []       = .str;
+   }
+   : pattern {
+      regex          \= ([^\s])
+      styles []       = .illegal;
+   }
+}
+
+###########################################
+## Numeric Context
+###########################################
+
+numeric : context {
+   : pattern {
+      regex          \= (\b\d+)
+      styles []       = .numeric;
+   }
+}
+
+###########################################
+## Multi Line Comment Context
+###########################################
+
+multi_line_comment : context {
+   description        = multiline
+   : inline_push {
+      regex          \= (/\*)
+      styles []       = .comment;
+      default_style   = .comment
+      : pop {
+         regex       \= (\*/)
+         styles []    = .comment;
+      }
+   }
+}
+   
+}

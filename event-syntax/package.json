@@ -1,7 +1,7 @@
 {
-  "name": "witch-potion-events",
-  "displayName": "Witch Potion Events",
-  "description": "Syntax highlighting and language support for Witch Potion event files",
+  "name": "carcer-special-events",
+  "displayName": "Carcer Special Events",
+  "description": "Syntax highlighting and language support for Carcer special event files",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.74.0"
@@ -12,28 +12,27 @@
   "contributes": {
     "languages": [
       {
-        "id": "witch-potion-events",
+        "id": "carcer-special-events",
         "aliases": [
-          "Witch Potion Events",
-          "wpe"
+          "Carcer Special Events",
+          "se"
         ],
         "extensions": [
-          ".wpe",
-          ".events"
+          ".se"
         ],
         "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
       {
-        "language": "witch-potion-events",
-        "scopeName": "source.witch-potion-events",
-        "path": "./syntaxes/witch-potion-events.tmLanguage.json"
+        "language": "carcer-special-events",
+        "scopeName": "source.carcerSpecialEvents",
+        "path": "./syntaxes/carcer-special-events.tmLanguage"
       }
     ],
     "snippets": [
       {
-        "language": "witch-potion-events",
+        "language": "carcer-special-events",
         "path": "./snippets/events.json"
       }
     ]
