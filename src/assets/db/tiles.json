@@ -1,0 +1,8 @@
+[
+  {
+    "type": "TILE_WALKABLE",
+    "spritesheet": "tiles",
+    "spriteOffset": "0,0",
+    "stepSound": "stepSoundName"
+  }
+]

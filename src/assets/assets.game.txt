@@ -1,0 +1,2 @@
+Pic,party,assets/img/game/party.png
+Sprites,party,48,32,32

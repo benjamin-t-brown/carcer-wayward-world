@@ -1,0 +1,120 @@
+[
+  {
+    "itemType": "POTION",
+    "name": "PotionHealing",
+    "label": "Potion: Healing",
+    "icon": "potionGreen",
+    "description": "A standard healing potion.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "WEAPON_MELEE",
+    "name": "DaggerBronze",
+    "label": "Bronze Dagger",
+    "icon": "dagger",
+    "description": "A bronze dagger.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "WEAPON_MELEE",
+    "name": "ShortSwordBronze",
+    "label": "Bronze Short Sword",
+    "icon": "sword",
+    "description": "A bronze short sword.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "WEAPON_MELEE",
+    "name": "SwordBronze",
+    "label": "Bronze Sword",
+    "icon": "sword",
+    "description": "A bronze short sword.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "WEAPON_RANGED",
+    "name": "LongbowOak",
+    "label": "Oak Longbow",
+    "icon": "bow",
+    "description": "An oak longbow.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "WEAPON_AMMO",
+    "name": "ArrowsStone",
+    "label": "Stone Arrows",
+    "icon": "arrow",
+    "description": "Arrows with stone tips.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "GARB",
+    "name": "ShirtSimple0",
+    "label": "Shirt",
+    "icon": "shirtBlue",
+    "description": "A simple shirt.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "GARB",
+    "name": "ShirtSimple1",
+    "label": "Shirt",
+    "icon": "shirtBlue",
+    "description": "A simple shirt.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "PANTS",
+    "name": "PantsSimple0",
+    "label": "Pants",
+    "icon": "pants",
+    "description": "A simple pair of pants.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "GLOVES",
+    "name": "GlovesLeather",
+    "label": "Leather Gloves",
+    "icon": "gloves",
+    "description": "A simple pair of leather gloves.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "HAT",
+    "name": "HatLeather",
+    "label": "Leather Cap",
+    "icon": "hatLeather",
+    "description": "A simple leather hat.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "SHOES",
+    "name": "BootsLeather",
+    "label": "Leather Boots",
+    "icon": "bootsLeather",
+    "description": "A simple pair of leather boots.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "NECKLACE",
+    "name": "NecklaceSilver",
+    "label": "Silver Necklace",
+    "icon": "necklace",
+    "description": "A simple silver necklace.",
+    "weight": 1,
+    "value": 10
+  }
+]
+

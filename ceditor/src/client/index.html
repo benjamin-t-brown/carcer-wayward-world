@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ceditor - Asset Editor</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: #1e1e1e;
+        color: #d4d4d4;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        color: #4ec9b0;
+        margin-bottom: 30px;
+      }
+
+      .asset-types {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+      }
+
+      .asset-card {
+        background: #252526;
+        border: 1px solid #3e3e42;
+        border-radius: 8px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .asset-card:hover {
+        border-color: #4ec9b0;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(78, 201, 176, 0.2);
+      }
+
+      .asset-card h2 {
+        color: #4ec9b0;
+        margin-bottom: 10px;
+      }
+
+      .asset-card p {
+        color: #858585;
+        font-size: 14px;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #858585;
+      }
+
+      .error {
+        background: #5a1d1d;
+        border: 1px solid #a1260d;
+        color: #f48771;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+      }
+
+      /* Editor Styles */
+      .editor-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .editor-header h1 {
+        flex: 1;
+        margin: 0;
+      }
+
+      .editor-content {
+        display: grid;
+        grid-template-columns: 400px 1fr;
+        gap: 20px;
+        height: calc(100vh - 150px);
+      }
+
+      .editor-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        overflow: hidden;
+      }
+
+      .search-box input {
+        width: 100%;
+        padding: 10px;
+        background: #252526;
+        border: 1px solid #3e3e42;
+        border-radius: 4px;
+        color: #d4d4d4;
+        font-size: 14px;
+      }
+
+      .search-box input:focus {
+        outline: none;
+        border-color: #4ec9b0;
+      }
+
+      .item-list {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .item-card {
+        background: #252526;
+        border: 1px solid #3e3e42;
+        border-radius: 8px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.2s;
+        user-select: none;
+      }
+
+      .item-card:hover {
+        border-color: #4ec9b0;
+      }
+
+      .item-card.editing {
+        border-color: #4ec9b0;
+        background: #2d2d30;
+      }
+
+      .item-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .item-card-header h3 {
+        color: #4ec9b0;
+        font-size: 16px;
+        margin: 0;
+      }
+
+      .item-card-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .item-card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .item-info {
+        display: flex;
+        gap: 10px;
+        font-size: 12px;
+      }
+
+      .item-type {
+        background: #007acc;
+        padding: 2px 8px;
+        border-radius: 4px;
+        color: white;
+      }
+
+      .item-name {
+        color: #858585;
+      }
+
+      .item-description {
+        color: #858585;
+        font-size: 14px;
+        margin: 0;
+      }
+
+      .item-stats {
+        display: flex;
+        gap: 15px;
+        font-size: 12px;
+        color: #858585;
+      }
+
+      .item-form {
+        background: #252526;
+        border: 1px solid #3e3e42;
+        border-radius: 8px;
+        padding: 30px;
+      }
+
+      .item-form h2 {
+        color: #4ec9b0;
+        margin-bottom: 20px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #d4d4d4;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        background: #1e1e1e;
+        border: 1px solid #3e3e42;
+        border-radius: 4px;
+        color: #d4d4d4;
+        font-size: 14px;
+        font-family: inherit;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: #4ec9b0;
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 30px;
+      }
+
+      .btn-back,
+      .btn-primary,
+      .btn-secondary,
+      .btn-small,
+      .btn-danger {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+
+      .btn-back {
+        background: #3e3e42;
+        color: #d4d4d4;
+      }
+
+      .btn-back:hover {
+        background: #4e4e52;
+      }
+
+      .btn-primary {
+        background: #007acc;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #0098ff;
+      }
+
+      .btn-secondary {
+        background: #3e3e42;
+        color: #d4d4d4;
+      }
+
+      .btn-secondary:hover {
+        background: #4e4e52;
+      }
+
+      .btn-small {
+        padding: 6px 12px;
+        font-size: 12px;
+        background: #3e3e42;
+        color: #d4d4d4;
+      }
+
+      .btn-small:hover {
+        background: #4e4e52;
+      }
+
+      .btn-danger {
+        background: #a1260d;
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #c53030;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #858585;
+      }
+
+      .item-actions {
+        margin-bottom: 10px;
+      }
+
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 4px;
+        color: white;
+        font-size: 14px;
+        z-index: 1000;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.3s;
+      }
+
+      .notification.show {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .notification.success {
+        background: #2d5016;
+        border: 1px solid #4ec9b0;
+      }
+
+      .notification.error {
+        background: #5a1d1d;
+        border: 1px solid #a1260d;
+      }
+
+      .form-section {
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 1px solid #3e3e42;
+      }
+
+      .form-section h3 {
+        color: #4ec9b0;
+        margin-bottom: 20px;
+        font-size: 18px;
+      }
+
+      .status-effect-item {
+        background: #1e1e1e;
+        border: 1px solid #3e3e42;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 15px;
+      }
+
+      .status-effect-header {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .status-effect-header select {
+        flex: 1;
+      }
+
+      .form-subsection {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #2d2d30;
+      }
+
+      .form-subsection:last-child {
+        border-bottom: none;
+      }
+
+      .form-subsection h4 {
+        color: #858585;
+        margin-bottom: 15px;
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .status-item {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+        align-items: center;
+      }
+
+      .status-item .status-input {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Ceditor</h1>
+      <div id="app">
+        <div class="loading">Loading asset types...</div>
+      </div>
+    </div>
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>
+
