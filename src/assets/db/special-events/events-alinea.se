@@ -7,8 +7,8 @@
 
 !Alinea_PreventLeaveIfNotPickedUpBag,modal,The Bag,
 >1,switch
-  +check: IS:vars.Alinea.hasPickedUpBag|end
   +default: 1Fail
+  +check: IS:vars.Alinea.hasPickedUpBag|end
 >1Fail,exec
   +p: You take a few steps towards Alinea, but something makes you pause.  You really ought to pick up that bag.  Maybe it has a hint about your circumstances.
   +n: end

@@ -1,0 +1,33 @@
+# open a REGULAR power shell window, then run the following
+
+# The following command should eventually install WinLibs which is your gcc/g++ compiler and a lot of other stuff.
+# However this script sort of failed for some reason because %LocalAppData%\Programs\WinLibs never got created.
+# I fixed this by creating the WinLibs folder in the Programs directory and it suddenly fixed the installer
+irm https://git.learnjsthehardway.com/learn-code-the-hard-way/lcthw-windows-installers/raw/branch/master/base.ps1 -outfile base.ps1
+powershell -executionpolicy bypass .\base.ps1
+
+# make sure to add %LocalAppData%\Programs\WinLibs\mingw64\bin to your path
+# also, i copied mingw32-make.exe and called it "make.exe"
+
+# idk if this is necessary
+irm https://git.learnjsthehardway.com/learn-code-the-hard-way/lcthw-windows-installers/raw/branch/master/pathfixer.ps1 -outfile pathfixer.ps1
+powershell -executionpolicy bypass .\pathfixer.ps1
+
+irm https://git.learnjsthehardway.com/learn-code-the-hard-way/lcthw-windows-installers/raw/branch/master/cpp.ps1 -outfile cpp.ps1
+powershell -executionpolicy bypass .\cpp.ps1
+irm https://git.learnjsthehardway.com/learn-code-the-hard-way/lcthw-windows-installers/raw/branch/master/nodejs.ps1 -outfile nodejs.ps1
+powershell -executionpolicy bypass .\nodejs.ps1
+
+# from zag2000, installs sdl and other important stuff
+powershell -executionpolicy bypass scripts\install_sdl.ps1
+
+winget install -e --id Python.Python.3.11 --scope machine
+
+# i can't tell if i need this for clang
+winget install --id=MartinStorsjo.LLVM-MinGW.UCRT -e
+
+python -m pip install scons
+
+# for some reason, i then had to add %AppData%\Python\Python311\Scripts to my path for it to see scons.
+# The python install script had already added another python311 scripts to my path but this one I suppose is the real one?
+# in powershell you can see path with "$env:PATH"

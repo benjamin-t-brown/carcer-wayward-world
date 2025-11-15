@@ -1,4 +1,4 @@
-# Ceditor
+# CEditor
 
 Web-based editor for managing game asset JSON files.
 

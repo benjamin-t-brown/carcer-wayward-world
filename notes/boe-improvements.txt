@@ -1,0 +1,55 @@
+Improved Menu UI (faster, better layout, keyboard shortcuts)
+Improved speed of casting magic
+  Improved Targeting (allow user to use keyboard to target, use shortcuts)
+  Show enemy and projectile
+Remove lag of ui when certain sounds play (get item, event pop up)
+Reworked Spell System
+  Use runes to establish spells
+Improved enemy ai (wont get stuck, more abilities)
+
+New Mechanics
+  - Reworked Vision and Lighting
+  - Enemies can deal different damage types, represented with additional damage bubble
+  - Spell energy as shield
+  - Jump/Teleport
+  - AP as a major stat via Agility
+
+Balance
+
+Early Game
+Early game balance should likely be very similar to BOE.  I see it like this:
+
+ - Power stat checks determine how carefully you have to progress through a room
+ - Fighters are generally not all that strong, often missing until they level up and get better gear
+ - Mages are very strong with access to Haste/Range attack/Aoe/
+ - Priests are utility focused with Heal/Restore/Bless
+  - Priests can also provide other utility like provide food/unlock/show light
+  - Priests have only source of true damage in early game
+ - Archers make efficient use of AP but arrows do nerfed damage
+ - Deep dungeons require a small amount of attrition and choosing when to wait, as mages run out of AP
+ - Usage of potions is probably very over powered
+ - Enemies use weak statuses poison/web/slow/
+ - Enemies are dumb and don't attack priority targets
+
+Mid Game
+  - Fighters become considerably stronger and can jump
+  - Mages scale with mass bless/haste/aoe/Teleport
+    - Spells cost considerably more than in early game, attrition much harder
+  - Archers can now use specific damage attacks to circumvent resistances
+  - Enemies start to develop some resistances
+  - Enemies develop better targeting
+  - Enemies use stronger statuses disease/dumbfound/acid
+  - Enemies litter the battle with fields conflagration,poison,cold
+  - Enemies can have higher base AP
+
+Late Game
+  - Fighters are incredibly strong with proper pre-buffs
+    - Fighters have most mobility, can jump, have most AP efficiency
+  - Mages aoe and damage become much less effective
+    - Their power shifts to buffing and utility
+    - Rare case where kill spell does most damage compared to other uses
+  - Priests provide dispel and antimagic utility
+  - Archers have reliable source of true damage with special arrows
+  - Enemies have many resistances
+  - Enemies implement teleport and jump in their ai
+  - Enemies use strongest statuses martyr's shield/antimagic/slow field

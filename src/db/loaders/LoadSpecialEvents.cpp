@@ -5,17 +5,17 @@
 
 namespace db {
 
-static model::GameEventType parseEventType(const std::string& typeStr) {
+static model::GameEventType parseEventType(const std::string& typeStr, const std::string& filePath, size_t lineNumber) {
   auto trimmed = sdl2w::trim(typeStr);
   if (trimmed == "modal") {
     return model::GameEventType::MODAL;
   } else if (trimmed == "talk") {
     return model::GameEventType::TALK;
   }
-  throw std::runtime_error("Unknown event type: " + typeStr);
+  throw std::runtime_error("Unknown event type: " + typeStr + " in " + filePath + " at line " + std::to_string(lineNumber));
 }
 
-static model::GameEventChildType parseChildType(const std::string& typeStr) {
+static model::GameEventChildType parseChildType(const std::string& typeStr, const std::string& filePath, size_t lineNumber) {
   auto trimmed = sdl2w::trim(typeStr);
   if (trimmed == "keyword") {
     return model::GameEventChildType::KEYWORD;
@@ -28,7 +28,7 @@ static model::GameEventChildType parseChildType(const std::string& typeStr) {
   } else if (trimmed == "switch") {
     return model::GameEventChildType::SWITCH;
   }
-  throw std::runtime_error("Unknown child type: " + typeStr);
+  throw std::runtime_error("Unknown child type: " + typeStr + " in " + filePath + " at line " + std::to_string(lineNumber));
 }
 
 // static bool isCommentOrEmpty(const std::string& line) {
@@ -120,10 +120,10 @@ void loadSpecialEvents(const std::string& eventsFilePath,
       std::vector<std::string> parts;
       sdl2w::split(line.substr(1), ",", parts);
       if (parts.size() < 4) {
-        throw std::runtime_error("Invalid event definition: " + line);
+        throw std::runtime_error("Invalid event definition: " + line + " in " + eventsFilePath + " at line " + std::to_string(i + 1));
       }
       currentEvent.id = sdl2w::trim(parts[0]);
-      currentEvent.eventType = parseEventType(parts[1]);
+      currentEvent.eventType = parseEventType(parts[1], eventsFilePath, i + 1);
       currentEvent.title = sdl2w::trim(parts[2]);
       currentEvent.icon = sdl2w::trim(parts[3]);
       continue;
@@ -137,7 +137,7 @@ void loadSpecialEvents(const std::string& eventsFilePath,
     if (line[0] == '@') {
       size_t eqPos = line.find('=');
       if (eqPos == std::string::npos) {
-        throw std::runtime_error("Invalid variable definition: " + line);
+        throw std::runtime_error("Invalid variable definition: " + line + " in " + eventsFilePath + " at line " + std::to_string(i + 1));
       }
       std::string varName = sdl2w::trim(line.substr(1, eqPos - 1));
       std::string varValue = sdl2w::trim(line.substr(eqPos + 1));
@@ -157,10 +157,10 @@ void loadSpecialEvents(const std::string& eventsFilePath,
       std::vector<std::string> parts;
       sdl2w::split(line.substr(1), ",", parts);
       if (parts.size() < 2) {
-        throw std::runtime_error("Invalid child definition: " + line);
+        throw std::runtime_error("Invalid child definition: " + line + " in " + eventsFilePath + " at line " + std::to_string(i + 1));
       }
       std::string childId = sdl2w::trim(parts[0]);
-      currentChildType = parseChildType(parts[1]);
+      currentChildType = parseChildType(parts[1], eventsFilePath, i + 1);
 
       // Create appropriate child type
       switch (currentChildType) {
@@ -202,7 +202,7 @@ void loadSpecialEvents(const std::string& eventsFilePath,
     if (line[0] == '+') {
       size_t colonPos = line.find(':');
       if (colonPos == std::string::npos) {
-        throw std::runtime_error("Invalid property definition: " + line);
+        throw std::runtime_error("Invalid property definition: " + line + " in " + eventsFilePath + " at line " + std::to_string(i + 1));
       }
 
       std::string propName = sdl2w::trim(line.substr(1, colonPos - 1));
@@ -233,7 +233,7 @@ void loadSpecialEvents(const std::string& eventsFilePath,
 
       // Process property based on current child type
       if (!currentChild.has_value()) {
-        throw std::runtime_error("Property found without child: " + line);
+        throw std::runtime_error("Property found without child: " + line + " in " + eventsFilePath + " at line " + std::to_string(i + 1));
       }
 
       // Handle keyword child properties
@@ -244,7 +244,7 @@ void loadSpecialEvents(const std::string& eventsFilePath,
           std::vector<std::string> parts;
           sdl2w::split(propValue, "|", parts);
           if (parts.size() < 2) {
-            throw std::runtime_error("Invalid k property: " + line);
+            throw std::runtime_error("Invalid k property: " + line + " in " + eventsFilePath + " at line " + std::to_string(i + 1));
           }
           std::string keywordName = sdl2w::trim(parts[0]);
           std::string keywordText = sdl2w::trim(parts[1]);
@@ -258,7 +258,7 @@ void loadSpecialEvents(const std::string& eventsFilePath,
           std::vector<std::string> parts;
           sdl2w::split(propValue, "|", parts);
           if (parts.size() < 2) {
-            throw std::runtime_error("Invalid kDup property: " + line);
+            throw std::runtime_error("Invalid kDup property: " + line + " in " + eventsFilePath + " at line " + std::to_string(i + 1));
           }
           std::string keywordName = sdl2w::trim(parts[0]);
           std::string targetKeyword = sdl2w::trim(parts[1]);
@@ -270,6 +270,7 @@ void loadSpecialEvents(const std::string& eventsFilePath,
           child.keywords[keywordName] = keywordData;
         } else if (propName == "kSwitch") {
           // Parse kSwitch with its cases (multi-line)
+          size_t kSwitchLineNumber = i + 1; // Save original line number for error messages
           model::KeywordData keywordData;
           keywordData.keywordType = model::KeywordType::K_SWITCH;
           model::KeywordDataKSwitch kSwitchData;
@@ -293,7 +294,7 @@ void loadSpecialEvents(const std::string& eventsFilePath,
           std::vector<std::string> parts;
           sdl2w::split(lineAggregated, "|", parts);
           if (parts.size() < 2) {
-            throw std::runtime_error("Invalid kSwitch property: " + line);
+            throw std::runtime_error("Invalid kSwitch property: " + line + " in " + eventsFilePath + " at line " + std::to_string(kSwitchLineNumber));
           }
           std::string switchKeyword = sdl2w::trim(parts[0]);
           std::string defaultNext = sdl2w::trim(parts[1]);
@@ -316,7 +317,7 @@ void loadSpecialEvents(const std::string& eventsFilePath,
           }
 
           if (kSwitchData.defaultNext.empty()) {
-            throw std::runtime_error("Default next is required for kSwitch: " + line);
+            throw std::runtime_error("Default next is required for kSwitch: " + line + " in " + eventsFilePath + " at line " + std::to_string(kSwitchLineNumber));
           }
 
           keywordData.kSwitch = kSwitchData;
@@ -325,7 +326,7 @@ void loadSpecialEvents(const std::string& eventsFilePath,
           std::vector<std::string> parts;
           sdl2w::split(propValue, "|", parts);
           if (parts.size() < 2) {
-            throw std::runtime_error("Invalid kChild property: " + line);
+            throw std::runtime_error("Invalid kChild property: " + line + " in " + eventsFilePath + " at line " + std::to_string(i + 1));
           }
           std::string keywordName = sdl2w::trim(parts[0]);
           std::string nextId = sdl2w::trim(parts[1]);
@@ -348,7 +349,7 @@ void loadSpecialEvents(const std::string& eventsFilePath,
           std::vector<std::string> parts;
           sdl2w::split(propValue, "|", parts);
           if (parts.size() < 2) {
-            throw std::runtime_error("Invalid c property: " + line);
+            throw std::runtime_error("Invalid c property: " + line + " in " + eventsFilePath + " at line " + std::to_string(i + 1));
           }
           model::Choice choice;
           choice.next = sdl2w::trim(parts[0]);
@@ -368,7 +369,7 @@ void loadSpecialEvents(const std::string& eventsFilePath,
           std::vector<std::string> parts;
           sdl2w::split(propValue, ":", parts);
           if (parts.size() < 2) {
-            throw std::runtime_error("Invalid check property: " + line);
+            throw std::runtime_error("Invalid check property: " + line + " in " + eventsFilePath + " at line " + std::to_string(i + 1));
           }
           model::SwitchCase check;
           check.conditionStr = sdl2w::trim(parts[0]);
@@ -379,7 +380,7 @@ void loadSpecialEvents(const std::string& eventsFilePath,
         }
 
         if (child.defaultNext.empty()) {
-          throw std::runtime_error("Default next is required for switch: " + line);
+          throw std::runtime_error("Default next is required for switch (put it first): " + line + " in " + eventsFilePath + " at line " + std::to_string(i + 1));
         }
 
         currentChild = child;

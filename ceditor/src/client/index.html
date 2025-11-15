@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ceditor - Asset Editor</title>
+    <title>CEditor - Asset Editor</title>
     <style>
       * {
         margin: 0;
@@ -82,6 +82,11 @@
         margin-bottom: 30px;
       }
 
+      .editor-main {
+        height: calc(100vh - 100px);
+        overflow: auto;
+      }
+
       .editor-header h1 {
         flex: 1;
         margin: 0;
@@ -99,6 +104,7 @@
         flex-direction: column;
         gap: 20px;
         overflow: hidden;
+        height: calc(100vh - 100px);
       }
 
       .search-box input {
@@ -141,6 +147,7 @@
       .item-card.editing {
         border-color: #4ec9b0;
         background: #2d2d30;
+        box-shadow: 0 0 0 2px rgba(78, 201, 176, 0.3);
       }
 
       .item-card-header {
@@ -174,7 +181,7 @@
       }
 
       .item-type {
-        background: #007acc;
+        background: #4a7c59;
         padding: 2px 8px;
         border-radius: 4px;
         color: white;
@@ -202,6 +209,12 @@
         border: 1px solid #3e3e42;
         border-radius: 8px;
         padding: 30px;
+        transition: all 0.2s;
+      }
+
+      .item-form.new {
+        border-color: #4ec9b0;
+        box-shadow: 0 0 0 3px rgba(78, 201, 176, 0.4);
       }
 
       .item-form h2 {
@@ -416,13 +429,8 @@
     </style>
   </head>
   <body>
-    <div class="container">
-      <h1>Ceditor</h1>
-      <div id="app">
-        <div class="loading">Loading asset types...</div>
-      </div>
-    </div>
-    <script type="module" src="/main.ts"></script>
+    <div id="root"></div>
+    <script type="module" src="/main.tsx"></script>
   </body>
 </html>
 

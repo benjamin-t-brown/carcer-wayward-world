@@ -1,5 +1,6 @@
 #include "UiElement.h"
 #include "uiUtils.h"
+#include <algorithm>
 
 namespace ui {
 

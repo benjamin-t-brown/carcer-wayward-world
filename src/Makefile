@@ -6,7 +6,6 @@ MAIN_ALL=main.cpp
 CODE=\
 LibHTML.cpp \
 db/Database.cpp \
-db/spriteMappings.cpp \
 db/loaders/LoadItemTemplates.cpp \
 db/loaders/LoadSpecialEvents.cpp \
 layers/Layer.cpp \

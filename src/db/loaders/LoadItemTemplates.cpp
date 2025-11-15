@@ -1,5 +1,4 @@
 #include "LoadItemTemplates.h"
-#include "db/spriteMappings.h"
 #include "lib/sdl2w/AssetLoader.h"
 #include "lib/json.hpp"
 
@@ -49,8 +48,7 @@ void loadItemTemplates(
     if (!itemJson.contains("icon") || !itemJson["icon"].is_string()) {
       throw std::runtime_error("Item missing required field: icon");
     }
-    std::string iconName = itemJson["icon"];
-    itemTemplate.iconSpriteName = db::getItemIconSpriteName(iconName);
+    itemTemplate.iconSpriteName = itemJson["icon"];
 
     if (!itemJson.contains("description") || !itemJson["description"].is_string()) {
       throw std::runtime_error("Item missing required field: description");

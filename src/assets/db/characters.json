@@ -4,7 +4,7 @@
     "name": "exampleTownsperson",
     "label": "Example Townsperson",
     "spritesheet": "characters",
-    "spriteOffset": "0,0",
+    "spriteOffset": "0",
     "talk": {
       "talkName": "talkId",
       "portraitName": "portraitSprite"
@@ -19,8 +19,8 @@
       },
       "hp": 100,
       "mp": 50,
-      "behaviorType": "behaviorId",
-      "dropTable": "dropTableId"
+      "behaviorType": "",
+      "dropTable": ""
     },
     "combatTemplate": {
       "id": "templateId"
@@ -29,7 +29,7 @@
       "deathSound": "soundName",
       "weaponSound": "soundName"
     },
-    "statuses": ["status0", "status1", "status2"],
+    "statuses": [],
     "vision": {
       "radius": 5
     }

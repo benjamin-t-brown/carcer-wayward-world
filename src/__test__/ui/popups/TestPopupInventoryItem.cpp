@@ -1,5 +1,4 @@
 #include "../../setupTestUi.h"
-#include "db/spriteMappings.h"
 #include "layers/LayerManager.h"
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
@@ -16,7 +15,7 @@ public:
     getDatabase()->addItemTemplate(model::ItemTemplate{
         .name = "TestItem1",
         .label = "Test Item 1",
-        .iconSpriteName = db::getItemIconSpriteName("potionGreen"),
+        .iconSpriteName = "ui_item_icons_0",
         .description = "This is an example test item description.  It should gracefully "
                        "wrap in the tooltip and look pretty good in the process.",
         .weight = 999,

@@ -9,10 +9,33 @@
 namespace model {
 
 enum class GameEventType { MODAL, TALK };
-
 enum class GameEventChildType { KEYWORD, CHOICE, END, EXEC, SWITCH };
-
 enum class KeywordType { K, K_DUP, K_SWITCH, K_CHILD };
+
+struct VariableValue;
+
+struct GameEventChildKeyword;
+struct GameEventChildChoice;
+struct GameEventChildSwitch;
+struct GameEventChildExec;
+struct GameEventChildEnd;
+
+// Discriminated union for GameEventChild
+using GameEventChild = std::variant<GameEventChildKeyword,
+                                    GameEventChildChoice,
+                                    GameEventChildSwitch,
+                                    GameEventChildExec,
+                                    GameEventChildEnd>;
+
+struct GameEvent {
+  std::string id;
+  std::string title;
+  GameEventType eventType; // indicates which ui layer to use for the event
+  std::string icon;        // name of sprite to use for the event
+  // a mapping from variable name to its original text and it's evaluated value
+  std::map<std::string, VariableValue> vars;
+  std::vector<GameEventChild> children;
+};
 
 struct VariableValue {
   std::string str;
@@ -107,23 +130,6 @@ struct GameEventChildEnd {
   GameEventChildType eventChildType = GameEventChildType::END;
   std::string id;
   std::string next;
-};
-
-// Discriminated union for GameEventChild
-using GameEventChild = std::variant<GameEventChildKeyword,
-                                    GameEventChildChoice,
-                                    GameEventChildSwitch,
-                                    GameEventChildExec,
-                                    GameEventChildEnd>;
-
-struct GameEvent {
-  std::string id;
-  std::string title;
-  GameEventType eventType; // indicates which ui layer to use for the event
-  std::string icon;        // name of sprite to use for the event
-  std::map<std::string, VariableValue>
-      vars; // a mapping from variable name to its original text and it's evaluated value
-  std::vector<GameEventChild> children;
 };
 
 } // namespace model

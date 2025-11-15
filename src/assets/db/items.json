@@ -1,46 +1,10 @@
 [
   {
-    "itemType": "POTION",
-    "name": "PotionHealing",
-    "label": "Potion: Healing",
-    "icon": "potionGreen",
-    "description": "A standard healing potion.",
-    "weight": 1,
-    "value": 10
-  },
-  {
-    "itemType": "WEAPON_MELEE",
-    "name": "DaggerBronze",
-    "label": "Bronze Dagger",
-    "icon": "dagger",
-    "description": "A bronze dagger.",
-    "weight": 1,
-    "value": 10
-  },
-  {
-    "itemType": "WEAPON_MELEE",
-    "name": "ShortSwordBronze",
-    "label": "Bronze Short Sword",
-    "icon": "sword",
-    "description": "A bronze short sword.",
-    "weight": 1,
-    "value": 10
-  },
-  {
-    "itemType": "WEAPON_MELEE",
-    "name": "SwordBronze",
-    "label": "Bronze Sword",
-    "icon": "sword",
-    "description": "A bronze short sword.",
-    "weight": 1,
-    "value": 10
-  },
-  {
-    "itemType": "WEAPON_RANGED",
-    "name": "LongbowOak",
-    "label": "Oak Longbow",
-    "icon": "bow",
-    "description": "An oak longbow.",
+    "itemType": "WEAPON_AMMO",
+    "name": "ArrowsIron",
+    "label": "Iron Arrows",
+    "icon": "ui_item_icons_14",
+    "description": "Arrows with iron tips.",
     "weight": 1,
     "value": 10
   },
@@ -48,35 +12,26 @@
     "itemType": "WEAPON_AMMO",
     "name": "ArrowsStone",
     "label": "Stone Arrows",
-    "icon": "arrow",
+    "icon": "ui_item_icons_14",
     "description": "Arrows with stone tips.",
     "weight": 1,
     "value": 10
   },
   {
-    "itemType": "GARB",
-    "name": "ShirtSimple0",
-    "label": "Shirt",
-    "icon": "shirtBlue",
-    "description": "A simple shirt.",
+    "itemType": "SHOES",
+    "name": "BootsLeather",
+    "label": "Leather Boots",
+    "icon": "ui_item_icons_29",
+    "description": "A simple pair of leather boots.",
     "weight": 1,
     "value": 10
   },
   {
-    "itemType": "GARB",
-    "name": "ShirtSimple1",
-    "label": "Shirt",
-    "icon": "shirtBlue",
-    "description": "A simple shirt.",
-    "weight": 1,
-    "value": 10
-  },
-  {
-    "itemType": "PANTS",
-    "name": "PantsSimple0",
-    "label": "Pants",
-    "icon": "pants",
-    "description": "A simple pair of pants.",
+    "itemType": "WEAPON_MELEE",
+    "name": "DaggerBronze",
+    "label": "Bronze Dagger",
+    "icon": "ui_item_icons_8",
+    "description": "A bronze dagger.",
     "weight": 1,
     "value": 10
   },
@@ -84,7 +39,7 @@
     "itemType": "GLOVES",
     "name": "GlovesLeather",
     "label": "Leather Gloves",
-    "icon": "gloves",
+    "icon": "ui_item_icons_27",
     "description": "A simple pair of leather gloves.",
     "weight": 1,
     "value": 10
@@ -93,17 +48,17 @@
     "itemType": "HAT",
     "name": "HatLeather",
     "label": "Leather Cap",
-    "icon": "hatLeather",
+    "icon": "ui_item_icons_35",
     "description": "A simple leather hat.",
     "weight": 1,
     "value": 10
   },
   {
-    "itemType": "SHOES",
-    "name": "BootsLeather",
-    "label": "Leather Boots",
-    "icon": "bootsLeather",
-    "description": "A simple pair of leather boots.",
+    "itemType": "WEAPON_RANGED",
+    "name": "LongbowOak",
+    "label": "Oak Longbow",
+    "icon": "ui_item_icons_12",
+    "description": "An oak longbow.",
     "weight": 1,
     "value": 10
   },
@@ -111,10 +66,63 @@
     "itemType": "NECKLACE",
     "name": "NecklaceSilver",
     "label": "Silver Necklace",
-    "icon": "necklace",
+    "icon": "ui_item_icons_36",
     "description": "A simple silver necklace.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "PANTS",
+    "name": "PantsSimple0",
+    "label": "Pants",
+    "icon": "ui_item_icons_18",
+    "description": "A simple pair of pants.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "POTION",
+    "name": "PotionHealing",
+    "label": "Potion: Healing",
+    "icon": "ui_item_icons_0",
+    "description": "A standard healing potion.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "GARB",
+    "name": "ShirtSimple0",
+    "label": "Shirt",
+    "icon": "ui_item_icons_17",
+    "description": "A simple shirt.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "GARB",
+    "name": "ShirtSimple1",
+    "label": "Shirt",
+    "icon": "ui_item_icons_17",
+    "description": "A simple shirt.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "WEAPON_MELEE",
+    "name": "ShortSwordBronze",
+    "label": "Bronze Short Sword",
+    "icon": "ui_item_icons_9",
+    "description": "A bronze short sword.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "WEAPON_MELEE",
+    "name": "SwordBronze",
+    "label": "Bronze Sword",
+    "icon": "ui_item_icons_9",
+    "description": "A bronze short sword.",
     "weight": 1,
     "value": 10
   }
 ]
-
