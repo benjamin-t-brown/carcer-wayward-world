@@ -6,6 +6,8 @@
     "Renderable",
     "Renderables",
     "Spritesheet",
+    "Tileset",
+    "tilesets",
     "Townsperson"
   ],
   "C_Cpp_Runner.msvcBatchPath": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvarsall.bat",

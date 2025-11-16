@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Home } from './pages/Home';
 import { ItemTemplates } from './pages/ItemTemplates';
 import { CharacterTemplates } from './pages/CharacterTemplates';
+import { TilesetTemplates } from './pages/TilesetTemplates';
 
 function App({ assetTypes }: { assetTypes: { id: string; name: string; file: string }[] }) {
   const [currentRoute, setCurrentRoute] = useState<string>('/');
@@ -29,6 +30,8 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
       return <ItemTemplates />;
     case '/editor/characterTemplates':
       return <CharacterTemplates />;
+    case '/editor/tilesetTemplates':
+      return <TilesetTemplates />;
     default:
       return (
         <div className="container">

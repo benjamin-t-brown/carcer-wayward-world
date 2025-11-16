@@ -6,7 +6,7 @@ const imageLoaders: Record<string, (() => void)[]> = {};
 const imageCache: Record<string, HTMLImageElement> = {};
 const spriteCanvasCache: Record<string, HTMLCanvasElement> = {};
 
-async function loadImage(url: string): Promise<HTMLImageElement> {
+export async function loadImage(url: string): Promise<HTMLImageElement> {
   if (imageCache[url]) {
     return imageCache[url];
   }

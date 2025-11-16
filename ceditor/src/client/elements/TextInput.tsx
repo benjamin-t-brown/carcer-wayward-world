@@ -6,6 +6,7 @@ interface TextInputProps {
   label?: string;
   value: string;
   onChange: (value: string) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
@@ -20,9 +21,12 @@ export const TextInput: React.FC<TextInputProps> = ({
   placeholder,
   required = false,
   disabled = false,
+  onKeyDown,
 }) => {
   return (
-    <div className="form-group">
+    <div className="form-group" style={{
+      filter: disabled ? 'grayscale(100%) brightness(1.5)' : 'none',
+    }}>
       {label && (
         <label htmlFor={id}>
           {label}
@@ -35,6 +39,7 @@ export const TextInput: React.FC<TextInputProps> = ({
         name={name}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onKeyDown={onKeyDown}
         placeholder={placeholder}
         required={required}
         disabled={disabled}

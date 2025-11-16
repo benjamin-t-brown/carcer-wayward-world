@@ -5,20 +5,22 @@
 
 namespace model {
 
+struct TileMetadata;
+
+struct TilesetTemplate {
+  std::string name;
+  std::string spriteBase;
+  int tileWidth;
+  int tileHeight;
+  std::vector<TileMetadata> tiles;
+};
+
 struct TileMetadata {
   int id;
   std::string description = "";
   bool isWalkable = true;
   bool isSeeThrough = true;
   bool isDoor = false;
-};
-
-struct Tileset {
-  std::string name;
-  std::string spriteBase;
-  int tileWidth;
-  int tileHeight;
-  std::vector<TileMetadata> tiles;
 };
 
 struct TileOverrides {
