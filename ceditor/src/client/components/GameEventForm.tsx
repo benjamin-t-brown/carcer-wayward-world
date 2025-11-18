@@ -8,7 +8,7 @@ import {
   GameEventChild,
   GameEventChildForm,
 } from './GameEventChildForm';
-import { DeleteModal } from './DeleteModal';
+import { DeleteModal } from '../elements/DeleteModal';
 
 export interface GameEvent {
   id: string;

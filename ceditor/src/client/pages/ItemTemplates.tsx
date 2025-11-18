@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { CardList } from '../components/CardList';
 import {
   ItemTemplateForm,
@@ -8,31 +8,9 @@ import {
 import { Button } from '../elements/Button';
 import { Notification } from '../elements/Notification';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
+import { useAssets } from '../contexts/AssetsContext';
 import { Sprite } from '../elements/Sprite';
 import { trimStrings } from '../utils/jsonUtils';
-
-async function loadItems(): Promise<ItemTemplate[]> {
-  const response = await fetch('/api/assets/itemTemplates');
-  if (!response.ok) {
-    throw new Error('Failed to load items');
-  }
-  return response.json();
-}
-
-async function saveItems(items: ItemTemplate[]): Promise<void> {
-  console.log('save items', items);
-  const response = await fetch('/api/assets/itemTemplates', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(items),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to save items');
-  }
-}
 
 interface NotificationState {
   message: string;
@@ -46,31 +24,11 @@ export function ItemTemplates() {
     animations: _animations,
     pictures: _pictures,
   } = useSDL2WAssets();
-  const [items, setItems] = useState<ItemTemplate[]>([]);
+  const { items, setItems, saveItems } = useAssets();
   const [editItemIndex, setEditItemIndex] = useState<number>(-1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const notificationIdRef = useRef(0);
-
-  // Load items on mount
-  useEffect(() => {
-    loadItems()
-      .then((loadedItems) => {
-        setItems(
-          loadedItems.sort((a, b) => {
-            const cmp = a.name.localeCompare(b.name);
-            return cmp === 0 ? a.label.localeCompare(b.label) : cmp;
-          })
-        );
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err instanceof Error ? err.message : 'Unknown error');
-        setLoading(false);
-      });
-  }, []);
 
   const showNotification = (message: string, type: 'success' | 'error') => {
     const id = notificationIdRef.current++;
@@ -162,13 +120,15 @@ export function ItemTemplates() {
   };
 
   const updateItem = (item: ItemTemplate) => {
-    const currentItemIndex = getActualIndex(editItemIndex);
-    const currentItem = items[currentItemIndex];
-    if (currentItem) {
-      // Update existing item in real-time
-      const updatedItems = [...items];
-      updatedItems[currentItemIndex] = item;
-      setItems(updatedItems);
+    if (editItemIndex >= 0) {
+      const currentItemIndex = getActualIndex(editItemIndex);
+      const currentItem = items[currentItemIndex];
+      if (currentItem) {
+        // Update existing item in real-time
+        const updatedItems = [...items];
+        updatedItems[currentItemIndex] = item;
+        setItems(updatedItems);
+      }
     }
   };
 
@@ -324,12 +284,7 @@ export function ItemTemplates() {
               + New Item
             </Button>
           </div>
-          {loading ? (
-            <div className="loading">Loading items...</div>
-          ) : error ? (
-            <div className="error">Error loading items: {error}</div>
-          ) : (
-            <CardList
+          <CardList
               items={filteredItems}
               onItemClick={handleItemClick}
               onClone={handleClone}
@@ -368,7 +323,6 @@ export function ItemTemplates() {
               }}
               emptyMessage="No items found"
             />
-          )}
         </div>
 
         <div className="editor-main">

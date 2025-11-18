@@ -9,6 +9,7 @@ interface OptionSelectProps {
   options: Array<{ value: string | number; label: string }>;
   required?: boolean;
   disabled?: boolean;
+  style?: React.CSSProperties;
 }
 
 export const OptionSelect: React.FC<OptionSelectProps> = ({
@@ -18,11 +19,12 @@ export const OptionSelect: React.FC<OptionSelectProps> = ({
   value,
   onChange,
   options,
+  style = {},
   required = false,
   disabled = false,
 }) => {
   return (
-    <div className="form-group">
+    <div className="form-group" style={style}>
       {label && (
         <label htmlFor={id}>
           {label}

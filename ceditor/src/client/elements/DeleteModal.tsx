@@ -1,4 +1,4 @@
-import { Button } from '../elements/Button';
+import { Button } from './Button';
 
 interface DeleteModalProps {
   isOpen: boolean;

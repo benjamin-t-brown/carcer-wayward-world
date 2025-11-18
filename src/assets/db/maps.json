@@ -1,0 +1,16 @@
+[
+  {
+    "name": "alinea",
+    "label": "Alinea",
+    "width": 20,
+    "height": 20,
+    "tiles": []
+  },
+  {
+    "name": "arrowtown",
+    "label": "Arrow Town",
+    "width": 20,
+    "height": 20,
+    "tiles": []
+  }
+]

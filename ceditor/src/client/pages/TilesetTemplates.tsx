@@ -7,30 +7,8 @@ import {
 } from '../components/TilesetTemplateForm';
 import { Button } from '../elements/Button';
 import { Notification } from '../elements/Notification';
+import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
-
-async function loadTilesets(): Promise<TilesetTemplate[]> {
-  const response = await fetch('/api/assets/tilesetTemplates');
-  if (!response.ok) {
-    throw new Error('Failed to load tilesets');
-  }
-  return response.json();
-}
-
-async function saveTilesets(tilesets: TilesetTemplate[]): Promise<void> {
-  console.log('save tilesets', tilesets);
-  const response = await fetch('/api/assets/tilesetTemplates', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(tilesets),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to save tilesets');
-  }
-}
 
 interface NotificationState {
   message: string;
@@ -39,30 +17,11 @@ interface NotificationState {
 }
 
 export function TilesetTemplates() {
-  const [tilesets, setTilesets] = useState<TilesetTemplate[]>([]);
+  const { tilesets, setTilesets, saveTilesets } = useAssets();
   const [editTilesetIndex, setEditTilesetIndex] = useState<number>(-1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const notificationIdRef = useRef(0);
-
-  // Load tilesets on mount
-  useEffect(() => {
-    loadTilesets()
-      .then((loadedTilesets) => {
-        setTilesets(
-          loadedTilesets.sort((a, b) => {
-            return a.name.localeCompare(b.name);
-          })
-        );
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err instanceof Error ? err.message : 'Unknown error');
-        setLoading(false);
-      });
-  }, []);
 
   const showNotification = (message: string, type: 'success' | 'error') => {
     const id = notificationIdRef.current++;
@@ -152,13 +111,15 @@ export function TilesetTemplates() {
   };
 
   const updateTileset = (tileset: TilesetTemplate) => {
-    const currentTilesetIndex = getActualIndex(editTilesetIndex);
-    const currentTileset = tilesets[currentTilesetIndex];
-    if (currentTileset) {
-      // Update existing tileset in real-time
-      const updatedTilesets = [...tilesets];
-      updatedTilesets[currentTilesetIndex] = tileset;
-      setTilesets(updatedTilesets);
+    if (editTilesetIndex >= 0) {
+      const currentTilesetIndex = getActualIndex(editTilesetIndex);
+      const currentTileset = tilesets[currentTilesetIndex];
+      if (currentTileset) {
+        // Update existing tileset in real-time
+        const updatedTilesets = [...tilesets];
+        updatedTilesets[currentTilesetIndex] = tileset;
+        setTilesets(updatedTilesets);
+      }
     }
   };
 
@@ -235,8 +196,8 @@ export function TilesetTemplates() {
       return;
     }
 
-    const currentTilesetIndex = getActualIndex(editTilesetIndex);
-    const currentTilesetName = tilesets[currentTilesetIndex]?.name;
+    const currentTilesetIndex = editTilesetIndex >= 0 ? getActualIndex(editTilesetIndex) : -1;
+    const currentTilesetName = currentTilesetIndex >= 0 ? tilesets[currentTilesetIndex]?.name : undefined;
 
     const trimmedTilesets = trimStrings(tilesets);
 
@@ -275,7 +236,7 @@ export function TilesetTemplates() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [tilesets, showNotification]); // Include dependencies
+  }, [tilesets]); // Include dependencies
 
   const currentTileset = tilesets[editTilesetIndex];
 
@@ -306,12 +267,7 @@ export function TilesetTemplates() {
               + New Tileset
             </Button>
           </div>
-          {loading ? (
-            <div className="loading">Loading tilesets...</div>
-          ) : error ? (
-            <div className="error">Error loading tilesets: {error}</div>
-          ) : (
-            <CardList
+          <CardList
               items={filteredTilesets}
               onItemClick={handleTilesetClick}
               onClone={handleClone}
@@ -366,7 +322,6 @@ export function TilesetTemplates() {
               }}
               emptyMessage="No tilesets found"
             />
-          )}
         </div>
 
         <div className="editor-main">

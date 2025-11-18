@@ -47,6 +47,11 @@ app.get('/api/assets/types', async (req, res) => {
         name: 'Tileset Templates',
         file: 'tilesets.json',
       },
+      {
+        id: 'maps',
+        name: 'Maps',
+        file: 'maps.json',
+      },
     ];
     res.json(assetTypes);
   } catch (error) {
@@ -63,6 +68,7 @@ app.get('/api/assets/:type', async (req, res) => {
       characterTemplates: 'characters.json',
       specialEvents: 'special-events.json',
       tilesetTemplates: 'tilesets.json',
+      maps: 'maps.json',
     };
 
     const fileName = fileMap[type];
@@ -100,6 +106,7 @@ app.post('/api/assets/:type', async (req, res) => {
       characterTemplates: 'characters.json',
       specialEvents: 'special-events.json',
       tilesetTemplates: 'tilesets.json',
+      maps: 'maps.json',
     };
 
     console.log('saving asset', type, req.body);

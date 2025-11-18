@@ -26,7 +26,8 @@ struct TileLightSource {
 };
 
 struct CarcerMapTemplate {
-  std::string templateName;
+  std::string name;
+  std::string label;
   int width;
   int height;
   std::vector<CarcerMapTileTemplate> tiles;

@@ -7,29 +7,8 @@ import {
 } from '../components/CharacterTemplateForm';
 import { Button } from '../elements/Button';
 import { Notification } from '../elements/Notification';
+import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
-
-async function loadCharacters(): Promise<CharacterTemplate[]> {
-  const response = await fetch('/api/assets/characterTemplates');
-  if (!response.ok) {
-    throw new Error('Failed to load characters');
-  }
-  return response.json();
-}
-
-async function saveCharacters(characters: CharacterTemplate[]): Promise<void> {
-  const response = await fetch('/api/assets/characterTemplates', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(characters),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to save characters');
-  }
-}
 
 interface NotificationState {
   message: string;
@@ -38,31 +17,11 @@ interface NotificationState {
 }
 
 export function CharacterTemplates() {
-  const [characters, setCharacters] = useState<CharacterTemplate[]>([]);
+  const { characters, setCharacters, saveCharacters } = useAssets();
   const [editCharacterIndex, setEditCharacterIndex] = useState<number>(-1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const notificationIdRef = useRef(0);
-
-  // Load characters on mount
-  useEffect(() => {
-    loadCharacters()
-      .then((loadedCharacters) => {
-        setCharacters(
-          loadedCharacters.sort((a, b) => {
-            const cmp = a.name.localeCompare(b.name);
-            return cmp === 0 ? a.label.localeCompare(b.label) : cmp;
-          })
-        );
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err instanceof Error ? err.message : 'Unknown error');
-        setLoading(false);
-      });
-  }, []);
 
   const showNotification = (message: string, type: 'success' | 'error') => {
     const id = notificationIdRef.current++;
@@ -245,8 +204,8 @@ export function CharacterTemplates() {
       return;
     }
 
-    const currentCharacterIndex = getActualIndex(editCharacterIndex);
-    const currentCharacterName = characters[currentCharacterIndex]?.name;
+    const currentCharacterIndex = editCharacterIndex >= 0 ? getActualIndex(editCharacterIndex) : -1;
+    const currentCharacterName = currentCharacterIndex >= 0 ? characters[currentCharacterIndex]?.name : undefined;
 
     const trimmedCharacters = trimStrings(characters);
 
@@ -257,12 +216,13 @@ export function CharacterTemplates() {
 
     try {
       await saveCharacters(sortedCharacters);
+      setCharacters(sortedCharacters);
       showNotification('Characters saved successfully!', 'success');
       if (currentCharacterName) {
         const nextCharacterIndex = sortedCharacters.findIndex(
           (character) => character.name === currentCharacterName.trim()
         );
-        setEditCharacterIndex(nextCharacterIndex);
+        setEditCharacterIndex(nextCharacterIndex >= 0 ? nextCharacterIndex : -1);
       }
     } catch (err) {
       showNotification(
@@ -286,7 +246,7 @@ export function CharacterTemplates() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [characters, showNotification]); // Include dependencies
+  }, [characters]); // Include dependencies
 
   const currentCharacter = characters[editCharacterIndex];
 
@@ -317,12 +277,7 @@ export function CharacterTemplates() {
               + New Character
             </Button>
           </div>
-          {loading ? (
-            <div className="loading">Loading characters...</div>
-          ) : error ? (
-            <div className="error">Error loading characters: {error}</div>
-          ) : (
-            <CardList
+          <CardList
               items={filteredCharacters}
               onItemClick={handleCharacterClick}
               onClone={handleClone}
@@ -365,7 +320,7 @@ export function CharacterTemplates() {
               }}
               emptyMessage="No characters found"
             />
-          )}
+          )
         </div>
 
         <div className="editor-main">

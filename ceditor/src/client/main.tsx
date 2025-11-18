@@ -7,7 +7,13 @@ import {
   Sprite,
 } from './utils/assetLoader';
 import { SDL2WAssetsProvider } from './contexts/SDL2WAssetsContext';
+import { AssetsProvider } from './contexts/AssetsContext';
 import { getDrawable } from './utils/spriteUtils';
+import { ItemTemplate } from './components/ItemTemplateForm';
+import { CharacterTemplate } from './components/CharacterTemplateForm';
+import { TilesetTemplate } from './components/TilesetTemplateForm';
+import { GameEvent } from './components/GameEventForm';
+import { CarcerMapTemplate } from './components/MapTemplateForm';
 
 interface AssetType {
   id: string;
@@ -31,11 +37,56 @@ async function loadSDL2WAssetFiles(): Promise<any> {
   return response.json();
 }
 
+async function loadItems(): Promise<ItemTemplate[]> {
+  const response = await fetch('/api/assets/itemTemplates');
+  if (!response.ok) {
+    throw new Error('Failed to load items');
+  }
+  return response.json();
+}
+
+async function loadCharacters(): Promise<CharacterTemplate[]> {
+  const response = await fetch('/api/assets/characterTemplates');
+  if (!response.ok) {
+    throw new Error('Failed to load characters');
+  }
+  return response.json();
+}
+
+async function loadTilesets(): Promise<TilesetTemplate[]> {
+  const response = await fetch('/api/assets/tilesetTemplates');
+  if (!response.ok) {
+    throw new Error('Failed to load tilesets');
+  }
+  return response.json();
+}
+
+async function loadGameEvents(): Promise<GameEvent[]> {
+  const response = await fetch('/api/assets/specialEvents');
+  if (!response.ok) {
+    throw new Error('Failed to load game events');
+  }
+  return response.json();
+}
+
+async function loadMaps(): Promise<CarcerMapTemplate[]> {
+  const response = await fetch('/api/assets/maps');
+  if (!response.ok) {
+    throw new Error('Failed to load maps');
+  }
+  return response.json();
+}
+
 async function load(): Promise<{
   assetTypes: AssetType[];
   sprites: Sprite[];
   animations: Animation[];
   pictures: Record<string, string>;
+  items: ItemTemplate[];
+  characters: CharacterTemplate[];
+  tilesets: TilesetTemplate[];
+  gameEvents: GameEvent[];
+  maps: CarcerMapTemplate[];
 }> {
   const assetTypes = await loadAssetTypes();
   const sdl2wAssetFiles = await loadSDL2WAssetFiles();
@@ -48,12 +99,18 @@ async function load(): Promise<{
       throw new Error('Drawable not found');
     }
   }
-  // const allDrawablePromises = sprites.map(async (sprite) => {
-  //   return getDrawable(sprite);
-  // });
-  // await Promise.all(allDrawablePromises);
-  console.log('loaded', { assetTypes, sprites, animations, pictures });
-  return { assetTypes, sprites, animations, pictures };
+  
+  // Load all assets in parallel
+  const [items, characters, tilesets, gameEvents, maps] = await Promise.all([
+    loadItems(),
+    loadCharacters(),
+    loadTilesets(),
+    loadGameEvents(),
+    loadMaps(),
+  ]);
+  
+  console.log('loaded', { assetTypes, sprites, animations, pictures, items, characters, tilesets, gameEvents, maps });
+  return { assetTypes, sprites, animations, pictures, items, characters, tilesets, gameEvents, maps };
 }
 
 async function init() {
@@ -67,7 +124,7 @@ async function init() {
     `;
   }
   try {
-    const { assetTypes, sprites, animations, pictures } = await load();
+    const { assetTypes, sprites, animations, pictures, items, characters, tilesets, gameEvents, maps } = await load();
     const container = document.getElementById('root');
 
     if (!container) {
@@ -83,7 +140,15 @@ async function init() {
           animations={animations}
           pictures={pictures}
         >
-          <App assetTypes={assetTypes} />
+          <AssetsProvider
+            initialItems={items}
+            initialCharacters={characters}
+            initialTilesets={tilesets}
+            initialGameEvents={gameEvents}
+            initialMaps={maps}
+          >
+            <App assetTypes={assetTypes} />
+          </AssetsProvider>
         </SDL2WAssetsProvider>
       </React.StrictMode>
     );

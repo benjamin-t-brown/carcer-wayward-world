@@ -7,32 +7,10 @@ import {
 } from '../components/GameEventForm';
 import { Button } from '../elements/Button';
 import { Notification } from '../elements/Notification';
+import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { Sprite } from '../elements/Sprite';
-
-async function loadGameEvents(): Promise<GameEvent[]> {
-  const response = await fetch('/api/assets/specialEvents');
-  if (!response.ok) {
-    throw new Error('Failed to load game events');
-  }
-  return response.json();
-}
-
-async function saveGameEvents(gameEvents: GameEvent[]): Promise<void> {
-  console.log('save game events', gameEvents);
-  const response = await fetch('/api/assets/specialEvents', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(gameEvents),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to save game events');
-  }
-}
 
 interface NotificationState {
   message: string;
@@ -42,30 +20,11 @@ interface NotificationState {
 
 export function SpecialEvents() {
   const { sprites } = useSDL2WAssets();
-  const [gameEvents, setGameEvents] = useState<GameEvent[]>([]);
+  const { gameEvents, setGameEvents, saveGameEvents } = useAssets();
   const [editGameEventIndex, setEditGameEventIndex] = useState<number>(-1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const notificationIdRef = useRef(0);
-
-  // Load game events on mount
-  useEffect(() => {
-    loadGameEvents()
-      .then((loadedGameEvents) => {
-        setGameEvents(
-          loadedGameEvents.sort((a, b) => {
-            return a.id.localeCompare(b.id);
-          })
-        );
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err instanceof Error ? err.message : 'Unknown error');
-        setLoading(false);
-      });
-  }, []);
 
   const showNotification = (message: string, type: 'success' | 'error') => {
     const id = notificationIdRef.current++;
@@ -285,8 +244,8 @@ export function SpecialEvents() {
       return;
     }
 
-    const currentGameEventIndex = getActualIndex(editGameEventIndex);
-    const currentGameEventId = gameEvents[currentGameEventIndex]?.id;
+    const currentGameEventIndex = editGameEventIndex >= 0 ? getActualIndex(editGameEventIndex) : -1;
+    const currentGameEventId = currentGameEventIndex >= 0 ? gameEvents[currentGameEventIndex]?.id : undefined;
 
     const trimmedGameEvents = trimStrings(gameEvents);
 
@@ -325,7 +284,7 @@ export function SpecialEvents() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [gameEvents, showNotification]); // Include dependencies
+  }, [gameEvents]); // Include dependencies
 
   const currentGameEvent = gameEvents[editGameEventIndex];
 
@@ -356,12 +315,7 @@ export function SpecialEvents() {
               + New Game Event
             </Button>
           </div>
-          {loading ? (
-            <div className="loading">Loading game events...</div>
-          ) : error ? (
-            <div className="error">Error loading game events: {error}</div>
-          ) : (
-            <CardList
+          <CardList
               items={filteredGameEvents.map((ge) => ({
                 ...ge,
                 name: ge.id,
@@ -406,7 +360,6 @@ export function SpecialEvents() {
               }}
               emptyMessage="No game events found"
             />
-          )}
         </div>
 
         <div className="editor-main">

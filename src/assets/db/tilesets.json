@@ -87,7 +87,7 @@
       },
       {
         "id": 11,
-        "description": "",
+        "description": "tree group",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false

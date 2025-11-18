@@ -4,6 +4,7 @@ import { ItemTemplates } from './pages/ItemTemplates';
 import { CharacterTemplates } from './pages/CharacterTemplates';
 import { TilesetTemplates } from './pages/TilesetTemplates';
 import { SpecialEvents } from './pages/SpecialEvents';
+import { Maps } from './pages/Maps';
 
 function App({ assetTypes }: { assetTypes: { id: string; name: string; file: string }[] }) {
   const [currentRoute, setCurrentRoute] = useState<string>('/');
@@ -35,6 +36,8 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
       return <TilesetTemplates />;
     case '/editor/specialEvents':
       return <SpecialEvents />;
+    case '/editor/maps':
+      return <Maps />;
     default:
       return (
         <div className="container">
