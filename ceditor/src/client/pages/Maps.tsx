@@ -8,6 +8,7 @@ import { trimStrings } from '../utils/jsonUtils';
 import { DeleteModal } from '../elements/DeleteModal';
 import { CreateMapModal } from '../components/CreateMapModal';
 import { EditMapModal } from '../components/EditMapModal';
+import { TileEditor } from '../tile-editor/TileEditor';
 
 interface NotificationState {
   message: string;
@@ -84,6 +85,24 @@ export function Maps() {
   };
 
   const handleCreateMap = (newMap: CarcerMapTemplate) => {
+    // Generate tiles for all positions in the map if not already generated
+    if (!newMap.tiles || newMap.tiles.length === 0) {
+      const tiles: any[] = [];
+      for (let y = 0; y < newMap.height; y++) {
+        for (let x = 0; x < newMap.width; x++) {
+          tiles.push({
+            tilesetName: '',
+            tileId: 0,
+            x: x,
+            y: y,
+            characters: [],
+            items: [],
+          });
+        }
+      }
+      newMap.tiles = tiles;
+    }
+
     const newMaps = [...maps, newMap];
     setMaps(newMaps);
     const newMapIndex = newMaps.length - 1;
@@ -159,7 +178,7 @@ export function Maps() {
     setDeleteConfirm({ isOpen: false, mapIndex: null });
   };
 
-  const handleEditMap = (updatedMap: CarcerMapTemplate) => {
+  const updateMapInTabs = (updatedMap: CarcerMapTemplate) => {
     if (activeTab) {
       const mapIndex = activeTab.mapIndex;
       const updatedMaps = [...maps];
@@ -174,6 +193,10 @@ export function Maps() {
         setOpenTabs(newTabs);
       }
     }
+  };
+
+  const handleEditMap = (updatedMap: CarcerMapTemplate) => {
+    updateMapInTabs(updatedMap);
     setEditModalOpen(false);
   };
 
@@ -306,7 +329,7 @@ export function Maps() {
   return (
     <div
       className="container"
-      style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}
+      style={{ display: 'flex', flexDirection: 'column' }}
     >
       <div className="editor-header">
         <Button variant="back" onClick={() => window.history.back()}>
@@ -427,37 +450,16 @@ export function Maps() {
 
       <div
         style={{
-          flex: 1,
-          overflow: 'auto',
-          padding: '20px',
+          // flex: 1,
+          overflow: 'hidden',
+          height: 'calc(100vh - 152px)',
         }}
       >
         {activeMap ? (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-              gap: '20px',
-            }}
-          >
-            <div
-              style={{
-                color: '#d4d4d4',
-                fontSize: '16px',
-                textAlign: 'center',
-              }}
-            >
-              <div style={{ marginBottom: '10px' }}>
-                <strong>Map: {activeMap.label}</strong>
-              </div>
-              <div style={{ color: '#858585', fontSize: '14px' }}>
-                {activeMap.width} × {activeMap.height} tiles
-              </div>
-            </div>
-          </div>
+          <TileEditor
+            map={activeMap}
+            onMapUpdate={updateMapInTabs}
+          />
         ) : (
           <div
             style={{
@@ -502,6 +504,12 @@ export function Maps() {
         map={activeMap}
         onConfirm={handleEditMap}
         onCancel={() => setEditModalOpen(false)}
+        onDelete={() => {
+          if (activeTab) {
+            const mapIndex = activeTab.mapIndex;
+            setDeleteConfirm({ isOpen: true, mapIndex });
+          }
+        }}
       />
     </div>
   );

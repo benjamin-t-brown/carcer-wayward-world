@@ -15,12 +15,30 @@ interface MapTemplateFormProps {
 }
 
 export function createDefaultMap(): CarcerMapTemplate {
+  const width = 20;
+  const height = 20;
+  const tiles: any[] = [];
+  
+  // Generate tiles for all positions in the map
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      tiles.push({
+        tilesetName: '',
+        tileId: 0,
+        x: x,
+        y: y,
+        characters: [],
+        items: [],
+      });
+    }
+  }
+  
   return {
     name: '',
     label: '',
-    width: 20,
-    height: 20,
-    tiles: [],
+    width: width,
+    height: height,
+    tiles: tiles,
   };
 }
 

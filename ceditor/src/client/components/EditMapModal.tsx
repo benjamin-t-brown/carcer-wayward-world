@@ -9,6 +9,7 @@ interface EditMapModalProps {
   map: CarcerMapTemplate | null;
   onConfirm: (map: CarcerMapTemplate) => void;
   onCancel: () => void;
+  onDelete?: () => void;
 }
 
 export function EditMapModal({
@@ -16,6 +17,7 @@ export function EditMapModal({
   map,
   onConfirm,
   onCancel,
+  onDelete,
 }: EditMapModalProps) {
   const [formData, setFormData] = useState<CarcerMapTemplate | null>(null);
 
@@ -115,24 +117,41 @@ export function EditMapModal({
           style={{
             display: 'flex',
             gap: '10px',
-            justifyContent: 'flex-end',
+            justifyContent: 'space-between',
+            alignItems: 'center',
           }}
         >
-          <Button variant="secondary" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleConfirm}
-            disabled={
-              !formData.name ||
-              !formData.label ||
-              formData.width <= 0 ||
-              formData.height <= 0
-            }
-          >
-            Save
-          </Button>
+          <div>
+            {onDelete && (
+              <Button
+                variant="primary"
+                className="btn-danger"
+                onClick={() => {
+                  onDelete();
+                  onCancel();
+                }}
+              >
+                Delete
+              </Button>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <Button variant="secondary" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleConfirm}
+              disabled={
+                !formData.name ||
+                !formData.label ||
+                formData.width <= 0 ||
+                formData.height <= 0
+              }
+            >
+              Save
+            </Button>
+          </div>
         </div>
       </div>
     </div>
