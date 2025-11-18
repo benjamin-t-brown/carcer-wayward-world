@@ -4,7 +4,10 @@ import { Sprite } from './assetLoader';
 
 const imageLoaders: Record<string, (() => void)[]> = {};
 const imageCache: Record<string, HTMLImageElement> = {};
-const spriteCanvasCache: Record<string, HTMLCanvasElement> = {};
+// const spriteCanvasCache: Record<string, HTMLCanvasElement> = {};
+const spriteImageCache: Record<string, HTMLImageElement> = {};
+
+(window as any).spriteImageCache = spriteImageCache;
 
 export async function loadImage(url: string): Promise<HTMLImageElement> {
   if (imageCache[url]) {
@@ -41,33 +44,31 @@ function getSpriteSheetUrl(picturePath: string): string {
   return `/api/${picturePath}`;
 }
 
+const outerCanvas = document.createElement('canvas');
+outerCanvas.width = 1024;
+outerCanvas.height = 1024;
+const outerCtx = outerCanvas.getContext('2d');
+if (!outerCtx || !outerCanvas) {
+  throw new Error('Failed to get context');
+}
+
 export async function getDrawable(sprite: Sprite) {
   const cacheKey = `${sprite.name}`;
-  if (spriteCanvasCache[cacheKey]) {
-    return spriteCanvasCache[cacheKey];
+  if (spriteImageCache[cacheKey]) {
+    return spriteImageCache[cacheKey];
   }
   const imageUrl = getSpriteSheetUrl(sprite.picturePath);
   const image = await loadImage(imageUrl);
-  const canvas = document.createElement('canvas');
-  canvas.width = sprite.width;
-  canvas.height = sprite.height;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    throw new Error('Failed to get context');
-  }
   const numSpritesWide = image.width / sprite.width;
-  // const numSpritesHigh = image.height / sprite.height;
   const xOffset = (sprite.index % numSpritesWide) * sprite.width;
   const yOffset = Math.floor(sprite.index / numSpritesWide) * sprite.height;
-  // console.log(
-  //   'draw image',
-  //   sprite.name,
-  //   xOffset,
-  //   yOffset,
-  //   sprite.width,
-  //   sprite.height
-  // );
-  ctx.drawImage(
+  if (!outerCtx) {
+    throw new Error('Failed to get context');
+  }
+  outerCanvas.width = sprite.width;
+  outerCanvas.height = sprite.height;
+  outerCtx.clearRect(0, 0, outerCanvas.width, outerCanvas.height);
+  outerCtx.drawImage(
     image,
     xOffset,
     yOffset,
@@ -78,6 +79,17 @@ export async function getDrawable(sprite: Sprite) {
     sprite.width,
     sprite.height
   );
-  spriteCanvasCache[cacheKey] = canvas;
-  return canvas;
+  // spriteCanvasCache[cacheKey] = canvas;
+  // Create an Image and set its src to the canvas data URL
+  const img = new window.Image();
+  img.src = outerCanvas.toDataURL();
+  spriteImageCache[cacheKey] = img;
+  return img;
+}
+
+export function getCachedDrawable(sprite: Sprite) {
+  const cacheKey = `${sprite.name}`;
+  if (spriteImageCache[cacheKey]) {
+    return spriteImageCache[cacheKey];
+  }
 }

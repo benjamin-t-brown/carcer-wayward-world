@@ -3,6 +3,7 @@ import { Home } from './pages/Home';
 import { ItemTemplates } from './pages/ItemTemplates';
 import { CharacterTemplates } from './pages/CharacterTemplates';
 import { TilesetTemplates } from './pages/TilesetTemplates';
+import { SpecialEvents } from './pages/SpecialEvents';
 
 function App({ assetTypes }: { assetTypes: { id: string; name: string; file: string }[] }) {
   const [currentRoute, setCurrentRoute] = useState<string>('/');
@@ -32,6 +33,8 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
       return <CharacterTemplates />;
     case '/editor/tilesetTemplates':
       return <TilesetTemplates />;
+    case '/editor/specialEvents':
+      return <SpecialEvents />;
     default:
       return (
         <div className="container">

@@ -118,14 +118,6 @@ struct GameEventChildExec {
   std::string next;
 };
 
-// struct GameEventChildBool {
-//   GameEventChildType eventChildType = GameEventChildType::BOOL;
-//   std::string id;
-//   std::string checkStr;
-//   std::string pass; // id of next child
-//   std::string fail; // id of next child
-// };
-
 struct GameEventChildEnd {
   GameEventChildType eventChildType = GameEventChildType::END;
   std::string id;

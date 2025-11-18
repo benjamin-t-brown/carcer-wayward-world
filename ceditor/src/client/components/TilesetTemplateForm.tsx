@@ -5,12 +5,21 @@ import { PicturePicker } from '../elements/PicturePicker';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { TileEditModal } from './TileEditModal';
 
+export enum TileStepSound {
+  TILE_STEP_SOUND_FLOOR,
+  TILE_STEP_SOUND_GRASS,
+  TILE_STEP_SOUND_DIRT,
+  TILE_STEP_SOUND_GRAVEL,
+}
+
 export interface TileMetadata {
   id: number;
   description?: string;
+  stepSound?: TileStepSound;
   isWalkable?: boolean;
   isSeeThrough?: boolean;
   isDoor?: boolean;
+  isContainer?: boolean;
 }
 
 export interface TilesetTemplate {
@@ -37,6 +46,18 @@ export function createDefaultTileset(): TilesetTemplate {
     tileWidth: 28,
     tileHeight: 32,
     tiles: [],
+  };
+}
+
+function createDefaultTile(): TileMetadata {
+  return {
+    id: 0,
+    description: '',
+    stepSound: TileStepSound.TILE_STEP_SOUND_FLOOR,
+    isWalkable: true,
+    isSeeThrough: true,
+    isDoor: false,
+    isContainer: false,
   };
 }
 
@@ -78,11 +99,8 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
       Math.floor(imageWidth / formData.tileWidth) *
       Math.floor(imageHeight / formData.tileHeight);
     const newTiles = Array.from({ length: numTiles }, (_, index) => ({
+      ...createDefaultTile(),
       id: index,
-      description: '',
-      isWalkable: true,
-      isSeeThrough: true,
-      isDoor: false,
     }));
     setFormData({
       ...formData,

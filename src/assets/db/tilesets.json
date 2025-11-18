@@ -12,7 +12,8 @@
         "description": "green grass",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 1,

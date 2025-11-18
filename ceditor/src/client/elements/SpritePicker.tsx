@@ -3,19 +3,33 @@ import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { Sprite } from './Sprite';
 import { OptionSelect } from './OptionSelect';
 import { Button } from './Button';
+import { ModalRowLayout } from './ModalRowLayout';
+import { Sprite as SpriteType } from '../utils/assetLoader';
 
 interface SpritePickerProps {
   value: string;
   onChange: (spriteName: string) => void;
   scale?: number;
   className?: string;
+  maxHeight?: string;
 }
+
+const calculateScale = (sprite: SpriteType) => {
+  if (sprite.width >= 64) {
+    return 1;
+  }
+  if (sprite.width >= 50) {
+    return 2;
+  }
+  return 3;
+};
 
 export function SpritePicker({
   value,
   onChange,
   scale = 2,
   className = '',
+  maxHeight = '400px',
 }: SpritePickerProps) {
   const { sprites } = useSDL2WAssets();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -92,7 +106,7 @@ export function SpritePicker({
     return sprites.find((s) => s.name === selectedSpriteName);
   }, [sprites, selectedSpriteName]);
 
-  if (!currentSprite) {
+  if (!currentSprite && !isModalOpen) {
     return (
       <div
         className={className}
@@ -116,24 +130,86 @@ export function SpritePicker({
     );
   }
 
+  const spriteCanvases: React.ReactNode[] = [];
+  for (let i = 0; i < sheetSprites.length; i++) {
+    const sprite = sheetSprites[i];
+    const isSelected = sprite.name === selectedSpriteName;
+    spriteCanvases.push(
+      <div
+        key={`${selectedSpritesheet}-${sprite.name}-${i}`}
+        onClick={() => setSelectedSpriteName(sprite.name)}
+        style={{
+          cursor: 'pointer',
+          padding: '8px',
+          backgroundColor: isSelected ? '#2d2d30' : '#252526',
+          border: isSelected ? '2px solid #4ec9b0' : '2px solid #3e3e42',
+          borderRadius: '4px',
+          transition: 'all 0.2s',
+          textAlign: 'center',
+        }}
+        onMouseEnter={(e) => {
+          if (!isSelected) {
+            e.currentTarget.style.borderColor = '#4ec9b0';
+            e.currentTarget.style.backgroundColor = '#2d2d30';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isSelected) {
+            e.currentTarget.style.borderColor = '#3e3e42';
+            e.currentTarget.style.backgroundColor = '#252526';
+          }
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginBottom: '6px',
+          }}
+        >
+          <Sprite sprite={sprite} scale={2} maxWidth={50} />
+        </div>
+        <div
+          style={{
+            fontSize: '10px',
+            color: '#858585',
+            wordBreak: 'break-word',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            maxHeight: '30px',
+          }}
+          title={sprite.name}
+        >
+          {sprite.name}
+        </div>
+      </div>
+    );
+    if (i > 255) {
+      break;
+    }
+    // break;
+  }
+
   return (
     <>
-      <div
-        className={className}
-        style={{
-          margin: '16px',
-          display: 'inline-block',
-          cursor: 'pointer',
-        }}
-        onClick={handleOpenModal}
-      >
-        <Sprite sprite={currentSprite} scale={scale} />
-      </div>
+      {currentSprite && (
+        <div
+          className={className}
+          style={{
+            margin: '16px',
+            display: 'inline-block',
+            cursor: 'pointer',
+          }}
+          onClick={handleOpenModal}
+        >
+          <Sprite sprite={currentSprite} scale={scale} />
+        </div>
+      )}
 
       {isModalOpen && (
         <div
           style={{
-            position: 'fixed',
+            position: 'absolute',
             top: 0,
             left: 0,
             right: 0,
@@ -144,170 +220,138 @@ export function SpritePicker({
             justifyContent: 'center',
             zIndex: 1000,
           }}
-          onClick={handleCloseModal}
         >
           <div
             style={{
+              position: 'relative',
               backgroundColor: '#252526',
               border: '1px solid #3e3e42',
               borderRadius: '8px',
               padding: '30px',
               maxWidth: '600px',
               width: '90%',
-              maxHeight: '80vh',
+              height: '80vh',
+              maxHeight: '2000px',
               overflow: 'auto',
             }}
-            onClick={(e) => e.stopPropagation()}
           >
-            <h2
-              style={{ color: '#4ec9b0', marginBottom: '20px', marginTop: 0 }}
-            >
-              Select Sprite
-            </h2>
-
-            <OptionSelect
-              label="Spritesheet"
-              value={selectedSpritesheet}
-              onChange={handleSpritesheetChange}
-              options={spritesheetOptions}
-            />
-
-            {previewSprite && selectedSpriteName && (
-              <div
-                style={{
-                  marginTop: '20px',
-                  padding: '20px',
-                  backgroundColor: '#1e1e1e',
-                  borderRadius: '4px',
-                  textAlign: 'center',
-                }}
-              >
-                <div style={{ marginBottom: '10px', color: '#d4d4d4' }}>
-                  Preview:
-                </div>
-                <div
-                  style={{
-                    display: 'inline-block',
-                    padding: '10px',
-                    backgroundColor: '#2d2d30',
-                    borderRadius: '4px',
-                  }}
-                >
-                  <Sprite sprite={previewSprite} scale={4} />
-                </div>
-                <div
-                  style={{
-                    marginTop: '10px',
-                    color: '#858585',
-                    fontSize: '12px',
-                  }}
-                >
-                  {previewSprite.name}
-                </div>
-              </div>
-            )}
-
-            {selectedSpritesheet && (
-              <div style={{ marginTop: '20px' }}>
-                <label
-                  style={{
-                    display: 'block',
-                    marginBottom: '8px',
-                    color: '#d4d4d4',
-                    fontSize: '14px',
-                    fontWeight: 500,
-                  }}
-                >
-                  Sprite
-                </label>
-                {sheetSprites.length > 0 ? (
-                  <div
+            <ModalRowLayout
+              fixedHeight={400}
+              fixedContent={
+                <div onClick={(e) => e.stopPropagation()}>
+                  <h2
                     style={{
-                      display: 'grid',
-                      gridTemplateColumns:
-                        'repeat(auto-fill, minmax(80px, 1fr))',
-                      gap: '12px',
-                      padding: '15px',
-                      backgroundColor: '#1e1e1e',
-                      borderRadius: '4px',
-                      maxHeight: '400px',
-                      overflowY: 'auto',
+                      color: '#4ec9b0',
+                      marginBottom: '20px',
+                      marginTop: 0,
                     }}
                   >
-                    {sheetSprites.map((sprite) => {
-                      const isSelected = sprite.name === selectedSpriteName;
-                      return (
+                    Select Sprite
+                  </h2>
+                  <OptionSelect
+                    label="Spritesheet"
+                    value={selectedSpritesheet}
+                    onChange={handleSpritesheetChange}
+                    options={spritesheetOptions}
+                  />
+                  {previewSprite && selectedSpriteName && (
+                    <div
+                      style={{
+                        marginTop: '20px',
+                        padding: '20px',
+                        backgroundColor: '#1e1e1e',
+                        borderRadius: '4px',
+                        textAlign: 'center',
+                      }}
+                    >
+                      <div style={{ marginBottom: '10px', color: '#d4d4d4' }}>
+                        Preview:
+                      </div>
+                      <div
+                        style={{
+                          display: 'inline-block',
+                          padding: '10px',
+                          backgroundColor: '#2d2d30',
+                          borderRadius: '4px',
+                        }}
+                      >
+                        <Sprite
+                          sprite={previewSprite}
+                          scale={calculateScale(previewSprite)}
+                        />
+                      </div>
+                      <div
+                        style={{
+                          marginTop: '10px',
+                          color: '#858585',
+                          fontSize: '12px',
+                        }}
+                      >
+                        {previewSprite.name}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              }
+              resizableContent={
+                <div
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                  }}
+                >
+                  {selectedSpritesheet && (
+                    <>
+                      <label
+                        style={{
+                          display: 'block',
+                          marginBottom: '8px',
+                          color: '#d4d4d4',
+                          fontSize: '14px',
+                          fontWeight: 500,
+                        }}
+                      >
+                        Sprite
+                      </label>
+                      {sheetSprites.length > 0 ? (
                         <div
-                          key={sprite.name}
-                          onClick={() => setSelectedSpriteName(sprite.name)}
                           style={{
-                            cursor: 'pointer',
-                            padding: '8px',
-                            backgroundColor: isSelected ? '#2d2d30' : '#252526',
-                            border: isSelected
-                              ? '2px solid #4ec9b0'
-                              : '2px solid #3e3e42',
+                            display: 'grid',
+                            gridTemplateColumns:
+                              'repeat(auto-fill, minmax(80px, 1fr))',
+                            gap: '12px',
+                            padding: '15px',
+                            backgroundColor: '#1e1e1e',
                             borderRadius: '4px',
-                            transition: 'all 0.2s',
-                            textAlign: 'center',
-                          }}
-                          onMouseEnter={(e) => {
-                            if (!isSelected) {
-                              e.currentTarget.style.borderColor = '#4ec9b0';
-                              e.currentTarget.style.backgroundColor = '#2d2d30';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!isSelected) {
-                              e.currentTarget.style.borderColor = '#3e3e42';
-                              e.currentTarget.style.backgroundColor = '#252526';
-                            }
+                            height: 'calc(100% - 60px)',
+                            overflowY: 'auto',
                           }}
                         >
-                          <div
-                            style={{
-                              display: 'flex',
-                              justifyContent: 'center',
-                              marginBottom: '6px',
-                            }}
-                          >
-                            <Sprite sprite={sprite} scale={2} />
-                          </div>
-                          <div
-                            style={{
-                              fontSize: '10px',
-                              color: '#858585',
-                              wordBreak: 'break-word',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              maxHeight: '30px',
-                            }}
-                            title={sprite.name}
-                          >
-                            {sprite.name}
-                          </div>
+                          {spriteCanvases}
                         </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      padding: '20px',
-                      textAlign: 'center',
-                      color: '#858585',
-                      backgroundColor: '#1e1e1e',
-                      borderRadius: '4px',
-                    }}
-                  >
-                    No sprites found in this spritesheet
-                  </div>
-                )}
-              </div>
-            )}
-
+                      ) : (
+                        <div
+                          style={{
+                            padding: '20px',
+                            textAlign: 'center',
+                            color: '#858585',
+                            backgroundColor: '#1e1e1e',
+                            borderRadius: '4px',
+                          }}
+                        >
+                          No sprites found in this spritesheet
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              }
+            />
             <div
               style={{
+                position: 'absolute',
+                bottom: '10px',
+                right: '10px',
                 display: 'flex',
                 gap: '10px',
                 justifyContent: 'flex-end',
@@ -331,3 +375,4 @@ export function SpritePicker({
     </>
   );
 }
+

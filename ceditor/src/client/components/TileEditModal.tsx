@@ -1,8 +1,9 @@
 import { TextInput } from '../elements/TextInput';
 import { Button } from '../elements/Button';
 import { Sprite } from '../elements/Sprite';
-import { TileMetadata } from './TilesetTemplateForm';
+import { TileMetadata, TileStepSound } from './TilesetTemplateForm';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
+import { OptionSelect } from '../elements/OptionSelect';
 
 interface TileEditModalProps {
   tile: TileMetadata | null;
@@ -32,6 +33,25 @@ export function TileEditModal({
   // Find the sprite for this tile: tilesetName + '_' + tile.id
   const spriteName = `${tilesetName}_${tile.id}`;
   const sprite = sprites.find((s) => s.name === spriteName);
+
+  const tileStepSoundOptions = [
+    {
+      label: 'Floor',
+      value: TileStepSound.TILE_STEP_SOUND_FLOOR as number,
+    },
+    {
+      label: 'Grass',
+      value: TileStepSound.TILE_STEP_SOUND_GRASS as number,
+    },
+    {
+      label: 'Dirt',
+      value: TileStepSound.TILE_STEP_SOUND_DIRT as number,
+    },
+    {
+      label: 'Gravel',
+      value: TileStepSound.TILE_STEP_SOUND_GRAVEL as number,
+    },
+  ];
 
   return (
     <div
@@ -83,10 +103,22 @@ export function TileEditModal({
               textAlign: 'center',
             }}
           >
-            <div style={{ color: '#858585', fontSize: '12px', marginBottom: '4px' }}>
+            <div
+              style={{
+                color: '#858585',
+                fontSize: '12px',
+                marginBottom: '4px',
+              }}
+            >
               Sprite Name
             </div>
-            <div style={{ color: '#d4d4d4', fontSize: '14px', fontFamily: 'monospace' }}>
+            <div
+              style={{
+                color: '#d4d4d4',
+                fontSize: '14px',
+                fontFamily: 'monospace',
+              }}
+            >
               {spriteName}
             </div>
           </div>
@@ -103,7 +135,13 @@ export function TileEditModal({
               textAlign: 'center',
             }}
           >
-            <div style={{ marginBottom: '10px', color: '#d4d4d4', fontSize: '14px' }}>
+            <div
+              style={{
+                marginBottom: '10px',
+                color: '#d4d4d4',
+                fontSize: '14px',
+              }}
+            >
               Tile Preview
             </div>
             <div
@@ -133,6 +171,19 @@ export function TileEditModal({
             }
           }}
         />
+        <div className="form-group">
+          <label htmlFor="stepSound">Step Sound</label>
+          <OptionSelect
+            id="stepSound"
+            name="stepSound"
+            options={tileStepSoundOptions}
+            value={
+              tile.stepSound?.toString() ||
+              TileStepSound.TILE_STEP_SOUND_FLOOR.toString()
+            }
+            onChange={(value) => handleUpdate('stepSound', value)}
+          />
+        </div>
         <div
           style={{
             display: 'flex',
@@ -188,7 +239,24 @@ export function TileEditModal({
           />
           <label htmlFor="isDoor">Is Door</label>
         </div>
-
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            margin: '4px 0',
+          }}
+        >
+          <input
+            id="isContainer"
+            name="isContainer"
+            type="checkbox"
+            checked={tile.isContainer === true}
+            onChange={(e) => handleUpdate('isContainer', e.target.checked)}
+            style={{ cursor: 'pointer', transform: 'scale(1.5)' }}
+          />
+          <label htmlFor="isContainer">Is Container</label>
+        </div>
         <div
           style={{
             display: 'flex',

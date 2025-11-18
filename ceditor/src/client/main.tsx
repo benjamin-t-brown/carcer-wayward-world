@@ -7,6 +7,7 @@ import {
   Sprite,
 } from './utils/assetLoader';
 import { SDL2WAssetsProvider } from './contexts/SDL2WAssetsContext';
+import { getDrawable } from './utils/spriteUtils';
 
 interface AssetType {
   id: string;
@@ -37,15 +38,34 @@ async function load(): Promise<{
   pictures: Record<string, string>;
 }> {
   const assetTypes = await loadAssetTypes();
-  const sdl2wAssetFIles = await loadSDL2WAssetFiles();
+  const sdl2wAssetFiles = await loadSDL2WAssetFiles();
   const { sprites, animations, pictures } = await loadSpritesAndAnimations(
-    sdl2wAssetFIles
+    sdl2wAssetFiles
   );
+  for (const sprite of sprites) {
+    const drawable = await getDrawable(sprite);
+    if (!drawable) {
+      throw new Error('Drawable not found');
+    }
+  }
+  // const allDrawablePromises = sprites.map(async (sprite) => {
+  //   return getDrawable(sprite);
+  // });
+  // await Promise.all(allDrawablePromises);
   console.log('loaded', { assetTypes, sprites, animations, pictures });
   return { assetTypes, sprites, animations, pictures };
 }
 
 async function init() {
+  // Show a loading message in the body while assets are loading
+  const container = document.getElementById('root');
+  if (container) {
+    container.innerHTML = `
+      <div style="font-family: sans-serif; color: #bbb; text-align: center; margin-top: 60px;">
+        Loading assets...
+      </div>
+    `;
+  }
   try {
     const { assetTypes, sprites, animations, pictures } = await load();
     const container = document.getElementById('root');
@@ -53,6 +73,7 @@ async function init() {
     if (!container) {
       throw new Error('Root element not found');
     }
+    container.innerHTML = '';
 
     const root = createRoot(container);
     root.render(
@@ -84,3 +105,33 @@ async function init() {
 }
 
 init();
+
+(window as any).debugTest = () => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 1024;
+  canvas.style.position = 'fixed';
+  canvas.style.top = '0';
+  canvas.style.left = '0';
+  canvas.style.zIndex = '1000';
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('Failed to get canvas context');
+  }
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, 1024, 1024);
+  document.body.appendChild(canvas);
+  let i = 0;
+  for (const [name, drawable] of Object.entries(
+    (window as any).spriteCanvasCache
+  )) {
+    const c = drawable as HTMLCanvasElement;
+    const x = (i % 16) * 64;
+    const y = Math.floor(i / 16) * 64;
+    ctx.drawImage(c, x, y);
+    i++;
+    ctx.font = '10px Arial';
+    ctx.fillStyle = '#333';
+    ctx.fillText(name, x, y);
+  }
+};

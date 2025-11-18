@@ -31,6 +31,7 @@
   +k: name|"Call me Ed." He eyes you suspiciously. "You want to buy some logs?  Or are you here to steal from me."
   +k: job|"I sell logs.  Oak and willow.  You interested or just shopping about?"
   +k: logs|"Let me know what you want to buy."
+  +kDup: interested|logs
   +kDup: steal|_checkQuest
   +kDup: stress|_checkQuest
   +kSwitch: _checkQuest
@@ -40,7 +41,7 @@
     |default:_questNotStarted
   +k: _questStartedFinished|"Thanks for helping me with the quest."
   +kChild: _questStartedCanComplete|3
-  +k: _questStartedNotFinished|"Did you take care of those bandits yet?"
+  +k: _questStartedNotFinished|"Did you take care of those bandits yet?"  You tell him that you haven't and he seems disappointed.
   +kChild: _questNotStarted|2
   +k: _questStartText|"My last shipment got waylaid by bandits.  They're somewhere to the west.  If you help I can give you a reward."
   +k: _questCompleteText|"Wow you did a really good job!  Here's some gold."
