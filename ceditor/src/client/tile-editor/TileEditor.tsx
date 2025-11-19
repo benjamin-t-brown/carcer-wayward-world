@@ -8,7 +8,7 @@ import { EditorState, getEditorState } from './editorState';
 import { TilePicker } from './TilePicker';
 
 interface TileEditorProps {
-  map: CarcerMapTemplate;
+  map?: CarcerMapTemplate;
   onMapUpdate: (map: CarcerMapTemplate) => void;
 }
 
@@ -51,6 +51,21 @@ export function TileEditor({ map, onMapUpdate }: TileEditorProps) {
     }
     prevTs = ts;
   });
+
+  if (!map) {
+    return (
+      <div
+        style={{
+          color: '#858585',
+          fontSize: '14px',
+          textAlign: 'center',
+          marginTop: '50px',
+        }}
+      >
+        Select a map from the dropdown or create a new one to get started.
+      </div>
+    );
+  }
 
   return (
     <div

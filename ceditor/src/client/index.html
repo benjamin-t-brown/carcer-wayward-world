@@ -341,7 +341,7 @@
       .notification {
         position: fixed;
         top: 20px;
-        right: 200px;
+        left: calc(50% - 150px);
         padding: 15px 20px;
         border-radius: 4px;
         color: white;
@@ -350,6 +350,10 @@
         opacity: 0;
         transform: translateY(-100%);
         transition: all 0.3s;
+        width: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
       }
 
       .notification.show {

@@ -16,7 +16,11 @@ interface NotificationState {
   id: number;
 }
 
-export function TilesetTemplates() {
+interface TilesetTemplatesProps {
+  routeParams?: URLSearchParams;
+}
+
+export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
   const { tilesets, setTilesets, saveTilesets } = useAssets();
   const [editTilesetIndex, setEditTilesetIndex] = useState<number>(-1);
   const [searchTerm, setSearchTerm] = useState('');
@@ -109,6 +113,21 @@ export function TilesetTemplates() {
       }
     }, 100);
   };
+
+  // Check for tileset query parameter on mount
+  useEffect(() => {
+    if (routeParams) {
+      const tilesetName = routeParams.get('tileset');
+      if (tilesetName) {
+        const index = tilesets.findIndex((t) => t.name === tilesetName);
+        if (index >= 0) {
+          setEditTilesetIndex(index);
+          scrollToTopOfForm();
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tilesets, routeParams]);
 
   const updateTileset = (tileset: TilesetTemplate) => {
     if (editTilesetIndex >= 0) {

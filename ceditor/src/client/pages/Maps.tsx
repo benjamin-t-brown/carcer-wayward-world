@@ -46,7 +46,7 @@ export function Maps() {
 
   // Map options for OptionSelect
   const mapOptions = [
-    { value: '', label: '-- Select a map --' },
+    { value: '', label: '-- Open a map --' },
     ...maps.map((map, index) => ({
       value: index.toString(),
       label: `${map.label} (${map.name})`,
@@ -54,7 +54,7 @@ export function Maps() {
   ];
 
   const handleMapSelect = (value: string) => {
-    setSelectedMapIndex(value);
+    // setSelectedMapIndex(value);
     if (value === '') {
       return;
     }
@@ -137,7 +137,6 @@ export function Maps() {
       setActiveTabIndex(activeTabIndex - 1);
     }
   };
-
 
   const confirmDelete = () => {
     if (deleteConfirm.mapIndex !== null) {
@@ -286,19 +285,19 @@ export function Maps() {
       showNotification('Maps saved successfully!', 'success');
 
       // Update tab references after sorting
-      const newTabs = openTabs.map((tab) => {
-        const sortedIndex = sortedMaps.findIndex(
-          (map) => map.name === tab.map.name
-        );
-        if (sortedIndex >= 0) {
-          return {
-            mapIndex: sortedIndex,
-            map: sortedMaps[sortedIndex],
-          };
-        }
-        return tab;
-      });
-      setOpenTabs(newTabs);
+      // const newTabs = openTabs.map((tab) => {
+      //   const sortedIndex = sortedMaps.findIndex(
+      //     (map) => map.name === tab.map.name
+      //   );
+      //   if (sortedIndex >= 0) {
+      //     return {
+      //       mapIndex: sortedIndex,
+      //       map: sortedMaps[sortedIndex],
+      //     };
+      //   }
+      //   return tab;
+      // });
+      // setOpenTabs(newTabs);
     } catch (err) {
       showNotification(
         `Error saving: ${err instanceof Error ? err.message : 'Unknown error'}`,
@@ -313,6 +312,7 @@ export function Maps() {
       // Check for Ctrl+S (Windows/Linux) or Cmd+S (Mac)
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
+        e.stopPropagation();
         handleSaveAll();
       }
     };
@@ -450,30 +450,12 @@ export function Maps() {
 
       <div
         style={{
-          // flex: 1,
           overflow: 'hidden',
           height: 'calc(100vh - 152px)',
+          borderBottom: '1px solid #3e3e42',
         }}
       >
-        {activeMap ? (
-          <TileEditor
-            map={activeMap}
-            onMapUpdate={updateMapInTabs}
-          />
-        ) : (
-          <div
-            style={{
-              color: '#858585',
-              fontSize: '14px',
-              textAlign: 'center',
-              marginTop: '50px',
-            }}
-          >
-            {openTabs.length === 0
-              ? 'Select a map from the dropdown or create a new one to get started.'
-              : 'Select a tab to view the map.'}
-          </div>
-        )}
+        <TileEditor map={activeMap ?? undefined} onMapUpdate={updateMapInTabs} />
       </div>
 
       {/* Notifications */}

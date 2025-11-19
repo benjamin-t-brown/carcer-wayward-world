@@ -8,12 +8,15 @@ import { Maps } from './pages/Maps';
 
 function App({ assetTypes }: { assetTypes: { id: string; name: string; file: string }[] }) {
   const [currentRoute, setCurrentRoute] = useState<string>('/');
+  const [routeParams, setRouteParams] = useState<URLSearchParams>(new URLSearchParams());
 
   useEffect(() => {
     // Handle hash-based routing
     const handleRoute = () => {
       const hash = window.location.hash.slice(1) || '/';
-      setCurrentRoute(hash);
+      const [path, queryString] = hash.split('?');
+      setCurrentRoute(path || '/');
+      setRouteParams(new URLSearchParams(queryString || ''));
     };
 
     window.addEventListener('hashchange', handleRoute);
@@ -25,7 +28,8 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
   }, []);
 
   // Route rendering
-  switch (currentRoute) {
+  const routePath = currentRoute.split('?')[0]; // Ensure we only match on the path part
+  switch (routePath) {
     case '/':
       return <Home assetTypes={assetTypes} />;
     case '/editor/itemTemplates':
@@ -33,7 +37,7 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
     case '/editor/characterTemplates':
       return <CharacterTemplates />;
     case '/editor/tilesetTemplates':
-      return <TilesetTemplates />;
+      return <TilesetTemplates routeParams={routeParams} />;
     case '/editor/specialEvents':
       return <SpecialEvents />;
     case '/editor/maps':

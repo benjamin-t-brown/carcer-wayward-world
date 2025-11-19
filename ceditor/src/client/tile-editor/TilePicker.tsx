@@ -3,12 +3,16 @@ import { useAssets } from '../contexts/AssetsContext';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { getEditorState, updateEditorState } from './editorState';
 import { OptionSelect } from '../elements/OptionSelect';
+import { TileEditModal } from '../components/TileEditModal';
+import { TileMetadata } from '../components/TilesetTemplateForm';
+import { Sprite } from '../elements/Sprite';
 
 export function TilePicker() {
-  const { tilesets } = useAssets();
-  const { pictures } = useSDL2WAssets();
+  const { tilesets, setTilesets } = useAssets();
+  const { pictures, sprites } = useSDL2WAssets();
   const [selectedTilesetName, setSelectedTilesetName] = useState<string>('');
   const [scale, setScale] = useState<number>(1);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const [editorState, setEditorState] = useState(getEditorState());
@@ -19,7 +23,10 @@ export function TilePicker() {
       const firstTileset = tilesets[0];
       setSelectedTilesetName(firstTileset.name);
       // If no tile is selected, select the first tile of the first tileset
-      if (editorState.selectedTileIndex === -1 || !editorState.selectedTilesetName) {
+      if (
+        editorState.selectedTileIndex === -1 ||
+        !editorState.selectedTilesetName
+      ) {
         updateEditorState({
           selectedTilesetName: firstTileset.name,
           selectedTileIndex: 0,
@@ -39,7 +46,10 @@ export function TilePicker() {
       ) {
         setEditorState(currentState);
         // Update selected tileset tab if needed
-        if (currentState.selectedTilesetName && currentState.selectedTilesetName !== selectedTilesetName) {
+        if (
+          currentState.selectedTilesetName &&
+          currentState.selectedTilesetName !== selectedTilesetName
+        ) {
           setSelectedTilesetName(currentState.selectedTilesetName);
         }
       }
@@ -150,7 +160,12 @@ export function TilePicker() {
     if (imageRef.current) {
       drawTileset();
     }
-  }, [editorState.selectedTileIndex, editorState.selectedTilesetName, selectedTileset, scale]);
+  }, [
+    editorState.selectedTileIndex,
+    editorState.selectedTilesetName,
+    selectedTileset,
+    scale,
+  ]);
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!selectedTileset || !canvasRef.current) return;
@@ -192,6 +207,46 @@ export function TilePicker() {
     }
   };
 
+  const handleUpdateTile = (
+    index: number,
+    field: keyof TileMetadata,
+    value: any
+  ) => {
+    if (!selectedTileset) return;
+
+    const tilesetIndex = tilesets.findIndex(
+      (t) => t.name === selectedTileset.name
+    );
+    if (tilesetIndex >= 0) {
+      const updatedTilesets = [...tilesets];
+      const updatedTiles = [...selectedTileset.tiles];
+      updatedTiles[index] = { ...updatedTiles[index], [field]: value };
+      updatedTilesets[tilesetIndex] = {
+        ...selectedTileset,
+        tiles: updatedTiles,
+      };
+      setTilesets(updatedTilesets);
+    }
+  };
+
+  const selectedTile =
+    selectedTileset && editorState.selectedTileIndex >= 0
+      ? selectedTileset.tiles[editorState.selectedTileIndex]
+      : null;
+
+  // Find the sprite for the selected tile
+  const selectedTileSprite =
+    selectedTile && selectedTileset
+      ? sprites.find(
+          (s) => s.name === `${selectedTileset.name}_${selectedTile.id}`
+        )
+      : null;
+
+  const selectedTileId =
+    selectedTile && selectedTileset
+      ? `${selectedTileset.name}_${selectedTile.id}`
+      : null;
+
   if (tilesets.length === 0) {
     return (
       <div
@@ -217,9 +272,9 @@ export function TilePicker() {
   return (
     <div
       style={{
-        height: '200px',
+        height: '250px',
         minHeight: '150px',
-        maxHeight: '400px',
+        maxHeight: '600px',
         borderTop: '1px solid #3e3e42',
         backgroundColor: '#1e1e1e',
         display: 'flex',
@@ -239,22 +294,19 @@ export function TilePicker() {
         }}
       >
         {tilesets.map((tileset) => (
-          <button
+          <div
             key={tileset.name}
-            onClick={() => handleTilesetSelect(tileset.name)}
             style={{
-              padding: '8px 16px',
-              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
               borderBottom:
                 selectedTilesetName === tileset.name
                   ? '2px solid #4ec9b0'
                   : '2px solid transparent',
               backgroundColor:
-                selectedTilesetName === tileset.name ? '#1e1e1e' : 'transparent',
-              color: selectedTilesetName === tileset.name ? '#ffffff' : '#858585',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              fontSize: '13px',
+                selectedTilesetName === tileset.name
+                  ? '#1e1e1e'
+                  : 'transparent',
             }}
             onMouseEnter={(e) => {
               if (selectedTilesetName !== tileset.name) {
@@ -267,8 +319,56 @@ export function TilePicker() {
               }
             }}
           >
-            {tileset.name}
-          </button>
+            <button
+              onClick={() => handleTilesetSelect(tileset.name)}
+              style={{
+                padding: '8px 16px',
+                border: 'none',
+                backgroundColor: 'transparent',
+                color:
+                  selectedTilesetName === tileset.name ? '#ffffff' : '#858585',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                fontSize: '13px',
+              }}
+            >
+              {tileset.name}
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const url = `${window.location.origin}${
+                  window.location.pathname
+                }#/editor/tilesetTemplates?tileset=${encodeURIComponent(
+                  tileset.name
+                )}`;
+                window.open(url, '_blank');
+              }}
+              style={{
+                padding: '4px 8px',
+                border: 'none',
+                backgroundColor: 'transparent',
+                color:
+                  selectedTilesetName === tileset.name ? '#858585' : '#666666',
+                cursor: 'pointer',
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'color 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#4ec9b0';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color =
+                  selectedTilesetName === tileset.name ? '#858585' : '#666666';
+              }}
+              title="Edit tileset in new tab"
+            >
+              ✎
+            </button>
+          </div>
         ))}
       </div>
 
@@ -283,13 +383,13 @@ export function TilePicker() {
         {/* Left Column: Control Panel */}
         <div
           style={{
-            width: '96px',
+            width: '132px',
             borderRight: '1px solid #3e3e42',
             backgroundColor: '#252526',
             display: 'flex',
             flexDirection: 'column',
             padding: '10px',
-            gap: '15px',
+            gap: '0px',
             flexShrink: 0,
           }}
         >
@@ -313,6 +413,7 @@ export function TilePicker() {
             <OptionSelect
               value={scale.toString()}
               onChange={(value) => setScale(parseFloat(value))}
+              style={{ marginBottom: '0px' }}
               options={[
                 { value: '1', label: '1x' },
                 { value: '1.5', label: '1.5x' },
@@ -326,6 +427,77 @@ export function TilePicker() {
               ]}
             />
           </div>
+          {selectedTileset && selectedTile && (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+              }}
+            >
+              {/* Tile Information */}
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  padding: '8px',
+                  backgroundColor: '#1e1e1e',
+                  borderRadius: '4px',
+                  border: '1px solid #3e3e42',
+                }}
+              >
+                {selectedTileId && (
+                  <div
+                    style={{
+                      color: '#d4d4d4',
+                      fontSize: '11px',
+                      fontFamily: 'monospace',
+                      wordBreak: 'break-all',
+                    }}
+                  >
+                    {selectedTileId}
+                  </div>
+                )}
+                {selectedTileSprite && (
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      padding: '8px',
+                      backgroundColor: '#2d2d30',
+                      borderRadius: '4px',
+                      border: '1px solid #3e3e42',
+                    }}
+                  >
+                    <Sprite sprite={selectedTileSprite} scale={1} />
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={() => setIsEditModalOpen(true)}
+                style={{
+                  padding: '8px',
+                  border: '1px solid #3e3e42',
+                  backgroundColor: '#3e3e42',
+                  color: '#ffffff',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  borderRadius: '2px',
+                  transition: 'background-color 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#4a4a4a';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#3e3e42';
+                }}
+                title="Edit selected tile"
+              >
+                Edit Tile
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Right Column: Canvas Container */}
@@ -335,7 +507,7 @@ export function TilePicker() {
             overflow: 'auto',
             padding: '10px',
             display: 'flex',
-            justifyContent: 'center',
+            justifyContent: 'flex-start',
             alignItems: 'flex-start',
           }}
         >
@@ -351,13 +523,25 @@ export function TilePicker() {
               }}
             />
           ) : (
-            <div style={{ color: '#858585', fontSize: '14px', padding: '20px' }}>
+            <div
+              style={{ color: '#858585', fontSize: '14px', padding: '20px' }}
+            >
               Select a tileset
             </div>
           )}
         </div>
       </div>
+
+      {/* Tile Edit Modal */}
+      {isEditModalOpen && selectedTileset && selectedTile && (
+        <TileEditModal
+          tile={selectedTile}
+          tileIndex={editorState.selectedTileIndex}
+          tilesetName={selectedTileset.name}
+          onClose={() => setIsEditModalOpen(false)}
+          onUpdate={handleUpdateTile}
+        />
+      )}
     </div>
   );
 }
-

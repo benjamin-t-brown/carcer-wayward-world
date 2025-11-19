@@ -20,7 +20,7 @@ const useResize = (cb: (width: number, height: number) => void) => {
         clearTimeout(timeoutId);
       }
     };
-  }, [cb]);
+  }, []);
 };
 
 export const MapCanvas = (props: {
@@ -51,8 +51,8 @@ export const MapCanvas = (props: {
       <canvas
         id="map-canvas-canvas"
         ref={props.canvasRef}
-        width={props.width}
-        height={props.height}
+        width={1000}
+        height={1000}
       />
     </div>
   );
