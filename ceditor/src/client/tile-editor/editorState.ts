@@ -33,14 +33,12 @@ import { PaintActionType } from './paintTools';
 export interface EditorState {
   selectedTileIndex: number;
   selectedTilesetName: string;
-  selectedTileColor: string;
   currentPaintAction: PaintActionType;
 }
 
 let editorState: EditorState = {
   selectedTileIndex: -1,
   selectedTilesetName: '',
-  selectedTileColor: '',
   currentPaintAction: PaintActionType.NONE,
 };
 export const getEditorState = () => editorState;
@@ -63,10 +61,10 @@ export const getCurrentSelectedTileId = () => {
   return selectedTilesetName + '_' + selectedTileIndex;
 };
 
-export const getCurrentSelectedTileColor = () => {
-  const selectedTileColor = getEditorState().selectedTileColor ?? '';
-  return selectedTileColor;
-};
+// export const getCurrentSelectedTileColor = () => {
+//   const selectedTileColor = getEditorState().selectedTileColor ?? '';
+//   return selectedTileColor;
+// };
 
 export const setCurrentPaintAction = (paintAction: PaintActionType) => {
   updateEditorState({ currentPaintAction: paintAction });

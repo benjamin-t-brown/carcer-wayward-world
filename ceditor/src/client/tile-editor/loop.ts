@@ -292,7 +292,7 @@ export const loop = (
     ctx.restore();
 
     // layers
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 1; i++) {
       const newScale = scale * (1 + i * 0.04);
 
       const focalX = mapDataInterface.getCanvas().width / 2;

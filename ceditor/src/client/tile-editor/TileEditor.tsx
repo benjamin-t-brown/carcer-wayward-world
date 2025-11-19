@@ -5,6 +5,7 @@ import { MapCanvas } from './MapCanvas';
 import { initPanzoom, unInitPanzoom } from './editorEvents';
 import { loop } from './loop';
 import { EditorState, getEditorState } from './editorState';
+import { TilePicker } from './TilePicker';
 
 interface TileEditorProps {
   map: CarcerMapTemplate;
@@ -138,30 +139,6 @@ function ToolsPanel() {
     >
       <div style={{ color: '#858585', fontSize: '14px' }}>
         TODO: Tools Panel - Add tool buttons here
-      </div>
-    </div>
-  );
-}
-
-// Stub component for Tile Picker
-function TilePicker() {
-  return (
-    <div
-      style={{
-        height: '200px',
-        minHeight: '150px',
-        maxHeight: '400px',
-        borderTop: '1px solid #3e3e42',
-        backgroundColor: '#1e1e1e',
-        padding: '15px',
-        overflow: 'auto',
-        resize: 'vertical',
-      }}
-    >
-      <div style={{ color: '#858585', fontSize: '14px' }}>
-        TODO: Tile Picker
-        <br />
-        Resizable region for selecting tilesets and tiles
       </div>
     </div>
   );

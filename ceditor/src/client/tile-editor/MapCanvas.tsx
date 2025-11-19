@@ -2,11 +2,24 @@ import React, { useEffect } from 'react';
 
 const useResize = (cb: (width: number, height: number) => void) => {
   return useEffect(() => {
+    let timeoutId: number | undefined;
+
     const handleResize = () => {
-      cb(window.innerWidth, window.innerHeight);
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId);
+      }
+      timeoutId = window.setTimeout(() => {
+        cb(window.innerWidth, window.innerHeight);
+      }, 300);
     };
+
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [cb]);
 };
 
@@ -15,7 +28,6 @@ export const MapCanvas = (props: {
   height: number;
   canvasRef: React.RefObject<HTMLCanvasElement>;
 }) => {
-  // const canvasRef = React.useRef<HTMLCanvasElement>(null);
   useResize((width, height) => {
     const canvas = props.canvasRef.current;
     if (canvas) {
@@ -33,7 +45,6 @@ export const MapCanvas = (props: {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        // transformOrigin: '50% 50%',
         imageRendering: 'pixelated',
       }}
     >
