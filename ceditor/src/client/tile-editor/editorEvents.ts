@@ -27,7 +27,13 @@ import {
 } from './renderState';
 import { calculateFillIndsFloor } from './fill';
 import { CarcerMapTemplate } from '../components/MapTemplateForm';
-import { getCurrentPaintAction, getCurrentSelectedTileId } from './editorState';
+import {
+  EditorState,
+  getCurrentPaintAction,
+  getCurrentSelectedTileId,
+  setCurrentPaintAction,
+} from './editorState';
+import { TilesetTemplate } from '../components/TilesetTemplateForm';
 // import { saveSettingsToLs } from 'state';
 
 class MapEditorEventState {
@@ -109,6 +115,8 @@ export const onTileHoverIndChange = (
 export const initPanzoom = (mapDataInterface: {
   getCanvas: () => HTMLCanvasElement;
   getMapData: () => CarcerMapTemplate;
+  getTilesets: () => TilesetTemplate[];
+  getEditorState: () => EditorState;
 }) => {
   // if (panzoomCanvas !== null || isPanZoomInitialized) {
   //   return;
@@ -120,28 +128,28 @@ export const initPanzoom = (mapDataInterface: {
     }
 
     // keyboard shortcuts
-    // if (isEditorActive(ev)) {
-    //   if (ev.key === 'b') {
-    //     setCurrentPaintAction(PaintActionType.DRAW);
-    //   } else if (ev.key === 'f') {
-    //     setCurrentPaintAction(PaintActionType.FILL);
-    //     // need to wait for a state update or currentPaintAction is not set
-    //     setTimeout(() => {
-    //       const ind = getHoveredTileInd();
-    //       if (ind > -1) {
-    //         onTileHoverIndChange(ind, ind);
-    //       }
-    //     }, 33);
-    //   } else if (ev.key === 'e') {
-    //     if (!ev.ctrlKey) {
-    //       setCurrentPaintAction(PaintActionType.ERASE);
-    //     }
-    //   } else if (ev.key === 's') {
-    //     if (!ev.ctrlKey) {
-    //       setCurrentPaintAction(PaintActionType.SELECT);
-    //     }
-    //   }
-    // }
+    if (isEditorActive(ev)) {
+      if (ev.key === 'b') {
+        setCurrentPaintAction(PaintActionType.DRAW);
+      } else if (ev.key === 'f') {
+        setCurrentPaintAction(PaintActionType.FILL);
+        // need to wait for a state update or currentPaintAction is not set
+        setTimeout(() => {
+          const ind = getHoveredTileInd();
+          if (ind > -1) {
+            onTileHoverIndChange(mapDataInterface.getMapData(), ind, ind);
+          }
+        }, 33);
+      } else if (ev.key === 'e') {
+        if (!ev.ctrlKey) {
+          setCurrentPaintAction(PaintActionType.ERASE);
+        }
+      } else if (ev.key === 's') {
+        if (!ev.ctrlKey) {
+          setCurrentPaintAction(PaintActionType.SELECT);
+        }
+      }
+    }
   };
   const handleMouseDown = (ev: MouseEvent) => {
     if (
@@ -158,21 +166,26 @@ export const initPanzoom = (mapDataInterface: {
       ev.button === 0 &&
       isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())
     ) {
-      // TODO is this for painting?
-    //   mapEditorEventState.isPainting = true;
-    //   const currentPaintAction = getCurrentPaintAction();
-    //   const action = createPaintAction(currentPaintAction);
-    //   // action.data.paintTileRef = {
-    //   //   arr: [getCurrentSelectedTileId()],
-    //   //   opacity: [100],
-    //   //   // color: [getCurrentSelectedTileColor()],
-    //   // };
-    // action.
-    //   const floorBrush = getTileFloorBrush();
-    //   if (floorBrush.length) {
-    //     action.data.floorDrawBrush = floorBrush.slice();
-    //   }
-    //   setCurrentAction(action);
+      mapEditorEventState.isPainting = true;
+      const currentPaintAction =
+        mapDataInterface.getEditorState().currentPaintAction;
+      if (currentPaintAction === PaintActionType.NONE) {
+        return;
+      }
+      const action = createPaintAction(currentPaintAction);
+      action.data.paintTileRef = {
+        characters: [],
+        items: [],
+        x: 0,
+        y: 0,
+        tilesetName: mapDataInterface.getEditorState().selectedTilesetName,
+        tileId: mapDataInterface.getEditorState().selectedTileIndexInTileset,
+      };
+      const floorBrush = getTileFloorBrush();
+      if (floorBrush.length) {
+        action.data.floorDrawBrush = floorBrush.slice();
+      }
+      setCurrentAction(action);
     }
     if (
       ev.button === 2 &&
@@ -215,12 +228,12 @@ export const initPanzoom = (mapDataInterface: {
       mapEditorEventState.isDragging = false;
     }
     if (mapEditorEventState.isPainting) {
-      // mapEditorEventState.isPainting = false;
-      // const currentAction = getCurrentAction();
-      // const mapData = getCurrentMapData();
-      // if (currentAction && mapData) {
-      //   onActionComplete(currentAction, mapData);
-      // }
+      mapEditorEventState.isPainting = false;
+      const currentAction = getCurrentAction();
+      const mapData = mapDataInterface.getMapData();
+      if (currentAction && mapData) {
+        onActionComplete(currentAction, mapData);
+      }
       // setSelectedMapTileIndex(getHoveredTileInd());
     }
     if (mapEditorEventState.isDraggingRight) {

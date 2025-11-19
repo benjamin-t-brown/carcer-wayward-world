@@ -1,3 +1,8 @@
+import { CarcerMapTileTemplate } from '../components/MapTemplateForm';
+import { TileMetadata } from '../components/TilesetTemplateForm';
+import { Sprite } from '../utils/assetLoader';
+import { getCachedDrawable } from '../utils/spriteUtils';
+
 export interface DrawTextParams {
   font?: string;
   color?: string;
@@ -23,11 +28,6 @@ export const getFm = () => fm;
 
 const spriteCacheColor: Record<string, Sprite> = {};
 
-export const clearScreen = () => {
-  const canvas = getCanvas();
-  drawRect(0, 0, canvas.width, canvas.height, 'grey');
-};
-
 // export const setupDrawing = () => {
 //   const ctx = getCtx();
 //   ctx.save();
@@ -38,12 +38,6 @@ export const clearScreen = () => {
 // export const finishDrawing = () => {
 //   getCtx().restore();
 // };
-
-export const setOpacity = (opacity: number, ctx?: CanvasRenderingContext2D) => {
-  ctx = ctx || getCtx();
-  ctx.globalAlpha = opacity;
-};
-
 // const getSpriteFromCache = (spriteName: string, color: string) => {
 //   const key = `${spriteName}_${color}`;
 //   if (!spriteCacheColor[key]) {
@@ -65,52 +59,47 @@ export const setOpacity = (opacity: number, ctx?: CanvasRenderingContext2D) => {
 //   return spriteCacheColor[key];
 // };
 
-const drawSpriteObj = (
-  sprite: Sprite,
-  x: number,
-  y: number,
-  scale?: number,
-  ctx?: CanvasRenderingContext2D
-) => {
-  scale = scale || 1;
-  ctx = ctx || getCtx();
-  const [image, sprX, sprY, sprW, sprH] = sprite;
-
-  ctx.drawImage(
-    image,
-    sprX,
-    sprY,
-    sprW,
-    sprH,
-    x,
-    y,
-    sprW * scale,
-    sprH * scale
-  );
-  ctx.restore();
-};
-
-// export const drawSprite = (
-//   spriteName: string,
+// const drawSpriteObj = (
+//   sprite: Sprite,
 //   x: number,
 //   y: number,
 //   scale?: number,
-//   color?: string,
 //   ctx?: CanvasRenderingContext2D
 // ) => {
 //   scale = scale || 1;
 //   ctx = ctx || getCtx();
-//   let spriteObj = getSprite(spriteName);
-//   if (!spriteObj) {
-//     throw new Error(`No sprite: "${spriteName}"`);
-//   }
+//   const [image, sprX, sprY, sprW, sprH] = sprite;
 
-//   ctx.save();
-//   if (color) {
-//     spriteObj = getSpriteFromCache(spriteName, color);
-//   }
-//   drawSpriteObj(spriteObj, x, y, scale, ctx);
+//   ctx.drawImage(
+//     image,
+//     sprX,
+//     sprY,
+//     sprW,
+//     sprH,
+//     x,
+//     y,
+//     sprW * scale,
+//     sprH * scale
+//   );
+//   ctx.restore();
 // };
+
+export const drawSprite = (
+  sprite: Sprite,
+  x: number,
+  y: number,
+  scale: number,
+  ctx: CanvasRenderingContext2D
+) => {
+  scale = scale || 1;
+
+  const drawable = getCachedDrawable(sprite);
+  if (!drawable) {
+    throw new Error('Drawable not found');
+  }
+
+  ctx.drawImage(drawable, x, y, sprite.width * scale, sprite.height * scale);
+};
 
 export const drawRect = (
   x: number,
@@ -118,10 +107,9 @@ export const drawRect = (
   w: number,
   h: number,
   color: string,
-  stroke?: boolean,
-  ctx?: CanvasRenderingContext2D
+  stroke: boolean,
+  ctx: CanvasRenderingContext2D
 ) => {
-  ctx = ctx || getCtx();
   ctx[stroke ? 'strokeStyle' : 'fillStyle'] = color;
   ctx[stroke ? 'strokeRect' : 'fillRect'](x, y, w, h);
 };
@@ -133,9 +121,8 @@ export const drawLine = (
   y2: number,
   color: string,
   width: number,
-  ctx?: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D
 ) => {
-  ctx = ctx ?? getCtx();
   ctx.strokeStyle = color;
   ctx.lineWidth = width;
   ctx.beginPath();
@@ -148,14 +135,13 @@ export const drawText = (
   text: string,
   x: number,
   y: number,
-  textParams?: DrawTextParams,
-  ctx?: CanvasRenderingContext2D
+  textParams: DrawTextParams,
+  ctx: CanvasRenderingContext2D
 ) => {
   const { font, size, color, align, strokeColor } = {
     ...DEFAULT_TEXT_PARAMS,
     ...(textParams || {}),
   };
-  ctx = ctx || getCtx();
   ctx.font = `${size}px ${font}`;
   ctx.textAlign = align as CanvasTextAlign;
   ctx.textBaseline = 'middle';
@@ -169,47 +155,15 @@ export const drawText = (
   ctx.fillText(text, x, y);
 };
 
-type ImageCollection = { [key: string]: HTMLImageElement };
-// canvas, x, y, w, h
-type Sprite = [HTMLCanvasElement, number, number, number, number];
-type SpriteCollection = { [key: string]: Sprite };
-type AnimCollection = { [key: string]: Animation };
-
-let model_canvas: HTMLCanvasElement | null = null;
-let model_images: ImageCollection | null = null;
-let model_sprites: SpriteCollection | null = null;
-const model_tilesetCounts: { [key: string]: number } = {};
-
-export const getTilesetCount = (imageName: string) => {
-  return model_tilesetCounts[imageName];
+export const getSpriteNameFromTile = (tile: CarcerMapTileTemplate) => {
+  return tile.tilesetName + '_' + tile.tileId;
 };
 
-const createRotatedImg = (
-  inputCanvas: HTMLCanvasElement
-): HTMLCanvasElement => {
-  const [canvas, ctx, width, height] = createCanvas(
-    inputCanvas.width,
-    inputCanvas.height
-  );
-  const x = width / 2;
-  const y = height / 2;
-  ctx.translate(x, y);
-  ctx.rotate(Math.PI / 2);
-  ctx.drawImage(inputCanvas, -x, -y);
-  return canvas;
-};
-
-const createFlippedImg = (
-  inputCanvas: HTMLCanvasElement
-): HTMLCanvasElement => {
-  const [canvas, ctx, width] = createCanvas(
-    inputCanvas.width,
-    inputCanvas.height
-  );
-  ctx.translate(width, 0);
-  ctx.scale(-1, 1);
-  ctx.drawImage(inputCanvas, 0, 0);
-  return canvas;
+export const getSpriteNameFromTileMetadata = (
+  spriteSheetName: string,
+  meta: TileMetadata
+) => {
+  return spriteSheetName + '_' + meta.id;
 };
 
 // const spriteToCanvas = (sprite: Sprite): HTMLCanvasElement => {
@@ -218,48 +172,6 @@ const createFlippedImg = (
 //   drawSprite(sprite, 0, 0, 1, '', ctx);
 //   return canvas;
 // };
-
-const loadSpritesheet = (
-  spriteMap: SpriteCollection,
-  image: HTMLImageElement,
-  spritePrefix: string,
-  spriteWidth: number,
-  spriteHeight: number
-) => {
-  const createSprite = (
-    name: string,
-    image: HTMLImageElement | HTMLCanvasElement,
-    x: number,
-    y: number,
-    w: number,
-    h: number
-  ) => {
-    const [canvas, ctx] = createCanvas(w, h);
-    ctx.drawImage(image, x, y, w, h, 0, 0, w, h);
-    return (spriteMap[name] = [canvas, 0, 0, w, h]);
-  };
-
-  const numSpritesX = image.width / spriteWidth;
-  const numSpritesY = image.height / spriteHeight;
-  let ctr = 0;
-  for (let i = 0; i < numSpritesY; i++) {
-    for (let j = 0; j < numSpritesX; j++) {
-      const spriteName = `${spritePrefix}_${i * numSpritesX + j}`;
-      ctr++;
-      const s = createSprite(
-        spriteName,
-        image,
-        j * spriteWidth,
-        i * spriteHeight,
-        spriteWidth,
-        spriteHeight
-      );
-      // const flipped = createFlippedImg(spriteToCanvas(s));
-      // createSprite(`${spriteName}_f`, flipped, 0, 0, spriteWidth, spriteHeight);
-    }
-  }
-  model_tilesetCounts[spritePrefix] = ctr;
-};
 
 // type ImageDef = [string, string, number, number];
 // export const loadImagesAndSprites = async (images: ImageDef[]) => {
@@ -285,52 +197,3 @@ const loadSpritesheet = (
 
 //   console.log(model_sprites);
 // };
-
-export const createCanvas = (
-  width: number,
-  height: number
-): [HTMLCanvasElement, CanvasRenderingContext2D, number, number] => {
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-  ctx.imageSmoothingEnabled = false;
-  return [canvas, ctx, width, height];
-};
-
-export const getCanvas = (): HTMLCanvasElement => {
-  if (model_canvas) {
-    return model_canvas as HTMLCanvasElement;
-  } else {
-    // const [canvas, ctx] = createCanvas(512, 512);
-    const [canvas, ctx] = createCanvas(576, 576);
-    canvas.id = 'canv';
-    ctx.lineWidth = 2;
-    // canvas.style.transform = 'scale(4)';
-    // (window as any).canvasDiv.appendChild(canvas);
-    // const setCanvasSize = () => {
-    //   const [canvas2, ctx2] = createCanvas(canvas.width, canvas.height);
-    //   ctx2.drawImage(canvas, 0, 0);
-    //   canvas.width = window.innerWidth;
-    //   canvas.height = window.innerHeight;
-    //   ctx.drawImage(canvas2, 0, 0);
-    // };
-    // window.addEventListener('resize', setCanvasSize);
-    // setCanvasSize();
-    model_canvas = canvas;
-    return canvas;
-  }
-};
-
-export const getCtx = (): CanvasRenderingContext2D => {
-  return getCanvas().getContext('2d') as CanvasRenderingContext2D;
-};
-
-export const setCanvas = (canvas: HTMLCanvasElement) => {
-  model_canvas = canvas;
-};
-
-// const getImage = (imageName: string): HTMLImageElement =>
-//   (model_images as ImageCollection)[imageName];
-// export const getSprite = (spriteName: string): Sprite =>
-//   (model_sprites as SpriteCollection)[spriteName];

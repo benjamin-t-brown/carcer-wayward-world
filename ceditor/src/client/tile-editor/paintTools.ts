@@ -26,7 +26,7 @@ export enum PaintActionType {
 interface PaintActionData {
   layer: 'floor' | 'top' | 'object';
   // paintTileId: number;
-  paintTileRef: CarcerMapTileTemplate;
+  paintTileRef: Partial<CarcerMapTileTemplate>;
   floorDrawBrush?: FloorBrushData[];
   startInd: number;
   endInd: number;
@@ -77,12 +77,12 @@ export const applyAction = (
     case PaintActionType.ERASE:
       break;
     case PaintActionType.FILL: {
-      const ind = getHoveredTileInd();
-      const fillIndsFloor = calculateFillIndsFloor(ind, mapData);
-      for (const ind of fillIndsFloor) {
-        mapData.tiles[ind] = structuredClone(action.data.paintTileRef);
-      }
-      break;
+      // const ind = getHoveredTileInd();
+      // const fillIndsFloor = calculateFillIndsFloor(ind, mapData);
+      // for (const ind of fillIndsFloor) {
+      //   mapData.tiles[ind] = structuredClone(action.data.paintTileRef);
+      // }
+      // break;
     }
     case PaintActionType.SELECT:
       break;
@@ -125,7 +125,7 @@ export const applyActionUpdate = (
               mapData.tiles[newInd] = structuredClone(bt.originalTile.ref);
             }
           } else {
-            mapData.tiles[ind] = structuredClone(action.data.paintTileRef);
+            Object.assign(mapData.tiles[ind], action.data.paintTileRef);
           }
         } else if (action.data.layer === 'object') {
           // mapData.objectList[ind] = {

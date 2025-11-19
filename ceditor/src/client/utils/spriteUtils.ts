@@ -93,3 +93,11 @@ export function getCachedDrawable(sprite: Sprite) {
     return spriteImageCache[cacheKey];
   }
 }
+
+export function getCachedImage(imagePath: string) {
+  imagePath = '/api/' + imagePath;
+  if (imageCache[imagePath]) {
+    return imageCache[imagePath];
+  }
+  console.log('NO CACHED IMAGE', imagePath, imageCache);
+}

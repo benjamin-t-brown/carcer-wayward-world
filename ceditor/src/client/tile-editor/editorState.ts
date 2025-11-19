@@ -1,5 +1,10 @@
 // import { setLoopMap } from 'render/loop';
-import { resetPanzoom } from './editorEvents';
+import { CarcerMapTemplate } from '../components/MapTemplateForm';
+import {
+  getScreenMouseCoords,
+  resetPanzoom,
+  screenCoordsToTileIndex,
+} from './editorEvents';
 // import { AppState, saveSettingsToLs } from 'state';
 // import { getMapDataOptional } from 'render/mapCache';
 // import {
@@ -31,24 +36,37 @@ import { PaintActionType } from './paintTools';
 // };
 
 export interface EditorState {
-  selectedTileIndex: number;
+  selectedTileIndexInTileset: number;
   selectedTilesetName: string;
   currentPaintAction: PaintActionType;
+  hoveredTileIndex: number;
+  hoveredTileData: {
+    x: number;
+    y: number;
+    ind: number;
+  };
 }
 
 let editorState: EditorState = {
-  selectedTileIndex: -1,
+  selectedTileIndexInTileset: -1,
   selectedTilesetName: '',
   currentPaintAction: PaintActionType.NONE,
+  hoveredTileIndex: -1,
+  hoveredTileData: {
+    x: -1,
+    y: -1,
+    ind: -1,
+  },
 };
 export const getEditorState = () => editorState;
 export const updateEditorState = (state: Partial<EditorState>) => {
-  editorState = { ...getEditorState(), ...state };
+  Object.assign(editorState, { ...getEditorState(), ...state });
+  (window as any).reRenderTileEditor();
 };
 
 export const getCurrentSelectedTileId = () => {
   // const appState: AppState = (window as any).appState;
-  const selectedTileIndex = getEditorState().selectedTileIndex ?? -1;
+  const selectedTileIndex = getEditorState().selectedTileIndexInTileset ?? -1;
   const selectedTilesetName = getEditorState().selectedTilesetName ?? '';
 
   if (!selectedTilesetName || selectedTileIndex === -1) {
@@ -93,9 +111,9 @@ export const setSelectedTileFromTileId = (tileId: number) => {
   // }
 };
 
-export const setSelectedMapTileIndex = (index: number) => {
-  updateEditorState({ selectedTileIndex: index });
-};
+// export const setSelectedMapTileIndex = (index: number) => {
+//   updateEditorState({ selectedTileIndexInTileset: index });
+// };
 
 // export const addLayerToRefTile = (tileInd: number, tileId: number) => {
 //   const appState: AppState = (window as any).appState;

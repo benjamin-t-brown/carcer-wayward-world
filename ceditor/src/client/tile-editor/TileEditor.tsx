@@ -6,6 +6,10 @@ import { initPanzoom, unInitPanzoom } from './editorEvents';
 import { loop } from './loop';
 import { EditorState, getEditorState } from './editorState';
 import { TilePicker } from './TilePicker';
+import { ToolsPanel } from './ToolsPanel';
+import { useReRender } from '../hooks/useReRender';
+import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
+import { useAssets } from '../contexts/AssetsContext';
 
 interface TileEditorProps {
   map?: CarcerMapTemplate;
@@ -18,6 +22,14 @@ export function TileEditor({ map, onMapUpdate }: TileEditorProps) {
   const mapCanvasRef = useRef<HTMLCanvasElement>(null);
   const mapRef = useRef<CarcerMapTemplate | undefined>(undefined);
   const editorState = useRef<EditorState | undefined>(undefined);
+  const { sprites } = useSDL2WAssets();
+  const { tilesets } = useAssets();
+  const reRender = useReRender();
+
+  console.log('re render tile editor');
+
+  // hack im lazy
+  (window as any).reRenderTileEditor = reRender;
 
   useEffect(() => {
     mapRef.current = map;
@@ -31,6 +43,8 @@ export function TileEditor({ map, onMapUpdate }: TileEditorProps) {
     initPanzoom({
       getCanvas: () => mapCanvasRef.current as HTMLCanvasElement,
       getMapData: () => mapRef.current as CarcerMapTemplate,
+      getEditorState: () => editorState.current as EditorState,
+      getTilesets: () => tilesets,
     });
     return () => {
       console.log('unInitPanzoom');
@@ -45,6 +59,8 @@ export function TileEditor({ map, onMapUpdate }: TileEditorProps) {
           getCanvas: () => mapCanvasRef.current as HTMLCanvasElement,
           getMapData: () => mapRef.current as CarcerMapTemplate,
           getEditorState: () => editorState.current as EditorState,
+          getSprites: () => sprites,
+          getTilesets: () => tilesets,
         },
         ts - prevTs
       );
@@ -88,7 +104,9 @@ export function TileEditor({ map, onMapUpdate }: TileEditorProps) {
         }}
       >
         <Minimap map={map} />
-        <ToolsPanel />
+        {editorState.current && (
+          <ToolsPanel editorState={editorState.current} />
+        )}
       </div>
 
       {/* Right Column: Map Canvas and Tile Picker */}
@@ -114,7 +132,9 @@ export function TileEditor({ map, onMapUpdate }: TileEditorProps) {
             height={map.height * map.spriteHeight}
           />
         </div>
-        <TilePicker />
+        {editorState.current && (
+          <TilePicker editorState={editorState.current} />
+        )}
       </div>
     </div>
   );
@@ -137,23 +157,6 @@ function Minimap({ map }: { map: CarcerMapTemplate }) {
         TODO: Minimap
         <br />
         Map: {map.label} ({map.width} × {map.height})
-      </div>
-    </div>
-  );
-}
-
-// Stub component for Tools Panel
-function ToolsPanel() {
-  return (
-    <div
-      style={{
-        flex: 1,
-        padding: '15px',
-        overflow: 'auto',
-      }}
-    >
-      <div style={{ color: '#858585', fontSize: '14px' }}>
-        TODO: Tools Panel - Add tool buttons here
       </div>
     </div>
   );

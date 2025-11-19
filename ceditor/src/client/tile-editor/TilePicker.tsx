@@ -1,64 +1,37 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAssets } from '../contexts/AssetsContext';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
-import { getEditorState, updateEditorState } from './editorState';
+import { EditorState, updateEditorState } from './editorState';
 import { OptionSelect } from '../elements/OptionSelect';
 import { TileEditModal } from '../components/TileEditModal';
 import { TileMetadata } from '../components/TilesetTemplateForm';
 import { Sprite } from '../elements/Sprite';
+import { getCachedImage } from '../utils/spriteUtils';
 
-export function TilePicker() {
+export function TilePicker(props: { editorState: EditorState }) {
   const { tilesets, setTilesets } = useAssets();
   const { pictures, sprites } = useSDL2WAssets();
-  const [selectedTilesetName, setSelectedTilesetName] = useState<string>('');
+  // const [selectedTilesetName, setSelectedTilesetName] = useState<string>('');
   const [scale, setScale] = useState<number>(1);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
-  const [editorState, setEditorState] = useState(getEditorState());
+  const { editorState } = props;
+  // const reRender = useReRender();
 
-  // Initialize with first tileset if available
+  const selectedTileset = tilesets.find(
+    (t) => t.name === editorState.selectedTilesetName
+  );
+
+  // auto select first tileset if no tileset is selected
   useEffect(() => {
-    if (tilesets.length > 0 && !selectedTilesetName) {
-      const firstTileset = tilesets[0];
-      setSelectedTilesetName(firstTileset.name);
-      // If no tile is selected, select the first tile of the first tileset
-      if (
-        editorState.selectedTileIndex === -1 ||
-        !editorState.selectedTilesetName
-      ) {
-        updateEditorState({
-          selectedTilesetName: firstTileset.name,
-          selectedTileIndex: 0,
-        });
-        setEditorState(getEditorState());
-      }
+    if (!editorState.selectedTilesetName) {
+      updateEditorState({
+        selectedTilesetName: tilesets[0].name,
+        selectedTileIndexInTileset: 0,
+      });
     }
-  }, [tilesets, selectedTilesetName, editorState]);
-
-  // Sync with editorState changes
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const currentState = getEditorState();
-      if (
-        currentState.selectedTilesetName !== editorState.selectedTilesetName ||
-        currentState.selectedTileIndex !== editorState.selectedTileIndex
-      ) {
-        setEditorState(currentState);
-        // Update selected tileset tab if needed
-        if (
-          currentState.selectedTilesetName &&
-          currentState.selectedTilesetName !== selectedTilesetName
-        ) {
-          setSelectedTilesetName(currentState.selectedTilesetName);
-        }
-      }
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, [editorState, selectedTilesetName]);
-
-  const selectedTileset = tilesets.find((t) => t.name === selectedTilesetName);
+  }, [editorState.selectedTilesetName]);
 
   // Draw tileset function
   const drawTileset = () => {
@@ -69,7 +42,7 @@ export function TilePicker() {
     if (!ctx) return;
 
     const img = imageRef.current;
-    const currentState = getEditorState();
+    const currentState = editorState;
     const { tileWidth, tileHeight, imageWidth, imageHeight } = selectedTileset;
 
     // Set canvas size to fit the scaled image
@@ -109,10 +82,10 @@ export function TilePicker() {
     // Highlight selected tile
     if (
       currentState.selectedTilesetName === selectedTileset.name &&
-      currentState.selectedTileIndex >= 0
+      currentState.selectedTileIndexInTileset >= 0
     ) {
       const tilesWide = Math.floor(imageWidth / tileWidth);
-      const tileIndex = currentState.selectedTileIndex;
+      const tileIndex = currentState.selectedTileIndexInTileset;
       const tileX = (tileIndex % tilesWide) * scaledTileWidth;
       const tileY = Math.floor(tileIndex / tilesWide) * scaledTileHeight;
 
@@ -142,30 +115,13 @@ export function TilePicker() {
       return;
     }
 
-    // Load image
-    const img = new Image();
-    img.src = `/api/${picturePath}`;
-    img.onload = () => {
-      imageRef.current = img;
-      drawTileset();
-    };
-    img.onerror = () => {
-      imageRef.current = null;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    };
-  }, [selectedTileset, pictures]);
-
-  // Redraw when editorState or scale changes
-  useEffect(() => {
-    if (imageRef.current) {
-      drawTileset();
+    const img = getCachedImage(picturePath);
+    if (!img) {
+      throw new Error('Image not found: ' + picturePath);
     }
-  }, [
-    editorState.selectedTileIndex,
-    editorState.selectedTilesetName,
-    selectedTileset,
-    scale,
-  ]);
+    imageRef.current = img;
+    drawTileset();
+  });
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!selectedTileset || !canvasRef.current) return;
@@ -188,22 +144,19 @@ export function TilePicker() {
       if (tileIndex >= 0 && tileIndex < maxTiles) {
         updateEditorState({
           selectedTilesetName: selectedTileset.name,
-          selectedTileIndex: tileIndex,
+          selectedTileIndexInTileset: tileIndex,
         });
-        setEditorState(getEditorState());
       }
     }
   };
 
   const handleTilesetSelect = (tilesetName: string) => {
-    setSelectedTilesetName(tilesetName);
     const tileset = tilesets.find((t) => t.name === tilesetName);
     if (tileset && tileset.tiles.length > 0) {
       updateEditorState({
         selectedTilesetName: tilesetName,
-        selectedTileIndex: 0,
+        selectedTileIndexInTileset: 0,
       });
-      setEditorState(getEditorState());
     }
   };
 
@@ -230,8 +183,8 @@ export function TilePicker() {
   };
 
   const selectedTile =
-    selectedTileset && editorState.selectedTileIndex >= 0
-      ? selectedTileset.tiles[editorState.selectedTileIndex]
+    selectedTileset && editorState.selectedTileIndexInTileset >= 0
+      ? selectedTileset.tiles[editorState.selectedTileIndexInTileset]
       : null;
 
   // Find the sprite for the selected tile
@@ -300,21 +253,21 @@ export function TilePicker() {
               display: 'flex',
               alignItems: 'center',
               borderBottom:
-                selectedTilesetName === tileset.name
+                editorState.selectedTilesetName === tileset.name
                   ? '2px solid #4ec9b0'
                   : '2px solid transparent',
               backgroundColor:
-                selectedTilesetName === tileset.name
+                editorState.selectedTilesetName === tileset.name
                   ? '#1e1e1e'
                   : 'transparent',
             }}
             onMouseEnter={(e) => {
-              if (selectedTilesetName !== tileset.name) {
+              if (editorState.selectedTilesetName !== tileset.name) {
                 e.currentTarget.style.backgroundColor = '#2d2d30';
               }
             }}
             onMouseLeave={(e) => {
-              if (selectedTilesetName !== tileset.name) {
+              if (editorState.selectedTilesetName !== tileset.name) {
                 e.currentTarget.style.backgroundColor = 'transparent';
               }
             }}
@@ -326,7 +279,9 @@ export function TilePicker() {
                 border: 'none',
                 backgroundColor: 'transparent',
                 color:
-                  selectedTilesetName === tileset.name ? '#ffffff' : '#858585',
+                  editorState.selectedTilesetName === tileset.name
+                    ? '#ffffff'
+                    : '#858585',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 fontSize: '13px',
@@ -349,7 +304,9 @@ export function TilePicker() {
                 border: 'none',
                 backgroundColor: 'transparent',
                 color:
-                  selectedTilesetName === tileset.name ? '#858585' : '#666666',
+                  editorState.selectedTilesetName === tileset.name
+                    ? '#858585'
+                    : '#666666',
                 cursor: 'pointer',
                 fontSize: '14px',
                 display: 'flex',
@@ -362,7 +319,9 @@ export function TilePicker() {
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.color =
-                  selectedTilesetName === tileset.name ? '#858585' : '#666666';
+                  editorState.selectedTilesetName === tileset.name
+                    ? '#858585'
+                    : '#666666';
               }}
               title="Edit tileset in new tab"
             >
@@ -536,7 +495,7 @@ export function TilePicker() {
       {isEditModalOpen && selectedTileset && selectedTile && (
         <TileEditModal
           tile={selectedTile}
-          tileIndex={editorState.selectedTileIndex}
+          tileIndex={editorState.selectedTileIndexInTileset}
           tilesetName={selectedTileset.name}
           onClose={() => setIsEditModalOpen(false)}
           onUpdate={handleUpdateTile}

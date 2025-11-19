@@ -13,10 +13,18 @@ import {
   getCurrentAction,
   onActionUpdate,
 } from './paintTools';
-import { drawLine, drawRect } from './draw';
+import {
+  drawLine,
+  drawRect,
+  drawSprite,
+  getSpriteNameFromTile,
+  getSpriteNameFromTileMetadata,
+} from './draw';
 import { CarcerMapTemplate } from '../components/MapTemplateForm';
-import { EditorState } from './editorState';
-import { getTransform } from './editorEvents';
+import { EditorState, getEditorState } from './editorState';
+import { getIsDraggingRight, getTransform } from './editorEvents';
+import { Sprite } from '../utils/assetLoader';
+import { TilesetTemplate } from '../components/TilesetTemplateForm';
 
 // let currentMap: MapResponse | null = null;
 // let isLooping = false;
@@ -31,34 +39,34 @@ const getColors = () => {
 const drawHighlightRect = (
   tileX: number,
   tileY: number,
-  tileSize: number,
+  tileWidth: number,
+  tileHeight: number,
   scale: number,
   ctx: CanvasRenderingContext2D
 ) => {
   drawRect(
     tileX,
     tileY,
-    tileSize * scale,
-    tileSize * scale,
+    tileWidth * scale,
+    tileHeight * scale,
     'rgba(67, 67, 255, 0.44)',
     false,
     ctx
   );
 };
 
-// const drawHighlightTile = (
-//   spriteName: string,
-//   tileX: number,
-//   tileY: number,
-//   scale: number,
-//   color: string,
-//   ctx: CanvasRenderingContext2D
-// ) => {
-//   ctx.save();
-//   ctx.globalAlpha = 0.65;
-//   drawSprite(spriteName, tileX, tileY, scale, color, ctx);
-//   ctx.restore();
-// };
+const drawHighlightTile = (
+  sprite: Sprite,
+  tileX: number,
+  tileY: number,
+  scale: number,
+  ctx: CanvasRenderingContext2D
+) => {
+  ctx.save();
+  ctx.globalAlpha = 0.65;
+  drawSprite(sprite, tileX, tileY, scale, ctx);
+  ctx.restore();
+};
 
 const findBrushTile = (
   startX: number,
@@ -83,130 +91,86 @@ const findBrushTile = (
   });
 };
 
-// const renderToolUi = (
-//   appState: AppState,
-//   mapData: MapResponse,
-//   ctx: CanvasRenderingContext2D
-// ) => {
-//   const currentMapPath = appState.currentMapPath;
-//   const hoveredTileInd = getHoveredTileInd();
-//   const data = calculateHoveredTile(currentMapPath);
-//   const hoveredTileX = data.x;
-//   const hoveredTileY = data.y;
-//   const currentAction = getCurrentAction();
-//   if (currentAction && currentMap) {
-//     onActionUpdate(currentAction, currentMap);
-//   }
+const renderToolUi = (
+  editorState: EditorState,
+  mapData: CarcerMapTemplate,
+  ctx: CanvasRenderingContext2D,
+  sprites: Sprite[],
+  tilesets: TilesetTemplate[]
+) => {
+  const currentPaintAction = editorState.currentPaintAction;
+  const paintTileIndexInTileset = editorState.selectedTileIndexInTileset;
+  const selectedTileset = tilesets.find(
+    (t) => t.name === editorState.selectedTilesetName
+  );
+  const paintTile = selectedTileset?.tiles[paintTileIndexInTileset];
+  const paintTileSprite = paintTile
+    ? sprites.find(
+        (s) =>
+          s.name ===
+          getSpriteNameFromTileMetadata(
+            selectedTileset?.spriteBase ?? '',
+            paintTile
+          )
+      )
+    : null;
+  const tileWidth = mapData.spriteWidth;
+  const tileHeight = mapData.spriteHeight;
+  // const floorDrawBrush = editorState.floorDrawBrush;
 
-//   const tileSize = getSpriteSize();
-//   const currentPaintAction = getCurrentPaintAction();
-//   const selectedTileId = getCurrentSelectedTileId();
-//   const selectedTileSprite = tileIdToSpriteName(selectedTileId);
-//   const [ind0, ind1] = getRectSelectTileInds();
-//   const dragSelectedInds = getIndsOfBoundingRect(
-//     ind0,
-//     ind1,
-//     currentMap?.width ?? 0
-//   );
-//   const floorDrawBrush = getTileFloorBrush();
+  const { x: transformX, y: transformY, scale } = getTransform();
+  ctx.save();
+  ctx.translate(transformX, transformY);
+  ctx.translate(
+    (ctx.canvas.width * scale) / 2,
+    (ctx.canvas.height * scale) / 2
+  );
+  ctx.translate(
+    -(mapData.width * tileWidth * scale) / 2,
+    -(mapData.height * tileHeight * scale) / 2
+  );
 
-//   const { x: transformX, y: transformY, scale } = getTransform();
-//   ctx.save();
-//   ctx.translate(transformX, transformY);
-//   ctx.translate(
-//     (ctx.canvas.width * scale) / 2,
-//     (ctx.canvas.height * scale) / 2
-//   );
-//   ctx.translate(
-//     -(mapData.width * tileSize * scale) / 2,
-//     -(mapData.height * tileSize * scale) / 2
-//   );
-
-//   if (currentPaintAction === PaintActionType.FILL) {
-//     for (const ind of getFillIndsFloor()) {
-//       if (selectedTileSprite) {
-//         const tileX = (ind % mapData.width) * tileSize * scale;
-//         const tileY = Math.floor(ind / mapData.width) * tileSize * scale;
-//         drawHighlightTile(
-//           selectedTileSprite,
-//           tileX,
-//           tileY,
-//           scale,
-//           getCurrentSelectedTileColor(),
-//           ctx
-//         );
-//         drawHighlightRect(tileX, tileY, tileSize, scale, ctx);
-//       }
-//     }
-//   } else if (currentPaintAction === PaintActionType.ERASE) {
-//     if (hoveredTileInd > -1) {
-//       const tileX = (hoveredTileInd % mapData.width) * tileSize * scale;
-//       const tileY =
-//         Math.floor(hoveredTileInd / mapData.width) * tileSize * scale;
-//       drawHighlightRect(tileX, tileY, tileSize, scale, ctx);
-//     }
-//   } else if (currentPaintAction === PaintActionType.DRAW) {
-//     if (getIsDraggingRight()) {
-//       for (const tileIndex of dragSelectedInds) {
-//         const tileX = (tileIndex % mapData.width) * tileSize * scale;
-//         const tileY = Math.floor(tileIndex / mapData.width) * tileSize * scale;
-//         drawHighlightRect(tileX, tileY, tileSize, scale, ctx);
-//       }
-//     } else {
-//       if (floorDrawBrush.length) {
-//         for (const bt of floorDrawBrush) {
-//           const newX = hoveredTileX + bt.xOffset;
-//           const newY = hoveredTileY + bt.yOffset;
-//           if (
-//             newX < 0 ||
-//             newX >= mapData.width ||
-//             newY < 0 ||
-//             newY >= mapData.height
-//           ) {
-//             continue;
-//           }
-//           const spriteName = tileIdToSpriteName(
-//             bt.originalTile.ref.arr[0] ?? 0
-//           );
-//           const tileX = newX * tileSize * scale;
-//           const tileY = newY * tileSize * scale;
-//           drawHighlightRect(tileX, tileY, tileSize, scale, ctx);
-//           if (spriteName) {
-//             drawHighlightTile(
-//               spriteName,
-//               tileX,
-//               tileY,
-//               scale,
-//               bt.originalTile.ref.color[0],
-//               ctx
-//             );
-//           }
-//         }
-//       } else {
-//         if (selectedTileSprite) {
-//           const tileX = hoveredTileX * tileSize * scale;
-//           const tileY = hoveredTileY * tileSize * scale;
-//           drawHighlightRect(tileX, tileY, tileSize, scale, ctx);
-//           drawHighlightTile(
-//             selectedTileSprite,
-//             tileX,
-//             tileY,
-//             scale,
-//             getCurrentSelectedTileColor(),
-//             ctx
-//           );
-//         }
-//       }
-//     }
-//   }
-//   ctx.restore();
-// };
+  if (currentPaintAction === PaintActionType.FILL) {
+    // for (const ind of getFillIndsFloor()) {
+    //   if (selectedTileSprite) {
+    //     const tileX = (ind % mapData.width) * tileSize * scale;
+    //     const tileY = Math.floor(ind / mapData.width) * tileSize * scale;
+    //     drawHighlightTile(
+    //       selectedTileSprite,
+    //       tileX,
+    //       tileY,
+    //       scale,
+    //       getCurrentSelectedTileColor(),
+    //       ctx
+    //     );
+    //     drawHighlightRect(tileX, tileY, tileSize, scale, ctx);
+    //   }
+    // }
+  } else if (currentPaintAction === PaintActionType.ERASE) {
+    // if (hoveredTileInd > -1) {
+    //   const tileX = (hoveredTileInd % mapData.width) * tileSize * scale;
+    //   const tileY =
+    //     Math.floor(hoveredTileInd / mapData.width) * tileSize * scale;
+    //   drawHighlightRect(tileX, tileY, tileSize, scale, ctx);
+    // }
+  } else if (currentPaintAction === PaintActionType.DRAW) {
+    if (paintTileSprite) {
+      const tileX = editorState.hoveredTileData.x * tileWidth * scale;
+      const tileY = editorState.hoveredTileData.y * tileHeight * scale;
+      drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+      drawHighlightTile(paintTileSprite, tileX, tileY, scale, ctx);
+    }
+  }
+  ctx.restore();
+};
 
 export const loop = (
   mapDataInterface: {
     getCanvas: () => HTMLCanvasElement;
     getMapData: () => CarcerMapTemplate;
     getEditorState: () => EditorState;
+    getSprites: () => Sprite[];
+    getTilesets: () => TilesetTemplate[];
   },
   ms: number
 ) => {
@@ -228,6 +192,14 @@ export const loop = (
     y: data.y,
     ind: data.ind,
   });
+
+  // breaking convention here to be
+  getEditorState().hoveredTileIndex = data.ind;
+  getEditorState().hoveredTileData = {
+    x: data.x,
+    y: data.y,
+    ind: data.ind,
+  };
   const currentAction = getCurrentAction();
   if (currentAction && currentMap) {
     onActionUpdate(currentAction, currentMap);
@@ -286,7 +258,7 @@ export const loop = (
       currentMap.width * mapDataInterface.getMapData().spriteWidth,
       currentMap.height * mapDataInterface.getMapData().spriteHeight,
       'black',
-      undefined,
+      false,
       ctx
     );
     ctx.restore();
@@ -324,12 +296,19 @@ export const loop = (
         for (let x = 0; x < currentMap.width; x++) {
           const tileIndex = y * currentMap.width + x;
           const refTile = currentMap.tiles[tileIndex];
-          const tileId = refTile.tileId ?? 0;
-          if (tileId) {
+          const tileId = refTile.tileId ?? -1;
+          if (tileId > -1) {
             const tileX =
               x * mapDataInterface.getMapData().spriteWidth * newScale;
             const tileY =
               y * mapDataInterface.getMapData().spriteHeight * newScale;
+            const spriteName = getSpriteNameFromTile(refTile);
+            const sprite = mapDataInterface
+              .getSprites()
+              .find((s) => s.name === spriteName);
+            if (sprite) {
+              drawSprite(sprite, tileX, tileY, newScale, ctx);
+            }
           }
 
           if (i === 0) {
@@ -338,10 +317,10 @@ export const loop = (
             const y1 = y * mapDataInterface.getMapData().spriteHeight * scale;
             const x2 = x1 + mapDataInterface.getMapData().spriteWidth * scale;
             const y2 = y1 + mapDataInterface.getMapData().spriteHeight * scale;
-            const selectedMapTileIndex =
-              mapDataInterface.getEditorState().selectedTileIndex;
+            const hoveredMapTileIndex =
+              mapDataInterface.getEditorState().hoveredTileIndex;
             let color = 'rgba(255, 255, 255, 0.25)';
-            if (tileIndex === selectedMapTileIndex) {
+            if (tileIndex === hoveredMapTileIndex) {
               color = 'rgba(100, 100, 255, 0.5)';
               drawLine(x1, y1, x2, y1, color, 2, ctx);
               drawLine(x1, y1, x1, y2, color, 2, ctx);
@@ -357,7 +336,13 @@ export const loop = (
       ctx.restore();
     }
 
-    // renderToolUi(appState, currentMap, ctx);
+    renderToolUi(
+      mapDataInterface.getEditorState(),
+      currentMap,
+      ctx,
+      mapDataInterface.getSprites(),
+      mapDataInterface.getTilesets()
+    );
   }
 
   // drawRect(
