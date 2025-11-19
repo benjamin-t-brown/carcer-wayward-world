@@ -7,6 +7,12 @@
     "expandedProjectPaths": [
     ],
     "fileStates": {
+        "#actors0": {
+            "scaleInDock": 1.5
+        },
+        "#terrain0": {
+            "scaleInDock": 1
+        }
     },
     "last.imagePath": "C:/progs/carcer-wayward-world/src/assets/img/game",
     "map.tileWidth": 28,

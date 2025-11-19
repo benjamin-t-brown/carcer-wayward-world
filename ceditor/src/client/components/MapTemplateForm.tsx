@@ -1,12 +1,44 @@
 import { TextInput } from '../elements/TextInput';
 import { NumberInput } from '../elements/NumberInput';
+import { TileStepSound } from './TilesetTemplateForm';
 
 export interface CarcerMapTemplate {
   name: string;
   label: string;
   width: number;
   height: number;
-  tiles?: any[]; // Will be implemented later
+  spriteWidth: number;
+  spriteHeight: number;
+  tiles: CarcerMapTileTemplate[];
+}
+
+export interface TileOverrides {
+  isWalkableOverride?: boolean;
+  isSeeThroughOverride?: boolean;
+  isContainerOverride?: boolean;
+}
+
+export interface TileEventTrigger {
+  eventId: string;
+  doesRequireNonCombatMode?: boolean;
+}
+
+export interface TileLightSource {
+  angle: number;
+  intensity: number;
+  radius: number;
+}
+
+export interface CarcerMapTileTemplate {
+  characters: string[];
+  items: string[];
+  tileOverrides?: TileOverrides;
+  lightSource?: TileLightSource;
+  eventTrigger?: TileEventTrigger;
+  tilesetName: string;
+  tileId: number;
+  x: number;
+  y: number;
 }
 
 interface MapTemplateFormProps {
@@ -22,14 +54,7 @@ export function createDefaultMap(): CarcerMapTemplate {
   // Generate tiles for all positions in the map
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      tiles.push({
-        tilesetName: '',
-        tileId: 0,
-        x: x,
-        y: y,
-        characters: [],
-        items: [],
-      });
+      tiles.push(createDefaultCarcerMapTile());
     }
   }
   
@@ -38,7 +63,20 @@ export function createDefaultMap(): CarcerMapTemplate {
     label: '',
     width: width,
     height: height,
+    spriteWidth: 28,
+    spriteHeight: 32,
     tiles: tiles,
+  };
+}
+
+export function createDefaultCarcerMapTile(): CarcerMapTileTemplate {
+  return {
+    characters: [],
+    items: [],
+    tilesetName: '',
+    tileId: 0,
+    x: 0,
+    y: 0,
   };
 }
 
