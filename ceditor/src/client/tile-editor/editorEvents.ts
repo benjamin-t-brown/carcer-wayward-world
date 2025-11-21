@@ -139,12 +139,14 @@ export const initPanzoom = (mapDataInterface: {
         return;
       }
       
-      // SELECT action just sets the selected tile, doesn't create a paint action
+      // SELECT action: start dragging to move tile data
       if (currentPaintAction === PaintActionType.SELECT) {
         const hoveredTileIndex = mapDataInterface.getEditorState().hoveredTileIndex;
         if (hoveredTileIndex >= 0) {
           updateEditorState({
             selectedTileInd: hoveredTileIndex,
+            selectDragSourceTileIndex: hoveredTileIndex,
+            isSelectDragging: true,
           });
         }
         return;
@@ -219,6 +221,35 @@ export const initPanzoom = (mapDataInterface: {
       }
       updateEditorState({
         selectedTileInd: mapDataInterface.getEditorState().hoveredTileIndex,
+      });
+    }
+    // Handle SELECT drag completion
+    const editorState = mapDataInterface.getEditorState();
+    if (editorState.isSelectDragging && ev.button === 0) {
+      const sourceTileIndex = editorState.selectDragSourceTileIndex;
+      const destTileIndex = editorState.hoveredTileIndex;
+      
+      // Only create action if dragging to a different tile
+      if (sourceTileIndex >= 0 && destTileIndex >= 0 && sourceTileIndex !== destTileIndex) {
+        const action = createPaintAction(PaintActionType.SELECT);
+        action.data.startInd = sourceTileIndex;
+        action.data.endInd = destTileIndex;
+        action.data.tileInds = [sourceTileIndex, destTileIndex];
+        
+        const mapData = mapDataInterface.getMapData();
+        if (mapData) {
+          // Store previous state of both tiles for undo
+          action.data.prevRefData.push(structuredClone(mapData.tiles[sourceTileIndex]));
+          action.data.prevRefData.push(structuredClone(mapData.tiles[destTileIndex]));
+          
+          onActionComplete(action, mapData, editorState);
+        }
+      }
+      
+      updateEditorState({
+        isSelectDragging: false,
+        selectDragSourceTileIndex: -1,
+        selectedTileInd: destTileIndex >= 0 ? destTileIndex : editorState.selectedTileInd,
       });
     }
     if (mapEditorEventState.isDraggingRight) {

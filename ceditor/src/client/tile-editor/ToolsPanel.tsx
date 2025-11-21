@@ -64,15 +64,15 @@ export function ToolsPanel({
       </div>
       <div
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '10px',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '8px',
         }}
       >
         <button
           onClick={handleDrawClick}
           style={{
-            padding: '10px',
+            padding: '6px 10px',
             border: '1px solid #3e3e42',
             backgroundColor:
               currentPaintAction === PaintActionType.DRAW ? '#4ec9b0' : '#3e3e42',
@@ -85,6 +85,7 @@ export function ToolsPanel({
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'background-color 0.2s, color 0.2s',
+            minWidth: '40px',
           }}
           onMouseEnter={(e) => {
             if (currentPaintAction !== PaintActionType.DRAW) {
@@ -103,7 +104,7 @@ export function ToolsPanel({
         <button
           onClick={handleEraseClick}
           style={{
-            padding: '10px',
+            padding: '6px 10px',
             border: '1px solid #3e3e42',
             backgroundColor:
               currentPaintAction === PaintActionType.ERASE ? '#4ec9b0' : '#3e3e42',
@@ -116,6 +117,7 @@ export function ToolsPanel({
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'background-color 0.2s, color 0.2s',
+            minWidth: '40px',
           }}
           onMouseEnter={(e) => {
             if (currentPaintAction !== PaintActionType.ERASE) {
@@ -134,7 +136,7 @@ export function ToolsPanel({
         <button
           onClick={handleFillClick}
           style={{
-            padding: '10px',
+            padding: '6px 10px',
             border: '1px solid #3e3e42',
             backgroundColor:
               currentPaintAction === PaintActionType.FILL ? '#4ec9b0' : '#3e3e42',
@@ -147,6 +149,7 @@ export function ToolsPanel({
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'background-color 0.2s, color 0.2s',
+            minWidth: '40px',
           }}
           onMouseEnter={(e) => {
             if (currentPaintAction !== PaintActionType.FILL) {
@@ -165,7 +168,7 @@ export function ToolsPanel({
         <button
           onClick={handleSelectClick}
           style={{
-            padding: '10px',
+            padding: '6px 10px',
             border: '1px solid #3e3e42',
             backgroundColor:
               currentPaintAction === PaintActionType.SELECT ? '#4ec9b0' : '#3e3e42',
@@ -178,6 +181,7 @@ export function ToolsPanel({
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'background-color 0.2s, color 0.2s',
+            minWidth: '40px',
           }}
           onMouseEnter={(e) => {
             if (currentPaintAction !== PaintActionType.SELECT) {

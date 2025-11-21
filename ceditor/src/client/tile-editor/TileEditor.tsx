@@ -141,7 +141,7 @@ export function TileEditor({ map, onMapUpdate }: TileEditorProps) {
           overflow: 'hidden',
         }}
       >
-        <Minimap map={map} />
+        {/* <Minimap map={map} /> */}
         {editorState.current && (
           <ToolsPanel
             editorState={editorState.current}

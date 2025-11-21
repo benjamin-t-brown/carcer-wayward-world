@@ -33,7 +33,7 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
     case '/':
       return <Home assetTypes={assetTypes} />;
     case '/editor/itemTemplates':
-      return <ItemTemplates />;
+      return <ItemTemplates routeParams={routeParams} />;
     case '/editor/characterTemplates':
       return <CharacterTemplates routeParams={routeParams} />;
     case '/editor/tilesetTemplates':

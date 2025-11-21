@@ -56,6 +56,8 @@ export interface EditorState {
   rectCloneBrushTiles: FloorBrushData[];
   undoHistory: PaintAction[];
   undoIndex: number;
+  selectDragSourceTileIndex: number;
+  isSelectDragging: boolean;
 }
 
 const editorState: EditorState = {
@@ -75,6 +77,8 @@ const editorState: EditorState = {
   rectCloneBrushTiles: [],
   undoHistory: [],
   undoIndex: -1,
+  selectDragSourceTileIndex: -1,
+  isSelectDragging: false,
 };
 export const getEditorState = () => editorState;
 export const updateEditorState = (state: Partial<EditorState>) => {

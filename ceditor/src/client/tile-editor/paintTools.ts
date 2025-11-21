@@ -20,9 +20,9 @@ export enum PaintActionType {
   ERASE = 'ERASE',
   FILL = 'FILL',
   SELECT = 'SELECT',
-  MOVE = 'MOVE',
-  COPY = 'COPY',
-  PASTE = 'PASTE',
+  // MOVE = 'MOVE',
+  // COPY = 'COPY',
+  // PASTE = 'PASTE',
   REF_CHANGE = 'REF_CHANGE',
 }
 
@@ -99,13 +99,51 @@ export const applyAction = (
       }
       break;
     }
-    case PaintActionType.SELECT:
+    case PaintActionType.SELECT: {
+      // Move tile data (characters, items, overrides) from source to destination
+      if (action.data.tileInds.length >= 2 && action.data.prevRefData.length >= 2) {
+        const sourceTileIndex = action.data.startInd;
+        const destTileIndex = action.data.endInd;
+        
+        if (sourceTileIndex >= 0 && destTileIndex >= 0 && sourceTileIndex !== destTileIndex) {
+          const sourceTile = mapData.tiles[sourceTileIndex];
+          const destTile = mapData.tiles[destTileIndex];
+          
+          // Move characters, items, and overrides from source to destination
+          // Merge with existing data on destination
+          destTile.characters = [...(destTile.characters || []), ...(sourceTile.characters || [])];
+          destTile.items = [...(destTile.items || []), ...(sourceTile.items || [])];
+          
+          // Move overrides (destination takes precedence if both exist)
+          if (sourceTile.tileOverrides) {
+            destTile.tileOverrides = { ...sourceTile.tileOverrides, ...(destTile.tileOverrides || {}) };
+          }
+          
+          // Move light source (destination takes precedence)
+          if (sourceTile.lightSource && !destTile.lightSource) {
+            destTile.lightSource = sourceTile.lightSource;
+          }
+          
+          // Move event trigger (destination takes precedence)
+          if (sourceTile.eventTrigger && !destTile.eventTrigger) {
+            destTile.eventTrigger = sourceTile.eventTrigger;
+          }
+          
+          // Clear the source tile's movable data (keep base tile appearance)
+          sourceTile.characters = [];
+          sourceTile.items = [];
+          delete sourceTile.tileOverrides;
+          delete sourceTile.lightSource;
+          delete sourceTile.eventTrigger;
+        }
+      }
       break;
-    case PaintActionType.MOVE:
-      break;
-    case PaintActionType.COPY:
-      break;
-    case PaintActionType.PASTE:
+    }
+    // case PaintActionType.MOVE:
+    //   break;
+    // case PaintActionType.COPY:
+    //   break;
+    // case PaintActionType.PASTE:
     case PaintActionType.REF_CHANGE:
       break;
   }
@@ -154,11 +192,11 @@ export const applyActionUpdate = (
       break;
     case PaintActionType.SELECT:
       break;
-    case PaintActionType.MOVE:
-      break;
-    case PaintActionType.COPY:
-      break;
-    case PaintActionType.PASTE:
+    // case PaintActionType.MOVE:
+    //   break;
+    // case PaintActionType.COPY:
+    //   break;
+    // case PaintActionType.PASTE:
     case PaintActionType.REF_CHANGE:
       break;
   }
@@ -200,13 +238,30 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
       }
       break;
     }
-    case PaintActionType.SELECT:
+    case PaintActionType.SELECT: {
+      // Restore both source and destination tiles to their previous state
+      if (action.data.tileInds.length >= 2 && action.data.prevRefData.length >= 2) {
+        const sourceTileIndex = action.data.startInd;
+        const destTileIndex = action.data.endInd;
+        
+        if (sourceTileIndex >= 0 && destTileIndex >= 0) {
+          // Restore source tile (index 0 in prevRefData)
+          if (0 < action.data.prevRefData.length) {
+            mapData.tiles[sourceTileIndex] = structuredClone(action.data.prevRefData[0]);
+          }
+          // Restore destination tile (index 1 in prevRefData)
+          if (1 < action.data.prevRefData.length) {
+            mapData.tiles[destTileIndex] = structuredClone(action.data.prevRefData[1]);
+          }
+        }
+      }
       break;
-    case PaintActionType.MOVE:
-      break;
-    case PaintActionType.COPY:
-      break;
-    case PaintActionType.PASTE:
+    }
+    // case PaintActionType.MOVE:
+    //   break;
+    // case PaintActionType.COPY:
+    //   break;
+    // case PaintActionType.PASTE:
     case PaintActionType.REF_CHANGE:
       break;
   }

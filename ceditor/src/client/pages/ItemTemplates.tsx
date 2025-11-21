@@ -18,7 +18,11 @@ interface NotificationState {
   id: number;
 }
 
-export function ItemTemplates() {
+interface ItemTemplatesProps {
+  routeParams?: URLSearchParams;
+}
+
+export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
   const {
     sprites,
     animations: _animations,
@@ -118,6 +122,21 @@ export function ItemTemplates() {
       }
     }, 100);
   };
+
+  // Check for item query parameter on mount
+  useEffect(() => {
+    if (routeParams) {
+      const itemName = routeParams.get('item');
+      if (itemName) {
+        const index = items.findIndex((i) => i.name === itemName);
+        if (index >= 0) {
+          setEditItemIndex(index);
+          scrollToTopOfForm();
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, routeParams]);
 
   const updateItem = (item: ItemTemplate) => {
     if (editItemIndex >= 0) {
