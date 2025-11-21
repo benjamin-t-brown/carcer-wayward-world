@@ -1,5 +1,8 @@
 // import { setLoopMap } from 'render/loop';
-import { CarcerMapTemplate } from '../components/MapTemplateForm';
+import {
+  CarcerMapTemplate,
+  CarcerMapTileTemplate,
+} from '../components/MapTemplateForm';
 import {
   getScreenMouseCoords,
   resetPanzoom,
@@ -12,6 +15,7 @@ import {
 //   tileIndexAndTilesetNameToTileId,
 // } from 'render/tileset';
 import { PaintActionType } from './paintTools';
+import { FloorBrushData } from './renderState';
 // import { getColors } from 'style';
 
 // export const setCurrentMap = async (
@@ -39,30 +43,44 @@ export interface EditorState {
   selectedTileIndexInTileset: number;
   selectedTilesetName: string;
   currentPaintAction: PaintActionType;
+  fillIndsFloor: number[];
+  selectedTileInd: number;
   hoveredTileIndex: number;
   hoveredTileData: {
     x: number;
     y: number;
     ind: number;
   };
+  rectSelectTileIndStart: number;
+  rectSelectTileIndEnd: number;
+  rectCloneBrushTiles: FloorBrushData[];
 }
 
-let editorState: EditorState = {
+const editorState: EditorState = {
   selectedTileIndexInTileset: -1,
   selectedTilesetName: '',
-  currentPaintAction: PaintActionType.NONE,
+  currentPaintAction: '' as any,
+  fillIndsFloor: [],
+  selectedTileInd: -1,
   hoveredTileIndex: -1,
   hoveredTileData: {
     x: -1,
     y: -1,
     ind: -1,
   },
+  rectSelectTileIndStart: -1,
+  rectSelectTileIndEnd: -1,
+  rectCloneBrushTiles: [],
 };
 export const getEditorState = () => editorState;
 export const updateEditorState = (state: Partial<EditorState>) => {
   Object.assign(editorState, { ...getEditorState(), ...state });
   (window as any).reRenderTileEditor();
 };
+export const updateEditorStateNoReRender = (state: Partial<EditorState>) => {
+  Object.assign(editorState, { ...getEditorState(), ...state });
+};
+(window as any).editorState = editorState;
 
 export const getCurrentSelectedTileId = () => {
   // const appState: AppState = (window as any).appState;
@@ -92,7 +110,7 @@ export const getCurrentPaintAction = () => {
   return getEditorState().currentPaintAction;
 };
 
-export const setSelectedTileFromTileId = (tileId: number) => {
+export const setSelectedTileFromTileId = (tileId: number, tilesetName: string) => {
   // updateEditorState({ selectedTileIndex: tileId });
   // const spriteName = tileIdToSpriteName(tileId);
   // if (spriteName) {

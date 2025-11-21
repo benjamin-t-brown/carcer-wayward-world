@@ -1,8 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { TextInput } from '../elements/TextInput';
 import { NumberInput } from '../elements/NumberInput';
 import { Button } from '../elements/Button';
-import { CarcerMapTemplate } from './MapTemplateForm';
+import {
+  CarcerMapTemplate,
+  CarcerMapTileTemplate,
+  createDefaultCarcerMapTile,
+} from './MapTemplateForm';
 
 interface EditMapModalProps {
   isOpen: boolean;
@@ -34,10 +38,65 @@ export function EditMapModal({
 
   const handleConfirm = () => {
     // Basic validation
-    if (!formData.name || !formData.label || formData.width <= 0 || formData.height <= 0) {
+    if (
+      !formData.name ||
+      !formData.label ||
+      formData.width <= 0 ||
+      formData.height <= 0
+    ) {
       return;
     }
-    onConfirm(formData);
+
+    // Handle width/height changes and update tiles accordingly
+    const handleDimensionChange = (
+      newWidth: number,
+      newHeight: number,
+      currentData: CarcerMapTemplate
+    ): CarcerMapTemplate => {
+      // Create a set of existing tile positions for quick lookup
+      const existingTiles = new Map<string, CarcerMapTileTemplate>();
+      for (let i = 0; i < currentData.height; i++) {
+        for (let j = 0; j < currentData.width; j++) {
+          const key = `${j},${i}`;
+          existingTiles.set(key, currentData.tiles[i * currentData.width + j]);
+        }
+      }
+
+      console.log(
+        'existingTiles',
+        existingTiles,
+        currentData.width,
+        currentData.height
+      );
+      console.log('next tiles', newWidth, newHeight);
+
+      const nextTiles: CarcerMapTileTemplate[] = [];
+
+      // add tiles that don't exist
+      for (let i = 0; i < newHeight; i++) {
+        for (let j = 0; j < newWidth; j++) {
+          const key = `${j},${i}`;
+          const existingTile = existingTiles.get(key);
+          if (!existingTile) {
+            const newTile = createDefaultCarcerMapTile();
+            newTile.x = j;
+            newTile.y = i;
+            nextTiles.push(newTile);
+          } else {
+            nextTiles.push(existingTile);
+          }
+        }
+      }
+
+      return {
+        ...currentData,
+        width: newWidth,
+        height: newHeight,
+        tiles: nextTiles,
+      };
+    };
+
+    onConfirm(handleDimensionChange(formData.width, formData.height, formData));
   };
 
   return (
@@ -99,7 +158,11 @@ export function EditMapModal({
             name="width"
             label="Width"
             value={formData.width}
-            onChange={(value) => setFormData({ ...formData, width: value })}
+            onChange={(value) => {
+              if (formData) {
+                setFormData({ ...formData, width: value });
+              }
+            }}
             min={1}
             required
           />
@@ -108,7 +171,11 @@ export function EditMapModal({
             name="height"
             label="Height"
             value={formData.height}
-            onChange={(value) => setFormData({ ...formData, height: value })}
+            onChange={(value) => {
+              if (formData) {
+                setFormData({ ...formData, height: value });
+              }
+            }}
             min={1}
             required
           />
@@ -136,9 +203,6 @@ export function EditMapModal({
             )}
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <Button variant="secondary" onClick={onCancel}>
-              Cancel
-            </Button>
             <Button
               variant="primary"
               onClick={handleConfirm}
@@ -151,10 +215,12 @@ export function EditMapModal({
             >
               Save
             </Button>
+            <Button variant="secondary" onClick={onCancel}>
+              Cancel
+            </Button>
           </div>
         </div>
       </div>
     </div>
   );
 }
-

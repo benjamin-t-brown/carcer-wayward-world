@@ -89,7 +89,7 @@ export function TileEditModal({
             marginTop: 0,
           }}
         >
-          Edit Tile #{tileIndex}
+          Edit Tile Template #{tileIndex}
         </h2>
 
         {/* Sprite Name */}
@@ -266,7 +266,7 @@ export function TileEditModal({
           }}
         >
           <Button variant="primary" onClick={onClose}>
-            Close
+            Confirm
           </Button>
         </div>
       </div>

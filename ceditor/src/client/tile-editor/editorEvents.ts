@@ -1,30 +1,11 @@
-// import { isAnyModalVisible } from 'components/NotifyModal';
 import {
   PaintActionType,
   createPaintAction,
   getCurrentAction,
   onActionComplete,
+  onTileHoverIndChange,
   setCurrentAction,
 } from './paintTools';
-// import {
-//   getCurrentMapData,
-//   getCurrentPaintAction,
-//   getCurrentSelectedTileColor,
-//   getCurrentSelectedTileId,
-//   setCurrentPaintAction,
-//   setSelectedMapTileIndex,
-//   setSelectedTileFromTileId,
-// } from 'stateHelpers';
-// import { getIndsOfBoundingRect } from 'utils';
-import {
-  getHoveredTileInd,
-  getRectSelectTileInds,
-  getTileFloorBrush,
-  setFillIndsFloor,
-  setRectSelectTileIndEnd,
-  setRectSelectTileIndStart,
-  setTileFloorBrush,
-} from './renderState';
 import { calculateFillIndsFloor } from './fill';
 import { CarcerMapTemplate } from '../components/MapTemplateForm';
 import {
@@ -32,6 +13,8 @@ import {
   getCurrentPaintAction,
   getCurrentSelectedTileId,
   setCurrentPaintAction,
+  updateEditorState,
+  updateEditorStateNoReRender,
 } from './editorState';
 import { TilesetTemplate } from '../components/TilesetTemplateForm';
 // import { saveSettingsToLs } from 'state';
@@ -91,27 +74,6 @@ const shouldPreventDefault = (ev: KeyboardEvent) => {
   return ev.ctrlKey && (ev.key === 's' || ev.key === 'e');
 };
 
-export const onTileHoverIndChange = (
-  mapData: CarcerMapTemplate,
-  prevHoverInd: number,
-  nextHoverInd: number
-) => {
-  if (nextHoverInd !== -1) {
-    const currentPaintAction = getCurrentPaintAction();
-    if (mapData && currentPaintAction === PaintActionType.FILL) {
-      setFillIndsFloor(calculateFillIndsFloor(nextHoverInd, mapData));
-    } else {
-      setFillIndsFloor([]);
-    }
-  } else {
-    setFillIndsFloor([]);
-  }
-
-  if (getIsDraggingRight()) {
-    setRectSelectTileIndEnd(nextHoverInd);
-  }
-};
-
 export const initPanzoom = (mapDataInterface: {
   getCanvas: () => HTMLCanvasElement;
   getMapData: () => CarcerMapTemplate;
@@ -135,9 +97,14 @@ export const initPanzoom = (mapDataInterface: {
         setCurrentPaintAction(PaintActionType.FILL);
         // need to wait for a state update or currentPaintAction is not set
         setTimeout(() => {
-          const ind = getHoveredTileInd();
+          const ind = mapDataInterface.getEditorState().hoveredTileIndex;
           if (ind > -1) {
-            onTileHoverIndChange(mapDataInterface.getMapData(), ind, ind);
+            onTileHoverIndChange(
+              mapDataInterface.getMapData(),
+              mapDataInterface.getEditorState().currentPaintAction,
+              -1,
+              ind
+            );
           }
         }, 33);
       } else if (ev.key === 'e') {
@@ -181,7 +148,7 @@ export const initPanzoom = (mapDataInterface: {
         tilesetName: mapDataInterface.getEditorState().selectedTilesetName,
         tileId: mapDataInterface.getEditorState().selectedTileIndexInTileset,
       };
-      const floorBrush = getTileFloorBrush();
+      const floorBrush = mapDataInterface.getEditorState().rectCloneBrushTiles;
       if (floorBrush.length) {
         action.data.floorDrawBrush = floorBrush.slice();
       }
@@ -195,8 +162,12 @@ export const initPanzoom = (mapDataInterface: {
     ) {
       mapEditorEventState.isDraggingRight = true;
 
-      setRectSelectTileIndStart(getHoveredTileInd());
-      setRectSelectTileIndEnd(getHoveredTileInd());
+      updateEditorStateNoReRender({
+        rectSelectTileIndStart:
+          mapDataInterface.getEditorState().hoveredTileIndex,
+        rectSelectTileIndEnd:
+          mapDataInterface.getEditorState().hoveredTileIndex,
+      });
       // setSelectedMapTileIndex(getHoveredTileInd());
     }
   };
@@ -232,51 +203,73 @@ export const initPanzoom = (mapDataInterface: {
       const currentAction = getCurrentAction();
       const mapData = mapDataInterface.getMapData();
       if (currentAction && mapData) {
-        onActionComplete(currentAction, mapData);
+        onActionComplete(
+          currentAction,
+          mapData,
+          mapDataInterface.getEditorState()
+        );
       }
-      // setSelectedMapTileIndex(getHoveredTileInd());
+      updateEditorState({
+        selectedTileInd: mapDataInterface.getEditorState().hoveredTileIndex,
+      });
     }
     if (mapEditorEventState.isDraggingRight) {
-      // mapEditorEventState.isDraggingRight = false;
+      mapEditorEventState.isDraggingRight = false;
       // const mapData = getCurrentMapData();
       // if (!mapData) {
       //   setTileFloorBrush([]);
       //   return;
       // }
-      // const [ind0, ind1] = getRectSelectTileInds();
-      // const dragSelectedInds = getIndsOfBoundingRect(
-      //   ind0,
-      //   ind1,
-      //   mapData?.width ?? 0
-      // );
-      // if (dragSelectedInds.length === 0) {
-      //   setTileFloorBrush([]);
-      //   setSelectedMapTileIndex(getHoveredTileInd());
-      //   return;
-      // }
-      // const nextRef = mapData.ref[dragSelectedInds[0]];
-      // if (dragSelectedInds.length === 1 && nextRef) {
-      //   setTileFloorBrush([]);
-      //   setSelectedTileFromTileId(
-      //     mapData.ref[dragSelectedInds[0]]?.arr?.[0] ?? 0
-      //   );
-      // }
-      // const [topLeftX, topLeftY] = [
-      //   ind0 % mapData.width,
-      //   Math.floor(ind0 / mapData.width),
-      // ];
-      // const brush = dragSelectedInds.map((ind) => {
-      //   const [x, y] = [ind % mapData.width, Math.floor(ind / mapData.width)];
-      //   return {
-      //     xOffset: x - topLeftX,
-      //     yOffset: y - topLeftY,
-      //     originalTile: {
-      //       ref: mapData.ref[ind],
-      //     },
-      //   };
-      // });
-      // setTileFloorBrush(brush);
-      // setSelectedMapTileIndex(getHoveredTileInd());
+      const ind0 = mapDataInterface.getEditorState().rectSelectTileIndStart;
+      const ind1 = mapDataInterface.getEditorState().rectSelectTileIndEnd;
+      const dragSelectedInds = getIndsOfBoundingRect(
+        ind0,
+        ind1,
+        mapDataInterface.getMapData().width ?? 0
+      );
+      if (dragSelectedInds.length === 0) {
+        updateEditorStateNoReRender({
+          rectCloneBrushTiles: [],
+        });
+        updateEditorState({
+          selectedTileInd: mapDataInterface.getEditorState().hoveredTileIndex,
+        });
+        return;
+      }
+      const nextRef = mapDataInterface.getMapData().tiles[dragSelectedInds[0]];
+      if (dragSelectedInds.length === 1 && nextRef) {
+        updateEditorStateNoReRender({
+          rectCloneBrushTiles: [],
+          selectedTileIndexInTileset: nextRef.tileId,
+          selectedTilesetName: nextRef.tilesetName,
+        });
+        updateEditorState({
+          selectedTileInd: mapDataInterface.getEditorState().hoveredTileIndex,
+        });
+        return;
+      }
+      const mapWidth = mapDataInterface.getMapData().width ?? 0;
+      const mapHeight = mapDataInterface.getMapData().height ?? 0;
+      const [topLeftX, topLeftY] = [
+        ind0 % mapWidth,
+        Math.floor(ind0 / mapWidth),
+      ];
+      const brush = dragSelectedInds.map((ind) => {
+        const [x, y] = [ind % mapWidth, Math.floor(ind / mapWidth)];
+        return {
+          xOffset: x - topLeftX,
+          yOffset: y - topLeftY,
+          originalTile: {
+            ref: mapDataInterface.getMapData().tiles[ind],
+          },
+        };
+      });
+      updateEditorStateNoReRender({
+        rectCloneBrushTiles: brush,
+      });
+      updateEditorState({
+        selectedTileInd: mapDataInterface.getEditorState().hoveredTileIndex,
+      });
     }
   };
   const handleContextMenu = (ev: MouseEvent) => {
@@ -364,6 +357,38 @@ export const resetPanzoom = () => {
   mapEditorEventState.translateX = 0;
   mapEditorEventState.translateY = 0;
   mapEditorEventState.scale = 1;
+};
+
+export const getIndsOfBoundingRect = (
+  ind0: number,
+  ind1: number,
+  width: number
+): number[] => {
+  if (ind0 === -1) {
+    return [];
+  }
+  if (ind1 === -1) {
+    return [];
+  }
+
+  const x0 = ind0 % width;
+  const y0 = Math.floor(ind0 / width);
+  const x1 = ind1 % width;
+  const y1 = Math.floor(ind1 / width);
+
+  const minX = Math.min(x0, x1);
+  const maxX = Math.max(x0, x1);
+  const minY = Math.min(y0, y1);
+  const maxY = Math.max(y0, y1);
+
+  const inds: number[] = [];
+  for (let y = minY; y <= maxY; y++) {
+    for (let x = minX; x <= maxX; x++) {
+      inds.push(y * width + x);
+    }
+  }
+
+  return inds;
 };
 
 export const screenCoordsToCanvasCoords = (

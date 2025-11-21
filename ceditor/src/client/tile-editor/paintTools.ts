@@ -1,15 +1,18 @@
-import {
-  FloorBrushData,
-  getFillIndsFloor,
-  getHoveredTileInd,
-  getTileFloorBrush,
-} from './renderState';
+// import {
+//   FloorBrushData,
+//   getFillIndsFloor,
+//   getHoveredTileInd,
+//   getTileFloorBrush,
+// } from './renderState';
 import { calculateFillIndsFloor } from './fill';
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
   createDefaultCarcerMapTile,
 } from '../components/MapTemplateForm';
+import { FloorBrushData } from './renderState';
+import { EditorState, updateEditorStateNoReRender } from './editorState';
+import { getIsDraggingRight } from './editorEvents';
 
 export enum PaintActionType {
   NONE = '',
@@ -69,7 +72,8 @@ export const createPaintAction = (type: PaintActionType) => {
 
 export const applyAction = (
   action: PaintAction,
-  mapData: CarcerMapTemplate
+  mapData: CarcerMapTemplate,
+  editorState: EditorState
 ) => {
   switch (action.type) {
     case PaintActionType.DRAW:
@@ -77,12 +81,15 @@ export const applyAction = (
     case PaintActionType.ERASE:
       break;
     case PaintActionType.FILL: {
-      // const ind = getHoveredTileInd();
-      // const fillIndsFloor = calculateFillIndsFloor(ind, mapData);
-      // for (const ind of fillIndsFloor) {
-      //   mapData.tiles[ind] = structuredClone(action.data.paintTileRef);
-      // }
-      // break;
+      const ind = editorState.hoveredTileIndex;
+      const fillIndsFloor = calculateFillIndsFloor(ind, mapData);
+      for (const ind of fillIndsFloor) {
+        mapData.tiles[ind] = Object.assign(
+          mapData.tiles[ind],
+          action.data.paintTileRef
+        );
+      }
+      break;
     }
     case PaintActionType.SELECT:
       break;
@@ -98,7 +105,8 @@ export const applyAction = (
 
 export const applyActionUpdate = (
   action: PaintAction,
-  mapData: CarcerMapTemplate
+  mapData: CarcerMapTemplate,
+  editorState: EditorState
 ) => {
   switch (action.type) {
     case PaintActionType.DRAW:
@@ -188,9 +196,10 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
 
 export const onActionUpdate = (
   action: PaintAction,
-  mapData: CarcerMapTemplate
+  mapData: CarcerMapTemplate,
+  editorState: EditorState
 ) => {
-  const ind = getHoveredTileInd();
+  const ind = editorState.hoveredTileIndex;
 
   if (ind === -1) {
     return;
@@ -209,15 +218,45 @@ export const onActionUpdate = (
       // action.data.prevObjectList.push({ ...mapData.objectList[ind] });
     }
 
-    applyActionUpdate(action, mapData);
+    applyActionUpdate(action, mapData, editorState);
   }
 };
 
 export const onActionComplete = (
   action: PaintAction,
-  mapData: CarcerMapTemplate
+  mapData: CarcerMapTemplate,
+  editorState: EditorState
 ) => {
   currentAction = null;
   console.log('ACTION COMPLETE', action);
-  applyAction(action, mapData);
+  applyAction(action, mapData, editorState);
+};
+
+export const onTileHoverIndChange = (
+  mapData: CarcerMapTemplate,
+  currentPaintAction: PaintActionType,
+  prevHoverInd: number,
+  nextHoverInd: number
+) => {
+  if (nextHoverInd !== -1) {
+    if (mapData && currentPaintAction === PaintActionType.FILL) {
+      updateEditorStateNoReRender({
+        fillIndsFloor: calculateFillIndsFloor(nextHoverInd, mapData),
+      });
+    } else {
+      updateEditorStateNoReRender({
+        fillIndsFloor: [],
+      });
+    }
+  } else {
+    updateEditorStateNoReRender({
+      fillIndsFloor: [],
+    });
+  }
+
+  if (getIsDraggingRight()) {
+    updateEditorStateNoReRender({
+      rectSelectTileIndEnd: nextHoverInd,
+    });
+  }
 };

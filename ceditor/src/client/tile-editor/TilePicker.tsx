@@ -225,7 +225,7 @@ export function TilePicker(props: { editorState: EditorState }) {
   return (
     <div
       style={{
-        height: '250px',
+        height: '276px',
         minHeight: '150px',
         maxHeight: '600px',
         borderTop: '1px solid #3e3e42',
@@ -453,7 +453,7 @@ export function TilePicker(props: { editorState: EditorState }) {
                 }}
                 title="Edit selected tile"
               >
-                Edit Tile
+                Edit Tile Template
               </button>
             </div>
           )}

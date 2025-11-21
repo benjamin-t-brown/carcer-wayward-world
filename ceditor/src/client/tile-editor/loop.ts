@@ -1,17 +1,9 @@
-import {
-  FloorBrushData,
-  calculateHoveredTile,
-  getFillIndsFloor,
-  getHoveredTileInd,
-  getRectSelectTileInds,
-  getTileFloorBrush,
-  setHoveredTileData,
-  setHoveredTileInd,
-} from './renderState';
+import { calculateHoveredTile } from './renderState';
 import {
   PaintActionType,
   getCurrentAction,
   onActionUpdate,
+  onTileHoverIndChange,
 } from './paintTools';
 import {
   drawLine,
@@ -21,10 +13,15 @@ import {
   getSpriteNameFromTileMetadata,
 } from './draw';
 import { CarcerMapTemplate } from '../components/MapTemplateForm';
-import { EditorState, getEditorState } from './editorState';
-import { getIsDraggingRight, getTransform } from './editorEvents';
+import {
+  EditorState,
+  getEditorState,
+  updateEditorStateNoReRender,
+} from './editorState';
+import { getIndsOfBoundingRect, getIsDraggingRight, getTransform } from './editorEvents';
 import { Sprite } from '../utils/assetLoader';
 import { TilesetTemplate } from '../components/TilesetTemplateForm';
+import { calculateFillIndsFloor } from './fill';
 
 // let currentMap: MapResponse | null = null;
 // let isLooping = false;
@@ -55,6 +52,25 @@ const drawHighlightRect = (
   );
 };
 
+const drawHighlightEraseRect = (
+  tileX: number,
+  tileY: number,
+  tileWidth: number,
+  tileHeight: number,
+  scale: number,
+  ctx: CanvasRenderingContext2D
+) => {
+  drawRect(
+    tileX,
+    tileY,
+    tileWidth * scale,
+    tileHeight * scale,
+    'rgba(255, 67, 67, 0.44)',
+    false,
+    ctx
+  );
+};
+
 const drawHighlightTile = (
   sprite: Sprite,
   tileX: number,
@@ -68,28 +84,28 @@ const drawHighlightTile = (
   ctx.restore();
 };
 
-const findBrushTile = (
-  startX: number,
-  startY: number,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  floorDrawBrush: FloorBrushData[]
-) => {
-  return floorDrawBrush.find((bt) => {
-    const newX = startX + bt.xOffset;
-    const newY = startY + bt.yOffset;
-    if (newX < 0 || newX >= width || newY < 0 || newY >= height) {
-      return false;
-    }
-    if (newX === x && newY === y) {
-      return true;
-    } else {
-      return false;
-    }
-  });
-};
+// const findBrushTile = (
+//   startX: number,
+//   startY: number,
+//   x: number,
+//   y: number,
+//   width: number,
+//   height: number,
+//   floorDrawBrush: FloorBrushData[]
+// ) => {
+//   return floorDrawBrush.find((bt) => {
+//     const newX = startX + bt.xOffset;
+//     const newY = startY + bt.yOffset;
+//     if (newX < 0 || newX >= width || newY < 0 || newY >= height) {
+//       return false;
+//     }
+//     if (newX === x && newY === y) {
+//       return true;
+//     } else {
+//       return false;
+//     }
+//   });
+// };
 
 const renderToolUi = (
   editorState: EditorState,
@@ -116,7 +132,7 @@ const renderToolUi = (
     : null;
   const tileWidth = mapData.spriteWidth;
   const tileHeight = mapData.spriteHeight;
-  // const floorDrawBrush = editorState.floorDrawBrush;
+  const rectCloneBrushTiles = editorState.rectCloneBrushTiles;
 
   const { x: transformX, y: transformY, scale } = getTransform();
   ctx.save();
@@ -131,34 +147,74 @@ const renderToolUi = (
   );
 
   if (currentPaintAction === PaintActionType.FILL) {
-    // for (const ind of getFillIndsFloor()) {
-    //   if (selectedTileSprite) {
-    //     const tileX = (ind % mapData.width) * tileSize * scale;
-    //     const tileY = Math.floor(ind / mapData.width) * tileSize * scale;
-    //     drawHighlightTile(
-    //       selectedTileSprite,
-    //       tileX,
-    //       tileY,
-    //       scale,
-    //       getCurrentSelectedTileColor(),
-    //       ctx
-    //     );
-    //     drawHighlightRect(tileX, tileY, tileSize, scale, ctx);
-    //   }
-    // }
+    for (const ind of editorState.fillIndsFloor) {
+      if (paintTileSprite) {
+        const tileX = (ind % mapData.width) * tileWidth * scale;
+        const tileY = Math.floor(ind / mapData.width) * tileHeight * scale;
+        drawHighlightTile(paintTileSprite, tileX, tileY, scale, ctx);
+        drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+      }
+    }
   } else if (currentPaintAction === PaintActionType.ERASE) {
-    // if (hoveredTileInd > -1) {
-    //   const tileX = (hoveredTileInd % mapData.width) * tileSize * scale;
-    //   const tileY =
-    //     Math.floor(hoveredTileInd / mapData.width) * tileSize * scale;
-    //   drawHighlightRect(tileX, tileY, tileSize, scale, ctx);
-    // }
+    const hoveredTileInd = editorState.hoveredTileIndex;
+    if (hoveredTileInd > -1 && paintTileSprite) {
+      const tileX = (hoveredTileInd % mapData.width) * tileWidth * scale;
+      const tileY =
+        Math.floor(hoveredTileInd / mapData.width) * tileHeight * scale;
+      drawHighlightEraseRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+    }
   } else if (currentPaintAction === PaintActionType.DRAW) {
-    if (paintTileSprite) {
-      const tileX = editorState.hoveredTileData.x * tileWidth * scale;
-      const tileY = editorState.hoveredTileData.y * tileHeight * scale;
-      drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
-      drawHighlightTile(paintTileSprite, tileX, tileY, scale, ctx);
+    if (
+      getIsDraggingRight() &&
+      editorState.hoveredTileData.x > -1 &&
+      editorState.hoveredTileData.y > -1
+    ) {
+      const ind0 = editorState.rectSelectTileIndStart;
+      const ind1 = editorState.rectSelectTileIndEnd;
+      const dragSelectedInds = getIndsOfBoundingRect(
+        ind0,
+        ind1,
+        mapData.width ?? 0
+      );
+      for (const ind of dragSelectedInds) {
+        const tile = mapData.tiles[ind];
+        if (tile) {
+          const tileX = (ind % mapData.width) * tileWidth * scale;
+          const tileY = Math.floor(ind / mapData.width) * tileHeight * scale;
+          drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+        }
+      }
+
+      // drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+    } else if (rectCloneBrushTiles.length) {
+      for (const brush of rectCloneBrushTiles) {
+        const newX = editorState.hoveredTileData.x + brush.xOffset;
+        const newY = editorState.hoveredTileData.y + brush.yOffset;
+        if (
+          newX < 0 ||
+          newX >= mapData.width ||
+          newY < 0 ||
+          newY >= mapData.height
+        ) {
+          continue;
+        }
+
+        const spriteName = getSpriteNameFromTile(brush.originalTile.ref);
+        const spr = sprites.find((s) => s.name === spriteName);
+        const tileX = newX * mapData.spriteWidth * scale;
+        const tileY = newY * mapData.spriteHeight * scale;
+        drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+        if (spr) {
+          drawHighlightTile(spr, tileX, tileY, scale, ctx);
+        }
+      }
+    } else {
+      if (paintTileSprite) {
+        const tileX = editorState.hoveredTileData.x * tileWidth * scale;
+        const tileY = editorState.hoveredTileData.y * tileHeight * scale;
+        drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+        drawHighlightTile(paintTileSprite, tileX, tileY, scale, ctx);
+      }
     }
   }
   ctx.restore();
@@ -186,23 +242,30 @@ export const loop = (
 
   const currentMap = mapDataInterface.getMapData();
   const data = calculateHoveredTile(currentMap, mapDataInterface.getCanvas());
-  setHoveredTileInd(currentMap, data.ind);
-  setHoveredTileData({
-    x: data.x,
-    y: data.y,
-    ind: data.ind,
+  if (data.ind !== mapDataInterface.getEditorState().hoveredTileIndex) {
+    onTileHoverIndChange(
+      currentMap,
+      mapDataInterface.getEditorState().currentPaintAction,
+      mapDataInterface.getEditorState().hoveredTileIndex,
+      data.ind
+    );
+  }
+  updateEditorStateNoReRender({
+    hoveredTileIndex: data.ind,
+    hoveredTileData: {
+      x: data.x,
+      y: data.y,
+      ind: data.ind,
+    },
   });
 
-  // breaking convention here to be
-  getEditorState().hoveredTileIndex = data.ind;
-  getEditorState().hoveredTileData = {
-    x: data.x,
-    y: data.y,
-    ind: data.ind,
-  };
   const currentAction = getCurrentAction();
   if (currentAction && currentMap) {
-    onActionUpdate(currentAction, currentMap);
+    onActionUpdate(
+      currentAction,
+      currentMap,
+      mapDataInterface.getEditorState()
+    );
   }
   // const tileSize = getSpriteSize();
 

@@ -179,6 +179,7 @@ export function Maps() {
 
   const updateMapInTabs = (updatedMap: CarcerMapTemplate) => {
     if (activeTab) {
+      const oldMap = activeTab.map;
       const mapIndex = activeTab.mapIndex;
       const updatedMaps = [...maps];
       updatedMaps[mapIndex] = updatedMap;
