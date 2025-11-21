@@ -27,19 +27,19 @@ export enum PaintActionType {
 }
 
 interface PaintActionData {
-  layer: 'floor' | 'top' | 'object';
-  // paintTileId: number;
+  layer: 'floor';
   paintTileRef: Partial<CarcerMapTileTemplate>;
   floorDrawBrush?: FloorBrushData[];
   startInd: number;
   endInd: number;
   tileInds: number[];
+  extraTileInds: number[];
+  extraPrevRefData: CarcerMapTileTemplate[];
 
   prevRefData: CarcerMapTileTemplate[];
-  // prevObjectList: MapObject[];
 }
 
-interface PaintAction {
+export interface PaintAction {
   type: PaintActionType;
   data: PaintActionData;
 }
@@ -61,7 +61,8 @@ export const createPaintAction = (type: PaintActionType) => {
       startInd: -1,
       endInd: -1,
       tileInds: [],
-
+      extraTileInds: [],
+      extraPrevRefData: [],
       prevRefData: [],
       // prevObjectList: [],
     },
@@ -83,9 +84,16 @@ export const applyAction = (
     case PaintActionType.FILL: {
       const ind = editorState.hoveredTileIndex;
       const fillIndsFloor = calculateFillIndsFloor(ind, mapData);
-      for (const ind of fillIndsFloor) {
-        mapData.tiles[ind] = Object.assign(
-          mapData.tiles[ind],
+      // Store the tile indices and ensure previous data is stored for undo
+      action.data.tileInds = fillIndsFloor;
+      for (let i = 0; i < fillIndsFloor.length; i++) {
+        const tileInd = fillIndsFloor[i];
+        // Store previous state if not already stored
+        if (i >= action.data.prevRefData.length) {
+          action.data.prevRefData.push(structuredClone(mapData.tiles[tileInd]));
+        }
+        mapData.tiles[tileInd] = Object.assign(
+          mapData.tiles[tileInd],
           action.data.paintTileRef
         );
       }
@@ -111,46 +119,34 @@ export const applyActionUpdate = (
   switch (action.type) {
     case PaintActionType.DRAW:
       for (const ind of action.data.tileInds) {
-        if (action.data.layer === 'floor') {
-          const startX = ind % mapData.width;
-          const startY = Math.floor(ind / mapData.width);
-          const floorDrawBrush = action.data.floorDrawBrush;
-          if (floorDrawBrush?.length) {
-            for (const bt of floorDrawBrush) {
-              const newX = startX + bt.xOffset;
-              const newY = startY + bt.yOffset;
-              const newInd = newY * mapData.width + newX;
+        const startX = ind % mapData.width;
+        const startY = Math.floor(ind / mapData.width);
+        const floorDrawBrush = action.data.floorDrawBrush;
+        if (floorDrawBrush?.length) {
+          for (const bt of floorDrawBrush) {
+            const newX = startX + bt.xOffset;
+            const newY = startY + bt.yOffset;
+            const newInd = newY * mapData.width + newX;
 
-              if (
-                newX < 0 ||
-                newX >= mapData.width ||
-                newY < 0 ||
-                newY >= mapData.height
-              ) {
-                continue;
-              }
-
-              mapData.tiles[newInd] = structuredClone(bt.originalTile.ref);
+            if (
+              newX < 0 ||
+              newX >= mapData.width ||
+              newY < 0 ||
+              newY >= mapData.height
+            ) {
+              continue;
             }
-          } else {
-            Object.assign(mapData.tiles[ind], action.data.paintTileRef);
+
+            Object.assign(mapData.tiles[newInd], bt.originalTile.ref);
           }
-        } else if (action.data.layer === 'object') {
-          // mapData.objectList[ind] = {
-          //   ...action.data.objectList[ind],
-          // };
+        } else {
+          Object.assign(mapData.tiles[ind], action.data.paintTileRef);
         }
       }
       break;
     case PaintActionType.ERASE:
       for (const ind of action.data.tileInds) {
-        if (action.data.layer === 'floor') {
-          mapData.tiles[ind] = createDefaultCarcerMapTile();
-        } else if (action.data.layer === 'object') {
-          // mapData.objectList[ind] = {
-          //   ...action.data.objectList[ind],
-          // };
-        }
+        mapData.tiles[ind] = createDefaultCarcerMapTile();
       }
 
       break;
@@ -171,17 +167,39 @@ export const applyActionUpdate = (
 export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
   switch (action.type) {
     case PaintActionType.DRAW:
-      // action.data.tileInds.forEach(ind => {
-      //   mapData.floor[ind] = 0;
-      // });
+      // Restore previous tile data for all affected tiles
+      for (let i = 0; i < action.data.tileInds.length; i++) {
+        const ind = action.data.tileInds[i];
+        if (i < action.data.prevRefData.length) {
+          mapData.tiles[ind] = structuredClone(action.data.prevRefData[i]);
+        }
+      }
+      for (let i = 0; i < action.data.extraTileInds.length; i++) {
+        const ind = action.data.extraTileInds[i];
+        if (i < action.data.extraPrevRefData.length) {
+          mapData.tiles[ind] = structuredClone(action.data.extraPrevRefData[i]);
+        }
+      }
       break;
     case PaintActionType.ERASE:
-      // action.data.tileInds.forEach(ind => {
-      //   mapData.floor[ind] = 1;
-      // });
+      // Restore previous tile data for all affected tiles
+      for (let i = 0; i < action.data.tileInds.length; i++) {
+        const ind = action.data.tileInds[i];
+        if (i < action.data.prevRefData.length) {
+          mapData.tiles[ind] = structuredClone(action.data.prevRefData[i]);
+        }
+      }
       break;
-    case PaintActionType.FILL:
+    case PaintActionType.FILL: {
+      // Restore previous tile data for all affected tiles
+      for (let i = 0; i < action.data.tileInds.length; i++) {
+        const tileInd = action.data.tileInds[i];
+        if (i < action.data.prevRefData.length) {
+          mapData.tiles[tileInd] = structuredClone(action.data.prevRefData[i]);
+        }
+      }
       break;
+    }
     case PaintActionType.SELECT:
       break;
     case PaintActionType.MOVE:
@@ -212,10 +230,38 @@ export const onActionUpdate = (
 
   if (!action.data.tileInds.includes(ind)) {
     action.data.tileInds.push(ind);
-    if (action.data.layer === 'floor') {
-      action.data.prevRefData.push(structuredClone(mapData.tiles[ind]));
-    } else if (action.data.layer === 'object') {
-      // action.data.prevObjectList.push({ ...mapData.objectList[ind] });
+    action.data.prevRefData.push(structuredClone(mapData.tiles[ind]));
+
+    // ensure every tile affected by brush is also in tileInds array
+    if (action.type == PaintActionType.DRAW && action.data.floorDrawBrush) {
+      for (const ind of action.data.tileInds) {
+        const startX = ind % mapData.width;
+        const startY = Math.floor(ind / mapData.width);
+        const floorDrawBrush = action.data.floorDrawBrush;
+        if (floorDrawBrush?.length) {
+          for (const bt of floorDrawBrush) {
+            const newX = startX + bt.xOffset;
+            const newY = startY + bt.yOffset;
+            const newInd = newY * mapData.width + newX;
+
+            if (
+              newX < 0 ||
+              newX >= mapData.width ||
+              newY < 0 ||
+              newY >= mapData.height
+            ) {
+              continue;
+            }
+
+            if (!action.data.extraTileInds.includes(newInd)) {
+              action.data.extraTileInds.push(newInd);
+              action.data.extraPrevRefData.push(
+                structuredClone(mapData.tiles[newInd])
+              );
+            }
+          }
+        }
+      }
     }
 
     applyActionUpdate(action, mapData, editorState);
@@ -230,6 +276,53 @@ export const onActionComplete = (
   currentAction = null;
   console.log('ACTION COMPLETE', action);
   applyAction(action, mapData, editorState);
+
+  // Add action to undo history
+  const newUndoHistory = [...editorState.undoHistory];
+  const undoIndex = editorState.undoIndex;
+
+  // If we're not at the end of the history, slice off everything after the current index
+  if (undoIndex < newUndoHistory.length - 1) {
+    newUndoHistory.splice(undoIndex + 1);
+  }
+
+  // Add the new action to history
+  newUndoHistory.push(structuredClone(action));
+  const newUndoIndex = newUndoHistory.length - 1;
+
+  updateEditorStateNoReRender({
+    undoHistory: newUndoHistory,
+    undoIndex: newUndoIndex,
+  });
+};
+
+export const undo = (
+  mapData: CarcerMapTemplate,
+  editorState: EditorState
+): boolean => {
+  const { undoHistory, undoIndex } = editorState;
+
+  // Check if we can undo
+  if (undoIndex < 0 || undoIndex >= undoHistory.length) {
+    return false;
+  }
+
+  // Get the action to undo
+  const actionToUndo = undoHistory[undoIndex];
+
+  // Perform the undo
+  undoAction(mapData, actionToUndo);
+
+  // Update undo index and trigger re-render
+  const newUndoIndex = undoIndex - 1;
+  updateEditorStateNoReRender({
+    undoIndex: newUndoIndex,
+  });
+
+  // Trigger re-render to show the undo
+  (window as any).reRenderTileEditor?.();
+
+  return true;
 };
 
 export const onTileHoverIndChange = (

@@ -10,6 +10,7 @@ import { ToolsPanel } from './ToolsPanel';
 import { useReRender } from '../hooks/useReRender';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { useAssets } from '../contexts/AssetsContext';
+import { undo } from './paintTools';
 
 interface TileEditorProps {
   map?: CarcerMapTemplate;
@@ -51,6 +52,36 @@ export function TileEditor({ map, onMapUpdate }: TileEditorProps) {
       unInitPanzoom();
     };
   }, []);
+
+  // Handle Ctrl+Z for undo
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check if Ctrl+Z (or Cmd+Z on Mac) is pressed
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        // Check if we're not focused on an input field
+        const activeElement = document.activeElement;
+        const isInputFocused =
+          activeElement &&
+          (activeElement.tagName === 'INPUT' ||
+            activeElement.tagName === 'TEXTAREA' ||
+            activeElement.getAttribute('contenteditable') === 'true');
+
+        if (!isInputFocused && mapRef.current && editorState.current) {
+          e.preventDefault();
+          const success = undo(mapRef.current, editorState.current);
+          if (success) {
+            // Trigger map update to reflect changes
+            onMapUpdate({ ...mapRef.current });
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onMapUpdate]);
 
   useRenderLoop((ts) => {
     if (mapCanvasRef.current && mapRef.current && editorState.current) {

@@ -14,7 +14,7 @@ import {
 //   tileIdToSpriteName,
 //   tileIndexAndTilesetNameToTileId,
 // } from 'render/tileset';
-import { PaintActionType } from './paintTools';
+import { PaintActionType, PaintAction } from './paintTools';
 import { FloorBrushData } from './renderState';
 // import { getColors } from 'style';
 
@@ -54,6 +54,8 @@ export interface EditorState {
   rectSelectTileIndStart: number;
   rectSelectTileIndEnd: number;
   rectCloneBrushTiles: FloorBrushData[];
+  undoHistory: PaintAction[];
+  undoIndex: number;
 }
 
 const editorState: EditorState = {
@@ -71,6 +73,8 @@ const editorState: EditorState = {
   rectSelectTileIndStart: -1,
   rectSelectTileIndEnd: -1,
   rectCloneBrushTiles: [],
+  undoHistory: [],
+  undoIndex: -1,
 };
 export const getEditorState = () => editorState;
 export const updateEditorState = (state: Partial<EditorState>) => {
