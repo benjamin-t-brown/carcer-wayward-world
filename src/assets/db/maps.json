@@ -168,10 +168,10 @@
         "items": []
       },
       {
-        "tilesetName": "",
+        "tilesetName": "terrain0",
         "tileId": 0,
         "x": 0,
-        "y": 1,
+        "y": 0,
         "characters": [],
         "items": []
       },
@@ -432,18 +432,18 @@
         "items": []
       },
       {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 3,
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
         "characters": [],
         "items": []
       },
       {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 5,
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
         "characters": [],
         "items": []
       },
@@ -528,32 +528,56 @@
         "items": []
       },
       {
-        "tilesetName": "",
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
         "tileId": 0,
-        "x": 6,
-        "y": 2,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
         "x": 0,
         "y": 0,
         "characters": [],
         "items": []
       },
       {
-        "tilesetName": "",
+        "tilesetName": "terrain0",
         "tileId": 0,
-        "x": 13,
-        "y": 5,
+        "x": 0,
+        "y": 0,
         "characters": [],
         "items": []
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 4,
         "x": 0,
         "y": 0,
         "characters": [],
@@ -569,23 +593,7 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 5,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 4,
         "x": 0,
         "y": 0,
         "characters": [],
@@ -593,33 +601,25 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 4,
         "x": 0,
         "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 3,
         "characters": [],
         "items": []
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 4,
         "x": 0,
         "y": 0,
         "characters": [],
         "items": []
       },
       {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 5,
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
         "characters": [],
         "items": []
       },
@@ -664,12 +664,20 @@
         "items": []
       },
       {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
         "characters": [],
-        "items": []
+        "items": [],
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "characters": [],
+        "items": [],
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 0,
+        "y": 0
       },
       {
         "tilesetName": "",
@@ -680,14 +688,6 @@
         "items": []
       },
       {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 6,
-        "y": 2,
-        "characters": [],
-        "items": []
-      },
-      {
         "tilesetName": "terrain0",
         "tileId": 2,
         "x": 0,
@@ -697,23 +697,7 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 5,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 4,
         "x": 0,
         "y": 0,
         "characters": [],
@@ -721,55 +705,7 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
         "tileId": 0,
-        "x": 13,
-        "y": 3,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 3,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 3,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 3,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 3,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
         "x": 0,
         "y": 0,
         "characters": [],
@@ -777,7 +713,71 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
         "x": 0,
         "y": 0,
         "characters": [],
@@ -832,52 +832,12 @@
         "items": []
       },
       {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
         "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
+        "items": [],
         "tilesetName": "",
         "tileId": 0,
-        "x": 6,
-        "y": 4,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 6,
-        "y": 2,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
         "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 5,
-        "characters": [],
-        "items": []
+        "y": 0
       },
       {
         "tilesetName": "terrain0",
@@ -889,23 +849,7 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 3,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 4,
         "x": 0,
         "y": 0,
         "characters": [],
@@ -913,33 +857,89 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 4,
         "x": 0,
         "y": 0,
         "characters": [],
         "items": []
       },
       {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 3,
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
         "characters": [],
         "items": []
       },
       {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 3,
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
         "characters": [],
         "items": []
       },
       {
-        "tilesetName": "",
+        "tilesetName": "terrain0",
         "tileId": 0,
-        "x": 13,
-        "y": 3,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
         "characters": [],
         "items": []
       },
@@ -1008,16 +1008,64 @@
         "items": []
       },
       {
-        "tilesetName": "",
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 2,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
         "tileId": 0,
-        "x": 6,
-        "y": 5,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
         "x": 0,
         "y": 0,
         "characters": [],
@@ -1025,7 +1073,7 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 4,
         "x": 0,
         "y": 0,
         "characters": [],
@@ -1033,55 +1081,7 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 5,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 3,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 4,
         "x": 0,
         "y": 0,
         "characters": [],
@@ -1144,50 +1144,50 @@
         "items": []
       },
       {
+        "characters": [],
+        "items": [],
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 0,
+        "y": 0
+      },
+      {
         "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 11,
         "x": 0,
         "y": 0,
         "characters": [],
         "items": []
       },
       {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 6,
-        "y": 5,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 6,
-        "y": 5,
-        "characters": [],
-        "items": []
-      },
-      {
         "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 11,
         "x": 0,
         "y": 0,
         "characters": [],
         "items": []
       },
       {
-        "tilesetName": "",
+        "characters": [],
+        "items": [],
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "tilesetName": "terrain0",
         "tileId": 0,
-        "x": 6,
-        "y": 4,
+        "x": 0,
+        "y": 0,
         "characters": [],
         "items": []
       },
       {
-        "tilesetName": "",
+        "tilesetName": "terrain0",
         "tileId": 0,
-        "x": 6,
-        "y": 4,
+        "x": 0,
+        "y": 0,
         "characters": [],
         "items": []
       },
@@ -1210,8 +1210,8 @@
       {
         "characters": [],
         "items": [],
-        "tilesetName": "",
-        "tileId": 0,
+        "tilesetName": "terrain0",
+        "tileId": 4,
         "x": 0,
         "y": 0
       },
@@ -1219,21 +1219,21 @@
         "characters": [],
         "items": [],
         "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 4,
         "x": 0,
         "y": 0
       },
       {
         "characters": [],
         "items": [],
-        "tilesetName": "",
-        "tileId": 0,
+        "tilesetName": "terrain0",
+        "tileId": 4,
         "x": 0,
         "y": 0
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 0,
         "x": 0,
         "y": 0,
         "characters": [],
@@ -1241,17 +1241,17 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 0,
         "x": 0,
         "y": 0,
         "characters": [],
         "items": []
       },
       {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 5,
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
         "characters": [],
         "items": []
       },
@@ -1304,62 +1304,6 @@
         "items": []
       },
       {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 6,
-        "y": 5,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 6,
-        "y": 5,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 6,
-        "y": 4,
-        "characters": [],
-        "items": []
-      },
-      {
         "characters": [],
         "items": [],
         "tilesetName": "",
@@ -1370,8 +1314,16 @@
       {
         "characters": [],
         "items": [],
-        "tilesetName": "",
-        "tileId": 0,
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "characters": [],
+        "items": [],
+        "tilesetName": "terrain0",
+        "tileId": 11,
         "x": 0,
         "y": 0
       },
@@ -1393,7 +1345,7 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 11,
         "x": 0,
         "y": 0,
         "characters": [],
@@ -1401,17 +1353,65 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 11,
         "x": 0,
         "y": 0,
         "characters": [],
         "items": []
       },
       {
-        "tilesetName": "",
+        "characters": [],
+        "items": [],
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "characters": [],
+        "items": [],
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "tilesetName": "terrain0",
         "tileId": 0,
-        "x": 12,
-        "y": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
         "characters": [],
         "items": []
       },
@@ -1424,10 +1424,10 @@
         "items": []
       },
       {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 17,
-        "y": 8,
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0,
         "characters": [],
         "items": []
       },
@@ -1480,10 +1480,636 @@
         "items": []
       },
       {
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "characters": [],
+        "items": [],
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 13,
+        "y": 5,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 17,
+        "y": 9,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 18,
+        "y": 9,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 19,
+        "y": 9,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 0,
+        "y": 10,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 1,
+        "y": 10,
+        "characters": [],
+        "items": []
+      },
+      {
         "tilesetName": "",
         "tileId": 0,
         "x": 2,
-        "y": 6,
+        "y": 10,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 1,
+        "y": 7,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 2,
+        "y": 7,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 2,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "characters": [],
+        "items": [],
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "characters": [],
+        "items": [],
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "characters": [],
+        "items": [],
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "characters": [],
+        "items": [],
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 17,
+        "y": 10,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 18,
+        "y": 10,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 19,
+        "y": 10,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 0,
+        "y": 11,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 1,
+        "y": 11,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 2,
+        "y": 11,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 1,
+        "y": 8,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 2,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "characters": [],
+        "items": [],
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "characters": [],
+        "items": [],
+        "tilesetName": "terrain0",
+        "tileId": 2,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 2,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "characters": [],
+        "items": [],
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 18,
+        "y": 11,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 19,
+        "y": 11,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 0,
+        "y": 12,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 1,
+        "y": 12,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 2,
+        "y": 12,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 1,
+        "y": 9,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 11,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "characters": [],
+        "items": [],
+        "tilesetName": "terrain0",
+        "tileId": 2,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "characters": [],
+        "items": [],
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [
+          "exampleTownsperson"
+        ],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 18,
+        "y": 12,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 19,
+        "y": 12,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 0,
+        "y": 13,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 1,
+        "y": 13,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "",
+        "tileId": 0,
+        "x": 2,
+        "y": 13,
         "characters": [],
         "items": []
       },
@@ -1491,661 +2117,29 @@
         "tilesetName": "",
         "tileId": 0,
         "x": 3,
-        "y": 6,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 6,
-        "y": 5,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 7,
-        "y": 5,
-        "characters": [],
-        "items": []
-      },
-      {
-        "characters": [],
-        "items": [],
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 0,
-        "y": 0
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 13,
-        "y": 5,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 17,
-        "y": 9,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 18,
-        "y": 9,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 19,
-        "y": 9,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 0,
-        "y": 10,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 1,
-        "y": 10,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 2,
-        "y": 10,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 1,
-        "y": 7,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 2,
-        "y": 7,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "characters": [],
-        "items": [],
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 0,
-        "y": 0
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "characters": [],
-        "items": [],
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 0,
-        "y": 0
-      },
-      {
-        "characters": [],
-        "items": [],
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 0,
-        "y": 0
-      },
-      {
-        "characters": [],
-        "items": [],
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 0,
-        "y": 0
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 17,
-        "y": 10,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 18,
-        "y": 10,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 19,
-        "y": 10,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 0,
-        "y": 11,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 1,
-        "y": 11,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 2,
-        "y": 11,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 1,
-        "y": 8,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 4,
-        "y": 8,
-        "characters": [],
-        "items": []
-      },
-      {
-        "characters": [],
-        "items": [],
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0
-      },
-      {
-        "characters": [],
-        "items": [],
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "characters": [],
-        "items": [],
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 0,
-        "y": 0
-      },
-      {
-        "characters": [],
-        "items": [],
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 0,
-        "y": 0
-      },
-      {
-        "characters": [],
-        "items": [],
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 0,
-        "y": 0
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 17,
-        "y": 11,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 18,
-        "y": 11,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 19,
-        "y": 11,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 0,
-        "y": 12,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 1,
-        "y": 12,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 2,
-        "y": 12,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 1,
-        "y": 9,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 2,
-        "y": 9,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "characters": [],
-        "items": [],
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 0,
-        "y": 0
-      },
-      {
-        "characters": [],
-        "items": [],
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 0,
-        "y": 0
-      },
-      {
-        "characters": [],
-        "items": [],
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 2,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 17,
-        "y": 12,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 18,
-        "y": 12,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 19,
-        "y": 12,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 0,
-        "y": 13,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 1,
-        "y": 13,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 2,
-        "y": 13,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 3,
-        "y": 13,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 4,
-        "y": 13,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 5,
-        "y": 13,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 6,
         "y": 13,
         "characters": [],
         "items": []
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 4,
         "x": 0,
         "y": 0,
         "characters": [],
@@ -2160,12 +2154,36 @@
         "items": []
       },
       {
-        "characters": [],
-        "items": [],
         "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 0,
         "x": 0,
-        "y": 0
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
       },
       {
         "tilesetName": "terrain0",
@@ -2200,34 +2218,18 @@
         "items": []
       },
       {
-        "characters": [],
-        "items": [],
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 0,
-        "y": 0
-      },
-      {
         "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 0,
         "x": 0,
         "y": 0,
         "characters": [],
         "items": []
       },
       {
-        "tilesetName": "",
+        "tilesetName": "terrain0",
         "tileId": 0,
-        "x": 13,
-        "y": 9,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 17,
-        "y": 13,
+        "x": 0,
+        "y": 0,
         "characters": [],
         "items": []
       },
@@ -2280,40 +2282,16 @@
         "items": []
       },
       {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 4,
-        "y": 14,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 5,
-        "y": 14,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 6,
-        "y": 14,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 7,
-        "y": 14,
+        "tilesetName": "terrain0",
+        "tileId": 4,
+        "x": 0,
+        "y": 0,
         "characters": [],
         "items": []
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 2,
+        "tileId": 4,
         "x": 0,
         "y": 0,
         "characters": [],
@@ -2368,18 +2346,42 @@
         "items": []
       },
       {
-        "tilesetName": "",
+        "tilesetName": "terrain0",
         "tileId": 0,
-        "x": 15,
-        "y": 14,
+        "x": 0,
+        "y": 0,
         "characters": [],
         "items": []
       },
       {
-        "tilesetName": "",
+        "tilesetName": "terrain0",
         "tileId": 0,
-        "x": 16,
-        "y": 14,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 0,
+        "x": 0,
+        "y": 0,
         "characters": [],
         "items": []
       },
@@ -2457,7 +2459,50 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 0,
+        "tileId": 32,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 32,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 32,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": [],
+        "tileOverrides": {
+          "isWalkableOverride": true
+        }
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 32,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 32,
+        "x": 0,
+        "y": 0,
+        "characters": [],
+        "items": []
+      },
+      {
+        "tilesetName": "terrain0",
+        "tileId": 32,
         "x": 0,
         "y": 0,
         "characters": [],
@@ -2500,46 +2545,6 @@
         "tileId": 0,
         "x": 0,
         "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 0,
-        "y": 0,
-        "characters": [],
-        "items": []
-      },
-      {
-        "tilesetName": "",
-        "tileId": 0,
-        "x": 16,
-        "y": 15,
         "characters": [],
         "items": []
       },
@@ -2696,10 +2701,10 @@
         "items": []
       },
       {
-        "tilesetName": "",
+        "tilesetName": "terrain0",
         "tileId": 0,
-        "x": 16,
-        "y": 16,
+        "x": 0,
+        "y": 0,
         "characters": [],
         "items": []
       },

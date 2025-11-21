@@ -1,11 +1,19 @@
 import { EditorState, setCurrentPaintAction } from './editorState';
 import { PaintActionType } from './paintTools';
+import { CarcerMapTemplate } from '../components/MapTemplateForm';
+import { SelectedTileInfo } from './SelectedTileInfo';
 
 interface ToolsPanelProps {
   editorState: EditorState;
+  map: CarcerMapTemplate;
+  onMapUpdate: (map: CarcerMapTemplate) => void;
 }
 
-export function ToolsPanel({ editorState }: ToolsPanelProps) {
+export function ToolsPanel({
+  editorState,
+  map,
+  onMapUpdate,
+}: ToolsPanelProps) {
   const handleDrawClick = () => {
     if (editorState.currentPaintAction !== PaintActionType.DRAW) {
       setCurrentPaintAction(PaintActionType.DRAW);
@@ -149,6 +157,11 @@ export function ToolsPanel({ editorState }: ToolsPanelProps) {
           🪣
         </button>
       </div>
+      <SelectedTileInfo
+        editorState={editorState}
+        map={map}
+        onMapUpdate={onMapUpdate}
+      />
     </div>
   );
 }

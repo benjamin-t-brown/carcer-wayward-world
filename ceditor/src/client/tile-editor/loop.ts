@@ -18,10 +18,17 @@ import {
   getEditorState,
   updateEditorStateNoReRender,
 } from './editorState';
-import { getIndsOfBoundingRect, getIsDraggingRight, getTransform } from './editorEvents';
+import {
+  getIndsOfBoundingRect,
+  getIsDraggingRight,
+  getTransform,
+} from './editorEvents';
 import { Sprite } from '../utils/assetLoader';
 import { TilesetTemplate } from '../components/TilesetTemplateForm';
 import { calculateFillIndsFloor } from './fill';
+import { CharacterTemplate } from '../components/CharacterTemplateForm';
+import { ItemTemplate } from '../components/ItemTemplateForm';
+import { GameEvent } from '../components/GameEventForm';
 
 // let currentMap: MapResponse | null = null;
 // let isLooping = false;
@@ -66,6 +73,37 @@ const drawHighlightEraseRect = (
     tileWidth * scale,
     tileHeight * scale,
     'rgba(255, 67, 67, 0.44)',
+    false,
+    ctx
+  );
+};
+
+const drawSelectedTileRect = (
+  tileX: number,
+  tileY: number,
+  tileWidth: number,
+  tileHeight: number,
+  scale: number,
+  ctx: CanvasRenderingContext2D
+) => {
+  // Draw a thicker border to indicate selected tile
+  const borderWidth = 2;
+  drawRect(
+    tileX,
+    tileY,
+    tileWidth * scale,
+    tileHeight * scale,
+    'rgba(255, 255, 255, 0.2)',
+    false,
+    ctx
+  );
+  // Draw inner border for better visibility
+  drawRect(
+    tileX + borderWidth,
+    tileY + borderWidth,
+    tileWidth * scale - borderWidth * 2,
+    tileHeight * scale - borderWidth * 2,
+    'rgba(0, 0, 255, 0.2)',
     false,
     ctx
   );
@@ -133,6 +171,7 @@ const renderToolUi = (
   const tileWidth = mapData.spriteWidth;
   const tileHeight = mapData.spriteHeight;
   const rectCloneBrushTiles = editorState.rectCloneBrushTiles;
+  const selectedTileInd = editorState.selectedTileInd;
 
   const { x: transformX, y: transformY, scale } = getTransform();
   ctx.save();
@@ -145,6 +184,16 @@ const renderToolUi = (
     -(mapData.width * tileWidth * scale) / 2,
     -(mapData.height * tileHeight * scale) / 2
   );
+
+  // Draw selected tile indicator
+  if (selectedTileInd >= 0 && selectedTileInd < mapData.tiles.length) {
+    const selectedTile = mapData.tiles[selectedTileInd];
+    const x = selectedTileInd % mapData.width;
+    const y = Math.floor(selectedTileInd / mapData.width);
+    const tileX = x * tileWidth * scale;
+    const tileY = y * tileHeight * scale;
+    drawSelectedTileRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+  }
 
   if (currentPaintAction === PaintActionType.FILL) {
     for (const ind of editorState.fillIndsFloor) {
@@ -227,6 +276,13 @@ export const loop = (
     getEditorState: () => EditorState;
     getSprites: () => Sprite[];
     getTilesets: () => TilesetTemplate[];
+    getAssets: () => {
+      characters: CharacterTemplate[];
+      items: ItemTemplate[];
+      tilesets: TilesetTemplate[];
+      gameEvents: GameEvent[];
+      maps: CarcerMapTemplate[];
+    };
   },
   ms: number
 ) => {
@@ -357,6 +413,7 @@ export const loop = (
 
       for (let y = 0; y < currentMap.height; y++) {
         for (let x = 0; x < currentMap.width; x++) {
+          const tileControlSprites: string[] = [];
           const tileIndex = y * currentMap.width + x;
           const refTile = currentMap.tiles[tileIndex];
           const tileId = refTile.tileId ?? -1;
@@ -371,6 +428,44 @@ export const loop = (
               .find((s) => s.name === spriteName);
             if (sprite) {
               drawSprite(sprite, tileX, tileY, newScale, ctx);
+            }
+
+            for (const characterName of refTile.characters) {
+              const characterTemplate = mapDataInterface
+                .getAssets()
+                .characters.find((c) => c.name === characterName);
+              if (characterTemplate) {
+                const characterSpriteName = `${characterTemplate.spritesheet}_${characterTemplate.spriteOffset}`;
+                const characterSprite = mapDataInterface
+                  .getSprites()
+                  .find((s) => s.name === characterSpriteName);
+                if (characterSprite) {
+                  drawSprite(characterSprite, tileX, tileY, newScale, ctx);
+                } else {
+                  console.error(`Character sprite not found: ${characterSpriteName}`);
+                }
+              }
+            }
+
+            if (refTile.tileOverrides) {
+              tileControlSprites.push('control_2');
+            }
+
+            let controlI = 0;
+            for (const spriteName of tileControlSprites) {
+              const sprite = mapDataInterface
+                .getSprites()
+                .find((s) => s.name === spriteName);
+              if (sprite) {
+                drawSprite(
+                  sprite,
+                  tileX,
+                  tileY + controlI * 8 * newScale,
+                  newScale,
+                  ctx
+                );
+              }
+              controlI++;
             }
           }
 

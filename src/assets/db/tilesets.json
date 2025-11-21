@@ -235,7 +235,7 @@
       {
         "id": 32,
         "description": "",
-        "isWalkable": true,
+        "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false
       },

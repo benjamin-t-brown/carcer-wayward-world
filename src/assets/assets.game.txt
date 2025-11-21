@@ -1,4 +1,4 @@
-Pic,control/assets/img/editor/control.png
+Pic,control,assets/img/editor/control.png
 Sprites,control,16,8,8
 
 Pic,actors0,assets/img/game/actors0.png

@@ -35,7 +35,7 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
     case '/editor/itemTemplates':
       return <ItemTemplates />;
     case '/editor/characterTemplates':
-      return <CharacterTemplates />;
+      return <CharacterTemplates routeParams={routeParams} />;
     case '/editor/tilesetTemplates':
       return <TilesetTemplates routeParams={routeParams} />;
     case '/editor/specialEvents':

@@ -2,13 +2,16 @@ import { TextInput } from '../elements/TextInput';
 import { NumberInput } from '../elements/NumberInput';
 import { OptionSelect } from '../elements/OptionSelect';
 import { Button } from '../elements/Button';
+import { SpritePicker } from '../elements/SpritePicker';
+import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
+import { useMemo } from 'react';
 
 export interface CharacterTemplate {
   type: string;
   name: string;
   label: string;
-  spritesheetName: string;
-  spriteOffset: string;
+  spritesheet: string;
+  spriteOffset: number;
   // Optional fields
   talk?: {
     talkName?: string;
@@ -58,17 +61,33 @@ export function createDefaultCharacter(): CharacterTemplate {
     type: 'TOWNSPERSON',
     name: '',
     label: '',
-    spritesheetName: '',
-    spriteOffset: '',
+    spritesheet: 'actors0',
+    spriteOffset: 0,
   };
 }
 
 export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
   const character = props.character;
+  const { sprites } = useSDL2WAssets();
 
   const formData = character as CharacterTemplate;
   const setFormData = (data: CharacterTemplate) => {
     props.updateCharacter(data);
+  };
+
+  // Find the current sprite based on spritesheetName and spriteOffset
+  const spriteName = `${formData?.spritesheet}_${formData?.spriteOffset}`;
+
+  // Handle sprite selection - extract spritesheet and offset from selected sprite
+  const handleSpriteChange = (spriteName: string) => {
+    const selectedSprite = sprites.find((s) => s.name === spriteName);
+    if (selectedSprite) {
+      setFormData({
+        ...formData,
+        spritesheet: selectedSprite.pictureAlias,
+        spriteOffset: selectedSprite.index,
+      });
+    }
   };
 
   const updateField = <K extends keyof CharacterTemplate>(
@@ -215,25 +234,19 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
           required
         />
 
-        <TextInput
-          id="character-spritesheet"
-          name="spritesheetName"
-          label="Spritesheet Name"
-          value={formData.spritesheetName}
-          onChange={(value) => updateField('spritesheetName', value)}
-          placeholder="e.g., characters"
-          required
-        />
-
-        <TextInput
-          id="character-sprite-offset"
-          name="spriteOffset"
-          label="Sprite Offset"
-          value={formData.spriteOffset}
-          onChange={(value) => updateField('spriteOffset', value)}
-          placeholder="e.g., 0,0"
-          required
-        />
+        <div className="form-group">
+          <label htmlFor="character-sprite-picker">Sprite</label>
+          <div style={{ marginTop: '8px' }}>
+            <SpritePicker
+              value={spriteName}
+              onChange={handleSpriteChange}
+              scale={2}
+            />
+          </div>
+          <div style={{ marginTop: '8px', fontSize: '12px', color: '#858585' }}>
+            Spritesheet: {formData.spritesheet || 'Not set'} | Offset: {formData.spriteOffset ?? 'Not set'}
+          </div>
+        </div>
 
         <div className="form-section">
           <h3>Optional Properties</h3>

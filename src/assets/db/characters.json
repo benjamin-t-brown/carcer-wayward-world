@@ -3,8 +3,8 @@
     "type": "TOWNSPERSON",
     "name": "exampleTownsperson",
     "label": "Example Townsperson",
-    "spritesheet": "characters",
-    "spriteOffset": "0",
+    "spritesheet": "actors0",
+    "spriteOffset": 2,
     "talk": {
       "talkName": "talkId",
       "portraitName": "portraitSprite"

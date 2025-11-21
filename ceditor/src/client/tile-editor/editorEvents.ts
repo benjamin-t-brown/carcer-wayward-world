@@ -141,10 +141,6 @@ export const initPanzoom = (mapDataInterface: {
       }
       const action = createPaintAction(currentPaintAction);
       action.data.paintTileRef = {
-        characters: [],
-        items: [],
-        x: 0,
-        y: 0,
         tilesetName: mapDataInterface.getEditorState().selectedTilesetName,
         tileId: mapDataInterface.getEditorState().selectedTileIndexInTileset,
       };

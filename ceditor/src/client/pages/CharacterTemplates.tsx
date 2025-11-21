@@ -16,7 +16,11 @@ interface NotificationState {
   id: number;
 }
 
-export function CharacterTemplates() {
+interface CharacterTemplatesProps {
+  routeParams?: URLSearchParams;
+}
+
+export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}) {
   const { characters, setCharacters, saveCharacters } = useAssets();
   const [editCharacterIndex, setEditCharacterIndex] = useState<number>(-1);
   const [searchTerm, setSearchTerm] = useState('');
@@ -99,6 +103,20 @@ export function CharacterTemplates() {
     }
   };
 
+  // Check for character query parameter on mount
+  useEffect(() => {
+    if (routeParams) {
+      const characterName = routeParams.get('character');
+      if (characterName) {
+        const index = characters.findIndex((c) => c.name === characterName);
+        if (index >= 0) {
+          setEditCharacterIndex(index);
+          scrollToTopOfForm();
+        }
+      }
+    }
+  }, [characters, routeParams]);
+
   const handleCreateNew = () => {
     const newCharacterTemplate = createDefaultCharacter();
     const newCharacters = [...characters, newCharacterTemplate];
@@ -146,10 +164,10 @@ export function CharacterTemplates() {
       if (!character.label || character.label.trim() === '') {
         missingFields.push('label');
       }
-      if (!character.spritesheetName || character.spritesheetName.trim() === '') {
-        missingFields.push('spritesheetName');
+      if (!character.spritesheet || character.spritesheet.trim() === '') {
+        missingFields.push('spritesheet');
       }
-      if (!character.spriteOffset || character.spriteOffset.trim() === '') {
+      if (character.spriteOffset === undefined || character.spriteOffset === null) {
         missingFields.push('spriteOffset');
       }
 
@@ -313,7 +331,7 @@ export function CharacterTemplates() {
                         marginTop: '4px',
                       }}
                     >
-                      {character.spritesheetName} @ {character.spriteOffset}
+                      {character.spritesheet} @ {character.spriteOffset}
                     </div>
                   </>
                 );

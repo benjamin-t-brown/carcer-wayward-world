@@ -23,7 +23,7 @@ export function TileEditor({ map, onMapUpdate }: TileEditorProps) {
   const mapRef = useRef<CarcerMapTemplate | undefined>(undefined);
   const editorState = useRef<EditorState | undefined>(undefined);
   const { sprites } = useSDL2WAssets();
-  const { tilesets } = useAssets();
+  const { tilesets, characters, items, gameEvents, maps } = useAssets();
   const reRender = useReRender();
 
   console.log('re render tile editor');
@@ -61,6 +61,13 @@ export function TileEditor({ map, onMapUpdate }: TileEditorProps) {
           getEditorState: () => editorState.current as EditorState,
           getSprites: () => sprites,
           getTilesets: () => tilesets,
+          getAssets: () => ({
+            characters: characters,
+            items: items,
+            tilesets: tilesets,
+            gameEvents: gameEvents,
+            maps: maps,
+          }),
         },
         ts - prevTs
       );
@@ -105,7 +112,11 @@ export function TileEditor({ map, onMapUpdate }: TileEditorProps) {
       >
         <Minimap map={map} />
         {editorState.current && (
-          <ToolsPanel editorState={editorState.current} />
+          <ToolsPanel
+            editorState={editorState.current}
+            map={map}
+            onMapUpdate={onMapUpdate}
+          />
         )}
       </div>
 
