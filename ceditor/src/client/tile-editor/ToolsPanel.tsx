@@ -32,6 +32,12 @@ export function ToolsPanel({
     }
   };
 
+  const handleSelectClick = () => {
+    if (editorState.currentPaintAction !== PaintActionType.SELECT) {
+      setCurrentPaintAction(PaintActionType.SELECT);
+    }
+  };
+
   const currentPaintAction = editorState.currentPaintAction;
 
   return (
@@ -59,7 +65,7 @@ export function ToolsPanel({
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateColumns: 'repeat(2, 1fr)',
           gap: '10px',
         }}
       >
@@ -155,6 +161,37 @@ export function ToolsPanel({
           title="Fill tool"
         >
           🪣
+        </button>
+        <button
+          onClick={handleSelectClick}
+          style={{
+            padding: '10px',
+            border: '1px solid #3e3e42',
+            backgroundColor:
+              currentPaintAction === PaintActionType.SELECT ? '#4ec9b0' : '#3e3e42',
+            color:
+              currentPaintAction === PaintActionType.SELECT ? '#1e1e1e' : '#ffffff',
+            cursor: 'pointer',
+            fontSize: '18px',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'background-color 0.2s, color 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            if (currentPaintAction !== PaintActionType.SELECT) {
+              e.currentTarget.style.backgroundColor = '#4a4a4a';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (currentPaintAction !== PaintActionType.SELECT) {
+              e.currentTarget.style.backgroundColor = '#3e3e42';
+            }
+          }}
+          title="Select tool"
+        >
+          👆
         </button>
       </div>
       <SelectedTileInfo

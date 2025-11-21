@@ -133,12 +133,24 @@ export const initPanzoom = (mapDataInterface: {
       ev.button === 0 &&
       isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())
     ) {
-      mapEditorEventState.isPainting = true;
       const currentPaintAction =
         mapDataInterface.getEditorState().currentPaintAction;
       if (currentPaintAction === PaintActionType.NONE) {
         return;
       }
+      
+      // SELECT action just sets the selected tile, doesn't create a paint action
+      if (currentPaintAction === PaintActionType.SELECT) {
+        const hoveredTileIndex = mapDataInterface.getEditorState().hoveredTileIndex;
+        if (hoveredTileIndex >= 0) {
+          updateEditorState({
+            selectedTileInd: hoveredTileIndex,
+          });
+        }
+        return;
+      }
+      
+      mapEditorEventState.isPainting = true;
       const action = createPaintAction(currentPaintAction);
       action.data.paintTileRef = {
         tilesetName: mapDataInterface.getEditorState().selectedTilesetName,
