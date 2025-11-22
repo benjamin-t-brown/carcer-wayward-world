@@ -20,71 +20,11 @@ const DEFAULT_TEXT_PARAMS = {
   strokeColor: 'black',
 };
 
-const globalScale = 4;
-
 let fm = 1;
 export const setFm = (n: number) => {
   fm = n;
 };
 export const getFm = () => fm;
-
-const spriteCacheColor: Record<string, Sprite> = {};
-
-// export const setupDrawing = () => {
-//   const ctx = getCtx();
-//   ctx.save();
-//   ctx.translate(0, 0);
-//   ctx.scale(globalScale, globalScale);
-// };
-
-// export const finishDrawing = () => {
-//   getCtx().restore();
-// };
-// const getSpriteFromCache = (spriteName: string, color: string) => {
-//   const key = `${spriteName}_${color}`;
-//   if (!spriteCacheColor[key]) {
-//     const sprite = getSprite(spriteName);
-//     if (!sprite) {
-//       throw new Error(`No sprite: "${spriteName}"`);
-//     }
-//     const [canvas, ctx] = createCanvas(sprite[3], sprite[4]);
-
-//     const [, , , sprW, sprH] = sprite;
-//     ctx.globalCompositeOperation = 'multiply';
-//     ctx.fillStyle = color;
-//     ctx.fillRect(0, 0, sprW, sprH);
-//     ctx.globalCompositeOperation = 'destination-atop';
-
-//     drawSpriteObj(sprite, 0, 0, 1, ctx);
-//     spriteCacheColor[key] = [canvas, 0, 0, canvas.width, canvas.height];
-//   }
-//   return spriteCacheColor[key];
-// };
-
-// const drawSpriteObj = (
-//   sprite: Sprite,
-//   x: number,
-//   y: number,
-//   scale?: number,
-//   ctx?: CanvasRenderingContext2D
-// ) => {
-//   scale = scale || 1;
-//   ctx = ctx || getCtx();
-//   const [image, sprX, sprY, sprW, sprH] = sprite;
-
-//   ctx.drawImage(
-//     image,
-//     sprX,
-//     sprY,
-//     sprW,
-//     sprH,
-//     x,
-//     y,
-//     sprW * scale,
-//     sprH * scale
-//   );
-//   ctx.restore();
-// };
 
 export const drawSprite = (
   sprite: Sprite,
@@ -167,35 +107,3 @@ export const getSpriteNameFromTileMetadata = (
 ) => {
   return spriteSheetName + '_' + meta.id;
 };
-
-// const spriteToCanvas = (sprite: Sprite): HTMLCanvasElement => {
-//   const [, , , spriteWidth, spriteHeight] = sprite;
-//   const [canvas, ctx] = createCanvas(spriteWidth, spriteHeight);
-//   drawSprite(sprite, 0, 0, 1, '', ctx);
-//   return canvas;
-// };
-
-// type ImageDef = [string, string, number, number];
-// export const loadImagesAndSprites = async (images: ImageDef[]) => {
-//   getCanvas();
-//   const imageMap = {};
-//   const spriteMap = {};
-//   await Promise.all(
-//     images.map(([imageName, imagePath, spriteWidth, spriteHeight], i) => {
-//       return new Promise<void>((resolve) => {
-//         const img = new Image();
-//         img.onload = () => {
-//           imageMap[imageName] = img;
-//           loadSpritesheet(spriteMap, img, imageName, spriteWidth, spriteHeight);
-//           resolve();
-//         };
-//         img.src = imagePath;
-//       });
-//     })
-//   );
-
-//   model_images = imageMap;
-//   model_sprites = spriteMap;
-
-//   console.log(model_sprites);
-// };

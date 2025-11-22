@@ -73,8 +73,6 @@ export function EditMapModal({
           const existingTile = existingTiles.get(key);
           if (!existingTile) {
             const newTile = createDefaultCarcerMapTile();
-            newTile.x = j;
-            newTile.y = i;
             nextTiles.push(newTile);
           } else {
             nextTiles.push(existingTile);

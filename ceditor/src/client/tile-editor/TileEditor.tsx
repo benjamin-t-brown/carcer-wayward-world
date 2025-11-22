@@ -27,7 +27,7 @@ export function TileEditor({ map, onMapUpdate }: TileEditorProps) {
   const { tilesets, characters, items, gameEvents, maps } = useAssets();
   const reRender = useReRender();
 
-  console.log('re render tile editor');
+  // console.log('re render tile editor');
 
   // hack im lazy
   (window as any).reRenderTileEditor = reRender;

@@ -21,6 +21,12 @@ struct TravelTrigger {
   int destinationY = 0;
 };
 
+struct TileMarker {
+  std::string name;
+  int x;
+  int y;
+};
+
 struct TileLightSource {
   float angle;
   float intensity;
@@ -45,14 +51,13 @@ struct CarcerMapTemplate {
 struct CarcerMapTileTemplate {
   std::vector<std::string> characters;
   std::vector<std::string> items;
+  std::vector<TileMarker> markers;
   std::optional<TileOverrides> tileOverrides;
   std::optional<TileLightSource> lightSource;
   std::optional<TileEventTrigger> eventTrigger;
   std::optional<TravelTrigger> travelTrigger;
   std::string tilesetName;
   int tileId;
-  int x;
-  int y;
 };
 
 } // namespace model

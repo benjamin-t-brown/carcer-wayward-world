@@ -51,10 +51,9 @@ export function createDefaultCarcerMapTile(): CarcerMapTileTemplate {
   return {
     characters: [],
     items: [],
+    markers: [],
     tilesetName: '',
     tileId: 0,
-    x: 0,
-    y: 0,
   };
 }
 
