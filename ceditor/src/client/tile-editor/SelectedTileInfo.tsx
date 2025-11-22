@@ -542,8 +542,8 @@ export function SelectedTileInfo({
   }
 
   const selectedTile = map.tiles[selectedTileInd];
-  const x = selectedTile.x;
-  const y = selectedTile.y;
+  const x = selectedTileInd % map.width;
+  const y = Math.floor(selectedTileInd / map.width);
   const spriteName = getSpriteNameFromTile(selectedTile);
   const sprite = sprites.find((s) => s.name === spriteName);
 
