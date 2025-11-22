@@ -117,6 +117,15 @@ async function load(): Promise<{
     loadGameEvents(),
     loadMaps(),
   ]);
+
+  // fixes problems from early design
+  for (const map of maps) {
+    for (const tile of map.tiles) {
+      if (!tile.markers) {
+        tile.markers = [];
+      }
+    }
+  }
   
   console.log('loaded', { assetTypes, sprites, animations, pictures, items, characters, tilesets, gameEvents, maps });
   return { assetTypes, sprites, spriteMap, animations, pictures, items, characters, tilesets, gameEvents, maps };

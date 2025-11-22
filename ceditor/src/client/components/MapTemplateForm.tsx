@@ -3,21 +3,7 @@ import { NumberInput } from '../elements/NumberInput';
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
-  TileOverrides,
-  TileEventTrigger,
-  TravelTrigger,
-  TileLightSource,
 } from '../types/assets';
-
-// Re-export for backward compatibility
-export type {
-  CarcerMapTemplate,
-  CarcerMapTileTemplate,
-  TileOverrides,
-  TileEventTrigger,
-  TravelTrigger,
-  TileLightSource,
-};
 
 interface MapTemplateFormProps {
   map?: CarcerMapTemplate;

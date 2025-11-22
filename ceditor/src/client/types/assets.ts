@@ -147,16 +147,10 @@ export interface TravelTrigger {
   destinationY: number;
 }
 
-export interface TileMarker {
-  name: string;
-  x: number;
-  y: number;
-}
-
 export interface CarcerMapTileTemplate {
   characters: string[];
   items: string[];
-  markers: TileMarker[];
+  markers: string[];
   tileOverrides?: TileOverrides;
   lightSource?: TileLightSource;
   eventTrigger?: TileEventTrigger;

@@ -91,8 +91,16 @@ export const initPanzoom = (mapDataInterface: {
       ev.preventDefault();
     }
 
-    // keyboard shortcuts
-    if (isEditorActive(ev)) {
+    // Check if text cursor is focused on an input element
+    const activeElement = document.activeElement;
+    const isInputFocused =
+      activeElement &&
+      (activeElement.tagName === 'INPUT' ||
+        activeElement.tagName === 'TEXTAREA' ||
+        activeElement.getAttribute('contenteditable') === 'true');
+
+    // keyboard shortcuts - only process if not typing in an input
+    if (isEditorActive(ev) && !isInputFocused) {
       if (ev.key === 'b') {
         setCurrentPaintAction(PaintActionType.DRAW);
       } else if (ev.key === 'f') {

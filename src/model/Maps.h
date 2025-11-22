@@ -21,12 +21,6 @@ struct TravelTrigger {
   int destinationY = 0;
 };
 
-struct TileMarker {
-  std::string name;
-  int x;
-  int y;
-};
-
 struct TileLightSource {
   float angle;
   float intensity;
@@ -45,13 +39,15 @@ struct CarcerMapTemplate {
   std::string label;
   int width;
   int height;
+  int spriteWidth = 28;
+  int spriteHeight = 32;
   std::vector<CarcerMapTileTemplate> tiles;
 };
 
 struct CarcerMapTileTemplate {
   std::vector<std::string> characters;
   std::vector<std::string> items;
-  std::vector<TileMarker> markers;
+  std::vector<std::string> markers;
   std::optional<TileOverrides> tileOverrides;
   std::optional<TileLightSource> lightSource;
   std::optional<TileEventTrigger> eventTrigger;
