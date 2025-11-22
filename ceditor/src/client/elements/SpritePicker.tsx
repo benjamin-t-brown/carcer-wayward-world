@@ -31,15 +31,15 @@ export function SpritePicker({
   className = '',
   maxHeight = '400px',
 }: SpritePickerProps) {
-  const { sprites } = useSDL2WAssets();
+  const { sprites, spriteMap } = useSDL2WAssets();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSpritesheet, setSelectedSpritesheet] = useState<string>('');
   const [selectedSpriteName, setSelectedSpriteName] = useState<string>(value);
 
   // Find the current sprite
   const currentSprite = useMemo(() => {
-    return sprites.find((s) => s.name === value);
-  }, [sprites, value]);
+    return spriteMap[value];
+  }, [spriteMap, value]);
 
   // Group sprites by spritesheet (pictureAlias)
   const spritesBySheet = useMemo(() => {
@@ -103,8 +103,8 @@ export function SpritePicker({
 
   // Get the selected sprite for preview
   const previewSprite = useMemo(() => {
-    return sprites.find((s) => s.name === selectedSpriteName);
-  }, [sprites, selectedSpriteName]);
+    return spriteMap[selectedSpriteName];
+  }, [spriteMap, selectedSpriteName]);
 
   if (!currentSprite && !isModalOpen) {
     return (

@@ -8,8 +8,8 @@ import { calculateFillIndsFloor } from './fill';
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
-  createDefaultCarcerMapTile,
-} from '../components/MapTemplateForm';
+} from '../types/assets';
+import { createDefaultCarcerMapTile } from '../components/MapTemplateForm';
 import { FloorBrushData } from './renderState';
 import { EditorState, updateEditorStateNoReRender } from './editorState';
 import { getIsDraggingRight } from './editorEvents';

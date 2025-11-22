@@ -2,7 +2,7 @@
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
-} from '../components/MapTemplateForm';
+} from '../types/assets';
 import {
   getScreenMouseCoords,
   resetPanzoom,

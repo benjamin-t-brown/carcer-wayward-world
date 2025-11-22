@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sprite, Animation } from '../types/assets';
+import { Sprite, Animation } from '../types/assetsSDL2w';
 
 interface SpritesData {
   sprites: Sprite[];

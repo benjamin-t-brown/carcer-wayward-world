@@ -7,7 +7,10 @@ import {
   setCurrentAction,
 } from './paintTools';
 import { calculateFillIndsFloor } from './fill';
-import { CarcerMapTemplate } from '../components/MapTemplateForm';
+import {
+  CarcerMapTemplate,
+  TilesetTemplate,
+} from '../types/assets';
 import {
   EditorState,
   getCurrentPaintAction,
@@ -16,7 +19,6 @@ import {
   updateEditorState,
   updateEditorStateNoReRender,
 } from './editorState';
-import { TilesetTemplate } from '../components/TilesetTemplateForm';
 // import { saveSettingsToLs } from 'state';
 
 class MapEditorEventState {

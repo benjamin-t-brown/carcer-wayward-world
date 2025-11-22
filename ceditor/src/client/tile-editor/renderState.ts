@@ -9,7 +9,7 @@ import {
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
-} from '../components/MapTemplateForm';
+} from '../types/assets';
 
 // let hoveredTileInd = -1;
 // let fillIndsFloor: number[] = [];

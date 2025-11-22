@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { CardList } from '../components/CardList';
+import { ItemTemplate } from '../types/assets';
 import {
   ItemTemplateForm,
-  ItemTemplate,
   createDefaultItem,
 } from '../components/ItemTemplateForm';
 import { Button } from '../elements/Button';
@@ -27,6 +27,7 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
     sprites,
     animations: _animations,
     pictures: _pictures,
+    spriteMap,
   } = useSDL2WAssets();
   const { items, setItems, saveItems } = useAssets();
   const [editItemIndex, setEditItemIndex] = useState<number>(-1);
@@ -319,7 +320,7 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
                   : null
               }
               renderAdditionalInfo={(item) => {
-                const sprite = sprites.find((s) => s.name === item.icon);
+                const sprite = spriteMap[item.icon];
                 return (
                   <>
                     <div

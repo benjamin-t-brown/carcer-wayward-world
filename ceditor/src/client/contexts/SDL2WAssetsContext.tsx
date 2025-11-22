@@ -3,6 +3,7 @@ import { Sprite, Animation } from '../utils/assetLoader';
 
 interface SDL2WAssetsContextValue {
   sprites: Sprite[];
+  spriteMap: Record<string, Sprite>;
   animations: Animation[];
   pictures: Record<string, string>;
 }
@@ -12,6 +13,7 @@ const SDL2WAssetsContext = createContext<SDL2WAssetsContextValue | null>(null);
 interface SDL2WAssetsProviderProps {
   children: ReactNode;
   sprites: Sprite[];
+  spriteMap: Record<string, Sprite>;
   animations: Animation[];
   pictures: Record<string, string>;
 }
@@ -19,11 +21,12 @@ interface SDL2WAssetsProviderProps {
 export function SDL2WAssetsProvider({
   children,
   sprites,
+  spriteMap,
   animations,
   pictures,
 }: SDL2WAssetsProviderProps) {
   return (
-    <SDL2WAssetsContext.Provider value={{ sprites, animations, pictures }}>
+    <SDL2WAssetsContext.Provider value={{ sprites, spriteMap, animations, pictures }}>
       {children}
     </SDL2WAssetsContext.Provider>
   );

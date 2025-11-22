@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { CardList } from '../components/CardList';
+import { GameEvent } from '../types/assets';
 import {
   GameEventForm,
-  GameEvent,
   createDefaultGameEvent,
 } from '../components/GameEventForm';
 import { Button } from '../elements/Button';
@@ -23,7 +23,7 @@ interface SpecialEventsProps {
 }
 
 export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
-  const { sprites } = useSDL2WAssets();
+  const { spriteMap } = useSDL2WAssets();
   const { gameEvents, setGameEvents, saveGameEvents } = useAssets();
   const [editGameEventIndex, setEditGameEventIndex] = useState<number>(-1);
   const [searchTerm, setSearchTerm] = useState('');
@@ -356,7 +356,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
               }
               renderAdditionalInfo={(item) => {
                 const gameEvent = item as unknown as GameEvent;
-                const sprite = sprites.find((s) => s.name === gameEvent.icon);
+                const sprite = spriteMap[gameEvent.icon];
                 return (
                   <>
                     <div

@@ -5,33 +5,10 @@ import { OptionSelect } from '../elements/OptionSelect';
 import { TextArea } from '../elements/TextArea';
 import { Button } from '../elements/Button';
 import { SpritePicker } from '../elements/SpritePicker';
+import { ItemTemplate } from '../types/assets';
 
-export interface ItemTemplate {
-  itemType: string;
-  name: string;
-  label: string;
-  icon: string;
-  description: string;
-  weight: number;
-  value: number;
-  // Optional fields
-  itemUsability?: string;
-  itemUsabilityArgs?: {
-    itemUsabilityType: string;
-    intArgs?: number[];
-    stringArgs?: string[];
-  };
-  statusEffects?: Array<{
-    statusEffectType: string;
-    name?: string;
-    label?: string;
-    description?: string;
-  }>;
-  weapon?: {
-    dmgMin?: number;
-    dmgMax?: number;
-  };
-}
+// Re-export for backward compatibility
+export type { ItemTemplate };
 
 const ITEM_TYPES = [
   'WEAPON_MELEE',

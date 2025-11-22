@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { CardList } from '../components/CardList';
+import { TilesetTemplate } from '../types/assets';
 import {
   TilesetTemplateForm,
-  TilesetTemplate,
   createDefaultTileset,
 } from '../components/TilesetTemplateForm';
 import { Button } from '../elements/Button';

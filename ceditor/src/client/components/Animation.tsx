@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { Animation as AnimationType, Sprite as SpriteType } from '../types/assets';
+import { Animation as AnimationType, Sprite as SpriteType } from '../types/assetsSDL2w';
 import { Sprite } from '../elements/Sprite';
 
 interface AnimationProps {
   animation: AnimationType;
   sprites: SpriteType[];
+  spriteMap?: Record<string, SpriteType>;
   scale?: number;
   className?: string;
   autoPlay?: boolean;
@@ -13,6 +14,7 @@ interface AnimationProps {
 export function Animation({
   animation,
   sprites,
+  spriteMap,
   scale = 1,
   className = '',
   autoPlay = true,
@@ -21,8 +23,11 @@ export function Animation({
   const intervalRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
 
-  // Find sprite by name
+  // Find sprite by name - use spriteMap if available for O(1) lookup
   const getSpriteByName = (name: string): SpriteType | undefined => {
+    if (spriteMap) {
+      return spriteMap[name];
+    }
     return sprites.find((s) => s.name === name);
   };
 

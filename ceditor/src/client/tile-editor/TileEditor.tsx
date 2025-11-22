@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { CarcerMapTemplate } from '../components/MapTemplateForm';
+import { CarcerMapTemplate } from '../types/assets';
 import { useRenderLoop } from './useRenderLoop';
 import { MapCanvas } from './MapCanvas';
 import { initPanzoom, unInitPanzoom } from './editorEvents';
@@ -23,7 +23,7 @@ export function TileEditor({ map, onMapUpdate }: TileEditorProps) {
   const mapCanvasRef = useRef<HTMLCanvasElement>(null);
   const mapRef = useRef<CarcerMapTemplate | undefined>(undefined);
   const editorState = useRef<EditorState | undefined>(undefined);
-  const { sprites } = useSDL2WAssets();
+  const { sprites, spriteMap } = useSDL2WAssets();
   const { tilesets, characters, items, gameEvents, maps } = useAssets();
   const reRender = useReRender();
 
@@ -91,6 +91,7 @@ export function TileEditor({ map, onMapUpdate }: TileEditorProps) {
           getMapData: () => mapRef.current as CarcerMapTemplate,
           getEditorState: () => editorState.current as EditorState,
           getSprites: () => sprites,
+          getSpriteMap: () => spriteMap,
           getTilesets: () => tilesets,
           getAssets: () => ({
             characters: characters,

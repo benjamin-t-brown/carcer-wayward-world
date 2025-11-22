@@ -4,13 +4,13 @@ import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { EditorState, updateEditorState } from './editorState';
 import { OptionSelect } from '../elements/OptionSelect';
 import { TileEditModal } from '../components/TileEditModal';
-import { TileMetadata } from '../components/TilesetTemplateForm';
+import { TileMetadata } from '../types/assets';
 import { Sprite } from '../elements/Sprite';
 import { getCachedImage } from '../utils/spriteUtils';
 
 export function TilePicker(props: { editorState: EditorState }) {
   const { tilesets, setTilesets } = useAssets();
-  const { pictures, sprites } = useSDL2WAssets();
+  const { pictures, spriteMap } = useSDL2WAssets();
   // const [selectedTilesetName, setSelectedTilesetName] = useState<string>('');
   const [scale, setScale] = useState<number>(1);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -190,10 +190,8 @@ export function TilePicker(props: { editorState: EditorState }) {
   // Find the sprite for the selected tile
   const selectedTileSprite =
     selectedTile && selectedTileset
-      ? sprites.find(
-          (s) => s.name === `${selectedTileset.name}_${selectedTile.id}`
-        )
-      : null;
+      ? spriteMap[`${selectedTileset.name}_${selectedTile.id}`]
+      : undefined;
 
   const selectedTileId =
     selectedTile && selectedTileset

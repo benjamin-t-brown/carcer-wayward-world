@@ -9,11 +9,13 @@ import {
 import { SDL2WAssetsProvider } from './contexts/SDL2WAssetsContext';
 import { AssetsProvider } from './contexts/AssetsContext';
 import { getDrawable } from './utils/spriteUtils';
-import { ItemTemplate } from './components/ItemTemplateForm';
-import { CharacterTemplate } from './components/CharacterTemplateForm';
-import { TilesetTemplate } from './components/TilesetTemplateForm';
-import { GameEvent } from './components/GameEventForm';
-import { CarcerMapTemplate } from './components/MapTemplateForm';
+import {
+  ItemTemplate,
+  CharacterTemplate,
+  TilesetTemplate,
+  GameEvent,
+  CarcerMapTemplate,
+} from './types/assets';
 
 interface AssetType {
   id: string;
@@ -80,6 +82,7 @@ async function loadMaps(): Promise<CarcerMapTemplate[]> {
 async function load(): Promise<{
   assetTypes: AssetType[];
   sprites: Sprite[];
+  spriteMap: Record<string, Sprite>;
   animations: Animation[];
   pictures: Record<string, string>;
   items: ItemTemplate[];
@@ -100,6 +103,12 @@ async function load(): Promise<{
     }
   }
   
+  // Create sprite map for O(1) lookup by name
+  const spriteMap: Record<string, Sprite> = {};
+  for (const sprite of sprites) {
+    spriteMap[sprite.name] = sprite;
+  }
+  
   // Load all assets in parallel
   const [items, characters, tilesets, gameEvents, maps] = await Promise.all([
     loadItems(),
@@ -110,7 +119,7 @@ async function load(): Promise<{
   ]);
   
   console.log('loaded', { assetTypes, sprites, animations, pictures, items, characters, tilesets, gameEvents, maps });
-  return { assetTypes, sprites, animations, pictures, items, characters, tilesets, gameEvents, maps };
+  return { assetTypes, sprites, spriteMap, animations, pictures, items, characters, tilesets, gameEvents, maps };
 }
 
 async function init() {
@@ -124,7 +133,7 @@ async function init() {
     `;
   }
   try {
-    const { assetTypes, sprites, animations, pictures, items, characters, tilesets, gameEvents, maps } = await load();
+    const { assetTypes, sprites, spriteMap, animations, pictures, items, characters, tilesets, gameEvents, maps } = await load();
     const container = document.getElementById('root');
 
     if (!container) {
@@ -137,6 +146,7 @@ async function init() {
       <React.StrictMode>
         <SDL2WAssetsProvider
           sprites={sprites}
+          spriteMap={spriteMap}
           animations={animations}
           pictures={pictures}
         >

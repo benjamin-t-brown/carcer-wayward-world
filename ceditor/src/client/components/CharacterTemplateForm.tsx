@@ -5,44 +5,10 @@ import { Button } from '../elements/Button';
 import { SpritePicker } from '../elements/SpritePicker';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { useMemo } from 'react';
+import { CharacterTemplate } from '../types/assets';
 
-export interface CharacterTemplate {
-  type: string;
-  name: string;
-  label: string;
-  spritesheet: string;
-  spriteOffset: number;
-  // Optional fields
-  talk?: {
-    talkName?: string;
-    portraitName?: string;
-  };
-  behavior?: {
-    behaviorName?: string;
-  };
-  combat?: {
-    stats?: {
-      str?: number;
-      mnd?: number;
-      con?: number;
-      agi?: number;
-      lck?: number;
-    };
-    hp?: number;
-    mp?: number;
-    dropTable?: string;
-  };
-  sound?: {
-    deathSoundName?: string;
-    weaponSoundName?: string;
-  };
-  statuses?: Array<{
-    status: string;
-  }>;
-  vision?: {
-    radius?: number;
-  };
-}
+// Re-export for backward compatibility
+export type { CharacterTemplate };
 
 const CHARACTER_TYPES = [
   'TOWNSPERSON',
@@ -68,7 +34,7 @@ export function createDefaultCharacter(): CharacterTemplate {
 
 export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
   const character = props.character;
-  const { sprites } = useSDL2WAssets();
+  const { spriteMap } = useSDL2WAssets();
 
   const formData = character as CharacterTemplate;
   const setFormData = (data: CharacterTemplate) => {
@@ -80,7 +46,7 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
 
   // Handle sprite selection - extract spritesheet and offset from selected sprite
   const handleSpriteChange = (spriteName: string) => {
-    const selectedSprite = sprites.find((s) => s.name === spriteName);
+    const selectedSprite = spriteMap[spriteName];
     if (selectedSprite) {
       setFormData({
         ...formData,

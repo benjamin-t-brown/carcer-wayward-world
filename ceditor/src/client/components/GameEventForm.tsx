@@ -9,15 +9,10 @@ import {
   GameEventChildForm,
 } from './GameEventChildForm';
 import { DeleteModal } from '../elements/DeleteModal';
+import { GameEvent } from '../types/assets';
 
-export interface GameEvent {
-  id: string;
-  title: string;
-  eventType: 'MODAL' | 'TALK' | 'TRAVEL';
-  icon: string;
-  vars?: Record<string, any>;
-  children?: any[];
-}
+// Re-export for backward compatibility
+export type { GameEvent };
 
 const GAME_EVENT_TYPES = ['MODAL', 'TALK', 'TRAVEL'];
 

@@ -1,6 +1,6 @@
 import { EditorState, setCurrentPaintAction } from './editorState';
 import { PaintActionType } from './paintTools';
-import { CarcerMapTemplate } from '../components/MapTemplateForm';
+import { CarcerMapTemplate } from '../types/assets';
 import { SelectedTileInfo } from './SelectedTileInfo';
 
 interface ToolsPanelProps {

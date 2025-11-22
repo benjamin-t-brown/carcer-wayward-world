@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { TextInput } from '../elements/TextInput';
 import { NumberInput } from '../elements/NumberInput';
 import { Button } from '../elements/Button';
-import { CarcerMapTemplate, createDefaultMap } from './MapTemplateForm';
+import { CarcerMapTemplate } from '../types/assets';
+import { createDefaultMap } from './MapTemplateForm';
 
 interface CreateMapModalProps {
   isOpen: boolean;

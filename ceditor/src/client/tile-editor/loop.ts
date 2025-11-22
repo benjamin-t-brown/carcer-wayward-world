@@ -15,7 +15,11 @@ import {
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
-} from '../components/MapTemplateForm';
+  TilesetTemplate,
+  CharacterTemplate,
+  ItemTemplate,
+  GameEvent,
+} from '../types/assets';
 import {
   EditorState,
   getEditorState,
@@ -27,11 +31,7 @@ import {
   getTransform,
 } from './editorEvents';
 import { Sprite } from '../utils/assetLoader';
-import { TilesetTemplate } from '../components/TilesetTemplateForm';
 import { calculateFillIndsFloor } from './fill';
-import { CharacterTemplate } from '../components/CharacterTemplateForm';
-import { ItemTemplate } from '../components/ItemTemplateForm';
-import { GameEvent } from '../components/GameEventForm';
 
 // let currentMap: MapResponse | null = null;
 // let isLooping = false;
@@ -152,7 +152,7 @@ const renderToolUi = (
   editorState: EditorState,
   mapData: CarcerMapTemplate,
   ctx: CanvasRenderingContext2D,
-  sprites: Sprite[],
+  spriteMap: Record<string, Sprite>,
   tilesets: TilesetTemplate[],
   characters: CharacterTemplate[],
   items: ItemTemplate[]
@@ -164,15 +164,13 @@ const renderToolUi = (
   );
   const paintTile = selectedTileset?.tiles[paintTileIndexInTileset];
   const paintTileSprite = paintTile
-    ? sprites.find(
-        (s) =>
-          s.name ===
-          getSpriteNameFromTileMetadata(
-            selectedTileset?.spriteBase ?? '',
-            paintTile
-          )
-      )
-    : null;
+    ? spriteMap[
+        getSpriteNameFromTileMetadata(
+          selectedTileset?.spriteBase ?? '',
+          paintTile
+        )
+      ]
+    : undefined;
   const tileWidth = mapData.spriteWidth;
   const tileHeight = mapData.spriteHeight;
   const rectCloneBrushTiles = editorState.rectCloneBrushTiles;
@@ -256,7 +254,7 @@ const renderToolUi = (
           y: editorState.hoveredTileData.y,
           ctx,
           newScale: scale,
-          sprites,
+          spriteMap,
           tilesets,
           mapSpriteWidth: mapData.spriteWidth,
           mapSpriteHeight: mapData.spriteHeight,
@@ -303,7 +301,7 @@ const renderToolUi = (
         }
 
         const spriteName = getSpriteNameFromTile(brush.originalTile.ref);
-        const spr = sprites.find((s) => s.name === spriteName);
+        const spr = spriteMap[spriteName];
         const tileX = newX * mapData.spriteWidth * scale;
         const tileY = newY * mapData.spriteHeight * scale;
         drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
@@ -329,7 +327,7 @@ const renderTileAndExtras = (args: {
   y: number;
   ctx: CanvasRenderingContext2D;
   newScale: number;
-  sprites: Sprite[];
+  spriteMap: Record<string, Sprite>;
   mapSpriteWidth: number;
   mapSpriteHeight: number;
   tilesets: TilesetTemplate[];
@@ -342,7 +340,7 @@ const renderTileAndExtras = (args: {
     y,
     ctx,
     newScale,
-    sprites,
+    spriteMap,
     mapSpriteWidth,
     mapSpriteHeight,
     tilesets,
@@ -353,7 +351,7 @@ const renderTileAndExtras = (args: {
   const tileX = x * mapSpriteWidth * newScale;
   const tileY = y * mapSpriteHeight * newScale;
   const spriteName = getSpriteNameFromTile(refTile);
-  const sprite = sprites.find((s) => s.name === spriteName);
+  const sprite = spriteMap[spriteName];
   if (sprite) {
     drawSprite(sprite, tileX, tileY, newScale, ctx);
   }
@@ -366,9 +364,7 @@ const renderTileAndExtras = (args: {
     const characterTemplate = characters.find((c) => c.name === characterName);
     if (characterTemplate) {
       const characterSpriteName = `${characterTemplate.spritesheet}_${characterTemplate.spriteOffset}`;
-      const characterSprite = sprites.find(
-        (s) => s.name === characterSpriteName
-      );
+      const characterSprite = spriteMap[characterSpriteName];
       if (characterSprite) {
         drawSprite(characterSprite, tileX, tileY, newScale, ctx);
       } else {
@@ -391,7 +387,7 @@ const renderTileAndExtras = (args: {
       const itemTemplate = items.find((i) => i.name === itemName);
       if (itemTemplate) {
         const itemSpriteName = itemTemplate.icon;
-        const itemSprite = sprites.find((s) => s.name === itemSpriteName);
+        const itemSprite = spriteMap[itemSpriteName];
         if (itemSprite) {
           const spriteWidth = itemSprite.width;
           const spriteHeight = itemSprite.height;
@@ -421,7 +417,7 @@ const renderTileAndExtras = (args: {
 
   let controlI = 0;
   for (const spriteName of controlSprites) {
-    const sprite = sprites.find((s) => s.name === spriteName);
+    const sprite = spriteMap[spriteName];
     if (sprite) {
       drawSprite(sprite, tileX, tileY + controlI * 8 * newScale, newScale, ctx);
     }
@@ -435,6 +431,7 @@ export const loop = (
     getMapData: () => CarcerMapTemplate;
     getEditorState: () => EditorState;
     getSprites: () => Sprite[];
+    getSpriteMap: () => Record<string, Sprite>;
     getTilesets: () => TilesetTemplate[];
     getAssets: () => {
       characters: CharacterTemplate[];
@@ -581,7 +578,7 @@ export const loop = (
             y,
             ctx,
             newScale,
-            sprites: mapDataInterface.getSprites(),
+            spriteMap: mapDataInterface.getSpriteMap(),
             mapSpriteWidth: mapDataInterface.getMapData().spriteWidth,
             mapSpriteHeight: mapDataInterface.getMapData().spriteHeight,
             tilesets: mapDataInterface.getTilesets(),
@@ -618,7 +615,7 @@ export const loop = (
       mapDataInterface.getEditorState(),
       currentMap,
       ctx,
-      mapDataInterface.getSprites(),
+      mapDataInterface.getSpriteMap(),
       mapDataInterface.getTilesets(),
       mapDataInterface.getAssets().characters,
       mapDataInterface.getAssets().items

@@ -1,5 +1,7 @@
-import { CarcerMapTileTemplate } from '../components/MapTemplateForm';
-import { TileMetadata } from '../components/TilesetTemplateForm';
+import {
+  CarcerMapTileTemplate,
+  TileMetadata,
+} from '../types/assets';
 import { Sprite } from '../utils/assetLoader';
 import { getCachedDrawable } from '../utils/spriteUtils';
 

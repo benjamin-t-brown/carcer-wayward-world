@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { CarcerMapTemplate } from '../components/MapTemplateForm';
+import { CarcerMapTemplate } from '../types/assets';
 import { Button } from '../elements/Button';
 import { Notification } from '../elements/Notification';
 import { OptionSelect } from '../elements/OptionSelect';

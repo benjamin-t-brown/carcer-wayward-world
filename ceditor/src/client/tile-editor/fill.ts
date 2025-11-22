@@ -1,7 +1,7 @@
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
-} from '../components/MapTemplateForm';
+} from '../types/assets';
 
 const getNeighbors = (x: number, y: number, width: number, height: number) => {
   const neighbors: number[] = [];

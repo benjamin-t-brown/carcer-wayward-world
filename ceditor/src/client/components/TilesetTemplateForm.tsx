@@ -4,33 +4,15 @@ import { NumberInput } from '../elements/NumberInput';
 import { PicturePicker } from '../elements/PicturePicker';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { TileEditModal } from './TileEditModal';
+import {
+  TileStepSound,
+  TileMetadata,
+  TilesetTemplate,
+} from '../types/assets';
 
-export enum TileStepSound {
-  TILE_STEP_SOUND_FLOOR,
-  TILE_STEP_SOUND_GRASS,
-  TILE_STEP_SOUND_DIRT,
-  TILE_STEP_SOUND_GRAVEL,
-}
-
-export interface TileMetadata {
-  id: number;
-  description?: string;
-  stepSound?: TileStepSound;
-  isWalkable?: boolean;
-  isSeeThrough?: boolean;
-  isDoor?: boolean;
-  isContainer?: boolean;
-}
-
-export interface TilesetTemplate {
-  name: string;
-  spriteBase: string;
-  imageWidth: number;
-  imageHeight: number;
-  tileWidth: number;
-  tileHeight: number;
-  tiles: TileMetadata[];
-}
+// Re-export for backward compatibility
+export { TileStepSound };
+export type { TileMetadata, TilesetTemplate };
 
 interface TilesetTemplateFormProps {
   tileset?: TilesetTemplate;

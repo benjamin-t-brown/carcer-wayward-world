@@ -1,7 +1,7 @@
 import { TextInput } from '../elements/TextInput';
 import { Button } from '../elements/Button';
 import { Sprite } from '../elements/Sprite';
-import { TileMetadata, TileStepSound } from './TilesetTemplateForm';
+import { TileMetadata, TileStepSound } from '../types/assets';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { OptionSelect } from '../elements/OptionSelect';
 
@@ -20,7 +20,7 @@ export function TileEditModal({
   onClose,
   onUpdate,
 }: TileEditModalProps) {
-  const { sprites } = useSDL2WAssets();
+  const { spriteMap } = useSDL2WAssets();
 
   if (!tile || tileIndex === null) {
     return null;
@@ -32,7 +32,7 @@ export function TileEditModal({
 
   // Find the sprite for this tile: tilesetName + '_' + tile.id
   const spriteName = `${tilesetName}_${tile.id}`;
-  const sprite = sprites.find((s) => s.name === spriteName);
+  const sprite = spriteMap[spriteName];
 
   const tileStepSoundOptions = [
     {

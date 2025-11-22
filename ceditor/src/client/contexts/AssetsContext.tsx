@@ -1,9 +1,11 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
-import { ItemTemplate } from '../components/ItemTemplateForm';
-import { CharacterTemplate } from '../components/CharacterTemplateForm';
-import { TilesetTemplate } from '../components/TilesetTemplateForm';
-import { GameEvent } from '../components/GameEventForm';
-import { CarcerMapTemplate } from '../components/MapTemplateForm';
+import {
+  ItemTemplate,
+  CharacterTemplate,
+  TilesetTemplate,
+  GameEvent,
+  CarcerMapTemplate,
+} from '../types/assets';
 
 interface AssetsContextType {
   // Assets

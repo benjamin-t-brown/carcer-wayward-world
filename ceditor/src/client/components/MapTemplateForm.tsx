@@ -1,55 +1,23 @@
 import { TextInput } from '../elements/TextInput';
 import { NumberInput } from '../elements/NumberInput';
-import { TileStepSound } from './TilesetTemplateForm';
+import {
+  CarcerMapTemplate,
+  CarcerMapTileTemplate,
+  TileOverrides,
+  TileEventTrigger,
+  TravelTrigger,
+  TileLightSource,
+} from '../types/assets';
 
-export interface CarcerMapTemplate {
-  name: string;
-  label: string;
-  width: number;
-  height: number;
-  spriteWidth: number;
-  spriteHeight: number;
-  tiles: CarcerMapTileTemplate[];
-}
-
-export interface TileOverrides {
-  isWalkableOverride?: boolean;
-  isSeeThroughOverride?: boolean;
-  isContainerOverride?: boolean;
-  lightSourceOverride?: TileLightSource;
-}
-
-export interface TileEventTrigger {
-  eventId: string;
-  isNonCombatTrigger?: boolean;
-  isLookTrigger?: boolean;
-}
-
-export interface TravelTrigger {
-  destinationMapName: string;
-  destinationMarkerName: string;
-  destinationX: number;
-  destinationY: number;
-}
-
-export interface TileLightSource {
-  angle: number;
-  intensity: number;
-  radius: number;
-}
-
-export interface CarcerMapTileTemplate {
-  characters: string[];
-  items: string[];
-  tileOverrides?: TileOverrides;
-  lightSource?: TileLightSource;
-  eventTrigger?: TileEventTrigger;
-  travelTrigger?: TravelTrigger;
-  tilesetName: string;
-  tileId: number;
-  x: number;
-  y: number;
-}
+// Re-export for backward compatibility
+export type {
+  CarcerMapTemplate,
+  CarcerMapTileTemplate,
+  TileOverrides,
+  TileEventTrigger,
+  TravelTrigger,
+  TileLightSource,
+};
 
 interface MapTemplateFormProps {
   map?: CarcerMapTemplate;

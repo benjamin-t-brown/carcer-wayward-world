@@ -5,8 +5,8 @@ import { Button } from '../elements/Button';
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
-  createDefaultCarcerMapTile,
-} from './MapTemplateForm';
+} from '../types/assets';
+import { createDefaultCarcerMapTile } from './MapTemplateForm';
 
 interface EditMapModalProps {
   isOpen: boolean;

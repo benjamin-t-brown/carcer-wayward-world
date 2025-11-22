@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { CardList } from '../components/CardList';
+import { CharacterTemplate } from '../types/assets';
 import {
   CharacterTemplateForm,
-  CharacterTemplate,
   createDefaultCharacter,
 } from '../components/CharacterTemplateForm';
 import { Button } from '../elements/Button';
