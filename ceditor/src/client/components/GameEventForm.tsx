@@ -13,13 +13,13 @@ import { DeleteModal } from '../elements/DeleteModal';
 export interface GameEvent {
   id: string;
   title: string;
-  eventType: 'MODAL' | 'TALK';
+  eventType: 'MODAL' | 'TALK' | 'TRAVEL';
   icon: string;
   vars?: Record<string, any>;
   children?: any[];
 }
 
-const GAME_EVENT_TYPES = ['MODAL', 'TALK'];
+const GAME_EVENT_TYPES = ['MODAL', 'TALK', 'TRAVEL'];
 
 interface GameEventFormProps {
   gameEvent?: GameEvent;

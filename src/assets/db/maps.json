@@ -2311,7 +2311,12 @@
         "x": 0,
         "y": 0,
         "characters": [],
-        "items": []
+        "items": [],
+        "eventTrigger": {
+          "eventId": "TestEvent",
+          "isNonCombatTrigger": true,
+          "isLookTrigger": false
+        }
       },
       {
         "tilesetName": "terrain0",
@@ -2531,7 +2536,12 @@
         "x": 0,
         "y": 0,
         "characters": [],
-        "items": []
+        "items": [],
+        "eventTrigger": {
+          "eventId": "TestEvent",
+          "isNonCombatTrigger": true,
+          "isLookTrigger": false
+        }
       },
       {
         "tilesetName": "terrain0",
@@ -2720,7 +2730,12 @@
         "x": 0,
         "y": 0,
         "characters": [],
-        "items": []
+        "items": [],
+        "eventTrigger": {
+          "eventId": "TestEvent",
+          "isNonCombatTrigger": true,
+          "isLookTrigger": false
+        }
       },
       {
         "tilesetName": "terrain0",
@@ -2728,7 +2743,12 @@
         "x": 0,
         "y": 0,
         "characters": [],
-        "items": []
+        "items": [],
+        "eventTrigger": {
+          "eventId": "TestEvent",
+          "isNonCombatTrigger": true,
+          "isLookTrigger": false
+        }
       },
       {
         "tilesetName": "terrain0",
@@ -2912,7 +2932,12 @@
         "x": 0,
         "y": 0,
         "characters": [],
-        "items": []
+        "items": [],
+        "eventTrigger": {
+          "eventId": "TestEvent",
+          "isNonCombatTrigger": true,
+          "isLookTrigger": false
+        }
       },
       {
         "tilesetName": "terrain0",
@@ -2964,7 +2989,7 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 32,
+        "tileId": 0,
         "x": 17,
         "y": 14,
         "characters": [],

@@ -14,6 +14,13 @@ struct TileEventTrigger {
   bool isLookTrigger = false;
 };
 
+struct TravelTrigger {
+  std::string destinationMapName;
+  std::string destinationMarkerName;
+  int destinationX = 0;
+  int destinationY = 0;
+};
+
 struct TileLightSource {
   float angle;
   float intensity;
@@ -41,6 +48,7 @@ struct CarcerMapTileTemplate {
   std::optional<TileOverrides> tileOverrides;
   std::optional<TileLightSource> lightSource;
   std::optional<TileEventTrigger> eventTrigger;
+  std::optional<TravelTrigger> travelTrigger;
   std::string tilesetName;
   int tileId;
   int x;

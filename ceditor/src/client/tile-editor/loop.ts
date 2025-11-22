@@ -217,6 +217,23 @@ const renderToolUi = (
         Math.floor(hoveredTileInd / mapData.width) * tileHeight * scale;
       drawHighlightEraseRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
     }
+  } else if (currentPaintAction === PaintActionType.ERASE_META) {
+    const hoveredTileInd = editorState.hoveredTileIndex;
+    if (hoveredTileInd > -1) {
+      const tileX = (hoveredTileInd % mapData.width) * tileWidth * scale;
+      const tileY =
+        Math.floor(hoveredTileInd / mapData.width) * tileHeight * scale;
+      // Use a different color to distinguish from regular erase
+      drawRect(
+        tileX,
+        tileY,
+        tileWidth * scale,
+        tileHeight * scale,
+        'rgba(255, 165, 0, 0.44)',
+        false,
+        ctx
+      );
+    }
   } else if (
     currentPaintAction === PaintActionType.SELECT ||
     currentPaintAction === PaintActionType.CLONE
@@ -396,6 +413,10 @@ const renderTileAndExtras = (args: {
 
   if (refTile.eventTrigger) {
     controlSprites.push('control_0');
+  }
+
+  if (refTile.travelTrigger) {
+    controlSprites.push('control_3');
   }
 
   let controlI = 0;

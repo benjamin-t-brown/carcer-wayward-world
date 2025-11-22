@@ -18,6 +18,7 @@ export enum PaintActionType {
   NONE = '',
   DRAW = 'DRAW',
   ERASE = 'ERASE',
+  ERASE_META = 'ERASE_META',
   FILL = 'FILL',
   SELECT = 'SELECT',
   CLONE = 'CLONE',
@@ -82,6 +83,9 @@ export const applyAction = (
       break;
     case PaintActionType.ERASE:
       break;
+    case PaintActionType.ERASE_META:
+      // Erase metadata is handled in applyActionUpdate
+      break;
     case PaintActionType.FILL: {
       const ind = editorState.hoveredTileIndex;
       const fillIndsFloor = calculateFillIndsFloor(ind, mapData);
@@ -130,12 +134,18 @@ export const applyAction = (
             destTile.eventTrigger = sourceTile.eventTrigger;
           }
           
+          // Move travel trigger (destination takes precedence)
+          if (sourceTile.travelTrigger && !destTile.travelTrigger) {
+            destTile.travelTrigger = structuredClone(sourceTile.travelTrigger);
+          }
+          
           // Clear the source tile's movable data (keep base tile appearance)
           sourceTile.characters = [];
           sourceTile.items = [];
           delete sourceTile.tileOverrides;
           delete sourceTile.lightSource;
           delete sourceTile.eventTrigger;
+          delete sourceTile.travelTrigger;
         }
       }
       break;
@@ -168,6 +178,11 @@ export const applyAction = (
           // Clone event trigger (destination takes precedence)
           if (sourceTile.eventTrigger && !destTile.eventTrigger) {
             destTile.eventTrigger = structuredClone(sourceTile.eventTrigger);
+          }
+          
+          // Clone travel trigger (destination takes precedence)
+          if (sourceTile.travelTrigger && !destTile.travelTrigger) {
+            destTile.travelTrigger = structuredClone(sourceTile.travelTrigger);
           }
           
           // Note: Source tile keeps its data (unlike SELECT which clears it)
@@ -224,11 +239,25 @@ export const applyActionUpdate = (
       }
 
       break;
+    case PaintActionType.ERASE_META:
+      for (const ind of action.data.tileInds) {
+        const tile = mapData.tiles[ind];
+        // Clear metadata but keep base tile properties
+        tile.characters = [];
+        tile.items = [];
+        delete tile.tileOverrides;
+        delete tile.lightSource;
+        delete tile.eventTrigger;
+        delete tile.travelTrigger;
+      }
+      break;
     case PaintActionType.FILL:
       break;
     case PaintActionType.SELECT:
       break;
     case PaintActionType.CLONE:
+      break;
+    case PaintActionType.ERASE_META:
       break;
     // case PaintActionType.MOVE:
     //   break;
@@ -263,6 +292,39 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
         const ind = action.data.tileInds[i];
         if (i < action.data.prevRefData.length) {
           mapData.tiles[ind] = structuredClone(action.data.prevRefData[i]);
+        }
+      }
+      break;
+    case PaintActionType.ERASE_META:
+      // Restore previous tile metadata for all affected tiles
+      for (let i = 0; i < action.data.tileInds.length; i++) {
+        const ind = action.data.tileInds[i];
+        if (i < action.data.prevRefData.length) {
+          const prevTile = action.data.prevRefData[i];
+          const currentTile = mapData.tiles[ind];
+          // Restore metadata but keep current base properties (tilesetName, tileId, x, y)
+          currentTile.characters = structuredClone(prevTile.characters);
+          currentTile.items = structuredClone(prevTile.items);
+          if (prevTile.tileOverrides) {
+            currentTile.tileOverrides = structuredClone(prevTile.tileOverrides);
+          } else {
+            delete currentTile.tileOverrides;
+          }
+          if (prevTile.lightSource) {
+            currentTile.lightSource = structuredClone(prevTile.lightSource);
+          } else {
+            delete currentTile.lightSource;
+          }
+          if (prevTile.eventTrigger) {
+            currentTile.eventTrigger = structuredClone(prevTile.eventTrigger);
+          } else {
+            delete currentTile.eventTrigger;
+          }
+          if (prevTile.travelTrigger) {
+            currentTile.travelTrigger = structuredClone(prevTile.travelTrigger);
+          } else {
+            delete currentTile.travelTrigger;
+          }
         }
       }
       break;

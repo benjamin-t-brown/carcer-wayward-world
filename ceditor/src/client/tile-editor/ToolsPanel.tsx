@@ -44,6 +44,12 @@ export function ToolsPanel({
     }
   };
 
+  const handleEraseMetaClick = () => {
+    if (editorState.currentPaintAction !== PaintActionType.ERASE_META) {
+      setCurrentPaintAction(PaintActionType.ERASE_META);
+    }
+  };
+
   const currentPaintAction = editorState.currentPaintAction;
 
   return (
@@ -171,6 +177,14 @@ export function ToolsPanel({
         >
           🪣
         </button>
+        <div
+          style={{
+            width: '100%',
+            height: '1px',
+            backgroundColor: '#3e3e42',
+            margin: '4px 0',
+          }}
+        />
         <button
           onClick={handleSelectClick}
           style={{
@@ -234,6 +248,38 @@ export function ToolsPanel({
           title="Clone tool"
         >
           📋
+        </button>
+        <button
+          onClick={handleEraseMetaClick}
+          style={{
+            padding: '6px 10px',
+            border: '1px solid #3e3e42',
+            backgroundColor:
+              currentPaintAction === PaintActionType.ERASE_META ? '#4ec9b0' : '#3e3e42',
+            color:
+              currentPaintAction === PaintActionType.ERASE_META ? '#1e1e1e' : '#ffffff',
+            cursor: 'pointer',
+            fontSize: '18px',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'background-color 0.2s, color 0.2s',
+            minWidth: '40px',
+          }}
+          onMouseEnter={(e) => {
+            if (currentPaintAction !== PaintActionType.ERASE_META) {
+              e.currentTarget.style.backgroundColor = '#4a4a4a';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (currentPaintAction !== PaintActionType.ERASE_META) {
+              e.currentTarget.style.backgroundColor = '#3e3e42';
+            }
+          }}
+          title="Erase metadata tool"
+        >
+          🗑
         </button>
       </div>
       <SelectedTileInfo

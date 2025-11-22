@@ -25,6 +25,13 @@ export interface TileEventTrigger {
   isLookTrigger?: boolean;
 }
 
+export interface TravelTrigger {
+  destinationMapName: string;
+  destinationMarkerName: string;
+  destinationX: number;
+  destinationY: number;
+}
+
 export interface TileLightSource {
   angle: number;
   intensity: number;
@@ -37,6 +44,7 @@ export interface CarcerMapTileTemplate {
   tileOverrides?: TileOverrides;
   lightSource?: TileLightSource;
   eventTrigger?: TileEventTrigger;
+  travelTrigger?: TravelTrigger;
   tilesetName: string;
   tileId: number;
   x: number;
