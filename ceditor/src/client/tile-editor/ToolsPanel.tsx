@@ -38,6 +38,12 @@ export function ToolsPanel({
     }
   };
 
+  const handleCloneClick = () => {
+    if (editorState.currentPaintAction !== PaintActionType.CLONE) {
+      setCurrentPaintAction(PaintActionType.CLONE);
+    }
+  };
+
   const currentPaintAction = editorState.currentPaintAction;
 
   return (
@@ -196,6 +202,38 @@ export function ToolsPanel({
           title="Select tool"
         >
           👆
+        </button>
+        <button
+          onClick={handleCloneClick}
+          style={{
+            padding: '6px 10px',
+            border: '1px solid #3e3e42',
+            backgroundColor:
+              currentPaintAction === PaintActionType.CLONE ? '#4ec9b0' : '#3e3e42',
+            color:
+              currentPaintAction === PaintActionType.CLONE ? '#1e1e1e' : '#ffffff',
+            cursor: 'pointer',
+            fontSize: '18px',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'background-color 0.2s, color 0.2s',
+            minWidth: '40px',
+          }}
+          onMouseEnter={(e) => {
+            if (currentPaintAction !== PaintActionType.CLONE) {
+              e.currentTarget.style.backgroundColor = '#4a4a4a';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (currentPaintAction !== PaintActionType.CLONE) {
+              e.currentTarget.style.backgroundColor = '#3e3e42';
+            }
+          }}
+          title="Clone tool"
+        >
+          📋
         </button>
       </div>
       <SelectedTileInfo

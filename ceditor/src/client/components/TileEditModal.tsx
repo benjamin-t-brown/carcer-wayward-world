@@ -67,7 +67,6 @@ export function TileEditModal({
         justifyContent: 'center',
         zIndex: 1000,
       }}
-      onClick={onClose}
     >
       <div
         style={{

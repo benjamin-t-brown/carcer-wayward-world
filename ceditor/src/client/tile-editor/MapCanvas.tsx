@@ -33,8 +33,23 @@ export const MapCanvas = (props: {
     if (canvas) {
       canvas.width = width;
       canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.imageSmoothingEnabled = false;
+      }
+      canvas.style.imageRendering = 'pixelated';
     }
   });
+  useEffect(() => {
+    const canvas = props.canvasRef.current;
+    if (canvas) {
+      canvas.style.imageRendering = 'pixelated';
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.imageSmoothingEnabled = false;
+      }
+    }
+  }, []);
   return (
     <div
       id="map-canvas"

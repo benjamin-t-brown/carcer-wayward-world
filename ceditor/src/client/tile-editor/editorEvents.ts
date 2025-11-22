@@ -115,6 +115,10 @@ export const initPanzoom = (mapDataInterface: {
         if (!ev.ctrlKey) {
           setCurrentPaintAction(PaintActionType.SELECT);
         }
+      } else if (ev.key === 'c') {
+        if (!ev.ctrlKey) {
+          setCurrentPaintAction(PaintActionType.CLONE);
+        }
       }
     }
   };
@@ -138,10 +142,11 @@ export const initPanzoom = (mapDataInterface: {
       if (currentPaintAction === PaintActionType.NONE) {
         return;
       }
-      
+
       // SELECT action: start dragging to move tile data
       if (currentPaintAction === PaintActionType.SELECT) {
-        const hoveredTileIndex = mapDataInterface.getEditorState().hoveredTileIndex;
+        const hoveredTileIndex =
+          mapDataInterface.getEditorState().hoveredTileIndex;
         if (hoveredTileIndex >= 0) {
           updateEditorState({
             selectedTileInd: hoveredTileIndex,
@@ -151,7 +156,21 @@ export const initPanzoom = (mapDataInterface: {
         }
         return;
       }
-      
+
+      // CLONE action: start dragging to clone tile data
+      if (currentPaintAction === PaintActionType.CLONE) {
+        const hoveredTileIndex =
+          mapDataInterface.getEditorState().hoveredTileIndex;
+        if (hoveredTileIndex >= 0) {
+          updateEditorState({
+            selectedTileInd: hoveredTileIndex,
+            selectDragSourceTileIndex: hoveredTileIndex,
+            isSelectDragging: true,
+          });
+        }
+        return;
+      }
+
       mapEditorEventState.isPainting = true;
       const action = createPaintAction(currentPaintAction);
       action.data.paintTileRef = {
@@ -178,7 +197,17 @@ export const initPanzoom = (mapDataInterface: {
         rectSelectTileIndEnd:
           mapDataInterface.getEditorState().hoveredTileIndex,
       });
+
       // setSelectedMapTileIndex(getHoveredTileInd());
+    } else if (
+      ev.button === 2 &&
+      [PaintActionType.CLONE, PaintActionType.SELECT].includes(
+        getCurrentPaintAction()
+      )
+    ) {
+      updateEditorState({
+        selectedTileInd: mapDataInterface.getEditorState().hoveredTileIndex,
+      });
     }
   };
   const handleMouseMove = (ev: MouseEvent) => {
@@ -223,33 +252,47 @@ export const initPanzoom = (mapDataInterface: {
         selectedTileInd: mapDataInterface.getEditorState().hoveredTileIndex,
       });
     }
-    // Handle SELECT drag completion
+    // Handle SELECT/CLONE drag completion
     const editorState = mapDataInterface.getEditorState();
     if (editorState.isSelectDragging && ev.button === 0) {
       const sourceTileIndex = editorState.selectDragSourceTileIndex;
       const destTileIndex = editorState.hoveredTileIndex;
-      
+      const currentPaintAction = editorState.currentPaintAction;
+
       // Only create action if dragging to a different tile
-      if (sourceTileIndex >= 0 && destTileIndex >= 0 && sourceTileIndex !== destTileIndex) {
-        const action = createPaintAction(PaintActionType.SELECT);
+      if (
+        sourceTileIndex >= 0 &&
+        destTileIndex >= 0 &&
+        sourceTileIndex !== destTileIndex
+      ) {
+        const actionType =
+          currentPaintAction === PaintActionType.CLONE
+            ? PaintActionType.CLONE
+            : PaintActionType.SELECT;
+        const action = createPaintAction(actionType);
         action.data.startInd = sourceTileIndex;
         action.data.endInd = destTileIndex;
         action.data.tileInds = [sourceTileIndex, destTileIndex];
-        
+
         const mapData = mapDataInterface.getMapData();
         if (mapData) {
           // Store previous state of both tiles for undo
-          action.data.prevRefData.push(structuredClone(mapData.tiles[sourceTileIndex]));
-          action.data.prevRefData.push(structuredClone(mapData.tiles[destTileIndex]));
-          
+          action.data.prevRefData.push(
+            structuredClone(mapData.tiles[sourceTileIndex])
+          );
+          action.data.prevRefData.push(
+            structuredClone(mapData.tiles[destTileIndex])
+          );
+
           onActionComplete(action, mapData, editorState);
         }
       }
-      
+
       updateEditorState({
         isSelectDragging: false,
         selectDragSourceTileIndex: -1,
-        selectedTileInd: destTileIndex >= 0 ? destTileIndex : editorState.selectedTileInd,
+        selectedTileInd:
+          destTileIndex >= 0 ? destTileIndex : editorState.selectedTileInd,
       });
     }
     if (mapEditorEventState.isDraggingRight) {

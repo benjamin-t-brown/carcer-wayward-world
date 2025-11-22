@@ -325,7 +325,7 @@ export function TilePicker(props: { editorState: EditorState }) {
               }}
               title="Edit tileset in new tab"
             >
-              ✎
+              🔗
             </button>
           </div>
         ))}

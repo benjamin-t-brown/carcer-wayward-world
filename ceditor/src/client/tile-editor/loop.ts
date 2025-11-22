@@ -106,7 +106,7 @@ const drawSelectedTileRect = (
     tileY + borderWidth,
     tileWidth * scale - borderWidth * 2,
     tileHeight * scale - borderWidth * 2,
-    'rgba(0, 0, 255, 0.2)',
+    'rgba(0, 255, 0, 0.1)',
     false,
     ctx
   );
@@ -217,7 +217,10 @@ const renderToolUi = (
         Math.floor(hoveredTileInd / mapData.width) * tileHeight * scale;
       drawHighlightEraseRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
     }
-  } else if (currentPaintAction === PaintActionType.SELECT) {
+  } else if (
+    currentPaintAction === PaintActionType.SELECT ||
+    currentPaintAction === PaintActionType.CLONE
+  ) {
     // Draw the source tile at the destination when dragging
     if (editorState.isSelectDragging) {
       const sourceTileIndex = editorState.selectDragSourceTileIndex;
@@ -228,15 +231,16 @@ const renderToolUi = (
         destTileIndex >= 0 &&
         sourceTileIndex !== destTileIndex
       ) {
-        ctx.save()
+        ctx.save();
         ctx.globalAlpha = 0.5;
-        drawTileAndExtras({
+        renderTileAndExtras({
           refTile: mapData.tiles[sourceTileIndex],
           x: editorState.hoveredTileData.x,
           y: editorState.hoveredTileData.y,
           ctx,
           newScale: scale,
           sprites,
+          tilesets,
           mapSpriteWidth: mapData.spriteWidth,
           mapSpriteHeight: mapData.spriteHeight,
           characters,
@@ -302,7 +306,7 @@ const renderToolUi = (
   ctx.restore();
 };
 
-const drawTileAndExtras = (args: {
+const renderTileAndExtras = (args: {
   refTile: CarcerMapTileTemplate;
   x: number;
   y: number;
@@ -311,6 +315,7 @@ const drawTileAndExtras = (args: {
   sprites: Sprite[];
   mapSpriteWidth: number;
   mapSpriteHeight: number;
+  tilesets: TilesetTemplate[];
   characters: CharacterTemplate[];
   items: ItemTemplate[];
 }) => {
@@ -323,6 +328,7 @@ const drawTileAndExtras = (args: {
     sprites,
     mapSpriteWidth,
     mapSpriteHeight,
+    tilesets,
     characters,
     items,
   } = args;
@@ -334,6 +340,10 @@ const drawTileAndExtras = (args: {
   if (sprite) {
     drawSprite(sprite, tileX, tileY, newScale, ctx);
   }
+
+  const tileTemplate = tilesets
+    .find((t) => t.name === refTile.tilesetName)
+    ?.tiles.find((t) => t.id === refTile.tileId);
 
   for (const characterName of refTile.characters) {
     const characterTemplate = characters.find((c) => c.name === characterName);
@@ -350,20 +360,29 @@ const drawTileAndExtras = (args: {
     }
   }
 
-  for (const itemName of refTile.items) {
-    const itemTemplate = items.find((i) => i.name === itemName);
-    if (itemTemplate) {
-      const itemSpriteName = itemTemplate.icon;
-      const itemSprite = sprites.find((s) => s.name === itemSpriteName);
-      if (itemSprite) {
-        const spriteWidth = itemSprite.width;
-        const spriteHeight = itemSprite.height;
-        const spriteX = tileX + ((mapSpriteWidth - spriteWidth) * newScale) / 2;
-        const spriteY =
-          tileY + ((mapSpriteHeight - spriteHeight) * newScale) / 2;
-        drawSprite(itemSprite, spriteX, spriteY, newScale, ctx);
-      } else {
-        console.error(`Item sprite not found: ${itemSpriteName}`);
+  const tileIsContainerWithItems =
+    (refTile.items.length && tileTemplate?.isContainer) ||
+    (!tileTemplate?.isContainer && refTile.tileOverrides?.isContainerOverride);
+
+  if (tileIsContainerWithItems) {
+    controlSprites.push('control_1');
+  } else {
+    for (const itemName of refTile.items) {
+      const itemTemplate = items.find((i) => i.name === itemName);
+      if (itemTemplate) {
+        const itemSpriteName = itemTemplate.icon;
+        const itemSprite = sprites.find((s) => s.name === itemSpriteName);
+        if (itemSprite) {
+          const spriteWidth = itemSprite.width;
+          const spriteHeight = itemSprite.height;
+          const spriteX =
+            tileX + ((mapSpriteWidth - spriteWidth) * newScale) / 2;
+          const spriteY =
+            tileY + ((mapSpriteHeight - spriteHeight) * newScale) / 2;
+          drawSprite(itemSprite, spriteX, spriteY, newScale, ctx);
+        } else {
+          console.error(`Item sprite not found: ${itemSpriteName}`);
+        }
       }
     }
   }
@@ -526,11 +545,9 @@ export const loop = (
 
       for (let y = 0; y < currentMap.height; y++) {
         for (let x = 0; x < currentMap.width; x++) {
-          const tileControlSprites: string[] = [];
           const tileIndex = y * currentMap.width + x;
           const refTile = currentMap.tiles[tileIndex];
-          const tileId = refTile.tileId ?? -1;
-          drawTileAndExtras({
+          renderTileAndExtras({
             refTile,
             x,
             y,
@@ -539,92 +556,10 @@ export const loop = (
             sprites: mapDataInterface.getSprites(),
             mapSpriteWidth: mapDataInterface.getMapData().spriteWidth,
             mapSpriteHeight: mapDataInterface.getMapData().spriteHeight,
+            tilesets: mapDataInterface.getTilesets(),
             characters: mapDataInterface.getAssets().characters,
             items: mapDataInterface.getAssets().items,
           });
-          //   if (tileId > -1) {
-          //     const tileX =
-          //       x * mapDataInterface.getMapData().spriteWidth * newScale;
-          //     const tileY =
-          //       y * mapDataInterface.getMapData().spriteHeight * newScale;
-          //     const spriteName = getSpriteNameFromTile(refTile);
-          //     const sprite = mapDataInterface
-          //       .getSprites()
-          //       .find((s) => s.name === spriteName);
-          //     if (sprite) {
-          //       drawSprite(sprite, tileX, tileY, newScale, ctx);
-          //     }
-
-          //     for (const characterName of refTile.characters) {
-          //       const characterTemplate = mapDataInterface
-          //         .getAssets()
-          //         .characters.find((c) => c.name === characterName);
-          //       if (characterTemplate) {
-          //         const characterSpriteName = `${characterTemplate.spritesheet}_${characterTemplate.spriteOffset}`;
-          //         const characterSprite = mapDataInterface
-          //           .getSprites()
-          //           .find((s) => s.name === characterSpriteName);
-          //         if (characterSprite) {
-          //           drawSprite(characterSprite, tileX, tileY, newScale, ctx);
-          //         } else {
-          //           console.error(
-          //             `Character sprite not found: ${characterSpriteName}`
-          //           );
-          //         }
-          //       }
-          //     }
-
-          //     for (const itemName of refTile.items) {
-          //       const itemTemplate = mapDataInterface
-          //         .getAssets()
-          //         .items.find((i) => i.name === itemName);
-          //       if (itemTemplate) {
-          //         const itemSpriteName = itemTemplate.icon;
-          //         const itemSprite = mapDataInterface
-          //           .getSprites()
-          //           .find((s) => s.name === itemSpriteName);
-          //         if (itemSprite) {
-          //           const spriteWidth = itemSprite.width;
-          //           const spriteHeight = itemSprite.height;
-          //           const spriteX =
-          //             tileX +
-          //             ((mapDataInterface.getMapData().spriteWidth - spriteWidth) *
-          //               newScale) /
-          //               2;
-          //           const spriteY =
-          //             tileY +
-          //             ((mapDataInterface.getMapData().spriteHeight -
-          //               spriteHeight) *
-          //               newScale) /
-          //               2;
-          //           drawSprite(itemSprite, spriteX, spriteY, newScale, ctx);
-          //         } else {
-          //           console.error(`Item sprite not found: ${itemSpriteName}`);
-          //         }
-          //       }
-          //     }
-
-          //     if (refTile.tileOverrides) {
-          //       tileControlSprites.push('control_2');
-          //     }
-
-          //     let controlI = 0;
-          //     for (const spriteName of tileControlSprites) {
-          //       const sprite = mapDataInterface
-          //         .getSprites()
-          //         .find((s) => s.name === spriteName);
-          //       if (sprite) {
-          //         drawSprite(
-          //           sprite,
-          //           tileX,
-          //           tileY + controlI * 8 * newScale,
-          //           newScale,
-          //           ctx
-          //         );
-          //       }
-          //       controlI++;
-          //     }
-          //   }
 
           if (i === 0) {
             // grid

@@ -20,6 +20,7 @@ export enum PaintActionType {
   ERASE = 'ERASE',
   FILL = 'FILL',
   SELECT = 'SELECT',
+  CLONE = 'CLONE',
   // MOVE = 'MOVE',
   // COPY = 'COPY',
   // PASTE = 'PASTE',
@@ -139,6 +140,41 @@ export const applyAction = (
       }
       break;
     }
+    case PaintActionType.CLONE: {
+      // Clone tile data (characters, items, overrides) from source to destination
+      if (action.data.tileInds.length >= 2 && action.data.prevRefData.length >= 2) {
+        const sourceTileIndex = action.data.startInd;
+        const destTileIndex = action.data.endInd;
+        
+        if (sourceTileIndex >= 0 && destTileIndex >= 0 && sourceTileIndex !== destTileIndex) {
+          const sourceTile = mapData.tiles[sourceTileIndex];
+          const destTile = mapData.tiles[destTileIndex];
+          
+          // Clone characters, items, and overrides from source to destination
+          // Merge with existing data on destination
+          destTile.characters = [...(destTile.characters || []), ...(sourceTile.characters || [])];
+          destTile.items = [...(destTile.items || []), ...(sourceTile.items || [])];
+          
+          // Clone overrides (destination takes precedence if both exist)
+          if (sourceTile.tileOverrides) {
+            destTile.tileOverrides = { ...sourceTile.tileOverrides, ...(destTile.tileOverrides || {}) };
+          }
+          
+          // Clone light source (destination takes precedence)
+          if (sourceTile.lightSource && !destTile.lightSource) {
+            destTile.lightSource = structuredClone(sourceTile.lightSource);
+          }
+          
+          // Clone event trigger (destination takes precedence)
+          if (sourceTile.eventTrigger && !destTile.eventTrigger) {
+            destTile.eventTrigger = structuredClone(sourceTile.eventTrigger);
+          }
+          
+          // Note: Source tile keeps its data (unlike SELECT which clears it)
+        }
+      }
+      break;
+    }
     // case PaintActionType.MOVE:
     //   break;
     // case PaintActionType.COPY:
@@ -191,6 +227,8 @@ export const applyActionUpdate = (
     case PaintActionType.FILL:
       break;
     case PaintActionType.SELECT:
+      break;
+    case PaintActionType.CLONE:
       break;
     // case PaintActionType.MOVE:
     //   break;
@@ -250,6 +288,21 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
             mapData.tiles[sourceTileIndex] = structuredClone(action.data.prevRefData[0]);
           }
           // Restore destination tile (index 1 in prevRefData)
+          if (1 < action.data.prevRefData.length) {
+            mapData.tiles[destTileIndex] = structuredClone(action.data.prevRefData[1]);
+          }
+        }
+      }
+      break;
+    }
+    case PaintActionType.CLONE: {
+      // Restore destination tile to its previous state (source tile unchanged)
+      if (action.data.tileInds.length >= 2 && action.data.prevRefData.length >= 2) {
+        const destTileIndex = action.data.endInd;
+        
+        if (destTileIndex >= 0) {
+          // Restore destination tile (index 1 in prevRefData)
+          // Source tile (index 0) is not modified by CLONE, so we don't restore it
           if (1 < action.data.prevRefData.length) {
             mapData.tiles[destTileIndex] = structuredClone(action.data.prevRefData[1]);
           }

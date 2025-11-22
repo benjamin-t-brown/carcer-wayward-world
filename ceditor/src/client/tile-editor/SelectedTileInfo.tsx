@@ -27,23 +27,12 @@ function OverrideCheckbox({
   label: string;
   onChange: (newValue: boolean | undefined) => void;
 }) {
-  const checkboxRef = useRef<HTMLInputElement>(null);
-
-  // useEffect(() => {
-  //   if (checkboxRef.current) {
-  //     checkboxRef.current.indeterminate = value === undefined;
-  //   }
-  // }, [value]);
+  // Treat undefined as false for display and toggle purposes
+  const isChecked = value === true;
 
   const handleChange = () => {
-    let newValue: boolean | undefined;
-    if (value === undefined) {
-      newValue = true;
-    } else if (value === true) {
-      newValue = false;
-    } else {
-      newValue = undefined;
-    }
+    // Toggle between true and false only (treating undefined as false)
+    const newValue = !isChecked;
     onChange(newValue);
   };
 
@@ -58,9 +47,8 @@ function OverrideCheckbox({
       }}
     >
       <input
-        ref={checkboxRef}
         type="checkbox"
-        checked={value === true}
+        checked={isChecked}
         onChange={handleChange}
         style={{
           cursor: 'pointer',
@@ -69,17 +57,15 @@ function OverrideCheckbox({
         }}
       />
       <span style={{ color: '#ffffff' }}>{label}</span>
-      {value !== undefined && (
-        <span
-          style={{
-            color: value ? '#4ec9b0' : '#ff6b6b',
-            fontSize: '10px',
-            marginLeft: 'auto',
-          }}
-        >
-          {value ? 'true' : 'false'}
-        </span>
-      )}
+      <span
+        style={{
+          color: isChecked ? '#4ec9b0' : '#ff6b6b',
+          fontSize: '10px',
+          marginLeft: 'auto',
+        }}
+      >
+        {isChecked ? 'true' : 'false'}
+      </span>
     </label>
   );
 }
@@ -599,7 +585,7 @@ export function SelectedTileInfo({
 
               return (
                 <OverrideCheckbox
-                  key={key}
+                  key={key + selectedTile.tileId}
                   value={value}
                   label={label}
                   onChange={(newValue) => handleToggleOverride(key, newValue)}
@@ -658,7 +644,7 @@ export function SelectedTileInfo({
               );
               return (
                 <div
-                  key={characterName}
+                  key={characterName + selectedTile.tileId}
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -734,7 +720,7 @@ export function SelectedTileInfo({
                       }}
                       title="Edit character in new tab"
                     >
-                      ✎
+                      🔗
                     </button>
                     <button
                       onClick={() => {
@@ -829,7 +815,7 @@ export function SelectedTileInfo({
               const item = items.find((i) => i.name === itemName);
               return (
                 <div
-                  key={itemName}
+                  key={itemName + selectedTile.tileId}
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -905,7 +891,7 @@ export function SelectedTileInfo({
                       }}
                       title="Edit item in new tab"
                     >
-                      ✎
+                      🔗
                     </button>
                     <button
                       onClick={() => {

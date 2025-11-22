@@ -63,7 +63,7 @@ export interface EditorState {
 const editorState: EditorState = {
   selectedTileIndexInTileset: -1,
   selectedTilesetName: '',
-  currentPaintAction: '' as any,
+  currentPaintAction: 'SELECT' as any,
   fillIndsFloor: [],
   selectedTileInd: -1,
   hoveredTileIndex: -1,

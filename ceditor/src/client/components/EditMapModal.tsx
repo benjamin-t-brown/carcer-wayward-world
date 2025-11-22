@@ -24,11 +24,13 @@ export function EditMapModal({
   onDelete,
 }: EditMapModalProps) {
   const [formData, setFormData] = useState<CarcerMapTemplate | null>(null);
+  const [previousDimensions, setPreviousDimensions] = useState([0, 0]);
 
   // Update form data when map changes
   useEffect(() => {
     if (map) {
       setFormData({ ...map });
+      setPreviousDimensions([map.width, map.height]);
     }
   }, [map]);
 
@@ -55,24 +57,16 @@ export function EditMapModal({
     ): CarcerMapTemplate => {
       // Create a set of existing tile positions for quick lookup
       const existingTiles = new Map<string, CarcerMapTileTemplate>();
-      for (let i = 0; i < currentData.height; i++) {
-        for (let j = 0; j < currentData.width; j++) {
+      const [prevWidth, prevHeight] = previousDimensions ?? [currentData.width, currentData.height];
+      for (let i = 0; i < prevHeight; i++) {
+        for (let j = 0; j < prevWidth; j++) {
           const key = `${j},${i}`;
-          existingTiles.set(key, currentData.tiles[i * currentData.width + j]);
+          existingTiles.set(key, currentData.tiles[i * prevWidth + j]);
         }
       }
 
-      console.log(
-        'existingTiles',
-        existingTiles,
-        currentData.width,
-        currentData.height
-      );
-      console.log('next tiles', newWidth, newHeight);
-
       const nextTiles: CarcerMapTileTemplate[] = [];
 
-      // add tiles that don't exist
       for (let i = 0; i < newHeight; i++) {
         for (let j = 0; j < newWidth; j++) {
           const key = `${j},${i}`;
