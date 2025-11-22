@@ -16,11 +16,13 @@ export interface TileOverrides {
   isWalkableOverride?: boolean;
   isSeeThroughOverride?: boolean;
   isContainerOverride?: boolean;
+  lightSourceOverride?: TileLightSource;
 }
 
 export interface TileEventTrigger {
   eventId: string;
-  doesRequireNonCombatMode?: boolean;
+  isNonCombatTrigger?: boolean;
+  isLookTrigger?: boolean;
 }
 
 export interface TileLightSource {

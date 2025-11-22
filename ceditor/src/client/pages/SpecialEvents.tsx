@@ -18,7 +18,11 @@ interface NotificationState {
   id: number;
 }
 
-export function SpecialEvents() {
+interface SpecialEventsProps {
+  routeParams?: URLSearchParams;
+}
+
+export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const { sprites } = useSDL2WAssets();
   const { gameEvents, setGameEvents, saveGameEvents } = useAssets();
   const [editGameEventIndex, setEditGameEventIndex] = useState<number>(-1);
@@ -119,6 +123,21 @@ export function SpecialEvents() {
       }
     }, 100);
   };
+
+  // Check for event query parameter on mount
+  useEffect(() => {
+    if (routeParams) {
+      const eventId = routeParams.get('event');
+      if (eventId) {
+        const index = gameEvents.findIndex((e) => e.id === eventId);
+        if (index >= 0) {
+          setEditGameEventIndex(index);
+          scrollToTopOfForm();
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameEvents, routeParams]);
 
   const updateGameEvent = (gameEvent: GameEvent) => {
     const currentGameEventIndex = getActualIndex(editGameEventIndex);

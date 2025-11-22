@@ -8,21 +8,23 @@ namespace model {
 
 struct CarcerMapTileTemplate;
 
-struct TileOverrides {
-  bool isWalkableOverride = false;
-  bool isSeeThroughOverride = false;
-  bool isContainerOverride = false;
-};
-
 struct TileEventTrigger {
   std::string eventId;
-  bool doesRequireNonCombatMode = true;
+  bool isNonCombatTrigger = true;
+  bool isLookTrigger = false;
 };
 
 struct TileLightSource {
   float angle;
   float intensity;
   int radius;
+};
+
+struct TileOverrides {
+  bool isWalkableOverride = false;
+  bool isSeeThroughOverride = false;
+  bool isContainerOverride = false;
+  std::optional<TileLightSource> lightSourceOverride;
 };
 
 struct CarcerMapTemplate {

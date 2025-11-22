@@ -361,8 +361,11 @@ const renderTileAndExtras = (args: {
   }
 
   const tileIsContainerWithItems =
-    (refTile.items.length && tileTemplate?.isContainer) ||
-    (!tileTemplate?.isContainer && refTile.tileOverrides?.isContainerOverride);
+    (refTile.items.length &&
+      tileTemplate?.isContainer &&
+      (refTile.tileOverrides?.isContainerOverride === true ||
+        refTile.tileOverrides?.isContainerOverride === undefined)) ||
+    refTile.tileOverrides?.isContainerOverride;
 
   if (tileIsContainerWithItems) {
     controlSprites.push('control_1');
@@ -389,6 +392,10 @@ const renderTileAndExtras = (args: {
 
   if (refTile.tileOverrides) {
     controlSprites.push('control_2');
+  }
+
+  if (refTile.eventTrigger) {
+    controlSprites.push('control_0');
   }
 
   let controlI = 0;

@@ -39,7 +39,7 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
     case '/editor/tilesetTemplates':
       return <TilesetTemplates routeParams={routeParams} />;
     case '/editor/specialEvents':
-      return <SpecialEvents />;
+      return <SpecialEvents routeParams={routeParams} />;
     case '/editor/maps':
       return <Maps />;
     default:
