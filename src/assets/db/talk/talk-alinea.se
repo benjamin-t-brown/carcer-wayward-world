@@ -1,6 +1,42 @@
-!Alinea_StepFromBoat,modal,The Docks,
->1,exec
-  +p: You step onto the docks and are greeted by the unpleasant smell of fish and the distant sound of dockworkers yelling and whistling.  A maze of rotting wood zigzags its way around all shapes and sizes of sea-faring vessels.  A fair distance away, the meandering docks stem from the shores of a large town.  Even through a light morning fog, you can see that its vast structures are completely walled in, and you can spot the flickering torches of guards manning positions on the walls nearest to you.
-  +p: A large bag lands next to your feet, and you turn to see Captain Anton standing on the gangplank.  "I was told to give you that," he says.  "And nothing else.  So don't ask."  He turns away.  "Now get out of here.  Maybe somebody in Alinea can help you."  He kicks the gangplank up so you cannot get back on his ship, and without sparing a glance back at you, he immediately starts yelling for the crew to prepare to leave.
-  +p: You turn towards the town, Alinea.  With those walls, it more resembles a fortress.  Maybe somebody can tell you exactly why you are here...  For now, however, that bag might have some answers.
-  +n: end
+// this is an example event based around a "keyword" child
+!Alinea_DockmasterClaire,talk,Dockmaster Claire,portraits0_5
+@QUEST_STARTED_FINISHED=vars.WoodThief.questStartedFinished
+@QUEST_STARTED_CAN_COMPLETE=vars.WoodThief.questStartedCanComplete
+@QUEST_STARTED_NOT_FINISHED=vars.WoodThief.questStartedNotFinished
+@ALINEA_HAS_SPOKEN_TO_CLAIRE=vars.Alinea.hasSpokenToClaire
+@ASPECT_DRYAD
+>1,switch
+  +check: ISNOT:@ALINEA_HAS_SPOKEN_TO_CLAIRE
+  +default: defaultTalk
+>firstTalk,exec
+  +p: A tall woman in a green cloak is overseeing the docks. She holds a clipboard up to her face and her stern eyes flit between it and you.  She raises a bony finger and points at the ship on which you arrived, still floating haplessly by the docks.
+>c1,choice
+  +p: "You there, are you the Captain of that ship?"
+  +c: c2|No. The Captain's name is Argow.  He's still aboard the ship.
+  +c: c3|No. The Captain's name is Argow.  He's still aboard the ship.
+  +c: c4|I already know what to do.|@
+>defaultTalk,keyword
+  +k: look|A tall woman in a green cloak is overseeing the people at the docks. She holds a clipboard up to her face and her stern eyes flit between it and you.
+  +k: name|"Call me Ed." He eyes you suspiciously. "You want to buy some logs?  Or are you here to steal from me."
+  +k: job|"I sell logs.  Oak and willow.  You interested or just shopping about?"
+  +k: logs|"Let me know what you want to buy."
+  +kDup: interested|logs
+  +kDup: steal|_checkQuest
+  +kDup: stress|_checkQuest
+  +kSwitch: _checkQuest
+    |@QUEST_STARTED_FINISHED:_questStartedFinished
+    |@QUEST_STARTED_CAN_COMPLETE:_questStartedCanComplete
+    |@QUEST_STARTED_NOT_FINISHED:_questStartedNotFinished
+    |default:_questNotStarted
+  +k: _questStartedFinished|"Thanks for helping me with the quest."
+  +kChild: _questStartedCanComplete|3
+  +k: _questStartedNotFinished|"Did you take care of those bandits yet?"  You tell him that you haven't and he seems disappointed.
+  +kChild: _questNotStarted|2
+  +k: _questStartText|"My last shipment got waylaid by bandits.  They're somewhere to the west.  If you help I can give you a reward."
+  +k: _questCompleteText|"Wow you did a really good job!  Here's some gold."
+>2,exec
+  +e: START_QUEST:WoodThief|SET:@QUEST_STARTED_NOT_FINISHED
+  +n: 1:_questStartText
+>3,exec
+  +e: MOD:100,GOLD|SET:@QUEST_STARTED_FINISHED
+  +n: 1:_questCompleteText

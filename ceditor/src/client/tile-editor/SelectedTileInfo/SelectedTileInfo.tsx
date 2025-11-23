@@ -1,7 +1,7 @@
 import { CarcerMapTemplate, CarcerMapTileTemplate } from '../../types/assets';
 import { useSDL2WAssets } from '../../contexts/SDL2WAssetsContext';
 import { useAssets } from '../../contexts/AssetsContext';
-import { getSpriteNameFromTile } from '../draw';
+import { getSpriteNameFromTile } from '../../utils/draw';
 import { Sprite } from '../../elements/Sprite';
 import { EditorState, getEditorStateMap } from '../editorState';
 import { ItemSearchInput } from './ItemSearchInput';

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { CarcerMapTemplate } from '../types/assets';
-import { useRenderLoop } from './useRenderLoop';
+import { useRenderLoop } from '../hooks/useRenderLoop';
 import { MapCanvas } from './MapCanvas';
 import { initPanzoom, unInitPanzoom } from './editorEvents';
 import { loop } from './loop';

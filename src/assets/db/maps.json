@@ -2370,9 +2370,7 @@
         "tileId": 0,
         "x": 0,
         "y": 0,
-        "characters": [
-          "exampleTownsperson"
-        ],
+        "characters": [],
         "items": [],
         "markers": []
       },
@@ -2381,7 +2379,9 @@
         "tileId": 0,
         "x": 0,
         "y": 0,
-        "characters": [],
+        "characters": [
+          "exampleTownsperson"
+        ],
         "items": [],
         "markers": []
       },
@@ -3769,7 +3769,12 @@
         "y": 0,
         "characters": [],
         "items": [],
-        "markers": []
+        "markers": [],
+        "eventTrigger": {
+          "eventId": "TestEvent",
+          "isNonCombatTrigger": true,
+          "isLookTrigger": true
+        }
       },
       {
         "tilesetName": "terrain0",

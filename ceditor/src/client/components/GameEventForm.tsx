@@ -176,7 +176,7 @@ export function GameEventForm(props: GameEventFormProps) {
           )}
         </div>
 
-        <div className="form-section" style={{ marginTop: '30px' }}>
+        {/* <div className="form-section" style={{ marginTop: '30px' }}>
           <div
             style={{
               display: 'flex',
@@ -213,7 +213,7 @@ export function GameEventForm(props: GameEventFormProps) {
               No children added yet. Click "Add Child" to add one.
             </div>
           )}
-        </div>
+        </div> */}
       </form>
 
       <DeleteModal

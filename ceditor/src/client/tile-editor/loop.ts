@@ -4,7 +4,7 @@ import {
   onActionUpdate,
   onTileHoverIndChange,
 } from './paintTools';
-import { drawLine, drawRect } from './draw';
+import { drawLine, drawRect } from '../utils/draw';
 import {
   CarcerMapTemplate,
   TilesetTemplate,

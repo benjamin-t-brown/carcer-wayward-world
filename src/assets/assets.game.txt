@@ -7,8 +7,8 @@ Sprites,actors0,256,32,32
 Pic,terrain0,assets/img/game/terrain0.png
 Sprites,terrain0,256,28,32
 
-Pic,actors0,assets/img/game/actors0.png
-Sprites,actors0,256,32,32
-
 Pic,special_event_icons,assets/img/game/special_event_icons64.png
 Sprites,special_event_icons,16,64,64
+
+Pic,portraits0,assets/img/game/portraits0.png
+Sprites,portraits0,64,52,52

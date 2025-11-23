@@ -1,14 +1,14 @@
 !Alinea_StepFromBoat,modal,The Docks,
 >1,exec
-  +p: You step onto the docks and are greeted by the unpleasant smell of fish and the distant sound of dockworkers yelling and whistling.  A maze of rotting wood zigzags its way around all shapes and sizes of sea-faring vessels.  A fair distance away, the meandering docks stem from the shores of a large town.  Even through a light morning fog, you can see that its vast structures are completely walled in, and you can spot the flickering torches of guards manning positions on the walls nearest to you.
+  +p: You step onto the docks and are greeted by the unpleasant smell of fish and the distant sound of dockworkers yelling and whistling.  A maze of rotting wood zigzags its way around all shapes and sizes of sea-faring vessels.  A fair distance away, the meandering docks stem from the shore of a large town.  Even through a grey morning fog, you can see that its vast structures are completely walled in, and you can spot the flickering torches of guards manning positions on the walls nearest to you.
   +p: A large bag lands next to your feet, and you turn to see Captain Anton standing on the gangplank.  "I was told to give you that," he says.  "And nothing else.  So don't ask."  He turns away.  "Now get out of here.  Maybe somebody in Alinea can help you."  He kicks the gangplank up so you cannot get back on his ship, and without sparing a glance back at you, he immediately starts yelling for the crew to prepare to leave.
   +p: You turn towards the town, Alinea.  With those walls, it more resembles a fortress.  Maybe somebody can tell you exactly why you are here...  For now, however, that bag might have some answers.
   +n: end
 
 !Alinea_PreventLeaveIfNotPickedUpBag,modal,The Bag,
 >1,switch
-  +default: 1Fail
   +check: IS:vars.Alinea.hasPickedUpBag|end
+  +default: 1Fail
 >1Fail,exec
   +p: You take a few steps towards Alinea, but something makes you pause.  You really ought to pick up that bag.  Maybe it has a hint about your circumstances.
   +n: end

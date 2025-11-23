@@ -2,8 +2,8 @@ import {
   CarcerMapTileTemplate,
   TileMetadata,
 } from '../types/assets';
-import { Sprite } from '../utils/assetLoader';
-import { getCachedDrawable } from '../utils/spriteUtils';
+import { Sprite } from './assetLoader';
+import { getCachedDrawable } from './spriteUtils';
 
 export interface DrawTextParams {
   font?: string;

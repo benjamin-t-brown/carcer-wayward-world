@@ -5,7 +5,7 @@ import {
   drawText,
   getSpriteNameFromTile,
   getSpriteNameFromTileMetadata,
-} from './draw';
+} from '../utils/draw';
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,

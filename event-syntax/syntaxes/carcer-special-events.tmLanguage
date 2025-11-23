@@ -549,7 +549,7 @@
         </dict>
         <dict>
           <key>match</key>
-          <string>([\w\.\x{003a}\x{003b}\x{003f}\x{002c}])</string>
+          <string>([\w\.\x{003a}\x{003b}\x{003f}\x{002c}\x{0027}])</string>
           <key>name</key>
           <string>text.carcerSpecialEvents</string>
         </dict>
