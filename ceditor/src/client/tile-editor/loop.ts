@@ -12,7 +12,13 @@ import {
   ItemTemplate,
   GameEvent,
 } from '../types/assets';
-import { EditorState, updateEditorStateNoReRender } from './editorState';
+import {
+  EditorState,
+  getEditorStateMap,
+  updateEditorStateMap,
+  updateEditorStateMapNoReRender,
+  updateEditorStateNoReRender,
+} from './editorState';
 import { getTransform } from './editorEvents';
 import { Sprite } from '../utils/assetLoader';
 import { renderTileAndExtras, renderToolUi } from './renderUi';
@@ -54,24 +60,36 @@ export const loop = (
     return;
   }
 
+  if (!mapDataInterface.getEditorState().selectedMapName) {
+    return;
+  }
+
   const currentMap = mapDataInterface.getMapData();
   const data = calculateHoveredTile(currentMap, mapDataInterface.getCanvas());
-  if (data.ind !== mapDataInterface.getEditorState().hoveredTileIndex) {
+  if (
+    data.ind !==
+    getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
+      ?.hoveredTileIndex
+  ) {
     onTileHoverIndChange(
       currentMap,
       mapDataInterface.getEditorState().currentPaintAction,
-      mapDataInterface.getEditorState().hoveredTileIndex,
+      getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
+        ?.hoveredTileIndex ?? -1,
       data.ind
     );
   }
-  updateEditorStateNoReRender({
-    hoveredTileIndex: data.ind,
-    hoveredTileData: {
-      x: data.x,
-      y: data.y,
-      ind: data.ind,
-    },
-  });
+  updateEditorStateMapNoReRender(
+    mapDataInterface.getEditorState().selectedMapName,
+    {
+      hoveredTileIndex: data.ind,
+      hoveredTileData: {
+        x: data.x,
+        y: data.y,
+        ind: data.ind,
+      },
+    }
+  );
 
   const currentAction = getCurrentAction();
   if (currentAction && currentMap) {
@@ -169,6 +187,7 @@ export const loop = (
             tilesets: mapDataInterface.getTilesets(),
             characters: mapDataInterface.getAssets().characters,
             items: mapDataInterface.getAssets().items,
+            drawOverlayText: mapDataInterface.getEditorState().drawOverlayText,
           });
 
           if (i === 0) {
@@ -177,8 +196,9 @@ export const loop = (
             const y1 = y * mapDataInterface.getMapData().spriteHeight * scale;
             const x2 = x1 + mapDataInterface.getMapData().spriteWidth * scale;
             const y2 = y1 + mapDataInterface.getMapData().spriteHeight * scale;
-            const hoveredMapTileIndex =
-              mapDataInterface.getEditorState().hoveredTileIndex;
+            const hoveredMapTileIndex = getEditorStateMap(
+              mapDataInterface.getEditorState().selectedMapName
+            )?.hoveredTileIndex;
             let color = 'rgba(255, 255, 255, 0.25)';
             if (tileIndex === hoveredMapTileIndex) {
               color = 'rgba(100, 100, 255, 0.5)';

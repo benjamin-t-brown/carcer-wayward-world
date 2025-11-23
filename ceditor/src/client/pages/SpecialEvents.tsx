@@ -310,7 +310,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   return (
     <div className="container">
       <div className="editor-header">
-        <Button variant="back" onClick={() => window.history.back()}>
+        <Button variant="back" onClick={() => (window.location.hash = '#/')}>
           ← Back
         </Button>
         <h1>Special Events Editor</h1>

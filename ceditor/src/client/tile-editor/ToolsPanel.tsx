@@ -7,12 +7,61 @@ interface ToolsPanelProps {
   editorState: EditorState;
   map: CarcerMapTemplate;
   onMapUpdate: (map: CarcerMapTemplate) => void;
+  onOpenMapAndSelectTile?: (
+    mapName: string,
+    markerName?: string,
+    x?: number,
+    y?: number
+  ) => void;
+}
+
+interface ToolButtonProps {
+  onClick: () => void;
+  isActive: boolean;
+  icon: string;
+  title: string;
+}
+
+function ToolButton({ onClick, isActive, icon, title }: ToolButtonProps) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        padding: '6px 10px',
+        border: '1px solid #3e3e42',
+        backgroundColor: isActive ? '#4ec9b0' : '#3e3e42',
+        color: isActive ? '#1e1e1e' : '#ffffff',
+        cursor: 'pointer',
+        fontSize: '18px',
+        borderRadius: '4px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'background-color 0.2s, color 0.2s',
+        width: '40px',
+      }}
+      onMouseEnter={(e) => {
+        if (!isActive) {
+          e.currentTarget.style.backgroundColor = '#4a4a4a';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isActive) {
+          e.currentTarget.style.backgroundColor = '#3e3e42';
+        }
+      }}
+      title={title}
+    >
+      {icon}
+    </button>
+  );
 }
 
 export function ToolsPanel({
   editorState,
   map,
   onMapUpdate,
+  onOpenMapAndSelectTile,
 }: ToolsPanelProps) {
   const handleDrawClick = () => {
     if (editorState.currentPaintAction !== PaintActionType.DRAW) {
@@ -81,102 +130,24 @@ export function ToolsPanel({
           gap: '8px',
         }}
       >
-        <button
+        <ToolButton
           onClick={handleDrawClick}
-          style={{
-            padding: '6px 10px',
-            border: '1px solid #3e3e42',
-            backgroundColor:
-              currentPaintAction === PaintActionType.DRAW ? '#4ec9b0' : '#3e3e42',
-            color:
-              currentPaintAction === PaintActionType.DRAW ? '#1e1e1e' : '#ffffff',
-            cursor: 'pointer',
-            fontSize: '18px',
-            borderRadius: '4px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'background-color 0.2s, color 0.2s',
-            minWidth: '40px',
-          }}
-          onMouseEnter={(e) => {
-            if (currentPaintAction !== PaintActionType.DRAW) {
-              e.currentTarget.style.backgroundColor = '#4a4a4a';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (currentPaintAction !== PaintActionType.DRAW) {
-              e.currentTarget.style.backgroundColor = '#3e3e42';
-            }
-          }}
+          isActive={currentPaintAction === PaintActionType.DRAW}
+          icon="🖌️"
           title="Draw tool"
-        >
-          🖌️
-        </button>
-        <button
+        />
+        <ToolButton
           onClick={handleEraseClick}
-          style={{
-            padding: '6px 10px',
-            border: '1px solid #3e3e42',
-            backgroundColor:
-              currentPaintAction === PaintActionType.ERASE ? '#4ec9b0' : '#3e3e42',
-            color:
-              currentPaintAction === PaintActionType.ERASE ? '#1e1e1e' : '#ffffff',
-            cursor: 'pointer',
-            fontSize: '18px',
-            borderRadius: '4px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'background-color 0.2s, color 0.2s',
-            minWidth: '40px',
-          }}
-          onMouseEnter={(e) => {
-            if (currentPaintAction !== PaintActionType.ERASE) {
-              e.currentTarget.style.backgroundColor = '#4a4a4a';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (currentPaintAction !== PaintActionType.ERASE) {
-              e.currentTarget.style.backgroundColor = '#3e3e42';
-            }
-          }}
+          isActive={currentPaintAction === PaintActionType.ERASE}
+          icon="✖️"
           title="Erase tool"
-        >
-          ✖️
-        </button>
-        <button
+        />
+        <ToolButton
           onClick={handleFillClick}
-          style={{
-            padding: '6px 10px',
-            border: '1px solid #3e3e42',
-            backgroundColor:
-              currentPaintAction === PaintActionType.FILL ? '#4ec9b0' : '#3e3e42',
-            color:
-              currentPaintAction === PaintActionType.FILL ? '#1e1e1e' : '#ffffff',
-            cursor: 'pointer',
-            fontSize: '18px',
-            borderRadius: '4px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'background-color 0.2s, color 0.2s',
-            minWidth: '40px',
-          }}
-          onMouseEnter={(e) => {
-            if (currentPaintAction !== PaintActionType.FILL) {
-              e.currentTarget.style.backgroundColor = '#4a4a4a';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (currentPaintAction !== PaintActionType.FILL) {
-              e.currentTarget.style.backgroundColor = '#3e3e42';
-            }
-          }}
+          isActive={currentPaintAction === PaintActionType.FILL}
+          icon="🪣"
           title="Fill tool"
-        >
-          🪣
-        </button>
+        />
         <div
           style={{
             width: '100%',
@@ -185,107 +156,30 @@ export function ToolsPanel({
             margin: '4px 0',
           }}
         />
-        <button
+        <ToolButton
           onClick={handleSelectClick}
-          style={{
-            padding: '6px 10px',
-            border: '1px solid #3e3e42',
-            backgroundColor:
-              currentPaintAction === PaintActionType.SELECT ? '#4ec9b0' : '#3e3e42',
-            color:
-              currentPaintAction === PaintActionType.SELECT ? '#1e1e1e' : '#ffffff',
-            cursor: 'pointer',
-            fontSize: '18px',
-            borderRadius: '4px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'background-color 0.2s, color 0.2s',
-            minWidth: '40px',
-          }}
-          onMouseEnter={(e) => {
-            if (currentPaintAction !== PaintActionType.SELECT) {
-              e.currentTarget.style.backgroundColor = '#4a4a4a';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (currentPaintAction !== PaintActionType.SELECT) {
-              e.currentTarget.style.backgroundColor = '#3e3e42';
-            }
-          }}
+          isActive={currentPaintAction === PaintActionType.SELECT}
+          icon="👆"
           title="Select tool"
-        >
-          👆
-        </button>
-        <button
+        />
+        <ToolButton
           onClick={handleCloneClick}
-          style={{
-            padding: '6px 10px',
-            border: '1px solid #3e3e42',
-            backgroundColor:
-              currentPaintAction === PaintActionType.CLONE ? '#4ec9b0' : '#3e3e42',
-            color:
-              currentPaintAction === PaintActionType.CLONE ? '#1e1e1e' : '#ffffff',
-            cursor: 'pointer',
-            fontSize: '18px',
-            borderRadius: '4px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'background-color 0.2s, color 0.2s',
-            minWidth: '40px',
-          }}
-          onMouseEnter={(e) => {
-            if (currentPaintAction !== PaintActionType.CLONE) {
-              e.currentTarget.style.backgroundColor = '#4a4a4a';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (currentPaintAction !== PaintActionType.CLONE) {
-              e.currentTarget.style.backgroundColor = '#3e3e42';
-            }
-          }}
+          isActive={currentPaintAction === PaintActionType.CLONE}
+          icon="📋"
           title="Clone tool"
-        >
-          📋
-        </button>
-        <button
+        />
+        <ToolButton
           onClick={handleEraseMetaClick}
-          style={{
-            padding: '6px 10px',
-            border: '1px solid #3e3e42',
-            backgroundColor:
-              currentPaintAction === PaintActionType.ERASE_META ? '#4ec9b0' : '#3e3e42',
-            color:
-              currentPaintAction === PaintActionType.ERASE_META ? '#1e1e1e' : '#ffffff',
-            cursor: 'pointer',
-            fontSize: '18px',
-            borderRadius: '4px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'background-color 0.2s, color 0.2s',
-            minWidth: '40px',
-          }}
-          onMouseEnter={(e) => {
-            if (currentPaintAction !== PaintActionType.ERASE_META) {
-              e.currentTarget.style.backgroundColor = '#4a4a4a';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (currentPaintAction !== PaintActionType.ERASE_META) {
-              e.currentTarget.style.backgroundColor = '#3e3e42';
-            }
-          }}
+          isActive={currentPaintAction === PaintActionType.ERASE_META}
+          icon="🗑"
           title="Erase metadata tool"
-        >
-          🗑
-        </button>
+        />
       </div>
       <SelectedTileInfo
         editorState={editorState}
         map={map}
         onMapUpdate={onMapUpdate}
+        onOpenMapAndSelectTile={onOpenMapAndSelectTile}
       />
     </div>
   );

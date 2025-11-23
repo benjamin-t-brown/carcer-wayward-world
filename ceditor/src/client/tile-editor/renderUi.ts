@@ -1,9 +1,8 @@
-import {
-  PaintActionType,
-} from './paintTools';
+import { PaintActionType } from './paintTools';
 import {
   drawRect,
   drawSprite,
+  drawText,
   getSpriteNameFromTile,
   getSpriteNameFromTileMetadata,
 } from './draw';
@@ -14,9 +13,7 @@ import {
   CharacterTemplate,
   ItemTemplate,
 } from '../types/assets';
-import {
-  EditorState,
-} from './editorState';
+import { EditorState, getEditorStateMap } from './editorState';
 import {
   getIndsOfBoundingRect,
   getIsDraggingRight,
@@ -132,7 +129,8 @@ export const renderToolUi = (
   const tileWidth = mapData.spriteWidth;
   const tileHeight = mapData.spriteHeight;
   const rectCloneBrushTiles = editorState.rectCloneBrushTiles;
-  const selectedTileInd = editorState.selectedTileInd;
+  const selectedTileInd =
+    getEditorStateMap(editorState.selectedMapName)?.selectedTileInd ?? -1;
 
   const { x: transformX, y: transformY, scale } = getTransform();
   ctx.save();
@@ -166,7 +164,8 @@ export const renderToolUi = (
       }
     }
   } else if (currentPaintAction === PaintActionType.ERASE) {
-    const hoveredTileInd = editorState.hoveredTileIndex;
+    const hoveredTileInd =
+      getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
     if (hoveredTileInd > -1 && paintTileSprite) {
       const tileX = (hoveredTileInd % mapData.width) * tileWidth * scale;
       const tileY =
@@ -174,7 +173,8 @@ export const renderToolUi = (
       drawHighlightEraseRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
     }
   } else if (currentPaintAction === PaintActionType.ERASE_META) {
-    const hoveredTileInd = editorState.hoveredTileIndex;
+    const hoveredTileInd =
+      getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
     if (hoveredTileInd > -1) {
       const tileX = (hoveredTileInd % mapData.width) * tileWidth * scale;
       const tileY =
@@ -197,7 +197,8 @@ export const renderToolUi = (
     // Draw the source tile at the destination when dragging
     if (editorState.isSelectDragging) {
       const sourceTileIndex = editorState.selectDragSourceTileIndex;
-      const destTileIndex = editorState.hoveredTileIndex;
+      const destTileIndex =
+        getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
 
       if (
         sourceTileIndex >= 0 &&
@@ -208,8 +209,12 @@ export const renderToolUi = (
         ctx.globalAlpha = 0.5;
         renderTileAndExtras({
           refTile: mapData.tiles[sourceTileIndex],
-          x: editorState.hoveredTileData.x,
-          y: editorState.hoveredTileData.y,
+          x:
+            getEditorStateMap(editorState.selectedMapName)?.hoveredTileData.x ??
+            -1,
+          y:
+            getEditorStateMap(editorState.selectedMapName)?.hoveredTileData.y ??
+            -1,
           ctx,
           newScale: scale,
           spriteMap,
@@ -218,6 +223,7 @@ export const renderToolUi = (
           mapSpriteHeight: mapData.spriteHeight,
           characters,
           items,
+          drawOverlayText: false,
         });
         ctx.restore();
       }
@@ -225,8 +231,10 @@ export const renderToolUi = (
   } else if (currentPaintAction === PaintActionType.DRAW) {
     if (
       getIsDraggingRight() &&
-      editorState.hoveredTileData.x > -1 &&
-      editorState.hoveredTileData.y > -1
+      (getEditorStateMap(editorState.selectedMapName)?.hoveredTileData?.x ??
+        -1) > -1 &&
+      (getEditorStateMap(editorState.selectedMapName)?.hoveredTileData?.y ??
+        -1) > -1
     ) {
       const ind0 = editorState.rectSelectTileIndStart;
       const ind1 = editorState.rectSelectTileIndEnd;
@@ -247,8 +255,12 @@ export const renderToolUi = (
       // drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
     } else if (rectCloneBrushTiles.length) {
       for (const brush of rectCloneBrushTiles) {
-        const newX = editorState.hoveredTileData.x + brush.xOffset;
-        const newY = editorState.hoveredTileData.y + brush.yOffset;
+        const newX =
+          (getEditorStateMap(editorState.selectedMapName)?.hoveredTileData?.x ??
+            -1) + brush.xOffset;
+        const newY =
+          (getEditorStateMap(editorState.selectedMapName)?.hoveredTileData?.y ??
+            -1) + brush.yOffset;
         if (
           newX < 0 ||
           newX >= mapData.width ||
@@ -269,8 +281,16 @@ export const renderToolUi = (
       }
     } else {
       if (paintTileSprite) {
-        const tileX = editorState.hoveredTileData.x * tileWidth * scale;
-        const tileY = editorState.hoveredTileData.y * tileHeight * scale;
+        const tileX =
+          (getEditorStateMap(editorState.selectedMapName)?.hoveredTileData?.x ??
+            -1) *
+          tileWidth *
+          scale;
+        const tileY =
+          (getEditorStateMap(editorState.selectedMapName)?.hoveredTileData?.y ??
+            -1) *
+          tileHeight *
+          scale;
         drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
         drawHighlightTile(paintTileSprite, tileX, tileY, scale, ctx);
       }
@@ -291,6 +311,7 @@ export const renderTileAndExtras = (args: {
   tilesets: TilesetTemplate[];
   characters: CharacterTemplate[];
   items: ItemTemplate[];
+  drawOverlayText: boolean;
 }) => {
   const {
     refTile,
@@ -304,6 +325,7 @@ export const renderTileAndExtras = (args: {
     tilesets,
     characters,
     items,
+    drawOverlayText,
   } = args;
   const controlSprites: string[] = [];
   const tileX = x * mapSpriteWidth * newScale;
@@ -373,6 +395,10 @@ export const renderTileAndExtras = (args: {
     controlSprites.push('control_3');
   }
 
+  if (refTile.markers.length) {
+    controlSprites.push('control_4');
+  }
+
   let controlI = 0;
   for (const spriteName of controlSprites) {
     const sprite = spriteMap[spriteName];
@@ -380,5 +406,57 @@ export const renderTileAndExtras = (args: {
       drawSprite(sprite, tileX, tileY + controlI * 8 * newScale, newScale, ctx);
     }
     controlI++;
+  }
+
+  if (drawOverlayText) {
+    let textI = 0;
+    for (const character of refTile.characters) {
+      const characterTemplate = characters.find((c) => c.name === character);
+      if (characterTemplate) {
+        drawText(
+          characterTemplate.name,
+          tileX + (mapSpriteWidth * newScale) / 2,
+          tileY + textI * 6 * newScale - 3 * newScale,
+          {
+            font: 'sans-serif',
+            size: 12,
+            color: '#ffffff',
+            align: 'center',
+          },
+          ctx
+        );
+        textI++;
+      }
+    }
+    for (const marker of refTile.markers) {
+      drawText(
+        marker,
+        tileX + (mapSpriteWidth * newScale) / 2,
+        tileY - textI * 6 * newScale - 3 * newScale,
+        {
+          font: 'sans-serif',
+          size: 12,
+          color: '#ffffff',
+          align: 'center',
+        },
+        ctx
+      );
+      textI++;
+    }
+    if (refTile.eventTrigger) {
+      drawText(
+        refTile.eventTrigger.eventId,
+        tileX + (mapSpriteWidth * newScale) / 2,
+        tileY + textI * 6 * newScale - 3 * newScale,
+        {
+          font: 'sans-serif',
+          size: 12,
+          color: '#ffffff',
+          align: 'center',
+        },
+        ctx
+      );
+      textI++;
+    }
   }
 };

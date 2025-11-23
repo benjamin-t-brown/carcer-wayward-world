@@ -280,7 +280,7 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
   return (
     <div className="container">
       <div className="editor-header">
-        <Button variant="back" onClick={() => window.history.back()}>
+        <Button variant="back" onClick={() => (window.location.hash = '#/')}>
           ← Back
         </Button>
         <h1>Item Templates Editor</h1>

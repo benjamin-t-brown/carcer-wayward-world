@@ -9,6 +9,13 @@ import { DeleteModal } from '../elements/DeleteModal';
 import { CreateMapModal } from '../components/CreateMapModal';
 import { EditMapModal } from '../components/EditMapModal';
 import { TileEditor } from '../tile-editor/TileEditor';
+import {
+  createEditorStateMap,
+  getEditorState,
+  getEditorStateMap,
+  updateEditorState,
+  updateEditorStateMap,
+} from '../tile-editor/editorState';
 
 interface NotificationState {
   message: string;
@@ -21,10 +28,19 @@ interface OpenTab {
   map: CarcerMapTemplate;
 }
 
+const createEditorStateMapForTabIfNotExists = (mapName: string) => {
+  if (!mapName) {
+    return;
+  }
+  if (!getEditorState().maps[mapName]) {
+    createEditorStateMap(mapName);
+  }
+};
+
 export function Maps() {
   const { maps, setMaps, saveMaps } = useAssets();
-  const [openTabs, setOpenTabs] = useState<OpenTab[]>([]);
-  const [activeTabIndex, setActiveTabIndex] = useState<number | null>(null);
+  const [openTabs, _setOpenTabs] = useState<OpenTab[]>([]);
+  const [activeTabIndex, _setActiveTabIndex] = useState<number | null>(null);
   const [selectedMapIndex, setSelectedMapIndex] = useState<string>('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const notificationIdRef = useRef(0);
@@ -34,6 +50,23 @@ export function Maps() {
   }>({ isOpen: false, mapIndex: null });
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+
+  const setOpenTabs = (tabs: OpenTab[]) => {
+    tabs.forEach((tab) => {
+      createEditorStateMapForTabIfNotExists(tab.map.name);
+    });
+    _setOpenTabs(tabs);
+  };
+  const setActiveTabIndex = (index: number | null) => {
+    if (index !== null) {
+      const tab = openTabs[index];
+      if (tab) {
+        createEditorStateMapForTabIfNotExists(tab.map.name);
+        getEditorState().selectedMapName = tab.map.name;
+      }
+    }
+    _setActiveTabIndex(index);
+  };
 
   const showNotification = (message: string, type: 'success' | 'error') => {
     const id = notificationIdRef.current++;
@@ -70,6 +103,7 @@ export function Maps() {
     );
 
     if (existingTabIndex >= 0) {
+      createEditorStateMapForTabIfNotExists(maps[mapIndex].name);
       // Switch to existing tab
       setActiveTabIndex(existingTabIndex);
     } else {
@@ -79,8 +113,69 @@ export function Maps() {
         map: maps[mapIndex],
       };
       const newTabs = [...openTabs, newTab];
+      createEditorStateMapForTabIfNotExists(maps[mapIndex].name);
       setOpenTabs(newTabs);
       setActiveTabIndex(newTabs.length - 1);
+    }
+    getEditorState().selectedMapName = maps[mapIndex].name;
+  };
+
+  // Callback to open a map tab and select a tile
+  const handleOpenMapAndSelectTile = (
+    mapName: string,
+    markerName?: string,
+    x?: number,
+    y?: number
+  ) => {
+    const mapIndex = maps.findIndex((m) => m.name === mapName);
+    if (mapIndex < 0) return;
+
+    const map = maps[mapIndex];
+
+    // Open the map in a tab (or switch to existing tab)
+    const existingTabIndex = openTabs.findIndex(
+      (tab) => tab.mapIndex === mapIndex
+    );
+
+    let targetTabIndex: number;
+    if (existingTabIndex >= 0) {
+      targetTabIndex = existingTabIndex;
+      setActiveTabIndex(existingTabIndex);
+    } else {
+      const newTab: OpenTab = {
+        mapIndex,
+        map,
+      };
+      const newTabs = [...openTabs, newTab];
+      setOpenTabs(newTabs);
+      targetTabIndex = newTabs.length - 1;
+      setActiveTabIndex(targetTabIndex);
+    }
+
+    // Find and select the tile
+    let tileIndex = -1;
+
+    if (markerName) {
+      // Find tile by marker name
+      tileIndex = map.tiles.findIndex(
+        (tile) => tile.markers && tile.markers.includes(markerName)
+      );
+    } else if (x !== undefined && y !== undefined) {
+      // Find tile by coordinates
+      if (x >= 0 && y >= 0 && x < map.width && y < map.height) {
+        tileIndex = y * map.width + x;
+      }
+    }
+
+    // Set selected tile if found
+    if (tileIndex >= 0 && tileIndex < map.tiles.length) {
+      // Use setTimeout to ensure the map is loaded in the editor before selecting
+      setTimeout(() => {
+        if (!getEditorState().maps[mapName]) {
+          createEditorStateMap(mapName);
+        }
+        updateEditorStateMap(mapName, { selectedTileInd: tileIndex });
+      }, 100);
     }
   };
 
@@ -333,7 +428,7 @@ export function Maps() {
       style={{ display: 'flex', flexDirection: 'column' }}
     >
       <div className="editor-header">
-        <Button variant="back" onClick={() => window.history.back()}>
+        <Button variant="back" onClick={() => (window.location.hash = '#/')}>
           ← Back
         </Button>
         <h1>Maps Editor</h1>
@@ -456,7 +551,11 @@ export function Maps() {
           borderBottom: '1px solid #3e3e42',
         }}
       >
-        <TileEditor map={activeMap ?? undefined} onMapUpdate={updateMapInTabs} />
+        <TileEditor
+          map={activeMap ?? undefined}
+          onMapUpdate={updateMapInTabs}
+          onOpenMapAndSelectTile={handleOpenMapAndSelectTile}
+        />
       </div>
 
       {/* Notifications */}

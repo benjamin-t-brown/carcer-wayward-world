@@ -271,7 +271,7 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
   return (
     <div className="container">
       <div className="editor-header">
-        <Button variant="back" onClick={() => window.history.back()}>
+        <Button variant="back" onClick={() => (window.location.hash = '#/')}>
           ← Back
         </Button>
         <h1>Character Templates Editor</h1>

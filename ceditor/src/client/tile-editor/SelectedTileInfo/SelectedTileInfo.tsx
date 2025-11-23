@@ -3,7 +3,7 @@ import { useSDL2WAssets } from '../../contexts/SDL2WAssetsContext';
 import { useAssets } from '../../contexts/AssetsContext';
 import { getSpriteNameFromTile } from '../draw';
 import { Sprite } from '../../elements/Sprite';
-import { EditorState } from '../editorState';
+import { EditorState, getEditorStateMap } from '../editorState';
 import { ItemSearchInput } from './ItemSearchInput';
 import { CharacterSearchInput } from './CharacterSearchInput';
 import { MarkersSection } from './MarkersSection';
@@ -17,16 +17,23 @@ interface SelectedTileInfoProps {
   editorState: EditorState;
   map: CarcerMapTemplate;
   onMapUpdate: (map: CarcerMapTemplate) => void;
+  onOpenMapAndSelectTile?: (
+    mapName: string,
+    markerName?: string,
+    x?: number,
+    y?: number
+  ) => void;
 }
 
 export function SelectedTileInfo({
   editorState,
   map,
   onMapUpdate,
+  onOpenMapAndSelectTile,
 }: SelectedTileInfoProps) {
   const { spriteMap } = useSDL2WAssets();
   const { characters, items, gameEvents, maps } = useAssets();
-  const selectedTileInd = editorState.selectedTileInd;
+  const selectedTileInd = getEditorStateMap(editorState.selectedMapName)?.selectedTileInd ?? -1;
 
   const updateTile = (updater: (tile: CarcerMapTileTemplate) => void) => {
     if (selectedTileInd < 0 || selectedTileInd >= map.tiles.length) {
@@ -43,7 +50,6 @@ export function SelectedTileInfo({
       tiles: updatedTiles,
     });
   };
-
 
   if (selectedTileInd < 0 || selectedTileInd >= map.tiles.length) {
     return (
@@ -83,7 +89,7 @@ export function SelectedTileInfo({
   return (
     <div
       style={{
-        marginTop: '20px',
+        marginTop: '6px',
         padding: '10px',
         backgroundColor: '#2d2d30',
         borderRadius: '4px',
@@ -156,15 +162,16 @@ export function SelectedTileInfo({
         updateTile={updateTile}
       />
 
-      <EventTriggerSection
-        selectedTile={selectedTile}
-        gameEvents={gameEvents}
-        updateTile={updateTile}
-      />
-
       <TravelTriggerSection
         selectedTile={selectedTile}
         maps={maps}
+        updateTile={updateTile}
+        onOpenMapAndSelectTile={onOpenMapAndSelectTile}
+      />
+
+      <EventTriggerSection
+        selectedTile={selectedTile}
+        gameEvents={gameEvents}
         updateTile={updateTile}
       />
 
@@ -250,4 +257,3 @@ export function SelectedTileInfo({
     </div>
   );
 }
-

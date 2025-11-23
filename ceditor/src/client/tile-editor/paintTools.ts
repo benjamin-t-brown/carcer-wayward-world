@@ -5,13 +5,15 @@
 //   getTileFloorBrush,
 // } from './renderState';
 import { calculateFillIndsFloor } from './fill';
-import {
-  CarcerMapTemplate,
-  CarcerMapTileTemplate,
-} from '../types/assets';
+import { CarcerMapTemplate, CarcerMapTileTemplate } from '../types/assets';
 import { createDefaultCarcerMapTile } from '../components/MapTemplateForm';
 import { FloorBrushData } from './renderState';
-import { EditorState, updateEditorStateNoReRender } from './editorState';
+import {
+  EditorState,
+  getEditorStateMap,
+  updateEditorStateMapNoReRender,
+  updateEditorStateNoReRender,
+} from './editorState';
 import { getIsDraggingRight } from './editorEvents';
 
 export enum PaintActionType {
@@ -87,7 +89,8 @@ export const applyAction = (
       // Erase metadata is handled in applyActionUpdate
       break;
     case PaintActionType.FILL: {
-      const ind = editorState.hoveredTileIndex;
+      const ind =
+        getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
       const fillIndsFloor = calculateFillIndsFloor(ind, mapData);
       // Store the tile indices and ensure previous data is stored for undo
       action.data.tileInds = fillIndsFloor;
@@ -106,39 +109,55 @@ export const applyAction = (
     }
     case PaintActionType.SELECT: {
       // Move tile data (characters, items, overrides) from source to destination
-      if (action.data.tileInds.length >= 2 && action.data.prevRefData.length >= 2) {
+      if (
+        action.data.tileInds.length >= 2 &&
+        action.data.prevRefData.length >= 2
+      ) {
         const sourceTileIndex = action.data.startInd;
         const destTileIndex = action.data.endInd;
-        
-        if (sourceTileIndex >= 0 && destTileIndex >= 0 && sourceTileIndex !== destTileIndex) {
+
+        if (
+          sourceTileIndex >= 0 &&
+          destTileIndex >= 0 &&
+          sourceTileIndex !== destTileIndex
+        ) {
           const sourceTile = mapData.tiles[sourceTileIndex];
           const destTile = mapData.tiles[destTileIndex];
-          
+
           // Move characters, items, and overrides from source to destination
           // Merge with existing data on destination
-          destTile.characters = [...(destTile.characters || []), ...(sourceTile.characters || [])];
-          destTile.items = [...(destTile.items || []), ...(sourceTile.items || [])];
-          
+          destTile.characters = [
+            ...(destTile.characters || []),
+            ...(sourceTile.characters || []),
+          ];
+          destTile.items = [
+            ...(destTile.items || []),
+            ...(sourceTile.items || []),
+          ];
+
           // Move overrides (destination takes precedence if both exist)
           if (sourceTile.tileOverrides) {
-            destTile.tileOverrides = { ...sourceTile.tileOverrides, ...(destTile.tileOverrides || {}) };
+            destTile.tileOverrides = {
+              ...sourceTile.tileOverrides,
+              ...(destTile.tileOverrides || {}),
+            };
           }
-          
+
           // Move light source (destination takes precedence)
           if (sourceTile.lightSource && !destTile.lightSource) {
             destTile.lightSource = sourceTile.lightSource;
           }
-          
+
           // Move event trigger (destination takes precedence)
           if (sourceTile.eventTrigger && !destTile.eventTrigger) {
             destTile.eventTrigger = sourceTile.eventTrigger;
           }
-          
+
           // Move travel trigger (destination takes precedence)
           if (sourceTile.travelTrigger && !destTile.travelTrigger) {
             destTile.travelTrigger = structuredClone(sourceTile.travelTrigger);
           }
-          
+
           // Clear the source tile's movable data (keep base tile appearance)
           sourceTile.characters = [];
           sourceTile.items = [];
@@ -152,39 +171,55 @@ export const applyAction = (
     }
     case PaintActionType.CLONE: {
       // Clone tile data (characters, items, overrides) from source to destination
-      if (action.data.tileInds.length >= 2 && action.data.prevRefData.length >= 2) {
+      if (
+        action.data.tileInds.length >= 2 &&
+        action.data.prevRefData.length >= 2
+      ) {
         const sourceTileIndex = action.data.startInd;
         const destTileIndex = action.data.endInd;
-        
-        if (sourceTileIndex >= 0 && destTileIndex >= 0 && sourceTileIndex !== destTileIndex) {
+
+        if (
+          sourceTileIndex >= 0 &&
+          destTileIndex >= 0 &&
+          sourceTileIndex !== destTileIndex
+        ) {
           const sourceTile = mapData.tiles[sourceTileIndex];
           const destTile = mapData.tiles[destTileIndex];
-          
+
           // Clone characters, items, and overrides from source to destination
           // Merge with existing data on destination
-          destTile.characters = [...(destTile.characters || []), ...(sourceTile.characters || [])];
-          destTile.items = [...(destTile.items || []), ...(sourceTile.items || [])];
-          
+          destTile.characters = [
+            ...(destTile.characters || []),
+            ...(sourceTile.characters || []),
+          ];
+          destTile.items = [
+            ...(destTile.items || []),
+            ...(sourceTile.items || []),
+          ];
+
           // Clone overrides (destination takes precedence if both exist)
           if (sourceTile.tileOverrides) {
-            destTile.tileOverrides = { ...sourceTile.tileOverrides, ...(destTile.tileOverrides || {}) };
+            destTile.tileOverrides = {
+              ...sourceTile.tileOverrides,
+              ...(destTile.tileOverrides || {}),
+            };
           }
-          
+
           // Clone light source (destination takes precedence)
           if (sourceTile.lightSource && !destTile.lightSource) {
             destTile.lightSource = structuredClone(sourceTile.lightSource);
           }
-          
+
           // Clone event trigger (destination takes precedence)
           if (sourceTile.eventTrigger && !destTile.eventTrigger) {
             destTile.eventTrigger = structuredClone(sourceTile.eventTrigger);
           }
-          
+
           // Clone travel trigger (destination takes precedence)
           if (sourceTile.travelTrigger && !destTile.travelTrigger) {
             destTile.travelTrigger = structuredClone(sourceTile.travelTrigger);
           }
-          
+
           // Note: Source tile keeps its data (unlike SELECT which clears it)
         }
       }
@@ -340,18 +375,25 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
     }
     case PaintActionType.SELECT: {
       // Restore both source and destination tiles to their previous state
-      if (action.data.tileInds.length >= 2 && action.data.prevRefData.length >= 2) {
+      if (
+        action.data.tileInds.length >= 2 &&
+        action.data.prevRefData.length >= 2
+      ) {
         const sourceTileIndex = action.data.startInd;
         const destTileIndex = action.data.endInd;
-        
+
         if (sourceTileIndex >= 0 && destTileIndex >= 0) {
           // Restore source tile (index 0 in prevRefData)
           if (0 < action.data.prevRefData.length) {
-            mapData.tiles[sourceTileIndex] = structuredClone(action.data.prevRefData[0]);
+            mapData.tiles[sourceTileIndex] = structuredClone(
+              action.data.prevRefData[0]
+            );
           }
           // Restore destination tile (index 1 in prevRefData)
           if (1 < action.data.prevRefData.length) {
-            mapData.tiles[destTileIndex] = structuredClone(action.data.prevRefData[1]);
+            mapData.tiles[destTileIndex] = structuredClone(
+              action.data.prevRefData[1]
+            );
           }
         }
       }
@@ -359,14 +401,19 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
     }
     case PaintActionType.CLONE: {
       // Restore destination tile to its previous state (source tile unchanged)
-      if (action.data.tileInds.length >= 2 && action.data.prevRefData.length >= 2) {
+      if (
+        action.data.tileInds.length >= 2 &&
+        action.data.prevRefData.length >= 2
+      ) {
         const destTileIndex = action.data.endInd;
-        
+
         if (destTileIndex >= 0) {
           // Restore destination tile (index 1 in prevRefData)
           // Source tile (index 0) is not modified by CLONE, so we don't restore it
           if (1 < action.data.prevRefData.length) {
-            mapData.tiles[destTileIndex] = structuredClone(action.data.prevRefData[1]);
+            mapData.tiles[destTileIndex] = structuredClone(
+              action.data.prevRefData[1]
+            );
           }
         }
       }
@@ -387,7 +434,8 @@ export const onActionUpdate = (
   mapData: CarcerMapTemplate,
   editorState: EditorState
 ) => {
-  const ind = editorState.hoveredTileIndex;
+  const ind =
+    getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
 
   if (ind === -1) {
     return;
@@ -448,8 +496,11 @@ export const onActionComplete = (
   applyAction(action, mapData, editorState);
 
   // Add action to undo history
-  const newUndoHistory = [...editorState.undoHistory];
-  const undoIndex = editorState.undoIndex;
+  const newUndoHistory = [
+    ...(getEditorStateMap(editorState.selectedMapName)?.undoHistory ?? []),
+  ];
+  const undoIndex =
+    getEditorStateMap(editorState.selectedMapName)?.undoIndex ?? 0;
 
   // If we're not at the end of the history, slice off everything after the current index
   if (undoIndex < newUndoHistory.length - 1) {
@@ -460,7 +511,7 @@ export const onActionComplete = (
   newUndoHistory.push(structuredClone(action));
   const newUndoIndex = newUndoHistory.length - 1;
 
-  updateEditorStateNoReRender({
+  updateEditorStateMapNoReRender(editorState.selectedMapName, {
     undoHistory: newUndoHistory,
     undoIndex: newUndoIndex,
   });
@@ -470,7 +521,9 @@ export const undo = (
   mapData: CarcerMapTemplate,
   editorState: EditorState
 ): boolean => {
-  const { undoHistory, undoIndex } = editorState;
+  const { undoHistory, undoIndex } = getEditorStateMap(
+    editorState.selectedMapName
+  ) ?? { undoHistory: [], undoIndex: 0 };
 
   // Check if we can undo
   if (undoIndex < 0 || undoIndex >= undoHistory.length) {
@@ -485,7 +538,7 @@ export const undo = (
 
   // Update undo index and trigger re-render
   const newUndoIndex = undoIndex - 1;
-  updateEditorStateNoReRender({
+  updateEditorStateMapNoReRender(editorState.selectedMapName, {
     undoIndex: newUndoIndex,
   });
 

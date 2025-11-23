@@ -4,7 +4,11 @@ import { useRenderLoop } from './useRenderLoop';
 import { MapCanvas } from './MapCanvas';
 import { initPanzoom, unInitPanzoom } from './editorEvents';
 import { loop } from './loop';
-import { EditorState, getEditorState } from './editorState';
+import {
+  EditorState,
+  getEditorState,
+  updateEditorStateNoReRender,
+} from './editorState';
 import { TilePicker } from './TilePicker';
 import { ToolsPanel } from './ToolsPanel';
 import { useReRender } from '../hooks/useReRender';
@@ -15,11 +19,21 @@ import { undo } from './paintTools';
 interface TileEditorProps {
   map?: CarcerMapTemplate;
   onMapUpdate: (map: CarcerMapTemplate) => void;
+  onOpenMapAndSelectTile?: (
+    mapName: string,
+    markerName?: string,
+    x?: number,
+    y?: number
+  ) => void;
 }
 
 let prevTs = performance.now();
 
-export function TileEditor({ map, onMapUpdate }: TileEditorProps) {
+export function TileEditor({
+  map,
+  onMapUpdate,
+  onOpenMapAndSelectTile,
+}: TileEditorProps) {
   const mapCanvasRef = useRef<HTMLCanvasElement>(null);
   const mapRef = useRef<CarcerMapTemplate | undefined>(undefined);
   const editorState = useRef<EditorState | undefined>(undefined);
@@ -143,11 +157,12 @@ export function TileEditor({ map, onMapUpdate }: TileEditorProps) {
         }}
       >
         {/* <Minimap map={map} /> */}
-        {editorState.current && (
+        {editorState.current && editorState.current.selectedMapName && (
           <ToolsPanel
             editorState={editorState.current}
             map={map}
             onMapUpdate={onMapUpdate}
+            onOpenMapAndSelectTile={onOpenMapAndSelectTile}
           />
         )}
       </div>
@@ -175,7 +190,7 @@ export function TileEditor({ map, onMapUpdate }: TileEditorProps) {
             height={map.height * map.spriteHeight}
           />
         </div>
-        {editorState.current && (
+        {editorState.current && editorState.current.selectedMapName && (
           <TilePicker editorState={editorState.current} />
         )}
       </div>

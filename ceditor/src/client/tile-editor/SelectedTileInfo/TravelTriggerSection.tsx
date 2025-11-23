@@ -4,12 +4,19 @@ interface TravelTriggerSectionProps {
   selectedTile: CarcerMapTileTemplate;
   maps: CarcerMapTemplate[];
   updateTile: (updater: (tile: CarcerMapTileTemplate) => void) => void;
+  onOpenMapAndSelectTile?: (
+    mapName: string,
+    markerName?: string,
+    x?: number,
+    y?: number
+  ) => void;
 }
 
 export function TravelTriggerSection({
   selectedTile,
   maps,
   updateTile,
+  onOpenMapAndSelectTile,
 }: TravelTriggerSectionProps) {
   return (
     <div
@@ -252,6 +259,50 @@ export function TravelTriggerSection({
           </div>
         </div>
       )}
+
+      {/* Open Destination Map Button */}
+      {selectedTile.travelTrigger &&
+        selectedTile.travelTrigger.destinationMapName &&
+        onOpenMapAndSelectTile && (
+          <div style={{ marginTop: '10px' }}>
+            <button
+              onClick={() => {
+                const {
+                  destinationMapName,
+                  destinationMarkerName,
+                  destinationX,
+                  destinationY,
+                } = selectedTile.travelTrigger!;
+                onOpenMapAndSelectTile(
+                  destinationMapName,
+                  destinationMarkerName || undefined,
+                  destinationX,
+                  destinationY
+                );
+              }}
+              style={{
+                width: '100%',
+                padding: '6px 8px',
+                border: '1px solid #3e3e42',
+                backgroundColor: '#3e3e42',
+                color: '#ffffff',
+                cursor: 'pointer',
+                fontSize: '12px',
+                borderRadius: '4px',
+                transition: 'background-color 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#4a4a4a';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#3e3e42';
+              }}
+              title="Open destination map and select tile"
+            >
+              📍 Open Destination Map
+            </button>
+          </div>
+        )}
     </div>
   );
 }
