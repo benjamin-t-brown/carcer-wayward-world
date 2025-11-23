@@ -7,13 +7,13 @@ export interface SpecialEventEditorState {
 
 const specialEventEditorState: SpecialEventEditorState = {
   selectedEventId: '',
-  zoneWidth: 10000,
-  zoneHeight: 10000,
+  zoneWidth: 500,
+  zoneHeight: 500,
 };
 export const getEditorState = () => specialEventEditorState;
 export const updateEditorState = (state: Partial<SpecialEventEditorState>) => {
   Object.assign(specialEventEditorState, { ...getEditorState(), ...state });
-  (window as any).reRenderTileEditor();
+  (window as any).reRenderSpecialEventEditor();
 };
 export const updateEditorStateNoReRender = (
   state: Partial<SpecialEventEditorState>

@@ -1,14 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { GameEvent } from '../types/assets';
 import { useRenderLoop } from '../hooks/useRenderLoop';
-import { getEditorState } from './seEditorState';
-import { useReRender } from '../hooks/useReRender';
-import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
-import { useAssets } from '../contexts/AssetsContext';
+import { getEditorState, updateEditorState } from './seEditorState';
 import { SpecialEventEditorState } from './seEditorState';
 import { MapCanvasSE } from './MapCanvasSE';
 import { initPanzoom, unInitPanzoom } from './seEditorEvents';
 import { loop } from './seLoop';
+import { useReRender } from '../hooks/useReRender';
 
 interface SpecialEventEditorProps {
   gameEvent: GameEvent;
@@ -20,12 +18,25 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const editorState = useRef<SpecialEventEditorState | undefined>(undefined);
   // const { sprites, spriteMap } = useSDL2WAssets();
-  const { gameEvents } = useAssets();
+  // const { gameEvents } = useAssets();
   const reRender = useReRender();
+
+  // console.log('re render tile editor');
+
+  // hack im lazy
+  (window as any).reRenderSpecialEventEditor = reRender;
 
   useEffect(() => {
     editorState.current = getEditorState();
   }, [editorState]);
+
+  // Update editor state when gameEvent changes
+  useEffect(() => {
+    if (gameEvent?.id) {
+      updateEditorState({ selectedEventId: gameEvent.id });
+      editorState.current = getEditorState();
+    }
+  }, [gameEvent?.id]);
 
   useEffect(() => {
     console.log('initPanzoom SE');

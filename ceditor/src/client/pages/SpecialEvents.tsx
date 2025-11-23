@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { CardList } from '../components/CardList';
 import { GameEvent } from '../types/assets';
-import {
-  GameEventForm,
-  createDefaultGameEvent,
-} from '../components/GameEventForm';
+import { createDefaultGameEvent } from '../components/GameEventForm';
+import { CreateGameEventModal } from '../components/CreateGameEventModal';
+import { SpecialEventEditor } from '../special-event-editor/SpecialEventEditor';
 import { Button } from '../elements/Button';
 import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
@@ -28,6 +27,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const [editGameEventIndex, setEditGameEventIndex] = useState<number>(-1);
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const notificationIdRef = useRef(0);
 
   const showNotification = (message: string, type: 'success' | 'error') => {
@@ -53,18 +53,9 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     return gameEvents.indexOf(filteredGameEvent);
   };
 
-  const scrollToTopOfForm = () => {
-    setTimeout(() => {
-      document
-        .getElementById('game-event-form')
-        ?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
-  };
-
   const handleGameEventClick = (filteredIndex: number) => {
     const actualIndex = getActualIndex(filteredIndex);
     setEditGameEventIndex(actualIndex);
-    scrollToTopOfForm();
   };
 
   const handleClone = (filteredIndex: number) => {
@@ -80,15 +71,6 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     setGameEvents(newGameEvents);
     setEditGameEventIndex(clonedIndex);
     showNotification('Game event cloned!', 'success');
-    scrollToTopOfForm();
-    setTimeout(() => {
-      const gameEventCard = document.getElementById(
-        `game-event-card-${clonedIndex}`
-      );
-      if (gameEventCard) {
-        gameEventCard.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
   };
 
   const handleDelete = (filteredIndex: number) => {
@@ -107,21 +89,31 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   };
 
   const handleCreateNew = () => {
-    const newGameEvent = createDefaultGameEvent();
+    setShowCreateModal(true);
+  };
+
+  const handleCreateConfirm = (newGameEvent: GameEvent) => {
+    // Check for duplicate IDs
+    const duplicateId = gameEvents.find((ge) => ge.id === newGameEvent.id);
+    if (duplicateId) {
+      showNotification(
+        `A game event with ID "${newGameEvent.id}" already exists. Please use a different ID.`,
+        'error'
+      );
+      return;
+    }
+
     const newGameEvents = [...gameEvents, newGameEvent];
     setGameEvents(newGameEvents);
     const actualIndex = newGameEvents.length - 1;
     setEditGameEventIndex(actualIndex);
-    scrollToTopOfForm();
+    setShowCreateModal(false);
     setSearchTerm('');
-    setTimeout(() => {
-      const gameEventCard = document.getElementById(
-        `game-event-card-${actualIndex}`
-      );
-      if (gameEventCard) {
-        gameEventCard.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
+    showNotification('Game event created!', 'success');
+  };
+
+  const handleCreateCancel = () => {
+    setShowCreateModal(false);
   };
 
   // Check for event query parameter on mount
@@ -132,23 +124,11 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
         const index = gameEvents.findIndex((e) => e.id === eventId);
         if (index >= 0) {
           setEditGameEventIndex(index);
-          scrollToTopOfForm();
         }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameEvents, routeParams]);
-
-  const updateGameEvent = (gameEvent: GameEvent) => {
-    const currentGameEventIndex = getActualIndex(editGameEventIndex);
-    const currentGameEvent = gameEvents[currentGameEventIndex];
-    if (currentGameEvent) {
-      // Update existing game event in real-time
-      const updatedGameEvents = [...gameEvents];
-      updatedGameEvents[currentGameEventIndex] = gameEvent;
-      setGameEvents(updatedGameEvents);
-    }
-  };
 
   const validateGameEvents = (): { isValid: boolean; error?: string } => {
     const errors: string[] = [];
@@ -382,14 +362,29 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
         </div>
 
         <div className="editor-main">
-          <div id="game-event-form">
-            <GameEventForm
-              gameEvent={currentGameEvent}
-              updateGameEvent={updateGameEvent}
-            />
-          </div>
+          {currentGameEvent ? (
+            <SpecialEventEditor gameEvent={currentGameEvent} />
+          ) : (
+            <div
+              style={{
+                color: '#858585',
+                fontSize: '14px',
+                textAlign: 'center',
+                marginTop: '50px',
+              }}
+            >
+              Select a game event from the list to edit, or create a new one.
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Create Modal */}
+      <CreateGameEventModal
+        isOpen={showCreateModal}
+        onConfirm={handleCreateConfirm}
+        onCancel={handleCreateCancel}
+      />
 
       {/* Notifications */}
       {notifications.map((notification) => (

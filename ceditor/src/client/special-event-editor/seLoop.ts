@@ -2,8 +2,6 @@ import { drawRect } from '../utils/draw';
 import { getTransform } from './seEditorEvents';
 import { SpecialEventEditorState } from './seEditorState';
 
-// let currentMap: MapResponse | null = null;
-// let isLooping = false;
 const getColors = () => {
   return {
     BACKGROUND1: 'black',

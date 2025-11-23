@@ -3,11 +3,11 @@ import { TextInput } from '../elements/TextInput';
 import { OptionSelect } from '../elements/OptionSelect';
 import { SpritePicker } from '../elements/SpritePicker';
 import { Button } from '../elements/Button';
-import {
-  createDefaultChild,
-  GameEventChild,
-  GameEventChildForm,
-} from './GameEventChildForm';
+// import {
+//   createDefaultChild,
+//   GameEventChild,
+//   GameEventChildForm,
+// } from './GameEventChildForm';
 import { DeleteModal } from '../elements/DeleteModal';
 import { GameEvent } from '../types/assets';
 
@@ -54,18 +54,18 @@ export function GameEventForm(props: GameEventFormProps) {
     setFormData({ ...formData, [field]: value });
   };
 
-  const handleAddChild = () => {
-    const newChildren = [...(formData.children || [])];
-    const newChild = createDefaultChild();
-    newChildren.push(newChild);
-    updateField('children', newChildren);
-    // Expand the newly added child
-    setExpandedChildren(new Set([...expandedChildren, newChildren.length - 1]));
-  };
+  // const handleAddChild = () => {
+  //   const newChildren = [...(formData.children || [])];
+  //   const newChild = createDefaultChild();
+  //   newChildren.push(newChild);
+  //   updateField('children', newChildren);
+  //   // Expand the newly added child
+  //   setExpandedChildren(new Set([...expandedChildren, newChildren.length - 1]));
+  // };
 
-  const handleDeleteChild = (index: number) => {
-    setDeleteConfirm({ isOpen: true, index });
-  };
+  // const handleDeleteChild = (index: number) => {
+  //   setDeleteConfirm({ isOpen: true, index });
+  // };
 
   const confirmDeleteChild = () => {
     if (deleteConfirm.index !== null) {
@@ -98,11 +98,11 @@ export function GameEventForm(props: GameEventFormProps) {
     setExpandedChildren(new Set([...expandedChildren, index + 1]));
   };
 
-  const handleUpdateChild = (index: number, child: GameEventChild) => {
-    const newChildren = [...(formData.children || [])];
-    newChildren[index] = child;
-    updateField('children', newChildren);
-  };
+  // const handleUpdateChild = (index: number, child: GameEventChild) => {
+  //   const newChildren = [...(formData.children || [])];
+  //   newChildren[index] = child;
+  //   updateField('children', newChildren);
+  // };
 
   const toggleChildExpanded = (index: number) => {
     const newExpanded = new Set(expandedChildren);
