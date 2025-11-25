@@ -1,6 +1,5 @@
 class SpecialEventEditorEventState {
   isDragging = false;
-  isDraggingRight = false;
   lastClickX = 0;
   lastClickY = 0;
   lastTranslateX = 0;
@@ -230,6 +229,48 @@ export const getScreenMouseCoords = () => {
   ];
 };
 
-export const getIsDraggingRight = () => {
-  return specialEventEditorEventState.isDraggingRight;
+/**
+ * Convert screen coordinates to world/canvas coordinates accounting for pan/zoom
+ */
+export const screenToWorldCoords = (
+  screenX: number,
+  screenY: number,
+  canvas: HTMLCanvasElement,
+  zoneWidth: number,
+  zoneHeight: number
+): [number, number] => {
+  const { left, top } = canvas.getBoundingClientRect();
+  const canvasX = screenX - left;
+  const canvasY = screenY - top;
+
+  const { x: translateX, y: translateY, scale } = getTransform();
+
+  // Reverse the transform applied in seLoop.ts
+  // The transform in seLoop is:
+  // 1. translate(offsetX, offsetY) where offsetX = translateX, offsetY = translateY (since newScale === scale)
+  // 2. translate(canvas.width * scale / 2, canvas.height * scale / 2)
+  // 3. translate(-zoneWidth * scale / 2, -zoneHeight * scale / 2)
+
+  // Reverse the transforms step by step
+  // Start with screen coordinates relative to canvas
+  let worldX = canvasX;
+  let worldY = canvasY;
+
+  // Reverse step 1: subtract translate offset
+  worldX -= translateX;
+  worldY -= translateY;
+
+  // Reverse step 2: subtract canvas center translation
+  worldX -= (canvas.width * scale) / 2;
+  worldY -= (canvas.height * scale) / 2;
+
+  // Reverse step 3: add zone center translation
+  worldX += (zoneWidth * scale) / 2;
+  worldY += (zoneHeight * scale) / 2;
+
+  // Divide by scale to get world coordinates
+  worldX /= scale;
+  worldY /= scale;
+
+  return [worldX, worldY];
 };

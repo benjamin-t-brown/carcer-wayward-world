@@ -1,27 +1,37 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GameEvent } from '../types/assets';
 import { useRenderLoop } from '../hooks/useRenderLoop';
 import { getEditorState, updateEditorState } from './seEditorState';
 import { SpecialEventEditorState } from './seEditorState';
-import { MapCanvasSE } from './MapCanvasSE';
+import { CANVAS_CONTAINER_ID, MapCanvasSE } from './MapCanvasSE';
 import { initPanzoom, unInitPanzoom } from './seEditorEvents';
 import { loop } from './seLoop';
 import { useReRender } from '../hooks/useReRender';
+import { ContextMenu } from './ContextMenu';
+import { EditExecNodeModal } from './modals/EditExecNodeModal';
+import { GameEventChildExec } from '../types/assets';
 
 interface SpecialEventEditorProps {
   gameEvent: GameEvent;
+  onUpdateGameEvent: (gameEvent: GameEvent) => void;
 }
 
 let prevTs = performance.now();
 
-export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
+export function SpecialEventEditor({
+  gameEvent,
+  onUpdateGameEvent,
+}: SpecialEventEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const editorState = useRef<SpecialEventEditorState | undefined>(undefined);
-  // const { sprites, spriteMap } = useSDL2WAssets();
-  // const { gameEvents } = useAssets();
   const reRender = useReRender();
-
-  // console.log('re render tile editor');
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+  const [editingNode, setEditingNode] = useState<GameEventChildExec | null>(
+    null
+  );
 
   // hack im lazy
   (window as any).reRenderSpecialEventEditor = reRender;
@@ -40,11 +50,26 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
 
   useEffect(() => {
     console.log('initPanzoom SE');
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      return;
+    }
+
+    const handleContextMenu = (ev: MouseEvent) => {
+      ev.preventDefault();
+      const targetId = (ev.target as HTMLElement)?.id;
+      if (ev.target === canvas || targetId.includes(CANVAS_CONTAINER_ID)) {
+        setContextMenu({ x: ev.clientX, y: ev.clientY });
+      }
+    };
+
+    canvas.addEventListener('contextmenu', handleContextMenu);
     initPanzoom({
       getCanvas: () => canvasRef.current as HTMLCanvasElement,
-      // getEditorState: () => editorState.current as SpecialEventEditorState,
     });
+
     return () => {
+      canvas.removeEventListener('contextmenu', handleContextMenu);
       console.log('unInitPanzoom SE');
       unInitPanzoom();
     };
@@ -86,6 +111,7 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
         {
           getCanvas: () => canvasRef.current as HTMLCanvasElement,
           getEditorState: () => editorState.current as SpecialEventEditorState,
+          getGameEvent: () => gameEvent,
         },
         ts - prevTs
       );
@@ -109,28 +135,64 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
   }
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        height: '100%',
-        width: '100%',
-        overflow: 'hidden',
-      }}
-    >
+    <>
       <div
         style={{
-          flex: 1,
           display: 'flex',
-          flexDirection: 'column',
+          height: '100%',
+          width: '100%',
           overflow: 'hidden',
         }}
       >
-        <MapCanvasSE
-          canvasRef={canvasRef}
-          width={editorState.current?.zoneWidth || 1000}
-          height={editorState.current?.zoneHeight || 1000}
-        />
+        <div
+          style={{
+            // flex: 1,
+            // display: 'flex',
+            // flexDirection: 'column',
+            // overflow: 'hidden',
+            position: 'relative',
+          }}
+        >
+          <MapCanvasSE
+            canvasRef={canvasRef}
+            width={editorState.current?.zoneWidth || 1000}
+            height={editorState.current?.zoneHeight || 1000}
+          />
+          {/* <div
+            id="se-nodes"
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              width: editorState.current?.zoneWidth || 1000,
+              height: editorState.current?.zoneHeight || 1000,
+              background: 'blue',
+            }}
+          >
+          </div> */}
+        </div>
       </div>
-    </div>
+
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          canvasRef={canvasRef}
+          editorStateRef={
+            editorState as React.RefObject<SpecialEventEditorState>
+          }
+          gameEvent={gameEvent}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
+
+      <EditExecNodeModal
+        isOpen={editingNode !== null}
+        node={editingNode}
+        gameEvent={gameEvent}
+        updateGameEvent={onUpdateGameEvent}
+        onCancel={() => setEditingNode(null)}
+      />
+    </>
   );
 }

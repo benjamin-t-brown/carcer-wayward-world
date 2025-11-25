@@ -1,6 +1,12 @@
 import { drawRect } from '../utils/draw';
 import { getTransform } from './seEditorEvents';
 import { SpecialEventEditorState } from './seEditorState';
+import {
+  GameEvent,
+  GameEventChildExec,
+  GameEventChildType,
+} from '../types/assets';
+import { renderExecNode } from './nodeRendering/renderExecNode';
 
 const getColors = () => {
   return {
@@ -14,6 +20,7 @@ export const loop = (
   dataInterface: {
     getCanvas: () => HTMLCanvasElement;
     getEditorState: () => SpecialEventEditorState;
+    getGameEvent: () => GameEvent | undefined;
   },
   ms: number
 ) => {
@@ -67,6 +74,22 @@ export const loop = (
   );
   ctx.restore();
 
+  // const nodeZone = document.getElementById('se-nodes');
+  // if (nodeZone) {
+  //   const offsetX =
+  //     x +
+  //     dataInterface.getCanvas().width / 2 -
+  //     dataInterface.getEditorState().zoneWidth / 2;
+  //   const offsetY =
+  //     y +
+  //     dataInterface.getCanvas().height / 2 -
+  //     dataInterface.getEditorState().zoneHeight / 2;
+  //   nodeZone.style.left = `${offsetX}px`;
+  //   nodeZone.style.top = `${offsetY}px`;
+  //   // nodeZone.style.width = `${dataInterface.getEditorState().zoneWidth}px`;
+  //   // nodeZone.style.height = `${dataInterface.getEditorState().zoneHeight}px`;
+  // }
+
   const newScale = scale;
 
   const focalX = dataInterface.getCanvas().width / 2;
@@ -85,6 +108,23 @@ export const loop = (
     -(dataInterface.getEditorState().zoneWidth * newScale) / 2,
     -(dataInterface.getEditorState().zoneHeight * newScale) / 2
   );
+
+  // Render nodes
+  const gameEvent = dataInterface.getGameEvent();
+  if (gameEvent && gameEvent.children) {
+    for (const child of gameEvent.children) {
+      if (child.eventChildType === GameEventChildType.EXEC) {
+        renderExecNode(
+          child as GameEventChildExec,
+          child.x,
+          child.y,
+          newScale,
+          ctx
+        );
+      }
+      // TODO: Add rendering for other node types
+    }
+  }
 
   ctx.restore();
 };

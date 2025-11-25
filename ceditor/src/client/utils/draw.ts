@@ -11,6 +11,7 @@ export interface DrawTextParams {
   size?: number;
   align?: 'left' | 'center' | 'right';
   strokeColor?: string;
+  baseline?: 'top' | 'middle' | 'bottom';
 }
 const DEFAULT_TEXT_PARAMS = {
   font: 'monospace',
@@ -18,6 +19,7 @@ const DEFAULT_TEXT_PARAMS = {
   size: 14,
   align: 'center',
   strokeColor: 'black',
+  baseline: 'middle',
 };
 
 let fm = 1;
@@ -86,7 +88,7 @@ export const drawText = (
   };
   ctx.font = `${size}px ${font}`;
   ctx.textAlign = align as CanvasTextAlign;
-  ctx.textBaseline = 'middle';
+  ctx.textBaseline = textParams.baseline || 'middle';
   if (strokeColor) {
     ctx.strokeStyle = strokeColor;
     ctx.lineWidth = 4;

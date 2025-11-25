@@ -154,7 +154,8 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       }
 
       if (missingFields.length > 0) {
-        const gameEventIdentifier = gameEvent.id || `Game event at index ${index}`;
+        const gameEventIdentifier =
+          gameEvent.id || `Game event at index ${index}`;
         gameEventsWithMissingFields.push(
           `${gameEventIdentifier}: missing ${missingFields.join(', ')}`
         );
@@ -188,15 +189,20 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
           }
         });
 
-        const gameEventIdentifier = gameEvent.id || `Game event at index ${index}`;
+        const gameEventIdentifier =
+          gameEvent.id || `Game event at index ${index}`;
         if (childrenWithoutIds.length > 0) {
           gameEventsWithChildErrors.push(
-            `${gameEventIdentifier}: children at indices [${childrenWithoutIds.join(', ')}] are missing ids`
+            `${gameEventIdentifier}: children at indices [${childrenWithoutIds.join(
+              ', '
+            )}] are missing ids`
           );
         }
         if (duplicateChildIds.length > 0) {
           gameEventsWithChildErrors.push(
-            `${gameEventIdentifier}: duplicate child ids found: ${duplicateChildIds.join(', ')}`
+            `${gameEventIdentifier}: duplicate child ids found: ${duplicateChildIds.join(
+              ', '
+            )}`
           );
         }
       }
@@ -216,13 +222,17 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
 
     if (gameEventsWithMissingFields.length > 0) {
       errors.push(
-        `Game events with missing required fields:\n${gameEventsWithMissingFields.join('\n')}`
+        `Game events with missing required fields:\n${gameEventsWithMissingFields.join(
+          '\n'
+        )}`
       );
     }
 
     if (gameEventsWithChildErrors.length > 0) {
       errors.push(
-        `Game events with child validation errors:\n${gameEventsWithChildErrors.join('\n')}`
+        `Game events with child validation errors:\n${gameEventsWithChildErrors.join(
+          '\n'
+        )}`
       );
     }
 
@@ -243,8 +253,12 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       return;
     }
 
-    const currentGameEventIndex = editGameEventIndex >= 0 ? getActualIndex(editGameEventIndex) : -1;
-    const currentGameEventId = currentGameEventIndex >= 0 ? gameEvents[currentGameEventIndex]?.id : undefined;
+    const currentGameEventIndex =
+      editGameEventIndex >= 0 ? getActualIndex(editGameEventIndex) : -1;
+    const currentGameEventId =
+      currentGameEventIndex >= 0
+        ? gameEvents[currentGameEventIndex]?.id
+        : undefined;
 
     const trimmedGameEvents = trimStrings(gameEvents);
 
@@ -315,55 +329,62 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
             </Button>
           </div>
           <CardList
-              items={filteredGameEvents.map((ge) => ({
-                ...ge,
-                name: ge.id,
-                label: ge.title,
-              }))}
-              onItemClick={handleGameEventClick}
-              onClone={handleClone}
-              onDelete={handleDelete}
-              selectedIndex={
-                editGameEventIndex !== -1
-                  ? (() => {
-                      const index = filteredGameEvents.findIndex(
-                        (gameEvent) =>
-                          gameEvents.indexOf(gameEvent) === editGameEventIndex
-                      );
-                      return index >= 0 ? index : null;
-                    })()
-                  : null
-              }
-              renderAdditionalInfo={(item) => {
-                const gameEvent = item as unknown as GameEvent;
-                const sprite = spriteMap[gameEvent.icon];
-                return (
-                  <>
-                    <div
-                      className="item-info"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                      }}
-                    >
-                      {sprite && (
-                        <div style={{ display: 'inline-block' }}>
-                          <Sprite sprite={sprite} scale={1.5} />
-                        </div>
-                      )}
-                      <span className="item-type">{gameEvent.eventType}</span>
-                    </div>
-                  </>
-                );
-              }}
-              emptyMessage="No game events found"
-            />
+            items={filteredGameEvents.map((ge) => ({
+              ...ge,
+              name: ge.id,
+              label: ge.title,
+            }))}
+            onItemClick={handleGameEventClick}
+            onClone={handleClone}
+            onDelete={handleDelete}
+            selectedIndex={
+              editGameEventIndex !== -1
+                ? (() => {
+                    const index = filteredGameEvents.findIndex(
+                      (gameEvent) =>
+                        gameEvents.indexOf(gameEvent) === editGameEventIndex
+                    );
+                    return index >= 0 ? index : null;
+                  })()
+                : null
+            }
+            renderAdditionalInfo={(item) => {
+              const gameEvent = item as unknown as GameEvent;
+              const sprite = spriteMap[gameEvent.icon];
+              return (
+                <>
+                  <div
+                    className="item-info"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    {sprite && (
+                      <div style={{ display: 'inline-block' }}>
+                        <Sprite sprite={sprite} scale={1.5} />
+                      </div>
+                    )}
+                    <span className="item-type">{gameEvent.eventType}</span>
+                  </div>
+                </>
+              );
+            }}
+            emptyMessage="No game events found"
+          />
         </div>
 
         <div className="editor-main">
           {currentGameEvent ? (
-            <SpecialEventEditor gameEvent={currentGameEvent} />
+            <SpecialEventEditor
+              gameEvent={currentGameEvent}
+              onUpdateGameEvent={(updatedGameEvent) => {
+                const newGameEvents = [...gameEvents];
+                newGameEvents[editGameEventIndex] = updatedGameEvent;
+                setGameEvents(newGameEvents);
+              }}
+            />
           ) : (
             <div
               style={{
@@ -398,4 +419,3 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     </div>
   );
 }
-

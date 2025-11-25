@@ -113,8 +113,146 @@ export interface GameEvent {
   title: string;
   eventType: 'MODAL' | 'TALK' | 'TRAVEL';
   icon: string;
-  vars?: Record<string, any>;
-  children?: any[];
+  vars: Record<string, string | number | boolean>;
+  children: SENode[];
+}
+
+// ephemeral event used in the SE editor
+export interface SENode {
+  id: string;
+  eventChildType: GameEventChildType;
+  x: number;
+  y: number;
+  h: number;
+}
+
+export enum GameEventType {
+  MODAL = 'MODAL',
+  TALK = 'TALK',
+}
+
+export enum GameEventChildType {
+  KEYWORD = 'KEYWORD',
+  CHOICE = 'CHOICE',
+  END = 'END',
+  EXEC = 'EXEC',
+  SWITCH = 'SWITCH',
+}
+
+export enum KeywordType {
+  K = 'K',
+  K_DUP = 'K_DUP',
+  K_SWITCH = 'K_SWITCH',
+  K_CHILD = 'K_CHILD',
+}
+
+export interface VariableValue {
+  str: string;
+  evaluated?: string;
+}
+
+// Keyword Data subtypes
+export interface KeywordDataK {
+  keywordType: KeywordType.K;
+  text: string;
+}
+
+export interface KeywordDataKDup {
+  keywordType: KeywordType.K_DUP;
+  keyword: string;
+}
+
+export interface KeywordCheck {
+  conditionStr: string;
+  next: string;
+}
+
+export interface KeywordDataKSwitch {
+  keywordType: KeywordType.K_SWITCH;
+  defaultNext: string;
+  checks: KeywordCheck[];
+}
+
+export interface KeywordDataKChild {
+  keywordType: KeywordType.K_CHILD;
+  next: string;
+}
+
+// Discriminated union for KeywordData
+export type KeywordData =
+  | KeywordDataK
+  | KeywordDataKDup
+  | KeywordDataKSwitch
+  | KeywordDataKChild;
+
+export interface Choice {
+  text: string;
+  conditionStr?: string;
+  next: string;
+}
+
+// Game Event Child subtypes
+export interface GameEventChildKeyword extends SENode {
+  eventChildType: GameEventChildType.KEYWORD;
+  id: string;
+  keywords: Record<string, KeywordData>;
+}
+
+export interface GameEventChildChoice extends SENode {
+  eventChildType: GameEventChildType.CHOICE;
+  id: string;
+  text: string;
+  choices: Choice[];
+}
+
+export interface SwitchCase {
+  conditionStr: string;
+  next: string;
+}
+
+export interface GameEventChildSwitch extends SENode {
+  eventChildType: GameEventChildType.SWITCH;
+  id: string;
+  defaultNext: string;
+  cases: SwitchCase[];
+}
+
+export interface GameEventChildExec extends SENode {
+  eventChildType: GameEventChildType.EXEC;
+  id: string;
+  p: string;
+  execStr: string;
+  next: string;
+}
+
+export interface GameEventChildEnd extends SENode {
+  eventChildType: GameEventChildType.END;
+  id: string;
+  next: string;
+}
+
+// Discriminated union for GameEventChild
+export type GameEventChild =
+  | GameEventChildKeyword
+  | GameEventChildChoice
+  | GameEventChildSwitch
+  | GameEventChildExec
+  | GameEventChildEnd;
+
+export type GameEventChildUnion = GameEventChildKeyword &
+  GameEventChildChoice &
+  GameEventChildSwitch &
+  GameEventChildExec &
+  GameEventChildEnd;
+
+// Expanded GameEvent type for full compatibility
+export interface GameEventFull {
+  id: string;
+  title: string;
+  eventType: GameEventType;
+  icon: string;
+  vars: Record<string, VariableValue>;
+  children: GameEventChild[];
 }
 
 // ============================================================================
@@ -168,4 +306,3 @@ export interface CarcerMapTemplate {
   spriteHeight: number;
   tiles: CarcerMapTileTemplate[];
 }
-

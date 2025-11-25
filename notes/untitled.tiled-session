@@ -12,6 +12,17 @@
         },
         "#terrain0": {
             "scaleInDock": 1
+        },
+        "D:/bak/progs_fixed/ascii/homm/mapexample.tmx": {
+            "scale": 2.622233606557377,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 233.5794943929981,
+                "y": 114.97831438283907
+            }
+        },
+        "D:/bak/progs_fixed/ascii/homm/mapexample.tmx#tileset": {
+            "scaleInDock": 1
         }
     },
     "last.imagePath": "C:/progs/carcer-wayward-world/src/assets/img/game",
