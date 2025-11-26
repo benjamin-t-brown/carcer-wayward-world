@@ -19,6 +19,7 @@ struct GameEventChildChoice;
 struct GameEventChildSwitch;
 struct GameEventChildExec;
 struct GameEventChildEnd;
+struct Variable;
 
 // Discriminated union for GameEventChild
 using GameEventChild = std::variant<GameEventChildKeyword,
@@ -33,8 +34,15 @@ struct GameEvent {
   GameEventType eventType; // indicates which ui layer to use for the event
   std::string icon;        // name of sprite to use for the event
   // a mapping from variable name to its original text and it's evaluated value
-  std::map<std::string, VariableValue> vars;
+  std::vector<Variable> vars;
   std::vector<GameEventChild> children;
+};
+
+struct Variable {
+  std::string id;
+  std::string key;
+  std::string value;
+  std::string importFrom;
 };
 
 struct VariableValue {

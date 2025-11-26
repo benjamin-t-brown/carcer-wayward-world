@@ -11,6 +11,11 @@ import {
 } from './seEditorState';
 
 let isPanZoomInitialized = false;
+// Track double-click state
+let lastClickTime = 0;
+let lastClickNodeId: string | null = null;
+const DOUBLE_CLICK_DELAY = 300; // milliseconds
+
 const panZoomEvents: {
   keydown: (ev: KeyboardEvent) => void;
   keyup: (ev: KeyboardEvent) => void;
@@ -19,6 +24,7 @@ const panZoomEvents: {
   mouseup: (ev: MouseEvent) => void;
   contextmenu: (ev: MouseEvent) => void;
   wheel: (ev: WheelEvent) => void;
+  dblclick: (ev: MouseEvent) => void;
 } = {
   keydown: () => {},
   keyup: () => {},
@@ -27,6 +33,7 @@ const panZoomEvents: {
   mouseup: () => {},
   contextmenu: () => {},
   wheel: () => {},
+  dblclick: () => {},
 };
 
 const isEventWithCanvasTarget = (
@@ -51,6 +58,9 @@ const shouldPreventDefault = (ev: KeyboardEvent) => {
 export const initPanzoom = (specialEventEditorInterface: {
   getCanvas: () => HTMLCanvasElement;
   getEditorState: () => EditorStateSE;
+  getEditorFuncs: () => {
+    onNodeDoubleClick: (nodeId: string) => void;
+  };
 }) => {
   const handleKeyDown = (ev: KeyboardEvent) => {
     if (shouldPreventDefault(ev)) {
@@ -76,7 +86,13 @@ export const initPanzoom = (specialEventEditorInterface: {
     ) {
       const canvas = specialEventEditorInterface.getCanvas();
       const editorState = specialEventEditorInterface.getEditorState();
-      checkLeftMouseClickEvents({ ev, canvas, editorState });
+      checkLeftMouseClickEvents({
+        ev,
+        canvas,
+        editorState,
+        onNodeDoubleClick:
+          specialEventEditorInterface.getEditorFuncs().onNodeDoubleClick,
+      });
     }
     if (
       ev.button === 2 &&
@@ -156,6 +172,17 @@ export const initPanzoom = (specialEventEditorInterface: {
       ev.preventDefault();
     }
   };
+  const handleDoubleClick = (ev: MouseEvent) => {
+    if (
+      ev.button === 0 &&
+      isEventWithCanvasTarget(ev, specialEventEditorInterface.getCanvas())
+    ) {
+      // Double-click is already handled in checkLeftMouseClickEvents
+      // This is just to prevent default browser behavior
+      ev.preventDefault();
+    }
+  };
+
   const handleWheel = (ev: WheelEvent) => {
     const editorState = specialEventEditorInterface.getEditorState();
     if (isEventWithCanvasTarget(ev, specialEventEditorInterface.getCanvas())) {
@@ -201,6 +228,7 @@ export const initPanzoom = (specialEventEditorInterface: {
   window.addEventListener('mouseup', handleMouseUp);
   window.addEventListener('contextmenu', handleContextMenu);
   window.addEventListener('wheel', handleWheel);
+  window.addEventListener('dblclick', handleDoubleClick);
 
   isPanZoomInitialized = true;
   panZoomEvents.keydown = handleKeyDown;
@@ -210,6 +238,7 @@ export const initPanzoom = (specialEventEditorInterface: {
   panZoomEvents.mouseup = handleMouseUp;
   panZoomEvents.contextmenu = handleContextMenu;
   panZoomEvents.wheel = handleWheel;
+  panZoomEvents.dblclick = handleDoubleClick;
 };
 
 export const unInitPanzoom = () => {
@@ -223,6 +252,7 @@ export const unInitPanzoom = () => {
   window.removeEventListener('mouseup', panZoomEvents.mouseup);
   window.removeEventListener('contextmenu', panZoomEvents.contextmenu);
   window.removeEventListener('wheel', panZoomEvents.wheel);
+  window.removeEventListener('dblclick', panZoomEvents.dblclick);
   isPanZoomInitialized = false;
 };
 
@@ -238,6 +268,63 @@ export const resetPanzoom = () => {
   getEditorState().translateX = 0;
   getEditorState().translateY = 0;
   getEditorState().scale = 1;
+};
+
+/**
+ * Centers the panzoom view on a specific node at the current zoom level
+ * @param canvas The canvas element
+ * @param nodeId The ID of the node to center on
+ */
+export const centerPanzoomOnNode = (
+  canvas: HTMLCanvasElement,
+  nodeId: string
+) => {
+  const editorState = getEditorState();
+  const gameEvent = editorState.gameEvent;
+
+  if (!gameEvent || !gameEvent.children) {
+    return;
+  }
+
+  const node = gameEvent.children.find((child) => child.id === nodeId);
+  if (!node) {
+    return;
+  }
+
+  const currentZoomLevel = editorState.scale;
+  editorState.scale = 1;
+  // editorState.translateX = node.x;
+  // editorState.translateY = node.y;
+  const scale = 1;
+
+  // const scale = editorState.scale;
+  // const nodeX = node.x;
+  // const nodeY = node.y;
+  const canvasWidth = canvas.width;
+  const canvasHeight = canvas.height;
+  const zoneWidth = editorState.zoneWidth;
+  const zoneHeight = editorState.zoneHeight;
+
+  // Calculate the translation needed to center the node
+  // Based on the transform in seLoop.ts:
+  // screenX = translateX + (canvas.width * scale) / 2 - (zoneWidth * scale) / 2 + nodeX * scale
+  // To center: screenX = canvas.width / 2
+  // Therefore: translateX = canvas.width / 2 - (canvas.width * scale) / 2 + (zoneWidth * scale) / 2 - nodeX * scale
+  const translateX =
+    canvasWidth / 2 -
+    (canvasWidth * scale) / 2 +
+    (zoneWidth * scale) / 2 -
+    node.x * scale;
+  const translateY =
+    canvasHeight / 2 -
+    (canvasHeight * scale) / 2 +
+    (zoneHeight * scale) / 2 -
+    node.y * scale;
+
+  console.log('set panzoom to', translateX, translateY, scale);
+  editorState.translateX = translateX;
+  editorState.translateY = translateY;
+  editorState.scale = scale;
 };
 
 export const screenCoordsToCanvasCoords = (
@@ -339,8 +426,9 @@ const checkLeftMouseClickEvents = (args: {
   ev: MouseEvent;
   canvas: HTMLCanvasElement;
   editorState: EditorStateSE;
+  onNodeDoubleClick?: (nodeId: string) => void;
 }) => {
-  const { ev, canvas, editorState } = args;
+  const { ev, canvas, editorState, onNodeDoubleClick } = args;
   const gameEvent = editorState.gameEvent;
   if (!gameEvent) {
     return;
@@ -371,6 +459,25 @@ const checkLeftMouseClickEvents = (args: {
         worldY >= child.y &&
         worldY <= child.y + (child.h || 0)
       ) {
+        console.log('click node', child.id);
+        // Check for double-click
+        const currentTime = Date.now();
+        if (currentTime - lastClickTime < DOUBLE_CLICK_DELAY) {
+          // Double-click detected - open edit modal
+          if (onNodeDoubleClick) {
+            console.log('double click', child.id);
+            onNodeDoubleClick(child.id);
+          }
+          lastClickTime = 0;
+          lastClickNodeId = null;
+          ev.preventDefault();
+          return;
+        }
+
+        // Update last click info for double-click detection
+        lastClickTime = currentTime;
+        lastClickNodeId = child.id;
+
         // Check if clicking on close button first
         if (child.eventChildType === GameEventChildType.EXEC) {
           const btnSize = 15;
@@ -391,6 +498,8 @@ const checkLeftMouseClickEvents = (args: {
           ) {
             // Clicked on close button - delete the node
             deleteNode(child.id);
+            lastClickTime = 0;
+            lastClickNodeId = null;
             ev.preventDefault();
             return;
           }
@@ -408,6 +517,10 @@ const checkLeftMouseClickEvents = (args: {
       }
     }
   }
+
+  // Clicked outside any node - reset double-click tracking
+  lastClickTime = 0;
+  lastClickNodeId = null;
 };
 
 const deleteNode = (nodeId: string) => {

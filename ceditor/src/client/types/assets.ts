@@ -113,8 +113,15 @@ export interface GameEvent {
   title: string;
   eventType: 'MODAL' | 'TALK' | 'TRAVEL';
   icon: string;
-  vars: Record<string, string | number | boolean>;
+  vars: Variable[];
   children: SENode[];
+}
+
+export interface Variable {
+  id: string;
+  key: string;
+  value: string;
+  importFrom: string;
 }
 
 // ephemeral event used in the SE editor

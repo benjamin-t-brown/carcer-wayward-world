@@ -25,6 +25,21 @@ const useResize = (cb: (width: number, height: number) => void) => {
 
 export const CANVAS_CONTAINER_ID = 'special-event-editor-canvas';
 
+const resizeCanvas = (canvas: HTMLCanvasElement, containerId: string) => {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    return;
+  }
+  const boundingRect = container.getBoundingClientRect();
+  canvas.width = boundingRect.width;
+  canvas.height = boundingRect.height;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    ctx.imageSmoothingEnabled = false;
+  }
+  canvas.style.imageRendering = 'pixelated';
+};
+
 export const MapCanvasSE = (props: {
   width: number;
   height: number;
@@ -33,13 +48,7 @@ export const MapCanvasSE = (props: {
   useResize((width, height) => {
     const canvas = props.canvasRef.current;
     if (canvas) {
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.imageSmoothingEnabled = false;
-      }
-      canvas.style.imageRendering = 'pixelated';
+      resizeCanvas(canvas, CANVAS_CONTAINER_ID);
     }
   });
   useEffect(() => {
@@ -50,6 +59,7 @@ export const MapCanvasSE = (props: {
       if (ctx) {
         ctx.imageSmoothingEnabled = false;
       }
+      resizeCanvas(canvas, CANVAS_CONTAINER_ID);
     }
   }, []);
   return (
@@ -68,8 +78,6 @@ export const MapCanvasSE = (props: {
       <canvas
         id={CANVAS_CONTAINER_ID + '-canvas'}
         ref={props.canvasRef}
-        width={1500}
-        height={1500}
       />
     </div>
   );

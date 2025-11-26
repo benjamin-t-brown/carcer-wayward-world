@@ -66,8 +66,8 @@ export const MapCanvas = (props: {
       <canvas
         id="map-canvas-canvas"
         ref={props.canvasRef}
-        width={1000}
-        height={1000}
+        width={1600}
+        height={1600}
       />
     </div>
   );

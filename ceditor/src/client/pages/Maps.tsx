@@ -547,7 +547,7 @@ export function Maps() {
       <div
         style={{
           overflow: 'hidden',
-          height: 'calc(100vh - 152px)',
+          height: 'calc(100vh - 92px)',
           borderBottom: '1px solid #3e3e42',
         }}
       >

@@ -65,7 +65,7 @@ export function EditExecNodeModal({
           border: '1px solid #3e3e42',
           borderRadius: '8px',
           padding: '30px',
-          maxWidth: '600px',
+          maxWidth: '60vw',
           width: '90%',
           maxHeight: '80vh',
           overflow: 'auto',
@@ -81,6 +81,17 @@ export function EditExecNodeModal({
         >
           Edit Exec Node
         </h2>
+
+        <div
+          style={{
+            color: '#999',
+            marginBottom: '8px',
+            fontSize: '14px',
+          }}
+        >
+          GameEvent: <span style={{ color: '#00d4d4' }}>{gameEvent.id}</span> |
+          Node: <span style={{ color: '#d4d400' }}>{node.id}</span>
+        </div>
 
         <div style={{ marginBottom: '20px' }}>
           <label
@@ -98,7 +109,7 @@ export function EditExecNodeModal({
             onChange={(e) => setP(e.target.value)}
             style={{
               width: '100%',
-              minHeight: '100px',
+              minHeight: '200px',
               padding: '8px',
               backgroundColor: '#1e1e1e',
               border: '1px solid #3e3e42',
@@ -128,7 +139,7 @@ export function EditExecNodeModal({
             onChange={(e) => setExecStr(e.target.value)}
             style={{
               width: '100%',
-              minHeight: '100px',
+              minHeight: '200px',
               padding: '8px',
               backgroundColor: '#1e1e1e',
               border: '1px solid #3e3e42',
@@ -138,6 +149,7 @@ export function EditExecNodeModal({
               fontSize: '14px',
               resize: 'vertical',
             }}
+            spellCheck={false}
             placeholder="Enter code to execute..."
           />
         </div>
@@ -149,7 +161,16 @@ export function EditExecNodeModal({
             justifyContent: 'flex-end',
           }}
         >
-          <Button variant="primary" onClick={() => handleEditNodeConfirm(node)}>
+          <Button
+            variant="primary"
+            onClick={() =>
+              handleEditNodeConfirm({
+                ...node,
+                p,
+                execStr,
+              })
+            }
+          >
             Confirm
           </Button>
           <Button variant="secondary" onClick={onCancel}>

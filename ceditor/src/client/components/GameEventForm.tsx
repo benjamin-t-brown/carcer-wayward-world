@@ -10,6 +10,7 @@ import { Button } from '../elements/Button';
 // } from './GameEventChildForm';
 import { DeleteModal } from '../elements/DeleteModal';
 import { GameEvent } from '../types/assets';
+import { createRootNode } from '../special-event-editor/nodeCreation';
 
 // Re-export for backward compatibility
 export type { GameEvent };
@@ -22,13 +23,14 @@ interface GameEventFormProps {
 }
 
 export function createDefaultGameEvent(): GameEvent {
+  const rootChild = createRootNode();
   return {
     id: '',
     title: '',
     eventType: 'MODAL',
     icon: 'special_event_icons_0',
-    vars: {},
-    children: [],
+    vars: [],
+    children: [rootChild],
   };
 }
 

@@ -4,12 +4,14 @@ import { GameEvent } from '../types/assets';
 import { createDefaultGameEvent } from '../components/GameEventForm';
 import { CreateGameEventModal } from '../components/CreateGameEventModal';
 import { SpecialEventEditor } from '../special-event-editor/SpecialEventEditor';
+import { VariableEditorModal } from '../special-event-editor/modals/VariableEditorModal';
 import { Button } from '../elements/Button';
 import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { Sprite } from '../elements/Sprite';
+import { centerPanzoomOnNode } from '../special-event-editor/seEditorEvents';
 
 interface NotificationState {
   message: string;
@@ -28,6 +30,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showVariableEditorModal, setShowVariableEditorModal] = useState(false);
   const notificationIdRef = useRef(0);
 
   const showNotification = (message: string, type: 'success' | 'error') => {
@@ -56,6 +59,17 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const handleGameEventClick = (filteredIndex: number) => {
     const actualIndex = getActualIndex(filteredIndex);
     setEditGameEventIndex(actualIndex);
+    setTimeout(() => {
+      const gameEvent = gameEvents[actualIndex];
+      const firstNode = gameEvent?.children?.[0];
+      const canvas = document.getElementById(
+        'special-event-editor-canvas-canvas'
+      ) as HTMLCanvasElement;
+      if (gameEvent && firstNode && canvas) {
+        console.log('centering on node', firstNode.id);
+        centerPanzoomOnNode(canvas, firstNode.id);
+      }
+    }, 100);
   };
 
   const handleClone = (filteredIndex: number) => {
@@ -363,7 +377,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                   >
                     {sprite && (
                       <div style={{ display: 'inline-block' }}>
-                        <Sprite sprite={sprite} scale={1.5} />
+                        <Sprite sprite={sprite} scale={0.5} />
                       </div>
                     )}
                     <span className="item-type">{gameEvent.eventType}</span>
@@ -375,16 +389,34 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
           />
         </div>
 
-        <div className="editor-main">
+        <div className="editor-main" style={{ position: 'relative' }}>
           {currentGameEvent ? (
-            <SpecialEventEditor
-              gameEvent={currentGameEvent}
-              onUpdateGameEvent={(updatedGameEvent) => {
-                const newGameEvents = [...gameEvents];
-                newGameEvents[editGameEventIndex] = updatedGameEvent;
-                setGameEvents(newGameEvents);
-              }}
-            />
+            <>
+              <SpecialEventEditor
+                gameEvent={currentGameEvent}
+                onUpdateGameEvent={(updatedGameEvent) => {
+                  const newGameEvents = [...gameEvents];
+                  newGameEvents[editGameEventIndex] = updatedGameEvent;
+                  setGameEvents(newGameEvents);
+                }}
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '4px',
+                  left: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <Button
+                  variant="primary"
+                  onClick={() => setShowVariableEditorModal(true)}
+                >
+                  Edit Variables
+                </Button>
+              </div>
+            </>
           ) : (
             <div
               style={{
@@ -401,11 +433,27 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       </div>
 
       {/* Create Modal */}
-      <CreateGameEventModal
-        isOpen={showCreateModal}
-        onConfirm={handleCreateConfirm}
-        onCancel={handleCreateCancel}
-      />
+      {showCreateModal && (
+        <CreateGameEventModal
+          isOpen={showCreateModal}
+          onConfirm={handleCreateConfirm}
+          onCancel={handleCreateCancel}
+        />
+      )}
+
+      {/* Variable Editor Modal */}
+      {currentGameEvent && (
+        <VariableEditorModal
+          isOpen={showVariableEditorModal}
+          gameEvent={currentGameEvent}
+          onConfirm={(updatedGameEvent) => {
+            const newGameEvents = [...gameEvents];
+            newGameEvents[editGameEventIndex] = updatedGameEvent;
+            setGameEvents(newGameEvents);
+          }}
+          onCancel={() => setShowVariableEditorModal(false)}
+        />
+      )}
 
       {/* Notifications */}
       {notifications.map((notification) => (

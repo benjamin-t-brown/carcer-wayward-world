@@ -67,6 +67,17 @@ export function SpecialEventEditor({
     initPanzoom({
       getCanvas: () => canvasRef.current as HTMLCanvasElement,
       getEditorState: () => editorState.current as EditorStateSE,
+      getEditorFuncs: () => ({
+        onNodeDoubleClick: (nodeId: string) => {
+          // Find the node and open edit modal
+          const node = editorState.current?.gameEvent?.children?.find(
+            (child) => child.id === nodeId && child.eventChildType === 'EXEC'
+          ) as GameEventChildExec | undefined;
+          if (node) {
+            setEditingNode(node);
+          }
+        },
+      }),
     });
 
     return () => {
@@ -151,6 +162,8 @@ export function SpecialEventEditor({
             // flexDirection: 'column',
             // overflow: 'hidden',
             position: 'relative',
+            width: '100%',
+            height: '100%',
           }}
         >
           <MapCanvasSE
@@ -178,9 +191,7 @@ export function SpecialEventEditor({
           x={contextMenu.x}
           y={contextMenu.y}
           canvasRef={canvasRef}
-          editorStateRef={
-            editorState as React.RefObject<EditorStateSE>
-          }
+          editorStateRef={editorState as React.RefObject<EditorStateSE>}
           gameEvent={gameEvent}
           onClose={() => setContextMenu(null)}
         />
