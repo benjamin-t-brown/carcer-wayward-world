@@ -1,16 +1,14 @@
-class SpecialEventEditorEventState {
-  isDragging = false;
-  lastClickX = 0;
-  lastClickY = 0;
-  lastTranslateX = 0;
-  lastTranslateY = 0;
-  translateX = 0;
-  translateY = 0;
-  scale = 1;
-  mouseX = 0;
-  mouseY = 0;
-}
-const specialEventEditorEventState = new SpecialEventEditorEventState();
+import {
+  GameEvent,
+  GameEventChildExec,
+  GameEventChildType,
+} from '../types/assets';
+import { getExecNodeDimensions } from './nodeRendering/renderExecNode';
+import {
+  EditorStateSE,
+  getEditorState,
+  updateEditorState,
+} from './seEditorState';
 
 let isPanZoomInitialized = false;
 const panZoomEvents: {
@@ -30,9 +28,6 @@ const panZoomEvents: {
   contextmenu: () => {},
   wheel: () => {},
 };
-
-(window as any).specialEventEditorEventState = specialEventEditorEventState;
-// let panzoomCanvas: HTMLCanvasElement | null = null;
 
 const isEventWithCanvasTarget = (
   ev: MouseEvent,
@@ -55,6 +50,7 @@ const shouldPreventDefault = (ev: KeyboardEvent) => {
 
 export const initPanzoom = (specialEventEditorInterface: {
   getCanvas: () => HTMLCanvasElement;
+  getEditorState: () => EditorStateSE;
 }) => {
   const handleKeyDown = (ev: KeyboardEvent) => {
     if (shouldPreventDefault(ev)) {
@@ -63,22 +59,24 @@ export const initPanzoom = (specialEventEditorInterface: {
   };
   const handleKeyUp = (ev: KeyboardEvent) => {};
   const handleMouseDown = (ev: MouseEvent) => {
+    const editorState = specialEventEditorInterface.getEditorState();
     if (
       ev.button === 1 &&
       isEventWithCanvasTarget(ev, specialEventEditorInterface.getCanvas())
     ) {
-      specialEventEditorEventState.lastClickX = ev.clientX;
-      specialEventEditorEventState.lastClickY = ev.clientY;
-      specialEventEditorEventState.lastTranslateX =
-        specialEventEditorEventState.translateX;
-      specialEventEditorEventState.lastTranslateY =
-        specialEventEditorEventState.translateY;
-      specialEventEditorEventState.isDragging = true;
+      editorState.lastClickX = ev.clientX;
+      editorState.lastClickY = ev.clientY;
+      editorState.lastTranslateX = editorState.translateX;
+      editorState.lastTranslateY = editorState.translateY;
+      editorState.isDragging = true;
     }
     if (
       ev.button === 0 &&
       isEventWithCanvasTarget(ev, specialEventEditorInterface.getCanvas())
     ) {
+      const canvas = specialEventEditorInterface.getCanvas();
+      const editorState = specialEventEditorInterface.getEditorState();
+      checkLeftMouseClickEvents({ ev, canvas, editorState });
     }
     if (
       ev.button === 2 &&
@@ -87,31 +85,70 @@ export const initPanzoom = (specialEventEditorInterface: {
     }
   };
   const handleMouseMove = (ev: MouseEvent) => {
-    specialEventEditorEventState.mouseX = ev.clientX;
-    specialEventEditorEventState.mouseY = ev.clientY;
+    const editorState = specialEventEditorInterface.getEditorState();
+    editorState.mouseX = ev.clientX;
+    editorState.mouseY = ev.clientY;
 
-    if (specialEventEditorEventState.isDragging) {
-      specialEventEditorEventState.translateX =
-        specialEventEditorEventState.lastTranslateX +
-        ev.clientX -
-        specialEventEditorEventState.lastClickX;
-      specialEventEditorEventState.translateY =
-        specialEventEditorEventState.lastTranslateY +
-        ev.clientY -
-        specialEventEditorEventState.lastClickY;
+    if (editorState.isDraggingNode) {
+      // Dragging a node
+      if (editorState.draggedNodeId) {
+        const canvas = specialEventEditorInterface.getCanvas();
+        const editorState = specialEventEditorInterface.getEditorState();
+        const gameEvent = editorState.gameEvent;
+
+        if (gameEvent) {
+          const [worldX, worldY] = screenToWorldCoords(
+            ev.clientX,
+            ev.clientY,
+            canvas,
+            editorState.zoneWidth,
+            editorState.zoneHeight
+          );
+
+          // Calculate new node position (subtract the offset to maintain relative position)
+          const newX = worldX - editorState.nodeDragOffsetX;
+          const newY = worldY - editorState.nodeDragOffsetY;
+
+          // Update the node position
+          const child = gameEvent.children.find(
+            (c) => c.id === editorState.draggedNodeId
+          );
+          if (child) {
+            child.x = newX;
+            child.y = newY;
+          }
+        }
+      }
+    } else if (editorState.isDragging) {
+      // Pan dragging
+      editorState.translateX =
+        editorState.lastTranslateX + ev.clientX - editorState.lastClickX;
+      editorState.translateY =
+        editorState.lastTranslateY + ev.clientY - editorState.lastClickY;
+    }
+
+    // Detect hover over nodes (only when not dragging)
+    if (!editorState.isDragging && !editorState.isDraggingNode) {
+      const canvas = specialEventEditorInterface.getCanvas();
+      const editorState = specialEventEditorInterface.getEditorState();
+      checkMouseMoveHoverEvents({ ev, canvas, editorState });
     }
   };
   const handleMouseUp = (ev: MouseEvent) => {
-    if (specialEventEditorEventState.isDragging) {
-      specialEventEditorEventState.translateX =
-        specialEventEditorEventState.lastTranslateX +
-        ev.clientX -
-        specialEventEditorEventState.lastClickX;
-      specialEventEditorEventState.translateY =
-        specialEventEditorEventState.lastTranslateY +
-        ev.clientY -
-        specialEventEditorEventState.lastClickY;
-      specialEventEditorEventState.isDragging = false;
+    const editorState = specialEventEditorInterface.getEditorState();
+    if (editorState.isDraggingNode) {
+      // Stop dragging node
+      editorState.isDraggingNode = false;
+      editorState.draggedNodeId = null;
+      editorState.nodeDragOffsetX = 0;
+      editorState.nodeDragOffsetY = 0;
+    } else if (editorState.isDragging) {
+      // Stop pan dragging
+      editorState.translateX =
+        editorState.lastTranslateX + ev.clientX - editorState.lastClickX;
+      editorState.translateY =
+        editorState.lastTranslateY + ev.clientY - editorState.lastClickY;
+      editorState.isDragging = false;
     }
   };
   const handleContextMenu = (ev: MouseEvent) => {
@@ -120,6 +157,7 @@ export const initPanzoom = (specialEventEditorInterface: {
     }
   };
   const handleWheel = (ev: WheelEvent) => {
+    const editorState = specialEventEditorInterface.getEditorState();
     if (isEventWithCanvasTarget(ev, specialEventEditorInterface.getCanvas())) {
       const [focalX, focalY] = screenCoordsToCanvasCoords(
         ev.clientX,
@@ -127,7 +165,7 @@ export const initPanzoom = (specialEventEditorInterface: {
         specialEventEditorInterface.getCanvas()
       );
 
-      let nextScale = specialEventEditorEventState.scale;
+      let nextScale = editorState.scale;
       const scaleStep = 0.5;
 
       if (ev.deltaY > 0) {
@@ -146,16 +184,14 @@ export const initPanzoom = (specialEventEditorInterface: {
 
       const offsetX =
         focalX -
-        (nextScale / specialEventEditorEventState.scale) *
-          (focalX - specialEventEditorEventState.translateX);
+        (nextScale / editorState.scale) * (focalX - editorState.translateX);
       const offsetY =
         focalY -
-        (nextScale / specialEventEditorEventState.scale) *
-          (focalY - specialEventEditorEventState.translateY);
+        (nextScale / editorState.scale) * (focalY - editorState.translateY);
 
-      specialEventEditorEventState.translateX = offsetX;
-      specialEventEditorEventState.translateY = offsetY;
-      specialEventEditorEventState.scale = nextScale;
+      editorState.translateX = offsetX;
+      editorState.translateY = offsetY;
+      editorState.scale = nextScale;
     }
   };
   window.addEventListener('keydown', handleKeyDown);
@@ -192,16 +228,16 @@ export const unInitPanzoom = () => {
 
 export const getTransform = () => {
   return {
-    x: specialEventEditorEventState.translateX,
-    y: specialEventEditorEventState.translateY,
-    scale: specialEventEditorEventState.scale,
+    x: getEditorState().translateX,
+    y: getEditorState().translateY,
+    scale: getEditorState().scale,
   };
 };
 
 export const resetPanzoom = () => {
-  specialEventEditorEventState.translateX = 0;
-  specialEventEditorEventState.translateY = 0;
-  specialEventEditorEventState.scale = 1;
+  getEditorState().translateX = 0;
+  getEditorState().translateY = 0;
+  getEditorState().scale = 1;
 };
 
 export const screenCoordsToCanvasCoords = (
@@ -222,11 +258,170 @@ export const screenCoordsToCanvasCoords = (
   return [canvasX, canvasY];
 };
 
-export const getScreenMouseCoords = () => {
-  return [
-    specialEventEditorEventState.mouseX,
-    specialEventEditorEventState.mouseY,
-  ];
+export const checkMouseMoveHoverEvents = (args: {
+  ev: MouseEvent;
+  canvas: HTMLCanvasElement;
+  editorState: EditorStateSE;
+}) => {
+  const { ev, canvas, editorState } = args;
+  const gameEvent = editorState.gameEvent;
+  if (!gameEvent) {
+    return;
+  }
+
+  if (gameEvent) {
+    const [worldX, worldY] = screenToWorldCoords(
+      ev.clientX,
+      ev.clientY,
+      canvas,
+      editorState.zoneWidth,
+      editorState.zoneHeight
+    );
+
+    // Check which node is hovered
+    // Iterate in reverse to check topmost nodes first (nodes drawn later are on top)
+    let hoveredNodeId: string | null = null;
+    let hoveredCloseButtonNodeId: string | null = null;
+    if (gameEvent.children) {
+      for (let i = gameEvent.children.length - 1; i >= 0; i--) {
+        const child = gameEvent.children[i];
+        let nodeWidth = 0;
+        if (child.eventChildType === GameEventChildType.EXEC) {
+          const [NODE_WIDTH] = getExecNodeDimensions(
+            child as GameEventChildExec
+          );
+          nodeWidth = NODE_WIDTH;
+        }
+
+        // Check if point is within node bounds
+        if (
+          worldX >= child.x &&
+          worldX <= child.x + nodeWidth &&
+          worldY >= child.y &&
+          worldY <= child.y + (child.h || 0)
+        ) {
+          hoveredNodeId = child.id;
+
+          // Check if hovering over close button
+          if (child.eventChildType === GameEventChildType.EXEC) {
+            const btnSize = 15;
+            const BORDER_WIDTH = 2;
+            const closeButtonX =
+              child.x + nodeWidth - btnSize - BORDER_WIDTH * 2;
+            const closeButtonY = child.y + BORDER_WIDTH * 2;
+
+            if (
+              worldX >= closeButtonX &&
+              worldX <= closeButtonX + btnSize &&
+              worldY >= closeButtonY &&
+              worldY <= closeButtonY + btnSize
+            ) {
+              hoveredCloseButtonNodeId = child.id;
+            }
+          }
+
+          break; // Use topmost matching node
+        }
+      }
+    }
+
+    // Update hover state if it changed
+    if (editorState.hoveredNodeId !== hoveredNodeId) {
+      editorState.hoveredNodeId = hoveredNodeId;
+    }
+    if (editorState.hoveredCloseButtonNodeId !== hoveredCloseButtonNodeId) {
+      editorState.hoveredCloseButtonNodeId = hoveredCloseButtonNodeId;
+    }
+  }
+};
+
+const checkLeftMouseClickEvents = (args: {
+  ev: MouseEvent;
+  canvas: HTMLCanvasElement;
+  editorState: EditorStateSE;
+}) => {
+  const { ev, canvas, editorState } = args;
+  const gameEvent = editorState.gameEvent;
+  if (!gameEvent) {
+    return;
+  }
+
+  const [worldX, worldY] = screenToWorldCoords(
+    ev.clientX,
+    ev.clientY,
+    canvas,
+    editorState.zoneWidth,
+    editorState.zoneHeight
+  );
+
+  // Check which node was clicked (check in reverse order for topmost)
+  if (gameEvent.children) {
+    for (let i = gameEvent.children.length - 1; i >= 0; i--) {
+      const child = gameEvent.children[i];
+      let nodeWidth = 0;
+      if (child.eventChildType === GameEventChildType.EXEC) {
+        const [NODE_WIDTH] = getExecNodeDimensions(child as GameEventChildExec);
+        nodeWidth = NODE_WIDTH;
+      }
+
+      // Check if point is within node bounds
+      if (
+        worldX >= child.x &&
+        worldX <= child.x + nodeWidth &&
+        worldY >= child.y &&
+        worldY <= child.y + (child.h || 0)
+      ) {
+        // Check if clicking on close button first
+        if (child.eventChildType === GameEventChildType.EXEC) {
+          const btnSize = 15;
+          const BORDER_WIDTH = 2;
+          const nodeX = child.x;
+          const nodeY = child.y;
+
+          // Close button position in world coordinates
+          const closeButtonX = nodeX + nodeWidth - btnSize - BORDER_WIDTH * 2;
+          const closeButtonY = nodeY + BORDER_WIDTH * 2;
+
+          // Check if click is on close button (in world coordinates)
+          if (
+            worldX >= closeButtonX &&
+            worldX <= closeButtonX + btnSize &&
+            worldY >= closeButtonY &&
+            worldY <= closeButtonY + btnSize
+          ) {
+            // Clicked on close button - delete the node
+            deleteNode(child.id);
+            ev.preventDefault();
+            return;
+          }
+        }
+
+        // Start dragging this node
+        editorState.isDraggingNode = true;
+        editorState.draggedNodeId = child.id;
+        editorState.nodeDragOffsetX = worldX - child.x;
+        editorState.nodeDragOffsetY = worldY - child.y;
+        editorState.lastClickX = ev.clientX;
+        editorState.lastClickY = ev.clientY;
+        ev.preventDefault();
+        return;
+      }
+    }
+  }
+};
+
+const deleteNode = (nodeId: string) => {
+  const gameEvent = getEditorState().gameEvent;
+  if (!gameEvent) {
+    return;
+  }
+  if (confirm('Are you sure you want to delete this node?')) {
+    const ind = gameEvent.children?.findIndex((child) => child.id === nodeId);
+    if (ind !== undefined) {
+      gameEvent.children.splice(ind, 1);
+    }
+    updateEditorState({ gameEvent: gameEvent });
+  }
 };
 
 /**

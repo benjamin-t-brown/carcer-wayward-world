@@ -8,13 +8,13 @@ import {
   createSwitchNode,
 } from './nodeCreation';
 import { screenToWorldCoords } from './seEditorEvents';
-import { SpecialEventEditorState, updateEditorState } from './seEditorState';
+import { EditorStateSE, updateEditorState } from './seEditorState';
 
 interface ContextMenuProps {
   x: number;
   y: number;
   canvasRef: React.RefObject<HTMLCanvasElement>;
-  editorStateRef: React.RefObject<SpecialEventEditorState>;
+  editorStateRef: React.RefObject<EditorStateSE>;
   gameEvent: GameEvent;
   onClose: () => void;
 }

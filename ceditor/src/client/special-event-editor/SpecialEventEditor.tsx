@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { GameEvent } from '../types/assets';
 import { useRenderLoop } from '../hooks/useRenderLoop';
 import { getEditorState, updateEditorState } from './seEditorState';
-import { SpecialEventEditorState } from './seEditorState';
+import { EditorStateSE } from './seEditorState';
 import { CANVAS_CONTAINER_ID, MapCanvasSE } from './MapCanvasSE';
 import { initPanzoom, unInitPanzoom } from './seEditorEvents';
 import { loop } from './seLoop';
@@ -23,7 +23,7 @@ export function SpecialEventEditor({
   onUpdateGameEvent,
 }: SpecialEventEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const editorState = useRef<SpecialEventEditorState | undefined>(undefined);
+  const editorState = useRef<EditorStateSE | undefined>(undefined);
   const reRender = useReRender();
   const [contextMenu, setContextMenu] = useState<{
     x: number;
@@ -43,7 +43,7 @@ export function SpecialEventEditor({
   // Update editor state when gameEvent changes
   useEffect(() => {
     if (gameEvent?.id) {
-      updateEditorState({ selectedEventId: gameEvent.id });
+      updateEditorState({ gameEvent: gameEvent });
       editorState.current = getEditorState();
     }
   }, [gameEvent?.id]);
@@ -66,6 +66,7 @@ export function SpecialEventEditor({
     canvas.addEventListener('contextmenu', handleContextMenu);
     initPanzoom({
       getCanvas: () => canvasRef.current as HTMLCanvasElement,
+      getEditorState: () => editorState.current as EditorStateSE,
     });
 
     return () => {
@@ -110,8 +111,7 @@ export function SpecialEventEditor({
       loop(
         {
           getCanvas: () => canvasRef.current as HTMLCanvasElement,
-          getEditorState: () => editorState.current as SpecialEventEditorState,
-          getGameEvent: () => gameEvent,
+          getEditorState: () => editorState.current as EditorStateSE,
         },
         ts - prevTs
       );
@@ -179,7 +179,7 @@ export function SpecialEventEditor({
           y={contextMenu.y}
           canvasRef={canvasRef}
           editorStateRef={
-            editorState as React.RefObject<SpecialEventEditorState>
+            editorState as React.RefObject<EditorStateSE>
           }
           gameEvent={gameEvent}
           onClose={() => setContextMenu(null)}

@@ -12,9 +12,9 @@
         "p": "When you walk into this room, the door shuts abruptly behind you and an alarm begins blaring.\n\n\"Your presence here is not wanted.  You will now be eliminated.\"\n\nWith a *clank* the walls begin to enclose around you.",
         "execStr": "START_QUEST:EscapeTheRoom",
         "next": "2",
-        "x": 25,
-        "y": 25,
-        "h": 0
+        "x": 17,
+        "y": 19,
+        "h": 158
       },
       {
         "eventChildType": "END",

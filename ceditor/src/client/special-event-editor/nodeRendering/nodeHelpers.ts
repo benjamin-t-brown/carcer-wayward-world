@@ -47,19 +47,16 @@ export const breakTextIntoLines = (
   return lines;
 };
 
-export const calculateNodeHeight = (
+export const calculateHeightFromText = (
   lines: string[],
   fontSize: number,
   fontFamily: string,
-  padding: number,
-  borderWidth: number,
   lineHeight: number,
   lineSpacing: number,
   ctx: CanvasRenderingContext2D
 ): number => {
   if (lines.length === 0) {
-    // Minimum height for empty node
-    return padding * 2 + borderWidth * 2;
+    return 0;
   }
 
   // Set font to measure text
@@ -73,14 +70,10 @@ export const calculateNodeHeight = (
     lineCount++;
   }
 
-  // Calculate total height: padding + (line count * line height)
   const totalHeight =
-    padding * 2 +
-    borderWidth * 2 +
-    lineCount * lineHeight -
-    (lineCount > 0 ? lineSpacing : 0);
+    lineCount * lineHeight - (lineCount > 0 ? lineSpacing : 0);
 
-  return Math.max(totalHeight, padding * 2 + borderWidth * 2); // Minimum height
+  return Math.max(totalHeight, 0);
 };
 
 export const renderCloseButton = (
@@ -89,14 +82,26 @@ export const renderCloseButton = (
   nodeWidth: number,
   borderWidth: number,
   scale: number,
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
+  args: {
+    isHovered: boolean;
+    isActive: boolean;
+  }
 ) => {
   const btnSize = 15;
   ctx.save();
   ctx.translate(nodeX, nodeY);
   ctx.translate(nodeWidth - btnSize * scale - borderWidth * 2, borderWidth * 2);
   ctx.scale(scale, scale);
-  drawRect(0, 0, btnSize, btnSize, '#800', false, ctx);
+  drawRect(
+    0,
+    0,
+    btnSize,
+    btnSize,
+    args.isActive ? '#500' : args.isHovered ? '#a00' : '#800',
+    false,
+    ctx
+  );
   drawText(
     'X',
     4,
@@ -112,4 +117,18 @@ export const renderCloseButton = (
     ctx
   );
   ctx.restore();
+};
+
+export const getCloseButtonBounds = (
+  nodeX: number,
+  nodeY: number,
+  nodeWidth: number,
+  borderWidth: number,
+  scale: number
+) => {
+  const btnSize = 15;
+  return {
+    x: nodeX + nodeWidth - btnSize * scale - borderWidth * 2,
+    y: nodeY + borderWidth * 2,
+  };
 };

@@ -2,12 +2,13 @@ import { GameEventChildExec } from '../../types/assets';
 import { drawRect, drawText } from '../../utils/draw';
 import {
   breakTextIntoLines,
-  calculateNodeHeight,
+  calculateHeightFromText,
   renderCloseButton,
 } from './nodeHelpers';
 
 const NODE_COLOR = '#808080';
 const BORDER_COLOR = '#aaa';
+const BORDER_HOVER_COLOR = '#fff';
 const TEXT_COLOR = '#FFF';
 const FONT_FAMILY = 'arial';
 const NODE_WIDTH = 300;
@@ -18,17 +19,25 @@ const PADDING = 6;
 const LINE_SPACING = 4;
 const LINE_HEIGHT = 14;
 
+export const getExecNodeDimensions = (node: GameEventChildExec) => {
+  return [NODE_WIDTH, node.h];
+};
+
 export const renderExecNode = (
   node: GameEventChildExec,
   x: number,
   y: number,
   scale: number,
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
+  args: {
+    isHovered: boolean;
+    isCloseButtonHovered?: boolean;
+  }
 ) => {
   const { p, execStr } = node;
 
   const availableWidth = NODE_WIDTH - PADDING * 2 - BORDER_WIDTH * 2;
-  const allText = p + '\n' + execStr;
+  const allText = p + '\n\n' + execStr;
   const lines = breakTextIntoLines(
     allText,
     availableWidth,
@@ -36,24 +45,31 @@ export const renderExecNode = (
     FONT_FAMILY,
     ctx
   );
-  const calculatedHeight = calculateNodeHeight(
+  const calculatedHeight = calculateHeightFromText(
     lines,
     FONT_SIZE,
     FONT_FAMILY,
-    PADDING,
-    BORDER_WIDTH,
     LINE_HEIGHT,
     LINE_SPACING,
     ctx
   );
-  node.h = calculatedHeight + NODE_TITLE_HEIGHT;
+  node.h =
+    calculatedHeight + NODE_TITLE_HEIGHT + PADDING * 2 + BORDER_WIDTH * 2;
 
   const nodeX = x * scale;
   const nodeY = y * scale;
   const nodeWidth = NODE_WIDTH * scale;
   const nodeHeight = node.h * scale;
 
-  drawRect(nodeX, nodeY, nodeWidth, nodeHeight, BORDER_COLOR, false, ctx);
+  drawRect(
+    nodeX,
+    nodeY,
+    nodeWidth,
+    nodeHeight,
+    args.isHovered ? BORDER_HOVER_COLOR : BORDER_COLOR,
+    false,
+    ctx
+  );
   drawRect(
     nodeX + BORDER_WIDTH,
     nodeY + BORDER_WIDTH,
@@ -64,7 +80,10 @@ export const renderExecNode = (
     ctx
   );
 
-  renderCloseButton(nodeX, nodeY, nodeWidth, BORDER_WIDTH, scale, ctx);
+  renderCloseButton(nodeX, nodeY, nodeWidth, BORDER_WIDTH, scale, ctx, {
+    isHovered: args.isCloseButtonHovered || false,
+    isActive: false,
+  });
 
   // title
   ctx.save();
