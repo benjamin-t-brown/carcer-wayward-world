@@ -4,12 +4,13 @@ import { useRenderLoop } from '../hooks/useRenderLoop';
 import { getEditorState, updateEditorState } from './seEditorState';
 import { EditorStateSE } from './seEditorState';
 import { CANVAS_CONTAINER_ID, MapCanvasSE } from './MapCanvasSE';
-import { initPanzoom, unInitPanzoom, centerPanzoomOnNode } from './seEditorEvents';
+import { initPanzoom, unInitPanzoom, centerPanzoomOnNode, screenToWorldCoords } from './seEditorEvents';
 import { loop } from './seLoop';
 import { useReRender } from '../hooks/useReRender';
 import { ContextMenu } from './ContextMenu';
 import { EditExecNodeModal } from './modals/EditExecNodeModal';
 import { GameEventChildExec } from '../types/assets';
+import { getNodeBounds } from './nodeRendering/nodeHelpers';
 import { restoreTransformForGameEvent } from './seEditorState';
 
 interface SpecialEventEditorProps {
@@ -29,6 +30,7 @@ export function SpecialEventEditor({
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
+    clickedNodeId?: string | null;
   } | null>(null);
   const [editingNode, setEditingNode] = useState<GameEventChildExec | null>(
     null
@@ -81,7 +83,44 @@ export function SpecialEventEditor({
       ev.preventDefault();
       const targetId = (ev.target as HTMLElement)?.id;
       if (ev.target === canvas || targetId.includes(CANVAS_CONTAINER_ID)) {
-        setContextMenu({ x: ev.clientX, y: ev.clientY });
+        // Check if right-clicking on a node
+        const currentEditorState = editorState.current;
+        if (currentEditorState && currentEditorState.gameEvent) {
+          const [worldX, worldY] = screenToWorldCoords(
+            ev.clientX,
+            ev.clientY,
+            canvas,
+            currentEditorState.zoneWidth,
+            currentEditorState.zoneHeight
+          );
+          
+          // Find which node was clicked (if any)
+          let clickedNodeId: string | null = null;
+          if (currentEditorState.gameEvent.children) {
+            for (let i = currentEditorState.gameEvent.children.length - 1; i >= 0; i--) {
+              const child = currentEditorState.gameEvent.children[i];
+              const [nodeWidth, nodeHeight] = getNodeBounds(child);
+              
+              if (
+                worldX >= child.x &&
+                worldX <= child.x + nodeWidth &&
+                worldY >= child.y &&
+                worldY <= child.y + (child.h || nodeHeight)
+              ) {
+                clickedNodeId = child.id;
+                break;
+              }
+            }
+          }
+          
+          setContextMenu({ 
+            x: ev.clientX, 
+            y: ev.clientY,
+            clickedNodeId: clickedNodeId,
+          });
+        } else {
+          setContextMenu({ x: ev.clientX, y: ev.clientY });
+        }
       }
     };
 
@@ -215,6 +254,7 @@ export function SpecialEventEditor({
           canvasRef={canvasRef}
           editorStateRef={editorState as React.RefObject<EditorStateSE>}
           gameEvent={gameEvent}
+          clickedNodeId={contextMenu.clickedNodeId}
           onClose={() => setContextMenu(null)}
         />
       )}

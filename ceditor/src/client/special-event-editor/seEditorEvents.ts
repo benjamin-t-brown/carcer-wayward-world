@@ -82,14 +82,18 @@ export const initPanzoom = (specialEventEditorInterface: {
         ev.preventDefault();
         const nodeCount = editorState.selectedNodeIds.size;
         console.log('TO DELETE', editorState);
-        const message = `Are you sure you want to delete ${nodeCount} node${nodeCount > 1 ? 's' : ''}?`;
+        const message = `Are you sure you want to delete ${nodeCount} node${
+          nodeCount > 1 ? 's' : ''
+        }?`;
         if (confirm(message)) {
           const gameEvent = editorState.gameEvent;
           if (gameEvent && gameEvent.children) {
             // Delete all selected nodes
             const nodeIdsToDelete = Array.from(editorState.selectedNodeIds);
             nodeIdsToDelete.forEach((nodeId) => {
-              const index = gameEvent.children.findIndex((child) => child.id === nodeId);
+              const index = gameEvent.children.findIndex(
+                (child) => child.id === nodeId
+              );
               if (index !== -1) {
                 gameEvent.children.splice(index, 1);
               }
@@ -122,7 +126,7 @@ export const initPanzoom = (specialEventEditorInterface: {
     ) {
       const canvas = specialEventEditorInterface.getCanvas();
       const editorState = specialEventEditorInterface.getEditorState();
-      
+
       // Check if Ctrl is held
       if (ev.ctrlKey || ev.metaKey) {
         // First check if clicking on a node - if so, toggle selection
@@ -135,7 +139,7 @@ export const initPanzoom = (specialEventEditorInterface: {
             specialEventEditorInterface.getEditorFuncs().onNodeDoubleClick,
           isCtrlClick: true,
         });
-        
+
         // If we didn't click on a node, start rectangle selection
         if (!nodeClicked) {
           const [worldX, worldY] = screenToWorldCoords(
@@ -214,15 +218,16 @@ export const initPanzoom = (specialEventEditorInterface: {
               editorState.draggedNodeId
             );
             if (initialPos) {
-              const deltaX = worldX - editorState.nodeDragOffsetX - initialPos.x;
-              const deltaY = worldY - editorState.nodeDragOffsetY - initialPos.y;
+              const deltaX =
+                worldX - editorState.nodeDragOffsetX - initialPos.x;
+              const deltaY =
+                worldY - editorState.nodeDragOffsetY - initialPos.y;
 
               // Move all selected nodes by the same delta
               editorState.selectedNodeIds.forEach((nodeId) => {
                 const node = gameEvent.children.find((c) => c.id === nodeId);
-                const nodeInitialPos = editorState.selectedNodesInitialPositions.get(
-                  nodeId
-                );
+                const nodeInitialPos =
+                  editorState.selectedNodesInitialPositions.get(nodeId);
                 if (node && nodeInitialPos) {
                   node.x = nodeInitialPos.x + deltaX;
                   node.y = nodeInitialPos.y + deltaY;
@@ -266,7 +271,7 @@ export const initPanzoom = (specialEventEditorInterface: {
   };
   const handleMouseUp = (ev: MouseEvent) => {
     const editorState = specialEventEditorInterface.getEditorState();
-    
+
     if (editorState.isSelecting && editorState.selectionRect) {
       const canvas = specialEventEditorInterface.getCanvas();
       // Finalize selection - find nodes in rectangle
@@ -277,6 +282,8 @@ export const initPanzoom = (specialEventEditorInterface: {
         const maxX = Math.max(rect.startX, rect.endX);
         const minY = Math.min(rect.startY, rect.endY);
         const maxY = Math.max(rect.startY, rect.endY);
+
+        const nodesAddedToSelection: string[] = [];
 
         // Check which nodes are in the selection rectangle
         gameEvent.children.forEach((child) => {
@@ -291,10 +298,17 @@ export const initPanzoom = (specialEventEditorInterface: {
             child.y < maxY &&
             nodeBottom > minY
           ) {
-            editorState.selectedNodeIds.add(child.id);
+            if (!nodesAddedToSelection.includes(child.id)) {
+              editorState.selectedNodeIds.add(child.id);
+              nodesAddedToSelection.push(child.id);
+            }
           }
         });
+        if (nodesAddedToSelection.length === 0) {
+          editorState.selectedNodeIds.clear();
+        }
       }
+
       editorState.isSelecting = false;
       editorState.selectionRect = null;
       updateEditorState({});
@@ -593,7 +607,7 @@ const checkLeftMouseClickEvents = (args: {
 
         // Check if this node is selected
         const isNodeSelected = editorState.selectedNodeIds.has(child.id);
-        
+
         // If Ctrl+click, toggle selection without starting drag
         if (args.isCtrlClick) {
           if (isNodeSelected) {
@@ -605,14 +619,14 @@ const checkLeftMouseClickEvents = (args: {
           ev.preventDefault();
           return true; // Indicate we handled a node click
         }
-        
+
         // Normal click behavior: If clicking on a selected node, drag all selected nodes
         // If clicking on an unselected node, select only this node and drag it
         if (!isNodeSelected && !args.isCtrlClick) {
           editorState.selectedNodeIds.clear();
           // editorState.selectedNodeIds.add(child.id);
         }
-        
+
         // Store initial positions of all selected nodes
         editorState.selectedNodesInitialPositions.clear();
         editorState.selectedNodeIds.forEach((nodeId) => {
@@ -624,7 +638,7 @@ const checkLeftMouseClickEvents = (args: {
             });
           }
         });
-        
+
         // Start dragging this node (and all selected nodes)
         editorState.isDraggingNode = true;
         editorState.draggedNodeId = child.id;

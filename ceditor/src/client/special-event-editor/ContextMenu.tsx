@@ -9,6 +9,7 @@ import {
 } from './nodeCreation';
 import { screenToWorldCoords } from './seEditorEvents';
 import { EditorStateSE, updateEditorState } from './seEditorState';
+import { getNodeBounds } from './nodeRendering/nodeHelpers';
 
 interface ContextMenuProps {
   x: number;
@@ -16,6 +17,7 @@ interface ContextMenuProps {
   canvasRef: React.RefObject<HTMLCanvasElement>;
   editorStateRef: React.RefObject<EditorStateSE>;
   gameEvent: GameEvent;
+  clickedNodeId?: string | null;
   onClose: () => void;
 }
 
@@ -33,6 +35,7 @@ export function ContextMenu({
   canvasRef,
   editorStateRef,
   gameEvent,
+  clickedNodeId,
   onClose,
 }: ContextMenuProps) {
   const nodeTypes = [
@@ -49,13 +52,40 @@ export function ContextMenu({
     }
 
     const canvas = canvasRef.current;
-    const [worldX, worldY] = screenToWorldCoords(
-      x,
-      y,
-      canvas,
-      editorStateRef.current.zoneWidth,
-      editorStateRef.current.zoneHeight
-    );
+    let newNodeX: number;
+    let newNodeY: number;
+
+    // If clicking on a node, position new node below it
+    if (clickedNodeId) {
+      const clickedNode = gameEvent.children.find((child) => child.id === clickedNodeId);
+      if (clickedNode) {
+        const [, nodeHeight] = getNodeBounds(clickedNode);
+        newNodeX = clickedNode.x;
+        newNodeY = clickedNode.y + (clickedNode.h || nodeHeight) + 20; // 20px spacing
+      } else {
+        // Fallback to mouse position if node not found
+        const [worldX, worldY] = screenToWorldCoords(
+          x,
+          y,
+          canvas,
+          editorStateRef.current.zoneWidth,
+          editorStateRef.current.zoneHeight
+        );
+        newNodeX = worldX;
+        newNodeY = worldY;
+      }
+    } else {
+      // No node clicked, use mouse position
+      const [worldX, worldY] = screenToWorldCoords(
+        x,
+        y,
+        canvas,
+        editorStateRef.current.zoneWidth,
+        editorStateRef.current.zoneHeight
+      );
+      newNodeX = worldX;
+      newNodeY = worldY;
+    }
 
     // Generate unique ID
     const nodeId = randomId();
@@ -84,8 +114,8 @@ export function ContextMenu({
     }
 
     // Set position
-    newNode.x = worldX;
-    newNode.y = worldY;
+    newNode.x = newNodeX;
+    newNode.y = newNodeY;
 
     // Add to gameEvent
     // const updatedGameEvent: GameEvent = {
