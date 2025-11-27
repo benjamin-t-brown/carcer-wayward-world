@@ -4,12 +4,13 @@ import { useRenderLoop } from '../hooks/useRenderLoop';
 import { getEditorState, updateEditorState } from './seEditorState';
 import { EditorStateSE } from './seEditorState';
 import { CANVAS_CONTAINER_ID, MapCanvasSE } from './MapCanvasSE';
-import { initPanzoom, unInitPanzoom } from './seEditorEvents';
+import { initPanzoom, unInitPanzoom, centerPanzoomOnNode } from './seEditorEvents';
 import { loop } from './seLoop';
 import { useReRender } from '../hooks/useReRender';
 import { ContextMenu } from './ContextMenu';
 import { EditExecNodeModal } from './modals/EditExecNodeModal';
 import { GameEventChildExec } from '../types/assets';
+import { restoreTransformForGameEvent } from './seEditorState';
 
 interface SpecialEventEditorProps {
   gameEvent: GameEvent;
@@ -43,8 +44,29 @@ export function SpecialEventEditor({
   // Update editor state when gameEvent changes
   useEffect(() => {
     if (gameEvent?.id) {
+      const currentEditorState = getEditorState();
+      // Clear node selection when switching to a new game event
+      currentEditorState.selectedNodeIds.clear();
+      currentEditorState.selectionRect = null;
+      
       updateEditorState({ gameEvent: gameEvent });
       editorState.current = getEditorState();
+      
+      // Try to restore saved transform, or center on first node if no saved transform
+      setTimeout(() => {
+        const canvas = canvasRef.current;
+        if (canvas) {
+          const hasSavedTransform = restoreTransformForGameEvent(gameEvent.id);
+          if (!hasSavedTransform) {
+            // No saved transform, center on first node
+            const firstNode = gameEvent?.children?.[0];
+            if (firstNode) {
+              console.log('centering on node', firstNode.id);
+              centerPanzoomOnNode(canvas, firstNode.id);
+            }
+          }
+        }
+      }, 33);
     }
   }, [gameEvent?.id]);
 

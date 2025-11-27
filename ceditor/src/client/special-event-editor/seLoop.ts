@@ -96,6 +96,7 @@ export const loop = (
   const gameEvent = dataInterface.getEditorState().gameEvent;
   const hoveredNodeId = dataInterface.getEditorState().hoveredNodeId;
   const hoveredCloseButtonNodeId = dataInterface.getEditorState().hoveredCloseButtonNodeId;
+  const selectedNodeIds = dataInterface.getEditorState().selectedNodeIds;
   if (gameEvent && gameEvent.children) {
     for (const child of gameEvent.children) {
       if (child.eventChildType === GameEventChildType.EXEC) {
@@ -108,10 +109,38 @@ export const loop = (
           {
             isHovered: child.id === hoveredNodeId,
             isCloseButtonHovered: child.id === hoveredCloseButtonNodeId,
+            isSelected: selectedNodeIds.has(child.id),
           }
         );
       }
     }
+  }
+  
+  // Draw selection rectangle (already in the correct transform context)
+  const selectionRect = dataInterface.getEditorState().selectionRect;
+  if (selectionRect) {
+    const minX = Math.min(selectionRect.startX, selectionRect.endX);
+    const maxX = Math.max(selectionRect.startX, selectionRect.endX);
+    const minY = Math.min(selectionRect.startY, selectionRect.endY);
+    const maxY = Math.max(selectionRect.startY, selectionRect.endY);
+    
+    ctx.strokeStyle = '#4ec9b0';
+    ctx.lineWidth = 2 / newScale;
+    ctx.setLineDash([5 / newScale, 5 / newScale]);
+    ctx.strokeRect(
+      minX * newScale,
+      minY * newScale,
+      (maxX - minX) * newScale,
+      (maxY - minY) * newScale
+    );
+    ctx.fillStyle = 'rgba(78, 201, 176, 0.1)';
+    ctx.fillRect(
+      minX * newScale,
+      minY * newScale,
+      (maxX - minX) * newScale,
+      (maxY - minY) * newScale
+    );
+    ctx.setLineDash([]);
   }
 
   ctx.restore();

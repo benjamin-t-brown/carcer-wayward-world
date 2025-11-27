@@ -1,5 +1,11 @@
 import { GameEvent } from '../types/assets';
 
+interface TransformState {
+  translateX: number;
+  translateY: number;
+  scale: number;
+}
+
 export class EditorStateSE {
   gameEvent: GameEvent | undefined = undefined;
   selectedChildId = '';
@@ -21,6 +27,19 @@ export class EditorStateSE {
   scale = 1;
   mouseX = 0;
   mouseY = 0;
+  // Store transform state per game event ID
+  gameEventTransforms: Map<string, TransformState> = new Map();
+  // Multi-select state
+  selectedNodeIds: Set<string> = new Set();
+  isSelecting: boolean = false; // Rectangle selection mode
+  selectionRect: {
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
+  } | null = null;
+  // Store initial positions when starting to drag multiple nodes
+  selectedNodesInitialPositions: Map<string, { x: number; y: number }> = new Map();
 }
 const editorStateSE = new EditorStateSE();
 
@@ -46,4 +65,25 @@ export const deleteNode = (nodeId: string) => {
     }
     updateEditorState({ gameEvent: gameEvent });
   }
+};
+
+export const saveTransformForGameEvent = (gameEventId: string) => {
+  const editorState = getEditorState();
+  editorState.gameEventTransforms.set(gameEventId, {
+    translateX: editorState.translateX,
+    translateY: editorState.translateY,
+    scale: editorState.scale,
+  });
+};
+
+export const restoreTransformForGameEvent = (gameEventId: string): boolean => {
+  const editorState = getEditorState();
+  const savedTransform = editorState.gameEventTransforms.get(gameEventId);
+  if (savedTransform) {
+    editorState.translateX = savedTransform.translateX;
+    editorState.translateY = savedTransform.translateY;
+    editorState.scale = savedTransform.scale;
+    return true;
+  }
+  return false;
 };

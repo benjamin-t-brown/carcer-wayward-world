@@ -12,7 +12,7 @@ import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { Sprite } from '../elements/Sprite';
-import { centerPanzoomOnNode } from '../special-event-editor/seEditorEvents';
+import { getEditorState, saveTransformForGameEvent } from '../special-event-editor/seEditorState';
 
 interface NotificationState {
   message: string;
@@ -60,18 +60,18 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
 
   const handleGameEventClick = (filteredIndex: number) => {
     const actualIndex = getActualIndex(filteredIndex);
+    
+    // Save current transform before switching
+    const currentEditorState = getEditorState();
+    if (currentEditorState.gameEvent?.id) {
+      saveTransformForGameEvent(currentEditorState.gameEvent.id);
+    }
+    
+    // Clear node selection when switching game events
+    currentEditorState.selectedNodeIds.clear();
+    currentEditorState.selectionRect = null;
+    
     setEditGameEventIndex(actualIndex);
-    setTimeout(() => {
-      const gameEvent = gameEvents[actualIndex];
-      const firstNode = gameEvent?.children?.[0];
-      const canvas = document.getElementById(
-        'special-event-editor-canvas-canvas'
-      ) as HTMLCanvasElement;
-      if (gameEvent && firstNode && canvas) {
-        console.log('centering on node', firstNode.id);
-        centerPanzoomOnNode(canvas, firstNode.id);
-      }
-    }, 100);
   };
 
   const handleClone = (filteredIndex: number) => {

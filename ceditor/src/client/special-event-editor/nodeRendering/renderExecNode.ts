@@ -29,6 +29,7 @@ export const renderExecNode = (
   args: {
     isHovered: boolean;
     isCloseButtonHovered?: boolean;
+    isSelected?: boolean;
   }
 ) => {
   const { p, execStr } = node;
@@ -58,15 +59,36 @@ export const renderExecNode = (
   const nodeWidth = NODE_WIDTH * scale;
   const nodeHeight = node.h * scale;
 
+  // Draw border - red if selected, white if hovered, gray otherwise
+  const borderColor = args.isSelected
+    ? '#ff0000'
+    : args.isHovered
+    ? BORDER_HOVER_COLOR
+    : BORDER_COLOR;
+  const borderWidth = args.isSelected ? 3 : BORDER_WIDTH;
+  
   drawRect(
     nodeX,
     nodeY,
     nodeWidth,
     nodeHeight,
-    args.isHovered ? BORDER_HOVER_COLOR : BORDER_COLOR,
+    borderColor,
     false,
     ctx
   );
+  
+  // Draw additional border for selected nodes
+  if (args.isSelected) {
+    drawRect(
+      nodeX + borderWidth,
+      nodeY + borderWidth,
+      nodeWidth - borderWidth * 2,
+      nodeHeight - borderWidth * 2,
+      borderColor,
+      false,
+      ctx
+    );
+  }
   drawRect(
     nodeX + BORDER_WIDTH,
     nodeY + BORDER_WIDTH,
