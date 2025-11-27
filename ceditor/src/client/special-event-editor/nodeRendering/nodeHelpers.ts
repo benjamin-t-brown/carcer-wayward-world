@@ -1,4 +1,11 @@
+import {
+  GameEvent,
+  GameEventChildExec,
+  GameEventChildType,
+  SENode,
+} from '../../types/assets';
 import { drawRect, drawText } from '../../utils/draw';
+import { getExecNodeDimensions } from './renderExecNode';
 
 export const breakTextIntoLines = (
   text: string,
@@ -76,48 +83,7 @@ export const calculateHeightFromText = (
   return Math.max(totalHeight, 0);
 };
 
-export const renderCloseButton = (
-  nodeX: number,
-  nodeY: number,
-  nodeWidth: number,
-  borderWidth: number,
-  scale: number,
-  ctx: CanvasRenderingContext2D,
-  args: {
-    isHovered: boolean;
-    isActive: boolean;
-  }
-) => {
-  const btnSize = 15;
-  ctx.save();
-  ctx.translate(nodeX, nodeY);
-  ctx.translate(nodeWidth - btnSize * scale - borderWidth * 2, borderWidth * 2);
-  ctx.scale(scale, scale);
-  drawRect(
-    0,
-    0,
-    btnSize,
-    btnSize,
-    args.isActive ? '#500' : args.isHovered ? '#a00' : '#800',
-    false,
-    ctx
-  );
-  drawText(
-    'X',
-    4,
-    2,
-    {
-      color: '#fff',
-      size: 12,
-      font: 'courier',
-      strokeColor: '',
-      align: 'left',
-      baseline: 'top',
-    },
-    ctx
-  );
-  ctx.restore();
-};
+
 
 export const getCloseButtonBounds = (
   nodeX: number,
@@ -131,4 +97,59 @@ export const getCloseButtonBounds = (
     x: nodeX + nodeWidth - btnSize * scale - borderWidth * 2,
     y: nodeY + borderWidth * 2,
   };
+};
+
+export const getNodeBounds = (child: SENode) => {
+  let nodeWidth = 0;
+  if (child.eventChildType === GameEventChildType.EXEC) {
+    const [NODE_WIDTH] = getExecNodeDimensions(child as GameEventChildExec);
+    nodeWidth = NODE_WIDTH;
+  }
+  return [nodeWidth, child.h];
+};
+
+interface AccessibleVariable {
+  key: string;
+  value: string;
+  source: string;
+}
+
+export const getVarsFromNode = (
+  gameEvent: GameEvent,
+  gameEvents: GameEvent[]
+) => {
+  const usedNodes: string[] = [];
+
+  const innerHelper = (gameEvent: GameEvent) => {
+    const vars: AccessibleVariable[] = [];
+    // infinite loop protection
+    if (usedNodes.includes(gameEvent.id)) {
+      return [];
+    }
+    usedNodes.push(gameEvent.id);
+
+    for (const variable of gameEvent.vars) {
+      if (variable.importFrom === '') {
+        vars.push({
+          key: variable.key,
+          value: variable.value,
+          source: gameEvent.id,
+        });
+      }
+    }
+
+    for (const variable of gameEvent.vars) {
+      if (variable.importFrom !== '') {
+        const sourceEvent = gameEvents.find(
+          (event) => event.id === variable.importFrom
+        );
+        if (sourceEvent) {
+          vars.push(...innerHelper(sourceEvent));
+        }
+      }
+    }
+    return vars;
+  };
+
+  return innerHelper(gameEvent);
 };

@@ -8,14 +8,68 @@
       {
         "id": "abcdef",
         "key": "testVar",
-        "value": "testValue",
+        "value": "vars.testVar.hasClickedTestVar1",
         "importFrom": ""
       },
       {
         "id": "sszxypm46p",
         "key": "testVar2",
-        "value": "asdf",
+        "value": "vars.testVar.hasClickedTestVar2",
         "importFrom": ""
+      },
+      {
+        "id": "48isyg3167j",
+        "key": "testVar3",
+        "value": "vars.testVar.hasClickedTestVar3",
+        "importFrom": ""
+      },
+      {
+        "id": "05soorl9xxy9",
+        "key": "testVar4",
+        "value": "vars.testVar.hasClickedTestVar4",
+        "importFrom": ""
+      },
+      {
+        "id": "ess22k59udg",
+        "key": "testVar5",
+        "value": "vars.testVar.hasClickedTestVar4",
+        "importFrom": ""
+      },
+      {
+        "id": "8knr8r9tb84",
+        "key": "testVar6",
+        "value": "vars.testVar.hasClickedTestVar4",
+        "importFrom": ""
+      },
+      {
+        "id": "38mpj91nzm2",
+        "key": "testVar7",
+        "value": "test",
+        "importFrom": ""
+      },
+      {
+        "id": "o81ee1fy0os",
+        "key": "testVar8",
+        "value": "",
+        "importFrom": ""
+      },
+      {
+        "id": "ng861xc48iq",
+        "key": "testVar9",
+        "value": "",
+        "importFrom": ""
+      },
+      {
+        "id": "bhvxntozbgf",
+        "key": "testVar10",
+        "value": "",
+        "importFrom": ""
+      },
+      {
+        "id": "egqfny02put",
+        "key": "",
+        "value": "",
+        "importFrom": "TestEvent2"
       }
     ],
     "children": [
@@ -25,8 +79,8 @@
         "p": "When you walk into this room, the door shuts abruptly behind you and an alarm begins blaring.\n\n\"Your presence here is not wanted.  You will now be eliminated.\"\n\nWith a *clank* the walls begin to enclose around you.",
         "execStr": "START_QUEST:EscapeTheRoom",
         "next": "2",
-        "x": 17,
-        "y": 18,
+        "x": 20,
+        "y": 34,
         "h": 158
       },
       {
@@ -46,7 +100,20 @@
     "title": "This is a Test Event 2",
     "eventType": "MODAL",
     "icon": "special_event_icons_0",
-    "vars": [],
+    "vars": [
+      {
+        "id": "haq0k6r7bxf",
+        "key": "testEvent2Var",
+        "value": "vars.testEvent2Var",
+        "importFrom": ""
+      },
+      {
+        "id": "qcnd5jm3by",
+        "key": "",
+        "value": "",
+        "importFrom": "TestEvent"
+      }
+    ],
     "children": [
       {
         "id": "aubkvfqnzl5",

@@ -3,8 +3,10 @@ import {
   GameEventChildExec,
   GameEventChildType,
 } from '../types/assets';
+import { getNodeBounds } from './nodeRendering/nodeHelpers';
 import { getExecNodeDimensions } from './nodeRendering/renderExecNode';
 import {
+  deleteNode,
   EditorStateSE,
   getEditorState,
   updateEditorState,
@@ -144,7 +146,11 @@ export const initPanzoom = (specialEventEditorInterface: {
     }
 
     // Detect hover over nodes (only when not dragging)
-    if (!editorState.isDragging && !editorState.isDraggingNode) {
+    if (
+      !editorState.isDragging &&
+      !editorState.isDraggingNode &&
+      isEventWithCanvasTarget(ev, specialEventEditorInterface.getCanvas())
+    ) {
       const canvas = specialEventEditorInterface.getCanvas();
       const editorState = specialEventEditorInterface.getEditorState();
       checkMouseMoveHoverEvents({ ev, canvas, editorState });
@@ -270,63 +276,6 @@ export const resetPanzoom = () => {
   getEditorState().scale = 1;
 };
 
-/**
- * Centers the panzoom view on a specific node at the current zoom level
- * @param canvas The canvas element
- * @param nodeId The ID of the node to center on
- */
-export const centerPanzoomOnNode = (
-  canvas: HTMLCanvasElement,
-  nodeId: string
-) => {
-  const editorState = getEditorState();
-  const gameEvent = editorState.gameEvent;
-
-  if (!gameEvent || !gameEvent.children) {
-    return;
-  }
-
-  const node = gameEvent.children.find((child) => child.id === nodeId);
-  if (!node) {
-    return;
-  }
-
-  const currentZoomLevel = editorState.scale;
-  editorState.scale = 1;
-  // editorState.translateX = node.x;
-  // editorState.translateY = node.y;
-  const scale = 1;
-
-  // const scale = editorState.scale;
-  // const nodeX = node.x;
-  // const nodeY = node.y;
-  const canvasWidth = canvas.width;
-  const canvasHeight = canvas.height;
-  const zoneWidth = editorState.zoneWidth;
-  const zoneHeight = editorState.zoneHeight;
-
-  // Calculate the translation needed to center the node
-  // Based on the transform in seLoop.ts:
-  // screenX = translateX + (canvas.width * scale) / 2 - (zoneWidth * scale) / 2 + nodeX * scale
-  // To center: screenX = canvas.width / 2
-  // Therefore: translateX = canvas.width / 2 - (canvas.width * scale) / 2 + (zoneWidth * scale) / 2 - nodeX * scale
-  const translateX =
-    canvasWidth / 2 -
-    (canvasWidth * scale) / 2 +
-    (zoneWidth * scale) / 2 -
-    node.x * scale;
-  const translateY =
-    canvasHeight / 2 -
-    (canvasHeight * scale) / 2 +
-    (zoneHeight * scale) / 2 -
-    node.y * scale;
-
-  console.log('set panzoom to', translateX, translateY, scale);
-  editorState.translateX = translateX;
-  editorState.translateY = translateY;
-  editorState.scale = scale;
-};
-
 export const screenCoordsToCanvasCoords = (
   x: number,
   y: number,
@@ -372,13 +321,7 @@ export const checkMouseMoveHoverEvents = (args: {
     if (gameEvent.children) {
       for (let i = gameEvent.children.length - 1; i >= 0; i--) {
         const child = gameEvent.children[i];
-        let nodeWidth = 0;
-        if (child.eventChildType === GameEventChildType.EXEC) {
-          const [NODE_WIDTH] = getExecNodeDimensions(
-            child as GameEventChildExec
-          );
-          nodeWidth = NODE_WIDTH;
-        }
+        const [nodeWidth] = getNodeBounds(child);
 
         // Check if point is within node bounds
         if (
@@ -523,20 +466,6 @@ const checkLeftMouseClickEvents = (args: {
   lastClickNodeId = null;
 };
 
-const deleteNode = (nodeId: string) => {
-  const gameEvent = getEditorState().gameEvent;
-  if (!gameEvent) {
-    return;
-  }
-  if (confirm('Are you sure you want to delete this node?')) {
-    const ind = gameEvent.children?.findIndex((child) => child.id === nodeId);
-    if (ind !== undefined) {
-      gameEvent.children.splice(ind, 1);
-    }
-    updateEditorState({ gameEvent: gameEvent });
-  }
-};
-
 /**
  * Convert screen coordinates to world/canvas coordinates accounting for pan/zoom
  */
@@ -581,4 +510,48 @@ export const screenToWorldCoords = (
   worldY /= scale;
 
   return [worldX, worldY];
+};
+
+export const centerPanzoomOnNode = (
+  canvas: HTMLCanvasElement,
+  nodeId: string
+) => {
+  const editorState = getEditorState();
+  const gameEvent = editorState.gameEvent;
+
+  if (!gameEvent || !gameEvent.children) {
+    return;
+  }
+
+  const node = gameEvent.children.find((child) => child.id === nodeId);
+  if (!node) {
+    return;
+  }
+
+  const [nodeWidth, nodeHeight] = getNodeBounds(node);
+
+  // const currentZoomLevel = editorState.scale;
+  editorState.scale = 1;
+  const scale = 1;
+
+  // const scale = editorState.scale;
+  const canvasWidth = canvas.width;
+  const canvasHeight = canvas.height;
+  const zoneWidth = editorState.zoneWidth;
+  const zoneHeight = editorState.zoneHeight;
+
+  const translateX =
+    canvasWidth / 2 -
+    (canvasWidth * scale) / 2 +
+    (zoneWidth * scale) / 2 -
+    (node.x + nodeWidth / 2) * scale;
+  const translateY =
+    canvasHeight / 2 -
+    (canvasHeight * scale) / 2 +
+    (zoneHeight * scale) / 2 -
+    (node.y + nodeHeight / 2) * scale;
+
+  editorState.translateX = translateX;
+  editorState.translateY = translateY;
+  editorState.scale = scale;
 };

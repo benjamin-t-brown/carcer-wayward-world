@@ -3,6 +3,7 @@ import { CardList } from '../components/CardList';
 import { GameEvent } from '../types/assets';
 import { createDefaultGameEvent } from '../components/GameEventForm';
 import { CreateGameEventModal } from '../components/CreateGameEventModal';
+import { EditGameEventModal } from '../components/EditGameEventModal';
 import { SpecialEventEditor } from '../special-event-editor/SpecialEventEditor';
 import { VariableEditorModal } from '../special-event-editor/modals/VariableEditorModal';
 import { Button } from '../elements/Button';
@@ -31,6 +32,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showVariableEditorModal, setShowVariableEditorModal] = useState(false);
+  const [showEditGameEventModal, setShowEditGameEventModal] = useState(false);
   const notificationIdRef = useRef(0);
 
   const showNotification = (message: string, type: 'success' | 'error') => {
@@ -283,12 +285,14 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     try {
       await saveGameEvents(sortedGameEvents);
       showNotification('Game events saved successfully!', 'success');
-      if (currentGameEventId) {
-        const nextGameEventIndex = sortedGameEvents.findIndex(
-          (gameEvent) => gameEvent.id === currentGameEventId.trim()
-        );
-        setEditGameEventIndex(nextGameEventIndex);
-      }
+      // TODO does this need to be here if i delete or rename?
+      // if (currentGameEventId) {
+      //   console.log('lol what', currentGameEventId);
+      //   const nextGameEventIndex = sortedGameEvents.findIndex(
+      //     (gameEvent) => gameEvent.id === currentGameEventId.trim()
+      //   );
+      //   setEditGameEventIndex(nextGameEventIndex);
+      // }
     } catch (err) {
       showNotification(
         `Error saving: ${err instanceof Error ? err.message : 'Unknown error'}`,
@@ -407,8 +411,15 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                   left: '4px',
                   display: 'flex',
                   alignItems: 'center',
+                  gap: '10px',
                 }}
               >
+                <Button
+                  variant="primary"
+                  onClick={() => setShowEditGameEventModal(true)}
+                >
+                  Edit Game Event
+                </Button>
                 <Button
                   variant="primary"
                   onClick={() => setShowVariableEditorModal(true)}
@@ -438,6 +449,21 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
           isOpen={showCreateModal}
           onConfirm={handleCreateConfirm}
           onCancel={handleCreateCancel}
+        />
+      )}
+
+      {/* Edit Game Event Modal */}
+      {currentGameEvent && (
+        <EditGameEventModal
+          isOpen={showEditGameEventModal}
+          gameEvent={currentGameEvent}
+          onConfirm={(updatedGameEvent) => {
+            const newGameEvents = [...gameEvents];
+            newGameEvents[editGameEventIndex] = updatedGameEvent;
+            setGameEvents(newGameEvents);
+            setShowEditGameEventModal(false);
+          }}
+          onCancel={() => setShowEditGameEventModal(false)}
         />
       )}
 

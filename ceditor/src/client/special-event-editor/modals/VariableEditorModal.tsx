@@ -18,6 +18,10 @@ interface VariableEntryProps {
   importFrom: string;
   handleDeleteVariable: (variableId: string) => void;
   hideErrors: () => void;
+  handleMoveUp: () => void;
+  handleMoveDown: () => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
 }
 
 const VariableEntry = ({
@@ -26,12 +30,66 @@ const VariableEntry = ({
   variableId,
   handleDeleteVariable,
   hideErrors,
+  handleMoveUp,
+  handleMoveDown,
+  canMoveUp,
+  canMoveDown,
 }: VariableEntryProps) => {
   return (
     <div
       style={{ display: 'flex', gap: '10px', alignItems: 'center' }}
       onClick={() => hideErrors()}
     >
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '2px',
+        }}
+      >
+        <button
+          style={{
+            width: '24px',
+            height: '20px',
+            textAlign: 'center',
+            fontSize: '12px',
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            border: 'none',
+            cursor: 'pointer',
+            color: 'white',
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (canMoveUp) {
+              handleMoveUp();
+            }
+          }}
+          disabled={!canMoveUp}
+        >
+          <span>↑</span>
+        </button>
+        <button
+          style={{
+            width: '24px',
+            height: '20px',
+            textAlign: 'center',
+            fontSize: '12px',
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            border: 'none',
+            cursor: 'pointer',
+            color: 'white',
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (canMoveDown) {
+              handleMoveDown();
+            }
+          }}
+          disabled={!canMoveDown}
+        >
+          <span>↓</span>
+        </button>
+      </div>
       <div
         style={{
           width: '75px',
@@ -61,8 +119,13 @@ const VariableEntry = ({
           fontSize: '12px',
           paddingLeft: '2px',
           backgroundColor: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
         }}
-        onClick={() => handleDeleteVariable(variableId)}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleDeleteVariable(variableId);
+        }}
       >
         <span>❌</span>
       </button>
@@ -89,14 +152,16 @@ export function VariableEditorModal({
   );
 
   useEffect(() => {
-    setVars(gameEvent?.vars.filter((variable) => variable.importFrom === '') || []);
-    setImportVars(gameEvent?.vars.filter((variable) => variable.importFrom !== '') || []);
+    setVars(
+      gameEvent?.vars.filter((variable) => variable.importFrom === '') || []
+    );
+    setImportVars(
+      gameEvent?.vars.filter((variable) => variable.importFrom !== '') || []
+    );
     setImportFromValue(gameEvent?.id || '');
   }, [gameEvent]);
 
   const handleConfirm = () => {
-    // onConfirm(gameEvent);
-    // onCancel();
     const newVars: Variable[] = [];
     for (const variable of vars) {
       const elem = document.getElementById(
@@ -114,6 +179,13 @@ export function VariableEditorModal({
       newVars.push(variable);
     }
     const errors = validateVars(newVars);
+
+    for (const variable of importVars) {
+      if (!variable.importFrom) {
+        errors.push('Import from is required for variable: ' + variable.id);
+      }
+      newVars.push(variable);
+    }
     if (errors.length > 0) {
       setErrorText(errors.join('<br />'));
       return;
@@ -168,6 +240,27 @@ export function VariableEditorModal({
   const handleDeleteVariable = (variableId: string) => {
     setErrorText('');
     setVars(vars.filter((variable) => variable.id !== variableId));
+  };
+
+  const handleDeleteImport = (variableId: string) => {
+    setErrorText('');
+    setImportVars(importVars.filter((variable) => variable.id !== variableId));
+  };
+
+  const handleMoveVariableUp = (index: number) => {
+    if (index === 0) return;
+    setErrorText('');
+    const newVars = [...vars];
+    [newVars[index - 1], newVars[index]] = [newVars[index], newVars[index - 1]];
+    setVars(newVars);
+  };
+
+  const handleMoveVariableDown = (index: number) => {
+    if (index === vars.length - 1) return;
+    setErrorText('');
+    const newVars = [...vars];
+    [newVars[index], newVars[index + 1]] = [newVars[index + 1], newVars[index]];
+    setVars(newVars);
   };
 
   const validateVars = (vars: Variable[]) => {
@@ -244,7 +337,7 @@ export function VariableEditorModal({
             gap: '5px',
           }}
         >
-          {vars.map((variable) => (
+          {vars.map((variable, index) => (
             <VariableEntry
               key={variable.id}
               variableName={variable.key}
@@ -253,6 +346,10 @@ export function VariableEditorModal({
               importFrom={variable.importFrom}
               handleDeleteVariable={handleDeleteVariable}
               hideErrors={() => setErrorText('')}
+              handleMoveUp={() => handleMoveVariableUp(index)}
+              handleMoveDown={() => handleMoveVariableDown(index)}
+              canMoveUp={index > 0}
+              canMoveDown={index < vars.length - 1}
             />
           ))}
         </div>
@@ -271,9 +368,13 @@ export function VariableEditorModal({
           </Button>
         </div>
 
-        <h3 style={{
-          marginBottom: '20px',
-        }}>Imports</h3>
+        <h3
+          style={{
+            marginBottom: '20px',
+          }}
+        >
+          Imports
+        </h3>
 
         {importVars.length > 0 && (
           <ul
@@ -286,9 +387,27 @@ export function VariableEditorModal({
                 key={variable.id}
                 style={{
                   marginLeft: '20px',
+                  display: 'flex',
+                  gap: '10px',
+                  alignItems: 'center',
                 }}
               >
-                {variable.importFrom}
+                <span>{variable.importFrom}</span>
+                <button
+                  style={{
+                    width: '24px',
+                    height: '20px',
+                    textAlign: 'center',
+                    fontSize: '12px',
+                    paddingLeft: '2px',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => handleDeleteImport(variable.id)}
+                >
+                  <span>❌</span>
+                </button>
               </li>
             ))}
           </ul>

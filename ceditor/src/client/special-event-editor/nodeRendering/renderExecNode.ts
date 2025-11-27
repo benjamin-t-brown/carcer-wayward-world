@@ -1,10 +1,7 @@
 import { GameEventChildExec } from '../../types/assets';
 import { drawRect, drawText } from '../../utils/draw';
-import {
-  breakTextIntoLines,
-  calculateHeightFromText,
-  renderCloseButton,
-} from './nodeHelpers';
+import { renderCloseButton } from './closeButton';
+import { breakTextIntoLines, calculateHeightFromText } from './nodeHelpers';
 
 const NODE_COLOR = '#808080';
 const BORDER_COLOR = '#aaa';

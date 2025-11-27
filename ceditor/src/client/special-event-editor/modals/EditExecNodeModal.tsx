@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { GameEvent, GameEventChildExec } from '../../types/assets';
 import { Button } from '../../elements/Button';
+import { VariableWidget } from '../VariableWidget';
 
 interface EditExecNodeModalProps {
   isOpen: boolean;
@@ -57,7 +58,6 @@ export function EditExecNodeModal({
         justifyContent: 'center',
         zIndex: 1001,
       }}
-      onClick={onCancel}
     >
       <div
         style={{
@@ -81,6 +81,9 @@ export function EditExecNodeModal({
         >
           Edit Exec Node
         </h2>
+        <div>
+          <VariableWidget gameEvent={gameEvent} />
+        </div>
 
         <div
           style={{
