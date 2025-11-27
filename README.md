@@ -50,7 +50,7 @@ python3 -m pip install --upgrade pip
 
 ### Winget (Windows)
 
-If you don't have a windows gcc env, here's way to set it up with some powershell scripts:
+If you don't have a windows gcc env, here's a way to set it up with some powershell scripts:
 
 https://git.learnjsthehardway.com/learn-code-the-hard-way/lcthw-windows-installers
 
