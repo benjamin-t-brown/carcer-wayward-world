@@ -4,7 +4,7 @@ import { useRenderLoop } from '../hooks/useRenderLoop';
 import { getEditorState, updateEditorState } from './seEditorState';
 import { EditorStateSE } from './seEditorState';
 import { CANVAS_CONTAINER_ID, MapCanvasSE } from './MapCanvasSE';
-import { initPanzoom, unInitPanzoom, centerPanzoomOnNode, screenToWorldCoords } from './seEditorEvents';
+import { initPanzoom, unInitPanzoom, centerPanzoomOnNode, screenToWorldCoords, checkRightClickLineEvents } from './seEditorEvents';
 import { loop } from './seLoop';
 import { useReRender } from '../hooks/useReRender';
 import { ContextMenu } from './ContextMenu';
@@ -83,9 +83,20 @@ export function SpecialEventEditor({
       ev.preventDefault();
       const targetId = (ev.target as HTMLElement)?.id;
       if (ev.target === canvas || targetId.includes(CANVAS_CONTAINER_ID)) {
-        // Check if right-clicking on a node
         const currentEditorState = editorState.current;
         if (currentEditorState && currentEditorState.gameEvent) {
+          // Check if right-clicking on a line first
+          const lineClicked = checkRightClickLineEvents({
+            ev,
+            canvas,
+            editorState: currentEditorState,
+          });
+          
+          if (lineClicked) {
+            return; // Don't show context menu if line was deleted
+          }
+          
+          // Check if right-clicking on a node
           const [worldX, worldY] = screenToWorldCoords(
             ev.clientX,
             ev.clientY,
@@ -94,11 +105,11 @@ export function SpecialEventEditor({
             currentEditorState.zoneHeight
           );
           
-          // Find which node was clicked (if any)
+          const gameEvent = currentEditorState.gameEvent;
           let clickedNodeId: string | null = null;
-          if (currentEditorState.gameEvent.children) {
-            for (let i = currentEditorState.gameEvent.children.length - 1; i >= 0; i--) {
-              const child = currentEditorState.gameEvent.children[i];
+          if (gameEvent.children) {
+            for (let i = gameEvent.children.length - 1; i >= 0; i--) {
+              const child = gameEvent.children[i];
               const [nodeWidth, nodeHeight] = getNodeBounds(child);
               
               if (

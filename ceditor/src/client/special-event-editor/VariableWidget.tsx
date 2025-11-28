@@ -89,7 +89,7 @@ export function VariableWidget({ gameEvent }: VariableWidgetProps) {
             flexDirection: 'column',
             gap: '5px',
             overflowY: 'auto',
-            maxHeight: '200px',
+            maxHeight: '124px',
           }}
         >
           {accessibleVars

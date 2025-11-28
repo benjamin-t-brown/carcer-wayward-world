@@ -16,7 +16,7 @@ let isPanZoomInitialized = false;
 // Track double-click state
 let lastClickTime = 0;
 let lastClickNodeId: string | null = null;
-const DOUBLE_CLICK_DELAY = 150; // milliseconds
+const DOUBLE_CLICK_DELAY = 300; // milliseconds
 
 const panZoomEvents: {
   keydown: (ev: KeyboardEvent) => void;
@@ -160,7 +160,7 @@ export const initPanzoom = (specialEventEditorInterface: {
         }
       } else {
         // Normal click handling
-        checkLeftMouseClickEvents({
+        const nodeClicked = checkLeftMouseClickEvents({
           ev,
           canvas,
           editorState,
@@ -168,6 +168,14 @@ export const initPanzoom = (specialEventEditorInterface: {
             specialEventEditorInterface.getEditorFuncs().onNodeDoubleClick,
           isCtrlClick: false,
         });
+
+        if (!nodeClicked) {
+          editorState.lastClickX = ev.clientX;
+          editorState.lastClickY = ev.clientY;
+          editorState.lastTranslateX = editorState.translateX;
+          editorState.lastTranslateY = editorState.translateY;
+          editorState.isDragging = true;
+        }
       }
     }
     if (
@@ -520,6 +528,35 @@ export const checkMouseMoveHoverEvents = (args: {
   }
 };
 
+/**
+ * Calculate the distance from a point to a line segment
+ */
+const distanceToLineSegment = (
+  px: number,
+  py: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number
+): number => {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const lengthSquared = dx * dx + dy * dy;
+  
+  if (lengthSquared === 0) {
+    const distX = px - x1;
+    const distY = py - y1;
+    return Math.sqrt(distX * distX + distY * distY);
+  }
+  
+  const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / lengthSquared));
+  const closestX = x1 + t * dx;
+  const closestY = y1 + t * dy;
+  const distX = px - closestX;
+  const distY = py - closestY;
+  return Math.sqrt(distX * distX + distY * distY);
+};
+
 const checkLeftMouseClickEvents = (args: {
   ev: MouseEvent;
   canvas: HTMLCanvasElement;
@@ -527,7 +564,7 @@ const checkLeftMouseClickEvents = (args: {
   onNodeDoubleClick?: (nodeId: string) => void;
   isCtrlClick?: boolean;
 }): boolean => {
-  // Returns true if a node was clicked, false otherwise
+  // Returns true if a node or line was clicked, false otherwise
   const { ev, canvas, editorState, onNodeDoubleClick } = args;
   const gameEvent = editorState.gameEvent;
   if (!gameEvent) {
@@ -541,6 +578,34 @@ const checkLeftMouseClickEvents = (args: {
     editorState.zoneWidth,
     editorState.zoneHeight
   );
+
+  // Check for line clicks first (before node clicks)
+  const NODE_WIDTH = 300;
+  const LINE_CLICK_THRESHOLD = 15; // Pixels - larger than line width for easier clicking
+  
+  if (gameEvent.children) {
+    for (const child of gameEvent.children) {
+      if (child.eventChildType === GameEventChildType.EXEC) {
+        const execNode = child as GameEventChildExec;
+        if (execNode.next && execNode.next !== '') {
+          const nextNode = gameEvent.children.find((c) => c.id === execNode.next);
+          if (nextNode) {
+            const startX = execNode.x + NODE_WIDTH;
+            const startY = execNode.y + execNode.h / 2;
+            const endX = nextNode.x;
+            const endY = nextNode.y + nextNode.h / 2;
+            
+            const distance = distanceToLineSegment(worldX, worldY, startX, startY, endX, endY);
+            if (distance <= LINE_CLICK_THRESHOLD) {
+              centerPanzoomOnNode(canvas, nextNode.id);
+              ev.preventDefault();
+              return true;
+            }
+          }
+        }
+      }
+    }
+  }
 
   // Check which node was clicked (check in reverse order for topmost)
   if (gameEvent.children) {
@@ -656,6 +721,61 @@ const checkLeftMouseClickEvents = (args: {
   lastClickTime = 0;
   lastClickNodeId = null;
   return false; // No node was clicked
+};
+
+/**
+ * Check if right-click is on a connection line and delete it if so
+ * Returns true if a line was clicked and deleted, false otherwise
+ */
+export const checkRightClickLineEvents = (args: {
+  ev: MouseEvent;
+  canvas: HTMLCanvasElement;
+  editorState: EditorStateSE;
+}): boolean => {
+  const { ev, canvas, editorState } = args;
+  const gameEvent = editorState.gameEvent;
+  if (!gameEvent) {
+    return false;
+  }
+
+  const [worldX, worldY] = screenToWorldCoords(
+    ev.clientX,
+    ev.clientY,
+    canvas,
+    editorState.zoneWidth,
+    editorState.zoneHeight
+  );
+
+  const LINE_CLICK_THRESHOLD = 15;
+  
+  if (gameEvent.children) {
+    for (const child of gameEvent.children) {
+      if (child.eventChildType === GameEventChildType.EXEC) {
+        const execNode = child as GameEventChildExec;
+        if (execNode.next && execNode.next !== '') {
+          const nextNode = gameEvent.children.find((c) => c.id === execNode.next);
+          if (nextNode) {
+            const [nodeWidth] = getNodeBounds(child);
+            const startX = execNode.x + nodeWidth;
+            const startY = execNode.y + execNode.h / 2;
+            const endX = nextNode.x;
+            const endY = nextNode.y + nextNode.h / 2;
+            
+            const distance = distanceToLineSegment(worldX, worldY, startX, startY, endX, endY);
+            if (distance <= LINE_CLICK_THRESHOLD) {
+              // Right-clicked on line - delete the connection
+              execNode.next = '';
+              updateEditorState({});
+              ev.preventDefault();
+              return true;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  return false;
 };
 
 /**

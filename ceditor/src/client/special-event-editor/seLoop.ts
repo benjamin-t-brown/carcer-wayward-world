@@ -7,6 +7,7 @@ import {
 } from '../types/assets';
 import { renderExecNode } from './nodeRendering/renderExecNode';
 import { EditorStateSE } from './seEditorState';
+import { getNodeBounds } from './nodeRendering/nodeHelpers';
 
 const getColors = () => {
   return {
@@ -92,8 +93,52 @@ export const loop = (
     -(dataInterface.getEditorState().zoneHeight * newScale) / 2
   );
 
-  // Render nodes
+  // Render connections between nodes (lines)
   const gameEvent = dataInterface.getEditorState().gameEvent;
+  if (gameEvent && gameEvent.children) {
+    for (const child of gameEvent.children) {
+      const [nodeWidth] = getNodeBounds(child);
+      if (child.eventChildType === GameEventChildType.EXEC) {
+        const execNode = child as GameEventChildExec;
+        // Check if this node has a next property pointing to another node
+        if (execNode.next && execNode.next !== '') {
+          const nextNode = gameEvent.children.find((c) => c.id === execNode.next);
+          if (nextNode) {
+            // Draw line from right side of parent to left side of child
+            const startX = (execNode.x + nodeWidth) * newScale;
+            const startY = (execNode.y + execNode.h / 2) * newScale;
+            const endX = nextNode.x * newScale;
+            const endY = (nextNode.y + nextNode.h / 2) * newScale;
+
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'; // Semi-transparent white
+            ctx.lineWidth = 10 / newScale;
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+            ctx.restore();
+
+            // Draw anchor dots at connection points
+            ctx.save();
+            ctx.fillStyle = 'white';
+            const ANCHOR_RADIUS = 4;
+            // Anchor at start (right side of parent node)
+            ctx.beginPath();
+            ctx.arc(startX, startY, ANCHOR_RADIUS / newScale, 0, Math.PI * 2);
+            ctx.fill();
+            // Anchor at end (left side of child node)
+            ctx.beginPath();
+            ctx.arc(endX, endY, ANCHOR_RADIUS / newScale, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+      }
+    }
+  }
+
+  // Render nodes
   const hoveredNodeId = dataInterface.getEditorState().hoveredNodeId;
   const hoveredCloseButtonNodeId = dataInterface.getEditorState().hoveredCloseButtonNodeId;
   const selectedNodeIds = dataInterface.getEditorState().selectedNodeIds;

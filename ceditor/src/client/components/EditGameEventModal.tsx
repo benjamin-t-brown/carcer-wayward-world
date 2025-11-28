@@ -140,9 +140,6 @@ export function EditGameEventModal({
             justifyContent: 'flex-end',
           }}
         >
-          <Button variant="secondary" onClick={onCancel}>
-            Cancel
-          </Button>
           <Button
             variant="primary"
             onClick={handleConfirm}
@@ -154,6 +151,9 @@ export function EditGameEventModal({
             }
           >
             Save
+          </Button>
+          <Button variant="secondary" onClick={onCancel}>
+            Cancel
           </Button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { GameEvent, GameEventChildType, SENode } from '../types/assets';
+import { GameEvent, GameEventChildType, GameEventChildExec, SENode } from '../types/assets';
 import { randomId } from '../utils/mathUtils';
 import {
   createChoiceNode,
@@ -116,6 +116,14 @@ export function ContextMenu({
     // Set position
     newNode.x = newNodeX;
     newNode.y = newNodeY;
+
+    // If creating an exec node and clicking on a node, set the clicked node's next property
+    if (nodeType === GameEventChildType.EXEC && clickedNodeId) {
+      const clickedNode = gameEvent.children.find((child) => child.id === clickedNodeId);
+      if (clickedNode && clickedNode.eventChildType === GameEventChildType.EXEC) {
+        (clickedNode as GameEventChildExec).next = nodeId;
+      }
+    }
 
     // Add to gameEvent
     // const updatedGameEvent: GameEvent = {
