@@ -3,13 +3,36 @@ import {
   GameEventChildExec,
   GameEventChildType,
 } from '../types/assets';
-import { getNodeBounds } from './nodeRendering/nodeHelpers';
-import { getExecNodeDimensions } from './nodeRendering/renderExecNode';
 import {
+  getNodeBounds,
+  distanceToLineSegment,
+  screenToWorldCoords,
+  getNodeDimensions,
+  getNodeChildren,
+  getChildNodeCoordinates,
+  isPointInNode,
+  isPointInCloseButton,
+  getIndexOfClickedLineForChildren,
+  setNextNodeForChild,
+} from './nodeHelpers';
+import { getCloseButtonBounds } from './nodeRendering/closeButton';
+import {
+  getExecNodeChildren,
+  getExecNodeDimensions,
+} from './nodeRendering/execNode';
+import {
+  centerPanzoomOnNode,
   deleteNode,
   EditorStateSE,
   getEditorState,
+  getTransform,
+  resetSelectedNodes,
+  showDeleteSelectedNodesConfirm,
+  updateDraggedNodePosition,
+  updateDraggedNodePositionsMulti,
   updateEditorState,
+  updateSelectionRectangle,
+  zoomPanzoom,
 } from './seEditorState';
 
 let isPanZoomInitialized = false;
@@ -49,10 +72,6 @@ const isEventWithCanvasTarget = (
   );
 };
 
-const isEditorActive = (ev: KeyboardEvent) => {
-  return true; // TODO check if any modals are open
-};
-
 const shouldPreventDefault = (ev: KeyboardEvent) => {
   return ev.ctrlKey && (ev.key === 's' || ev.key === 'e');
 };
@@ -70,9 +89,7 @@ export const initPanzoom = (specialEventEditorInterface: {
     }
     // Clear selection on ESC
     if (ev.key === 'Escape') {
-      const editorState = specialEventEditorInterface.getEditorState();
-      editorState.selectedNodeIds.clear();
-      editorState.selectionRect = null;
+      resetSelectedNodes();
       updateEditorState({});
     }
     // Delete selected nodes on Delete key
@@ -80,30 +97,7 @@ export const initPanzoom = (specialEventEditorInterface: {
       const editorState = specialEventEditorInterface.getEditorState();
       if (editorState.selectedNodeIds.size > 0) {
         ev.preventDefault();
-        const nodeCount = editorState.selectedNodeIds.size;
-        console.log('TO DELETE', editorState);
-        const message = `Are you sure you want to delete ${nodeCount} node${
-          nodeCount > 1 ? 's' : ''
-        }?`;
-        if (confirm(message)) {
-          const gameEvent = editorState.gameEvent;
-          if (gameEvent && gameEvent.children) {
-            // Delete all selected nodes
-            const nodeIdsToDelete = Array.from(editorState.selectedNodeIds);
-            nodeIdsToDelete.forEach((nodeId) => {
-              const index = gameEvent.children.findIndex(
-                (child) => child.id === nodeId
-              );
-              if (index !== -1) {
-                gameEvent.children.splice(index, 1);
-              }
-            });
-            // Clear selection after deletion
-            editorState.selectedNodeIds.clear();
-            editorState.selectionRect = null;
-            updateEditorState({ gameEvent: gameEvent });
-          }
-        }
+        showDeleteSelectedNodesConfirm();
       }
     }
   };
@@ -191,70 +185,38 @@ export const initPanzoom = (specialEventEditorInterface: {
 
     if (editorState.isSelecting && editorState.selectionRect) {
       // Update selection rectangle
-      const canvas = specialEventEditorInterface.getCanvas();
-      const [worldX, worldY] = screenToWorldCoords(
+      updateSelectionRectangle(
         ev.clientX,
         ev.clientY,
-        canvas,
-        editorState.zoneWidth,
-        editorState.zoneHeight
+        specialEventEditorInterface.getCanvas()
       );
-      editorState.selectionRect.endX = worldX;
-      editorState.selectionRect.endY = worldY;
       updateEditorState({});
     } else if (editorState.isDraggingNode) {
       // Dragging node(s)
-      const canvas = specialEventEditorInterface.getCanvas();
       const gameEvent = editorState.gameEvent;
 
       if (gameEvent) {
-        const [worldX, worldY] = screenToWorldCoords(
-          ev.clientX,
-          ev.clientY,
-          canvas,
-          editorState.zoneWidth,
-          editorState.zoneHeight
-        );
-
         if (editorState.selectedNodeIds.size > 0 && editorState.draggedNodeId) {
           // Moving multiple selected nodes
           const draggedNode = gameEvent.children.find(
             (c) => c.id === editorState.draggedNodeId
           );
           if (draggedNode) {
-            const initialPos = editorState.selectedNodesInitialPositions.get(
-              editorState.draggedNodeId
+            updateDraggedNodePositionsMulti(
+              gameEvent,
+              ev.clientX,
+              ev.clientY,
+              specialEventEditorInterface.getCanvas()
             );
-            if (initialPos) {
-              const deltaX =
-                worldX - editorState.nodeDragOffsetX - initialPos.x;
-              const deltaY =
-                worldY - editorState.nodeDragOffsetY - initialPos.y;
-
-              // Move all selected nodes by the same delta
-              editorState.selectedNodeIds.forEach((nodeId) => {
-                const node = gameEvent.children.find((c) => c.id === nodeId);
-                const nodeInitialPos =
-                  editorState.selectedNodesInitialPositions.get(nodeId);
-                if (node && nodeInitialPos) {
-                  node.x = nodeInitialPos.x + deltaX;
-                  node.y = nodeInitialPos.y + deltaY;
-                }
-              });
-            }
           }
         } else if (editorState.draggedNodeId) {
           // Moving single node
-          const newX = worldX - editorState.nodeDragOffsetX;
-          const newY = worldY - editorState.nodeDragOffsetY;
-
-          const child = gameEvent.children.find(
-            (c) => c.id === editorState.draggedNodeId
+          updateDraggedNodePosition(
+            gameEvent,
+            ev.clientX,
+            ev.clientY,
+            specialEventEditorInterface.getCanvas()
           );
-          if (child) {
-            child.x = newX;
-            child.y = newY;
-          }
         }
       }
     } else if (editorState.isDragging) {
@@ -281,7 +243,6 @@ export const initPanzoom = (specialEventEditorInterface: {
     const editorState = specialEventEditorInterface.getEditorState();
 
     if (editorState.isSelecting && editorState.selectionRect) {
-      const canvas = specialEventEditorInterface.getCanvas();
       // Finalize selection - find nodes in rectangle
       const gameEvent = editorState.gameEvent;
       if (gameEvent) {
@@ -294,7 +255,7 @@ export const initPanzoom = (specialEventEditorInterface: {
         const nodesAddedToSelection: string[] = [];
 
         // Check which nodes are in the selection rectangle
-        gameEvent.children.forEach((child) => {
+        for (const child of gameEvent.children) {
           const [nodeWidth, nodeHeight] = getNodeBounds(child);
           const nodeRight = child.x + nodeWidth;
           const nodeBottom = child.y + (child.h || nodeHeight);
@@ -311,7 +272,7 @@ export const initPanzoom = (specialEventEditorInterface: {
               nodesAddedToSelection.push(child.id);
             }
           }
-        });
+        }
         if (nodesAddedToSelection.length === 0) {
           editorState.selectedNodeIds.clear();
         }
@@ -353,41 +314,16 @@ export const initPanzoom = (specialEventEditorInterface: {
   };
 
   const handleWheel = (ev: WheelEvent) => {
-    const editorState = specialEventEditorInterface.getEditorState();
+    const mouseX = ev.clientX;
+    const mouseY = ev.clientY;
+    const wheelDelta = ev.deltaY;
     if (isEventWithCanvasTarget(ev, specialEventEditorInterface.getCanvas())) {
-      const [focalX, focalY] = screenCoordsToCanvasCoords(
-        ev.clientX,
-        ev.clientY,
+      zoomPanzoom(
+        mouseX,
+        mouseY,
+        wheelDelta,
         specialEventEditorInterface.getCanvas()
       );
-
-      let nextScale = editorState.scale;
-      const scaleStep = 0.5;
-
-      if (ev.deltaY > 0) {
-        // zoom out
-        nextScale -= scaleStep;
-      } else {
-        // zoom in
-        nextScale += scaleStep;
-      }
-
-      if (nextScale > 10) {
-        nextScale = 10;
-      } else if (nextScale < 0.5) {
-        nextScale = 0.5;
-      }
-
-      const offsetX =
-        focalX -
-        (nextScale / editorState.scale) * (focalX - editorState.translateX);
-      const offsetY =
-        focalY -
-        (nextScale / editorState.scale) * (focalY - editorState.translateY);
-
-      editorState.translateX = offsetX;
-      editorState.translateY = offsetY;
-      editorState.scale = nextScale;
     }
   };
   window.addEventListener('keydown', handleKeyDown);
@@ -423,38 +359,6 @@ export const unInitPanzoom = () => {
   window.removeEventListener('wheel', panZoomEvents.wheel);
   window.removeEventListener('dblclick', panZoomEvents.dblclick);
   isPanZoomInitialized = false;
-};
-
-export const getTransform = () => {
-  return {
-    x: getEditorState().translateX,
-    y: getEditorState().translateY,
-    scale: getEditorState().scale,
-  };
-};
-
-export const resetPanzoom = () => {
-  getEditorState().translateX = 0;
-  getEditorState().translateY = 0;
-  getEditorState().scale = 1;
-};
-
-export const screenCoordsToCanvasCoords = (
-  x: number,
-  y: number,
-  panzoomCanvas: HTMLCanvasElement
-) => {
-  const { left, top } = panzoomCanvas?.getBoundingClientRect() || {
-    left: 0,
-    top: 0,
-    width: 0,
-    height: 0,
-  };
-
-  const canvasX = x - left;
-  const canvasY = y - top;
-
-  return [canvasX, canvasY];
 };
 
 export const checkMouseMoveHoverEvents = (args: {
@@ -495,24 +399,15 @@ export const checkMouseMoveHoverEvents = (args: {
         ) {
           hoveredNodeId = child.id;
 
-          // Check if hovering over close button
-          if (child.eventChildType === GameEventChildType.EXEC) {
-            const btnSize = 15;
-            const BORDER_WIDTH = 2;
-            const closeButtonX =
-              child.x + nodeWidth - btnSize - BORDER_WIDTH * 2;
-            const closeButtonY = child.y + BORDER_WIDTH * 2;
-
-            if (
-              worldX >= closeButtonX &&
-              worldX <= closeButtonX + btnSize &&
-              worldY >= closeButtonY &&
-              worldY <= closeButtonY + btnSize
-            ) {
-              hoveredCloseButtonNodeId = child.id;
-            }
+          const closeButtonBounds = getCloseButtonBounds(child);
+          if (
+            worldX >= closeButtonBounds.x &&
+            worldX <= closeButtonBounds.x + closeButtonBounds.width &&
+            worldY >= closeButtonBounds.y &&
+            worldY <= closeButtonBounds.y + closeButtonBounds.height
+          ) {
+            hoveredCloseButtonNodeId = child.id;
           }
-
           break; // Use topmost matching node
         }
       }
@@ -526,35 +421,6 @@ export const checkMouseMoveHoverEvents = (args: {
       editorState.hoveredCloseButtonNodeId = hoveredCloseButtonNodeId;
     }
   }
-};
-
-/**
- * Calculate the distance from a point to a line segment
- */
-const distanceToLineSegment = (
-  px: number,
-  py: number,
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number
-): number => {
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  const lengthSquared = dx * dx + dy * dy;
-  
-  if (lengthSquared === 0) {
-    const distX = px - x1;
-    const distY = py - y1;
-    return Math.sqrt(distX * distX + distY * distY);
-  }
-  
-  const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / lengthSquared));
-  const closestX = x1 + t * dx;
-  const closestY = y1 + t * dy;
-  const distX = px - closestX;
-  const distY = py - closestY;
-  return Math.sqrt(distX * distX + distY * distY);
 };
 
 const checkLeftMouseClickEvents = (args: {
@@ -579,30 +445,20 @@ const checkLeftMouseClickEvents = (args: {
     editorState.zoneHeight
   );
 
-  // Check for line clicks first (before node clicks)
-  const NODE_WIDTH = 300;
-  const LINE_CLICK_THRESHOLD = 15; // Pixels - larger than line width for easier clicking
-  
   if (gameEvent.children) {
     for (const child of gameEvent.children) {
-      if (child.eventChildType === GameEventChildType.EXEC) {
-        const execNode = child as GameEventChildExec;
-        if (execNode.next && execNode.next !== '') {
-          const nextNode = gameEvent.children.find((c) => c.id === execNode.next);
-          if (nextNode) {
-            const startX = execNode.x + NODE_WIDTH;
-            const startY = execNode.y + execNode.h / 2;
-            const endX = nextNode.x;
-            const endY = nextNode.y + nextNode.h / 2;
-            
-            const distance = distanceToLineSegment(worldX, worldY, startX, startY, endX, endY);
-            if (distance <= LINE_CLICK_THRESHOLD) {
-              centerPanzoomOnNode(canvas, nextNode.id);
-              ev.preventDefault();
-              return true;
-            }
-          }
-        }
+      const indexOfClickedLine = getIndexOfClickedLineForChildren(
+        child,
+        worldX,
+        worldY,
+        gameEvent
+      );
+      if (indexOfClickedLine !== -1) {
+        const nextChildren = getNodeChildren(child);
+        const nextChildId = nextChildren[indexOfClickedLine];
+        centerPanzoomOnNode(canvas, nextChildId);
+        ev.preventDefault();
+        return true;
       }
     }
   }
@@ -611,19 +467,8 @@ const checkLeftMouseClickEvents = (args: {
   if (gameEvent.children) {
     for (let i = gameEvent.children.length - 1; i >= 0; i--) {
       const child = gameEvent.children[i];
-      let nodeWidth = 0;
-      if (child.eventChildType === GameEventChildType.EXEC) {
-        const [NODE_WIDTH] = getExecNodeDimensions(child as GameEventChildExec);
-        nodeWidth = NODE_WIDTH;
-      }
-
-      // Check if point is within node bounds
-      if (
-        worldX >= child.x &&
-        worldX <= child.x + nodeWidth &&
-        worldY >= child.y &&
-        worldY <= child.y + (child.h || 0)
-      ) {
+      const isNodeClicked = isPointInNode(child, worldX, worldY);
+      if (isNodeClicked) {
         console.log('click node', child.id);
         // Check for double-click
         const currentTime = Date.now();
@@ -643,31 +488,18 @@ const checkLeftMouseClickEvents = (args: {
         lastClickTime = currentTime;
         lastClickNodeId = child.id;
 
-        // Check if clicking on close button first
-        if (child.eventChildType === GameEventChildType.EXEC) {
-          const btnSize = 15;
-          const BORDER_WIDTH = 2;
-          const nodeX = child.x;
-          const nodeY = child.y;
-
-          // Close button position in world coordinates
-          const closeButtonX = nodeX + nodeWidth - btnSize - BORDER_WIDTH * 2;
-          const closeButtonY = nodeY + BORDER_WIDTH * 2;
-
-          // Check if click is on close button (in world coordinates)
-          if (
-            worldX >= closeButtonX &&
-            worldX <= closeButtonX + btnSize &&
-            worldY >= closeButtonY &&
-            worldY <= closeButtonY + btnSize
-          ) {
-            // Clicked on close button - delete the node
-            deleteNode(child.id);
-            lastClickTime = 0;
-            lastClickNodeId = null;
-            ev.preventDefault();
-            return true; // Indicate we handled a node click
-          }
+        const isCloseButtonClicked = isPointInCloseButton(
+          child,
+          worldX,
+          worldY
+        );
+        if (isCloseButtonClicked) {
+          // Clicked on close button - delete the node
+          deleteNode(child.id);
+          lastClickTime = 0;
+          lastClickNodeId = null;
+          ev.preventDefault();
+          return true;
         }
 
         // Check if this node is selected
@@ -746,124 +578,22 @@ export const checkRightClickLineEvents = (args: {
     editorState.zoneHeight
   );
 
-  const LINE_CLICK_THRESHOLD = 15;
-  
   if (gameEvent.children) {
     for (const child of gameEvent.children) {
-      if (child.eventChildType === GameEventChildType.EXEC) {
-        const execNode = child as GameEventChildExec;
-        if (execNode.next && execNode.next !== '') {
-          const nextNode = gameEvent.children.find((c) => c.id === execNode.next);
-          if (nextNode) {
-            const [nodeWidth] = getNodeBounds(child);
-            const startX = execNode.x + nodeWidth;
-            const startY = execNode.y + execNode.h / 2;
-            const endX = nextNode.x;
-            const endY = nextNode.y + nextNode.h / 2;
-            
-            const distance = distanceToLineSegment(worldX, worldY, startX, startY, endX, endY);
-            if (distance <= LINE_CLICK_THRESHOLD) {
-              // Right-clicked on line - delete the connection
-              execNode.next = '';
-              updateEditorState({});
-              ev.preventDefault();
-              return true;
-            }
-          }
-        }
+      const indexOfClickedLine = getIndexOfClickedLineForChildren(
+        child,
+        worldX,
+        worldY,
+        gameEvent
+      );
+      if (indexOfClickedLine !== -1) {
+        // Right-clicked on line - delete the connection
+        setNextNodeForChild(child, 0, '');
+        updateEditorState({});
+        return true;
       }
     }
   }
-  
+
   return false;
-};
-
-/**
- * Convert screen coordinates to world/canvas coordinates accounting for pan/zoom
- */
-export const screenToWorldCoords = (
-  screenX: number,
-  screenY: number,
-  canvas: HTMLCanvasElement,
-  zoneWidth: number,
-  zoneHeight: number
-): [number, number] => {
-  const { left, top } = canvas.getBoundingClientRect();
-  const canvasX = screenX - left;
-  const canvasY = screenY - top;
-
-  const { x: translateX, y: translateY, scale } = getTransform();
-
-  // Reverse the transform applied in seLoop.ts
-  // The transform in seLoop is:
-  // 1. translate(offsetX, offsetY) where offsetX = translateX, offsetY = translateY (since newScale === scale)
-  // 2. translate(canvas.width * scale / 2, canvas.height * scale / 2)
-  // 3. translate(-zoneWidth * scale / 2, -zoneHeight * scale / 2)
-
-  // Reverse the transforms step by step
-  // Start with screen coordinates relative to canvas
-  let worldX = canvasX;
-  let worldY = canvasY;
-
-  // Reverse step 1: subtract translate offset
-  worldX -= translateX;
-  worldY -= translateY;
-
-  // Reverse step 2: subtract canvas center translation
-  worldX -= (canvas.width * scale) / 2;
-  worldY -= (canvas.height * scale) / 2;
-
-  // Reverse step 3: add zone center translation
-  worldX += (zoneWidth * scale) / 2;
-  worldY += (zoneHeight * scale) / 2;
-
-  // Divide by scale to get world coordinates
-  worldX /= scale;
-  worldY /= scale;
-
-  return [worldX, worldY];
-};
-
-export const centerPanzoomOnNode = (
-  canvas: HTMLCanvasElement,
-  nodeId: string
-) => {
-  const editorState = getEditorState();
-  const gameEvent = editorState.gameEvent;
-
-  if (!gameEvent || !gameEvent.children) {
-    return;
-  }
-
-  const node = gameEvent.children.find((child) => child.id === nodeId);
-  if (!node) {
-    return;
-  }
-
-  const [nodeWidth, nodeHeight] = getNodeBounds(node);
-
-  // const currentZoomLevel = editorState.scale;
-  editorState.scale = 1;
-  const scale = 1;
-
-  // const scale = editorState.scale;
-  const canvasWidth = canvas.width;
-  const canvasHeight = canvas.height;
-  const zoneWidth = editorState.zoneWidth;
-  const zoneHeight = editorState.zoneHeight;
-
-  const translateX =
-    canvasWidth / 2 -
-    (canvasWidth * scale) / 2 +
-    (zoneWidth * scale) / 2 -
-    (node.x + nodeWidth / 2) * scale;
-  const translateY =
-    canvasHeight / 2 -
-    (canvasHeight * scale) / 2 +
-    (zoneHeight * scale) / 2 -
-    (node.y + nodeHeight / 2) * scale;
-
-  editorState.translateX = translateX;
-  editorState.translateY = translateY;
-  editorState.scale = scale;
 };

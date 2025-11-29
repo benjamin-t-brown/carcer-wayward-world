@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { GameEvent } from '../types/assets';
 import { useRenderLoop } from '../hooks/useRenderLoop';
-import { getEditorState, updateEditorState } from './seEditorState';
+import { centerPanzoomOnNode, getEditorState, updateEditorState } from './seEditorState';
 import { EditorStateSE } from './seEditorState';
 import { CANVAS_CONTAINER_ID, MapCanvasSE } from './MapCanvasSE';
-import { initPanzoom, unInitPanzoom, centerPanzoomOnNode, screenToWorldCoords, checkRightClickLineEvents } from './seEditorEvents';
+import { initPanzoom, unInitPanzoom, checkRightClickLineEvents } from './seEditorEvents';
 import { loop } from './seLoop';
 import { useReRender } from '../hooks/useReRender';
 import { ContextMenu } from './ContextMenu';
 import { EditExecNodeModal } from './modals/EditExecNodeModal';
 import { GameEventChildExec } from '../types/assets';
-import { getNodeBounds } from './nodeRendering/nodeHelpers';
+import { getNodeBounds, screenToWorldCoords } from './nodeHelpers';
 import { restoreTransformForGameEvent } from './seEditorState';
 
 interface SpecialEventEditorProps {

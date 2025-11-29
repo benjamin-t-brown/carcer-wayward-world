@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { GameEvent, Variable } from '../types/assets';
 import { useAssets } from '../contexts/AssetsContext';
-import { getVarsFromNode } from './nodeRendering/nodeHelpers';
+import { getVarsFromNode } from './nodeHelpers';
 
 interface VariableWidgetProps {
   gameEvent: GameEvent | null;

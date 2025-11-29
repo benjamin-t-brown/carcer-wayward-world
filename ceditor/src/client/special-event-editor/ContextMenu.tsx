@@ -7,9 +7,8 @@ import {
   createKeywordNode,
   createSwitchNode,
 } from './nodeCreation';
-import { screenToWorldCoords } from './seEditorEvents';
 import { EditorStateSE, updateEditorState } from './seEditorState';
-import { getNodeBounds } from './nodeRendering/nodeHelpers';
+import { getNodeBounds, screenToWorldCoords } from './nodeHelpers';
 
 interface ContextMenuProps {
   x: number;

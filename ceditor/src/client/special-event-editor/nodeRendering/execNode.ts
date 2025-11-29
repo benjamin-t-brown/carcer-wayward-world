@@ -1,7 +1,7 @@
 import { GameEventChildExec } from '../../types/assets';
 import { drawRect, drawText } from '../../utils/draw';
 import { renderCloseButton } from './closeButton';
-import { breakTextIntoLines, calculateHeightFromText } from './nodeHelpers';
+import { breakTextIntoLines, calculateHeightFromText, RenderNodeArgs } from '../nodeHelpers';
 
 const NODE_COLOR = '#808080';
 const BORDER_COLOR = '#aaa';
@@ -20,17 +20,17 @@ export const getExecNodeDimensions = (node: GameEventChildExec) => {
   return [NODE_WIDTH, node.h];
 };
 
+export const getExecNodeChildren = (node: GameEventChildExec) => {
+  return node.next ? [node.next] : [];
+};
+
 export const renderExecNode = (
   node: GameEventChildExec,
   x: number,
   y: number,
   scale: number,
   ctx: CanvasRenderingContext2D,
-  args: {
-    isHovered: boolean;
-    isCloseButtonHovered?: boolean;
-    isSelected?: boolean;
-  }
+  args: RenderNodeArgs
 ) => {
   const { p, execStr } = node;
 
@@ -59,11 +59,15 @@ export const renderExecNode = (
   const nodeWidth = NODE_WIDTH * scale;
   const nodeHeight = node.h * scale;
 
-  // Draw border - red if selected, white if hovered, gray otherwise
+  // Draw border - red if selected, white if hovered, light green if child of hovered, light red if parent of hovered, gray otherwise
   const borderColor = args.isSelected
     ? '#ff0000'
     : args.isHovered
     ? BORDER_HOVER_COLOR
+    : args.isChildOfHovered
+    ? '#90EE90' // Light green
+    : args.isParentOfHovered
+    ? '#FFB6C1' // Light red
     : BORDER_COLOR;
   const borderWidth = args.isSelected ? 3 : BORDER_WIDTH;
   
@@ -99,7 +103,7 @@ export const renderExecNode = (
     ctx
   );
 
-  renderCloseButton(nodeX, nodeY, nodeWidth, BORDER_WIDTH, scale, ctx, {
+  renderCloseButton(node, scale, ctx, {
     isHovered: args.isCloseButtonHovered || false,
     isActive: false,
   });
