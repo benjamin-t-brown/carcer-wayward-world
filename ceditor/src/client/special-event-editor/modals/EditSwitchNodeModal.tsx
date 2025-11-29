@@ -40,11 +40,12 @@ export function EditSwitchNodeModal({
     const updatedChildren = (gameEvent.children || []).map((child) =>
       child.id === updatedNode.id ? updatedNode : child
     );
-    const updatedGameEvent: GameEvent = {
-      ...gameEvent,
-      children: updatedChildren,
-    };
-    updateGameEvent(updatedGameEvent);
+    // const updatedGameEvent: GameEvent = {
+    //   ...gameEvent,
+    //   children: updatedChildren,
+    // };
+    gameEvent.children = updatedChildren;
+    updateGameEvent(gameEvent);
     onCancel();
   };
 
@@ -177,9 +178,6 @@ export function EditSwitchNodeModal({
               style={{
                 marginBottom: '4px',
                 padding: '4px',
-                backgroundColor: '#1e1e1e',
-                border: '1px solid #3e3e42',
-                borderRadius: '4px',
               }}
             >
               <div

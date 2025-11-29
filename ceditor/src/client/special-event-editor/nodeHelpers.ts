@@ -15,6 +15,8 @@ import {
 import {
   getSwitchNodeChildren,
   getSwitchNodeDimensions,
+  getSwitchNodeLineHeight,
+  getSwitchNodeMinHeight,
   renderSwitchNode,
 } from './nodeRendering/switchNode';
 import { getTransform } from './seEditorState';
@@ -46,29 +48,19 @@ export const getChildNodeCoordinates = (node: SENode) => {
     });
   } else if (node.eventChildType === GameEventChildType.SWITCH) {
     const switchNode = node as GameEventChildSwitch;
-    // For switch nodes, we need multiple exits - one for each case plus default
-    const totalExits = switchNode.cases.length + (switchNode.defaultNext ? 1 : 0);
-    const exitSpacing = node.h / (totalExits + 1);
-    
-    // Add exits for each case
+    const minHeight = getSwitchNodeMinHeight();
+    const lineHeight = getSwitchNodeLineHeight();
+    const totalCaseHeight = (switchNode.cases.length + 1) * lineHeight;
+    node.h = totalCaseHeight + minHeight;
     for (let i = 0; i < switchNode.cases.length; i++) {
       baseCoordinates.exits.push({
         x: node.x + nodeWidth,
-        y: node.y + exitSpacing * (i + 1),
+        y: node.y + minHeight + i * lineHeight,
       });
     }
-    
-    // Add exit for default if it exists
-    if (switchNode.defaultNext) {
-      baseCoordinates.exits.push({
-        x: node.x + nodeWidth,
-        y: node.y + exitSpacing * (switchNode.cases.length + 1),
-      });
-    }
-  } else {
     baseCoordinates.exits.push({
-      x: node.x + 300,
-      y: node.y + node.h / 2,
+      x: node.x + nodeWidth,
+      y: node.y + minHeight + switchNode.cases.length * lineHeight,
     });
   }
 

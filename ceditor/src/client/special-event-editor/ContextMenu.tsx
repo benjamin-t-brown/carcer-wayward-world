@@ -37,6 +37,12 @@ export function ContextMenu({
   clickedNodeId,
   onClose,
 }: ContextMenuProps) {
+  // Check if clicked node is a switch node
+  const clickedNode = clickedNodeId
+    ? gameEvent.children.find((child) => child.id === clickedNodeId)
+    : null;
+  const isSwitchNode = clickedNode?.eventChildType === GameEventChildType.SWITCH;
+
   const nodeTypes = [
     GameEventChildType.EXEC,
     GameEventChildType.CHOICE,
@@ -233,8 +239,8 @@ export function ContextMenu({
                 cursor: 'pointer',
                 fontSize: '14px',
                 borderRadius: '2px',
-                borderBottom: '1px solid #3e3e42',
-                marginBottom: '4px',
+                borderBottom: isSwitchNode ? 'none' : '1px solid #3e3e42',
+                marginBottom: isSwitchNode ? '0' : '4px',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#2a2d2e';
@@ -245,36 +251,38 @@ export function ContextMenu({
             >
               📋 Copy Node ID
             </button>
-            <button
-              onClick={() => {
-                handleLinkNode();
-              }}
-              style={{
-                display: 'block',
-                width: '100%',
-                padding: '8px 12px',
-                textAlign: 'left',
-                backgroundColor: 'transparent',
-                border: 'none',
-                color: '#d4d4d4',
-                cursor: 'pointer',
-                fontSize: '14px',
-                borderRadius: '2px',
-                borderBottom: '1px solid #3e3e42',
-                marginBottom: '4px',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#2a2d2e';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              🔗 Link Node
-            </button>
+            {!isSwitchNode && (
+              <button
+                onClick={() => {
+                  handleLinkNode();
+                }}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '8px 12px',
+                  textAlign: 'left',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  color: '#d4d4d4',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  borderRadius: '2px',
+                  borderBottom: '1px solid #3e3e42',
+                  marginBottom: '4px',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#2a2d2e';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                🔗 Link Node
+              </button>
+            )}
           </>
         )}
-        {nodeTypes.map((nodeType) => (
+        {!isSwitchNode && nodeTypes.map((nodeType) => (
           <button
             key={nodeType}
             onClick={() => {

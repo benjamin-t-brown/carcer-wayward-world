@@ -104,20 +104,20 @@ export const loop = (
     for (const child of gameEvent.children) {
       const { exits } = getChildNodeCoordinates(child);
       const nextChildren = getNodeChildren(child);
-      for (let i = 0; i < nextChildren.length; i++) {
+      for (let i = 0; i < exits.length; i++) {
         const nextChildId = nextChildren[i];
         const nextChild = gameEvent.children.find((c) => c.id === nextChildId);
-        if (nextChild) {
+        const startX = exits[i].x * newScale;
+        const startY = exits[i].y * newScale;
+        if (nextChildId && nextChild) {
           const { entrance } = getChildNodeCoordinates(nextChild);
 
-          const startX = exits[i].x * newScale;
-          const startY = exits[i].y * newScale;
           const endX = entrance.x * newScale;
           const endY = entrance.y * newScale;
 
           ctx.save();
           ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'; // Semi-transparent white
-          ctx.lineWidth = 10 / newScale;
+          ctx.lineWidth = 10 * newScale;
           ctx.beginPath();
           ctx.moveTo(startX, startY);
           ctx.lineTo(endX, endY);
@@ -127,16 +127,23 @@ export const loop = (
           ctx.save();
           ctx.fillStyle = 'white';
           const ANCHOR_RADIUS = 4;
-          // Anchor at start (right side of parent node)
+          // entrance anchor
           ctx.beginPath();
-          ctx.arc(startX, startY, ANCHOR_RADIUS / newScale, 0, Math.PI * 2);
-          ctx.fill();
-          // Anchor at end (left side of child node)
           ctx.beginPath();
-          ctx.arc(endX, endY, ANCHOR_RADIUS / newScale, 0, Math.PI * 2);
+          ctx.arc(endX, endY, ANCHOR_RADIUS * newScale, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
         }
+
+        // exit anchor
+        ctx.save();
+        ctx.fillStyle = 'white';
+        const ANCHOR_RADIUS = 4;
+        // Anchor at start (right side of parent node)
+        ctx.beginPath();
+        ctx.arc(startX, startY, ANCHOR_RADIUS * newScale, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
       }
     }
   }
@@ -221,10 +228,10 @@ export const loop = (
   ctx.font = '14px arial';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'bottom';
-  
+
   const padding = 10;
   const canvasHeight = dataInterface.getCanvas().height;
-  
+
   if (editorState.isLinking) {
     let linkText = 'Link node: ';
     if (editorState.hoveredNodeId) {
@@ -232,8 +239,12 @@ export const loop = (
     }
     ctx.fillText(linkText, padding, canvasHeight - padding);
   } else if (editorState.showCopyFeedback) {
-    ctx.fillText('Node ID copied to clipboard', padding, canvasHeight - padding);
+    ctx.fillText(
+      'Node ID copied to clipboard',
+      padding,
+      canvasHeight - padding
+    );
   }
-  
+
   ctx.restore();
 };

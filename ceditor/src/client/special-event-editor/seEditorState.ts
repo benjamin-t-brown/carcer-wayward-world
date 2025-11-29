@@ -14,8 +14,8 @@ interface TransformState {
 export class EditorStateSE {
   gameEvent: GameEvent | undefined = undefined;
   selectedChildId = '';
-  zoneWidth = 750;
-  zoneHeight = 750;
+  zoneWidth = 2750;
+  zoneHeight = 2750;
   isDragging = false; // Pan dragging
   isDraggingNode = false; // Node dragging
   draggedNodeId: string | null = null;

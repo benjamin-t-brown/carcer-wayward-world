@@ -1,20 +1,20 @@
 import { GameEventChildSwitch, SwitchCase } from '../../types/assets';
 import { drawRect, drawText } from '../../utils/draw';
 import { renderCloseButton } from './closeButton';
-import { RenderNodeArgs } from '../nodeHelpers';
+import { RenderNodeArgs, getChildNodeCoordinates } from '../nodeHelpers';
 
-const NODE_COLOR = '#808080';
+const NODE_COLOR = '#243F72';
 const BORDER_COLOR = '#aaa';
 const BORDER_HOVER_COLOR = '#fff';
 const TEXT_COLOR = '#FFF';
-const FONT_FAMILY = 'arial';
+const FONT_FAMILY = 'courier';
 const NODE_WIDTH = 300;
 const NODE_TITLE_HEIGHT = 20;
 const BORDER_WIDTH = 2;
 const FONT_SIZE = 12;
 const PADDING = 6;
 const LINE_SPACING = 4;
-const LINE_HEIGHT = 14;
+const LINE_HEIGHT = 24;
 
 export const getSwitchNodeDimensions = (node: GameEventChildSwitch) => {
   return [NODE_WIDTH, node.h];
@@ -35,6 +35,18 @@ export const getSwitchNodeChildren = (node: GameEventChildSwitch): string[] => {
   return children;
 };
 
+export const getSwitchNodeMinHeight = () => {
+  const NODE_TITLE_HEIGHT = 20;
+  const BORDER_WIDTH = 2;
+  const PADDING = 6;
+  const minHeight = NODE_TITLE_HEIGHT + PADDING * 2 + BORDER_WIDTH * 2;
+  return minHeight;
+}
+
+export const getSwitchNodeLineHeight = () => {
+  return LINE_HEIGHT;
+}
+
 export const renderSwitchNode = (
   node: GameEventChildSwitch,
   x: number,
@@ -44,16 +56,34 @@ export const renderSwitchNode = (
   args: RenderNodeArgs
 ) => {
   // Calculate height based on number of cases
-  const caseCount = node.cases.length;
-  const caseHeight = LINE_HEIGHT;
-  const totalCaseHeight = caseCount * caseHeight;
   const minHeight = NODE_TITLE_HEIGHT + PADDING * 2 + BORDER_WIDTH * 2;
-  node.h = Math.max(minHeight, totalCaseHeight + NODE_TITLE_HEIGHT + PADDING * 2 + BORDER_WIDTH * 2);
+  const totalCaseHeight = (node.cases.length + 1) * LINE_HEIGHT;
+  node.h = Math.max(minHeight, totalCaseHeight + minHeight);
+
+  // const switchNode = node as GameEventChildSwitch;
+  // const yOffset = 24;
+  // // For switch nodes, we need multiple exits - one for each case plus default
+  // const totalExits = switchNode.cases.length + 1;
+  // const exitSpacing = (node.h - yOffset) / (totalExits + 1);
+
+  // // Add exits for each case
+  // for (let i = 0; i < switchNode.cases.length; i++) {
+  //   baseCoordinates.exits.push({
+  //     x: node.x + nodeWidth,
+  //     y: node.y + yOffset + exitSpacing * (i + 1),
+  //   });
+  // }
+
+  // baseCoordinates.exits.push({
+  //   x: node.x + nodeWidth,
+  //   y: node.y + yOffset + exitSpacing * (switchNode.cases.length + 1),
+  // });
 
   const nodeX = x * scale;
   const nodeY = y * scale;
   const nodeWidth = NODE_WIDTH * scale;
   const nodeHeight = node.h * scale;
+  const { exits } = getChildNodeCoordinates(node);
 
   // Draw border - red if selected, white if hovered, light green if child of hovered, light red if parent of hovered, gray otherwise
   const borderColor = args.isSelected
@@ -66,17 +96,9 @@ export const renderSwitchNode = (
     ? '#FFB6C1' // Light red
     : BORDER_COLOR;
   const borderWidth = args.isSelected ? 3 : BORDER_WIDTH;
-  
-  drawRect(
-    nodeX,
-    nodeY,
-    nodeWidth,
-    nodeHeight,
-    borderColor,
-    false,
-    ctx
-  );
-  
+
+  drawRect(nodeX, nodeY, nodeWidth, nodeHeight, borderColor, false, ctx);
+
   // Draw additional border for selected nodes
   if (args.isSelected) {
     drawRect(
@@ -116,7 +138,7 @@ export const renderSwitchNode = (
     {
       color: '#ddd',
       size: FONT_SIZE,
-      font: FONT_FAMILY,
+      font: 'arial',
       strokeColor: '',
       align: 'left',
       baseline: 'top',
@@ -125,6 +147,7 @@ export const renderSwitchNode = (
   );
   ctx.restore();
 
+  const caseTextOffset = 9;
   // Render each case's conditionStr
   for (let i = 0; i < node.cases.length; i++) {
     const caseItem = node.cases[i];
@@ -133,7 +156,11 @@ export const renderSwitchNode = (
     ctx.scale(scale, scale);
     ctx.translate(
       PADDING + BORDER_WIDTH,
-      PADDING + BORDER_WIDTH + NODE_TITLE_HEIGHT + i * LINE_HEIGHT
+      caseTextOffset +
+        PADDING +
+        BORDER_WIDTH +
+        NODE_TITLE_HEIGHT +
+        i * LINE_HEIGHT
     );
     drawText(
       caseItem.conditionStr || '',
@@ -145,11 +172,66 @@ export const renderSwitchNode = (
         font: FONT_FAMILY,
         strokeColor: '',
         align: 'left',
-        baseline: 'top',
       },
       ctx
     );
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.beginPath();
+    ctx.moveTo(0, caseTextOffset - 2);
+    ctx.lineTo(NODE_WIDTH - PADDING * 2 - BORDER_WIDTH * 2, caseTextOffset - 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // render line for default
+  ctx.save();
+  ctx.translate(nodeX, nodeY);
+  ctx.scale(scale, scale);
+  ctx.translate(
+    PADDING + BORDER_WIDTH,
+    caseTextOffset +
+      PADDING +
+      BORDER_WIDTH +
+      NODE_TITLE_HEIGHT +
+      node.cases.length * LINE_HEIGHT
+  );
+  drawText(
+    'default',
+    0,
+    0,
+    {
+      color: TEXT_COLOR,
+      size: FONT_SIZE,
+      font: FONT_FAMILY,
+      strokeColor: '',
+      align: 'left',
+    },
+    ctx
+  );
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+  ctx.beginPath();
+  ctx.moveTo(0, caseTextOffset - 2);
+  ctx.lineTo(NODE_WIDTH - PADDING * 2 - BORDER_WIDTH * 2, caseTextOffset - 2);
+  ctx.stroke();
+  ctx.restore();
+
+  // Render exit anchors as partially transparent red circles
+
+  const EXIT_ANCHOR_RADIUS = 10; // 10px radius
+
+  for (const exit of exits) {
+    ctx.save();
+    // Exit coordinates are in world space, convert to canvas space
+    const exitX = exit.x * scale;
+    const exitY = exit.y * scale;
+
+    // Draw partially transparent red circle
+    ctx.fillStyle = 'rgba(255, 0, 0, 0.5)'; // 50% transparent red
+    ctx.beginPath();
+    ctx.arc(exitX, exitY, EXIT_ANCHOR_RADIUS * scale, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
   }
 };
-

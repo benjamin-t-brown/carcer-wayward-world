@@ -79,24 +79,24 @@
         "p": "When you walk into this room, the door shuts abruptly behind you and an alarm begins blaring.\n\n\"Your presence here is not wanted.  You will now be eliminated.\"\n\nWith a *clank* the walls begin to enclose around you.",
         "execStr": "START_QUEST:EscapeTheRoom",
         "next": "3af5x4w8uux",
-        "x": -71.16666666666669,
-        "y": 90.24999999999999,
+        "x": 48.833333333333314,
+        "y": 46.249999999999986,
         "h": 158
       },
       {
         "id": "hzffvnlbz2",
-        "x": 130.66666666666657,
-        "y": 282.8333333333333,
+        "x": 57.66666666666657,
+        "y": 278.8333333333333,
         "h": 74,
         "eventChildType": "EXEC",
         "p": "This is example text for an exec node.",
         "execStr": "",
-        "next": ""
+        "next": "r0mr8kbzbvc"
       },
       {
         "id": "3af5x4w8uux",
-        "x": 368,
-        "y": 90.6666666666667,
+        "x": 374,
+        "y": 78.6666666666667,
         "h": 74,
         "eventChildType": "EXEC",
         "p": "This is example text for an exec node.",
@@ -105,18 +105,18 @@
       },
       {
         "id": "r0mr8kbzbvc",
-        "x": 330.4682820638019,
-        "y": 214.5269889831543,
-        "h": 36,
+        "x": 366.4682820638019,
+        "y": 357.5269889831543,
+        "h": 78,
         "eventChildType": "SWITCH",
         "defaultNext": "",
         "cases": [
           {
-            "conditionStr": "",
+            "conditionStr": "asdf1234",
             "next": ""
           },
           {
-            "conditionStr": "",
+            "conditionStr": "asdf2",
             "next": ""
           }
         ]

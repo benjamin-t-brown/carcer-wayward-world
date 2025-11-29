@@ -36,11 +36,12 @@ export function EditExecNodeModal({
     const updatedChildren = (gameEvent.children || []).map((child) =>
       child.id === updatedNode.id ? updatedNode : child
     );
-    const updatedGameEvent: GameEvent = {
-      ...gameEvent,
-      children: updatedChildren,
-    };
-    updateGameEvent(updatedGameEvent);
+    // const updatedGameEvent: GameEvent = {
+    //   ...gameEvent,
+    //   children: updatedChildren,
+    // };
+    gameEvent.children = updatedChildren;
+    updateGameEvent(gameEvent);
     onCancel();
   };
 

@@ -45,12 +45,16 @@ export function VariableWidget({ gameEvent }: VariableWidgetProps) {
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
+          cursor: 'pointer',
+          userSelect: 'none',
+          background: '#555',
         }}
       >
         <div
           style={{
             transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
             padding: '4px',
+            fontSize: '12px',
           }}
         >
           {'>'}
@@ -62,6 +66,9 @@ export function VariableWidget({ gameEvent }: VariableWidgetProps) {
           display: isExpanded ? 'flex' : 'none',
           alignItems: 'center',
           gap: '10px',
+          borderBottom: '1px dashed #858585',
+          padding: '4px',
+          background: '#555',
         }}
       >
         <input
