@@ -212,4 +212,28 @@ export const loop = (
   }
 
   ctx.restore();
+
+  // Render linking mode text or copy feedback in bottom left (screen coordinates)
+  const editorState = dataInterface.getEditorState();
+  ctx.save();
+  ctx.resetTransform(); // Use screen coordinates
+  ctx.fillStyle = 'white';
+  ctx.font = '14px arial';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'bottom';
+  
+  const padding = 10;
+  const canvasHeight = dataInterface.getCanvas().height;
+  
+  if (editorState.isLinking) {
+    let linkText = 'Link node: ';
+    if (editorState.hoveredNodeId) {
+      linkText += editorState.hoveredNodeId;
+    }
+    ctx.fillText(linkText, padding, canvasHeight - padding);
+  } else if (editorState.showCopyFeedback) {
+    ctx.fillText('Node ID copied to clipboard', padding, canvasHeight - padding);
+  }
+  
+  ctx.restore();
 };

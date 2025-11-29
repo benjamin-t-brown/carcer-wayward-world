@@ -133,6 +133,59 @@ export function ContextMenu({
     updateEditorState({});
   };
 
+  const handleLinkNode = () => {
+    if (!clickedNodeId || !editorStateRef.current) {
+      return;
+    }
+    // Enter linking mode
+    editorStateRef.current.isLinking = true;
+    editorStateRef.current.linkingSourceNodeId = clickedNodeId;
+    updateEditorState({});
+    onClose();
+  };
+
+  const handleCopyNodeId = async () => {
+    if (!clickedNodeId || !editorStateRef.current) {
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(clickedNodeId);
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = clickedNodeId;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (fallbackErr) {
+        console.error('Failed to copy node ID:', fallbackErr);
+      }
+      document.body.removeChild(textArea);
+    }
+    
+    // Show feedback message
+    const editorState = editorStateRef.current;
+    editorState.showCopyFeedback = true;
+    
+    // Clear any existing timeout
+    if (editorState.copyFeedbackTimeout !== null) {
+      clearTimeout(editorState.copyFeedbackTimeout);
+    }
+    
+    // Hide feedback after 2 seconds
+    editorState.copyFeedbackTimeout = window.setTimeout(() => {
+      editorState.showCopyFeedback = false;
+      editorState.copyFeedbackTimeout = null;
+      updateEditorState({});
+    }, 2000);
+    
+    updateEditorState({});
+    onClose();
+  };
+
   return (
     <>
       {/* Backdrop */}
@@ -163,6 +216,64 @@ export function ContextMenu({
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        {clickedNodeId && (
+          <>
+            <button
+              onClick={() => {
+                handleCopyNodeId();
+              }}
+              style={{
+                display: 'block',
+                width: '100%',
+                padding: '8px 12px',
+                textAlign: 'left',
+                backgroundColor: 'transparent',
+                border: 'none',
+                color: '#d4d4d4',
+                cursor: 'pointer',
+                fontSize: '14px',
+                borderRadius: '2px',
+                borderBottom: '1px solid #3e3e42',
+                marginBottom: '4px',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#2a2d2e';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              📋 Copy Node ID
+            </button>
+            <button
+              onClick={() => {
+                handleLinkNode();
+              }}
+              style={{
+                display: 'block',
+                width: '100%',
+                padding: '8px 12px',
+                textAlign: 'left',
+                backgroundColor: 'transparent',
+                border: 'none',
+                color: '#d4d4d4',
+                cursor: 'pointer',
+                fontSize: '14px',
+                borderRadius: '2px',
+                borderBottom: '1px solid #3e3e42',
+                marginBottom: '4px',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#2a2d2e';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              🔗 Link Node
+            </button>
+          </>
+        )}
         {nodeTypes.map((nodeType) => (
           <button
             key={nodeType}

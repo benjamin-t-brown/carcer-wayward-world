@@ -9,7 +9,8 @@ import { loop } from './seLoop';
 import { useReRender } from '../hooks/useReRender';
 import { ContextMenu } from './ContextMenu';
 import { EditExecNodeModal } from './modals/EditExecNodeModal';
-import { GameEventChildExec } from '../types/assets';
+import { EditSwitchNodeModal } from './modals/EditSwitchNodeModal';
+import { GameEventChildExec, GameEventChildSwitch } from '../types/assets';
 import { getNodeBounds, screenToWorldCoords } from './nodeHelpers';
 import { restoreTransformForGameEvent } from './seEditorState';
 
@@ -33,6 +34,9 @@ export function SpecialEventEditor({
     clickedNodeId?: string | null;
   } | null>(null);
   const [editingNode, setEditingNode] = useState<GameEventChildExec | null>(
+    null
+  );
+  const [editingSwitchNode, setEditingSwitchNode] = useState<GameEventChildSwitch | null>(
     null
   );
 
@@ -142,11 +146,15 @@ export function SpecialEventEditor({
       getEditorFuncs: () => ({
         onNodeDoubleClick: (nodeId: string) => {
           // Find the node and open edit modal
-          const node = editorState.current?.gameEvent?.children?.find(
-            (child) => child.id === nodeId && child.eventChildType === 'EXEC'
-          ) as GameEventChildExec | undefined;
-          if (node) {
-            setEditingNode(node);
+          const child = editorState.current?.gameEvent?.children?.find(
+            (c) => c.id === nodeId
+          );
+          if (child) {
+            if (child.eventChildType === 'EXEC') {
+              setEditingNode(child as GameEventChildExec);
+            } else if (child.eventChildType === 'SWITCH') {
+              setEditingSwitchNode(child as GameEventChildSwitch);
+            }
           }
         },
       }),
@@ -276,6 +284,13 @@ export function SpecialEventEditor({
         gameEvent={gameEvent}
         updateGameEvent={onUpdateGameEvent}
         onCancel={() => setEditingNode(null)}
+      />
+      <EditSwitchNodeModal
+        isOpen={editingSwitchNode !== null}
+        node={editingSwitchNode}
+        gameEvent={gameEvent}
+        updateGameEvent={onUpdateGameEvent}
+        onCancel={() => setEditingSwitchNode(null)}
       />
     </>
   );

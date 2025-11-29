@@ -79,8 +79,8 @@
         "p": "When you walk into this room, the door shuts abruptly behind you and an alarm begins blaring.\n\n\"Your presence here is not wanted.  You will now be eliminated.\"\n\nWith a *clank* the walls begin to enclose around you.",
         "execStr": "START_QUEST:EscapeTheRoom",
         "next": "3af5x4w8uux",
-        "x": 29.333333333333314,
-        "y": 47.999999999999986,
+        "x": -71.16666666666669,
+        "y": 90.24999999999999,
         "h": 158
       },
       {
@@ -102,6 +102,24 @@
         "p": "This is example text for an exec node.",
         "execStr": "",
         "next": ""
+      },
+      {
+        "id": "r0mr8kbzbvc",
+        "x": 330.4682820638019,
+        "y": 214.5269889831543,
+        "h": 36,
+        "eventChildType": "SWITCH",
+        "defaultNext": "",
+        "cases": [
+          {
+            "conditionStr": "",
+            "next": ""
+          },
+          {
+            "conditionStr": "",
+            "next": ""
+          }
+        ]
       }
     ]
   },

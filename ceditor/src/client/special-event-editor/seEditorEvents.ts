@@ -89,6 +89,12 @@ export const initPanzoom = (specialEventEditorInterface: {
     }
     // Clear selection on ESC
     if (ev.key === 'Escape') {
+      const editorState = specialEventEditorInterface.getEditorState();
+      // Exit linking mode if active
+      if (editorState.isLinking) {
+        editorState.isLinking = false;
+        editorState.linkingSourceNodeId = null;
+      }
       resetSelectedNodes();
       updateEditorState({});
     }
@@ -445,6 +451,32 @@ const checkLeftMouseClickEvents = (args: {
     editorState.zoneHeight
   );
 
+  // Handle linking mode
+  if (editorState.isLinking && editorState.linkingSourceNodeId) {
+    // Check if clicking on a node
+    const clickedNode = gameEvent.children.find((child) => {
+      return isPointInNode(child, worldX, worldY);
+    });
+
+    if (clickedNode && clickedNode.id !== editorState.linkingSourceNodeId) {
+      // Link the source node to the clicked node
+      const sourceNode = gameEvent.children.find(
+        (c) => c.id === editorState.linkingSourceNodeId
+      );
+      if (sourceNode) {
+        setNextNodeForChild(sourceNode, 0, clickedNode.id);
+        updateEditorState({});
+      }
+    }
+
+    // Exit linking mode (whether we linked or not)
+    editorState.isLinking = false;
+    editorState.linkingSourceNodeId = null;
+    updateEditorState({});
+    ev.preventDefault();
+    return true;
+  }
+
   if (gameEvent.children) {
     for (const child of gameEvent.children) {
       const indexOfClickedLine = getIndexOfClickedLineForChildren(
@@ -552,6 +584,14 @@ const checkLeftMouseClickEvents = (args: {
   // Clicked outside any node - reset double-click tracking
   lastClickTime = 0;
   lastClickNodeId = null;
+  
+  // If in linking mode and clicked on empty space, cancel linking mode
+  if (editorState.isLinking) {
+    editorState.isLinking = false;
+    editorState.linkingSourceNodeId = null;
+    updateEditorState({});
+  }
+  
   return false; // No node was clicked
 };
 

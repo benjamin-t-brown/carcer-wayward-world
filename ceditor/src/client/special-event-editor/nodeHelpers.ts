@@ -1,6 +1,7 @@
 import {
   GameEvent,
   GameEventChildExec,
+  GameEventChildSwitch,
   GameEventChildType,
   SENode,
 } from '../types/assets';
@@ -11,48 +12,75 @@ import {
   getExecNodeDimensions,
   renderExecNode,
 } from './nodeRendering/execNode';
+import {
+  getSwitchNodeChildren,
+  getSwitchNodeDimensions,
+  renderSwitchNode,
+} from './nodeRendering/switchNode';
 import { getTransform } from './seEditorState';
 
 export const getNodeDimensions = (node: SENode) => {
   if (node.eventChildType === GameEventChildType.EXEC) {
     return getExecNodeDimensions(node as GameEventChildExec);
   }
+  if (node.eventChildType === GameEventChildType.SWITCH) {
+    return getSwitchNodeDimensions(node as GameEventChildSwitch);
+  }
   return [300, node.h];
 };
 
 export const getChildNodeCoordinates = (node: SENode) => {
-  if (node.eventChildType === GameEventChildType.EXEC) {
-    const [nodeWidth] = getNodeDimensions(node);
-    return {
-      entrance: {
-        x: node.x,
-        y: node.y + node.h / 2,
-      },
-      exits: [
-        {
-          x: node.x + nodeWidth,
-          y: node.y + node.h / 2,
-        },
-      ],
-    };
-  }
-  return {
+  const [nodeWidth] = getNodeDimensions(node);
+  const baseCoordinates = {
     entrance: {
       x: node.x,
       y: node.y + node.h / 2,
     },
-    exits: [
-      {
-        x: node.x + 300,
-        y: node.y + node.h / 2,
-      },
-    ],
+    exits: [] as Array<{ x: number; y: number }>,
   };
+
+  if (node.eventChildType === GameEventChildType.EXEC) {
+    baseCoordinates.exits.push({
+      x: node.x + nodeWidth,
+      y: node.y + node.h / 2,
+    });
+  } else if (node.eventChildType === GameEventChildType.SWITCH) {
+    const switchNode = node as GameEventChildSwitch;
+    // For switch nodes, we need multiple exits - one for each case plus default
+    const totalExits = switchNode.cases.length + (switchNode.defaultNext ? 1 : 0);
+    const exitSpacing = node.h / (totalExits + 1);
+    
+    // Add exits for each case
+    for (let i = 0; i < switchNode.cases.length; i++) {
+      baseCoordinates.exits.push({
+        x: node.x + nodeWidth,
+        y: node.y + exitSpacing * (i + 1),
+      });
+    }
+    
+    // Add exit for default if it exists
+    if (switchNode.defaultNext) {
+      baseCoordinates.exits.push({
+        x: node.x + nodeWidth,
+        y: node.y + exitSpacing * (switchNode.cases.length + 1),
+      });
+    }
+  } else {
+    baseCoordinates.exits.push({
+      x: node.x + 300,
+      y: node.y + node.h / 2,
+    });
+  }
+
+  return baseCoordinates;
 };
 
 export const getNodeChildren = (node: SENode) => {
   if (node.eventChildType === GameEventChildType.EXEC) {
     return getExecNodeChildren(node as GameEventChildExec);
+  }
+  if (node.eventChildType === GameEventChildType.SWITCH) {
+    return getSwitchNodeChildren(node as GameEventChildSwitch);
   }
   return [];
 };
@@ -74,6 +102,15 @@ export const renderNode = (
   if (node.eventChildType === GameEventChildType.EXEC) {
     renderExecNode(
       node as GameEventChildExec,
+      node.x,
+      node.y,
+      scale,
+      ctx,
+      args
+    );
+  } else if (node.eventChildType === GameEventChildType.SWITCH) {
+    renderSwitchNode(
+      node as GameEventChildSwitch,
       node.x,
       node.y,
       scale,
@@ -163,6 +200,10 @@ export const getNodeBounds = (child: SENode) => {
   let nodeWidth = 0;
   if (child.eventChildType === GameEventChildType.EXEC) {
     const [NODE_WIDTH] = getExecNodeDimensions(child as GameEventChildExec);
+    nodeWidth = NODE_WIDTH;
+  }
+  if (child.eventChildType === GameEventChildType.SWITCH) {
+    const [NODE_WIDTH] = getSwitchNodeDimensions(child as GameEventChildSwitch);
     nodeWidth = NODE_WIDTH;
   }
   return [nodeWidth, child.h];

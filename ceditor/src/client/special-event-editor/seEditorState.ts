@@ -46,6 +46,12 @@ export class EditorStateSE {
   // Store initial positions when starting to drag multiple nodes
   selectedNodesInitialPositions: Map<string, { x: number; y: number }> =
     new Map();
+  // Linking mode state
+  isLinking: boolean = false;
+  linkingSourceNodeId: string | null = null;
+  // Copy feedback state
+  showCopyFeedback: boolean = false;
+  copyFeedbackTimeout: number | null = null;
 }
 const editorStateSE = new EditorStateSE();
 

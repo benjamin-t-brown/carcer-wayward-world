@@ -2,15 +2,15 @@ import { SENode } from '../../types/assets';
 import { drawRect, drawText } from '../../utils/draw';
 import { getNodeDimensions } from '../nodeHelpers';
 
-export const getCloseButtonBounds = (node: SENode) => {
+export const getCloseButtonBounds = (node: SENode, scale: number = 1) => {
   const btnSize = 15;
   const borderWidth = 2;
   const [nodeWidth] = getNodeDimensions(node);
   return {
-    x: node.x + nodeWidth - btnSize - borderWidth * 2,
-    y: node.y + borderWidth * 2,
-    width: btnSize,
-    height: btnSize,
+    x: node.x * scale + nodeWidth * scale - btnSize * scale - borderWidth * 2,
+    y: node.y * scale + borderWidth * 2,
+    width: btnSize * scale,
+    height: btnSize * scale,
   };
 };
 
@@ -24,11 +24,9 @@ export const renderCloseButton = (
   }
 ) => {
   const btnSize = 15;
-  const borderWidth = 2;
-  const [nodeWidth] = getNodeDimensions(node);
+  const bounds = getCloseButtonBounds(node, scale);
   ctx.save();
-  ctx.translate(node.x, node.y);
-  ctx.translate(nodeWidth - btnSize * scale - borderWidth * 2, borderWidth * 2);
+  ctx.translate(bounds.x, bounds.y);
   ctx.scale(scale, scale);
   drawRect(
     0,
