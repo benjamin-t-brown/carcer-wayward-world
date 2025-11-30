@@ -24,6 +24,7 @@ interface EditorSaveState {
 export class EditorStateSE {
   // gameEvent: GameEvent | undefined = undefined;
   gameEventId: string | undefined = undefined;
+  baseGameEvent: GameEvent | undefined = undefined;
   editorNodes: EditorNode[] = [];
   selectedChildId = '';
   zoneWidth = 3000;
@@ -74,10 +75,18 @@ const editorStateSE = new EditorStateSE();
 export const getEditorState = () => editorStateSE;
 export const updateEditorState = (state: Partial<EditorStateSE>) => {
   Object.assign(editorStateSE, { ...getEditorState(), ...state });
+  const gameEvent = editorStateSE.baseGameEvent;
+  if (gameEvent) {
+    syncGameEventFromEditorState(gameEvent, editorStateSE);
+  }
   (window as any).reRenderSpecialEventEditor();
 };
 export const updateEditorStateNoReRender = (state: Partial<EditorStateSE>) => {
   Object.assign(editorStateSE, { ...getEditorState(), ...state });
+  const gameEvent = editorStateSE.baseGameEvent;
+  if (gameEvent) {
+    syncGameEventFromEditorState(gameEvent, editorStateSE);
+  }
 };
 (window as any).editorStateSE = editorStateSE;
 

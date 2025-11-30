@@ -15,6 +15,7 @@ import { Sprite } from '../elements/Sprite';
 import {
   getEditorState,
   saveEditorStateForGameEvent,
+  syncGameEventFromEditorState,
 } from '../special-event-editor/seEditorState';
 
 interface NotificationState {
@@ -269,6 +270,14 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     if (!validation.isValid) {
       showNotification(validation.error || 'Validation failed', 'error');
       return;
+    }
+
+    const currentEditorState = getEditorState();
+    if (currentEditorState.baseGameEvent) {
+      syncGameEventFromEditorState(
+        currentEditorState.baseGameEvent,
+        currentEditorState
+      );
     }
 
     const currentGameEventIndex =

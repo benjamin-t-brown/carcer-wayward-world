@@ -74,22 +74,22 @@
     ],
     "children": [
       {
-        "eventChildType": "EXEC",
         "id": "1",
-        "p": "When you walk into this room, the door shuts abruptly behind you and an alarm begins blaring.\n\n\"Your presence here is not wanted.  You will now be eliminated.\"\n\nWith a *clank* the walls begin to enclose around you.",
-        "execStr": "START_QUEST:EscapeTheRoom",
-        "next": "3af5x4w8uux",
         "x": 48.833333333333314,
         "y": 46.249999999999986,
-        "h": 158
+        "eventChildType": "EXEC",
+        "h": 158,
+        "p": "When you walk into this room, the door shuts abruptly behind you and an alarm begins blaring.\n\n\"Your presence here is not wanted.  You will now be eliminated.\"\n\nWith a *clank* the walls begin to enclose around you.",
+        "execStr": "START_QUEST:EscapeTheRoom",
+        "next": "3af5x4w8uux"
       },
       {
         "id": "hzffvnlbz2",
-        "x": 57.66666666666657,
-        "y": 277.8333333333333,
-        "h": 74,
+        "x": 85.66666666666657,
+        "y": 487.83333333333326,
         "eventChildType": "EXEC",
-        "p": "This is example text for an exec node.",
+        "h": 74,
+        "p": "This is example text for an exec node.123",
         "execStr": "",
         "next": "r0mr8kbzbvc"
       },
@@ -97,8 +97,8 @@
         "id": "3af5x4w8uux",
         "x": 473,
         "y": 49.6666666666667,
-        "h": 74,
         "eventChildType": "EXEC",
+        "h": 74,
         "p": "This is example text for an exec node.",
         "execStr": "",
         "next": ""
@@ -107,9 +107,8 @@
         "id": "r0mr8kbzbvc",
         "x": 454.4682820638019,
         "y": 148.5269889831543,
-        "h": 108,
         "eventChildType": "SWITCH",
-        "defaultNext": "tm27zq6idw",
+        "h": 108,
         "cases": [
           {
             "conditionStr": "asdf1234",
@@ -119,14 +118,15 @@
             "conditionStr": "asdf2",
             "next": "tm27zq6idw"
           }
-        ]
+        ],
+        "defaultNext": "tm27zq6idw"
       },
       {
         "id": "tm27zq6idw",
         "x": 921.3333333333333,
         "y": 230.25,
-        "h": 74,
         "eventChildType": "EXEC",
+        "h": 74,
         "p": "This is example text for an exec node.",
         "execStr": "",
         "next": ""
@@ -135,8 +135,8 @@
         "id": "zs1rlhf3gpe",
         "x": 897.3333333333333,
         "y": 82.25,
-        "h": 74,
         "eventChildType": "EXEC",
+        "h": 74,
         "p": "This is example text for an exec node.",
         "execStr": "",
         "next": ""

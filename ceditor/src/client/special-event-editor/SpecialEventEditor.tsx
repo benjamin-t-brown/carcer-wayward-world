@@ -31,9 +31,7 @@ interface SpecialEventEditorProps {
 
 let prevTs = performance.now();
 
-export function SpecialEventEditor({
-  gameEvent,
-}: SpecialEventEditorProps) {
+export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const editorState = useRef<EditorStateSE | undefined>(undefined);
   const reRender = useReRender();
@@ -64,7 +62,7 @@ export function SpecialEventEditor({
     if (gameEventId && canvas) {
       initEditorStateForGameEvent(gameEvent, canvas);
       editorState.current = getEditorState();
-      updateEditorState({ gameEventId: gameEventId });
+      updateEditorState({ gameEventId: gameEventId, baseGameEvent: gameEvent });
     }
   }, [gameEvent?.id]);
 
