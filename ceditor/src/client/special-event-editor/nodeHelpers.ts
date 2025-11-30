@@ -327,6 +327,23 @@ export const getExitAnchorFromWorldCoords = (
   return clickedExitAnchor;
 };
 
+export const getExitAnchorFromWorldCoordsLine = (
+  worldX: number,
+  worldY: number,
+  nodes: EditorNode[]
+): Connector | undefined => {
+  let clickedExitAnchor: Connector | undefined = undefined;
+  for (let i = nodes.length - 1; i >= 0; i--) {
+    const node = nodes[i];
+    const exitAnchor = node.getConnectorLineCollidingWithPoint(worldX, worldY);
+    if (exitAnchor) {
+      clickedExitAnchor = exitAnchor;
+      break;
+    }
+  }
+  return clickedExitAnchor;
+};
+
 export const getNodeParents = (
   nodeId: string,
   nodes: EditorNode[]

@@ -2,6 +2,7 @@ import { Connector } from './cmpts/Connector';
 import { EditorNode } from './EditorNode';
 import {
   getExitAnchorFromWorldCoords,
+  getExitAnchorFromWorldCoordsLine,
   getNodeFromWorldCoords,
   screenToWorldCoords,
 } from './nodeHelpers';
@@ -437,6 +438,17 @@ const checkLeftMouseClickEvents = (args: {
     return true;
   }
 
+  const clickedExitAnchorLine = getExitAnchorFromWorldCoordsLine(
+    worldX,
+    worldY,
+    editorState.editorNodes
+  );
+
+  if (clickedExitAnchorLine) {
+    centerPanzoomOnNode(canvas, clickedExitAnchorLine.toNodeId);
+    return true;
+  }
+
   const clickedNode = getNodeFromWorldCoords(
     worldX,
     worldY,
@@ -571,15 +583,27 @@ export const checkRightClickLineEvents = (args: {
   canvas: HTMLCanvasElement;
   editorState: EditorStateSE;
 }): boolean => {
-  // const { ev, canvas, editorState } = args;
+  const { ev, canvas, editorState } = args;
 
-  // const [worldX, worldY] = screenToWorldCoords(
-  //   ev.clientX,
-  //   ev.clientY,
-  //   canvas,
-  //   editorState.zoneWidth,
-  //   editorState.zoneHeight
-  // );
+  const [worldX, worldY] = screenToWorldCoords(
+    ev.clientX,
+    ev.clientY,
+    canvas,
+    editorState.zoneWidth,
+    editorState.zoneHeight
+  );
+
+  const clickedExitAnchorLine = getExitAnchorFromWorldCoordsLine(
+    worldX,
+    worldY,
+    editorState.editorNodes
+  );
+
+  if (clickedExitAnchorLine) {
+    // centerPanzoomOnNode(canvas, clickedExitAnchorLine.toNodeId);
+    clickedExitAnchorLine.toNodeId = '';
+    return true;
+  }
 
   // if (gameEvent.children) {
   //   for (const child of gameEvent.children) {

@@ -1,3 +1,5 @@
+import { distanceToLineSegment } from '../nodeHelpers';
+
 export class Connector {
   startX = 0;
   startY = 0;
@@ -30,7 +32,16 @@ export class Connector {
   }
 
   isLineColliding(x: number, y: number) {
-    return false;
+    return (
+      distanceToLineSegment(
+        x,
+        y,
+        this.startX,
+        this.startY,
+        this.endX,
+        this.endY
+      ) <= 10
+    );
   }
 
   update() {}
