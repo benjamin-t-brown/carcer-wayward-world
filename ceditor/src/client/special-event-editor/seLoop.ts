@@ -88,60 +88,6 @@ export const loop = (
     -(dataInterface.getEditorState().zoneHeight * newScale) / 2
   );
 
-  // Render connections between nodes (lines)
-  // const gameEvent = dataInterface.getEditorState().gameEvent;
-  // if (gameEvent && gameEvent.children) {
-  //   for (const child of gameEvent.children) {
-  //     const { exits } = getAnchorCoordinates(child);
-  //     const nextChildren = getNodeChildren(child);
-
-  //     for (let i = 0; i < exits.length; i++) {
-  //       const nextChildId = nextChildren[i];
-  //       const nextChild = gameEvent.children.find((c) => c.id === nextChildId);
-  //       const startX = exits[i].x * newScale;
-  //       const startY = exits[i].y * newScale;
-
-  //       if (nextChildId && nextChild) {
-  //         const { entrance } = getAnchorCoordinates(nextChild);
-
-  //         const endX = entrance.x * newScale;
-  //         const endY = entrance.y * newScale;
-
-  //         ctx.save();
-  //         ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-  //         ctx.lineWidth = 10 * newScale;
-  //         ctx.beginPath();
-  //         // if (child.eventChildType === GameEventChildType.SWITCH) {
-  //         //   console.log('move to', exits.length, i, startX, startY);
-  //         // }
-  //         ctx.moveTo(startX, startY);
-  //         ctx.lineTo(endX, endY);
-  //         ctx.stroke();
-  //         ctx.restore();
-
-  //         ctx.save();
-  //         ctx.fillStyle = 'white';
-  //         const ANCHOR_RADIUS = 4;
-  //         // entrance anchor
-  //         ctx.beginPath();
-  //         ctx.arc(endX, endY, ANCHOR_RADIUS * newScale, 0, Math.PI * 2);
-  //         ctx.fill();
-  //         ctx.restore();
-  //       }
-
-  //       // exit anchor
-  //       ctx.save();
-  //       ctx.fillStyle = 'white';
-  //       const ANCHOR_RADIUS = 4;
-  //       // Anchor at start (right side of parent node)
-  //       ctx.beginPath();
-  //       ctx.arc(startX, startY, ANCHOR_RADIUS * newScale, 0, Math.PI * 2);
-  //       ctx.fill();
-  //       ctx.restore();
-  //     }
-  //   }
-  // }
-
   // Render nodes
   const hoveredNodeId = dataInterface.getEditorState().hoveredNodeId;
   const hoveredCloseButtonNodeId =
@@ -208,7 +154,6 @@ export const loop = (
       isSelected: selectedNodeIds.has(node.id),
       isChildOfHovered: childNodeIds.has(node.id),
       isParentOfHovered: parentNodeIds.has(node.id),
-      // hoveredExitIndex: hoveredExitAnchor?.exitIndex,
       hoveredExitIndex: dataInterface.getEditorState().hoveredExitAnchor?.exitIndex,
       linkingExitIndex: linkingExitIndex,
     });

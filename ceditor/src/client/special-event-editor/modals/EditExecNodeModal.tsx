@@ -9,6 +9,7 @@ interface EditExecNodeModalProps {
   node: EditorNodeExec | undefined;
   gameEvent: GameEvent;
   onCancel: () => void;
+  ctx: CanvasRenderingContext2D;
 }
 
 export function EditExecNodeModal({
@@ -16,6 +17,7 @@ export function EditExecNodeModal({
   node,
   gameEvent,
   onCancel,
+  ctx,
 }: EditExecNodeModalProps) {
   const [p, setP] = useState('');
   const [execStr, setExecStr] = useState('');
@@ -34,6 +36,7 @@ export function EditExecNodeModal({
   const handleEditNodeConfirm = () => {
     node.p = p;
     node.execStr = execStr;
+    node.calculateHeight(ctx);
     onCancel();
   };
 

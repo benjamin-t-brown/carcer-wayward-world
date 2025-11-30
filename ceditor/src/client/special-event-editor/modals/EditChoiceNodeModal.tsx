@@ -1,30 +1,30 @@
 import { useState, useEffect } from 'react';
-import { GameEvent, SwitchCase } from '../../types/assets';
+import { Choice, GameEvent } from '../../types/assets';
 import { Button } from '../../elements/Button';
 import { VariableWidget } from '../VariableWidget';
-import { EditorNodeSwitch } from '../cmpts/SwitchNodeComponent';
+import { EditorNodeChoice } from '../cmpts/ChoiceNodeComponent';
 
-interface EditSwitchNodeModalProps {
+interface EditChoiceNodeModalProps {
   isOpen: boolean;
-  node: EditorNodeSwitch | undefined;
+  node: EditorNodeChoice | undefined;
   gameEvent: GameEvent;
   onCancel: () => void;
 }
 
-export function EditSwitchNodeModal({
+export function EditChoiceNodeModal({
   isOpen,
   node,
   gameEvent,
   onCancel,
-}: EditSwitchNodeModalProps) {
-  const [cases, setCases] = useState<SwitchCase[]>([]);
-  const [defaultNext, setDefaultNext] = useState('');
+}: EditChoiceNodeModalProps) {
+  const [choices, setChoices] = useState<Choice[]>([]);
+  const [text, setText] = useState('');
 
   useEffect(() => {
     if (node) {
       const seNode = node.toSENode();
-      setCases([...seNode.cases]);
-      setDefaultNext(seNode.defaultNext || '');
+      setChoices([...seNode.choices]);
+      setText(seNode.text || '');
     }
   }, [node]);
 
@@ -33,57 +33,56 @@ export function EditSwitchNodeModal({
   }
 
   const handleEditNodeConfirm = () => {
-    // node.cases = cases;
-    // node.defaultNext = defaultNext;
-    node.defaultNext = defaultNext;
-    node.buildFromCases(cases);
+    node.text = text;
+    node.buildFromChoices(choices);
     onCancel();
   };
 
-  const handleAddCase = () => {
-    const newCase: SwitchCase = {
+  const handleAddChoice = () => {
+    const newChoice: Choice = {
+      text: '',
       conditionStr: '',
       next: '',
     };
-    setCases([...cases, newCase]);
+    setChoices([...choices, newChoice]);
   };
 
-  const handleRemoveCase = (index: number) => {
-    const newCases = cases.filter((_, i) => i !== index);
-    setCases(newCases);
+  const handleRemoveChoice = (index: number) => {
+    const newChoices = choices.filter((_, i) => i !== index);
+    setChoices(newChoices);
   };
 
-  const handleUpdateCase = (
+  const handleUpdateChoice = (
     index: number,
-    field: keyof SwitchCase,
+    field: keyof Choice,
     value: string
   ) => {
-    const newCases = [...cases];
-    newCases[index] = {
-      ...newCases[index],
+    const newChoices = [...choices];
+    newChoices[index] = {
+      ...newChoices[index],
       [field]: value,
     };
-    setCases(newCases);
+    setChoices(newChoices);
   };
 
-  const handleMoveCaseDir = (index: number, direction: 'up' | 'down') => {
-    const newCases = [...cases];
+  const handleMoveChoiceDir = (index: number, direction: 'up' | 'down') => {
+    const newChoices = [...choices];
     if (direction === 'up') {
       if (index === 0) {
         return;
       }
-      const choice = newCases[index];
-      newCases[index] = newCases[index - 1];
-      newCases[index - 1] = choice;
+      const choice = newChoices[index];
+      newChoices[index] = newChoices[index - 1];
+      newChoices[index - 1] = choice;
     } else {
-      if (index === newCases.length - 1) {
+      if (index === newChoices.length - 1) {
         return;
       }
-      const choice = newCases[index];
-      newCases[index] = newCases[index + 1];
-      newCases[index + 1] = choice;
+      const choice = newChoices[index];
+      newChoices[index] = newChoices[index + 1];
+      newChoices[index + 1] = choice;
     }
-    setCases(newCases);
+    setChoices(newChoices);
   };
 
   return (
@@ -121,7 +120,7 @@ export function EditSwitchNodeModal({
             marginTop: 0,
           }}
         >
-          Edit Switch Node
+          Edit Choice Node
         </h2>
         <div>
           <VariableWidget gameEvent={gameEvent} />
@@ -154,12 +153,12 @@ export function EditSwitchNodeModal({
                 fontWeight: 'bold',
               }}
             >
-              Cases
+              Choices
             </label>
-            <Button onClick={handleAddCase}>+ Add Case</Button>
+            <Button onClick={handleAddChoice}>+ Add Choice</Button>
           </div>
 
-          {cases.length === 0 && (
+          {choices.length === 0 && (
             <div
               style={{
                 color: '#666',
@@ -170,11 +169,11 @@ export function EditSwitchNodeModal({
                 borderRadius: '4px',
               }}
             >
-              No cases. Click "Add Case" to add one.
+              No choices. Click "Add Choice" to add one.
             </div>
           )}
 
-          {cases.map((caseItem, index) => (
+          {choices.map((choiceItem, index) => (
             <div
               key={index}
               style={{
@@ -193,6 +192,7 @@ export function EditSwitchNodeModal({
                   style={{
                     width: '48px',
                     display: 'flex',
+                    // flexDirection: 'column',
                     alignItems: 'center',
                     height: '100%',
                     marginBottom: '8px',
@@ -203,7 +203,7 @@ export function EditSwitchNodeModal({
                     style={{
                       width: '50%',
                     }}
-                    onClick={() => handleMoveCaseDir(index, 'up')}
+                    onClick={() => handleMoveChoiceDir(index, 'up')}
                   >
                     <span>up</span>
                   </button>
@@ -211,36 +211,25 @@ export function EditSwitchNodeModal({
                     style={{
                       width: '50%',
                     }}
-                    onClick={() => handleMoveCaseDir(index, 'down')}
+                    onClick={() => handleMoveChoiceDir(index, 'down')}
                   >
                     <span>dn</span>
                   </button>
                 </div>
-
                 <div
                   style={{
                     marginBottom: '8px',
                     width: 'calc(100% - 100px - 48px)',
                   }}
                 >
-                  {/* <label
-                    style={{
-                      display: 'block',
-                      color: '#d4d4d4',
-                      marginBottom: '4px',
-                      fontSize: '12px',
-                    }}
-                  >
-                    Condition String
-                  </label> */}
                   <input
                     type="text"
-                    value={caseItem.conditionStr}
+                    value={choiceItem.conditionStr ?? ''}
                     onChange={(e) =>
-                      handleUpdateCase(index, 'conditionStr', e.target.value)
+                      handleUpdateChoice(index, 'conditionStr', e.target.value)
                     }
                     style={{
-                      width: '100%',
+                      width: '40%',
                       padding: '6px',
                       backgroundColor: '#1e1e1e',
                       border: '1px solid #3e3e42',
@@ -249,12 +238,30 @@ export function EditSwitchNodeModal({
                       fontFamily: 'monospace',
                       fontSize: '12px',
                     }}
-                    placeholder="Enter condition..."
+                    placeholder="Enter condition text..."
+                  />
+                  <input
+                    type="text"
+                    value={choiceItem.text}
+                    onChange={(e) =>
+                      handleUpdateChoice(index, 'text', e.target.value)
+                    }
+                    style={{
+                      width: '60%',
+                      padding: '6px',
+                      backgroundColor: '#1e1e1e',
+                      border: '1px solid #3e3e42',
+                      borderRadius: '4px',
+                      color: '#d4d4d4',
+                      fontFamily: 'arial',
+                      fontSize: '12px',
+                    }}
+                    placeholder="Enter choice text..."
                   />
                 </div>
                 <Button
                   variant="danger"
-                  onClick={() => handleRemoveCase(index)}
+                  onClick={() => handleRemoveChoice(index)}
                 >
                   Delete
                 </Button>

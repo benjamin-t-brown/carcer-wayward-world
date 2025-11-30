@@ -75,12 +75,12 @@
     "children": [
       {
         "id": "1",
-        "x": 46.833333333333314,
-        "y": 77.24999999999999,
+        "x": 43.833333333333314,
+        "y": 38.25,
         "eventChildType": "EXEC",
-        "h": 158,
+        "h": 256,
         "p": "When you walk into this room, the door shuts abruptly behind you and an alarm begins blaring.\n\n\"Your presence here is not wanted.  You will now be eliminated.\"\n\nWith a *clank* the walls begin to enclose around you.",
-        "execStr": "START_QUEST:EscapeTheRoom",
+        "execStr": "START_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom",
         "next": "r0mr8kbzbvc"
       },
       {
@@ -91,12 +91,12 @@
         "h": 74,
         "p": "This is example text for an exec node.123",
         "execStr": "",
-        "next": "r0mr8kbzbvc"
+        "next": "j1fvstpyknr"
       },
       {
         "id": "3af5x4w8uux",
-        "x": 473,
-        "y": 49.6666666666667,
+        "x": 480,
+        "y": 47.6666666666667,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "This is example text for an exec node.",
@@ -105,8 +105,8 @@
       },
       {
         "id": "r0mr8kbzbvc",
-        "x": 482.4682820638019,
-        "y": 198.5269889831543,
+        "x": 481.4682820638019,
+        "y": 199.5269889831543,
         "eventChildType": "SWITCH",
         "h": 108,
         "cases": [
@@ -149,6 +149,31 @@
         "h": 60,
         "cases": [],
         "defaultNext": ""
+      },
+      {
+        "id": "j1fvstpyknr",
+        "x": 494.33333333333326,
+        "y": 438.25,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "This is example text for a choice node.",
+        "choices": [
+          {
+            "text": "This is the default choice.",
+            "conditionStr": "",
+            "next": "sh6qwxagaw"
+          },
+          {
+            "text": "asdf",
+            "conditionStr": "",
+            "next": "sh6qwxagaw"
+          },
+          {
+            "text": "Show if condition is true.",
+            "conditionStr": "vars.testCondition",
+            "next": ""
+          }
+        ]
       }
     ]
   },

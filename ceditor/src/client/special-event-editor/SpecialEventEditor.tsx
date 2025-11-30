@@ -23,6 +23,8 @@ import { GameEventChildExec, GameEventChildSwitch } from '../types/assets';
 import { screenToWorldCoords } from './nodeHelpers';
 import { EditorNodeExec } from './cmpts/ExecNodeComponent';
 import { EditorNodeSwitch } from './cmpts/SwitchNodeComponent';
+import { EditorNodeChoice } from './cmpts/ChoiceNodeComponent';
+import { EditChoiceNodeModal } from './modals/EditChoiceNodeModal';
 
 interface SpecialEventEditorProps {
   gameEvent: GameEvent;
@@ -45,6 +47,9 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
   >(undefined);
   const [editingSwitchNode, setEditingSwitchNode] = useState<
     EditorNodeSwitch | undefined
+  >(undefined);
+  const [editingChoiceNode, setEditingChoiceNode] = useState<
+    EditorNodeChoice | undefined
   >(undefined);
 
   // hack im lazy
@@ -133,6 +138,8 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
               setEditingExecNode(node as EditorNodeExec);
             } else if (node.type === GameEventChildType.SWITCH) {
               setEditingSwitchNode(node as EditorNodeSwitch);
+            } else if (node.type === GameEventChildType.CHOICE) {
+              setEditingChoiceNode(node as EditorNodeChoice);
             }
           }
         },
@@ -258,12 +265,19 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
         node={editingExecNode}
         gameEvent={gameEvent}
         onCancel={() => setEditingExecNode(undefined)}
+        ctx={canvasRef.current?.getContext('2d') as CanvasRenderingContext2D}
       />
       <EditSwitchNodeModal
-        isOpen={editingSwitchNode !== null}
+        isOpen={editingSwitchNode !== undefined}
         node={editingSwitchNode}
         gameEvent={gameEvent}
         onCancel={() => setEditingSwitchNode(undefined)}
+      />
+      <EditChoiceNodeModal
+        isOpen={editingChoiceNode !== undefined}
+        node={editingChoiceNode}
+        gameEvent={gameEvent}
+        onCancel={() => setEditingChoiceNode(undefined)}
       />
     </>
   );

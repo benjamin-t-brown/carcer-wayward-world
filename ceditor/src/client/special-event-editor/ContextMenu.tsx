@@ -4,6 +4,7 @@ import {
   GameEventChildExec,
   SENode,
   GameEventChildSwitch,
+  GameEventChildChoice,
 } from '../types/assets';
 import { randomId } from '../utils/mathUtils';
 // import {
@@ -22,6 +23,7 @@ import { screenToWorldCoords } from './nodeHelpers';
 import { EditorNodeExec } from './cmpts/ExecNodeComponent';
 import { EditorNode } from './EditorNode';
 import { EditorNodeSwitch } from './cmpts/SwitchNodeComponent';
+import { EditorNodeChoice } from './cmpts/ChoiceNodeComponent';
 
 interface ContextMenuProps {
   x: number;
@@ -113,7 +115,7 @@ export function ContextMenu({
     let newNode: EditorNode | undefined = undefined;
     // Create the node based on type
     switch (nodeType) {
-      case GameEventChildType.EXEC:
+      case GameEventChildType.EXEC: {
         const n = new EditorNodeExec(
           {
             id: nodeId,
@@ -127,9 +129,28 @@ export function ContextMenu({
         n.p = 'This is example text for an exec node.';
         newNode = n;
         break;
-      case GameEventChildType.CHOICE:
-        // newNode = new EditorNodeChoice(nodeId);
+      }
+      case GameEventChildType.CHOICE: {
+        const n = new EditorNodeChoice(
+          {
+            id: nodeId,
+            eventChildType: GameEventChildType.CHOICE,
+            x: 0,
+            y: 0,
+            h: 0,
+            text: 'This is example text for a choice node.',
+            choices: [
+              {
+                text: 'This is the default choice.',
+                next: '',
+              },
+            ],
+          } as GameEventChildChoice,
+          editorStateRef.current
+        );
+        newNode = n;
         break;
+      }
       case GameEventChildType.SWITCH:
         newNode = new EditorNodeSwitch(
           {

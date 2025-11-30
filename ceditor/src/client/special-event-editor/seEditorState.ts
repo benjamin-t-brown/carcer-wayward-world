@@ -1,5 +1,6 @@
 import {
   GameEvent,
+  GameEventChildChoice,
   GameEventChildExec,
   GameEventChildSwitch,
   GameEventChildType,
@@ -13,6 +14,7 @@ import {
 import { EditorNodeExec } from './cmpts/ExecNodeComponent';
 import { EditorNodeSwitch } from './cmpts/SwitchNodeComponent';
 import { Connector } from './cmpts/Connector';
+import { EditorNodeChoice } from './cmpts/ChoiceNodeComponent';
 
 interface TransformState {
   translateX: number;
@@ -175,6 +177,9 @@ export const createEditorNodesForGameEvent = (
       }
       if (child.eventChildType === GameEventChildType.SWITCH) {
         return new EditorNodeSwitch(child as GameEventChildSwitch, editorState);
+      }
+      if (child.eventChildType === GameEventChildType.CHOICE) {
+        return new EditorNodeChoice(child as GameEventChildChoice, editorState);
       }
       throw new Error(`Unknown child type: ${child.eventChildType}`);
     })

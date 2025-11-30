@@ -104,9 +104,17 @@ export class EditorNodeExec extends EditorNode {
     const execStr = this.execStr;
 
     const availableWidth = NODE_WIDTH - PADDING * 2 - BORDER_WIDTH * 2;
-    const allText = p + '\n\n' + execStr;
-    const lines = breakTextIntoLines(
-      allText,
+    // const allText = p + '\n\n' + execStr;
+    const linesText = breakTextIntoLines(
+      p,
+      availableWidth,
+      FONT_SIZE,
+      FONT_FAMILY,
+      ctx
+    );
+
+    const linesExecStr = breakTextIntoLines(
+      execStr,
       availableWidth,
       FONT_SIZE,
       FONT_FAMILY,
@@ -137,7 +145,7 @@ export class EditorNodeExec extends EditorNode {
     );
     ctx.restore();
 
-    for (let i = 0; i < lines.length; i++) {
+    for (let i = 0; i < linesText.length; i++) {
       ctx.save();
       ctx.translate(nodeX, nodeY);
       ctx.scale(scale, scale);
@@ -146,11 +154,37 @@ export class EditorNodeExec extends EditorNode {
         PADDING + BORDER_WIDTH + NODE_TITLE_HEIGHT
       );
       drawText(
-        lines[i],
+        linesText[i],
         0,
         i * LINE_HEIGHT,
         {
           color: TEXT_COLOR,
+          size: FONT_SIZE,
+          font: FONT_FAMILY,
+          strokeColor: '',
+          align: 'left',
+          baseline: 'top',
+        },
+        ctx
+      );
+      ctx.restore();
+    }
+
+    for (let i = 0; i < linesExecStr.length; i++) {
+      const yOffset = (i + linesText.length + 1) * LINE_HEIGHT;
+      ctx.save();
+      ctx.translate(nodeX, nodeY);
+      ctx.scale(scale, scale);
+      ctx.translate(
+        PADDING + BORDER_WIDTH,
+        PADDING + BORDER_WIDTH + NODE_TITLE_HEIGHT
+      );
+      drawText(
+        linesExecStr[i],
+        0,
+        yOffset,
+        {
+          color: 'yellow',
           size: FONT_SIZE,
           font: FONT_FAMILY,
           strokeColor: '',

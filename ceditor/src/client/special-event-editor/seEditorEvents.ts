@@ -373,11 +373,6 @@ export const checkMouseMoveHoverEvents = (args: {
     editorState.editorNodes
   );
   if (hoveredExitAnchor) {
-    console.log(
-      'hovered exit anchor',
-      hoveredExitAnchor.fromNodeId,
-      hoveredExitAnchor.exitIndex
-    );
     editorState.hoveredExitAnchor = hoveredExitAnchor;
   } else {
     editorState.hoveredExitAnchor = undefined;
