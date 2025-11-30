@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
 import {
   GameEvent,
-  GameEventChildSwitch,
   SwitchCase,
 } from '../../types/assets';
 import { Button } from '../../elements/Button';
 import { VariableWidget } from '../VariableWidget';
+import { EditorNodeSwitch } from '../cmpts/SwitchNodeComponent';
 
 interface EditSwitchNodeModalProps {
   isOpen: boolean;
-  node: GameEventChildSwitch | null;
+  node: EditorNodeSwitch | undefined;
   gameEvent: GameEvent;
-  updateGameEvent: (gameEvent: GameEvent) => void;
   onCancel: () => void;
 }
 
@@ -19,7 +18,6 @@ export function EditSwitchNodeModal({
   isOpen,
   node,
   gameEvent,
-  updateGameEvent,
   onCancel,
 }: EditSwitchNodeModalProps) {
   const [cases, setCases] = useState<SwitchCase[]>([]);
@@ -36,16 +34,9 @@ export function EditSwitchNodeModal({
     return null;
   }
 
-  const handleEditNodeConfirm = (updatedNode: GameEventChildSwitch) => {
-    const updatedChildren = (gameEvent.children || []).map((child) =>
-      child.id === updatedNode.id ? updatedNode : child
-    );
-    // const updatedGameEvent: GameEvent = {
-    //   ...gameEvent,
-    //   children: updatedChildren,
-    // };
-    gameEvent.children = updatedChildren;
-    updateGameEvent(gameEvent);
+  const handleEditNodeConfirm = () => {
+    node.cases = cases;
+    node.defaultNext = defaultNext;
     onCancel();
   };
 
@@ -73,15 +64,6 @@ export function EditSwitchNodeModal({
       [field]: value,
     };
     setCases(newCases);
-  };
-
-  const handleSave = () => {
-    const updatedNode: GameEventChildSwitch = {
-      ...node,
-      cases: cases,
-      defaultNext: defaultNext,
-    };
-    handleEditNodeConfirm(updatedNode);
   };
 
   return (
@@ -222,12 +204,6 @@ export function EditSwitchNodeModal({
                 <Button
                   variant="danger"
                   onClick={() => handleRemoveCase(index)}
-                  // style={{
-                  //   backgroundColor: '#5a1a1a',
-                  //   color: '#ff6b6b',
-                  //   padding: '4px 8px',
-                  //   fontSize: '12px',
-                  // }}
                 >
                   Delete
                 </Button>
@@ -244,7 +220,7 @@ export function EditSwitchNodeModal({
             marginTop: '30px',
           }}
         >
-          <Button onClick={handleSave}>Save</Button>
+          <Button onClick={handleEditNodeConfirm}>Save</Button>
           <Button variant="secondary" onClick={onCancel}>
             Cancel
           </Button>

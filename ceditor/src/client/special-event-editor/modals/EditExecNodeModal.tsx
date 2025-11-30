@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { GameEvent, GameEventChildExec } from '../../types/assets';
+import { GameEvent } from '../../types/assets';
 import { Button } from '../../elements/Button';
 import { VariableWidget } from '../VariableWidget';
+import { EditorNodeExec } from '../cmpts/ExecNodeComponent';
 
 interface EditExecNodeModalProps {
   isOpen: boolean;
-  node: GameEventChildExec | null;
+  node: EditorNodeExec | undefined;
   gameEvent: GameEvent;
-  updateGameEvent: (gameEvent: GameEvent) => void;
   onCancel: () => void;
 }
 
@@ -15,7 +15,6 @@ export function EditExecNodeModal({
   isOpen,
   node,
   gameEvent,
-  updateGameEvent,
   onCancel,
 }: EditExecNodeModalProps) {
   const [p, setP] = useState('');
@@ -32,16 +31,9 @@ export function EditExecNodeModal({
     return null;
   }
 
-  const handleEditNodeConfirm = (updatedNode: GameEventChildExec) => {
-    const updatedChildren = (gameEvent.children || []).map((child) =>
-      child.id === updatedNode.id ? updatedNode : child
-    );
-    // const updatedGameEvent: GameEvent = {
-    //   ...gameEvent,
-    //   children: updatedChildren,
-    // };
-    gameEvent.children = updatedChildren;
-    updateGameEvent(gameEvent);
+  const handleEditNodeConfirm = () => {
+    node.p = p;
+    node.execStr = execStr;
     onCancel();
   };
 
@@ -165,16 +157,7 @@ export function EditExecNodeModal({
             justifyContent: 'flex-end',
           }}
         >
-          <Button
-            variant="primary"
-            onClick={() =>
-              handleEditNodeConfirm({
-                ...node,
-                p,
-                execStr,
-              })
-            }
-          >
+          <Button variant="primary" onClick={() => handleEditNodeConfirm()}>
             Confirm
           </Button>
           <Button variant="secondary" onClick={onCancel}>

@@ -86,7 +86,7 @@
       {
         "id": "hzffvnlbz2",
         "x": 57.66666666666657,
-        "y": 278.8333333333333,
+        "y": 277.8333333333333,
         "h": 74,
         "eventChildType": "EXEC",
         "p": "This is example text for an exec node.",
@@ -95,8 +95,8 @@
       },
       {
         "id": "3af5x4w8uux",
-        "x": 374,
-        "y": 78.6666666666667,
+        "x": 473,
+        "y": 49.6666666666667,
         "h": 74,
         "eventChildType": "EXEC",
         "p": "This is example text for an exec node.",
@@ -105,11 +105,11 @@
       },
       {
         "id": "r0mr8kbzbvc",
-        "x": 366.4682820638019,
-        "y": 357.5269889831543,
-        "h": 78,
+        "x": 454.4682820638019,
+        "y": 148.5269889831543,
+        "h": 108,
         "eventChildType": "SWITCH",
-        "defaultNext": "",
+        "defaultNext": "tm27zq6idw",
         "cases": [
           {
             "conditionStr": "asdf1234",
@@ -117,9 +117,29 @@
           },
           {
             "conditionStr": "asdf2",
-            "next": ""
+            "next": "tm27zq6idw"
           }
         ]
+      },
+      {
+        "id": "tm27zq6idw",
+        "x": 921.3333333333333,
+        "y": 230.25,
+        "h": 74,
+        "eventChildType": "EXEC",
+        "p": "This is example text for an exec node.",
+        "execStr": "",
+        "next": ""
+      },
+      {
+        "id": "zs1rlhf3gpe",
+        "x": 897.3333333333333,
+        "y": 82.25,
+        "h": 74,
+        "eventChildType": "EXEC",
+        "p": "This is example text for an exec node.",
+        "execStr": "",
+        "next": ""
       }
     ]
   },

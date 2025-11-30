@@ -5,14 +5,8 @@ import {
   GameEventChildExec,
   GameEventChildType,
 } from '../types/assets';
-import { renderExecNode } from './nodeRendering/execNode';
+import { EditorNodeExec } from './cmpts/ExecNodeComponent';
 import { EditorStateSE } from './seEditorState';
-import {
-  getChildNodeCoordinates,
-  getNodeBounds,
-  getNodeChildren,
-  renderNode,
-} from './nodeHelpers';
 
 const getColors = () => {
   return {
@@ -31,10 +25,6 @@ export const loop = (
 ) => {
   const ctx = dataInterface.getCanvas().getContext('2d');
   if (!ctx) {
-    return;
-  }
-
-  if (!dataInterface.getEditorState().gameEvent) {
     return;
   }
 
@@ -99,96 +89,129 @@ export const loop = (
   );
 
   // Render connections between nodes (lines)
-  const gameEvent = dataInterface.getEditorState().gameEvent;
-  if (gameEvent && gameEvent.children) {
-    for (const child of gameEvent.children) {
-      const { exits } = getChildNodeCoordinates(child);
-      const nextChildren = getNodeChildren(child);
-      for (let i = 0; i < exits.length; i++) {
-        const nextChildId = nextChildren[i];
-        const nextChild = gameEvent.children.find((c) => c.id === nextChildId);
-        const startX = exits[i].x * newScale;
-        const startY = exits[i].y * newScale;
-        if (nextChildId && nextChild) {
-          const { entrance } = getChildNodeCoordinates(nextChild);
+  // const gameEvent = dataInterface.getEditorState().gameEvent;
+  // if (gameEvent && gameEvent.children) {
+  //   for (const child of gameEvent.children) {
+  //     const { exits } = getAnchorCoordinates(child);
+  //     const nextChildren = getNodeChildren(child);
 
-          const endX = entrance.x * newScale;
-          const endY = entrance.y * newScale;
+  //     for (let i = 0; i < exits.length; i++) {
+  //       const nextChildId = nextChildren[i];
+  //       const nextChild = gameEvent.children.find((c) => c.id === nextChildId);
+  //       const startX = exits[i].x * newScale;
+  //       const startY = exits[i].y * newScale;
 
-          ctx.save();
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'; // Semi-transparent white
-          ctx.lineWidth = 10 * newScale;
-          ctx.beginPath();
-          ctx.moveTo(startX, startY);
-          ctx.lineTo(endX, endY);
-          ctx.stroke();
-          ctx.restore();
+  //       if (nextChildId && nextChild) {
+  //         const { entrance } = getAnchorCoordinates(nextChild);
 
-          ctx.save();
-          ctx.fillStyle = 'white';
-          const ANCHOR_RADIUS = 4;
-          // entrance anchor
-          ctx.beginPath();
-          ctx.beginPath();
-          ctx.arc(endX, endY, ANCHOR_RADIUS * newScale, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-        }
+  //         const endX = entrance.x * newScale;
+  //         const endY = entrance.y * newScale;
 
-        // exit anchor
-        ctx.save();
-        ctx.fillStyle = 'white';
-        const ANCHOR_RADIUS = 4;
-        // Anchor at start (right side of parent node)
-        ctx.beginPath();
-        ctx.arc(startX, startY, ANCHOR_RADIUS * newScale, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-    }
-  }
+  //         ctx.save();
+  //         ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+  //         ctx.lineWidth = 10 * newScale;
+  //         ctx.beginPath();
+  //         // if (child.eventChildType === GameEventChildType.SWITCH) {
+  //         //   console.log('move to', exits.length, i, startX, startY);
+  //         // }
+  //         ctx.moveTo(startX, startY);
+  //         ctx.lineTo(endX, endY);
+  //         ctx.stroke();
+  //         ctx.restore();
+
+  //         ctx.save();
+  //         ctx.fillStyle = 'white';
+  //         const ANCHOR_RADIUS = 4;
+  //         // entrance anchor
+  //         ctx.beginPath();
+  //         ctx.arc(endX, endY, ANCHOR_RADIUS * newScale, 0, Math.PI * 2);
+  //         ctx.fill();
+  //         ctx.restore();
+  //       }
+
+  //       // exit anchor
+  //       ctx.save();
+  //       ctx.fillStyle = 'white';
+  //       const ANCHOR_RADIUS = 4;
+  //       // Anchor at start (right side of parent node)
+  //       ctx.beginPath();
+  //       ctx.arc(startX, startY, ANCHOR_RADIUS * newScale, 0, Math.PI * 2);
+  //       ctx.fill();
+  //       ctx.restore();
+  //     }
+  //   }
+  // }
 
   // Render nodes
   const hoveredNodeId = dataInterface.getEditorState().hoveredNodeId;
   const hoveredCloseButtonNodeId =
     dataInterface.getEditorState().hoveredCloseButtonNodeId;
   const selectedNodeIds = dataInterface.getEditorState().selectedNodeIds;
+  const linkingExitIndex = dataInterface.getEditorState().linkingExitIndex;
 
   // Find child node IDs of the hovered node (nodes that the hovered node points to)
   const childNodeIds = new Set<string>();
-  if (hoveredNodeId && gameEvent && gameEvent.children) {
-    const hoveredNode = gameEvent.children.find((c) => c.id === hoveredNodeId);
-    if (hoveredNode && hoveredNode.eventChildType === GameEventChildType.EXEC) {
-      const hoveredExecNode = hoveredNode as GameEventChildExec;
-      if (hoveredExecNode.next && hoveredExecNode.next !== '') {
-        childNodeIds.add(hoveredExecNode.next);
-      }
-    }
-  }
+  // if (hoveredNodeId && gameEvent && gameEvent.children) {
+  //   const hoveredNode = gameEvent.children.find((c) => c.id === hoveredNodeId);
+  //   if (hoveredNode && hoveredNode.eventChildType === GameEventChildType.EXEC) {
+  //     const hoveredExecNode = hoveredNode as GameEventChildExec;
+  //     if (hoveredExecNode.next && hoveredExecNode.next !== '') {
+  //       childNodeIds.add(hoveredExecNode.next);
+  //     }
+  //   }
+  // }
 
   // Find parent node IDs (nodes that point to the hovered node)
   const parentNodeIds = new Set<string>();
-  if (hoveredNodeId && gameEvent && gameEvent.children) {
-    for (const child of gameEvent.children) {
-      if (child.eventChildType === GameEventChildType.EXEC) {
-        const execNode = child as GameEventChildExec;
-        if (execNode.next === hoveredNodeId) {
-          parentNodeIds.add(child.id);
-        }
-      }
-    }
+  // if (hoveredNodeId && gameEvent && gameEvent.children) {
+  //   for (const child of gameEvent.children) {
+  //     if (child.eventChildType === GameEventChildType.EXEC) {
+  //       const execNode = child as GameEventChildExec;
+  //       if (execNode.next === hoveredNodeId) {
+  //         parentNodeIds.add(child.id);
+  //       }
+  //     }
+  //   }
+  // }
+
+  // if (gameEvent && gameEvent.children) {
+  //   for (const child of gameEvent.children) {
+  //     const hoveredExitIndex =
+  //       hoveredExitAnchor?.nodeId === child.id
+  //         ? hoveredExitAnchor.exitIndex
+  //         : undefined;
+  //     const childLinkingExitIndex =
+  //       isLinking && linkingSourceNodeId === child.id
+  //         ? linkingExitIndex
+  //         : undefined;
+  //     renderNode(child, newScale, ctx, {
+  //       isHovered: child.id === hoveredNodeId,
+  //       isCloseButtonHovered: child.id === hoveredCloseButtonNodeId,
+  //       isSelected: selectedNodeIds.has(child.id),
+  //       isChildOfHovered: childNodeIds.has(child.id),
+  //       isParentOfHovered: parentNodeIds.has(child.id),
+  //       hoveredExitIndex: hoveredExitIndex,
+  //       linkingExitIndex: childLinkingExitIndex,
+  //     });
+  //   }
+  // }
+
+  for (const node of dataInterface.getEditorState().editorNodes) {
+    node.update();
+    node.renderConnectors(ctx, newScale);
   }
 
-  if (gameEvent && gameEvent.children) {
-    for (const child of gameEvent.children) {
-      renderNode(child, newScale, ctx, {
-        isHovered: child.id === hoveredNodeId,
-        isCloseButtonHovered: child.id === hoveredCloseButtonNodeId,
-        isSelected: selectedNodeIds.has(child.id),
-        isChildOfHovered: childNodeIds.has(child.id),
-        isParentOfHovered: parentNodeIds.has(child.id),
-      });
-    }
+  for (const node of dataInterface.getEditorState().editorNodes) {
+    node.render(ctx, newScale, {
+      isHovered: node.id === hoveredNodeId,
+      isCloseButtonHovered: node.id === hoveredCloseButtonNodeId,
+      isSelected: selectedNodeIds.has(node.id),
+      isChildOfHovered: childNodeIds.has(node.id),
+      isParentOfHovered: parentNodeIds.has(node.id),
+      // hoveredExitIndex: hoveredExitAnchor?.exitIndex,
+      hoveredExitIndex: undefined,
+      linkingExitIndex: linkingExitIndex,
+    });
   }
 
   // Draw selection rectangle (already in the correct transform context)
@@ -233,7 +256,13 @@ export const loop = (
   const canvasHeight = dataInterface.getCanvas().height;
 
   if (editorState.isLinking) {
-    let linkText = 'Link node: ';
+    let linkText =
+      'Link node: ' +
+      editorState.linkingSourceNodeId +
+      '(' +
+      (editorState.linkingExitIndex ?? 0) +
+      ')' +
+      ' -> ';
     if (editorState.hoveredNodeId) {
       linkText += editorState.hoveredNodeId;
     }

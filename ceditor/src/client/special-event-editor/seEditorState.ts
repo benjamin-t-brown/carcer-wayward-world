@@ -1,9 +1,14 @@
-import { GameEvent } from '../types/assets';
 import {
-  getNodeBounds,
-  screenCoordsToCanvasCoords,
-  screenToWorldCoords,
-} from './nodeHelpers';
+  GameEvent,
+  GameEventChildExec,
+  GameEventChildSwitch,
+  GameEventChildType,
+} from '../types/assets';
+import { EditorNode } from './EditorNode';
+import { screenCoordsToCanvasCoords, screenToWorldCoords } from './nodeHelpers';
+import { EditorNodeExec } from './cmpts/ExecNodeComponent';
+import { EditorNodeSwitch } from './cmpts/SwitchNodeComponent';
+import { Connector } from './cmpts/Connector';
 
 interface TransformState {
   translateX: number;
@@ -11,16 +16,24 @@ interface TransformState {
   scale: number;
 }
 
+interface EditorSaveState {
+  editorNodes: EditorNode[];
+  gameEventTransform: TransformState;
+}
+
 export class EditorStateSE {
-  gameEvent: GameEvent | undefined = undefined;
+  // gameEvent: GameEvent | undefined = undefined;
+  gameEventId: string | undefined = undefined;
+  editorNodes: EditorNode[] = [];
   selectedChildId = '';
-  zoneWidth = 2750;
-  zoneHeight = 2750;
+  zoneWidth = 3000;
+  zoneHeight = 3000;
   isDragging = false; // Pan dragging
   isDraggingNode = false; // Node dragging
   draggedNodeId: string | null = null;
-  hoveredNodeId: string | null = null;
-  hoveredCloseButtonNodeId: string | null = null;
+  hoveredNodeId: string | undefined = undefined;
+  hoveredCloseButtonNodeId: string | undefined = undefined;
+  hoveredExitAnchor: Connector | undefined = undefined;
   nodeDragOffsetX = 0; // Offset from mouse click to node position
   nodeDragOffsetY = 0;
   lastClickX = 0;
@@ -32,8 +45,10 @@ export class EditorStateSE {
   scale = 1;
   mouseX = 0;
   mouseY = 0;
+  editorSaveStates: Map<string, EditorSaveState> = new Map();
+
   // Store transform state per game event ID
-  gameEventTransforms: Map<string, TransformState> = new Map();
+  // gameEventTransforms: Map<string, TransformState> = new Map();
   // Multi-select state
   selectedNodeIds: Set<string> = new Set();
   isSelecting: boolean = false; // Rectangle selection mode
@@ -49,6 +64,7 @@ export class EditorStateSE {
   // Linking mode state
   isLinking: boolean = false;
   linkingSourceNodeId: string | null = null;
+  linkingExitIndex: number | null = null; // Exit index for switch nodes
   // Copy feedback state
   showCopyFeedback: boolean = false;
   copyFeedbackTimeout: number | null = null;
@@ -65,53 +81,97 @@ export const updateEditorStateNoReRender = (state: Partial<EditorStateSE>) => {
 };
 (window as any).editorStateSE = editorStateSE;
 
-export const deleteNode = (nodeId: string) => {
-  const gameEvent = getEditorState().gameEvent;
-  if (!gameEvent) {
-    return;
-  }
-  if (confirm('Are you sure you want to delete this node?')) {
-    const ind = gameEvent.children?.findIndex((child) => child.id === nodeId);
-    if (ind !== undefined) {
-      gameEvent.children.splice(ind, 1);
+// called when a new game event is selected
+export const initEditorStateForGameEvent = (
+  gameEvent: GameEvent,
+  canvas: HTMLCanvasElement
+) => {
+  const editorState = getEditorState();
+  editorState.selectedNodeIds.clear();
+  editorState.selectionRect = null;
+
+  const hasSavedEditorState = restoreEditorStateForGameEvent(gameEvent.id);
+  if (!hasSavedEditorState) {
+    editorState.editorNodes = createEditorNodesForGameEvent(gameEvent, canvas);
+
+    // No saved transform, center on first node
+    const firstNode = gameEvent?.children?.[0];
+    if (firstNode) {
+      console.log('centering on node', firstNode.id);
+      centerPanzoomOnNode(canvas, firstNode.id);
     }
-    updateEditorState({ gameEvent: gameEvent });
   }
 };
 
-export const saveTransformForGameEvent = (gameEventId: string) => {
+export const deleteNode = (nodeId: string) => {
   const editorState = getEditorState();
-  editorState.gameEventTransforms.set(gameEventId, {
-    translateX: editorState.translateX,
-    translateY: editorState.translateY,
-    scale: editorState.scale,
+  const node = editorState.editorNodes.find((node) => node.id === nodeId);
+  if (node) {
+    editorState.editorNodes.splice(editorState.editorNodes.indexOf(node), 1);
+  }
+  updateEditorState({});
+};
+
+export const saveEditorStateForGameEvent = (gameEventId: string) => {
+  const editorState = getEditorState();
+  editorState.editorSaveStates.set(gameEventId, {
+    editorNodes: [...editorState.editorNodes],
+    gameEventTransform: {
+      translateX: editorState.translateX,
+      translateY: editorState.translateY,
+      scale: editorState.scale,
+    },
   });
 };
 
-export const restoreTransformForGameEvent = (gameEventId: string): boolean => {
+export const restoreEditorStateForGameEvent = (gameEventId: string) => {
   const editorState = getEditorState();
-  const savedTransform = editorState.gameEventTransforms.get(gameEventId);
-  if (savedTransform) {
-    editorState.translateX = savedTransform.translateX;
-    editorState.translateY = savedTransform.translateY;
-    editorState.scale = savedTransform.scale;
+  const savedState = editorState.editorSaveStates.get(gameEventId);
+  if (savedState) {
+    editorState.editorNodes = savedState.editorNodes;
+    editorState.translateX = savedState.gameEventTransform.translateX;
+    editorState.translateY = savedState.gameEventTransform.translateY;
+    editorState.scale = savedState.gameEventTransform.scale;
     return true;
   }
   return false;
 };
 
-export const getTransform = () => {
+export const createEditorNodesForGameEvent = (
+  gameEvent: GameEvent,
+  canvas: HTMLCanvasElement
+) => {
+  const editorState = getEditorState();
+  return gameEvent.children
+    .map((child) => {
+      if (child.eventChildType === GameEventChildType.EXEC) {
+        return new EditorNodeExec(child as GameEventChildExec, editorState);
+      }
+      if (child.eventChildType === GameEventChildType.SWITCH) {
+        return new EditorNodeSwitch(child as GameEventChildSwitch, editorState);
+      }
+      throw new Error(`Unknown child type: ${child.eventChildType}`);
+    })
+    .map((node) => {
+      node.calculateHeight(canvas.getContext('2d')!);
+      return node;
+    });
+};
+
+export const getTransform = (editorState?: EditorStateSE) => {
+  const s = editorState || getEditorState();
   return {
-    x: getEditorState().translateX,
-    y: getEditorState().translateY,
-    scale: getEditorState().scale,
+    x: s.translateX,
+    y: s.translateY,
+    scale: s.scale,
   };
 };
 
-export const resetPanzoom = () => {
-  getEditorState().translateX = 0;
-  getEditorState().translateY = 0;
-  getEditorState().scale = 1;
+export const resetPanzoom = (editorState?: EditorStateSE) => {
+  const s = editorState || getEditorState();
+  s.translateX = 0;
+  s.translateY = 0;
+  s.scale = 1;
 };
 
 export const centerPanzoomOnNode = (
@@ -119,18 +179,13 @@ export const centerPanzoomOnNode = (
   nodeId: string
 ) => {
   const editorState = getEditorState();
-  const gameEvent = editorState.gameEvent;
 
-  if (!gameEvent || !gameEvent.children) {
+  const editorNode = editorState.editorNodes.find((node) => node.id === nodeId);
+  if (!editorNode) {
     return;
   }
 
-  const node = gameEvent.children.find((child) => child.id === nodeId);
-  if (!node) {
-    return;
-  }
-
-  const [nodeWidth, nodeHeight] = getNodeBounds(node);
+  const { width, height } = editorNode.getBounds();
 
   // const currentZoomLevel = editorState.scale;
   editorState.scale = 1;
@@ -146,12 +201,12 @@ export const centerPanzoomOnNode = (
     canvasWidth / 2 -
     (canvasWidth * scale) / 2 +
     (zoneWidth * scale) / 2 -
-    (node.x + nodeWidth / 2) * scale;
+    (editorNode.x + width / 2) * scale;
   const translateY =
     canvasHeight / 2 -
     (canvasHeight * scale) / 2 +
     (zoneHeight * scale) / 2 -
-    (node.y + nodeHeight / 2) * scale;
+    (editorNode.y + height / 2) * scale;
 
   editorState.translateX = translateX;
   editorState.translateY = translateY;
@@ -171,23 +226,13 @@ export const showDeleteSelectedNodesConfirm = () => {
     nodeCount > 1 ? 's' : ''
   }?`;
   if (confirm(message)) {
-    const gameEvent = editorState.gameEvent;
-    if (gameEvent && gameEvent.children) {
-      // Delete all selected nodes
-      const nodeIdsToDelete = Array.from(editorState.selectedNodeIds);
-      nodeIdsToDelete.forEach((nodeId) => {
-        const index = gameEvent.children.findIndex(
-          (child) => child.id === nodeId
-        );
-        if (index !== -1) {
-          gameEvent.children.splice(index, 1);
-        }
-      });
-      // Clear selection after deletion
-      editorState.selectedNodeIds.clear();
-      editorState.selectionRect = null;
-      updateEditorState({ gameEvent: gameEvent });
-    }
+    const nodeIdsToDelete = Array.from(editorState.selectedNodeIds);
+    nodeIdsToDelete.forEach((nodeId) => {
+      deleteNode(nodeId);
+    });
+    editorState.selectedNodeIds.clear();
+    editorState.selectionRect = null;
+    updateEditorState({});
   }
 };
 
@@ -211,12 +256,11 @@ export const updateSelectionRectangle = (
 };
 
 export const updateDraggedNodePosition = (
-  gameEvent: GameEvent,
+  editorState: EditorStateSE,
   xMouse: number,
   yMouse: number,
   canvas: HTMLCanvasElement
 ) => {
-  const editorState = getEditorState();
   const [worldX, worldY] = screenToWorldCoords(
     xMouse,
     yMouse,
@@ -229,7 +273,7 @@ export const updateDraggedNodePosition = (
   const newX = worldX - editorState.nodeDragOffsetX;
   const newY = worldY - editorState.nodeDragOffsetY;
 
-  const child = gameEvent.children.find(
+  const child = editorState.editorNodes.find(
     (c) => c.id === editorState.draggedNodeId
   );
   if (child) {
@@ -239,12 +283,13 @@ export const updateDraggedNodePosition = (
 };
 
 export const updateDraggedNodePositionsMulti = (
-  gameEvent: GameEvent,
+  // gameEvent: GameEvent,
+  editorState: EditorStateSE,
   xMouse: number,
   yMouse: number,
   canvas: HTMLCanvasElement
 ) => {
-  const editorState = getEditorState();
+  // const editorState = getEditorState();
   if (!editorState.draggedNodeId) {
     return;
   }
@@ -264,7 +309,7 @@ export const updateDraggedNodePositionsMulti = (
 
     // Move all selected nodes by the same delta
     editorState.selectedNodeIds.forEach((nodeId) => {
-      const node = gameEvent.children.find((c) => c.id === nodeId);
+      const node = editorState.editorNodes.find((c) => c.id === nodeId);
       const nodeInitialPos =
         editorState.selectedNodesInitialPositions.get(nodeId);
       if (node && nodeInitialPos) {
@@ -311,4 +356,12 @@ export const zoomPanzoom = (
   editorState.translateX = offsetX;
   editorState.translateY = offsetY;
   editorState.scale = nextScale;
+};
+
+export const syncGameEventFromEditorState = (
+  gameEvent: GameEvent,
+  editorState?: EditorStateSE
+) => {
+  const s = editorState || getEditorState();
+  gameEvent.children = s.editorNodes.map((node) => node.toSENode());
 };

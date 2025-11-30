@@ -1,18 +1,28 @@
 import { useEffect, useRef, useState } from 'react';
-import { GameEvent } from '../types/assets';
+import { GameEvent, GameEventChildType } from '../types/assets';
 import { useRenderLoop } from '../hooks/useRenderLoop';
-import { centerPanzoomOnNode, getEditorState, updateEditorState } from './seEditorState';
+import {
+  centerPanzoomOnNode,
+  getEditorState,
+  initEditorStateForGameEvent,
+  updateEditorState,
+} from './seEditorState';
 import { EditorStateSE } from './seEditorState';
 import { CANVAS_CONTAINER_ID, MapCanvasSE } from './MapCanvasSE';
-import { initPanzoom, unInitPanzoom, checkRightClickLineEvents } from './seEditorEvents';
+import {
+  initPanzoom,
+  unInitPanzoom,
+  checkRightClickLineEvents,
+} from './seEditorEvents';
 import { loop } from './seLoop';
 import { useReRender } from '../hooks/useReRender';
 import { ContextMenu } from './ContextMenu';
 import { EditExecNodeModal } from './modals/EditExecNodeModal';
 import { EditSwitchNodeModal } from './modals/EditSwitchNodeModal';
 import { GameEventChildExec, GameEventChildSwitch } from '../types/assets';
-import { getNodeBounds, screenToWorldCoords } from './nodeHelpers';
-import { restoreTransformForGameEvent } from './seEditorState';
+import { screenToWorldCoords } from './nodeHelpers';
+import { EditorNodeExec } from './cmpts/ExecNodeComponent';
+import { EditorNodeSwitch } from './cmpts/SwitchNodeComponent';
 
 interface SpecialEventEditorProps {
   gameEvent: GameEvent;
@@ -23,7 +33,6 @@ let prevTs = performance.now();
 
 export function SpecialEventEditor({
   gameEvent,
-  onUpdateGameEvent,
 }: SpecialEventEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const editorState = useRef<EditorStateSE | undefined>(undefined);
@@ -33,12 +42,12 @@ export function SpecialEventEditor({
     y: number;
     clickedNodeId?: string | null;
   } | null>(null);
-  const [editingNode, setEditingNode] = useState<GameEventChildExec | null>(
-    null
-  );
-  const [editingSwitchNode, setEditingSwitchNode] = useState<GameEventChildSwitch | null>(
-    null
-  );
+  const [editingExecNode, setEditingExecNode] = useState<
+    EditorNodeExec | undefined
+  >(undefined);
+  const [editingSwitchNode, setEditingSwitchNode] = useState<
+    EditorNodeSwitch | undefined
+  >(undefined);
 
   // hack im lazy
   (window as any).reRenderSpecialEventEditor = reRender;
@@ -49,30 +58,13 @@ export function SpecialEventEditor({
 
   // Update editor state when gameEvent changes
   useEffect(() => {
-    if (gameEvent?.id) {
-      const currentEditorState = getEditorState();
-      // Clear node selection when switching to a new game event
-      currentEditorState.selectedNodeIds.clear();
-      currentEditorState.selectionRect = null;
-      
-      updateEditorState({ gameEvent: gameEvent });
+    const gameEventId = gameEvent?.id;
+    const canvas = canvasRef.current;
+
+    if (gameEventId && canvas) {
+      initEditorStateForGameEvent(gameEvent, canvas);
       editorState.current = getEditorState();
-      
-      // Try to restore saved transform, or center on first node if no saved transform
-      setTimeout(() => {
-        const canvas = canvasRef.current;
-        if (canvas) {
-          const hasSavedTransform = restoreTransformForGameEvent(gameEvent.id);
-          if (!hasSavedTransform) {
-            // No saved transform, center on first node
-            const firstNode = gameEvent?.children?.[0];
-            if (firstNode) {
-              console.log('centering on node', firstNode.id);
-              centerPanzoomOnNode(canvas, firstNode.id);
-            }
-          }
-        }
-      }, 33);
+      updateEditorState({ gameEventId: gameEventId });
     }
   }, [gameEvent?.id]);
 
@@ -88,18 +80,18 @@ export function SpecialEventEditor({
       const targetId = (ev.target as HTMLElement)?.id;
       if (ev.target === canvas || targetId.includes(CANVAS_CONTAINER_ID)) {
         const currentEditorState = editorState.current;
-        if (currentEditorState && currentEditorState.gameEvent) {
+        if (currentEditorState && currentEditorState.gameEventId) {
           // Check if right-clicking on a line first
           const lineClicked = checkRightClickLineEvents({
             ev,
             canvas,
             editorState: currentEditorState,
           });
-          
+
           if (lineClicked) {
             return; // Don't show context menu if line was deleted
           }
-          
+
           // Check if right-clicking on a node
           const [worldX, worldY] = screenToWorldCoords(
             ev.clientX,
@@ -108,28 +100,17 @@ export function SpecialEventEditor({
             currentEditorState.zoneWidth,
             currentEditorState.zoneHeight
           );
-          
-          const gameEvent = currentEditorState.gameEvent;
-          let clickedNodeId: string | null = null;
-          if (gameEvent.children) {
-            for (let i = gameEvent.children.length - 1; i >= 0; i--) {
-              const child = gameEvent.children[i];
-              const [nodeWidth, nodeHeight] = getNodeBounds(child);
-              
-              if (
-                worldX >= child.x &&
-                worldX <= child.x + nodeWidth &&
-                worldY >= child.y &&
-                worldY <= child.y + (child.h || nodeHeight)
-              ) {
-                clickedNodeId = child.id;
-                break;
-              }
+
+          let clickedNodeId: string | undefined = undefined;
+          for (const node of currentEditorState.editorNodes) {
+            if (node.isPointInBounds(worldX, worldY)) {
+              clickedNodeId = node.id;
+              break;
             }
           }
-          
-          setContextMenu({ 
-            x: ev.clientX, 
+
+          setContextMenu({
+            x: ev.clientX,
             y: ev.clientY,
             clickedNodeId: clickedNodeId,
           });
@@ -146,14 +127,14 @@ export function SpecialEventEditor({
       getEditorFuncs: () => ({
         onNodeDoubleClick: (nodeId: string) => {
           // Find the node and open edit modal
-          const child = editorState.current?.gameEvent?.children?.find(
-            (c) => c.id === nodeId
+          const node = editorState.current?.editorNodes.find(
+            (n) => n.id === nodeId
           );
-          if (child) {
-            if (child.eventChildType === 'EXEC') {
-              setEditingNode(child as GameEventChildExec);
-            } else if (child.eventChildType === 'SWITCH') {
-              setEditingSwitchNode(child as GameEventChildSwitch);
+          if (node) {
+            if (node.type === GameEventChildType.EXEC) {
+              setEditingExecNode(node as EditorNodeExec);
+            } else if (node.type === GameEventChildType.SWITCH) {
+              setEditingSwitchNode(node as EditorNodeSwitch);
             }
           }
         },
@@ -237,10 +218,6 @@ export function SpecialEventEditor({
       >
         <div
           style={{
-            // flex: 1,
-            // display: 'flex',
-            // flexDirection: 'column',
-            // overflow: 'hidden',
             position: 'relative',
             width: '100%',
             height: '100%',
@@ -279,18 +256,16 @@ export function SpecialEventEditor({
       )}
 
       <EditExecNodeModal
-        isOpen={editingNode !== null}
-        node={editingNode}
+        isOpen={editingExecNode !== undefined}
+        node={editingExecNode}
         gameEvent={gameEvent}
-        updateGameEvent={onUpdateGameEvent}
-        onCancel={() => setEditingNode(null)}
+        onCancel={() => setEditingExecNode(undefined)}
       />
       <EditSwitchNodeModal
         isOpen={editingSwitchNode !== null}
         node={editingSwitchNode}
         gameEvent={gameEvent}
-        updateGameEvent={onUpdateGameEvent}
-        onCancel={() => setEditingSwitchNode(null)}
+        onCancel={() => setEditingSwitchNode(undefined)}
       />
     </>
   );

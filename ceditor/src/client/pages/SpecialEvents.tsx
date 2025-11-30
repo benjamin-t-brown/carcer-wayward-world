@@ -12,7 +12,10 @@ import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { Sprite } from '../elements/Sprite';
-import { getEditorState, saveTransformForGameEvent } from '../special-event-editor/seEditorState';
+import {
+  getEditorState,
+  saveEditorStateForGameEvent,
+} from '../special-event-editor/seEditorState';
 
 interface NotificationState {
   message: string;
@@ -60,17 +63,16 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
 
   const handleGameEventClick = (filteredIndex: number) => {
     const actualIndex = getActualIndex(filteredIndex);
-    
-    // Save current transform before switching
+
     const currentEditorState = getEditorState();
-    if (currentEditorState.gameEvent?.id) {
-      saveTransformForGameEvent(currentEditorState.gameEvent.id);
+    if (currentEditorState.gameEventId) {
+      saveEditorStateForGameEvent(currentEditorState.gameEventId);
     }
-    
+
     // Clear node selection when switching game events
     currentEditorState.selectedNodeIds.clear();
     currentEditorState.selectionRect = null;
-    
+
     setEditGameEventIndex(actualIndex);
   };
 

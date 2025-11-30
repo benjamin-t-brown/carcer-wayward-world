@@ -1,14 +1,23 @@
-import { GameEvent, GameEventChildType, GameEventChildExec, SENode } from '../types/assets';
-import { randomId } from '../utils/mathUtils';
 import {
-  createChoiceNode,
-  createEndNode,
-  createExecNode,
-  createKeywordNode,
-  createSwitchNode,
-} from './nodeCreation';
+  GameEvent,
+  GameEventChildType,
+  GameEventChildExec,
+  SENode,
+  GameEventChildSwitch,
+} from '../types/assets';
+import { randomId } from '../utils/mathUtils';
+// import {
+//   createChoiceNode,
+//   createEndNode,
+//   createExecNode,
+//   createKeywordNode,
+//   createSwitchNode,
+// } from './nodeCreation';
 import { EditorStateSE, updateEditorState } from './seEditorState';
-import { getNodeBounds, screenToWorldCoords } from './nodeHelpers';
+import { screenToWorldCoords } from './nodeHelpers';
+import { EditorNodeExec } from './cmpts/ExecNodeComponent';
+import { EditorNode } from './EditorNode';
+import { EditorNodeSwitch } from './cmpts/SwitchNodeComponent';
 
 interface ContextMenuProps {
   x: number;
@@ -41,7 +50,8 @@ export function ContextMenu({
   const clickedNode = clickedNodeId
     ? gameEvent.children.find((child) => child.id === clickedNodeId)
     : null;
-  const isSwitchNode = clickedNode?.eventChildType === GameEventChildType.SWITCH;
+  const isSwitchNode =
+    clickedNode?.eventChildType === GameEventChildType.SWITCH;
 
   const nodeTypes = [
     GameEventChildType.EXEC,
@@ -49,7 +59,7 @@ export function ContextMenu({
     GameEventChildType.SWITCH,
     GameEventChildType.KEYWORD,
     GameEventChildType.END,
-  ]
+  ];
 
   const handleSelectNodeType = (nodeType: GameEventChildType) => {
     if (!canvasRef.current || !editorStateRef.current) {
@@ -62,11 +72,13 @@ export function ContextMenu({
 
     // If clicking on a node, position new node below it
     if (clickedNodeId) {
-      const clickedNode = gameEvent.children.find((child) => child.id === clickedNodeId);
+      const clickedNode = editorStateRef.current.editorNodes.find(
+        (node) => node.id === clickedNodeId
+      );
       if (clickedNode) {
-        const [, nodeHeight] = getNodeBounds(clickedNode);
+        const { height } = clickedNode.getBounds();
         newNodeX = clickedNode.x;
-        newNodeY = clickedNode.y + (clickedNode.h || nodeHeight) + 20; // 20px spacing
+        newNodeY = clickedNode.y + height + 20; // 20px spacing
       } else {
         // Fallback to mouse position if node not found
         const [worldX, worldY] = screenToWorldCoords(
@@ -94,28 +106,53 @@ export function ContextMenu({
 
     // Generate unique ID
     const nodeId = randomId();
-    let newNode: SENode;
+    let newNode: EditorNode | undefined = undefined;
     // Create the node based on type
     switch (nodeType) {
       case GameEventChildType.EXEC:
-        const n = createExecNode(nodeId);
+        const n = new EditorNodeExec(
+          {
+            id: nodeId,
+            eventChildType: GameEventChildType.EXEC,
+            x: 0,
+            y: 0,
+            h: 0,
+          } as GameEventChildExec,
+          editorStateRef.current
+        );
         n.p = 'This is example text for an exec node.';
         newNode = n;
         break;
       case GameEventChildType.CHOICE:
-        newNode = createChoiceNode(nodeId);
+        // newNode = new EditorNodeChoice(nodeId);
         break;
       case GameEventChildType.SWITCH:
-        newNode = createSwitchNode(nodeId);
+        newNode = new EditorNodeSwitch(
+          {
+            id: nodeId,
+            eventChildType: GameEventChildType.SWITCH,
+            x: 0,
+            y: 0,
+            h: 0,
+            defaultNext: '',
+            cases: [],
+          } as GameEventChildSwitch,
+          editorStateRef.current
+        );
         break;
       case GameEventChildType.END:
-        newNode = createEndNode(nodeId);
+        // newNode = createEndNode(nodeId);
         break;
       case GameEventChildType.KEYWORD:
-        newNode = createKeywordNode(nodeId);
+        // newNode = createKeywordNode(nodeId);
         break;
       default:
         return;
+    }
+
+    if (!newNode) {
+      console.error('Failed to create new node');
+      return;
     }
 
     // Set position
@@ -124,10 +161,7 @@ export function ContextMenu({
 
     // If creating an exec node and clicking on a node, set the clicked node's next property
     if (nodeType === GameEventChildType.EXEC && clickedNodeId) {
-      const clickedNode = gameEvent.children.find((child) => child.id === clickedNodeId);
-      if (clickedNode && clickedNode.eventChildType === GameEventChildType.EXEC) {
-        (clickedNode as GameEventChildExec).next = nodeId;
-      }
+      newNode.updateExitLink(clickedNodeId);
     }
 
     // Add to gameEvent
@@ -135,7 +169,7 @@ export function ContextMenu({
     //   ...gameEvent,
     //   children: [...(gameEvent.children || []), newNode],
     // };
-    gameEvent.children.push(newNode);
+    // gameEvent.children.push(newNode);
     updateEditorState({});
   };
 
@@ -171,23 +205,23 @@ export function ContextMenu({
       }
       document.body.removeChild(textArea);
     }
-    
+
     // Show feedback message
     const editorState = editorStateRef.current;
     editorState.showCopyFeedback = true;
-    
+
     // Clear any existing timeout
     if (editorState.copyFeedbackTimeout !== null) {
       clearTimeout(editorState.copyFeedbackTimeout);
     }
-    
+
     // Hide feedback after 2 seconds
     editorState.copyFeedbackTimeout = window.setTimeout(() => {
       editorState.showCopyFeedback = false;
       editorState.copyFeedbackTimeout = null;
       updateEditorState({});
     }, 2000);
-    
+
     updateEditorState({});
     onClose();
   };
@@ -282,37 +316,38 @@ export function ContextMenu({
             )}
           </>
         )}
-        {!isSwitchNode && nodeTypes.map((nodeType) => (
-          <button
-            key={nodeType}
-            onClick={() => {
-              handleSelectNodeType(nodeType);
-              onClose();
-            }}
-            style={{
-              display: 'block',
-              width: '100%',
-              padding: '8px 12px',
-              textAlign: 'left',
-              backgroundColor: 'transparent',
-              border: 'none',
-              color: '#d4d4d4',
-              cursor: 'pointer',
-              fontSize: '14px',
-              borderRadius: '2px',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#2a2d2e';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-            }}
-          >
-            <span style={{ filter: 'grayscale(75%) brightness(1)' }}>
-              {NODE_TYPE_LABELS[nodeType]}
-            </span>
-          </button>
-        ))}
+        {!isSwitchNode &&
+          nodeTypes.map((nodeType) => (
+            <button
+              key={nodeType}
+              onClick={() => {
+                handleSelectNodeType(nodeType);
+                onClose();
+              }}
+              style={{
+                display: 'block',
+                width: '100%',
+                padding: '8px 12px',
+                textAlign: 'left',
+                backgroundColor: 'transparent',
+                border: 'none',
+                color: '#d4d4d4',
+                cursor: 'pointer',
+                fontSize: '14px',
+                borderRadius: '2px',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#2a2d2e';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <span style={{ filter: 'grayscale(75%) brightness(1)' }}>
+                {NODE_TYPE_LABELS[nodeType]}
+              </span>
+            </button>
+          ))}
       </div>
     </>
   );

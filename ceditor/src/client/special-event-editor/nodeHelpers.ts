@@ -1,116 +1,78 @@
-import {
-  GameEvent,
-  GameEventChildExec,
-  GameEventChildSwitch,
-  GameEventChildType,
-  SENode,
-} from '../types/assets';
-import { drawRect, drawText } from '../utils/draw';
-import { getCloseButtonBounds } from './nodeRendering/closeButton';
-import {
-  getExecNodeChildren,
-  getExecNodeDimensions,
-  renderExecNode,
-} from './nodeRendering/execNode';
-import {
-  getSwitchNodeChildren,
-  getSwitchNodeDimensions,
-  getSwitchNodeLineHeight,
-  getSwitchNodeMinHeight,
-  renderSwitchNode,
-} from './nodeRendering/switchNode';
+import { GameEvent } from '../types/assets';
 import { getTransform } from './seEditorState';
 
-export const getNodeDimensions = (node: SENode) => {
-  if (node.eventChildType === GameEventChildType.EXEC) {
-    return getExecNodeDimensions(node as GameEventChildExec);
-  }
-  if (node.eventChildType === GameEventChildType.SWITCH) {
-    return getSwitchNodeDimensions(node as GameEventChildSwitch);
-  }
-  return [300, node.h];
-};
+// export const getAnchorCoordinates = (node: SENode) => {
+//   const [nodeWidth] = getNodeDimensions(node);
+//   const baseCoordinates = {
+//     entrance: {
+//       x: node.x,
+//       y: node.y + node.h / 2,
+//     },
+//     exits: [] as Array<{ x: number; y: number }>,
+//   };
 
-export const getChildNodeCoordinates = (node: SENode) => {
-  const [nodeWidth] = getNodeDimensions(node);
-  const baseCoordinates = {
-    entrance: {
-      x: node.x,
-      y: node.y + node.h / 2,
-    },
-    exits: [] as Array<{ x: number; y: number }>,
-  };
+//   if (node.eventChildType === GameEventChildType.EXEC) {
+//     baseCoordinates.exits.push({
+//       x: node.x + nodeWidth,
+//       y: node.y + node.h / 2,
+//     });
+//   } else if (node.eventChildType === GameEventChildType.SWITCH) {
+//     const switchNode = node as GameEventChildSwitch;
+//     const minHeight = getSwitchNodeMinHeight();
+//     const lineHeight = getSwitchNodeLineHeight();
+//     const totalCaseHeight = (switchNode.cases.length + 1) * lineHeight;
+//     node.h = totalCaseHeight + minHeight;
+//     for (let i = 0; i < switchNode.cases.length; i++) {
+//       baseCoordinates.exits.push({
+//         x: node.x + nodeWidth,
+//         y: node.y + minHeight + i * lineHeight,
+//       });
+//     }
+//     baseCoordinates.exits.push({
+//       x: node.x + nodeWidth,
+//       y: node.y + minHeight + switchNode.cases.length * lineHeight,
+//     });
+//   }
 
-  if (node.eventChildType === GameEventChildType.EXEC) {
-    baseCoordinates.exits.push({
-      x: node.x + nodeWidth,
-      y: node.y + node.h / 2,
-    });
-  } else if (node.eventChildType === GameEventChildType.SWITCH) {
-    const switchNode = node as GameEventChildSwitch;
-    const minHeight = getSwitchNodeMinHeight();
-    const lineHeight = getSwitchNodeLineHeight();
-    const totalCaseHeight = (switchNode.cases.length + 1) * lineHeight;
-    node.h = totalCaseHeight + minHeight;
-    for (let i = 0; i < switchNode.cases.length; i++) {
-      baseCoordinates.exits.push({
-        x: node.x + nodeWidth,
-        y: node.y + minHeight + i * lineHeight,
-      });
-    }
-    baseCoordinates.exits.push({
-      x: node.x + nodeWidth,
-      y: node.y + minHeight + switchNode.cases.length * lineHeight,
-    });
-  }
+//   return baseCoordinates;
+// };
 
-  return baseCoordinates;
-};
+// export const getNodeChildren = (node: SENode) => {
+//   if (node.eventChildType === GameEventChildType.EXEC) {
+//     return getExecNodeChildren(node as GameEventChildExec);
+//   }
+//   if (node.eventChildType === GameEventChildType.SWITCH) {
+//     return getSwitchNodeChildren(node as GameEventChildSwitch);
+//   }
+//   return [];
+// };
 
-export const getNodeChildren = (node: SENode) => {
-  if (node.eventChildType === GameEventChildType.EXEC) {
-    return getExecNodeChildren(node as GameEventChildExec);
-  }
-  if (node.eventChildType === GameEventChildType.SWITCH) {
-    return getSwitchNodeChildren(node as GameEventChildSwitch);
-  }
-  return [];
-};
-
-export interface RenderNodeArgs {
-  isHovered: boolean;
-  isCloseButtonHovered?: boolean;
-  isSelected?: boolean;
-  isChildOfHovered?: boolean;
-  isParentOfHovered?: boolean;
-}
-
-export const renderNode = (
-  node: SENode,
-  scale: number,
-  ctx: CanvasRenderingContext2D,
-  args: RenderNodeArgs
-) => {
-  if (node.eventChildType === GameEventChildType.EXEC) {
-    renderExecNode(
-      node as GameEventChildExec,
-      node.x,
-      node.y,
-      scale,
-      ctx,
-      args
-    );
-  } else if (node.eventChildType === GameEventChildType.SWITCH) {
-    renderSwitchNode(
-      node as GameEventChildSwitch,
-      node.x,
-      node.y,
-      scale,
-      ctx,
-      args
-    );
-  }
-};
+// export const renderNode = (
+//   node: SENode,
+//   scale: number,
+//   ctx: CanvasRenderingContext2D,
+//   args: RenderNodeArgs
+// ) => {
+//   if (node.eventChildType === GameEventChildType.EXEC) {
+//     renderExecNode(
+//       node as GameEventChildExec,
+//       node.x,
+//       node.y,
+//       scale,
+//       ctx,
+//       args
+//     );
+//   } else if (node.eventChildType === GameEventChildType.SWITCH) {
+//     renderSwitchNode(
+//       node as GameEventChildSwitch,
+//       node.x,
+//       node.y,
+//       scale,
+//       ctx,
+//       args
+//     );
+//   }
+// };
 
 export const breakTextIntoLines = (
   text: string,
@@ -186,19 +148,6 @@ export const calculateHeightFromText = (
     lineCount * lineHeight - (lineCount > 0 ? lineSpacing : 0);
 
   return Math.max(totalHeight, 0);
-};
-
-export const getNodeBounds = (child: SENode) => {
-  let nodeWidth = 0;
-  if (child.eventChildType === GameEventChildType.EXEC) {
-    const [NODE_WIDTH] = getExecNodeDimensions(child as GameEventChildExec);
-    nodeWidth = NODE_WIDTH;
-  }
-  if (child.eventChildType === GameEventChildType.SWITCH) {
-    const [NODE_WIDTH] = getSwitchNodeDimensions(child as GameEventChildSwitch);
-    nodeWidth = NODE_WIDTH;
-  }
-  return [nodeWidth, child.h];
 };
 
 /**
@@ -343,81 +292,120 @@ export const screenCoordsToCanvasCoords = (
   return [canvasX, canvasY];
 };
 
-export const isPointInNode = (
-  child: SENode,
-  worldX: number,
-  worldY: number
-) => {
-  const [nodeWidth] = getNodeDimensions(child);
+// export const isPointInNode = (
+//   child: SENode,
+//   worldX: number,
+//   worldY: number
+// ) => {
+//   const [nodeWidth] = getNodeDimensions(child);
 
-  // Check if point is within node bounds
-  if (
-    worldX >= child.x &&
-    worldX <= child.x + nodeWidth &&
-    worldY >= child.y &&
-    worldY <= child.y + (child.h || 0)
-  ) {
-    return true;
-  }
+//   // Check if point is within node bounds
+//   if (
+//     worldX >= child.x &&
+//     worldX <= child.x + nodeWidth &&
+//     worldY >= child.y &&
+//     worldY <= child.y + (child.h || 0)
+//   ) {
+//     return true;
+//   }
 
-  return false;
-};
+//   return false;
+// };
 
-export const isPointInCloseButton = (
-  child: SENode,
-  worldX: number,
-  worldY: number
-) => {
-  const closeButtonBounds = getCloseButtonBounds(child);
-  return (
-    worldX >= closeButtonBounds.x &&
-    worldX <= closeButtonBounds.x + closeButtonBounds.width &&
-    worldY >= closeButtonBounds.y &&
-    worldY <= closeButtonBounds.y + closeButtonBounds.height
-  );
-};
+// export const isPointInCloseButton = (
+//   child: SENode,
+//   worldX: number,
+//   worldY: number
+// ) => {
+//   const closeButtonBounds = getCloseButtonBounds(child);
+//   return (
+//     worldX >= closeButtonBounds.x &&
+//     worldX <= closeButtonBounds.x + closeButtonBounds.width &&
+//     worldY >= closeButtonBounds.y &&
+//     worldY <= closeButtonBounds.y + closeButtonBounds.height
+//   );
+// };
 
-export const getIndexOfClickedLineForChildren = (
-  child: SENode,
-  worldX: number,
-  worldY: number,
-  gameEvent: GameEvent
-) => {
-  const LINE_CLICK_THRESHOLD = 15; // Pixels - larger than line width for easier clicking
-  const { exits } = getChildNodeCoordinates(child);
-  const nextChildren = getNodeChildren(child);
-  for (let i = 0; i < nextChildren.length; i++) {
-    const nextChildId = nextChildren[i];
-    const nextChild = gameEvent.children.find((c) => c.id === nextChildId);
-    if (nextChild) {
-      const { entrance } = getChildNodeCoordinates(nextChild);
-      const startX = exits[i].x;
-      const startY = exits[i].y;
-      const endX = entrance.x;
-      const endY = entrance.y;
-      const distance = distanceToLineSegment(
-        worldX,
-        worldY,
-        startX,
-        startY,
-        endX,
-        endY
-      );
-      if (distance <= LINE_CLICK_THRESHOLD) {
-        return i;
-      }
-    }
-  }
-  return -1;
-};
+// export const getIndexOfClickedLineForChildren = (
+//   child: SENode,
+//   worldX: number,
+//   worldY: number,
+//   gameEvent: GameEvent
+// ) => {
+//   const LINE_CLICK_THRESHOLD = 15;
+//   const { exits } = getAnchorCoordinates(child);
+//   const nextChildren = getNodeChildren(child);
+//   for (let i = 0; i < exits.length; i++) {
+//     const nextChildId = nextChildren[i];
+//     const startX = exits[i].x;
+//     const startY = exits[i].y;
+//     const nextChild = gameEvent.children.find((c) => c.id === nextChildId);
+//     if (nextChild) {
+//       const { entrance } = getAnchorCoordinates(nextChild);
+//       const endX = entrance.x;
+//       const endY = entrance.y;
+//       const distance = distanceToLineSegment(
+//         worldX,
+//         worldY,
+//         startX,
+//         startY,
+//         endX,
+//         endY
+//       );
+//       if (distance <= LINE_CLICK_THRESHOLD) {
+//         return i;
+//       }
+//     }
+//   }
+//   return -1;
+// };
 
-export const setNextNodeForChild = (
-  child: SENode,
-  index: number,
-  nextNodeId: string
-) => {
-  if (child.eventChildType === GameEventChildType.EXEC) {
-    const execNode = child as GameEventChildExec;
-    execNode.next = nextNodeId;
-  }
-};
+// export const setNextNodeForChild = (
+//   child: SENode,
+//   index: number,
+//   nextNodeId: string
+// ) => {
+//   if (child.eventChildType === GameEventChildType.EXEC) {
+//     const execNode = child as GameEventChildExec;
+//     execNode.next = nextNodeId;
+//   } else if (child.eventChildType === GameEventChildType.SWITCH) {
+//     const switchNode = child as GameEventChildSwitch;
+//     if (index < switchNode.cases.length) {
+//       // Set next for a specific case
+//       switchNode.cases[index].next = nextNodeId;
+//     } else if (index === switchNode.cases.length) {
+//       // Set next for default case
+//       switchNode.defaultNext = nextNodeId;
+//     }
+//   }
+// };
+
+/**
+ * Check if a point is on an exit anchor for a switch node
+ * Returns the exit index if clicked, -1 otherwise
+ */
+// export const getIndexOfClickedExitAnchor = (
+//   child: SENode,
+//   worldX: number,
+//   worldY: number
+// ): number => {
+//   if (child.eventChildType !== GameEventChildType.SWITCH) {
+//     return -1;
+//   }
+
+//   const { exits } = getAnchorCoordinates(child);
+//   const EXIT_ANCHOR_RADIUS = 10; // 10px radius
+
+//   for (let i = 0; i < exits.length; i++) {
+//     const exit = exits[i];
+//     const dx = worldX - exit.x;
+//     const dy = worldY - exit.y;
+//     const distance = Math.sqrt(dx * dx + dy * dy);
+
+//     if (distance <= EXIT_ANCHOR_RADIUS) {
+//       return i;
+//     }
+//   }
+
+//   return -1;
+// };
