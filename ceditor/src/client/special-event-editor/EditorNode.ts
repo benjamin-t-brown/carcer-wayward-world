@@ -128,6 +128,8 @@ export class EditorNode {
     args: {
       isLinking: boolean;
       isHovered: boolean;
+      isEntrance: boolean;
+      isConnected: boolean;
     }
   ) {
     // Render exit anchors as partially transparent red circles
@@ -136,8 +138,9 @@ export class EditorNode {
 
     const isHovered = args.isHovered;
     const isLinking = args.isLinking;
-    let isConnected = false;
-    const radius = isHovered ? HOVERED_EXIT_ANCHOR_RADIUS : EXIT_ANCHOR_RADIUS;
+    const isEntrance = args.isEntrance;
+    let isConnected = args.isConnected;
+    let radius = isHovered ? HOVERED_EXIT_ANCHOR_RADIUS : EXIT_ANCHOR_RADIUS;
 
     ctx.save();
     // Exit coordinates are in world space, convert to canvas space
@@ -145,7 +148,10 @@ export class EditorNode {
     const exitY = y * scale;
 
     // Draw circle - white when linking, brighter when hovered, green if connected, red otherwise
-    if (isLinking) {
+    if (isEntrance) {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      radius = 5;
+    } else if (isLinking) {
       ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'; // White when linking
     } else if (isHovered) {
       if (isConnected) {
@@ -193,8 +199,8 @@ export class EditorNode {
     drawRect(
       (this.x + borderWidth) * scale,
       (this.y + borderWidth) * scale,
-      this.width - borderWidth * 2 * scale,
-      this.height - borderWidth * 2 * scale,
+      this.width * scale - borderWidth * 2 * scale,
+      this.height * scale - borderWidth * 2 * scale,
       this.bgColor,
       false,
       ctx
@@ -202,8 +208,15 @@ export class EditorNode {
 
     for (const connector of this.exits) {
       this.renderAnchor(ctx, connector.startX, connector.startY, scale, {
-        isLinking: false,
-        isHovered: false,
+        isLinking:
+          this.editorState.linking.isLinking &&
+          this.editorState.linking.sourceNodeId === this.id &&
+          connector.exitIndex === this.editorState.linking.exitIndex,
+        isHovered:
+          this.editorState.hoveredExitAnchor === connector &&
+          connector.exitIndex === args.hoveredExitIndex,
+        isEntrance: false,
+        isConnected: connector.toNodeId !== '',
       });
     }
 
@@ -211,6 +224,8 @@ export class EditorNode {
     this.renderAnchor(ctx, entrancePos.x, entrancePos.y, scale, {
       isLinking: false,
       isHovered: false,
+      isEntrance: true,
+      isConnected: this.exits.length > 0,
     });
 
     this.closeButton.render(ctx, scale, {

@@ -5,23 +5,28 @@ export class Connector {
   endY = 0;
   toNodeId = '';
   fromNodeId = '';
+  exitIndex = 0;
 
   static create(
     fromNodeId: string,
     toNodeId: string,
     startX: number,
-    startY: number
+    startY: number,
+    exitIndex: number
   ) {
     const c = new Connector();
     c.fromNodeId = fromNodeId;
     c.toNodeId = toNodeId;
     c.startX = startX;
     c.startY = startY;
+    c.exitIndex = exitIndex;
     return c;
   }
 
   isColliding(x: number, y: number) {
-    return false;
+    const radius = 15;
+    const dist = Math.sqrt((x - this.startX) ** 2 + (y - this.startY) ** 2);
+    return dist <= radius;
   }
 
   isLineColliding(x: number, y: number) {

@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { GameEvent, Variable } from '../types/assets';
+import { useState } from 'react';
+import { GameEvent } from '../types/assets';
 import { useAssets } from '../contexts/AssetsContext';
 import { getVarsFromNode } from './nodeHelpers';
 
@@ -68,7 +68,7 @@ export function VariableWidget({ gameEvent }: VariableWidgetProps) {
           gap: '10px',
           borderBottom: '1px dashed #858585',
           padding: '4px',
-          background: '#555',
+          background: '#444',
         }}
       >
         <input
@@ -77,7 +77,9 @@ export function VariableWidget({ gameEvent }: VariableWidgetProps) {
           checked={includeImports}
           onChange={() => setIncludeImports(!includeImports)}
         />
-        <label htmlFor="include-imports-checkbox">Include imports</label>
+        <label htmlFor="include-imports-checkbox" style={{ fontSize: '12px' }}>
+          Include imports
+        </label>
       </div>
       {accessibleVars.length === 0 ? (
         <div

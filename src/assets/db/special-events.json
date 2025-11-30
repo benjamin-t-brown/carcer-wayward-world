@@ -75,18 +75,18 @@
     "children": [
       {
         "id": "1",
-        "x": 48.833333333333314,
-        "y": 46.249999999999986,
+        "x": 46.833333333333314,
+        "y": 77.24999999999999,
         "eventChildType": "EXEC",
         "h": 158,
         "p": "When you walk into this room, the door shuts abruptly behind you and an alarm begins blaring.\n\n\"Your presence here is not wanted.  You will now be eliminated.\"\n\nWith a *clank* the walls begin to enclose around you.",
         "execStr": "START_QUEST:EscapeTheRoom",
-        "next": "3af5x4w8uux"
+        "next": "r0mr8kbzbvc"
       },
       {
         "id": "hzffvnlbz2",
-        "x": 85.66666666666657,
-        "y": 487.83333333333326,
+        "x": 97.66666666666657,
+        "y": 351.83333333333326,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "This is example text for an exec node.123",
@@ -105,18 +105,18 @@
       },
       {
         "id": "r0mr8kbzbvc",
-        "x": 454.4682820638019,
-        "y": 148.5269889831543,
+        "x": 482.4682820638019,
+        "y": 198.5269889831543,
         "eventChildType": "SWITCH",
         "h": 108,
         "cases": [
           {
             "conditionStr": "asdf1234",
-            "next": ""
+            "next": "zs1rlhf3gpe"
           },
           {
             "conditionStr": "asdf2",
-            "next": "tm27zq6idw"
+            "next": "sh6qwxagaw"
           }
         ],
         "defaultNext": "tm27zq6idw"
@@ -140,6 +140,15 @@
         "p": "This is example text for an exec node.",
         "execStr": "",
         "next": ""
+      },
+      {
+        "id": "sh6qwxagaw",
+        "x": 853,
+        "y": 382.91666666666697,
+        "eventChildType": "SWITCH",
+        "h": 60,
+        "cases": [],
+        "defaultNext": ""
       }
     ]
   },
@@ -167,8 +176,8 @@
         "id": "aubkvfqnzl5",
         "x": 62,
         "y": 82,
-        "h": 74,
         "eventChildType": "EXEC",
+        "h": 74,
         "p": "This is example text for an exec node.",
         "execStr": "",
         "next": ""

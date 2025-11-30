@@ -147,7 +147,7 @@ export const loop = (
   const hoveredCloseButtonNodeId =
     dataInterface.getEditorState().hoveredCloseButtonNodeId;
   const selectedNodeIds = dataInterface.getEditorState().selectedNodeIds;
-  const linkingExitIndex = dataInterface.getEditorState().linkingExitIndex;
+  const linkingExitIndex = dataInterface.getEditorState().linking.exitIndex;
 
   // Find child node IDs of the hovered node (nodes that the hovered node points to)
   const childNodeIds = new Set<string>();
@@ -209,7 +209,7 @@ export const loop = (
       isChildOfHovered: childNodeIds.has(node.id),
       isParentOfHovered: parentNodeIds.has(node.id),
       // hoveredExitIndex: hoveredExitAnchor?.exitIndex,
-      hoveredExitIndex: undefined,
+      hoveredExitIndex: dataInterface.getEditorState().hoveredExitAnchor?.exitIndex,
       linkingExitIndex: linkingExitIndex,
     });
   }
@@ -255,12 +255,12 @@ export const loop = (
   const padding = 10;
   const canvasHeight = dataInterface.getCanvas().height;
 
-  if (editorState.isLinking) {
+  if (editorState.linking.isLinking) {
     let linkText =
       'Link node: ' +
-      editorState.linkingSourceNodeId +
+      editorState.linking.sourceNodeId +
       '(' +
-      (editorState.linkingExitIndex ?? 0) +
+      editorState.linking.exitIndex +
       ')' +
       ' -> ';
     if (editorState.hoveredNodeId) {

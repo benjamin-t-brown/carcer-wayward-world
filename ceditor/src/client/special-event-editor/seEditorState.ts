@@ -5,7 +5,11 @@ import {
   GameEventChildType,
 } from '../types/assets';
 import { EditorNode } from './EditorNode';
-import { screenCoordsToCanvasCoords, screenToWorldCoords } from './nodeHelpers';
+import {
+  getNodeParents,
+  screenCoordsToCanvasCoords,
+  screenToWorldCoords,
+} from './nodeHelpers';
 import { EditorNodeExec } from './cmpts/ExecNodeComponent';
 import { EditorNodeSwitch } from './cmpts/SwitchNodeComponent';
 import { Connector } from './cmpts/Connector';
@@ -62,10 +66,15 @@ export class EditorStateSE {
   // Store initial positions when starting to drag multiple nodes
   selectedNodesInitialPositions: Map<string, { x: number; y: number }> =
     new Map();
-  // Linking mode state
-  isLinking: boolean = false;
-  linkingSourceNodeId: string | null = null;
-  linkingExitIndex: number | null = null; // Exit index for switch nodes
+  linking: {
+    isLinking: boolean;
+    sourceNodeId: string;
+    exitIndex: number;
+  } = {
+    isLinking: false,
+    sourceNodeId: '',
+    exitIndex: 0,
+  };
   // Copy feedback state
   showCopyFeedback: boolean = false;
   copyFeedbackTimeout: number | null = null;
@@ -112,13 +121,21 @@ export const initEditorStateForGameEvent = (
   }
 };
 
-export const deleteNode = (nodeId: string) => {
+export const deleteNode = (nodeId: string, ctx: CanvasRenderingContext2D) => {
   const editorState = getEditorState();
   const node = editorState.editorNodes.find((node) => node.id === nodeId);
   if (node) {
     editorState.editorNodes.splice(editorState.editorNodes.indexOf(node), 1);
+    const parents = getNodeParents(nodeId, editorState.editorNodes);
+    for (const parent of parents) {
+      for (const exit of parent.exits) {
+        if (exit.toNodeId === nodeId) {
+          exit.toNodeId = '';
+        }
+      }
+      parent.calculateHeight(ctx);
+    }
   }
-  updateEditorState({});
 };
 
 export const saveEditorStateForGameEvent = (gameEventId: string) => {
@@ -228,7 +245,24 @@ export const resetSelectedNodes = () => {
   editorState.selectionRect = null;
 };
 
-export const showDeleteSelectedNodesConfirm = () => {
+export const showDeleteNodeConfirm = (
+  nodeId: string,
+  ctx: CanvasRenderingContext2D
+) => {
+  const editorState = getEditorState();
+  const node = editorState.editorNodes.find((node) => node.id === nodeId);
+  if (node) {
+    const message = `Are you sure you want to delete this node?`;
+    if (confirm(message)) {
+      deleteNode(nodeId, ctx);
+      updateEditorState({});
+    }
+  }
+};
+
+export const showDeleteSelectedNodesConfirm = (
+  ctx: CanvasRenderingContext2D
+) => {
   const editorState = getEditorState();
   const nodeCount = editorState.selectedNodeIds.size;
   const message = `Are you sure you want to delete ${nodeCount} node${
@@ -237,7 +271,7 @@ export const showDeleteSelectedNodesConfirm = () => {
   if (confirm(message)) {
     const nodeIdsToDelete = Array.from(editorState.selectedNodeIds);
     nodeIdsToDelete.forEach((nodeId) => {
-      deleteNode(nodeId);
+      deleteNode(nodeId, ctx);
     });
     editorState.selectedNodeIds.clear();
     editorState.selectionRect = null;
@@ -365,6 +399,16 @@ export const zoomPanzoom = (
   editorState.translateX = offsetX;
   editorState.translateY = offsetY;
   editorState.scale = nextScale;
+};
+
+export const enterLinkingMode = (
+  editorState: EditorStateSE,
+  sourceNodeId: string,
+  exitIndex: number = 0
+) => {
+  editorState.linking.isLinking = true;
+  editorState.linking.sourceNodeId = sourceNodeId;
+  editorState.linking.exitIndex = exitIndex;
 };
 
 export const syncGameEventFromEditorState = (

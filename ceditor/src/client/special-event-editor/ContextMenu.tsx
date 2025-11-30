@@ -13,7 +13,11 @@ import { randomId } from '../utils/mathUtils';
 //   createKeywordNode,
 //   createSwitchNode,
 // } from './nodeCreation';
-import { EditorStateSE, updateEditorState } from './seEditorState';
+import {
+  EditorStateSE,
+  enterLinkingMode,
+  updateEditorState,
+} from './seEditorState';
 import { screenToWorldCoords } from './nodeHelpers';
 import { EditorNodeExec } from './cmpts/ExecNodeComponent';
 import { EditorNode } from './EditorNode';
@@ -163,13 +167,9 @@ export function ContextMenu({
     if (nodeType === GameEventChildType.EXEC && clickedNodeId) {
       newNode.updateExitLink(clickedNodeId);
     }
+    newNode.calculateHeight(canvasRef.current.getContext('2d')!);
+    editorStateRef.current.editorNodes.push(newNode);
 
-    // Add to gameEvent
-    // const updatedGameEvent: GameEvent = {
-    //   ...gameEvent,
-    //   children: [...(gameEvent.children || []), newNode],
-    // };
-    // gameEvent.children.push(newNode);
     updateEditorState({});
   };
 
@@ -177,9 +177,7 @@ export function ContextMenu({
     if (!clickedNodeId || !editorStateRef.current) {
       return;
     }
-    // Enter linking mode
-    editorStateRef.current.isLinking = true;
-    editorStateRef.current.linkingSourceNodeId = clickedNodeId;
+    enterLinkingMode(editorStateRef.current, clickedNodeId);
     updateEditorState({});
     onClose();
   };

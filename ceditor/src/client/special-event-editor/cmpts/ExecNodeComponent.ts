@@ -19,8 +19,8 @@ const LINE_SPACING = 4;
 const LINE_HEIGHT = 14;
 
 export class EditorNodeExec extends EditorNode {
-  p: string;
-  execStr: string;
+  p: string = '';
+  execStr: string = '';
 
   constructor(seNode: GameEventChildExec, editorState: EditorStateSE) {
     super(seNode, editorState);
@@ -38,7 +38,8 @@ export class EditorNodeExec extends EditorNode {
         this.id,
         seNode.next,
         this.x + this.width,
-        this.y + this.height / 2
+        this.y + this.height / 2,
+        0
       )
     );
   }

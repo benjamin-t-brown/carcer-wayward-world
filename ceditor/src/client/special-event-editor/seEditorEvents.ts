@@ -1,11 +1,17 @@
 import { Connector } from './cmpts/Connector';
 import { EditorNode } from './EditorNode';
-import { screenToWorldCoords } from './nodeHelpers';
+import {
+  getExitAnchorFromWorldCoords,
+  getNodeFromWorldCoords,
+  screenToWorldCoords,
+} from './nodeHelpers';
 import {
   centerPanzoomOnNode,
   deleteNode,
   EditorStateSE,
+  enterLinkingMode,
   resetSelectedNodes,
+  showDeleteNodeConfirm,
   showDeleteSelectedNodesConfirm,
   updateDraggedNodePosition,
   updateDraggedNodePositionsMulti,
@@ -70,10 +76,10 @@ export const initPanzoom = (specialEventEditorInterface: {
     if (ev.key === 'Escape') {
       const editorState = specialEventEditorInterface.getEditorState();
       // Exit linking mode if active
-      if (editorState.isLinking) {
-        editorState.isLinking = false;
-        editorState.linkingSourceNodeId = null;
-        editorState.linkingExitIndex = null;
+      if (editorState.linking.isLinking) {
+        editorState.linking.isLinking = false;
+        editorState.linking.sourceNodeId = '';
+        editorState.linking.exitIndex = 0;
       }
       resetSelectedNodes();
       updateEditorState({});
@@ -83,7 +89,9 @@ export const initPanzoom = (specialEventEditorInterface: {
       const editorState = specialEventEditorInterface.getEditorState();
       if (editorState.selectedNodeIds.size > 0) {
         ev.preventDefault();
-        showDeleteSelectedNodesConfirm();
+        showDeleteSelectedNodesConfirm(
+          specialEventEditorInterface.getCanvas().getContext('2d')!
+        );
       }
     }
   };
@@ -358,35 +366,34 @@ export const checkMouseMoveHoverEvents = (args: {
   );
 
   // let hoveredExitAnchor: Connector | undefined = undefined;
-  let didFindHoveredExitAnchor = false;
-  for (const node of editorState.editorNodes) {
-    const anchor = node.getAnchorCollidingWithPoint(worldX, worldY);
-    if (anchor) {
-      editorState.hoveredExitAnchor = anchor;
-      didFindHoveredExitAnchor = true;
-      break;
-    }
-  }
-  if (!didFindHoveredExitAnchor) {
+  const hoveredExitAnchor = getExitAnchorFromWorldCoords(
+    worldX,
+    worldY,
+    editorState.editorNodes
+  );
+  if (hoveredExitAnchor) {
+    console.log(
+      'hovered exit anchor',
+      hoveredExitAnchor.fromNodeId,
+      hoveredExitAnchor.exitIndex
+    );
+    editorState.hoveredExitAnchor = hoveredExitAnchor;
+  } else {
     editorState.hoveredExitAnchor = undefined;
   }
 
-  // Check which node is hovered
-  // Iterate in reverse to check topmost nodes first (nodes drawn later are on top)
-  let didFindHoveredNode = false;
-  for (const node of editorState.editorNodes) {
-    if (node.isPointInBounds(worldX, worldY)) {
-      editorState.hoveredNodeId = node.id;
-      didFindHoveredNode = true;
-      editorState.hoveredCloseButtonNodeId = undefined;
-      if (node.isPointInCloseButtonBounds(worldX, worldY)) {
-        editorState.hoveredCloseButtonNodeId = node.id;
-        didFindHoveredNode = true;
-      }
-      break;
+  const hoveredNode = getNodeFromWorldCoords(
+    worldX,
+    worldY,
+    editorState.editorNodes
+  );
+  if (hoveredNode) {
+    editorState.hoveredNodeId = hoveredNode.id;
+    editorState.hoveredCloseButtonNodeId = undefined;
+    if (hoveredNode.isPointInCloseButtonBounds(worldX, worldY)) {
+      editorState.hoveredCloseButtonNodeId = hoveredNode.id;
     }
-  }
-  if (!didFindHoveredNode) {
+  } else {
     editorState.hoveredNodeId = undefined;
     editorState.hoveredCloseButtonNodeId = undefined;
   }
@@ -410,40 +417,57 @@ const checkLeftMouseClickEvents = (args: {
     editorState.zoneHeight
   );
 
-  let clickedNode: EditorNode | undefined = undefined;
-  for (let i = editorState.editorNodes.length - 1; i >= 0; i--) {
-    const node = editorState.editorNodes[i];
-    if (node.isPointInBounds(worldX, worldY)) {
-      clickedNode = node;
-      break;
-    }
+  const clickedExitAnchor = getExitAnchorFromWorldCoords(
+    worldX,
+    worldY,
+    editorState.editorNodes
+  );
+
+  if (clickedExitAnchor) {
+    console.log(
+      'click exit anchor',
+      clickedExitAnchor.fromNodeId,
+      clickedExitAnchor.exitIndex
+    );
+    enterLinkingMode(
+      editorState,
+      clickedExitAnchor.fromNodeId,
+      clickedExitAnchor.exitIndex
+    );
+    return true;
   }
+
+  const clickedNode = getNodeFromWorldCoords(
+    worldX,
+    worldY,
+    editorState.editorNodes
+  );
 
   if (clickedNode) {
     console.log('click node', clickedNode.id);
 
     // Handle linking mode
-    if (editorState.isLinking && editorState.linkingSourceNodeId) {
+    if (editorState.linking.isLinking && editorState.linking.sourceNodeId) {
       // Check if clicking on a node
       const parentNode = editorState.editorNodes.find(
-        (node) => node.id === editorState.linkingSourceNodeId
+        (node) => node.id === editorState.linking.sourceNodeId
       );
 
       if (
         parentNode &&
         clickedNode &&
-        clickedNode.id !== editorState.linkingSourceNodeId
+        clickedNode.id !== editorState.linking.sourceNodeId
       ) {
         parentNode.updateExitLink(
           clickedNode.id,
-          editorState.linkingExitIndex ?? 0
+          editorState.linking.exitIndex
         );
       }
 
       // Exit linking mode (whether we linked or not)
-      editorState.isLinking = false;
-      editorState.linkingSourceNodeId = null;
-      editorState.linkingExitIndex = null;
+      editorState.linking.isLinking = false;
+      editorState.linking.sourceNodeId = '';
+      editorState.linking.exitIndex = 0;
       updateEditorState({});
       ev.preventDefault();
       return true;
@@ -470,8 +494,12 @@ const checkLeftMouseClickEvents = (args: {
       worldY
     );
     if (isCloseButtonClicked) {
-      // Clicked on close button - delete the node
-      deleteNode(clickedNode.id);
+      const nodeCount = editorState.selectedNodeIds.size;
+      if (nodeCount > 0) {
+        showDeleteSelectedNodesConfirm(canvas.getContext('2d')!);
+      } else {
+        showDeleteNodeConfirm(clickedNode.id, canvas.getContext('2d')!);
+      }
       ev.preventDefault();
       return true;
     }
@@ -492,11 +520,10 @@ const checkLeftMouseClickEvents = (args: {
 
     if (!isNodeSelected && !args.isCtrlClick) {
       editorState.selectedNodeIds.clear();
-      // editorState.selectedNodeIds.add(child.id);
     }
 
     editorState.selectedNodesInitialPositions.clear();
-    editorState.selectedNodeIds.forEach((nodeId) => {
+    for (const nodeId of editorState.selectedNodeIds) {
       const node = editorState.editorNodes.find((c) => c.id === nodeId);
       if (node) {
         editorState.selectedNodesInitialPositions.set(nodeId, {
@@ -504,7 +531,7 @@ const checkLeftMouseClickEvents = (args: {
           y: node.y,
         });
       }
-    });
+    }
 
     // Start dragging this node (and all selected nodes)
     editorState.isDraggingNode = true;
@@ -521,10 +548,10 @@ const checkLeftMouseClickEvents = (args: {
 
   // TODO handle clicking on connectors, etc.
 
-  if (editorState.isLinking) {
-    editorState.isLinking = false;
-    editorState.linkingSourceNodeId = null;
-    editorState.linkingExitIndex = null;
+  if (editorState.linking.isLinking) {
+    editorState.linking.isLinking = false;
+    editorState.linking.sourceNodeId = '';
+    editorState.linking.exitIndex = 0;
     updateEditorState({});
   }
 

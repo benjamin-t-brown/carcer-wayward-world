@@ -36,16 +36,19 @@ export class EditorNodeSwitch extends EditorNode {
         this.id,
         this.defaultNext,
         this.x + this.width,
-        this.y + this.height / 2
+        this.y + this.height / 2,
+        0
       )
     );
-    for (const c of this.cases) {
+    for (let i = 0; i < this.cases.length; i++) {
+      const c = this.cases[i];
       this.exits.push(
         Connector.create(
           this.id,
           c.next,
           this.x + this.width,
-          this.y + this.height / 2
+          this.y + this.height / 2,
+          i + 1
         )
       );
     }
@@ -54,7 +57,13 @@ export class EditorNodeSwitch extends EditorNode {
   toSENode() {
     return {
       ...super.toSENode(),
-      cases: this.cases,
+      cases: this.exits.slice(1).map((exit, i) => {
+        const c = this.cases[i];
+        return {
+          conditionStr: c.conditionStr,
+          next: exit.toNodeId || '',
+        };
+      }),
       defaultNext: this.defaultNext,
     } as GameEventChildSwitch;
   }
@@ -69,6 +78,83 @@ export class EditorNodeSwitch extends EditorNode {
       this.getMinHeight(),
       totalCaseHeight + this.getMinHeight()
     );
+  }
+
+  buildFromCases(cases: SwitchCase[]) {
+    this.cases = cases;
+    this.exits = [];
+    this.exits.push(
+      Connector.create(
+        this.id,
+        this.defaultNext,
+        this.x + this.width,
+        this.y + this.height / 2,
+        0
+      )
+    );
+    for (let i = 0; i < cases.length; i++) {
+      const c = cases[i];
+      this.exits.push(
+        Connector.create(
+          this.id,
+          c.next,
+          this.x + this.width,
+          this.y + this.height / 2,
+          i + 1
+        )
+      );
+    }
+    this.calculateHeight();
+  }
+
+  addCase(c: SwitchCase) {
+    this.cases.push(c);
+    this.exits.push(
+      Connector.create(
+        this.id,
+        c.next,
+        this.x + this.width,
+        this.y + this.height / 2,
+        this.cases.length + 1
+      )
+    );
+    this.calculateHeight();
+  }
+  removeCase(index: number) {
+    if (index === 0) {
+      console.error('Cannot remove default case');
+      return;
+    }
+    this.cases.splice(index, 1);
+    this.exits.splice(index, 1);
+    for (let i = 0; i < this.exits.length; i++) {
+      const conn = this.exits[i];
+      conn.exitIndex = i + 1;
+    }
+    this.calculateHeight();
+  }
+  moveCase(currentIndex: number, direction: -1 | 1) {
+    if (direction === -1) {
+      if (currentIndex === 0) {
+        console.error('Cannot move default case up');
+        return;
+      }
+    }
+
+    const newIndex = currentIndex + direction;
+    const newCase = this.cases[newIndex];
+    if (!newCase) {
+      console.error('Cannot move case to invalid index');
+      return;
+    }
+    this.cases[currentIndex] = newCase;
+    this.cases[newIndex] = this.cases[currentIndex];
+    this.exits[currentIndex] = this.exits[newIndex];
+
+    for (let i = 0; i < this.exits.length; i++) {
+      const conn = this.exits[i];
+      conn.exitIndex = i + 1;
+    }
   }
 
   update() {
@@ -119,14 +205,18 @@ export class EditorNodeSwitch extends EditorNode {
     );
     ctx.restore();
 
-    const caseTextOffset = 9;
+    const caseTextOffset = 5;
 
     const textToRender = ['default', ...this.cases.map((c) => c.conditionStr)];
-    for (const text of textToRender) {
+    for (let i = 0; i < textToRender.length; i++) {
+      const text = textToRender[i];
       ctx.save();
       ctx.translate(nodeX, nodeY);
       ctx.scale(scale, scale);
-      ctx.translate(PADDING + BORDER_WIDTH, caseTextOffset);
+      ctx.translate(
+        PADDING + BORDER_WIDTH,
+        this.getMinHeight() + caseTextOffset + i * LINE_HEIGHT
+      );
       drawText(
         text,
         0,
@@ -143,11 +233,8 @@ export class EditorNodeSwitch extends EditorNode {
       ctx.lineWidth = 1;
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
       ctx.beginPath();
-      ctx.moveTo(0, caseTextOffset - 2);
-      ctx.lineTo(
-        NODE_WIDTH - PADDING * 2 - BORDER_WIDTH * 2,
-        caseTextOffset - 2
-      );
+      ctx.moveTo(0, caseTextOffset);
+      ctx.lineTo(NODE_WIDTH - PADDING * 2 - BORDER_WIDTH * 2, caseTextOffset);
       ctx.stroke();
       ctx.restore();
     }

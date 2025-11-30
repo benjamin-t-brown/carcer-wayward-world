@@ -1,4 +1,6 @@
 import { GameEvent } from '../types/assets';
+import { Connector } from './cmpts/Connector';
+import { EditorNode } from './EditorNode';
 import { getTransform } from './seEditorState';
 
 // export const getAnchorCoordinates = (node: SENode) => {
@@ -290,6 +292,48 @@ export const screenCoordsToCanvasCoords = (
   const canvasY = y - top;
 
   return [canvasX, canvasY];
+};
+
+export const getNodeFromWorldCoords = (
+  worldX: number,
+  worldY: number,
+  nodes: EditorNode[]
+): EditorNode | undefined => {
+  let clickedNode: EditorNode | undefined = undefined;
+  for (let i = nodes.length - 1; i >= 0; i--) {
+    const node = nodes[i];
+    if (node.isPointInBounds(worldX, worldY)) {
+      clickedNode = node;
+      break;
+    }
+  }
+  return clickedNode;
+};
+
+export const getExitAnchorFromWorldCoords = (
+  worldX: number,
+  worldY: number,
+  nodes: EditorNode[]
+): Connector | undefined => {
+  let clickedExitAnchor: Connector | undefined = undefined;
+  for (let i = nodes.length - 1; i >= 0; i--) {
+    const node = nodes[i];
+    const exitAnchor = node.getAnchorCollidingWithPoint(worldX, worldY);
+    if (exitAnchor) {
+      clickedExitAnchor = exitAnchor;
+      break;
+    }
+  }
+  return clickedExitAnchor;
+};
+
+export const getNodeParents = (
+  nodeId: string,
+  nodes: EditorNode[]
+): EditorNode[] => {
+  return nodes.filter((node) =>
+    node.exits.some((exit) => exit.toNodeId === nodeId)
+  );
 };
 
 // export const isPointInNode = (

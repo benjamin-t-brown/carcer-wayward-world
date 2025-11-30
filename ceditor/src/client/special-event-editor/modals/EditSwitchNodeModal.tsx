@@ -25,8 +25,9 @@ export function EditSwitchNodeModal({
 
   useEffect(() => {
     if (node) {
-      setCases([...node.cases]);
-      setDefaultNext(node.defaultNext || '');
+      const seNode = node.toSENode();
+      setCases([...seNode.cases]);
+      setDefaultNext(seNode.defaultNext || '');
     }
   }, [node]);
 
@@ -35,8 +36,10 @@ export function EditSwitchNodeModal({
   }
 
   const handleEditNodeConfirm = () => {
-    node.cases = cases;
+    // node.cases = cases;
+    // node.defaultNext = defaultNext;
     node.defaultNext = defaultNext;
+    node.buildFromCases(cases);
     onCancel();
   };
 
