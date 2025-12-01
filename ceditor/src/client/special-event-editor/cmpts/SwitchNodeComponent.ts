@@ -4,7 +4,7 @@ import { EditorNode, RenderNodeArgs } from '../EditorNode';
 import { Connector } from './Connector';
 import { EditorStateSE } from '../seEditorState';
 
-const NODE_COLOR = '#141F42';
+const NODE_COLOR = '#C66617';
 const BORDER_COLOR = '#aaa';
 const BORDER_HOVER_COLOR = '#fff';
 const TEXT_COLOR = '#FFF';
@@ -222,7 +222,7 @@ export class EditorNodeSwitch extends EditorNode {
         0,
         0,
         {
-          color: TEXT_COLOR,
+          color: i === 0 ? '#afa' : TEXT_COLOR,
           size: FONT_SIZE,
           font: FONT_FAMILY,
           strokeColor: '',

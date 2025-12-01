@@ -85,23 +85,13 @@
       },
       {
         "id": "hzffvnlbz2",
-        "x": 97.66666666666657,
-        "y": 351.83333333333326,
+        "x": 52.66666666666657,
+        "y": 473.83333333333326,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "This is example text for an exec node.123",
         "execStr": "",
         "next": "j1fvstpyknr"
-      },
-      {
-        "id": "3af5x4w8uux",
-        "x": 480,
-        "y": 47.6666666666667,
-        "eventChildType": "EXEC",
-        "h": 74,
-        "p": "This is example text for an exec node.",
-        "execStr": "",
-        "next": ""
       },
       {
         "id": "r0mr8kbzbvc",
@@ -129,7 +119,7 @@
         "h": 74,
         "p": "This is example text for an exec node.",
         "execStr": "",
-        "next": ""
+        "next": "1emoqgm0ho8"
       },
       {
         "id": "zs1rlhf3gpe",
@@ -139,12 +129,12 @@
         "h": 74,
         "p": "This is example text for an exec node.",
         "execStr": "",
-        "next": ""
+        "next": "1emoqgm0ho8"
       },
       {
         "id": "sh6qwxagaw",
-        "x": 853,
-        "y": 382.91666666666697,
+        "x": 927,
+        "y": 467.91666666666697,
         "eventChildType": "SWITCH",
         "h": 60,
         "cases": [],
@@ -152,11 +142,11 @@
       },
       {
         "id": "j1fvstpyknr",
-        "x": 494.33333333333326,
-        "y": 438.25,
+        "x": 433.33333333333326,
+        "y": 423.25,
         "eventChildType": "CHOICE",
-        "h": 108,
-        "text": "This is example text for a choice node.",
+        "h": 150,
+        "text": "This is example text for a choice node. It has a lot of text but im not sure if it should really be this long.",
         "choices": [
           {
             "text": "This is the default choice.",
@@ -171,7 +161,30 @@
           {
             "text": "Show if condition is true.",
             "conditionStr": "vars.testCondition",
-            "next": ""
+            "next": "sh6qwxagaw"
+          }
+        ]
+      },
+      {
+        "id": "1emoqgm0ho8",
+        "x": 1375.333333333333,
+        "y": 653.25,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "zsh6kgr18xm",
+        "x": 565.333333333333,
+        "y": 706.25,
+        "eventChildType": "CHOICE",
+        "h": 60,
+        "text": "",
+        "choices": [
+          {
+            "text": "This is the default choice.",
+            "conditionStr": "",
+            "next": "sh6qwxagaw"
           }
         ]
       }

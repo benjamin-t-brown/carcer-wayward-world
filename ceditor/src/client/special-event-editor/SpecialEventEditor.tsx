@@ -24,7 +24,9 @@ import { screenToWorldCoords } from './nodeHelpers';
 import { EditorNodeExec } from './cmpts/ExecNodeComponent';
 import { EditorNodeSwitch } from './cmpts/SwitchNodeComponent';
 import { EditorNodeChoice } from './cmpts/ChoiceNodeComponent';
+import { EditorNodeEnd } from './cmpts/EndNodeComponent';
 import { EditChoiceNodeModal } from './modals/EditChoiceNodeModal';
+import { EditEndNodeModal } from './modals/EditEndNodeModal';
 
 interface SpecialEventEditorProps {
   gameEvent: GameEvent;
@@ -50,6 +52,9 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
   >(undefined);
   const [editingChoiceNode, setEditingChoiceNode] = useState<
     EditorNodeChoice | undefined
+  >(undefined);
+  const [editingEndNode, setEditingEndNode] = useState<
+    EditorNodeEnd | undefined
   >(undefined);
 
   // hack im lazy
@@ -140,6 +145,8 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
               setEditingSwitchNode(node as EditorNodeSwitch);
             } else if (node.type === GameEventChildType.CHOICE) {
               setEditingChoiceNode(node as EditorNodeChoice);
+            } else if (node.type === GameEventChildType.END) {
+              setEditingEndNode(node as EditorNodeEnd);
             }
           }
         },
@@ -278,6 +285,13 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
         node={editingChoiceNode}
         gameEvent={gameEvent}
         onCancel={() => setEditingChoiceNode(undefined)}
+        ctx={canvasRef.current?.getContext('2d') as CanvasRenderingContext2D}
+      />
+      <EditEndNodeModal
+        isOpen={editingEndNode !== undefined}
+        node={editingEndNode}
+        gameEvent={gameEvent}
+        onCancel={() => setEditingEndNode(undefined)}
       />
     </>
   );

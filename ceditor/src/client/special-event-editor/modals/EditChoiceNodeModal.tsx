@@ -9,6 +9,7 @@ interface EditChoiceNodeModalProps {
   node: EditorNodeChoice | undefined;
   gameEvent: GameEvent;
   onCancel: () => void;
+  ctx: CanvasRenderingContext2D;
 }
 
 export function EditChoiceNodeModal({
@@ -16,6 +17,7 @@ export function EditChoiceNodeModal({
   node,
   gameEvent,
   onCancel,
+  ctx,
 }: EditChoiceNodeModalProps) {
   const [choices, setChoices] = useState<Choice[]>([]);
   const [text, setText] = useState('');
@@ -34,7 +36,7 @@ export function EditChoiceNodeModal({
 
   const handleEditNodeConfirm = () => {
     node.text = text;
-    node.buildFromChoices(choices);
+    node.buildFromChoices(choices, ctx);
     onCancel();
   };
 
@@ -138,6 +140,35 @@ export function EditChoiceNodeModal({
         </div>
 
         <div style={{ marginBottom: '20px' }}>
+          <div>
+            <label
+              style={{
+                color: '#d4d4d4',
+                fontSize: '14px',
+                fontWeight: 'bold',
+              }}
+            >
+              Text
+            </label>
+            <input
+              type="text"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '6px',
+                backgroundColor: '#1e1e1e',
+                border: '1px solid #3e3e42',
+                borderRadius: '4px',
+                color: '#d4d4d4',
+                fontFamily: 'arial',
+                fontSize: '12px',
+              }}
+            />
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '20px' }}>
           <div
             style={{
               display: 'flex',
@@ -192,7 +223,6 @@ export function EditChoiceNodeModal({
                   style={{
                     width: '48px',
                     display: 'flex',
-                    // flexDirection: 'column',
                     alignItems: 'center',
                     height: '100%',
                     marginBottom: '8px',

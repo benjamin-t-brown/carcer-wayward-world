@@ -1,5 +1,3 @@
-import { Connector } from './cmpts/Connector';
-import { EditorNode } from './EditorNode';
 import {
   getExitAnchorFromWorldCoords,
   getExitAnchorFromWorldCoordsLine,

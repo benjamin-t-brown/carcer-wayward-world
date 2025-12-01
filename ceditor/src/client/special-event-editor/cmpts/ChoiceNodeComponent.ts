@@ -8,6 +8,7 @@ import { drawText } from '../../utils/draw';
 import { EditorNode, RenderNodeArgs } from '../EditorNode';
 import { Connector } from './Connector';
 import { EditorStateSE } from '../seEditorState';
+import { breakTextIntoLines } from '../nodeHelpers';
 
 const NODE_COLOR = '#3978A8';
 const BORDER_COLOR = '#aaa';
@@ -20,10 +21,13 @@ const BORDER_WIDTH = 2;
 const FONT_SIZE = 12;
 const PADDING = 6;
 const LINE_HEIGHT = 24;
+const TEXT_LINE_HEIGHT = 14;
 
 export class EditorNodeChoice extends EditorNode {
   choices: Choice[] = [];
   text: string = '';
+
+  textLinesHeight: number = 0;
 
   constructor(seNode: GameEventChildChoice, editorState: EditorStateSE) {
     super(seNode, editorState);
@@ -70,15 +74,32 @@ export class EditorNodeChoice extends EditorNode {
     return NODE_TITLE_HEIGHT + PADDING * 2 + BORDER_WIDTH * 2;
   }
 
-  calculateHeight() {
+  // getHeightComponents(ctx: CanvasRenderingContext2D) {
+  //   const heightComponents = {
+
+  //   }
+  // }
+
+  calculateHeight(ctx: CanvasRenderingContext2D) {
+    const lines = breakTextIntoLines(
+      this.text,
+      NODE_WIDTH - PADDING * 2 - BORDER_WIDTH * 2,
+      FONT_SIZE,
+      FONT_FAMILY,
+      ctx
+    );
+    const textHeight =
+      this.text.length > 0 ? (lines.length + 1) * TEXT_LINE_HEIGHT : 0;
+
     const totalChoiceHeight = this.choices.length * LINE_HEIGHT;
+    this.textLinesHeight = textHeight;
     this.height = Math.max(
       this.getMinHeight(),
-      totalChoiceHeight + this.getMinHeight()
+      totalChoiceHeight + textHeight + this.getMinHeight()
     );
   }
 
-  buildFromChoices(choices: Choice[]) {
+  buildFromChoices(choices: Choice[], ctx: CanvasRenderingContext2D) {
     this.choices = choices;
     this.exits = [];
     for (let i = 0; i < choices.length; i++) {
@@ -93,12 +114,13 @@ export class EditorNodeChoice extends EditorNode {
         )
       );
     }
-    this.calculateHeight();
+    this.calculateHeight(ctx);
   }
 
   update() {
     super.update();
-    const yOffset = NODE_TITLE_HEIGHT + PADDING * 2 + BORDER_WIDTH * 2;
+    const yOffset =
+      NODE_TITLE_HEIGHT + PADDING * 2 + BORDER_WIDTH * 2 + this.textLinesHeight;
     for (let i = 0; i < this.exits.length; i++) {
       const conn = this.exits[i];
       conn.startX = this.x + this.width;
@@ -146,6 +168,38 @@ export class EditorNodeChoice extends EditorNode {
 
     const caseTextOffset = 5;
 
+    const lines = breakTextIntoLines(
+      this.text,
+      NODE_WIDTH - PADDING * 2 - BORDER_WIDTH * 2,
+      FONT_SIZE,
+      FONT_FAMILY,
+      ctx
+    );
+    for (let i = 0; i < lines.length; i++) {
+      const text = lines[i];
+      ctx.save();
+      ctx.translate(nodeX, nodeY);
+      ctx.scale(scale, scale);
+      ctx.translate(
+        PADDING + BORDER_WIDTH,
+        this.getMinHeight() + caseTextOffset + i * TEXT_LINE_HEIGHT
+      );
+      drawText(
+        text,
+        0,
+        0,
+        {
+          color: 'lightblue',
+          size: FONT_SIZE,
+          font: FONT_FAMILY,
+          strokeColor: '',
+          align: 'left',
+        },
+        ctx
+      );
+      ctx.restore();
+    }
+
     const textToRender = this.choices.map((c) => {
       if (c.conditionStr) {
         return `!{CND} ${c.text}`;
@@ -159,7 +213,10 @@ export class EditorNodeChoice extends EditorNode {
       ctx.scale(scale, scale);
       ctx.translate(
         PADDING + BORDER_WIDTH,
-        this.getMinHeight() + caseTextOffset + i * LINE_HEIGHT
+        this.getMinHeight() +
+          caseTextOffset +
+          i * LINE_HEIGHT +
+          this.textLinesHeight
       );
       drawText(
         text,
