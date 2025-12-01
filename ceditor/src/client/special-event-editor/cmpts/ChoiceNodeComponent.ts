@@ -8,7 +8,7 @@ import { drawText } from '../../utils/draw';
 import { EditorNode, RenderNodeArgs } from '../EditorNode';
 import { Connector } from './Connector';
 import { EditorStateSE } from '../seEditorState';
-import { breakTextIntoLines, calculateHeightFromText } from '../nodeHelpers';
+import { breakTextIntoLines, calculateHeightFromText, truncateText } from '../nodeHelpers';
 
 const NODE_COLOR = '#3978A8';
 const BORDER_COLOR = '#aaa';
@@ -217,13 +217,13 @@ export class EditorNodeChoice extends EditorNode {
           this.textLinesHeight
       );
       drawText(
-        text,
+        truncateText(text, 36),
         0,
         0,
         {
           color: choice.conditionStr ? '#aff' : TEXT_COLOR,
           size: FONT_SIZE,
-          font: FONT_FAMILY,
+          font: 'courier',
           strokeColor: '',
           align: 'left',
         },

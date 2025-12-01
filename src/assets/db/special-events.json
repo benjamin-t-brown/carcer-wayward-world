@@ -78,9 +78,9 @@
         "x": 43.833333333333314,
         "y": 38.25,
         "eventChildType": "EXEC",
-        "h": 256,
+        "h": 252,
         "p": "When you walk into this room, the door shuts abruptly behind you and an alarm begins blaring.\n\n\"Your presence here is not wanted.  You will now be eliminated.\"\n\nWith a *clank* the walls begin to enclose around you.",
-        "execStr": "START_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom",
+        "execStr": "START_QUEST:EscapeTheRoom;START_QUEST:EscapeTheRoom;START_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom",
         "next": "r0mr8kbzbvc"
       },
       {
@@ -88,7 +88,7 @@
         "x": 52.66666666666657,
         "y": 473.83333333333326,
         "eventChildType": "EXEC",
-        "h": 74,
+        "h": 46,
         "p": "This is example text for an exec node.123",
         "execStr": "",
         "next": "j1fvstpyknr"
@@ -101,7 +101,7 @@
         "h": 108,
         "cases": [
           {
-            "conditionStr": "asdf1234",
+            "conditionStr": "@testVar2 && @testVar2 || @testVar2 || @testVar2",
             "next": "zs1rlhf3gpe"
           },
           {
@@ -113,28 +113,28 @@
       },
       {
         "id": "tm27zq6idw",
-        "x": 921.3333333333333,
-        "y": 230.25,
+        "x": 955.3333333333333,
+        "y": 249.25,
         "eventChildType": "EXEC",
-        "h": 74,
+        "h": 46,
         "p": "This is example text for an exec node.",
         "execStr": "",
         "next": "1emoqgm0ho8"
       },
       {
         "id": "zs1rlhf3gpe",
-        "x": 897.3333333333333,
-        "y": 82.25,
+        "x": 931.3333333333333,
+        "y": 101.25,
         "eventChildType": "EXEC",
-        "h": 74,
+        "h": 46,
         "p": "This is example text for an exec node.",
         "execStr": "",
         "next": "1emoqgm0ho8"
       },
       {
         "id": "sh6qwxagaw",
-        "x": 927,
-        "y": 467.91666666666697,
+        "x": 961,
+        "y": 486.91666666666697,
         "eventChildType": "SWITCH",
         "h": 60,
         "cases": [],
@@ -154,7 +154,7 @@
             "next": "sh6qwxagaw"
           },
           {
-            "text": "asdf",
+            "text": "This is a really long choice that you could pick if you wanted to but I don't think it's a good idea.",
             "conditionStr": "",
             "next": "sh6qwxagaw"
           },

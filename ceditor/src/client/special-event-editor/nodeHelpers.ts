@@ -353,6 +353,10 @@ export const getNodeParents = (
   );
 };
 
+export const truncateText = (text: string, maxLength: number) => {
+  return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
+};
+
 // export const isPointInNode = (
 //   child: SENode,
 //   worldX: number,

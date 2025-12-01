@@ -1,6 +1,6 @@
 import { GameEventChildExec } from '../../types/assets';
 import { drawText } from '../../utils/draw';
-import { breakTextIntoLines, calculateHeightFromText } from '../nodeHelpers';
+import { breakTextIntoLines, calculateHeightFromText, truncateText } from '../nodeHelpers';
 import { EditorNode, RenderNodeArgs } from '../EditorNode';
 import { Connector } from './Connector';
 import { EditorStateSE } from '../seEditorState';
@@ -191,18 +191,19 @@ export class EditorNodeExec extends EditorNode {
     }
 
     for (let i = 0; i < this.execStrLines.length; i++) {
+      const text = this.execStrLines[i];
       ctx.save();
       ctx.translate(nodeX, nodeY);
       ctx.scale(scale, scale);
       ctx.translate(PADDING + BORDER_WIDTH, yOffset + i * LINE_HEIGHT);
       drawText(
-        this.execStrLines[i],
+        truncateText(text, 36),
         0,
         0,
         {
           color: 'yellow',
           size: FONT_SIZE,
-          font: FONT_FAMILY,
+          font: 'courier',
           strokeColor: '',
           align: 'left',
           baseline: 'top',

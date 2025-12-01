@@ -3,6 +3,7 @@ import { drawText } from '../../utils/draw';
 import { EditorNode, RenderNodeArgs } from '../EditorNode';
 import { Connector } from './Connector';
 import { EditorStateSE } from '../seEditorState';
+import { truncateText } from '../nodeHelpers';
 
 const NODE_COLOR = '#C66617';
 const BORDER_COLOR = '#aaa';
@@ -80,7 +81,7 @@ export class EditorNodeSwitch extends EditorNode {
     );
   }
 
-  buildFromCases(cases: SwitchCase[]) {
+  buildFromCases(cases: SwitchCase[], ctx: CanvasRenderingContext2D) {
     this.cases = cases;
     this.exits = [];
     this.exits.push(
@@ -218,7 +219,7 @@ export class EditorNodeSwitch extends EditorNode {
         this.getMinHeight() + caseTextOffset + i * LINE_HEIGHT
       );
       drawText(
-        text,
+        truncateText(text, 36),
         0,
         0,
         {
