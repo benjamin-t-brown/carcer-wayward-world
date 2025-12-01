@@ -5,6 +5,7 @@ import {
   GameEventChildExec,
   GameEventChildSwitch,
   GameEventChildType,
+  SENode,
 } from '../types/assets';
 import { EditorNode } from './EditorNode';
 import {
@@ -17,6 +18,7 @@ import { EditorNodeSwitch } from './cmpts/SwitchNodeComponent';
 import { Connector } from './cmpts/Connector';
 import { EditorNodeChoice } from './cmpts/ChoiceNodeComponent';
 import { EditorNodeEnd } from './cmpts/EndNodeComponent';
+import { randomId } from '../utils/mathUtils';
 
 interface TransformState {
   translateX: number;
@@ -82,6 +84,12 @@ export class EditorStateSE {
   // Copy feedback state
   showCopyFeedback: boolean = false;
   copyFeedbackTimeout: number | null = null;
+  // Copy/paste state
+  copiedNodes: Array<{
+    seNode: SENode;
+    offsetX: number;
+    offsetY: number;
+  }> | null = null;
 }
 const editorStateSE = new EditorStateSE();
 
@@ -173,31 +181,39 @@ export const createEditorNodesForGameEvent = (
 ) => {
   const editorState = getEditorState();
   const ctx = canvas.getContext('2d')!;
-  return gameEvent.children.map((child) => {
-    if (child.eventChildType === GameEventChildType.EXEC) {
-      const node = new EditorNodeExec(child as GameEventChildExec, editorState);
-      node.build(ctx);
-      return node;
-    }
-    if (child.eventChildType === GameEventChildType.SWITCH) {
-      const switchChild = child as GameEventChildSwitch;
-      const node = new EditorNodeSwitch(switchChild, editorState);
-      node.buildFromCases(switchChild.cases, ctx);
-      return node;
-    }
-    if (child.eventChildType === GameEventChildType.CHOICE) {
-      const choiceChild = child as GameEventChildChoice;
-      const node = new EditorNodeChoice(choiceChild, editorState);
-      node.buildFromChoices(choiceChild.choices, ctx);
-      return node;
-    }
-    if (child.eventChildType === GameEventChildType.END) {
-      const node = new EditorNodeEnd(child as GameEventChildEnd, editorState);
-      node.calculateHeight(ctx);
-      return node;
-    }
-    throw new Error(`Unknown child type: ${child.eventChildType}`);
-  });
+  return gameEvent.children.map((child) =>
+    seNodeToEditorNode(child, editorState, ctx)
+  );
+};
+
+export const seNodeToEditorNode = (
+  child: SENode,
+  editorState: EditorStateSE,
+  ctx: CanvasRenderingContext2D
+) => {
+  if (child.eventChildType === GameEventChildType.EXEC) {
+    const node = new EditorNodeExec(child as GameEventChildExec, editorState);
+    node.build(ctx);
+    return node;
+  }
+  if (child.eventChildType === GameEventChildType.SWITCH) {
+    const switchChild = child as GameEventChildSwitch;
+    const node = new EditorNodeSwitch(switchChild, editorState);
+    node.buildFromCases(switchChild.cases, ctx);
+    return node;
+  }
+  if (child.eventChildType === GameEventChildType.CHOICE) {
+    const choiceChild = child as GameEventChildChoice;
+    const node = new EditorNodeChoice(choiceChild, editorState);
+    node.buildFromChoices(choiceChild.choices, ctx);
+    return node;
+  }
+  if (child.eventChildType === GameEventChildType.END) {
+    const node = new EditorNodeEnd(child as GameEventChildEnd, editorState);
+    node.calculateHeight(ctx);
+    return node;
+  }
+  throw new Error(`Unknown child type: ${child.eventChildType}`);
 };
 
 export const getTransform = (editorState?: EditorStateSE) => {
@@ -433,4 +449,194 @@ export const syncGameEventFromEditorState = (
 ) => {
   const s = editorState || getEditorState();
   gameEvent.children = s.editorNodes.map((node) => node.toSENode());
+};
+
+export const copySelectedNodes = (canvas: HTMLCanvasElement) => {
+  const editorState = getEditorState();
+  if (editorState.selectedNodeIds.size === 0) {
+    return;
+  }
+
+  // Get all selected nodes
+  const selectedNodes = editorState.editorNodes.filter((node) =>
+    editorState.selectedNodeIds.has(node.id)
+  );
+
+  if (selectedNodes.length === 0) {
+    return;
+  }
+
+  // Calculate center point of selection
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  for (const node of selectedNodes) {
+    const { width, height } = node.getBounds();
+    minX = Math.min(minX, node.x);
+    minY = Math.min(minY, node.y);
+    maxX = Math.max(maxX, node.x + width);
+    maxY = Math.max(maxY, node.y + height);
+  }
+
+  const centerX = (minX + maxX) / 2;
+  const centerY = (minY + maxY) / 2;
+
+  // Store nodes with their relative offsets from center
+  const copiedNodes = selectedNodes.map((node) => {
+    // const nodeCopy = seNodeToEditorNode(
+    //   node.toSENode(),
+    //   editorState,
+    //   canvas.getContext('2d')!
+    // );
+    // nodeCopy.clearExitLinks();
+    // const seNode = nodeCopy.toSENode();
+    const seNode = node.toSENode();
+
+    return {
+      seNode,
+      offsetX: node.x - centerX,
+      offsetY: node.y - centerY,
+    };
+  });
+
+  editorState.copiedNodes = copiedNodes;
+};
+
+export const pasteNodes = (canvas: HTMLCanvasElement) => {
+  const editorState = getEditorState();
+  if (!editorState.copiedNodes || editorState.copiedNodes.length === 0) {
+    return;
+  }
+
+  const ctx = canvas.getContext('2d')!;
+  const [worldX, worldY] = screenToWorldCoords(
+    editorState.mouseX,
+    editorState.mouseY,
+    canvas,
+    editorState.zoneWidth,
+    editorState.zoneHeight
+  );
+
+  // Clear current selection
+  editorState.selectedNodeIds.clear();
+
+  // Create new nodes from copied data
+  const newNodes: EditorNode[] = [];
+  const oldIdToNewId = new Map<string, string>();
+
+  for (const copiedNode of editorState.copiedNodes) {
+    const seNode = copiedNode.seNode;
+    const newId = randomId();
+    oldIdToNewId.set(seNode.id, newId);
+    const newNode = seNodeToEditorNode(
+      {
+        ...seNode,
+        id: newId,
+        x: worldX + copiedNode.offsetX,
+        y: worldY + copiedNode.offsetY,
+      },
+      editorState,
+      ctx
+    );
+    newNodes.push(newNode);
+    editorState.selectedNodeIds.add(newId);
+  }
+
+  for (const node of newNodes) {
+    for (const exit of node.exits) {
+      if (exit.toNodeId) {
+        exit.toNodeId = oldIdToNewId.get(exit.toNodeId) ?? '';
+      }
+    }
+  }
+
+  // First pass: create all nodes with new IDs
+  // for (const copiedNode of editorState.copiedNodes) {
+  //   const seNode = copiedNode.seNode;
+  //   const newId = randomId();
+  //   oldIdToNewId.set(seNode.id, newId);
+
+  //   let newNode: EditorNode | undefined = undefined;
+
+  //   switch (seNode.eventChildType) {
+  //     case GameEventChildType.EXEC: {
+  //       const execNode = seNode as GameEventChildExec;
+  //       const n = new EditorNodeExec(
+  //         {
+  //           ...execNode,
+  //           id: newId,
+  //           x: worldX + copiedNode.offsetX,
+  //           y: worldY + copiedNode.offsetY,
+  //         },
+  //         editorState
+  //       );
+  //       n.p = execNode.p;
+  //       n.execStr = execNode.execStr;
+  //       n.build(ctx);
+  //       newNode = n;
+  //       break;
+  //     }
+  //     case GameEventChildType.CHOICE: {
+  //       const choiceNode = seNode as GameEventChildChoice;
+  //       const n = new EditorNodeChoice(
+  //         {
+  //           ...choiceNode,
+  //           id: newId,
+  //           x: worldX + copiedNode.offsetX,
+  //           y: worldY + copiedNode.offsetY,
+  //         },
+  //         editorState
+  //       );
+  //       n.text = choiceNode.text;
+  //       n.choices = choiceNode.choices.map((c) => ({ ...c }));
+  //       n.buildFromChoices(n.choices, ctx);
+  //       newNode = n;
+  //       break;
+  //     }
+  //     case GameEventChildType.SWITCH: {
+  //       const switchNode = seNode as GameEventChildSwitch;
+  //       const n = new EditorNodeSwitch(
+  //         {
+  //           ...switchNode,
+  //           id: newId,
+  //           x: worldX + copiedNode.offsetX,
+  //           y: worldY + copiedNode.offsetY,
+  //         },
+  //         editorState
+  //       );
+  //       n.cases = switchNode.cases.map((c) => ({ ...c }));
+  //       n.defaultNext = switchNode.defaultNext;
+  //       n.buildFromCases(n.cases, ctx);
+  //       newNode = n;
+  //       break;
+  //     }
+  //     case GameEventChildType.END: {
+  //       const endNode = seNode as GameEventChildEnd;
+  //       const n = new EditorNodeEnd(
+  //         {
+  //           ...endNode,
+  //           id: newId,
+  //           x: worldX + copiedNode.offsetX,
+  //           y: worldY + copiedNode.offsetY,
+  //         },
+  //         editorState
+  //       );
+  //       n.calculateHeight(ctx);
+  //       newNode = n;
+  //       break;
+  //     }
+  //   }
+
+  //   if (newNode) {
+  //     newNodes.push(newNode);
+  //     editorState.selectedNodeIds.add(newId);
+  //   }
+  // }
+
+  // Add all new nodes to editorNodes
+  editorState.editorNodes.push(...newNodes);
+
+  updateEditorState({});
 };

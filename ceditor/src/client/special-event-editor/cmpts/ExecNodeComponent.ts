@@ -37,8 +37,8 @@ export class EditorNodeExec extends EditorNode {
     this.padding = PADDING;
     this.borderSize = BORDER_WIDTH;
 
-    this.p = seNode.p;
-    this.execStr = seNode.execStr;
+    this.p = seNode.p ?? '';
+    this.execStr = seNode.execStr ?? '';
     this.exits.push(
       Connector.create(
         this.id,
@@ -120,7 +120,7 @@ export class EditorNodeExec extends EditorNode {
     const connector = this.exits[0];
     if (connector) {
       connector.startX = this.x + this.width;
-      connector.startY = this.y + this.height / 2;
+      connector.startY = this.y + this.height / 2 + 7;
 
       if (connector.toNodeId) {
         const childNode = this.editorState.editorNodes.find(

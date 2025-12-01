@@ -34,7 +34,12 @@ export function EditGameEventModal({
 
   const handleConfirm = () => {
     // Basic validation
-    if (!formData.id || !formData.title || !formData.eventType || !formData.icon) {
+    if (
+      !formData.id ||
+      !formData.title ||
+      !formData.eventType ||
+      !formData.icon
+    ) {
       return;
     }
     onConfirm(formData);
@@ -66,9 +71,26 @@ export function EditGameEventModal({
           width: '90%',
           maxHeight: '90vh',
           overflowY: 'auto',
+          position: 'relative',
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        <button
+          style={{
+            position: 'absolute',
+            top: 1,
+            right: 5,
+            backgroundColor: 'transparent',
+            border: 'none',
+            color: '#d4d4d4',
+            fontSize: '24px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+          }}
+          onClick={onCancel}
+        >
+          <span>×</span>
+        </button>
         <h2
           style={{
             color: '#4ec9b0',
@@ -105,7 +127,10 @@ export function EditGameEventModal({
             label="Event Type"
             value={formData.eventType}
             onChange={(value) =>
-              setFormData({ ...formData, eventType: value as 'MODAL' | 'TALK' | 'TRAVEL' })
+              setFormData({
+                ...formData,
+                eventType: value as 'MODAL' | 'TALK' | 'TRAVEL',
+              })
             }
             options={GAME_EVENT_TYPES.map((type) => ({
               value: type,
@@ -160,4 +185,3 @@ export function EditGameEventModal({
     </div>
   );
 }
-

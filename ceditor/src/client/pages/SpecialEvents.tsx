@@ -17,6 +17,7 @@ import {
   saveEditorStateForGameEvent,
   syncGameEventFromEditorState,
 } from '../special-event-editor/seEditorState';
+import { EventRunnerModal } from '../special-event-editor/eventRunner/EventRunnerModal';
 
 interface NotificationState {
   message: string;
@@ -37,6 +38,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showVariableEditorModal, setShowVariableEditorModal] = useState(false);
   const [showEditGameEventModal, setShowEditGameEventModal] = useState(false);
+  const [showEventRunnerModal, setShowEventRunnerModal] = useState(false);
   const notificationIdRef = useRef(0);
 
   const showNotification = (message: string, type: 'success' | 'error') => {
@@ -426,13 +428,28 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                 }}
               >
                 <Button
-                  variant="primary"
+                  variant="small"
+                  onClick={() => {
+                    const currentEditorState = getEditorState();
+                    if (currentEditorState.baseGameEvent) {
+                      syncGameEventFromEditorState(
+                        currentEditorState.baseGameEvent,
+                        currentEditorState
+                      );
+                      setShowEventRunnerModal(true);
+                    }
+                  }}
+                >
+                  Run Event
+                </Button>
+                <Button
+                  variant="small"
                   onClick={() => setShowEditGameEventModal(true)}
                 >
                   Edit Game Event
                 </Button>
                 <Button
-                  variant="primary"
+                  variant="small"
                   onClick={() => setShowVariableEditorModal(true)}
                 >
                   Edit Variables
@@ -489,6 +506,15 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
             setGameEvents(newGameEvents);
           }}
           onCancel={() => setShowVariableEditorModal(false)}
+        />
+      )}
+
+      {/* Event Runner Modal */}
+      {showEventRunnerModal && (
+        <EventRunnerModal
+          isOpen={showEventRunnerModal}
+          gameEvent={currentGameEvent}
+          onCancel={() => setShowEventRunnerModal(false)}
         />
       )}
 

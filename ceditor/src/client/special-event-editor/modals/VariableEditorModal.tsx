@@ -311,9 +311,26 @@ export function VariableEditorModal({
           width: '90%',
           maxHeight: '80vh',
           overflow: 'auto',
+          position: 'relative',
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        <button
+          style={{
+            position: 'absolute',
+            top: 1,
+            right: 5,
+            backgroundColor: 'transparent',
+            border: 'none',
+            color: '#d4d4d4',
+            fontSize: '24px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+          }}
+          onClick={onCancel}
+        >
+          <span>×</span>
+        </button>
         <h2
           style={{
             color: '#4ec9b0',

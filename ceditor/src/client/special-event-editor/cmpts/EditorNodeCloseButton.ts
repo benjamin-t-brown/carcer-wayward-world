@@ -17,6 +17,11 @@ export class EditorNodeCloseButton {
   }
 
   isColliding(x: number, y: number) {
+    // const radius = 15;
+    // const startX = this.x + this.btnSize / 2;
+    // const startY = this.y + this.btnSize / 2;
+    // const dist = Math.sqrt((x - startX) ** 2 + (y - startY) ** 2);
+    // return dist <= radius;
     return (
       x >= this.x &&
       x <= this.x + this.btnSize &&

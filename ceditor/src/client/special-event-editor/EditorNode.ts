@@ -113,6 +113,12 @@ export class EditorNode {
     this.exits[exitIndex].toNodeId = nextNodeId;
   }
 
+  clearExitLinks() {
+    for (const exit of this.exits) {
+      exit.toNodeId = '';
+    }
+  }
+
   update() {
     this.closeButton.update();
     for (const exit of this.exits) {

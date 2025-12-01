@@ -6,9 +6,11 @@ import {
 } from './nodeHelpers';
 import {
   centerPanzoomOnNode,
+  copySelectedNodes,
   deleteNode,
   EditorStateSE,
   enterLinkingMode,
+  pasteNodes,
   resetSelectedNodes,
   showDeleteNodeConfirm,
   showDeleteSelectedNodesConfirm,
@@ -91,6 +93,22 @@ export const initPanzoom = (specialEventEditorInterface: {
         showDeleteSelectedNodesConfirm(
           specialEventEditorInterface.getCanvas().getContext('2d')!
         );
+      }
+    }
+    // Copy selected nodes on Ctrl+C
+    if ((ev.ctrlKey || ev.metaKey) && ev.key === 'c') {
+      const editorState = specialEventEditorInterface.getEditorState();
+      if (editorState.selectedNodeIds.size > 0) {
+        ev.preventDefault();
+        copySelectedNodes(specialEventEditorInterface.getCanvas());
+      }
+    }
+    // Paste nodes on Ctrl+V
+    if ((ev.ctrlKey || ev.metaKey) && ev.key === 'v') {
+      const editorState = specialEventEditorInterface.getEditorState();
+      if (editorState.copiedNodes && editorState.copiedNodes.length > 0) {
+        ev.preventDefault();
+        pasteNodes(specialEventEditorInterface.getCanvas());
       }
     }
   };
@@ -437,7 +455,8 @@ const checkLeftMouseClickEvents = (args: {
     editorState.editorNodes
   );
 
-  if (clickedExitAnchorLine) {
+  if (clickedExitAnchorLine && clickedExitAnchorLine.toNodeId) {
+    console.log('clicked anchor line');
     centerPanzoomOnNode(canvas, clickedExitAnchorLine.toNodeId);
     return true;
   }
@@ -499,6 +518,7 @@ const checkLeftMouseClickEvents = (args: {
       worldY
     );
     if (isCloseButtonClicked) {
+      console.log('click close button', clickedNode.id);
       const nodeCount = editorState.selectedNodeIds.size;
       if (nodeCount > 0) {
         showDeleteSelectedNodesConfirm(canvas.getContext('2d')!);

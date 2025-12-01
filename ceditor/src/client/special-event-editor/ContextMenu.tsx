@@ -42,6 +42,7 @@ const NODE_TYPE_LABELS: Record<GameEventChildType, string> = {
   [GameEventChildType.CHOICE]: '🤔 Create Choice',
   [GameEventChildType.KEYWORD]: '📓 Create Keyword',
   [GameEventChildType.SWITCH]: '🧠 Create Switch',
+  [GameEventChildType.COMMENT]: '📝 Create Comment',
   [GameEventChildType.END]: '🛑 Create End',
 };
 

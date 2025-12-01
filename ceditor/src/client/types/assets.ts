@@ -144,6 +144,7 @@ export enum GameEventChildType {
   END = 'END',
   EXEC = 'EXEC',
   SWITCH = 'SWITCH',
+  COMMENT = 'COMMENT',
 }
 
 export enum KeywordType {
@@ -236,6 +237,12 @@ export interface GameEventChildEnd extends SENode {
   eventChildType: GameEventChildType.END;
   id: string;
   next: string;
+}
+
+export interface GameEventChildComment extends SENode {
+  eventChildType: GameEventChildType.COMMENT;
+  id: string;
+  comment: string;
 }
 
 // Discriminated union for GameEventChild
