@@ -9,6 +9,7 @@ interface EditSwitchNodeModalProps {
   node: EditorNodeSwitch | undefined;
   gameEvent: GameEvent;
   onCancel: () => void;
+  ctx: CanvasRenderingContext2D;
 }
 
 export function EditSwitchNodeModal({
@@ -16,6 +17,7 @@ export function EditSwitchNodeModal({
   node,
   gameEvent,
   onCancel,
+  ctx,
 }: EditSwitchNodeModalProps) {
   const [cases, setCases] = useState<SwitchCase[]>([]);
   const [defaultNext, setDefaultNext] = useState('');
@@ -36,7 +38,7 @@ export function EditSwitchNodeModal({
     // node.cases = cases;
     // node.defaultNext = defaultNext;
     node.defaultNext = defaultNext;
-    node.buildFromCases(cases);
+    node.buildFromCases(cases, ctx);
     onCancel();
   };
 

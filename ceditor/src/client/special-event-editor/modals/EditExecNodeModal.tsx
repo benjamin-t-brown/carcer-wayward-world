@@ -36,7 +36,7 @@ export function EditExecNodeModal({
   const handleEditNodeConfirm = () => {
     node.p = p;
     node.execStr = execStr;
-    node.calculateHeight(ctx);
+    node.build(ctx);
     onCancel();
   };
 

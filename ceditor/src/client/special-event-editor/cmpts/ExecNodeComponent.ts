@@ -17,10 +17,16 @@ const FONT_SIZE = 12;
 const PADDING = 6;
 const LINE_SPACING = 4;
 const LINE_HEIGHT = 14;
+const P_EXEC_SPACING = 14;
 
 export class EditorNodeExec extends EditorNode {
   p: string = '';
   execStr: string = '';
+
+  pLines: string[] = [];
+  execStrLines: string[] = [];
+  pHeight = 0;
+  execStrHeight = 0;
 
   constructor(seNode: GameEventChildExec, editorState: EditorStateSE) {
     super(seNode, editorState);
@@ -53,18 +59,31 @@ export class EditorNodeExec extends EditorNode {
     } as GameEventChildExec;
   }
 
-  calculateHeight(ctx: CanvasRenderingContext2D) {
+  build(ctx: CanvasRenderingContext2D) {
     const availableWidth = NODE_WIDTH - PADDING * 2 - BORDER_WIDTH * 2;
-    const allText = this.p + '\n\n' + this.execStr;
-    const lines = breakTextIntoLines(
-      allText,
+    const pLines = breakTextIntoLines(
+      this.p,
       availableWidth,
       FONT_SIZE,
       FONT_FAMILY,
       ctx
     );
-    const calculatedHeight = calculateHeightFromText(
-      lines,
+    const execStrLines = breakTextIntoLines(
+      this.execStr,
+      availableWidth,
+      FONT_SIZE,
+      FONT_FAMILY,
+      ctx
+    );
+
+    this.pLines = pLines;
+    this.execStrLines = execStrLines;
+    this.calculateHeight(ctx);
+  }
+
+  calculateHeight(ctx: CanvasRenderingContext2D) {
+    const pHeight = calculateHeightFromText(
+      this.pLines,
       FONT_SIZE,
       FONT_FAMILY,
       LINE_HEIGHT,
@@ -72,8 +91,27 @@ export class EditorNodeExec extends EditorNode {
       ctx
     );
 
-    this.height =
-      calculatedHeight + NODE_TITLE_HEIGHT + PADDING * 2 + BORDER_WIDTH * 2;
+    const execStrHeight = calculateHeightFromText(
+      this.execStrLines,
+      FONT_SIZE,
+      FONT_FAMILY,
+      LINE_HEIGHT,
+      LINE_SPACING,
+      ctx
+    );
+
+    this.pHeight = Boolean(this.p) ? pHeight : 0;
+    this.execStrHeight = Boolean(this.execStr) ? execStrHeight : 0;
+    const spacing = P_EXEC_SPACING;
+
+    let height = NODE_TITLE_HEIGHT + PADDING * 2 + BORDER_WIDTH * 2;
+    height += this.pHeight;
+    if (this.pHeight > 0 && this.execStrHeight > 0) {
+      height += spacing;
+    }
+    height += this.execStrHeight;
+
+    this.height = height;
     this.update();
   }
 
@@ -100,27 +138,6 @@ export class EditorNodeExec extends EditorNode {
   render(ctx: CanvasRenderingContext2D, scale: number, args: RenderNodeArgs) {
     super.render(ctx, scale, args);
 
-    const p = this.p;
-    const execStr = this.execStr;
-
-    const availableWidth = NODE_WIDTH - PADDING * 2 - BORDER_WIDTH * 2;
-    // const allText = p + '\n\n' + execStr;
-    const linesText = breakTextIntoLines(
-      p,
-      availableWidth,
-      FONT_SIZE,
-      FONT_FAMILY,
-      ctx
-    );
-
-    const linesExecStr = breakTextIntoLines(
-      execStr,
-      availableWidth,
-      FONT_SIZE,
-      FONT_FAMILY,
-      ctx
-    );
-
     const nodeX = this.x * scale;
     const nodeY = this.y * scale;
 
@@ -145,18 +162,17 @@ export class EditorNodeExec extends EditorNode {
     );
     ctx.restore();
 
-    for (let i = 0; i < linesText.length; i++) {
+    let yOffset = PADDING + BORDER_WIDTH + NODE_TITLE_HEIGHT;
+
+    for (let i = 0; i < this.pLines.length; i++) {
       ctx.save();
       ctx.translate(nodeX, nodeY);
       ctx.scale(scale, scale);
-      ctx.translate(
-        PADDING + BORDER_WIDTH,
-        PADDING + BORDER_WIDTH + NODE_TITLE_HEIGHT
-      );
+      ctx.translate(PADDING + BORDER_WIDTH, yOffset + i * LINE_HEIGHT);
       drawText(
-        linesText[i],
+        this.pLines[i],
         0,
-        i * LINE_HEIGHT,
+        0,
         {
           color: TEXT_COLOR,
           size: FONT_SIZE,
@@ -170,19 +186,19 @@ export class EditorNodeExec extends EditorNode {
       ctx.restore();
     }
 
-    for (let i = 0; i < linesExecStr.length; i++) {
-      const yOffset = (i + linesText.length + 1) * LINE_HEIGHT;
+    if (this.pHeight) {
+      yOffset += this.pHeight + 14;
+    }
+
+    for (let i = 0; i < this.execStrLines.length; i++) {
       ctx.save();
       ctx.translate(nodeX, nodeY);
       ctx.scale(scale, scale);
-      ctx.translate(
-        PADDING + BORDER_WIDTH,
-        PADDING + BORDER_WIDTH + NODE_TITLE_HEIGHT
-      );
+      ctx.translate(PADDING + BORDER_WIDTH, yOffset + i * LINE_HEIGHT);
       drawText(
-        linesExecStr[i],
+        this.execStrLines[i],
         0,
-        yOffset,
+        0,
         {
           color: 'yellow',
           size: FONT_SIZE,

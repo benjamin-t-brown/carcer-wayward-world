@@ -8,7 +8,7 @@ import { drawText } from '../../utils/draw';
 import { EditorNode, RenderNodeArgs } from '../EditorNode';
 import { Connector } from './Connector';
 import { EditorStateSE } from '../seEditorState';
-import { breakTextIntoLines } from '../nodeHelpers';
+import { breakTextIntoLines, calculateHeightFromText } from '../nodeHelpers';
 
 const NODE_COLOR = '#3978A8';
 const BORDER_COLOR = '#aaa';
@@ -22,11 +22,13 @@ const FONT_SIZE = 12;
 const PADDING = 6;
 const LINE_HEIGHT = 24;
 const TEXT_LINE_HEIGHT = 14;
+const TEXT_LINE_CHOICES_SPACING = 14;
 
 export class EditorNodeChoice extends EditorNode {
   choices: Choice[] = [];
   text: string = '';
 
+  textLines: string[] = [];
   textLinesHeight: number = 0;
 
   constructor(seNode: GameEventChildChoice, editorState: EditorStateSE) {
@@ -74,31 +76,6 @@ export class EditorNodeChoice extends EditorNode {
     return NODE_TITLE_HEIGHT + PADDING * 2 + BORDER_WIDTH * 2;
   }
 
-  // getHeightComponents(ctx: CanvasRenderingContext2D) {
-  //   const heightComponents = {
-
-  //   }
-  // }
-
-  calculateHeight(ctx: CanvasRenderingContext2D) {
-    const lines = breakTextIntoLines(
-      this.text,
-      NODE_WIDTH - PADDING * 2 - BORDER_WIDTH * 2,
-      FONT_SIZE,
-      FONT_FAMILY,
-      ctx
-    );
-    const textHeight =
-      this.text.length > 0 ? (lines.length + 1) * TEXT_LINE_HEIGHT : 0;
-
-    const totalChoiceHeight = this.choices.length * LINE_HEIGHT;
-    this.textLinesHeight = textHeight;
-    this.height = Math.max(
-      this.getMinHeight(),
-      totalChoiceHeight + textHeight + this.getMinHeight()
-    );
-  }
-
   buildFromChoices(choices: Choice[], ctx: CanvasRenderingContext2D) {
     this.choices = choices;
     this.exits = [];
@@ -114,13 +91,46 @@ export class EditorNodeChoice extends EditorNode {
         )
       );
     }
+    this.textLines = breakTextIntoLines(
+      this.text,
+      NODE_WIDTH - PADDING * 2 - BORDER_WIDTH * 2,
+      FONT_SIZE,
+      FONT_FAMILY,
+      ctx
+    );
+
     this.calculateHeight(ctx);
+  }
+
+  calculateHeight(ctx: CanvasRenderingContext2D) {
+    const textHeight = calculateHeightFromText(
+      this.textLines,
+      FONT_SIZE,
+      FONT_FAMILY,
+      TEXT_LINE_HEIGHT,
+      0,
+      ctx
+    );
+
+    let height = this.getMinHeight();
+
+    if (this.text) {
+      height += textHeight;
+      height += TEXT_LINE_CHOICES_SPACING;
+    }
+
+    const totalChoiceHeight = this.choices.length * LINE_HEIGHT;
+    height += totalChoiceHeight;
+
+    this.textLinesHeight = this.text
+      ? textHeight + TEXT_LINE_CHOICES_SPACING
+      : 0;
+    this.height = height;
   }
 
   update() {
     super.update();
-    const yOffset =
-      NODE_TITLE_HEIGHT + PADDING * 2 + BORDER_WIDTH * 2 + this.textLinesHeight;
+    const yOffset = this.getMinHeight() + this.textLinesHeight;
     for (let i = 0; i < this.exits.length; i++) {
       const conn = this.exits[i];
       conn.startX = this.x + this.width;
@@ -168,15 +178,8 @@ export class EditorNodeChoice extends EditorNode {
 
     const caseTextOffset = 5;
 
-    const lines = breakTextIntoLines(
-      this.text,
-      NODE_WIDTH - PADDING * 2 - BORDER_WIDTH * 2,
-      FONT_SIZE,
-      FONT_FAMILY,
-      ctx
-    );
-    for (let i = 0; i < lines.length; i++) {
-      const text = lines[i];
+    for (let i = 0; i < this.textLines.length; i++) {
+      const text = this.textLines[i];
       ctx.save();
       ctx.translate(nodeX, nodeY);
       ctx.scale(scale, scale);
@@ -200,14 +203,9 @@ export class EditorNodeChoice extends EditorNode {
       ctx.restore();
     }
 
-    const textToRender = this.choices.map((c) => {
-      if (c.conditionStr) {
-        return `!{CND} ${c.text}`;
-      }
-      return c.text;
-    });
-    for (let i = 0; i < textToRender.length; i++) {
-      const text = textToRender[i];
+    for (let i = 0; i < this.choices.length; i++) {
+      const choice = this.choices[i];
+      const text = choice.conditionStr ? `!{CND} ${choice.text}` : choice.text;
       ctx.save();
       ctx.translate(nodeX, nodeY);
       ctx.scale(scale, scale);
@@ -223,7 +221,7 @@ export class EditorNodeChoice extends EditorNode {
         0,
         0,
         {
-          color: TEXT_COLOR,
+          color: choice.conditionStr ? '#aff' : TEXT_COLOR,
           size: FONT_SIZE,
           font: FONT_FAMILY,
           strokeColor: '',

@@ -279,6 +279,7 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
         node={editingSwitchNode}
         gameEvent={gameEvent}
         onCancel={() => setEditingSwitchNode(undefined)}
+        ctx={canvasRef.current?.getContext('2d') as CanvasRenderingContext2D}
       />
       <EditChoiceNodeModal
         isOpen={editingChoiceNode !== undefined}

@@ -172,26 +172,32 @@ export const createEditorNodesForGameEvent = (
   canvas: HTMLCanvasElement
 ) => {
   const editorState = getEditorState();
-  return gameEvent.children
-    .map((child) => {
-      if (child.eventChildType === GameEventChildType.EXEC) {
-        return new EditorNodeExec(child as GameEventChildExec, editorState);
-      }
-      if (child.eventChildType === GameEventChildType.SWITCH) {
-        return new EditorNodeSwitch(child as GameEventChildSwitch, editorState);
-      }
-      if (child.eventChildType === GameEventChildType.CHOICE) {
-        return new EditorNodeChoice(child as GameEventChildChoice, editorState);
-      }
-      if (child.eventChildType === GameEventChildType.END) {
-        return new EditorNodeEnd(child as GameEventChildEnd, editorState);
-      }
-      throw new Error(`Unknown child type: ${child.eventChildType}`);
-    })
-    .map((node) => {
-      node.calculateHeight(canvas.getContext('2d')!);
+  const ctx = canvas.getContext('2d')!;
+  return gameEvent.children.map((child) => {
+    if (child.eventChildType === GameEventChildType.EXEC) {
+      const node = new EditorNodeExec(child as GameEventChildExec, editorState);
+      node.build(ctx);
       return node;
-    });
+    }
+    if (child.eventChildType === GameEventChildType.SWITCH) {
+      const switchChild = child as GameEventChildSwitch;
+      const node = new EditorNodeSwitch(switchChild, editorState);
+      node.buildFromCases(switchChild.cases, ctx);
+      return node;
+    }
+    if (child.eventChildType === GameEventChildType.CHOICE) {
+      const choiceChild = child as GameEventChildChoice;
+      const node = new EditorNodeChoice(choiceChild, editorState);
+      node.buildFromChoices(choiceChild.choices, ctx);
+      return node;
+    }
+    if (child.eventChildType === GameEventChildType.END) {
+      const node = new EditorNodeEnd(child as GameEventChildEnd, editorState);
+      node.calculateHeight(ctx);
+      return node;
+    }
+    throw new Error(`Unknown child type: ${child.eventChildType}`);
+  });
 };
 
 export const getTransform = (editorState?: EditorStateSE) => {
