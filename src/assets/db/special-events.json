@@ -78,9 +78,9 @@
         "x": 42.833333333333314,
         "y": 44.25,
         "eventChildType": "EXEC",
-        "h": 252,
+        "h": 210,
         "p": "When you walk into this room, the door shuts abruptly behind you and an alarm begins blaring.\n\n\"Your presence here is not wanted.  You will now be eliminated.\"\n\nWith a *clank* the walls begin to enclose around you.",
-        "execStr": "START_QUEST:EscapeTheRoom;START_QUEST:EscapeTheRoom;START_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom\nSTART_QUEST:EscapeTheRoom",
+        "execStr": "MOD(vars.someVariable, 1)\nSET_BOOL(vars.hasSpokenToClaire, true)\nSET_STR(vars.chName, Wilson)\nSET_NUM(vars.factionThreshold, 30)",
         "next": "j1fvstpyknr"
       },
       {

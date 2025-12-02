@@ -14,10 +14,12 @@ import { Sprite } from '../../elements/Sprite';
 import { useSprites } from '../../hooks/useSprites';
 import { useSDL2WAssets } from '../../contexts/SDL2WAssetsContext';
 import { centerPanzoomOnNode } from '../seEditorState';
+import { EventRunner } from './EventRunner';
 
 interface EventRunnerModalProps {
   isOpen: boolean;
   gameEvent: GameEvent;
+  gameEvents: GameEvent[];
   onCancel: () => void;
 }
 
@@ -241,49 +243,48 @@ const EventRunnerEndChild = ({
 export function EventRunnerModal({
   isOpen,
   gameEvent,
+  gameEvents,
   onCancel,
 }: EventRunnerModalProps) {
-  const [gameEventToRun, setGameEventToRun] = useState<GameEvent | undefined>(
+  const [eventRunner, setEventRunner] = useState<EventRunner | undefined>(
     undefined
   );
-  const [currentNodeId, setCurrentNodeId] = useState<string | undefined>(
-    undefined
-  );
+  // const [gameEventToRun, setGameEventToRun] = useState<GameEvent | undefined>(
+  //   undefined
+  // );
+  // const [currentNodeId, setCurrentNodeId] = useState<string | undefined>(
+  //   undefined
+  // );
 
   const { spriteMap } = useSDL2WAssets();
-  const sprite = spriteMap[gameEventToRun?.icon ?? ''];
-  const currentNode = gameEventToRun?.children.find(
-    (node) => node.id === currentNodeId
-  );
+  const sprite = spriteMap[gameEvent?.icon ?? ''];
+  const currentNode = eventRunner?.getCurrentNode();
 
   const advance = (nextNodeId: string) => {
-    if (nextNodeId === '') {
-      onCancel();
-      return;
-    }
-    setCurrentNodeId(nextNodeId);
-    const canvas = document.getElementById(
-      'special-event-editor-canvas-canvas'
-    ) as HTMLCanvasElement;
-    if (canvas) {
-      centerPanzoomOnNode(canvas, nextNodeId);
-    }
+    // if (nextNodeId === '') {
+    //   onCancel();
+    //   return;
+    // }
+    // setCurrentNodeId(nextNodeId);
+    // const canvas = document.getElementById(
+    //   'special-event-editor-canvas-canvas'
+    // ) as HTMLCanvasElement;
+    // if (canvas) {
+    //   centerPanzoomOnNode(canvas, nextNodeId);
+    // }
   };
 
   useEffect(() => {
     if (isOpen) {
-      setGameEventToRun(gameEvent);
-      const hasRootNode = gameEvent.children.some((node) => node.id === 'root');
-      const nextNodeId = hasRootNode ? 'root' : gameEvent.children[0].id;
-      advance(nextNodeId);
-      // setCurrentNodeId(hasRootNode ? 'root' : gameEvent.children[0].id);
+      const runner = new EventRunner({}, gameEvent, gameEvents);
+      setEventRunner(runner);
+      runner.advance(runner.currentNodeId);
     } else {
-      setCurrentNodeId(undefined);
-      setGameEventToRun(undefined);
+      setEventRunner(undefined);
     }
   }, [isOpen, gameEvent]);
 
-  if (!isOpen || !gameEventToRun || !currentNode) {
+  if (!isOpen || !eventRunner || !currentNode) {
     return undefined;
   }
 
@@ -344,21 +345,21 @@ export function EventRunnerModal({
           {currentNode.eventChildType === GameEventChildType.EXEC && (
             <EventRunnerExecChild
               child={currentNode as GameEventChildExec}
-              gameEvent={gameEventToRun}
+              gameEvent={gameEvent}
               advance={advance}
             />
           )}
           {currentNode.eventChildType === GameEventChildType.CHOICE && (
             <EventRunnerChoiceChild
               child={currentNode as GameEventChildChoice}
-              gameEvent={gameEventToRun}
+              gameEvent={gameEvent}
               advance={advance}
             />
           )}
           {currentNode.eventChildType === GameEventChildType.END && (
             <EventRunnerEndChild
               child={currentNode as GameEventChildEnd}
-              gameEvent={gameEventToRun}
+              gameEvent={gameEvent}
               advance={advance}
             />
           )}

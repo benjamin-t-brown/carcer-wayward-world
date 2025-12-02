@@ -431,11 +431,13 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                   variant="small"
                   onClick={() => {
                     const currentEditorState = getEditorState();
-                    if (currentEditorState.baseGameEvent) {
+                    for (const gameEvent of gameEvents) {
                       syncGameEventFromEditorState(
-                        currentEditorState.baseGameEvent,
+                        gameEvent,
                         currentEditorState
                       );
+                    }
+                    if (currentEditorState.baseGameEvent) {
                       setShowEventRunnerModal(true);
                     }
                   }}
@@ -514,6 +516,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
         <EventRunnerModal
           isOpen={showEventRunnerModal}
           gameEvent={currentGameEvent}
+          gameEvents={gameEvents}
           onCancel={() => setShowEventRunnerModal(false)}
         />
       )}
