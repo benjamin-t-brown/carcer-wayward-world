@@ -15,6 +15,7 @@ import { useSprites } from '../../hooks/useSprites';
 import { useSDL2WAssets } from '../../contexts/SDL2WAssetsContext';
 import { centerPanzoomOnNode } from '../seEditorState';
 import { EventRunner } from './EventRunner';
+import { useReRender } from '../../hooks/useReRender';
 
 interface EventRunnerModalProps {
   isOpen: boolean;
@@ -57,16 +58,15 @@ const EventHeader = ({ gameEvent }: { gameEvent: GameEvent }) => {
 const EventRunnerExecChild = ({
   child,
   gameEvent,
+  runner,
   advance,
 }: {
   child: GameEventChildExec;
   gameEvent: GameEvent;
+  runner: EventRunner;
   advance: (nextNodeId: string) => void;
 }) => {
-  const { spriteMap } = useSDL2WAssets();
-  const sprite = spriteMap[gameEvent.icon ?? ''];
-
-  const nodeText = child.p;
+  const nodeText = runner.displayText;
 
   const handleNext = () => {
     advance(child.next);
@@ -115,16 +115,15 @@ const EventRunnerExecChild = ({
 const EventRunnerChoiceChild = ({
   child,
   gameEvent,
+  runner,
   advance,
 }: {
   child: GameEventChildChoice;
   gameEvent: GameEvent;
+  runner: EventRunner;
   advance: (nextNodeId: string) => void;
 }) => {
-  const { spriteMap } = useSDL2WAssets();
-  const sprite = spriteMap[gameEvent.icon ?? ''];
-
-  const nodeText = child.text;
+  const nodeText = runner.displayText;
 
   const handleNext = (nextNodeId: string) => {
     advance(nextNodeId);
@@ -163,7 +162,7 @@ const EventRunnerChoiceChild = ({
             overflow: 'auto',
           }}
         >
-          {child.choices.map((choice, i) => (
+          {runner.displayTextChoices.map((choice, i) => (
             <button
               key={i}
               style={{
@@ -192,10 +191,12 @@ const EventRunnerChoiceChild = ({
 const EventRunnerEndChild = ({
   child,
   gameEvent,
+  runner,
   advance,
 }: {
   child: GameEventChildEnd;
   gameEvent: GameEvent;
+  runner: EventRunner;
   advance: (nextNodeId: string) => void;
 }) => {
   const { spriteMap } = useSDL2WAssets();
@@ -249,6 +250,7 @@ export function EventRunnerModal({
   const [eventRunner, setEventRunner] = useState<EventRunner | undefined>(
     undefined
   );
+  const reRender = useReRender();
   // const [gameEventToRun, setGameEventToRun] = useState<GameEvent | undefined>(
   //   undefined
   // );
@@ -261,17 +263,20 @@ export function EventRunnerModal({
   const currentNode = eventRunner?.getCurrentNode();
 
   const advance = (nextNodeId: string) => {
-    // if (nextNodeId === '') {
-    //   onCancel();
-    //   return;
-    // }
-    // setCurrentNodeId(nextNodeId);
-    // const canvas = document.getElementById(
-    //   'special-event-editor-canvas-canvas'
-    // ) as HTMLCanvasElement;
-    // if (canvas) {
-    //   centerPanzoomOnNode(canvas, nextNodeId);
-    // }
+    if (nextNodeId === '') {
+      onCancel();
+      return;
+    }
+    if (eventRunner) {
+      const canvas = document.getElementById(
+        'special-event-editor-canvas-canvas'
+      ) as HTMLCanvasElement;
+      if (canvas) {
+        centerPanzoomOnNode(canvas, nextNodeId);
+      }
+      eventRunner.advance(nextNodeId);
+      reRender();
+    }
   };
 
   useEffect(() => {
@@ -346,6 +351,7 @@ export function EventRunnerModal({
             <EventRunnerExecChild
               child={currentNode as GameEventChildExec}
               gameEvent={gameEvent}
+              runner={eventRunner}
               advance={advance}
             />
           )}
@@ -353,6 +359,7 @@ export function EventRunnerModal({
             <EventRunnerChoiceChild
               child={currentNode as GameEventChildChoice}
               gameEvent={gameEvent}
+              runner={eventRunner}
               advance={advance}
             />
           )}
@@ -360,6 +367,7 @@ export function EventRunnerModal({
             <EventRunnerEndChild
               child={currentNode as GameEventChildEnd}
               gameEvent={gameEvent}
+              runner={eventRunner}
               advance={advance}
             />
           )}

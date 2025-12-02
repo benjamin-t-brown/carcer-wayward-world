@@ -23,7 +23,12 @@ const getStorage = (storage: Record<string, any>, key: string): any => {
   const keys = key.split('.');
   let curr = storage;
   for (let i = 0; i < keys.length; i++) {
-    curr = curr[keys[i]];
+    if (!curr) {
+      return curr;
+    }
+    const key = keys[i];
+    const next = curr[key];
+    curr = next;
   }
   return curr;
 };
@@ -51,7 +56,11 @@ class ConditionEvaluator {
 
   boolFunctions: Record<string, (...args: string[]) => boolean> = {
     IS: (a: string) => {
-      return Boolean(getStorage(this.storage, a));
+      const v = getStorage(this.storage, a);
+      if (v === 'false') {
+        return false;
+      }
+      return Boolean(v);
     },
     ISNOT: (a: string) => {
       return !Boolean(getStorage(this.storage, a));
@@ -195,6 +204,7 @@ class StringEvaluator {
     console.log('evalStr', str);
     if (this.isFunctionCall(str)) {
       let { funcName, funcArgs } = this.parseFunctionCall(str);
+      console.log('- args', funcName, funcArgs);
       if (funcName in this.stringFunctions) {
         return this.stringFunctions[
           funcName as keyof typeof this.stringFunctions
@@ -240,18 +250,32 @@ export class EventRunner {
     );
   }
 
-  replaceVariables(text: string) {
-    text = text.trim();
+  replaceVariables(text: string, highlight: boolean = false) {
     const vars = getVarsFromNode(this.gameEvent, this.gameEvents);
+    text = text.trim();
 
-    // the slow way
-    for (const v of vars) {
-      text = text.replaceAll(`@${v.key}`, v.value.toString());
+    const evalMatches1 = text.match(/@([\w\d_]+)/g);
+    for (const match of evalMatches1 || []) {
+      const foundVar = vars.find((v) => v.key === match.slice(1));
+      if (foundVar) {
+        const value = getStorage(this.storage, foundVar.value);
+        if (highlight) {
+          text = text.replaceAll(
+            `${match}`,
+            `<span style="color: yellow;">${String(value)}</span>`
+          );
+        } else {
+          text = text.replaceAll(`${match}`, String(value));
+        }
+      } else {
+        this.errors.push(`Variable ${match} not found`);
+      }
     }
+
     return text;
   }
 
-  evalStr(str: string) {
+  evalExecStr(str: string) {
     str = str.trim();
     if (str === '') {
       return true;
@@ -281,6 +305,7 @@ export class EventRunner {
     );
     try {
       const result = conditionEvaluator.evalCondition(conditionStr);
+      console.log('evalCondition', { conditionStr, result });
       return result;
     } catch (error: unknown) {
       this.errors.push((error as Error).message);
@@ -294,6 +319,9 @@ export class EventRunner {
       return;
     }
 
+    this.displayText = '';
+    this.displayTextChoices = [];
+
     this.currentNodeId = nextNodeId;
     const currentNode = this.getCurrentNode();
     if (nextNodeId === '' || !currentNode) {
@@ -303,22 +331,26 @@ export class EventRunner {
       const execNode = currentNode as GameEventChildExec;
       const strLines = execNode.execStr.split('\n');
       for (const strLine of strLines) {
-        this.evalStr(this.replaceVariables(strLine));
+        this.evalExecStr(this.replaceVariables(strLine));
       }
-      this.displayText = this.replaceVariables(execNode.p);
+      this.displayText = this.replaceVariables(execNode.p, true);
       console.log('evald', this.storage);
       if (!this.displayText) {
         this.advance(execNode.next);
       }
     } else if (currentNode?.eventChildType === GameEventChildType.CHOICE) {
       const choiceNode = currentNode as GameEventChildChoice;
+      this.displayText = this.replaceVariables(choiceNode.text, true);
       this.displayTextChoices = choiceNode.choices
         .filter((choice) => {
           return choice.conditionStr
             ? this.evalCondition(this.replaceVariables(choice.conditionStr))
             : true;
         })
-        .map((choice) => ({ text: choice.text, next: choice.next }));
+        .map((choice) => ({
+          text: this.replaceVariables(choice.text, true),
+          next: choice.next,
+        }));
     } else if (currentNode?.eventChildType === GameEventChildType.SWITCH) {
       const switchNode = currentNode as GameEventChildSwitch;
       let found = false;
