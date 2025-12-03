@@ -7,9 +7,13 @@ import {
 } from '../../types/assets';
 import { getVarsFromNode } from '../nodeHelpers';
 
-const setStorage = (storage: Record<string, any>, key: string, value: any) => {
+const setStorage = (
+  storage: Record<string, string | undefined>,
+  key: string,
+  value: string | undefined
+) => {
   const keys = key.split('.');
-  let curr = storage;
+  let curr: any = storage;
   for (let i = 0; i < keys.length - 1; i++) {
     if (typeof curr[keys[i]] !== 'object' || curr[keys[i]] === null) {
       curr[keys[i]] = {};
@@ -19,16 +23,22 @@ const setStorage = (storage: Record<string, any>, key: string, value: any) => {
   curr[keys[keys.length - 1]] = String(value);
 };
 
-const getStorage = (storage: Record<string, any>, key: string): any => {
+const getStorage = (
+  storage: Record<string, string | undefined>,
+  key: string
+): string | undefined => {
   const keys = key.split('.');
-  let curr = storage;
+  let curr: any = storage;
   for (let i = 0; i < keys.length; i++) {
     if (!curr) {
       return curr;
     }
     const key = keys[i];
-    const next = curr[key];
+    const next: any = curr[key];
     curr = next;
+  }
+  if (typeof curr === 'object') {
+    return '[object]';
   }
   return curr;
 };
@@ -72,16 +82,24 @@ class ConditionEvaluator {
       return getStorage(this.storage, a) !== getStorage(this.storage, b);
     },
     GT: (a: string, b: string) => {
-      return getStorage(this.storage, a) > getStorage(this.storage, b);
+      return (
+        (getStorage(this.storage, a) ?? 0) > (getStorage(this.storage, b) ?? 0)
+      );
     },
     GTE: (a: string, b: string) => {
-      return getStorage(this.storage, a) >= getStorage(this.storage, b);
+      return (
+        (getStorage(this.storage, a) ?? 0) >= (getStorage(this.storage, b) ?? 0)
+      );
     },
     LT: (a: string, b: string) => {
-      return getStorage(this.storage, a) < getStorage(this.storage, b);
+      return (
+        (getStorage(this.storage, a) ?? 0) < (getStorage(this.storage, b) ?? 0)
+      );
     },
     LTE: (a: string, b: string) => {
-      return getStorage(this.storage, a) <= getStorage(this.storage, b);
+      return (
+        (getStorage(this.storage, a) ?? 0) <= (getStorage(this.storage, b) ?? 0)
+      );
     },
     ALL: (...args: string[]) => {
       return args.every((arg) => Boolean(getStorage(this.storage, arg)));
@@ -162,14 +180,14 @@ class StringEvaluator {
       } else {
         throw new Error(`Invalid boolean value: ${b}`);
       }
-      setStorage(this.storage, a, v);
+      setStorage(this.storage, a, String(v));
     },
     SET_NUM: (a: string, b: string) => {
       const n = parseFloat(b);
       if (isNaN(n)) {
         throw new Error(`Invalid number value: ${b}`);
       }
-      setStorage(this.storage, a, n);
+      setStorage(this.storage, a, String(n));
     },
     SET_STR: (a: string, b: string) => {
       setStorage(this.storage, a, b);
@@ -180,11 +198,38 @@ class StringEvaluator {
         throw new Error(`Invalid number value: ${b}`);
       }
       const current = getStorage(this.storage, a);
-      const currentN = parseFloat(current);
+      const currentN = parseFloat(current || '0');
       if (isNaN(currentN)) {
         throw new Error(`Variable ${a} is not a number`);
       }
-      setStorage(this.storage, a, currentN + n);
+      setStorage(this.storage, a, String(currentN + n));
+    },
+    START_QUEST: (questName: string) => {
+      // noop
+    },
+    ADVANCE_QUEST: (questName: string, stepId: string) => {
+      // noop
+    },
+    COMPLETE_QUEST: (questName: string) => {
+      // noop
+    },
+    SPAWN_CH: (chName: string) => {
+      // noop
+    },
+    DESPAWN_CH: (chName: string) => {
+      // noop
+    },
+    CHANGE_TILE_AT: (x: string, y: string, tileName: string) => {
+      // noop
+    },
+    TELEPORT_TO: (x: string, y: string, mapName: string) => {
+      // noop
+    },
+    ADD_ITEM_AT: (x: string, y: string, itemName: string) => {
+      // noop
+    },
+    REMOVE_ITEM_AT: (x: string, y: string, itemName: string) => {
+      // noop
     },
   };
 
@@ -314,6 +359,14 @@ export class EventRunner {
     }
   }
 
+  static getConditionFunctions() {
+    return Object.keys(ConditionEvaluator.prototype.boolFunctions);
+  }
+
+  static getExecFunctions() {
+    return Object.keys(StringEvaluator.prototype.stringFunctions);
+  }
+
   advance(nextNodeId: string) {
     if (this.errors.length > 0) {
       return;
@@ -334,7 +387,7 @@ export class EventRunner {
         this.evalExecStr(this.replaceVariables(strLine));
       }
       this.displayText = this.replaceVariables(execNode.p, true);
-      console.log('evald', this.storage);
+      console.log('storage after exec:', this.storage);
       if (!this.displayText) {
         this.advance(execNode.next);
       }

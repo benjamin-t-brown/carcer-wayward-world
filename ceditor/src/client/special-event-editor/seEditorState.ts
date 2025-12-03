@@ -4,6 +4,7 @@ import {
   GameEventChildEnd,
   GameEventChildExec,
   GameEventChildSwitch,
+  GameEventChildComment,
   GameEventChildType,
   SENode,
 } from '../types/assets';
@@ -18,6 +19,7 @@ import { EditorNodeSwitch } from './cmpts/SwitchNodeComponent';
 import { Connector } from './cmpts/Connector';
 import { EditorNodeChoice } from './cmpts/ChoiceNodeComponent';
 import { EditorNodeEnd } from './cmpts/EndNodeComponent';
+import { EditorNodeComment } from './cmpts/CommentNodeComponent';
 import { randomId } from '../utils/mathUtils';
 
 interface TransformState {
@@ -210,6 +212,12 @@ export const seNodeToEditorNode = (
   }
   if (child.eventChildType === GameEventChildType.END) {
     const node = new EditorNodeEnd(child as GameEventChildEnd, editorState);
+    node.calculateHeight(ctx);
+    return node;
+  }
+  if (child.eventChildType === GameEventChildType.COMMENT) {
+    const commentChild = child as GameEventChildComment;
+    const node = new EditorNodeComment(commentChild, editorState);
     node.calculateHeight(ctx);
     return node;
   }
@@ -551,89 +559,6 @@ export const pasteNodes = (canvas: HTMLCanvasElement) => {
       }
     }
   }
-
-  // First pass: create all nodes with new IDs
-  // for (const copiedNode of editorState.copiedNodes) {
-  //   const seNode = copiedNode.seNode;
-  //   const newId = randomId();
-  //   oldIdToNewId.set(seNode.id, newId);
-
-  //   let newNode: EditorNode | undefined = undefined;
-
-  //   switch (seNode.eventChildType) {
-  //     case GameEventChildType.EXEC: {
-  //       const execNode = seNode as GameEventChildExec;
-  //       const n = new EditorNodeExec(
-  //         {
-  //           ...execNode,
-  //           id: newId,
-  //           x: worldX + copiedNode.offsetX,
-  //           y: worldY + copiedNode.offsetY,
-  //         },
-  //         editorState
-  //       );
-  //       n.p = execNode.p;
-  //       n.execStr = execNode.execStr;
-  //       n.build(ctx);
-  //       newNode = n;
-  //       break;
-  //     }
-  //     case GameEventChildType.CHOICE: {
-  //       const choiceNode = seNode as GameEventChildChoice;
-  //       const n = new EditorNodeChoice(
-  //         {
-  //           ...choiceNode,
-  //           id: newId,
-  //           x: worldX + copiedNode.offsetX,
-  //           y: worldY + copiedNode.offsetY,
-  //         },
-  //         editorState
-  //       );
-  //       n.text = choiceNode.text;
-  //       n.choices = choiceNode.choices.map((c) => ({ ...c }));
-  //       n.buildFromChoices(n.choices, ctx);
-  //       newNode = n;
-  //       break;
-  //     }
-  //     case GameEventChildType.SWITCH: {
-  //       const switchNode = seNode as GameEventChildSwitch;
-  //       const n = new EditorNodeSwitch(
-  //         {
-  //           ...switchNode,
-  //           id: newId,
-  //           x: worldX + copiedNode.offsetX,
-  //           y: worldY + copiedNode.offsetY,
-  //         },
-  //         editorState
-  //       );
-  //       n.cases = switchNode.cases.map((c) => ({ ...c }));
-  //       n.defaultNext = switchNode.defaultNext;
-  //       n.buildFromCases(n.cases, ctx);
-  //       newNode = n;
-  //       break;
-  //     }
-  //     case GameEventChildType.END: {
-  //       const endNode = seNode as GameEventChildEnd;
-  //       const n = new EditorNodeEnd(
-  //         {
-  //           ...endNode,
-  //           id: newId,
-  //           x: worldX + copiedNode.offsetX,
-  //           y: worldY + copiedNode.offsetY,
-  //         },
-  //         editorState
-  //       );
-  //       n.calculateHeight(ctx);
-  //       newNode = n;
-  //       break;
-  //     }
-  //   }
-
-  //   if (newNode) {
-  //     newNodes.push(newNode);
-  //     editorState.selectedNodeIds.add(newId);
-  //   }
-  // }
 
   // Add all new nodes to editorNodes
   editorState.editorNodes.push(...newNodes);

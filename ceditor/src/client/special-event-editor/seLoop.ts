@@ -1,11 +1,5 @@
 import { drawRect } from '../utils/draw';
 import { getTransform } from './seEditorState';
-import {
-  GameEvent,
-  GameEventChildExec,
-  GameEventChildType,
-} from '../types/assets';
-import { EditorNodeExec } from './cmpts/ExecNodeComponent';
 import { EditorStateSE } from './seEditorState';
 
 const getColors = () => {
@@ -97,50 +91,9 @@ export const loop = (
 
   // Find child node IDs of the hovered node (nodes that the hovered node points to)
   const childNodeIds = new Set<string>();
-  // if (hoveredNodeId && gameEvent && gameEvent.children) {
-  //   const hoveredNode = gameEvent.children.find((c) => c.id === hoveredNodeId);
-  //   if (hoveredNode && hoveredNode.eventChildType === GameEventChildType.EXEC) {
-  //     const hoveredExecNode = hoveredNode as GameEventChildExec;
-  //     if (hoveredExecNode.next && hoveredExecNode.next !== '') {
-  //       childNodeIds.add(hoveredExecNode.next);
-  //     }
-  //   }
-  // }
 
   // Find parent node IDs (nodes that point to the hovered node)
   const parentNodeIds = new Set<string>();
-  // if (hoveredNodeId && gameEvent && gameEvent.children) {
-  //   for (const child of gameEvent.children) {
-  //     if (child.eventChildType === GameEventChildType.EXEC) {
-  //       const execNode = child as GameEventChildExec;
-  //       if (execNode.next === hoveredNodeId) {
-  //         parentNodeIds.add(child.id);
-  //       }
-  //     }
-  //   }
-  // }
-
-  // if (gameEvent && gameEvent.children) {
-  //   for (const child of gameEvent.children) {
-  //     const hoveredExitIndex =
-  //       hoveredExitAnchor?.nodeId === child.id
-  //         ? hoveredExitAnchor.exitIndex
-  //         : undefined;
-  //     const childLinkingExitIndex =
-  //       isLinking && linkingSourceNodeId === child.id
-  //         ? linkingExitIndex
-  //         : undefined;
-  //     renderNode(child, newScale, ctx, {
-  //       isHovered: child.id === hoveredNodeId,
-  //       isCloseButtonHovered: child.id === hoveredCloseButtonNodeId,
-  //       isSelected: selectedNodeIds.has(child.id),
-  //       isChildOfHovered: childNodeIds.has(child.id),
-  //       isParentOfHovered: parentNodeIds.has(child.id),
-  //       hoveredExitIndex: hoveredExitIndex,
-  //       linkingExitIndex: childLinkingExitIndex,
-  //     });
-  //   }
-  // }
 
   for (const node of dataInterface.getEditorState().editorNodes) {
     node.update();

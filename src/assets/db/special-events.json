@@ -10,13 +10,25 @@
         "key": "PLAYER_NAME",
         "value": "vars.playerName",
         "importFrom": ""
+      },
+      {
+        "id": "3m7lvuuwih8",
+        "key": "PLAYER_NAME2",
+        "value": "",
+        "importFrom": ""
+      },
+      {
+        "id": "3c42nayev12",
+        "key": "",
+        "value": "",
+        "importFrom": "TestEvent2"
       }
     ],
     "children": [
       {
         "id": "1",
-        "x": 124.83333333333331,
-        "y": 85.25,
+        "x": 121.83333333333331,
+        "y": 145.25,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "",
@@ -25,8 +37,8 @@
       },
       {
         "id": "j1fvstpyknr",
-        "x": 589.3333333333333,
-        "y": 97.25,
+        "x": 931.3333333333333,
+        "y": 131.25,
         "eventChildType": "CHOICE",
         "h": 150,
         "text": "This is example text for a choice node. It has a lot of text but im not sure if it should really be this long.",
@@ -50,136 +62,112 @@
       },
       {
         "id": "1emoqgm0ho8",
-        "x": 1785.333333333333,
-        "y": 478.25,
+        "x": 1879.333333333333,
+        "y": 400.25,
         "eventChildType": "END",
         "h": 60,
         "next": ""
       },
       {
         "id": "4vi6dana8qb",
-        "x": 1189,
-        "y": 169.91666666666697,
+        "x": 1331,
+        "y": 129.91666666666697,
         "eventChildType": "EXEC",
-        "h": 46,
+        "h": 50,
         "p": "You picked the default choice.",
         "execStr": "",
         "next": "1emoqgm0ho8"
       },
       {
         "id": "amg64bjsc4g",
-        "x": 1204,
-        "y": 251.91666666666697,
+        "x": 1346,
+        "y": 211.91666666666697,
         "eventChildType": "EXEC",
-        "h": 46,
+        "h": 50,
         "p": "You picked the the second choice.",
         "execStr": "",
         "next": "1emoqgm0ho8"
       },
       {
         "id": "xm7tbt02cnj",
-        "x": 260.83333333333326,
-        "y": 190.25,
+        "x": 557.8333333333333,
+        "y": 149.25,
         "eventChildType": "EXEC",
         "h": 130,
         "p": "When you walk into this room, the door shuts abruptly behind you and an alarm begins blaring.\n\n\"@PLAYER_NAME, Your presence here is not wanted.  You will now be eliminated.\"\n\nWith a *clank* the walls begin to enclose around you.",
         "execStr": "",
         "next": "j1fvstpyknr"
+      },
+      {
+        "id": "p7xhkmv7ib",
+        "x": 118.33333333333326,
+        "y": 20.75,
+        "eventChildType": "COMMENT",
+        "h": 108,
+        "comment": "This is a comment node. This is a comment node. This is a comment node. This is a comment node. This is a comment node. This is a comment node. This is a comment node. This is a comment node."
       }
     ]
   },
   {
     "id": "TestEvent2",
-    "title": "This is a Test Event 2",
+    "title": "Test Event 2",
     "eventType": "MODAL",
     "icon": "special_event_icons_0",
     "vars": [
       {
-        "id": "haq0k6r7bxf",
-        "key": "testEvent2Var",
-        "value": "vars.testEvent2Var",
+        "id": "46qokiupwmt",
+        "key": "TestEvent2Variable",
+        "value": "vars.testEvent2",
         "importFrom": ""
-      },
-      {
-        "id": "qcnd5jm3by",
-        "key": "",
-        "value": "",
-        "importFrom": "TestEvent"
       }
     ],
     "children": [
       {
-        "id": "1",
-        "x": 124.83333333333331,
-        "y": 85.25,
+        "id": "root",
+        "x": 20,
+        "y": 20,
         "eventChildType": "EXEC",
-        "h": 60,
+        "h": 50,
         "p": "",
-        "execStr": "SET_STR(vars.playerName, Wilson)\nSET_BOOL(vars.testCondition, false)",
-        "next": "xm7tbt02cnj"
+        "execStr": "",
+        "next": "suwo1x0atnn"
       },
       {
-        "id": "j1fvstpyknr",
-        "x": 589.3333333333333,
-        "y": 97.25,
-        "eventChildType": "CHOICE",
-        "h": 150,
-        "text": "This is example text for a choice node. It has a lot of text but im not sure if it should really be this long.",
-        "choices": [
-          {
-            "text": "This is the default choice.",
-            "conditionStr": "",
-            "next": "4vi6dana8qb"
-          },
-          {
-            "text": "This is a really long choice that you could pick if you wanted to but I don't think it's a good idea.",
-            "conditionStr": "",
-            "next": "amg64bjsc4g"
-          },
-          {
-            "text": "Show if condition is true.",
-            "conditionStr": "IS(vars.testCondition)",
-            "next": "1emoqgm0ho8"
-          }
-        ]
+        "id": "suwo1x0atnn",
+        "x": 432.5,
+        "y": 103.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "This is example text for an exec node.",
+        "execStr": "",
+        "next": "itxaep3v5mj"
       },
       {
-        "id": "1emoqgm0ho8",
-        "x": 1785.333333333333,
-        "y": 478.25,
+        "id": "itxaep3v5mj",
+        "x": 811.5,
+        "y": 193.5,
         "eventChildType": "END",
         "h": 60,
         "next": ""
-      },
+      }
+    ]
+  },
+  {
+    "id": "TestEvent3",
+    "title": "Test Event 3",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
       {
-        "id": "4vi6dana8qb",
-        "x": 1189,
-        "y": 169.91666666666697,
+        "id": "root",
+        "x": 20,
+        "y": 20,
         "eventChildType": "EXEC",
-        "h": 46,
-        "p": "You picked the default choice.",
+        "h": 50,
+        "p": "",
         "execStr": "",
-        "next": "1emoqgm0ho8"
-      },
-      {
-        "id": "amg64bjsc4g",
-        "x": 1204,
-        "y": 251.91666666666697,
-        "eventChildType": "EXEC",
-        "h": 46,
-        "p": "You picked the the second choice.",
-        "execStr": "",
-        "next": "1emoqgm0ho8"
-      },
-      {
-        "id": "xm7tbt02cnj",
-        "x": 260.83333333333326,
-        "y": 190.25,
-        "eventChildType": "EXEC",
-        "h": 130,
-        "p": "When you walk into this room, the door shuts abruptly behind you and an alarm begins blaring.\n\n\"@PLAYER_NAME, Your presence here is not wanted.  You will now be eliminated.\"\n\nWith a *clank* the walls begin to enclose around you.",
-        "execStr": "",
-        "next": "j1fvstpyknr"
+        "next": ""
       }
     ]
   }

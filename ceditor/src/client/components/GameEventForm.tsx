@@ -37,7 +37,7 @@ export function createDefaultGameEvent(): GameEvent {
     children: [
       {
         eventChildType: GameEventChildType.EXEC,
-        id: randomId(),
+        id: 'root',
         x: 20,
         y: 20,
         h: 0,

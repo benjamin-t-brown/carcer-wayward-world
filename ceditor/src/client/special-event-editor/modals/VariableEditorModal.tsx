@@ -3,6 +3,8 @@ import { GameEvent, Variable } from '../../types/assets';
 import { Button } from '../../elements/Button';
 import { useAssets } from '../../contexts/AssetsContext';
 import { randomId } from '../../utils/mathUtils';
+import { GenericModal } from '../../elements/GenericModal';
+import { PickImportModal } from './PickImportModal';
 
 interface VariableEditorModalProps {
   isOpen: boolean;
@@ -15,120 +17,130 @@ interface VariableEntryProps {
   variableName: string;
   value: string | number | boolean;
   variableId: string;
-  importFrom: string;
+  index: number;
+  handleUpdateVariable: (
+    index: number,
+    field: keyof Variable,
+    value: string
+  ) => void;
   handleDeleteVariable: (variableId: string) => void;
   hideErrors: () => void;
-  handleMoveUp: () => void;
-  handleMoveDown: () => void;
-  canMoveUp: boolean;
-  canMoveDown: boolean;
+  handleMoveUp: (index: number) => void;
+  handleMoveDown: (index: number) => void;
 }
 
 const VariableEntry = ({
   variableName,
   value,
   variableId,
+  index,
   handleDeleteVariable,
   hideErrors,
   handleMoveUp,
   handleMoveDown,
-  canMoveUp,
-  canMoveDown,
+  handleUpdateVariable,
 }: VariableEntryProps) => {
   return (
     <div
-      style={{ display: 'flex', gap: '10px', alignItems: 'center' }}
-      onClick={() => hideErrors()}
+      key={index}
+      style={{
+        marginBottom: '4px',
+        padding: '4px',
+      }}
     >
       <div
         style={{
           display: 'flex',
-          flexDirection: 'column',
-          gap: '2px',
+          justifyContent: 'space-between',
+          alignItems: 'center',
         }}
       >
-        <button
+        <div
           style={{
-            width: '24px',
-            height: '20px',
-            textAlign: 'center',
-            fontSize: '12px',
-            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-            border: 'none',
-            cursor: 'pointer',
-            color: 'white',
+            color: '#d4d4d4',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            width: '20px',
+            marginBottom: '8px',
           }}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (canMoveUp) {
-              handleMoveUp();
-            }
-          }}
-          disabled={!canMoveUp}
         >
-          <span>↑</span>
-        </button>
-        <button
+          {index + 1}.
+        </div>
+        <div
           style={{
-            width: '24px',
-            height: '20px',
-            textAlign: 'center',
-            fontSize: '12px',
-            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-            border: 'none',
-            cursor: 'pointer',
-            color: 'white',
+            width: '48px',
+            display: 'flex',
+            alignItems: 'center',
+            height: '100%',
+            marginBottom: '8px',
+            gap: '0px',
           }}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (canMoveDown) {
-              handleMoveDown();
-            }
-          }}
-          disabled={!canMoveDown}
         >
-          <span>↓</span>
-        </button>
+          <button
+            style={{
+              width: '50%',
+            }}
+            onClick={() => handleMoveUp(index)}
+          >
+            <span>up</span>
+          </button>
+          <button
+            style={{
+              width: '50%',
+            }}
+            onClick={() => handleMoveDown(index)}
+          >
+            <span>dn</span>
+          </button>
+        </div>
+        <div
+          style={{
+            marginBottom: '8px',
+            width: 'calc(100% - 100px - 48px)',
+          }}
+        >
+          <input
+            type="text"
+            value={variableName}
+            onChange={(e) => handleUpdateVariable(index, 'key', e.target.value)}
+            style={{
+              width: '40%',
+              padding: '6px',
+              backgroundColor: '#1e1e1e',
+              border: '1px solid #3e3e42',
+              borderRadius: '4px',
+              color: '#d4d4d4',
+              fontFamily: 'monospace',
+              fontSize: '12px',
+            }}
+            placeholder="Enter variable name..."
+          />
+          <input
+            type="text"
+            value={String(value)}
+            onChange={(e) =>
+              handleUpdateVariable(index, 'value', e.target.value)
+            }
+            style={{
+              width: '59%',
+              padding: '6px',
+              backgroundColor: '#1e1e1e',
+              border: '1px solid #3e3e42',
+              borderRadius: '4px',
+              color: '#d4d4d4',
+              fontFamily: 'arial',
+              fontSize: '12px',
+            }}
+            placeholder="Enter variable value..."
+          />
+        </div>
+        <Button
+          variant="danger"
+          onClick={() => handleDeleteVariable(variableId)}
+        >
+          Delete
+        </Button>
       </div>
-      <div
-        style={{
-          width: '75px',
-          fontSize: '10px',
-        }}
-      >
-        {variableId}
-      </div>
-      <input
-        type="text"
-        defaultValue={String(variableName)}
-        id={`${variableId}_key`}
-        style={{ width: '200px', padding: '2px' }}
-      />
-      <span>=</span>
-      <input
-        type="text"
-        defaultValue={String(value)}
-        id={`${variableId}_value`}
-        style={{ width: '400px', padding: '2px' }}
-      />
-      <button
-        style={{
-          width: '24px',
-          height: '20px',
-          textAlign: 'center',
-          fontSize: '12px',
-          paddingLeft: '2px',
-          backgroundColor: 'transparent',
-          border: 'none',
-          cursor: 'pointer',
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          handleDeleteVariable(variableId);
-        }}
-      >
-        <span>❌</span>
-      </button>
     </div>
   );
 };
@@ -147,9 +159,8 @@ export function VariableEditorModal({
     gameEvent?.vars.filter((variable) => variable.importFrom !== '') || []
   );
   const [errorText, setErrorText] = useState<string>('');
-  const [importFromValue, setImportFromValue] = useState<string>(
-    gameEvent?.id || ''
-  );
+  const [showPickImportModal, setShowPickImportModal] =
+    useState<boolean>(false);
 
   useEffect(() => {
     setVars(
@@ -158,8 +169,17 @@ export function VariableEditorModal({
     setImportVars(
       gameEvent?.vars.filter((variable) => variable.importFrom !== '') || []
     );
-    setImportFromValue(gameEvent?.id || '');
   }, [gameEvent]);
+
+  const handleUpdateVariable = (
+    index: number,
+    field: keyof Variable,
+    value: string
+  ) => {
+    const newVars = [...vars];
+    newVars[index] = { ...newVars[index], [field]: value };
+    setVars(newVars);
+  };
 
   const handleConfirm = () => {
     const newVars: Variable[] = [];
@@ -192,6 +212,7 @@ export function VariableEditorModal({
     } else {
       if (gameEvent) {
         gameEvent.vars = newVars;
+        setErrorText('');
         onConfirm(gameEvent);
         onCancel();
       }
@@ -205,6 +226,7 @@ export function VariableEditorModal({
     setImportVars(
       gameEvent?.vars.filter((variable) => variable.importFrom !== '') || []
     );
+    setErrorText('');
     onCancel();
   };
 
@@ -213,18 +235,10 @@ export function VariableEditorModal({
     setVars([...vars, { id: randomId(), key: '', value: '', importFrom: '' }]);
   };
 
-  const handleAddImport = () => {
-    if (importFromValue === '') {
-      setErrorText('Please select a game event to import from.');
-      return;
-    }
-    if (importFromValue === gameEvent?.id) {
-      setErrorText('You cannot import from the same game event.');
-      return;
-    }
+  const handleAddImport = (importFrom: string) => {
     // Check if the import already exists
     const alreadyImported = importVars.some(
-      (variable) => variable.importFrom === importFromValue
+      (variable) => variable.importFrom === importFrom
     );
     if (alreadyImported) {
       setErrorText('This game event is already imported.');
@@ -233,7 +247,7 @@ export function VariableEditorModal({
     setErrorText('');
     setImportVars([
       ...importVars,
-      { id: randomId(), key: '', value: '', importFrom: importFromValue },
+      { id: randomId(), key: '', value: '', importFrom },
     ]);
   };
 
@@ -248,7 +262,9 @@ export function VariableEditorModal({
   };
 
   const handleMoveVariableUp = (index: number) => {
-    if (index === 0) return;
+    if (index === 0) {
+      return;
+    }
     setErrorText('');
     const newVars = [...vars];
     [newVars[index - 1], newVars[index]] = [newVars[index], newVars[index - 1]];
@@ -256,7 +272,9 @@ export function VariableEditorModal({
   };
 
   const handleMoveVariableDown = (index: number) => {
-    if (index === vars.length - 1) return;
+    if (index === vars.length - 1) {
+      return;
+    }
     setErrorText('');
     const newVars = [...vars];
     [newVars[index], newVars[index + 1]] = [newVars[index + 1], newVars[index]];
@@ -269,11 +287,16 @@ export function VariableEditorModal({
     for (const variable of vars) {
       const trimmedKey = variable.key?.trim();
       if (!trimmedKey) {
-        errors.push('Variable name is required for variable: ' + variable.id);
+        errors.push(
+          'Variable name is required for variable at index ' +
+            (vars.indexOf(variable) + 1)
+        );
       } else {
         if (seenKeys.has(trimmedKey)) {
           errors.push(
-            `Duplicate variable name: "${trimmedKey}" for variable: ${variable.id}`
+            `Duplicate variable name: "${trimmedKey}" for variable at index ${
+              vars.indexOf(variable) + 1
+            }`
           );
         }
         seenKeys.add(trimmedKey);
@@ -286,189 +309,121 @@ export function VariableEditorModal({
     return null;
   }
 
-  return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1001,
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: '#252526',
-          border: '1px solid #3e3e42',
-          borderRadius: '8px',
-          padding: '30px',
-          maxWidth: '60vw',
-          width: '90%',
-          maxHeight: '80vh',
-          overflow: 'auto',
-          position: 'relative',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
+  return GenericModal({
+    title: 'Edit Variables',
+    onCancel: handleCancel,
+    onConfirm: handleConfirm,
+    body: () => (
+      <>
+        <div
           style={{
-            position: 'absolute',
-            top: 1,
-            right: 5,
-            backgroundColor: 'transparent',
-            border: 'none',
-            color: '#d4d4d4',
-            fontSize: '24px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-          }}
-          onClick={onCancel}
-        >
-          <span>×</span>
-        </button>
-        <h2
-          style={{
-            color: '#4ec9b0',
-            marginBottom: '20px',
-            marginTop: 0,
+            maxHeight: '45px',
+            overflow: 'auto',
+            marginBottom: '8px',
+            background: '#222',
           }}
         >
-          Edit Variables
-        </h2>
-        {errorText && (
-          <div
-            style={{ color: '#f48771', marginBottom: '20px' }}
-            dangerouslySetInnerHTML={{ __html: errorText }}
-          ></div>
-        )}
+          {importVars.map((variable) => (
+            <div key={variable.id}>
+              import {variable.importFrom}{' '}
+              <button
+                style={{
+                  backgroundColor: 'transparent',
+                }}
+                onClick={() => handleDeleteImport(variable.id)}
+              >
+                <span role="img" aria-label="delete">
+                  ❌
+                </span>
+              </button>
+            </div>
+          ))}
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            marginBottom: '4px',
+            gap: '10px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Button
+              variant="secondary"
+              onClick={() => setShowPickImportModal(true)}
+            >
+              + Add Import
+            </Button>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Button onClick={handleAddVariable}>+ Add Variable</Button>
+          </div>
+        </div>
         <div
           style={{
             marginBottom: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '5px',
+            height: '400px',
+            overflow: 'auto',
           }}
         >
+          {vars.length === 0 && (
+            <div
+              style={{
+                color: '#666',
+                fontStyle: 'italic',
+                padding: '20px',
+                textAlign: 'center',
+                borderRadius: '4px',
+              }}
+            >
+              No variables. Click "Add Variable" to add one.
+            </div>
+          )}
           {vars.map((variable, index) => (
             <VariableEntry
-              key={variable.id}
+              key={index}
+              index={index}
               variableName={variable.key}
               variableId={variable.id}
               value={variable.value}
-              importFrom={variable.importFrom}
+              // importFrom={variable.importFrom}
               handleDeleteVariable={handleDeleteVariable}
+              handleUpdateVariable={handleUpdateVariable}
               hideErrors={() => setErrorText('')}
               handleMoveUp={() => handleMoveVariableUp(index)}
               handleMoveDown={() => handleMoveVariableDown(index)}
-              canMoveUp={index > 0}
-              canMoveDown={index < vars.length - 1}
             />
           ))}
         </div>
-
         <div
-          style={{
-            display: 'flex',
-            gap: '10px',
-            width: '200px',
-            flexDirection: 'column',
-            marginBottom: '20px',
-          }}
-        >
-          <Button variant="small" onClick={() => handleAddVariable()}>
-            + Add Variable
-          </Button>
-        </div>
-
-        <h3
           style={{
             marginBottom: '20px',
+            height: '50px',
+            overflow: 'auto',
+            backgroundColor: errorText ? '#343434' : 'transparent',
           }}
         >
-          Imports
-        </h3>
-
-        {importVars.length > 0 && (
-          <ul
-            style={{
-              margin: '20px',
-            }}
-          >
-            {importVars.map((variable) => (
-              <li
-                key={variable.id}
-                style={{
-                  marginLeft: '20px',
-                  display: 'flex',
-                  gap: '10px',
-                  alignItems: 'center',
-                }}
-              >
-                <span>{variable.importFrom}</span>
-                <button
-                  style={{
-                    width: '24px',
-                    height: '20px',
-                    textAlign: 'center',
-                    fontSize: '12px',
-                    paddingLeft: '2px',
-                    backgroundColor: 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => handleDeleteImport(variable.id)}
-                >
-                  <span>❌</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        <div
-          style={{
-            display: 'flex',
-            gap: '10px',
-            flexDirection: 'column',
-            width: '200px',
-          }}
-        >
-          <select
-            value={importFromValue}
-            onChange={(e) => setImportFromValue(e.target.value)}
-          >
-            {gameEvents.map((gameEvent) => (
-              <option key={gameEvent.id} value={gameEvent.id}>
-                {gameEvent.id}
-              </option>
-            ))}
-          </select>
-
-          <Button variant="small" onClick={() => handleAddImport()}>
-            + Add Import
-          </Button>
+          {errorText ? (
+            <div
+              style={{ color: '#f48771', marginBottom: '20px' }}
+              dangerouslySetInnerHTML={{ __html: errorText }}
+            ></div>
+          ) : (
+            <div style={{ color: '#d4d4d4', marginBottom: '20px' }}>
+              No errors.
+            </div>
+          )}
         </div>
-
-        <div
-          style={{
-            display: 'flex',
-            gap: '10px',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <Button variant="primary" onClick={() => handleConfirm()}>
-            Confirm
-          </Button>
-          <Button variant="secondary" onClick={() => handleCancel()}>
-            Cancel
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
+        <PickImportModal
+          isOpen={showPickImportModal}
+          onConfirm={handleAddImport}
+          onCancel={() => setShowPickImportModal(false)}
+          gameEvents={gameEvents}
+          existingImports={importVars.map((variable) => variable.importFrom)}
+          gameEvent={gameEvent}
+        />
+      </>
+    ),
+  });
 }

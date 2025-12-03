@@ -2,19 +2,12 @@ import {
   GameEvent,
   GameEventChildType,
   GameEventChildExec,
-  SENode,
   GameEventChildSwitch,
   GameEventChildChoice,
   GameEventChildEnd,
+  GameEventChildComment,
 } from '../types/assets';
 import { randomId } from '../utils/mathUtils';
-// import {
-//   createChoiceNode,
-//   createEndNode,
-//   createExecNode,
-//   createKeywordNode,
-//   createSwitchNode,
-// } from './nodeCreation';
 import {
   EditorStateSE,
   enterLinkingMode,
@@ -26,6 +19,7 @@ import { EditorNode } from './EditorNode';
 import { EditorNodeSwitch } from './cmpts/SwitchNodeComponent';
 import { EditorNodeChoice } from './cmpts/ChoiceNodeComponent';
 import { EditorNodeEnd } from './cmpts/EndNodeComponent';
+import { EditorNodeComment } from './cmpts/CommentNodeComponent';
 
 interface ContextMenuProps {
   x: number;
@@ -70,6 +64,7 @@ export function ContextMenu({
     GameEventChildType.CHOICE,
     GameEventChildType.SWITCH,
     GameEventChildType.KEYWORD,
+    GameEventChildType.COMMENT,
     GameEventChildType.END,
   ];
 
@@ -181,6 +176,19 @@ export function ContextMenu({
             h: 0,
             next: '',
           } as GameEventChildEnd,
+          editorStateRef.current
+        );
+        break;
+      case GameEventChildType.COMMENT:
+        newNode = new EditorNodeComment(
+          {
+            id: nodeId,
+            eventChildType: GameEventChildType.COMMENT,
+            x: 0,
+            y: 0,
+            h: 0,
+            comment: 'This is a comment node.',
+          } as GameEventChildComment,
           editorStateRef.current
         );
         break;

@@ -111,7 +111,7 @@ export class EditorNodeExec extends EditorNode {
     }
     height += this.execStrHeight;
 
-    this.height = height;
+    this.height = Math.max(height, 50);
     this.update();
   }
 

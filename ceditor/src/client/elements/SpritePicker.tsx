@@ -5,6 +5,7 @@ import { OptionSelect } from './OptionSelect';
 import { Button } from './Button';
 import { ModalRowLayout } from './ModalRowLayout';
 import { Sprite as SpriteType } from '../utils/assetLoader';
+import { GenericModal } from './GenericModal';
 
 interface SpritePickerProps {
   value: string;
@@ -207,6 +208,122 @@ export function SpritePicker({
       )}
 
       {isModalOpen && (
+        <GenericModal
+          title="Select Sprite"
+          onConfirm={handleOk}
+          onCancel={handleCancel}
+          body={() => (
+            <>
+              <ModalRowLayout
+                fixedHeight={400}
+                fixedContent={
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <OptionSelect
+                      label="Spritesheet"
+                      value={selectedSpritesheet}
+                      onChange={handleSpritesheetChange}
+                      options={spritesheetOptions}
+                    />
+                    {previewSprite && selectedSpriteName && (
+                      <div
+                        style={{
+                          marginTop: '20px',
+                          padding: '20px',
+                          backgroundColor: '#1e1e1e',
+                          borderRadius: '4px',
+                          textAlign: 'center',
+                        }}
+                      >
+                        <div style={{ marginBottom: '10px', color: '#d4d4d4' }}>
+                          Preview:
+                        </div>
+                        <div
+                          style={{
+                            display: 'inline-block',
+                            padding: '10px',
+                            backgroundColor: '#2d2d30',
+                            borderRadius: '4px',
+                          }}
+                        >
+                          <Sprite
+                            sprite={previewSprite}
+                            scale={calculateScale(previewSprite)}
+                          />
+                        </div>
+                        <div
+                          style={{
+                            marginTop: '10px',
+                            color: '#858585',
+                            fontSize: '12px',
+                          }}
+                        >
+                          {previewSprite.name}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                }
+                resizableContent={
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      marginBottom: '20px',
+                    }}
+                  >
+                    {selectedSpritesheet && (
+                      <>
+                        <label
+                          style={{
+                            display: 'block',
+                            marginBottom: '8px',
+                            color: '#d4d4d4',
+                            fontSize: '14px',
+                            fontWeight: 500,
+                          }}
+                        >
+                          Sprite
+                        </label>
+                        {sheetSprites.length > 0 ? (
+                          <div
+                            style={{
+                              display: 'grid',
+                              gridTemplateColumns:
+                                'repeat(auto-fill, minmax(80px, 1fr))',
+                              gap: '12px',
+                              padding: '15px',
+                              backgroundColor: '#1e1e1e',
+                              borderRadius: '4px',
+                              height: 'calc(100% - 60px)',
+                              overflowY: 'auto',
+                            }}
+                          >
+                            {spriteCanvases}
+                          </div>
+                        ) : (
+                          <div
+                            style={{
+                              padding: '20px',
+                              textAlign: 'center',
+                              color: '#858585',
+                              backgroundColor: '#1e1e1e',
+                              borderRadius: '4px',
+                            }}
+                          >
+                            No sprites found in this spritesheet
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                }
+              />
+            </>
+          )}
+        ></GenericModal>
+      )}
+
+      {/* {isModalOpen && (
         <div
           style={{
             position: 'absolute',
@@ -371,8 +488,7 @@ export function SpritePicker({
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 }
-

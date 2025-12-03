@@ -5,7 +5,7 @@ import {
   GameEventChildSwitch,
   GameEventChildType,
   SENode,
-} from '../types/assets';
+} from '../../types/assets';
 
 interface ValidationError {
   childId: string;

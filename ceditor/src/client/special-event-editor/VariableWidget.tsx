@@ -7,6 +7,8 @@ interface VariableWidgetProps {
   gameEvent: GameEvent | null;
 }
 
+
+
 export function VariableWidget({ gameEvent }: VariableWidgetProps) {
   const { gameEvents } = useAssets();
   const [copiedVar, setCopiedVar] = useState<string | null>(null);

@@ -18,6 +18,7 @@ import {
   syncGameEventFromEditorState,
 } from '../special-event-editor/seEditorState';
 import { EventRunnerModal } from '../special-event-editor/eventRunner/EventRunnerModal';
+import { DeleteModal } from '../elements/DeleteModal';
 
 interface NotificationState {
   message: string;
@@ -39,6 +40,11 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const [showVariableEditorModal, setShowVariableEditorModal] = useState(false);
   const [showEditGameEventModal, setShowEditGameEventModal] = useState(false);
   const [showEventRunnerModal, setShowEventRunnerModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmMessage, setDeleteConfirmMessage] = useState('');
+  const [deleteConfirmIndex, setDeleteConfirmIndex] = useState<number | null>(
+    null
+  );
   const notificationIdRef = useRef(0);
 
   const showNotification = (message: string, type: 'success' | 'error') => {
@@ -94,19 +100,44 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     showNotification('Game event cloned!', 'success');
   };
 
-  const handleDelete = (filteredIndex: number) => {
+  const deleteGameEvent = (filteredIndex: number) => {
     const actualIndex = getActualIndex(filteredIndex);
-    if (confirm('Are you sure you want to delete this game event?')) {
-      const newGameEvents = gameEvents.filter(
-        (_, index) => index !== actualIndex
-      );
-      setGameEvents(newGameEvents);
-      if (editGameEventIndex === actualIndex) {
-        setEditGameEventIndex(-1);
-      } else if (editGameEventIndex > actualIndex) {
-        setEditGameEventIndex(editGameEventIndex - 1);
-      }
+    if (actualIndex < 0 || actualIndex >= gameEvents.length) {
+      return;
     }
+    const newGameEvents = gameEvents.filter(
+      (_, index) => index !== actualIndex
+    );
+
+    // delete imports from other events
+    for (const event of newGameEvents) {
+      event.vars = event.vars.filter(
+        (variable) => variable.importFrom !== gameEvents[actualIndex].id
+      );
+    }
+    setGameEvents(newGameEvents);
+    if (editGameEventIndex === actualIndex) {
+      setEditGameEventIndex(-1);
+    } else if (editGameEventIndex > actualIndex) {
+      setEditGameEventIndex(editGameEventIndex - 1);
+    }
+  };
+
+  const handleDeleteClick = (filteredIndex: number) => {
+    const actualIndex = getActualIndex(filteredIndex);
+    const eventsThatImportThisEvent = gameEvents.filter((gameEvent) =>
+      gameEvent.vars.some(
+        (variable) => variable.importFrom === gameEvents[actualIndex].id
+      )
+    );
+
+    setShowDeleteConfirm(true);
+    setDeleteConfirmIndex(actualIndex);
+    setDeleteConfirmMessage(
+      eventsThatImportThisEvent.length > 0
+        ? `Are you sure you want to delete this game event? ${eventsThatImportThisEvent.length} events import this event.`
+        : `Are you sure you want to delete this game event?`
+    );
   };
 
   const handleCreateNew = () => {
@@ -367,7 +398,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
             }))}
             onItemClick={handleGameEventClick}
             onClone={handleClone}
-            onDelete={handleDelete}
+            onDelete={handleDeleteClick}
             selectedIndex={
               editGameEventIndex !== -1
                 ? (() => {
@@ -530,6 +561,16 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
           onClose={() => removeNotification(notification.id)}
         />
       ))}
+
+      <DeleteModal
+        isOpen={showDeleteConfirm}
+        message={deleteConfirmMessage}
+        onConfirm={() => {
+          deleteGameEvent(deleteConfirmIndex ?? 0);
+          setShowDeleteConfirm(false);
+        }}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 }

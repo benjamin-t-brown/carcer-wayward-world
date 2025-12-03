@@ -28,6 +28,8 @@ import { EditorNodeEnd } from './cmpts/EndNodeComponent';
 import { EditChoiceNodeModal } from './modals/EditChoiceNodeModal';
 import { EditEndNodeModal } from './modals/EditEndNodeModal';
 import { EventRunnerModal } from './eventRunner/EventRunnerModal';
+import { EditorNodeComment } from './cmpts/CommentNodeComponent';
+import { EditCommentModal } from './modals/EditCommentModal';
 
 interface SpecialEventEditorProps {
   gameEvent: GameEvent;
@@ -54,10 +56,12 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
   const [editingChoiceNode, setEditingChoiceNode] = useState<
     EditorNodeChoice | undefined
   >(undefined);
+  const [editingCommentNode, setEditingCommentNode] = useState<
+    EditorNodeComment | undefined
+  >(undefined);
   const [editingEndNode, setEditingEndNode] = useState<
     EditorNodeEnd | undefined
   >(undefined);
-
 
   const [eventRunnerModalOpen, setEventRunnerModalOpen] = useState(false);
 
@@ -149,6 +153,8 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
               setEditingSwitchNode(node as EditorNodeSwitch);
             } else if (node.type === GameEventChildType.CHOICE) {
               setEditingChoiceNode(node as EditorNodeChoice);
+            } else if (node.type === GameEventChildType.COMMENT) {
+              setEditingCommentNode(node as EditorNodeComment);
             } else if (node.type === GameEventChildType.END) {
               setEditingEndNode(node as EditorNodeEnd);
             }
@@ -290,6 +296,13 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
         node={editingChoiceNode}
         gameEvent={gameEvent}
         onCancel={() => setEditingChoiceNode(undefined)}
+        ctx={canvasRef.current?.getContext('2d') as CanvasRenderingContext2D}
+      />
+      <EditCommentModal
+        isOpen={editingCommentNode !== undefined}
+        node={editingCommentNode}
+        gameEvent={gameEvent}
+        onCancel={() => setEditingCommentNode(undefined)}
         ctx={canvasRef.current?.getContext('2d') as CanvasRenderingContext2D}
       />
       <EditEndNodeModal
