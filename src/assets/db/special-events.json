@@ -37,8 +37,8 @@
       },
       {
         "id": "j1fvstpyknr",
-        "x": 931.3333333333333,
-        "y": 131.25,
+        "x": 812.3333333333333,
+        "y": 112.25,
         "eventChildType": "CHOICE",
         "h": 150,
         "text": "This is example text for a choice node. It has a lot of text but im not sure if it should really be this long.",
@@ -62,26 +62,26 @@
       },
       {
         "id": "1emoqgm0ho8",
-        "x": 1879.333333333333,
-        "y": 400.25,
+        "x": 1681.333333333333,
+        "y": 287.25,
         "eventChildType": "END",
         "h": 60,
         "next": ""
       },
       {
         "id": "4vi6dana8qb",
-        "x": 1331,
-        "y": 129.91666666666697,
+        "x": 1166,
+        "y": 90.91666666666697,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "You picked the default choice.",
         "execStr": "",
-        "next": "1emoqgm0ho8"
+        "next": ""
       },
       {
         "id": "amg64bjsc4g",
-        "x": 1346,
-        "y": 211.91666666666697,
+        "x": 1176,
+        "y": 163.91666666666697,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "You picked the the second choice.",
@@ -90,8 +90,8 @@
       },
       {
         "id": "xm7tbt02cnj",
-        "x": 557.8333333333333,
-        "y": 149.25,
+        "x": 459.83333333333326,
+        "y": 121.25,
         "eventChildType": "EXEC",
         "h": 130,
         "p": "When you walk into this room, the door shuts abruptly behind you and an alarm begins blaring.\n\n\"@PLAYER_NAME, Your presence here is not wanted.  You will now be eliminated.\"\n\nWith a *clank* the walls begin to enclose around you.",
@@ -104,7 +104,7 @@
         "y": 20.75,
         "eventChildType": "COMMENT",
         "h": 108,
-        "comment": "This is a comment node. This is a comment node. This is a comment node. This is a comment node. This is a comment node. This is a comment node. This is a comment node. This is a comment node."
+        "comment": "This is a comment node. 2 This is a comment node. This is a comment node. This is a comment node. This is a comment node. This is a comment node. This is a comment node. This is a comment node."
       }
     ]
   },

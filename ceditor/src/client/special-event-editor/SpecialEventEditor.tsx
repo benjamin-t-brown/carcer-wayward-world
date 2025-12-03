@@ -250,18 +250,6 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
             width={editorState.current?.zoneWidth || 1000}
             height={editorState.current?.zoneHeight || 1000}
           />
-          {/* <div
-            id="se-nodes"
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              width: editorState.current?.zoneWidth || 1000,
-              height: editorState.current?.zoneHeight || 1000,
-              background: 'blue',
-            }}
-          >
-          </div> */}
         </div>
       </div>
 

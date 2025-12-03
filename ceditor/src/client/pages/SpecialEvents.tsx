@@ -19,6 +19,8 @@ import {
 } from '../special-event-editor/seEditorState';
 import { EventRunnerModal } from '../special-event-editor/eventRunner/EventRunnerModal';
 import { DeleteModal } from '../elements/DeleteModal';
+import { ValidationErrorsIndicator } from '../special-event-editor/cmpts/ValidationErrorsIndictator';
+import { EventValidator } from '../special-event-editor/eventRunner/eventValidator';
 
 interface NotificationState {
   message: string;
@@ -45,6 +47,12 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const [deleteConfirmIndex, setDeleteConfirmIndex] = useState<number | null>(
     null
   );
+  const [validationErrors, setValidationErrors] = useState<
+    {
+      message: string;
+      childId: string;
+    }[]
+  >([]);
   const notificationIdRef = useRef(0);
 
   const showNotification = (message: string, type: 'success' | 'error') => {
@@ -181,6 +189,13 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameEvents, routeParams]);
+
+  const validateCurrentGameEvent = () => {
+    syncGameEventFromEditorState(currentGameEvent, getEditorState());
+    const validator = new EventValidator(currentGameEvent);
+    const errors = validator.validate();
+    setValidationErrors(errors);
+  };
 
   const validateGameEvents = (): { isValid: boolean; error?: string } => {
     const errors: string[] = [];
@@ -487,6 +502,19 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                 >
                   Edit Variables
                 </Button>
+                <Button
+                  variant="small"
+                  onClick={() => validateCurrentGameEvent()}
+                >
+                  Validate
+                </Button>
+                <div
+                  style={{
+                    position: 'relative',
+                  }}
+                >
+                  <ValidationErrorsIndicator errors={validationErrors} />
+                </div>
               </div>
             </>
           ) : (

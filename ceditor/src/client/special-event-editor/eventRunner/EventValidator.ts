@@ -77,6 +77,7 @@ export class EventValidator {
         this.validateChoiceNode(seNode as GameEventChildChoice);
         break;
       case GameEventChildType.END:
+      case GameEventChildType.COMMENT:
         break;
       default:
         throw new Error(`Unknown child type: ${seNode.eventChildType}`);
