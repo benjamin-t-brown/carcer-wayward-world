@@ -46,6 +46,7 @@ const getStorage = (
 class ConditionEvaluator {
   storage: Record<string, any>;
   baseConditionStr: string;
+  onceKeysToCommit: string[] = [];
 
   constructor(storage: Record<string, any>, baseConditionStr: string) {
     this.storage = storage;
@@ -107,25 +108,29 @@ class ConditionEvaluator {
     ANY: (...args: string[]) => {
       return args.some((arg) => Boolean(getStorage(this.storage, arg)));
     },
+    ONCE: (a: string) => {
+      const onceKey = 'once.' + a;
+      const v = getStorage(this.storage, onceKey);
+      if (v === 'true') {
+        return false;
+      }
+      if (!this.onceKeysToCommit.includes(onceKey)) {
+        this.onceKeysToCommit.push(onceKey);
+      }
+      return true;
+    },
   };
 
-  evalArg(arg: string) {
-    if (this.isFunctionCall(arg)) {
-      let { funcName, funcArgs } = this.parseFunctionCall(arg);
-      if (funcName in this.boolFunctions) {
-        return this.boolFunctions[funcName as keyof typeof this.boolFunctions](
-          ...funcArgs
-        );
-      } else {
-        throw new Error(`Function ${funcName} not found`);
-      }
+  evalFunc(funcName: keyof typeof this.boolFunctions, ...funcArgs: string[]) {
+    if (funcName in this.boolFunctions) {
+      const result = this.boolFunctions[funcName](...funcArgs);
+      return result;
     } else {
-      return arg;
+      throw new Error(`Conditional function '${funcName}' not found.`);
     }
   }
 
   evalCondition(str: string) {
-    console.log('evalCondition', str);
     let conditionStr = str.trim();
     if (conditionStr === '') {
       return true;
@@ -138,20 +143,7 @@ class ConditionEvaluator {
     }
     if (this.isFunctionCall(str)) {
       let { funcName, funcArgs } = this.parseFunctionCall(str);
-      if (funcName in this.boolFunctions) {
-        const args: any[] = [];
-        for (const arg of funcArgs) {
-          const evalArg = this.evalArg(arg);
-          args.push(evalArg);
-        }
-        return this.boolFunctions[funcName as keyof typeof this.boolFunctions](
-          ...args
-        );
-      } else {
-        throw new Error(
-          `Function' ${funcName}' not found in condition: ${this.baseConditionStr}`
-        );
-      }
+      return this.evalFunc(funcName as keyof typeof this.boolFunctions, ...funcArgs);
     } else {
       throw new Error(`Invalid condition: ${this.baseConditionStr}`);
     }
@@ -256,7 +248,7 @@ class StringEvaluator {
         ](...funcArgs);
       } else {
         throw new Error(
-          `Function '${funcName}' not found in string: ${this.baseStringStr}`
+          `Function '${funcName}' not found: ${this.baseStringStr}`
         );
       }
     } else {
@@ -272,9 +264,16 @@ export class EventRunner {
   currentNodeId: string;
 
   displayText: string = '';
-  displayTextChoices: { text: string; next: string }[] = [];
+  displayTextChoices: {
+    text: string;
+    next: string;
+    onceKeysToCommit: string[];
+  }[] = [];
 
-  errors: string[] = [];
+  errors: {
+    nodeId: string;
+    message: string;
+  }[] = [];
 
   constructor(
     initialStorage: Record<string, any> = {},
@@ -313,7 +312,10 @@ export class EventRunner {
           text = text.replaceAll(`${match}`, String(value));
         }
       } else {
-        this.errors.push(`Variable ${match} not found`);
+        this.errors.push({
+          nodeId: this.currentNodeId,
+          message: `Variable ${match} not found`,
+        });
       }
     }
 
@@ -337,8 +339,15 @@ export class EventRunner {
       const result = stringEvaluator.evalStr(str);
       return result;
     } catch (error: unknown) {
-      this.errors.push((error as Error).message);
-      console.error(`error evaluating string: '${str}'`, error);
+      this.errors.push({
+        nodeId: this.currentNodeId,
+        message: (error as Error).message,
+      });
+      console.log(
+        `ERROR evaluating string: '${str}'`,
+        this.currentNodeId,
+        error
+      );
       return false;
     }
   }
@@ -349,13 +358,26 @@ export class EventRunner {
       conditionStr
     );
     try {
-      const result = conditionEvaluator.evalCondition(conditionStr);
-      console.log('evalCondition', { conditionStr, result });
-      return result;
+      const result = Boolean(conditionEvaluator.evalCondition(conditionStr));
+      console.log('evalCondition with evaluator', { conditionStr, result });
+      return {
+        result,
+        onceKeysToCommit: conditionEvaluator.onceKeysToCommit,
+      };
     } catch (error: unknown) {
-      this.errors.push((error as Error).message);
-      console.error(`error evaluating condition: '${conditionStr}'`, error);
-      return false;
+      this.errors.push({
+        nodeId: this.currentNodeId,
+        message: (error as Error).message,
+      });
+      console.log(
+        `ERROR evaluating condition: '${conditionStr}'`,
+        this.currentNodeId,
+        error
+      );
+      return {
+        result: false,
+        onceKeysToCommit: [],
+      };
     }
   }
 
@@ -367,19 +389,32 @@ export class EventRunner {
     return Object.keys(StringEvaluator.prototype.stringFunctions);
   }
 
-  advance(nextNodeId: string) {
+  commitOnceKeys(onceKeysToCommit: string[]) {
+    for (const onceKeyToCommit of onceKeysToCommit) {
+      setStorage(this.storage, onceKeyToCommit, 'true');
+    }
+  }
+
+  advance(
+    nextNodeId: string,
+    { onceKeysToCommit }: { onceKeysToCommit: string[] }
+  ) {
     if (this.errors.length > 0) {
       return;
     }
 
+    this.commitOnceKeys(onceKeysToCommit);
+
     this.displayText = '';
     this.displayTextChoices = [];
 
+    // const prevNodeId = this.currentNodeId;
     this.currentNodeId = nextNodeId;
     const currentNode = this.getCurrentNode();
     if (nextNodeId === '' || !currentNode) {
       return;
     }
+
     if (currentNode?.eventChildType === GameEventChildType.EXEC) {
       const execNode = currentNode as GameEventChildExec;
       const strLines = execNode.execStr.split('\n');
@@ -387,35 +422,44 @@ export class EventRunner {
         this.evalExecStr(this.replaceVariables(strLine));
       }
       this.displayText = this.replaceVariables(execNode.p, true);
-      console.log('storage after exec:', this.storage);
       if (!this.displayText) {
-        this.advance(execNode.next);
+        this.advance(execNode.next, { onceKeysToCommit: [] });
       }
     } else if (currentNode?.eventChildType === GameEventChildType.CHOICE) {
       const choiceNode = currentNode as GameEventChildChoice;
       this.displayText = this.replaceVariables(choiceNode.text, true);
       this.displayTextChoices = choiceNode.choices
-        .filter((choice) => {
-          return choice.conditionStr
-            ? this.evalCondition(this.replaceVariables(choice.conditionStr))
-            : true;
+        .map((choice) => {
+          const obj = choice.conditionStr
+            ? this.evalCondition(
+                this.replaceVariables(choice.conditionStr ?? '')
+              )
+            : { result: true, onceKeysToCommit: [] };
+          return {
+            text: this.replaceVariables(choice.text, true),
+            next: choice.next,
+            onceKeysToCommit: obj.onceKeysToCommit,
+            result: obj.result,
+          };
         })
-        .map((choice) => ({
-          text: this.replaceVariables(choice.text, true),
-          next: choice.next,
-        }));
+        .filter((choice) => choice.result);
     } else if (currentNode?.eventChildType === GameEventChildType.SWITCH) {
       const switchNode = currentNode as GameEventChildSwitch;
       let found = false;
-      for (const c of switchNode.cases) {
-        if (this.evalCondition(this.replaceVariables(c.conditionStr))) {
-          this.advance(c.next);
+      for (let i = 0; i < switchNode.cases.length; i++) {
+        const c = switchNode.cases[i];
+        console.log('switch case', i, c, switchNode);
+        const obj = this.evalCondition(
+          this.replaceVariables(c.conditionStr ?? '')
+        );
+        if (obj.result) {
+          this.advance(c.next, { onceKeysToCommit: obj.onceKeysToCommit });
           found = true;
           break;
         }
       }
       if (!found) {
-        this.advance(switchNode.defaultNext);
+        this.advance(switchNode.defaultNext, { onceKeysToCommit: [] });
       }
     }
   }

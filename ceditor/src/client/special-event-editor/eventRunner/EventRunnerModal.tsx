@@ -8,14 +8,19 @@ import {
   GameEventChildType,
 } from '../../types/assets';
 import { Button } from '../../elements/Button';
-import { VariableWidget } from '../VariableWidget';
+import { VariableWidget } from '../react-components/VariableWidget';
 import { EditorNodeChoice } from '../cmpts/ChoiceNodeComponent';
 import { Sprite } from '../../elements/Sprite';
 import { useSprites } from '../../hooks/useSprites';
 import { useSDL2WAssets } from '../../contexts/SDL2WAssetsContext';
-import { centerPanzoomOnNode } from '../seEditorState';
+import {
+  centerPanzoomOnNode,
+  getEditorState,
+  notifyStateUpdated,
+} from '../seEditorState';
 import { EventRunner } from './EventRunner';
 import { useReRender } from '../../hooks/useReRender';
+import { CANVAS_CONTAINER_ID } from '../react-components/MapCanvasSE';
 
 interface EventRunnerModalProps {
   isOpen: boolean;
@@ -55,6 +60,39 @@ const EventHeader = ({ gameEvent }: { gameEvent: GameEvent }) => {
   );
 };
 
+const ChoiceButton = ({
+  hasErrors,
+  handleNext,
+  text,
+}: {
+  hasErrors: boolean;
+  handleNext: () => void;
+  text: string;
+}) => {
+  return (
+    <button
+      style={{
+        background: 'black',
+        padding: '10px 10px',
+        fontFamily: 'arial',
+        fontSize: '14px',
+        color: 'white',
+        border: 'none',
+        cursor: hasErrors ? 'not-allowed' : 'pointer',
+        width: '100%',
+        textAlign: 'left',
+        marginBottom: '4px',
+        borderRadius: '8px',
+        opacity: hasErrors ? 0.5 : 1,
+      }}
+      onClick={() => handleNext()}
+      disabled={hasErrors}
+    >
+      {text}
+    </button>
+  );
+};
+
 const EventRunnerExecChild = ({
   child,
   gameEvent,
@@ -72,6 +110,8 @@ const EventRunnerExecChild = ({
     advance(child.next);
   };
 
+  const hasErrors = runner.errors.length > 0;
+
   return (
     <>
       <EventHeader gameEvent={gameEvent} />
@@ -87,7 +127,7 @@ const EventRunnerExecChild = ({
             fontFamily: 'arial',
             fontSize: '14px',
             color: 'white',
-            height: 'calc(100% - 80px)',
+            height: 'calc(100% - 80px - 100px)',
             overflow: 'auto',
           }}
           dangerouslySetInnerHTML={{
@@ -96,14 +136,26 @@ const EventRunnerExecChild = ({
         ></div>
         <div
           style={{
+            height: '100px',
+          }}
+        >
+          <ChoiceButton
+            hasErrors={hasErrors}
+            handleNext={handleNext}
+            text="Continue."
+          ></ChoiceButton>
+        </div>
+        <div
+          style={{
             display: 'flex',
             justifyContent: 'flex-end',
             marginTop: '10px',
             height: '80px',
             alignItems: 'center',
+            // opacity: hasErrors ? 0.5 : 1,
           }}
         >
-          <Button variant="primary" onClick={handleNext}>
+          <Button variant="primary" onClick={handleNext} disabled={hasErrors}>
             Okay
           </Button>
         </div>
@@ -121,12 +173,22 @@ const EventRunnerChoiceChild = ({
   child: GameEventChildChoice;
   gameEvent: GameEvent;
   runner: EventRunner;
-  advance: (nextNodeId: string) => void;
+  advance: (
+    nextNodeId: string,
+    { onceKeysToCommit }: { onceKeysToCommit: string[] }
+  ) => void;
 }) => {
   const nodeText = runner.displayText;
 
   const handleNext = (nextNodeId: string) => {
-    advance(nextNodeId);
+    const obj = runner.displayTextChoices.find(
+      (choice) => choice.next === nextNodeId
+    );
+    if (obj) {
+      advance(nextNodeId, {
+        onceKeysToCommit: obj.onceKeysToCommit,
+      });
+    }
   };
 
   return (
@@ -163,24 +225,12 @@ const EventRunnerChoiceChild = ({
           }}
         >
           {runner.displayTextChoices.map((choice, i) => (
-            <button
+            <ChoiceButton
               key={i}
-              style={{
-                background: 'black',
-                padding: '10px 4px',
-                fontFamily: 'arial',
-                fontSize: '14px',
-                color: 'white',
-                border: 'none',
-                cursor: 'pointer',
-                width: '100%',
-                textAlign: 'left',
-                marginBottom: '4px',
-              }}
-              onClick={() => handleNext(choice.next)}
-            >
-              {choice.text}
-            </button>
+              hasErrors={runner.errors.length > 0}
+              handleNext={() => handleNext(choice.next)}
+              text={choice.text}
+            ></ChoiceButton>
           ))}
         </div>
       </div>
@@ -262,7 +312,12 @@ export function EventRunnerModal({
   const sprite = spriteMap[gameEvent?.icon ?? ''];
   const currentNode = eventRunner?.getCurrentNode();
 
-  const advance = (nextNodeId: string) => {
+  const advance = (
+    nextNodeId: string,
+    { onceKeysToCommit }: { onceKeysToCommit: string[] } = {
+      onceKeysToCommit: [],
+    }
+  ) => {
     if (nextNodeId === '') {
       onCancel();
       return;
@@ -274,7 +329,13 @@ export function EventRunnerModal({
       if (canvas) {
         centerPanzoomOnNode(canvas, nextNodeId);
       }
-      eventRunner.advance(nextNodeId);
+      try {
+        eventRunner.advance(nextNodeId, { onceKeysToCommit });
+      } catch (e) {
+        console.error('error advancing event runner:', e);
+        getEditorState().runnerErrors = eventRunner.errors;
+        notifyStateUpdated();
+      }
       reRender();
     }
   };
@@ -283,7 +344,7 @@ export function EventRunnerModal({
     if (isOpen) {
       const runner = new EventRunner({}, gameEvent, gameEvents);
       setEventRunner(runner);
-      runner.advance(runner.currentNodeId);
+      runner.advance(runner.currentNodeId, { onceKeysToCommit: [] });
     } else {
       setEventRunner(undefined);
     }
@@ -314,7 +375,7 @@ export function EventRunnerModal({
           border: '1px solid #3e3e42',
           borderRadius: '8px',
           padding: '30px',
-          maxWidth: '60vw',
+          maxWidth: '90vw',
           width: '90%',
           maxHeight: '80vh',
           overflow: 'auto',
@@ -334,7 +395,11 @@ export function EventRunnerModal({
             fontWeight: 'bold',
             cursor: 'pointer',
           }}
-          onClick={onCancel}
+          onClick={() => {
+            getEditorState().runnerErrors = eventRunner.errors;
+            notifyStateUpdated();
+            onCancel();
+          }}
         >
           <span>×</span>
         </button>
@@ -370,6 +435,36 @@ export function EventRunnerModal({
               runner={eventRunner}
               advance={advance}
             />
+          )}
+          {eventRunner.errors.length > 0 && (
+            <div>
+              {eventRunner.errors.map((error) => (
+                <div key={error.nodeId}>
+                  <span
+                    style={{
+                      color: '#FFF',
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                    }}
+                    onClick={() => {
+                      const canvas = document.getElementById(
+                        CANVAS_CONTAINER_ID + '-canvas'
+                      ) as HTMLCanvasElement;
+                      if (canvas) {
+                        onCancel();
+                        // getEditorState().runnerErrors.push(error);
+                        getEditorState().runnerErrors = eventRunner.errors;
+                        notifyStateUpdated();
+                        centerPanzoomOnNode(canvas, error.nodeId);
+                      }
+                    }}
+                  >
+                    {error.nodeId}:
+                  </span>{' '}
+                  <span style={{ color: '#F77' }}>{error.message}</span>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>

@@ -8,7 +8,7 @@ import {
   GameEventChildType,
   SENode,
 } from '../types/assets';
-import { EditorNode } from './EditorNode';
+import { EditorNode } from './cmpts/EditorNode';
 import {
   getNodeParents,
   screenCoordsToCanvasCoords,
@@ -36,7 +36,7 @@ interface EditorSaveState {
 export class EditorStateSE {
   // gameEvent: GameEvent | undefined = undefined;
   gameEventId: string | undefined = undefined;
-  baseGameEvent: GameEvent | undefined = undefined;
+  // baseGameEvent: GameEvent | undefined = undefined;
   editorNodes: EditorNode[] = [];
   selectedChildId = '';
   zoneWidth = 3000;
@@ -92,24 +92,33 @@ export class EditorStateSE {
     offsetX: number;
     offsetY: number;
   }> | null = null;
+  shouldValidate: boolean = false;
+  runnerErrors: {
+    message: string;
+    nodeId: string;
+  }[] = [];
 }
 const editorStateSE = new EditorStateSE();
 
 export const getEditorState = () => editorStateSE;
 export const updateEditorState = (state: Partial<EditorStateSE>) => {
   Object.assign(editorStateSE, { ...getEditorState(), ...state });
-  const gameEvent = editorStateSE.baseGameEvent;
-  if (gameEvent) {
-    syncGameEventFromEditorState(gameEvent, editorStateSE);
+  // const gameEvent = editorStateSE.gameEventId;
+  // if (gameEvent) {
+  //   syncGameEventFromEditorState(gameEvent, editorStateSE);
+  // }
+  const renderFunc = (window as any).reRenderSpecialEventEditor;
+  if (renderFunc) {
+    renderFunc();
   }
-  (window as any).reRenderSpecialEventEditor();
+  notifyStateUpdated();
 };
 export const updateEditorStateNoReRender = (state: Partial<EditorStateSE>) => {
   Object.assign(editorStateSE, { ...getEditorState(), ...state });
-  const gameEvent = editorStateSE.baseGameEvent;
-  if (gameEvent) {
-    syncGameEventFromEditorState(gameEvent, editorStateSE);
-  }
+  // const gameEvent = editorStateSE.baseGameEvent;
+  // if (gameEvent) {
+  //   syncGameEventFromEditorState(gameEvent, editorStateSE);
+  // }
 };
 (window as any).editorStateSE = editorStateSE;
 
@@ -242,13 +251,18 @@ export const resetPanzoom = (editorState?: EditorStateSE) => {
 
 export const centerPanzoomOnNode = (
   canvas: HTMLCanvasElement,
-  nodeId: string
+  nodeId: string,
+  shouldFlash: boolean = false
 ) => {
   const editorState = getEditorState();
 
   const editorNode = editorState.editorNodes.find((node) => node.id === nodeId);
   if (!editorNode) {
     return;
+  }
+
+  if (shouldFlash) {
+    editorNode.startFlash();
   }
 
   const { width, height } = editorNode.getBounds();
@@ -456,6 +470,16 @@ export const syncGameEventFromEditorState = (
   editorState?: EditorStateSE
 ) => {
   const s = editorState || getEditorState();
+  if (gameEvent.id !== s.gameEventId) {
+    console.error(
+      "syncGameEventFromEditorState rejecting sync since ids don't match.",
+      'attempted to sync event',
+      `"${gameEvent.id}"`,
+      'with current editor state id event',
+      `"${s.gameEventId}"`
+    );
+    return;
+  }
   gameEvent.children = s.editorNodes.map((node) => node.toSENode());
 };
 
@@ -564,4 +588,9 @@ export const pasteNodes = (canvas: HTMLCanvasElement) => {
   editorState.editorNodes.push(...newNodes);
 
   updateEditorState({});
+};
+
+export const notifyStateUpdated = () => {
+  const editorState = getEditorState();
+  editorState.shouldValidate = true;
 };

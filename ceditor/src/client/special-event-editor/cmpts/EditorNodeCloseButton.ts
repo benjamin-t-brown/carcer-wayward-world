@@ -1,5 +1,5 @@
 import { drawRect, drawText } from '../../utils/draw';
-import { EditorNode } from '../EditorNode';
+import { EditorNode } from './EditorNode';
 
 export interface RenderCloseButtonArgs {
   isHovered: boolean;
@@ -36,11 +36,11 @@ export class EditorNodeCloseButton {
       this.parentNode.getBounds().width -
       this.btnSize -
       this.parentNode.borderSize -
-      this.parentNode.padding;
+      1;
     this.y =
       this.parentNode.getBounds().y +
       this.parentNode.borderSize +
-      this.parentNode.padding;
+      1;
   }
 
   render(

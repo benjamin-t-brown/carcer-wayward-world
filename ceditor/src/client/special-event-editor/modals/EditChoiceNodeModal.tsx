@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Choice, GameEvent } from '../../types/assets';
 import { Button } from '../../elements/Button';
-import { VariableWidget } from '../VariableWidget';
+import { VariableWidget } from '../react-components/VariableWidget';
 import { EditorNodeChoice } from '../cmpts/ChoiceNodeComponent';
+import { notifyStateUpdated } from '../seEditorState';
 
 interface EditChoiceNodeModalProps {
   isOpen: boolean;
@@ -37,6 +38,7 @@ export function EditChoiceNodeModal({
   const handleEditNodeConfirm = () => {
     node.text = text;
     node.buildFromChoices(choices, ctx);
+    notifyStateUpdated();
     onCancel();
   };
 
@@ -108,7 +110,7 @@ export function EditChoiceNodeModal({
           border: '1px solid #3e3e42',
           borderRadius: '8px',
           padding: '30px',
-          maxWidth: '60vw',
+          maxWidth: '90vw',
           width: '90%',
           maxHeight: '80vh',
           overflow: 'auto',
@@ -141,17 +143,17 @@ export function EditChoiceNodeModal({
 
         <div style={{ marginBottom: '20px' }}>
           <div>
-            <label
+            <div
               style={{
                 color: '#d4d4d4',
                 fontSize: '14px',
                 fontWeight: 'bold',
+                marginBottom: '12px',
               }}
             >
               Text
-            </label>
-            <input
-              type="text"
+            </div>
+            <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
               style={{
@@ -204,100 +206,109 @@ export function EditChoiceNodeModal({
             </div>
           )}
 
-          {choices.map((choiceItem, index) => (
-            <div
-              key={index}
-              style={{
-                marginBottom: '4px',
-                padding: '4px',
-              }}
-            >
+          <div id="choice-node-choices" style={{
+            height: '350px',
+            overflow: 'auto',
+          }}>
+            {choices.map((choiceItem, index) => (
               <div
+                key={index}
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                  marginBottom: '4px',
+                  padding: '4px',
                 }}
               >
                 <div
                   style={{
-                    width: '48px',
                     display: 'flex',
+                    justifyContent: 'space-between',
                     alignItems: 'center',
-                    height: '100%',
-                    marginBottom: '8px',
-                    gap: '0px',
                   }}
                 >
-                  <button
+                  <div
                     style={{
-                      width: '50%',
+                      width: '48px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      height: '100%',
+                      marginBottom: '8px',
+                      gap: '0px',
                     }}
-                    onClick={() => handleMoveChoiceDir(index, 'up')}
                   >
-                    <span>up</span>
-                  </button>
-                  <button
+                    <button
+                      style={{
+                        width: '50%',
+                      }}
+                      onClick={() => handleMoveChoiceDir(index, 'up')}
+                    >
+                      <span>up</span>
+                    </button>
+                    <button
+                      style={{
+                        width: '50%',
+                      }}
+                      onClick={() => handleMoveChoiceDir(index, 'down')}
+                    >
+                      <span>dn</span>
+                    </button>
+                  </div>
+                  <div
                     style={{
-                      width: '50%',
+                      marginBottom: '8px',
+                      width: 'calc(100% - 100px - 48px)',
                     }}
-                    onClick={() => handleMoveChoiceDir(index, 'down')}
                   >
-                    <span>dn</span>
-                  </button>
+                    <input
+                      type="text"
+                      value={choiceItem.conditionStr ?? ''}
+                      onChange={(e) =>
+                        handleUpdateChoice(
+                          index,
+                          'conditionStr',
+                          e.target.value
+                        )
+                      }
+                      style={{
+                        width: '40%',
+                        padding: '6px',
+                        backgroundColor: '#1e1e1e',
+                        border: '1px solid ' + (choiceItem.conditionStr ? '#862' : '#3e3e42'),
+                        borderRadius: '4px',
+                        color: '#d4d4d4',
+                        fontFamily: 'monospace',
+                        fontSize: '12px',
+                      }}
+                      placeholder="Enter condition text..."
+                    />
+                    <input
+                      type="text"
+                      value={choiceItem.text}
+                      onChange={(e) =>
+                        handleUpdateChoice(index, 'text', e.target.value)
+                      }
+                      style={{
+                        width: '60%',
+                        padding: '6px',
+                        backgroundColor: '#1e1e1e',
+                        border: '1px solid #3e3e42',
+                        borderRadius: '4px',
+                        color: '#d4d4d4',
+                        fontFamily: 'arial',
+                        fontSize: '12px',
+                      }}
+                      placeholder="Enter choice text..."
+                    />
+                  </div>
+                  <Button
+                    variant="danger"
+                    onClick={() => handleRemoveChoice(index)}
+                  >
+                    Delete
+                  </Button>
                 </div>
-                <div
-                  style={{
-                    marginBottom: '8px',
-                    width: 'calc(100% - 100px - 48px)',
-                  }}
-                >
-                  <input
-                    type="text"
-                    value={choiceItem.conditionStr ?? ''}
-                    onChange={(e) =>
-                      handleUpdateChoice(index, 'conditionStr', e.target.value)
-                    }
-                    style={{
-                      width: '40%',
-                      padding: '6px',
-                      backgroundColor: '#1e1e1e',
-                      border: '1px solid #3e3e42',
-                      borderRadius: '4px',
-                      color: '#d4d4d4',
-                      fontFamily: 'monospace',
-                      fontSize: '12px',
-                    }}
-                    placeholder="Enter condition text..."
-                  />
-                  <input
-                    type="text"
-                    value={choiceItem.text}
-                    onChange={(e) =>
-                      handleUpdateChoice(index, 'text', e.target.value)
-                    }
-                    style={{
-                      width: '60%',
-                      padding: '6px',
-                      backgroundColor: '#1e1e1e',
-                      border: '1px solid #3e3e42',
-                      borderRadius: '4px',
-                      color: '#d4d4d4',
-                      fontFamily: 'arial',
-                      fontSize: '12px',
-                    }}
-                    placeholder="Enter choice text..."
-                  />
-                </div>
-                <Button
-                  variant="danger"
-                  onClick={() => handleRemoveChoice(index)}
-                >
-                  Delete
-                </Button>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         <div

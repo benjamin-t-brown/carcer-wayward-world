@@ -10,6 +10,7 @@ import {
   deleteNode,
   EditorStateSE,
   enterLinkingMode,
+  notifyStateUpdated,
   pasteNodes,
   resetSelectedNodes,
   showDeleteNodeConfirm,
@@ -457,7 +458,7 @@ const checkLeftMouseClickEvents = (args: {
 
   if (clickedExitAnchorLine && clickedExitAnchorLine.toNodeId) {
     console.log('clicked anchor line');
-    centerPanzoomOnNode(canvas, clickedExitAnchorLine.toNodeId);
+    centerPanzoomOnNode(canvas, clickedExitAnchorLine.toNodeId, true);
     return true;
   }
 
@@ -571,8 +572,6 @@ const checkLeftMouseClickEvents = (args: {
 
   // if you didn't click a node... the following happens
 
-  // TODO handle clicking on connectors, etc.
-
   if (editorState.linking.isLinking) {
     editorState.linking.isLinking = false;
     editorState.linking.sourceNodeId = '';
@@ -615,6 +614,7 @@ export const checkRightClickLineEvents = (args: {
   if (clickedExitAnchorLine) {
     // centerPanzoomOnNode(canvas, clickedExitAnchorLine.toNodeId);
     clickedExitAnchorLine.toNodeId = '';
+    notifyStateUpdated();
     return true;
   }
 

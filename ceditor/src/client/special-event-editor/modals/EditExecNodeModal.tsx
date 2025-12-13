@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { GameEvent } from '../../types/assets';
 import { Button } from '../../elements/Button';
-import { VariableWidget } from '../VariableWidget';
+import { VariableWidget } from '../react-components/VariableWidget';
 import { EditorNodeExec } from '../cmpts/ExecNodeComponent';
+import { notifyStateUpdated } from '../seEditorState';
 
 interface EditExecNodeModalProps {
   isOpen: boolean;
@@ -37,6 +38,7 @@ export function EditExecNodeModal({
     node.p = p;
     node.execStr = execStr;
     node.build(ctx);
+    notifyStateUpdated();
     onCancel();
   };
 
@@ -61,7 +63,7 @@ export function EditExecNodeModal({
           border: '1px solid #3e3e42',
           borderRadius: '8px',
           padding: '30px',
-          maxWidth: '60vw',
+          maxWidth: '90vw',
           width: '90%',
           maxHeight: '80vh',
           overflow: 'auto',

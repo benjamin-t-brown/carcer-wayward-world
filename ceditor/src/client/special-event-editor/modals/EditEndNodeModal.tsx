@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { GameEvent } from '../../types/assets';
 import { Button } from '../../elements/Button';
-import { VariableWidget } from '../VariableWidget';
+import { VariableWidget } from '../react-components/VariableWidget';
 import { EditorNodeEnd } from '../cmpts/EndNodeComponent';
+import { notifyStateUpdated } from '../seEditorState';
 
 interface EditEndNodeModalProps {
   isOpen: boolean;
@@ -34,6 +35,7 @@ export function EditEndNodeModal({
     // EndNode doesn't have editable properties beyond next
     // The next field is stored in the SENode but EndNode doesn't use connectors
     // So we'll just close the modal
+    notifyStateUpdated();
     onCancel();
   };
 
@@ -58,7 +60,7 @@ export function EditEndNodeModal({
           border: '1px solid #3e3e42',
           borderRadius: '8px',
           padding: '30px',
-          maxWidth: '60vw',
+          maxWidth: '90vw',
           width: '90%',
           maxHeight: '80vh',
           overflow: 'auto',

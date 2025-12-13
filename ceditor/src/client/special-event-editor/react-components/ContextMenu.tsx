@@ -6,20 +6,20 @@ import {
   GameEventChildChoice,
   GameEventChildEnd,
   GameEventChildComment,
-} from '../types/assets';
-import { randomId } from '../utils/mathUtils';
+} from '../../types/assets';
+import { randomId } from '../../utils/mathUtils';
 import {
   EditorStateSE,
   enterLinkingMode,
   updateEditorState,
-} from './seEditorState';
-import { screenToWorldCoords } from './nodeHelpers';
-import { EditorNodeExec } from './cmpts/ExecNodeComponent';
-import { EditorNode } from './EditorNode';
-import { EditorNodeSwitch } from './cmpts/SwitchNodeComponent';
-import { EditorNodeChoice } from './cmpts/ChoiceNodeComponent';
-import { EditorNodeEnd } from './cmpts/EndNodeComponent';
-import { EditorNodeComment } from './cmpts/CommentNodeComponent';
+} from '../seEditorState';
+import { screenToWorldCoords } from '../nodeHelpers';
+import { EditorNodeExec } from '../cmpts/ExecNodeComponent';
+import { EditorNode } from '../cmpts/EditorNode';
+import { EditorNodeSwitch } from '../cmpts/SwitchNodeComponent';
+import { EditorNodeChoice } from '../cmpts/ChoiceNodeComponent';
+import { EditorNodeEnd } from '../cmpts/EndNodeComponent';
+import { EditorNodeComment } from '../cmpts/CommentNodeComponent';
 
 interface ContextMenuProps {
   x: number;
@@ -273,6 +273,7 @@ export function ContextMenu({
     <>
       {/* Backdrop */}
       <div
+        id="context-menu-backdrop"
         style={{
           position: 'fixed',
           top: 0,
@@ -282,6 +283,10 @@ export function ContextMenu({
           zIndex: 999,
         }}
         onClick={onClose}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          return true;
+        }}
       />
       {/* Menu */}
       <div

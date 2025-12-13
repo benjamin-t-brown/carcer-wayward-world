@@ -184,7 +184,7 @@ export const distanceToLineSegment = (
   return Math.sqrt(distX * distX + distY * distY);
 };
 
-interface AccessibleVariable {
+export interface AccessibleVariable {
   key: string;
   value: string;
   source: string;

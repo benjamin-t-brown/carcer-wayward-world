@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { GameEvent, SwitchCase } from '../../types/assets';
 import { Button } from '../../elements/Button';
-import { VariableWidget } from '../VariableWidget';
+import { VariableWidget } from '../react-components/VariableWidget';
 import { EditorNodeSwitch } from '../cmpts/SwitchNodeComponent';
+import { notifyStateUpdated } from '../seEditorState';
 
 interface EditSwitchNodeModalProps {
   isOpen: boolean;
@@ -39,6 +40,7 @@ export function EditSwitchNodeModal({
     // node.defaultNext = defaultNext;
     node.defaultNext = defaultNext;
     node.buildFromCases(cases, ctx);
+    notifyStateUpdated();
     onCancel();
   };
 
@@ -109,7 +111,7 @@ export function EditSwitchNodeModal({
           border: '1px solid #3e3e42',
           borderRadius: '8px',
           padding: '30px',
-          maxWidth: '60vw',
+          maxWidth: '90vw',
           width: '90%',
           maxHeight: '80vh',
           overflow: 'auto',
@@ -176,56 +178,57 @@ export function EditSwitchNodeModal({
             </div>
           )}
 
-          {cases.map((caseItem, index) => (
-            <div
-              key={index}
-              style={{
-                marginBottom: '4px',
-                padding: '4px',
-              }}
-            >
+          <div id="switch-node-cases">
+            {cases.map((caseItem, index) => (
               <div
+                key={index}
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                  marginBottom: '4px',
+                  padding: '4px',
                 }}
               >
                 <div
                   style={{
-                    width: '48px',
                     display: 'flex',
+                    justifyContent: 'space-between',
                     alignItems: 'center',
-                    height: '100%',
-                    marginBottom: '8px',
-                    gap: '0px',
                   }}
                 >
-                  <button
+                  <div
                     style={{
-                      width: '50%',
+                      width: '48px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      height: '100%',
+                      marginBottom: '8px',
+                      gap: '0px',
                     }}
-                    onClick={() => handleMoveCaseDir(index, 'up')}
                   >
-                    <span>up</span>
-                  </button>
-                  <button
-                    style={{
-                      width: '50%',
-                    }}
-                    onClick={() => handleMoveCaseDir(index, 'down')}
-                  >
-                    <span>dn</span>
-                  </button>
-                </div>
+                    <button
+                      style={{
+                        width: '50%',
+                      }}
+                      onClick={() => handleMoveCaseDir(index, 'up')}
+                    >
+                      <span>up</span>
+                    </button>
+                    <button
+                      style={{
+                        width: '50%',
+                      }}
+                      onClick={() => handleMoveCaseDir(index, 'down')}
+                    >
+                      <span>dn</span>
+                    </button>
+                  </div>
 
-                <div
-                  style={{
-                    marginBottom: '8px',
-                    width: 'calc(100% - 100px - 48px)',
-                  }}
-                >
-                  {/* <label
+                  <div
+                    style={{
+                      marginBottom: '8px',
+                      width: 'calc(100% - 100px - 48px)',
+                    }}
+                  >
+                    {/* <label
                     style={{
                       display: 'block',
                       color: '#d4d4d4',
@@ -235,34 +238,35 @@ export function EditSwitchNodeModal({
                   >
                     Condition String
                   </label> */}
-                  <input
-                    type="text"
-                    value={caseItem.conditionStr}
-                    onChange={(e) =>
-                      handleUpdateCase(index, 'conditionStr', e.target.value)
-                    }
-                    style={{
-                      width: '100%',
-                      padding: '6px',
-                      backgroundColor: '#1e1e1e',
-                      border: '1px solid #3e3e42',
-                      borderRadius: '4px',
-                      color: '#d4d4d4',
-                      fontFamily: 'monospace',
-                      fontSize: '12px',
-                    }}
-                    placeholder="Enter condition..."
-                  />
+                    <input
+                      type="text"
+                      value={caseItem.conditionStr}
+                      onChange={(e) =>
+                        handleUpdateCase(index, 'conditionStr', e.target.value)
+                      }
+                      style={{
+                        width: '100%',
+                        padding: '6px',
+                        backgroundColor: '#1e1e1e',
+                        border: '1px solid #3e3e42',
+                        borderRadius: '4px',
+                        color: '#d4d4d4',
+                        fontFamily: 'monospace',
+                        fontSize: '12px',
+                      }}
+                      placeholder="Enter condition..."
+                    />
+                  </div>
+                  <Button
+                    variant="danger"
+                    onClick={() => handleRemoveCase(index)}
+                  >
+                    Delete
+                  </Button>
                 </div>
-                <Button
-                  variant="danger"
-                  onClick={() => handleRemoveCase(index)}
-                >
-                  Delete
-                </Button>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         <div

@@ -1,6 +1,6 @@
 import { GameEventChildSwitch, SwitchCase } from '../../types/assets';
 import { drawText } from '../../utils/draw';
-import { EditorNode, RenderNodeArgs } from '../EditorNode';
+import { EditorNode, RenderNodeArgs } from './EditorNode';
 import { Connector } from './Connector';
 import { EditorStateSE } from '../seEditorState';
 import { truncateText } from '../nodeHelpers';
@@ -67,6 +67,14 @@ export class EditorNodeSwitch extends EditorNode {
       }),
       defaultNext: this.defaultNext,
     } as GameEventChildSwitch;
+  }
+
+  updateExitLink(nextNodeId: string, exitIndex = 0) {
+    if (exitIndex === 0) {
+      this.defaultNext = nextNodeId;
+    }
+    console.log('updateExitLink', this.id, exitIndex, nextNodeId);
+    this.exits[exitIndex].toNodeId = nextNodeId;
   }
 
   getMinHeight() {
@@ -158,8 +166,8 @@ export class EditorNodeSwitch extends EditorNode {
     }
   }
 
-  update() {
-    super.update();
+  update(dt: number) {
+    super.update(dt);
     const yOffset = NODE_TITLE_HEIGHT + PADDING * 2 + BORDER_WIDTH * 2;
     for (let i = 0; i < this.exits.length; i++) {
       const conn = this.exits[i];
@@ -180,6 +188,7 @@ export class EditorNodeSwitch extends EditorNode {
   }
 
   render(ctx: CanvasRenderingContext2D, scale: number, args: RenderNodeArgs) {
+    this.prepareRender(ctx);
     const nodeX = this.x * scale;
     const nodeY = this.y * scale;
 
@@ -239,5 +248,7 @@ export class EditorNodeSwitch extends EditorNode {
       ctx.stroke();
       ctx.restore();
     }
+
+    this.finishRender(ctx);
   }
 }

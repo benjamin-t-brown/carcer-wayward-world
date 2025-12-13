@@ -6,6 +6,7 @@ import {
   GameEventChildType,
   SENode,
 } from '../../types/assets';
+import { EventRunner } from './EventRunner';
 
 interface ValidationError {
   childId: string;
@@ -25,6 +26,18 @@ export class EventValidator {
       this.errors.push({
         childId: seNode.id,
         message: 'Exec node must have a next node.',
+      });
+    }
+
+    const runner = new EventRunner({}, this.gameEvent, [this.gameEvent]);
+    const strLines = seNode.execStr.split('\n');
+    for (const strLine of strLines) {
+      runner.evalExecStr(runner.replaceVariables(strLine));
+    }
+    for (const error of runner.errors) {
+      this.errors.push({
+        childId: seNode.id,
+        message: error.message,
       });
     }
   }

@@ -10,7 +10,7 @@ interface NotificationProps {
 export const Notification: React.FC<NotificationProps> = ({
   message,
   type,
-  duration = 2000,
+  duration = 1000,
   onClose,
 }) => {
   const [show, setShow] = useState(false);

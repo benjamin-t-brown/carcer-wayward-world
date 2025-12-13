@@ -1,7 +1,7 @@
 import { GameEventChildExec } from '../../types/assets';
 import { drawText } from '../../utils/draw';
 import { breakTextIntoLines, calculateHeightFromText, truncateText } from '../nodeHelpers';
-import { EditorNode, RenderNodeArgs } from '../EditorNode';
+import { EditorNode, RenderNodeArgs } from './EditorNode';
 import { Connector } from './Connector';
 import { EditorStateSE } from '../seEditorState';
 
@@ -112,11 +112,11 @@ export class EditorNodeExec extends EditorNode {
     height += this.execStrHeight;
 
     this.height = Math.max(height, 50);
-    this.update();
+    this.update(0);
   }
 
-  update() {
-    super.update();
+  update(dt: number) {
+    super.update(dt);
     const connector = this.exits[0];
     if (connector) {
       connector.startX = this.x + this.width;
@@ -136,6 +136,7 @@ export class EditorNodeExec extends EditorNode {
   }
 
   render(ctx: CanvasRenderingContext2D, scale: number, args: RenderNodeArgs) {
+    this.prepareRender(ctx);
     super.render(ctx, scale, args);
 
     const nodeX = this.x * scale;
@@ -212,5 +213,7 @@ export class EditorNodeExec extends EditorNode {
       );
       ctx.restore();
     }
+
+    this.finishRender(ctx);
   }
 }

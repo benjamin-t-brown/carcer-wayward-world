@@ -5,6 +5,7 @@ import { useAssets } from '../../contexts/AssetsContext';
 import { randomId } from '../../utils/mathUtils';
 import { GenericModal } from '../../elements/GenericModal';
 import { PickImportModal } from './PickImportModal';
+import { notifyStateUpdated } from '../seEditorState';
 
 interface VariableEditorModalProps {
   isOpen: boolean;
@@ -213,6 +214,7 @@ export function VariableEditorModal({
       if (gameEvent) {
         gameEvent.vars = newVars;
         setErrorText('');
+        notifyStateUpdated();
         onConfirm(gameEvent);
         onCancel();
       }

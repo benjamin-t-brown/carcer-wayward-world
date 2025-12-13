@@ -1,8 +1,8 @@
-import { GameEventChildType, SENode } from '../types/assets';
-import { drawRect } from '../utils/draw';
-import { Connector } from './cmpts/Connector';
-import { EditorNodeCloseButton } from './cmpts/EditorNodeCloseButton';
-import { EditorStateSE } from './seEditorState';
+import { GameEventChildType, SENode } from '../../types/assets';
+import { drawRect } from '../../utils/draw';
+import { Connector } from './Connector';
+import { EditorNodeCloseButton } from './EditorNodeCloseButton';
+import { EditorStateSE } from '../seEditorState';
 
 export interface RenderNodeArgs {
   isHovered: boolean;
@@ -32,6 +32,11 @@ export class EditorNode {
 
   exits: Connector[] = [];
   closeButton: EditorNodeCloseButton;
+  isFlashing: boolean = false;
+  flashTimer = {
+    duration: 1000,
+    t: 0,
+  };
 
   constructor(seNode: SENode, editorState: EditorStateSE) {
     this.editorState = editorState;
@@ -40,6 +45,24 @@ export class EditorNode {
     this.y = seNode.y;
     this.type = seNode.eventChildType;
     this.closeButton = new EditorNodeCloseButton(this);
+  }
+
+  startFlash(duration = 350) {
+    this.isFlashing = true;
+    this.flashTimer.t = 0;
+    this.flashTimer.duration = duration;
+  }
+
+  prepareRender(ctx: CanvasRenderingContext2D) {
+    ctx.save();
+    if (this.isFlashing) {
+      const t = this.flashTimer.t / this.flashTimer.duration;
+      ctx.globalAlpha = Math.cos(t * 2 * Math.PI) * 0.33 + 0.67;
+    }
+  }
+
+  finishRender(ctx: CanvasRenderingContext2D) {
+    ctx.restore();
   }
 
   toSENode() {
@@ -110,6 +133,7 @@ export class EditorNode {
   }
 
   updateExitLink(nextNodeId: string, exitIndex = 0) {
+    console.log('updateExitLink', this.id, exitIndex, nextNodeId);
     this.exits[exitIndex].toNodeId = nextNodeId;
   }
 
@@ -119,10 +143,16 @@ export class EditorNode {
     }
   }
 
-  update() {
+  update(dt: number) {
     this.closeButton.update();
     for (const exit of this.exits) {
       exit.update();
+    }
+    if (this.isFlashing) {
+      this.flashTimer.t += dt;
+      if (this.flashTimer.t >= this.flashTimer.duration) {
+        this.isFlashing = false;
+      }
     }
   }
 

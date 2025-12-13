@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { GameEvent } from '../../types/assets';
 import { GenericModal } from '../../elements/GenericModal';
+import { notifyStateUpdated } from '../seEditorState';
 
 export interface PickImportModalProps {
   isOpen: boolean;
@@ -41,6 +42,7 @@ export function PickImportModal({
       return;
     }
     onConfirm(importFromValue);
+    notifyStateUpdated();
     onCancel();
   };
 

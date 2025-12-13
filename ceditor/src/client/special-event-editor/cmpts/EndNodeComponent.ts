@@ -1,6 +1,6 @@
 import { GameEventChildEnd } from '../../types/assets';
 import { drawText } from '../../utils/draw';
-import { EditorNode, RenderNodeArgs } from '../EditorNode';
+import { EditorNode, RenderNodeArgs } from './EditorNode';
 import { EditorStateSE } from '../seEditorState';
 
 const NODE_COLOR = '#772222'; // Red background
@@ -37,14 +37,15 @@ export class EditorNodeEnd extends EditorNode {
   calculateHeight(_ctx: CanvasRenderingContext2D) {
     // Fixed height for end node
     this.height = NODE_HEIGHT;
-    this.update();
+    this.update(0);
   }
 
-  update() {
-    super.update();
+  update(dt: number) {
+    super.update(dt);
   }
 
   render(ctx: CanvasRenderingContext2D, scale: number, args: RenderNodeArgs) {
+    this.prepareRender(ctx);
     super.render(ctx, scale, args);
 
     const nodeX = this.x * scale;
@@ -69,5 +70,7 @@ export class EditorNodeEnd extends EditorNode {
       ctx
     );
     ctx.restore();
+
+    this.finishRender(ctx);
   }
 }

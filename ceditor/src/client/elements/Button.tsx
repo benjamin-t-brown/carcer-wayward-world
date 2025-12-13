@@ -45,8 +45,7 @@ export const Button: React.FC<ButtonProps> = ({
       onClick={onClick}
       disabled={disabled}
     >
-      {children}
+      <span style={{ userSelect: 'none' }}>{children}</span>
     </button>
   );
 };
-

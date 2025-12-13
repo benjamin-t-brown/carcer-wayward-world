@@ -1,7 +1,7 @@
 import { GameEventChildComment } from '../../types/assets';
 import { drawText } from '../../utils/draw';
 import { breakTextIntoLines, calculateHeightFromText } from '../nodeHelpers';
-import { EditorNode, RenderNodeArgs } from '../EditorNode';
+import { EditorNode, RenderNodeArgs } from './EditorNode';
 import { EditorStateSE } from '../seEditorState';
 
 const NODE_TITLE_HEIGHT = 20;
@@ -62,11 +62,12 @@ export class EditorNodeComment extends EditorNode {
     this.height = Math.max(height, 50);
   }
 
-  update() {
-    super.update();
+  update(dt: number) {
+    super.update(dt);
   }
 
   render(ctx: CanvasRenderingContext2D, scale: number, args: RenderNodeArgs) {
+    this.prepareRender(ctx);
     super.render(ctx, scale, args);
 
     const nodeX = this.x * scale;
@@ -97,5 +98,7 @@ export class EditorNodeComment extends EditorNode {
     }
 
     ctx.restore();
+
+    this.finishRender(ctx);
   }
 }

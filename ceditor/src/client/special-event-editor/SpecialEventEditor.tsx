@@ -8,7 +8,10 @@ import {
   updateEditorState,
 } from './seEditorState';
 import { EditorStateSE } from './seEditorState';
-import { CANVAS_CONTAINER_ID, MapCanvasSE } from './MapCanvasSE';
+import {
+  CANVAS_CONTAINER_ID,
+  MapCanvasSE,
+} from './react-components/MapCanvasSE';
 import {
   initPanzoom,
   unInitPanzoom,
@@ -16,7 +19,7 @@ import {
 } from './seEditorEvents';
 import { loop } from './seLoop';
 import { useReRender } from '../hooks/useReRender';
-import { ContextMenu } from './ContextMenu';
+import { ContextMenu } from './react-components/ContextMenu';
 import { EditExecNodeModal } from './modals/EditExecNodeModal';
 import { EditSwitchNodeModal } from './modals/EditSwitchNodeModal';
 import { GameEventChildExec, GameEventChildSwitch } from '../types/assets';
@@ -80,7 +83,7 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
     if (gameEventId && canvas) {
       initEditorStateForGameEvent(gameEvent, canvas);
       editorState.current = getEditorState();
-      updateEditorState({ gameEventId: gameEventId, baseGameEvent: gameEvent });
+      updateEditorState({ gameEventId: gameEventId });
     }
   }, [gameEvent?.id]);
 
@@ -91,52 +94,66 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
       return;
     }
 
-    const handleContextMenu = (ev: MouseEvent) => {
-      ev.preventDefault();
-      const targetId = (ev.target as HTMLElement)?.id;
-      if (ev.target === canvas || targetId.includes(CANVAS_CONTAINER_ID)) {
-        const currentEditorState = editorState.current;
-        if (currentEditorState && currentEditorState.gameEventId) {
-          // Check if right-clicking on a line first
-          const lineClicked = checkRightClickLineEvents({
-            ev,
-            canvas,
-            editorState: currentEditorState,
-          });
+    const showContextMenu = (ev: MouseEvent) => {
+      const currentEditorState = editorState.current;
+      if (currentEditorState && currentEditorState.gameEventId) {
+        // Check if right-clicking on a line first
+        const lineClicked = checkRightClickLineEvents({
+          ev,
+          canvas,
+          editorState: currentEditorState,
+        });
 
-          if (lineClicked) {
-            return; // Don't show context menu if line was deleted
-          }
-
-          // Check if right-clicking on a node
-          const [worldX, worldY] = screenToWorldCoords(
-            ev.clientX,
-            ev.clientY,
-            canvas,
-            currentEditorState.zoneWidth,
-            currentEditorState.zoneHeight
-          );
-
-          let clickedNodeId: string | undefined = undefined;
-          for (const node of currentEditorState.editorNodes) {
-            if (node.isPointInBounds(worldX, worldY)) {
-              clickedNodeId = node.id;
-              break;
-            }
-          }
-
-          setContextMenu({
-            x: ev.clientX,
-            y: ev.clientY,
-            clickedNodeId: clickedNodeId,
-          });
-        } else {
-          setContextMenu({ x: ev.clientX, y: ev.clientY });
+        if (lineClicked) {
+          return; // Don't show context menu if line was deleted
         }
+
+        // Check if right-clicking on a node
+        const [worldX, worldY] = screenToWorldCoords(
+          ev.clientX,
+          ev.clientY,
+          canvas,
+          currentEditorState.zoneWidth,
+          currentEditorState.zoneHeight
+        );
+
+        let clickedNodeId: string | undefined = undefined;
+        for (const node of currentEditorState.editorNodes) {
+          if (node.isPointInBounds(worldX, worldY)) {
+            clickedNodeId = node.id;
+            break;
+          }
+        }
+
+        setContextMenu({
+          x: ev.clientX,
+          y: ev.clientY,
+          clickedNodeId: clickedNodeId,
+        });
+      } else {
+        setContextMenu({ x: ev.clientX, y: ev.clientY });
       }
     };
 
+    const handleContextMenu = (ev: MouseEvent) => {
+      const targetId = (ev.target as HTMLElement)?.id;
+      if (ev.target === canvas || targetId.includes(CANVAS_CONTAINER_ID)) {
+        showContextMenu(ev);
+      }
+      ev.preventDefault();
+    };
+    const handleDocumentContextMenu = (ev: MouseEvent) => {
+      const targetId = (ev.target as HTMLElement)?.id;
+      if (targetId.includes('context') && ev.clientX > 300) {
+        ev.preventDefault();
+        showContextMenu(ev);
+        return false;
+      }
+      return true;
+    };
+
     canvas.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('contextmenu', handleDocumentContextMenu);
     initPanzoom({
       getCanvas: () => canvasRef.current as HTMLCanvasElement,
       getEditorState: () => editorState.current as EditorStateSE,
@@ -165,6 +182,7 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
 
     return () => {
       canvas.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('contextmenu', handleDocumentContextMenu);
       console.log('unInitPanzoom SE');
       unInitPanzoom();
     };

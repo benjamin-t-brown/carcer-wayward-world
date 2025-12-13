@@ -16,11 +16,13 @@ import {
   getEditorState,
   saveEditorStateForGameEvent,
   syncGameEventFromEditorState,
+  updateEditorState,
+  updateEditorStateNoReRender,
 } from '../special-event-editor/seEditorState';
 import { EventRunnerModal } from '../special-event-editor/eventRunner/EventRunnerModal';
 import { DeleteModal } from '../elements/DeleteModal';
-import { ValidationErrorsIndicator } from '../special-event-editor/cmpts/ValidationErrorsIndictator';
-import { EventValidator } from '../special-event-editor/eventRunner/eventValidator';
+import { ValidationMenuButton } from '../special-event-editor/react-components/ValidationMenuButton';
+import { useReRender } from '../hooks/useReRender';
 
 interface NotificationState {
   message: string;
@@ -35,7 +37,7 @@ interface SpecialEventsProps {
 export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const { spriteMap } = useSDL2WAssets();
   const { gameEvents, setGameEvents, saveGameEvents } = useAssets();
-  const [editGameEventIndex, setEditGameEventIndex] = useState<number>(-1);
+  // const [editGameEventIndex, setEditGameEventIndex] = useState<number>(-1);
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -44,15 +46,9 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const [showEventRunnerModal, setShowEventRunnerModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmMessage, setDeleteConfirmMessage] = useState('');
-  const [deleteConfirmIndex, setDeleteConfirmIndex] = useState<number | null>(
-    null
-  );
-  const [validationErrors, setValidationErrors] = useState<
-    {
-      message: string;
-      childId: string;
-    }[]
-  >([]);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const reRender = useReRender();
+
   const notificationIdRef = useRef(0);
 
   const showNotification = (message: string, type: 'success' | 'error') => {
@@ -64,6 +60,18 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
+  const selectGameEvent = (gameEventId: string) => {
+    const prevGameEventId = getEditorState().gameEventId;
+    const prevGameEvent = gameEvents.find(
+      (gameEvent) => gameEvent.id === prevGameEventId
+    );
+    if (prevGameEvent) {
+      syncGameEventFromEditorState(prevGameEvent);
+    }
+    updateEditorStateNoReRender({ gameEventId: gameEventId });
+    reRender();
+  };
+
   // Filter game events based on search term
   const filteredGameEvents = gameEvents.filter(
     (gameEvent) =>
@@ -72,15 +80,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       gameEvent.eventType.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Get the actual index in the full game events array for filtered game events
-  const getActualIndex = (filteredIndex: number): number => {
-    const filteredGameEvent = filteredGameEvents[filteredIndex];
-    return gameEvents.indexOf(filteredGameEvent);
-  };
-
-  const handleGameEventClick = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
-
+  const handleGameEventClick = (gameEventId: string) => {
     const currentEditorState = getEditorState();
     if (currentEditorState.gameEventId) {
       saveEditorStateForGameEvent(currentEditorState.gameEventId);
@@ -90,57 +90,53 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     currentEditorState.selectedNodeIds.clear();
     currentEditorState.selectionRect = null;
 
-    setEditGameEventIndex(actualIndex);
+    selectGameEvent(gameEventId);
   };
 
-  const handleClone = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
-    const originalGameEvent = gameEvents[actualIndex];
+  const handleClone = (gameEventId: string) => {
+    const originalGameEvent = gameEvents.find(
+      (gameEvent) => gameEvent.id === gameEventId
+    );
+
+    if (!originalGameEvent) {
+      return;
+    }
+
     const clonedGameEvent: GameEvent = JSON.parse(
       JSON.stringify(originalGameEvent)
     );
     clonedGameEvent.id = clonedGameEvent.id + '_copy';
     const newGameEvents = gameEvents.slice();
-    const clonedIndex = actualIndex + 1;
-    newGameEvents.splice(clonedIndex, 0, clonedGameEvent);
+    newGameEvents.push(clonedGameEvent);
     setGameEvents(newGameEvents);
-    setEditGameEventIndex(clonedIndex);
+    selectGameEvent(clonedGameEvent.id);
     showNotification('Game event cloned!', 'success');
   };
 
-  const deleteGameEvent = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
-    if (actualIndex < 0 || actualIndex >= gameEvents.length) {
-      return;
-    }
+  const deleteGameEvent = (gameEventId: string) => {
     const newGameEvents = gameEvents.filter(
-      (_, index) => index !== actualIndex
+      (gameEvent) => gameEvent.id !== gameEventId
     );
 
     // delete imports from other events
     for (const event of newGameEvents) {
       event.vars = event.vars.filter(
-        (variable) => variable.importFrom !== gameEvents[actualIndex].id
+        (variable) => variable.importFrom !== gameEventId
       );
     }
     setGameEvents(newGameEvents);
-    if (editGameEventIndex === actualIndex) {
-      setEditGameEventIndex(-1);
-    } else if (editGameEventIndex > actualIndex) {
-      setEditGameEventIndex(editGameEventIndex - 1);
+    if (getEditorState().gameEventId === gameEventId) {
+      selectGameEvent('');
     }
   };
 
-  const handleDeleteClick = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
+  const handleDeleteClick = (gameEventId: string) => {
     const eventsThatImportThisEvent = gameEvents.filter((gameEvent) =>
-      gameEvent.vars.some(
-        (variable) => variable.importFrom === gameEvents[actualIndex].id
-      )
+      gameEvent.vars.some((variable) => variable.importFrom === gameEventId)
     );
 
     setShowDeleteConfirm(true);
-    setDeleteConfirmIndex(actualIndex);
+    setDeleteConfirmId(gameEventId);
     setDeleteConfirmMessage(
       eventsThatImportThisEvent.length > 0
         ? `Are you sure you want to delete this game event? ${eventsThatImportThisEvent.length} events import this event.`
@@ -165,8 +161,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
 
     const newGameEvents = [...gameEvents, newGameEvent];
     setGameEvents(newGameEvents);
-    const actualIndex = newGameEvents.length - 1;
-    setEditGameEventIndex(actualIndex);
+    selectGameEvent(newGameEvent.id);
     setShowCreateModal(false);
     setSearchTerm('');
     showNotification('Game event created!', 'success');
@@ -176,26 +171,19 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     setShowCreateModal(false);
   };
 
-  // Check for event query parameter on mount
-  useEffect(() => {
-    if (routeParams) {
-      const eventId = routeParams.get('event');
-      if (eventId) {
-        const index = gameEvents.findIndex((e) => e.id === eventId);
-        if (index >= 0) {
-          setEditGameEventIndex(index);
-        }
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameEvents, routeParams]);
-
-  const validateCurrentGameEvent = () => {
-    syncGameEventFromEditorState(currentGameEvent, getEditorState());
-    const validator = new EventValidator(currentGameEvent);
-    const errors = validator.validate();
-    setValidationErrors(errors);
-  };
+  // // Check for event query parameter on mount
+  // useEffect(() => {
+  //   if (routeParams) {
+  //     const eventId = routeParams.get('event');
+  //     if (eventId) {
+  //       const index = gameEvents.findIndex((e) => e.id === eventId);
+  //       if (index >= 0) {
+  //         setEditGameEventIndex(index);
+  //       }
+  //     }
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [gameEvents, routeParams]);
 
   const validateGameEvents = (): { isValid: boolean; error?: string } => {
     const errors: string[] = [];
@@ -321,19 +309,12 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     }
 
     const currentEditorState = getEditorState();
-    if (currentEditorState.baseGameEvent) {
-      syncGameEventFromEditorState(
-        currentEditorState.baseGameEvent,
-        currentEditorState
-      );
+    const currentGameEvent = gameEvents.find(
+      (gameEvent) => gameEvent.id === currentEditorState.gameEventId
+    );
+    if (currentGameEvent) {
+      syncGameEventFromEditorState(currentGameEvent, currentEditorState);
     }
-
-    const currentGameEventIndex =
-      editGameEventIndex >= 0 ? getActualIndex(editGameEventIndex) : -1;
-    const currentGameEventId =
-      currentGameEventIndex >= 0
-        ? gameEvents[currentGameEventIndex]?.id
-        : undefined;
 
     const trimmedGameEvents = trimStrings(gameEvents);
 
@@ -341,17 +322,11 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       return a.id.localeCompare(b.id);
     });
 
+    console.log('save game events', currentGameEvent, sortedGameEvents);
+
     try {
       await saveGameEvents(sortedGameEvents);
       showNotification('Game events saved successfully!', 'success');
-      // TODO does this need to be here if i delete or rename?
-      // if (currentGameEventId) {
-      //   console.log('lol what', currentGameEventId);
-      //   const nextGameEventIndex = sortedGameEvents.findIndex(
-      //     (gameEvent) => gameEvent.id === currentGameEventId.trim()
-      //   );
-      //   setEditGameEventIndex(nextGameEventIndex);
-      // }
     } catch (err) {
       showNotification(
         `Error saving: ${err instanceof Error ? err.message : 'Unknown error'}`,
@@ -374,9 +349,14 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [gameEvents]); // Include dependencies
+  }); // Include dependencies
 
-  const currentGameEvent = gameEvents[editGameEventIndex];
+  const currentGameEvent = gameEvents.find(
+    (gameEvent) => gameEvent.id === getEditorState().gameEventId
+  );
+  const selectedIndex = filteredGameEvents.findIndex(
+    (gameEvent) => gameEvent.id === getEditorState().gameEventId
+  );
 
   return (
     <div className="container">
@@ -411,20 +391,16 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
               name: ge.id,
               label: ge.title,
             }))}
-            onItemClick={handleGameEventClick}
-            onClone={handleClone}
-            onDelete={handleDeleteClick}
-            selectedIndex={
-              editGameEventIndex !== -1
-                ? (() => {
-                    const index = filteredGameEvents.findIndex(
-                      (gameEvent) =>
-                        gameEvents.indexOf(gameEvent) === editGameEventIndex
-                    );
-                    return index >= 0 ? index : null;
-                  })()
-                : null
+            onItemClick={(filteredIndex) =>
+              handleGameEventClick(filteredGameEvents[filteredIndex].id)
             }
+            onClone={(filteredIndex) =>
+              handleClone(filteredGameEvents[filteredIndex].id)
+            }
+            onDelete={(filteredIndex) =>
+              handleDeleteClick(filteredGameEvents[filteredIndex].id)
+            }
+            selectedIndex={selectedIndex > -1 ? selectedIndex : null}
             renderAdditionalInfo={(item) => {
               const gameEvent = item as unknown as GameEvent;
               const sprite = spriteMap[gameEvent.icon];
@@ -459,7 +435,12 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                 gameEvent={currentGameEvent}
                 onUpdateGameEvent={(updatedGameEvent) => {
                   const newGameEvents = [...gameEvents];
-                  newGameEvents[editGameEventIndex] = updatedGameEvent;
+                  const index = newGameEvents.findIndex(
+                    (gameEvent) => gameEvent.id === updatedGameEvent.id
+                  );
+                  if (index > -1) {
+                    newGameEvents[index] = updatedGameEvent;
+                  }
                   setGameEvents(newGameEvents);
                 }}
               />
@@ -477,13 +458,22 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                   variant="small"
                   onClick={() => {
                     const currentEditorState = getEditorState();
-                    for (const gameEvent of gameEvents) {
-                      syncGameEventFromEditorState(
-                        gameEvent,
-                        currentEditorState
-                      );
-                    }
-                    if (currentEditorState.baseGameEvent) {
+                    syncGameEventFromEditorState(
+                      currentGameEvent,
+                      currentEditorState
+                    );
+                    // for (const gameEvent of gameEvents) {
+                    //   syncGameEventFromEditorState(
+                    //     gameEvent,
+                    //     currentEditorState
+                    //   );
+                    // }
+                    getEditorState().runnerErrors = [];
+                    const gameEvent = gameEvents.find(
+                      (gameEvent) =>
+                        gameEvent.id === currentEditorState.gameEventId
+                    );
+                    if (gameEvent) {
                       setShowEventRunnerModal(true);
                     }
                   }}
@@ -502,19 +492,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                 >
                   Edit Variables
                 </Button>
-                <Button
-                  variant="small"
-                  onClick={() => validateCurrentGameEvent()}
-                >
-                  Validate
-                </Button>
-                <div
-                  style={{
-                    position: 'relative',
-                  }}
-                >
-                  <ValidationErrorsIndicator errors={validationErrors} />
-                </div>
+                <ValidationMenuButton currentGameEvent={currentGameEvent} />
               </div>
             </>
           ) : (
@@ -548,7 +526,12 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
           gameEvent={currentGameEvent}
           onConfirm={(updatedGameEvent) => {
             const newGameEvents = [...gameEvents];
-            newGameEvents[editGameEventIndex] = updatedGameEvent;
+            const index = newGameEvents.findIndex(
+              (gameEvent) => gameEvent.id === updatedGameEvent.id
+            );
+            if (index > -1) {
+              newGameEvents[index] = updatedGameEvent;
+            }
             setGameEvents(newGameEvents);
             setShowEditGameEventModal(false);
           }}
@@ -563,7 +546,12 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
           gameEvent={currentGameEvent}
           onConfirm={(updatedGameEvent) => {
             const newGameEvents = [...gameEvents];
-            newGameEvents[editGameEventIndex] = updatedGameEvent;
+            const index = newGameEvents.findIndex(
+              (gameEvent) => gameEvent.id === updatedGameEvent.id
+            );
+            if (index > -1) {
+              newGameEvents[index] = updatedGameEvent;
+            }
             setGameEvents(newGameEvents);
           }}
           onCancel={() => setShowVariableEditorModal(false)}
@@ -571,10 +559,10 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       )}
 
       {/* Event Runner Modal */}
-      {showEventRunnerModal && (
+      {showEventRunnerModal && currentGameEvent && (
         <EventRunnerModal
           isOpen={showEventRunnerModal}
-          gameEvent={currentGameEvent}
+          gameEvent={currentGameEvent || null}
           gameEvents={gameEvents}
           onCancel={() => setShowEventRunnerModal(false)}
         />
@@ -594,7 +582,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
         isOpen={showDeleteConfirm}
         message={deleteConfirmMessage}
         onConfirm={() => {
-          deleteGameEvent(deleteConfirmIndex ?? 0);
+          deleteGameEvent(deleteConfirmId ?? '');
           setShowDeleteConfirm(false);
         }}
         onCancel={() => setShowDeleteConfirm(false)}

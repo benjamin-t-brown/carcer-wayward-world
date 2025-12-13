@@ -1,19 +1,18 @@
 import { useState } from 'react';
-import { GameEvent } from '../types/assets';
-import { useAssets } from '../contexts/AssetsContext';
-import { getVarsFromNode } from './nodeHelpers';
+import { GameEvent, Variable } from '../../types/assets';
+import { useAssets } from '../../contexts/AssetsContext';
+import { AccessibleVariable, getVarsFromNode } from '../nodeHelpers';
 
 interface VariableWidgetProps {
   gameEvent: GameEvent | null;
 }
 
-
-
 export function VariableWidget({ gameEvent }: VariableWidgetProps) {
   const { gameEvents } = useAssets();
   const [copiedVar, setCopiedVar] = useState<string | null>(null);
+  const [hoverVar, setHoverVar] = useState<AccessibleVariable | null>(null);
   const [includeImports, setIncludeImports] = useState<boolean>(false);
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  // const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   const accessibleVars = gameEvent
     ? getVarsFromNode(gameEvent, gameEvents)
@@ -42,7 +41,6 @@ export function VariableWidget({ gameEvent }: VariableWidgetProps) {
       }}
     >
       <div
-        onClick={() => setIsExpanded(!isExpanded)}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -54,34 +52,64 @@ export function VariableWidget({ gameEvent }: VariableWidgetProps) {
       >
         <div
           style={{
-            transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-            padding: '4px',
-            fontSize: '12px',
+            marginLeft: '4px',
           }}
         >
-          {'>'}
+          Variables
         </div>
-        <div>Variables</div>
-      </div>
-      <div
-        style={{
-          display: isExpanded ? 'flex' : 'none',
-          alignItems: 'center',
-          gap: '10px',
-          borderBottom: '1px dashed #858585',
-          padding: '4px',
-          background: '#444',
-        }}
-      >
-        <input
-          id="include-imports-checkbox"
-          type="checkbox"
-          checked={includeImports}
-          onChange={() => setIncludeImports(!includeImports)}
-        />
-        <label htmlFor="include-imports-checkbox" style={{ fontSize: '12px' }}>
-          Include imports
-        </label>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '4px',
+          }}
+        >
+          <input
+            id="include-imports-checkbox"
+            type="checkbox"
+            checked={includeImports}
+            onChange={() => setIncludeImports(!includeImports)}
+          />
+          <label
+            htmlFor="include-imports-checkbox"
+            style={{ fontSize: '12px' }}
+          >
+            Include imports
+          </label>
+        </div>
+        {hoverVar && (
+          <div
+            style={{
+              color: '#d5d5d5',
+              fontSize: '12px',
+            }}
+          >
+            {hoverVar.key} = {hoverVar.value}
+            {hoverVar.source !== gameEvent.id && (
+              <span
+                style={{
+                  color: '#a5a5a5',
+                  marginLeft: '10px',
+                }}
+              >
+                ({hoverVar.source})
+              </span>
+            )}
+          </div>
+        )}
+        {copiedVar && (
+          <span
+            style={{
+              color: '#4ec9b0',
+              fontSize: '11px',
+              marginLeft: '10px',
+              fontWeight: '500',
+            }}
+          >
+            ✓ Copied! {copiedVar}
+          </span>
+        )}
       </div>
       {accessibleVars.length === 0 ? (
         <div
@@ -96,11 +124,12 @@ export function VariableWidget({ gameEvent }: VariableWidgetProps) {
       ) : (
         <div
           style={{
-            display: isExpanded ? 'flex' : 'none',
-            flexDirection: 'column',
+            display: 'flex',
+            flexWrap: 'wrap',
             gap: '5px',
             overflowY: 'auto',
-            maxHeight: '124px',
+            // maxHeight: '60px',
+            margin: '4px',
           }}
         >
           {accessibleVars
@@ -111,8 +140,12 @@ export function VariableWidget({ gameEvent }: VariableWidgetProps) {
               <div
                 key={`${variable.key}-${variable.source}-${index}`}
                 onClick={() => handleCopyVariable(variable.key)}
+                onMouseEnter={() => setHoverVar(variable)}
                 style={{
                   cursor: 'pointer',
+                  background: '#444',
+                  borderRadius: '8px',
+                  padding: '4px',
                 }}
               >
                 <span
@@ -124,17 +157,17 @@ export function VariableWidget({ gameEvent }: VariableWidgetProps) {
                     textDecoration: 'underline',
                   }}
                 >
-                  {variable.key}
+                  @{variable.key}
                 </span>
-                <span
+                {/* <span
                   style={{
                     color: '#858585',
                     fontSize: '11px',
                   }}
                 >
                   = {variable.value}
-                </span>
-                {variable.source !== gameEvent.id && (
+                </span> */}
+                {/* {variable.source !== gameEvent.id && (
                   <span
                     style={{
                       color: '#858585',
@@ -145,19 +178,7 @@ export function VariableWidget({ gameEvent }: VariableWidgetProps) {
                   >
                     ({variable.source})
                   </span>
-                )}
-                {copiedVar === variable.key && (
-                  <span
-                    style={{
-                      color: '#4ec9b0',
-                      fontSize: '11px',
-                      marginLeft: '10px',
-                      fontWeight: '500',
-                    }}
-                  >
-                    ✓ Copied! {variable.key}
-                  </span>
-                )}
+                )} */}
               </div>
             ))}
         </div>

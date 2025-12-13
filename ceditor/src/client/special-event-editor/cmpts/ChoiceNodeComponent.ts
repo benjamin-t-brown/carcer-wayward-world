@@ -5,10 +5,14 @@ import {
   SwitchCase,
 } from '../../types/assets';
 import { drawText } from '../../utils/draw';
-import { EditorNode, RenderNodeArgs } from '../EditorNode';
+import { EditorNode, RenderNodeArgs } from './EditorNode';
 import { Connector } from './Connector';
 import { EditorStateSE } from '../seEditorState';
-import { breakTextIntoLines, calculateHeightFromText, truncateText } from '../nodeHelpers';
+import {
+  breakTextIntoLines,
+  calculateHeightFromText,
+  truncateText,
+} from '../nodeHelpers';
 
 const NODE_COLOR = '#3978A8';
 const BORDER_COLOR = '#aaa';
@@ -128,8 +132,8 @@ export class EditorNodeChoice extends EditorNode {
     this.height = height;
   }
 
-  update() {
-    super.update();
+  update(dt: number) {
+    super.update(dt);
     const yOffset = this.getMinHeight() + this.textLinesHeight;
     for (let i = 0; i < this.exits.length; i++) {
       const conn = this.exits[i];
@@ -152,6 +156,8 @@ export class EditorNodeChoice extends EditorNode {
   render(ctx: CanvasRenderingContext2D, scale: number, args: RenderNodeArgs) {
     const nodeX = this.x * scale;
     const nodeY = this.y * scale;
+
+    this.prepareRender(ctx);
 
     super.render(ctx, scale, args);
 
@@ -237,5 +243,7 @@ export class EditorNodeChoice extends EditorNode {
       ctx.stroke();
       ctx.restore();
     }
+
+    this.finishRender(ctx);
   }
 }

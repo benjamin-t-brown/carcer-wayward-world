@@ -2599,12 +2599,12 @@
         "y": 0,
         "characters": [],
         "items": [],
+        "markers": [],
         "eventTrigger": {
           "eventId": "TestEvent",
           "isNonCombatTrigger": true,
           "isLookTrigger": false
-        },
-        "markers": []
+        }
       },
       {
         "tilesetName": "terrain0",
@@ -2662,7 +2662,7 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 0,
+        "tileId": 32,
         "x": 19,
         "y": 11,
         "characters": [],
@@ -2673,7 +2673,7 @@
         "characters": [],
         "items": [],
         "tilesetName": "terrain0",
-        "tileId": 0,
+        "tileId": 32,
         "x": 20,
         "y": 11,
         "markers": []
@@ -2809,9 +2809,7 @@
         "tileId": 0,
         "x": 0,
         "y": 0,
-        "characters": [
-          "exampleTownsperson"
-        ],
+        "characters": [],
         "items": [],
         "markers": []
       },
@@ -2862,7 +2860,9 @@
         "tileId": 0,
         "x": 0,
         "y": 0,
-        "characters": [],
+        "characters": [
+          "exampleTownsperson"
+        ],
         "items": [],
         "markers": []
       },
@@ -2892,7 +2892,7 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 0,
+        "tileId": 32,
         "x": 0,
         "y": 0,
         "characters": [],
@@ -2901,7 +2901,7 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 0,
+        "tileId": 32,
         "x": 18,
         "y": 12,
         "characters": [],
@@ -2910,7 +2910,7 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 0,
+        "tileId": 32,
         "x": 19,
         "y": 12,
         "characters": [],
@@ -2921,7 +2921,7 @@
         "characters": [],
         "items": [],
         "tilesetName": "terrain0",
-        "tileId": 0,
+        "tileId": 32,
         "x": 20,
         "y": 12,
         "markers": []
@@ -3132,7 +3132,7 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 0,
+        "tileId": 32,
         "x": 0,
         "y": 0,
         "characters": [],
@@ -3150,7 +3150,7 @@
       },
       {
         "tilesetName": "terrain0",
-        "tileId": 0,
+        "tileId": 32,
         "x": 19,
         "y": 13,
         "characters": [],
@@ -3161,7 +3161,7 @@
         "characters": [],
         "items": [],
         "tilesetName": "terrain0",
-        "tileId": 0,
+        "tileId": 32,
         "x": 20,
         "y": 13,
         "markers": []
@@ -3394,18 +3394,18 @@
         "characters": [],
         "items": [],
         "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 20,
-        "y": 14,
+        "tileId": 32,
+        "x": 19,
+        "y": 12,
         "markers": []
       },
       {
         "characters": [],
         "items": [],
         "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 21,
-        "y": 14,
+        "tileId": 32,
+        "x": 20,
+        "y": 12,
         "markers": []
       },
       {
@@ -3622,18 +3622,18 @@
         "characters": [],
         "items": [],
         "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 20,
-        "y": 15,
+        "tileId": 32,
+        "x": 19,
+        "y": 13,
         "markers": []
       },
       {
         "characters": [],
         "items": [],
         "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 21,
-        "y": 15,
+        "tileId": 32,
+        "x": 20,
+        "y": 13,
         "markers": []
       },
       {
@@ -3853,17 +3853,17 @@
         "items": [],
         "tilesetName": "terrain0",
         "tileId": 0,
-        "x": 20,
-        "y": 16,
+        "x": 19,
+        "y": 14,
         "markers": []
       },
       {
         "characters": [],
         "items": [],
         "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 21,
-        "y": 16,
+        "tileId": 32,
+        "x": 19,
+        "y": 12,
         "markers": []
       },
       {
@@ -4077,18 +4077,18 @@
         "characters": [],
         "items": [],
         "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 20,
-        "y": 17,
+        "tileId": 32,
+        "x": 19,
+        "y": 15,
         "markers": []
       },
       {
         "characters": [],
         "items": [],
         "tilesetName": "terrain0",
-        "tileId": 0,
-        "x": 21,
-        "y": 17,
+        "tileId": 32,
+        "x": 19,
+        "y": 13,
         "markers": []
       },
       {

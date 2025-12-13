@@ -53,7 +53,6 @@ export function CreateGameEventModal({
         justifyContent: 'center',
         zIndex: 1000,
       }}
-      onClick={handleCancel}
     >
       <div
         style={{

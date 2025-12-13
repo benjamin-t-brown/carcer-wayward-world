@@ -96,7 +96,7 @@ export const loop = (
   const parentNodeIds = new Set<string>();
 
   for (const node of dataInterface.getEditorState().editorNodes) {
-    node.update();
+    node.update(ms);
     node.renderConnectors(ctx, newScale);
   }
 
