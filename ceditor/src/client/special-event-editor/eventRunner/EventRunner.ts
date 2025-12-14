@@ -83,24 +83,36 @@ class ConditionEvaluator {
       return getStorage(this.storage, a) !== getStorage(this.storage, b);
     },
     GT: (a: string, b: string) => {
-      return (
-        (getStorage(this.storage, a) ?? 0) > (getStorage(this.storage, b) ?? 0)
-      );
+      const v1 = parseFloat(getStorage(this.storage, a) ?? '0');
+      const v2 = parseFloat(b);
+      if (isNaN(v1) || isNaN(v2)) {
+        return false;
+      }
+      return v1 > v2;
     },
     GTE: (a: string, b: string) => {
-      return (
-        (getStorage(this.storage, a) ?? 0) >= (getStorage(this.storage, b) ?? 0)
-      );
+      const v1 = parseFloat(getStorage(this.storage, a) ?? '0');
+      const v2 = parseFloat(b);
+      if (isNaN(v1) || isNaN(v2)) {
+        return false;
+      }
+      return v1 >= v2;
     },
     LT: (a: string, b: string) => {
-      return (
-        (getStorage(this.storage, a) ?? 0) < (getStorage(this.storage, b) ?? 0)
-      );
+      const v1 = parseFloat(getStorage(this.storage, a) ?? '0');
+      const v2 = parseFloat(b);
+      if (isNaN(v1) || isNaN(v2)) {
+        return false;
+      }
+      return v1 < v2;
     },
     LTE: (a: string, b: string) => {
-      return (
-        (getStorage(this.storage, a) ?? 0) <= (getStorage(this.storage, b) ?? 0)
-      );
+      const v1 = parseFloat(getStorage(this.storage, a) ?? '0');
+      const v2 = parseFloat(b);
+      if (isNaN(v1) || isNaN(v2)) {
+        return false;
+      }
+      return v1 <= v2;
     },
     ALL: (...args: string[]) => {
       return args.every((arg) => Boolean(getStorage(this.storage, arg)));
@@ -293,80 +305,6 @@ export class EventRunner {
       : gameEvent.children[0].id;
   }
 
-  static getAvailableFuncs(): string[] {
-    const stringEvaluator = new StringEvaluator({}, '');
-    const conditionEvaluator = new ConditionEvaluator({}, '');
-
-    // Helper function to extract parameter names from function source
-    const extractParams = (func: Function): string[] => {
-      const funcStr = func.toString();
-      // Match arrow function parameters: (a, b) => or (a: string, b: string) => or (...args) =>
-      const arrowMatch = funcStr.match(/^\(([^)]*)\)\s*=>/);
-      if (arrowMatch) {
-        const paramsStr = arrowMatch[1].trim();
-        if (paramsStr === '') return [];
-        // Handle rest parameters
-        if (paramsStr.startsWith('...')) {
-          // Extract just the parameter name from "...args: string[]"
-          const restMatch = paramsStr.match(/^\.\.\.(\w+)/);
-          return restMatch ? [`...${restMatch[1]}`] : [paramsStr];
-        }
-        // Split by comma and extract parameter names (strip type annotations)
-        return paramsStr.split(',').map((p) => {
-          const trimmed = p.trim();
-          // Extract parameter name, handling type annotations like "a: string"
-          const nameMatch = trimmed.match(/^(\w+)/);
-          return nameMatch ? nameMatch[1] : trimmed;
-        });
-      }
-      // Fallback: use function.length to generate generic names
-      const paramCount = func.length;
-      if (paramCount === 0) return [];
-      return Array(paramCount)
-        .fill(0)
-        .map((_, i) => `arg${i + 1}`);
-    };
-
-    const result: Array<{
-      name: string;
-      args: string[];
-      argCount: number;
-      type: 'string' | 'bool';
-    }> = [];
-
-    // Add string functions
-    for (const funcName of Object.keys(stringEvaluator.stringFunctions)) {
-      const func = stringEvaluator.stringFunctions[funcName];
-      const args = extractParams(func);
-      const isVariadic = args.some((arg) => arg.startsWith('...'));
-      const argCount = isVariadic ? -1 : args.length; // -1 indicates variadic
-      result.push({
-        name: funcName,
-        args,
-        argCount,
-        type: 'string',
-      });
-    }
-
-    // Add bool functions
-    for (const funcName of Object.keys(conditionEvaluator.boolFunctions)) {
-      const func = conditionEvaluator.boolFunctions[funcName];
-      const args = extractParams(func);
-      const isVariadic = args.some((arg) => arg.startsWith('...'));
-      const argCount = isVariadic ? -1 : args.length; // -1 indicates variadic
-      result.push({
-        name: funcName,
-        args,
-        argCount,
-        type: 'bool',
-      });
-    }
-
-    return result.map(
-      (func) => `${func.name}(${func.args.join(', ')}): ${func.type}`
-    ).sort();
-  }
-
   getCurrentNode() {
     return this.gameEvent.children.find(
       (node) => node.id === this.currentNodeId
@@ -455,7 +393,7 @@ export class EventRunner {
     );
     try {
       const result = Boolean(conditionEvaluator.evalCondition(conditionStr));
-      // console.log('evalCondition with evaluator', { conditionStr, result });
+      console.log('evalCondition with evaluator', { conditionStr, result });
       return {
         result,
         onceKeysToCommit: conditionEvaluator.onceKeysToCommit,
@@ -578,4 +516,79 @@ export class EventRunner {
       }
     }
   }
+}
+
+// editor code only, not used in c++
+export function getAvailableFuncs(): string[] {
+  const stringEvaluator = new StringEvaluator({}, '');
+  const conditionEvaluator = new ConditionEvaluator({}, '');
+
+  // Helper function to extract parameter names from function source
+  const extractParams = (func: Function): string[] => {
+    const funcStr = func.toString();
+    // Match arrow function parameters: (a, b) => or (a: string, b: string) => or (...args) =>
+    const arrowMatch = funcStr.match(/^\(([^)]*)\)\s*=>/);
+    if (arrowMatch) {
+      const paramsStr = arrowMatch[1].trim();
+      if (paramsStr === '') return [];
+      // Handle rest parameters
+      if (paramsStr.startsWith('...')) {
+        // Extract just the parameter name from "...args: string[]"
+        const restMatch = paramsStr.match(/^\.\.\.(\w+)/);
+        return restMatch ? [`...${restMatch[1]}`] : [paramsStr];
+      }
+      // Split by comma and extract parameter names (strip type annotations)
+      return paramsStr.split(',').map((p) => {
+        const trimmed = p.trim();
+        // Extract parameter name, handling type annotations like "a: string"
+        const nameMatch = trimmed.match(/^(\w+)/);
+        return nameMatch ? nameMatch[1] : trimmed;
+      });
+    }
+    // Fallback: use function.length to generate generic names
+    const paramCount = func.length;
+    if (paramCount === 0) return [];
+    return Array(paramCount)
+      .fill(0)
+      .map((_, i) => `arg${i + 1}`);
+  };
+
+  const result: Array<{
+    name: string;
+    args: string[];
+    argCount: number;
+    type: 'string' | 'bool';
+  }> = [];
+
+  // Add string functions
+  for (const funcName of Object.keys(stringEvaluator.stringFunctions)) {
+    const func = stringEvaluator.stringFunctions[funcName];
+    const args = extractParams(func);
+    const isVariadic = args.some((arg) => arg.startsWith('...'));
+    const argCount = isVariadic ? -1 : args.length; // -1 indicates variadic
+    result.push({
+      name: funcName,
+      args,
+      argCount,
+      type: 'string',
+    });
+  }
+
+  // Add bool functions
+  for (const funcName of Object.keys(conditionEvaluator.boolFunctions)) {
+    const func = conditionEvaluator.boolFunctions[funcName];
+    const args = extractParams(func);
+    const isVariadic = args.some((arg) => arg.startsWith('...'));
+    const argCount = isVariadic ? -1 : args.length; // -1 indicates variadic
+    result.push({
+      name: funcName,
+      args,
+      argCount,
+      type: 'bool',
+    });
+  }
+
+  return result
+    .map((func) => `${func.name}(${func.args.join(', ')}): ${func.type}`)
+    .sort();
 }

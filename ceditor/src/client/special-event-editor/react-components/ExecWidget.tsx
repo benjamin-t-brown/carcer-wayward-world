@@ -3,7 +3,7 @@ import { GameEvent, Variable } from '../../types/assets';
 import { useAssets } from '../../contexts/AssetsContext';
 import { AccessibleVariable, getVarsFromNode } from '../nodeHelpers';
 import { SearchInput } from '../../elements/SearchInput';
-import { EventRunner } from '../eventRunner/EventRunner';
+import { EventRunner, getAvailableFuncs } from '../eventRunner/EventRunner';
 
 interface ExecWidgetProps {
   gameEvent: GameEvent | null;
@@ -16,7 +16,7 @@ export function ExecWidget({ gameEvent }: ExecWidgetProps) {
   // const [includeImports, setIncludeImports] = useState<boolean>(false);
   // const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
-  const availableFuncs: string[] = EventRunner.getAvailableFuncs();
+  const availableFuncs: string[] = getAvailableFuncs();
 
   // const accessibleVars = gameEvent
   //   ? getVarsFromNode(gameEvent, gameEvents)

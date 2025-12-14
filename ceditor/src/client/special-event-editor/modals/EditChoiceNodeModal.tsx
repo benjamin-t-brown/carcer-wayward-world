@@ -210,20 +210,6 @@ export function EditChoiceNodeModal({
         >
           Edit Choice Node
         </h2>
-        <div
-          style={{
-            display: 'flex',
-            gap: '10px',
-            width: '100%',
-          }}
-        >
-          <div style={{ width: '50%' }}>
-            <VariableWidget gameEvent={gameEvent} />
-          </div>
-          <div style={{ width: '50%' }}>
-            <ExecWidget gameEvent={gameEvent} />
-          </div>
-        </div>
 
         <div
           style={{
@@ -235,7 +221,21 @@ export function EditChoiceNodeModal({
           GameEvent: <span style={{ color: '#00d4d4' }}>{gameEvent.id}</span> |
           Node: <span style={{ color: '#d4d400' }}>{node.id}</span>
         </div>
-
+        <div
+          style={{
+            display: 'flex',
+            gap: '10px',
+            width: '100%',
+            marginBottom: '20px',
+          }}
+        >
+          <div style={{ width: '50%' }}>
+            <VariableWidget gameEvent={gameEvent} />
+          </div>
+          <div style={{ width: '50%' }}>
+            <ExecWidget gameEvent={gameEvent} />
+          </div>
+        </div>
         <div style={{ marginBottom: '20px' }}>
           <div>
             <div
@@ -259,7 +259,7 @@ export function EditChoiceNodeModal({
                 borderRadius: '4px',
                 color: '#d4d4d4',
                 fontFamily: 'arial',
-                fontSize: '12px',
+                fontSize: '16px',
               }}
             />
           </div>
@@ -330,10 +330,6 @@ export function EditChoiceNodeModal({
                     />
                     <div
                       style={{
-                        // display: 'flex',
-                        // justifyContent: 'space-between',
-                        // alignItems: 'center',
-                        // flexDirection: 'column',
                         width: 'calc(100% - 100px - 48px)',
                       }}
                     >

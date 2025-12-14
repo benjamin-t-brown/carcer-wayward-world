@@ -6,6 +6,7 @@ import { randomId } from '../../utils/mathUtils';
 import { GenericModal } from '../../elements/GenericModal';
 import { PickImportModal } from './PickImportModal';
 import { notifyStateUpdated } from '../seEditorState';
+import { ExecWidget } from '../react-components/ExecWidget';
 
 interface VariableEditorModalProps {
   isOpen: boolean;
@@ -321,12 +322,29 @@ export function VariableEditorModal({
       <>
         <div
           style={{
+            display: 'flex',
+            gap: '10px',
+            width: '100%',
+            marginBottom: '20px',
+          }}
+        >
+          <div style={{ width: '50%' }}>
+            <ExecWidget gameEvent={gameEvent} />
+          </div>
+        </div>
+        <div
+          style={{
             maxHeight: '45px',
             overflow: 'auto',
             marginBottom: '8px',
             background: '#222',
           }}
         >
+          {importVars.length === 0 && (
+            <div>
+              <div>No imports.</div>
+            </div>
+          )}
           {importVars.map((variable) => (
             <div key={variable.id}>
               import {variable.importFrom}{' '}

@@ -4,6 +4,7 @@ import { Button } from '../../elements/Button';
 import { VariableWidget } from '../react-components/VariableWidget';
 import { EditorNodeExec } from '../cmpts/ExecNodeComponent';
 import { notifyStateUpdated } from '../seEditorState';
+import { ExecWidget } from '../react-components/ExecWidget';
 
 interface EditExecNodeModalProps {
   isOpen: boolean;
@@ -80,9 +81,6 @@ export function EditExecNodeModal({
         >
           Edit Exec Node
         </h2>
-        <div>
-          <VariableWidget gameEvent={gameEvent} />
-        </div>
 
         <div
           style={{
@@ -93,6 +91,21 @@ export function EditExecNodeModal({
         >
           GameEvent: <span style={{ color: '#00d4d4' }}>{gameEvent.id}</span> |
           Node: <span style={{ color: '#d4d400' }}>{node.id}</span>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            gap: '10px',
+            width: '100%',
+            marginBottom: '20px',
+          }}
+        >
+          <div style={{ width: '50%' }}>
+            <VariableWidget gameEvent={gameEvent} />
+          </div>
+          <div style={{ width: '50%' }}>
+            <ExecWidget gameEvent={gameEvent} />
+          </div>
         </div>
 
         <div style={{ marginBottom: '20px' }}>
