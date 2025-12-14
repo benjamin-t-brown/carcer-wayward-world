@@ -4,7 +4,14 @@
     "title": "This is a Test Event",
     "eventType": "MODAL",
     "icon": "special_event_icons_0",
-    "vars": [],
+    "vars": [
+      {
+        "id": "fvuao7fl5li",
+        "key": "ASDF1",
+        "value": "1",
+        "importFrom": ""
+      }
+    ],
     "children": [
       {
         "id": "root",
@@ -61,32 +68,10 @@
           },
           {
             "text": "This is a once choice.",
-            "conditionStr": "ONCE(firstTimeSpeaking)",
+            "conditionStr": "ONCE(firstTimeSpeaking",
             "next": "s910ik5febm"
           }
         ]
-      },
-      {
-        "id": "04rw2myk9p0y",
-        "x": 107.5,
-        "y": 348.5,
-        "eventChildType": "SWITCH",
-        "h": 132,
-        "cases": [
-          {
-            "conditionStr": "",
-            "next": ""
-          },
-          {
-            "conditionStr": "",
-            "next": ""
-          },
-          {
-            "conditionStr": "",
-            "next": ""
-          }
-        ],
-        "defaultNext": ""
       }
     ]
   },

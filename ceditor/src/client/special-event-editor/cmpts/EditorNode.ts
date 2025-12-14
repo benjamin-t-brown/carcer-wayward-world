@@ -90,7 +90,9 @@ export class EditorNode {
 
   getAnchorCollidingWithPoint(x: number, y: number) {
     for (const exit of this.exits) {
-      if (exit.isColliding(x, y)) {
+      const radius = 15;
+      const dist = Math.sqrt((x - exit.startX) ** 2 + (y - exit.startY) ** 2);
+      if ( dist <= radius) {
         return exit;
       }
     }

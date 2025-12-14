@@ -1,6 +1,6 @@
 import { GameEvent } from '../types/assets';
 import { Connector } from './cmpts/Connector';
-import { EditorNode } from './EditorNode';
+import { EditorNode } from './cmpts/EditorNode';
 import { getTransform } from './seEditorState';
 
 // export const getAnchorCoordinates = (node: SENode) => {
@@ -327,7 +327,7 @@ export const getExitAnchorFromWorldCoords = (
   return clickedExitAnchor;
 };
 
-export const getExitAnchorFromWorldCoordsLine = (
+export const getConnectorFromLineAtPosition = (
   worldX: number,
   worldY: number,
   nodes: EditorNode[]
@@ -349,7 +349,7 @@ export const getNodeParents = (
   nodes: EditorNode[]
 ): EditorNode[] => {
   return nodes.filter((node) =>
-    node.exits.some((exit) => exit.toNodeId === nodeId)
+    node.exits.some((exit: Connector) => exit.toNodeId === nodeId)
   );
 };
 

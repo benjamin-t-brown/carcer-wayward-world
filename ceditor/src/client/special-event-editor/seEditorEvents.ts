@@ -1,6 +1,6 @@
 import {
   getExitAnchorFromWorldCoords,
-  getExitAnchorFromWorldCoordsLine,
+  getConnectorFromLineAtPosition,
   getNodeFromWorldCoords,
   screenToWorldCoords,
 } from './nodeHelpers';
@@ -450,7 +450,7 @@ const checkLeftMouseClickEvents = (args: {
     return true;
   }
 
-  const clickedExitAnchorLine = getExitAnchorFromWorldCoordsLine(
+  const clickedExitAnchorLine = getConnectorFromLineAtPosition(
     worldX,
     worldY,
     editorState.editorNodes
@@ -605,7 +605,7 @@ export const checkRightClickLineEvents = (args: {
     editorState.zoneHeight
   );
 
-  const clickedExitAnchorLine = getExitAnchorFromWorldCoordsLine(
+  const clickedExitAnchorLine = getConnectorFromLineAtPosition(
     worldX,
     worldY,
     editorState.editorNodes

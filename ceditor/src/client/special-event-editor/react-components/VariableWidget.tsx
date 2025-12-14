@@ -117,6 +117,7 @@ export function VariableWidget({ gameEvent }: VariableWidgetProps) {
             color: '#858585',
             fontSize: '12px',
             fontStyle: 'italic',
+            padding: '16px',
           }}
         >
           No variables available
