@@ -1,6 +1,10 @@
 import { GameEventChildExec } from '../../types/assets';
 import { drawText } from '../../utils/draw';
-import { breakTextIntoLines, calculateHeightFromText, truncateText } from '../nodeHelpers';
+import {
+  breakTextIntoLines,
+  calculateHeightFromText,
+  truncateText,
+} from '../nodeHelpers';
 import { EditorNode, RenderNodeArgs } from './EditorNode';
 import { Connector } from './Connector';
 import { EditorStateSE } from '../seEditorState';
@@ -117,20 +121,23 @@ export class EditorNodeExec extends EditorNode {
 
   update(dt: number) {
     super.update(dt);
-    const connector = this.exits[0];
-    if (connector) {
-      connector.startX = this.x + this.width;
-      connector.startY = this.y + this.height / 2 + 7;
+    const conn = this.exits[0];
+    if (conn) {
+      const startX = this.x + this.width;
+      const startY = this.y + this.height / 2 + 7;
 
-      if (connector.toNodeId) {
+      if (conn.toNodeId) {
         const childNode = this.editorState.editorNodes.find(
-          (node) => node.id === connector.toNodeId
+          (node) => node.id === conn.toNodeId
         );
         if (childNode) {
           const { x, y } = childNode.getEntrancePos();
-          connector.endX = x;
-          connector.endY = y;
+          const endX = x;
+          const endY = y;
+          conn.updatePosition(startX, startY, endX, endY);
         }
+      } else {
+        conn.updatePosition(startX, startY, 0, 0);
       }
     }
   }

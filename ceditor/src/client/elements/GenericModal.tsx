@@ -10,6 +10,7 @@ interface GenericModalProps {
 export const GenericModal = (props: GenericModalProps) => {
   return (
     <div
+      className="generic-modal"
       style={{
         position: 'fixed',
         top: 0,

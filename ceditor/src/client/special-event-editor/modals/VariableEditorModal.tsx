@@ -114,6 +114,7 @@ const VariableEntry = ({
               fontFamily: 'monospace',
               fontSize: '12px',
             }}
+            spellCheck={false}
             placeholder="Enter variable name..."
           />
           <input
@@ -122,6 +123,7 @@ const VariableEntry = ({
             onChange={(e) =>
               handleUpdateVariable(index, 'value', e.target.value)
             }
+            spellCheck={false}
             style={{
               width: '59%',
               padding: '6px',

@@ -88,8 +88,8 @@ export const ValidationErrorsIndicator = (
           }}
         >
           {props.errors.length === 0 ? <div>No errors</div> : undefined}
-          {props.errors.map((error) => (
-            <div key={error.childId}>
+          {props.errors.map((error, i) => (
+            <div key={error.childId + i.toString()}>
               <span
                 role="img"
                 aria-label="error"

@@ -23,6 +23,7 @@ import { EventRunnerModal } from '../special-event-editor/eventRunner/EventRunne
 import { DeleteModal } from '../elements/DeleteModal';
 import { ValidationMenuButton } from '../special-event-editor/react-components/ValidationMenuButton';
 import { useReRender } from '../hooks/useReRender';
+import { EventRunner } from '../special-event-editor/eventRunner/EventRunner';
 
 interface NotificationState {
   message: string;
@@ -47,6 +48,9 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmMessage, setDeleteConfirmMessage] = useState('');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [eventRunner, setEventRunner] = useState<EventRunner | undefined>(
+    undefined
+  );
   const reRender = useReRender();
 
   const notificationIdRef = useRef(0);
@@ -456,41 +460,58 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
               >
                 <Button
                   variant="small"
-                  onClick={() => {
-                    const currentEditorState = getEditorState();
-                    syncGameEventFromEditorState(
-                      currentGameEvent,
-                      currentEditorState
-                    );
-                    // for (const gameEvent of gameEvents) {
-                    //   syncGameEventFromEditorState(
-                    //     gameEvent,
-                    //     currentEditorState
-                    //   );
-                    // }
-                    getEditorState().runnerErrors = [];
-                    const gameEvent = gameEvents.find(
-                      (gameEvent) =>
-                        gameEvent.id === currentEditorState.gameEventId
-                    );
-                    if (gameEvent) {
-                      setShowEventRunnerModal(true);
-                    }
-                  }}
-                >
-                  Run Event
-                </Button>
-                <Button
-                  variant="small"
                   onClick={() => setShowEditGameEventModal(true)}
                 >
+                  <span
+                    role="img"
+                    aria-label="Edit Game Event"
+                    style={{ marginRight: '6px' }}
+                  >
+                    ⚙️
+                  </span>
                   Edit Game Event
                 </Button>
                 <Button
                   variant="small"
                   onClick={() => setShowVariableEditorModal(true)}
                 >
-                  Edit Variables
+                  📝 Edit Variables
+                </Button>
+                <Button
+                  variant="small"
+                  onClick={() => {
+                    const currentEditorState = getEditorState();
+                    syncGameEventFromEditorState(
+                      currentGameEvent,
+                      currentEditorState
+                    );
+                    getEditorState().runnerErrors = [];
+                    const gameEvent = gameEvents.find(
+                      (gameEvent) =>
+                        gameEvent.id === currentEditorState.gameEventId
+                    );
+                    if (gameEvent) {
+                      const runner = new EventRunner({}, gameEvent, gameEvents);
+                      setEventRunner(runner);
+                      console.log('run root');
+                      runner.advance(runner.currentNodeId, {
+                        onceKeysToCommit: [],
+                        execStr: '',
+                      });
+                      setTimeout(() => {
+                        setShowEventRunnerModal(true);
+                      }, 100);
+                    }
+                  }}
+                >
+                  <span
+                    role="img"
+                    aria-label="Play"
+                    style={{ marginRight: '6px' }}
+                  >
+                    ▶️
+                  </span>
+                  Run Event
                 </Button>
                 <ValidationMenuButton currentGameEvent={currentGameEvent} />
               </div>
@@ -562,9 +583,13 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       {showEventRunnerModal && currentGameEvent && (
         <EventRunnerModal
           isOpen={showEventRunnerModal}
+          eventRunner={eventRunner}
           gameEvent={currentGameEvent || null}
           gameEvents={gameEvents}
-          onCancel={() => setShowEventRunnerModal(false)}
+          onCancel={() => {
+            setShowEventRunnerModal(false);
+            setEventRunner(undefined);
+          }}
         />
       )}
 

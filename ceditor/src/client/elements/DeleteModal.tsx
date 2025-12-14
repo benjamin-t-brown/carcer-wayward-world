@@ -19,6 +19,7 @@ export function DeleteModal({
 
   return (
     <div
+      className="generic-modal"
       style={{
         position: 'fixed',
         top: 0,

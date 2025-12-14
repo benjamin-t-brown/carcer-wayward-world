@@ -171,8 +171,9 @@ export class EditorNodeSwitch extends EditorNode {
     const yOffset = NODE_TITLE_HEIGHT + PADDING * 2 + BORDER_WIDTH * 2;
     for (let i = 0; i < this.exits.length; i++) {
       const conn = this.exits[i];
-      conn.startX = this.x + this.width;
-      conn.startY = this.y + yOffset + i * LINE_HEIGHT;
+
+      const startX = this.x + this.width;
+      const startY = this.y + yOffset + i * LINE_HEIGHT;
 
       if (conn.toNodeId) {
         const childNode = this.editorState.editorNodes.find(
@@ -180,9 +181,12 @@ export class EditorNodeSwitch extends EditorNode {
         );
         if (childNode) {
           const { x, y } = childNode.getEntrancePos();
-          conn.endX = x;
-          conn.endY = y;
+          const endX = x;
+          const endY = y;
+          conn.updatePosition(startX, startY, endX, endY);
         }
+      } else {
+        conn.updatePosition(startX, startY, 0, 0);
       }
     }
   }

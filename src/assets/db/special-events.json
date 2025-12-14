@@ -15,8 +15,8 @@
     "children": [
       {
         "id": "root",
-        "x": 48,
-        "y": 57,
+        "x": 61,
+        "y": 32,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "This is the start node.",
@@ -45,8 +45,8 @@
       },
       {
         "id": "oktc7mx9yvj",
-        "x": 502,
-        "y": 500.5,
+        "x": 557,
+        "y": 675.5,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "Restarting...",
@@ -55,8 +55,8 @@
       },
       {
         "id": "ebwwh7cnov7",
-        "x": 428.5,
-        "y": 179,
+        "x": 426.5,
+        "y": 177,
         "eventChildType": "CHOICE",
         "h": 112,
         "text": "Choose something.",
@@ -64,12 +64,16 @@
           {
             "text": "This is the default choice.",
             "conditionStr": "",
-            "next": "8svf8gb3hf5"
+            "evalStr": "",
+            "next": "8svf8gb3hf5",
+            "prefixText": ""
           },
           {
             "text": "This is a once choice.",
             "conditionStr": "ONCE(firstTimeSpeaking",
-            "next": "s910ik5febm"
+            "evalStr": "",
+            "next": "s910ik5febm",
+            "prefixText": ""
           }
         ]
       }
@@ -77,10 +81,65 @@
   },
   {
     "id": "TestEvent2",
-    "title": "Test Event 2",
+    "title": "Test Dialogue Check",
     "eventType": "MODAL",
     "icon": "special_event_icons_0",
-    "vars": [],
+    "vars": [
+      {
+        "id": "e18la82mk1p",
+        "key": "ASPECT_FAE",
+        "value": "vars.aspect.fae",
+        "importFrom": ""
+      },
+      {
+        "id": "3pm2c4p3o0x",
+        "key": "ASPECT_DRAGON",
+        "value": "vars.aspect.dragon",
+        "importFrom": ""
+      },
+      {
+        "id": "sw6m7gxfoit",
+        "key": "ASPECT_AEON",
+        "value": "vars.aspect.aeon",
+        "importFrom": ""
+      },
+      {
+        "id": "vxiebadvzfh",
+        "key": "COND_HAS_ASPECT_FAE_1",
+        "value": "GTE(vars.aspect.fae),1)",
+        "importFrom": ""
+      },
+      {
+        "id": "yuoss8mehh",
+        "key": "COND_HAS_ASPECT_DRAGON_1",
+        "value": "GTE(vars.aspect.dragon),1)",
+        "importFrom": ""
+      },
+      {
+        "id": "g7owoh4zru",
+        "key": "COND_HAS_ASPECT_AEON_1",
+        "value": "GTE(vars.aspect.aeon),1)",
+        "importFrom": ""
+      },
+      {
+        "id": "2w0no84pikb",
+        "key": "FUNC_UPDATE_ASPECT_FAE_1",
+        "value": "MOD_NUM(vars.aspect.fae, 1)",
+        "importFrom": ""
+      },
+      {
+        "id": "q53mrodvdpo",
+        "key": "FUNC_UPDATE_ASPECT_DRAGON_1",
+        "value": "MOD_NUM(vars.aspect.dragon, 1)",
+        "importFrom": ""
+      },
+      {
+        "id": "xxqev0oh6d9",
+        "key": "FUNC_UPDATE_ASPECT_AEON_1",
+        "value": "MOD_NUM(vars.aspect.aeon, 1)",
+        "importFrom": ""
+      }
+    ],
     "children": [
       {
         "id": "root",
@@ -90,15 +149,71 @@
         "h": 50,
         "p": "",
         "execStr": "",
-        "next": "anvxoxt908"
+        "next": "hqjjm69ppi"
       },
       {
         "id": "anvxoxt908",
-        "x": 722.5,
-        "y": 232.5,
+        "x": 872.5,
+        "y": 368.5,
         "eventChildType": "END",
         "h": 60,
         "next": ""
+      },
+      {
+        "id": "d9dzkh109at",
+        "x": 453,
+        "y": 151.5,
+        "eventChildType": "CHOICE",
+        "h": 160,
+        "text": "So what do you think?  Are you up for the task?",
+        "choices": [
+          {
+            "text": "Yes.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "anvxoxt908",
+            "prefixText": ""
+          },
+          {
+            "text": "This all seems so very silly if you ask me!  But sure, I guess.",
+            "conditionStr": "@COND_HAS_ASPECT_FAE_1",
+            "evalStr": "@FUNC_UPDATE_ASPECT_FAE_1",
+            "next": "anvxoxt908",
+            "prefixText": "[FAE]"
+          },
+          {
+            "text": "Of course I am.  Do not insinuate otherwise.",
+            "conditionStr": "@COND_HAS_ASPECT_DRAGON_1",
+            "evalStr": "@FUNC_UPDATE_ASPECT_DRAGON_1",
+            "next": "anvxoxt908",
+            "prefixText": "[DRAGON]"
+          },
+          {
+            "text": "I will do what needs to be done.",
+            "conditionStr": "@COND_HAS_ASPECT_AEON_1",
+            "evalStr": "@FUNC_UPDATE_ASPECT_AEON_1",
+            "next": "anvxoxt908",
+            "prefixText": "[AEON]"
+          }
+        ]
+      },
+      {
+        "id": "hqjjm69ppi",
+        "x": 63,
+        "y": 156.5,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "",
+        "execStr": "SET_NUM(@ASPECT_FAE, 1)\nSET_NUM(@ASPECT_DRAGON, 1)\nSET_NUM(@ASPECT_AEON, 1)",
+        "next": "d9dzkh109at"
+      },
+      {
+        "id": "kpo7zzptph",
+        "x": 61,
+        "y": 242.5,
+        "eventChildType": "COMMENT",
+        "h": 54,
+        "comment": "^ Debug"
       }
     ]
   }

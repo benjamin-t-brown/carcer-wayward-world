@@ -88,8 +88,9 @@ struct KeywordData {
 
 struct Choice {
   std::string text;
-  std::optional<std::string>
-      conditionStr; // string that represents a condition to evaluate
+  std::string prefixText;
+  std::string conditionStr;
+  std::string evalStr;
   std::string next;
 };
 

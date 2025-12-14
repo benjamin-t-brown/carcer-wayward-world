@@ -195,7 +195,9 @@ export type KeywordData =
 
 export interface Choice {
   text: string;
+  prefixText?: string;
   conditionStr?: string;
+  evalStr?: string;
   next: string;
 }
 

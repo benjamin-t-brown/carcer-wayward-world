@@ -4,6 +4,7 @@ import { Button } from '../../elements/Button';
 import { VariableWidget } from '../react-components/VariableWidget';
 import { EditorNodeChoice } from '../cmpts/ChoiceNodeComponent';
 import { notifyStateUpdated } from '../seEditorState';
+import { ExecWidget } from '../react-components/ExecWidget';
 
 interface EditChoiceNodeModalProps {
   isOpen: boolean;
@@ -12,6 +13,88 @@ interface EditChoiceNodeModalProps {
   onCancel: () => void;
   ctx: CanvasRenderingContext2D;
 }
+
+const ChoiceTextInput = (props: {
+  value: string;
+  disabled: boolean;
+  onChange: (value: string) => void;
+  placeholder: string;
+  monospace: boolean;
+  borderColor?: string;
+  spellCheck: boolean;
+  widthPct: number;
+}) => {
+  const {
+    value,
+    disabled,
+    onChange,
+    placeholder,
+    monospace,
+    borderColor,
+    spellCheck,
+    widthPct,
+  } = props;
+  return (
+    <input
+      type="text"
+      value={value}
+      disabled={disabled}
+      onChange={(e) => onChange(e.target.value)}
+      spellCheck={spellCheck}
+      style={{
+        width: `calc(${widthPct}% - 12px)`,
+        padding: '6px',
+        backgroundColor: '#1e1e1e',
+        border: '1px solid ' + (borderColor ? borderColor : '#3e3e42'),
+        borderRadius: '4px',
+        color: '#d4d4d4',
+        fontFamily: monospace ? 'monospace' : 'arial',
+        fontSize: '12px',
+      }}
+      placeholder={placeholder}
+    />
+  );
+};
+
+const UpDownMover = (props: {
+  index: number;
+  handleMoveChoiceDir: (index: number, direction: 'up' | 'down') => void;
+}) => {
+  const { index, handleMoveChoiceDir } = props;
+  return (
+    <div
+      style={{
+        width: '48px',
+        display: 'flex',
+        alignItems: 'center',
+        height: '100%',
+        marginBottom: '8px',
+        gap: '0px',
+      }}
+    >
+      <button
+        style={{
+          width: '50%',
+        }}
+        onClick={function () {
+          return handleMoveChoiceDir(index, 'up');
+        }}
+      >
+        <span>up</span>
+      </button>
+      <button
+        style={{
+          width: '50%',
+        }}
+        onClick={function () {
+          return handleMoveChoiceDir(index, 'down');
+        }}
+      >
+        <span>dn</span>
+      </button>
+    </div>
+  );
+};
 
 export function EditChoiceNodeModal({
   isOpen,
@@ -91,6 +174,7 @@ export function EditChoiceNodeModal({
 
   return (
     <div
+      className="generic-modal"
       style={{
         position: 'fixed',
         top: 0,
@@ -126,8 +210,19 @@ export function EditChoiceNodeModal({
         >
           Edit Choice Node
         </h2>
-        <div>
-          <VariableWidget gameEvent={gameEvent} />
+        <div
+          style={{
+            display: 'flex',
+            gap: '10px',
+            width: '100%',
+          }}
+        >
+          <div style={{ width: '50%' }}>
+            <VariableWidget gameEvent={gameEvent} />
+          </div>
+          <div style={{ width: '50%' }}>
+            <ExecWidget gameEvent={gameEvent} />
+          </div>
         </div>
 
         <div
@@ -206,108 +301,109 @@ export function EditChoiceNodeModal({
             </div>
           )}
 
-          <div id="choice-node-choices" style={{
-            height: '350px',
-            overflow: 'auto',
-          }}>
-            {choices.map((choiceItem, index) => (
-              <div
-                key={index}
-                style={{
-                  marginBottom: '4px',
-                  padding: '4px',
-                }}
-              >
+          <div
+            id="choice-node-choices"
+            style={{
+              height: '350px',
+              overflow: 'auto',
+            }}
+          >
+            {choices.map((choiceItem, index) => {
+              return (
                 <div
+                  key={index}
                   style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
+                    marginBottom: '4px',
+                    padding: '4px',
                   }}
                 >
                   <div
                     style={{
-                      width: '48px',
                       display: 'flex',
+                      justifyContent: 'space-between',
                       alignItems: 'center',
-                      height: '100%',
-                      marginBottom: '8px',
-                      gap: '0px',
                     }}
                   >
-                    <button
-                      style={{
-                        width: '50%',
-                      }}
-                      onClick={() => handleMoveChoiceDir(index, 'up')}
-                    >
-                      <span>up</span>
-                    </button>
-                    <button
-                      style={{
-                        width: '50%',
-                      }}
-                      onClick={() => handleMoveChoiceDir(index, 'down')}
-                    >
-                      <span>dn</span>
-                    </button>
-                  </div>
-                  <div
-                    style={{
-                      marginBottom: '8px',
-                      width: 'calc(100% - 100px - 48px)',
-                    }}
-                  >
-                    <input
-                      type="text"
-                      value={choiceItem.conditionStr ?? ''}
-                      onChange={(e) =>
-                        handleUpdateChoice(
-                          index,
-                          'conditionStr',
-                          e.target.value
-                        )
-                      }
-                      style={{
-                        width: '40%',
-                        padding: '6px',
-                        backgroundColor: '#1e1e1e',
-                        border: '1px solid ' + (choiceItem.conditionStr ? '#862' : '#3e3e42'),
-                        borderRadius: '4px',
-                        color: '#d4d4d4',
-                        fontFamily: 'monospace',
-                        fontSize: '12px',
-                      }}
-                      placeholder="Enter condition text..."
+                    <UpDownMover
+                      index={index}
+                      handleMoveChoiceDir={handleMoveChoiceDir}
                     />
-                    <input
-                      type="text"
-                      value={choiceItem.text}
-                      onChange={(e) =>
-                        handleUpdateChoice(index, 'text', e.target.value)
-                      }
+                    <div
                       style={{
-                        width: '60%',
-                        padding: '6px',
-                        backgroundColor: '#1e1e1e',
-                        border: '1px solid #3e3e42',
-                        borderRadius: '4px',
-                        color: '#d4d4d4',
-                        fontFamily: 'arial',
-                        fontSize: '12px',
+                        // display: 'flex',
+                        // justifyContent: 'space-between',
+                        // alignItems: 'center',
+                        // flexDirection: 'column',
+                        width: 'calc(100% - 100px - 48px)',
                       }}
-                      placeholder="Enter choice text..."
-                    />
+                    >
+                      <ChoiceTextInput
+                        value={choiceItem.conditionStr ?? ''}
+                        widthPct={40}
+                        disabled={index === 0}
+                        onChange={(value) =>
+                          handleUpdateChoice(index, 'conditionStr', value)
+                        }
+                        placeholder={
+                          index !== 0
+                            ? 'Enter condition text...'
+                            : 'Default Condition'
+                        }
+                        monospace={true}
+                        borderColor={
+                          choiceItem.conditionStr ? '#862' : '#3e3e42'
+                        }
+                        spellCheck={false}
+                      />
+                      <ChoiceTextInput
+                        value={choiceItem.text}
+                        widthPct={60}
+                        disabled={false}
+                        onChange={(value) =>
+                          handleUpdateChoice(index, 'text', value)
+                        }
+                        placeholder="Enter choice text..."
+                        monospace={false}
+                        spellCheck={true}
+                      />
+                      <br />
+                      <ChoiceTextInput
+                        value={choiceItem.evalStr ?? ''}
+                        widthPct={40}
+                        disabled={false}
+                        onChange={(value) =>
+                          handleUpdateChoice(index, 'evalStr', value)
+                        }
+                        placeholder={'Enter eval text...'}
+                        monospace={true}
+                        borderColor={choiceItem.evalStr ? '#862' : '#3e3e42'}
+                        spellCheck={false}
+                      />
+                      <ChoiceTextInput
+                        value={choiceItem.prefixText ?? ''}
+                        widthPct={60}
+                        disabled={false}
+                        onChange={(value) =>
+                          handleUpdateChoice(index, 'prefixText', value)
+                        }
+                        placeholder={'Enter prefix text...'}
+                        monospace={false}
+                        borderColor={choiceItem.prefixText ? '#862' : '#3e3e42'}
+                        spellCheck={true}
+                      />
+                    </div>
+                    <Button
+                      variant="danger"
+                      onClick={function () {
+                        return handleRemoveChoice(index);
+                      }}
+                    >
+                      Delete
+                    </Button>
                   </div>
-                  <Button
-                    variant="danger"
-                    onClick={() => handleRemoveChoice(index)}
-                  >
-                    Delete
-                  </Button>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

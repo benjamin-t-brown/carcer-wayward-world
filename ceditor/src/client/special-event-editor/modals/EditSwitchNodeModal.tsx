@@ -92,6 +92,7 @@ export function EditSwitchNodeModal({
 
   return (
     <div
+      className="generic-modal"
       style={{
         position: 'fixed',
         top: 0,

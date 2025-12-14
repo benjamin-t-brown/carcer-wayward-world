@@ -74,6 +74,11 @@ export const initPanzoom = (specialEventEditorInterface: {
     if (shouldPreventDefault(ev)) {
       ev.preventDefault();
     }
+    // if a modal window is open, return early
+    if (document.querySelector('.generic-modal')) {
+      return;
+    }
+
     // Clear selection on ESC
     if (ev.key === 'Escape') {
       const editorState = specialEventEditorInterface.getEditorState();

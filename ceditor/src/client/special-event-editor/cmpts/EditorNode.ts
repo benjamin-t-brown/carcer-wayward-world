@@ -91,8 +91,9 @@ export class EditorNode {
   getAnchorCollidingWithPoint(x: number, y: number) {
     for (const exit of this.exits) {
       const radius = 15;
-      const dist = Math.sqrt((x - exit.startX) ** 2 + (y - exit.startY) ** 2);
-      if ( dist <= radius) {
+      const { x: startX, y: startY } = exit.getStartPos();
+      const dist = Math.sqrt((x - startX) ** 2 + (y - startY) ** 2);
+      if (dist <= radius) {
         return exit;
       }
     }
@@ -135,7 +136,6 @@ export class EditorNode {
   }
 
   updateExitLink(nextNodeId: string, exitIndex = 0) {
-    console.log('updateExitLink', this.id, exitIndex, nextNodeId);
     this.exits[exitIndex].toNodeId = nextNodeId;
   }
 
@@ -245,7 +245,8 @@ export class EditorNode {
     );
 
     for (const connector of this.exits) {
-      this.renderAnchor(ctx, connector.startX, connector.startY, scale, {
+      const { x: startX, y: startY } = connector.getStartPos();
+      this.renderAnchor(ctx, startX, startY, scale, {
         isLinking:
           this.editorState.linking.isLinking &&
           this.editorState.linking.sourceNodeId === this.id &&

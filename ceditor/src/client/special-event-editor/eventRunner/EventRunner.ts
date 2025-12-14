@@ -143,7 +143,10 @@ class ConditionEvaluator {
     }
     if (this.isFunctionCall(str)) {
       let { funcName, funcArgs } = this.parseFunctionCall(str);
-      return this.evalFunc(funcName as keyof typeof this.boolFunctions, ...funcArgs);
+      return this.evalFunc(
+        funcName as keyof typeof this.boolFunctions,
+        ...funcArgs
+      );
     } else {
       throw new Error(`Invalid condition: ${this.baseConditionStr}`);
     }
@@ -181,10 +184,7 @@ class StringEvaluator {
       }
       setStorage(this.storage, a, String(n));
     },
-    SET_STR: (a: string, b: string) => {
-      setStorage(this.storage, a, b);
-    },
-    MOD: (a: string, b: string) => {
+    MOD_NUM: (a: string, b: string) => {
       const n = parseFloat(b);
       if (isNaN(n)) {
         throw new Error(`Invalid number value: ${b}`);
@@ -195,6 +195,9 @@ class StringEvaluator {
         throw new Error(`Variable ${a} is not a number`);
       }
       setStorage(this.storage, a, String(currentN + n));
+    },
+    SET_STR: (a: string, b: string) => {
+      setStorage(this.storage, a, b);
     },
     START_QUEST: (questName: string) => {
       // noop
@@ -238,10 +241,10 @@ class StringEvaluator {
   }
 
   evalStr(str: string) {
-    console.log('evalStr', str);
+    // console.log('evalStr', str);
     if (this.isFunctionCall(str)) {
       let { funcName, funcArgs } = this.parseFunctionCall(str);
-      console.log('- args', funcName, funcArgs);
+      // console.log('- args', funcName, funcArgs);
       if (funcName in this.stringFunctions) {
         return this.stringFunctions[
           funcName as keyof typeof this.stringFunctions
@@ -265,7 +268,9 @@ export class EventRunner {
 
   displayText: string = '';
   displayTextChoices: {
+    execStr: string;
     text: string;
+    prefix: string;
     next: string;
     onceKeysToCommit: string[];
   }[] = [];
@@ -288,6 +293,80 @@ export class EventRunner {
       : gameEvent.children[0].id;
   }
 
+  static getAvailableFuncs(): string[] {
+    const stringEvaluator = new StringEvaluator({}, '');
+    const conditionEvaluator = new ConditionEvaluator({}, '');
+
+    // Helper function to extract parameter names from function source
+    const extractParams = (func: Function): string[] => {
+      const funcStr = func.toString();
+      // Match arrow function parameters: (a, b) => or (a: string, b: string) => or (...args) =>
+      const arrowMatch = funcStr.match(/^\(([^)]*)\)\s*=>/);
+      if (arrowMatch) {
+        const paramsStr = arrowMatch[1].trim();
+        if (paramsStr === '') return [];
+        // Handle rest parameters
+        if (paramsStr.startsWith('...')) {
+          // Extract just the parameter name from "...args: string[]"
+          const restMatch = paramsStr.match(/^\.\.\.(\w+)/);
+          return restMatch ? [`...${restMatch[1]}`] : [paramsStr];
+        }
+        // Split by comma and extract parameter names (strip type annotations)
+        return paramsStr.split(',').map((p) => {
+          const trimmed = p.trim();
+          // Extract parameter name, handling type annotations like "a: string"
+          const nameMatch = trimmed.match(/^(\w+)/);
+          return nameMatch ? nameMatch[1] : trimmed;
+        });
+      }
+      // Fallback: use function.length to generate generic names
+      const paramCount = func.length;
+      if (paramCount === 0) return [];
+      return Array(paramCount)
+        .fill(0)
+        .map((_, i) => `arg${i + 1}`);
+    };
+
+    const result: Array<{
+      name: string;
+      args: string[];
+      argCount: number;
+      type: 'string' | 'bool';
+    }> = [];
+
+    // Add string functions
+    for (const funcName of Object.keys(stringEvaluator.stringFunctions)) {
+      const func = stringEvaluator.stringFunctions[funcName];
+      const args = extractParams(func);
+      const isVariadic = args.some((arg) => arg.startsWith('...'));
+      const argCount = isVariadic ? -1 : args.length; // -1 indicates variadic
+      result.push({
+        name: funcName,
+        args,
+        argCount,
+        type: 'string',
+      });
+    }
+
+    // Add bool functions
+    for (const funcName of Object.keys(conditionEvaluator.boolFunctions)) {
+      const func = conditionEvaluator.boolFunctions[funcName];
+      const args = extractParams(func);
+      const isVariadic = args.some((arg) => arg.startsWith('...'));
+      const argCount = isVariadic ? -1 : args.length; // -1 indicates variadic
+      result.push({
+        name: funcName,
+        args,
+        argCount,
+        type: 'bool',
+      });
+    }
+
+    return result.map(
+      (func) => `${func.name}(${func.args.join(', ')}): ${func.type}`
+    ).sort();
+  }
+
   getCurrentNode() {
     return this.gameEvent.children.find(
       (node) => node.id === this.currentNodeId
@@ -295,35 +374,51 @@ export class EventRunner {
   }
 
   replaceVariables(text: string, highlight: boolean = false) {
+    // console.log('replaceVariables', text);
     const vars = getVarsFromNode(this.gameEvent, this.gameEvents);
     text = text.trim();
 
-    const evalMatches1 = text.match(/@([\w\d_]+)/g);
-    for (const match of evalMatches1 || []) {
-      const foundVar = vars.find((v) => v.key === match.slice(1));
-      if (foundVar) {
-        const value = getStorage(this.storage, foundVar.value);
-        if (highlight) {
-          text = text.replaceAll(
-            `${match}`,
-            `<span style="color: yellow;">${String(value)}</span>`
-          );
-        } else {
-          text = text.replaceAll(`${match}`, String(value));
-        }
+    for (const variable of vars) {
+      // const value = getStorage(this.storage, variable.value);
+      const value = variable.value;
+      text = text.replaceAll(`@${variable.key}`, String(value));
+      if (highlight) {
+        text = text.replaceAll(
+          `@${variable.key}`,
+          `<span style="color: yellow;">${String(value)}</span>`
+        );
       } else {
-        this.errors.push({
-          nodeId: this.currentNodeId,
-          message: `Variable ${match} not found`,
-        });
+        text = text.replaceAll(`@${variable.key}`, String(value));
       }
     }
+
+    // const evalMatches1 = text.match(/@([\w\d_]+)/g);
+    // for (const match of evalMatches1 || []) {
+    //   const foundVar = vars.find((v) => v.key === match.slice(1));
+    //   if (foundVar) {
+    //     const value = getStorage(this.storage, foundVar.value);
+    //     if (highlight) {
+    //       text = text.replaceAll(
+    //         `${match}`,
+    //         `<span style="color: yellow;">${String(value)}</span>`
+    //       );
+    //     } else {
+    //       text = text.replaceAll(`${match}`, String(value));
+    //     }
+    //   } else {
+    //     this.errors.push({
+    //       nodeId: this.currentNodeId,
+    //       message: `Variable ${match} not found`,
+    //     });
+    //   }
+    // }
 
     return text;
   }
 
   evalExecStr(str: string) {
     str = str.trim();
+    console.log('evalExecStr', str);
     if (str === '') {
       return true;
     }
@@ -353,13 +448,14 @@ export class EventRunner {
   }
 
   evalCondition(conditionStr: string) {
+    // console.log('eval condition', conditionStr);
     const conditionEvaluator = new ConditionEvaluator(
       this.storage,
       conditionStr
     );
     try {
       const result = Boolean(conditionEvaluator.evalCondition(conditionStr));
-      console.log('evalCondition with evaluator', { conditionStr, result });
+      // console.log('evalCondition with evaluator', { conditionStr, result });
       return {
         result,
         onceKeysToCommit: conditionEvaluator.onceKeysToCommit,
@@ -397,13 +493,24 @@ export class EventRunner {
 
   advance(
     nextNodeId: string,
-    { onceKeysToCommit }: { onceKeysToCommit: string[] }
+    {
+      onceKeysToCommit,
+      execStr,
+    }: { onceKeysToCommit: string[]; execStr: string }
   ) {
     if (this.errors.length > 0) {
       return;
     }
 
+    console.log('ADVANCE', nextNodeId, { onceKeysToCommit, execStr });
+
     this.commitOnceKeys(onceKeysToCommit);
+    if (execStr) {
+      const strLines = execStr.split('\n');
+      for (const strLine of strLines) {
+        this.evalExecStr(this.replaceVariables(strLine));
+      }
+    }
 
     this.displayText = '';
     this.displayTextChoices = [];
@@ -423,7 +530,7 @@ export class EventRunner {
       }
       this.displayText = this.replaceVariables(execNode.p, true);
       if (!this.displayText) {
-        this.advance(execNode.next, { onceKeysToCommit: [] });
+        this.advance(execNode.next, { onceKeysToCommit: [], execStr: '' });
       }
     } else if (currentNode?.eventChildType === GameEventChildType.CHOICE) {
       const choiceNode = currentNode as GameEventChildChoice;
@@ -436,7 +543,9 @@ export class EventRunner {
               )
             : { result: true, onceKeysToCommit: [] };
           return {
+            prefix: this.replaceVariables(choice.prefixText ?? '', false),
             text: this.replaceVariables(choice.text, true),
+            execStr: this.replaceVariables(choice.evalStr ?? '', false),
             next: choice.next,
             onceKeysToCommit: obj.onceKeysToCommit,
             result: obj.result,
@@ -448,18 +557,24 @@ export class EventRunner {
       let found = false;
       for (let i = 0; i < switchNode.cases.length; i++) {
         const c = switchNode.cases[i];
-        console.log('switch case', i, c, switchNode);
+        // console.log('switch case', i, c, switchNode);
         const obj = this.evalCondition(
           this.replaceVariables(c.conditionStr ?? '')
         );
         if (obj.result) {
-          this.advance(c.next, { onceKeysToCommit: obj.onceKeysToCommit });
+          this.advance(c.next, {
+            onceKeysToCommit: obj.onceKeysToCommit,
+            execStr: '',
+          });
           found = true;
           break;
         }
       }
       if (!found) {
-        this.advance(switchNode.defaultNext, { onceKeysToCommit: [] });
+        this.advance(switchNode.defaultNext, {
+          onceKeysToCommit: [],
+          execStr: '',
+        });
       }
     }
   }

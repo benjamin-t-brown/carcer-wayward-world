@@ -35,6 +35,7 @@ export class EditorNodeChoice extends EditorNode {
   textLines: string[] = [];
   textLinesHeight: number = 0;
 
+
   constructor(seNode: GameEventChildChoice, editorState: EditorStateSE) {
     super(seNode, editorState);
 
@@ -70,7 +71,9 @@ export class EditorNodeChoice extends EditorNode {
         return {
           text: choice?.text ?? '',
           conditionStr: choice?.conditionStr ?? '',
+          evalStr: choice?.evalStr ?? '',
           next: conn.toNodeId ?? '',
+          prefixText: choice?.prefixText ?? '',
         };
       }),
     } as GameEventChildChoice;
@@ -137,8 +140,8 @@ export class EditorNodeChoice extends EditorNode {
     const yOffset = this.getMinHeight() + this.textLinesHeight;
     for (let i = 0; i < this.exits.length; i++) {
       const conn = this.exits[i];
-      conn.startX = this.x + this.width;
-      conn.startY = this.y + yOffset + i * LINE_HEIGHT;
+      const startX = this.x + this.width;
+      const startY = this.y + yOffset + i * LINE_HEIGHT;
 
       if (conn.toNodeId) {
         const childNode = this.editorState.editorNodes.find(
@@ -146,9 +149,12 @@ export class EditorNodeChoice extends EditorNode {
         );
         if (childNode) {
           const { x, y } = childNode.getEntrancePos();
-          conn.endX = x;
-          conn.endY = y;
+          const endX = x;
+          const endY = y;
+          conn.updatePosition(startX, startY, endX, endY);
         }
+      } else {
+        conn.updatePosition(startX, startY, 0, 0);
       }
     }
   }

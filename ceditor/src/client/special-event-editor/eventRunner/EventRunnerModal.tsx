@@ -27,6 +27,7 @@ interface EventRunnerModalProps {
   gameEvent: GameEvent;
   gameEvents: GameEvent[];
   onCancel: () => void;
+  eventRunner?: EventRunner;
 }
 
 const EventHeader = ({ gameEvent }: { gameEvent: GameEvent }) => {
@@ -175,18 +176,21 @@ const EventRunnerChoiceChild = ({
   runner: EventRunner;
   advance: (
     nextNodeId: string,
-    { onceKeysToCommit }: { onceKeysToCommit: string[] }
+    {
+      onceKeysToCommit,
+      execStr,
+    }: { onceKeysToCommit: string[]; execStr: string }
   ) => void;
 }) => {
   const nodeText = runner.displayText;
 
-  const handleNext = (nextNodeId: string) => {
-    const obj = runner.displayTextChoices.find(
-      (choice) => choice.next === nextNodeId
-    );
+  const handleNext = (index: number) => {
+    const obj = runner.displayTextChoices[index];
+    console.log('HANDLE NEXT', obj);
     if (obj) {
-      advance(nextNodeId, {
+      advance(obj.next, {
         onceKeysToCommit: obj.onceKeysToCommit,
+        execStr: obj.execStr,
       });
     }
   };
@@ -228,8 +232,8 @@ const EventRunnerChoiceChild = ({
             <ChoiceButton
               key={i}
               hasErrors={runner.errors.length > 0}
-              handleNext={() => handleNext(choice.next)}
-              text={choice.text}
+              handleNext={() => handleNext(i)}
+              text={(choice.prefix ? choice.prefix + ' ' : '') + choice.text}
             ></ChoiceButton>
           ))}
         </div>
@@ -271,8 +275,26 @@ const EventRunnerEndChild = ({
             overflow: 'auto',
           }}
         >
-          End
+          End, storage result:
+          <br />
+          <textarea
+            spellCheck={false}
+            readOnly
+            style={{
+              background: '#444',
+              padding: '10px 4px',
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              color: 'white',
+              overflow: 'auto',
+              whiteSpace: 'pre',
+              width: '100%',
+              height: '300px',
+            }}
+            value={JSON.stringify(runner.storage, null, 2)}
+          ></textarea>
         </div>
+
         <div
           style={{
             display: 'flex',
@@ -296,10 +318,11 @@ export function EventRunnerModal({
   gameEvent,
   gameEvents,
   onCancel,
+  eventRunner,
 }: EventRunnerModalProps) {
-  const [eventRunner, setEventRunner] = useState<EventRunner | undefined>(
-    undefined
-  );
+  // const [eventRunner, setEventRunner] = useState<EventRunner | undefined>(
+  //   undefined
+  // );
   const reRender = useReRender();
   // const [gameEventToRun, setGameEventToRun] = useState<GameEvent | undefined>(
   //   undefined
@@ -314,8 +337,12 @@ export function EventRunnerModal({
 
   const advance = (
     nextNodeId: string,
-    { onceKeysToCommit }: { onceKeysToCommit: string[] } = {
+    {
+      onceKeysToCommit,
+      execStr,
+    }: { onceKeysToCommit: string[]; execStr: string } = {
       onceKeysToCommit: [],
+      execStr: '',
     }
   ) => {
     if (nextNodeId === '') {
@@ -330,7 +357,7 @@ export function EventRunnerModal({
         centerPanzoomOnNode(canvas, nextNodeId);
       }
       try {
-        eventRunner.advance(nextNodeId, { onceKeysToCommit });
+        eventRunner.advance(nextNodeId, { onceKeysToCommit, execStr });
       } catch (e) {
         console.error('error advancing event runner:', e);
         getEditorState().runnerErrors = eventRunner.errors;
@@ -340,22 +367,13 @@ export function EventRunnerModal({
     }
   };
 
-  useEffect(() => {
-    if (isOpen) {
-      const runner = new EventRunner({}, gameEvent, gameEvents);
-      setEventRunner(runner);
-      runner.advance(runner.currentNodeId, { onceKeysToCommit: [] });
-    } else {
-      setEventRunner(undefined);
-    }
-  }, [isOpen, gameEvent]);
-
   if (!isOpen || !eventRunner || !currentNode) {
     return undefined;
   }
 
   return (
     <div
+      className="generic-modal"
       style={{
         position: 'fixed',
         top: 0,
@@ -438,8 +456,8 @@ export function EventRunnerModal({
           )}
           {eventRunner.errors.length > 0 && (
             <div>
-              {eventRunner.errors.map((error) => (
-                <div key={error.nodeId}>
+              {eventRunner.errors.map((error, i) => (
+                <div key={error.nodeId + i.toString()}>
                   <span
                     style={{
                       color: '#FFF',

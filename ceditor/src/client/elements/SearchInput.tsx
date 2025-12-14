@@ -1,30 +1,37 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { CharacterTemplate } from '../../types/assets';
 
-export function CharacterSearchInput({
-  characters,
-  onSelect,
-  placeholder = 'Search characters...',
-}: {
-  characters: CharacterTemplate[];
-  onSelect: (characterName: string) => void;
+export interface SearchInputProps<T> {
+  items: T[];
+  onSelect: (item: T) => void;
   placeholder?: string;
-}) {
+  searchFields: (item: T) => string[];
+  renderItem: (item: T) => React.ReactNode;
+  getItemKey: (item: T) => string;
+  maxHeight?: number;
+}
+
+export function SearchInput<T>({
+  items,
+  onSelect,
+  placeholder = 'Search...',
+  searchFields,
+  renderItem,
+  getItemKey,
+  maxHeight = 200,
+}: SearchInputProps<T>) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const filteredCharacters = useMemo(() => {
-    if (!searchTerm.trim()) return characters;
+  const filteredItems = useMemo(() => {
+    if (!searchTerm.trim()) return items;
     const term = searchTerm.toLowerCase();
-    return characters.filter(
-      (char) =>
-        char.name.toLowerCase().includes(term) ||
-        char.label.toLowerCase().includes(term) ||
-        char.type.toLowerCase().includes(term)
-    );
-  }, [characters, searchTerm]);
+    return items.filter((item) => {
+      const fields = searchFields(item);
+      return fields.some((field) => field.toLowerCase().includes(term));
+    });
+  }, [items, searchTerm, searchFields]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -42,8 +49,8 @@ export function CharacterSearchInput({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSelect = (characterName: string) => {
-    onSelect(characterName);
+  const handleSelect = (item: T) => {
+    onSelect(item);
     setSearchTerm('');
     setIsOpen(false);
   };
@@ -70,7 +77,7 @@ export function CharacterSearchInput({
           borderRadius: '4px',
         }}
       />
-      {isOpen && filteredCharacters.length > 0 && (
+      {isOpen && filteredItems.length > 0 && (
         <div
           ref={dropdownRef}
           style={{
@@ -79,7 +86,7 @@ export function CharacterSearchInput({
             left: 0,
             right: 0,
             marginTop: '4px',
-            maxHeight: '200px',
+            maxHeight: `${maxHeight}px`,
             overflowY: 'auto',
             backgroundColor: '#252526',
             border: '1px solid #3e3e42',
@@ -88,10 +95,10 @@ export function CharacterSearchInput({
             boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
           }}
         >
-          {filteredCharacters.map((character) => (
+          {filteredItems.map((item) => (
             <div
-              key={character.name}
-              onClick={() => handleSelect(character.name)}
+              key={getItemKey(item)}
+              onClick={() => handleSelect(item)}
               style={{
                 padding: '8px 12px',
                 cursor: 'pointer',
@@ -107,16 +114,7 @@ export function CharacterSearchInput({
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
             >
-              <div style={{ fontWeight: 'bold' }}>{character.label}</div>
-              <div
-                style={{
-                  fontSize: '10px',
-                  color: '#858585',
-                  marginTop: '2px',
-                }}
-              >
-                {character.name} • {character.type}
-              </div>
+              {renderItem(item)}
             </div>
           ))}
         </div>
