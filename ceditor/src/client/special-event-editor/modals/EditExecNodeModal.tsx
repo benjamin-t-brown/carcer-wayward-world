@@ -5,6 +5,7 @@ import { VariableWidget } from '../react-components/VariableWidget';
 import { EditorNodeExec } from '../cmpts/ExecNodeComponent';
 import { notifyStateUpdated } from '../seEditorState';
 import { ExecWidget } from '../react-components/ExecWidget';
+import { AudioWidget } from '../react-components/AudioWidget';
 
 interface EditExecNodeModalProps {
   isOpen: boolean;
@@ -108,36 +109,40 @@ export function EditExecNodeModal({
           </div>
         </div>
 
-        <div style={{ marginBottom: '20px' }}>
-          <label
-            style={{
-              display: 'block',
-              color: '#d4d4d4',
-              marginBottom: '8px',
-              fontSize: '14px',
-            }}
-          >
-            Text (p)
-          </label>
-          <textarea
-            value={p}
-            onChange={(e) => setP(e.target.value)}
-            style={{
-              width: '100%',
-              minHeight: '200px',
-              padding: '8px',
-              backgroundColor: '#1e1e1e',
-              border: '1px solid #3e3e42',
-              borderRadius: '4px',
-              color: '#d4d4d4',
-              fontFamily: 'monospace',
-              fontSize: '14px',
-              resize: 'vertical',
-            }}
-            placeholder="Enter text to display..."
-          />
+        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ width: '75%' }}>
+            <label
+              style={{
+                display: 'block',
+                color: '#d4d4d4',
+                marginBottom: '8px',
+                fontSize: '14px',
+              }}
+            >
+              Text (p)
+            </label>
+            <textarea
+              value={p}
+              onChange={(e) => setP(e.target.value)}
+              style={{
+                width: '100%',
+                minHeight: '200px',
+                padding: '8px',
+                backgroundColor: '#1e1e1e',
+                border: '1px solid #3e3e42',
+                borderRadius: '4px',
+                color: '#d4d4d4',
+                fontFamily: 'monospace',
+                fontSize: '14px',
+                resize: 'vertical',
+              }}
+              placeholder="Enter text to display..."
+            />
+          </div>
+          <div style={{ width: '20%' }}>
+            <AudioWidget node={node} />
+          </div>
         </div>
-
         <div style={{ marginBottom: '20px' }}>
           <label
             style={{

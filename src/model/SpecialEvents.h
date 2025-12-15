@@ -50,6 +50,12 @@ struct VariableValue {
   std::optional<std::string> evaluated;
 };
 
+struct AudioInfo {
+  std::string audioName;
+  int volume;
+  int offset;
+};
+
 struct KeywordDataK {
   KeywordType keywordType = KeywordType::K;
   std::string text;
@@ -105,6 +111,7 @@ struct GameEventChildChoice {
   std::string id;
   std::string text;
   std::vector<Choice> choices;
+  std::optional<AudioInfo> audioInfo;
 };
 
 struct SwitchCase {
@@ -125,6 +132,7 @@ struct GameEventChildExec {
   std::vector<std::string> paragraphs;
   std::string execStr;
   std::string next;
+  std::optional<AudioInfo> audioInfo;
 };
 
 struct GameEventChildEnd {

@@ -1,4 +1,4 @@
-import { GameEventChildExec } from '../../types/assets';
+import { AudioInfo, GameEventChildExec } from '../../types/assets';
 import { drawText } from '../../utils/draw';
 import {
   breakTextIntoLines,
@@ -32,6 +32,8 @@ export class EditorNodeExec extends EditorNode {
   pHeight = 0;
   execStrHeight = 0;
 
+  audioInfo: AudioInfo | undefined;
+
   constructor(seNode: GameEventChildExec, editorState: EditorStateSE) {
     super(seNode, editorState);
 
@@ -52,6 +54,8 @@ export class EditorNodeExec extends EditorNode {
         0
       )
     );
+
+    this.audioInfo = structuredClone(seNode.audioInfo);
   }
 
   toSENode() {
@@ -60,6 +64,7 @@ export class EditorNodeExec extends EditorNode {
       p: this.p,
       execStr: this.execStr,
       next: this.exits[0]?.toNodeId || '',
+      audioInfo: this.audioInfo,
     } as GameEventChildExec;
   }
 

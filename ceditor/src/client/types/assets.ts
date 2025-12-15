@@ -159,6 +159,12 @@ export interface VariableValue {
   evaluated?: string;
 }
 
+export interface AudioInfo {
+  audioName: string;
+  volume: number;
+  offset: number;
+}
+
 // Keyword Data subtypes
 export interface KeywordDataK {
   keywordType: KeywordType.K;
@@ -213,6 +219,7 @@ export interface GameEventChildChoice extends SENode {
   id: string;
   text: string;
   choices: Choice[];
+  audioInfo?: AudioInfo;
 }
 
 export interface SwitchCase {
@@ -233,6 +240,7 @@ export interface GameEventChildExec extends SENode {
   p: string;
   execStr: string;
   next: string;
+  audioInfo?: AudioInfo;
 }
 
 export interface GameEventChildEnd extends SENode {

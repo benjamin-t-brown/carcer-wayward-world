@@ -1,4 +1,5 @@
 import {
+  AudioInfo,
   Choice,
   GameEventChildChoice,
   GameEventChildSwitch,
@@ -35,6 +36,7 @@ export class EditorNodeChoice extends EditorNode {
   textLines: string[] = [];
   textLinesHeight: number = 0;
 
+  audioInfo: AudioInfo | undefined;
 
   constructor(seNode: GameEventChildChoice, editorState: EditorStateSE) {
     super(seNode, editorState);
@@ -47,6 +49,8 @@ export class EditorNodeChoice extends EditorNode {
 
     this.text = seNode.text;
     this.choices = seNode.choices.slice();
+
+    this.audioInfo = structuredClone(seNode.audioInfo);
 
     for (let i = 0; i < this.choices.length; i++) {
       const c = this.choices[i];
@@ -66,6 +70,7 @@ export class EditorNodeChoice extends EditorNode {
     return {
       ...super.toSENode(),
       text: this.text,
+      audioInfo: this.audioInfo,
       choices: this.exits.map((conn, i) => {
         const choice = this.choices[i];
         return {

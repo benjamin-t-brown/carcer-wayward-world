@@ -242,16 +242,6 @@ export function EditSwitchNodeModal({
                       width: 'calc(100% - 100px - 48px)',
                     }}
                   >
-                    {/* <label
-                    style={{
-                      display: 'block',
-                      color: '#d4d4d4',
-                      marginBottom: '4px',
-                      fontSize: '12px',
-                    }}
-                  >
-                    Condition String
-                  </label> */}
                     <input
                       type="text"
                       value={caseItem.conditionStr}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GameEvent, Variable } from '../../types/assets';
+import { GameEvent } from '../../types/assets';
 import { useAssets } from '../../contexts/AssetsContext';
 import { AccessibleVariable, getVarsFromNode } from '../nodeHelpers';
 import { SearchInput } from '../../elements/SearchInput';
@@ -44,7 +44,7 @@ const VarDisplay = ({
           {variable.source !== gameEvent.id ? ` (${variable.source})` : ''}
         </>
       ) : (
-        <span style={{ padding: '4px' }}>No variable selected</span>
+        <span style={{ padding: '0px' }}>No variable selected</span>
       )}
     </div>
   );
@@ -54,14 +54,19 @@ export function VariableWidget({ gameEvent }: VariableWidgetProps) {
   const { gameEvents } = useAssets();
   const [copiedVar, setCopiedVar] = useState<string | null>(null);
   const [hoverVar, setHoverVar] = useState<AccessibleVariable | null>(null);
-  // const [includeImports, setIncludeImports] = useState<boolean>(false);
-  // const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [copyTimeoutId, setCopyTimeoutId] = useState<NodeJS.Timeout | null>(
+    null
+  );
 
   const accessibleVars = gameEvent
     ? getVarsFromNode(gameEvent, gameEvents)
     : [];
 
   const handleCopyVariable = async (variableName: string) => {
+    if (copyTimeoutId) {
+      clearTimeout(copyTimeoutId);
+      setCopyTimeoutId(null);
+    }
     try {
       await navigator.clipboard.writeText('@' + variableName);
       setCopiedVar(variableName);
@@ -77,7 +82,19 @@ export function VariableWidget({ gameEvent }: VariableWidgetProps) {
 
   return (
     <div>
-      <div>Search Variables</div>
+      <div>
+        Search Variables{' '}
+        <span
+          style={{
+            color: '#4ec9b0',
+            fontSize: '11px',
+            marginLeft: '10px',
+            fontWeight: '500',
+          }}
+        >
+          {copiedVar ? `✓ Copied! ${copiedVar}` : ''}
+        </span>
+      </div>
       <SearchInput
         items={accessibleVars}
         onSelect={(variable) => {
@@ -92,7 +109,14 @@ export function VariableWidget({ gameEvent }: VariableWidgetProps) {
         )}
         getItemKey={(variable) => variable.key}
       />
-      <div>
+      <div
+        onClick={() => {
+          if (hoverVar?.key) {
+            handleCopyVariable(hoverVar?.key ?? '');
+            setCopiedVar('@' + (hoverVar?.key ?? ''));
+          }
+        }}
+      >
         {hoverVar ? (
           <VarDisplay variable={hoverVar} gameEvent={gameEvent} />
         ) : (
@@ -101,18 +125,6 @@ export function VariableWidget({ gameEvent }: VariableWidgetProps) {
             gameEvent={gameEvent}
           />
         )}
-        {/* {copiedVar && (
-          <span
-            style={{
-              color: '#4ec9b0',
-              fontSize: '11px',
-              marginLeft: '10px',
-              fontWeight: '500',
-            }}
-          >
-            ✓ Copied! {copiedVar}
-          </span>
-        )} */}
       </div>
     </div>
   );

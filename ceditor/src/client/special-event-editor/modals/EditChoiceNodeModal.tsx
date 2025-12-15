@@ -5,6 +5,7 @@ import { VariableWidget } from '../react-components/VariableWidget';
 import { EditorNodeChoice } from '../cmpts/ChoiceNodeComponent';
 import { notifyStateUpdated } from '../seEditorState';
 import { ExecWidget } from '../react-components/ExecWidget';
+import { AudioWidget } from '../react-components/AudioWidget';
 
 interface EditChoiceNodeModalProps {
   isOpen: boolean;
@@ -44,7 +45,7 @@ const ChoiceTextInput = (props: {
       style={{
         width: `calc(${widthPct}% - 12px)`,
         padding: '6px',
-        backgroundColor: '#1e1e1e',
+        backgroundColor: props.disabled ? '#3e3e42' : '#1e1e1e',
         border: '1px solid ' + (borderColor ? borderColor : '#3e3e42'),
         borderRadius: '4px',
         color: '#d4d4d4',
@@ -59,8 +60,9 @@ const ChoiceTextInput = (props: {
 const UpDownMover = (props: {
   index: number;
   handleMoveChoiceDir: (index: number, direction: 'up' | 'down') => void;
+  disabled: boolean;
 }) => {
-  const { index, handleMoveChoiceDir } = props;
+  const { index, handleMoveChoiceDir, disabled } = props;
   return (
     <div
       style={{
@@ -73,6 +75,7 @@ const UpDownMover = (props: {
       }}
     >
       <button
+        disabled={disabled}
         style={{
           width: '50%',
         }}
@@ -83,6 +86,7 @@ const UpDownMover = (props: {
         <span>up</span>
       </button>
       <button
+        disabled={disabled}
         style={{
           width: '50%',
         }}
@@ -155,7 +159,7 @@ export function EditChoiceNodeModal({
   const handleMoveChoiceDir = (index: number, direction: 'up' | 'down') => {
     const newChoices = [...choices];
     if (direction === 'up') {
-      if (index === 0) {
+      if (index <= 1) {
         return;
       }
       const choice = newChoices[index];
@@ -236,14 +240,14 @@ export function EditChoiceNodeModal({
             <ExecWidget gameEvent={gameEvent} />
           </div>
         </div>
-        <div style={{ marginBottom: '20px' }}>
-          <div>
+        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ width: '75%' }}>
             <div
               style={{
                 color: '#d4d4d4',
                 fontSize: '14px',
                 fontWeight: 'bold',
-                marginBottom: '12px',
+                marginBottom: '8px',
               }}
             >
               Text
@@ -262,6 +266,9 @@ export function EditChoiceNodeModal({
                 fontSize: '16px',
               }}
             />
+          </div>
+          <div style={{ width: '20%' }}>
+            <AudioWidget node={node} />
           </div>
         </div>
 
@@ -327,6 +334,7 @@ export function EditChoiceNodeModal({
                     <UpDownMover
                       index={index}
                       handleMoveChoiceDir={handleMoveChoiceDir}
+                      disabled={index === 0}
                     />
                     <div
                       style={{

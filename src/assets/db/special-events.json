@@ -106,19 +106,19 @@
       {
         "id": "vxiebadvzfh",
         "key": "COND_HAS_ASPECT_FAE_1",
-        "value": "GTE(vars.aspect.fae),1)",
+        "value": "GTE(vars.aspect.fae,1)",
         "importFrom": ""
       },
       {
         "id": "yuoss8mehh",
         "key": "COND_HAS_ASPECT_DRAGON_1",
-        "value": "GTE(vars.aspect.dragon),1)",
+        "value": "GTE(vars.aspect.dragon,1)",
         "importFrom": ""
       },
       {
         "id": "g7owoh4zru",
         "key": "COND_HAS_ASPECT_AEON_1",
-        "value": "GTE(vars.aspect.aeon),1)",
+        "value": "GTE(vars.aspect.aeon,1)",
         "importFrom": ""
       },
       {
@@ -166,6 +166,11 @@
         "eventChildType": "CHOICE",
         "h": 160,
         "text": "So what do you think?  Are you up for the task?",
+        "audioInfo": {
+          "audioName": "test12412412412412dhadhdfahadhdah4",
+          "volume": 100,
+          "offset": 0
+        },
         "choices": [
           {
             "text": "Yes.",
@@ -177,21 +182,21 @@
           {
             "text": "This all seems so very silly if you ask me!  But sure, I guess.",
             "conditionStr": "@COND_HAS_ASPECT_FAE_1",
-            "evalStr": "@FUNC_UPDATE_ASPECT_FAE_1",
+            "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
             "next": "anvxoxt908",
             "prefixText": "[FAE]"
           },
           {
             "text": "Of course I am.  Do not insinuate otherwise.",
             "conditionStr": "@COND_HAS_ASPECT_DRAGON_1",
-            "evalStr": "@FUNC_UPDATE_ASPECT_DRAGON_1",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
             "next": "anvxoxt908",
             "prefixText": "[DRAGON]"
           },
           {
             "text": "I will do what needs to be done.",
             "conditionStr": "@COND_HAS_ASPECT_AEON_1",
-            "evalStr": "@FUNC_UPDATE_ASPECT_AEON_1",
+            "evalStr": "MOD_NUM(@ASPECT_AEON, 1)",
             "next": "anvxoxt908",
             "prefixText": "[AEON]"
           }
@@ -205,7 +210,12 @@
         "h": 74,
         "p": "",
         "execStr": "SET_NUM(@ASPECT_FAE, 1)\nSET_NUM(@ASPECT_DRAGON, 1)\nSET_NUM(@ASPECT_AEON, 1)",
-        "next": "d9dzkh109at"
+        "next": "d9dzkh109at",
+        "audioInfo": {
+          "audioName": "test",
+          "volume": 100,
+          "offset": 0
+        }
       },
       {
         "id": "kpo7zzptph",
