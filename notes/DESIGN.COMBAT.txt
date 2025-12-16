@@ -1,0 +1,72 @@
+Turn-based
+  - player goes, then enemy goes
+
+Action Point based
+  - AP can go negative.  If you have 1AP left you can still do any action (except jump)
+  - movement costs 1 AP
+  - attack cost 7 AP
+  - magic cost 7 AP
+  - fast magic cost 5 AP
+  - using item cost 4 AP
+  - using fast item cost 2 AP
+  Mechanics and Levers
+  - Increase/Decrease starting AP
+  - Attacks cost more/less
+  - Magic costs more/less
+  - Fast magic is free
+  - Fast magic is same cost as slow
+  - Item cost is halved/doubled
+  - Do something when
+    - Turn starts (first movement is free)
+    - Turn ends
+
+Attacks have damage types
+PHYSICAL
+- Edged
+- Bashing
+- Piercing
+ELEMENTAL
+- Heat
+- Freeze
+- Static
+UNNATURAL
+- Necrotic
+- True
+- Ghost Matter
+
+How attacks are performed
+  Attacker rolls some number of d6
+  Defender has Armor stat which indicates how many successes it takes to hit them.
+  A success is a 5 or a 6.
+  These dice explode. If a 6 is rolled, an additional dice is rolled.
+  A crit occurs if Attacker rolls only 6s for successes.
+  - On a hit
+    - attacker rolls damage specified by weapon
+      - a crit adds max damage of rolls to this roll
+    - damage is reduced by flat amount based on defender's DR.
+    - damage is reduced by percentage amount based on defenders Resistances
+  Mechanics and Levers
+  - Alter number of attacker dice
+  - Alter what classifies as a success
+  - Alter what classifies as dice explosion
+  - Alter the dice roll, could roll d5 or d7 etc
+  - Alter when crit occurs
+  - Alter attack roll: linear (+/- to roll), add additional dice
+  - Alter/Ignore DR
+  - Alter resistance effectiveness
+  - Do something when
+    - A dice explodes
+    - A crit happens
+    - Damage is rolled at certain threshold (reroll ones)
+    - Damage is reduced by some amount
+    - A miss happens
+    - Damaged by a certain type
+
+Spells and Items
+  - Equipped with Sapphiron Fragments
+
+What can you do on your turn
+  Move
+  Attack
+  Use Item
+  Cast Spell

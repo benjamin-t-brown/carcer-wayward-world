@@ -1,0 +1,15 @@
+Major characters who you can speak to have a Disposition stat, which represents their attitude towards you.
+
+Disposition affects the following
+- Locks/Unlocks dialogue options
+  - Grants access to quests/areas
+- Prices for buying and selling
+- Their aggression towards you
+
+Disposition can be altered on people by
+- Being part of the same faction
+- Having a personality aspect that vibes with them
+- Picking certain dialogue options
+- Doing stuff for them (quests)
+- Having a high/low disposition for somebody else
+NOTE: disposition is not affected by some weird mini game (Oblivion, Starfield)

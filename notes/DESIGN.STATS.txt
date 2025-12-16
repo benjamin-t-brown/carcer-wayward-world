@@ -7,24 +7,31 @@ MND - magic damage
 CON - health
   - Each point grants 5 hp per level
 AGI - movement
-  - Each point grants 1 ap
+  - Each point reduces cost of actions by one
 LCK - rolls
   - Each point raises the minimum of every COMBAT dice roll that is made by 1d2 - 1
 
-** Combat Stats/Train Training
-
-Level
+** Trainable Combat Stats
 
 Accuracy/Mastery: Each point grants +1 to attack roll
 - Edged Weapons
+  - one in each hand
+  - high hit rate, B damage
 - Pole Weapons
+  - two-handed
+  - lower hit rate, A damage
 - Blunt Weapons
+  - one or two handed
+  - high hit rate, high range of damage C-A
 - Range Weapons
+  - simple ranged weapons scale linearly (ex 1d6 + <range training>)
+  - complex ranged weapons scale exponentially (ex 1d<range training> + <range training>)
 - Unarmed
+  - can chain lots of hits
+  - high hit rate, C damage
 
 Magic Mastery
 - Mana
-- Natural Attunement (status effect length)
 - Ability Power
 
 Body Mastery
@@ -72,22 +79,22 @@ Each level grants 5 points, thresholds are met at certain levels, capped at 25. 
   * Every 5th level grants the ability to cook better food, which grants: more hp and higher disposition, resistance points? when a day starts.
 - Acrobatics / Shortcut Usage / Terrain Traversal / Athletics
   * Each level reduces time taken to pass through over world tiles by 1 tick.
-  * Every 5th level allows you to jump an additional tile.
+  * Every 5th level allows you to move an extra tile before costing AP
 - Survival / Foraging / First Aid?
   * Every level grants 1% chance of finding alchemy or cooking ingredients when a day ends while traveling.
   * Every 5th level grants 1d4 per level higher health and mana gained after a fight concludes
 - Focus
   * Every level grants 4 additional mana
-  * Every 5th level grants a Resistance point to an elemental type per day
+  * Every 5th level grants 1 additional point to your highest combat trainable skill.
 - Conditioning
   * Every level grants 1 additional HP when using a healing potion or item
-  * Every 5th level grants a +1 bonus to one combat stat
+  * Every 5th level grants a +1 bonus to all combat stats
 
 Resistance Points:
   * 1 resistance point reduces damage to an aspect by 20% ONE time.  Then it is removed.
 
 Derived Skill Stats
-- Enemy Vision Reduction Base 0
+- Enemy Vision Range
 - Mage Lore
 - Tool Use
 - Trade Discount: Base 0%
