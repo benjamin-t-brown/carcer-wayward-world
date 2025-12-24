@@ -166,29 +166,77 @@ export class EditorNodeSwitch extends EditorNode {
     }
   }
 
+  updateExitPosition(conn: Connector, startX: number, startY: number) {
+    if (conn.toNodeId) {
+      const childNode = this.editorState.editorNodes.find(
+        (node) => node.id === conn.toNodeId
+      );
+      if (childNode) {
+        const { x, y } = childNode.getEntrancePos();
+        const endX = x;
+        const endY = y;
+        conn.updatePosition(startX, startY, endX, endY);
+      }
+    } else {
+      conn.updatePosition(startX, startY, 0, 0);
+    }
+  }
+
   update(dt: number) {
     super.update(dt);
     const yOffset = NODE_TITLE_HEIGHT + PADDING * 2 + BORDER_WIDTH * 2;
-    for (let i = 0; i < this.exits.length; i++) {
+    for (let i = 1; i < this.exits.length; i++) {
       const conn = this.exits[i];
-
-      const startX = this.x + this.width;
-      const startY = this.y + yOffset + i * LINE_HEIGHT;
-
-      if (conn.toNodeId) {
-        const childNode = this.editorState.editorNodes.find(
-          (node) => node.id === conn.toNodeId
-        );
-        if (childNode) {
-          const { x, y } = childNode.getEntrancePos();
-          const endX = x;
-          const endY = y;
-          conn.updatePosition(startX, startY, endX, endY);
-        }
-      } else {
-        conn.updatePosition(startX, startY, 0, 0);
-      }
+      this.updateExitPosition(
+        conn,
+        this.x + this.width,
+        this.y + yOffset + (i - 1) * LINE_HEIGHT
+      );
     }
+    const conn = this.exits[0];
+    if (conn) {
+      const startX = this.x + this.width;
+      const startY = this.y + yOffset + this.cases.length * LINE_HEIGHT;
+      this.updateExitPosition(conn, startX, startY);
+    }
+  }
+
+  renderExitPositions(
+    nodeX: number,
+    nodeY: number,
+    text: string,
+    i: number,
+    ctx: CanvasRenderingContext2D,
+    scale: number
+  ) {
+    const caseTextOffset = 5;
+    ctx.save();
+    ctx.translate(nodeX, nodeY);
+    ctx.scale(scale, scale);
+    ctx.translate(
+      PADDING + BORDER_WIDTH,
+      this.getMinHeight() + caseTextOffset + i * LINE_HEIGHT
+    );
+    drawText(
+      truncateText(text, 36),
+      0,
+      0,
+      {
+        color: TEXT_COLOR,
+        size: FONT_SIZE,
+        font: FONT_FAMILY,
+        strokeColor: '',
+        align: 'left',
+      },
+      ctx
+    );
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.beginPath();
+    ctx.moveTo(0, caseTextOffset);
+    ctx.lineTo(NODE_WIDTH - PADDING * 2 - BORDER_WIDTH * 2, caseTextOffset);
+    ctx.stroke();
+    ctx.restore();
   }
 
   render(ctx: CanvasRenderingContext2D, scale: number, args: RenderNodeArgs) {
@@ -219,39 +267,19 @@ export class EditorNodeSwitch extends EditorNode {
     );
     ctx.restore();
 
-    const caseTextOffset = 5;
-
-    const textToRender = ['default', ...this.cases.map((c) => c.conditionStr)];
+    const textToRender = [...this.cases.map((c) => c.conditionStr)];
     for (let i = 0; i < textToRender.length; i++) {
       const text = textToRender[i];
-      ctx.save();
-      ctx.translate(nodeX, nodeY);
-      ctx.scale(scale, scale);
-      ctx.translate(
-        PADDING + BORDER_WIDTH,
-        this.getMinHeight() + caseTextOffset + i * LINE_HEIGHT
-      );
-      drawText(
-        truncateText(text, 36),
-        0,
-        0,
-        {
-          color: i === 0 ? '#afa' : TEXT_COLOR,
-          size: FONT_SIZE,
-          font: FONT_FAMILY,
-          strokeColor: '',
-          align: 'left',
-        },
-        ctx
-      );
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-      ctx.beginPath();
-      ctx.moveTo(0, caseTextOffset);
-      ctx.lineTo(NODE_WIDTH - PADDING * 2 - BORDER_WIDTH * 2, caseTextOffset);
-      ctx.stroke();
-      ctx.restore();
+      this.renderExitPositions(nodeX, nodeY, text, i, ctx, scale);
     }
+    this.renderExitPositions(
+      nodeX,
+      nodeY,
+      'default',
+      textToRender.length,
+      ctx,
+      scale
+    );
 
     this.finishRender(ctx);
   }

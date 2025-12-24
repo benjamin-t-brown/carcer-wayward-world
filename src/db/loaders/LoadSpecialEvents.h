@@ -6,9 +6,11 @@
 
 namespace db {
 
-void loadSpecialEvents(
-    const std::string& eventsFilePath,
-    std::unordered_map<std::string, model::GameEvent>& gameEvents);
+void loadSpecialEvents(const std::string& specialEventsFilePath,
+                       std::unordered_map<std::string, model::GameEvent>& specialEvents);
+
+void loadSpecialEvents(const std::string& specialEventsFilePath,
+                       std::unordered_map<std::string, model::GameEvent>& specialEvents,
+                       std::vector<std::string>& eventsToLoad);
 
 } // namespace db
-

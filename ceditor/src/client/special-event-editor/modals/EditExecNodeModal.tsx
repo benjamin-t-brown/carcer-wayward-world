@@ -24,11 +24,12 @@ export function EditExecNodeModal({
 }: EditExecNodeModalProps) {
   const [p, setP] = useState('');
   const [execStr, setExecStr] = useState('');
-
+  const [autoAdvance, setAutoAdvance] = useState(false);
   useEffect(() => {
     if (node) {
       setP(node.p || '');
       setExecStr(node.execStr || '');
+      setAutoAdvance(node.autoAdvance || false);
     }
   }, [node]);
 
@@ -39,6 +40,7 @@ export function EditExecNodeModal({
   const handleEditNodeConfirm = () => {
     node.p = p;
     node.execStr = execStr;
+    node.autoAdvance = autoAdvance;
     node.build(ctx);
     notifyStateUpdated();
     onCancel();
@@ -108,8 +110,39 @@ export function EditExecNodeModal({
             <ExecWidget gameEvent={gameEvent} />
           </div>
         </div>
+        <div
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            marginBottom: '20px',
+          }}
+        >
+          <input
+            id="autoAdvance"
+            type="checkbox"
+            checked={autoAdvance}
+            onChange={(e) => setAutoAdvance(e.target.checked)}
+          />
+          <label
+            htmlFor="autoAdvance"
+            style={{
+              color: '#d4d4d4',
+              fontSize: '14px',
+            }}
+          >
+            Auto Advance
+          </label>
+        </div>
 
-        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between' }}>
+        <div
+          style={{
+            marginBottom: '20px',
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
+        >
           <div style={{ width: '75%' }}>
             <label
               style={{

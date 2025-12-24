@@ -39,8 +39,8 @@ export class EditorStateSE {
   // baseGameEvent: GameEvent | undefined = undefined;
   editorNodes: EditorNode[] = [];
   selectedChildId = '';
-  zoneWidth = 3000;
-  zoneHeight = 3000;
+  zoneWidth = 8000;
+  zoneHeight = 8000;
   isDragging = false; // Pan dragging
   isDraggingNode = false; // Node dragging
   draggedNodeId: string | null = null;
@@ -101,7 +101,7 @@ export class EditorStateSE {
 const editorStateSE = new EditorStateSE();
 
 export const getEditorState = () => editorStateSE;
-export const updateEditorState = (state: Partial<EditorStateSE>) => {
+export const updateEditorState = (state: Partial<EditorStateSE>, validate: boolean = true) => {
   Object.assign(editorStateSE, { ...getEditorState(), ...state });
   // const gameEvent = editorStateSE.gameEventId;
   // if (gameEvent) {
@@ -111,7 +111,9 @@ export const updateEditorState = (state: Partial<EditorStateSE>) => {
   if (renderFunc) {
     renderFunc();
   }
-  notifyStateUpdated();
+  if (validate) {
+    notifyStateUpdated();
+  }
 };
 export const updateEditorStateNoReRender = (state: Partial<EditorStateSE>) => {
   Object.assign(editorStateSE, { ...getEditorState(), ...state });
@@ -517,13 +519,6 @@ export const copySelectedNodes = (canvas: HTMLCanvasElement) => {
 
   // Store nodes with their relative offsets from center
   const copiedNodes = selectedNodes.map((node) => {
-    // const nodeCopy = seNodeToEditorNode(
-    //   node.toSENode(),
-    //   editorState,
-    //   canvas.getContext('2d')!
-    // );
-    // nodeCopy.clearExitLinks();
-    // const seNode = nodeCopy.toSENode();
     const seNode = node.toSENode();
 
     return {
@@ -582,7 +577,13 @@ export const pasteNodes = (canvas: HTMLCanvasElement) => {
         exit.toNodeId = oldIdToNewId.get(exit.toNodeId) ?? '';
       }
     }
+
+    if (node.type === GameEventChildType.SWITCH) {
+      const switchNode = node as EditorNodeSwitch;
+      switchNode.defaultNext = oldIdToNewId.get(switchNode.defaultNext) ?? '';
+    }
   }
+
 
   // Add all new nodes to editorNodes
   editorState.editorNodes.push(...newNodes);

@@ -363,7 +363,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   );
 
   return (
-    <div className="container">
+    <div className="container" style={{ maxWidth: '100000px' }}>
       <div className="editor-header">
         <Button variant="back" onClick={() => (window.location.hash = '#/')}>
           ← Back

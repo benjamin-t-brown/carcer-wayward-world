@@ -240,6 +240,7 @@ export interface GameEventChildExec extends SENode {
   p: string;
   execStr: string;
   next: string;
+  autoAdvance: boolean;
   audioInfo?: AudioInfo;
 }
 

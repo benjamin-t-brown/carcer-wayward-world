@@ -127,7 +127,7 @@ export function ContextMenu({
           } as GameEventChildExec,
           editorStateRef.current
         );
-        n.p = 'This is example text for an exec node.';
+        n.p = '';
         newNode = n;
         break;
       }
@@ -139,7 +139,7 @@ export function ContextMenu({
             x: 0,
             y: 0,
             h: 0,
-            text: 'This is example text for a choice node.',
+            text: '',
             choices: [
               {
                 text: 'This is the default choice.',

@@ -5,6 +5,7 @@ interface GenericModalProps {
   onCancel: () => void;
   onConfirm: () => void;
   body: () => React.ReactNode;
+  maxWidth?: string;
 }
 
 export const GenericModal = (props: GenericModalProps) => {
@@ -30,7 +31,7 @@ export const GenericModal = (props: GenericModalProps) => {
           border: '1px solid #3e3e42',
           borderRadius: '8px',
           padding: '30px',
-          maxWidth: '90vw',
+          maxWidth: props.maxWidth ?? '90vw',
           width: '90%',
           maxHeight: '80vh',
           overflow: 'auto',

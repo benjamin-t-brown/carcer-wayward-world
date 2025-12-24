@@ -1,0 +1,6 @@
+- Ensnared from archers is a bad status effect
+- Lots and lots of enemies to fight, becomes tedious
+- Spells and abilities are kinda bad early on
+- The mage's aoe spells dont allow for the mage to walk to a location to attack like the single target ones
+- "party" spells that buff the party (haste, war blessing, protection) don't indicate range
+- when exploring caves, if you click a location and your party walks to it, the game doesn't stop when you spot an enemy, so certain guys (chitarks) can leap and one shot your back line unless you walk 1 step at a time

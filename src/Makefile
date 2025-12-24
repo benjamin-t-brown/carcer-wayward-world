@@ -14,6 +14,10 @@ layers/ui/LayerContextMenuInventoryItem.cpp \
 layers/ui/LayerContextMenuPickUpItem.cpp \
 model/Player.cpp \
 model/Character.cpp \
+runner/SpecialEventRunner.cpp \
+runner/ConditionEvaluator.cpp \
+runner/StringEvaluator.cpp \
+runner/EventRunnerHelpers.cpp \
 state/DatabaseInterface.cpp \
 state/StateManager.cpp \
 state/StateManagerInterface.cpp \
@@ -44,6 +48,7 @@ ui/lists/ListPickUp.cpp \
 ui/popups/PopupInventoryItem.cpp \
 ui/pages/PageInventory.cpp \
 ui/pages/PagePickUp.cpp \
+ui/pages/PageTalkChoice.cpp \
 ui/popups/PopupPickupItem.cpp \
 
 LIB_CODE=\

@@ -30,6 +30,8 @@ interface EventRunnerModalProps {
   eventRunner?: EventRunner;
 }
 
+const EVENT_FONT_SIZE = '18px';
+
 const EventHeader = ({ gameEvent }: { gameEvent: GameEvent }) => {
   const { spriteMap } = useSDL2WAssets();
   const sprite = spriteMap[gameEvent.icon ?? ''];
@@ -76,7 +78,7 @@ const ChoiceButton = ({
         background: 'black',
         padding: '10px 10px',
         fontFamily: 'arial',
-        fontSize: '14px',
+        fontSize: EVENT_FONT_SIZE,
         color: 'white',
         border: 'none',
         cursor: hasErrors ? 'not-allowed' : 'pointer',
@@ -126,7 +128,7 @@ const EventRunnerExecChild = ({
             background: '#1e1e1e',
             padding: '10px 4px',
             fontFamily: 'arial',
-            fontSize: '14px',
+            fontSize: EVENT_FONT_SIZE,
             color: 'white',
             height: 'calc(100% - 80px - 100px)',
             overflow: 'auto',
@@ -208,7 +210,7 @@ const EventRunnerChoiceChild = ({
             background: '#1e1e1e',
             padding: '10px 4px',
             fontFamily: 'arial',
-            fontSize: '14px',
+            fontSize: EVENT_FONT_SIZE,
             color: 'white',
             height: 'calc(40%)',
             overflow: 'auto',
@@ -222,7 +224,7 @@ const EventRunnerChoiceChild = ({
             background: '#1e1e1e',
             padding: '10px 4px',
             fontFamily: 'arial',
-            fontSize: '14px',
+            fontSize: EVENT_FONT_SIZE,
             color: 'white',
             height: 'calc(60%)',
             overflow: 'auto',
@@ -269,7 +271,7 @@ const EventRunnerEndChild = ({
             background: '#1e1e1e',
             padding: '10px 4px',
             fontFamily: 'arial',
-            fontSize: '14px',
+            fontSize: EVENT_FONT_SIZE,
             color: 'white',
             height: 'calc(100% - 80px)',
             overflow: 'auto',
@@ -393,7 +395,7 @@ export function EventRunnerModal({
           border: '1px solid #3e3e42',
           borderRadius: '8px',
           padding: '30px',
-          maxWidth: '90vw',
+          maxWidth: '50vw',
           width: '90%',
           maxHeight: '80vh',
           overflow: 'auto',

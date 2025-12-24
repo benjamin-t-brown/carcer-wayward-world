@@ -159,7 +159,7 @@ export function EditChoiceNodeModal({
   const handleMoveChoiceDir = (index: number, direction: 'up' | 'down') => {
     const newChoices = [...choices];
     if (direction === 'up') {
-      if (index <= 1) {
+      if (index === 0) {
         return;
       }
       const choice = newChoices[index];
@@ -264,6 +264,7 @@ export function EditChoiceNodeModal({
                 color: '#d4d4d4',
                 fontFamily: 'arial',
                 fontSize: '16px',
+                height: '200px',
               }}
             />
           </div>
@@ -334,7 +335,7 @@ export function EditChoiceNodeModal({
                     <UpDownMover
                       index={index}
                       handleMoveChoiceDir={handleMoveChoiceDir}
-                      disabled={index === 0}
+                      disabled={false}
                     />
                     <div
                       style={{
@@ -344,15 +345,11 @@ export function EditChoiceNodeModal({
                       <ChoiceTextInput
                         value={choiceItem.conditionStr ?? ''}
                         widthPct={40}
-                        disabled={index === 0}
+                        disabled={false}
                         onChange={(value) =>
                           handleUpdateChoice(index, 'conditionStr', value)
                         }
-                        placeholder={
-                          index !== 0
-                            ? 'Enter condition text...'
-                            : 'Default Condition'
-                        }
+                        placeholder={'Enter condition text...'}
                         monospace={true}
                         borderColor={
                           choiceItem.conditionStr ? '#862' : '#3e3e42'

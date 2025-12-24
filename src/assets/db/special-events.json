@@ -1,5 +1,1487 @@
 [
   {
+    "id": "alinea_barto",
+    "title": "Lord Barto Caldeburn",
+    "eventType": "TALK",
+    "icon": "special_event_icons_0",
+    "vars": [
+      {
+        "id": "sqbj99c2qpi",
+        "key": "CHARACTER_ID",
+        "value": "alinea_barto",
+        "importFrom": ""
+      },
+      {
+        "id": "1nm0sicjmus",
+        "key": "DISPOSITION",
+        "value": "vars.dispsition.alinea_barto",
+        "importFrom": ""
+      },
+      {
+        "id": "oealiercvd",
+        "key": "",
+        "value": "",
+        "importFrom": "util_aspect"
+      }
+    ],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "gn4vgu2s1ds",
+        "autoAdvance": false
+      },
+      {
+        "id": "gn4vgu2s1ds",
+        "x": 124.5,
+        "y": 143.875,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "SETUP_DISPOSITION(@CHARACTER_ID)",
+        "next": "i4guqvvm9p",
+        "autoAdvance": false
+      },
+      {
+        "id": "p5zl27718t",
+        "x": 201.5,
+        "y": 791.375,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Go away.  I don't wish to speak with you.\"",
+        "execStr": "",
+        "next": "fjmrtk1zjsj",
+        "autoAdvance": true
+      },
+      {
+        "id": "zslh0uf6zqi",
+        "x": 205.5,
+        "y": 705.375,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Oh, you again.\"",
+        "execStr": "",
+        "next": "fjmrtk1zjsj",
+        "autoAdvance": true
+      },
+      {
+        "id": "2fr9r0kwild",
+        "x": 199.5,
+        "y": 614.375,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Good fellow, welcome back.\"",
+        "execStr": "",
+        "next": "fjmrtk1zjsj",
+        "autoAdvance": true
+      },
+      {
+        "id": "ibwmw12a02",
+        "x": 611.5,
+        "y": 112.625,
+        "eventChildType": "CHOICE",
+        "h": 220,
+        "text": "In this crowded tavern, a distinctly out-of-place patron hunches over a table, pointedly not interacting with anybody else.  His clothes are silken and expensive, embroidered with flamboyant colors and overlapping layers.  He keeps a twitchy hand near the small satchel at his side, as if he is afraid that somebody is liable take it at any moment.",
+        "choices": [
+          {
+            "text": "Excuse me, can I ask you some questions?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "522wgfniolf",
+            "prefixText": ""
+          },
+          {
+            "text": "Whatchya got in that bag there, mister?",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
+            "next": "hyab306eudv",
+            "prefixText": "[FAE]"
+          },
+          {
+            "text": "What are you doing in this rabble, nobleman?",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "vtu8nlbst5",
+            "prefixText": "[DRAGON]"
+          }
+        ]
+      },
+      {
+        "id": "i4guqvvm9p",
+        "x": 200.5,
+        "y": 256.625,
+        "eventChildType": "SWITCH",
+        "h": 156,
+        "cases": [
+          {
+            "conditionStr": "ONCE(has_spoken_to_@CHARACTER_ID)",
+            "next": "ibwmw12a02"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,5)",
+            "next": "2fr9r0kwild"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,3)",
+            "next": "zslh0uf6zqi"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,1)",
+            "next": "p5zl27718t"
+          }
+        ],
+        "defaultNext": "zslh0uf6zqi"
+      },
+      {
+        "id": "522wgfniolf",
+        "x": 1017,
+        "y": 153.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Hmph. Make it quick, I'm in no mood for chatter.\"",
+        "execStr": "",
+        "next": "fjmrtk1zjsj",
+        "autoAdvance": true
+      },
+      {
+        "id": "hyab306eudv",
+        "x": 1010,
+        "y": 221.5,
+        "eventChildType": "EXEC",
+        "h": 112,
+        "p": "He snatches the bag onto his lap.\n\n\"This is my property.  Nothing you should be concerned about.\"",
+        "execStr": "MOD_NUM(@DISPOSITION, -1)",
+        "next": "fjmrtk1zjsj",
+        "autoAdvance": true
+      },
+      {
+        "id": "vtu8nlbst5",
+        "x": 1003,
+        "y": 355.5,
+        "eventChildType": "EXEC",
+        "h": 112,
+        "p": "\"Trust me, I'm not here by choice.  I'd have been long gone if not for the damn Blackrose Estate.  But it's the least offensive place in this town right now, if you can believe it.\"",
+        "execStr": "MOD_NUM(@DISPOSITION, 1)",
+        "next": "fjmrtk1zjsj",
+        "autoAdvance": true
+      },
+      {
+        "id": "fjmrtk1zjsj",
+        "x": 853,
+        "y": 838.5,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "(Ask for his name.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "j92yhujy8br",
+            "prefixText": ""
+          },
+          {
+            "text": "(Ask about why he's here.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "2bs3d7blhqj",
+            "prefixText": ""
+          },
+          {
+            "text": "Nevermind. (Leave.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "8gf16kka8h",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "j92yhujy8br",
+        "x": 1330.5,
+        "y": 786.875,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Lord Barto Caldeburn. Apparently, that name doesn't have much sway around here like it does on the Mainland.  But mark my words.  It will soon.\"",
+        "execStr": "",
+        "next": "fjmrtk1zjsj",
+        "autoAdvance": false
+      },
+      {
+        "id": "2bs3d7blhqj",
+        "x": 1334.5,
+        "y": 878.875,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"I'm on a business trip.  I need to visit Boramark in the north to discus trade with the Guildimarche Estate.\"",
+        "execStr": "",
+        "next": "53azhmf5kio",
+        "autoAdvance": true
+      },
+      {
+        "id": "53azhmf5kio",
+        "x": 1798.5,
+        "y": 844.875,
+        "eventChildType": "CHOICE",
+        "h": 180,
+        "text": "",
+        "choices": [
+          {
+            "text": "Why haven't you gone to Boramark yet?",
+            "conditionStr": "",
+            "evalStr": "SET_BOOL(tmp.mentionedBlockade, true)",
+            "next": "tfc8fa0x7op",
+            "prefixText": ""
+          },
+          {
+            "text": "Tell me about the blockade.",
+            "conditionStr": "IS(tmp.mentionedBlockade)",
+            "evalStr": "SET_BOOL(tmp.mentionedBandits, true)",
+            "next": "maj0d9pn6g",
+            "prefixText": ""
+          },
+          {
+            "text": "Bandits in the north?",
+            "conditionStr": "IS(tmp.mentionedBandits)",
+            "evalStr": "",
+            "next": "xf2htr4g8rm",
+            "prefixText": ""
+          },
+          {
+            "text": "Guildimarche?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "5jybk4vwo16",
+            "prefixText": ""
+          },
+          {
+            "text": "What's a Lark?",
+            "conditionStr": "IS(tmp.mentionedLark)",
+            "evalStr": "",
+            "next": "4ml7wqvwklk",
+            "prefixText": ""
+          },
+          {
+            "text": "(Talk about something else.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "fjmrtk1zjsj",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "8gf16kka8h",
+        "x": 929.5,
+        "y": 1216.875,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "tfc8fa0x7op",
+        "x": 2219.5,
+        "y": 664.875,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"The blockade, of course!  Nobody in Alinea is going anywhere unless that's been taken care of.  And the Realm sure is taking their sweet time with it.\"",
+        "execStr": "",
+        "next": "53azhmf5kio",
+        "autoAdvance": true
+      },
+      {
+        "id": "maj0d9pn6g",
+        "x": 2224.5,
+        "y": 790.875,
+        "eventChildType": "EXEC",
+        "h": 116,
+        "p": "\"I don't know the details. The Realm guards informed me I can't go to Boramark by way of the east road, and apparently the north road is blocked off by some bandits or something so that's no good either.  I am to wait until the situation resolves.  And it's taking an infuriatingly long time.\"",
+        "execStr": "",
+        "next": "53azhmf5kio",
+        "autoAdvance": false
+      },
+      {
+        "id": "5jybk4vwo16",
+        "x": 2181.5,
+        "y": 1252.875,
+        "eventChildType": "EXEC",
+        "h": 126,
+        "p": "\"Only a Lark would ask a question like that.  The Guildimmarche Estate is one of the most powerful noble houses on the Island.  They just so happen to control the lands around Boramark to the north, and I just so happen to have business with them.\"",
+        "execStr": "SET_BOOL(tmp.mentionedLark, true)",
+        "next": "53azhmf5kio",
+        "autoAdvance": false
+      },
+      {
+        "id": "xf2htr4g8rm",
+        "x": 2226.5,
+        "y": 929.875,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"That's what I've heard, yes.  I'm not about to take any chances with that sort of riff raff.  Me, alone on the road?  I'd be ripe for the picking.\"",
+        "execStr": "",
+        "next": "pzs2qto94mk",
+        "autoAdvance": true
+      },
+      {
+        "id": "pzs2qto94mk",
+        "x": 2613.5,
+        "y": 951.875,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "ONCE(@CHARACTER_ID_offered_to_guard)",
+            "next": "elt7o6x1olw"
+          }
+        ],
+        "defaultNext": "53azhmf5kio"
+      },
+      {
+        "id": "elt7o6x1olw",
+        "x": 3039.5,
+        "y": 864.875,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "Yes you would be... Are you interested in hiring a guard?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "b4hh46opf9j",
+            "prefixText": ""
+          },
+          {
+            "text": "That makes sense.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "fjgvg29sat6",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "b4hh46opf9j",
+        "x": 3399.5,
+        "y": 742.875,
+        "eventChildType": "EXEC",
+        "h": 154,
+        "p": "\"Ha, are you referring to yourself?  Pardon my bluntness, but you look like a Lark, and on top of that, hardly the caliber of warrior that would ease my safety.\"\n\n\"No, I'll just wait for the situation to resolve, then I'll be on my way.\"",
+        "execStr": "SET_BOOL(tmp.mentionedLark, true)",
+        "next": "53azhmf5kio",
+        "autoAdvance": false
+      },
+      {
+        "id": "fjgvg29sat6",
+        "x": 3373.5,
+        "y": 1005.875,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Better to be safe than sorry.\"",
+        "execStr": "",
+        "next": "53azhmf5kio",
+        "autoAdvance": false
+      },
+      {
+        "id": "4ml7wqvwklk",
+        "x": 2220.5,
+        "y": 1048.875,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"If you have to ask, then you are one.\"",
+        "execStr": "",
+        "next": "53azhmf5kio",
+        "autoAdvance": false
+      }
+    ]
+  },
+  {
+    "id": "alinea_claire",
+    "title": "Dockmaster Claire",
+    "eventType": "TALK",
+    "icon": "special_event_icons_0",
+    "vars": [
+      {
+        "id": "nbnijyx9ink",
+        "key": "CHARACTER_ID",
+        "value": "alinea_claire",
+        "importFrom": ""
+      },
+      {
+        "id": "n8dyt0blni",
+        "key": "DISPOSITION",
+        "value": "vars.disposition.alinea_claire",
+        "importFrom": ""
+      },
+      {
+        "id": "uojcb7srl2",
+        "key": "ASPECT_FAE",
+        "value": "vars.aspect.fae",
+        "importFrom": ""
+      },
+      {
+        "id": "zlzxcsnksa",
+        "key": "ASPECT_DRAGON",
+        "value": "vars.aspect.dragon",
+        "importFrom": ""
+      },
+      {
+        "id": "0onpo7a0gu1",
+        "key": "ASPECT_DRYAD",
+        "value": "vars.aspect.dryad",
+        "importFrom": ""
+      },
+      {
+        "id": "dh34zu92qk",
+        "key": "ASPECT_AEON",
+        "value": "vars.aspect.aeon",
+        "importFrom": ""
+      }
+    ],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "7y1d1ylnwy5",
+        "autoAdvance": false
+      },
+      {
+        "id": "7y1d1ylnwy5",
+        "x": 250,
+        "y": 144,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "SETUP_DISPOSITION(@CHARACTER_ID)",
+        "next": "pnxf7qky9gk",
+        "autoAdvance": false
+      },
+      {
+        "id": "pnxf7qky9gk",
+        "x": 288,
+        "y": 262,
+        "eventChildType": "SWITCH",
+        "h": 156,
+        "cases": [
+          {
+            "conditionStr": "ONCE(has_spoken_to_@CHARACTER_ID)",
+            "next": "0arn7g6cays"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,5)",
+            "next": "2hpskpgd88y"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,3)",
+            "next": "mnz0vwcieyd"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,1)",
+            "next": "reabg2ysail"
+          }
+        ],
+        "defaultNext": "reabg2ysail"
+      },
+      {
+        "id": "reabg2ysail",
+        "x": 300,
+        "y": 735.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"What do you want now?  I'm busy.\"",
+        "execStr": "",
+        "next": "8f4ruub7r3e",
+        "autoAdvance": false
+      },
+      {
+        "id": "mnz0vwcieyd",
+        "x": 304,
+        "y": 649.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Yes? What can I do for you?\"",
+        "execStr": "",
+        "next": "8f4ruub7r3e",
+        "autoAdvance": false
+      },
+      {
+        "id": "2hpskpgd88y",
+        "x": 298,
+        "y": 558.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Ah, I'm honored that you would approach me.  Did you want something?\"",
+        "execStr": "",
+        "next": "8f4ruub7r3e",
+        "autoAdvance": false
+      },
+      {
+        "id": "0arn7g6cays",
+        "x": 748,
+        "y": 32.5,
+        "eventChildType": "CHOICE",
+        "h": 234,
+        "text": "A tall woman in a green cloak is overseeing the people at the docks. She tightly clutches an official-looking scroll, and her stern eyes flit in irritation between it and you.\n\n\"You there! Are you the Captain of that vessel?\"  She points towards the horizon where Argow's vessel is anchored.",
+        "choices": [
+          {
+            "text": "No. The Captain's name is Argow.  He's still back there in the row boat.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "r2fp0o8r2da",
+            "prefixText": ""
+          },
+          {
+            "text": "Do I look like I know my way around a ship, lady?  Cuz I don't.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
+            "next": "r2fp0o8r2da",
+            "prefixText": "[FAE]"
+          },
+          {
+            "text": "Oh please.  If I owned a ship it would be *much* larger.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "r2fp0o8r2da",
+            "prefixText": "[DRAGON]"
+          }
+        ]
+      },
+      {
+        "id": "8f4ruub7r3e",
+        "x": 632,
+        "y": 936.5,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "I have some questions for you.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "jcg09ishnq",
+            "prefixText": ""
+          },
+          {
+            "text": "Nevermind. (Leave.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "lk9qky3u42",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "r2fp0o8r2da",
+        "x": 747.5,
+        "y": 296.5,
+        "eventChildType": "CHOICE",
+        "h": 188,
+        "text": "\"There's a fee for using the Alinea docks.\"  She gives you a quick look up and down.  \"Even if it is to drop off a... passenger.\"",
+        "choices": [
+          {
+            "text": "Okay.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "uj1jkcvhv0p",
+            "prefixText": ""
+          },
+          {
+            "text": "Tell the Captain yourself if you have need of him.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "uj1jkcvhv0p",
+            "prefixText": "[DRAGON]"
+          },
+          {
+            "text": "You don't understand!  They kidnapped me and intend to strand me here!",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "ppxpx9tdqw",
+            "prefixText": "[DRYAD]"
+          },
+          {
+            "text": "You really care about that small rowboat?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "uj1jkcvhv0p",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "ppxpx9tdqw",
+        "x": 1135.5,
+        "y": 147.5,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Whatever conflict in which you are allegedly involved does not matter to me. That vessel is here illegally and must be dealt with.\"",
+        "execStr": "",
+        "next": "n5l28kyw9bf",
+        "autoAdvance": false
+      },
+      {
+        "id": "n5l28kyw9bf",
+        "x": 1504.5,
+        "y": 238.5,
+        "eventChildType": "EXEC",
+        "h": 158,
+        "p": "She looks you up and down once more and seems to decide something.\n\n\"Hmph. Very well.  I suppose the problem is moot for now.  As for you...  You are not guilty of any more violations.  You are officially allowed to move along into Alinea without retribution. I am Dockmaster Claire, and I run these docks.  Try not to be a nuisance, lark.\"",
+        "execStr": "",
+        "next": "7wt55yy5y0o",
+        "autoAdvance": false
+      },
+      {
+        "id": "7wt55yy5y0o",
+        "x": 1877.5,
+        "y": 280.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "uj1jkcvhv0p",
+        "x": 1139.8333333333335,
+        "y": 332.5,
+        "eventChildType": "CHOICE",
+        "h": 150,
+        "text": "\"I can have you locked up for negligence if this situation isn't dealt with right now!\"",
+        "choices": [
+          {
+            "text": "I don't know what to tell you.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "n5l28kyw9bf",
+            "prefixText": ""
+          },
+          {
+            "text": "Just try it. I dare you.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "n5l28kyw9bf",
+            "prefixText": "[DRAGON]"
+          },
+          {
+            "text": "Sorry!  Um, I don't think he intends to come back.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1)",
+            "next": "n5l28kyw9bf",
+            "prefixText": "[DRYAD["
+          }
+        ]
+      },
+      {
+        "id": "nexxtdo6ydo",
+        "x": 1196,
+        "y": 731,
+        "eventChildType": "CHOICE",
+        "h": 204,
+        "text": "",
+        "choices": [
+          {
+            "text": "Where am I?",
+            "conditionStr": "",
+            "evalStr": "SET_BOOL(tmp.claire1)",
+            "next": "zxtfea2uc5m",
+            "prefixText": ""
+          },
+          {
+            "text": "What is the Realm?",
+            "conditionStr": "IS(tmp.claire1)",
+            "evalStr": "SET_BOOL(tmp.mullenMentioned)",
+            "next": "ut4rzqdocjc",
+            "prefixText": ""
+          },
+          {
+            "text": "Can you tell me more about Sadelica?",
+            "conditionStr": "IS(tmp.claire2)",
+            "evalStr": "",
+            "next": "3h5lr8fowu6",
+            "prefixText": ""
+          },
+          {
+            "text": "Can you help me? (Explain your situation)",
+            "conditionStr": "",
+            "evalStr": "SET_BOOL(tmp.mullenMentioned)",
+            "next": "bmybue9pobr",
+            "prefixText": ""
+          },
+          {
+            "text": "You called me a \"lark\" before.  What is that?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "ytv6b9ey1co",
+            "prefixText": ""
+          },
+          {
+            "text": "You said somebody named Mullen could help?",
+            "conditionStr": "IS(tmp.mullenMentioned)",
+            "evalStr": "",
+            "next": "u24n2mp9sgp",
+            "prefixText": ""
+          },
+          {
+            "text": "(Go back.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "gmb7hkxnr0o",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "bmybue9pobr",
+        "x": 1712,
+        "y": 957,
+        "eventChildType": "EXEC",
+        "h": 116,
+        "p": "\"No.  The Realm is not in service of any old lark that gets dropped off at the docks.  You could bother Mullen at the Realm office, he might be more charitable.  But perhaps you'll have some more luck at the local tavern.  That's where larks tend to congregate.\"",
+        "execStr": "",
+        "next": "nexxtdo6ydo",
+        "autoAdvance": false
+      },
+      {
+        "id": "lk9qky3u42",
+        "x": 977,
+        "y": 971,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "jcg09ishnq",
+        "x": 838.5,
+        "y": 802,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"What do you want to know?\"",
+        "execStr": "",
+        "next": "nexxtdo6ydo",
+        "autoAdvance": false
+      },
+      {
+        "id": "zxtfea2uc5m",
+        "x": 1701.5,
+        "y": 565,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"This is the port of Alinea.  Just stay out of the Realm's way.  Obey the rules, and you'll have no problems.\"",
+        "execStr": "",
+        "next": "nexxtdo6ydo",
+        "autoAdvance": false
+      },
+      {
+        "id": "ytv6b9ey1co",
+        "x": 1684.5,
+        "y": 1252,
+        "eventChildType": "EXEC",
+        "h": 144,
+        "p": "\"Yes.  It means you're new to the Island of Sadelica.\"\n\nSadelica.  You have heard of this place.  It is a large landmass, far, far away from the Mainland.  It has only been settled recently; in the last 50 years.  Rumor has it that it is a place of lawlessness and adventure, although not many on the Mainland have been there to confirm.",
+        "execStr": "",
+        "next": "nexxtdo6ydo",
+        "autoAdvance": false
+      },
+      {
+        "id": "3h5lr8fowu6",
+        "x": 1711,
+        "y": 817.5,
+        "eventChildType": "EXEC",
+        "h": 116,
+        "p": "\"Every day I talk to larks like you.  I have no time to fritter away explaining day-to-day knowledge.  The Realm entrusts me with the smooth operation of Alinea's docks.  You are in the town of Alinea, which itself is on a body of land we call the Island.  That is what I will tell you.\"",
+        "execStr": "",
+        "next": "nexxtdo6ydo",
+        "autoAdvance": false
+      },
+      {
+        "id": "gmb7hkxnr0o",
+        "x": 327,
+        "y": 1193.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"If you are done with your questions, then move along.\"",
+        "execStr": "",
+        "next": "8f4ruub7r3e",
+        "autoAdvance": false
+      },
+      {
+        "id": "ut4rzqdocjc",
+        "x": 1712.3666666666677,
+        "y": 673.9000000000005,
+        "eventChildType": "EXEC",
+        "h": 102,
+        "p": "\"The Realm is the authority here in Alinea.  That means you need to follow our rules.  I don't have time to sit down and explain society to a lark.  Go bother somebody else if you want to know all this frivolousness.  Lieutenant Mullen might humor you.\"",
+        "execStr": "",
+        "next": "nexxtdo6ydo",
+        "autoAdvance": false
+      },
+      {
+        "id": "u24n2mp9sgp",
+        "x": 1673.5,
+        "y": 1136.5,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "\"Yes.  Lieutenant Mullen.  He has command of Alinea at the moment.  For whatever reason he, seems to like entertaining larks.  Look for him in the Realm offices to the south west.\"",
+        "execStr": "",
+        "next": "nexxtdo6ydo",
+        "autoAdvance": false
+      }
+    ]
+  },
+  {
+    "id": "alinea_mullen",
+    "title": "Lieutenant Mullen",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [
+      {
+        "id": "p59pc9gu1vj",
+        "key": "CHARACTER_ID",
+        "value": "alinea_mullen",
+        "importFrom": ""
+      },
+      {
+        "id": "bxa26acqnp",
+        "key": "DISPOSITION",
+        "value": "vars.disposition.alinea_mullen",
+        "importFrom": ""
+      },
+      {
+        "id": "7c5nfc4po3a",
+        "key": "",
+        "value": "",
+        "importFrom": "util_aspect"
+      }
+    ],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "9npvojkx47j",
+        "autoAdvance": false
+      },
+      {
+        "id": "9npvojkx47j",
+        "x": 221,
+        "y": 165.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "SETUP_DISPOSITION(@CHARACTER_ID)",
+        "next": "suasrj15xve",
+        "autoAdvance": false
+      },
+      {
+        "id": "wz8hhxr99r",
+        "x": 298,
+        "y": 813.25,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"What are you doing in my office?\"",
+        "execStr": "",
+        "next": "02nzgxo584j",
+        "autoAdvance": true
+      },
+      {
+        "id": "bf069w45r3l",
+        "x": 302,
+        "y": 727.25,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Did you need something?\"",
+        "execStr": "",
+        "next": "02nzgxo584j",
+        "autoAdvance": true
+      },
+      {
+        "id": "jh5dxgbo688",
+        "x": 296,
+        "y": 636.25,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"It's good to see you again.  How can I assist?\"",
+        "execStr": "",
+        "next": "02nzgxo584j",
+        "autoAdvance": true
+      },
+      {
+        "id": "nczvtjxn5ep",
+        "x": 708,
+        "y": 133.5,
+        "eventChildType": "CHOICE",
+        "h": 300,
+        "text": "A tired man in a green military uniform sits behind a sturdy desk. His head rests in palm as he parses a mountain of paperwork one scroll at a time.  The suit of armor on the rack behind him is dusty and unused, as is the saber mounted above it in a stout display case.  A little metal nameplate at the front of his desk has 'Lieutenant Mullen' etched into it.\n\n\"Pardon me.  Sorry about the mess.  It's been a rough time lately.  Did you have something to report?\"",
+        "choices": [
+          {
+            "text": "You are Lieutenant Mullen?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "0rsdx9p4i9rg",
+            "prefixText": ""
+          },
+          {
+            "text": "Yes sir!  I am reporting that I have arrived here!",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
+            "next": "m0gsic3edt",
+            "prefixText": "[FAE]"
+          },
+          {
+            "text": "I'd never stoop to be under someone else's command.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "723ke623qq",
+            "prefixText": "[DRAGON]"
+          },
+          {
+            "text": "This place is a mess!  Someone in authority like yourself ought to demoted for such a shameful display.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_AEON, 1)",
+            "next": "4gy09zpyk9u",
+            "prefixText": "[AEON]"
+          }
+        ]
+      },
+      {
+        "id": "723ke623qq",
+        "x": 1131,
+        "y": 413.5,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Ah of course.  Forgive my supposition.   I am Lieutenant Mullen of the Realm, and I am in charge here.  Is there anything you require?\"",
+        "execStr": "",
+        "next": "02nzgxo584j",
+        "autoAdvance": true
+      },
+      {
+        "id": "4gy09zpyk9u",
+        "x": 1129,
+        "y": 532.5,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "\"Listen here! Alinea and The Realm are experiencing enough trouble without some random nobody coming in here and telling me how to do my job!  If you need something from me, then tell me.\"",
+        "execStr": "",
+        "next": "02nzgxo584j",
+        "autoAdvance": true
+      },
+      {
+        "id": "m0gsic3edt",
+        "x": 1119,
+        "y": 303.5,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"And who exactly are you?  I see not that you're not a soldier, so I apologize for the supposition.  I am Lieutenant Mullen of the Realm.  Can I assist you?",
+        "execStr": "",
+        "next": "02nzgxo584j",
+        "autoAdvance": true
+      },
+      {
+        "id": "0rsdx9p4i9rg",
+        "x": 1127,
+        "y": 194.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Yes.  Lieutenant Mullen of the Realm.  How can I assist you?\"",
+        "execStr": "",
+        "next": "02nzgxo584j",
+        "autoAdvance": true
+      },
+      {
+        "id": "02nzgxo584j",
+        "x": 751,
+        "y": 1196.5,
+        "eventChildType": "CHOICE",
+        "h": 132,
+        "text": "",
+        "choices": [
+          {
+            "text": "(Discus Alinea.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "g65w5duna6f",
+            "prefixText": ""
+          },
+          {
+            "text": "(Discus the Realm.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "tygi5vd1y2j",
+            "prefixText": ""
+          },
+          {
+            "text": "(Ask about your situation.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "s7ywnpkp6se",
+            "prefixText": ""
+          },
+          {
+            "text": "Nevermind. (Leave)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "sgei06aepbm",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "suasrj15xve",
+        "x": 297,
+        "y": 278.5,
+        "eventChildType": "SWITCH",
+        "h": 156,
+        "cases": [
+          {
+            "conditionStr": "ONCE(has_spoken_to_@CHARACTER_ID)",
+            "next": "nczvtjxn5ep"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,5)",
+            "next": "jh5dxgbo688"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,3)",
+            "next": "bf069w45r3l"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,1)",
+            "next": "wz8hhxr99r"
+          }
+        ],
+        "defaultNext": "bf069w45r3l"
+      },
+      {
+        "id": "q3gzeznv1n",
+        "x": 1505,
+        "y": 1076.5,
+        "eventChildType": "CHOICE",
+        "h": 180,
+        "text": "",
+        "choices": [
+          {
+            "text": "Blockade?",
+            "conditionStr": "",
+            "evalStr": "SET_BOOL(tmp.mentionedBlockade, true)",
+            "next": "4kwcvu4yj04",
+            "prefixText": ""
+          },
+          {
+            "text": "Why do you think the blockade is happening?",
+            "conditionStr": "IS(tmp.mentionedBlockade)",
+            "evalStr": "",
+            "next": "5zy0f2llyr7",
+            "prefixText": ""
+          },
+          {
+            "text": "The Blackrose Estate?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "60p8o1tmzl4",
+            "prefixText": ""
+          },
+          {
+            "text": "The Realm can't do anything about the blockade?",
+            "conditionStr": "IS(tmp.mentionedBlockade)",
+            "evalStr": "SET_BOOL(tmp.mentionedAldebeth, true)",
+            "next": "30snuhmfbew",
+            "prefixText": ""
+          },
+          {
+            "text": "Aldebeth Blackrose?",
+            "conditionStr": "IS(tmp.mentionedAldebeth)",
+            "evalStr": "",
+            "next": "hz4fd9c0nnp",
+            "prefixText": ""
+          },
+          {
+            "text": "(Talk about something else.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "02nzgxo584j",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "4kwcvu4yj04",
+        "x": 1969,
+        "y": 844.5,
+        "eventChildType": "EXEC",
+        "h": 186,
+        "p": "\"Alinea is the only port on the northern side of the the Island.  There are settlements further into the region, but they are only easily accessible via two trails.  One to the north, and one to the east.\"\n\n\"The Blackrose Estate has brought a corps of mercenaries to camp out on the eastern road, and they are preventing anyone with so much as a one-donkey cart from passing through.  This has left many unhappy merchants and travelers to fester in the streets of Alinea.\"",
+        "execStr": "",
+        "next": "q3gzeznv1n",
+        "autoAdvance": true
+      },
+      {
+        "id": "g65w5duna6f",
+        "x": 1522,
+        "y": 952.5,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Times are tough.  My forces are stretched thin keeping order in this town as the Blackrose blockade continues to exist.\"",
+        "execStr": "",
+        "next": "q3gzeznv1n",
+        "autoAdvance": true
+      },
+      {
+        "id": "5zy0f2llyr7",
+        "x": 1966,
+        "y": 1068.5,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "\"Greed.  The Blackrose wants to own Alinea.  It's a strategic port on the north side of the Island.  The Blackrose are known for taking the things that they want.\"",
+        "execStr": "",
+        "next": "q3gzeznv1n",
+        "autoAdvance": true
+      },
+      {
+        "id": "60p8o1tmzl4",
+        "x": 1958,
+        "y": 1200.5,
+        "eventChildType": "EXEC",
+        "h": 158,
+        "p": "\"The Blackrose Estate is a powerful noble family that is always causing trouble on the Island. They are not loyal to the Empress, but due to their immense wealth, they buy allegiance from desperate ne'er-do-wells.\"\n\n\"There are more members of the Blackrose family than I can count.  And they all seem to be out here on the Island in some shape or another.\"",
+        "execStr": "",
+        "next": "q3gzeznv1n",
+        "autoAdvance": true
+      },
+      {
+        "id": "30snuhmfbew",
+        "x": 1969,
+        "y": 1417.5,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Rest assured, the Realm is doing everything it can to alleviate the blockade.  But Aldebeth Blackrose is being stubborn.\"",
+        "execStr": "",
+        "next": "q3gzeznv1n",
+        "autoAdvance": true
+      },
+      {
+        "id": "hz4fd9c0nnp",
+        "x": 2204,
+        "y": 1582.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"She's in charge of the Blackrose contingent of the blockade.  Stubborn woman.\"",
+        "execStr": "",
+        "next": "q3gzeznv1n",
+        "autoAdvance": true
+      },
+      {
+        "id": "tygi5vd1y2j",
+        "x": 1375,
+        "y": 1543,
+        "eventChildType": "EXEC",
+        "h": 102,
+        "p": "\"The Realm is a distributed military on the Island, organized in service of the Mainland Empress herself, long may she reign.  Somebody's got ensure some kind of order here.  I'm the current highest ranking officer in Alinea.\"",
+        "execStr": "",
+        "next": "iztglbumsy",
+        "autoAdvance": true
+      },
+      {
+        "id": "iztglbumsy",
+        "x": 1353,
+        "y": 1785,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "Where are the other commanding officers?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "ml1ctvczji9",
+            "prefixText": ""
+          },
+          {
+            "text": "We're awfully far from the Mainland.  Does the Empress have any pull here at all?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "9be6qg0q7x",
+            "prefixText": ""
+          },
+          {
+            "text": "(Talk about something else.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "02nzgxo584j",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "ml1ctvczji9",
+        "x": 1776,
+        "y": 1692,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"They are Somewhere else.  The Realm stations officers where it sees fit.\"",
+        "execStr": "",
+        "next": "iztglbumsy",
+        "autoAdvance": true
+      },
+      {
+        "id": "9be6qg0q7x",
+        "x": 1772,
+        "y": 1804,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"She has enough pull to keep us loyal citizens of the Mainland trusting and following her lead.\"",
+        "execStr": "",
+        "next": "vpp0umlqw3b",
+        "autoAdvance": false
+      },
+      {
+        "id": "vpp0umlqw3b",
+        "x": 1748,
+        "y": 1978,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "ONCE(vars.mullen_asked_about_realm)",
+            "next": "p1uh2gx3cak"
+          }
+        ],
+        "defaultNext": "w2bvnrv5j7a"
+      },
+      {
+        "id": "p1uh2gx3cak",
+        "x": 2123,
+        "y": 1983,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"What about you?  Are you loyal to the Empress?\"",
+        "execStr": "",
+        "next": "nm0gh5omgtg",
+        "autoAdvance": true
+      },
+      {
+        "id": "w2bvnrv5j7a",
+        "x": 2121,
+        "y": 2049,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"You've made your thoughts on this matter clear already.\"",
+        "execStr": "",
+        "next": "iztglbumsy",
+        "autoAdvance": true
+      },
+      {
+        "id": "nm0gh5omgtg",
+        "x": 2520,
+        "y": 1947,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "Yes, of course.  Long live the Empress!\"",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(vars.factions.realm, 1)",
+            "next": "de5bsidkfrc",
+            "prefixText": "[REALM POSITIVE]"
+          },
+          {
+            "text": "The Empress is too far away to govern me.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(vars.factions.realm, -1)",
+            "next": "4ibu1so4s6h",
+            "prefixText": "[REALM NEGATIVE]"
+          },
+          {
+            "text": "I'm not really into politics, to be honest.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "xfjnddl2ah",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "de5bsidkfrc",
+        "x": 2920,
+        "y": 1888,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Indeed.  It is good to see loyalist blood still strong out here.\"",
+        "execStr": "",
+        "next": "iztglbumsy",
+        "autoAdvance": false
+      },
+      {
+        "id": "4ibu1so4s6h",
+        "x": 2934.000000000001,
+        "y": 1980.666666666667,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"The Empress may not be here, but her command lives through us in the Realm.\"",
+        "execStr": "",
+        "next": "iztglbumsy",
+        "autoAdvance": false
+      },
+      {
+        "id": "xfjnddl2ah",
+        "x": 2946.000000000001,
+        "y": 2075.666666666667,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"No opinion?  You can't remain neutral forever.  Sooner or later you'll need to pick a side.\"",
+        "execStr": "",
+        "next": "iztglbumsy",
+        "autoAdvance": false
+      },
+      {
+        "id": "sgei06aepbm",
+        "x": 834.3333333333348,
+        "y": 1356.3333333333335,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "s7ywnpkp6se",
+        "x": 1301.3333333333348,
+        "y": 2346.333333333334,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "ONCE(vars.mullen.explained_situation)",
+            "next": "tj1b8h4uejr"
+          }
+        ],
+        "defaultNext": "w7ab5rdd8x"
+      },
+      {
+        "id": "tj1b8h4uejr",
+        "x": 1665.0000000000018,
+        "y": 2282.833333333334,
+        "eventChildType": "EXEC",
+        "h": 102,
+        "p": "You explain to Mullen about how you arrived to Alinea on a vessel and that you are stranded.\n\n\"You have my sympathies, but I am in no position to do anything for you right now.\"",
+        "execStr": "",
+        "next": "byya0d4vs2n",
+        "autoAdvance": false
+      },
+      {
+        "id": "w7ab5rdd8x",
+        "x": 1648.0000000000018,
+        "y": 2423.833333333334,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"What about it?\"",
+        "execStr": "",
+        "next": "byya0d4vs2n",
+        "autoAdvance": true
+      },
+      {
+        "id": "byya0d4vs2n",
+        "x": 2046.0000000000018,
+        "y": 2367.833333333334,
+        "eventChildType": "CHOICE",
+        "h": 132,
+        "text": "",
+        "choices": [
+          {
+            "text": "Could I get somebody to take me back to the Mainland?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "dmvfhihzmeu",
+            "prefixText": ""
+          },
+          {
+            "text": "Where should I go?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "9jcqdr4fb77",
+            "prefixText": ""
+          },
+          {
+            "text": "Does the number \"9\" have any special significance to you?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "lzka77n954d",
+            "prefixText": ""
+          },
+          {
+            "text": "(Talk about something else).",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "02nzgxo584j",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "dmvfhihzmeu",
+        "x": 2533.000000000002,
+        "y": 2305.833333333334,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Sure.  Ask around.  It won't be cheap though.  The trip out here, as you well know, is quite long.\"",
+        "execStr": "",
+        "next": "byya0d4vs2n",
+        "autoAdvance": true
+      },
+      {
+        "id": "9jcqdr4fb77",
+        "x": 2535.000000000002,
+        "y": 2387.833333333334,
+        "eventChildType": "EXEC",
+        "h": 116,
+        "p": "\"The Realm teaches is soldiers to always have an objective, and to make due with what they have.  You're here now, whether you want to be or not.  You could settle down, get a job, or you could figure out a way to get home.  Either way, it's something to strive towards.\"",
+        "execStr": "",
+        "next": "byya0d4vs2n",
+        "autoAdvance": false
+      },
+      {
+        "id": "lzka77n954d",
+        "x": 2517.000000000002,
+        "y": 2548.833333333334,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"No.  Not particularly.\"",
+        "execStr": "",
+        "next": "byya0d4vs2n",
+        "autoAdvance": false
+      }
+    ]
+  },
+  {
+    "id": "alinea_start",
+    "title": "Alinea",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": ""
+      }
+    ]
+  },
+  {
     "id": "TestEvent",
     "title": "This is a Test Event",
     "eventType": "MODAL",
@@ -161,7 +1643,7 @@
       },
       {
         "id": "d9dzkh109at",
-        "x": 453,
+        "x": 452,
         "y": 151.5,
         "eventChildType": "CHOICE",
         "h": 160,
@@ -204,7 +1686,7 @@
       },
       {
         "id": "hqjjm69ppi",
-        "x": 63,
+        "x": 62,
         "y": 156.5,
         "eventChildType": "EXEC",
         "h": 74,
@@ -224,6 +1706,67 @@
         "eventChildType": "COMMENT",
         "h": 54,
         "comment": "^ Debug"
+      }
+    ]
+  },
+  {
+    "id": "util_aspect",
+    "title": "Utils: Aspect",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [
+      {
+        "id": "3bbksxvfh6f",
+        "key": "ASPECT_FAE",
+        "value": "vars.aspect.fae",
+        "importFrom": ""
+      },
+      {
+        "id": "qm51ip46yvn",
+        "key": "ASPECT_DRAGON",
+        "value": "vars.aspect.dragon",
+        "importFrom": ""
+      },
+      {
+        "id": "f2iprnnuejw",
+        "key": "ASPECT_DRYAD",
+        "value": "vars.aspect.dryad",
+        "importFrom": ""
+      },
+      {
+        "id": "vep2z8f2h9s",
+        "key": "ASPECT_AEON",
+        "value": "vars.aspect.aeon",
+        "importFrom": ""
+      }
+    ],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "ntgqrp5ea3q",
+        "autoAdvance": false
+      },
+      {
+        "id": "ntgqrp5ea3q",
+        "x": 439,
+        "y": 131.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "b042uzxzfc",
+        "x": 42,
+        "y": 112.5,
+        "eventChildType": "COMMENT",
+        "h": 54,
+        "comment": "Use this event to include all variables for aspects."
       }
     ]
   }

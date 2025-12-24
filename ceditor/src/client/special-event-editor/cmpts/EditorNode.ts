@@ -255,7 +255,7 @@ export class EditorNode {
           this.editorState.hoveredExitAnchor === connector &&
           connector.exitIndex === args.hoveredExitIndex,
         isEntrance: false,
-        isConnected: connector.toNodeId !== '',
+        isConnected: Boolean(connector.toNodeId),
       });
     }
 

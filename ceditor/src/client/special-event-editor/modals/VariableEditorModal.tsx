@@ -364,7 +364,7 @@ export function VariableEditorModal({
         <div
           style={{
             display: 'flex',
-            justifyContent: 'flex-end',
+            justifyContent: 'space-between',
             alignItems: 'center',
             marginBottom: '4px',
             gap: '10px',

@@ -49,6 +49,7 @@ export function EditGameEventModal({
   return (
     <GenericModal
       title="Edit Game Event"
+      maxWidth="600px"
       onConfirm={handleConfirm}
       onCancel={onCancel}
       body={() => (

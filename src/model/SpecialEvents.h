@@ -1,6 +1,5 @@
 #pragma once
 
-#include <map>
 #include <optional>
 #include <string>
 #include <variant>
@@ -10,11 +9,11 @@ namespace model {
 
 enum class GameEventType { MODAL, TALK };
 enum class GameEventChildType { KEYWORD, CHOICE, END, EXEC, SWITCH };
-enum class KeywordType { K, K_DUP, K_SWITCH, K_CHILD };
+// enum class KeywordType { K, K_DUP, K_SWITCH, K_CHILD };
 
 struct VariableValue;
 
-struct GameEventChildKeyword;
+// struct GameEventChildKeyword;
 struct GameEventChildChoice;
 struct GameEventChildSwitch;
 struct GameEventChildExec;
@@ -22,8 +21,7 @@ struct GameEventChildEnd;
 struct Variable;
 
 // Discriminated union for GameEventChild
-using GameEventChild = std::variant<GameEventChildKeyword,
-                                    GameEventChildChoice,
+using GameEventChild = std::variant<GameEventChildChoice,
                                     GameEventChildSwitch,
                                     GameEventChildExec,
                                     GameEventChildEnd>;
@@ -56,41 +54,47 @@ struct AudioInfo {
   int offset;
 };
 
-struct KeywordDataK {
-  KeywordType keywordType = KeywordType::K;
-  std::string text;
-};
+// struct KeywordDataK {
+//   KeywordType keywordType = KeywordType::K;
+//   std::string text;
+// };
 
-struct KeywordDataKDup {
-  KeywordType keywordType = KeywordType::K_DUP;
-  std::string keyword;
-};
+// struct KeywordDataKDup {
+//   KeywordType keywordType = KeywordType::K_DUP;
+//   std::string keyword;
+// };
 
-struct KeywordCheck {
-  std::string conditionStr;
-  std::string next;
-};
+// struct KeywordCheck {
+//   std::string conditionStr;
+//   std::string next;
+// };
 
-struct KeywordDataKSwitch {
-  KeywordType keywordType = KeywordType::K_SWITCH;
-  std::string defaultNext; // id of next child
-  std::vector<KeywordCheck> checks;
-};
+// struct KeywordDataKSwitch {
+//   KeywordType keywordType = KeywordType::K_SWITCH;
+//   std::string defaultNext; // id of next child
+//   std::vector<KeywordCheck> checks;
+// };
 
-struct KeywordDataKChild {
-  KeywordType keywordType = KeywordType::K_CHILD;
-  std::string next; // id of next child
-};
+// struct KeywordDataKChild {
+//   KeywordType keywordType = KeywordType::K_CHILD;
+//   std::string next; // id of next child
+// };
 
-// Discriminated union for KeywordData
-struct KeywordData {
-  KeywordType keywordType;
-  // Union of possible data - only one should be populated based on keywordType
-  std::optional<KeywordDataK> k;
-  std::optional<KeywordDataKDup> kDup;
-  std::optional<KeywordDataKSwitch> kSwitch;
-  std::optional<KeywordDataKChild> kChild;
-};
+// // Discriminated union for KeywordData
+// struct KeywordData {
+//   KeywordType keywordType;
+//   // Union of possible data - only one should be populated based on keywordType
+//   std::optional<KeywordDataK> k;
+//   std::optional<KeywordDataKDup> kDup;
+//   std::optional<KeywordDataKSwitch> kSwitch;
+//   std::optional<KeywordDataKChild> kChild;
+// };
+
+// struct GameEventChildKeyword {
+//   GameEventChildType eventChildType = GameEventChildType::KEYWORD;
+//   std::string id;
+//   std::map<std::string, KeywordData> keywords;
+// };
 
 struct Choice {
   std::string text;
@@ -100,11 +104,7 @@ struct Choice {
   std::string next;
 };
 
-struct GameEventChildKeyword {
-  GameEventChildType eventChildType = GameEventChildType::KEYWORD;
-  std::string id;
-  std::map<std::string, KeywordData> keywords;
-};
+
 
 struct GameEventChildChoice {
   GameEventChildType eventChildType = GameEventChildType::CHOICE;
@@ -132,6 +132,7 @@ struct GameEventChildExec {
   std::vector<std::string> paragraphs;
   std::string execStr;
   std::string next;
+  bool autoAdvance;
   std::optional<AudioInfo> audioInfo;
 };
 

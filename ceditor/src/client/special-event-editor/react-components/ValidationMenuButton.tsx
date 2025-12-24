@@ -161,9 +161,9 @@ export const ValidationMenuButton = ({
       })),
     ];
     setValidationErrors(allErrors);
-    if (runnerErrors.length > 0) {
-      setIsOpen(true);
-    }
+    // if (runnerErrors.length > 0) {
+    //   setIsOpen(true);
+    // }
   };
 
   useEffect(() => {

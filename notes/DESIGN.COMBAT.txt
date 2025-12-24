@@ -64,6 +64,9 @@ How attacks are performed
 
 Spells and Items
   - Equipped with Sapphiron Fragments
+  - Spells are classified as Normal, Fast, Non-Combat
+  - Spells cost mana to use
+
 
 What can you do on your turn
   Move

@@ -185,7 +185,7 @@ class StringEvaluator {
       } else if (b === 'false') {
         v = false;
       } else {
-        throw new Error(`Invalid boolean value: ${b}`);
+        v = true;
       }
       setStorage(this.storage, a, String(v));
     },
@@ -210,6 +210,9 @@ class StringEvaluator {
     },
     SET_STR: (a: string, b: string) => {
       setStorage(this.storage, a, b);
+    },
+    SETUP_DISPOSITION: (characterName: string) => {
+      // noop
     },
     START_QUEST: (questName: string) => {
       // noop
@@ -329,27 +332,6 @@ export class EventRunner {
         text = text.replaceAll(`@${variable.key}`, String(value));
       }
     }
-
-    // const evalMatches1 = text.match(/@([\w\d_]+)/g);
-    // for (const match of evalMatches1 || []) {
-    //   const foundVar = vars.find((v) => v.key === match.slice(1));
-    //   if (foundVar) {
-    //     const value = getStorage(this.storage, foundVar.value);
-    //     if (highlight) {
-    //       text = text.replaceAll(
-    //         `${match}`,
-    //         `<span style="color: yellow;">${String(value)}</span>`
-    //       );
-    //     } else {
-    //       text = text.replaceAll(`${match}`, String(value));
-    //     }
-    //   } else {
-    //     this.errors.push({
-    //       nodeId: this.currentNodeId,
-    //       message: `Variable ${match} not found`,
-    //     });
-    //   }
-    // }
 
     return text;
   }

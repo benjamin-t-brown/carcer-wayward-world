@@ -89,7 +89,7 @@ export const initPanzoom = (specialEventEditorInterface: {
         editorState.linking.exitIndex = 0;
       }
       resetSelectedNodes();
-      updateEditorState({});
+      updateEditorState({}, false);
     }
     // Delete selected nodes on Delete key
     if (ev.key === 'Delete') {
@@ -207,7 +207,7 @@ export const initPanzoom = (specialEventEditorInterface: {
         ev.clientY,
         specialEventEditorInterface.getCanvas()
       );
-      updateEditorState({});
+      updateEditorState({}, false);
     } else if (editorState.isDraggingNode) {
       // Dragging node(s)
       // const gameEvent = editorState.gameEvent;
@@ -292,7 +292,7 @@ export const initPanzoom = (specialEventEditorInterface: {
 
       editorState.isSelecting = false;
       editorState.selectionRect = null;
-      updateEditorState({});
+      updateEditorState({}, false);
     } else if (editorState.isDraggingNode) {
       // Stop dragging node(s)
       editorState.isDraggingNode = false;
@@ -455,27 +455,26 @@ const checkLeftMouseClickEvents = (args: {
     return true;
   }
 
-  const clickedExitAnchorLine = getConnectorFromLineAtPosition(
-    worldX,
-    worldY,
-    editorState.editorNodes
-  );
-
-  if (clickedExitAnchorLine && clickedExitAnchorLine.toNodeId) {
-    console.log('clicked anchor line');
-    centerPanzoomOnNode(canvas, clickedExitAnchorLine.toNodeId, true);
-    return true;
-  }
-
   const clickedNode = getNodeFromWorldCoords(
     worldX,
     worldY,
     editorState.editorNodes
   );
 
+  const clickedExitAnchorLine = getConnectorFromLineAtPosition(
+    worldX,
+    worldY,
+    editorState.editorNodes
+  );
+
+  if (!clickedNode && clickedExitAnchorLine && clickedExitAnchorLine.toNodeId) {
+    console.log('clicked anchor line');
+    centerPanzoomOnNode(canvas, clickedExitAnchorLine.toNodeId, true);
+    return true;
+  }
+
   if (clickedNode) {
     console.log('click node', clickedNode.id);
-
     // Handle linking mode
     if (editorState.linking.isLinking && editorState.linking.sourceNodeId) {
       // Check if clicking on a node

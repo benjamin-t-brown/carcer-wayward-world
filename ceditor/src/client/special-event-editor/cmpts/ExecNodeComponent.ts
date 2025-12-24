@@ -33,6 +33,7 @@ export class EditorNodeExec extends EditorNode {
   execStrHeight = 0;
 
   audioInfo: AudioInfo | undefined;
+  autoAdvance: boolean = false;
 
   constructor(seNode: GameEventChildExec, editorState: EditorStateSE) {
     super(seNode, editorState);
@@ -54,6 +55,7 @@ export class EditorNodeExec extends EditorNode {
         0
       )
     );
+    this.autoAdvance = seNode.autoAdvance ?? false;
 
     this.audioInfo = structuredClone(seNode.audioInfo);
   }
@@ -65,6 +67,7 @@ export class EditorNodeExec extends EditorNode {
       execStr: this.execStr,
       next: this.exits[0]?.toNodeId || '',
       audioInfo: this.audioInfo,
+      autoAdvance: this.autoAdvance,
     } as GameEventChildExec;
   }
 
