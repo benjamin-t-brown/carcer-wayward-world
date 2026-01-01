@@ -6,14 +6,22 @@ export function Home({
 }: {
   assetTypes: { id: string; name: string; file: string }[];
 }) {
-  const { sprites: _sprites, animations: _animations, pictures: _pictures } = useSDL2WAssets();
+  const {
+    sprites: _sprites,
+    animations: _animations,
+    pictures: _pictures,
+  } = useSDL2WAssets();
   const handleCardClick = (typeId: string) => {
     window.location.hash = `/editor/${typeId}`;
   };
 
   return (
     <div className="container">
-      <h1>CEditor</h1>
+      <div className="editor-header" style={{
+        minHeight: '100px',
+      }}>
+        <h1>CEditor</h1>
+      </div>
       <div className="asset-types">
         {assetTypes.map((type) => (
           <Card

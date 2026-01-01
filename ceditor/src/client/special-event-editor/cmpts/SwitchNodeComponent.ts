@@ -7,7 +7,6 @@ import { truncateText } from '../nodeHelpers';
 
 const NODE_COLOR = '#C66617';
 const BORDER_COLOR = '#aaa';
-const BORDER_HOVER_COLOR = '#fff';
 const TEXT_COLOR = '#FFF';
 const FONT_FAMILY = 'courier';
 const NODE_WIDTH = 300;
@@ -26,7 +25,6 @@ export class EditorNodeSwitch extends EditorNode {
 
     this.bgColor = NODE_COLOR;
     this.borderColor = BORDER_COLOR;
-    this.borderColorHovered = BORDER_HOVER_COLOR;
     this.padding = PADDING;
     this.borderSize = BORDER_WIDTH;
 

@@ -1,6 +1,15 @@
 - Ensnared from archers is a bad status effect
 - Lots and lots of enemies to fight, becomes tedious
+  - killed 100s of enemies all over the place, lots of mini bosses, a bit of a slog through the eastern gallery, which has like 5 dungeons in it
 - Spells and abilities are kinda bad early on
-- The mage's aoe spells dont allow for the mage to walk to a location to attack like the single target ones
+  - cloak of curses is so bad
+- The mage's aoe spells don't allow for the mage to walk to a location to attack like the single target ones
 - "party" spells that buff the party (haste, war blessing, protection) don't indicate range
 - when exploring caves, if you click a location and your party walks to it, the game doesn't stop when you spot an enemy, so certain guys (chitarks) can leap and one shot your back line unless you walk 1 step at a time
+  - without quick save quick load this would suck
+  - it's not completely dumb, since it forces you to be careful
+  - the worst is when you're going through a part of the dungeon you've already been and dont expect some peon to one shot you
+- There seems to be lots of random portraits of people throughout the game, and it's hard to know who's important
+- When you get the spell to dispell barriers most new barriers require a higher spell level to remove so it's not as good as you think
+  - not a bad mechanic though.  you can go back and dispell older barriers with it.
+- There's a lot of superflous description writing that I just glazed over a lot, especially when meeting somebody for the first time

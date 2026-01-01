@@ -615,6 +615,15 @@ export const checkRightClickLineEvents = (args: {
     editorState.editorNodes
   );
 
+  const clickedNode = getNodeFromWorldCoords(
+    worldX,
+    worldY,
+    editorState.editorNodes
+  );
+  if (clickedNode) {
+    return false;
+  }
+
   if (clickedExitAnchorLine) {
     // centerPanzoomOnNode(canvas, clickedExitAnchorLine.toNodeId);
     clickedExitAnchorLine.toNodeId = '';

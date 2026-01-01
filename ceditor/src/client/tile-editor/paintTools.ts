@@ -134,6 +134,10 @@ export const applyAction = (
             ...(destTile.items || []),
             ...(sourceTile.items || []),
           ];
+          destTile.markers = [
+            ...(destTile.markers || []),
+            ...(sourceTile.markers || []),
+          ];
 
           // Move overrides (destination takes precedence if both exist)
           if (sourceTile.tileOverrides) {
@@ -161,6 +165,7 @@ export const applyAction = (
           // Clear the source tile's movable data (keep base tile appearance)
           sourceTile.characters = [];
           sourceTile.items = [];
+          sourceTile.markers = [];
           delete sourceTile.tileOverrides;
           delete sourceTile.lightSource;
           delete sourceTile.eventTrigger;
@@ -195,6 +200,10 @@ export const applyAction = (
           destTile.items = [
             ...(destTile.items || []),
             ...(sourceTile.items || []),
+          ];
+          destTile.markers = [
+            ...(destTile.markers || []),
+            ...(sourceTile.markers || []),
           ];
 
           // Clone overrides (destination takes precedence if both exist)
@@ -280,6 +289,7 @@ export const applyActionUpdate = (
         // Clear metadata but keep base tile properties
         tile.characters = [];
         tile.items = [];
+        tile.markers = [];
         delete tile.tileOverrides;
         delete tile.lightSource;
         delete tile.eventTrigger;

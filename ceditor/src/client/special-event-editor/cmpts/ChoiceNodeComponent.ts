@@ -17,7 +17,6 @@ import {
 
 const NODE_COLOR = '#3978A8';
 const BORDER_COLOR = '#aaa';
-const BORDER_HOVER_COLOR = '#fff';
 const TEXT_COLOR = '#FFF';
 const FONT_FAMILY = 'arial';
 const NODE_WIDTH = 300;
@@ -43,7 +42,6 @@ export class EditorNodeChoice extends EditorNode {
 
     this.bgColor = NODE_COLOR;
     this.borderColor = BORDER_COLOR;
-    this.borderColorHovered = BORDER_HOVER_COLOR;
     this.padding = PADDING;
     this.borderSize = BORDER_WIDTH;
 

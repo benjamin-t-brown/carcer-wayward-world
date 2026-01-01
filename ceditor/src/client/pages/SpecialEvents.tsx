@@ -13,6 +13,7 @@ import { trimStrings } from '../utils/jsonUtils';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { Sprite } from '../elements/Sprite';
 import {
+  centerPanzoomOnNode,
   getEditorState,
   saveEditorStateForGameEvent,
   syncGameEventFromEditorState,
@@ -24,6 +25,7 @@ import { DeleteModal } from '../elements/DeleteModal';
 import { ValidationMenuButton } from '../special-event-editor/react-components/ValidationMenuButton';
 import { useReRender } from '../hooks/useReRender';
 import { EventRunner } from '../special-event-editor/eventRunner/EventRunner';
+import { RecentLinks } from '../components/RecentLinks';
 
 interface NotificationState {
   message: string;
@@ -51,6 +53,8 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const [eventRunner, setEventRunner] = useState<EventRunner | undefined>(
     undefined
   );
+  const [findNodeQuery, setFindNodeQuery] = useState('');
+  const [recentGameEvents, setRecentGameEvents] = useState<string[]>([]);
   const reRender = useReRender();
 
   const notificationIdRef = useRef(0);
@@ -63,6 +67,23 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const removeNotification = (id: number) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
+
+  useEffect(() => {
+    if (!routeParams) {
+      return;
+    }
+
+    const eventId = routeParams.get('event');
+    if (eventId) {
+      const index = gameEvents.findIndex((e) => e.id === eventId);
+      if (index >= 0) {
+        setTimeout(() => {
+          updateEditorStateNoReRender({ gameEventId: eventId });
+          setRecentGameEvents([eventId, ...recentGameEvents]);
+        }, 100);
+      }
+    }
+  }, []);
 
   const selectGameEvent = (gameEventId: string) => {
     const prevGameEventId = getEditorState().gameEventId;
@@ -84,6 +105,17 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       gameEvent.eventType.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const addRecentGameEvent = (gameEventId: string) => {
+    if (recentGameEvents.some((ge) => ge === gameEventId)) {
+      return;
+    }
+    setRecentGameEvents([gameEventId, ...recentGameEvents]);
+  };
+
+  const removeRecentGameEvent = (gameEventId: string) => {
+    setRecentGameEvents(recentGameEvents.filter((ge) => ge !== gameEventId));
+  };
+
   const handleGameEventClick = (gameEventId: string) => {
     const currentEditorState = getEditorState();
     if (currentEditorState.gameEventId) {
@@ -95,6 +127,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     currentEditorState.selectionRect = null;
 
     selectGameEvent(gameEventId);
+    addRecentGameEvent(gameEventId);
   };
 
   const handleClone = (gameEventId: string) => {
@@ -163,7 +196,9 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       return;
     }
 
-    const newGameEvents = [...gameEvents, newGameEvent];
+    const newGameEvents = [...gameEvents, newGameEvent].sort((a, b) =>
+      a.id.localeCompare(b.id)
+    );
     setGameEvents(newGameEvents);
     selectGameEvent(newGameEvent.id);
     setShowCreateModal(false);
@@ -174,20 +209,6 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const handleCreateCancel = () => {
     setShowCreateModal(false);
   };
-
-  // // Check for event query parameter on mount
-  // useEffect(() => {
-  //   if (routeParams) {
-  //     const eventId = routeParams.get('event');
-  //     if (eventId) {
-  //       const index = gameEvents.findIndex((e) => e.id === eventId);
-  //       if (index >= 0) {
-  //         setEditGameEventIndex(index);
-  //       }
-  //     }
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [gameEvents, routeParams]);
 
   const validateGameEvents = (): { isValid: boolean; error?: string } => {
     const errors: string[] = [];
@@ -376,6 +397,28 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
 
       <div className="editor-content">
         <div className="editor-sidebar">
+          <div className="item-actions">
+            <Button variant="primary" onClick={handleCreateNew}>
+              + New Game Event
+            </Button>
+          </div>
+          <RecentLinks
+            items={recentGameEvents
+              .slice(0, 10)
+              .map((gameEventId) => {
+                const ge = gameEvents.find((ge) => ge.id === gameEventId);
+                if (!ge) {
+                  return undefined;
+                }
+                return {
+                  label: ge.id + ' (' + ge.title + ')',
+                  isSelected: ge.id === getEditorState().gameEventId,
+                  onClick: () => handleGameEventClick(ge.id),
+                  onRemove: () => removeRecentGameEvent(ge.id),
+                };
+              })
+              .filter((item) => item !== undefined)}
+          />
           <div className="search-box">
             <input
               type="text"
@@ -383,11 +426,6 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search game events..."
             />
-          </div>
-          <div className="item-actions">
-            <Button variant="primary" onClick={handleCreateNew}>
-              + New Game Event
-            </Button>
           </div>
           <CardList
             items={filteredGameEvents.map((ge) => ({
@@ -410,7 +448,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
               const sprite = spriteMap[gameEvent.icon];
               return (
                 <>
-                  <div
+                  {/* <div
                     className="item-info"
                     style={{
                       display: 'flex',
@@ -424,7 +462,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                       </div>
                     )}
                     <span className="item-type">{gameEvent.eventType}</span>
-                  </div>
+                  </div> */}
                 </>
               );
             }}
@@ -476,6 +514,37 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                   onClick={() => setShowVariableEditorModal(true)}
                 >
                   📝 Edit Variables
+                </Button>
+                <Button
+                  variant="small"
+                  onClick={() => {
+                    centerPanzoomOnNode(
+                      document.getElementById(
+                        'special-event-editor-canvas-canvas'
+                      ) as HTMLCanvasElement,
+                      findNodeQuery,
+                      true
+                    );
+                  }}
+                >
+                  <span
+                    role="img"
+                    aria-label="Find Node"
+                    style={{ marginRight: '6px', filter: 'sepia(1)' }}
+                  >
+                    🔍
+                  </span>
+                  Find Node
+                  <input
+                    type="text"
+                    value={findNodeQuery}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => setFindNodeQuery(e.target.value)}
+                    style={{
+                      width: '75px',
+                      marginLeft: '4px',
+                    }}
+                  />
                 </Button>
                 <Button
                   variant="small"
@@ -553,7 +622,9 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
             if (index > -1) {
               newGameEvents[index] = updatedGameEvent;
             }
-            setGameEvents(newGameEvents);
+            setGameEvents(
+              newGameEvents.sort((a, b) => a.id.localeCompare(b.id))
+            );
             setShowEditGameEventModal(false);
           }}
           onCancel={() => setShowEditGameEventModal(false)}

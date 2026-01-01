@@ -132,6 +132,7 @@ export const initEditorStateForGameEvent = (
   const editorState = getEditorState();
   editorState.selectedNodeIds.clear();
   editorState.selectionRect = null;
+  console.log('initEditorStateForGameEvent', gameEvent, gameEvent.id);
 
   const hasSavedEditorState = restoreEditorStateForGameEvent(gameEvent.id);
   if (!hasSavedEditorState) {

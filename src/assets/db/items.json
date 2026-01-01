@@ -18,6 +18,24 @@
     "value": 10
   },
   {
+    "itemType": "POTION",
+    "name": "BeerGuildimarcheAle",
+    "label": "Guildimarche Ale",
+    "icon": "ui_item_icons_0",
+    "description": "A standard healing potion.",
+    "weight": 1,
+    "value": 10
+  },
+  {
+    "itemType": "POTION",
+    "name": "BeerPappysLager",
+    "label": "Pappy's Lager",
+    "icon": "ui_item_icons_0",
+    "description": "A standard healing potion.",
+    "weight": 1,
+    "value": 10
+  },
+  {
     "itemType": "SHOES",
     "name": "BootsLeather",
     "label": "Leather Boots",

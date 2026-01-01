@@ -11,7 +11,7 @@ import { EditorStateSE } from '../seEditorState';
 
 const NODE_COLOR = '#808080';
 const BORDER_COLOR = '#aaa';
-const BORDER_HOVER_COLOR = '#fff';
+const BORDER_AUTO_ADVANCE_COLOR = '#99ffff';
 const TEXT_COLOR = '#FFF';
 const FONT_FAMILY = 'arial';
 const NODE_WIDTH = 300;
@@ -40,7 +40,6 @@ export class EditorNodeExec extends EditorNode {
 
     this.bgColor = NODE_COLOR;
     this.borderColor = BORDER_COLOR;
-    this.borderColorHovered = BORDER_HOVER_COLOR;
     this.padding = PADDING;
     this.borderSize = BORDER_WIDTH;
 
@@ -55,7 +54,7 @@ export class EditorNodeExec extends EditorNode {
         0
       )
     );
-    this.autoAdvance = seNode.autoAdvance ?? false;
+    this.autoAdvance = seNode.autoAdvance ?? true;
 
     this.audioInfo = structuredClone(seNode.audioInfo);
   }
@@ -82,7 +81,7 @@ export class EditorNodeExec extends EditorNode {
     );
     const execStrLines = breakTextIntoLines(
       this.execStr,
-      availableWidth,
+      999,
       FONT_SIZE,
       FONT_FAMILY,
       ctx
@@ -129,6 +128,10 @@ export class EditorNodeExec extends EditorNode {
 
   update(dt: number) {
     super.update(dt);
+    if (this.autoAdvance) {
+      this.borderColor = BORDER_AUTO_ADVANCE_COLOR;
+    }
+
     const conn = this.exits[0];
     if (conn) {
       const startX = this.x + this.width;

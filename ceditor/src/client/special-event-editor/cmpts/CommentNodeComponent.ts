@@ -7,7 +7,6 @@ import { EditorStateSE } from '../seEditorState';
 const NODE_TITLE_HEIGHT = 20;
 const NODE_COLOR = '#222';
 const BORDER_COLOR = '#666';
-const BORDER_HOVER_COLOR = '#888';
 const TEXT_COLOR = '#CCC';
 const FONT_FAMILY = 'arial';
 const NODE_WIDTH = 300;
@@ -28,7 +27,6 @@ export class EditorNodeComment extends EditorNode {
 
     this.bgColor = NODE_COLOR;
     this.borderColor = BORDER_COLOR;
-    this.borderColorHovered = BORDER_HOVER_COLOR;
     this.padding = PADDING;
     this.borderSize = BORDER_WIDTH;
     this.width = NODE_WIDTH;

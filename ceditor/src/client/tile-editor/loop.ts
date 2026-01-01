@@ -27,7 +27,7 @@ import { renderTileAndExtras, renderToolUi } from './renderUi';
 // let isLooping = false;
 const getColors = () => {
   return {
-    BACKGROUND2: 'orange',
+    BACKGROUND2: '#421',
     TEXT: 'white',
   };
 };

@@ -6,6 +6,7 @@ import { EditorNodeExec } from '../cmpts/ExecNodeComponent';
 import { notifyStateUpdated } from '../seEditorState';
 import { ExecWidget } from '../react-components/ExecWidget';
 import { AudioWidget } from '../react-components/AudioWidget';
+import { ItemTemplateWidget } from '../react-components/ItemTemplateWidget';
 
 interface EditExecNodeModalProps {
   isOpen: boolean;
@@ -103,11 +104,14 @@ export function EditExecNodeModal({
             marginBottom: '20px',
           }}
         >
-          <div style={{ width: '50%' }}>
+          <div style={{ width: '34%' }}>
             <VariableWidget gameEvent={gameEvent} />
           </div>
-          <div style={{ width: '50%' }}>
+          <div style={{ width: '33%' }}>
             <ExecWidget gameEvent={gameEvent} />
+          </div>
+          <div style={{ width: '33%' }}>
+            <ItemTemplateWidget gameEvent={gameEvent} />
           </div>
         </div>
         <div

@@ -26,7 +26,7 @@ export class EditorNode {
   type: GameEventChildType;
   borderColor: string = '#aaa';
   borderColorSelected: string = '#ff0000';
-  borderColorHovered: string = '#fff';
+  borderColorHovered: string = '#faf';
   bgColor: string = '#808080';
   bgColorHovered: string = '#a0a0a0';
 

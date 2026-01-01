@@ -39,45 +39,45 @@
       {
         "id": "gn4vgu2s1ds",
         "x": 124.5,
-        "y": 143.875,
+        "y": 142.875,
         "eventChildType": "EXEC",
-        "h": 50,
+        "h": 60,
         "p": "",
-        "execStr": "SETUP_DISPOSITION(@CHARACTER_ID)",
+        "execStr": "SETUP_DISPOSITION(@CHARACTER_ID)\nSET_BOOL(vars.ch.@CHARACTER_ID.hasSpokenTo, true)",
         "next": "i4guqvvm9p",
         "autoAdvance": false
       },
       {
         "id": "p5zl27718t",
-        "x": 201.5,
-        "y": 791.375,
+        "x": 94.5,
+        "y": 824.375,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Go away.  I don't wish to speak with you.\"",
         "execStr": "",
-        "next": "fjmrtk1zjsj",
+        "next": "xjc4jcs81yd",
         "autoAdvance": true
       },
       {
         "id": "zslh0uf6zqi",
-        "x": 205.5,
-        "y": 705.375,
+        "x": 98.5,
+        "y": 738.375,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Oh, you again.\"",
         "execStr": "",
-        "next": "fjmrtk1zjsj",
+        "next": "xjc4jcs81yd",
         "autoAdvance": true
       },
       {
         "id": "2fr9r0kwild",
-        "x": 199.5,
-        "y": 614.375,
+        "x": 92.5,
+        "y": 647.375,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Good fellow, welcome back.\"",
         "execStr": "",
-        "next": "fjmrtk1zjsj",
+        "next": "xjc4jcs81yd",
         "autoAdvance": true
       },
       {
@@ -172,24 +172,45 @@
       },
       {
         "id": "fjmrtk1zjsj",
-        "x": 853,
-        "y": 838.5,
+        "x": 773,
+        "y": 867.5,
         "eventChildType": "CHOICE",
-        "h": 108,
+        "h": 180,
         "text": "",
         "choices": [
           {
-            "text": "(Ask for his name.)",
+            "text": "(Examine.)",
+            "conditionStr": "IS(tmp.enableLook)",
+            "evalStr": "",
+            "next": "gmqqhmtzrmu",
+            "prefixText": ""
+          },
+          {
+            "text": "What's your name?",
             "conditionStr": "",
             "evalStr": "",
             "next": "j92yhujy8br",
             "prefixText": ""
           },
           {
-            "text": "(Ask about why he's here.)",
+            "text": "Why are you here?",
             "conditionStr": "",
             "evalStr": "",
             "next": "2bs3d7blhqj",
+            "prefixText": ""
+          },
+          {
+            "text": "Why do you seem so on edge?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "t1lau78b16i",
+            "prefixText": ""
+          },
+          {
+            "text": "There's a guy across the bar who doesn't like you.",
+            "conditionStr": "IS(vars.ch.alinea_igmund.askedAboutBarto)",
+            "evalStr": "",
+            "next": "s2420unkzrr",
             "prefixText": ""
           },
           {
@@ -203,14 +224,14 @@
       },
       {
         "id": "j92yhujy8br",
-        "x": 1330.5,
-        "y": 786.875,
+        "x": 1327.5,
+        "y": 765.875,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"Lord Barto Caldeburn. Apparently, that name doesn't have much sway around here like it does on the Mainland.  But mark my words.  It will soon.\"",
         "execStr": "",
         "next": "fjmrtk1zjsj",
-        "autoAdvance": false
+        "autoAdvance": true
       },
       {
         "id": "2bs3d7blhqj",
@@ -226,7 +247,7 @@
       {
         "id": "53azhmf5kio",
         "x": 1798.5,
-        "y": 844.875,
+        "y": 843.875,
         "eventChildType": "CHOICE",
         "h": 180,
         "text": "",
@@ -296,25 +317,25 @@
       },
       {
         "id": "maj0d9pn6g",
-        "x": 2224.5,
-        "y": 790.875,
+        "x": 2223.5,
+        "y": 783.875,
         "eventChildType": "EXEC",
         "h": 116,
-        "p": "\"I don't know the details. The Realm guards informed me I can't go to Boramark by way of the east road, and apparently the north road is blocked off by some bandits or something so that's no good either.  I am to wait until the situation resolves.  And it's taking an infuriatingly long time.\"",
+        "p": "\"I don't know the details. The Realm guards informed me I can't go to Boramark by way of the east road, and apparently the north road is blocked off by some bothersome bandits so that's no good either.  I am to wait until the situation resolves.  And it's taking an infuriatingly long time.\"",
         "execStr": "",
         "next": "53azhmf5kio",
-        "autoAdvance": false
+        "autoAdvance": true
       },
       {
         "id": "5jybk4vwo16",
-        "x": 2181.5,
-        "y": 1252.875,
+        "x": 2194.5,
+        "y": 1209.875,
         "eventChildType": "EXEC",
         "h": 126,
         "p": "\"Only a Lark would ask a question like that.  The Guildimmarche Estate is one of the most powerful noble houses on the Island.  They just so happen to control the lands around Boramark to the north, and I just so happen to have business with them.\"",
         "execStr": "SET_BOOL(tmp.mentionedLark, true)",
         "next": "53azhmf5kio",
-        "autoAdvance": false
+        "autoAdvance": true
       },
       {
         "id": "xf2htr4g8rm",
@@ -329,13 +350,13 @@
       },
       {
         "id": "pzs2qto94mk",
-        "x": 2613.5,
-        "y": 951.875,
+        "x": 2604.5,
+        "y": 1015.875,
         "eventChildType": "SWITCH",
         "h": 84,
         "cases": [
           {
-            "conditionStr": "ONCE(@CHARACTER_ID_offered_to_guard)",
+            "conditionStr": "ONCE(OfferredToGuard@CHARACTER_ID)",
             "next": "elt7o6x1olw"
           }
         ],
@@ -367,14 +388,14 @@
       },
       {
         "id": "b4hh46opf9j",
-        "x": 3399.5,
-        "y": 742.875,
+        "x": 3400.5,
+        "y": 678.875,
         "eventChildType": "EXEC",
         "h": 154,
         "p": "\"Ha, are you referring to yourself?  Pardon my bluntness, but you look like a Lark, and on top of that, hardly the caliber of warrior that would ease my safety.\"\n\n\"No, I'll just wait for the situation to resolve, then I'll be on my way.\"",
         "execStr": "SET_BOOL(tmp.mentionedLark, true)",
         "next": "53azhmf5kio",
-        "autoAdvance": false
+        "autoAdvance": true
       },
       {
         "id": "fjgvg29sat6",
@@ -385,18 +406,115 @@
         "p": "\"Better to be safe than sorry.\"",
         "execStr": "",
         "next": "53azhmf5kio",
-        "autoAdvance": false
+        "autoAdvance": true
       },
       {
         "id": "4ml7wqvwklk",
-        "x": 2220.5,
-        "y": 1048.875,
+        "x": 2216.5,
+        "y": 1041.875,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"If you have to ask, then you are one.\"",
         "execStr": "",
         "next": "53azhmf5kio",
-        "autoAdvance": false
+        "autoAdvance": true
+      },
+      {
+        "id": "t1lau78b16i",
+        "x": 1333,
+        "y": 1057.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"I fear that I'll be stuck in the damnable tavern for longer than I'll appreciate.\"",
+        "execStr": "",
+        "next": "fjmrtk1zjsj",
+        "autoAdvance": true
+      },
+      {
+        "id": "gmqqhmtzrmu",
+        "x": 1346,
+        "y": 620.5,
+        "eventChildType": "EXEC",
+        "h": 130,
+        "p": "Here at this table sits a distinctly out-of-place patron, alone, pointedly ignoring everyone around him.  His clothes are silken and expensive, embroidered with flamboyant colors and overlapping layers.  He keeps a twitchy hand near the small satchel at his side, as if he is afraid that somebody is liable take it at any moment.",
+        "execStr": "",
+        "next": "fjmrtk1zjsj",
+        "autoAdvance": true
+      },
+      {
+        "id": "xjc4jcs81yd",
+        "x": 461,
+        "y": 729.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "SET_BOOL(tmp.enableLook)",
+        "next": "fjmrtk1zjsj",
+        "autoAdvance": true
+      },
+      {
+        "id": "s2420unkzrr",
+        "x": 1285,
+        "y": 1158.5,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Of course there is.  If it isn't obvious I stick out here like a sore thumb.  Why do you mention him?  Is he planning to do something to me?\"",
+        "execStr": "",
+        "next": "qk9fa1ovjfi",
+        "autoAdvance": true
+      },
+      {
+        "id": "qk9fa1ovjfi",
+        "x": 1274,
+        "y": 1339.166666666667,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "No, I just thought you should know.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "cl72zei5od",
+            "prefixText": ""
+          },
+          {
+            "text": "Maybe you could go talk to him.  You could be great friends!",
+            "conditionStr": "ONCE(bartoDryad1)",
+            "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1)",
+            "next": "7xzj7hqaumf",
+            "prefixText": "[DRYAD]"
+          },
+          {
+            "text": "(Talk about something else.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "fjmrtk1zjsj",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "cl72zei5od",
+        "x": 1673,
+        "y": 1302.166666666667,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Well, I thank you for stating the obvious.\"",
+        "execStr": "",
+        "next": "fjmrtk1zjsj",
+        "autoAdvance": true
+      },
+      {
+        "id": "7xzj7hqaumf",
+        "x": 1665,
+        "y": 1383.166666666667,
+        "eventChildType": "EXEC",
+        "h": 84,
+        "p": "\"I am in no mood to make friends with a cretin who is openly hostile to me!\"",
+        "execStr": "MOD_NUM(@DISPOSITION, -1)",
+        "next": "fjmrtk1zjsj",
+        "autoAdvance": true
       }
     ]
   },
@@ -474,7 +592,7 @@
         "h": 156,
         "cases": [
           {
-            "conditionStr": "ONCE(has_spoken_to_@CHARACTER_ID)",
+            "conditionStr": "ONCE(hasSpokenTo@CHARACTER_ID)",
             "next": "0arn7g6cays"
           },
           {
@@ -482,7 +600,7 @@
             "next": "2hpskpgd88y"
           },
           {
-            "conditionStr": "GTE(@DISPOSITION,3)",
+            "conditionStr": "GTE(@DISPOSITION,2)",
             "next": "mnz0vwcieyd"
           },
           {
@@ -837,9 +955,892 @@
     ]
   },
   {
+    "id": "alinea_gruff",
+    "title": "Tavernkeeper Gruff",
+    "eventType": "TALK",
+    "icon": "special_event_icons_0",
+    "vars": [
+      {
+        "id": "ie1lu2d8k",
+        "key": "CHARACTER_ID",
+        "value": "alinea_gruff",
+        "importFrom": ""
+      },
+      {
+        "id": "igzuy7rtsbj",
+        "key": "DISPOSITION",
+        "value": "vars.disposition.alinea_gruff",
+        "importFrom": ""
+      }
+    ],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "hftqa6zy6m",
+        "autoAdvance": false
+      },
+      {
+        "id": "hftqa6zy6m",
+        "x": 211.5,
+        "y": 155.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "SETUP_DISPOSITION(@CHARACTER_ID)",
+        "next": "jao6v3kkfwh",
+        "autoAdvance": false
+      },
+      {
+        "id": "9sqtjag8mth",
+        "x": 288.5,
+        "y": 803.25,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"I don't take kindly to you.  Why don't you mosey out of here so I don't have to smell you.\"",
+        "execStr": "",
+        "next": "qi2qeo4vowo",
+        "autoAdvance": true
+      },
+      {
+        "id": "6ths947nhiq",
+        "x": 292.5,
+        "y": 717.25,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"You need something?\"",
+        "execStr": "",
+        "next": "qi2qeo4vowo",
+        "autoAdvance": true
+      },
+      {
+        "id": "js2ourrywnf",
+        "x": 286.5,
+        "y": 626.25,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Welcome back, want a beer?\"",
+        "execStr": "",
+        "next": "qi2qeo4vowo",
+        "autoAdvance": true
+      },
+      {
+        "id": "jao6v3kkfwh",
+        "x": 287.5,
+        "y": 268.5,
+        "eventChildType": "SWITCH",
+        "h": 156,
+        "cases": [
+          {
+            "conditionStr": "ONCE(hasSpokenTo@CHARACTER_ID)",
+            "next": "xy1soyjsm9"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,5)",
+            "next": "js2ourrywnf"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,3)",
+            "next": "6ths947nhiq"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,1)",
+            "next": "9sqtjag8mth"
+          }
+        ],
+        "defaultNext": "6ths947nhiq"
+      },
+      {
+        "id": "xy1soyjsm9",
+        "x": 699,
+        "y": 142.5,
+        "eventChildType": "EXEC",
+        "h": 172,
+        "p": "The man behind the bar is large and imposing, with big shoulders and a wide frame. He quietly listens to patrons orders, and hands out massive tankards of beer with a neutral expression, working with steady calm and efficiency.  He's very busy, as he appears to be working alone.  Patrons fill the bar, and several of them wave their hands or shout for his attention from across the tavern floor.  When he sees you, he raises his eyebrows expectantly, waiting for an order or a question.",
+        "execStr": "",
+        "next": "qi2qeo4vowo",
+        "autoAdvance": true
+      },
+      {
+        "id": "qi2qeo4vowo",
+        "x": 1008,
+        "y": 650.5,
+        "eventChildType": "CHOICE",
+        "h": 204,
+        "text": "",
+        "choices": [
+          {
+            "text": "What's your name?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "xow11xo9lom",
+            "prefixText": ""
+          },
+          {
+            "text": "You run this tavern?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "jpsbouql9v8",
+            "prefixText": ""
+          },
+          {
+            "text": "Is it always this busy?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "5g3si8prnxg",
+            "prefixText": ""
+          },
+          {
+            "text": "Do you have any open rooms?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "t1w8rf4nfo",
+            "prefixText": ""
+          },
+          {
+            "text": "Can I buy a drink?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "ehol71xkzy",
+            "prefixText": ""
+          },
+          {
+            "text": "You mentioned not being a fan of the Guildimarche?",
+            "conditionStr": "IS(vars.ch.@CHARACTER_ID.mentionedGuildimarche)",
+            "evalStr": "",
+            "next": "ls0d7zixtki",
+            "prefixText": ""
+          },
+          {
+            "text": "Nevermind. (Leave.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "vm3ourt20zf",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "xow11xo9lom",
+        "x": 1316,
+        "y": 284.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Gruff.  Did you want something?\"",
+        "execStr": "",
+        "next": "qi2qeo4vowo",
+        "autoAdvance": true
+      },
+      {
+        "id": "jpsbouql9v8",
+        "x": 1451,
+        "y": 398.5,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Yep. As you can see things are busy.  So if you don't mind, could you tell me what you want so I can get to everyone who needs me?\"",
+        "execStr": "",
+        "next": "qi2qeo4vowo",
+        "autoAdvance": true
+      },
+      {
+        "id": "5g3si8prnxg",
+        "x": 1497,
+        "y": 534.5,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"No.  But the blockade's been leaving people out to dry lately.  Lots of stuck folk need a place to stay and drink.  Lucky me.\"",
+        "execStr": "",
+        "next": "qi2qeo4vowo",
+        "autoAdvance": true
+      },
+      {
+        "id": "vm3ourt20zf",
+        "x": 1040,
+        "y": 875.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "b60vcv1vae",
+        "x": 1870,
+        "y": 900.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"I'm booked up.  I can get you a drink though.\"",
+        "execStr": "",
+        "next": "f1uoztjlyzi",
+        "autoAdvance": false
+      },
+      {
+        "id": "f1uoztjlyzi",
+        "x": 1890,
+        "y": 1100.5,
+        "eventChildType": "CHOICE",
+        "h": 160,
+        "text": "\"I got Guildimarche Ale or Pappy's.  A Coin each.\"",
+        "choices": [
+          {
+            "text": "Which one's the best?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "z9cu7aolj5",
+            "prefixText": ""
+          },
+          {
+            "text": "Guildimarche Ale.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "aznxacocc8w",
+            "prefixText": ""
+          },
+          {
+            "text": "Pappy's.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "oitfo3jaqp9",
+            "prefixText": ""
+          },
+          {
+            "text": "Actually, no thanks.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "6armh8u14qi",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "6armh8u14qi",
+        "x": 1898,
+        "y": 1300.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Suit yourself.\"",
+        "execStr": "",
+        "next": "qi2qeo4vowo",
+        "autoAdvance": true
+      },
+      {
+        "id": "z9cu7aolj5",
+        "x": 2308,
+        "y": 1041.5,
+        "eventChildType": "EXEC",
+        "h": 84,
+        "p": "\"I ain't a big fan of the Guildimarche Estate, so I'd have to go with Pappy's.\"",
+        "execStr": "SET_BOOL(vars.ch.@CHARACTER_ID.mentionedGuildimarche)",
+        "next": "f1uoztjlyzi",
+        "autoAdvance": true
+      },
+      {
+        "id": "v77sna1axgm",
+        "x": 2731,
+        "y": 1224.5,
+        "eventChildType": "EXEC",
+        "h": 112,
+        "p": "\"Sure.\"  He grabs a large tankard and pours a light-colored, frothy liquid into it before handing it to you.",
+        "execStr": "ADD_ITEM_TO_PLAYER(BeerGuildimarcheAle)\nMOD_NUM(vars.coins, -1)",
+        "next": "dokz3vjw0jf",
+        "autoAdvance": false
+      },
+      {
+        "id": "teberiqm1w",
+        "x": 2730,
+        "y": 1343.5,
+        "eventChildType": "EXEC",
+        "h": 98,
+        "p": "\"Right.\"  He grabs a large tankard and pours a dark, nearly flat liquid into it before handing it to you.",
+        "execStr": "ADD_ITEM_TO_PLAYER(BeerPappysLager)\nMOD_NUM(vars.coins, -1)",
+        "next": "dokz3vjw0jf",
+        "autoAdvance": false
+      },
+      {
+        "id": "dokz3vjw0jf",
+        "x": 3163,
+        "y": 1272.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Anything else?\"",
+        "execStr": "",
+        "next": "qi2qeo4vowo",
+        "autoAdvance": true
+      },
+      {
+        "id": "t1w8rf4nfo",
+        "x": 1496,
+        "y": 797.5,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "ANY(FUNC(HasItem,BeerPappysLager),FUNC(HasItem,BeerGuildimarcheAle))",
+            "next": "izaege9b6u"
+          }
+        ],
+        "defaultNext": "b60vcv1vae"
+      },
+      {
+        "id": "izaege9b6u",
+        "x": 1502,
+        "y": 738.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Sorry.  I'm booked up.\"",
+        "execStr": "",
+        "next": "qi2qeo4vowo",
+        "autoAdvance": true
+      },
+      {
+        "id": "ehol71xkzy",
+        "x": 1417,
+        "y": 1062.5,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "ANY(FUNC(HasItem,BeerPappysLager),FUNC(HasItem,BeerGuildimarcheAle))",
+            "next": "s3grinb1n5"
+          }
+        ],
+        "defaultNext": "f1uoztjlyzi"
+      },
+      {
+        "id": "s3grinb1n5",
+        "x": 1420,
+        "y": 994.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Drink what you got first, then ask for another.\"",
+        "execStr": "",
+        "next": "qi2qeo4vowo",
+        "autoAdvance": true
+      },
+      {
+        "id": "bjtxf785g5l",
+        "x": 1899,
+        "y": 1396.5,
+        "eventChildType": "COMMENT",
+        "h": 72,
+        "comment": "TODO Try something where if you get really drunk on Pappy's he'll be more liable to talk to you."
+      },
+      {
+        "id": "ls0d7zixtki",
+        "x": 989,
+        "y": 1889.5,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "GTE(@DISPOSITION,5)",
+            "next": "4vu4lx05016"
+          }
+        ],
+        "defaultNext": "4vu4lx05016"
+      },
+      {
+        "id": "4vu4lx05016",
+        "x": 1377,
+        "y": 1810.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Forget I said anything.  It's not my place.\"",
+        "execStr": "",
+        "next": "qi2qeo4vowo",
+        "autoAdvance": true
+      },
+      {
+        "id": "rw5falam25b",
+        "x": 1386,
+        "y": 1889.5,
+        "eventChildType": "COMMENT",
+        "h": 72,
+        "comment": "TODO Get him to hint that Guildimarche is evil, maybe add a quest around this?"
+      },
+      {
+        "id": "aznxacocc8w",
+        "x": 2330,
+        "y": 1204,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "GTE(vars.coins, 1)",
+            "next": "v77sna1axgm"
+          }
+        ],
+        "defaultNext": "adut7hw628l"
+      },
+      {
+        "id": "oitfo3jaqp9",
+        "x": 2326,
+        "y": 1314,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "GTE(vars.coins, 1)",
+            "next": "teberiqm1w"
+          }
+        ],
+        "defaultNext": "adut7hw628l"
+      },
+      {
+        "id": "adut7hw628l",
+        "x": 2327,
+        "y": 1426,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "How embarrassing!  You don't even have a coin to spare for a beer...\n\n\"Come back when you got money.\"",
+        "execStr": "",
+        "next": "qi2qeo4vowo",
+        "autoAdvance": true
+      }
+    ]
+  },
+  {
+    "id": "alinea_igmund",
+    "title": "Igmund",
+    "eventType": "TALK",
+    "icon": "special_event_icons_0",
+    "vars": [
+      {
+        "id": "5oimqz4x044",
+        "key": "CHARACTER_ID",
+        "value": "alinea_igmund",
+        "importFrom": ""
+      },
+      {
+        "id": "5xp9wechc5e",
+        "key": "DISPOSITION",
+        "value": "vars.disposition.alinea_igmund",
+        "importFrom": ""
+      },
+      {
+        "id": "bbgdbivpcqd",
+        "key": "",
+        "value": "",
+        "importFrom": "util_aspect"
+      }
+    ],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "vpg9ou5mnki",
+        "autoAdvance": true
+      },
+      {
+        "id": "vpg9ou5mnki",
+        "x": 136.25,
+        "y": 146.25,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "",
+        "execStr": "SETUP_DISPOSITION(@CHARACTER_ID)\nSET_BOOL(vars.ch.@CHARACTER_ID.hasSpokenTo, true)",
+        "next": "yt0ee9u5nyk",
+        "autoAdvance": false
+      },
+      {
+        "id": "uu2l3mk55x",
+        "x": 217.25,
+        "y": 797.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"I don't got nothing to say to you.\"",
+        "execStr": "",
+        "next": "jikn0umyx2p",
+        "autoAdvance": true
+      },
+      {
+        "id": "i9ftcegqbaf",
+        "x": 218.25,
+        "y": 706.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Yeah?  You want something?\"",
+        "execStr": "",
+        "next": "jikn0umyx2p",
+        "autoAdvance": true
+      },
+      {
+        "id": "cpkrnjgdj35",
+        "x": 210.25,
+        "y": 616.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Hello again, friend.\"",
+        "execStr": "",
+        "next": "jikn0umyx2p",
+        "autoAdvance": true
+      },
+      {
+        "id": "yt0ee9u5nyk",
+        "x": 142.25,
+        "y": 299,
+        "eventChildType": "SWITCH",
+        "h": 156,
+        "cases": [
+          {
+            "conditionStr": "ONCE(has_spoken_to_@CHARACTER_ID)",
+            "next": "8y5mf361kuv"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,5)",
+            "next": "cpkrnjgdj35"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,2)",
+            "next": "i9ftcegqbaf"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,1)",
+            "next": "uu2l3mk55x"
+          }
+        ],
+        "defaultNext": "i9ftcegqbaf"
+      },
+      {
+        "id": "8y5mf361kuv",
+        "x": 623.75,
+        "y": 133,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "A middle-aged dockworker sips a tankard of beer.  His eyes are locked on a patron across the bar.  At your approach, he blinks a few times before turning his gaze to you.  \"Yeah?  You want something?\"",
+        "execStr": "",
+        "next": "jikn0umyx2p",
+        "autoAdvance": true
+      },
+      {
+        "id": "jikn0umyx2p",
+        "x": 942.75,
+        "y": 645,
+        "eventChildType": "CHOICE",
+        "h": 132,
+        "text": "",
+        "choices": [
+          {
+            "text": "What's your name?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "aven20grzbn",
+            "prefixText": ""
+          },
+          {
+            "text": "Interested in somebody over there?",
+            "conditionStr": "IS_NOT(vars.ch.@CHARACTER_ID.askedAboutBarto)",
+            "evalStr": "",
+            "next": "4arfgvx5ge",
+            "prefixText": ""
+          },
+          {
+            "text": "Let's talk about that nobleman you don't like.",
+            "conditionStr": "IS(vars.ch.@CHARACTER_ID.askedAboutBarto)",
+            "evalStr": "",
+            "next": "byupj5q716n",
+            "prefixText": ""
+          },
+          {
+            "text": "Nevermind. (Leave.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "mwocgykh0xa",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "mwocgykh0xa",
+        "x": 964.75,
+        "y": 866,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "sywoijuf72",
+        "x": 1791,
+        "y": 665.5,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Yeah.  You were just speaking to him.  That noble over there.  I don't like him.\"  He indicates a lone well-dressed man across the bar.",
+        "execStr": "",
+        "next": "oesc46znepc",
+        "autoAdvance": true
+      },
+      {
+        "id": "4arfgvx5ge",
+        "x": 1439,
+        "y": 719.5,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "IS(vars.ch.alinea_barto.hasSpokenTo)",
+            "next": "sywoijuf72"
+          }
+        ],
+        "defaultNext": "rts35axoad"
+      },
+      {
+        "id": "rts35axoad",
+        "x": 1789,
+        "y": 752.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"That noble over there.  I don't like him.\"  He indicates a lone well-dressed man across the bar,",
+        "execStr": "",
+        "next": "oesc46znepc",
+        "autoAdvance": true
+      },
+      {
+        "id": "qwq9hx2wd1c",
+        "x": 2402,
+        "y": 728.5,
+        "eventChildType": "CHOICE",
+        "h": 204,
+        "text": "",
+        "choices": [
+          {
+            "text": "Why don't you like him?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "lck7tanklv8",
+            "prefixText": ""
+          },
+          {
+            "text": "Their type?",
+            "conditionStr": "IS(tmp.theirType)",
+            "evalStr": "",
+            "next": "st2oarxkj6h",
+            "prefixText": ""
+          },
+          {
+            "text": "Guildimarche?",
+            "conditionStr": "IS(tmp.mentionedGuildimarche)",
+            "evalStr": "",
+            "next": "rppr41oj69h",
+            "prefixText": ""
+          },
+          {
+            "text": "Can you elaborate on the Guildimarche?",
+            "conditionStr": "IS(tmp.badNews)",
+            "evalStr": "",
+            "next": "ohanqvou75c",
+            "prefixText": ""
+          },
+          {
+            "text": "It seems like you talk from experience.",
+            "conditionStr": "IS(tmp.elaboratgedGuildimarche)",
+            "evalStr": "",
+            "next": "7rvv62v5qvp",
+            "prefixText": ""
+          },
+          {
+            "text": "I could play a prank on him if you like!",
+            "conditionStr": "ALL(GTE(@ASPECT_FAE, 0),IS_NOT(vars.ch.@CHARACTER_ID.mentionedRockPrank))",
+            "evalStr": "",
+            "next": "w6s4ssrlai",
+            "prefixText": "[FAE]"
+          },
+          {
+            "text": "(Talk about something else.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "jikn0umyx2p",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "lck7tanklv8",
+        "x": 2773,
+        "y": 528.5,
+        "eventChildType": "EXEC",
+        "h": 70,
+        "p": "\"I don't like their type.  They don't belong here.\"",
+        "execStr": "SET_BOOL(tmp.theirType, true)",
+        "next": "qwq9hx2wd1c",
+        "autoAdvance": true
+      },
+      {
+        "id": "st2oarxkj6h",
+        "x": 2869,
+        "y": 621.5,
+        "eventChildType": "EXEC",
+        "h": 70,
+        "p": "\"Nobles who fawn after the Guildimarche.\"",
+        "execStr": "SET_BOOL(tmp.mentionedGuildimarche, true)",
+        "next": "qwq9hx2wd1c",
+        "autoAdvance": true
+      },
+      {
+        "id": "rppr41oj69h",
+        "x": 2885.3333333333335,
+        "y": 720.5,
+        "eventChildType": "EXEC",
+        "h": 84,
+        "p": "\"What are you, a Lark?  If you don't know them, then just know that they're bad news.\"",
+        "execStr": "SET_BOOL(tmp.badNews, true)",
+        "next": "qwq9hx2wd1c",
+        "autoAdvance": true
+      },
+      {
+        "id": "ohanqvou75c",
+        "x": 2882.3333333333335,
+        "y": 833.5,
+        "eventChildType": "EXEC",
+        "h": 168,
+        "p": "He takes a long drag from his tankard. \"Look here.  The Guildimarche are a sort of recluse nobility.  They've got a lot of power and influence, but they're not gaudy like the Blackrose are.  Instead, they're more like a colony of cockroaches.  They silently buy up land all over the Island; they get people in charge who are sympathetic to them; and they infest the land with their people.\"",
+        "execStr": "SET_BOOL(tmp.elaboratgedGuildimarche, true)",
+        "next": "urp7w9j2kn",
+        "autoAdvance": false
+      },
+      {
+        "id": "urp7w9j2kn",
+        "x": 3272.3333333333335,
+        "y": 869.5,
+        "eventChildType": "EXEC",
+        "h": 130,
+        "p": "\"When they've permeated your home, they start running things their way.  Did you want to buy medicine? Well you can't because a the infirmary has it on reserve for those who are favored.  Want to get food for your family?  Get to the back of the line, unless you've got money or connections, because you are worthless dirt in their eyes otherwise.\"",
+        "execStr": "",
+        "next": "qwq9hx2wd1c",
+        "autoAdvance": true
+      },
+      {
+        "id": "7rvv62v5qvp",
+        "x": 2882.333333333334,
+        "y": 1024.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"I didn't use to be a fisherman here in Alinea.  I used to have a wife and kids.  Don't ask me about 'em.\"",
+        "execStr": "",
+        "next": "qwq9hx2wd1c",
+        "autoAdvance": true
+      },
+      {
+        "id": "aven20grzbn",
+        "x": 1319.333333333334,
+        "y": 538.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Igmund.  I'm a dockworker.\"",
+        "execStr": "",
+        "next": "jikn0umyx2p",
+        "autoAdvance": true
+      },
+      {
+        "id": "oesc46znepc",
+        "x": 1981.000000000001,
+        "y": 834.1666666666667,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "SET_BOOL(vars.ch.@CHARACTER_ID.askedAboutBarto, true)",
+        "next": "qwq9hx2wd1c",
+        "autoAdvance": true
+      },
+      {
+        "id": "byupj5q716n",
+        "x": 1513.000000000001,
+        "y": 1014.166666666667,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"What about him?\"",
+        "execStr": "",
+        "next": "qwq9hx2wd1c",
+        "autoAdvance": true
+      },
+      {
+        "id": "w6s4ssrlai",
+        "x": 2888.000000000001,
+        "y": 1212.166666666667,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Oh yeah?  What are you going to do?\"",
+        "execStr": "",
+        "next": "81mu2sb61g4",
+        "autoAdvance": true
+      },
+      {
+        "id": "81mu2sb61g4",
+        "x": 3277.666666666668,
+        "y": 1202.166666666667,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "Um.. let's see...  I could go outside, get a rock, and throw it at his head?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "5e85yp0gchv",
+            "prefixText": ""
+          },
+          {
+            "text": "Knife to the throat?",
+            "conditionStr": "ONCE(@CHARACTER_ID.reaper1)",
+            "evalStr": "MOD_NUM(@ASPECT_REAPER,1)",
+            "next": "h846zngaiq4",
+            "prefixText": "[REAPER]"
+          },
+          {
+            "text": "Actually, nevermind.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "cbp9a242jee",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "cbp9a242jee",
+        "x": 2628.666666666668,
+        "y": 1337.166666666667,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"That's a shame.\"",
+        "execStr": "",
+        "next": "qwq9hx2wd1c",
+        "autoAdvance": true
+      },
+      {
+        "id": "5e85yp0gchv",
+        "x": 3760.5000000000014,
+        "y": 1085.3333333333335,
+        "eventChildType": "EXEC",
+        "h": 126,
+        "p": "He laughs.  \"Gruff won't like that, but I definitely would.\"",
+        "execStr": "MOD_NUM(@DISPOSITION, 1)\nMOD_NUM(@ASPECT_FAE, 1)\nSET_BOOL(vars.ch.@CHARACTER_ID.mentionedRockPrank, true)\nSTART_QUEST(alineaBartoRock)",
+        "next": "qwq9hx2wd1c",
+        "autoAdvance": true
+      },
+      {
+        "id": "h846zngaiq4",
+        "x": 3741,
+        "y": 1275,
+        "eventChildType": "EXEC",
+        "h": 84,
+        "p": "\"I thought you said prank.  I don't want to be associated with no murdering.\"",
+        "execStr": "MOD_NUM(@DISPOSITION, -1)",
+        "next": "81mu2sb61g4",
+        "autoAdvance": true
+      }
+    ]
+  },
+  {
     "id": "alinea_mullen",
     "title": "Lieutenant Mullen",
-    "eventType": "MODAL",
+    "eventType": "TALK",
     "icon": "special_event_icons_0",
     "vars": [
       {
@@ -919,11 +1920,11 @@
       },
       {
         "id": "nczvtjxn5ep",
-        "x": 708,
-        "y": 133.5,
+        "x": 1069,
+        "y": 148.5,
         "eventChildType": "CHOICE",
-        "h": 300,
-        "text": "A tired man in a green military uniform sits behind a sturdy desk. His head rests in palm as he parses a mountain of paperwork one scroll at a time.  The suit of armor on the rack behind him is dusty and unused, as is the saber mounted above it in a stout display case.  A little metal nameplate at the front of his desk has 'Lieutenant Mullen' etched into it.\n\n\"Pardon me.  Sorry about the mess.  It's been a rough time lately.  Did you have something to report?\"",
+        "h": 226,
+        "text": "Suddenly, a shiver passes across your body.  You feel an all-too-familiar feeling: a contending set of forces battling in your mind, all trying to make their opinion known, all trying to shape who you are.",
         "choices": [
           {
             "text": "You are Lieutenant Mullen?",
@@ -933,11 +1934,18 @@
             "prefixText": ""
           },
           {
-            "text": "Yes sir!  I am reporting that I have arrived here!",
+            "text": "Yes sir!  I am reporting that I have arrived here!  Do I get a reward?",
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
             "next": "m0gsic3edt",
             "prefixText": "[FAE]"
+          },
+          {
+            "text": "Is everyone okay here?  It seems kind of tense.  Can I do anything to help?",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1)",
+            "next": "b64g7ilbv4",
+            "prefixText": "[DRYAD]"
           },
           {
             "text": "I'd never stoop to be under someone else's command.",
@@ -957,8 +1965,8 @@
       },
       {
         "id": "723ke623qq",
-        "x": 1131,
-        "y": 413.5,
+        "x": 1514,
+        "y": 481.5,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"Ah of course.  Forgive my supposition.   I am Lieutenant Mullen of the Realm, and I am in charge here.  Is there anything you require?\"",
@@ -968,8 +1976,8 @@
       },
       {
         "id": "4gy09zpyk9u",
-        "x": 1129,
-        "y": 532.5,
+        "x": 1512,
+        "y": 600.5,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"Listen here! Alinea and The Realm are experiencing enough trouble without some random nobody coming in here and telling me how to do my job!  If you need something from me, then tell me.\"",
@@ -979,19 +1987,19 @@
       },
       {
         "id": "m0gsic3edt",
-        "x": 1119,
-        "y": 303.5,
+        "x": 1520,
+        "y": 255.5,
         "eventChildType": "EXEC",
         "h": 74,
-        "p": "\"And who exactly are you?  I see not that you're not a soldier, so I apologize for the supposition.  I am Lieutenant Mullen of the Realm.  Can I assist you?",
+        "p": "\"And who exactly are you?  I see not that you're not a soldier, so I apologize for the supposition.  I am Lieutenant Mullen of the Realm.  Can I assist you?\"",
         "execStr": "",
         "next": "02nzgxo584j",
         "autoAdvance": true
       },
       {
         "id": "0rsdx9p4i9rg",
-        "x": 1127,
-        "y": 194.5,
+        "x": 1522,
+        "y": 170.5,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Yes.  Lieutenant Mullen of the Realm.  How can I assist you?\"",
@@ -1008,21 +2016,21 @@
         "text": "",
         "choices": [
           {
-            "text": "(Discus Alinea.)",
+            "text": "Let's talk about Alinea.",
             "conditionStr": "",
             "evalStr": "",
             "next": "g65w5duna6f",
             "prefixText": ""
           },
           {
-            "text": "(Discus the Realm.)",
+            "text": "Let's talk about the Realm.",
             "conditionStr": "",
             "evalStr": "",
             "next": "tygi5vd1y2j",
             "prefixText": ""
           },
           {
-            "text": "(Ask about your situation.)",
+            "text": "Can you assist me?",
             "conditionStr": "",
             "evalStr": "",
             "next": "s7ywnpkp6se",
@@ -1045,8 +2053,8 @@
         "h": 156,
         "cases": [
           {
-            "conditionStr": "ONCE(has_spoken_to_@CHARACTER_ID)",
-            "next": "nczvtjxn5ep"
+            "conditionStr": "ONCE(hasSpokenTo@CHARACTER_ID)",
+            "next": "ldxyhdqz7a"
           },
           {
             "conditionStr": "GTE(@DISPOSITION,5)",
@@ -1065,8 +2073,8 @@
       },
       {
         "id": "q3gzeznv1n",
-        "x": 1505,
-        "y": 1076.5,
+        "x": 1507,
+        "y": 1086.5,
         "eventChildType": "CHOICE",
         "h": 180,
         "text": "",
@@ -1459,6 +2467,28 @@
         "execStr": "",
         "next": "byya0d4vs2n",
         "autoAdvance": false
+      },
+      {
+        "id": "ldxyhdqz7a",
+        "x": 695,
+        "y": 136.5,
+        "eventChildType": "EXEC",
+        "h": 186,
+        "p": "A slumped man in a green military uniform sits behind a sturdy desk. His head rests in palm as he reads a scroll, his tired eyes tracking back and forth.  The suit of armor on the rack behind him is dusty and unused, as is the saber mounted above it in a stout display case.  A little metal nameplate at the front of his desk has 'Lieutenant Mullen' etched into it.\n\n\"Pardon me.  Sorry about the mess.  It's been a rough time lately.  Did you have something to report?\"",
+        "execStr": "",
+        "next": "nczvtjxn5ep",
+        "autoAdvance": false
+      },
+      {
+        "id": "b64g7ilbv4",
+        "x": 1513,
+        "y": 377,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Times are tough, that's true.  I'm Lieutenant Mullen of the Realm.  How can I assist you?\"",
+        "execStr": "",
+        "next": "02nzgxo584j",
+        "autoAdvance": true
       }
     ]
   },
@@ -1477,87 +2507,47 @@
         "h": 50,
         "p": "",
         "execStr": "",
-        "next": ""
+        "next": "",
+        "autoAdvance": false
       }
     ]
   },
   {
     "id": "TestEvent",
-    "title": "This is a Test Event",
+    "title": "Test Event",
     "eventType": "MODAL",
     "icon": "special_event_icons_0",
-    "vars": [
-      {
-        "id": "fvuao7fl5li",
-        "key": "ASDF1",
-        "value": "1",
-        "importFrom": ""
-      }
-    ],
+    "vars": [],
     "children": [
       {
         "id": "root",
-        "x": 61,
-        "y": 32,
+        "x": 20,
+        "y": 20,
         "eventChildType": "EXEC",
         "h": 50,
-        "p": "This is the start node.",
+        "p": "",
         "execStr": "",
-        "next": "ebwwh7cnov7"
+        "next": "2ujsrqdf3p5",
+        "autoAdvance": true
       },
       {
-        "id": "8svf8gb3hf5",
-        "x": 838,
-        "y": 149.5,
+        "id": "2ujsrqdf3p5",
+        "x": 121.5,
+        "y": 120.5,
         "eventChildType": "EXEC",
         "h": 50,
-        "p": "This is the default result.",
+        "p": "This is a test event.",
         "execStr": "",
-        "next": "oktc7mx9yvj"
+        "next": "w8at3flt9vf",
+        "autoAdvance": true
       },
       {
-        "id": "s910ik5febm",
-        "x": 844,
-        "y": 295.5,
-        "eventChildType": "EXEC",
-        "h": 50,
-        "p": "This is the once node.",
-        "execStr": "",
-        "next": "oktc7mx9yvj"
-      },
-      {
-        "id": "oktc7mx9yvj",
-        "x": 557,
-        "y": 675.5,
-        "eventChildType": "EXEC",
-        "h": 50,
-        "p": "Restarting...",
-        "execStr": "",
-        "next": "root"
-      },
-      {
-        "id": "ebwwh7cnov7",
-        "x": 426.5,
-        "y": 177,
-        "eventChildType": "CHOICE",
-        "h": 112,
-        "text": "Choose something.",
-        "choices": [
-          {
-            "text": "This is the default choice.",
-            "conditionStr": "",
-            "evalStr": "",
-            "next": "8svf8gb3hf5",
-            "prefixText": ""
-          },
-          {
-            "text": "This is a once choice.",
-            "conditionStr": "ONCE(firstTimeSpeaking",
-            "evalStr": "",
-            "next": "s910ik5febm",
-            "prefixText": ""
-          }
-        ]
+        "id": "w8at3flt9vf",
+        "x": 413.5,
+        "y": 276.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
       }
     ]
   },
@@ -1631,7 +2621,8 @@
         "h": 50,
         "p": "",
         "execStr": "",
-        "next": "hqjjm69ppi"
+        "next": "hqjjm69ppi",
+        "autoAdvance": true
       },
       {
         "id": "anvxoxt908",
@@ -1697,7 +2688,8 @@
           "audioName": "test",
           "volume": 100,
           "offset": 0
-        }
+        },
+        "autoAdvance": true
       },
       {
         "id": "kpo7zzptph",
@@ -1737,6 +2729,12 @@
         "id": "vep2z8f2h9s",
         "key": "ASPECT_AEON",
         "value": "vars.aspect.aeon",
+        "importFrom": ""
+      },
+      {
+        "id": "vrch6ahygzo",
+        "key": "ASPECT_REAPER",
+        "value": "vars.aspect.reaper",
         "importFrom": ""
       }
     ],

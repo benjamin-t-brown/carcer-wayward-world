@@ -5,7 +5,6 @@ import { EditorStateSE } from '../seEditorState';
 
 const NODE_COLOR = '#772222'; // Red background
 const BORDER_COLOR = '#c88';
-const BORDER_HOVER_COLOR = '#faa';
 const TEXT_COLOR = '#FFF';
 const FONT_FAMILY = 'arial';
 const NODE_WIDTH = 120;
@@ -20,7 +19,6 @@ export class EditorNodeEnd extends EditorNode {
 
     this.bgColor = NODE_COLOR;
     this.borderColor = BORDER_COLOR;
-    this.borderColorHovered = BORDER_HOVER_COLOR;
     this.padding = PADDING;
     this.borderSize = BORDER_WIDTH;
     this.width = NODE_WIDTH;

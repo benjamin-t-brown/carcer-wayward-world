@@ -73,7 +73,7 @@ class ConditionEvaluator {
       }
       return Boolean(v);
     },
-    ISNOT: (a: string) => {
+    IS_NOT: (a: string) => {
       return !Boolean(getStorage(this.storage, a));
     },
     EQ: (a: string, b: string) => {
@@ -119,6 +119,13 @@ class ConditionEvaluator {
     },
     ANY: (...args: string[]) => {
       return args.some((arg) => Boolean(getStorage(this.storage, arg)));
+    },
+    FUNC: (funcName: string, ...args: string[]) => {
+      if (funcName === 'HasItem') {
+        return Boolean(getStorage(this.storage, 'vars.items.' + args[0]));
+      }
+      console.error('Invalid FUNC conditional: ', {funcName, args});
+      return false;
     },
     ONCE: (a: string) => {
       const onceKey = 'once.' + a;
@@ -241,6 +248,14 @@ class StringEvaluator {
     REMOVE_ITEM_AT: (x: string, y: string, itemName: string) => {
       // noop
     },
+    ADD_ITEM_TO_PLAYER: (itemName: string) => {
+      const key = 'vars.items.' + itemName;
+      this.stringFunctions.MOD_NUM(key, '1');
+    },
+    REMOVE_ITEM_FROM_PLAYER: (itemName: string) => {
+      const key = 'vars.items.' + itemName;
+      this.stringFunctions.MOD_NUM(key, '-1');
+    }
   };
 
   parseFunctionCall(str: string) {
