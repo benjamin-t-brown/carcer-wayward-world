@@ -11,6 +11,12 @@ Development Requirements
 - SDL2_mixer
 - SDL2_gfx
 
+For IDE
+- clangd
+- include-what-you-use
+- python3
+- compiledb
+
 For Building WASM Executable
 
 - Emscripten
