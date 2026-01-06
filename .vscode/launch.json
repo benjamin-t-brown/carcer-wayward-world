@@ -6,15 +6,13 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}\\src\\TestUi.exe",
-      "args": [
-        ""
-      ],
+      "args": [""],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}\\src",
       "environment": [],
       "externalConsole": false,
       "MIMode": "gdb",
-      "miDebuggerPath": "C:\\progs\\msys64\\ucrt64\\bin\\gdb.exe",
+      "miDebuggerPath": "gdb",
       "setupCommands": [
         {
           "description": "Enable pretty-printing for gdb",

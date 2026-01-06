@@ -13,6 +13,9 @@ struct ConditionEvaluatorFuncs {
 
   ConditionEvaluatorFuncs(const std::unordered_map<std::string, std::string>& storage);
 
+  std::optional<int> getNumFromStorageOrArgInt(const std::string& a);
+  std::optional<double> getNumFromStorageOrArgDouble(const std::string& a);
+
   bool IS(const std::string& a);
   bool ISNOT(const std::string& a);
   bool EQ(const std::string& a, const std::string& b);

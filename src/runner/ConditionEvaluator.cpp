@@ -8,29 +8,78 @@ ConditionEvaluatorFuncs::ConditionEvaluatorFuncs(
     const std::unordered_map<std::string, std::string>& storage)
     : storage(storage) {}
 
+std::optional<int>
+ConditionEvaluatorFuncs::getNumFromStorageOrArgInt(const std::string& a) {
+  // Try parsing 'a' directly as int
+  try {
+    size_t idx;
+    int num = std::stoi(a, &idx);
+    if (idx == a.size()) {
+      return num;
+    }
+  } catch (...) {
+    // Not a number, fall through to storage lookup
+  }
+  auto v = getStorage(storage, a);
+  if (v) {
+    try {
+      return std::stoi(*v);
+    } catch (...) {
+      // storage doesn't exist, fall back to 0
+    }
+  }
+  return std::nullopt;
+}
+
+std::optional<double>
+ConditionEvaluatorFuncs::getNumFromStorageOrArgDouble(const std::string& a) {
+  // Try parsing 'a' directly as double
+  try {
+    size_t idx;
+    double num = std::stod(a, &idx);
+    if (idx == a.size()) {
+      // Successfully parsed whole string as double
+      return num;
+    }
+  } catch (...) {
+    // Not a number, fall through to storage lookup
+  }
+  auto v = getStorage(storage, a);
+  if (v) {
+    try {
+      return std::stod(*v);
+    } catch (...) {
+      // storage doesn't exist, fall back to 0
+    }
+  }
+  return std::nullopt;
+}
+
 bool ConditionEvaluatorFuncs::IS(const std::string& a) {
   auto v = getStorage(storage, a);
-  if (v && *v == "false") {
+  std::string vStr = getStorage(storage, a).value_or("");
+  if (vStr == "0" || vStr == "false" || vStr.empty()) {
     return false;
   }
-  return v.has_value() && !v->empty() && *v != "0";
+  return true;
 }
 
-bool ConditionEvaluatorFuncs::ISNOT(const std::string& a) {
-  auto v = getStorage(storage, a);
-  return !v.has_value() || v->empty() || *v == "0" || *v == "false";
-}
+bool ConditionEvaluatorFuncs::ISNOT(const std::string& a) { return !IS(a); }
 
 bool ConditionEvaluatorFuncs::EQ(const std::string& a, const std::string& b) {
-  auto v1 = getStorage(storage, a);
-  auto v2 = getStorage(storage, b);
-  if (!v1 && !v2) {
-    return true;
-  }
-  if (!v1 || !v2) {
+  // strict eq ===
+  auto v1Storage = getStorage(storage, a);
+  auto v2Storage = getStorage(storage, b);
+  std::string v1Str = v1Storage.value_or("");
+  std::string v2Str = v2Storage.value_or("");
+  if (v1Storage && v2Storage) {
+    return *v1Storage == *v2Storage;
+  } else if (v1Storage && !v2Storage) {
+    return false;
+  } else if (!v1Storage && v2Storage) {
     return false;
   }
-  return *v1 == *v2;
+  return false;
 }
 
 bool ConditionEvaluatorFuncs::NEQ(const std::string& a, const std::string& b) {
@@ -38,65 +87,37 @@ bool ConditionEvaluatorFuncs::NEQ(const std::string& a, const std::string& b) {
 }
 
 bool ConditionEvaluatorFuncs::GT(const std::string& a, const std::string& b) {
-  auto v1 = getStorage(storage, a);
-  if (!v1) {
+  auto num1 = getNumFromStorageOrArgDouble(a);
+  auto num2 = getNumFromStorageOrArgDouble(b);
+  if (!num1 || !num2) {
+    // reject any case that is undefined
     return false;
   }
-  try {
-    double num1 = std::stod(*v1);
-    double num2 = std::stod(b);
-    return num1 > num2;
-  } catch (...) {
-    return false;
-  }
+
+  return *num1 > *num2;
 }
 
 bool ConditionEvaluatorFuncs::GTE(const std::string& a, const std::string& b) {
-  auto v1 = getStorage(storage, a);
-  if (!v1) {
-    return false;
-  }
-  try {
-    double num1 = std::stod(*v1);
-    double num2 = std::stod(b);
-    return num1 >= num2;
-  } catch (...) {
-    return false;
-  }
+  return EQ(a, b) || GT(a, b);
 }
 
 bool ConditionEvaluatorFuncs::LT(const std::string& a, const std::string& b) {
-  auto v1 = getStorage(storage, a);
-  if (!v1) {
+  auto num1 = getNumFromStorageOrArgDouble(a);
+  auto num2 = getNumFromStorageOrArgDouble(b);
+  if (!num1 || !num2) {
+    // reject any case that is undefined
     return false;
   }
-  try {
-    double num1 = std::stod(*v1);
-    double num2 = std::stod(b);
-    return num1 < num2;
-  } catch (...) {
-    return false;
-  }
+  return *num1 < *num2;
 }
 
 bool ConditionEvaluatorFuncs::LTE(const std::string& a, const std::string& b) {
-  auto v1 = getStorage(storage, a);
-  if (!v1) {
-    return false;
-  }
-  try {
-    double num1 = std::stod(*v1);
-    double num2 = std::stod(b);
-    return num1 <= num2;
-  } catch (...) {
-    return false;
-  }
+  return EQ(a, b) || LT(a, b);
 }
 
 bool ConditionEvaluatorFuncs::ALL(const std::vector<std::string>& args) {
   for (const auto& arg : args) {
-    auto v = getStorage(storage, arg);
-    if (!v || v->empty() || *v == "0" || *v == "false") {
+    if (arg != "true") {
       return false;
     }
   }
@@ -105,8 +126,7 @@ bool ConditionEvaluatorFuncs::ALL(const std::vector<std::string>& args) {
 
 bool ConditionEvaluatorFuncs::ANY(const std::vector<std::string>& args) {
   for (const auto& arg : args) {
-    auto v = getStorage(storage, arg);
-    if (v && !v->empty() && *v != "0" && *v != "false") {
+    if (arg == "true") {
       return true;
     }
   }
@@ -126,6 +146,27 @@ bool ConditionEvaluatorFuncs::ONCE(const std::string& a) {
   return true;
 }
 
+bool ConditionEvaluatorFuncs::FUNC_HasItem(const std::string& itemName) {
+  auto v = getStorage(storage, "vars.items." + itemName);
+  return v && !v->empty() && *v != "0" && *v != "false";
+}
+
+bool ConditionEvaluatorFuncs::FUNC_QuestStarted(const std::string& questName) {
+  auto v = getStorage(storage, "vars.quests." + questName + ".started");
+  return v && !v->empty() && *v != "0" && *v != "false";
+}
+
+bool ConditionEvaluatorFuncs::FUNC_QuestCompleted(const std::string& questName) {
+  auto v = getStorage(storage, "vars.quests." + questName + ".completed");
+  return v && !v->empty() && *v != "0" && *v != "false";
+}
+
+bool ConditionEvaluatorFuncs::FUNC_QuestStepEq(const std::string& questName,
+                                               const std::string& stepId) {
+  auto v = getStorage(storage, "vars.quests." + questName + ".step");
+  return v && *v == stepId;
+}
+
 ConditionEvaluator::ConditionEvaluator(
     const std::unordered_map<std::string, std::string>& storage,
     const std::string& baseConditionStr)
@@ -143,55 +184,89 @@ void ConditionEvaluator::assertFuncArgs(const std::string& funcName,
 
 bool ConditionEvaluator::evalFunc(const std::string& funcName,
                                   const std::vector<std::string>& funcArgs) {
+  // Helper lambda for recursively evaluating function arguments
+  auto simplifyArg = [this](const std::string& arg) -> std::string {
+    if (isFunctionCall(arg)) {
+      FunctionCall call = parseFunctionCall(arg);
+      bool result = evalFunc(call.funcName, call.args);
+      return result ? "true" : "false";
+    }
+    return arg;
+  };
+
   if (funcName == "IS") {
     assertFuncArgs(funcName, funcArgs, 1);
-    return funcs.IS(funcArgs[0]);
+    std::string val = simplifyArg(funcArgs[0]);
+    return funcs.IS(val);
   } else if (funcName == "ISNOT") {
     assertFuncArgs(funcName, funcArgs, 1);
-    return funcs.ISNOT(funcArgs[0]);
+    std::string val = simplifyArg(funcArgs[0]);
+    return funcs.ISNOT(val);
   } else if (funcName == "EQ") {
     assertFuncArgs(funcName, funcArgs, 2);
-    return funcs.EQ(funcArgs[0], funcArgs[1]);
+    std::string a = simplifyArg(funcArgs[0]);
+    std::string b = simplifyArg(funcArgs[1]);
+    return funcs.EQ(a, b);
   } else if (funcName == "NEQ") {
     assertFuncArgs(funcName, funcArgs, 2);
-    return funcs.NEQ(funcArgs[0], funcArgs[1]);
+    std::string a = simplifyArg(funcArgs[0]);
+    std::string b = simplifyArg(funcArgs[1]);
+    return funcs.NEQ(a, b);
   } else if (funcName == "GT") {
     assertFuncArgs(funcName, funcArgs, 2);
-    return funcs.GT(funcArgs[0], funcArgs[1]);
+    std::string a = simplifyArg(funcArgs[0]);
+    std::string b = simplifyArg(funcArgs[1]);
+    return funcs.GT(a, b);
   } else if (funcName == "GTE") {
     assertFuncArgs(funcName, funcArgs, 2);
-    return funcs.GTE(funcArgs[0], funcArgs[1]);
+    std::string a = simplifyArg(funcArgs[0]);
+    std::string b = simplifyArg(funcArgs[1]);
+    return funcs.GTE(a, b);
   } else if (funcName == "LT") {
     assertFuncArgs(funcName, funcArgs, 2);
-    return funcs.LT(funcArgs[0], funcArgs[1]);
+    std::string a = simplifyArg(funcArgs[0]);
+    std::string b = simplifyArg(funcArgs[1]);
+    return funcs.LT(a, b);
   } else if (funcName == "LTE") {
     assertFuncArgs(funcName, funcArgs, 2);
-    return funcs.LTE(funcArgs[0], funcArgs[1]);
+    std::string a = simplifyArg(funcArgs[0]);
+    std::string b = simplifyArg(funcArgs[1]);
+    return funcs.LTE(a, b);
   } else if (funcName == "ALL") {
-    return funcs.ALL(funcArgs);
+    std::vector<std::string> subArgs;
+    for (const auto& arg : funcArgs) {
+      subArgs.push_back(simplifyArg(arg));
+    }
+    return funcs.ALL(subArgs);
   } else if (funcName == "ANY") {
-    return funcs.ANY(funcArgs);
-  } else if (funcName == "ONCE") {
-    assertFuncArgs(funcName, funcArgs, 1);
-    return funcs.ONCE(funcArgs[0]);
+    std::vector<std::string> subArgs;
+    for (const auto& arg : funcArgs) {
+      subArgs.push_back(simplifyArg(arg));
+    }
+    return funcs.ANY(subArgs);
   } else if (funcName == "FUNC") {
     assertFuncArgs(funcName, funcArgs, 1);
-    const std::string& subFuncName = funcArgs[0];
+    std::string subFuncName = simplifyArg(funcArgs[0]);
     if (subFuncName == "HasItem") {
       assertFuncArgs(funcName + "." + subFuncName, funcArgs, 2);
-      return funcs.FUNC_HasItem(funcArgs[1]);
+      std::string itemName = simplifyArg(funcArgs[1]);
+      return funcs.FUNC_HasItem(itemName);
     }
     if (subFuncName == "QuestStarted") {
       assertFuncArgs(funcName + "." + subFuncName, funcArgs, 2);
-      return funcs.FUNC_QuestStarted(funcArgs[1]);
+      std::string questName = simplifyArg(funcArgs[1]);
+      return funcs.FUNC_QuestStarted(questName);
     }
     if (subFuncName == "QuestCompleted") {
       assertFuncArgs(funcName + "." + subFuncName, funcArgs, 2);
-      return funcs.FUNC_QuestCompleted(funcArgs[1]);
+      std::string questName = simplifyArg(funcArgs[1]);
+      return funcs.FUNC_QuestCompleted(questName);
     }
     if (subFuncName == "QuestStepEq") {
       assertFuncArgs(funcName + "." + subFuncName, funcArgs, 3);
-      return funcs.FUNC_QuestStepEq(funcArgs[1], funcArgs[2]);
+      std::string questName = simplifyArg(funcArgs[1]);
+      std::string stepId = simplifyArg(funcArgs[2]);
+      return funcs.FUNC_QuestStepEq(questName, stepId);
     } else {
       throw std::runtime_error("Conditional FUNC sub function '" + subFuncName +
                                "' not found.");

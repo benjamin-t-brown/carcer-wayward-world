@@ -1,37 +1,36 @@
 #include "lib/sdl2w/Logger.h"
 #include "runner/ConditionEvaluator.h"
-#include <unordered_map>
 
 #define TEST_NAME "TestConditionalEvaluator"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Starting " << TEST_NAME << LOG_ENDL;
   std::unordered_map<std::string, std::string> initialStorage = {
-      {"a", "0"},
-      {"b", "1"},
-      {"c", "2"},
-      {"d", "3"},
+      {"a", "0"}, {"b", "1"}, {"c", "2"}, {"d", "3"},
       // z is undefined
   };
-  const std::unordered_map<std::string, bool> basicTestCases = {
+  const std::vector<std::pair<std::string, bool>> basicTestCases = {
       // --- formatting
-      {"IS(a)", true},
+      {"IS(a)", false}, // IS("0") should be false
+      {"IS(b)", true},
       {"IS(z)", false},
       // ---
-      {"ISNOT(a)", false},
+      {"ISNOT(a)", true}, // ISNOT("0") should be true
+      {"ISNOT(b)", false},
+      {"ISNOT(z)", true}, // ISNOT(undefined) should be true
       {"EQ(a, b)", false},
       {"EQ(a, a)", true},
-      {"EQ(z, z)", true}, // undefined == undefined
+      {"EQ(z, z)", false}, // undefined == undefined should be false, any undefined EQ is false
       {"NEQ(a, b)", true},
       {"NEQ(a, a)", false},
-      {"NEQ(z, z)", false},
+      {"NEQ(z, z)", true}, // undefined != undefined should be true, opposite of EQ(z, z)
       {"GT(a, b)", false},
       {"GT(b, a)", true},
       {"GT(a, z)", false}, // a > undefined
       {"GTE(a, b)", false},
       {"GTE(b, a)", true},
       {"GTE(a, a)", true},
-      {"GTE(a, z)", true}, // a >= undefined
+      {"GTE(a, z)", false}, // a >= undefined should be false
       {"LT(a, b)", true},
       {"LT(b, a)", false},
       {"LT(a, a)", false},
@@ -41,32 +40,43 @@ int main(int argc, char** argv) {
       {"LTE(a, a)", true},
       {"LTE(a, b)", true},
       {"LTE(a, z)", false}, // a <= undefined
-      {"ALL(IS(a), IS(b))", true},
+      {"ALL(IS(a), IS(b))", false}, // since a is 0, this should be false
+      {"ALL(IS(b), IS(c))", true},
       {"ALL(IS(a), IS(z))", false},
       {"ALL(EQ(a, a), EQ(b, b))", true},
       {"ALL(EQ(a, b), EQ(b, b))", false},
       {"ALL(EQ(a, b), EQ(c, d))", false},
+      {"ALL(a, b)", false}, // not valid syntax
       {"ANY(IS(a), IS(b))", true},
-      {"ANY(IS(a), IS(z))", true},
+      {"ANY(IS(a), IS(z))", false}, // tests is: 0 or is: undefined
       {"ANY(EQ(a, a), EQ(b, b))", true},
       {"ANY(EQ(a, b), EQ(b, b))", true},
       {"ANY(EQ(a, b), EQ(c, d))", false},
       // ---
   };
+  int runOnlyIndex = -1; // debug
   try {
     std::vector<std::pair<std::string, bool>> failedTests;
-    for (const auto& [condition, expected] : basicTestCases) {
-      runner::ConditionEvaluator evaluator(initialStorage, condition);
-      bool result = evaluator.evalCondition(condition);
-      if (result != expected) {
-        failedTests.push_back({condition, result});
+    for (int i = 0; i < static_cast<int>(basicTestCases.size()); i++) {
+      const auto& [condition, expected] = basicTestCases[i];
+      if (i == runOnlyIndex || runOnlyIndex == -1) {
+        runner::ConditionEvaluator evaluator(initialStorage, condition);
+        bool result = evaluator.evalCondition(condition);
+        LOG(INFO) << "Running test " << i << ": " << condition << " -> "
+                  << (result ? "true" : "false") << LOG_ENDL;
+        if (result != expected) {
+          LOG(ERROR) << " Test " << i << " failed: " << condition << " should be "
+                     << (expected ? "true" : "false") << LOG_ENDL;
+          failedTests.push_back({condition, result});
+        }
       }
     }
     if (!failedTests.empty()) {
-      LOG(ERROR) << "Test failed: " << failedTests.size() << " tests failed" << LOG_ENDL;
-      for (const auto& [condition, result] : failedTests) {
-        LOG(ERROR) << "  " << condition << " -> " << result << LOG_ENDL;
-      }
+      LOG(ERROR) << "Test failed: " << failedTests.size() << " tests failed out of "
+                 << basicTestCases.size() << LOG_ENDL;
+      // for (const auto& [condition, result] : failedTests) {
+      //   LOG(ERROR) << "  " << condition << " -> " << result << LOG_ENDL;
+      // }
       return 1;
     }
     LOG(INFO) << TEST_NAME << " completed successfully" << LOG_ENDL;

@@ -56,12 +56,30 @@ FunctionCall parseFunctionCall(const std::string& str) {
   }
 
   std::string argsStr = str.substr(openParen + 1, closeParen - openParen - 1);
-  if (!argsStr.empty()) {
-    auto args = splitString(argsStr, ',');
-    for (auto& arg : args) {
-      result.args.push_back(trim(arg));
+  std::vector<std::string> args;
+
+  // Properly parse comma-separated args allowing for nested parentheses
+  size_t parenDepth = 0;
+  std::string currentArg;
+  for (size_t i = 0; i < argsStr.length(); ++i) {
+    char c = argsStr[i];
+    if (c == '(') {
+      parenDepth++;
+      currentArg += c;
+    } else if (c == ')') {
+      parenDepth--;
+      currentArg += c;
+    } else if (c == ',' && parenDepth == 0) {
+      result.args.push_back(trim(currentArg));
+      currentArg.clear();
+    } else {
+      currentArg += c;
     }
   }
+  if (!currentArg.empty()) {
+    result.args.push_back(trim(currentArg));
+  }
+
   return result;
 }
 
