@@ -124,6 +124,15 @@ class ConditionEvaluator {
       if (funcName === 'HasItem') {
         return Boolean(getStorage(this.storage, 'vars.items.' + args[0]));
       }
+      if (funcName === 'QuestStarted') {
+        return Boolean(getStorage(this.storage, 'vars.quests.' + args[0] + '.started'));
+      }
+      if (funcName === 'QuestCompleted') {
+        return Boolean(getStorage(this.storage, 'vars.quests.' + args[0] + '.completed'));
+      }
+      if (funcName === 'QuestStepEq') {
+        return Boolean(getStorage(this.storage, 'vars.quests.' + args[0] + '.step') === args[1]);
+      }
       console.error('Invalid FUNC conditional: ', {funcName, args});
       return false;
     },
@@ -185,7 +194,7 @@ class StringEvaluator {
     GET: (a: string) => {
       return getStorage(this.storage, a);
     },
-    SET_BOOL: (a: string, b: string) => {
+    SET_BOOL: (a: string, b: string = 'true') => {
       let v = true;
       if (b === 'true') {
         v = true;
@@ -194,6 +203,7 @@ class StringEvaluator {
       } else {
         v = true;
       }
+      // console.log(`SET_BOOL: "${a}" = "${v}"`, b);
       setStorage(this.storage, a, String(v));
     },
     SET_NUM: (a: string, b: string) => {
@@ -223,12 +233,16 @@ class StringEvaluator {
     },
     START_QUEST: (questName: string) => {
       // noop
+      setStorage(this.storage, 'vars.quests.' + questName + '.step', '1');
+      setStorage(this.storage, 'vars.quests.' + questName + '.started', 'true');
     },
     ADVANCE_QUEST: (questName: string, stepId: string) => {
       // noop
+      setStorage(this.storage, 'vars.quests.' + questName + '.step', stepId);
     },
     COMPLETE_QUEST: (questName: string) => {
       // noop
+      setStorage(this.storage, 'vars.quests.' + questName + '.completed', 'true');
     },
     SPAWN_CH: (chName: string) => {
       // noop
@@ -255,7 +269,10 @@ class StringEvaluator {
     REMOVE_ITEM_FROM_PLAYER: (itemName: string) => {
       const key = 'vars.items.' + itemName;
       this.stringFunctions.MOD_NUM(key, '-1');
-    }
+    },
+    OPEN_SHOP: (shopName: string) => {
+      // noop
+    },
   };
 
   parseFunctionCall(str: string) {
@@ -353,7 +370,7 @@ export class EventRunner {
 
   evalExecStr(str: string) {
     str = str.trim();
-    console.log('evalExecStr', str);
+    console.log(`evalExecStr: "${str}"`);
     if (str === '') {
       return true;
     }

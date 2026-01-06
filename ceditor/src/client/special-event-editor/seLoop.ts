@@ -2,12 +2,13 @@ import { drawRect } from '../utils/draw';
 import { getTransform } from './seEditorState';
 import { EditorStateSE } from './seEditorState';
 
+const COLORS = {
+  BACKGROUND1: 'black',
+  BACKGROUND2: '#243F72',
+  TEXT: 'white',
+};
 const getColors = () => {
-  return {
-    BACKGROUND1: 'black',
-    BACKGROUND2: '#243F72',
-    TEXT: 'white',
-  };
+  return COLORS;
 };
 
 export const loop = (
@@ -89,11 +90,8 @@ export const loop = (
   const selectedNodeIds = dataInterface.getEditorState().selectedNodeIds;
   const linkingExitIndex = dataInterface.getEditorState().linking.exitIndex;
 
-  // Find child node IDs of the hovered node (nodes that the hovered node points to)
-  const childNodeIds = new Set<string>();
-
-  // Find parent node IDs (nodes that point to the hovered node)
-  const parentNodeIds = new Set<string>();
+  // const childNodeIds = new Set<string>();
+  // const parentNodeIds = new Set<string>();
 
   for (const node of dataInterface.getEditorState().editorNodes) {
     node.update(ms);
@@ -105,9 +103,10 @@ export const loop = (
       isHovered: node.id === hoveredNodeId,
       isCloseButtonHovered: node.id === hoveredCloseButtonNodeId,
       isSelected: selectedNodeIds.has(node.id),
-      isChildOfHovered: childNodeIds.has(node.id),
-      isParentOfHovered: parentNodeIds.has(node.id),
-      hoveredExitIndex: dataInterface.getEditorState().hoveredExitAnchor?.exitIndex,
+      isChildOfHovered: false,
+      isParentOfHovered: false,
+      hoveredExitIndex:
+        dataInterface.getEditorState().hoveredExitAnchor?.exitIndex,
       linkingExitIndex: linkingExitIndex,
     });
   }

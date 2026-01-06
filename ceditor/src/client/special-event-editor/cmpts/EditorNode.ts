@@ -37,6 +37,17 @@ export class EditorNode {
     duration: 1000,
     t: 0,
   };
+  savedBounds: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  };
 
   constructor(seNode: SENode, editorState: EditorStateSE) {
     this.editorState = editorState;
@@ -45,6 +56,7 @@ export class EditorNode {
     this.y = seNode.y;
     this.type = seNode.eventChildType;
     this.closeButton = new EditorNodeCloseButton(this);
+    this.updateBounds();
   }
 
   startFlash(duration = 350) {
@@ -114,12 +126,15 @@ export class EditorNode {
   }
 
   getBounds() {
-    return {
-      x: this.x,
-      y: this.y,
-      width: this.width,
-      height: this.height,
-    };
+    return this.savedBounds;
+  }
+
+  updateBounds() {
+    const bounds = this.getBounds();
+    bounds.x = this.x;
+    bounds.y = this.y;
+    bounds.width = this.width;
+    bounds.height = this.height;
   }
 
   getEntrancePos() {
@@ -146,6 +161,7 @@ export class EditorNode {
   }
 
   update(dt: number) {
+    this.updateBounds();
     this.closeButton.update();
     for (const exit of this.exits) {
       exit.update();

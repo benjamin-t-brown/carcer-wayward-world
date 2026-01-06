@@ -9,7 +9,7 @@ import { GenericModal } from '../elements/GenericModal';
 interface EditGameEventModalProps {
   isOpen: boolean;
   gameEvent: GameEvent | null;
-  onConfirm: (gameEvent: GameEvent) => void;
+  onConfirm: (previousGameEvent: GameEvent, newGameEvent: GameEvent) => void;
   onCancel: () => void;
 }
 
@@ -43,7 +43,8 @@ export function EditGameEventModal({
     ) {
       return;
     }
-    onConfirm(formData);
+    console.log('formData', formData);
+    onConfirm(gameEvent, formData);
   };
 
   return (

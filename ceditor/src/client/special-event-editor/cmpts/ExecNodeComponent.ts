@@ -128,9 +128,7 @@ export class EditorNodeExec extends EditorNode {
 
   update(dt: number) {
     super.update(dt);
-    if (this.autoAdvance) {
-      this.borderColor = BORDER_AUTO_ADVANCE_COLOR;
-    }
+    this.borderColor = this.autoAdvance ? BORDER_AUTO_ADVANCE_COLOR : BORDER_COLOR;
 
     const conn = this.exits[0];
     if (conn) {

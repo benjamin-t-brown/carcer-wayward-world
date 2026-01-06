@@ -31,16 +31,10 @@ export class EditorNodeCloseButton {
   }
 
   update() {
+    const bounds = this.parentNode.getBounds();
     this.x =
-      this.parentNode.getBounds().x +
-      this.parentNode.getBounds().width -
-      this.btnSize -
-      this.parentNode.borderSize -
-      1;
-    this.y =
-      this.parentNode.getBounds().y +
-      this.parentNode.borderSize +
-      1;
+      bounds.x + bounds.width - this.btnSize - this.parentNode.borderSize - 1;
+    this.y = bounds.y + this.parentNode.borderSize + 1;
   }
 
   render(

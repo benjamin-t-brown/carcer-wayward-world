@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { CardList } from '../components/CardList';
+import { CardList, CardListAdvanced } from '../components/CardList';
 import { GameEvent } from '../types/assets';
 import { createDefaultGameEvent } from '../components/GameEventForm';
 import { CreateGameEventModal } from '../components/CreateGameEventModal';
@@ -37,6 +37,52 @@ interface SpecialEventsProps {
   routeParams?: URLSearchParams;
 }
 
+const filterGameEvents = (
+  gameEvents: GameEvent[],
+  args: {
+    searchTerm: string;
+    eventTypes: ('MODAL' | 'TALK' | 'TRAVEL')[];
+  }
+) => {
+  const { searchTerm, eventTypes } = args;
+  // Filter game events based on search term
+  const _filteredGameEvents = gameEvents
+    .filter(
+      (gameEvent) =>
+        gameEvent.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        gameEvent.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        gameEvent.eventType.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => a.id.localeCompare(b.id));
+
+  const modalEvents: GameEvent[] = [];
+  const talkEvents: GameEvent[] = [];
+  const travelEvents: GameEvent[] = [];
+  for (let i = 0; i < _filteredGameEvents.length; i++) {
+    const gameEvent = _filteredGameEvents[i];
+    if (gameEvent.eventType === 'MODAL') {
+      modalEvents.push(gameEvent);
+    } else if (gameEvent.eventType === 'TALK') {
+      talkEvents.push(gameEvent);
+    } else if (gameEvent.eventType === 'TRAVEL') {
+      travelEvents.push(gameEvent);
+    }
+  }
+
+  const filteredGameEvents: GameEvent[] = [];
+
+  if (eventTypes.includes('TALK')) {
+    filteredGameEvents.push(...talkEvents);
+  }
+  if (eventTypes.includes('MODAL')) {
+    filteredGameEvents.push(...modalEvents);
+  }
+  if (eventTypes.includes('TRAVEL')) {
+    filteredGameEvents.push(...travelEvents);
+  }
+  return filteredGameEvents;
+};
+
 export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const { spriteMap } = useSDL2WAssets();
   const { gameEvents, setGameEvents, saveGameEvents } = useAssets();
@@ -55,6 +101,9 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   );
   const [findNodeQuery, setFindNodeQuery] = useState('');
   const [recentGameEvents, setRecentGameEvents] = useState<string[]>([]);
+  const [eventsToShow, setEventsToShow] = useState<
+    ('MODAL' | 'TALK' | 'TRAVEL')[]
+  >(['MODAL', 'TALK', 'TRAVEL']);
   const reRender = useReRender();
 
   const notificationIdRef = useRef(0);
@@ -96,14 +145,6 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     updateEditorStateNoReRender({ gameEventId: gameEventId });
     reRender();
   };
-
-  // Filter game events based on search term
-  const filteredGameEvents = gameEvents.filter(
-    (gameEvent) =>
-      gameEvent.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      gameEvent.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      gameEvent.eventType.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const addRecentGameEvent = (gameEventId: string) => {
     if (recentGameEvents.some((ge) => ge === gameEventId)) {
@@ -376,6 +417,60 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     };
   }); // Include dependencies
 
+  // Autosave every 5 minutes
+  useEffect(() => {
+    const autosave = async () => {
+      const currentEditorState = getEditorState();
+      if (!currentEditorState || !currentEditorState.gameEventId) {
+        return;
+      }
+
+      const currentGameEvent = gameEvents.find(
+        (gameEvent) => gameEvent.id === currentEditorState.gameEventId
+      );
+
+      if (currentGameEvent) {
+        // Create a copy of the game event to avoid mutating the original
+        const updatedGameEvent = { ...currentGameEvent };
+        // Sync editor state to game event
+        syncGameEventFromEditorState(updatedGameEvent, currentEditorState);
+
+        // Update the gameEvents state
+        const newGameEvents = [...gameEvents];
+        const index = newGameEvents.findIndex(
+          (gameEvent) => gameEvent.id === updatedGameEvent.id
+        );
+        if (index > -1) {
+          newGameEvents[index] = updatedGameEvent;
+        }
+        setGameEvents(newGameEvents);
+
+        // Save to disk
+        try {
+          const trimmedGameEvents = trimStrings(newGameEvents);
+          const sortedGameEvents = trimmedGameEvents.sort((a, b) =>
+            a.id.localeCompare(b.id)
+          );
+          await saveGameEvents(sortedGameEvents);
+          console.log('Autosaved game events');
+        } catch (err) {
+          console.error('Autosave failed:', err);
+        }
+      }
+    };
+
+    const intervalId = setInterval(autosave, 5 * 60 * 1000); // 5 minutes
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [gameEvents, setGameEvents, saveGameEvents]);
+
+  const filteredGameEvents = filterGameEvents(gameEvents, {
+    searchTerm,
+    eventTypes: eventsToShow,
+  });
+
   const currentGameEvent = gameEvents.find(
     (gameEvent) => gameEvent.id === getEditorState().gameEventId
   );
@@ -427,46 +522,126 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
               placeholder="Search game events..."
             />
           </div>
-          <CardList
-            items={filteredGameEvents.map((ge) => ({
-              ...ge,
-              name: ge.id,
-              label: ge.title,
-            }))}
-            onItemClick={(filteredIndex) =>
-              handleGameEventClick(filteredGameEvents[filteredIndex].id)
-            }
-            onClone={(filteredIndex) =>
-              handleClone(filteredGameEvents[filteredIndex].id)
-            }
-            onDelete={(filteredIndex) =>
-              handleDeleteClick(filteredGameEvents[filteredIndex].id)
-            }
+          <div className="event-type-filters">
+            <input
+              id="show-modal-events"
+              type="checkbox"
+              checked={eventsToShow.includes('MODAL')}
+              onChange={(e) =>
+                setEventsToShow(
+                  e.target.checked
+                    ? ['MODAL', ...eventsToShow]
+                    : eventsToShow.filter((eventType) => eventType !== 'MODAL')
+                )
+              }
+            />
+            <label
+              className="event-type-filter-label"
+              htmlFor="show-modal-events"
+            >
+              MODAL
+            </label>
+            <input
+              id="show-talk-events"
+              type="checkbox"
+              checked={eventsToShow.includes('TALK')}
+              onChange={(e) =>
+                setEventsToShow(
+                  e.target.checked
+                    ? ['TALK', ...eventsToShow]
+                    : eventsToShow.filter((eventType) => eventType !== 'TALK')
+                )
+              }
+            />
+            <label
+              className="event-type-filter-label"
+              htmlFor="show-talk-events"
+            >
+              TALK
+            </label>
+            <input
+              type="checkbox"
+              checked={eventsToShow.includes('TRAVEL')}
+              onChange={(e) =>
+                setEventsToShow(
+                  e.target.checked
+                    ? ['TRAVEL', ...eventsToShow]
+                    : eventsToShow.filter((eventType) => eventType !== 'TRAVEL')
+                )
+              }
+            />
+            <label
+              className="event-type-filter-label"
+              htmlFor="show-travel-events"
+            >
+              TRAVEL
+            </label>
+          </div>
+          <CardListAdvanced
+            items={filteredGameEvents}
             selectedIndex={selectedIndex > -1 ? selectedIndex : null}
-            renderAdditionalInfo={(item) => {
-              const gameEvent = item as unknown as GameEvent;
-              const sprite = spriteMap[gameEvent.icon];
+            renderListItem={(gameEvent) => {
               return (
-                <>
-                  {/* <div
-                    className="item-info"
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <div
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '8px',
+                      gap: '4px',
                     }}
                   >
-                    {sprite && (
-                      <div style={{ display: 'inline-block' }}>
-                        <Sprite sprite={sprite} scale={0.5} />
-                      </div>
-                    )}
-                    <span className="item-type">{gameEvent.eventType}</span>
-                  </div> */}
-                </>
+                    <span
+                      className="item-type"
+                      style={{
+                        background:
+                          gameEvent.eventType === 'MODAL'
+                            ? '#4e4980'
+                            : gameEvent.eventType === 'TALK'
+                            ? '#4a7c59'
+                            : '#a1260d',
+                      }}
+                    >
+                      {gameEvent.eventType}
+                    </span>
+                    <div className="item-id">{gameEvent.id}</div>
+                  </div>
+                  <div className="item-card-actions">
+                    <Button
+                      variant="icon"
+                      onClick={() => handleClone(gameEvent.id)}
+                    >
+                      <span
+                        role="img"
+                        aria-label="Clone"
+                        style={{ filter: 'sepia(1) brightness(1.5)' }}
+                      >
+                        ➕
+                      </span>
+                    </Button>
+                    <Button
+                      variant="icon"
+                      onClick={() => handleDeleteClick(gameEvent.id)}
+                    >
+                      <span
+                        role="img"
+                        aria-label="Delete"
+                        style={{ filter: 'sepia(1) brightness(1.5)' }}
+                      >
+                        ❌
+                      </span>
+                    </Button>
+                  </div>
+                </div>
               );
             }}
-            emptyMessage="No game events found"
+            onItemClick={(index) =>
+              handleGameEventClick(filteredGameEvents[index].id)
+            }
           />
         </div>
 
@@ -614,10 +789,10 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
         <EditGameEventModal
           isOpen={showEditGameEventModal}
           gameEvent={currentGameEvent}
-          onConfirm={(updatedGameEvent) => {
+          onConfirm={(previousGameEvent, updatedGameEvent) => {
             const newGameEvents = [...gameEvents];
             const index = newGameEvents.findIndex(
-              (gameEvent) => gameEvent.id === updatedGameEvent.id
+              (gameEvent) => gameEvent.id === previousGameEvent.id
             );
             if (index > -1) {
               newGameEvents[index] = updatedGameEvent;

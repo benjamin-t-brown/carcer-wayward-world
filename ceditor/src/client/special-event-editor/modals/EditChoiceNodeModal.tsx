@@ -6,6 +6,7 @@ import { EditorNodeChoice } from '../cmpts/ChoiceNodeComponent';
 import { notifyStateUpdated } from '../seEditorState';
 import { ExecWidget } from '../react-components/ExecWidget';
 import { AudioWidget } from '../react-components/AudioWidget';
+import { ItemTemplateWidget } from '../react-components/ItemTemplateWidget';
 
 interface EditChoiceNodeModalProps {
   isOpen: boolean;
@@ -48,6 +49,9 @@ const ChoiceTextInput = (props: {
         backgroundColor: props.disabled ? '#3e3e42' : '#1e1e1e',
         border: '1px solid ' + (borderColor ? borderColor : '#3e3e42'),
         borderRadius: '4px',
+        marginRight: '2px',
+        marginTop: '1px',
+        marginBottom: '1px',
         color: '#d4d4d4',
         fontFamily: monospace ? 'monospace' : 'arial',
         fontSize: '12px',
@@ -233,14 +237,23 @@ export function EditChoiceNodeModal({
             marginBottom: '20px',
           }}
         >
-          <div style={{ width: '50%' }}>
+          <div style={{ width: '34%' }}>
             <VariableWidget gameEvent={gameEvent} />
           </div>
-          <div style={{ width: '50%' }}>
+          <div style={{ width: '33%' }}>
             <ExecWidget gameEvent={gameEvent} />
           </div>
+          <div style={{ width: '33%' }}>
+            <ItemTemplateWidget gameEvent={gameEvent} />
+          </div>
         </div>
-        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between' }}>
+        <div
+          style={{
+            marginBottom: '20px',
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
+        >
           <div style={{ width: '75%' }}>
             <div
               style={{
@@ -264,7 +277,7 @@ export function EditChoiceNodeModal({
                 color: '#d4d4d4',
                 fontFamily: 'arial',
                 fontSize: '16px',
-                height: '200px',
+                height: '100px',
               }}
             />
           </div>
@@ -312,7 +325,7 @@ export function EditChoiceNodeModal({
           <div
             id="choice-node-choices"
             style={{
-              height: '350px',
+              height: '450px',
               overflow: 'auto',
             }}
           >

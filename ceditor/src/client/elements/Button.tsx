@@ -1,6 +1,6 @@
 import React from 'react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'back' | 'small';
+type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'back' | 'small' | 'icon';
 
 interface ButtonProps {
   children: React.ReactNode;
@@ -31,6 +31,8 @@ export const Button: React.FC<ButtonProps> = ({
         return 'btn-back';
       case 'small':
         return 'btn-small';
+      case 'icon':
+        return 'btn-icon';
       default:
         return 'btn-primary';
     }

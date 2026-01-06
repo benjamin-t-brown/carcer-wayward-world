@@ -49,10 +49,7 @@ export function CardList<T extends ListItem>({
                 className="item-card-actions"
                 onClick={(e) => e.stopPropagation()}
               >
-                <Button
-                  variant="small"
-                  onClick={() => onClone(index)}
-                >
+                <Button variant="small" onClick={() => onClone(index)}>
                   Clone
                 </Button>
                 <Button
@@ -77,3 +74,41 @@ export function CardList<T extends ListItem>({
   );
 }
 
+interface CardListAdvancedProps<T> {
+  items: T[];
+  renderListItem: (item: T) => React.ReactNode;
+  selectedIndex?: number | null;
+  onItemClick: (index: number) => void;
+  emptyMessage?: string;
+}
+
+export function CardListAdvanced<T>({
+  items,
+  renderListItem,
+  selectedIndex = null,
+  onItemClick,
+  emptyMessage = 'No items found',
+}: CardListAdvancedProps<T>) {
+  if (items.length === 0) {
+    return <div className="empty-state">{emptyMessage}</div>;
+  }
+
+  return (
+    <div className="item-list">
+      {items.map((item, index) => {
+        const isSelected = selectedIndex === index;
+        return (
+          <Card
+            key={index}
+            id={`item-card-${index}`}
+            variant="item"
+            className={isSelected ? 'editing' : ''}
+            onClick={() => onItemClick(index)}
+          >
+            {renderListItem(item)}
+          </Card>
+        );
+      })}
+    </div>
+  );
+}
