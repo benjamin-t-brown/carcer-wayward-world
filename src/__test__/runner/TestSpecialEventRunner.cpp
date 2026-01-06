@@ -163,7 +163,7 @@ int main(int argc, char** argv) {
 
     // Test: Variable replacement
     std::string testText = "Hello @TEST_VAR world";
-    std::string replaced = runner.replaceVariables(testText, false);
+    std::string replaced = runner.replaceVariables(testText);
     if (replaced.find("Hello") == std::string::npos ||
         replaced.find("world") == std::string::npos) {
       LOG(ERROR) << "Variable replacement failed" << LOG_ENDL;

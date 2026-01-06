@@ -43,7 +43,7 @@ public:
       const std::vector<model::GameEvent>& gameEvents);
 
   std::optional<model::GameEventChild> getCurrentNode();
-  std::string replaceVariables(const std::string& text, bool highlight = false);
+  std::string replaceVariables(const std::string& text);
   bool evalExecStr(const std::string& str);
   ConditionResult evalCondition(const std::string& conditionStr);
   void commitOnceKeys(const std::vector<std::string>& onceKeysToCommit);

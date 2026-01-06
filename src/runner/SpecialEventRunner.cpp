@@ -1,7 +1,7 @@
 #include "SpecialEventRunner.h"
 #include "ConditionEvaluator.h"
-#include "StringEvaluator.h"
 #include "EventRunnerHelpers.h"
+#include "StringEvaluator.h"
 #include <algorithm>
 #include <functional>
 
@@ -98,8 +98,7 @@ std::vector<model::Variable> SpecialEventRunner::getVarsFromNode() {
   return vars;
 }
 
-std::string SpecialEventRunner::replaceVariables(const std::string& text,
-                                                 bool highlight) {
+std::string SpecialEventRunner::replaceVariables(const std::string& text) {
   auto vars = getVarsFromNode();
   std::string result = trim(text);
 
@@ -107,10 +106,6 @@ std::string SpecialEventRunner::replaceVariables(const std::string& text,
     std::string placeholder = "@" + variable.key;
     std::string value = variable.value;
     result = replaceAll(result, placeholder, value);
-    if (highlight) {
-      // In C++ we don't add HTML, just use the value
-      // (user said to remove HTML parts)
-    }
   }
 
   return result;
@@ -203,12 +198,12 @@ void SpecialEventRunner::advance(const std::string& nextNodeId,
           for (const auto& strLine : strLines) {
             evalExecStr(replaceVariables(strLine));
           }
-          displayText = replaceVariables(joinParagraphs(node.paragraphs), true);
+          displayText = replaceVariables(joinParagraphs(node.paragraphs));
           if (displayText.empty() || node.autoAdvance) {
             advance(node.next, {}, "");
           }
         } else if constexpr (std::is_same_v<T, model::GameEventChildChoice>) {
-          displayText = replaceVariables(node.text, true);
+          displayText = replaceVariables(node.text);
           for (const auto& choice : node.choices) {
             ConditionResult obj;
             if (!choice.conditionStr.empty()) {
@@ -218,9 +213,9 @@ void SpecialEventRunner::advance(const std::string& nextNodeId,
             }
             if (obj.result) {
               DisplayTextChoice displayChoice;
-              displayChoice.prefix = (replaceVariables(choice.prefixText, false));
-              displayChoice.text = (replaceVariables(choice.text, true));
-              displayChoice.execStr = (replaceVariables(choice.evalStr, false));
+              displayChoice.prefix = (replaceVariables(choice.prefixText));
+              displayChoice.text = (replaceVariables(choice.text));
+              displayChoice.execStr = (replaceVariables(choice.evalStr));
               displayChoice.next = choice.next;
               displayChoice.onceKeysToCommit = obj.onceKeysToCommit;
               displayTextChoices.push_back(displayChoice);

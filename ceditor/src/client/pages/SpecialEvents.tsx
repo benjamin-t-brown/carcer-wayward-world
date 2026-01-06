@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { CardList, CardListAdvanced } from '../components/CardList';
+import { CardListAdvanced } from '../components/CardList';
 import { GameEvent } from '../types/assets';
-import { createDefaultGameEvent } from '../components/GameEventForm';
 import { CreateGameEventModal } from '../components/CreateGameEventModal';
 import { EditGameEventModal } from '../components/EditGameEventModal';
 import { SpecialEventEditor } from '../special-event-editor/SpecialEventEditor';
@@ -10,14 +9,11 @@ import { Button } from '../elements/Button';
 import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
-import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
-import { Sprite } from '../elements/Sprite';
 import {
   centerPanzoomOnNode,
   getEditorState,
   saveEditorStateForGameEvent,
   syncGameEventFromEditorState,
-  updateEditorState,
   updateEditorStateNoReRender,
 } from '../special-event-editor/seEditorState';
 import { EventRunnerModal } from '../special-event-editor/eventRunner/EventRunnerModal';
@@ -84,9 +80,7 @@ const filterGameEvents = (
 };
 
 export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
-  const { spriteMap } = useSDL2WAssets();
   const { gameEvents, setGameEvents, saveGameEvents } = useAssets();
-  // const [editGameEventIndex, setEditGameEventIndex] = useState<number>(-1);
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);

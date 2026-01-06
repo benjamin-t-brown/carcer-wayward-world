@@ -104,87 +104,79 @@ void StringEvaluatorFuncs::REMOVE_ITEM_AT(const std::string& x,
   // noop
 }
 
+void StringEvaluatorFuncs::ADD_ITEM_TO_PLAYER(const std::string& itemName) {
+  // noop
+}
+
+void StringEvaluatorFuncs::REMOVE_ITEM_FROM_PLAYER(const std::string& itemName) {
+  // noop
+}
+
+void StringEvaluatorFuncs::OPEN_SHOP(const std::string& shopName) {
+  // noop
+}
+
 StringEvaluator::StringEvaluator(std::unordered_map<std::string, std::string>& storage,
                                  const std::string& baseStringStr)
     : baseStringStr(baseStringStr), funcs(storage) {}
+
+void StringEvaluator::assertFuncArgs(const std::string& funcName,
+                                     const std::vector<std::string>& funcArgs,
+                                     size_t expectedArgs) {
+  if (funcArgs.size() != expectedArgs) {
+    throw std::runtime_error("Invalid number of arguments for function '" + funcName +
+                             "'. Expected " + std::to_string(expectedArgs) + ", got " +
+                             std::to_string(funcArgs.size()));
+  }
+}
 
 void StringEvaluator::evalStr(const std::string& str) {
   if (isFunctionCall(str)) {
     FunctionCall call = parseFunctionCall(str);
     if (call.funcName == "GET") {
-      if (call.args.size() != 1) {
-        throw std::runtime_error("GET requires 1 argument");
-      }
-      funcs.GET(call.args[0]);
+      assertFuncArgs(call.funcName, call.args, 1);
+      strResult = funcs.GET(call.args[0]);
     } else if (call.funcName == "SET_BOOL") {
-      if (call.args.size() != 2) {
-        throw std::runtime_error("SET_BOOL requires 2 arguments");
-      }
+      assertFuncArgs(call.funcName, call.args, 2);
       funcs.SET_BOOL(call.args[0], call.args[1]);
     } else if (call.funcName == "SET_NUM") {
-      if (call.args.size() != 2) {
-        throw std::runtime_error("SET_NUM requires 2 arguments");
-      }
+      assertFuncArgs(call.funcName, call.args, 2);
       funcs.SET_NUM(call.args[0], call.args[1]);
     } else if (call.funcName == "MOD_NUM") {
-      if (call.args.size() != 2) {
-        throw std::runtime_error("MOD_NUM requires 2 arguments");
-      }
+      assertFuncArgs(call.funcName, call.args, 2);
       funcs.MOD_NUM(call.args[0], call.args[1]);
     } else if (call.funcName == "SET_STR") {
-      if (call.args.size() != 2) {
-        throw std::runtime_error("SET_STR requires 2 arguments");
-      }
+      assertFuncArgs(call.funcName, call.args, 2);
       funcs.SET_STR(call.args[0], call.args[1]);
     } else if (call.funcName == "SETUP_DISPOSITION") {
-      if (call.args.size() != 1) {
-        throw std::runtime_error("SETUP_DISPOSITION requires 1 argument");
-      }
+      assertFuncArgs(call.funcName, call.args, 1);
       funcs.SETUP_DISPOSITION(call.args[0]);
     } else if (call.funcName == "START_QUEST") {
-      if (call.args.size() != 1) {
-        throw std::runtime_error("START_QUEST requires 1 argument");
-      }
+      assertFuncArgs(call.funcName, call.args, 1);
       funcs.START_QUEST(call.args[0]);
     } else if (call.funcName == "ADVANCE_QUEST") {
-      if (call.args.size() != 2) {
-        throw std::runtime_error("ADVANCE_QUEST requires 2 arguments");
-      }
+      assertFuncArgs(call.funcName, call.args, 2);
       funcs.ADVANCE_QUEST(call.args[0], call.args[1]);
     } else if (call.funcName == "COMPLETE_QUEST") {
-      if (call.args.size() != 1) {
-        throw std::runtime_error("COMPLETE_QUEST requires 1 argument");
-      }
+      assertFuncArgs(call.funcName, call.args, 1);
       funcs.COMPLETE_QUEST(call.args[0]);
     } else if (call.funcName == "SPAWN_CH") {
-      if (call.args.size() != 1) {
-        throw std::runtime_error("SPAWN_CH requires 1 argument");
-      }
+      assertFuncArgs(call.funcName, call.args, 1);
       funcs.SPAWN_CH(call.args[0]);
     } else if (call.funcName == "DESPAWN_CH") {
-      if (call.args.size() != 1) {
-        throw std::runtime_error("DESPAWN_CH requires 1 argument");
-      }
+      assertFuncArgs(call.funcName, call.args, 1);
       funcs.DESPAWN_CH(call.args[0]);
     } else if (call.funcName == "CHANGE_TILE_AT") {
-      if (call.args.size() != 3) {
-        throw std::runtime_error("CHANGE_TILE_AT requires 3 arguments");
-      }
+      assertFuncArgs(call.funcName, call.args, 3);
       funcs.CHANGE_TILE_AT(call.args[0], call.args[1], call.args[2]);
     } else if (call.funcName == "TELEPORT_TO") {
-      if (call.args.size() != 3) {
-        throw std::runtime_error("TELEPORT_TO requires 3 arguments");
-      }
+      assertFuncArgs(call.funcName, call.args, 3);
       funcs.TELEPORT_TO(call.args[0], call.args[1], call.args[2]);
     } else if (call.funcName == "ADD_ITEM_AT") {
-      if (call.args.size() != 3) {
-        throw std::runtime_error("ADD_ITEM_AT requires 3 arguments");
-      }
+      assertFuncArgs(call.funcName, call.args, 3);
       funcs.ADD_ITEM_AT(call.args[0], call.args[1], call.args[2]);
     } else if (call.funcName == "REMOVE_ITEM_AT") {
-      if (call.args.size() != 3) {
-        throw std::runtime_error("REMOVE_ITEM_AT requires 3 arguments");
-      }
+      assertFuncArgs(call.funcName, call.args, 3);
       funcs.REMOVE_ITEM_AT(call.args[0], call.args[1], call.args[2]);
     } else {
       throw std::runtime_error("Function '" + call.funcName +

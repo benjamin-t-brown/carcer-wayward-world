@@ -22,26 +22,32 @@ struct StringEvaluatorFuncs {
   void COMPLETE_QUEST(const std::string& questName);
   void SPAWN_CH(const std::string& chName);
   void DESPAWN_CH(const std::string& chName);
-  void CHANGE_TILE_AT(const std::string& x, const std::string& y,
-                      const std::string& tileName);
-  void TELEPORT_TO(const std::string& x, const std::string& y,
-                   const std::string& mapName);
-  void ADD_ITEM_AT(const std::string& x, const std::string& y,
-                   const std::string& itemName);
-  void REMOVE_ITEM_AT(const std::string& x, const std::string& y,
-                      const std::string& itemName);
+  void
+  CHANGE_TILE_AT(const std::string& x, const std::string& y, const std::string& tileName);
+  void
+  TELEPORT_TO(const std::string& x, const std::string& y, const std::string& mapName);
+  void
+  ADD_ITEM_AT(const std::string& x, const std::string& y, const std::string& itemName);
+  void
+  REMOVE_ITEM_AT(const std::string& x, const std::string& y, const std::string& itemName);
+  void ADD_ITEM_TO_PLAYER(const std::string& itemName);
+  void REMOVE_ITEM_FROM_PLAYER(const std::string& itemName);
+  void OPEN_SHOP(const std::string& shopName);
 };
 
 class StringEvaluator {
 public:
   std::string baseStringStr;
   StringEvaluatorFuncs funcs;
+  std::string strResult;
 
   StringEvaluator(std::unordered_map<std::string, std::string>& storage,
                   const std::string& baseStringStr);
 
+  void assertFuncArgs(const std::string& funcName,
+                      const std::vector<std::string>& funcArgs,
+                      size_t expectedArgs);
   void evalStr(const std::string& str);
 };
 
 } // namespace runner
-

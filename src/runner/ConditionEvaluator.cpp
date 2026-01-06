@@ -5,7 +5,7 @@
 namespace runner {
 
 ConditionEvaluatorFuncs::ConditionEvaluatorFuncs(
-    std::unordered_map<std::string, std::string>& storage)
+    const std::unordered_map<std::string, std::string>& storage)
     : storage(storage) {}
 
 bool ConditionEvaluatorFuncs::IS(const std::string& a) {
@@ -127,64 +127,77 @@ bool ConditionEvaluatorFuncs::ONCE(const std::string& a) {
 }
 
 ConditionEvaluator::ConditionEvaluator(
-    std::unordered_map<std::string, std::string>& storage,
+    const std::unordered_map<std::string, std::string>& storage,
     const std::string& baseConditionStr)
     : baseConditionStr(baseConditionStr), funcs(storage) {}
 
+void ConditionEvaluator::assertFuncArgs(const std::string& funcName,
+                                        const std::vector<std::string>& funcArgs,
+                                        size_t expectedArgs) {
+  if (funcArgs.size() != expectedArgs) {
+    throw std::runtime_error("Invalid number of arguments for function '" + funcName +
+                             "'. Expected " + std::to_string(expectedArgs) + ", got " +
+                             std::to_string(funcArgs.size()));
+  }
+}
+
 bool ConditionEvaluator::evalFunc(const std::string& funcName,
-                                   const std::vector<std::string>& funcArgs) {
+                                  const std::vector<std::string>& funcArgs) {
   if (funcName == "IS") {
-    if (funcArgs.size() != 1) {
-      throw std::runtime_error("IS requires 1 argument");
-    }
+    assertFuncArgs(funcName, funcArgs, 1);
     return funcs.IS(funcArgs[0]);
   } else if (funcName == "ISNOT") {
-    if (funcArgs.size() != 1) {
-      throw std::runtime_error("ISNOT requires 1 argument");
-    }
+    assertFuncArgs(funcName, funcArgs, 1);
     return funcs.ISNOT(funcArgs[0]);
   } else if (funcName == "EQ") {
-    if (funcArgs.size() != 2) {
-      throw std::runtime_error("EQ requires 2 arguments");
-    }
+    assertFuncArgs(funcName, funcArgs, 2);
     return funcs.EQ(funcArgs[0], funcArgs[1]);
   } else if (funcName == "NEQ") {
-    if (funcArgs.size() != 2) {
-      throw std::runtime_error("NEQ requires 2 arguments");
-    }
+    assertFuncArgs(funcName, funcArgs, 2);
     return funcs.NEQ(funcArgs[0], funcArgs[1]);
   } else if (funcName == "GT") {
-    if (funcArgs.size() != 2) {
-      throw std::runtime_error("GT requires 2 arguments");
-    }
+    assertFuncArgs(funcName, funcArgs, 2);
     return funcs.GT(funcArgs[0], funcArgs[1]);
   } else if (funcName == "GTE") {
-    if (funcArgs.size() != 2) {
-      throw std::runtime_error("GTE requires 2 arguments");
-    }
+    assertFuncArgs(funcName, funcArgs, 2);
     return funcs.GTE(funcArgs[0], funcArgs[1]);
   } else if (funcName == "LT") {
-    if (funcArgs.size() != 2) {
-      throw std::runtime_error("LT requires 2 arguments");
-    }
+    assertFuncArgs(funcName, funcArgs, 2);
     return funcs.LT(funcArgs[0], funcArgs[1]);
   } else if (funcName == "LTE") {
-    if (funcArgs.size() != 2) {
-      throw std::runtime_error("LTE requires 2 arguments");
-    }
+    assertFuncArgs(funcName, funcArgs, 2);
     return funcs.LTE(funcArgs[0], funcArgs[1]);
   } else if (funcName == "ALL") {
     return funcs.ALL(funcArgs);
   } else if (funcName == "ANY") {
     return funcs.ANY(funcArgs);
   } else if (funcName == "ONCE") {
-    if (funcArgs.size() != 1) {
-      throw std::runtime_error("ONCE requires 1 argument");
-    }
+    assertFuncArgs(funcName, funcArgs, 1);
     return funcs.ONCE(funcArgs[0]);
-  } else {
-    throw std::runtime_error("Conditional function '" + funcName + "' not found.");
+  } else if (funcName == "FUNC") {
+    assertFuncArgs(funcName, funcArgs, 1);
+    const std::string& subFuncName = funcArgs[0];
+    if (subFuncName == "HasItem") {
+      assertFuncArgs(funcName + "." + subFuncName, funcArgs, 2);
+      return funcs.FUNC_HasItem(funcArgs[1]);
+    }
+    if (subFuncName == "QuestStarted") {
+      assertFuncArgs(funcName + "." + subFuncName, funcArgs, 2);
+      return funcs.FUNC_QuestStarted(funcArgs[1]);
+    }
+    if (subFuncName == "QuestCompleted") {
+      assertFuncArgs(funcName + "." + subFuncName, funcArgs, 2);
+      return funcs.FUNC_QuestCompleted(funcArgs[1]);
+    }
+    if (subFuncName == "QuestStepEq") {
+      assertFuncArgs(funcName + "." + subFuncName, funcArgs, 3);
+      return funcs.FUNC_QuestStepEq(funcArgs[1], funcArgs[2]);
+    } else {
+      throw std::runtime_error("Conditional FUNC sub function '" + subFuncName +
+                               "' not found.");
+    }
   }
+  return false;
 }
 
 bool ConditionEvaluator::evalCondition(const std::string& str) {
@@ -207,4 +220,3 @@ bool ConditionEvaluator::evalCondition(const std::string& str) {
 }
 
 } // namespace runner
-
