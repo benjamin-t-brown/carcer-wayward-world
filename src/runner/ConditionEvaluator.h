@@ -15,6 +15,7 @@ struct ConditionEvaluatorFuncs {
 
   std::optional<int> getNumFromStorageOrArgInt(const std::string& a);
   std::optional<double> getNumFromStorageOrArgDouble(const std::string& a);
+  bool isNumber(const std::string& a);
 
   bool IS(const std::string& a);
   bool ISNOT(const std::string& a);

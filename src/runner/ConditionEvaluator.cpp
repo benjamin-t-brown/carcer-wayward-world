@@ -55,7 +55,17 @@ ConditionEvaluatorFuncs::getNumFromStorageOrArgDouble(const std::string& a) {
   return std::nullopt;
 }
 
+bool ConditionEvaluatorFuncs::isNumber(const std::string& a) {
+  return getNumFromStorageOrArgDouble(a).has_value();
+}
+
 bool ConditionEvaluatorFuncs::IS(const std::string& a) {
+  if (a == "true") {
+    return true;
+  }
+  if (a == "false") {
+    return false;
+  }
   auto v = getStorage(storage, a);
   std::string vStr = getStorage(storage, a).value_or("");
   if (vStr == "0" || vStr == "false" || vStr.empty()) {
@@ -67,17 +77,24 @@ bool ConditionEvaluatorFuncs::IS(const std::string& a) {
 bool ConditionEvaluatorFuncs::ISNOT(const std::string& a) { return !IS(a); }
 
 bool ConditionEvaluatorFuncs::EQ(const std::string& a, const std::string& b) {
-  // strict eq ===
-  auto v1Storage = getStorage(storage, a);
-  auto v2Storage = getStorage(storage, b);
-  std::string v1Str = v1Storage.value_or("");
-  std::string v2Str = v2Storage.value_or("");
-  if (v1Storage && v2Storage) {
-    return *v1Storage == *v2Storage;
-  } else if (v1Storage && !v2Storage) {
+  auto aStorage = getStorage(storage, a);
+  auto bStorage = getStorage(storage, b);
+
+  if (aStorage && bStorage) {
+    return *aStorage == *bStorage;
+  } else if (aStorage && !bStorage) {
+    if (isNumber(b)) {
+      return *aStorage == b;
+    }
     return false;
-  } else if (!v1Storage && v2Storage) {
+  } else if (!aStorage && bStorage) {
+    if (isNumber(a)) {
+      return a == *bStorage;
+    }
     return false;
+  }
+  if (isNumber(a) && isNumber(b)) {
+    return a == b;
   }
   return false;
 }
@@ -117,8 +134,11 @@ bool ConditionEvaluatorFuncs::LTE(const std::string& a, const std::string& b) {
 
 bool ConditionEvaluatorFuncs::ALL(const std::vector<std::string>& args) {
   for (const auto& arg : args) {
-    if (arg != "true") {
+    if (arg == "false") {
       return false;
+    }
+    if (arg != "true") {
+      throw std::runtime_error("Invalid argument for ALL: " + arg);
     }
   }
   return true;
@@ -128,6 +148,9 @@ bool ConditionEvaluatorFuncs::ANY(const std::vector<std::string>& args) {
   for (const auto& arg : args) {
     if (arg == "true") {
       return true;
+    }
+    if (arg != "false") {
+      throw std::runtime_error("Invalid argument for ANY: " + arg);
     }
   }
   return false;
@@ -272,6 +295,7 @@ bool ConditionEvaluator::evalFunc(const std::string& funcName,
                                "' not found.");
     }
   }
+  throw std::runtime_error("Conditional function '" + funcName + "' not found.");
   return false;
 }
 
