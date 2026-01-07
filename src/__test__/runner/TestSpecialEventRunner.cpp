@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
     choiceNode.eventChildType = model::GameEventChildType::CHOICE;
     choiceNode.id = "choice_node";
     choiceNode.text = "Choose an option:";
-    
+
     model::Choice choice1;
     choice1.text = "Option 1";
     choice1.prefixText = "";
@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
     testEvent.children.push_back(endNode);
 
     // Create empty gameEvents vector
-    std::vector<model::GameEvent> gameEvents;
+    std::unordered_map<std::string, model::GameEvent> gameEvents;
 
     // Initialize storage
     std::unordered_map<std::string, std::string> initialStorage;
@@ -84,12 +84,11 @@ int main(int argc, char** argv) {
       return 1;
     }
     if (runner.currentNodeId != "root") {
-      LOG(ERROR) << "Expected to start at root node, but got: "
-                 << runner.currentNodeId << LOG_ENDL;
+      LOG(ERROR) << "Expected to start at root node, but got: " << runner.currentNodeId
+                 << LOG_ENDL;
       return 1;
     }
-    LOG(INFO) << "Successfully got current node: " << runner.currentNodeId
-              << LOG_ENDL;
+    LOG(INFO) << "Successfully got current node: " << runner.currentNodeId << LOG_ENDL;
 
     // Test: Manually execute the root node's execStr to test SET_STR
     // (In a real scenario, you'd process the root node first, but for this test
@@ -118,8 +117,7 @@ int main(int argc, char** argv) {
                  << LOG_ENDL;
       return 1;
     }
-    LOG(INFO) << "Found " << runner.displayTextChoices.size()
-              << " choices" << LOG_ENDL;
+    LOG(INFO) << "Found " << runner.displayTextChoices.size() << " choices" << LOG_ENDL;
 
     // Check that choice2 is available (because test_key exists)
     bool foundChoice2 = false;
@@ -131,8 +129,7 @@ int main(int argc, char** argv) {
       }
     }
     if (!foundChoice2) {
-      LOG(ERROR) << "Choice 2 should be available because test_key exists"
-                 << LOG_ENDL;
+      LOG(ERROR) << "Choice 2 should be available because test_key exists" << LOG_ENDL;
       return 1;
     }
 
@@ -143,8 +140,7 @@ int main(int argc, char** argv) {
 
       // Check that choice1_selected was set
       auto choice1Selected = runner.storage.find("choice1_selected");
-      if (choice1Selected == runner.storage.end() ||
-          choice1Selected->second != "true") {
+      if (choice1Selected == runner.storage.end() || choice1Selected->second != "true") {
         LOG(ERROR) << "choice1_selected was not set correctly" << LOG_ENDL;
         return 1;
       }
@@ -155,8 +151,8 @@ int main(int argc, char** argv) {
     if (!runner.errors.empty()) {
       LOG(ERROR) << "Found " << runner.errors.size() << " errors:" << LOG_ENDL;
       for (const auto& error : runner.errors) {
-        LOG(ERROR) << "  Node: " << error.nodeId
-                   << ", Message: " << error.message << LOG_ENDL;
+        LOG(ERROR) << "  Node: " << error.nodeId << ", Message: " << error.message
+                   << LOG_ENDL;
       }
       return 1;
     }
@@ -169,8 +165,8 @@ int main(int argc, char** argv) {
       LOG(ERROR) << "Variable replacement failed" << LOG_ENDL;
       return 1;
     }
-    LOG(INFO) << "Variable replacement test: '" << testText << "' -> '"
-              << replaced << "'" << LOG_ENDL;
+    LOG(INFO) << "Variable replacement test: '" << testText << "' -> '" << replaced << "'"
+              << LOG_ENDL;
 
     // Test: Condition evaluation
     runner::ConditionResult condResult = runner.evalCondition("IS(test_key)");
@@ -200,4 +196,3 @@ int main(int argc, char** argv) {
     return 1;
   }
 }
-

@@ -267,6 +267,10 @@ bool ConditionEvaluator::evalFunc(const std::string& funcName,
       subArgs.push_back(simplifyArg(arg));
     }
     return funcs.ANY(subArgs);
+  } else if (funcName == "ONCE") {
+    assertFuncArgs(funcName, funcArgs, 1);
+    std::string a = simplifyArg(funcArgs[0]);
+    return funcs.ONCE(a);
   } else if (funcName == "FUNC") {
     assertFuncArgs(funcName, funcArgs, 1);
     std::string subFuncName = simplifyArg(funcArgs[0]);

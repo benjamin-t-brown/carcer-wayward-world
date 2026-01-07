@@ -1,7 +1,25 @@
 #include "StringEvaluator.h"
+#include <cmath>
 #include <stdexcept>
 
 namespace runner {
+
+// Helper function to format number as string: integer if no decimal, otherwise keep decimals
+static std::string formatNumber(double n) {
+  // Check if the number is an integer (no fractional part)
+  double intPart;
+  if (std::modf(n, &intPart) == 0.0) {
+    // It's an integer, convert to int then to string
+    return std::to_string(static_cast<int>(n));
+  } else {
+    // It has decimal places, convert to string and remove trailing zeros
+    std::string result = std::to_string(n);
+    // Remove trailing zeros and decimal point if needed
+    result.erase(result.find_last_not_of('0') + 1, std::string::npos);
+    result.erase(result.find_last_not_of('.') + 1, std::string::npos);
+    return result;
+  }
+}
 
 StringEvaluatorFuncs::StringEvaluatorFuncs(
     std::unordered_map<std::string, std::string>& storage)
@@ -27,7 +45,7 @@ void StringEvaluatorFuncs::SET_BOOL(const std::string& a, const std::string& b) 
 void StringEvaluatorFuncs::SET_NUM(const std::string& a, const std::string& b) {
   try {
     double n = std::stod(b);
-    setStorage(storage, a, std::to_string(n));
+    setStorage(storage, a, formatNumber(n));
   } catch (...) {
     throw std::runtime_error("Invalid number value: " + b);
   }
@@ -45,7 +63,7 @@ void StringEvaluatorFuncs::MOD_NUM(const std::string& a, const std::string& b) {
         throw std::runtime_error("Variable " + a + " is not a number");
       }
     }
-    setStorage(storage, a, std::to_string(currentN + n));
+    setStorage(storage, a, formatNumber(currentN + n));
   } catch (...) {
     throw std::runtime_error("Invalid number value: " + b);
   }
@@ -137,8 +155,12 @@ void StringEvaluator::evalStr(const std::string& str) {
       assertFuncArgs(call.funcName, call.args, 1);
       strResult = funcs.GET(call.args[0]);
     } else if (call.funcName == "SET_BOOL") {
-      assertFuncArgs(call.funcName, call.args, 2);
-      funcs.SET_BOOL(call.args[0], call.args[1]);
+      if (call.args.size() == 1) {
+        funcs.SET_BOOL(call.args[0], "true");
+      } else {
+        assertFuncArgs(call.funcName, call.args, 2);
+        funcs.SET_BOOL(call.args[0], call.args[1]);
+      }
     } else if (call.funcName == "SET_NUM") {
       assertFuncArgs(call.funcName, call.args, 2);
       funcs.SET_NUM(call.args[0], call.args[1]);

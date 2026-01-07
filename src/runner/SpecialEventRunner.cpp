@@ -4,6 +4,7 @@
 #include "StringEvaluator.h"
 #include <algorithm>
 #include <functional>
+#include <vector>
 
 namespace runner {
 
@@ -22,10 +23,18 @@ replaceAll(std::string str, const std::string& from, const std::string& to) {
 SpecialEventRunner::SpecialEventRunner(
     const std::unordered_map<std::string, std::string>& initialStorage,
     const model::GameEvent& gameEvent,
-    const std::vector<model::GameEvent>& gameEvents)
+    const std::unordered_map<std::string, model::GameEvent>& gameEvents)
     : storage(initialStorage), gameEvent(gameEvent), gameEvents(gameEvents) {
+  reset();
+}
+
+void SpecialEventRunner::reset() {
   // Find root node or use first node
   bool hasRoot = false;
+  displayText.clear();
+  displayTextChoices.clear();
+  errors.clear();
+  currentNodeId = "";
   for (const auto& child : gameEvent.children) {
     std::visit(
         [&hasRoot](const auto& node) {
@@ -62,6 +71,23 @@ std::optional<model::GameEventChild> SpecialEventRunner::getCurrentNode() {
   return std::nullopt;
 }
 
+std::string SpecialEventRunner::getNextNodeId() {
+  auto currentNode = getCurrentNode();
+  if (!currentNode) {
+    return "";
+  }
+  std::string nextNodeId;
+  std::visit(
+      [&nextNodeId](const auto& node) {
+        using T = std::decay_t<decltype(node)>;
+        if constexpr (std::is_same_v<T, model::GameEventChildExec>) {
+          nextNodeId = node.next;
+        }
+      },
+      *currentNode);
+  return nextNodeId;
+}
+
 std::vector<model::Variable> SpecialEventRunner::getVarsFromNode() {
   std::vector<model::Variable> vars;
   std::vector<std::string> usedNodes;
@@ -84,7 +110,7 @@ std::vector<model::Variable> SpecialEventRunner::getVarsFromNode() {
         // Add variables from imported events
         for (const auto& variable : event.vars) {
           if (!variable.importFrom.empty()) {
-            for (const auto& sourceEvent : gameEvents) {
+            for (const auto& [id, sourceEvent] : gameEvents) {
               if (sourceEvent.id == variable.importFrom) {
                 innerHelper(sourceEvent);
                 break;
@@ -166,7 +192,7 @@ SpecialEventRunner::joinParagraphs(const std::vector<std::string>& paragraphs) {
   return result;
 }
 
-void SpecialEventRunner::advance(const std::string& nextNodeId,
+void SpecialEventRunner::advance(const std::string& nodeId,
                                  const std::vector<std::string>& onceKeysToCommit,
                                  const std::string& execStr) {
   if (!errors.empty()) {
@@ -181,12 +207,11 @@ void SpecialEventRunner::advance(const std::string& nextNodeId,
     }
   }
 
-  displayText = "";
   displayTextChoices.clear();
 
-  currentNodeId = nextNodeId;
+  currentNodeId = nodeId;
   auto currentNode = getCurrentNode();
-  if (nextNodeId.empty() || !currentNode) {
+  if (nodeId.empty() || !currentNode) {
     return;
   }
 
@@ -203,7 +228,10 @@ void SpecialEventRunner::advance(const std::string& nextNodeId,
             advance(node.next, {}, "");
           }
         } else if constexpr (std::is_same_v<T, model::GameEventChildChoice>) {
-          displayText = replaceVariables(node.text);
+          const std::string choiceDisplayText = replaceVariables(node.text);
+          if (!choiceDisplayText.empty()) {
+            displayText = choiceDisplayText;
+          }
           for (const auto& choice : node.choices) {
             ConditionResult obj;
             if (!choice.conditionStr.empty()) {
@@ -234,10 +262,98 @@ void SpecialEventRunner::advance(const std::string& nextNodeId,
           if (!found) {
             advance(node.defaultNext, {}, "");
           }
+        } else if constexpr (std::is_same_v<T, model::GameEventChildEnd>) {
+          displayText = "End.";
         }
-        // GameEventChildEnd doesn't need special handling
       },
       *currentNode);
+}
+
+std::string SpecialEventRunner::storageToString() const {
+  // Collect all key-value pairs into a vector
+  std::vector<std::pair<std::string, std::string>> pairs;
+  pairs.reserve(storage.size());
+  for (const auto& [key, value] : storage) {
+    pairs.emplace_back(key, value);
+  }
+
+  // Sort by key alphabetically
+  std::sort(pairs.begin(), pairs.end(), [](const auto& a, const auto& b) {
+    return a.first < b.first;
+  });
+
+  // Build result string from sorted pairs
+  std::string result;
+  for (const auto& [key, value] : pairs) {
+    result += key + "=" + value + "\n";
+  }
+  return result;
+}
+
+// SpecialEventRunnerInterface implementation
+SpecialEventRunnerInterface::SpecialEventRunnerInterface(SpecialEventRunner& runner)
+    : runner(runner) {}
+
+void SpecialEventRunnerInterface::startEvent() {
+  runner.reset();
+  runner.advance(runner.currentNodeId);
+}
+
+void SpecialEventRunnerInterface::continueEvent() {
+  std::string nextNodeId = runner.getNextNodeId();
+  if (!nextNodeId.empty()) {
+    runner.advance(nextNodeId);
+  }
+}
+
+void SpecialEventRunnerInterface::selectChoice(int choiceIndex) {
+  if (choiceIndex < 0 ||
+      static_cast<size_t>(choiceIndex) >= runner.displayTextChoices.size()) {
+    return;
+  }
+  const auto& choice = runner.displayTextChoices[choiceIndex];
+  runner.advance(choice.next, choice.onceKeysToCommit, choice.execStr);
+}
+
+SpecialEventRunnerInterfaceState SpecialEventRunnerInterface::getState() {
+  // If we haven't started processing yet (no display text and no choices)
+  if (runner.displayText.empty() && runner.displayTextChoices.empty()) {
+    return SpecialEventRunnerInterfaceState::WAITING_TO_START;
+  }
+
+  // If we have choices available, we're waiting for a choice selection
+  if (!runner.displayTextChoices.empty()) {
+    return SpecialEventRunnerInterfaceState::WAITING_TO_SELECT_CHOICE;
+  }
+
+  // If we have display text and a next node, we're waiting to continue
+  if (!runner.displayText.empty()) {
+    std::string nextNodeId = runner.getNextNodeId();
+    if (!nextNodeId.empty()) {
+      return SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE;
+    }
+  }
+
+  // Default to waiting to continue if we have display text
+  if (!runner.displayText.empty()) {
+    return SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE;
+  }
+
+  // Fallback to waiting to start
+  return SpecialEventRunnerInterfaceState::WAITING_TO_START;
+}
+
+std::string
+SpecialEventRunnerInterface::stateToString(SpecialEventRunnerInterfaceState state) {
+  switch (state) {
+  case SpecialEventRunnerInterfaceState::WAITING_TO_START:
+    return "WAITING_TO_START";
+  case SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE:
+    return "WAITING_TO_CONTINUE";
+  case SpecialEventRunnerInterfaceState::WAITING_TO_SELECT_CHOICE:
+    return "WAITING_TO_SELECT_CHOICE";
+  }
+  return "UNKNOWN";
 }
 
 } // namespace runner

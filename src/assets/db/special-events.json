@@ -4281,33 +4281,173 @@
     "children": [
       {
         "id": "root",
-        "x": 20,
-        "y": 20,
+        "x": 82,
+        "y": 25,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "",
         "execStr": "",
-        "next": "2ujsrqdf3p5",
-        "autoAdvance": true
-      },
-      {
-        "id": "2ujsrqdf3p5",
-        "x": 121.5,
-        "y": 120.5,
-        "eventChildType": "EXEC",
-        "h": 50,
-        "p": "This is a test event.",
-        "execStr": "",
-        "next": "w8at3flt9vf",
+        "next": "4fugrn7h6dn",
         "autoAdvance": true
       },
       {
         "id": "w8at3flt9vf",
-        "x": 413.5,
-        "y": 276.5,
+        "x": 852.5,
+        "y": 734.5,
         "eventChildType": "END",
         "h": 60,
         "next": ""
+      },
+      {
+        "id": "4fugrn7h6dn",
+        "x": 113.5,
+        "y": 317.5,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "ONCE(testOnce)",
+            "next": "gz85of73vrc"
+          }
+        ],
+        "defaultNext": "9lcx2xt2li"
+      },
+      {
+        "id": "fxk51ees9ns",
+        "x": 560.5,
+        "y": 27.5,
+        "eventChildType": "COMMENT",
+        "h": 72,
+        "comment": "This is a test case to be used for Special Event Runner integration test."
+      },
+      {
+        "id": "gz85of73vrc",
+        "x": 465.5,
+        "y": 296.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "This should display once.",
+        "execStr": "",
+        "next": "3exp4lq204l",
+        "autoAdvance": true
+      },
+      {
+        "id": "9lcx2xt2li",
+        "x": 458.5,
+        "y": 379.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "This should display by default.",
+        "execStr": "",
+        "next": "3exp4lq204l",
+        "autoAdvance": true
+      },
+      {
+        "id": "3exp4lq204l",
+        "x": 831.5,
+        "y": 451.5,
+        "eventChildType": "CHOICE",
+        "h": 180,
+        "text": "",
+        "choices": [
+          {
+            "text": "Choice 1.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "h19v9p3l0ug",
+            "prefixText": ""
+          },
+          {
+            "text": "Choice 2 (this should disappear)",
+            "conditionStr": "ONCE(testOnce2)",
+            "evalStr": "",
+            "next": "v9e4d7u8rya",
+            "prefixText": ""
+          },
+          {
+            "text": "Choice 3 (Exec some variables)",
+            "conditionStr": "",
+            "evalStr": "SET_NUM(vars.a, 1)",
+            "next": "atdhcdietnd",
+            "prefixText": ""
+          },
+          {
+            "text": "Choice 4 (Exec with continue)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "qiipa8hvjy",
+            "prefixText": ""
+          },
+          {
+            "text": "Restart.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "root",
+            "prefixText": ""
+          },
+          {
+            "text": "End.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "w8at3flt9vf",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "h19v9p3l0ug",
+        "x": 1305.5,
+        "y": 354.5,
+        "eventChildType": "EXEC",
+        "h": 70,
+        "p": "You chose choice 1.",
+        "execStr": "SET_BOOL(choice1, true)",
+        "next": "3exp4lq204l",
+        "autoAdvance": true
+      },
+      {
+        "id": "v9e4d7u8rya",
+        "x": 1314,
+        "y": 463,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "You selected choice 2.",
+        "execStr": "",
+        "next": "3exp4lq204l",
+        "autoAdvance": true
+      },
+      {
+        "id": "atdhcdietnd",
+        "x": 1304,
+        "y": 540,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "You selected choice 3.",
+        "execStr": "",
+        "next": "3exp4lq204l",
+        "autoAdvance": true
+      },
+      {
+        "id": "qiipa8hvjy",
+        "x": 1297,
+        "y": 610,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "You selected choice 4.  This should wait to continue.",
+        "execStr": "",
+        "next": "90gh08o1gyt",
+        "autoAdvance": false
+      },
+      {
+        "id": "90gh08o1gyt",
+        "x": 1747,
+        "y": 632,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "You have waited for choice 4.",
+        "execStr": "",
+        "next": "3exp4lq204l",
+        "autoAdvance": true
       }
     ]
   },

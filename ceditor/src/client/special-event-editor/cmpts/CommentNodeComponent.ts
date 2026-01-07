@@ -32,6 +32,7 @@ export class EditorNodeComment extends EditorNode {
     this.width = NODE_WIDTH;
 
     this.comment = seNode.comment ?? '';
+    this.disableEntrance = true;
   }
 
   toSENode() {

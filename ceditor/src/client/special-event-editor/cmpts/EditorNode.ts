@@ -29,6 +29,7 @@ export class EditorNode {
   borderColorHovered: string = '#faf';
   bgColor: string = '#808080';
   bgColorHovered: string = '#a0a0a0';
+  disableEntrance = false;
 
   exits: Connector[] = [];
   closeButton: EditorNodeCloseButton;
@@ -275,13 +276,15 @@ export class EditorNode {
       });
     }
 
-    const entrancePos = this.getEntrancePos();
-    this.renderAnchor(ctx, entrancePos.x, entrancePos.y, scale, {
-      isLinking: false,
-      isHovered: false,
-      isEntrance: true,
-      isConnected: this.exits.length > 0,
-    });
+    if (!this.disableEntrance) {    
+      const entrancePos = this.getEntrancePos();
+      this.renderAnchor(ctx, entrancePos.x, entrancePos.y, scale, {
+        isLinking: false,
+        isHovered: false,
+        isEntrance: true,
+        isConnected: this.exits.length > 0,
+      });
+    }
 
     this.closeButton.render(ctx, scale, {
       isHovered: Boolean(args.isCloseButtonHovered),

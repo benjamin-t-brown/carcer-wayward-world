@@ -9,6 +9,7 @@ interface ButtonProps {
   type?: 'button' | 'submit' | 'reset';
   disabled?: boolean;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -18,6 +19,7 @@ export const Button: React.FC<ButtonProps> = ({
   type = 'button',
   disabled = false,
   className = '',
+  style = {},
 }) => {
   const getButtonClass = () => {
     switch (variant) {
@@ -46,6 +48,7 @@ export const Button: React.FC<ButtonProps> = ({
       className={classes}
       onClick={onClick}
       disabled={disabled}
+      style={style}
     >
       <span style={{ userSelect: 'none' }}>{children}</span>
     </button>

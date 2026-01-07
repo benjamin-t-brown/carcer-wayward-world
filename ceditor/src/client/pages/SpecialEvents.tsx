@@ -5,6 +5,7 @@ import { CreateGameEventModal } from '../components/CreateGameEventModal';
 import { EditGameEventModal } from '../components/EditGameEventModal';
 import { SpecialEventEditor } from '../special-event-editor/SpecialEventEditor';
 import { VariableEditorModal } from '../special-event-editor/modals/VariableEditorModal';
+import { JsonOutputModal } from '../special-event-editor/modals/JsonOutputModal';
 import { Button } from '../elements/Button';
 import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
@@ -85,6 +86,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showVariableEditorModal, setShowVariableEditorModal] = useState(false);
+  const [showJsonOutputModal, setShowJsonOutputModal] = useState(false);
   const [showEditGameEventModal, setShowEditGameEventModal] = useState(false);
   const [showEventRunnerModal, setShowEventRunnerModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -686,6 +688,19 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                 </Button>
                 <Button
                   variant="small"
+                  onClick={() => setShowJsonOutputModal(true)}
+                >
+                  <span
+                    role="img"
+                    aria-label="JSON Output"
+                    style={{ marginRight: '6px' }}
+                  >
+                    📄
+                  </span>
+                  JSON Output
+                </Button>
+                <Button
+                  variant="small"
                   onClick={() => {
                     centerPanzoomOnNode(
                       document.getElementById(
@@ -816,6 +831,15 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
             setGameEvents(newGameEvents);
           }}
           onCancel={() => setShowVariableEditorModal(false)}
+        />
+      )}
+
+      {/* JSON Output Modal */}
+      {currentGameEvent && (
+        <JsonOutputModal
+          isOpen={showJsonOutputModal}
+          gameEvent={currentGameEvent}
+          onCancel={() => setShowJsonOutputModal(false)}
         />
       )}
 

@@ -442,11 +442,6 @@ const checkLeftMouseClickEvents = (args: {
   );
 
   if (clickedExitAnchor) {
-    console.log(
-      'click exit anchor',
-      clickedExitAnchor.fromNodeId,
-      clickedExitAnchor.exitIndex
-    );
     enterLinkingMode(
       editorState,
       clickedExitAnchor.fromNodeId,
@@ -477,6 +472,10 @@ const checkLeftMouseClickEvents = (args: {
     console.log('click node', clickedNode.id);
     // Handle linking mode
     if (editorState.linking.isLinking && editorState.linking.sourceNodeId) {
+      if (clickedNode.disableEntrance) {
+        return false;
+      }
+
       // Check if clicking on a node
       const parentNode = editorState.editorNodes.find(
         (node) => node.id === editorState.linking.sourceNodeId

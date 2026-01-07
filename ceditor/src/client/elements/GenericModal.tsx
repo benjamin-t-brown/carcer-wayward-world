@@ -6,6 +6,7 @@ interface GenericModalProps {
   onConfirm: () => void;
   body: () => React.ReactNode;
   maxWidth?: string;
+  disableCancel?: boolean;
 }
 
 export const GenericModal = (props: GenericModalProps) => {
@@ -67,20 +68,34 @@ export const GenericModal = (props: GenericModalProps) => {
 
         {props.body()}
 
-        <div
-          style={{
-            display: 'flex',
-            gap: '10px',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <Button variant="primary" onClick={props.onConfirm}>
-            Confirm
-          </Button>
-          <Button variant="danger" onClick={props.onCancel}>
-            Cancel
-          </Button>
-        </div>
+        {props.disableCancel ? (
+          <div
+            style={{
+              display: 'flex',
+              gap: '10px',
+              justifyContent: 'flex-end',
+            }}
+          >
+            <Button variant="primary" onClick={props.onConfirm}>
+              Okay
+            </Button>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'flex',
+              gap: '10px',
+              justifyContent: 'flex-end',
+            }}
+          >
+            <Button variant="primary" onClick={props.onConfirm}>
+              Confirm
+            </Button>
+            <Button variant="danger" onClick={props.onCancel}>
+              Cancel
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
