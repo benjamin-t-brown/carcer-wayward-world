@@ -1969,6 +1969,547 @@
     ]
   },
   {
+    "id": "alinea_elvyosa",
+    "title": "Elvyosa",
+    "eventType": "TALK",
+    "icon": "special_event_icons_0",
+    "vars": [
+      {
+        "id": "jjnmgfzbgwr",
+        "key": "CHARACTER_ID",
+        "value": "alinea_elvyosa",
+        "importFrom": ""
+      },
+      {
+        "id": "a4xtoow8y84",
+        "key": "DISPOSITION",
+        "value": "vars.disposition.alinea_elvyosa",
+        "importFrom": ""
+      },
+      {
+        "id": "zhkam9n5wq",
+        "key": "",
+        "value": "",
+        "importFrom": "util_aspect"
+      },
+      {
+        "id": "yj6x3lzzk3k",
+        "key": "",
+        "value": "",
+        "importFrom": "util_exposition_alinea"
+      }
+    ],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "zxp7wbvpimq",
+        "autoAdvance": true
+      },
+      {
+        "id": "zxp7wbvpimq",
+        "x": 69.75,
+        "y": 122.25,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "SETUP_DISPOSITION(@CHARACTER_ID)",
+        "next": "k2kzz697oa",
+        "autoAdvance": false
+      },
+      {
+        "id": "s9elplbfqhg",
+        "x": 146.75,
+        "y": 769.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"I see you're still around.\"",
+        "execStr": "",
+        "next": "ccjjjp9gio",
+        "autoAdvance": true
+      },
+      {
+        "id": "utfxada2sug",
+        "x": 148.75,
+        "y": 685.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Back for more?\"",
+        "execStr": "",
+        "next": "ccjjjp9gio",
+        "autoAdvance": true
+      },
+      {
+        "id": "m6uj7k6ydx9",
+        "x": 144.75,
+        "y": 592.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Oh my, isn't it lovely to see you again.\"",
+        "execStr": "",
+        "next": "ccjjjp9gio",
+        "autoAdvance": true
+      },
+      {
+        "id": "k2kzz697oa",
+        "x": 145.75,
+        "y": 235,
+        "eventChildType": "SWITCH",
+        "h": 156,
+        "cases": [
+          {
+            "conditionStr": "ONCE(hasSpokenTo@CHARACTER_ID)",
+            "next": "dswbm983frg"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,5)",
+            "next": "m6uj7k6ydx9"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,3)",
+            "next": "utfxada2sug"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,1)",
+            "next": "s9elplbfqhg"
+          }
+        ],
+        "defaultNext": "utfxada2sug"
+      },
+      {
+        "id": "dswbm983frg",
+        "x": 557.25,
+        "y": 109,
+        "eventChildType": "EXEC",
+        "h": 116,
+        "p": "A tall, dark woman bejeweled with sequins and gems on copious necklaces and bracelets flashes an inviting smile at you.  She stands next to a table of various gems, potions, and other trinkets.\n\n\"You here to buy something, hun?\"",
+        "execStr": "",
+        "next": "ccjjjp9gio",
+        "autoAdvance": true
+      },
+      {
+        "id": "ccjjjp9gio",
+        "x": 841.25,
+        "y": 596,
+        "eventChildType": "CHOICE",
+        "h": 228,
+        "text": "",
+        "choices": [
+          {
+            "text": "What's your name?",
+            "conditionStr": "",
+            "evalStr": "SET_BOOL(vars.@CHARACTER_ID.confirmedMerchantry)",
+            "next": "ycmu9lal7yl",
+            "prefixText": ""
+          },
+          {
+            "text": "Can I buy something?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "haq9m81r01t",
+            "prefixText": "[STORE]"
+          },
+          {
+            "text": "You said you're a Captain?",
+            "conditionStr": "IS(vars.@CHARACTER_ID.confirmedMerchantry)",
+            "evalStr": "",
+            "next": "lhvgsnooh9g",
+            "prefixText": ""
+          },
+          {
+            "text": "What's the Merchantry?",
+            "conditionStr": "IS(vars.@CHARACTER_ID.confirmedMerchantry)",
+            "evalStr": "",
+            "next": "n5bcpqng7dc",
+            "prefixText": ""
+          },
+          {
+            "text": "How does one join the Merchantry?",
+            "conditionStr": "IS(vars.@CHARACTER_ID.confirmedMerchantry)",
+            "evalStr": "",
+            "next": "qyh0fxea7zl",
+            "prefixText": ""
+          },
+          {
+            "text": "A man named Scopey mentioned you've had some problems lately.",
+            "conditionStr": "IS(vars.ch.alinea_scopey.mentionedElvyosa)",
+            "evalStr": "SET_BOOL(vars.ch.@CHARACTER_ID.questAvailable)",
+            "next": "a01yz2pnklq",
+            "prefixText": ""
+          },
+          {
+            "text": "Let's talk about your problems.",
+            "conditionStr": "IS(vars.ch.@CHARACTER_ID.questAvailable)",
+            "evalStr": "",
+            "next": "pcarrnz5vql",
+            "prefixText": ""
+          },
+          {
+            "text": "Nevermind. (Leave.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "ho46a9ovn97",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "ho46a9ovn97",
+        "x": 898.25,
+        "y": 842,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "ycmu9lal7yl",
+        "x": 1259.5,
+        "y": 248.5,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Captain Elvyosa, at your service.  Proud member of the Merchantry, and seller of many an exotic adventure.\"",
+        "execStr": "",
+        "next": "ccjjjp9gio",
+        "autoAdvance": true
+      },
+      {
+        "id": "haq9m81r01t",
+        "x": 1270.5,
+        "y": 357.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "OPEN_SHOP(alinea_elvyosaShop)",
+        "next": "ccjjjp9gio",
+        "autoAdvance": true
+      },
+      {
+        "id": "n5bcpqng7dc",
+        "x": 1328.5,
+        "y": 631.5,
+        "eventChildType": "EXEC",
+        "h": 98,
+        "p": "\"You're looking at it!  We Merchants have to stick together or we fall pray to the big boys.  If you're a member, we'll take care of you.\"",
+        "execStr": "SET_BOOL(@EXPOSITION_ALINEA_MERCHANTRY_KNOWN)",
+        "next": "ccjjjp9gio",
+        "autoAdvance": true
+      },
+      {
+        "id": "qyh0fxea7zl",
+        "x": 1333.5,
+        "y": 751.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"You need support.  At least three of us need to recommend you.\"",
+        "execStr": "",
+        "next": "ccjjjp9gio",
+        "autoAdvance": true
+      },
+      {
+        "id": "a01yz2pnklq",
+        "x": 1329.5,
+        "y": 833.5,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Scopey, huh?  That rascal is always doing me favors.  Yep, I do have myself a problem, and I'm assuming you're interested in helping?\"",
+        "execStr": "",
+        "next": "vgftckmuhe8",
+        "autoAdvance": true
+      },
+      {
+        "id": "vgftckmuhe8",
+        "x": 1848.5,
+        "y": 1071.5,
+        "eventChildType": "CHOICE",
+        "h": 180,
+        "text": "",
+        "choices": [
+          {
+            "text": "What exactly is the problem?",
+            "conditionStr": "",
+            "evalStr": "START_QUEST(alineaElvyosaShipPassage)",
+            "next": "6qk0lretimx",
+            "prefixText": ""
+          },
+          {
+            "text": "How do you get a Writ of Passage?",
+            "conditionStr": "FUNC(QuestStarted, alineaElvyosaShipPassage)",
+            "evalStr": "",
+            "next": "4o6ear24lwf",
+            "prefixText": ""
+          },
+          {
+            "text": "Why is the Realm preventing you from leaving?",
+            "conditionStr": "FUNC(QuestStarted, alineaElvyosaShipPassage)",
+            "evalStr": "SET_BOOL(tmp.mentionedRealm)",
+            "next": "fvjhnc3iqan",
+            "prefixText": ""
+          },
+          {
+            "text": "Not a fan of the Realm?",
+            "conditionStr": "IS(tmp.mentionedRealm)",
+            "evalStr": "",
+            "next": "xwfy8fol0qa",
+            "prefixText": ""
+          },
+          {
+            "text": "How can I help?",
+            "conditionStr": "FUNC(QuestStarted, alineaElvyosaShipPassage)",
+            "evalStr": "",
+            "next": "qelgrbox5n",
+            "prefixText": ""
+          },
+          {
+            "text": "Let's discus something else. (Go back.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "ccjjjp9gio",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "pcarrnz5vql",
+        "x": 1329.5,
+        "y": 959.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"You've got something for me?\"",
+        "execStr": "",
+        "next": "vgftckmuhe8",
+        "autoAdvance": true
+      },
+      {
+        "id": "6qk0lretimx",
+        "x": 2215.5,
+        "y": 814.5,
+        "eventChildType": "EXEC",
+        "h": 158,
+        "p": "\"My ship, the Vigorous Onion, is currently tethered to docks owned by the Realm.  Through one thing or another, they've decided they want to keep it there.  I've got all sorts of paperwork warning me what will happen if I pick up and leave without their authorization... a bunch of bureaucratic nonsense.  But it has consequences.  They can make it very hard for a Captain like me to make port in their towns.\"",
+        "execStr": "",
+        "next": "5ql3pqpvv43",
+        "autoAdvance": false
+      },
+      {
+        "id": "lhvgsnooh9g",
+        "x": 1315.5,
+        "y": 443.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"I am the Captain of the Vigorous Onion, out there on the Alinea docks.  Fine vessel!\"",
+        "execStr": "",
+        "next": "d1qi0e8tfb8",
+        "autoAdvance": true
+      },
+      {
+        "id": "d1qi0e8tfb8",
+        "x": 1736.5,
+        "y": 377.5,
+        "eventChildType": "CHOICE",
+        "h": 180,
+        "text": "",
+        "choices": [
+          {
+            "text": "Do you take trips to the Mainland?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "99mdkh55zzh",
+            "prefixText": ""
+          },
+          {
+            "text": "Is your vessel sea worthy?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "rhf6vryfz7g",
+            "prefixText": ""
+          },
+          {
+            "text": "Why is the Realm preventing you from leaving?",
+            "conditionStr": "IS(vars.ch.@CHARACTER_ID.questAvailable)",
+            "evalStr": "",
+            "next": "d9dzccn2sof",
+            "prefixText": ""
+          },
+          {
+            "text": "You know, you'd look a lot sexier in a proper Captain's hat.",
+            "conditionStr": "ONCE(vars.@CHARACTER_ID.aspect1)",
+            "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
+            "next": "xatfc1d9eu",
+            "prefixText": "[FAE]"
+          },
+          {
+            "text": "It is good to meet a fellow leader of men.",
+            "conditionStr": "ONCE(vars.@CHARACTER_ID.aspect1)",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "88vj9qidke",
+            "prefixText": "[DRAGON]"
+          },
+          {
+            "text": "Let's talk about something else. (Go back.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "ccjjjp9gio",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "99mdkh55zzh",
+        "x": 2170.5,
+        "y": 173.5,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Of course not!  I'm here for the riches of the Island.  I got away from the Mainland and have no plans to go back there.\"",
+        "execStr": "",
+        "next": "d1qi0e8tfb8",
+        "autoAdvance": true
+      },
+      {
+        "id": "xatfc1d9eu",
+        "x": 2191.5,
+        "y": 452.5,
+        "eventChildType": "EXEC",
+        "h": 98,
+        "p": "\"Oh hun, trust me, I know.  I'd like nothing more than to sail the sea all day.  But while I'm here on land I've got to be who I've always been: a merchant.\"",
+        "execStr": "MOD_NUM(@DISPOSITION, 1)",
+        "next": "d1qi0e8tfb8",
+        "autoAdvance": true
+      },
+      {
+        "id": "88vj9qidke",
+        "x": 2192.5,
+        "y": 584.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"That's an odd way to put it, but I suppose I feel likewise.\"",
+        "execStr": "",
+        "next": "d1qi0e8tfb8",
+        "autoAdvance": true
+      },
+      {
+        "id": "rhf6vryfz7g",
+        "x": 2175.5,
+        "y": 264.5,
+        "eventChildType": "EXEC",
+        "h": 98,
+        "p": "\"It's rearing to go, actually.  But Realm has it's own plans for my ship, and they're keeping me here until this whole blockade business blows over.\"",
+        "execStr": "SET_BOOL(vars.ch.@CHARACTER_ID.questAvailable)",
+        "next": "d1qi0e8tfb8",
+        "autoAdvance": true
+      },
+      {
+        "id": "d9dzccn2sof",
+        "x": 2362.5,
+        "y": 381.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Typical Realm bureaucracy.\"",
+        "execStr": "",
+        "next": "vgftckmuhe8",
+        "autoAdvance": true
+      },
+      {
+        "id": "5ql3pqpvv43",
+        "x": 2634.666666666667,
+        "y": 825.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"I'd like to leave Alinea, but unless the Realm gives me a Writ of Passage from Alinea, I'm stuck.\"",
+        "execStr": "",
+        "next": "vgftckmuhe8",
+        "autoAdvance": true
+      },
+      {
+        "id": "4o6ear24lwf",
+        "x": 2263.833333333334,
+        "y": 1007.3333333333335,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"You have a nice conversation with Dockmaster Claire, and she gives it to you signed in lipstick and everything.\"",
+        "execStr": "",
+        "next": "ma8goubvg3",
+        "autoAdvance": true
+      },
+      {
+        "id": "ma8goubvg3",
+        "x": 2723.833333333334,
+        "y": 1016.3333333333335,
+        "eventChildType": "CHOICE",
+        "h": 60,
+        "text": "",
+        "choices": [
+          {
+            "text": "I'm guessing it's not actually that easy.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "vsz3mp274fr",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "vsz3mp274fr",
+        "x": 3147.833333333334,
+        "y": 1009.3333333333335,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"She's the only one who can authorize a Writ of Passage, and you're right, she wont give it easily.  She won't even talk to me anymore.\"",
+        "execStr": "",
+        "next": "vgftckmuhe8",
+        "autoAdvance": true
+      },
+      {
+        "id": "fvjhnc3iqan",
+        "x": 2285.500000000001,
+        "y": 1094.6666666666674,
+        "eventChildType": "EXEC",
+        "h": 102,
+        "p": "\"The blockade.  If things go bad for them and they need to leave Alinea, where do you think they can go?  The sea.  And they don't have enough ships to load all their bureaucrat and soldiers, so this is their way of securing passage.\"",
+        "execStr": "",
+        "next": "vgftckmuhe8",
+        "autoAdvance": true
+      },
+      {
+        "id": "xwfy8fol0qa",
+        "x": 2297.500000000001,
+        "y": 1217.6666666666674,
+        "eventChildType": "EXEC",
+        "h": 102,
+        "p": "\"They're good and bad.  Obviously bad right now.  But I'd be dead lying if I told you a Blackrose wouldn't do something similar.  They'd just use a sword instead of a piece of paper.  It's why I'm part of the Merchantry, after all.\"",
+        "execStr": "",
+        "next": "vgftckmuhe8",
+        "autoAdvance": true
+      },
+      {
+        "id": "qelgrbox5n",
+        "x": 2302.500000000001,
+        "y": 1351.6666666666674,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Go talk to Claire, for starters.  I doubt it'll help, but it's worth a shop.  Maybe you got some charm on her I don't know about.\"",
+        "execStr": "",
+        "next": "x9a7u0hnjdt",
+        "autoAdvance": false
+      },
+      {
+        "id": "x9a7u0hnjdt",
+        "x": 2731.500000000001,
+        "y": 1384.6666666666674,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Otherwise, I'm not really sure.  But If you just 'happened' by a Write of Passage, I wouldn't say no of you wanted to sell it to me.\"",
+        "execStr": "",
+        "next": "vgftckmuhe8",
+        "autoAdvance": true
+      }
+    ]
+  },
+  {
     "id": "alinea_encounterShrineOfLuck",
     "title": "Shrine of Luck",
     "eventType": "MODAL",
@@ -2475,6 +3016,394 @@
         "p": "\"I don't know much.  It's some business between the Realm and nobility.  I don't take a side, just deal with the consequences.\"",
         "execStr": "",
         "next": "qi2qeo4vowo",
+        "autoAdvance": true
+      }
+    ]
+  },
+  {
+    "id": "alinea_idoreo",
+    "title": "Idoreo",
+    "eventType": "TALK",
+    "icon": "special_event_icons_0",
+    "vars": [
+      {
+        "id": "ky6g2t9gjck",
+        "key": "CHARACTER_ID",
+        "value": "alinea_idoreo",
+        "importFrom": ""
+      },
+      {
+        "id": "1thxt7kgn44",
+        "key": "DISPOSITION",
+        "value": "vars.disposition.alinea_idoreo",
+        "importFrom": ""
+      },
+      {
+        "id": "1ksb1w7021k",
+        "key": "",
+        "value": "",
+        "importFrom": "util_aspect"
+      },
+      {
+        "id": "rc5iv6t1cai",
+        "key": "",
+        "value": "",
+        "importFrom": "util_exposition_alinea"
+      }
+    ],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "dho0pxk6uof",
+        "autoAdvance": true
+      },
+      {
+        "id": "dho0pxk6uof",
+        "x": 85.25,
+        "y": 140.25,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "SETUP_DISPOSITION(@CHARACTER_ID)",
+        "next": "j99mscsu0ym",
+        "autoAdvance": false
+      },
+      {
+        "id": "qjnapimikzc",
+        "x": 162.25,
+        "y": 787.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Don't touch the wares.\"",
+        "execStr": "",
+        "next": "gyxsogeo4ug",
+        "autoAdvance": true
+      },
+      {
+        "id": "p8n1uj5jaz",
+        "x": 164.25,
+        "y": 703.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"My, my, back again I see.\"",
+        "execStr": "",
+        "next": "gyxsogeo4ug",
+        "autoAdvance": true
+      },
+      {
+        "id": "68z4oj97b0c",
+        "x": 160.25,
+        "y": 610.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Hello again, my loyal customer.\"",
+        "execStr": "",
+        "next": "gyxsogeo4ug",
+        "autoAdvance": true
+      },
+      {
+        "id": "j99mscsu0ym",
+        "x": 161.25,
+        "y": 253,
+        "eventChildType": "SWITCH",
+        "h": 156,
+        "cases": [
+          {
+            "conditionStr": "ONCE(hasSpokenTo@CHARACTER_ID)",
+            "next": "pal995gihrp"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,5)",
+            "next": "68z4oj97b0c"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,3)",
+            "next": "p8n1uj5jaz"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,1)",
+            "next": "qjnapimikzc"
+          }
+        ],
+        "defaultNext": "p8n1uj5jaz"
+      },
+      {
+        "id": "pal995gihrp",
+        "x": 571.75,
+        "y": 127,
+        "eventChildType": "EXEC",
+        "h": 158,
+        "p": "This man hunches over a thick table atop which are old and rusty weapons and armor.  His balding head has only a few greasy hairs wiring across it, and his eyes are wide, almost manic.\n\n\"My, oh my, an opportunity approaches.  You look like you conduct business properly.  Care to do a little job for me?  Or else, perhaps, would you like to buy some combat accoutrements?\"",
+        "execStr": "",
+        "next": "gyxsogeo4ug",
+        "autoAdvance": true
+      },
+      {
+        "id": "gyxsogeo4ug",
+        "x": 855.75,
+        "y": 614,
+        "eventChildType": "CHOICE",
+        "h": 180,
+        "text": "",
+        "choices": [
+          {
+            "text": "You mentioned a job?",
+            "conditionStr": "ONCE(@CHARACTER_ID_mentionedJob)",
+            "evalStr": "SET_BOOL(vars.ch.@CHARACTER_ID.mentionedJob)",
+            "next": "7nqeo7nwxj9",
+            "prefixText": ""
+          },
+          {
+            "text": "Let's talk about that job you mentioned.",
+            "conditionStr": "IS(vars.ch.@CHARACTER_ID.mentionedJob)",
+            "evalStr": "",
+            "next": "3yai8xlwc97",
+            "prefixText": ""
+          },
+          {
+            "text": "What's your name?",
+            "conditionStr": "",
+            "evalStr": "SET_BOOL(vars.@CHARACTER_ID.confirmedMerchantry)",
+            "next": "s5zmfu8odg8",
+            "prefixText": ""
+          },
+          {
+            "text": "I could use some combat equipment.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "2rmnna4ngot",
+            "prefixText": "[STORE]"
+          },
+          {
+            "text": "What's the Merchantry?",
+            "conditionStr": "IS(vars.@CHARACTER_ID.confirmedMerchantry)",
+            "evalStr": "",
+            "next": "t8fiz6yj6re",
+            "prefixText": ""
+          },
+          {
+            "text": "Nevermind. (Leave.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "a8zya13bj7w",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "a8zya13bj7w",
+        "x": 913.75,
+        "y": 860,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "s5zmfu8odg8",
+        "x": 1368,
+        "y": 470.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Idoreo of the Merchantry, at your service.\"",
+        "execStr": "",
+        "next": "gyxsogeo4ug",
+        "autoAdvance": true
+      },
+      {
+        "id": "t8fiz6yj6re",
+        "x": 1373,
+        "y": 661.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"A wonderful collection of friends who help each other out from time to time.\"",
+        "execStr": "",
+        "next": "gyxsogeo4ug",
+        "autoAdvance": true
+      },
+      {
+        "id": "2rmnna4ngot",
+        "x": 1365,
+        "y": 578.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "OPEN_SHOP(alinea_idoreoShop)",
+        "next": "0tft02goph5",
+        "autoAdvance": true
+      },
+      {
+        "id": "0tft02goph5",
+        "x": 1766,
+        "y": 598.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Thank you for your considerations.\"",
+        "execStr": "",
+        "next": "gyxsogeo4ug",
+        "autoAdvance": true
+      },
+      {
+        "id": "7nqeo7nwxj9",
+        "x": 1374.6666666666665,
+        "y": 205.83333333333331,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Yes.  Oh yes.  I'm in a delicate situation that I need someone like you to help me out with.\"",
+        "execStr": "",
+        "next": "ffjh4g4w5yd",
+        "autoAdvance": true
+      },
+      {
+        "id": "ffjh4g4w5yd",
+        "x": 1858,
+        "y": 264.5,
+        "eventChildType": "CHOICE",
+        "h": 204,
+        "text": "",
+        "choices": [
+          {
+            "text": "Explain this job.",
+            "conditionStr": "",
+            "evalStr": "SET_BOOL(vars.ch.@CHARACTER_ID.jobExplained)",
+            "next": "q09z4b8qbts",
+            "prefixText": ""
+          },
+          {
+            "text": "You need someone like me?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "1ndbof7axhc",
+            "prefixText": ""
+          },
+          {
+            "text": "What's in the box that you got apprehended?",
+            "conditionStr": "IS(vars.ch.@CHARACTER_ID.jobExplained)",
+            "evalStr": "",
+            "next": "rg3x2188bde",
+            "prefixText": ""
+          },
+          {
+            "text": "Why was this box taken?",
+            "conditionStr": "IS(vars.ch.@CHARACTER_ID.jobExplained)",
+            "evalStr": "SET_BOOL(tmp.whyBox)",
+            "next": "vc24gp7rt5j",
+            "prefixText": ""
+          },
+          {
+            "text": "What did the Realm misunderstand?",
+            "conditionStr": "IS(tmp.whyBox)",
+            "evalStr": "",
+            "next": "skj5loqmp3b",
+            "prefixText": ""
+          },
+          {
+            "text": "This sounds kind of fishy.",
+            "conditionStr": "IS(vars.ch.@CHARACTER_ID.jobExplained)",
+            "evalStr": "",
+            "next": "mkoeia2ni3",
+            "prefixText": ""
+          },
+          {
+            "text": "I'll consider it. (Go back.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "gyxsogeo4ug",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "3yai8xlwc97",
+        "x": 1355.6666666666665,
+        "y": 336.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Certainly.\"",
+        "execStr": "",
+        "next": "ffjh4g4w5yd",
+        "autoAdvance": true
+      },
+      {
+        "id": "1ndbof7axhc",
+        "x": 2333.666666666667,
+        "y": 252.16666666666788,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"You are a Lark, are you not?  I have not seen you around.  Perfect.  Nobody will be suspicious of your angle.\"",
+        "execStr": "",
+        "next": "ffjh4g4w5yd",
+        "autoAdvance": true
+      },
+      {
+        "id": "q09z4b8qbts",
+        "x": 2283.666666666667,
+        "y": 81.16666666666788,
+        "eventChildType": "EXEC",
+        "h": 112,
+        "p": "\"I have had some difficulties with some of my wares as of late.  The Realm has... apprehended an important package of mine, and I would like to get it back.\"",
+        "execStr": "START_QUEST(alinea_omniflowerHeist)",
+        "next": "xq5u8x3nafo",
+        "autoAdvance": false
+      },
+      {
+        "id": "xq5u8x3nafo",
+        "x": 2617.666666666667,
+        "y": 71.16666666666788,
+        "eventChildType": "EXEC",
+        "h": 144,
+        "p": "\"I've recently come into some information that my package is being held in Warehouse 5, which happens to be owned by that buffoon, Shovan-Abivola.  That's where you come in.  Convince him to let you inside, and do a little 'scouting' for me.  I just want to know where it is.  The crate is obvious: it's a big wooden box with an intricate flower embossed on the lid.\"",
+        "execStr": "",
+        "next": "ffjh4g4w5yd",
+        "autoAdvance": true
+      },
+      {
+        "id": "mkoeia2ni3",
+        "x": 2339.0000000000005,
+        "y": 670.8333333333346,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "\"I'm just asking you for recon.  Nothing to it.  In and out, you don't have to do anything else.  I assure you this is all just a big misunderstanding, and I'm trying to get it resolved.\"",
+        "execStr": "",
+        "next": "ffjh4g4w5yd",
+        "autoAdvance": true
+      },
+      {
+        "id": "rg3x2188bde",
+        "x": 2331.666666666667,
+        "y": 578.1666666666679,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Just something that's important to my business.  An ingredient I promised to deliver to Boramark.\"",
+        "execStr": "",
+        "next": "ffjh4g4w5yd",
+        "autoAdvance": true
+      },
+      {
+        "id": "vc24gp7rt5j",
+        "x": 2341.666666666667,
+        "y": 346.1666666666679,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "\"Typical Realm nonsense.  They misunderstood what was being transported, and by the time I explained the whole thing they had already whisked it away to storage.\"",
+        "execStr": "",
+        "next": "ffjh4g4w5yd",
+        "autoAdvance": true
+      },
+      {
+        "id": "skj5loqmp3b",
+        "x": 2334,
+        "y": 474,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "\"Oh, you know... The Realm has all sorts of rules about trade goods and what not.  They keep a tight reign on what comes through their towns.  My package was just a casualty of this process.\"",
+        "execStr": "",
+        "next": "ffjh4g4w5yd",
         "autoAdvance": true
       }
     ]
@@ -3693,16 +4622,16 @@
         "x": 585.75,
         "y": 140,
         "eventChildType": "EXEC",
-        "h": 88,
-        "p": "\"Welcome to my little corner of Alinea.  I've got a little bit of everything, so don't be shy about looking around.  Or if you just want to talk, that's fine too.  It's been pretty slow lately.\"",
+        "h": 102,
+        "p": "\"Welcome to my little corner of Alinea.  I've got a little bit of everything, so don't be shy about looking around.  Or if you just want to talk, that's fine too.  It's been pretty slow lately and I'm always down for a little town gossip.\"",
         "execStr": "",
         "next": "uxitot60di",
         "autoAdvance": true
       },
       {
         "id": "uxitot60di",
-        "x": 898.75,
-        "y": 541,
+        "x": 894.75,
+        "y": 550,
         "eventChildType": "CHOICE",
         "h": 180,
         "text": "",
@@ -3900,16 +4829,16 @@
         "x": 2314.166666666667,
         "y": 1092.5,
         "eventChildType": "EXEC",
-        "h": 74,
+        "h": 98,
         "p": "\"Another fellow Merchantry member.  She's a ship captain of one of the sloops out their on the docks.  Though she's stuck until the Realm lets her leave.\"",
-        "execStr": "",
+        "execStr": "SET_BOOL(vars.ch.@CHARACTER_ID.mentionedElvyosa)",
         "next": "xai3chfzls",
         "autoAdvance": true
       },
       {
         "id": "gy55tbp48k5",
-        "x": 2311.166666666667,
-        "y": 1192.5,
+        "x": 2319.166666666667,
+        "y": 1200.5,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"It's best if you asked her yourself.  Though, tell her I sent you!\"",
@@ -4010,6 +4939,12 @@
         "importFrom": ""
       },
       {
+        "id": "ckis7lq35xq",
+        "key": "MENTIONED_IDOREO",
+        "value": "vars.ch.alinea_shovanabivola.mentionedIdoreo",
+        "importFrom": ""
+      },
+      {
         "id": "nnmmqaalmw",
         "key": "",
         "value": "",
@@ -4030,7 +4965,7 @@
         "eventChildType": "EXEC",
         "h": 50,
         "p": "",
-        "execStr": "",
+        "execStr": "START_QUEST(alinea_omniflowerHeist)",
         "next": "yq3txf8chx",
         "autoAdvance": true
       },
@@ -4104,13 +5039,13 @@
           {
             "text": "What's your name?",
             "conditionStr": "",
-            "evalStr": "SET_BOOL(tmp.mentionedOwningWarehouses)",
+            "evalStr": "SET_BOOL(vars.@CHARACTER_ID.mentionedOwningWarehouses)",
             "next": "rwvqzj7tqbj",
             "prefixText": ""
           },
           {
             "text": "You own all these warehouses?",
-            "conditionStr": "IS(tmp.mentionedOwningWarehouses)",
+            "conditionStr": "IS(vars.@CHARACTER_ID.mentionedOwningWarehouses)",
             "evalStr": "",
             "next": "aq8mqlhm3tb",
             "prefixText": ""
@@ -4192,17 +5127,17 @@
         "y": 562.5,
         "eventChildType": "EXEC",
         "h": 50,
-        "p": "\"Like what, exactly?\"",
+        "p": "\"What do you need?\"",
         "execStr": "",
         "next": "61o5j1ub9pa",
         "autoAdvance": true
       },
       {
         "id": "61o5j1ub9pa",
-        "x": 2019,
-        "y": 696.5,
+        "x": 1979,
+        "y": 743.5,
         "eventChildType": "CHOICE",
-        "h": 156,
+        "h": 204,
         "text": "",
         "choices": [
           {
@@ -4231,6 +5166,20 @@
             "conditionStr": "IS(@EXPOSITION_ALINEA_MERCHANTRY_KNOWN)",
             "evalStr": "",
             "next": "5ja6agpqqb3",
+            "prefixText": ""
+          },
+          {
+            "text": "I spoke to Idoreo, he says you've got a package of his in warehouse 5.",
+            "conditionStr": "ALL(ISNOT(@MENTIONED_IDOREO), FUNC(QuestStarted, quest_omniflowerHeist)",
+            "evalStr": "",
+            "next": "m7268eolje",
+            "prefixText": ""
+          },
+          {
+            "text": "Let's talk about Idoreo's package.",
+            "conditionStr": "ALL(IS(@MENTIONED_IDOREO), FUNC(QuestStarted, quest_omniflowerHeist))",
+            "evalStr": "",
+            "next": "m7268eolje",
             "prefixText": ""
           },
           {
@@ -4321,6 +5270,120 @@
         "execStr": "",
         "next": "61o5j1ub9pa",
         "autoAdvance": true
+      },
+      {
+        "id": "fgzmh5jdf6",
+        "x": 2757,
+        "y": 916.5,
+        "eventChildType": "EXEC",
+        "h": 84,
+        "p": "\"That I do.  Special request from the Realm.  Why do you care?\"",
+        "execStr": "SET_BOOL(@MENTIONED_IDOREO)",
+        "next": "0yotrmk2iayq",
+        "autoAdvance": true
+      },
+      {
+        "id": "0yotrmk2iayq",
+        "x": 3229,
+        "y": 1057.5,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "He asked me to scout it out.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "f7zuuu7u1p6",
+            "prefixText": ""
+          },
+          {
+            "text": "Any chance I could see it?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "vm627j0s9xc",
+            "prefixText": ""
+          },
+          {
+            "text": "",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "m7268eolje",
+        "x": 2401,
+        "y": 911.5,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "ISNOT(@MENTIONED_IDOREO)",
+            "next": "fgzmh5jdf6"
+          }
+        ],
+        "defaultNext": "gwhsj2hwu5"
+      },
+      {
+        "id": "gwhsj2hwu5",
+        "x": 2755,
+        "y": 1019.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"This again?\"",
+        "execStr": "",
+        "next": "0yotrmk2iayq",
+        "autoAdvance": true
+      },
+      {
+        "id": "3fvcb5jq1o6",
+        "x": 493,
+        "y": 51.5,
+        "eventChildType": "COMMENT",
+        "h": 54,
+        "comment": "Debug: START_QUEST(alinea_omniflowerHeist)"
+      },
+      {
+        "id": "f7zuuu7u1p6",
+        "x": 3682,
+        "y": 922.5,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "\"Of course he did.  He's been asking everybody to do that since the damn thing got put in there.  My advice?  Don't talk to him anymore.  He's trouble.  Forget this whole business.\"",
+        "execStr": "",
+        "next": "0yotrmk2iayq",
+        "autoAdvance": true
+      },
+      {
+        "id": "vm627j0s9xc",
+        "x": 3688,
+        "y": 1096.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"No, why would I let you do that?\"",
+        "execStr": "",
+        "next": "9fm4sc1zag",
+        "autoAdvance": true
+      },
+      {
+        "id": "9fm4sc1zag",
+        "x": 4110,
+        "y": 1088.5,
+        "eventChildType": "CHOICE",
+        "h": 60,
+        "text": "",
+        "choices": [
+          {
+            "text": "This is the default choice.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "",
+            "prefixText": ""
+          }
+        ]
       }
     ]
   },

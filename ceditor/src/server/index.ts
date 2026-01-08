@@ -17,7 +17,8 @@ const ASSETS_PATH = join(PROJECT_ROOT, 'src/assets');
 const SRC_PATH = join(PROJECT_ROOT, 'src');
 
 app.use(cors());
-app.use(express.json());
+// Increase payload size limit to 50MB for large asset files
+app.use(express.json({ limit: '50mb' }));
 
 
 // Serve static assets (images, etc.) from src directory
