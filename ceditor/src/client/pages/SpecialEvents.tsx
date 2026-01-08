@@ -745,6 +745,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                     );
                     if (gameEvent) {
                       const runner = new EventRunner({}, gameEvent, gameEvents);
+                      (window as any).runner = runner;
                       setEventRunner(runner);
                       console.log('run root');
                       runner.advance(runner.currentNodeId, {

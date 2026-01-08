@@ -54,30 +54,94 @@ class ConditionEvaluator {
   }
 
   parseFunctionCall(str: string) {
-    const funcName = str.split('(')[0];
-    let funcArgsStr = str.split('(')[1];
-    funcArgsStr = funcArgsStr.slice(0, funcArgsStr.lastIndexOf(')'));
-    const funcArgs = funcArgsStr.split(',').map((arg) => arg.trim());
+    const firstParen = str.indexOf('(');
+    const lastParen = str.lastIndexOf(')');
+    const funcName = str.substring(0, firstParen);
+    const funcArgsStr = str.substring(firstParen + 1, lastParen);
+
+    // Parse arguments while considering inner parens
+    const funcArgs = [];
+    let parenDepth = 0;
+    let currentArg = '';
+    for (let i = 0; i < funcArgsStr.length; i++) {
+      const c = funcArgsStr[i];
+      if (c === '(') {
+        parenDepth++;
+        currentArg += c;
+      } else if (c === ')') {
+        parenDepth--;
+        currentArg += c;
+      } else if (c === ',' && parenDepth === 0) {
+        funcArgs.push(currentArg.trim());
+        currentArg = '';
+      } else {
+        currentArg += c;
+      }
+    }
+    if (currentArg.trim().length > 0) {
+      funcArgs.push(currentArg.trim());
+    }
+
     return { funcName, funcArgs };
   }
 
   isFunctionCall(str: string) {
-    return str.includes('(') && str.includes(')');
+    const numOpenParens = (str.match(/\(/g) ?? []).length;
+    const numCloseParens = (str.match(/\)/g) ?? []).length;
+    if (numOpenParens > 0) {
+      if (numCloseParens === numOpenParens) {
+        return true;
+      }
+      throw new Error(`Invalid function call: ${str}`);
+    } else if (numCloseParens > 0) {
+      if (numOpenParens === numCloseParens) {
+        return true;
+      }
+      throw new Error(`Invalid function call: ${str}`);
+    }
+    return false;
   }
 
   boolFunctions: Record<string, (...args: string[]) => boolean> = {
     IS: (a: string) => {
-      const v = getStorage(this.storage, a);
-      if (v === 'false') {
+      if (a == 'true') {
+        return true;
+      }
+      if (a == 'false') {
         return false;
       }
-      return Boolean(v);
+      const vStr = getStorage(this.storage, a) ?? '';
+      if (vStr == '0' || vStr == 'false' || !vStr) {
+        return false;
+      }
+      return true;
     },
     ISNOT: (a: string) => {
-      return !Boolean(getStorage(this.storage, a));
+      return !this.boolFunctions.IS(a);
     },
     EQ: (a: string, b: string) => {
-      return getStorage(this.storage, a) === getStorage(this.storage, b);
+      const aStorage = getStorage(this.storage, a);
+      const bStorage = getStorage(this.storage, b);
+
+      if (aStorage !== undefined && bStorage !== undefined) {
+        return aStorage === bStorage;
+      } else if (aStorage !== undefined && bStorage === undefined) {
+        const numB = parseFloat(b);
+        if (!isNaN(numB)) {
+          return aStorage === b;
+        }
+        return false;
+      } else if (aStorage === undefined && bStorage !== undefined) {
+        const numA = parseFloat(a);
+        if (!isNaN(numA)) {
+          return a === bStorage;
+        }
+        return false;
+      }
+      if (!isNaN(parseFloat(a)) && !isNaN(parseFloat(b))) {
+        return a == b;
+      }
+      return false;
     },
     NEQ: (a: string, b: string) => {
       return getStorage(this.storage, a) !== getStorage(this.storage, b);
@@ -115,25 +179,36 @@ class ConditionEvaluator {
       return v1 <= v2;
     },
     ALL: (...args: string[]) => {
-      return args.every((arg) => Boolean(getStorage(this.storage, arg)));
+      return args.every((arg) => {
+        return arg === 'true' || Boolean(getStorage(this.storage, arg));
+      });
     },
     ANY: (...args: string[]) => {
-      return args.some((arg) => Boolean(getStorage(this.storage, arg)));
+      return args.some((arg) => {
+        return arg === 'true' || Boolean(getStorage(this.storage, arg));
+      });
     },
     FUNC: (funcName: string, ...args: string[]) => {
       if (funcName === 'HasItem') {
         return Boolean(getStorage(this.storage, 'vars.items.' + args[0]));
       }
       if (funcName === 'QuestStarted') {
-        return Boolean(getStorage(this.storage, 'vars.quests.' + args[0] + '.started'));
+        return Boolean(
+          getStorage(this.storage, 'vars.quests.' + args[0] + '.started')
+        );
       }
       if (funcName === 'QuestCompleted') {
-        return Boolean(getStorage(this.storage, 'vars.quests.' + args[0] + '.completed'));
+        return Boolean(
+          getStorage(this.storage, 'vars.quests.' + args[0] + '.completed')
+        );
       }
       if (funcName === 'QuestStepEq') {
-        return Boolean(getStorage(this.storage, 'vars.quests.' + args[0] + '.step') === args[1]);
+        return Boolean(
+          getStorage(this.storage, 'vars.quests.' + args[0] + '.step') ===
+            args[1]
+        );
       }
-      console.error('Invalid FUNC conditional: ', {funcName, args});
+      console.error('Invalid FUNC conditional: ', { funcName, args });
       return false;
     },
     ONCE: (a: string) => {
@@ -171,9 +246,18 @@ class ConditionEvaluator {
     }
     if (this.isFunctionCall(str)) {
       let { funcName, funcArgs } = this.parseFunctionCall(str);
+      const newFuncArgs: string[] = [];
+      for (const arg of funcArgs) {
+        if (this.isFunctionCall(arg)) {
+          const result = this.evalCondition(arg);
+          newFuncArgs.push(result ? 'true' : 'false');
+        } else {
+          newFuncArgs.push(arg);
+        }
+      }
       return this.evalFunc(
         funcName as keyof typeof this.boolFunctions,
-        ...funcArgs
+        ...newFuncArgs
       );
     } else {
       throw new Error(`Invalid condition: ${this.baseConditionStr}`);
@@ -242,7 +326,11 @@ class StringEvaluator {
     },
     COMPLETE_QUEST: (questName: string) => {
       // noop
-      setStorage(this.storage, 'vars.quests.' + questName + '.completed', 'true');
+      setStorage(
+        this.storage,
+        'vars.quests.' + questName + '.completed',
+        'true'
+      );
     },
     SPAWN_CH: (chName: string) => {
       // noop

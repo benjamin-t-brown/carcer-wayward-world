@@ -3357,7 +3357,7 @@
         "y": 71.16666666666788,
         "eventChildType": "EXEC",
         "h": 144,
-        "p": "\"I've recently come into some information that my package is being held in Warehouse 5, which happens to be owned by that buffoon, Shovan-Abivola.  That's where you come in.  Convince him to let you inside, and do a little 'scouting' for me.  I just want to know where it is.  The crate is obvious: it's a big wooden box with an intricate flower embossed on the lid.\"",
+        "p": "\"I've recently come into some information that my package is being held in Warehouse Five, which happens to be owned by that buffoon, Shovan-Abivola.  That's where you come in.  Convince him to let you inside, and do a little 'scouting' for me.  I just want to know where it is.  The crate is obvious: it's a big wooden box with an intricate flower embossed on the lid.\"",
         "execStr": "",
         "next": "ffjh4g4w5yd",
         "autoAdvance": true
@@ -4945,6 +4945,12 @@
         "importFrom": ""
       },
       {
+        "id": "ou49i2pb0m",
+        "key": "OMNIFLOWER_QUEST",
+        "value": "alinea_omniflowerHeist",
+        "importFrom": ""
+      },
+      {
         "id": "nnmmqaalmw",
         "key": "",
         "value": "",
@@ -5135,7 +5141,7 @@
       {
         "id": "61o5j1ub9pa",
         "x": 1979,
-        "y": 743.5,
+        "y": 744.5,
         "eventChildType": "CHOICE",
         "h": 204,
         "text": "",
@@ -5169,15 +5175,15 @@
             "prefixText": ""
           },
           {
-            "text": "I spoke to Idoreo, he says you've got a package of his in warehouse 5.",
-            "conditionStr": "ALL(ISNOT(@MENTIONED_IDOREO), FUNC(QuestStarted, quest_omniflowerHeist)",
+            "text": "I spoke to Idoreo, he says you've got a package of his in Warehouse Five.",
+            "conditionStr": "ALL(ISNOT(@MENTIONED_IDOREO), FUNC(QuestStarted, @OMNIFLOWER_QUEST))",
             "evalStr": "",
             "next": "m7268eolje",
             "prefixText": ""
           },
           {
             "text": "Let's talk about Idoreo's package.",
-            "conditionStr": "ALL(IS(@MENTIONED_IDOREO), FUNC(QuestStarted, quest_omniflowerHeist))",
+            "conditionStr": "ALL(IS(@MENTIONED_IDOREO), FUNC(QuestStarted, @OMNIFLOWER_QUEST))",
             "evalStr": "",
             "next": "m7268eolje",
             "prefixText": ""
@@ -5284,7 +5290,7 @@
       },
       {
         "id": "0yotrmk2iayq",
-        "x": 3229,
+        "x": 3227,
         "y": 1057.5,
         "eventChildType": "CHOICE",
         "h": 108,
@@ -5299,16 +5305,16 @@
           },
           {
             "text": "Any chance I could see it?",
-            "conditionStr": "",
+            "conditionStr": "ONCE(@CHARACTER_ID_askedToSeeIdoreoBox)",
             "evalStr": "",
             "next": "vm627j0s9xc",
             "prefixText": ""
           },
           {
-            "text": "",
+            "text": "Let's talk about something else.",
             "conditionStr": "",
             "evalStr": "",
-            "next": "",
+            "next": "61o5j1ub9pa",
             "prefixText": ""
           }
         ]
@@ -5370,20 +5376,189 @@
       },
       {
         "id": "9fm4sc1zag",
-        "x": 4110,
-        "y": 1088.5,
+        "x": 4076,
+        "y": 998.5,
         "eventChildType": "CHOICE",
-        "h": 60,
+        "h": 156,
         "text": "",
         "choices": [
           {
-            "text": "This is the default choice.",
+            "text": "Because if you don't, there might be glorious violence in the future.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_REAPER, 1)",
+            "next": "rz9mmp4t3j",
+            "prefixText": "[REAPER]"
+          },
+          {
+            "text": "Pretty please?",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1)",
+            "next": "zzkztfq3mot",
+            "prefixText": "[DRYAD]"
+          },
+          {
+            "text": "Because I asked.  You would do well to listen.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "oq374kewvl",
+            "prefixText": "[DRAGON]"
+          },
+          {
+            "text": "Because I'd just go find it on my own anyway.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
+            "next": "sym1b6a0xoc",
+            "prefixText": "[FAE]"
+          },
+          {
+            "text": "Nevermind, I don't care all that much anyway.",
             "conditionStr": "",
             "evalStr": "",
-            "next": "",
+            "next": "2l0xgs6o6eb",
             "prefixText": ""
           }
         ]
+      },
+      {
+        "id": "rz9mmp4t3j",
+        "x": 4484,
+        "y": 894.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"And what exactly do you mean by that?\"",
+        "execStr": "",
+        "next": "3unllmddd8q",
+        "autoAdvance": true
+      },
+      {
+        "id": "3unllmddd8q",
+        "x": 4866,
+        "y": 903.5,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "I think you know, already.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "0wv9tcoohgo",
+            "prefixText": "[REAPER]"
+          },
+          {
+            "text": "Nothing in particular.  I'd just hate to see things turn violent.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "3sx754vms0i",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "zzkztfq3mot",
+        "x": 4488,
+        "y": 980.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Please, be serious.\"",
+        "execStr": "",
+        "next": "0yotrmk2iayq",
+        "autoAdvance": true
+      },
+      {
+        "id": "3sx754vms0i",
+        "x": 5237,
+        "y": 965.5,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"I see.  Well if it comes to that, I have plenty of hired muscle to maintain mine and my warehouse's safety.  So... no.  You cannot see it.\"",
+        "execStr": "",
+        "next": "0yotrmk2iayq",
+        "autoAdvance": true
+      },
+      {
+        "id": "oq374kewvl",
+        "x": 4496.333333333334,
+        "y": 1064.5,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"You'd make a great noble, I'll give you that.  But I don't know you or your family, and you aren't my friend.  So the answer is no.",
+        "execStr": "",
+        "next": "0yotrmk2iayq",
+        "autoAdvance": true
+      },
+      {
+        "id": "sym1b6a0xoc",
+        "x": 4497.333333333333,
+        "y": 1166.8333333333333,
+        "eventChildType": "EXEC",
+        "h": 84,
+        "p": "\"If you try I'll just have to ask my guards to arrest you and turn you over to the Realm.\"",
+        "execStr": "MOD_NUM(@DISPOSITION, -1)",
+        "next": "0yotrmk2iayq",
+        "autoAdvance": true
+      },
+      {
+        "id": "2l0xgs6o6eb",
+        "x": 4068.333333333333,
+        "y": 1240.166666666667,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Good.  Any more of this foolishness?\"",
+        "execStr": "",
+        "next": "0yotrmk2iayq",
+        "autoAdvance": true
+      },
+      {
+        "id": "0wv9tcoohgo",
+        "x": 5216.333333333333,
+        "y": 727.166666666667,
+        "eventChildType": "EXEC",
+        "h": 112,
+        "p": "\"I'm going to have to ask you to leave.\"\n\nHe makes a motion with his hand, and a pair of guards approach you.  They pull out their weapons.",
+        "execStr": "MOD_NUM(@DISPOSITION, -2)",
+        "next": "d6top1u5zx",
+        "autoAdvance": true
+      },
+      {
+        "id": "hh8017glg4",
+        "x": 6078.333333333333,
+        "y": 712.166666666667,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "d6top1u5zx",
+        "x": 5577.333333333333,
+        "y": 708.166666666667,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "Leave peacefully.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "hh8017glg4",
+            "prefixText": ""
+          },
+          {
+            "text": "Let there be violence!",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_REAPER, 1)",
+            "next": "hh8017glg4",
+            "prefixText": "[REAPER]"
+          }
+        ]
+      },
+      {
+        "id": "zyqgbo9pg9s",
+        "x": 5741.333333333333,
+        "y": 576.166666666667,
+        "eventChildType": "COMMENT",
+        "h": 54,
+        "comment": "TODO: Teleport outside if peaceful, start fight if not."
       }
     ]
   },

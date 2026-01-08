@@ -66,7 +66,7 @@ bool ConditionEvaluatorFuncs::IS(const std::string& a) {
   if (a == "false") {
     return false;
   }
-  auto v = getStorage(storage, a);
+  // auto v = getStorage(storage, a);
   std::string vStr = getStorage(storage, a).value_or("");
   if (vStr == "0" || vStr == "false" || vStr.empty()) {
     return false;
