@@ -73,7 +73,7 @@ class ConditionEvaluator {
       }
       return Boolean(v);
     },
-    IS_NOT: (a: string) => {
+    ISNOT: (a: string) => {
       return !Boolean(getStorage(this.storage, a));
     },
     EQ: (a: string, b: string) => {

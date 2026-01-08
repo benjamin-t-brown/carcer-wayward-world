@@ -1,5 +1,360 @@
 [
   {
+    "id": "alinea_ainsley",
+    "title": "Ainsley",
+    "eventType": "TALK",
+    "icon": "special_event_icons_0",
+    "vars": [
+      {
+        "id": "akmvzemwuel",
+        "key": "CHARACTER_ID",
+        "value": "alinea_ainsley",
+        "importFrom": ""
+      },
+      {
+        "id": "wpayrxl0uh8",
+        "key": "DISPOSITION",
+        "value": "vars.disposition.alinea_ainsley",
+        "importFrom": ""
+      },
+      {
+        "id": "gje4dc439hh",
+        "key": "",
+        "value": "",
+        "importFrom": "util_aspect"
+      },
+      {
+        "id": "ral7jyg5hdg",
+        "key": "",
+        "value": "",
+        "importFrom": "util_exposition_alinea"
+      }
+    ],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "yw8cvglk00o",
+        "autoAdvance": true
+      },
+      {
+        "id": "yw8cvglk00o",
+        "x": 148.75,
+        "y": 132.25,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "SETUP_DISPOSITION(@CHARACTER_ID)",
+        "next": "thkxtwu0uf",
+        "autoAdvance": false
+      },
+      {
+        "id": "e9hfqwxqw8i",
+        "x": 225.75,
+        "y": 779.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"What do you want?\"",
+        "execStr": "",
+        "next": "yfmldyw7qi8",
+        "autoAdvance": true
+      },
+      {
+        "id": "7go5ge5ymrj",
+        "x": 229.75,
+        "y": 693.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Yeah?\"",
+        "execStr": "",
+        "next": "yfmldyw7qi8",
+        "autoAdvance": true
+      },
+      {
+        "id": "jmbyu63g93r",
+        "x": 223.75,
+        "y": 602.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"I see you're still in one piece.\"",
+        "execStr": "",
+        "next": "yfmldyw7qi8",
+        "autoAdvance": true
+      },
+      {
+        "id": "thkxtwu0uf",
+        "x": 224.75,
+        "y": 245,
+        "eventChildType": "SWITCH",
+        "h": 156,
+        "cases": [
+          {
+            "conditionStr": "ONCE(hasSpokenTo@CHARACTER_ID)",
+            "next": "uao9kv68u9g"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,5)",
+            "next": "jmbyu63g93r"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,3)",
+            "next": "7go5ge5ymrj"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,1)",
+            "next": "e9hfqwxqw8i"
+          }
+        ],
+        "defaultNext": "7go5ge5ymrj"
+      },
+      {
+        "id": "uao9kv68u9g",
+        "x": 636.25,
+        "y": 119,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "Although she has many creases on her face, and her hair is wiry and gray, this aged woman has a steady hand and a sharp gaze.",
+        "execStr": "",
+        "next": "yfmldyw7qi8",
+        "autoAdvance": true
+      },
+      {
+        "id": "yfmldyw7qi8",
+        "x": 936.25,
+        "y": 591,
+        "eventChildType": "CHOICE",
+        "h": 156,
+        "text": "",
+        "choices": [
+          {
+            "text": "Are you the priestess in charge here?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "ximg37eofd",
+            "prefixText": ""
+          },
+          {
+            "text": "This doesn't look much like a Shrine of Luck.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "pmxvk2mmnb",
+            "prefixText": ""
+          },
+          {
+            "text": "What services do you offer?",
+            "conditionStr": "ONCE(ainsleyServicesAsked)",
+            "evalStr": "SET_BOOL(vars.@CHARACTER_ID.altHeal1)",
+            "next": "vet21e05qj",
+            "prefixText": ""
+          },
+          {
+            "text": "Can you heal me?",
+            "conditionStr": "IS(vars.@CHARACTER_ID.altHeal1)",
+            "evalStr": "",
+            "next": "kq88r3qgn3",
+            "prefixText": ""
+          },
+          {
+            "text": "Nevermind. (Leave.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "u6sgl0xgrqd",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "u6sgl0xgrqd",
+        "x": 977.25,
+        "y": 852,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "ximg37eofd",
+        "x": 1332.5,
+        "y": 432.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Yes.  Priestess Ainsley at your service.  You have an ailment?\"",
+        "execStr": "",
+        "next": "yfmldyw7qi8",
+        "autoAdvance": true
+      },
+      {
+        "id": "pmxvk2mmnb",
+        "x": 1334.5,
+        "y": 525.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"So what? Any humble building can be a shrine of anything.  This one happens to be a Shrine of Luck.\"",
+        "execStr": "",
+        "next": "yfmldyw7qi8",
+        "autoAdvance": true
+      },
+      {
+        "id": "vet21e05qj",
+        "x": 1346.5,
+        "y": 630.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Look around, what do you think?  I can heal injuries and cure poison and what not.\"",
+        "execStr": "",
+        "next": "lv23zcbvt7",
+        "autoAdvance": true
+      },
+      {
+        "id": "lv23zcbvt7",
+        "x": 1723.5,
+        "y": 655.5,
+        "eventChildType": "CHOICE",
+        "h": 156,
+        "text": "",
+        "choices": [
+          {
+            "text": "Do you do blessings?",
+            "conditionStr": "ONCE(ainsleyAskedForBlessing)",
+            "evalStr": "",
+            "next": "6g6elzcyb9c",
+            "prefixText": ""
+          },
+          {
+            "text": "My head hurts.",
+            "conditionStr": "IS(tmp.gotThumped)",
+            "evalStr": "",
+            "next": "6f62chhbkjo",
+            "prefixText": ""
+          },
+          {
+            "text": "I'm poisoned.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "82ql7ekhf86",
+            "prefixText": ""
+          },
+          {
+            "text": "I'm injured.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "82ql7ekhf86",
+            "prefixText": ""
+          },
+          {
+            "text": "(Go back.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "yfmldyw7qi8",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "kq88r3qgn3",
+        "x": 1348.5,
+        "y": 705.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"What's your ailment?\"",
+        "execStr": "",
+        "next": "lv23zcbvt7",
+        "autoAdvance": true
+      },
+      {
+        "id": "6g6elzcyb9c",
+        "x": 2149.5,
+        "y": 565.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Yeah, sure.  Screw it.  You want a blessing?  I'll give you one free of charge.\"",
+        "execStr": "",
+        "next": "1jq3lhfn29y",
+        "autoAdvance": true
+      },
+      {
+        "id": "1jq3lhfn29y",
+        "x": 2537.5,
+        "y": 446.5,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "Yes please!",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "91pdws3o3b",
+            "prefixText": ""
+          },
+          {
+            "text": "Actually, I don't think I need one.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "cz6fs8iseb5",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "cz6fs8iseb5",
+        "x": 2620.5,
+        "y": 668.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Good.  Don't bother me with that nonsense again.  Now is there something else I can do?\"",
+        "execStr": "",
+        "next": "lv23zcbvt7",
+        "autoAdvance": true
+      },
+      {
+        "id": "91pdws3o3b",
+        "x": 2924.5,
+        "y": 384.5,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "\"Here, come closer.  I need to be able to touch your head.\"\n\nYou move close to her...",
+        "execStr": "",
+        "next": "0y17d9kw1f7h",
+        "autoAdvance": false
+      },
+      {
+        "id": "0y17d9kw1f7h",
+        "x": 3361.5,
+        "y": 397.5,
+        "eventChildType": "EXEC",
+        "h": 126,
+        "p": "She gives you an abrupt thunk on the top of your head.  You recoil in pain.\n\n\"There's your blessing.  Hope it helps.  Don't ask for another one.  Now is there something else I can do?\"",
+        "execStr": "SET_BOOL(tmp.gotThumped)",
+        "next": "lv23zcbvt7",
+        "autoAdvance": true
+      },
+      {
+        "id": "82ql7ekhf86",
+        "x": 2090.5,
+        "y": 860.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "6f62chhbkjo",
+        "x": 2145.5,
+        "y": 699.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"I got you pretty good, didn't I?  Serves you right for asking about nonsense.\"",
+        "execStr": "",
+        "next": "lv23zcbvt7",
+        "autoAdvance": true
+      }
+    ]
+  },
+  {
     "id": "alinea_barto",
     "title": "Lord Barto Caldeburn",
     "eventType": "TALK",
@@ -1614,6 +1969,45 @@
     ]
   },
   {
+    "id": "alinea_encounterShrineOfLuck",
+    "title": "Shrine of Luck",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "ams7i957gyo",
+        "autoAdvance": true
+      },
+      {
+        "id": "ams7i957gyo",
+        "x": 168.5,
+        "y": 137.5,
+        "eventChildType": "EXEC",
+        "h": 228,
+        "p": "The sign on the outside of this building says \"Shrine of Luck\", but the inside appears much more like a doctor's house.  Instead of an altar, you see a simple table with bandages and ointments organized atop it.  Instead of pews, there are rows of small beds, some with people laying down on them, clearly sick with some ailment.  Instead of an offertory pot, a cauldron of some foul-smelling liquid simmers in the corner of the room.\n\nAn elderly woman is chopping the leaves of some unknown plant and throwing it into the pot.  She wears the traditional robe of the Priestess of Luck.  She must be the proprietor of this place.",
+        "execStr": "",
+        "next": "27o0zj7njh9",
+        "autoAdvance": true
+      },
+      {
+        "id": "27o0zj7njh9",
+        "x": 588.5,
+        "y": 291.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
     "id": "alinea_gruff",
     "title": "Tavernkeeper Gruff",
     "eventType": "TALK",
@@ -1923,7 +2317,7 @@
       {
         "id": "teberiqm1w",
         "x": 2730,
-        "y": 1343.5,
+        "y": 1351.5,
         "eventChildType": "EXEC",
         "h": 98,
         "p": "\"Right.\"  He grabs a large tankard and pours a dark, nearly flat liquid into it before handing it to you.",
@@ -2226,7 +2620,7 @@
           },
           {
             "text": "Interested in somebody over there?",
-            "conditionStr": "IS_NOT(vars.ch.@CHARACTER_ID.askedAboutBarto)",
+            "conditionStr": "ISNOT(vars.ch.@CHARACTER_ID.askedAboutBarto)",
             "evalStr": "",
             "next": "4arfgvx5ge",
             "prefixText": ""
