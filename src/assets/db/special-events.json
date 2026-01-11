@@ -1632,7 +1632,7 @@
         "h": 50,
         "p": "\"What do you want now?  I'm busy.\"",
         "execStr": "",
-        "next": "8f4ruub7r3e",
+        "next": "nexxtdo6ydo",
         "autoAdvance": false
       },
       {
@@ -1643,7 +1643,7 @@
         "h": 50,
         "p": "\"Yes? What can I do for you?\"",
         "execStr": "",
-        "next": "8f4ruub7r3e",
+        "next": "nexxtdo6ydo",
         "autoAdvance": false
       },
       {
@@ -1654,19 +1654,26 @@
         "h": 60,
         "p": "\"Ah, I'm honored that you would approach me.  Did you want something?\"",
         "execStr": "",
-        "next": "8f4ruub7r3e",
+        "next": "nexxtdo6ydo",
         "autoAdvance": false
       },
       {
         "id": "0arn7g6cays",
-        "x": 748,
+        "x": 747,
         "y": 32.5,
         "eventChildType": "CHOICE",
-        "h": 234,
+        "h": 258,
         "text": "A tall woman in a green cloak is overseeing the people at the docks. She tightly clutches an official-looking scroll, and her stern eyes flit in irritation between it and you.\n\n\"You there! Are you the Captain of that vessel?\"  She points towards the horizon where Argow's vessel is anchored.",
         "choices": [
           {
-            "text": "No. The Captain's name is Argow.  He's still back there in the row boat.",
+            "text": "(Remain silent.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "r2fp0o8r2da",
+            "prefixText": ""
+          },
+          {
+            "text": "No. The Captain's name is Argow.  He's currently rowing back to his vessel.",
             "conditionStr": "",
             "evalStr": "",
             "next": "r2fp0o8r2da",
@@ -1680,7 +1687,7 @@
             "prefixText": "[FAE]"
           },
           {
-            "text": "Oh please.  If I owned a ship it would be *much* larger.",
+            "text": "If I owned a ship it would be *much* larger.",
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
             "next": "r2fp0o8r2da",
@@ -1689,57 +1696,26 @@
         ]
       },
       {
-        "id": "8f4ruub7r3e",
-        "x": 632,
-        "y": 936.5,
-        "eventChildType": "CHOICE",
-        "h": 84,
-        "text": "",
-        "choices": [
-          {
-            "text": "I have some questions for you.",
-            "conditionStr": "",
-            "evalStr": "",
-            "next": "jcg09ishnq",
-            "prefixText": ""
-          },
-          {
-            "text": "Nevermind. (Leave.)",
-            "conditionStr": "",
-            "evalStr": "",
-            "next": "lk9qky3u42",
-            "prefixText": ""
-          }
-        ]
-      },
-      {
         "id": "r2fp0o8r2da",
-        "x": 747.5,
-        "y": 296.5,
+        "x": 1146.5,
+        "y": 128.5,
         "eventChildType": "CHOICE",
-        "h": 188,
+        "h": 164,
         "text": "\"There's a fee for using the Alinea docks.\"  She gives you a quick look up and down.  \"Even if it is to drop off a... passenger.\"",
         "choices": [
           {
-            "text": "Okay.",
+            "text": "(Remain Silent.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "uj1jkcvhv0p",
             "prefixText": ""
           },
           {
-            "text": "Tell the Captain yourself if you have need of him.",
+            "text": "I don't think he plans to stay in the port.",
             "conditionStr": "",
-            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "evalStr": "",
             "next": "uj1jkcvhv0p",
-            "prefixText": "[DRAGON]"
-          },
-          {
-            "text": "You don't understand!  They kidnapped me and intend to strand me here!",
-            "conditionStr": "",
-            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
-            "next": "ppxpx9tdqw",
-            "prefixText": "[DRYAD]"
+            "prefixText": ""
           },
           {
             "text": "You really care about that small rowboat?",
@@ -1752,19 +1728,19 @@
       },
       {
         "id": "ppxpx9tdqw",
-        "x": 1135.5,
-        "y": 147.5,
+        "x": 2159.5,
+        "y": 764.5,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"Whatever conflict in which you are allegedly involved does not matter to me. That vessel is here illegally and must be dealt with.\"",
         "execStr": "",
-        "next": "n5l28kyw9bf",
+        "next": "",
         "autoAdvance": false
       },
       {
         "id": "n5l28kyw9bf",
-        "x": 1504.5,
-        "y": 238.5,
+        "x": 3484.5,
+        "y": 300.5,
         "eventChildType": "EXEC",
         "h": 158,
         "p": "She looks you up and down once more and seems to decide something.\n\n\"Hmph. Very well.  I suppose the problem is moot for now.  As for you...  You are not guilty of any more violations.  You are officially allowed to move along into Alinea without retribution. I am Dockmaster Claire, and I run these docks.  Try not to be a nuisance, lark.\"",
@@ -1774,26 +1750,33 @@
       },
       {
         "id": "7wt55yy5y0o",
-        "x": 1877.5,
-        "y": 280.5,
+        "x": 3857.5,
+        "y": 342.5,
         "eventChildType": "END",
         "h": 60,
         "next": ""
       },
       {
         "id": "uj1jkcvhv0p",
-        "x": 1139.8333333333335,
-        "y": 332.5,
+        "x": 1573.8333333333335,
+        "y": 134.5,
         "eventChildType": "CHOICE",
-        "h": 150,
+        "h": 174,
         "text": "\"I can have you locked up for negligence if this situation isn't dealt with right now!\"",
         "choices": [
           {
-            "text": "I don't know what to tell you.",
+            "text": "(Remain silent.)",
             "conditionStr": "",
             "evalStr": "",
-            "next": "n5l28kyw9bf",
+            "next": "myc9tlr8jos",
             "prefixText": ""
+          },
+          {
+            "text": "I don't know what to tell you, lady. I'm just going with the flow.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
+            "next": "n5l28kyw9bf",
+            "prefixText": "[FAE]"
           },
           {
             "text": "Just try it. I dare you.",
@@ -1803,18 +1786,18 @@
             "prefixText": "[DRAGON]"
           },
           {
-            "text": "Sorry!  Um, I don't think he intends to come back.",
+            "text": "Sorry!  Um, I really don't think he intends to come back!",
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1)",
             "next": "n5l28kyw9bf",
-            "prefixText": "[DRYAD["
+            "prefixText": "[DRYAD]"
           }
         ]
       },
       {
         "id": "nexxtdo6ydo",
-        "x": 1196,
-        "y": 731,
+        "x": 820,
+        "y": 755,
         "eventChildType": "CHOICE",
         "h": 204,
         "text": "",
@@ -1849,7 +1832,7 @@
           },
           {
             "text": "You called me a \"lark\" before.  What is that?",
-            "conditionStr": "",
+            "conditionStr": "IS(tmp.calledLark)",
             "evalStr": "",
             "next": "ytv6b9ey1co",
             "prefixText": ""
@@ -1862,43 +1845,32 @@
             "prefixText": ""
           },
           {
-            "text": "(Go back.)",
+            "text": "Nevermind. (Leave.)",
             "conditionStr": "",
             "evalStr": "",
-            "next": "gmb7hkxnr0o",
+            "next": "757nz6fw6io",
             "prefixText": ""
           }
         ]
       },
       {
         "id": "bmybue9pobr",
-        "x": 1712,
-        "y": 957,
+        "x": 1847,
+        "y": 968,
         "eventChildType": "EXEC",
-        "h": 140,
+        "h": 154,
         "p": "\"No.  The Realm is not in service of any old lark that gets dropped off at the docks.  You could bother Mullen at the Realm office, he might be more charitable.  But perhaps you'll have some more luck at the local tavern.  That's where larks tend to congregate.\"",
-        "execStr": "SET_BOOL(@EXPOSITION_ALINEA_REALM_KNOWN)",
-        "next": "nexxtdo6ydo",
-        "autoAdvance": false
+        "execStr": "SET_BOOL(@EXPOSITION_ALINEA_REALM_KNOWN)\nSET_BOOL(tmp.calledLark)",
+        "next": "c8yifw3upx",
+        "autoAdvance": true
       },
       {
         "id": "lk9qky3u42",
-        "x": 977,
-        "y": 971,
+        "x": 1230,
+        "y": 1422,
         "eventChildType": "END",
         "h": 60,
         "next": ""
-      },
-      {
-        "id": "jcg09ishnq",
-        "x": 838.5,
-        "y": 802,
-        "eventChildType": "EXEC",
-        "h": 50,
-        "p": "\"What do you want to know?\"",
-        "execStr": "",
-        "next": "nexxtdo6ydo",
-        "autoAdvance": false
       },
       {
         "id": "zxtfea2uc5m",
@@ -1909,39 +1881,39 @@
         "p": "\"This is the port of Alinea.  Just stay out of the Realm's way.  Obey the rules, and you'll have no problems.\"",
         "execStr": "",
         "next": "nexxtdo6ydo",
-        "autoAdvance": false
+        "autoAdvance": true
       },
       {
         "id": "ytv6b9ey1co",
         "x": 1684.5,
         "y": 1252,
         "eventChildType": "EXEC",
-        "h": 144,
-        "p": "\"Yes.  It means you're new to the Island of Sadelica.\"\n\nSadelica.  You have heard of this place.  It is a large landmass, far, far away from the Mainland.  It has only been settled recently; in the last 50 years.  Rumor has it that it is a place of lawlessness and adventure, although not many on the Mainland have been there to confirm.",
+        "h": 50,
+        "p": "\"Yes.  It means you're new to the Island.\"",
         "execStr": "",
         "next": "nexxtdo6ydo",
-        "autoAdvance": false
+        "autoAdvance": true
       },
       {
         "id": "3h5lr8fowu6",
         "x": 1711,
         "y": 817.5,
         "eventChildType": "EXEC",
-        "h": 116,
+        "h": 140,
         "p": "\"Every day I talk to larks like you.  I have no time to fritter away explaining day-to-day knowledge.  The Realm entrusts me with the smooth operation of Alinea's docks.  You are in the town of Alinea, which itself is on a body of land we call the Island.  That is what I will tell you.\"",
-        "execStr": "",
+        "execStr": "SET_BOOL(tmp.calledLark)",
         "next": "nexxtdo6ydo",
-        "autoAdvance": false
+        "autoAdvance": true
       },
       {
         "id": "gmb7hkxnr0o",
-        "x": 327,
-        "y": 1193.5,
+        "x": 1128,
+        "y": 1336.5,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"If you are done with your questions, then move along.\"",
         "execStr": "",
-        "next": "8f4ruub7r3e",
+        "next": "",
         "autoAdvance": false
       },
       {
@@ -1949,11 +1921,11 @@
         "x": 1711.3666666666677,
         "y": 673.9000000000005,
         "eventChildType": "EXEC",
-        "h": 126,
+        "h": 140,
         "p": "\"The Realm is the authority here in Alinea.  That means you need to follow our rules.  I don't have time to sit down and explain society to a lark.  Go bother somebody else if you want to know all this frivolousness.  Lieutenant Mullen might humor you.\"",
-        "execStr": "SET_BOOL(@EXPOSITION_ALINEA_REALM_KNOWN)",
+        "execStr": "SET_BOOL(@EXPOSITION_ALINEA_REALM_KNOWN)\nSET_BOOL(tmp.calledLark)",
         "next": "nexxtdo6ydo",
-        "autoAdvance": false
+        "autoAdvance": true
       },
       {
         "id": "u24n2mp9sgp",
@@ -1964,7 +1936,67 @@
         "p": "\"Yes.  Lieutenant Mullen.  He has command of Alinea at the moment.  For whatever reason he, seems to like entertaining larks.  Look for him in the Realm offices to the south west.\"",
         "execStr": "",
         "next": "nexxtdo6ydo",
-        "autoAdvance": false
+        "autoAdvance": true
+      },
+      {
+        "id": "c8yifw3upx",
+        "x": 2286,
+        "y": 965,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "Do you know anything about the number \"9\"?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "cr1l3r8moni",
+            "prefixText": ""
+          },
+          {
+            "text": "Okay, fine. (Go back.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "nexxtdo6ydo",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "cr1l3r8moni",
+        "x": 2685,
+        "y": 917,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"No.  Ask your questions of somebody else.\"",
+        "execStr": "",
+        "next": "c8yifw3upx",
+        "autoAdvance": true
+      },
+      {
+        "id": "myc9tlr8jos",
+        "x": 2012.5,
+        "y": 149.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Are you mute?  What do you have to say for yourself?\"",
+        "execStr": "",
+        "next": "n5l28kyw9bf",
+        "autoAdvance": true
+      },
+      {
+        "id": "757nz6fw6io",
+        "x": 800,
+        "y": 1375,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "ONCE(@CHARACTER_ID_doneWithQuestions)",
+            "next": "gmb7hkxnr0o"
+          }
+        ],
+        "defaultNext": "lk9qky3u42"
       }
     ]
   },
@@ -3850,6 +3882,939 @@
     ]
   },
   {
+    "id": "alinea_knifeThieves",
+    "title": "Event",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [
+      {
+        "id": "1u4xh7d5h57",
+        "key": "",
+        "value": "",
+        "importFrom": "util_aspect"
+      }
+    ],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "rninaz57c8",
+        "autoAdvance": true
+      },
+      {
+        "id": "rninaz57c8",
+        "x": 158.5,
+        "y": 133,
+        "eventChildType": "EXEC",
+        "h": 144,
+        "p": "As you step into this alley, a two thugs step in behind you.  They're big men, and each hold improvised clubs.  The one on the right steps forward.\n\n\"That dagger looks mighty nice.  Mind if I take a look?\"\n\nHe reaches out a hand.",
+        "execStr": "",
+        "next": "tii53fvlraj",
+        "autoAdvance": true
+      },
+      {
+        "id": "tii53fvlraj",
+        "x": 304,
+        "y": 340.5,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "Sure, here you go!",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1)",
+            "next": "45ans4ydeds",
+            "prefixText": "[DRYAD]"
+          },
+          {
+            "text": "I'd never stoop so low as to give my property to an unwashed peasant.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "583es9fod",
+            "prefixText": "[DRAGON]"
+          },
+          {
+            "text": "(Say nothing.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "bve9sg6ksn",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "45ans4ydeds",
+        "x": 867,
+        "y": 153.5,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "You produce the bejeweled dagger and hand it to him.  He lifts it and examines it closely.\n\n\"Yes.  This'll do nicely.  I think I'll take this with me.\"",
+        "execStr": "",
+        "next": "okzs584s6yd",
+        "autoAdvance": true
+      },
+      {
+        "id": "583es9fod",
+        "x": 804,
+        "y": 481.5,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Are you sure that's really worth it?\"\n\nHis two companions take a step towards you.",
+        "execStr": "",
+        "next": "svov1j950km",
+        "autoAdvance": true
+      },
+      {
+        "id": "svov1j950km",
+        "x": 1133,
+        "y": 494.5,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "(Spit on the dirty mongrels.)",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "u032yp890o",
+            "prefixText": "[DRAGON]"
+          },
+          {
+            "text": "I will enjoy dissecting you all piece by piece.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_REAPER, 1)",
+            "next": "j8n9dpbz82m",
+            "prefixText": "[REAPER]"
+          },
+          {
+            "text": "Fine (hand him the dagger).",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "rljn7to6vv",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "rljn7to6vv",
+        "x": 867,
+        "y": 282.5,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "He snatches it from you and examines it closely.\n\n\"Yes.  This'll do nicely.  I think I'll take this with me.\"",
+        "execStr": "",
+        "next": "okzs584s6yd",
+        "autoAdvance": true
+      },
+      {
+        "id": "u032yp890o",
+        "x": 1495,
+        "y": 337.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "With a rowdy shriek he flings himself at you...",
+        "execStr": "",
+        "next": "q1ok0jqlscj",
+        "autoAdvance": true
+      },
+      {
+        "id": "j8n9dpbz82m",
+        "x": 1541,
+        "y": 442.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "He flashes a malefic grin, and the two of them dash towards you.  Glorious violence will soon commence.",
+        "execStr": "",
+        "next": "q1ok0jqlscj",
+        "autoAdvance": true
+      },
+      {
+        "id": "q1ok0jqlscj",
+        "x": 2001,
+        "y": 289.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "okzs584s6yd",
+        "x": 1347,
+        "y": 176.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "bve9sg6ksn",
+        "x": 1118,
+        "y": 681.5,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "(Continue to say nothing.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "1t3hfsch02j",
+            "prefixText": ""
+          },
+          {
+            "text": "Fine, take it (hand him the dagger).",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "rljn7to6vv",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "1t3hfsch02j",
+        "x": 1563,
+        "y": 589.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "He flashes a malefic grin, and the the two men begin to menacingly approach.",
+        "execStr": "",
+        "next": "q1ok0jqlscj",
+        "autoAdvance": true
+      }
+    ]
+  },
+  {
+    "id": "alinea_lukili",
+    "title": "Lukili",
+    "eventType": "TALK",
+    "icon": "special_event_icons_0",
+    "vars": [
+      {
+        "id": "zun2z5m5q0j",
+        "key": "CHARACTER_ID",
+        "value": "alinea_lukili",
+        "importFrom": ""
+      },
+      {
+        "id": "057tcm9vhs4x",
+        "key": "DISPOSITION",
+        "value": "vars.disposition.alinea_lukili",
+        "importFrom": ""
+      },
+      {
+        "id": "kje50aoh2nr",
+        "key": "",
+        "value": "",
+        "importFrom": "util_aspect"
+      },
+      {
+        "id": "dl2b3o4wspi",
+        "key": "",
+        "value": "",
+        "importFrom": "util_exposition_alinea"
+      }
+    ],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "nnc10y89nqs",
+        "autoAdvance": true
+      },
+      {
+        "id": "nnc10y89nqs",
+        "x": 209.25,
+        "y": 174.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "SETUP_DISPOSITION(@CHARACTER_ID)",
+        "next": "6b4p5hy6tav",
+        "autoAdvance": false
+      },
+      {
+        "id": "ur0e76o6t0b",
+        "x": 286.25,
+        "y": 822.25,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"What do you want?\"",
+        "execStr": "",
+        "next": "eopxazzoh8l",
+        "autoAdvance": true
+      },
+      {
+        "id": "c56821mnqae",
+        "x": 290.25,
+        "y": 736.25,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Yeah?\"",
+        "execStr": "",
+        "next": "eopxazzoh8l",
+        "autoAdvance": true
+      },
+      {
+        "id": "rpg926vykyi",
+        "x": 284.25,
+        "y": 645.25,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"I see you're still in one piece.\"",
+        "execStr": "",
+        "next": "eopxazzoh8l",
+        "autoAdvance": true
+      },
+      {
+        "id": "6b4p5hy6tav",
+        "x": 285.25,
+        "y": 287.5,
+        "eventChildType": "SWITCH",
+        "h": 156,
+        "cases": [
+          {
+            "conditionStr": "ONCE(hasSpokenTo@CHARACTER_ID)",
+            "next": "1c4yc7u1yuh"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,5)",
+            "next": "rpg926vykyi"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,3)",
+            "next": "c56821mnqae"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,1)",
+            "next": "ur0e76o6t0b"
+          }
+        ],
+        "defaultNext": "c56821mnqae"
+      },
+      {
+        "id": "1c4yc7u1yuh",
+        "x": 696.75,
+        "y": 161.5,
+        "eventChildType": "EXEC",
+        "h": 116,
+        "p": "This dark-skinned woman lounges casually in her chair, tankard of beer held firmly in hand.  Her athletic build and muscles are easily visible due to her minimal clothing, and you have no doubt that she is more than capable of swinging the heavy-looking great sword at the foot of her chair.",
+        "execStr": "",
+        "next": "eopxazzoh8l",
+        "autoAdvance": true
+      },
+      {
+        "id": "eopxazzoh8l",
+        "x": 996.75,
+        "y": 633.5,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "What's your name?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "k3y3upcs9qp",
+            "prefixText": ""
+          },
+          {
+            "text": "You look pretty strong.  Want to join forces?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "ow2cvvopz7r",
+            "prefixText": ""
+          },
+          {
+            "text": "Nevermind. (Leave.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "xqjzgl52r1m",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "xqjzgl52r1m",
+        "x": 1105.75,
+        "y": 835.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "k3y3upcs9qp",
+        "x": 1389,
+        "y": 496,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"I'm Lukili.  Mercenary for hire.  You interested in my services?\"",
+        "execStr": "",
+        "next": "eopxazzoh8l",
+        "autoAdvance": true
+      },
+      {
+        "id": "ow2cvvopz7r",
+        "x": 1429,
+        "y": 681,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Join forces and do what, exactly?\"",
+        "execStr": "",
+        "next": "szztfaes2z",
+        "autoAdvance": true
+      },
+      {
+        "id": "szztfaes2z",
+        "x": 1847,
+        "y": 638,
+        "eventChildType": "CHOICE",
+        "h": 180,
+        "text": "",
+        "choices": [
+          {
+            "text": "I'm not exactly sure.  You just look like a nice person to have around.",
+            "conditionStr": "",
+            "evalStr": "SET_BOOL(tmp.lukiliWorthwhile)",
+            "next": "oa24lon3u0h",
+            "prefixText": ""
+          },
+          {
+            "text": "What would be worthwhile to you?",
+            "conditionStr": "IS(tmp.lukiliWorthwhile)",
+            "evalStr": "",
+            "next": "wq1r9qfeosq",
+            "prefixText": ""
+          },
+          {
+            "text": "Let's take over the world!",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
+            "next": "ha4v7mi2f9t",
+            "prefixText": "[FAE]"
+          },
+          {
+            "text": "I require a servant.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "nlbtdj4ryqo",
+            "prefixText": "[DRAGON]"
+          },
+          {
+            "text": "My goals are my own business, I just want to have you around.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "ra1nz8gtyb",
+            "prefixText": ""
+          },
+          {
+            "text": "Actually, I'm reconsidering. (Go back.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "bfthdn5ph9l",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "oa24lon3u0h",
+        "x": 2255,
+        "y": 434,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Trust me, I am.  But unless you're doing something worthwhile, then I'm not interested.\"",
+        "execStr": "",
+        "next": "szztfaes2z",
+        "autoAdvance": true
+      },
+      {
+        "id": "ha4v7mi2f9t",
+        "x": 2273,
+        "y": 703,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Okay, sure.  You got a plan?\"",
+        "execStr": "",
+        "next": "jpzck6ecg9m",
+        "autoAdvance": true
+      },
+      {
+        "id": "nlbtdj4ryqo",
+        "x": 2280,
+        "y": 863,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"I can do that.  What will you pay me?\"",
+        "execStr": "",
+        "next": "p4aa59zbtk",
+        "autoAdvance": true
+      },
+      {
+        "id": "jpzck6ecg9m",
+        "x": 2607,
+        "y": 619,
+        "eventChildType": "CHOICE",
+        "h": 132,
+        "text": "",
+        "choices": [
+          {
+            "text": "It starts with violence.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_REAPER, 1)",
+            "next": "ra1nz8gtyb",
+            "prefixText": "[REAPER]"
+          },
+          {
+            "text": "Nope! I'm sure we'll figure it out though.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
+            "next": "ra1nz8gtyb",
+            "prefixText": "[FAE]"
+          },
+          {
+            "text": "I'm joking. But I do still want you around.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "ra1nz8gtyb",
+            "prefixText": ""
+          },
+          {
+            "text": "I'm joking.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "g0mu82peyvt",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "bfthdn5ph9l",
+        "x": 1521,
+        "y": 932,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "She gives a curt nod.",
+        "execStr": "",
+        "next": "eopxazzoh8l",
+        "autoAdvance": true
+      },
+      {
+        "id": "wq1r9qfeosq",
+        "x": 2261,
+        "y": 522,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Honestly, not much.  I want to be doing something.  Anything really.  Just sitting here is making more than my muscles atrophy.\"",
+        "execStr": "",
+        "next": "szztfaes2z",
+        "autoAdvance": true
+      },
+      {
+        "id": "ra1nz8gtyb",
+        "x": 2207,
+        "y": 1106,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"What will you pay me?\"",
+        "execStr": "",
+        "next": "gszoufstqof",
+        "autoAdvance": true
+      },
+      {
+        "id": "tevfulaj6so",
+        "x": 3023,
+        "y": 814,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"For the right price, I can do a lot of things.\"",
+        "execStr": "",
+        "next": "2rc4ltlh923",
+        "autoAdvance": true
+      },
+      {
+        "id": "hnquoa5cm0a",
+        "x": 4014,
+        "y": 723,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"My price is very high for that.  I do have some principles.\"",
+        "execStr": "",
+        "next": "2rc4ltlh923",
+        "autoAdvance": true
+      },
+      {
+        "id": "z96q9uul0nd",
+        "x": 4275,
+        "y": 812,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Sure.  You got a lot of money?\"",
+        "execStr": "",
+        "next": "7v6c2bl7tif",
+        "autoAdvance": true
+      },
+      {
+        "id": "7v6c2bl7tif",
+        "x": 4667,
+        "y": 827,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "No...",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "6jf6qikuwc",
+            "prefixText": ""
+          },
+          {
+            "text": "(Open your vast money pouch and empty it onto the table.)",
+            "conditionStr": "GTE(coins, 9999999)",
+            "evalStr": "",
+            "next": "qazolio54c",
+            "prefixText": ""
+          },
+          {
+            "text": "I will own the wealth of nations.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "19gperzwv3k",
+            "prefixText": "[DRAGON]"
+          }
+        ]
+      },
+      {
+        "id": "19gperzwv3k",
+        "x": 5082,
+        "y": 967,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Too bad, that isn't gonna cut it.  I take payment up front.\"",
+        "execStr": "",
+        "next": "2rc4ltlh923",
+        "autoAdvance": true
+      },
+      {
+        "id": "6jf6qikuwc",
+        "x": 5062,
+        "y": 770,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Then why are we even talking about this?\"",
+        "execStr": "",
+        "next": "2rc4ltlh923",
+        "autoAdvance": true
+      },
+      {
+        "id": "uy90q6kt2k",
+        "x": 3940,
+        "y": 816,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "ONCE(@CHARACTER_ID_askedForIllicit)",
+            "next": "z96q9uul0nd"
+          }
+        ],
+        "defaultNext": "st48u01rsle"
+      },
+      {
+        "id": "st48u01rsle",
+        "x": 4003,
+        "y": 915,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"I think you already know the answer to that.\"",
+        "execStr": "",
+        "next": "2rc4ltlh923",
+        "autoAdvance": true
+      },
+      {
+        "id": "2rc4ltlh923",
+        "x": 3435,
+        "y": 712,
+        "eventChildType": "CHOICE",
+        "h": 132,
+        "text": "",
+        "choices": [
+          {
+            "text": "What are you best at?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "fugcl42voy5",
+            "prefixText": ""
+          },
+          {
+            "text": "You can do a lot of things, eh?  What if you and me go find a room together?",
+            "conditionStr": "",
+            "evalStr": "SET_BOOL(tmp.really)",
+            "next": "hnquoa5cm0a",
+            "prefixText": ""
+          },
+          {
+            "text": "But you'd still be interested?",
+            "conditionStr": "IS(tmp.really)",
+            "evalStr": "SET_BOOL(tmp.really, false)",
+            "next": "uy90q6kt2k",
+            "prefixText": ""
+          },
+          {
+            "text": "Good to know. (Go back.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "szztfaes2z",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "fugcl42voy5",
+        "x": 4004,
+        "y": 625,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"I swing a sword around well, and if you need me to move heavy shit around all day I can do that too.\"",
+        "execStr": "",
+        "next": "2rc4ltlh923",
+        "autoAdvance": true
+      },
+      {
+        "id": "mx4ya0te3t8",
+        "x": 3081,
+        "y": 909,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"I need pay.  How much?\"",
+        "execStr": "",
+        "next": "p4aa59zbtk",
+        "autoAdvance": true
+      },
+      {
+        "id": "xpkhk1klurg",
+        "x": 3218,
+        "y": 1170,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"You have a deal.\"",
+        "execStr": "",
+        "next": "aalc4zhwno",
+        "autoAdvance": true
+      },
+      {
+        "id": "p4aa59zbtk",
+        "x": 2643.5,
+        "y": 879,
+        "eventChildType": "CHOICE",
+        "h": 156,
+        "text": "",
+        "choices": [
+          {
+            "text": "Really? Wouldn't you rather be payed to fight?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "tevfulaj6so",
+            "prefixText": ""
+          },
+          {
+            "text": "I take care of all my servants.  You will not require pay.",
+            "conditionStr": "ONCE(@CHARACTER_ID_toldPayNotNeeded)",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "mx4ya0te3t8",
+            "prefixText": "[DRAGON]"
+          },
+          {
+            "text": "1 Coin a day?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "xpkhk1klurg",
+            "prefixText": ""
+          },
+          {
+            "text": "5 Coins a day?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "xpkhk1klurg",
+            "prefixText": ""
+          },
+          {
+            "text": "Actually, I'm not interested.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "bfthdn5ph9l",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "gszoufstqof",
+        "x": 2631.5,
+        "y": 1115,
+        "eventChildType": "CHOICE",
+        "h": 132,
+        "text": "",
+        "choices": [
+          {
+            "text": "I take care of all my servants.  You will not require pay.",
+            "conditionStr": "ONCE(@CHARACTER_ID_toldPayNotNeeded)",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "olwla8xbtw",
+            "prefixText": "[DRAGON]"
+          },
+          {
+            "text": "1 Coin a day?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "xpkhk1klurg",
+            "prefixText": ""
+          },
+          {
+            "text": "5 Coins a day?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "xpkhk1klurg",
+            "prefixText": ""
+          },
+          {
+            "text": "Actually, I'm not interested.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "bfthdn5ph9l",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "g0mu82peyvt",
+        "x": 3052.5,
+        "y": 707,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"That's too bad.\"",
+        "execStr": "",
+        "next": "szztfaes2z",
+        "autoAdvance": true
+      },
+      {
+        "id": "olwla8xbtw",
+        "x": 3256.5,
+        "y": 1073,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"I need pay.  How much?\"",
+        "execStr": "",
+        "next": "gszoufstqof",
+        "autoAdvance": true
+      },
+      {
+        "id": "aalc4zhwno",
+        "x": 3695.5,
+        "y": 1208,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "7ppggyyh1gk",
+        "x": 3359.5,
+        "y": 1265,
+        "eventChildType": "COMMENT",
+        "h": 72,
+        "comment": "TODO: Add her to active party if player has enough money."
+      },
+      {
+        "id": "qazolio54c",
+        "x": 5081.5,
+        "y": 847,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "Her eyes widen in utter shock.\n\n\"We're really doing this, aren't we?\"",
+        "execStr": "",
+        "next": "312rrcwfe5r",
+        "autoAdvance": true
+      },
+      {
+        "id": "312rrcwfe5r",
+        "x": 5503.5,
+        "y": 843,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "You bet, babe.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "0i3isezld25",
+            "prefixText": ""
+          },
+          {
+            "text": "Actually no.  But I wanted you to know I could buy your 'services' if I so desired.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "1wl32phkfea",
+            "prefixText": ""
+          }
+        ]
+      },
+      {
+        "id": "0i3isezld25",
+        "x": 5984.5,
+        "y": 764,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Let's go find a room...\"",
+        "execStr": "",
+        "next": "88g3d6i2ik3",
+        "autoAdvance": true
+      },
+      {
+        "id": "1wl32phkfea",
+        "x": 5950.5,
+        "y": 943,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"I can take that coin off your hands any time you want.\"",
+        "execStr": "",
+        "next": "bajq51r1ffk",
+        "autoAdvance": true
+      },
+      {
+        "id": "88g3d6i2ik3",
+        "x": 6071.5,
+        "y": 824,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "1c8wdflmnns",
+        "x": 6005.5,
+        "y": 666,
+        "eventChildType": "COMMENT",
+        "h": 54,
+        "comment": "TODO: Whatever this turns into."
+      },
+      {
+        "id": "bajq51r1ffk",
+        "x": 6039.5,
+        "y": 1024,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
     "id": "alinea_mullen",
     "title": "Lieutenant Mullen",
     "eventType": "TALK",
@@ -4901,8 +5866,8 @@
       },
       {
         "id": "in9fugxq139",
-        "x": 290.5,
-        "y": 251.5,
+        "x": 139.5,
+        "y": 129.5,
         "eventChildType": "EXEC",
         "h": 144,
         "p": "In this alley is a hastily-constructed makeshift shop of some sort.  A collection of mismatched tables are aligned in rows, holding various and sundry trinkets or utensils.  Two large wagons are arranged behind the tables, and these have been opened up to hold yet more merchandise, from clothing to grain and even fresh fruit.  A short man leans casually on one of these wagons, smoking a corn-cob pipe.",
@@ -4912,8 +5877,8 @@
       },
       {
         "id": "ypprcgqggyl",
-        "x": 770.5,
-        "y": 404.5,
+        "x": 468.5,
+        "y": 328.5,
         "eventChildType": "END",
         "h": 60,
         "next": ""
@@ -4971,7 +5936,7 @@
         "eventChildType": "EXEC",
         "h": 50,
         "p": "",
-        "execStr": "START_QUEST(alinea_omniflowerHeist)",
+        "execStr": "",
         "next": "yq3txf8chx",
         "autoAdvance": true
       },
@@ -5036,8 +6001,8 @@
       },
       {
         "id": "6fg26mbkd7",
-        "x": 1061.75,
-        "y": 434,
+        "x": 1062.75,
+        "y": 406,
         "eventChildType": "CHOICE",
         "h": 132,
         "text": "",
@@ -5563,6 +6528,357 @@
     ]
   },
   {
+    "id": "alinea_sign_warehouse1",
+    "title": "Warehouse 1",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "k8xvu2xxbwq",
+        "autoAdvance": true
+      },
+      {
+        "id": "k8xvu2xxbwq",
+        "x": 248,
+        "y": 128,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "The sign says: \"Warehouse 1\"",
+        "execStr": "",
+        "next": "3upy3zldjxr",
+        "autoAdvance": true
+      },
+      {
+        "id": "3upy3zldjxr",
+        "x": 454,
+        "y": 249,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
+    "id": "alinea_sign_warehouse2",
+    "title": "Warehouse 2",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "s0ic15ifjd",
+        "autoAdvance": true
+      },
+      {
+        "id": "s0ic15ifjd",
+        "x": 68,
+        "y": 119.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "The sign says: \"Warehouse 2\"",
+        "execStr": "",
+        "next": "6kl0esf6hyn",
+        "autoAdvance": true
+      },
+      {
+        "id": "6kl0esf6hyn",
+        "x": 274,
+        "y": 240.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
+    "id": "alinea_sign_warehouse3",
+    "title": "Warehouse 3",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "s0ic15ifjd",
+        "autoAdvance": true
+      },
+      {
+        "id": "s0ic15ifjd",
+        "x": 68,
+        "y": 119.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "The sign says: \"Warehouse 3\"",
+        "execStr": "",
+        "next": "6kl0esf6hyn",
+        "autoAdvance": true
+      },
+      {
+        "id": "6kl0esf6hyn",
+        "x": 274,
+        "y": 240.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
+    "id": "alinea_sign_warehouse4",
+    "title": "Warehouse 4",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "s0ic15ifjd",
+        "autoAdvance": true
+      },
+      {
+        "id": "s0ic15ifjd",
+        "x": 66,
+        "y": 117.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "The sign says: \"Warehouse 4\"",
+        "execStr": "",
+        "next": "6kl0esf6hyn",
+        "autoAdvance": true
+      },
+      {
+        "id": "6kl0esf6hyn",
+        "x": 274,
+        "y": 240.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
+    "id": "alinea_sign_warehouse5",
+    "title": "Warehouse 5",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "s0ic15ifjd",
+        "autoAdvance": true
+      },
+      {
+        "id": "s0ic15ifjd",
+        "x": 66,
+        "y": 117.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "The sign says: \"Warehouse 5\"",
+        "execStr": "",
+        "next": "6kl0esf6hyn",
+        "autoAdvance": true
+      },
+      {
+        "id": "6kl0esf6hyn",
+        "x": 274,
+        "y": 240.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
+    "id": "alinea_sign_warehouse6",
+    "title": "Warehouse 6",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "s0ic15ifjd",
+        "autoAdvance": true
+      },
+      {
+        "id": "s0ic15ifjd",
+        "x": 64,
+        "y": 116.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "The sign says: \"Warehouse 6\"",
+        "execStr": "",
+        "next": "6kl0esf6hyn",
+        "autoAdvance": true
+      },
+      {
+        "id": "6kl0esf6hyn",
+        "x": 274,
+        "y": 240.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
+    "id": "alinea_sign_warehouse7",
+    "title": "Warehouse 7",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "s0ic15ifjd",
+        "autoAdvance": true
+      },
+      {
+        "id": "s0ic15ifjd",
+        "x": 64,
+        "y": 116.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "The sign says: \"Warehouse 7\"",
+        "execStr": "",
+        "next": "6kl0esf6hyn",
+        "autoAdvance": true
+      },
+      {
+        "id": "6kl0esf6hyn",
+        "x": 274,
+        "y": 240.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
+    "id": "alinea_sign_warehouse8",
+    "title": "Warehouse 8",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "s0ic15ifjd",
+        "autoAdvance": true
+      },
+      {
+        "id": "s0ic15ifjd",
+        "x": 64,
+        "y": 116.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "The sign says: \"Warehouse 8\"",
+        "execStr": "",
+        "next": "6kl0esf6hyn",
+        "autoAdvance": true
+      },
+      {
+        "id": "6kl0esf6hyn",
+        "x": 274,
+        "y": 240.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
+    "id": "alinea_sign_warehouse9",
+    "title": "Warehouse 9",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "s0ic15ifjd",
+        "autoAdvance": true
+      },
+      {
+        "id": "s0ic15ifjd",
+        "x": 64,
+        "y": 116.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "The sign says: \"Warehouse 9\"",
+        "execStr": "",
+        "next": "6kl0esf6hyn",
+        "autoAdvance": true
+      },
+      {
+        "id": "6kl0esf6hyn",
+        "x": 274,
+        "y": 240.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
     "id": "alinea_sol",
     "title": "Sol",
     "eventType": "TALK",
@@ -5889,7 +7205,14 @@
     "title": "Alinea",
     "eventType": "MODAL",
     "icon": "special_event_icons_0",
-    "vars": [],
+    "vars": [
+      {
+        "id": "1w3kqqbcybk",
+        "key": "",
+        "value": "",
+        "importFrom": "util_aspect"
+      }
+    ],
     "children": [
       {
         "id": "root",
@@ -5899,8 +7222,177 @@
         "h": 50,
         "p": "",
         "execStr": "",
-        "next": "",
+        "next": "tw5pfpewneo",
         "autoAdvance": false
+      },
+      {
+        "id": "tw5pfpewneo",
+        "x": 134,
+        "y": 135.5,
+        "eventChildType": "EXEC",
+        "h": 172,
+        "p": "A boot to your back shoves you roughly onto the splintered wood of ship docks.  Before you can stand up, you hear a loud thud as a large leather bag lands beside you.  There was a clanking in that sound too, like there's metal inside.  You stand up and turn around to stare at who just kicked you off his ship: Captain Argow.  His arms are crossed, and he lets out a deep sigh.\n\n\"My duty is done.  Now I can be rid of you.\"",
+        "execStr": "",
+        "next": "8cw2fg6at4f",
+        "autoAdvance": true
+      },
+      {
+        "id": "scvp11cx8uq",
+        "x": 1364,
+        "y": 120.5,
+        "eventChildType": "EXEC",
+        "h": 116,
+        "p": "He starts to turn away from the gangplank, but pauses as he remembers something.\n\n\"I was supposed to tell you something else... I don't remember it exactly.  Something about the number 'nine'.  Hope that helps.\"",
+        "execStr": "",
+        "next": "fipm26r28le",
+        "autoAdvance": true
+      },
+      {
+        "id": "8cw2fg6at4f",
+        "x": 514,
+        "y": 159.5,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "(Remain silent.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "scvp11cx8uq",
+            "prefixText": ""
+          },
+          {
+            "text": "You will regret being so disrespectful to me.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "log1j85rp1",
+            "prefixText": "[DRAGON]"
+          },
+          {
+            "text": "I hope your next journey brings you better luck than the last.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1)",
+            "next": "i3wvx08trqd",
+            "prefixText": "[DRYAD]"
+          }
+        ]
+      },
+      {
+        "id": "log1j85rp1",
+        "x": 930,
+        "y": 199.5,
+        "eventChildType": "EXEC",
+        "h": 70,
+        "p": "He ignores your objection.",
+        "execStr": "SET_BOOL(tmp.heIgnoredYou)",
+        "next": "scvp11cx8uq",
+        "autoAdvance": false
+      },
+      {
+        "id": "fipm26r28le",
+        "x": 1736,
+        "y": 233.5,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "(Remain silent.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "g07l6rsuec9",
+            "prefixText": ""
+          },
+          {
+            "text": "The number nine?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "67ft2wt7fsg",
+            "prefixText": ""
+          },
+          {
+            "text": "When I speak you WILL not ignore me!",
+            "conditionStr": "IS(tmp.heIgnoredYou)",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "0j0wss7snrve",
+            "prefixText": "[DRAGON]"
+          }
+        ]
+      },
+      {
+        "id": "i3wvx08trqd",
+        "x": 928,
+        "y": 303.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"I hope so as well.\"",
+        "execStr": "",
+        "next": "scvp11cx8uq",
+        "autoAdvance": false
+      },
+      {
+        "id": "g07l6rsuec9",
+        "x": 2620,
+        "y": 225.5,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "Captain Argow kicks the gangplank up so it lands back in the boat, and orders the two deckhands he came with to row back towards his vessel, which floats calmly on the horizon.",
+        "execStr": "",
+        "next": "shnh053z8q9",
+        "autoAdvance": true
+      },
+      {
+        "id": "0j0wss7snrve",
+        "x": 2147,
+        "y": 370.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"A little advice: stow your attitude, for your own good.\"",
+        "execStr": "",
+        "next": "g07l6rsuec9",
+        "autoAdvance": true
+      },
+      {
+        "id": "67ft2wt7fsg",
+        "x": 2158,
+        "y": 282.5,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Yes.  Just, something you need to know.\"",
+        "execStr": "",
+        "next": "g07l6rsuec9",
+        "autoAdvance": true
+      },
+      {
+        "id": "shnh053z8q9",
+        "x": 3042,
+        "y": 258.5,
+        "eventChildType": "EXEC",
+        "h": 172,
+        "p": "Looking around, you see that you stand at the tip of a long network of docks.  They all lead back into to a walled off settlement to the north.  You know this to be Alinea, from conversations you pick up on the journey here.  It is a town on the Island.  You know nothing about it, but apparently, it is where somebody, somewhere, very much wants you to be.\n\nThe bag next to you might help you understand more.  Or at least it might have something useful in it.",
+        "execStr": "",
+        "next": "s84wy9a1prr",
+        "autoAdvance": true
+      },
+      {
+        "id": "s84wy9a1prr",
+        "x": 3440,
+        "y": 276.5,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "(To search the bag, examine it with the \"Look\" action.)",
+        "execStr": "",
+        "next": "zx96zhxqih",
+        "autoAdvance": true
+      },
+      {
+        "id": "zx96zhxqih",
+        "x": 3912,
+        "y": 319.5,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
       }
     ]
   },

@@ -54,8 +54,8 @@ export class Connector {
 
     const points: { x: number; y: number; color: string }[] = [];
 
-    if (xDistance < 26) {
-      const endpointLength = 26;
+    if (xDistance < 36) {
+      const endpointLength = 36;
       const xDistanceMiddleSegment = xDistance - endpointLength * 2;
       points.push({ x: this.startX, y: this.startY, color: START_COLOR });
       points.push({

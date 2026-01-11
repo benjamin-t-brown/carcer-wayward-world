@@ -27,6 +27,9 @@ let isPanZoomInitialized = false;
 let lastClickTime = 0;
 let lastClickNodeId: string | null = null;
 const DOUBLE_CLICK_DELAY = 300; // milliseconds
+// Track wheel event throttling
+let lastWheelTime = 0;
+const WHEEL_THROTTLE_DELAY = 125; // milliseconds
 
 const panZoomEvents: {
   keydown: (ev: KeyboardEvent) => void;
@@ -326,6 +329,13 @@ export const initPanzoom = (specialEventEditorInterface: {
   };
 
   const handleWheel = (ev: WheelEvent) => {
+    const currentTime = Date.now();
+    // Throttle: only process if at least 50ms have passed since last wheel event
+    if (currentTime - lastWheelTime < WHEEL_THROTTLE_DELAY) {
+      return;
+    }
+    lastWheelTime = currentTime;
+
     const mouseX = ev.clientX;
     const mouseY = ev.clientY;
     const wheelDelta = ev.deltaY;

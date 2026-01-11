@@ -136,6 +136,26 @@
         display: flex;
         flex-direction: column;
         gap: 5px;
+        scrollbar-width: thin; /* Firefox */
+        scrollbar-color: #3e3e42 #1e1e1e; /* Firefox: thumb and track */
+      }
+
+      /* Webkit browsers (Chrome, Safari, Edge) */
+      .item-list::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .item-list::-webkit-scrollbar-track {
+        background: #1e1e1e;
+      }
+
+      .item-list::-webkit-scrollbar-thumb {
+        background: #3e3e42;
+        border-radius: 4px;
+      }
+
+      .item-list::-webkit-scrollbar-thumb:hover {
+        background: #4e4e52;
       }
 
       .item-card {
@@ -190,6 +210,7 @@
         overflow: hidden;
         white-space: pre;
         text-overflow: ellipsis;
+        height: 21px;
       }
 
       .item-type {

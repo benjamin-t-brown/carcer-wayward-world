@@ -54,7 +54,7 @@ const ChoiceTextInput = (props: {
         marginBottom: '1px',
         color: '#d4d4d4',
         fontFamily: monospace ? 'monospace' : 'arial',
-        fontSize: '12px',
+        fontSize: '14px',
       }}
       placeholder={placeholder}
     />

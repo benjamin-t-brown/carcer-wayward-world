@@ -256,6 +256,35 @@ export function VariableEditorModal({
     ]);
   };
 
+  const handleAddUtils = () => {
+    setErrorText('');
+    const utilEvents = gameEvents.filter((event) =>
+      event.id.startsWith('util_')
+    );
+    const newImports: Variable[] = [];
+    const existingImports = new Set(
+      importVars.map((variable) => variable.importFrom)
+    );
+
+    for (const utilEvent of utilEvents) {
+      if (!existingImports.has(utilEvent.id)) {
+        newImports.push({
+          id: randomId(),
+          key: '',
+          value: '',
+          importFrom: utilEvent.id,
+        });
+      }
+    }
+
+    if (newImports.length === 0) {
+      setErrorText('All util_ events are already imported.');
+      return;
+    }
+
+    setImportVars([...importVars, ...newImports]);
+  };
+
   const handleDeleteVariable = (variableId: string) => {
     setErrorText('');
     setVars(vars.filter((variable) => variable.id !== variableId));
@@ -376,6 +405,9 @@ export function VariableEditorModal({
               onClick={() => setShowPickImportModal(true)}
             >
               + Add Import
+            </Button>
+            <Button variant="secondary" onClick={handleAddUtils}>
+              + Add Utils
             </Button>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

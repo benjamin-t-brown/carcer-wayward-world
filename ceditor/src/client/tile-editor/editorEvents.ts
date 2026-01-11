@@ -35,6 +35,9 @@ class MapEditorEventState {
 const mapEditorEventState = new MapEditorEventState();
 
 let isPanZoomInitialized = false;
+// Track wheel event throttling
+let lastWheelTime = 0;
+const WHEEL_THROTTLE_DELAY = 125; // milliseconds
 const panZoomEvents: {
   keydown: (ev: KeyboardEvent) => void;
   keyup: (ev: KeyboardEvent) => void;
@@ -352,12 +355,6 @@ export const initPanzoom = (mapDataInterface: {
       });
     }
     if (mapEditorEventState.isDraggingRight) {
-      mapEditorEventState.isDraggingRight = false;
-      // const mapData = getCurrentMapData();
-      // if (!mapData) {
-      //   setTileFloorBrush([]);
-      //   return;
-      // }
       const ind0 = mapDataInterface.getEditorState().rectSelectTileIndStart;
       const ind1 = mapDataInterface.getEditorState().rectSelectTileIndEnd;
       const dragSelectedInds = getIndsOfBoundingRect(
@@ -430,6 +427,13 @@ export const initPanzoom = (mapDataInterface: {
     }
   };
   const handleWheel = (ev: WheelEvent) => {
+    const currentTime = Date.now();
+    // Throttle: only process if at least 125ms have passed since last wheel event
+    if (currentTime - lastWheelTime < WHEEL_THROTTLE_DELAY) {
+      return;
+    }
+    lastWheelTime = currentTime;
+
     if (isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())) {
       const [focalX, focalY] = screenCoordsToCanvasCoords(
         ev.clientX,
