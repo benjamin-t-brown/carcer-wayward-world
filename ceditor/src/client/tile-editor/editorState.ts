@@ -1,3 +1,4 @@
+import { CarcerMapTemplate, CarcerMapTileTemplate } from '../types/assets';
 import { PaintActionType, PaintAction } from './paintTools';
 import { FloorBrushData } from './renderState';
 
@@ -25,6 +26,7 @@ export interface EditorState {
   rectSelectTileIndStart: number;
   rectSelectTileIndEnd: number;
   rectCloneBrushTiles: FloorBrushData[];
+  currentLevel: number;
   maps: Record<string, EditorStateMap>;
 }
 
@@ -40,6 +42,7 @@ const editorState: EditorState = {
   rectSelectTileIndStart: -1,
   rectSelectTileIndEnd: -1,
   rectCloneBrushTiles: [],
+  currentLevel: 0,
   maps: {},
 };
 export const getEditorState = () => editorState;
@@ -50,7 +53,9 @@ export const updateEditorState = (state: Partial<EditorState>) => {
 export const updateEditorStateNoReRender = (state: Partial<EditorState>) => {
   Object.assign(editorState, { ...getEditorState(), ...state });
 };
-export const getEditorStateMap = (mapName: string): EditorStateMap | undefined => {
+export const getEditorStateMap = (
+  mapName: string
+): EditorStateMap | undefined => {
   const map = getEditorState().maps[mapName];
   return map;
 };
@@ -60,7 +65,7 @@ export const updateEditorStateMap = (
 ) => {
   const map = getEditorStateMap(mapName);
   if (map) {
-    console.log('updateEditorStateMap', mapName, state);
+    // console.log('updateEditorStateMap', mapName, state);
     Object.assign(map, { ...map, ...state });
     (window as any).reRenderTileEditor();
   }
@@ -116,4 +121,22 @@ export const setCurrentPaintAction = (paintAction: PaintActionType) => {
 
 export const getCurrentPaintAction = () => {
   return getEditorState().currentPaintAction;
+};
+
+export const createTilesForLayer = (
+  map: CarcerMapTemplate
+): CarcerMapTileTemplate[] => {
+  const tiles: CarcerMapTileTemplate[] = [];
+  for (let y = 0; y < map.height; y++) {
+    for (let x = 0; x < map.width; x++) {
+      tiles.push({
+        tilesetName: '',
+        tileId: 0,
+        characters: [],
+        items: [],
+        markers: [],
+      });
+    }
+  }
+  return tiles;
 };

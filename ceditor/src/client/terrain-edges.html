@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pixel Autotile Generator</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background: #1e1e1e;
+        color: #eee;
+        padding: 20px;
+      }
+
+      .drop-zone {
+        width: 200px;
+        height: 200px;
+        border: 2px dashed #888;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 20px;
+        margin-bottom: 20px;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      canvas {
+        image-rendering: pixelated;
+        border: 1px solid #555;
+        transform: scale(4);
+        transform-origin: top left;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Pixel Autotile Generator</h2>
+
+    <div class="drop-zone" id="baseZone">Drop Base Tile</div>
+
+    <div class="drop-zone" id="transZone">Drop Overlay Tile</div>
+
+    <br /><br />
+
+    <canvas id="output"></canvas>
+
+    <script>
+      const baseZone = document.getElementById('baseZone');
+      const transZone = document.getElementById('transZone');
+      const canvas = document.getElementById('output');
+      const ctx = canvas.getContext('2d');
+      const borderHeightPx = 4;
+      const borderWidthPx = 4;
+
+      const tileWidth = 28;
+      const tileHeight = 32;
+
+      ctx.imageSmoothingEnabled = false;
+
+      let baseImg = null;
+      let transImg = null;
+
+      function setupDrop(zone, callback) {
+        zone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          zone.style.borderColor = '#0f0';
+        });
+
+        zone.addEventListener('dragleave', () => {
+          zone.style.borderColor = '#888';
+        });
+
+        zone.addEventListener('drop', (e) => {
+          console.log('drop', e);
+          e.preventDefault();
+          zone.style.borderColor = '#888';
+
+          const file = e.dataTransfer.files[0];
+          if (!file) {
+            console.log('no file');
+            return;
+          }
+
+          const url = URL.createObjectURL(file);
+          console.log('load new image', url);
+
+          const img = new Image();
+          img.onload = () => {
+            console.log('image loaded', url);
+            callback(img);
+          };
+          img.onerror = () => {
+            console.log('error loading image', url);
+          };
+          img.src = url;
+        });
+      }
+
+      function drawTile(pos, offset) {
+        ctx.drawImage(baseImg, offset, 0);
+
+        const drawInner = (rect0, rect1) => {
+          ctx.drawImage(
+            transImg,
+            rect0[0],
+            rect0[1],
+            rect0[2],
+            rect0[3],
+            offset + rect1[0],
+            rect1[1],
+            rect1[2],
+            rect1[3]
+          );
+        };
+
+        const subRect = (x, y, w, h) => {
+          return [x, y, w, h];
+        };
+
+        switch (pos) {
+          case ' ': {
+            return;
+          }
+          case 'n': {
+            drawInner(
+              subRect(0, 0, tileWidth, borderHeightPx),
+              subRect(0, 0, tileWidth, borderHeightPx)
+            );
+            break;
+          }
+          case 'e': {
+            drawInner(
+              subRect(tileWidth - borderWidthPx, 0, borderWidthPx, tileHeight),
+              subRect(tileWidth - borderWidthPx, 0, borderWidthPx, tileHeight)
+            );
+            break;
+          }
+          case 's': {
+            drawInner(
+              subRect(
+                0,
+                tileHeight - borderHeightPx,
+                tileWidth,
+                borderHeightPx
+              ),
+              subRect(0, tileHeight - borderHeightPx, tileWidth, borderHeightPx)
+            );
+            break;
+          }
+          case 'w': {
+            drawInner(
+              subRect(0, 0, borderWidthPx, tileHeight),
+              subRect(0, 0, borderWidthPx, tileHeight)
+            );
+            break;
+          }
+          case 'o_ne': {
+            drawInner(
+              subRect(
+                tileWidth - borderWidthPx,
+                0,
+                borderWidthPx,
+                borderWidthPx
+              ),
+              subRect(
+                tileWidth - borderWidthPx,
+                0,
+                borderWidthPx,
+                borderWidthPx
+              )
+            );
+            break;
+          }
+          case 'o_se': {
+            drawInner(
+              subRect(
+                tileWidth - borderWidthPx,
+                tileHeight - borderWidthPx,
+                borderWidthPx,
+                borderWidthPx
+              ),
+              subRect(
+                tileWidth - borderWidthPx,
+                tileHeight - borderWidthPx,
+                borderWidthPx,
+                borderWidthPx
+              )
+            );
+            break;
+          }
+          case 'o_sw': {
+            drawInner(
+              subRect(
+                0,
+                tileHeight - borderWidthPx,
+                borderWidthPx,
+                borderWidthPx
+              ),
+              subRect(
+                0,
+                tileHeight - borderWidthPx,
+                borderWidthPx,
+                borderWidthPx
+              )
+            );
+            break;
+          }
+          case 'o_nw': {
+            drawInner(
+              subRect(0, 0, borderWidthPx, borderWidthPx),
+              subRect(0, 0, borderWidthPx, borderWidthPx)
+            );
+            break;
+          }
+          case 'i_ne': {
+            drawInner(
+              subRect(0, 0, tileWidth, borderHeightPx),
+              subRect(0, 0, tileWidth, borderHeightPx)
+            );
+            drawInner(
+              subRect(tileWidth - borderWidthPx, 0, borderWidthPx, tileHeight),
+              subRect(tileWidth - borderWidthPx, 0, borderWidthPx, tileHeight)
+            );
+            break;
+          }
+          case 'i_nw': {
+            drawInner(
+              subRect(0, 0, tileWidth, borderHeightPx),
+              subRect(0, 0, tileWidth, borderHeightPx)
+            );
+            drawInner(
+              subRect(0, 0, borderWidthPx, tileHeight),
+              subRect(0, 0, borderWidthPx, tileHeight)
+            );
+            break;
+          }
+          case 'i_se': {
+            drawInner(
+              subRect(
+                //
+                0,
+                tileHeight - borderHeightPx,
+                tileWidth,
+                borderHeightPx
+              ),
+              //
+              subRect(
+                //
+                0,
+                tileHeight - borderHeightPx,
+                tileWidth,
+                borderHeightPx
+              )
+            );
+            drawInner(
+              subRect(tileWidth - borderWidthPx, 0, borderWidthPx, tileHeight),
+              subRect(tileWidth - borderWidthPx, 0, borderWidthPx, tileHeight)
+            );
+            break;
+          }
+          case 'i_sw': {
+            drawInner(
+              subRect(
+                0,
+                tileHeight - borderHeightPx,
+                tileWidth,
+                borderHeightPx
+              ),
+              subRect(0, tileHeight - borderHeightPx, tileWidth, borderHeightPx)
+            );
+            drawInner(
+              subRect(0, 0, borderWidthPx, tileHeight),
+              subRect(0, 0, borderWidthPx, tileHeight)
+            );
+            break;
+          }
+        }
+        // debug
+        // ctx.save();
+        // ctx.strokeStyle = 'black';
+        // ctx.lineWidth = 1;
+        // ctx.strokeRect(0 + offset, 0, tileWidth, tileHeight);
+        // ctx.restore();
+      }
+
+      function generate() {
+        if (!baseImg || !transImg) {
+          return;
+        }
+
+        tileSize = baseImg.width;
+        canvas.width = tileWidth * 16;
+        canvas.height = tileHeight;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const dirs = [
+          ' ',
+          'n',
+          's',
+          'e',
+          'w',
+          'o_ne',
+          'o_nw',
+          'o_se',
+          'o_sw',
+          'i_ne',
+          'i_nw',
+          'i_se',
+          'i_sw',
+        ];
+
+        for (let i = 0; i < dirs.length; i++) {
+          const dir = dirs[i];
+          const x = i * tileWidth;
+          drawTile(dir, x);
+        }
+      }
+
+      setupDrop(baseZone, (img) => {
+        baseImg = img;
+        baseZone.innerHTML = '';
+        baseZone.appendChild(img);
+        generate();
+      });
+
+      setupDrop(transZone, (img) => {
+        transImg = img;
+        transZone.innerHTML = '';
+        transZone.appendChild(img);
+        generate();
+      });
+    </script>
+  </body>
+</html>

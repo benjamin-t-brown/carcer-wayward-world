@@ -1,15 +1,12 @@
 import { CarcerMapTemplate, CarcerMapTileTemplate } from '../../types/assets';
+import { getEditorState } from '../editorState';
+import { OpenMapAndSelectTileArgs } from '../TileEditor';
 
 interface TravelTriggerSectionProps {
   selectedTile: CarcerMapTileTemplate;
   maps: CarcerMapTemplate[];
   updateTile: (updater: (tile: CarcerMapTileTemplate) => void) => void;
-  onOpenMapAndSelectTile?: (
-    mapName: string,
-    markerName?: string,
-    x?: number,
-    y?: number
-  ) => void;
+  onOpenMapAndSelectTile?: (args: OpenMapAndSelectTileArgs) => void;
 }
 
 export function TravelTriggerSection({
@@ -273,12 +270,13 @@ export function TravelTriggerSection({
                   destinationX,
                   destinationY,
                 } = selectedTile.travelTrigger!;
-                onOpenMapAndSelectTile(
-                  destinationMapName,
-                  destinationMarkerName || undefined,
-                  destinationX,
-                  destinationY
-                );
+                onOpenMapAndSelectTile({
+                  mapName: destinationMapName,
+                  // level: getEditorState().currentLevel,
+                  level: undefined,
+                  markerName: destinationMarkerName || undefined,
+                  pos: { x: destinationX, y: destinationY },
+                });
               }}
               style={{
                 width: '100%',
@@ -306,4 +304,3 @@ export function TravelTriggerSection({
     </div>
   );
 }
-

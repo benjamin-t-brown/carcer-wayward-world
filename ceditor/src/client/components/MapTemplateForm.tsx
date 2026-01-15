@@ -29,7 +29,9 @@ export function createDefaultMap(): CarcerMapTemplate {
     height: height,
     spriteWidth: 28,
     spriteHeight: 32,
-    tiles: tiles,
+    levels: {
+      '0': tiles,
+    },
   };
 }
 

@@ -17,6 +17,7 @@ import { EditorState, getEditorStateMap } from './editorState';
 import {
   getIndsOfBoundingRect,
   getIsDraggingRight,
+  getTileList,
   getTransform,
 } from './editorEvents';
 import { Sprite } from '../utils/assetLoader';
@@ -131,6 +132,7 @@ export const renderToolUi = (
   const rectCloneBrushTiles = editorState.rectCloneBrushTiles;
   const selectedTileInd =
     getEditorStateMap(editorState.selectedMapName)?.selectedTileInd ?? -1;
+  const mapTiles = getTileList(mapData);
 
   const { x: transformX, y: transformY, scale } = getTransform();
   ctx.save();
@@ -145,8 +147,8 @@ export const renderToolUi = (
   );
 
   // Draw selected tile indicator
-  if (selectedTileInd >= 0 && selectedTileInd < mapData.tiles.length) {
-    const selectedTile = mapData.tiles[selectedTileInd];
+  if (selectedTileInd >= 0 && selectedTileInd < mapTiles.length) {
+    const selectedTile = mapTiles[selectedTileInd];
     const x = selectedTileInd % mapData.width;
     const y = Math.floor(selectedTileInd / mapData.width);
     const tileX = x * tileWidth * scale;
@@ -208,7 +210,7 @@ export const renderToolUi = (
         ctx.save();
         ctx.globalAlpha = 0.5;
         renderTileAndExtras({
-          refTile: mapData.tiles[sourceTileIndex],
+          refTile: mapTiles[sourceTileIndex],
           x:
             getEditorStateMap(editorState.selectedMapName)?.hoveredTileData.x ??
             -1,
@@ -229,12 +231,13 @@ export const renderToolUi = (
       }
     }
   } else if (currentPaintAction === PaintActionType.DRAW) {
+    const partialHoveredTileData = getEditorStateMap(
+      editorState.selectedMapName
+    )?.hoveredTileData ?? { x: -1, y: -1 };
     if (
       getIsDraggingRight() &&
-      (getEditorStateMap(editorState.selectedMapName)?.hoveredTileData?.x ??
-        -1) > -1 &&
-      (getEditorStateMap(editorState.selectedMapName)?.hoveredTileData?.y ??
-        -1) > -1
+      partialHoveredTileData.x > -1 &&
+      partialHoveredTileData.y > -1
     ) {
       const ind0 = editorState.rectSelectTileIndStart;
       const ind1 = editorState.rectSelectTileIndEnd;
@@ -244,23 +247,17 @@ export const renderToolUi = (
         mapData.width ?? 0
       );
       for (const ind of dragSelectedInds) {
-        const tile = mapData.tiles[ind];
+        const tile = mapTiles[ind];
         if (tile) {
           const tileX = (ind % mapData.width) * tileWidth * scale;
           const tileY = Math.floor(ind / mapData.width) * tileHeight * scale;
           drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
         }
       }
-
-      // drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
     } else if (rectCloneBrushTiles.length) {
       for (const brush of rectCloneBrushTiles) {
-        const newX =
-          (getEditorStateMap(editorState.selectedMapName)?.hoveredTileData?.x ??
-            -1) + brush.xOffset;
-        const newY =
-          (getEditorStateMap(editorState.selectedMapName)?.hoveredTileData?.y ??
-            -1) + brush.yOffset;
+        const newX = partialHoveredTileData.x + brush.xOffset;
+        const newY = partialHoveredTileData.y + brush.yOffset;
         if (
           newX < 0 ||
           newX >= mapData.width ||

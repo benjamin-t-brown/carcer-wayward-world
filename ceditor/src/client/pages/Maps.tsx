@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { CarcerMapTemplate } from '../types/assets';
+import { CarcerMapTemplate, CarcerMapTileTemplate } from '../types/assets';
 import { Button } from '../elements/Button';
 import { Notification } from '../elements/Notification';
 import { OptionSelect } from '../elements/OptionSelect';
@@ -8,14 +8,17 @@ import { trimStrings } from '../utils/jsonUtils';
 import { DeleteModal } from '../elements/DeleteModal';
 import { CreateMapModal } from '../components/CreateMapModal';
 import { EditMapModal } from '../components/EditMapModal';
-import { TileEditor } from '../tile-editor/TileEditor';
+import {
+  OpenMapAndSelectTileArgs,
+  TileEditor,
+} from '../tile-editor/TileEditor';
 import {
   createEditorStateMap,
+  createTilesForLayer,
   getEditorState,
-  getEditorStateMap,
-  updateEditorState,
   updateEditorStateMap,
 } from '../tile-editor/editorState';
+import { getTileList } from '../tile-editor/editorEvents';
 
 interface NotificationState {
   message: string;
@@ -121,16 +124,15 @@ export function Maps() {
   };
 
   // Callback to open a map tab and select a tile
-  const handleOpenMapAndSelectTile = (
-    mapName: string,
-    markerName?: string,
-    x?: number,
-    y?: number
-  ) => {
+  const handleOpenMapAndSelectTile = (args: OpenMapAndSelectTileArgs) => {
+    const { mapName, markerName, pos, level } = args;
     const mapIndex = maps.findIndex((m) => m.name === mapName);
-    if (mapIndex < 0) return;
+    if (mapIndex < 0) {
+      return;
+    }
 
-    const map = maps[mapIndex];
+    const mapData = maps[mapIndex];
+    const mapTiles = getTileList(mapData, level);
 
     // Open the map in a tab (or switch to existing tab)
     const existingTabIndex = openTabs.findIndex(
@@ -144,7 +146,7 @@ export function Maps() {
     } else {
       const newTab: OpenTab = {
         mapIndex,
-        map,
+        map: mapData,
       };
       const newTabs = [...openTabs, newTab];
       setOpenTabs(newTabs);
@@ -154,21 +156,31 @@ export function Maps() {
 
     // Find and select the tile
     let tileIndex = -1;
+    let tileLevel = level ?? 0;
 
     if (markerName) {
-      // Find tile by marker name
-      tileIndex = map.tiles.findIndex(
-        (tile) => tile.markers && tile.markers.includes(markerName)
-      );
-    } else if (x !== undefined && y !== undefined) {
+      for (const mapLevel in mapData.levels) {
+        const mapTiles = getTileList(mapData, parseInt(mapLevel));
+        if (mapTiles.length) {
+          tileIndex = mapTiles.findIndex(
+            (tile) => tile.markers && tile.markers.includes(markerName)
+          );
+          if (tileIndex >= 0) {
+            tileLevel = parseInt(mapLevel);
+            break;
+          }
+        }
+      }
+    } else if (pos !== undefined) {
+      const { x, y } = pos;
       // Find tile by coordinates
-      if (x >= 0 && y >= 0 && x < map.width && y < map.height) {
-        tileIndex = y * map.width + x;
+      if (x >= 0 && y >= 0 && x < mapData.width && y < mapData.height) {
+        tileIndex = y * mapData.width + x;
       }
     }
 
     // Set selected tile if found
-    if (tileIndex >= 0 && tileIndex < map.tiles.length) {
+    if (tileIndex >= 0 && tileIndex < mapTiles.length) {
       // Use setTimeout to ensure the map is loaded in the editor before selecting
       setTimeout(() => {
         if (!getEditorState().maps[mapName]) {
@@ -180,22 +192,11 @@ export function Maps() {
   };
 
   const handleCreateMap = (newMap: CarcerMapTemplate) => {
-    // Generate tiles for all positions in the map if not already generated
-    if (!newMap.tiles || newMap.tiles.length === 0) {
-      const tiles: any[] = [];
-      for (let y = 0; y < newMap.height; y++) {
-        for (let x = 0; x < newMap.width; x++) {
-          tiles.push({
-            tilesetName: '',
-            tileId: 0,
-            x: x,
-            y: y,
-            characters: [],
-            items: [],
-          });
-        }
-      }
-      newMap.tiles = tiles;
+    console.log('handleCreateMap', newMap);
+    if (newMap.levels['0']?.length) {
+      // map already has tiles
+    } else {
+      newMap.levels['0'] = createTilesForLayer(newMap);
     }
 
     const newMaps = [...maps, newMap];
@@ -554,7 +555,9 @@ export function Maps() {
         <TileEditor
           map={activeMap ?? undefined}
           onMapUpdate={updateMapInTabs}
-          onOpenMapAndSelectTile={handleOpenMapAndSelectTile}
+          onOpenMapAndSelectTile={(args: OpenMapAndSelectTileArgs) => {
+            handleOpenMapAndSelectTile(args);
+          }}
         />
       </div>
 

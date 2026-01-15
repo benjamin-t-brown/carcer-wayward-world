@@ -10,6 +10,7 @@ import { CarcerMapTemplate, TilesetTemplate } from '../types/assets';
 import {
   EditorState,
   getCurrentPaintAction,
+  getEditorState,
   getEditorStateMap,
   setCurrentPaintAction,
   updateEditorState,
@@ -56,6 +57,9 @@ const panZoomEvents: {
   wheel: () => {},
 };
 
+const MOUSE_BUTTON_LEFT = 0;
+const MOUSE_BUTTON_RIGHT = 2;
+const MOUSE_BUTTON_MIDDLE = 1;
 (window as any).mapEditorEventState = mapEditorEventState;
 // let panzoomCanvas: HTMLCanvasElement | null = null;
 
@@ -115,6 +119,7 @@ export const initPanzoom = (mapDataInterface: {
           if (ind > -1) {
             onTileHoverIndChange(
               mapDataInterface.getMapData(),
+              mapDataInterface.getEditorState(),
               mapDataInterface.getEditorState().currentPaintAction,
               -1,
               ind
@@ -132,6 +137,19 @@ export const initPanzoom = (mapDataInterface: {
       } else if (ev.key === 'c') {
         if (!ev.ctrlKey) {
           setCurrentPaintAction(PaintActionType.CLONE);
+        }
+      }
+      if (ev.key === 'ArrowUp' && ev.altKey) {
+        const currentMap = mapDataInterface.getMapData();
+        const nextLevel = getEditorState().currentLevel + 1;
+        if (currentMap?.levels[nextLevel]) {
+          updateEditorState({ currentLevel: nextLevel });
+        }
+      } else if (ev.key === 'ArrowDown' && ev.altKey) {
+        const currentMap = mapDataInterface.getMapData();
+        const nextLevel = getEditorState().currentLevel - 1;
+        if (currentMap?.levels[nextLevel]) {
+          updateEditorState({ currentLevel: nextLevel });
         }
       }
     }
@@ -159,7 +177,7 @@ export const initPanzoom = (mapDataInterface: {
   };
   const handleMouseDown = (ev: MouseEvent) => {
     if (
-      ev.button === 1 &&
+      ev.button === MOUSE_BUTTON_MIDDLE &&
       isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())
     ) {
       mapEditorEventState.lastClickX = ev.clientX;
@@ -169,7 +187,7 @@ export const initPanzoom = (mapDataInterface: {
       mapEditorEventState.isDragging = true;
     }
     if (
-      ev.button === 0 &&
+      ev.button === MOUSE_BUTTON_LEFT &&
       isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())
     ) {
       const currentPaintAction =
@@ -226,12 +244,20 @@ export const initPanzoom = (mapDataInterface: {
       };
       const floorBrush = mapDataInterface.getEditorState().rectCloneBrushTiles;
       if (floorBrush.length) {
-        action.data.floorDrawBrush = floorBrush.slice();
+        action.data.floorDrawBrush = floorBrush.map((ft) => {
+          return {
+            xOffset: ft.xOffset,
+            yOffset: ft.yOffset,
+            originalTile: {
+              ref: structuredClone(ft.originalTile.ref),
+            },
+          };
+        });
       }
       setCurrentAction(action);
     }
     if (
-      ev.button === 2 &&
+      ev.button === MOUSE_BUTTON_RIGHT &&
       isEventWithCanvasTarget(ev, mapDataInterface.getCanvas()) &&
       (getCurrentPaintAction() === PaintActionType.DRAW ||
         getCurrentPaintAction() === PaintActionType.FILL)
@@ -249,7 +275,7 @@ export const initPanzoom = (mapDataInterface: {
 
       // setSelectedMapTileIndex(getHoveredTileInd());
     } else if (
-      ev.button === 2 &&
+      ev.button === MOUSE_BUTTON_RIGHT &&
       [PaintActionType.CLONE, PaintActionType.SELECT].includes(
         getCurrentPaintAction()
       )
@@ -330,12 +356,13 @@ export const initPanzoom = (mapDataInterface: {
 
         const mapData = mapDataInterface.getMapData();
         if (mapData) {
+          const mapTiles = getTileList(mapData);
           // Store previous state of both tiles for undo
           action.data.prevRefData.push(
-            structuredClone(mapData.tiles[sourceTileIndex])
+            structuredClone(mapTiles[sourceTileIndex])
           );
           action.data.prevRefData.push(
-            structuredClone(mapData.tiles[destTileIndex])
+            structuredClone(mapTiles[destTileIndex])
           );
 
           onActionComplete(action, mapData, editorState);
@@ -355,6 +382,7 @@ export const initPanzoom = (mapDataInterface: {
       });
     }
     if (mapEditorEventState.isDraggingRight) {
+      mapEditorEventState.isDraggingRight = false;
       const ind0 = mapDataInterface.getEditorState().rectSelectTileIndStart;
       const ind1 = mapDataInterface.getEditorState().rectSelectTileIndEnd;
       const dragSelectedInds = getIndsOfBoundingRect(
@@ -377,7 +405,8 @@ export const initPanzoom = (mapDataInterface: {
         );
         return;
       }
-      const nextRef = mapDataInterface.getMapData().tiles[dragSelectedInds[0]];
+      const mapTiles = getTileList(mapDataInterface.getMapData());
+      const nextRef = mapTiles[dragSelectedInds[0]];
       if (dragSelectedInds.length === 1 && nextRef) {
         updateEditorStateNoReRender({
           rectCloneBrushTiles: [],
@@ -407,17 +436,17 @@ export const initPanzoom = (mapDataInterface: {
           xOffset: x - topLeftX,
           yOffset: y - topLeftY,
           originalTile: {
-            ref: mapDataInterface.getMapData().tiles[ind],
+            ref: structuredClone(mapTiles[ind]),
           },
         };
       });
+      const selectedMapName = mapDataInterface.getEditorState().selectedMapName;
       updateEditorStateNoReRender({
         rectCloneBrushTiles: brush,
       });
-      updateEditorStateMap(mapDataInterface.getEditorState().selectedMapName, {
+      updateEditorStateMap(selectedMapName, {
         selectedTileInd:
-          getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
-            ?.hoveredTileIndex ?? -1,
+          getEditorStateMap(selectedMapName)?.hoveredTileIndex ?? -1,
       });
     }
   };
@@ -624,4 +653,8 @@ export const getScreenMouseCoords = () => {
 
 export const getIsDraggingRight = () => {
   return mapEditorEventState.isDraggingRight;
+};
+
+export const getTileList = (mapData: CarcerMapTemplate, level?: number) => {
+  return mapData.levels[level ?? getEditorState().currentLevel] ?? [];
 };

@@ -4216,7 +4216,7 @@
         "x": 996.75,
         "y": 633.5,
         "eventChildType": "CHOICE",
-        "h": 108,
+        "h": 132,
         "text": "",
         "choices": [
           {
@@ -4231,6 +4231,13 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "ow2cvvopz7r",
+            "prefixText": ""
+          },
+          {
+            "text": "Let's have a chat.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "0kzq5pie6nw",
             "prefixText": ""
           },
           {
@@ -4397,8 +4404,8 @@
       },
       {
         "id": "bfthdn5ph9l",
-        "x": 1521,
-        "y": 932,
+        "x": 1865,
+        "y": 1046,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "She gives a curt nod.",
@@ -4811,6 +4818,17 @@
         "eventChildType": "END",
         "h": 60,
         "next": ""
+      },
+      {
+        "id": "0kzq5pie6nw",
+        "x": 1420.5,
+        "y": 777,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"I'm not interested in that.  You want to hire me?\"",
+        "execStr": "",
+        "next": "eopxazzoh8l",
+        "autoAdvance": true
       }
     ]
   },

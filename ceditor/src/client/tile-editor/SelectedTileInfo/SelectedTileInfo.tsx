@@ -3,7 +3,7 @@ import { useSDL2WAssets } from '../../contexts/SDL2WAssetsContext';
 import { useAssets } from '../../contexts/AssetsContext';
 import { getSpriteNameFromTile } from '../../utils/draw';
 import { Sprite } from '../../elements/Sprite';
-import { EditorState, getEditorStateMap } from '../editorState';
+import { EditorState, getEditorState, getEditorStateMap } from '../editorState';
 import { ItemSearchInput } from './ItemSearchInput';
 import { CharacterSearchInput } from './CharacterSearchInput';
 import { MarkersSection } from './MarkersSection';
@@ -12,17 +12,14 @@ import { CharactersList } from './CharactersList';
 import { TravelTriggerSection } from './TravelTriggerSection';
 import { EventTriggerSection } from './EventTriggerSection';
 import { TileOverridesSection } from './TileOverridesSection';
+import { OpenMapAndSelectTileArgs } from '../TileEditor';
+import { getTileList } from '../editorEvents';
 
 interface SelectedTileInfoProps {
   editorState: EditorState;
   map: CarcerMapTemplate;
   onMapUpdate: (map: CarcerMapTemplate) => void;
-  onOpenMapAndSelectTile?: (
-    mapName: string,
-    markerName?: string,
-    x?: number,
-    y?: number
-  ) => void;
+  onOpenMapAndSelectTile?: (args: OpenMapAndSelectTileArgs) => void;
 }
 
 export function SelectedTileInfo({
@@ -33,25 +30,30 @@ export function SelectedTileInfo({
 }: SelectedTileInfoProps) {
   const { spriteMap } = useSDL2WAssets();
   const { characters, items, gameEvents, maps } = useAssets();
-  const selectedTileInd = getEditorStateMap(editorState.selectedMapName)?.selectedTileInd ?? -1;
+  const selectedTileInd =
+    getEditorStateMap(editorState.selectedMapName)?.selectedTileInd ?? -1;
+  const mapTiles = getTileList(map);
 
   const updateTile = (updater: (tile: CarcerMapTileTemplate) => void) => {
-    if (selectedTileInd < 0 || selectedTileInd >= map.tiles.length) {
+    if (selectedTileInd < 0 || selectedTileInd >= mapTiles.length) {
       return;
     }
 
-    const updatedTiles = [...map.tiles];
+    const updatedTiles = [...mapTiles];
     const updatedTile = { ...updatedTiles[selectedTileInd] };
     updater(updatedTile);
     updatedTiles[selectedTileInd] = updatedTile;
 
     onMapUpdate({
       ...map,
-      tiles: updatedTiles,
+      levels: {
+        ...map.levels,
+        [getEditorState().currentLevel]: updatedTiles,
+      },
     });
   };
 
-  if (selectedTileInd < 0 || selectedTileInd >= map.tiles.length) {
+  if (selectedTileInd < 0 || selectedTileInd >= mapTiles.length) {
     return (
       <div
         style={{
@@ -80,7 +82,7 @@ export function SelectedTileInfo({
     );
   }
 
-  const selectedTile = map.tiles[selectedTileInd];
+  const selectedTile = mapTiles[selectedTileInd];
   const x = selectedTileInd % map.width;
   const y = Math.floor(selectedTileInd / map.width);
   const spriteName = getSpriteNameFromTile(selectedTile);

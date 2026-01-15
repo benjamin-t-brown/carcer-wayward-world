@@ -1,9 +1,3 @@
-// import {
-//   FloorBrushData,
-//   getFillIndsFloor,
-//   getHoveredTileInd,
-//   getTileFloorBrush,
-// } from './renderState';
 import { calculateFillIndsFloor } from './fill';
 import { CarcerMapTemplate, CarcerMapTileTemplate } from '../types/assets';
 import { createDefaultCarcerMapTile } from '../components/MapTemplateForm';
@@ -14,7 +8,7 @@ import {
   updateEditorStateMapNoReRender,
   updateEditorStateNoReRender,
 } from './editorState';
-import { getIsDraggingRight } from './editorEvents';
+import { getIsDraggingRight, getTileList } from './editorEvents';
 
 export enum PaintActionType {
   NONE = '',
@@ -80,6 +74,7 @@ export const applyAction = (
   mapData: CarcerMapTemplate,
   editorState: EditorState
 ) => {
+  const mapTiles = getTileList(mapData);
   switch (action.type) {
     case PaintActionType.DRAW:
       break;
@@ -91,17 +86,17 @@ export const applyAction = (
     case PaintActionType.FILL: {
       const ind =
         getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
-      const fillIndsFloor = calculateFillIndsFloor(ind, mapData);
+      const fillIndsFloor = calculateFillIndsFloor(ind, mapData, editorState.currentLevel);
       // Store the tile indices and ensure previous data is stored for undo
       action.data.tileInds = fillIndsFloor;
       for (let i = 0; i < fillIndsFloor.length; i++) {
         const tileInd = fillIndsFloor[i];
         // Store previous state if not already stored
         if (i >= action.data.prevRefData.length) {
-          action.data.prevRefData.push(structuredClone(mapData.tiles[tileInd]));
+          action.data.prevRefData.push(structuredClone(mapTiles[tileInd]));
         }
-        mapData.tiles[tileInd] = Object.assign(
-          mapData.tiles[tileInd],
+        mapTiles[tileInd] = Object.assign(
+          mapTiles[tileInd],
           action.data.paintTileRef
         );
       }
@@ -121,8 +116,8 @@ export const applyAction = (
           destTileIndex >= 0 &&
           sourceTileIndex !== destTileIndex
         ) {
-          const sourceTile = mapData.tiles[sourceTileIndex];
-          const destTile = mapData.tiles[destTileIndex];
+          const sourceTile = mapTiles[sourceTileIndex];
+          const destTile = mapTiles[destTileIndex];
 
           // Move characters, items, and overrides from source to destination
           // Merge with existing data on destination
@@ -188,8 +183,8 @@ export const applyAction = (
           destTileIndex >= 0 &&
           sourceTileIndex !== destTileIndex
         ) {
-          const sourceTile = mapData.tiles[sourceTileIndex];
-          const destTile = mapData.tiles[destTileIndex];
+          const sourceTile = mapTiles[sourceTileIndex];
+          const destTile = mapTiles[destTileIndex];
 
           // Clone characters, items, and overrides from source to destination
           // Merge with existing data on destination
@@ -249,8 +244,10 @@ export const applyActionUpdate = (
   mapData: CarcerMapTemplate,
   editorState: EditorState
 ) => {
+  const mapTiles = getTileList(mapData);
   switch (action.type) {
     case PaintActionType.DRAW:
+      // console.log('APPLY DRAW ACTION', action.data.floorDrawBrush?.map(join(','));
       for (const ind of action.data.tileInds) {
         const startX = ind % mapData.width;
         const startY = Math.floor(ind / mapData.width);
@@ -270,22 +267,22 @@ export const applyActionUpdate = (
               continue;
             }
 
-            Object.assign(mapData.tiles[newInd], bt.originalTile.ref);
+            Object.assign(mapTiles[newInd], bt.originalTile.ref);
           }
         } else {
-          Object.assign(mapData.tiles[ind], action.data.paintTileRef);
+          Object.assign(mapTiles[ind], action.data.paintTileRef);
         }
       }
       break;
     case PaintActionType.ERASE:
       for (const ind of action.data.tileInds) {
-        mapData.tiles[ind] = createDefaultCarcerMapTile();
+        mapTiles[ind] = createDefaultCarcerMapTile();
       }
 
       break;
     case PaintActionType.ERASE_META:
       for (const ind of action.data.tileInds) {
-        const tile = mapData.tiles[ind];
+        const tile = mapTiles[ind];
         // Clear metadata but keep base tile properties
         tile.characters = [];
         tile.items = [];
@@ -315,19 +312,20 @@ export const applyActionUpdate = (
 };
 
 export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
+  const mapTiles = getTileList(mapData);
   switch (action.type) {
     case PaintActionType.DRAW:
       // Restore previous tile data for all affected tiles
       for (let i = 0; i < action.data.tileInds.length; i++) {
         const ind = action.data.tileInds[i];
         if (i < action.data.prevRefData.length) {
-          mapData.tiles[ind] = structuredClone(action.data.prevRefData[i]);
+          mapTiles[ind] = structuredClone(action.data.prevRefData[i]);
         }
       }
       for (let i = 0; i < action.data.extraTileInds.length; i++) {
         const ind = action.data.extraTileInds[i];
         if (i < action.data.extraPrevRefData.length) {
-          mapData.tiles[ind] = structuredClone(action.data.extraPrevRefData[i]);
+          mapTiles[ind] = structuredClone(action.data.extraPrevRefData[i]);
         }
       }
       break;
@@ -336,7 +334,7 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
       for (let i = 0; i < action.data.tileInds.length; i++) {
         const ind = action.data.tileInds[i];
         if (i < action.data.prevRefData.length) {
-          mapData.tiles[ind] = structuredClone(action.data.prevRefData[i]);
+          mapTiles[ind] = structuredClone(action.data.prevRefData[i]);
         }
       }
       break;
@@ -346,7 +344,7 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
         const ind = action.data.tileInds[i];
         if (i < action.data.prevRefData.length) {
           const prevTile = action.data.prevRefData[i];
-          const currentTile = mapData.tiles[ind];
+          const currentTile = mapTiles[ind];
           // Restore metadata but keep current base properties (tilesetName, tileId, x, y)
           currentTile.characters = structuredClone(prevTile.characters);
           currentTile.items = structuredClone(prevTile.items);
@@ -378,7 +376,7 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
       for (let i = 0; i < action.data.tileInds.length; i++) {
         const tileInd = action.data.tileInds[i];
         if (i < action.data.prevRefData.length) {
-          mapData.tiles[tileInd] = structuredClone(action.data.prevRefData[i]);
+          mapTiles[tileInd] = structuredClone(action.data.prevRefData[i]);
         }
       }
       break;
@@ -395,13 +393,13 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
         if (sourceTileIndex >= 0 && destTileIndex >= 0) {
           // Restore source tile (index 0 in prevRefData)
           if (0 < action.data.prevRefData.length) {
-            mapData.tiles[sourceTileIndex] = structuredClone(
+            mapTiles[sourceTileIndex] = structuredClone(
               action.data.prevRefData[0]
             );
           }
           // Restore destination tile (index 1 in prevRefData)
           if (1 < action.data.prevRefData.length) {
-            mapData.tiles[destTileIndex] = structuredClone(
+            mapTiles[destTileIndex] = structuredClone(
               action.data.prevRefData[1]
             );
           }
@@ -421,7 +419,7 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
           // Restore destination tile (index 1 in prevRefData)
           // Source tile (index 0) is not modified by CLONE, so we don't restore it
           if (1 < action.data.prevRefData.length) {
-            mapData.tiles[destTileIndex] = structuredClone(
+            mapTiles[destTileIndex] = structuredClone(
               action.data.prevRefData[1]
             );
           }
@@ -444,6 +442,7 @@ export const onActionUpdate = (
   mapData: CarcerMapTemplate,
   editorState: EditorState
 ) => {
+  const mapTiles = getTileList(mapData);
   const ind =
     getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
 
@@ -458,7 +457,7 @@ export const onActionUpdate = (
 
   if (!action.data.tileInds.includes(ind)) {
     action.data.tileInds.push(ind);
-    action.data.prevRefData.push(structuredClone(mapData.tiles[ind]));
+    action.data.prevRefData.push(structuredClone(mapTiles[ind]));
 
     // ensure every tile affected by brush is also in tileInds array
     if (action.type == PaintActionType.DRAW && action.data.floorDrawBrush) {
@@ -484,7 +483,7 @@ export const onActionUpdate = (
             if (!action.data.extraTileInds.includes(newInd)) {
               action.data.extraTileInds.push(newInd);
               action.data.extraPrevRefData.push(
-                structuredClone(mapData.tiles[newInd])
+                structuredClone(mapTiles[newInd])
               );
             }
           }
@@ -560,6 +559,7 @@ export const undo = (
 
 export const onTileHoverIndChange = (
   mapData: CarcerMapTemplate,
+  editorState: EditorState,
   currentPaintAction: PaintActionType,
   prevHoverInd: number,
   nextHoverInd: number
@@ -567,7 +567,7 @@ export const onTileHoverIndChange = (
   if (nextHoverInd !== -1) {
     if (mapData && currentPaintAction === PaintActionType.FILL) {
       updateEditorStateNoReRender({
-        fillIndsFloor: calculateFillIndsFloor(nextHoverInd, mapData),
+        fillIndsFloor: calculateFillIndsFloor(nextHoverInd, mapData, editorState.currentLevel),
       });
     } else {
       updateEditorStateNoReRender({

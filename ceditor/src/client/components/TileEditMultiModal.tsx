@@ -11,6 +11,14 @@ import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { OptionSelect } from '../elements/OptionSelect';
 import { useState } from 'react';
 
+interface TileEditMultiModalProps {
+  tiles: TileMetadata[];
+  tileIndices: number[];
+  tilesetName: string;
+  onClose: () => void;
+  onUpdate: (index: number, field: keyof TileMetadata, value: any) => void;
+}
+
 const TileBorderMetaSelect = (props: {
   value: TileTerrainBorderTag;
   onChange: (value: TileTerrainBorderTag) => void;
@@ -41,7 +49,7 @@ const renderBorderMetaTag = (
 ) => {
   let x = 0;
   let y = 0;
-  const centerScale = (3 * scale) / 2;
+  const centerScale = 3 * scale / 2;
   switch (pos) {
     case 'ne':
       x = ctx.canvas.width - 5 * scale;
@@ -69,44 +77,48 @@ const renderBorderMetaTag = (
   ctx.fillText(tag[0].toUpperCase(), x + centerScale, y + (5 * scale) / 2);
 };
 
-interface TileEditModalProps {
-  // tile: TileMetadata | null;
-  // tileIndex: number | null;
-  tiles: {
-    tile: TileMetadata;
-    tileIndex: number;
-  }[];
-  tilesetName: string;
-  onClose: () => void;
-  onUpdate: (
-    tiles: { tile: TileMetadata; tileIndex: number }[],
-    field: keyof TileMetadata,
-    value: any
-  ) => void;
-}
+// Helper to check if all tiles have the same value for a field
+const allTilesHaveSameValue = <K extends keyof TileMetadata>(
+  tiles: TileMetadata[],
+  field: K
+): boolean => {
+  if (tiles.length === 0) return true;
+  const firstValue = tiles[0][field];
+  return tiles.every((tile) => tile[field] === firstValue);
+};
 
-export function TileEditModal({
-  // tile,
-  // tileIndex,
+// Helper to get a representative value (first tile's value, or null if mixed)
+const getRepresentativeValue = <K extends keyof TileMetadata>(
+  tiles: TileMetadata[],
+  field: K
+): TileMetadata[K] | null => {
+  if (tiles.length === 0) return null;
+  if (allTilesHaveSameValue(tiles, field)) {
+    return tiles[0][field];
+  }
+  return null; // Mixed values
+};
+
+export function TileEditMultiModal({
   tiles,
+  tileIndices,
   tilesetName,
   onClose,
   onUpdate,
-}: TileEditModalProps) {
+}: TileEditMultiModalProps) {
   const { spriteMap } = useSDL2WAssets();
   const [fillAllBorderMetaValue, setFillAllBorderMetaValue] =
     useState<TileTerrainBorderTag>(TileTerrainBorderTag.NONE);
 
-  console.log('tiles', tiles);
-
-  if (tiles.length === 0) {
+  if (!tiles || tiles.length === 0 || tileIndices.length === 0) {
     return null;
   }
 
-  const firstTile = tiles[0];
-
   const handleUpdate = (field: keyof TileMetadata, value: any) => {
-    onUpdate(tiles, field, value);
+    // Update all selected tiles
+    tileIndices.forEach((index) => {
+      onUpdate(index, field, value);
+    });
   };
 
   const createTerrainBorderMeta = () => {
@@ -119,18 +131,29 @@ export function TileEditModal({
   };
 
   const updateTerrainBorderMeta = (
-    meta: TileTerrainBorderMeta,
     key: keyof TileTerrainBorderMeta,
     value: TileTerrainBorderTag
   ) => {
-    handleUpdate('tileTerrainBorderMeta', {
-      ...meta,
-      [key]: value,
+    // Update all tiles with the same border meta structure
+    tileIndices.forEach((index, i) => {
+      const tile = tiles[i];
+      if (tile) {
+        onUpdate(index, 'tileTerrainBorderMeta', {
+          ...(tile.tileTerrainBorderMeta || {
+            ne: TileTerrainBorderTag.NONE,
+            nw: TileTerrainBorderTag.NONE,
+            se: TileTerrainBorderTag.NONE,
+            sw: TileTerrainBorderTag.NONE,
+          }),
+          [key]: value,
+        });
+      }
     });
   };
 
-  // Find the sprite for this tile: tilesetName + '_' + tile.id
-  const spriteName = `${tilesetName}_${firstTile.tile.id}`;
+  // Use first tile for preview (or could show multiple)
+  const firstTile = tiles[0];
+  const spriteName = `${tilesetName}_${firstTile.id}`;
   const sprite = spriteMap[spriteName];
 
   const tileStepSoundOptions = [
@@ -151,6 +174,15 @@ export function TileEditModal({
       value: TileStepSound.TILE_STEP_SOUND_GRAVEL as number,
     },
   ];
+
+  // Check if all tiles have terrain border meta
+  const allHaveTerrainBorderMeta = tiles.every(
+    (tile) => tile.tileTerrainBorderMeta
+  );
+  const representativeBorderMeta = getRepresentativeValue(
+    tiles,
+    'tileTerrainBorderMeta'
+  ) as TileTerrainBorderMeta | null;
 
   return (
     <div
@@ -187,18 +219,8 @@ export function TileEditModal({
             marginTop: 0,
           }}
         >
-          Edit Tile Template ({tiles.length} tiles).
+          Edit {tileIndices.length} Tile{tileIndices.length !== 1 ? 's' : ''} (Indices: {tileIndices.join(', ')})
         </h2>
-        <p
-          style={{
-            color: '#858585',
-            fontSize: '12px',
-            marginBottom: '10px',
-            display: tiles.length <= 1 ? 'block' : 'none',
-          }}
-        >
-          Press Alt+Left/Right to navigate between tiles.
-        </p>
 
         {/* Sprite Name */}
         {sprite && (
@@ -218,7 +240,7 @@ export function TileEditModal({
                 marginBottom: '4px',
               }}
             >
-              Sprite Name
+              Preview Sprite (First Tile)
             </div>
             <div
               style={{
@@ -232,7 +254,7 @@ export function TileEditModal({
           </div>
         )}
 
-        {!firstTile.tile.tileTerrainBorderMeta && (
+        {!allHaveTerrainBorderMeta && (
           <div
             style={{
               display: 'flex',
@@ -241,13 +263,13 @@ export function TileEditModal({
             }}
           >
             <Button variant="secondary" onClick={createTerrainBorderMeta}>
-              Add Terrain Border Meta
+              Add Terrain Border Meta to All
             </Button>
           </div>
         )}
 
         {/* Tile Preview */}
-        {sprite && (
+        {sprite && representativeBorderMeta && (
           <div
             style={{
               marginBottom: '20px',
@@ -265,42 +287,28 @@ export function TileEditModal({
                 gap: '4px',
               }}
             >
-              {firstTile.tile.tileTerrainBorderMeta && (
-                <div
-                  style={{
-                    height: '130px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    transform: 'translateY(10px)',
+              <div
+                style={{
+                  height: '130px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  transform: 'translateY(10px)',
+                }}
+              >
+                <TileBorderMetaSelect
+                  value={representativeBorderMeta.nw}
+                  onChange={(value) => {
+                    updateTerrainBorderMeta('nw', value);
                   }}
-                >
-                  <TileBorderMetaSelect
-                    value={firstTile.tile.tileTerrainBorderMeta.nw}
-                    onChange={(value) => {
-                      if (firstTile.tile.tileTerrainBorderMeta) {
-                        updateTerrainBorderMeta(
-                          firstTile.tile.tileTerrainBorderMeta,
-                          'nw',
-                          value
-                        );
-                      }
-                    }}
-                  />
-                  <TileBorderMetaSelect
-                    value={firstTile.tile.tileTerrainBorderMeta.sw}
-                    onChange={(value) => {
-                      if (firstTile.tile.tileTerrainBorderMeta) {
-                        updateTerrainBorderMeta(
-                          firstTile.tile.tileTerrainBorderMeta,
-                          'sw',
-                          value
-                        );
-                      }
-                    }}
-                  />
-                </div>
-              )}
+                />
+                <TileBorderMetaSelect
+                  value={representativeBorderMeta.sw}
+                  onChange={(value) => {
+                    updateTerrainBorderMeta('sw', value);
+                  }}
+                />
+              </div>
               <div>
                 <div
                   style={{
@@ -309,7 +317,7 @@ export function TileEditModal({
                     fontSize: '14px',
                   }}
                 >
-                  Tile Preview
+                  Tile Preview (First Tile)
                 </div>
                 <div
                   style={{
@@ -324,7 +332,7 @@ export function TileEditModal({
                     sprite={sprite}
                     scale={4}
                     onRender={(ctx) => {
-                      const tbMeta = firstTile.tile.tileTerrainBorderMeta;
+                      const tbMeta = representativeBorderMeta;
                       if (tbMeta) {
                         if (tbMeta.ne !== TileTerrainBorderTag.NONE) {
                           renderBorderMetaTag('ne', tbMeta.ne, 4, ctx);
@@ -339,75 +347,58 @@ export function TileEditModal({
                           renderBorderMetaTag('sw', tbMeta.sw, 4, ctx);
                         }
                       }
-                      console.log('onRender', ctx);
                     }}
-                    renderDeps={[firstTile.tile.tileTerrainBorderMeta]}
+                    renderDeps={[representativeBorderMeta]}
                   />
                 </div>
               </div>
-              {firstTile.tile.tileTerrainBorderMeta && (
-                <div
-                  style={{
-                    height: '130px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    transform: 'translateY(10px)',
-                  }}
-                >
-                  <TileBorderMetaSelect
-                    value={firstTile.tile.tileTerrainBorderMeta.ne}
-                    onChange={(value) => {
-                      if (firstTile.tile.tileTerrainBorderMeta) {
-                        updateTerrainBorderMeta(
-                          firstTile.tile.tileTerrainBorderMeta,
-                          'ne',
-                          value
-                        );
-                      }
-                    }}
-                  />
-                  <TileBorderMetaSelect
-                    value={firstTile.tile.tileTerrainBorderMeta.se}
-                    onChange={(value) => {
-                      if (firstTile.tile.tileTerrainBorderMeta) {
-                        updateTerrainBorderMeta(
-                          firstTile.tile.tileTerrainBorderMeta,
-                          'se',
-                          value
-                        );
-                      }
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-            {firstTile.tile.tileTerrainBorderMeta && (
               <div
                 style={{
+                  height: '130px',
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '4px',
-                  width: '100%',
-                  marginTop: '10px',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  transform: 'translateY(10px)',
                 }}
               >
-                <span>Set All Borders to: </span>
                 <TileBorderMetaSelect
-                  value={fillAllBorderMetaValue}
+                  value={representativeBorderMeta.ne}
                   onChange={(value) => {
-                    setFillAllBorderMetaValue(value);
-                    handleUpdate('tileTerrainBorderMeta', {
-                      ne: value,
-                      nw: value,
-                      se: value,
-                      sw: value,
-                    });
+                    updateTerrainBorderMeta('ne', value);
+                  }}
+                />
+                <TileBorderMetaSelect
+                  value={representativeBorderMeta.se}
+                  onChange={(value) => {
+                    updateTerrainBorderMeta('se', value);
                   }}
                 />
               </div>
-            )}
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '4px',
+                width: '100%',
+                marginTop: '10px',
+              }}
+            >
+              <span>Set All Borders to: </span>
+              <TileBorderMetaSelect
+                value={fillAllBorderMetaValue}
+                onChange={(value) => {
+                  setFillAllBorderMetaValue(value);
+                  handleUpdate('tileTerrainBorderMeta', {
+                    ne: value,
+                    nw: value,
+                    se: value,
+                    sw: value,
+                  });
+                }}
+              />
+            </div>
           </div>
         )}
 
@@ -415,9 +406,13 @@ export function TileEditModal({
           id="tile-description"
           name="description"
           label="Description"
-          value={firstTile.tile.description || ''}
+          value={
+            allTilesHaveSameValue(tiles, 'description')
+              ? (firstTile.description || '')
+              : '(Mixed values)'
+          }
           onChange={(value) => handleUpdate('description', value)}
-          placeholder="Tile description"
+          placeholder="Tile description (applies to all selected tiles)"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               onClose();
@@ -431,8 +426,10 @@ export function TileEditModal({
             name="stepSound"
             options={tileStepSoundOptions}
             value={
-              firstTile.tile.stepSound?.toString() ||
-              TileStepSound.TILE_STEP_SOUND_FLOOR.toString()
+              allTilesHaveSameValue(tiles, 'stepSound')
+                ? (firstTile.stepSound?.toString() ||
+                    TileStepSound.TILE_STEP_SOUND_FLOOR.toString())
+                : ''
             }
             onChange={(value) => handleUpdate('stepSound', value)}
           />
@@ -449,7 +446,11 @@ export function TileEditModal({
             id="isWalkable"
             name="isWalkable"
             type="checkbox"
-            checked={firstTile.tile.isWalkable !== false}
+            checked={
+              allTilesHaveSameValue(tiles, 'isWalkable')
+                ? firstTile.isWalkable !== false
+                : false
+            }
             onChange={(e) => handleUpdate('isWalkable', e.target.checked)}
             style={{ cursor: 'pointer', transform: 'scale(1.5)' }}
           />
@@ -468,7 +469,11 @@ export function TileEditModal({
             id="isSeeThrough"
             name="isSeeThrough"
             type="checkbox"
-            checked={firstTile.tile.isSeeThrough !== false}
+            checked={
+              allTilesHaveSameValue(tiles, 'isSeeThrough')
+                ? firstTile.isSeeThrough !== false
+                : false
+            }
             onChange={(e) => handleUpdate('isSeeThrough', e.target.checked)}
             style={{ cursor: 'pointer', transform: 'scale(1.5)' }}
           />
@@ -486,7 +491,11 @@ export function TileEditModal({
             id="isDoor"
             name="isDoor"
             type="checkbox"
-            checked={firstTile.tile.isDoor === true}
+            checked={
+              allTilesHaveSameValue(tiles, 'isDoor')
+                ? firstTile.isDoor === true
+                : false
+            }
             onChange={(e) => handleUpdate('isDoor', e.target.checked)}
             style={{ cursor: 'pointer', transform: 'scale(1.5)' }}
           />
@@ -504,7 +513,11 @@ export function TileEditModal({
             id="isContainer"
             name="isContainer"
             type="checkbox"
-            checked={firstTile.tile.isContainer === true}
+            checked={
+              allTilesHaveSameValue(tiles, 'isContainer')
+                ? firstTile.isContainer === true
+                : false
+            }
             onChange={(e) => handleUpdate('isContainer', e.target.checked)}
             style={{ cursor: 'pointer', transform: 'scale(1.5)' }}
           />

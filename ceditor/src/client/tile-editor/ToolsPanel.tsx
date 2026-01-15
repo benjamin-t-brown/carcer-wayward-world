@@ -2,17 +2,13 @@ import { EditorState, setCurrentPaintAction } from './editorState';
 import { PaintActionType } from './paintTools';
 import { CarcerMapTemplate } from '../types/assets';
 import { SelectedTileInfo } from './SelectedTileInfo';
+import { OpenMapAndSelectTileArgs } from './TileEditor';
 
 interface ToolsPanelProps {
   editorState: EditorState;
   map: CarcerMapTemplate;
   onMapUpdate: (map: CarcerMapTemplate) => void;
-  onOpenMapAndSelectTile?: (
-    mapName: string,
-    markerName?: string,
-    x?: number,
-    y?: number
-  ) => void;
+  onOpenMapAndSelectTile?: (args: OpenMapAndSelectTileArgs) => void;
 }
 
 interface ToolButtonProps {
@@ -27,18 +23,11 @@ function ToolButton({ onClick, isActive, icon, title }: ToolButtonProps) {
     <button
       onClick={onClick}
       style={{
-        padding: '6px 10px',
-        border: '1px solid #3e3e42',
-        backgroundColor: isActive ? '#4ec9b0' : '#3e3e42',
-        color: isActive ? '#1e1e1e' : '#ffffff',
-        cursor: 'pointer',
-        fontSize: '18px',
-        borderRadius: '4px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        transition: 'background-color 0.2s, color 0.2s',
-        width: '40px',
+        color: 'white',
+        padding: '2px',
+        fontWeight: 'bold',
+        fontSize: '16px',
+        background: isActive ? '#4ec9b0' : '#3e3e42',
       }}
       onMouseEnter={(e) => {
         if (!isActive) {
@@ -105,7 +94,7 @@ export function ToolsPanel({
     <div
       style={{
         flex: 1,
-        padding: '15px',
+        padding: '2px',
         overflow: 'auto',
         display: 'flex',
         flexDirection: 'column',
@@ -147,14 +136,6 @@ export function ToolsPanel({
           isActive={currentPaintAction === PaintActionType.FILL}
           icon="🪣"
           title="Fill tool"
-        />
-        <div
-          style={{
-            width: '100%',
-            height: '1px',
-            backgroundColor: '#3e3e42',
-            margin: '4px 0',
-          }}
         />
         <ToolButton
           onClick={handleSelectClick}

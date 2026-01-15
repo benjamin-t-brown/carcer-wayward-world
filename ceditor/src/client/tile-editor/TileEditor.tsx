@@ -4,27 +4,26 @@ import { useRenderLoop } from '../hooks/useRenderLoop';
 import { MapCanvas } from './MapCanvas';
 import { initPanzoom, unInitPanzoom } from './editorEvents';
 import { loop } from './loop';
-import {
-  EditorState,
-  getEditorState,
-  updateEditorStateNoReRender,
-} from './editorState';
+import { EditorState, getEditorState } from './editorState';
 import { TilePicker } from './TilePicker';
 import { ToolsPanel } from './ToolsPanel';
 import { useReRender } from '../hooks/useReRender';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { useAssets } from '../contexts/AssetsContext';
 import { undo } from './paintTools';
+import { LayersPanel } from './LayersPanel';
 
 interface TileEditorProps {
   map?: CarcerMapTemplate;
   onMapUpdate: (map: CarcerMapTemplate) => void;
-  onOpenMapAndSelectTile?: (
-    mapName: string,
-    markerName?: string,
-    x?: number,
-    y?: number
-  ) => void;
+  onOpenMapAndSelectTile?: (args: OpenMapAndSelectTileArgs) => void;
+}
+
+export interface OpenMapAndSelectTileArgs {
+  mapName: string;
+  level?: number;
+  markerName?: string;
+  pos?: { x: number; y: number };
 }
 
 let prevTs = performance.now();
@@ -158,12 +157,19 @@ export function TileEditor({
       >
         {/* <Minimap map={map} /> */}
         {editorState.current && editorState.current.selectedMapName && (
-          <ToolsPanel
-            editorState={editorState.current}
-            map={map}
-            onMapUpdate={onMapUpdate}
-            onOpenMapAndSelectTile={onOpenMapAndSelectTile}
-          />
+          <>
+            <LayersPanel
+              editorState={editorState.current}
+              map={map}
+              onMapUpdate={onMapUpdate}
+            />
+            <ToolsPanel
+              editorState={editorState.current}
+              map={map}
+              onMapUpdate={onMapUpdate}
+              onOpenMapAndSelectTile={onOpenMapAndSelectTile}
+            />
+          </>
         )}
       </div>
 

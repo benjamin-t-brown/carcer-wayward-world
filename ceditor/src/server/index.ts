@@ -23,6 +23,7 @@ app.use(express.json({ limit: '50mb' }));
 
 // Serve static assets (images, etc.) from src directory
 app.use('/assets', express.static(SRC_PATH));
+app.use('/terrain-edges.html', express.static(join(__dirname + '/../client/', 'terrain-edges.html')));
 
 // Get list of asset types
 app.get('/api/assets/types', async (req, res) => {

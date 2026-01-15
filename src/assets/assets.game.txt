@@ -7,6 +7,9 @@ Sprites,actors0,256,32,32
 Pic,terrain0,assets/img/game/terrain0.png
 Sprites,terrain0,256,28,32
 
+Pic,terrain_borders,assets/img/game/terrain_borders.png
+Sprites,terrain_borders,256,28,32
+
 Pic,special_event_icons,assets/img/game/special_event_icons64.png
 Sprites,special_event_icons,16,64,64
 

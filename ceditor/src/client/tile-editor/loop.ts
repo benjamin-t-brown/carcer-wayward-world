@@ -19,7 +19,7 @@ import {
   updateEditorStateMapNoReRender,
   updateEditorStateNoReRender,
 } from './editorState';
-import { getTransform } from './editorEvents';
+import { getTileList, getTransform } from './editorEvents';
 import { Sprite } from '../utils/assetLoader';
 import { renderTileAndExtras, renderToolUi } from './renderUi';
 
@@ -73,6 +73,7 @@ export const loop = (
   ) {
     onTileHoverIndChange(
       currentMap,
+      mapDataInterface.getEditorState(),
       mapDataInterface.getEditorState().currentPaintAction,
       getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
         ?.hoveredTileIndex ?? -1,
@@ -174,7 +175,8 @@ export const loop = (
       for (let y = 0; y < currentMap.height; y++) {
         for (let x = 0; x < currentMap.width; x++) {
           const tileIndex = y * currentMap.width + x;
-          const refTile = currentMap.tiles[tileIndex];
+          const mapTiles = getTileList(currentMap);
+          const refTile = mapTiles[tileIndex];
           renderTileAndExtras({
             refTile,
             x,

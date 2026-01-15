@@ -102,13 +102,13 @@ async function load(): Promise<{
       throw new Error('Drawable not found');
     }
   }
-  
+
   // Create sprite map for O(1) lookup by name
   const spriteMap: Record<string, Sprite> = {};
   for (const sprite of sprites) {
     spriteMap[sprite.name] = sprite;
   }
-  
+
   // Load all assets in parallel
   const [items, characters, tilesets, gameEvents, maps] = await Promise.all([
     loadItems(),
@@ -120,15 +120,38 @@ async function load(): Promise<{
 
   // fixes problems from early design
   for (const map of maps) {
-    for (const tile of map.tiles) {
-      if (!tile.markers) {
-        tile.markers = [];
+    for (const level in map.levels) {
+      for (const tile of map.levels[level]) {
+        if (!tile.markers) {
+          tile.markers = [];
+        }
       }
     }
   }
-  
-  console.log('loaded', { assetTypes, sprites, animations, pictures, items, characters, tilesets, gameEvents, maps });
-  return { assetTypes, sprites, spriteMap, animations, pictures, items, characters, tilesets, gameEvents, maps };
+
+  console.log('loaded', {
+    assetTypes,
+    sprites,
+    animations,
+    pictures,
+    items,
+    characters,
+    tilesets,
+    gameEvents,
+    maps,
+  });
+  return {
+    assetTypes,
+    sprites,
+    spriteMap,
+    animations,
+    pictures,
+    items,
+    characters,
+    tilesets,
+    gameEvents,
+    maps,
+  };
 }
 
 async function init() {
@@ -142,7 +165,18 @@ async function init() {
     `;
   }
   try {
-    const { assetTypes, sprites, spriteMap, animations, pictures, items, characters, tilesets, gameEvents, maps } = await load();
+    const {
+      assetTypes,
+      sprites,
+      spriteMap,
+      animations,
+      pictures,
+      items,
+      characters,
+      tilesets,
+      gameEvents,
+      maps,
+    } = await load();
     const container = document.getElementById('root');
 
     if (!container) {

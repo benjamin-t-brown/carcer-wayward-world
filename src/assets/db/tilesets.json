@@ -1,5 +1,2475 @@
 [
   {
+    "name": "terrain_borders",
+    "spriteBase": "terrain_borders",
+    "imageWidth": 448,
+    "imageHeight": 512,
+    "tileWidth": 28,
+    "tileHeight": 32,
+    "tiles": [
+      {
+        "id": 0,
+        "description": "water",
+        "stepSound": "1",
+        "isWalkable": false,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "WATER",
+          "nw": "WATER",
+          "se": "WATER",
+          "sw": "WATER"
+        }
+      },
+      {
+        "id": 1,
+        "description": "water",
+        "stepSound": "1",
+        "isWalkable": false,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "WATER",
+          "sw": "WATER"
+        }
+      },
+      {
+        "id": 2,
+        "description": "water",
+        "stepSound": "1",
+        "isWalkable": false,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "WATER",
+          "nw": "WATER",
+          "se": "NONE",
+          "sw": "NONE"
+        }
+      },
+      {
+        "id": 3,
+        "description": "water",
+        "stepSound": "1",
+        "isWalkable": false,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "NONE",
+          "nw": "WATER",
+          "se": "NONE",
+          "sw": "WATER"
+        }
+      },
+      {
+        "id": 4,
+        "description": "water",
+        "stepSound": "1",
+        "isWalkable": false,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "WATER",
+          "nw": "NONE",
+          "se": "WATER",
+          "sw": "NONE"
+        }
+      },
+      {
+        "id": 5,
+        "description": "water",
+        "stepSound": "1",
+        "isWalkable": false,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "NONE",
+          "nw": "WATER",
+          "se": "WATER",
+          "sw": "WATER"
+        }
+      },
+      {
+        "id": 6,
+        "description": "water",
+        "stepSound": "1",
+        "isWalkable": false,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "WATER",
+          "nw": "NONE",
+          "se": "WATER",
+          "sw": "WATER"
+        }
+      },
+      {
+        "id": 7,
+        "description": "water",
+        "stepSound": "1",
+        "isWalkable": false,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "WATER",
+          "nw": "WATER",
+          "se": "NONE",
+          "sw": "WATER"
+        }
+      },
+      {
+        "id": 8,
+        "description": "water",
+        "stepSound": "1",
+        "isWalkable": false,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "WATER",
+          "nw": "WATER",
+          "se": "WATER",
+          "sw": "NONE"
+        }
+      },
+      {
+        "id": 9,
+        "description": "water",
+        "stepSound": "1",
+        "isWalkable": false,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "WATER"
+        }
+      },
+      {
+        "id": 10,
+        "description": "water",
+        "stepSound": "1",
+        "isWalkable": false,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "WATER",
+          "sw": "NONE"
+        }
+      },
+      {
+        "id": 11,
+        "description": "water",
+        "stepSound": "1",
+        "isWalkable": false,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "NONE",
+          "nw": "WATER",
+          "se": "NONE",
+          "sw": "NONE"
+        }
+      },
+      {
+        "id": 12,
+        "description": "water",
+        "stepSound": "1",
+        "isWalkable": false,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "WATER",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "NONE"
+        }
+      },
+      {
+        "id": 13,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 14,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 15,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 16,
+        "description": "grass",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "GRASS",
+          "nw": "GRASS",
+          "se": "GRASS",
+          "sw": "GRASS"
+        }
+      },
+      {
+        "id": 17,
+        "description": "grass",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "WATER",
+          "nw": "WATER",
+          "se": "GRASS",
+          "sw": "GRASS"
+        }
+      },
+      {
+        "id": 18,
+        "description": "grass",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "GRASS",
+          "nw": "GRASS",
+          "se": "WATER",
+          "sw": "WATER"
+        }
+      },
+      {
+        "id": 19,
+        "description": "grass",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "WATER",
+          "nw": "GRASS",
+          "se": "WATER",
+          "sw": "GRASS"
+        }
+      },
+      {
+        "id": 20,
+        "description": "grass",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "GRASS",
+          "nw": "WATER",
+          "se": "GRASS",
+          "sw": "WATER"
+        }
+      },
+      {
+        "id": 21,
+        "description": "grass",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "WATER",
+          "nw": "GRASS",
+          "se": "GRASS",
+          "sw": "GRASS"
+        }
+      },
+      {
+        "id": 22,
+        "description": "grass",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "GRASS",
+          "nw": "WATER",
+          "se": "GRASS",
+          "sw": "GRASS"
+        }
+      },
+      {
+        "id": 23,
+        "description": "grass",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "GRASS",
+          "nw": "GRASS",
+          "se": "WATER",
+          "sw": "GRASS"
+        }
+      },
+      {
+        "id": 24,
+        "description": "grass",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "GRASS",
+          "nw": "GRASS",
+          "se": "GRASS",
+          "sw": "WATER"
+        }
+      },
+      {
+        "id": 25,
+        "description": "grass",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "WATER",
+          "nw": "WATER",
+          "se": "WATER",
+          "sw": "GRASS"
+        }
+      },
+      {
+        "id": 26,
+        "description": "grass",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "WATER",
+          "nw": "WATER",
+          "se": "GRASS",
+          "sw": "WATER"
+        }
+      },
+      {
+        "id": 27,
+        "description": "",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "WATER",
+          "nw": "GRASS",
+          "se": "WATER",
+          "sw": "WATER"
+        }
+      },
+      {
+        "id": 28,
+        "description": "",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "GRASS",
+          "nw": "WATER",
+          "se": "WATER",
+          "sw": "WATER"
+        }
+      },
+      {
+        "id": 29,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 30,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 31,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 32,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 33,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 34,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 35,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 36,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 37,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 38,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 39,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 40,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 41,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 42,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 43,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 44,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": false,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 45,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 46,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 47,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 48,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 49,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 50,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 51,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 52,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 53,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 54,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 55,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 56,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 57,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 58,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 59,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 60,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 61,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 62,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 63,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 64,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 65,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 66,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 67,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 68,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 69,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 70,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 71,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 72,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 73,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 74,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 75,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 76,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 77,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 78,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 79,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 80,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 81,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 82,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 83,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 84,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 85,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 86,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 87,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 88,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 89,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 90,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 91,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 92,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 93,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 94,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 95,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 96,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 97,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 98,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 99,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 100,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 101,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 102,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 103,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 104,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 105,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 106,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 107,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 108,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 109,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 110,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 111,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 112,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 113,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 114,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 115,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 116,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 117,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 118,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 119,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 120,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 121,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 122,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 123,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 124,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 125,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 126,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 127,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 128,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 129,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 130,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 131,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 132,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 133,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 134,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 135,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 136,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 137,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 138,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 139,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 140,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 141,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 142,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 143,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 144,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 145,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 146,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 147,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 148,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 149,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 150,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 151,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 152,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 153,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 154,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 155,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 156,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 157,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 158,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 159,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 160,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 161,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 162,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 163,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 164,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 165,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 166,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 167,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 168,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 169,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 170,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 171,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 172,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 173,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 174,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 175,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 176,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 177,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 178,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 179,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 180,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 181,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 182,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 183,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 184,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 185,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 186,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 187,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 188,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 189,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 190,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 191,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 192,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 193,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 194,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 195,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 196,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 197,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 198,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 199,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 200,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 201,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 202,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 203,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 204,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 205,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 206,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 207,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 208,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 209,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 210,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 211,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 212,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 213,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 214,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 215,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 216,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 217,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 218,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 219,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 220,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 221,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 222,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 223,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 224,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 225,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 226,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 227,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 228,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 229,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 230,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 231,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 232,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 233,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 234,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 235,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 236,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 237,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 238,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 239,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 240,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 241,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 242,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 243,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 244,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 245,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 246,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 247,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 248,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 249,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 250,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 251,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 252,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 253,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 254,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      },
+      {
+        "id": 255,
+        "description": "",
+        "stepSound": 0,
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false
+      }
+    ]
+  },
+  {
     "name": "terrain0",
     "spriteBase": "terrain0",
     "imageWidth": 448,
@@ -9,7 +2479,7 @@
     "tiles": [
       {
         "id": 0,
-        "description": "green grass",
+        "description": "green grass'gasdf",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
@@ -45,7 +2515,7 @@
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
-        "stepSound": "3"
+        "stepSound": "1"
       },
       {
         "id": 5,
@@ -84,28 +2554,32 @@
         "description": "pine tree",
         "isWalkable": false,
         "isSeeThrough": false,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 10,
         "description": "tree",
         "isWalkable": false,
         "isSeeThrough": false,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 11,
         "description": "tree group",
         "isWalkable": false,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 12,
         "description": "thick plant",
         "isWalkable": false,
         "isSeeThrough": false,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 13,
@@ -113,245 +2587,279 @@
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
-        "stepSound": "3"
+        "stepSound": "1"
       },
       {
         "id": 14,
         "description": "boulder",
         "isWalkable": false,
         "isSeeThrough": false,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 15,
         "description": "sign",
         "isWalkable": false,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 16,
         "description": "tower",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 17,
         "description": "fort",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 18,
         "description": "hole in the ground",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 19,
         "description": "humble building",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 20,
         "description": "town",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 21,
         "description": "wall",
         "isWalkable": false,
         "isSeeThrough": false,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 22,
         "description": "wall",
         "isWalkable": false,
         "isSeeThrough": false,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 23,
         "description": "large town",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 24,
         "description": "large town",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 25,
         "description": "large town",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 26,
         "description": "road",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 27,
         "description": "road",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 28,
         "description": "road",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 29,
         "description": "road",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 30,
         "description": "road",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 31,
         "description": "road",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 32,
         "description": "swamp",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 33,
         "description": "fort",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 34,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 35,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 36,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 37,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 38,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 39,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 40,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 41,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 42,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 43,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 44,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 45,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 46,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 47,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 48,
@@ -582,84 +3090,96 @@
         "description": "floor",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 81,
         "description": "chair",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 82,
         "description": "chair",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 83,
         "description": "chair",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 84,
         "description": "chair",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 85,
         "description": "table",
         "isWalkable": false,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 86,
         "description": "table",
         "isWalkable": false,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 87,
         "description": "table",
         "isWalkable": false,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 88,
         "description": "table",
         "isWalkable": false,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 89,
         "description": "table",
         "isWalkable": false,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 90,
         "description": "table",
         "isWalkable": false,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 91,
         "description": "table",
         "isWalkable": false,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 92,
@@ -667,7 +3187,8 @@
         "isWalkable": false,
         "isSeeThrough": false,
         "isDoor": false,
-        "isContainer": true
+        "isContainer": true,
+        "stepSound": "0"
       },
       {
         "id": 93,
@@ -675,7 +3196,8 @@
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
-        "isContainer": true
+        "isContainer": true,
+        "stepSound": "0"
       },
       {
         "id": 94,
@@ -683,7 +3205,8 @@
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
-        "isContainer": true
+        "isContainer": true,
+        "stepSound": "0"
       },
       {
         "id": 95,
@@ -691,14 +3214,16 @@
         "isWalkable": false,
         "isSeeThrough": false,
         "isDoor": false,
-        "isContainer": false
+        "isContainer": false,
+        "stepSound": "0"
       },
       {
         "id": 96,
         "description": "plant",
         "isWalkable": false,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 97,
@@ -706,7 +3231,8 @@
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
-        "isContainer": true
+        "isContainer": true,
+        "stepSound": "0"
       },
       {
         "id": 98,
@@ -714,7 +3240,8 @@
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
-        "isContainer": true
+        "isContainer": true,
+        "stepSound": "0"
       },
       {
         "id": 99,
@@ -722,7 +3249,8 @@
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
-        "isContainer": true
+        "isContainer": true,
+        "stepSound": "0"
       },
       {
         "id": 100,
@@ -730,84 +3258,96 @@
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
-        "isContainer": true
+        "isContainer": true,
+        "stepSound": "0"
       },
       {
         "id": 101,
         "description": "rug",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 102,
         "description": "rune",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 103,
         "description": "bed",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 104,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 105,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 106,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 107,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 108,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 109,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 110,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 111,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 112,

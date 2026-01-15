@@ -92,6 +92,21 @@ export interface TileMetadata {
   isSeeThrough?: boolean;
   isDoor?: boolean;
   isContainer?: boolean;
+  tileTerrainBorderMeta?: TileTerrainBorderMeta;
+}
+
+export enum TileTerrainBorderTag {
+  NONE = 'NONE',
+  GRASS = 'GRASS',
+  DIRT = 'DIRT',
+  WATER = 'WATER',
+}
+
+export interface TileTerrainBorderMeta {
+  ne: TileTerrainBorderTag;
+  nw: TileTerrainBorderTag;
+  se: TileTerrainBorderTag;
+  sw: TileTerrainBorderTag;
 }
 
 export interface TilesetTemplate {
@@ -329,5 +344,5 @@ export interface CarcerMapTemplate {
   height: number;
   spriteWidth: number;
   spriteHeight: number;
-  tiles: CarcerMapTileTemplate[];
+  levels: Record<string, CarcerMapTileTemplate[]>;
 }

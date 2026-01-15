@@ -1,15 +1,13 @@
 // import { getMapDataOptional } from './mapCache';
 import {
   getScreenMouseCoords,
+  getTileList,
   // onTileHoverIndChange,
   screenCoordsToTileIndex,
 } from './editorEvents';
 // import { MapTile } from 'shared';
 // import { tileIdToSpriteName } from './tileset';
-import {
-  CarcerMapTemplate,
-  CarcerMapTileTemplate,
-} from '../types/assets';
+import { CarcerMapTemplate, CarcerMapTileTemplate } from '../types/assets';
 
 // let hoveredTileInd = -1;
 // let fillIndsFloor: number[] = [];
@@ -86,7 +84,8 @@ export const calculateHoveredTile = (
   let tilesetName = '';
   const topId = 0;
   let indTileset = -1;
-  if (mapData?.tiles) {
+  const mapTiles = getTileList(mapData);
+  if (mapTiles.length > 0) {
     const [tileInd, localTileX, localTileY] = screenCoordsToTileIndex(
       mouseX,
       mouseY,
@@ -99,7 +98,7 @@ export const calculateHoveredTile = (
     // tileX = ind % mapData.width;
     // tileY = Math.floor(ind / mapData.width);
     if (ind !== -1) {
-      tilesetName = mapData.tiles[ind]?.tilesetName ?? '';
+      tilesetName = mapTiles[ind]?.tilesetName ?? '';
     }
     // const sprite = tileIdToSpriteName(floorId) || '';
     // const arr = sprite.split('_');

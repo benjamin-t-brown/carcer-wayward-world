@@ -2,6 +2,7 @@ import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
 } from '../types/assets';
+import { getTileList } from './editorEvents';
 
 const getNeighbors = (x: number, y: number, width: number, height: number) => {
   const neighbors: number[] = [];
@@ -32,9 +33,11 @@ const getTileId = (tile: CarcerMapTileTemplate) => {
 
 export const calculateFillIndsFloor = (
   ind: number,
-  mapData: CarcerMapTemplate
+  mapData: CarcerMapTemplate,
+  level: number
 ) => {
-  const tileId = getTileId(mapData.tiles[ind]);
+  const mapTiles = getTileList(mapData, level);
+  const tileId = getTileId(mapTiles[ind]);
   const stack: number[] = [ind];
   const visited = new Set<number>();
 
@@ -53,7 +56,7 @@ export const calculateFillIndsFloor = (
     }
     visited.add(currentInd);
 
-    if (getTileId(mapData.tiles[currentInd]) === tileId) {
+    if (getTileId(mapTiles[currentInd]) === tileId) {
       const neighbors = getNeighbors(x, y, mapData.width, mapData.height);
       stack.push(...neighbors);
       inds.push(currentInd);
