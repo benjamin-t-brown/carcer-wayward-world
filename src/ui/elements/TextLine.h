@@ -35,6 +35,8 @@ private:
   TextLineProps props;
   std::vector<std::unique_ptr<TextLineRenderTextParams>> textRenderables;
 
+  sdl2w::RenderTextParams makeRenderTextParams(const TextBlock& block) const;
+
 public:
   TextLine(sdl2w::Window* _window, UiElement* _parent = nullptr);
   ~TextLine() override = default;
@@ -46,6 +48,9 @@ public:
   void setProps(const TextLineProps& _props);
   TextLineProps& getProps();
   const TextLineProps& getProps() const;
+
+  std::pair<int, int> calculateTextDims() const;
+  const std::pair<int, int> getDims() const override;
 
   void build() override;
   void render(int dt) override;

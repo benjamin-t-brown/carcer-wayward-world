@@ -48,19 +48,6 @@ int main(int argc, char** argv) {
     title->setProps(titleProps);
     modalLayout->setTitleElement(title.release());
 
-    auto subtitle = std::make_unique<ui::TextLine>(&window);
-    ui::BaseStyle subtitleStyle;
-    subtitleStyle.fontFamily = ui::FontFamily::PARAGRAPH;
-    subtitleStyle.fontSize = sdl2w::TEXT_SIZE_16;
-    subtitleStyle.fontColor = ui::Colors::White;
-    subtitle->setStyle(subtitleStyle);
-    ui::TextLineProps subtitleProps;
-    ui::TextBlock subtitleBlock;
-    subtitleBlock.text = "This is a subtitle";
-    subtitleProps.textBlocks.push_back(subtitleBlock);
-    subtitle->setProps(subtitleProps);
-    modalLayout->setSubtitleElement(subtitle.release());
-
     elements.push_back(std::move(modalLayout));
 
     auto& events = window.getEvents();

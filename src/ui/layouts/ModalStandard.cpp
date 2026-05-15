@@ -69,12 +69,9 @@ void ModalStandard::build() {
 
   auto modalClose = std::make_unique<ButtonClose>(window, this);
   modalClose->setId("closeButton");
-  ui::BaseStyle modalCloseStyle;
+  auto& modalCloseStyle = modalClose->getStyle();
   modalCloseStyle.x = closeLocation.first;
   modalCloseStyle.y = closeLocation.second;
-  modalCloseStyle.width = 32;
-  modalCloseStyle.height = 32;
-  modalClose->setStyle(modalCloseStyle);
   ui::ButtonCloseProps modalCloseProps;
   modalCloseProps.closeType = ui::CloseType::MODAL;
   modalClose->setProps(modalCloseProps);
@@ -90,33 +87,17 @@ void ModalStandard::setTitleElement(UiElement* _titleElement) {
   // Add new title element
   if (_titleElement && borderElement) {
     BaseStyle& titleStyle = _titleElement->getStyle();
-    auto titleLocation = borderElement->getTitleLocation();
-    titleStyle.x = titleLocation.first;
-    titleStyle.y = titleLocation.second;
-    _titleElement->setStyle(titleStyle);
+    auto [titleX, titleY] = borderElement->getTitleLocation();
+    auto [titleWidth, titleHeight] = _titleElement->getDims();
+    titleStyle.x = titleX;
+    titleStyle.y = titleY - titleHeight / 2;
     _titleElement->setId("title");
+    _titleElement->build();
     children.push_back(std::unique_ptr<UiElement>(_titleElement));
   }
 }
 
 UiElement* ModalStandard::getTitleElement() { return getChildById("title"); }
-
-void ModalStandard::setSubtitleElement(UiElement* _subtitleElement) {
-  removeChildById("subtitle");
-  auto borderElement = dynamic_cast<BorderModalStandard*>(getChildById("border"));
-  // Add new subtitle element
-  if (_subtitleElement && borderElement) {
-    BaseStyle& subtitleStyle = _subtitleElement->getStyle();
-    auto subtitleLocation = borderElement->getSubTitleLocation();
-    subtitleStyle.x = subtitleLocation.first;
-    subtitleStyle.y = subtitleLocation.second;
-    _subtitleElement->setStyle(subtitleStyle);
-    _subtitleElement->setId("subtitle");
-    children.push_back(std::unique_ptr<UiElement>(_subtitleElement));
-  }
-}
-
-UiElement* ModalStandard::getSubtitleElement() { return getChildById("subtitle"); }
 
 void ModalStandard::setContentElement(UiElement* _contentElement) {
   removeChildById("content");
@@ -138,8 +119,9 @@ UiElement* ModalStandard::getContentElement() { return getChildById("content"); 
 UiElement* ModalStandard::getCloseButtonElement() { return getChildById("closeButton"); }
 
 void ModalStandard::render(int dt) {
-  auto& draw = window->getDraw();
-  draw.drawRect(style.x, style.y, style.width, style.height, props.contentBackgroundColor);
+  // auto& draw = window->getDraw();
+  // draw.drawRect(style.x, style.y, style.width, style.height,
+  // props.contentBackgroundColor);
   UiElement::render(dt);
 }
 

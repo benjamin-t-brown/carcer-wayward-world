@@ -34,8 +34,6 @@ public:
 
   void setTitleElement(UiElement* _titleElement);
   UiElement* getTitleElement();
-  void setSubtitleElement(UiElement* _subtitleElement);
-  UiElement* getSubtitleElement();
   void setContentElement(UiElement* _contentElement);
   UiElement* getContentElement();
   UiElement* getCloseButtonElement();

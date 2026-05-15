@@ -32,15 +32,15 @@ int main(int argc, char** argv) {
     // Set layout properties
     ui::ModalSmallProps props;
     props.backgroundColor = ui::Colors::ModalStandardBackground;
-    props.decorationSprite = "";
+    props.iconSprite = "";
     modalLayout->setProps(props);
 
-    // Create title and subtitle elements
+    // Create title
     auto title = std::make_unique<ui::TextLine>(&window);
     ui::BaseStyle titleStyle;
     titleStyle.fontFamily = ui::FontFamily::H1;
     titleStyle.fontSize = sdl2w::TEXT_SIZE_24;
-    titleStyle.fontColor = ui::Colors::White;
+    titleStyle.fontColor = ui::Colors::Black;
     title->setStyle(titleStyle);
     ui::TextLineProps titleProps;
     ui::TextBlock titleBlock;
@@ -49,18 +49,18 @@ int main(int argc, char** argv) {
     title->setProps(titleProps);
     modalLayout->setTitleElement(title.release());
 
-    auto subtitle = std::make_unique<ui::TextLine>(&window);
-    ui::BaseStyle subtitleStyle;
-    subtitleStyle.fontFamily = ui::FontFamily::PARAGRAPH;
-    subtitleStyle.fontSize = sdl2w::TEXT_SIZE_16;
-    subtitleStyle.fontColor = ui::Colors::White;
-    subtitle->setStyle(subtitleStyle);
-    ui::TextLineProps subtitleProps;
-    ui::TextBlock subtitleBlock;
-    subtitleBlock.text = "This is a small modal subtitle";
-    subtitleProps.textBlocks.push_back(subtitleBlock);
-    subtitle->setProps(subtitleProps);
-    modalLayout->setSubtitleElement(subtitle.release());
+    // auto subtitle = std::make_unique<ui::TextLine>(&window);
+    // ui::BaseStyle subtitleStyle;
+    // subtitleStyle.fontFamily = ui::FontFamily::PARAGRAPH;
+    // subtitleStyle.fontSize = sdl2w::TEXT_SIZE_16;
+    // subtitleStyle.fontColor = ui::Colors::White;
+    // subtitle->setStyle(subtitleStyle);
+    // ui::TextLineProps subtitleProps;
+    // ui::TextBlock subtitleBlock;
+    // subtitleBlock.text = "This is a small modal subtitle";
+    // subtitleProps.textBlocks.push_back(subtitleBlock);
+    // subtitle->setProps(subtitleProps);
+    // modalLayout->setSubtitleElement(subtitle.release());
 
     elements.push_back(std::move(modalLayout));
 

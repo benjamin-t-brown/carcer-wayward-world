@@ -9,7 +9,7 @@ namespace ui {
 // ModalSmall layout properties
 struct ModalSmallProps {
   SDL_Color backgroundColor = Colors::White;
-  std::string decorationSprite = "";
+  std::string iconSprite = "";
 };
 
 // ModalSmall layout - renders a small modal with background, border, title, subtitle, close
@@ -33,8 +33,6 @@ public:
 
   void setTitleElement(UiElement* _titleElement);
   UiElement* getTitleElement();
-  void setSubtitleElement(UiElement* _subtitleElement);
-  UiElement* getSubtitleElement();
   void setContentElement(UiElement* _contentElement);
   UiElement* getContentElement();
   UiElement* getCloseButtonElement();

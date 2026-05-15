@@ -46,12 +46,11 @@ void ModalSmall::build() {
   // Create border element
   auto border = std::make_unique<BorderModalSmall>(window, this);
   border->setId("border");
-  BaseStyle borderStyle;
+  auto& borderStyle = border->getStyle();
   borderStyle.x = style.x;
   borderStyle.y = style.y;
   borderStyle.width = style.width;
   borderStyle.height = style.height;
-  border->setStyle(borderStyle);
 
   // Get close button location before moving border
   auto closeLocation = border->getCloseButtonLocation();
@@ -80,34 +79,18 @@ void ModalSmall::setTitleElement(UiElement* _titleElement) {
   auto borderElement = dynamic_cast<BorderModalSmall*>(getChildById("border"));
   // Add new title element
   if (_titleElement && borderElement) {
-    BaseStyle& titleStyle = _titleElement->getStyle();
-    auto titleLocation = borderElement->getTitleLocation();
-    titleStyle.x = titleLocation.first;
-    titleStyle.y = titleLocation.second;
-    _titleElement->setStyle(titleStyle);
+    auto& titleStyle = _titleElement->getStyle();
+    auto [titleX, titleY] = borderElement->getTitleLocation();
+    auto [titleWidth, titleHeight] = _titleElement->getDims();
+    titleStyle.x = titleX;
+    titleStyle.y = titleY - titleHeight / 2;
     _titleElement->setId("title");
+    _titleElement->build();
     children.push_back(std::unique_ptr<UiElement>(_titleElement));
   }
 }
 
 UiElement* ModalSmall::getTitleElement() { return getChildById("title"); }
-
-void ModalSmall::setSubtitleElement(UiElement* _subtitleElement) {
-  removeChildById("subtitle");
-  auto borderElement = dynamic_cast<BorderModalSmall*>(getChildById("border"));
-  // Add new subtitle element
-  if (_subtitleElement && borderElement) {
-    BaseStyle& subtitleStyle = _subtitleElement->getStyle();
-    auto subtitleLocation = borderElement->getSubTitleLocation();
-    subtitleStyle.x = subtitleLocation.first;
-    subtitleStyle.y = subtitleLocation.second;
-    _subtitleElement->setStyle(subtitleStyle);
-    _subtitleElement->setId("subtitle");
-    children.push_back(std::unique_ptr<UiElement>(_subtitleElement));
-  }
-}
-
-UiElement* ModalSmall::getSubtitleElement() { return getChildById("subtitle"); }
 
 void ModalSmall::setContentElement(UiElement* _contentElement) {
   removeChildById("content");

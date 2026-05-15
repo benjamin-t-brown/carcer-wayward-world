@@ -19,11 +19,11 @@ std::vector<std::unique_ptr<ui::UiElement>> elements;
 int actionModeNum = 0;
 
 const std::vector<model::WorldActionType> townModeActionTypes = {
+    model::WorldActionType::START_FIGHT,
     model::WorldActionType::EXAMINE,
     model::WorldActionType::TALK,
     model::WorldActionType::ABILITY,
     model::WorldActionType::SNEAK,
-    model::WorldActionType::START_FIGHT,
     model::WorldActionType::JUMP,
     model::WorldActionType::SHOOT,
     model::WorldActionType::INTERACT,
@@ -35,9 +35,9 @@ const std::vector<model::WorldActionType> townModeActionTypes = {
 };
 
 const std::vector<model::WorldActionType> townModeFightActionTypes = {
+    model::WorldActionType::END_FIGHT,
     model::WorldActionType::EXAMINE,
     model::WorldActionType::ABILITY,
-    model::WorldActionType::END_FIGHT,
     model::WorldActionType::JUMP,
     model::WorldActionType::SHOOT,
     model::WorldActionType::DEFEND,
@@ -142,8 +142,7 @@ int main(int argc, char** argv) {
     button1Props.text = "Switch World Action List";
     button1Props.isSelected = false;
     button1->setProps(button1Props);
-    button1->addEventObserver(
-        new SwitchActionListObserver(inGameLayout.get()));
+    button1->addEventObserver(new SwitchActionListObserver(inGameLayout.get()));
     elements.push_back(std::move(button1));
 
     // Set title and subtitle elements

@@ -26,6 +26,19 @@ std::string TextLine::getFontNameFromFamily(FontFamily fontFamily) {
   return fontName;
 }
 
+sdl2w::RenderTextParams TextLine::makeRenderTextParams(const TextBlock& block) const {
+  auto fontFamily = block.fontFamily.value_or(style.fontFamily);
+  auto fontSize = block.fontSize.value_or(style.fontSize);
+  auto fontColor = block.fontColor.value_or(style.fontColor);
+
+  sdl2w::RenderTextParams params;
+  params.fontName = getFontNameFromFamily(fontFamily);
+  params.fontSize = fontSize;
+  params.color = fontColor;
+  params.centered = style.textAlign == TextAlign::CENTER;
+  return params;
+}
+
 void TextLine::setProps(const TextLineProps& _props) {
   props = _props;
   build();
@@ -35,55 +48,67 @@ TextLineProps& TextLine::getProps() { return props; }
 
 const TextLineProps& TextLine::getProps() const { return props; }
 
-void TextLine::build() {
-  textRenderables.clear();
+std::pair<int, int> TextLine::calculateTextDims() const {
+  if (props.textBlocks.empty()) {
+    return {0, 0};
+  }
 
-  // Starting position for text rendering (apply scale)
-  auto currentX = static_cast<int>(style.x * style.scale);
-  auto currentY = static_cast<int>(style.y * style.scale);
-
+  auto& draw = window->getDraw();
   int totalWidth = 0;
   int totalHeight = 0;
 
-  // Render each text block
   for (const auto& block : props.textBlocks) {
     if (block.text.empty()) {
       continue;
     }
 
-    auto& draw = window->getDraw();
+    auto [textWidth, textHeight] = draw.measureText(block.text, makeRenderTextParams(block));
+    totalWidth += textWidth;
+    totalHeight = std::max(totalHeight, textHeight);
+  }
 
-    // Determine which styles to use (block overrides or base style)
-    auto fontFamily = block.fontFamily.value_or(style.fontFamily);
-    auto fontSize = block.fontSize.value_or(style.fontSize);
-    auto fontColor = block.fontColor.value_or(style.fontColor);
-    auto fontName = getFontNameFromFamily(fontFamily);
+  return {totalWidth, totalHeight};
+}
 
-    // Set up text rendering parameters
+const std::pair<int, int> TextLine::getDims() const {
+  auto [width, height] = calculateTextDims();
+  return {static_cast<int>(width * style.scale),
+          static_cast<int>(height * style.scale)};
+}
+
+void TextLine::build() {
+  textRenderables.clear();
+
+  auto [totalWidth, totalHeight] = calculateTextDims();
+  style.width = totalWidth;
+  style.height = totalHeight;
+
+  auto currentX = static_cast<int>(style.x * style.scale);
+  auto currentY = static_cast<int>(style.y * style.scale);
+
+  for (const auto& block : props.textBlocks) {
+    if (block.text.empty()) {
+      continue;
+    }
+
+    auto renderTextParams = makeRenderTextParams(block);
+    auto [textWidth, textHeight] =
+        window->getDraw().measureText(block.text, renderTextParams);
+
     auto tlParams = std::make_unique<TextLineRenderTextParams>();
     tlParams->text = block.text;
-    auto& renderTextParams = tlParams->params;
-    renderTextParams.fontName = fontName;
-    renderTextParams.fontSize = fontSize;
     renderTextParams.x = currentX;
     renderTextParams.y = currentY;
-    renderTextParams.color = fontColor;
-    renderTextParams.centered = style.textAlign == TextAlign::CENTER;
-    auto [textWidth, textHeight] = draw.measureText(block.text, renderTextParams);
     if (style.textAlign == TextAlign::LEFT_CENTER) {
       renderTextParams.y -= static_cast<int>((textHeight / 2.0) * style.scale);
     } else if (style.textAlign == TextAlign::LEFT_BOTTOM) {
       renderTextParams.y -= static_cast<int>(textHeight * style.scale);
     }
+    tlParams->params = renderTextParams;
     textRenderables.push_back(std::move(tlParams));
 
-    totalHeight = std::max(totalHeight, static_cast<int>(textHeight * style.scale));
-    totalWidth += static_cast<int>(textWidth * style.scale);
     currentX += static_cast<int>(textWidth * style.scale);
   }
-
-  style.width = totalWidth;
-  style.height = totalHeight;
 }
 
 void TextLine::render(int dt) {

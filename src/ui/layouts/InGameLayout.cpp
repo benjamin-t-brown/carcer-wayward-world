@@ -49,25 +49,31 @@ void InGameLayout::build() {
   // Create border element
   auto border = std::make_unique<BorderInGame>(window, this);
   border->setId("border");
-  BaseStyle borderStyle;
+  auto& borderStyle = border->getStyle();
   borderStyle.x = style.x;
   borderStyle.y = style.y;
   borderStyle.width = style.width;
   borderStyle.height = style.height;
-  border->setStyle(borderStyle);
+  auto borderProps = BorderInGameProps{};
+  borderProps.actionButtonsAreaHeight = 36;
+  border->setProps(borderProps);
 
   auto actionButtonsAreaLocation = border->getActionButtonsAreaLocation();
-  auto buttonScale = 2.f;
+  auto buttonScale = 1.f;
   auto buttonWidthScaled = static_cast<int>(32. * buttonScale);
   auto buttonSmallIndex = 0;
   auto xAgg = 0;
+  auto xAdditionalOffset = 0; // used to offset reset of buttons off from first button
   for (int i = 0; i < static_cast<int>(props.worldActionTypes.size()); i++) {
+    if (i == 1) {
+      xAdditionalOffset += buttonWidthScaled / 4;
+    }
     auto worldActionType = props.worldActionTypes[i];
     auto button = std::make_unique<ButtonWorldAction>(window);
     auto isSmall = ButtonWorldAction::checkIfWorldActionButtonIsSmall(worldActionType);
 
-    BaseStyle buttonStyle;
-    buttonStyle.x = actionButtonsAreaLocation.first + xAgg;
+    BaseStyle& buttonStyle = button->getStyle();
+    buttonStyle.x = actionButtonsAreaLocation.first + xAgg + xAdditionalOffset;
     buttonStyle.y = actionButtonsAreaLocation.second;
     buttonStyle.scale = buttonScale;
 
@@ -83,7 +89,6 @@ void InGameLayout::build() {
       }
     }
 
-    button->setStyle(buttonStyle);
     button->setId("worldActionButton_" + std::to_string(i));
     button->setProps(ButtonWorldActionProps{worldActionType});
     button->build();
@@ -104,7 +109,7 @@ void InGameLayout::setTitleElement(UiElement* _titleElement) {
     BaseStyle& titleStyle = _titleElement->getStyle();
     auto titleLocation = borderElement->getTitleLocation();
     titleStyle.x = titleLocation.first;
-    titleStyle.y = style.y + 44 / 2 - titleStyle.height / 2;
+    titleStyle.y = style.y + borderElement->getProps().titleHeight / 2 - titleStyle.height / 2;
     _titleElement->setStyle(titleStyle);
     _titleElement->setId("title");
     children.push_back(std::unique_ptr<UiElement>(_titleElement));

@@ -83,19 +83,19 @@ void PageInventory::build() {
   modal->setTitleElement(title.release());
 
   // Create subtitle element
-  auto subtitle = std::make_unique<TextLine>(window, modal.get());
-  BaseStyle subtitleStyle;
-  subtitleStyle.fontFamily = FontFamily::PARAGRAPH;
-  subtitleStyle.fontSize = sdl2w::TEXT_SIZE_16;
-  subtitleStyle.fontColor = Colors::White;
-  subtitleStyle.textAlign = TextAlign::LEFT_TOP;
-  subtitle->setStyle(subtitleStyle);
-  TextLineProps subtitleProps;
-  TextBlock subtitleBlock;
-  subtitleBlock.text = "Subtitle";
-  subtitleProps.textBlocks.push_back(subtitleBlock);
-  subtitle->setProps(subtitleProps);
-  modal->setSubtitleElement(subtitle.release());
+  // auto subtitle = std::make_unique<TextLine>(window, modal.get());
+  // BaseStyle subtitleStyle;
+  // subtitleStyle.fontFamily = FontFamily::PARAGRAPH;
+  // subtitleStyle.fontSize = sdl2w::TEXT_SIZE_16;
+  // subtitleStyle.fontColor = Colors::White;
+  // subtitleStyle.textAlign = TextAlign::LEFT_TOP;
+  // subtitle->setStyle(subtitleStyle);
+  // TextLineProps subtitleProps;
+  // TextBlock subtitleBlock;
+  // subtitleBlock.text = "Subtitle";
+  // subtitleProps.textBlocks.push_back(subtitleBlock);
+  // subtitle->setProps(subtitleProps);
+  // modal->setSubtitleElement(subtitle.release());
 
   // Get content location and dimensions from border
   // auto contentLocation = borderElement->getContentLocation();

@@ -62,7 +62,7 @@ setupTestUi(int argc,
   };
 
   auto _mainLoop = [&]() {
-    window.getDraw().setBackgroundColor({10, 10, 10});
+    window.getDraw().setBackgroundColor({60, 60, 60});
 
 #ifndef __EMSCRIPTEN__
     if (window.getEvents().isKeyPressed("Escape")) {

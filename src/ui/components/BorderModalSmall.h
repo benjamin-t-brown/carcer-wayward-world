@@ -4,27 +4,30 @@
 
 namespace ui {
 
-// BorderModalSmall component - renders a smaller border layout using OutsetRectangle
-// elements Uses Position, Size, Scale from BaseStyle
+struct BorderModalSmallProps {
+  int headerHeight = 80;
+  int iconSize = 64;
+  int borderWidth = 4;
+};
+
 class BorderModalSmall : public UiElement {
-private:
-  // Layout constants
-  static const int TOP_LEFT_SQUARE_SIZE = 78;
-  static const int BORDER_WIDTH = 4;
-  static const int CLOSE_BUTTON_PADDING = 6;
-  // static const int TITLE_PADDING = 10;
-  static const int SUBTITLE_Y_OFFSET = 40;
+protected:
+  BorderModalSmallProps props;
 
 public:
   BorderModalSmall(sdl2w::Window* _window, UiElement* _parent = nullptr);
   ~BorderModalSmall() override = default;
 
+  void setProps(const BorderModalSmallProps& _props);
+  BorderModalSmallProps& getProps();
+  const BorderModalSmallProps& getProps() const;
+
   const std::pair<int, int> getDims() const override;
   const std::pair<int, int> getContentDims() const;
-  const std::pair<int, int> getIconLocation(int iconWidth, int IconHeight) const;
+  const std::pair<int, int> getIconBorderLocation() const;
+  const std::pair<int, int> getIconLocationCenter() const;
   const std::pair<int, int> getCloseButtonLocation() const;
   const std::pair<int, int> getTitleLocation() const;
-  const std::pair<int, int> getSubTitleLocation() const;
   const std::pair<int, int> getContentLocation() const;
 
   void build() override;

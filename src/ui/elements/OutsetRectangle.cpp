@@ -27,10 +27,6 @@ void OutsetRectangle::build() {
 void OutsetRectangle::render(int dt) {
   auto& draw = window->getDraw();
 
-  // if (props.color.a <= 0) {
-  //   return;
-  // }
-
   // Calculate scaled dimensions
   int scaledX = static_cast<int>(style.x);
   int scaledY = static_cast<int>(style.y);
@@ -64,15 +60,24 @@ void OutsetRectangle::render(int dt) {
 
     // Diagonal corners top left bottom right
     for (int i = 0; i < borderSize; i++) {
-      draw.drawLine({scaledX + i, scaledY},
-                    {scaledX + borderSize, scaledY + borderSize - i},
+      auto topLeftX = scaledX;
+      auto topLeftY = scaledY;
+      // draw line is inclusive left and right, so need -1
+      auto topLeftXPlusBorder = topLeftX + borderSize - 1;
+      auto topLeftYPlusBorder = topLeftY + borderSize - 1;
+      draw.drawLine({topLeftX + i, topLeftY},
+                    {topLeftXPlusBorder, topLeftYPlusBorder - i},
                     1,
                     props.colorTopRight);
-      draw.drawLine(
-          {scaledX + scaledWidth - borderSize + i, scaledY + scaledHeight - borderSize},
-          {scaledX + scaledWidth, scaledY + scaledHeight - i},
-          1,
-          props.colorTopRight);
+
+      auto bottomRightX = scaledX + scaledWidth - 1;
+      auto bottomRightY = scaledY + scaledHeight - 1;
+      auto bottomRightXMinusBorder = bottomRightX - borderSize + 1;
+      auto bottomRightYMinusBorder = bottomRightY - borderSize + 1;
+      draw.drawLine({bottomRightXMinusBorder + i, bottomRightYMinusBorder},
+                    {bottomRightX, bottomRightY - i},
+                    1,
+                    props.colorTopRight);
     }
   }
 

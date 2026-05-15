@@ -50,7 +50,7 @@ BaseStyle& UiElement::getStyle() { return style; }
 const BaseStyle& UiElement::getStyle() const { return style; }
 
 const std::pair<int, int> UiElement::getDims() const {
-  return {style.width, style.height};
+  return {style.width * style.scale, style.height * style.scale};
 }
 
 void UiElement::setId(const std::string& _id) { id = _id; }
