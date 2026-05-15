@@ -18,9 +18,9 @@ SectionDropShadowProps& SectionDropShadow::getProps() { return props; }
 
 const SectionDropShadowProps& SectionDropShadow::getProps() const { return props; }
 
-void SectionDropShadow::addChild(std::unique_ptr<UiElement> child) {
+void SectionDropShadow::addChild(UiElement* child) {
   if (children.size() > 0) {
-    children[0]->getChildren().push_back(std::move(child));
+    children[0]->getChildren().push_back(std::unique_ptr<UiElement>(child));
   }
 }
 

@@ -39,7 +39,7 @@ public:
   void scrollDown();
   void scrollTo(int offset);
 
-  void addChild(std::unique_ptr<UiElement> child);
+  void addChild(UiElement* child);
 
   void build() override;
   void render(int dt) override;

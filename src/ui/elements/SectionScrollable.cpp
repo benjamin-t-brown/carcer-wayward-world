@@ -47,7 +47,7 @@ public:
 SectionScrollable::SectionScrollable(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
   shouldPropagateEventsToChildren = true;
-  addEventObserver(std::make_unique<SectionScrollableScrollWheelObserver>(this));
+  addEventObserver(new SectionScrollableScrollWheelObserver(this));
 }
 
 ui::UiElement* SectionScrollable::getInnerQuad() {
@@ -175,10 +175,10 @@ void SectionScrollable::scrollTo(int offset) {
   updateScrollIndicatorPosition();
 }
 
-void SectionScrollable::addChild(std::unique_ptr<UiElement> child) {
+void SectionScrollable::addChild(UiElement* child) {
   auto innerQuad = getInnerQuad();
   if (innerQuad) {
-    innerQuad->getChildren().push_back(std::move(child));
+    innerQuad->getChildren().push_back(std::unique_ptr<UiElement>(child));
     build();
   } else {
     LOG(ERROR) << "SectionScrollable::addChild: innerQuad not found to add child"
@@ -238,8 +238,7 @@ void SectionScrollable::build() {
   upButtonProps.isSelected = false;
   scrollUpButton->setProps(upButtonProps);
   scrollUpButton->setId("scrollUpButton");
-  scrollUpButton->addEventObserver(
-      std::make_unique<SectionScrollableScrollObserver>(this, true));
+  scrollUpButton->addEventObserver(new SectionScrollableScrollObserver(this, true));
 
   // Create scroll down button
   auto scrollDownButton = std::make_unique<ButtonScroll>(window);
@@ -255,8 +254,7 @@ void SectionScrollable::build() {
   downButtonProps.isSelected = false;
   scrollDownButton->setProps(downButtonProps);
   scrollDownButton->setId("scrollDownButton");
-  scrollDownButton->addEventObserver(
-      std::make_unique<SectionScrollableScrollObserver>(this, false));
+  scrollDownButton->addEventObserver(new SectionScrollableScrollObserver(this, false));
 
   // move children from old quad to new quad, recalculate height if necessary
   UiElement* oldInnerQuad = getInnerQuad();
@@ -295,7 +293,7 @@ void SectionScrollable::build() {
   
   scrollIndicator->setStyle(indicatorStyle);
   ui::QuadProps indicatorProps;
-  indicatorProps.bgColor = Colors::LIGHT_GREY;
+  indicatorProps.bgColor = Colors::LightGrey;
   indicatorProps.borderColor = Colors::Transparent;
   indicatorProps.borderSize = 0;
   scrollIndicator->setProps(indicatorProps);

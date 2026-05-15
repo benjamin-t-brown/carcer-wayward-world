@@ -2,6 +2,7 @@
 #include "Quad.h"
 #include "TextLine.h"
 #include "ui/colors.h"
+#include "ui/elements/OutsetRectangle.h"
 #include <memory>
 
 namespace ui {
@@ -18,7 +19,7 @@ public:
 
 ButtonClose::ButtonClose(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
-  addEventObserver(std::make_unique<ButtonCloseDefaultObserver>(this));
+  addEventObserver(new ButtonCloseDefaultObserver(this));
   style.textAlign = TextAlign::CENTER;
   style.fontSize = sdl2w::TEXT_SIZE_20;
   shouldPropagateEventsToChildren = false;
@@ -40,89 +41,47 @@ const ButtonCloseProps& ButtonClose::getProps() const { return props; }
 void ButtonClose::build() {
   children.clear();
 
-  auto q = std::make_unique<Quad>(window);
-  BaseStyle quadStyle;
-  quadStyle.x = style.x;
-  quadStyle.y = style.y;
-  quadStyle.width = style.width;
-  quadStyle.height = style.height;
-  quadStyle.scale = style.scale;
-  q->setStyle(quadStyle);
-  QuadProps quadProps;
+  auto rect = new OutsetRectangle(window);
+  auto& rectStyle = rect->getStyle();
+  rectStyle.x = style.x;
+  rectStyle.y = style.y;
+  rectStyle.width = style.width;
+  rectStyle.height = style.height;
+  rectStyle.scale = style.scale;
 
-  // Style based on closeType
-  if (props.closeType == CloseType::MODAL) {
-    // Modal: red square with white X
-    if (isActive) {
-      quadProps.bgColor = Colors::ButtonCloseRedActive;
-    } else if (isHovered) {
-      quadProps.bgColor = Colors::ButtonCloseRedHover;
-    } else {
-      quadProps.bgColor = Colors::ButtonCloseRed;
-    }
-    quadProps.borderColor = Colors::ButtonCloseRed;
-    quadProps.borderSize = 0; // No border for modal
+  auto& rectProps = rect->getProps();
+  if (isInActiveMode) {
+    rectProps.borderSize = 0;
   } else {
-    if (isActive) {
-      quadProps.bgColor = SDL_Color{0, 0, 100, 75};
-    } else if (isHovered) {
-      quadProps.bgColor = SDL_Color{0, 0, 100, 35};
-    } else {
-      quadProps.bgColor = Colors::Transparent;
-    }
-    // Popup: transparent square with grey X
-    // quadProps.bgColor = Colors::Transparent;
-    quadProps.borderColor = Colors::ButtonCloseTextGrey;
-    quadProps.borderSize = 0;
+    rectProps.borderSize = 2;
   }
-
-  q->setProps(quadProps);
-
-  // Add X text
-  auto textLine = std::make_unique<TextLine>(window, this);
-  TextLineProps textLineProps;
-  textLineProps.textBlocks = {TextBlock{"X"}};
-  textLine->setProps(textLineProps);
-  BaseStyle textStyle;
-  textStyle.x = style.width / 2 - 0;
-  textStyle.y = style.height / 2 - 2;
-  textStyle.textAlign = TextAlign::CENTER;
-  textStyle.fontSize = style.fontSize;
-  textStyle.fontFamily = FontFamily::PARAGRAPH;
-  textStyle.scale = style.scale;
-
-  // Set text color based on closeType
   if (props.closeType == CloseType::MODAL) {
-    textStyle.fontColor = Colors::ButtonCloseTextWhite;
-  } else {
-    if (isActive) {
-      textStyle.fontColor = Colors::ButtonModalGrey3;
-    } else if (isHovered) {
-      textStyle.fontColor = Colors::ButtonModalGrey2;
-    } else {
-      textStyle.fontColor = Colors::ButtonCloseTextGrey;
-    }
+    rectProps.color = Colors::ButtonCloseRed;
+    rectProps.colorTopRight = Colors::ButtonCloseRedBorder1;
+    rectProps.colorBottomLeft = Colors::ButtonCloseRedBorder2;
+  } else if (props.closeType == CloseType::POPUP) {
+    rectProps.color = Colors::Transparent;
+    rectProps.colorTopRight = Colors::Transparent;
+    rectProps.colorBottomLeft = Colors::Transparent;
+    rectProps.borderSize = 2;
   }
+  rect->setProps(rectProps);
 
-  textLine->setStyle(textStyle);
-
-  q->getChildren().push_back(std::move(textLine));
-
-  children.push_back(std::move(q));
+  children.push_back(std::unique_ptr<OutsetRectangle>(rect));
 }
 
 void ButtonClose::render(int dt) {
-  if (isHovered) {
-    if (!isInHoverMode) {
-      isInHoverMode = true;
-      build();
-    }
-  } else {
-    if (isInHoverMode) {
-      isInHoverMode = false;
-      build();
-    }
-  }
+  // if (isHovered) {
+  //   if (!isInHoverMode) {
+  //     isInHoverMode = true;
+  //     build();
+  //   }
+  // } else {
+  //   if (isInHoverMode) {
+  //     isInHoverMode = false;
+  //     build();
+  //   }
+  // }
 
   if (isActive) {
     if (!isInActiveMode) {
@@ -137,6 +96,34 @@ void ButtonClose::render(int dt) {
   }
 
   UiElement::render(dt);
+
+  auto scaledX = static_cast<int>(style.x);
+  auto scaledY = static_cast<int>(style.y);
+  auto scaledWidth = static_cast<int>(style.width * style.scale);
+  auto scaledHeight = static_cast<int>(style.height * style.scale);
+
+  auto centerX = scaledX + scaledWidth / 2;
+  auto centerY = scaledY + scaledHeight / 2;
+
+  if (isInActiveMode) {
+    centerX -= style.scale;
+  }
+
+  auto scaledLength = static_cast<int>(props.xLength * style.scale);
+  auto color = Colors::ButtonCloseTextWhite;
+  if (props.closeType == CloseType::POPUP) {
+    color = Colors::ButtonCloseTextGrey;
+  }
+
+  auto& draw = window->getDraw();
+  draw.drawLine({centerX - scaledLength / 2, centerY - scaledLength / 2},
+                {centerX + scaledLength / 2, centerY + scaledLength / 2},
+                style.scale,
+                color);
+  draw.drawLine({centerX + scaledLength / 2, centerY - scaledLength / 2},
+                {centerX - scaledLength / 2, centerY + scaledLength / 2},
+                style.scale,
+                color);
 }
 
 } // namespace ui

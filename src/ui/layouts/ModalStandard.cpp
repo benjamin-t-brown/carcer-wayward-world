@@ -78,13 +78,13 @@ void ModalStandard::build() {
   ui::ButtonCloseProps modalCloseProps;
   modalCloseProps.closeType = ui::CloseType::MODAL;
   modalClose->setProps(modalCloseProps);
-  // modalClose->addEventObserver(std::make_unique<TestButtonObserver>("modalClose"));
+  // modalClose->addEventObserver(new TestButtonObserver("modalClose"));
   children.push_back(std::move(modalClose));
 
   // TODO decoration sprite
 }
 
-void ModalStandard::setTitleElement(std::unique_ptr<UiElement> _titleElement) {
+void ModalStandard::setTitleElement(UiElement* _titleElement) {
   removeChildById("title");
   auto borderElement = dynamic_cast<BorderModalStandard*>(getChildById("border"));
   // Add new title element
@@ -95,13 +95,13 @@ void ModalStandard::setTitleElement(std::unique_ptr<UiElement> _titleElement) {
     titleStyle.y = titleLocation.second;
     _titleElement->setStyle(titleStyle);
     _titleElement->setId("title");
-    children.push_back(std::move(_titleElement));
+    children.push_back(std::unique_ptr<UiElement>(_titleElement));
   }
 }
 
 UiElement* ModalStandard::getTitleElement() { return getChildById("title"); }
 
-void ModalStandard::setSubtitleElement(std::unique_ptr<UiElement> _subtitleElement) {
+void ModalStandard::setSubtitleElement(UiElement* _subtitleElement) {
   removeChildById("subtitle");
   auto borderElement = dynamic_cast<BorderModalStandard*>(getChildById("border"));
   // Add new subtitle element
@@ -112,13 +112,13 @@ void ModalStandard::setSubtitleElement(std::unique_ptr<UiElement> _subtitleEleme
     subtitleStyle.y = subtitleLocation.second;
     _subtitleElement->setStyle(subtitleStyle);
     _subtitleElement->setId("subtitle");
-    children.push_back(std::move(_subtitleElement));
+    children.push_back(std::unique_ptr<UiElement>(_subtitleElement));
   }
 }
 
 UiElement* ModalStandard::getSubtitleElement() { return getChildById("subtitle"); }
 
-void ModalStandard::setContentElement(std::unique_ptr<UiElement> _contentElement) {
+void ModalStandard::setContentElement(UiElement* _contentElement) {
   removeChildById("content");
   auto borderElement = dynamic_cast<BorderModalStandard*>(getChildById("border"));
   // Add new content element
@@ -129,7 +129,7 @@ void ModalStandard::setContentElement(std::unique_ptr<UiElement> _contentElement
     contentStyle.y = contentLocation.second;
     _contentElement->setStyle(contentStyle);
     _contentElement->setId("content");
-    children.push_back(std::move(_contentElement));
+    children.push_back(std::unique_ptr<UiElement>(_contentElement));
   }
 }
 

@@ -41,7 +41,7 @@ public:
     popupProps.itemId = "";
     popupInventoryItem->setProps(popupProps);
 
-    addUiElement(std::move(popupInventoryItem));
+    addUiElement(popupInventoryItem.release());
   }
 };
 

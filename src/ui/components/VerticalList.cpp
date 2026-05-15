@@ -39,13 +39,13 @@ int VerticalList::getSelectedIndex() const { return selectedIndex; }
 
 void VerticalList::clearSelection() { selectedIndex = -1; }
 
-void VerticalList::addListItem(std::unique_ptr<UiElement> item) {
+void VerticalList::addListItem(UiElement* item) {
   Quad* quad = getQuad();
   if (quad == nullptr) {
     return;
   }
 
-  quad->getChildren().push_back(std::move(item));
+  quad->getChildren().push_back(std::unique_ptr<UiElement>(item));
   auto child = quad->getChildren().back().get();
   auto style = child->getStyle();
   style.y = style.y + props.lineHeight + props.lineGap;

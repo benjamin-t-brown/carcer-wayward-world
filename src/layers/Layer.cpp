@@ -83,8 +83,8 @@ bool Layer::shouldRemove() const { return removeFlag; }
 
 LayerState Layer::getState() const { return state; }
 
-void Layer::addUiElement(std::unique_ptr<ui::UiElement> element) {
-  uiElements.push_back(std::move(element));
+void Layer::addUiElement(ui::UiElement* element) {
+  uiElements.push_back(std::unique_ptr<ui::UiElement>(element));
 }
 
 void Layer::update(int deltaTime) {

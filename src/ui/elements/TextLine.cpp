@@ -11,16 +11,16 @@ std::string TextLine::getFontNameFromFamily(FontFamily fontFamily) {
   auto fontName = std::string("default");
   switch (fontFamily) {
   case FontFamily::PARAGRAPH:
-    fontName = "default";
+    fontName = "text";
     break;
   case FontFamily::H1:
-    fontName = "alternate";
+    fontName = "title";
     break;
   case FontFamily::H2:
-    fontName = "alternate";
+    fontName = "title";
     break;
   case FontFamily::H3:
-    fontName = "alternate";
+    fontName = "title";
     break;
   }
   return fontName;

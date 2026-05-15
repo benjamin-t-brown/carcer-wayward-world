@@ -3,7 +3,6 @@
 #include "../UiElement.h"
 #include <SDL2/SDL_pixels.h>
 #include <string>
-#include <memory>
 
 namespace ui {
 
@@ -32,11 +31,11 @@ public:
   UiElement* getChildById(const std::string& id);
   void removeChildById(const std::string& id);
 
-  void setTitleElement(std::unique_ptr<UiElement> _titleElement);
+  void setTitleElement(UiElement* _titleElement);
   UiElement* getTitleElement();
-  void setSubtitleElement(std::unique_ptr<UiElement> _subtitleElement);
+  void setSubtitleElement(UiElement* _subtitleElement);
   UiElement* getSubtitleElement();
-  void setContentElement(std::unique_ptr<UiElement> _contentElement);
+  void setContentElement(UiElement* _contentElement);
   UiElement* getContentElement();
   UiElement* getCloseButtonElement();
 

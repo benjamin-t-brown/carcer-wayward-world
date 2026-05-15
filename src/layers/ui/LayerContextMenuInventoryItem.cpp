@@ -34,7 +34,7 @@ LayerContextMenuInventoryItem::LayerContextMenuInventoryItem(sdl2w::Window* _win
   style.y = windowHeight / 2 - popupInventoryItem->getDims().second / 2;
   popupInventoryItem->setStyle(style);
 
-  addUiElement(std::move(popupInventoryItem));
+  addUiElement(popupInventoryItem.release());
 }
 
 void LayerContextMenuInventoryItem::update(int deltaTime) { Layer::update(deltaTime); }

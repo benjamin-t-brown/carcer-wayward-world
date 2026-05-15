@@ -17,9 +17,9 @@ ButtonGroupProps& ButtonGroup::getProps() { return props; }
 const ButtonGroupProps& ButtonGroup::getProps() const { return props; }
 
 void ButtonGroup::addObserverToButtonAtIndex(int index,
-                                             std::unique_ptr<UiEventObserver> observer) {
+                                             UiEventObserver* observer) {
   if (index >= 0 && index < static_cast<int>(children.size())) {
-    children[index]->addEventObserver(std::move(observer));
+    children[index]->addEventObserver(observer);
   } else {
     LOG(ERROR) << "ButtonGroup: Index out of bounds when adding observer: " << index
                << LOG_ENDL;

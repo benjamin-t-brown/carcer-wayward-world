@@ -21,3 +21,4 @@ sdl2w
 TestUi
 .DS_Store
 node_modules/
+src/lib/sdl2w/

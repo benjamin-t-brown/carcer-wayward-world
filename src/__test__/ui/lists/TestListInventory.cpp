@@ -51,7 +51,7 @@ public:
     listInventoryProps.character = &getStateManager()->getState().player.party[0];
     listInventory->setProps(listInventoryProps);
 
-    addUiElement(std::move(listInventory));
+    addUiElement(listInventory.release());
   }
 };
 

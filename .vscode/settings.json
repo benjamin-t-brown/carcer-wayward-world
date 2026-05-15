@@ -1,6 +1,7 @@
 {
   "cSpell.words": [
     "ALINEA",
+    "Carcer",
     "DESPAWN",
     "disarmable",
     "Dockmaster",
@@ -18,6 +19,18 @@
     "tilesets",
     "Townsperson"
   ],
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/.git": true,
+    "**/.hg": true,
+    "**/.svn": true,
+    "**/*.exe": true,
+    "**/*.o": true,
+    "**/*.d": true,
+    "**/bin": true,
+    "**/CVS": true,
+    "**/node_modules": true
+  },
   "C_Cpp_Runner.msvcBatchPath": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvarsall.bat",
   "C_Cpp_Runner.cCompilerPath": "gcc",
   "C_Cpp_Runner.cppCompilerPath": "g++",

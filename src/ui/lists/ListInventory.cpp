@@ -170,10 +170,8 @@ void ListInventoryItem::build() {
   buttonProps.text = "*"; // Context menu indicator
   buttonProps.isSelected = false;
   contextBtn->setProps(buttonProps);
-  contextBtn->addEventObserver(std::unique_ptr<UiEventObserver>(
-      //
-      new ListInventoryItemContextButtonObserver(
-          window, itemTemplate.name, props.itemId)));
+  contextBtn->addEventObserver(new ListInventoryItemContextButtonObserver(
+      window, itemTemplate.name, props.itemId));
   children.push_back(std::move(contextBtn));
 }
 

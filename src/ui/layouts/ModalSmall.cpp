@@ -75,7 +75,7 @@ void ModalSmall::build() {
   // TODO decoration sprite
 }
 
-void ModalSmall::setTitleElement(std::unique_ptr<UiElement> _titleElement) {
+void ModalSmall::setTitleElement(UiElement* _titleElement) {
   removeChildById("title");
   auto borderElement = dynamic_cast<BorderModalSmall*>(getChildById("border"));
   // Add new title element
@@ -86,13 +86,13 @@ void ModalSmall::setTitleElement(std::unique_ptr<UiElement> _titleElement) {
     titleStyle.y = titleLocation.second;
     _titleElement->setStyle(titleStyle);
     _titleElement->setId("title");
-    children.push_back(std::move(_titleElement));
+    children.push_back(std::unique_ptr<UiElement>(_titleElement));
   }
 }
 
 UiElement* ModalSmall::getTitleElement() { return getChildById("title"); }
 
-void ModalSmall::setSubtitleElement(std::unique_ptr<UiElement> _subtitleElement) {
+void ModalSmall::setSubtitleElement(UiElement* _subtitleElement) {
   removeChildById("subtitle");
   auto borderElement = dynamic_cast<BorderModalSmall*>(getChildById("border"));
   // Add new subtitle element
@@ -103,13 +103,13 @@ void ModalSmall::setSubtitleElement(std::unique_ptr<UiElement> _subtitleElement)
     subtitleStyle.y = subtitleLocation.second;
     _subtitleElement->setStyle(subtitleStyle);
     _subtitleElement->setId("subtitle");
-    children.push_back(std::move(_subtitleElement));
+    children.push_back(std::unique_ptr<UiElement>(_subtitleElement));
   }
 }
 
 UiElement* ModalSmall::getSubtitleElement() { return getChildById("subtitle"); }
 
-void ModalSmall::setContentElement(std::unique_ptr<UiElement> _contentElement) {
+void ModalSmall::setContentElement(UiElement* _contentElement) {
   removeChildById("content");
   auto borderElement = dynamic_cast<BorderModalSmall*>(getChildById("border"));
   // Add new content element
@@ -120,7 +120,7 @@ void ModalSmall::setContentElement(std::unique_ptr<UiElement> _contentElement) {
     contentStyle.y = contentLocation.second;
     _contentElement->setStyle(contentStyle);
     _contentElement->setId("content");
-    children.push_back(std::move(_contentElement));
+    children.push_back(std::unique_ptr<UiElement>(_contentElement));
   }
 }
 

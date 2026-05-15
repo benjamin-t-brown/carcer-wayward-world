@@ -55,7 +55,7 @@ public:
     pageProps.characterPlayerId = characterId;
     pageInventory->setProps(pageProps);
 
-    addUiElement(std::move(pageInventory));
+    addUiElement(pageInventory.release());
   }
 };
 

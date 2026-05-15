@@ -31,7 +31,7 @@ public:
   ButtonGroupProps& getProps();
   const ButtonGroupProps& getProps() const;
 
-  void addObserverToButtonAtIndex(int index, std::unique_ptr<UiEventObserver> observer);
+  void addObserverToButtonAtIndex(int index, UiEventObserver* observer);
 
   void build() override;
   void render(int dt) override;

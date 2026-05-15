@@ -8,7 +8,11 @@
 #include "ui/elements/TextLine.h"
 #include "ui/elements/TextParagraph.h"
 #include "ui/layouts/InGameLayout.h"
+#if __has_include(<SDL2/SDL_pixels.h>)
 #include <SDL2/SDL_pixels.h>
+#else
+#include <SDL_pixels.h>
+#endif
 #include <memory>
 
 std::vector<std::unique_ptr<ui::UiElement>> elements;
@@ -139,12 +143,12 @@ int main(int argc, char** argv) {
     button1Props.isSelected = false;
     button1->setProps(button1Props);
     button1->addEventObserver(
-        std::make_unique<SwitchActionListObserver>(inGameLayout.get()));
+        new SwitchActionListObserver(inGameLayout.get()));
     elements.push_back(std::move(button1));
 
     // Set title and subtitle elements
-    inGameLayout->setTitleElement(std::move(titleElement));
-    inGameLayout->setSubtitleElement(std::move(subtitleElement));
+    inGameLayout->setTitleElement(titleElement.release());
+    inGameLayout->setSubtitleElement(subtitleElement.release());
 
     elements.push_back(std::move(inGameLayout));
 

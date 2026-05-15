@@ -1,6 +1,8 @@
 #pragma once
 
+#include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace sdl2w {
@@ -28,9 +30,10 @@ struct Animation {
   int totalDuration;
   int spriteIndex;
   bool loop;
+  static std::unique_ptr<Sprite> staticDefaultSprite;
 
   Animation();
-  Animation(const std::string& nameA, const bool loopA);
+  Animation(std::string_view nameA, const bool loopA);
   ~Animation();
   Animation(const Animation& other);
   Animation& operator=(const Animation& other);
@@ -50,8 +53,8 @@ struct AnimationDefinition {
   std::vector<AnimSpriteDefinition> sprites;
   std::string name;
   bool loop;
-  AnimationDefinition(const std::string& nameA, const bool loopA);
+  AnimationDefinition(std::string_view nameA, const bool loopA);
 
-  void addSprite(const std::string& spriteName, int ms);
+  void addSprite(std::string_view spriteName, int ms);
 };
 } // namespace sdl2w

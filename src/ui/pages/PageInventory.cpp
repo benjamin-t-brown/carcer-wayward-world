@@ -80,7 +80,7 @@ void PageInventory::build() {
   titleBlock.text = "Inventory";
   titleProps.textBlocks.push_back(titleBlock);
   title->setProps(titleProps);
-  modal->setTitleElement(std::move(title));
+  modal->setTitleElement(title.release());
 
   // Create subtitle element
   auto subtitle = std::make_unique<TextLine>(window, modal.get());
@@ -95,7 +95,7 @@ void PageInventory::build() {
   subtitleBlock.text = "Subtitle";
   subtitleProps.textBlocks.push_back(subtitleBlock);
   subtitle->setProps(subtitleProps);
-  modal->setSubtitleElement(std::move(subtitle));
+  modal->setSubtitleElement(subtitle.release());
 
   // Get content location and dimensions from border
   // auto contentLocation = borderElement->getContentLocation();
@@ -128,10 +128,10 @@ void PageInventory::build() {
   listInventory->setProps(listProps);
 
   // Add ListInventory to SectionScrollable
-  scrollableSection->addChild(std::move(listInventory));
+  scrollableSection->addChild(listInventory.release());
 
   // Set SectionScrollable as content element of ModalStandard
-  modal->setContentElement(std::move(scrollableSection));
+  modal->setContentElement(scrollableSection.release());
 
   // Add modal to children
   children.push_back(std::move(modal));

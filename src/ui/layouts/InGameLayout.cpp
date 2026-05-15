@@ -96,7 +96,7 @@ void InGameLayout::build() {
   // TODO party area
 }
 
-void InGameLayout::setTitleElement(std::unique_ptr<UiElement> _titleElement) {
+void InGameLayout::setTitleElement(UiElement* _titleElement) {
   removeChildById("title");
   auto borderElement = dynamic_cast<BorderInGame*>(getChildById("border"));
   // Add new title element
@@ -107,13 +107,13 @@ void InGameLayout::setTitleElement(std::unique_ptr<UiElement> _titleElement) {
     titleStyle.y = style.y + 44 / 2 - titleStyle.height / 2;
     _titleElement->setStyle(titleStyle);
     _titleElement->setId("title");
-    children.push_back(std::move(_titleElement));
+    children.push_back(std::unique_ptr<UiElement>(_titleElement));
   }
 }
 
 UiElement* InGameLayout::getTitleElement() { return getChildById("title"); }
 
-void InGameLayout::setSubtitleElement(std::unique_ptr<UiElement> _subtitleElement) {
+void InGameLayout::setSubtitleElement(UiElement* _subtitleElement) {
   removeChildById("subtitle");
   auto borderElement = dynamic_cast<BorderInGame*>(getChildById("border"));
   // Add new subtitle element
@@ -124,7 +124,7 @@ void InGameLayout::setSubtitleElement(std::unique_ptr<UiElement> _subtitleElemen
     subtitleStyle.y = subtitleLocation.second;
     _subtitleElement->setStyle(subtitleStyle);
     _subtitleElement->setId("subtitle");
-    children.push_back(std::move(_subtitleElement));
+    children.push_back(std::unique_ptr<UiElement>(_subtitleElement));
   }
 }
 

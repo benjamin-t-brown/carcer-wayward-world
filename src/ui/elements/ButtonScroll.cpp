@@ -1,6 +1,6 @@
 #include "ButtonScroll.h"
-#include "Quad.h"
 #include "ui/colors.h"
+#include "ui/elements/OutsetRectangle.h"
 #include <memory>
 
 namespace ui {
@@ -9,7 +9,8 @@ class ButtonScrollDefaultObserver : public UiEventObserver {
   ButtonScroll* buttonScroll;
 
 public:
-  ButtonScrollDefaultObserver(ButtonScroll* _buttonScroll) : buttonScroll(_buttonScroll) {}
+  ButtonScrollDefaultObserver(ButtonScroll* _buttonScroll)
+      : buttonScroll(_buttonScroll) {}
   ~ButtonScrollDefaultObserver() override = default;
   void onMouseDown(int x, int y, int button) override { buttonScroll->isActive = true; }
   void onMouseUp(int x, int y, int button) override { buttonScroll->isActive = false; }
@@ -17,9 +18,9 @@ public:
 
 ButtonScroll::ButtonScroll(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
-  addEventObserver(std::make_unique<ButtonScrollDefaultObserver>(this));
+  addEventObserver(new ButtonScrollDefaultObserver(this));
   shouldPropagateEventsToChildren = false;
-  
+
   // Set default size to 32x32px
   style.width = 32;
   style.height = 32;
@@ -37,44 +38,42 @@ const ButtonScrollProps& ButtonScroll::getProps() const { return props; }
 void ButtonScroll::build() {
   children.clear();
 
-  auto q = std::make_unique<Quad>(window);
-  BaseStyle quadStyle;
-  quadStyle.x = style.x;
-  quadStyle.y = style.y;
-  quadStyle.width = style.width;
-  quadStyle.height = style.height;
-  quadStyle.scale = style.scale;
-  q->setStyle(quadStyle);
-  QuadProps quadProps;
+  auto rect = new OutsetRectangle(window);
+  auto& rectStyle = rect->getStyle();
+  rectStyle.x = style.x;
+  rectStyle.y = style.y;
+  rectStyle.width = style.width;
+  rectStyle.height = style.height;
+  rectStyle.scale = style.scale;
 
-  // Change background color based on hover state
-  if (isActive) {
-    quadProps.bgColor = Colors::ButtonModalGrey3;
-  } else if (isHovered) {
-    quadProps.bgColor = Colors::ButtonModalGrey1;
+  auto& rectProps = rect->getProps();
+  if (isInActiveMode) {
+    rectProps.borderSize = 0;
   } else {
-    quadProps.bgColor = Colors::ButtonModalGrey2;
+    rectProps.borderSize = 2;
   }
+  rectProps.color = Colors::ButtonModalGrey1;
+  rectProps.colorTopRight = Colors::Colors::ButtonModalGrey2;
+  rectProps.colorBottomLeft = Colors::Colors::ButtonModalGrey3;
 
-  quadProps.borderColor = Colors::ButtonModalGrey2;
-  quadProps.borderSize = 0;
-  q->setProps(quadProps);
+  rect->setProps(rectProps);
 
-  children.push_back(std::move(q));
+  children.push_back(std::unique_ptr<OutsetRectangle>(rect));
+
 }
 
 void ButtonScroll::render(int dt) {
-  if (isHovered) {
-    if (!isInHoverMode) {
-      isInHoverMode = true;
-      build();
-    }
-  } else {
-    if (isInHoverMode) {
-      isInHoverMode = false;
-      build();
-    }
-  }
+  // if (isHovered) {
+  //   if (!isInHoverMode) {
+  //     isInHoverMode = true;
+  //     build();
+  //   }
+  // } else {
+  //   if (isInHoverMode) {
+  //     isInHoverMode = false;
+  //     build();
+  //   }
+  // }
 
   if (isActive) {
     if (!isInActiveMode) {
@@ -101,6 +100,47 @@ void ButtonScroll::render(int dt) {
                   Colors::ButtonModalSelected);
   }
   UiElement::render(dt);
+
+  auto scaledX = static_cast<int>(style.x);
+  auto scaledY = static_cast<int>(style.y);
+  auto scaledWidth = static_cast<int>(style.width * style.scale);
+  auto scaledHeight = static_cast<int>(style.height * style.scale);
+  auto centerX = scaledX + scaledWidth / 2;
+  auto centerY = scaledY + scaledHeight / 2;
+  auto arrowLength = scaledWidth / 4;
+  if (isInActiveMode) {
+    centerX -= style.scale;
+  }
+
+  if (props.direction == ScrollDirection::UP) {
+    auto& draw = window->getDraw();
+    draw.drawLine({centerX - arrowLength, centerY},
+                  {centerX, centerY - arrowLength},
+                  style.scale,
+                  Colors::White);
+    draw.drawLine({centerX, centerY + arrowLength},
+                  {centerX, centerY - arrowLength},
+                  style.scale,
+                  Colors::White);
+    draw.drawLine({centerX + arrowLength, centerY},
+                  {centerX, centerY - arrowLength},
+                  style.scale,
+                  Colors::White);
+  } else if (props.direction == ScrollDirection::DOWN) {
+    auto& draw = window->getDraw();
+    draw.drawLine({centerX - arrowLength, centerY},
+                  {centerX, centerY + arrowLength},
+                  style.scale,
+                  Colors::White);
+    draw.drawLine({centerX, centerY - arrowLength},
+                  {centerX, centerY + arrowLength},
+                  style.scale,
+                  Colors::White);
+    draw.drawLine({centerX + arrowLength, centerY},
+                  {centerX, centerY + arrowLength},
+                  style.scale,
+                  Colors::White);
+  }
 }
 
 } // namespace ui

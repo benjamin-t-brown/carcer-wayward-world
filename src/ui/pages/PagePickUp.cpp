@@ -64,7 +64,7 @@ void PagePickUp::build() {
   titleBlock.text = "Pick Up";
   titleProps.textBlocks.push_back(titleBlock);
   title->setProps(titleProps);
-  modal->setTitleElement(std::move(title));
+  modal->setTitleElement(title.release());
 
   // Create subtitle element
   auto subtitle = std::make_unique<TextLine>(window, modal.get());
@@ -79,7 +79,7 @@ void PagePickUp::build() {
   subtitleBlock.text = "Items";
   subtitleProps.textBlocks.push_back(subtitleBlock);
   subtitle->setProps(subtitleProps);
-  modal->setSubtitleElement(std::move(subtitle));
+  modal->setSubtitleElement(subtitle.release());
 
   // Create SectionScrollable for content area
   auto scrollableSection = std::make_unique<SectionScrollable>(window, modal.get());
@@ -108,10 +108,10 @@ void PagePickUp::build() {
   listPickUp->setProps(listProps);
 
   // Add ListPickUp to SectionScrollable
-  scrollableSection->addChild(std::move(listPickUp));
+  scrollableSection->addChild(listPickUp.release());
 
   // Set SectionScrollable as content element of ModalStandard
-  modal->setContentElement(std::move(scrollableSection));
+  modal->setContentElement(scrollableSection.release());
 
   // Add modal to children
   children.push_back(std::move(modal));

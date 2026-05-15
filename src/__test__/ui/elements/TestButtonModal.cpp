@@ -61,14 +61,14 @@ int main(int argc, char** argv) {
     button1Props.text = "Button 1 (Normal)";
     button1Props.isSelected = false;
     button1->setProps(button1Props);
-    button1->addEventObserver(std::make_unique<TestButtonObserver>("button1"));
+    button1->addEventObserver(new TestButtonObserver("button1"));
     elements.push_back(std::move(button1));
 
     // Create second button (selected)
     auto button2 = std::make_unique<ui::ButtonModal>(&window);
     button2->setId("button2");
 
-    button2->addEventObserver(std::make_unique<TestButtonObserver>("button2"));
+    button2->addEventObserver(new TestButtonObserver("button2"));
 
     ui::BaseStyle button2Style;
     button2Style.x = 50;
@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
     button2Props.text = "Button 2 (Selected)";
     button2Props.isSelected = true;
     button2->setProps(button2Props);
-    button2->addEventObserver(std::make_unique<TestButtonObserver>("button2"));
+    button2->addEventObserver(new TestButtonObserver("button2"));
     elements.push_back(std::move(button2));
 
     // Create third button (different size)
@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
     button3Props.text = "Wide Button";
     button3Props.isSelected = false;
     button3->setProps(button3Props);
-    button3->addEventObserver(std::make_unique<TestButtonObserver>("button3"));
+    button3->addEventObserver(new TestButtonObserver("button3"));
     elements.push_back(std::move(button3));
 
     // Create fourth button (scaled)
@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
     button4Props.text = "Scaled Button";
     button4Props.isSelected = true;
     button4->setProps(button4Props);
-    button4->addEventObserver(std::make_unique<TestButtonObserver>("button4"));
+    button4->addEventObserver(new TestButtonObserver("button4"));
     elements.push_back(std::move(button4));
 
     // Create fifth button (empty text)
@@ -129,7 +129,7 @@ int main(int argc, char** argv) {
     button5Props.text = ""; // Empty text
     button5Props.isSelected = false;
     button5->setProps(button5Props);
-    button5->addEventObserver(std::make_unique<TestButtonObserver>("button5"));
+    button5->addEventObserver(new TestButtonObserver("button5"));
     elements.push_back(std::move(button5));
 
     // Create sixth button (long text)
@@ -145,7 +145,7 @@ int main(int argc, char** argv) {
     button6Props.text = "This is selected.";
     button6Props.isSelected = true;
     button6->setProps(button6Props);
-    button6->addEventObserver(std::make_unique<TestButtonObserver>("button6"));
+    button6->addEventObserver(new TestButtonObserver("button6"));
     elements.push_back(std::move(button6));
 
     // Create scroll up button
@@ -162,7 +162,7 @@ int main(int argc, char** argv) {
     scrollUpProps.direction = ui::ScrollDirection::UP;
     scrollUpProps.isSelected = false;
     scrollUp->setProps(scrollUpProps);
-    scrollUp->addEventObserver(std::make_unique<TestButtonObserver>("scrollUp"));
+    scrollUp->addEventObserver(new TestButtonObserver("scrollUp"));
     elements.push_back(std::move(scrollUp));
 
     // Create scroll down button
@@ -178,23 +178,34 @@ int main(int argc, char** argv) {
     scrollDownProps.direction = ui::ScrollDirection::DOWN;
     scrollDownProps.isSelected = true; // Make this one selected to show the selection state
     scrollDown->setProps(scrollDownProps);
-    scrollDown->addEventObserver(std::make_unique<TestButtonObserver>("scrollDown"));
+    scrollDown->addEventObserver(new TestButtonObserver("scrollDown"));
     elements.push_back(std::move(scrollDown));
 
     // Create modal close button
     auto modalClose = std::make_unique<ui::ButtonClose>(&window);
     modalClose->setId("modalClose");
-    ui::BaseStyle modalCloseStyle;
-    modalCloseStyle.x = 400;
-    modalCloseStyle.y = 50;
-    modalCloseStyle.width = 32;
-    modalCloseStyle.height = 32;
-    modalClose->setStyle(modalCloseStyle);
+    auto& style = modalClose->getStyle();
+    style.x = 400;
+    style.y = 50;
     ui::ButtonCloseProps modalCloseProps;
     modalCloseProps.closeType = ui::CloseType::MODAL;
     modalClose->setProps(modalCloseProps);
-    modalClose->addEventObserver(std::make_unique<TestButtonObserver>("modalClose"));
+    modalClose->addEventObserver(new TestButtonObserver("modalClose"));
     elements.push_back(std::move(modalClose));
+
+    {
+      auto modalClose = std::make_unique<ui::ButtonClose>(&window);
+      modalClose->setId("modalCloseScaled");
+      auto& style = modalClose->getStyle();
+      style.x = 475;
+      style.y = 50;
+      style.scale = 2.f;
+      ui::ButtonCloseProps modalCloseProps;
+      modalCloseProps.closeType = ui::CloseType::MODAL;
+      modalClose->setProps(modalCloseProps);
+      modalClose->addEventObserver(new TestButtonObserver(modalClose->getId()));
+      elements.push_back(std::move(modalClose));
+    }
 
     // Create popup close button
     auto popupClose = std::make_unique<ui::ButtonClose>(&window);
@@ -208,7 +219,7 @@ int main(int argc, char** argv) {
     ui::ButtonCloseProps popupCloseProps;
     popupCloseProps.closeType = ui::CloseType::POPUP;
     popupClose->setProps(popupCloseProps);
-    popupClose->addEventObserver(std::make_unique<TestButtonObserver>("popupClose"));
+    popupClose->addEventObserver(new TestButtonObserver("popupClose"));
     elements.push_back(std::move(popupClose));
 
     auto& events = window.getEvents();

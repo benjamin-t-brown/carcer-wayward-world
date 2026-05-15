@@ -1,4 +1,5 @@
-#include "StateManagerInterface.h"
+#include "StateManagerInterface.h" 
+#include <stdexcept>
 
 namespace state {
 

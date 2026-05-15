@@ -2,6 +2,7 @@
 #include "Quad.h"
 #include "TextLine.h"
 #include "ui/colors.h"
+#include "ui/elements/OutsetRectangle.h"
 #include <memory>
 
 namespace ui {
@@ -18,7 +19,7 @@ public:
 
 ButtonModal::ButtonModal(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
-  addEventObserver(std::make_unique<ButtonModalDefaultObserver>(this));
+  addEventObserver(new ButtonModalDefaultObserver(this));
   style.textAlign = TextAlign::CENTER;
   style.fontSize = sdl2w::TEXT_SIZE_20;
   style.fontColor = Colors::White;
@@ -38,6 +39,27 @@ const ButtonModalProps& ButtonModal::getProps() const { return props; }
 void ButtonModal::build() {
   children.clear();
 
+  auto rect = new OutsetRectangle(window);
+  auto& rectStyle = rect->getStyle();
+  rectStyle.x = style.x;
+  rectStyle.y = style.y;
+  rectStyle.width = style.width;
+  rectStyle.height = style.height;
+  rectStyle.scale = style.scale;
+
+  auto& rectProps = rect->getProps();
+  if (isInActiveMode) {
+    rectProps.borderSize = 0;
+  } else {
+    rectProps.borderSize = 2;
+  }
+  rectProps.color = Colors::ButtonModalGrey1;
+  rectProps.colorTopRight = Colors::ButtonModalGrey2;
+  rectProps.colorBottomLeft = Colors::ButtonModalGrey3;
+  rect->setProps(rectProps);
+
+  children.push_back(std::unique_ptr<OutsetRectangle>(rect));
+
   auto q = std::make_unique<Quad>(window);
   BaseStyle quadStyle;
   quadStyle.x = style.x;
@@ -45,20 +67,14 @@ void ButtonModal::build() {
   quadStyle.width = style.width;
   quadStyle.height = style.height;
   quadStyle.scale = style.scale;
+  if (isInActiveMode && !props.isSelected) {
+    quadStyle.x -= style.scale;
+  }
   q->setStyle(quadStyle);
   QuadProps quadProps;
 
   // Change background color based on hover state
-  if (isActive) {
-    quadProps.bgColor = Colors::ButtonModalGrey3;
-  } else if (isHovered) {
-    quadProps.bgColor = Colors::ButtonModalGrey2;
-  } else {
-    quadProps.bgColor = Colors::ButtonModalGrey1;
-  }
-
-  quadProps.borderColor = Colors::ButtonModalGrey2;
-  quadProps.borderSize = 4;
+  quadProps.bgColor = Colors::Transparent;
   q->setProps(quadProps);
 
   auto textLine = std::make_unique<TextLine>(window, this);
@@ -67,7 +83,7 @@ void ButtonModal::build() {
   textStyle.y = style.height / 2;
   textStyle.textAlign = style.textAlign;
   textStyle.fontSize = style.fontSize;
-  textStyle.fontColor = style.fontColor;
+  textStyle.fontColor = Colors::White;
   textStyle.fontFamily = style.fontFamily;
   textStyle.textAlign = TextAlign::CENTER;
   textStyle.scale = style.scale;
@@ -81,17 +97,17 @@ void ButtonModal::build() {
 }
 
 void ButtonModal::render(int dt) {
-  if (isHovered) {
-    if (!isInHoverMode) {
-      isInHoverMode = true;
-      build();
-    }
-  } else {
-    if (isInHoverMode) {
-      isInHoverMode = false;
-      build();
-    }
-  }
+  // if (isHovered) {
+  //   if (!isInHoverMode) {
+  //     isInHoverMode = true;
+  //     build();
+  //   }
+  // } else {
+  //   if (isInHoverMode) {
+  //     isInHoverMode = false;
+  //     build();
+  //   }
+  // }
 
   if (isActive) {
     if (!isInActiveMode) {

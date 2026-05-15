@@ -1,0 +1,19 @@
+{
+  "name": "carcer_wayward_world",
+  "version": "1.0",
+  "license": "MIT",
+  "scripts": {
+    "build": "npm install && npm run clean && (cd src && make clean && make js) && npm run mv",
+    "build:dev": "npm run build",
+    "mv": "mkdirp dist && cp -rv web/* dist/",
+    "clean": "rm -rf dist",
+    "dist": "http-server dist -p 8080 -c-1"
+  },
+  "dependencies": {
+    "eslint": "^10.2.1"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "mkdirp": "^3.0.1"
+  }
+}

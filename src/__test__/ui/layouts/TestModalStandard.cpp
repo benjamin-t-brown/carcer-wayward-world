@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     modalLayout->setStyle(layoutStyle);
     // Set layout properties
     ui::ModalStandardProps props;
-    props.backgroundColor = ui::Colors::ModalStandardBackground;
+    props.contentBackgroundColor = ui::Colors::ModalStandardBackground;
     props.decorationSprite = "";
     modalLayout->setProps(props);
 
@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
     titleBlock.text = "Modal Title";
     titleProps.textBlocks.push_back(titleBlock);
     title->setProps(titleProps);
-    modalLayout->setTitleElement(std::move(title));
+    modalLayout->setTitleElement(title.release());
 
     auto subtitle = std::make_unique<ui::TextLine>(&window);
     ui::BaseStyle subtitleStyle;
@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
     subtitleBlock.text = "This is a subtitle";
     subtitleProps.textBlocks.push_back(subtitleBlock);
     subtitle->setProps(subtitleProps);
-    modalLayout->setSubtitleElement(std::move(subtitle));
+    modalLayout->setSubtitleElement(subtitle.release());
 
     elements.push_back(std::move(modalLayout));
 

@@ -27,6 +27,10 @@ void OutsetRectangle::build() {
 void OutsetRectangle::render(int dt) {
   auto& draw = window->getDraw();
 
+  // if (props.color.a <= 0) {
+  //   return;
+  // }
+
   // Calculate scaled dimensions
   int scaledX = static_cast<int>(style.x);
   int scaledY = static_cast<int>(style.y);
@@ -44,21 +48,32 @@ void OutsetRectangle::render(int dt) {
   // Draw outset border effect
   if (props.borderSize > 0) {
     // Top and Right borders
-    draw.drawRect(scaledX, scaledY, scaledWidth, props.borderSize, props.colorTopRight);
-    draw.drawRect(scaledX + scaledWidth - props.borderSize,
+    draw.drawRect(scaledX, scaledY, scaledWidth, borderSize, props.colorTopRight);
+    draw.drawRect(scaledX + scaledWidth - borderSize,
                   scaledY,
-                  props.borderSize,
+                  borderSize,
                   scaledHeight,
                   props.colorTopRight);
-
     // Bottom and Left borders
     draw.drawRect(scaledX,
-                  scaledY + scaledHeight - props.borderSize,
+                  scaledY + scaledHeight - borderSize,
                   scaledWidth,
-                  props.borderSize,
+                  borderSize,
                   props.colorBottomLeft);
-    draw.drawRect(
-        scaledX, scaledY, props.borderSize, scaledHeight, props.colorBottomLeft);
+    draw.drawRect(scaledX, scaledY, borderSize, scaledHeight, props.colorBottomLeft);
+
+    // Diagonal corners top left bottom right
+    for (int i = 0; i < borderSize; i++) {
+      draw.drawLine({scaledX + i, scaledY},
+                    {scaledX + borderSize, scaledY + borderSize - i},
+                    1,
+                    props.colorTopRight);
+      draw.drawLine(
+          {scaledX + scaledWidth - borderSize + i, scaledY + scaledHeight - borderSize},
+          {scaledX + scaledWidth, scaledY + scaledHeight - i},
+          1,
+          props.colorTopRight);
+    }
   }
 
   // Render children

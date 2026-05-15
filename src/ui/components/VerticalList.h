@@ -38,7 +38,7 @@ public:
   int getSelectedIndex() const;
   void clearSelection();
 
-  void addListItem(std::unique_ptr<UiElement> item);
+  void addListItem(UiElement* item);
   void addListItems(const std::vector<UiElement*>& items);
   void removeListItemAtIndex(size_t index);
 

@@ -3,7 +3,8 @@
 
 namespace model {
 
-CharacterPlayer::CharacterPlayer() : Character(model::createRandomId()) {
+CharacterPlayer::CharacterPlayer()  {
+  name = model::createRandomId();
 }
 
 bool CharacterPlayer::isItemEquippedById(const std::string& itemId) const {

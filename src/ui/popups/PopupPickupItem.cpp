@@ -89,9 +89,8 @@ void PopupPickupItem::build() {
   ButtonCloseProps closeProps;
   closeProps.closeType = CloseType::POPUP;
   closeButton->setProps(closeProps);
-  closeButton->addEventObserver(
-      std::unique_ptr<UiEventObserver>(new PopupPickupItemCloseButtonObserver(layer)));
-  section->addChild(std::move(closeButton));
+  closeButton->addEventObserver(new PopupPickupItemCloseButtonObserver(layer));
+  section->addChild(closeButton.release());
 
   int currentY = padding;
 
@@ -106,7 +105,7 @@ void PopupPickupItem::build() {
   iconStyle.scale = 2;
   icon->setStyle(iconStyle);
   icon->setSprite(itemTemplate.iconSpriteName);
-  section->addChild(std::move(icon));
+  section->addChild(icon.release());
 
   // Add item label next to icon
   auto label = std::make_unique<TextLine>(window, section.get());
@@ -126,7 +125,7 @@ void PopupPickupItem::build() {
   labelBlock.text = itemTemplate.label.empty() ? itemTemplate.name : itemTemplate.label;
   labelProps.textBlocks.push_back(labelBlock);
   label->setProps(labelProps);
-  section->addChild(std::move(label));
+  section->addChild(label.release());
 
   // Update currentY for next element
   currentY += iconSize + spacing;
@@ -153,7 +152,7 @@ void PopupPickupItem::build() {
 
     // Get height before moving
     auto descHeight = description->getDims().second;
-    section->addChild(std::move(description));
+    section->addChild(description.release());
 
     // Update currentY based on description height
     currentY += descHeight + spacing;
@@ -178,7 +177,7 @@ void PopupPickupItem::build() {
   weightProps.textBlocks.push_back(weightBlock);
   weightLine->setProps(weightProps);
   auto weightLineHeight = weightLine->getDims().second;
-  section->addChild(std::move(weightLine));
+  section->addChild(weightLine.release());
 
   // Update currentY for next stat line
   currentY += weightLineHeight + spacing;
@@ -201,7 +200,7 @@ void PopupPickupItem::build() {
   valueProps.textBlocks.push_back(valueBlock);
   valueLine->setProps(valueProps);
   auto valueLineHeight = valueLine->getDims().second;
-  section->addChild(std::move(valueLine));
+  section->addChild(valueLine.release());
   currentY += valueLineHeight + spacing;
 
   getStyle().height = currentY;

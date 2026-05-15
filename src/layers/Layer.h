@@ -44,7 +44,7 @@ public:
   bool shouldRemove() const;
   LayerState getState() const;
 
-  void addUiElement(std::unique_ptr<ui::UiElement> element);
+  void addUiElement(ui::UiElement* element);
 
   // Getters
   sdl2w::Window* getWindow() const { return window; }

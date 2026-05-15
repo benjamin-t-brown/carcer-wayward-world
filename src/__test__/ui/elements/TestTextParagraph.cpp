@@ -108,9 +108,9 @@ int main(int argc, char** argv) {
     params2.bgColor = SDL_Color{50, 50, 100, 255};
     params2.borderColor = SDL_Color{100, 100, 150, 255};
     params2.borderSize = 3;
-    params2.fontSize = sdl2w::TEXT_SIZE_16;
+    params2.fontSize = sdl2w::TEXT_SIZE_22;
     params2.fontColor = SDL_Color{220, 220, 220, 255};
-    params2.lineSpacing = 10;
+    params2.lineSpacing = -2;
     params2.padding = 15;
     
     ui::TextBlock block1;
@@ -119,16 +119,16 @@ int main(int argc, char** argv) {
     
     ui::TextBlock block2;
     block2.text = "multiple styles! ";
-    block2.fontSize = sdl2w::TEXT_SIZE_24;
+    // block2.fontSize = sdl2w::TEXT_SIZE_24;
     block2.fontColor = SDL_Color{255, 200, 0, 255};
     params2.textBlocks.push_back(block2);
     
     ui::TextBlock block3;
-    block3.text = "You can mix different font sizes and colors in the same paragraph.";
+    block3.text = "You can mix different font sizes and colors in the same paragraph. ";
     params2.textBlocks.push_back(block3);
 
     ui::TextBlock block4;
-    block4.text = "And it also supports\nnewlines!\nisn't that cool!";
+    block4.text = "\nAnd it also supports\nnewlines!\nisn't that cool!";
     params2.textBlocks.push_back(block4);
 
     auto quad2 = createQuadWithParagraph(&window, params2);

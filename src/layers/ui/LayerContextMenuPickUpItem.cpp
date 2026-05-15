@@ -34,7 +34,7 @@ LayerContextMenuPickUpItem::LayerContextMenuPickUpItem(sdl2w::Window* _window,
   style.y = windowHeight / 2 - popupPickupItem->getDims().second / 2;
   popupPickupItem->setStyle(style);
 
-  addUiElement(std::move(popupPickupItem));
+  addUiElement(popupPickupItem.release());
 }
 
 void LayerContextMenuPickUpItem::update(int deltaTime) { Layer::update(deltaTime); }

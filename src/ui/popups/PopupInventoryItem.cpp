@@ -91,9 +91,8 @@ void PopupInventoryItem::build() {
   ButtonCloseProps closeProps;
   closeProps.closeType = CloseType::POPUP;
   closeButton->setProps(closeProps);
-  closeButton->addEventObserver(
-      std::unique_ptr<UiEventObserver>(new PopupInventoryItemCloseButtonObserver(layer)));
-  section->addChild(std::move(closeButton));
+  closeButton->addEventObserver(new PopupInventoryItemCloseButtonObserver(layer));
+  section->addChild(closeButton.release());
 
   // Add action buttons (Equip, Drop, Give, Use) aligned right, stacked vertically below
   // close button
@@ -115,7 +114,7 @@ void PopupInventoryItem::build() {
   ButtonModalProps useProps;
   useProps.text = TRANSLATE("Use");
   useButton->setProps(useProps);
-  section->addChild(std::move(useButton));
+  section->addChild(useButton.release());
   buttonsY += buttonHeight + buttonsSpacing;
 
   auto equipButton = std::make_unique<ButtonModal>(window, section.get());
@@ -130,7 +129,7 @@ void PopupInventoryItem::build() {
   ButtonModalProps equipProps;
   equipProps.text = TRANSLATE("Equip");
   equipButton->setProps(equipProps);
-  section->addChild(std::move(equipButton));
+  section->addChild(equipButton.release());
   buttonsY += buttonHeight + buttonsSpacing;
 
   auto giveButton = std::make_unique<ButtonModal>(window, section.get());
@@ -145,7 +144,7 @@ void PopupInventoryItem::build() {
   ButtonModalProps giveProps;
   giveProps.text = TRANSLATE("Give");
   giveButton->setProps(giveProps);
-  section->addChild(std::move(giveButton));
+  section->addChild(giveButton.release());
   buttonsY += buttonHeight + buttonsSpacing;
 
   auto dropButton = std::make_unique<ButtonModal>(window, section.get());
@@ -160,7 +159,7 @@ void PopupInventoryItem::build() {
   ButtonModalProps dropProps;
   dropProps.text = TRANSLATE("Drop");
   dropButton->setProps(dropProps);
-  section->addChild(std::move(dropButton));
+  section->addChild(dropButton.release());
   buttonsY += buttonHeight + buttonsSpacing;
 
   int currentY = padding;
@@ -176,7 +175,7 @@ void PopupInventoryItem::build() {
   iconStyle.scale = 2;
   icon->setStyle(iconStyle);
   icon->setSprite(itemTemplate.iconSpriteName);
-  section->addChild(std::move(icon));
+  section->addChild(icon.release());
 
   // Add item label next to icon
   auto label = std::make_unique<TextLine>(window, section.get());
@@ -196,7 +195,7 @@ void PopupInventoryItem::build() {
   labelBlock.text = itemTemplate.label.empty() ? itemTemplate.name : itemTemplate.label;
   labelProps.textBlocks.push_back(labelBlock);
   label->setProps(labelProps);
-  section->addChild(std::move(label));
+  section->addChild(label.release());
 
   // Update currentY for next element
   currentY += iconSize + spacing;
@@ -223,7 +222,7 @@ void PopupInventoryItem::build() {
 
     // Get height before moving
     auto descHeight = description->getDims().second;
-    section->addChild(std::move(description));
+    section->addChild(description.release());
 
     // Update currentY based on description height
     currentY += descHeight + spacing;
@@ -248,7 +247,7 @@ void PopupInventoryItem::build() {
   weightProps.textBlocks.push_back(weightBlock);
   weightLine->setProps(weightProps);
   auto weightLineHeight = weightLine->getDims().second;
-  section->addChild(std::move(weightLine));
+  section->addChild(weightLine.release());
 
   // Update currentY for next stat line
   currentY += weightLineHeight + spacing;
@@ -271,7 +270,7 @@ void PopupInventoryItem::build() {
   valueProps.textBlocks.push_back(valueBlock);
   valueLine->setProps(valueProps);
   auto valueLineHeight = valueLine->getDims().second;
-  section->addChild(std::move(valueLine));
+  section->addChild(valueLine.release());
   currentY += valueLineHeight + spacing;
 
   getStyle().height = std::max(currentY, buttonsY);

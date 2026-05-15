@@ -36,7 +36,7 @@ public:
     pageProps.itemNames = itemNames;
     pagePickUp->setProps(pageProps);
 
-    addUiElement(std::move(pagePickUp));
+    addUiElement(pagePickUp.release());
   }
 };
 

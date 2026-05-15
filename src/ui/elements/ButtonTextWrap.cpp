@@ -18,7 +18,7 @@ public:
 
 ButtonTextWrap::ButtonTextWrap(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
-  addEventObserver(std::make_unique<ButtonTextWrapDefaultObserver>(this));
+  addEventObserver(new ButtonTextWrapDefaultObserver(this));
   style.textAlign = TextAlign::CENTER;
   style.fontSize = sdl2w::TEXT_SIZE_16;
   style.fontColor = Colors::Black;

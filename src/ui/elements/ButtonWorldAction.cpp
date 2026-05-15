@@ -26,7 +26,7 @@ public:
 
 ButtonWorldAction::ButtonWorldAction(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
-  addEventObserver(std::make_unique<ButtonWorldActionDefaultObserver>(this));
+  addEventObserver(new ButtonWorldActionDefaultObserver(this));
   style.textAlign = TextAlign::CENTER;
   style.fontSize = sdl2w::TEXT_SIZE_20;
   shouldPropagateEventsToChildren = false;

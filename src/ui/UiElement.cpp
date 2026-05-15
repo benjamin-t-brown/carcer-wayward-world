@@ -162,8 +162,8 @@ void UiElement::checkResizeEvent(int width, int height) {
   }
 }
 
-void UiElement::addEventObserver(std::unique_ptr<UiEventObserver> observer) {
-  eventObservers.push_back(std::move(observer));
+void UiElement::addEventObserver(UiEventObserver* observer) {
+  eventObservers.push_back(std::unique_ptr<UiEventObserver>(observer));
 }
 
 void UiElement::removeEventObserver(UiEventObserver* observer) {

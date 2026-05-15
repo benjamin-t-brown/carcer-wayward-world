@@ -32,9 +32,9 @@ public:
   UiElement* getChildById(const std::string& id);
   void removeChildById(const std::string& id);
 
-  void setTitleElement(std::unique_ptr<UiElement> _titleElement);
+  void setTitleElement(UiElement* _titleElement);
   UiElement* getTitleElement();
-  void setSubtitleElement(std::unique_ptr<UiElement> _subtitleElement);
+  void setSubtitleElement(UiElement* _subtitleElement);
   UiElement* getSubtitleElement();
 
   const std::pair<int, int> getDims() const override;

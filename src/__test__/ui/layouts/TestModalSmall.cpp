@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
     titleBlock.text = "Small Modal Title";
     titleProps.textBlocks.push_back(titleBlock);
     title->setProps(titleProps);
-    modalLayout->setTitleElement(std::move(title));
+    modalLayout->setTitleElement(title.release());
 
     auto subtitle = std::make_unique<ui::TextLine>(&window);
     ui::BaseStyle subtitleStyle;
@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
     subtitleBlock.text = "This is a small modal subtitle";
     subtitleProps.textBlocks.push_back(subtitleBlock);
     subtitle->setProps(subtitleProps);
-    modalLayout->setSubtitleElement(std::move(subtitle));
+    modalLayout->setSubtitleElement(subtitle.release());
 
     elements.push_back(std::move(modalLayout));
 

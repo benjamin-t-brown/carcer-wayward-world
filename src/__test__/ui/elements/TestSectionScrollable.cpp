@@ -46,6 +46,24 @@ int main(int argc, char** argv) {
 
   std::vector<std::unique_ptr<ui::UiElement>> elements;
 
+  auto addTextToQuad =
+      [&](sdl2w::Window& window, ui::Quad* quad, const std::string& text) {
+        auto textLine = std::make_unique<ui::TextLine>(&window, quad);
+        ui::BaseStyle textStyle;
+        textStyle.x = quad->getStyle().width / 2;
+        textStyle.y = quad->getStyle().height / 2;
+        textStyle.textAlign = ui::TextAlign::CENTER;
+        textStyle.fontSize = sdl2w::TEXT_SIZE_24;
+        textStyle.fontColor = ui::Colors::Black;
+        textStyle.fontFamily = ui::FontFamily::PARAGRAPH;
+        textStyle.scale = quad->getStyle().scale;
+        textLine->setStyle(textStyle);
+        ui::TextLineProps textLineProps;
+        textLineProps.textBlocks = {ui::TextBlock{text}};
+        textLine->setProps(textLineProps);
+        quad->getChildren().push_back(std::move(textLine));
+      };
+
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "SectionScrollable test initialized" << LOG_ENDL;
 
@@ -60,9 +78,9 @@ int main(int argc, char** argv) {
     scrollableSection->setStyle(sectionStyle);
 
     ui::SectionScrollableProps sectionProps;
-    sectionProps.scrollBarWidth = 20;
+    sectionProps.scrollBarWidth = 40;
     sectionProps.borderColor = ui::Colors::Black;
-    sectionProps.borderSize = 2;
+    sectionProps.borderSize = 0;
     sectionProps.scrollStep = 30;
     scrollableSection->setProps(sectionProps);
 
@@ -78,8 +96,9 @@ int main(int argc, char** argv) {
     quad1Props.bgColor = ui::Colors::Red;
     quad1Props.borderColor = ui::Colors::Transparent;
     quad1Props.borderSize = 0;
+    addTextToQuad(window, quad1.get(), "Hello World 1");
     quad1->setProps(quad1Props);
-    scrollableSection->addChild(std::move(quad1));
+    scrollableSection->addChild(quad1.release());
 
     auto quad2 = std::make_unique<ui::Quad>(&window);
     quad2->setId("quad2");
@@ -93,49 +112,9 @@ int main(int argc, char** argv) {
     quad2Props.bgColor = ui::Colors::Blue;
     quad2Props.borderColor = ui::Colors::Transparent;
     quad2Props.borderSize = 0;
+    addTextToQuad(window, quad2.get(), "Hello World 2");
     quad2->setProps(quad2Props);
-    scrollableSection->addChild(std::move(quad2));
-
-    // Add test content to the scrollable section
-    // for (int i = 0; i < 10; i++) {
-    //   auto testButton = std::make_unique<ui::ButtonModal>(&window);
-    //   testButton->setId("testButton" + std::to_string(i));
-    //   ui::BaseStyle buttonStyle;
-    //   buttonStyle.x = 20;
-    //   buttonStyle.y = i * 60; // Stack buttons vertically
-    //   buttonStyle.width = 300;
-    //   buttonStyle.height = 50;
-    //   testButton->setStyle(buttonStyle);
-
-    //   ui::ButtonModalProps buttonProps;
-    //   buttonProps.text = "Test Button " + std::to_string(i + 1);
-    //   buttonProps.isSelected = (i % 3 == 0); // Every 3rd button is selected
-    //   testButton->setProps(buttonProps);
-    //   testButton->addEventObserver(
-    //       std::make_unique<TestButtonObserver>("testButton" + std::to_string(i)));
-
-    //   scrollableSection->addChild(std::move(testButton));
-    // }
-
-    // // Add some text elements as well
-    // for (int i = 0; i < 5; i++) {
-    //   auto textLine = std::make_unique<ui::TextLine>(&window);
-    //   textLine->setId("textLine" + std::to_string(i));
-    //   ui::BaseStyle textStyle;
-    //   textStyle.x = 20;
-    //   textStyle.y = 600 + (i * 40); // Position below the buttons
-    //   textStyle.width = 300;
-    //   textStyle.height = 30;
-    //   textStyle.fontSize = sdl2w::TEXT_SIZE_16;
-    //   textStyle.fontColor = ui::Colors::Black;
-    //   textLine->setStyle(textStyle);
-
-    //   ui::TextLineProps textProps;
-    //   textProps.textBlocks = {ui::TextBlock{"This is test text line " +
-    //   std::to_string(i + 1)}}; textLine->setProps(textProps);
-
-    //   scrollableSection->addChild(std::move(textLine));
-    // }
+    scrollableSection->addChild(quad2.release());
 
     elements.push_back(std::move(scrollableSection));
 

@@ -31,7 +31,7 @@ public:
   SectionDropShadowProps& getProps();
   const SectionDropShadowProps& getProps() const;
 
-  void addChild(std::unique_ptr<UiElement> child);
+  void addChild(UiElement* child);
 
   void build() override;
   void render(int dt) override;

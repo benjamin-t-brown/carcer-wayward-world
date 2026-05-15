@@ -111,7 +111,7 @@ public:
   virtual bool checkHoverEvent(int mouseX, int mouseY);
   virtual bool checkMouseWheelEvent(int mouseX, int mouseY, int delta);
   virtual void checkResizeEvent(int width, int height);
-  virtual void addEventObserver(std::unique_ptr<UiEventObserver> observer);
+  virtual void addEventObserver(UiEventObserver* observer);
   virtual void removeEventObserver(UiEventObserver* observer);
 
   // Build and render

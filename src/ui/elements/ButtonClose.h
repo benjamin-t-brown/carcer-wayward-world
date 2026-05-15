@@ -13,6 +13,7 @@ enum class CloseType {
 // ButtonClose-specific properties
 struct ButtonCloseProps {
   CloseType closeType = CloseType::MODAL;
+  int xLength = 13;
 };
 
 // ButtonClose element - renders a clickable button typically used to close a modal or popup window

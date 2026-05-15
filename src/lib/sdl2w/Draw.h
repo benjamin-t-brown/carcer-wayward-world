@@ -4,15 +4,18 @@
 #include "Defines.h"
 #include <memory>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <utility>
 
-#if defined(MIYOOA30) || defined(MIYOOMINI)
+#if __has_include(<SDL2/SDL_pixels.h>) && __has_include(<SDL2/SDL_stdinc.h>)
+#include <SDL2/SDL_pixels.h>
+#include <SDL2/SDL_stdinc.h>
+#elif __has_include(<SDL_pixels.h>) && __has_include(<SDL_stdinc.h>)
 #include <SDL_pixels.h>
 #include <SDL_stdinc.h>
 #else
-#include <SDL2/SDL_pixels.h>
-#include <SDL2/SDL_stdinc.h>
+#error "Could not find SDL pixel/stdinc headers in either SDL2/ or root include paths"
 #endif
 
 namespace sdl2w {
@@ -49,6 +52,8 @@ struct RenderTextParams {
   int y = 0;
   SDL_Color color = {0, 0, 0, 255};
   bool centered = false;
+  double angleDeg = 0.;
+  std::pair<double, double> scale = {1., 1.};
 };
 
 struct Renderable {
@@ -94,11 +99,12 @@ class Draw {
   SDL_Color backgroundColor = {0, 0, 0, 255};
   double renderRotationAngle = 0.0;
   int globalAlpha = 255;
+  std::unordered_map<std::string, bool> invalidSpriteWarnings;
 
-  Renderable getTextRenderable(const std::string& text,
+  Renderable getTextRenderable(std::string_view text,
                                const RenderTextParams& params);
   SDL_Surface* getRotatedSurface(SDL_Surface* originalSurface,
-                                 const std::string& name,
+                                 std::string_view name,
                                  double angleDeg,
                                  const RenderableParamsEx& params);
 
@@ -133,10 +139,14 @@ public:
   void drawSprite(const Sprite& sprite, const RenderableParamsEx& params);
   void drawAnimation(const Animation& anim, const RenderableParams& params);
   void drawAnimation(const Animation& anim, const RenderableParamsEx& params);
-  void drawText(const std::string& text, const RenderTextParams& params);
-  std::pair<int, int> measureText(const std::string& text,
+  void drawText(std::string_view text, const RenderTextParams& params);
+  std::pair<int, int> measureText(std::string_view text,
                                   const RenderTextParams& params);
   void drawRect(int x, int y, int w, int h, const SDL_Color& color);
+  void drawLine(const std::pair<int, int>& from,
+                const std::pair<int, int>& to,
+                int lineWidth,
+                const SDL_Color& color);
   void drawCircle(
       int x, int y, int radius, const SDL_Color& color, bool filled = true);
 
