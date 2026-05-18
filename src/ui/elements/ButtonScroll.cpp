@@ -1,6 +1,7 @@
 #include "ButtonScroll.h"
 #include "ui/colors.h"
 #include "ui/elements/OutsetRectangle.h"
+#include <algorithm>
 #include <memory>
 
 namespace ui {
@@ -59,7 +60,6 @@ void ButtonScroll::build() {
   rect->setProps(rectProps);
 
   children.push_back(std::unique_ptr<OutsetRectangle>(rect));
-
 }
 
 void ButtonScroll::render(int dt) {
@@ -107,7 +107,7 @@ void ButtonScroll::render(int dt) {
   auto scaledHeight = static_cast<int>(style.height * style.scale);
   auto centerX = scaledX + scaledWidth / 2;
   auto centerY = scaledY + scaledHeight / 2;
-  auto arrowLength = scaledWidth / 4;
+  auto arrowLength = std::max(scaledWidth / 8, 4);
   if (isInActiveMode) {
     centerX -= style.scale;
   }

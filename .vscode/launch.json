@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "(gdb) Launch Tests UI",
+      "name": "(gdb) Launch Tests UI Win",
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}\\src\\TestUi.exe",
@@ -20,6 +20,15 @@
           "ignoreFailures": true
         }
       ],
+      "preLaunchTask": ""
+    },
+    {
+      "name": "(gdb) Launch Tests UI Mac",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/TestUi",
+      "args": [],
+      "cwd": "${workspaceFolder}/src",
       "preLaunchTask": ""
     },
     {

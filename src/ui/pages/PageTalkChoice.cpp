@@ -1,9 +1,11 @@
 #include "PageTalkChoice.h"
 #include "ui/colors.h"
 #include "ui/components/BorderModalStandard.h"
+#include "ui/elements/OutsetRectangle.h"
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
 #include "ui/layouts/ModalStandard.h"
+#include <memory>
 
 namespace ui {
 
@@ -31,13 +33,8 @@ const std::pair<int, int> PageTalkChoice::getDims() const {
 void PageTalkChoice::build() {
   children.clear();
 
-  // TODO: Add validation for gameEvent if needed
-  // if (props.gameEvent.id.empty()) {
-  //   return;
-  // }
-
   // Create ModalStandard layout
-  auto modal = std::make_unique<ModalStandard>(window, this);
+  auto modal = new ModalStandard(window, this);
   modal->setId("modal");
   BaseStyle modalStyle;
   modalStyle.x = style.x;
@@ -50,10 +47,14 @@ void PageTalkChoice::build() {
   ModalStandardProps modalProps;
   modal->setProps(modalProps);
 
-  auto contentDims = modal->getContentDims();
+  children.push_back(std::unique_ptr<ModalStandard>(modal));
+
+  auto [contentW, contentH] = modal->getContentDims();
+  auto [contentX, contentY] = modal->getContentLoc();
+  auto choiceHeightScaled = props.choiceAreaHeight * style.scale;
 
   // Create title element
-  auto title = std::make_unique<TextLine>(window, modal.get());
+  auto title = std::make_unique<TextLine>(window, this);
   BaseStyle titleStyle;
   titleStyle.fontFamily = FontFamily::H2;
   titleStyle.fontSize = sdl2w::TEXT_SIZE_20;
@@ -67,46 +68,52 @@ void PageTalkChoice::build() {
   title->setProps(titleProps);
   modal->setTitleElement(title.release());
 
-  // Create subtitle element
-  // auto subtitle = std::make_unique<TextLine>(window, modal.get());
-  // BaseStyle subtitleStyle;
-  // subtitleStyle.fontFamily = FontFamily::PARAGRAPH;
-  // subtitleStyle.fontSize = sdl2w::TEXT_SIZE_16;
-  // subtitleStyle.fontColor = Colors::White;
-  // subtitleStyle.textAlign = TextAlign::LEFT_TOP;
-  // subtitle->setStyle(subtitleStyle);
-  // TextLineProps subtitleProps;
-  // TextBlock subtitleBlock;
-  // subtitleBlock.text = props.portraitName.empty() ? "Subtitle" : props.portraitName;
-  // subtitleProps.textBlocks.push_back(subtitleBlock);
-  // subtitle->setProps(subtitleProps);
-  // modal->setSubtitleElement(subtitle.release());
-
   // Create SectionScrollable for content area
-  auto scrollableSection = std::make_unique<SectionScrollable>(window, modal.get());
-  scrollableSection->setId("scrollableSection");
-  BaseStyle scrollableStyle;
-  scrollableStyle.width = contentDims.first;
-  scrollableStyle.height = contentDims.second;
-  scrollableStyle.scale = 1;
-  scrollableSection->setStyle(scrollableStyle);
+  auto textSection = new SectionScrollable(window, this);
+  textSection->setId("textSection");
+  auto& textSectionStyle = textSection->getStyle();
+  textSectionStyle.width = contentW;
+  textSectionStyle.height =
+      contentH - style.scale * BorderModalStandard::BOTTOM_BORDER_HEIGHT * style.scale -
+      choiceHeightScaled;
+  textSectionStyle.x = contentX;
+  textSectionStyle.y = contentY;
+  textSectionStyle.scale = style.scale;
+  textSection->setProps(SectionScrollableProps{.scrollBarWidth = 40});
+  children.push_back(std::unique_ptr<UiElement>(textSection));
 
-  SectionScrollableProps scrollableProps;
-  scrollableSection->setProps(scrollableProps);
+  auto sepBorder = new OutsetRectangle(window, this);
+  BaseStyle sepBorderStyle;
+  sepBorderStyle.width = contentW;
+  sepBorderStyle.height = 10;
+  sepBorderStyle.x = contentX;
+  sepBorderStyle.y = contentY + textSectionStyle.height;
+  sepBorderStyle.scale = style.scale;
+  sepBorder->setStyle(sepBorderStyle);
+  sepBorder->setProps(OutsetRectangleProps{});
+  children.push_back(std::unique_ptr<UiElement>(sepBorder));
+
+  auto choiceSection = new SectionScrollable(window, this);
+  choiceSection->setId("choiceSection");
+  auto& choiceSectionStyle = choiceSection->getStyle();
+  choiceSectionStyle.width = contentW;
+  choiceSectionStyle.height = choiceHeightScaled;
+  choiceSectionStyle.x = contentX;
+  choiceSectionStyle.y = contentY + textSectionStyle.height + sepBorderStyle.height;
+  choiceSectionStyle.scale = style.scale;
+  choiceSection->setProps(SectionScrollableProps{.scrollBarWidth = 40});
+  children.push_back(std::unique_ptr<UiElement>(choiceSection));
 
   // TODO: Add gameEvent rendering here
   // For now, the body section is set up but empty
 
   // Set SectionScrollable as content element of ModalStandard
-  modal->setContentElement(scrollableSection.release());
+  // modal->setContentElement(textSection);
 
   // Add modal to children
-  children.push_back(std::move(modal));
+  // children.push_back(std::move(modal));
 }
 
-void PageTalkChoice::render(int dt) {
-  UiElement::render(dt);
-}
+void PageTalkChoice::render(int dt) { UiElement::render(dt); }
 
 } // namespace ui
-

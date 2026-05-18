@@ -1,11 +1,11 @@
 #include "PageInventory.h"
 #include "model/Character.h"
 #include "ui/colors.h"
-#include "ui/components/BorderModalStandard.h"
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
 #include "ui/layouts/ModalStandard.h"
 #include "ui/lists/ListInventory.h"
+#include <memory>
 
 namespace ui {
 
@@ -59,7 +59,8 @@ void PageInventory::build() {
   ModalStandardProps modalProps;
   modal->setProps(modalProps);
 
-  auto contentDims = modal->getContentDims();
+  auto [contentW, contentH] = modal->getContentDims();
+  auto [contentX, contentY] = modal->getContentLoc();
 
   // // Get the border element to access location methods
   // auto borderElement = dynamic_cast<BorderModalStandard*>(modal->getChildById("border"));
@@ -105,9 +106,11 @@ void PageInventory::build() {
   auto scrollableSection = std::make_unique<SectionScrollable>(window, modal.get());
   scrollableSection->setId("scrollableSection");
   BaseStyle scrollableStyle;
-  scrollableStyle.width = contentDims.first;
-  scrollableStyle.height = contentDims.second;
-  scrollableStyle.scale = 1;
+  scrollableStyle.x = contentX;
+  scrollableStyle.y = contentY;
+  scrollableStyle.width = contentW;
+  scrollableStyle.height = contentH;
+  scrollableStyle.scale = style.scale;
   scrollableSection->setStyle(scrollableStyle);
 
   SectionScrollableProps scrollableProps;
@@ -119,8 +122,8 @@ void PageInventory::build() {
   BaseStyle listStyle;
   listStyle.x = 0; // Positioned relative to scrollable section
   listStyle.y = 4;
-  listStyle.width = contentDims.first - scrollableProps.scrollBarWidth - 8;
-  listStyle.scale = 1;
+  listStyle.width = contentW - scrollableProps.scrollBarWidth - 8;
+  listStyle.scale = style.scale;
   listInventory->setStyle(listStyle);
 
   ListInventoryProps listProps;

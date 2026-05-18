@@ -8,11 +8,13 @@ namespace ui {
 struct PageTalkChoiceProps {
   model::GameEvent gameEvent;
   std::string portraitName;
+  int choiceAreaHeight = 100;
 };
 
 class PageTalkChoice : public UiElement {
 private:
   PageTalkChoiceProps props;
+  const int SEP_BORDER_HEIGHT = 10;
 
 public:
   PageTalkChoice(sdl2w::Window* _window, UiElement* _parent = nullptr);

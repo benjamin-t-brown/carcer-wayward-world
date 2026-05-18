@@ -4,7 +4,6 @@ EXE_SUFFIX=
 MAIN_ALL=main.cpp
 
 CODE=\
-LibHTML.cpp \
 db/Database.cpp \
 db/loaders/LoadItemTemplates.cpp \
 db/loaders/LoadSpecialEvents.cpp \
@@ -23,6 +22,7 @@ state/StateManager.cpp \
 state/StateManagerInterface.cpp \
 state/LayerManagerInterface.cpp \
 ui/UiElement.cpp \
+ui/FontScale.cpp \
 ui/elements/SpriteElement.cpp \
 ui/elements/Quad.cpp \
 ui/elements/TextLine.cpp \
@@ -39,16 +39,21 @@ ui/elements/OutsetRectangle.cpp \
 ui/components/BorderModalStandard.cpp \
 ui/components/BorderModalSmall.cpp \
 ui/components/BorderInGame.cpp \
+ui/components/GameChStatus.cpp \
 ui/components/VerticalList.cpp \
 ui/layouts/InGameLayout.cpp \
 ui/layouts/ModalStandard.cpp \
 ui/layouts/ModalSmall.cpp \
+ui/minipages/MinipageCharacterSheet.cpp \
+ui/minipages/MinipageEvent.cpp \
 ui/lists/ListInventory.cpp \
 ui/lists/ListPickUp.cpp \
 ui/popups/PopupInventoryItem.cpp \
+ ui/pages/PageCharacter.cpp \
 ui/pages/PageInventory.cpp \
-ui/pages/PagePickUp.cpp \
+ui/pages/PageMagicSetup.cpp \
 ui/pages/PageTalkChoice.cpp \
+ui/minipages/MinipagePickUp.cpp \
 ui/popups/PopupPickupItem.cpp \
 
 LIB_CODE=\
@@ -126,7 +131,7 @@ else
     else
         UNAME_S := $(shell uname -s)
         ifeq ($(UNAME_S),Darwin)
-            LIBS += -L/opt/homebrew/lib -L/usr/local/lib-lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lSDL2_gfx
+            LIBS += -L/opt/homebrew/lib -L/usr/local/lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lSDL2_gfx
             INCLUDES += -I/opt/homebrew/include -I/usr/local/include
         else
             LIBS += -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lSDL2_gfx
@@ -175,8 +180,8 @@ sdl2w_wasm: $(SDL2W_STAMP)
 _copy_sdl2w_artifacts:
 	@mkdir -p lib/sdl2w
 	@echo "Copying sdl2w artifacts from $(SDL2W_BUILD_OUTPUT_DIR) to lib/sdl2w..."
-	@cp -uv $(SDL2W_BUILD_OUTPUT_DIR)/lib/libsdl2w.a lib/sdl2w
-	@cp -uv $(SDL2W_BUILD_OUTPUT_DIR)/include/*.h lib/sdl2w
+	@cp $(SDL2W_BUILD_OUTPUT_DIR)/lib/libsdl2w.a lib/sdl2w
+	@cp $(SDL2W_BUILD_OUTPUT_DIR)/include/*.h lib/sdl2w
 
 compiler_args:
 	@echo $(FLAGS) $(INCLUDES) $(OBJECTS) $(LIB_OBJECTS) $(LIBS)

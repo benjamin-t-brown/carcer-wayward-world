@@ -1,5 +1,6 @@
 #include "TextLine.h"
 #include "lib/sdl2w/Draw.h"
+#include "ui/FontScale.h"
 #include "ui/UiElement.h"
 
 namespace ui {
@@ -28,12 +29,19 @@ std::string TextLine::getFontNameFromFamily(FontFamily fontFamily) {
 
 sdl2w::RenderTextParams TextLine::makeRenderTextParams(const TextBlock& block) const {
   auto fontFamily = block.fontFamily.value_or(style.fontFamily);
-  auto fontSize = block.fontSize.value_or(style.fontSize);
+  auto baseFontSize = block.fontSize.value_or(style.fontSize);
   auto fontColor = block.fontColor.value_or(style.fontColor);
+  int fontScale = 0;
+  try {
+    fontScale = getStateManager()->getState().settings.fontScale;
+  } catch (...) {
+    // Some isolated UI tests do not initialize a StateManager.
+    fontScale = 0;
+  }
 
   sdl2w::RenderTextParams params;
   params.fontName = getFontNameFromFamily(fontFamily);
-  params.fontSize = fontSize;
+  params.fontSize = ui::applyFontScale(baseFontSize, fontScale);
   params.color = fontColor;
   params.centered = style.textAlign == TextAlign::CENTER;
   return params;

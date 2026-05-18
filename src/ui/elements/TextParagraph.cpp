@@ -1,5 +1,6 @@
 #include "TextParagraph.h"
 #include "lib/sdl2w/Draw.h"
+#include "ui/FontScale.h"
 
 namespace ui {
 
@@ -37,6 +38,13 @@ const std::pair<int, int> TextParagraph::getDims() const {
 void TextParagraph::build() {
   generatedBlocks.clear();
   auto& draw = window->getDraw();
+  int fontScale = 0;
+  try {
+    fontScale = getStateManager()->getState().settings.fontScale;
+  } catch (...) {
+    // Some isolated UI tests do not initialize a StateManager.
+    fontScale = 0;
+  }
 
   int lineNumber = 0;
   int aggregateWidth = 0;
@@ -54,7 +62,7 @@ void TextParagraph::build() {
 
     sdl2w::RenderTextParams params;
     params.fontName = fontName;
-    params.fontSize = fontSize;
+    params.fontSize = ui::applyFontScale(fontSize, fontScale);
     params.color = fontColor;
     params.centered = false;
 
@@ -130,7 +138,7 @@ void TextParagraph::build() {
 
       sdl2w::RenderTextParams params;
       params.fontName = fontName;
-      params.fontSize = fontSize;
+      params.fontSize = ui::applyFontScale(fontSize, fontScale);
       params.color = fontColor;
       params.centered = false;
       auto [textWidth, textHeight] = draw.measureText(lineAggregate, params);

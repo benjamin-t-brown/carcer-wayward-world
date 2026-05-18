@@ -3,7 +3,6 @@
 #include "../UiElement.h"
 #include <SDL2/SDL_pixels.h>
 #include <string>
-#include <memory>
 
 namespace ui {
 
@@ -40,6 +39,7 @@ public:
 
   const std::pair<int, int> getDims() const override;
   const std::pair<int, int> getContentDims();
+  const std::pair<int, int> getContentLoc();
 
   void build() override;
   void render(int dt) override;

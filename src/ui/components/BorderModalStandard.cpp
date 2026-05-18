@@ -16,6 +16,15 @@ BorderModalStandard::BorderModalStandard(sdl2w::Window* _window, UiElement* _par
 
 // const BorderModalStandardProps& BorderModalStandard::getProps() const { return props; }
 
+const std::pair<int, int> BorderModalStandard::getContentDims() const {
+  auto [scaledWidth, scaledHeight] = getDims();
+  int scaledBorderWidth = static_cast<int>(props.borderWidth * style.scale);
+  int scaledHeaderHeight = static_cast<int>(props.headerHeight * style.scale);
+  return {scaledWidth - scaledBorderWidth * 2,
+          scaledHeight - scaledBorderWidth * 2 - scaledHeaderHeight -
+              BOTTOM_BORDER_HEIGHT * style.scale};
+}
+
 const std::pair<int, int> BorderModalStandard::getTitleLocation() const {
   auto scaledBorder = static_cast<int>(props.borderWidth * style.scale);
   auto locX = style.x + scaledBorder + props.headerHeight + 4 + 4;
@@ -33,6 +42,12 @@ const std::pair<int, int> BorderModalStandard::getCloseButtonLocation() const {
   return {style.x + scaledWidth - scaledBorderWidth - closeButtonSize * style.scale -
               innerBorderSize * style.scale,
           style.y + scaledBorderWidth + innerBorderSize * style.scale};
+}
+
+const std::pair<int, int> BorderModalStandard::getContentLoc() const {
+  auto scaledBorder = static_cast<int>(props.borderWidth * style.scale);
+  int scaledHeaderHeight = static_cast<int>(props.headerHeight * style.scale);
+  return {style.x + scaledBorder, style.y + scaledBorder + scaledHeaderHeight};
 }
 
 void BorderModalStandard::build() {

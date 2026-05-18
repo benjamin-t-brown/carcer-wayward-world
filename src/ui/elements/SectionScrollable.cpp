@@ -92,12 +92,14 @@ void SectionScrollable::updateScrollIndicatorPosition() {
         int contentWidth = style.width - props.scrollBarWidth;
         int availableSpace = style.height - 3 * props.scrollBarWidth;
         int indicatorY = style.y + props.scrollBarWidth;
-        
+
         if (maxScrollOffset > 0 && availableSpace > 0) {
-          float scrollRatio = static_cast<float>(scrollOffset) / static_cast<float>(maxScrollOffset);
-          indicatorY = style.y + props.scrollBarWidth + static_cast<int>(scrollRatio * availableSpace);
+          float scrollRatio =
+              static_cast<float>(scrollOffset) / static_cast<float>(maxScrollOffset);
+          indicatorY = style.y + props.scrollBarWidth +
+                       static_cast<int>(scrollRatio * availableSpace);
         }
-        
+
         // Update the indicator position
         indicator->updatePosition(style.x + contentWidth, indicatorY);
       }
@@ -274,23 +276,25 @@ void SectionScrollable::build() {
   int viewportHeight = style.height;
   maxScrollOffset = std::max(0, contentHeight - viewportHeight);
 
-  // Create scroll indicator (black rectangle showing scroll position)
+  // Create scroll indicator (rectangle showing scroll position)
   auto scrollIndicator = std::make_unique<Quad>(window);
   ui::BaseStyle indicatorStyle;
   indicatorStyle.x = style.x + contentWidth;
   indicatorStyle.width = props.scrollBarWidth;
-  indicatorStyle.height = props.scrollBarWidth;
+  indicatorStyle.height = props.scrollBarWidth / 4;
   indicatorStyle.scale = style.scale;
-  
+
   // Calculate indicator Y position based on scroll offset
   int availableSpace = style.height - 2 * props.scrollBarWidth;
   int indicatorY = style.y + props.scrollBarWidth;
   if (maxScrollOffset > 0 && availableSpace > 0) {
-    float scrollRatio = static_cast<float>(scrollOffset) / static_cast<float>(maxScrollOffset);
-    indicatorY = style.y + props.scrollBarWidth + static_cast<int>(scrollRatio * availableSpace);
+    float scrollRatio =
+        static_cast<float>(scrollOffset) / static_cast<float>(maxScrollOffset);
+    indicatorY =
+        style.y + props.scrollBarWidth + static_cast<int>(scrollRatio * availableSpace);
   }
   indicatorStyle.y = indicatorY;
-  
+
   scrollIndicator->setStyle(indicatorStyle);
   ui::QuadProps indicatorProps;
   indicatorProps.bgColor = Colors::LightGrey;

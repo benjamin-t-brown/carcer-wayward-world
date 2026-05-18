@@ -47,6 +47,14 @@ const std::pair<int, int> ModalStandard::getContentDims() {
   return borderElement->getContentDims();
 }
 
+const std::pair<int, int> ModalStandard::getContentLoc() {
+  auto borderElement = dynamic_cast<BorderModalStandard*>(getChildById("border"));
+  if (borderElement == nullptr) {
+    return {0, 0};
+  }
+  return borderElement->getContentLoc();
+}
+
 void ModalStandard::build() {
   removeChildById("border");
   removeChildById("closeButton");
