@@ -4,14 +4,13 @@
 #include "lib/sdl2w/Window.h"
 #include "ui/UiElement.h"
 #include "ui/colors.h"
-#include "ui/elements/ButtonClose.h"
+#include "ui/elements/buttons/ButtonClose.h"
 #include "ui/elements/OutsetRectangle.h"
-#include <SDL2/SDL_pixels.h>
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start OutsetRectangle test" << LOG_ENDL;
-  sdl2w::Window::init();
   srand(time(NULL));
 
   std::vector<std::unique_ptr<ui::UiElement>> elements;
@@ -81,8 +80,7 @@ int main(int argc, char** argv) {
   };
 
   setupTestUi(
-      argc, argv, TestUiParams{800, 600, "OutsetRectangle Test"}, _init, _updateRender);
+      argc, argv, TestUiParams{800, 600, "OutsetRectangle Test"}, _init, _updateRender, [&]() { elements.clear(); });
   LOG(INFO) << "End OutsetRectangle test" << LOG_ENDL;
-  sdl2w::Window::unInit();
   return 0;
 }

@@ -13,7 +13,7 @@ private:
   sdl2w::Window* window;
   std::vector<Layer*> layerEventsStack;
 
-  void removeLayer(Layer* layer);
+  void removeLayer(const Layer* layer);
   void removeLayerAt(size_t index);
   void clearLayers();
 
@@ -30,8 +30,8 @@ public:
   void handleMouseDown(int x, int y, int button);
   void handleMouseUp(int x, int y, int button);
   void handleMouseWheel(int x, int y, int dir);
-  void handleKeyDown(const std::string& key, int keyCode);
-  void handleKeyUp(const std::string& key, int keyCode);
+  void handleKeyDown(std::string_view key, int keyCode);
+  void handleKeyUp(std::string_view key, int keyCode);
 
   // Getters
   std::vector<Layer*>& getLayers();

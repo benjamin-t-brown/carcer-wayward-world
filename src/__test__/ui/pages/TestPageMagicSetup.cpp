@@ -6,7 +6,7 @@
 #include "state/LayerManagerInterface.h"
 #include "ui/UiElement.h"
 #include "ui/pages/PageMagicSetup.h"
-#include <SDL2/SDL_pixels.h>
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
 
 class TestLayer : public layers::Layer {
@@ -31,7 +31,6 @@ public:
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start PageMagicSetup test" << LOG_ENDL;
-  sdl2w::Window::init();
   srand(time(NULL));
 
   std::unique_ptr<layers::LayerManager> layerManager;
@@ -90,8 +89,7 @@ int main(int argc, char** argv) {
   };
 
   setupTestUi(
-      argc, argv, TestUiParams{640, 480, "PageMagicSetup Test"}, _init, _updateRender);
+      argc, argv, TestUiParams{640, 480, "PageMagicSetup Test"}, _init, _updateRender, [&]() { layerManager.reset(); });
   LOG(INFO) << "End PageMagicSetup test" << LOG_ENDL;
-  sdl2w::Window::unInit();
   return 0;
 }

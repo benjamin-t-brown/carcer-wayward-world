@@ -27,27 +27,28 @@ ui/elements/SpriteElement.cpp \
 ui/elements/Quad.cpp \
 ui/elements/TextLine.cpp \
 ui/elements/TextParagraph.cpp \
-ui/elements/ButtonClose.cpp \
-ui/elements/ButtonModal.cpp \
-ui/elements/ButtonScroll.cpp \
-ui/elements/ButtonGroup.cpp \
+ui/elements/buttons/ButtonClose.cpp \
+ui/elements/buttons/ButtonModal.cpp \
+ui/elements/buttons/ButtonScroll.cpp \
+ui/elements/buttons/ButtonGroup.cpp \
 ui/elements/SectionDropShadow.cpp \
 ui/elements/SectionScrollable.cpp \
-ui/elements/ButtonTextWrap.cpp \
-ui/elements/ButtonWorldAction.cpp \
+ui/elements/buttons/ButtonTextWrap.cpp \
+ui/elements/buttons/ButtonWorldAction.cpp \
 ui/elements/OutsetRectangle.cpp \
 ui/components/BorderModalStandard.cpp \
 ui/components/BorderModalSmall.cpp \
 ui/components/BorderInGame.cpp \
-ui/components/GameChStatus.cpp \
+ui/components/ChCompactInfo.cpp \
 ui/components/VerticalList.cpp \
 ui/layouts/InGameLayout.cpp \
 ui/layouts/ModalStandard.cpp \
 ui/layouts/ModalSmall.cpp \
 ui/minipages/MinipageCharacterSheet.cpp \
 ui/minipages/MinipageEvent.cpp \
-ui/lists/ListInventory.cpp \
-ui/lists/ListPickUp.cpp \
+ui/components/lists/ListInventory.cpp \
+ui/components/lists/ListPickUp.cpp \
+ui/components/lists/ListVerticalChCompactInfo.cpp \
 ui/popups/PopupInventoryItem.cpp \
  ui/pages/PageCharacter.cpp \
 ui/pages/PageInventory.cpp \
@@ -117,12 +118,12 @@ DEBUG = true
 LIBS += -Llib/sdl2w -lsdl2w 
 INCLUDES += -I.
 ifeq ($(TARGET),wasm)
-    FLAGS = -Wall -std=c++17 -Oz
+    FLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -std=c++17 -Oz
     LIBS += $(EMCC_LIBS) $(EMCC_EXPORTED) --preload-file assets
     EXE_SUFFIX = .js
     CXX = em++
 else
-    FLAGS = -O0 -Wall -std=c++17 -fno-omit-frame-pointer
+    FLAGS = -O0 -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -std=c++17 -fno-omit-frame-pointer
     ifndef CXX
         CXX = g++
     endif

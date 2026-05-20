@@ -27,8 +27,8 @@ LayerContextMenuPickUpItem::LayerContextMenuPickUpItem(sdl2w::Window* _window,
   popupPickupItem->setStyle(style);
 
   ui::PopupPickupItemProps popupProps;
-  popupProps.itemName = itemName;
-  popupProps.itemId = itemId;
+  // popupProps.itemName = itemName;
+  // popupProps.itemId = itemId;
   popupPickupItem->setProps(popupProps);
 
   style.y = windowHeight / 2 - popupPickupItem->getDims().second / 2;

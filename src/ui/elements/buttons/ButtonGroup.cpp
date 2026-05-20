@@ -1,6 +1,6 @@
 #include "ButtonGroup.h"
 #include "lib/sdl2w/Logger.h"
-#include "ui/elements/ButtonModal.h"
+#include "ButtonModal.h"
 
 namespace ui {
 

@@ -4,15 +4,11 @@
 #include "lib/sdl2w/Window.h"
 #include "model/WorldActions.h"
 #include "ui/UiElement.h"
-#include "ui/elements/ButtonModal.h"
+#include "ui/elements/buttons/ButtonModal.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/TextParagraph.h"
 #include "ui/layouts/InGameLayout.h"
-#if __has_include(<SDL2/SDL_pixels.h>)
-#include <SDL2/SDL_pixels.h>
-#else
-#include <SDL_pixels.h>
-#endif
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
 
 std::vector<std::unique_ptr<ui::UiElement>> elements;
@@ -83,7 +79,6 @@ public:
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start InGameLayout test" << LOG_ENDL;
-  sdl2w::Window::init();
   srand(time(NULL));
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
@@ -202,8 +197,7 @@ int main(int argc, char** argv) {
   };
 
   setupTestUi(
-      argc, argv, TestUiParams{800, 600, "InGameLayout Test"}, _init, _updateRender);
+      argc, argv, TestUiParams{800, 600, "InGameLayout Test"}, _init, _updateRender, [&]() { elements.clear(); });
   LOG(INFO) << "End InGameLayout test" << LOG_ENDL;
-  sdl2w::Window::unInit();
   return 0;
 }

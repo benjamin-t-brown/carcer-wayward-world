@@ -5,8 +5,8 @@
 #include "lib/sdl2w/Window.h"
 #include "model/WorldActions.h"
 #include "ui/UiElement.h"
-#include "ui/elements/ButtonWorldAction.h"
-#include <SDL2/SDL_pixels.h>
+#include "ui/elements/buttons/ButtonWorldAction.h"
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
 
 class TestButtonWorldActionObserver : public ui::UiEventObserver {
@@ -39,7 +39,6 @@ void TestButtonWorldActionObserver::onClick(int x, int y, int button) {
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start ButtonWorldAction test" << LOG_ENDL;
-  sdl2w::Window::init();
   srand(time(NULL));
 
   std::vector<std::unique_ptr<ui::UiElement>> elements;
@@ -57,8 +56,7 @@ int main(int argc, char** argv) {
     ui::ButtonWorldActionProps examineProps;
     examineProps.worldActionType = model::WorldActionType::EXAMINE;
     examineButton->setProps(examineProps);
-    examineButton->addEventObserver(
-        std::make_unique<TestButtonWorldActionObserver>("examineButton"));
+    examineButton->addEventObserver(new TestButtonWorldActionObserver("examineButton"));
     elements.push_back(std::move(examineButton));
 
     // Create GET button
@@ -71,8 +69,7 @@ int main(int argc, char** argv) {
     ui::ButtonWorldActionProps getProps;
     getProps.worldActionType = model::WorldActionType::GET;
     getButton->setProps(getProps);
-    getButton->addEventObserver(
-        std::make_unique<TestButtonWorldActionObserver>("getButton"));
+    getButton->addEventObserver(new TestButtonWorldActionObserver("getButton"));
     elements.push_back(std::move(getButton));
 
     // Create SNEAK button
@@ -85,8 +82,7 @@ int main(int argc, char** argv) {
     ui::ButtonWorldActionProps sneakProps;
     sneakProps.worldActionType = model::WorldActionType::SNEAK;
     sneakButton->setProps(sneakProps);
-    sneakButton->addEventObserver(
-        std::make_unique<TestButtonWorldActionObserver>("sneakButton"));
+    sneakButton->addEventObserver(new TestButtonWorldActionObserver("sneakButton"));
     elements.push_back(std::move(sneakButton));
 
     // Create TALK button
@@ -99,8 +95,7 @@ int main(int argc, char** argv) {
     ui::ButtonWorldActionProps talkProps;
     talkProps.worldActionType = model::WorldActionType::TALK;
     talkButton->setProps(talkProps);
-    talkButton->addEventObserver(
-        std::make_unique<TestButtonWorldActionObserver>("talkButton"));
+    talkButton->addEventObserver(new TestButtonWorldActionObserver("talkButton"));
     elements.push_back(std::move(talkButton));
 
     // Create JUMP button
@@ -113,8 +108,7 @@ int main(int argc, char** argv) {
     ui::ButtonWorldActionProps jumpProps;
     jumpProps.worldActionType = model::WorldActionType::JUMP;
     jumpButton->setProps(jumpProps);
-    jumpButton->addEventObserver(
-        std::make_unique<TestButtonWorldActionObserver>("jumpButton"));
+    jumpButton->addEventObserver(new TestButtonWorldActionObserver("jumpButton"));
     elements.push_back(std::move(jumpButton));
 
     // Create ABILITY button
@@ -127,8 +121,7 @@ int main(int argc, char** argv) {
     ui::ButtonWorldActionProps abilityProps;
     abilityProps.worldActionType = model::WorldActionType::ABILITY;
     abilityButton->setProps(abilityProps);
-    abilityButton->addEventObserver(
-        std::make_unique<TestButtonWorldActionObserver>("abilityButton"));
+    abilityButton->addEventObserver(new TestButtonWorldActionObserver("abilityButton"));
     elements.push_back(std::move(abilityButton));
 
     // Create FIGHT button
@@ -141,8 +134,7 @@ int main(int argc, char** argv) {
     ui::ButtonWorldActionProps fightProps;
     fightProps.worldActionType = model::WorldActionType::START_FIGHT;
     fightButton->setProps(fightProps);
-    fightButton->addEventObserver(
-        std::make_unique<TestButtonWorldActionObserver>("fightButton"));
+    fightButton->addEventObserver(new TestButtonWorldActionObserver("fightButton"));
     elements.push_back(std::move(fightButton));
 
     // // Create SHOOT button
@@ -155,8 +147,7 @@ int main(int argc, char** argv) {
     ui::ButtonWorldActionProps shootProps;
     shootProps.worldActionType = model::WorldActionType::SHOOT;
     shootButton->setProps(shootProps);
-    shootButton->addEventObserver(
-        std::make_unique<TestButtonWorldActionObserver>("shootButton"));
+    shootButton->addEventObserver(new TestButtonWorldActionObserver("shootButton"));
     elements.push_back(std::move(shootButton));
 
     // Create INVENTORY button
@@ -171,7 +162,7 @@ int main(int argc, char** argv) {
     inventoryProps.worldActionType = model::WorldActionType::INVENTORY;
     inventoryButton->setProps(inventoryProps);
     inventoryButton->addEventObserver(
-        std::make_unique<TestButtonWorldActionObserver>("inventoryButton"));
+        new TestButtonWorldActionObserver("inventoryButton"));
     elements.push_back(std::move(inventoryButton));
 
     auto& events = window.getEvents();
@@ -213,8 +204,7 @@ int main(int argc, char** argv) {
   };
 
   setupTestUi(
-      argc, argv, TestUiParams{640, 400, "ButtonWorldAction Test"}, _init, _updateRender);
+      argc, argv, TestUiParams{640, 400, "ButtonWorldAction Test"}, _init, _updateRender, [&]() { elements.clear(); });
   LOG(INFO) << "End ButtonWorldAction test" << LOG_ENDL;
-  sdl2w::Window::unInit();
   return 0;
 }

@@ -1,7 +1,6 @@
 #include "InGameLayout.h"
-#include "lib/sdl2w/Draw.h"
 #include "ui/components/BorderInGame.h"
-#include "ui/elements/ButtonWorldAction.h"
+#include "ui/elements/buttons/ButtonWorldAction.h"
 
 namespace ui {
 

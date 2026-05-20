@@ -8,6 +8,7 @@ namespace ui {
 // PageInventory-specific properties
 struct PageInventoryProps {
   std::string characterPlayerId;
+  std::vector<std::string> itemIds;
 };
 
 // PageInventory - renders the inventory page with ModalStandard layout containing
@@ -32,4 +33,3 @@ public:
 };
 
 } // namespace ui
-

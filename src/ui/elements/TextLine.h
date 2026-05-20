@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../UiElement.h"
-#include <SDL2/SDL_pixels.h>
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <optional>
 #include <string>
 #include <vector>

@@ -1,7 +1,7 @@
 #include "ModalSmall.h"
 #include "lib/sdl2w/Draw.h"
 #include "ui/components/BorderModalSmall.h"
-#include "ui/elements/ButtonClose.h"
+#include "ui/elements/buttons/ButtonClose.h"
 
 namespace ui {
 

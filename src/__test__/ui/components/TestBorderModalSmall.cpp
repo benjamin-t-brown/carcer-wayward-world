@@ -4,12 +4,11 @@
 #include "lib/sdl2w/Window.h"
 #include "ui/UiElement.h"
 #include "ui/components/BorderModalSmall.h"
-#include <SDL2/SDL_pixels.h>
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start BorderModalSmall test" << LOG_ENDL;
-  sdl2w::Window::init();
   srand(time(NULL));
 
   std::vector<std::unique_ptr<ui::UiElement>> elements;
@@ -81,8 +80,7 @@ int main(int argc, char** argv) {
   };
 
   setupTestUi(
-      argc, argv, TestUiParams{800, 600, "BorderModalSmall Test"}, _init, _updateRender);
+      argc, argv, TestUiParams{800, 600, "BorderModalSmall Test"}, _init, _updateRender, [&]() { elements.clear(); });
   LOG(INFO) << "End BorderModalSmall test" << LOG_ENDL;
-  sdl2w::Window::unInit();
   return 0;
 }

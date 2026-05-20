@@ -4,7 +4,7 @@
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
 #include "ui/layouts/ModalSmall.h"
-#include "ui/lists/ListPickUp.h"
+#include "ui/components/lists/ListPickUp.h"
 
 namespace ui {
 
@@ -69,23 +69,15 @@ void MinipagePickUp::build() {
 
   auto scrollableSection = std::make_unique<SectionScrollable>(window, modal.get());
   scrollableSection->setId("scrollableSection");
-  BaseStyle scrollableStyle;
+  auto& scrollableStyle = scrollableSection->getStyle();
   scrollableStyle.width = contentDims.first;
   scrollableStyle.height = contentDims.second;
   scrollableStyle.scale = style.scale;
-  scrollableSection->setStyle(scrollableStyle);
 
-  SectionScrollableProps scrollableProps;
-  scrollableSection->setProps(scrollableProps);
+  scrollableSection->setProps(SectionScrollableProps{.scrollBarWidth = 40});
 
   auto listPickUp = std::make_unique<ListPickUp>(window, scrollableSection.get());
-  listPickUp->setId("listPickUp");
-  BaseStyle listStyle;
-  listStyle.x = 0;
-  listStyle.y = 4;
-  listStyle.width = contentDims.first - scrollableProps.scrollBarWidth - 8;
-  listStyle.scale = style.scale;
-  listPickUp->setStyle(listStyle);
+  listPickUp->setId("listPickUp");  
 
   ListPickUpProps listProps;
   listProps.itemNames = props.itemNames;

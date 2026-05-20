@@ -26,28 +26,25 @@ void Quad::updatePosition(int x, int y) {
 }
 
 void Quad::createRenderTexture() {
-  auto scaledWidth = static_cast<int>(style.width * style.scale);
-  auto scaledHeight = static_cast<int>(style.height * style.scale);
-
-  // Only recreate if size changed
-  if (renderTexture == nullptr || currentWidth != scaledWidth ||
-      currentHeight != scaledHeight) {
+  // Render target stays at logical size; scale is applied when blitting to screen.
+  if (renderTexture == nullptr || currentWidth != style.width ||
+      currentHeight != style.height) {
     destroyRenderTexture();
 
     auto& draw = window->getDraw();
     auto renderer = draw.getSdlRenderer();
 
-    if (scaledWidth > 0 && scaledHeight > 0) {
+    if (style.width > 0 && style.height > 0) {
       renderTexture = SDL_CreateTexture(renderer,
                                         SDL_PIXELFORMAT_RGBA8888,
                                         SDL_TEXTUREACCESS_TARGET,
-                                        scaledWidth,
-                                        scaledHeight);
+                                        style.width,
+                                        style.height);
 
       if (renderTexture) {
         SDL_SetTextureBlendMode(renderTexture, SDL_BLENDMODE_BLEND);
-        currentWidth = scaledWidth;
-        currentHeight = scaledHeight;
+        currentWidth = style.width;
+        currentHeight = style.height;
       } else {
         LOG(ERROR) << "Quad::createRenderTexture - Failed to create texture: "
                    << SDL_GetError() << LOG_ENDL;
@@ -65,21 +62,35 @@ void Quad::destroyRenderTexture() {
   }
 }
 
+namespace {
+
+// Map screen-space coords within the quad to texture-local (logical) coords.
+std::pair<int, int> toTextureCoords(int mouseX, int mouseY, const BaseStyle& style) {
+  const int localX =
+      static_cast<int>((mouseX - style.x) / style.scale);
+  const int localY =
+      static_cast<int>((mouseY - style.y) / style.scale);
+  return {localX, localY};
+}
+
+} // namespace
+
 bool Quad::checkMouseDownEvent(int mouseX, int mouseY, int button) {
   // Check if click is within bounds using utility function
   if (isInBoundsScaled(mouseX, mouseY, this)) {
     isClicked = true;
+    auto [localX, localY] = toTextureCoords(mouseX, mouseY, style);
     // Check children first (front to back)
     if (shouldPropagateEventsToChildren) {
       for (auto it = children.rbegin(); it != children.rend(); ++it) {
-        if ((*it)->checkMouseDownEvent(mouseX - style.x, mouseY - style.y, button)) {
+        if ((*it)->checkMouseDownEvent(localX, localY, button)) {
           return true;
         }
       }
     }
 
     for (auto& observer : eventObservers) {
-      observer->onMouseDown(mouseX - style.x, mouseY - style.y, button);
+      observer->onMouseDown(localX, localY, button);
     }
 
     return true;
@@ -89,11 +100,11 @@ bool Quad::checkMouseDownEvent(int mouseX, int mouseY, int button) {
 }
 
 bool Quad::checkMouseUpEvent(int mouseX, int mouseY, int button) {
-  // Check if click is within bounds using utility function
+  auto [localX, localY] = toTextureCoords(mouseX, mouseY, style);
   if (shouldPropagateEventsToChildren) {
     // Check children first (front to back)
     for (auto it = children.rbegin(); it != children.rend(); ++it) {
-      (*it)->checkMouseUpEvent(mouseX - style.x, mouseY - style.y, button);
+      (*it)->checkMouseUpEvent(localX, localY, button);
     }
   }
 
@@ -102,13 +113,13 @@ bool Quad::checkMouseUpEvent(int mouseX, int mouseY, int button) {
       // click event happens when mouse up occurs inside this element
       // after a mouse down also occurred inside this element.
       for (auto& observer : eventObservers) {
-        observer->onClick(mouseX - style.x, mouseY - style.y, button);
+        observer->onClick(localX, localY, button);
       }
     }
   }
 
   for (auto& observer : eventObservers) {
-    observer->onMouseUp(mouseX - style.x, mouseY - style.y, button);
+    observer->onMouseUp(localX, localY, button);
   }
   isClicked = false;
 
@@ -116,9 +127,10 @@ bool Quad::checkMouseUpEvent(int mouseX, int mouseY, int button) {
 }
 
 bool Quad::checkHoverEvent(int mouseX, int mouseY) {
+  auto [localX, localY] = toTextureCoords(mouseX, mouseY, style);
   if (shouldPropagateEventsToChildren) {
     for (auto& child : children) {
-      child->checkHoverEvent(mouseX - style.x, mouseY - style.y);
+      child->checkHoverEvent(localX, localY);
     }
   }
 
@@ -135,14 +147,15 @@ bool Quad::checkHoverEvent(int mouseX, int mouseY) {
 
 bool Quad::checkMouseWheelEvent(int mouseX, int mouseY, int delta) {
   if (isInBoundsScaled(mouseX, mouseY, this)) {
+    auto [localX, localY] = toTextureCoords(mouseX, mouseY, style);
     if (shouldPropagateEventsToChildren) {
       for (auto& child : children) {
-        child->checkMouseWheelEvent(mouseX - style.x, mouseY - style.y, delta);
+        child->checkMouseWheelEvent(localX, localY, delta);
       }
     }
 
     for (auto& observer : eventObservers) {
-      observer->onMouseWheel(mouseX - style.x, mouseY - style.y, delta);
+      observer->onMouseWheel(localX, localY, delta);
     }
 
     return true;
@@ -164,9 +177,10 @@ void Quad::render(int dt) {
   auto& store = window->getStore();
   auto renderer = draw.getSdlRenderer();
 
-  // Calculate scaled dimensions
-  auto scaledWidth = static_cast<int>(style.width * style.scale);
-  auto scaledHeight = static_cast<int>(style.height * style.scale);
+  const int textureWidth = style.width;
+  const int textureHeight = style.height;
+  const int scaledWidth = static_cast<int>(style.width * style.scale);
+  const int scaledHeight = static_cast<int>(style.height * style.scale);
 
   // Save current render target
   auto previousTarget = SDL_GetRenderTarget(renderer);
@@ -178,7 +192,7 @@ void Quad::render(int dt) {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
   SDL_RenderClear(renderer);
 
-  draw.drawRect(0, 0, scaledWidth, scaledHeight, props.bgColor);
+  draw.drawRect(0, 0, textureWidth, textureHeight, props.bgColor);
 
   // Render background sprite if specified
   if (!props.bgSprite.empty()) {
@@ -187,8 +201,8 @@ void Quad::render(int dt) {
     sdl2w::RenderableParamsEx params;
     params.x = 0;
     params.y = 0;
-    params.w = scaledWidth;
-    params.h = scaledHeight;
+    params.w = textureWidth;
+    params.h = textureHeight;
     params.scale = {1.0, 1.0};
     params.centered = false;
 
@@ -200,13 +214,13 @@ void Quad::render(int dt) {
 
   if (bs > 0) {
     // Top border
-    draw.drawRect(0, 0, scaledWidth, bs, props.borderColor);
+    draw.drawRect(0, 0, textureWidth, bs, props.borderColor);
     // Bottom border
-    draw.drawRect(0, scaledHeight - bs, scaledWidth, bs, props.borderColor);
+    draw.drawRect(0, textureHeight - bs, textureWidth, bs, props.borderColor);
     // Left border
-    draw.drawRect(0, 0, bs, scaledHeight, props.borderColor);
+    draw.drawRect(0, 0, bs, textureHeight, props.borderColor);
     // Right border
-    draw.drawRect(scaledWidth - bs, 0, bs, scaledHeight, props.borderColor);
+    draw.drawRect(textureWidth - bs, 0, bs, textureHeight, props.borderColor);
   }
 
   // Render children (they render relative to 0,0 on the texture)
@@ -215,7 +229,7 @@ void Quad::render(int dt) {
   // Restore previous render target
   SDL_SetRenderTarget(renderer, previousTarget);
 
-  // Now render the texture at the actual position
+  // Blit texture scaled to screen position
   SDL_Rect destRect = {style.x, style.y, scaledWidth, scaledHeight};
   SDL_RenderCopy(renderer, renderTexture, nullptr, &destRect);
 }

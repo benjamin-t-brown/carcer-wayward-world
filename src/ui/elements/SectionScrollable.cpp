@@ -1,5 +1,5 @@
 #include "SectionScrollable.h"
-#include "ButtonScroll.h"
+#include "buttons/ButtonScroll.h"
 #include "Quad.h"
 #include "lib/sdl2w/Logger.h"
 #include "ui/colors.h"

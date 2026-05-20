@@ -6,7 +6,7 @@
 #include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
 #include "ui/colors.h"
-#include <SDL2/SDL_pixels.h>
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
 #include <optional>
 #include <string>
@@ -67,7 +67,6 @@ public:
 
 // Main UiElement base class
 class UiElement : public state::StateManagerInterface,
-                  public state::DatabaseInterface,
                   public state::LayerManagerInterface {
 protected:
   sdl2w::Window* window;
@@ -104,6 +103,7 @@ public:
   virtual std::vector<std::unique_ptr<UiElement>>& getChildren();
   virtual const std::vector<std::unique_ptr<UiElement>>& getChildren() const;
   virtual void removeChildAtIndex(size_t index);
+  virtual void addChild(UiElement* child);
 
   // Event handlers
   virtual bool checkMouseDownEvent(int mouseX, int mouseY, int button);

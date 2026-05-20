@@ -20,15 +20,17 @@ LayerContextMenuInventoryItem::LayerContextMenuInventoryItem(sdl2w::Window* _win
 
   auto [windowWidth, windowHeight] = window->getDims();
 
-  ui::BaseStyle style = popupInventoryItem->getStyle();
+  auto& style = popupInventoryItem->getStyle();
   style.width = std::min(windowWidth, 400);
   style.x = (windowWidth - style.width) / 2;
   style.scale = 1.0f;
-  popupInventoryItem->setStyle(style);
 
   ui::PopupInventoryItemProps popupProps;
-  popupProps.itemName = itemName;
-  popupProps.itemId = itemId;
+  popupProps.spriteName = itemId;
+  popupProps.label = itemName;
+  popupProps.description = "";
+  popupProps.weight = 0;
+  popupProps.value = 0;
   popupInventoryItem->setProps(popupProps);
 
   style.y = windowHeight / 2 - popupInventoryItem->getDims().second / 2;

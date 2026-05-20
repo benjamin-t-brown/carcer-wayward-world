@@ -8,12 +8,11 @@
 #include "ui/elements/Quad.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/TextParagraph.h"
-#include <SDL2/SDL_pixels.h>
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start test" << LOG_ENDL;
-  sdl2w::Window::init();
   srand(time(NULL));
 
   std::vector<std::unique_ptr<ui::UiElement>> elements;
@@ -82,8 +81,7 @@ int main(int argc, char** argv) {
     return true;
   };
 
-  setupTestUi(argc, argv, TestUiParams{640, 480}, _init, _updateRender);
+  setupTestUi(argc, argv, TestUiParams{640, 480}, _init, _updateRender, [&]() { elements.clear(); });
   LOG(INFO) << "End test" << LOG_ENDL;
-  sdl2w::Window::unInit();
   return 0;
 }

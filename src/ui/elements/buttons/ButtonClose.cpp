@@ -1,6 +1,6 @@
 #include "ButtonClose.h"
-#include "Quad.h"
-#include "TextLine.h"
+#include "../Quad.h"
+#include "../TextLine.h"
 #include "ui/colors.h"
 #include "ui/elements/OutsetRectangle.h"
 #include <memory>

@@ -2,7 +2,7 @@
 
 #include "../UiElement.h"
 #include "model/WorldActions.h"
-#include <SDL2/SDL_pixels.h>
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
 #include <string>
 

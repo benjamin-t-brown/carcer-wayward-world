@@ -5,6 +5,8 @@ namespace layers {
 
 Layer::Layer(sdl2w::Window* _window) : window(_window) {}
 
+Layer::~Layer() = default;
+
 void Layer::onMouseDown(int x, int y, int button) {
   if (state != LayerState::ON) {
     return;
@@ -57,13 +59,13 @@ void Layer::onMouseHover(int x, int y) {
   }
 }
 
-void Layer::onKeyDown(const std::string& key, int keyCode) {
+void Layer::onKeyDown(std::string_view key, int keyCode) {
   if (state != LayerState::ON) {
     return;
   }
 }
 
-void Layer::onKeyUp(const std::string& key, int keyCode) {
+void Layer::onKeyUp(std::string_view key, int keyCode) {
   if (state != LayerState::ON) {
     return;
   }

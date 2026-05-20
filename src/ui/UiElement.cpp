@@ -66,8 +66,11 @@ const std::vector<std::unique_ptr<UiElement>>& UiElement::getChildren() const {
 void UiElement::removeChildAtIndex(size_t index) {
   if (index < children.size()) {
     children.erase(children.begin() + index);
-    build();
   }
+}
+
+void UiElement::addChild(UiElement* child) {
+  children.push_back(std::unique_ptr<UiElement>(child));
 }
 
 bool UiElement::checkMouseDownEvent(int mouseX, int mouseY, int button) {

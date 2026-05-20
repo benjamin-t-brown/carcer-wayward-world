@@ -2,7 +2,7 @@
 
 #include "../UiElement.h"
 #include "ui/elements/Quad.h"
-#include <SDL2/SDL_pixels.h>
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 
 namespace ui {
 
@@ -20,9 +20,6 @@ class VerticalList : public UiElement {
 private:
   VerticalListProps props;
   int selectedIndex = -1; // -1 means no selection
-
-  ui::Quad* getQuad();
-  const ui::Quad* getQuad() const;
 
 public:
   VerticalList(sdl2w::Window* _window, UiElement* _parent = nullptr);

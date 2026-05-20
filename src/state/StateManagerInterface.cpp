@@ -1,4 +1,4 @@
-#include "StateManagerInterface.h" 
+#include "StateManagerInterface.h"
 #include <stdexcept>
 
 namespace state {
@@ -9,9 +9,12 @@ void StateManagerInterface::setStateManager(state::StateManager* _stateManager) 
   stateManager = _stateManager;
 }
 
-state::StateManager* StateManagerInterface::getStateManager() {
+state::StateManager* StateManagerInterface::getStateManager(bool throwIfNotSet) {
   if (stateManager == nullptr) {
-    throw std::runtime_error("StateManager not set for StateManagerInterface.");
+    if (throwIfNotSet) {
+      throw std::runtime_error("StateManager not set for StateManagerInterface.");
+    }
+    return nullptr;
   }
   return stateManager;
 }

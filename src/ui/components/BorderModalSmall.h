@@ -7,7 +7,7 @@ namespace ui {
 struct BorderModalSmallProps {
   int headerHeight = 80;
   int iconSize = 64;
-  int borderWidth = 4;
+  int borderWidth = 2;
 };
 
 class BorderModalSmall : public UiElement {

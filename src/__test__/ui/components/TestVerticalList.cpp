@@ -2,16 +2,15 @@
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
+#include "ui/colors.h"
 #include "ui/components/VerticalList.h"
 #include "ui/elements/TextLine.h"
-#include "ui/colors.h"
-#include <SDL2/SDL_pixels.h>
 #include <memory>
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start VerticalList test" << LOG_ENDL;
-  sdl2w::Window::init();
   srand(time(NULL));
 
   std::vector<std::unique_ptr<ui::UiElement>> elements;
@@ -20,67 +19,68 @@ int main(int argc, char** argv) {
     LOG(INFO) << "VerticalList test initialized" << LOG_ENDL;
 
     auto [windowWidth, windowHeight] = window.getDims();
-    
+
     // Create VerticalList component
-    auto verticalList = std::make_unique<ui::VerticalList>(&window);
-    ui::BaseStyle style;
+    auto verticalList = new ui::VerticalList(&window);
+
+    auto& style = verticalList->getStyle();
     style.width = 400;
-    style.height = 300;
     style.x = (windowWidth - 400) / 2;
     style.y = (windowHeight - 300) / 2;
-    verticalList->setStyle(style);
 
     // Configure VerticalList properties
     ui::VerticalListProps props;
     props.lineHeight = 30;
-    props.lineSpacing = 2;
-    props.borderSize = 1;
-    props.lineBackgroundColor = ui::Colors::White;
-    props.lineBorderColor = ui::Colors::Black;
-    verticalList->setProps(props);
+    props.lineGap = 2;
+    props.bgColor = ui::Colors::White;
 
     // Add some text elements as children
     for (int i = 0; i < 8; ++i) {
-      auto textLine = std::make_unique<ui::TextLine>(&window, verticalList.get());
-      ui::BaseStyle textStyle;
+      auto quad = new ui::Quad(&window, verticalList);
+      auto& quadStyle = quad->getStyle();
+      quadStyle.width = style.width;
+      quadStyle.height = props.lineHeight;
+      quadStyle.scale = 1.;
+      quad->setProps(ui::QuadProps{
+        .bgColor = ui::Colors::LightGrey,
+      });
+
+      auto textLine = new ui::TextLine(&window, quad);
+      auto& textStyle = textLine->getStyle();
       textStyle.fontFamily = ui::FontFamily::PARAGRAPH;
       textStyle.fontSize = sdl2w::TEXT_SIZE_16;
       textStyle.fontColor = ui::Colors::Black;
-      textStyle.textAlign = ui::TextAlign::LEFT_CENTER;
-      textLine->setStyle(textStyle);
-      
+      textStyle.textAlign = ui::TextAlign::LEFT_TOP;
+
       // Set text using props
       ui::TextLineProps textProps;
       ui::TextBlock textBlock;
       textBlock.text = "List Item " + std::to_string(i + 1);
       textProps.textBlocks.push_back(textBlock);
       textLine->setProps(textProps);
-      
-      verticalList->getChildren().push_back(std::move(textLine));
+
+      quad->addChild(textLine);
+      verticalList->addListItem(quad);
     }
 
-    // Rebuild the list to position children correctly
-    verticalList->build();
+    verticalList->setProps(props);
 
-    elements.push_back(std::move(verticalList));
+    elements.push_back(std::unique_ptr<ui::UiElement>(verticalList));
 
     auto& events = window.getEvents();
-    events.setMouseEvent(
-        sdl2w::MouseEventCb::ON_MOUSE_DOWN,
-        [&](int x, int y, int button) {
-          LOG(INFO) << "Mouse down at: " << x << ", " << y << " - button: " << button
-                    << LOG_ENDL;
-          for (auto& elem : elements) {
-            elem->checkMouseDownEvent(x, y, button);
-          }
-        });
-    events.setMouseEvent(
-        sdl2w::MouseEventCb::ON_MOUSE_UP,
-        [&](int x, int y, int button) {
-          for (auto& elem : elements) {
-            elem->checkMouseUpEvent(x, y, button);
-          }
-        });
+    events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_DOWN,
+                         [&](int x, int y, int button) {
+                           LOG(INFO) << "Mouse down at: " << x << ", " << y
+                                     << " - button: " << button << LOG_ENDL;
+                           for (auto& elem : elements) {
+                             elem->checkMouseDownEvent(x, y, button);
+                           }
+                         });
+    events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_UP, [&](int x, int y, int button) {
+      for (auto& elem : elements) {
+        elem->checkMouseUpEvent(x, y, button);
+      }
+    });
   };
 
   auto _update = [&](sdl2w::Window& window, sdl2w::Store& store) {
@@ -113,8 +113,7 @@ int main(int argc, char** argv) {
   };
 
   setupTestUi(
-      argc, argv, TestUiParams{800, 600, "VerticalList Test"}, _init, _updateRender);
+      argc, argv, TestUiParams{800, 600, "VerticalList Test"}, _init, _updateRender, [&]() { elements.clear(); });
   LOG(INFO) << "End VerticalList test" << LOG_ENDL;
-  sdl2w::Window::unInit();
   return 0;
 }

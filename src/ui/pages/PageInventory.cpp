@@ -4,7 +4,7 @@
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
 #include "ui/layouts/ModalStandard.h"
-#include "ui/lists/ListInventory.h"
+#include "ui/components/lists/ListInventory.h"
 #include <memory>
 
 namespace ui {
@@ -127,7 +127,7 @@ void PageInventory::build() {
   listInventory->setStyle(listStyle);
 
   ListInventoryProps listProps;
-  listProps.character = characterPlayer;
+  // listProps.character = characterPlayer;
   listInventory->setProps(listProps);
 
   // Add ListInventory to SectionScrollable

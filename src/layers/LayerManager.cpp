@@ -1,5 +1,5 @@
 #include "LayerManager.h"
-#include "ui/UiElement.h"
+#include "lib/sdl2w/Logger.h"
 #include <algorithm>
 
 namespace layers {
@@ -8,7 +8,7 @@ LayerManager::LayerManager(sdl2w::Window* _window) : window(_window) {}
 
 LayerManager::~LayerManager() { clearLayers(); }
 
-void LayerManager::removeLayer(Layer* layer) {
+void LayerManager::removeLayer(const Layer* layer) {
   if (layer == nullptr) {
     return;
   }
@@ -127,7 +127,7 @@ void LayerManager::handleMouseWheel(int x, int y, int dir) {
     }
   }
 }
-void LayerManager::handleKeyDown(const std::string& key, int keyCode) {
+void LayerManager::handleKeyDown(std::string_view key, int keyCode) {
   // Process layers from top to bottom (reverse iteration)
   for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
     auto& layer = *it;
@@ -137,7 +137,7 @@ void LayerManager::handleKeyDown(const std::string& key, int keyCode) {
   }
 }
 
-void LayerManager::handleKeyUp(const std::string& key, int keyCode) {
+void LayerManager::handleKeyUp(std::string_view key, int keyCode) {
   // Process layers from top to bottom (reverse iteration)
   for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
     auto& layer = *it;

@@ -9,7 +9,7 @@ private:
   static state::StateManager* stateManager;
 
 protected:
-  static state::StateManager* getStateManager();
+  static state::StateManager* getStateManager(bool throwIfNotSet = false);
 
 public:
   static void setStateManager(state::StateManager* _stateManager);

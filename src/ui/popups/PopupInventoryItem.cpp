@@ -3,12 +3,12 @@
 #include "lib/sdl2w/Logger.h"
 #include "state/actions/ui/UiRemoveLayer.hpp"
 #include "ui/colors.h"
-#include "ui/elements/ButtonClose.h"
-#include "ui/elements/ButtonModal.h"
 #include "ui/elements/SectionDropShadow.h"
 #include "ui/elements/SpriteElement.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/TextParagraph.h"
+#include "ui/elements/buttons/ButtonClose.h"
+#include "ui/elements/buttons/ButtonModal.h"
 
 namespace ui {
 
@@ -52,12 +52,8 @@ const std::pair<int, int> PopupInventoryItem::getDims() const {
 void PopupInventoryItem::build() {
   children.clear();
 
-  if (props.itemName.empty()) {
-    return;
-  }
-
   // Get the item template from database using itemName
-  const auto& itemTemplate = getDatabase()->getItemTemplate(props.itemName);
+  // const auto& itemTemplate = getDatabase()->getItemTemplate(props.itemName);
 
   // Create the SectionDropShadow as the container
   auto section = std::make_unique<SectionDropShadow>(window, this);
@@ -174,7 +170,7 @@ void PopupInventoryItem::build() {
   iconStyle.height = iconSize;
   iconStyle.scale = 2;
   icon->setStyle(iconStyle);
-  icon->setSprite(itemTemplate.iconSpriteName);
+  icon->setSprite(props.spriteName);
   section->addChild(icon.release());
 
   // Add item label next to icon
@@ -192,7 +188,7 @@ void PopupInventoryItem::build() {
   label->setStyle(labelStyle);
   TextLineProps labelProps;
   TextBlock labelBlock;
-  labelBlock.text = itemTemplate.label.empty() ? itemTemplate.name : itemTemplate.label;
+  labelBlock.text = props.label;
   labelProps.textBlocks.push_back(labelBlock);
   label->setProps(labelProps);
   section->addChild(label.release());
@@ -201,7 +197,7 @@ void PopupInventoryItem::build() {
   currentY += iconSize + spacing;
 
   // Add description paragraph
-  if (!itemTemplate.description.empty()) {
+  if (!props.description.empty()) {
     auto description = std::make_unique<TextParagraph>(window, section.get());
     description->setId("description");
     BaseStyle descStyle;
@@ -216,7 +212,7 @@ void PopupInventoryItem::build() {
     description->setStyle(descStyle);
     TextParagraphProps descProps;
     TextBlock descBlock;
-    descBlock.text = itemTemplate.description;
+    descBlock.text = props.description;
     descProps.textBlocks.push_back(descBlock);
     description->setProps(descProps);
 
@@ -243,7 +239,8 @@ void PopupInventoryItem::build() {
   weightLine->setStyle(weightStyle);
   TextLineProps weightProps;
   TextBlock weightBlock;
-  weightBlock.text = TRANSLATE("Weight: ") + std::to_string(itemTemplate.weight) + " lbs";
+  weightBlock.text = TRANSLATE("Weight: ") + std::to_string(props.weight) +
+                     std::string(TRANSLATE(" lbs"));
   weightProps.textBlocks.push_back(weightBlock);
   weightLine->setProps(weightProps);
   auto weightLineHeight = weightLine->getDims().second;
@@ -266,7 +263,8 @@ void PopupInventoryItem::build() {
   valueLine->setStyle(valueStyle);
   TextLineProps valueProps;
   TextBlock valueBlock;
-  valueBlock.text = TRANSLATE("Value: ") + std::to_string(itemTemplate.value) + " gp";
+  valueBlock.text =
+      TRANSLATE("Value: ") + std::to_string(props.value) + std::string(TRANSLATE(" gp"));
   valueProps.textBlocks.push_back(valueBlock);
   valueLine->setProps(valueProps);
   auto valueLineHeight = valueLine->getDims().second;

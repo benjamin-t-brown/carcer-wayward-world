@@ -1,7 +1,7 @@
 #include "ListPickUp.h"
 #include "model/Items.h"
 #include "ui/colors.h"
-#include "ui/components/VerticalList.h"
+#include "../VerticalList.h"
 #include "ui/elements/SpriteElement.h"
 #include "ui/elements/TextLine.h"
 
@@ -42,27 +42,27 @@ void ListPickUp::build() {
   listStyle.x = style.x;
   listStyle.y = style.y;
   listStyle.width = style.width;
-  listStyle.scale = 1.0f;
+  listStyle.scale = style.scale;
   list->setStyle(listStyle);
 
   // Configure VerticalList properties
   VerticalListProps listProps;
-  listProps.lineHeight = 32; // Height for each pickup item
-  listProps.lineGap = 8;
+  listProps.lineHeight = 32 * style.scale; // Height for each pickup item
+  listProps.lineGap = 8 * style.scale;
   listProps.bgColor = Colors::White;
   list->setProps(listProps);
 
   std::vector<UiElement*> itemElementsToAdd;
 
   // Add ListPickUpItem children for each item
-  for (int i = 0; i < static_cast<int>(props.itemNames.size()); i++) {
-    const auto& itemName = props.itemNames[i];
-    const auto& itemTemplate = getDatabase()->getItemTemplate(itemName);
-    auto itemElement = new ListPickUpItem(window);
-    itemElement->setId("item" + std::to_string(i));
-    itemElement->setProps(ListPickUpItemProps{&itemTemplate, itemName});
-    itemElementsToAdd.push_back(itemElement);
-  }
+  // for (int i = 0; i < static_cast<int>(props.itemNames.size()); i++) {
+  //   const auto& itemName = props.itemNames[i];
+  //   const auto& itemTemplate = getDatabase()->getItemTemplate(itemName);
+  //   auto itemElement = new ListPickUpItem(window);
+  //   itemElement->setId("item" + std::to_string(i));
+  //   itemElement->setProps(ListPickUpItemProps{&itemTemplate, itemName});
+  //   itemElementsToAdd.push_back(itemElement);
+  // }
   list->addListItems(itemElementsToAdd);
 
   children.push_back(std::move(list));

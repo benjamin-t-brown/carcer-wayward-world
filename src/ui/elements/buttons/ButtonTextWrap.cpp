@@ -1,5 +1,5 @@
 #include "ButtonTextWrap.h"
-#include "TextParagraph.h"
+#include "../TextParagraph.h"
 #include "ui/colors.h"
 #include <memory>
 

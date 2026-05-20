@@ -11,6 +11,9 @@ Sprites,ui_action_buttons_half,32,32,16
 Pic,ui_item_icons,assets/img/ui/item_icons.png
 Sprites,ui_item_icons,64,16,16
 
+Pic,ui_status_effect_icons,assets/img/ui/status_effect_icons.png
+Sprites,ui_status_effect_icons,64,12,12
+
 # Pic,train0,assets/img/train0.png
 # Sprites,train0,16,40,33
 # Anim,train0_left,loop

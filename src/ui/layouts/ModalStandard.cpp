@@ -1,14 +1,11 @@
 #include "ModalStandard.h"
-#include "lib/sdl2w/Draw.h"
 #include "ui/components/BorderModalStandard.h"
-#include "ui/elements/ButtonClose.h"
+#include "ui/elements/buttons/ButtonClose.h"
 
 namespace ui {
 
 ModalStandard::ModalStandard(sdl2w::Window* _window, UiElement* _parent)
-    : UiElement(_window, _parent) {
-  // Layout doesn't need special initialization
-}
+    : UiElement(_window, _parent) {}
 
 void ModalStandard::setProps(const ModalStandardProps& _props) { props = _props; }
 
@@ -83,7 +80,6 @@ void ModalStandard::build() {
   ui::ButtonCloseProps modalCloseProps;
   modalCloseProps.closeType = ui::CloseType::MODAL;
   modalClose->setProps(modalCloseProps);
-  // modalClose->addEventObserver(new TestButtonObserver("modalClose"));
   children.push_back(std::move(modalClose));
 
   // TODO decoration sprite

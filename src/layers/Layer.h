@@ -4,6 +4,7 @@
 #include "state/DatabaseInterface.h"
 #include "state/StateManagerInterface.h"
 #include <memory>
+#include <string_view>
 #include <vector>
 
 namespace ui {
@@ -26,15 +27,15 @@ protected:
 
 public:
   explicit Layer(sdl2w::Window* _window);
-  virtual ~Layer() = default;
+  virtual ~Layer();
 
   // Event handlers
   virtual void onMouseDown(int x, int y, int button);
   virtual void onMouseUp(int x, int y, int button);
   virtual void onMouseHover(int x, int y);
   virtual void onMouseWheel(int x, int y, int dir);
-  virtual void onKeyDown(const std::string& key, int keyCode);
-  virtual void onKeyUp(const std::string& key, int keyCode);
+  virtual void onKeyDown(std::string_view key, int keyCode);
+  virtual void onKeyUp(std::string_view key, int keyCode);
 
   // State management
   void turnOn();

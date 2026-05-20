@@ -33,6 +33,10 @@ sdl2w::RenderTextParams TextLine::makeRenderTextParams(const TextBlock& block) c
   auto fontColor = block.fontColor.value_or(style.fontColor);
   int fontScale = 0;
   try {
+    auto stateManager = getStateManager();
+    if (!stateManager) {
+      throw std::runtime_error("StateManager not set");
+    }
     fontScale = getStateManager()->getState().settings.fontScale;
   } catch (...) {
     // Some isolated UI tests do not initialize a StateManager.
@@ -70,7 +74,8 @@ std::pair<int, int> TextLine::calculateTextDims() const {
       continue;
     }
 
-    auto [textWidth, textHeight] = draw.measureText(block.text, makeRenderTextParams(block));
+    auto [textWidth, textHeight] =
+        draw.measureText(block.text, makeRenderTextParams(block));
     totalWidth += textWidth;
     totalHeight = std::max(totalHeight, textHeight);
   }
@@ -80,8 +85,7 @@ std::pair<int, int> TextLine::calculateTextDims() const {
 
 const std::pair<int, int> TextLine::getDims() const {
   auto [width, height] = calculateTextDims();
-  return {static_cast<int>(width * style.scale),
-          static_cast<int>(height * style.scale)};
+  return {static_cast<int>(width * style.scale), static_cast<int>(height * style.scale)};
 }
 
 void TextLine::build() {
@@ -102,6 +106,7 @@ void TextLine::build() {
     auto renderTextParams = makeRenderTextParams(block);
     auto [textWidth, textHeight] =
         window->getDraw().measureText(block.text, renderTextParams);
+    textHeight += 2; // HACK: Measure text doesn't seem accurate per height, so this will need overrides...
 
     auto tlParams = std::make_unique<TextLineRenderTextParams>();
     tlParams->text = block.text;

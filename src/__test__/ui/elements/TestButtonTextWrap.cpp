@@ -5,8 +5,8 @@
 #include "lib/sdl2w/Window.h"
 #include "ui/UiElement.h"
 #include "ui/colors.h"
-#include "ui/elements/ButtonTextWrap.h"
-#include <SDL2/SDL_pixels.h>
+#include "ui/elements/buttons/ButtonTextWrap.h"
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
 
 class TestButtonTextWrapObserver : public ui::UiEventObserver {
@@ -39,7 +39,6 @@ void TestButtonTextWrapObserver::onClick(int x, int y, int button) {
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start ButtonTextWrap test" << LOG_ENDL;
-  sdl2w::Window::init();
   srand(time(NULL));
 
   std::vector<std::unique_ptr<ui::UiElement>> elements;
@@ -173,8 +172,7 @@ int main(int argc, char** argv) {
   };
 
   setupTestUi(
-      argc, argv, TestUiParams{600, 600, "ButtonTextWrap Test"}, _init, _updateRender);
+      argc, argv, TestUiParams{600, 600, "ButtonTextWrap Test"}, _init, _updateRender, [&]() { elements.clear(); });
   LOG(INFO) << "End ButtonTextWrap test" << LOG_ENDL;
-  sdl2w::Window::unInit();
   return 0;
 }

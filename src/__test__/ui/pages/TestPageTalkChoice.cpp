@@ -7,7 +7,7 @@
 #include "state/LayerManagerInterface.h"
 #include "ui/UiElement.h"
 #include "ui/pages/PageTalkChoice.h"
-#include <SDL2/SDL_pixels.h>
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
 #include <unordered_map>
 
@@ -40,7 +40,6 @@ public:
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start PageTalkChoice test" << LOG_ENDL;
-  sdl2w::Window::init();
   srand(time(NULL));
 
   std::unique_ptr<layers::LayerManager> layerManager;
@@ -107,8 +106,7 @@ int main(int argc, char** argv) {
               argv,
               TestUiParams{640, 480, "PageTalkChoice Test"},
               _init,
-              _updateRender);
+              _updateRender, [&]() { layerManager.reset(); });
   LOG(INFO) << "End PageTalkChoice test" << LOG_ENDL;
-  sdl2w::Window::unInit();
   return 0;
 }

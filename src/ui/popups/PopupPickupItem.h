@@ -5,10 +5,12 @@
 
 namespace ui {
 
-// PopupPickupItem-specific properties
 struct PopupPickupItemProps {
-  std::string itemName;
-  std::string itemId;
+  std::string spriteName;
+  std::string label;
+  std::string description;
+  int weight;
+  int value;
 };
 
 // PopupPickupItem - shows info about an item that can be picked up
@@ -33,4 +35,3 @@ public:
 };
 
 } // namespace ui
-

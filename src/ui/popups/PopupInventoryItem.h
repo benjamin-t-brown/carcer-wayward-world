@@ -7,8 +7,11 @@ namespace ui {
 
 // PopupInventoryItem-specific properties
 struct PopupInventoryItemProps {
-  std::string itemName;
-  std::string itemId;
+  std::string spriteName;
+  std::string label;
+  std::string description;
+  int weight;
+  int value;
 };
 
 // PopupInventoryItem - shows info about an item and actions that can be done from

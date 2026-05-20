@@ -4,11 +4,11 @@
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
 #include "ui/UiElement.h"
-#include "ui/elements/ButtonModal.h"
+#include "ui/elements/buttons/ButtonModal.h"
 #include "ui/elements/Quad.h"
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
-#include <SDL2/SDL_pixels.h>
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
 
 class TestButtonObserver : public ui::UiEventObserver {
@@ -41,7 +41,6 @@ void TestButtonObserver::onClick(int x, int y, int button) {
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start SectionScrollable test" << LOG_ENDL;
-  sdl2w::Window::init();
   srand(time(NULL));
 
   std::vector<std::unique_ptr<ui::UiElement>> elements;
@@ -168,8 +167,7 @@ int main(int argc, char** argv) {
   };
 
   setupTestUi(
-      argc, argv, TestUiParams{600, 500, "SectionScrollable Test"}, _init, _updateRender);
+      argc, argv, TestUiParams{600, 500, "SectionScrollable Test"}, _init, _updateRender, [&]() { elements.clear(); });
   LOG(INFO) << "End SectionScrollable test" << LOG_ENDL;
-  sdl2w::Window::unInit();
   return 0;
 }
