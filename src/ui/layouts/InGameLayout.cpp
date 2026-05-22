@@ -1,82 +1,58 @@
 #include "InGameLayout.h"
-#include "ui/components/BorderInGame.h"
+#include "ui/components/BorderInGameNarrow.h"
+#include "ui/components/BorderInGameWide.h"
+#include "ui/elements/Quad.h"
 #include "ui/elements/buttons/ButtonWorldAction.h"
 
 namespace ui {
 
-InGameLayout::InGameLayout(sdl2w::Window* _window, UiElement* _parent)
-    : UiElement(_window, _parent) {
-  // Layout doesn't need special initialization
-}
+namespace {
 
-void InGameLayout::setProps(const InGameLayoutProps& _props) {
-  props = _props;
-  children.clear();
-  build();
-}
-
-InGameLayoutProps& InGameLayout::getProps() { return props; }
-
-const InGameLayoutProps& InGameLayout::getProps() const { return props; }
-
-UiElement* InGameLayout::getChildById(const std::string& id) {
-  for (auto& child : children) {
-    if (child->getId() == id) {
-      return child.get();
-    }
+template <typename BorderT>
+void applyTitleLayout(UiElement* titleElement, BorderT* border, float layoutScale) {
+  if (!titleElement || !border) {
+    return;
   }
-  return nullptr;
+
+  auto& titleStyle = titleElement->getStyle();
+  auto [titleX, titleY] = border->getTitleLocation();
+  auto [_, titleBarHeight] = border->getTitleDims();
+  auto [__, titleHeight] = titleElement->getDims();
+  titleStyle.x = titleX + 8 * layoutScale;
+  titleStyle.y = titleY + (titleBarHeight - titleHeight) / 2;
+  titleElement->build();
 }
 
-void InGameLayout::removeChildById(const std::string& id) {
-  for (size_t i = 0; i < children.size(); i++) {
-    auto& child = children[i];
-    if (child->getId() == id) {
-      children.erase(children.begin() + i);
-      return;
-    }
-  }
-}
+void buildActionButtons(const std::pair<int, int>& actionButtonsAreaLocation,
+                        int actionButtonsQuadWidth,
+                        int actionButtonsQuadHeight,
+                        Quad* actionButtonsQuad,
+                        const InGameLayoutProps& layoutProps,
+                        float layoutScale) {
+  auto& actionButtonsStyle = actionButtonsQuad->getStyle();
+  actionButtonsStyle.x = actionButtonsAreaLocation.first;
+  actionButtonsStyle.y = actionButtonsAreaLocation.second;
+  actionButtonsStyle.width = actionButtonsQuadWidth;
+  actionButtonsStyle.height = actionButtonsQuadHeight;
+  actionButtonsStyle.scale = layoutScale;
 
-const std::pair<int, int> InGameLayout::getDims() const {
-  return {style.width, style.height};
-}
-
-void InGameLayout::build() {
-  removeChildById("border");
-
-  // Create border element
-  auto border = std::make_unique<BorderInGame>(window, this);
-  border->setId("border");
-  auto& borderStyle = border->getStyle();
-  borderStyle.x = style.x;
-  borderStyle.y = style.y;
-  borderStyle.width = style.width;
-  borderStyle.height = style.height;
-  auto borderProps = BorderInGameProps{};
-  borderProps.actionButtonsAreaHeight = 36;
-  border->setProps(borderProps);
-
-  auto actionButtonsAreaLocation = border->getActionButtonsAreaLocation();
-  auto buttonScale = 1.f;
-  auto buttonWidthScaled = static_cast<int>(32. * buttonScale);
+  auto buttonWidthScaled = static_cast<int>(ACTION_BUTTON_SIZE * layoutProps.actionButtonScale);
   auto buttonSmallIndex = 0;
   auto xAgg = 0;
-  auto xAdditionalOffset = 0; // used to offset reset of buttons off from first button
-  for (int i = 0; i < static_cast<int>(props.worldActionTypes.size()); i++) {
+  auto xAdditionalOffset = 0;
+  for (int i = 0; i < static_cast<int>(layoutProps.worldActionTypes.size()); i++) {
     if (i == 1) {
       xAdditionalOffset += buttonWidthScaled / 4;
     }
-    auto worldActionType = props.worldActionTypes[i];
-    auto button = std::make_unique<ButtonWorldAction>(window);
+    auto worldActionType = layoutProps.worldActionTypes[i];
+    auto button = new ButtonWorldAction(actionButtonsQuad->getWindow(), actionButtonsQuad);
     auto isSmall = ButtonWorldAction::checkIfWorldActionButtonIsSmall(worldActionType);
 
-    BaseStyle& buttonStyle = button->getStyle();
-    buttonStyle.x = actionButtonsAreaLocation.first + xAgg + xAdditionalOffset;
-    buttonStyle.y = actionButtonsAreaLocation.second;
-    buttonStyle.scale = buttonScale;
+    auto& buttonStyle = button->getStyle();
+    buttonStyle.x = xAgg + xAdditionalOffset;
+    buttonStyle.y = 0;
+    buttonStyle.scale = layoutProps.actionButtonScale;
 
-    // keeps the xAgg at same position for two consecutive small buttons
     xAgg += buttonWidthScaled;
     if (isSmall) {
       if (buttonSmallIndex == 0) {
@@ -90,49 +66,117 @@ void InGameLayout::build() {
 
     button->setId("worldActionButton_" + std::to_string(i));
     button->setProps(ButtonWorldActionProps{worldActionType});
-    button->build();
-
-    children.push_back(std::move(button));
+    actionButtonsQuad->addChild(button);
   }
 
-  // Insert border at the beginning
-  children.insert(children.begin(), std::move(border));
-  // TODO party area
+  actionButtonsQuad->build();
 }
+
+} // namespace
+
+InGameLayout::InGameLayout(sdl2w::Window* _window, UiElement* _parent)
+    : UiElement(_window, _parent) {}
+
+void InGameLayout::setProps(const InGameLayoutProps& _props) {
+  props = _props;
+  build();
+}
+
+InGameLayoutProps& InGameLayout::getProps() { return props; }
+
+const InGameLayoutProps& InGameLayout::getProps() const { return props; }
 
 void InGameLayout::setTitleElement(UiElement* _titleElement) {
   removeChildById("title");
-  auto borderElement = dynamic_cast<BorderInGame*>(getChildById("border"));
-  // Add new title element
-  if (_titleElement && borderElement) {
-    BaseStyle& titleStyle = _titleElement->getStyle();
-    auto titleLocation = borderElement->getTitleLocation();
-    titleStyle.x = titleLocation.first;
-    titleStyle.y = style.y + borderElement->getProps().titleHeight / 2 - titleStyle.height / 2;
-    _titleElement->setStyle(titleStyle);
-    _titleElement->setId("title");
-    children.push_back(std::unique_ptr<UiElement>(_titleElement));
+  if (!_titleElement) {
+    return;
   }
+
+  if (props.borderType == InGameBorderType::Wide) {
+    applyTitleLayout(_titleElement,
+                     dynamic_cast<BorderInGameWide*>(getChildById("border")),
+                     style.scale);
+  } else {
+    applyTitleLayout(_titleElement,
+                     dynamic_cast<BorderInGameNarrow*>(getChildById("border")),
+                     style.scale);
+  }
+
+  _titleElement->setId("title");
+  addChild(_titleElement);
 }
 
 UiElement* InGameLayout::getTitleElement() { return getChildById("title"); }
 
-void InGameLayout::setSubtitleElement(UiElement* _subtitleElement) {
-  removeChildById("subtitle");
-  auto borderElement = dynamic_cast<BorderInGame*>(getChildById("border"));
-  // Add new subtitle element
-  if (_subtitleElement && borderElement) {
-    BaseStyle& subtitleStyle = _subtitleElement->getStyle();
-    auto subtitleLocation = borderElement->getSubTitleLocation();
-    subtitleStyle.x = subtitleLocation.first;
-    subtitleStyle.y = subtitleLocation.second;
-    _subtitleElement->setStyle(subtitleStyle);
-    _subtitleElement->setId("subtitle");
-    children.push_back(std::unique_ptr<UiElement>(_subtitleElement));
+void InGameLayout::build() {
+  removeChildById("border");
+  removeChildById("actionButtons");
+
+  std::pair<int, int> actionButtonsAreaLocation;
+  int actionButtonsQuadWidth = 0;
+  int actionButtonsQuadHeight = 0;
+
+  if (props.borderType == InGameBorderType::Wide) {
+    auto wideBorder = new BorderInGameWide(window, this);
+    wideBorder->setId("border");
+    auto& borderStyle = wideBorder->getStyle();
+    borderStyle.x = style.x;
+    borderStyle.y = style.y;
+    borderStyle.width = style.width;
+    borderStyle.height = style.height;
+    borderStyle.scale = style.scale;
+    auto borderProps = BorderInGameWideProps{};
+    borderProps.actionButtonsScale = props.actionButtonScale;
+    wideBorder->setProps(borderProps);
+    actionButtonsAreaLocation = wideBorder->getActionButtonsAreaLocation();
+    actionButtonsQuadWidth = style.width - borderProps.leftBorderWidth -
+                             borderProps.partyMemberAreaWidth -
+                             2 * borderProps.outsetBorderSize;
+    actionButtonsQuadHeight = ACTION_BUTTON_SIZE * 2 * borderProps.actionButtonsScale +
+                              borderProps.outsetBorderSize * 2;
+    children.insert(children.begin(), std::unique_ptr<UiElement>(wideBorder));
+  } else {
+    auto narrowBorder = new BorderInGameNarrow(window, this);
+    narrowBorder->setId("border");
+    auto& borderStyle = narrowBorder->getStyle();
+    borderStyle.x = style.x;
+    borderStyle.y = style.y;
+    borderStyle.width = style.width;
+    borderStyle.height = style.height;
+    borderStyle.scale = style.scale;
+    auto borderProps = BorderInGameNarrowProps{};
+    borderProps.actionButtonsScale = props.actionButtonScale;
+    narrowBorder->setProps(borderProps);
+    actionButtonsAreaLocation = narrowBorder->getActionButtonsAreaLocation();
+    actionButtonsQuadWidth =
+        style.width - borderProps.sideBorderWidth * 2 - 2 * borderProps.outsetBorderSize;
+    actionButtonsQuadHeight = ACTION_BUTTON_SIZE * 2 * borderProps.actionButtonsScale +
+                              borderProps.outsetBorderSize * 2;
+    children.insert(children.begin(), std::unique_ptr<UiElement>(narrowBorder));
+  }
+
+  auto actionButtonsQuad = new Quad(window, this);
+  actionButtonsQuad->setId("actionButtons");
+  addChild(actionButtonsQuad);
+  buildActionButtons(actionButtonsAreaLocation,
+                     actionButtonsQuadWidth,
+                     actionButtonsQuadHeight,
+                     actionButtonsQuad,
+                     props,
+                     style.scale);
+
+  if (auto* titleElement = getTitleElement()) {
+    if (props.borderType == InGameBorderType::Wide) {
+      applyTitleLayout(titleElement,
+                       dynamic_cast<BorderInGameWide*>(getChildById("border")),
+                       style.scale);
+    } else {
+      applyTitleLayout(titleElement,
+                       dynamic_cast<BorderInGameNarrow*>(getChildById("border")),
+                       style.scale);
+    }
   }
 }
-
-UiElement* InGameLayout::getSubtitleElement() { return getChildById("subtitle"); }
 
 void InGameLayout::render(int dt) { UiElement::render(dt); }
 

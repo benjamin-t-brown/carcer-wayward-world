@@ -7,7 +7,10 @@ namespace ui {
 ModalStandard::ModalStandard(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {}
 
-void ModalStandard::setProps(const ModalStandardProps& _props) { props = _props; }
+void ModalStandard::setProps(const ModalStandardProps& _props) {
+  props = _props;
+  build();
+}
 
 ModalStandardProps& ModalStandard::getProps() { return props; }
 
@@ -32,10 +35,6 @@ void ModalStandard::removeChildById(const std::string& id) {
   }
 }
 
-const std::pair<int, int> ModalStandard::getDims() const {
-  return {style.width, style.height};
-}
-
 const std::pair<int, int> ModalStandard::getContentDims() {
   auto borderElement = dynamic_cast<BorderModalStandard*>(getChildById("border"));
   if (borderElement == nullptr) {
@@ -57,30 +56,32 @@ void ModalStandard::build() {
   removeChildById("closeButton");
 
   // Create border element
-  auto border = std::make_unique<BorderModalStandard>(window, this);
+  auto border = new BorderModalStandard(window, this);
   border->setId("border");
-  BaseStyle borderStyle;
+  auto& borderStyle = border->getStyle();
   borderStyle.x = style.x;
   borderStyle.y = style.y;
   borderStyle.width = style.width;
   borderStyle.height = style.height;
-  border->setStyle(borderStyle);
-
-  // Get close button location before moving border
-  auto closeLocation = border->getCloseButtonLocation();
+  borderStyle.scale = style.scale;
+  border->setProps(BorderModalSmallProps{});
 
   // Insert border at the beginning
-  children.insert(children.begin(), std::move(border));
+  addChild(border);
 
-  auto modalClose = std::make_unique<ButtonClose>(window, this);
+  // Get close button location before moving border
+  auto [closeX, closeY] = border->getCloseButtonLocation();
+
+  auto modalClose = new ButtonClose(window, this);
   modalClose->setId("closeButton");
   auto& modalCloseStyle = modalClose->getStyle();
-  modalCloseStyle.x = closeLocation.first;
-  modalCloseStyle.y = closeLocation.second;
+  modalCloseStyle.x = closeX;
+  modalCloseStyle.y = closeY;
+  modalCloseStyle.scale = style.scale;
   ui::ButtonCloseProps modalCloseProps;
   modalCloseProps.closeType = ui::CloseType::MODAL;
   modalClose->setProps(modalCloseProps);
-  children.push_back(std::move(modalClose));
+  addChild(modalClose);
 
   // TODO decoration sprite
 }
@@ -97,36 +98,14 @@ void ModalStandard::setTitleElement(UiElement* _titleElement) {
     titleStyle.y = titleY - titleHeight / 2;
     _titleElement->setId("title");
     _titleElement->build();
-    children.push_back(std::unique_ptr<UiElement>(_titleElement));
+    addChild(_titleElement);
   }
 }
 
 UiElement* ModalStandard::getTitleElement() { return getChildById("title"); }
 
-void ModalStandard::setContentElement(UiElement* _contentElement) {
-  removeChildById("content");
-  auto borderElement = dynamic_cast<BorderModalStandard*>(getChildById("border"));
-  // Add new content element
-  if (_contentElement) {
-    BaseStyle& contentStyle = _contentElement->getStyle();
-    auto contentLocation = borderElement->getContentLocation();
-    contentStyle.x = contentLocation.first;
-    contentStyle.y = contentLocation.second;
-    _contentElement->setStyle(contentStyle);
-    _contentElement->setId("content");
-    children.push_back(std::unique_ptr<UiElement>(_contentElement));
-  }
-}
-
-UiElement* ModalStandard::getContentElement() { return getChildById("content"); }
-
 UiElement* ModalStandard::getCloseButtonElement() { return getChildById("closeButton"); }
 
-void ModalStandard::render(int dt) {
-  // auto& draw = window->getDraw();
-  // draw.drawRect(style.x, style.y, style.width, style.height,
-  // props.contentBackgroundColor);
-  UiElement::render(dt);
-}
+void ModalStandard::render(int dt) { UiElement::render(dt); }
 
 } // namespace ui

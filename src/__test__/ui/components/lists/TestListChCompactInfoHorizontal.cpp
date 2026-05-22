@@ -4,32 +4,36 @@
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
 #include "ui/UiElement.h"
-#include "ui/components/lists/ListVerticalChCompactInfo.h"
+#include "ui/components/lists/ListChCompactInfoHorizontal.h"
 #include <memory>
 
 int main(int argc, char** argv) {
-  LOG(INFO) << "Start ListVerticalChCompactInfo test" << LOG_ENDL;
+  LOG(INFO) << "Start ListChCompactInfoHorizontal test" << LOG_ENDL;
   srand(time(NULL));
 
   std::vector<std::unique_ptr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
-    LOG(INFO) << "ListVerticalChCompactInfo test initialized" << LOG_ENDL;
+    LOG(INFO) << "ListChCompactInfoHorizontal test initialized" << LOG_ENDL;
 
-    auto list = new ui::ListVerticalChCompactInfo(&window);
+    auto list = new ui::ListChCompactInfoHorizontal(&window);
     auto& style = list->getStyle();
     style.width = 260;
-    style.x = 120;
-    style.y = 80;
+    style.x = 40;
+    style.y = 200;
     style.scale = 1.0f;
 
-    ui::ListVerticalChCompactInfoProps listProps;
+    ui::ListChCompactInfoHorizontalProps listProps;
+    listProps.lineGap = 2;
 
     {
       ui::ChCompactInfoProps entry;
       entry.characterSpriteName = "actors0_0";
       entry.statusEffectSpriteNames = {
           "ui_status_effect_icons_0",
+          "ui_status_effect_icons_1",
+          "ui_status_effect_icons_1",
+          "ui_status_effect_icons_1",
           "ui_status_effect_icons_1",
       };
       entry.hp = 84;
@@ -42,8 +46,6 @@ int main(int argc, char** argv) {
       entry.statusEffectSpriteNames = {
           "ui_status_effect_icons_2",
           "ui_status_effect_icons_3",
-          "ui_status_effect_icons_4",
-          "ui_status_effect_icons_1",
       };
       entry.hp = 12;
       entry.mana = 99;
@@ -60,11 +62,12 @@ int main(int argc, char** argv) {
     list->setProps(listProps);
     elements.push_back(std::unique_ptr<ui::UiElement>(list));
 
-    auto list2 = new ui::ListVerticalChCompactInfo(&window);
+    auto list2 = new ui::ListChCompactInfoHorizontal(&window);
     list2->setStyle(list->getStyle());
-    list2->getStyle().x = 370;
-    list2->getStyle().scale = 2.f;
-    list2->getStyle().fontSize = sdl2w::TEXT_SIZE_36;
+    list2->getStyle().x = 40;
+    list2->getStyle().y = 360;
+    list2->getStyle().scale = 1.25f;
+    list2->getStyle().fontSize = sdl2w::TEXT_SIZE_24;
     list2->setProps(list->getProps());
     elements.push_back(std::unique_ptr<ui::UiElement>(list2));
   };
@@ -88,9 +91,9 @@ int main(int argc, char** argv) {
 
   setupTestUi(argc,
               argv,
-              TestUiParams{800, 600, "ListVerticalChCompactInfo Test"},
+              TestUiParams{800, 600, "ListChCompactInfoHorizontal Test"},
               _init,
               _updateRender, [&]() { elements.clear(); });
-  LOG(INFO) << "End ListVerticalChCompactInfo test" << LOG_ENDL;
+  LOG(INFO) << "End ListChCompactInfoHorizontal test" << LOG_ENDL;
   return 0;
 }

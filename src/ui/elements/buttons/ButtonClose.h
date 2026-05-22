@@ -5,10 +5,7 @@
 namespace ui {
 
 // Close type enum for close buttons
-enum class CloseType {
-  MODAL,
-  POPUP
-};
+enum class CloseType { MODAL, POPUP };
 
 // ButtonClose-specific properties
 struct ButtonCloseProps {
@@ -16,8 +13,8 @@ struct ButtonCloseProps {
   int xLength = 13;
 };
 
-// ButtonClose element - renders a clickable button typically used to close a modal or popup window
-// Uses Position, Size, Scale from BaseStyle
+// ButtonClose element - renders a clickable button typically used to close a modal or
+// popup window Uses Position, Size, Scale from BaseStyle
 class ButtonClose : public UiElement {
 private:
   ButtonCloseProps props;
@@ -26,6 +23,7 @@ private:
 
 public:
   bool isActive = false;
+  constexpr static int closeButtonSize = 32;
   ButtonClose(sdl2w::Window* _window, UiElement* _parent = nullptr);
   ~ButtonClose() override = default;
 

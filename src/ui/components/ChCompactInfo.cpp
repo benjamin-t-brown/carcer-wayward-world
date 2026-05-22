@@ -90,13 +90,13 @@ void ChCompactInfo::build() {
     }
   }
 
-  const int textY = style.y + static_cast<int>(props.spriteBoxSize * style.scale);
+  const int textY = style.y + static_cast<int>(props.spriteBoxSize * style.scale) - 4;
 
   auto healthText = new TextLine(window, this);
   auto& healthStyle = healthText->getStyle();
   healthStyle.x = style.x;
   healthStyle.y = textY;
-  healthStyle.fontFamily = FontFamily::H3;
+  setBaseFontConfig(healthStyle, BaseFontConfig::MODAL_TITLE);
   healthStyle.fontSize = style.fontSize;
   healthStyle.fontColor = Colors::Red;
   healthStyle.textAlign = TextAlign::LEFT_TOP;
@@ -111,7 +111,7 @@ void ChCompactInfo::build() {
   auto& manaStyle = manaText->getStyle();
   manaStyle.x = style.x + static_cast<int>(props.spriteBoxSize * style.scale);
   manaStyle.y = textY;
-  manaStyle.fontFamily = FontFamily::H3;
+  setBaseFontConfig(manaStyle, BaseFontConfig::MODAL_TITLE);
   manaStyle.fontSize = style.fontSize;
   manaStyle.fontColor = Colors::Blue;
   manaStyle.textAlign = TextAlign::LEFT_TOP;

@@ -11,16 +11,13 @@ TextLine::TextLine(sdl2w::Window* _window, UiElement* _parent)
 std::string TextLine::getFontNameFromFamily(FontFamily fontFamily) {
   auto fontName = std::string("default");
   switch (fontFamily) {
-  case FontFamily::PARAGRAPH:
+  case FontFamily::TEXT:
     fontName = "text";
     break;
-  case FontFamily::H1:
-    fontName = "title";
+  case FontFamily::ALTERNATE:
+    fontName = "alternate";
     break;
-  case FontFamily::H2:
-    fontName = "title";
-    break;
-  case FontFamily::H3:
+  case FontFamily::TITLE:
     fontName = "title";
     break;
   }
@@ -70,13 +67,12 @@ std::pair<int, int> TextLine::calculateTextDims() const {
   int totalHeight = 0;
 
   for (const auto& block : props.textBlocks) {
-    if (block.text.empty()) {
-      continue;
-    }
-
+    const std::string& measureStr = block.text.empty() ? " " : block.text;
     auto [textWidth, textHeight] =
-        draw.measureText(block.text, makeRenderTextParams(block));
-    totalWidth += textWidth;
+        draw.measureText(measureStr, makeRenderTextParams(block));
+    if (!block.text.empty()) {
+      totalWidth += textWidth;
+    }
     totalHeight = std::max(totalHeight, textHeight);
   }
 
@@ -100,6 +96,7 @@ void TextLine::build() {
 
   for (const auto& block : props.textBlocks) {
     if (block.text.empty()) {
+      // Blank line: reserve vertical space via calculateTextDims(), nothing to draw.
       continue;
     }
 

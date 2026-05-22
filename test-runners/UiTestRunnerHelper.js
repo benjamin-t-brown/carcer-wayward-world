@@ -27,6 +27,7 @@ const TEST_FOLDER = args[0];
 const TEST_FILE_NAME = args[1];
 const TEST_EXE_NAME = 'TestUi';
 const BUILD_ONLY = args.includes('--build-only');
+const TEST_ARGS = args.slice(2).filter(arg => arg !== '--build-only');
 
 const SCRIPT_DIR = __dirname;
 const TOP_LEVEL_DIR = path.resolve(SCRIPT_DIR, '..');
@@ -79,7 +80,10 @@ try {
 if (!BUILD_ONLY) {
   console.log('run test');
   try {
-    execSync(`${SRC_DIR}/${TEST_EXE_NAME}`, { cwd: SRC_DIR, stdio: 'inherit' });
+    const runCmd = [path.join(SRC_DIR, TEST_EXE_NAME), ...TEST_ARGS]
+      .map(arg => (/\s/.test(arg) ? `"${arg}"` : arg))
+      .join(' ');
+    execSync(runCmd, { cwd: SRC_DIR, stdio: 'inherit', shell: true });
   } catch (err) {
     console.error('Test failed', err);
     process.exit(1);

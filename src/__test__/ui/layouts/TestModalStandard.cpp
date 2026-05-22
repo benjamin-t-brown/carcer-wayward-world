@@ -36,9 +36,8 @@ int main(int argc, char** argv) {
     // Create title and subtitle elements
     auto title = std::make_unique<ui::TextLine>(&window);
     ui::BaseStyle titleStyle;
-    titleStyle.fontFamily = ui::FontFamily::H1;
+    ui::setBaseFontConfig(titleStyle, ui::BaseFontConfig::MODAL_TITLE);
     titleStyle.fontSize = sdl2w::TEXT_SIZE_24;
-    titleStyle.fontColor = ui::Colors::White;
     title->setStyle(titleStyle);
     ui::TextLineProps titleProps;
     ui::TextBlock titleBlock;

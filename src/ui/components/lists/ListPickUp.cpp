@@ -115,8 +115,7 @@ void ListPickUpItem::build() {
   label->setId("label");
   BaseStyle labelStyle;
   labelStyle.x = style.x + 32 + 8;
-  labelStyle.fontFamily = FontFamily::PARAGRAPH;
-  labelStyle.fontSize = sdl2w::TEXT_SIZE_16;
+  setBaseFontConfig(labelStyle, BaseFontConfig::MODAL_TEXT);
   labelStyle.fontColor = Colors::Black;
   labelStyle.textAlign = TextAlign::LEFT_TOP;
   label->setStyle(labelStyle);
@@ -134,8 +133,7 @@ void ListPickUpItem::build() {
   auto weightText = std::make_unique<TextLine>(window, this);
   weightText->setId("weightText");
   BaseStyle weightStyle;
-  weightStyle.fontFamily = FontFamily::PARAGRAPH;
-  weightStyle.fontSize = sdl2w::TEXT_SIZE_16;
+  setBaseFontConfig(weightStyle, BaseFontConfig::MODAL_TEXT);
   weightStyle.fontColor = Colors::Black;
   weightStyle.textAlign = TextAlign::LEFT_TOP;
   // Set weight text first to get dimensions

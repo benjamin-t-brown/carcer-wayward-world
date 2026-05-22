@@ -2,31 +2,33 @@
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
-#include "ui/UiElement.h"
-#include "ui/components/BorderInGame.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/UiElement.h"
+#include "ui/components/BorderInGameWide.h"
 #include <memory>
 
 int main(int argc, char** argv) {
-  LOG(INFO) << "Start BorderInGame test" << LOG_ENDL;
+  LOG(INFO) << "Start BorderInGameWide test" << LOG_ENDL;
   srand(time(NULL));
 
   std::vector<std::unique_ptr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
-    LOG(INFO) << "BorderInGame test initialized" << LOG_ENDL;
+    LOG(INFO) << "BorderInGameWide test initialized" << LOG_ENDL;
 
+    float scale = 1.f;
     auto [windowWidth, windowHeight] = window.getDims();
-    // Create BorderInGame component
-    auto borderInGame = std::make_unique<ui::BorderInGame>(&window);
-    ui::BaseStyle style;
-    style.width = windowWidth;
-    style.height = windowHeight;
-    style.x = 0;
-    style.y = 0;
-    borderInGame->setStyle(style);
-
-    elements.push_back(std::move(borderInGame));
+    auto border = new ui::BorderInGameWide(&window);
+    border->setId("border");
+    auto& borderStyle = border->getStyle();
+    borderStyle.x = 0;
+    borderStyle.y = 0;
+    borderStyle.width = windowWidth / scale;
+    borderStyle.height = windowHeight / scale;
+    borderStyle.scale = scale;
+    auto borderProps = ui::BorderInGameWideProps{};
+    border->setProps(borderProps);
+    elements.push_back(std::unique_ptr<ui::UiElement>(border));
 
     auto& events = window.getEvents();
     events.setMouseEvent(
@@ -54,7 +56,6 @@ int main(int argc, char** argv) {
     auto mouseX = events.mouseX;
     auto mouseY = events.mouseY;
 
-    // Check hover events for all buttons
     for (auto& elem : elements) {
       if (elem) {
         elem->checkHoverEvent(mouseX, mouseY);
@@ -66,7 +67,6 @@ int main(int argc, char** argv) {
     auto& draw = window.getDraw();
     draw.clearScreen();
 
-    // Render all elements
     for (auto& element : elements) {
       element->render(window.getDeltaTime());
     }
@@ -78,8 +78,12 @@ int main(int argc, char** argv) {
     return true;
   };
 
-  setupTestUi(
-      argc, argv, TestUiParams{800, 600, "BorderInGame Test"}, _init, _updateRender, [&]() { elements.clear(); });
-  LOG(INFO) << "End BorderInGame test" << LOG_ENDL;
+  setupTestUi(argc,
+              argv,
+              TestUiParams{800, 600, "BorderInGameWide Test"},
+              _init,
+              _updateRender,
+              [&]() { elements.clear(); });
+  LOG(INFO) << "End BorderInGameWide test" << LOG_ENDL;
   return 0;
 }

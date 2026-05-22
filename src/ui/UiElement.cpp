@@ -20,13 +20,13 @@ void UiEventObserver::onMouseWheel(int x, int y, int delta) {
 UiElement::UiElement(sdl2w::Window* _window, UiElement* _parent)
     : window(_window), parent(_parent), stateInterface(std::nullopt) {}
 
-UiElement* UiElement::getEntityById(const std::string& searchId) {
+UiElement* UiElement::getChildById(const std::string& searchId) {
   if (id == searchId) {
     return this;
   }
 
   for (auto& child : children) {
-    auto found = child->getEntityById(searchId);
+    auto found = child->getChildById(searchId);
     if (found != nullptr) {
       return found;
     }
@@ -35,22 +35,23 @@ UiElement* UiElement::getEntityById(const std::string& searchId) {
   return nullptr;
 }
 
-UiElement* UiElement::getTemplateById(const std::string& searchId) {
-  // Can be overridden by specific elements for template lookup
-  return getEntityById(searchId);
+void UiElement::removeChildById(const std::string& id) {
+  children.erase(std::remove_if(children.begin(),
+                                children.end(),
+                                [id](const std::unique_ptr<UiElement>& child) {
+                                  return child->getId() == id;
+                                }),
+                 children.end());
 }
 
-void UiElement::setStyle(const BaseStyle& _style) {
-  style = _style;
-  build();
-}
+void UiElement::setStyle(const BaseStyle& _style) { style = _style; }
 
 BaseStyle& UiElement::getStyle() { return style; }
 
 const BaseStyle& UiElement::getStyle() const { return style; }
 
 const std::pair<int, int> UiElement::getDims() const {
-  return {style.width * style.scale, style.height * style.scale};
+  return {round(style.width * style.scale), round(style.height * style.scale)};
 }
 
 void UiElement::setId(const std::string& _id) { id = _id; }
@@ -73,13 +74,21 @@ void UiElement::addChild(UiElement* child) {
   children.push_back(std::unique_ptr<UiElement>(child));
 }
 
-bool UiElement::checkMouseDownEvent(int mouseX, int mouseY, int button) {
+bool UiElement::checkMouseDownEvent(int mouseX,
+                                    int mouseY,
+                                    int button,
+                                    std::vector<UiElement*> additionalElements) {
   if (isInBoundsScaled(mouseX, mouseY, this)) {
     isClicked = true;
     // Check children first (front to back)
     if (shouldPropagateEventsToChildren) {
       for (auto it = children.rbegin(); it != children.rend(); ++it) {
         if ((*it)->checkMouseDownEvent(mouseX, mouseY, button)) {
+          return true;
+        }
+      }
+      for (auto& additionalElement : additionalElements) {
+        if (additionalElement->checkMouseDownEvent(mouseX, mouseY, button)) {
           return true;
         }
       }
@@ -95,11 +104,17 @@ bool UiElement::checkMouseDownEvent(int mouseX, int mouseY, int button) {
   return false;
 }
 
-bool UiElement::checkMouseUpEvent(int mouseX, int mouseY, int button) {
+bool UiElement::checkMouseUpEvent(int mouseX,
+                                  int mouseY,
+                                  int button,
+                                  std::vector<UiElement*> additionalElements) {
   if (shouldPropagateEventsToChildren) {
     // Check children first (front to back)
     for (auto it = children.rbegin(); it != children.rend(); ++it) {
       (*it)->checkMouseUpEvent(mouseX, mouseY, button);
+    }
+    for (auto& additionalElement : additionalElements) {
+      additionalElement->checkMouseUpEvent(mouseX, mouseY, button);
     }
   }
 
@@ -122,10 +137,15 @@ bool UiElement::checkMouseUpEvent(int mouseX, int mouseY, int button) {
   return true;
 }
 
-bool UiElement::checkHoverEvent(int mouseX, int mouseY) {
+bool UiElement::checkHoverEvent(int mouseX,
+                                int mouseY,
+                                std::vector<UiElement*> additionalElements) {
   if (shouldPropagateEventsToChildren) {
     for (auto& child : children) {
       child->checkHoverEvent(mouseX, mouseY);
+    }
+    for (auto& additionalElement : additionalElements) {
+      additionalElement->checkHoverEvent(mouseX, mouseY);
     }
   }
 
@@ -140,11 +160,17 @@ bool UiElement::checkHoverEvent(int mouseX, int mouseY) {
   return false;
 }
 
-bool UiElement::checkMouseWheelEvent(int mouseX, int mouseY, int delta) {
+bool UiElement::checkMouseWheelEvent(int mouseX,
+                                     int mouseY,
+                                     int delta,
+                                     std::vector<UiElement*> additionalElements) {
   if (isInBoundsScaled(mouseX, mouseY, this)) {
     if (shouldPropagateEventsToChildren) {
       for (auto& child : children) {
         child->checkMouseWheelEvent(mouseX, mouseY, delta);
+      }
+      for (auto& additionalElement : additionalElements) {
+        additionalElement->checkMouseWheelEvent(mouseX, mouseY, delta);
       }
     }
 

@@ -65,6 +65,10 @@ int main(int argc, char** argv) {
             },
     });
 
+    auto [listWidth, listHeight] = listInventory->getDims();
+    LOG(INFO) << "ListInventory dimensions: " << listWidth << ", " << listHeight
+              << LOG_ENDL;
+
     elements.push_back(std::unique_ptr<ui::UiElement>(listInventory));
 
     auto& events = window.getEvents();

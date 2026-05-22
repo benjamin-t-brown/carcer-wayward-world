@@ -30,7 +30,7 @@ class ChCompactInfo : public UiElement {
 private:
   ChCompactInfoProps props;
 
-  int fontHeight = 30;
+  int fontHeight = 20;
 
 public:
   ChCompactInfo(sdl2w::Window* _window, UiElement* _parent = nullptr);

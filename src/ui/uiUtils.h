@@ -64,8 +64,8 @@ inline bool isInBoundsScaled(int x, int y, const UiElement* element) {
 
   const auto& style = element->getStyle();
   auto dims = element->getDims();
-  int scaledWidth = static_cast<int>(dims.first * style.scale);
-  int scaledHeight = static_cast<int>(dims.second * style.scale);
+  int scaledWidth = static_cast<int>(dims.first);
+  int scaledHeight = static_cast<int>(dims.second);
 
   return isInBounds(x, y, style.x, style.y, scaledWidth, scaledHeight);
 }

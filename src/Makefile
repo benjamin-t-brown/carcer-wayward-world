@@ -38,9 +38,11 @@ ui/elements/buttons/ButtonWorldAction.cpp \
 ui/elements/OutsetRectangle.cpp \
 ui/components/BorderModalStandard.cpp \
 ui/components/BorderModalSmall.cpp \
-ui/components/BorderInGame.cpp \
+ui/components/BorderInGameWide.cpp \
+ui/components/BorderInGameNarrow.cpp \
 ui/components/ChCompactInfo.cpp \
 ui/components/VerticalList.cpp \
+ui/components/HorizontalList.cpp \
 ui/layouts/InGameLayout.cpp \
 ui/layouts/ModalStandard.cpp \
 ui/layouts/ModalSmall.cpp \
@@ -48,7 +50,8 @@ ui/minipages/MinipageCharacterSheet.cpp \
 ui/minipages/MinipageEvent.cpp \
 ui/components/lists/ListInventory.cpp \
 ui/components/lists/ListPickUp.cpp \
-ui/components/lists/ListVerticalChCompactInfo.cpp \
+ui/components/lists/ListChCompactInfoVertical.cpp \
+ui/components/lists/ListChCompactInfoHorizontal.cpp \
 ui/popups/PopupInventoryItem.cpp \
  ui/pages/PageCharacter.cpp \
 ui/pages/PageInventory.cpp \
@@ -117,13 +120,14 @@ EMCC_EXPORTED=\
 DEBUG = true
 LIBS += -Llib/sdl2w -lsdl2w 
 INCLUDES += -I.
+CPP_STANDARD = -std=c++23
 ifeq ($(TARGET),wasm)
-    FLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -std=c++17 -Oz
+    FLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -Oz
     LIBS += $(EMCC_LIBS) $(EMCC_EXPORTED) --preload-file assets
     EXE_SUFFIX = .js
     CXX = em++
 else
-    FLAGS = -O0 -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -std=c++17 -fno-omit-frame-pointer
+    FLAGS = -O0 -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -fno-omit-frame-pointer
     ifndef CXX
         CXX = g++
     endif

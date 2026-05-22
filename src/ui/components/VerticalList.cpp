@@ -57,9 +57,9 @@ void VerticalList::build() {
 }
 
 void VerticalList::render(int dt) {
-  auto& draw = window->getDraw();
-  auto [scaledWidth, scaledHeight] = getDims();
-  draw.drawRect(style.x, style.y, scaledWidth, scaledHeight, props.bgColor);
+  // auto& draw = window->getDraw();
+  // auto [scaledWidth, scaledHeight] = getDims();
+  // draw.drawRect(style.x, style.y, scaledWidth, scaledHeight, props.bgColor);
 
   // Render children
   UiElement::render(dt);

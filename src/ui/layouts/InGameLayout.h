@@ -3,14 +3,17 @@
 #include "../UiElement.h"
 #include "model/WorldActions.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
-#include <memory>
-#include <string>
+#include <vector>
 
 namespace ui {
+
+enum class InGameBorderType { Wide, Narrow };
 
 // InGameLayout layout properties
 struct InGameLayoutProps {
   std::vector<model::WorldActionType> worldActionTypes;
+  float actionButtonScale = 1.f;
+  InGameBorderType borderType = InGameBorderType::Wide;
 };
 
 // InGameLayout layout - renders an in-game layout with background, border, title,
@@ -23,21 +26,12 @@ public:
   InGameLayout(sdl2w::Window* _window, UiElement* _parent = nullptr);
   ~InGameLayout() override = default;
 
-  // Setters and getters for layout-specific properties
   void setProps(const InGameLayoutProps& _props);
   InGameLayoutProps& getProps();
   const InGameLayoutProps& getProps() const;
 
-  // Helper methods for child management
-  UiElement* getChildById(const std::string& id);
-  void removeChildById(const std::string& id);
-
   void setTitleElement(UiElement* _titleElement);
   UiElement* getTitleElement();
-  void setSubtitleElement(UiElement* _subtitleElement);
-  UiElement* getSubtitleElement();
-
-  const std::pair<int, int> getDims() const override;
 
   void build() override;
   void render(int dt) override;

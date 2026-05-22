@@ -46,9 +46,7 @@ void PageCharacter::build() {
 
   auto title = std::make_unique<TextLine>(window, modal.get());
   BaseStyle titleStyle;
-  titleStyle.fontFamily = FontFamily::H2;
-  titleStyle.fontSize = sdl2w::TEXT_SIZE_20;
-  titleStyle.fontColor = Colors::White;
+  setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
   titleStyle.textAlign = TextAlign::LEFT_TOP;
   title->setStyle(titleStyle);
 
@@ -73,9 +71,7 @@ void PageCharacter::build() {
   BaseStyle bodyStyle;
   bodyStyle.x = 0;
   bodyStyle.y = 4;
-  bodyStyle.fontFamily = FontFamily::PARAGRAPH;
-  bodyStyle.fontSize = sdl2w::TEXT_SIZE_16;
-  bodyStyle.fontColor = Colors::White;
+  setBaseFontConfig(bodyStyle, BaseFontConfig::MODAL_TEXT);
   bodyStyle.textAlign = TextAlign::LEFT_TOP;
   bodyStyle.scale = style.scale;
   bodyText->setStyle(bodyStyle);
@@ -87,7 +83,7 @@ void PageCharacter::build() {
   bodyText->setProps(bodyProps);
   scrollableSection->addChild(bodyText.release());
 
-  modal->setContentElement(scrollableSection.release());
+  // modal->setContentElement(scrollableSection.release());
   children.push_back(std::move(modal));
 }
 

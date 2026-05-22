@@ -47,8 +47,7 @@ int main(int argc, char** argv) {
 
       auto textLine = new ui::TextLine(&window, quad);
       auto& textStyle = textLine->getStyle();
-      textStyle.fontFamily = ui::FontFamily::PARAGRAPH;
-      textStyle.fontSize = sdl2w::TEXT_SIZE_16;
+      ui::setBaseFontConfig(textStyle, ui::BaseFontConfig::MODAL_TEXT);
       textStyle.fontColor = ui::Colors::Black;
       textStyle.textAlign = ui::TextAlign::LEFT_TOP;
 

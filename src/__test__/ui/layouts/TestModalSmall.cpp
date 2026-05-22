@@ -2,10 +2,10 @@
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/elements/TextLine.h"
 #include "ui/layouts/ModalSmall.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
 
 int main(int argc, char** argv) {
@@ -20,24 +20,23 @@ int main(int argc, char** argv) {
     auto [windowWidth, windowHeight] = window.getDims();
 
     // Create ModalSmall layout
-    auto modalLayout = std::make_unique<ui::ModalSmall>(&window);
-    ui::BaseStyle layoutStyle;
-    layoutStyle.width = 500;
-    layoutStyle.height = windowHeight - 50;
-    layoutStyle.x = (windowWidth - layoutStyle.width) / 2;
-    layoutStyle.y = (windowHeight - layoutStyle.height) / 2;
-    modalLayout->setStyle(layoutStyle);
+    auto modalSmall = new ui::ModalSmall(&window);
+    auto& modalSmallStyle = modalSmall->getStyle();
+    modalSmallStyle.width = 500;
+    modalSmallStyle.height = windowHeight - 50;
+    modalSmallStyle.x = (windowWidth - modalSmallStyle.width) / 2;
+    modalSmallStyle.y = (windowHeight - modalSmallStyle.height) / 2;
 
     // Set layout properties
     ui::ModalSmallProps props;
     props.backgroundColor = ui::Colors::ModalStandardBackground;
     props.iconSprite = "";
-    modalLayout->setProps(props);
+    modalSmall->setProps(props);
 
     // Create title
-    auto title = std::make_unique<ui::TextLine>(&window);
+    auto title = new ui::TextLine(&window, modalSmall);
     ui::BaseStyle titleStyle;
-    titleStyle.fontFamily = ui::FontFamily::H1;
+    ui::setBaseFontConfig(titleStyle, ui::BaseFontConfig::MODAL_TITLE);
     titleStyle.fontSize = sdl2w::TEXT_SIZE_24;
     titleStyle.fontColor = ui::Colors::Black;
     title->setStyle(titleStyle);
@@ -46,11 +45,11 @@ int main(int argc, char** argv) {
     titleBlock.text = "Small Modal Title";
     titleProps.textBlocks.push_back(titleBlock);
     title->setProps(titleProps);
-    modalLayout->setTitleElement(title.release());
+    modalSmall->setTitleElement(title);
 
     // auto subtitle = std::make_unique<ui::TextLine>(&window);
     // ui::BaseStyle subtitleStyle;
-    // subtitleStyle.fontFamily = ui::FontFamily::PARAGRAPH;
+    // subtitleStyle.fontFamily = ui::FontFamily::TEXT;
     // subtitleStyle.fontSize = sdl2w::TEXT_SIZE_16;
     // subtitleStyle.fontColor = ui::Colors::White;
     // subtitle->setStyle(subtitleStyle);
@@ -61,7 +60,7 @@ int main(int argc, char** argv) {
     // subtitle->setProps(subtitleProps);
     // modalLayout->setSubtitleElement(subtitle.release());
 
-    elements.push_back(std::move(modalLayout));
+    elements.push_back(std::unique_ptr<ui::UiElement>(modalSmall));
 
     auto& events = window.getEvents();
     events.setMouseEvent(
@@ -114,7 +113,9 @@ int main(int argc, char** argv) {
   };
 
   setupTestUi(
-      argc, argv, TestUiParams{800, 600, "ModalSmall Test"}, _init, _updateRender, [&]() { elements.clear(); });
+      argc, argv, TestUiParams{800, 600, "ModalSmall Test"}, _init, _updateRender, [&]() {
+        elements.clear();
+      });
   LOG(INFO) << "End ModalSmall test" << LOG_ENDL;
   return 0;
 }

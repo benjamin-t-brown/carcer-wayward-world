@@ -1,14 +1,21 @@
 #pragma once
 
-#include "model/SpecialEvents.h"
 #include "ui/UiElement.h"
+#include "ui/elements/TextLine.h"
 
 namespace ui {
 
+struct PageTalkChoiceItem {
+  std::string nextId;
+  std::string text;
+  std::string prefixText;
+};
 struct PageTalkChoiceProps {
-  model::GameEvent gameEvent;
-  std::string portraitName;
+  std::string title;
+  std::string portraitSpriteName;
   int choiceAreaHeight = 100;
+  std::vector<PageTalkChoiceItem> choices;
+  std::vector<TextBlock> textBlocks;
 };
 
 class PageTalkChoice : public UiElement {

@@ -1,0 +1,61 @@
+#include "HorizontalList.h"
+
+namespace ui {
+
+HorizontalList::HorizontalList(sdl2w::Window* _window, UiElement* _parent)
+    : UiElement(_window, _parent) {
+  build();
+}
+
+void HorizontalList::setProps(const HorizontalListProps& _props) {
+  props = _props;
+  build();
+}
+
+HorizontalListProps& HorizontalList::getProps() { return props; }
+
+const HorizontalListProps& HorizontalList::getProps() const { return props; }
+
+void HorizontalList::setSelectedIndex(int index) {
+  if (index >= -1 && index < static_cast<int>(children.size())) {
+    selectedIndex = index;
+  }
+}
+
+int HorizontalList::getSelectedIndex() const { return selectedIndex; }
+
+void HorizontalList::clearSelection() { selectedIndex = -1; }
+
+void HorizontalList::addListItem(UiElement* item) { addChild(item); }
+
+void HorizontalList::addListItems(const std::vector<UiElement*>& items) {
+  for (auto* item : items) {
+    addListItem(item);
+  }
+}
+
+void HorizontalList::removeListItemAtIndex(size_t index) {
+  if (index < children.size()) {
+    children.erase(children.begin() + index);
+  }
+}
+
+const std::pair<int, int> HorizontalList::getDims() const {
+  auto w = (props.lineWidth + props.lineGap) * static_cast<int>(children.size());
+  auto h = style.height;
+  return {static_cast<int>(w * style.scale), static_cast<int>(h * style.scale)};
+}
+
+void HorizontalList::build() {
+  for (size_t i = 0; i < children.size(); i++) {
+    auto& child = children[i];
+    auto& s = child->getStyle();
+    s.x = style.x + (props.lineWidth + props.lineGap) * static_cast<int>(i);
+    s.y = style.y;
+    child->build();
+  }
+}
+
+void HorizontalList::render(int dt) { UiElement::render(dt); }
+
+} // namespace ui

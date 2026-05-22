@@ -2,18 +2,17 @@
 
 #include "lib/sdl2w/Defines.h"
 #include "lib/sdl2w/Window.h"
-#include "state/DatabaseInterface.h"
 #include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
-#include "ui/colors.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/colors.h"
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
 
 // prevents circular dependency
-#include "state/AbstractAction.h"
+#include "state/AbstractAction.h" // IWYU pragma: keep
 
 namespace ui {
 
@@ -28,7 +27,7 @@ public:
 };
 
 // Enums for styling
-enum class FontFamily { PARAGRAPH, H1, H2, H3 };
+enum class FontFamily { TEXT, ALTERNATE, TITLE };
 
 enum class TextAlign { LEFT_TOP, LEFT_CENTER, LEFT_BOTTOM, CENTER };
 
@@ -46,7 +45,7 @@ struct BaseStyle {
   float scale = 1.0f;
 
   // Text params
-  FontFamily fontFamily = FontFamily::PARAGRAPH;
+  FontFamily fontFamily = FontFamily::TEXT;
   sdl2w::TextSize fontSize = sdl2w::TEXT_SIZE_16;
   SDL_Color fontColor = Colors::Black;
   TextAlign textAlign = TextAlign::LEFT_TOP;
@@ -55,6 +54,38 @@ struct BaseStyle {
   int lineSpacing = 0;
   SDL_Color lineBackgroundColor = SDL_Color{255, 255, 255, 0};
 };
+
+enum class BaseFontConfig {
+  MODAL_TEXT,
+  MODAL_TITLE,
+  MODAL_CHOICE_TEXT,
+  MODAL_BUTTON,
+};
+
+inline void setBaseFontConfig(BaseStyle& style, BaseFontConfig config) {
+  switch (config) {
+  case BaseFontConfig::MODAL_TEXT:
+    style.fontFamily = FontFamily::TEXT;
+    style.fontSize = sdl2w::TEXT_SIZE_16;
+    style.fontColor = Colors::White;
+    break;
+  case BaseFontConfig::MODAL_TITLE:
+    style.fontFamily = FontFamily::TITLE;
+    style.fontSize = sdl2w::TEXT_SIZE_20;
+    style.fontColor = Colors::White;
+    break;
+  case BaseFontConfig::MODAL_CHOICE_TEXT:
+    style.fontFamily = FontFamily::TEXT;
+    style.fontSize = sdl2w::TEXT_SIZE_24;
+    style.fontColor = Colors::Black;
+    break;
+  case BaseFontConfig::MODAL_BUTTON:
+    style.fontFamily = FontFamily::TITLE;
+    style.fontSize = sdl2w::TEXT_SIZE_20;
+    style.fontColor = Colors::White;
+    break;
+  }
+}
 
 class UiEventObserver {
 public:
@@ -85,9 +116,8 @@ public:
   UiElement(sdl2w::Window* _window, UiElement* _parent = nullptr);
   virtual ~UiElement() = default;
 
-  // Entity and template getters
-  virtual UiElement* getEntityById(const std::string& id);
-  virtual UiElement* getTemplateById(const std::string& id);
+  virtual UiElement* getChildById(const std::string& id);
+  virtual void removeChildById(const std::string& id);
 
   // Style methods
   virtual void setStyle(const BaseStyle& _style);
@@ -106,10 +136,21 @@ public:
   virtual void addChild(UiElement* child);
 
   // Event handlers
-  virtual bool checkMouseDownEvent(int mouseX, int mouseY, int button);
-  virtual bool checkMouseUpEvent(int mouseX, int mouseY, int button);
-  virtual bool checkHoverEvent(int mouseX, int mouseY);
-  virtual bool checkMouseWheelEvent(int mouseX, int mouseY, int delta);
+  virtual bool checkMouseDownEvent(int mouseX,
+                                   int mouseY,
+                                   int button,
+                                   std::vector<UiElement*> additionalElements = {});
+  virtual bool checkMouseUpEvent(int mouseX,
+                                 int mouseY,
+                                 int button,
+                                 std::vector<UiElement*> additionalElements = {});
+  virtual bool checkHoverEvent(int mouseX,
+                               int mouseY,
+                               std::vector<UiElement*> additionalElements = {});
+  virtual bool checkMouseWheelEvent(int mouseX,
+                                    int mouseY,
+                                    int delta,
+                                    std::vector<UiElement*> additionalElements = {});
   virtual void checkResizeEvent(int width, int height);
   virtual void addEventObserver(UiEventObserver* observer);
   virtual void removeEventObserver(UiEventObserver* observer);

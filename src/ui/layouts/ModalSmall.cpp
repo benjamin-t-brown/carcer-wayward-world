@@ -10,7 +10,10 @@ ModalSmall::ModalSmall(sdl2w::Window* _window, UiElement* _parent)
   // Layout doesn't need special initialization
 }
 
-void ModalSmall::setProps(const ModalSmallProps& _props) { props = _props; }
+void ModalSmall::setProps(const ModalSmallProps& _props) {
+  props = _props;
+  build();
+}
 
 ModalSmallProps& ModalSmall::getProps() { return props; }
 
@@ -35,30 +38,24 @@ void ModalSmall::removeChildById(const std::string& id) {
   }
 }
 
-const std::pair<int, int> ModalSmall::getDims() const {
-  return {style.width, style.height};
-}
-
 void ModalSmall::build() {
   removeChildById("border");
   removeChildById("closeButton");
 
   // Create border element
-  auto border = std::make_unique<BorderModalSmall>(window, this);
+  auto border = new BorderModalSmall(window, this);
   border->setId("border");
   auto& borderStyle = border->getStyle();
   borderStyle.x = style.x;
   borderStyle.y = style.y;
   borderStyle.width = style.width;
   borderStyle.height = style.height;
+  addChild(border);
 
   // Get close button location before moving border
   auto closeLocation = border->getCloseButtonLocation();
 
-  // Insert border at the beginning
-  children.insert(children.begin(), std::move(border));
-
-  auto modalClose = std::make_unique<ButtonClose>(window, this);
+  auto modalClose = new ButtonClose(window, this);
   modalClose->setId("closeButton");
   ui::BaseStyle modalCloseStyle;
   modalCloseStyle.x = closeLocation.first;
@@ -69,7 +66,7 @@ void ModalSmall::build() {
   ui::ButtonCloseProps modalCloseProps;
   modalCloseProps.closeType = ui::CloseType::MODAL;
   modalClose->setProps(modalCloseProps);
-  children.push_back(std::move(modalClose));
+  addChild(modalClose);
 
   // TODO decoration sprite
 }
@@ -86,7 +83,7 @@ void ModalSmall::setTitleElement(UiElement* _titleElement) {
     titleStyle.y = titleY - titleHeight / 2;
     _titleElement->setId("title");
     _titleElement->build();
-    children.push_back(std::unique_ptr<UiElement>(_titleElement));
+    addChild(_titleElement);
   }
 }
 

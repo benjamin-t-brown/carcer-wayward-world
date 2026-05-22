@@ -28,16 +28,15 @@ public:
   const ModalStandardProps& getProps() const;
 
   // Helper methods for child management
-  UiElement* getChildById(const std::string& id);
+  UiElement* getChildById(const std::string& id) override;
   void removeChildById(const std::string& id);
 
   void setTitleElement(UiElement* _titleElement);
   UiElement* getTitleElement();
-  void setContentElement(UiElement* _contentElement);
-  UiElement* getContentElement();
+  // void setContentElement(UiElement* _contentElement);
+  // UiElement* getContentElement();
   UiElement* getCloseButtonElement();
 
-  const std::pair<int, int> getDims() const override;
   const std::pair<int, int> getContentDims();
   const std::pair<int, int> getContentLoc();
 

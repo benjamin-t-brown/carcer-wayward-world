@@ -253,9 +253,19 @@ HeaderModalSmall
     - subTitleElement
   * Styles
     - Position, Size, Scale
-BorderInGame
-  * Description: Shows the in game border.
+BorderInGameWide
+  * Description: Shows the wide in game border with a party member area on the right.
   * Props
+    - titleHeight, subtitleHeight, partyMemberAreaWidth, leftBorderWidth,
+      outsetBorderSize, actionButtonsAreaHeight
+  * Styles
+    - Position, Size, Scale
+BorderInGameNarrow
+  * Description: Shows the narrow in game border with symmetric side borders and a
+    secondary top border below the title.
+  * Props
+    - titleHeight, subtitleHeight, secondaryTopBorderHeight, leftBorderWidth,
+      outsetBorderSize, actionButtonsAreaHeight
   * Styles
     - Position, Size, Scale
 BorderModalStandard

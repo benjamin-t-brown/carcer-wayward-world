@@ -25,8 +25,8 @@ ButtonClose::ButtonClose(sdl2w::Window* _window, UiElement* _parent)
   shouldPropagateEventsToChildren = false;
 
   // Set default size to 32x32px
-  style.width = 32;
-  style.height = 32;
+  style.width = closeButtonSize;
+  style.height = closeButtonSize;
 }
 
 void ButtonClose::setProps(const ButtonCloseProps& _props) {

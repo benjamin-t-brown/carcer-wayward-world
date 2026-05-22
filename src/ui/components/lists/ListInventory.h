@@ -1,6 +1,5 @@
 #pragma once
 
-#include "model/Items.h"
 #include "ui/UiElement.h"
 
 namespace ui {

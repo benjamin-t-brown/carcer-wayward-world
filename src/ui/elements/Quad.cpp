@@ -66,16 +66,17 @@ namespace {
 
 // Map screen-space coords within the quad to texture-local (logical) coords.
 std::pair<int, int> toTextureCoords(int mouseX, int mouseY, const BaseStyle& style) {
-  const int localX =
-      static_cast<int>((mouseX - style.x) / style.scale);
-  const int localY =
-      static_cast<int>((mouseY - style.y) / style.scale);
+  const int localX = static_cast<int>((mouseX - style.x) / style.scale);
+  const int localY = static_cast<int>((mouseY - style.y) / style.scale);
   return {localX, localY};
 }
 
 } // namespace
 
-bool Quad::checkMouseDownEvent(int mouseX, int mouseY, int button) {
+bool Quad::checkMouseDownEvent(int mouseX,
+                               int mouseY,
+                               int button,
+                               std::vector<UiElement*> additionalElements) {
   // Check if click is within bounds using utility function
   if (isInBoundsScaled(mouseX, mouseY, this)) {
     isClicked = true;
@@ -99,7 +100,10 @@ bool Quad::checkMouseDownEvent(int mouseX, int mouseY, int button) {
   return false;
 }
 
-bool Quad::checkMouseUpEvent(int mouseX, int mouseY, int button) {
+bool Quad::checkMouseUpEvent(int mouseX,
+                             int mouseY,
+                             int button,
+                             std::vector<UiElement*> additionalElements) {
   auto [localX, localY] = toTextureCoords(mouseX, mouseY, style);
   if (shouldPropagateEventsToChildren) {
     // Check children first (front to back)
@@ -126,7 +130,9 @@ bool Quad::checkMouseUpEvent(int mouseX, int mouseY, int button) {
   return true;
 }
 
-bool Quad::checkHoverEvent(int mouseX, int mouseY) {
+bool Quad::checkHoverEvent(int mouseX,
+                           int mouseY,
+                           std::vector<UiElement*> additionalElements) {
   auto [localX, localY] = toTextureCoords(mouseX, mouseY, style);
   if (shouldPropagateEventsToChildren) {
     for (auto& child : children) {
@@ -145,7 +151,10 @@ bool Quad::checkHoverEvent(int mouseX, int mouseY) {
   return false;
 }
 
-bool Quad::checkMouseWheelEvent(int mouseX, int mouseY, int delta) {
+bool Quad::checkMouseWheelEvent(int mouseX,
+                                int mouseY,
+                                int delta,
+                                std::vector<UiElement*> additionalElements) {
   if (isInBoundsScaled(mouseX, mouseY, this)) {
     auto [localX, localY] = toTextureCoords(mouseX, mouseY, style);
     if (shouldPropagateEventsToChildren) {

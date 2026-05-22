@@ -15,9 +15,9 @@ public:
   Database();
   ~Database() = default;
 
-  const model::ItemTemplate& getItemTemplate(const std::string& itemName) const;
+  const model::ItemTemplate& getItemTemplate(std::string_view itemName) const;
   void addItemTemplate(const model::ItemTemplate& itemTemplate);
-  const model::GameEvent& getGameEvent(const std::string& eventId) const;
+  const model::GameEvent& getGameEvent(std::string_view eventId) const;
   void addGameEvent(const model::GameEvent& gameEvent);
   void load();
 };

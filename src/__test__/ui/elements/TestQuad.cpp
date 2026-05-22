@@ -1,15 +1,24 @@
-#include "lib/sdl2w/Defines.h"
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
 
 #include "../../setupTestUi.h"
-#include "ui/UiElement.h"
-#include "ui/elements/Quad.h"
-#include "ui/elements/TextLine.h"
-#include "ui/elements/TextParagraph.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/UiElement.h"
+#include "ui/colors.h"
+#include "ui/elements/Quad.h"
 #include <memory>
+
+ui::Quad* createBasicQuad(sdl2w::Window* window, int w, int h) {
+  auto q = new ui::Quad(window);
+  ui::BaseStyle quadStyle;
+  quadStyle.x = 0;
+  quadStyle.y = 0;
+  quadStyle.width = w;
+  quadStyle.height = h;
+  q->setStyle(quadStyle);
+  return q;
+}
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start test" << LOG_ENDL;
@@ -18,58 +27,133 @@ int main(int argc, char** argv) {
   std::vector<std::unique_ptr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
-    LOG(INFO) << "STUFF INITTED" << LOG_ENDL;
-    auto q = std::make_unique<ui::Quad>(&window);
-    ui::BaseStyle quadStyle;
-    quadStyle.x = 10;
-    quadStyle.y = 10;
-    quadStyle.width = 200;
-    quadStyle.height = 200;
-    q->setStyle(quadStyle);
-    ui::QuadProps quadProps;
-    quadProps.bgColor = SDL_Color{100, 100, 100, 255};
-    quadProps.borderColor = SDL_Color{255, 0, 0, 255};
-    quadProps.borderSize = 4;
-    q->setProps(quadProps);
-
     {
-      auto text = std::make_unique<ui::TextLine>(&window, q.get());
-      ui::BaseStyle textStyle;
-      textStyle.x = 10;
-      textStyle.y = 0;
-      textStyle.fontSize = sdl2w::TEXT_SIZE_24;
-      textStyle.fontFamily = ui::FontFamily::PARAGRAPH;
-      text->setStyle(textStyle);
-      ui::TextLineProps textProps;
-      textProps.textBlocks.push_back({"Hello "});
-      textProps.textBlocks.push_back({.text = "World",
-                                      .fontSize = sdl2w::TEXT_SIZE_20,
-                                      .fontColor = SDL_Color{0, 0, 255}});
-      text->setProps(textProps);
-      q->getChildren().push_back(std::move(text));
+      auto q = createBasicQuad(&window, 40, 40);
+      q->getStyle().x = 10;
+      q->getStyle().y = 10;
+      q->setProps({
+          .bgColor = ui::Colors::DarkGrey,
+          .bgSprite = "actors0_0",
+      });
+      elements.push_back(std::unique_ptr<ui::UiElement>(q));
     }
 
     {
-      auto paragraph = std::make_unique<ui::TextParagraph>(&window);
-
-      ui::BaseStyle style;
-      style.x = 0;
-      style.y = 40;
-      style.width = quadStyle.width;
-      style.height = quadStyle.height;
-      style.fontSize = sdl2w::TEXT_SIZE_16;
-      style.fontColor = SDL_Color{255, 255, 255, 255};
-      paragraph->setStyle(style);
-      ui::TextParagraphProps props;
-      props.textBlocks.push_back({"Hello. "});
-      // props.textBlocks.push_back({"\nNew line with different style!",
-      //                             ui::FontFamily::H1,
-      //                             sdl2w::TEXT_SIZE_20,
-      //                             SDL_Color{255, 0, 0, 255}});
-      q->getChildren().push_back(std::move(paragraph));
+      auto q = createBasicQuad(&window, 40, 40);
+      q->getStyle().x = 52;
+      q->getStyle().y = 10;
+      q->getStyle().scale = 2.0f;
+      q->setProps({
+          .bgColor = ui::Colors::DarkGrey,
+          .bgSprite = "actors0_0",
+      });
+      elements.push_back(std::unique_ptr<ui::UiElement>(q));
     }
 
-    elements.push_back(std::move(q));
+    {
+      auto q = createBasicQuad(&window, 40, 40);
+      q->getStyle().x = 52 + 40 * 2;
+      q->getStyle().y = 10;
+      q->getStyle().scale = 4.0f;
+      q->setProps({
+          .bgColor = ui::Colors::DarkGrey,
+          .bgSprite = "actors0_0",
+      });
+      elements.push_back(std::unique_ptr<ui::UiElement>(q));
+    }
+
+    // check text and border ----
+
+    {
+      auto q = createBasicQuad(&window, 40, 40);
+      q->getStyle().x = 10;
+      q->getStyle().y = 150;
+      q->setProps({
+          .bgColor = ui::Colors::DarkBlue,
+          .bgSprite = "actors0_2",
+          .borderColor = ui::Colors::Red,
+          .borderSize = 4,
+      });
+      elements.push_back(std::unique_ptr<ui::UiElement>(q));
+    }
+
+    {
+      auto q = createBasicQuad(&window, 40, 40);
+      q->getStyle().x = 52;
+      q->getStyle().y = 150;
+      q->getStyle().scale = 2.0f;
+      q->setProps({
+          .bgColor = ui::Colors::DarkBlue,
+          .bgSprite = "actors0_2",
+          .borderColor = ui::Colors::Red,
+          .borderSize = 4,
+      });
+      elements.push_back(std::unique_ptr<ui::UiElement>(q));
+    }
+
+    {
+      auto q = createBasicQuad(&window, 40, 40);
+      q->getStyle().x = 52 + 40 * 2;
+      q->getStyle().y = 150;
+      q->getStyle().scale = 4.0f;
+      q->setProps({
+          .bgColor = ui::Colors::DarkBlue,
+          .bgSprite = "actors0_2",
+          .borderColor = ui::Colors::Red,
+          .borderSize = 4,
+      });
+      elements.push_back(std::unique_ptr<ui::UiElement>(q));
+    }
+
+    // Test quad in quad
+    {
+      auto q = createBasicQuad(&window, 100, 100);
+      q->getStyle().x = 330;
+      q->getStyle().y = 10;
+      q->setProps({
+          .bgColor = ui::Colors::DarkBlue,
+          // .bgSprite = "actors0_2",
+          .borderColor = ui::Colors::Red,
+          .borderSize = 1,
+      });
+      elements.push_back(std::unique_ptr<ui::UiElement>(q));
+
+      auto q2 = createBasicQuad(&window, 75, 75);
+      q2->getStyle().x = 10;
+      q2->getStyle().y = 10;
+      q2->setProps({
+          .bgColor = ui::Colors::DarkGrey,
+          .bgSprite = "actors0_0",
+          .borderColor = ui::Colors::Transparent,
+          .borderSize = 0,
+      });
+      q->addChild(q2);
+    }
+
+    {
+      auto q = createBasicQuad(&window, 100, 100);
+      q->getStyle().x = 330;
+      q->getStyle().y = 100;
+      q->getStyle().scale = 3.0f;
+      q->setProps({
+          .bgColor = ui::Colors::DarkBlue,
+          // .bgSprite = "actors0_2",
+          .borderColor = ui::Colors::Red,
+          .borderSize = 1,
+      });
+      elements.push_back(std::unique_ptr<ui::UiElement>(q));
+
+      auto q2 = createBasicQuad(&window, 75, 75);
+      q2->getStyle().x = 10;
+      q2->getStyle().y = 10;
+      q2->setProps({
+          .bgColor = ui::Colors::DarkGrey,
+          .bgSprite = "actors0_0",
+          .borderColor = ui::Colors::Transparent,
+          .borderSize = 0,
+      });
+      q->addChild(q2);
+    }
   };
 
   auto _updateRender = [&](sdl2w::Window& window, sdl2w::Store& store) {
@@ -81,7 +165,9 @@ int main(int argc, char** argv) {
     return true;
   };
 
-  setupTestUi(argc, argv, TestUiParams{640, 480}, _init, _updateRender, [&]() { elements.clear(); });
+  setupTestUi(argc, argv, TestUiParams{640, 480}, _init, _updateRender, [&]() {
+    elements.clear();
+  });
   LOG(INFO) << "End test" << LOG_ENDL;
   return 0;
 }

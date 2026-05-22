@@ -3,13 +3,13 @@
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
 #include "model/WorldActions.h"
-#include "ui/UiElement.h"
-#include "ui/elements/buttons/ButtonModal.h"
-#include "ui/elements/TextLine.h"
-#include "ui/elements/TextParagraph.h"
-#include "ui/layouts/InGameLayout.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/UiElement.h"
+#include "ui/elements/TextLine.h"
+#include "ui/elements/buttons/ButtonModal.h"
+#include "ui/layouts/InGameLayout.h"
 #include <memory>
+#include <string>
 
 std::vector<std::unique_ptr<ui::UiElement>> elements;
 int actionModeNum = 0;
@@ -64,140 +64,161 @@ public:
     if (actionModeNum >= 3) {
       actionModeNum = 0;
     }
+    auto newProps = inGameLayout->getProps();
     if (actionModeNum == 0) {
       LOG(INFO) << "Switching to town mode action list" << LOG_ENDL;
-      inGameLayout->setProps(ui::InGameLayoutProps{townModeActionTypes});
+      newProps.worldActionTypes = townModeActionTypes;
     } else if (actionModeNum == 1) {
       LOG(INFO) << "Switching to town mode fight action list" << LOG_ENDL;
-      inGameLayout->setProps(ui::InGameLayoutProps{townModeFightActionTypes});
+      newProps.worldActionTypes = townModeFightActionTypes;
     } else if (actionModeNum == 2) {
       LOG(INFO) << "Switching to outdoor mode action list" << LOG_ENDL;
-      inGameLayout->setProps(ui::InGameLayoutProps{outdoorModeActionTypes});
+      newProps.worldActionTypes = outdoorModeActionTypes;
     }
+    inGameLayout->setProps(newProps);
   };
 };
 
+class SwitchBorderTypeObserver : public ui::UiEventObserver {
+  ui::InGameLayout* inGameLayout;
+
+public:
+  SwitchBorderTypeObserver(ui::InGameLayout* _inGameLayout)
+      : inGameLayout(_inGameLayout) {}
+  ~SwitchBorderTypeObserver() override = default;
+  void onClick(int x, int y, int button) override {
+    auto newProps = inGameLayout->getProps();
+    if (newProps.borderType == ui::InGameBorderType::Wide) {
+      LOG(INFO) << "Switching to narrow border" << LOG_ENDL;
+      newProps.borderType = ui::InGameBorderType::Narrow;
+    } else {
+      LOG(INFO) << "Switching to wide border" << LOG_ENDL;
+      newProps.borderType = ui::InGameBorderType::Wide;
+    }
+    inGameLayout->setProps(newProps);
+  };
+};
+
+void initInGameLayoutTest(sdl2w::Window& window, ui::InGameBorderType borderType) {
+  actionModeNum = 0;
+
+  float scale = 2.f;
+  auto [windowWidth, windowHeight] = window.getDims();
+
+  auto inGameLayout = new ui::InGameLayout(&window);
+  auto& layoutStyle = inGameLayout->getStyle();
+  layoutStyle.width = windowWidth / scale;
+  layoutStyle.height = windowHeight / scale;
+  layoutStyle.x = 0;
+  layoutStyle.y = 0;
+  layoutStyle.scale = scale;
+  inGameLayout->setProps(ui::InGameLayoutProps{
+      .worldActionTypes = townModeActionTypes,
+      .actionButtonScale = 1.f,
+      .borderType = borderType,
+  });
+
+  auto titleElement = new ui::TextLine(&window);
+  auto& titleStyle = titleElement->getStyle();
+  setBaseFontConfig(titleStyle, ui::BaseFontConfig::MODAL_TITLE);
+  titleStyle.fontColor = ui::Colors::White;
+  ui::TextLineProps titleProps;
+  ui::TextBlock titleBlock;
+  titleBlock.text = "Game Title";
+  titleProps.textBlocks.push_back(titleBlock);
+  titleElement->setProps(titleProps);
+  inGameLayout->setTitleElement(titleElement);
+
+  auto switchActionsButton = new ui::ButtonModal(&window);
+  switchActionsButton->setId("switchActionTypes");
+  auto& switchActionsStyle = switchActionsButton->getStyle();
+  switchActionsStyle.x = 200;
+  switchActionsStyle.y = 200;
+  switchActionsStyle.width = 300;
+  switchActionsStyle.height = 50;
+  switchActionsStyle.fontColor = ui::Colors::White;
+  ui::ButtonModalProps switchActionsProps;
+  switchActionsProps.text = "Switch World Action List";
+  switchActionsProps.isSelected = false;
+  switchActionsButton->setProps(switchActionsProps);
+  switchActionsButton->addEventObserver(new SwitchActionListObserver(inGameLayout));
+
+  auto switchBorderButton = new ui::ButtonModal(&window);
+  switchBorderButton->setId("switchBorderType");
+  auto& switchBorderStyle = switchBorderButton->getStyle();
+  switchBorderStyle.x = 200;
+  switchBorderStyle.y = 260;
+  switchBorderStyle.width = 300;
+  switchBorderStyle.height = 50;
+  switchBorderStyle.fontColor = ui::Colors::White;
+  ui::ButtonModalProps switchBorderProps;
+  switchBorderProps.text = "Switch Wide / Narrow Border";
+  switchBorderProps.isSelected = false;
+  switchBorderButton->setProps(switchBorderProps);
+  switchBorderButton->addEventObserver(new SwitchBorderTypeObserver(inGameLayout));
+
+  elements.push_back(std::unique_ptr<ui::UiElement>(switchActionsButton));
+  elements.push_back(std::unique_ptr<ui::UiElement>(switchBorderButton));
+  elements.push_back(std::unique_ptr<ui::UiElement>(inGameLayout));
+}
+
 int main(int argc, char** argv) {
+  ui::InGameBorderType borderType = ui::InGameBorderType::Wide;
+  std::string windowTitle = "InGameLayout Test";
+  int windowWidth = 800;
+  int windowHeight = 800;
+
+  borderType = ui::InGameBorderType::Narrow;
+
   LOG(INFO) << "Start InGameLayout test" << LOG_ENDL;
   srand(time(NULL));
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "InGameLayout test initialized" << LOG_ENDL;
-
-    auto [windowWidth, windowHeight] = window.getDims();
-    // Create InGameLayout component
-    auto inGameLayout = std::make_unique<ui::InGameLayout>(&window);
-    ui::BaseStyle style;
-    style.width = windowWidth;
-    style.height = windowHeight;
-    style.x = 0;
-    style.y = 0;
-    inGameLayout->setStyle(style);
-    ui::InGameLayoutProps inGameLayoutProps;
-    inGameLayoutProps.worldActionTypes = townModeActionTypes;
-    inGameLayout->setProps(inGameLayoutProps);
-
-    // Create title element
-    auto titleElement = std::make_unique<ui::TextLine>(&window);
-    ui::BaseStyle titleStyle;
-    titleStyle.width = 200;
-    titleStyle.fontColor = ui::Colors::White;
-    titleElement->setStyle(titleStyle);
-    ui::TextLineProps titleProps;
-    ui::TextBlock titleBlock;
-    titleBlock.text = "Game Title";
-    titleBlock.fontSize = sdl2w::TextSize::TEXT_SIZE_28;
-    titleProps.textBlocks.push_back(titleBlock);
-    titleElement->setProps(titleProps);
-
-    // Create subtitle element
-    auto subtitleElement = std::make_unique<ui::TextParagraph>(&window);
-    ui::BaseStyle subtitleStyle;
-    subtitleStyle.width = 200;
-    subtitleStyle.height = 20;
-    subtitleStyle.fontColor = ui::Colors::White;
-    subtitleElement->setStyle(subtitleStyle);
-    ui::TextParagraphProps subtitleProps;
-    ui::TextBlock subtitleBlock;
-    subtitleBlock.text = "Subtitle Text";
-    subtitleBlock.fontSize = sdl2w::TextSize::TEXT_SIZE_24;
-    subtitleProps.textBlocks.push_back(subtitleBlock);
-    subtitleElement->setProps(subtitleProps);
-
-    auto button1 = std::make_unique<ui::ButtonModal>(&window);
-    button1->setId("switchActionTypes");
-    auto button1Style = button1->getStyle();
-    button1Style.x = 100;
-    button1Style.y = 100;
-    button1Style.width = 300;
-    button1Style.height = 50;
-    button1Style.fontColor = ui::Colors::White;
-    button1->setStyle(button1Style);
-    ui::ButtonModalProps button1Props;
-    button1Props.text = "Switch World Action List";
-    button1Props.isSelected = false;
-    button1->setProps(button1Props);
-    button1->addEventObserver(new SwitchActionListObserver(inGameLayout.get()));
-    elements.push_back(std::move(button1));
-
-    // Set title and subtitle elements
-    inGameLayout->setTitleElement(titleElement.release());
-    inGameLayout->setSubtitleElement(subtitleElement.release());
-
-    elements.push_back(std::move(inGameLayout));
-
-    auto& events = window.getEvents();
-    events.setMouseEvent(
-        //
-        sdl2w::MouseEventCb::ON_MOUSE_DOWN,
-        [&](int x, int y, int button) {
-          LOG(INFO) << "Mouse down at: " << x << ", " << y << " - button: " << button
-                    << LOG_ENDL;
-          for (auto& elem : elements) {
-            elem->checkMouseDownEvent(x, y, button);
-          }
-        });
-    events.setMouseEvent(
-        //
-        sdl2w::MouseEventCb::ON_MOUSE_UP,
-        [&](int x, int y, int button) {
-          for (auto& elem : elements) {
-            elem->checkMouseUpEvent(x, y, button);
-          }
-        });
+    initInGameLayoutTest(window, borderType);
   };
 
-  auto _update = [&](sdl2w::Window& window, sdl2w::Store& store) {
+  auto _updateRender = [&](sdl2w::Window& window, sdl2w::Store& store) {
     auto& events = window.getEvents();
     auto mouseX = events.mouseX;
     auto mouseY = events.mouseY;
 
-    // Check hover events for all buttons
     for (auto& elem : elements) {
       if (elem) {
         elem->checkHoverEvent(mouseX, mouseY);
       }
     }
-  };
 
-  auto _render = [&](sdl2w::Window& window, sdl2w::Store& store) {
     auto& draw = window.getDraw();
     draw.clearScreen();
-
-    // Render all elements
     for (auto& element : elements) {
       element->render(window.getDeltaTime());
     }
-  };
-
-  auto _updateRender = [&](sdl2w::Window& window, sdl2w::Store& store) {
-    _update(window, store);
-    _render(window, store);
     return true;
   };
 
-  setupTestUi(
-      argc, argv, TestUiParams{800, 600, "InGameLayout Test"}, _init, _updateRender, [&]() { elements.clear(); });
+  auto _initWithEvents = [&](sdl2w::Window& window, sdl2w::Store& store) {
+    _init(window, store);
+    auto& events = window.getEvents();
+    events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_DOWN,
+                         [&](int x, int y, int button) {
+                           for (auto& elem : elements) {
+                             elem->checkMouseDownEvent(x, y, button);
+                           }
+                         });
+    events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_UP, [&](int x, int y, int button) {
+      for (auto& elem : elements) {
+        elem->checkMouseUpEvent(x, y, button);
+      }
+    });
+  };
+
+  setupTestUi(argc,
+              argv,
+              TestUiParams{windowWidth, windowHeight, windowTitle.c_str()},
+              _initWithEvents,
+              _updateRender,
+              [&]() { elements.clear(); });
   LOG(INFO) << "End InGameLayout test" << LOG_ENDL;
   return 0;
 }

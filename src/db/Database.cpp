@@ -15,22 +15,22 @@ void Database::load() {
   LOG(INFO) << "Loaded database." << LOG_ENDL;
 }
 
-const model::ItemTemplate& Database::getItemTemplate(const std::string& itemName) const {
-  if (itemTemplates.find(itemName) == itemTemplates.end()) {
-    throw std::runtime_error("Item template not found: " + itemName);
+const model::ItemTemplate& Database::getItemTemplate(std::string_view itemName) const {
+  if (itemTemplates.find(std::string(itemName)) == itemTemplates.end()) {
+    throw std::runtime_error("Item template not found: " + std::string(itemName));
   }
-  return itemTemplates.at(itemName);
+  return itemTemplates.at(std::string(itemName));
 }
 
 void Database::addItemTemplate(const model::ItemTemplate& itemTemplate) {
   itemTemplates[itemTemplate.name] = itemTemplate;
 }
 
-const model::GameEvent& Database::getGameEvent(const std::string& eventId) const {
-  if (gameEvents.find(eventId) == gameEvents.end()) {
-    throw std::runtime_error("Game event not found: " + eventId);
+const model::GameEvent& Database::getGameEvent(std::string_view eventId) const {
+  if (gameEvents.find(std::string(eventId)) == gameEvents.end()) {
+    throw std::runtime_error("Game event not found: " + std::string(eventId));
   }
-  return gameEvents.at(eventId);
+  return gameEvents.at(std::string(eventId));
 }
 
 void Database::addGameEvent(const model::GameEvent& gameEvent) {

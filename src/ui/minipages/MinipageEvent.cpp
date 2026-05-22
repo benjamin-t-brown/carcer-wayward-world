@@ -43,8 +43,7 @@ void MinipageEvent::build() {
 
   auto title = std::make_unique<TextLine>(window, modal.get());
   BaseStyle titleStyle;
-  titleStyle.fontFamily = FontFamily::H2;
-  titleStyle.fontSize = sdl2w::TEXT_SIZE_20;
+  setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
   titleStyle.fontColor = Colors::Black;
   titleStyle.textAlign = TextAlign::LEFT_TOP;
   title->setStyle(titleStyle);

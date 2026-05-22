@@ -1,33 +1,33 @@
-#include "ListVerticalChCompactInfo.h"
+#include "ListChCompactInfoHorizontal.h"
 #include "../ChCompactInfo.h"
-#include "../VerticalList.h"
+#include "../HorizontalList.h"
 
 namespace ui {
 
-ListVerticalChCompactInfo::ListVerticalChCompactInfo(sdl2w::Window* _window,
-                                                     UiElement* _parent)
+ListChCompactInfoHorizontal::ListChCompactInfoHorizontal(sdl2w::Window* _window,
+                                                       UiElement* _parent)
     : UiElement(_window, _parent) {
   style.fontSize = sdl2w::TEXT_SIZE_18;
 }
 
-const std::pair<int, int> ListVerticalChCompactInfo::getDims() const {
+const std::pair<int, int> ListChCompactInfoHorizontal::getDims() const {
   if (children.empty()) {
-    return {style.width, 0};
+    return {0, style.height};
   }
 
   return children[0]->getDims();
 }
 
-void ListVerticalChCompactInfo::setProps(const ListVerticalChCompactInfoProps& _props) {
+void ListChCompactInfoHorizontal::setProps(const ListChCompactInfoHorizontalProps& _props) {
   props = _props;
   build();
 }
 
-const ListVerticalChCompactInfoProps& ListVerticalChCompactInfo::getProps() const {
+const ListChCompactInfoHorizontalProps& ListChCompactInfoHorizontal::getProps() const {
   return props;
 }
 
-void ListVerticalChCompactInfo::build() {
+void ListChCompactInfoHorizontal::build() {
   children.clear();
 
   if (props.entries.empty()) {
@@ -44,7 +44,7 @@ void ListVerticalChCompactInfo::build() {
   auto [chCompactInfoScaledWidth, chCompactInfoScaledHeight] =
       defaultChCompactInfo.getDims();
 
-  auto list = new VerticalList(window, this);
+  auto list = new HorizontalList(window, this);
   list->setId("list");
 
   for (size_t i = 0; i < props.entries.size(); i++) {
@@ -64,17 +64,17 @@ void ListVerticalChCompactInfo::build() {
   auto& listStyle = list->getStyle();
   listStyle.x = style.x;
   listStyle.y = style.y;
-  listStyle.width = chCompactInfoScaledWidth;
+  listStyle.height = chCompactInfoScaledHeight;
   listStyle.scale = 1.;
 
-  VerticalListProps listProps;
-  listProps.lineHeight = chCompactInfoScaledHeight;
+  HorizontalListProps listProps;
+  listProps.lineWidth = chCompactInfoScaledWidth;
   listProps.lineGap = static_cast<int>(props.lineGap * style.scale);
   list->setProps(listProps);
 
   addChild(list);
 }
 
-void ListVerticalChCompactInfo::render(int dt) { UiElement::render(dt); }
+void ListChCompactInfoHorizontal::render(int dt) { UiElement::render(dt); }
 
 } // namespace ui

@@ -63,20 +63,15 @@ void OutsetRectangle::render(int dt) {
       for (int i = 0; i < borderSize; i++) {
         auto topLeftX = scaledX;
         auto topLeftY = scaledY;
-        // draw line is inclusive left and right, so need -1
-        auto topLeftXPlusBorder = topLeftX + borderSize - 1;
-        auto topLeftYPlusBorder = topLeftY + borderSize - 1;
         draw.drawLine({topLeftX + i, topLeftY},
-                      {topLeftXPlusBorder, topLeftYPlusBorder - i},
+                      {topLeftX + i, topLeftY + i},
                       1,
                       props.colorTopRight);
 
-        auto bottomRightX = scaledX + scaledWidth - 1;
-        auto bottomRightY = scaledY + scaledHeight - 1;
-        auto bottomRightXMinusBorder = bottomRightX - borderSize + 1;
-        auto bottomRightYMinusBorder = bottomRightY - borderSize + 1;
-        draw.drawLine({bottomRightXMinusBorder + i, bottomRightYMinusBorder},
-                      {bottomRightX, bottomRightY - i},
+        auto bottomRightX = scaledX + scaledWidth;
+        auto bottomRightY = scaledY + scaledHeight;
+        draw.drawLine({bottomRightX - borderSize + i, bottomRightY - borderSize},
+                      {bottomRightX - borderSize + i, bottomRightY - borderSize + i},
                       1,
                       props.colorTopRight);
       }

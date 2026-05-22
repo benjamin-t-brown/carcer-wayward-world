@@ -62,6 +62,46 @@ const std::pair<int, int> BorderModalSmall::getContentLocation() const {
 
 void BorderModalSmall::build() {}
 
+void BorderModalSmall::renderBgOverlay() {
+  int contentX = style.x;
+  int contentY = style.y;
+  int contentWidthScaled = style.width * style.scale;
+  int contentHeightScaled = style.height * style.scale;
+  auto& draw = window->getDraw();
+  auto& store = window->getStore();
+  auto& sprite = store.getSprite("ui_overlay_256");
+  auto alpha = draw.getGlobalAlpha();
+  draw.setGlobalAlpha(40);
+
+  // Get native sprite size (assuming sprite.w and sprite.h exist)
+  int spriteW = sprite.w;
+  int spriteH = sprite.h;
+
+  // Tile the sprite across the content area
+  for (int y = contentY; y < contentY + contentHeightScaled; y += spriteH) {
+    for (int x = contentX; x < contentX + contentWidthScaled; x += spriteW) {
+      int clipW = std::min(spriteW, contentX + contentWidthScaled - x);
+      int clipH = std::min(spriteH, contentY + contentHeightScaled - y);
+      // Only draw portion if at the edge (may be partial)
+      draw.drawSprite(sprite,
+                      sdl2w::RenderableParamsEx{
+                          .scale = {1.0, 1.0},
+                          .x = x,
+                          .y = y,
+                          .w = clipW,
+                          .h = clipH,
+                          .clipX = 0,
+                          .clipY = 0,
+                          .clipW = clipW,
+                          .clipH = clipH,
+                          .centered = false,
+                      });
+    }
+  }
+
+  draw.setGlobalAlpha(alpha);
+}
+
 void BorderModalSmall::render(int dt) {
   auto [scaledWidth, scaledHeight] = getDims();
   int scaledBorderWidth = static_cast<int>(props.borderWidth * style.scale);
@@ -86,6 +126,7 @@ void BorderModalSmall::render(int dt) {
   draw.drawRect(
       iconBorderX, iconBorderY, props.iconSize, props.iconSize, Colors::DarkBlue);
   UiElement::render(dt);
+  renderBgOverlay();
 }
 
 } // namespace ui

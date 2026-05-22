@@ -111,8 +111,7 @@ void PopupPickupItem::build() {
   labelStyle.y = currentY + (iconSize - 16) / 2; // Vertically center with icon
   labelStyle.width = style.width - padding - iconSize - spacing - padding - 32 -
                      spacing; // Leave space for close button
-  labelStyle.fontFamily = FontFamily::H2;
-  labelStyle.fontSize = sdl2w::TEXT_SIZE_20;
+  setBaseFontConfig(labelStyle, BaseFontConfig::MODAL_TITLE);
   labelStyle.fontColor = Colors::Black;
   labelStyle.textAlign = TextAlign::LEFT_TOP;
   label->setStyle(labelStyle);
@@ -134,8 +133,7 @@ void PopupPickupItem::build() {
     descStyle.x = textPaddingLeft;
     descStyle.y = currentY;
     descStyle.width = style.width - padding - textPaddingLeft - padding;
-    descStyle.fontFamily = FontFamily::PARAGRAPH;
-    descStyle.fontSize = sdl2w::TEXT_SIZE_16;
+    setBaseFontConfig(descStyle, BaseFontConfig::MODAL_TEXT);
     descStyle.fontColor = Colors::Black;
     descStyle.textAlign = TextAlign::LEFT_TOP;
     descStyle.lineSpacing = 4;
@@ -162,8 +160,7 @@ void PopupPickupItem::build() {
   weightStyle.x = textPaddingLeft;
   weightStyle.y = currentY;
   weightStyle.width = style.width - 2 * padding;
-  weightStyle.fontFamily = FontFamily::PARAGRAPH;
-  weightStyle.fontSize = sdl2w::TEXT_SIZE_16;
+  setBaseFontConfig(weightStyle, BaseFontConfig::MODAL_TEXT);
   weightStyle.fontColor = Colors::Black;
   weightStyle.textAlign = TextAlign::LEFT_TOP;
   weightLine->setStyle(weightStyle);
@@ -186,8 +183,7 @@ void PopupPickupItem::build() {
   valueStyle.x = textPaddingLeft;
   valueStyle.y = currentY;
   valueStyle.width = style.width - 2 * padding;
-  valueStyle.fontFamily = FontFamily::PARAGRAPH;
-  valueStyle.fontSize = sdl2w::TEXT_SIZE_16;
+  setBaseFontConfig(valueStyle, BaseFontConfig::MODAL_TEXT);
   valueStyle.fontColor = Colors::Black;
   valueStyle.textAlign = TextAlign::LEFT_TOP;
   valueLine->setStyle(valueStyle);

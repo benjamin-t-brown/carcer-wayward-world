@@ -21,9 +21,7 @@ ButtonModal::ButtonModal(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
   addEventObserver(new ButtonModalDefaultObserver(this));
   style.textAlign = TextAlign::CENTER;
-  style.fontSize = sdl2w::TEXT_SIZE_20;
-  style.fontColor = Colors::White;
-  style.fontFamily = FontFamily::H2;
+  setBaseFontConfig(style, BaseFontConfig::MODAL_BUTTON);
   shouldPropagateEventsToChildren = false;
 }
 
@@ -79,12 +77,9 @@ void ButtonModal::build() {
 
   auto textLine = std::make_unique<TextLine>(window, this);
   BaseStyle textStyle;
+  setBaseFontConfig(textStyle, BaseFontConfig::MODAL_BUTTON);
   textStyle.x = style.width / 2;
   textStyle.y = style.height / 2;
-  textStyle.textAlign = style.textAlign;
-  textStyle.fontSize = style.fontSize;
-  textStyle.fontColor = Colors::White;
-  textStyle.fontFamily = style.fontFamily;
   textStyle.textAlign = TextAlign::CENTER;
   textStyle.scale = style.scale;
   textLine->setStyle(textStyle);

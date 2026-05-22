@@ -1,11 +1,10 @@
 #include "PageInventory.h"
-#include "model/Character.h"
+#include "lib/sdl2w/L10n.h"
 #include "ui/colors.h"
+#include "ui/components/lists/ListInventory.h"
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
 #include "ui/layouts/ModalStandard.h"
-#include "ui/components/lists/ListInventory.h"
-#include <memory>
 
 namespace ui {
 
@@ -23,126 +22,85 @@ PageInventoryProps& PageInventory::getProps() { return props; }
 
 const PageInventoryProps& PageInventory::getProps() const { return props; }
 
-const std::pair<int, int> PageInventory::getDims() const {
-  if (children.empty()) {
-    return {style.width, style.height};
+void PageInventory::populateInventoryProps(
+    std::vector<ListInventoryPropsItem>& listProps) {
+  if (!getStateManager() || !props.characterPlayer || !getDatabase()) {
+    return;
   }
-  return children[0]->getDims();
+  auto& database = *getDatabase();
+  auto& inventory = props.characterPlayer->inventory;
+
+  for (const auto& item : inventory) {
+    auto& itemTemplate = database.getItemTemplate(item.itemName);
+    listProps.push_back({.itemName = itemTemplate.name,
+                         .itemLabel = itemTemplate.label,
+                         .itemSprite = itemTemplate.iconSpriteName});
+  }
 }
 
 void PageInventory::build() {
   children.clear();
 
-  if (props.characterPlayerId.empty()) {
-    return;
-  }
-
-  // Look up the character player by ID
-  auto* characterPlayer =
-      getStateManager()->getState().player.findPartyMember(props.characterPlayerId);
-  if (characterPlayer == nullptr) {
-    LOG(ERROR) << "PageInventory::build: character player not found" << LOG_ENDL;
-    return;
-  }
-
-  // Create ModalStandard layout
-  auto modal = std::make_unique<ModalStandard>(window, this);
+  auto modal = new ModalStandard(window, this);
   modal->setId("modal");
-  BaseStyle modalStyle;
+  auto& modalStyle = modal->getStyle();
   modalStyle.x = style.x;
   modalStyle.y = style.y;
   modalStyle.width = style.width;
   modalStyle.height = style.height;
   modalStyle.scale = style.scale;
-  modal->setStyle(modalStyle);
-
-  ModalStandardProps modalProps;
-  modal->setProps(modalProps);
+  modal->setProps(ModalStandardProps{});
+  addChild(modal);
 
   auto [contentW, contentH] = modal->getContentDims();
   auto [contentX, contentY] = modal->getContentLoc();
-
-  // // Get the border element to access location methods
-  // auto borderElement = dynamic_cast<BorderModalStandard*>(modal->getChildById("border"));
-  // if (borderElement == nullptr) {
-  //   return;
-  // }
+  int unscaledContentW = contentW / style.scale;
+  int unscaledContentH = contentH / style.scale;
 
   // Create title element
-  auto title = std::make_unique<TextLine>(window, modal.get());
-  BaseStyle titleStyle;
-  titleStyle.fontFamily = FontFamily::H2;
-  titleStyle.fontSize = sdl2w::TEXT_SIZE_20;
-  titleStyle.fontColor = Colors::White;
+  auto title = new TextLine(window, modal);
+  auto& titleStyle = title->getStyle();
+  setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
   titleStyle.textAlign = TextAlign::LEFT_TOP;
-  title->setStyle(titleStyle);
   TextLineProps titleProps;
   TextBlock titleBlock;
-  titleBlock.text = "Inventory";
+  titleBlock.text = TRANSLATE("Inventory");
   titleProps.textBlocks.push_back(titleBlock);
   title->setProps(titleProps);
-  modal->setTitleElement(title.release());
-
-  // Create subtitle element
-  // auto subtitle = std::make_unique<TextLine>(window, modal.get());
-  // BaseStyle subtitleStyle;
-  // subtitleStyle.fontFamily = FontFamily::PARAGRAPH;
-  // subtitleStyle.fontSize = sdl2w::TEXT_SIZE_16;
-  // subtitleStyle.fontColor = Colors::White;
-  // subtitleStyle.textAlign = TextAlign::LEFT_TOP;
-  // subtitle->setStyle(subtitleStyle);
-  // TextLineProps subtitleProps;
-  // TextBlock subtitleBlock;
-  // subtitleBlock.text = "Subtitle";
-  // subtitleProps.textBlocks.push_back(subtitleBlock);
-  // subtitle->setProps(subtitleProps);
-  // modal->setSubtitleElement(subtitle.release());
-
-  // Get content location and dimensions from border
-  // auto contentLocation = borderElement->getContentLocation();
-  // auto contentDims = borderElement->getContentDims();
+  modal->setTitleElement(title);
 
   // Create SectionScrollable for content area
-  auto scrollableSection = std::make_unique<SectionScrollable>(window, modal.get());
+  auto scrollableSection = new SectionScrollable(window, modal);
   scrollableSection->setId("scrollableSection");
   BaseStyle scrollableStyle;
   scrollableStyle.x = contentX;
   scrollableStyle.y = contentY;
-  scrollableStyle.width = contentW;
-  scrollableStyle.height = contentH;
+  scrollableStyle.width = unscaledContentW;
+  scrollableStyle.height = unscaledContentH;
   scrollableStyle.scale = style.scale;
   scrollableSection->setStyle(scrollableStyle);
-
-  SectionScrollableProps scrollableProps;
-  scrollableSection->setProps(scrollableProps);
+  scrollableSection->setProps(SectionScrollableProps{.scrollBarWidth = 40});
+  addChild(scrollableSection);
 
   // Create ListInventory inside the scrollable section
-  auto listInventory = std::make_unique<ListInventory>(window, scrollableSection.get());
+  auto listInventory = new ListInventory(window, scrollableSection);
   listInventory->setId("listInventory");
-  BaseStyle listStyle;
+  auto& listStyle = listInventory->getStyle();
   listStyle.x = 0; // Positioned relative to scrollable section
-  listStyle.y = 4;
-  listStyle.width = contentW - scrollableProps.scrollBarWidth - 8;
+  listStyle.y = 0;
+  listStyle.width = static_cast<float>(contentW) /
+                        style.scale - // contentW and contentH are already scaled
+                    scrollableSection->getProps().scrollBarWidth -
+                    8;
   listStyle.scale = style.scale;
-  listInventory->setStyle(listStyle);
 
   ListInventoryProps listProps;
-  // listProps.character = characterPlayer;
+  populateInventoryProps(listProps.items);
   listInventory->setProps(listProps);
-
-  // Add ListInventory to SectionScrollable
-  scrollableSection->addChild(listInventory.release());
-
-  // Set SectionScrollable as content element of ModalStandard
-  modal->setContentElement(scrollableSection.release());
-
-  // Add modal to children
-  children.push_back(std::move(modal));
+  scrollableSection->addChild(listInventory);
+  scrollableSection->build();
 }
 
-void PageInventory::render(int dt) {
-  UiElement::render(dt);
-}
+void PageInventory::render(int dt) { UiElement::render(dt); }
 
 } // namespace ui
-

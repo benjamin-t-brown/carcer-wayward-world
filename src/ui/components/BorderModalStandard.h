@@ -33,6 +33,8 @@ public:
   const std::pair<int, int> getCloseButtonLocation() const;
   const std::pair<int, int> getContentLoc() const;
 
+  void renderBgOverlay();
+
   void build() override;
   void render(int dt) override;
 };

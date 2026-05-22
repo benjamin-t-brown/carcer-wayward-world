@@ -1,91 +1,97 @@
 #include "../../setupTestUi.h"
-#include "db/loaders/LoadSpecialEvents.h"
-#include "layers/LayerManager.h"
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
-#include "state/LayerManagerInterface.h"
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/pages/PageTalkChoice.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
-#include <unordered_map>
-
-class TestLayer : public layers::Layer {
-public:
-  TestLayer(sdl2w::Window* _window) : layers::Layer(_window) {
-    std::unordered_map<std::string, model::GameEvent> specialEvents;
-    std::vector<std::string> eventsToLoad = {"alinea_claire"};
-    db::loadSpecialEvents("assets/db/special-events.json", specialEvents, eventsToLoad);
-
-    auto [windowWidth, windowHeight] = window->getDims();
-
-    auto pageTalkChoice = std::make_unique<ui::PageTalkChoice>(window);
-    pageTalkChoice->setId("pageTalkChoice");
-    ui::BaseStyle style = pageTalkChoice->getStyle();
-    style.width = windowWidth;
-    style.height = windowHeight;
-    style.x = 0;
-    style.y = 0;
-    pageTalkChoice->setStyle(style);
-
-    ui::PageTalkChoiceProps pageProps;
-    pageProps.gameEvent = specialEvents.at("alinea_claire");
-    pageProps.portraitName = "Dockmaster Claire";
-    pageTalkChoice->setProps(pageProps);
-
-    addUiElement(pageTalkChoice.release());
-  }
-};
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start PageTalkChoice test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::unique_ptr<layers::LayerManager> layerManager;
-
+  // Setup static classes
   db::Database database;
   state::DatabaseInterface::setDatabase(&database);
   database.load();
-
   state::StateManager stateManager;
   state::StateManagerInterface::setStateManager(&stateManager);
+
+  std::vector<std::unique_ptr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "PageTalkChoice test initialized" << LOG_ENDL;
 
-    layerManager = std::make_unique<layers::LayerManager>(&window);
-    state::LayerManagerInterface::setLayerManager(layerManager.get());
+    auto [windowWidth, windowHeight] = window.getDims();
 
-    layerManager->addLayer(new TestLayer(&window));
+    auto pageTalkChoice = new ui::PageTalkChoice(&window, nullptr);
+    pageTalkChoice->setId("pageTalkChoice");
+    auto& style = pageTalkChoice->getStyle();
+    auto scale = 1.5f;
+    style.width = windowWidth / scale;
+    style.height = windowHeight / scale;
+    style.x = 0;
+    style.y = 0;
+    style.scale = scale;
+    pageTalkChoice->setStyle(style);
+
+    ui::PageTalkChoiceProps pageProps;
+    pageProps.title = "Dockmaster Claire";
+    pageProps.portraitSpriteName = "";
+    pageProps.choices = {
+        {.nextId = "choice1", .text = "Choice 1", .prefixText = ""},
+        {.nextId = "choice2", .text = "Choice 2", .prefixText = ""},
+        {.nextId = "choice3", .text = "Choice 3", .prefixText = "[Special]"},
+    };
+    // clang-format off
+    pageProps.textBlocks = {
+      {.text ="According to all known laws of aviation, there is no way a bee should be able to fly.\n"},
+      {.text ="Its wings are too small to get its fat little body off the ground.\n"},
+      {.text ="The bee, of course, flies anyway because bees don't care what humans think is impossible.\n"},
+      {.text ="Yellow, black. Yellow, black. Yellow, black. Yellow, black.\n"},
+      {.text ="Ooh, black and yellow!\n"},
+      {.text ="Let's shake it up a little.\n"},
+      {.text ="Barry! Breakfast is ready!\n"},
+    };
+    // clang-format on
+    pageTalkChoice->setProps(pageProps);
+
+    elements.push_back(std::unique_ptr<ui::UiElement>(pageTalkChoice));
 
     auto& events = window.getEvents();
     events.setMouseEvent(
         //
         sdl2w::MouseEventCb::ON_MOUSE_DOWN,
         [&](int x, int y, int button) {
-          LOG(INFO) << "Mouse down at: " << x << ", " << y << " - button: " << button
-                    << LOG_ENDL;
-          layerManager->handleMouseDown(x, y, button);
+          for (auto& elem : elements) {
+            elem->checkMouseDownEvent(x, y, button);
+          }
         });
     events.setMouseEvent(
         //
         sdl2w::MouseEventCb::ON_MOUSE_UP,
         [&](int x, int y, int button) {
-          layerManager->handleMouseUp(x, y, button);
+          for (auto& elem : elements) {
+            elem->checkMouseUpEvent(x, y, button);
+          }
         });
 
     events.setMouseEvent(
         //
         sdl2w::MouseEventCb::ON_MOUSE_WHEEL,
         [&](int x, int y, int delta) {
-          layerManager->handleMouseWheel(x, y, delta);
+          for (auto& elem : elements) {
+            elem->checkMouseWheelEvent(x, y, delta);
+          }
         });
   };
 
   auto _update = [&](sdl2w::Window& window, sdl2w::Store& store) {
-    layerManager->update(window.getDeltaTime());
     stateManager.update(window.getDeltaTime());
+    for (auto& elem : elements) {
+      elem->checkHoverEvent(window.getEvents().mouseX, window.getEvents().mouseY);
+    }
   };
 
   auto _render = [&](sdl2w::Window& window, sdl2w::Store& store) {
@@ -93,7 +99,10 @@ int main(int argc, char** argv) {
     draw.setBackgroundColor(SDL_Color{100, 100, 100, 255});
     draw.clearScreen();
 
-    layerManager->render(window.getDeltaTime());
+    // Render all elements
+    for (auto& elem : elements) {
+      elem->render(window.getDeltaTime());
+    }
   };
 
   auto _updateRender = [&](sdl2w::Window& window, sdl2w::Store& store) {
@@ -106,7 +115,8 @@ int main(int argc, char** argv) {
               argv,
               TestUiParams{640, 480, "PageTalkChoice Test"},
               _init,
-              _updateRender, [&]() { layerManager.reset(); });
+              _updateRender,
+              [&]() { elements.clear(); });
   LOG(INFO) << "End PageTalkChoice test" << LOG_ENDL;
   return 0;
 }
