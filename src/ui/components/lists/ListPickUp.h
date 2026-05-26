@@ -1,21 +1,35 @@
 #pragma once
 
-#include "db/Database.h"
-#include "model/Items.h"
 #include "ui/UiElement.h"
 #include <string>
 #include <vector>
 
 namespace ui {
 
+struct ListPickUpPropsItem {
+  model::ItemInstance item;
+  std::string itemLabel;
+  int weight = 1;
+  std::string itemSprite;
+};
+
 struct ListPickUpProps {
-  std::vector<std::string> itemNames;
+  std::vector<ListPickUpPropsItem> items;
+  int lineHeight = 32;
+  int lineGap = 2;
+  int paddingTop = 4;
+  int paddingBottom = 12;
 };
 
 // ListPickUp - renders a vertical list of items that can be picked up
 class ListPickUp : public UiElement {
 private:
   ListPickUpProps props;
+
+  const int contextBtnSize = 32;
+  const int iconSpriteSize = 16;
+
+  UiElement* createItemElement(const ListPickUpPropsItem& item);
 
 public:
   ListPickUp(sdl2w::Window* _window, UiElement* _parent = nullptr);
@@ -30,27 +44,4 @@ public:
   void render(int dt) override;
 };
 
-struct ListPickUpItemProps {
-  const model::ItemTemplate* itemTemplate = nullptr;
-  std::string itemName;
-};
-// ListPickUpItem - renders a single pickup item with icon, label, and weight
-class ListPickUpItem : public UiElement {
-private:
-  ListPickUpItemProps props;
-  const SDL_Color bgColor = Colors::White;
-
-public:
-  ListPickUpItem(sdl2w::Window* _window, UiElement* _parent = nullptr);
-  ~ListPickUpItem() override = default;
-
-  // Set the item template data
-  void setProps(const ListPickUpItemProps& props);
-  const ListPickUpItemProps& getProps() const;
-
-  void build() override;
-  void render(int dt) override;
-};
-
 } // namespace ui
-

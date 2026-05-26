@@ -10,6 +10,7 @@ private:
 
 protected:
   static db::Database* getDatabase();
+  bool hasDatabase() const { return database != nullptr; }
 
 public:
   static void setDatabase(db::Database* _database);

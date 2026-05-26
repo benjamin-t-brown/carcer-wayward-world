@@ -1,11 +1,32 @@
 #include "Layer.h"
+#include "state/StateManager.h"
 #include "ui/UiElement.h"
 
 namespace layers {
 
-Layer::Layer(sdl2w::Window* _window) : window(_window) {}
+Layer::Layer(sdl2w::Window* _window, std::string_view _id) : window(_window), id(_id) {}
 
-Layer::~Layer() = default;
+Layer::~Layer() {
+  if (hasStateManager()) {
+    getStateManager()->getActionBus().unsubscribe(this);
+  }
+}
+
+bool Layer::assertInterfaces() const {
+  if (!hasStateManager()) {
+    LOG(ERROR) << "Layer::assertInterfaces: stateManager is not set" << LOG_ENDL;
+    return false;
+  }
+  if (!hasDatabase()) {
+    LOG(ERROR) << "Layer::assertInterfaces: database is not set" << LOG_ENDL;
+    return false;
+  }
+  return true;
+}
+
+void Layer::setId(std::string_view _id) { id = _id; }
+
+std::string Layer::getId() const { return id; }
 
 void Layer::onMouseDown(int x, int y, int button) {
   if (state != LayerState::ON) {
@@ -77,9 +98,7 @@ void Layer::turnOff() { state = LayerState::OFF; }
 
 void Layer::suspend() { state = LayerState::SUSPENDED; }
 
-void Layer::remove() {
-  removeFlag = true;
-}
+void Layer::remove() { removeFlag = true; }
 
 bool Layer::shouldRemove() const { return removeFlag; }
 

@@ -1,5 +1,5 @@
 #include "BorderInGameNarrow.h"
-#include "../elements/OutsetRectangle.h"
+#include "../../elements/OutsetRectangle.h"
 #include "BorderInGameWide.h"
 
 namespace ui {

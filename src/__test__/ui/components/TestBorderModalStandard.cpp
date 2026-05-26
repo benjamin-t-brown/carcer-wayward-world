@@ -3,7 +3,7 @@
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
 #include "ui/UiElement.h"
-#include "ui/components/BorderModalStandard.h"
+#include "ui/components/borders/BorderModalStandard.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
 

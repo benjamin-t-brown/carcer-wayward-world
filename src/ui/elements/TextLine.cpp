@@ -1,4 +1,5 @@
 #include "TextLine.h"
+#include "state/StateManager.h"
 #include "lib/sdl2w/Draw.h"
 #include "ui/FontScale.h"
 #include "ui/UiElement.h"

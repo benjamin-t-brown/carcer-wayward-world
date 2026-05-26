@@ -1,70 +1,49 @@
 #include "../../setupTestUi.h"
-#include "layers/LayerManager.h"
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
-#include "state/LayerManagerInterface.h"
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/popups/PopupInventoryItem.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
-
-class TestLayer : public layers::Layer {
-public:
-  TestLayer(sdl2w::Window* _window) : layers::Layer(_window) {
-    getDatabase()->addItemTemplate(model::ItemTemplate{
-        .name = "TestItem1",
-        .label = "Test Item 1",
-        .iconSpriteName = "ui_item_icons_0",
-        .description = "This is an example test item description.  It should gracefully "
-                       "wrap in the tooltip and look pretty good in the process.",
-        .weight = 999,
-        .value = 8888,
-    });
-    // model::CharacterPlayer characterPlayer;
-    // characterPlayer.addItemToInventory(getDatabase()->getItemTemplate("TestItem1"), 1);
-    // getStateManager()->getState().player.party.push_back(characterPlayer);
-
-    // Create PopupInventoryItem component
-    auto popupInventoryItem = std::make_unique<ui::PopupInventoryItem>(window, this);
-    popupInventoryItem->setId("popupInventoryItem");
-    ui::BaseStyle style = popupInventoryItem->getStyle();
-    style.width = 400;
-    style.height = 300;
-    style.x = 200;
-    style.y = 150;
-    style.scale = 1.0f;
-    popupInventoryItem->setStyle(style);
-
-    ui::PopupInventoryItemProps popupProps;
-    popupProps.itemName = "PotionHealing";
-    popupProps.itemId = "";
-    popupInventoryItem->setProps(popupProps);
-
-    addUiElement(popupInventoryItem.release());
-  }
-};
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start PopupInventoryItem test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::unique_ptr<layers::LayerManager> layerManager;
-
-  db::Database database;
-  state::DatabaseInterface::setDatabase(&database);
-  database.load();
-
-  state::StateManager stateManager;
-  state::StateManagerInterface::setStateManager(&stateManager);
+  std::vector<std::unique_ptr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "PopupInventoryItem test initialized" << LOG_ENDL;
 
-    layerManager = std::make_unique<layers::LayerManager>(&window);
-    state::LayerManagerInterface::setLayerManager(layerManager.get());
+    auto [windowWidth, windowHeight] = window.getDims();
 
-    layerManager->addLayer(new TestLayer(&window));
+    auto scale = 1.f;
+    auto orientation = ui::PopupOrientation::WIDE;
+    auto popupInventoryItem = new ui::PopupInventoryItem(&window, nullptr, orientation);
+    popupInventoryItem->setId("minipagePickUp");
+    auto& style = popupInventoryItem->getStyle();
+    style.x = (windowWidth - style.width * scale) / 2;
+    style.y = (windowHeight - style.height * scale) / 2;
+    style.scale = scale;
+    popupInventoryItem->setProps(ui::PopupInventoryItemProps{
+        .item =
+            {
+                .id = model::createRandomId(),
+                .itemName = "TestItem1",
+                .quantity = 1,
+            },
+        .label = "Test Item 1",
+        .description = "This is a test item description. It should gracefully wrap in "
+                       "the tooltip and look pretty good in the process.",
+        .spriteName = "ui_item_icons_0",
+        .weight = 10,
+        .value = 100,
+        .usable = true,
+        .equippable = true,
+        .orientation = orientation,
+    });
+    elements.push_back(std::unique_ptr<ui::UiElement>(popupInventoryItem));
 
     auto& events = window.getEvents();
     events.setMouseEvent(
@@ -74,20 +53,33 @@ int main(int argc, char** argv) {
           //
           LOG(INFO) << "Mouse down at: " << x << ", " << y << " - button: " << button
                     << LOG_ENDL;
-          layerManager->handleMouseDown(x, y, button);
+          for (auto& elem : elements) {
+            elem->checkMouseDownEvent(x, y, button);
+          }
         });
     events.setMouseEvent(
         //
         sdl2w::MouseEventCb::ON_MOUSE_UP,
         [&](int x, int y, int button) {
           //
-          layerManager->handleMouseUp(x, y, button);
+          for (auto& elem : elements) {
+            elem->checkMouseUpEvent(x, y, button);
+          }
+        });
+    events.setMouseEvent(
+        //
+        sdl2w::MouseEventCb::ON_MOUSE_WHEEL,
+        [&](int x, int y, int delta) {
+          for (auto& elem : elements) {
+            elem->checkMouseWheelEvent(x, y, delta);
+          }
         });
   };
 
   auto _update = [&](sdl2w::Window& window, sdl2w::Store& store) {
-    layerManager->update(window.getDeltaTime());
-    stateManager.update(window.getDeltaTime());
+    for (auto& elem : elements) {
+      elem->checkHoverEvent(window.getEvents().mouseX, window.getEvents().mouseY);
+    }
   };
 
   auto _render = [&](sdl2w::Window& window, sdl2w::Store& store) {
@@ -96,7 +88,9 @@ int main(int argc, char** argv) {
     draw.clearScreen();
 
     // Render all elements
-    layerManager->render(window.getDeltaTime());
+    for (auto& elem : elements) {
+      elem->render(window.getDeltaTime());
+    }
   };
 
   auto _updateRender = [&](sdl2w::Window& window, sdl2w::Store& store) {
@@ -109,7 +103,8 @@ int main(int argc, char** argv) {
               argv,
               TestUiParams{800, 600, "PopupInventoryItem Test"},
               _init,
-              _updateRender, [&]() { layerManager.reset(); });
+              _updateRender,
+              [&]() { elements.clear(); });
   LOG(INFO) << "End PopupInventoryItem test" << LOG_ENDL;
   return 0;
 }

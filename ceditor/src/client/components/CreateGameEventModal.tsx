@@ -120,7 +120,6 @@ export function CreateGameEventModal({
                 value={formData.icon}
                 onChange={(value) => setFormData({ ...formData, icon: value })}
                 scale={2}
-                maxHeight="300px"
               />
             </div>
             {formData.icon && (

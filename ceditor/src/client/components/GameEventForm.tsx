@@ -181,7 +181,6 @@ export function GameEventForm(props: GameEventFormProps) {
               value={formData.icon}
               onChange={(value) => updateField('icon', value)}
               scale={2}
-              maxHeight="calc(100ch - 675px)"
             />
           </div>
           {formData.icon && (

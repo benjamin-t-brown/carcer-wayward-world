@@ -1,21 +1,40 @@
 interface ModalRowLayoutProps {
-  fixedHeight: number;
-  fixedContent: React.ReactNode;
-  resizableContent: React.ReactNode;
+  sidebar: React.ReactNode;
+  main: React.ReactNode;
 }
+
 export const ModalRowLayout = (props: ModalRowLayoutProps) => {
   return (
     <div
       style={{
-        width: '100%',
+        display: 'flex',
+        gap: '16px',
+        flex: 1,
+        minHeight: 0,
         height: '100%',
       }}
     >
-      <div style={{ height: `${props.fixedHeight}px` }}>
-        {props.fixedContent}
+      <div
+        style={{
+          flexShrink: 0,
+          width: '220px',
+          overflowY: 'auto',
+          maxHeight: '100%',
+        }}
+      >
+        {props.sidebar}
       </div>
-      <div style={{ height: `calc(100% - ${props.fixedHeight}px)` }}>
-        {props.resizableContent}
+      <div
+        style={{
+          flex: 1,
+          minWidth: 0,
+          minHeight: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
+        {props.main}
       </div>
     </div>
   );

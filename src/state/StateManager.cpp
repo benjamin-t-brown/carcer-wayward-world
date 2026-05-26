@@ -1,60 +1,60 @@
 #include "state/StateManager.h"
-#include "model/UtilityTypes.h"
 #include "state/AbstractAction.h"
 
 namespace state {
 
-StateManager::StateManager() {
-  // Constructor implementation
-}
+StateManager::StateManager() {}
 
 state::State& StateManager::getState() { return state; }
 
-void StateManager::enqueueAction(state::State& state,
-                                 state::AbstractAction* action,
-                                 int ms) {
-  action->setDatabase(getDatabase());
-  auto actionPtr = new state::AsyncAction{std::unique_ptr<state::AbstractAction>(action),
-                                          model::TimerStruct(ms)};
-  sequentialActionsNext.push_back(std::unique_ptr<state::AsyncAction>(actionPtr));
-  // if (actionPtr->action) {
-  //   LOG(INFO) << "Enqueued action: " << actionPtr->action->getName() << " for
-  //   "
-  //             << ms << "ms" << LOG_ENDL;
-  // }
+ActionData& StateManager::getActionData() { return actionData; }
+
+ActionBus& StateManager::getActionBus() { return actionBus; }
+
+const ActionBus& StateManager::getActionBus() const { return actionBus; }
+
+void StateManager::enqueueAction(ActionData& actions, AbstractAction* action, int ms) {
+  auto actionPtr =
+      new AsyncAction{std::unique_ptr<AbstractAction>(action), model::TimerStruct(ms)};
+  actions.sequentialActionsNext.push_back(std::unique_ptr<AsyncAction>(actionPtr));
 }
 
-void StateManager::addParallelAction(State& state,
-                                     std::unique_ptr<state::AbstractAction> action,
+void StateManager::insertAction(ActionData& actions, AbstractAction* action, int ms) {
+  auto actionPtr =
+      new AsyncAction{std::unique_ptr<AbstractAction>(action), model::TimerStruct(ms)};
+  actions.insertActions.push_back(std::unique_ptr<AsyncAction>(actionPtr));
+}
+
+void StateManager::addParallelAction(ActionData& actions,
+                                     AbstractAction* action,
                                      int ms) {
-  action->setDatabase(getDatabase());
-  parallelActions.push_back(std::unique_ptr<state::AsyncAction>(
-      new state::AsyncAction{std::move(action), model::TimerStruct(ms)}));
+  actions.parallelActions.push_back(std::unique_ptr<AsyncAction>(
+      new AsyncAction{std::unique_ptr<AbstractAction>(action), model::TimerStruct(ms)}));
 }
 
-void StateManager::moveSequentialActions(State& state) {
-  sequentialActions.insert(sequentialActions.end(),
-                           std::make_move_iterator(sequentialActionsNext.begin()),
-                           std::make_move_iterator(sequentialActionsNext.end()));
-  sequentialActionsNext.clear();
+void StateManager::moveSequentialActions(ActionData& actions) {
+  actions.sequentialActions.splice(actions.sequentialActions.end(),
+                                   actions.sequentialActionsNext);
 }
 
 void StateManager::update(int dt) {
-  moveSequentialActions(state);
-  while (!sequentialActions.empty()) {
-    auto& delayedActionPtr = sequentialActions.front();
-    state::AsyncAction& delayedAction = *delayedActionPtr;
+  moveSequentialActions(actionData);
+  while (!actionData.sequentialActions.empty()) {
+    auto& delayedActionPtr = actionData.sequentialActions.front();
+    AsyncAction& delayedAction = *delayedActionPtr;
     if (delayedAction.action.get() != nullptr) {
-      delayedAction.action->execute(&state);
+      AbstractAction& executedAction = *delayedAction.action;
+      executedAction.execute(&state);
+      actionBus.notify(executedAction, state);
       delayedAction.action = nullptr;
     }
 
-    delayedAction.timer.update(dt);
-    if (delayedAction.timer.isComplete()) {
+    model::timerStructUpdate(delayedAction.timer, dt);
+    if (model::timerStructIsComplete(delayedAction.timer)) {
       bool shouldLoop = delayedAction.timer.duration == 0;
-      sequentialActions.erase(sequentialActions.begin());
+      actionData.sequentialActions.erase(actionData.sequentialActions.begin());
       if (shouldLoop) {
-        moveSequentialActions(state);
+        moveSequentialActions(actionData);
         continue;
       } else {
         break;
@@ -63,15 +63,17 @@ void StateManager::update(int dt) {
       break;
     }
   }
-  for (unsigned int i = 0; i < parallelActions.size(); i++) {
-    auto& delayedActionPtr = parallelActions[i];
-    state::AsyncAction& delayedAction = *delayedActionPtr;
-    delayedAction.timer.update(dt);
-    if (delayedAction.timer.isComplete()) {
+  for (unsigned int i = 0; i < actionData.parallelActions.size(); i++) {
+    auto& delayedActionPtr = actionData.parallelActions[i];
+    AsyncAction& delayedAction = *delayedActionPtr;
+    model::timerStructUpdate(delayedAction.timer, dt);
+    if (model::timerStructIsComplete(delayedAction.timer)) {
       if (delayedAction.action != nullptr) {
-        delayedAction.action->execute(&state);
+        AbstractAction& executedAction = *delayedAction.action;
+        executedAction.execute(&state);
+        actionBus.notify(executedAction, state);
       }
-      parallelActions.erase(parallelActions.begin() + i);
+      actionData.parallelActions.erase(actionData.parallelActions.begin() + i);
       i--;
     }
   }

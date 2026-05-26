@@ -1,18 +1,14 @@
 #pragma once
 
 #include "lib/sdl2w/Window.h"
+#include "state/AbstractAction.h"
 #include "state/DatabaseInterface.h"
+#include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
+#include "ui/UiElement.h"
 #include <memory>
 #include <string_view>
 #include <vector>
-
-namespace ui {
-class UiElement;
-}
-namespace db {
-class Database;
-} // namespace db
 
 namespace layers {
 
@@ -24,10 +20,13 @@ protected:
   LayerState state = LayerState::ON;
   std::vector<std::unique_ptr<ui::UiElement>> uiElements;
   bool removeFlag = false;
+  std::string id;
 
 public:
-  explicit Layer(sdl2w::Window* _window);
+  explicit Layer(sdl2w::Window* _window, std::string_view _id = "");
   virtual ~Layer();
+
+  bool assertInterfaces() const;
 
   // Event handlers
   virtual void onMouseDown(int x, int y, int button);
@@ -44,8 +43,33 @@ public:
   void remove();
   bool shouldRemove() const;
   LayerState getState() const;
+  std::string getId() const;
+  void setId(std::string_view id);
 
   void addUiElement(ui::UiElement* element);
+
+  template <typename T> T* getUiElement(std::string_view elementId) {
+    for (auto& elem : uiElements) {
+      if (elem->getId() == elementId) {
+        return dynamic_cast<T*>(elem.get());
+      }
+    }
+    return nullptr;
+  }
+
+  template <typename ActionT, typename Fn> void subscribeAction(Fn&& fn) {
+    if (!hasStateManager()) {
+      return;
+    }
+    getStateManager()->getActionBus().subscribe(
+        this,
+        std::type_index(typeid(ActionT)),
+        [fn = std::forward<Fn>(fn)](state::AbstractAction& action, state::State& state) {
+          if (auto* typed = dynamic_cast<ActionT*>(&action)) {
+            fn(*typed, state);
+          }
+        });
+  }
 
   // Getters
   sdl2w::Window* getWindow() const { return window; }

@@ -2,6 +2,7 @@
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
+#include "model/Character.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/pages/PageInventory.h"
@@ -25,6 +26,7 @@ int main(int argc, char** argv) {
 
     stateManager.getState().player.party.push_back(model::CharacterPlayer());
     auto& characterPlayer = stateManager.getState().player.party.back();
+    characterPlayer.params = database.getCharacterTemplate("testPartyMember1");
 
     std::vector<std::string>
         //
@@ -40,11 +42,11 @@ int main(int argc, char** argv) {
                      "GlovesLeather",
                      "HatLeather",
                      "BootsLeather",
-                     "NecklaceSilver"
-                    };
+                     "NecklaceSilver"};
 
     for (const auto& itemName : itemNames) {
-      characterPlayer.addItemToInventory(database.getItemTemplate(itemName), 1);
+      model::characterPlayerAddItemToInventory(
+          characterPlayer, database.getItemTemplate(itemName), 1);
     }
 
     // Get the character player ID
@@ -64,8 +66,19 @@ int main(int argc, char** argv) {
     style.y = 0;
     style.scale = scale;
 
+    auto& player = stateManager.getState().player;
+    player.gold = 1234;
+
     ui::PageInventoryProps pageProps;
-    pageProps.characterPlayer = &characterPlayer;
+    pageProps.characterPlayerId = characterPlayer.id;
+    pageProps.characterPlayerLabel = characterPlayer.params.label;
+    pageProps.partyMemberIndex = player.currentPartyMemberIndex;
+    pageProps.characterPlayerSprite = model::characterPlayerGetSprite(characterPlayer);
+    pageProps.weightCarrying =
+        model::characterGetWeightCarrying(characterPlayer, &database);
+    pageProps.weightCapacity = model::characterGetWeightCapacity(characterPlayer);
+    pageProps.gold = player.gold;
+    pageProps.inventory = characterPlayer.inventory;
     pageInventory->setProps(pageProps);
 
     elements.push_back(std::unique_ptr<ui::UiElement>(pageInventory));

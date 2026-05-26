@@ -11,7 +11,6 @@ interface SpritePickerProps {
   onChange: (spriteName: string) => void;
   scale?: number;
   className?: string;
-  maxHeight?: string;
 }
 
 const calculateScale = (sprite: SpriteType) => {
@@ -29,7 +28,6 @@ export function SpritePicker({
   onChange,
   scale = 2,
   className = '',
-  maxHeight = '400px',
 }: SpritePickerProps) {
   const { sprites, spriteMap } = useSDL2WAssets();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -77,10 +75,6 @@ export function SpritePicker({
       setSelectedSpriteName('');
     }
     setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
   };
 
   const handleOk = () => {
@@ -209,117 +203,134 @@ export function SpritePicker({
       {isModalOpen && (
         <GenericModal
           title="Select Sprite"
+          fillBody
+          maxWidth="900px"
           onConfirm={handleOk}
           onCancel={handleCancel}
           body={() => (
-            <>
-              <ModalRowLayout
-                fixedHeight={400}
-                fixedContent={
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <OptionSelect
-                      label="Spritesheet"
-                      value={selectedSpritesheet}
-                      onChange={handleSpritesheetChange}
-                      options={spritesheetOptions}
-                    />
-                    {previewSprite && selectedSpriteName && (
+            <ModalRowLayout
+              sidebar={
+                <div onClick={(e) => e.stopPropagation()}>
+                  <OptionSelect
+                    label="Spritesheet"
+                    value={selectedSpritesheet}
+                    onChange={handleSpritesheetChange}
+                    options={spritesheetOptions}
+                  />
+                  {previewSprite && selectedSpriteName && (
+                    <div
+                      style={{
+                        marginTop: '12px',
+                        padding: '12px',
+                        backgroundColor: '#1e1e1e',
+                        borderRadius: '4px',
+                        textAlign: 'center',
+                      }}
+                    >
                       <div
                         style={{
-                          marginTop: '20px',
-                          padding: '20px',
-                          backgroundColor: '#1e1e1e',
-                          borderRadius: '4px',
-                          textAlign: 'center',
+                          marginBottom: '8px',
+                          color: '#d4d4d4',
+                          fontSize: '12px',
                         }}
                       >
-                        <div style={{ marginBottom: '10px', color: '#d4d4d4' }}>
-                          Preview:
-                        </div>
-                        <div
-                          style={{
-                            display: 'inline-block',
-                            padding: '10px',
-                            backgroundColor: '#2d2d30',
-                            borderRadius: '4px',
-                          }}
-                        >
-                          <Sprite
-                            sprite={previewSprite}
-                            scale={calculateScale(previewSprite)}
-                          />
-                        </div>
-                        <div
-                          style={{
-                            marginTop: '10px',
-                            color: '#858585',
-                            fontSize: '12px',
-                          }}
-                        >
-                          {previewSprite.name}
-                        </div>
+                        Preview
+                      </div>
+                      <div
+                        style={{
+                          display: 'inline-block',
+                          padding: '8px',
+                          backgroundColor: '#2d2d30',
+                          borderRadius: '4px',
+                        }}
+                      >
+                        <Sprite
+                          sprite={previewSprite}
+                          scale={calculateScale(previewSprite)}
+                        />
+                      </div>
+                      <div
+                        style={{
+                          marginTop: '8px',
+                          color: '#858585',
+                          fontSize: '11px',
+                          wordBreak: 'break-word',
+                        }}
+                      >
+                        {previewSprite.name}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              }
+              main={
+                selectedSpritesheet ? (
+                  <>
+                    <label
+                      style={{
+                        display: 'block',
+                        flexShrink: 0,
+                        marginBottom: '8px',
+                        color: '#d4d4d4',
+                        fontSize: '14px',
+                        fontWeight: 500,
+                      }}
+                    >
+                      Sprite
+                    </label>
+                    {sheetSprites.length > 0 ? (
+                      <div
+                        style={{
+                          flex: 1,
+                          minHeight: 0,
+                          overflowY: 'auto',
+                          display: 'grid',
+                          gridTemplateColumns:
+                            'repeat(auto-fill, minmax(80px, 1fr))',
+                          gap: '12px',
+                          padding: '12px',
+                          backgroundColor: '#1e1e1e',
+                          borderRadius: '4px',
+                          alignContent: 'start',
+                        }}
+                      >
+                        {spriteCanvases}
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          flex: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '20px',
+                          textAlign: 'center',
+                          color: '#858585',
+                          backgroundColor: '#1e1e1e',
+                          borderRadius: '4px',
+                        }}
+                      >
+                        No sprites found in this spritesheet
                       </div>
                     )}
-                  </div>
-                }
-                resizableContent={
+                  </>
+                ) : (
                   <div
                     style={{
-                      width: '100%',
-                      height: '100%',
-                      marginBottom: '20px',
+                      flex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#858585',
                     }}
                   >
-                    {selectedSpritesheet && (
-                      <>
-                        <label
-                          style={{
-                            display: 'block',
-                            marginBottom: '8px',
-                            color: '#d4d4d4',
-                            fontSize: '14px',
-                            fontWeight: 500,
-                          }}
-                        >
-                          Sprite
-                        </label>
-                        {sheetSprites.length > 0 ? (
-                          <div
-                            style={{
-                              display: 'grid',
-                              gridTemplateColumns:
-                                'repeat(auto-fill, minmax(80px, 1fr))',
-                              gap: '12px',
-                              padding: '15px',
-                              backgroundColor: '#1e1e1e',
-                              borderRadius: '4px',
-                              height: 'calc(100% - 60px)',
-                              overflowY: 'auto',
-                            }}
-                          >
-                            {spriteCanvases}
-                          </div>
-                        ) : (
-                          <div
-                            style={{
-                              padding: '20px',
-                              textAlign: 'center',
-                              color: '#858585',
-                              backgroundColor: '#1e1e1e',
-                              borderRadius: '4px',
-                            }}
-                          >
-                            No sprites found in this spritesheet
-                          </div>
-                        )}
-                      </>
-                    )}
+                    Select a spritesheet
                   </div>
-                }
-              />
-            </>
+                )
+              }
+            />
           )}
-        ></GenericModal>
+        />
       )}
     </>
   );

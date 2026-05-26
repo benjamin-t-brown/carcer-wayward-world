@@ -5,6 +5,10 @@
 #include <string>
 #include <vector>
 
+namespace db {
+class Database;
+}
+
 namespace model {
 
 enum class CharacterTemplateType {
@@ -89,21 +93,35 @@ struct CharacterTemplate {
 
 struct Character {
   std::string id;
-  std::string name;
   std::string templateName;
 };
+
+std::string characterGetSprite(const Character& character, const db::Database* database);
 
 struct CharacterPlayer : Character {
   std::vector<CharacterInventoryItem> inventory;
   CharacterPlayerEquipment equipment;
+  CharacterTemplate params;
 
   CharacterPlayer();
-
-  bool isItemEquippedById(const std::string& itemId) const;
-  std::optional<CharacterInventoryItem>
-  findItemInInventoryByName(const std::string& itemName) const;
-  void addItemToInventory(const model::ItemTemplate& itemTemplate, int quantity = 1);
-  void removeItemFromInventoryByName(const std::string& itemName, int quantity = 1);
 };
+
+std::string characterPlayerGetSprite(const CharacterPlayer& characterPlayer);
+
+bool characterPlayerIsItemEquippedById(const CharacterPlayer& characterPlayer,
+                                       const std::string& itemId);
+std::optional<CharacterInventoryItem>
+characterPlayerFindItemInInventoryByName(const CharacterPlayer& characterPlayer,
+                                         const std::string& itemName);
+void characterPlayerAddItemToInventory(CharacterPlayer& characterPlayer,
+                                       const model::ItemTemplate& itemTemplate,
+                                       int quantity = 1);
+void characterPlayerRemoveItemFromInventoryByName(CharacterPlayer& characterPlayer,
+                                                  const std::string& itemName,
+                                                  int quantity = 1);
+int characterGetWeightCarrying(const CharacterPlayer& characterPlayer,
+                               const db::Database* database);
+int characterGetWeightCapacity(const CharacterPlayer& characterPlayer);
+std::vector<ItemInstance> characterGetNearbyItems(const CharacterPlayer& characterPlayer);
 
 } // namespace model

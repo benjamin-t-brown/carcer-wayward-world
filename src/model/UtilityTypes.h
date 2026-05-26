@@ -1,28 +1,21 @@
 #pragma once
 
-#include <cstdlib>
 #include <string>
 
 namespace model {
+
 struct TimerStruct {
-  int duration;
+  int duration = 1000;
   int t = 0;
 
-  TimerStruct(int _duration = 1000) : duration(_duration) {}
-  void start(int _duration = 0) {
-    t = 0;
-    if (_duration > 0) {
-      duration = _duration;
-    }
-  }
-  void restart() { t = 0; }
-  void update(int deltaTimeMs) { t += deltaTimeMs; }
-  bool isComplete() const { return t >= duration; }
-  double getPct() const { return static_cast<double>(t) / duration; }
+  TimerStruct(int duration = 1000);
 };
 
-inline std::string createRandomId() {
-  return std::to_string((rand() % 1000000) + (rand() % 1000000) + (rand() % 1000000));
-}
+std::string createRandomId();
+void timerStructStart(TimerStruct& timer, int duration = 0);
+void timerStructRestart(TimerStruct& timer);
+void timerStructUpdate(TimerStruct& timer, int deltaTimeMs);
+bool timerStructIsComplete(const TimerStruct& timer);
+double timerStructGetPct(const TimerStruct& timer);
 
 } // namespace model

@@ -1,6 +1,6 @@
 #include "ModalSmall.h"
 #include "lib/sdl2w/Draw.h"
-#include "ui/components/BorderModalSmall.h"
+#include "ui/components/borders/BorderModalSmall.h"
 #include "ui/elements/buttons/ButtonClose.h"
 
 namespace ui {
@@ -19,56 +19,49 @@ ModalSmallProps& ModalSmall::getProps() { return props; }
 
 const ModalSmallProps& ModalSmall::getProps() const { return props; }
 
-UiElement* ModalSmall::getChildById(const std::string& id) {
-  for (auto& child : children) {
-    if (child->getId() == id) {
-      return child.get();
-    }
+int ModalSmall::getScaledButtonsAreaHeight() {
+  auto borderElement = dynamic_cast<BorderModalSmall*>(getChildById("border"));
+  if (borderElement == nullptr) {
+    return 0;
   }
-  return nullptr;
+  return static_cast<int>(BUTTONS_AREA_HEIGHT * borderElement->getStyle().scale);
 }
 
-void ModalSmall::removeChildById(const std::string& id) {
-  for (size_t i = 0; i < children.size(); i++) {
-    auto& child = children[i];
-    if (child->getId() == id) {
-      children.erase(children.begin() + i);
-      return;
-    }
+const std::pair<int, int> ModalSmall::getButtonsDims() {
+  auto borderElement = dynamic_cast<BorderModalSmall*>(getChildById("border"));
+  if (borderElement == nullptr) {
+    return {0, 0};
   }
+  auto [contentW, _] = borderElement->getContentDims();
+  return {contentW, getScaledButtonsAreaHeight()};
 }
 
-void ModalSmall::build() {
-  removeChildById("border");
-  removeChildById("closeButton");
+const std::pair<int, int> ModalSmall::getButtonsLocation() {
+  auto borderElement = dynamic_cast<BorderModalSmall*>(getChildById("border"));
+  if (borderElement == nullptr) {
+    return {0, 0};
+  }
+  auto [contentX, contentY] = borderElement->getContentLocation();
+  auto [_, contentH] = borderElement->getContentDims();
+  int buttonsH = getScaledButtonsAreaHeight();
+  return {contentX, contentY + contentH - buttonsH};
+}
 
-  // Create border element
-  auto border = new BorderModalSmall(window, this);
-  border->setId("border");
-  auto& borderStyle = border->getStyle();
-  borderStyle.x = style.x;
-  borderStyle.y = style.y;
-  borderStyle.width = style.width;
-  borderStyle.height = style.height;
-  addChild(border);
+const std::pair<int, int> ModalSmall::getContentDims() {
+  auto borderElement = dynamic_cast<BorderModalSmall*>(getChildById("border"));
+  if (borderElement == nullptr) {
+    return {0, 0};
+  }
+  auto [contentW, contentH] = borderElement->getContentDims();
+  return {contentW, contentH - getScaledButtonsAreaHeight()};
+}
 
-  // Get close button location before moving border
-  auto closeLocation = border->getCloseButtonLocation();
-
-  auto modalClose = new ButtonClose(window, this);
-  modalClose->setId("closeButton");
-  ui::BaseStyle modalCloseStyle;
-  modalCloseStyle.x = closeLocation.first;
-  modalCloseStyle.y = closeLocation.second;
-  modalCloseStyle.width = 32;
-  modalCloseStyle.height = 32;
-  modalClose->setStyle(modalCloseStyle);
-  ui::ButtonCloseProps modalCloseProps;
-  modalCloseProps.closeType = ui::CloseType::MODAL;
-  modalClose->setProps(modalCloseProps);
-  addChild(modalClose);
-
-  // TODO decoration sprite
+const std::pair<int, int> ModalSmall::getContentLocation() {
+  auto borderElement = dynamic_cast<BorderModalSmall*>(getChildById("border"));
+  if (borderElement == nullptr) {
+    return {0, 0};
+  }
+  return borderElement->getContentLocation();
 }
 
 void ModalSmall::setTitleElement(UiElement* _titleElement) {
@@ -89,24 +82,43 @@ void ModalSmall::setTitleElement(UiElement* _titleElement) {
 
 UiElement* ModalSmall::getTitleElement() { return getChildById("title"); }
 
-void ModalSmall::setContentElement(UiElement* _contentElement) {
-  removeChildById("content");
-  auto borderElement = dynamic_cast<BorderModalSmall*>(getChildById("border"));
-  // Add new content element
-  if (_contentElement && borderElement) {
-    BaseStyle& contentStyle = _contentElement->getStyle();
-    auto contentLocation = borderElement->getContentLocation();
-    contentStyle.x = contentLocation.first;
-    contentStyle.y = contentLocation.second;
-    _contentElement->setStyle(contentStyle);
-    _contentElement->setId("content");
-    children.push_back(std::unique_ptr<UiElement>(_contentElement));
-  }
-}
-
-UiElement* ModalSmall::getContentElement() { return getChildById("content"); }
-
 UiElement* ModalSmall::getCloseButtonElement() { return getChildById("closeButton"); }
+
+void ModalSmall::build() {
+  removeChildById("border");
+  removeChildById("closeButton");
+
+  // Create border element
+  auto border = new BorderModalSmall(window, this);
+  border->setId("border");
+  auto& borderStyle = border->getStyle();
+  borderStyle.x = style.x;
+  borderStyle.y = style.y;
+  borderStyle.width = style.width;
+  borderStyle.height = style.height;
+  borderStyle.scale = style.scale;
+  addChild(border);
+
+  if (props.enableCloseButton) {
+    auto [closeX, closeY] = border->getCloseButtonLocation();
+
+    auto modalClose = new ButtonClose(window, this);
+    modalClose->setId("closeButton");
+    ui::BaseStyle modalCloseStyle;
+    modalCloseStyle.x = closeX;
+    modalCloseStyle.y = closeY;
+    modalCloseStyle.width = 32;
+    modalCloseStyle.height = 32;
+    modalCloseStyle.scale = style.scale;
+    modalClose->setStyle(modalCloseStyle);
+    ui::ButtonCloseProps modalCloseProps;
+    modalCloseProps.closeType = ui::CloseType::MODAL;
+    modalClose->setProps(modalCloseProps);
+    addChild(modalClose);
+  }
+
+  // TODO decoration sprite
+}
 
 void ModalSmall::render(int dt) {
   auto& draw = window->getDraw();

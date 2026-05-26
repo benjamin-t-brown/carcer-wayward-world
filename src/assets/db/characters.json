@@ -33,5 +33,215 @@
     "vision": {
       "radius": 5
     }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "testPartyMember1",
+    "label": "Test Party 1",
+    "spritesheet": "actors0",
+    "spriteOffset": 2,
+    "talk": {
+      "talkName": "talkId",
+      "portraitName": "portraitSprite"
+    },
+    "combat": {
+      "stats": {
+        "str": 10,
+        "mnd": 10,
+        "con": 10,
+        "agi": 10,
+        "lck": 10
+      },
+      "hp": 100,
+      "mp": 50,
+      "behaviorType": "",
+      "dropTable": ""
+    },
+    "combatTemplate": {
+      "id": "templateId"
+    },
+    "sound": {
+      "deathSound": "soundName",
+      "weaponSound": "soundName"
+    },
+    "statuses": [],
+    "vision": {
+      "radius": 5
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "testPartyMember2",
+    "label": "Test Party 2",
+    "spritesheet": "actors0",
+    "spriteOffset": 6,
+    "talk": {
+      "talkName": "talkId",
+      "portraitName": "portraitSprite"
+    },
+    "combat": {
+      "stats": {
+        "str": 10,
+        "mnd": 10,
+        "con": 10,
+        "agi": 10,
+        "lck": 10
+      },
+      "hp": 100,
+      "mp": 50,
+      "behaviorType": "",
+      "dropTable": ""
+    },
+    "combatTemplate": {
+      "id": "templateId"
+    },
+    "sound": {
+      "deathSound": "soundName",
+      "weaponSound": "soundName"
+    },
+    "statuses": [],
+    "vision": {
+      "radius": 5
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "testPartyMember3",
+    "label": "Test Party 3",
+    "spritesheet": "actors0",
+    "spriteOffset": 8,
+    "talk": {
+      "talkName": "talkId",
+      "portraitName": "portraitSprite"
+    },
+    "combat": {
+      "stats": {
+        "str": 10,
+        "mnd": 10,
+        "con": 10,
+        "agi": 10,
+        "lck": 10
+      },
+      "hp": 100,
+      "mp": 50,
+      "behaviorType": "",
+      "dropTable": ""
+    },
+    "combatTemplate": {
+      "id": "templateId"
+    },
+    "sound": {
+      "deathSound": "soundName",
+      "weaponSound": "soundName"
+    },
+    "statuses": [],
+    "vision": {
+      "radius": 5
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "testPartyMember4",
+    "label": "Test Party 4",
+    "spritesheet": "actors0",
+    "spriteOffset": 14,
+    "talk": {
+      "talkName": "talkId",
+      "portraitName": "portraitSprite"
+    },
+    "combat": {
+      "stats": {
+        "str": 10,
+        "mnd": 10,
+        "con": 10,
+        "agi": 10,
+        "lck": 10
+      },
+      "hp": 100,
+      "mp": 50,
+      "behaviorType": "",
+      "dropTable": ""
+    },
+    "combatTemplate": {
+      "id": "templateId"
+    },
+    "sound": {
+      "deathSound": "soundName",
+      "weaponSound": "soundName"
+    },
+    "statuses": [],
+    "vision": {
+      "radius": 5
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "testPartyMember5",
+    "label": "Test Party 5",
+    "spritesheet": "actors0",
+    "spriteOffset": 20,
+    "talk": {
+      "talkName": "talkId",
+      "portraitName": "portraitSprite"
+    },
+    "combat": {
+      "stats": {
+        "str": 10,
+        "mnd": 10,
+        "con": 10,
+        "agi": 10,
+        "lck": 10
+      },
+      "hp": 100,
+      "mp": 50,
+      "behaviorType": "",
+      "dropTable": ""
+    },
+    "combatTemplate": {
+      "id": "templateId"
+    },
+    "sound": {
+      "deathSound": "soundName",
+      "weaponSound": "soundName"
+    },
+    "statuses": [],
+    "vision": {
+      "radius": 5
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "testPartyMember6",
+    "label": "Test Party 6",
+    "spritesheet": "actors0",
+    "spriteOffset": 28,
+    "talk": {
+      "talkName": "talkId",
+      "portraitName": "portraitSprite"
+    },
+    "combat": {
+      "stats": {
+        "str": 10,
+        "mnd": 10,
+        "con": 10,
+        "agi": 10,
+        "lck": 10
+      },
+      "hp": 100,
+      "mp": 50,
+      "behaviorType": "",
+      "dropTable": ""
+    },
+    "combatTemplate": {
+      "id": "templateId"
+    },
+    "sound": {
+      "deathSound": "soundName",
+      "weaponSound": "soundName"
+    },
+    "statuses": [],
+    "vision": {
+      "radius": 5
+    }
   }
 ]

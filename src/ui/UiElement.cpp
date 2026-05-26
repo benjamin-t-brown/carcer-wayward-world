@@ -20,7 +20,7 @@ void UiEventObserver::onMouseWheel(int x, int y, int delta) {
 UiElement::UiElement(sdl2w::Window* _window, UiElement* _parent)
     : window(_window), parent(_parent), stateInterface(std::nullopt) {}
 
-UiElement* UiElement::getChildById(const std::string& searchId) {
+UiElement* UiElement::getChildById(std::string_view searchId) {
   if (id == searchId) {
     return this;
   }
@@ -35,7 +35,7 @@ UiElement* UiElement::getChildById(const std::string& searchId) {
   return nullptr;
 }
 
-void UiElement::removeChildById(const std::string& id) {
+void UiElement::removeChildById(std::string_view id) {
   children.erase(std::remove_if(children.begin(),
                                 children.end(),
                                 [id](const std::unique_ptr<UiElement>& child) {

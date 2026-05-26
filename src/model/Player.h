@@ -7,6 +7,10 @@ namespace model {
 struct Player {
   std::string name;
   std::vector<model::CharacterPlayer> party;
-  CharacterPlayer* findPartyMember(const std::string& id);
+  int currentPartyMemberIndex = 0;
+  int gold = 0;
 };
+CharacterPlayer* playerFindPartyMemberById(Player& _player, const std::string& _id);
+CharacterPlayer* playerFindPartyMemberByIndex(Player& _player, int _index);
+
 } // namespace model

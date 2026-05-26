@@ -7,6 +7,8 @@ interface GenericModalProps {
   body: () => React.ReactNode;
   maxWidth?: string;
   disableCancel?: boolean;
+  /** Body fills remaining height; scroll is delegated to modal content (e.g. sprite grid). */
+  fillBody?: boolean;
 }
 
 export const GenericModal = (props: GenericModalProps) => {
@@ -35,67 +37,84 @@ export const GenericModal = (props: GenericModalProps) => {
           maxWidth: props.maxWidth ?? '90vw',
           width: '90%',
           maxHeight: '80vh',
-          overflow: 'auto',
+          height: props.fillBody ? '80vh' : undefined,
+          overflow: 'hidden',
           position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          style={{
-            position: 'absolute',
-            top: 1,
-            right: 5,
-            backgroundColor: 'transparent',
-            border: 'none',
-            color: '#d4d4d4',
-            fontSize: '24px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-          }}
-          onClick={props.onCancel}
-        >
-          <span>×</span>
-        </button>
-        <h2
-          style={{
-            color: '#4ec9b0',
-            marginBottom: '20px',
-            marginTop: 0,
-          }}
-        >
-          {props.title}
-        </h2>
-
-        {props.body()}
-
-        {props.disableCancel ? (
-          <div
+        <div style={{ flexShrink: 0, paddingRight: '28px' }}>
+          <button
+            type="button"
+            aria-label="Close"
             style={{
-              display: 'flex',
-              gap: '10px',
-              justifyContent: 'flex-end',
+              position: 'absolute',
+              top: 8,
+              right: 10,
+              backgroundColor: 'transparent',
+              border: 'none',
+              color: '#d4d4d4',
+              fontSize: '24px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              lineHeight: 1,
+              padding: '4px 8px',
+            }}
+            onClick={props.onCancel}
+          >
+            <span>×</span>
+          </button>
+          <h2
+            style={{
+              color: '#4ec9b0',
+              marginBottom: '16px',
+              marginTop: 0,
             }}
           >
+            {props.title}
+          </h2>
+        </div>
+
+        <div
+          style={{
+            flex: 1,
+            minHeight: 0,
+            overflow: props.fillBody ? 'hidden' : 'auto',
+            display: props.fillBody ? 'flex' : 'block',
+            flexDirection: 'column',
+          }}
+        >
+          {props.body()}
+        </div>
+
+        <div
+          style={{
+            flexShrink: 0,
+            display: 'flex',
+            gap: '10px',
+            justifyContent: 'flex-end',
+            marginTop: '16px',
+            paddingTop: '12px',
+            borderTop: '1px solid #3e3e42',
+          }}
+        >
+          {props.disableCancel ? (
             <Button variant="primary" onClick={props.onConfirm}>
               Okay
             </Button>
-          </div>
-        ) : (
-          <div
-            style={{
-              display: 'flex',
-              gap: '10px',
-              justifyContent: 'flex-end',
-            }}
-          >
-            <Button variant="primary" onClick={props.onConfirm}>
-              Confirm
-            </Button>
-            <Button variant="danger" onClick={props.onCancel}>
-              Cancel
-            </Button>
-          </div>
-        )}
+          ) : (
+            <>
+              <Button variant="primary" onClick={props.onConfirm}>
+                Confirm
+              </Button>
+              <Button variant="danger" onClick={props.onCancel}>
+                Cancel
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

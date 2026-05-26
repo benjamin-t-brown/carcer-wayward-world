@@ -1,27 +1,31 @@
 #pragma once
 
-#include "layers/ui/LayerContextMenuInventoryItem.h"
+#include "layers/LayerManager.h"
+#include "layers/ui/LayerInventoryContext.h"
 #include "state/AbstractAction.h"
 
 namespace state {
 
 namespace actions {
 
-class UiShowContextMenuInventory : public AbstractAction {
+class UiShowLayerInventoryContext : public AbstractAction {
   sdl2w::Window* window;
   std::string itemName;
   std::string itemId; // id of item in inventory
   void act() override {
     auto layerManager = getLayerManager();
-    auto layer = new layers::LayerContextMenuInventoryItem(window, itemId, itemName);
+    if (!layerManager) {
+      return;
+    }
+    auto layer = new layers::LayerInventoryContext(window, itemId, itemName);
     layerManager->addLayer(layer);
     layerManager->moveToFront(layer);
   }
 
 public:
-UiShowContextMenuInventory(sdl2w::Window* _window,
-                             std::string itemName,
-                             std::string itemId)
+  UiShowLayerInventoryContext(sdl2w::Window* _window,
+                              std::string itemName,
+                              std::string itemId)
       : window(_window), itemName(itemName), itemId(itemId) {}
 };
 

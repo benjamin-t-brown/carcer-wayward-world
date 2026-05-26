@@ -35,9 +35,14 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   };
 
   return (
-    <div className="form-group" style={{
-      filter: disabled ? 'grayscale(100%) brightness(1.75) sepia(100%)' : 'none',
-    }}>
+    <div
+      className="form-group"
+      style={{
+        filter: disabled
+          ? 'grayscale(100%) brightness(1.75) sepia(100%)'
+          : 'none',
+      }}
+    >
       {label && (
         <label htmlFor={id}>
           {label}
@@ -55,8 +60,10 @@ export const NumberInput: React.FC<NumberInputProps> = ({
         max={max}
         required={required}
         disabled={disabled}
+        style={{
+          maxWidth: '125px',
+        }}
       />
     </div>
   );
 };
-

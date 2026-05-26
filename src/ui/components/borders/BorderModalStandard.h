@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../UiElement.h"
-#include "ui/components/BorderModalSmall.h"
+#include "../../UiElement.h"
+#include "ui/components/borders/BorderModalSmall.h"
 
 namespace ui {
 
@@ -29,9 +29,12 @@ public:
   // const BorderModalStandardProps& getProps() const;
 
   const std::pair<int, int> getContentDims() const;
+  const std::pair<int, int> getIconSectionCenter() const;
   const std::pair<int, int> getTitleLocation() const;
+  const std::pair<int, int> getSubTitleLocation() const;
+  const std::pair<int, int> getSubTitleDims() const;
   const std::pair<int, int> getCloseButtonLocation() const;
-  const std::pair<int, int> getContentLoc() const;
+  const std::pair<int, int> getContentLocation() const;
 
   void renderBgOverlay();
 

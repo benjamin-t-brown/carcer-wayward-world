@@ -4,7 +4,7 @@
 #include "lib/sdl2w/Window.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
-#include "ui/components/BorderInGameNarrow.h"
+#include "ui/components/borders/BorderInGameNarrow.h"
 #include <memory>
 
 int main(int argc, char** argv) {

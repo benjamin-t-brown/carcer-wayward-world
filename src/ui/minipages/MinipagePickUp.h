@@ -1,19 +1,26 @@
 #pragma once
 
+#include "lib/sdl2w/L10n.h"
+#include "state/DatabaseInterface.h"
 #include "ui/UiElement.h"
 #include <string>
 #include <vector>
 
 namespace ui {
 
-// MinipagePickUp-specific properties
 struct MinipagePickUpProps {
-  std::vector<std::string> itemNames;
+  std::string titleText = TRANSLATE("Pick Up");
+  std::string statusText;
+  std::string weightText = "Carrying 0/100";
+  std::string partyMemberSpriteName = "actors0_0";
+  int partyMemberIndex = 0;
+  std::vector<model::ItemInstance> nearbyItems;
+  std::string doneButtonRemoveLayerId;
 };
 
 // MinipagePickUp - renders the pickup minipage with ModalSmall layout containing
 // a scrollable list of items that can be picked up.
-class MinipagePickUp : public UiElement {
+class MinipagePickUp : public UiElement, public state::DatabaseInterface {
 private:
   MinipagePickUpProps props;
 

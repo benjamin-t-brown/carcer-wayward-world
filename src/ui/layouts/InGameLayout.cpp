@@ -1,6 +1,6 @@
 #include "InGameLayout.h"
-#include "ui/components/BorderInGameNarrow.h"
-#include "ui/components/BorderInGameWide.h"
+#include "ui/components/borders/BorderInGameNarrow.h"
+#include "ui/components/borders/BorderInGameWide.h"
 #include "ui/elements/Quad.h"
 #include "ui/elements/buttons/ButtonWorldAction.h"
 

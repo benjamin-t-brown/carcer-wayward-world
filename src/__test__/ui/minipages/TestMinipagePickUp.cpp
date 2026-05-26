@@ -1,47 +1,19 @@
 #include "../../setupTestUi.h"
-#include "layers/LayerManager.h"
+#include "db/Database.h"
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
-#include "state/LayerManagerInterface.h"
+#include "model/UtilityTypes.h"
+#include "state/DatabaseInterface.h"
+#include "state/StateManagerInterface.h"
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/minipages/MinipagePickUp.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
-
-class TestLayer : public layers::Layer {
-public:
-  TestLayer(sdl2w::Window* _window) : layers::Layer(_window) {
-    std::vector<std::string> itemNames = {"PotionHealing",
-                                          "DaggerBronze",
-                                          "ShortSwordBronze",
-                                          "SwordBronze",
-                                          "LongbowOak"};
-
-    auto [windowWidth, windowHeight] = window->getDims();
-
-    auto minipagePickUp = std::make_unique<ui::MinipagePickUp>(window);
-    minipagePickUp->setId("minipagePickUp");
-    ui::BaseStyle style = minipagePickUp->getStyle();
-    style.width = 500;
-    style.height = windowHeight - 50;
-    style.x = (windowWidth - style.width) / 2;
-    style.y = (windowHeight - style.height) / 2;
-    minipagePickUp->setStyle(style);
-
-    ui::MinipagePickUpProps minipageProps;
-    minipageProps.itemNames = itemNames;
-    minipagePickUp->setProps(minipageProps);
-
-    addUiElement(minipagePickUp.release());
-  }
-};
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start MinipagePickUp test" << LOG_ENDL;
   srand(time(NULL));
-
-  std::unique_ptr<layers::LayerManager> layerManager;
 
   db::Database database;
   state::DatabaseInterface::setDatabase(&database);
@@ -50,41 +22,172 @@ int main(int argc, char** argv) {
   state::StateManager stateManager;
   state::StateManagerInterface::setStateManager(&stateManager);
 
+  std::vector<std::unique_ptr<ui::UiElement>> elements;
+
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "MinipagePickUp test initialized" << LOG_ENDL;
 
-    layerManager = std::make_unique<layers::LayerManager>(&window);
-    state::LayerManagerInterface::setLayerManager(layerManager.get());
-    layerManager->addLayer(new TestLayer(&window));
+    auto [windowWidth, windowHeight] = window.getDims();
+
+    auto scale = 1.f;
+    auto minipagePickUp = new ui::MinipagePickUp(&window);
+    minipagePickUp->setId("minipagePickUp");
+    auto& style = minipagePickUp->getStyle();
+    style.width = 500 / scale;
+    style.height = (windowHeight - 50) / scale;
+    style.x = (windowWidth - style.width * scale) / 2;
+    style.y = (windowHeight - style.height * scale) / 2;
+    style.scale = scale;
+
+    minipagePickUp->setProps({
+        .statusText = "Too heavy!",
+        .weightText = "Carrying 199/500",
+        .nearbyItems =
+            {
+                // clang-format off
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "PotionHealing",
+                    .quantity = 5,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "DaggerBronze",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "ShortSwordBronze",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "SwordBronze",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "LongbowOak",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "PotionHealing",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "DaggerBronze",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "ShortSwordBronze",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "SwordBronze",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "LongbowOak",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "PotionHealing",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "DaggerBronze",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "ShortSwordBronze",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "SwordBronze",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "LongbowOak",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "PotionHealing",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "DaggerBronze",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "ShortSwordBronze",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "SwordBronze",
+                    .quantity = 1,
+                },
+                model::ItemInstance{
+                    .id = model::createRandomId(),
+                    .itemName = "LongbowOak",
+                    .quantity = 1,
+                },
+                // clang-format on
+            },
+    });
+
+    elements.push_back(std::unique_ptr<ui::UiElement>(minipagePickUp));
 
     auto& events = window.getEvents();
-    events.setMouseEvent(
-        sdl2w::MouseEventCb::ON_MOUSE_DOWN,
-        [&](int x, int y, int button) {
-          LOG(INFO) << "Mouse down at: " << x << ", " << y << " - button: " << button
-                    << LOG_ENDL;
-          layerManager->handleMouseDown(x, y, button);
-        });
-    events.setMouseEvent(
-        sdl2w::MouseEventCb::ON_MOUSE_UP, [&](int x, int y, int button) {
-          layerManager->handleMouseUp(x, y, button);
-        });
-    events.setMouseEvent(
-        sdl2w::MouseEventCb::ON_MOUSE_WHEEL, [&](int x, int y, int delta) {
-          layerManager->handleMouseWheel(x, y, delta);
-        });
+    events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_DOWN,
+                         [&](int x, int y, int button) {
+                           LOG(INFO) << "Mouse down at: " << x << ", " << y
+                                     << " - button: " << button << LOG_ENDL;
+                           for (auto& elem : elements) {
+                             elem->checkMouseDownEvent(x, y, button);
+                           }
+                         });
+    events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_UP, [&](int x, int y, int button) {
+      for (auto& elem : elements) {
+        elem->checkMouseUpEvent(x, y, button);
+      }
+    });
+    events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_WHEEL,
+                         [&](int x, int y, int delta) {
+                           for (auto& elem : elements) {
+                             elem->checkMouseWheelEvent(x, y, delta);
+                           }
+                         });
   };
 
   auto _update = [&](sdl2w::Window& window, sdl2w::Store& store) {
-    layerManager->update(window.getDeltaTime());
     stateManager.update(window.getDeltaTime());
+    for (auto& elem : elements) {
+      elem->checkHoverEvent(window.getEvents().mouseX, window.getEvents().mouseY);
+    }
   };
 
   auto _render = [&](sdl2w::Window& window, sdl2w::Store& store) {
     auto& draw = window.getDraw();
     draw.setBackgroundColor(SDL_Color{100, 100, 100, 255});
     draw.clearScreen();
-    layerManager->render(window.getDeltaTime());
+
+    for (auto& elem : elements) {
+      elem->render(window.getDeltaTime());
+    }
   };
 
   auto _updateRender = [&](sdl2w::Window& window, sdl2w::Store& store) {
@@ -93,8 +196,12 @@ int main(int argc, char** argv) {
     return true;
   };
 
-  setupTestUi(
-      argc, argv, TestUiParams{800, 600, "MinipagePickUp Test"}, _init, _updateRender, [&]() { layerManager.reset(); });
+  setupTestUi(argc,
+              argv,
+              TestUiParams{800, 600, "MinipagePickUp Test"},
+              _init,
+              _updateRender,
+              [&]() { elements.clear(); });
   LOG(INFO) << "End MinipagePickUp test" << LOG_ENDL;
   return 0;
 }

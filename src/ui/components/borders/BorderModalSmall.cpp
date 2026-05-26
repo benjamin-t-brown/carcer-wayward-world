@@ -26,6 +26,13 @@ const std::pair<int, int> BorderModalSmall::getContentDims() const {
           scaledHeight - scaledBorderWidth * 2 - scaledHeaderHeight};
 }
 
+const std::pair<int, int> BorderModalSmall::getContentLocation() const {
+  int contentX = style.x + props.borderWidth * style.scale;
+  int contentY =
+      style.y + props.headerHeight * style.scale + props.borderWidth * style.scale;
+  return {contentX, contentY};
+}
+
 const std::pair<int, int> BorderModalSmall::getIconBorderLocation() const {
   int scaledBorderWidth = static_cast<int>(props.borderWidth * style.scale);
   int margin = style.scale * (props.headerHeight - props.iconSize) / 2;
@@ -36,7 +43,8 @@ const std::pair<int, int> BorderModalSmall::getIconBorderLocation() const {
 
 const std::pair<int, int> BorderModalSmall::getIconLocationCenter() const {
   auto [iconBorderX, iconBorderY] = getIconBorderLocation();
-  return {iconBorderX + props.iconSize / 2, iconBorderY + props.iconSize / 2};
+  return {iconBorderX + props.iconSize * style.scale / 2,
+          iconBorderY + props.iconSize * style.scale / 2};
 }
 
 const std::pair<int, int> BorderModalSmall::getCloseButtonLocation() const {
@@ -49,15 +57,10 @@ const std::pair<int, int> BorderModalSmall::getCloseButtonLocation() const {
 const std::pair<int, int> BorderModalSmall::getTitleLocation() const {
   int scaledBorderWidth = static_cast<int>(props.borderWidth * style.scale);
   int margin = style.scale * (props.headerHeight - props.iconSize) / 2;
-  int titleX = style.x + scaledBorderWidth + margin * 2 + props.iconSize;
-  int titleY = style.y + scaledBorderWidth + props.headerHeight / 2;
+  int titleX = style.x + scaledBorderWidth + margin * 2 * style.scale +
+               props.iconSize * style.scale;
+  int titleY = style.y + scaledBorderWidth + props.headerHeight * style.scale / 2;
   return {titleX, titleY};
-}
-
-const std::pair<int, int> BorderModalSmall::getContentLocation() const {
-  int contentX = style.x + props.borderWidth;
-  int contentY = style.y + props.headerHeight + props.borderWidth;
-  return {contentX, contentY};
 }
 
 void BorderModalSmall::build() {}
@@ -123,8 +126,11 @@ void BorderModalSmall::render(int dt) {
                 Colors::ModalHeaderBackground);
   // icon background
   auto [iconBorderX, iconBorderY] = getIconBorderLocation();
-  draw.drawRect(
-      iconBorderX, iconBorderY, props.iconSize, props.iconSize, Colors::DarkBlue);
+  draw.drawRect(iconBorderX,
+                iconBorderY,
+                props.iconSize * style.scale,
+                props.iconSize * style.scale,
+                Colors::DarkBlue);
   UiElement::render(dt);
   renderBgOverlay();
 }

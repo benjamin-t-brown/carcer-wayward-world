@@ -10,6 +10,7 @@ namespace ui {
 struct ModalSmallProps {
   SDL_Color backgroundColor = Colors::White;
   std::string iconSprite = "";
+  bool enableCloseButton = true;
 };
 
 // ModalSmall layout - renders a small modal with background, border, title, subtitle, close
@@ -18,7 +19,11 @@ class ModalSmall : public UiElement {
 private:
   ModalSmallProps props;
 
+  int getScaledButtonsAreaHeight();
+
 public:
+  static const int BUTTONS_AREA_HEIGHT = 50;
+
   ModalSmall(sdl2w::Window* _window, UiElement* _parent = nullptr);
   ~ModalSmall() override = default;
 
@@ -27,15 +32,13 @@ public:
   ModalSmallProps& getProps();
   const ModalSmallProps& getProps() const;
 
-  // Helper methods for child management
-  UiElement* getChildById(const std::string& id) override;
-  void removeChildById(const std::string& id);
-
   void setTitleElement(UiElement* _titleElement);
   UiElement* getTitleElement();
-  void setContentElement(UiElement* _contentElement);
-  UiElement* getContentElement();
   UiElement* getCloseButtonElement();
+  const std::pair<int, int> getContentDims();
+  const std::pair<int, int> getContentLocation();
+  const std::pair<int, int> getButtonsDims();
+  const std::pair<int, int> getButtonsLocation();
 
   void build() override;
   void render(int dt) override;

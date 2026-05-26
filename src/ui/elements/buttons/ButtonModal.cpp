@@ -1,9 +1,7 @@
 #include "ButtonModal.h"
-#include "../Quad.h"
 #include "../TextLine.h"
 #include "ui/colors.h"
 #include "ui/elements/OutsetRectangle.h"
-#include <memory>
 
 namespace ui {
 
@@ -51,44 +49,28 @@ void ButtonModal::build() {
   } else {
     rectProps.borderSize = 2;
   }
-  rectProps.color = Colors::ButtonModalGrey1;
-  rectProps.colorTopRight = Colors::ButtonModalGrey2;
-  rectProps.colorBottomLeft = Colors::ButtonModalGrey3;
+  rectProps.color = props.bgColor;
+  rectProps.colorTopRight = props.bgColorTopRight;
+  rectProps.colorBottomLeft = props.bgColorBottomLeft;
   rect->setProps(rectProps);
 
-  children.push_back(std::unique_ptr<OutsetRectangle>(rect));
+  addChild(rect);
 
-  auto q = std::make_unique<Quad>(window);
-  BaseStyle quadStyle;
-  quadStyle.x = style.x;
-  quadStyle.y = style.y;
-  quadStyle.width = style.width;
-  quadStyle.height = style.height;
-  quadStyle.scale = style.scale;
-  if (isInActiveMode && !props.isSelected) {
-    quadStyle.x -= style.scale;
-  }
-  q->setStyle(quadStyle);
-  QuadProps quadProps;
-
-  // Change background color based on hover state
-  quadProps.bgColor = Colors::Transparent;
-  q->setProps(quadProps);
-
-  auto textLine = std::make_unique<TextLine>(window, this);
-  BaseStyle textStyle;
+  auto textLine = new TextLine(window, this);
+  auto& textStyle = textLine->getStyle();
   setBaseFontConfig(textStyle, BaseFontConfig::MODAL_BUTTON);
-  textStyle.x = style.width / 2;
-  textStyle.y = style.height / 2;
+  textStyle.x = style.x + style.width * style.scale / 2;
+  textStyle.y = style.y + style.height * style.scale / 2;
+  if (isInActiveMode && !props.isSelected) {
+    textStyle.x -= 1;
+  }
   textStyle.textAlign = TextAlign::CENTER;
-  textStyle.scale = style.scale;
-  textLine->setStyle(textStyle);
+  textStyle.scale = 1.f;
+  textStyle.fontColor = style.fontColor;
   TextLineProps textLineProps;
   textLineProps.textBlocks = {TextBlock{props.text}};
   textLine->setProps(textLineProps);
-  q->getChildren().push_back(std::move(textLine));
-
-  children.push_back(std::move(q));
+  addChild(textLine);
 }
 
 void ButtonModal::render(int dt) {
@@ -126,7 +108,7 @@ void ButtonModal::render(int dt) {
                   style.y - borderSize,
                   scaledWidth + borderSize * 2,
                   scaledHeight + borderSize * 2,
-                  Colors::ButtonModalSelected);
+                  props.bgColor);
   }
   UiElement::render(dt);
 }

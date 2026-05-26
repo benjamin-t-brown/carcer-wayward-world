@@ -10,6 +10,7 @@ namespace ui {
 struct ModalStandardProps {
   SDL_Color contentBackgroundColor = Colors::White;
   std::string decorationSprite = "";
+  std::string iconSprite;
 };
 
 // ModalStandard layout - renders a modal with background, border, title, subtitle, close
@@ -27,18 +28,14 @@ public:
   ModalStandardProps& getProps();
   const ModalStandardProps& getProps() const;
 
-  // Helper methods for child management
-  UiElement* getChildById(const std::string& id) override;
-  void removeChildById(const std::string& id);
-
   void setTitleElement(UiElement* _titleElement);
   UiElement* getTitleElement();
-  // void setContentElement(UiElement* _contentElement);
-  // UiElement* getContentElement();
   UiElement* getCloseButtonElement();
 
+  const std::pair<int, int> getSubTitleDims();
+  const std::pair<int, int> getSubTitleLocation();
   const std::pair<int, int> getContentDims();
-  const std::pair<int, int> getContentLoc();
+  const std::pair<int, int> getContentLocation();
 
   void build() override;
   void render(int dt) override;

@@ -12,4 +12,5 @@ struct State {
   model::Player player;
   UserSettings settings;
 };
+
 } // namespace state`

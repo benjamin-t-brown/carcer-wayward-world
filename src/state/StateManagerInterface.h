@@ -10,6 +10,7 @@ private:
 
 protected:
   static state::StateManager* getStateManager(bool throwIfNotSet = false);
+  bool hasStateManager() const { return stateManager != nullptr; }
 
 public:
   static void setStateManager(state::StateManager* _stateManager);

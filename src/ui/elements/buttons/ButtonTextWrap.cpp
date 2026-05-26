@@ -72,9 +72,9 @@ void ButtonTextWrap::render(int dt) {
   SDL_Color bgColor = Colors::Transparent;
 
   if (isActive) {
-    bgColor = SDL_Color{0, 0, 0, 100};
+    bgColor = SDL_Color{0, 0, 0, 25};
   } else if (isHovered) {
-    bgColor = SDL_Color{0, 0, 0, 50};
+    // bgColor = SDL_Color{0, 0, 0, 50};
   }
 
   auto& draw = window->getDraw();

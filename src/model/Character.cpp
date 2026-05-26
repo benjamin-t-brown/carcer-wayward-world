@@ -1,27 +1,39 @@
 #include "model/Character.h"
+#include "db/Database.h"
 #include "model/UtilityTypes.h"
 
 namespace model {
 
-CharacterPlayer::CharacterPlayer()  {
-  name = model::createRandomId();
+CharacterPlayer::CharacterPlayer() { id = createRandomId(); }
+
+std::string characterGetSprite(const Character& character, const db::Database* database) {
+  const auto& characterTemplate = database->getCharacterTemplate(character.templateName);
+  return characterTemplate.spritesheetName + "_" + characterTemplate.spriteOffset;
 }
 
-bool CharacterPlayer::isItemEquippedById(const std::string& itemId) const {
-  return equipment.weapon0Id == itemId ||
-         equipment.weapon1Id == itemId ||
-         equipment.ammoId == itemId ||
-         equipment.hatId == itemId ||
-         equipment.garbId == itemId ||
-         equipment.glovesId == itemId ||
-         equipment.pantsId == itemId ||
-         equipment.shoesId == itemId ||
-         equipment.necklaceId == itemId ||
-         equipment.shieldId == itemId;
+std::string characterPlayerGetSprite(const CharacterPlayer& characterPlayer) {
+  return characterPlayer.params.spritesheetName + "_" +
+         characterPlayer.params.spriteOffset;
 }
 
-std::optional<CharacterInventoryItem> CharacterPlayer::findItemInInventoryByName(const std::string& itemName) const {
-  for (const auto& item : inventory) {
+bool characterPlayerIsItemEquippedById(const CharacterPlayer& characterPlayer,
+                                       const std::string& itemId) {
+  return characterPlayer.equipment.weapon0Id == itemId ||
+         characterPlayer.equipment.weapon1Id == itemId ||
+         characterPlayer.equipment.ammoId == itemId ||
+         characterPlayer.equipment.hatId == itemId ||
+         characterPlayer.equipment.garbId == itemId ||
+         characterPlayer.equipment.glovesId == itemId ||
+         characterPlayer.equipment.pantsId == itemId ||
+         characterPlayer.equipment.shoesId == itemId ||
+         characterPlayer.equipment.necklaceId == itemId ||
+         characterPlayer.equipment.shieldId == itemId;
+}
+
+std::optional<CharacterInventoryItem>
+characterPlayerFindItemInInventoryByName(const CharacterPlayer& characterPlayer,
+                                         const std::string& itemName) {
+  for (const auto& item : characterPlayer.inventory) {
     if (item.itemName == itemName) {
       return item;
     }
@@ -29,12 +41,15 @@ std::optional<CharacterInventoryItem> CharacterPlayer::findItemInInventoryByName
   return std::nullopt;
 }
 
-void CharacterPlayer::addItemToInventory(const model::ItemTemplate& itemTemplate, int quantity) {
-  auto existingItem = findItemInInventoryByName(itemTemplate.name);
-  
+void characterPlayerAddItemToInventory(CharacterPlayer& characterPlayer,
+                                       const model::ItemTemplate& itemTemplate,
+                                       int quantity) {
+  auto existingItem =
+      characterPlayerFindItemInInventoryByName(characterPlayer, itemTemplate.name);
+
   if (existingItem.has_value()) {
     // Item exists, increase quantity
-    for (auto& item : inventory) {
+    for (auto& item : characterPlayer.inventory) {
       if (item.itemName == itemTemplate.name) {
         item.quantity += quantity;
         break;
@@ -46,23 +61,51 @@ void CharacterPlayer::addItemToInventory(const model::ItemTemplate& itemTemplate
     newItem.itemName = itemTemplate.name;
     newItem.id = createRandomId();
     newItem.quantity = quantity;
-    inventory.push_back(newItem);
+    characterPlayer.inventory.push_back(newItem);
   }
 }
 
-void CharacterPlayer::removeItemFromInventoryByName(const std::string& itemName, int quantity) {
-  for (auto it = inventory.begin(); it != inventory.end(); ++it) {
+void characterPlayerRemoveItemFromInventoryByName(CharacterPlayer& characterPlayer,
+                                                  const std::string& itemName,
+                                                  int quantity) {
+  for (auto it = characterPlayer.inventory.begin(); it != characterPlayer.inventory.end();
+       ++it) {
     if (it->itemName == itemName) {
       if (it->quantity > quantity) {
-        // Reduce quantity
         it->quantity -= quantity;
       } else {
-        // Remove item completely
-        inventory.erase(it);
+        characterPlayer.inventory.erase(it);
       }
       break;
     }
   }
+}
+
+int characterGetWeightCarrying(const CharacterPlayer& characterPlayer,
+                               const db::Database* database) {
+  int weight = 0;
+  for (const auto& item : characterPlayer.inventory) {
+    const auto& itemTemplate = database->getItemTemplate(item.itemName);
+    weight += item.quantity * itemTemplate.weight;
+  }
+  return weight;
+}
+
+int characterGetWeightCapacity(const CharacterPlayer& characterPlayer) {
+  return 100; // TODO derive
+}
+
+std::vector<ItemInstance>
+characterGetNearbyItems(const CharacterPlayer& characterPlayer) {
+  std::vector<ItemInstance> items{
+      ItemInstance{.id = createRandomId(), .itemName = "PotionHealing", .quantity = 1},
+      ItemInstance{.id = createRandomId(), .itemName = "DaggerBronze", .quantity = 1},
+      ItemInstance{.id = createRandomId(), .itemName = "ShortSwordBronze", .quantity = 1},
+      ItemInstance{.id = createRandomId(), .itemName = "SwordBronze", .quantity = 1},
+      ItemInstance{.id = createRandomId(), .itemName = "LongbowOak", .quantity = 1},
+      ItemInstance{.id = createRandomId(), .itemName = "ArrowsStone", .quantity = 50},
+  };
+  return items;
 }
 
 } // namespace model

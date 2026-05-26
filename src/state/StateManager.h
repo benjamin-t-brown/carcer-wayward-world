@@ -1,8 +1,9 @@
 #pragma once
 
-// #include "state/AbstractAction.h"
+#include "state/ActionBus.h"
 #include "state/DatabaseInterface.h"
 #include "state/State.h"
+#include <list>
 #include <memory>
 #include <vector>
 
@@ -15,25 +16,32 @@ namespace state {
 class AbstractAction;
 struct AsyncAction;
 
+struct ActionData {
+  std::list<std::unique_ptr<AsyncAction>> sequentialActions;
+  std::list<std::unique_ptr<AsyncAction>> sequentialActionsNext;
+  std::list<std::unique_ptr<AsyncAction>> insertActions;
+  std::vector<std::unique_ptr<AsyncAction>> parallelActions;
+};
+
 class StateManager : public state::DatabaseInterface {
 private:
   state::State state;
-  std::vector<std::unique_ptr<state::AsyncAction>> sequentialActions;
-  std::vector<std::unique_ptr<state::AsyncAction>> sequentialActionsNext;
-  std::vector<std::unique_ptr<state::AsyncAction>> parallelActions;
+  ActionData actionData;
+  ActionBus actionBus;
 
 public:
   StateManager();
   ~StateManager() = default;
 
   state::State& getState();
+  ActionData& getActionData();
+  ActionBus& getActionBus();
+  const ActionBus& getActionBus() const;
 
-  void enqueueAction(state::State& state, state::AbstractAction* action, int ms);
-
-  void
-  addParallelAction(State& state, std::unique_ptr<state::AbstractAction> action, int ms);
-
-  void moveSequentialActions(State& state);
+  void enqueueAction(ActionData& actions, AbstractAction* action, int ms);
+  void insertAction(ActionData& actions, AbstractAction* action, int ms);
+  void addParallelAction(ActionData& actions, AbstractAction* action, int ms);
+  void moveSequentialActions(ActionData& actions);
 
   void update(int dt);
 };

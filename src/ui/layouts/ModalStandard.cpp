@@ -1,5 +1,6 @@
 #include "ModalStandard.h"
-#include "ui/components/BorderModalStandard.h"
+#include "ui/components/borders/BorderModalStandard.h"
+#include "ui/elements/Quad.h"
 #include "ui/elements/buttons/ButtonClose.h"
 
 namespace ui {
@@ -16,23 +17,20 @@ ModalStandardProps& ModalStandard::getProps() { return props; }
 
 const ModalStandardProps& ModalStandard::getProps() const { return props; }
 
-UiElement* ModalStandard::getChildById(const std::string& id) {
-  for (auto& child : children) {
-    if (child->getId() == id) {
-      return child.get();
-    }
+const std::pair<int, int> ModalStandard::getSubTitleDims() {
+  auto borderElement = dynamic_cast<BorderModalStandard*>(getChildById("border"));
+  if (borderElement == nullptr) {
+    return {0, 0};
   }
-  return nullptr;
+  return borderElement->getSubTitleDims();
 }
 
-void ModalStandard::removeChildById(const std::string& id) {
-  for (size_t i = 0; i < children.size(); i++) {
-    auto& child = children[i];
-    if (child->getId() == id) {
-      children.erase(children.begin() + i);
-      return;
-    }
+const std::pair<int, int> ModalStandard::getSubTitleLocation() {
+  auto borderElement = dynamic_cast<BorderModalStandard*>(getChildById("border"));
+  if (borderElement == nullptr) {
+    return {0, 0};
   }
+  return borderElement->getSubTitleLocation();
 }
 
 const std::pair<int, int> ModalStandard::getContentDims() {
@@ -43,17 +41,18 @@ const std::pair<int, int> ModalStandard::getContentDims() {
   return borderElement->getContentDims();
 }
 
-const std::pair<int, int> ModalStandard::getContentLoc() {
+const std::pair<int, int> ModalStandard::getContentLocation() {
   auto borderElement = dynamic_cast<BorderModalStandard*>(getChildById("border"));
   if (borderElement == nullptr) {
     return {0, 0};
   }
-  return borderElement->getContentLoc();
+  return borderElement->getContentLocation();
 }
 
 void ModalStandard::build() {
   removeChildById("border");
   removeChildById("closeButton");
+  removeChildById("headerIcon");
 
   // Create border element
   auto border = new BorderModalStandard(window, this);
@@ -82,6 +81,30 @@ void ModalStandard::build() {
   modalCloseProps.closeType = ui::CloseType::MODAL;
   modalClose->setProps(modalCloseProps);
   addChild(modalClose);
+
+  if (!props.iconSprite.empty()) {
+    auto* border = dynamic_cast<BorderModalStandard*>(getChildById("border"));
+    if (border != nullptr) {
+      constexpr int kIconTextureSize = 32;
+      constexpr float kIconScale = 2.f;
+      constexpr int kIconDisplaySize = 64;
+      static_assert(kIconTextureSize * static_cast<int>(kIconScale) == kIconDisplaySize);
+
+      auto [centerX, centerY] = border->getIconSectionCenter();
+      const int screenIconSize = static_cast<int>(kIconDisplaySize * style.scale);
+
+      auto icon = new Quad(window, this);
+      icon->setId("headerIcon");
+      auto& iconStyle = icon->getStyle();
+      iconStyle.x = centerX - screenIconSize / 2;
+      iconStyle.y = centerY - screenIconSize / 2;
+      iconStyle.width = kIconTextureSize;
+      iconStyle.height = kIconTextureSize;
+      iconStyle.scale = kIconScale * style.scale;
+      icon->setProps(QuadProps{.bgSprite = props.iconSprite});
+      addChild(icon);
+    }
+  }
 
   // TODO decoration sprite
 }

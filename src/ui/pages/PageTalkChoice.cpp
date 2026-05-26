@@ -1,6 +1,6 @@
 #include "PageTalkChoice.h"
 #include "ui/colors.h"
-#include "ui/components/BorderModalStandard.h"
+#include "ui/components/borders/BorderModalStandard.h"
 #include "ui/elements/OutsetRectangle.h"
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
@@ -51,7 +51,7 @@ void PageTalkChoice::build() {
   children.push_back(std::unique_ptr<ModalStandard>(modal));
 
   auto [scaledContentW, scaledContentH] = modal->getContentDims();
-  auto [contentX, contentY] = modal->getContentLoc();
+  auto [contentX, contentY] = modal->getContentLocation();
   // auto choiceHeightScaled = props.choiceAreaHeight * style.scale;
 
   auto choiceSectionHeight = props.choiceAreaHeight;

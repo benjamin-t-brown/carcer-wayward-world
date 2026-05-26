@@ -1,50 +1,26 @@
 #include "ListInventory.h"
 #include "../VerticalList.h"
-#include "state/actions/ui/UiShowContextMenuInventory.hpp"
 #include "ui/colors.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/buttons/ButtonModal.h"
+#include "ui/observers/ObserverInventorySelectItem.hpp"
+#include "ui/observers/ObserverShowLayerInventoryContext.hpp"
 
 namespace ui {
-
-class ListInventoryItemContextButtonObserver : public UiEventObserver,
-                                               public state::StateManagerInterface {
-public:
-  sdl2w::Window* window;
-  std::string itemName;
-  std::string itemId;
-
-  ListInventoryItemContextButtonObserver(sdl2w::Window* _window,
-                                         std::string _itemName,
-                                         std::string _itemId)
-      : window(_window), itemName(_itemName), itemId(_itemId) {}
-
-  void onClick(int x, int y, int button) override {
-    auto stateManager = getStateManager();
-    if (!stateManager) {
-      return;
-    }
-    LOG(INFO) << "ListInventoryItemContextButtonObserver::onClick"
-              << " itemName: " << itemName << " itemId: " << itemId << LOG_ENDL;
-    stateManager->enqueueAction(
-        stateManager->getState(),
-        new state::actions::UiShowContextMenuInventory(window, itemName, itemId),
-        0);
-  }
-};
 
 // ListInventory Implementation
 ListInventory::ListInventory(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {}
 
 const std::pair<int, int> ListInventory::getDims() const {
+  int paddingHeight =
+      static_cast<int>((props.paddingTop + props.paddingBottom) * style.scale);
   if (children.empty()) {
-    return {style.width, 0};
+    return {style.width, paddingHeight};
   }
 
-  const auto& list = children[0];
-
-  return list->getDims();
+  auto [listWidth, listHeight] = children[0]->getDims();
+  return {listWidth, listHeight + paddingHeight};
 }
 
 void ListInventory::setProps(const ListInventoryProps& _props) {
@@ -92,6 +68,8 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item) 
   labelStyle.scale = 1.0f;
   labelStyle.x = iconStyle.width + 24 * style.scale;
   labelStyle.y = (s.height / 2);
+  label->addEventObserver(
+      new ui::ObserverInventorySelectItem(item.itemName, item.itemId));
 
   label->setProps({
       .textBlocks =
@@ -116,6 +94,8 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item) 
   contextBtn->setProps({
       .text = "*",
   });
+  contextBtn->addEventObserver(
+      new ui::ObserverShowLayerInventoryContext(window, item.itemName, item.itemId));
   container->addChild(contextBtn);
 
   return container;
@@ -129,7 +109,7 @@ void ListInventory::build() {
   list->setId("list");
   auto& s = list->getStyle();
   s.x = style.x;
-  s.y = style.y;
+  s.y = style.y + static_cast<int>(props.paddingTop * style.scale);
   s.width = style.width * style.scale;
   s.scale = 1.0f;
 

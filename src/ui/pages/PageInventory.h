@@ -3,11 +3,19 @@
 #include "model/Character.h"
 #include "ui/UiElement.h"
 #include "ui/components/lists/ListInventory.h"
+#include <string>
 
 namespace ui {
 
 struct PageInventoryProps {
-  model::CharacterPlayer* characterPlayer = nullptr;
+  std::string characterPlayerId;
+  std::string characterPlayerLabel;
+  std::string characterPlayerSprite;
+  int partyMemberIndex = 0;
+  int weightCarrying = 0;
+  int weightCapacity = 0;
+  int gold = 0;
+  std::vector<model::CharacterInventoryItem> inventory;
 };
 
 class PageInventory : public UiElement, public state::DatabaseInterface {
@@ -20,7 +28,6 @@ public:
   PageInventory(sdl2w::Window* _window, UiElement* _parent = nullptr);
   ~PageInventory() override = default;
 
-  // Setters and getters for page-specific properties
   void setProps(const PageInventoryProps& _props);
   PageInventoryProps& getProps();
   const PageInventoryProps& getProps() const;

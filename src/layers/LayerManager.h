@@ -24,7 +24,8 @@ public:
   // Layer management
   void addLayer(Layer* layer);
   void moveToFront(Layer* layer);
-  void popFront();
+
+  // void popFront();
 
   // Event handling - pass events to layers from top to bottom
   void handleMouseDown(int x, int y, int button);
@@ -38,6 +39,8 @@ public:
   const std::vector<Layer*>& getLayers() const;
   size_t getLayerCount() const;
   Layer* getLayerAt(size_t index);
+  Layer* getLayerById(std::string_view id);
+  Layer* getLastActiveLayer();
 
   // Update and draw all active layers
   void update(int deltaTime);

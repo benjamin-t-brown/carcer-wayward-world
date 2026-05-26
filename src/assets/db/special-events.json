@@ -2118,8 +2118,8 @@
         "x": 557.25,
         "y": 109,
         "eventChildType": "EXEC",
-        "h": 116,
-        "p": "A tall, dark woman bejeweled with sequins and gems on copious necklaces and bracelets flashes an inviting smile at you.  She stands next to a table of various gems, potions, and other trinkets.\n\n\"You here to buy something, hun?\"",
+        "h": 144,
+        "p": "This tall, dark woman is bejeweled with copious gem-inset necklaces, with sleeves of tacky golden bracelets. She flashes a smile at you, inviting your towards a table  bedecked with the same sort of gaudy paraphernalia which she wears, save perhaps, for a few unlabeled potions at the end of the table.\n\n\"You here to buy something, hun?\"",
         "execStr": "",
         "next": "ccjjjp9gio",
         "autoAdvance": true
@@ -2148,21 +2148,21 @@
           },
           {
             "text": "You said you're a Captain?",
-            "conditionStr": "IS(vars.@CHARACTER_ID.confirmedMerchantry)",
+            "conditionStr": "ALL(IS(vars.@CHARACTER_ID.confirmedMerchantry), ONCE())",
             "evalStr": "",
             "next": "lhvgsnooh9g",
             "prefixText": ""
           },
           {
             "text": "What's the Merchantry?",
-            "conditionStr": "IS(vars.@CHARACTER_ID.confirmedMerchantry)",
+            "conditionStr": "IS(vars.@CHARACTER_ID.confirmedMerchantry, ONCE())",
             "evalStr": "",
             "next": "n5bcpqng7dc",
             "prefixText": ""
           },
           {
             "text": "How does one join the Merchantry?",
-            "conditionStr": "IS(vars.@CHARACTER_ID.confirmedMerchantry)",
+            "conditionStr": "IS(vars.@CHARACTER_ID.confirmedMerchantry, ONCE())",
             "evalStr": "",
             "next": "qyh0fxea7zl",
             "prefixText": ""
@@ -2439,8 +2439,8 @@
         "x": 2362.5,
         "y": 381.5,
         "eventChildType": "EXEC",
-        "h": 50,
-        "p": "\"Typical Realm bureaucracy.\"",
+        "h": 60,
+        "p": "\"Typical Realm bureaucracy.  Nothing to concern yourself with.\"",
         "execStr": "",
         "next": "vgftckmuhe8",
         "autoAdvance": true

@@ -1,24 +1,28 @@
 #include "ListPickUp.h"
-#include "model/Items.h"
-#include "ui/colors.h"
 #include "../VerticalList.h"
-#include "ui/elements/SpriteElement.h"
+#include "ui/colors.h"
+#include "ui/elements/Quad.h"
 #include "ui/elements/TextLine.h"
+#include "ui/elements/buttons/ButtonModal.h"
+#include "ui/elements/buttons/ButtonTextWrap.h"
+#include "ui/observers/ObserverPickUpItem.hpp"
+#include "ui/observers/ObserverShowLayerPickUpContext.hpp"
+#include <algorithm>
 
 namespace ui {
 
-// ListPickUp Implementation
 ListPickUp::ListPickUp(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {}
 
 const std::pair<int, int> ListPickUp::getDims() const {
+  int paddingHeight =
+      static_cast<int>((props.paddingTop + props.paddingBottom) * style.scale);
   if (children.empty()) {
-    return {style.width, 0};
+    return {style.width, paddingHeight};
   }
 
-  const auto& list = children[0];
-
-  return list->getDims();
+  auto [listWidth, listHeight] = children[0]->getDims();
+  return {listWidth, listHeight + paddingHeight};
 }
 
 void ListPickUp::setProps(const ListPickUpProps& _props) {
@@ -28,131 +32,137 @@ void ListPickUp::setProps(const ListPickUpProps& _props) {
 
 const ListPickUpProps& ListPickUp::getProps() const { return props; }
 
+UiElement* ListPickUp::createItemElement(const ListPickUpPropsItem& listItem) {
+  auto container = new Quad(window, this);
+  container->setId(listItem.item.itemName);
+  auto& containerStyle = container->getStyle();
+  containerStyle.width = style.width * style.scale;
+  containerStyle.height = props.lineHeight * style.scale;
+  containerStyle.scale = 1.0f;
+  container->setProps({
+      .bgColor = Colors::Transparent,
+  });
+
+  float iconScale = 2.f;
+  auto icon = new Quad(window, this);
+  icon->setId("icon");
+  auto& iconStyle = icon->getStyle();
+  iconStyle.width = iconSpriteSize;
+  iconStyle.height = iconSpriteSize;
+  iconStyle.x = 0;
+  iconStyle.y = (containerStyle.height - iconStyle.height * style.scale * iconScale) / 2;
+  iconStyle.scale = iconScale * style.scale;
+  icon->setProps({
+      .bgColor = {66, 202, 253, 50},
+      .bgSprite = listItem.itemSprite,
+  });
+  container->addChild(icon);
+
+  const int weightRightPadding = 8;
+  const int labelWeightGap = 8;
+  const int labelX = iconStyle.width + static_cast<int>(24 * style.scale);
+  const int scaledContextBtnSize = contextBtnSize * style.scale;
+
+  auto contextBtn = new ButtonModal(window, this);
+  contextBtn->setId("contextBtn");
+  auto& contextBtnStyle = contextBtn->getStyle();
+  contextBtnStyle.x = containerStyle.width - scaledContextBtnSize;
+  contextBtnStyle.y = (containerStyle.height - scaledContextBtnSize) / 2;
+  contextBtnStyle.width = scaledContextBtnSize;
+  contextBtnStyle.height = scaledContextBtnSize;
+  contextBtnStyle.fontColor = Colors::DarkBlue;
+  contextBtnStyle.scale = 1.0f;
+  contextBtn->setProps({
+      .text = "?",
+      .bgColor = Colors::Transparent,
+      .bgColorTopRight = Colors::Transparent,
+      .bgColorBottomLeft = Colors::Transparent,
+  });
+  contextBtn->addEventObserver(
+      new ui::ObserverShowLayerPickUpContext(window, listItem.item));
+  container->addChild(contextBtn);
+
+  auto weightText = new TextLine(window, this);
+  weightText->setId("weightText");
+  auto& weightStyle = weightText->getStyle();
+  setBaseFontConfig(weightStyle, BaseFontConfig::MODAL_TEXT);
+  weightStyle.fontColor = Colors::DarkGrey;
+  weightStyle.textAlign = TextAlign::LEFT_CENTER;
+  weightStyle.scale = 1.0f;
+  weightStyle.y = containerStyle.height / 2;
+  weightText->setProps({
+      .textBlocks =
+          {
+              {
+                  .text =
+                      std::to_string(listItem.item.quantity * listItem.weight) + " lbs",
+              },
+          },
+  });
+  auto [weightWidth, _] = weightText->getDims();
+  weightStyle.x = contextBtnStyle.x - weightWidth - weightRightPadding;
+  weightText->build();
+  container->addChild(weightText);
+
+  auto label = new ButtonTextWrap(window, this);
+  label->setId("label");
+  auto& labelStyle = label->getStyle();
+  setBaseFontConfig(labelStyle, BaseFontConfig::MODAL_TEXT);
+  labelStyle.fontSize = sdl2w::TEXT_SIZE_18;
+  labelStyle.fontColor = Colors::Black;
+  labelStyle.scale = 1.0f;
+  labelStyle.x = labelX;
+  labelStyle.y = 0;
+  labelStyle.width =
+      static_cast<int>((weightStyle.x - labelX - labelWeightGap) / labelStyle.scale);
+  label->setStyle(labelStyle);
+  label->setProps({
+      .text = listItem.item.itemName,
+  });
+  const int textOnlyHeight = label->getDims().second;
+  const int verticalPadding =
+      std::max(0,
+               static_cast<int>((containerStyle.height - textOnlyHeight) /
+                                (2 * labelStyle.scale)));
+  label->setProps({
+      .text = listItem.itemLabel,
+      .verticalPadding = verticalPadding,
+  });
+  label->addEventObserver(new ui::ObserverPickUpItem(listItem.item));
+  label->build();
+  container->addChild(label);
+
+  return container;
+}
+
 void ListPickUp::build() {
   children.clear();
 
-  if (props.itemNames.empty()) {
+  if (props.items.empty()) {
     return;
   }
 
-  // Create VerticalList component
-  auto list = std::make_unique<VerticalList>(window, this);
+  auto list = new VerticalList(window, this);
   list->setId("list");
-  BaseStyle listStyle = list->getStyle();
+  auto& listStyle = list->getStyle();
   listStyle.x = style.x;
-  listStyle.y = style.y;
-  listStyle.width = style.width;
-  listStyle.scale = style.scale;
-  list->setStyle(listStyle);
+  listStyle.y = style.y + static_cast<int>(props.paddingTop * style.scale);
+  listStyle.width = style.width * style.scale;
+  listStyle.scale = 1.0f;
 
-  // Configure VerticalList properties
-  VerticalListProps listProps;
-  listProps.lineHeight = 32 * style.scale; // Height for each pickup item
-  listProps.lineGap = 8 * style.scale;
-  listProps.bgColor = Colors::White;
-  list->setProps(listProps);
-
-  std::vector<UiElement*> itemElementsToAdd;
-
-  // Add ListPickUpItem children for each item
-  // for (int i = 0; i < static_cast<int>(props.itemNames.size()); i++) {
-  //   const auto& itemName = props.itemNames[i];
-  //   const auto& itemTemplate = getDatabase()->getItemTemplate(itemName);
-  //   auto itemElement = new ListPickUpItem(window);
-  //   itemElement->setId("item" + std::to_string(i));
-  //   itemElement->setProps(ListPickUpItemProps{&itemTemplate, itemName});
-  //   itemElementsToAdd.push_back(itemElement);
-  // }
-  list->addListItems(itemElementsToAdd);
-
-  children.push_back(std::move(list));
-}
-
-void ListPickUp::render(int dt) {
-  //
-  UiElement::render(dt);
-}
-
-// ListPickUpItem Implementation
-ListPickUpItem::ListPickUpItem(sdl2w::Window* _window, UiElement* _parent)
-    : UiElement(_window, _parent) {
-  style.height = 32;
-}
-
-void ListPickUpItem::setProps(const ListPickUpItemProps& _props) {
-  props = _props;
-  build();
-}
-
-const ListPickUpItemProps& ListPickUpItem::getProps() const { return props; }
-
-void ListPickUpItem::build() {
-  children.clear();
-
-  if (props.itemTemplate == nullptr) {
-    return;
+  for (const auto& item : props.items) {
+    list->addChild(createItemElement(item));
   }
 
-  const auto& itemTemplate = *props.itemTemplate;
-  const int listItemHeight = 28;
+  list->setProps({
+      .lineHeight = static_cast<int>(props.lineHeight * style.scale),
+      .lineGap = static_cast<int>(props.lineGap * style.scale),
+      .bgColor = Colors::Transparent,
+  });
 
-  // Create icon element
-  auto icon = std::make_unique<SpriteElement>(window, this);
-  icon->setId("icon");
-  int iconHeight = 32;
-  BaseStyle iconStyle;
-  iconStyle.x = style.x;
-  iconStyle.y = style.y + (listItemHeight - iconHeight) / 2;
-  iconStyle.width = 16;
-  iconStyle.height = 16;
-  iconStyle.scale = 2.0f;
-  icon->setStyle(iconStyle);
-  icon->setSprite(itemTemplate.iconSpriteName);
-  children.push_back(std::move(icon));
-
-  // Create label element
-  auto label = std::make_unique<TextLine>(window, this);
-  label->setId("label");
-  BaseStyle labelStyle;
-  labelStyle.x = style.x + 32 + 8;
-  setBaseFontConfig(labelStyle, BaseFontConfig::MODAL_TEXT);
-  labelStyle.fontColor = Colors::Black;
-  labelStyle.textAlign = TextAlign::LEFT_TOP;
-  label->setStyle(labelStyle);
-  // Set label text
-  TextLineProps labelProps;
-  TextBlock labelBlock;
-  labelBlock.text = itemTemplate.label.empty() ? itemTemplate.name : itemTemplate.label;
-  labelProps.textBlocks.push_back(labelBlock);
-  label->setProps(labelProps);
-  labelStyle.y = style.y + (listItemHeight - label->getDims().second) / 2;
-  label->setStyle(labelStyle);
-  children.push_back(std::move(label));
-
-  // Create weight text element (replaces context button)
-  auto weightText = std::make_unique<TextLine>(window, this);
-  weightText->setId("weightText");
-  BaseStyle weightStyle;
-  setBaseFontConfig(weightStyle, BaseFontConfig::MODAL_TEXT);
-  weightStyle.fontColor = Colors::Black;
-  weightStyle.textAlign = TextAlign::LEFT_TOP;
-  // Set weight text first to get dimensions
-  TextLineProps weightProps;
-  TextBlock weightBlock;
-  weightBlock.text = std::to_string(itemTemplate.weight) + " lbs";
-  weightProps.textBlocks.push_back(weightBlock);
-  weightText->setProps(weightProps);
-  weightStyle.x = style.x + style.width - weightText->getDims().first - 8; // Right side with padding
-  weightStyle.y = style.y + (listItemHeight - weightText->getDims().second) / 2;
-  weightText->setStyle(weightStyle);
-  children.push_back(std::move(weightText));
+  addChild(list);
 }
 
-void ListPickUpItem::render(int dt) {
-  auto& draw = window->getDraw();
-  draw.drawRect(style.x, style.y, style.width, style.height, bgColor);
-  UiElement::render(dt);
-}
+void ListPickUp::render(int dt) { UiElement::render(dt); }
 
 } // namespace ui
-

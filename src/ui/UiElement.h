@@ -116,8 +116,8 @@ public:
   UiElement(sdl2w::Window* _window, UiElement* _parent = nullptr);
   virtual ~UiElement() = default;
 
-  virtual UiElement* getChildById(const std::string& id);
-  virtual void removeChildById(const std::string& id);
+  virtual UiElement* getChildById(std::string_view id);
+  virtual void removeChildById(std::string_view id);
 
   // Style methods
   virtual void setStyle(const BaseStyle& _style);

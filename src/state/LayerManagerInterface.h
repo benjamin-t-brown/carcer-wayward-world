@@ -1,12 +1,8 @@
 #pragma once
 
-#include "layers/LayerManager.h"
-
-// namespace layers {
-
-// class LayerManager;
-
-// } // namespace layers
+namespace layers {
+class LayerManager;
+}
 
 namespace state {
 

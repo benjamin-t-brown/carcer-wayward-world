@@ -1,6 +1,6 @@
 #include "ButtonGroup.h"
-#include "lib/sdl2w/Logger.h"
 #include "ButtonModal.h"
+#include "lib/sdl2w/Logger.h"
 
 namespace ui {
 
@@ -16,8 +16,7 @@ ButtonGroupProps& ButtonGroup::getProps() { return props; }
 
 const ButtonGroupProps& ButtonGroup::getProps() const { return props; }
 
-void ButtonGroup::addObserverToButtonAtIndex(int index,
-                                             UiEventObserver* observer) {
+void ButtonGroup::addObserverToButtonAtIndex(int index, UiEventObserver* observer) {
   if (index >= 0 && index < static_cast<int>(children.size())) {
     children[index]->addEventObserver(observer);
   } else {
@@ -28,40 +27,45 @@ void ButtonGroup::addObserverToButtonAtIndex(int index,
 
 void ButtonGroup::build() {
   children.clear();
-  int totalWidth = (props.buttonWidth + props.buttonSpacing) * props.buttonLabels.size();
-  int numButtons = static_cast<int>(props.buttonLabels.size());
 
-  for (const auto& buttonLabel : props.buttonLabels) {
-    auto button = std::make_unique<ui::ButtonModal>(window);
-    button->setId(buttonLabel);
+  auto [scaledWidth, scaledHeight] = getDims();
 
-    int currentX = 0;
-    switch (props.alignment) {
-    case ButtonGroupAlignment::LEFT:
-      currentX = style.x + (numButtons / 2 * (props.buttonWidth + props.buttonSpacing));
-      break;
+  for (int i = 0; i < static_cast<int>(props.buttons.size()); i++) {
+    const auto& buttonProps = props.buttons[i];
+    switch (buttonProps.type) {
+    case ButtonGroupButtonType::MODAL:
+      auto button = new ButtonModal(window, this);
+      button->setId("buttonGroupButton_" + std::to_string(i));
+      auto& buttonStyle = button->getStyle();
+      buttonStyle.width = props.buttonWidth;
+      buttonStyle.height = props.buttonHeight;
+      buttonStyle.scale = style.scale;
+      button->setProps(ButtonModalProps{buttonProps.label});
+      addChild(button);
 
-    case ButtonGroupAlignment::CENTER:
-      currentX = style.x - (totalWidth / 2) -
-                 (numButtons / 2 * (props.buttonWidth + props.buttonSpacing));
-      break;
+      auto scaledPadding = static_cast<int>(props.padding * style.scale);
+      auto scaledButtonWidth = static_cast<int>(props.buttonWidth * style.scale);
+      auto scaledButtonSpacing = static_cast<int>(props.buttonSpacing * style.scale);
 
-    case ButtonGroupAlignment::RIGHT:
-      currentX =
-          style.x - totalWidth - (numButtons * (props.buttonWidth + props.buttonSpacing));
+      buttonStyle.y = style.y + scaledPadding;
+      switch (props.alignment) {
+      case ButtonGroupAlignment::LEFT:
+        buttonStyle.x =
+            style.x + scaledPadding + i * (scaledButtonWidth + scaledButtonSpacing);
+        break;
+      case ButtonGroupAlignment::CENTER:
+        buttonStyle.x = style.x + scaledWidth / 2 - scaledButtonWidth / 2 -
+                        i * (scaledButtonWidth + scaledButtonSpacing);
+        break;
+      case ButtonGroupAlignment::RIGHT:
+        buttonStyle.x = style.x + scaledWidth - scaledPadding -
+                        (i + 1) * (scaledButtonWidth + ( i > 0 ? scaledButtonSpacing : 0));
+        break;
+      }
+
+      button->build();
       break;
     }
-
-    ui::BaseStyle buttonStyle;
-    buttonStyle.x = currentX;
-    buttonStyle.y = style.y;
-    buttonStyle.width = props.buttonWidth;
-    buttonStyle.height = props.buttonHeight;
-    button->setStyle(buttonStyle);
-    ui::ButtonModalProps buttonProps;
-    buttonProps.text = buttonLabel;
-    button->setProps(buttonProps);
-    children.push_back(std::move(button));
   }
 }
 

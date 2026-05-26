@@ -16,18 +16,43 @@ const std::pair<int, int> BorderModalStandard::getContentDims() const {
               BOTTOM_BORDER_HEIGHT * style.scale};
 }
 
-const std::pair<int, int> BorderModalStandard::getContentLoc() const {
+const std::pair<int, int> BorderModalStandard::getContentLocation() const {
   auto scaledBorder = static_cast<int>(props.borderWidth * style.scale);
   int scaledHeaderHeight = static_cast<int>(props.headerHeight * style.scale);
   return {style.x + scaledBorder, style.y + scaledBorder + scaledHeaderHeight};
 }
 
+const std::pair<int, int> BorderModalStandard::getIconSectionCenter() const {
+  auto scaledBorder = static_cast<int>(props.borderWidth * style.scale);
+  const int sectionSize = static_cast<int>(props.headerHeight * style.scale);
+  const int centerX = style.x + scaledBorder + sectionSize / 2;
+  const int centerY = style.y + scaledBorder + sectionSize / 2;
+  return {centerX, centerY};
+}
+
 const std::pair<int, int> BorderModalStandard::getTitleLocation() const {
   auto scaledBorder = static_cast<int>(props.borderWidth * style.scale);
-  auto locX = style.x + scaledBorder + (props.headerHeight + 4 + 4) * style.scale;
+  auto iconAreaSizeScaled = (props.headerHeight + 4 + 4) * style.scale;
+  auto locX = style.x + scaledBorder + iconAreaSizeScaled;
   auto locY = style.y + scaledBorder +
               (static_cast<float>(props.headerHeight) / 4.f) * style.scale;
   return {locX, locY};
+}
+
+const std::pair<int, int> BorderModalStandard::getSubTitleLocation() const {
+  auto scaledBorder = static_cast<int>(props.borderWidth * style.scale);
+  auto iconAreaSizeScaled = (props.headerHeight + 4 + 4) * style.scale;
+  auto locX = style.x + scaledBorder + iconAreaSizeScaled;
+  auto locY = style.y + scaledBorder +
+              (static_cast<float>(props.headerHeight) * 3.f / 4.f) * style.scale;
+  return {locX, locY};
+}
+
+const std::pair<int, int> BorderModalStandard::getSubTitleDims() const {
+  auto scaledBorder = static_cast<int>(props.borderWidth * style.scale);
+  auto iconAreaSizeScaled = (props.headerHeight + 4 + 4) * style.scale;
+  return {style.width * style.scale - scaledBorder * 2 - iconAreaSizeScaled,
+          (static_cast<float>(props.headerHeight) / 2.f) * style.scale};
 }
 
 const std::pair<int, int> BorderModalStandard::getCloseButtonLocation() const {

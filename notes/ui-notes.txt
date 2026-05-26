@@ -71,7 +71,7 @@ Quad
     - bg sprite (string)
     - border color (string)
     - border size
-SectionDropShadow
+BorderDropShadow
   * Description: Renders a quad with an opinionated background.
   * Styles
     - Position, Size, Scale

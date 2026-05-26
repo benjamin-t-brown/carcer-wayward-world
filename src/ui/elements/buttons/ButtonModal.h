@@ -9,6 +9,10 @@ namespace ui {
 struct ButtonModalProps {
   std::string text;
   bool isSelected = false;
+
+  SDL_Color bgColor = Colors::ButtonModalGrey1;
+  SDL_Color bgColorTopRight = Colors::ButtonModalGrey2;
+  SDL_Color bgColorBottomLeft = Colors::ButtonModalGrey3;
 };
 
 // ButtonModal element - renders a clickable button typically used inside modal windows

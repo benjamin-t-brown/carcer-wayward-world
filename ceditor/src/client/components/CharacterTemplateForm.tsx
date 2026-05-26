@@ -4,7 +4,6 @@ import { OptionSelect } from '../elements/OptionSelect';
 import { Button } from '../elements/Button';
 import { SpritePicker } from '../elements/SpritePicker';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
-import { useMemo } from 'react';
 import { CharacterTemplate } from '../types/assets';
 
 // Re-export for backward compatibility
@@ -164,53 +163,56 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
   }
 
   return (
-    <div className="item-form">
+    <div className="item-form character-template-form">
       <h2>Edit Character</h2>
       <form>
-        <OptionSelect
-          id="character-type"
-          name="type"
-          label="Type"
-          value={formData.type}
-          onChange={(value) => updateField('type', value)}
-          options={CHARACTER_TYPES.map((type) => ({
-            value: type,
-            label: type,
-          }))}
-          required
-        />
+        <div className="form-fields-inline">
+          <OptionSelect
+            id="character-type"
+            name="type"
+            label="Type"
+            value={formData.type}
+            onChange={(value) => updateField('type', value)}
+            options={CHARACTER_TYPES.map((type) => ({
+              value: type,
+              label: type,
+            }))}
+            required
+          />
 
-        <TextInput
-          id="character-name"
-          name="name"
-          label="Name"
-          value={formData.name}
-          onChange={(value) => updateField('name', value)}
-          placeholder="e.g., exampleTownsperson"
-          required
-        />
+          <TextInput
+            id="character-name"
+            name="name"
+            label="Name"
+            value={formData.name}
+            onChange={(value) => updateField('name', value)}
+            placeholder="e.g., exampleTownsperson"
+            required
+          />
 
-        <TextInput
-          id="character-label"
-          name="label"
-          label="Label"
-          value={formData.label}
-          onChange={(value) => updateField('label', value)}
-          placeholder="e.g., Example Townsperson"
-          required
-        />
+          <TextInput
+            id="character-label"
+            name="label"
+            label="Label"
+            value={formData.label}
+            onChange={(value) => updateField('label', value)}
+            placeholder="e.g., Example Townsperson"
+            required
+          />
+        </div>
 
-        <div className="form-group">
+        <div className="form-group form-block">
           <label htmlFor="character-sprite-picker">Sprite</label>
-          <div style={{ marginTop: '8px' }}>
+          <div style={{ marginTop: '4px' }}>
             <SpritePicker
               value={spriteName}
               onChange={handleSpriteChange}
               scale={2}
             />
           </div>
-          <div style={{ marginTop: '8px', fontSize: '12px', color: '#858585' }}>
-            Spritesheet: {formData.spritesheet || 'Not set'} | Offset: {formData.spriteOffset ?? 'Not set'}
+          <div style={{ marginTop: '4px', fontSize: '11px', color: '#858585' }}>
+            Spritesheet: {formData.spritesheet || 'Not set'} | Offset:{' '}
+            {formData.spriteOffset ?? 'Not set'}
           </div>
         </div>
 
@@ -219,84 +221,83 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
 
           <div className="form-subsection">
             <h4>Talk</h4>
-            <TextInput
-              id="talk-name"
-              name="talkName"
-              label="Talk Name"
-              value={formData.talk?.talkName || ''}
-              onChange={(value) => updateTalk('talkName', value)}
-              placeholder="e.g., talkId"
-            />
-            <TextInput
-              id="talk-portrait"
-              name="portraitName"
-              label="Portrait Name"
-              value={formData.talk?.portraitName || ''}
-              onChange={(value) => updateTalk('portraitName', value)}
-              placeholder="e.g., portraitSprite"
-            />
+            <div className="form-fields-inline">
+              <TextInput
+                id="talk-name"
+                name="talkName"
+                label="Talk Name"
+                value={formData.talk?.talkName || ''}
+                onChange={(value) => updateTalk('talkName', value)}
+                placeholder="e.g., talkId"
+              />
+              <TextInput
+                id="talk-portrait"
+                name="portraitName"
+                label="Portrait Name"
+                value={formData.talk?.portraitName || ''}
+                onChange={(value) => updateTalk('portraitName', value)}
+                placeholder="e.g., portraitSprite"
+              />
+            </div>
           </div>
 
           <div className="form-subsection">
             <h4>Behavior</h4>
-            <TextInput
-              id="behavior-name"
-              name="behaviorName"
-              label="Behavior Name"
-              value={formData.behavior?.behaviorName || ''}
-              onChange={(value) => updateBehavior('behaviorName', value)}
-              placeholder="e.g., behaviorId"
-            />
+            <div className="form-fields-inline">
+              <TextInput
+                id="behavior-name"
+                name="behaviorName"
+                label="Behavior Name"
+                value={formData.behavior?.behaviorName || ''}
+                onChange={(value) => updateBehavior('behaviorName', value)}
+                placeholder="e.g., behaviorId"
+              />
+            </div>
           </div>
 
           <div className="form-subsection">
             <h4>Combat</h4>
-            <div className="form-group">
-              <label>Stats</label>
-              <div className="form-row">
-                <NumberInput
-                  id="combat-str"
-                  name="combatStr"
-                  label="STR"
-                  value={formData.combat?.stats?.str || 0}
-                  onChange={(value) => updateCombatStats('str', value)}
-                  min={0}
-                />
-                <NumberInput
-                  id="combat-mnd"
-                  name="combatMnd"
-                  label="MND"
-                  value={formData.combat?.stats?.mnd || 0}
-                  onChange={(value) => updateCombatStats('mnd', value)}
-                  min={0}
-                />
-                <NumberInput
-                  id="combat-con"
-                  name="combatCon"
-                  label="CON"
-                  value={formData.combat?.stats?.con || 0}
-                  onChange={(value) => updateCombatStats('con', value)}
-                  min={0}
-                />
-                <NumberInput
-                  id="combat-agi"
-                  name="combatAgi"
-                  label="AGI"
-                  value={formData.combat?.stats?.agi || 0}
-                  onChange={(value) => updateCombatStats('agi', value)}
-                  min={0}
-                />
-                <NumberInput
-                  id="combat-lck"
-                  name="combatLck"
-                  label="LCK"
-                  value={formData.combat?.stats?.lck || 0}
-                  onChange={(value) => updateCombatStats('lck', value)}
-                  min={0}
-                />
-              </div>
-            </div>
-            <div className="form-row">
+            <div className="form-fields-inline">
+              <NumberInput
+                id="combat-str"
+                name="combatStr"
+                label="STR"
+                value={formData.combat?.stats?.str || 0}
+                onChange={(value) => updateCombatStats('str', value)}
+                min={0}
+              />
+              <NumberInput
+                id="combat-mnd"
+                name="combatMnd"
+                label="MND"
+                value={formData.combat?.stats?.mnd || 0}
+                onChange={(value) => updateCombatStats('mnd', value)}
+                min={0}
+              />
+              <NumberInput
+                id="combat-con"
+                name="combatCon"
+                label="CON"
+                value={formData.combat?.stats?.con || 0}
+                onChange={(value) => updateCombatStats('con', value)}
+                min={0}
+              />
+              <NumberInput
+                id="combat-agi"
+                name="combatAgi"
+                label="AGI"
+                value={formData.combat?.stats?.agi || 0}
+                onChange={(value) => updateCombatStats('agi', value)}
+                min={0}
+              />
+              <NumberInput
+                id="combat-lck"
+                name="combatLck"
+                label="LCK"
+                value={formData.combat?.stats?.lck || 0}
+                onChange={(value) => updateCombatStats('lck', value)}
+                min={0}
+              />
               <NumberInput
                 id="combat-hp"
                 name="combatHp"
@@ -313,51 +314,55 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
                 onChange={(value) => updateCombat('mp', value)}
                 min={0}
               />
+              <TextInput
+                id="combat-drop-table"
+                name="combatDropTable"
+                label="Drop Table"
+                value={formData.combat?.dropTable || ''}
+                onChange={(value) => updateCombat('dropTable', value)}
+                placeholder="e.g., dropTableId"
+              />
             </div>
-            <TextInput
-              id="combat-drop-table"
-              name="combatDropTable"
-              label="Drop Table"
-              value={formData.combat?.dropTable || ''}
-              onChange={(value) => updateCombat('dropTable', value)}
-              placeholder="e.g., dropTableId"
-            />
           </div>
 
           <div className="form-subsection">
             <h4>Sound</h4>
-            <TextInput
-              id="sound-death"
-              name="soundDeath"
-              label="Death Sound Name"
-              value={formData.sound?.deathSoundName || ''}
-              onChange={(value) => updateSound('deathSoundName', value)}
-              placeholder="e.g., soundName"
-            />
-            <TextInput
-              id="sound-weapon"
-              name="soundWeapon"
-              label="Weapon Sound Name"
-              value={formData.sound?.weaponSoundName || ''}
-              onChange={(value) => updateSound('weaponSoundName', value)}
-              placeholder="e.g., soundName"
-            />
+            <div className="form-fields-inline">
+              <TextInput
+                id="sound-death"
+                name="soundDeath"
+                label="Death Sound"
+                value={formData.sound?.deathSoundName || ''}
+                onChange={(value) => updateSound('deathSoundName', value)}
+                placeholder="e.g., soundName"
+              />
+              <TextInput
+                id="sound-weapon"
+                name="soundWeapon"
+                label="Weapon Sound"
+                value={formData.sound?.weaponSoundName || ''}
+                onChange={(value) => updateSound('weaponSoundName', value)}
+                placeholder="e.g., soundName"
+              />
+            </div>
           </div>
 
           <div className="form-subsection">
             <h4>Vision</h4>
-            <NumberInput
-              id="vision-radius"
-              name="visionRadius"
-              label="Radius"
-              value={formData.vision?.radius || 0}
-              onChange={(value) => updateVision('radius', value)}
-              min={0}
-            />
+            <div className="form-fields-inline">
+              <NumberInput
+                id="vision-radius"
+                name="visionRadius"
+                label="Radius"
+                value={formData.vision?.radius || 0}
+                onChange={(value) => updateVision('radius', value)}
+                min={0}
+              />
+            </div>
           </div>
 
-          <div className="form-group">
-            <label>Statuses</label>
+          <div className="form-subsection">
+            <h4>Statuses</h4>
             <div id="statuses-list">
               {formData.statuses?.map((status, index) => (
                 <div key={index} className="status-item">
@@ -378,7 +383,7 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
                 </div>
               ))}
             </div>
-            <div style={{ marginTop: '10px' }}>
+            <div style={{ marginTop: '6px' }}>
               <Button type="button" variant="secondary" onClick={addStatus}>
                 + Add Status
               </Button>

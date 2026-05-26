@@ -1,6 +1,4 @@
 #include "ButtonClose.h"
-#include "../Quad.h"
-#include "../TextLine.h"
 #include "ui/colors.h"
 #include "ui/elements/OutsetRectangle.h"
 #include <memory>
@@ -60,10 +58,10 @@ void ButtonClose::build() {
     rectProps.colorTopRight = Colors::ButtonCloseRedBorder1;
     rectProps.colorBottomLeft = Colors::ButtonCloseRedBorder2;
   } else if (props.closeType == CloseType::POPUP) {
-    rectProps.color = Colors::Transparent;
+    rectProps.color = Colors::White;
     rectProps.colorTopRight = Colors::Transparent;
     rectProps.colorBottomLeft = Colors::Transparent;
-    rectProps.borderSize = 2;
+    rectProps.borderSize = 0;
   }
   rect->setProps(rectProps);
 

@@ -1,4 +1,5 @@
 #include "TextParagraph.h"
+#include "state/StateManager.h"
 #include "Quad.h"
 #include "lib/sdl2w/Draw.h"
 #include "ui/FontScale.h"

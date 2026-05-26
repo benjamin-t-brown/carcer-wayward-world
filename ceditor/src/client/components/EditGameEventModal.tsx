@@ -100,7 +100,6 @@ export function EditGameEventModal({
                     setFormData({ ...formData, icon: value })
                   }
                   scale={2}
-                  maxHeight="300px"
                 />
               </div>
               {formData.icon && (
