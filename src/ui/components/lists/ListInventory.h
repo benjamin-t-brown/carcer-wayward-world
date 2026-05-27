@@ -11,6 +11,7 @@ struct ListInventoryPropsItem {
   std::string itemSprite;
 };
 struct ListInventoryProps {
+  std::string characterPlayerId;
   std::vector<ListInventoryPropsItem> items;
   int lineHeight = 32;
   int lineGap = 2;
@@ -25,8 +26,14 @@ private:
 
   const int contextBtnSize = 32;
   const int iconSpriteSize = 16;
+  const int indexColumnWidth = 28;
+  const int indexPaddingLeft = 4;
+  const int reorderBtnHeight = 28;
+  const int reorderBtnWidth = 14;
+  const int reorderBtnGap = 2;
+  const int reorderColumnGap = 2;
 
-  UiElement* createItemElement(const ListInventoryPropsItem& item);
+  UiElement* createItemElement(const ListInventoryPropsItem& item, int index);
 
 public:
   ListInventory(sdl2w::Window* _window, UiElement* _parent = nullptr);

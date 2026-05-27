@@ -24,9 +24,19 @@ int main(int argc, char** argv) {
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "PageInventory test initialized" << LOG_ENDL;
 
-    stateManager.getState().player.party.push_back(model::CharacterPlayer());
-    auto& characterPlayer = stateManager.getState().player.party.back();
-    characterPlayer.params = database.getCharacterTemplate("testPartyMember1");
+    std::vector<std::string> partyTemplateNames = {
+        "testPartyMember1",
+        "testPartyMember2",
+        "testPartyMember3",
+        "testPartyMember4",
+    };
+
+    auto& player = stateManager.getState().player;
+    for (const auto& templateName : partyTemplateNames) {
+      player.party.push_back(
+          model::CharacterPlayer(database.getCharacterTemplate(templateName)));
+    }
+    auto& characterPlayer = player.party.front();
 
     std::vector<std::string>
         //
@@ -49,9 +59,6 @@ int main(int argc, char** argv) {
           characterPlayer, database.getItemTemplate(itemName), 1);
     }
 
-    // Get the character player ID
-    std::string characterId = characterPlayer.id;
-
     auto [windowWidth, windowHeight] = window.getDims();
 
     // Create PageInventory component
@@ -66,13 +73,16 @@ int main(int argc, char** argv) {
     style.y = 0;
     style.scale = scale;
 
-    auto& player = stateManager.getState().player;
     player.gold = 1234;
 
     ui::PageInventoryProps pageProps;
     pageProps.characterPlayerId = characterPlayer.id;
     pageProps.characterPlayerLabel = characterPlayer.params.label;
-    pageProps.partyMemberIndex = player.currentPartyMemberIndex;
+    pageProps.partyMemberInventoryIndex = player.currentPartyMemberInventoryIndex;
+    for (const auto& member : player.party) {
+      pageProps.partyMembers.push_back(
+          {.spriteName = model::characterPlayerGetSprite(member)});
+    }
     pageProps.characterPlayerSprite = model::characterPlayerGetSprite(characterPlayer);
     pageProps.weightCarrying =
         model::characterGetWeightCarrying(characterPlayer, &database);
@@ -137,7 +147,7 @@ int main(int argc, char** argv) {
 
   setupTestUi(argc,
               argv,
-              TestUiParams{640, 480, "PageInventory Test"},
+              TestUiParams{400, 900, "PageInventory Test"},
               _init,
               _updateRender,
               [&]() { elements.clear(); });

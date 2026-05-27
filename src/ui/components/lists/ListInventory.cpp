@@ -2,8 +2,10 @@
 #include "../VerticalList.h"
 #include "ui/colors.h"
 #include "ui/elements/TextLine.h"
+#include "ui/elements/buttons/ButtonList.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/observers/ObserverInventorySelectItem.hpp"
+#include "ui/observers/ObserverReorderInventoryItem.hpp"
 #include "ui/observers/ObserverShowLayerInventoryContext.hpp"
 
 namespace ui {
@@ -30,7 +32,8 @@ void ListInventory::setProps(const ListInventoryProps& _props) {
 
 const ListInventoryProps& ListInventory::getProps() const { return props; }
 
-UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item) {
+UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
+                                            int index) {
   auto container = new Quad(window, this);
   container->setId(item.itemName);
   auto& s = container->getStyle();
@@ -41,14 +44,92 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item) 
       .bgColor = Colors::Transparent,
   });
 
-  // Create icon element
-  float iconScale = 2.f;
+  const int scaledIndexColumnWidth = static_cast<int>(indexColumnWidth * style.scale);
+  const int scaledIndexPaddingLeft = static_cast<int>(indexPaddingLeft * style.scale);
+  const int scaledReorderBtnWidth = static_cast<int>(reorderBtnWidth * style.scale);
+  // const int scaledReorderBtnHeight = static_cast<int>(reorderBtnHeight * style.scale);
+  const int scaledReorderBtnGap = static_cast<int>(reorderBtnGap * style.scale);
+  const int scaledReorderColumnGap = static_cast<int>(reorderColumnGap * style.scale);
+  const int scaledReorderColumnWidth =
+      scaledReorderBtnWidth + scaledReorderBtnGap + scaledReorderBtnWidth;
+  const int indexColumnStartX =
+      scaledReorderColumnGap + scaledReorderColumnWidth + scaledReorderColumnGap;
+  const int numberGap = static_cast<int>(4 * style.scale);
+  const int labelGapAfterIcon = static_cast<int>(12 * style.scale);
+  const float iconScale = 2.f;
+  const int scaledIconWidth = static_cast<int>(iconSpriteSize * iconScale * style.scale);
+
+  const int reorderBtnY = ButtonList::yForListRow(s.height, reorderBtnHeight, style.scale);
+  const int reorderButtonsX = scaledReorderColumnGap;
+
+  auto upBtn = new ButtonList(window, this);
+  upBtn->setId("reorderUp");
+  auto& upBtnStyle = upBtn->getStyle();
+  upBtnStyle.x = reorderButtonsX;
+  upBtnStyle.y = reorderBtnY;
+  upBtnStyle.width = reorderBtnWidth;
+  upBtnStyle.height = reorderBtnHeight;
+  upBtnStyle.scale = style.scale;
+  upBtn->setProps({.arrow = ScrollDirection::UP,
+                    .bgColor = Colors::Transparent,
+                    .bgColorTopRight = Colors::Transparent,
+                    .bgColorBottomLeft = Colors::Transparent,
+                    .arrowColor = Colors::Black});
+  if (!props.characterPlayerId.empty() && index > 0) {
+    upBtn->addEventObserver(
+        new ObserverReorderInventoryItem(props.characterPlayerId, index, -1));
+  }
+  container->addChild(upBtn);
+
+  auto downBtn = new ButtonList(window, this);
+  downBtn->setId("reorderDown");
+  auto& downBtnStyle = downBtn->getStyle();
+  downBtnStyle.x = reorderButtonsX + scaledReorderBtnWidth + scaledReorderBtnGap;
+  downBtnStyle.y = reorderBtnY;
+  downBtnStyle.width = reorderBtnWidth;
+  downBtnStyle.height = reorderBtnHeight;
+  downBtnStyle.scale = style.scale;
+  downBtn->setProps({.arrow = ScrollDirection::DOWN,
+                      .bgColor = Colors::Transparent,
+                      .bgColorTopRight = Colors::Transparent,
+                      .bgColorBottomLeft = Colors::Transparent,
+                      .arrowColor = Colors::Black});
+  if (!props.characterPlayerId.empty() &&
+      index + 1 < static_cast<int>(props.items.size())) {
+    downBtn->addEventObserver(
+        new ObserverReorderInventoryItem(props.characterPlayerId, index, 1));
+  }
+  container->addChild(downBtn);
+
+  auto indexLine = new TextLine(window, this);
+  indexLine->setId("index");
+  auto& indexStyle = indexLine->getStyle();
+  setBaseFontConfig(indexStyle, BaseFontConfig::MODAL_TEXT);
+  indexStyle.fontSize = sdl2w::TEXT_SIZE_18;
+  indexStyle.fontColor = Colors::Black;
+  indexStyle.textAlign = TextAlign::LEFT_CENTER;
+  indexStyle.scale = 1.0f;
+  indexStyle.y = s.height / 2;
+  indexLine->setProps({
+      .textBlocks =
+          {
+              {
+                  .text = std::to_string(index + 1) + ".",
+              },
+          },
+  });
+  const int indexTextWidth = indexLine->getDims().first;
+  indexStyle.x = indexColumnStartX + scaledIndexPaddingLeft +
+                 (scaledIndexColumnWidth - scaledIndexPaddingLeft - indexTextWidth);
+  indexLine->build();
+  container->addChild(indexLine);
+
   auto icon = new Quad(window, this);
   icon->setId("icon");
   auto& iconStyle = icon->getStyle();
   iconStyle.width = iconSpriteSize;
   iconStyle.height = iconSpriteSize;
-  iconStyle.x = 0;
+  iconStyle.x = indexColumnStartX + scaledIndexColumnWidth + numberGap;
   iconStyle.y = (s.height - iconStyle.height * style.scale * iconScale) / 2;
   iconStyle.scale = iconScale * style.scale;
   icon->setProps({
@@ -57,7 +138,6 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item) 
   });
   container->addChild(icon);
 
-  // Create label element
   auto label = new TextLine(window, this);
   label->setId("label");
   auto& labelStyle = label->getStyle();
@@ -66,8 +146,8 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item) 
   labelStyle.fontColor = Colors::Black;
   labelStyle.textAlign = TextAlign::LEFT_CENTER;
   labelStyle.scale = 1.0f;
-  labelStyle.x = iconStyle.width + 24 * style.scale;
-  labelStyle.y = (s.height / 2);
+  labelStyle.x = iconStyle.x + scaledIconWidth + labelGapAfterIcon;
+  labelStyle.y = s.height / 2;
   label->addEventObserver(
       new ui::ObserverInventorySelectItem(item.itemName, item.itemId));
 
@@ -113,8 +193,8 @@ void ListInventory::build() {
   s.width = style.width * style.scale;
   s.scale = 1.0f;
 
-  for (const auto& item : props.items) {
-    list->addChild(createItemElement(item));
+  for (size_t i = 0; i < props.items.size(); ++i) {
+    list->addChild(createItemElement(props.items[i], static_cast<int>(i)));
   }
 
   list->setProps({

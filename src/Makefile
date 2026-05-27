@@ -36,6 +36,8 @@ ui/elements/TextParagraph.cpp \
 ui/elements/buttons/ButtonClose.cpp \
 ui/elements/buttons/ButtonModal.cpp \
 ui/elements/buttons/ButtonScroll.cpp \
+ui/elements/buttons/ButtonList.cpp \
+ui/elements/buttons/ButtonSprite.cpp \
 ui/elements/buttons/ButtonGroup.cpp \
 ui/components/borders/BorderDropShadow.cpp \
 ui/elements/SectionScrollable.cpp \
@@ -48,6 +50,7 @@ ui/components/borders/BorderInGameWide.cpp \
 ui/components/borders/BorderInGameNarrow.cpp \
 ui/components/ChCompactInfo.cpp \
 ui/components/PartyMemberSwitcher.cpp \
+ui/components/PartyMemberIconSelector.cpp \
 ui/components/VerticalList.cpp \
 ui/components/HorizontalList.cpp \
 ui/layouts/InGameLayout.cpp \

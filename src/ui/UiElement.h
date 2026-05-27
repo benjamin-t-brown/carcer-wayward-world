@@ -80,7 +80,7 @@ inline void setBaseFontConfig(BaseStyle& style, BaseFontConfig config) {
     style.fontColor = Colors::Black;
     break;
   case BaseFontConfig::MODAL_BUTTON:
-    style.fontFamily = FontFamily::TITLE;
+    style.fontFamily = FontFamily::TEXT;
     style.fontSize = sdl2w::TEXT_SIZE_20;
     style.fontColor = Colors::White;
     break;

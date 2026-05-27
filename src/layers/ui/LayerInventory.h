@@ -11,7 +11,7 @@ public:
   explicit LayerInventory(sdl2w::Window* _window);
   virtual ~LayerInventory() = default;
 
-  void syncCurrentPartyMember();
+  void syncInventoryPartyMember();
 };
 
 } // namespace layers

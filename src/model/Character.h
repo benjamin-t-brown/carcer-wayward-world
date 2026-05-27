@@ -1,6 +1,7 @@
 #pragma once
 
 #include "model/Items.h"
+#include "model/UtilityTypes.h"
 #include <optional>
 #include <string>
 #include <vector>
@@ -93,18 +94,29 @@ struct CharacterTemplate {
 
 struct Character {
   std::string id;
+  std::string name;
   std::string templateName;
 };
-
-std::string characterGetSprite(const Character& character, const db::Database* database);
 
 struct CharacterPlayer : Character {
   std::vector<CharacterInventoryItem> inventory;
   CharacterPlayerEquipment equipment;
   CharacterTemplate params;
 
-  CharacterPlayer();
+  CharacterPlayer(const CharacterTemplate& _params = CharacterTemplate(),
+                  const std::vector<CharacterInventoryItem>& _inventory = {},
+                  const CharacterPlayerEquipment& _equipment = {})
+      : Character() {
+    id = createRandomId();
+    params = _params;
+    inventory = _inventory;
+    equipment = _equipment;
+  }
 };
+
+std::string characterGetSprite(const Character& character, const db::Database* database);
+
+// ---------
 
 std::string characterPlayerGetSprite(const CharacterPlayer& characterPlayer);
 
@@ -119,6 +131,9 @@ void characterPlayerAddItemToInventory(CharacterPlayer& characterPlayer,
 void characterPlayerRemoveItemFromInventoryByName(CharacterPlayer& characterPlayer,
                                                   const std::string& itemName,
                                                   int quantity = 1);
+bool characterPlayerReorderInventoryItem(CharacterPlayer& characterPlayer,
+                                         size_t index,
+                                         int direction);
 int characterGetWeightCarrying(const CharacterPlayer& characterPlayer,
                                const db::Database* database);
 int characterGetWeightCapacity(const CharacterPlayer& characterPlayer);

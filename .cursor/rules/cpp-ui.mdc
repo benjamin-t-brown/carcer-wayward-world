@@ -13,5 +13,5 @@ globs: ['src/ui/**/*.cpp', 'src/ui/**/*.h']
 
 ## UiElement
 - when overriding "set" methods, ensure that "build" is called to rebuild the component after changing properties.
-- when adding children to a children property, use "getChildren().push_back".
+- when adding children to a children property, use addChild.
 - when overriding any methods, ensure that the overrides account for style, props, and children if they are applicable.

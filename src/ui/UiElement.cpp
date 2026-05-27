@@ -83,7 +83,8 @@ bool UiElement::checkMouseDownEvent(int mouseX,
     // Check children first (front to back)
     if (shouldPropagateEventsToChildren) {
       for (auto it = children.rbegin(); it != children.rend(); ++it) {
-        if ((*it)->checkMouseDownEvent(mouseX, mouseY, button)) {
+        auto& elem = (*it);
+        if (elem->checkMouseDownEvent(mouseX, mouseY, button)) {
           return true;
         }
       }

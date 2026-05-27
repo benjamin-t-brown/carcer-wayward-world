@@ -10,6 +10,7 @@
 #include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
+#include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
@@ -37,10 +38,12 @@ const std::vector<std::vector<std::string>> PARTY_MEMBER_ITEMS = {
 void setupTestParty(model::Player& player, db::Database& database) {
   player.party.clear();
   player.currentPartyMemberIndex = 0;
+  player.currentPartyMemberInventoryIndex = 0;
+  player.gold = 1234;
 
   for (size_t i = 0; i < PARTY_MEMBER_ITEMS.size(); ++i) {
-    model::CharacterPlayer member;
-    member.templateName = TEST_PARTY_TEMPLATE_NAMES[i];
+    model::CharacterPlayer member(
+        database.getCharacterTemplate(TEST_PARTY_TEMPLATE_NAMES[i]));
 
     for (const auto& itemName : PARTY_MEMBER_ITEMS[i]) {
       model::characterPlayerAddItemToInventory(
@@ -100,7 +103,7 @@ int main(int argc, char** argv) {
 
   setupTestUi(argc,
               argv,
-              TestUiParams{800, 600, "LayerInventory Test"},
+              TestUiParams{400, 900, "LayerInventory Test"},
               _init,
               _updateRender,
               [&]() { layerManager.reset(); });

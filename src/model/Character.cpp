@@ -1,10 +1,9 @@
 #include "model/Character.h"
 #include "db/Database.h"
 #include "model/UtilityTypes.h"
+#include <utility>
 
 namespace model {
-
-CharacterPlayer::CharacterPlayer() { id = createRandomId(); }
 
 std::string characterGetSprite(const Character& character, const db::Database* database) {
   const auto& characterTemplate = database->getCharacterTemplate(character.templateName);
@@ -63,6 +62,30 @@ void characterPlayerAddItemToInventory(CharacterPlayer& characterPlayer,
     newItem.quantity = quantity;
     characterPlayer.inventory.push_back(newItem);
   }
+}
+
+bool characterPlayerReorderInventoryItem(CharacterPlayer& characterPlayer,
+                                         size_t index,
+                                         int direction) {
+  auto& inventory = characterPlayer.inventory;
+  if (index >= inventory.size()) {
+    return false;
+  }
+  if (direction < 0) {
+    if (index == 0) {
+      return false;
+    }
+    std::swap(inventory[index], inventory[index - 1]);
+    return true;
+  }
+  if (direction > 0) {
+    if (index + 1 >= inventory.size()) {
+      return false;
+    }
+    std::swap(inventory[index], inventory[index + 1]);
+    return true;
+  }
+  return false;
 }
 
 void characterPlayerRemoveItemFromInventoryByName(CharacterPlayer& characterPlayer,

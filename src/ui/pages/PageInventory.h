@@ -7,11 +7,16 @@
 
 namespace ui {
 
+struct PageInventoryPartyMember {
+  std::string spriteName;
+};
+
 struct PageInventoryProps {
   std::string characterPlayerId;
   std::string characterPlayerLabel;
   std::string characterPlayerSprite;
-  int partyMemberIndex = 0;
+  int partyMemberInventoryIndex = 0;
+  std::vector<PageInventoryPartyMember> partyMembers;
   int weightCarrying = 0;
   int weightCapacity = 0;
   int gold = 0;

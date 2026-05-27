@@ -2,23 +2,20 @@
 #include "layers/ui/LayerInventory.h"
 #include "lib/sdl2w/L10n.h"
 #include "ui/colors.h"
+#include "ui/components/PartyMemberIconSelector.h"
 #include "ui/components/lists/ListInventory.h"
 #include "ui/elements/Quad.h"
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/buttons/ButtonClose.h"
-#include "ui/elements/buttons/ButtonModal.h"
 #include "ui/layouts/ModalStandard.h"
 #include "ui/observers/ObserverRemoveLayer.hpp"
-#include "ui/observers/ObserverUpdateCurrentPartyMember.hpp"
 #include <algorithm>
 
 namespace ui {
 
 PageInventory::PageInventory(sdl2w::Window* _window, UiElement* _parent)
-    : UiElement(_window, _parent) {
-  // Page doesn't need special initialization
-}
+    : UiElement(_window, _parent) {}
 
 void PageInventory::setProps(const PageInventoryProps& _props) {
   props = _props;
@@ -72,12 +69,11 @@ void PageInventory::build() {
       iconBg->setProps(QuadProps{.bgColor = {255, 255, 255, 50}});
 
       auto& modalChildren = modal->getChildren();
-      const auto insertBefore = std::find_if(
-          modalChildren.begin(),
-          modalChildren.end(),
-          [](const std::unique_ptr<UiElement>& child) {
-            return child->getId() == "headerIcon";
-          });
+      const auto insertBefore = std::find_if(modalChildren.begin(),
+                                             modalChildren.end(),
+                                             [](const std::unique_ptr<UiElement>& child) {
+                                               return child->getId() == "headerIcon";
+                                             });
       if (insertBefore != modalChildren.end()) {
         modalChildren.insert(insertBefore, std::move(iconBg));
       }
@@ -109,87 +105,91 @@ void PageInventory::build() {
   modal->setTitleElement(title);
 
   auto [subtitleX, subtitleY] = modal->getSubTitleLocation();
-  auto [subtitleW, subtitleH] = modal->getSubTitleDims();
-  (void)subtitleH;
 
-  const int navButtonSize = ButtonClose::closeButtonSize;
-  const int navSpacing = static_cast<int>(4 * style.scale);
-  const int scaledNavButtonSize = static_cast<int>(navButtonSize * style.scale);
-  const int navButtonY = subtitleY - scaledNavButtonSize / 2;
+  const int partyIconSize = ButtonClose::closeButtonSize;
+  const int scaledPartyIconSize = static_cast<int>(partyIconSize * style.scale);
+  const int partyIconY = subtitleY - scaledPartyIconSize / 2;
 
-  auto prevPartyButton = new ButtonModal(window, modal);
-  prevPartyButton->setId("prevPartyMember");
-  auto& prevStyle = prevPartyButton->getStyle();
-  prevStyle.x = subtitleX;
-  prevStyle.y = navButtonY;
-  prevStyle.width = navButtonSize;
-  prevStyle.height = navButtonSize;
-  prevStyle.scale = style.scale;
-  prevPartyButton->setProps(ButtonModalProps{.text = "<"});
-  prevPartyButton->addEventObserver(
-      new ObserverUpdateCurrentPartyMember(props.partyMemberIndex, -1));
-  modal->addChild(prevPartyButton);
+  if (!props.partyMembers.empty()) {
+    PartyMemberIconSelectorProps selectorProps;
+    selectorProps.selectedIndex = props.partyMemberInventoryIndex;
+    for (const auto& member : props.partyMembers) {
+      selectorProps.members.push_back(member.spriteName);
+    }
 
-  auto nextPartyButton = new ButtonModal(window, modal);
-  nextPartyButton->setId("nextPartyMember");
-  auto& nextStyle = nextPartyButton->getStyle();
-  nextStyle.x = subtitleX + scaledNavButtonSize + navSpacing;
-  nextStyle.y = navButtonY;
-  nextStyle.width = navButtonSize;
-  nextStyle.height = navButtonSize;
-  nextStyle.scale = style.scale;
-  nextPartyButton->setProps(ButtonModalProps{.text = ">"});
-  nextPartyButton->addEventObserver(
-      new ObserverUpdateCurrentPartyMember(props.partyMemberIndex, 1));
-  modal->addChild(nextPartyButton);
+    auto partySelector = new PartyMemberIconSelector(window, modal);
+    partySelector->setId("partyMemberSelector");
+    auto& selectorStyle = partySelector->getStyle();
+    selectorStyle.x = subtitleX;
+    selectorStyle.y = partyIconY;
+    selectorStyle.scale = style.scale;
+    partySelector->setProps(selectorProps);
+    modal->addChild(partySelector);
+  }
 
-  auto goldSubtitle = new TextLine(window, modal);
-  goldSubtitle->setId("subtitleGold");
-  auto& goldStyle = goldSubtitle->getStyle();
-  setBaseFontConfig(goldStyle, BaseFontConfig::MODAL_TEXT);
-  goldStyle.fontColor = Colors::DarkGrey;
-  goldStyle.textAlign = TextAlign::LEFT_CENTER;
-  goldStyle.scale = 1.f;
-  goldStyle.y = subtitleY;
-  goldSubtitle->setProps(TextLineProps{
-      .textBlocks = {{
-          .text = std::to_string(props.gold) + std::string(TRANSLATE(" gp")),
-          .fontColor = Colors::Blue,
-      }},
-  });
-  goldStyle.x = subtitleX + subtitleW - goldSubtitle->getDims().first - 16 * style.scale;
-  goldSubtitle->build();
+  const int statsRowHeight = 32;
+  const int scaledStatsRowHeight = static_cast<int>(statsRowHeight * style.scale);
+  const int statsRowPadding = static_cast<int>(16 * style.scale);
+  const int statsRowY = contentY;
+  const int scrollableY = contentY + scaledStatsRowHeight;
+  const int scrollableHeight = unscaledContentH - statsRowHeight;
 
-  auto weightSubtitle = new TextLine(window, modal);
-  weightSubtitle->setId("subtitleWeight");
-  auto& weightStyle = weightSubtitle->getStyle();
+  auto statsBar = new Quad(window, modal);
+  statsBar->setId("statsBar");
+  auto& statsBarStyle = statsBar->getStyle();
+  statsBarStyle.x = contentX;
+  statsBarStyle.y = statsRowY;
+  statsBarStyle.width = unscaledContentW;
+  statsBarStyle.height = statsRowHeight;
+  statsBarStyle.scale = style.scale;
+  statsBar->setProps(QuadProps{.bgColor = Colors::White});
+  modal->addChild(statsBar);
+
+  auto weightText = new TextLine(window, modal);
+  weightText->setId("statsWeight");
+  auto& weightStyle = weightText->getStyle();
   setBaseFontConfig(weightStyle, BaseFontConfig::MODAL_TEXT);
   weightStyle.fontColor = Colors::DarkGrey;
   weightStyle.textAlign = TextAlign::LEFT_CENTER;
   weightStyle.scale = 1.f;
-  weightStyle.y = subtitleY;
-  weightSubtitle->setProps(TextLineProps{
+  weightText->setProps(TextLineProps{
       .textBlocks = {{
           .text = std::string(TRANSLATE("Carrying")) + " " +
                   std::to_string(props.weightCarrying) + "/" +
                   std::to_string(props.weightCapacity),
       }},
   });
-  weightStyle.x =
-      goldStyle.x - navSpacing - weightSubtitle->getDims().first - 16 * style.scale;
-  weightSubtitle->build();
+  weightStyle.x = contentX + statsRowPadding;
+  weightStyle.y = statsRowY + scaledStatsRowHeight / 2;
+  weightText->build();
+  modal->addChild(weightText);
 
-  modal->addChild(weightSubtitle);
-  modal->addChild(goldSubtitle);
+  auto goldText = new TextLine(window, modal);
+  goldText->setId("statsGold");
+  auto& goldStyle = goldText->getStyle();
+  setBaseFontConfig(goldStyle, BaseFontConfig::MODAL_TEXT);
+  goldStyle.fontColor = Colors::DarkGrey;
+  goldStyle.textAlign = TextAlign::LEFT_CENTER;
+  goldStyle.scale = 1.f;
+  goldText->setProps(TextLineProps{
+      .textBlocks = {{
+          .text = std::to_string(props.gold) + std::string(TRANSLATE(" gp")),
+          .fontColor = Colors::Blue,
+      }},
+  });
+  goldStyle.x = contentX + contentW - goldText->getDims().first - statsRowPadding;
+  goldStyle.y = statsRowY + scaledStatsRowHeight / 2;
+  goldText->build();
+  modal->addChild(goldText);
 
   // Create SectionScrollable for content area
   auto scrollableSection = new SectionScrollable(window, modal);
   scrollableSection->setId("scrollableSection");
   BaseStyle scrollableStyle;
   scrollableStyle.x = contentX;
-  scrollableStyle.y = contentY;
+  scrollableStyle.y = scrollableY;
   scrollableStyle.width = unscaledContentW;
-  scrollableStyle.height = unscaledContentH;
+  scrollableStyle.height = scrollableHeight;
   scrollableStyle.scale = style.scale;
   scrollableSection->setStyle(scrollableStyle);
   scrollableSection->setProps(SectionScrollableProps{.scrollBarWidth = 40});
@@ -208,6 +208,7 @@ void PageInventory::build() {
   listStyle.scale = style.scale;
 
   ListInventoryProps listProps;
+  listProps.characterPlayerId = props.characterPlayerId;
   populateInventoryProps(listProps.items);
   listInventory->setProps(listProps);
   scrollableSection->addChild(listInventory);

@@ -25,18 +25,18 @@ LayerInventoryContext::LayerInventoryContext(sdl2w::Window* _window,
   auto database = getDatabase();
   auto stateManager = getStateManager();
   auto& player = stateManager->getState().player;
-  auto* currentPartyMember =
-      model::playerFindPartyMemberByIndex(player, player.currentPartyMemberIndex);
+  auto* inventoryPartyMember = model::playerFindPartyMemberByIndex(
+      player, player.currentPartyMemberInventoryIndex);
 
-  if (currentPartyMember == nullptr) {
-    LOG(ERROR) << "LayerInventoryContext::LayerInventoryContext: currentPartyMember "
-                  "is nullptr"
+  if (inventoryPartyMember == nullptr) {
+    LOG(ERROR) << "LayerInventoryContext::LayerInventoryContext: inventory party "
+                  "member is nullptr"
                << LOG_ENDL;
     return;
   }
 
   model::ItemInstance itemInstance;
-  for (const auto& item : currentPartyMember->inventory) {
+  for (const auto& item : inventoryPartyMember->inventory) {
     if (item.id == itemId) {
       itemInstance.id = item.id;
       itemInstance.itemName = item.itemName;

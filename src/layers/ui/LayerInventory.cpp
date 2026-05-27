@@ -1,7 +1,8 @@
 #include "LayerInventory.h"
 #include "lib/sdl2w/Logger.h"
 #include "model/Character.h"
-#include "state/actions/ui/UiSetCurrentPartyMember.hpp"
+#include "state/actions/ui/UiReorderInventoryItem.hpp"
+#include "state/actions/ui/UiSetCurrentPartyMemberInventory.hpp"
 #include "ui/pages/PageInventory.h"
 
 namespace layers {
@@ -26,13 +27,15 @@ LayerInventory::LayerInventory(sdl2w::Window* _window) : Layer(_window, LAYER_ID
   style.scale = scale;
 
   addUiElement(pageInventory);
-  syncCurrentPartyMember();
+  syncInventoryPartyMember();
 
-  subscribeAction<state::actions::UiSetCurrentPartyMember>(
-      [this](...) { syncCurrentPartyMember(); });
+  subscribeAction<state::actions::UiSetCurrentPartyMemberInventory>(
+      [this](...) { syncInventoryPartyMember(); });
+  subscribeAction<state::actions::UiReorderInventoryItem>(
+      [this](...) { syncInventoryPartyMember(); });
 }
 
-void LayerInventory::syncCurrentPartyMember() {
+void LayerInventory::syncInventoryPartyMember() {
   if (!assertInterfaces()) {
     remove();
     return;
@@ -40,11 +43,11 @@ void LayerInventory::syncCurrentPartyMember() {
 
   auto stateManager = getStateManager();
   auto& player = stateManager->getState().player;
-  auto currentPartyMember =
-      model::playerFindPartyMemberByIndex(player, player.currentPartyMemberIndex);
+  auto inventoryPartyMember = model::playerFindPartyMemberByIndex(
+      player, player.currentPartyMemberInventoryIndex);
 
-  if (!currentPartyMember) {
-    LOG(ERROR) << "LayerInventory::syncCurrentPartyMember: currentPartyMember is nullptr"
+  if (!inventoryPartyMember) {
+    LOG(ERROR) << "LayerInventory::syncInventoryPartyMember: party member is nullptr"
                << LOG_ENDL;
     remove();
     return;
@@ -52,22 +55,26 @@ void LayerInventory::syncCurrentPartyMember() {
 
   auto pageInventory = getUiElement<ui::PageInventory>("pageInventory");
   if (!pageInventory) {
-    LOG(ERROR) << "LayerInventory::syncCurrentPartyMember: pageInventory is nullptr"
+    LOG(ERROR) << "LayerInventory::syncInventoryPartyMember: pageInventory is nullptr"
                << LOG_ENDL;
     return;
   }
 
   auto pageProps = pageInventory->getProps();
-  pageProps.characterPlayerId = currentPartyMember->id;
-  pageProps.characterPlayerLabel = currentPartyMember->params.label;
-  pageProps.partyMemberIndex = player.currentPartyMemberIndex;
-  pageProps.characterPlayerSprite =
-      characterGetSprite(*currentPartyMember, getDatabase());
+  pageProps.characterPlayerId = inventoryPartyMember->id;
+  pageProps.characterPlayerLabel = inventoryPartyMember->params.label;
+  pageProps.partyMemberInventoryIndex = player.currentPartyMemberInventoryIndex;
+  pageProps.partyMembers.clear();
+  for (const auto& member : player.party) {
+    pageProps.partyMembers.push_back(
+        {.spriteName = model::characterPlayerGetSprite(member)});
+  }
+  pageProps.characterPlayerSprite = model::characterPlayerGetSprite(*inventoryPartyMember);
   pageProps.weightCarrying =
-      model::characterGetWeightCarrying(*currentPartyMember, getDatabase());
-  pageProps.weightCapacity = model::characterGetWeightCapacity(*currentPartyMember);
+      model::characterGetWeightCarrying(*inventoryPartyMember, getDatabase());
+  pageProps.weightCapacity = model::characterGetWeightCapacity(*inventoryPartyMember);
   pageProps.gold = player.gold;
-  pageProps.inventory = currentPartyMember->inventory;
+  pageProps.inventory = inventoryPartyMember->inventory;
   pageInventory->setProps(pageProps);
 }
 
