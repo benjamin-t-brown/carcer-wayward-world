@@ -11,6 +11,8 @@ db/loaders/LoadSpecialEvents.cpp \
 layers/Layer.cpp \
 layers/LayerManager.cpp \
 layers/ui/LayerInventoryContext.cpp \
+layers/ui/LayerGiveContext.cpp \
+layers/ui/LayerDropConfirm.cpp \
 layers/ui/LayerInventory.cpp \
 layers/ui/LayerPickUpContext.cpp \
 layers/ui/LayerPickUp.cpp \
@@ -26,6 +28,7 @@ state/DatabaseInterface.cpp \
 state/ActionBus.cpp \
 state/StateManager.cpp \
 state/StateManagerInterface.cpp \
+state/UiManager.cpp \
 state/LayerManagerInterface.cpp \
 ui/UiElement.cpp \
 ui/FontScale.cpp \
@@ -41,6 +44,7 @@ ui/elements/buttons/ButtonSprite.cpp \
 ui/elements/buttons/ButtonGroup.cpp \
 ui/components/borders/BorderDropShadow.cpp \
 ui/elements/SectionScrollable.cpp \
+ui/elements/HorizontalSlider.cpp \
 ui/elements/buttons/ButtonTextWrap.cpp \
 ui/elements/buttons/ButtonWorldAction.cpp \
 ui/elements/OutsetRectangle.cpp \
@@ -49,9 +53,13 @@ ui/components/borders/BorderModalSmall.cpp \
 ui/components/borders/BorderInGameWide.cpp \
 ui/components/borders/BorderInGameNarrow.cpp \
 ui/components/ChCompactInfo.cpp \
+ui/components/ItemInfo.cpp \
 ui/components/PartyMemberSwitcher.cpp \
 ui/components/PartyMemberIconSelector.cpp \
 ui/components/VerticalList.cpp \
+ui/components/FloatingNotification.cpp \
+ui/components/FloatingNotificationSection.cpp \
+ui/components/ConfirmModal.cpp \
 ui/components/HorizontalList.cpp \
 ui/layouts/InGameLayout.cpp \
 ui/layouts/ModalStandard.cpp \
@@ -63,6 +71,8 @@ ui/components/lists/ListPickUp.cpp \
 ui/components/lists/ListChCompactInfoVertical.cpp \
 ui/components/lists/ListChCompactInfoHorizontal.cpp \
 ui/popups/PopupInventoryItem.cpp \
+ui/popups/PopupGive.cpp \
+ui/popups/PopupDropConfirm.cpp \
  ui/pages/PageCharacter.cpp \
 ui/pages/PageInventory.cpp \
 ui/pages/PageMagicSetup.cpp \

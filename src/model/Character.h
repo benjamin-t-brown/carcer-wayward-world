@@ -120,8 +120,20 @@ std::string characterGetSprite(const Character& character, const db::Database* d
 
 std::string characterPlayerGetSprite(const CharacterPlayer& characterPlayer);
 
+enum class EquipItemResult {
+  EQUIPPED,
+  UNEQUIPPED,
+  NOT_EQUIPPABLE,
+  ITEM_NOT_IN_INVENTORY,
+  SLOT_OCCUPIED,
+  TWO_HANDED_OFF_HAND,
+};
+
 bool characterPlayerIsItemEquippedById(const CharacterPlayer& characterPlayer,
                                        const std::string& itemId);
+EquipItemResult characterPlayerToggleEquipItem(CharacterPlayer& characterPlayer,
+                                               const std::string& itemId,
+                                               const db::Database& database);
 std::optional<CharacterInventoryItem>
 characterPlayerFindItemInInventoryByName(const CharacterPlayer& characterPlayer,
                                          const std::string& itemName);
@@ -131,6 +143,22 @@ void characterPlayerAddItemToInventory(CharacterPlayer& characterPlayer,
 void characterPlayerRemoveItemFromInventoryByName(CharacterPlayer& characterPlayer,
                                                   const std::string& itemName,
                                                   int quantity = 1);
+void characterPlayerRemoveItemFromInventoryById(CharacterPlayer& characterPlayer,
+                                                const std::string& itemId,
+                                                int quantity = 1);
+
+enum class GiveItemResult {
+  SUCCESS,
+  ITEM_NOT_FOUND,
+  INVALID_QUANTITY,
+  TOO_HEAVY,
+};
+
+GiveItemResult characterPlayerGiveInventoryItem(CharacterPlayer& from,
+                                                CharacterPlayer& to,
+                                                const std::string& itemId,
+                                                int quantity,
+                                                const db::Database& database);
 bool characterPlayerReorderInventoryItem(CharacterPlayer& characterPlayer,
                                          size_t index,
                                          int direction);

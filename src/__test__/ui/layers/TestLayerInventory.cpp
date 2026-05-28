@@ -27,11 +27,17 @@ constexpr const char* TEST_PARTY_TEMPLATE_NAMES[] = {
 };
 
 const std::vector<std::vector<std::string>> PARTY_MEMBER_ITEMS = {
-    {"PotionHealing", "DaggerBronze"},
+    {"PotionHealing", "DaggerBronze", "DaggerBronze", "DaggerBronze", "SwordBronze"},
     {"ShortSwordBronze", "SwordBronze"},
-    {"LongbowOak", "ArrowsStone", "PotionHealing"},
-    {"ShirtSimple0", "PantsSimple0"},
-    {"GlovesLeather", "HatLeather"},
+    {"LongbowOak",
+     "ArrowsStone",
+     "ArrowsStone",
+     "ArrowsStone",
+     "ArrowsStone",
+     "PotionHealing",
+     "DaggerBronze"},
+    {"ShirtSimple0", "PantsSimple0", "DaggerBronze", "DaggerBronze"},
+    {"GlovesLeather", "HatLeather", "ShortSwordBronze", "SwordBronze"},
     {"BootsLeather", "NecklaceSilver", "DaggerBronze"},
 };
 
@@ -103,7 +109,7 @@ int main(int argc, char** argv) {
 
   setupTestUi(argc,
               argv,
-              TestUiParams{400, 900, "LayerInventory Test"},
+              TestUiParams{640, 480, "LayerInventory Test"},
               _init,
               _updateRender,
               [&]() { layerManager.reset(); });

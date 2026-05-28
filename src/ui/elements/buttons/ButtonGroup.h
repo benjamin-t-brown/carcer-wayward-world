@@ -20,8 +20,8 @@ struct ButtonGroupButtonProps {
 };
 struct ButtonGroupProps {
   ButtonGroupAlignment alignment = ButtonGroupAlignment::LEFT;
-  int buttonWidth = 100;
-  int buttonHeight = 50;
+  int buttonWidth = 80;
+  int buttonHeight = 32;
   int buttonSpacing = 8; // Spacing between buttons
   int padding = 2;       // Inset around buttons; included in group width/height
   std::vector<ButtonGroupButtonProps> buttons;
@@ -50,8 +50,6 @@ public:
   const ButtonGroupProps& getProps() const;
 
   void addObserverToButtonAtIndex(int index, UiEventObserver* observer);
-
-  const std::pair<int, int> getDims() const override;
 
   void build() override;
   void render(int dt) override;

@@ -3,6 +3,7 @@
 #include "state/ActionBus.h"
 #include "state/DatabaseInterface.h"
 #include "state/State.h"
+#include "state/UiManager.h"
 #include <list>
 #include <memory>
 #include <vector>
@@ -28,6 +29,7 @@ private:
   state::State state;
   ActionData actionData;
   ActionBus actionBus;
+  UiManager uiManager;
 
 public:
   StateManager();

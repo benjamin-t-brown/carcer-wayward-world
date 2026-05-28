@@ -2,6 +2,7 @@
 #include "lib/sdl2w/Logger.h"
 #include "model/Character.h"
 #include "state/actions/ui/UiSetCurrentPartyMember.hpp"
+#include "ui/components/FloatingNotificationSection.h"
 #include "ui/minipages/MinipagePickUp.h"
 
 namespace layers {
@@ -26,6 +27,11 @@ LayerPickUp::LayerPickUp(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
   style.scale = scale;
 
   addUiElement(minipagePickUp);
+
+  auto floatingNotificationSection = new ui::FloatingNotificationSection(window);
+  floatingNotificationSection->setId("floatingNotificationSection");
+  addUiElement(floatingNotificationSection);
+
   syncCurrentPartyMember();
 
   subscribeAction<state::actions::UiSetCurrentPartyMember>(
@@ -51,8 +57,6 @@ void LayerPickUp::syncCurrentPartyMember() {
     return;
   }
 
-  auto spriteName = model::characterGetSprite(*currentPartyMember, database);
-
   auto minipagePickUp = getUiElement<ui::MinipagePickUp>("minipagePickUp");
   if (!minipagePickUp) {
     LOG(ERROR) << "LayerPickUp::syncCurrentPartyMember: minipagePickUp is nullptr"
@@ -65,8 +69,11 @@ void LayerPickUp::syncCurrentPartyMember() {
 
   auto minipageProps = minipagePickUp->getProps();
   minipageProps.doneButtonRemoveLayerId = std::string(LAYER_ID);
-  minipageProps.partyMemberSpriteName = spriteName;
   minipageProps.partyMemberIndex = player.currentPartyMemberIndex;
+  minipageProps.partyMemberSprites.clear();
+  for (const auto& member : player.party) {
+    minipageProps.partyMemberSprites.push_back(model::characterGetSprite(member, database));
+  }
   minipageProps.weightText = std::string(TRANSLATE("Carrying")) + " " +
                              std::to_string(carrying) + "/" + std::to_string(maxWeight);
   auto nearbyItems = model::characterGetNearbyItems(*currentPartyMember);

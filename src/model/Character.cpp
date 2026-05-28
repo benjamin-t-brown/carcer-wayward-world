@@ -5,6 +5,107 @@
 
 namespace model {
 
+namespace {
+
+std::optional<CharacterInventoryItem>
+characterPlayerFindItemInInventoryById(const CharacterPlayer& characterPlayer,
+                                       const std::string& itemId) {
+  for (const auto& item : characterPlayer.inventory) {
+    if (item.id == itemId) {
+      return item;
+    }
+  }
+  return std::nullopt;
+}
+
+std::string* equipmentSlotForItemType(CharacterPlayerEquipment& equipment,
+                                      ItemType itemType) {
+  switch (itemType) {
+  case ItemType::WEAPON_AMMO:
+    return &equipment.ammoId;
+  case ItemType::SHIELD:
+    return &equipment.shieldId;
+  case ItemType::HAT:
+    return &equipment.hatId;
+  case ItemType::GARB:
+    return &equipment.garbId;
+  case ItemType::GLOVES:
+    return &equipment.glovesId;
+  case ItemType::PANTS:
+    return &equipment.pantsId;
+  case ItemType::SHOES:
+    return &equipment.shoesId;
+  case ItemType::NECKLACE:
+    return &equipment.necklaceId;
+  default:
+    return nullptr;
+  }
+}
+
+void unequipMainWeapon(CharacterPlayerEquipment& equipment) {
+  if (!equipment.weapon1Id.empty()) {
+    equipment.weapon0Id = equipment.weapon1Id;
+    equipment.weapon1Id.clear();
+  } else {
+    equipment.weapon0Id.clear();
+  }
+}
+
+void unequipWeaponByItemId(CharacterPlayerEquipment& equipment,
+                           const std::string& itemId) {
+  if (equipment.weapon0Id == itemId) {
+    unequipMainWeapon(equipment);
+  } else if (equipment.weapon1Id == itemId) {
+    equipment.weapon1Id.clear();
+  }
+}
+
+EquipItemResult equipWeapon(CharacterPlayerEquipment& equipment,
+                            const std::string& itemId,
+                            ItemType itemType) {
+  const bool isTwoHanded = itemTypeIsTwoHandedWeapon(itemType);
+
+  if (isTwoHanded) {
+    if (!equipment.weapon1Id.empty()) {
+      return EquipItemResult::SLOT_OCCUPIED;
+    }
+    if (equipment.weapon0Id.empty()) {
+      equipment.weapon0Id = itemId;
+      return EquipItemResult::EQUIPPED;
+    }
+    return EquipItemResult::TWO_HANDED_OFF_HAND;
+  }
+
+  if (equipment.weapon0Id.empty()) {
+    equipment.weapon0Id = itemId;
+    return EquipItemResult::EQUIPPED;
+  }
+  if (equipment.weapon1Id.empty()) {
+    equipment.weapon1Id = itemId;
+    return EquipItemResult::EQUIPPED;
+  }
+  return EquipItemResult::SLOT_OCCUPIED;
+}
+
+EquipItemResult equipSingleSlot(CharacterPlayerEquipment& equipment,
+                                const std::string& itemId,
+                                ItemType itemType) {
+  auto* slot = equipmentSlotForItemType(equipment, itemType);
+  if (slot == nullptr) {
+    return EquipItemResult::NOT_EQUIPPABLE;
+  }
+  if (slot->empty()) {
+    *slot = itemId;
+    return EquipItemResult::EQUIPPED;
+  }
+  if (*slot == itemId) {
+    return EquipItemResult::EQUIPPED;
+  }
+  return EquipItemResult::SLOT_OCCUPIED;
+}
+
+} // namespace
+
 std::string characterGetSprite(const Character& character, const db::Database* database) {
   const auto& characterTemplate = database->getCharacterTemplate(character.templateName);
   return characterTemplate.spritesheetName + "_" + characterTemplate.spriteOffset;
@@ -29,6 +130,40 @@ bool characterPlayerIsItemEquippedById(const CharacterPlayer& characterPlayer,
          characterPlayer.equipment.shieldId == itemId;
 }
 
+EquipItemResult characterPlayerToggleEquipItem(CharacterPlayer& characterPlayer,
+                                               const std::string& itemId,
+                                               const db::Database& database) {
+  const auto inventoryItem =
+      characterPlayerFindItemInInventoryById(characterPlayer, itemId);
+  if (!inventoryItem.has_value()) {
+    return EquipItemResult::ITEM_NOT_IN_INVENTORY;
+  }
+
+  const auto& itemTemplate = database.getItemTemplate(inventoryItem->itemName);
+  if (!itemTypeIsEquippable(itemTemplate.itemType)) {
+    return EquipItemResult::NOT_EQUIPPABLE;
+  }
+
+  if (characterPlayerIsItemEquippedById(characterPlayer, itemId)) {
+    if (itemTypeUsesWeaponSlots(itemTemplate.itemType)) {
+      unequipWeaponByItemId(characterPlayer.equipment, itemId);
+    } else {
+      auto* slot =
+          equipmentSlotForItemType(characterPlayer.equipment, itemTemplate.itemType);
+      if (slot != nullptr) {
+        slot->clear();
+      }
+    }
+    return EquipItemResult::UNEQUIPPED;
+  }
+
+  if (itemTypeUsesWeaponSlots(itemTemplate.itemType)) {
+    return equipWeapon(characterPlayer.equipment, itemId, itemTemplate.itemType);
+  }
+
+  return equipSingleSlot(characterPlayer.equipment, itemId, itemTemplate.itemType);
+}
+
 std::optional<CharacterInventoryItem>
 characterPlayerFindItemInInventoryByName(const CharacterPlayer& characterPlayer,
                                          const std::string& itemName) {
@@ -46,7 +181,7 @@ void characterPlayerAddItemToInventory(CharacterPlayer& characterPlayer,
   auto existingItem =
       characterPlayerFindItemInInventoryByName(characterPlayer, itemTemplate.name);
 
-  if (existingItem.has_value()) {
+  if (existingItem.has_value() && itemTemplate.stackable) {
     // Item exists, increase quantity
     for (auto& item : characterPlayer.inventory) {
       if (item.itemName == itemTemplate.name) {
@@ -102,6 +237,72 @@ void characterPlayerRemoveItemFromInventoryByName(CharacterPlayer& characterPlay
       break;
     }
   }
+}
+
+void unequipItemById(CharacterPlayer& characterPlayer,
+                     const std::string& itemId,
+                     const db::Database& database) {
+  const auto inventoryItem =
+      characterPlayerFindItemInInventoryById(characterPlayer, itemId);
+  if (!inventoryItem.has_value()) {
+    return;
+  }
+  const auto& itemTemplate = database.getItemTemplate(inventoryItem->itemName);
+  if (itemTypeUsesWeaponSlots(itemTemplate.itemType)) {
+    unequipWeaponByItemId(characterPlayer.equipment, itemId);
+  } else {
+    auto* slot =
+        equipmentSlotForItemType(characterPlayer.equipment, itemTemplate.itemType);
+    if (slot != nullptr && *slot == itemId) {
+      slot->clear();
+    }
+  }
+}
+
+void characterPlayerRemoveItemFromInventoryById(CharacterPlayer& characterPlayer,
+                                                const std::string& itemId,
+                                                int quantity) {
+  for (auto it = characterPlayer.inventory.begin(); it != characterPlayer.inventory.end();
+       ++it) {
+    if (it->id == itemId) {
+      if (it->quantity > quantity) {
+        it->quantity -= quantity;
+      } else {
+        characterPlayer.inventory.erase(it);
+      }
+      break;
+    }
+  }
+}
+
+GiveItemResult characterPlayerGiveInventoryItem(CharacterPlayer& from,
+                                                CharacterPlayer& to,
+                                                const std::string& itemId,
+                                                int quantity,
+                                                const db::Database& database) {
+  const auto inventoryItem = characterPlayerFindItemInInventoryById(from, itemId);
+  if (!inventoryItem.has_value()) {
+    return GiveItemResult::ITEM_NOT_FOUND;
+  }
+  if (quantity < 1 || quantity > inventoryItem->quantity) {
+    return GiveItemResult::INVALID_QUANTITY;
+  }
+
+  const auto& itemTemplate = database.getItemTemplate(inventoryItem->itemName);
+  const int addedWeight = quantity * itemTemplate.weight;
+  if (characterGetWeightCarrying(to, &database) + addedWeight >
+      characterGetWeightCapacity(to)) {
+    return GiveItemResult::TOO_HEAVY;
+  }
+
+  if (characterPlayerIsItemEquippedById(from, itemId) &&
+      quantity == inventoryItem->quantity) {
+    unequipItemById(from, itemId, database);
+  }
+
+  characterPlayerRemoveItemFromInventoryById(from, itemId, quantity);
+  characterPlayerAddItemToInventory(to, itemTemplate, quantity);
+  return GiveItemResult::SUCCESS;
 }
 
 int characterGetWeightCarrying(const CharacterPlayer& characterPlayer,

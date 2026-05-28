@@ -1,6 +1,7 @@
 #include "LayerInventoryContext.h"
 #include "lib/sdl2w/Logger.h"
 #include "model/Character.h"
+#include "ui/components/FloatingNotificationSection.h"
 #include "ui/popups/PopupInventoryItem.h"
 
 namespace layers {
@@ -60,6 +61,7 @@ LayerInventoryContext::LayerInventoryContext(sdl2w::Window* _window,
   style.scale = 1.0f;
 
   ui::PopupInventoryItemProps popupProps;
+  popupProps.characterPlayerId = inventoryPartyMember->id;
   popupProps.item = {
       .id = itemInstance.id,
       .itemName = itemInstance.itemName,
@@ -74,6 +76,10 @@ LayerInventoryContext::LayerInventoryContext(sdl2w::Window* _window,
   popupInventoryItem->setProps(popupProps);
 
   addUiElement(popupInventoryItem);
+
+  auto floatingNotificationSection = new ui::FloatingNotificationSection(window);
+  floatingNotificationSection->setId("floatingNotificationSection");
+  addUiElement(floatingNotificationSection);
 }
 
 void LayerInventoryContext::update(int deltaTime) { Layer::update(deltaTime); }

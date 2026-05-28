@@ -12,6 +12,7 @@ export interface ItemTemplate {
   description: string;
   weight: number;
   value: number;
+  stackable?: boolean;
   // Optional fields
   itemUsability?: string;
   itemUsabilityArgs?: {

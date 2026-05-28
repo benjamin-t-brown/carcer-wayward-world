@@ -1,6 +1,7 @@
 #include "PageInventory.h"
 #include "layers/ui/LayerInventory.h"
 #include "lib/sdl2w/L10n.h"
+#include "model/Items.h"
 #include "ui/colors.h"
 #include "ui/components/PartyMemberIconSelector.h"
 #include "ui/components/lists/ListInventory.h"
@@ -33,13 +34,22 @@ void PageInventory::populateInventoryProps(
   }
   auto& database = *getDatabase();
 
+  model::CharacterPlayer equippedCheck;
+  equippedCheck.equipment = props.equipment;
+
   for (const auto& item : props.inventory) {
     auto& itemTemplate = database.getItemTemplate(item.itemName);
-    listProps.push_back(
-        {.itemId = item.id,
-         .itemName = item.itemName,
-         .itemLabel = itemTemplate.label.empty() ? itemTemplate.name : itemTemplate.label,
-         .itemSprite = itemTemplate.iconSpriteName});
+    listProps.push_back({.itemId = item.id,
+                         .itemName = item.itemName,
+                         .itemLabel = itemTemplate.label.empty() ? itemTemplate.name
+                                                                 : itemTemplate.label,
+                         .itemSprite = itemTemplate.iconSpriteName,
+                         .isEquippable = model::itemTypeIsEquippable(itemTemplate.itemType),
+                         .isEquipped =
+                             model::characterPlayerIsItemEquippedById(equippedCheck,
+                                                                      item.id),
+                         .isStackable = itemTemplate.stackable,
+                         .quantity = item.quantity});
   }
 }
 

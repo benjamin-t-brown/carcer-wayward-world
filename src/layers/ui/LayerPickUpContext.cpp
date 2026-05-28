@@ -1,4 +1,5 @@
 #include "LayerPickUpContext.h"
+#include "ui/components/FloatingNotificationSection.h"
 #include "ui/popups/PopupPickupItem.h"
 
 namespace layers {
@@ -42,6 +43,10 @@ LayerPickUpContext::LayerPickUpContext(sdl2w::Window* _window,
   popupPickupItem->setProps(popupProps);
 
   addUiElement(popupPickupItem);
+
+  auto floatingNotificationSection = new ui::FloatingNotificationSection(window);
+  floatingNotificationSection->setId("floatingNotificationSection");
+  addUiElement(floatingNotificationSection);
 }
 
 void LayerPickUpContext::update(int deltaTime) { Layer::update(deltaTime); }

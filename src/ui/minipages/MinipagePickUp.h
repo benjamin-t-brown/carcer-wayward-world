@@ -12,8 +12,8 @@ struct MinipagePickUpProps {
   std::string titleText = TRANSLATE("Pick Up");
   std::string statusText;
   std::string weightText = "Carrying 0/100";
-  std::string partyMemberSpriteName = "actors0_0";
   int partyMemberIndex = 0;
+  std::vector<std::string> partyMemberSprites;
   std::vector<model::ItemInstance> nearbyItems;
   std::string doneButtonRemoveLayerId;
 };

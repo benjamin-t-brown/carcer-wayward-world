@@ -51,7 +51,7 @@ setupTestUi(int argc,
     window.getStore().loadAndStoreFont("title", "assets/cabal.ttf");
     window.getStore().loadAndStoreFont("default", "assets/monofonto.ttf");
     window.getStore().loadAndStoreFont("text", "assets/notosans-regular.ttf");
-    window.getStore().loadAndStoreFont("title2", "assets/notosans-condensed-bold.ttf");
+    window.getStore().loadAndStoreFont("text-bold", "assets/notosans-bold.ttf");
     assetLoader.loadAssetsFromFile(sdl2w::ASSET_FILE, "assets/assets.ui.txt");
     assetLoader.loadAssetsFromFile(sdl2w::ASSET_FILE, "assets/assets.game.txt");
 

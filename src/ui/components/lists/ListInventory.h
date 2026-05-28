@@ -9,6 +9,10 @@ struct ListInventoryPropsItem {
   std::string itemName;
   std::string itemLabel;
   std::string itemSprite;
+  bool isEquippable = false;
+  bool isEquipped = false;
+  bool isStackable = false;
+  int quantity = 1;
 };
 struct ListInventoryProps {
   std::string characterPlayerId;

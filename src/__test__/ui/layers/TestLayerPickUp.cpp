@@ -37,7 +37,11 @@ constexpr const char* TEST_PARTY_TEMPLATE_NAMES[] = {
 const std::vector<std::vector<std::string>> PARTY_MEMBER_ITEMS = {
     {"PotionHealing", "DaggerBronze"},
     {"ShortSwordBronze", "SwordBronze"},
-    {"LongbowOak", "ArrowsStone", "PotionHealing"},
+    {
+        "LongbowOak",
+        "ArrowsStone",
+        "PotionHealing",
+    },
     {"ShirtSimple0", "PantsSimple0"},
     {"GlovesLeather", "HatLeather"},
     {"BootsLeather", "NecklaceSilver", "DaggerBronze"},

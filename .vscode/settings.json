@@ -16,6 +16,7 @@
     "Renderable",
     "Renderables",
     "Spritesheet",
+    "stackable",
     "Tileset",
     "tilesets",
     "Townsperson"

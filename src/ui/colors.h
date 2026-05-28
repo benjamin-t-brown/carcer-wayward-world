@@ -10,6 +10,7 @@ struct Colors {
   static constexpr SDL_Color OffWhite{248, 248, 248, 255};
   static constexpr SDL_Color LightGrey{188, 183, 197, 255};
   static constexpr SDL_Color DarkGrey{75, 75, 75, 255};
+  static constexpr SDL_Color Grey{128, 128, 128, 255};
   static constexpr SDL_Color Red{225, 83, 74, 255};
   static constexpr SDL_Color Blue{57, 120, 168, 255};
   static constexpr SDL_Color LightBlue{66, 202, 253, 255};

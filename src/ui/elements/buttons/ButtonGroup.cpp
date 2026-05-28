@@ -2,6 +2,7 @@
 #include "ButtonModal.h"
 #include "ButtonSprite.h"
 #include "lib/sdl2w/Logger.h"
+#include <algorithm>
 
 namespace ui {
 
@@ -16,21 +17,6 @@ void ButtonGroup::setProps(const ButtonGroupProps& _props) {
 ButtonGroupProps& ButtonGroup::getProps() { return props; }
 
 const ButtonGroupProps& ButtonGroup::getProps() const { return props; }
-
-const std::pair<int, int> ButtonGroup::getDims() const {
-  if (props.buttons.empty()) {
-    return {0, 0};
-  }
-
-  const int count = static_cast<int>(props.buttons.size());
-  const int totalButtonWidth =
-      count * props.buttonWidth + (count - 1) * props.buttonSpacing;
-  const int logicalWidth = props.padding * 2 + totalButtonWidth;
-  const int logicalHeight = props.padding * 2 + props.buttonHeight;
-
-  return {static_cast<int>(logicalWidth * style.scale),
-          static_cast<int>(logicalHeight * style.scale)};
-}
 
 void ButtonGroup::addObserverToButtonAtIndex(int index, UiEventObserver* observer) {
   if (index >= 0 && index < static_cast<int>(children.size())) {
@@ -51,15 +37,17 @@ void ButtonGroup::build() {
   const int count = static_cast<int>(props.buttons.size());
   const int totalButtonWidth =
       count * props.buttonWidth + (count - 1) * props.buttonSpacing;
-  style.width = props.padding * 2 + totalButtonWidth;
+  const int contentLogicalWidth = props.padding * 2 + totalButtonWidth;
+  style.width = std::max(style.width, contentLogicalWidth);
   style.height = props.padding * 2 + props.buttonHeight;
 
-  auto [scaledWidth, scaledHeight] = getDims();
-  (void)scaledHeight;
+  const int alignmentScaledWidth = static_cast<int>(style.width * style.scale);
 
   const auto scaledPadding = static_cast<int>(props.padding * style.scale);
   const auto scaledButtonWidth = static_cast<int>(props.buttonWidth * style.scale);
   const auto scaledButtonSpacing = static_cast<int>(props.buttonSpacing * style.scale);
+  const int rowWidth =
+      count * scaledButtonWidth + (count - 1) * scaledButtonSpacing;
 
   for (int i = 0; i < count; ++i) {
     const auto& buttonProps = props.buttons[static_cast<size_t>(i)];
@@ -70,11 +58,11 @@ void ButtonGroup::build() {
       buttonX = style.x + scaledPadding + i * (scaledButtonWidth + scaledButtonSpacing);
       break;
     case ButtonGroupAlignment::CENTER:
-      buttonX = style.x + scaledWidth / 2 - scaledButtonWidth / 2 -
+      buttonX = style.x + (alignmentScaledWidth - rowWidth) / 2 +
                 i * (scaledButtonWidth + scaledButtonSpacing);
       break;
     case ButtonGroupAlignment::RIGHT:
-      buttonX = style.x + scaledWidth - scaledPadding -
+      buttonX = style.x + alignmentScaledWidth - scaledPadding -
                 (i + 1) * scaledButtonWidth - i * scaledButtonSpacing;
       break;
     }

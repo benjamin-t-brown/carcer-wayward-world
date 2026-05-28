@@ -1,5 +1,6 @@
 #include "PartyMemberIconSelector.h"
 #include "ui/elements/buttons/ButtonGroup.h"
+#include "ui/observers/ObserverSetCurrentPartyMember.hpp"
 #include "ui/observers/ObserverSetCurrentPartyMemberInventory.hpp"
 
 namespace ui {
@@ -71,9 +72,15 @@ void PartyMemberIconSelector::build() {
   buttonGroup->setProps(groupProps);
 
   for (size_t i = 0; i < props.members.size(); ++i) {
-    buttonGroup->addObserverToButtonAtIndex(static_cast<int>(i),
-                                            new ObserverSetCurrentPartyMemberInventory(
-                                                static_cast<int>(i)));
+    if (props.target == PartyMemberIconSelectorTarget::PICKUP) {
+      buttonGroup->addObserverToButtonAtIndex(static_cast<int>(i),
+                                              new ObserverSetCurrentPartyMember(
+                                                  static_cast<int>(i)));
+    } else {
+      buttonGroup->addObserverToButtonAtIndex(static_cast<int>(i),
+                                              new ObserverSetCurrentPartyMemberInventory(
+                                                  static_cast<int>(i)));
+    }
   }
 
   addChild(buttonGroup);

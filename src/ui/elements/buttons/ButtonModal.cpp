@@ -1,6 +1,5 @@
 #include "ButtonModal.h"
 #include "../TextLine.h"
-#include "ui/colors.h"
 #include "ui/elements/OutsetRectangle.h"
 
 namespace ui {
@@ -74,18 +73,6 @@ void ButtonModal::build() {
 }
 
 void ButtonModal::render(int dt) {
-  // if (isHovered) {
-  //   if (!isInHoverMode) {
-  //     isInHoverMode = true;
-  //     build();
-  //   }
-  // } else {
-  //   if (isInHoverMode) {
-  //     isInHoverMode = false;
-  //     build();
-  //   }
-  // }
-
   if (isActive) {
     if (!isInActiveMode) {
       isInActiveMode = true;

@@ -2,12 +2,15 @@
 #include "layers/ui/LayerInventoryContext.h"
 #include "lib/sdl2w/L10n.h"
 #include "ui/colors.h"
+#include "ui/components/ItemInfo.h"
 #include "ui/components/borders/BorderDropShadow.h"
+#include "ui/elements/Quad.h"
 #include "ui/elements/TextLine.h"
-#include "ui/elements/TextParagraph.h"
 #include "ui/elements/buttons/ButtonClose.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/observers/ObserverRemoveLayer.hpp"
+#include "ui/observers/ObserverShowLayerDropContext.hpp"
+#include "ui/observers/ObserverShowLayerGiveContext.hpp"
 
 namespace ui {
 
@@ -101,10 +104,14 @@ void PopupInventoryItem::build() {
   };
 
   auto giveButton = createButton(TRANSLATE("Give"), buttonsX, buttonsY);
+  giveButton->addEventObserver(new ObserverShowLayerGiveContext(
+      window, props.characterPlayerId, props.item.id));
   addChild(giveButton);
   buttonsY -= actionButtonHeightTotalScaled;
 
   auto dropButton = createButton(TRANSLATE("Drop"), buttonsX, buttonsY);
+  dropButton->addEventObserver(new ObserverShowLayerDropContext(
+      window, props.characterPlayerId, props.item.id));
   addChild(dropButton);
   buttonsY -= actionButtonHeightTotalScaled;
 
@@ -162,70 +169,23 @@ void PopupInventoryItem::build() {
   });
   addChild(label);
 
-  auto description = new TextParagraph(window, this);
-  description->setId("description");
-  auto& descStyle = description->getStyle();
-  descStyle.x = style.x + padding * style.scale;
-  descStyle.y = style.y + padding * style.scale + iconBgSize * style.scale +
-                vertSpacerHeight * style.scale;
-  descStyle.width = scaledWidth - padding * 2 * style.scale -
-                    actionButtonsWidth * style.scale - 8 * style.scale;
-  descStyle.scale = 1.f;
-  setBaseFontConfig(descStyle, BaseFontConfig::MODAL_TEXT);
-  descStyle.fontColor = Colors::Black;
-  descStyle.textAlign = TextAlign::LEFT_TOP;
-  descStyle.lineSpacing = 0;
-  description->setProps(TextParagraphProps{
-      .textBlocks =
-          {
-              {
-                  .text = props.description,
-              },
-          },
+  auto itemInfo = new ItemInfo(window, this);
+  itemInfo->setId("itemInfo");
+  auto& itemInfoStyle = itemInfo->getStyle();
+  itemInfoStyle.x = style.x + padding * style.scale;
+  itemInfoStyle.y = style.y + padding * style.scale + iconBgSize * style.scale +
+                    vertSpacerHeight * style.scale;
+  itemInfoStyle.width = static_cast<int>(
+      (scaledWidth - padding * 2 * style.scale - actionButtonsWidth * style.scale -
+       8 * style.scale) /
+      style.scale);
+  itemInfoStyle.scale = 1.f;
+  itemInfo->setProps(ItemInfoProps{
+      .description = props.description,
+      .weight = props.weight,
+      .value = props.value,
   });
-  addChild(description);
-
-  auto [descWidthScaled, descHeightScaled] = description->getDims();
-  auto weightLine = new TextLine(window, this);
-  weightLine->setId("weight");
-  auto& weightStyle = weightLine->getStyle();
-  weightStyle.x = style.x + padding * style.scale;
-  weightStyle.y = descStyle.y + descHeightScaled + vertSpacerHeight * style.scale;
-  weightStyle.scale = 1.f;
-  setBaseFontConfig(weightStyle, BaseFontConfig::MODAL_TEXT);
-  weightStyle.fontColor = Colors::DarkBlue;
-  weightStyle.textAlign = TextAlign::LEFT_TOP;
-  weightLine->setProps(TextLineProps{
-      .textBlocks =
-          {
-              {
-                  .text = TRANSLATE("Weight: ") + std::to_string(props.weight) +
-                          std::string(TRANSLATE(" lbs")),
-              },
-          },
-  });
-  addChild(weightLine);
-  const auto weightLineHeight = weightLine->getDims().second;
-
-  auto valueLine = new TextLine(window, this);
-  valueLine->setId("value");
-  auto& valueStyle = valueLine->getStyle();
-  valueStyle.x = style.x + padding * style.scale;
-  valueStyle.y = weightStyle.y + weightLineHeight + vertSpacerHeight * style.scale;
-  valueStyle.scale = 1.f;
-  setBaseFontConfig(valueStyle, BaseFontConfig::MODAL_TEXT);
-  valueStyle.fontColor = Colors::DarkGrey;
-  valueStyle.textAlign = TextAlign::LEFT_TOP;
-  valueLine->setProps(TextLineProps{
-      .textBlocks =
-          {
-              {
-                  .text = TRANSLATE("Value: ") + std::to_string(props.value) +
-                          std::string(TRANSLATE(" gp")),
-              },
-          },
-  });
-  addChild(valueLine);
+  addChild(itemInfo);
 }
 
 void PopupInventoryItem::render(int dt) { UiElement::render(dt); }

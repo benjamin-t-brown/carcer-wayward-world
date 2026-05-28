@@ -1,0 +1,69 @@
+#pragma once
+
+#include "lib/sdl2w/L10n.h"
+#include "model/Character.h"
+#include "model/Player.h"
+#include "state/AbstractAction.h"
+#include "state/State.h"
+
+namespace state {
+
+namespace actions {
+
+class UiToggleEquipInventoryItem : public AbstractAction {
+  std::string characterPlayerId;
+  std::string itemId;
+
+  void act() override {
+    auto& localState = *state;
+    auto* characterPlayer =
+        model::playerFindPartyMemberById(localState.player, characterPlayerId);
+    if (!characterPlayer) {
+      LOG(WARN) << "UiToggleEquipInventoryItem::act: character not found "
+                << characterPlayerId << LOG_ENDL;
+      return;
+    }
+
+    auto* database = getDatabase();
+    if (!database) {
+      LOG(WARN) << "UiToggleEquipInventoryItem::act: database is nullptr" << LOG_ENDL;
+      return;
+    }
+
+    const auto result =
+        model::characterPlayerToggleEquipItem(*characterPlayer, itemId, *database);
+
+    switch (result) {
+    case model::EquipItemResult::SLOT_OCCUPIED: {
+      UiFloatingNotification notification;
+      notification.id = model::createRandomId();
+      notification.message = TRANSLATE("An item is already equipped.");
+      notification.type = UiFloatingNotificationType::WARNING;
+      model::timerStructStart(notification.timer, kFloatingNotificationDurationMs);
+      localState.uiState.floatingNotifications.push_back(std::move(notification));
+      break;
+    }
+    case model::EquipItemResult::TWO_HANDED_OFF_HAND: {
+      UiFloatingNotification notification;
+      notification.id = model::createRandomId();
+      notification.message =
+          TRANSLATE("A two-handed weapon cannot be equipped in the off hand.");
+      notification.type = UiFloatingNotificationType::WARNING;
+      model::timerStructStart(notification.timer, kFloatingNotificationDurationMs);
+      localState.uiState.floatingNotifications.push_back(std::move(notification));
+      break;
+    }
+    default:
+      break;
+    }
+  }
+
+public:
+  UiToggleEquipInventoryItem(std::string_view _characterPlayerId,
+                             std::string_view _itemId)
+      : characterPlayerId(_characterPlayerId), itemId(_itemId) {}
+};
+
+} // namespace actions
+
+} // namespace state

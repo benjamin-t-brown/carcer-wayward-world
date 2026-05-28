@@ -21,6 +21,7 @@ struct PageInventoryProps {
   int weightCapacity = 0;
   int gold = 0;
   std::vector<model::CharacterInventoryItem> inventory;
+  model::CharacterPlayerEquipment equipment;
 };
 
 class PageInventory : public UiElement, public state::DatabaseInterface {

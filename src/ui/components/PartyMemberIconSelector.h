@@ -7,9 +7,12 @@
 
 namespace ui {
 
+enum class PartyMemberIconSelectorTarget { INVENTORY, PICKUP };
+
 struct PartyMemberIconSelectorProps {
   std::vector<std::string> members;
   int selectedIndex = 0;
+  PartyMemberIconSelectorTarget target = PartyMemberIconSelectorTarget::INVENTORY;
   int iconSize = 32;
   int iconGap = 4;
 

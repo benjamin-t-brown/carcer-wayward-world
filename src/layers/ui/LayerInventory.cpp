@@ -3,6 +3,10 @@
 #include "model/Character.h"
 #include "state/actions/ui/UiReorderInventoryItem.hpp"
 #include "state/actions/ui/UiSetCurrentPartyMemberInventory.hpp"
+#include "state/actions/ui/UiDropInventoryItem.hpp"
+#include "state/actions/ui/UiGiveInventoryItem.hpp"
+#include "state/actions/ui/UiToggleEquipInventoryItem.hpp"
+#include "ui/components/FloatingNotificationSection.h"
 #include "ui/pages/PageInventory.h"
 
 namespace layers {
@@ -27,11 +31,22 @@ LayerInventory::LayerInventory(sdl2w::Window* _window) : Layer(_window, LAYER_ID
   style.scale = scale;
 
   addUiElement(pageInventory);
+
+  auto floatingNotificationSection = new ui::FloatingNotificationSection(window);
+  floatingNotificationSection->setId("floatingNotificationSection");
+  addUiElement(floatingNotificationSection);
+
   syncInventoryPartyMember();
 
   subscribeAction<state::actions::UiSetCurrentPartyMemberInventory>(
       [this](...) { syncInventoryPartyMember(); });
   subscribeAction<state::actions::UiReorderInventoryItem>(
+      [this](...) { syncInventoryPartyMember(); });
+  subscribeAction<state::actions::UiToggleEquipInventoryItem>(
+      [this](...) { syncInventoryPartyMember(); });
+  subscribeAction<state::actions::UiGiveInventoryItem>(
+      [this](...) { syncInventoryPartyMember(); });
+  subscribeAction<state::actions::UiDropInventoryItem>(
       [this](...) { syncInventoryPartyMember(); });
 }
 
@@ -75,6 +90,7 @@ void LayerInventory::syncInventoryPartyMember() {
   pageProps.weightCapacity = model::characterGetWeightCapacity(*inventoryPartyMember);
   pageProps.gold = player.gold;
   pageProps.inventory = inventoryPartyMember->inventory;
+  pageProps.equipment = inventoryPartyMember->equipment;
   pageInventory->setProps(pageProps);
 }
 

@@ -6,7 +6,12 @@
     "icon": "ui_item_icons_14",
     "description": "Arrows with iron tips.",
     "weight": 1,
-    "value": 10
+    "value": 10,
+    "statusEffects": [],
+    "weapon": {
+      "dmgMin": 1,
+      "dmgMax": 4
+    }
   },
   {
     "itemType": "WEAPON_AMMO",
@@ -15,7 +20,12 @@
     "icon": "ui_item_icons_14",
     "description": "Arrows with stone tips.",
     "weight": 1,
-    "value": 10
+    "value": 10,
+    "stackable": true,
+    "weapon": {
+      "dmgMin": 1,
+      "dmgMax": 4
+    }
   },
   {
     "itemType": "POTION",
@@ -24,7 +34,8 @@
     "icon": "ui_item_icons_0",
     "description": "A standard healing potion.",
     "weight": 1,
-    "value": 10
+    "value": 10,
+    "itemUsability": "USABLE_EVERYWHERE"
   },
   {
     "itemType": "POTION",
@@ -33,7 +44,8 @@
     "icon": "ui_item_icons_0",
     "description": "A standard healing potion.",
     "weight": 1,
-    "value": 10
+    "value": 10,
+    "itemUsability": "USABLE_EVERYWHERE"
   },
   {
     "itemType": "SHOES",
@@ -51,7 +63,11 @@
     "icon": "ui_item_icons_8",
     "description": "A bronze dagger.",
     "weight": 1,
-    "value": 10
+    "value": 10,
+    "weapon": {
+      "dmgMin": 1,
+      "dmgMax": 4
+    }
   },
   {
     "itemType": "GLOVES",
@@ -69,7 +85,8 @@
     "icon": "ui_item_icons_35",
     "description": "A simple leather hat.",
     "weight": 1,
-    "value": 10
+    "value": 10,
+    "statusEffects": []
   },
   {
     "itemType": "WEAPON_RANGED",
@@ -105,7 +122,8 @@
     "icon": "ui_item_icons_0",
     "description": "A standard healing potion.",
     "weight": 1,
-    "value": 10
+    "value": 10,
+    "itemUsability": "USABLE_EVERYWHERE"
   },
   {
     "itemType": "GARB",
@@ -114,7 +132,8 @@
     "icon": "ui_item_icons_17",
     "description": "A simple shirt.",
     "weight": 1,
-    "value": 10
+    "value": 10,
+    "stackable": false
   },
   {
     "itemType": "GARB",
@@ -132,7 +151,11 @@
     "icon": "ui_item_icons_9",
     "description": "A bronze short sword.",
     "weight": 1,
-    "value": 10
+    "value": 10,
+    "weapon": {
+      "dmgMin": 1,
+      "dmgMax": 6
+    }
   },
   {
     "itemType": "WEAPON_MELEE",
@@ -141,6 +164,10 @@
     "icon": "ui_item_icons_9",
     "description": "A bronze short sword.",
     "weight": 1,
-    "value": 10
+    "value": 10,
+    "weapon": {
+      "dmgMin": 1,
+      "dmgMax": 8
+    }
   }
 ]

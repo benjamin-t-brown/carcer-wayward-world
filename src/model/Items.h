@@ -8,8 +8,10 @@ namespace model {
 
 enum class ItemType {
   WEAPON_MELEE,
+  WEAPON_MELEE_2H,
   WEAPON_RANGED,
   WEAPON_AMMO,
+  SHIELD,
   GARB,
   PANTS,
   GLOVES,
@@ -24,6 +26,10 @@ enum class ItemType {
 std::string getStringFromItemType(ItemType itemType);
 ItemType getItemTypeFromString(const std::string& itemTypeString);
 
+bool itemTypeIsEquippable(ItemType itemType);
+bool itemTypeIsTwoHandedWeapon(ItemType itemType);
+bool itemTypeUsesWeaponSlots(ItemType itemType);
+
 enum class ItemUsability {
   NOT_USABLE,
   USABLE_EVERYWHERE,
@@ -33,10 +39,10 @@ enum class ItemUsability {
   USABLE_TOWN_AND_COMBAT,
 };
 
-enum class ItemUsabilityType { ITEM_USE_NOT_USABLE, ITEM_USE_CAST_SPELL };
+enum class ItemUsabilityType { ITEM_USE_DEFAULT, ITEM_USE_CAST_SPELL };
 
 struct ItemUsabilityArgs {
-  ItemUsabilityType itemUsabilityType = ItemUsabilityType::ITEM_USE_NOT_USABLE;
+  ItemUsabilityType itemUsabilityType = ItemUsabilityType::ITEM_USE_DEFAULT;
   std::vector<int> intArgs;
   std::vector<std::string> stringArgs;
 };
@@ -49,6 +55,7 @@ struct ItemTemplate {
   std::string description;
   int weight = 0;
   int value = 0;
+  bool stackable = false;
   ItemUsability itemUsability = ItemUsability::NOT_USABLE;
   ItemUsabilityArgs itemUsabilityArgs;
   std::vector<model::StatusEffectTemplate> statusEffects;

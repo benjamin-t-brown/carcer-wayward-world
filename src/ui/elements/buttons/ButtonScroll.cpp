@@ -140,6 +140,34 @@ void ButtonScroll::render(int dt) {
                   {centerX, centerY + arrowLength},
                   style.scale,
                   Colors::White);
+  } else if (props.direction == ScrollDirection::LEFT) {
+    auto& draw = window->getDraw();
+    draw.drawLine({centerX, centerY - arrowLength},
+                  {centerX - arrowLength, centerY},
+                  style.scale,
+                  Colors::White);
+    draw.drawLine({centerX + arrowLength, centerY},
+                  {centerX - arrowLength, centerY},
+                  style.scale,
+                  Colors::White);
+    draw.drawLine({centerX, centerY + arrowLength},
+                  {centerX - arrowLength, centerY},
+                  style.scale,
+                  Colors::White);
+  } else if (props.direction == ScrollDirection::RIGHT) {
+    auto& draw = window->getDraw();
+    draw.drawLine({centerX, centerY - arrowLength},
+                  {centerX + arrowLength, centerY},
+                  style.scale,
+                  Colors::White);
+    draw.drawLine({centerX - arrowLength, centerY},
+                  {centerX + arrowLength, centerY},
+                  style.scale,
+                  Colors::White);
+    draw.drawLine({centerX, centerY + arrowLength},
+                  {centerX + arrowLength, centerY},
+                  style.scale,
+                  Colors::White);
   }
 }
 

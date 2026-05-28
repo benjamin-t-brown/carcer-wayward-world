@@ -4,6 +4,7 @@
 #include "ui/elements/TextLine.h"
 #include "ui/elements/buttons/ButtonList.h"
 #include "ui/elements/buttons/ButtonModal.h"
+#include "ui/elements/buttons/ButtonTextWrap.h"
 #include "ui/observers/ObserverInventorySelectItem.hpp"
 #include "ui/observers/ObserverReorderInventoryItem.hpp"
 #include "ui/observers/ObserverShowLayerInventoryContext.hpp"
@@ -59,7 +60,8 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
   const float iconScale = 2.f;
   const int scaledIconWidth = static_cast<int>(iconSpriteSize * iconScale * style.scale);
 
-  const int reorderBtnY = ButtonList::yForListRow(s.height, reorderBtnHeight, style.scale);
+  const int reorderBtnY =
+      ButtonList::yForListRow(s.height, reorderBtnHeight, style.scale);
   const int reorderButtonsX = scaledReorderColumnGap;
 
   auto upBtn = new ButtonList(window, this);
@@ -71,10 +73,10 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
   upBtnStyle.height = reorderBtnHeight;
   upBtnStyle.scale = style.scale;
   upBtn->setProps({.arrow = ScrollDirection::UP,
-                    .bgColor = Colors::Transparent,
-                    .bgColorTopRight = Colors::Transparent,
-                    .bgColorBottomLeft = Colors::Transparent,
-                    .arrowColor = Colors::Black});
+                   .bgColor = Colors::Transparent,
+                   .bgColorTopRight = Colors::Transparent,
+                   .bgColorBottomLeft = Colors::Transparent,
+                   .arrowColor = Colors::Black});
   if (!props.characterPlayerId.empty() && index > 0) {
     upBtn->addEventObserver(
         new ObserverReorderInventoryItem(props.characterPlayerId, index, -1));
@@ -90,10 +92,10 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
   downBtnStyle.height = reorderBtnHeight;
   downBtnStyle.scale = style.scale;
   downBtn->setProps({.arrow = ScrollDirection::DOWN,
-                      .bgColor = Colors::Transparent,
-                      .bgColorTopRight = Colors::Transparent,
-                      .bgColorBottomLeft = Colors::Transparent,
-                      .arrowColor = Colors::Black});
+                     .bgColor = Colors::Transparent,
+                     .bgColorTopRight = Colors::Transparent,
+                     .bgColorBottomLeft = Colors::Transparent,
+                     .arrowColor = Colors::Black});
   if (!props.characterPlayerId.empty() &&
       index + 1 < static_cast<int>(props.items.size())) {
     downBtn->addEventObserver(
@@ -138,38 +140,75 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
   });
   container->addChild(icon);
 
-  auto label = new TextLine(window, this);
-  label->setId("label");
-  auto& labelStyle = label->getStyle();
-  setBaseFontConfig(labelStyle, BaseFontConfig::MODAL_TEXT);
-  labelStyle.fontSize = sdl2w::TEXT_SIZE_18;
-  labelStyle.fontColor = Colors::Black;
-  labelStyle.textAlign = TextAlign::LEFT_CENTER;
-  labelStyle.scale = 1.0f;
-  labelStyle.x = iconStyle.x + scaledIconWidth + labelGapAfterIcon;
-  labelStyle.y = s.height / 2;
-  label->addEventObserver(
-      new ui::ObserverInventorySelectItem(item.itemName, item.itemId));
+  const int scaledContextBtnSize = contextBtnSize * style.scale;
+  const int labelX = iconStyle.x + scaledIconWidth + labelGapAfterIcon;
+  const int labelContextGap = static_cast<int>(4 * style.scale);
+  const SDL_Color labelColor = item.isEquipped ? Colors::Blue : Colors::Black;
+  auto fontConfig =
+      item.isEquipped ? BaseFontConfig::MODAL_TEXT_BOLD : BaseFontConfig::MODAL_TEXT;
+  std::string itemDisplayLabel = item.itemLabel;
+  if (item.isStackable) {
+    itemDisplayLabel += " (" + std::to_string(item.quantity) + ")";
+  }
 
-  label->setProps({
-      .textBlocks =
-          {
-              {
-                  .text = item.itemLabel,
-              },
-          },
-  });
-  container->addChild(label);
+  if (item.isEquippable && !props.characterPlayerId.empty()) {
+    auto label = new ButtonTextWrap(window, this);
+    label->setId("label");
+    auto& labelStyle = label->getStyle();
+    setBaseFontConfig(labelStyle, fontConfig);
+    labelStyle.fontSize = sdl2w::TEXT_SIZE_18;
+    labelStyle.fontColor = labelColor;
+    labelStyle.scale = 1.0f;
+    labelStyle.x = labelX;
+    labelStyle.y = 0;
+    labelStyle.width = static_cast<int>(
+        (s.width - scaledContextBtnSize - labelX - labelContextGap) / labelStyle.scale);
+    label->setStyle(labelStyle);
+    label->setProps({
+        .text = item.itemName,
+    });
+    const int textOnlyHeight = label->getDims().second;
+    const int verticalPadding = std::max(
+        0, static_cast<int>((s.height - textOnlyHeight) / (2 * labelStyle.scale)));
+    label->setProps({
+        .text = itemDisplayLabel,
+        .verticalPadding = verticalPadding,
+    });
+    label->addEventObserver(
+        new ui::ObserverInventorySelectItem(props.characterPlayerId, item.itemId));
+    label->build();
+    container->addChild(label);
+  } else {
+    auto label = new TextLine(window, this);
+    label->setId("label");
+    auto& labelStyle = label->getStyle();
+    setBaseFontConfig(labelStyle, BaseFontConfig::MODAL_TEXT);
+    labelStyle.fontSize = sdl2w::TEXT_SIZE_18;
+    labelStyle.fontColor = labelColor;
+    labelStyle.textAlign = TextAlign::LEFT_CENTER;
+    labelStyle.scale = 1.0f;
+    labelStyle.x = labelX;
+    labelStyle.y = s.height / 2;
+    label->setProps({
+        .textBlocks =
+            {
+                {
+                    .text = itemDisplayLabel,
+                    .fontColor = labelColor,
+                },
+            },
+    });
+    container->addChild(label);
+  }
 
   // Create context button
-  const int contextBtnSize = 32 * style.scale;
   auto contextBtn = new ButtonModal(window, this);
   contextBtn->setId("contextBtn");
   auto& contextBtnStyle = contextBtn->getStyle();
-  contextBtnStyle.x = s.width - contextBtnSize;
+  contextBtnStyle.x = s.width - scaledContextBtnSize;
   contextBtnStyle.y = (s.height - contextBtnSize) / 2;
-  contextBtnStyle.width = contextBtnSize;
-  contextBtnStyle.height = contextBtnSize;
+  contextBtnStyle.width = scaledContextBtnSize;
+  contextBtnStyle.height = scaledContextBtnSize;
   contextBtnStyle.scale = 1.0f;
   contextBtn->setProps({
       .text = "*",

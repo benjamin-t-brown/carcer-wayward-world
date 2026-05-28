@@ -1,7 +1,7 @@
 #include "MinipagePickUp.h"
 #include "lib/sdl2w/L10n.h"
 #include "ui/colors.h"
-#include "ui/components/PartyMemberSwitcher.h"
+#include "ui/components/PartyMemberIconSelector.h"
 #include "ui/components/lists/ListPickUp.h"
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
@@ -151,39 +151,42 @@ void MinipagePickUp::build() {
   });
   modal->addChild(statusText);
 
-  auto partyMemberSwitcher = new PartyMemberSwitcher(window, this);
-  partyMemberSwitcher->setId("partyMemberSwitcher");
-  auto& switcherStyle = partyMemberSwitcher->getStyle();
-  switcherStyle.scale = style.scale;
-  partyMemberSwitcher->setProps(PartyMemberSwitcherProps{
-      .spriteName = props.partyMemberSpriteName,
-      .partyMemberIndex = props.partyMemberIndex,
-  });
-  auto [switcherW, switcherH] = partyMemberSwitcher->getDims();
-  switcherStyle.x = contentX + contentW - switcherW - static_cast<int>(16 * style.scale);
-  switcherStyle.y = style.y + static_cast<int>(8 * style.scale);
-  partyMemberSwitcher->build();
+  if (!props.partyMemberSprites.empty()) {
+    auto partySelector = new PartyMemberIconSelector(window, this);
+    partySelector->setId("partyMemberSelector");
+    auto& selectorStyle = partySelector->getStyle();
+    selectorStyle.scale = style.scale;
+    partySelector->setProps(PartyMemberIconSelectorProps{
+        .members = props.partyMemberSprites,
+        .selectedIndex = props.partyMemberIndex,
+        .target = PartyMemberIconSelectorTarget::PICKUP,
+    });
+    auto [selectorW, selectorH] = partySelector->getDims();
+    selectorStyle.x = contentX + contentW - selectorW - static_cast<int>(4 * style.scale);
+    selectorStyle.y = style.y + static_cast<int>(8 * style.scale);
+    partySelector->build();
 
-  auto weightText = new TextLine(window, this);
-  weightText->setId("weightText");
-  auto& weightTextStyle = weightText->getStyle();
-  setBaseFontConfig(weightTextStyle, BaseFontConfig::MODAL_TEXT);
-  weightTextStyle.fontColor = Colors::DarkGrey;
-  weightTextStyle.textAlign = TextAlign::CENTER;
-  weightTextStyle.scale = 1.;
-  weightTextStyle.x = switcherStyle.x + switcherW / 2;
-  weightTextStyle.y = switcherStyle.y + switcherH + static_cast<int>(16 * style.scale);
-  weightText->setProps({
-      .textBlocks =
-          {
-              {
-                  .text = props.weightText,
-              },
-          },
-  });
+    auto weightText = new TextLine(window, this);
+    weightText->setId("weightText");
+    auto& weightTextStyle = weightText->getStyle();
+    setBaseFontConfig(weightTextStyle, BaseFontConfig::MODAL_TEXT);
+    weightTextStyle.fontColor = Colors::DarkGrey;
+    weightTextStyle.textAlign = TextAlign::CENTER;
+    weightTextStyle.scale = 1.f;
+    weightTextStyle.x = selectorStyle.x + selectorW / 2;
+    weightTextStyle.y = selectorStyle.y + selectorH + static_cast<int>(16 * style.scale);
+    weightText->setProps({
+        .textBlocks =
+            {
+                {
+                    .text = props.weightText,
+                },
+            },
+    });
 
-  addChild(partyMemberSwitcher);
-  addChild(weightText);
+    addChild(partySelector);
+    addChild(weightText);
+  }
 }
 
 void MinipagePickUp::render(int dt) { UiElement::render(dt); }

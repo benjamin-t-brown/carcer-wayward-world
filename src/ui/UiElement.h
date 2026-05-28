@@ -27,7 +27,7 @@ public:
 };
 
 // Enums for styling
-enum class FontFamily { TEXT, ALTERNATE, TITLE };
+enum class FontFamily { TEXT, TEXT_BOLD, DEFAULT, TITLE };
 
 enum class TextAlign { LEFT_TOP, LEFT_CENTER, LEFT_BOTTOM, CENTER };
 
@@ -57,6 +57,7 @@ struct BaseStyle {
 
 enum class BaseFontConfig {
   MODAL_TEXT,
+  MODAL_TEXT_BOLD,
   MODAL_TITLE,
   MODAL_CHOICE_TEXT,
   MODAL_BUTTON,
@@ -66,6 +67,11 @@ inline void setBaseFontConfig(BaseStyle& style, BaseFontConfig config) {
   switch (config) {
   case BaseFontConfig::MODAL_TEXT:
     style.fontFamily = FontFamily::TEXT;
+    style.fontSize = sdl2w::TEXT_SIZE_16;
+    style.fontColor = Colors::White;
+    break;
+  case BaseFontConfig::MODAL_TEXT_BOLD:
+    style.fontFamily = FontFamily::TEXT_BOLD;
     style.fontSize = sdl2w::TEXT_SIZE_16;
     style.fontColor = Colors::White;
     break;

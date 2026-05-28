@@ -65,6 +65,12 @@ void loadItemTemplates(
     }
     itemTemplate.value = itemJson["value"];
 
+    if (itemJson.contains("stackable") && itemJson["stackable"].is_boolean()) {
+      itemTemplate.stackable = itemJson["stackable"];
+    } else {
+      itemTemplate.stackable = false;
+    }
+
     // Check for duplicate names
     if (itemTemplates.find(itemTemplate.name) != itemTemplates.end()) {
       throw std::runtime_error("Item template already exists: " + itemTemplate.name);

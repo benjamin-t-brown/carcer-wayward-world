@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { TextInput } from '../elements/TextInput';
 import { NumberInput } from '../elements/NumberInput';
 import { OptionSelect } from '../elements/OptionSelect';
@@ -12,8 +11,10 @@ export type { ItemTemplate };
 
 const ITEM_TYPES = [
   'WEAPON_MELEE',
+  'WEAPON_MELEE_2H',
   'WEAPON_RANGED',
   'WEAPON_AMMO',
+  'SHIELD',
   'GARB',
   'PANTS',
   'GLOVES',
@@ -33,7 +34,7 @@ const ITEM_USABILITY_TYPES = [
   'USABLE_TOWN_AND_COMBAT',
 ];
 
-const ITEM_USABILITY_ARG_TYPES = ['ITEM_USE_NOT_USABLE', 'ITEM_USE_CAST_SPELL'];
+const ITEM_USABILITY_ARG_TYPES = ['ITEM_USE_DEFAULT', 'ITEM_USE_CAST_SPELL'];
 
 const STATUS_EFFECT_TYPES = ['MODIFY_RESISTANCE_FIRE_PLUS_1'];
 
@@ -51,9 +52,10 @@ export function createDefaultItem(): ItemTemplate {
     description: 'This item has no description.',
     weight: 1,
     value: 1,
+    stackable: false,
     itemUsability: 'NOT_USABLE',
     itemUsabilityArgs: {
-      itemUsabilityType: 'ITEM_USE_NOT_USABLE',
+      itemUsabilityType: 'ITEM_USE_DEFAULT',
     },
     statusEffects: [],
   };
@@ -69,14 +71,14 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
 
   const updateField = <K extends keyof ItemTemplate>(
     field: K,
-    value: ItemTemplate[K]
+    value: ItemTemplate[K],
   ) => {
     setFormData({ ...formData, [field]: value });
   };
 
   const updateUsabilityArgs = (
     field: 'itemUsabilityType' | 'intArgs' | 'stringArgs',
-    value: string | number[] | string[] | undefined
+    value: string | number[] | string[] | undefined,
   ) => {
     setFormData({
       ...formData,
@@ -89,7 +91,7 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
 
   const updateWeapon = (
     field: 'dmgMin' | 'dmgMax',
-    value: number | undefined
+    value: number | undefined,
   ) => {
     setFormData({
       ...formData,
@@ -118,13 +120,13 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
   const updateStatusEffect = (
     index: number,
     field: 'statusEffectType' | 'name' | 'label' | 'description',
-    value: string
+    value: string,
   ) => {
     setFormData({
       ...formData,
       statusEffects:
         formData.statusEffects?.map((effect, i) =>
-          i === index ? { ...effect, [field]: value } : effect
+          i === index ? { ...effect, [field]: value } : effect,
         ) || [],
     });
   };
@@ -138,69 +140,40 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
     formData.itemUsabilityArgs?.stringArgs?.join(',') || '';
 
   return (
-    <div className={`item-form`}>
-      <h2>{'Edit Item'}</h2>
+    <div className="item-form item-template-form">
+      <h2>Edit Item</h2>
       <form>
-        <OptionSelect
-          id="item-type"
-          name="itemType"
-          label="Item Type"
-          value={formData.itemType}
-          onChange={(value) => updateField('itemType', value)}
-          options={ITEM_TYPES.map((type) => ({ value: type, label: type }))}
-          required
-        />
+        <div className="form-fields-inline">
+          <OptionSelect
+            id="item-type"
+            name="itemType"
+            label="Item Type"
+            value={formData.itemType}
+            onChange={(value) => updateField('itemType', value)}
+            options={ITEM_TYPES.map((type) => ({ value: type, label: type }))}
+            required
+          />
 
-        <TextInput
-          id="item-name"
-          name="name"
-          label="Name"
-          value={formData.name}
-          onChange={(value) => updateField('name', value)}
-          placeholder="e.g., PotionHealing"
-          required
-        />
+          <TextInput
+            id="item-name"
+            name="name"
+            label="Name"
+            value={formData.name}
+            onChange={(value) => updateField('name', value)}
+            placeholder="e.g., PotionHealing"
+            required
+          />
 
-        <TextInput
-          id="item-label"
-          name="label"
-          label="Label"
-          value={formData.label}
-          onChange={(value) => updateField('label', value)}
-          placeholder="e.g., Potion: Healing"
-          required
-        />
+          <TextInput
+            id="item-label"
+            name="label"
+            label="Label"
+            value={formData.label}
+            onChange={(value) => updateField('label', value)}
+            placeholder="e.g., Potion: Healing"
+            required
+          />
 
-        <div className="form-group">
-          <label htmlFor="item-icon">Icon *</label>
-          <div style={{ marginTop: '8px' }}>
-            <SpritePicker
-              value={formData.icon}
-              onChange={(value) => updateField('icon', value)}
-              scale={2}
-            />
-          </div>
-          {formData.icon && (
-            <div
-              style={{ marginTop: '8px', fontSize: '12px', color: '#858585' }}
-            >
-              Selected: {formData.icon}
-            </div>
-          )}
-        </div>
-
-        <TextArea
-          id="item-description"
-          name="description"
-          label="Description"
-          value={formData.description}
-          onChange={(value) => updateField('description', value)}
-          placeholder="Item description"
-          rows={3}
-          required
-        />
-
-        <div className="form-row">
           <NumberInput
             id="item-weight"
             name="weight"
@@ -222,90 +195,150 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
           />
         </div>
 
+        <div className="form-group form-block">
+          <label htmlFor="item-icon">Icon *</label>
+          <div style={{ marginTop: '4px' }}>
+            <SpritePicker
+              value={formData.icon}
+              onChange={(value) => updateField('icon', value)}
+              scale={2}
+            />
+          </div>
+          {formData.icon && (
+            <div
+              style={{ marginTop: '4px', fontSize: '11px', color: '#858585' }}
+            >
+              Selected: {formData.icon}
+            </div>
+          )}
+        </div>
+
+        <div className="form-group form-block">
+          <TextArea
+            id="item-description"
+            name="description"
+            label="Description"
+            value={formData.description}
+            onChange={(value) => updateField('description', value)}
+            placeholder="Item description"
+            rows={3}
+            required
+          />
+        </div>
+
         <div className="form-section">
           <h3>Optional Properties</h3>
 
-          <OptionSelect
-            id="item-usability"
-            name="itemUsability"
-            label="Usability"
-            value={formData.itemUsability || 'NOT_USABLE'}
-            onChange={(value) => updateField('itemUsability', value)}
-            options={ITEM_USABILITY_TYPES.map((type) => ({
-              value: type,
-              label: type,
-            }))}
-          />
-
-          <OptionSelect
-            id="item-usability-type"
-            name="itemUsabilityType"
-            label="Usability Type"
-            value={
-              formData.itemUsabilityArgs?.itemUsabilityType ||
-              'ITEM_USE_NOT_USABLE'
-            }
-            onChange={(value) =>
-              updateUsabilityArgs('itemUsabilityType', value)
-            }
-            options={ITEM_USABILITY_ARG_TYPES.map((type) => ({
-              value: type,
-              label: type,
-            }))}
-          />
-
-          <TextInput
-            id="item-usability-int-args"
-            name="itemUsabilityIntArgs"
-            label="Usability Int Args (comma-separated)"
-            value={intArgsString}
-            onChange={(value) => {
-              const intArgs = value
-                .split(',')
-                .map((s) => parseInt(s.trim()))
-                .filter((n) => !isNaN(n));
-              updateUsabilityArgs('intArgs', intArgs);
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              margin: '8px 0',
             }}
-            placeholder="e.g., 10, 20, 30"
-          />
-
-          <TextInput
-            id="item-usability-string-args"
-            name="itemUsabilityStringArgs"
-            label="Usability String Args (comma-separated)"
-            value={stringArgsString}
-            onChange={(value) => {
-              const stringArgs = value
-                .split(',')
-                .map((s) => s.trim())
-                .filter((s) => s.length > 0);
-              updateUsabilityArgs('stringArgs', stringArgs);
-            }}
-            placeholder="e.g., arg1, arg2"
-          />
-
-          <div className="form-row">
-            <NumberInput
-              id="weapon-dmg-min"
-              name="weaponDmgMin"
-              label="Weapon Damage Min"
-              value={formData.weapon?.dmgMin || 0}
-              onChange={(value) => updateWeapon('dmgMin', value || undefined)}
-              min={0}
+          >
+            <input
+              id="item-stackable"
+              name="stackable"
+              type="checkbox"
+              checked={formData.stackable === true}
+              onChange={(e) => updateField('stackable', e.target.checked)}
+              style={{ cursor: 'pointer', transform: 'scale(1.5)translateX(2px)' }}
             />
-
-            <NumberInput
-              id="weapon-dmg-max"
-              name="weaponDmgMax"
-              label="Weapon Damage Max"
-              value={formData.weapon?.dmgMax || 0}
-              onChange={(value) => updateWeapon('dmgMax', value || undefined)}
-              min={0}
-            />
+            <label htmlFor="item-stackable" style={{ marginBottom: 0 }}>
+              Stackable
+            </label>
           </div>
 
-          <div className="form-group">
-            <label>Status Effects</label>
+          <div className="form-subsection">
+            <h4>Usability</h4>
+            <div className="form-fields-inline">
+              <OptionSelect
+                id="item-usability"
+                name="itemUsability"
+                label="Usability"
+                value={formData.itemUsability || 'NOT_USABLE'}
+                onChange={(value) => updateField('itemUsability', value)}
+                options={ITEM_USABILITY_TYPES.map((type) => ({
+                  value: type,
+                  label: type,
+                }))}
+              />
+
+              <OptionSelect
+                id="item-usability-type"
+                name="itemUsabilityType"
+                label="Usability Type"
+                value={
+                  formData.itemUsabilityArgs?.itemUsabilityType ||
+                  'ITEM_USE_DEFAULT'
+                }
+                onChange={(value) =>
+                  updateUsabilityArgs('itemUsabilityType', value)
+                }
+                options={ITEM_USABILITY_ARG_TYPES.map((type) => ({
+                  value: type,
+                  label: type,
+                }))}
+              />
+
+              <TextInput
+                id="item-usability-int-args"
+                name="itemUsabilityIntArgs"
+                label="Int Args"
+                value={intArgsString}
+                onChange={(value) => {
+                  const intArgs = value
+                    .split(',')
+                    .map((s) => parseInt(s.trim()))
+                    .filter((n) => !isNaN(n));
+                  updateUsabilityArgs('intArgs', intArgs);
+                }}
+                placeholder="e.g., 10, 20, 30"
+              />
+
+              <TextInput
+                id="item-usability-string-args"
+                name="itemUsabilityStringArgs"
+                label="String Args"
+                value={stringArgsString}
+                onChange={(value) => {
+                  const stringArgs = value
+                    .split(',')
+                    .map((s) => s.trim())
+                    .filter((s) => s.length > 0);
+                  updateUsabilityArgs('stringArgs', stringArgs);
+                }}
+                placeholder="e.g., arg1, arg2"
+              />
+            </div>
+          </div>
+
+          <div className="form-subsection">
+            <h4>Weapon</h4>
+            <div className="form-fields-inline">
+              <NumberInput
+                id="weapon-dmg-min"
+                name="weaponDmgMin"
+                label="Damage Min"
+                value={formData.weapon?.dmgMin || 0}
+                onChange={(value) => updateWeapon('dmgMin', value || undefined)}
+                min={0}
+              />
+
+              <NumberInput
+                id="weapon-dmg-max"
+                name="weaponDmgMax"
+                label="Damage Max"
+                value={formData.weapon?.dmgMax || 0}
+                onChange={(value) => updateWeapon('dmgMax', value || undefined)}
+                min={0}
+              />
+            </div>
+          </div>
+
+          <div className="form-subsection">
+            <h4>Status Effects</h4>
             <div id="status-effects-list">
               {formData.statusEffects?.map((effect, index) => (
                 <div key={index} className="status-effect-item">
@@ -328,22 +361,24 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
                       Remove
                     </Button>
                   </div>
-                  <TextInput
-                    label="Name"
-                    value={effect.name || ''}
-                    onChange={(value) =>
-                      updateStatusEffect(index, 'name', value)
-                    }
-                    placeholder="Status effect name"
-                  />
-                  <TextInput
-                    label="Label"
-                    value={effect.label || ''}
-                    onChange={(value) =>
-                      updateStatusEffect(index, 'label', value)
-                    }
-                    placeholder="Display label"
-                  />
+                  <div className="form-fields-inline">
+                    <TextInput
+                      label="Name"
+                      value={effect.name || ''}
+                      onChange={(value) =>
+                        updateStatusEffect(index, 'name', value)
+                      }
+                      placeholder="Status effect name"
+                    />
+                    <TextInput
+                      label="Label"
+                      value={effect.label || ''}
+                      onChange={(value) =>
+                        updateStatusEffect(index, 'label', value)
+                      }
+                      placeholder="Display label"
+                    />
+                  </div>
                   <TextArea
                     label="Description"
                     value={effect.description || ''}
@@ -356,7 +391,7 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
                 </div>
               ))}
             </div>
-            <div style={{ marginTop: '10px' }}>
+            <div style={{ marginTop: '6px' }}>
               <Button
                 type="button"
                 variant="secondary"

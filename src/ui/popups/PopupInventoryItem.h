@@ -9,6 +9,7 @@ namespace ui {
 enum PopupOrientation { NARROW, WIDE };
 
 struct PopupInventoryItemProps {
+  std::string characterPlayerId;
   model::ItemInstance item;
   std::string label;
   std::string description;

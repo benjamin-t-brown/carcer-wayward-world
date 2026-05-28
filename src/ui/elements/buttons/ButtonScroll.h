@@ -7,7 +7,9 @@ namespace ui {
 // Direction enum for scroll buttons
 enum class ScrollDirection {
   UP,
-  DOWN
+  DOWN,
+  LEFT,
+  RIGHT,
 };
 
 // ButtonScroll-specific properties

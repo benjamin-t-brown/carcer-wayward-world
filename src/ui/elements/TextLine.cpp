@@ -1,6 +1,6 @@
 #include "TextLine.h"
-#include "state/StateManager.h"
 #include "lib/sdl2w/Draw.h"
+#include "state/StateManager.h"
 #include "ui/FontScale.h"
 #include "ui/UiElement.h"
 
@@ -15,8 +15,11 @@ std::string TextLine::getFontNameFromFamily(FontFamily fontFamily) {
   case FontFamily::TEXT:
     fontName = "text";
     break;
-  case FontFamily::ALTERNATE:
-    fontName = "alternate";
+  case FontFamily::TEXT_BOLD:
+    fontName = "text-bold";
+    break;
+  case FontFamily::DEFAULT:
+    fontName = "default";
     break;
   case FontFamily::TITLE:
     fontName = "title";
@@ -104,7 +107,8 @@ void TextLine::build() {
     auto renderTextParams = makeRenderTextParams(block);
     auto [textWidth, textHeight] =
         window->getDraw().measureText(block.text, renderTextParams);
-    textHeight += 2; // HACK: Measure text doesn't seem accurate per height, so this will need overrides...
+    textHeight += 2; // HACK: Measure text doesn't seem accurate per height, so this will
+                     // need overrides...
 
     auto tlParams = std::make_unique<TextLineRenderTextParams>();
     tlParams->text = block.text;
