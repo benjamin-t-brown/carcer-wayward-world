@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { TextInput } from '../elements/TextInput';
 import { NumberInput } from '../elements/NumberInput';
+import { OptionSelect } from '../elements/OptionSelect';
 import { Button } from '../elements/Button';
-import { CarcerMapTemplate } from '../types/assets';
+import { CarcerMapTemplate, MAP_TYPES, MapType } from '../types/assets';
 import { createDefaultMap } from './MapTemplateForm';
 
 interface CreateMapModalProps {
@@ -89,6 +90,17 @@ export function CreateMapModal({
             value={formData.label}
             onChange={(value) => setFormData({ ...formData, label: value })}
             placeholder="e.g., Town Map"
+            required
+          />
+          <OptionSelect
+            id="create-map-type"
+            name="type"
+            label="Type"
+            value={formData.type}
+            onChange={(value) =>
+              setFormData({ ...formData, type: value as MapType })
+            }
+            options={MAP_TYPES.map((type) => ({ value: type, label: type }))}
             required
           />
           <NumberInput

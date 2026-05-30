@@ -3,7 +3,7 @@
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
-#include "model/UtilityTypes.h"
+#include "model/templates/UtilityTypes.h"
 #include "state/DatabaseInterface.h"
 #include "state/StateManagerInterface.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
@@ -47,102 +47,102 @@ int main(int argc, char** argv) {
                 // clang-format off
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "PotionHealing",
+                    .itemTemplateName = "PotionHealing",
                     .quantity = 5,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "DaggerBronze",
+                    .itemTemplateName = "DaggerBronze",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "ShortSwordBronze",
+                    .itemTemplateName = "ShortSwordBronze",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "SwordBronze",
+                    .itemTemplateName = "SwordBronze",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "LongbowOak",
+                    .itemTemplateName = "LongbowOak",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "PotionHealing",
+                    .itemTemplateName = "PotionHealing",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "DaggerBronze",
+                    .itemTemplateName = "DaggerBronze",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "ShortSwordBronze",
+                    .itemTemplateName = "ShortSwordBronze",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "SwordBronze",
+                    .itemTemplateName = "SwordBronze",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "LongbowOak",
+                    .itemTemplateName = "LongbowOak",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "PotionHealing",
+                    .itemTemplateName = "PotionHealing",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "DaggerBronze",
+                    .itemTemplateName = "DaggerBronze",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "ShortSwordBronze",
+                    .itemTemplateName = "ShortSwordBronze",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "SwordBronze",
+                    .itemTemplateName = "SwordBronze",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "LongbowOak",
+                    .itemTemplateName = "LongbowOak",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "PotionHealing",
+                    .itemTemplateName = "PotionHealing",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "DaggerBronze",
+                    .itemTemplateName = "DaggerBronze",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "ShortSwordBronze",
+                    .itemTemplateName = "ShortSwordBronze",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "SwordBronze",
+                    .itemTemplateName = "SwordBronze",
                     .quantity = 1,
                 },
                 model::ItemInstance{
                     .id = model::createRandomId(),
-                    .itemName = "LongbowOak",
+                    .itemTemplateName = "LongbowOak",
                     .quantity = 1,
                 },
                 // clang-format on

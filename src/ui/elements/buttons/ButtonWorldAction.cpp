@@ -1,13 +1,13 @@
 #include "ButtonWorldAction.h"
 #include "lib/sdl2w/L10n.h"
-#include "model/WorldActions.h"
+#include "state/WorldActions.h"
 #include "ui/elements/SpriteElement.h"
 #include <memory>
 #include <sstream>
 
 namespace ui {
 
-using namespace model;
+using state::WorldActionType;
 
 class ButtonWorldActionDefaultObserver : public UiEventObserver {
   ButtonWorldAction* buttonWorldAction;
@@ -37,7 +37,7 @@ ButtonWorldAction::ButtonWorldAction(sdl2w::Window* _window, UiElement* _parent)
 }
 
 ButtonWorldActionMapping
-ButtonWorldAction::getButtonWorldActionMapping(model::WorldActionType worldActionType) {
+ButtonWorldAction::getButtonWorldActionMapping(state::WorldActionType worldActionType) {
   switch (worldActionType) {
   case WorldActionType::JUMP:
     return ButtonWorldActionMapping{TRANSLATE("Jump"), 17, true};
@@ -107,7 +107,7 @@ ButtonWorldAction::getButtonWorldActionMapping(model::WorldActionType worldActio
 }
 
 bool ButtonWorldAction::checkIfWorldActionButtonIsSmall(
-    model::WorldActionType worldActionType) {
+    state::WorldActionType worldActionType) {
   auto mapping = getButtonWorldActionMapping(worldActionType);
   return mapping.isSmall;
 }

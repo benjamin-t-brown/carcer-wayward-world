@@ -22,6 +22,8 @@ struct ChCompactInfoProps {
 
   int hp = 0;
   int mana = 0;
+  bool isSelected = false;
+  int padding = 4;
 };
 
 // ChCompactInfo component - renders a character sprite, status effect icons,
@@ -31,6 +33,9 @@ private:
   ChCompactInfoProps props;
 
   int fontHeight = 20;
+
+  int getContentWidth() const;
+  int getContentHeight() const;
 
 public:
   ChCompactInfo(sdl2w::Window* _window, UiElement* _parent = nullptr);

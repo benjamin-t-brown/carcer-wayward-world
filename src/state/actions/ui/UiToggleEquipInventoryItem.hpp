@@ -1,8 +1,8 @@
 #pragma once
 
 #include "lib/sdl2w/L10n.h"
-#include "model/Character.h"
-#include "model/Player.h"
+#include "model/instances/CharacterPlayer.h"
+#include "model/instances/Player.h"
 #include "state/AbstractAction.h"
 #include "state/State.h"
 
@@ -39,7 +39,8 @@ class UiToggleEquipInventoryItem : public AbstractAction {
       notification.id = model::createRandomId();
       notification.message = TRANSLATE("An item is already equipped.");
       notification.type = UiFloatingNotificationType::WARNING;
-      model::timerStructStart(notification.timer, kFloatingNotificationDurationMs);
+      model::timerStructStart(notification.timer,
+                              state->settings.floatingNotificationDurationMs);
       localState.uiState.floatingNotifications.push_back(std::move(notification));
       break;
     }
@@ -49,7 +50,8 @@ class UiToggleEquipInventoryItem : public AbstractAction {
       notification.message =
           TRANSLATE("A two-handed weapon cannot be equipped in the off hand.");
       notification.type = UiFloatingNotificationType::WARNING;
-      model::timerStructStart(notification.timer, kFloatingNotificationDurationMs);
+      model::timerStructStart(notification.timer,
+                              state->settings.floatingNotificationDurationMs);
       localState.uiState.floatingNotifications.push_back(std::move(notification));
       break;
     }

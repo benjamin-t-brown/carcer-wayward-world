@@ -2,10 +2,10 @@
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
-#include "model/WorldActions.h"
+#include "state/WorldActions.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
-#include "ui/elements/TextLine.h"
+#include "ui/components/InGameTitleBar.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/layouts/InGameLayout.h"
 #include <memory>
@@ -14,43 +14,7 @@
 std::vector<std::unique_ptr<ui::UiElement>> elements;
 int actionModeNum = 0;
 
-const std::vector<model::WorldActionType> townModeActionTypes = {
-    model::WorldActionType::START_FIGHT,
-    model::WorldActionType::EXAMINE,
-    model::WorldActionType::TALK,
-    model::WorldActionType::ABILITY,
-    model::WorldActionType::SNEAK,
-    model::WorldActionType::JUMP,
-    model::WorldActionType::SHOOT,
-    model::WorldActionType::INTERACT,
-    model::WorldActionType::GET,
-    model::WorldActionType::JOURNAL,
-    model::WorldActionType::INVENTORY,
-    model::WorldActionType::STATUS,
-    model::WorldActionType::MAP,
-};
-
-const std::vector<model::WorldActionType> townModeFightActionTypes = {
-    model::WorldActionType::END_FIGHT,
-    model::WorldActionType::EXAMINE,
-    model::WorldActionType::ABILITY,
-    model::WorldActionType::JUMP,
-    model::WorldActionType::SHOOT,
-    model::WorldActionType::DEFEND,
-    model::WorldActionType::GET,
-    model::WorldActionType::INVENTORY,
-    model::WorldActionType::STATUS,
-};
-
-const std::vector<model::WorldActionType> outdoorModeActionTypes = {
-    model::WorldActionType::EXAMINE,
-    model::WorldActionType::ABILITY,
-    model::WorldActionType::MAP_OUTDOOR,
-    model::WorldActionType::REST,
-    model::WorldActionType::INVENTORY,
-    model::WorldActionType::STATUS,
-    model::WorldActionType::JOURNAL,
-};
+const state::WorldActionUiState worldActionUiState;
 
 class SwitchActionListObserver : public ui::UiEventObserver {
   ui::InGameLayout* inGameLayout;
@@ -67,13 +31,17 @@ public:
     auto newProps = inGameLayout->getProps();
     if (actionModeNum == 0) {
       LOG(INFO) << "Switching to town mode action list" << LOG_ENDL;
-      newProps.worldActionTypes = townModeActionTypes;
+      newProps.worldActionTypes.assign(worldActionUiState.townModeActionTypes.begin(),
+                                       worldActionUiState.townModeActionTypes.end());
     } else if (actionModeNum == 1) {
       LOG(INFO) << "Switching to town mode fight action list" << LOG_ENDL;
-      newProps.worldActionTypes = townModeFightActionTypes;
+      newProps.worldActionTypes.assign(
+          worldActionUiState.townModeFightActionTypes.begin(),
+          worldActionUiState.townModeFightActionTypes.end());
     } else if (actionModeNum == 2) {
       LOG(INFO) << "Switching to outdoor mode action list" << LOG_ENDL;
-      newProps.worldActionTypes = outdoorModeActionTypes;
+      newProps.worldActionTypes.assign(worldActionUiState.outdoorModeActionTypes.begin(),
+                                       worldActionUiState.outdoorModeActionTypes.end());
     }
     inGameLayout->setProps(newProps);
   };
@@ -99,10 +67,10 @@ public:
   };
 };
 
-void initInGameLayoutTest(sdl2w::Window& window, ui::InGameBorderType borderType) {
+void initInGameLayoutTest(sdl2w::Window& window) {
   actionModeNum = 0;
 
-  float scale = 2.f;
+  float scale = 1.f;
   auto [windowWidth, windowHeight] = window.getDims();
 
   auto inGameLayout = new ui::InGameLayout(&window);
@@ -112,28 +80,63 @@ void initInGameLayoutTest(sdl2w::Window& window, ui::InGameBorderType borderType
   layoutStyle.x = 0;
   layoutStyle.y = 0;
   layoutStyle.scale = scale;
+  std::vector<ui::ChCompactInfoProps> partyMembers;
+  {
+    ui::ChCompactInfoProps entry;
+    entry.characterSpriteName = "actors0_0";
+    entry.statusEffectSpriteNames = {
+        "ui_status_effect_icons_0",
+        "ui_status_effect_icons_1",
+    };
+    entry.hp = 84;
+    entry.mana = 37;
+    partyMembers.push_back(entry);
+  }
+  {
+    ui::ChCompactInfoProps entry;
+    entry.characterSpriteName = "actors0_4";
+    entry.statusEffectSpriteNames = {
+        "ui_status_effect_icons_2",
+        "ui_status_effect_icons_3",
+        "ui_status_effect_icons_3",
+        "ui_status_effect_icons_3",
+        "ui_status_effect_icons_3",
+    };
+    entry.hp = 12;
+    entry.mana = 99;
+    partyMembers.push_back(entry);
+  }
+  {
+    ui::ChCompactInfoProps entry;
+    entry.characterSpriteName = "actors0_8";
+    entry.hp = 200;
+    entry.mana = 5;
+    partyMembers.push_back(entry);
+  }
+
   inGameLayout->setProps(ui::InGameLayoutProps{
-      .worldActionTypes = townModeActionTypes,
-      .actionButtonScale = 1.f,
-      .borderType = borderType,
+      .worldActionTypes =
+          std::vector(worldActionUiState.townModeActionTypes.begin(),
+                      worldActionUiState.townModeActionTypes.end()),
+      .partyMembers = partyMembers,
+      .actionButtonScale = 1.5f,
   });
 
-  auto titleElement = new ui::TextLine(&window);
-  auto& titleStyle = titleElement->getStyle();
-  setBaseFontConfig(titleStyle, ui::BaseFontConfig::MODAL_TITLE);
-  titleStyle.fontColor = ui::Colors::White;
-  ui::TextLineProps titleProps;
-  ui::TextBlock titleBlock;
-  titleBlock.text = "Game Title";
-  titleProps.textBlocks.push_back(titleBlock);
-  titleElement->setProps(titleProps);
-  inGameLayout->setTitleElement(titleElement);
+  auto titleBar = new ui::InGameTitleBar(&window);
+  titleBar->setProps(ui::InGameTitleBarProps{
+      .title = "Game Title",
+      .day = 3,
+      .food = 42,
+      .ap = 6,
+      .showAp = true,
+  });
+  inGameLayout->setTitleElement(titleBar);
 
   auto switchActionsButton = new ui::ButtonModal(&window);
   switchActionsButton->setId("switchActionTypes");
   auto& switchActionsStyle = switchActionsButton->getStyle();
   switchActionsStyle.x = 200;
-  switchActionsStyle.y = 200;
+  switchActionsStyle.y = 250;
   switchActionsStyle.width = 300;
   switchActionsStyle.height = 50;
   switchActionsStyle.fontColor = ui::Colors::White;
@@ -147,7 +150,7 @@ void initInGameLayoutTest(sdl2w::Window& window, ui::InGameBorderType borderType
   switchBorderButton->setId("switchBorderType");
   auto& switchBorderStyle = switchBorderButton->getStyle();
   switchBorderStyle.x = 200;
-  switchBorderStyle.y = 260;
+  switchBorderStyle.y = 300;
   switchBorderStyle.width = 300;
   switchBorderStyle.height = 50;
   switchBorderStyle.fontColor = ui::Colors::White;
@@ -163,19 +166,16 @@ void initInGameLayoutTest(sdl2w::Window& window, ui::InGameBorderType borderType
 }
 
 int main(int argc, char** argv) {
-  ui::InGameBorderType borderType = ui::InGameBorderType::Wide;
   std::string windowTitle = "InGameLayout Test";
-  int windowWidth = 800;
-  int windowHeight = 800;
-
-  borderType = ui::InGameBorderType::Narrow;
+  int windowWidth = 640;
+  int windowHeight = 480;
 
   LOG(INFO) << "Start InGameLayout test" << LOG_ENDL;
   srand(time(NULL));
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "InGameLayout test initialized" << LOG_ENDL;
-    initInGameLayoutTest(window, borderType);
+    initInGameLayoutTest(window);
   };
 
   auto _updateRender = [&](sdl2w::Window& window, sdl2w::Store& store) {

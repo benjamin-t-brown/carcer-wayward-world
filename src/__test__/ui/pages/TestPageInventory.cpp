@@ -2,7 +2,7 @@
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
-#include "model/Character.h"
+#include "model/instances/CharacterPlayer.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/pages/PageInventory.h"
@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
     player.gold = 1234;
 
     ui::PageInventoryProps pageProps;
-    pageProps.characterPlayerId = characterPlayer.id;
+    pageProps.characterPlayerId = characterPlayer.instanceId;
     pageProps.characterPlayerLabel = characterPlayer.params.label;
     pageProps.partyMemberInventoryIndex = player.currentPartyMemberInventoryIndex;
     for (const auto& member : player.party) {

@@ -16,7 +16,7 @@ public:
       : window(_window), item(item) {}
 
   void onClick(int mouseX, int mouseY, int button) override {
-    LOG(INFO) << "ObserverShowLayerPickUpContext::onClick " << item.itemName << " "
+    LOG(INFO) << "ObserverShowLayerPickUpContext::onClick " << item.itemTemplateName << " "
               << item.id << LOG_ENDL;
     auto stateManager = getStateManager();
     if (!stateManager) {

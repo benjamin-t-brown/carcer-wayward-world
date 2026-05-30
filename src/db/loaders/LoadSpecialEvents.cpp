@@ -1,7 +1,7 @@
 #include "LoadSpecialEvents.h"
 #include "lib/sdl2w/AssetLoader.h"
 #include "lib/json.hpp"
-#include "model/SpecialEvents.h"
+#include "model/templates/SpecialEvents.h"
 #include <algorithm>
 #include <optional>
 #include <sstream>

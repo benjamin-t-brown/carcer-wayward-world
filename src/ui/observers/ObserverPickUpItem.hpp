@@ -12,7 +12,7 @@ public:
   ObserverPickUpItem(const model::ItemInstance& item) : item(item) {}
 
   void onClick(int mouseX, int mouseY, int button) override {
-    LOG(INFO) << "ObserverPickUpItem::onClick " << item.itemName << " " << item.id
+    LOG(INFO) << "ObserverPickUpItem::onClick " << item.itemTemplateName << " " << item.id
               << LOG_ENDL;
     auto stateManager = getStateManager();
     if (!stateManager) {

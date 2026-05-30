@@ -1,8 +1,8 @@
 #pragma once
 
-#include "model/Items.h"
-#include "model/Character.h"
-#include "model/SpecialEvents.h"
+#include "model/templates/CharacterTemplate.h"
+#include "model/templates/Items.h"
+#include "model/templates/SpecialEvents.h"
 #include <unordered_map>
 
 namespace db {

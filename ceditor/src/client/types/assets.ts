@@ -326,6 +326,10 @@ export interface TravelTrigger {
   destinationY: number;
 }
 
+export type MapType = 'TOWN' | 'OUTDOOR';
+
+export const MAP_TYPES: MapType[] = ['TOWN', 'OUTDOOR'];
+
 export interface CarcerMapTileTemplate {
   characters: string[];
   items: string[];
@@ -341,6 +345,7 @@ export interface CarcerMapTileTemplate {
 export interface CarcerMapTemplate {
   name: string;
   label: string;
+  type: MapType;
   width: number;
   height: number;
   spriteWidth: number;

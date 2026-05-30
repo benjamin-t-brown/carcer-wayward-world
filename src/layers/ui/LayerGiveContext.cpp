@@ -1,15 +1,15 @@
 #include "LayerGiveContext.h"
 #include "lib/sdl2w/Logger.h"
-#include "model/Character.h"
-#include "model/Player.h"
+#include "model/instances/CharacterPlayer.h"
+#include "model/instances/Player.h"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/popups/PopupGive.h"
 
 namespace layers {
 
 LayerGiveContext::LayerGiveContext(sdl2w::Window* _window,
-                                     std::string fromCharacterPlayerId,
-                                     std::string itemId)
+                                   std::string fromCharacterPlayerId,
+                                   std::string itemId)
     : Layer(_window, LAYER_ID) {
 
   if (!assertInterfaces()) {
@@ -43,7 +43,7 @@ LayerGiveContext::LayerGiveContext(sdl2w::Window* _window,
   for (const auto& item : fromMember->inventory) {
     if (item.id == itemId) {
       itemInstance.id = item.id;
-      itemInstance.itemName = item.itemName;
+      itemInstance.itemTemplateName = item.itemName;
       itemInstance.quantity = item.quantity;
       break;
     }
@@ -63,19 +63,19 @@ LayerGiveContext::LayerGiveContext(sdl2w::Window* _window,
   popupProps.fromCharacterPlayerId = fromCharacterPlayerId;
   popupProps.itemId = itemId;
   {
-    const auto& itemTemplate = database->getItemTemplate(itemInstance.itemName);
+    const auto& itemTemplate = database->getItemTemplate(itemInstance.itemTemplateName);
     popupProps.itemLabel =
         itemTemplate.label.empty() ? itemTemplate.name : itemTemplate.label;
   }
   popupProps.maxQuantity = itemInstance.quantity;
   popupProps.selectedQuantity = std::max(1, itemInstance.quantity);
   popupProps.showQuantitySlider =
-      database->getItemTemplate(itemInstance.itemName).stackable &&
+      database->getItemTemplate(itemInstance.itemTemplateName).stackable &&
       itemInstance.quantity > 1;
   for (const auto& member : player.party) {
     const auto label = member.params.label.empty() ? member.name : member.params.label;
     popupProps.partyMembers.push_back(
-        {.characterPlayerId = member.id,
+        {.characterPlayerId = member.instanceId,
          .label = label,
          .spriteName = model::characterPlayerGetSprite(member)});
   }

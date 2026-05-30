@@ -5,7 +5,7 @@
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
-#include "model/Character.h"
+#include "model/instances/CharacterPlayer.h"
 #include "state/DatabaseInterface.h"
 #include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"

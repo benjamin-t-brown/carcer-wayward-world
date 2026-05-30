@@ -87,7 +87,7 @@ void MinipagePickUp::build() {
   ListPickUpProps listProps;
   if (getDatabase()) {
     for (const auto& item : props.nearbyItems) {
-      const auto& itemTemplate = getDatabase()->getItemTemplate(item.itemName);
+      const auto& itemTemplate = getDatabase()->getItemTemplate(item.itemTemplateName);
       listProps.items.push_back({
           .item = item,
           .itemLabel =

@@ -1,7 +1,7 @@
 #include "db/Database.h"
 #include "lib/sdl2w/Logger.h"
-#include "model/Character.h"
-#include "model/Items.h"
+#include "model/instances/CharacterPlayer.h"
+#include "model/templates/Items.h"
 #include <cassert>
 #include <string>
 

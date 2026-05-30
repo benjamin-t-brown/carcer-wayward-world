@@ -1,6 +1,6 @@
 #include "LayerInventory.h"
 #include "lib/sdl2w/Logger.h"
-#include "model/Character.h"
+#include "model/instances/CharacterPlayer.h"
 #include "state/actions/ui/UiReorderInventoryItem.hpp"
 #include "state/actions/ui/UiSetCurrentPartyMemberInventory.hpp"
 #include "state/actions/ui/UiDropInventoryItem.hpp"
@@ -76,7 +76,7 @@ void LayerInventory::syncInventoryPartyMember() {
   }
 
   auto pageProps = pageInventory->getProps();
-  pageProps.characterPlayerId = inventoryPartyMember->id;
+  pageProps.characterPlayerId = inventoryPartyMember->instanceId;
   pageProps.characterPlayerLabel = inventoryPartyMember->params.label;
   pageProps.partyMemberInventoryIndex = player.currentPartyMemberInventoryIndex;
   pageProps.partyMembers.clear();

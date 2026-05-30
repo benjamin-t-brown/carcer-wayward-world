@@ -1,7 +1,7 @@
 #include "PageInventory.h"
 #include "layers/ui/LayerInventory.h"
 #include "lib/sdl2w/L10n.h"
-#include "model/Items.h"
+#include "model/templates/Items.h"
 #include "ui/colors.h"
 #include "ui/components/PartyMemberIconSelector.h"
 #include "ui/components/lists/ListInventory.h"

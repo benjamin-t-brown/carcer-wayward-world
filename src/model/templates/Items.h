@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/StatusEffects.h"
+#include "model/templates/StatusEffects.h"
 #include <string>
 #include <vector>
 
@@ -59,13 +59,6 @@ struct ItemTemplate {
   ItemUsability itemUsability = ItemUsability::NOT_USABLE;
   ItemUsabilityArgs itemUsabilityArgs;
   std::vector<model::StatusEffectTemplate> statusEffects;
-};
-
-// Represents an item actually in the world
-struct ItemInstance {
-  std::string id;
-  std::string itemName;
-  int quantity = 1;
 };
 
 } // namespace model

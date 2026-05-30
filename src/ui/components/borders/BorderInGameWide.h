@@ -1,25 +1,22 @@
 #pragma once
 
-#include "../../UiElement.h"
+#include "BorderInGame.h"
 
 namespace ui {
 
-struct BorderInGameWideProps {
-  int titleHeight = 44;
+struct BorderInGameWideProps : BorderInGameProps {
   int subtitleHeight = 24;
-  int partyMemberAreaWidth = 84;
+  int partyMemberAreaWidth = 76;
   int leftBorderWidth = 16;
-  int outsetBorderSize = 4;
-  float actionButtonsScale = 1.f;
 };
 
-constexpr int ACTION_BUTTON_SIZE = 32;
-
-// BorderInGameWide component - renders a wide in-game border layout using OutsetRectangle
-// elements. Uses Position, Size, Scale from BaseStyle
-class BorderInGameWide : public UiElement {
+// BorderInGameWide component - renders a wide in-game border layout
+class BorderInGameWide : public BorderInGame {
 private:
   BorderInGameWideProps props;
+
+protected:
+  const BorderInGameProps& inGameProps() const override { return props; }
 
 public:
   BorderInGameWide(sdl2w::Window* _window, UiElement* _parent = nullptr);
@@ -29,15 +26,12 @@ public:
   BorderInGameWideProps& getProps();
   const BorderInGameWideProps& getProps() const;
 
-  const std::pair<int, int> getContentAreaLocation() const;
-  const std::pair<int, int> getContentDims() const;
-  const std::pair<int, int> getTitleLocation() const;
-  const std::pair<int, int> getTitleDims() const;
-  const std::pair<int, int> getPartyMemberAreaLocation() const;
-  const std::pair<int, int> getActionButtonsAreaLocation() const;
+  const std::pair<int, int> getContentAreaLocation() const override;
+  const std::pair<int, int> getContentDims() const override;
+  const std::pair<int, int> getPartyMemberAreaLocation() const override;
+  const std::pair<int, int> getActionButtonsAreaLocation() const override;
 
   void build() override;
-  void render(int dt) override;
 };
 
 } // namespace ui

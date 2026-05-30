@@ -1,5 +1,5 @@
 #include "state/UiManager.h"
-#include "model/UtilityTypes.h"
+#include "model/templates/UtilityTypes.h"
 #include "state/State.h"
 #include "state/StateManager.h"
 #include "state/actions/ui/UiRemoveFloatingNotification.hpp"

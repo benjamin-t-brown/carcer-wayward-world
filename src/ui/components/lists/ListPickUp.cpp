@@ -34,7 +34,7 @@ const ListPickUpProps& ListPickUp::getProps() const { return props; }
 
 UiElement* ListPickUp::createItemElement(const ListPickUpPropsItem& listItem) {
   auto container = new Quad(window, this);
-  container->setId(listItem.item.itemName);
+  container->setId(listItem.item.itemTemplateName);
   auto& containerStyle = container->getStyle();
   containerStyle.width = style.width * style.scale;
   containerStyle.height = props.lineHeight * style.scale;
@@ -117,7 +117,7 @@ UiElement* ListPickUp::createItemElement(const ListPickUpPropsItem& listItem) {
       static_cast<int>((weightStyle.x - labelX - labelWeightGap) / labelStyle.scale);
   label->setStyle(labelStyle);
   label->setProps({
-      .text = listItem.item.itemName,
+      .text = listItem.item.itemTemplateName,
   });
   const int textOnlyHeight = label->getDims().second;
   const int verticalPadding =

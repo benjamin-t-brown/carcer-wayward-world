@@ -44,6 +44,10 @@ void ListChCompactInfoVertical::build() {
   auto [chCompactInfoScaledWidth, chCompactInfoScaledHeight] =
       defaultChCompactInfo.getDims();
 
+  style.width = chCompactInfoScaledWidth / style.scale;
+  style.height = (chCompactInfoScaledHeight + props.lineGap * style.scale) *
+                 props.entries.size() / style.scale;
+
   auto list = new VerticalList(window, this);
   list->setId("list");
 
@@ -57,6 +61,7 @@ void ListChCompactInfoVertical::build() {
     s.fontSize = style.fontSize;
     auto chCompactInfoProps = props.entries[i];
     chCompactInfoProps.numStatusColumns = numStatusColumns;
+    chCompactInfoProps.isSelected = static_cast<int>(i) == props.selectedIndex;
     chCompactInfo->setProps(chCompactInfoProps);
     list->addChild(chCompactInfo);
   }

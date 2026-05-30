@@ -3,7 +3,7 @@
 #include "lib/sdl2w/Events.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
-#include "model/WorldActions.h"
+#include "state/WorldActions.h"
 #include "ui/UiElement.h"
 #include "ui/elements/buttons/ButtonWorldAction.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
     examineStyle.y = 50;
     examineButton->setStyle(examineStyle);
     ui::ButtonWorldActionProps examineProps;
-    examineProps.worldActionType = model::WorldActionType::EXAMINE;
+    examineProps.worldActionType = state::WorldActionType::EXAMINE;
     examineButton->setProps(examineProps);
     examineButton->addEventObserver(new TestButtonWorldActionObserver("examineButton"));
     elements.push_back(std::move(examineButton));
@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
     getStyle.y = 50;
     getButton->setStyle(getStyle);
     ui::ButtonWorldActionProps getProps;
-    getProps.worldActionType = model::WorldActionType::GET;
+    getProps.worldActionType = state::WorldActionType::GET;
     getButton->setProps(getProps);
     getButton->addEventObserver(new TestButtonWorldActionObserver("getButton"));
     elements.push_back(std::move(getButton));
@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
     sneakStyle.y = 50;
     sneakButton->setStyle(sneakStyle);
     ui::ButtonWorldActionProps sneakProps;
-    sneakProps.worldActionType = model::WorldActionType::SNEAK;
+    sneakProps.worldActionType = state::WorldActionType::SNEAK;
     sneakButton->setProps(sneakProps);
     sneakButton->addEventObserver(new TestButtonWorldActionObserver("sneakButton"));
     elements.push_back(std::move(sneakButton));
@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
     talkStyle.y = 120;
     talkButton->setStyle(talkStyle);
     ui::ButtonWorldActionProps talkProps;
-    talkProps.worldActionType = model::WorldActionType::TALK;
+    talkProps.worldActionType = state::WorldActionType::TALK;
     talkButton->setProps(talkProps);
     talkButton->addEventObserver(new TestButtonWorldActionObserver("talkButton"));
     elements.push_back(std::move(talkButton));
@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
     jumpStyle.y = 120;
     jumpButton->setStyle(jumpStyle);
     ui::ButtonWorldActionProps jumpProps;
-    jumpProps.worldActionType = model::WorldActionType::JUMP;
+    jumpProps.worldActionType = state::WorldActionType::JUMP;
     jumpButton->setProps(jumpProps);
     jumpButton->addEventObserver(new TestButtonWorldActionObserver("jumpButton"));
     elements.push_back(std::move(jumpButton));
@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
     abilityStyle.y = 120;
     abilityButton->setStyle(abilityStyle);
     ui::ButtonWorldActionProps abilityProps;
-    abilityProps.worldActionType = model::WorldActionType::ABILITY;
+    abilityProps.worldActionType = state::WorldActionType::ABILITY;
     abilityButton->setProps(abilityProps);
     abilityButton->addEventObserver(new TestButtonWorldActionObserver("abilityButton"));
     elements.push_back(std::move(abilityButton));
@@ -132,7 +132,7 @@ int main(int argc, char** argv) {
     fightStyle.y = 190;
     fightButton->setStyle(fightStyle);
     ui::ButtonWorldActionProps fightProps;
-    fightProps.worldActionType = model::WorldActionType::START_FIGHT;
+    fightProps.worldActionType = state::WorldActionType::START_FIGHT;
     fightButton->setProps(fightProps);
     fightButton->addEventObserver(new TestButtonWorldActionObserver("fightButton"));
     elements.push_back(std::move(fightButton));
@@ -145,7 +145,7 @@ int main(int argc, char** argv) {
     shootStyle.y = 190;
     shootButton->setStyle(shootStyle);
     ui::ButtonWorldActionProps shootProps;
-    shootProps.worldActionType = model::WorldActionType::SHOOT;
+    shootProps.worldActionType = state::WorldActionType::SHOOT;
     shootButton->setProps(shootProps);
     shootButton->addEventObserver(new TestButtonWorldActionObserver("shootButton"));
     elements.push_back(std::move(shootButton));
@@ -159,7 +159,7 @@ int main(int argc, char** argv) {
     inventoryStyle.scale = 1.5f;
     inventoryButton->setStyle(inventoryStyle);
     ui::ButtonWorldActionProps inventoryProps;
-    inventoryProps.worldActionType = model::WorldActionType::INVENTORY;
+    inventoryProps.worldActionType = state::WorldActionType::INVENTORY;
     inventoryButton->setProps(inventoryProps);
     inventoryButton->addEventObserver(
         new TestButtonWorldActionObserver("inventoryButton"));

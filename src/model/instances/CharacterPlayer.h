@@ -1,7 +1,9 @@
 #pragma once
 
-#include "model/Items.h"
-#include "model/UtilityTypes.h"
+#include "model/instances/ItemInstance.h"
+#include "model/templates/CharacterTemplate.h"
+#include "model/templates/Items.h"
+#include "model/templates/UtilityTypes.h"
 #include <optional>
 #include <string>
 #include <vector>
@@ -11,50 +13,6 @@ class Database;
 }
 
 namespace model {
-
-enum class CharacterTemplateType {
-  TOWNSPERSON,
-  TOWNSPERSON_STATIC,
-  ENEMY,
-  ENEMY_STATIC,
-};
-
-struct CharacterTemplateTalk {
-  std::string talkName;
-  std::string portraitName;
-};
-
-struct CharacterTemplateBehavior {
-  std::string behaviorName;
-};
-
-struct CharacterTemplateCombatStats {
-  int str = 0;
-  int mnd = 0;
-  int con = 0;
-  int agi = 0;
-  int lck = 0;
-};
-
-struct CharacterTemplateCombat {
-  CharacterTemplateCombatStats stats;
-  int hp = 0;
-  int mp = 0;
-  std::string dropTable;
-};
-
-struct CharacterTemplateSound {
-  std::string deathSoundName;
-  std::string weaponSoundName;
-};
-
-struct CharacterTemplateStatus {
-  std::string status;
-};
-
-struct CharacterTemplateVision {
-  int radius;
-};
 
 struct CharacterPlayerEquipment {
   // these represent ids of items inside the character's inventory
@@ -76,47 +34,23 @@ struct CharacterInventoryItem {
   int quantity;
 };
 
-// ----------------------------------------------------------------
-
-struct CharacterTemplate {
-  CharacterTemplateType type;
-  std::string name;
-  std::string label;
-  std::string spritesheetName;
-  std::string spriteOffset;
-  CharacterTemplateTalk talk;
-  CharacterTemplateBehavior behavior;
-  CharacterTemplateCombat combat;
-  CharacterTemplateSound sound;
-  std::vector<CharacterTemplateStatus> statuses;
-  CharacterTemplateVision vision;
-};
-
-struct Character {
-  std::string id;
+struct CharacterPlayer {
+  std::string instanceId;
   std::string name;
   std::string templateName;
-};
-
-struct CharacterPlayer : Character {
   std::vector<CharacterInventoryItem> inventory;
   CharacterPlayerEquipment equipment;
   CharacterTemplate params;
 
   CharacterPlayer(const CharacterTemplate& _params = CharacterTemplate(),
                   const std::vector<CharacterInventoryItem>& _inventory = {},
-                  const CharacterPlayerEquipment& _equipment = {})
-      : Character() {
-    id = createRandomId();
+                  const CharacterPlayerEquipment& _equipment = {}) {
+    instanceId = createRandomId();
     params = _params;
     inventory = _inventory;
     equipment = _equipment;
   }
 };
-
-std::string characterGetSprite(const Character& character, const db::Database* database);
-
-// ---------
 
 std::string characterPlayerGetSprite(const CharacterPlayer& characterPlayer);
 

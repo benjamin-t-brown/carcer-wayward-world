@@ -16,10 +16,12 @@ layers/ui/LayerDropConfirm.cpp \
 layers/ui/LayerInventory.cpp \
 layers/ui/LayerPickUpContext.cpp \
 layers/ui/LayerPickUp.cpp \
-model/Player.cpp \
-model/Character.cpp \
-model/Items.cpp \
-model/UtilityTypes.cpp \
+model/instances/Player.cpp \
+model/instances/CharacterPlayer.cpp \
+model/templates/CharacterTemplate.cpp \
+model/templates/Items.cpp \
+model/templates/Maps.cpp \
+model/templates/UtilityTypes.cpp \
 runner/SpecialEventRunner.cpp \
 runner/ConditionEvaluator.cpp \
 runner/StringEvaluator.cpp \
@@ -35,6 +37,7 @@ ui/FontScale.cpp \
 ui/elements/SpriteElement.cpp \
 ui/elements/Quad.cpp \
 ui/elements/TextLine.cpp \
+ui/elements/TextBanner.cpp \
 ui/elements/TextParagraph.cpp \
 ui/elements/buttons/ButtonClose.cpp \
 ui/elements/buttons/ButtonModal.cpp \
@@ -50,9 +53,11 @@ ui/elements/buttons/ButtonWorldAction.cpp \
 ui/elements/OutsetRectangle.cpp \
 ui/components/borders/BorderModalStandard.cpp \
 ui/components/borders/BorderModalSmall.cpp \
+ui/components/borders/BorderInGame.cpp \
 ui/components/borders/BorderInGameWide.cpp \
 ui/components/borders/BorderInGameNarrow.cpp \
 ui/components/ChCompactInfo.cpp \
+ui/components/InGameTitleBar.cpp \
 ui/components/ItemInfo.cpp \
 ui/components/PartyMemberSwitcher.cpp \
 ui/components/PartyMemberIconSelector.cpp \

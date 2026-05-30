@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/UtilityTypes.h"
+#include "model/templates/UtilityTypes.h"
 #include "state/AbstractAction.h"
 #include "state/State.h"
 
@@ -11,7 +11,6 @@ namespace actions {
 class UiPushFloatingNotification : public AbstractAction {
   std::string message;
   UiFloatingNotificationType type;
-  int durationMs;
 
   void act() override {
     auto& localState = *state;
@@ -19,15 +18,14 @@ class UiPushFloatingNotification : public AbstractAction {
     notification.id = model::createRandomId();
     notification.message = message;
     notification.type = type;
-    model::timerStructStart(notification.timer, durationMs);
+    model::timerStructStart(notification.timer,
+                            state->settings.floatingNotificationDurationMs);
     localState.uiState.floatingNotifications.push_back(std::move(notification));
   }
 
 public:
-  UiPushFloatingNotification(std::string _message,
-                             UiFloatingNotificationType _type,
-                             int _durationMs = kFloatingNotificationDurationMs)
-      : message(std::move(_message)), type(_type), durationMs(_durationMs) {}
+  UiPushFloatingNotification(std::string _message, UiFloatingNotificationType _type)
+      : message(std::move(_message)), type(_type) {}
 };
 
 } // namespace actions

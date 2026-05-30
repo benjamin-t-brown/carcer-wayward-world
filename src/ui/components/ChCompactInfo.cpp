@@ -1,5 +1,6 @@
 #include "ChCompactInfo.h"
 #include "lib/sdl2w/Defines.h"
+#include "ui/colors.h"
 #include "ui/elements/OutsetRectangle.h"
 #include "ui/elements/Quad.h"
 #include "ui/elements/TextLine.h"
@@ -20,23 +21,39 @@ ChCompactInfoProps& ChCompactInfo::getProps() { return props; }
 
 const ChCompactInfoProps& ChCompactInfo::getProps() const { return props; }
 
+int ChCompactInfo::getContentWidth() const {
+  return props.spriteBoxSize + props.statusIconSize * props.numStatusColumns;
+}
+
+int ChCompactInfo::getContentHeight() const {
+  return props.spriteBoxSize + fontHeight;
+}
+
 const std::pair<int, int> ChCompactInfo::getDims() const {
-  int w = props.spriteBoxSize + props.statusIconSize * props.numStatusColumns;
-  int h = props.spriteBoxSize + fontHeight;
+  const int contentW = getContentWidth();
+  const int contentH = getContentHeight();
+  const int w = contentW + props.padding * 2;
+  const int h = contentH + props.padding * 2;
   return {static_cast<int>(w * style.scale), static_cast<int>(h * style.scale)};
 }
 
 void ChCompactInfo::build() {
   children.clear();
 
-  style.height = props.spriteBoxSize + fontHeight;
+  const int contentW = getContentWidth();
+  const int contentH = getContentHeight();
+  const int scaledPadding = static_cast<int>(props.padding * style.scale);
+  const int contentX = style.x + scaledPadding;
+  const int contentY = style.y + scaledPadding;
+
+  style.height = contentH + props.padding * 2;
 
   auto container = new Quad(window, this);
   auto& containerStyle = container->getStyle();
-  containerStyle.x = style.x;
-  containerStyle.y = style.y;
-  containerStyle.width = style.width;
-  containerStyle.height = style.height;
+  containerStyle.x = contentX;
+  containerStyle.y = contentY;
+  containerStyle.width = contentW;
+  containerStyle.height = contentH;
   containerStyle.scale = style.scale;
   container->setProps(QuadProps{});
   addChild(container);
@@ -90,13 +107,13 @@ void ChCompactInfo::build() {
     }
   }
 
-  const int textY = style.y + static_cast<int>(props.spriteBoxSize * style.scale) - 4;
+  const int textY = contentY + static_cast<int>(props.spriteBoxSize * style.scale) - 4;
 
   auto healthText = new TextLine(window, this);
   auto& healthStyle = healthText->getStyle();
-  healthStyle.x = style.x;
+  healthStyle.x = contentX;
   healthStyle.y = textY;
-  setBaseFontConfig(healthStyle, BaseFontConfig::MODAL_TITLE);
+  setBaseFontConfig(healthStyle, BaseFontConfig::MODAL_TEXT_BOLD);
   healthStyle.fontSize = style.fontSize;
   healthStyle.fontColor = Colors::Red;
   healthStyle.textAlign = TextAlign::LEFT_TOP;
@@ -109,11 +126,11 @@ void ChCompactInfo::build() {
 
   auto manaText = new TextLine(window, this);
   auto& manaStyle = manaText->getStyle();
-  manaStyle.x = style.x + static_cast<int>(props.spriteBoxSize * style.scale);
+  manaStyle.x = contentX + static_cast<int>(props.spriteBoxSize * style.scale);
   manaStyle.y = textY;
-  setBaseFontConfig(manaStyle, BaseFontConfig::MODAL_TITLE);
+  setBaseFontConfig(manaStyle, BaseFontConfig::MODAL_TEXT_BOLD);
   manaStyle.fontSize = style.fontSize;
-  manaStyle.fontColor = Colors::Blue;
+  manaStyle.fontColor = Colors::LightBlue;
   manaStyle.textAlign = TextAlign::LEFT_TOP;
   TextLineProps manaProps;
   TextBlock manaBlock;
@@ -123,6 +140,23 @@ void ChCompactInfo::build() {
   addChild(manaText);
 }
 
-void ChCompactInfo::render(int dt) { UiElement::render(dt); }
+void ChCompactInfo::render(int dt) {
+  if (props.isSelected) {
+    auto& draw = window->getDraw();
+    auto [scaledWidth, scaledHeight] = getDims();
+    const float lineWidth = 1.f;
+    const int x0 = style.x;
+    const int y0 = style.y;
+    const int x1 = style.x + scaledWidth - 1;
+    const int y1 = style.y + scaledHeight - 1;
+    const auto color = Colors::ButtonModalSelected;
+
+    draw.drawLine({x0, y0}, {x1, y0}, lineWidth, color);
+    draw.drawLine({x1, y0}, {x1, y1}, lineWidth, color);
+    draw.drawLine({x0, y1}, {x1, y1}, lineWidth, color);
+    draw.drawLine({x0, y0}, {x0, y1}, lineWidth, color);
+  }
+  UiElement::render(dt);
+}
 
 } // namespace ui

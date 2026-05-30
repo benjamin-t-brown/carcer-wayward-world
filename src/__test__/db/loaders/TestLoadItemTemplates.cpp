@@ -1,6 +1,6 @@
 #include "db/loaders/LoadItemTemplates.h"
 #include "lib/sdl2w/Logger.h"
-#include "model/Items.h"
+#include "model/templates/Items.h"
 #include <unordered_map>
 
 int main(int argc, char** argv) {

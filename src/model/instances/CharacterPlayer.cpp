@@ -1,6 +1,6 @@
-#include "model/Character.h"
+#include "model/instances/CharacterPlayer.h"
 #include "db/Database.h"
-#include "model/UtilityTypes.h"
+#include "model/templates/UtilityTypes.h"
 #include <utility>
 
 namespace model {
@@ -105,11 +105,6 @@ EquipItemResult equipSingleSlot(CharacterPlayerEquipment& equipment,
 }
 
 } // namespace
-
-std::string characterGetSprite(const Character& character, const db::Database* database) {
-  const auto& characterTemplate = database->getCharacterTemplate(character.templateName);
-  return characterTemplate.spritesheetName + "_" + characterTemplate.spriteOffset;
-}
 
 std::string characterPlayerGetSprite(const CharacterPlayer& characterPlayer) {
   return characterPlayer.params.spritesheetName + "_" +
@@ -321,13 +316,20 @@ int characterGetWeightCapacity(const CharacterPlayer& characterPlayer) {
 
 std::vector<ItemInstance>
 characterGetNearbyItems(const CharacterPlayer& characterPlayer) {
+  // TODO derive
   std::vector<ItemInstance> items{
-      ItemInstance{.id = createRandomId(), .itemName = "PotionHealing", .quantity = 1},
-      ItemInstance{.id = createRandomId(), .itemName = "DaggerBronze", .quantity = 1},
-      ItemInstance{.id = createRandomId(), .itemName = "ShortSwordBronze", .quantity = 1},
-      ItemInstance{.id = createRandomId(), .itemName = "SwordBronze", .quantity = 1},
-      ItemInstance{.id = createRandomId(), .itemName = "LongbowOak", .quantity = 1},
-      ItemInstance{.id = createRandomId(), .itemName = "ArrowsStone", .quantity = 50},
+      ItemInstance{
+          .id = createRandomId(), .itemTemplateName = "PotionHealing", .quantity = 1},
+      ItemInstance{
+          .id = createRandomId(), .itemTemplateName = "DaggerBronze", .quantity = 1},
+      ItemInstance{
+          .id = createRandomId(), .itemTemplateName = "ShortSwordBronze", .quantity = 1},
+      ItemInstance{
+          .id = createRandomId(), .itemTemplateName = "SwordBronze", .quantity = 1},
+      ItemInstance{
+          .id = createRandomId(), .itemTemplateName = "LongbowOak", .quantity = 1},
+      ItemInstance{
+          .id = createRandomId(), .itemTemplateName = "ArrowsStone", .quantity = 50},
   };
   return items;
 }

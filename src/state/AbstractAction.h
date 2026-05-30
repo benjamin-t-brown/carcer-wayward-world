@@ -1,7 +1,7 @@
 #pragma once
 
 #include "lib/sdl2w/Logger.h"
-#include "model/UtilityTypes.h"
+#include "model/templates/UtilityTypes.h"
 #include "state/DatabaseInterface.h"
 #include "state/LayerManagerInterface.h"
 #include <memory>

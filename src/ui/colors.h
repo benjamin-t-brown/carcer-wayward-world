@@ -28,7 +28,7 @@ struct Colors {
   static constexpr SDL_Color ButtonCloseTextWhite{255, 255, 255, 255};
   static constexpr SDL_Color ButtonCloseTextGrey{60, 60, 60, 255};
   static constexpr SDL_Color BorderModalStandard{45, 55, 64, 255};
-  static constexpr SDL_Color BorderModalStandardLight{91, 109, 127, 255};
+  static constexpr SDL_Color BorderModalStandardLight{69, 83, 96, 255};
   static constexpr SDL_Color BorderModalStandardDark{23, 28, 33, 255};
   static constexpr SDL_Color ModalStandardBackground{248, 248, 248, 255};
   static constexpr SDL_Color ModalHeaderBackground{188, 183, 197, 255};

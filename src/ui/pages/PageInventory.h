@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/Character.h"
+#include "model/instances/CharacterPlayer.h"
 #include "ui/UiElement.h"
 #include "ui/components/lists/ListInventory.h"
 #include <string>

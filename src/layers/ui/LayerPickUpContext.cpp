@@ -12,14 +12,14 @@ LayerPickUpContext::LayerPickUpContext(sdl2w::Window* _window,
     remove();
     return;
   }
-  if (item.itemName.empty() || item.id.empty()) {
+  if (item.itemTemplateName.empty() || item.id.empty()) {
     LOG(ERROR) << "LayerPickUpContext::LayerPickUpContext: itemId "
                   "or itemName is empty"
                << LOG_ENDL;
     return;
   }
   auto database = getDatabase();
-  auto& itemTemplate = database->getItemTemplate(item.itemName);
+  auto& itemTemplate = database->getItemTemplate(item.itemTemplateName);
 
   auto [windowWidth, windowHeight] = window->getDims();
   const auto orientation =

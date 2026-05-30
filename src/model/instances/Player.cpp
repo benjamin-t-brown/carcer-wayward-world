@@ -1,11 +1,11 @@
-#include "Player.h"
+#include "model/instances/Player.h"
 #include <string>
 
 namespace model {
 
 CharacterPlayer* playerFindPartyMemberById(Player& _player, const std::string& _id) {
   for (auto& member : _player.party) {
-    if (member.id == _id) {
+    if (member.instanceId == _id) {
       return &member;
     }
   }

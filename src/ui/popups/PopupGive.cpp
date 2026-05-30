@@ -48,20 +48,6 @@ void PopupGive::build() {
   const int paddingScaled = padding * style.scale;
   const int contentWidth = style.width - 2 * padding;
 
-  // const int padding = 8;
-  // const int closeButtonSize = 32;
-  // const int rowHeight = 32;
-  // const int rowGap = 2;
-  // const int sliderAreaHeight = 56;
-  // const int titleHeight = 28;
-  // const int sliderHeight = props.showQuantitySlider ? sliderAreaHeight : 0;
-  // const int partyCount = static_cast<int>(props.partyMembers.size());
-
-  // style.height = padding + closeButtonSize + titleHeight + sliderHeight +
-  //                partyCount * (rowHeight + rowGap) + padding;
-
-  // auto [scaledWidth, scaledHeight] = getDims();
-
   auto closeButton = new ButtonClose(window, this);
   closeButton->setId("closeButton");
   auto& closeStyle = closeButton->getStyle();

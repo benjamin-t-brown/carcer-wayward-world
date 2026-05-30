@@ -48,7 +48,7 @@ setupTestUi(int argc,
     window.getDraw().setBackgroundColor({0, 0, 0});
 
     sdl2w::AssetLoader assetLoader(window.getDraw(), window.getStore());
-    window.getStore().loadAndStoreFont("title", "assets/cabal.ttf");
+    window.getStore().loadAndStoreFont("title", "assets/squealer.ttf");
     window.getStore().loadAndStoreFont("default", "assets/monofonto.ttf");
     window.getStore().loadAndStoreFont("text", "assets/notosans-regular.ttf");
     window.getStore().loadAndStoreFont("text-bold", "assets/notosans-bold.ttf");

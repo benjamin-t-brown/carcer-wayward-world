@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../model/SpecialEvents.h"
+#include "model/templates/SpecialEvents.h"
 #include <optional>
 #include <string>
 #include <unordered_map>

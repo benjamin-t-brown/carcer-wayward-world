@@ -1,5 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { CarcerMapTemplate, CarcerMapTileTemplate } from '../types/assets';
+import {
+  CarcerMapTemplate,
+  CarcerMapTileTemplate,
+  MAP_TYPES,
+} from '../types/assets';
 import { Button } from '../elements/Button';
 import { Notification } from '../elements/Notification';
 import { OptionSelect } from '../elements/OptionSelect';
@@ -310,6 +314,9 @@ export function Maps() {
       }
       if (!map.label || map.label.trim() === '') {
         missingFields.push('label');
+      }
+      if (!map.type || !MAP_TYPES.includes(map.type)) {
+        missingFields.push('type');
       }
 
       // Check required number fields

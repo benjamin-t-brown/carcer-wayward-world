@@ -1,7 +1,7 @@
 #include "LayerDropConfirm.h"
 #include "lib/sdl2w/Logger.h"
-#include "model/Character.h"
-#include "model/Player.h"
+#include "model/instances/CharacterPlayer.h"
+#include "model/instances/Player.h"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/popups/PopupDropConfirm.h"
 
@@ -42,7 +42,7 @@ LayerDropConfirm::LayerDropConfirm(sdl2w::Window* _window,
   for (const auto& item : partyMember->inventory) {
     if (item.id == itemId) {
       itemInstance.id = item.id;
-      itemInstance.itemName = item.itemName;
+      itemInstance.itemTemplateName = item.itemName;
       itemInstance.quantity = item.quantity;
       break;
     }
@@ -62,7 +62,7 @@ LayerDropConfirm::LayerDropConfirm(sdl2w::Window* _window,
   popupProps.characterPlayerId = characterPlayerId;
   popupProps.itemId = itemId;
   {
-    const auto& itemTemplate = database->getItemTemplate(itemInstance.itemName);
+    const auto& itemTemplate = database->getItemTemplate(itemInstance.itemTemplateName);
     popupProps.itemLabel =
         itemTemplate.label.empty() ? itemTemplate.name : itemTemplate.label;
   }

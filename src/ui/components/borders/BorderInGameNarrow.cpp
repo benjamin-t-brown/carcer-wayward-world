@@ -1,11 +1,9 @@
 #include "BorderInGameNarrow.h"
-#include "../../elements/OutsetRectangle.h"
-#include "BorderInGameWide.h"
 
 namespace ui {
 
 BorderInGameNarrow::BorderInGameNarrow(sdl2w::Window* _window, UiElement* _parent)
-    : UiElement(_window, _parent) {}
+    : BorderInGame(_window, _parent) {}
 
 void BorderInGameNarrow::setProps(const BorderInGameNarrowProps& _props) {
   props = _props;
@@ -30,21 +28,11 @@ const std::pair<int, int> BorderInGameNarrow::getContentDims() const {
               style.scale};
 }
 
-const std::pair<int, int> BorderInGameNarrow::getTitleLocation() const {
-  int titleX = style.x + props.outsetBorderSize * style.scale;
-  int titleY = style.y + props.outsetBorderSize * style.scale;
-  return {titleX, titleY};
-}
-
-const std::pair<int, int> BorderInGameNarrow::getTitleDims() const {
-  return {style.width * style.scale - props.outsetBorderSize * 2 * style.scale,
-          props.titleHeight * style.scale - props.outsetBorderSize * 2 * style.scale};
-}
-
 const std::pair<int, int> BorderInGameNarrow::getPartyMemberAreaLocation() const {
-  int partyX = style.x + props.sideBorderWidth * style.scale;
-  int partyY = style.y + props.titleHeight * style.scale +
-               props.partyMemberAreaHeight * style.scale;
+  int partyX = style.x + props.outsetBorderSize * style.scale;
+  auto [titleX, titleY] = getTitleLocation();
+  auto [titleWidth, titleHeight] = getTitleDims();
+  int partyY = titleY + titleHeight + props.outsetBorderSize * 2.f * style.scale;
   return {partyX, partyY};
 }
 
@@ -61,77 +49,36 @@ const std::pair<int, int> BorderInGameNarrow::getActionButtonsAreaLocation() con
 void BorderInGameNarrow::build() {
   children.clear();
 
-  int scaledWidth = static_cast<int>(style.width * style.scale);
-  int scaledHeight = static_cast<int>(style.height * style.scale);
+  int width = scaledWidth();
+  int height = scaledHeight();
   int sideBorderY = style.y + props.titleHeight * style.scale +
                     props.partyMemberAreaHeight * style.scale;
-  int sideBorderHeightScaled = scaledHeight - props.titleHeight * style.scale -
+  int sideBorderHeightScaled = height - props.titleHeight * style.scale -
                                props.partyMemberAreaHeight * style.scale;
 
-  auto topRectangle = new OutsetRectangle(window, this);
-  auto& topStyle = topRectangle->getStyle();
-  topStyle.x = style.x;
-  topStyle.y = style.y;
-  topStyle.width = scaledWidth / style.scale;
-  topStyle.height = props.titleHeight;
-  topStyle.scale = style.scale;
-  topRectangle->setProps(OutsetRectangleProps{
-      .borderSize = props.outsetBorderSize,
-  });
-  addChild(topRectangle);
+  addOutsetRect(style.x, style.y, width / style.scale, props.titleHeight);
 
-  auto secondaryTopRectangle = new OutsetRectangle(window, this);
-  auto& secondaryTopStyle = secondaryTopRectangle->getStyle();
-  secondaryTopStyle.x = style.x;
-  secondaryTopStyle.y = style.y + props.titleHeight * style.scale;
-  secondaryTopStyle.width = scaledWidth / style.scale;
-  secondaryTopStyle.height = props.partyMemberAreaHeight;
-  secondaryTopStyle.scale = style.scale;
-  secondaryTopRectangle->setProps(OutsetRectangleProps{
-      .borderSize = props.outsetBorderSize,
-  });
-  addChild(secondaryTopRectangle);
+  addOutsetRect(style.x,
+                style.y + props.titleHeight * style.scale,
+                width / style.scale,
+                props.partyMemberAreaHeight);
 
-  auto rightRectangle = new OutsetRectangle(window, this);
-  auto& rightStyle = rightRectangle->getStyle();
-  rightStyle.x = style.x + scaledWidth - props.sideBorderWidth * style.scale;
-  rightStyle.y = sideBorderY;
-  rightStyle.width = props.sideBorderWidth;
-  rightStyle.height = sideBorderHeightScaled / style.scale;
-  rightStyle.scale = style.scale;
-  rightRectangle->setProps(OutsetRectangleProps{
-      .borderSize = props.outsetBorderSize,
-  });
-  addChild(rightRectangle);
+  addOutsetRect(style.x + width - props.sideBorderWidth * style.scale,
+                sideBorderY,
+                props.sideBorderWidth,
+                sideBorderHeightScaled / style.scale);
 
-  auto leftRectangle = new OutsetRectangle(window, this);
-  auto& leftStyle = leftRectangle->getStyle();
-  leftStyle.x = style.x;
-  leftStyle.y = sideBorderY;
-  leftStyle.width = props.sideBorderWidth;
-  leftStyle.height = sideBorderHeightScaled / style.scale;
-  leftStyle.scale = style.scale;
-  leftRectangle->setProps(OutsetRectangleProps{
-      .borderSize = props.outsetBorderSize,
-  });
-  addChild(leftRectangle);
+  addOutsetRect(style.x,
+                sideBorderY,
+                props.sideBorderWidth,
+                sideBorderHeightScaled / style.scale);
 
-  auto bottomRectangle = new OutsetRectangle(window, this);
-  auto& bottomStyle = bottomRectangle->getStyle();
-  bottomStyle.x = style.x + props.sideBorderWidth * style.scale;
-  bottomStyle.y = style.y + scaledHeight -
-                  ACTION_BUTTON_SIZE * props.actionButtonsScale * style.scale -
-                  props.outsetBorderSize * 2 * style.scale;
-  bottomStyle.width = scaledWidth / style.scale - props.sideBorderWidth * 2;
-  bottomStyle.height =
-      ACTION_BUTTON_SIZE * props.actionButtonsScale + props.outsetBorderSize * 2;
-  bottomStyle.scale = style.scale;
-  bottomRectangle->setProps(OutsetRectangleProps{
-      .borderSize = props.outsetBorderSize,
-  });
-  addChild(bottomRectangle);
+  addOutsetRect(style.x + props.sideBorderWidth * style.scale,
+                style.y + height -
+                    ACTION_BUTTON_SIZE * props.actionButtonsScale * style.scale -
+                    props.outsetBorderSize * 2 * style.scale,
+                width / style.scale - props.sideBorderWidth * 2,
+                ACTION_BUTTON_SIZE * props.actionButtonsScale + props.outsetBorderSize * 2);
 }
-
-void BorderInGameNarrow::render(int dt) { UiElement::render(dt); }
 
 } // namespace ui

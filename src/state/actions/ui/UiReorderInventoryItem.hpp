@@ -1,7 +1,7 @@
 #pragma once
 
-#include "model/Character.h"
-#include "model/Player.h"
+#include "model/instances/CharacterPlayer.h"
+#include "model/instances/Player.h"
 #include "state/AbstractAction.h"
 #include "state/State.h"
 

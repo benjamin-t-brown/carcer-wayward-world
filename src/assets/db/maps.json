@@ -2,6 +2,7 @@
   {
     "name": "alinea",
     "label": "Alinea",
+    "type": "TOWN",
     "width": 20,
     "height": 20,
     "spriteWidth": 28,

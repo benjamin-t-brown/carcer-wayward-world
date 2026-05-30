@@ -4,8 +4,8 @@
 #include "layers/ui/LayerGiveContext.h"
 #include "layers/ui/LayerInventoryContext.h"
 #include "lib/sdl2w/L10n.h"
-#include "model/Character.h"
-#include "model/Player.h"
+#include "model/instances/CharacterPlayer.h"
+#include "model/instances/Player.h"
 #include "state/AbstractAction.h"
 #include "state/State.h"
 
@@ -50,7 +50,8 @@ class UiGiveInventoryItem : public AbstractAction {
       notification.id = model::createRandomId();
       notification.message = TRANSLATE("Too heavy!");
       notification.type = UiFloatingNotificationType::WARNING;
-      model::timerStructStart(notification.timer, kFloatingNotificationDurationMs);
+      model::timerStructStart(notification.timer,
+                              state->settings.floatingNotificationDurationMs);
       localState.uiState.floatingNotifications.push_back(std::move(notification));
 
       auto* giveLayer = layerManager->getLayerById(layers::LayerGiveContext::LAYER_ID);

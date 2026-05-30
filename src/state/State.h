@@ -1,14 +1,14 @@
 #pragma once
 
-#include "model/Player.h"
-#include "model/UtilityTypes.h"
+#include "model/instances/Player.h"
+#include "model/instances/World.h"
+#include "model/templates/UtilityTypes.h"
 
 namespace state {
 
-inline constexpr int kFloatingNotificationDurationMs = 3000;
-
 struct UserSettings {
   int fontScale = 0;
+  int floatingNotificationDurationMs = 3000;
 };
 
 enum class UiFloatingNotificationType {
@@ -29,9 +29,10 @@ struct UiState {
 };
 
 struct State {
-  model::Player player;
-  UserSettings settings;
   UiState uiState;
+  UserSettings settings;
+  model::Player player;
+  model::World world;
 };
 
 } // namespace state

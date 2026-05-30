@@ -1,8 +1,11 @@
 import { TextInput } from '../elements/TextInput';
 import { NumberInput } from '../elements/NumberInput';
+import { OptionSelect } from '../elements/OptionSelect';
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
+  MAP_TYPES,
+  MapType,
 } from '../types/assets';
 
 interface MapTemplateFormProps {
@@ -25,6 +28,7 @@ export function createDefaultMap(): CarcerMapTemplate {
   return {
     name: '',
     label: '',
+    type: 'TOWN',
     width: width,
     height: height,
     spriteWidth: 28,
@@ -88,6 +92,15 @@ export function MapTemplateForm(props: MapTemplateFormProps) {
         value={formData.label}
         onChange={(value) => updateField('label', value)}
         placeholder="e.g., Town Map"
+        required
+      />
+      <OptionSelect
+        id="map-type"
+        name="type"
+        label="Type"
+        value={formData.type}
+        onChange={(value) => updateField('type', value as MapType)}
+        options={MAP_TYPES.map((type) => ({ value: type, label: type }))}
         required
       />
       <NumberInput

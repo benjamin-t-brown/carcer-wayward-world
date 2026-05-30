@@ -1,0 +1,213 @@
+#include "InGameTitleBar.h"
+#include "lib/sdl2w/L10n.h"
+#include "ui/colors.h"
+#include "ui/elements/OutsetRectangle.h"
+#include "ui/elements/TextLine.h"
+#include "ui/elements/buttons/ButtonModal.h"
+
+namespace ui {
+
+namespace {
+
+class ButtonHamburgerMenu : public UiElement {
+  bool isInActiveMode = false;
+
+  class ButtonHamburgerMenuDefaultObserver : public UiEventObserver {
+    ButtonHamburgerMenu* button;
+
+  public:
+    explicit ButtonHamburgerMenuDefaultObserver(ButtonHamburgerMenu* _button)
+        : button(_button) {}
+    ~ButtonHamburgerMenuDefaultObserver() override = default;
+
+    void onMouseDown(int x, int y, int b) override { button->isActive = true; }
+    void onMouseUp(int x, int y, int b) override { button->isActive = false; }
+  };
+
+public:
+  bool isActive = false;
+
+  ButtonHamburgerMenu(sdl2w::Window* _window, UiElement* _parent = nullptr)
+      : UiElement(_window, _parent) {
+    addEventObserver(new ButtonHamburgerMenuDefaultObserver(this));
+    shouldPropagateEventsToChildren = false;
+  }
+
+  void build() override {
+    children.clear();
+
+    auto rect = new OutsetRectangle(window);
+    auto& rectStyle = rect->getStyle();
+    rectStyle.x = style.x;
+    rectStyle.y = style.y;
+    rectStyle.width = style.width;
+    rectStyle.height = style.height;
+    rectStyle.scale = style.scale;
+
+    auto& rectProps = rect->getProps();
+    rectProps.borderSize = isInActiveMode ? 0 : 2;
+    rectProps.color = Colors::ButtonModalGrey2;
+    rectProps.colorTopRight = Colors::LightGrey;
+    rectProps.colorBottomLeft = Colors::ButtonModalGrey1;
+    rect->setProps(rectProps);
+    addChild(rect);
+  }
+
+  const std::pair<int, int> getDims() const override {
+    return {static_cast<int>(style.width * style.scale),
+            static_cast<int>(style.height * style.scale)};
+  }
+
+  void render(int dt) override {
+    if (isActive) {
+      if (!isInActiveMode) {
+        isInActiveMode = true;
+        build();
+      }
+    } else if (isInActiveMode) {
+      isInActiveMode = false;
+      build();
+    }
+
+    UiElement::render(dt);
+
+    const int pressOffset = isInActiveMode ? static_cast<int>(style.scale) : 0;
+    const int scaledX = style.x + pressOffset;
+    const int scaledY = style.y + pressOffset;
+    const int scaledWidth = static_cast<int>(style.width * style.scale);
+    const int scaledHeight = static_cast<int>(style.height * style.scale);
+
+    const int lineWidth = std::max(1, static_cast<int>(style.scale));
+    const int lineLength = scaledWidth * 3 / 5;
+    const int lineSpacing = scaledHeight / 5;
+    const int centerX = scaledX + scaledWidth / 2;
+    const int centerY = scaledY + scaledHeight / 2;
+
+    auto& draw = window->getDraw();
+    const SDL_Color color = Colors::White;
+    for (int lineY : {centerY - lineSpacing, centerY, centerY + lineSpacing}) {
+      draw.drawLine({centerX - lineLength / 2, lineY},
+                    {centerX + lineLength / 2, lineY},
+                    static_cast<float>(lineWidth),
+                    color);
+    }
+  }
+};
+
+} // namespace
+
+InGameTitleBar::InGameTitleBar(sdl2w::Window* _window, UiElement* _parent)
+    : UiElement(_window, _parent) {}
+
+void InGameTitleBar::setProps(const InGameTitleBarProps& _props) {
+  props = _props;
+  build();
+}
+
+InGameTitleBarProps& InGameTitleBar::getProps() { return props; }
+
+const InGameTitleBarProps& InGameTitleBar::getProps() const { return props; }
+
+int InGameTitleBar::getContentHeight() const { return props.buttonSize; }
+
+int InGameTitleBar::getBarCenterY() const {
+  return style.y + static_cast<int>(style.height * style.scale) / 2;
+}
+
+int InGameTitleBar::centerTopY(int elementHeight) const {
+  return getBarCenterY() - elementHeight / 2;
+}
+
+UiElement*
+InGameTitleBar::createStatLineRightAligned(std::string_view text, int x, int y) {
+  auto statLine = new TextLine(window, this);
+  auto& statStyle = statLine->getStyle();
+  statStyle.x = style.x;
+  statStyle.y = style.y;
+  statStyle.scale = 1.f;
+  setBaseFontConfig(statStyle, BaseFontConfig::MODAL_TEXT_BOLD);
+  statStyle.textAlign = TextAlign::LEFT_CENTER;
+  statLine->setProps(TextLineProps{.textBlocks = {TextBlock{.text = std::string(text)}}});
+  auto [statWidth, _] = statLine->getDims();
+  statStyle.x = x - statWidth;
+  statStyle.y = y;
+  statLine->build();
+  return statLine;
+}
+
+void InGameTitleBar::build() {
+  children.clear();
+
+  const int scaledButtonSize = static_cast<int>(props.buttonSize * style.scale);
+  const int scaledButtonSpacing = static_cast<int>(props.buttonSpacing * style.scale);
+  const int scaledSectionSpacing = static_cast<int>(props.sectionSpacing * style.scale);
+  const int scaledStatSpacing = static_cast<int>(props.statSpacing * style.scale);
+  const int barCenterY = getBarCenterY();
+  const int buttonTopY = centerTopY(scaledButtonSize);
+  auto [scaledWidth, scaledHeight] = getDims();
+
+  int cursorX = style.x;
+
+  auto menuButton = new ButtonHamburgerMenu(window, this);
+  menuButton->setId("menuButton");
+  auto& menuStyle = menuButton->getStyle();
+  menuStyle.x = cursorX;
+  menuStyle.y = buttonTopY;
+  menuStyle.width = props.buttonSize;
+  menuStyle.height = props.buttonSize;
+  menuStyle.scale = style.scale;
+  menuButton->build();
+  addChild(menuButton);
+  cursorX += scaledButtonSize + scaledButtonSpacing;
+
+  auto helpButton = new ButtonModal(window, this);
+  helpButton->setId("helpButton");
+  auto& helpStyle = helpButton->getStyle();
+  helpStyle.x = cursorX;
+  helpStyle.y = buttonTopY;
+  helpStyle.width = props.buttonSize;
+  helpStyle.height = props.buttonSize;
+  helpStyle.scale = style.scale;
+  helpButton->setProps(ButtonModalProps{
+      .text = "?",
+      .bgColor = Colors::ButtonModalGrey2,
+      .bgColorTopRight = Colors::LightGrey,
+      .bgColorBottomLeft = Colors::ButtonModalGrey1,
+  });
+  addChild(helpButton);
+  cursorX += scaledButtonSize + scaledSectionSpacing;
+
+  auto titleText = new TextLine(window, this);
+  titleText->setId("titleText");
+  auto& titleStyle = titleText->getStyle();
+  titleStyle.x = cursorX;
+  titleStyle.y = barCenterY;
+  titleStyle.scale = 1.f;
+  setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
+  titleStyle.textAlign = TextAlign::LEFT_CENTER;
+  TextLineProps titleProps;
+  titleProps.textBlocks.push_back(TextBlock{.text = props.title});
+  titleText->setProps(titleProps);
+  addChild(titleText);
+
+  int statX = style.x + scaledWidth - scaledStatSpacing;
+  auto* dayStatLine = createStatLineRightAligned(
+      TRANSLATE("Day: ") + std::to_string(props.day), statX, barCenterY);
+  addChild(dayStatLine);
+  auto [dayStatWidth, _] = dayStatLine->getDims();
+  statX -= dayStatWidth + scaledStatSpacing;
+  auto* foodStatLine = createStatLineRightAligned(
+      TRANSLATE("Food: ") + std::to_string(props.food), statX, barCenterY);
+  addChild(foodStatLine);
+  if (props.showAp) {
+    auto [foodStatWidth, _] = foodStatLine->getDims();
+    statX -= foodStatWidth + scaledStatSpacing;
+    auto* apStatLine = createStatLineRightAligned(
+        TRANSLATE("AP: ") + std::to_string(props.ap), statX, barCenterY);
+    addChild(apStatLine);
+  }
+}
+
+void InGameTitleBar::render(int dt) { UiElement::render(dt); }
+
+} // namespace ui

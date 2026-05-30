@@ -5,7 +5,7 @@
 namespace ui {
 
 ListChCompactInfoHorizontal::ListChCompactInfoHorizontal(sdl2w::Window* _window,
-                                                       UiElement* _parent)
+                                                         UiElement* _parent)
     : UiElement(_window, _parent) {
   style.fontSize = sdl2w::TEXT_SIZE_18;
 }
@@ -18,7 +18,8 @@ const std::pair<int, int> ListChCompactInfoHorizontal::getDims() const {
   return children[0]->getDims();
 }
 
-void ListChCompactInfoHorizontal::setProps(const ListChCompactInfoHorizontalProps& _props) {
+void ListChCompactInfoHorizontal::setProps(
+    const ListChCompactInfoHorizontalProps& _props) {
   props = _props;
   build();
 }
@@ -44,6 +45,10 @@ void ListChCompactInfoHorizontal::build() {
   auto [chCompactInfoScaledWidth, chCompactInfoScaledHeight] =
       defaultChCompactInfo.getDims();
 
+  style.width = (chCompactInfoScaledWidth + props.lineGap * style.scale) *
+                props.entries.size() / style.scale;
+  style.height = (chCompactInfoScaledHeight + props.lineGap * style.scale) / style.scale;
+
   auto list = new HorizontalList(window, this);
   list->setId("list");
 
@@ -57,6 +62,7 @@ void ListChCompactInfoHorizontal::build() {
     s.fontSize = style.fontSize;
     auto chCompactInfoProps = props.entries[i];
     chCompactInfoProps.numStatusColumns = numStatusColumns;
+    chCompactInfoProps.isSelected = static_cast<int>(i) == props.selectedIndex;
     chCompactInfo->setProps(chCompactInfoProps);
     list->addChild(chCompactInfo);
   }

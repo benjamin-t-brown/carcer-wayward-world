@@ -1,6 +1,6 @@
 #include "LayerPickUp.h"
 #include "lib/sdl2w/Logger.h"
-#include "model/Character.h"
+#include "model/instances/CharacterPlayer.h"
 #include "state/actions/ui/UiSetCurrentPartyMember.hpp"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/minipages/MinipagePickUp.h"
@@ -72,7 +72,7 @@ void LayerPickUp::syncCurrentPartyMember() {
   minipageProps.partyMemberIndex = player.currentPartyMemberIndex;
   minipageProps.partyMemberSprites.clear();
   for (const auto& member : player.party) {
-    minipageProps.partyMemberSprites.push_back(model::characterGetSprite(member, database));
+    minipageProps.partyMemberSprites.push_back(model::characterPlayerGetSprite(member));
   }
   minipageProps.weightText = std::string(TRANSLATE("Carrying")) + " " +
                              std::to_string(carrying) + "/" + std::to_string(maxWeight);

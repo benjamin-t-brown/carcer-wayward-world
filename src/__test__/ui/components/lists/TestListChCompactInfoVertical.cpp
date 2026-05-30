@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
 
     auto list = new ui::ListChCompactInfoVertical(&window);
     auto& style = list->getStyle();
-    style.width = 260;
+    // style.width = 260;
     style.x = 120;
     style.y = 80;
     style.scale = 1.0f;

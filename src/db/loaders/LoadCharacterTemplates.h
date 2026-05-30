@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/Character.h"
+#include "model/templates/CharacterTemplate.h"
 #include <string>
 #include <unordered_map>
 

@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { TextInput } from '../elements/TextInput';
 import { NumberInput } from '../elements/NumberInput';
+import { OptionSelect } from '../elements/OptionSelect';
 import { Button } from '../elements/Button';
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
+  MAP_TYPES,
+  MapType,
 } from '../types/assets';
 import { createDefaultCarcerMapTile } from './MapTemplateForm';
 
@@ -143,6 +146,17 @@ export function EditMapModal({
             value={formData.label}
             onChange={(value) => setFormData({ ...formData, label: value })}
             placeholder="e.g., Town Map"
+            required
+          />
+          <OptionSelect
+            id="edit-map-type"
+            name="type"
+            label="Type"
+            value={formData.type}
+            onChange={(value) =>
+              setFormData({ ...formData, type: value as MapType })
+            }
+            options={MAP_TYPES.map((type) => ({ value: type, label: type }))}
             required
           />
           <NumberInput

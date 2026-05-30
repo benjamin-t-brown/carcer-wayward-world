@@ -22,9 +22,9 @@ struct TravelTrigger {
 };
 
 struct TileLightSource {
-  float angle;
-  float intensity;
-  int radius;
+  float angle = 0.0f;
+  float intensity = 0.0f;
+  int radius = 0;
 };
 
 struct TileOverrides {
@@ -34,11 +34,20 @@ struct TileOverrides {
   std::optional<TileLightSource> lightSourceOverride;
 };
 
+enum class MapType {
+  TOWN,
+  OUTDOOR,
+};
+
+std::string getStringFromMapType(MapType mapType);
+MapType getMapTypeFromString(const std::string& mapTypeString);
+
 struct CarcerMapTemplate {
   std::string name;
   std::string label;
-  int width;
-  int height;
+  MapType type = MapType::TOWN;
+  int width = 0;
+  int height = 0;
   int spriteWidth = 28;
   int spriteHeight = 32;
   std::vector<CarcerMapTileTemplate> tiles;
@@ -53,7 +62,7 @@ struct CarcerMapTileTemplate {
   std::optional<TileEventTrigger> eventTrigger;
   std::optional<TravelTrigger> travelTrigger;
   std::string tilesetName;
-  int tileId;
+  int tileId = 0;
 };
 
 } // namespace model

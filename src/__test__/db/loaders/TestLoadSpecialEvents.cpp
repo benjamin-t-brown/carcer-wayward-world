@@ -1,6 +1,6 @@
 #include "db/loaders/LoadSpecialEvents.h"
 #include "lib/sdl2w/Logger.h"
-#include "model/SpecialEvents.h"
+#include "model/templates/SpecialEvents.h"
 #include <unordered_map>
 #include <vector>
 

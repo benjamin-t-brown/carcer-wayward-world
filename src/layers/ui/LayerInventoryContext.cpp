@@ -1,6 +1,6 @@
 #include "LayerInventoryContext.h"
 #include "lib/sdl2w/Logger.h"
-#include "model/Character.h"
+#include "model/instances/CharacterPlayer.h"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/popups/PopupInventoryItem.h"
 
@@ -40,13 +40,13 @@ LayerInventoryContext::LayerInventoryContext(sdl2w::Window* _window,
   for (const auto& item : inventoryPartyMember->inventory) {
     if (item.id == itemId) {
       itemInstance.id = item.id;
-      itemInstance.itemName = item.itemName;
+      itemInstance.itemTemplateName = item.itemName;
       itemInstance.quantity = item.quantity;
       break;
     }
   }
 
-  auto& itemTemplate = database->getItemTemplate(itemInstance.itemName);
+  auto& itemTemplate = database->getItemTemplate(itemInstance.itemTemplateName);
 
   auto [windowWidth, windowHeight] = window->getDims();
   const auto orientation =
@@ -61,10 +61,10 @@ LayerInventoryContext::LayerInventoryContext(sdl2w::Window* _window,
   style.scale = 1.0f;
 
   ui::PopupInventoryItemProps popupProps;
-  popupProps.characterPlayerId = inventoryPartyMember->id;
+  popupProps.characterPlayerId = inventoryPartyMember->instanceId;
   popupProps.item = {
       .id = itemInstance.id,
-      .itemName = itemInstance.itemName,
+      .itemTemplateName = itemInstance.itemTemplateName,
       .quantity = itemInstance.quantity,
   };
   popupProps.spriteName = itemTemplate.iconSpriteName;
