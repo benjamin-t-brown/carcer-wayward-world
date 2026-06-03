@@ -10,6 +10,7 @@ interface ButtonProps {
   disabled?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  ariaLabel?: string;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -20,6 +21,7 @@ export const Button: React.FC<ButtonProps> = ({
   disabled = false,
   className = '',
   style = {},
+  ariaLabel,
 }) => {
   const getButtonClass = () => {
     switch (variant) {
@@ -49,6 +51,8 @@ export const Button: React.FC<ButtonProps> = ({
       onClick={onClick}
       disabled={disabled}
       style={style}
+      aria-label={ariaLabel}
+      title={ariaLabel}
     >
       <span style={{ userSelect: 'none' }}>{children}</span>
     </button>

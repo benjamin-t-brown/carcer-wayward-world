@@ -4,6 +4,8 @@ import { ItemTemplates } from './pages/ItemTemplates';
 import { CharacterTemplates } from './pages/CharacterTemplates';
 import { TilesetTemplates } from './pages/TilesetTemplates';
 import { SpecialEvents } from './pages/SpecialEvents';
+import { AbilityTemplates } from './pages/AbilityTemplates';
+import { StatusEffectTemplates } from './pages/StatusEffectTemplates';
 import { Maps } from './pages/Maps';
 
 function App({ assetTypes }: { assetTypes: { id: string; name: string; file: string }[] }) {
@@ -34,6 +36,10 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
       return <Home assetTypes={assetTypes} />;
     case '/editor/itemTemplates':
       return <ItemTemplates routeParams={routeParams} />;
+    case '/editor/abilityTemplates':
+      return <AbilityTemplates routeParams={routeParams} />;
+    case '/editor/statusEffectTemplates':
+      return <StatusEffectTemplates />;
     case '/editor/characterTemplates':
       return <CharacterTemplates routeParams={routeParams} />;
     case '/editor/tilesetTemplates':

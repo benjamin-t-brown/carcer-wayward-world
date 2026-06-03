@@ -1,5 +1,5 @@
 #include "ListPickUp.h"
-#include "../VerticalList.h"
+#include "ui/elements/VerticalList.h"
 #include "ui/colors.h"
 #include "ui/elements/Quad.h"
 #include "ui/elements/TextLine.h"

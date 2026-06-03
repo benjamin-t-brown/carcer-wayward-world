@@ -12,8 +12,8 @@ struct InGameTitleBarProps {
   int ap = 0;
   bool showAp = false;
 
-  int buttonSize = 28;
-  int buttonSpacing = 4;
+  int buttonSize = 32;
+  int buttonSpacing = 0;
   int sectionSpacing = 12;
   int statSpacing = 16;
 };

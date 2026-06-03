@@ -1,6 +1,8 @@
 #include "LoadCharacterTemplates.h"
 #include "lib/sdl2w/AssetLoader.h"
 #include "lib/json.hpp"
+#include "model/stats/CharacterStats.h"
+#include <set>
 #include <stdexcept>
 
 namespace {
@@ -16,6 +18,90 @@ model::CharacterTemplateType getCharacterTemplateTypeFromString(const std::strin
     return model::CharacterTemplateType::ENEMY_STATIC;
   }
   throw std::runtime_error("Invalid character template type: " + typeStr);
+}
+
+void loadIntField(const nlohmann::json& json, const char* fieldName, int& out) {
+  if (json.contains(fieldName)) {
+    out = json[fieldName];
+  }
+}
+
+void loadGenericCombatStats(const nlohmann::json& json, model::GenericCombatStats& stats) {
+  loadIntField(json, "str", stats.str);
+  loadIntField(json, "mnd", stats.mnd);
+  loadIntField(json, "con", stats.con);
+  loadIntField(json, "agi", stats.agi);
+  loadIntField(json, "lck", stats.lck);
+}
+
+void loadWeaponMasteryStats(const nlohmann::json& json, model::WeaponMasteryStats& stats) {
+  loadIntField(json, "edged", stats.edged);
+  loadIntField(json, "pole", stats.pole);
+  loadIntField(json, "blunt", stats.blunt);
+  loadIntField(json, "range", stats.range);
+  loadIntField(json, "unarmed", stats.unarmed);
+}
+
+void loadMagicMasteryStats(const nlohmann::json& json, model::MagicMasteryStats& stats) {
+  loadIntField(json, "mana", stats.mana);
+  loadIntField(json, "abilityPower", stats.abilityPower);
+  loadIntField(json, "attunement", stats.attunement);
+  loadIntField(json, "faith", stats.faith);
+  loadIntField(json, "lore", stats.lore);
+}
+
+void loadBodyMasteryStats(const nlohmann::json& json, model::BodyMasteryStats& stats) {
+  loadIntField(json, "resistPhysical", stats.resistPhysical);
+  loadIntField(json, "resistMagical", stats.resistMagical);
+  loadIntField(json, "healingEffectiveness", stats.healingEffectiveness);
+  loadIntField(json, "dr", stats.dr);
+  loadIntField(json, "armorTraining", stats.armorTraining);
+}
+
+void loadTrainableCombatStats(const nlohmann::json& json, model::TrainableCombatStats& stats) {
+  if (json.contains("weapon") && json["weapon"].is_object()) {
+    loadWeaponMasteryStats(json["weapon"], stats.weapon);
+  }
+  if (json.contains("magic") && json["magic"].is_object()) {
+    loadMagicMasteryStats(json["magic"], stats.magic);
+  }
+  if (json.contains("body") && json["body"].is_object()) {
+    loadBodyMasteryStats(json["body"], stats.body);
+  }
+}
+
+void loadCharacterSkills(const nlohmann::json& json, model::CharacterSkills& skills) {
+  loadIntField(json, "trickery", skills.trickery);
+  loadIntField(json, "stealth", skills.stealth);
+  loadIntField(json, "social", skills.social);
+  loadIntField(json, "magicItemUse", skills.magicItemUse);
+  loadIntField(json, "cooking", skills.cooking);
+  loadIntField(json, "acrobatics", skills.acrobatics);
+  loadIntField(json, "survival", skills.survival);
+  loadIntField(json, "focus", skills.focus);
+  loadIntField(json, "conditioning", skills.conditioning);
+}
+
+void loadCharacterStats(const nlohmann::json& characterJson, model::CharacterStats& stats) {
+  if (characterJson.contains("stats") && characterJson["stats"].is_object()) {
+    const auto& statsJson = characterJson["stats"];
+    if (statsJson.contains("generic") && statsJson["generic"].is_object()) {
+      loadGenericCombatStats(statsJson["generic"], stats.generic);
+    }
+    if (statsJson.contains("trainable") && statsJson["trainable"].is_object()) {
+      loadTrainableCombatStats(statsJson["trainable"], stats.trainable);
+    }
+    if (statsJson.contains("skills") && statsJson["skills"].is_object()) {
+      loadCharacterSkills(statsJson["skills"], stats.skills);
+    }
+  }
+
+  if (characterJson.contains("combat") && characterJson["combat"].is_object()) {
+    const auto& combatJson = characterJson["combat"];
+    if (combatJson.contains("stats") && combatJson["stats"].is_object()) {
+      loadGenericCombatStats(combatJson["stats"], stats.generic);
+    }
+  }
 }
 
 std::string getSpriteOffsetAsString(const nlohmann::json& characterJson) {
@@ -92,26 +178,10 @@ void loadCharacterTemplates(
       }
     }
 
+    loadCharacterStats(characterJson, characterTemplate.stats);
+
     if (characterJson.contains("combat") && characterJson["combat"].is_object()) {
       const auto& combatJson = characterJson["combat"];
-      if (combatJson.contains("stats") && combatJson["stats"].is_object()) {
-        const auto& statsJson = combatJson["stats"];
-        if (statsJson.contains("str")) {
-          characterTemplate.combat.stats.str = statsJson["str"];
-        }
-        if (statsJson.contains("mnd")) {
-          characterTemplate.combat.stats.mnd = statsJson["mnd"];
-        }
-        if (statsJson.contains("con")) {
-          characterTemplate.combat.stats.con = statsJson["con"];
-        }
-        if (statsJson.contains("agi")) {
-          characterTemplate.combat.stats.agi = statsJson["agi"];
-        }
-        if (statsJson.contains("lck")) {
-          characterTemplate.combat.stats.lck = statsJson["lck"];
-        }
-      }
       if (combatJson.contains("hp")) {
         characterTemplate.combat.hp = combatJson["hp"];
       }

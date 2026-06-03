@@ -68,25 +68,53 @@ std::pair<int, int> SectionScrollable::getContentDims() const {
           style.height * style.scale};
 }
 
+int SectionScrollable::getScrollIndicatorY(int offset) const {
+  const int scaledHeight = static_cast<int>(style.height * style.scale);
+  const float availableSpace =
+      scaledHeight - (2 * props.scrollBarWidth + props.indicatorHeight) * style.scale;
+  int indicatorY = style.y + props.scrollBarWidth * style.scale;
+  if (maxScrollOffset > 0 && availableSpace > 0) {
+    const float scrollRatio =
+        static_cast<float>(offset) / static_cast<float>(maxScrollOffset);
+    indicatorY += static_cast<int>(scrollRatio * availableSpace);
+  }
+  return indicatorY;
+}
+
 void SectionScrollable::updateScrollIndicatorPosition() {
   auto elem = getChildById("scrollIndicator");
   if (elem) {
     Quad* indicator = dynamic_cast<Quad*>(elem);
     if (indicator) {
-      int scaledContentWidth = (style.width - props.scrollBarWidth) * style.scale;
-      int scaledHeight = static_cast<int>(style.height * style.scale);
-
-      // Calculate indicator Y position based on scroll offset
-      float availableSpace =
-          scaledHeight - (2 * props.scrollBarWidth + props.indicatorHeight) * style.scale;
-      int indicatorY = style.y + props.scrollBarWidth * style.scale;
-      if (maxScrollOffset > 0 && availableSpace > 0) {
-        float scrollRatio =
-            static_cast<float>(scrollOffset) / static_cast<float>(maxScrollOffset);
-        indicatorY += static_cast<int>(scrollRatio * availableSpace);
-      }
-      indicator->updatePosition(style.x + scaledContentWidth, indicatorY);
+      const int scaledContentWidth = (style.width - props.scrollBarWidth) * style.scale;
+      indicator->updatePosition(style.x + scaledContentWidth,
+                                  getScrollIndicatorY(scrollOffset));
     }
+  }
+  updateScrollButtonStates();
+}
+
+void SectionScrollable::updateScrollButtonStates() {
+  const int currentIndicatorY = getScrollIndicatorY(scrollOffset);
+
+  const int upOffset = std::max(0, scrollOffset - props.scrollStep);
+  const bool upDisabled = getScrollIndicatorY(upOffset) == currentIndicatorY;
+
+  const int downOffset = std::min(maxScrollOffset, scrollOffset + props.scrollStep);
+  const bool downDisabled = getScrollIndicatorY(downOffset) == currentIndicatorY;
+
+  auto* upButton = dynamic_cast<ButtonScroll*>(getChildById("scrollUpButton"));
+  if (upButton && upButton->getProps().isDisabled != upDisabled) {
+    ButtonScrollProps upProps = upButton->getProps();
+    upProps.isDisabled = upDisabled;
+    upButton->setProps(upProps);
+  }
+
+  auto* downButton = dynamic_cast<ButtonScroll*>(getChildById("scrollDownButton"));
+  if (downButton && downButton->getProps().isDisabled != downDisabled) {
+    ButtonScrollProps downProps = downButton->getProps();
+    downProps.isDisabled = downDisabled;
+    downButton->setProps(downProps);
   }
 }
 
@@ -260,7 +288,7 @@ void SectionScrollable::build() {
   outerStyle.height = scaledHeight;
   outerStyle.scale = 1.f;
   ui::QuadProps outerProps;
-  outerProps.bgColor = Colors::Transparent;
+  outerProps.bgColor = props.bgColor;
   outerProps.borderColor = props.borderColor;
   outerProps.borderSize = props.borderSize;
   outerProps.borderColor = props.borderColor;
@@ -310,15 +338,7 @@ void SectionScrollable::build() {
   indicatorStyle.scale = 1;
 
   // Calculate indicator Y position based on scroll offset
-  float availableSpace =
-      scaledHeight - (2 * props.scrollBarWidth + props.indicatorHeight) * style.scale;
-  int indicatorY = style.y + props.scrollBarWidth * style.scale;
-  if (maxScrollOffset > 0 && availableSpace > 0) {
-    float scrollRatio =
-        static_cast<float>(scrollOffset) / static_cast<float>(maxScrollOffset);
-    indicatorY += static_cast<int>(scrollRatio * availableSpace);
-  }
-  indicatorStyle.y = indicatorY;
+  indicatorStyle.y = getScrollIndicatorY(scrollOffset);
   ui::QuadProps indicatorProps;
   indicatorProps.bgColor = Colors::LightGrey;
   indicatorProps.borderColor = Colors::Transparent;
@@ -331,6 +351,8 @@ void SectionScrollable::build() {
   UiElement::addChild(scrollUpButton);
   UiElement::addChild(scrollDownButton);
   UiElement::addChild(scrollIndicator);
+
+  updateScrollButtonStates();
 }
 
 void SectionScrollable::render(int dt) {

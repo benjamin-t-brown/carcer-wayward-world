@@ -6,7 +6,11 @@ MAIN_ALL=main.cpp
 CODE=\
 db/Database.cpp \
 db/loaders/LoadItemTemplates.cpp \
+db/loaders/LoadCombatJson.cpp \
+db/loaders/LoadAbilityTemplates.cpp \
+db/loaders/LoadStatusEffectTemplates.cpp \
 db/loaders/LoadCharacterTemplates.cpp \
+model/templates/CombatTypes.cpp \
 db/loaders/LoadSpecialEvents.cpp \
 layers/Layer.cpp \
 layers/LayerManager.cpp \
@@ -16,8 +20,13 @@ layers/ui/LayerDropConfirm.cpp \
 layers/ui/LayerInventory.cpp \
 layers/ui/LayerPickUpContext.cpp \
 layers/ui/LayerPickUp.cpp \
+layers/ui/LayerPopupText.cpp \
 model/instances/Player.cpp \
 model/instances/CharacterPlayer.cpp \
+model/stats/CharacterStats.cpp \
+model/stats/CharacterStatDefinitions.cpp \
+model/stats/CharacterDerivedStats.cpp \
+model/stats/CharacterDerivedStatDefinitions.cpp \
 model/templates/CharacterTemplate.cpp \
 model/templates/Items.cpp \
 model/templates/Maps.cpp \
@@ -45,12 +54,15 @@ ui/elements/buttons/ButtonScroll.cpp \
 ui/elements/buttons/ButtonList.cpp \
 ui/elements/buttons/ButtonSprite.cpp \
 ui/elements/buttons/ButtonGroup.cpp \
+ui/elements/buttons/ButtonIcon.cpp \
 ui/components/borders/BorderDropShadow.cpp \
 ui/elements/SectionScrollable.cpp \
 ui/elements/HorizontalSlider.cpp \
 ui/elements/buttons/ButtonTextWrap.cpp \
 ui/elements/buttons/ButtonWorldAction.cpp \
 ui/elements/OutsetRectangle.cpp \
+ui/elements/VerticalList.cpp \
+ui/elements/HorizontalList.cpp \
 ui/components/borders/BorderModalStandard.cpp \
 ui/components/borders/BorderModalSmall.cpp \
 ui/components/borders/BorderInGame.cpp \
@@ -61,11 +73,9 @@ ui/components/InGameTitleBar.cpp \
 ui/components/ItemInfo.cpp \
 ui/components/PartyMemberSwitcher.cpp \
 ui/components/PartyMemberIconSelector.cpp \
-ui/components/VerticalList.cpp \
 ui/components/FloatingNotification.cpp \
 ui/components/FloatingNotificationSection.cpp \
 ui/components/ConfirmModal.cpp \
-ui/components/HorizontalList.cpp \
 ui/layouts/InGameLayout.cpp \
 ui/layouts/ModalStandard.cpp \
 ui/layouts/ModalSmall.cpp \
@@ -78,7 +88,7 @@ ui/components/lists/ListChCompactInfoHorizontal.cpp \
 ui/popups/PopupInventoryItem.cpp \
 ui/popups/PopupGive.cpp \
 ui/popups/PopupDropConfirm.cpp \
- ui/pages/PageCharacter.cpp \
+ui/pages/PageCharacter.cpp \
 ui/pages/PageInventory.cpp \
 ui/pages/PageMagicSetup.cpp \
 ui/pages/PageTalkChoice.cpp \

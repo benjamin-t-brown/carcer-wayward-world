@@ -4,7 +4,10 @@ import { OptionSelect } from '../elements/OptionSelect';
 import { TextArea } from '../elements/TextArea';
 import { Button } from '../elements/Button';
 import { SpritePicker } from '../elements/SpritePicker';
-import { ItemTemplate } from '../types/assets';
+import { ItemTemplate, isWeaponItemType } from '../types/assets';
+import { useAssets } from '../contexts/AssetsContext';
+import { ItemWeaponFields } from './ItemWeaponFields';
+import { EditorEmptyState } from './EditorEmptyState';
 
 // Re-export for backward compatibility
 export type { ItemTemplate };
@@ -35,8 +38,6 @@ const ITEM_USABILITY_TYPES = [
 ];
 
 const ITEM_USABILITY_ARG_TYPES = ['ITEM_USE_DEFAULT', 'ITEM_USE_CAST_SPELL'];
-
-const STATUS_EFFECT_TYPES = ['MODIFY_RESISTANCE_FIRE_PLUS_1'];
 
 interface ItemTemplateFormProps {
   item?: ItemTemplate;
@@ -73,7 +74,10 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
     field: K,
     value: ItemTemplate[K],
   ) => {
-    setFormData({ ...formData, [field]: value });
+    if (!item) {
+      return;
+    }
+    setFormData({ ...item, [field]: value });
   };
 
   const updateUsabilityArgs = (
@@ -89,23 +93,13 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
     });
   };
 
-  const updateWeapon = (
-    field: 'dmgMin' | 'dmgMax',
-    value: number | undefined,
-  ) => {
-    setFormData({
-      ...formData,
-      weapon: { ...formData.weapon, [field]: value },
-    });
-  };
+  const { statusEffects: statusEffectTemplates } = useAssets();
 
   const addStatusEffect = () => {
+    const first = statusEffectTemplates[0]?.name || '';
     setFormData({
       ...formData,
-      statusEffects: [
-        ...(formData.statusEffects || []),
-        { statusEffectType: 'MODIFY_RESISTANCE_FIRE_PLUS_1' },
-      ],
+      statusEffects: [...(formData.statusEffects || []), first],
     });
   };
 
@@ -117,22 +111,18 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
     });
   };
 
-  const updateStatusEffect = (
-    index: number,
-    field: 'statusEffectType' | 'name' | 'label' | 'description',
-    value: string,
-  ) => {
+  const updateStatusEffect = (index: number, value: string) => {
     setFormData({
       ...formData,
       statusEffects:
         formData.statusEffects?.map((effect, i) =>
-          i === index ? { ...effect, [field]: value } : effect,
+          i === index ? value : effect,
         ) || [],
     });
   };
 
   if (!item) {
-    return <div>Select an item to edit</div>;
+    return <EditorEmptyState message="Select an item to edit" />;
   }
 
   const intArgsString = formData.itemUsabilityArgs?.intArgs?.join(',') || '';
@@ -149,7 +139,20 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
             name="itemType"
             label="Item Type"
             value={formData.itemType}
-            onChange={(value) => updateField('itemType', value)}
+            onChange={(value) => {
+              const next = { ...formData, itemType: value };
+              if (
+                isWeaponItemType(value) &&
+                !isWeaponItemType(formData.itemType) &&
+                !next.weapon
+              ) {
+                next.weapon = { abilityName: '' };
+              }
+              if (!isWeaponItemType(value)) {
+                delete next.weapon;
+              }
+              setFormData(next);
+            }}
             options={ITEM_TYPES.map((type) => ({ value: type, label: type }))}
             required
           />
@@ -314,43 +317,26 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
             </div>
           </div>
 
-          <div className="form-subsection">
-            <h4>Weapon</h4>
-            <div className="form-fields-inline">
-              <NumberInput
-                id="weapon-dmg-min"
-                name="weaponDmgMin"
-                label="Damage Min"
-                value={formData.weapon?.dmgMin || 0}
-                onChange={(value) => updateWeapon('dmgMin', value || undefined)}
-                min={0}
-              />
-
-              <NumberInput
-                id="weapon-dmg-max"
-                name="weaponDmgMax"
-                label="Damage Max"
-                value={formData.weapon?.dmgMax || 0}
-                onChange={(value) => updateWeapon('dmgMax', value || undefined)}
-                min={0}
-              />
-            </div>
-          </div>
+          {isWeaponItemType(formData.itemType) ? (
+            <ItemWeaponFields
+              weapon={formData.weapon}
+              onChange={(weapon) => updateField('weapon', weapon)}
+              idPrefix={`item-${formData.name || 'new'}-weapon`}
+            />
+          ) : null}
 
           <div className="form-subsection">
-            <h4>Status Effects</h4>
+            <h4>Status Effects (while equipped)</h4>
             <div id="status-effects-list">
-              {formData.statusEffects?.map((effect, index) => (
+              {formData.statusEffects?.map((effectName, index) => (
                 <div key={index} className="status-effect-item">
                   <div className="status-effect-header">
                     <OptionSelect
-                      value={effect.statusEffectType}
-                      onChange={(value) =>
-                        updateStatusEffect(index, 'statusEffectType', value)
-                      }
-                      options={STATUS_EFFECT_TYPES.map((type) => ({
-                        value: type,
-                        label: type,
+                      value={effectName}
+                      onChange={(value) => updateStatusEffect(index, value)}
+                      options={statusEffectTemplates.map((template) => ({
+                        value: template.name,
+                        label: template.name,
                       }))}
                     />
                     <Button
@@ -361,33 +347,6 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
                       Remove
                     </Button>
                   </div>
-                  <div className="form-fields-inline">
-                    <TextInput
-                      label="Name"
-                      value={effect.name || ''}
-                      onChange={(value) =>
-                        updateStatusEffect(index, 'name', value)
-                      }
-                      placeholder="Status effect name"
-                    />
-                    <TextInput
-                      label="Label"
-                      value={effect.label || ''}
-                      onChange={(value) =>
-                        updateStatusEffect(index, 'label', value)
-                      }
-                      placeholder="Display label"
-                    />
-                  </div>
-                  <TextArea
-                    label="Description"
-                    value={effect.description || ''}
-                    onChange={(value) =>
-                      updateStatusEffect(index, 'description', value)
-                    }
-                    placeholder="Description"
-                    rows={2}
-                  />
                 </div>
               ))}
             </div>

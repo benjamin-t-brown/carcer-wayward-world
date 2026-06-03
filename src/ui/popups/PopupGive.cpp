@@ -2,7 +2,7 @@
 #include "layers/ui/LayerGiveContext.h"
 #include "lib/sdl2w/L10n.h"
 #include "ui/colors.h"
-#include "ui/components/VerticalList.h"
+#include "ui/elements/VerticalList.h"
 #include "ui/components/borders/BorderDropShadow.h"
 #include "ui/elements/HorizontalSlider.h"
 #include "ui/elements/OutsetRectangle.h"

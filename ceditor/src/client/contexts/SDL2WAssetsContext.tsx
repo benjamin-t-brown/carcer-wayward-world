@@ -1,10 +1,13 @@
 import { createContext, useContext, ReactNode } from 'react';
-import { Sprite, Animation } from '../utils/assetLoader';
+import { Sprite, Animation, Sound } from '../utils/assetLoader';
 
 interface SDL2WAssetsContextValue {
   sprites: Sprite[];
   spriteMap: Record<string, Sprite>;
   animations: Animation[];
+  animationMap: Record<string, Animation>;
+  sounds: Sound[];
+  soundMap: Record<string, Sound>;
   pictures: Record<string, string>;
 }
 
@@ -15,6 +18,9 @@ interface SDL2WAssetsProviderProps {
   sprites: Sprite[];
   spriteMap: Record<string, Sprite>;
   animations: Animation[];
+  animationMap: Record<string, Animation>;
+  sounds: Sound[];
+  soundMap: Record<string, Sound>;
   pictures: Record<string, string>;
 }
 
@@ -23,10 +29,23 @@ export function SDL2WAssetsProvider({
   sprites,
   spriteMap,
   animations,
+  animationMap,
+  sounds,
+  soundMap,
   pictures,
 }: SDL2WAssetsProviderProps) {
   return (
-    <SDL2WAssetsContext.Provider value={{ sprites, spriteMap, animations, pictures }}>
+    <SDL2WAssetsContext.Provider
+      value={{
+        sprites,
+        spriteMap,
+        animations,
+        animationMap,
+        sounds,
+        soundMap,
+        pictures,
+      }}
+    >
       {children}
     </SDL2WAssetsContext.Provider>
   );

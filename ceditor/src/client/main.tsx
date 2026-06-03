@@ -4,6 +4,7 @@ import App from './App';
 import {
   Animation,
   loadSpritesAndAnimations,
+  Sound,
   Sprite,
 } from './utils/assetLoader';
 import { SDL2WAssetsProvider } from './contexts/SDL2WAssetsContext';
@@ -15,7 +16,13 @@ import {
   TilesetTemplate,
   GameEvent,
   CarcerMapTemplate,
+  sanitizeItemTemplates,
 } from './types/assets';
+import {
+  AbilityTemplate,
+  sanitizeAbilityTemplates,
+  StatusEffectTemplate,
+} from './types/combat';
 
 interface AssetType {
   id: string;
@@ -43,6 +50,22 @@ async function loadItems(): Promise<ItemTemplate[]> {
   const response = await fetch('/api/assets/itemTemplates');
   if (!response.ok) {
     throw new Error('Failed to load items');
+  }
+  return response.json();
+}
+
+async function loadAbilities(): Promise<AbilityTemplate[]> {
+  const response = await fetch('/api/assets/abilityTemplates');
+  if (!response.ok) {
+    throw new Error('Failed to load abilities');
+  }
+  return response.json();
+}
+
+async function loadStatusEffects(): Promise<StatusEffectTemplate[]> {
+  const response = await fetch('/api/assets/statusEffectTemplates');
+  if (!response.ok) {
+    throw new Error('Failed to load status effects');
   }
   return response.json();
 }
@@ -84,16 +107,21 @@ async function load(): Promise<{
   sprites: Sprite[];
   spriteMap: Record<string, Sprite>;
   animations: Animation[];
+  animationMap: Record<string, Animation>;
+  sounds: Sound[];
+  soundMap: Record<string, Sound>;
   pictures: Record<string, string>;
   items: ItemTemplate[];
   characters: CharacterTemplate[];
+  abilities: AbilityTemplate[];
+  statusEffects: StatusEffectTemplate[];
   tilesets: TilesetTemplate[];
   gameEvents: GameEvent[];
   maps: CarcerMapTemplate[];
 }> {
   const assetTypes = await loadAssetTypes();
   const sdl2wAssetFiles = await loadSDL2WAssetFiles();
-  const { sprites, animations, pictures } = await loadSpritesAndAnimations(
+  const { sprites, animations, sounds, pictures } = await loadSpritesAndAnimations(
     sdl2wAssetFiles
   );
   for (const sprite of sprites) {
@@ -103,20 +131,41 @@ async function load(): Promise<{
     }
   }
 
-  // Create sprite map for O(1) lookup by name
+  // Create sprite/animation maps for O(1) lookup by name
   const spriteMap: Record<string, Sprite> = {};
   for (const sprite of sprites) {
     spriteMap[sprite.name] = sprite;
   }
 
+  const animationMap: Record<string, Animation> = {};
+  for (const animation of animations) {
+    animationMap[animation.name] = animation;
+  }
+
+  const soundMap: Record<string, Sound> = {};
+  for (const sound of sounds) {
+    soundMap[sound.name] = sound;
+  }
+
   // Load all assets in parallel
-  const [items, characters, tilesets, gameEvents, maps] = await Promise.all([
-    loadItems(),
-    loadCharacters(),
-    loadTilesets(),
-    loadGameEvents(),
-    loadMaps(),
-  ]);
+  const [loadedItems, characters, loadedAbilities, statusEffects, tilesets, gameEvents, maps] =
+    await Promise.all([
+      loadItems(),
+      loadCharacters(),
+      loadAbilities(),
+      loadStatusEffects(),
+      loadTilesets(),
+      loadGameEvents(),
+      loadMaps(),
+    ]);
+
+  const abilities = sanitizeAbilityTemplates(
+    loadedAbilities,
+    animationMap,
+    soundMap
+  );
+
+  const items = sanitizeItemTemplates(loadedItems, abilities);
 
   // fixes problems from early design
   for (const map of maps) {
@@ -133,9 +182,14 @@ async function load(): Promise<{
     assetTypes,
     sprites,
     animations,
+    animationMap,
+    sounds,
+    soundMap,
     pictures,
     items,
     characters,
+    abilities,
+    statusEffects,
     tilesets,
     gameEvents,
     maps,
@@ -145,9 +199,14 @@ async function load(): Promise<{
     sprites,
     spriteMap,
     animations,
+    animationMap,
+    sounds,
+    soundMap,
     pictures,
     items,
     characters,
+    abilities,
+    statusEffects,
     tilesets,
     gameEvents,
     maps,
@@ -170,9 +229,14 @@ async function init() {
       sprites,
       spriteMap,
       animations,
+      animationMap,
+      sounds,
+      soundMap,
       pictures,
       items,
       characters,
+      abilities,
+      statusEffects,
       tilesets,
       gameEvents,
       maps,
@@ -191,11 +255,16 @@ async function init() {
           sprites={sprites}
           spriteMap={spriteMap}
           animations={animations}
+          animationMap={animationMap}
+          sounds={sounds}
+          soundMap={soundMap}
           pictures={pictures}
         >
           <AssetsProvider
             initialItems={items}
             initialCharacters={characters}
+            initialAbilities={abilities}
+            initialStatusEffects={statusEffects}
             initialTilesets={tilesets}
             initialGameEvents={gameEvents}
             initialMaps={maps}

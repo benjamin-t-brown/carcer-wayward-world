@@ -133,12 +133,13 @@ void PageTalkChoice::build() {
         scaledContentW - 8 * style.scale - scrollBarWidth * style.scale;
     setBaseFontConfig(choiceButtonStyle, BaseFontConfig::MODAL_CHOICE_TEXT);
     choiceButtonStyle.scale = 1.f;
-    choiceButton->setStyle(choiceButtonStyle);
+    choiceButtonStyle.fontColor = Colors::DarkBlue;
     ui::ButtonTextWrapProps choiceButtonProps;
     const std::string& prefixText = props.choices[i].prefixText;
-    choiceButtonProps.text = prefixText.empty()
-                                 ? props.choices[i].text
-                                 : prefixText + " " + props.choices[i].text;
+    choiceButtonProps.text =
+        std::to_string(i + 1) + ". " +
+        ((prefixText.empty() ? props.choices[i].text
+                             : prefixText + " " + props.choices[i].text));
     choiceButtonProps.isSelected = false;
     choiceButton->setProps(choiceButtonProps);
     auto [choiceWidth, choiceHeight] = choiceButton->getDims();

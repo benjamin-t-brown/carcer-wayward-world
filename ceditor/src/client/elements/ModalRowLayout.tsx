@@ -1,11 +1,13 @@
 interface ModalRowLayoutProps {
   sidebar: React.ReactNode;
   main: React.ReactNode;
+  className?: string;
 }
 
 export const ModalRowLayout = (props: ModalRowLayoutProps) => {
   return (
     <div
+      className={props.className}
       style={{
         display: 'flex',
         gap: '16px',
@@ -13,6 +15,7 @@ export const ModalRowLayout = (props: ModalRowLayoutProps) => {
         minHeight: 0,
         height: '100%',
       }}
+      onClick={(e) => e.stopPropagation()}
     >
       <div
         style={{

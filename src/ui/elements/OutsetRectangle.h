@@ -9,7 +9,7 @@ struct OutsetRectangleProps {
   SDL_Color color = Colors::BorderModalStandard;
   SDL_Color colorTopRight = Colors::BorderModalStandardLight;
   SDL_Color colorBottomLeft = Colors::BorderModalStandardDark;
-  int borderSize = 0;
+  int borderSize = 4;
 };
 
 // OutsetRectangle element - renders a rectangle with outset border effect

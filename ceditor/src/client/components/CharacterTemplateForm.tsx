@@ -4,7 +4,11 @@ import { OptionSelect } from '../elements/OptionSelect';
 import { Button } from '../elements/Button';
 import { SpritePicker } from '../elements/SpritePicker';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
-import { CharacterTemplate } from '../types/assets';
+import { EditorEmptyState } from './EditorEmptyState';
+import {
+  CharacterTemplate,
+  createDefaultCharacterStats,
+} from '../types/assets';
 
 // Re-export for backward compatibility
 export type { CharacterTemplate };
@@ -28,6 +32,7 @@ export function createDefaultCharacter(): CharacterTemplate {
     label: '',
     spritesheet: 'actors0',
     spriteOffset: 0,
+    stats: createDefaultCharacterStats(),
   };
 }
 
@@ -40,10 +45,10 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
     props.updateCharacter(data);
   };
 
-  // Find the current sprite based on spritesheetName and spriteOffset
+  const stats = formData?.stats ?? createDefaultCharacterStats();
+
   const spriteName = `${formData?.spritesheet}_${formData?.spriteOffset}`;
 
-  // Handle sprite selection - extract spritesheet and offset from selected sprite
   const handleSpriteChange = (spriteName: string) => {
     const selectedSprite = spriteMap[spriteName];
     if (selectedSprite) {
@@ -82,16 +87,103 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
     });
   };
 
-  const updateCombatStats = (
+  const updateGenericStat = (
     field: 'str' | 'mnd' | 'con' | 'agi' | 'lck',
     value: number | undefined
   ) => {
     setFormData({
       ...formData,
-      combat: {
-        ...formData.combat,
-        stats: {
-          ...formData.combat?.stats,
+      stats: {
+        ...stats,
+        generic: {
+          ...stats.generic,
+          [field]: value,
+        },
+      },
+    });
+  };
+
+  const updateWeaponMastery = (
+    field: 'edged' | 'pole' | 'blunt' | 'range' | 'unarmed',
+    value: number | undefined
+  ) => {
+    setFormData({
+      ...formData,
+      stats: {
+        ...stats,
+        trainable: {
+          ...stats.trainable,
+          weapon: {
+            ...stats.trainable?.weapon,
+            [field]: value,
+          },
+        },
+      },
+    });
+  };
+
+  const updateMagicMastery = (
+    field: 'mana' | 'abilityPower' | 'attunement' | 'faith' | 'lore',
+    value: number | undefined
+  ) => {
+    setFormData({
+      ...formData,
+      stats: {
+        ...stats,
+        trainable: {
+          ...stats.trainable,
+          magic: {
+            ...stats.trainable?.magic,
+            [field]: value,
+          },
+        },
+      },
+    });
+  };
+
+  const updateBodyMastery = (
+    field:
+      | 'resistPhysical'
+      | 'resistMagical'
+      | 'healingEffectiveness'
+      | 'dr'
+      | 'armorTraining',
+    value: number | undefined
+  ) => {
+    setFormData({
+      ...formData,
+      stats: {
+        ...stats,
+        trainable: {
+          ...stats.trainable,
+          body: {
+            ...stats.trainable?.body,
+            [field]: value,
+          },
+        },
+      },
+    });
+  };
+
+  const updateSkill = (
+    field:
+      | 'trickery'
+      | 'stealth'
+      | 'social'
+      | 'magicItemUse'
+      | 'cooking'
+      | 'acrobatics'
+      | 'survival'
+      | 'focus'
+      | 'conditioning',
+    value: number | undefined
+  ) => {
+    setFormData({
+      ...formData,
+      stats: {
+        ...stats,
+        skills: {
+          ...stats.skills,
           [field]: value,
         },
       },
@@ -159,7 +251,7 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
   };
 
   if (!character) {
-    return <div>Select a character to edit</div>;
+    return <EditorEmptyState message="Select a character to edit" />;
   }
 
   return (
@@ -217,6 +309,284 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
         </div>
 
         <div className="form-section">
+          <h3>Stats</h3>
+
+          <div className="form-subsection">
+            <h4>Generic Combat</h4>
+            <div className="form-fields-inline">
+              <NumberInput
+                id="stat-str"
+                name="statStr"
+                label="STR"
+                value={stats.generic?.str || 0}
+                onChange={(value) => updateGenericStat('str', value)}
+                min={0}
+              />
+              <NumberInput
+                id="stat-mnd"
+                name="statMnd"
+                label="MND"
+                value={stats.generic?.mnd || 0}
+                onChange={(value) => updateGenericStat('mnd', value)}
+                min={0}
+              />
+              <NumberInput
+                id="stat-con"
+                name="statCon"
+                label="CON"
+                value={stats.generic?.con || 0}
+                onChange={(value) => updateGenericStat('con', value)}
+                min={0}
+              />
+              <NumberInput
+                id="stat-agi"
+                name="statAgi"
+                label="AGI"
+                value={stats.generic?.agi || 0}
+                onChange={(value) => updateGenericStat('agi', value)}
+                min={0}
+              />
+              <NumberInput
+                id="stat-lck"
+                name="statLck"
+                label="LCK"
+                value={stats.generic?.lck || 0}
+                onChange={(value) => updateGenericStat('lck', value)}
+                min={0}
+              />
+            </div>
+          </div>
+
+          <div className="form-subsection">
+            <h4>Weapon Mastery</h4>
+            <div className="form-fields-inline">
+              <NumberInput
+                id="weapon-edged"
+                name="weaponEdged"
+                label="Edged"
+                value={stats.trainable?.weapon?.edged || 0}
+                onChange={(value) => updateWeaponMastery('edged', value)}
+                min={0}
+              />
+              <NumberInput
+                id="weapon-pole"
+                name="weaponPole"
+                label="Pole"
+                value={stats.trainable?.weapon?.pole || 0}
+                onChange={(value) => updateWeaponMastery('pole', value)}
+                min={0}
+              />
+              <NumberInput
+                id="weapon-blunt"
+                name="weaponBlunt"
+                label="Blunt"
+                value={stats.trainable?.weapon?.blunt || 0}
+                onChange={(value) => updateWeaponMastery('blunt', value)}
+                min={0}
+              />
+              <NumberInput
+                id="weapon-range"
+                name="weaponRange"
+                label="Range"
+                value={stats.trainable?.weapon?.range || 0}
+                onChange={(value) => updateWeaponMastery('range', value)}
+                min={0}
+              />
+              <NumberInput
+                id="weapon-unarmed"
+                name="weaponUnarmed"
+                label="Unarmed"
+                value={stats.trainable?.weapon?.unarmed || 0}
+                onChange={(value) => updateWeaponMastery('unarmed', value)}
+                min={0}
+              />
+            </div>
+          </div>
+
+          <div className="form-subsection">
+            <h4>Magic Mastery</h4>
+            <div className="form-fields-inline">
+              <NumberInput
+                id="magic-mana"
+                name="magicMana"
+                label="Mana"
+                value={stats.trainable?.magic?.mana || 0}
+                onChange={(value) => updateMagicMastery('mana', value)}
+                min={0}
+              />
+              <NumberInput
+                id="magic-ability-power"
+                name="magicAbilityPower"
+                label="Ability Power"
+                value={stats.trainable?.magic?.abilityPower || 0}
+                onChange={(value) => updateMagicMastery('abilityPower', value)}
+                min={0}
+              />
+              <NumberInput
+                id="magic-attunement"
+                name="magicAttunement"
+                label="Attunement"
+                value={stats.trainable?.magic?.attunement || 0}
+                onChange={(value) => updateMagicMastery('attunement', value)}
+                min={0}
+              />
+              <NumberInput
+                id="magic-faith"
+                name="magicFaith"
+                label="Faith"
+                value={stats.trainable?.magic?.faith || 0}
+                onChange={(value) => updateMagicMastery('faith', value)}
+                min={0}
+              />
+              <NumberInput
+                id="magic-lore"
+                name="magicLore"
+                label="Lore"
+                value={stats.trainable?.magic?.lore || 0}
+                onChange={(value) => updateMagicMastery('lore', value)}
+                min={0}
+              />
+            </div>
+          </div>
+
+          <div className="form-subsection">
+            <h4>Body Mastery</h4>
+            <div className="form-fields-inline">
+              <NumberInput
+                id="body-resist-physical"
+                name="bodyResistPhysical"
+                label="Resist Physical"
+                value={stats.trainable?.body?.resistPhysical || 0}
+                onChange={(value) => updateBodyMastery('resistPhysical', value)}
+                min={0}
+              />
+              <NumberInput
+                id="body-resist-magical"
+                name="bodyResistMagical"
+                label="Resist Magical"
+                value={stats.trainable?.body?.resistMagical || 0}
+                onChange={(value) => updateBodyMastery('resistMagical', value)}
+                min={0}
+              />
+              <NumberInput
+                id="body-healing-effectiveness"
+                name="bodyHealingEffectiveness"
+                label="Healing Effectiveness"
+                value={stats.trainable?.body?.healingEffectiveness || 0}
+                onChange={(value) =>
+                  updateBodyMastery('healingEffectiveness', value)
+                }
+                min={0}
+              />
+              <NumberInput
+                id="body-dr"
+                name="bodyDr"
+                label="DR"
+                value={stats.trainable?.body?.dr || 0}
+                onChange={(value) => updateBodyMastery('dr', value)}
+                min={0}
+              />
+              <NumberInput
+                id="body-armor-training"
+                name="bodyArmorTraining"
+                label="Armor Training"
+                value={stats.trainable?.body?.armorTraining || 0}
+                onChange={(value) => updateBodyMastery('armorTraining', value)}
+                min={0}
+              />
+            </div>
+          </div>
+
+          <div className="form-subsection">
+            <h4>Skills</h4>
+            <div className="form-fields-inline">
+              <NumberInput
+                id="skill-trickery"
+                name="skillTrickery"
+                label="Trickery"
+                value={stats.skills?.trickery || 0}
+                onChange={(value) => updateSkill('trickery', value)}
+                min={0}
+                max={25}
+              />
+              <NumberInput
+                id="skill-stealth"
+                name="skillStealth"
+                label="Stealth"
+                value={stats.skills?.stealth || 0}
+                onChange={(value) => updateSkill('stealth', value)}
+                min={0}
+                max={25}
+              />
+              <NumberInput
+                id="skill-social"
+                name="skillSocial"
+                label="Social"
+                value={stats.skills?.social || 0}
+                onChange={(value) => updateSkill('social', value)}
+                min={0}
+                max={25}
+              />
+              <NumberInput
+                id="skill-magic-item-use"
+                name="skillMagicItemUse"
+                label="Magic Item Use"
+                value={stats.skills?.magicItemUse || 0}
+                onChange={(value) => updateSkill('magicItemUse', value)}
+                min={0}
+                max={25}
+              />
+              <NumberInput
+                id="skill-cooking"
+                name="skillCooking"
+                label="Cooking"
+                value={stats.skills?.cooking || 0}
+                onChange={(value) => updateSkill('cooking', value)}
+                min={0}
+                max={25}
+              />
+              <NumberInput
+                id="skill-acrobatics"
+                name="skillAcrobatics"
+                label="Acrobatics"
+                value={stats.skills?.acrobatics || 0}
+                onChange={(value) => updateSkill('acrobatics', value)}
+                min={0}
+                max={25}
+              />
+              <NumberInput
+                id="skill-survival"
+                name="skillSurvival"
+                label="Survival"
+                value={stats.skills?.survival || 0}
+                onChange={(value) => updateSkill('survival', value)}
+                min={0}
+                max={25}
+              />
+              <NumberInput
+                id="skill-focus"
+                name="skillFocus"
+                label="Focus"
+                value={stats.skills?.focus || 0}
+                onChange={(value) => updateSkill('focus', value)}
+                min={0}
+                max={25}
+              />
+              <NumberInput
+                id="skill-conditioning"
+                name="skillConditioning"
+                label="Conditioning"
+                value={stats.skills?.conditioning || 0}
+                onChange={(value) => updateSkill('conditioning', value)}
+                min={0}
+                max={25}
+              />
+            </div>
+          </div>
+
+        </div>
+
+        <div className="form-section">
           <h3>Optional Properties</h3>
 
           <div className="form-subsection">
@@ -256,48 +626,8 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
           </div>
 
           <div className="form-subsection">
-            <h4>Combat</h4>
+            <h4>Combat Resources</h4>
             <div className="form-fields-inline">
-              <NumberInput
-                id="combat-str"
-                name="combatStr"
-                label="STR"
-                value={formData.combat?.stats?.str || 0}
-                onChange={(value) => updateCombatStats('str', value)}
-                min={0}
-              />
-              <NumberInput
-                id="combat-mnd"
-                name="combatMnd"
-                label="MND"
-                value={formData.combat?.stats?.mnd || 0}
-                onChange={(value) => updateCombatStats('mnd', value)}
-                min={0}
-              />
-              <NumberInput
-                id="combat-con"
-                name="combatCon"
-                label="CON"
-                value={formData.combat?.stats?.con || 0}
-                onChange={(value) => updateCombatStats('con', value)}
-                min={0}
-              />
-              <NumberInput
-                id="combat-agi"
-                name="combatAgi"
-                label="AGI"
-                value={formData.combat?.stats?.agi || 0}
-                onChange={(value) => updateCombatStats('agi', value)}
-                min={0}
-              />
-              <NumberInput
-                id="combat-lck"
-                name="combatLck"
-                label="LCK"
-                value={formData.combat?.stats?.lck || 0}
-                onChange={(value) => updateCombatStats('lck', value)}
-                min={0}
-              />
               <NumberInput
                 id="combat-hp"
                 name="combatHp"

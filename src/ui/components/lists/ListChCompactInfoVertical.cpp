@@ -1,6 +1,6 @@
 #include "ListChCompactInfoVertical.h"
 #include "../ChCompactInfo.h"
-#include "../VerticalList.h"
+#include "ui/elements/VerticalList.h"
 
 namespace ui {
 

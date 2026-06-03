@@ -1,5 +1,5 @@
 #include "ListInventory.h"
-#include "../VerticalList.h"
+#include "ui/elements/VerticalList.h"
 #include "ui/colors.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/buttons/ButtonList.h"

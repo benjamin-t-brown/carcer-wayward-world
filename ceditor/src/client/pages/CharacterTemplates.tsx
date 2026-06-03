@@ -1,13 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { CardList } from '../components/CardList';
+import { EditorSidebar } from '../components/EditorSidebar';
 import { CharacterTemplate } from '../types/assets';
 import {
   CharacterTemplateForm,
   createDefaultCharacter,
 } from '../components/CharacterTemplateForm';
-import { Button } from '../elements/Button';
+import { EditorHeader } from '../components/EditorHeader';
 import { Notification } from '../elements/Notification';
+import { Sprite } from '../elements/Sprite';
 import { useAssets } from '../contexts/AssetsContext';
+import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
 
 interface NotificationState {
@@ -21,6 +24,7 @@ interface CharacterTemplatesProps {
 }
 
 export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}) {
+  const { spriteMap } = useSDL2WAssets();
   const { characters, setCharacters, saveCharacters } = useAssets();
   const [editCharacterIndex, setEditCharacterIndex] = useState<number>(-1);
   const [searchTerm, setSearchTerm] = useState('');
@@ -269,77 +273,54 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
   const currentCharacter = characters[editCharacterIndex];
 
   return (
-    <div className="container">
-      <div className="editor-header">
-        <Button variant="back" onClick={() => (window.location.hash = '#/')}>
-          ← Back
-        </Button>
-        <h1>Character Templates Editor</h1>
-        <Button variant="primary" onClick={handleSaveAll}>
-          Save All
-        </Button>
-      </div>
+    <div className="container editor-page">
+      <EditorHeader title="Character Templates Editor" onSave={handleSaveAll} />
 
-      <div className="editor-content">
-        <div className="editor-sidebar">
-          <div className="search-box">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search characters..."
-            />
-          </div>
-          <div className="item-actions">
-            <Button variant="primary" onClick={handleCreateNew}>
-              + New Character
-            </Button>
-          </div>
+      <div className="editor-page-body">
+        <div className="editor-content">
+        <EditorSidebar
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search characters..."
+          createLabel="+ New Character"
+          onCreate={handleCreateNew}
+        >
           <CardList
-              items={filteredCharacters}
-              onItemClick={handleCharacterClick}
-              onClone={handleClone}
-              onDelete={handleDelete}
-              selectedIndex={
-                editCharacterIndex !== -1
-                  ? (() => {
-                      const index = filteredCharacters.findIndex(
-                        (character) =>
-                          characters.indexOf(character) === editCharacterIndex
-                      );
-                      return index >= 0 ? index : null;
-                    })()
-                  : null
-              }
-              renderAdditionalInfo={(character) => {
-                return (
-                  <>
-                    <div
-                      className="item-info"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                      }}
-                    >
-                      <span className="item-type">{character.type}</span>
-                    </div>
-                    <div
-                      style={{
-                        fontSize: '12px',
-                        color: '#858585',
-                        marginTop: '4px',
-                      }}
-                    >
-                      {character.spritesheet} @ {character.spriteOffset}
-                    </div>
-                  </>
-                );
-              }}
-              emptyMessage="No characters found"
-            />
-          )
-        </div>
+            items={filteredCharacters}
+            onItemClick={handleCharacterClick}
+            onClone={handleClone}
+            onDelete={handleDelete}
+            selectedIndex={
+              editCharacterIndex !== -1
+                ? (() => {
+                    const index = filteredCharacters.findIndex(
+                      (character) =>
+                        characters.indexOf(character) === editCharacterIndex
+                    );
+                    return index >= 0 ? index : null;
+                  })()
+                : null
+            }
+            renderAdditionalInfo={(character) => {
+              const spriteName = `${character.spritesheet}_${character.spriteOffset}`;
+              const sprite = spriteMap[spriteName];
+              return (
+                <div
+                  className="item-info"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <Sprite sprite={sprite} displaySize={32} />
+                  <span className="item-type">{character.type}</span>
+                </div>
+              );
+            }}
+            emptyMessage="No characters found"
+          />
+        </EditorSidebar>
 
         <div className="editor-main">
           <div id="character-form">
@@ -348,6 +329,7 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
               updateCharacter={updateCharacter}
             />
           </div>
+        </div>
         </div>
       </div>
 

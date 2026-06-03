@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { CardListAdvanced } from '../components/CardList';
+import { EditorSidebar } from '../components/EditorSidebar';
+import { ListCardActions } from '../elements/ListCardActions';
 import { GameEvent } from '../types/assets';
 import { CreateGameEventModal } from '../components/CreateGameEventModal';
 import { EditGameEventModal } from '../components/EditGameEventModal';
@@ -7,6 +9,8 @@ import { SpecialEventEditor } from '../special-event-editor/SpecialEventEditor';
 import { VariableEditorModal } from '../special-event-editor/modals/VariableEditorModal';
 import { JsonOutputModal } from '../special-event-editor/modals/JsonOutputModal';
 import { Button } from '../elements/Button';
+import { EditorHeader } from '../components/EditorHeader';
+import { EditorEmptyState } from '../components/EditorEmptyState';
 import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
@@ -475,171 +479,143 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   );
 
   return (
-    <div className="container" style={{ maxWidth: '100000px' }}>
-      <div className="editor-header">
-        <Button variant="back" onClick={() => (window.location.hash = '#/')}>
-          ← Back
-        </Button>
-        <h1>Special Events Editor</h1>
-        <Button variant="primary" onClick={handleSaveAll}>
-          Save All
-        </Button>
-      </div>
+    <div className="container editor-page" style={{ maxWidth: '100000px' }}>
+      <EditorHeader title="Special Events Editor" onSave={handleSaveAll} />
 
-      <div className="editor-content">
-        <div className="editor-sidebar">
-          <div className="item-actions">
-            <Button variant="primary" onClick={handleCreateNew}>
-              + New Game Event
-            </Button>
-          </div>
-          <RecentLinks
-            items={recentGameEvents
-              .slice(0, 10)
-              .map((gameEventId) => {
-                const ge = gameEvents.find((ge) => ge.id === gameEventId);
-                if (!ge) {
-                  return undefined;
+      <div className="editor-page-body">
+        <div className="editor-content">
+        <EditorSidebar
+          createFirst
+          createLabel="+ New Game Event"
+          onCreate={handleCreateNew}
+          afterCreate={
+            <RecentLinks
+              items={recentGameEvents
+                .slice(0, 10)
+                .map((gameEventId) => {
+                  const ge = gameEvents.find((ge) => ge.id === gameEventId);
+                  if (!ge) {
+                    return undefined;
+                  }
+                  return {
+                    label: ge.id + ' (' + ge.title + ')',
+                    isSelected: ge.id === getEditorState().gameEventId,
+                    onClick: () => handleGameEventClick(ge.id),
+                    onRemove: () => removeRecentGameEvent(ge.id),
+                  };
+                })
+                .filter((item) => item !== undefined)}
+            />
+          }
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search game events..."
+          afterSearch={
+            <div className="event-type-filters">
+              <input
+                id="show-modal-events"
+                type="checkbox"
+                checked={eventsToShow.includes('MODAL')}
+                onChange={(e) =>
+                  setEventsToShow(
+                    e.target.checked
+                      ? ['MODAL', ...eventsToShow]
+                      : eventsToShow.filter((eventType) => eventType !== 'MODAL')
+                  )
                 }
-                return {
-                  label: ge.id + ' (' + ge.title + ')',
-                  isSelected: ge.id === getEditorState().gameEventId,
-                  onClick: () => handleGameEventClick(ge.id),
-                  onRemove: () => removeRecentGameEvent(ge.id),
-                };
-              })
-              .filter((item) => item !== undefined)}
-          />
-          <div className="search-box">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search game events..."
-            />
-          </div>
-          <div className="event-type-filters">
-            <input
-              id="show-modal-events"
-              type="checkbox"
-              checked={eventsToShow.includes('MODAL')}
-              onChange={(e) =>
-                setEventsToShow(
-                  e.target.checked
-                    ? ['MODAL', ...eventsToShow]
-                    : eventsToShow.filter((eventType) => eventType !== 'MODAL')
-                )
-              }
-            />
-            <label
-              className="event-type-filter-label"
-              htmlFor="show-modal-events"
-            >
-              MODAL
-            </label>
-            <input
-              id="show-talk-events"
-              type="checkbox"
-              checked={eventsToShow.includes('TALK')}
-              onChange={(e) =>
-                setEventsToShow(
-                  e.target.checked
-                    ? ['TALK', ...eventsToShow]
-                    : eventsToShow.filter((eventType) => eventType !== 'TALK')
-                )
-              }
-            />
-            <label
-              className="event-type-filter-label"
-              htmlFor="show-talk-events"
-            >
-              TALK
-            </label>
-            <input
-              type="checkbox"
-              checked={eventsToShow.includes('TRAVEL')}
-              onChange={(e) =>
-                setEventsToShow(
-                  e.target.checked
-                    ? ['TRAVEL', ...eventsToShow]
-                    : eventsToShow.filter((eventType) => eventType !== 'TRAVEL')
-                )
-              }
-            />
-            <label
-              className="event-type-filter-label"
-              htmlFor="show-travel-events"
-            >
-              TRAVEL
-            </label>
-          </div>
+              />
+              <label
+                className="event-type-filter-label"
+                htmlFor="show-modal-events"
+              >
+                MODAL
+              </label>
+              <input
+                id="show-talk-events"
+                type="checkbox"
+                checked={eventsToShow.includes('TALK')}
+                onChange={(e) =>
+                  setEventsToShow(
+                    e.target.checked
+                      ? ['TALK', ...eventsToShow]
+                      : eventsToShow.filter((eventType) => eventType !== 'TALK')
+                  )
+                }
+              />
+              <label
+                className="event-type-filter-label"
+                htmlFor="show-talk-events"
+              >
+                TALK
+              </label>
+              <input
+                type="checkbox"
+                checked={eventsToShow.includes('TRAVEL')}
+                onChange={(e) =>
+                  setEventsToShow(
+                    e.target.checked
+                      ? ['TRAVEL', ...eventsToShow]
+                      : eventsToShow.filter((eventType) => eventType !== 'TRAVEL')
+                  )
+                }
+              />
+              <label
+                className="event-type-filter-label"
+                htmlFor="show-travel-events"
+              >
+                TRAVEL
+              </label>
+            </div>
+          }
+        >
           <CardListAdvanced
             items={filteredGameEvents}
             selectedIndex={selectedIndex > -1 ? selectedIndex : null}
-            renderListItem={(gameEvent) => {
-              return (
+            renderListItem={(gameEvent) => (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                }}
+              >
                 <div
                   style={{
                     display: 'flex',
-                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: '4px',
                   }}
                 >
-                  <div
+                  <span
+                    className="item-type"
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
+                      background:
+                        gameEvent.eventType === 'MODAL'
+                          ? '#4e4980'
+                          : gameEvent.eventType === 'TALK'
+                          ? '#4a7c59'
+                          : '#a1260d',
                     }}
                   >
-                    <span
-                      className="item-type"
-                      style={{
-                        background:
-                          gameEvent.eventType === 'MODAL'
-                            ? '#4e4980'
-                            : gameEvent.eventType === 'TALK'
-                            ? '#4a7c59'
-                            : '#a1260d',
-                      }}
-                    >
-                      {gameEvent.eventType}
-                    </span>
-                    <div className="item-id">{gameEvent.id}</div>
-                  </div>
-                  <div className="item-card-actions">
-                    <Button
-                      variant="icon"
-                      onClick={() => handleClone(gameEvent.id)}
-                    >
-                      <span
-                        role="img"
-                        aria-label="Clone"
-                        style={{ filter: 'sepia(1) brightness(1.5)' }}
-                      >
-                        ➕
-                      </span>
-                    </Button>
-                    <Button
-                      variant="icon"
-                      onClick={() => handleDeleteClick(gameEvent.id)}
-                    >
-                      <span
-                        role="img"
-                        aria-label="Delete"
-                        style={{ filter: 'sepia(1) brightness(1.5)' }}
-                      >
-                        ❌
-                      </span>
-                    </Button>
-                  </div>
+                    {gameEvent.eventType}
+                  </span>
+                  <div className="item-id">{gameEvent.id}</div>
                 </div>
-              );
-            }}
+                <div
+                  className="item-card-actions"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ListCardActions
+                    onClone={() => handleClone(gameEvent.id)}
+                    onDelete={() => handleDeleteClick(gameEvent.id)}
+                  />
+                </div>
+              </div>
+            )}
             onItemClick={(index) =>
               handleGameEventClick(filteredGameEvents[index].id)
             }
           />
-        </div>
+        </EditorSidebar>
 
         <div className="editor-main" style={{ position: 'relative' }}>
           {currentGameEvent ? (
@@ -771,17 +747,9 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
               </div>
             </>
           ) : (
-            <div
-              style={{
-                color: '#858585',
-                fontSize: '14px',
-                textAlign: 'center',
-                marginTop: '50px',
-              }}
-            >
-              Select a game event from the list to edit, or create a new one.
-            </div>
+            <EditorEmptyState message="Select a game event from the list to edit, or create a new one." />
           )}
+        </div>
         </div>
       </div>
 

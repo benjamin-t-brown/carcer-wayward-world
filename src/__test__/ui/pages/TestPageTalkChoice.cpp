@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
     auto pageTalkChoice = new ui::PageTalkChoice(&window, nullptr);
     pageTalkChoice->setId("pageTalkChoice");
     auto& style = pageTalkChoice->getStyle();
-    auto scale = 1.5f;
+    auto scale = 1.f;
     style.width = windowWidth / scale;
     style.height = windowHeight / scale;
     style.x = 0;

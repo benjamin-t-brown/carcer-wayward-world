@@ -492,8 +492,10 @@ export function TilePicker(props: { editorState: EditorState }) {
       {/* Tile Edit Modal */}
       {isEditModalOpen && selectedTileset && selectedTile && (
         <TileEditModal
-          tile={selectedTile}
-          tileIndex={editorState.selectedTileIndexInTileset}
+          // tile={selectedTile}
+          // tileIndex={editorState.selectedTileIndexInTileset}
+          // tilesetName={selectedTileset.name}
+          tiles={[{ tile: selectedTile, tileIndex: editorState.selectedTileIndexInTileset }]}
           tilesetName={selectedTileset.name}
           onClose={() => setIsEditModalOpen(false)}
           onUpdate={handleUpdateTile}

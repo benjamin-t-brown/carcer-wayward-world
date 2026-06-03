@@ -19,9 +19,15 @@ export interface Animation {
   frames: AnimationFrame[];
 }
 
+export interface Sound {
+  name: string;
+  path: string;
+}
+
 export interface ParsedAssetFile {
   sprites: Sprite[];
   animations: Animation[];
+  sounds: Sound[];
 }
 
 // Parse asset file
@@ -30,6 +36,7 @@ export async function parseAssetFile(content: string) {
 
   const sprites: Sprite[] = [];
   const animations: Animation[] = [];
+  const sounds: Sound[] = [];
   const pictures: Record<string, string> = {};
 
   // Track all pictures by alias
@@ -54,6 +61,11 @@ export async function parseAssetFile(content: string) {
       if (!(alias in nextSpriteIndex)) {
         nextSpriteIndex[alias] = 0;
       }
+    } else if (parts[0] === 'Sound' && parts.length >= 3) {
+      sounds.push({
+        name: parts[1],
+        path: parts[2],
+      });
     } else if (parts[0] === 'Sprites' && parts.length >= 5) {
       const picName = parts[1];
       const numSprites = parseInt(parts[2], 10);
@@ -109,17 +121,26 @@ export async function parseAssetFile(content: string) {
         currentAnimation = null;
       }
     } else if (currentAnimation) {
-      // Parse animation frame: "spriteName frames"
-      const frameParts = trimmed.split(/\s+/);
-      if (frameParts.length >= 2) {
-        const spriteName = frameParts[0];
-        const frames = parseInt(frameParts[1], 10);
-        if (!isNaN(frames)) {
-          currentAnimation.frames.push({
-            spriteName,
-            frames,
-          });
+      // Frame line: "spriteName frames" or "spriteName,frames"
+      let spriteName: string | undefined;
+      let frameCount: number | undefined;
+
+      if (parts.length >= 2 && !trimmed.includes(' ')) {
+        spriteName = parts[0];
+        frameCount = parseInt(parts[1], 10);
+      } else {
+        const frameParts = trimmed.split(/\s+/);
+        if (frameParts.length >= 2) {
+          spriteName = frameParts[0];
+          frameCount = parseInt(frameParts[1], 10);
         }
+      }
+
+      if (spriteName && frameCount !== undefined && !isNaN(frameCount)) {
+        currentAnimation.frames.push({
+          spriteName,
+          frames: frameCount,
+        });
       }
     }
   }
@@ -129,27 +150,30 @@ export async function parseAssetFile(content: string) {
     animations.push(currentAnimation);
   }
 
-  return { sprites, animations, pictures };
+  return { sprites, animations, sounds, pictures };
 }
 
-// Load all sprites and animations from asset files
+// Load sprites, animations, and sounds from SDL2W asset definition files
 export async function loadSpritesAndAnimations(
   assetFilesContent: Record<string, string>
 ) {
   const allSprites: Sprite[] = [];
   const allAnimations: Animation[] = [];
+  const allSounds: Sound[] = [];
   const allPictures: Record<string, string> = {};
   for (const [file, content] of Object.entries(assetFilesContent)) {
     console.log(`Parsing asset file: ${file}`);
     const parsed = await parseAssetFile(content);
     allSprites.push(...parsed.sprites);
     allAnimations.push(...parsed.animations);
+    allSounds.push(...parsed.sounds);
     Object.assign(allPictures, parsed.pictures);
   }
 
   return {
     sprites: allSprites,
     animations: allAnimations,
+    sounds: allSounds,
     pictures: allPictures,
   };
 }

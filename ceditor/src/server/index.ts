@@ -35,6 +35,16 @@ app.get('/api/assets/types', async (req, res) => {
         file: 'items.json',
       },
       {
+        id: 'abilityTemplates',
+        name: 'Ability Templates',
+        file: 'abilities.json',
+      },
+      {
+        id: 'statusEffectTemplates',
+        name: 'Status Effect Templates',
+        file: 'status-effects.json',
+      },
+      {
         id: 'characterTemplates',
         name: 'Character Templates',
         file: 'characters.json',
@@ -67,6 +77,8 @@ app.get('/api/assets/:type', async (req, res) => {
     const { type } = req.params;
     const fileMap: Record<string, string> = {
       itemTemplates: 'items.json',
+      abilityTemplates: 'abilities.json',
+      statusEffectTemplates: 'status-effects.json',
       characterTemplates: 'characters.json',
       specialEvents: 'special-events.json',
       tilesetTemplates: 'tilesets.json',
@@ -105,6 +117,8 @@ app.post('/api/assets/:type', async (req, res) => {
     const { type } = req.params;
     const fileMap: Record<string, string> = {
       itemTemplates: 'items.json',
+      abilityTemplates: 'abilities.json',
+      statusEffectTemplates: 'status-effects.json',
       characterTemplates: 'characters.json',
       specialEvents: 'special-events.json',
       tilesetTemplates: 'tilesets.json',
@@ -132,23 +146,23 @@ app.post('/api/assets/:type', async (req, res) => {
   }
 });
 
-// Get all asset files
-app.get('/api/sdl2w-assets', async (req, res) => {
-  // Get list of asset files
-  async function getAssetFiles(assetsPath: string): Promise<string[]> {
-    const files = await readdir(assetsPath);
-    return files.filter((f) => f.startsWith('assets.') && f.endsWith('.txt'));
+async function getSdl2wAssetFileContents(): Promise<Record<string, string>> {
+  const files = await readdir(ASSETS_PATH);
+  const assetFiles = files.filter(
+    (f) => f.startsWith('assets.') && f.endsWith('.txt')
+  );
+  const assetFilesContent: Record<string, string> = {};
+  for (const file of assetFiles) {
+    const filePath = join(ASSETS_PATH, file);
+    assetFilesContent[file] = await fs.readFile(filePath, 'utf-8');
   }
+  return assetFilesContent;
+}
 
+// Raw SDL2W asset definition files; client parses sprites/animations via assetLoader.ts
+app.get('/api/sdl2w-assets', async (req, res) => {
   try {
-    const assetFiles = await getAssetFiles(ASSETS_PATH);
-    const assetFilesContent: Record<string, string> = {};
-    for (const file of assetFiles) {
-      const filePath = join(ASSETS_PATH, file);
-      const content = await fs.readFile(filePath, 'utf-8');
-      assetFilesContent[file] = content;
-    }
-    res.json(assetFilesContent);
+    res.json(await getSdl2wAssetFileContents());
   } catch (error) {
     console.error('Error listing asset files:', error);
     res.status(500).json({ error: 'Failed to list asset files' });
@@ -207,17 +221,6 @@ app.get('/api/assets/img/*', async (req, res) => {
     res.status(500).json({ error: 'Failed to load image' });
   }
 });
-
-// Load sprites and animations from asset files
-// app.get('/api/assets/sprites', async (req, res) => {
-//   try {
-//     const result = await loadSpritesAndAnimations(ASSETS_PATH);
-//     res.json(result);
-//   } catch (error) {
-//     console.error('Error loading sprites:', error);
-//     res.status(500).json({ error: 'Failed to load sprites' });
-//   }
-// });
 
 app.listen(PORT, () => {
   console.log(`CEditor server running on http://localhost:${PORT}`);

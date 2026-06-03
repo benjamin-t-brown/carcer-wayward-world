@@ -15,3 +15,48 @@ Sprites,special_event_icons,16,64,64
 
 Pic,portraits0,assets/img/game/portraits0.png
 Sprites,portraits0,64,52,52
+
+Pic,projectiles,assets/img/game/projectiles16.png
+Sprites,projectiles,64,16,16
+
+Pic,expl,assets/img/game/expl32.png
+Sprites,expl,64,32,32
+Anim,splash_attack,noloop
+expl_0 100
+EndAnim
+Anim,splash_poison,noloop
+expl_1 100
+EndAnim
+Anim,splash_magical,noloop
+expl_2 100
+EndAnim
+Anim,splash_positive,noloop
+expl_3 100
+EndAnim
+Anim,splash_negative,noloop
+expl_4 100
+EndAnim
+Anim,splash_negative,noloop
+expl_5 100
+EndAnim
+Anim,expl_magical,noloop
+expl_8 100
+expl_9 100
+expl_10 100
+expl_11 100
+expl_12 100
+expl_13 100
+expl_14 100
+expl_15 100
+EndAnim
+Anim,expl_fire,noloop
+expl_16 100
+expl_17 100
+expl_18 100
+expl_19 100
+expl_20 100
+expl_21 100
+expl_22 100
+expl_23 100
+expl_24 100
+EndAnim

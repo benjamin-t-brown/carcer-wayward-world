@@ -2,9 +2,9 @@
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/components/borders/BorderModalStandard.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
 
 int main(int argc, char** argv) {
@@ -25,6 +25,7 @@ int main(int argc, char** argv) {
     style.height = window.getDims().second;
     style.scale = 1.0f;
     borderModal->setStyle(style);
+    borderModal->setProps({});
 
     elements.push_back(std::move(borderModal));
   };
@@ -53,7 +54,8 @@ int main(int argc, char** argv) {
               argv,
               TestUiParams{800, 600, "BorderModalStandard Test"},
               _init,
-              _updateRender, [&]() { elements.clear(); });
+              _updateRender,
+              [&]() { elements.clear(); });
   LOG(INFO) << "End BorderModalStandard test" << LOG_ENDL;
   return 0;
 }

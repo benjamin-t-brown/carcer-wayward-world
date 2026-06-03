@@ -1,5 +1,6 @@
 #pragma once
 
+#include "model/stats/CharacterStats.h"
 #include <string>
 #include <vector>
 
@@ -21,16 +22,7 @@ struct CharacterTemplateBehavior {
   std::string behaviorName;
 };
 
-struct CharacterTemplateCombatStats {
-  int str = 0;
-  int mnd = 0;
-  int con = 0;
-  int agi = 0;
-  int lck = 0;
-};
-
 struct CharacterTemplateCombat {
-  CharacterTemplateCombatStats stats;
   int hp = 0;
   int mp = 0;
   std::string dropTable;
@@ -57,6 +49,7 @@ struct CharacterTemplate {
   std::string spriteOffset;
   CharacterTemplateTalk talk;
   CharacterTemplateBehavior behavior;
+  CharacterStats stats;
   CharacterTemplateCombat combat;
   CharacterTemplateSound sound;
   std::vector<CharacterTemplateStatus> statuses;

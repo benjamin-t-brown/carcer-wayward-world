@@ -66,6 +66,7 @@ void ButtonModal::build() {
   textStyle.textAlign = TextAlign::CENTER;
   textStyle.scale = 1.f;
   textStyle.fontColor = style.fontColor;
+  textStyle.fontSize = style.fontSize;
   TextLineProps textLineProps;
   textLineProps.textBlocks = {TextBlock{props.text}};
   textLine->setProps(textLineProps);

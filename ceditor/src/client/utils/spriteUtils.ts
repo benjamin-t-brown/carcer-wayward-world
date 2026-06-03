@@ -1,13 +1,10 @@
-// import { Sprite } from '../../../assetLoader';
-
 import { Sprite } from './assetLoader';
 
 const imageLoaders: Record<string, (() => void)[]> = {};
 const imageCache: Record<string, HTMLImageElement> = {};
-// const spriteCanvasCache: Record<string, HTMLCanvasElement> = {};
-const spriteImageCache: Record<string, HTMLImageElement> = {};
+const spriteCanvasCache: Record<string, HTMLCanvasElement> = {};
 
-(window as any).spriteImageCache = spriteImageCache;
+(window as any).spriteCanvasCache = spriteCanvasCache;
 
 export async function loadImage(url: string): Promise<HTMLImageElement> {
   if (imageCache[url]) {
@@ -28,14 +25,12 @@ export async function loadImage(url: string): Promise<HTMLImageElement> {
       resolve(imageCache[url]);
     });
     img.onload = () => {
-      console.log('image loaded', url);
       imageCache[url] = img;
       imageLoaders[url]?.forEach((loader) => loader());
     };
     img.onerror = () => {
       reject(new Error(`Failed to load image: ${url}`));
     };
-    console.log('loading image', url);
     img.src = url;
   });
 }
@@ -44,31 +39,52 @@ function getSpriteSheetUrl(picturePath: string): string {
   return `/api/${picturePath}`;
 }
 
-const outerCanvas = document.createElement('canvas');
-outerCanvas.width = 1024;
-outerCanvas.height = 1024;
-const outerCtx = outerCanvas.getContext('2d');
-if (!outerCtx || !outerCanvas) {
-  throw new Error('Failed to get context');
+/** Nearest-neighbor scaling when drawing pixel art. */
+export function disableCanvasSmoothing(ctx: CanvasRenderingContext2D): void {
+  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingQuality = 'low';
 }
 
-export async function getDrawable(sprite: Sprite) {
-  const cacheKey = `${sprite.name}`;
-  if (spriteImageCache[cacheKey]) {
-    return spriteImageCache[cacheKey];
+/**
+ * Size the canvas backing store for HiDPI while drawing in logical pixel units.
+ */
+export function preparePixelArtCanvas(
+  canvas: HTMLCanvasElement,
+  ctx: CanvasRenderingContext2D,
+  logicalWidth: number,
+  logicalHeight: number
+): void {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.max(1, Math.floor(logicalWidth * dpr));
+  canvas.height = Math.max(1, Math.floor(logicalHeight * dpr));
+  canvas.style.width = `${logicalWidth}px`;
+  canvas.style.height = `${logicalHeight}px`;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  disableCanvasSmoothing(ctx);
+}
+
+const SPRITE_CACHE_VERSION = 'v3';
+
+export async function getDrawable(sprite: Sprite): Promise<HTMLCanvasElement> {
+  const cacheKey = `${sprite.name}@${SPRITE_CACHE_VERSION}`;
+  if (spriteCanvasCache[cacheKey]) {
+    return spriteCanvasCache[cacheKey];
   }
   const imageUrl = getSpriteSheetUrl(sprite.picturePath);
   const image = await loadImage(imageUrl);
   const numSpritesWide = image.width / sprite.width;
   const xOffset = (sprite.index % numSpritesWide) * sprite.width;
   const yOffset = Math.floor(sprite.index / numSpritesWide) * sprite.height;
-  if (!outerCtx) {
-    throw new Error('Failed to get context');
+
+  const canvas = document.createElement('canvas');
+  canvas.width = sprite.width;
+  canvas.height = sprite.height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('Failed to get sprite extract context');
   }
-  outerCanvas.width = sprite.width;
-  outerCanvas.height = sprite.height;
-  outerCtx.clearRect(0, 0, outerCanvas.width, outerCanvas.height);
-  outerCtx.drawImage(
+  disableCanvasSmoothing(ctx);
+  ctx.drawImage(
     image,
     xOffset,
     yOffset,
@@ -79,19 +95,13 @@ export async function getDrawable(sprite: Sprite) {
     sprite.width,
     sprite.height
   );
-  // spriteCanvasCache[cacheKey] = canvas;
-  // Create an Image and set its src to the canvas data URL
-  const img = new window.Image();
-  img.src = outerCanvas.toDataURL();
-  spriteImageCache[cacheKey] = img;
-  return img;
+  spriteCanvasCache[cacheKey] = canvas;
+  return canvas;
 }
 
-export function getCachedDrawable(sprite: Sprite) {
-  const cacheKey = `${sprite.name}`;
-  if (spriteImageCache[cacheKey]) {
-    return spriteImageCache[cacheKey];
-  }
+export function getCachedDrawable(sprite: Sprite): HTMLCanvasElement | undefined {
+  const cacheKey = `${sprite.name}@${SPRITE_CACHE_VERSION}`;
+  return spriteCanvasCache[cacheKey];
 }
 
 export function getCachedImage(imagePath: string) {
@@ -99,5 +109,4 @@ export function getCachedImage(imagePath: string) {
   if (imageCache[imagePath]) {
     return imageCache[imagePath];
   }
-  console.log('NO CACHED IMAGE', imagePath, imageCache);
 }

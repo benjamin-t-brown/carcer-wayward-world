@@ -3,7 +3,6 @@ import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { Sprite } from './Sprite';
 import { OptionSelect } from './OptionSelect';
 import { ModalRowLayout } from './ModalRowLayout';
-import { Sprite as SpriteType } from '../utils/assetLoader';
 import { GenericModal } from './GenericModal';
 
 interface SpritePickerProps {
@@ -13,15 +12,10 @@ interface SpritePickerProps {
   className?: string;
 }
 
-const calculateScale = (sprite: SpriteType) => {
-  if (sprite.width >= 64) {
-    return 1;
-  }
-  if (sprite.width >= 50) {
-    return 2;
-  }
-  return 3;
-};
+/** Sidebar preview (CSS px); integer upscale inside the canvas. */
+const SPRITE_PICKER_PREVIEW_SIZE = 128;
+/** Grid cell (CSS px); sized so 32px icons get a 2× integer scale. */
+const SPRITE_PICKER_CELL_SIZE = 64;
 
 export function SpritePicker({
   value,
@@ -161,7 +155,7 @@ export function SpritePicker({
             marginBottom: '6px',
           }}
         >
-          <Sprite sprite={sprite} scale={2} maxWidth={50} />
+          <Sprite sprite={sprite} displaySize={SPRITE_PICKER_CELL_SIZE} />
         </div>
         <div
           style={{
@@ -209,8 +203,9 @@ export function SpritePicker({
           onCancel={handleCancel}
           body={() => (
             <ModalRowLayout
+              className="sprite-picker"
               sidebar={
-                <div onClick={(e) => e.stopPropagation()}>
+                <div>
                   <OptionSelect
                     label="Spritesheet"
                     value={selectedSpritesheet}
@@ -246,7 +241,7 @@ export function SpritePicker({
                       >
                         <Sprite
                           sprite={previewSprite}
-                          scale={calculateScale(previewSprite)}
+                          displaySize={SPRITE_PICKER_PREVIEW_SIZE}
                         />
                       </div>
                       <div

@@ -3,7 +3,7 @@ import {
   TileMetadata,
 } from '../types/assets';
 import { Sprite } from './assetLoader';
-import { getCachedDrawable } from './spriteUtils';
+import { disableCanvasSmoothing, getCachedDrawable } from './spriteUtils';
 
 export interface DrawTextParams {
   font?: string;
@@ -42,7 +42,10 @@ export const drawSprite = (
     throw new Error('Drawable not found');
   }
 
-  ctx.drawImage(drawable, x, y, sprite.width * scale, sprite.height * scale);
+  disableCanvasSmoothing(ctx);
+  const drawW = Math.floor(sprite.width * scale);
+  const drawH = Math.floor(sprite.height * scale);
+  ctx.drawImage(drawable, Math.floor(x), Math.floor(y), drawW, drawH);
 };
 
 export const drawRect = (

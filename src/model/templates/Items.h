@@ -1,6 +1,7 @@
 #pragma once
 
-#include "model/templates/StatusEffects.h"
+#include "model/templates/CombatTypes.h"
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -47,6 +48,11 @@ struct ItemUsabilityArgs {
   std::vector<std::string> stringArgs;
 };
 
+struct ItemWeaponConfig {
+  std::string abilityName;
+  std::vector<AbilityAttackDmg> dmgOverrides;
+};
+
 struct ItemTemplate {
   ItemType itemType = ItemType::UNKNOWN;
   std::string name;
@@ -58,7 +64,8 @@ struct ItemTemplate {
   bool stackable = false;
   ItemUsability itemUsability = ItemUsability::NOT_USABLE;
   ItemUsabilityArgs itemUsabilityArgs;
-  std::vector<model::StatusEffectTemplate> statusEffects;
+  std::vector<std::string> statusEffectNames;
+  std::optional<ItemWeaponConfig> weapon;
 };
 
 } // namespace model

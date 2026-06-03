@@ -63,7 +63,11 @@ void ModalStandard::build() {
   borderStyle.width = style.width;
   borderStyle.height = style.height;
   borderStyle.scale = style.scale;
-  border->setProps(BorderModalSmallProps{});
+  border->setProps(BorderModalSmallProps{
+    .headerHeight = 80,
+    .iconSize = 64,
+    .borderWidth = 2,
+  });
 
   // Insert border at the beginning
   addChild(border);

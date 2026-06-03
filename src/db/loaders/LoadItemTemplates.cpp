@@ -1,4 +1,5 @@
 #include "LoadItemTemplates.h"
+#include "db/loaders/LoadCombatJson.h"
 #include "lib/sdl2w/AssetLoader.h"
 #include "lib/json.hpp"
 
@@ -69,6 +70,44 @@ void loadItemTemplates(
       itemTemplate.stackable = itemJson["stackable"];
     } else {
       itemTemplate.stackable = false;
+    }
+
+    if (itemJson.contains("statusEffects") && itemJson["statusEffects"].is_array()) {
+      for (const auto& statusJson : itemJson["statusEffects"]) {
+        if (statusJson.is_string()) {
+          itemTemplate.statusEffectNames.push_back(statusJson.get<std::string>());
+        } else if (statusJson.is_object() && statusJson.contains("name") &&
+                   statusJson["name"].is_string()) {
+          itemTemplate.statusEffectNames.push_back(statusJson["name"]);
+        }
+      }
+    }
+
+    if (itemJson.contains("weapon") && itemJson["weapon"].is_object()) {
+      const auto& weaponJson = itemJson["weapon"];
+      if (weaponJson.contains("abilityName") && weaponJson["abilityName"].is_string()) {
+        model::ItemWeaponConfig weapon;
+        weapon.abilityName = weaponJson["abilityName"];
+        if (weaponJson.contains("dmgOverrides") &&
+            weaponJson["dmgOverrides"].is_array()) {
+          for (const auto& dmgJson : weaponJson["dmgOverrides"]) {
+            if (dmgJson.is_object()) {
+              weapon.dmgOverrides.push_back(parseAbilityAttackDmg(dmgJson));
+            }
+          }
+        } else if (weaponJson.contains("dmg") && weaponJson["dmg"].is_object()) {
+          int attackIndex = 0;
+          if (weaponJson.contains("attackIndex") &&
+              weaponJson["attackIndex"].is_number_integer()) {
+            attackIndex = weaponJson["attackIndex"];
+          }
+          if (attackIndex > 0) {
+            weapon.dmgOverrides.resize(static_cast<size_t>(attackIndex));
+          }
+          weapon.dmgOverrides.push_back(parseAbilityAttackDmg(weaponJson["dmg"]));
+        }
+        itemTemplate.weapon = weapon;
+      }
     }
 
     // Check for duplicate names

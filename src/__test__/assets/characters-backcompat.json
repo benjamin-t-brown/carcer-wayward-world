@@ -1,0 +1,20 @@
+[
+  {
+    "type": "ENEMY",
+    "name": "backcompatEnemy",
+    "label": "Backcompat Enemy",
+    "spritesheet": "actors0",
+    "spriteOffset": 0,
+    "combat": {
+      "stats": {
+        "str": 7,
+        "mnd": 3,
+        "con": 5,
+        "agi": 4,
+        "lck": 2
+      },
+      "hp": 40,
+      "mp": 10
+    }
+  }
+]

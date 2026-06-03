@@ -5,7 +5,7 @@
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/colors.h"
-#include "ui/components/VerticalList.h"
+#include "ui/elements/VerticalList.h"
 #include "ui/elements/TextLine.h"
 #include <memory>
 
@@ -20,7 +20,6 @@ int main(int argc, char** argv) {
 
     auto [windowWidth, windowHeight] = window.getDims();
 
-    // Create VerticalList component
     auto verticalList = new ui::VerticalList(&window);
 
     auto& style = verticalList->getStyle();
@@ -28,13 +27,11 @@ int main(int argc, char** argv) {
     style.x = (windowWidth - 400) / 2;
     style.y = (windowHeight - 300) / 2;
 
-    // Configure VerticalList properties
     ui::VerticalListProps props;
     props.lineHeight = 30;
     props.lineGap = 2;
     props.bgColor = ui::Colors::White;
 
-    // Add some text elements as children
     for (int i = 0; i < 8; ++i) {
       auto quad = new ui::Quad(&window, verticalList);
       auto& quadStyle = quad->getStyle();
@@ -42,7 +39,7 @@ int main(int argc, char** argv) {
       quadStyle.height = props.lineHeight;
       quadStyle.scale = 1.;
       quad->setProps(ui::QuadProps{
-        .bgColor = ui::Colors::LightGrey,
+          .bgColor = ui::Colors::LightGrey,
       });
 
       auto textLine = new ui::TextLine(&window, quad);
@@ -51,7 +48,6 @@ int main(int argc, char** argv) {
       textStyle.fontColor = ui::Colors::Black;
       textStyle.textAlign = ui::TextAlign::LEFT_TOP;
 
-      // Set text using props
       ui::TextLineProps textProps;
       ui::TextBlock textBlock;
       textBlock.text = "List Item " + std::to_string(i + 1);
@@ -87,7 +83,6 @@ int main(int argc, char** argv) {
     auto mouseX = events.mouseX;
     auto mouseY = events.mouseY;
 
-    // Check hover events for all elements
     for (auto& elem : elements) {
       if (elem) {
         elem->checkHoverEvent(mouseX, mouseY);
@@ -99,7 +94,6 @@ int main(int argc, char** argv) {
     auto& draw = window.getDraw();
     draw.clearScreen();
 
-    // Render all elements
     for (auto& element : elements) {
       element->render(window.getDeltaTime());
     }

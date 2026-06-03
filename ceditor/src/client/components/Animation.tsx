@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Animation as AnimationType, Sprite as SpriteType } from '../types/assetsSDL2w';
+import {
+  Animation as AnimationType,
+  Sprite as SpriteType,
+} from '../utils/assetLoader';
 import { Sprite } from '../elements/Sprite';
 
 interface AnimationProps {

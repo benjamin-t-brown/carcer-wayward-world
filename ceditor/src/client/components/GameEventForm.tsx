@@ -9,6 +9,7 @@ import { Button } from '../elements/Button';
 //   GameEventChildForm,
 // } from './GameEventChildForm';
 import { DeleteModal } from '../elements/DeleteModal';
+import { EditorEmptyState } from './EditorEmptyState';
 import {
   GameEvent,
   GameEventChildExec,
@@ -132,7 +133,7 @@ export function GameEventForm(props: GameEventFormProps) {
   };
 
   if (!gameEvent) {
-    return <div>Select a game event to edit</div>;
+    return <EditorEmptyState message="Select a game event to edit" />;
   }
 
   return (

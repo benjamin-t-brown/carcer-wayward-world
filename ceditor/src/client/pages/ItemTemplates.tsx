@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { CardList } from '../components/CardList';
+import { EditorSidebar } from '../components/EditorSidebar';
 import { ItemTemplate } from '../types/assets';
 import {
   ItemTemplateForm,
   createDefaultItem,
 } from '../components/ItemTemplateForm';
-import { Button } from '../elements/Button';
+import { EditorHeader } from '../components/EditorHeader';
 import { Notification } from '../elements/Notification';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { useAssets } from '../contexts/AssetsContext';
@@ -140,15 +141,10 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
   }, [items, routeParams]);
 
   const updateItem = (item: ItemTemplate) => {
-    if (editItemIndex >= 0) {
-      const currentItemIndex = getActualIndex(editItemIndex);
-      const currentItem = items[currentItemIndex];
-      if (currentItem) {
-        // Update existing item in real-time
-        const updatedItems = [...items];
-        updatedItems[currentItemIndex] = item;
-        setItems(updatedItems);
-      }
+    if (editItemIndex >= 0 && editItemIndex < items.length) {
+      const updatedItems = [...items];
+      updatedItems[editItemIndex] = item;
+      setItems(updatedItems);
     }
   };
 
@@ -278,77 +274,62 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
   const currentItem = items[editItemIndex];
 
   return (
-    <div className="container">
-      <div className="editor-header">
-        <Button variant="back" onClick={() => (window.location.hash = '#/')}>
-          ← Back
-        </Button>
-        <h1>Item Templates Editor</h1>
-        <Button variant="primary" onClick={handleSaveAll}>
-          Save All
-        </Button>
-      </div>
+    <div className="container editor-page">
+      <EditorHeader title="Item Templates Editor" onSave={handleSaveAll} />
 
-      <div className="editor-content">
-        <div className="editor-sidebar">
-          <div className="search-box">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search items..."
-            />
-          </div>
-          <div className="item-actions">
-            <Button variant="primary" onClick={handleCreateNew}>
-              + New Item
-            </Button>
-          </div>
+      <div className="editor-page-body">
+        <div className="editor-content">
+        <EditorSidebar
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search items..."
+          createLabel="+ New Item"
+          onCreate={handleCreateNew}
+        >
           <CardList
-              items={filteredItems}
-              onItemClick={handleItemClick}
-              onClone={handleClone}
-              onDelete={handleDelete}
-              selectedIndex={
-                editItemIndex !== -1
-                  ? (() => {
-                      const index = filteredItems.findIndex(
-                        (item) => items.indexOf(item) === editItemIndex
-                      );
-                      return index >= 0 ? index : null;
-                    })()
-                  : null
-              }
-              renderAdditionalInfo={(item) => {
-                const sprite = spriteMap[item.icon];
-                return (
-                  <>
-                    <div
-                      className="item-info"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                      }}
-                    >
-                      {sprite && (
-                        <div style={{ display: 'inline-block' }}>
-                          <Sprite sprite={sprite} scale={1.5} />
-                        </div>
-                      )}
-                      <span className="item-type">{item.itemType}</span>
+            items={filteredItems}
+            onItemClick={handleItemClick}
+            onClone={handleClone}
+            onDelete={handleDelete}
+            selectedIndex={
+              editItemIndex !== -1
+                ? (() => {
+                    const index = filteredItems.findIndex(
+                      (item) => items.indexOf(item) === editItemIndex
+                    );
+                    return index >= 0 ? index : null;
+                  })()
+                : null
+            }
+            renderAdditionalInfo={(item) => {
+              const sprite = spriteMap[item.icon];
+              return (
+                <div
+                  className="item-info"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  {sprite && (
+                    <div style={{ display: 'inline-block' }}>
+                      <Sprite sprite={sprite} scale={1.5} />
                     </div>
-                  </>
-                );
-              }}
-              emptyMessage="No items found"
-            />
-        </div>
+                  )}
+                  <span className="item-type">{item.itemType}</span>
+                </div>
+              );
+            }}
+            emptyMessage="No items found"
+          />
+        </EditorSidebar>
 
         <div className="editor-main">
           <div id="item-form">
             <ItemTemplateForm item={currentItem} updateItem={updateItem} />
           </div>
+        </div>
         </div>
       </div>
 

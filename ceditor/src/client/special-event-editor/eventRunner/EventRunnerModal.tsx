@@ -11,7 +11,6 @@ import { Button } from '../../elements/Button';
 import { VariableWidget } from '../react-components/VariableWidget';
 import { EditorNodeChoice } from '../cmpts/ChoiceNodeComponent';
 import { Sprite } from '../../elements/Sprite';
-import { useSprites } from '../../hooks/useSprites';
 import { useSDL2WAssets } from '../../contexts/SDL2WAssetsContext';
 import {
   centerPanzoomOnNode,

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "model/instances/ItemInstance.h"
+#include "model/stats/CharacterStats.h"
 #include "model/templates/CharacterTemplate.h"
 #include "model/templates/Items.h"
 #include "model/templates/UtilityTypes.h"
@@ -41,12 +42,18 @@ struct CharacterPlayer {
   std::vector<CharacterInventoryItem> inventory;
   CharacterPlayerEquipment equipment;
   CharacterTemplate params;
+  CharacterStats stats;
+  int currentHp = 0;
+  int currentMp = 0;
 
   CharacterPlayer(const CharacterTemplate& _params = CharacterTemplate(),
                   const std::vector<CharacterInventoryItem>& _inventory = {},
                   const CharacterPlayerEquipment& _equipment = {}) {
     instanceId = createRandomId();
     params = _params;
+    initCharacterStatsFromTemplate(stats, _params);
+    currentHp = _params.combat.hp;
+    currentMp = _params.combat.mp;
     inventory = _inventory;
     equipment = _equipment;
   }
@@ -99,6 +106,8 @@ bool characterPlayerReorderInventoryItem(CharacterPlayer& characterPlayer,
 int characterGetWeightCarrying(const CharacterPlayer& characterPlayer,
                                const db::Database* database);
 int characterGetWeightCapacity(const CharacterPlayer& characterPlayer);
+int characterGetRationSlotCapacity(const CharacterPlayer& characterPlayer,
+                                   const db::Database& database);
 std::vector<ItemInstance> characterGetNearbyItems(const CharacterPlayer& characterPlayer);
 
 } // namespace model

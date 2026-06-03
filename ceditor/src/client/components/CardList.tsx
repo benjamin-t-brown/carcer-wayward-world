@@ -1,5 +1,5 @@
-import { Card } from '../elements/Card';
-import { Button } from '../elements/Button';
+import { SelectableListCard } from '../elements/SelectableListCard';
+import { ListCardActions } from '../elements/ListCardActions';
 
 export interface ListItem {
   label?: string;
@@ -14,6 +14,7 @@ interface CardListProps<ListItem> {
   selectedIndex?: number | null;
   renderAdditionalInfo?: (item: ListItem) => React.ReactNode;
   emptyMessage?: string;
+  getCardId?: (index: number) => string;
 }
 
 export function CardList<T extends ListItem>({
@@ -24,6 +25,7 @@ export function CardList<T extends ListItem>({
   selectedIndex = null,
   renderAdditionalInfo,
   emptyMessage = 'No items found',
+  getCardId = (index) => `item-card-${index}`,
 }: CardListProps<T>) {
   if (items.length === 0) {
     return <div className="empty-state">{emptyMessage}</div>;
@@ -32,42 +34,25 @@ export function CardList<T extends ListItem>({
   return (
     <div className="item-list">
       {items.map((item, index) => {
-        const isSelected = selectedIndex === index;
         const displayLabel = item.label || item.name || 'Unnamed';
 
         return (
-          <Card
+          <SelectableListCard
             key={index}
-            id={`item-card-${index}`}
-            variant="item"
-            className={isSelected ? 'editing' : ''}
+            id={getCardId(index)}
+            selected={selectedIndex === index}
             onClick={() => onItemClick(index)}
+            title={displayLabel}
+            subtitle={item.name}
+            actions={
+              <ListCardActions
+                onClone={() => onClone(index)}
+                onDelete={() => onDelete(index)}
+              />
+            }
           >
-            <div className="item-card-header">
-              <h3>{displayLabel}</h3>
-              <div
-                className="item-card-actions"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Button variant="small" onClick={() => onClone(index)}>
-                  Clone
-                </Button>
-                <Button
-                  variant="small"
-                  onClick={() => onDelete(index)}
-                  className="btn-danger"
-                >
-                  Delete
-                </Button>
-              </div>
-            </div>
-            <div className="item-card-body">
-              <div className="item-info">
-                <span className="item-name">{item.name}</span>
-              </div>
-              {renderAdditionalInfo && renderAdditionalInfo(item)}
-            </div>
-          </Card>
+            {renderAdditionalInfo?.(item)}
+          </SelectableListCard>
         );
       })}
     </div>
@@ -76,10 +61,11 @@ export function CardList<T extends ListItem>({
 
 interface CardListAdvancedProps<T> {
   items: T[];
-  renderListItem: (item: T) => React.ReactNode;
+  renderListItem: (item: T, index: number) => React.ReactNode;
   selectedIndex?: number | null;
   onItemClick: (index: number) => void;
   emptyMessage?: string;
+  getCardId?: (index: number) => string;
 }
 
 export function CardListAdvanced<T>({
@@ -88,6 +74,7 @@ export function CardListAdvanced<T>({
   selectedIndex = null,
   onItemClick,
   emptyMessage = 'No items found',
+  getCardId = (index) => `item-card-${index}`,
 }: CardListAdvancedProps<T>) {
   if (items.length === 0) {
     return <div className="empty-state">{emptyMessage}</div>;
@@ -95,20 +82,16 @@ export function CardListAdvanced<T>({
 
   return (
     <div className="item-list">
-      {items.map((item, index) => {
-        const isSelected = selectedIndex === index;
-        return (
-          <Card
-            key={index}
-            id={`item-card-${index}`}
-            variant="item"
-            className={isSelected ? 'editing' : ''}
-            onClick={() => onItemClick(index)}
-          >
-            {renderListItem(item)}
-          </Card>
-        );
-      })}
+      {items.map((item, index) => (
+        <SelectableListCard
+          key={index}
+          id={getCardId(index)}
+          selected={selectedIndex === index}
+          onClick={() => onItemClick(index)}
+        >
+          {renderListItem(item, index)}
+        </SelectableListCard>
+      ))}
     </div>
   );
 }

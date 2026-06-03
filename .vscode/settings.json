@@ -17,9 +17,11 @@
     "Renderables",
     "Spritesheet",
     "stackable",
+    "Targetable",
     "Tileset",
     "tilesets",
-    "Townsperson"
+    "Townsperson",
+    "unequip"
   ],
   "files.exclude": {
     "**/.DS_Store": true,

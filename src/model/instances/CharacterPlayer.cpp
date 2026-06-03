@@ -314,6 +314,12 @@ int characterGetWeightCapacity(const CharacterPlayer& characterPlayer) {
   return 100; // TODO derive
 }
 
+int characterGetRationSlotCapacity(const CharacterPlayer& characterPlayer,
+                                   const db::Database& database) {
+  constexpr int baseRationSlots = 4;
+  return baseRationSlots;
+}
+
 std::vector<ItemInstance>
 characterGetNearbyItems(const CharacterPlayer& characterPlayer) {
   // TODO derive

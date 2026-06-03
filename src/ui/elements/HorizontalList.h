@@ -11,7 +11,7 @@ struct HorizontalListProps {
   SDL_Color bgColor = SDL_Color{255, 255, 255, 0};
 };
 
-// HorizontalList - lays out child UiElements in a row.
+// HorizontalList element - lays out child UiElements in a row.
 class HorizontalList : public UiElement {
 private:
   HorizontalListProps props;

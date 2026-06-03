@@ -1134,7 +1134,7 @@
       },
       {
         "id": "4ptcv2k839",
-        "x": 1852,
+        "x": 1851,
         "y": 544.5,
         "eventChildType": "CHOICE",
         "h": 180,
@@ -1447,7 +1447,7 @@
       },
       {
         "id": "yv1vuzw0kt9",
-        "x": 3066,
+        "x": 3065,
         "y": 176,
         "eventChildType": "CHOICE",
         "h": 84,
@@ -1907,13 +1907,13 @@
       },
       {
         "id": "gmb7hkxnr0o",
-        "x": 1128,
-        "y": 1336.5,
+        "x": 1233,
+        "y": 1308.5,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"If you are done with your questions, then move along.\"",
         "execStr": "",
-        "next": "",
+        "next": "lk9qky3u42",
         "autoAdvance": false
       },
       {
@@ -4216,7 +4216,7 @@
         "x": 996.75,
         "y": 633.5,
         "eventChildType": "CHOICE",
-        "h": 132,
+        "h": 108,
         "text": "",
         "choices": [
           {
@@ -4227,17 +4227,10 @@
             "prefixText": ""
           },
           {
-            "text": "You look pretty strong.  Want to join forces?",
+            "text": "Want to join forces?",
             "conditionStr": "",
             "evalStr": "",
             "next": "ow2cvvopz7r",
-            "prefixText": ""
-          },
-          {
-            "text": "Let's have a chat.",
-            "conditionStr": "",
-            "evalStr": "",
-            "next": "0kzq5pie6nw",
             "prefixText": ""
           },
           {
@@ -4263,18 +4256,18 @@
         "y": 496,
         "eventChildType": "EXEC",
         "h": 60,
-        "p": "\"I'm Lukili.  Mercenary for hire.  You interested in my services?\"",
+        "p": "\"I'm Lukili.  Mercenary for hire.  In between jobs at the moment.\"",
         "execStr": "",
         "next": "eopxazzoh8l",
         "autoAdvance": true
       },
       {
         "id": "ow2cvvopz7r",
-        "x": 1429,
-        "y": 681,
+        "x": 1406,
+        "y": 665,
         "eventChildType": "EXEC",
-        "h": 50,
-        "p": "\"Join forces and do what, exactly?\"",
+        "h": 60,
+        "p": "\"Join forces huh?  That's one way to put it.  What are you trying to do, exactly?\"",
         "execStr": "",
         "next": "szztfaes2z",
         "autoAdvance": true
@@ -4818,17 +4811,6 @@
         "eventChildType": "END",
         "h": 60,
         "next": ""
-      },
-      {
-        "id": "0kzq5pie6nw",
-        "x": 1420.5,
-        "y": 777,
-        "eventChildType": "EXEC",
-        "h": 50,
-        "p": "\"I'm not interested in that.  You want to hire me?\"",
-        "execStr": "",
-        "next": "eopxazzoh8l",
-        "autoAdvance": true
       }
     ]
   },

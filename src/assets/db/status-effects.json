@@ -1,0 +1,19 @@
+[
+  {
+    "name": "BURNING",
+    "description": "Takes fire damage at the start of each turn.",
+    "duration": 3,
+    "events": [
+      {
+        "type": "STATUS_EVENT_ON_TURN_START",
+        "condition": "CONDITION_ALWAYS"
+      }
+    ],
+    "applyResistances": [
+      {
+        "attackType": "ATTACK_CLASS_MAGIC",
+        "mod": -1
+      }
+    ]
+  }
+]

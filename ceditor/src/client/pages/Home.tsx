@@ -1,4 +1,5 @@
 import { Card } from '../elements/Card';
+import { EditorHeader } from '../components/EditorHeader';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 
 export function Home({
@@ -17,11 +18,7 @@ export function Home({
 
   return (
     <div className="container">
-      <div className="editor-header" style={{
-        minHeight: '100px',
-      }}>
-        <h1>CEditor</h1>
-      </div>
+      <EditorHeader title="CEditor" showBack={false} />
       <div className="asset-types">
         {assetTypes.map((type) => (
           <Card

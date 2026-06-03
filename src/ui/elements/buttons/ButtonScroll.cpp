@@ -48,14 +48,22 @@ void ButtonScroll::build() {
   rectStyle.scale = style.scale;
 
   auto& rectProps = rect->getProps();
-  if (isInActiveMode) {
+  if (props.isDisabled) {
     rectProps.borderSize = 0;
+    rectProps.color = Colors::Grey;
+    rectProps.colorTopRight = Colors::Grey;
+    rectProps.colorBottomLeft = Colors::Grey;
+  } else if (isInActiveMode) {
+    rectProps.borderSize = 0;
+    rectProps.color = Colors::ButtonModalGrey1;
+    rectProps.colorTopRight = Colors::Colors::ButtonModalGrey2;
+    rectProps.colorBottomLeft = Colors::Colors::ButtonModalGrey3;
   } else {
     rectProps.borderSize = 2;
+    rectProps.color = Colors::ButtonModalGrey1;
+    rectProps.colorTopRight = Colors::Colors::ButtonModalGrey2;
+    rectProps.colorBottomLeft = Colors::Colors::ButtonModalGrey3;
   }
-  rectProps.color = Colors::ButtonModalGrey1;
-  rectProps.colorTopRight = Colors::Colors::ButtonModalGrey2;
-  rectProps.colorBottomLeft = Colors::Colors::ButtonModalGrey3;
 
   rect->setProps(rectProps);
 
@@ -75,16 +83,21 @@ void ButtonScroll::render(int dt) {
   //   }
   // }
 
-  if (isActive) {
-    if (!isInActiveMode) {
-      isInActiveMode = true;
-      build();
+  if (!props.isDisabled) {
+    if (isActive) {
+      if (!isInActiveMode) {
+        isInActiveMode = true;
+        build();
+      }
+    } else {
+      if (isInActiveMode) {
+        isInActiveMode = false;
+        build();
+      }
     }
-  } else {
-    if (isInActiveMode) {
-      isInActiveMode = false;
-      build();
-    }
+  } else if (isInActiveMode) {
+    isInActiveMode = false;
+    build();
   }
 
   if (props.isSelected) {

@@ -1,0 +1,101 @@
+[
+  {
+    "name": "MELEE_ATTACK_METAL",
+    "label": "Melee Attack (Metal)",
+    "description": "A basic melee attack.",
+    "icon": "",
+    "type": "ABILITY_ATTACK",
+    "targetSelect": {
+      "targetType": "TARGET_UNIT",
+      "allegianceSelectType": "TARGET_ALLEGIANCE_OTHER",
+      "numTargetableUnits": 1,
+      "zoneSize": {
+        "x": 1,
+        "y": 1
+      },
+      "range": 1
+    },
+    "apCost": 1,
+    "costType": "ABILITY_COST_NONE",
+    "costValue": 0,
+    "depiction": {
+      "dmgAnim": "splash_attack",
+      "projectileAnim": "",
+      "projectilePath": "PROJECTILE_PATH_NONE",
+      "startSound": "",
+      "dmgSound": ""
+    },
+    "attacks": [
+      {
+        "attackClass": "ATTACK_CLASS_MELEE",
+        "dmg": {
+          "dmgDice": [
+            "D6"
+          ],
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        }
+      }
+    ],
+    "statuses": [],
+    "restores": []
+  },
+  {
+    "name": "MELEE_ATTACK_METAL2",
+    "label": "Melee Attack (Metal 2)",
+    "description": "",
+    "icon": "",
+    "type": "ABILITY_ATTACK",
+    "targetSelect": {
+      "targetType": "TARGET_UNIT",
+      "allegianceSelectType": "TARGET_ALLEGIANCE_OTHER",
+      "numTargetableUnits": 1,
+      "zoneSize": {
+        "x": 1,
+        "y": 1
+      },
+      "range": 1
+    },
+    "apCost": 1,
+    "costType": "ABILITY_COST_NONE",
+    "costValue": 0,
+    "depiction": {
+      "dmgAnim": "splash_attack",
+      "projectileHasFacing": false,
+      "projectileAnim": "",
+      "projectilePath": "PROJECTILE_PATH_NONE",
+      "startSound": "",
+      "dmgSound": ""
+    },
+    "attacks": [
+      {
+        "attackClass": "ATTACK_CLASS_MELEE",
+        "dmg": {
+          "dmgDice": [
+            "D6"
+          ],
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        }
+      },
+      {
+        "attackClass": "ATTACK_CLASS_MELEE",
+        "dmg": {
+          "dmgDice": [
+            "D6"
+          ],
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        }
+      }
+    ],
+    "statuses": [],
+    "restores": []
+  }
+]

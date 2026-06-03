@@ -10,6 +10,7 @@ namespace ui {
 struct SectionScrollableProps {
   int scrollBarWidth = 32;
   SDL_Color borderColor = Colors::Transparent;
+  SDL_Color bgColor = Colors::Transparent;
   int borderSize = 0;
   int scrollStep = 20;
   int indicatorHeight = 20;
@@ -28,7 +29,9 @@ private:
   std::unique_ptr<Quad> outerQuad = nullptr;
   Quad* innerQuad = nullptr;
 
+  int getScrollIndicatorY(int offset) const;
   void updateScrollIndicatorPosition();
+  void updateScrollButtonStates();
   void scrollFromIndicatorMouseY(int mouseY);
   bool isInScrollTrack(int mouseX, int mouseY) const;
   bool hitScrollIndicator(int mouseX, int mouseY);

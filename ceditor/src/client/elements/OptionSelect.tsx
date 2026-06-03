@@ -10,6 +10,7 @@ interface OptionSelectProps {
   required?: boolean;
   disabled?: boolean;
   style?: React.CSSProperties;
+  className?: string;
 }
 
 export const OptionSelect: React.FC<OptionSelectProps> = ({
@@ -22,9 +23,12 @@ export const OptionSelect: React.FC<OptionSelectProps> = ({
   style = {},
   required = false,
   disabled = false,
+  className = '',
 }) => {
+  const groupClass = `form-group ${className}`.trim();
+
   return (
-    <div className="form-group" style={style}>
+    <div className={groupClass} style={style}>
       {label && (
         <label htmlFor={id}>
           {label}

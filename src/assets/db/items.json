@@ -9,8 +9,7 @@
     "value": 10,
     "statusEffects": [],
     "weapon": {
-      "dmgMin": 1,
-      "dmgMax": 4
+      "abilityName": ""
     }
   },
   {
@@ -23,8 +22,7 @@
     "value": 10,
     "stackable": true,
     "weapon": {
-      "dmgMin": 1,
-      "dmgMax": 4
+      "abilityName": ""
     }
   },
   {
@@ -65,8 +63,7 @@
     "weight": 1,
     "value": 10,
     "weapon": {
-      "dmgMin": 1,
-      "dmgMax": 4
+      "abilityName": ""
     }
   },
   {
@@ -153,8 +150,27 @@
     "weight": 1,
     "value": 10,
     "weapon": {
-      "dmgMin": 1,
-      "dmgMax": 6
+      "abilityName": "MELEE_ATTACK_METAL2",
+      "dmgOverrides": [
+        {
+          "dmgDice": [
+            "D6"
+          ],
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        },
+        {
+          "dmgDice": [
+            "D6"
+          ],
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        }
+      ]
     }
   },
   {
@@ -166,8 +182,18 @@
     "weight": 1,
     "value": 10,
     "weapon": {
-      "dmgMin": 1,
-      "dmgMax": 8
+      "abilityName": "MELEE_ATTACK_METAL",
+      "dmgOverrides": [
+        {
+          "dmgDice": [
+            "D6"
+          ],
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        }
+      ]
     }
   }
 ]

@@ -29,10 +29,11 @@ void InGameLayout::applyTitleLayout(UiElement* titleElement, BorderInGame* borde
   auto& titleStyle = titleElement->getStyle();
   auto [titleX, titleY] = border->getTitleLocation();
   auto [titleWidth, titleBarHeight] = border->getTitleDims();
-  titleStyle.x = titleX + 8 * style.scale;
+  titleStyle.x = titleX;
   titleStyle.y = titleY;
   titleStyle.width = static_cast<int>(titleWidth / style.scale);
   titleStyle.height = static_cast<int>(titleBarHeight / style.scale);
+  titleStyle.scale = style.scale;
   titleElement->build();
 }
 

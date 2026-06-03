@@ -6,14 +6,20 @@ MND - magic damage
   - Each point grants 1 additional base damage to magic spells
 CON - health
   - Each point grants 5 hp per level
-AGI - movement
-  - Each point reduces cost of actions by one
+AGI - efficiency
+  - Each point reduces cost of actions by 1 (to minimum of 1)
+    - each action has some action cost:
+      - Move: 1
+      - Equip Item: 5
+      - Swing Sword: 5
+      - Cast Spell: 10
+      - etc
 LCK - rolls
   - Each point raises the minimum of every COMBAT dice roll that is made by 1d2 - 1
 
 ** Trainable Combat Stats
 
-Accuracy/Mastery: Each point grants +1 to attack roll
+Accuracy/Mastery: Each point grants +1 to attack roll (better chance to hit)
 - Edged Weapons
   - one in each hand
   - high hit rate, B damage
@@ -24,21 +30,37 @@ Accuracy/Mastery: Each point grants +1 to attack roll
   - one or two handed
   - high hit rate, high range of damage C-A
 - Range Weapons
-  - simple ranged weapons scale linearly (ex 1d6 + <range training>)
-  - complex ranged weapons scale exponentially (ex 1d<range training> + <range training>)
+  - simple ranged weapons scale linearly and don't have good bonuses (ex 1d6 + <range training>)
+  - complex ranged weapons scale exponentially (ex 1d<range training> + <weapon bonus>)
 - Unarmed
   - can chain lots of hits
   - high hit rate, C damage
 
 Magic Mastery
 - Mana
+  - Flat increases mana by 1 point
 - Ability Power
+  - Spells use this stat to base their damage on
+  - Usually their damage is a ratio of this state
+- Attunement
+  - Magical items require an attunement level to use
+  - Increases effectiveness of usable magic one time items (scrolls, potions etc)
+- Faith
+  - Reduces length of "bad" status effects by 1 turn
+- Lore
+  - Percentage based magic damage increase
 
 Body Mastery
 - Resistances
-- Healing Effectiveness Percent
-- DR (damage type specific)
-- Armor Training (reduce armor weight)
+  - Resist Physical: reduces damage by 5% per point
+  - Resist Magical: reduces damage by 5% per point
+- Healing effectiveness
+  - Each point raises amount healed from outside source by 1
+- DR
+  - Flat damage reduction all around
+- Armor training
+  - Certain armor requires armor training level
+  - Better armor training reduces movement cost when wearing it
 
 Derived:
 
@@ -75,13 +97,13 @@ Each level grants 5 points, thresholds are met at certain levels, capped at 25. 
   * Each level grants 1 higher threshold of learning arcane knowledge from runes.
   * Every 5th level doubles potency of magical items (potions, wands)
 - Cooking
-  * Each level reduces amount of food required to be satiated while traveling by 1%.
+  * Each level reduces amount of food required to be satiated while traveling by 1.
   * Every 5th level grants the ability to cook better food, which grants: more hp and higher disposition, resistance points? when a day starts.
 - Acrobatics / Shortcut Usage / Terrain Traversal / Athletics
   * Each level reduces time taken to pass through over world tiles by 1 tick.
   * Every 5th level allows you to move an extra tile before costing AP
 - Survival / Foraging / First Aid?
-  * Every level grants 1% chance of finding alchemy or cooking ingredients when a day ends while traveling.
+  * Every level grants 1 additional roll of finding alchemy or cooking ingredients when a day ends while traveling.
   * Every 5th level grants 1d4 per level higher health and mana gained after a fight concludes
 - Focus
   * Every level grants 4 additional mana
@@ -131,7 +153,7 @@ Feats (gained every 3 levels)
 - Seasoned Traveler: You can carry 2 more slots of rations.
 - Device Illiterate: Sapphiron fragments don't always work for you, sometimes they do something random?
 - Adrenalist: Defeating an enemy grants 1 AP.
-- Groupie: Attacking an enemy who is adjacent to an ally has a +4 attack bonus.
+- Flanker: Attacking an enemy who is adjacent to an ally has a +4 attack bonus.
 - Sinister: Negative Status Effects last 1 turn longer per 4 levels.
 - Ephemeral: Walking through fields is half effective against you.
 - Hot: You have resistance to fire damage.

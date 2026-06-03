@@ -16,6 +16,7 @@ enum class ScrollDirection {
 struct ButtonScrollProps {
   ScrollDirection direction = ScrollDirection::UP;
   bool isSelected = false;
+  bool isDisabled = false;
 };
 
 // ButtonScroll element - renders a square clickable button used to scroll windows up/down

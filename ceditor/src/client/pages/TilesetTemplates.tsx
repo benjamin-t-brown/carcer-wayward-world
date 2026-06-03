@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { CardList } from '../components/CardList';
+import { EditorSidebar } from '../components/EditorSidebar';
 import { TilesetTemplate } from '../types/assets';
 import {
   TilesetTemplateForm,
   createDefaultTileset,
 } from '../components/TilesetTemplateForm';
-import { Button } from '../elements/Button';
+import { EditorHeader } from '../components/EditorHeader';
 import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
@@ -287,32 +288,18 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
   const currentTileset = tilesets[editTilesetIndex];
 
   return (
-    <div className="container">
-      <div className="editor-header">
-        <Button variant="back" onClick={() => (window.location.hash = '#/')}>
-          ← Back
-        </Button>
-        <h1>Tileset Templates Editor</h1>
-        <Button variant="primary" onClick={handleSaveAll}>
-          Save All
-        </Button>
-      </div>
+    <div className="container editor-page">
+      <EditorHeader title="Tileset Templates Editor" onSave={handleSaveAll} />
 
-      <div className="editor-content">
-        <div className="editor-sidebar">
-          <div className="search-box">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search tilesets..."
-            />
-          </div>
-          <div className="item-actions">
-            <Button variant="primary" onClick={handleCreateNew}>
-              + New Tileset
-            </Button>
-          </div>
+      <div className="editor-page-body">
+        <div className="editor-content">
+        <EditorSidebar
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search tilesets..."
+          createLabel="+ New Tileset"
+          onCreate={handleCreateNew}
+        >
           <CardList
             items={filteredTilesets}
             onItemClick={handleTilesetClick}
@@ -329,21 +316,30 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
                   })()
                 : null
             }
-            renderAdditionalInfo={(tileset) => {
-              return (
-                <>
-                  <div
-                    className="item-info"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                    }}
-                  >
-                    <span className="item-type">
-                      {tileset.tileWidth}×{tileset.tileHeight}
-                    </span>
-                  </div>
+            renderAdditionalInfo={(tileset) => (
+              <>
+                <div
+                  className="item-info"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <span className="item-type">
+                    {tileset.tileWidth}×{tileset.tileHeight}
+                  </span>
+                </div>
+                <div
+                  style={{
+                    fontSize: '12px',
+                    color: '#858585',
+                    marginTop: '4px',
+                  }}
+                >
+                  {tileset.spriteBase}
+                </div>
+                {tileset.tiles.length > 0 && (
                   <div
                     style={{
                       fontSize: '12px',
@@ -351,25 +347,14 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
                       marginTop: '4px',
                     }}
                   >
-                    {tileset.spriteBase}
+                    {tileset.tiles.length} tiles
                   </div>
-                  {tileset.tiles.length > 0 && (
-                    <div
-                      style={{
-                        fontSize: '12px',
-                        color: '#858585',
-                        marginTop: '4px',
-                      }}
-                    >
-                      {tileset.tiles.length} tiles
-                    </div>
-                  )}
-                </>
-              );
-            }}
+                )}
+              </>
+            )}
             emptyMessage="No tilesets found"
           />
-        </div>
+        </EditorSidebar>
 
         <div className="editor-main">
           <div id="tileset-form">
@@ -380,6 +365,7 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
               />
             )}
           </div>
+        </div>
         </div>
       </div>
 

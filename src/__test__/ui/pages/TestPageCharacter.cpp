@@ -3,6 +3,7 @@
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
+#include "model/instances/CharacterPlayer.h"
 #include "state/LayerManagerInterface.h"
 #include "ui/UiElement.h"
 #include "ui/pages/PageCharacter.h"
@@ -10,20 +11,23 @@
 #include <memory>
 
 class TestLayer : public layers::Layer {
+  model::CharacterPlayer characterPlayer;
+
 public:
-  TestLayer(sdl2w::Window* _window) : layers::Layer(_window) {
+  TestLayer(sdl2w::Window* _window, model::CharacterPlayer _characterPlayer)
+      : layers::Layer(_window), characterPlayer(std::move(_characterPlayer)) {
     auto [windowWidth, windowHeight] = window->getDims();
 
     auto pageCharacter = std::make_unique<ui::PageCharacter>(window);
     pageCharacter->setId("pageCharacter");
-    ui::BaseStyle style = pageCharacter->getStyle();
-    style.width = windowWidth;
-    style.height = windowHeight;
-    style.x = 0;
-    style.y = 0;
-    pageCharacter->setStyle(style);
+    ui::BaseStyle pageStyle = pageCharacter->getStyle();
+    pageStyle.width = windowWidth;
+    pageStyle.height = windowHeight;
+    pageStyle.x = 0;
+    pageStyle.y = 0;
+    pageCharacter->setStyle(pageStyle);
 
-    pageCharacter->setProps(ui::PageCharacterProps{});
+    pageCharacter->setProps(ui::PageCharacterProps{.characterPlayer = &characterPlayer});
 
     addUiElement(pageCharacter.release());
   }
@@ -48,7 +52,9 @@ int main(int argc, char** argv) {
     layerManager = std::make_unique<layers::LayerManager>(&window);
     state::LayerManagerInterface::setLayerManager(layerManager.get());
 
-    layerManager->addLayer(new TestLayer(&window));
+    auto characterPlayer =
+        model::CharacterPlayer(database.getCharacterTemplate("testPartyMember1"));
+    layerManager->addLayer(new TestLayer(&window, std::move(characterPlayer)));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

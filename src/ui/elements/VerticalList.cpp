@@ -56,13 +56,6 @@ void VerticalList::build() {
   }
 }
 
-void VerticalList::render(int dt) {
-  // auto& draw = window->getDraw();
-  // auto [scaledWidth, scaledHeight] = getDims();
-  // draw.drawRect(style.x, style.y, scaledWidth, scaledHeight, props.bgColor);
-
-  // Render children
-  UiElement::render(dt);
-}
+void VerticalList::render(int dt) { UiElement::render(dt); }
 
 } // namespace ui

@@ -7,6 +7,7 @@ import { TileEditModal } from './TileEditModal';
 import { TileEditMultiModal } from './TileEditMultiModal';
 import { TileStepSound, TileMetadata, TilesetTemplate } from '../types/assets';
 import { Button } from '../elements/Button';
+import { EditorEmptyState } from './EditorEmptyState';
 
 // Re-export for backward compatibility
 export { TileStepSound };
@@ -311,7 +312,7 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
   }, [selectedTileIndex, selectedTileIndices.length, formData?.tiles?.length]);
 
   if (!tileset) {
-    return <div>Select a tileset to edit</div>;
+    return <EditorEmptyState message="Select a tileset to edit" />;
   }
 
   const tilesWide =

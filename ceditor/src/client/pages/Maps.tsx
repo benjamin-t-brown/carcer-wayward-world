@@ -5,6 +5,7 @@ import {
   MAP_TYPES,
 } from '../types/assets';
 import { Button } from '../elements/Button';
+import { EditorHeader } from '../components/EditorHeader';
 import { Notification } from '../elements/Notification';
 import { OptionSelect } from '../elements/OptionSelect';
 import { useAssets } from '../contexts/AssetsContext';
@@ -431,43 +432,30 @@ export function Maps() {
   const activeMap = activeTab ? maps[activeTab.mapIndex] : null;
 
   return (
-    <div
-      className="container"
-      style={{ display: 'flex', flexDirection: 'column' }}
-    >
-      <div className="editor-header">
-        <Button variant="back" onClick={() => (window.location.hash = '#/')}>
-          ← Back
-        </Button>
-        <h1>Maps Editor</h1>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <OptionSelect
-            style={{ marginBottom: 'unset' }}
-            id="map-select"
-            name="mapSelect"
-            label=""
-            value={selectedMapIndex}
-            onChange={handleMapSelect}
-            options={mapOptions}
-          />
-          <Button variant="primary" onClick={() => setCreateModalOpen(true)}>
-            + New Map
-          </Button>
-          <Button variant="primary" onClick={handleSaveAll}>
-            Save All
-          </Button>
-        </div>
-      </div>
+    <div className="container editor-page">
+      <EditorHeader
+        title="Maps Editor"
+        onSave={handleSaveAll}
+        actions={
+          <>
+            <OptionSelect
+              className="editor-header-control"
+              id="map-select"
+              name="mapSelect"
+              label=""
+              value={selectedMapIndex}
+              onChange={handleMapSelect}
+              options={mapOptions}
+            />
+            <Button variant="primary" onClick={() => setCreateModalOpen(true)}>
+              + New Map
+            </Button>
+          </>
+        }
+      />
 
       {openTabs.length > 0 && (
-        <div
-          style={{
-            display: 'flex',
-            borderBottom: '1px solid #3e3e42',
-            backgroundColor: '#1e1e1e',
-            overflowX: 'auto',
-          }}
-        >
+        <div className="editor-tab-bar">
           {openTabs.map((tab, index) => (
             <div
               key={index}
@@ -552,13 +540,7 @@ export function Maps() {
         </div>
       )}
 
-      <div
-        style={{
-          overflow: 'hidden',
-          height: 'calc(100vh - 92px)',
-          borderBottom: '1px solid #3e3e42',
-        }}
-      >
+      <div className="editor-page-body">
         <TileEditor
           map={activeMap ?? undefined}
           onMapUpdate={updateMapInTabs}
