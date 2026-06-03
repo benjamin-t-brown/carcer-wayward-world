@@ -13,7 +13,16 @@ interface AbilityDeleteConfirmModalProps {
 }
 
 function impactKindLabel(kind: AbilityDeleteImpact['kind']): string {
-  return kind === 'item' ? 'Item' : 'Status effect';
+  switch (kind) {
+    case 'item':
+      return 'Item';
+    case 'statusEffect':
+      return 'Status effect';
+    case 'map':
+      return 'Map';
+    default:
+      return 'Asset';
+  }
 }
 
 export function AbilityDeleteConfirmModal({

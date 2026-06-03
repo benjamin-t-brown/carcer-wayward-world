@@ -10,6 +10,7 @@ import { EditorHeader } from '../components/EditorHeader';
 import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
+import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 
 interface NotificationState {
   message: string;
@@ -43,6 +44,14 @@ export function StatusEffectTemplates() {
     statusEffects.indexOf(filtered[filteredIndex]);
 
   const handleClick = (filteredIndex: number) => setEditIndex(getActualIndex(filteredIndex));
+
+  usePersistedEditorSelection({
+    editorKey: 'statusEffectTemplates',
+    items: statusEffects,
+    getId: (status) => status.name,
+    selectedIndex: editIndex,
+    setSelectedIndex: setEditIndex,
+  });
 
   const handleClone = (filteredIndex: number) => {
     const actualIndex = getActualIndex(filteredIndex);

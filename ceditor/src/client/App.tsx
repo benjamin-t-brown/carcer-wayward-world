@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { readHashRoute } from './utils/hashRoute';
 import { Home } from './pages/Home';
 import { ItemTemplates } from './pages/ItemTemplates';
 import { CharacterTemplates } from './pages/CharacterTemplates';
@@ -9,20 +10,21 @@ import { StatusEffectTemplates } from './pages/StatusEffectTemplates';
 import { Maps } from './pages/Maps';
 
 function App({ assetTypes }: { assetTypes: { id: string; name: string; file: string }[] }) {
-  const [currentRoute, setCurrentRoute] = useState<string>('/');
-  const [routeParams, setRouteParams] = useState<URLSearchParams>(new URLSearchParams());
+  const initialRoute = readHashRoute();
+  const [currentRoute, setCurrentRoute] = useState<string>(initialRoute.path);
+  const [routeParams, setRouteParams] = useState<URLSearchParams>(
+    initialRoute.params
+  );
 
   useEffect(() => {
-    // Handle hash-based routing
     const handleRoute = () => {
-      const hash = window.location.hash.slice(1) || '/';
-      const [path, queryString] = hash.split('?');
-      setCurrentRoute(path || '/');
-      setRouteParams(new URLSearchParams(queryString || ''));
+      const { path, params } = readHashRoute();
+      setCurrentRoute(path);
+      setRouteParams(params);
     };
 
     window.addEventListener('hashchange', handleRoute);
-    handleRoute(); // Initial route
+    handleRoute();
 
     return () => {
       window.removeEventListener('hashchange', handleRoute);

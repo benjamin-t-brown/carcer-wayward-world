@@ -10,6 +10,7 @@ import { EditorHeader } from '../components/EditorHeader';
 import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
+import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 
 interface NotificationState {
   message: string;
@@ -126,20 +127,15 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
     }, 100);
   };
 
-  // Check for tileset query parameter on mount
-  useEffect(() => {
-    if (routeParams) {
-      const tilesetName = routeParams.get('tileset');
-      if (tilesetName) {
-        const index = tilesets.findIndex((t) => t.name === tilesetName);
-        if (index >= 0) {
-          setEditTilesetIndex(index);
-          scrollToTopOfForm();
-        }
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  usePersistedEditorSelection({
+    editorKey: 'tilesetTemplates',
+    items: tilesets,
+    getId: (tileset) => tileset.name,
+    selectedIndex: editTilesetIndex,
+    setSelectedIndex: setEditTilesetIndex,
+    routeParams,
+    onRestored: () => scrollToTopOfForm(),
+  });
 
   const updateTileset = (tileset: TilesetTemplate) => {
     if (editTilesetIndex >= 0) {

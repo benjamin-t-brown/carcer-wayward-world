@@ -23,6 +23,7 @@ import {
   sanitizeAbilityTemplates,
   StatusEffectTemplate,
 } from './types/combat';
+import { normalizeMapItemsOnLoad } from './tile-editor/mapTileItems';
 
 interface AssetType {
   id: string;
@@ -99,7 +100,8 @@ async function loadMaps(): Promise<CarcerMapTemplate[]> {
   if (!response.ok) {
     throw new Error('Failed to load maps');
   }
-  return response.json();
+  const maps: CarcerMapTemplate[] = await response.json();
+  return normalizeMapItemsOnLoad(maps);
 }
 
 async function load(): Promise<{

@@ -15,6 +15,7 @@ export enum PaintActionType {
   DRAW = 'DRAW',
   ERASE = 'ERASE',
   ERASE_META = 'ERASE_META',
+  DELETE_FILL = 'DELETE_FILL',
   FILL = 'FILL',
   SELECT = 'SELECT',
   CLONE = 'CLONE',
@@ -99,6 +100,20 @@ export const applyAction = (
           mapTiles[tileInd],
           action.data.paintTileRef
         );
+      }
+      break;
+    }
+    case PaintActionType.DELETE_FILL: {
+      const ind =
+        getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
+      const fillIndsFloor = calculateFillIndsFloor(ind, mapData, editorState.currentLevel);
+      action.data.tileInds = fillIndsFloor;
+      for (let i = 0; i < fillIndsFloor.length; i++) {
+        const tileInd = fillIndsFloor[i];
+        if (i >= action.data.prevRefData.length) {
+          action.data.prevRefData.push(structuredClone(mapTiles[tileInd]));
+        }
+        mapTiles[tileInd] = createDefaultCarcerMapTile();
       }
       break;
     }
@@ -295,11 +310,11 @@ export const applyActionUpdate = (
       break;
     case PaintActionType.FILL:
       break;
+    case PaintActionType.DELETE_FILL:
+      break;
     case PaintActionType.SELECT:
       break;
     case PaintActionType.CLONE:
-      break;
-    case PaintActionType.ERASE_META:
       break;
     // case PaintActionType.MOVE:
     //   break;
@@ -373,6 +388,15 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
       break;
     case PaintActionType.FILL: {
       // Restore previous tile data for all affected tiles
+      for (let i = 0; i < action.data.tileInds.length; i++) {
+        const tileInd = action.data.tileInds[i];
+        if (i < action.data.prevRefData.length) {
+          mapTiles[tileInd] = structuredClone(action.data.prevRefData[i]);
+        }
+      }
+      break;
+    }
+    case PaintActionType.DELETE_FILL: {
       for (let i = 0; i < action.data.tileInds.length; i++) {
         const tileInd = action.data.tileInds[i];
         if (i < action.data.prevRefData.length) {
@@ -565,7 +589,11 @@ export const onTileHoverIndChange = (
   nextHoverInd: number
 ) => {
   if (nextHoverInd !== -1) {
-    if (mapData && currentPaintAction === PaintActionType.FILL) {
+    if (
+      mapData &&
+      (currentPaintAction === PaintActionType.FILL ||
+        currentPaintAction === PaintActionType.DELETE_FILL)
+    ) {
       updateEditorStateNoReRender({
         fillIndsFloor: calculateFillIndsFloor(nextHoverInd, mapData, editorState.currentLevel),
       });

@@ -12,6 +12,7 @@ import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { useAssets } from '../contexts/AssetsContext';
 import { Sprite } from '../elements/Sprite';
 import { trimStrings } from '../utils/jsonUtils';
+import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 
 interface NotificationState {
   message: string;
@@ -125,20 +126,15 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
     }, 100);
   };
 
-  // Check for item query parameter on mount
-  useEffect(() => {
-    if (routeParams) {
-      const itemName = routeParams.get('item');
-      if (itemName) {
-        const index = items.findIndex((i) => i.name === itemName);
-        if (index >= 0) {
-          setEditItemIndex(index);
-          scrollToTopOfForm();
-        }
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, routeParams]);
+  usePersistedEditorSelection({
+    editorKey: 'itemTemplates',
+    items,
+    getId: (item) => item.name,
+    selectedIndex: editItemIndex,
+    setSelectedIndex: setEditItemIndex,
+    routeParams,
+    onRestored: () => scrollToTopOfForm(),
+  });
 
   const updateItem = (item: ItemTemplate) => {
     if (editItemIndex >= 0 && editItemIndex < items.length) {

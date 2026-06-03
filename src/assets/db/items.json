@@ -10,7 +10,8 @@
     "statusEffects": [],
     "weapon": {
       "abilityName": ""
-    }
+    },
+    "stackable": true
   },
   {
     "itemType": "WEAPON_AMMO",

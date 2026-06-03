@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { CardListAdvanced } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
 import { ListCardActions } from '../elements/ListCardActions';
@@ -27,6 +27,11 @@ import { ValidationMenuButton } from '../special-event-editor/react-components/V
 import { useReRender } from '../hooks/useReRender';
 import { EventRunner } from '../special-event-editor/eventRunner/EventRunner';
 import { RecentLinks } from '../components/RecentLinks';
+import {
+  loadEditorSelection,
+  resolveSelectionFromRoute,
+  saveEditorSelection,
+} from '../utils/editorSelectionStorage';
 
 interface NotificationState {
   message: string;
@@ -107,6 +112,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const reRender = useReRender();
 
   const notificationIdRef = useRef(0);
+  const hasRestoredEventRef = useRef(false);
 
   const showNotification = (message: string, type: 'success' | 'error') => {
     const id = notificationIdRef.current++;
@@ -116,23 +122,6 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const removeNotification = (id: number) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
-
-  useEffect(() => {
-    if (!routeParams) {
-      return;
-    }
-
-    const eventId = routeParams.get('event');
-    if (eventId) {
-      const index = gameEvents.findIndex((e) => e.id === eventId);
-      if (index >= 0) {
-        setTimeout(() => {
-          updateEditorStateNoReRender({ gameEventId: eventId });
-          setRecentGameEvents([eventId, ...recentGameEvents]);
-        }, 100);
-      }
-    }
-  }, []);
 
   const selectGameEvent = (gameEventId: string) => {
     const prevGameEventId = getEditorState().gameEventId;
@@ -169,7 +158,23 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
 
     selectGameEvent(gameEventId);
     addRecentGameEvent(gameEventId);
+    saveEditorSelection('specialEvents', gameEventId);
   };
+
+  useLayoutEffect(() => {
+    if (hasRestoredEventRef.current || gameEvents.length === 0) {
+      return;
+    }
+    hasRestoredEventRef.current = true;
+
+    const eventId =
+      resolveSelectionFromRoute('specialEvents', routeParams) ??
+      loadEditorSelection('specialEvents');
+    if (eventId && gameEvents.some((event) => event.id === eventId)) {
+      handleGameEventClick(eventId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameEvents, routeParams]);
 
   const handleClone = (gameEventId: string) => {
     const originalGameEvent = gameEvents.find(
@@ -205,6 +210,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     setGameEvents(newGameEvents);
     if (getEditorState().gameEventId === gameEventId) {
       selectGameEvent('');
+      saveEditorSelection('specialEvents', null);
     }
   };
 
@@ -572,21 +578,10 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
             items={filteredGameEvents}
             selectedIndex={selectedIndex > -1 ? selectedIndex : null}
             renderListItem={(gameEvent) => (
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                  }}
-                >
+              <div className="special-event-list-card">
+                <div className="special-event-list-card-main">
                   <span
-                    className="item-type"
+                    className="item-type special-event-type-badge"
                     style={{
                       background:
                         gameEvent.eventType === 'MODAL'
@@ -617,32 +612,10 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
           />
         </EditorSidebar>
 
-        <div className="editor-main" style={{ position: 'relative' }}>
+        <div className="editor-main special-events-editor-main">
           {currentGameEvent ? (
             <>
-              <SpecialEventEditor
-                gameEvent={currentGameEvent}
-                onUpdateGameEvent={(updatedGameEvent) => {
-                  const newGameEvents = [...gameEvents];
-                  const index = newGameEvents.findIndex(
-                    (gameEvent) => gameEvent.id === updatedGameEvent.id
-                  );
-                  if (index > -1) {
-                    newGameEvents[index] = updatedGameEvent;
-                  }
-                  setGameEvents(newGameEvents);
-                }}
-              />
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '4px',
-                  left: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                }}
-              >
+              <div className="special-events-subheader">
                 <Button
                   variant="small"
                   onClick={() => setShowEditGameEventModal(true)}
@@ -744,6 +717,21 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                   Run Event
                 </Button>
                 <ValidationMenuButton currentGameEvent={currentGameEvent} />
+              </div>
+              <div className="special-events-editor-content">
+                <SpecialEventEditor
+                  gameEvent={currentGameEvent}
+                  onUpdateGameEvent={(updatedGameEvent) => {
+                    const newGameEvents = [...gameEvents];
+                    const index = newGameEvents.findIndex(
+                      (gameEvent) => gameEvent.id === updatedGameEvent.id
+                    );
+                    if (index > -1) {
+                      newGameEvents[index] = updatedGameEvent;
+                    }
+                    setGameEvents(newGameEvents);
+                  }}
+                />
               </div>
             </>
           ) : (

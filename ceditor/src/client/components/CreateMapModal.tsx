@@ -17,7 +17,8 @@ export function CreateMapModal({
   onConfirm,
   onCancel,
 }: CreateMapModalProps) {
-  const [formData, setFormData] = useState<CarcerMapTemplate>(createDefaultMap());
+  const [formData, setFormData] =
+    useState<CarcerMapTemplate>(createDefaultMap());
 
   if (!isOpen) {
     return null;
@@ -25,7 +26,12 @@ export function CreateMapModal({
 
   const handleConfirm = () => {
     // Basic validation
-    if (!formData.name || !formData.label || formData.width <= 0 || formData.height <= 0) {
+    if (
+      !formData.name ||
+      !formData.label ||
+      formData.width <= 0 ||
+      formData.height <= 0
+    ) {
       return;
     }
     onConfirm(formData);
@@ -129,9 +135,6 @@ export function CreateMapModal({
             justifyContent: 'flex-end',
           }}
         >
-          <Button variant="secondary" onClick={handleCancel}>
-            Cancel
-          </Button>
           <Button
             variant="primary"
             onClick={handleConfirm}
@@ -144,9 +147,11 @@ export function CreateMapModal({
           >
             Create
           </Button>
+          <Button variant="secondary" onClick={handleCancel}>
+            Cancel
+          </Button>
         </div>
       </div>
     </div>
   );
 }
-

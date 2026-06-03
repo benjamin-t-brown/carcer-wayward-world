@@ -1,7 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { CardList } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
-import { CharacterTemplate } from '../types/assets';
+import {
+  AbilityDeleteImpact,
+  CharacterTemplate,
+  applyCharacterDeleteToMaps,
+  planCharacterDeleteImpacts,
+} from '../types/assets';
+import { AbilityDeleteConfirmModal } from '../components/AbilityDeleteConfirmModal';
 import {
   CharacterTemplateForm,
   createDefaultCharacter,
@@ -12,6 +18,7 @@ import { Sprite } from '../elements/Sprite';
 import { useAssets } from '../contexts/AssetsContext';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
+import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 
 interface NotificationState {
   message: string;
@@ -25,8 +32,14 @@ interface CharacterTemplatesProps {
 
 export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}) {
   const { spriteMap } = useSDL2WAssets();
-  const { characters, setCharacters, saveCharacters } = useAssets();
+  const { characters, setCharacters, saveCharacters, maps, setMaps } = useAssets();
   const [editCharacterIndex, setEditCharacterIndex] = useState<number>(-1);
+  const [characterDeleteConfirm, setCharacterDeleteConfirm] = useState<{
+    actualIndex: number;
+    characterName: string;
+    characterLabel: string;
+    impacts: AbilityDeleteImpact[];
+  } | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const notificationIdRef = useRef(0);
@@ -92,34 +105,64 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
     }, 100);
   };
 
-  const handleDelete = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
-    if (confirm('Are you sure you want to delete this character?')) {
-      const newCharacters = characters.filter(
-        (_, index) => index !== actualIndex
-      );
-      setCharacters(newCharacters);
-      if (editCharacterIndex === actualIndex) {
-        setEditCharacterIndex(-1);
-      } else if (editCharacterIndex > actualIndex) {
-        setEditCharacterIndex(editCharacterIndex - 1);
-      }
+  const confirmDeleteCharacter = (actualIndex: number) => {
+    const character = characters[actualIndex];
+    const characterName = character?.name.trim() ?? '';
+
+    const newCharacters = characters.filter((_, index) => index !== actualIndex);
+    setCharacters(newCharacters);
+
+    if (characterName) {
+      setMaps(applyCharacterDeleteToMaps(characterName, maps));
     }
+
+    if (editCharacterIndex === actualIndex) {
+      setEditCharacterIndex(-1);
+    } else if (editCharacterIndex > actualIndex) {
+      setEditCharacterIndex(editCharacterIndex - 1);
+    }
+
+    setCharacterDeleteConfirm(null);
   };
 
-  // Check for character query parameter on mount
-  useEffect(() => {
-    if (routeParams) {
-      const characterName = routeParams.get('character');
-      if (characterName) {
-        const index = characters.findIndex((c) => c.name === characterName);
-        if (index >= 0) {
-          setEditCharacterIndex(index);
-          scrollToTopOfForm();
-        }
-      }
+  const handleDelete = (filteredIndex: number) => {
+    const actualIndex = getActualIndex(filteredIndex);
+    const character = characters[actualIndex];
+    if (!character) {
+      return;
     }
-  }, [characters, routeParams]);
+
+    const characterName = character.name.trim();
+    if (!characterName) {
+      confirmDeleteCharacter(actualIndex);
+      return;
+    }
+
+    const impacts = planCharacterDeleteImpacts(characterName, maps);
+    if (impacts.length === 0) {
+      if (confirm('Are you sure you want to delete this character?')) {
+        confirmDeleteCharacter(actualIndex);
+      }
+      return;
+    }
+
+    setCharacterDeleteConfirm({
+      actualIndex,
+      characterName,
+      characterLabel: character.label || characterName,
+      impacts,
+    });
+  };
+
+  usePersistedEditorSelection({
+    editorKey: 'characterTemplates',
+    items: characters,
+    getId: (character) => character.name,
+    selectedIndex: editCharacterIndex,
+    setSelectedIndex: setEditCharacterIndex,
+    routeParams,
+    onRestored: () => scrollToTopOfForm(),
+  });
 
   const handleCreateNew = () => {
     const newCharacterTemplate = createDefaultCharacter();
@@ -332,6 +375,37 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
         </div>
         </div>
       </div>
+
+      <AbilityDeleteConfirmModal
+        isOpen={characterDeleteConfirm !== null}
+        title="Delete character?"
+        description={
+          characterDeleteConfirm ? (
+            <>
+              Deleting{' '}
+              <strong style={{ color: '#e0e0e0' }}>
+                {characterDeleteConfirm.characterLabel}
+              </strong>{' '}
+              <span style={{ color: '#858585' }}>
+                ({characterDeleteConfirm.characterName})
+              </span>{' '}
+              will also update{' '}
+              {characterDeleteConfirm.impacts.length === 1
+                ? '1 map'
+                : `${characterDeleteConfirm.impacts.length} maps`}
+              :
+            </>
+          ) : null
+        }
+        impacts={characterDeleteConfirm?.impacts ?? []}
+        confirmLabel="Delete character & update maps"
+        onConfirm={() => {
+          if (characterDeleteConfirm) {
+            confirmDeleteCharacter(characterDeleteConfirm.actualIndex);
+          }
+        }}
+        onCancel={() => setCharacterDeleteConfirm(null)}
+      />
 
       {/* Notifications */}
       {notifications.map((notification) => (

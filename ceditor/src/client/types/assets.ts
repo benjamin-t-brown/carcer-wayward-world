@@ -113,7 +113,7 @@ export function reconcileWeaponAfterAttackDelete(
 
 /** A single asset that will change when an ability (or its attack) is deleted. */
 export interface AbilityDeleteImpact {
-  kind: 'item' | 'statusEffect';
+  kind: 'item' | 'statusEffect' | 'map';
   name: string;
   label: string;
   lines: string[];
@@ -326,6 +326,84 @@ export function applyAbilityDeleteToItems(
       ...item,
       weapon: clearItemWeaponForDeletedAbility(weapon),
     };
+  });
+}
+
+/** Map tiles that reference a character template by name. */
+export function planCharacterDeleteImpacts(
+  characterName: string,
+  maps: CarcerMapTemplate[],
+): AbilityDeleteImpact[] {
+  const impacts: AbilityDeleteImpact[] = [];
+
+  for (const map of maps) {
+    const levelLines: string[] = [];
+    let totalPlacements = 0;
+
+    for (const levelKey of Object.keys(map.levels)) {
+      const tiles = map.levels[levelKey];
+      if (!tiles?.length) {
+        continue;
+      }
+
+      let levelPlacements = 0;
+      const tileSummaries: string[] = [];
+
+      tiles.forEach((tile, tileIndex) => {
+        const count = tile.characters.filter((c) => c === characterName).length;
+        if (count === 0) {
+          return;
+        }
+        levelPlacements += count;
+        const x = tileIndex % map.width;
+        const y = Math.floor(tileIndex / map.width);
+        tileSummaries.push(
+          count > 1 ? `(${x}, ${y}) ×${count}` : `(${x}, ${y})`,
+        );
+      });
+
+      if (levelPlacements > 0) {
+        totalPlacements += levelPlacements;
+        const shown = tileSummaries.slice(0, 6).join(', ');
+        const extra =
+          tileSummaries.length > 6
+            ? `, +${tileSummaries.length - 6} more tile(s)`
+            : '';
+        levelLines.push(
+          `Level ${levelKey}: ${levelPlacements} placement(s) at ${shown}${extra}`,
+        );
+      }
+    }
+
+    if (totalPlacements > 0) {
+      impacts.push({
+        kind: 'map',
+        name: map.name,
+        label: map.label || map.name,
+        lines: [
+          `Remove this character from ${totalPlacements} tile placement(s).`,
+          ...levelLines,
+        ],
+      });
+    }
+  }
+
+  return impacts;
+}
+
+export function applyCharacterDeleteToMaps(
+  characterName: string,
+  maps: CarcerMapTemplate[],
+): CarcerMapTemplate[] {
+  return maps.map((map) => {
+    const levels: Record<string, CarcerMapTileTemplate[]> = {};
+    for (const [levelKey, tiles] of Object.entries(map.levels)) {
+      levels[levelKey] = tiles.map((tile) => ({
+        ...tile,
+        characters: tile.characters.filter((c) => c !== characterName),
+      }));
+    }
+    return { ...map, levels };
   });
 }
 
@@ -783,9 +861,14 @@ export type MapType = 'TOWN' | 'OUTDOOR';
 
 export const MAP_TYPES: MapType[] = ['TOWN', 'OUTDOOR'];
 
+export interface MapTileItemEntry {
+  name: string;
+  quantity: number;
+}
+
 export interface CarcerMapTileTemplate {
   characters: string[];
-  items: string[];
+  items: MapTileItemEntry[];
   markers: string[];
   tileOverrides?: TileOverrides;
   lightSource?: TileLightSource;

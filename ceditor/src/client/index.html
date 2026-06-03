@@ -160,12 +160,346 @@
         flex-direction: column;
       }
 
-      .editor-main > * {
+      .editor-main > *:not(.special-events-subheader) {
         flex: 1;
         min-height: 0;
         display: flex;
         flex-direction: column;
         overflow: auto;
+      }
+
+      .special-events-editor-main {
+        overflow: hidden;
+      }
+
+      .special-events-subheader {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        border-bottom: 1px solid #3e3e42;
+        background-color: #252526;
+        z-index: 10;
+      }
+
+      .special-events-editor-content {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      /* Map editor left sidebar — aligned scroll areas */
+      .tile-editor-sidebar {
+        width: calc(250px - 8px);
+        border-right: 1px solid #3e3e42;
+        background-color: #1e1e1e;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        margin: 4px;
+        min-height: 0;
+        box-sizing: border-box;
+      }
+
+      .tile-editor-sidebar-section {
+        flex-shrink: 0;
+        padding: 8px 6px;
+        box-sizing: border-box;
+      }
+
+      .tile-editor-map-search {
+        margin-bottom: 4px;
+      }
+
+      .tile-editor-map-search-label {
+        color: #858585;
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: bold;
+        margin-bottom: 6px;
+      }
+
+      .tile-editor-search-section {
+        border: 1px solid #3e3e42;
+        border-radius: 4px;
+        margin-bottom: 4px;
+        overflow: visible;
+      }
+
+      .tile-editor-search-section:last-child {
+        margin-bottom: 0;
+      }
+
+      .tile-editor-search-section-header {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 6px 8px;
+        border: none;
+        background: #2d2d30;
+        color: #cccccc;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: left;
+      }
+
+      .tile-editor-search-section-header:hover {
+        background: #3e3e42;
+      }
+
+      .tile-editor-search-section-chevron {
+        color: #858585;
+        font-size: 10px;
+        flex-shrink: 0;
+      }
+
+      .tile-editor-search-section-body {
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        border-top: 1px solid #3e3e42;
+        background: #1e1e1e;
+      }
+
+      .tile-editor-search-message {
+        color: #f48771;
+        font-size: 11px;
+        line-height: 1.3;
+      }
+
+      .tile-editor-marker-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .tile-editor-marker-accordion-header {
+        display: flex;
+        align-items: stretch;
+        gap: 0;
+      }
+
+      .tile-editor-marker-accordion-toggle {
+        flex: 1;
+        min-width: 0;
+        border-radius: 0;
+      }
+
+      .tile-editor-marker-accordion-name {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-family: monospace;
+        font-size: 12px;
+        text-align: left;
+      }
+
+      .tile-editor-marker-accordion-meta {
+        flex-shrink: 0;
+        color: #858585;
+        font-size: 10px;
+        font-weight: 400;
+        margin-right: 4px;
+      }
+
+      .tile-editor-marker-remove {
+        flex-shrink: 0;
+        padding: 0 8px;
+        border: none;
+        border-left: 1px solid #3e3e42;
+        background: #5a2a2a;
+        color: #ffffff;
+        cursor: pointer;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .tile-editor-marker-remove:hover {
+        background: #6a3a3a;
+      }
+
+      .tile-editor-marker-refs {
+        gap: 4px;
+      }
+
+      .tile-editor-marker-refs-empty {
+        color: #858585;
+        font-size: 11px;
+        font-style: italic;
+      }
+
+      .tile-editor-marker-ref-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        padding: 4px 0;
+      }
+
+      .tile-editor-marker-ref-row:not(:last-child) {
+        border-bottom: 1px solid #2d2d30;
+      }
+
+      .tile-editor-marker-ref-label {
+        color: #cccccc;
+        font-size: 11px;
+        font-family: monospace;
+        min-width: 0;
+      }
+
+      .tile-editor-sidebar-selected-tile {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        padding-top: 0;
+      }
+
+      .tile-editor-map-tools-overlay {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        z-index: 10;
+        padding: 8px;
+        background: rgba(30, 30, 30, 0.92);
+        border: 1px solid #3e3e42;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+        pointer-events: auto;
+      }
+
+      .tile-editor-map-tools-overlay .tile-editor-tool-grid {
+        width: 148px;
+      }
+
+      /* Scroll track only — border lives on inner panel so both gutters line up */
+      .tile-editor-sidebar-scroll {
+        width: 100%;
+        box-sizing: border-box;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        scrollbar-gutter: stable;
+      }
+
+      .tile-editor-sidebar-scroll::-webkit-scrollbar {
+        width: 14px;
+      }
+
+      .tile-editor-sidebar-scroll::-webkit-scrollbar-track {
+        background: #1e1e1e;
+      }
+
+      .tile-editor-sidebar-scroll::-webkit-scrollbar-thumb {
+        background: #3e3e42;
+        border-radius: 4px;
+        border: 3px solid #1e1e1e;
+      }
+
+      .tile-editor-sidebar-panel {
+        border: 1px solid #3e3e42;
+        border-radius: 4px;
+        background: #1e1e1e;
+        box-sizing: border-box;
+      }
+
+      .tile-editor-layer-list {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .tile-editor-layer-row {
+        display: block;
+        width: 100%;
+        padding: 6px 10px;
+        border: none;
+        border-bottom: 1px solid #3e3e42;
+        background: transparent;
+        color: #d4d4d4;
+        font-size: 14px;
+        font-family: inherit;
+        text-align: left;
+        cursor: pointer;
+        box-sizing: border-box;
+      }
+
+      .tile-editor-layer-row:last-child {
+        border-bottom: none;
+      }
+
+      .tile-editor-layer-row:hover {
+        background: #2d2d30;
+      }
+
+      .tile-editor-layer-row.selected {
+        background: #094771;
+        color: #ffffff;
+      }
+
+      .tile-editor-sidebar-tile-info {
+        flex: 1;
+        min-height: 0;
+      }
+
+      .tile-editor-tool-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        width: 100%;
+      }
+
+      .tile-editor-tool-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 4px;
+        width: 100%;
+      }
+
+      .tile-editor-tool-button {
+        width: 100%;
+        aspect-ratio: 1;
+        min-width: 0;
+        padding: 4px;
+        box-sizing: border-box;
+        border: none;
+        border-radius: 4px;
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: bold;
+        line-height: 1;
+        cursor: pointer;
+        background: #3e3e42;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .tile-editor-tool-button:hover {
+        background: #4a4a4a;
+      }
+
+      .tile-editor-tool-button.active {
+        background: #4ec9b0;
+      }
+
+      .tile-editor-tool-button.active:hover {
+        background: #4ec9b0;
+      }
+
+      .tile-editor-tool-icon-bucket-delete {
+        display: inline-block;
+        filter: sepia(100%) saturate(800%) hue-rotate(320deg) brightness(0.9);
       }
 
       .editor-empty-state {
@@ -323,9 +657,42 @@
         border-radius: 4px;
         color: white;
         font-size: 10px;
-        /* width: 40px; */
         display: inline-block;
         text-align: center;
+      }
+
+      /* Special Events sidebar: fixed type column + actions pinned right */
+      .special-event-list-card {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        min-width: 0;
+      }
+
+      .special-event-list-card-main {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .special-event-type-badge {
+        flex: 0 0 52px;
+        width: 52px;
+        box-sizing: border-box;
+      }
+
+      .special-event-list-card .item-id {
+        flex: 1;
+        min-width: 0;
+        width: auto;
+      }
+
+      .special-event-list-card .item-card-actions {
+        flex: 0 0 auto;
+        margin-left: auto;
       }
 
       .item-name {

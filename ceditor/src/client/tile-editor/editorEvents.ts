@@ -138,6 +138,23 @@ export const initPanzoom = (mapDataInterface: {
         if (!ev.ctrlKey) {
           setCurrentPaintAction(PaintActionType.CLONE);
         }
+      } else if (ev.key === 'Escape') {
+        const mapName = mapDataInterface.getEditorState().selectedMapName;
+        const editorState = mapDataInterface.getEditorState();
+        const mapState = mapName ? getEditorStateMap(mapName) : undefined;
+        const hasSelection = (mapState?.selectedTileInd ?? -1) >= 0;
+        if (hasSelection || editorState.isSelectDragging) {
+          ev.preventDefault();
+          if (editorState.isSelectDragging) {
+            updateEditorState({
+              isSelectDragging: false,
+              selectDragSourceTileIndex: -1,
+            });
+          }
+          if (hasSelection && mapName) {
+            updateEditorStateMap(mapName, { selectedTileInd: -1 });
+          }
+        }
       }
       if (ev.key === 'ArrowUp' && ev.altKey) {
         const currentMap = mapDataInterface.getMapData();
@@ -260,7 +277,8 @@ export const initPanzoom = (mapDataInterface: {
       ev.button === MOUSE_BUTTON_RIGHT &&
       isEventWithCanvasTarget(ev, mapDataInterface.getCanvas()) &&
       (getCurrentPaintAction() === PaintActionType.DRAW ||
-        getCurrentPaintAction() === PaintActionType.FILL)
+        getCurrentPaintAction() === PaintActionType.FILL ||
+        getCurrentPaintAction() === PaintActionType.DELETE_FILL)
     ) {
       mapEditorEventState.isDraggingRight = true;
 
@@ -541,10 +559,56 @@ export const getTransform = () => {
   };
 };
 
+export const updateMapCanvasCursor = (
+  canvas: HTMLCanvasElement | null,
+  paintAction: PaintActionType,
+  hoveredTileIndex: number,
+  isSelectDragging = false
+) => {
+  if (!canvas) {
+    return;
+  }
+  if (mapEditorEventState.isDragging || isSelectDragging) {
+    canvas.style.cursor = 'grabbing';
+    return;
+  }
+  if (paintAction === PaintActionType.SELECT && hoveredTileIndex >= 0) {
+    canvas.style.cursor = 'pointer';
+    return;
+  }
+  if (paintAction === PaintActionType.CLONE) {
+    canvas.style.cursor = 'grab';
+    return;
+  }
+  canvas.style.cursor = '';
+};
+
 export const resetPanzoom = () => {
   mapEditorEventState.translateX = 0;
   mapEditorEventState.translateY = 0;
   mapEditorEventState.scale = 1;
+};
+
+/** Pan the map view so the tile center is at the canvas center. */
+export const centerViewOnTile = (
+  canvas: HTMLCanvasElement,
+  mapData: CarcerMapTemplate,
+  tileIndex: number
+) => {
+  const tileX = tileIndex % mapData.width;
+  const tileY = Math.floor(tileIndex / mapData.width);
+  const tileCenterMapX = (tileX + 0.5) * mapData.spriteWidth;
+  const tileCenterMapY = (tileY + 0.5) * mapData.spriteHeight;
+  const mapWidth = mapData.width * mapData.spriteWidth;
+  const mapHeight = mapData.height * mapData.spriteHeight;
+  const scale = mapEditorEventState.scale;
+  const canvasW = canvas.width;
+  const canvasH = canvas.height;
+
+  mapEditorEventState.translateX =
+    (canvasW / 2) * (1 - scale) + scale * (mapWidth / 2 - tileCenterMapX);
+  mapEditorEventState.translateY =
+    (canvasH / 2) * (1 - scale) + scale * (mapHeight / 2 - tileCenterMapY);
 };
 
 export const getIndsOfBoundingRect = (

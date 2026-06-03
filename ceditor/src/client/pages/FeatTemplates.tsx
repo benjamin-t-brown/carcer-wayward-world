@@ -10,6 +10,7 @@ import { EditorHeader } from '../components/EditorHeader';
 import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
+import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 
 interface NotificationState {
   message: string;
@@ -59,6 +60,14 @@ export function FeatTemplates() {
   const handleFeatClick = (filteredIndex: number) => {
     setEditFeatIndex(getActualIndex(filteredIndex));
   };
+
+  usePersistedEditorSelection({
+    editorKey: 'featTemplates',
+    items: feats,
+    getId: (feat) => feat.id,
+    selectedIndex: editFeatIndex,
+    setSelectedIndex: setEditFeatIndex,
+  });
 
   const handleClone = (filteredIndex: number) => {
     const actualIndex = getActualIndex(filteredIndex);

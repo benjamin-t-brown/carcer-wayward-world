@@ -17,6 +17,7 @@ import {
   AbilityDeleteImpact,
 } from '../types/assets';
 import { AbilityDeleteConfirmModal } from '../components/AbilityDeleteConfirmModal';
+import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 
 interface NotificationState {
   message: string;
@@ -152,18 +153,14 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
     }
   };
 
-  useEffect(() => {
-    if (routeParams) {
-      const abilityName = routeParams.get('ability');
-      if (abilityName) {
-        const index = abilities.findIndex((a) => a.name === abilityName);
-        if (index >= 0) {
-          setEditIndex(index);
-        }
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [abilities, routeParams]);
+  usePersistedEditorSelection({
+    editorKey: 'abilityTemplates',
+    items: abilities,
+    getId: (ability) => ability.name,
+    selectedIndex: editIndex,
+    setSelectedIndex: setEditIndex,
+    routeParams,
+  });
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

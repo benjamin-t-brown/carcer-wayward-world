@@ -68,6 +68,73 @@
   },
   {
     "type": "TOWNSPERSON",
+    "name": "exampleTownsperson_2",
+    "label": "Example Townsperson 2",
+    "spritesheet": "actors0",
+    "spriteOffset": 2,
+    "talk": {
+      "talkName": "talkId",
+      "portraitName": "portraitSprite"
+    },
+    "combat": {
+      "hp": 100,
+      "mp": 50,
+      "dropTable": ""
+    },
+    "sound": {
+      "deathSound": "soundName",
+      "weaponSound": "soundName"
+    },
+    "statuses": [],
+    "vision": {
+      "radius": 5
+    },
+    "stats": {
+      "generic": {
+        "str": 10,
+        "mnd": 10,
+        "con": 10,
+        "agi": 10,
+        "lck": 10
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 0,
+          "abilityPower": 0,
+          "attunement": 0,
+          "faith": 0,
+          "lore": 0
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 0,
+          "healingEffectiveness": 0,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
     "name": "testPartyMember1",
     "label": "Test Party 1",
     "spritesheet": "actors0",

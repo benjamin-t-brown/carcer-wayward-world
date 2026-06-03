@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
@@ -21,9 +21,16 @@ import {
   createEditorStateMap,
   createTilesForLayer,
   getEditorState,
-  updateEditorStateMap,
 } from '../tile-editor/editorState';
-import { getTileList } from '../tile-editor/editorEvents';
+import {
+  findMarkerOnMap,
+  locateOnCurrentMap,
+} from '../tile-editor/mapLocate';
+import {
+  loadPersistedMapTabs,
+  restoreMapTabsFromStorage,
+  savePersistedMapTabs,
+} from '../utils/mapTabsStorage';
 
 interface NotificationState {
   message: string;
@@ -58,6 +65,20 @@ export function Maps() {
   }>({ isOpen: false, mapIndex: null });
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const hasRestoredTabsRef = useRef(false);
+  const isFirstPersistRef = useRef(true);
+  const [tabsHydrated, setTabsHydrated] = useState(false);
+
+  const persistOpenTabs = (tabs: OpenTab[], activeIndex: number | null) => {
+    const activeName =
+      activeIndex !== null && tabs[activeIndex]
+        ? tabs[activeIndex].map.name
+        : null;
+    savePersistedMapTabs(
+      tabs.map((tab) => tab.map.name),
+      activeName
+    );
+  };
 
   const setOpenTabs = (tabs: OpenTab[]) => {
     tabs.forEach((tab) => {
@@ -65,9 +86,12 @@ export function Maps() {
     });
     _setOpenTabs(tabs);
   };
-  const setActiveTabIndex = (index: number | null) => {
+  const setActiveTabIndex = (
+    index: number | null,
+    tabsForLookup: OpenTab[] = openTabs
+  ) => {
     if (index !== null) {
-      const tab = openTabs[index];
+      const tab = tabsForLookup[index];
       if (tab) {
         createEditorStateMapForTabIfNotExists(tab.map.name);
         getEditorState().selectedMapName = tab.map.name;
@@ -75,6 +99,44 @@ export function Maps() {
     }
     _setActiveTabIndex(index);
   };
+
+  // Restore before paint so a direct refresh on #/editor/maps shows tabs immediately
+  useLayoutEffect(() => {
+    if (hasRestoredTabsRef.current || maps.length === 0) {
+      return;
+    }
+    hasRestoredTabsRef.current = true;
+
+    const { tabs: restoredTabs, activeTabIndex: restoredActiveIndex } =
+      restoreMapTabsFromStorage(maps);
+
+    if (restoredTabs.length > 0 && restoredActiveIndex !== null) {
+      restoredTabs.forEach((tab) => {
+        createEditorStateMapForTabIfNotExists(tab.map.name);
+      });
+      _setOpenTabs(restoredTabs);
+      setActiveTabIndex(restoredActiveIndex, restoredTabs);
+    }
+
+    setTabsHydrated(true);
+  }, [maps]);
+
+  // Persist tab state after hydration (avoids overwriting storage before restore)
+  useEffect(() => {
+    if (!tabsHydrated) {
+      return;
+    }
+    if (isFirstPersistRef.current) {
+      isFirstPersistRef.current = false;
+      if (
+        openTabs.length === 0 &&
+        (loadPersistedMapTabs()?.openMapNames.length ?? 0) > 0
+      ) {
+        return;
+      }
+    }
+    persistOpenTabs(openTabs, activeTabIndex);
+  }, [openTabs, activeTabIndex, tabsHydrated]);
 
   const showNotification = (message: string, type: 'success' | 'error') => {
     const id = notificationIdRef.current++;
@@ -137,7 +199,6 @@ export function Maps() {
     }
 
     const mapData = maps[mapIndex];
-    const mapTiles = getTileList(mapData, level);
 
     // Open the map in a tab (or switch to existing tab)
     const existingTabIndex = openTabs.findIndex(
@@ -159,39 +220,28 @@ export function Maps() {
       setActiveTabIndex(targetTabIndex);
     }
 
-    // Find and select the tile
-    let tileIndex = -1;
-    let tileLevel = level ?? 0;
+    let location: { level: number; tileIndex: number } | null = null;
 
     if (markerName) {
-      for (const mapLevel in mapData.levels) {
-        const mapTiles = getTileList(mapData, parseInt(mapLevel));
-        if (mapTiles.length) {
-          tileIndex = mapTiles.findIndex(
-            (tile) => tile.markers && tile.markers.includes(markerName)
-          );
-          if (tileIndex >= 0) {
-            tileLevel = parseInt(mapLevel);
-            break;
-          }
-        }
-      }
+      location = findMarkerOnMap(mapData, markerName);
     } else if (pos !== undefined) {
       const { x, y } = pos;
-      // Find tile by coordinates
+      const tileLevel = level ?? 0;
       if (x >= 0 && y >= 0 && x < mapData.width && y < mapData.height) {
-        tileIndex = y * mapData.width + x;
+        location = {
+          level: tileLevel,
+          tileIndex: y * mapData.width + x,
+        };
       }
     }
 
-    // Set selected tile if found
-    if (tileIndex >= 0 && tileIndex < mapTiles.length) {
-      // Use setTimeout to ensure the map is loaded in the editor before selecting
+    if (location) {
       setTimeout(() => {
         if (!getEditorState().maps[mapName]) {
           createEditorStateMap(mapName);
         }
-        updateEditorStateMap(mapName, { selectedTileInd: tileIndex });
+        getEditorState().selectedMapName = mapName;
+        locateOnCurrentMap(mapData, location!);
       }, 100);
     }
   };
@@ -458,7 +508,7 @@ export function Maps() {
         <div className="editor-tab-bar">
           {openTabs.map((tab, index) => (
             <div
-              key={index}
+              key={tab.map.name}
               style={{
                 display: 'flex',
                 alignItems: 'center',

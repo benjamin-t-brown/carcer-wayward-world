@@ -19,7 +19,12 @@ import {
   updateEditorStateMapNoReRender,
   updateEditorStateNoReRender,
 } from './editorState';
-import { getTileList, getTransform } from './editorEvents';
+import {
+  getTileList,
+  getTransform,
+  updateMapCanvasCursor,
+} from './editorEvents';
+import { PaintActionType } from './paintTools';
 import { Sprite } from '../utils/assetLoader';
 import { renderTileAndExtras, renderToolUi } from './renderUi';
 
@@ -90,6 +95,13 @@ export const loop = (
         ind: data.ind,
       },
     }
+  );
+
+  updateMapCanvasCursor(
+    mapDataInterface.getCanvas(),
+    mapDataInterface.getEditorState().currentPaintAction as PaintActionType,
+    data.ind,
+    mapDataInterface.getEditorState().isSelectDragging
   );
 
   const currentAction = getCurrentAction();

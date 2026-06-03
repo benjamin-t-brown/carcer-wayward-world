@@ -165,6 +165,12 @@ export const renderToolUi = (
         drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
       }
     }
+  } else if (currentPaintAction === PaintActionType.DELETE_FILL) {
+    for (const ind of editorState.fillIndsFloor) {
+      const tileX = (ind % mapData.width) * tileWidth * scale;
+      const tileY = Math.floor(ind / mapData.width) * tileHeight * scale;
+      drawHighlightEraseRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+    }
   } else if (currentPaintAction === PaintActionType.ERASE) {
     const hoveredTileInd =
       getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
@@ -360,7 +366,8 @@ export const renderTileAndExtras = (args: {
   if (tileIsContainerWithItems) {
     controlSprites.push('control_1');
   } else {
-    for (const itemName of refTile.items) {
+    for (const itemEntry of refTile.items) {
+      const itemName = itemEntry.name;
       const itemTemplate = items.find((i) => i.name === itemName);
       if (itemTemplate) {
         const itemSpriteName = itemTemplate.icon;

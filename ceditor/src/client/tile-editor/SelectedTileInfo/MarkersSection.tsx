@@ -1,14 +1,155 @@
-import { CarcerMapTileTemplate } from '../../types/assets';
+import { useMemo, useState } from 'react';
+import {
+  CarcerMapTemplate,
+  CarcerMapTileTemplate,
+} from '../../types/assets';
+import { Button } from '../../elements/Button';
+import { OpenMapAndSelectTileArgs } from '../TileEditor';
+import {
+  findTravelTriggerReferencesToMarker,
+  locateOnCurrentMap,
+  type MapMarkerReference,
+} from '../mapLocate';
 
 interface MarkersSectionProps {
+  map: CarcerMapTemplate;
+  maps: CarcerMapTemplate[];
   selectedTile: CarcerMapTileTemplate;
   updateTile: (updater: (tile: CarcerMapTileTemplate) => void) => void;
+  onOpenMapAndSelectTile?: (args: OpenMapAndSelectTileArgs) => void;
+}
+
+function formatReferenceLabel(
+  ref: MapMarkerReference,
+  currentMapName: string
+): string {
+  const position = `Layer ${ref.level} · (${ref.x}, ${ref.y})`;
+  if (ref.sourceMapName === currentMapName) {
+    return position;
+  }
+  return `${ref.sourceMapLabel} · ${position}`;
+}
+
+function MarkerAccordionItem({
+  markerName,
+  map,
+  maps,
+  isOpen,
+  onToggle,
+  onRemove,
+  onOpenMapAndSelectTile,
+}: {
+  markerName: string;
+  map: CarcerMapTemplate;
+  maps: CarcerMapTemplate[];
+  isOpen: boolean;
+  onToggle: () => void;
+  onRemove: () => void;
+  onOpenMapAndSelectTile?: (args: OpenMapAndSelectTileArgs) => void;
+}) {
+  const refs = useMemo(
+    () => findTravelTriggerReferencesToMarker(map, markerName, maps),
+    [map, markerName, maps]
+  );
+
+  const handleLocate = (ref: MapMarkerReference) => {
+    if (ref.sourceMapName === map.name) {
+      locateOnCurrentMap(map, ref);
+      return;
+    }
+    onOpenMapAndSelectTile?.({
+      mapName: ref.sourceMapName,
+      level: ref.level,
+      pos: { x: ref.x, y: ref.y },
+    });
+  };
+
+  return (
+    <div className="tile-editor-search-section tile-editor-marker-accordion">
+      <div className="tile-editor-marker-accordion-header">
+        <button
+          type="button"
+          className="tile-editor-search-section-header tile-editor-marker-accordion-toggle"
+          onClick={onToggle}
+          aria-expanded={isOpen}
+        >
+          <span
+            className="tile-editor-marker-accordion-name"
+            title={markerName}
+          >
+            {markerName}
+          </span>
+          <span className="tile-editor-marker-accordion-meta">
+            {refs.length} trigger{refs.length === 1 ? '' : 's'}
+          </span>
+          <span className="tile-editor-search-section-chevron" aria-hidden>
+            {isOpen ? '▾' : '▸'}
+          </span>
+        </button>
+        <button
+          type="button"
+          className="tile-editor-marker-remove"
+          onClick={onRemove}
+          title="Remove marker from this tile"
+        >
+          <span
+            style={{
+              filter: 'grayscale(100%) brightness(1.75) sepia(100%)',
+            }}
+          >
+            ✖️
+          </span>
+        </button>
+      </div>
+      {isOpen && (
+        <div className="tile-editor-search-section-body tile-editor-marker-refs">
+          {refs.length === 0 ? (
+            <div className="tile-editor-marker-refs-empty">
+              No travel triggers point to this marker.
+            </div>
+          ) : (
+            refs.map((ref) => (
+              <div
+                key={`${ref.sourceMapName}-${ref.level}-${ref.tileIndex}`}
+                className="tile-editor-marker-ref-row"
+              >
+                <span className="tile-editor-marker-ref-label">
+                  {formatReferenceLabel(ref, map.name)}
+                </span>
+                <Button
+                  variant="small"
+                  type="button"
+                  onClick={() => handleLocate(ref)}
+                  disabled={
+                    ref.sourceMapName !== map.name &&
+                    !onOpenMapAndSelectTile
+                  }
+                >
+                  Locate
+                </Button>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function MarkersSection({
+  map,
+  maps,
   selectedTile,
   updateTile,
+  onOpenMapAndSelectTile,
 }: MarkersSectionProps) {
+  const [openMarker, setOpenMarker] = useState<string | null>(null);
+  const markers = selectedTile.markers ?? [];
+
+  const toggleMarker = (markerName: string) => {
+    setOpenMarker((prev) => (prev === markerName ? null : markerName));
+  };
+
   return (
     <div
       style={{
@@ -29,7 +170,6 @@ export function MarkersSection({
         Markers
       </div>
 
-      {/* Add Marker Input */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
         <input
           type="text"
@@ -38,7 +178,7 @@ export function MarkersSection({
             if (e.key === 'Enter') {
               const input = e.currentTarget;
               const markerName = input.value.trim();
-              if (markerName && !selectedTile.markers?.includes(markerName)) {
+              if (markerName && !markers.includes(markerName)) {
                 updateTile((tile) => {
                   tile.markers = [...(tile.markers || []), markerName];
                 });
@@ -59,9 +199,10 @@ export function MarkersSection({
         />
         <button
           onClick={(e) => {
-            const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+            const input = e.currentTarget
+              .previousElementSibling as HTMLInputElement;
             const markerName = input.value.trim();
-            if (markerName && !selectedTile.markers?.includes(markerName)) {
+            if (markerName && !markers.includes(markerName)) {
               updateTile((tile) => {
                 tile.markers = [...(tile.markers || []), markerName];
               });
@@ -89,84 +230,31 @@ export function MarkersSection({
         </button>
       </div>
 
-      {/* Current Markers List */}
-      {selectedTile.markers?.length > 0 && (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '6px',
-          }}
-        >
-          {selectedTile.markers.map((markerName) => (
-            <div
+      {markers.length > 0 && (
+        <div className="tile-editor-marker-list">
+          {markers.map((markerName) => (
+            <MarkerAccordionItem
               key={markerName + selectedTile.tileId}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '6px 8px',
-                backgroundColor: '#1e1e1e',
-                borderRadius: '4px',
-                border: '1px solid #3e3e42',
+              markerName={markerName}
+              map={map}
+              maps={maps}
+              isOpen={openMarker === markerName}
+              onToggle={() => toggleMarker(markerName)}
+              onOpenMapAndSelectTile={onOpenMapAndSelectTile}
+              onRemove={() => {
+                if (openMarker === markerName) {
+                  setOpenMarker(null);
+                }
+                updateTile((tile) => {
+                  tile.markers = (tile.markers || []).filter(
+                    (name) => name !== markerName
+                  );
+                });
               }}
-            >
-              <div style={{ flex: 1 }}>
-                <div
-                  style={{
-                    color: '#ffffff',
-                    fontSize: '12px',
-                    fontFamily: 'monospace',
-                  }}
-                >
-                  {markerName}
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  updateTile((tile) => {
-                    tile.markers = (tile.markers || []).filter(
-                      (name) => name !== markerName
-                    );
-                  });
-                }}
-                style={{
-                  padding: '4px 6px',
-                  border: '1px solid #3e3e42',
-                  backgroundColor: '#5a2a2a',
-                  color: '#ffffff',
-                  cursor: 'pointer',
-                  fontSize: '12px',
-                  borderRadius: '4px',
-                  transition: 'background-color 0.2s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  minWidth: '24px',
-                  height: '24px',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#6a3a3a';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#5a2a2a';
-                }}
-                title="Remove marker"
-              >
-                <span
-                  style={{
-                    filter:
-                      'grayscale(100%) brightness(1.75) sepia(100%)',
-                  }}
-                >
-                  ✖️
-                </span>
-              </button>
-            </div>
+            />
           ))}
         </div>
       )}
     </div>
   );
 }
-

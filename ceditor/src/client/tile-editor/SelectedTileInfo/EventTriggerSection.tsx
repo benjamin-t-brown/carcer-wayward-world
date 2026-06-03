@@ -1,15 +1,22 @@
-import { CarcerMapTileTemplate, GameEvent } from '../../types/assets';
+import {
+  CarcerMapTileTemplate,
+  GameEvent,
+  TilesetTemplate,
+} from '../../types/assets';
+import { isMapTileWalkable } from '../mapTileWalkability';
 import { EventSearchInput } from './EventSearchInput';
 import { OverrideCheckbox } from './OverrideCheckbox';
 
 interface EventTriggerSectionProps {
   selectedTile: CarcerMapTileTemplate;
+  tilesets: TilesetTemplate[];
   gameEvents: GameEvent[];
   updateTile: (updater: (tile: CarcerMapTileTemplate) => void) => void;
 }
 
 export function EventTriggerSection({
   selectedTile,
+  tilesets,
   gameEvents,
   updateTile,
 }: EventTriggerSectionProps) {
@@ -41,11 +48,12 @@ export function EventTriggerSection({
             // Validate that the selected event is a MODAL event
             const event = gameEvents.find((e) => e.id === eventId);
             if (event && event.eventType === 'MODAL') {
+              const walkable = isMapTileWalkable(selectedTile, tilesets);
               updateTile((tile) => {
                 tile.eventTrigger = {
                   eventId,
                   isNonCombatTrigger: true,
-                  isLookTrigger: false,
+                  isLookTrigger: !walkable,
                 };
               });
             }

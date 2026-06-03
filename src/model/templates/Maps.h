@@ -8,6 +8,11 @@ namespace model {
 
 struct CarcerMapTileTemplate;
 
+struct MapTileItemEntry {
+  std::string name;
+  int quantity = 1;
+};
+
 struct TileEventTrigger {
   std::string eventId;
   bool isNonCombatTrigger = true;
@@ -55,7 +60,7 @@ struct CarcerMapTemplate {
 
 struct CarcerMapTileTemplate {
   std::vector<std::string> characters;
-  std::vector<std::string> items;
+  std::vector<MapTileItemEntry> items;
   std::vector<std::string> markers;
   std::optional<TileOverrides> tileOverrides;
   std::optional<TileLightSource> lightSource;

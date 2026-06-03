@@ -6,11 +6,10 @@ import {
 } from './editorState';
 import { PaintActionType } from './paintTools';
 import { CarcerMapTemplate } from '../types/assets';
-import { SelectedTileInfo } from './SelectedTileInfo';
-import { OpenMapAndSelectTileArgs } from './TileEditor';
 import { Button } from '../elements/Button';
 import { useState } from 'react';
 import { DeleteModal } from '../elements/DeleteModal';
+import { MapSearchAccordion } from './MapSearchAccordion';
 
 interface LayersPanelProps {
   editorState: EditorState;
@@ -75,12 +74,15 @@ export function LayersPanel(props: LayersPanelProps) {
     (a, b) => parseInt(b[0]) - parseInt(a[0])
   );
 
+  const layerRowHeight = 34;
+  const layerListMaxHeight = Math.min(
+    sortedEntries.length * layerRowHeight,
+    120
+  );
+
   return (
-    <div
-      style={{
-        padding: '15px 2px',
-      }}
-    >
+    <div className="tile-editor-sidebar-section">
+      <MapSearchAccordion map={props.map} />
       <div
         style={{
           color: '#858585',
@@ -88,6 +90,7 @@ export function LayersPanel(props: LayersPanelProps) {
           textTransform: 'uppercase',
           fontWeight: 'bold',
           marginBottom: '5px',
+          marginTop: '8px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -130,29 +133,27 @@ export function LayersPanel(props: LayersPanelProps) {
           </LayerButton>
         </div>
       </div>
-      <select
-        value={props.editorState.currentLevel}
-        onChange={(e) => handleSelectLayer(e.target.value)}
-        size={sortedEntries.length}
-        style={{
-          width: '100%',
-          padding: '10px',
-          background: '#1e1e1e',
-          border: '1px solid #3e3e42',
-          borderRadius: '4px',
-          color: '#d4d4d4',
-          fontSize: '14px',
-          fontFamily: 'inherit',
-        }}
+      <div
+        className="tile-editor-sidebar-scroll"
+        style={{ maxHeight: layerListMaxHeight }}
       >
-        {sortedEntries.map(([level, layer]) => {
-          return (
-            <option key={level} value={level}>
-              Layer {level}
-            </option>
-          );
-        })}
-      </select>
+        <div className="tile-editor-sidebar-panel tile-editor-layer-list">
+          {sortedEntries.map(([level]) => {
+            const levelNum = parseInt(level, 10);
+            const isSelected = props.editorState.currentLevel === levelNum;
+            return (
+              <button
+                key={level}
+                type="button"
+                className={`tile-editor-layer-row${isSelected ? ' selected' : ''}`}
+                onClick={() => handleSelectLayer(level)}
+              >
+                Layer {level}
+              </button>
+            );
+          })}
+        </div>
+      </div>
       <div
         style={{
           display: 'flex',

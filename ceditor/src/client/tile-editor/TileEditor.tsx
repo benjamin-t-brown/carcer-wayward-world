@@ -7,6 +7,7 @@ import { loop } from './loop';
 import { EditorState, getEditorState } from './editorState';
 import { TilePicker } from './TilePicker';
 import { ToolsPanel } from './ToolsPanel';
+import { MapToolsOverlay } from './MapToolsOverlay';
 import { useReRender } from '../hooks/useReRender';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { useAssets } from '../contexts/AssetsContext';
@@ -145,16 +146,7 @@ export function TileEditor({
       }}
     >
       {/* Left Column: Minimap and Tools */}
-      <div
-        style={{
-          width: '250px',
-          borderRight: '1px solid #3e3e42',
-          backgroundColor: '#1e1e1e',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}
-      >
+      <div className="tile-editor-sidebar">
         {/* <Minimap map={map} /> */}
         {editorState.current && editorState.current.selectedMapName && (
           <>
@@ -190,6 +182,9 @@ export function TileEditor({
             overflow: 'hidden',
           }}
         >
+          {editorState.current && editorState.current.selectedMapName && (
+            <MapToolsOverlay editorState={editorState.current} />
+          )}
           <MapCanvas
             canvasRef={mapCanvasRef}
             width={map.width * map.spriteWidth}

@@ -14,6 +14,7 @@ import { EventTriggerSection } from './EventTriggerSection';
 import { TileOverridesSection } from './TileOverridesSection';
 import { OpenMapAndSelectTileArgs } from '../TileEditor';
 import { getTileList } from '../editorEvents';
+import { addMapTileItemEntry } from '../mapTileItems';
 
 interface SelectedTileInfoProps {
   editorState: EditorState;
@@ -29,7 +30,7 @@ export function SelectedTileInfo({
   onOpenMapAndSelectTile,
 }: SelectedTileInfoProps) {
   const { spriteMap } = useSDL2WAssets();
-  const { characters, items, gameEvents, maps } = useAssets();
+  const { characters, items, gameEvents, maps, tilesets } = useAssets();
   const selectedTileInd =
     getEditorStateMap(editorState.selectedMapName)?.selectedTileInd ?? -1;
   const mapTiles = getTileList(map);
@@ -56,12 +57,11 @@ export function SelectedTileInfo({
   if (selectedTileInd < 0 || selectedTileInd >= mapTiles.length) {
     return (
       <div
+        className="tile-editor-sidebar-panel"
         style={{
-          marginTop: '20px',
+          marginTop: '6px',
           padding: '10px',
           backgroundColor: '#2d2d30',
-          borderRadius: '4px',
-          border: '1px solid #3e3e42',
         }}
       >
         <div
@@ -90,12 +90,11 @@ export function SelectedTileInfo({
 
   return (
     <div
+      className="tile-editor-sidebar-panel"
       style={{
         marginTop: '6px',
         padding: '10px',
         backgroundColor: '#2d2d30',
-        borderRadius: '4px',
-        border: '1px solid #3e3e42',
       }}
     >
       <div
@@ -173,6 +172,7 @@ export function SelectedTileInfo({
 
       <EventTriggerSection
         selectedTile={selectedTile}
+        tilesets={tilesets}
         gameEvents={gameEvents}
         updateTile={updateTile}
       />
@@ -200,6 +200,7 @@ export function SelectedTileInfo({
         {/* Character Search Input */}
         <CharacterSearchInput
           characters={characters}
+          dropdownPlacement="auto"
           onSelect={(characterName) => {
             updateTile((tile) => {
               if (!tile.characters.includes(characterName)) {
@@ -239,11 +240,15 @@ export function SelectedTileInfo({
         {/* Item Search Input */}
         <ItemSearchInput
           items={items}
+          dropdownPlacement="above"
           onSelect={(itemName) => {
+            const template = items.find((i) => i.name === itemName);
             updateTile((tile) => {
-              if (!tile.items.includes(itemName)) {
-                tile.items = [...tile.items, itemName];
-              }
+              tile.items = addMapTileItemEntry(
+                tile.items,
+                itemName,
+                Boolean(template?.stackable)
+              );
             });
           }}
         />
@@ -255,7 +260,13 @@ export function SelectedTileInfo({
         />
       </div>
 
-      <MarkersSection selectedTile={selectedTile} updateTile={updateTile} />
+      <MarkersSection
+        map={map}
+        maps={maps}
+        selectedTile={selectedTile}
+        updateTile={updateTile}
+        onOpenMapAndSelectTile={onOpenMapAndSelectTile}
+      />
     </div>
   );
 }
