@@ -138,6 +138,10 @@ export const initPanzoom = (mapDataInterface: {
         if (!ev.ctrlKey) {
           setCurrentPaintAction(PaintActionType.CLONE);
         }
+      } else if (ev.key === 't') {
+        if (!ev.ctrlKey) {
+          setCurrentPaintAction(PaintActionType.TERRAIN);
+        }
       } else if (ev.key === 'Escape') {
         const mapName = mapDataInterface.getEditorState().selectedMapName;
         const editorState = mapDataInterface.getEditorState();

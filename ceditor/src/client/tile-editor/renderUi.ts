@@ -15,6 +15,13 @@ import {
 } from '../types/assets';
 import { EditorState, getEditorStateMap } from './editorState';
 import {
+  buildTerrainLookup,
+  buildVertexGridFromMap,
+  getTerrainPaintPreviewCells,
+  getTerrainTileset,
+  vertexGridSize,
+} from './terrainTool';
+import {
   getIndsOfBoundingRect,
   getIsDraggingRight,
   getTileList,
@@ -197,6 +204,54 @@ export const renderToolUi = (
         false,
         ctx
       );
+    }
+  } else if (currentPaintAction === PaintActionType.TERRAIN) {
+    const hoveredTileInd =
+      getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
+    const terrainTileset = getTerrainTileset(tilesets);
+    if (hoveredTileInd > -1 && terrainTileset) {
+      const paintX = hoveredTileInd % mapData.width;
+      const paintY = Math.floor(hoveredTileInd / mapData.width);
+      const mapState = getEditorStateMap(editorState.selectedMapName);
+      let grid = mapState?.terrainVertexGridsByLevel?.[editorState.currentLevel];
+      if (!grid || grid.length !== vertexGridSize(mapData)) {
+        grid = buildVertexGridFromMap(
+          mapData,
+          editorState.currentLevel,
+          terrainTileset
+        );
+      }
+      const lookup = buildTerrainLookup(terrainTileset);
+      const paintTag = editorState.selectedTerrainTag;
+      const previewCells = getTerrainPaintPreviewCells(
+        mapData,
+        grid,
+        paintX,
+        paintY,
+        paintTag,
+        lookup,
+        terrainTileset
+      );
+      for (const cell of previewCells) {
+        const previewTile = terrainTileset.tiles.find(
+          (t) => t.id === cell.tileId
+        );
+        const previewSprite = previewTile
+          ? spriteMap[
+              getSpriteNameFromTileMetadata(
+                terrainTileset.spriteBase,
+                previewTile
+              )
+            ]
+          : undefined;
+        if (!previewSprite) {
+          continue;
+        }
+        const tileX = cell.x * tileWidth * scale;
+        const tileY = cell.y * tileHeight * scale;
+        drawHighlightTile(previewSprite, tileX, tileY, scale, ctx);
+        drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+      }
     }
   } else if (
     currentPaintAction === PaintActionType.SELECT ||

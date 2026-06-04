@@ -1,4 +1,8 @@
-import { CarcerMapTemplate, CarcerMapTileTemplate } from '../types/assets';
+import {
+  CarcerMapTemplate,
+  CarcerMapTileTemplate,
+  TileTerrainBorderTag,
+} from '../types/assets';
 import { PaintActionType, PaintAction } from './paintTools';
 import { FloorBrushData } from './renderState';
 
@@ -12,6 +16,8 @@ export interface EditorStateMap {
   };
   undoHistory: PaintAction[];
   undoIndex: number;
+  /** Per-level vertex terrain grids; length (width+1)*(height+1) each. */
+  terrainVertexGridsByLevel?: Record<number, TileTerrainBorderTag[]>;
 }
 
 export interface EditorState {
@@ -27,6 +33,8 @@ export interface EditorState {
   rectSelectTileIndEnd: number;
   rectCloneBrushTiles: FloorBrushData[];
   currentLevel: number;
+  selectedTerrainTag: TileTerrainBorderTag;
+  terrainGridDirty: boolean;
   maps: Record<string, EditorStateMap>;
 }
 
@@ -43,6 +51,8 @@ const editorState: EditorState = {
   rectSelectTileIndEnd: -1,
   rectCloneBrushTiles: [],
   currentLevel: 0,
+  selectedTerrainTag: TileTerrainBorderTag.GRASS,
+  terrainGridDirty: false,
   maps: {},
 };
 export const getEditorState = () => editorState;
@@ -117,6 +127,14 @@ export const getCurrentSelectedTileId = () => {
 
 export const setCurrentPaintAction = (paintAction: PaintActionType) => {
   updateEditorState({ currentPaintAction: paintAction });
+};
+
+export const markTerrainGridDirty = () => {
+  updateEditorStateNoReRender({ terrainGridDirty: true });
+};
+
+export const clearTerrainGridDirty = () => {
+  updateEditorStateNoReRender({ terrainGridDirty: false });
 };
 
 export const getCurrentPaintAction = () => {

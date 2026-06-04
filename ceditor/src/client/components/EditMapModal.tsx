@@ -10,6 +10,8 @@ import {
   MapType,
 } from '../types/assets';
 import { createDefaultCarcerMapTile } from './MapTemplateForm';
+import { invalidateTerrainVertexGridForMap } from '../tile-editor/terrainTool';
+import { markTerrainGridDirty } from '../tile-editor/editorState';
 
 function resizeLevelTiles(
   tiles: CarcerMapTileTemplate[],
@@ -115,6 +117,10 @@ export function EditMapModal({
     }
 
     const [prevWidth, prevHeight] = previousDimensions;
+    if (prevWidth !== formData.width || prevHeight !== formData.height) {
+      invalidateTerrainVertexGridForMap(formData.name);
+      markTerrainGridDirty();
+    }
     onConfirm(
       resizeMapLevels(
         formData,

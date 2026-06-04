@@ -16,4 +16,4 @@ echo "cd to top level src folder"
 cd ../src
 
 ls
-./Anims --assets-dir assets --asset-file assets/assets.ui.txt
+./Anims --assets-dir assets --asset-file assets/assets.game.txt

@@ -41,7 +41,7 @@ export function MapToolsOverlay({ editorState }: { editorState: EditorState }) {
       onClick={(e) => e.stopPropagation()}
     >
       <div className="tile-editor-tool-grid">
-        <div className="tile-editor-tool-row">
+        <div className="tile-editor-tool-row tile-editor-tool-row-primary">
           <ToolButton
             onClick={() => {
               if (currentPaintAction !== PaintActionType.SELECT) {
@@ -81,6 +81,16 @@ export function MapToolsOverlay({ editorState }: { editorState: EditorState }) {
             isActive={currentPaintAction === PaintActionType.CLONE}
             icon="📋"
             title="Clone tool"
+          />
+          <ToolButton
+            onClick={() => {
+              if (currentPaintAction !== PaintActionType.TERRAIN) {
+                setCurrentPaintAction(PaintActionType.TERRAIN);
+              }
+            }}
+            isActive={currentPaintAction === PaintActionType.TERRAIN}
+            icon="🏔️"
+            title="Terrain tool (T)"
           />
         </div>
         <div className="tile-editor-tool-row tile-editor-tool-row-secondary">

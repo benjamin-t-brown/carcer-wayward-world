@@ -13,6 +13,7 @@ import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { useAssets } from '../contexts/AssetsContext';
 import { undo } from './paintTools';
 import { LayersPanel } from './LayersPanel';
+import { TerrainToolPanel } from './TerrainToolPanel';
 
 interface TileEditorProps {
   map?: CarcerMapTemplate;
@@ -155,6 +156,7 @@ export function TileEditor({
               map={map}
               onMapUpdate={onMapUpdate}
             />
+            <TerrainToolPanel editorState={editorState.current} />
             <ToolsPanel
               editorState={editorState.current}
               map={map}

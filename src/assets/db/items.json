@@ -93,7 +93,21 @@
     "icon": "ui_item_icons_12",
     "description": "An oak longbow.",
     "weight": 1,
-    "value": 10
+    "value": 10,
+    "weapon": {
+      "abilityName": "RANGED_ATTACK_BOW",
+      "dmgOverrides": [
+        {
+          "dmgDice": [
+            "D6"
+          ],
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        }
+      ]
+    }
   },
   {
     "itemType": "NECKLACE",

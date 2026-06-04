@@ -15,7 +15,7 @@
       },
       "range": 1
     },
-    "apCost": 1,
+    "apCost": 5,
     "costType": "ABILITY_COST_NONE",
     "costValue": 0,
     "depiction": {
@@ -58,7 +58,7 @@
       },
       "range": 1
     },
-    "apCost": 1,
+    "apCost": 5,
     "costType": "ABILITY_COST_NONE",
     "costValue": 0,
     "depiction": {
@@ -82,6 +82,50 @@
           "attackBonus": 0
         }
       },
+      {
+        "attackClass": "ATTACK_CLASS_MELEE",
+        "dmg": {
+          "dmgDice": [
+            "D6"
+          ],
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        }
+      }
+    ],
+    "statuses": [],
+    "restores": []
+  },
+  {
+    "name": "RANGED_ATTACK_BOW",
+    "label": "Ranged Attack (Bow)",
+    "description": "A basic ranged attack.",
+    "icon": "",
+    "type": "ABILITY_ATTACK",
+    "targetSelect": {
+      "targetType": "TARGET_UNIT",
+      "allegianceSelectType": "TARGET_ALLEGIANCE_OTHER",
+      "numTargetableUnits": 1,
+      "zoneSize": {
+        "x": 1,
+        "y": 1
+      },
+      "range": 1
+    },
+    "apCost": 2,
+    "costType": "ABILITY_COST_NONE",
+    "costValue": 0,
+    "depiction": {
+      "dmgAnim": "splash_attack",
+      "projectileAnim": "",
+      "projectilePath": "PROJECTILE_PATH_MEDIUM",
+      "startSound": "",
+      "dmgSound": "",
+      "projectileHasFacing": true
+    },
+    "attacks": [
       {
         "attackClass": "ATTACK_CLASS_MELEE",
         "dmg": {

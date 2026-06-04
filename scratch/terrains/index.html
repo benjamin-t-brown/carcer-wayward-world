@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Terrain tileset generator</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: system-ui, sans-serif;
+        background: #1e1e1e;
+        color: #eee;
+        padding: 20px;
+        max-width: 1200px;
+      }
+
+      h1 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0 0 8px;
+      }
+
+      .hint {
+        color: #aaa;
+        font-size: 13px;
+        margin-bottom: 16px;
+        line-height: 1.5;
+      }
+
+      .panel {
+        background: #2d2d30;
+        border: 1px solid #3e3e42;
+        border-radius: 6px;
+        padding: 14px;
+        margin-bottom: 16px;
+      }
+
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: flex-end;
+      }
+
+      label {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 12px;
+        color: #ccc;
+      }
+
+      select,
+      input[type='number'] {
+        background: #1e1e1e;
+        border: 1px solid #555;
+        color: #eee;
+        padding: 6px 8px;
+        border-radius: 4px;
+        min-width: 120px;
+      }
+
+      input[type='file'] {
+        font-size: 11px;
+        color: #aaa;
+        max-width: 180px;
+      }
+
+      .terrain-slot {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 140px;
+      }
+
+      .preview-thumb {
+        width: 56px;
+        height: 64px;
+        image-rendering: pixelated;
+        background: #111;
+        border: 1px solid #555;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: #666;
+      }
+
+      .preview-thumb img {
+        width: 28px;
+        height: 32px;
+        image-rendering: pixelated;
+      }
+
+      .output-wrap {
+        overflow: auto;
+        padding: 12px;
+        background: #111;
+        border-radius: 6px;
+      }
+
+      #output,
+      #outputScaled {
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+      }
+
+      #output {
+        display: block;
+      }
+
+      #outputScaled {
+        border: 1px solid #555;
+        display: block;
+        margin-top: 8px;
+      }
+
+      .tile-legend {
+        margin-top: 12px;
+        font-size: 11px;
+        color: #888;
+        font-family: ui-monospace, monospace;
+        line-height: 1.6;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      button {
+        background: #0e639c;
+        border: none;
+        color: #fff;
+        padding: 8px 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+      }
+
+      button:hover {
+        background: #1177bb;
+      }
+
+      button:disabled {
+        background: #444;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Terrain tileset generator</h1>
+    <p class="hint">
+      Loads 28×32 terrain tiles (grass, dirt, ocean). Pick a <strong>base</strong> fill and a
+      <strong>border</strong> terrain; the tool composites border strips over the base using
+      <strong>overlapSize</strong> (px). Right-click the output canvas → Copy image, then paste
+      into your art editor. Tile order matches the 9+4 autotile strip used in
+      <code>terrain_borders</code>.
+    </p>
+
+    <div class="panel">
+      <div class="row">
+        <div class="terrain-slot" data-key="grass">
+          <label>grass.png <input type="file" accept="image/png" data-load="grass" /></label>
+          <div class="preview-thumb" id="thumb-grass">missing</div>
+        </div>
+        <div class="terrain-slot" data-key="dirt">
+          <label>dirt.png <input type="file" accept="image/png" data-load="dirt" /></label>
+          <div class="preview-thumb" id="thumb-dirt">missing</div>
+        </div>
+        <div class="terrain-slot" data-key="ocean">
+          <label>ocean.png <input type="file" accept="image/png" data-load="ocean" /></label>
+          <div class="preview-thumb" id="thumb-ocean">missing</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="row">
+        <label>
+          Base terrain (fill)
+          <select id="baseTerrain">
+            <option value="grass">grass</option>
+            <option value="dirt">dirt</option>
+            <option value="ocean">ocean</option>
+          </select>
+        </label>
+        <label>
+          Border terrain (edges)
+          <select id="borderTerrain">
+            <option value="ocean">ocean</option>
+            <option value="grass">grass</option>
+            <option value="dirt">dirt</option>
+          </select>
+        </label>
+        <label>
+          overlapSize (px)
+          <input type="number" id="overlapSize" value="10" min="1" max="16" step="1" />
+        </label>
+        <button type="button" id="generateBtn">Generate</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="hint" style="margin-top: 0">
+        Output size: <span id="outSize">—</span> · Native scale below; preview is 4×. Copy the
+        <strong>top</strong> canvas (1:1 pixels).
+      </p>
+      <div class="output-wrap">
+        <canvas id="output" title="1:1 tile strip — right-click to copy image"></canvas>
+        <canvas id="outputScaled" title="Preview only"></canvas>
+      </div>
+      <div class="tile-legend" id="legend"></div>
+    </div>
+
+    <script>
+      const TILE_W = 28;
+      const TILE_H = 32;
+      const TILE_COUNT = 13;
+
+      /**
+       * Same order as terrain-edges / terrain_borders ids 0–12.
+       * corners: nw, ne, sw, se — B = border terrain, . = base terrain
+       */
+      const TILE_DIRS = [
+        { dir: ' ', label: 'center', corners: '....' },
+        { dir: 'n', label: 'edge N', corners: 'BB..' },
+        { dir: 's', label: 'edge S', corners: '..BB' },
+        { dir: 'e', label: 'edge E', corners: '.BB.' },
+        { dir: 'w', label: 'edge W', corners: 'B.B.' },
+        { dir: 'o_ne', label: 'outer NE', corners: '.B..' },
+        { dir: 'o_nw', label: 'outer NW', corners: 'B...' },
+        { dir: 'o_se', label: 'outer SE', corners: '..B.' },
+        { dir: 'o_sw', label: 'outer SW', corners: '...B' },
+        { dir: 'i_ne', label: 'inner NE', corners: 'BB.B' },
+        { dir: 'i_nw', label: 'inner NW', corners: 'B.B.' },
+        { dir: 'i_se', label: 'inner SE', corners: '.BBB' },
+        { dir: 'i_sw', label: 'inner SW', corners: 'B.BB' },
+      ];
+
+      const images = { grass: null, dirt: null, ocean: null };
+
+      const output = document.getElementById('output');
+      const outputScaled = document.getElementById('outputScaled');
+      const ctx = output.getContext('2d');
+      const ctxScaled = outputScaled.getContext('2d');
+
+      function setNearestNeighbor(context) {
+        context.imageSmoothingEnabled = false;
+        if ('imageSmoothingQuality' in context) {
+          context.imageSmoothingQuality = 'low';
+        }
+      }
+
+      setNearestNeighbor(ctx);
+      setNearestNeighbor(ctxScaled);
+
+      function setThumb(key, img) {
+        const el = document.getElementById('thumb-' + key);
+        el.innerHTML = '';
+        if (img) {
+          const preview = document.createElement('img');
+          preview.src = img.src;
+          el.appendChild(preview);
+        } else {
+          el.textContent = 'missing';
+        }
+      }
+
+      function loadImageFromFile(file, key) {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          if (img.width !== TILE_W || img.height !== TILE_H) {
+            console.warn(
+              key + ' is ' + img.width + 'x' + img.height + ', expected ' + TILE_W + 'x' + TILE_H
+            );
+          }
+          images[key] = img;
+          setThumb(key, img);
+          generate();
+        };
+        img.src = url;
+      }
+
+      function tryLoadBundled(key) {
+        const img = new Image();
+        img.onload = () => {
+          images[key] = img;
+          setThumb(key, img);
+          generate();
+        };
+        img.onerror = () => {};
+        img.src = key + '.png';
+      }
+
+      document.querySelectorAll('input[data-load]').forEach((input) => {
+        input.addEventListener('change', () => {
+          const file = input.files?.[0];
+          if (file) {
+            loadImageFromFile(file, input.dataset.load);
+          }
+        });
+      });
+
+      ['grass', 'dirt', 'ocean'].forEach(tryLoadBundled);
+
+      function getOverlap() {
+        const v = parseInt(document.getElementById('overlapSize').value, 10);
+        return Number.isFinite(v) && v > 0 ? Math.min(16, v) : 10;
+      }
+
+      function cornerLabel(ch, baseName, borderName) {
+        if (ch === 'B') return borderName;
+        if (ch === '.') return baseName;
+        return '?';
+      }
+
+      function updateLegend(baseName, borderName) {
+        const lines = TILE_DIRS.map((t, i) => {
+          const c = t.corners
+            .replace(/\s/g, '')
+            .split('')
+            .map((ch) => cornerLabel(ch, baseName, borderName));
+          const meta = 'nw=' + c[0] + ' ne=' + c[1] + ' sw=' + c[2] + ' se=' + c[3];
+          return i + ' ' + t.label.padEnd(10) + ' ' + meta;
+        });
+        document.getElementById('legend').textContent = lines.join('\n');
+      }
+
+      function drawTile(dir, offsetX, baseImg, borderImg, overlap) {
+        ctx.drawImage(baseImg, offsetX, 0);
+
+        const drawStrip = (src, dst) => {
+          ctx.drawImage(
+            borderImg,
+            src[0],
+            src[1],
+            src[2],
+            src[3],
+            offsetX + dst[0],
+            dst[1],
+            dst[2],
+            dst[3]
+          );
+        };
+
+        const sub = (x, y, w, h) => [x, y, w, h];
+
+        switch (dir) {
+          case ' ':
+            return;
+          case 'n':
+            drawStrip(sub(0, 0, TILE_W, overlap), sub(0, 0, TILE_W, overlap));
+            break;
+          case 'e':
+            drawStrip(
+              sub(TILE_W - overlap, 0, overlap, TILE_H),
+              sub(TILE_W - overlap, 0, overlap, TILE_H)
+            );
+            break;
+          case 's':
+            drawStrip(
+              sub(0, TILE_H - overlap, TILE_W, overlap),
+              sub(0, TILE_H - overlap, TILE_W, overlap)
+            );
+            break;
+          case 'w':
+            drawStrip(sub(0, 0, overlap, TILE_H), sub(0, 0, overlap, TILE_H));
+            break;
+          case 'o_ne':
+            drawStrip(
+              sub(TILE_W - overlap, 0, overlap, overlap),
+              sub(TILE_W - overlap, 0, overlap, overlap)
+            );
+            break;
+          case 'o_se':
+            drawStrip(
+              sub(TILE_W - overlap, TILE_H - overlap, overlap, overlap),
+              sub(TILE_W - overlap, TILE_H - overlap, overlap, overlap)
+            );
+            break;
+          case 'o_sw':
+            drawStrip(
+              sub(0, TILE_H - overlap, overlap, overlap),
+              sub(0, TILE_H - overlap, overlap, overlap)
+            );
+            break;
+          case 'o_nw':
+            drawStrip(sub(0, 0, overlap, overlap), sub(0, 0, overlap, overlap));
+            break;
+          case 'i_ne':
+            drawStrip(sub(0, 0, TILE_W, overlap), sub(0, 0, TILE_W, overlap));
+            drawStrip(
+              sub(TILE_W - overlap, 0, overlap, TILE_H),
+              sub(TILE_W - overlap, 0, overlap, TILE_H)
+            );
+            break;
+          case 'i_nw':
+            drawStrip(sub(0, 0, TILE_W, overlap), sub(0, 0, TILE_W, overlap));
+            drawStrip(sub(0, 0, overlap, TILE_H), sub(0, 0, overlap, TILE_H));
+            break;
+          case 'i_se':
+            drawStrip(
+              sub(0, TILE_H - overlap, TILE_W, overlap),
+              sub(0, TILE_H - overlap, TILE_W, overlap)
+            );
+            drawStrip(
+              sub(TILE_W - overlap, 0, overlap, TILE_H),
+              sub(TILE_W - overlap, 0, overlap, TILE_H)
+            );
+            break;
+          case 'i_sw':
+            drawStrip(
+              sub(0, TILE_H - overlap, TILE_W, overlap),
+              sub(0, TILE_H - overlap, TILE_W, overlap)
+            );
+            drawStrip(sub(0, 0, overlap, TILE_H), sub(0, 0, overlap, TILE_H));
+            break;
+        }
+      }
+
+      function generate() {
+        const baseKey = document.getElementById('baseTerrain').value;
+        const borderKey = document.getElementById('borderTerrain').value;
+        const baseImg = images[baseKey];
+        const borderImg = images[borderKey];
+
+        document.getElementById('generateBtn').disabled = !baseImg || !borderImg;
+
+        if (!baseImg || !borderImg) {
+          return;
+        }
+
+        if (baseKey === borderKey) {
+          document.getElementById('legend').textContent =
+            'Base and border must be different terrains.';
+          return;
+        }
+
+        const overlap = getOverlap();
+        output.width = TILE_W * TILE_COUNT;
+        output.height = TILE_H;
+        setNearestNeighbor(ctx);
+        ctx.clearRect(0, 0, output.width, output.height);
+
+        for (let i = 0; i < TILE_DIRS.length; i++) {
+          drawTile(TILE_DIRS[i].dir, i * TILE_W, baseImg, borderImg, overlap);
+        }
+
+        const scale = 4;
+        const scaledW = output.width * scale;
+        const scaledH = output.height * scale;
+        outputScaled.width = scaledW;
+        outputScaled.height = scaledH;
+        setNearestNeighbor(ctxScaled);
+        ctxScaled.clearRect(0, 0, scaledW, scaledH);
+
+        if (typeof createImageBitmap === 'function') {
+          createImageBitmap(output, {
+            resizeWidth: scaledW,
+            resizeHeight: scaledH,
+            resizeQuality: 'pixelated',
+          })
+            .then((bitmap) => {
+              setNearestNeighbor(ctxScaled);
+              ctxScaled.drawImage(bitmap, 0, 0);
+              bitmap.close();
+            })
+            .catch(() => {
+              setNearestNeighbor(ctxScaled);
+              ctxScaled.drawImage(output, 0, 0, scaledW, scaledH);
+            });
+        } else {
+          ctxScaled.drawImage(output, 0, 0, scaledW, scaledH);
+        }
+
+        document.getElementById('outSize').textContent =
+          output.width + ' × ' + output.height + ' px';
+        updateLegend(baseKey, borderKey);
+      }
+
+      document.getElementById('baseTerrain').addEventListener('change', generate);
+      document.getElementById('borderTerrain').addEventListener('change', generate);
+      document.getElementById('overlapSize').addEventListener('input', generate);
+      document.getElementById('generateBtn').addEventListener('click', generate);
+
+    </script>
+  </body>
+</html>

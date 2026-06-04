@@ -1,14 +1,28 @@
 import { calculateFillIndsFloor } from './fill';
-import { CarcerMapTemplate, CarcerMapTileTemplate } from '../types/assets';
+import {
+  CarcerMapTemplate,
+  CarcerMapTileTemplate,
+  TilesetTemplate,
+} from '../types/assets';
 import { createDefaultCarcerMapTile } from '../components/MapTemplateForm';
 import { FloorBrushData } from './renderState';
 import {
   EditorState,
+  clearTerrainGridDirty,
+  findEditorStateMap,
   getEditorStateMap,
+  markTerrainGridDirty,
   updateEditorStateMapNoReRender,
   updateEditorStateNoReRender,
 } from './editorState';
 import { getIsDraggingRight, getTileList } from './editorEvents';
+import {
+  buildTerrainLookup,
+  collectAffectedTileIndices,
+  getTerrainTileset,
+  paintTerrainAt,
+  TERRAIN_TILESET_NAME,
+} from './terrainTool';
 
 export enum PaintActionType {
   NONE = '',
@@ -19,6 +33,7 @@ export enum PaintActionType {
   FILL = 'FILL',
   SELECT = 'SELECT',
   CLONE = 'CLONE',
+  TERRAIN = 'TERRAIN',
   // MOVE = 'MOVE',
   // COPY = 'COPY',
   // PASTE = 'PASTE',
@@ -249,8 +264,16 @@ export const applyAction = (
     // case PaintActionType.COPY:
     //   break;
     // case PaintActionType.PASTE:
+    case PaintActionType.TERRAIN:
+      break;
     case PaintActionType.REF_CHANGE:
       break;
+  }
+  if (
+    action.type === PaintActionType.FILL ||
+    action.type === PaintActionType.DELETE_FILL
+  ) {
+    markTerrainGridDirty();
   }
 };
 
@@ -316,6 +339,8 @@ export const applyActionUpdate = (
       break;
     case PaintActionType.CLONE:
       break;
+    case PaintActionType.TERRAIN:
+      break;
     // case PaintActionType.MOVE:
     //   break;
     // case PaintActionType.COPY:
@@ -323,6 +348,14 @@ export const applyActionUpdate = (
     // case PaintActionType.PASTE:
     case PaintActionType.REF_CHANGE:
       break;
+  }
+  if (
+    action.type === PaintActionType.DRAW ||
+    action.type === PaintActionType.ERASE ||
+    action.type === PaintActionType.FILL ||
+    action.type === PaintActionType.DELETE_FILL
+  ) {
+    markTerrainGridDirty();
   }
 };
 
@@ -343,6 +376,7 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
           mapTiles[ind] = structuredClone(action.data.extraPrevRefData[i]);
         }
       }
+      markTerrainGridDirty();
       break;
     case PaintActionType.ERASE:
       // Restore previous tile data for all affected tiles
@@ -352,6 +386,7 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
           mapTiles[ind] = structuredClone(action.data.prevRefData[i]);
         }
       }
+      markTerrainGridDirty();
       break;
     case PaintActionType.ERASE_META:
       // Restore previous tile metadata for all affected tiles
@@ -394,6 +429,7 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
           mapTiles[tileInd] = structuredClone(action.data.prevRefData[i]);
         }
       }
+      markTerrainGridDirty();
       break;
     }
     case PaintActionType.DELETE_FILL: {
@@ -403,6 +439,17 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
           mapTiles[tileInd] = structuredClone(action.data.prevRefData[i]);
         }
       }
+      markTerrainGridDirty();
+      break;
+    }
+    case PaintActionType.TERRAIN: {
+      for (let i = 0; i < action.data.tileInds.length; i++) {
+        const tileInd = action.data.tileInds[i];
+        if (i < action.data.prevRefData.length) {
+          mapTiles[tileInd] = structuredClone(action.data.prevRefData[i]);
+        }
+      }
+      markTerrainGridDirty();
       break;
     }
     case PaintActionType.SELECT: {
@@ -461,10 +508,61 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
   }
 };
 
+function applyTerrainPaintUpdate(
+  action: PaintAction,
+  mapData: CarcerMapTemplate,
+  editorState: EditorState,
+  tilesets: TilesetTemplate[]
+) {
+  const mapTiles = getTileList(mapData);
+  const ind =
+    getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
+  if (ind === -1) {
+    return;
+  }
+
+  if (action.data.extraTileInds.includes(ind)) {
+    return;
+  }
+  action.data.extraTileInds.push(ind);
+
+  const terrainTileset = getTerrainTileset(tilesets);
+  if (!terrainTileset) {
+    console.warn(`Terrain tileset "${TERRAIN_TILESET_NAME}" not found`);
+    return;
+  }
+
+  const mapState = findEditorStateMap(editorState, editorState.selectedMapName);
+  const x = ind % mapData.width;
+  const y = Math.floor(ind / mapData.width);
+  const lookup = buildTerrainLookup(terrainTileset);
+
+  const affected = collectAffectedTileIndices(mapData, x, y);
+  for (const a of affected) {
+    if (!action.data.tileInds.includes(a)) {
+      action.data.tileInds.push(a);
+      action.data.prevRefData.push(structuredClone(mapTiles[a]));
+    }
+  }
+
+  paintTerrainAt(
+    mapData,
+    editorState,
+    mapState,
+    terrainTileset,
+    lookup,
+    x,
+    y,
+    editorState.selectedTerrainTag
+  );
+  clearTerrainGridDirty();
+}
+
 export const onActionUpdate = (
   action: PaintAction,
   mapData: CarcerMapTemplate,
-  editorState: EditorState
+  editorState: EditorState,
+  tilesets?: TilesetTemplate[]
 ) => {
   const mapTiles = getTileList(mapData);
   const ind =
@@ -478,6 +576,11 @@ export const onActionUpdate = (
     action.data.startInd = ind;
   }
   action.data.endInd = ind;
+
+  if (action.type === PaintActionType.TERRAIN && tilesets) {
+    applyTerrainPaintUpdate(action, mapData, editorState, tilesets);
+    return;
+  }
 
   if (!action.data.tileInds.includes(ind)) {
     action.data.tileInds.push(ind);

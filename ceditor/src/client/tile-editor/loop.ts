@@ -109,7 +109,8 @@ export const loop = (
     onActionUpdate(
       currentAction,
       currentMap,
-      mapDataInterface.getEditorState()
+      mapDataInterface.getEditorState(),
+      mapDataInterface.getTilesets()
     );
   }
 
