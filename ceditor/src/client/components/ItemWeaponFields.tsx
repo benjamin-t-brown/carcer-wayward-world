@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { OptionSelect } from '../elements/OptionSelect';
+import { SearchSelect } from '../elements/SearchSelect';
 import { AbilityAttackDmgFields } from './combat/CombatFormFields';
 import { useAssets } from '../contexts/AssetsContext';
 import {
@@ -21,14 +21,6 @@ export function ItemWeaponFields({
 }: ItemWeaponFieldsProps) {
   const { abilities } = useAssets();
   const config: ItemWeaponConfig = weapon ?? { abilityName: '' };
-
-  const abilityOptions = [
-    { value: '', label: '(select ability)' },
-    ...abilities.map((a) => ({
-      value: a.name,
-      label: a.label?.trim() || a.name,
-    })),
-  ];
 
   const selectedAbility = abilities.find((a) => a.name === config.abilityName);
   const attacks = selectedAbility?.attacks ?? [];
@@ -87,13 +79,31 @@ export function ItemWeaponFields({
     <div className="form-subsection">
       <h4>Weapon</h4>
       <div className="weapon-ability-row">
-        <OptionSelect
+        <SearchSelect
           id={`${idPrefix}-ability`}
           name="weaponAbilityName"
           label="Base Ability"
           value={config.abilityName}
           onChange={handleAbilityChange}
-          options={abilityOptions}
+          items={abilities}
+          getItemKey={(a) => a.name}
+          getItemLabel={(a) => a.label?.trim() || a.name}
+          searchFields={(a) => [a.name, a.label ?? '', a.type ?? '']}
+          placeholder="Search abilities..."
+          emptyLabel="(select ability)"
+          renderItem={(a) => (
+            <>
+              <div style={{ fontWeight: 600 }}>
+                {a.label?.trim() || a.name}
+              </div>
+              <div
+                style={{ fontSize: '10px', color: '#858585', marginTop: '2px' }}
+              >
+                {a.name}
+                {a.type ? ` • ${a.type}` : ''}
+              </div>
+            </>
+          )}
         />
         {config.abilityName ? (
           <a
@@ -118,7 +128,7 @@ export function ItemWeaponFields({
             Damage overrides per attack from the base ability. Use + under Dice
             to add another die (e.g. 2d6).
           </p>
-          {attacks.map((_, index) => (
+          {attacks.map((attack, index) => (
             <div key={index} className="weapon-attack-override">
               <h5 className="weapon-attack-override-title">
                 {attacks.length > 1 ? `Attack ${index + 1}` : 'Attack'}
@@ -128,6 +138,7 @@ export function ItemWeaponFields({
                   value={dmgOverrides[index]}
                   onChange={(dmg) => updateAttackOverride(index, dmg)}
                   idPrefix={`${idPrefix}-attack-${index}`}
+                  attackClass={attack.attackClass}
                 />
               </div>
             </div>

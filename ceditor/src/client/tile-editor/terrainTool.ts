@@ -3,6 +3,7 @@ import {
   CarcerMapTileTemplate,
   TileMetadata,
   TileTerrainBorderMeta,
+  PAINTABLE_TERRAIN_BORDER_TAGS,
   TileTerrainBorderTag,
   TilesetTemplate,
 } from '../types/assets';
@@ -17,11 +18,7 @@ export function getTerrainTileset(
   return tilesets.find((t) => t.name === TERRAIN_TILESET_NAME);
 }
 
-export const PAINTABLE_TERRAIN_TAGS: TileTerrainBorderTag[] = [
-  TileTerrainBorderTag.GRASS,
-  TileTerrainBorderTag.DIRT,
-  TileTerrainBorderTag.WATER,
-];
+export const PAINTABLE_TERRAIN_TAGS = PAINTABLE_TERRAIN_BORDER_TAGS;
 
 export type TerrainLookup = Map<string, number>;
 
@@ -56,25 +53,51 @@ export function getPaintableTerrainTags(
 }
 
 /**
- * Grass/dirt border tiles in terrain_borders use WATER in meta for the exterior
- * edge (see scratch terrain generator), not NONE. Empty map vertices are NONE, so
- * coerce them for lookup when painting that terrain.
+ * Empty map vertices are NONE. When resolving autotile corners, treat NONE as the
+ * exterior terrain that borders the paint brush:
+ * - Primary (e.g. GRASS) against void uses WATER (grass/water strip ids 0–12).
+ * - Secondary (e.g. DIRT) against void uses primary (grass/dirt strip ids 16–28).
+ * - WATER against void uses GRASS.
  */
+export function inferExteriorVertexTag(
+  paintTag: TileTerrainBorderTag,
+  terrain?: TilesetTemplate['terrain']
+): TileTerrainBorderTag {
+  if (paintTag === TileTerrainBorderTag.NONE) {
+    return TileTerrainBorderTag.NONE;
+  }
+  if (terrain) {
+    const { primaryTerrain, secondaryTerrain } = terrain;
+    if (paintTag === primaryTerrain) {
+      return TileTerrainBorderTag.WATER;
+    }
+    if (paintTag === secondaryTerrain) {
+      return primaryTerrain;
+    }
+  }
+  if (
+    paintTag === TileTerrainBorderTag.GRASS ||
+    paintTag === TileTerrainBorderTag.DIRT
+  ) {
+    return TileTerrainBorderTag.WATER;
+  }
+  if (paintTag === TileTerrainBorderTag.WATER) {
+    return TileTerrainBorderTag.GRASS;
+  }
+  return TileTerrainBorderTag.NONE;
+}
+
 export function coerceCornersForTerrainResolve(
   corners: TileTerrainBorderMeta,
-  paintTag: TileTerrainBorderTag
+  paintTag: TileTerrainBorderTag,
+  terrain?: TilesetTemplate['terrain']
 ): TileTerrainBorderMeta {
+  const exteriorTag = inferExteriorVertexTag(paintTag, terrain);
   const mapVertex = (tag: TileTerrainBorderTag): TileTerrainBorderTag => {
     if (tag !== TileTerrainBorderTag.NONE) {
       return tag;
     }
-    if (
-      paintTag === TileTerrainBorderTag.GRASS ||
-      paintTag === TileTerrainBorderTag.DIRT
-    ) {
-      return TileTerrainBorderTag.WATER;
-    }
-    return TileTerrainBorderTag.NONE;
+    return exteriorTag;
   };
   return {
     nw: mapVertex(corners.nw),
@@ -82,6 +105,40 @@ export function coerceCornersForTerrainResolve(
     sw: mapVertex(corners.sw),
     se: mapVertex(corners.se),
   };
+}
+
+function getAllowedCornerTagsForPaint(
+  paintTag: TileTerrainBorderTag,
+  terrain?: TilesetTemplate['terrain']
+): Set<TileTerrainBorderTag> {
+  const allowed = new Set<TileTerrainBorderTag>([
+    paintTag,
+    TileTerrainBorderTag.NONE,
+    inferExteriorVertexTag(paintTag, terrain),
+  ]);
+  if (terrain) {
+    allowed.add(terrain.primaryTerrain);
+    allowed.add(terrain.secondaryTerrain);
+  }
+  if (paintTag === TileTerrainBorderTag.GRASS) {
+    allowed.add(TileTerrainBorderTag.WATER);
+  }
+  if (paintTag === TileTerrainBorderTag.WATER) {
+    allowed.add(TileTerrainBorderTag.GRASS);
+  }
+  return allowed;
+}
+
+function countPaintTagCorners(
+  meta: TileTerrainBorderMeta,
+  paintTag: TileTerrainBorderTag
+): number {
+  let count = 0;
+  if (meta.nw === paintTag) count++;
+  if (meta.ne === paintTag) count++;
+  if (meta.sw === paintTag) count++;
+  if (meta.se === paintTag) count++;
+  return count;
 }
 
 function countMatchingCorners(
@@ -98,18 +155,10 @@ function countMatchingCorners(
 
 function isAllowedFallbackTile(
   meta: TileTerrainBorderMeta,
-  paintTag: TileTerrainBorderTag
+  paintTag: TileTerrainBorderTag,
+  terrain?: TilesetTemplate['terrain']
 ): boolean {
-  const allowed = new Set<TileTerrainBorderTag>([
-    paintTag,
-    TileTerrainBorderTag.NONE,
-  ]);
-  if (
-    paintTag === TileTerrainBorderTag.GRASS ||
-    paintTag === TileTerrainBorderTag.DIRT
-  ) {
-    allowed.add(TileTerrainBorderTag.WATER);
-  }
+  const allowed = getAllowedCornerTagsForPaint(paintTag, terrain);
   return [meta.nw, meta.ne, meta.sw, meta.se].every((t) => allowed.has(t));
 }
 
@@ -120,7 +169,7 @@ export function resolveTerrainTileId(
   paintTag?: TileTerrainBorderTag
 ): number | null {
   const resolvedCorners = paintTag
-    ? coerceCornersForTerrainResolve(corners, paintTag)
+    ? coerceCornersForTerrainResolve(corners, paintTag, tileset.terrain)
     : corners;
 
   const exact = lookup.get(terrainMetaKey(resolvedCorners));
@@ -130,19 +179,30 @@ export function resolveTerrainTileId(
 
   let bestId: number | null = null;
   let bestScore = -1;
+  let bestPaintTagScore = -1;
   for (const tile of tileset.tiles) {
     if (!tile.tileTerrainBorderMeta) {
       continue;
     }
-    if (paintTag && !isAllowedFallbackTile(tile.tileTerrainBorderMeta, paintTag)) {
+    if (
+      paintTag &&
+      !isAllowedFallbackTile(tile.tileTerrainBorderMeta, paintTag, tileset.terrain)
+    ) {
       continue;
     }
     const score = countMatchingCorners(
       tile.tileTerrainBorderMeta,
       resolvedCorners
     );
-    if (score > bestScore) {
+    const paintTagScore = paintTag
+      ? countPaintTagCorners(tile.tileTerrainBorderMeta, paintTag)
+      : 0;
+    if (
+      score > bestScore ||
+      (score === bestScore && paintTagScore > bestPaintTagScore)
+    ) {
       bestScore = score;
+      bestPaintTagScore = paintTagScore;
       bestId = tile.id;
     }
   }

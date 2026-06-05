@@ -9,8 +9,203 @@
     "tiles": [
       {
         "id": 0,
-        "description": "water",
+        "description": "grass",
         "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "nw": "GRASS",
+          "ne": "GRASS",
+          "sw": "GRASS",
+          "se": "GRASS"
+        }
+      },
+      {
+        "id": 1,
+        "description": "grass and water",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "nw": "WATER",
+          "ne": "WATER",
+          "sw": "GRASS",
+          "se": "GRASS"
+        }
+      },
+      {
+        "id": 2,
+        "description": "grass and water",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "nw": "GRASS",
+          "ne": "GRASS",
+          "sw": "WATER",
+          "se": "WATER"
+        }
+      },
+      {
+        "id": 3,
+        "description": "grass and water",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "nw": "GRASS",
+          "ne": "WATER",
+          "sw": "GRASS",
+          "se": "WATER"
+        }
+      },
+      {
+        "id": 4,
+        "description": "grass and water",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "nw": "WATER",
+          "ne": "GRASS",
+          "sw": "WATER",
+          "se": "GRASS"
+        }
+      },
+      {
+        "id": 5,
+        "description": "grass and water",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "nw": "GRASS",
+          "ne": "WATER",
+          "sw": "GRASS",
+          "se": "GRASS"
+        }
+      },
+      {
+        "id": 6,
+        "description": "grass and water",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "nw": "WATER",
+          "ne": "GRASS",
+          "sw": "GRASS",
+          "se": "GRASS"
+        }
+      },
+      {
+        "id": 7,
+        "description": "grass and water",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "nw": "GRASS",
+          "ne": "GRASS",
+          "sw": "GRASS",
+          "se": "WATER"
+        }
+      },
+      {
+        "id": 8,
+        "description": "grass and water",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "nw": "GRASS",
+          "ne": "GRASS",
+          "sw": "WATER",
+          "se": "GRASS"
+        }
+      },
+      {
+        "id": 9,
+        "description": "grass and water",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "nw": "WATER",
+          "ne": "WATER",
+          "sw": "GRASS",
+          "se": "WATER"
+        }
+      },
+      {
+        "id": 10,
+        "description": "grass and water",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "nw": "WATER",
+          "ne": "WATER",
+          "sw": "WATER",
+          "se": "GRASS"
+        }
+      },
+      {
+        "id": 11,
+        "description": "grass and water",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "nw": "GRASS",
+          "ne": "WATER",
+          "sw": "WATER",
+          "se": "WATER"
+        }
+      },
+      {
+        "id": 12,
+        "description": "grass and water",
+        "stepSound": "1",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "nw": "WATER",
+          "ne": "GRASS",
+          "sw": "WATER",
+          "se": "WATER"
+        }
+      },
+      {
+        "id": 13,
+        "description": "water",
+        "stepSound": 0,
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
@@ -21,195 +216,6 @@
           "se": "WATER",
           "sw": "WATER"
         }
-      },
-      {
-        "id": 1,
-        "description": "water",
-        "stepSound": "1",
-        "isWalkable": false,
-        "isSeeThrough": true,
-        "isDoor": false,
-        "isContainer": false,
-        "tileTerrainBorderMeta": {
-          "ne": "NONE",
-          "nw": "NONE",
-          "se": "NONE",
-          "sw": "NONE"
-        }
-      },
-      {
-        "id": 2,
-        "description": "water",
-        "stepSound": "1",
-        "isWalkable": false,
-        "isSeeThrough": true,
-        "isDoor": false,
-        "isContainer": false,
-        "tileTerrainBorderMeta": {
-          "ne": "NONE",
-          "nw": "NONE",
-          "se": "NONE",
-          "sw": "NONE"
-        }
-      },
-      {
-        "id": 3,
-        "description": "water",
-        "stepSound": "1",
-        "isWalkable": false,
-        "isSeeThrough": true,
-        "isDoor": false,
-        "isContainer": false,
-        "tileTerrainBorderMeta": {
-          "ne": "NONE",
-          "nw": "NONE",
-          "se": "NONE",
-          "sw": "NONE"
-        }
-      },
-      {
-        "id": 4,
-        "description": "water",
-        "stepSound": "1",
-        "isWalkable": false,
-        "isSeeThrough": true,
-        "isDoor": false,
-        "isContainer": false,
-        "tileTerrainBorderMeta": {
-          "ne": "NONE",
-          "nw": "NONE",
-          "se": "NONE",
-          "sw": "NONE"
-        }
-      },
-      {
-        "id": 5,
-        "description": "water",
-        "stepSound": "1",
-        "isWalkable": false,
-        "isSeeThrough": true,
-        "isDoor": false,
-        "isContainer": false,
-        "tileTerrainBorderMeta": {
-          "ne": "NONE",
-          "nw": "NONE",
-          "se": "NONE",
-          "sw": "NONE"
-        }
-      },
-      {
-        "id": 6,
-        "description": "water",
-        "stepSound": "1",
-        "isWalkable": false,
-        "isSeeThrough": true,
-        "isDoor": false,
-        "isContainer": false,
-        "tileTerrainBorderMeta": {
-          "ne": "NONE",
-          "nw": "NONE",
-          "se": "NONE",
-          "sw": "NONE"
-        }
-      },
-      {
-        "id": 7,
-        "description": "water",
-        "stepSound": "1",
-        "isWalkable": false,
-        "isSeeThrough": true,
-        "isDoor": false,
-        "isContainer": false,
-        "tileTerrainBorderMeta": {
-          "ne": "NONE",
-          "nw": "NONE",
-          "se": "NONE",
-          "sw": "NONE"
-        }
-      },
-      {
-        "id": 8,
-        "description": "water",
-        "stepSound": "1",
-        "isWalkable": false,
-        "isSeeThrough": true,
-        "isDoor": false,
-        "isContainer": false,
-        "tileTerrainBorderMeta": {
-          "ne": "NONE",
-          "nw": "NONE",
-          "se": "NONE",
-          "sw": "NONE"
-        }
-      },
-      {
-        "id": 9,
-        "description": "water",
-        "stepSound": "1",
-        "isWalkable": false,
-        "isSeeThrough": true,
-        "isDoor": false,
-        "isContainer": false,
-        "tileTerrainBorderMeta": {
-          "ne": "NONE",
-          "nw": "NONE",
-          "se": "NONE",
-          "sw": "NONE"
-        }
-      },
-      {
-        "id": 10,
-        "description": "water",
-        "stepSound": "1",
-        "isWalkable": false,
-        "isSeeThrough": true,
-        "isDoor": false,
-        "isContainer": false,
-        "tileTerrainBorderMeta": {
-          "ne": "NONE",
-          "nw": "NONE",
-          "se": "NONE",
-          "sw": "NONE"
-        }
-      },
-      {
-        "id": 11,
-        "description": "water",
-        "stepSound": "1",
-        "isWalkable": false,
-        "isSeeThrough": true,
-        "isDoor": false,
-        "isContainer": false,
-        "tileTerrainBorderMeta": {
-          "ne": "NONE",
-          "nw": "NONE",
-          "se": "NONE",
-          "sw": "NONE"
-        }
-      },
-      {
-        "id": 12,
-        "description": "water",
-        "stepSound": "1",
-        "isWalkable": false,
-        "isSeeThrough": true,
-        "isDoor": false,
-        "isContainer": false,
-        "tileTerrainBorderMeta": {
-          "ne": "NONE",
-          "nw": "NONE",
-          "se": "NONE",
-          "sw": "NONE"
-        }
-      },
-      {
-        "id": 13,
-        "description": "",
-        "stepSound": 0,
-        "isWalkable": true,
-        "isSeeThrough": true,
-        "isDoor": false,
-        "isContainer": false
       },
       {
         "id": 14,
@@ -238,200 +244,206 @@
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "GRASS",
           "nw": "GRASS",
-          "se": "GRASS",
-          "sw": "GRASS"
+          "ne": "GRASS",
+          "sw": "GRASS",
+          "se": "GRASS"
         }
       },
       {
         "id": 17,
-        "description": "grass",
+        "description": "grass and dirt",
         "stepSound": "1",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "WATER",
-          "nw": "WATER",
-          "se": "GRASS",
-          "sw": "GRASS"
+          "nw": "DIRT",
+          "ne": "DIRT",
+          "sw": "GRASS",
+          "se": "GRASS"
         }
       },
       {
         "id": 18,
-        "description": "grass",
+        "description": "grass and dirt",
         "stepSound": "1",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "GRASS",
           "nw": "GRASS",
-          "se": "WATER",
-          "sw": "WATER"
+          "ne": "GRASS",
+          "sw": "DIRT",
+          "se": "DIRT"
         }
       },
       {
         "id": 19,
-        "description": "grass",
+        "description": "grass and dirt",
         "stepSound": "1",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "WATER",
           "nw": "GRASS",
-          "se": "WATER",
-          "sw": "GRASS"
+          "ne": "DIRT",
+          "sw": "GRASS",
+          "se": "DIRT"
         }
       },
       {
         "id": 20,
-        "description": "grass",
+        "description": "grass and dirt",
         "stepSound": "1",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
+          "nw": "DIRT",
           "ne": "GRASS",
-          "nw": "WATER",
-          "se": "GRASS",
-          "sw": "WATER"
+          "sw": "DIRT",
+          "se": "GRASS"
         }
       },
       {
         "id": 21,
-        "description": "grass",
+        "description": "grass and dirt",
         "stepSound": "1",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "WATER",
           "nw": "GRASS",
-          "se": "GRASS",
-          "sw": "GRASS"
+          "ne": "DIRT",
+          "sw": "GRASS",
+          "se": "GRASS"
         }
       },
       {
         "id": 22,
-        "description": "grass",
+        "description": "grass and dirt",
         "stepSound": "1",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
+          "nw": "DIRT",
           "ne": "GRASS",
-          "nw": "WATER",
-          "se": "GRASS",
-          "sw": "GRASS"
+          "sw": "GRASS",
+          "se": "GRASS"
         }
       },
       {
         "id": 23,
-        "description": "grass",
+        "description": "grass and dirt",
         "stepSound": "1",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "GRASS",
           "nw": "GRASS",
-          "se": "WATER",
-          "sw": "GRASS"
+          "ne": "GRASS",
+          "sw": "GRASS",
+          "se": "DIRT"
         }
       },
       {
         "id": 24,
-        "description": "grass",
+        "description": "grass and dirt",
         "stepSound": "1",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "GRASS",
           "nw": "GRASS",
-          "se": "GRASS",
-          "sw": "WATER"
+          "ne": "GRASS",
+          "sw": "DIRT",
+          "se": "GRASS"
         }
       },
       {
         "id": 25,
-        "description": "grass",
+        "description": "grass and dirt",
         "stepSound": "1",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "WATER",
-          "nw": "WATER",
-          "se": "WATER",
-          "sw": "GRASS"
+          "nw": "DIRT",
+          "ne": "DIRT",
+          "sw": "GRASS",
+          "se": "DIRT"
         }
       },
       {
         "id": 26,
-        "description": "grass",
+        "description": "grass and dirt",
         "stepSound": "1",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "WATER",
-          "nw": "WATER",
-          "se": "GRASS",
-          "sw": "WATER"
+          "nw": "DIRT",
+          "ne": "DIRT",
+          "sw": "DIRT",
+          "se": "GRASS"
         }
       },
       {
         "id": 27,
-        "description": "grass",
+        "description": "grass and dirt",
         "stepSound": "1",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "WATER",
           "nw": "GRASS",
-          "se": "WATER",
-          "sw": "WATER"
+          "ne": "DIRT",
+          "sw": "DIRT",
+          "se": "DIRT"
         }
       },
       {
         "id": 28,
-        "description": "grass",
+        "description": "grass and dirt",
         "stepSound": "1",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
+          "nw": "DIRT",
           "ne": "GRASS",
-          "nw": "WATER",
-          "se": "WATER",
-          "sw": "WATER"
+          "sw": "DIRT",
+          "se": "DIRT"
         }
       },
       {
         "id": 29,
-        "description": "",
-        "stepSound": 0,
+        "description": "dirt",
+        "stepSound": "2",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
-        "isContainer": false
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "DIRT",
+          "nw": "DIRT",
+          "se": "DIRT",
+          "sw": "DIRT"
+        }
       },
       {
         "id": 30,
@@ -453,7 +465,7 @@
       },
       {
         "id": 32,
-        "description": "water",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -468,7 +480,7 @@
       },
       {
         "id": 33,
-        "description": "water",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -483,7 +495,7 @@
       },
       {
         "id": 34,
-        "description": "water",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -498,7 +510,7 @@
       },
       {
         "id": 35,
-        "description": "water",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -513,7 +525,7 @@
       },
       {
         "id": 36,
-        "description": "water",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -528,7 +540,7 @@
       },
       {
         "id": 37,
-        "description": "water",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -543,7 +555,7 @@
       },
       {
         "id": 38,
-        "description": "water",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -558,7 +570,7 @@
       },
       {
         "id": 39,
-        "description": "water",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -573,7 +585,7 @@
       },
       {
         "id": 40,
-        "description": "water",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -588,7 +600,7 @@
       },
       {
         "id": 41,
-        "description": "water",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -603,7 +615,7 @@
       },
       {
         "id": 42,
-        "description": "water",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -618,7 +630,7 @@
       },
       {
         "id": 43,
-        "description": "water",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -633,7 +645,7 @@
       },
       {
         "id": 44,
-        "description": "water",
+        "description": "",
         "stepSound": 0,
         "isWalkable": false,
         "isSeeThrough": true,
@@ -675,7 +687,7 @@
       },
       {
         "id": 48,
-        "description": "dirt",
+        "description": "",
         "stepSound": "2",
         "isWalkable": true,
         "isSeeThrough": true,
@@ -690,7 +702,7 @@
       },
       {
         "id": 49,
-        "description": "dirt",
+        "description": "",
         "stepSound": "2",
         "isWalkable": true,
         "isSeeThrough": true,
@@ -705,7 +717,7 @@
       },
       {
         "id": 50,
-        "description": "dirt",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -720,7 +732,7 @@
       },
       {
         "id": 51,
-        "description": "dirt",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -735,7 +747,7 @@
       },
       {
         "id": 52,
-        "description": "dirt",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -750,7 +762,7 @@
       },
       {
         "id": 53,
-        "description": "dirt",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -765,7 +777,7 @@
       },
       {
         "id": 54,
-        "description": "dirt",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -780,7 +792,7 @@
       },
       {
         "id": 55,
-        "description": "dirt",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -795,7 +807,7 @@
       },
       {
         "id": 56,
-        "description": "dirt",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -810,7 +822,7 @@
       },
       {
         "id": 57,
-        "description": "dirt",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -825,7 +837,7 @@
       },
       {
         "id": 58,
-        "description": "dirt",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -840,7 +852,7 @@
       },
       {
         "id": 59,
-        "description": "dirt",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -855,7 +867,7 @@
       },
       {
         "id": 60,
-        "description": "dirt",
+        "description": "",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -2623,7 +2635,13 @@
         "isDoor": false,
         "isContainer": false
       }
-    ]
+    ],
+    "terrain": {
+      "primaryTerrain": "GRASS",
+      "secondaryTerrain": "DIRT",
+      "mode": 1,
+      "startTileId": 16
+    }
   },
   {
     "name": "terrain0",

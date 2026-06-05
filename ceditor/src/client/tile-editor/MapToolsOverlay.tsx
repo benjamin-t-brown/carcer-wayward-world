@@ -41,7 +41,7 @@ export function MapToolsOverlay({ editorState }: { editorState: EditorState }) {
       onClick={(e) => e.stopPropagation()}
     >
       <div className="tile-editor-tool-grid">
-        <div className="tile-editor-tool-row tile-editor-tool-row-primary">
+        <div className="tile-editor-tool-row">
           <ToolButton
             onClick={() => {
               if (currentPaintAction !== PaintActionType.SELECT) {

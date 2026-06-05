@@ -27,6 +27,8 @@ enum class ItemType {
 std::string getStringFromItemType(ItemType itemType);
 ItemType getItemTypeFromString(const std::string& itemTypeString);
 
+ItemUsability getItemUsabilityFromString(const std::string& value);
+
 bool itemTypeIsEquippable(ItemType itemType);
 bool itemTypeIsTwoHandedWeapon(ItemType itemType);
 bool itemTypeUsesWeaponSlots(ItemType itemType);
@@ -40,17 +42,15 @@ enum class ItemUsability {
   USABLE_TOWN_AND_COMBAT,
 };
 
-enum class ItemUsabilityType { ITEM_USE_DEFAULT, ITEM_USE_CAST_SPELL };
-
-struct ItemUsabilityArgs {
-  ItemUsabilityType itemUsabilityType = ItemUsabilityType::ITEM_USE_DEFAULT;
-  std::vector<int> intArgs;
-  std::vector<std::string> stringArgs;
-};
-
 struct ItemWeaponConfig {
   std::string abilityName;
   std::vector<AbilityAttackDmg> dmgOverrides;
+};
+
+struct ItemUseAbilityConfig {
+  std::string abilityName;
+  std::vector<AbilityAttackDmg> dmgOverrides;
+  std::vector<AbilityRestore> restoreOverrides;
 };
 
 struct ItemTemplate {
@@ -63,7 +63,7 @@ struct ItemTemplate {
   int value = 0;
   bool stackable = false;
   ItemUsability itemUsability = ItemUsability::NOT_USABLE;
-  ItemUsabilityArgs itemUsabilityArgs;
+  std::optional<ItemUseAbilityConfig> useAbility;
   std::vector<std::string> statusEffectNames;
   std::optional<ItemWeaponConfig> weapon;
 };

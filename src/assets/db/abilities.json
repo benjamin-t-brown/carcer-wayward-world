@@ -1,5 +1,90 @@
 [
   {
+    "name": "BURNING_SE_1",
+    "label": "Burning Lvl 1",
+    "description": "",
+    "icon": "",
+    "type": "ABILITY_SPELL",
+    "targetSelect": {
+      "targetType": "TARGET_SELF",
+      "allegianceSelectType": "TARGET_ALLEGIANCE_SAME",
+      "numTargetableUnits": 1,
+      "zoneSize": {
+        "x": 1,
+        "y": 1
+      },
+      "range": 1
+    },
+    "apCost": 0,
+    "costType": "ABILITY_COST_NONE",
+    "costValue": 0,
+    "depiction": {
+      "dmgAnim": "expl_fire",
+      "projectileHasFacing": false,
+      "projectileAnim": "",
+      "projectilePath": "PROJECTILE_PATH_NONE",
+      "startSound": "",
+      "dmgSound": "whip"
+    },
+    "attacks": [
+      {
+        "attackClass": "ATTACK_CLASS_AUTO_HIT",
+        "dmg": {
+          "dmgDice": [
+            "D6"
+          ],
+          "dmgBonus": 1,
+          "dmgStat": "STAT_MND",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        }
+      }
+    ],
+    "statuses": [],
+    "restores": []
+  },
+  {
+    "name": "HEAL_SELF",
+    "label": "Heal Self",
+    "description": "",
+    "icon": "",
+    "type": "ABILITY_SPELL",
+    "targetSelect": {
+      "targetType": "TARGET_SELF",
+      "allegianceSelectType": "TARGET_ALLEGIANCE_SAME",
+      "numTargetableUnits": 1,
+      "zoneSize": {
+        "x": 1,
+        "y": 1
+      },
+      "range": 1
+    },
+    "apCost": 1,
+    "costType": "ABILITY_COST_NONE",
+    "costValue": 0,
+    "depiction": {
+      "dmgAnim": "splash_positive",
+      "projectileHasFacing": false,
+      "projectileAnim": "",
+      "projectilePath": "PROJECTILE_PATH_NONE",
+      "startSound": "",
+      "dmgSound": ""
+    },
+    "attacks": [],
+    "statuses": [],
+    "restores": [
+      {
+        "restoreWhich": "CURRENT_STAT_HP",
+        "restoreDice": [
+          "D0"
+        ],
+        "restoreBonus": 10,
+        "restoreStat": "STAT_STR",
+        "restoreStatMult": 0
+      }
+    ]
+  },
+  {
     "name": "MELEE_ATTACK_METAL",
     "label": "Melee Attack (Metal)",
     "description": "A basic melee attack.",

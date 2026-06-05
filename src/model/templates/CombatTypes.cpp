@@ -145,6 +145,12 @@ std::string targetAllegianceSelectTypeToString(TargetAllegianceSelectType value)
 }
 
 Dice diceFromString(const std::string& value) {
+  if (value == "D0") {
+    return Dice::D0;
+  }
+  if (value == "D2") {
+    return Dice::D2;
+  }
   if (value == "D4") {
     return Dice::D4;
   }
@@ -171,6 +177,10 @@ Dice diceFromString(const std::string& value) {
 
 std::string diceToString(Dice value) {
   switch (value) {
+  case Dice::D0:
+    return "D0";
+  case Dice::D2:
+    return "D2";
   case Dice::D4:
     return "D4";
   case Dice::D6:

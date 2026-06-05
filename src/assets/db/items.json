@@ -101,7 +101,7 @@
           "dmgDice": [
             "D6"
           ],
-          "dmgBonus": 0,
+          "dmgBonus": 2,
           "dmgStat": "STAT_STR",
           "dmgStatMult": 1,
           "attackBonus": 0
@@ -135,7 +135,21 @@
     "description": "A standard healing potion.",
     "weight": 1,
     "value": 10,
-    "itemUsability": "USABLE_EVERYWHERE"
+    "itemUsability": "USABLE_EVERYWHERE",
+    "useAbility": {
+      "abilityName": "HEAL_SELF",
+      "restoreOverrides": [
+        {
+          "restoreWhich": "CURRENT_STAT_HP",
+          "restoreDice": [
+            "D0"
+          ],
+          "restoreBonus": 10,
+          "restoreStat": "STAT_STR",
+          "restoreStatMult": 0
+        }
+      ]
+    }
   },
   {
     "itemType": "GARB",

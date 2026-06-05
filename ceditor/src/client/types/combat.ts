@@ -31,7 +31,16 @@ export type TargetAllegianceSelectType =
   | 'TARGET_ALLEGIANCE_ALL'
   | 'TARGET_ALLEGIANCE_ALL_AND_SELF';
 
-export type Dice = 'D4' | 'D6' | 'D8' | 'D10' | 'D12' | 'D20' | 'D100';
+export type Dice =
+  | 'D0'
+  | 'D2'
+  | 'D4'
+  | 'D6'
+  | 'D8'
+  | 'D10'
+  | 'D12'
+  | 'D20'
+  | 'D100';
 
 export type StatsEnum =
   | 'STAT_STR'
@@ -71,13 +80,25 @@ export type AbilityCostType =
 export type AttackClass =
   | 'ATTACK_CLASS_MELEE'
   | 'ATTACK_CLASS_RANGED'
-  | 'ATTACK_CLASS_MAGIC';
+  | 'ATTACK_CLASS_MAGIC'
+  | 'ATTACK_CLASS_AUTO_HIT';
 
 export type ProjectilePath =
   | 'PROJECTILE_PATH_SHORT'
   | 'PROJECTILE_PATH_MEDIUM'
   | 'PROJECTILE_PATH_TALL'
   | 'PROJECTILE_PATH_NONE';
+
+export type DamageType =
+  | 'DAMAGE_TYPE_EDGED'
+  | 'DAMAGE_TYPE_BASHING'
+  | 'DAMAGE_TYPE_PIERCING'
+  | 'DAMAGE_TYPE_HEAT'
+  | 'DAMAGE_TYPE_FREEZE'
+  | 'DAMAGE_TYPE_STATIC'
+  | 'DAMAGE_TYPE_NECROTIC'
+  | 'DAMAGE_TYPE_EPHEMERAL'
+  | 'DAMAGE_TYPE_TRUE';
 
 export interface TargetSelectInfoPoint {
   x: number;
@@ -108,7 +129,7 @@ export interface CurrentStats {
 }
 
 export interface Resistance {
-  attackType: AttackClass;
+  attackType: DamageType;
   mod: number;
 }
 
@@ -152,7 +173,9 @@ export function createDefaultAbilityAttackDmg(): AbilityAttackDmg {
 }
 
 /** Fills missing dmg fields; keeps dice from base when present. */
-export function mergeAbilityAttackDmg(base?: AbilityAttackDmg): AbilityAttackDmg {
+export function mergeAbilityAttackDmg(
+  base?: AbilityAttackDmg,
+): AbilityAttackDmg {
   const defaults = createDefaultAbilityAttackDmg();
   if (!base) {
     return defaults;
@@ -181,6 +204,31 @@ export interface AbilityRestore {
   restoreBonus: number;
   restoreStat: StatsEnum;
   restoreStatMult: number;
+}
+
+export function createDefaultAbilityRestore(): AbilityRestore {
+  return {
+    restoreWhich: 'CURRENT_STAT_HP',
+    restoreDice: ['D6'],
+    restoreBonus: 0,
+    restoreStat: 'STAT_MND',
+    restoreStatMult: 1,
+  };
+}
+
+/** Fills missing restore fields; keeps dice from base when present. */
+export function mergeAbilityRestore(base?: AbilityRestore): AbilityRestore {
+  const defaults = createDefaultAbilityRestore();
+  if (!base) {
+    return defaults;
+  }
+  return {
+    ...defaults,
+    ...base,
+    restoreDice: base.restoreDice?.length
+      ? [...base.restoreDice]
+      : [...defaults.restoreDice],
+  };
 }
 
 export interface StatusEffectAction {
@@ -251,7 +299,17 @@ export const TARGET_ALLEGIANCE_TYPES: TargetAllegianceSelectType[] = [
   'TARGET_ALLEGIANCE_ALL_AND_SELF',
 ];
 
-export const DICE_TYPES: Dice[] = ['D4', 'D6', 'D8', 'D10', 'D12', 'D20', 'D100'];
+export const DICE_TYPES: Dice[] = [
+  'D0',
+  'D2',
+  'D4',
+  'D6',
+  'D8',
+  'D10',
+  'D12',
+  'D20',
+  'D100',
+];
 
 export const STATS_ENUMS: StatsEnum[] = [
   'STAT_STR',
@@ -297,13 +355,33 @@ export const ATTACK_CLASSES: AttackClass[] = [
   'ATTACK_CLASS_MELEE',
   'ATTACK_CLASS_RANGED',
   'ATTACK_CLASS_MAGIC',
+  'ATTACK_CLASS_AUTO_HIT',
 ];
+
+export function attackClassUsesAttackBonus(attackClass: AttackClass): boolean {
+  return (
+    attackClass !== 'ATTACK_CLASS_MAGIC' &&
+    attackClass !== 'ATTACK_CLASS_AUTO_HIT'
+  );
+}
 
 export const PROJECTILE_PATHS: ProjectilePath[] = [
   'PROJECTILE_PATH_SHORT',
   'PROJECTILE_PATH_MEDIUM',
   'PROJECTILE_PATH_TALL',
   'PROJECTILE_PATH_NONE',
+];
+
+export const DAMAGE_TYPES: DamageType[] = [
+  'DAMAGE_TYPE_EDGED',
+  'DAMAGE_TYPE_BASHING',
+  'DAMAGE_TYPE_PIERCING',
+  'DAMAGE_TYPE_HEAT',
+  'DAMAGE_TYPE_FREEZE',
+  'DAMAGE_TYPE_STATIC',
+  'DAMAGE_TYPE_NECROTIC',
+  'DAMAGE_TYPE_EPHEMERAL',
+  'DAMAGE_TYPE_TRUE',
 ];
 
 export function createDefaultTargetSelectInfo(): TargetSelectInfo {
@@ -331,24 +409,37 @@ export function createDefaultAbilityDepiction(): AbilityDepiction {
 export function sanitizeAbilityDepiction(
   depiction: AbilityDepiction,
   animationMap: Record<string, unknown>,
-  soundMap: Record<string, unknown>
+  soundMap: Record<string, unknown>,
 ): AbilityDepiction {
   return {
     ...depiction,
-    dmgAnim: depiction.dmgAnim && depiction.dmgAnim in animationMap ? depiction.dmgAnim : '',
+    dmgAnim:
+      depiction.dmgAnim && depiction.dmgAnim in animationMap
+        ? depiction.dmgAnim
+        : '',
     projectileAnim:
       depiction.projectileAnim && depiction.projectileAnim in animationMap
         ? depiction.projectileAnim
         : '',
     startSound:
-      depiction.startSound && depiction.startSound in soundMap ? depiction.startSound : '',
-    dmgSound: depiction.dmgSound && depiction.dmgSound in soundMap ? depiction.dmgSound : '',
+      depiction.startSound && depiction.startSound in soundMap
+        ? depiction.startSound
+        : '',
+    dmgSound:
+      depiction.dmgSound && depiction.dmgSound in soundMap
+        ? depiction.dmgSound
+        : '',
   };
 }
 
-export function sanitizeTargetSelect(targetSelect: TargetSelectInfo): TargetSelectInfo {
+export function sanitizeTargetSelect(
+  targetSelect: TargetSelectInfo,
+): TargetSelectInfo {
   const targetType = targetSelect.targetType as string;
-  if (targetType === 'TARGET_MOVE' || !TARGET_SELECT_TYPES.includes(targetSelect.targetType)) {
+  if (
+    targetType === 'TARGET_MOVE' ||
+    !TARGET_SELECT_TYPES.includes(targetSelect.targetType)
+  ) {
     return { ...targetSelect, targetType: 'TARGET_UNIT' };
   }
   return targetSelect;
@@ -357,12 +448,16 @@ export function sanitizeTargetSelect(targetSelect: TargetSelectInfo): TargetSele
 export function sanitizeAbilityTemplates(
   abilities: AbilityTemplate[],
   animationMap: Record<string, unknown>,
-  soundMap: Record<string, unknown>
+  soundMap: Record<string, unknown>,
 ): AbilityTemplate[] {
   return abilities.map((ability) => ({
     ...ability,
     targetSelect: sanitizeTargetSelect(ability.targetSelect),
-    depiction: sanitizeAbilityDepiction(ability.depiction, animationMap, soundMap),
+    depiction: sanitizeAbilityDepiction(
+      ability.depiction,
+      animationMap,
+      soundMap,
+    ),
   }));
 }
 
@@ -389,7 +484,9 @@ export function createDefaultStatusEffectTemplate(): StatusEffectTemplate {
     name: '',
     description: '',
     duration: 1,
-    events: [{ type: 'STATUS_EVENT_ON_APPLIED', condition: 'CONDITION_ALWAYS' }],
+    events: [
+      { type: 'STATUS_EVENT_ON_APPLIED', condition: 'CONDITION_ALWAYS' },
+    ],
     applyResistances: [],
     actions: [],
   };

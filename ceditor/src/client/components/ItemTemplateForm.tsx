@@ -4,9 +4,14 @@ import { OptionSelect } from '../elements/OptionSelect';
 import { TextArea } from '../elements/TextArea';
 import { Button } from '../elements/Button';
 import { SpritePicker } from '../elements/SpritePicker';
-import { ItemTemplate, isWeaponItemType } from '../types/assets';
+import {
+  ItemTemplate,
+  isItemUsable,
+  isWeaponItemType,
+} from '../types/assets';
 import { useAssets } from '../contexts/AssetsContext';
 import { ItemWeaponFields } from './ItemWeaponFields';
+import { ItemUseAbilityFields } from './ItemUseAbilityFields';
 import { EditorEmptyState } from './EditorEmptyState';
 
 // Re-export for backward compatibility
@@ -37,8 +42,6 @@ const ITEM_USABILITY_TYPES = [
   'USABLE_TOWN_AND_COMBAT',
 ];
 
-const ITEM_USABILITY_ARG_TYPES = ['ITEM_USE_DEFAULT', 'ITEM_USE_CAST_SPELL'];
-
 interface ItemTemplateFormProps {
   item?: ItemTemplate;
   updateItem: (item: ItemTemplate) => void;
@@ -55,9 +58,6 @@ export function createDefaultItem(): ItemTemplate {
     value: 1,
     stackable: false,
     itemUsability: 'NOT_USABLE',
-    itemUsabilityArgs: {
-      itemUsabilityType: 'ITEM_USE_DEFAULT',
-    },
     statusEffects: [],
   };
 }
@@ -78,19 +78,6 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
       return;
     }
     setFormData({ ...item, [field]: value });
-  };
-
-  const updateUsabilityArgs = (
-    field: 'itemUsabilityType' | 'intArgs' | 'stringArgs',
-    value: string | number[] | string[] | undefined,
-  ) => {
-    setFormData({
-      ...formData,
-      itemUsabilityArgs: {
-        ...formData.itemUsabilityArgs,
-        [field]: value,
-      } as ItemTemplate['itemUsabilityArgs'],
-    });
   };
 
   const { statusEffects: statusEffectTemplates } = useAssets();
@@ -124,10 +111,6 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
   if (!item) {
     return <EditorEmptyState message="Select an item to edit" />;
   }
-
-  const intArgsString = formData.itemUsabilityArgs?.intArgs?.join(',') || '';
-  const stringArgsString =
-    formData.itemUsabilityArgs?.stringArgs?.join(',') || '';
 
   return (
     <div className="item-form item-template-form">
@@ -259,62 +242,30 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
               <OptionSelect
                 id="item-usability"
                 name="itemUsability"
-                label="Usability"
+                label="Where Usable"
                 value={formData.itemUsability || 'NOT_USABLE'}
-                onChange={(value) => updateField('itemUsability', value)}
+                onChange={(value) => {
+                  const next = { ...formData, itemUsability: value };
+                  if (!isItemUsable(value)) {
+                    delete next.useAbility;
+                  } else if (!next.useAbility) {
+                    next.useAbility = { abilityName: '' };
+                  }
+                  setFormData(next);
+                }}
                 options={ITEM_USABILITY_TYPES.map((type) => ({
                   value: type,
                   label: type,
                 }))}
               />
-
-              <OptionSelect
-                id="item-usability-type"
-                name="itemUsabilityType"
-                label="Usability Type"
-                value={
-                  formData.itemUsabilityArgs?.itemUsabilityType ||
-                  'ITEM_USE_DEFAULT'
-                }
-                onChange={(value) =>
-                  updateUsabilityArgs('itemUsabilityType', value)
-                }
-                options={ITEM_USABILITY_ARG_TYPES.map((type) => ({
-                  value: type,
-                  label: type,
-                }))}
-              />
-
-              <TextInput
-                id="item-usability-int-args"
-                name="itemUsabilityIntArgs"
-                label="Int Args"
-                value={intArgsString}
-                onChange={(value) => {
-                  const intArgs = value
-                    .split(',')
-                    .map((s) => parseInt(s.trim()))
-                    .filter((n) => !isNaN(n));
-                  updateUsabilityArgs('intArgs', intArgs);
-                }}
-                placeholder="e.g., 10, 20, 30"
-              />
-
-              <TextInput
-                id="item-usability-string-args"
-                name="itemUsabilityStringArgs"
-                label="String Args"
-                value={stringArgsString}
-                onChange={(value) => {
-                  const stringArgs = value
-                    .split(',')
-                    .map((s) => s.trim())
-                    .filter((s) => s.length > 0);
-                  updateUsabilityArgs('stringArgs', stringArgs);
-                }}
-                placeholder="e.g., arg1, arg2"
-              />
             </div>
+            {isItemUsable(formData.itemUsability) ? (
+              <ItemUseAbilityFields
+                useAbility={formData.useAbility}
+                onChange={(useAbility) => updateField('useAbility', useAbility)}
+                idPrefix={`item-${formData.name || 'new'}-use`}
+              />
+            ) : null}
           </div>
 
           {isWeaponItemType(formData.itemType) ? (

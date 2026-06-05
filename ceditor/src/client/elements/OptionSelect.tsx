@@ -11,6 +11,7 @@ interface OptionSelectProps {
   disabled?: boolean;
   style?: React.CSSProperties;
   className?: string;
+  inputStyle?: React.CSSProperties;
 }
 
 export const OptionSelect: React.FC<OptionSelectProps> = ({
@@ -21,6 +22,7 @@ export const OptionSelect: React.FC<OptionSelectProps> = ({
   onChange,
   options,
   style = {},
+  inputStyle = {},
   required = false,
   disabled = false,
   className = '',
@@ -42,6 +44,7 @@ export const OptionSelect: React.FC<OptionSelectProps> = ({
         onChange={(e) => onChange(e.target.value)}
         required={required}
         disabled={disabled}
+        style={inputStyle}
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>

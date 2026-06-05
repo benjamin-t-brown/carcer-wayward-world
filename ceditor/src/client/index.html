@@ -461,13 +461,9 @@
 
       .tile-editor-tool-row {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: 4px;
         width: 100%;
-      }
-
-      .tile-editor-tool-row-primary {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
       }
 
       .tile-editor-tool-button {
@@ -975,6 +971,10 @@
         text-transform: uppercase;
       }
 
+      .form-subsection label {
+        max-width: 300px;
+      }
+
       .status-item {
         display: flex;
         gap: 10px;
@@ -1110,7 +1110,8 @@
         margin-bottom: 0;
       }
 
-      .item-template-form .weapon-ability-row .form-group select {
+      .item-template-form .weapon-ability-row .form-group select,
+      .item-template-form .weapon-ability-row .form-group .search-select-input {
         width: 100%;
         max-width: 500px;
         box-sizing: border-box;
@@ -1168,10 +1169,76 @@
         margin-top: 10px;
       }
 
+      .ability-template-form .depiction-fields .depiction-preview-field {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        gap: 8px;
+        flex: 0 0 auto;
+      }
+
+      .ability-template-form .depiction-fields .depiction-preview-field > .form-group {
+        flex: 0 0 220px;
+        width: 220px;
+        margin-bottom: 0;
+      }
+
       .ability-template-form .depiction-fields .form-group {
         flex: 0 0 220px;
         width: 220px;
         margin-bottom: 0;
+      }
+
+      .ability-template-form .depiction-fields .animation-preview {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        border: 1px solid #3a3a3a;
+        border-radius: 3px;
+        background: #1e1e1e;
+        overflow: hidden;
+      }
+
+      .ability-template-form .depiction-fields .animation-preview-empty {
+        background: #2a2a2a;
+      }
+
+      .ability-template-form .depiction-fields .animation-preview canvas {
+        display: block;
+      }
+
+      .ability-template-form .depiction-fields .sound-preview {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        border: 1px solid #3a3a3a;
+        border-radius: 3px;
+        background: #1e1e1e;
+      }
+
+      .ability-template-form .depiction-fields .sound-preview-empty {
+        background: #2a2a2a;
+      }
+
+      .ability-template-form .depiction-fields .sound-preview-play {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 28px;
+        height: 28px;
+        padding: 0 6px;
+        line-height: 1;
+        margin: 0;
+        font-size: 12px;
+      }
+
+      .ability-template-form .depiction-fields .sound-preview-play:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
       }
 
       .ability-template-form .depiction-fields .form-group label {
@@ -1306,6 +1373,18 @@
         min-height: 0;
       }
 
+      .ability-template-form .combat-list-item .combat-list-item-remove-btn .btn-card-action,
+      .status-effect-template-form .combat-list-item .combat-list-item-remove-btn .btn-card-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 28px;
+        box-sizing: border-box;
+        padding: 0 6px;
+        line-height: 1;
+        margin: 0;
+      }
+
       .character-template-form .status-item .form-group,
       .item-template-form .status-item .form-group,
       .ability-template-form .combat-list-item .form-group,
@@ -1316,6 +1395,29 @@
       .ability-template-form .combat-list-item .form-fields-inline,
       .status-effect-template-form .combat-list-item .form-fields-inline {
         flex: 1;
+      }
+
+      .status-effect-template-form .invoke-ability-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 8px 12px;
+        flex: 0 1 auto;
+      }
+
+      .status-effect-template-form .invoke-ability-row .invoke-ability-search {
+        flex: 0 1 320px;
+        min-width: 220px;
+        max-width: 400px;
+        margin-bottom: 0;
+      }
+
+      .status-effect-template-form
+        .invoke-ability-row
+        .invoke-ability-search
+        .search-select-input {
+        width: 100%;
+        box-sizing: border-box;
       }
 
       .ability-template-form .inline-checkbox,
@@ -1344,6 +1446,16 @@
 
       .item-template-form .status-effect-item .form-fields-inline .form-group {
         margin-bottom: 0;
+      }
+
+      .wide-input {
+        width: 300px !important;
+      }
+
+      .form-subsection-description {
+        margin: 8px 0;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
       }
     </style>
   </head>

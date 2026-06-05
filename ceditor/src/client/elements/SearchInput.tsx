@@ -33,7 +33,7 @@ export interface SearchInputProps<T> {
   onSearchTermChange?: (term: string) => void;
 }
 
-function shouldOpenAbove(
+export function shouldOpenAbove(
   placement: SearchInputDropdownPlacement,
   inputEl: HTMLInputElement | null,
   openAboveBelowViewportRatio: number

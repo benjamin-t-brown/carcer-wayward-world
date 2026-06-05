@@ -39,7 +39,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
       className="form-group"
       style={{
         filter: disabled
-          ? 'grayscale(100%) brightness(1.75) sepia(100%)'
+          ? 'grayscale(100%) brightness(0.5) sepia(100%)'
           : 'none',
       }}
     >

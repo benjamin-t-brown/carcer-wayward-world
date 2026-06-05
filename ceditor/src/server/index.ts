@@ -169,56 +169,71 @@ app.get('/api/sdl2w-assets', async (req, res) => {
   }
 });
 
+function contentTypeForAssetFile(filePath: string): string {
+  const ext = filePath.split('.').pop()?.toLowerCase();
+  switch (ext) {
+    case 'png':
+      return 'image/png';
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'gif':
+      return 'image/gif';
+    case 'webp':
+      return 'image/webp';
+    case 'wav':
+      return 'audio/wav';
+    case 'ogg':
+      return 'audio/ogg';
+    case 'mp3':
+      return 'audio/mpeg';
+    default:
+      return 'application/octet-stream';
+  }
+}
+
+async function serveSrcAssetFile(
+  req: express.Request,
+  res: express.Response,
+  notFoundLabel: string,
+) {
+  const relativePath = req.path.slice(5);
+  const filePath = join(SRC_PATH, relativePath);
+  const normalizedPath = join(SRC_PATH, relativePath);
+
+  if (!normalizedPath.startsWith(SRC_PATH)) {
+    return res.status(403).json({ error: 'Invalid path' });
+  }
+
+  try {
+    await fs.access(filePath);
+  } catch {
+    console.error(`${notFoundLabel} not found:`, filePath);
+    return res.status(404).json({ error: `${notFoundLabel} not found` });
+  }
+
+  const fileBuffer = await fs.readFile(filePath);
+  res.setHeader('Content-Type', contentTypeForAssetFile(filePath));
+  res.send(fileBuffer);
+}
+
 // Serve sprite images from assets/img directory
-// Handles URLs like: assets/img/<path>.png
 app.get('/api/assets/img/*', async (req, res) => {
   try {
-    // // Extract the path after /assets/img/
-    // // req.path will be like '/assets/img/ui/action_buttons.png'
-    // const fullPath = req.path;
-    // const imagePath = fullPath.replace('/assets/img/', '');
-
-    // // Construct the full file path
-    // const filePath = join(ASSETS_PATH, 'img', imagePath);
-
-    // // Security: Prevent directory traversal by normalizing and checking
-    // const normalizedPath = join(ASSETS_PATH, 'img', imagePath);
-    // const assetsImgPath = join(ASSETS_PATH, 'img');
-    // if (!normalizedPath.startsWith(assetsImgPath)) {
-    //   return res.status(403).json({ error: 'Invalid path' });
-    // }
-
-    const filePath = join(__dirname, '../../../src', req.path.slice(5));
-    console.log('load image req.path',filePath);
-
-    // Check if file exists
-    try {
-      await fs.access(filePath);
-    } catch {
-      console.error('Sprite image not found:', filePath);
-      return res.status(404).json({ error: 'Image not found' });
-    }
-
-    // Determine content type based on file extension
-    const ext = filePath.split('.').pop()?.toLowerCase();
-    const contentType =
-      ext === 'png'
-        ? 'image/png'
-        : ext === 'jpg' || ext === 'jpeg'
-        ? 'image/jpeg'
-        : ext === 'gif'
-        ? 'image/gif'
-        : ext === 'webp'
-        ? 'image/webp'
-        : 'application/octet-stream';
-
-    // Read and send the file
-    const imageBuffer = await fs.readFile(filePath);
-    res.setHeader('Content-Type', contentType);
-    res.send(imageBuffer);
+    await serveSrcAssetFile(req, res, 'Image');
   } catch (error) {
     console.error('Error serving sprite image:', error);
     res.status(500).json({ error: 'Failed to load image' });
+  }
+});
+
+// Serve sound files from assets/snd directory
+app.get('/api/assets/snd/*', async (req, res) => {
+  try {
+    await serveSrcAssetFile(req, res, 'Sound');
+  } catch (error) {
+    console.error('Error serving sound:', error);
+    res.status(500).json({ error: 'Failed to load sound' });
   }
 });
 

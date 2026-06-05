@@ -5,6 +5,10 @@ import { PicturePicker } from '../elements/PicturePicker';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { TileEditModal } from './TileEditModal';
 import { TileEditMultiModal } from './TileEditMultiModal';
+import {
+  applyTerrainStripLayout,
+  SelectTerrainTileModal,
+} from './SelectTerrainTileModal';
 import { TileStepSound, TileMetadata, TilesetTemplate } from '../types/assets';
 import { Button } from '../elements/Button';
 import { EditorEmptyState } from './EditorEmptyState';
@@ -63,6 +67,7 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
     y: number;
   } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [showTerrainTileModal, setShowTerrainTileModal] = useState(false);
 
   const formData = tileset as TilesetTemplate;
   const setFormData = (data: TilesetTemplate) => {
@@ -367,7 +372,7 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
             disabled
           />
         </div>
-        <div className="form-group">
+        {/* <div className="form-group">
           <label htmlFor="tileset-sprite-base">Sprite Base (Picture) *</label>
           <div style={{ marginTop: '8px' }}>
             <PicturePicker
@@ -388,7 +393,7 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
               )}
             </div>
           )}
-        </div>
+        </div> */}
         <TextInput
           id="tileset-name"
           name="name"
@@ -405,7 +410,14 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
           formData.tileHeight > 0 &&
           picturePath && (
             <div className="form-group">
-              <div style={{ marginBottom: '10px' }}>
+              <div
+                style={{
+                  marginBottom: '10px',
+                  display: 'flex',
+                  gap: '8px',
+                  flexWrap: 'wrap',
+                }}
+              >
                 <Button
                   variant="secondary"
                   disabled={selectedTileIndices.length === 0}
@@ -415,6 +427,12 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
                   }}
                 >
                   Edit Selected Tiles
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowTerrainTileModal(true)}
+                >
+                  Select Terrain Tile
                 </Button>
               </div>
 
@@ -565,6 +583,36 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
               </div>
             </div>
           )}
+
+        {showTerrainTileModal && picturePath && (
+          <SelectTerrainTileModal
+            tileset={formData}
+            picturePath={picturePath}
+            onCancel={() => setShowTerrainTileModal(false)}
+            onConfirm={(selection) => {
+              const result = applyTerrainStripLayout(
+                formData,
+                selection.primaryTerrain,
+                selection.secondaryTerrain,
+                selection.startTileId
+              );
+              if (!result.ok || !result.tileset) {
+                alert(result.error ?? 'Failed to apply terrain meta');
+                return;
+              }
+              setFormData({
+                ...result.tileset,
+                terrain: {
+                  primaryTerrain: selection.primaryTerrain,
+                  secondaryTerrain: selection.secondaryTerrain,
+                  mode: formData.terrain?.mode ?? 1,
+                  startTileId: selection.startTileId,
+                },
+              });
+              setShowTerrainTileModal(false);
+            }}
+          />
+        )}
 
         {selectedTiles.length > 0 && (
           <TileEditModal

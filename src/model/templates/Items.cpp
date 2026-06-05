@@ -101,4 +101,23 @@ bool itemTypeUsesWeaponSlots(ItemType itemType) {
   }
 }
 
+ItemUsability getItemUsabilityFromString(const std::string& value) {
+  if (value == "USABLE_EVERYWHERE") {
+    return ItemUsability::USABLE_EVERYWHERE;
+  }
+  if (value == "USABLE_TOWN_ONLY") {
+    return ItemUsability::USABLE_TOWN_ONLY;
+  }
+  if (value == "USABLE_COMBAT_ONLY") {
+    return ItemUsability::USABLE_COMBAT_ONLY;
+  }
+  if (value == "USABLE_OUTSIDE_ONLY") {
+    return ItemUsability::USABLE_OUTSIDE_ONLY;
+  }
+  if (value == "USABLE_TOWN_AND_COMBAT") {
+    return ItemUsability::USABLE_TOWN_AND_COMBAT;
+  }
+  return ItemUsability::NOT_USABLE;
+}
+
 } // namespace model

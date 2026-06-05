@@ -3,9 +3,10 @@
 import type {
   AbilityAttack,
   AbilityAttackDmg,
+  AbilityRestore,
   StatusEffectTemplate,
 } from './combat';
-import { mergeAbilityAttackDmg } from './combat';
+import { mergeAbilityAttackDmg, mergeAbilityRestore } from './combat';
 
 // ============================================================================
 // Item Templates
@@ -23,6 +24,18 @@ export interface ItemWeaponConfig {
   attackIndex?: number;
   /** @deprecated migrated to dmgOverrides */
   dmg?: AbilityAttackDmg;
+}
+
+export interface ItemUseAbilityConfig {
+  abilityName: string;
+  /** Per-attack damage overrides; index matches base ability attacks[]. */
+  dmgOverrides?: AbilityAttackDmg[];
+  /** Per-restore overrides; index matches base ability restores[]. */
+  restoreOverrides?: AbilityRestore[];
+}
+
+export function isItemUsable(itemUsability?: string): boolean {
+  return Boolean(itemUsability && itemUsability !== 'NOT_USABLE');
 }
 
 type LegacyItemWeapon = ItemWeaponConfig & { dmgMin?: number; dmgMax?: number };
@@ -61,6 +74,76 @@ export function resolveItemWeaponDmgOverrides(
   }
 
   return overrides as AbilityAttackDmg[];
+}
+
+/** Build restoreOverrides from stored use-ability JSON and base ability restores. */
+export function resolveItemUseAbilityRestoreOverrides(
+  useAbility: ItemUseAbilityConfig | undefined,
+  baseRestores: AbilityRestore[],
+): AbilityRestore[] {
+  const count = baseRestores.length;
+  if (count === 0) {
+    return [];
+  }
+
+  const overrides: (AbilityRestore | undefined)[] = new Array(count);
+
+  if (useAbility?.restoreOverrides?.length) {
+    useAbility.restoreOverrides.forEach((restore, i) => {
+      if (i < count) {
+        overrides[i] = mergeAbilityRestore(restore);
+      }
+    });
+  }
+
+  for (let i = 0; i < count; i++) {
+    if (!overrides[i]) {
+      overrides[i] = mergeAbilityRestore(baseRestores[i]);
+    }
+  }
+
+  return overrides as AbilityRestore[];
+}
+
+/** Stored use-ability fields compared when detecting item edits. */
+export function useAbilityStorageSnapshot(
+  useAbility: ItemUseAbilityConfig | undefined,
+): string {
+  if (!useAbility) {
+    return '';
+  }
+  return JSON.stringify({
+    abilityName: useAbility.abilityName,
+    dmgOverrides: useAbility.dmgOverrides,
+    restoreOverrides: useAbility.restoreOverrides,
+  });
+}
+
+export function normalizeItemUseAbilityConfig(
+  useAbility: ItemUseAbilityConfig,
+  baseAbility: {
+    attacks?: AbilityAttack[];
+    restores?: AbilityRestore[];
+  } = {},
+): ItemUseAbilityConfig {
+  if (!useAbility.abilityName) {
+    return { abilityName: '' };
+  }
+
+  const baseAttacks = baseAbility.attacks ?? [];
+  const baseRestores = baseAbility.restores ?? [];
+  const dmgOverrides = resolveItemWeaponDmgOverrides(useAbility, baseAttacks);
+  const restoreOverrides = resolveItemUseAbilityRestoreOverrides(
+    useAbility,
+    baseRestores,
+  );
+
+  return {
+    abilityName: useAbility.abilityName,
+    dmgOverrides: baseAttacks.length > 0 ? dmgOverrides : useAbility.dmgOverrides,
+    restoreOverrides:
+      baseRestores.length > 0 ? restoreOverrides : useAbility.restoreOverrides,
+  };
 }
 
 /** Stored weapon fields compared when detecting item edits. */
@@ -109,6 +192,22 @@ export function reconcileWeaponAfterAttackDelete(
 ): ItemWeaponConfig {
   const remapped = remapWeaponOverridesAfterAttackDelete(weapon, deletedAttackIndex);
   return normalizeItemWeaponConfig(remapped, newBaseAttacks);
+}
+
+export function reconcileUseAbilityAfterAttackDelete(
+  useAbility: ItemUseAbilityConfig,
+  deletedAttackIndex: number,
+  newBaseAttacks: AbilityAttack[],
+  baseRestores: AbilityRestore[] = [],
+): ItemUseAbilityConfig {
+  const remapped = remapWeaponOverridesAfterAttackDelete(
+    useAbility,
+    deletedAttackIndex,
+  );
+  return normalizeItemUseAbilityConfig(remapped, {
+    attacks: newBaseAttacks,
+    restores: baseRestores,
+  });
 }
 
 /** A single asset that will change when an ability (or its attack) is deleted. */
@@ -165,35 +264,63 @@ export function planWeaponAttackDeleteImpacts(
   deletedAttackIndex: number,
   currentAttacks: AbilityAttack[],
   items: ItemTemplate[],
+  baseRestores: AbilityRestore[] = [],
 ): AbilityDeleteImpact[] {
   const newAttacks = currentAttacks.filter((_, i) => i !== deletedAttackIndex);
   const impacts: AbilityDeleteImpact[] = [];
 
   for (const item of items) {
     const weapon = item.weapon;
-    if (!weapon || weapon.abilityName !== abilityName) {
-      continue;
-    }
-
-    const afterWeapon = reconcileWeaponAfterAttackDelete(
-      weapon,
-      deletedAttackIndex,
-      newAttacks,
-    );
-    if (weaponStorageSnapshot(weapon) === weaponStorageSnapshot(afterWeapon)) {
-      continue;
-    }
-
-    impacts.push({
-      kind: 'item',
-      name: item.name,
-      label: item.label || item.name,
-      lines: describeWeaponAttackDeleteImpact(
+    if (weapon?.abilityName === abilityName) {
+      const afterWeapon = reconcileWeaponAfterAttackDelete(
         weapon,
         deletedAttackIndex,
-        currentAttacks.length,
-      ),
-    });
+        newAttacks,
+      );
+      if (weaponStorageSnapshot(weapon) !== weaponStorageSnapshot(afterWeapon)) {
+        impacts.push({
+          kind: 'item',
+          name: item.name,
+          label: item.label || item.name,
+          lines: [
+            'Weapon:',
+            ...describeWeaponAttackDeleteImpact(
+              weapon,
+              deletedAttackIndex,
+              currentAttacks.length,
+            ),
+          ],
+        });
+      }
+    }
+
+    const useAbility = item.useAbility;
+    if (useAbility?.abilityName === abilityName && useAbility.dmgOverrides?.length) {
+      const afterUseAbility = reconcileUseAbilityAfterAttackDelete(
+        useAbility,
+        deletedAttackIndex,
+        newAttacks,
+        baseRestores,
+      );
+      if (
+        useAbilityStorageSnapshot(useAbility) !==
+        useAbilityStorageSnapshot(afterUseAbility)
+      ) {
+        impacts.push({
+          kind: 'item',
+          name: item.name,
+          label: item.label || item.name,
+          lines: [
+            'Use ability:',
+            ...describeWeaponAttackDeleteImpact(
+              useAbility,
+              deletedAttackIndex,
+              currentAttacks.length,
+            ),
+          ],
+        });
+      }
+    }
   }
 
   return impacts;
@@ -204,20 +331,36 @@ export function applyWeaponAttackDeleteToItems(
   deletedAttackIndex: number,
   newAttacks: AbilityAttack[],
   items: ItemTemplate[],
+  baseRestores: AbilityRestore[] = [],
 ): ItemTemplate[] {
   return items.map((item) => {
+    let next = item;
     const weapon = item.weapon;
-    if (!weapon || weapon.abilityName !== abilityName) {
-      return item;
+    if (weapon?.abilityName === abilityName) {
+      next = {
+        ...next,
+        weapon: reconcileWeaponAfterAttackDelete(
+          weapon,
+          deletedAttackIndex,
+          newAttacks,
+        ),
+      };
     }
-    return {
-      ...item,
-      weapon: reconcileWeaponAfterAttackDelete(
-        weapon,
-        deletedAttackIndex,
-        newAttacks,
-      ),
-    };
+
+    const useAbility = item.useAbility;
+    if (useAbility?.abilityName === abilityName && useAbility.dmgOverrides?.length) {
+      next = {
+        ...next,
+        useAbility: reconcileUseAbilityAfterAttackDelete(
+          useAbility,
+          deletedAttackIndex,
+          newAttacks,
+          baseRestores,
+        ),
+      };
+    }
+
+    return next;
   });
 }
 
@@ -227,10 +370,29 @@ export function clearItemWeaponForDeletedAbility(
   return { abilityName: '' };
 }
 
+export function clearItemUseAbilityForDeletedAbility(
+  _useAbility: ItemUseAbilityConfig,
+): ItemUseAbilityConfig {
+  return { abilityName: '' };
+}
+
 export function describeItemAbilityDeleteImpact(weapon: ItemWeaponConfig): string[] {
   const lines: string[] = ['Clear weapon base ability reference.'];
   if (weapon.dmgOverrides?.length || weapon.dmg) {
     lines.push('Remove all stored damage overrides.');
+  }
+  return lines;
+}
+
+export function describeItemUseAbilityDeleteImpact(
+  useAbility: ItemUseAbilityConfig,
+): string[] {
+  const lines: string[] = ['Clear use-ability reference.'];
+  if (useAbility.dmgOverrides?.length) {
+    lines.push('Remove all stored damage overrides.');
+  }
+  if (useAbility.restoreOverrides?.length) {
+    lines.push('Remove all stored restore overrides.');
   }
   return lines;
 }
@@ -271,19 +433,33 @@ export function planAbilityDeleteImpacts(
 
   for (const item of items) {
     const weapon = item.weapon;
-    if (!weapon || weapon.abilityName !== abilityName) {
-      continue;
+    if (weapon?.abilityName === abilityName) {
+      const afterWeapon = clearItemWeaponForDeletedAbility(weapon);
+      if (weaponStorageSnapshot(weapon) !== weaponStorageSnapshot(afterWeapon)) {
+        impacts.push({
+          kind: 'item',
+          name: item.name,
+          label: item.label || item.name,
+          lines: describeItemAbilityDeleteImpact(weapon),
+        });
+      }
     }
-    const afterWeapon = clearItemWeaponForDeletedAbility(weapon);
-    if (weaponStorageSnapshot(weapon) === weaponStorageSnapshot(afterWeapon)) {
-      continue;
+
+    const useAbility = item.useAbility;
+    if (useAbility?.abilityName === abilityName) {
+      const afterUseAbility = clearItemUseAbilityForDeletedAbility(useAbility);
+      if (
+        useAbilityStorageSnapshot(useAbility) !==
+        useAbilityStorageSnapshot(afterUseAbility)
+      ) {
+        impacts.push({
+          kind: 'item',
+          name: item.name,
+          label: item.label || item.name,
+          lines: describeItemUseAbilityDeleteImpact(useAbility),
+        });
+      }
     }
-    impacts.push({
-      kind: 'item',
-      name: item.name,
-      label: item.label || item.name,
-      lines: describeItemAbilityDeleteImpact(weapon),
-    });
   }
 
   for (const statusEffect of statusEffects) {
@@ -318,14 +494,24 @@ export function applyAbilityDeleteToItems(
   items: ItemTemplate[],
 ): ItemTemplate[] {
   return items.map((item) => {
+    let next = item;
     const weapon = item.weapon;
-    if (!weapon || weapon.abilityName !== abilityName) {
-      return item;
+    if (weapon?.abilityName === abilityName) {
+      next = {
+        ...next,
+        weapon: clearItemWeaponForDeletedAbility(weapon),
+      };
     }
-    return {
-      ...item,
-      weapon: clearItemWeaponForDeletedAbility(weapon),
-    };
+
+    const useAbility = item.useAbility;
+    if (useAbility?.abilityName === abilityName) {
+      next = {
+        ...next,
+        useAbility: clearItemUseAbilityForDeletedAbility(useAbility),
+      };
+    }
+
+    return next;
   });
 }
 
@@ -436,11 +622,13 @@ export interface ItemTemplate {
   stackable?: boolean;
   // Optional fields
   itemUsability?: string;
+  /** @deprecated replaced by useAbility */
   itemUsabilityArgs?: {
     itemUsabilityType: string;
     intArgs?: number[];
     stringArgs?: string[];
   };
+  useAbility?: ItemUseAbilityConfig;
   /** Names of entries in status-effects.json applied when this item is used/equipped */
   statusEffects?: string[];
   weapon?: ItemWeaponConfig;
@@ -448,40 +636,62 @@ export interface ItemTemplate {
 
 export function sanitizeItemTemplates(
   items: ItemTemplate[],
-  abilities: { name: string; attacks?: AbilityAttack[] }[] = [],
+  abilities: {
+    name: string;
+    attacks?: AbilityAttack[];
+    restores?: AbilityRestore[];
+  }[] = [],
 ): ItemTemplate[] {
-  return items.map((item) => {
-    if (item.weapon && !isWeaponItemType(item.itemType)) {
-      const { weapon: _weapon, ...withoutWeapon } = item;
-      item = withoutWeapon;
+  return items.map((rawItem) => {
+    const { itemUsabilityArgs: _legacyArgs, ...item } = rawItem;
+    let next: ItemTemplate = item;
+
+    if (next.weapon && !isWeaponItemType(next.itemType)) {
+      const { weapon: _weapon, ...withoutWeapon } = next;
+      next = withoutWeapon;
     }
 
-    if (!item.weapon) {
-      return item;
+    if (!isItemUsable(next.itemUsability)) {
+      if (next.useAbility) {
+        const { useAbility: _useAbility, ...withoutUseAbility } = next;
+        next = withoutUseAbility;
+      }
+    } else if (next.useAbility?.abilityName) {
+      const baseAbility =
+        abilities.find((a) => a.name === next.useAbility?.abilityName) ?? {};
+      next = {
+        ...next,
+        useAbility: normalizeItemUseAbilityConfig(next.useAbility, baseAbility),
+      };
     }
-    const weapon = item.weapon as LegacyItemWeapon;
+
+    if (!next.weapon) {
+      return next;
+    }
+
+    const weapon = next.weapon as LegacyItemWeapon;
     const baseAttacks =
       abilities.find((a) => a.name === weapon.abilityName)?.attacks ?? [];
 
     if ('dmgMin' in weapon || 'dmgMax' in weapon) {
       const { dmgMin: _min, dmgMax: _max, ...rest } = weapon;
       if (!rest.abilityName) {
-        return { ...item, weapon: { abilityName: '' } };
+        return { ...next, weapon: { abilityName: '' } };
       }
       return {
-        ...item,
+        ...next,
         weapon: normalizeItemWeaponConfig(rest, baseAttacks),
       };
     }
 
     if (weapon.dmg || weapon.attackIndex !== undefined) {
       return {
-        ...item,
+        ...next,
         weapon: normalizeItemWeaponConfig(weapon, baseAttacks),
       };
     }
 
-    return item;
+    return next;
   });
 }
 
@@ -632,7 +842,42 @@ export enum TileTerrainBorderTag {
   GRASS = 'GRASS',
   DIRT = 'DIRT',
   WATER = 'WATER',
+  CAVE_FLOOR = 'CAVE_FLOOR',
+  SNOW = 'SNOW',
 }
+
+/** Terrains that can be painted as primary in the map editor. */
+export const PAINTABLE_TERRAIN_BORDER_TAGS: TileTerrainBorderTag[] = [
+  TileTerrainBorderTag.GRASS,
+  TileTerrainBorderTag.DIRT,
+  TileTerrainBorderTag.WATER,
+  TileTerrainBorderTag.CAVE_FLOOR,
+  TileTerrainBorderTag.SNOW,
+];
+
+export const TERRAIN_BORDER_TAG_LABELS: Record<TileTerrainBorderTag, string> = {
+  [TileTerrainBorderTag.NONE]: 'None',
+  [TileTerrainBorderTag.GRASS]: 'Grass',
+  [TileTerrainBorderTag.DIRT]: 'Dirt',
+  [TileTerrainBorderTag.WATER]: 'Water',
+  [TileTerrainBorderTag.CAVE_FLOOR]: 'Cave Floor',
+  [TileTerrainBorderTag.SNOW]: 'Snow',
+};
+
+export const PAINTABLE_TERRAIN_BORDER_OPTIONS = PAINTABLE_TERRAIN_BORDER_TAGS.map(
+  (value) => ({ value, label: TERRAIN_BORDER_TAG_LABELS[value] })
+);
+
+export const TERRAIN_BORDER_META_OPTIONS: {
+  value: TileTerrainBorderTag;
+  label: string;
+}[] = [
+  {
+    value: TileTerrainBorderTag.NONE,
+    label: TERRAIN_BORDER_TAG_LABELS[TileTerrainBorderTag.NONE],
+  },
+  ...PAINTABLE_TERRAIN_BORDER_OPTIONS,
+];
 
 export interface TileTerrainBorderMeta {
   ne: TileTerrainBorderTag;
@@ -648,6 +893,12 @@ export interface TilesetTemplate {
   imageHeight: number;
   tileWidth: number;
   tileHeight: number;
+  terrain?: {
+    primaryTerrain: TileTerrainBorderTag;
+    secondaryTerrain: TileTerrainBorderTag;
+    mode: number;
+    startTileId: number;
+  };
   tiles: TileMetadata[];
 }
 

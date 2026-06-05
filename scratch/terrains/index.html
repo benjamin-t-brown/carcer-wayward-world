@@ -150,8 +150,8 @@
   <body>
     <h1>Terrain tileset generator</h1>
     <p class="hint">
-      Loads 28×32 terrain tiles (grass, dirt, ocean). Pick a <strong>base</strong> fill and a
-      <strong>border</strong> terrain; the tool composites border strips over the base using
+      Loads 28×32 terrain tiles (grass, dirt, ocean, cave floor, snow). Pick <strong>primary</strong>
+      (fill) and <strong>secondary</strong> (border) terrain; the tool composites border strips over primary using
       <strong>overlapSize</strong> (px). Right-click the output canvas → Copy image, then paste
       into your art editor. Tile order matches the 9+4 autotile strip used in
       <code>terrain_borders</code>.
@@ -171,30 +171,42 @@
           <label>ocean.png <input type="file" accept="image/png" data-load="ocean" /></label>
           <div class="preview-thumb" id="thumb-ocean">missing</div>
         </div>
+        <div class="terrain-slot" data-key="cave_floor">
+          <label>cave_floor.png <input type="file" accept="image/png" data-load="cave_floor" /></label>
+          <div class="preview-thumb" id="thumb-cave_floor">missing</div>
+        </div>
+        <div class="terrain-slot" data-key="snow">
+          <label>snow.png <input type="file" accept="image/png" data-load="snow" /></label>
+          <div class="preview-thumb" id="thumb-snow">missing</div>
+        </div>
       </div>
     </div>
 
     <div class="panel">
       <div class="row">
         <label>
-          Base terrain (fill)
+          Primary terrain (fill)
           <select id="baseTerrain">
             <option value="grass">grass</option>
             <option value="dirt">dirt</option>
             <option value="ocean">ocean</option>
+            <option value="cave_floor">cave floor</option>
+            <option value="snow">snow</option>
           </select>
         </label>
         <label>
-          Border terrain (edges)
+          Secondary terrain (edges)
           <select id="borderTerrain">
             <option value="ocean">ocean</option>
             <option value="grass">grass</option>
             <option value="dirt">dirt</option>
+            <option value="cave_floor">cave floor</option>
+            <option value="snow">snow</option>
           </select>
         </label>
         <label>
           overlapSize (px)
-          <input type="number" id="overlapSize" value="10" min="1" max="16" step="1" />
+          <input type="number" id="overlapSize" value="10" min="1" step="1" />
         </label>
         <button type="button" id="generateBtn">Generate</button>
       </div>
@@ -218,8 +230,8 @@
       const TILE_COUNT = 13;
 
       /**
-       * Same order as terrain-edges / terrain_borders ids 0–12.
-       * corners: nw, ne, sw, se — B = border terrain, . = base terrain
+       * Same order as tilesets.json autotile strips (e.g. terrain_borders 16–28).
+       * corners: nw, ne, sw, se — B = secondary, . = primary
        */
       const TILE_DIRS = [
         { dir: ' ', label: 'center', corners: '....' },
@@ -229,15 +241,30 @@
         { dir: 'w', label: 'edge W', corners: 'B.B.' },
         { dir: 'o_ne', label: 'outer NE', corners: '.B..' },
         { dir: 'o_nw', label: 'outer NW', corners: 'B...' },
-        { dir: 'o_se', label: 'outer SE', corners: '..B.' },
         { dir: 'o_sw', label: 'outer SW', corners: '...B' },
-        { dir: 'i_ne', label: 'inner NE', corners: 'BB.B' },
+        { dir: 'o_se', label: 'outer SE', corners: '..B.' },
         { dir: 'i_nw', label: 'inner NW', corners: 'B.B.' },
+        { dir: 'i_ne', label: 'inner NE', corners: 'BB.B' },
         { dir: 'i_se', label: 'inner SE', corners: '.BBB' },
         { dir: 'i_sw', label: 'inner SW', corners: 'B.BB' },
       ];
 
-      const images = { grass: null, dirt: null, ocean: null };
+      /** Maps generator keys to tileTerrainBorderMeta enum strings in tilesets.json */
+      const TERRAIN_TAG = {
+        grass: 'GRASS',
+        dirt: 'DIRT',
+        ocean: 'WATER',
+        cave_floor: 'CAVE_FLOOR',
+        snow: 'SNOW',
+      };
+
+      const images = {
+        grass: null,
+        dirt: null,
+        ocean: null,
+        cave_floor: null,
+        snow: null,
+      };
 
       const output = document.getElementById('output');
       const outputScaled = document.getElementById('outputScaled');
@@ -303,25 +330,29 @@
         });
       });
 
-      ['grass', 'dirt', 'ocean'].forEach(tryLoadBundled);
+      ['grass', 'dirt', 'ocean', 'cave_floor', 'snow'].forEach(tryLoadBundled);
 
       function getOverlap() {
         const v = parseInt(document.getElementById('overlapSize').value, 10);
-        return Number.isFinite(v) && v > 0 ? Math.min(16, v) : 10;
+        return Number.isFinite(v) && v > 0 ? Math.min(500, v) : 10;
       }
 
-      function cornerLabel(ch, baseName, borderName) {
-        if (ch === 'B') return borderName;
-        if (ch === '.') return baseName;
+      function terrainTag(key) {
+        return TERRAIN_TAG[key] || key;
+      }
+
+      function cornerLabel(ch, baseKey, borderKey) {
+        if (ch === 'B') return terrainTag(borderKey);
+        if (ch === '.') return terrainTag(baseKey);
         return '?';
       }
 
-      function updateLegend(baseName, borderName) {
+      function updateLegend(baseKey, borderKey) {
         const lines = TILE_DIRS.map((t, i) => {
           const c = t.corners
             .replace(/\s/g, '')
             .split('')
-            .map((ch) => cornerLabel(ch, baseName, borderName));
+            .map((ch) => cornerLabel(ch, baseKey, borderKey));
           const meta = 'nw=' + c[0] + ' ne=' + c[1] + ' sw=' + c[2] + ' se=' + c[3];
           return i + ' ' + t.label.padEnd(10) + ' ' + meta;
         });

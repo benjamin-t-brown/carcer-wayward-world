@@ -36,18 +36,14 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
     return <EditorEmptyState message="Select a status effect to edit" />;
   }
 
-  const setFormData = (data: StatusEffectTemplate) => props.updateStatusEffect(data);
+  const setFormData = (data: StatusEffectTemplate) =>
+    props.updateStatusEffect(data);
   const updateField = <K extends keyof StatusEffectTemplate>(
     field: K,
-    value: StatusEffectTemplate[K]
+    value: StatusEffectTemplate[K],
   ) => {
     setFormData({ ...statusEffect, [field]: value });
   };
-
-  const abilityOptions = abilities.map((a) => ({
-    value: a.name,
-    label: a.label || a.name,
-  }));
 
   const updateEvent = (index: number, event: StatusEffectEvent) => {
     const events = [...statusEffect.events];
@@ -65,7 +61,7 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
   const removeEvent = (index: number) => {
     updateField(
       'events',
-      statusEffect.events.filter((_, i) => i !== index)
+      statusEffect.events.filter((_, i) => i !== index),
     );
   };
 
@@ -78,14 +74,22 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
   const addResistance = () => {
     updateField('applyResistances', [
       ...(statusEffect.applyResistances || []),
-      { attackType: 'ATTACK_CLASS_MELEE', mod: 0 },
+      { attackType: 'DAMAGE_TYPE_EDGED', mod: 0 },
+      { attackType: 'DAMAGE_TYPE_BASHING', mod: 0 },
+      { attackType: 'DAMAGE_TYPE_PIERCING', mod: 0 },
+      { attackType: 'DAMAGE_TYPE_HEAT', mod: 0 },
+      { attackType: 'DAMAGE_TYPE_FREEZE', mod: 0 },
+      { attackType: 'DAMAGE_TYPE_STATIC', mod: 0 },
+      { attackType: 'DAMAGE_TYPE_NECROTIC', mod: 0 },
+      { attackType: 'DAMAGE_TYPE_EPHEMERAL', mod: 0 },
+      { attackType: 'DAMAGE_TYPE_TRUE', mod: 0 },
     ]);
   };
 
   const removeResistance = (index: number) => {
     updateField(
       'applyResistances',
-      statusEffect.applyResistances?.filter((_, i) => i !== index) || []
+      statusEffect.applyResistances?.filter((_, i) => i !== index) || [],
     );
   };
 
@@ -100,7 +104,7 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
       ...(statusEffect.actions || []),
       {
         statusActionTargetType: 'STATUS_ACTION_TARGET_SELF',
-        abilityName: abilityOptions[0]?.value || '',
+        abilityName: abilities[0]?.name || '',
       },
     ]);
   };
@@ -108,7 +112,7 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
   const removeInvokedAction = (index: number) => {
     updateField(
       'actions',
-      statusEffect.actions?.filter((_, i) => i !== index) || []
+      statusEffect.actions?.filter((_, i) => i !== index) || [],
     );
   };
 
@@ -148,6 +152,9 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
 
         <div className="form-subsection">
           <h4>Events</h4>
+          <p className="form-subsection-description">
+            The status effect will trigger when any of these happen.
+          </p>
           {statusEffect.events.map((event, index) => (
             <StatusEffectEventEditor
               key={index}
@@ -171,7 +178,9 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
               onChange={(e) =>
                 updateField(
                   'applyBonuses',
-                  e.target.checked ? { STR: 0, MND: 0, CON: 0, AGI: 0, LCK: 0 } : undefined
+                  e.target.checked
+                    ? { STR: 0, MND: 0, CON: 0, AGI: 0, LCK: 0 }
+                    : undefined,
                 )
               }
             />
@@ -180,7 +189,9 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
           {statusEffect.applyBonuses && (
             <StatsFields
               value={statusEffect.applyBonuses}
-              onChange={(applyBonuses) => updateField('applyBonuses', applyBonuses)}
+              onChange={(applyBonuses) =>
+                updateField('applyBonuses', applyBonuses)
+              }
               idPrefix="status-bonus"
             />
           )}
@@ -195,7 +206,9 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
               onChange={(e) =>
                 updateField(
                   'applyCurrentStatChange',
-                  e.target.checked ? { HP: 0, AP: 0, MANA: 0, AC: 0 } : undefined
+                  e.target.checked
+                    ? { HP: 0, AP: 0, MANA: 0, AC: 0 }
+                    : undefined,
                 )
               }
             />
@@ -245,7 +258,7 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
                         zoneSize: { x: 1, y: 1 },
                         range: 1,
                       }
-                    : undefined
+                    : undefined,
                 )
               }
             />
@@ -267,7 +280,6 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
               key={index}
               action={invoked}
               index={index}
-              abilityOptions={abilityOptions}
               onChange={(updated) => updateInvokedAction(index, updated)}
               onRemove={() => removeInvokedAction(index)}
             />

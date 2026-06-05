@@ -117,6 +117,7 @@ export function AbilityTemplateForm(props: AbilityTemplateFormProps) {
       index,
       attacks,
       items,
+      ability.restores ?? [],
     );
 
     if (impacts.length === 0) {
@@ -142,6 +143,7 @@ export function AbilityTemplateForm(props: AbilityTemplateFormProps) {
         attackIndex,
         newAttacks,
         items,
+        ability.restores ?? [],
       ),
     );
     setAttackDeleteConfirm(null);
@@ -248,7 +250,7 @@ export function AbilityTemplateForm(props: AbilityTemplateFormProps) {
             <OptionSelect
               id="ability-cost-type"
               name="costType"
-              label="Cost Type"
+              label="Aux Cost Type"
               value={ability.costType}
               onChange={(value) => updateField('costType', value as AbilityTemplate['costType'])}
               options={enumOptions(ABILITY_COST_TYPES)}
@@ -256,7 +258,7 @@ export function AbilityTemplateForm(props: AbilityTemplateFormProps) {
             <NumberInput
               id="ability-cost-value"
               name="costValue"
-              label="Cost Value"
+              label="Aux Cost Value"
               value={ability.costValue}
               onChange={(value) => updateField('costValue', value ?? 0)}
               min={0}

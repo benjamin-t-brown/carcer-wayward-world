@@ -1,9 +1,12 @@
-import { useMemo } from 'react';
-import { TextInput } from '../../elements/TextInput';
+import { useMemo, type ReactNode } from 'react';
 import { NumberInput } from '../../elements/NumberInput';
 import { OptionSelect } from '../../elements/OptionSelect';
 import { Button } from '../../elements/Button';
+import { AnimationPreview } from '../../elements/AnimationPreview';
+import { SoundPreview } from '../../elements/SoundPreview';
+import { SearchSelect } from '../../elements/SearchSelect';
 import { useSDL2WAssets } from '../../contexts/SDL2WAssetsContext';
+import { useAssets } from '../../contexts/AssetsContext';
 import {
   TargetSelectInfo,
   Stats,
@@ -29,10 +32,40 @@ import {
   STATUS_ACTION_TARGET_TYPES,
   CURRENT_STAT_ENUMS,
   Dice,
+  DAMAGE_TYPES,
+  AttackClass,
+  attackClassUsesAttackBonus,
 } from '../../types/combat';
 
 function enumOptions<T extends string>(values: T[]) {
   return values.map((value) => ({ value, label: value }));
+}
+
+function CombatListItemRemoveButton({
+  onRemove,
+  ariaLabel,
+}: {
+  onRemove: () => void;
+  ariaLabel: string;
+}) {
+  return (
+    <div className="form-group combat-list-item-remove">
+      <label className="combat-list-item-remove-label" aria-hidden="true">
+        &nbsp;
+      </label>
+      <div className="combat-list-item-remove-btn">
+        <Button
+          type="button"
+          variant="small"
+          className="btn-danger btn-card-action"
+          ariaLabel={ariaLabel}
+          onClick={onRemove}
+        >
+          X
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 function normalizeDie(die: Dice | undefined): Dice {
@@ -132,14 +165,15 @@ function DiceListEditor({
 function assetNameOptions(
   names: string[],
   currentValue: string,
-  allowEmpty: boolean
+  allowEmpty: boolean,
+  emptyLabel = '(none)',
 ): { value: string; label: string }[] {
   const unique = new Set(names);
   if (currentValue && !unique.has(currentValue)) {
     unique.add(currentValue);
   }
   const sorted = [...unique].sort((a, b) => a.localeCompare(b));
-  const options = allowEmpty ? [{ value: '', label: '(none)' }] : [];
+  const options = allowEmpty ? [{ value: '', label: emptyLabel }] : [];
   return [...options, ...sorted.map((name) => ({ value: name, label: name }))];
 }
 
@@ -152,7 +186,10 @@ export function TargetSelectFields({
   onChange: (value: TargetSelectInfo) => void;
   idPrefix: string;
 }) {
-  const update = <K extends keyof TargetSelectInfo>(field: K, fieldValue: TargetSelectInfo[K]) => {
+  const update = <K extends keyof TargetSelectInfo>(
+    field: K,
+    fieldValue: TargetSelectInfo[K],
+  ) => {
     onChange({ ...value, [field]: fieldValue });
   };
 
@@ -163,7 +200,9 @@ export function TargetSelectFields({
         name="targetType"
         label="Target Type"
         value={value.targetType}
-        onChange={(v) => update('targetType', v as TargetSelectInfo['targetType'])}
+        onChange={(v) =>
+          update('targetType', v as TargetSelectInfo['targetType'])
+        }
         options={enumOptions(TARGET_SELECT_TYPES)}
       />
       <OptionSelect
@@ -172,7 +211,10 @@ export function TargetSelectFields({
         label="Allegiance"
         value={value.allegianceSelectType}
         onChange={(v) =>
-          update('allegianceSelectType', v as TargetSelectInfo['allegianceSelectType'])
+          update(
+            'allegianceSelectType',
+            v as TargetSelectInfo['allegianceSelectType'],
+          )
         }
         options={enumOptions(TARGET_ALLEGIANCE_TYPES)}
       />
@@ -268,6 +310,66 @@ export function CurrentStatsFields({
   );
 }
 
+function DepictionAnimField({
+  id,
+  name,
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  id: string;
+  name: string;
+  label: string;
+  value: string;
+  options: Array<{ value: string | number; label: string }>;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="depiction-preview-field">
+      <AnimationPreview animationName={value} />
+      <OptionSelect
+        id={id}
+        name={name}
+        label={label}
+        value={value}
+        onChange={onChange}
+        options={options}
+      />
+    </div>
+  );
+}
+
+function DepictionSoundField({
+  id,
+  name,
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  id: string;
+  name: string;
+  label: string;
+  value: string;
+  options: Array<{ value: string | number; label: string }>;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="depiction-preview-field">
+      <SoundPreview soundName={value} />
+      <OptionSelect
+        id={id}
+        name={name}
+        label={label}
+        value={value}
+        onChange={onChange}
+        options={options}
+      />
+    </div>
+  );
+}
+
 export function AbilityDepictionFields({
   value,
   onChange,
@@ -286,9 +388,9 @@ export function AbilityDepictionFields({
       assetNameOptions(
         animations.map((a) => a.name),
         value.dmgAnim,
-        false
+        false,
       ),
-    [animations, value.dmgAnim]
+    [animations, value.dmgAnim],
   );
 
   const projectileAnimOptions = useMemo(
@@ -296,78 +398,84 @@ export function AbilityDepictionFields({
       assetNameOptions(
         animations.map((a) => a.name),
         value.projectileAnim,
-        true
+        true,
       ),
-    [animations, value.projectileAnim]
+    [animations, value.projectileAnim],
   );
 
-  const soundOptions = useMemo(
+  const optionalSoundOptions = useMemo(
     () => (current: string) =>
       assetNameOptions(
         sounds.map((s) => s.name),
         current,
-        false
+        true,
+        'None',
       ),
-    [sounds]
+    [sounds],
   );
 
-  const update = <K extends keyof AbilityDepiction>(field: K, fieldValue: AbilityDepiction[K]) => {
+  const update = <K extends keyof AbilityDepiction>(
+    field: K,
+    fieldValue: AbilityDepiction[K],
+  ) => {
     onChange({ ...value, [field]: fieldValue });
   };
 
   if (!compact) {
     return (
       <div className="depiction-fields">
-      <div className="form-fields-inline">
-        <OptionSelect
-          id={`${idPrefix}-dmg-anim`}
-          name="dmgAnim"
-          label="Dmg Anim"
-          value={value.dmgAnim}
-          onChange={(v) => update('dmgAnim', v)}
-          options={animationOptions}
-        />
-        <OptionSelect
-          id={`${idPrefix}-projectile-anim`}
-          name="projectileAnim"
-          label="Projectile Anim"
-          value={value.projectileAnim}
-          onChange={(v) => update('projectileAnim', v)}
-          options={projectileAnimOptions}
-        />
-        <OptionSelect
-          id={`${idPrefix}-projectile-path`}
-          name="projectilePath"
-          label="Projectile Path"
-          value={value.projectilePath}
-          onChange={(v) => update('projectilePath', v as AbilityDepiction['projectilePath'])}
-          options={enumOptions(PROJECTILE_PATHS)}
-        />
-        <OptionSelect
-          id={`${idPrefix}-start-sound`}
-          name="startSound"
-          label="Start Sound"
-          value={value.startSound}
-          onChange={(v) => update('startSound', v)}
-          options={soundOptions(value.startSound)}
-        />
-        <OptionSelect
-          id={`${idPrefix}-dmg-sound`}
-          name="dmgSound"
-          label="Dmg Sound"
-          value={value.dmgSound}
-          onChange={(v) => update('dmgSound', v)}
-          options={soundOptions(value.dmgSound)}
-        />
-        <label className="inline-checkbox">
-          <input
-            type="checkbox"
-            checked={value.projectileHasFacing ?? false}
-            onChange={(e) => update('projectileHasFacing', e.target.checked)}
+        <div className="form-fields-inline">
+          <DepictionAnimField
+            id={`${idPrefix}-dmg-anim`}
+            name="dmgAnim"
+            label="Dmg Anim"
+            value={value.dmgAnim}
+            onChange={(v) => update('dmgAnim', v)}
+            options={animationOptions}
           />
-          Projectile Has Facing
-        </label>
-      </div>
+          <DepictionAnimField
+            id={`${idPrefix}-projectile-anim`}
+            name="projectileAnim"
+            label="Projectile Anim"
+            value={value.projectileAnim}
+            onChange={(v) => update('projectileAnim', v)}
+            options={projectileAnimOptions}
+          />
+          <OptionSelect
+            id={`${idPrefix}-projectile-path`}
+            name="projectilePath"
+            label="Projectile Path"
+            value={value.projectilePath}
+            onChange={(v) =>
+              update('projectilePath', v as AbilityDepiction['projectilePath'])
+            }
+            options={enumOptions(PROJECTILE_PATHS)}
+          />
+          <DepictionSoundField
+            id={`${idPrefix}-start-sound`}
+            name="startSound"
+            label="Start Sound"
+            value={value.startSound}
+            onChange={(v) => update('startSound', v)}
+            options={optionalSoundOptions(value.startSound)}
+          />
+          <DepictionSoundField
+            id={`${idPrefix}-dmg-sound`}
+            name="dmgSound"
+            label="Dmg Sound"
+            value={value.dmgSound}
+            onChange={(v) => update('dmgSound', v)}
+            options={optionalSoundOptions(value.dmgSound)}
+          />
+          <label className="inline-checkbox">
+            <input
+              type="checkbox"
+              checked={value.projectileHasFacing ?? false}
+              onChange={(e) => update('projectileHasFacing', e.target.checked)}
+            />
+            Projectile Has Facing
+          </label>
+        </div>
       </div>
     );
   }
@@ -375,7 +483,7 @@ export function AbilityDepictionFields({
   return (
     <div className="depiction-fields">
       <div className="form-fields-inline">
-        <OptionSelect
+        <DepictionAnimField
           id={`${idPrefix}-dmg-anim`}
           name="dmgAnim"
           label="Dmg Anim"
@@ -383,7 +491,7 @@ export function AbilityDepictionFields({
           onChange={(v) => update('dmgAnim', v)}
           options={animationOptions}
         />
-        <OptionSelect
+        <DepictionAnimField
           id={`${idPrefix}-projectile-anim`}
           name="projectileAnim"
           label="Projectile Anim"
@@ -396,7 +504,9 @@ export function AbilityDepictionFields({
           name="projectilePath"
           label="Path"
           value={value.projectilePath}
-          onChange={(v) => update('projectilePath', v as AbilityDepiction['projectilePath'])}
+          onChange={(v) =>
+            update('projectilePath', v as AbilityDepiction['projectilePath'])
+          }
           options={enumOptions(PROJECTILE_PATHS)}
         />
         <label className="inline-checkbox">
@@ -409,21 +519,21 @@ export function AbilityDepictionFields({
         </label>
       </div>
       <div className="form-fields-inline">
-        <OptionSelect
+        <DepictionSoundField
           id={`${idPrefix}-start-sound`}
           name="startSound"
           label="Start Sound"
           value={value.startSound}
           onChange={(v) => update('startSound', v)}
-          options={soundOptions(value.startSound)}
+          options={optionalSoundOptions(value.startSound)}
         />
-        <OptionSelect
+        <DepictionSoundField
           id={`${idPrefix}-dmg-sound`}
           name="dmgSound"
           label="Dmg Sound"
           value={value.dmgSound}
           onChange={(v) => update('dmgSound', v)}
-          options={soundOptions(value.dmgSound)}
+          options={optionalSoundOptions(value.dmgSound)}
         />
       </div>
     </div>
@@ -439,7 +549,10 @@ export function AbilitySaveFields({
   onChange: (value: AbilitySave) => void;
   idPrefix: string;
 }) {
-  const update = <K extends keyof AbilitySave>(field: K, fieldValue: AbilitySave[K]) => {
+  const update = <K extends keyof AbilitySave>(
+    field: K,
+    fieldValue: AbilitySave[K],
+  ) => {
     onChange({ ...value, [field]: fieldValue });
   };
 
@@ -483,12 +596,18 @@ export function AbilityAttackDmgFields({
   value,
   onChange,
   idPrefix,
+  attackClass = 'ATTACK_CLASS_MELEE',
 }: {
   value: AbilityAttackDmg;
   onChange: (value: AbilityAttackDmg) => void;
   idPrefix: string;
+  attackClass?: AttackClass;
 }) {
-  const update = <K extends keyof AbilityAttackDmg>(field: K, fieldValue: AbilityAttackDmg[K]) => {
+  const attackBonusEnabled = attackClassUsesAttackBonus(attackClass);
+  const update = <K extends keyof AbilityAttackDmg>(
+    field: K,
+    fieldValue: AbilityAttackDmg[K],
+  ) => {
     onChange({ ...value, [field]: fieldValue });
   };
 
@@ -507,6 +626,22 @@ export function AbilityAttackDmgFields({
         value={value.dmgBonus}
         onChange={(v) => update('dmgBonus', v ?? 0)}
       />
+
+      {/* <NumberInput
+        id={`${idPrefix}-dmg-stat-mult`}
+        name="dmgStatMult"
+        label="Stat Mult"
+        value={value.dmgStatMult}
+        onChange={(v) => update('dmgStatMult', v ?? 0)}
+      /> */}
+      <NumberInput
+        id={`${idPrefix}-attack-bonus`}
+        name="attackBonus"
+        label="Attack Bonus"
+        value={value.attackBonus}
+        onChange={(v) => update('attackBonus', v ?? 0)}
+        disabled={!attackBonusEnabled}
+      />
       <OptionSelect
         id={`${idPrefix}-dmg-stat`}
         name="dmgStat"
@@ -514,20 +649,6 @@ export function AbilityAttackDmgFields({
         value={value.dmgStat}
         onChange={(v) => update('dmgStat', v as AbilityAttackDmg['dmgStat'])}
         options={enumOptions(STATS_ENUMS)}
-      />
-      <NumberInput
-        id={`${idPrefix}-dmg-stat-mult`}
-        name="dmgStatMult"
-        label="Stat Mult"
-        value={value.dmgStatMult}
-        onChange={(v) => update('dmgStatMult', v ?? 0)}
-      />
-      <NumberInput
-        id={`${idPrefix}-attack-bonus`}
-        name="attackBonus"
-        label="Attack Bonus"
-        value={value.attackBonus}
-        onChange={(v) => update('attackBonus', v ?? 0)}
       />
     </div>
   );
@@ -553,9 +674,13 @@ export function AbilityAttackEditor({
     attackBonus: 0,
   };
 
-  const updateDmg = (field: keyof AbilityAttackDmg, fieldValue: AbilityAttackDmg[keyof AbilityAttackDmg]) => {
+  const updateDmg = (
+    field: keyof AbilityAttackDmg,
+    fieldValue: AbilityAttackDmg[keyof AbilityAttackDmg],
+  ) => {
     onChange({ ...attack, dmg: { ...dmg, [field]: fieldValue } });
   };
+  const attackBonusEnabled = attackClassUsesAttackBonus(attack.attackClass);
   return (
     <div className="combat-list-item">
       <div className="form-fields-inline">
@@ -564,7 +689,12 @@ export function AbilityAttackEditor({
           name="attackClass"
           label="Class"
           value={attack.attackClass}
-          onChange={(v) => onChange({ ...attack, attackClass: v as AbilityAttack['attackClass'] })}
+          onChange={(v) =>
+            onChange({
+              ...attack,
+              attackClass: v as AbilityAttack['attackClass'],
+            })
+          }
           options={enumOptions(ATTACK_CLASSES)}
         />
         <DiceListEditor
@@ -585,7 +715,9 @@ export function AbilityAttackEditor({
           name="dmgStat"
           label="Stat"
           value={dmg.dmgStat}
-          onChange={(v) => updateDmg('dmgStat', v as AbilityAttackDmg['dmgStat'])}
+          onChange={(v) =>
+            updateDmg('dmgStat', v as AbilityAttackDmg['dmgStat'])
+          }
           options={enumOptions(STATS_ENUMS)}
         />
         {/* <NumberInput
@@ -601,17 +733,12 @@ export function AbilityAttackEditor({
           label="Atk +"
           value={dmg.attackBonus}
           onChange={(v) => updateDmg('attackBonus', v ?? 0)}
+          disabled={!attackBonusEnabled}
         />
-        <div className="form-group combat-list-item-remove">
-          <label className="combat-list-item-remove-label" aria-hidden="true">
-            &nbsp;
-          </label>
-          <div className="combat-list-item-remove-btn">
-            <button type="button" className="btn btn-small btn-danger" onClick={onRemove}>
-              Remove
-            </button>
-          </div>
-        </div>
+        <CombatListItemRemoveButton
+          onRemove={onRemove}
+          ariaLabel="Remove attack"
+        />
       </div>
       {attack.save && (
         <div className="form-fields-inline" style={{ marginTop: '6px' }}>
@@ -658,17 +785,76 @@ export function AbilityStatusEditor({
             idPrefix={`${idPrefix}-save`}
           />
         )}
-        <div className="form-group combat-list-item-remove">
-          <label className="combat-list-item-remove-label" aria-hidden="true">
-            &nbsp;
-          </label>
-          <div className="combat-list-item-remove-btn">
-            <button type="button" className="btn btn-small btn-danger" onClick={onRemove}>
-              Remove
-            </button>
-          </div>
-        </div>
+        <CombatListItemRemoveButton
+          onRemove={onRemove}
+          ariaLabel="Remove status effect"
+        />
       </div>
+    </div>
+  );
+}
+
+export function AbilityRestoreFields({
+  value,
+  onChange,
+  idPrefix,
+  trailing,
+}: {
+  value: AbilityRestore;
+  onChange: (value: AbilityRestore) => void;
+  idPrefix: string;
+  trailing?: ReactNode;
+}) {
+  const update = <K extends keyof AbilityRestore>(
+    field: K,
+    fieldValue: AbilityRestore[K],
+  ) => {
+    onChange({ ...value, [field]: fieldValue });
+  };
+
+  return (
+    <div className="form-fields-inline">
+      <OptionSelect
+        id={`${idPrefix}-which`}
+        name="restoreWhich"
+        label="Restore"
+        value={value.restoreWhich}
+        onChange={(v) =>
+          update('restoreWhich', v as AbilityRestore['restoreWhich'])
+        }
+        options={enumOptions(CURRENT_STAT_ENUMS)}
+      />
+      <DiceListEditor
+        idPrefix={`${idPrefix}-restore`}
+        label="Dice"
+        dice={value.restoreDice}
+        onChange={(restoreDice) => update('restoreDice', restoreDice)}
+      />
+      <NumberInput
+        id={`${idPrefix}-bonus`}
+        name="restoreBonus"
+        label="Bonus"
+        value={value.restoreBonus}
+        onChange={(v) => update('restoreBonus', v ?? 0)}
+      />
+      <OptionSelect
+        id={`${idPrefix}-stat`}
+        name="restoreStat"
+        label="Stat"
+        value={value.restoreStat}
+        onChange={(v) =>
+          update('restoreStat', v as AbilityRestore['restoreStat'])
+        }
+        options={enumOptions(STATS_ENUMS)}
+      />
+      <NumberInput
+        id={`${idPrefix}-mult`}
+        name="restoreStatMult"
+        label="× Stat"
+        value={value.restoreStatMult}
+        onChange={(v) => update('restoreStatMult', v ?? 0)}
+      />
+      {trailing}
     </div>
   );
 }
@@ -685,70 +871,20 @@ export function AbilityRestoreEditor({
   onRemove: () => void;
 }) {
   const idPrefix = `restore-${index}`;
-  const update = <K extends keyof AbilityRestore>(field: K, fieldValue: AbilityRestore[K]) => {
-    onChange({ ...restore, [field]: fieldValue });
-  };
-  const diceString = restore.restoreDice.join(',');
 
   return (
     <div className="combat-list-item">
-      <div className="form-fields-inline">
-        <OptionSelect
-          id={`${idPrefix}-which`}
-          name="restoreWhich"
-          label="Restore"
-          value={restore.restoreWhich}
-          onChange={(v) => update('restoreWhich', v as AbilityRestore['restoreWhich'])}
-          options={enumOptions(CURRENT_STAT_ENUMS)}
-        />
-        <TextInput
-          id={`${idPrefix}-dice`}
-          name="restoreDice"
-          label="Dice"
-          value={diceString}
-          onChange={(v) =>
-            update(
-              'restoreDice',
-              v
-                .split(',')
-                .map((s) => s.trim())
-                .filter(Boolean) as AbilityRestore['restoreDice']
-            )
-          }
-        />
-        <NumberInput
-          id={`${idPrefix}-bonus`}
-          name="restoreBonus"
-          label="Bonus"
-          value={restore.restoreBonus}
-          onChange={(v) => update('restoreBonus', v ?? 0)}
-        />
-        <OptionSelect
-          id={`${idPrefix}-stat`}
-          name="restoreStat"
-          label="Stat"
-          value={restore.restoreStat}
-          onChange={(v) => update('restoreStat', v as AbilityRestore['restoreStat'])}
-          options={enumOptions(STATS_ENUMS)}
-        />
-        <NumberInput
-          id={`${idPrefix}-mult`}
-          name="statMult"
-          label="× Stat"
-          value={restore.restoreStatMult}
-          onChange={(v) => update('restoreStatMult', v ?? 0)}
-        />
-        <div className="form-group combat-list-item-remove">
-          <label className="combat-list-item-remove-label" aria-hidden="true">
-            &nbsp;
-          </label>
-          <div className="combat-list-item-remove-btn">
-            <button type="button" className="btn btn-small btn-danger" onClick={onRemove}>
-              Remove
-            </button>
-          </div>
-        </div>
-      </div>
+      <AbilityRestoreFields
+        value={restore}
+        onChange={onChange}
+        idPrefix={idPrefix}
+        trailing={
+          <CombatListItemRemoveButton
+            onRemove={onRemove}
+            ariaLabel="Remove restore"
+          />
+        }
+      />
     </div>
   );
 }
@@ -766,15 +902,21 @@ export function StatusEffectEventEditor({
 }) {
   const idPrefix = `event-${index}`;
   return (
-    <div className="status-item">
+    <div className="combat-list-item">
       <div className="form-fields-inline">
         <OptionSelect
           id={`${idPrefix}-type`}
           name="type"
           label="Event"
           value={event.type}
-          onChange={(v) => onChange({ ...event, type: v as StatusEffectEvent['type'] })}
+          onChange={(v) =>
+            onChange({ ...event, type: v as StatusEffectEvent['type'] })
+          }
           options={enumOptions(STATUS_EVENT_TYPES)}
+          inputStyle={{
+            width: '300px',
+            maxWidth: 'unset',
+          }}
         />
         <OptionSelect
           id={`${idPrefix}-condition`}
@@ -782,14 +924,18 @@ export function StatusEffectEventEditor({
           label="Condition"
           value={event.condition}
           onChange={(v) =>
-            onChange({ ...event, condition: v as StatusEffectEvent['condition'] })
+            onChange({
+              ...event,
+              condition: v as StatusEffectEvent['condition'],
+            })
           }
           options={enumOptions(STATUS_EFFECT_CONDITIONS)}
         />
+        <CombatListItemRemoveButton
+          onRemove={onRemove}
+          ariaLabel="Remove event"
+        />
       </div>
-      <button type="button" className="btn btn-small" onClick={onRemove}>
-        Remove Event
-      </button>
     </div>
   );
 }
@@ -807,17 +953,20 @@ export function ResistanceEditor({
 }) {
   const idPrefix = `resistance-${index}`;
   return (
-    <div className="status-item">
+    <div className="combat-list-item">
       <div className="form-fields-inline">
         <OptionSelect
           id={`${idPrefix}-attack-type`}
           name="attackType"
-          label="Attack Type"
+          label="Damage Type"
           value={resistance.attackType}
           onChange={(v) =>
-            onChange({ ...resistance, attackType: v as Resistance['attackType'] })
+            onChange({
+              ...resistance,
+              attackType: v as Resistance['attackType'],
+            })
           }
-          options={enumOptions(ATTACK_CLASSES)}
+          options={enumOptions(DAMAGE_TYPES)}
         />
         <NumberInput
           id={`${idPrefix}-mod`}
@@ -826,10 +975,11 @@ export function ResistanceEditor({
           value={resistance.mod}
           onChange={(v) => onChange({ ...resistance, mod: v ?? 0 })}
         />
+        <CombatListItemRemoveButton
+          onRemove={onRemove}
+          ariaLabel="Remove resistance"
+        />
       </div>
-      <button type="button" className="btn btn-small" onClick={onRemove}>
-        Remove Resistance
-      </button>
     </div>
   );
 }
@@ -837,19 +987,18 @@ export function ResistanceEditor({
 export function StatusEffectActionEditor({
   action,
   index,
-  abilityOptions,
   onChange,
   onRemove,
 }: {
   action: StatusEffectAction;
   index: number;
-  abilityOptions: { value: string; label: string }[];
   onChange: (action: StatusEffectAction) => void;
   onRemove: () => void;
 }) {
+  const { abilities } = useAssets();
   const idPrefix = `status-action-${index}`;
   return (
-    <div className="status-item">
+    <div className="combat-list-item">
       <div className="form-fields-inline">
         <OptionSelect
           id={`${idPrefix}-target`}
@@ -859,23 +1008,47 @@ export function StatusEffectActionEditor({
           onChange={(v) =>
             onChange({
               ...action,
-              statusActionTargetType: v as StatusEffectAction['statusActionTargetType'],
+              statusActionTargetType:
+                v as StatusEffectAction['statusActionTargetType'],
             })
           }
           options={enumOptions(STATUS_ACTION_TARGET_TYPES)}
+          inputStyle={{
+            width: '350px',
+            maxWidth: 'unset',
+          }}
         />
-        <OptionSelect
-          id={`${idPrefix}-action`}
-          name="abilityName"
-          label="Ability"
-          value={action.abilityName}
-          onChange={(v) => onChange({ ...action, abilityName: v })}
-          options={abilityOptions}
+        <div className="invoke-ability-row">
+          <SearchSelect
+            id={`${idPrefix}-action`}
+            name="abilityName"
+            label="Ability"
+            value={action.abilityName}
+            onChange={(v) => onChange({ ...action, abilityName: v })}
+            items={abilities}
+            getItemKey={(a) => a.name}
+            getItemLabel={(a) => a.label?.trim() || a.name}
+            searchFields={(a) => [a.name, a.label ?? '', a.type ?? '']}
+            placeholder="Search abilities..."
+            emptyLabel="(select ability)"
+            className="invoke-ability-search"
+          />
+          {action.abilityName ? (
+            <a
+              className="template-edit-link"
+              href={`${window.location.origin}${window.location.pathname}#/editor/abilityTemplates?ability=${encodeURIComponent(action.abilityName)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Edit ability
+            </a>
+          ) : null}
+        </div>
+        <CombatListItemRemoveButton
+          onRemove={onRemove}
+          ariaLabel="Remove invoked ability"
         />
       </div>
-      <button type="button" className="btn btn-small" onClick={onRemove}>
-        Remove Invoked Action
-      </button>
     </div>
   );
 }

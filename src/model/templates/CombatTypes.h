@@ -38,7 +38,7 @@ enum class TargetAllegianceSelectType {
   TARGET_ALLEGIANCE_ALL_AND_SELF,
 };
 
-enum class Dice { D4, D6, D8, D10, D12, D20, D100 };
+enum class Dice { D0, D2, D4, D6, D8, D10, D12, D20, D100 };
 
 enum class StatsEnum { STAT_STR, STAT_MND, STAT_CON, STAT_AGI, STAT_LCK };
 

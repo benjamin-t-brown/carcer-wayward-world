@@ -10,6 +10,30 @@ interface TextInputProps {
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
+  inputClassName?: string;
+}
+
+function isWideNameOrLabelField(name?: string, label?: string): boolean {
+  if (name === 'name' || name === 'label') {
+    return true;
+  }
+  if (!label) {
+    return false;
+  }
+  const normalized = label.replace(/\s*\*$/, '').trim();
+  return /^name(\s*\(id\))?$/i.test(normalized) || /^label$/i.test(normalized);
+}
+
+function mergeInputClassName(
+  name?: string,
+  label?: string,
+  inputClassName?: string
+): string | undefined {
+  const classes = [
+    isWideNameOrLabelField(name, label) ? 'wide-input' : '',
+    inputClassName ?? '',
+  ].filter(Boolean);
+  return classes.length > 0 ? classes.join(' ') : undefined;
 }
 
 export const TextInput: React.FC<TextInputProps> = ({
@@ -22,6 +46,7 @@ export const TextInput: React.FC<TextInputProps> = ({
   required = false,
   disabled = false,
   onKeyDown,
+  inputClassName,
 }) => {
   return (
     <div className="form-group" style={{
@@ -43,6 +68,7 @@ export const TextInput: React.FC<TextInputProps> = ({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
+        className={mergeInputClassName(name, label, inputClassName)}
       />
     </div>
   );

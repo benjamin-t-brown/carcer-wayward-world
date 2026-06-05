@@ -18,6 +18,138 @@ Sprites,portraits0,64,52,52
 
 Pic,projectiles,assets/img/game/projectiles16.png
 Sprites,projectiles,64,16,16
+Anim,dot_red,noloop
+projectiles_0 100
+EndAnim
+Anim,dot_white,noloop
+projectiles_1 100
+EndAnim
+Anim,dot_blue,noloop
+projectiles_2 100
+EndAnim
+Anim,dot_big_yellow,noloop
+projectiles_3 100
+EndAnim
+Anim,comet_blue_ne,noloop
+projectiles_8 100
+EndAnim
+Anim,comet_blue_se,noloop
+projectiles_9 100
+EndAnim
+Anim,comet_blue_sw,noloop
+projectiles_10 100
+EndAnim
+Anim,comet_blue_nw,noloop
+projectiles_11 100
+EndAnim
+Anim,comet_blue_n,noloop
+projectiles_12 100
+EndAnim
+Anim,comet_blue_e,noloop
+projectiles_13 100
+EndAnim
+Anim,comet_blue_s,noloop
+projectiles_14 100
+EndAnim
+Anim,comet_blue_w,noloop
+projectiles_15 100
+EndAnim
+Anim,comet_red_ne,noloop
+projectiles_16 100
+EndAnim
+Anim,comet_red_se,noloop
+projectiles_17 100
+EndAnim
+Anim,comet_red_sw,noloop
+projectiles_18 100
+EndAnim
+Anim,comet_red_nw,noloop
+projectiles_19 100
+EndAnim
+Anim,comet_red_n,noloop
+projectiles_20 100
+EndAnim
+Anim,comet_red_e,noloop
+projectiles_21 100
+EndAnim
+Anim,comet_red_s,noloop
+projectiles_22 100
+EndAnim
+Anim,comet_red_w,noloop
+projectiles_23 100
+EndAnim
+Anim,comet_green_ne,noloop
+projectiles_24 100
+EndAnim
+Anim,comet_green_se,noloop
+projectiles_25 100
+EndAnim
+Anim,comet_green_sw,noloop
+projectiles_26 100
+EndAnim
+Anim,comet_green_nw,noloop
+projectiles_27 100
+EndAnim
+Anim,comet_green_n,noloop
+projectiles_28 100
+EndAnim
+Anim,comet_green_e,noloop
+projectiles_29 100
+EndAnim
+Anim,comet_green_s,noloop
+projectiles_30 100
+EndAnim
+Anim,comet_green_w,noloop
+projectiles_31 100
+EndAnim
+Anim,arrow_fire_ne,noloop
+projectiles_32 100
+EndAnim
+Anim,arrow_fire_se,noloop
+projectiles_33 100
+EndAnim
+Anim,arrow_fire_sw,noloop
+projectiles_34 100
+EndAnim
+Anim,arrow_fire_nw,noloop
+projectiles_35 100
+EndAnim
+Anim,arrow_fire_n,noloop
+projectiles_36 100
+EndAnim
+Anim,arrow_fire_e,noloop
+projectiles_37 100
+EndAnim
+Anim,arrow_fire_s,noloop
+projectiles_38 100
+EndAnim
+Anim,arrow_fire_w,noloop
+projectiles_39 100
+EndAnim
+Anim,arrow_normal_ne,noloop
+projectiles_40 100
+EndAnim
+Anim,arrow_normal_se,noloop
+projectiles_41 100
+EndAnim
+Anim,arrow_normal_sw,noloop
+projectiles_42 100
+EndAnim
+Anim,arrow_normal_nw,noloop
+projectiles_43 100
+EndAnim
+Anim,arrow_normal_n,noloop
+projectiles_44 100
+EndAnim
+Anim,arrow_normal_e,noloop
+projectiles_45 100
+EndAnim
+Anim,arrow_normal_s,noloop
+projectiles_46 100
+EndAnim
+Anim,arrow_normal_w,noloop
+projectiles_47 100
+EndAnim
 
 Pic,expl,assets/img/game/expl32.png
 Sprites,expl,64,32,32
@@ -60,3 +192,12 @@ expl_22 100
 expl_23 100
 expl_24 100
 EndAnim
+
+# Mikey Soprano getting hit with a staple gun
+Sound,yell1,assets/snd/yell1.wav
+Sound,yell2,assets/snd/yell2.wav
+# Some italk 2026 video where the baseball broadcast made this sound somehow
+Sound,whip,assets/snd/whip.wav
+# Maelstrom https://github.com/libsdl-org/Maelstrom
+Sound,level_up,assets/snd/level_up.wav
+Sound,expl1,assets/snd/expl1.wav

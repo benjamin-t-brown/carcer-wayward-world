@@ -83,6 +83,37 @@ void loadItemTemplates(
       }
     }
 
+    if (itemJson.contains("itemUsability") && itemJson["itemUsability"].is_string()) {
+      itemTemplate.itemUsability =
+          model::getItemUsabilityFromString(itemJson["itemUsability"]);
+    }
+
+    if (itemJson.contains("useAbility") && itemJson["useAbility"].is_object()) {
+      const auto& useAbilityJson = itemJson["useAbility"];
+      if (useAbilityJson.contains("abilityName") &&
+          useAbilityJson["abilityName"].is_string()) {
+        model::ItemUseAbilityConfig useAbility;
+        useAbility.abilityName = useAbilityJson["abilityName"];
+        if (useAbilityJson.contains("dmgOverrides") &&
+            useAbilityJson["dmgOverrides"].is_array()) {
+          for (const auto& dmgJson : useAbilityJson["dmgOverrides"]) {
+            if (dmgJson.is_object()) {
+              useAbility.dmgOverrides.push_back(parseAbilityAttackDmg(dmgJson));
+            }
+          }
+        }
+        if (useAbilityJson.contains("restoreOverrides") &&
+            useAbilityJson["restoreOverrides"].is_array()) {
+          for (const auto& restoreJson : useAbilityJson["restoreOverrides"]) {
+            if (restoreJson.is_object()) {
+              useAbility.restoreOverrides.push_back(parseAbilityRestore(restoreJson));
+            }
+          }
+        }
+        itemTemplate.useAbility = useAbility;
+      }
+    }
+
     if (itemJson.contains("weapon") && itemJson["weapon"].is_object()) {
       const auto& weaponJson = itemJson["weapon"];
       if (weaponJson.contains("abilityName") && weaponJson["abilityName"].is_string()) {

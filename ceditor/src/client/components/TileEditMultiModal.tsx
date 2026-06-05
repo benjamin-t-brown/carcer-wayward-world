@@ -2,6 +2,7 @@ import { TextInput } from '../elements/TextInput';
 import { Button } from '../elements/Button';
 import { Sprite } from '../elements/Sprite';
 import {
+  TERRAIN_BORDER_META_OPTIONS,
   TileMetadata,
   TileStepSound,
   TileTerrainBorderMeta,
@@ -32,10 +33,11 @@ const TileBorderMetaSelect = (props: {
         value={props.value}
         onChange={(e) => props.onChange(e.target.value as TileTerrainBorderTag)}
       >
-        <option value={TileTerrainBorderTag.NONE}>None</option>
-        <option value={TileTerrainBorderTag.GRASS}>Grass</option>
-        <option value={TileTerrainBorderTag.DIRT}>Dirt</option>
-        <option value={TileTerrainBorderTag.WATER}>Water</option>
+        {TERRAIN_BORDER_META_OPTIONS.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
       </select>
     </div>
   );

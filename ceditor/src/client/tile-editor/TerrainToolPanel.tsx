@@ -7,7 +7,10 @@ import {
   updateEditorState,
 } from './editorState';
 import { PaintActionType } from './paintTools';
-import { TileTerrainBorderTag } from '../types/assets';
+import {
+  TERRAIN_BORDER_TAG_LABELS,
+  TileTerrainBorderTag,
+} from '../types/assets';
 import { getSpriteNameFromTileMetadata } from '../utils/draw';
 import {
   buildTerrainLookup,
@@ -16,13 +19,6 @@ import {
   getTerrainTileset,
   TERRAIN_TILESET_NAME,
 } from './terrainTool';
-
-const TERRAIN_LABELS: Record<TileTerrainBorderTag, string> = {
-  [TileTerrainBorderTag.NONE]: 'None',
-  [TileTerrainBorderTag.GRASS]: 'Grass',
-  [TileTerrainBorderTag.DIRT]: 'Dirt',
-  [TileTerrainBorderTag.WATER]: 'Water',
-};
 
 interface TerrainToolPanelProps {
   editorState: EditorState;
@@ -94,7 +90,7 @@ export function TerrainToolPanel({ editorState }: TerrainToolPanelProps) {
             <button
               key={tag}
               type="button"
-              title={TERRAIN_LABELS[tag]}
+              title={TERRAIN_BORDER_TAG_LABELS[tag]}
               onClick={() => updateEditorState({ selectedTerrainTag: tag })}
               style={{
                 display: 'flex',
@@ -129,7 +125,7 @@ export function TerrainToolPanel({ editorState }: TerrainToolPanelProps) {
                   <span style={{ fontSize: '10px', color: '#858585' }}>?</span>
                 )}
               </div>
-              {TERRAIN_LABELS[tag]}
+              {TERRAIN_BORDER_TAG_LABELS[tag]}
             </button>
           );
         })}

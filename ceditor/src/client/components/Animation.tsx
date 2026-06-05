@@ -10,6 +10,8 @@ interface AnimationProps {
   sprites: SpriteType[];
   spriteMap?: Record<string, SpriteType>;
   scale?: number;
+  /** Renders each frame into a square canvas of this many CSS pixels. */
+  displaySize?: number;
   className?: string;
   autoPlay?: boolean;
 }
@@ -19,12 +21,18 @@ export function Animation({
   sprites,
   spriteMap,
   scale = 1,
+  displaySize,
   className = '',
   autoPlay = true,
 }: AnimationProps) {
   const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
   const intervalRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
+
+  useEffect(() => {
+    setCurrentFrameIndex(0);
+    startTimeRef.current = performance.now();
+  }, [animation.name]);
 
   // Find sprite by name - use spriteMap if available for O(1) lookup
   const getSpriteByName = (name: string): SpriteType | undefined => {
@@ -102,7 +110,7 @@ export function Animation({
 
   return (
     <div className={className} style={{ display: 'inline-block' }}>
-      <Sprite sprite={currentSprite} scale={scale} />
+      <Sprite sprite={currentSprite} scale={scale} displaySize={displaySize} />
     </div>
   );
 }
