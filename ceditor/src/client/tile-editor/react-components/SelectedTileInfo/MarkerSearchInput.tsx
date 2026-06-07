@@ -1,7 +1,7 @@
 import {
   SearchInput,
   SearchInputDropdownPlacement,
-} from '../../elements/SearchInput';
+} from '../../../elements/SearchInput';
 
 export function MarkerSearchInput({
   markerNames,

@@ -1,8 +1,8 @@
-import { CharacterTemplate } from '../../types/assets';
+import { CharacterTemplate } from '../../../types/assets';
 import {
   SearchInput,
   SearchInputDropdownPlacement,
-} from '../../elements/SearchInput';
+} from '../../../elements/SearchInput';
 
 export function CharacterSearchInput({
   characters,

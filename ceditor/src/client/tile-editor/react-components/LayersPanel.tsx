@@ -3,12 +3,12 @@ import {
   EditorState,
   setCurrentPaintAction,
   updateEditorState,
-} from './editorState';
-import { PaintActionType } from './paintTools';
-import { CarcerMapTemplate } from '../types/assets';
-import { Button } from '../elements/Button';
+} from '../editorState';
+import { PaintActionType } from '../paintTools';
+import { CarcerMapTemplate } from '../../types/assets';
+import { Button } from '../../elements/Button';
 import { useState } from 'react';
-import { DeleteModal } from '../elements/DeleteModal';
+import { DeleteModal } from '../../elements/DeleteModal';
 import { MapSearchAccordion } from './MapSearchAccordion';
 
 interface LayersPanelProps {

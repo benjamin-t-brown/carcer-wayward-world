@@ -1,7 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import { CarcerMapTemplate } from '../types/assets';
-import { Button } from '../elements/Button';
-import { useAssets } from '../contexts/AssetsContext';
+import { CarcerMapTemplate } from '../../types/assets';
+import { Button } from '../../elements/Button';
+import { useAssets } from '../../contexts/AssetsContext';
 import { CharacterSearchInput } from './SelectedTileInfo/CharacterSearchInput';
 import { MarkerSearchInput } from './SelectedTileInfo/MarkerSearchInput';
 import {
@@ -10,7 +10,7 @@ import {
   findCharacterOnMap,
   findMarkerOnMap,
   locateOnCurrentMap,
-} from './mapLocate';
+} from '../mapLocate';
 
 interface MapSearchAccordionProps {
   map: CarcerMapTemplate;

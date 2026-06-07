@@ -1,9 +1,9 @@
-import { CarcerMapTileTemplate, ItemTemplate } from '../../types/assets';
+import { CarcerMapTileTemplate, ItemTemplate } from '../../../types/assets';
 import {
   moveMapTileItem,
   removeMapTileItem,
   setMapTileItemQuantity,
-} from '../mapTileItems';
+} from '../../mapTileItems';
 
 function ReorderButton({
   label,

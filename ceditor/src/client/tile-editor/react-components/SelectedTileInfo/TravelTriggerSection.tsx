@@ -1,6 +1,6 @@
-import { CarcerMapTemplate, CarcerMapTileTemplate } from '../../types/assets';
-import { getEditorState } from '../editorState';
-import { OpenMapAndSelectTileArgs } from '../TileEditor';
+import { CarcerMapTemplate, CarcerMapTileTemplate } from '../../../types/assets';
+import { getEditorState } from '../../editorState';
+import { OpenMapAndSelectTileArgs } from '../../TileEditor';
 
 interface TravelTriggerSectionProps {
   selectedTile: CarcerMapTileTemplate;

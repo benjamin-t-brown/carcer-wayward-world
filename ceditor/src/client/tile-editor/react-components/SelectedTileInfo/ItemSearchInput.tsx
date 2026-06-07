@@ -2,7 +2,7 @@ import { ItemTemplate } from '../../../types/assets';
 import {
   SearchInput,
   SearchInputDropdownPlacement,
-} from '../../elements/SearchInput';
+} from '../../../elements/SearchInput';
 
 export function ItemSearchInput({
   items,

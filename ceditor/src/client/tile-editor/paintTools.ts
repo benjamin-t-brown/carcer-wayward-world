@@ -8,19 +8,24 @@ import { createDefaultCarcerMapTile } from '../components/MapTemplateForm';
 import { FloorBrushData } from './renderState';
 import {
   EditorState,
-  clearTerrainGridDirty,
   findEditorStateMap,
   getEditorStateMap,
-  markTerrainGridDirty,
   updateEditorStateMapNoReRender,
   updateEditorStateNoReRender,
 } from './editorState';
 import { getIsDraggingRight, getTileList } from './editorEvents';
+// import {
+//   buildTerrainLookup,
+//   collectAffectedTileIndices,
+//   getTerrainTileset,
+//   paintTerrainAt,
+//   TERRAIN_TILESET_NAME,
+// } from './terrainTool';
 import {
   buildTerrainLookup,
-  collectAffectedTileIndices,
+  getAdjacentTileInds,
   getTerrainTileset,
-  paintTerrainAt,
+  getTileChangesForPaintingTerrainAt,
   TERRAIN_TILESET_NAME,
 } from './terrainTool';
 
@@ -88,7 +93,7 @@ export const createPaintAction = (type: PaintActionType) => {
 export const applyAction = (
   action: PaintAction,
   mapData: CarcerMapTemplate,
-  editorState: EditorState
+  editorState: EditorState,
 ) => {
   const mapTiles = getTileList(mapData);
   switch (action.type) {
@@ -102,7 +107,11 @@ export const applyAction = (
     case PaintActionType.FILL: {
       const ind =
         getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
-      const fillIndsFloor = calculateFillIndsFloor(ind, mapData, editorState.currentLevel);
+      const fillIndsFloor = calculateFillIndsFloor(
+        ind,
+        mapData,
+        editorState.currentLevel,
+      );
       // Store the tile indices and ensure previous data is stored for undo
       action.data.tileInds = fillIndsFloor;
       for (let i = 0; i < fillIndsFloor.length; i++) {
@@ -113,7 +122,7 @@ export const applyAction = (
         }
         mapTiles[tileInd] = Object.assign(
           mapTiles[tileInd],
-          action.data.paintTileRef
+          action.data.paintTileRef,
         );
       }
       break;
@@ -121,7 +130,11 @@ export const applyAction = (
     case PaintActionType.DELETE_FILL: {
       const ind =
         getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
-      const fillIndsFloor = calculateFillIndsFloor(ind, mapData, editorState.currentLevel);
+      const fillIndsFloor = calculateFillIndsFloor(
+        ind,
+        mapData,
+        editorState.currentLevel,
+      );
       action.data.tileInds = fillIndsFloor;
       for (let i = 0; i < fillIndsFloor.length; i++) {
         const tileInd = fillIndsFloor[i];
@@ -269,18 +282,12 @@ export const applyAction = (
     case PaintActionType.REF_CHANGE:
       break;
   }
-  if (
-    action.type === PaintActionType.FILL ||
-    action.type === PaintActionType.DELETE_FILL
-  ) {
-    markTerrainGridDirty();
-  }
 };
 
 export const applyActionUpdate = (
   action: PaintAction,
   mapData: CarcerMapTemplate,
-  editorState: EditorState
+  editorState: EditorState,
 ) => {
   const mapTiles = getTileList(mapData);
   switch (action.type) {
@@ -349,14 +356,6 @@ export const applyActionUpdate = (
     case PaintActionType.REF_CHANGE:
       break;
   }
-  if (
-    action.type === PaintActionType.DRAW ||
-    action.type === PaintActionType.ERASE ||
-    action.type === PaintActionType.FILL ||
-    action.type === PaintActionType.DELETE_FILL
-  ) {
-    markTerrainGridDirty();
-  }
 };
 
 export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
@@ -376,7 +375,6 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
           mapTiles[ind] = structuredClone(action.data.extraPrevRefData[i]);
         }
       }
-      markTerrainGridDirty();
       break;
     case PaintActionType.ERASE:
       // Restore previous tile data for all affected tiles
@@ -386,7 +384,6 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
           mapTiles[ind] = structuredClone(action.data.prevRefData[i]);
         }
       }
-      markTerrainGridDirty();
       break;
     case PaintActionType.ERASE_META:
       // Restore previous tile metadata for all affected tiles
@@ -429,7 +426,6 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
           mapTiles[tileInd] = structuredClone(action.data.prevRefData[i]);
         }
       }
-      markTerrainGridDirty();
       break;
     }
     case PaintActionType.DELETE_FILL: {
@@ -439,7 +435,6 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
           mapTiles[tileInd] = structuredClone(action.data.prevRefData[i]);
         }
       }
-      markTerrainGridDirty();
       break;
     }
     case PaintActionType.TERRAIN: {
@@ -449,7 +444,6 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
           mapTiles[tileInd] = structuredClone(action.data.prevRefData[i]);
         }
       }
-      markTerrainGridDirty();
       break;
     }
     case PaintActionType.SELECT: {
@@ -465,13 +459,13 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
           // Restore source tile (index 0 in prevRefData)
           if (0 < action.data.prevRefData.length) {
             mapTiles[sourceTileIndex] = structuredClone(
-              action.data.prevRefData[0]
+              action.data.prevRefData[0],
             );
           }
           // Restore destination tile (index 1 in prevRefData)
           if (1 < action.data.prevRefData.length) {
             mapTiles[destTileIndex] = structuredClone(
-              action.data.prevRefData[1]
+              action.data.prevRefData[1],
             );
           }
         }
@@ -491,7 +485,7 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
           // Source tile (index 0) is not modified by CLONE, so we don't restore it
           if (1 < action.data.prevRefData.length) {
             mapTiles[destTileIndex] = structuredClone(
-              action.data.prevRefData[1]
+              action.data.prevRefData[1],
             );
           }
         }
@@ -512,7 +506,7 @@ function applyTerrainPaintUpdate(
   action: PaintAction,
   mapData: CarcerMapTemplate,
   editorState: EditorState,
-  tilesets: TilesetTemplate[]
+  tilesets: TilesetTemplate[],
 ) {
   const mapTiles = getTileList(mapData);
   const ind =
@@ -527,25 +521,13 @@ function applyTerrainPaintUpdate(
   action.data.extraTileInds.push(ind);
 
   const terrainTileset = getTerrainTileset(tilesets);
-  if (!terrainTileset) {
-    console.warn(`Terrain tileset "${TERRAIN_TILESET_NAME}" not found`);
-    return;
-  }
 
   const mapState = findEditorStateMap(editorState, editorState.selectedMapName);
   const x = ind % mapData.width;
   const y = Math.floor(ind / mapData.width);
   const lookup = buildTerrainLookup(terrainTileset);
 
-  const affected = collectAffectedTileIndices(mapData, x, y);
-  for (const a of affected) {
-    if (!action.data.tileInds.includes(a)) {
-      action.data.tileInds.push(a);
-      action.data.prevRefData.push(structuredClone(mapTiles[a]));
-    }
-  }
-
-  paintTerrainAt(
+  const tileChanges = getTileChangesForPaintingTerrainAt(
     mapData,
     editorState,
     mapState,
@@ -553,16 +535,26 @@ function applyTerrainPaintUpdate(
     lookup,
     x,
     y,
-    editorState.selectedTerrainTag
+    editorState.selectedTerrainTag,
   );
-  clearTerrainGridDirty();
+
+  for (const tileChange of tileChanges) {
+    if (!action.data.tileInds.includes(tileChange.ind)) {
+      action.data.tileInds.push(tileChange.ind);
+      action.data.prevRefData.push(structuredClone(mapTiles[tileChange.ind]));
+    }
+  }
+  for (const tileChange of tileChanges) {
+    mapTiles[tileChange.ind].tileId = tileChange.tileId;
+    mapTiles[tileChange.ind].tilesetName = TERRAIN_TILESET_NAME;
+  }
 }
 
 export const onActionUpdate = (
   action: PaintAction,
   mapData: CarcerMapTemplate,
   editorState: EditorState,
-  tilesets?: TilesetTemplate[]
+  tilesets?: TilesetTemplate[],
 ) => {
   const mapTiles = getTileList(mapData);
   const ind =
@@ -610,7 +602,7 @@ export const onActionUpdate = (
             if (!action.data.extraTileInds.includes(newInd)) {
               action.data.extraTileInds.push(newInd);
               action.data.extraPrevRefData.push(
-                structuredClone(mapTiles[newInd])
+                structuredClone(mapTiles[newInd]),
               );
             }
           }
@@ -625,7 +617,7 @@ export const onActionUpdate = (
 export const onActionComplete = (
   action: PaintAction,
   mapData: CarcerMapTemplate,
-  editorState: EditorState
+  editorState: EditorState,
 ) => {
   currentAction = null;
   console.log('ACTION COMPLETE', action);
@@ -655,10 +647,10 @@ export const onActionComplete = (
 
 export const undo = (
   mapData: CarcerMapTemplate,
-  editorState: EditorState
+  editorState: EditorState,
 ): boolean => {
   const { undoHistory, undoIndex } = getEditorStateMap(
-    editorState.selectedMapName
+    editorState.selectedMapName,
   ) ?? { undoHistory: [], undoIndex: 0 };
 
   // Check if we can undo
@@ -689,8 +681,9 @@ export const onTileHoverIndChange = (
   editorState: EditorState,
   currentPaintAction: PaintActionType,
   prevHoverInd: number,
-  nextHoverInd: number
+  nextHoverInd: number,
 ) => {
+  const mapState = getEditorStateMap(editorState.selectedMapName);
   if (nextHoverInd !== -1) {
     if (
       mapData &&
@@ -698,16 +691,45 @@ export const onTileHoverIndChange = (
         currentPaintAction === PaintActionType.DELETE_FILL)
     ) {
       updateEditorStateNoReRender({
-        fillIndsFloor: calculateFillIndsFloor(nextHoverInd, mapData, editorState.currentLevel),
+        fillIndsFloor: calculateFillIndsFloor(
+          nextHoverInd,
+          mapData,
+          editorState.currentLevel,
+        ),
       });
     } else {
       updateEditorStateNoReRender({
         fillIndsFloor: [],
       });
     }
+
+    if (mapData && mapState && currentPaintAction === PaintActionType.TERRAIN) {
+      const terrainTileset = getTerrainTileset(editorState.tilesets);
+      const lookup = buildTerrainLookup(terrainTileset);
+      const x = nextHoverInd % mapData.width;
+      const y = Math.floor(nextHoverInd / mapData.width);
+      const changes = getTileChangesForPaintingTerrainAt(
+        mapData,
+        editorState,
+        mapState,
+        terrainTileset,
+        lookup,
+        x,
+        y,
+        editorState.selectedTerrainTag,
+      );
+      updateEditorStateNoReRender({
+        terrainPaintChanges: changes,
+      });
+    } else {
+      updateEditorStateNoReRender({
+        terrainPaintChanges: [],
+      });
+    }
   } else {
     updateEditorStateNoReRender({
       fillIndsFloor: [],
+      terrainPaintChanges: [],
     });
   }
 

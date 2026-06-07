@@ -1,7 +1,7 @@
-import { EditorState } from './editorState';
-import { CarcerMapTemplate } from '../types/assets';
+import { EditorState } from '../editorState';
+import { CarcerMapTemplate } from '../../types/assets';
 import { SelectedTileInfo } from './SelectedTileInfo';
-import { OpenMapAndSelectTileArgs } from './TileEditor';
+import { OpenMapAndSelectTileArgs } from '../TileEditor';
 
 interface ToolsPanelProps {
   editorState: EditorState;

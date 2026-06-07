@@ -1,18 +1,18 @@
 import { useEffect, useRef } from 'react';
 import { CarcerMapTemplate } from '../types/assets';
 import { useRenderLoop } from '../hooks/useRenderLoop';
-import { MapCanvas } from './MapCanvas';
+import { MapCanvas } from './react-components/MapCanvas';
 import { initPanzoom, unInitPanzoom } from './editorEvents';
 import { loop } from './loop';
 import { EditorState, getEditorState } from './editorState';
-import { TilePicker } from './TilePicker';
-import { ToolsPanel } from './ToolsPanel';
-import { MapToolsOverlay } from './MapToolsOverlay';
+import { TilePicker } from './react-components/TilePicker';
+import { ToolsPanel } from './react-components/ToolsPanel';
+import { MapToolsOverlay } from './react-components/MapToolsOverlay';
 import { useReRender } from '../hooks/useReRender';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { useAssets } from '../contexts/AssetsContext';
 import { undo } from './paintTools';
-import { LayersPanel } from './LayersPanel';
+import { LayersPanel } from './react-components/LayersPanel';
 import { TerrainToolPanel } from './TerrainToolPanel';
 
 interface TileEditorProps {
@@ -52,6 +52,7 @@ export function TileEditor({
   }, [map]);
   useEffect(() => {
     editorState.current = getEditorState();
+    editorState.current.tilesets = tilesets;
   }, [editorState]);
 
   useEffect(() => {

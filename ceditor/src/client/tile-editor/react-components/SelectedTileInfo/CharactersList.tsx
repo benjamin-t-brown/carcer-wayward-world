@@ -1,4 +1,4 @@
-import { CarcerMapTileTemplate, CharacterTemplate } from '../../types/assets';
+import { CarcerMapTileTemplate, CharacterTemplate } from '../../../types/assets';
 
 interface CharactersListProps {
   selectedTile: CarcerMapTileTemplate;

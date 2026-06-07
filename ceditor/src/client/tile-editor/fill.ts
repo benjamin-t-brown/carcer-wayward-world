@@ -28,7 +28,7 @@ const getTileCoords = (ind: number, width: number) => {
 };
 
 const getTileId = (tile: CarcerMapTileTemplate) => {
-  return `${tile.tilesetName}_${tile.tileId}`;
+  return `${tile?.tilesetName}_${tile?.tileId ?? 0}`;
 };
 
 export const calculateFillIndsFloor = (

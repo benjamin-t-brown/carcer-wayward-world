@@ -1,5 +1,5 @@
-import { EditorState, setCurrentPaintAction } from './editorState';
-import { PaintActionType } from './paintTools';
+import { EditorState, setCurrentPaintAction } from '../editorState';
+import { PaintActionType } from '../paintTools';
 
 interface ToolButtonProps {
   onClick: () => void;

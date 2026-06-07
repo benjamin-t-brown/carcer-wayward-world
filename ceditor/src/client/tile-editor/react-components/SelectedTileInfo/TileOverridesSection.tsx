@@ -1,4 +1,4 @@
-import { CarcerMapTileTemplate, TileOverrides } from '../../types/assets';
+import { CarcerMapTileTemplate, TileOverrides } from '../../../types/assets';
 import { OverrideCheckbox } from './OverrideCheckbox';
 
 interface TileOverridesSectionProps {

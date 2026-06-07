@@ -1,10 +1,12 @@
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
+  TilesetTemplate,
   TileTerrainBorderTag,
 } from '../types/assets';
 import { PaintActionType, PaintAction } from './paintTools';
 import { FloorBrushData } from './renderState';
+import { TerrainPaintTileChange } from './terrainTool';
 
 export interface EditorStateMap {
   selectedTileInd: number;
@@ -26,6 +28,7 @@ export interface EditorState {
   selectedTilesetName: string;
   currentPaintAction: PaintActionType;
   fillIndsFloor: number[];
+  terrainPaintChanges: TerrainPaintTileChange[];
   drawOverlayText: boolean;
   isSelectDragging: boolean;
   selectDragSourceTileIndex: number;
@@ -34,8 +37,8 @@ export interface EditorState {
   rectCloneBrushTiles: FloorBrushData[];
   currentLevel: number;
   selectedTerrainTag: TileTerrainBorderTag;
-  terrainGridDirty: boolean;
   maps: Record<string, EditorStateMap>;
+  tilesets: TilesetTemplate[];
 }
 
 const editorState: EditorState = {
@@ -44,6 +47,7 @@ const editorState: EditorState = {
   selectedTilesetName: '',
   currentPaintAction: 'SELECT' as any,
   fillIndsFloor: [],
+  terrainPaintChanges: [],
   drawOverlayText: false,
   isSelectDragging: false,
   selectDragSourceTileIndex: -1,
@@ -52,8 +56,8 @@ const editorState: EditorState = {
   rectCloneBrushTiles: [],
   currentLevel: 0,
   selectedTerrainTag: TileTerrainBorderTag.GRASS,
-  terrainGridDirty: false,
   maps: {},
+  tilesets: [],
 };
 export const getEditorState = () => editorState;
 export const updateEditorState = (state: Partial<EditorState>) => {
@@ -127,14 +131,6 @@ export const getCurrentSelectedTileId = () => {
 
 export const setCurrentPaintAction = (paintAction: PaintActionType) => {
   updateEditorState({ currentPaintAction: paintAction });
-};
-
-export const markTerrainGridDirty = () => {
-  updateEditorStateNoReRender({ terrainGridDirty: true });
-};
-
-export const clearTerrainGridDirty = () => {
-  updateEditorStateNoReRender({ terrainGridDirty: false });
 };
 
 export const getCurrentPaintAction = () => {

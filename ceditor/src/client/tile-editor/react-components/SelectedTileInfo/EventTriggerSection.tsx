@@ -2,8 +2,8 @@ import {
   CarcerMapTileTemplate,
   GameEvent,
   TilesetTemplate,
-} from '../../types/assets';
-import { isMapTileWalkable } from '../mapTileWalkability';
+} from '../../../types/assets';
+import { isMapTileWalkable } from '../../mapTileWalkability';
 import { EventSearchInput } from './EventSearchInput';
 import { OverrideCheckbox } from './OverrideCheckbox';
 

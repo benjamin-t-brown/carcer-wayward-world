@@ -2,10 +2,7 @@ import { useMemo } from 'react';
 import { useAssets } from '../contexts/AssetsContext';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { Sprite } from '../elements/Sprite';
-import {
-  EditorState,
-  updateEditorState,
-} from './editorState';
+import { EditorState, updateEditorState } from './editorState';
 import { PaintActionType } from './paintTools';
 import {
   TERRAIN_BORDER_TAG_LABELS,
@@ -14,10 +11,11 @@ import {
 import { getSpriteNameFromTileMetadata } from '../utils/draw';
 import {
   buildTerrainLookup,
-  findInteriorTileId,
+  // findInteriorTileId,
   getPaintableTerrainTags,
   getTerrainTileset,
   TERRAIN_TILESET_NAME,
+  terrainMetaKey,
 } from './terrainTool';
 
 interface TerrainToolPanelProps {
@@ -31,12 +29,12 @@ export function TerrainToolPanel({ editorState }: TerrainToolPanelProps) {
   const terrainTileset = getTerrainTileset(tilesets);
   const lookup = useMemo(
     () => (terrainTileset ? buildTerrainLookup(terrainTileset) : null),
-    [terrainTileset]
+    [terrainTileset],
   );
 
   const paintableTags = useMemo(
     () => (lookup ? getPaintableTerrainTags(lookup) : []),
-    [lookup]
+    [lookup],
   );
 
   if (editorState.currentPaintAction !== PaintActionType.TERRAIN) {
@@ -75,7 +73,9 @@ export function TerrainToolPanel({ editorState }: TerrainToolPanelProps) {
         }}
       >
         {paintableTags.map((tag) => {
-          const tileId = findInteriorTileId(lookup, tag);
+          const tileId = lookup.get(
+            terrainMetaKey({ nw: tag, ne: tag, sw: tag, se: tag }),
+          );
           const tile =
             tileId !== undefined
               ? terrainTileset.tiles.find((t) => t.id === tileId)
@@ -97,9 +97,7 @@ export function TerrainToolPanel({ editorState }: TerrainToolPanelProps) {
                 alignItems: 'center',
                 gap: '8px',
                 padding: '6px 8px',
-                border: isActive
-                  ? '2px solid #4ec9b0'
-                  : '1px solid #3e3e42',
+                border: isActive ? '2px solid #4ec9b0' : '1px solid #3e3e42',
                 borderRadius: '4px',
                 backgroundColor: isActive ? '#2a3a36' : '#1e1e1e',
                 cursor: 'pointer',

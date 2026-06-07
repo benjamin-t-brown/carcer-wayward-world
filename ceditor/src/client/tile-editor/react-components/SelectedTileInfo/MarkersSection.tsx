@@ -2,14 +2,14 @@ import { useMemo, useState } from 'react';
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
-} from '../../types/assets';
-import { Button } from '../../elements/Button';
-import { OpenMapAndSelectTileArgs } from '../TileEditor';
+} from '../../../types/assets';
+import { Button } from '../../../elements/Button';
+import { OpenMapAndSelectTileArgs } from '../../TileEditor';
 import {
   findTravelTriggerReferencesToMarker,
   locateOnCurrentMap,
   type MapMarkerReference,
-} from '../mapLocate';
+} from '../../mapLocate';
 
 interface MarkersSectionProps {
   map: CarcerMapTemplate;

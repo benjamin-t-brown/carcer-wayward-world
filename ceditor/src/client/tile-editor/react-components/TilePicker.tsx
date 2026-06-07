@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { useAssets } from '../contexts/AssetsContext';
-import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
-import { EditorState, updateEditorState } from './editorState';
-import { OptionSelect } from '../elements/OptionSelect';
-import { TileEditModal } from '../components/TileEditModal';
-import { TileMetadata } from '../types/assets';
-import { Sprite } from '../elements/Sprite';
-import { getCachedImage } from '../utils/spriteUtils';
+import { useAssets } from '../../contexts/AssetsContext';
+import { useSDL2WAssets } from '../../contexts/SDL2WAssetsContext';
+import { EditorState, updateEditorState } from '../../tile-editor/editorState';
+import { OptionSelect } from '../../elements/OptionSelect';
+import { TileEditModal } from '../../components/TileEditModal';
+import { TileMetadata } from '../../types/assets';
+import { Sprite } from '../../elements/Sprite';
+import { getCachedImage } from '../../utils/spriteUtils';
 
 export function TilePicker(props: { editorState: EditorState }) {
   const { tilesets, setTilesets } = useAssets();
@@ -498,7 +498,7 @@ export function TilePicker(props: { editorState: EditorState }) {
           tiles={[{ tile: selectedTile, tileIndex: editorState.selectedTileIndexInTileset }]}
           tilesetName={selectedTileset.name}
           onClose={() => setIsEditModalOpen(false)}
-          onUpdate={handleUpdateTile}
+          onUpdate={handleUpdateTile as any}
         />
       )}
     </div>

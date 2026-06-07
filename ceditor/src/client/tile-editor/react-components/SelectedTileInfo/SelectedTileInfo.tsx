@@ -1,9 +1,9 @@
-import { CarcerMapTemplate, CarcerMapTileTemplate } from '../../types/assets';
-import { useSDL2WAssets } from '../../contexts/SDL2WAssetsContext';
-import { useAssets } from '../../contexts/AssetsContext';
-import { getSpriteNameFromTile } from '../../utils/draw';
-import { Sprite } from '../../elements/Sprite';
-import { EditorState, getEditorState, getEditorStateMap } from '../editorState';
+import { CarcerMapTemplate, CarcerMapTileTemplate } from '../../../types/assets';
+import { useSDL2WAssets } from '../../../contexts/SDL2WAssetsContext';
+import { useAssets } from '../../../contexts/AssetsContext';
+import { getSpriteNameFromTile } from '../../../utils/draw';
+import { Sprite } from '../../../elements/Sprite';
+import { EditorState, getEditorState, getEditorStateMap } from '../../editorState';
 import { ItemSearchInput } from './ItemSearchInput';
 import { CharacterSearchInput } from './CharacterSearchInput';
 import { MarkersSection } from './MarkersSection';
@@ -12,9 +12,9 @@ import { CharactersList } from './CharactersList';
 import { TravelTriggerSection } from './TravelTriggerSection';
 import { EventTriggerSection } from './EventTriggerSection';
 import { TileOverridesSection } from './TileOverridesSection';
-import { OpenMapAndSelectTileArgs } from '../TileEditor';
-import { getTileList } from '../editorEvents';
-import { addMapTileItemEntry } from '../mapTileItems';
+import { OpenMapAndSelectTileArgs } from '../../TileEditor';
+import { getTileList } from '../../editorEvents';
+import { addMapTileItemEntry } from '../../mapTileItems';
 
 interface SelectedTileInfoProps {
   editorState: EditorState;

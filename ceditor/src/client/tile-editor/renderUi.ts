@@ -16,10 +16,8 @@ import {
 import { EditorState, getEditorStateMap } from './editorState';
 import {
   buildTerrainLookup,
-  buildVertexGridFromMap,
-  getTerrainPaintPreviewCells,
   getTerrainTileset,
-  vertexGridSize,
+  getTileChangesForPaintingTerrainAt,
 } from './terrainTool';
 import {
   getIndsOfBoundingRect,
@@ -35,7 +33,7 @@ const drawHighlightRect = (
   tileWidth: number,
   tileHeight: number,
   scale: number,
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
 ) => {
   drawRect(
     tileX,
@@ -44,7 +42,7 @@ const drawHighlightRect = (
     tileHeight * scale,
     'rgba(67, 67, 255, 0.44)',
     false,
-    ctx
+    ctx,
   );
 };
 
@@ -54,7 +52,7 @@ const drawHighlightEraseRect = (
   tileWidth: number,
   tileHeight: number,
   scale: number,
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
 ) => {
   drawRect(
     tileX,
@@ -63,7 +61,7 @@ const drawHighlightEraseRect = (
     tileHeight * scale,
     'rgba(255, 67, 67, 0.44)',
     false,
-    ctx
+    ctx,
   );
 };
 
@@ -73,7 +71,7 @@ const drawSelectedTileRect = (
   tileWidth: number,
   tileHeight: number,
   scale: number,
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
 ) => {
   // Draw a thicker border to indicate selected tile
   const borderWidth = 2;
@@ -84,7 +82,7 @@ const drawSelectedTileRect = (
     tileHeight * scale,
     'rgba(255, 255, 255, 0.2)',
     false,
-    ctx
+    ctx,
   );
   // Draw inner border for better visibility
   drawRect(
@@ -94,7 +92,7 @@ const drawSelectedTileRect = (
     tileHeight * scale - borderWidth * 2,
     'rgba(0, 255, 0, 0.1)',
     false,
-    ctx
+    ctx,
   );
 };
 
@@ -103,7 +101,7 @@ const drawHighlightTile = (
   tileX: number,
   tileY: number,
   scale: number,
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
 ) => {
   ctx.save();
   ctx.globalAlpha = 0.65;
@@ -118,19 +116,19 @@ export const renderToolUi = (
   spriteMap: Record<string, Sprite>,
   tilesets: TilesetTemplate[],
   characters: CharacterTemplate[],
-  items: ItemTemplate[]
+  items: ItemTemplate[],
 ) => {
   const currentPaintAction = editorState.currentPaintAction;
   const paintTileIndexInTileset = editorState.selectedTileIndexInTileset;
   const selectedTileset = tilesets.find(
-    (t) => t.name === editorState.selectedTilesetName
+    (t) => t.name === editorState.selectedTilesetName,
   );
   const paintTile = selectedTileset?.tiles[paintTileIndexInTileset];
   const paintTileSprite = paintTile
     ? spriteMap[
         getSpriteNameFromTileMetadata(
           selectedTileset?.spriteBase ?? '',
-          paintTile
+          paintTile,
         )
       ]
     : undefined;
@@ -146,11 +144,11 @@ export const renderToolUi = (
   ctx.translate(transformX, transformY);
   ctx.translate(
     (ctx.canvas.width * scale) / 2,
-    (ctx.canvas.height * scale) / 2
+    (ctx.canvas.height * scale) / 2,
   );
   ctx.translate(
     -(mapData.width * tileWidth * scale) / 2,
-    -(mapData.height * tileHeight * scale) / 2
+    -(mapData.height * tileHeight * scale) / 2,
   );
 
   // Draw selected tile indicator
@@ -202,7 +200,7 @@ export const renderToolUi = (
         tileHeight * scale,
         'rgba(255, 165, 0, 0.44)',
         false,
-        ctx
+        ctx,
       );
     }
   } else if (currentPaintAction === PaintActionType.TERRAIN) {
@@ -213,42 +211,39 @@ export const renderToolUi = (
       const paintX = hoveredTileInd % mapData.width;
       const paintY = Math.floor(hoveredTileInd / mapData.width);
       const mapState = getEditorStateMap(editorState.selectedMapName);
-      let grid = mapState?.terrainVertexGridsByLevel?.[editorState.currentLevel];
-      if (!grid || grid.length !== vertexGridSize(mapData)) {
-        grid = buildVertexGridFromMap(
-          mapData,
-          editorState.currentLevel,
-          terrainTileset
-        );
-      }
       const lookup = buildTerrainLookup(terrainTileset);
-      const paintTag = editorState.selectedTerrainTag;
-      const previewCells = getTerrainPaintPreviewCells(
+      if (!mapState) {
+        return;
+      }
+
+      const tileChanges = getTileChangesForPaintingTerrainAt(
         mapData,
-        grid,
+        editorState,
+        mapState,
+        terrainTileset,
+        lookup,
         paintX,
         paintY,
-        paintTag,
-        lookup,
-        terrainTileset
+        editorState.selectedTerrainTag,
       );
-      for (const cell of previewCells) {
+      for (const tileChange of tileChanges) {
         const previewTile = terrainTileset.tiles.find(
-          (t) => t.id === cell.tileId
+          (t) => t.id === tileChange.tileId,
         );
         const previewSprite = previewTile
           ? spriteMap[
               getSpriteNameFromTileMetadata(
                 terrainTileset.spriteBase,
-                previewTile
+                previewTile,
               )
             ]
           : undefined;
         if (!previewSprite) {
           continue;
         }
-        const tileX = cell.x * tileWidth * scale;
-        const tileY = cell.y * tileHeight * scale;
+        const tileX = (tileChange.ind % mapData.width) * tileWidth * scale;
+        const tileY =
+          Math.floor(tileChange.ind / mapData.width) * tileHeight * scale;
         drawHighlightTile(previewSprite, tileX, tileY, scale, ctx);
         drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
       }
@@ -293,7 +288,7 @@ export const renderToolUi = (
     }
   } else if (currentPaintAction === PaintActionType.DRAW) {
     const partialHoveredTileData = getEditorStateMap(
-      editorState.selectedMapName
+      editorState.selectedMapName,
     )?.hoveredTileData ?? { x: -1, y: -1 };
     if (
       getIsDraggingRight() &&
@@ -305,7 +300,7 @@ export const renderToolUi = (
       const dragSelectedInds = getIndsOfBoundingRect(
         ind0,
         ind1,
-        mapData.width ?? 0
+        mapData.width ?? 0,
       );
       for (const ind of dragSelectedInds) {
         const tile = mapTiles[ind];
@@ -482,7 +477,7 @@ export const renderTileAndExtras = (args: {
             color: '#ffffff',
             align: 'center',
           },
-          ctx
+          ctx,
         );
         textI++;
       }
@@ -498,7 +493,7 @@ export const renderTileAndExtras = (args: {
           color: '#ffffff',
           align: 'center',
         },
-        ctx
+        ctx,
       );
       textI++;
     }
@@ -513,7 +508,7 @@ export const renderTileAndExtras = (args: {
           color: '#ffffff',
           align: 'center',
         },
-        ctx
+        ctx,
       );
       textI++;
     }

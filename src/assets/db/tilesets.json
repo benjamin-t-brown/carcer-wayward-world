@@ -694,10 +694,10 @@
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "DIRT",
-          "nw": "DIRT",
-          "se": "DIRT",
-          "sw": "DIRT"
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "NONE"
         }
       },
       {
@@ -709,10 +709,10 @@
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "GRASS",
-          "nw": "GRASS",
-          "se": "DIRT",
-          "sw": "DIRT"
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "NONE"
         }
       },
       {
@@ -724,10 +724,10 @@
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "DIRT",
-          "nw": "DIRT",
-          "se": "GRASS",
-          "sw": "GRASS"
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "NONE"
         }
       },
       {
@@ -739,10 +739,10 @@
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "GRASS",
-          "nw": "DIRT",
-          "se": "GRASS",
-          "sw": "DIRT"
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "NONE"
         }
       },
       {
@@ -754,10 +754,10 @@
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "DIRT",
-          "nw": "GRASS",
-          "se": "DIRT",
-          "sw": "GRASS"
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "NONE"
         }
       },
       {
@@ -769,10 +769,10 @@
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "GRASS",
-          "nw": "DIRT",
-          "se": "DIRT",
-          "sw": "DIRT"
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "NONE"
         }
       },
       {
@@ -784,10 +784,10 @@
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "DIRT",
-          "nw": "GRASS",
-          "se": "DIRT",
-          "sw": "DIRT"
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "NONE"
         }
       },
       {
@@ -799,10 +799,10 @@
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "DIRT",
-          "nw": "DIRT",
-          "se": "GRASS",
-          "sw": "DIRT"
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "NONE"
         }
       },
       {
@@ -814,10 +814,10 @@
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "DIRT",
-          "nw": "DIRT",
-          "se": "DIRT",
-          "sw": "GRASS"
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "NONE"
         }
       },
       {
@@ -829,10 +829,10 @@
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "GRASS",
-          "nw": "GRASS",
-          "se": "GRASS",
-          "sw": "DIRT"
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "NONE"
         }
       },
       {
@@ -844,10 +844,10 @@
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "GRASS",
-          "nw": "GRASS",
-          "se": "DIRT",
-          "sw": "GRASS"
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "NONE"
         }
       },
       {
@@ -859,10 +859,10 @@
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "GRASS",
-          "nw": "DIRT",
-          "se": "GRASS",
-          "sw": "GRASS"
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "NONE"
         }
       },
       {
@@ -874,10 +874,10 @@
         "isDoor": false,
         "isContainer": false,
         "tileTerrainBorderMeta": {
-          "ne": "DIRT",
-          "nw": "GRASS",
-          "se": "GRASS",
-          "sw": "GRASS"
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "NONE"
         }
       },
       {
@@ -887,7 +887,13 @@
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
-        "isContainer": false
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "NONE"
+        }
       },
       {
         "id": 62,
@@ -896,7 +902,13 @@
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
-        "isContainer": false
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "NONE"
+        }
       },
       {
         "id": 63,
@@ -905,7 +917,13 @@
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
-        "isContainer": false
+        "isContainer": false,
+        "tileTerrainBorderMeta": {
+          "ne": "NONE",
+          "nw": "NONE",
+          "se": "NONE",
+          "sw": "NONE"
+        }
       },
       {
         "id": 64,
