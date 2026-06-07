@@ -1139,3 +1139,85 @@ export interface CarcerMapTemplate {
   spriteHeight: number;
   levels: Record<string, CarcerMapTileTemplate[]>;
 }
+
+/** Map names arranged in a grid; used when loading an Area in the game. */
+export interface MapGridTemplate {
+  name: string;
+  label: string;
+  /** Number of map slots across. */
+  gridWidth: number;
+  /** Number of map slots tall. */
+  gridHeight: number;
+  /** Required tile width for maps placed in this grid. */
+  mapWidth: number;
+  /** Required tile height for maps placed in this grid. */
+  mapHeight: number;
+  /** Map name per cell; empty string when unassigned. Row-major [y][x]. */
+  cells: string[][];
+}
+
+export function createEmptyMapGridCells(
+  gridWidth: number,
+  gridHeight: number
+): string[][] {
+  const width = Math.max(1, Math.floor(gridWidth));
+  const height = Math.max(1, Math.floor(gridHeight));
+  return Array.from({ length: height }, () =>
+    Array.from({ length: width }, () => '')
+  );
+}
+
+export function resizeMapGridCells(
+  cells: string[][],
+  newWidth: number,
+  newHeight: number
+): string[][] {
+  const width = Math.max(1, Math.floor(newWidth));
+  const height = Math.max(1, Math.floor(newHeight));
+  const next = createEmptyMapGridCells(width, height);
+  const oldHeight = cells.length;
+  const oldWidth = cells[0]?.length ?? 0;
+  for (let y = 0; y < Math.min(oldHeight, height); y++) {
+    for (let x = 0; x < Math.min(oldWidth, width); x++) {
+      next[y][x] = cells[y]?.[x] ?? '';
+    }
+  }
+  return next;
+}
+
+export function createDefaultMapGridTemplate(): MapGridTemplate {
+  const gridWidth = 3;
+  const gridHeight = 3;
+  return {
+    name: '',
+    label: '',
+    gridWidth,
+    gridHeight,
+    mapWidth: 25,
+    mapHeight: 20,
+    cells: createEmptyMapGridCells(gridWidth, gridHeight),
+  };
+}
+
+export function normalizeMapGridTemplate(grid: MapGridTemplate): MapGridTemplate {
+  const gridWidth = Math.max(1, Math.floor(grid.gridWidth) || 1);
+  const gridHeight = Math.max(1, Math.floor(grid.gridHeight) || 1);
+  const mapWidth = Math.max(1, Math.floor(grid.mapWidth) || 1);
+  const mapHeight = Math.max(1, Math.floor(grid.mapHeight) || 1);
+  const cells = resizeMapGridCells(grid.cells ?? [], gridWidth, gridHeight);
+  return {
+    name: grid.name ?? '',
+    label: grid.label ?? '',
+    gridWidth,
+    gridHeight,
+    mapWidth,
+    mapHeight,
+    cells,
+  };
+}
+
+export function sanitizeMapGridTemplates(
+  grids: MapGridTemplate[]
+): MapGridTemplate[] {
+  return grids.map(normalizeMapGridTemplate);
+}

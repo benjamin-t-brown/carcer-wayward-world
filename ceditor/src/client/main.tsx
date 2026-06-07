@@ -16,7 +16,9 @@ import {
   TilesetTemplate,
   GameEvent,
   CarcerMapTemplate,
+  MapGridTemplate,
   sanitizeItemTemplates,
+  sanitizeMapGridTemplates,
 } from './types/assets';
 import {
   AbilityTemplate,
@@ -104,6 +106,15 @@ async function loadMaps(): Promise<CarcerMapTemplate[]> {
   return normalizeMapItemsOnLoad(maps);
 }
 
+async function loadMapGrids(): Promise<MapGridTemplate[]> {
+  const response = await fetch('/api/assets/mapGrids');
+  if (!response.ok) {
+    throw new Error('Failed to load map grids');
+  }
+  const mapGrids: MapGridTemplate[] = await response.json();
+  return sanitizeMapGridTemplates(mapGrids);
+}
+
 async function load(): Promise<{
   assetTypes: AssetType[];
   sprites: Sprite[];
@@ -120,6 +131,7 @@ async function load(): Promise<{
   tilesets: TilesetTemplate[];
   gameEvents: GameEvent[];
   maps: CarcerMapTemplate[];
+  mapGrids: MapGridTemplate[];
 }> {
   const assetTypes = await loadAssetTypes();
   const sdl2wAssetFiles = await loadSDL2WAssetFiles();
@@ -150,16 +162,25 @@ async function load(): Promise<{
   }
 
   // Load all assets in parallel
-  const [loadedItems, characters, loadedAbilities, statusEffects, tilesets, gameEvents, maps] =
-    await Promise.all([
-      loadItems(),
-      loadCharacters(),
-      loadAbilities(),
-      loadStatusEffects(),
-      loadTilesets(),
-      loadGameEvents(),
-      loadMaps(),
-    ]);
+  const [
+    loadedItems,
+    characters,
+    loadedAbilities,
+    statusEffects,
+    tilesets,
+    gameEvents,
+    maps,
+    mapGrids,
+  ] = await Promise.all([
+    loadItems(),
+    loadCharacters(),
+    loadAbilities(),
+    loadStatusEffects(),
+    loadTilesets(),
+    loadGameEvents(),
+    loadMaps(),
+    loadMapGrids(),
+  ]);
 
   const abilities = sanitizeAbilityTemplates(
     loadedAbilities,
@@ -195,6 +216,7 @@ async function load(): Promise<{
     tilesets,
     gameEvents,
     maps,
+    mapGrids,
   });
   return {
     assetTypes,
@@ -212,6 +234,7 @@ async function load(): Promise<{
     tilesets,
     gameEvents,
     maps,
+    mapGrids,
   };
 }
 
@@ -242,6 +265,7 @@ async function init() {
       tilesets,
       gameEvents,
       maps,
+      mapGrids,
     } = await load();
     const container = document.getElementById('root');
 
@@ -270,6 +294,7 @@ async function init() {
             initialTilesets={tilesets}
             initialGameEvents={gameEvents}
             initialMaps={maps}
+            initialMapGrids={mapGrids}
           >
             <App assetTypes={assetTypes} />
           </AssetsProvider>

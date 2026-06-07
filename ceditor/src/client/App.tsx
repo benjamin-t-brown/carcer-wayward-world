@@ -8,6 +8,7 @@ import { SpecialEvents } from './pages/SpecialEvents';
 import { AbilityTemplates } from './pages/AbilityTemplates';
 import { StatusEffectTemplates } from './pages/StatusEffectTemplates';
 import { Maps } from './pages/Maps';
+import { MapGrids } from './pages/MapGrids';
 
 function App({ assetTypes }: { assetTypes: { id: string; name: string; file: string }[] }) {
   const initialRoute = readHashRoute();
@@ -50,6 +51,8 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
       return <SpecialEvents routeParams={routeParams} />;
     case '/editor/maps':
       return <Maps />;
+    case '/editor/mapGrids':
+      return <MapGrids />;
     default:
       return (
         <div className="container">

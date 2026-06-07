@@ -5,6 +5,7 @@ import {
   TilesetTemplate,
   GameEvent,
   CarcerMapTemplate,
+  MapGridTemplate,
 } from '../types/assets';
 import { AbilityTemplate, StatusEffectTemplate } from '../types/combat';
 
@@ -16,6 +17,7 @@ interface AssetsContextType {
   tilesets: TilesetTemplate[];
   gameEvents: GameEvent[];
   maps: CarcerMapTemplate[];
+  mapGrids: MapGridTemplate[];
   loading: boolean;
   error: string | null;
   setItems: (items: ItemTemplate[]) => void;
@@ -25,6 +27,7 @@ interface AssetsContextType {
   setTilesets: (tilesets: TilesetTemplate[]) => void;
   setGameEvents: (gameEvents: GameEvent[]) => void;
   setMaps: (maps: CarcerMapTemplate[]) => void;
+  setMapGrids: (mapGrids: MapGridTemplate[]) => void;
   saveItems: (items: ItemTemplate[]) => Promise<void>;
   saveCharacters: (characters: CharacterTemplate[]) => Promise<void>;
   saveAbilities: (abilities: AbilityTemplate[]) => Promise<void>;
@@ -32,6 +35,7 @@ interface AssetsContextType {
   saveTilesets: (tilesets: TilesetTemplate[]) => Promise<void>;
   saveGameEvents: (gameEvents: GameEvent[]) => Promise<void>;
   saveMaps: (maps: CarcerMapTemplate[]) => Promise<void>;
+  saveMapGrids: (mapGrids: MapGridTemplate[]) => Promise<void>;
 }
 
 const AssetsContext = createContext<AssetsContextType | undefined>(undefined);
@@ -53,6 +57,7 @@ interface AssetsProviderProps {
   initialTilesets: TilesetTemplate[];
   initialGameEvents: GameEvent[];
   initialMaps: CarcerMapTemplate[];
+  initialMapGrids: MapGridTemplate[];
 }
 
 async function saveItems(items: ItemTemplate[]): Promise<void> {
@@ -132,6 +137,17 @@ async function saveMaps(maps: CarcerMapTemplate[]): Promise<void> {
   }
 }
 
+async function saveMapGrids(mapGrids: MapGridTemplate[]): Promise<void> {
+  const response = await fetch('/api/assets/mapGrids', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(mapGrids),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to save map grids');
+  }
+}
+
 export function AssetsProvider({
   children,
   initialItems,
@@ -141,6 +157,7 @@ export function AssetsProvider({
   initialTilesets,
   initialGameEvents,
   initialMaps,
+  initialMapGrids,
 }: AssetsProviderProps) {
   const [items, setItems] = useState<ItemTemplate[]>(initialItems);
   const [characters, setCharacters] = useState<CharacterTemplate[]>(initialCharacters);
@@ -150,6 +167,7 @@ export function AssetsProvider({
   const [tilesets, setTilesets] = useState<TilesetTemplate[]>(initialTilesets);
   const [gameEvents, setGameEvents] = useState<GameEvent[]>(initialGameEvents);
   const [maps, setMaps] = useState<CarcerMapTemplate[]>(initialMaps);
+  const [mapGrids, setMapGrids] = useState<MapGridTemplate[]>(initialMapGrids);
   const [loading] = useState(false);
   const [error] = useState<string | null>(null);
 
@@ -163,6 +181,7 @@ export function AssetsProvider({
         tilesets,
         gameEvents,
         maps,
+        mapGrids,
         loading,
         error,
         setItems,
@@ -172,6 +191,7 @@ export function AssetsProvider({
         setTilesets,
         setGameEvents,
         setMaps,
+        setMapGrids,
         saveItems,
         saveCharacters,
         saveAbilities,
@@ -179,6 +199,7 @@ export function AssetsProvider({
         saveTilesets,
         saveGameEvents,
         saveMaps,
+        saveMapGrids,
       }}
     >
       {children}

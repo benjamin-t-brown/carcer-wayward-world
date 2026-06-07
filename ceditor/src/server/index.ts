@@ -64,6 +64,11 @@ app.get('/api/assets/types', async (req, res) => {
         name: 'Maps',
         file: 'maps.json',
       },
+      {
+        id: 'mapGrids',
+        name: 'Map Grids',
+        file: 'map-grids.json',
+      },
     ];
     res.json(assetTypes);
   } catch (error) {
@@ -83,6 +88,7 @@ app.get('/api/assets/:type', async (req, res) => {
       specialEvents: 'special-events.json',
       tilesetTemplates: 'tilesets.json',
       maps: 'maps.json',
+      mapGrids: 'map-grids.json',
     };
 
     const fileName = fileMap[type];
@@ -123,6 +129,7 @@ app.post('/api/assets/:type', async (req, res) => {
       specialEvents: 'special-events.json',
       tilesetTemplates: 'tilesets.json',
       maps: 'maps.json',
+      mapGrids: 'map-grids.json',
     };
 
     console.log('saving asset', type, req.body);
