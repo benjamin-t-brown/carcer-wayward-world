@@ -3,12 +3,9 @@ import { GenericModal } from '../elements/GenericModal';
 import {
   PAINTABLE_TERRAIN_BORDER_OPTIONS,
   TilesetTemplate,
+  TileTerrainBorderMeta,
   TileTerrainBorderTag,
 } from '../types/assets';
-import {
-  getTerrainLayoutMeta,
-  TERRAIN_AUTOTILE_COUNT,
-} from '../tile-editor/terrainAutotileLayout';
 
 export interface TerrainTileSelection {
   primaryTerrain: TileTerrainBorderTag;
@@ -23,9 +20,67 @@ interface SelectTerrainTileModalProps {
   onCancel: () => void;
 }
 
+const TERRAIN_AUTOTILE_COUNT = 13;
+
+const TERRAIN_AUTOTILE_LAYOUT: ReadonlyArray<{
+  label: string;
+  corners: string;
+}> = [
+  { label: 'center', corners: 'PPPP' },
+  { label: 'edge N', corners: 'SSPP' },
+  { label: 'edge S', corners: 'PPSS' },
+  { label: 'edge E', corners: 'PSPS' },
+  { label: 'edge W', corners: 'SPSP' },
+  { label: 'outer NE', corners: 'PSPP' },
+  { label: 'outer NW', corners: 'SPPP' },
+  { label: 'outer SW', corners: 'PPPS' },
+  { label: 'outer SE', corners: 'PPSP' },
+  { label: 'inner NW', corners: 'SSPS' },
+  { label: 'inner NE', corners: 'SSSP' },
+  { label: 'inner SE', corners: 'PSSS' },
+  { label: 'inner SW', corners: 'SPSS' },
+];
+
+function cornersFromPattern(
+  pattern: string,
+  primary: TileTerrainBorderTag,
+  secondary: TileTerrainBorderTag,
+): TileTerrainBorderMeta {
+  const mapChar = (c: string): TileTerrainBorderTag => {
+    if (c === 'P') {
+      return primary;
+    }
+    if (c === 'S') {
+      return secondary;
+    }
+    throw new Error(`Invalid corner char: ${c}`);
+  };
+  return {
+    nw: mapChar(pattern[0]),
+    ne: mapChar(pattern[1]),
+    sw: mapChar(pattern[2]),
+    se: mapChar(pattern[3]),
+  };
+}
+
+export function getTerrainLayoutMeta(
+  layoutIndex: number,
+  primary: TileTerrainBorderTag,
+  secondary: TileTerrainBorderTag,
+): TileTerrainBorderMeta | null {
+  if (layoutIndex < 0 || layoutIndex >= TERRAIN_AUTOTILE_COUNT) {
+    return null;
+  }
+  return cornersFromPattern(
+    TERRAIN_AUTOTILE_LAYOUT[layoutIndex].corners,
+    primary,
+    secondary,
+  );
+}
+
 function getTilePosition(
   index: number,
-  tileset: TilesetTemplate
+  tileset: TilesetTemplate,
 ): { x: number; y: number } {
   if (tileset.tileWidth === 0 || tileset.tileHeight === 0) {
     return { x: 0, y: 0 };
@@ -52,7 +107,7 @@ export function SelectTerrainTileModal({
   const [secondaryTerrain, setSecondaryTerrain] =
     useState<TileTerrainBorderTag>(defaultSecondary);
   const [startTileId, setStartTileId] = useState<number | null>(
-    tileset.terrain?.startTileId ?? null
+    tileset.terrain?.startTileId ?? null,
   );
   const [error, setError] = useState<string | null>(null);
 
@@ -64,7 +119,7 @@ export function SelectTerrainTileModal({
       return 0;
     }
     return tileset.tiles.filter(
-      (t) => t.id >= startTileId && t.id < startTileId + TERRAIN_AUTOTILE_COUNT
+      (t) => t.id >= startTileId && t.id < startTileId + TERRAIN_AUTOTILE_COUNT,
     ).length;
   }, [tileset.tiles, startTileId]);
 
@@ -161,8 +216,8 @@ export function SelectTerrainTileModal({
             </label>
             {startTileId !== null && (
               <div style={{ fontSize: '12px', color: '#4ec9b0' }}>
-                Strip: tile ids {startTileId}–{stripEndId} ({tilesInStrip}{' '}
-                tile{tilesInStrip !== 1 ? 's' : ''} in sheet)
+                Strip: tile ids {startTileId}–{stripEndId} ({tilesInStrip} tile
+                {tilesInStrip !== 1 ? 's' : ''} in sheet)
               </div>
             )}
           </div>
@@ -235,13 +290,13 @@ export function SelectTerrainTileModal({
                         border: isStart
                           ? '2px solid #ce9178'
                           : inStrip
-                          ? '1px solid rgba(206, 145, 120, 0.6)'
-                          : '1px solid rgba(255, 255, 255, 0.15)',
+                            ? '1px solid rgba(206, 145, 120, 0.6)'
+                            : '1px solid rgba(255, 255, 255, 0.15)',
                         backgroundColor: isStart
                           ? 'rgba(206, 145, 120, 0.3)'
                           : inStrip
-                          ? 'rgba(206, 145, 120, 0.12)'
-                          : 'transparent',
+                            ? 'rgba(206, 145, 120, 0.12)'
+                            : 'transparent',
                         cursor: 'pointer',
                         boxSizing: 'border-box',
                       }}
@@ -262,7 +317,7 @@ export function applyTerrainStripLayout(
   tileset: TilesetTemplate,
   primary: TileTerrainBorderTag,
   secondary: TileTerrainBorderTag,
-  startTileId: number
+  startTileId: number,
 ): { ok: boolean; error?: string; tileset?: TilesetTemplate } {
   if (primary === secondary) {
     return { ok: false, error: 'Primary and secondary terrain must differ.' };
