@@ -74,7 +74,7 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
     props.updateTileset(data);
   };
 
-  console.log('render tileset edit form', tileset);
+  // console.log('render tileset edit form', tileset);
 
   const updateField = <K extends keyof TilesetTemplate>(
     field: K,

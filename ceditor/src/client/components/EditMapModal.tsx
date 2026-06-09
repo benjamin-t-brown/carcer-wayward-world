@@ -79,6 +79,7 @@ interface EditMapModalProps {
   onConfirm: (map: CarcerMapTemplate) => void;
   onCancel: () => void;
   onDelete?: () => void;
+  onDuplicate?: (map: CarcerMapTemplate) => void;
 }
 
 export function EditMapModal({
@@ -87,6 +88,7 @@ export function EditMapModal({
   onConfirm,
   onCancel,
   onDelete,
+  onDuplicate,
 }: EditMapModalProps) {
   const [formData, setFormData] = useState<CarcerMapTemplate | null>(null);
   const [previousDimensions, setPreviousDimensions] = useState([0, 0]);
@@ -116,6 +118,23 @@ export function EditMapModal({
 
     const [prevWidth, prevHeight] = previousDimensions;
     onConfirm(
+      resizeMapLevels(
+        formData,
+        prevWidth,
+        prevHeight,
+        formData.width,
+        formData.height
+      )
+    );
+  };
+
+  const handleDuplicate = () => {
+    if (!formData || !onDuplicate) {
+      return;
+    }
+
+    const [prevWidth, prevHeight] = previousDimensions;
+    onDuplicate(
       resizeMapLevels(
         formData,
         prevWidth,
@@ -226,7 +245,12 @@ export function EditMapModal({
             alignItems: 'center',
           }}
         >
-          <div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            {onDuplicate && (
+              <Button variant="secondary" onClick={handleDuplicate}>
+                Duplicate
+              </Button>
+            )}
             {onDelete && (
               <Button
                 variant="primary"

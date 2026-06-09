@@ -247,10 +247,9 @@ export function Maps() {
   };
 
   const handleCreateMap = (newMap: CarcerMapTemplate) => {
-    console.log('handleCreateMap', newMap);
-    if (newMap.levels['0']?.length) {
-      // map already has tiles
-    } else {
+    const expectedTileCount = newMap.width * newMap.height;
+    const level0 = newMap.levels['0'];
+    if (!level0?.length || level0.length !== expectedTileCount) {
       newMap.levels['0'] = createTilesForLayer(newMap);
     }
 
@@ -351,6 +350,63 @@ export function Maps() {
     setEditModalOpen(false);
   };
 
+  const getDuplicateMapName = (
+    baseName: string,
+    existingNames: Set<string>
+  ): string => {
+    let candidate = `${baseName}_copy`;
+    let n = 2;
+    while (existingNames.has(candidate)) {
+      candidate = `${baseName}_copy${n}`;
+      n++;
+    }
+    return candidate;
+  };
+
+  const handleDuplicateMap = (sourceMap: CarcerMapTemplate) => {
+    const existingNames = new Set(maps.map((m) => m.name));
+    const copyName = getDuplicateMapName(sourceMap.name, existingNames);
+
+    const duplicated: CarcerMapTemplate = JSON.parse(
+      JSON.stringify(sourceMap)
+    );
+    duplicated.name = copyName;
+    duplicated.label = sourceMap.label
+      ? `${sourceMap.label} (Copy)`
+      : copyName;
+
+    const sourceIndex = activeTab?.mapIndex ?? maps.length - 1;
+    const insertIndex = sourceIndex + 1;
+
+    const newMaps = [...maps];
+    newMaps.splice(insertIndex, 0, duplicated);
+    setMaps(newMaps);
+
+    const newTabs = openTabs.map((tab) =>
+      tab.mapIndex >= insertIndex
+        ? { ...tab, mapIndex: tab.mapIndex + 1 }
+        : tab
+    );
+
+    const dupTab: OpenTab = { mapIndex: insertIndex, map: duplicated };
+    createEditorStateMapForTabIfNotExists(duplicated.name);
+    getEditorState().selectedMapName = duplicated.name;
+
+    let newActiveTabIndex: number;
+    if (activeTabIndex !== null) {
+      newTabs.splice(activeTabIndex + 1, 0, dupTab);
+      newActiveTabIndex = activeTabIndex + 1;
+    } else {
+      newTabs.push(dupTab);
+      newActiveTabIndex = newTabs.length - 1;
+    }
+
+    setOpenTabs(newTabs);
+    setActiveTabIndex(newActiveTabIndex);
+    setEditModalOpen(true);
+    showNotification('Map duplicated!', 'success');
+  };
+
   const validateMaps = (): { isValid: boolean; error?: string } => {
     const errors: string[] = [];
     const nameCounts = new Map<string, number>();
@@ -430,13 +486,13 @@ export function Maps() {
     }
 
     const trimmedMaps = trimStrings(maps);
-    const sortedMaps = trimmedMaps.sort((a, b) => {
-      return a.name.localeCompare(b.name);
-    });
+    // const sortedMaps = trimmedMaps.sort((a, b) => {
+    //   return a.name.localeCompare(b.name);
+    // });
 
     try {
-      await saveMaps(sortedMaps);
-      setMaps(sortedMaps);
+      await saveMaps(trimmedMaps);
+      setMaps(trimmedMaps);
       showNotification('Maps saved successfully!', 'success');
 
       // Update tab references after sorting
@@ -634,6 +690,7 @@ export function Maps() {
             setDeleteConfirm({ isOpen: true, mapIndex });
           }
         }}
+        onDuplicate={handleDuplicateMap}
       />
     </div>
   );

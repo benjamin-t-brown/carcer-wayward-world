@@ -39,7 +39,7 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
-  console.log('render tileset templates', tilesets, editTilesetIndex);
+  // console.log('render tileset templates', tilesets, editTilesetIndex);
 
   // Filter tilesets based on search term
   const filteredTilesets = tilesets.filter(

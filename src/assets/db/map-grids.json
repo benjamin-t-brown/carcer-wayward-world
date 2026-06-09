@@ -1,43 +1,23 @@
 [
   {
-    "name": "AlineaOutdoors",
-    "label": "Alinea Outdoors",
-    "gridWidth": 5,
-    "gridHeight": 5,
-    "mapWidth": 25,
-    "mapHeight": 20,
+    "name": "OutsideAlinea",
+    "label": "Alinea Outside",
+    "gridWidth": 3,
+    "gridHeight": 3,
+    "mapWidth": 40,
+    "mapHeight": 40,
     "cells": [
       [
         "",
         "",
-        "",
-        "",
         ""
       ],
       [
-        "",
-        "",
-        "",
-        "",
+        "alinea_outside2",
+        "OutsideAlinea_West1",
         ""
       ],
       [
-        "",
-        "",
-        "",
-        "",
-        ""
-      ],
-      [
-        "",
-        "",
-        "",
-        "",
-        ""
-      ],
-      [
-        "",
-        "",
         "",
         "",
         ""

@@ -353,7 +353,7 @@ export const renderToolUi = (
 };
 
 export const renderTileAndExtras = (args: {
-  refTile: CarcerMapTileTemplate;
+  refTile?: CarcerMapTileTemplate;
   x: number;
   y: number;
   ctx: CanvasRenderingContext2D;
@@ -380,6 +380,9 @@ export const renderTileAndExtras = (args: {
     items,
     drawOverlayText,
   } = args;
+  if (!refTile) {
+    return;
+  }
   const controlSprites: string[] = [];
   const tileX = x * mapSpriteWidth * newScale;
   const tileY = y * mapSpriteHeight * newScale;
