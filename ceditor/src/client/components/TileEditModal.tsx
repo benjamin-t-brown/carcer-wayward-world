@@ -11,6 +11,7 @@ import {
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { OptionSelect } from '../elements/OptionSelect';
 import { useState } from 'react';
+import { MODAL_ROOT_CLASS, useEscapeToClose } from '../hooks/useEscapeToClose';
 
 const TileBorderMetaSelect = (props: {
   value: TileTerrainBorderTag;
@@ -99,6 +100,8 @@ export function TileEditModal({
   const [fillAllBorderMetaValue, setFillAllBorderMetaValue] =
     useState<TileTerrainBorderTag>(TileTerrainBorderTag.NONE);
 
+  const modalRef = useEscapeToClose(onClose, tiles.length > 0);
+
   console.log('tiles', tiles);
 
   if (tiles.length === 0) {
@@ -156,6 +159,8 @@ export function TileEditModal({
 
   return (
     <div
+      ref={modalRef}
+      className={MODAL_ROOT_CLASS}
       style={{
         position: 'fixed',
         top: 0,

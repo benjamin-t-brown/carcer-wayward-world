@@ -10,6 +10,7 @@ import {
   MapType,
 } from '../types/assets';
 import { createDefaultCarcerMapTile } from './MapTemplateForm';
+import { MODAL_ROOT_CLASS, useEscapeToClose } from '../hooks/useEscapeToClose';
 
 function resizeLevelTiles(
   tiles: CarcerMapTileTemplate[],
@@ -101,6 +102,8 @@ export function EditMapModal({
     }
   }, [map]);
 
+  const modalRef = useEscapeToClose(onCancel, isOpen && !!map && !!formData);
+
   if (!isOpen || !map || !formData) {
     return null;
   }
@@ -147,6 +150,8 @@ export function EditMapModal({
 
   return (
     <div
+      ref={modalRef}
+      className={MODAL_ROOT_CLASS}
       style={{
         position: 'fixed',
         top: 0,

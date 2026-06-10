@@ -4,6 +4,7 @@ import { OptionSelect } from '../elements/OptionSelect';
 import { SpritePicker } from '../elements/SpritePicker';
 import { Button } from '../elements/Button';
 import { GameEvent, createDefaultGameEvent } from './GameEventForm';
+import { MODAL_ROOT_CLASS, useEscapeToClose } from '../hooks/useEscapeToClose';
 
 interface CreateGameEventModalProps {
   isOpen: boolean;
@@ -19,6 +20,11 @@ export function CreateGameEventModal({
   onCancel,
 }: CreateGameEventModalProps) {
   const [formData, setFormData] = useState<GameEvent>(createDefaultGameEvent());
+
+  const modalRef = useEscapeToClose(() => {
+    setFormData(createDefaultGameEvent());
+    onCancel();
+  }, isOpen);
 
   if (!isOpen) {
     return null;
@@ -41,7 +47,8 @@ export function CreateGameEventModal({
 
   return (
     <div
-      className="generic-modal"
+      ref={modalRef}
+      className={MODAL_ROOT_CLASS}
       style={{
         position: 'fixed',
         top: 0,

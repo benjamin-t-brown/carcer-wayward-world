@@ -142,6 +142,10 @@ export const initPanzoom = (mapDataInterface: {
         if (!ev.ctrlKey) {
           setCurrentPaintAction(PaintActionType.TERRAIN);
         }
+      } else if (ev.key === 'g' && !ev.ctrlKey) {
+        const editorState = getEditorState();
+        updateEditorState({ showGrid: !editorState.showGrid });
+        ev.preventDefault();
       } else if (ev.key === 'Escape') {
         const mapName = mapDataInterface.getEditorState().selectedMapName;
         const editorState = mapDataInterface.getEditorState();

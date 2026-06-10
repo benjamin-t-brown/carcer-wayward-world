@@ -6,6 +6,10 @@ Sprites,actors0,256,32,32
 
 Pic,terrain0,assets/img/game/terrain0.png
 Sprites,terrain0,256,28,32
+Pic,terrain1,assets/img/game/terrain1.png
+Sprites,terrain1,256,28,32
+Pic,terrain2,assets/img/game/terrain2.png
+Sprites,terrain2,256,28,32
 
 Pic,terrain_borders,assets/img/game/terrain_borders.png
 Sprites,terrain_borders,256,28,32

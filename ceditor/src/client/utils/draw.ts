@@ -28,6 +28,31 @@ export const setFm = (n: number) => {
 };
 export const getFm = () => fm;
 
+/**
+ * Nudge pan so the map origin lands on integer canvas pixels.
+ * Fractional pan/zoom offsets cause 1px gaps between tiles (black seams).
+ */
+export const snapPixelArtPanOffset = (
+  panX: number,
+  panY: number,
+  scale: number,
+  canvasW: number,
+  canvasH: number,
+  mapW: number,
+  mapH: number,
+  tileW: number,
+  tileH: number
+): { x: number; y: number } => {
+  const mapPixelW = mapW * tileW;
+  const mapPixelH = mapH * tileH;
+  const originX = panX + (canvasW * scale) / 2 - (mapPixelW * scale) / 2;
+  const originY = panY + (canvasH * scale) / 2 - (mapPixelH * scale) / 2;
+  return {
+    x: panX + Math.round(originX) - originX,
+    y: panY + Math.round(originY) - originY,
+  };
+};
+
 export const drawSprite = (
   sprite: Sprite,
   x: number,
@@ -43,9 +68,9 @@ export const drawSprite = (
   }
 
   disableCanvasSmoothing(ctx);
-  const drawW = Math.floor(sprite.width * scale);
-  const drawH = Math.floor(sprite.height * scale);
-  ctx.drawImage(drawable, Math.floor(x), Math.floor(y), drawW, drawH);
+  const drawW = Math.round(sprite.width * scale);
+  const drawH = Math.round(sprite.height * scale);
+  ctx.drawImage(drawable, Math.round(x), Math.round(y), drawW, drawH);
 };
 
 export const drawRect = (

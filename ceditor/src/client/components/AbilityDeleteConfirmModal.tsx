@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Button } from '../elements/Button';
+import { MODAL_ROOT_CLASS, useEscapeToClose } from '../hooks/useEscapeToClose';
 import { AbilityDeleteImpact } from '../types/assets';
 
 interface AbilityDeleteConfirmModalProps {
@@ -34,13 +35,16 @@ export function AbilityDeleteConfirmModal({
   onConfirm,
   onCancel,
 }: AbilityDeleteConfirmModalProps) {
+  const modalRef = useEscapeToClose(onCancel, isOpen);
+
   if (!isOpen) {
     return null;
   }
 
   return (
     <div
-      className="generic-modal"
+      ref={modalRef}
+      className={MODAL_ROOT_CLASS}
       style={{
         position: 'fixed',
         top: 0,

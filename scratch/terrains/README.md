@@ -10,6 +10,8 @@ Place source tiles in this folder (28×32 PNG):
 - `dirt.png`
 - `ocean.png`
 - `cave_floor.png`
+- `cave_wall.png`
+- `cave_water.png`
 - `snow.png`
 
 You can also pick files with the file inputs if they are named differently.

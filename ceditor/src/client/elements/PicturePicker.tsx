@@ -52,13 +52,22 @@ export function PicturePicker({
     setIsModalOpen(false);
   };
 
-  const handleOk = () => {
-    if (selectedPicture) {
-      onChange(
-        selectedPicture,
-        imageDimensions?.width || 0,
-        imageDimensions?.height || 0
-      );
+  const handleOk = async () => {
+    if (!selectedPicture) {
+      return;
+    }
+    const path = pictures[selectedPicture];
+    if (path) {
+      try {
+        const img = await loadImage(`/api/${path}`);
+        onChange(selectedPicture, img.naturalWidth, img.naturalHeight);
+      } catch {
+        onChange(
+          selectedPicture,
+          imageDimensions?.width || 0,
+          imageDimensions?.height || 0
+        );
+      }
     }
     setIsModalOpen(false);
   };
@@ -98,7 +107,7 @@ export function PicturePicker({
       {isModalOpen && (
         <div
           style={{
-            position: 'absolute',
+            position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
@@ -319,15 +328,15 @@ export function PicturePicker({
                   marginTop: '30px',
                 }}
               >
-                <Button variant="secondary" onClick={handleCancel}>
-                  Cancel
-                </Button>
                 <Button
                   variant="primary"
                   onClick={handleOk}
                   disabled={!selectedPicture}
                 >
                   OK
+                </Button>
+                <Button variant="secondary" onClick={handleCancel}>
+                  Cancel
                 </Button>
               </div>
             </div>

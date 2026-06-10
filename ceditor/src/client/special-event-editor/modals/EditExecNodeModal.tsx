@@ -7,6 +7,7 @@ import { notifyStateUpdated } from '../seEditorState';
 import { ExecWidget } from '../react-components/ExecWidget';
 import { AudioWidget } from '../react-components/AudioWidget';
 import { ItemTemplateWidget } from '../react-components/ItemTemplateWidget';
+import { MODAL_ROOT_CLASS, useEscapeToClose } from '../../hooks/useEscapeToClose';
 
 interface EditExecNodeModalProps {
   isOpen: boolean;
@@ -34,6 +35,8 @@ export function EditExecNodeModal({
     }
   }, [node]);
 
+  const modalRef = useEscapeToClose(onCancel, isOpen && !!node);
+
   if (!isOpen || !node) {
     return null;
   }
@@ -49,7 +52,8 @@ export function EditExecNodeModal({
 
   return (
     <div
-      className="generic-modal"
+      ref={modalRef}
+      className={MODAL_ROOT_CLASS}
       style={{
         position: 'fixed',
         top: 0,

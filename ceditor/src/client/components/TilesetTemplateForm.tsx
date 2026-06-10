@@ -372,7 +372,7 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
             disabled
           />
         </div>
-        {/* <div className="form-group">
+        <div className="form-group">
           <label htmlFor="tileset-sprite-base">Sprite Base (Picture) *</label>
           <div style={{ marginTop: '8px' }}>
             <PicturePicker
@@ -393,7 +393,7 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
               )}
             </div>
           )}
-        </div> */}
+        </div>
         <TextInput
           id="tileset-name"
           name="name"

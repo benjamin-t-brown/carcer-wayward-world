@@ -844,6 +844,7 @@ export enum TileTerrainBorderTag {
   WATER = 'WATER',
   CAVE_FLOOR = 'CAVE_FLOOR',
   CAVE_WALL = 'CAVE_WALL',
+  CAVE_WATER = 'CAVE_WATER',
   CLIFF = 'CLIFF',
   SNOW = 'SNOW',
 }
@@ -855,6 +856,7 @@ export const PAINTABLE_TERRAIN_BORDER_TAGS: TileTerrainBorderTag[] = [
   TileTerrainBorderTag.WATER,
   TileTerrainBorderTag.CAVE_FLOOR,
   TileTerrainBorderTag.CAVE_WALL,
+  TileTerrainBorderTag.CAVE_WATER,
   TileTerrainBorderTag.CLIFF,
   TileTerrainBorderTag.SNOW,
 ];
@@ -866,6 +868,7 @@ export const TERRAIN_BORDER_TAG_LABELS: Record<TileTerrainBorderTag, string> = {
   [TileTerrainBorderTag.WATER]: 'Water',
   [TileTerrainBorderTag.CAVE_FLOOR]: 'Cave Floor',
   [TileTerrainBorderTag.CAVE_WALL]: 'Cave Wall',
+  [TileTerrainBorderTag.CAVE_WATER]: 'Cave Water',
   [TileTerrainBorderTag.CLIFF]: 'Cliff',
   [TileTerrainBorderTag.SNOW]: 'Snow',
 };

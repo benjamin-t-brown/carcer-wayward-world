@@ -1,4 +1,5 @@
 import { Button } from './Button';
+import { MODAL_ROOT_CLASS, useEscapeToClose } from '../hooks/useEscapeToClose';
 
 interface DeleteModalProps {
   isOpen: boolean;
@@ -13,13 +14,16 @@ export function DeleteModal({
   onConfirm,
   onCancel,
 }: DeleteModalProps) {
+  const modalRef = useEscapeToClose(onCancel, isOpen);
+
   if (!isOpen) {
     return null;
   }
 
   return (
     <div
-      className="generic-modal"
+      ref={modalRef}
+      className={MODAL_ROOT_CLASS}
       style={{
         position: 'fixed',
         top: 0,

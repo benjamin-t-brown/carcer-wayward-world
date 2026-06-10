@@ -4,7 +4,8 @@ import {
   onActionUpdate,
   onTileHoverIndChange,
 } from './paintTools';
-import { drawLine, drawRect } from '../utils/draw';
+import { disableCanvasSmoothing } from '../utils/spriteUtils';
+import { drawLine, drawRect, snapPixelArtPanOffset } from '../utils/draw';
 import {
   CarcerMapTemplate,
   TilesetTemplate,
@@ -132,10 +133,26 @@ export const loop = (
 
   if (currentMap) {
     const { x, y, scale } = getTransform();
+    const canvas = mapDataInterface.getCanvas();
+    const spriteWidth = mapDataInterface.getMapData().spriteWidth;
+    const spriteHeight = mapDataInterface.getMapData().spriteHeight;
+    const { x: panX, y: panY } = snapPixelArtPanOffset(
+      x,
+      y,
+      scale,
+      canvas.width,
+      canvas.height,
+      currentMap.width,
+      currentMap.height,
+      spriteWidth,
+      spriteHeight
+    );
+
+    disableCanvasSmoothing(ctx);
 
     //background rect
     ctx.save();
-    ctx.translate(x, y);
+    ctx.translate(panX, panY);
     ctx.scale(scale, scale);
     ctx.translate(
       mapDataInterface.getCanvas().width / 2,
@@ -163,8 +180,8 @@ export const loop = (
       const focalX = mapDataInterface.getCanvas().width / 2;
       const focalY = mapDataInterface.getCanvas().height / 2;
 
-      const offsetX = focalX - (newScale / scale) * (focalX - x);
-      const offsetY = focalY - (newScale / scale) * (focalY - y);
+      const offsetX = focalX - (newScale / scale) * (focalX - panX);
+      const offsetY = focalY - (newScale / scale) * (focalY - panY);
 
       ctx.save();
       ctx.translate(offsetX, offsetY);
@@ -206,11 +223,10 @@ export const loop = (
           });
 
           if (i === 0) {
-            // grid
-            const x1 = x * mapDataInterface.getMapData().spriteWidth * scale;
-            const y1 = y * mapDataInterface.getMapData().spriteHeight * scale;
-            const x2 = x1 + mapDataInterface.getMapData().spriteWidth * scale;
-            const y2 = y1 + mapDataInterface.getMapData().spriteHeight * scale;
+            const x1 = x * spriteWidth * newScale;
+            const y1 = y * spriteHeight * newScale;
+            const x2 = x1 + spriteWidth * newScale;
+            const y2 = y1 + spriteHeight * newScale;
             const hoveredMapTileIndex = getEditorStateMap(
               mapDataInterface.getEditorState().selectedMapName
             )?.hoveredTileIndex;
@@ -221,7 +237,7 @@ export const loop = (
               drawLine(x1, y1, x1, y2, color, 2, ctx);
               drawLine(x2, y2, x2, y1, color, 2, ctx);
               drawLine(x2, y2, x1, y2, color, 2, ctx);
-            } else {
+            } else if (mapDataInterface.getEditorState().showGrid) {
               drawLine(x1, y1, x2, y1, color, 1, ctx);
               drawLine(x1, y1, x1, y2, color, 1, ctx);
             }

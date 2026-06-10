@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
 import { CarcerMapTemplate, CarcerMapTileTemplate } from '../../../types/assets';
-import { getEditorState } from '../../editorState';
+import { SearchSelect } from '../../../elements/SearchSelect';
+import { collectMarkerNamesOnMap } from '../../mapLocate';
 import { OpenMapAndSelectTileArgs } from '../../TileEditor';
 
 interface TravelTriggerSectionProps {
@@ -9,12 +11,32 @@ interface TravelTriggerSectionProps {
   onOpenMapAndSelectTile?: (args: OpenMapAndSelectTileArgs) => void;
 }
 
+const fieldLabelStyle = {
+  display: 'block',
+  color: '#858585',
+  fontSize: '11px',
+  marginBottom: '4px',
+} as const;
+
 export function TravelTriggerSection({
   selectedTile,
   maps,
   updateTile,
   onOpenMapAndSelectTile,
 }: TravelTriggerSectionProps) {
+  const destinationMapName =
+    selectedTile.travelTrigger?.destinationMapName ?? '';
+
+  const destinationMap = useMemo(
+    () => maps.find((m) => m.name === destinationMapName),
+    [maps, destinationMapName]
+  );
+
+  const markerNames = useMemo(
+    () => (destinationMap ? collectMarkerNamesOnMap(destinationMap) : []),
+    [destinationMap]
+  );
+
   return (
     <div
       style={{
@@ -110,74 +132,84 @@ export function TravelTriggerSection({
           }}
         >
           <div>
-            <label
-              style={{
-                display: 'block',
-                color: '#858585',
-                fontSize: '11px',
-                marginBottom: '4px',
-              }}
-            >
-              Destination Map Name
-            </label>
-            <select
+            <label style={fieldLabelStyle}>Destination Map Name</label>
+            <SearchSelect
+              id="travel-trigger-destination-map"
               value={selectedTile.travelTrigger.destinationMapName}
-              onChange={(e) => {
+              onChange={(mapName) => {
                 updateTile((tile) => {
-                  if (tile.travelTrigger) {
-                    tile.travelTrigger.destinationMapName = e.target.value;
+                  if (!tile.travelTrigger) {
+                    return;
+                  }
+                  tile.travelTrigger.destinationMapName = mapName;
+                  if (!mapName) {
+                    tile.travelTrigger.destinationMarkerName = '';
+                    return;
+                  }
+                  const nextMap = maps.find((m) => m.name === mapName);
+                  const names = nextMap
+                    ? collectMarkerNamesOnMap(nextMap)
+                    : [];
+                  if (
+                    !names.includes(tile.travelTrigger.destinationMarkerName)
+                  ) {
+                    tile.travelTrigger.destinationMarkerName = '';
                   }
                 });
               }}
-              style={{
-                width: '100%',
-                padding: '6px 8px',
-                border: '1px solid #3e3e42',
-                backgroundColor: '#1e1e1e',
-                color: '#ffffff',
-                fontSize: '12px',
-                borderRadius: '4px',
-              }}
-            >
-              <option value="">Select a map...</option>
-              {maps.map((m) => (
-                <option key={m.name} value={m.name}>
-                  {m.label || m.name}
-                </option>
-              ))}
-            </select>
+              items={maps}
+              getItemKey={(m) => m.name}
+              getItemLabel={(m) => m.label?.trim() || m.name}
+              searchFields={(m) => [m.name, m.label ?? '']}
+              placeholder="Search maps..."
+              emptyLabel="Select a map..."
+              renderItem={(m) => (
+                <>
+                  <div style={{ fontWeight: 600 }}>
+                    {m.label?.trim() || m.name}
+                  </div>
+                  {m.label?.trim() && m.label.trim() !== m.name ? (
+                    <div
+                      style={{
+                        fontSize: '10px',
+                        color: '#858585',
+                        marginTop: '2px',
+                      }}
+                    >
+                      {m.name}
+                    </div>
+                  ) : null}
+                </>
+              )}
+            />
           </div>
           <div>
-            <label
-              style={{
-                display: 'block',
-                color: '#858585',
-                fontSize: '11px',
-                marginBottom: '4px',
-              }}
-            >
-              Destination Marker Name
-            </label>
-            <input
-              type="text"
+            <label style={fieldLabelStyle}>Destination Marker Name</label>
+            <SearchSelect
+              id="travel-trigger-destination-marker"
               value={selectedTile.travelTrigger.destinationMarkerName}
-              onChange={(e) => {
+              onChange={(markerName) => {
                 updateTile((tile) => {
                   if (tile.travelTrigger) {
-                    tile.travelTrigger.destinationMarkerName = e.target.value;
+                    tile.travelTrigger.destinationMarkerName = markerName;
                   }
                 });
               }}
-              placeholder="Marker name..."
-              style={{
-                width: '100%',
-                padding: '6px 8px',
-                border: '1px solid #3e3e42',
-                backgroundColor: '#1e1e1e',
-                color: '#ffffff',
-                fontSize: '12px',
-                borderRadius: '4px',
-              }}
+              items={markerNames}
+              getItemKey={(name) => name}
+              getItemLabel={(name) => name}
+              searchFields={(name) => [name]}
+              placeholder={
+                destinationMap
+                  ? 'Search markers on map...'
+                  : 'Select a destination map first'
+              }
+              emptyLabel="(no marker)"
+              renderItem={(name) => (
+                <div style={{ fontFamily: 'monospace', fontSize: '12px' }}>
+                  {name}
+                </div>
+              )}
             />
           </div>
           <div

@@ -82,6 +82,29 @@ export function LayersPanel(props: LayersPanelProps) {
 
   return (
     <div className="tile-editor-sidebar-section">
+      <label
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          cursor: 'pointer',
+          fontSize: '12px',
+          color: '#d4d4d4',
+          marginBottom: '8px',
+        }}
+      >
+        <input
+          type="checkbox"
+          checked={props.editorState.showGrid}
+          onChange={(e) => updateEditorState({ showGrid: e.target.checked })}
+          style={{
+            cursor: 'pointer',
+            width: '16px',
+            height: '16px',
+          }}
+        />
+        Show grid
+      </label>
       <MapSearchAccordion map={props.map} />
       <div
         style={{

@@ -5,6 +5,7 @@ import { OptionSelect } from '../elements/OptionSelect';
 import { Button } from '../elements/Button';
 import { CarcerMapTemplate, MAP_TYPES, MapType } from '../types/assets';
 import { createDefaultMap } from './MapTemplateForm';
+import { MODAL_ROOT_CLASS, useEscapeToClose } from '../hooks/useEscapeToClose';
 
 interface CreateMapModalProps {
   isOpen: boolean;
@@ -19,6 +20,11 @@ export function CreateMapModal({
 }: CreateMapModalProps) {
   const [formData, setFormData] =
     useState<CarcerMapTemplate>(createDefaultMap());
+
+  const modalRef = useEscapeToClose(() => {
+    setFormData(createDefaultMap());
+    onCancel();
+  }, isOpen);
 
   if (!isOpen) {
     return null;
@@ -46,6 +52,8 @@ export function CreateMapModal({
 
   return (
     <div
+      ref={modalRef}
+      className={MODAL_ROOT_CLASS}
       style={{
         position: 'fixed',
         top: 0,

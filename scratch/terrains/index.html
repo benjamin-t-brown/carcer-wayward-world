@@ -150,7 +150,7 @@
   <body>
     <h1>Terrain tileset generator</h1>
     <p class="hint">
-      Loads 28×32 terrain tiles (grass, dirt, ocean, cave floor, snow). Pick <strong>primary</strong>
+      Loads 28×32 terrain tiles (grass, dirt, ocean, cave floor, cave wall, cave water, snow). Pick <strong>primary</strong>
       (fill) and <strong>secondary</strong> (border) terrain; the tool composites border strips over primary using
       <strong>overlapSize</strong> (px). Right-click the output canvas → Copy image, then paste
       into your art editor. Tile order matches the 9+4 autotile strip used in
@@ -175,6 +175,14 @@
           <label>cave_floor.png <input type="file" accept="image/png" data-load="cave_floor" /></label>
           <div class="preview-thumb" id="thumb-cave_floor">missing</div>
         </div>
+        <div class="terrain-slot" data-key="cave_wall">
+          <label>cave_wall.png <input type="file" accept="image/png" data-load="cave_wall" /></label>
+          <div class="preview-thumb" id="thumb-cave_wall">missing</div>
+        </div>
+        <div class="terrain-slot" data-key="cave_water">
+          <label>cave_water.png <input type="file" accept="image/png" data-load="cave_water" /></label>
+          <div class="preview-thumb" id="thumb-cave_water">missing</div>
+        </div>
         <div class="terrain-slot" data-key="snow">
           <label>snow.png <input type="file" accept="image/png" data-load="snow" /></label>
           <div class="preview-thumb" id="thumb-snow">missing</div>
@@ -191,6 +199,8 @@
             <option value="dirt">dirt</option>
             <option value="ocean">ocean</option>
             <option value="cave_floor">cave floor</option>
+            <option value="cave_wall">cave wall</option>
+            <option value="cave_water">cave water</option>
             <option value="snow">snow</option>
           </select>
         </label>
@@ -201,6 +211,8 @@
             <option value="grass">grass</option>
             <option value="dirt">dirt</option>
             <option value="cave_floor">cave floor</option>
+            <option value="cave_wall">cave wall</option>
+            <option value="cave_water">cave water</option>
             <option value="snow">snow</option>
           </select>
         </label>
@@ -255,6 +267,8 @@
         dirt: 'DIRT',
         ocean: 'WATER',
         cave_floor: 'CAVE_FLOOR',
+        cave_wall: 'CAVE_WALL',
+        cave_water: 'CAVE_WATER',
         snow: 'SNOW',
       };
 
@@ -263,6 +277,8 @@
         dirt: null,
         ocean: null,
         cave_floor: null,
+        cave_wall: null,
+        cave_water: null,
         snow: null,
       };
 
@@ -330,7 +346,9 @@
         });
       });
 
-      ['grass', 'dirt', 'ocean', 'cave_floor', 'snow'].forEach(tryLoadBundled);
+      ['grass', 'dirt', 'ocean', 'cave_floor', 'cave_wall', 'cave_water', 'snow'].forEach(
+        tryLoadBundled
+      );
 
       function getOverlap() {
         const v = parseInt(document.getElementById('overlapSize').value, 10);

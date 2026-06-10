@@ -11,6 +11,7 @@ import {
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { OptionSelect } from '../elements/OptionSelect';
 import { useState } from 'react';
+import { MODAL_ROOT_CLASS, useEscapeToClose } from '../hooks/useEscapeToClose';
 
 interface TileEditMultiModalProps {
   tiles: TileMetadata[];
@@ -112,6 +113,11 @@ export function TileEditMultiModal({
   const [fillAllBorderMetaValue, setFillAllBorderMetaValue] =
     useState<TileTerrainBorderTag>(TileTerrainBorderTag.NONE);
 
+  const modalRef = useEscapeToClose(
+    onClose,
+    tiles.length > 0 && tileIndices.length > 0
+  );
+
   if (!tiles || tiles.length === 0 || tileIndices.length === 0) {
     return null;
   }
@@ -188,6 +194,8 @@ export function TileEditMultiModal({
 
   return (
     <div
+      ref={modalRef}
+      className={MODAL_ROOT_CLASS}
       style={{
         position: 'fixed',
         top: 0,

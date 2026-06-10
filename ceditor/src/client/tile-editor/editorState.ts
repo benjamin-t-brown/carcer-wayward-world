@@ -30,6 +30,7 @@ export interface EditorState {
   fillIndsFloor: number[];
   terrainPaintChanges: TerrainPaintTileChange[];
   drawOverlayText: boolean;
+  showGrid: boolean;
   isSelectDragging: boolean;
   selectDragSourceTileIndex: number;
   rectSelectTileIndStart: number;
@@ -49,6 +50,7 @@ const editorState: EditorState = {
   fillIndsFloor: [],
   terrainPaintChanges: [],
   drawOverlayText: false,
+  showGrid: true,
   isSelectDragging: false,
   selectDragSourceTileIndex: -1,
   rectSelectTileIndStart: -1,

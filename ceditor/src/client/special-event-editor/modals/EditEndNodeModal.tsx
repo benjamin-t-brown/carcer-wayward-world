@@ -4,6 +4,7 @@ import { Button } from '../../elements/Button';
 import { VariableWidget } from '../react-components/VariableWidget';
 import { EditorNodeEnd } from '../cmpts/EndNodeComponent';
 import { notifyStateUpdated } from '../seEditorState';
+import { MODAL_ROOT_CLASS, useEscapeToClose } from '../../hooks/useEscapeToClose';
 
 interface EditEndNodeModalProps {
   isOpen: boolean;
@@ -27,6 +28,8 @@ export function EditEndNodeModal({
     }
   }, [node]);
 
+  const modalRef = useEscapeToClose(onCancel, isOpen && !!node);
+
   if (!isOpen || !node) {
     return null;
   }
@@ -41,7 +44,8 @@ export function EditEndNodeModal({
 
   return (
     <div
-      className="generic-modal"
+      ref={modalRef}
+      className={MODAL_ROOT_CLASS}
       style={{
         position: 'fixed',
         top: 0,

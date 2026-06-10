@@ -1,7 +1,7 @@
 [
   {
     "name": "BURNING",
-    "description": "Takes fire damage at the start of each turn.",
+    "description": "Self fire damage at the start of each turn.",
     "duration": 3,
     "events": [
       {

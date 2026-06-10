@@ -20,6 +20,7 @@ import {
 import { EventRunner } from './EventRunner';
 import { useReRender } from '../../hooks/useReRender';
 import { CANVAS_CONTAINER_ID } from '../react-components/MapCanvasSE';
+import { MODAL_ROOT_CLASS, useEscapeToClose } from '../../hooks/useEscapeToClose';
 
 interface EventRunnerModalProps {
   isOpen: boolean;
@@ -368,13 +369,19 @@ export function EventRunnerModal({
     }
   };
 
+  const modalRef = useEscapeToClose(
+    onCancel,
+    isOpen && !!eventRunner && !!currentNode
+  );
+
   if (!isOpen || !eventRunner || !currentNode) {
     return undefined;
   }
 
   return (
     <div
-      className="generic-modal"
+      ref={modalRef}
+      className={MODAL_ROOT_CLASS}
       style={{
         position: 'fixed',
         top: 0,
