@@ -145,6 +145,8 @@ struct AbilityAttack {
 struct AbilityStatus {
   std::string statusEffect;
   std::optional<AbilitySave> save;
+  std::optional<int> baseDuration;
+  std::optional<int> durationBonus;
 };
 
 struct AbilityRestore {

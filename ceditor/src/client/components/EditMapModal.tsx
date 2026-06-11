@@ -5,74 +5,12 @@ import { OptionSelect } from '../elements/OptionSelect';
 import { Button } from '../elements/Button';
 import {
   CarcerMapTemplate,
-  CarcerMapTileTemplate,
   MAP_TYPES,
   MapType,
 } from '../types/assets';
 import { createDefaultCarcerMapTile } from './MapTemplateForm';
 import { MODAL_ROOT_CLASS, useEscapeToClose } from '../hooks/useEscapeToClose';
-
-function resizeLevelTiles(
-  tiles: CarcerMapTileTemplate[],
-  prevWidth: number,
-  prevHeight: number,
-  newWidth: number,
-  newHeight: number
-): CarcerMapTileTemplate[] {
-  const existingTiles = new Map<string, CarcerMapTileTemplate>();
-  for (let y = 0; y < prevHeight; y++) {
-    for (let x = 0; x < prevWidth; x++) {
-      const tile = tiles[y * prevWidth + x];
-      if (tile) {
-        existingTiles.set(`${x},${y}`, tile);
-      }
-    }
-  }
-
-  const nextTiles: CarcerMapTileTemplate[] = [];
-  for (let y = 0; y < newHeight; y++) {
-    for (let x = 0; x < newWidth; x++) {
-      nextTiles.push(
-        existingTiles.get(`${x},${y}`) ?? createDefaultCarcerMapTile()
-      );
-    }
-  }
-  return nextTiles;
-}
-
-function resizeMapLevels(
-  map: CarcerMapTemplate,
-  prevWidth: number,
-  prevHeight: number,
-  newWidth: number,
-  newHeight: number
-): CarcerMapTemplate {
-  const levels: Record<string, CarcerMapTileTemplate[]> = {};
-  for (const [levelKey, levelTiles] of Object.entries(map.levels)) {
-    levels[levelKey] = resizeLevelTiles(
-      levelTiles ?? [],
-      prevWidth,
-      prevHeight,
-      newWidth,
-      newHeight
-    );
-  }
-  if (Object.keys(levels).length === 0) {
-    levels['0'] = resizeLevelTiles(
-      [],
-      prevWidth,
-      prevHeight,
-      newWidth,
-      newHeight
-    );
-  }
-  return {
-    ...map,
-    width: newWidth,
-    height: newHeight,
-    levels,
-  };
-}
+import { resizeMap } from '../utils/mapIndex';
 
 interface EditMapModalProps {
   isOpen: boolean;
@@ -121,12 +59,13 @@ export function EditMapModal({
 
     const [prevWidth, prevHeight] = previousDimensions;
     onConfirm(
-      resizeMapLevels(
+      resizeMap(
         formData,
         prevWidth,
         prevHeight,
         formData.width,
-        formData.height
+        formData.height,
+        createDefaultCarcerMapTile
       )
     );
   };
@@ -138,12 +77,13 @@ export function EditMapModal({
 
     const [prevWidth, prevHeight] = previousDimensions;
     onDuplicate(
-      resizeMapLevels(
+      resizeMap(
         formData,
         prevWidth,
         prevHeight,
         formData.width,
-        formData.height
+        formData.height,
+        createDefaultCarcerMapTile
       )
     );
   };

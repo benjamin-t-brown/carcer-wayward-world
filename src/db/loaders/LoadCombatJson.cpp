@@ -169,6 +169,12 @@ model::AbilityStatus parseAbilityStatus(const nlohmann::json& json) {
   if (json.contains("save")) {
     status.save = parseAbilitySave(json["save"]);
   }
+  if (json.contains("baseDuration") && json["baseDuration"].is_number_integer()) {
+    status.baseDuration = json["baseDuration"];
+  }
+  if (json.contains("durationBonus") && json["durationBonus"].is_number_integer()) {
+    status.durationBonus = json["durationBonus"];
+  }
   return status;
 }
 

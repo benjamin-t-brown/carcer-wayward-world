@@ -17,8 +17,16 @@ int main(int argc, char** argv) {
       LOG(ERROR) << "Missing BURNING status effect" << LOG_ENDL;
       return 1;
     }
-    if (burningIt->second.events.empty()) {
-      LOG(ERROR) << "BURNING should have events" << LOG_ENDL;
+    if (burningIt->second.baseDuration != 3) {
+      LOG(ERROR) << "BURNING baseDuration should be 3" << LOG_ENDL;
+      return 1;
+    }
+    if (burningIt->second.actions.empty()) {
+      LOG(ERROR) << "BURNING should have actions" << LOG_ENDL;
+      return 1;
+    }
+    if (burningIt->second.actions[0].events.empty()) {
+      LOG(ERROR) << "BURNING action should have events" << LOG_ENDL;
       return 1;
     }
 

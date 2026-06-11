@@ -1,0 +1,39 @@
+[
+  {
+    "name": "flat_test_map",
+    "label": "Flat Test Map",
+    "type": "TOWN",
+    "width": 2,
+    "height": 2,
+    "spriteWidth": 28,
+    "spriteHeight": 32,
+    "tilesets": ["", "terrain0"],
+    "layers": [0],
+    "tiles": {
+      "0": [1, 5, 1, 6, 1, 7, 1, 8]
+    },
+    "characters": [{ "l": 0, "i": 1, "name": "testNpc" }],
+    "items": [{ "l": 0, "i": 2, "name": "BeerPappysLager", "quantity": 2 }],
+    "markers": [{ "l": 0, "i": 3, "name": "spawn" }],
+    "eventTriggers": [
+      {
+        "l": 0,
+        "i": 0,
+        "eventId": "test_event",
+        "isLookTrigger": true
+      }
+    ],
+    "travelTriggers": [
+      {
+        "l": 0,
+        "i": 0,
+        "destinationMapName": "other_map",
+        "destinationMarkerName": "door",
+        "destinationX": 1,
+        "destinationY": 2
+      }
+    ],
+    "tileOverrides": [],
+    "lightSources": []
+  }
+]

@@ -13,7 +13,7 @@ import { TravelTriggerSection } from './TravelTriggerSection';
 import { EventTriggerSection } from './EventTriggerSection';
 import { TileOverridesSection } from './TileOverridesSection';
 import { OpenMapAndSelectTileArgs } from '../../TileEditor';
-import { getTileList } from '../../editorEvents';
+import { commitCurrentLayer, getTileList } from '../../editorEvents';
 import { addMapTileItemEntry } from '../../mapTileItems';
 
 interface SelectedTileInfoProps {
@@ -40,18 +40,11 @@ export function SelectedTileInfo({
       return;
     }
 
-    const updatedTiles = [...mapTiles];
-    const updatedTile = { ...updatedTiles[selectedTileInd] };
+    const updatedTile = { ...mapTiles[selectedTileInd] };
     updater(updatedTile);
-    updatedTiles[selectedTileInd] = updatedTile;
-
-    onMapUpdate({
-      ...map,
-      levels: {
-        ...map.levels,
-        [getEditorState().currentLevel]: updatedTiles,
-      },
-    });
+    mapTiles[selectedTileInd] = updatedTile;
+    commitCurrentLayer(map, getEditorState().currentLevel);
+    onMapUpdate({ ...map });
   };
 
   if (selectedTileInd < 0 || selectedTileInd >= mapTiles.length) {

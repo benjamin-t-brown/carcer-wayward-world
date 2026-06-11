@@ -13,7 +13,7 @@ import {
   updateEditorStateMapNoReRender,
   updateEditorStateNoReRender,
 } from './editorState';
-import { getIsDraggingRight, getTileList } from './editorEvents';
+import { commitCurrentLayer, getIsDraggingRight, getTileList } from './editorEvents';
 // import {
 //   buildTerrainLookup,
 //   collectAffectedTileIndices,
@@ -643,6 +643,10 @@ export const onActionComplete = (
     undoHistory: newUndoHistory,
     undoIndex: newUndoIndex,
   });
+  commitCurrentLayer(
+    mapData,
+    editorState.currentLevel
+  );
 };
 
 export const undo = (
@@ -663,6 +667,7 @@ export const undo = (
 
   // Perform the undo
   undoAction(mapData, actionToUndo);
+  commitCurrentLayer(mapData, editorState.currentLevel);
 
   // Update undo index and trigger re-render
   const newUndoIndex = undoIndex - 1;

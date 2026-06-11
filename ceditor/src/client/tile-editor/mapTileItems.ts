@@ -25,11 +25,10 @@ export function normalizeMapItemsOnLoad(
   maps: CarcerMapTemplate[]
 ): CarcerMapTemplate[] {
   for (const map of maps) {
-    for (const levelTiles of Object.values(map.levels)) {
-      for (const tile of levelTiles) {
-        tile.items = tile.items.map(coerceMapTileItemEntry);
-      }
-    }
+    map.items = (map.items ?? []).map((item) => ({
+      ...item,
+      quantity: clampMapTileItemQuantity(item.quantity ?? 1),
+    }));
   }
   return maps;
 }

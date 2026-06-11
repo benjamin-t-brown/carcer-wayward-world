@@ -2,17 +2,7 @@
   {
     "name": "BURNING",
     "description": "Self fire damage at the start of each turn.",
-    "duration": 3,
-    "events": [
-      {
-        "type": "STATUS_EVENT_ON_TURN_START",
-        "condition": "CONDITION_ALWAYS"
-      },
-      {
-        "type": "STATUS_EVENT_ON_APPLIED",
-        "condition": "CONDITION_ALWAYS"
-      }
-    ],
+    "baseDuration": 3,
     "applyResistances": [
       {
         "attackType": "DAMAGE_TYPE_HEAT",
@@ -22,18 +12,18 @@
     "actions": [
       {
         "statusActionTargetType": "STATUS_ACTION_TARGET_SELF",
-        "abilityName": "BURNING_SE_1"
+        "abilityName": "BURNING_SE_1",
+        "events": [
+          {
+            "type": "STATUS_EVENT_ON_TURN_START",
+            "condition": "CONDITION_ALWAYS"
+          },
+          {
+            "type": "STATUS_EVENT_ON_APPLIED",
+            "condition": "CONDITION_ALWAYS"
+          }
+        ]
       }
-    ],
-    "targetInfo": {
-      "targetType": "TARGET_UNIT",
-      "allegianceSelectType": "TARGET_ALLEGIANCE_OTHER",
-      "numTargetableUnits": 1,
-      "zoneSize": {
-        "x": 1,
-        "y": 1
-      },
-      "range": 1
-    }
+    ]
   }
 ]

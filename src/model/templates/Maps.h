@@ -2,11 +2,17 @@
 
 #include <optional>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace model {
 
 struct CarcerMapTileTemplate;
+
+struct MapTileRef {
+  int l = 0;
+  int i = 0;
+};
 
 struct MapTileItemEntry {
   std::string name;
@@ -47,6 +53,29 @@ enum class MapType {
 std::string getStringFromMapType(MapType mapType);
 MapType getMapTypeFromString(const std::string& mapTypeString);
 
+struct MapCharacterPlacement : MapTileRef {
+  std::string name;
+};
+
+struct MapItemPlacement : MapTileRef {
+  std::string name;
+  int quantity = 1;
+};
+
+struct MapMarkerPlacement : MapTileRef {
+  std::string name;
+};
+
+struct MapEventTriggerPlacement : MapTileRef, TileEventTrigger {};
+
+struct MapTravelTriggerPlacement : MapTileRef, TravelTrigger {};
+
+struct MapTileOverridePlacement : MapTileRef {
+  TileOverrides overrides;
+};
+
+struct MapLightSourcePlacement : MapTileRef, TileLightSource {};
+
 struct CarcerMapTemplate {
   std::string name;
   std::string label;
@@ -55,7 +84,16 @@ struct CarcerMapTemplate {
   int height = 0;
   int spriteWidth = 28;
   int spriteHeight = 32;
-  std::vector<CarcerMapTileTemplate> tiles;
+  std::vector<std::string> tilesets;
+  std::vector<int> layers;
+  std::unordered_map<int, std::vector<int>> tiles;
+  std::vector<MapCharacterPlacement> characters;
+  std::vector<MapItemPlacement> items;
+  std::vector<MapMarkerPlacement> markers;
+  std::vector<MapEventTriggerPlacement> eventTriggers;
+  std::vector<MapTravelTriggerPlacement> travelTriggers;
+  std::vector<MapTileOverridePlacement> tileOverrides;
+  std::vector<MapLightSourcePlacement> lightSources;
 };
 
 struct CarcerMapTileTemplate {

@@ -1,10 +1,17 @@
-import { useMemo, useState } from 'react';
-import { CarcerMapTemplate } from '../types/assets';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { CarcerMapTemplate, MapType } from '../types/assets';
 import { useAssets } from '../contexts/AssetsContext';
 import { GenericModal } from './GenericModal';
 import { ModalRowLayout } from './ModalRowLayout';
 import { MapPreview } from './MapPreview';
 import { MAP_PREVIEW_DISPLAY_SIZE } from '../utils/mapPreview';
+import {
+  CreateMapModal,
+  CreateMapConstraints,
+} from '../components/CreateMapModal';
+import { prepareNewMapForEditor } from '../utils/mapIndex';
+import { openMapEditorInNewTab } from '../utils/mapTabsStorage';
+import { Button } from './Button';
 
 export interface MapPickerProps {
   value: string;
@@ -20,6 +27,14 @@ export interface MapPickerProps {
   hideTrigger?: boolean;
   className?: string;
 }
+
+type MapTypeFilter = 'all' | MapType;
+
+const MAP_TYPE_FILTER_OPTIONS: { value: MapTypeFilter; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'TOWN', label: 'Town' },
+  { value: 'OUTDOOR', label: 'Outdoor' },
+];
 
 function mapMatchesDimensions(
   map: CarcerMapTemplate,
@@ -45,10 +60,17 @@ export function MapPicker({
   hideTrigger = false,
   className = '',
 }: MapPickerProps) {
-  const { maps } = useAssets();
+  const { maps, setMaps, saveMaps } = useAssets();
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [mapTypeFilter, setMapTypeFilter] = useState<MapTypeFilter>('all');
   const [selectedMapName, setSelectedMapName] = useState(value);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+
+  const canCreate =
+    requiredWidth !== undefined && requiredHeight !== undefined;
 
   const isOpen = controlledIsOpen ?? internalIsOpen;
   const setIsOpen = (open: boolean) => {
@@ -67,17 +89,24 @@ export function MapPicker({
     [maps, requiredWidth, requiredHeight]
   );
 
+  const typeFilteredMaps = useMemo(() => {
+    if (mapTypeFilter === 'all') {
+      return eligibleMaps;
+    }
+    return eligibleMaps.filter((map) => map.type === mapTypeFilter);
+  }, [eligibleMaps, mapTypeFilter]);
+
   const filteredMaps = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     if (!term) {
-      return eligibleMaps;
+      return typeFilteredMaps;
     }
-    return eligibleMaps.filter(
+    return typeFilteredMaps.filter(
       (map) =>
         map.name.toLowerCase().includes(term) ||
         map.label.toLowerCase().includes(term)
     );
-  }, [eligibleMaps, searchTerm]);
+  }, [typeFilteredMaps, searchTerm]);
 
   const currentMap = useMemo(
     () => maps.find((map) => map.name === value),
@@ -89,9 +118,17 @@ export function MapPicker({
     [maps, selectedMapName]
   );
 
+  const wasOpenRef = useRef(false);
+  useEffect(() => {
+    if (isOpen && !wasOpenRef.current) {
+      setSelectedMapName(value);
+      setSearchTerm('');
+      setMapTypeFilter('all');
+    }
+    wasOpenRef.current = isOpen;
+  }, [isOpen, value]);
+
   const handleOpenModal = () => {
-    setSelectedMapName(value);
-    setSearchTerm('');
     setIsOpen(true);
   };
 
@@ -104,6 +141,47 @@ export function MapPicker({
 
   const handleCancel = () => {
     setIsOpen(false);
+  };
+
+  const createConstraints = useMemo((): CreateMapConstraints | undefined => {
+    if (!canCreate) {
+      return undefined;
+    }
+    const mapType: MapType | undefined =
+      mapTypeFilter === 'all' ? undefined : mapTypeFilter;
+    return {
+      width: requiredWidth,
+      height: requiredHeight,
+      mapType,
+      lockDimensions: true,
+      lockType: mapTypeFilter !== 'all',
+    };
+  }, [canCreate, requiredWidth, requiredHeight, mapTypeFilter]);
+
+  const existingMapNames = useMemo(
+    () => maps.map((map) => map.name),
+    [maps],
+  );
+
+  const handleCreateMap = async (draft: CarcerMapTemplate) => {
+    setIsCreating(true);
+    setCreateError(null);
+    try {
+      const newMap = prepareNewMapForEditor(draft);
+      const newMaps = [...maps, newMap];
+      setMaps(newMaps);
+      await saveMaps(newMaps);
+      openMapEditorInNewTab(newMap.name);
+      onChange(newMap.name);
+      setCreateModalOpen(false);
+      setIsOpen(false);
+    } catch (error) {
+      setCreateError(
+        error instanceof Error ? error.message : 'Failed to create map',
+      );
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   const dimensionHint =
@@ -212,6 +290,49 @@ export function MapPicker({
                       fontSize: '14px',
                     }}
                   />
+                  <div style={{ marginTop: '12px' }}>
+                    <label
+                      style={{
+                        display: 'block',
+                        marginBottom: '6px',
+                        color: '#d4d4d4',
+                        fontSize: '12px',
+                      }}
+                    >
+                      Map type
+                    </label>
+                    <div
+                      style={{
+                        display: 'flex',
+                        gap: '6px',
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      {MAP_TYPE_FILTER_OPTIONS.map((option) => {
+                        const isActive = mapTypeFilter === option.value;
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => setMapTypeFilter(option.value)}
+                            style={{
+                              padding: '4px 10px',
+                              fontSize: '12px',
+                              borderRadius: '4px',
+                              border: isActive
+                                ? '1px solid #4ec9b0'
+                                : '1px solid #3e3e42',
+                              backgroundColor: isActive ? '#2d4a45' : '#2d2d30',
+                              color: isActive ? '#4ec9b0' : '#d4d4d4',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {option.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                   {dimensionHint && (
                     <div
                       style={{
@@ -233,6 +354,33 @@ export function MapPicker({
                     {filteredMaps.length} map
                     {filteredMaps.length === 1 ? '' : 's'}
                   </div>
+                  {canCreate && (
+                    <div style={{ marginTop: '12px' }}>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => {
+                          setCreateError(null);
+                          setCreateModalOpen(true);
+                        }}
+                        disabled={isCreating}
+                        style={{ width: '100%' }}
+                      >
+                        + Create new map
+                      </Button>
+                      {createError && (
+                        <div
+                          style={{
+                            marginTop: '6px',
+                            fontSize: '11px',
+                            color: '#f48771',
+                          }}
+                        >
+                          {createError}
+                        </div>
+                      )}
+                    </div>
+                  )}
                   {selectedMap && (
                     <div
                       style={{
@@ -401,7 +549,9 @@ export function MapPicker({
                       ? dimensionHint
                         ? `No maps match required size (${dimensionHint})`
                         : 'No maps available'
-                      : 'No maps match your search'}
+                      : typeFilteredMaps.length === 0
+                        ? `No ${mapTypeFilter === 'TOWN' ? 'town' : 'outdoor'} maps match the required size`
+                        : 'No maps match your search'}
                   </div>
                 )
               }
@@ -409,6 +559,15 @@ export function MapPicker({
           )}
         />
       )}
+
+      <CreateMapModal
+        isOpen={createModalOpen}
+        onConfirm={handleCreateMap}
+        onCancel={() => setCreateModalOpen(false)}
+        constraints={createConstraints}
+        existingMapNames={existingMapNames}
+        isSubmitting={isCreating}
+      />
     </>
   );
 }

@@ -1,4 +1,4 @@
-import { CarcerMapTemplate } from '../types/assets';
+import { CarcerMapTemplate, CarcerMapTileTemplate } from '../types/assets';
 import { Sprite } from './assetLoader';
 import {
   disableCanvasSmoothing,
@@ -6,6 +6,7 @@ import {
   preparePixelArtCanvas,
 } from './spriteUtils';
 import { drawRect, getSpriteNameFromTile } from './draw';
+import { materializeLayer } from './mapIndex';
 
 export const MAP_PREVIEW_DISPLAY_SIZE = 100;
 
@@ -14,13 +15,8 @@ const MAP_PREVIEW_BACKGROUND = '#421';
 export function getMapTilesForLevel(
   map: CarcerMapTemplate,
   level: string | number = '0'
-): CarcerMapTemplate['levels'][string] {
-  const key = String(level);
-  if (map.levels[key]) {
-    return map.levels[key];
-  }
-  const firstKey = Object.keys(map.levels)[0];
-  return firstKey ? map.levels[firstKey] : [];
+): CarcerMapTileTemplate[] {
+  return materializeLayer(map, parseInt(String(level), 10));
 }
 
 export function getMapPixelSize(map: CarcerMapTemplate): {

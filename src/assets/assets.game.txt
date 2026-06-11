@@ -166,35 +166,44 @@ EndAnim
 Anim,splash_magical,noloop
 expl_2 100
 EndAnim
-Anim,splash_positive,noloop
+Anim,splash_fire,noloop
 expl_3 100
 EndAnim
-Anim,splash_negative,noloop
+Anim,splash_positive,noloop
 expl_4 100
 EndAnim
 Anim,splash_negative,noloop
 expl_5 100
 EndAnim
 Anim,expl_magical,noloop
-expl_8 100
-expl_9 100
-expl_10 100
-expl_11 100
-expl_12 100
-expl_13 100
-expl_14 100
-expl_15 100
+expl_8 60
+expl_9 60
+expl_10 60
+expl_11 60
+expl_12 60
+expl_13 60
+expl_14 60
+expl_15 60
 EndAnim
 Anim,expl_fire,noloop
-expl_16 100
-expl_17 100
-expl_18 100
-expl_19 100
-expl_20 100
-expl_21 100
-expl_22 100
-expl_23 100
-expl_24 100
+expl_16 60
+expl_17 60
+expl_18 60
+expl_19 60
+expl_20 60
+expl_21 60
+expl_22 60
+expl_23 60
+EndAnim
+Anim,expl_buff,noloop
+expl_24 60
+expl_25 60
+expl_26 60
+expl_27 60
+expl_28 60
+expl_29 60
+expl_30 60
+expl_31 60
 EndAnim
 
 # Mikey Soprano getting hit with a staple gun

@@ -50,7 +50,7 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
     case '/editor/specialEvents':
       return <SpecialEvents routeParams={routeParams} />;
     case '/editor/maps':
-      return <Maps />;
+      return <Maps routeParams={routeParams} />;
     case '/editor/mapGrids':
       return <MapGrids />;
     default:

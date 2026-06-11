@@ -8,6 +8,7 @@ import {
   updateEditorState,
   updateEditorStateMap,
 } from './editorState';
+import { sortedLayerKeys, tileXY } from '../utils/mapIndex';
 
 export interface MapTileLocation {
   level: number;
@@ -24,16 +25,11 @@ export interface MapMarkerReference extends MapTileLocation {
 
 const MAP_CANVAS_ID = 'map-canvas-canvas';
 
-function sortedLevelKeys(map: CarcerMapTemplate): string[] {
-  return Object.keys(map.levels).sort((a, b) => parseInt(b, 10) - parseInt(a, 10));
-}
-
 function findOnMap(
   map: CarcerMapTemplate,
   predicate: (tile: ReturnType<typeof getTileList>[number]) => boolean
 ): MapTileLocation | null {
-  for (const levelKey of sortedLevelKeys(map)) {
-    const level = parseInt(levelKey, 10);
+  for (const level of sortedLayerKeys(map)) {
     const tiles = getTileList(map, level);
     if (!tiles.length) {
       continue;
@@ -49,15 +45,10 @@ function findOnMap(
 /** Unique character names placed on any layer of the map (sorted). */
 export function collectCharacterNamesOnMap(map: CarcerMapTemplate): string[] {
   const names = new Set<string>();
-  for (const levelKey of Object.keys(map.levels)) {
-    const tiles = map.levels[levelKey] ?? [];
-    for (const tile of tiles) {
-      for (const character of tile.characters ?? []) {
-        const trimmed = character.trim();
-        if (trimmed) {
-          names.add(trimmed);
-        }
-      }
+  for (const placement of map.characters ?? []) {
+    const trimmed = placement.name.trim();
+    if (trimmed) {
+      names.add(trimmed);
     }
   }
   return [...names].sort((a, b) => a.localeCompare(b));
@@ -66,15 +57,10 @@ export function collectCharacterNamesOnMap(map: CarcerMapTemplate): string[] {
 /** Unique marker names placed on any layer of the map (sorted). */
 export function collectMarkerNamesOnMap(map: CarcerMapTemplate): string[] {
   const names = new Set<string>();
-  for (const levelKey of Object.keys(map.levels)) {
-    const tiles = map.levels[levelKey] ?? [];
-    for (const tile of tiles) {
-      for (const marker of tile.markers ?? []) {
-        const trimmed = marker.trim();
-        if (trimmed) {
-          names.add(trimmed);
-        }
-      }
+  for (const placement of map.markers ?? []) {
+    const trimmed = placement.name.trim();
+    if (trimmed) {
+      names.add(trimmed);
     }
   }
   return [...names].sort((a, b) => a.localeCompare(b));
@@ -94,26 +80,21 @@ export function findTravelTriggerReferencesToMarker(
 
   const refs: MapMarkerReference[] = [];
   for (const sourceMap of allMaps) {
-    for (const levelKey of Object.keys(sourceMap.levels)) {
-      const level = parseInt(levelKey, 10);
-      const tiles = sourceMap.levels[levelKey] ?? [];
-      tiles.forEach((tile, tileIndex) => {
-        const trigger = tile.travelTrigger;
-        if (
-          trigger &&
-          trigger.destinationMapName.trim() === destMapName &&
-          trigger.destinationMarkerName.trim() === name
-        ) {
-          refs.push({
-            sourceMapName: sourceMap.name,
-            sourceMapLabel: sourceMap.label,
-            level,
-            tileIndex,
-            x: tileIndex % sourceMap.width,
-            y: Math.floor(tileIndex / sourceMap.width),
-          });
-        }
-      });
+    for (const trigger of sourceMap.travelTriggers ?? []) {
+      if (
+        trigger.destinationMapName.trim() === destMapName &&
+        trigger.destinationMarkerName.trim() === name
+      ) {
+        const { x, y } = tileXY(trigger.i, sourceMap.width);
+        refs.push({
+          sourceMapName: sourceMap.name,
+          sourceMapLabel: sourceMap.label,
+          level: trigger.l,
+          tileIndex: trigger.i,
+          x,
+          y,
+        });
+      }
     }
   }
 
@@ -141,10 +122,11 @@ export function findMarkerOnMap(
   if (!name) {
     return null;
   }
-  return findOnMap(
-    map,
-    (tile) => Boolean(tile.markers?.some((m) => m === name))
-  );
+  const placement = (map.markers ?? []).find((m) => m.name === name);
+  if (!placement) {
+    return null;
+  }
+  return { level: placement.l, tileIndex: placement.i };
 }
 
 export function findCharacterOnMap(
@@ -155,10 +137,11 @@ export function findCharacterOnMap(
   if (!name) {
     return null;
   }
-  return findOnMap(
-    map,
-    (tile) => Boolean(tile.characters?.some((c) => c === name))
-  );
+  const placement = (map.characters ?? []).find((c) => c.name === name);
+  if (!placement) {
+    return null;
+  }
+  return { level: placement.l, tileIndex: placement.i };
 }
 
 export function locateOnCurrentMap(

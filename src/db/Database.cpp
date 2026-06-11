@@ -2,6 +2,7 @@
 #include "lib/sdl2w/Logger.h"
 #include "loaders/LoadAbilityTemplates.h"
 #include "loaders/LoadCharacterTemplates.h"
+#include "loaders/LoadMapTemplates.h"
 #include "loaders/LoadItemTemplates.h"
 #include "loaders/LoadStatusEffectTemplates.h"
 #include <stdexcept>
@@ -46,6 +47,7 @@ void Database::load() {
   loadAbilityTemplates("assets/db/abilities.json", abilityTemplates);
   loadItemTemplates("assets/db/items.json", itemTemplates);
   loadCharacterTemplates("assets/db/characters.json", characterTemplates);
+  loadMapTemplates("assets/db/maps.json", mapTemplates);
   validateCombatReferences();
   LOG(INFO) << "Loaded database." << LOG_ENDL;
 }
@@ -106,6 +108,17 @@ const model::GameEvent& Database::getGameEvent(std::string_view eventId) const {
 
 void Database::addGameEvent(const model::GameEvent& gameEvent) {
   gameEvents[gameEvent.id] = gameEvent;
+}
+
+const model::CarcerMapTemplate& Database::getMapTemplate(std::string_view mapName) const {
+  if (mapTemplates.find(std::string(mapName)) == mapTemplates.end()) {
+    throw std::runtime_error("Map template not found: " + std::string(mapName));
+  }
+  return mapTemplates.at(std::string(mapName));
+}
+
+void Database::addMapTemplate(const model::CarcerMapTemplate& mapTemplate) {
+  mapTemplates[mapTemplate.name] = mapTemplate;
 }
 
 } // namespace db

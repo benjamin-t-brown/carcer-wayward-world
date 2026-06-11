@@ -139,20 +139,4 @@ export const getCurrentPaintAction = () => {
   return getEditorState().currentPaintAction;
 };
 
-export const createTilesForLayer = (
-  map: CarcerMapTemplate
-): CarcerMapTileTemplate[] => {
-  const tiles: CarcerMapTileTemplate[] = [];
-  for (let y = 0; y < map.height; y++) {
-    for (let x = 0; x < map.width; x++) {
-      tiles.push({
-        tilesetName: '',
-        tileId: 0,
-        characters: [],
-        items: [],
-        markers: [],
-      });
-    }
-  }
-  return tiles;
-};
+export { createTilesForLayer } from '../utils/mapIndex';

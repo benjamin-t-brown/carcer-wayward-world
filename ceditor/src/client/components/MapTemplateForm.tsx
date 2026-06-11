@@ -7,6 +7,7 @@ import {
   MAP_TYPES,
   MapType,
 } from '../types/assets';
+import { createDefaultMapTemplate } from '../utils/mapIndex';
 
 interface MapTemplateFormProps {
   map?: CarcerMapTemplate;
@@ -14,16 +15,7 @@ interface MapTemplateFormProps {
 }
 
 export function createDefaultMap(): CarcerMapTemplate {
-  return {
-    name: '',
-    label: '',
-    type: 'TOWN',
-    width: 40,
-    height: 40,
-    spriteWidth: 28,
-    spriteHeight: 32,
-    levels: {},
-  };
+  return createDefaultMapTemplate();
 }
 
 export function createDefaultCarcerMapTile(): CarcerMapTileTemplate {

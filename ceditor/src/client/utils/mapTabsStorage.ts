@@ -82,3 +82,17 @@ export function restoreMapTabsFromStorage(
 
   return { tabs, activeTabIndex };
 }
+
+/** Open the map editor in a new browser tab with this map active. */
+export function openMapEditorInNewTab(mapName: string): void {
+  const persisted = loadPersistedMapTabs();
+  const openNames = persisted?.openMapNames ?? [];
+  const nextNames = openNames.includes(mapName)
+    ? openNames
+    : [...openNames, mapName];
+  savePersistedMapTabs(nextNames, mapName);
+
+  const base = `${window.location.origin}${window.location.pathname}`;
+  const url = `${base}#/editor/maps?map=${encodeURIComponent(mapName)}`;
+  window.open(url, '_blank', 'noopener,noreferrer');
+}

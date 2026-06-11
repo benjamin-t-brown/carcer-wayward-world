@@ -8,6 +8,11 @@ import {
 } from './paintTools';
 import { CarcerMapTemplate, TilesetTemplate } from '../types/assets';
 import {
+  commitMaterializedLayer,
+  getAdjacentLayer,
+  getMaterializedLayer,
+} from '../utils/mapIndex';
+import {
   EditorState,
   getCurrentPaintAction,
   getEditorState,
@@ -164,17 +169,24 @@ export const initPanzoom = (mapDataInterface: {
           }
         }
       }
-      if (ev.key === 'ArrowUp' && ev.altKey) {
+      if (
+        (ev.key === 'ArrowUp' || ev.key === 'ArrowDown') &&
+        !ev.ctrlKey &&
+        !ev.metaKey &&
+        !ev.shiftKey
+      ) {
         const currentMap = mapDataInterface.getMapData();
-        const nextLevel = getEditorState().currentLevel + 1;
-        if (currentMap?.levels[nextLevel]) {
-          updateEditorState({ currentLevel: nextLevel });
-        }
-      } else if (ev.key === 'ArrowDown' && ev.altKey) {
-        const currentMap = mapDataInterface.getMapData();
-        const nextLevel = getEditorState().currentLevel - 1;
-        if (currentMap?.levels[nextLevel]) {
-          updateEditorState({ currentLevel: nextLevel });
+        if (currentMap) {
+          const direction = ev.key === 'ArrowUp' ? 'up' : 'down';
+          const nextLevel = getAdjacentLayer(
+            currentMap,
+            getEditorState().currentLevel,
+            direction,
+          );
+          if (nextLevel !== null) {
+            updateEditorState({ currentLevel: nextLevel });
+            ev.preventDefault();
+          }
         }
       }
     }
@@ -728,5 +740,12 @@ export const getIsDraggingRight = () => {
 };
 
 export const getTileList = (mapData: CarcerMapTemplate, level?: number) => {
-  return mapData.levels[level ?? getEditorState().currentLevel] ?? [];
+  return getMaterializedLayer(mapData, level ?? getEditorState().currentLevel);
+};
+
+export const commitCurrentLayer = (
+  mapData: CarcerMapTemplate,
+  level?: number
+) => {
+  commitMaterializedLayer(mapData, level ?? getEditorState().currentLevel);
 };

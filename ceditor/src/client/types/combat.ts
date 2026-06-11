@@ -196,6 +196,10 @@ export interface AbilityAttack {
 export interface AbilityStatus {
   statusEffect: string;
   save?: AbilitySave;
+  /** Overrides template baseDuration for this application. */
+  baseDuration?: number;
+  /** Flat turns added after base. */
+  durationBonus?: number;
 }
 
 export interface AbilityRestore {
@@ -231,9 +235,22 @@ export function mergeAbilityRestore(base?: AbilityRestore): AbilityRestore {
   };
 }
 
+export interface StatusEffectDurationScale {
+  durationStat: StatsEnum;
+  durationStatMult: number;
+}
+
+export function createDefaultStatusEffectDurationScale(): StatusEffectDurationScale {
+  return {
+    durationStat: 'STAT_MND',
+    durationStatMult: 1,
+  };
+}
+
 export interface StatusEffectAction {
   statusActionTargetType: StatusActionTargetType;
   abilityName: string;
+  events: StatusEffectEvent[];
 }
 
 export interface AbilityTemplate {
@@ -255,12 +272,11 @@ export interface AbilityTemplate {
 export interface StatusEffectTemplate {
   name: string;
   description: string;
-  duration: number;
-  events: StatusEffectEvent[];
+  baseDuration: number;
+  durationScale?: StatusEffectDurationScale;
   applyBonuses?: Stats;
   applyCurrentStatChange?: CurrentStats;
   applyResistances?: Resistance[];
-  targetInfo?: TargetSelectInfo;
   actions?: StatusEffectAction[];
 }
 
@@ -405,6 +421,36 @@ export function createDefaultAbilityDepiction(): AbilityDepiction {
   };
 }
 
+export function abilityDepictionHasProjectile(
+  depiction: AbilityDepiction,
+): boolean {
+  return depiction.projectilePath !== 'PROJECTILE_PATH_NONE';
+}
+
+export const ABILITY_PROJECTILE_PATHS: ProjectilePath[] = [
+  'PROJECTILE_PATH_SHORT',
+  'PROJECTILE_PATH_MEDIUM',
+  'PROJECTILE_PATH_TALL',
+];
+
+export function setAbilityDepictionHasProjectile(
+  depiction: AbilityDepiction,
+  hasProjectile: boolean,
+): AbilityDepiction {
+  if (!hasProjectile) {
+    return {
+      ...depiction,
+      projectileHasFacing: false,
+      projectileAnim: '',
+      projectilePath: 'PROJECTILE_PATH_NONE',
+    };
+  }
+  if (depiction.projectilePath === 'PROJECTILE_PATH_NONE') {
+    return { ...depiction, projectilePath: 'PROJECTILE_PATH_SHORT' };
+  }
+  return depiction;
+}
+
 /** Clear depiction anim/sound fields that are not defined in loaded SDL2W assets. */
 export function sanitizeAbilityDepiction(
   depiction: AbilityDepiction,
@@ -483,10 +529,7 @@ export function createDefaultStatusEffectTemplate(): StatusEffectTemplate {
   return {
     name: '',
     description: '',
-    duration: 1,
-    events: [
-      { type: 'STATUS_EVENT_ON_APPLIED', condition: 'CONDITION_ALWAYS' },
-    ],
+    baseDuration: 1,
     applyResistances: [],
     actions: [],
   };

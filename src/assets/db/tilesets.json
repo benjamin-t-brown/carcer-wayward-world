@@ -251,7 +251,7 @@
         "id": 16,
         "description": "",
         "stepSound": "1",
-        "isWalkable": true,
+        "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
         "isContainer": false,
@@ -591,8 +591,8 @@
         "tileTerrainBorderMeta": {
           "nw": "DIRT",
           "ne": "DIRT",
-          "sw": "DIRT",
-          "se": "WATER"
+          "sw": "WATER",
+          "se": "DIRT"
         }
       },
       {
@@ -606,8 +606,8 @@
         "tileTerrainBorderMeta": {
           "nw": "DIRT",
           "ne": "DIRT",
-          "sw": "WATER",
-          "se": "DIRT"
+          "sw": "DIRT",
+          "se": "WATER"
         }
       },
       {
@@ -621,8 +621,8 @@
         "tileTerrainBorderMeta": {
           "nw": "WATER",
           "ne": "WATER",
-          "sw": "DIRT",
-          "se": "WATER"
+          "sw": "WATER",
+          "se": "DIRT"
         }
       },
       {
@@ -636,8 +636,8 @@
         "tileTerrainBorderMeta": {
           "nw": "WATER",
           "ne": "WATER",
-          "sw": "WATER",
-          "se": "DIRT"
+          "sw": "DIRT",
+          "se": "WATER"
         }
       },
       {
@@ -3081,7 +3081,7 @@
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
-        "stepSound": "1"
+        "stepSound": "3"
       },
       {
         "id": 27,
@@ -3089,7 +3089,7 @@
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
-        "stepSound": "1"
+        "stepSound": "3"
       },
       {
         "id": 28,
@@ -3097,7 +3097,7 @@
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
-        "stepSound": "1"
+        "stepSound": "3"
       },
       {
         "id": 29,
@@ -3105,7 +3105,7 @@
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
-        "stepSound": "1"
+        "stepSound": "3"
       },
       {
         "id": 30,
@@ -3113,7 +3113,7 @@
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
-        "stepSound": "1"
+        "stepSound": "3"
       },
       {
         "id": 31,
@@ -3121,7 +3121,7 @@
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
-        "stepSound": "1"
+        "stepSound": "3"
       },
       {
         "id": 32,
@@ -3129,7 +3129,7 @@
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
-        "stepSound": "1"
+        "stepSound": "3"
       },
       {
         "id": 33,
@@ -3137,31 +3137,31 @@
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
-        "stepSound": "1"
+        "stepSound": "3"
       },
       {
         "id": 34,
-        "description": "",
+        "description": "trail",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
-        "stepSound": "1"
+        "stepSound": "3"
       },
       {
         "id": 35,
-        "description": "",
+        "description": "trail",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
-        "stepSound": "1"
+        "stepSound": "3"
       },
       {
         "id": 36,
-        "description": "",
+        "description": "trail",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
-        "stepSound": "1"
+        "stepSound": "3"
       },
       {
         "id": 37,
@@ -3173,7 +3173,7 @@
       },
       {
         "id": 38,
-        "description": "",
+        "description": "bog",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3181,7 +3181,7 @@
       },
       {
         "id": 39,
-        "description": "",
+        "description": "town",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3189,56 +3189,57 @@
       },
       {
         "id": 40,
-        "description": "",
-        "isWalkable": true,
+        "description": "crate",
+        "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
         "stepSound": "1"
       },
       {
         "id": 41,
-        "description": "",
-        "isWalkable": true,
+        "description": "open crate",
+        "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
-        "stepSound": "1"
+        "stepSound": "1",
+        "isContainer": true
       },
       {
         "id": 42,
-        "description": "",
-        "isWalkable": true,
+        "description": "Ream flag",
+        "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
         "stepSound": "1"
       },
       {
         "id": 43,
-        "description": "",
-        "isWalkable": true,
+        "description": "Ream flag",
+        "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
         "stepSound": "1"
       },
       {
         "id": 44,
-        "description": "",
-        "isWalkable": true,
+        "description": "Blackrose flag",
+        "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
         "stepSound": "1"
       },
       {
         "id": 45,
-        "description": "",
-        "isWalkable": true,
+        "description": "Blackrose flag",
+        "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
         "stepSound": "1"
       },
       {
         "id": 46,
-        "description": "",
-        "isWalkable": true,
+        "description": "Guildimarche flag",
+        "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
         "stepSound": "1"
@@ -3253,21 +3254,21 @@
       },
       {
         "id": 48,
-        "description": "wall",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": false,
         "isDoor": false
       },
       {
         "id": 49,
-        "description": "wall",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": false,
         "isDoor": false
       },
       {
         "id": 50,
-        "description": "wall",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": false,
         "isDoor": false
@@ -3281,112 +3282,112 @@
       },
       {
         "id": 52,
-        "description": "double doors",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": false,
         "isDoor": true
       },
       {
         "id": 53,
-        "description": "double doors",
+        "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": true
       },
       {
         "id": 54,
-        "description": "door",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": false,
         "isDoor": true
       },
       {
         "id": 55,
-        "description": "door",
+        "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": true
       },
       {
         "id": 56,
-        "description": "gate",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false
       },
       {
         "id": 57,
-        "description": "gate",
+        "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false
       },
       {
         "id": 58,
-        "description": "sign",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": false,
         "isDoor": false
       },
       {
         "id": 59,
-        "description": "window",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false
       },
       {
         "id": 60,
-        "description": "shield decoration",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": false,
         "isDoor": false
       },
       {
         "id": 61,
-        "description": "painting",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": false,
         "isDoor": false
       },
       {
         "id": 62,
-        "description": "tapestry",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": false,
         "isDoor": false
       },
       {
         "id": 63,
-        "description": "tapestry",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": false,
         "isDoor": false
       },
       {
         "id": 64,
-        "description": "shelf",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": false,
         "isDoor": false
       },
       {
         "id": 65,
-        "description": "shelf",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": false,
         "isDoor": false
       },
       {
         "id": 66,
-        "description": "shelf",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": false,
         "isDoor": false
       },
       {
         "id": 67,
-        "description": "cracked wall",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false
@@ -3477,7 +3478,7 @@
       },
       {
         "id": 80,
-        "description": "floor",
+        "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3485,7 +3486,7 @@
       },
       {
         "id": 81,
-        "description": "chair",
+        "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3493,7 +3494,7 @@
       },
       {
         "id": 82,
-        "description": "chair",
+        "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3501,7 +3502,7 @@
       },
       {
         "id": 83,
-        "description": "chair",
+        "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3509,7 +3510,7 @@
       },
       {
         "id": 84,
-        "description": "chair",
+        "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3517,7 +3518,7 @@
       },
       {
         "id": 85,
-        "description": "table",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3525,7 +3526,7 @@
       },
       {
         "id": 86,
-        "description": "table",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3533,7 +3534,7 @@
       },
       {
         "id": 87,
-        "description": "table",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3541,7 +3542,7 @@
       },
       {
         "id": 88,
-        "description": "table",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3549,7 +3550,7 @@
       },
       {
         "id": 89,
-        "description": "table",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3557,7 +3558,7 @@
       },
       {
         "id": 90,
-        "description": "table",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3565,7 +3566,7 @@
       },
       {
         "id": 91,
-        "description": "table",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3573,7 +3574,7 @@
       },
       {
         "id": 92,
-        "description": "cabinet",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": false,
         "isDoor": false,
@@ -3582,7 +3583,7 @@
       },
       {
         "id": 93,
-        "description": "desk",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3591,7 +3592,7 @@
       },
       {
         "id": 94,
-        "description": "drawers",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3600,7 +3601,7 @@
       },
       {
         "id": 95,
-        "description": "bookshelf",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": false,
         "isDoor": false,
@@ -3609,7 +3610,7 @@
       },
       {
         "id": 96,
-        "description": "plant",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3617,7 +3618,7 @@
       },
       {
         "id": 97,
-        "description": "chest",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3626,7 +3627,7 @@
       },
       {
         "id": 98,
-        "description": "open chest",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3635,7 +3636,7 @@
       },
       {
         "id": 99,
-        "description": "crate",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3644,7 +3645,7 @@
       },
       {
         "id": 100,
-        "description": "barrel",
+        "description": "",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3653,7 +3654,7 @@
       },
       {
         "id": 101,
-        "description": "rug",
+        "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3661,7 +3662,7 @@
       },
       {
         "id": 102,
-        "description": "rune",
+        "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3669,7 +3670,7 @@
       },
       {
         "id": 103,
-        "description": "bed",
+        "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,

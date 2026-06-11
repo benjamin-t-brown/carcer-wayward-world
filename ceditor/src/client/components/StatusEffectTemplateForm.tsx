@@ -5,23 +5,28 @@ import { Button } from '../elements/Button';
 import {
   StatusEffectTemplate,
   createDefaultStatusEffectTemplate,
-  StatusEffectEvent,
+  createDefaultStatusEffectDurationScale,
   Resistance,
   StatusEffectAction,
+  StatsEnum,
+  STATS_ENUMS,
 } from '../types/combat';
 import {
-  TargetSelectFields,
   StatsFields,
   CurrentStatsFields,
-  StatusEffectEventEditor,
   ResistanceEditor,
   StatusEffectActionEditor,
 } from './combat/CombatFormFields';
+import { OptionSelect } from '../elements/OptionSelect';
 import { useAssets } from '../contexts/AssetsContext';
 import { EditorEmptyState } from './EditorEmptyState';
 
 export type { StatusEffectTemplate };
 export { createDefaultStatusEffectTemplate };
+
+function enumOptions<T extends string>(values: readonly T[]) {
+  return values.map((v) => ({ value: v, label: v }));
+}
 
 interface StatusEffectTemplateFormProps {
   statusEffect?: StatusEffectTemplate;
@@ -43,26 +48,6 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
     value: StatusEffectTemplate[K],
   ) => {
     setFormData({ ...statusEffect, [field]: value });
-  };
-
-  const updateEvent = (index: number, event: StatusEffectEvent) => {
-    const events = [...statusEffect.events];
-    events[index] = event;
-    updateField('events', events);
-  };
-
-  const addEvent = () => {
-    updateField('events', [
-      ...statusEffect.events,
-      { type: 'STATUS_EVENT_ON_APPLIED', condition: 'CONDITION_ALWAYS' },
-    ]);
-  };
-
-  const removeEvent = (index: number) => {
-    updateField(
-      'events',
-      statusEffect.events.filter((_, i) => i !== index),
-    );
   };
 
   const updateResistance = (index: number, resistance: Resistance) => {
@@ -105,6 +90,9 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
       {
         statusActionTargetType: 'STATUS_ACTION_TARGET_SELF',
         abilityName: abilities[0]?.name || '',
+        events: [
+          { type: 'STATUS_EVENT_ON_APPLIED', condition: 'CONDITION_ALWAYS' },
+        ],
       },
     ]);
   };
@@ -130,14 +118,19 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
             required
           />
           <NumberInput
-            id="status-duration"
-            name="duration"
-            label="Duration (turns)"
-            value={statusEffect.duration}
-            onChange={(value) => updateField('duration', value ?? 0)}
+            id="status-base-duration"
+            name="baseDuration"
+            label="Base duration (turns)"
+            value={statusEffect.baseDuration}
+            onChange={(value) => updateField('baseDuration', value ?? 0)}
             min={0}
           />
         </div>
+
+        <p className="form-subsection-description">
+          Final duration is resolved at apply time from applier/victim stats and
+          feats. Base duration is the default before those modifiers.
+        </p>
 
         <div className="form-group form-block">
           <TextArea
@@ -151,26 +144,61 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
         </div>
 
         <div className="form-subsection">
-          <h4>Events</h4>
+          <h4>Duration scale (optional)</h4>
           <p className="form-subsection-description">
-            The status effect will trigger when any of these happen.
+            Extra turns from the applier&apos;s stat: floor(stat × multiplier).
           </p>
-          {statusEffect.events.map((event, index) => (
-            <StatusEffectEventEditor
-              key={index}
-              event={event}
-              index={index}
-              onChange={(updated) => updateEvent(index, updated)}
-              onRemove={() => removeEvent(index)}
+          <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <input
+              type="checkbox"
+              checked={!!statusEffect.durationScale}
+              onChange={(e) =>
+                updateField(
+                  'durationScale',
+                  e.target.checked
+                    ? createDefaultStatusEffectDurationScale()
+                    : undefined,
+                )
+              }
             />
-          ))}
-          <Button type="button" variant="secondary" onClick={addEvent}>
-            + Add Event
-          </Button>
+            Scale duration from applier stat
+          </label>
+          {statusEffect.durationScale && (
+            <div className="form-fields-inline">
+              <OptionSelect
+                id="status-duration-stat"
+                name="durationStat"
+                label="Stat"
+                value={statusEffect.durationScale.durationStat}
+                onChange={(v) =>
+                  updateField('durationScale', {
+                    ...statusEffect.durationScale!,
+                    durationStat: v as StatsEnum,
+                  })
+                }
+                options={enumOptions(STATS_ENUMS)}
+              />
+              <NumberInput
+                id="status-duration-stat-mult"
+                name="durationStatMult"
+                label="× Stat"
+                value={statusEffect.durationScale.durationStatMult}
+                onChange={(v) =>
+                  updateField('durationScale', {
+                    ...statusEffect.durationScale!,
+                    durationStatMult: v ?? 0,
+                  })
+                }
+              />
+            </div>
+          )}
         </div>
 
         <div className="form-subsection">
           <h4>Apply Bonuses (stats)</h4>
+          <p className="form-subsection-description">
+            Passive modifiers on the bearer while this status is active.
+          </p>
           <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <input
               type="checkbox"
@@ -199,6 +227,9 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
 
         <div className="form-subsection">
           <h4>Apply Current Stat Change</h4>
+          <p className="form-subsection-description">
+            Passive current-stat change on the bearer while active.
+          </p>
           <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <input
               type="checkbox"
@@ -242,39 +273,11 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
         </div>
 
         <div className="form-subsection">
-          <h4>Target Info (optional)</h4>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <input
-              type="checkbox"
-              checked={!!statusEffect.targetInfo}
-              onChange={(e) =>
-                updateField(
-                  'targetInfo',
-                  e.target.checked
-                    ? {
-                        targetType: 'TARGET_UNIT',
-                        allegianceSelectType: 'TARGET_ALLEGIANCE_OTHER',
-                        numTargetableUnits: 1,
-                        zoneSize: { x: 1, y: 1 },
-                        range: 1,
-                      }
-                    : undefined,
-                )
-              }
-            />
-            Has target selection
-          </label>
-          {statusEffect.targetInfo && (
-            <TargetSelectFields
-              value={statusEffect.targetInfo}
-              onChange={(targetInfo) => updateField('targetInfo', targetInfo)}
-              idPrefix="status-target"
-            />
-          )}
-        </div>
-
-        <div className="form-subsection">
-          <h4>Invoke Abilities</h4>
+          <h4>Triggered abilities</h4>
+          <p className="form-subsection-description">
+            Only invoked abilities are event-driven. Each action lists the game
+            events that trigger it.
+          </p>
           {statusEffect.actions?.map((invoked, index) => (
             <StatusEffectActionEditor
               key={index}
@@ -285,7 +288,7 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
             />
           ))}
           <Button type="button" variant="secondary" onClick={addInvokedAction}>
-            + Add Invoked Ability
+            + Add Triggered Ability
           </Button>
         </div>
       </form>

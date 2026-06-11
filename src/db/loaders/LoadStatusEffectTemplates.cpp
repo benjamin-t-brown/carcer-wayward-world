@@ -6,6 +6,38 @@
 
 namespace db {
 
+namespace {
+
+model::StatusEffectEvent parseStatusEffectEvent(const nlohmann::json& eventJson) {
+  model::StatusEffectEvent event;
+  if (!eventJson.contains("type") || !eventJson["type"].is_string()) {
+    throw std::runtime_error("StatusEffectEvent missing type");
+  }
+  event.type = model::statusEventTypeFromString(eventJson["type"]);
+  if (!eventJson.contains("condition") || !eventJson["condition"].is_string()) {
+    throw std::runtime_error("StatusEffectEvent missing condition");
+  }
+  event.condition = model::statusEffectConditionFromString(eventJson["condition"]);
+  return event;
+}
+
+model::StatusEffectDurationScale parseStatusEffectDurationScale(
+    const nlohmann::json& scaleJson) {
+  model::StatusEffectDurationScale scale;
+  if (!scaleJson.contains("durationStat") || !scaleJson["durationStat"].is_string()) {
+    throw std::runtime_error("durationScale missing durationStat");
+  }
+  scale.durationStat = model::statsEnumFromString(scaleJson["durationStat"]);
+  if (!scaleJson.contains("durationStatMult") ||
+      !scaleJson["durationStatMult"].is_number_integer()) {
+    throw std::runtime_error("durationScale missing durationStatMult");
+  }
+  scale.durationStatMult = scaleJson["durationStatMult"];
+  return scale;
+}
+
+} // namespace
+
 void loadStatusEffectTemplates(
     const std::string& statusEffectsFilePath,
     std::unordered_map<std::string, model::StatusEffectTemplate>& statusEffectTemplates) {
@@ -36,25 +68,28 @@ void loadStatusEffectTemplates(
     }
     statusTemplate.description = statusJson["description"];
 
-    if (!statusJson.contains("duration") || !statusJson["duration"].is_number_integer()) {
-      throw std::runtime_error("Status effect missing required field: duration");
+    if (statusJson.contains("duration")) {
+      throw std::runtime_error(
+          "Status effect uses legacy field 'duration'; rename to 'baseDuration': " +
+          statusTemplate.name);
     }
-    statusTemplate.duration = statusJson["duration"];
+    if (!statusJson.contains("baseDuration") || !statusJson["baseDuration"].is_number_integer()) {
+      throw std::runtime_error("Status effect missing required field: baseDuration");
+    }
+    statusTemplate.baseDuration = statusJson["baseDuration"];
 
-    if (!statusJson.contains("events") || !statusJson["events"].is_array()) {
-      throw std::runtime_error("Status effect missing required field: events");
+    if (statusJson.contains("events")) {
+      throw std::runtime_error(
+          "Status effect uses legacy top-level 'events'; move events onto each action: " +
+          statusTemplate.name);
     }
-    for (const auto& eventJson : statusJson["events"]) {
-      model::StatusEffectEvent event;
-      if (!eventJson.contains("type") || !eventJson["type"].is_string()) {
-        throw std::runtime_error("StatusEffectEvent missing type");
-      }
-      event.type = model::statusEventTypeFromString(eventJson["type"]);
-      if (!eventJson.contains("condition") || !eventJson["condition"].is_string()) {
-        throw std::runtime_error("StatusEffectEvent missing condition");
-      }
-      event.condition = model::statusEffectConditionFromString(eventJson["condition"]);
-      statusTemplate.events.push_back(event);
+    if (statusJson.contains("targetInfo")) {
+      throw std::runtime_error(
+          "Status effect uses legacy field 'targetInfo'; remove it: " + statusTemplate.name);
+    }
+
+    if (statusJson.contains("durationScale") && statusJson["durationScale"].is_object()) {
+      statusTemplate.durationScale = parseStatusEffectDurationScale(statusJson["durationScale"]);
     }
 
     if (statusJson.contains("applyBonuses") && statusJson["applyBonuses"].is_object()) {
@@ -72,10 +107,6 @@ void loadStatusEffectTemplates(
       }
     }
 
-    if (statusJson.contains("targetInfo") && statusJson["targetInfo"].is_object()) {
-      statusTemplate.targetInfo = parseTargetSelectInfo(statusJson["targetInfo"]);
-    }
-
     if (statusJson.contains("actions") && statusJson["actions"].is_array()) {
       for (const auto& actionJson : statusJson["actions"]) {
         model::StatusEffectAction action;
@@ -89,6 +120,12 @@ void loadStatusEffectTemplates(
           throw std::runtime_error("StatusEffectAction missing abilityName");
         }
         action.abilityName = actionJson["abilityName"];
+        if (!actionJson.contains("events") || !actionJson["events"].is_array()) {
+          throw std::runtime_error("StatusEffectAction missing events array");
+        }
+        for (const auto& eventJson : actionJson["events"]) {
+          action.events.push_back(parseStatusEffectEvent(eventJson));
+        }
         statusTemplate.actions.push_back(action);
       }
     }

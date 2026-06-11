@@ -526,39 +526,29 @@ export function planCharacterDeleteImpacts(
     const levelLines: string[] = [];
     let totalPlacements = 0;
 
-    for (const levelKey of Object.keys(map.levels)) {
-      const tiles = map.levels[levelKey];
-      if (!tiles?.length) {
+    const byLevel = new Map<number, string[]>();
+    for (const placement of map.characters ?? []) {
+      if (placement.name !== characterName) {
         continue;
       }
+      totalPlacements += 1;
+      const x = placement.i % map.width;
+      const y = Math.floor(placement.i / map.width);
+      const summaries = byLevel.get(placement.l) ?? [];
+      summaries.push(`(${x}, ${y})`);
+      byLevel.set(placement.l, summaries);
+    }
 
-      let levelPlacements = 0;
-      const tileSummaries: string[] = [];
-
-      tiles.forEach((tile, tileIndex) => {
-        const count = tile.characters.filter((c) => c === characterName).length;
-        if (count === 0) {
-          return;
-        }
-        levelPlacements += count;
-        const x = tileIndex % map.width;
-        const y = Math.floor(tileIndex / map.width);
-        tileSummaries.push(
-          count > 1 ? `(${x}, ${y}) ×${count}` : `(${x}, ${y})`,
-        );
-      });
-
-      if (levelPlacements > 0) {
-        totalPlacements += levelPlacements;
-        const shown = tileSummaries.slice(0, 6).join(', ');
-        const extra =
-          tileSummaries.length > 6
-            ? `, +${tileSummaries.length - 6} more tile(s)`
-            : '';
-        levelLines.push(
-          `Level ${levelKey}: ${levelPlacements} placement(s) at ${shown}${extra}`,
-        );
-      }
+    for (const [levelKey, tileSummaries] of byLevel.entries()) {
+      const levelPlacements = tileSummaries.length;
+      const shown = tileSummaries.slice(0, 6).join(', ');
+      const extra =
+        tileSummaries.length > 6
+          ? `, +${tileSummaries.length - 6} more tile(s)`
+          : '';
+      levelLines.push(
+        `Level ${levelKey}: ${levelPlacements} placement(s) at ${shown}${extra}`,
+      );
     }
 
     if (totalPlacements > 0) {
@@ -581,16 +571,10 @@ export function applyCharacterDeleteToMaps(
   characterName: string,
   maps: CarcerMapTemplate[],
 ): CarcerMapTemplate[] {
-  return maps.map((map) => {
-    const levels: Record<string, CarcerMapTileTemplate[]> = {};
-    for (const [levelKey, tiles] of Object.entries(map.levels)) {
-      levels[levelKey] = tiles.map((tile) => ({
-        ...tile,
-        characters: tile.characters.filter((c) => c !== characterName),
-      }));
-    }
-    return { ...map, levels };
-  });
+  return maps.map((map) => ({
+    ...map,
+    characters: (map.characters ?? []).filter((c) => c.name !== characterName),
+  }));
 }
 
 export function normalizeItemWeaponConfig(
@@ -1126,6 +1110,7 @@ export interface MapTileItemEntry {
   quantity: number;
 }
 
+/** Materialized tile view for editor/runtime; not stored in maps.json. */
 export interface CarcerMapTileTemplate {
   characters: string[];
   items: MapTileItemEntry[];
@@ -1138,6 +1123,35 @@ export interface CarcerMapTileTemplate {
   tileId: number;
 }
 
+/** 1D position on a map layer: i = y * width + x */
+export interface MapTileRef {
+  l: number;
+  i: number;
+}
+
+export interface MapCharacterPlacement extends MapTileRef {
+  name: string;
+}
+
+export interface MapItemPlacement extends MapTileRef {
+  name: string;
+  quantity: number;
+}
+
+export interface MapMarkerPlacement extends MapTileRef {
+  name: string;
+}
+
+export interface MapEventTriggerPlacement extends MapTileRef, TileEventTrigger {}
+
+export interface MapTravelTriggerPlacement extends MapTileRef, TravelTrigger {}
+
+export interface MapTileOverridePlacement extends MapTileRef {
+  overrides: TileOverrides;
+}
+
+export interface MapLightSourcePlacement extends MapTileRef, TileLightSource {}
+
 export interface CarcerMapTemplate {
   name: string;
   label: string;
@@ -1146,7 +1160,22 @@ export interface CarcerMapTemplate {
   height: number;
   spriteWidth: number;
   spriteHeight: number;
-  levels: Record<string, CarcerMapTileTemplate[]>;
+  /** Tileset name dictionary; index 0 is always empty string. */
+  tilesets: string[];
+  /** Z layers present on this map, e.g. [0] or [-1, 0, 1]. */
+  layers: number[];
+  /**
+   * Dense tile graphics per layer.
+   * Key = layer id string; value = row-major [tilesetIndex, tileId, ...].
+   */
+  tiles: Record<string, number[]>;
+  characters: MapCharacterPlacement[];
+  items: MapItemPlacement[];
+  markers: MapMarkerPlacement[];
+  eventTriggers: MapEventTriggerPlacement[];
+  travelTriggers: MapTravelTriggerPlacement[];
+  tileOverrides: MapTileOverridePlacement[];
+  lightSources: MapLightSourcePlacement[];
 }
 
 /** Map names arranged in a grid; used when loading an Area in the game. */

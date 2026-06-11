@@ -26,6 +26,7 @@ import {
   StatusEffectTemplate,
 } from './types/combat';
 import { normalizeMapItemsOnLoad } from './tile-editor/mapTileItems';
+import { normalizeMapOnLoad } from './utils/mapIndex';
 
 interface AssetType {
   id: string;
@@ -103,7 +104,7 @@ async function loadMaps(): Promise<CarcerMapTemplate[]> {
     throw new Error('Failed to load maps');
   }
   const maps: CarcerMapTemplate[] = await response.json();
-  return normalizeMapItemsOnLoad(maps);
+  return normalizeMapItemsOnLoad(maps.map((map) => normalizeMapOnLoad(map)));
 }
 
 async function loadMapGrids(): Promise<MapGridTemplate[]> {
@@ -189,17 +190,6 @@ async function load(): Promise<{
   );
 
   const items = sanitizeItemTemplates(loadedItems, abilities);
-
-  // fixes problems from early design
-  for (const map of maps) {
-    for (const level in map.levels) {
-      for (const tile of map.levels[level]) {
-        if (!tile.markers) {
-          tile.markers = [];
-        }
-      }
-    }
-  }
 
   console.log('loaded', {
     assetTypes,

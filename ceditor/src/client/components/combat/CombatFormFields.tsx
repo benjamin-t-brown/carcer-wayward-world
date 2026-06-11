@@ -25,7 +25,9 @@ import {
   STATS_ENUMS,
   DICE_TYPES,
   ATTACK_CLASSES,
-  PROJECTILE_PATHS,
+  ABILITY_PROJECTILE_PATHS,
+  abilityDepictionHasProjectile,
+  setAbilityDepictionHasProjectile,
   ABILITY_COST_TYPES,
   STATUS_EVENT_TYPES,
   STATUS_EFFECT_CONDITIONS,
@@ -345,26 +347,40 @@ function DepictionSoundField({
   name,
   label,
   value,
-  options,
   onChange,
 }: {
   id: string;
   name: string;
   label: string;
   value: string;
-  options: Array<{ value: string | number; label: string }>;
   onChange: (value: string) => void;
 }) {
+  const { sounds } = useSDL2WAssets();
+
+  const soundItems = useMemo(() => {
+    const byName = new Map(sounds.map((sound) => [sound.name, sound]));
+    if (value && !byName.has(value)) {
+      byName.set(value, { name: value, path: '' });
+    }
+    return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name));
+  }, [sounds, value]);
+
   return (
     <div className="depiction-preview-field">
       <SoundPreview soundName={value} />
-      <OptionSelect
+      <SearchSelect
         id={id}
         name={name}
         label={label}
         value={value}
         onChange={onChange}
-        options={options}
+        items={soundItems}
+        getItemKey={(sound) => sound.name}
+        getItemLabel={(sound) => sound.name}
+        searchFields={(sound) => [sound.name]}
+        placeholder="Search sounds..."
+        emptyLabel="None"
+        allowEmpty
       />
     </div>
   );
@@ -381,7 +397,7 @@ export function AbilityDepictionFields({
   idPrefix: string;
   compact?: boolean;
 }) {
-  const { animations, sounds } = useSDL2WAssets();
+  const { animations } = useSDL2WAssets();
 
   const animationOptions = useMemo(
     () =>
@@ -403,17 +419,6 @@ export function AbilityDepictionFields({
     [animations, value.projectileAnim],
   );
 
-  const optionalSoundOptions = useMemo(
-    () => (current: string) =>
-      assetNameOptions(
-        sounds.map((s) => s.name),
-        current,
-        true,
-        'None',
-      ),
-    [sounds],
-  );
-
   const update = <K extends keyof AbilityDepiction>(
     field: K,
     fieldValue: AbilityDepiction[K],
@@ -421,9 +426,53 @@ export function AbilityDepictionFields({
     onChange({ ...value, [field]: fieldValue });
   };
 
+  const hasProjectile = abilityDepictionHasProjectile(value);
+  const projectilePathOptions = enumOptions(ABILITY_PROJECTILE_PATHS);
+
+  const projectileFields = hasProjectile ? (
+    <>
+      <DepictionAnimField
+        id={`${idPrefix}-projectile-anim`}
+        name="projectileAnim"
+        label={compact ? 'Projectile' : 'Projectile Anim'}
+        value={value.projectileAnim}
+        onChange={(v) => update('projectileAnim', v)}
+        options={projectileAnimOptions}
+      />
+      <OptionSelect
+        id={`${idPrefix}-projectile-path`}
+        name="projectilePath"
+        label={compact ? 'Path' : 'Projectile Path'}
+        value={value.projectilePath}
+        onChange={(v) =>
+          update('projectilePath', v as AbilityDepiction['projectilePath'])
+        }
+        options={projectilePathOptions}
+      />
+      <label className="inline-checkbox">
+        <input
+          type="checkbox"
+          checked={value.projectileHasFacing ?? false}
+          onChange={(e) => update('projectileHasFacing', e.target.checked)}
+        />
+        {compact ? 'Has Facing' : 'Projectile Has Facing'}
+      </label>
+    </>
+  ) : null;
+
   if (!compact) {
     return (
       <div className="depiction-fields">
+        <label className="inline-checkbox" style={{ marginBottom: '8px' }}>
+          <input
+            type="checkbox"
+            checked={hasProjectile}
+            onChange={(e) =>
+              onChange(setAbilityDepictionHasProjectile(value, e.target.checked))
+            }
+          />
+          Has projectile
+        </label>
         <div className="form-fields-inline">
           <DepictionAnimField
             id={`${idPrefix}-dmg-anim`}
@@ -433,31 +482,13 @@ export function AbilityDepictionFields({
             onChange={(v) => update('dmgAnim', v)}
             options={animationOptions}
           />
-          <DepictionAnimField
-            id={`${idPrefix}-projectile-anim`}
-            name="projectileAnim"
-            label="Projectile Anim"
-            value={value.projectileAnim}
-            onChange={(v) => update('projectileAnim', v)}
-            options={projectileAnimOptions}
-          />
-          <OptionSelect
-            id={`${idPrefix}-projectile-path`}
-            name="projectilePath"
-            label="Projectile Path"
-            value={value.projectilePath}
-            onChange={(v) =>
-              update('projectilePath', v as AbilityDepiction['projectilePath'])
-            }
-            options={enumOptions(PROJECTILE_PATHS)}
-          />
+          {projectileFields}
           <DepictionSoundField
             id={`${idPrefix}-start-sound`}
             name="startSound"
             label="Start Sound"
             value={value.startSound}
             onChange={(v) => update('startSound', v)}
-            options={optionalSoundOptions(value.startSound)}
           />
           <DepictionSoundField
             id={`${idPrefix}-dmg-sound`}
@@ -465,16 +496,7 @@ export function AbilityDepictionFields({
             label="Dmg Sound"
             value={value.dmgSound}
             onChange={(v) => update('dmgSound', v)}
-            options={optionalSoundOptions(value.dmgSound)}
           />
-          <label className="inline-checkbox">
-            <input
-              type="checkbox"
-              checked={value.projectileHasFacing ?? false}
-              onChange={(e) => update('projectileHasFacing', e.target.checked)}
-            />
-            Projectile Has Facing
-          </label>
         </div>
       </div>
     );
@@ -482,6 +504,16 @@ export function AbilityDepictionFields({
 
   return (
     <div className="depiction-fields">
+      <label className="inline-checkbox" style={{ marginBottom: '8px' }}>
+        <input
+          type="checkbox"
+          checked={hasProjectile}
+          onChange={(e) =>
+            onChange(setAbilityDepictionHasProjectile(value, e.target.checked))
+          }
+        />
+        Has projectile
+      </label>
       <div className="form-fields-inline">
         <DepictionAnimField
           id={`${idPrefix}-dmg-anim`}
@@ -491,32 +523,7 @@ export function AbilityDepictionFields({
           onChange={(v) => update('dmgAnim', v)}
           options={animationOptions}
         />
-        <DepictionAnimField
-          id={`${idPrefix}-projectile-anim`}
-          name="projectileAnim"
-          label="Projectile Anim"
-          value={value.projectileAnim}
-          onChange={(v) => update('projectileAnim', v)}
-          options={projectileAnimOptions}
-        />
-        <OptionSelect
-          id={`${idPrefix}-projectile-path`}
-          name="projectilePath"
-          label="Path"
-          value={value.projectilePath}
-          onChange={(v) =>
-            update('projectilePath', v as AbilityDepiction['projectilePath'])
-          }
-          options={enumOptions(PROJECTILE_PATHS)}
-        />
-        <label className="inline-checkbox">
-          <input
-            type="checkbox"
-            checked={value.projectileHasFacing ?? false}
-            onChange={(e) => update('projectileHasFacing', e.target.checked)}
-          />
-          Has Facing
-        </label>
+        {projectileFields}
       </div>
       <div className="form-fields-inline">
         <DepictionSoundField
@@ -525,7 +532,6 @@ export function AbilityDepictionFields({
           label="Start Sound"
           value={value.startSound}
           onChange={(v) => update('startSound', v)}
-          options={optionalSoundOptions(value.startSound)}
         />
         <DepictionSoundField
           id={`${idPrefix}-dmg-sound`}
@@ -533,7 +539,6 @@ export function AbilityDepictionFields({
           label="Dmg Sound"
           value={value.dmgSound}
           onChange={(v) => update('dmgSound', v)}
-          options={optionalSoundOptions(value.dmgSound)}
         />
       </div>
     </div>
@@ -778,6 +783,37 @@ export function AbilityStatusEditor({
           onChange={(v) => onChange({ ...status, statusEffect: v })}
           options={statusEffectOptions}
         />
+        <NumberInput
+          id={`${idPrefix}-base-duration`}
+          name="baseDuration"
+          label="Base duration override"
+          value={status.baseDuration ?? 0}
+          onChange={(v) => {
+            const next = { ...status };
+            if (v === 0) {
+              delete next.baseDuration;
+            } else {
+              next.baseDuration = v;
+            }
+            onChange(next);
+          }}
+          min={0}
+        />
+        <NumberInput
+          id={`${idPrefix}-duration-bonus`}
+          name="durationBonus"
+          label="Duration bonus"
+          value={status.durationBonus ?? 0}
+          onChange={(v) => {
+            const next = { ...status };
+            if (v === 0) {
+              delete next.durationBonus;
+            } else {
+              next.durationBonus = v;
+            }
+            onChange(next);
+          }}
+        />
         {status.save && (
           <AbilitySaveFields
             value={status.save}
@@ -997,6 +1033,31 @@ export function StatusEffectActionEditor({
 }) {
   const { abilities } = useAssets();
   const idPrefix = `status-action-${index}`;
+  const events = action.events ?? [];
+
+  const updateEvent = (eventIndex: number, event: StatusEffectEvent) => {
+    const next = [...events];
+    next[eventIndex] = event;
+    onChange({ ...action, events: next });
+  };
+
+  const addEvent = () => {
+    onChange({
+      ...action,
+      events: [
+        ...events,
+        { type: 'STATUS_EVENT_ON_APPLIED', condition: 'CONDITION_ALWAYS' },
+      ],
+    });
+  };
+
+  const removeEvent = (eventIndex: number) => {
+    onChange({
+      ...action,
+      events: events.filter((_, i) => i !== eventIndex),
+    });
+  };
+
   return (
     <div className="combat-list-item">
       <div className="form-fields-inline">
@@ -1048,6 +1109,21 @@ export function StatusEffectActionEditor({
           onRemove={onRemove}
           ariaLabel="Remove invoked ability"
         />
+      </div>
+      <div className="form-subsection" style={{ marginTop: '8px' }}>
+        <h5>Events</h5>
+        {events.map((event, eventIndex) => (
+          <StatusEffectEventEditor
+            key={eventIndex}
+            event={event}
+            index={eventIndex}
+            onChange={(updated) => updateEvent(eventIndex, updated)}
+            onRemove={() => removeEvent(eventIndex)}
+          />
+        ))}
+        <Button type="button" variant="secondary" onClick={addEvent}>
+          + Add Event
+        </Button>
       </div>
     </div>
   );

@@ -12,21 +12,27 @@ struct StatusEffectEvent {
   StatusEffectCondition condition = StatusEffectCondition::CONDITION_ALWAYS;
 };
 
+struct StatusEffectDurationScale {
+  StatsEnum durationStat = StatsEnum::STAT_MND;
+  int durationStatMult = 0;
+};
+
 struct StatusEffectAction {
   StatusActionTargetType statusActionTargetType =
       StatusActionTargetType::STATUS_ACTION_TARGET_SELF;
   std::string abilityName;
+  std::vector<StatusEffectEvent> events;
 };
 
 struct StatusEffectTemplate {
   std::string name;
   std::string description;
-  int duration = 0;
-  std::vector<StatusEffectEvent> events;
+  // Default turns before apply-time modifiers (applier spellPotency, victim shield, feats).
+  int baseDuration = 0;
+  std::optional<StatusEffectDurationScale> durationScale;
   std::optional<Stats> applyBonuses;
   std::optional<CurrentStats> applyCurrentStatChange;
   std::vector<Resistance> applyResistances;
-  std::optional<TargetSelectInfo> targetInfo;
   std::vector<StatusEffectAction> actions;
 };
 

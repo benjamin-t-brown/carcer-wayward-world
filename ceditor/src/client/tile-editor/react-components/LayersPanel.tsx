@@ -1,15 +1,14 @@
-import {
-  createTilesForLayer,
-  EditorState,
-  setCurrentPaintAction,
-  updateEditorState,
-} from '../editorState';
-import { PaintActionType } from '../paintTools';
+import { EditorState, updateEditorState } from '../editorState';
 import { CarcerMapTemplate } from '../../types/assets';
-import { Button } from '../../elements/Button';
 import { useState } from 'react';
 import { DeleteModal } from '../../elements/DeleteModal';
 import { MapSearchAccordion } from './MapSearchAccordion';
+import {
+  addMapLayer,
+  deleteMapLayer,
+  layerKey,
+  sortedLayerKeys,
+} from '../../utils/mapIndex';
 
 interface LayersPanelProps {
   editorState: EditorState;
@@ -44,16 +43,11 @@ export function LayersPanel(props: LayersPanelProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleAddNewLayer = (where: 'above' | 'below') => {
-    const highestLayer = Math.max(...Object.keys(props.map.levels).map(Number));
-    const lowestLayer = Math.min(...Object.keys(props.map.levels).map(Number));
+    const layers = sortedLayerKeys(props.map);
+    const highestLayer = layers.length ? Math.max(...layers) : 0;
+    const lowestLayer = layers.length ? Math.min(...layers) : 0;
     const newLayerKey = where === 'above' ? highestLayer + 1 : lowestLayer - 1;
-    props.onMapUpdate({
-      ...props.map,
-      levels: {
-        ...props.map.levels,
-        [newLayerKey]: createTilesForLayer(props.map),
-      },
-    });
+    props.onMapUpdate(addMapLayer(props.map, newLayerKey));
   };
 
   const handleSelectLayer = (layer: string) => {
@@ -61,18 +55,15 @@ export function LayersPanel(props: LayersPanelProps) {
   };
 
   const handleDeleteLayer = () => {
-    const newLevels = { ...props.map.levels };
-    delete newLevels[props.editorState.currentLevel];
-    handleSelectLayer('0');
-    props.onMapUpdate({
-      ...props.map,
-      levels: newLevels,
-    });
+    const updated = deleteMapLayer(props.map, props.editorState.currentLevel);
+    handleSelectLayer(String(updated.layers[0] ?? 0));
+    props.onMapUpdate(updated);
   };
 
-  const sortedEntries = Object.entries(props.map.levels).sort(
-    (a, b) => parseInt(b[0]) - parseInt(a[0])
-  );
+  const sortedEntries = sortedLayerKeys(props.map).map((level) => [
+    layerKey(level),
+    level,
+  ]);
 
   const layerRowHeight = 34;
   const layerListMaxHeight = Math.min(

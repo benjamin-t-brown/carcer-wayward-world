@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TextInput } from '../elements/TextInput';
 import { NumberInput } from '../elements/NumberInput';
 import { OptionSelect } from '../elements/OptionSelect';
@@ -7,22 +7,58 @@ import { CarcerMapTemplate, MAP_TYPES, MapType } from '../types/assets';
 import { createDefaultMap } from './MapTemplateForm';
 import { MODAL_ROOT_CLASS, useEscapeToClose } from '../hooks/useEscapeToClose';
 
+export interface CreateMapConstraints {
+  width?: number;
+  height?: number;
+  mapType?: MapType;
+  lockDimensions?: boolean;
+  lockType?: boolean;
+}
+
 interface CreateMapModalProps {
   isOpen: boolean;
   onConfirm: (map: CarcerMapTemplate) => void;
   onCancel: () => void;
+  constraints?: CreateMapConstraints;
+  existingMapNames?: string[];
+  isSubmitting?: boolean;
+}
+
+function buildInitialFormData(constraints?: CreateMapConstraints): CarcerMapTemplate {
+  const base = createDefaultMap();
+  if (!constraints) {
+    return base;
+  }
+  return {
+    ...base,
+    width: constraints.width ?? base.width,
+    height: constraints.height ?? base.height,
+    type: constraints.mapType ?? base.type,
+  };
 }
 
 export function CreateMapModal({
   isOpen,
   onConfirm,
   onCancel,
+  constraints,
+  existingMapNames = [],
+  isSubmitting = false,
 }: CreateMapModalProps) {
   const [formData, setFormData] =
-    useState<CarcerMapTemplate>(createDefaultMap());
+    useState<CarcerMapTemplate>(buildInitialFormData(constraints));
+  const [nameError, setNameError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setFormData(buildInitialFormData(constraints));
+      setNameError(null);
+    }
+  }, [isOpen, constraints]);
 
   const modalRef = useEscapeToClose(() => {
-    setFormData(createDefaultMap());
+    setFormData(buildInitialFormData(constraints));
+    setNameError(null);
     onCancel();
   }, isOpen);
 
@@ -31,24 +67,27 @@ export function CreateMapModal({
   }
 
   const handleConfirm = () => {
-    // Basic validation
-    if (
-      !formData.name ||
-      !formData.label ||
-      formData.width <= 0 ||
-      formData.height <= 0
-    ) {
+    const trimmedName = formData.name.trim();
+    if (!trimmedName || !formData.label.trim()) {
       return;
     }
-    onConfirm(formData);
-    // Reset form
-    setFormData(createDefaultMap());
+    if (existingMapNames.includes(trimmedName)) {
+      setNameError('A map with this name already exists.');
+      return;
+    }
+    onConfirm({ ...formData, name: trimmedName, label: formData.label.trim() });
+    setFormData(buildInitialFormData(constraints));
+    setNameError(null);
   };
 
   const handleCancel = () => {
-    setFormData(createDefaultMap());
+    setFormData(buildInitialFormData(constraints));
+    setNameError(null);
     onCancel();
   };
+
+  const lockDimensions = constraints?.lockDimensions ?? false;
+  const lockType = constraints?.lockType ?? false;
 
   return (
     <div
@@ -64,7 +103,7 @@ export function CreateMapModal({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 1000,
+        zIndex: 1100,
       }}
     >
       <div
@@ -87,16 +126,36 @@ export function CreateMapModal({
         >
           Create New Map
         </h2>
+        {constraints?.width !== undefined && constraints?.height !== undefined && (
+          <div
+            style={{
+              marginBottom: '16px',
+              fontSize: '12px',
+              color: '#858585',
+            }}
+          >
+            Map must be {constraints.width}×{constraints.height} tiles
+            {constraints.mapType ? ` (${constraints.mapType})` : ''}.
+          </div>
+        )}
         <div style={{ marginBottom: '20px' }}>
           <TextInput
             id="create-map-name"
             name="name"
             label="Name"
             value={formData.name}
-            onChange={(value) => setFormData({ ...formData, name: value })}
+            onChange={(value) => {
+              setNameError(null);
+              setFormData({ ...formData, name: value });
+            }}
             placeholder="e.g., town_map"
             required
           />
+          {nameError && (
+            <div style={{ color: '#f48771', fontSize: '12px', marginTop: '4px' }}>
+              {nameError}
+            </div>
+          )}
           <TextInput
             id="create-map-label"
             name="label"
@@ -114,8 +173,12 @@ export function CreateMapModal({
             onChange={(value) =>
               setFormData({ ...formData, type: value as MapType })
             }
-            options={MAP_TYPES.map((type) => ({ value: type, label: type }))}
+            options={MAP_TYPES.map((type) => ({
+              value: type,
+              label: type === 'OUTDOOR' ? 'OUTDOOR' : type,
+            }))}
             required
+            disabled={lockType}
           />
           <NumberInput
             id="create-map-width"
@@ -125,6 +188,7 @@ export function CreateMapModal({
             onChange={(value) => setFormData({ ...formData, width: value })}
             min={1}
             required
+            disabled={lockDimensions}
           />
           <NumberInput
             id="create-map-height"
@@ -134,6 +198,7 @@ export function CreateMapModal({
             onChange={(value) => setFormData({ ...formData, height: value })}
             min={1}
             required
+            disabled={lockDimensions}
           />
         </div>
         <div
@@ -147,15 +212,16 @@ export function CreateMapModal({
             variant="primary"
             onClick={handleConfirm}
             disabled={
-              !formData.name ||
-              !formData.label ||
+              isSubmitting ||
+              !formData.name.trim() ||
+              !formData.label.trim() ||
               formData.width <= 0 ||
               formData.height <= 0
             }
           >
-            Create
+            {isSubmitting ? 'Creating…' : 'Create'}
           </Button>
-          <Button variant="secondary" onClick={handleCancel}>
+          <Button variant="secondary" onClick={handleCancel} disabled={isSubmitting}>
             Cancel
           </Button>
         </div>

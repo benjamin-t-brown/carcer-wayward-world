@@ -10,6 +10,7 @@ db/loaders/LoadCombatJson.cpp \
 db/loaders/LoadAbilityTemplates.cpp \
 db/loaders/LoadStatusEffectTemplates.cpp \
 db/loaders/LoadCharacterTemplates.cpp \
+db/loaders/LoadMapTemplates.cpp \
 model/templates/CombatTypes.cpp \
 db/loaders/LoadSpecialEvents.cpp \
 layers/Layer.cpp \

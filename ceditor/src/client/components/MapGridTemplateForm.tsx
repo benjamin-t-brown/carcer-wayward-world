@@ -11,6 +11,7 @@ import {
   resizeMapGridCells,
 } from '../types/assets';
 import { EditorEmptyState } from './EditorEmptyState';
+import { openMapEditorInNewTab } from '../utils/mapTabsStorage';
 
 export { createDefaultMapGridTemplate };
 
@@ -187,7 +188,8 @@ export function MapGridTemplateForm({
             style={{ marginBottom: '12px', fontSize: '11px', color: '#858585' }}
           >
             Click a cell to assign a map. Only maps matching the required
-            dimensions are shown.
+            dimensions are shown. Filter by town or outdoor map type in the
+            picker.
           </div>
           <div
             style={{
@@ -269,7 +271,32 @@ export function MapGridTemplateForm({
                         {assignedMap?.label || mapName || `(${x + 1}, ${y + 1})`}
                       </div>
                     </button>
-                    {mapName && (
+                    {assignedMap && (
+                      <div
+                        style={{
+                          display: 'flex',
+                          gap: '6px',
+                          flexWrap: 'wrap',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Button
+                          variant="secondary"
+                          onClick={() => openMapEditorInNewTab(assignedMap.name)}
+                          style={{ fontSize: '10px', padding: '2px 8px' }}
+                        >
+                          Edit map
+                        </Button>
+                        <Button
+                          variant="danger"
+                          onClick={() => clearCell(x, y)}
+                          style={{ fontSize: '10px', padding: '2px 8px' }}
+                        >
+                          Clear
+                        </Button>
+                      </div>
+                    )}
+                    {isMissing && (
                       <Button
                         variant="danger"
                         onClick={() => clearCell(x, y)}
