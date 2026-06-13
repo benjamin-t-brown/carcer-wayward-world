@@ -343,11 +343,12 @@ export function VariableEditorModal({
     return null;
   }
 
-  return GenericModal({
-    title: 'Edit Variables',
-    onCancel: handleCancel,
-    onConfirm: handleConfirm,
-    body: () => (
+  return (
+    <GenericModal
+      title="Edit Variables"
+      onCancel={handleCancel}
+      onConfirm={handleConfirm}
+      body={() => (
       <>
         <div
           style={{
@@ -478,6 +479,7 @@ export function VariableEditorModal({
           gameEvent={gameEvent}
         />
       </>
-    ),
-  });
+      )}
+    />
+  );
 }

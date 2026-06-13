@@ -39,7 +39,8 @@ export function TileEditor({
   const mapRef = useRef<CarcerMapTemplate | undefined>(undefined);
   const editorState = useRef<EditorState | undefined>(undefined);
   const { sprites, spriteMap } = useSDL2WAssets();
-  const { tilesets, characters, items, gameEvents, maps } = useAssets();
+  const { tilesets, characters, items, gameEvents, maps, mapGrids } =
+    useAssets();
   const reRender = useReRender();
 
   // console.log('re render tile editor');
@@ -115,6 +116,7 @@ export function TileEditor({
             tilesets: tilesets,
             gameEvents: gameEvents,
             maps: maps,
+            mapGrids: mapGrids,
           }),
         },
         ts - prevTs

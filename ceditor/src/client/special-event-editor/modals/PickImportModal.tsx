@@ -58,21 +58,23 @@ export function PickImportModal({
     );
   });
 
-  return GenericModal({
-    title: 'Pick Import',
-    onCancel: handleCancel,
-    onConfirm: handleConfirm,
-    body: () => (
-      <select
-        value={importFromValue}
-        onChange={(e) => setImportFromValue(e.target.value)}
-        style={{
-          width: '80%',
-          margin: '18px',
-        }}
-      >
-        {options}
-      </select>
-    ),
-  });
+  return (
+    <GenericModal
+      title="Pick Import"
+      onCancel={handleCancel}
+      onConfirm={handleConfirm}
+      body={() => (
+        <select
+          value={importFromValue}
+          onChange={(e) => setImportFromValue(e.target.value)}
+          style={{
+            width: '80%',
+            margin: '18px',
+          }}
+        >
+          {options}
+        </select>
+      )}
+    />
+  );
 }

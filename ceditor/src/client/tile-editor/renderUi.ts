@@ -26,6 +26,7 @@ import {
   getTransform,
 } from './editorEvents';
 import { Sprite } from '../utils/assetLoader';
+import { getMaterializedLayer } from '../utils/mapIndex';
 
 const drawHighlightRect = (
   tileX: number,
@@ -349,6 +350,63 @@ export const renderToolUi = (
       }
     }
   }
+  ctx.restore();
+};
+
+export const renderMapTilesAtOffset = (args: {
+  map: CarcerMapTemplate;
+  ctx: CanvasRenderingContext2D;
+  scale: number;
+  offsetPixelX: number;
+  offsetPixelY: number;
+  opacity: number;
+  spriteMap: Record<string, Sprite>;
+  tilesets: TilesetTemplate[];
+  characters: CharacterTemplate[];
+  items: ItemTemplate[];
+  layer: number;
+  drawOverlayText: boolean;
+}) => {
+  const {
+    map,
+    ctx,
+    scale,
+    offsetPixelX,
+    offsetPixelY,
+    opacity,
+    spriteMap,
+    tilesets,
+    characters,
+    items,
+    layer,
+    drawOverlayText,
+  } = args;
+
+  const mapTiles = getMaterializedLayer(map, layer);
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  ctx.translate(offsetPixelX, offsetPixelY);
+
+  for (let y = 0; y < map.height; y++) {
+    for (let x = 0; x < map.width; x++) {
+      const tileIndex = y * map.width + x;
+      renderTileAndExtras({
+        refTile: mapTiles[tileIndex],
+        x,
+        y,
+        ctx,
+        newScale: scale,
+        spriteMap,
+        mapSpriteWidth: map.spriteWidth,
+        mapSpriteHeight: map.spriteHeight,
+        tilesets,
+        characters,
+        items,
+        drawOverlayText,
+      });
+    }
+  }
+
   ctx.restore();
 };
 

@@ -1727,17 +1727,6 @@
         ]
       },
       {
-        "id": "ppxpx9tdqw",
-        "x": 2159.5,
-        "y": 764.5,
-        "eventChildType": "EXEC",
-        "h": 74,
-        "p": "\"Whatever conflict in which you are allegedly involved does not matter to me. That vessel is here illegally and must be dealt with.\"",
-        "execStr": "",
-        "next": "",
-        "autoAdvance": false
-      },
-      {
         "id": "n5l28kyw9bf",
         "x": 3484.5,
         "y": 300.5,
@@ -4924,7 +4913,7 @@
             "prefixText": "[FAE]"
           },
           {
-            "text": "Is everyone okay here?  It seems kind of tense.  Can I do anything to help?",
+            "text": "Is everyone okay here?  Things seem kind of tense.  Can I do anything to help?",
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1)",
             "next": "b64g7ilbv4",
@@ -5244,7 +5233,7 @@
         "h": 84,
         "cases": [
           {
-            "conditionStr": "ONCE(vars.mullen_asked_about_realm)",
+            "conditionStr": "ONCE(mullen_asked_about_realm)",
             "next": "p1uh2gx3cak"
           }
         ],
@@ -5352,7 +5341,7 @@
         "h": 84,
         "cases": [
           {
-            "conditionStr": "ONCE(vars.mullen.explained_situation)",
+            "conditionStr": "ONCE(mullen_explained_situation)",
             "next": "tj1b8h4uejr"
           }
         ],
@@ -5435,7 +5424,7 @@
         "y": 2387.833333333334,
         "eventChildType": "EXEC",
         "h": 116,
-        "p": "\"The Realm teaches is soldiers to always have an objective, and to make due with what they have.  You're here now, whether you want to be or not.  You could settle down, get a job, or you could figure out a way to get home.  Either way, it's something to strive towards.\"",
+        "p": "\"The Realm teaches its soldiers to always have an objective and to make due with what they have.  You're here now, whether you want to be or not.  You could settle down, get a job, or you could figure out a way to get home.  Either way, it's something to strive towards.\"",
         "execStr": "",
         "next": "byya0d4vs2n",
         "autoAdvance": false
@@ -5454,10 +5443,10 @@
       {
         "id": "ldxyhdqz7a",
         "x": 695,
-        "y": 136.5,
+        "y": 135.5,
         "eventChildType": "EXEC",
         "h": 186,
-        "p": "A slumped man in a green military uniform sits behind a sturdy desk. His head rests in palm as he reads a scroll, his tired eyes tracking back and forth.  The suit of armor on the rack behind him is dusty and unused, as is the saber mounted above it in a stout display case.  A little metal nameplate at the front of his desk has 'Lieutenant Mullen' etched into it.\n\n\"Pardon me.  Sorry about the mess.  It's been a rough time lately.  Did you have something to report?\"",
+        "p": "A slumped man in a green military uniform sits behind a sturdy desk. His head rests in palm as he reads a scroll, his tired eyes tracking back and forth.  The suit of armor on the rack behind him is dusty and unused, as is the saber mounted above it.  A little metal nameplate at the front of his desk has 'Lieutenant Mullen' etched into it.\n\n\"Pardon me.  Sorry about the mess.  It's been a rough time lately.  Did you have something to report?\"",
         "execStr": "",
         "next": "nczvtjxn5ep",
         "autoAdvance": false
@@ -7216,22 +7205,22 @@
     "children": [
       {
         "id": "root",
-        "x": 20,
-        "y": 20,
+        "x": 19,
+        "y": 28,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "",
         "execStr": "",
-        "next": "tw5pfpewneo",
+        "next": "6efp1r5gieb",
         "autoAdvance": false
       },
       {
         "id": "tw5pfpewneo",
-        "x": 134,
-        "y": 135.5,
+        "x": 258,
+        "y": 708.5,
         "eventChildType": "EXEC",
-        "h": 172,
-        "p": "A boot to your back shoves you roughly onto the splintered wood of ship docks.  Before you can stand up, you hear a loud thud as a large leather bag lands beside you.  There was a clanking in that sound too, like there's metal inside.  You stand up and turn around to stare at who just kicked you off his ship: Captain Argow.  His arms are crossed, and he lets out a deep sigh.\n\n\"My duty is done.  Now I can be rid of you.\"",
+        "h": 144,
+        "p": "A boot to your back shoves you roughly onto the splintered wood of ship docks.  Before you can stand up, you hear a loud thud as the large leather bag from the rowboat lands beside you.  You stand up and turn around to stare at Captain Argow.  His arms are crossed, and he lets out a deep sigh.\n\n\"My duty is done.  Now I can be rid of you.\"",
         "execStr": "",
         "next": "8cw2fg6at4f",
         "autoAdvance": true
@@ -7241,8 +7230,8 @@
         "x": 1364,
         "y": 120.5,
         "eventChildType": "EXEC",
-        "h": 116,
-        "p": "He starts to turn away from the gangplank, but pauses as he remembers something.\n\n\"I was supposed to tell you something else... I don't remember it exactly.  Something about the number 'nine'.  Hope that helps.\"",
+        "h": 74,
+        "p": "\"I was supposed to tell you something else... I don't remember it exactly.  Something about the number 'nine'.  I don't suppose you know what that is...?\"",
         "execStr": "",
         "next": "fipm26r28le",
         "autoAdvance": true
@@ -7280,14 +7269,14 @@
       },
       {
         "id": "log1j85rp1",
-        "x": 930,
-        "y": 199.5,
+        "x": 937,
+        "y": 46.5,
         "eventChildType": "EXEC",
         "h": 70,
         "p": "He ignores your objection.",
         "execStr": "SET_BOOL(tmp.heIgnoredYou)",
         "next": "scvp11cx8uq",
-        "autoAdvance": false
+        "autoAdvance": true
       },
       {
         "id": "fipm26r28le",
@@ -7329,18 +7318,18 @@
         "p": "\"I hope so as well.\"",
         "execStr": "",
         "next": "scvp11cx8uq",
-        "autoAdvance": false
+        "autoAdvance": true
       },
       {
         "id": "g07l6rsuec9",
         "x": 2620,
         "y": 225.5,
         "eventChildType": "EXEC",
-        "h": 88,
-        "p": "Captain Argow kicks the gangplank up so it lands back in the boat, and orders the two deckhands he came with to row back towards his vessel, which floats calmly on the horizon.",
+        "h": 74,
+        "p": "He kicks off the dock, and the rowboat floats calmly away.  He does not look up at you as he calmly begins to row back to his vessel.",
         "execStr": "",
         "next": "shnh053z8q9",
-        "autoAdvance": true
+        "autoAdvance": false
       },
       {
         "id": "0j0wss7snrve",
@@ -7355,11 +7344,11 @@
       },
       {
         "id": "67ft2wt7fsg",
-        "x": 2158,
-        "y": 282.5,
+        "x": 2144,
+        "y": 279.5,
         "eventChildType": "EXEC",
-        "h": 50,
-        "p": "\"Yes.  Just, something you need to know.\"",
+        "h": 60,
+        "p": "\"Yes.  Thought you might know what that meant, but I guess not.\"",
         "execStr": "",
         "next": "g07l6rsuec9",
         "autoAdvance": true
@@ -7367,10 +7356,10 @@
       {
         "id": "shnh053z8q9",
         "x": 3042,
-        "y": 258.5,
+        "y": 257.5,
         "eventChildType": "EXEC",
-        "h": 172,
-        "p": "Looking around, you see that you stand at the tip of a long network of docks.  They all lead back into to a walled off settlement to the north.  You know this to be Alinea, from conversations you pick up on the journey here.  It is a town on the Island.  You know nothing about it, but apparently, it is where somebody, somewhere, very much wants you to be.\n\nThe bag next to you might help you understand more.  Or at least it might have something useful in it.",
+        "h": 158,
+        "p": "Looking around, you see that you stand at the tip of a long network of docks, attached to the shore to the north.\n\nYou are alone in a new city with only the number \"nine\" to guide you.\n\nThe bag next to you might help you understand more.  Or at least it might have something useful in it.",
         "execStr": "",
         "next": "s84wy9a1prr",
         "autoAdvance": true
@@ -7393,6 +7382,28 @@
         "eventChildType": "END",
         "h": 60,
         "next": ""
+      },
+      {
+        "id": "6efp1r5gieb",
+        "x": 107,
+        "y": 216,
+        "eventChildType": "EXEC",
+        "h": 256,
+        "p": "At dawn you are awoken from the deck of the ship with a boot to your chest.  Captain Argow looms above you, alone.  \"Get up.\"\n\nYou stand up, and even in the dim light of dawn, you can see land on the horizon.\n\nWith the rest of the crew sleeping around you, Captain Argow leads you towards a rowboat at the stern that he has already lowered into the water. You lower yourself inside.  Captain Argow joins you, along with a large leather sack he heaves to the center.\n\n\"Row.\" He says.  You pick up the oars and start taking the both of you towards the land.",
+        "execStr": "",
+        "next": "t4a3ni4mp1b",
+        "autoAdvance": false
+      },
+      {
+        "id": "t4a3ni4mp1b",
+        "x": 110,
+        "y": 497,
+        "eventChildType": "EXEC",
+        "h": 172,
+        "p": "Captain Argow guides you towards a settlement on the shoreline.  It looks like a large town of some kind, surrounded by stone walls and towers, backed up against tall cliffs that cast a deep shadow across it in the early morning's light.  This must be Alinea.\n\nWhen you get close, Argow points towards a smattering of old wooden docks to the west of the town, outside of the walls.  \"That'll do.  Dock us to the nearest one.\"",
+        "execStr": "",
+        "next": "tw5pfpewneo",
+        "autoAdvance": false
       }
     ]
   },

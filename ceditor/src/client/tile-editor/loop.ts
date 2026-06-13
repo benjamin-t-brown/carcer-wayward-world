@@ -12,7 +12,12 @@ import {
   CharacterTemplate,
   ItemTemplate,
   GameEvent,
+  MapGridTemplate,
 } from '../types/assets';
+import {
+  findMapGridPlacement,
+  getGridAdjacentMaps,
+} from '../utils/mapGridIndex';
 import {
   EditorState,
   getEditorStateMap,
@@ -27,7 +32,11 @@ import {
 } from './editorEvents';
 import { PaintActionType } from './paintTools';
 import { Sprite } from '../utils/assetLoader';
-import { renderTileAndExtras, renderToolUi } from './renderUi';
+import {
+  renderMapTilesAtOffset,
+  renderTileAndExtras,
+  renderToolUi,
+} from './renderUi';
 
 // let currentMap: MapResponse | null = null;
 // let isLooping = false;
@@ -52,6 +61,7 @@ export const loop = (
       tilesets: TilesetTemplate[];
       gameEvents: GameEvent[];
       maps: CarcerMapTemplate[];
+      mapGrids: MapGridTemplate[];
     };
   },
   ms: number
@@ -150,29 +160,6 @@ export const loop = (
 
     disableCanvasSmoothing(ctx);
 
-    //background rect
-    ctx.save();
-    ctx.translate(panX, panY);
-    ctx.scale(scale, scale);
-    ctx.translate(
-      mapDataInterface.getCanvas().width / 2,
-      mapDataInterface.getCanvas().height / 2
-    );
-    ctx.translate(
-      -(currentMap.width * mapDataInterface.getMapData().spriteWidth) / 2,
-      -(currentMap.height * mapDataInterface.getMapData().spriteHeight) / 2
-    );
-    drawRect(
-      0,
-      0,
-      currentMap.width * mapDataInterface.getMapData().spriteWidth,
-      currentMap.height * mapDataInterface.getMapData().spriteHeight,
-      'black',
-      false,
-      ctx
-    );
-    ctx.restore();
-
     // layers
     for (let i = 0; i < 1; i++) {
       const newScale = scale * (1 + i * 0.04);
@@ -201,6 +188,47 @@ export const loop = (
           newScale
         ) / 2
       );
+
+      const assets = mapDataInterface.getAssets();
+      const editorState = mapDataInterface.getEditorState();
+      const placement = findMapGridPlacement(currentMap.name, assets.mapGrids);
+      if (placement) {
+        const mapsByName: Record<string, CarcerMapTemplate> = {};
+        for (const map of assets.maps) {
+          mapsByName[map.name] = map;
+        }
+        const slotWidth = currentMap.width * spriteWidth * newScale;
+        const slotHeight = currentMap.height * spriteHeight * newScale;
+        const adjacentMaps = getGridAdjacentMaps(placement, mapsByName);
+        for (const adjacent of adjacentMaps) {
+          renderMapTilesAtOffset({
+            map: adjacent.map,
+            ctx,
+            scale: newScale,
+            offsetPixelX: adjacent.offsetX * slotWidth,
+            offsetPixelY: adjacent.offsetY * slotHeight,
+            opacity: 0.5,
+            spriteMap: mapDataInterface.getSpriteMap(),
+            tilesets: mapDataInterface.getTilesets(),
+            characters: assets.characters,
+            items: assets.items,
+            layer: editorState.currentLevel,
+            drawOverlayText: false,
+          });
+        }
+      }
+
+      if (i === 0) {
+        drawRect(
+          0,
+          0,
+          currentMap.width * spriteWidth,
+          currentMap.height * spriteHeight,
+          'black',
+          false,
+          ctx
+        );
+      }
 
       for (let y = 0; y < currentMap.height; y++) {
         for (let x = 0; x < currentMap.width; x++) {
