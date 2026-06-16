@@ -1,4 +1,6 @@
-// Combat ability / status effect schema (mirrors model/templates/CombatTypes.h)
+// Combat ability / status effect schema.
+// C++ mirrors most of this in model/templates/CombatTypes.h, Abilities.h, StatusEffects.h.
+// Where ceditor and C++ diverge, ceditor types reflect the JSON on disk (source of truth).
 
 export type StatusEffectCondition =
   | 'CONDITION_ALWAYS'
@@ -81,7 +83,7 @@ export type AttackClass =
   | 'ATTACK_CLASS_MELEE'
   | 'ATTACK_CLASS_RANGED'
   | 'ATTACK_CLASS_MAGIC'
-  | 'ATTACK_CLASS_AUTO_HIT';
+  | 'ATTACK_CLASS_AUTO_HIT'; // ceditor + abilities.json; C++ loader not yet updated
 
 export type ProjectilePath =
   | 'PROJECTILE_PATH_SHORT'
@@ -129,6 +131,7 @@ export interface CurrentStats {
 }
 
 export interface Resistance {
+  /** Damage type in JSON (e.g. DAMAGE_TYPE_HEAT). C++ still maps via AttackClass — pending alignment. */
   attackType: DamageType;
   mod: number;
 }

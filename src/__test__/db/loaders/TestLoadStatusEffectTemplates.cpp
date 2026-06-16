@@ -29,6 +29,15 @@ int main(int argc, char** argv) {
       LOG(ERROR) << "BURNING action should have events" << LOG_ENDL;
       return 1;
     }
+    if (burningIt->second.applyResistances.empty()) {
+      LOG(ERROR) << "BURNING should have applyResistances" << LOG_ENDL;
+      return 1;
+    }
+    if (burningIt->second.applyResistances[0].attackType !=
+        model::DamageType::DAMAGE_TYPE_HEAT) {
+      LOG(ERROR) << "BURNING resistance should be DAMAGE_TYPE_HEAT" << LOG_ENDL;
+      return 1;
+    }
 
     LOG(INFO) << "TestLoadStatusEffectTemplates completed successfully" << LOG_ENDL;
     return 0;

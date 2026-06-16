@@ -12,6 +12,59 @@ import { mergeAbilityAttackDmg, mergeAbilityRestore } from './combat';
 // Item Templates
 // ============================================================================
 
+/** Matches model::ItemType in Items.h */
+export type ItemType =
+  | 'WEAPON_MELEE'
+  | 'WEAPON_MELEE_2H'
+  | 'WEAPON_RANGED'
+  | 'WEAPON_AMMO'
+  | 'SHIELD'
+  | 'GARB'
+  | 'PANTS'
+  | 'GLOVES'
+  | 'HAT'
+  | 'SHOES'
+  | 'NECKLACE'
+  | 'POTION'
+  | 'UTILITY';
+
+export const ITEM_TYPES: ItemType[] = [
+  'WEAPON_MELEE',
+  'WEAPON_MELEE_2H',
+  'WEAPON_RANGED',
+  'WEAPON_AMMO',
+  'SHIELD',
+  'GARB',
+  'PANTS',
+  'GLOVES',
+  'HAT',
+  'SHOES',
+  'NECKLACE',
+  'POTION',
+  'UTILITY',
+];
+
+/** Matches model::ItemUsability in Items.h */
+export type ItemUsability =
+  | 'NOT_USABLE'
+  | 'USABLE_EVERYWHERE'
+  | 'USABLE_TOWN_ONLY'
+  | 'USABLE_COMBAT_ONLY'
+  | 'USABLE_OUTSIDE_ONLY'
+  | 'USABLE_TOWN_AND_COMBAT';
+
+export const ITEM_USABILITIES: ItemUsability[] = [
+  'NOT_USABLE',
+  'USABLE_EVERYWHERE',
+  'USABLE_TOWN_ONLY',
+  'USABLE_COMBAT_ONLY',
+  'USABLE_OUTSIDE_ONLY',
+  'USABLE_TOWN_AND_COMBAT',
+];
+
+/** Game loader accepts a bare name or `{ name }` object. */
+export type ItemStatusEffectRef = string | { name: string };
+
 export function isWeaponItemType(itemType: string): boolean {
   return itemType.startsWith('WEAPON');
 }
@@ -596,7 +649,7 @@ export function normalizeItemWeaponConfig(
 }
 
 export interface ItemTemplate {
-  itemType: string;
+  itemType: ItemType;
   name: string;
   label: string;
   icon: string;
@@ -604,8 +657,7 @@ export interface ItemTemplate {
   weight: number;
   value: number;
   stackable?: boolean;
-  // Optional fields
-  itemUsability?: string;
+  itemUsability?: ItemUsability;
   /** @deprecated replaced by useAbility */
   itemUsabilityArgs?: {
     itemUsabilityType: string;
@@ -613,8 +665,7 @@ export interface ItemTemplate {
     stringArgs?: string[];
   };
   useAbility?: ItemUseAbilityConfig;
-  /** Names of entries in status-effects.json applied when this item is used/equipped */
-  statusEffects?: string[];
+  statusEffects?: ItemStatusEffectRef[];
   weapon?: ItemWeaponConfig;
 }
 
@@ -682,6 +733,20 @@ export function sanitizeItemTemplates(
 // ============================================================================
 // Character Templates
 // ============================================================================
+
+/** Matches model::CharacterTemplateType in CharacterTemplate.h */
+export type CharacterTemplateType =
+  | 'TOWNSPERSON'
+  | 'TOWNSPERSON_STATIC'
+  | 'ENEMY'
+  | 'ENEMY_STATIC';
+
+export const CHARACTER_TEMPLATE_TYPES: CharacterTemplateType[] = [
+  'TOWNSPERSON',
+  'TOWNSPERSON_STATIC',
+  'ENEMY',
+  'ENEMY_STATIC',
+];
 
 export interface GenericCombatStats {
   str?: number;
@@ -767,14 +832,23 @@ export function createDefaultCharacterStats(): CharacterStats {
   };
 }
 
+export interface CharacterTemplateSound {
+  deathSoundName?: string;
+  weaponSoundName?: string;
+  /** @deprecated use deathSoundName — still accepted by game loader */
+  deathSound?: string;
+  /** @deprecated use weaponSoundName — still accepted by game loader */
+  weaponSound?: string;
+}
+
 export interface CharacterTemplate {
-  type: string;
+  type: CharacterTemplateType;
   name: string;
   label: string;
   spritesheet: string;
-  spriteOffset: number;
+  /** Integer index or string offset; game loader accepts both. */
+  spriteOffset: number | string;
   stats?: CharacterStats;
-  // Optional fields
   talk?: {
     talkName?: string;
     portraitName?: string;
@@ -786,11 +860,10 @@ export interface CharacterTemplate {
     hp?: number;
     mp?: number;
     dropTable?: string;
+    /** @deprecated legacy path merged into stats.generic by game loader */
+    stats?: GenericCombatStats;
   };
-  sound?: {
-    deathSoundName?: string;
-    weaponSoundName?: string;
-  };
+  sound?: CharacterTemplateSound;
   statuses?: Array<{
     status: string;
   }>;
@@ -810,10 +883,13 @@ export enum TileStepSound {
   TILE_STEP_SOUND_GRAVEL,
 }
 
+/** Stored as enum index, numeric string, or integer in tilesets.json */
+export type TileStepSoundValue = TileStepSound | number | string;
+
 export interface TileMetadata {
   id: number;
   description?: string;
-  stepSound?: TileStepSound;
+  stepSound?: TileStepSoundValue;
   isWalkable?: boolean;
   isSeeThrough?: boolean;
   isDoor?: boolean;
@@ -1053,7 +1129,8 @@ export type GameEventChild =
   | GameEventChildChoice
   | GameEventChildSwitch
   | GameEventChildExec
-  | GameEventChildEnd;
+  | GameEventChildEnd
+  | GameEventChildComment;
 
 export type GameEventChildUnion = GameEventChildKeyword &
   GameEventChildChoice &
@@ -1258,4 +1335,37 @@ export function sanitizeMapGridTemplates(
   grids: MapGridTemplate[]
 ): MapGridTemplate[] {
   return grids.map(normalizeMapGridTemplate);
+}
+
+// ============================================================================
+// Feat Templates (editor-only; not yet loaded by game db)
+// ============================================================================
+
+export type FeatImplementation = 'DATA' | 'CUSTOM';
+
+export interface FeatTemplate {
+  id: string;
+  label: string;
+  description?: string;
+  implementation?: FeatImplementation;
+  excludesGroup?: string;
+  requiresFeats?: string[];
+  effects?: FeatEffect[];
+}
+
+export interface FeatEffect {
+  type: string;
+  when?: string;
+  target?: string;
+  op?: string;
+  value?: number;
+}
+
+export function createDefaultFeatTemplate(): FeatTemplate {
+  return {
+    id: '',
+    label: '',
+    description: '',
+    implementation: 'DATA',
+  };
 }

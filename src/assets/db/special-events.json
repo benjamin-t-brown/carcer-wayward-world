@@ -3,7 +3,7 @@
     "id": "alinea_ainsley",
     "title": "Ainsley",
     "eventType": "TALK",
-    "icon": "special_event_icons_0",
+    "icon": "portraits0_12",
     "vars": [
       {
         "id": "akmvzemwuel",
@@ -358,7 +358,7 @@
     "id": "alinea_barto",
     "title": "Lord Barto Caldeburn",
     "eventType": "TALK",
-    "icon": "special_event_icons_0",
+    "icon": "portraits0_1",
     "vars": [
       {
         "id": "sqbj99c2qpi",
@@ -1530,7 +1530,7 @@
     "id": "alinea_claire",
     "title": "Dockmaster Claire",
     "eventType": "TALK",
-    "icon": "special_event_icons_0",
+    "icon": "portraits0_2",
     "vars": [
       {
         "id": "nbnijyx9ink",
@@ -1662,96 +1662,51 @@
         "x": 747,
         "y": 32.5,
         "eventChildType": "CHOICE",
-        "h": 258,
+        "h": 210,
         "text": "A tall woman in a green cloak is overseeing the people at the docks. She tightly clutches an official-looking scroll, and her stern eyes flit in irritation between it and you.\n\n\"You there! Are you the Captain of that vessel?\"  She points towards the horizon where Argow's vessel is anchored.",
         "choices": [
           {
             "text": "(Remain silent.)",
             "conditionStr": "",
             "evalStr": "",
-            "next": "r2fp0o8r2da",
+            "next": "uj1jkcvhv0p",
             "prefixText": ""
           },
           {
             "text": "No. The Captain's name is Argow.  He's currently rowing back to his vessel.",
             "conditionStr": "",
             "evalStr": "",
-            "next": "r2fp0o8r2da",
-            "prefixText": ""
-          },
-          {
-            "text": "Do I look like I know my way around a ship, lady?  Cuz I don't.",
-            "conditionStr": "",
-            "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
-            "next": "r2fp0o8r2da",
-            "prefixText": "[FAE]"
-          },
-          {
-            "text": "If I owned a ship it would be *much* larger.",
-            "conditionStr": "",
-            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
-            "next": "r2fp0o8r2da",
-            "prefixText": "[DRAGON]"
-          }
-        ]
-      },
-      {
-        "id": "r2fp0o8r2da",
-        "x": 1146.5,
-        "y": 128.5,
-        "eventChildType": "CHOICE",
-        "h": 164,
-        "text": "\"There's a fee for using the Alinea docks.\"  She gives you a quick look up and down.  \"Even if it is to drop off a... passenger.\"",
-        "choices": [
-          {
-            "text": "(Remain Silent.)",
-            "conditionStr": "",
-            "evalStr": "",
-            "next": "uj1jkcvhv0p",
-            "prefixText": ""
-          },
-          {
-            "text": "I don't think he plans to stay in the port.",
-            "conditionStr": "",
-            "evalStr": "",
-            "next": "uj1jkcvhv0p",
-            "prefixText": ""
-          },
-          {
-            "text": "You really care about that small rowboat?",
-            "conditionStr": "",
-            "evalStr": "",
-            "next": "uj1jkcvhv0p",
+            "next": "puy0jggriig",
             "prefixText": ""
           }
         ]
       },
       {
         "id": "n5l28kyw9bf",
-        "x": 3484.5,
-        "y": 300.5,
+        "x": 2623.5,
+        "y": 160.5,
         "eventChildType": "EXEC",
-        "h": 158,
-        "p": "She looks you up and down once more and seems to decide something.\n\n\"Hmph. Very well.  I suppose the problem is moot for now.  As for you...  You are not guilty of any more violations.  You are officially allowed to move along into Alinea without retribution. I am Dockmaster Claire, and I run these docks.  Try not to be a nuisance, lark.\"",
+        "h": 144,
+        "p": "She sighs in frustration and massages her forehead.\n\n\"Hmph. Very well.  I suppose the problem is moot for now.  As for you...  You are not guilty of any more violations.  You are officially allowed to move along into Alinea without retribution. I am Dockmaster Claire, and I run these docks.  Try not to be a nuisance, lark.\"",
         "execStr": "",
         "next": "7wt55yy5y0o",
         "autoAdvance": false
       },
       {
         "id": "7wt55yy5y0o",
-        "x": 3857.5,
-        "y": 342.5,
+        "x": 3341.5,
+        "y": 222.5,
         "eventChildType": "END",
         "h": 60,
         "next": ""
       },
       {
         "id": "uj1jkcvhv0p",
-        "x": 1573.8333333333335,
-        "y": 134.5,
+        "x": 1414.8333333333335,
+        "y": 120.5,
         "eventChildType": "CHOICE",
-        "h": 174,
-        "text": "\"I can have you locked up for negligence if this situation isn't dealt with right now!\"",
+        "h": 202,
+        "text": "\"There's a fee for using the Alinea docks.\"  She gives you a quick look up and down.  \"Even if it is to drop off a... passenger.  I can have you locked up for negligence if this situation isn't dealt with properly.\"",
         "choices": [
           {
             "text": "(Remain silent.)",
@@ -1761,21 +1716,21 @@
             "prefixText": ""
           },
           {
-            "text": "I don't know what to tell you, lady. I'm just going with the flow.",
+            "text": "I don't know what to tell you, lady. It's not like I can pay you or anything.",
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
             "next": "n5l28kyw9bf",
             "prefixText": "[FAE]"
           },
           {
-            "text": "Just try it. I dare you.",
+            "text": "Lock me up?  I'd like to see you try.",
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
-            "next": "n5l28kyw9bf",
+            "next": "awba4c9uu5",
             "prefixText": "[DRAGON]"
           },
           {
-            "text": "Sorry!  Um, I really don't think he intends to come back!",
+            "text": "Sorry!  I don't think he wants to dock here.  Can I help you somehow?",
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1)",
             "next": "n5l28kyw9bf",
@@ -1964,11 +1919,11 @@
       },
       {
         "id": "myc9tlr8jos",
-        "x": 2012.5,
-        "y": 149.5,
+        "x": 1941.5,
+        "y": 84.5,
         "eventChildType": "EXEC",
-        "h": 60,
-        "p": "\"Are you mute?  What do you have to say for yourself?\"",
+        "h": 50,
+        "p": "\"Are you mute?\"",
         "execStr": "",
         "next": "n5l28kyw9bf",
         "autoAdvance": true
@@ -1986,6 +1941,28 @@
           }
         ],
         "defaultNext": "lk9qky3u42"
+      },
+      {
+        "id": "awba4c9uu5",
+        "x": 1937.3333333333335,
+        "y": 193,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Don't tempt me.  I'm in a foul mood this morning.\"",
+        "execStr": "",
+        "next": "n5l28kyw9bf",
+        "autoAdvance": true
+      },
+      {
+        "id": "puy0jggriig",
+        "x": 1030.333333333334,
+        "y": 304,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Argow?  I've never heard of him.  He isn't registered here.\"",
+        "execStr": "",
+        "next": "uj1jkcvhv0p",
+        "autoAdvance": true
       }
     ]
   },
@@ -1993,7 +1970,7 @@
     "id": "alinea_elvyosa",
     "title": "Elvyosa",
     "eventType": "TALK",
-    "icon": "special_event_icons_0",
+    "icon": "portraits0_5",
     "vars": [
       {
         "id": "jjnmgfzbgwr",
@@ -2107,8 +2084,8 @@
         "x": 557.25,
         "y": 109,
         "eventChildType": "EXEC",
-        "h": 144,
-        "p": "This tall, dark woman is bejeweled with copious gem-inset necklaces, with sleeves of tacky golden bracelets. She flashes a smile at you, inviting your towards a table  bedecked with the same sort of gaudy paraphernalia which she wears, save perhaps, for a few unlabeled potions at the end of the table.\n\n\"You here to buy something, hun?\"",
+        "h": 158,
+        "p": "This tall, dark woman is bejeweled with a ludicrous number of gem-inset necklaces, and her wrists hold an equally gaudy number of gold bracelets. She flashes a smile at you, inviting your towards a table bedecked with the same sort of gaudy paraphernalia which she wears, save perhaps, for a few unlabeled potions at the end of the table.\n\n\"You here to buy something, hun?\"",
         "execStr": "",
         "next": "ccjjjp9gio",
         "autoAdvance": true
@@ -3045,7 +3022,7 @@
     "id": "alinea_idoreo",
     "title": "Idoreo",
     "eventType": "TALK",
-    "icon": "special_event_icons_0",
+    "icon": "portraits0_10",
     "vars": [
       {
         "id": "ky6g2t9gjck",
@@ -6871,7 +6848,7 @@
     "id": "alinea_sol",
     "title": "Sol",
     "eventType": "TALK",
-    "icon": "special_event_icons_0",
+    "icon": "portraits0_11",
     "vars": [
       {
         "id": "0xnzqf1prroj",

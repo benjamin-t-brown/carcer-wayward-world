@@ -94,7 +94,7 @@ model::Resistance parseResistance(const nlohmann::json& json) {
   if (!json.contains("attackType") || !json["attackType"].is_string()) {
     throw std::runtime_error("Resistance missing attackType");
   }
-  resistance.attackType = model::attackClassFromString(json["attackType"]);
+  resistance.attackType = model::damageTypeFromString(json["attackType"]);
   if (!json.contains("mod") || !json["mod"].is_number_integer()) {
     throw std::runtime_error("Resistance missing mod");
   }

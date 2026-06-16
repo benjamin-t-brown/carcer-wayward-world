@@ -95,7 +95,8 @@ pacman -S base-devel\
 pacman -S mingw-w64-x86_64-clang\
  mingw-w64-x86_64-clang-tools-extra\
  ucrt64/mingw-w64-x86_64-include-what-you-use\
- msys/python
+ msys/python\
+ ucrt64/mingw-w64-ucrt-x86_64-imagemagick
 
 # this linker is much faster on Windows
 pacman -S ucrt64/mingw-w64-ucrt-x86_64-lld

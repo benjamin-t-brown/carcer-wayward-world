@@ -27,8 +27,6 @@ enum class ItemType {
 std::string getStringFromItemType(ItemType itemType);
 ItemType getItemTypeFromString(const std::string& itemTypeString);
 
-ItemUsability getItemUsabilityFromString(const std::string& value);
-
 bool itemTypeIsEquippable(ItemType itemType);
 bool itemTypeIsTwoHandedWeapon(ItemType itemType);
 bool itemTypeUsesWeaponSlots(ItemType itemType);
@@ -41,6 +39,8 @@ enum class ItemUsability {
   USABLE_OUTSIDE_ONLY,
   USABLE_TOWN_AND_COMBAT,
 };
+
+ItemUsability getItemUsabilityFromString(const std::string& value);
 
 struct ItemWeaponConfig {
   std::string abilityName;

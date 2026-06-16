@@ -384,6 +384,9 @@ AttackClass attackClassFromString(const std::string& value) {
   if (value == "ATTACK_CLASS_MAGIC") {
     return AttackClass::ATTACK_CLASS_MAGIC;
   }
+  if (value == "ATTACK_CLASS_AUTO_HIT") {
+    return AttackClass::ATTACK_CLASS_AUTO_HIT;
+  }
   throw std::runtime_error("Invalid AttackClass: " + value);
 }
 
@@ -395,8 +398,65 @@ std::string attackClassToString(AttackClass value) {
     return "ATTACK_CLASS_RANGED";
   case AttackClass::ATTACK_CLASS_MAGIC:
     return "ATTACK_CLASS_MAGIC";
+  case AttackClass::ATTACK_CLASS_AUTO_HIT:
+    return "ATTACK_CLASS_AUTO_HIT";
   }
   throw std::runtime_error("Unknown AttackClass");
+}
+
+DamageType damageTypeFromString(const std::string& value) {
+  if (value == "DAMAGE_TYPE_EDGED") {
+    return DamageType::DAMAGE_TYPE_EDGED;
+  }
+  if (value == "DAMAGE_TYPE_BASHING") {
+    return DamageType::DAMAGE_TYPE_BASHING;
+  }
+  if (value == "DAMAGE_TYPE_PIERCING") {
+    return DamageType::DAMAGE_TYPE_PIERCING;
+  }
+  if (value == "DAMAGE_TYPE_HEAT") {
+    return DamageType::DAMAGE_TYPE_HEAT;
+  }
+  if (value == "DAMAGE_TYPE_FREEZE") {
+    return DamageType::DAMAGE_TYPE_FREEZE;
+  }
+  if (value == "DAMAGE_TYPE_STATIC") {
+    return DamageType::DAMAGE_TYPE_STATIC;
+  }
+  if (value == "DAMAGE_TYPE_NECROTIC") {
+    return DamageType::DAMAGE_TYPE_NECROTIC;
+  }
+  if (value == "DAMAGE_TYPE_EPHEMERAL") {
+    return DamageType::DAMAGE_TYPE_EPHEMERAL;
+  }
+  if (value == "DAMAGE_TYPE_TRUE") {
+    return DamageType::DAMAGE_TYPE_TRUE;
+  }
+  throw std::runtime_error("Invalid DamageType: " + value);
+}
+
+std::string damageTypeToString(DamageType value) {
+  switch (value) {
+  case DamageType::DAMAGE_TYPE_EDGED:
+    return "DAMAGE_TYPE_EDGED";
+  case DamageType::DAMAGE_TYPE_BASHING:
+    return "DAMAGE_TYPE_BASHING";
+  case DamageType::DAMAGE_TYPE_PIERCING:
+    return "DAMAGE_TYPE_PIERCING";
+  case DamageType::DAMAGE_TYPE_HEAT:
+    return "DAMAGE_TYPE_HEAT";
+  case DamageType::DAMAGE_TYPE_FREEZE:
+    return "DAMAGE_TYPE_FREEZE";
+  case DamageType::DAMAGE_TYPE_STATIC:
+    return "DAMAGE_TYPE_STATIC";
+  case DamageType::DAMAGE_TYPE_NECROTIC:
+    return "DAMAGE_TYPE_NECROTIC";
+  case DamageType::DAMAGE_TYPE_EPHEMERAL:
+    return "DAMAGE_TYPE_EPHEMERAL";
+  case DamageType::DAMAGE_TYPE_TRUE:
+    return "DAMAGE_TYPE_TRUE";
+  }
+  throw std::runtime_error("Unknown DamageType");
 }
 
 ProjectilePath projectilePathFromString(const std::string& value) {

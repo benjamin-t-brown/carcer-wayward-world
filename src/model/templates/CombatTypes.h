@@ -78,6 +78,19 @@ enum class AttackClass {
   ATTACK_CLASS_MELEE,
   ATTACK_CLASS_RANGED,
   ATTACK_CLASS_MAGIC,
+  ATTACK_CLASS_AUTO_HIT,
+};
+
+enum class DamageType {
+  DAMAGE_TYPE_EDGED,
+  DAMAGE_TYPE_BASHING,
+  DAMAGE_TYPE_PIERCING,
+  DAMAGE_TYPE_HEAT,
+  DAMAGE_TYPE_FREEZE,
+  DAMAGE_TYPE_STATIC,
+  DAMAGE_TYPE_NECROTIC,
+  DAMAGE_TYPE_EPHEMERAL,
+  DAMAGE_TYPE_TRUE,
 };
 
 enum class ProjectilePath {
@@ -117,7 +130,7 @@ struct CurrentStats {
 };
 
 struct Resistance {
-  AttackClass attackType = AttackClass::ATTACK_CLASS_MELEE;
+  DamageType attackType = DamageType::DAMAGE_TYPE_EDGED;
   int mod = 0;
 };
 
@@ -198,6 +211,9 @@ std::string abilityCostTypeToString(AbilityCostType value);
 
 AttackClass attackClassFromString(const std::string& value);
 std::string attackClassToString(AttackClass value);
+
+DamageType damageTypeFromString(const std::string& value);
+std::string damageTypeToString(DamageType value);
 
 ProjectilePath projectilePathFromString(const std::string& value);
 std::string projectilePathToString(ProjectilePath value);

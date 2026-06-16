@@ -1,15 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import {
-  Choice,
   GameEvent,
-  GameEventChildChoice,
-  GameEventChildEnd,
   GameEventChildExec,
   GameEventChildType,
 } from '../../types/assets';
-import { Button } from '../../elements/Button';
-import { VariableWidget } from '../react-components/VariableWidget';
-import { EditorNodeChoice } from '../cmpts/ChoiceNodeComponent';
 import { Sprite } from '../../elements/Sprite';
 import { useSDL2WAssets } from '../../contexts/SDL2WAssetsContext';
 import {
@@ -17,7 +11,7 @@ import {
   getEditorState,
   notifyStateUpdated,
 } from '../seEditorState';
-import { EventRunner } from './EventRunner';
+import { EventRunner, EventRunnerLogEntry } from './EventRunner';
 import { useReRender } from '../../hooks/useReRender';
 import { CANVAS_CONTAINER_ID } from '../react-components/MapCanvasSE';
 import { MODAL_ROOT_CLASS, useEscapeToClose } from '../../hooks/useEscapeToClose';
@@ -31,6 +25,41 @@ interface EventRunnerModalProps {
 }
 
 const EVENT_FONT_SIZE = '18px';
+const HEADER_HEIGHT = 80;
+const TEXT_LOG_HEIGHT = 260;
+const CHOICES_AREA_HEIGHT = 150;
+const CHOICES_GAP = 8;
+const MODAL_CONTENT_HEIGHT =
+  HEADER_HEIGHT + TEXT_LOG_HEIGHT + CHOICES_GAP + CHOICES_AREA_HEIGHT;
+
+function getLogEntryStyle(entry: EventRunnerLogEntry, index: number) {
+  const base = {
+    whiteSpace: 'pre-wrap' as const,
+    marginTop: index === 0 ? 0 : '1em',
+  };
+  if (entry.type === 'choice') {
+    return {
+      ...base,
+      color: '#888',
+      fontFamily: 'arial',
+      fontSize: EVENT_FONT_SIZE,
+    };
+  }
+  if (entry.type === 'storage') {
+    return {
+      ...base,
+      color: '#aaa',
+      fontFamily: 'monospace',
+      fontSize: '14px',
+    };
+  }
+  return {
+    ...base,
+    color: 'white',
+    fontFamily: 'arial',
+    fontSize: EVENT_FONT_SIZE,
+  };
+}
 
 const EventHeader = ({ gameEvent }: { gameEvent: GameEvent }) => {
   const { spriteMap } = useSDL2WAssets();
@@ -43,21 +72,12 @@ const EventHeader = ({ gameEvent }: { gameEvent: GameEvent }) => {
         height: '80px',
         display: 'flex',
         alignItems: 'center',
+        flexShrink: 0,
       }}
     >
-      <div
-        style={{
-          width: '2px',
-          height: '2px',
-        }}
-      ></div>
+      <div style={{ width: '2px', height: '2px' }}></div>
       <Sprite sprite={sprite} maxWidth={100} />
-      <div
-        style={{
-          width: '10px',
-          height: '2px',
-        }}
-      ></div>
+      <div style={{ width: '10px', height: '2px' }}></div>
       <span>{gameEvent.title}</span>
     </div>
   );
@@ -96,246 +116,27 @@ const ChoiceButton = ({
   );
 };
 
-const EventRunnerExecChild = ({
-  child,
-  gameEvent,
-  runner,
-  advance,
-}: {
-  child: GameEventChildExec;
-  gameEvent: GameEvent;
-  runner: EventRunner;
-  advance: (nextNodeId: string) => void;
-}) => {
-  const nodeText = runner.displayText;
-
-  const handleNext = () => {
-    advance(child.next);
-  };
-
-  const hasErrors = runner.errors.length > 0;
-
-  return (
-    <>
-      <EventHeader gameEvent={gameEvent} />
-      <div
-        style={{
-          height: 'calc(100% - 80px)',
-        }}
-      >
-        <div
-          style={{
-            background: '#1e1e1e',
-            padding: '10px 4px',
-            fontFamily: 'arial',
-            fontSize: EVENT_FONT_SIZE,
-            color: 'white',
-            height: 'calc(100% - 80px - 100px)',
-            overflow: 'auto',
-          }}
-          dangerouslySetInnerHTML={{
-            __html: nodeText.replace(/\n/g, '<br />'),
-          }}
-        ></div>
-        <div
-          style={{
-            height: '100px',
-          }}
-        >
-          <ChoiceButton
-            hasErrors={hasErrors}
-            handleNext={handleNext}
-            text="Continue."
-          ></ChoiceButton>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            marginTop: '10px',
-            height: '80px',
-            alignItems: 'center',
-            // opacity: hasErrors ? 0.5 : 1,
-          }}
-        >
-          <Button variant="primary" onClick={handleNext} disabled={hasErrors}>
-            Okay
-          </Button>
-        </div>
-      </div>
-    </>
-  );
-};
-
-const EventRunnerChoiceChild = ({
-  child,
-  gameEvent,
-  runner,
-  advance,
-}: {
-  child: GameEventChildChoice;
-  gameEvent: GameEvent;
-  runner: EventRunner;
-  advance: (
-    nextNodeId: string,
-    {
-      onceKeysToCommit,
-      execStr,
-    }: { onceKeysToCommit: string[]; execStr: string }
-  ) => void;
-}) => {
-  const nodeText = runner.displayText;
-
-  const handleNext = (index: number) => {
-    const obj = runner.displayTextChoices[index];
-    console.log('HANDLE NEXT', obj);
-    if (obj) {
-      advance(obj.next, {
-        onceKeysToCommit: obj.onceKeysToCommit,
-        execStr: obj.execStr,
-      });
-    }
-  };
-
-  return (
-    <>
-      <EventHeader gameEvent={gameEvent} />
-      <div
-        style={{
-          height: 'calc(100% - 80px)',
-        }}
-      >
-        <div
-          style={{
-            background: '#1e1e1e',
-            padding: '10px 4px',
-            fontFamily: 'arial',
-            fontSize: EVENT_FONT_SIZE,
-            color: 'white',
-            height: 'calc(40%)',
-            overflow: 'auto',
-          }}
-          dangerouslySetInnerHTML={{
-            __html: nodeText.replace(/\n/g, '<br />'),
-          }}
-        ></div>
-        <div
-          style={{
-            background: '#1e1e1e',
-            padding: '10px 4px',
-            fontFamily: 'arial',
-            fontSize: EVENT_FONT_SIZE,
-            color: 'white',
-            height: 'calc(60%)',
-            overflow: 'auto',
-          }}
-        >
-          {runner.displayTextChoices.map((choice, i) => (
-            <ChoiceButton
-              key={i}
-              hasErrors={runner.errors.length > 0}
-              handleNext={() => handleNext(i)}
-              text={(choice.prefix ? choice.prefix + ' ' : '') + choice.text}
-            ></ChoiceButton>
-          ))}
-        </div>
-      </div>
-    </>
-  );
-};
-
-const EventRunnerEndChild = ({
-  child,
-  gameEvent,
-  runner,
-  advance,
-}: {
-  child: GameEventChildEnd;
-  gameEvent: GameEvent;
-  runner: EventRunner;
-  advance: (nextNodeId: string) => void;
-}) => {
-  const { spriteMap } = useSDL2WAssets();
-  const sprite = spriteMap[gameEvent.icon ?? ''];
-
-  return (
-    <>
-      <EventHeader gameEvent={gameEvent} />
-      <div
-        style={{
-          height: 'calc(100% - 80px)',
-        }}
-      >
-        <div
-          style={{
-            background: '#1e1e1e',
-            padding: '10px 4px',
-            fontFamily: 'arial',
-            fontSize: EVENT_FONT_SIZE,
-            color: 'white',
-            height: 'calc(100% - 80px)',
-            overflow: 'auto',
-          }}
-        >
-          End, storage result:
-          <br />
-          <textarea
-            spellCheck={false}
-            readOnly
-            style={{
-              background: '#444',
-              padding: '10px 4px',
-              fontFamily: 'monospace',
-              fontSize: '14px',
-              color: 'white',
-              overflow: 'auto',
-              whiteSpace: 'pre',
-              width: '100%',
-              height: '300px',
-            }}
-            value={JSON.stringify(runner.storage, null, 2)}
-          ></textarea>
-        </div>
-
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            marginTop: '10px',
-            height: '80px',
-            alignItems: 'center',
-          }}
-        >
-          <Button variant="primary" onClick={() => advance('')}>
-            Close
-          </Button>
-        </div>
-      </div>
-    </>
-  );
-};
-
 export function EventRunnerModal({
   isOpen,
   gameEvent,
-  gameEvents,
   onCancel,
   eventRunner,
 }: EventRunnerModalProps) {
-  // const [eventRunner, setEventRunner] = useState<EventRunner | undefined>(
-  //   undefined
-  // );
   const reRender = useReRender();
-  // const [gameEventToRun, setGameEventToRun] = useState<GameEvent | undefined>(
-  //   undefined
-  // );
-  // const [currentNodeId, setCurrentNodeId] = useState<string | undefined>(
-  //   undefined
-  // );
+  const logRef = useRef<HTMLDivElement>(null);
+  const pauseState = eventRunner?.getPauseState();
 
-  const { spriteMap } = useSDL2WAssets();
-  const sprite = spriteMap[gameEvent?.icon ?? ''];
-  const currentNode = eventRunner?.getCurrentNode();
+  const panToCurrentNode = () => {
+    if (!eventRunner) {
+      return;
+    }
+    const canvas = document.getElementById(
+      'special-event-editor-canvas-canvas'
+    ) as HTMLCanvasElement;
+    if (canvas) {
+      centerPanzoomOnNode(canvas, eventRunner.currentNodeId);
+    }
+  };
 
   const advance = (
     nextNodeId: string,
@@ -352,14 +153,9 @@ export function EventRunnerModal({
       return;
     }
     if (eventRunner) {
-      const canvas = document.getElementById(
-        'special-event-editor-canvas-canvas'
-      ) as HTMLCanvasElement;
-      if (canvas) {
-        centerPanzoomOnNode(canvas, nextNodeId);
-      }
       try {
         eventRunner.advance(nextNodeId, { onceKeysToCommit, execStr });
+        panToCurrentNode();
       } catch (e) {
         console.error('error advancing event runner:', e);
         getEditorState().runnerErrors = eventRunner.errors;
@@ -369,14 +165,63 @@ export function EventRunnerModal({
     }
   };
 
+  const handleContinue = () => {
+    const node = eventRunner?.getCurrentNode();
+    if (node?.eventChildType === GameEventChildType.EXEC) {
+      advance((node as GameEventChildExec).next, {
+        onceKeysToCommit: [],
+        execStr: '',
+      });
+    }
+  };
+
+  const handleChoice = (index: number) => {
+    const choice = eventRunner?.displayTextChoices[index];
+    if (choice && eventRunner) {
+      eventRunner.recordChoiceSelection(index);
+      advance(choice.next, {
+        onceKeysToCommit: choice.onceKeysToCommit,
+        execStr: choice.execStr,
+      });
+    }
+  };
+
+  const handleClose = () => {
+    if (eventRunner) {
+      getEditorState().runnerErrors = eventRunner.errors;
+      notifyStateUpdated();
+    }
+    onCancel();
+  };
+
+  useEffect(() => {
+    const log = logRef.current;
+    if (log) {
+      log.scrollTo({ top: log.scrollHeight, behavior: 'smooth' });
+    }
+  }, [eventRunner?.logEntries.length, pauseState]);
+
+  useEffect(() => {
+    if (isOpen && eventRunner) {
+      panToCurrentNode();
+    }
+  }, [isOpen, eventRunner]);
+
   const modalRef = useEscapeToClose(
-    onCancel,
-    isOpen && !!eventRunner && !!currentNode
+    handleClose,
+    isOpen && !!eventRunner && pauseState !== 'done'
   );
 
-  if (!isOpen || !eventRunner || !currentNode) {
+  if (!isOpen || !eventRunner || pauseState === 'done') {
     return undefined;
   }
+
+  const hasErrors = eventRunner.errors.length > 0;
+  const isEnded = pauseState === 'end';
+  const showChoicesArea = pauseState === 'continue' || pauseState === 'choice';
+  const textLogHeight = isEnded
+    ? MODAL_CONTENT_HEIGHT - HEADER_HEIGHT
+    : TEXT_LOG_HEIGHT;
 
   return (
     <div
@@ -421,11 +266,7 @@ export function EventRunnerModal({
             fontWeight: 'bold',
             cursor: 'pointer',
           }}
-          onClick={() => {
-            getEditorState().runnerErrors = eventRunner.errors;
-            notifyStateUpdated();
-            onCancel();
-          }}
+          onClick={handleClose}
         >
           <span>×</span>
         </button>
@@ -435,35 +276,63 @@ export function EventRunnerModal({
             display: 'flex',
             flexDirection: 'column',
             width: '100%',
-            height: '500px',
+            height: `${MODAL_CONTENT_HEIGHT}px`,
           }}
         >
-          {currentNode.eventChildType === GameEventChildType.EXEC && (
-            <EventRunnerExecChild
-              child={currentNode as GameEventChildExec}
-              gameEvent={gameEvent}
-              runner={eventRunner}
-              advance={advance}
-            />
+          <EventHeader gameEvent={gameEvent} />
+
+          <div
+            ref={logRef}
+            style={{
+              height: `${textLogHeight}px`,
+              flexShrink: 0,
+              background: '#1e1e1e',
+              padding: '10px',
+              border: 'none',
+              overflow: 'auto',
+              scrollBehavior: 'smooth',
+            }}
+          >
+            {eventRunner.logEntries.map((entry, i) => (
+              <div key={i} style={getLogEntryStyle(entry, i)}>
+                {entry.text}
+              </div>
+            ))}
+          </div>
+
+          {showChoicesArea && (
+            <div
+              style={{
+                height: `${CHOICES_AREA_HEIGHT}px`,
+                flexShrink: 0,
+                marginTop: `${CHOICES_GAP}px`,
+                overflow: 'auto',
+              }}
+            >
+              {pauseState === 'continue' && (
+                <ChoiceButton
+                  hasErrors={hasErrors}
+                  handleNext={handleContinue}
+                  text="Continue."
+                />
+              )}
+
+              {pauseState === 'choice' &&
+                eventRunner.displayTextChoices.map((choice, i) => (
+                  <ChoiceButton
+                    key={i}
+                    hasErrors={hasErrors}
+                    handleNext={() => handleChoice(i)}
+                    text={
+                      (choice.prefix ? choice.prefix + ' ' : '') + choice.text
+                    }
+                  />
+                ))}
+            </div>
           )}
-          {currentNode.eventChildType === GameEventChildType.CHOICE && (
-            <EventRunnerChoiceChild
-              child={currentNode as GameEventChildChoice}
-              gameEvent={gameEvent}
-              runner={eventRunner}
-              advance={advance}
-            />
-          )}
-          {currentNode.eventChildType === GameEventChildType.END && (
-            <EventRunnerEndChild
-              child={currentNode as GameEventChildEnd}
-              gameEvent={gameEvent}
-              runner={eventRunner}
-              advance={advance}
-            />
-          )}
-          {eventRunner.errors.length > 0 && (
-            <div>
+
+          {hasErrors && (
+            <div style={{ flexShrink: 0, marginTop: '8px' }}>
               {eventRunner.errors.map((error, i) => (
                 <div key={error.nodeId + i.toString()}>
                   <span
@@ -477,8 +346,7 @@ export function EventRunnerModal({
                         CANVAS_CONTAINER_ID + '-canvas'
                       ) as HTMLCanvasElement;
                       if (canvas) {
-                        onCancel();
-                        // getEditorState().runnerErrors.push(error);
+                        handleClose();
                         getEditorState().runnerErrors = eventRunner.errors;
                         notifyStateUpdated();
                         centerPanzoomOnNode(canvas, error.nodeId);

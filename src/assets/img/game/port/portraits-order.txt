@@ -1,0 +1,20 @@
+# Portrait spritesheet slot order (one stem per line, e.g. port_claire).
+# Existing entries keep their portraits0_N index; new portraits are appended.
+# Reorder lines manually only when you intend to change sprite indices.
+
+port_ariana
+port_barto
+port_claire
+port_dunns
+port_ed
+port_emma
+port_gruff
+port_mullen
+port_radmilla
+port_rigby
+port_scopey
+port_sol
+port_ainsley
+port_claire2
+port_fisherman1
+port_girus

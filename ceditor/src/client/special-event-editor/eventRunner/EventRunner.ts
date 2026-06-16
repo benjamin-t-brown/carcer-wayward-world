@@ -395,6 +395,11 @@ class StringEvaluator {
   }
 }
 
+export type EventRunnerLogEntry = {
+  type: 'text' | 'choice' | 'storage';
+  text: string;
+};
+
 export class EventRunner {
   storage: Record<string, any>;
   gameEvent: GameEvent;
@@ -402,6 +407,7 @@ export class EventRunner {
   currentNodeId: string;
 
   displayText: string = '';
+  logEntries: EventRunnerLogEntry[] = [];
   displayTextChoices: {
     execStr: string;
     text: string;
@@ -531,6 +537,73 @@ export class EventRunner {
     }
   }
 
+  appendToLog(text: string) {
+    const plain = text.trim();
+    if (!plain) {
+      return;
+    }
+    this.logEntries.push({ type: 'text', text: plain });
+  }
+
+  appendChoiceToLog(text: string) {
+    const plain = text.replace(/<[^>]*>/g, '').trim();
+    if (!plain) {
+      return;
+    }
+    this.logEntries.push({ type: 'choice', text: plain });
+  }
+
+  recordChoiceSelection(index: number) {
+    const choice = this.displayTextChoices[index];
+    if (!choice) {
+      return;
+    }
+    const label =
+      (choice.prefix ? choice.prefix + ' ' : '') + choice.text;
+    this.appendChoiceToLog(label);
+  }
+
+  appendEndStorageToLog() {
+    if (this.logEntries.some((entry) => entry.type === 'storage')) {
+      return;
+    }
+    this.appendToLog('End.');
+    this.logEntries.push({
+      type: 'storage',
+      text:
+        'Storage result:\n' + JSON.stringify(this.storage, null, 2),
+    });
+  }
+
+  getPauseState():
+    | 'continue'
+    | 'choice'
+    | 'end'
+    | 'error'
+    | 'done' {
+    if (this.errors.length > 0) {
+      return 'error';
+    }
+    const node = this.getCurrentNode();
+    if (!node) {
+      return 'done';
+    }
+    if (node.eventChildType === GameEventChildType.END) {
+      return 'end';
+    }
+    if (node.eventChildType === GameEventChildType.CHOICE) {
+      return 'choice';
+    }
+    if (node.eventChildType === GameEventChildType.EXEC) {
+      const execNode = node as GameEventChildExec;
+      const text = this.replaceVariables(execNode.p, false);
+      if (text && !execNode.autoAdvance) {
+        return 'continue';
+      }
+    }
+    return 'done';
+  }
+
   advance(
     nextNodeId: string,
     {
@@ -568,13 +641,21 @@ export class EventRunner {
       for (const strLine of strLines) {
         this.evalExecStr(this.replaceVariables(strLine));
       }
-      this.displayText = this.replaceVariables(execNode.p, true);
-      if (!this.displayText) {
+      const text = this.replaceVariables(execNode.p, false);
+      this.displayText = text;
+      if (text) {
+        this.appendToLog(text);
+      }
+      if (!text || execNode.autoAdvance) {
         this.advance(execNode.next, { onceKeysToCommit: [], execStr: '' });
       }
     } else if (currentNode?.eventChildType === GameEventChildType.CHOICE) {
       const choiceNode = currentNode as GameEventChildChoice;
-      this.displayText = this.replaceVariables(choiceNode.text, true);
+      const choiceText = this.replaceVariables(choiceNode.text, false);
+      this.displayText = choiceText;
+      if (choiceText) {
+        this.appendToLog(choiceText);
+      }
       this.displayTextChoices = choiceNode.choices
         .map((choice) => {
           const obj = choice.conditionStr
@@ -616,6 +697,8 @@ export class EventRunner {
           execStr: '',
         });
       }
+    } else if (currentNode?.eventChildType === GameEventChildType.END) {
+      this.appendEndStorageToLog();
     }
   }
 }
