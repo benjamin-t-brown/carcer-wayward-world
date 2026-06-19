@@ -23,7 +23,7 @@
       "projectileType": "PROJECTILE_NONE",
       "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "",
-      "dmgSound": "whip"
+      "dmgSound": "punch2"
     },
     "attacks": [
       {
@@ -83,9 +83,9 @@
     ]
   },
   {
-    "name": "MELEE_ATTACK_METAL",
-    "label": "Melee Attack (Metal)",
-    "description": "A basic melee attack.",
+    "name": "MELEE_ATTACK_METAL_KNIFE",
+    "label": "Melee Attack (Metal Knife)",
+    "description": "A basic melee attack.  Hits one time.  Meant for knives.",
     "icon": "",
     "type": "ABILITY_ATTACK",
     "targetSelect": {
@@ -106,7 +106,50 @@
       "projectileType": "PROJECTILE_NONE",
       "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "",
-      "dmgSound": ""
+      "dmgSound": "metal_hit2"
+    },
+    "attacks": [
+      {
+        "attackClass": "ATTACK_CLASS_MELEE",
+        "dmg": {
+          "dmgDice": [
+            "D6"
+          ],
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        }
+      }
+    ],
+    "statuses": [],
+    "restores": []
+  },
+  {
+    "name": "MELEE_ATTACK_METAL_SWORD",
+    "label": "Melee Attack (Metal Sword)",
+    "description": "A basic melee attack.  Hits one time.  Meant for knives.",
+    "icon": "",
+    "type": "ABILITY_ATTACK",
+    "targetSelect": {
+      "targetType": "TARGET_UNIT",
+      "allegianceSelectType": "TARGET_ALLEGIANCE_OTHER",
+      "numTargetableUnits": 1,
+      "zoneSize": {
+        "x": 1,
+        "y": 1
+      },
+      "range": 1
+    },
+    "apCost": 5,
+    "costType": "ABILITY_COST_NONE",
+    "costValue": 0,
+    "depiction": {
+      "dmgAnim": "splash_attack",
+      "projectileType": "PROJECTILE_NONE",
+      "projectilePath": "PROJECTILE_PATH_NONE",
+      "startSound": "",
+      "dmgSound": "metal_hit1"
     },
     "attacks": [
       {
@@ -203,8 +246,8 @@
       "dmgAnim": "splash_attack",
       "projectileType": "ARROW_NORMAL",
       "projectilePath": "PROJECTILE_PATH_MEDIUM",
-      "startSound": "",
-      "dmgSound": ""
+      "startSound": "bow_shoot",
+      "dmgSound": "punch3"
     },
     "attacks": [
       {
