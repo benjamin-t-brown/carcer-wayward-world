@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Choice, GameEvent } from '../../types/assets';
+import { Choice, ChoiceSwitchText, GameEvent } from '../../types/assets';
 import { Button } from '../../elements/Button';
 import { VariableWidget } from '../react-components/VariableWidget';
 import { EditorNodeChoice } from '../cmpts/ChoiceNodeComponent';
@@ -7,7 +7,10 @@ import { notifyStateUpdated } from '../seEditorState';
 import { ExecWidget } from '../react-components/ExecWidget';
 import { AudioWidget } from '../react-components/AudioWidget';
 import { ItemTemplateWidget } from '../react-components/ItemTemplateWidget';
-import { MODAL_ROOT_CLASS, useEscapeToClose } from '../../hooks/useEscapeToClose';
+import {
+  MODAL_ROOT_CLASS,
+  useEscapeToClose,
+} from '../../hooks/useEscapeToClose';
 
 interface EditChoiceNodeModalProps {
   isOpen: boolean;
@@ -153,7 +156,7 @@ export function EditChoiceNodeModal({
   const handleUpdateChoice = (
     index: number,
     field: keyof Choice,
-    value: string
+    value: string,
   ) => {
     const newChoices = [...choices];
     newChoices[index] = {
@@ -180,6 +183,47 @@ export function EditChoiceNodeModal({
       newChoices[index] = newChoices[index + 1];
       newChoices[index + 1] = choice;
     }
+    setChoices(newChoices);
+  };
+
+  const handleAddSwitchText = (choiceIndex: number) => {
+    const newChoices = [...choices];
+    const switchText = newChoices[choiceIndex].switchText ?? [];
+    newChoices[choiceIndex] = {
+      ...newChoices[choiceIndex],
+      switchText: [...switchText, { conditionStr: '', text: '' }],
+    };
+    setChoices(newChoices);
+  };
+
+  const handleUpdateSwitchText = (
+    choiceIndex: number,
+    switchIndex: number,
+    field: keyof ChoiceSwitchText,
+    value: string,
+  ) => {
+    const newChoices = [...choices];
+    const switchText = [...(newChoices[choiceIndex].switchText ?? [])];
+    switchText[switchIndex] = {
+      ...switchText[switchIndex],
+      [field]: value,
+    };
+    newChoices[choiceIndex] = {
+      ...newChoices[choiceIndex],
+      switchText,
+    };
+    setChoices(newChoices);
+  };
+
+  const handleRemoveSwitchText = (choiceIndex: number, switchIndex: number) => {
+    const newChoices = [...choices];
+    const switchText = (newChoices[choiceIndex].switchText ?? []).filter(
+      (_, i) => i !== switchIndex,
+    );
+    newChoices[choiceIndex] = {
+      ...newChoices[choiceIndex],
+      switchText,
+    };
     setChoices(newChoices);
   };
 
@@ -346,7 +390,7 @@ export function EditChoiceNodeModal({
                     style={{
                       display: 'flex',
                       justifyContent: 'space-between',
-                      alignItems: 'center',
+                      alignItems: 'flex-start',
                     }}
                   >
                     <UpDownMover
@@ -409,15 +453,93 @@ export function EditChoiceNodeModal({
                         borderColor={choiceItem.prefixText ? '#862' : '#3e3e42'}
                         spellCheck={true}
                       />
+                      {(choiceItem.switchText ?? []).map(
+                        (switchTextItem, switchIndex) => (
+                          <div
+                            key={switchIndex}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              marginTop: '4px',
+                            }}
+                          >
+                            <ChoiceTextInput
+                              value={switchTextItem.conditionStr}
+                              widthPct={40}
+                              disabled={false}
+                              onChange={(value) =>
+                                handleUpdateSwitchText(
+                                  index,
+                                  switchIndex,
+                                  'conditionStr',
+                                  value,
+                                )
+                              }
+                              placeholder="Switch condition..."
+                              monospace={true}
+                              borderColor={
+                                switchTextItem.conditionStr ? '#862' : '#3e3e42'
+                              }
+                              spellCheck={false}
+                            />
+                            <ChoiceTextInput
+                              value={switchTextItem.text}
+                              widthPct={50}
+                              disabled={false}
+                              onChange={(value) =>
+                                handleUpdateSwitchText(
+                                  index,
+                                  switchIndex,
+                                  'text',
+                                  value,
+                                )
+                              }
+                              placeholder="Switch text..."
+                              monospace={false}
+                              spellCheck={true}
+                            />
+                            <Button
+                              variant="danger"
+                              onClick={() =>
+                                handleRemoveSwitchText(index, switchIndex)
+                              }
+                            >
+                              ×
+                            </Button>
+                          </div>
+                        ),
+                      )}
                     </div>
-                    <Button
-                      variant="danger"
-                      onClick={function () {
-                        return handleRemoveChoice(index);
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                        marginRight: '16px',
                       }}
                     >
-                      Delete
-                    </Button>
+                      <Button
+                        onClick={() => handleAddSwitchText(index)}
+                        style={{
+                          padding: '6px',
+                          fontSize: '14px',
+                        }}
+                      >
+                        + Text
+                      </Button>
+                      <Button
+                        variant="danger"
+                        onClick={function () {
+                          return handleRemoveChoice(index);
+                        }}
+                        style={{
+                          padding: '6px',
+                          fontSize: '14px',
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </div>
                   </div>
                 </div>
               );

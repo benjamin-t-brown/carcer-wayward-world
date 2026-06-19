@@ -14,7 +14,6 @@ import {
 import { EventRunner, EventRunnerLogEntry } from './EventRunner';
 import { useReRender } from '../../hooks/useReRender';
 import { CANVAS_CONTAINER_ID } from '../react-components/MapCanvasSE';
-import { MODAL_ROOT_CLASS, useEscapeToClose } from '../../hooks/useEscapeToClose';
 
 interface EventRunnerModalProps {
   isOpen: boolean;
@@ -25,19 +24,51 @@ interface EventRunnerModalProps {
 }
 
 const EVENT_FONT_SIZE = '18px';
+const PANEL_MIN_HEIGHT = 500;
+const PANEL_VERTICAL_PADDING = 24; // matches .special-events-runner-panel padding (12px * 2)
 const HEADER_HEIGHT = 80;
-const TEXT_LOG_HEIGHT = 260;
-const CHOICES_AREA_HEIGHT = 150;
-const CHOICES_GAP = 8;
-const MODAL_CONTENT_HEIGHT =
-  HEADER_HEIGHT + TEXT_LOG_HEIGHT + CHOICES_GAP + CHOICES_AREA_HEIGHT;
+const BODY_HEIGHT =
+  PANEL_MIN_HEIGHT - PANEL_VERTICAL_PADDING - HEADER_HEIGHT;
+const CHOICES_WIDTH = 500;
+const BODY_GAP = 8;
+const PANEL_CONTENT_HEIGHT = HEADER_HEIGHT + BODY_HEIGHT;
 
-function getLogEntryStyle(entry: EventRunnerLogEntry, index: number) {
+function getPriorChoiceKeys(entries: EventRunnerLogEntry[]) {
+  return new Set(
+    entries
+      .filter((entry) => entry.type === 'choice' && entry.choiceKey)
+      .map((entry) => entry.choiceKey as string)
+  );
+}
+
+function getPlainChoiceLabel(text: string) {
+  return text.replace(/<[^>]*>/g, '').trim();
+}
+
+function findLastSegmentIndex(entries: EventRunnerLogEntry[]) {
+  for (let i = entries.length - 1; i >= 0; i--) {
+    if (entries[i].type === 'choice' || entries[i].type === 'continue') {
+      return i;
+    }
+  }
+  return -1;
+}
+
+function getLogEntryStyle(
+  entry: EventRunnerLogEntry,
+  index: number,
+  lastSegmentIndex: number
+) {
   const base = {
     whiteSpace: 'pre-wrap' as const,
     marginTop: index === 0 ? 0 : '1em',
+    cursor: entry.nodeId ? ('pointer' as const) : undefined,
   };
-  if (entry.type === 'choice') {
+  const isHistoricalText =
+    entry.type === 'text' &&
+    lastSegmentIndex >= 0 &&
+    index <= lastSegmentIndex;
+  if (entry.type === 'choice' || isHistoricalText) {
     return {
       ...base,
       color: '#888',
@@ -75,7 +106,7 @@ const EventHeader = ({ gameEvent }: { gameEvent: GameEvent }) => {
         flexShrink: 0,
       }}
     >
-      <div style={{ width: '2px', height: '2px' }}></div>
+      <div style={{ width: '8px', height: '2px' }}></div>
       <Sprite sprite={sprite} maxWidth={100} />
       <div style={{ width: '10px', height: '2px' }}></div>
       <span>{gameEvent.title}</span>
@@ -87,10 +118,12 @@ const ChoiceButton = ({
   hasErrors,
   handleNext,
   text,
+  dimmed = false,
 }: {
   hasErrors: boolean;
   handleNext: () => void;
   text: string;
+  dimmed?: boolean;
 }) => {
   return (
     <button
@@ -99,7 +132,7 @@ const ChoiceButton = ({
         padding: '10px 10px',
         fontFamily: 'arial',
         fontSize: EVENT_FONT_SIZE,
-        color: 'white',
+        color: dimmed ? '#888' : 'white',
         border: 'none',
         cursor: hasErrors ? 'not-allowed' : 'pointer',
         width: '100%',
@@ -111,7 +144,7 @@ const ChoiceButton = ({
       onClick={() => handleNext()}
       disabled={hasErrors}
     >
-      {text}
+      {getPlainChoiceLabel(text)}
     </button>
   );
 };
@@ -126,16 +159,23 @@ export function EventRunnerModal({
   const logRef = useRef<HTMLDivElement>(null);
   const pauseState = eventRunner?.getPauseState();
 
+  const panToNode = (nodeId: string) => {
+    if (!nodeId) {
+      return;
+    }
+    const canvas = document.getElementById(
+      CANVAS_CONTAINER_ID + '-canvas'
+    ) as HTMLCanvasElement;
+    if (canvas) {
+      centerPanzoomOnNode(canvas, nodeId);
+    }
+  };
+
   const panToCurrentNode = () => {
     if (!eventRunner) {
       return;
     }
-    const canvas = document.getElementById(
-      'special-event-editor-canvas-canvas'
-    ) as HTMLCanvasElement;
-    if (canvas) {
-      centerPanzoomOnNode(canvas, eventRunner.currentNodeId);
-    }
+    panToNode(eventRunner.currentNodeId);
   };
 
   const advance = (
@@ -168,6 +208,7 @@ export function EventRunnerModal({
   const handleContinue = () => {
     const node = eventRunner?.getCurrentNode();
     if (node?.eventChildType === GameEventChildType.EXEC) {
+      eventRunner?.recordContinue();
       advance((node as GameEventChildExec).next, {
         onceKeysToCommit: [],
         execStr: '',
@@ -207,108 +248,113 @@ export function EventRunnerModal({
     }
   }, [isOpen, eventRunner]);
 
-  const modalRef = useEscapeToClose(
-    handleClose,
-    isOpen && !!eventRunner && pauseState !== 'done'
-  );
+  useEffect(() => {
+    if (!isOpen || !eventRunner || pauseState === 'done') {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') {
+        return;
+      }
+      event.preventDefault();
+      handleClose();
+    };
+
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
+  }, [isOpen, eventRunner, pauseState]);
 
   if (!isOpen || !eventRunner || pauseState === 'done') {
     return undefined;
   }
 
   const hasErrors = eventRunner.errors.length > 0;
-  const isEnded = pauseState === 'end';
   const showChoicesArea = pauseState === 'continue' || pauseState === 'choice';
-  const textLogHeight = isEnded
-    ? MODAL_CONTENT_HEIGHT - HEADER_HEIGHT
-    : TEXT_LOG_HEIGHT;
+  const lastSegmentIndex = findLastSegmentIndex(eventRunner.logEntries);
+  const priorChoiceKeys = getPriorChoiceKeys(eventRunner.logEntries);
 
   return (
-    <div
-      ref={modalRef}
-      className={MODAL_ROOT_CLASS}
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1001,
-      }}
-    >
+    <div className="special-events-runner-panel">
+      <button
+        style={{
+          position: 'absolute',
+          top: 4,
+          right: 8,
+          backgroundColor: 'transparent',
+          border: 'none',
+          color: '#d4d4d4',
+          fontSize: '24px',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          zIndex: 1,
+          background: '#990707',
+          borderRadius: '8px',
+          padding: '4px 8px',
+        }}
+        onClick={handleClose}
+        title="Close runner (Esc)"
+      >
+        <span>×</span>
+      </button>
+
       <div
         style={{
-          backgroundColor: '#252526',
-          border: '1px solid #3e3e42',
-          borderRadius: '8px',
-          padding: '30px',
-          maxWidth: '50vw',
-          width: '90%',
-          maxHeight: '80vh',
-          overflow: 'auto',
-          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+          width: '100%',
+          height: `${PANEL_CONTENT_HEIGHT}px`,
         }}
-        onClick={(e) => e.stopPropagation()}
       >
-        <button
-          style={{
-            position: 'absolute',
-            top: 1,
-            right: 5,
-            backgroundColor: 'transparent',
-            border: 'none',
-            color: '#d4d4d4',
-            fontSize: '24px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-          }}
-          onClick={handleClose}
-        >
-          <span>×</span>
-        </button>
+        <EventHeader gameEvent={gameEvent} />
 
         <div
           style={{
             display: 'flex',
-            flexDirection: 'column',
-            width: '100%',
-            height: `${MODAL_CONTENT_HEIGHT}px`,
+            flexDirection: 'row',
+            gap: `${BODY_GAP}px`,
+            height: `${BODY_HEIGHT}px`,
+            minHeight: 0,
           }}
         >
-          <EventHeader gameEvent={gameEvent} />
-
           <div
             ref={logRef}
             style={{
-              height: `${textLogHeight}px`,
-              flexShrink: 0,
+              flex: 1,
+              minWidth: 0,
               background: '#1e1e1e',
               padding: '10px',
-              border: 'none',
               overflow: 'auto',
               scrollBehavior: 'smooth',
             }}
           >
-            {eventRunner.logEntries.map((entry, i) => (
-              <div key={i} style={getLogEntryStyle(entry, i)}>
-                {entry.text}
-              </div>
-            ))}
+            {eventRunner.logEntries.map((entry, i) =>
+              entry.type === 'continue' ? null : (
+                <div
+                  key={i}
+                  style={getLogEntryStyle(entry, i, lastSegmentIndex)}
+                  title={entry.nodeId ? `Go to node ${entry.nodeId}` : undefined}
+                  onClick={() => {
+                    if (entry.nodeId) {
+                      panToNode(entry.nodeId);
+                    }
+                  }}
+                >
+                  {entry.type === 'choice' ? ` - ${entry.text}` : entry.text}
+                </div>
+              )
+            )}
           </div>
 
           {showChoicesArea && (
             <div
               style={{
-                height: `${CHOICES_AREA_HEIGHT}px`,
+                width: `${CHOICES_WIDTH}px`,
                 flexShrink: 0,
-                marginTop: `${CHOICES_GAP}px`,
                 overflow: 'auto',
               }}
             >
+              <div style={{ marginBottom: '8px' }}></div>
               {pauseState === 'continue' && (
                 <ChoiceButton
                   hasErrors={hasErrors}
@@ -318,49 +364,48 @@ export function EventRunnerModal({
               )}
 
               {pauseState === 'choice' &&
-                eventRunner.displayTextChoices.map((choice, i) => (
-                  <ChoiceButton
-                    key={i}
-                    hasErrors={hasErrors}
-                    handleNext={() => handleChoice(i)}
-                    text={
-                      (choice.prefix ? choice.prefix + ' ' : '') + choice.text
-                    }
-                  />
-                ))}
-            </div>
-          )}
-
-          {hasErrors && (
-            <div style={{ flexShrink: 0, marginTop: '8px' }}>
-              {eventRunner.errors.map((error, i) => (
-                <div key={error.nodeId + i.toString()}>
-                  <span
-                    style={{
-                      color: '#FFF',
-                      cursor: 'pointer',
-                      textDecoration: 'underline',
-                    }}
-                    onClick={() => {
-                      const canvas = document.getElementById(
-                        CANVAS_CONTAINER_ID + '-canvas'
-                      ) as HTMLCanvasElement;
-                      if (canvas) {
-                        handleClose();
-                        getEditorState().runnerErrors = eventRunner.errors;
-                        notifyStateUpdated();
-                        centerPanzoomOnNode(canvas, error.nodeId);
-                      }
-                    }}
-                  >
-                    {error.nodeId}:
-                  </span>{' '}
-                  <span style={{ color: '#F77' }}>{error.message}</span>
-                </div>
-              ))}
+                eventRunner.displayTextChoices.map((choice, i) => {
+                  const label =
+                    (choice.prefix ? choice.prefix + ' ' : '') + choice.text;
+                  return (
+                    <ChoiceButton
+                      key={`active-choice-${i}`}
+                      hasErrors={hasErrors}
+                      handleNext={() => handleChoice(i)}
+                      text={label}
+                      dimmed={priorChoiceKeys.has(choice.choiceKey)}
+                    />
+                  );
+                })}
             </div>
           )}
         </div>
+
+        {hasErrors && (
+          <div style={{ flexShrink: 0, marginTop: '8px' }}>
+            {eventRunner.errors.map((error, i) => (
+              <div key={error.nodeId + i.toString()}>
+                <span
+                  style={{
+                    color: '#FFF',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                  }}
+                  onClick={() => {
+                    if (error.nodeId) {
+                      getEditorState().runnerErrors = eventRunner.errors;
+                      notifyStateUpdated();
+                      panToNode(error.nodeId);
+                    }
+                  }}
+                >
+                  {error.nodeId}:
+                </span>{' '}
+                <span style={{ color: '#F77' }}>{error.message}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

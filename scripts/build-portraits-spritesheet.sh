@@ -3,8 +3,9 @@
 # Build portraits0.png from individual port_*.png files using ImageMagick.
 #
 # Portrait order is stored in portraits-order.txt beside the source images.
-# Existing entries keep their slot index; newly discovered portraits are
-# appended in alphabetical order so references like portraits0_5 stay stable.
+# Sources are port_*.png and port_*.pdn (stems deduplicated). Existing entries
+# keep their slot index; newly discovered portraits are appended in alphabetical
+# order so references like portraits0_5 stay stable.
 
 set -euo pipefail
 
@@ -29,7 +30,7 @@ usage() {
     cat <<EOF
 Usage: $(basename "$0") [--init-order] [--list]
 
-  --init-order  Rebuild portraits-order.txt from current PNG files (alphabetical).
+  --init-order  Rebuild portraits-order.txt from current PNG/PDN files (alphabetical).
   --list        Print portrait index mapping without building the spritesheet.
 EOF
 }
@@ -65,13 +66,14 @@ fi
 discover_portraits() {
     PORTRAITS_DISCOVERED=()
     shopt -s nullglob
-    local files=("$PORT_DIR"/${PORTRAIT_PREFIX}*.png)
+    local files=("$PORT_DIR"/${PORTRAIT_PREFIX}*.png "$PORT_DIR"/${PORTRAIT_PREFIX}*.pdn)
     shopt -u nullglob
+    local stems=()
     for file in "${files[@]}"; do
-        PORTRAITS_DISCOVERED+=("$(basename "$file" .png)")
+        stems+=("$(basename "$file" | sed 's/\.[^.]*$//')")
     done
-    if [[ ${#PORTRAITS_DISCOVERED[@]} -gt 0 ]]; then
-        IFS=$'\n' PORTRAITS_DISCOVERED=($(printf '%s\n' "${PORTRAITS_DISCOVERED[@]}" | sort))
+    if [[ ${#stems[@]} -gt 0 ]]; then
+        IFS=$'\n' PORTRAITS_DISCOVERED=($(printf '%s\n' "${stems[@]}" | sort -u))
         unset IFS
     fi
 }
@@ -122,7 +124,7 @@ sync_order() {
     for stem in "${ORDER[@]}"; do
         known+=("$stem")
         if ! stem_is_discovered "$stem"; then
-            echo "Warning: portraits listed in order file but missing PNG:"
+            echo "Warning: portraits listed in order file but missing PNG/PDN:"
             echo "  - ${stem}.png"
         fi
     done
@@ -238,7 +240,7 @@ build_spritesheet() {
 discover_portraits
 
 if [[ ${#PORTRAITS_DISCOVERED[@]} -eq 0 ]]; then
-    echo "Error: no ${PORTRAIT_PREFIX}*.png files found in $PORT_DIR" >&2
+    echo "Error: no ${PORTRAIT_PREFIX}*.png or ${PORTRAIT_PREFIX}*.pdn files found in $PORT_DIR" >&2
     exit 1
 fi
 

@@ -192,6 +192,21 @@ SpecialEventRunner::joinParagraphs(const std::vector<std::string>& paragraphs) {
   return result;
 }
 
+std::string SpecialEventRunner::resolveChoiceText(
+    const model::Choice& choice, std::vector<std::string>& onceKeysToCommit) {
+  for (const auto& switchText : choice.switchText) {
+    if (!switchText.conditionStr.empty()) {
+      ConditionResult obj = evalCondition(replaceVariables(switchText.conditionStr));
+      if (obj.result) {
+        onceKeysToCommit.insert(onceKeysToCommit.end(), obj.onceKeysToCommit.begin(),
+                                obj.onceKeysToCommit.end());
+        return replaceVariables(switchText.text);
+      }
+    }
+  }
+  return replaceVariables(choice.text);
+}
+
 void SpecialEventRunner::advance(const std::string& nodeId,
                                  const std::vector<std::string>& onceKeysToCommit,
                                  const std::string& execStr) {
@@ -201,7 +216,7 @@ void SpecialEventRunner::advance(const std::string& nodeId,
 
   commitOnceKeys(onceKeysToCommit);
   if (!execStr.empty()) {
-    auto strLines = splitString(execStr, '\n');
+    auto strLines = splitExecStatements(execStr);
     for (const auto& strLine : strLines) {
       evalExecStr(replaceVariables(strLine));
     }
@@ -219,7 +234,7 @@ void SpecialEventRunner::advance(const std::string& nodeId,
       [this](const auto& node) {
         using T = std::decay_t<decltype(node)>;
         if constexpr (std::is_same_v<T, model::GameEventChildExec>) {
-          auto strLines = splitString(node.execStr, '\n');
+          auto strLines = splitExecStatements(node.execStr);
           for (const auto& strLine : strLines) {
             evalExecStr(replaceVariables(strLine));
           }
@@ -242,10 +257,14 @@ void SpecialEventRunner::advance(const std::string& nodeId,
             if (obj.result) {
               DisplayTextChoice displayChoice;
               displayChoice.prefix = (replaceVariables(choice.prefixText));
-              displayChoice.text = (replaceVariables(choice.text));
+              std::vector<std::string> switchOnceKeys;
+              displayChoice.text = resolveChoiceText(choice, switchOnceKeys);
               displayChoice.execStr = (replaceVariables(choice.evalStr));
               displayChoice.next = choice.next;
               displayChoice.onceKeysToCommit = obj.onceKeysToCommit;
+              displayChoice.onceKeysToCommit.insert(
+                  displayChoice.onceKeysToCommit.end(), switchOnceKeys.begin(),
+                  switchOnceKeys.end());
               displayTextChoices.push_back(displayChoice);
             }
           }

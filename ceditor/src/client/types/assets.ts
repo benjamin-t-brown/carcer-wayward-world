@@ -657,6 +657,8 @@ export interface ItemTemplate {
   weight: number;
   value: number;
   stackable?: boolean;
+  /** Quest items and other items that cannot be dropped or destroyed */
+  indestructable?: boolean;
   itemUsability?: ItemUsability;
   /** @deprecated replaced by useAbility */
   itemUsabilityArgs?: {
@@ -665,6 +667,8 @@ export interface ItemTemplate {
     stringArgs?: string[];
   };
   useAbility?: ItemUseAbilityConfig;
+  /** Special event id to run when the item is used (alternative to useAbility) */
+  useSpecialEvent?: string;
   statusEffects?: ItemStatusEffectRef[];
   weapon?: ItemWeaponConfig;
 }
@@ -690,6 +694,11 @@ export function sanitizeItemTemplates(
       if (next.useAbility) {
         const { useAbility: _useAbility, ...withoutUseAbility } = next;
         next = withoutUseAbility;
+      }
+      if (next.useSpecialEvent) {
+        const { useSpecialEvent: _useSpecialEvent, ...withoutUseSpecialEvent } =
+          next;
+        next = withoutUseSpecialEvent;
       }
     } else if (next.useAbility?.abilityName) {
       const baseAbility =
@@ -1066,8 +1075,14 @@ export type KeywordData =
   | KeywordDataKSwitch
   | KeywordDataKChild;
 
+export interface ChoiceSwitchText {
+  conditionStr: string;
+  text: string;
+}
+
 export interface Choice {
   text: string;
+  switchText?: ChoiceSwitchText[];
   prefixText?: string;
   conditionStr?: string;
   evalStr?: string;

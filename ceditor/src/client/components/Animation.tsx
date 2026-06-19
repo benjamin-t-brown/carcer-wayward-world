@@ -64,7 +64,7 @@ export function Animation({
       if (!currentFrame) return;
 
       const elapsed = currentTime - startTimeRef.current;
-      const frameDuration = currentFrame.frames * 16; // Convert game frames to ms (assuming 60fps)
+      const frameDuration = currentFrame.frames;
 
       if (elapsed >= frameDuration) {
         // Move to next frame
@@ -72,10 +72,7 @@ export function Animation({
           const next = prev + 1;
           if (next >= animation.frames.length) {
             // Loop or stop
-            if (animation.loop) {
-              return 0;
-            }
-            return prev;
+            return 0;
           }
           return next;
         });

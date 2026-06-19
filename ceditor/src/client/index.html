@@ -160,12 +160,22 @@
         flex-direction: column;
       }
 
-      .editor-main > *:not(.special-events-subheader) {
+      .editor-main > *:not(.special-events-subheader):not(.special-events-runner-panel) {
         flex: 1;
         min-height: 0;
         display: flex;
         flex-direction: column;
         overflow: auto;
+      }
+
+      .special-events-runner-panel {
+        flex: 0 0 auto;
+        min-height: 500px;
+        border-top: 1px solid #3e3e42;
+        background-color: #252526;
+        padding: 12px 16px;
+        overflow: hidden;
+        position: relative;
       }
 
       .special-events-editor-main {

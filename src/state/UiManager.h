@@ -2,7 +2,7 @@
 
 namespace state {
 
-class State;
+struct State;
 class StateManager;
 
 class UiManager {

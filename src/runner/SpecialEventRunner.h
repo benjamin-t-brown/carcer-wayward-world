@@ -57,6 +57,8 @@ public:
 private:
   std::vector<model::Variable> getVarsFromNode();
   std::string joinParagraphs(const std::vector<std::string>& paragraphs);
+  std::string resolveChoiceText(const model::Choice& choice,
+                                std::vector<std::string>& onceKeysToCommit);
 };
 
 enum class SpecialEventRunnerInterfaceState {

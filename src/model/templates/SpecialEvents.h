@@ -96,8 +96,14 @@ struct AudioInfo {
 //   std::map<std::string, KeywordData> keywords;
 // };
 
+struct ChoiceSwitchText {
+  std::string conditionStr;
+  std::string text;
+};
+
 struct Choice {
   std::string text;
+  std::vector<ChoiceSwitchText> switchText;
   std::string prefixText;
   std::string conditionStr;
   std::string evalStr;

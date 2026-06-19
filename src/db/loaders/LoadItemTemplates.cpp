@@ -72,6 +72,12 @@ void loadItemTemplates(
       itemTemplate.stackable = false;
     }
 
+    if (itemJson.contains("indestructable") && itemJson["indestructable"].is_boolean()) {
+      itemTemplate.indestructable = itemJson["indestructable"];
+    } else {
+      itemTemplate.indestructable = false;
+    }
+
     if (itemJson.contains("statusEffects") && itemJson["statusEffects"].is_array()) {
       for (const auto& statusJson : itemJson["statusEffects"]) {
         if (statusJson.is_string()) {
@@ -111,6 +117,13 @@ void loadItemTemplates(
           }
         }
         itemTemplate.useAbility = useAbility;
+      }
+    }
+
+    if (itemJson.contains("useSpecialEvent") && itemJson["useSpecialEvent"].is_string()) {
+      const std::string useSpecialEvent = itemJson["useSpecialEvent"];
+      if (!useSpecialEvent.empty()) {
+        itemTemplate.useSpecialEvent = useSpecialEvent;
       }
     }
 

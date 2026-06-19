@@ -6,7 +6,7 @@ import {
   GameEventChildType,
   SENode,
 } from '../../types/assets';
-import { EventRunner } from './EventRunner';
+import { EventRunner, splitExecStatements } from './EventRunner';
 
 interface ValidationError {
   childId: string;
@@ -30,8 +30,7 @@ export class EventValidator {
     }
 
     const runner = new EventRunner({}, this.gameEvent, [this.gameEvent]);
-    const strLines = seNode.execStr.split('\n');
-    for (const strLine of strLines) {
+    for (const strLine of splitExecStatements(seNode.execStr)) {
       runner.evalExecStr(runner.replaceVariables(strLine));
     }
     for (const error of runner.errors) {

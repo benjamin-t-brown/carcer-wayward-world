@@ -1,5 +1,34 @@
 [
   {
+    "itemType": "UTILITY",
+    "name": "AlineaCorrespondence1",
+    "label": "Realm Correspondence",
+    "icon": "ui_item_icons_6",
+    "description": "A sealed scroll that Lieutenant Mullen asked you to deliver to a Realm outpost north of Alinea.",
+    "weight": 1,
+    "value": 1,
+    "stackable": false,
+    "itemUsability": "NOT_USABLE",
+    "statusEffects": [],
+    "indestructable": true
+  },
+  {
+    "itemType": "UTILITY",
+    "name": "AlineaCorrespondence2",
+    "label": "Encampment Correspondance",
+    "icon": "ui_item_icons_7",
+    "description": "A sealed scroll that Lieutenant Mullen asked you to deliver to the Blackrose Encampment east of Alinea.  It has a strange weight to it, like it's heavier than it should be.",
+    "weight": 1,
+    "value": 1,
+    "stackable": false,
+    "itemUsability": "USABLE_EVERYWHERE",
+    "statusEffects": [],
+    "indestructable": true,
+    "useAbility": {
+      "abilityName": ""
+    }
+  },
+  {
     "itemType": "WEAPON_AMMO",
     "name": "ArrowsIron",
     "label": "Iron Arrows",

@@ -99,7 +99,8 @@ pacman -S mingw-w64-x86_64-clang\
  ucrt64/mingw-w64-ucrt-x86_64-imagemagick
 
 # this linker is much faster on Windows
-pacman -S ucrt64/mingw-w64-ucrt-x86_64-lld
+pacman -S ucrt64/mingw-w64-ucrt-x86_64-lld ucrt64/mingw-w64-ucrt-x86_64-ccache
+
 ```
 
 ### Clangd Setup

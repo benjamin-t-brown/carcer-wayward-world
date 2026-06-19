@@ -19,6 +19,16 @@ getStorage(const std::unordered_map<std::string, std::string>& storage,
   return std::nullopt;
 }
 
+// Helper to trim whitespace
+std::string trim(const std::string& str) {
+  size_t first = str.find_first_not_of(" \t\n\r");
+  if (first == std::string::npos) {
+    return "";
+  }
+  size_t last = str.find_last_not_of(" \t\n\r");
+  return str.substr(first, (last - first + 1));
+}
+
 // Helper to split string by delimiter
 std::vector<std::string> splitString(const std::string& str, char delimiter) {
   std::vector<std::string> result;
@@ -30,14 +40,32 @@ std::vector<std::string> splitString(const std::string& str, char delimiter) {
   return result;
 }
 
-// Helper to trim whitespace
-std::string trim(const std::string& str) {
-  size_t first = str.find_first_not_of(" \t\n\r");
-  if (first == std::string::npos) {
-    return "";
+std::vector<std::string> splitExecStatements(const std::string& str) {
+  std::vector<std::string> result;
+  int parenDepth = 0;
+  std::string current;
+  for (char c : str) {
+    if (c == '(') {
+      parenDepth++;
+      current += c;
+    } else if (c == ')') {
+      parenDepth--;
+      current += c;
+    } else if ((c == ';' || c == '\n') && parenDepth == 0) {
+      std::string trimmed = trim(current);
+      if (!trimmed.empty()) {
+        result.push_back(trimmed);
+      }
+      current.clear();
+    } else {
+      current += c;
+    }
   }
-  size_t last = str.find_last_not_of(" \t\n\r");
-  return str.substr(first, (last - first + 1));
+  std::string trimmed = trim(current);
+  if (!trimmed.empty()) {
+    result.push_back(trimmed);
+  }
+  return result;
 }
 
 // Parse function call: "FUNC_NAME(arg1, arg2, ...)"

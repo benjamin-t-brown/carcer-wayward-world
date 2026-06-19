@@ -18,3 +18,7 @@ port_ainsley
 port_claire2
 port_fisherman1
 port_girus
+port_aldebeth
+port_lukili
+port_radelkum
+

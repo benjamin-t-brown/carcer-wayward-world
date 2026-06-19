@@ -35,7 +35,7 @@ LayerPickUp::LayerPickUp(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
   syncCurrentPartyMember();
 
   subscribeAction<state::actions::UiSetCurrentPartyMember>(
-      [this](...) { syncCurrentPartyMember(); });
+      [this](auto&, auto&) { syncCurrentPartyMember(); });
 }
 
 void LayerPickUp::syncCurrentPartyMember() {

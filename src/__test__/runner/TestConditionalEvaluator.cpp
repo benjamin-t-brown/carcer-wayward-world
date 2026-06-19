@@ -11,6 +11,10 @@ int main(int argc, char** argv) {
       {"b", "1"},
       {"c", "2"},
       {"d", "3"},
+      {"vars.quests.WoodThief.started", "true"},
+      {"vars.quests.WoodThief.completed", "false"},
+      {"vars.quests.WoodThief.step", "2"},
+      {"vars.items.BeerPappysLager", "1"},
       // z is undefined
       // clang-format on
   };
@@ -75,6 +79,12 @@ int main(int argc, char** argv) {
       {"ANY(EQ(a, b), EQ(b, b))", true},
       {"ANY(EQ(a, b), EQ(c, d))", false},
       {"ANY(EQ(a, b), EQ(c, d), ANY(EQ(a, b), EQ(b, b)))", true},
+      {"QUEST_IS_STARTED(WoodThief)", true},
+      {"QUEST_IS_COMPLETE(WoodThief)", false},
+      {"QUEST_STEP_EQ(WoodThief, 2)", true},
+      {"QUEST_STEP_EQ(WoodThief, 1)", false},
+      {"HAS_ITEM(BeerPappysLager)", true},
+      {"HAS_ITEM(MissingItem)", false},
       // clang-format on
   };
   const std::vector<std::pair<std::string, bool>> invalidSyntax = {

@@ -19,7 +19,7 @@
     "costType": "ABILITY_COST_NONE",
     "costValue": 0,
     "depiction": {
-      "dmgAnim": "expl_fire",
+      "dmgAnim": "splash_fire",
       "projectileHasFacing": false,
       "projectileAnim": "",
       "projectilePath": "PROJECTILE_PATH_NONE",
@@ -63,7 +63,7 @@
     "costType": "ABILITY_COST_NONE",
     "costValue": 0,
     "depiction": {
-      "dmgAnim": "splash_positive",
+      "dmgAnim": "expl_buff",
       "projectileHasFacing": false,
       "projectileAnim": "",
       "projectilePath": "PROJECTILE_PATH_NONE",

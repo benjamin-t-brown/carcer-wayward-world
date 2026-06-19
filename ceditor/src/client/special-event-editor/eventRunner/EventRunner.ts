@@ -4,8 +4,38 @@ import {
   GameEventChildExec,
   GameEventChildSwitch,
   GameEventChildType,
+  Choice,
 } from '../../types/assets';
 import { getVarsFromNode } from '../nodeHelpers';
+
+export function splitExecStatements(str: string): string[] {
+  const statements: string[] = [];
+  let parenDepth = 0;
+  let current = '';
+  for (let i = 0; i < str.length; i++) {
+    const c = str[i];
+    if (c === '(') {
+      parenDepth++;
+      current += c;
+    } else if (c === ')') {
+      parenDepth--;
+      current += c;
+    } else if ((c === ';' || c === '\n') && parenDepth === 0) {
+      const trimmed = current.trim();
+      if (trimmed) {
+        statements.push(trimmed);
+      }
+      current = '';
+    } else {
+      current += c;
+    }
+  }
+  const trimmed = current.trim();
+  if (trimmed) {
+    statements.push(trimmed);
+  }
+  return statements;
+}
 
 const setStorage = (
   storage: Record<string, string | undefined>,
@@ -188,28 +218,9 @@ class ConditionEvaluator {
         return arg === 'true' || Boolean(getStorage(this.storage, arg));
       });
     },
-    FUNC: (funcName: string, ...args: string[]) => {
-      if (funcName === 'HasItem') {
-        return Boolean(getStorage(this.storage, 'vars.items.' + args[0]));
-      }
-      if (funcName === 'QuestStarted') {
-        return Boolean(
-          getStorage(this.storage, 'vars.quests.' + args[0] + '.started')
-        );
-      }
-      if (funcName === 'QuestCompleted') {
-        return Boolean(
-          getStorage(this.storage, 'vars.quests.' + args[0] + '.completed')
-        );
-      }
-      if (funcName === 'QuestStepEq') {
-        return Boolean(
-          getStorage(this.storage, 'vars.quests.' + args[0] + '.step') ===
-            args[1]
-        );
-      }
-      console.error('Invalid FUNC conditional: ', { funcName, args });
-      return false;
+    HAS_ITEM: (itemName: string) => {
+      const v = getStorage(this.storage, 'vars.items.' + itemName);
+      return Boolean(v && v !== '0' && v !== 'false');
     },
     ONCE: (a: string) => {
       const onceKey = 'once.' + a;
@@ -221,6 +232,21 @@ class ConditionEvaluator {
         this.onceKeysToCommit.push(onceKey);
       }
       return true;
+    },
+    QUEST_IS_STARTED: (questName: string) => {
+      const v = getStorage(this.storage, 'vars.quests.' + questName + '.started');
+      return Boolean(v && v !== '0' && v !== 'false');
+    },
+    QUEST_IS_COMPLETE: (questName: string) => {
+      const v = getStorage(
+        this.storage,
+        'vars.quests.' + questName + '.completed'
+      );
+      return Boolean(v && v !== '0' && v !== 'false');
+    },
+    QUEST_STEP_EQ: (questName: string, stepNum: string) => {
+      const v = getStorage(this.storage, 'vars.quests.' + questName + '.step');
+      return v === stepNum;
     },
   };
 
@@ -320,7 +346,7 @@ class StringEvaluator {
       setStorage(this.storage, 'vars.quests.' + questName + '.step', '1');
       setStorage(this.storage, 'vars.quests.' + questName + '.started', 'true');
     },
-    ADVANCE_QUEST: (questName: string, stepId: string) => {
+    COMPLETE_QUEST_STEP: (questName: string, stepId: string) => {
       // noop
       setStorage(this.storage, 'vars.quests.' + questName + '.step', stepId);
     },
@@ -396,8 +422,10 @@ class StringEvaluator {
 }
 
 export type EventRunnerLogEntry = {
-  type: 'text' | 'choice' | 'storage';
+  type: 'text' | 'choice' | 'continue' | 'storage';
   text: string;
+  nodeId?: string;
+  choiceKey?: string;
 };
 
 export class EventRunner {
@@ -414,6 +442,7 @@ export class EventRunner {
     prefix: string;
     next: string;
     onceKeysToCommit: string[];
+    choiceKey: string;
   }[] = [];
 
   errors: {
@@ -537,20 +566,24 @@ export class EventRunner {
     }
   }
 
-  appendToLog(text: string) {
+  appendToLog(text: string, nodeId: string = this.currentNodeId) {
     const plain = text.trim();
     if (!plain) {
       return;
     }
-    this.logEntries.push({ type: 'text', text: plain });
+    this.logEntries.push({ type: 'text', text: plain, nodeId });
   }
 
-  appendChoiceToLog(text: string) {
+  appendChoiceToLog(
+    text: string,
+    choiceKey: string,
+    nodeId: string = this.currentNodeId
+  ) {
     const plain = text.replace(/<[^>]*>/g, '').trim();
     if (!plain) {
       return;
     }
-    this.logEntries.push({ type: 'choice', text: plain });
+    this.logEntries.push({ type: 'choice', text: plain, choiceKey, nodeId });
   }
 
   recordChoiceSelection(index: number) {
@@ -560,19 +593,53 @@ export class EventRunner {
     }
     const label =
       (choice.prefix ? choice.prefix + ' ' : '') + choice.text;
-    this.appendChoiceToLog(label);
+    this.appendChoiceToLog(label, choice.choiceKey);
+  }
+
+  recordContinue() {
+    this.logEntries.push({
+      type: 'continue',
+      text: '',
+      nodeId: this.currentNodeId,
+    });
   }
 
   appendEndStorageToLog() {
     if (this.logEntries.some((entry) => entry.type === 'storage')) {
       return;
     }
-    this.appendToLog('End.');
+    this.appendToLog('End.', this.currentNodeId);
     this.logEntries.push({
       type: 'storage',
       text:
         'Storage result:\n' + JSON.stringify(this.storage, null, 2),
+      nodeId: this.currentNodeId,
     });
+  }
+
+  resolveChoiceText(choice: Choice): {
+    text: string;
+    onceKeysToCommit: string[];
+  } {
+    if (choice.switchText?.length) {
+      for (const switchText of choice.switchText) {
+        if (switchText.conditionStr) {
+          const obj = this.evalCondition(
+            this.replaceVariables(switchText.conditionStr)
+          );
+          if (obj.result) {
+            return {
+              text: this.replaceVariables(switchText.text, false),
+              onceKeysToCommit: obj.onceKeysToCommit,
+            };
+          }
+        }
+      }
+    }
+    return {
+      text: this.replaceVariables(choice.text, false),
+      onceKeysToCommit: [],
+    };
   }
 
   getPauseState():
@@ -619,8 +686,7 @@ export class EventRunner {
 
     this.commitOnceKeys(onceKeysToCommit);
     if (execStr) {
-      const strLines = execStr.split('\n');
-      for (const strLine of strLines) {
+      for (const strLine of splitExecStatements(execStr)) {
         this.evalExecStr(this.replaceVariables(strLine));
       }
     }
@@ -637,8 +703,7 @@ export class EventRunner {
 
     if (currentNode?.eventChildType === GameEventChildType.EXEC) {
       const execNode = currentNode as GameEventChildExec;
-      const strLines = execNode.execStr.split('\n');
-      for (const strLine of strLines) {
+      for (const strLine of splitExecStatements(execNode.execStr)) {
         this.evalExecStr(this.replaceVariables(strLine));
       }
       const text = this.replaceVariables(execNode.p, false);
@@ -657,18 +722,23 @@ export class EventRunner {
         this.appendToLog(choiceText);
       }
       this.displayTextChoices = choiceNode.choices
-        .map((choice) => {
+        .map((choice, choiceIndex) => {
           const obj = choice.conditionStr
             ? this.evalCondition(
                 this.replaceVariables(choice.conditionStr ?? '')
               )
             : { result: true, onceKeysToCommit: [] };
+          const resolved = this.resolveChoiceText(choice);
           return {
             prefix: this.replaceVariables(choice.prefixText ?? '', false),
-            text: this.replaceVariables(choice.text, true),
+            text: this.replaceVariables(resolved.text, true),
             execStr: this.replaceVariables(choice.evalStr ?? '', false),
             next: choice.next,
-            onceKeysToCommit: obj.onceKeysToCommit,
+            onceKeysToCommit: [
+              ...obj.onceKeysToCommit,
+              ...resolved.onceKeysToCommit,
+            ],
+            choiceKey: `${this.currentNodeId}:${choiceIndex}`,
             result: obj.result,
           };
         })

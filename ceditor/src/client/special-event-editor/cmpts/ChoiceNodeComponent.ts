@@ -77,6 +77,7 @@ export class EditorNodeChoice extends EditorNode {
           evalStr: choice?.evalStr ?? '',
           next: conn.toNodeId ?? '',
           prefixText: choice?.prefixText ?? '',
+          switchText: choice?.switchText ?? [],
         };
       }),
     } as GameEventChildChoice;
@@ -220,7 +221,14 @@ export class EditorNodeChoice extends EditorNode {
 
     for (let i = 0; i < this.choices.length; i++) {
       const choice = this.choices[i];
-      const text = choice.conditionStr ? `!{CND} ${choice.text}` : choice.text;
+      let label = choice.text;
+      if (choice.conditionStr) {
+        label = `!{CND} ${label}`;
+      }
+      if (choice.switchText?.length) {
+        label = `!{SW} ${label}`;
+      }
+      const text = label;
       ctx.save();
       ctx.translate(nodeX, nodeY);
       ctx.scale(scale, scale);

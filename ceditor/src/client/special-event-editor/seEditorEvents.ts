@@ -30,6 +30,9 @@ const DOUBLE_CLICK_DELAY = 300; // milliseconds
 // Track wheel event throttling
 let lastWheelTime = 0;
 const WHEEL_THROTTLE_DELAY = 125; // milliseconds
+// Defer exiting linking mode on empty-map click until mouseup unless user panned
+let linkingEmptyClickPending = false;
+const LINKING_CANCEL_DRAG_THRESHOLD_SQ = 5 * 5; // pixels squared
 
 const panZoomEvents: {
   keydown: (ev: KeyboardEvent) => void;
@@ -90,6 +93,7 @@ export const initPanzoom = (specialEventEditorInterface: {
         editorState.linking.isLinking = false;
         editorState.linking.sourceNodeId = '';
         editorState.linking.exitIndex = 0;
+        linkingEmptyClickPending = false;
       }
       resetSelectedNodes();
       updateEditorState({}, false);
@@ -239,6 +243,13 @@ export const initPanzoom = (specialEventEditorInterface: {
       }
     } else if (editorState.isDragging) {
       // Pan dragging
+      if (linkingEmptyClickPending) {
+        const dx = ev.clientX - editorState.lastClickX;
+        const dy = ev.clientY - editorState.lastClickY;
+        if (dx * dx + dy * dy > LINKING_CANCEL_DRAG_THRESHOLD_SQ) {
+          linkingEmptyClickPending = false;
+        }
+      }
       editorState.translateX =
         editorState.lastTranslateX + ev.clientX - editorState.lastClickX;
       editorState.translateY =
@@ -310,6 +321,14 @@ export const initPanzoom = (specialEventEditorInterface: {
       editorState.translateY =
         editorState.lastTranslateY + ev.clientY - editorState.lastClickY;
       editorState.isDragging = false;
+
+      if (linkingEmptyClickPending && editorState.linking.isLinking) {
+        editorState.linking.isLinking = false;
+        editorState.linking.sourceNodeId = '';
+        editorState.linking.exitIndex = 0;
+        updateEditorState({});
+      }
+      linkingEmptyClickPending = false;
     }
   };
   const handleContextMenu = (ev: MouseEvent) => {
@@ -506,6 +525,7 @@ const checkLeftMouseClickEvents = (args: {
       editorState.linking.isLinking = false;
       editorState.linking.sourceNodeId = '';
       editorState.linking.exitIndex = 0;
+      linkingEmptyClickPending = false;
       updateEditorState({});
       ev.preventDefault();
       return true;
@@ -586,10 +606,7 @@ const checkLeftMouseClickEvents = (args: {
   // if you didn't click a node... the following happens
 
   if (editorState.linking.isLinking) {
-    editorState.linking.isLinking = false;
-    editorState.linking.sourceNodeId = '';
-    editorState.linking.exitIndex = 0;
-    updateEditorState({});
+    linkingEmptyClickPending = true;
   }
 
   // Clicked outside any node - reset double-click tracking

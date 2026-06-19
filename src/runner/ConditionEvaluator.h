@@ -28,7 +28,6 @@ struct ConditionEvaluatorFuncs {
   bool ALL(const std::vector<std::string>& args);
   bool ANY(const std::vector<std::string>& args);
   bool ONCE(const std::string& a);
-  bool FUNC(const std::string& funcName, const std::vector<std::string>& funcArgs);
 
   bool FUNC_HasItem(const std::string& itemName);
   bool FUNC_QuestStarted(const std::string& questName);

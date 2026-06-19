@@ -30,7 +30,6 @@ import { EditorNodeChoice } from './cmpts/ChoiceNodeComponent';
 import { EditorNodeEnd } from './cmpts/EndNodeComponent';
 import { EditChoiceNodeModal } from './modals/EditChoiceNodeModal';
 import { EditEndNodeModal } from './modals/EditEndNodeModal';
-import { EventRunnerModal } from './eventRunner/EventRunnerModal';
 import { EditorNodeComment } from './cmpts/CommentNodeComponent';
 import { EditCommentModal } from './modals/EditCommentModal';
 
@@ -65,8 +64,6 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
   const [editingEndNode, setEditingEndNode] = useState<
     EditorNodeEnd | undefined
   >(undefined);
-
-  const [eventRunnerModalOpen, setEventRunnerModalOpen] = useState(false);
 
   // hack im lazy
   (window as any).reRenderSpecialEventEditor = reRender;

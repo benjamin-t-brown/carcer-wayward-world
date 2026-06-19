@@ -18,7 +18,7 @@ struct StringEvaluatorFuncs {
   void SET_STR(const std::string& a, const std::string& b);
   void SETUP_DISPOSITION(const std::string& characterName);
   void START_QUEST(const std::string& questName);
-  void ADVANCE_QUEST(const std::string& questName, const std::string& stepId);
+  void COMPLETE_QUEST_STEP(const std::string& questName, const std::string& stepId);
   void COMPLETE_QUEST(const std::string& questName);
   void SPAWN_CH(const std::string& chName);
   void DESPAWN_CH(const std::string& chName);

@@ -62,8 +62,10 @@ struct ItemTemplate {
   int weight = 0;
   int value = 0;
   bool stackable = false;
+  bool indestructable = false;
   ItemUsability itemUsability = ItemUsability::NOT_USABLE;
   std::optional<ItemUseAbilityConfig> useAbility;
+  std::optional<std::string> useSpecialEvent;
   std::vector<std::string> statusEffectNames;
   std::optional<ItemWeaponConfig> weapon;
 };

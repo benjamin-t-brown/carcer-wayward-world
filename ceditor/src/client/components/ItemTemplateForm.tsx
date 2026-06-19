@@ -6,41 +6,26 @@ import { Button } from '../elements/Button';
 import { SpritePicker } from '../elements/SpritePicker';
 import {
   ItemTemplate,
+  ItemType,
+  ItemUsability,
+  ItemStatusEffectRef,
+  ITEM_TYPES,
+  ITEM_USABILITIES,
   isItemUsable,
   isWeaponItemType,
 } from '../types/assets';
 import { useAssets } from '../contexts/AssetsContext';
 import { ItemWeaponFields } from './ItemWeaponFields';
 import { ItemUseAbilityFields } from './ItemUseAbilityFields';
+import { ItemUseSpecialEventFields } from './ItemUseSpecialEventFields';
 import { EditorEmptyState } from './EditorEmptyState';
 
 // Re-export for backward compatibility
 export type { ItemTemplate };
 
-const ITEM_TYPES = [
-  'WEAPON_MELEE',
-  'WEAPON_MELEE_2H',
-  'WEAPON_RANGED',
-  'WEAPON_AMMO',
-  'SHIELD',
-  'GARB',
-  'PANTS',
-  'GLOVES',
-  'HAT',
-  'SHOES',
-  'NECKLACE',
-  'POTION',
-  'UTILITY',
-];
-
-const ITEM_USABILITY_TYPES = [
-  'NOT_USABLE',
-  'USABLE_EVERYWHERE',
-  'USABLE_TOWN_ONLY',
-  'USABLE_COMBAT_ONLY',
-  'USABLE_OUTSIDE_ONLY',
-  'USABLE_TOWN_AND_COMBAT',
-];
+function getStatusEffectName(ref: ItemStatusEffectRef): string {
+  return typeof ref === 'string' ? ref : ref.name;
+}
 
 interface ItemTemplateFormProps {
   item?: ItemTemplate;
@@ -57,6 +42,7 @@ export function createDefaultItem(): ItemTemplate {
     weight: 1,
     value: 1,
     stackable: false,
+    indestructable: false,
     itemUsability: 'NOT_USABLE',
     statusEffects: [],
   };
@@ -123,15 +109,16 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
             label="Item Type"
             value={formData.itemType}
             onChange={(value) => {
-              const next = { ...formData, itemType: value };
+              const itemType = value as ItemType;
+              const next = { ...formData, itemType };
               if (
-                isWeaponItemType(value) &&
+                isWeaponItemType(itemType) &&
                 !isWeaponItemType(formData.itemType) &&
                 !next.weapon
               ) {
                 next.weapon = { abilityName: '' };
               }
-              if (!isWeaponItemType(value)) {
+              if (!isWeaponItemType(itemType)) {
                 delete next.weapon;
               }
               setFormData(next);
@@ -236,35 +223,80 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
             </label>
           </div>
 
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              margin: '8px 0',
+            }}
+          >
+            <input
+              id="item-indestructable"
+              name="indestructable"
+              type="checkbox"
+              checked={formData.indestructable === true}
+              onChange={(e) => updateField('indestructable', e.target.checked)}
+              style={{ cursor: 'pointer', transform: 'scale(1.5)translateX(2px)' }}
+            />
+            <label htmlFor="item-indestructable" style={{ marginBottom: 0 }}>
+              Indestructable
+            </label>
+          </div>
+
           <div className="form-subsection">
             <h4>Usability</h4>
-            <div className="form-fields-inline">
+            <div className="form-fields-inline" style={{ marginBottom: '10px' }}>
               <OptionSelect
                 id="item-usability"
                 name="itemUsability"
                 label="Where Usable"
                 value={formData.itemUsability || 'NOT_USABLE'}
                 onChange={(value) => {
-                  const next = { ...formData, itemUsability: value };
-                  if (!isItemUsable(value)) {
+                  const itemUsability = value as ItemUsability;
+                  const next = { ...formData, itemUsability };
+                  if (!isItemUsable(itemUsability)) {
                     delete next.useAbility;
-                  } else if (!next.useAbility) {
+                    delete next.useSpecialEvent;
+                  } else if (!next.useAbility && !next.useSpecialEvent) {
                     next.useAbility = { abilityName: '' };
                   }
                   setFormData(next);
                 }}
-                options={ITEM_USABILITY_TYPES.map((type) => ({
+                options={ITEM_USABILITIES.map((type) => ({
                   value: type,
                   label: type,
                 }))}
               />
             </div>
             {isItemUsable(formData.itemUsability) ? (
-              <ItemUseAbilityFields
-                useAbility={formData.useAbility}
-                onChange={(useAbility) => updateField('useAbility', useAbility)}
-                idPrefix={`item-${formData.name || 'new'}-use`}
-              />
+              <>
+                <ItemUseAbilityFields
+                  useAbility={formData.useAbility}
+                  onChange={(useAbility) => {
+                    const next = { ...formData, useAbility };
+                    if (useAbility?.abilityName) {
+                      delete next.useSpecialEvent;
+                    }
+                    setFormData(next);
+                  }}
+                  idPrefix={`item-${formData.name || 'new'}-use`}
+                />
+                <ItemUseSpecialEventFields
+                  useSpecialEvent={formData.useSpecialEvent}
+                  onChange={(useSpecialEvent) => {
+                    const next = { ...formData };
+                    if (useSpecialEvent) {
+                      next.useSpecialEvent = useSpecialEvent;
+                      delete next.useAbility;
+                    } else {
+                      delete next.useSpecialEvent;
+                    }
+                    setFormData(next);
+                  }}
+                  idPrefix={`item-${formData.name || 'new'}-use`}
+                />
+              </>
             ) : null}
           </div>
 
@@ -279,11 +311,11 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
           <div className="form-subsection">
             <h4>Status Effects (while equipped)</h4>
             <div id="status-effects-list">
-              {formData.statusEffects?.map((effectName, index) => (
+              {formData.statusEffects?.map((effectRef, index) => (
                 <div key={index} className="status-effect-item">
                   <div className="status-effect-header">
                     <OptionSelect
-                      value={effectName}
+                      value={getStatusEffectName(effectRef)}
                       onChange={(value) => updateStatusEffect(index, value)}
                       options={statusEffectTemplates.map((template) => ({
                         value: template.name,

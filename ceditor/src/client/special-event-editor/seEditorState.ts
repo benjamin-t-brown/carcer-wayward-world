@@ -442,8 +442,8 @@ export const zoomPanzoom = (
 
   if (nextScale > 10) {
     nextScale = 10;
-  } else if (nextScale < 0.5) {
-    nextScale = 0.5;
+  } else if (nextScale < 0.25) {
+    nextScale = 0.25;
   }
 
   const offsetX =

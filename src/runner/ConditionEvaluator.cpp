@@ -271,33 +271,23 @@ bool ConditionEvaluator::evalFunc(const std::string& funcName,
     assertFuncArgs(funcName, funcArgs, 1);
     std::string a = simplifyArg(funcArgs[0]);
     return funcs.ONCE(a);
-  } else if (funcName == "FUNC") {
+  } else if (funcName == "HAS_ITEM") {
     assertFuncArgs(funcName, funcArgs, 1);
-    std::string subFuncName = simplifyArg(funcArgs[0]);
-    if (subFuncName == "HasItem") {
-      assertFuncArgs(funcName + "." + subFuncName, funcArgs, 2);
-      std::string itemName = simplifyArg(funcArgs[1]);
-      return funcs.FUNC_HasItem(itemName);
-    }
-    if (subFuncName == "QuestStarted") {
-      assertFuncArgs(funcName + "." + subFuncName, funcArgs, 2);
-      std::string questName = simplifyArg(funcArgs[1]);
-      return funcs.FUNC_QuestStarted(questName);
-    }
-    if (subFuncName == "QuestCompleted") {
-      assertFuncArgs(funcName + "." + subFuncName, funcArgs, 2);
-      std::string questName = simplifyArg(funcArgs[1]);
-      return funcs.FUNC_QuestCompleted(questName);
-    }
-    if (subFuncName == "QuestStepEq") {
-      assertFuncArgs(funcName + "." + subFuncName, funcArgs, 3);
-      std::string questName = simplifyArg(funcArgs[1]);
-      std::string stepId = simplifyArg(funcArgs[2]);
-      return funcs.FUNC_QuestStepEq(questName, stepId);
-    } else {
-      throw std::runtime_error("Conditional FUNC sub function '" + subFuncName +
-                               "' not found.");
-    }
+    std::string itemName = simplifyArg(funcArgs[0]);
+    return funcs.FUNC_HasItem(itemName);
+  } else if (funcName == "QUEST_IS_STARTED") {
+    assertFuncArgs(funcName, funcArgs, 1);
+    std::string questName = simplifyArg(funcArgs[0]);
+    return funcs.FUNC_QuestStarted(questName);
+  } else if (funcName == "QUEST_IS_COMPLETE") {
+    assertFuncArgs(funcName, funcArgs, 1);
+    std::string questName = simplifyArg(funcArgs[0]);
+    return funcs.FUNC_QuestCompleted(questName);
+  } else if (funcName == "QUEST_STEP_EQ") {
+    assertFuncArgs(funcName, funcArgs, 2);
+    std::string questName = simplifyArg(funcArgs[0]);
+    std::string stepNum = simplifyArg(funcArgs[1]);
+    return funcs.FUNC_QuestStepEq(questName, stepNum);
   }
   throw std::runtime_error("Conditional function '" + funcName + "' not found.");
   return false;

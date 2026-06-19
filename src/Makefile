@@ -163,7 +163,7 @@ ifeq ($(TARGET),wasm)
     EXE_SUFFIX = .js
     CXX = em++
 else
-    FLAGS = -O0 -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -fno-omit-frame-pointer
+    FLAGS = -Og -fuse-ld=lld -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -fno-omit-frame-pointer
     ifndef CXX
         CXX = g++
     endif

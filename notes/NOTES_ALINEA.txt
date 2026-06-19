@@ -47,6 +47,6 @@ Bandits: The bandits blocking the northern road are the remains of a merchant fa
 
 Cave: There's a small cave nearby that holds a weapons cache/bunker that has apparently been set aside by Captain Mullen in case of Blackrose Uprising where he could hold out until some of the Terraveil arrive.  This cave is guarded by a group of malfunctioning Realm Golems.
 
-The bandits have destroyed the bridge to the north as a sign of defiance to the Guildimarch estate.  The north road leads to Boarmark, a small trading hub that the Guildimarch use to coordinate shipments.
+The bandits have destroyed the bridge to the north as a sign of defiance to the Guildimarch estate.  The north road leads to Boramark, a small trading hub that the Guildimarch use to coordinate shipments.
 
 If you break into one of the warehouses that contains magical items, something has gone wrong.  You get into a magical encounter which you can flee or fight.  If you flee, you do not get implicated in the break in, if you fight, you lose favor with Nobility

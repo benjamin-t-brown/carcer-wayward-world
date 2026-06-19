@@ -143,6 +143,19 @@ static std::optional<model::GameEventChild> parseGameEventChild(const nlohmann::
         if (choiceJson.contains("next") && choiceJson["next"].is_string()) {
           choice.next = choiceJson["next"];
         }
+        if (choiceJson.contains("switchText") && choiceJson["switchText"].is_array()) {
+          for (const auto& switchTextJson : choiceJson["switchText"]) {
+            model::ChoiceSwitchText switchText;
+            if (switchTextJson.contains("conditionStr") &&
+                switchTextJson["conditionStr"].is_string()) {
+              switchText.conditionStr = switchTextJson["conditionStr"];
+            }
+            if (switchTextJson.contains("text") && switchTextJson["text"].is_string()) {
+              switchText.text = switchTextJson["text"];
+            }
+            choice.switchText.push_back(switchText);
+          }
+        }
         choiceNode.choices.push_back(choice);
       }
     }

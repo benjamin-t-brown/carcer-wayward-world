@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM Build portraits0.png from port_*.png files using ImageMagick.
+REM Build portraits0.png from port_*.png / port_*.pdn files using ImageMagick.
 REM Delegates to build-portraits-spritesheet.sh (Git Bash).
 
 set "SCRIPT_DIR=%~dp0"

@@ -15,6 +15,9 @@ std::optional<std::string>
 getStorage(const std::unordered_map<std::string, std::string>& storage,
            const std::string& key);
 
+// Split exec/eval strings into statements (newlines or semicolons, not inside parens)
+std::vector<std::string> splitExecStatements(const std::string& str);
+
 // Helper to split string by delimiter
 std::vector<std::string> splitString(const std::string& str, char delimiter);
 

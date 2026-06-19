@@ -81,7 +81,7 @@ void StringEvaluatorFuncs::START_QUEST(const std::string& questName) {
   // noop
 }
 
-void StringEvaluatorFuncs::ADVANCE_QUEST(const std::string& questName,
+void StringEvaluatorFuncs::COMPLETE_QUEST_STEP(const std::string& questName,
                                          const std::string& stepId) {
   // noop
 }
@@ -176,9 +176,9 @@ void StringEvaluator::evalStr(const std::string& str) {
     } else if (call.funcName == "START_QUEST") {
       assertFuncArgs(call.funcName, call.args, 1);
       funcs.START_QUEST(call.args[0]);
-    } else if (call.funcName == "ADVANCE_QUEST") {
+    } else if (call.funcName == "COMPLETE_QUEST_STEP") {
       assertFuncArgs(call.funcName, call.args, 2);
-      funcs.ADVANCE_QUEST(call.args[0], call.args[1]);
+      funcs.COMPLETE_QUEST_STEP(call.args[0], call.args[1]);
     } else if (call.funcName == "COMPLETE_QUEST") {
       assertFuncArgs(call.funcName, call.args, 1);
       funcs.COMPLETE_QUEST(call.args[0]);

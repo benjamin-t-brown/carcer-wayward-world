@@ -39,15 +39,15 @@ LayerInventory::LayerInventory(sdl2w::Window* _window) : Layer(_window, LAYER_ID
   syncInventoryPartyMember();
 
   subscribeAction<state::actions::UiSetCurrentPartyMemberInventory>(
-      [this](...) { syncInventoryPartyMember(); });
+      [this](auto&, auto&) { syncInventoryPartyMember(); });
   subscribeAction<state::actions::UiReorderInventoryItem>(
-      [this](...) { syncInventoryPartyMember(); });
+      [this](auto&, auto&) { syncInventoryPartyMember(); });
   subscribeAction<state::actions::UiToggleEquipInventoryItem>(
-      [this](...) { syncInventoryPartyMember(); });
+      [this](auto&, auto&) { syncInventoryPartyMember(); });
   subscribeAction<state::actions::UiGiveInventoryItem>(
-      [this](...) { syncInventoryPartyMember(); });
+      [this](auto&, auto&) { syncInventoryPartyMember(); });
   subscribeAction<state::actions::UiDropInventoryItem>(
-      [this](...) { syncInventoryPartyMember(); });
+      [this](auto&, auto&) { syncInventoryPartyMember(); });
 }
 
 void LayerInventory::syncInventoryPartyMember() {
