@@ -1,4 +1,4 @@
-#include "LoadCombatJson.h"
+#include "LoadAbilityJson.h"
 #include <stdexcept>
 
 namespace db {
@@ -206,13 +206,13 @@ model::AbilityDepiction parseAbilityDepiction(const nlohmann::json& json) {
     throw std::runtime_error("AbilityDepiction missing dmgAnim");
   }
   depiction.dmgAnim = json["dmgAnim"];
-  if (json.contains("projectileHasFacing") && json["projectileHasFacing"].is_boolean()) {
-    depiction.projectileHasFacing = json["projectileHasFacing"];
+  if (json.contains("projectileType") && json["projectileType"].is_string()) {
+    depiction.projectileType = model::projectileTypeFromString(json["projectileType"]);
+  } else if (json.contains("projectileAnim") && json["projectileAnim"].is_string()) {
+    depiction.projectileType = model::projectileTypeFromAnimName(json["projectileAnim"]);
+  } else {
+    throw std::runtime_error("AbilityDepiction missing projectileType");
   }
-  if (!json.contains("projectileAnim") || !json["projectileAnim"].is_string()) {
-    throw std::runtime_error("AbilityDepiction missing projectileAnim");
-  }
-  depiction.projectileAnim = json["projectileAnim"];
   if (!json.contains("projectilePath") || !json["projectilePath"].is_string()) {
     throw std::runtime_error("AbilityDepiction missing projectilePath");
   }

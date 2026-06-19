@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+
+Begin every assistant message with exactly one first line identifying the model in use, in this form: Model: <name>

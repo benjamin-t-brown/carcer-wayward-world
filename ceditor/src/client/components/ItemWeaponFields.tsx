@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 import { SearchSelect } from '../elements/SearchSelect';
-import { AbilityAttackDmgFields } from './combat/CombatFormFields';
+import { AbilityAttackDmgFields } from './ability/AbilityFormFields';
 import { useAssets } from '../contexts/AssetsContext';
 import {
   ItemWeaponConfig,
   resolveItemWeaponDmgOverrides,
 } from '../types/assets';
-import { AbilityAttackDmg, mergeAbilityAttackDmg } from '../types/combat';
+import { AbilityAttackDmg, mergeAbilityAttackDmg } from '../types/ability';
 
 interface ItemWeaponFieldsProps {
   weapon: ItemWeaponConfig | undefined;

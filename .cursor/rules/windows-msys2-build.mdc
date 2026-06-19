@@ -1,0 +1,21 @@
+---
+description: Windows native builds use MSYS2 UCRT64
+alwaysApply: true
+---
+
+# Windows Build Environment (MSYS2 UCRT64)
+
+On Windows, the agent shell is PowerShell. Do **not** run `make`, `gcc`, or `scripts/*.sh` directly in PowerShell.
+
+Run native C++ builds and bash scripts through MSYS2 **UCRT64** using the repo wrapper from the repo root:
+
+```powershell
+.\scripts\Invoke-Ucrt64.ps1 "cd src && make -j8"
+.\scripts\Invoke-Ucrt64.ps1 "cd src && make run"
+.\scripts\Invoke-Ucrt64.ps1 "./scripts/compile-commands.sh"
+.\scripts\Invoke-Ucrt64.ps1 "./scripts/update-translations.sh"
+```
+
+MSYS2 root defaults to `C:\progs\msys2`. Override with the `MSYS2_ROOT` environment variable if installed elsewhere.
+
+Use UCRT64 toolchain paths (e.g. `C:\progs\msys2\ucrt64\bin`) for gdb and related tools, matching `.vscode/launch.json`.

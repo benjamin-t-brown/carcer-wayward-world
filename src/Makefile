@@ -6,12 +6,12 @@ MAIN_ALL=main.cpp
 CODE=\
 db/Database.cpp \
 db/loaders/LoadItemTemplates.cpp \
-db/loaders/LoadCombatJson.cpp \
+db/loaders/LoadAbilityJson.cpp \
 db/loaders/LoadAbilityTemplates.cpp \
 db/loaders/LoadStatusEffectTemplates.cpp \
 db/loaders/LoadCharacterTemplates.cpp \
 db/loaders/LoadMapTemplates.cpp \
-model/templates/CombatTypes.cpp \
+model/templates/AbilityTypes.cpp \
 db/loaders/LoadSpecialEvents.cpp \
 layers/Layer.cpp \
 layers/LayerManager.cpp \
@@ -119,6 +119,7 @@ LIB_DEPENDS := $(patsubst %.cpp,%.d,$(LIB_CODE))
 
 SDL2W_STAMP = $(SDL2W_DIR_NAME)/.source_ok
 SDL2W_LIB = lib/sdl2w/libsdl2w.a
+LIBCARCER = lib/libcarcer.a
 
 # Subset of Emscripten port flags: needed when compiling sdl2w to .o (static lib), not only at final link.
 EMCC_SDL_PORTS=\
@@ -162,6 +163,7 @@ ifeq ($(TARGET),wasm)
     LIBS += $(EMCC_LIBS) $(EMCC_EXPORTED) --preload-file assets
     EXE_SUFFIX = .js
     CXX = em++
+    AR = emar
 else
     FLAGS = -Og -fuse-ld=lld -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -fno-omit-frame-pointer
     ifndef CXX
@@ -181,15 +183,28 @@ else
     ifeq ($(DEBUG),true)
         FLAGS += -g
     endif
+    ifndef AR
+        AR = ar
+    endif
 endif
 
-.PHONY: all sdl2w_wasm sdl2w-rebuild _copy_sdl2w_artifacts
+COMPILER_LINK_INPUTS = $(LIBCARCER)
+
+SOURCES = $(CODE) $(LIB_CODE) $(MAIN_ALL)
+
+.PHONY: all sdl2w sdl2w_wasm sdl2w_rebuild _copy_sdl2w_artifacts libcarcer print_cxx print_sources print_compile_flags print_compile_db
 
 all: sdl2w
 	$(MAKE) $(EXE)
 
-$(EXE): $(OBJECTS) $(LIB_OBJECTS) $(MAIN_ALL_OBJECT) $(SDL2W_LIB)
-	$(CXX) $(FLAGS) $(INCLUDES) $(MAIN_ALL_OBJECT) $(OBJECTS) $(LIB_OBJECTS) -o $(EXE)$(EXE_SUFFIX) $(LIBS)
+$(LIBCARCER): $(OBJECTS) $(LIB_OBJECTS)
+	@mkdir -p lib
+	$(AR) rcs $@ $(OBJECTS) $(LIB_OBJECTS)
+
+libcarcer: $(LIBCARCER)
+
+$(EXE): $(MAIN_ALL_OBJECT) $(LIBCARCER) $(SDL2W_LIB)
+	$(CXX) $(FLAGS) $(INCLUDES) $(MAIN_ALL_OBJECT) $(LIBCARCER) -o $(EXE)$(EXE_SUFFIX) $(LIBS)
 
 # Convenience alias: builds $(SDL2W_LIB) only when needed (see rule below).
 sdl2w: $(SDL2W_LIB)
@@ -225,9 +240,24 @@ _copy_sdl2w_artifacts:
 	@cp $(SDL2W_BUILD_OUTPUT_DIR)/include/*.h lib/sdl2w
 
 compiler_args:
-	@echo $(FLAGS) $(INCLUDES) $(OBJECTS) $(LIB_OBJECTS) $(LIBS)
+	@echo $(FLAGS) $(INCLUDES) $(COMPILER_LINK_INPUTS) $(LIBS)
 
-object_files: $(OBJECTS) $(LIB_OBJECTS)
+print_cxx:
+	@echo $(CXX)
+
+print_sources:
+	@printf '%s\n' $(SOURCES)
+
+print_compile_flags:
+	@echo $(FLAGS) $(INCLUDES)
+
+# Single-shot metadata dump for scripts/compile-commands.sh (avoids multiple make subprocesses).
+print_compile_db:
+	@printf 'CXX:%s\n' '$(CXX)'
+	@printf 'FLAGS:%s\n' '$(FLAGS) $(INCLUDES)'
+	@for src in $(SOURCES); do printf 'SOURCE:%s\n' "$$src"; done
+
+object_files: $(LIBCARCER)
 
 -include $(DEPENDS)
 -include $(LIB_DEPENDS)
@@ -249,6 +279,7 @@ debug:
 
 clean:
 	rm -f $(OBJECTS) $(LIB_OBJECTS) $(MAIN_ALL_OBJECT)
+	rm -f $(LIBCARCER)
 	rm -f $(DEPENDS) $(LIB_DEPENDS)
 	rm -f $(EXE) $(EXE).exe
 	rm -rf main.d

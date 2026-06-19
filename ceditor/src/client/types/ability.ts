@@ -1,5 +1,5 @@
-// Combat ability / status effect schema.
-// C++ mirrors most of this in model/templates/CombatTypes.h, Abilities.h, StatusEffects.h.
+// Ability / status effect schema.
+// C++ mirrors most of this in model/templates/AbilityTypes.h, Abilities.h, StatusEffects.h.
 // Where ceditor and C++ diverge, ceditor types reflect the JSON on disk (source of truth).
 
 export type StatusEffectCondition =
@@ -91,6 +91,91 @@ export type ProjectilePath =
   | 'PROJECTILE_PATH_TALL'
   | 'PROJECTILE_PATH_NONE';
 
+/** Projectile sprites from assets.game.txt (projectiles sheet). */
+export type ProjectileType =
+  | 'PROJECTILE_NONE'
+  | 'DOT_RED'
+  | 'DOT_WHITE'
+  | 'DOT_BLUE'
+  | 'DOT_BIG_YELLOW'
+  | 'COMET_BLUE'
+  | 'COMET_RED'
+  | 'COMET_GREEN'
+  | 'ARROW_FIRE'
+  | 'ARROW_NORMAL';
+
+export const PROJECTILE_TYPES: ProjectileType[] = [
+  'PROJECTILE_NONE',
+  'DOT_RED',
+  'DOT_WHITE',
+  'DOT_BLUE',
+  'DOT_BIG_YELLOW',
+  'COMET_BLUE',
+  'COMET_RED',
+  'COMET_GREEN',
+  'ARROW_FIRE',
+  'ARROW_NORMAL',
+];
+
+const PROJECTILE_TYPES_WITH_FACING: ReadonlySet<ProjectileType> = new Set([
+  'COMET_BLUE',
+  'COMET_RED',
+  'COMET_GREEN',
+  'ARROW_FIRE',
+  'ARROW_NORMAL',
+]);
+
+export function projectileTypeHasFacing(projectile: ProjectileType): boolean {
+  return PROJECTILE_TYPES_WITH_FACING.has(projectile);
+}
+
+/** Base animation name for a projectile (e.g. ARROW_NORMAL → arrow_normal). */
+export function projectileTypeToAnimBase(projectile: ProjectileType): string {
+  switch (projectile) {
+    case 'PROJECTILE_NONE':
+      return '';
+    case 'DOT_RED':
+      return 'dot_red';
+    case 'DOT_WHITE':
+      return 'dot_white';
+    case 'DOT_BLUE':
+      return 'dot_blue';
+    case 'DOT_BIG_YELLOW':
+      return 'dot_big_yellow';
+    case 'COMET_BLUE':
+      return 'comet_blue';
+    case 'COMET_RED':
+      return 'comet_red';
+    case 'COMET_GREEN':
+      return 'comet_green';
+    case 'ARROW_FIRE':
+      return 'arrow_fire';
+    case 'ARROW_NORMAL':
+      return 'arrow_normal';
+  }
+}
+
+/** Accept enum values or legacy projectileAnim strings from older JSON. */
+export function normalizeProjectileType(value: string | undefined): ProjectileType {
+  if (!value) {
+    return 'PROJECTILE_NONE';
+  }
+  if (PROJECTILE_TYPES.includes(value as ProjectileType)) {
+    return value as ProjectileType;
+  }
+  const anim = value.toLowerCase();
+  for (const type of PROJECTILE_TYPES) {
+    if (type === 'PROJECTILE_NONE') {
+      continue;
+    }
+    const base = projectileTypeToAnimBase(type);
+    if (anim === base || anim.startsWith(`${base}_`)) {
+      return type;
+    }
+  }
+  return 'PROJECTILE_NONE';
+}
+
 export type DamageType =
   | 'DAMAGE_TYPE_EDGED'
   | 'DAMAGE_TYPE_BASHING'
@@ -143,8 +228,7 @@ export interface StatusEffectEvent {
 
 export interface AbilityDepiction {
   dmgAnim: string;
-  projectileHasFacing?: boolean;
-  projectileAnim: string;
+  projectileType: ProjectileType;
   projectilePath: ProjectilePath;
   startSound: string;
   dmgSound: string;
@@ -416,8 +500,7 @@ export function createDefaultTargetSelectInfo(): TargetSelectInfo {
 export function createDefaultAbilityDepiction(): AbilityDepiction {
   return {
     dmgAnim: '',
-    projectileHasFacing: false,
-    projectileAnim: '',
+    projectileType: 'PROJECTILE_NONE',
     projectilePath: 'PROJECTILE_PATH_NONE',
     startSound: '',
     dmgSound: '',
@@ -443,13 +526,22 @@ export function setAbilityDepictionHasProjectile(
   if (!hasProjectile) {
     return {
       ...depiction,
-      projectileHasFacing: false,
-      projectileAnim: '',
+      projectileType: 'PROJECTILE_NONE',
       projectilePath: 'PROJECTILE_PATH_NONE',
     };
   }
   if (depiction.projectilePath === 'PROJECTILE_PATH_NONE') {
-    return { ...depiction, projectilePath: 'PROJECTILE_PATH_SHORT' };
+    return {
+      ...depiction,
+      projectileType:
+        depiction.projectileType === 'PROJECTILE_NONE'
+          ? 'DOT_RED'
+          : depiction.projectileType,
+      projectilePath: 'PROJECTILE_PATH_SHORT',
+    };
+  }
+  if (depiction.projectileType === 'PROJECTILE_NONE') {
+    return { ...depiction, projectileType: 'DOT_RED' };
   }
   return depiction;
 }
@@ -460,16 +552,14 @@ export function sanitizeAbilityDepiction(
   animationMap: Record<string, unknown>,
   soundMap: Record<string, unknown>,
 ): AbilityDepiction {
+  const projectileType = normalizeProjectileType(depiction.projectileType);
   return {
     ...depiction,
     dmgAnim:
       depiction.dmgAnim && depiction.dmgAnim in animationMap
         ? depiction.dmgAnim
         : '',
-    projectileAnim:
-      depiction.projectileAnim && depiction.projectileAnim in animationMap
-        ? depiction.projectileAnim
-        : '',
+    projectileType,
     startSound:
       depiction.startSound && depiction.startSound in soundMap
         ? depiction.startSound

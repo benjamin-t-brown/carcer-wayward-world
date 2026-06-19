@@ -59,14 +59,16 @@ try {
 // Compile test
 console.log('compile test');
 let compilerArgs;
+let cxx;
 try {
   compilerArgs = execSync('make compiler_args', { cwd: SRC_DIR, encoding: 'utf8' }).trim();
+  cxx = execSync('make print_cxx', { cwd: SRC_DIR, encoding: 'utf8' }).trim();
 } catch (err) {
   console.error('Failed to get compiler args');
   process.exit(1);
 }
 
-const COMPILE_TEST = `g++ __test__/${PARENT_FOLDER}/${TEST_FOLDER}/${TEST_FILE_NAME}.cpp ${compilerArgs} -o ${TEST_EXE_NAME}`;
+const COMPILE_TEST = `${cxx} __test__/${PARENT_FOLDER}/${TEST_FOLDER}/${TEST_FILE_NAME}.cpp ${compilerArgs} -o ${TEST_EXE_NAME}`;
 console.log(COMPILE_TEST);
 
 try {

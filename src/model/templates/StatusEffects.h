@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/templates/CombatTypes.h"
+#include "model/templates/AbilityTypes.h"
 #include <optional>
 #include <string>
 #include <vector>

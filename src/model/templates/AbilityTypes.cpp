@@ -1,4 +1,4 @@
-#include "model/templates/CombatTypes.h"
+#include "model/templates/AbilityTypes.h"
 #include <stdexcept>
 
 namespace model {
@@ -487,6 +487,142 @@ std::string projectilePathToString(ProjectilePath value) {
     return "PROJECTILE_PATH_NONE";
   }
   throw std::runtime_error("Unknown ProjectilePath");
+}
+
+bool projectileTypeHasFacing(ProjectileType value) {
+  switch (value) {
+  case ProjectileType::COMET_BLUE:
+  case ProjectileType::COMET_RED:
+  case ProjectileType::COMET_GREEN:
+  case ProjectileType::ARROW_FIRE:
+  case ProjectileType::ARROW_NORMAL:
+    return true;
+  case ProjectileType::PROJECTILE_NONE:
+  case ProjectileType::DOT_RED:
+  case ProjectileType::DOT_WHITE:
+  case ProjectileType::DOT_BLUE:
+  case ProjectileType::DOT_BIG_YELLOW:
+    return false;
+  }
+  throw std::runtime_error("Unknown ProjectileType");
+}
+
+std::string projectileTypeToAnimBase(ProjectileType value) {
+  switch (value) {
+  case ProjectileType::PROJECTILE_NONE:
+    return "";
+  case ProjectileType::DOT_RED:
+    return "dot_red";
+  case ProjectileType::DOT_WHITE:
+    return "dot_white";
+  case ProjectileType::DOT_BLUE:
+    return "dot_blue";
+  case ProjectileType::DOT_BIG_YELLOW:
+    return "dot_big_yellow";
+  case ProjectileType::COMET_BLUE:
+    return "comet_blue";
+  case ProjectileType::COMET_RED:
+    return "comet_red";
+  case ProjectileType::COMET_GREEN:
+    return "comet_green";
+  case ProjectileType::ARROW_FIRE:
+    return "arrow_fire";
+  case ProjectileType::ARROW_NORMAL:
+    return "arrow_normal";
+  }
+  throw std::runtime_error("Unknown ProjectileType");
+}
+
+ProjectileType projectileTypeFromString(const std::string& value) {
+  if (value == "PROJECTILE_NONE") {
+    return ProjectileType::PROJECTILE_NONE;
+  }
+  if (value == "DOT_RED") {
+    return ProjectileType::DOT_RED;
+  }
+  if (value == "DOT_WHITE") {
+    return ProjectileType::DOT_WHITE;
+  }
+  if (value == "DOT_BLUE") {
+    return ProjectileType::DOT_BLUE;
+  }
+  if (value == "DOT_BIG_YELLOW") {
+    return ProjectileType::DOT_BIG_YELLOW;
+  }
+  if (value == "COMET_BLUE") {
+    return ProjectileType::COMET_BLUE;
+  }
+  if (value == "COMET_RED") {
+    return ProjectileType::COMET_RED;
+  }
+  if (value == "COMET_GREEN") {
+    return ProjectileType::COMET_GREEN;
+  }
+  if (value == "ARROW_FIRE") {
+    return ProjectileType::ARROW_FIRE;
+  }
+  if (value == "ARROW_NORMAL") {
+    return ProjectileType::ARROW_NORMAL;
+  }
+  throw std::runtime_error("Invalid ProjectileType: " + value);
+}
+
+ProjectileType projectileTypeFromAnimName(const std::string& animName) {
+  if (animName.empty()) {
+    return ProjectileType::PROJECTILE_NONE;
+  }
+
+  struct ProjectileAnimBase {
+    const char* base;
+    ProjectileType type;
+  };
+
+  static const ProjectileAnimBase bases[] = {
+      {"dot_red", ProjectileType::DOT_RED},
+      {"dot_white", ProjectileType::DOT_WHITE},
+      {"dot_blue", ProjectileType::DOT_BLUE},
+      {"dot_big_yellow", ProjectileType::DOT_BIG_YELLOW},
+      {"comet_blue", ProjectileType::COMET_BLUE},
+      {"comet_red", ProjectileType::COMET_RED},
+      {"comet_green", ProjectileType::COMET_GREEN},
+      {"arrow_fire", ProjectileType::ARROW_FIRE},
+      {"arrow_normal", ProjectileType::ARROW_NORMAL},
+  };
+
+  for (const auto& entry : bases) {
+    const std::string base = entry.base;
+    if (animName == base || animName.starts_with(base + "_")) {
+      return entry.type;
+    }
+  }
+
+  throw std::runtime_error("Invalid projectile anim name: " + animName);
+}
+
+std::string projectileTypeToString(ProjectileType value) {
+  switch (value) {
+  case ProjectileType::PROJECTILE_NONE:
+    return "PROJECTILE_NONE";
+  case ProjectileType::DOT_RED:
+    return "DOT_RED";
+  case ProjectileType::DOT_WHITE:
+    return "DOT_WHITE";
+  case ProjectileType::DOT_BLUE:
+    return "DOT_BLUE";
+  case ProjectileType::DOT_BIG_YELLOW:
+    return "DOT_BIG_YELLOW";
+  case ProjectileType::COMET_BLUE:
+    return "COMET_BLUE";
+  case ProjectileType::COMET_RED:
+    return "COMET_RED";
+  case ProjectileType::COMET_GREEN:
+    return "COMET_GREEN";
+  case ProjectileType::ARROW_FIRE:
+    return "ARROW_FIRE";
+  case ProjectileType::ARROW_NORMAL:
+    return "ARROW_NORMAL";
+  }
+  throw std::runtime_error("Unknown ProjectileType");
 }
 
 } // namespace model

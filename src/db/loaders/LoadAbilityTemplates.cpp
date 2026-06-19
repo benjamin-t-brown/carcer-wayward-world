@@ -1,5 +1,5 @@
 #include "LoadAbilityTemplates.h"
-#include "LoadCombatJson.h"
+#include "LoadAbilityJson.h"
 #include "lib/sdl2w/AssetLoader.h"
 #include "lib/json.hpp"
 #include <stdexcept>

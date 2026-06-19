@@ -1,5 +1,5 @@
 #include "LoadItemTemplates.h"
-#include "db/loaders/LoadCombatJson.h"
+#include "db/loaders/LoadAbilityJson.h"
 #include "lib/sdl2w/AssetLoader.h"
 #include "lib/json.hpp"
 

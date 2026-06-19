@@ -7,7 +7,7 @@ import {
   CarcerMapTemplate,
   MapGridTemplate,
 } from '../types/assets';
-import { AbilityTemplate, StatusEffectTemplate } from '../types/combat';
+import { AbilityTemplate, StatusEffectTemplate } from '../types/ability';
 
 interface AssetsContextType {
   items: ItemTemplate[];

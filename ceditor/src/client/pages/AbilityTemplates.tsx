@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { CardList } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
-import { AbilityTemplate } from '../types/combat';
+import { AbilityTemplate } from '../types/ability';
 import {
   AbilityTemplateForm,
   createDefaultAbilityTemplate,

@@ -12,7 +12,7 @@ import {
   AbilityAttack,
   AbilityStatus,
   AbilityRestore,
-} from '../types/combat';
+} from '../types/ability';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import {
   TargetSelectFields,
@@ -22,7 +22,7 @@ import {
   AbilityRestoreEditor,
   ABILITY_COST_TYPES,
   enumOptions,
-} from './combat/CombatFormFields';
+} from './ability/AbilityFormFields';
 import { useAssets } from '../contexts/AssetsContext';
 import {
   applyWeaponAttackDeleteToItems,
@@ -60,7 +60,7 @@ export function AbilityTemplateForm(props: AbilityTemplateFormProps) {
     );
     if (
       depiction.dmgAnim !== ability.depiction.dmgAnim ||
-      depiction.projectileAnim !== ability.depiction.projectileAnim ||
+      depiction.projectileType !== ability.depiction.projectileType ||
       depiction.startSound !== ability.depiction.startSound ||
       depiction.dmgSound !== ability.depiction.dmgSound
     ) {

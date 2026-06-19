@@ -1,28 +1,135 @@
-[You must attack a weaker monster with this weapon.] {Oportet te monstra imbecilliora hac arma oppugnare.}
-[Use this card to heal?] {Utitur hac tabella ad sanandum?}
-[Are you sure you wish to flee?] {Certus es te velle fugere?}
-[You are defeated.] {Victus es.}
-[You have no weapon.] {Nullam armam habes.}
-[(C)] {(C)}
-[You win!] {Vicis!}
-[Attack with which weapon?] {Attaquam qua armamentum?}
-[Yes] {Ita}
-[Scoundrel] {Scelestus}
-[(Z)] {(Z)}
-[No] {Non}
-[Press any button to continue.] {Preme aliquem puga ut pergat.}
-[(X)] {(X)}
-[This will replace your current weapon.] {Hoc armam tuam currentem substituet.}
-[Press any button.] {Preme aliquem puga.}
-[Pick up this weapon?] {Hanc armam sumis?}
-[Loading] {Onus}
-[Flee] {Fuge}
-[Wins] {}
-[(Select)] {}
-[You Lose.] {}
-[(RT)] {}
-[(B)] {}
-[(LT)] {}
-[(Y)] {}
-[(Start)] {}
-[(A)] {}
+[ gp] {MISSING!}
+[ lbs] {MISSING!}
+[A two-handed weapon cannot be equipped in the off hand.] {MISSING!}
+[AP: ] {MISSING!}
+[Ability Power] {MISSING!}
+[Ability] {MISSING!}
+[Acrobatics] {MISSING!}
+[Action Points] {MISSING!}
+[Affected by Magic Item Use training.] {MISSING!}
+[Affected by Stealth training.] {MISSING!}
+[Affected by Trickery training.] {MISSING!}
+[Agility] {MISSING!}
+[An item is already equipped.] {MISSING!}
+[Are you sure you wish to drop ] {MISSING!}
+[Armor Class] {MISSING!}
+[Armor Training] {MISSING!}
+[Attack Hit Chance] {MISSING!}
+[Attributes] {MISSING!}
+[Attunement] {MISSING!}
+[Base 0%, plus 1% per Social level.] {MISSING!}
+[Base 0, from Body Mastery training.] {MISSING!}
+[Base 0, from Magic Mastery training.] {MISSING!}
+[Base 0, plus Mind.] {MISSING!}
+[Base 0.] {MISSING!}
+[Base 1, plus Strength.] {MISSING!}
+[Base 1.] {MISSING!}
+[Base 10%, plus Survival training.] {MISSING!}
+[Base 10, plus 5 per Constitution.] {MISSING!}
+[Base 10, plus Magic Mastery and Focus.] {MISSING!}
+[Base 10.] {MISSING!}
+[Base 100%.] {MISSING!}
+[Base 100, reduced by Cooking training.] {MISSING!}
+[Base 100.] {MISSING!}
+[Base 1d4 per level.] {MISSING!}
+[Base 2.] {MISSING!}
+[Base 50%.] {MISSING!}
+[Base none.] {MISSING!}
+[Blunt Weapons] {MISSING!}
+[Body Mastery] {MISSING!}
+[Carrying] {MISSING!}
+[Conditioning] {MISSING!}
+[Confirm] {MISSING!}
+[Constitution] {MISSING!}
+[Cooking] {MISSING!}
+[Damage Reduction] {MISSING!}
+[Day: ] {MISSING!}
+[Defend] {MISSING!}
+[Derived Skills] {MISSING!}
+[Derived] {MISSING!}
+[Done] {MISSING!}
+[Drop] {MISSING!}
+[Each point grants 1 additional base damage to magic spells.] {MISSING!}
+[Each point grants 1 additional base damage to melee weapons.] {MISSING!}
+[Each point grants 5 HP per level.] {MISSING!}
+[Each point raises amount healed from outside sources by 1.] {MISSING!}
+[Each point raises the minimum of every combat dice roll by 1d2 - 1.] {MISSING!}
+[Each point reduces cost of actions by 1 (to a minimum of 1).] {MISSING!}
+[Edged Weapons] {MISSING!}
+[End Fight] {MISSING!}
+[Enemy Vision Range] {MISSING!}
+[Equip] {MISSING!}
+[Examine] {MISSING!}
+[Example Text] {MISSING!}
+[Faith] {MISSING!}
+[First Aid] {MISSING!}
+[Flat damage reduction all around.] {MISSING!}
+[Flat increases mana by 1 point.] {MISSING!}
+[Focus] {MISSING!}
+[Food Consumption Per Day] {MISSING!}
+[Food Consumption] {MISSING!}
+[Food: ] {MISSING!}
+[Get] {MISSING!}
+[Give] {MISSING!}
+[HP] {MISSING!}
+[Healing Eff.] {MISSING!}
+[Healing Effectiveness] {MISSING!}
+[Ingredient Find Chance] {MISSING!}
+[Interact] {MISSING!}
+[Inventory] {MISSING!}
+[Item Usage] {MISSING!}
+[Journal] {MISSING!}
+[Jump Distance] {MISSING!}
+[Jump] {MISSING!}
+[Level up to increase stats and abilities.] {MISSING!}
+[Level] {MISSING!}
+[Lore] {MISSING!}
+[Luck] {MISSING!}
+[Mage Lore] {MISSING!}
+[Magic Item Use] {MISSING!}
+[Magic Mastery] {MISSING!}
+[Magic/Damage] {MISSING!}
+[Mana] {MISSING!}
+[Map] {MISSING!}
+[Materia Slots] {MISSING!}
+[Might/Damage] {MISSING!}
+[Mind] {MISSING!}
+[No] {MISSING!}
+[None] {MISSING!}
+[Percentage-based magic damage increase.] {MISSING!}
+[Pick Up] {MISSING!}
+[Pole Weapons] {MISSING!}
+[Range Weapons] {MISSING!}
+[Reduces length of bad status effects by 1 turn.] {MISSING!}
+[Reduces magical damage by 5% per point.] {MISSING!}
+[Reduces physical damage by 5% per point.] {MISSING!}
+[Resist Magical] {MISSING!}
+[Resist Physical] {MISSING!}
+[Resistances] {MISSING!}
+[Rest] {MISSING!}
+[Shield Bonus] {MISSING!}
+[Shoot] {MISSING!}
+[Skills] {MISSING!}
+[Sneak] {MISSING!}
+[Social] {MISSING!}
+[Spell Potency] {MISSING!}
+[Spell potency, status effect length, and field length. Base 1.] {MISSING!}
+[Spells use this stat to base their damage on, usually as a ratio.] {MISSING!}
+[Start Fight] {MISSING!}
+[Status Effect Shield] {MISSING!}
+[Status] {MISSING!}
+[Stealth] {MISSING!}
+[Strength] {MISSING!}
+[Survival] {MISSING!}
+[Talk] {MISSING!}
+[Too heavy!] {MISSING!}
+[Tool Use] {MISSING!}
+[Trade Discount] {MISSING!}
+[Trickery] {MISSING!}
+[Unarmed] {MISSING!}
+[Unlock] {MISSING!}
+[Use] {MISSING!}
+[Value: ] {MISSING!}
+[Weapon Mastery] {MISSING!}
+[Weight: ] {MISSING!}
+[Yes] {MISSING!}

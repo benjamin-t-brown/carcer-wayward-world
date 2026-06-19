@@ -26,6 +26,7 @@ import {
   DICE_TYPES,
   ATTACK_CLASSES,
   ABILITY_PROJECTILE_PATHS,
+  PROJECTILE_TYPES,
   abilityDepictionHasProjectile,
   setAbilityDepictionHasProjectile,
   ABILITY_COST_TYPES,
@@ -37,13 +38,13 @@ import {
   DAMAGE_TYPES,
   AttackClass,
   attackClassUsesAttackBonus,
-} from '../../types/combat';
+} from '../../types/ability';
 
 function enumOptions<T extends string>(values: T[]) {
   return values.map((value) => ({ value, label: value }));
 }
 
-function CombatListItemRemoveButton({
+function AbilityListItemRemoveButton({
   onRemove,
   ariaLabel,
 }: {
@@ -409,14 +410,12 @@ export function AbilityDepictionFields({
     [animations, value.dmgAnim],
   );
 
-  const projectileAnimOptions = useMemo(
+  const projectileTypeOptions = useMemo(
     () =>
-      assetNameOptions(
-        animations.map((a) => a.name),
-        value.projectileAnim,
-        true,
+      enumOptions(
+        PROJECTILE_TYPES.filter((type) => type !== 'PROJECTILE_NONE'),
       ),
-    [animations, value.projectileAnim],
+    [],
   );
 
   const update = <K extends keyof AbilityDepiction>(
@@ -431,13 +430,15 @@ export function AbilityDepictionFields({
 
   const projectileFields = hasProjectile ? (
     <>
-      <DepictionAnimField
-        id={`${idPrefix}-projectile-anim`}
-        name="projectileAnim"
-        label={compact ? 'Projectile' : 'Projectile Anim'}
-        value={value.projectileAnim}
-        onChange={(v) => update('projectileAnim', v)}
-        options={projectileAnimOptions}
+      <OptionSelect
+        id={`${idPrefix}-projectile-type`}
+        name="projectileType"
+        label={compact ? 'Projectile' : 'Projectile Type'}
+        value={value.projectileType}
+        onChange={(v) =>
+          update('projectileType', v as AbilityDepiction['projectileType'])
+        }
+        options={projectileTypeOptions}
       />
       <OptionSelect
         id={`${idPrefix}-projectile-path`}
@@ -449,14 +450,6 @@ export function AbilityDepictionFields({
         }
         options={projectilePathOptions}
       />
-      <label className="inline-checkbox">
-        <input
-          type="checkbox"
-          checked={value.projectileHasFacing ?? false}
-          onChange={(e) => update('projectileHasFacing', e.target.checked)}
-        />
-        {compact ? 'Has Facing' : 'Projectile Has Facing'}
-      </label>
     </>
   ) : null;
 
@@ -740,7 +733,7 @@ export function AbilityAttackEditor({
           onChange={(v) => updateDmg('attackBonus', v ?? 0)}
           disabled={!attackBonusEnabled}
         />
-        <CombatListItemRemoveButton
+        <AbilityListItemRemoveButton
           onRemove={onRemove}
           ariaLabel="Remove attack"
         />
@@ -821,7 +814,7 @@ export function AbilityStatusEditor({
             idPrefix={`${idPrefix}-save`}
           />
         )}
-        <CombatListItemRemoveButton
+        <AbilityListItemRemoveButton
           onRemove={onRemove}
           ariaLabel="Remove status effect"
         />
@@ -915,7 +908,7 @@ export function AbilityRestoreEditor({
         onChange={onChange}
         idPrefix={idPrefix}
         trailing={
-          <CombatListItemRemoveButton
+          <AbilityListItemRemoveButton
             onRemove={onRemove}
             ariaLabel="Remove restore"
           />
@@ -967,7 +960,7 @@ export function StatusEffectEventEditor({
           }
           options={enumOptions(STATUS_EFFECT_CONDITIONS)}
         />
-        <CombatListItemRemoveButton
+        <AbilityListItemRemoveButton
           onRemove={onRemove}
           ariaLabel="Remove event"
         />
@@ -1011,7 +1004,7 @@ export function ResistanceEditor({
           value={resistance.mod}
           onChange={(v) => onChange({ ...resistance, mod: v ?? 0 })}
         />
-        <CombatListItemRemoveButton
+        <AbilityListItemRemoveButton
           onRemove={onRemove}
           ariaLabel="Remove resistance"
         />
@@ -1105,7 +1098,7 @@ export function StatusEffectActionEditor({
             </a>
           ) : null}
         </div>
-        <CombatListItemRemoveButton
+        <AbilityListItemRemoveButton
           onRemove={onRemove}
           ariaLabel="Remove invoked ability"
         />

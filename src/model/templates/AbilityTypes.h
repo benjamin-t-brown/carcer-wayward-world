@@ -100,6 +100,19 @@ enum class ProjectilePath {
   PROJECTILE_PATH_NONE,
 };
 
+enum class ProjectileType {
+  PROJECTILE_NONE,
+  DOT_RED,
+  DOT_WHITE,
+  DOT_BLUE,
+  DOT_BIG_YELLOW,
+  COMET_BLUE,
+  COMET_RED,
+  COMET_GREEN,
+  ARROW_FIRE,
+  ARROW_NORMAL,
+};
+
 struct TargetSelectInfoPoint {
   int x = 0;
   int y = 0;
@@ -172,8 +185,7 @@ struct AbilityRestore {
 
 struct AbilityDepiction {
   std::string dmgAnim;
-  bool projectileHasFacing = false;
-  std::string projectileAnim;
+  ProjectileType projectileType = ProjectileType::PROJECTILE_NONE;
   ProjectilePath projectilePath = ProjectilePath::PROJECTILE_PATH_NONE;
   std::string startSound;
   std::string dmgSound;
@@ -217,5 +229,11 @@ std::string damageTypeToString(DamageType value);
 
 ProjectilePath projectilePathFromString(const std::string& value);
 std::string projectilePathToString(ProjectilePath value);
+
+bool projectileTypeHasFacing(ProjectileType value);
+std::string projectileTypeToAnimBase(ProjectileType value);
+ProjectileType projectileTypeFromString(const std::string& value);
+ProjectileType projectileTypeFromAnimName(const std::string& animName);
+std::string projectileTypeToString(ProjectileType value);
 
 } // namespace model

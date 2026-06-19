@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { CardList } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
-import { StatusEffectTemplate } from '../types/combat';
+import { StatusEffectTemplate } from '../types/ability';
 import {
   StatusEffectTemplateForm,
   createDefaultStatusEffectTemplate,

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/templates/CombatTypes.h"
+#include "model/templates/AbilityTypes.h"
 #include "lib/json.hpp"
 #include <string>
 #include <vector>

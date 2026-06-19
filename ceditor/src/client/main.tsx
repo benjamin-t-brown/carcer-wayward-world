@@ -24,7 +24,7 @@ import {
   AbilityTemplate,
   sanitizeAbilityTemplates,
   StatusEffectTemplate,
-} from './types/combat';
+} from './types/ability';
 import { normalizeMapItemsOnLoad } from './tile-editor/mapTileItems';
 import { normalizeMapOnLoad } from './utils/mapIndex';
 

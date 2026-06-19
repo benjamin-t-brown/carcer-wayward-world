@@ -3,7 +3,7 @@ import { SearchSelect } from '../elements/SearchSelect';
 import {
   AbilityAttackDmgFields,
   AbilityRestoreFields,
-} from './combat/CombatFormFields';
+} from './ability/AbilityFormFields';
 import { useAssets } from '../contexts/AssetsContext';
 import {
   ItemUseAbilityConfig,
@@ -16,7 +16,7 @@ import {
   AbilityRestore,
   mergeAbilityAttackDmg,
   mergeAbilityRestore,
-} from '../types/combat';
+} from '../types/ability';
 
 interface ItemUseAbilityFieldsProps {
   useAbility: ItemUseAbilityConfig | undefined;

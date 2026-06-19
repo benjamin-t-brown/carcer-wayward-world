@@ -20,8 +20,7 @@
     "costValue": 0,
     "depiction": {
       "dmgAnim": "splash_fire",
-      "projectileHasFacing": false,
-      "projectileAnim": "",
+      "projectileType": "PROJECTILE_NONE",
       "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "",
       "dmgSound": "whip"
@@ -64,8 +63,7 @@
     "costValue": 0,
     "depiction": {
       "dmgAnim": "expl_buff",
-      "projectileHasFacing": false,
-      "projectileAnim": "",
+      "projectileType": "PROJECTILE_NONE",
       "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "",
       "dmgSound": ""
@@ -105,7 +103,7 @@
     "costValue": 0,
     "depiction": {
       "dmgAnim": "splash_attack",
-      "projectileAnim": "",
+      "projectileType": "PROJECTILE_NONE",
       "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "",
       "dmgSound": ""
@@ -148,8 +146,7 @@
     "costValue": 0,
     "depiction": {
       "dmgAnim": "splash_attack",
-      "projectileHasFacing": false,
-      "projectileAnim": "",
+      "projectileType": "PROJECTILE_NONE",
       "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "",
       "dmgSound": ""
@@ -204,11 +201,10 @@
     "costValue": 0,
     "depiction": {
       "dmgAnim": "splash_attack",
-      "projectileAnim": "",
+      "projectileType": "ARROW_NORMAL",
       "projectilePath": "PROJECTILE_PATH_MEDIUM",
       "startSound": "",
-      "dmgSound": "",
-      "projectileHasFacing": true
+      "dmgSound": ""
     },
     "attacks": [
       {

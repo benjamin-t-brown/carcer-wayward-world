@@ -10,13 +10,13 @@ import {
   StatusEffectAction,
   StatsEnum,
   STATS_ENUMS,
-} from '../types/combat';
+} from '../types/ability';
 import {
   StatsFields,
   CurrentStatsFields,
   ResistanceEditor,
   StatusEffectActionEditor,
-} from './combat/CombatFormFields';
+} from './ability/AbilityFormFields';
 import { OptionSelect } from '../elements/OptionSelect';
 import { useAssets } from '../contexts/AssetsContext';
 import { EditorEmptyState } from './EditorEmptyState';

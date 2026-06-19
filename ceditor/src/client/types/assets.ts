@@ -5,8 +5,8 @@ import type {
   AbilityAttackDmg,
   AbilityRestore,
   StatusEffectTemplate,
-} from './combat';
-import { mergeAbilityAttackDmg, mergeAbilityRestore } from './combat';
+} from './ability';
+import { mergeAbilityAttackDmg, mergeAbilityRestore } from './ability';
 
 // ============================================================================
 // Item Templates

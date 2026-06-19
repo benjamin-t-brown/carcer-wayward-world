@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "make (UCRT64)",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/Invoke-Ucrt64.ps1",
+      "args": ["cd src && make -j8"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "compile_commands.json (UCRT64)",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/Invoke-Ucrt64.ps1",
+      "args": ["./scripts/compile-commands.sh"],
+      "problemMatcher": []
+    }
+  ]
+}
