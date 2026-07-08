@@ -1,34 +1,17 @@
 [
   {
     "type": "TOWNSPERSON",
-    "name": "exampleTownsperson",
-    "label": "Example Townsperson",
+    "name": "alinea_Claire",
+    "label": "Dockmaster Claire",
     "spritesheet": "actors0",
-    "spriteOffset": 2,
-    "talk": {
-      "talkName": "talkId",
-      "portraitName": "portraitSprite"
-    },
-    "combat": {
-      "hp": 100,
-      "mp": 50,
-      "dropTable": ""
-    },
-    "sound": {
-      "deathSound": "soundName",
-      "weaponSound": "soundName"
-    },
-    "statuses": [],
-    "vision": {
-      "radius": 5
-    },
+    "spriteOffset": 58,
     "stats": {
       "generic": {
-        "str": 10,
-        "mnd": 10,
-        "con": 10,
-        "agi": 10,
-        "lck": 10
+        "str": 1,
+        "mnd": 5,
+        "con": 3,
+        "agi": 2,
+        "lck": 3
       },
       "trainable": {
         "weapon": {
@@ -64,12 +47,28 @@
         "focus": 0,
         "conditioning": 0
       }
+    },
+    "talk": {
+      "portraitName": "portraits0_2",
+      "talkName": "alinea_claire"
+    },
+    "combat": {
+      "hp": 15
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "sound": {
+      "deathSoundName": "yell2"
     }
   },
   {
     "type": "TOWNSPERSON",
-    "name": "exampleTownsperson_2",
-    "label": "Example Townsperson 2",
+    "name": "exampleTownsperson",
+    "label": "Example Townsperson",
     "spritesheet": "actors0",
     "spriteOffset": 2,
     "talk": {
@@ -77,25 +76,26 @@
       "portraitName": "portraitSprite"
     },
     "combat": {
-      "hp": 100,
-      "mp": 50,
+      "hp": 25,
+      "mp": 0,
       "dropTable": ""
     },
     "sound": {
       "deathSound": "soundName",
-      "weaponSound": "soundName"
+      "weaponSound": "soundName",
+      "deathSoundName": "yell2"
     },
     "statuses": [],
     "vision": {
-      "radius": 5
+      "radius": 6
     },
     "stats": {
       "generic": {
-        "str": 10,
-        "mnd": 10,
-        "con": 10,
-        "agi": 10,
-        "lck": 10
+        "str": 3,
+        "mnd": 3,
+        "con": 3,
+        "agi": 3,
+        "lck": 3
       },
       "trainable": {
         "weapon": {

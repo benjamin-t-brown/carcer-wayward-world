@@ -1,12 +1,18 @@
+import { useMemo } from 'react';
 import { TextInput } from '../elements/TextInput';
 import { NumberInput } from '../elements/NumberInput';
 import { OptionSelect } from '../elements/OptionSelect';
+import { SearchSelect } from '../elements/SearchSelect';
+import { SoundSearchField } from '../elements/SoundSearchField';
 import { Button } from '../elements/Button';
 import { SpritePicker } from '../elements/SpritePicker';
+import { useAssets } from '../contexts/AssetsContext';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { EditorEmptyState } from './EditorEmptyState';
 import {
   CharacterTemplate,
+  CharacterTemplateBehaviorName,
+  CHARACTER_TEMPLATE_BEHAVIOR_NAMES,
   createDefaultCharacterStats,
 } from '../types/assets';
 
@@ -38,6 +44,7 @@ export function createDefaultCharacter(): CharacterTemplate {
 
 export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
   const character = props.character;
+  const { gameEvents } = useAssets();
   const { spriteMap } = useSDL2WAssets();
 
   const formData = character as CharacterTemplate;
@@ -46,6 +53,18 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
   };
 
   const stats = formData?.stats ?? createDefaultCharacterStats();
+
+  const talkEvents = useMemo(() => {
+    const talkOnly = gameEvents.filter((event) => event.eventType === 'TALK');
+    const currentId = formData?.talk?.talkName;
+    if (currentId && !talkOnly.some((event) => event.id === currentId)) {
+      const current = gameEvents.find((event) => event.id === currentId);
+      if (current) {
+        return [...talkOnly, current];
+      }
+    }
+    return talkOnly;
+  }, [gameEvents, formData?.talk?.talkName]);
 
   const spriteName = `${formData?.spritesheet}_${formData?.spriteOffset}`;
 
@@ -77,12 +96,16 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
     });
   };
 
-  const updateBehavior = (field: 'behaviorName', value: string) => {
+  const updateBehavior = (value: string) => {
+    if (!value) {
+      const { behavior: _behavior, ...rest } = formData;
+      setFormData(rest);
+      return;
+    }
     setFormData({
       ...formData,
       behavior: {
-        ...formData.behavior,
-        [field]: value || undefined,
+        behaviorName: value as CharacterTemplateBehaviorName,
       },
     });
   };
@@ -591,36 +614,93 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
 
           <div className="form-subsection">
             <h4>Talk</h4>
-            <div className="form-fields-inline">
-              <TextInput
-                id="talk-name"
-                name="talkName"
-                label="Talk Name"
-                value={formData.talk?.talkName || ''}
-                onChange={(value) => updateTalk('talkName', value)}
-                placeholder="e.g., talkId"
-              />
-              <TextInput
-                id="talk-portrait"
-                name="portraitName"
-                label="Portrait Name"
-                value={formData.talk?.portraitName || ''}
-                onChange={(value) => updateTalk('portraitName', value)}
-                placeholder="e.g., portraitSprite"
-              />
+            <div className="form-fields-inline talk-fields-inline">
+              <div className="talk-event-row">
+                <SearchSelect
+                  id="talk-name"
+                  name="talkName"
+                  label="Talk Event"
+                  value={formData.talk?.talkName || ''}
+                  onChange={(value) => updateTalk('talkName', value)}
+                  items={talkEvents}
+                  getItemKey={(event) => event.id}
+                  getItemLabel={(event) => event.title?.trim() || event.id}
+                  searchFields={(event) => [
+                    event.id,
+                    event.title ?? '',
+                    event.eventType,
+                  ]}
+                  placeholder="Search talk events..."
+                  emptyLabel="(no talk event)"
+                  renderItem={(event) => (
+                    <>
+                      <div style={{ fontWeight: 600 }}>
+                        {event.title?.trim() || event.id}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: '10px',
+                          color: '#858585',
+                          marginTop: '2px',
+                        }}
+                      >
+                        {event.id} • {event.eventType}
+                      </div>
+                    </>
+                  )}
+                />
+                {formData.talk?.talkName ? (
+                  <a
+                    className="template-edit-link"
+                    href={`${window.location.origin}${window.location.pathname}#/editor/specialEvents?event=${encodeURIComponent(formData.talk.talkName)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Edit talk event
+                  </a>
+                ) : null}
+              </div>
+              <div className="form-group form-block talk-portrait-field">
+                <label htmlFor="talk-portrait-picker">Portrait Sprite</label>
+                <div className="talk-portrait-picker">
+                  <SpritePicker
+                    value={formData.talk?.portraitName || ''}
+                    onChange={(value) => updateTalk('portraitName', value)}
+                    scale={2}
+                    defaultSpritesheet="portraits0"
+                  />
+                </div>
+                {formData.talk?.portraitName ? (
+                  <div
+                    style={{
+                      marginTop: '4px',
+                      fontSize: '11px',
+                      color: '#858585',
+                    }}
+                  >
+                    Selected: {formData.talk.portraitName}
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
 
           <div className="form-subsection">
             <h4>Behavior</h4>
             <div className="form-fields-inline">
-              <TextInput
+              <OptionSelect
                 id="behavior-name"
                 name="behaviorName"
-                label="Behavior Name"
+                label="Behavior"
                 value={formData.behavior?.behaviorName || ''}
-                onChange={(value) => updateBehavior('behaviorName', value)}
-                placeholder="e.g., behaviorId"
+                onChange={updateBehavior}
+                options={[
+                  { value: '', label: '(none)' },
+                  ...CHARACTER_TEMPLATE_BEHAVIOR_NAMES.map((behavior) => ({
+                    value: behavior,
+                    label: behavior,
+                  })),
+                ]}
               />
             </div>
           </div>
@@ -657,22 +737,28 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
 
           <div className="form-subsection">
             <h4>Sound</h4>
-            <div className="form-fields-inline">
-              <TextInput
+            <div className="form-fields-inline character-sound-fields">
+              <SoundSearchField
                 id="sound-death"
                 name="soundDeath"
                 label="Death Sound"
-                value={formData.sound?.deathSoundName || ''}
+                value={
+                  formData.sound?.deathSoundName ||
+                  formData.sound?.deathSound ||
+                  ''
+                }
                 onChange={(value) => updateSound('deathSoundName', value)}
-                placeholder="e.g., soundName"
               />
-              <TextInput
+              <SoundSearchField
                 id="sound-weapon"
                 name="soundWeapon"
                 label="Weapon Sound"
-                value={formData.sound?.weaponSoundName || ''}
+                value={
+                  formData.sound?.weaponSoundName ||
+                  formData.sound?.weaponSound ||
+                  ''
+                }
                 onChange={(value) => updateSound('weaponSoundName', value)}
-                placeholder="e.g., soundName"
               />
             </div>
           </div>

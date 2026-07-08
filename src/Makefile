@@ -155,17 +155,17 @@ EMCC_EXPORTED=\
 -s EXPORTED_RUNTIME_METHODS=['ccall']
 
 DEBUG = true
-LIBS += -Llib/sdl2w -lsdl2w 
-INCLUDES += -I.
+LIBS += -Llib/sdl2w -lsdl2w -Llib/bmin -lbmin
+INCLUDES += -I. -Ilib
 CPP_STANDARD = -std=c++23
 ifeq ($(TARGET),wasm)
-    FLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -Oz
+    FLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -Oz -DJSON_NO_IO
     LIBS += $(EMCC_LIBS) $(EMCC_EXPORTED) --preload-file assets
     EXE_SUFFIX = .js
     CXX = em++
     AR = emar
 else
-    FLAGS = -Og -fuse-ld=lld -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -fno-omit-frame-pointer
+    FLAGS = -Og -fuse-ld=lld -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -fno-omit-frame-pointer -DJSON_NO_IO
     ifndef CXX
         CXX = g++
     endif
@@ -192,7 +192,7 @@ COMPILER_LINK_INPUTS = $(LIBCARCER)
 
 SOURCES = $(CODE) $(LIB_CODE) $(MAIN_ALL)
 
-.PHONY: all sdl2w sdl2w_wasm sdl2w_rebuild _copy_sdl2w_artifacts libcarcer print_cxx print_sources print_compile_flags print_compile_db
+.PHONY: all sdl2w sdl2w_wasm sdl2w_rebuild _copy_sdl2w_artifacts _copy_bmin_artifacts libcarcer print_cxx print_sources print_compile_flags print_compile_db
 
 all: sdl2w
 	$(MAKE) $(EXE)
@@ -218,6 +218,8 @@ $(SDL2W_STAMP):
 	@if [ ! -d $(SDL2W_DIR_NAME) ]; then \
 		echo "Directory $(SDL2W_DIR_NAME) not found. Cloning $(SDL2W_REPO_URL) into $(SDL2W_DIR_NAME)..."; \
 		git clone $(SDL2W_REPO_URL) $(SDL2W_DIR_NAME); \
+		cd $(SDL2W_DIR_NAME); \
+		git checkout bmin; \
 	else \
 		echo "Directory $(SDL2W_DIR_NAME) found. Assuming it is the sdl2w repository."; \
 	fi
@@ -233,11 +235,20 @@ sdl2w_wasm: $(SDL2W_STAMP)
 	$(MAKE) -C "$(SDL2W_DIR_NAME)/src" wasm
 	@$(MAKE) _copy_sdl2w_artifacts
 
-_copy_sdl2w_artifacts:
+_copy_sdl2w_artifacts: _copy_bmin_artifacts
 	@mkdir -p lib/sdl2w
 	@echo "Copying sdl2w artifacts from $(SDL2W_BUILD_OUTPUT_DIR) to lib/sdl2w..."
 	@cp $(SDL2W_BUILD_OUTPUT_DIR)/lib/libsdl2w.a lib/sdl2w
 	@cp $(SDL2W_BUILD_OUTPUT_DIR)/include/*.h lib/sdl2w
+
+_copy_bmin_artifacts:
+	@mkdir -p lib/bmin
+	@mkdir -p lib/bmin/internal
+	@echo "Copying bmin artifacts from $(SDL2W_BUILD_OUTPUT_DIR) to lib/bmin..."
+	@cp $(SDL2W_BUILD_OUTPUT_DIR)/lib/libbmin.a lib/bmin
+	@cp $(SDL2W_BUILD_OUTPUT_DIR)/include/bmin/*.h lib/bmin
+	@cp $(SDL2W_BUILD_OUTPUT_DIR)/include/bmin/internal/*.h lib/bmin/internal
+	@cp $(SDL2W_BUILD_OUTPUT_DIR)/include/bmin/internal/*.hpp lib/bmin/internal
 
 compiler_args:
 	@echo $(FLAGS) $(INCLUDES) $(COMPILER_LINK_INPUTS) $(LIBS)
@@ -285,7 +296,6 @@ clean:
 	rm -rf main.d
 	rm -rf .build
 	rm -rf lib/sdl2w
-	rm -rf $(SDL2W_BUILD_OUTPUT_DIR)
-	rm -rf $(SDL2W_DIR_NAME)/src/build/
+	rm -rf lib/bmin
 	rm -rf ../dist/$(EXE).*
 	rm -rf $(SDL2W_STAMP)

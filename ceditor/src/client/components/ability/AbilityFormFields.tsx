@@ -3,7 +3,7 @@ import { NumberInput } from '../../elements/NumberInput';
 import { OptionSelect } from '../../elements/OptionSelect';
 import { Button } from '../../elements/Button';
 import { AnimationPreview } from '../../elements/AnimationPreview';
-import { SoundPreview } from '../../elements/SoundPreview';
+import { SoundSearchField } from '../../elements/SoundSearchField';
 import { SearchSelect } from '../../elements/SearchSelect';
 import { useSDL2WAssets } from '../../contexts/SDL2WAssetsContext';
 import { useAssets } from '../../contexts/AssetsContext';
@@ -356,34 +356,15 @@ function DepictionSoundField({
   value: string;
   onChange: (value: string) => void;
 }) {
-  const { sounds } = useSDL2WAssets();
-
-  const soundItems = useMemo(() => {
-    const byName = new Map(sounds.map((sound) => [sound.name, sound]));
-    if (value && !byName.has(value)) {
-      byName.set(value, { name: value, path: '' });
-    }
-    return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name));
-  }, [sounds, value]);
-
   return (
-    <div className="depiction-preview-field">
-      <SoundPreview soundName={value} />
-      <SearchSelect
-        id={id}
-        name={name}
-        label={label}
-        value={value}
-        onChange={onChange}
-        items={soundItems}
-        getItemKey={(sound) => sound.name}
-        getItemLabel={(sound) => sound.name}
-        searchFields={(sound) => [sound.name]}
-        placeholder="Search sounds..."
-        emptyLabel="None"
-        allowEmpty
-      />
-    </div>
+    <SoundSearchField
+      id={id}
+      name={name}
+      label={label}
+      value={value}
+      onChange={onChange}
+      className="depiction-preview-field sound-search-field"
+    />
   );
 }
 

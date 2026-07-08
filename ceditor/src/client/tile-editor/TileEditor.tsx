@@ -2,7 +2,12 @@ import { useEffect, useRef } from 'react';
 import { CarcerMapTemplate } from '../types/assets';
 import { useRenderLoop } from '../hooks/useRenderLoop';
 import { MapCanvas } from './react-components/MapCanvas';
-import { initPanzoom, unInitPanzoom } from './editorEvents';
+import {
+  GridSlotCreateRequest,
+  initPanzoom,
+  setGridNavigationHandlers,
+  unInitPanzoom,
+} from './editorEvents';
 import { loop } from './loop';
 import { EditorState, getEditorState } from './editorState';
 import { TilePicker } from './react-components/TilePicker';
@@ -19,6 +24,8 @@ interface TileEditorProps {
   map?: CarcerMapTemplate;
   onMapUpdate: (map: CarcerMapTemplate) => void;
   onOpenMapAndSelectTile?: (args: OpenMapAndSelectTileArgs) => void;
+  onNavigateToGridMap?: (mapName: string) => void;
+  onCreateGridMap?: (request: GridSlotCreateRequest) => void;
 }
 
 export interface OpenMapAndSelectTileArgs {
@@ -34,6 +41,8 @@ export function TileEditor({
   map,
   onMapUpdate,
   onOpenMapAndSelectTile,
+  onNavigateToGridMap,
+  onCreateGridMap,
 }: TileEditorProps) {
   const mapCanvasRef = useRef<HTMLCanvasElement>(null);
   const mapRef = useRef<CarcerMapTemplate | undefined>(undefined);
@@ -41,7 +50,20 @@ export function TileEditor({
   const { sprites, spriteMap } = useSDL2WAssets();
   const { tilesets, characters, items, gameEvents, maps, mapGrids } =
     useAssets();
+  const gridNavigationRef = useRef({
+    maps,
+    mapGrids,
+    onNavigateToGridMap,
+    onCreateGridMap,
+  });
   const reRender = useReRender();
+
+  gridNavigationRef.current = {
+    maps,
+    mapGrids,
+    onNavigateToGridMap,
+    onCreateGridMap,
+  };
 
   // console.log('re render tile editor');
 
@@ -64,8 +86,19 @@ export function TileEditor({
       getEditorState: () => editorState.current as EditorState,
       getTilesets: () => tilesets,
     });
+    setGridNavigationHandlers({
+      getMaps: () => gridNavigationRef.current.maps,
+      getMapGrids: () => gridNavigationRef.current.mapGrids,
+      onNavigateToGridMap: (mapName) => {
+        gridNavigationRef.current.onNavigateToGridMap?.(mapName);
+      },
+      onCreateGridMap: (request) => {
+        gridNavigationRef.current.onCreateGridMap?.(request);
+      },
+    });
     return () => {
       console.log('unInitPanzoom');
+      setGridNavigationHandlers(null);
       unInitPanzoom();
     };
   }, []);

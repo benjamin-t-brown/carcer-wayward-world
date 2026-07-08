@@ -10,6 +10,8 @@ interface SpritePickerProps {
   onChange: (spriteName: string) => void;
   scale?: number;
   className?: string;
+  /** Spritesheet pre-selected when opening the picker with no current value. */
+  defaultSpritesheet?: string;
 }
 
 /** Sidebar preview (CSS px); integer upscale inside the canvas. */
@@ -22,6 +24,7 @@ export function SpritePicker({
   onChange,
   scale = 2,
   className = '',
+  defaultSpritesheet,
 }: SpritePickerProps) {
   const { sprites, spriteMap } = useSDL2WAssets();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,14 +62,25 @@ export function SpritePicker({
     return spritesBySheet[selectedSpritesheet] || [];
   }, [selectedSpritesheet, spritesBySheet]);
 
+  const resolveInitialSpritesheet = () => {
+    if (
+      defaultSpritesheet &&
+      spritesBySheet[defaultSpritesheet]?.length
+    ) {
+      return defaultSpritesheet;
+    }
+    return spritesheetOptions[0]?.value ?? '';
+  };
+
   // Initialize modal state when opened
   const handleOpenModal = () => {
     if (currentSprite) {
       setSelectedSpritesheet(currentSprite.pictureAlias);
       setSelectedSpriteName(value);
     } else if (spritesheetOptions.length > 0) {
-      setSelectedSpritesheet(spritesheetOptions[0].value);
-      setSelectedSpriteName('');
+      const sheet = resolveInitialSpritesheet();
+      setSelectedSpritesheet(sheet);
+      setSelectedSpriteName(spritesBySheet[sheet]?.[0]?.name || '');
     }
     setIsModalOpen(true);
   };

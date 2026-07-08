@@ -13,6 +13,8 @@ export interface CreateMapConstraints {
   mapType?: MapType;
   lockDimensions?: boolean;
   lockType?: boolean;
+  defaultName?: string;
+  defaultLabel?: string;
 }
 
 interface CreateMapModalProps {
@@ -34,6 +36,8 @@ function buildInitialFormData(constraints?: CreateMapConstraints): CarcerMapTemp
     width: constraints.width ?? base.width,
     height: constraints.height ?? base.height,
     type: constraints.mapType ?? base.type,
+    name: constraints.defaultName ?? base.name,
+    label: constraints.defaultLabel ?? base.label,
   };
 }
 

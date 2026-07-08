@@ -1120,6 +1120,47 @@
         margin-bottom: 0;
       }
 
+      .character-template-form .talk-fields-inline {
+        align-items: flex-start;
+        justify-content: flex-start;
+      }
+
+      .character-template-form .talk-event-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 8px 12px;
+        flex: 0 0 auto;
+        width: auto;
+        max-width: 100%;
+      }
+
+      .character-template-form .talk-event-row .form-group {
+        flex: 0 0 500px;
+        width: 500px;
+        margin-bottom: 0;
+      }
+
+      .character-template-form .form-fields-inline .talk-event-row .form-group > div {
+        width: 500px;
+      }
+
+      .character-template-form .form-fields-inline .talk-event-row .form-group .search-select-input {
+        width: 500px;
+        min-width: 500px;
+        max-width: 500px;
+        box-sizing: border-box;
+      }
+
+      .character-template-form .talk-portrait-field {
+        flex: 0 0 auto;
+        margin-top: 0;
+      }
+
+      .character-template-form .talk-portrait-picker > div {
+        margin: 0 !important;
+      }
+
       .item-template-form .weapon-ability-row {
         display: flex;
         flex-wrap: wrap;
@@ -1193,7 +1234,8 @@
         margin-top: 10px;
       }
 
-      .ability-template-form .depiction-fields .depiction-preview-field {
+      .ability-template-form .depiction-fields .depiction-preview-field,
+      .character-template-form .character-sound-fields .sound-search-field {
         display: flex;
         flex-direction: row;
         align-items: flex-end;
@@ -1201,10 +1243,18 @@
         flex: 0 0 auto;
       }
 
-      .ability-template-form .depiction-fields .depiction-preview-field > .form-group {
+      .ability-template-form .depiction-fields .depiction-preview-field > .form-group,
+      .character-template-form .character-sound-fields .sound-search-field > .form-group {
         flex: 0 0 220px;
         width: 220px;
         margin-bottom: 0;
+      }
+
+      .character-template-form .character-sound-fields .sound-search-field > .form-group .search-select-input {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+        box-sizing: border-box;
       }
 
       .ability-template-form .depiction-fields .form-group {
@@ -1233,7 +1283,8 @@
         display: block;
       }
 
-      .ability-template-form .depiction-fields .sound-preview {
+      .ability-template-form .depiction-fields .sound-preview,
+      .character-template-form .character-sound-fields .sound-preview {
         flex-shrink: 0;
         display: flex;
         align-items: center;
@@ -1244,11 +1295,13 @@
         background: #1e1e1e;
       }
 
-      .ability-template-form .depiction-fields .sound-preview-empty {
+      .ability-template-form .depiction-fields .sound-preview-empty,
+      .character-template-form .character-sound-fields .sound-preview-empty {
         background: #2a2a2a;
       }
 
-      .ability-template-form .depiction-fields .sound-preview-play {
+      .ability-template-form .depiction-fields .sound-preview-play,
+      .character-template-form .character-sound-fields .sound-preview-play {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -1260,7 +1313,8 @@
         font-size: 12px;
       }
 
-      .ability-template-form .depiction-fields .sound-preview-play:disabled {
+      .ability-template-form .depiction-fields .sound-preview-play:disabled,
+      .character-template-form .character-sound-fields .sound-preview-play:disabled {
         opacity: 0.35;
         cursor: not-allowed;
       }

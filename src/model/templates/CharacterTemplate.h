@@ -13,6 +13,15 @@ enum class CharacterTemplateType {
   ENEMY_STATIC,
 };
 
+enum class CharacterTemplateBehaviorName {
+  MOVE_RANDOMLY,
+  IMMOBILE,
+  IMMOBILE_UNTIL_ENEMY_SPOTTED,
+  SEEK_MARKER,
+  MOVE_LEFT_RIGHT,
+  MOVE_UP_DOWN,
+};
+
 struct CharacterTemplateTalk {
   std::string talkName;
   std::string portraitName;

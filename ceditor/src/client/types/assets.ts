@@ -757,6 +757,25 @@ export const CHARACTER_TEMPLATE_TYPES: CharacterTemplateType[] = [
   'ENEMY_STATIC',
 ];
 
+/** Matches model::CharacterTemplateBehaviorName in CharacterTemplate.h */
+export type CharacterTemplateBehaviorName =
+  | 'MOVE_RANDOMLY'
+  | 'IMMOBILE'
+  | 'IMMOBILE_UNTIL_ENEMY_SPOTTED'
+  | 'SEEK_MARKER'
+  | 'MOVE_LEFT_RIGHT'
+  | 'MOVE_UP_DOWN';
+
+export const CHARACTER_TEMPLATE_BEHAVIOR_NAMES: CharacterTemplateBehaviorName[] =
+  [
+    'MOVE_RANDOMLY',
+    'IMMOBILE',
+    'IMMOBILE_UNTIL_ENEMY_SPOTTED',
+    'SEEK_MARKER',
+    'MOVE_LEFT_RIGHT',
+    'MOVE_UP_DOWN',
+  ];
+
 export interface GenericCombatStats {
   str?: number;
   mnd?: number;
@@ -863,7 +882,7 @@ export interface CharacterTemplate {
     portraitName?: string;
   };
   behavior?: {
-    behaviorName?: string;
+    behaviorName?: CharacterTemplateBehaviorName;
   };
   combat?: {
     hp?: number;

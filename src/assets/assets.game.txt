@@ -220,7 +220,7 @@ Sound,weapon_throw,assets/snd/weapon_throw.wav
 Sound,bow_shoot,assets/snd/bow_shoot.wav
 # https://freesound.org/people/taylorsyoung@gmail.com/sounds/94778/
 Sound,punch1,assets/snd/punch1.wav
-https://freesound.org/people/damnsatinist/sounds/493916/
+# https://freesound.org/people/damnsatinist/sounds/493916/
 Sound,punch2,assets/snd/punch2.wav
 # https://freesound.org/people/nebulasnails/sounds/495118/
 Sound,punch3,assets/snd/punch3.wav

@@ -8,14 +8,14 @@
     "mapHeight": 30,
     "cells": [
       [
-        "",
-        "",
-        ""
+        "alinea_outsideAlinea2",
+        "alinea_outsideAlinea1",
+        "alinea_outsideAlinea3"
       ],
       [
-        "alinea_outsideAlinea2",
-        "OutsideAlinea_West1",
-        "alinea_outsideAlinea3"
+        "alinea_outsideAlinea5",
+        "alinea_outsideAlinea4",
+        "alinea_outsideAlinea6"
       ]
     ]
   }

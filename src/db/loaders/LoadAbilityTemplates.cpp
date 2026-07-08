@@ -1,20 +1,23 @@
 #include "LoadAbilityTemplates.h"
 #include "LoadAbilityJson.h"
-#include "lib/sdl2w/AssetLoader.h"
 #include "lib/json.hpp"
+#include "lib/sdl2w/AssetLoader.h"
 #include <stdexcept>
 
 namespace db {
 
-void loadAbilityTemplates(const std::string& abilitiesFilePath,
-                          std::unordered_map<std::string, model::AbilityTemplate>& abilityTemplates) {
-  std::string fileContent = sdl2w::loadFileAsString(abilitiesFilePath);
+void loadAbilityTemplates(
+    const std::string& abilitiesFilePath,
+    std::unordered_map<std::string, model::AbilityTemplate>& abilityTemplates) {
+  std::string fileContent =
+      std::string(sdl2w::loadFileAsString(abilitiesFilePath).sliceView());
 
   nlohmann::json jsonData;
   try {
     jsonData = nlohmann::json::parse(fileContent, nullptr, true, true);
   } catch (const nlohmann::json::parse_error& e) {
-    throw std::runtime_error("Failed to parse JSON file " + abilitiesFilePath + ": " + e.what());
+    throw std::runtime_error("Failed to parse JSON file " + abilitiesFilePath + ": " +
+                             e.what());
   }
 
   if (!jsonData.is_array()) {
@@ -49,7 +52,8 @@ void loadAbilityTemplates(const std::string& abilitiesFilePath,
     }
     abilityTemplate.type = model::abilityTypeFromString(abilityJson["type"]);
 
-    if (!abilityJson.contains("targetSelect") || !abilityJson["targetSelect"].is_object()) {
+    if (!abilityJson.contains("targetSelect") ||
+        !abilityJson["targetSelect"].is_object()) {
       throw std::runtime_error("Ability missing required field: targetSelect");
     }
     abilityTemplate.targetSelect = parseTargetSelectInfo(abilityJson["targetSelect"]);
@@ -64,7 +68,8 @@ void loadAbilityTemplates(const std::string& abilitiesFilePath,
     }
     abilityTemplate.costType = model::abilityCostTypeFromString(abilityJson["costType"]);
 
-    if (!abilityJson.contains("costValue") || !abilityJson["costValue"].is_number_integer()) {
+    if (!abilityJson.contains("costValue") ||
+        !abilityJson["costValue"].is_number_integer()) {
       throw std::runtime_error("Ability missing required field: costValue");
     }
     abilityTemplate.costValue = abilityJson["costValue"];
@@ -93,7 +98,8 @@ void loadAbilityTemplates(const std::string& abilitiesFilePath,
     }
 
     if (abilityTemplates.find(abilityTemplate.name) != abilityTemplates.end()) {
-      throw std::runtime_error("Ability template already exists: " + abilityTemplate.name);
+      throw std::runtime_error("Ability template already exists: " +
+                               abilityTemplate.name);
     }
 
     abilityTemplates[abilityTemplate.name] = abilityTemplate;

@@ -1,0 +1,463 @@
+Character Template Proposal
+===========================
+Carcer: Wayward World — starter NPC & enemy roster
+
+Date: 2026-06-20
+Status: Design draft (not yet implemented in characters.json)
+
+
+Purpose
+-------
+Define a first wave of CharacterTemplate entries for three roles:
+
+  1. Town characters — ambient, speakable civilians with weak combat stats
+  2. Town guards — friendly law enforcement; strong enough to stop murder sprees
+  3. Easy monsters — beginner overworld/combat fodder with deliberate variety
+
+This proposal is grounded in the existing CharacterTemplate schema
+(src/model/templates/CharacterTemplate.h, ceditor/src/client/types/assets.ts)
+and stat design notes (notes/DESIGN.STATS.txt, notes/DESIGN.SAMPLE_STAT_BLOCKS.txt).
+
+
+CharacterTemplate recap
+-----------------------
+Each template defines:
+
+  type            TOWNSPERSON | TOWNSPERSON_STATIC | ENEMY | ENEMY_STATIC
+  name / label    Unique id and display name
+  spritesheet     Currently all use "actors0" (256×32 sprites)
+  spriteOffset    Index into spritesheet
+  talk            talkName + portraitName (town NPCs)
+  behavior        behaviorName (field exists; runtime behavior TBD)
+  stats           generic + trainable + skills
+  combat          hp, mp, dropTable
+  sound           deathSound, weaponSound
+  statuses        Passive/status hooks (e.g. custom enemy passives)
+  vision          Detection radius on the map
+
+Important implementation notes:
+
+  • Equipment (weapons, armor) is NOT on CharacterTemplate — it is placed on
+    map instances / CharacterPlayer at spawn time. Templates define base stats;
+    guards need instance-level loadouts to be credible.
+
+  • behaviorName is loaded but no behavior scripts exist yet. Guard "respond to
+    crime" logic will need a behavior system or map events. Templates should
+    reserve behavior names now for later wiring.
+
+  • dropTable strings are stored but no drop-table loader exists yet. Proposed
+    table ids are placeholders.
+
+  • combat.hp / combat.mp are explicit current-max pools, separate from CON-derived
+    HP in design docs. For NPCs we set combat.hp directly (as characters.json does
+    today) rather than deriving from level.
+
+
+Stat baselines (reference points)
+---------------------------------
+Existing data:
+
+  Player/party test templates     generic 10/10/10/10/10, HP 100, MP 50
+  backcompatEnemy (ENEMY)           STR 7, CON 5, HP 40  — weak enemy anchor
+  Wretch (design sample, ~lvl 3)    STR 4, CON 3, HP ~25 — squishiest humanoid
+  Guildimarche Agent (design ~14)   STR 8, CON 7, HP 108 — elite reference
+
+Proposed tier labels used below:
+
+  Tier 0 — harmless civilian (cannot meaningfully fight back)
+  Tier 1 — easy enemy (player wins reliably at game start)
+  Tier 2 — town guard (player should not pick this fight)
+
+
+================================================================================
+1. TOWN CHARACTERS (TOWNSPERSON / TOWNSPERSON_STATIC)
+================================================================================
+
+Design goals
+  • Friendly, speakable, low threat if accidentally dragged into combat
+  • Variety through talk scripts and sprite/portrait choice, not combat prowess
+  • TOWNSPERSON = can wander; TOWNSPERSON_STATIC = shopkeeper at counter, quest giver
+    on a stool, etc.
+
+Shared defaults (most civilians)
+  type:              TOWNSPERSON or TOWNSPERSON_STATIC
+  combat.hp:         12–20
+  combat.mp:         0–5
+  combat.dropTable:  "" (no loot from civilians)
+  vision.radius:     4
+  sound.deathSound:  yell1
+  sound.weaponSound: punch1
+  stats.generic:     STR 3–5, MND 4–6, CON 3–5, AGI 3–5, LCK 2–4
+  stats.trainable:   all 0 (or tiny social/cooking bumps for flavor)
+  stats.skills:      social 2–8 depending on role; everything else 0
+  behavior.behaviorName: "civilianPassive" (placeholder)
+
+--- Proposed templates ---
+
+townspersonGeneric
+  label:             Townsperson
+  spriteOffset:      reuse actors0 civilian sprites (offsets 2, 6, 8, 14, 20, 28)
+  talk.talkName:     talkTownspersonGeneric
+  talk.portraitName: portraits0_* (match sprite)
+  Role:              Default filler NPC. One generic talk tree with randomized lines
+                     or a small pool of talkName variants (GenericA/B/C) if we want
+                     variety without many templates.
+  stats.generic:     4/5/4/4/3
+  combat.hp:         15
+
+townspersonMerchant
+  label:             Merchant
+  type:              TOWNSPERSON_STATIC
+  talk.talkName:     talkMerchant
+  stats.skills.social: 12
+  combat.hp:         18
+  Notes:             Static behind counter. Opens shop UI via talk exec (future).
+
+townspersonInnkeeper
+  label:             Innkeeper
+  type:              TOWNSPERSON_STATIC
+  talk.talkName:     talkInnkeeper
+  stats.skills.cooking: 8, social: 10
+  combat.hp:         20
+  Notes:             Rest/save hook via talk.
+
+townspersonFarmer
+  label:             Farmer
+  talk.talkName:     talkFarmer
+  stats.skills.survival: 6, conditioning: 4
+  stats.generic:     5/4/5/3/3  (slightly sturdier)
+  combat.hp:         22
+  Notes:             Outside Alinea maps; hints about nearby easy monsters.
+
+townspersonChild
+  label:             Child
+  talk.talkName:     talkChild
+  stats.generic:     2/4/2/5/4
+  combat.hp:         8
+  vision.radius:     6  (notices trouble; runs to guard — future behavior)
+  Notes:             Emphasize non-combat. Attacking should have story consequences.
+
+townspersonPriest
+  label:             Priest of the Realm
+  type:              TOWNSPERSON_STATIC
+  talk.talkName:     talkPriest
+  stats.generic:     3/7/4/3/5
+  stats.trainable.magic.faith: 5
+  combat.hp:         16, combat.mp: 20
+  Notes:             Healing/blessing talk branch. Sapphiron lore entry point.
+
+townspersonDrunk
+  label:             Drunk Patron
+  talk.talkName:     talkDrunk
+  statuses:          [{ "status": "DRUNK" }]   (when status DRUNK exists)
+  combat.hp:         14
+  Notes:             Comic relief; may spill quest hints.
+
+townspersonJournalist
+  label:             Journalist
+  talk.talkName:     talkJournalist
+  stats.skills.social: 15, trickery: 5
+  Notes:             Tie-in to STORY.SCENARIOS.txt (corrupt Realm / Mafia plot).
+
+Flavor-only variants (same stats as townspersonGeneric, different label/sprite/talk):
+  townspersonGuardOffDuty, townspersonDockworker, townspersonRefugee
+
+
+================================================================================
+2. TOWN GUARDS (TOWNSPERSON — friendly, but dangerous)
+================================================================================
+
+Design goals
+  • Remain TOWNSPERSON type so they are allies in normal play
+  • Combat stats well above Tier 1 enemies and starter party
+  • Spawn with real weapons + light armor via map instance equipment
+  • Multiple guard templates for visual variety; one shared "elite" template for
+    captains / gate guards
+
+Shared guard defaults
+  type:              TOWNSPERSON
+  combat.dropTable:  "" (guards don't drop loot — they're law, not pinatas)
+  vision.radius:     8
+  sound.weaponSound: metal_hit1
+  sound.deathSound:  yell2
+  behavior.behaviorName: "townGuard" (placeholder — intervene on hostile action)
+
+--- Proposed templates ---
+
+townGuardPatrol
+  label:             Town Guard
+  spriteOffset:      guard-looking actors0 sprite (TBD in editor)
+  talk.talkName:     talkTownGuard
+  talk.portraitName: guard portrait
+  stats.generic:     STR 9, MND 6, CON 9, AGI 7, LCK 4
+  stats.trainable.weapon.edged: 8, range: 4
+  stats.trainable.body.dr: 3, armorTraining: 6
+  stats.trainable.magic.faith: 3
+  combat.hp:         85, combat.mp: 10
+  Instance equipment (map spawn, not template):
+    weapon: SwordBronze or ShortSwordBronze
+    garb/pants/shoes: leather set
+    optional shield when shield items exist
+  Role:              Standard patrol. Can warn player verbally before combat.
+
+townGuardArcher
+  label:             Town Watch Archer
+  stats.generic:     STR 7, MND 6, CON 7, AGI 9, LCK 5
+  stats.trainable.weapon.range: 10
+  stats.trainable.body.dr: 2, armorTraining: 4
+  combat.hp:         70, combat.mp: 5
+  Instance equipment:
+    weapon: LongbowOak, ammo: ArrowsIron (stack)
+    lighter leather armor
+  Role:              Ranged guard on walls / gate tower. Punishes player trying to
+                     flee after starting trouble.
+
+townGuardCaptain
+  label:             Guard Captain
+  stats.generic:     STR 11, MND 8, CON 10, AGI 8, LCK 6
+  stats.trainable.weapon.edged: 12, blunt: 4
+  stats.trainable.body.dr: 5, armorTraining: 10, resistPhysical: 2
+  stats.skills.social: 10, focus: 4
+  combat.hp:         120, combat.mp: 15
+  Instance equipment:
+    weapon: SwordBronze (upgrade to steel sword item when added)
+    full leather kit
+  talk.talkName:     talkGuardCaptain
+  Role:              Leader at gate / jail. Higher authority dialogue. Strongest guard
+                     template — player attacking town should quickly become unwinnable.
+
+townGuardRecruit
+  label:             Guard Recruit
+  stats.generic:     STR 7, MND 5, CON 8, AGI 6, LCK 3
+  stats.trainable.weapon.edged: 5
+  stats.trainable.body.dr: 1
+  combat.hp:         55
+  Role:              Weaker guard for small hamlets; still above Tier 1 enemies.
+
+Guard balance intent
+  • A starter party (generic 10, basic bronze weapons) should lose a sustained fight
+    against 2× townGuardPatrol or 1× townGuardCaptain.
+  • Guards exist to make "kill everyone in town" a bad idea, not to join random combats.
+  • Future behavior: on player hostile action → guards aggro player only, call reinforcements,
+    possibly arrest/fine via talk exec instead of death spiral.
+
+
+================================================================================
+3. EASY MONSTERS (ENEMY / ENEMY_STATIC)
+================================================================================
+
+Design goals
+  • Intended for outside-Alinea / early dungeon tiles
+  • Player should win most 1v1 fights at game start; 1v2 should be risky but fair
+  • Clear variance: melee grunt, ranged skirmisher, caster, slightly tanky bruiser
+  • ENEMY = roams/patrols; ENEMY_STATIC = ambush trap, nest, sleeping creature
+
+Shared easy-enemy defaults
+  type:              ENEMY (or ENEMY_STATIC for ambush)
+  vision.radius:     5–7
+  sound.deathSound:  yell1 or punch2
+  combat.mp:         0 unless caster
+
+--- Proposed templates ---
+
+enemyScrapling
+  label:             Scrapling
+  spriteOffset:      small creature sprite (TBD)
+  stats.generic:     STR 4, MND 2, CON 3, AGI 5, LCK 1
+  stats.trainable.weapon.unarmed: 2
+  combat.hp:         18
+  combat.dropTable:  dropsEasyMisc
+  Role:              Weakest enemy. Tutorial combat. Swarm in groups of 2–3.
+  Notes:             Slightly faster (AGI 5) but dies fast. Teaches action economy.
+
+enemyBanditThug
+  label:             Bandit Thug
+  stats.generic:     STR 6, MND 3, CON 5, AGI 4, LCK 2
+  stats.trainable.weapon.edged: 3
+  stats.trainable.body.dr: 1
+  combat.hp:         32
+  combat.dropTable:  dropsBanditCommon
+  Instance equipment: DaggerBronze or ShortSwordBronze
+  sound.weaponSound: metal_hit2
+  Role:              Default humanoid melee. Comparable to backcompatEnemy (HP 40) but
+                     slightly weaker — player's first "real" fight.
+
+enemyBanditArcher
+  label:             Bandit Skirmisher
+  stats.generic:     STR 5, MND 3, CON 4, AGI 7, LCK 3
+  stats.trainable.weapon.range: 5
+  combat.hp:         26
+  combat.dropTable:  dropsBanditCommon
+  Instance equipment: LongbowOak, ArrowsStone
+  sound.weaponSound: bow_shoot
+  Role:              Ranged pressure. Forces player to close distance or use cover.
+                     Lower HP than thug — dies quickly once reached.
+
+enemySapphironWisp
+  label:             Sapphiron Wisp
+  stats.generic:     STR 2, MND 7, CON 3, AGI 6, LCK 2
+  stats.trainable.magic.mana: 8, abilityPower: 4, attunement: 2
+  combat.hp:         20, combat.mp: 15
+  combat.dropTable:  dropsSapphironFragment
+  statuses:          []  (future: passive "EPHEMERAL" resistance)
+  Role:              Intro magical enemy. Casts a weak spell (needs new ability
+                     e.g. WISP_SPARK — 1d4+ MND static damage, short range).
+  Notes:             Thematic tie to island Sapphiron magic. Fragile if focused;
+                     annoying at range. Teaches resistances / closing on casters.
+
+enemyCaveBat
+  label:             Cave Bat
+  type:              ENEMY_STATIC (ceiling hang → aggro when player adjacent)
+  stats.generic:     STR 3, MND 2, CON 2, AGI 8, LCK 2
+  stats.trainable.weapon.unarmed: 1
+  combat.hp:         14
+  combat.dropTable:  dropsEasyMisc
+  vision.radius:     3
+  Role:              Ambush in early cave maps. Low HP, high AGI — may act first.
+
+enemyBurlyRat
+  label:             Burly Rat
+  stats.generic:     STR 5, MND 2, CON 7, AGI 3, LCK 1
+  stats.trainable.body.dr: 2
+  combat.hp:         38
+  combat.dropTable:  dropsEasyMisc
+  Role:              "Slightly harder to kill" variant — low damage, high HP sponge.
+                     Player learns sustained fights / resource management.
+
+enemyCorruptedSapling
+  label:             Corrupted Sapling
+  type:              ENEMY_STATIC
+  stats.generic:     STR 6, MND 4, CON 6, AGI 2, LCK 0
+  stats.trainable.body.resistPhysical: 1, resistMagical: 2
+  combat.hp:         30, combat.mp: 8
+  combat.dropTable:  dropsSapphironFragment
+  statuses:          [{ "status": "BURNING" }]  only if thematic on-hit — otherwise omit
+  Role:              Slow plant enemy near outside-Alinea wilds. Mild magic resist;
+                     weak melee slap. Foreshadows Sapphiron corruption.
+
+Easy monster encounter mix (suggested)
+  outsideAlinea1–2:  Scraplings ×2–3, lone Bandit Thug
+  outsideAlinea3–4:  Thug + Archer pair, occasional Wisp
+  cave entrance:     Cave Bats (static), Burly Rats
+
+
+================================================================================
+4. PROPOSED DROP TABLES (future asset work)
+================================================================================
+
+dropsEasyMisc
+  • 60% nothing
+  • 30% small coin/value bundle (when currency items exist)
+  • 10% PotionHealing
+
+dropsBanditCommon
+  • 40% nothing
+  • 30% ArrowsStone ×3–6
+  • 20% bronze weapon (low durability)
+  • 10% PotionHealing
+
+dropsSapphironFragment
+  • 50% nothing
+  • 35% minor Sapphiron shard (item TBD)
+  • 15% PotionHealing
+
+
+================================================================================
+5. PROPOSED ABILITIES / STATUS (dependencies)
+================================================================================
+
+New abilities needed for full enemy variance (not in abilities.json today):
+
+  WISP_SPARK        short-range ATTACK_CLASS_MAGIC, 1d4 + MND, static damage
+  RAT_BITE          melee unarmed, 1d4 + STR
+  SCRAPLING_CLAW    melee unarmed, 1d4 + STR, low AP cost
+
+Existing abilities usable via equipment:
+  MELEE_ATTACK_METAL / MELEE_ATTACK_METAL2 / MELEE_ATTACK_METAL_KNIFE
+  RANGED_ATTACK_BOW
+
+Status / behavior placeholders:
+  behavior civilianPassive, townGuard
+  status DRUNK (for drunk patron)
+
+
+================================================================================
+6. SPRITE & PORTRAIT ALLOCATION
+================================================================================
+
+All templates currently target spritesheet "actors0" (256 32×32 sprites).
+
+  Town civilians:    reuse existing party-adjacent offsets for now; pick distinct
+                     offsets per role in ceditor sprite picker
+  Guards:            need visually distinct armor/silhouette — may require new sprites
+                     or recolor before shipping
+  Monsters:          Scrapling, Wisp, Bat, Rat, Sapling likely need new actor sprites;
+                     until art exists, placeholder with offset 0 + label-only distinction
+
+Portraits: portraits0 sheet — pair talk.portraitName with closest civilian/guard face.
+
+
+================================================================================
+7. IMPLEMENTATION CHECKLIST
+================================================================================
+
+Phase A — templates only (characters.json)
+  [ ] Add town civilian templates (start with generic + merchant + guard patrol)
+  [ ] Add easy enemy templates (scrapling, bandit thug, bandit archer, wisp)
+  [ ] Wire talkName ids in special-events.json (even stub trees)
+
+Phase B — map placement
+  [ ] Place town NPCs on Alinea interior maps with talk triggers
+  [ ] Spawn guards with equipment instances at gates
+  [ ] Scatter easy enemies on outsideAlinea* maps with encounter groups
+
+Phase C — systems
+  [ ] dropTable loader + loot resolution
+  [ ] behavior scripts (townGuard response, civilian flee)
+  [ ] Enemy ability lists (if not equipment-driven)
+  [ ] New monster sprites
+
+Phase D — balance pass
+  [ ] Playtest 1v1 and 1v2 fights vs each Tier 1 enemy at starter party power
+  [ ] Verify guard squad ends hostile player quickly
+  [ ] Confirm civilians die in 1–2 hits (discourage accidental combat)
+
+
+================================================================================
+8. SUMMARY TABLE
+================================================================================
+
+Template                 Type              HP    Role
+----------------------   ----------------  ----  ---------------------------
+townspersonGeneric       TOWNSPERSON       15    Ambient civilian
+townspersonMerchant      TOWNSPERSON_STATIC 18  Shop
+townspersonInnkeeper     TOWNSPERSON_STATIC 20  Rest/save
+townspersonFarmer        TOWNSPERSON       22    Outskirts hints
+townspersonChild         TOWNSPERSON       8     Story-sensitive
+townspersonPriest        TOWNSPERSON_STATIC 16  Lore/healing
+townspersonDrunk         TOWNSPERSON       14    Flavor NPC
+townspersonJournalist    TOWNSPERSON       15    Main plot hook
+
+townGuardPatrol          TOWNSPERSON       85    Standard law enforcement
+townGuardArcher          TOWNSPERSON       70    Ranged guard
+townGuardCaptain         TOWNSPERSON       120   Boss-tier guard
+townGuardRecruit         TOWNSPERSON       55    Hamlet guard
+
+enemyScrapling           ENEMY             18    Weakest swarm mob
+enemyBanditThug          ENEMY             32    Melee starter enemy
+enemyBanditArcher        ENEMY             26    Ranged starter enemy
+enemySapphironWisp       ENEMY             20    Magical starter enemy
+enemyCaveBat             ENEMY_STATIC      14    Ambush
+enemyBurlyRat            ENEMY             38    High-HP sponge
+enemyCorruptedSapling    ENEMY_STATIC      30    Resistant plant
+
+
+Open questions
+--------------
+  1. Should attacking a TOWNSPERSON instantly flag the player as hostile to all
+     guards, or use a reputation/strike system?
+  2. Do enemies need explicit ability lists on the template, or is equipment-only
+     sufficient for bandits?
+  3. Should townGuardCaptain use a unique sprite or reuse patrol guard with label?
+  4. Are Scraplings / Wisps original creatures or reskins of existing NOTES.txt
+     enemies (Kobold, Burlywart)?

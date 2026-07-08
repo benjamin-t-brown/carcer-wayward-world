@@ -20,6 +20,11 @@ export interface EditorStateMap {
   undoIndex: number;
   /** Per-level vertex terrain grids; length (width+1)*(height+1) each. */
   terrainVertexGridsByLevel?: Record<number, TileTerrainBorderTag[]>;
+  viewport?: {
+    translateX: number;
+    translateY: number;
+    scale: number;
+  };
 }
 
 export interface EditorState {
@@ -40,6 +45,7 @@ export interface EditorState {
   selectedTerrainTag: TileTerrainBorderTag;
   maps: Record<string, EditorStateMap>;
   tilesets: TilesetTemplate[];
+  hoveredGridAdjacentSlot: { offsetX: number; offsetY: number } | null;
 }
 
 const editorState: EditorState = {
@@ -60,6 +66,7 @@ const editorState: EditorState = {
   selectedTerrainTag: TileTerrainBorderTag.GRASS,
   maps: {},
   tilesets: [],
+  hoveredGridAdjacentSlot: null,
 };
 export const getEditorState = () => editorState;
 export const updateEditorState = (state: Partial<EditorState>) => {
@@ -118,6 +125,27 @@ export const createEditorStateMap = (mapName: string) => {
   };
   getEditorState().maps[mapName] = map;
   return map;
+};
+
+export const renameEditorStateMap = (oldName: string, newName: string) => {
+  const trimmedOld = oldName.trim();
+  const trimmedNew = newName.trim();
+  if (!trimmedOld || !trimmedNew || trimmedOld === trimmedNew) {
+    return;
+  }
+
+  const state = getEditorState();
+  const existing = state.maps[trimmedOld];
+  if (!existing) {
+    return;
+  }
+
+  state.maps[trimmedNew] = existing;
+  delete state.maps[trimmedOld];
+  if (state.selectedMapName === trimmedOld) {
+    state.selectedMapName = trimmedNew;
+  }
+  (window as any).reRenderTileEditor();
 };
 
 export const getCurrentSelectedTileId = () => {

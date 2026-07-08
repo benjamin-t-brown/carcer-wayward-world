@@ -1671,11 +1671,11 @@
       },
       {
         "id": "0arn7g6cays",
-        "x": 747,
+        "x": 746,
         "y": 32.5,
         "eventChildType": "CHOICE",
         "h": 210,
-        "text": "A tall woman in a stout, green dress is overseeing the people at the docks. She clutches an official-looking scroll, and her stern eyes flit in irritation between it and you.\n\n\"You there! Are you the Captain of that vessel?\"  She points towards the horizon where Argow's vessel is anchored.",
+        "text": "A tall woman in a stout, green dress is overseeing the people at the docks. She clutches an official-looking scroll, and her stern eyes flit in irritation between it and you.\n\n\"You there!  Are you the Captain of that vessel?\"  She points towards the horizon where Argow's vessel is anchored.",
         "choices": [
           {
             "text": "(Remain silent.)",
@@ -7698,8 +7698,8 @@
         "x": 68,
         "y": 119.5,
         "eventChildType": "EXEC",
-        "h": 50,
-        "p": "The sign says: \"Warehouse 3\"",
+        "h": 88,
+        "p": "The sign says: \"Warehouse 3\"\n\nBelow that there's a small note that has been tacked on: \"This warehouse has been seized by the Realm.\"",
         "execStr": "",
         "next": "6kl0esf6hyn",
         "autoAdvance": true

@@ -6,7 +6,7 @@ import {
   onTileHoverIndChange,
   setCurrentAction,
 } from './paintTools';
-import { CarcerMapTemplate, TilesetTemplate } from '../types/assets';
+import { CarcerMapTemplate, MapGridTemplate, TilesetTemplate } from '../types/assets';
 import {
   commitMaterializedLayer,
   getAdjacentLayer,
@@ -23,6 +23,11 @@ import {
   updateEditorStateMapNoReRender,
   updateEditorStateNoReRender,
 } from './editorState';
+import {
+  findAdjacentGridSlotAtCanvasPoint,
+  GridSlotHit,
+} from './gridMapNavigation';
+import { isGridSlotEditable } from '../utils/mapGridIndex';
 
 class MapEditorEventState {
   isDragging = false;
@@ -37,6 +42,9 @@ class MapEditorEventState {
   scale = 1;
   mouseX = 0;
   mouseY = 0;
+  pendingGridSlotClick: GridSlotHit | null = null;
+  gridSlotClickStartX = 0;
+  gridSlotClickStartY = 0;
 }
 const mapEditorEventState = new MapEditorEventState();
 
@@ -85,6 +93,65 @@ const isEditorActive = (ev: KeyboardEvent) => {
 
 const shouldPreventDefault = (ev: KeyboardEvent) => {
   return ev.ctrlKey && (ev.key === 's' || ev.key === 'e');
+};
+
+export interface GridSlotCreateRequest {
+  gridName: string;
+  cellX: number;
+  cellY: number;
+  mapWidth: number;
+  mapHeight: number;
+}
+
+export interface GridNavigationHandlers {
+  getMaps: () => CarcerMapTemplate[];
+  getMapGrids: () => MapGridTemplate[];
+  onNavigateToGridMap: (mapName: string) => void;
+  onCreateGridMap: (request: GridSlotCreateRequest) => void;
+}
+
+let gridNavigationHandlers: GridNavigationHandlers | null = null;
+
+export const setGridNavigationHandlers = (
+  handlers: GridNavigationHandlers | null
+) => {
+  gridNavigationHandlers = handlers;
+};
+
+const GRID_SLOT_CLICK_DRAG_THRESHOLD = 6;
+
+const findGridSlotAtScreen = (
+  clientX: number,
+  clientY: number,
+  mapDataInterface: {
+    getCanvas: () => HTMLCanvasElement;
+    getMapData: () => CarcerMapTemplate;
+  }
+): GridSlotHit | null => {
+  const handlers = gridNavigationHandlers;
+  const currentMap = mapDataInterface.getMapData();
+  const canvas = mapDataInterface.getCanvas();
+  if (!handlers || !currentMap || !canvas) {
+    return null;
+  }
+
+  const [canvasX, canvasY] = screenCoordsToCanvasCoords(
+    clientX,
+    clientY,
+    canvas
+  );
+
+  return findAdjacentGridSlotAtCanvasPoint({
+    canvasX,
+    canvasY,
+    canvas,
+    map: currentMap,
+    mapGrids: handlers.getMapGrids(),
+    maps: handlers.getMaps(),
+    translateX: mapEditorEventState.translateX,
+    translateY: mapEditorEventState.translateY,
+    scale: mapEditorEventState.scale,
+  });
 };
 
 export const initPanzoom = (mapDataInterface: {
@@ -227,6 +294,14 @@ export const initPanzoom = (mapDataInterface: {
       ev.button === MOUSE_BUTTON_LEFT &&
       isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())
     ) {
+      const gridSlotHit = findGridSlotAtScreen(ev.clientX, ev.clientY, mapDataInterface);
+      if (gridSlotHit) {
+        mapEditorEventState.pendingGridSlotClick = gridSlotHit;
+        mapEditorEventState.gridSlotClickStartX = ev.clientX;
+        mapEditorEventState.gridSlotClickStartY = ev.clientY;
+        return;
+      }
+
       const currentPaintAction =
         mapDataInterface.getEditorState().currentPaintAction;
       if (currentPaintAction === PaintActionType.NONE) {
@@ -329,6 +404,29 @@ export const initPanzoom = (mapDataInterface: {
     mapEditorEventState.mouseX = ev.clientX;
     mapEditorEventState.mouseY = ev.clientY;
 
+    const canvas = mapDataInterface.getCanvas();
+    if (isEventWithCanvasTarget(ev, canvas)) {
+      const gridSlotHit = findGridSlotAtScreen(ev.clientX, ev.clientY, mapDataInterface);
+      const nextHovered = gridSlotHit
+        ? {
+            offsetX: gridSlotHit.slot.offsetX,
+            offsetY: gridSlotHit.slot.offsetY,
+          }
+        : null;
+      const prevHovered =
+        mapDataInterface.getEditorState().hoveredGridAdjacentSlot;
+      if (
+        nextHovered?.offsetX !== prevHovered?.offsetX ||
+        nextHovered?.offsetY !== prevHovered?.offsetY
+      ) {
+        updateEditorStateNoReRender({
+          hoveredGridAdjacentSlot: nextHovered,
+        });
+      }
+    } else if (mapDataInterface.getEditorState().hoveredGridAdjacentSlot) {
+      updateEditorStateNoReRender({ hoveredGridAdjacentSlot: null });
+    }
+
     if (mapEditorEventState.isDragging) {
       mapEditorEventState.translateX =
         mapEditorEventState.lastTranslateX +
@@ -341,6 +439,31 @@ export const initPanzoom = (mapDataInterface: {
     }
   };
   const handleMouseUp = (ev: MouseEvent) => {
+    if (mapEditorEventState.pendingGridSlotClick && ev.button === MOUSE_BUTTON_LEFT) {
+      const pending = mapEditorEventState.pendingGridSlotClick;
+      mapEditorEventState.pendingGridSlotClick = null;
+      const dragDistance = Math.hypot(
+        ev.clientX - mapEditorEventState.gridSlotClickStartX,
+        ev.clientY - mapEditorEventState.gridSlotClickStartY
+      );
+      if (dragDistance <= GRID_SLOT_CLICK_DRAG_THRESHOLD) {
+        const handlers = gridNavigationHandlers;
+        if (handlers) {
+          if (isGridSlotEditable(pending.slot)) {
+            handlers.onNavigateToGridMap(pending.slot.mapName);
+          } else {
+            handlers.onCreateGridMap({
+              gridName: pending.placement.grid.name,
+              cellX: pending.slot.cellX,
+              cellY: pending.slot.cellY,
+              mapWidth: pending.placement.grid.mapWidth,
+              mapHeight: pending.placement.grid.mapHeight,
+            });
+          }
+        }
+      }
+    }
+
     if (mapEditorEventState.isDragging) {
       mapEditorEventState.translateX =
         mapEditorEventState.lastTranslateX +
@@ -583,13 +706,18 @@ export const updateMapCanvasCursor = (
   canvas: HTMLCanvasElement | null,
   paintAction: PaintActionType,
   hoveredTileIndex: number,
-  isSelectDragging = false
+  isSelectDragging = false,
+  hoveredGridAdjacentSlot: { offsetX: number; offsetY: number } | null = null
 ) => {
   if (!canvas) {
     return;
   }
   if (mapEditorEventState.isDragging || isSelectDragging) {
     canvas.style.cursor = 'grabbing';
+    return;
+  }
+  if (hoveredGridAdjacentSlot) {
+    canvas.style.cursor = 'pointer';
     return;
   }
   if (paintAction === PaintActionType.SELECT && hoveredTileIndex >= 0) {
@@ -607,6 +735,41 @@ export const resetPanzoom = () => {
   mapEditorEventState.translateX = 0;
   mapEditorEventState.translateY = 0;
   mapEditorEventState.scale = 1;
+};
+
+export const saveViewportForMap = (mapName: string) => {
+  if (!mapName) {
+    return;
+  }
+  updateEditorStateMapNoReRender(mapName, {
+    viewport: {
+      translateX: mapEditorEventState.translateX,
+      translateY: mapEditorEventState.translateY,
+      scale: mapEditorEventState.scale,
+    },
+  });
+};
+
+export const restoreViewportForMap = (mapName: string) => {
+  if (!mapName) {
+    resetPanzoom();
+    return;
+  }
+  const viewport = getEditorStateMap(mapName)?.viewport;
+  if (viewport) {
+    mapEditorEventState.translateX = viewport.translateX;
+    mapEditorEventState.translateY = viewport.translateY;
+    mapEditorEventState.scale = viewport.scale;
+    return;
+  }
+  resetPanzoom();
+};
+
+export const switchMapViewport = (fromMapName: string, toMapName: string) => {
+  if (fromMapName) {
+    saveViewportForMap(fromMapName);
+  }
+  restoreViewportForMap(toMapName);
 };
 
 /** Pan the map view so the tile center is at the canvas center. */

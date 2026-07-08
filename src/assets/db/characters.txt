@@ -1,6 +1,7 @@
 //types: TOWNSPERSON|TOWNSPERSON_STATIC|ENEMY|ENEMY_STATIC
 //CHARACTER|type|name|label|spritesheet|sprite offset
 //TALK|talkName|portraitName
+//BEHAVIOR|MOVE_RANDOMLY|IMMOBILE|IMMOBILE_UNTIL_ENEMY_SPOTTED|SEEK_MARKER|MOVE_LEFT_RIGHT|MOVE_UP_DOWN
 //COMBAT|str,mnd,con,agi,lck|hp,mp|behaviorType|dropTable
 //COMBAT_TEMPLATE|id
 //SOUND|deathSound|weaponSound

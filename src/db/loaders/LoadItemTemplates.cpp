@@ -1,21 +1,23 @@
 #include "LoadItemTemplates.h"
 #include "db/loaders/LoadAbilityJson.h"
-#include "lib/sdl2w/AssetLoader.h"
 #include "lib/json.hpp"
+#include "lib/sdl2w/AssetLoader.h"
 
 namespace db {
 
 void loadItemTemplates(
     const std::string& itemsFilePath,
     std::unordered_map<std::string, model::ItemTemplate>& itemTemplates) {
-  std::string fileContent = sdl2w::loadFileAsString(itemsFilePath);
-  
+  std::string fileContent =
+      std::string(sdl2w::loadFileAsString(itemsFilePath).sliceView());
+
   nlohmann::json jsonData;
   try {
     // Parse with comments enabled (ignore_comments = true)
     jsonData = nlohmann::json::parse(fileContent, nullptr, true, true);
   } catch (const nlohmann::json::parse_error& e) {
-    throw std::runtime_error("Failed to parse JSON file " + itemsFilePath + ": " + e.what());
+    throw std::runtime_error("Failed to parse JSON file " + itemsFilePath + ": " +
+                             e.what());
   }
 
   if (!jsonData.is_array()) {
@@ -163,4 +165,3 @@ void loadItemTemplates(
   }
 }
 } // namespace db
-

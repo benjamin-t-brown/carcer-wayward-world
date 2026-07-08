@@ -216,7 +216,7 @@ void loadSpecialEvents(const std::string& specialEventsFilePath,
 void loadSpecialEvents(const std::string& specialEventsFilePath,
                        std::unordered_map<std::string, model::GameEvent>& specialEvents,
                        std::vector<std::string>& eventsToLoad) {
-  std::string fileContent = sdl2w::loadFileAsString(specialEventsFilePath);
+  std::string fileContent = std::string(sdl2w::loadFileAsString(specialEventsFilePath).sliceView());
   
   nlohmann::json jsonData;
   try {

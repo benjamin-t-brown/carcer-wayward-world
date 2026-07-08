@@ -27,6 +27,13 @@ import {
 } from './editorEvents';
 import { Sprite } from '../utils/assetLoader';
 import { getMaterializedLayer } from '../utils/mapIndex';
+import {
+  getAdjacentSlotHotspotRect,
+} from './gridMapNavigation';
+import {
+  GridAdjacentSlot,
+  isGridSlotEditable,
+} from '../utils/mapGridIndex';
 
 const drawHighlightRect = (
   tileX: number,
@@ -351,6 +358,89 @@ export const renderToolUi = (
     }
   }
   ctx.restore();
+};
+
+export const renderGridAdjacentNavigation = (args: {
+  ctx: CanvasRenderingContext2D;
+  slots: GridAdjacentSlot[];
+  slotWidth: number;
+  slotHeight: number;
+  hoveredOffset: { offsetX: number; offsetY: number } | null;
+}) => {
+  const { ctx, slots, slotWidth, slotHeight, hoveredOffset } = args;
+
+  for (const slot of slots) {
+    const slotLeft = slot.offsetX * slotWidth;
+    const slotTop = slot.offsetY * slotHeight;
+    const editable = isGridSlotEditable(slot);
+    const isHovered =
+      hoveredOffset?.offsetX === slot.offsetX &&
+      hoveredOffset?.offsetY === slot.offsetY;
+    const hotspot = getAdjacentSlotHotspotRect(slot, slotWidth, slotHeight);
+
+    if (!editable) {
+      drawRect(
+        slotLeft,
+        slotTop,
+        slotWidth,
+        slotHeight,
+        'rgba(20, 20, 20, 0.55)',
+        false,
+        ctx,
+      );
+      ctx.strokeStyle = 'rgba(120, 120, 120, 0.45)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(slotLeft, slotTop, slotWidth, slotHeight);
+    }
+
+    const hotspotFill = isHovered
+      ? 'rgba(78, 201, 176, 0.4)'
+      : editable
+        ? 'rgba(78, 201, 176, 0.18)'
+        : 'rgba(78, 201, 176, 0.28)';
+
+    drawRect(hotspot.x, hotspot.y, hotspot.w, hotspot.h, hotspotFill, false, ctx);
+
+    if (isHovered) {
+      ctx.strokeStyle = '#4ec9b0';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(hotspot.x, hotspot.y, hotspot.w, hotspot.h);
+    }
+
+    const centerX = hotspot.x + hotspot.w / 2;
+    const centerY = hotspot.y + hotspot.h / 2;
+    const iconSize = Math.min(48, Math.max(18, hotspot.w * 0.45));
+
+    if (editable) {
+      drawText(
+        slot.map!.label || slot.mapName,
+        centerX,
+        centerY - iconSize * 0.22,
+        { size: Math.max(11, iconSize * 0.32), color: '#d4d4d4' },
+        ctx,
+      );
+      if (isHovered) {
+        drawText(
+          'Open',
+          centerX,
+          centerY + iconSize * 0.28,
+          { size: Math.max(10, iconSize * 0.28), color: '#4ec9b0' },
+          ctx,
+        );
+      }
+    } else {
+      drawText(
+        '+',
+        centerX,
+        centerY,
+        {
+          size: iconSize,
+          color: isHovered ? '#4ec9b0' : '#858585',
+        },
+        ctx,
+      );
+    }
+  }
 };
 
 export const renderMapTilesAtOffset = (args: {

@@ -1,7 +1,7 @@
 #include "LoadStatusEffectTemplates.h"
 #include "LoadAbilityJson.h"
-#include "lib/sdl2w/AssetLoader.h"
 #include "lib/json.hpp"
+#include "lib/sdl2w/AssetLoader.h"
 #include <stdexcept>
 
 namespace db {
@@ -21,8 +21,8 @@ model::StatusEffectEvent parseStatusEffectEvent(const nlohmann::json& eventJson)
   return event;
 }
 
-model::StatusEffectDurationScale parseStatusEffectDurationScale(
-    const nlohmann::json& scaleJson) {
+model::StatusEffectDurationScale
+parseStatusEffectDurationScale(const nlohmann::json& scaleJson) {
   model::StatusEffectDurationScale scale;
   if (!scaleJson.contains("durationStat") || !scaleJson["durationStat"].is_string()) {
     throw std::runtime_error("durationScale missing durationStat");
@@ -41,14 +41,15 @@ model::StatusEffectDurationScale parseStatusEffectDurationScale(
 void loadStatusEffectTemplates(
     const std::string& statusEffectsFilePath,
     std::unordered_map<std::string, model::StatusEffectTemplate>& statusEffectTemplates) {
-  std::string fileContent = sdl2w::loadFileAsString(statusEffectsFilePath);
+  std::string fileContent =
+      std::string(sdl2w::loadFileAsString(statusEffectsFilePath).sliceView());
 
   nlohmann::json jsonData;
   try {
     jsonData = nlohmann::json::parse(fileContent, nullptr, true, true);
   } catch (const nlohmann::json::parse_error& e) {
     throw std::runtime_error("Failed to parse JSON file " + statusEffectsFilePath + ": " +
-                           e.what());
+                             e.what());
   }
 
   if (!jsonData.is_array()) {
@@ -73,7 +74,8 @@ void loadStatusEffectTemplates(
           "Status effect uses legacy field 'duration'; rename to 'baseDuration': " +
           statusTemplate.name);
     }
-    if (!statusJson.contains("baseDuration") || !statusJson["baseDuration"].is_number_integer()) {
+    if (!statusJson.contains("baseDuration") ||
+        !statusJson["baseDuration"].is_number_integer()) {
       throw std::runtime_error("Status effect missing required field: baseDuration");
     }
     statusTemplate.baseDuration = statusJson["baseDuration"];
@@ -85,11 +87,13 @@ void loadStatusEffectTemplates(
     }
     if (statusJson.contains("targetInfo")) {
       throw std::runtime_error(
-          "Status effect uses legacy field 'targetInfo'; remove it: " + statusTemplate.name);
+          "Status effect uses legacy field 'targetInfo'; remove it: " +
+          statusTemplate.name);
     }
 
     if (statusJson.contains("durationScale") && statusJson["durationScale"].is_object()) {
-      statusTemplate.durationScale = parseStatusEffectDurationScale(statusJson["durationScale"]);
+      statusTemplate.durationScale =
+          parseStatusEffectDurationScale(statusJson["durationScale"]);
     }
 
     if (statusJson.contains("applyBonuses") && statusJson["applyBonuses"].is_object()) {
@@ -98,10 +102,12 @@ void loadStatusEffectTemplates(
 
     if (statusJson.contains("applyCurrentStatChange") &&
         statusJson["applyCurrentStatChange"].is_object()) {
-      statusTemplate.applyCurrentStatChange = parseCurrentStats(statusJson["applyCurrentStatChange"]);
+      statusTemplate.applyCurrentStatChange =
+          parseCurrentStats(statusJson["applyCurrentStatChange"]);
     }
 
-    if (statusJson.contains("applyResistances") && statusJson["applyResistances"].is_array()) {
+    if (statusJson.contains("applyResistances") &&
+        statusJson["applyResistances"].is_array()) {
       for (const auto& resistanceJson : statusJson["applyResistances"]) {
         statusTemplate.applyResistances.push_back(parseResistance(resistanceJson));
       }
@@ -116,7 +122,8 @@ void loadStatusEffectTemplates(
         }
         action.statusActionTargetType =
             model::statusActionTargetTypeFromString(actionJson["statusActionTargetType"]);
-        if (!actionJson.contains("abilityName") || !actionJson["abilityName"].is_string()) {
+        if (!actionJson.contains("abilityName") ||
+            !actionJson["abilityName"].is_string()) {
           throw std::runtime_error("StatusEffectAction missing abilityName");
         }
         action.abilityName = actionJson["abilityName"];
@@ -131,7 +138,8 @@ void loadStatusEffectTemplates(
     }
 
     if (statusEffectTemplates.find(statusTemplate.name) != statusEffectTemplates.end()) {
-      throw std::runtime_error("Status effect template already exists: " + statusTemplate.name);
+      throw std::runtime_error("Status effect template already exists: " +
+                               statusTemplate.name);
     }
 
     statusEffectTemplates[statusTemplate.name] = statusTemplate;

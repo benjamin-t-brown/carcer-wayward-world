@@ -1,13 +1,14 @@
 #include "LoadCharacterTemplates.h"
-#include "lib/sdl2w/AssetLoader.h"
 #include "lib/json.hpp"
+#include "lib/sdl2w/AssetLoader.h"
 #include "model/stats/CharacterStats.h"
 #include <set>
 #include <stdexcept>
 
 namespace {
 
-model::CharacterTemplateType getCharacterTemplateTypeFromString(const std::string& typeStr) {
+model::CharacterTemplateType
+getCharacterTemplateTypeFromString(const std::string& typeStr) {
   if (typeStr == "TOWNSPERSON") {
     return model::CharacterTemplateType::TOWNSPERSON;
   } else if (typeStr == "TOWNSPERSON_STATIC") {
@@ -20,13 +21,51 @@ model::CharacterTemplateType getCharacterTemplateTypeFromString(const std::strin
   throw std::runtime_error("Invalid character template type: " + typeStr);
 }
 
+model::CharacterTemplateBehaviorName
+getCharacterTemplateBehaviorNameFromString(const std::string& behaviorStr) {
+  if (behaviorStr == "MOVE_RANDOMLY") {
+    return model::CharacterTemplateBehaviorName::MOVE_RANDOMLY;
+  } else if (behaviorStr == "IMMOBILE") {
+    return model::CharacterTemplateBehaviorName::IMMOBILE;
+  } else if (behaviorStr == "IMMOBILE_UNTIL_ENEMY_SPOTTED") {
+    return model::CharacterTemplateBehaviorName::IMMOBILE_UNTIL_ENEMY_SPOTTED;
+  } else if (behaviorStr == "SEEK_MARKER") {
+    return model::CharacterTemplateBehaviorName::SEEK_MARKER;
+  } else if (behaviorStr == "MOVE_LEFT_RIGHT") {
+    return model::CharacterTemplateBehaviorName::MOVE_LEFT_RIGHT;
+  } else if (behaviorStr == "MOVE_UP_DOWN") {
+    return model::CharacterTemplateBehaviorName::MOVE_UP_DOWN;
+  }
+  throw std::runtime_error("Invalid character template behavior: " + behaviorStr);
+}
+
+std::string getStringFromCharacterTemplateBehaviorName(
+    model::CharacterTemplateBehaviorName behaviorName) {
+  switch (behaviorName) {
+  case model::CharacterTemplateBehaviorName::MOVE_RANDOMLY:
+    return "MOVE_RANDOMLY";
+  case model::CharacterTemplateBehaviorName::IMMOBILE:
+    return "IMMOBILE";
+  case model::CharacterTemplateBehaviorName::IMMOBILE_UNTIL_ENEMY_SPOTTED:
+    return "IMMOBILE_UNTIL_ENEMY_SPOTTED";
+  case model::CharacterTemplateBehaviorName::SEEK_MARKER:
+    return "SEEK_MARKER";
+  case model::CharacterTemplateBehaviorName::MOVE_LEFT_RIGHT:
+    return "MOVE_LEFT_RIGHT";
+  case model::CharacterTemplateBehaviorName::MOVE_UP_DOWN:
+    return "MOVE_UP_DOWN";
+  }
+  throw std::runtime_error("Unknown character template behavior enum value");
+}
+
 void loadIntField(const nlohmann::json& json, const char* fieldName, int& out) {
   if (json.contains(fieldName)) {
     out = json[fieldName];
   }
 }
 
-void loadGenericCombatStats(const nlohmann::json& json, model::GenericCombatStats& stats) {
+void loadGenericCombatStats(const nlohmann::json& json,
+                            model::GenericCombatStats& stats) {
   loadIntField(json, "str", stats.str);
   loadIntField(json, "mnd", stats.mnd);
   loadIntField(json, "con", stats.con);
@@ -34,7 +73,8 @@ void loadGenericCombatStats(const nlohmann::json& json, model::GenericCombatStat
   loadIntField(json, "lck", stats.lck);
 }
 
-void loadWeaponMasteryStats(const nlohmann::json& json, model::WeaponMasteryStats& stats) {
+void loadWeaponMasteryStats(const nlohmann::json& json,
+                            model::WeaponMasteryStats& stats) {
   loadIntField(json, "edged", stats.edged);
   loadIntField(json, "pole", stats.pole);
   loadIntField(json, "blunt", stats.blunt);
@@ -58,7 +98,8 @@ void loadBodyMasteryStats(const nlohmann::json& json, model::BodyMasteryStats& s
   loadIntField(json, "armorTraining", stats.armorTraining);
 }
 
-void loadTrainableCombatStats(const nlohmann::json& json, model::TrainableCombatStats& stats) {
+void loadTrainableCombatStats(const nlohmann::json& json,
+                              model::TrainableCombatStats& stats) {
   if (json.contains("weapon") && json["weapon"].is_object()) {
     loadWeaponMasteryStats(json["weapon"], stats.weapon);
   }
@@ -82,7 +123,8 @@ void loadCharacterSkills(const nlohmann::json& json, model::CharacterSkills& ski
   loadIntField(json, "conditioning", skills.conditioning);
 }
 
-void loadCharacterStats(const nlohmann::json& characterJson, model::CharacterStats& stats) {
+void loadCharacterStats(const nlohmann::json& characterJson,
+                        model::CharacterStats& stats) {
   if (characterJson.contains("stats") && characterJson["stats"].is_object()) {
     const auto& statsJson = characterJson["stats"];
     if (statsJson.contains("generic") && statsJson["generic"].is_object()) {
@@ -124,13 +166,15 @@ namespace db {
 void loadCharacterTemplates(
     const std::string& charactersFilePath,
     std::unordered_map<std::string, model::CharacterTemplate>& characterTemplates) {
-  std::string fileContent = sdl2w::loadFileAsString(charactersFilePath);
+  std::string fileContent =
+      std::string(sdl2w::loadFileAsString(charactersFilePath).sliceView());
 
   nlohmann::json jsonData;
   try {
     jsonData = nlohmann::json::parse(fileContent, nullptr, true, true);
   } catch (const nlohmann::json::parse_error& e) {
-    throw std::runtime_error("Failed to parse JSON file " + charactersFilePath + ": " + e.what());
+    throw std::runtime_error("Failed to parse JSON file " + charactersFilePath + ": " +
+                             e.what());
   }
 
   if (!jsonData.is_array()) {
@@ -155,7 +199,8 @@ void loadCharacterTemplates(
     }
     characterTemplate.label = characterJson["label"];
 
-    if (!characterJson.contains("spritesheet") || !characterJson["spritesheet"].is_string()) {
+    if (!characterJson.contains("spritesheet") ||
+        !characterJson["spritesheet"].is_string()) {
       throw std::runtime_error("Character missing required field: spritesheet");
     }
     characterTemplate.spritesheetName = characterJson["spritesheet"];
@@ -173,8 +218,14 @@ void loadCharacterTemplates(
 
     if (characterJson.contains("behavior") && characterJson["behavior"].is_object()) {
       const auto& behaviorJson = characterJson["behavior"];
-      if (behaviorJson.contains("behaviorName") && behaviorJson["behaviorName"].is_string()) {
-        characterTemplate.behavior.behaviorName = behaviorJson["behaviorName"];
+      if (behaviorJson.contains("behaviorName") &&
+          behaviorJson["behaviorName"].is_string()) {
+        const std::string behaviorStr = behaviorJson["behaviorName"];
+        if (!behaviorStr.empty()) {
+          characterTemplate.behavior.behaviorName =
+              getStringFromCharacterTemplateBehaviorName(
+                  getCharacterTemplateBehaviorNameFromString(behaviorStr));
+        }
       }
     }
 
@@ -195,14 +246,18 @@ void loadCharacterTemplates(
 
     if (characterJson.contains("sound") && characterJson["sound"].is_object()) {
       const auto& soundJson = characterJson["sound"];
-      if (soundJson.contains("deathSoundName") && soundJson["deathSoundName"].is_string()) {
+      if (soundJson.contains("deathSoundName") &&
+          soundJson["deathSoundName"].is_string()) {
         characterTemplate.sound.deathSoundName = soundJson["deathSoundName"];
-      } else if (soundJson.contains("deathSound") && soundJson["deathSound"].is_string()) {
+      } else if (soundJson.contains("deathSound") &&
+                 soundJson["deathSound"].is_string()) {
         characterTemplate.sound.deathSoundName = soundJson["deathSound"];
       }
-      if (soundJson.contains("weaponSoundName") && soundJson["weaponSoundName"].is_string()) {
+      if (soundJson.contains("weaponSoundName") &&
+          soundJson["weaponSoundName"].is_string()) {
         characterTemplate.sound.weaponSoundName = soundJson["weaponSoundName"];
-      } else if (soundJson.contains("weaponSound") && soundJson["weaponSound"].is_string()) {
+      } else if (soundJson.contains("weaponSound") &&
+                 soundJson["weaponSound"].is_string()) {
         characterTemplate.sound.weaponSoundName = soundJson["weaponSound"];
       }
     }
@@ -223,7 +278,8 @@ void loadCharacterTemplates(
     }
 
     if (characterTemplates.find(characterTemplate.name) != characterTemplates.end()) {
-      throw std::runtime_error("Character template already exists: " + characterTemplate.name);
+      throw std::runtime_error("Character template already exists: " +
+                               characterTemplate.name);
     }
 
     characterTemplates[characterTemplate.name] = characterTemplate;

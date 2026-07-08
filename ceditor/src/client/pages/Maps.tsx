@@ -3,6 +3,7 @@ import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
   MAP_TYPES,
+  sanitizeMapGridTemplates,
 } from '../types/assets';
 import { Button } from '../elements/Button';
 import { EditorHeader } from '../components/EditorHeader';
@@ -11,7 +12,7 @@ import { OptionSelect } from '../elements/OptionSelect';
 import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
 import { DeleteModal } from '../elements/DeleteModal';
-import { CreateMapModal } from '../components/CreateMapModal';
+import { CreateMapModal, CreateMapConstraints } from '../components/CreateMapModal';
 import { EditMapModal } from '../components/EditMapModal';
 import {
   OpenMapAndSelectTileArgs,
@@ -20,8 +21,15 @@ import {
 import {
   createEditorStateMap,
   getEditorState,
+  renameEditorStateMap,
 } from '../tile-editor/editorState';
 import { prepareNewMapForEditor } from '../utils/mapIndex';
+import { assignMapToGridCell, findMapGridPlacement, renameMapInGrids } from '../utils/mapGridIndex';
+import {
+  GridSlotCreateRequest,
+  switchMapViewport,
+  saveViewportForMap,
+} from '../tile-editor/editorEvents';
 import {
   findMarkerOnMap,
   locateOnCurrentMap,
@@ -52,12 +60,26 @@ const createEditorStateMapForTabIfNotExists = (mapName: string) => {
   }
 };
 
+const getDuplicateMapName = (
+  baseName: string,
+  existingNames: Set<string>
+): string => {
+  let candidate = `${baseName}_copy`;
+  let n = 2;
+  while (existingNames.has(candidate)) {
+    candidate = `${baseName}_copy${n}`;
+    n++;
+  }
+  return candidate;
+};
+
 interface MapsProps {
   routeParams?: URLSearchParams;
 }
 
 export function Maps({ routeParams }: MapsProps = {}) {
-  const { maps, setMaps, saveMaps } = useAssets();
+  const { maps, setMaps, saveMaps, mapGrids, setMapGrids, saveMapGrids } =
+    useAssets();
   const [openTabs, _setOpenTabs] = useState<OpenTab[]>([]);
   const [activeTabIndex, _setActiveTabIndex] = useState<number | null>(null);
   const [selectedMapIndex, setSelectedMapIndex] = useState<string>('');
@@ -68,6 +90,8 @@ export function Maps({ routeParams }: MapsProps = {}) {
     mapIndex: number | null;
   }>({ isOpen: false, mapIndex: null });
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [gridCreateRequest, setGridCreateRequest] =
+    useState<GridSlotCreateRequest | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const hasRestoredTabsRef = useRef(false);
   const isFirstPersistRef = useRef(true);
@@ -95,12 +119,23 @@ export function Maps({ routeParams }: MapsProps = {}) {
     index: number | null,
     tabsForLookup: OpenTab[] = openTabs
   ) => {
+    const previousMapName =
+      activeTabIndex !== null && tabsForLookup[activeTabIndex]
+        ? tabsForLookup[activeTabIndex].map.name
+        : '';
+
     if (index !== null) {
       const tab = tabsForLookup[index];
       if (tab) {
         createEditorStateMapForTabIfNotExists(tab.map.name);
-        getEditorState().selectedMapName = tab.map.name;
+        const nextMapName = tab.map.name;
+        if (previousMapName !== nextMapName) {
+          switchMapViewport(previousMapName, nextMapName);
+        }
+        getEditorState().selectedMapName = nextMapName;
       }
+    } else if (previousMapName) {
+      saveViewportForMap(previousMapName);
     }
     _setActiveTabIndex(index);
   };
@@ -307,6 +342,88 @@ export function Maps({ routeParams }: MapsProps = {}) {
     showNotification('Map created!', 'success');
   };
 
+  const openMapTabByName = (mapName: string) => {
+    const mapIndex = maps.findIndex((m) => m.name === mapName);
+    if (mapIndex < 0) {
+      return;
+    }
+
+    const existingTabIndex = openTabs.findIndex(
+      (tab) => tab.map.name === mapName
+    );
+
+    if (existingTabIndex >= 0) {
+      createEditorStateMapForTabIfNotExists(mapName);
+      setActiveTabIndex(existingTabIndex);
+    } else {
+      const newTab: OpenTab = {
+        mapIndex,
+        map: maps[mapIndex],
+      };
+      const newTabs = [...openTabs, newTab];
+      createEditorStateMapForTabIfNotExists(mapName);
+      setOpenTabs(newTabs);
+      setActiveTabIndex(newTabs.length - 1);
+    }
+    getEditorState().selectedMapName = mapName;
+  };
+
+  const handleNavigateToGridMap = (mapName: string) => {
+    openMapTabByName(mapName);
+  };
+
+  const handleCreateGridMap = (request: GridSlotCreateRequest) => {
+    setGridCreateRequest(request);
+  };
+
+  const handleConfirmGridCreateMap = async (newMap: CarcerMapTemplate) => {
+    if (!gridCreateRequest) {
+      return;
+    }
+
+    const prepared = prepareNewMapForEditor(newMap);
+    const updatedMapGrids = sanitizeMapGridTemplates(
+      trimStrings(
+        assignMapToGridCell(
+          mapGrids,
+          gridCreateRequest.gridName,
+          gridCreateRequest.cellX,
+          gridCreateRequest.cellY,
+          prepared.name
+        )
+      )
+    );
+
+    try {
+      await saveMapGrids(updatedMapGrids);
+    } catch (err) {
+      showNotification(
+        `Failed to save map grids: ${
+          err instanceof Error ? err.message : 'Unknown error'
+        }`,
+        'error'
+      );
+      return;
+    }
+
+    const newMaps = [...maps, prepared];
+    setMaps(newMaps);
+    setMapGrids(updatedMapGrids);
+
+    const newMapIndex = newMaps.length - 1;
+    const newTab: OpenTab = {
+      mapIndex: newMapIndex,
+      map: prepared,
+    };
+    const newTabs = [...openTabs, newTab];
+    createEditorStateMapForTabIfNotExists(prepared.name);
+    setOpenTabs(newTabs);
+    setActiveTabIndex(newTabs.length - 1);
+    getEditorState().selectedMapName = prepared.name;
+    setGridCreateRequest(null);
+    showNotification('Map created and assigned to grid!', 'success');
+  };
+
   const handleCloseTab = (tabIndex: number) => {
     const newTabs = openTabs.filter((_, index) => index !== tabIndex);
     setOpenTabs(newTabs);
@@ -365,40 +482,56 @@ export function Maps({ routeParams }: MapsProps = {}) {
     setDeleteConfirm({ isOpen: false, mapIndex: null });
   };
 
-  const updateMapInTabs = (updatedMap: CarcerMapTemplate) => {
-    if (activeTab) {
-      const oldMap = activeTab.map;
-      const mapIndex = activeTab.mapIndex;
-      const updatedMaps = [...maps];
-      updatedMaps[mapIndex] = updatedMap;
-      setMaps(updatedMaps);
+  const updateMapInTabs = async (
+    updatedMap: CarcerMapTemplate
+  ): Promise<boolean> => {
+    if (!activeTab) {
+      return true;
+    }
 
-      // Update the tab's map reference
-      const tabIndex = openTabs.findIndex((tab) => tab.mapIndex === mapIndex);
-      if (tabIndex >= 0) {
-        const newTabs = [...openTabs];
-        newTabs[tabIndex] = { ...newTabs[tabIndex], map: updatedMap };
-        setOpenTabs(newTabs);
+    const oldName = activeTab.map.name.trim();
+    const newName = updatedMap.name.trim();
+    const mapIndex = activeTab.mapIndex;
+
+    if (oldName && newName && oldName !== newName) {
+      const updatedMapGrids = sanitizeMapGridTemplates(
+        trimStrings(renameMapInGrids(mapGrids, oldName, newName))
+      );
+
+      if (findMapGridPlacement(oldName, mapGrids)) {
+        try {
+          await saveMapGrids(updatedMapGrids);
+        } catch (err) {
+          showNotification(
+            `Failed to save map grids: ${
+              err instanceof Error ? err.message : 'Unknown error'
+            }`,
+            'error'
+          );
+          return false;
+        }
       }
+
+      setMapGrids(updatedMapGrids);
+      renameEditorStateMap(oldName, newName);
     }
+
+    const updatedMaps = [...maps];
+    updatedMaps[mapIndex] = updatedMap;
+    setMaps(updatedMaps);
+
+    const newTabs = openTabs.map((tab) =>
+      tab.mapIndex === mapIndex ? { ...tab, map: updatedMap } : tab
+    );
+    setOpenTabs(newTabs);
+    return true;
   };
 
-  const handleEditMap = (updatedMap: CarcerMapTemplate) => {
-    updateMapInTabs(updatedMap);
-    setEditModalOpen(false);
-  };
-
-  const getDuplicateMapName = (
-    baseName: string,
-    existingNames: Set<string>
-  ): string => {
-    let candidate = `${baseName}_copy`;
-    let n = 2;
-    while (existingNames.has(candidate)) {
-      candidate = `${baseName}_copy${n}`;
-      n++;
+  const handleEditMap = async (updatedMap: CarcerMapTemplate) => {
+    const saved = await updateMapInTabs(updatedMap);
+    if (saved) {
+      setEditModalOpen(false);
     }
-    return candidate;
   };
 
   const handleDuplicateMap = (sourceMap: CarcerMapTemplate) => {
@@ -575,6 +708,29 @@ export function Maps({ routeParams }: MapsProps = {}) {
   const activeTab = activeTabIndex !== null ? openTabs[activeTabIndex] : null;
   const activeMap = activeTab ? maps[activeTab.mapIndex] : null;
 
+  const gridCreateConstraints: CreateMapConstraints | undefined = (() => {
+    if (!gridCreateRequest) {
+      return undefined;
+    }
+    const base: CreateMapConstraints = {
+      width: gridCreateRequest.mapWidth,
+      height: gridCreateRequest.mapHeight,
+      lockDimensions: true,
+    };
+    if (!activeMap) {
+      return base;
+    }
+    const defaultName = getDuplicateMapName(
+      activeMap.name,
+      new Set(maps.map((m) => m.name))
+    );
+    return {
+      ...base,
+      defaultName,
+      defaultLabel: activeMap.label ? `${activeMap.label} (Copy)` : defaultName,
+    };
+  })();
+
   return (
     <div className="container editor-page">
       <EditorHeader
@@ -691,10 +847,11 @@ export function Maps({ routeParams }: MapsProps = {}) {
           onOpenMapAndSelectTile={(args: OpenMapAndSelectTileArgs) => {
             handleOpenMapAndSelectTile(args);
           }}
+          onNavigateToGridMap={handleNavigateToGridMap}
+          onCreateGridMap={handleCreateGridMap}
         />
       </div>
 
-      {/* Notifications */}
       {notifications.map((notification) => (
         <Notification
           key={notification.id}
@@ -715,6 +872,14 @@ export function Maps({ routeParams }: MapsProps = {}) {
         isOpen={createModalOpen}
         onConfirm={handleCreateMap}
         onCancel={() => setCreateModalOpen(false)}
+      />
+
+      <CreateMapModal
+        isOpen={gridCreateRequest !== null}
+        onConfirm={handleConfirmGridCreateMap}
+        onCancel={() => setGridCreateRequest(null)}
+        constraints={gridCreateConstraints}
+        existingMapNames={maps.map((m) => m.name)}
       />
 
       <EditMapModal

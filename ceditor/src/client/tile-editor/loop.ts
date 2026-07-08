@@ -17,7 +17,9 @@ import {
 import {
   findMapGridPlacement,
   getGridAdjacentMaps,
+  getGridAdjacentSlots,
 } from '../utils/mapGridIndex';
+import { getMapGridSlotDimensions } from './gridMapNavigation';
 import {
   EditorState,
   getEditorStateMap,
@@ -33,6 +35,7 @@ import {
 import { PaintActionType } from './paintTools';
 import { Sprite } from '../utils/assetLoader';
 import {
+  renderGridAdjacentNavigation,
   renderMapTilesAtOffset,
   renderTileAndExtras,
   renderToolUi,
@@ -112,7 +115,8 @@ export const loop = (
     mapDataInterface.getCanvas(),
     mapDataInterface.getEditorState().currentPaintAction as PaintActionType,
     data.ind,
-    mapDataInterface.getEditorState().isSelectDragging
+    mapDataInterface.getEditorState().isSelectDragging,
+    mapDataInterface.getEditorState().hoveredGridAdjacentSlot
   );
 
   const currentAction = getCurrentAction();
@@ -192,13 +196,22 @@ export const loop = (
       const assets = mapDataInterface.getAssets();
       const editorState = mapDataInterface.getEditorState();
       const placement = findMapGridPlacement(currentMap.name, assets.mapGrids);
+      let adjacentSlots: ReturnType<typeof getGridAdjacentSlots> = [];
+      let slotWidth = currentMap.width * spriteWidth * newScale;
+      let slotHeight = currentMap.height * spriteHeight * newScale;
+
       if (placement) {
         const mapsByName: Record<string, CarcerMapTemplate> = {};
         for (const map of assets.maps) {
           mapsByName[map.name] = map;
         }
-        const slotWidth = currentMap.width * spriteWidth * newScale;
-        const slotHeight = currentMap.height * spriteHeight * newScale;
+        ({ slotWidth, slotHeight } = getMapGridSlotDimensions(
+          placement,
+          spriteWidth,
+          spriteHeight,
+          newScale,
+        ));
+        adjacentSlots = getGridAdjacentSlots(placement, mapsByName);
         const adjacentMaps = getGridAdjacentMaps(placement, mapsByName);
         for (const adjacent of adjacentMaps) {
           renderMapTilesAtOffset({
@@ -216,14 +229,22 @@ export const loop = (
             drawOverlayText: false,
           });
         }
+
+        renderGridAdjacentNavigation({
+          ctx,
+          slots: adjacentSlots,
+          slotWidth,
+          slotHeight,
+          hoveredOffset: editorState.hoveredGridAdjacentSlot,
+        });
       }
 
       if (i === 0) {
         drawRect(
           0,
           0,
-          currentMap.width * spriteWidth,
-          currentMap.height * spriteHeight,
+          currentMap.width * spriteWidth * newScale,
+          currentMap.height * spriteHeight * newScale,
           'black',
           false,
           ctx

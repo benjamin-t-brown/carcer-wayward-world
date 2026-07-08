@@ -32,7 +32,8 @@ std::string serializeHiscoreRow(const HiscoreRow& row) {
 std::vector<HiscoreRow> getHighScores() {
   if (!isLoaded) {
     try {
-      const std::string hiscoreText = sdl2w::loadFileAsString(hiscorePath);
+      const std::string hiscoreText =
+          std::string(sdl2w::loadFileAsString(hiscorePath).sliceView());
       if (hiscoreText.size() == 0) {
         saveHighScores(hiscores);
         isLoaded = true;
