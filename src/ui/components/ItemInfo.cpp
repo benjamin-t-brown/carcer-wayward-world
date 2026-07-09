@@ -1,5 +1,5 @@
 #include "ItemInfo.h"
-#include "lib/sdl2w/L10n.h"
+#include "sdl2w/L10n.h"
 #include "ui/colors.h"
 #include <cmath>
 #include "ui/elements/TextLine.h"
@@ -12,6 +12,9 @@ ItemInfo::ItemInfo(sdl2w::Window* _window, UiElement* _parent)
 
 void ItemInfo::setProps(const ItemInfoProps& _props) {
   props = _props;
+  if (props.width > 0) {
+    style.width = props.width;
+  }
   build();
 }
 
@@ -20,18 +23,24 @@ const ItemInfoProps& ItemInfo::getProps() const { return props; }
 void ItemInfo::build() {
   children.clear();
 
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+
+  TextFontProps font;
+  setBaseFontConfig(font, BaseFontConfig::MODAL_TEXT);
+
   auto description = new TextParagraph(window, this);
   description->setId("description");
-  auto& descStyle = description->getStyle();
-  descStyle.x = style.x;
-  descStyle.y = style.y;
-  descStyle.width = style.width;
-  descStyle.scale = 1.f;
-  setBaseFontConfig(descStyle, BaseFontConfig::MODAL_TEXT);
-  descStyle.fontColor = Colors::Black;
-  descStyle.textAlign = TextAlign::LEFT_TOP;
-  descStyle.lineSpacing = 0;
+  description->setPos(style.x, style.y);
+  description->setScale(1.f);
   TextParagraphProps descProps;
+  descProps.width = style.width;
+  descProps.fontFamily = font.fontFamily;
+  descProps.fontSize = font.fontSize;
+  descProps.fontColor = Colors::Black;
+  descProps.textAlign = TextAlign::LEFT_TOP;
+  descProps.lineSpacing = 0;
   descProps.textBlocks.pushBack({.text = props.description});
   description->setProps(descProps);
   addChild(description);
@@ -39,16 +48,18 @@ void ItemInfo::build() {
   auto [descWidthScaled, descHeightScaled] = description->getDims();
   auto weightLine = new TextLine(window, this);
   weightLine->setId("weight");
-  auto& weightStyle = weightLine->getStyle();
-  weightStyle.x = style.x;
-  weightStyle.y = descStyle.y + descHeightScaled + kVertSpacerHeight * style.scale;
-  weightStyle.scale = 1.f;
-  setBaseFontConfig(weightStyle, BaseFontConfig::MODAL_TEXT);
-  weightStyle.fontColor = Colors::DarkBlue;
-  weightStyle.textAlign = TextAlign::LEFT_TOP;
+  weightLine->setPos(style.x,
+                     style.y + descHeightScaled +
+                         static_cast<int>(kVertSpacerHeight * style.scale));
+  weightLine->setScale(1.f);
   TextLineProps weightProps;
+  weightProps.fontFamily = font.fontFamily;
+  weightProps.fontSize = font.fontSize;
+  weightProps.fontColor = Colors::DarkBlue;
+  weightProps.textAlign = TextAlign::LEFT_TOP;
   weightProps.textBlocks.pushBack({
-      .text = TRANSLATE("Weight: ") + bmin::toString(props.weight) + bmin::String(TRANSLATE(" lbs")),
+      .text = TRANSLATE("Weight: ") + bmin::toString(props.weight) +
+              bmin::String(TRANSLATE(" lbs")),
   });
   weightLine->setProps(weightProps);
   addChild(weightLine);
@@ -56,16 +67,20 @@ void ItemInfo::build() {
 
   auto valueLine = new TextLine(window, this);
   valueLine->setId("value");
-  auto& valueStyle = valueLine->getStyle();
-  valueStyle.x = style.x;
-  valueStyle.y = weightStyle.y + weightLineHeight + kVertSpacerHeight * style.scale;
-  valueStyle.scale = 1.f;
-  setBaseFontConfig(valueStyle, BaseFontConfig::MODAL_TEXT);
-  valueStyle.fontColor = Colors::DarkGrey;
-  valueStyle.textAlign = TextAlign::LEFT_TOP;
+  valueLine->setPos(style.x,
+                    style.y + descHeightScaled +
+                        static_cast<int>(kVertSpacerHeight * style.scale) +
+                        weightLineHeight +
+                        static_cast<int>(kVertSpacerHeight * style.scale));
+  valueLine->setScale(1.f);
   TextLineProps valueProps;
+  valueProps.fontFamily = font.fontFamily;
+  valueProps.fontSize = font.fontSize;
+  valueProps.fontColor = Colors::DarkGrey;
+  valueProps.textAlign = TextAlign::LEFT_TOP;
   valueProps.textBlocks.pushBack({
-      .text = TRANSLATE("Value: ") + bmin::toString(props.value) + bmin::String(TRANSLATE(" gp")),
+      .text = TRANSLATE("Value: ") + bmin::toString(props.value) +
+              bmin::String(TRANSLATE(" gp")),
   });
   valueLine->setProps(valueProps);
   addChild(valueLine);

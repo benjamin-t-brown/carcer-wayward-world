@@ -1,5 +1,5 @@
 #include "LayerPopupText.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 #include "ui/colors.h"
 #include "ui/components/borders/BorderDropShadow.h"
 #include "ui/components/FloatingNotificationSection.h"
@@ -45,15 +45,15 @@ LayerPopupText::LayerPopupText(sdl2w::Window* _window,
 
   auto* titleLine = new ui::TextLine(window, nullptr);
   titleLine->setId("title");
-  auto& titleStyle = titleLine->getStyle();
-  titleStyle.x = PADDING;
-  titleStyle.y = headerY + closeButtonSize / 2;
-  titleStyle.width = titleWidth;
-  titleStyle.scale = 1.f;
-  ui::setBaseFontConfig(titleStyle, ui::BaseFontConfig::MODAL_TITLE);
-  titleStyle.fontColor = ui::Colors::Black;
-  titleStyle.textAlign = ui::TextAlign::LEFT_CENTER;
+  titleLine->setPos(PADDING, headerY + closeButtonSize / 2);
+  titleLine->setScale(1.f);
+  ui::TextFontProps titleFont;
+  ui::setBaseFontConfig(titleFont, ui::BaseFontConfig::MODAL_TITLE);
   ui::TextLineProps titleProps;
+  titleProps.fontFamily = titleFont.fontFamily;
+  titleProps.fontSize = titleFont.fontSize;
+  titleProps.fontColor = ui::Colors::Black;
+  titleProps.textAlign = ui::TextAlign::LEFT_CENTER;
   titleProps.textBlocks.pushBack({.text = title});
   titleLine->setProps(titleProps);
   auto [_, titleHeight] = titleLine->calculateTextDims();
@@ -62,18 +62,19 @@ LayerPopupText::LayerPopupText(sdl2w::Window* _window,
 
   auto* paragraph = new ui::TextParagraph(window, nullptr);
   paragraph->setId("helpText");
-  auto& paragraphStyle = paragraph->getStyle();
-  paragraphStyle.x = PADDING;
-  paragraphStyle.y = contentY;
-  paragraphStyle.width = bodyWidth;
-  paragraphStyle.scale = 1.f;
-  ui::setBaseFontConfig(paragraphStyle, ui::BaseFontConfig::MODAL_TEXT);
-  paragraphStyle.fontColor = ui::Colors::Black;
-  paragraphStyle.textAlign = ui::TextAlign::LEFT_TOP;
-  paragraphStyle.lineSpacing = 0;
+  paragraph->setPos(PADDING, contentY);
+  paragraph->setScale(1.f);
+  ui::TextFontProps paragraphFont;
+  ui::setBaseFontConfig(paragraphFont, ui::BaseFontConfig::MODAL_TEXT);
   ui::TextParagraphProps paragraphProps;
-  paragraphProps.textBlocks.pushBack({.text = text});
+  paragraphProps.width = bodyWidth;
+  paragraphProps.fontFamily = paragraphFont.fontFamily;
+  paragraphProps.fontSize = paragraphFont.fontSize;
+  paragraphProps.fontColor = ui::Colors::Black;
+  paragraphProps.textAlign = ui::TextAlign::LEFT_TOP;
+  paragraphProps.lineSpacing = 0;
   paragraphProps.padding = 0;
+  paragraphProps.textBlocks.pushBack({.text = text});
   paragraph->setProps(paragraphProps);
   auto [__, messageHeight] = paragraph->getDims();
   contentY += messageHeight;
@@ -84,34 +85,28 @@ LayerPopupText::LayerPopupText(sdl2w::Window* _window,
 
   auto* root = new ui::UiElement(window, nullptr);
   root->setId("popupTextRoot");
-  auto& rootStyle = root->getStyle();
-  rootStyle.x = 0;
-  rootStyle.y = 0;
-  rootStyle.width = windowWidth;
-  rootStyle.height = windowHeight;
-  rootStyle.scale = 1.f;
+  root->setPos(0, 0);
+  root->setScale(1.f);
 
   auto* backdrop = new ui::Quad(window, root);
   backdrop->setId("backdrop");
-  auto& backdropStyle = backdrop->getStyle();
-  backdropStyle.x = 0;
-  backdropStyle.y = 0;
-  backdropStyle.width = windowWidth;
-  backdropStyle.height = windowHeight;
-  backdropStyle.scale = 1.f;
-  backdrop->setProps(ui::QuadProps{.bgColor = ui::Colors::Transparent});
+  backdrop->setPos(0, 0);
+  backdrop->setScale(1.f);
+  backdrop->setProps(ui::QuadProps{
+      .width = windowWidth,
+      .height = windowHeight,
+      .bgColor = ui::Colors::Transparent,
+  });
   backdrop->addEventObserver(new ui::ObserverRemoveLayer(LAYER_ID));
   root->addChild(backdrop);
 
   auto* border = new ui::BorderDropShadow(window, root);
   border->setId("border");
-  auto& borderStyle = border->getStyle();
-  borderStyle.x = popupX;
-  borderStyle.y = popupY;
-  borderStyle.width = POPUP_WIDTH;
-  borderStyle.height = popupHeight;
-  borderStyle.scale = 1.f;
+  border->setPos(popupX, popupY);
+  border->setScale(1.f);
   border->setProps(ui::BorderDropShadowProps{
+      .width = POPUP_WIDTH,
+      .height = popupHeight,
       .backgroundColor = ui::Colors::White,
       .shadowColor = ui::Colors::Black,
       .borderSize = 2,
@@ -122,12 +117,9 @@ LayerPopupText::LayerPopupText(sdl2w::Window* _window,
 
   auto* closeButton = new ui::ButtonClose(window, root);
   closeButton->setId("closeButton");
-  auto& closeStyle = closeButton->getStyle();
-  closeStyle.x = popupX + POPUP_WIDTH - closeButtonSize - CLOSE_BUTTON_PADDING;
-  closeStyle.y = popupY + CLOSE_BUTTON_PADDING;
-  closeStyle.width = closeButtonSize;
-  closeStyle.height = closeButtonSize;
-  closeStyle.scale = 1.f;
+  closeButton->setPos(popupX + POPUP_WIDTH - closeButtonSize - CLOSE_BUTTON_PADDING,
+                      popupY + CLOSE_BUTTON_PADDING);
+  closeButton->setScale(1.f);
   closeButton->setProps(ui::ButtonCloseProps{.closeType = ui::CloseType::POPUP});
   closeButton->addEventObserver(new ui::ObserverRemoveLayer(LAYER_ID));
   root->addChild(closeButton);

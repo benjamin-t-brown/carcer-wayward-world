@@ -1,7 +1,7 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/pages/PageTalkChoice.h"
@@ -29,16 +29,13 @@ int main(int argc, char** argv) {
 
     auto pageTalkChoice = new ui::PageTalkChoice(&window, nullptr);
     pageTalkChoice->setId("pageTalkChoice");
-    auto& style = pageTalkChoice->getStyle();
     auto scale = 1.f;
-    style.width = windowWidth / scale;
-    style.height = windowHeight / scale;
-    style.x = 0;
-    style.y = 0;
-    style.scale = scale;
-    pageTalkChoice->setStyle(style);
+    pageTalkChoice->setPos(0, 0);
+    pageTalkChoice->setScale(scale);
 
     ui::PageTalkChoiceProps pageProps;
+    pageProps.width = static_cast<int>(windowWidth / scale);
+    pageProps.height = static_cast<int>(windowHeight / scale);
     pageProps.title = "Dockmaster Claire";
     pageProps.portraitSpriteName = "";
     pageProps.choices = {

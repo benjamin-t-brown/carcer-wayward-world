@@ -1,5 +1,5 @@
 #include "LayerInventoryContext.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/popups/PopupInventoryItem.h"
@@ -55,11 +55,6 @@ LayerInventoryContext::LayerInventoryContext(sdl2w::Window* _window,
   auto popupInventoryItem = new ui::PopupInventoryItem(window, nullptr, orientation);
   popupInventoryItem->setId("popupInventoryItem");
 
-  auto& style = popupInventoryItem->getStyle();
-  style.x = (windowWidth - style.width) / 2;
-  style.y = (windowHeight - style.height) / 2;
-  style.scale = 1.0f;
-
   ui::PopupInventoryItemProps popupProps;
   popupProps.characterPlayerId = inventoryPartyMember->instanceId;
   popupProps.item = {
@@ -74,6 +69,11 @@ LayerInventoryContext::LayerInventoryContext(sdl2w::Window* _window,
   popupProps.value = itemInstance.quantity * itemTemplate.value;
   popupProps.orientation = orientation;
   popupInventoryItem->setProps(popupProps);
+
+  auto [popupW, popupH] = popupInventoryItem->getDims();
+  popupInventoryItem->setPos((windowWidth - popupW) / 2, (windowHeight - popupH) / 2);
+  popupInventoryItem->setScale(1.0f);
+  popupInventoryItem->build();
 
   addUiElement(popupInventoryItem);
 

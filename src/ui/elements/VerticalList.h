@@ -1,13 +1,13 @@
 #pragma once
 
 #include "../UiElement.h"
-#include "ui/elements/Quad.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "bmin/DynArray.h"
+#include "ui/SdlPixels.h" // IWYU pragma: keep
 
 namespace ui {
 
 struct VerticalListProps {
+  int width = 0;
   int lineHeight = 20;
   int lineGap = 2;
   SDL_Color bgColor = SDL_Color{255, 255, 255, 0};

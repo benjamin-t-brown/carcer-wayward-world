@@ -41,14 +41,18 @@ void UiElement::removeChildById(std::string_view childId) {
   });
 }
 
-void UiElement::setStyle(const BaseStyle& _style) { style = _style; }
+void UiElement::setPos(int x, int y) {
+  style.x = x;
+  style.y = y;
+}
 
-BaseStyle& UiElement::getStyle() { return style; }
+void UiElement::setScale(float scale) { style.scale = scale; }
 
-const BaseStyle& UiElement::getStyle() const { return style; }
+std::pair<int, int> UiElement::getPos() const { return {style.x, style.y}; }
 
 const std::pair<int, int> UiElement::getDims() const {
-  return {round(style.width * style.scale), round(style.height * style.scale)};
+  return {static_cast<int>(round(style.width * style.scale)),
+          static_cast<int>(round(style.height * style.scale))};
 }
 
 void UiElement::setId(const bmin::String& _id) { id = _id; }

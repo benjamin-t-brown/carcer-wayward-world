@@ -1,8 +1,8 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Events.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Events.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/elements/buttons/ButtonGroup.h"
@@ -41,10 +41,8 @@ static void addButtonGroup(sdl2w::Window& window,
   }
   auto group = new ui::ButtonGroup(&window);
   group->setId(id);
-  auto& groupStyle = group->getStyle();
-  groupStyle.x = x;
-  groupStyle.y = y;
-  groupStyle.scale = 1.f;
+  group->setPos(x, y);
+  group->setScale(1.f);
   group->setProps(ui::ButtonGroupProps{
       .alignment = alignment,
       .buttonWidth = 100,

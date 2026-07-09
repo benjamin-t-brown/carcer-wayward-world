@@ -21,6 +21,6 @@ sdl2w
 TestUi
 .DS_Store
 node_modules/
-src/lib/sdl2w/
+src/sdl2w/
 src/lib/bmin/
 .ai/

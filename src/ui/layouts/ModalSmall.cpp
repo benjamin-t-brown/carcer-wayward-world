@@ -1,5 +1,5 @@
 #include "ModalSmall.h"
-#include "lib/sdl2w/Draw.h"
+#include "sdl2w/Draw.h"
 #include "ui/components/borders/BorderModalSmall.h"
 #include "ui/elements/buttons/ButtonClose.h"
 
@@ -12,6 +12,12 @@ ModalSmall::ModalSmall(sdl2w::Window* _window, UiElement* _parent)
 
 void ModalSmall::setProps(const ModalSmallProps& _props) {
   props = _props;
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
   build();
 }
 
@@ -24,7 +30,7 @@ int ModalSmall::getScaledButtonsAreaHeight() {
   if (borderElement == nullptr) {
     return 0;
   }
-  return static_cast<int>(BUTTONS_AREA_HEIGHT * borderElement->getStyle().scale);
+  return static_cast<int>(BUTTONS_AREA_HEIGHT * style.scale);
 }
 
 const std::pair<int, int> ModalSmall::getButtonsDims() {
@@ -69,13 +75,10 @@ void ModalSmall::setTitleElement(UiElement* _titleElement) {
   auto borderElement = dynamic_cast<BorderModalSmall*>(getChildById("border"));
   // Add new title element
   if (_titleElement && borderElement) {
-    auto& titleStyle = _titleElement->getStyle();
     auto [titleX, titleY] = borderElement->getTitleLocation();
     auto [titleWidth, titleHeight] = _titleElement->getDims();
-    titleStyle.x = titleX;
-    titleStyle.y = titleY - titleHeight / 2;
+    _titleElement->setPos(titleX, titleY - titleHeight / 2);
     _titleElement->setId("title");
-    _titleElement->build();
     addChild(_titleElement);
   }
 }
@@ -88,15 +91,22 @@ void ModalSmall::build() {
   removeChildById("border");
   removeChildById("closeButton");
 
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
+
   // Create border element
   auto border = new BorderModalSmall(window, this);
   border->setId("border");
-  auto& borderStyle = border->getStyle();
-  borderStyle.x = style.x;
-  borderStyle.y = style.y;
-  borderStyle.width = style.width;
-  borderStyle.height = style.height;
-  borderStyle.scale = style.scale;
+  border->setPos(style.x, style.y);
+  border->setScale(style.scale);
+  border->setProps(BorderModalSmallProps{
+      .width = style.width,
+      .height = style.height,
+  });
   addChild(border);
 
   if (props.enableCloseButton) {
@@ -104,13 +114,8 @@ void ModalSmall::build() {
 
     auto modalClose = new ButtonClose(window, this);
     modalClose->setId("closeButton");
-    ui::BaseStyle modalCloseStyle;
-    modalCloseStyle.x = closeX;
-    modalCloseStyle.y = closeY;
-    modalCloseStyle.width = 32;
-    modalCloseStyle.height = 32;
-    modalCloseStyle.scale = style.scale;
-    modalClose->setStyle(modalCloseStyle);
+    modalClose->setPos(closeX, closeY);
+    modalClose->setScale(style.scale);
     ui::ButtonCloseProps modalCloseProps;
     modalCloseProps.closeType = ui::CloseType::MODAL;
     modalClose->setProps(modalCloseProps);

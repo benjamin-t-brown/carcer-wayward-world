@@ -42,16 +42,18 @@ void HorizontalList::removeListItemAtIndex(size_t index) {
 
 const std::pair<int, int> HorizontalList::getDims() const {
   auto w = (props.lineWidth + props.lineGap) * static_cast<int>(children.size());
-  auto h = style.height;
+  auto h = props.height > 0 ? props.height : style.height;
   return {static_cast<int>(w * style.scale), static_cast<int>(h * style.scale)};
 }
 
 void HorizontalList::build() {
+  if (props.height > 0) {
+    style.height = props.height;
+  }
   for (size_t i = 0; i < children.size(); i++) {
     auto& child = children[i];
-    auto& s = child->getStyle();
-    s.x = style.x + (props.lineWidth + props.lineGap) * static_cast<int>(i);
-    s.y = style.y;
+    child->setPos(style.x + (props.lineWidth + props.lineGap) * static_cast<int>(i),
+                  style.y);
     child->build();
   }
 }

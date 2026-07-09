@@ -1,7 +1,7 @@
 #include "ButtonGroup.h"
 #include "ButtonModal.h"
 #include "ButtonSprite.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 #include <algorithm>
 
 namespace ui {
@@ -11,6 +11,9 @@ ButtonGroup::ButtonGroup(sdl2w::Window* _window, UiElement* _parent)
 
 void ButtonGroup::setProps(const ButtonGroupProps& _props) {
   props = _props;
+  if (props.width > 0) {
+    style.width = props.width;
+  }
   build();
 }
 
@@ -29,6 +32,10 @@ void ButtonGroup::addObserverToButtonAtIndex(int index, UiEventObserver* observe
 
 void ButtonGroup::build() {
   children.clear();
+
+  if (props.width > 0) {
+    style.width = props.width;
+  }
 
   if (props.buttons.empty()) {
     return;
@@ -73,24 +80,21 @@ void ButtonGroup::build() {
     case ButtonGroupButtonType::MODAL: {
       auto button = new ButtonModal(window, this);
       button->setId("buttonGroupButton_" + bmin::toString(i));
-      auto& buttonStyle = button->getStyle();
-      buttonStyle.x = buttonX;
-      buttonStyle.y = buttonY;
-      buttonStyle.width = props.buttonWidth;
-      buttonStyle.height = props.buttonHeight;
-      buttonStyle.scale = style.scale;
-      button->setProps(ButtonModalProps{buttonProps.label});
+      button->setPos(buttonX, buttonY);
+      button->setScale(style.scale);
+      button->setProps(ButtonModalProps{
+          .text = buttonProps.label,
+          .width = props.buttonWidth,
+          .height = props.buttonHeight,
+      });
       addChild(button);
-      button->build();
       break;
     }
     case ButtonGroupButtonType::SPRITE: {
       auto button = new ButtonSprite(window, this);
       button->setId("buttonGroupButton_" + bmin::toString(i));
-      auto& buttonStyle = button->getStyle();
-      buttonStyle.x = buttonX;
-      buttonStyle.y = buttonY;
-      buttonStyle.scale = style.scale;
+      button->setPos(buttonX, buttonY);
+      button->setScale(style.scale);
       button->setProps(ButtonSpriteProps{
           .spriteName = buttonProps.spriteName,
           .spriteWidth = buttonProps.spriteWidth,

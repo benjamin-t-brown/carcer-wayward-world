@@ -1,6 +1,6 @@
 #include "db/Database.h"
 #include "db/loaders/LoadMapTemplates.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 #include "bmin/String.h"
 #include "bmin/DynArray.h"
 #include "bmin/Map.h"

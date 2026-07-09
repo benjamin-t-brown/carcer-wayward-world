@@ -4,7 +4,7 @@
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
 #include "bmin/UniquePtr.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Window.h"
 #include "state/AbstractAction.h"
 #include "state/DatabaseInterface.h"
 #include "state/StateManager.h"

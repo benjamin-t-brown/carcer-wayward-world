@@ -1,5 +1,6 @@
 #include "HorizontalSlider.h"
 #include "TextLine.h"
+#include "ui/TextStyle.h"
 #include "ui/colors.h"
 #include "ui/elements/Quad.h"
 #include "ui/elements/buttons/ButtonScroll.h"
@@ -44,6 +45,16 @@ void HorizontalSlider::setProps(const HorizontalSliderProps& _props) {
 HorizontalSliderProps& HorizontalSlider::getProps() { return props; }
 
 const HorizontalSliderProps& HorizontalSlider::getProps() const { return props; }
+
+void HorizontalSlider::setPos(int x, int y) {
+  UiElement::setPos(x, y);
+  build();
+}
+
+void HorizontalSlider::setScale(float scale) {
+  UiElement::setScale(scale);
+  build();
+}
 
 bool HorizontalSlider::isInSliderTrack(int mouseX, int mouseY) const {
   const int buttonSize = props.sliderBarHeight * style.scale;
@@ -102,19 +113,19 @@ void HorizontalSlider::refreshValueUi() {
   const float pct = static_cast<float>(props.value - props.minValue) / range;
 
   if (auto* thumb = dynamic_cast<Quad*>(getChildById("thumb"))) {
-    auto& thumbStyle = thumb->getStyle();
     const int maxThumbOffset =
         std::max<int>(0, trackWidth - props.indicatorWidth * style.scale);
-    thumbStyle.x = trackX + static_cast<int>(pct * maxThumbOffset);
-    thumb->build();
+    thumb->setPos(trackX + static_cast<int>(pct * maxThumbOffset), style.y);
   }
 
   if (auto* valueLabel = dynamic_cast<TextLine*>(getChildById("valueLabel"))) {
-    TextLineProps valueProps;
+    TextLineProps valueProps = valueLabel->getProps();
+    valueProps.textBlocks.clear();
     valueProps.textBlocks.pushBack({
         .text = bmin::toString(props.value) + " / " + bmin::toString(props.maxValue),
         .fontColor = props.labelColor,
     });
+    valueProps.fontColor = props.labelColor;
     valueLabel->setProps(valueProps);
   }
 }
@@ -173,43 +184,38 @@ void HorizontalSlider::build() {
   const int buttonSize = scaledBarHeight;
   const int trackX = style.x + buttonSize;
   const int trackWidth = std::max<int>(0, scaledWidth - buttonSize * 2);
+
   auto leftButton = new ButtonScroll(window, this);
   leftButton->setId("leftButton");
-  auto& leftStyle = leftButton->getStyle();
-  leftStyle.x = style.x;
-  leftStyle.y = style.y;
-  leftStyle.width = props.sliderBarHeight;
-  leftStyle.height = props.sliderBarHeight;
-  leftStyle.scale = style.scale;
+  leftButton->setPos(style.x, style.y);
+  leftButton->setScale(style.scale);
   leftButton->setProps(ButtonScrollProps{
       .direction = ScrollDirection::LEFT,
+      .width = props.sliderBarHeight,
+      .height = props.sliderBarHeight,
   });
   leftButton->addEventObserver(new HorizontalSliderButtonObserver(this, false));
   addChild(leftButton);
 
   auto rightButton = new ButtonScroll(window, this);
   rightButton->setId("rightButton");
-  auto& rightStyle = rightButton->getStyle();
-  rightStyle.x = style.x + scaledWidth - buttonSize;
-  rightStyle.y = style.y;
-  rightStyle.width = props.sliderBarHeight;
-  rightStyle.height = props.sliderBarHeight;
-  rightStyle.scale = style.scale;
+  rightButton->setPos(style.x + scaledWidth - buttonSize, style.y);
+  rightButton->setScale(style.scale);
   rightButton->setProps(ButtonScrollProps{
       .direction = ScrollDirection::RIGHT,
+      .width = props.sliderBarHeight,
+      .height = props.sliderBarHeight,
   });
   rightButton->addEventObserver(new HorizontalSliderButtonObserver(this, true));
   addChild(rightButton);
 
   auto track = new Quad(window, this);
   track->setId("track");
-  auto& trackStyle = track->getStyle();
-  trackStyle.x = trackX;
-  trackStyle.y = style.y;
-  trackStyle.width = trackWidth;
-  trackStyle.height = scaledBarHeight;
-  trackStyle.scale = 1.f;
+  track->setPos(trackX, style.y);
+  track->setScale(1.f);
   track->setProps(QuadProps{
+      .width = trackWidth,
+      .height = scaledBarHeight,
       .bgColor = Colors::Transparent,
       .borderColor = Colors::Black,
       .borderSize = 0,
@@ -218,13 +224,11 @@ void HorizontalSlider::build() {
 
   auto thumb = new Quad(window, this);
   thumb->setId("thumb");
-  auto& thumbStyle = thumb->getStyle();
-  thumbStyle.x = trackX;
-  thumbStyle.y = style.y;
-  thumbStyle.width = props.indicatorWidth * style.scale;
-  thumbStyle.height = scaledBarHeight;
-  thumbStyle.scale = 1.f;
+  thumb->setPos(trackX, style.y);
+  thumb->setScale(1.f);
   thumb->setProps(QuadProps{
+      .width = props.indicatorWidth * static_cast<int>(style.scale),
+      .height = scaledBarHeight,
       .bgColor = Colors::Grey,
       .borderColor = Colors::Black,
       .borderSize = 0,
@@ -233,14 +237,16 @@ void HorizontalSlider::build() {
 
   auto valueLabel = new TextLine(window, this);
   valueLabel->setId("valueLabel");
-  auto& labelStyle = valueLabel->getStyle();
-  setBaseFontConfig(labelStyle, BaseFontConfig::MODAL_TEXT);
-  labelStyle.textAlign = TextAlign::CENTER;
-  labelStyle.fontColor = props.labelColor;
-  labelStyle.scale = 1.f;
-  labelStyle.x = style.x + scaledWidth / 2;
-  labelStyle.y = style.y + scaledBarHeight + static_cast<int>(8 * style.scale);
+  valueLabel->setPos(style.x + scaledWidth / 2,
+                     style.y + scaledBarHeight + static_cast<int>(8 * style.scale));
+  valueLabel->setScale(1.f);
   TextLineProps valueLabelProps;
+  TextFontProps font;
+  setBaseFontConfig(font, BaseFontConfig::MODAL_TEXT);
+  valueLabelProps.fontFamily = font.fontFamily;
+  valueLabelProps.fontSize = font.fontSize;
+  valueLabelProps.fontColor = props.labelColor;
+  valueLabelProps.textAlign = TextAlign::CENTER;
   valueLabelProps.textBlocks.pushBack({.text = ""});
   valueLabel->setProps(valueLabelProps);
   addChild(valueLabel);

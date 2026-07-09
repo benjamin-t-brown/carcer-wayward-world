@@ -7,6 +7,12 @@ BorderInGameNarrow::BorderInGameNarrow(sdl2w::Window* _window, UiElement* _paren
 
 void BorderInGameNarrow::setProps(const BorderInGameNarrowProps& _props) {
   props = _props;
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
   build();
 }
 
@@ -48,6 +54,13 @@ const std::pair<int, int> BorderInGameNarrow::getActionButtonsAreaLocation() con
 
 void BorderInGameNarrow::build() {
   children.clear();
+
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
 
   int width = scaledWidth();
   int height = scaledHeight();

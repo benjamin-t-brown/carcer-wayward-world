@@ -1,8 +1,8 @@
 #include "../../setupTestUi.h"
 #include "db/Database.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "model/templates/UtilityTypes.h"
 #include "state/DatabaseInterface.h"
 #include "state/StateManagerInterface.h"
@@ -34,14 +34,15 @@ int main(int argc, char** argv) {
     auto scale = 1.f;
     auto minipagePickUp = new ui::MinipagePickUp(&window);
     minipagePickUp->setId("minipagePickUp");
-    auto& style = minipagePickUp->getStyle();
-    style.width = 500 / scale;
-    style.height = (windowHeight - 50) / scale;
-    style.x = (windowWidth - style.width * scale) / 2;
-    style.y = (windowHeight - style.height * scale) / 2;
-    style.scale = scale;
+    const int width = static_cast<int>(500 / scale);
+    const int height = static_cast<int>((windowHeight - 50) / scale);
+    minipagePickUp->setPos((windowWidth - width * scale) / 2,
+                           (windowHeight - height * scale) / 2);
+    minipagePickUp->setScale(scale);
 
     minipagePickUp->setProps({
+        .width = width,
+        .height = height,
         .statusText = "Too heavy!",
         .weightText = "Carrying 199/500",
         .nearbyItems =

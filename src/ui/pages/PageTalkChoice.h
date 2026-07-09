@@ -13,6 +13,8 @@ struct PageTalkChoiceItem {
   bmin::String prefixText;
 };
 struct PageTalkChoiceProps {
+  int width = 0;
+  int height = 0;
   bmin::String title;
   bmin::String portraitSpriteName;
   int choiceAreaHeight = 100;

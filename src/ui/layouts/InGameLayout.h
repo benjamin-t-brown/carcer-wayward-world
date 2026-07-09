@@ -15,6 +15,8 @@ enum class InGameBorderType { Wide, Narrow };
 
 // InGameLayout layout properties
 struct InGameLayoutProps {
+  int width = 0;
+  int height = 0;
   bmin::DynArray<state::WorldActionType> worldActionTypes;
   bmin::DynArray<ChCompactInfoProps> partyMembers;
   float actionButtonScale = 1.f;

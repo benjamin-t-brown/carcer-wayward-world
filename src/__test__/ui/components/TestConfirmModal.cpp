@@ -1,7 +1,7 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Events.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Events.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/components/ConfirmModal.h"
@@ -47,11 +47,9 @@ int main(int argc, char** argv) {
         .cancelButtonLabel = "No",
     });
 
-    auto& style = modal->getStyle();
-    style.scale = 1.f;
+    modal->setScale(1.f);
     const auto [modalW, modalH] = modal->getDims();
-    style.x = (windowWidth - modalW) / 2;
-    style.y = (windowHeight - modalH) / 2;
+    modal->setPos((windowWidth - modalW) / 2, (windowHeight - modalH) / 2);
     modal->build();
 
     auto* buttonGroup = modal->getButtonGroup();

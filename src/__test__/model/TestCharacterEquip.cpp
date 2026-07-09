@@ -1,5 +1,5 @@
 #include "db/Database.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/Items.h"
 #include "bmin/String.h"
@@ -57,6 +57,21 @@ int main(int argc, char** argv) {
                model::EquipItemResult::EQUIPPED);
   assert(character.equipment.weapon0Id == "dagger1");
   assert(character.equipment.weapon1Id == "dagger2");
+  assert(model::characterPlayerGetEquipmentSlotForItemId(character, "dagger1") ==
+         model::CharacterEquipmentSlot::WEAPON0);
+  assert(model::characterPlayerGetEquipmentSlotForItemId(character, "dagger2") ==
+         model::CharacterEquipmentSlot::WEAPON1);
+  assert(model::characterEquipmentSlotAbbrev(model::CharacterEquipmentSlot::WEAPON0) ==
+         "m");
+  assert(model::characterEquipmentSlotAbbrev(model::CharacterEquipmentSlot::WEAPON1) ==
+         "o");
+  assert(model::characterEquipmentSlotAbbrev(model::CharacterEquipmentSlot::HAT) == "h");
+  assert(model::characterEquipmentSlotAbbrev(model::CharacterEquipmentSlot::GLOVES) ==
+         "g");
+  assert(model::characterEquipmentSlotAbbrev(model::CharacterEquipmentSlot::SHOES) ==
+         "f");
+  assert(model::characterEquipmentSlotAbbrev(model::CharacterEquipmentSlot::SHIELD) ==
+         "o");
 
   assertResult(model::characterPlayerToggleEquipItem(character, "dagger3", database),
                model::EquipItemResult::SLOT_OCCUPIED);

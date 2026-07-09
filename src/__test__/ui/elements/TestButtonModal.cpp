@@ -1,8 +1,8 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Events.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Events.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/UiElement.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/elements/buttons/ButtonScroll.h"
@@ -53,174 +53,137 @@ int main(int argc, char** argv) {
     // Create first button (not selected)
     auto button1 = bmin::makeUnique<ui::ButtonModal>(&window);
     button1->setId("button1");
-    ui::BaseStyle button1Style;
-    button1Style.x = 50;
-    button1Style.y = 50;
-    button1Style.width = 200;
-    button1Style.height = 50;
-    button1->setStyle(button1Style);
-    ui::ButtonModalProps button1Props;
-    button1Props.text = "Button 1 (Normal)";
-    button1Props.isSelected = false;
-    button1->setProps(button1Props);
+    button1->setPos(50, 50);
+    button1->setProps(ui::ButtonModalProps{
+        .text = "Button 1 (Normal)",
+        .isSelected = false,
+        .width = 200,
+        .height = 50,
+    });
     button1->addEventObserver(new TestButtonObserver("button1"));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button1.release()));
 
     // Create second button (selected)
     auto button2 = bmin::makeUnique<ui::ButtonModal>(&window);
     button2->setId("button2");
-
-    button2->addEventObserver(new TestButtonObserver("button2"));
-
-    ui::BaseStyle button2Style;
-    button2Style.x = 50;
-    button2Style.y = 120;
-    button2Style.width = 200;
-    button2Style.height = 50;
-    button2->setStyle(button2Style);
-    ui::ButtonModalProps button2Props;
-    button2Props.text = "Button 2 (Selected)";
-    button2Props.isSelected = true;
-    button2->setProps(button2Props);
+    button2->setPos(50, 120);
+    button2->setProps(ui::ButtonModalProps{
+        .text = "Button 2 (Selected)",
+        .isSelected = true,
+        .width = 200,
+        .height = 50,
+    });
     button2->addEventObserver(new TestButtonObserver("button2"));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button2.release()));
 
     // Create third button (different size)
     auto button3 = bmin::makeUnique<ui::ButtonModal>(&window);
     button3->setId("button3");
-    ui::BaseStyle button3Style;
-    button3Style.x = 50;
-    button3Style.y = 190;
-    button3Style.width = 300;
-    button3Style.height = 60;
-    button3->setStyle(button3Style);
-    ui::ButtonModalProps button3Props;
-    button3Props.text = "Wide Button";
-    button3Props.isSelected = false;
-    button3->setProps(button3Props);
+    button3->setPos(50, 190);
+    button3->setProps(ui::ButtonModalProps{
+        .text = "Wide Button",
+        .isSelected = false,
+        .width = 300,
+        .height = 60,
+    });
     button3->addEventObserver(new TestButtonObserver("button3"));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button3.release()));
 
     // Create fourth button (scaled)
     auto button4 = bmin::makeUnique<ui::ButtonModal>(&window);
     button4->setId("button4");
-    ui::BaseStyle button4Style;
-    button4Style.x = 50;
-    button4Style.y = 270;
-    button4Style.width = 150;
-    button4Style.height = 40;
-    button4Style.scale = 2.f;
-    button4->setStyle(button4Style);
-    ui::ButtonModalProps button4Props;
-    button4Props.text = "Scaled Button";
-    button4Props.isSelected = true;
-    button4->setProps(button4Props);
+    button4->setPos(50, 270);
+    button4->setScale(2.f);
+    button4->setProps(ui::ButtonModalProps{
+        .text = "Scaled Button",
+        .isSelected = true,
+        .width = 150,
+        .height = 40,
+    });
     button4->addEventObserver(new TestButtonObserver("button4"));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button4.release()));
 
     // Create fifth button (empty text)
     auto button5 = bmin::makeUnique<ui::ButtonModal>(&window);
     button5->setId("button5");
-    ui::BaseStyle button5Style;
-    button5Style.x = 50;
-    button5Style.y = 360;
-    button5Style.width = 200;
-    button5Style.height = 50;
-    button5->setStyle(button5Style);
-    ui::ButtonModalProps button5Props;
-    button5Props.text = ""; // Empty text
-    button5Props.isSelected = false;
-    button5->setProps(button5Props);
+    button5->setPos(50, 360);
+    button5->setProps(ui::ButtonModalProps{
+        .text = "",
+        .isSelected = false,
+        .width = 200,
+        .height = 50,
+    });
     button5->addEventObserver(new TestButtonObserver("button5"));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button5.release()));
 
     // Create sixth button (long text)
     auto button6 = bmin::makeUnique<ui::ButtonModal>(&window);
     button6->setId("button6");
-    ui::BaseStyle button6Style;
-    button6Style.x = 50;
-    button6Style.y = 420;
-    button6Style.width = 250;
-    button6Style.height = 50;
-    button6->setStyle(button6Style);
-    ui::ButtonModalProps button6Props;
-    button6Props.text = "This is selected.";
-    button6Props.isSelected = true;
-    button6->setProps(button6Props);
+    button6->setPos(50, 420);
+    button6->setProps(ui::ButtonModalProps{
+        .text = "This is selected.",
+        .isSelected = true,
+        .width = 250,
+        .height = 50,
+    });
     button6->addEventObserver(new TestButtonObserver("button6"));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button6.release()));
 
     // Create scroll up button
     auto scrollUp = bmin::makeUnique<ui::ButtonScroll>(&window);
     scrollUp->setId("scrollUp");
-    ui::BaseStyle scrollUpStyle;
-    scrollUpStyle.x = 350;
-    scrollUpStyle.y = 50;
-    // ButtonScroll defaults to 32x32, but we can override if needed
-    scrollUpStyle.width = 32;
-    scrollUpStyle.height = 32;
-    scrollUp->setStyle(scrollUpStyle);
-    ui::ButtonScrollProps scrollUpProps;
-    scrollUpProps.direction = ui::ScrollDirection::UP;
-    scrollUpProps.isSelected = false;
-    scrollUp->setProps(scrollUpProps);
+    scrollUp->setPos(350, 50);
+    scrollUp->setProps(ui::ButtonScrollProps{
+        .direction = ui::ScrollDirection::UP,
+        .isSelected = false,
+        .width = 32,
+        .height = 32,
+    });
     scrollUp->addEventObserver(new TestButtonObserver("scrollUp"));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(scrollUp.release()));
 
     // Create scroll down button
     auto scrollDown = bmin::makeUnique<ui::ButtonScroll>(&window);
     scrollDown->setId("scrollDown");
-    ui::BaseStyle scrollDownStyle;
-    scrollDownStyle.x = 350;
-    scrollDownStyle.y = 100;
-    scrollDownStyle.width = 32;
-    scrollDownStyle.height = 32;
-    scrollDown->setStyle(scrollDownStyle);
-    ui::ButtonScrollProps scrollDownProps;
-    scrollDownProps.direction = ui::ScrollDirection::DOWN;
-    scrollDownProps.isSelected = true; // Make this one selected to show the selection state
-    scrollDown->setProps(scrollDownProps);
+    scrollDown->setPos(350, 100);
+    scrollDown->setProps(ui::ButtonScrollProps{
+        .direction = ui::ScrollDirection::DOWN,
+        .isSelected = true,
+        .width = 32,
+        .height = 32,
+    });
     scrollDown->addEventObserver(new TestButtonObserver("scrollDown"));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(scrollDown.release()));
 
     // Create modal close button
     auto modalClose = bmin::makeUnique<ui::ButtonClose>(&window);
     modalClose->setId("modalClose");
-    auto& style = modalClose->getStyle();
-    style.x = 400;
-    style.y = 50;
-    ui::ButtonCloseProps modalCloseProps;
-    modalCloseProps.closeType = ui::CloseType::MODAL;
-    modalClose->setProps(modalCloseProps);
+    modalClose->setPos(400, 50);
+    modalClose->setProps(ui::ButtonCloseProps{
+        .closeType = ui::CloseType::MODAL,
+    });
     modalClose->addEventObserver(new TestButtonObserver("modalClose"));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(modalClose.release()));
 
     {
-      auto modalClose = bmin::makeUnique<ui::ButtonClose>(&window);
-      modalClose->setId("modalCloseScaled");
-      auto& style = modalClose->getStyle();
-      style.x = 475;
-      style.y = 50;
-      style.scale = 2.f;
-      ui::ButtonCloseProps modalCloseProps;
-      modalCloseProps.closeType = ui::CloseType::MODAL;
-      modalClose->setProps(modalCloseProps);
-      modalClose->addEventObserver(new TestButtonObserver(modalClose->getId()));
-      elements.pushBack(bmin::UniquePtr<ui::UiElement>(modalClose.release()));
+      auto modalCloseScaled = bmin::makeUnique<ui::ButtonClose>(&window);
+      modalCloseScaled->setId("modalCloseScaled");
+      modalCloseScaled->setPos(475, 50);
+      modalCloseScaled->setScale(2.f);
+      modalCloseScaled->setProps(ui::ButtonCloseProps{
+          .closeType = ui::CloseType::MODAL,
+      });
+      modalCloseScaled->addEventObserver(new TestButtonObserver(modalCloseScaled->getId()));
+      elements.pushBack(bmin::UniquePtr<ui::UiElement>(modalCloseScaled.release()));
     }
 
     // Create popup close button
     auto popupClose = bmin::makeUnique<ui::ButtonClose>(&window);
     popupClose->setId("popupClose");
-    ui::BaseStyle popupCloseStyle;
-    popupCloseStyle.x = 400;
-    popupCloseStyle.y = 100;
-    popupCloseStyle.width = 32;
-    popupCloseStyle.height = 32;
-    popupClose->setStyle(popupCloseStyle);
-    ui::ButtonCloseProps popupCloseProps;
-    popupCloseProps.closeType = ui::CloseType::POPUP;
-    popupClose->setProps(popupCloseProps);
+    popupClose->setPos(400, 100);
+    popupClose->setProps(ui::ButtonCloseProps{
+        .closeType = ui::CloseType::POPUP,
+    });
     popupClose->addEventObserver(new TestButtonObserver("popupClose"));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(popupClose.release()));
 

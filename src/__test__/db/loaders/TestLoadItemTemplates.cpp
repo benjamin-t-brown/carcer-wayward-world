@@ -1,5 +1,5 @@
 #include "db/loaders/LoadItemTemplates.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 #include "model/templates/Items.h"
 #include "bmin/String.h"
 #include "bmin/Map.h"

@@ -6,6 +6,8 @@
 namespace ui {
 
 struct BorderDropShadowProps {
+  int width = 0;
+  int height = 0;
   SDL_Color backgroundColor = Colors::White;
   SDL_Color shadowColor = Colors::Black;
   int shadowOffsetX = -8;

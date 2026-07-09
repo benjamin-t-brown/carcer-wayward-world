@@ -12,11 +12,14 @@ struct ButtonListProps {
   bmin::String text;
   std::optional<ScrollDirection> arrow;
   bool isSelected = false;
+  int width = 14;
+  int height = 14;
 
   SDL_Color bgColor = Colors::ButtonModalGrey1;
   SDL_Color bgColorTopRight = Colors::ButtonModalGrey2;
   SDL_Color bgColorBottomLeft = Colors::ButtonModalGrey3;
   SDL_Color arrowColor = Colors::White;
+  SDL_Color fontColor = Colors::White;
 };
 
 // ButtonList - square button for list rows (modal styling for now)

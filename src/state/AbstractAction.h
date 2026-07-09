@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bmin/UniquePtr.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 #include "model/templates/UtilityTypes.h"
 #include "state/DatabaseInterface.h"
 #include "state/LayerManagerInterface.h"

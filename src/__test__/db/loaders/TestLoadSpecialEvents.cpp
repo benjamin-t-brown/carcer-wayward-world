@@ -1,5 +1,5 @@
 #include "db/loaders/LoadSpecialEvents.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 #include "model/templates/SpecialEvents.h"
 
 int main(int argc, char** argv) {

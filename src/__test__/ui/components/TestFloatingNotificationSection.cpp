@@ -1,6 +1,6 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
 #include "state/actions/ui/UiPushFloatingNotification.hpp"
@@ -47,14 +47,12 @@ int main(int argc, char** argv) {
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     auto pushButton = new ui::ButtonModal(&window);
     pushButton->setId("pushNotificationButton");
-    auto& buttonStyle = pushButton->getStyle();
-    buttonStyle.x = 50;
-    buttonStyle.y = 50;
-    buttonStyle.width = 260;
-    buttonStyle.height = 50;
+    pushButton->setPos(50, 50);
     pushButton->setProps(ui::ButtonModalProps{
         .text = "Push Notification",
         .isSelected = false,
+        .width = 260,
+        .height = 50,
     });
     pushButton->addEventObserver(new PushNotificationObserver(&stateManager, notificationCounter));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(pushButton));

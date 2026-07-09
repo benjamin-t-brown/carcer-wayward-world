@@ -7,6 +7,7 @@
 namespace ui {
 
 struct HorizontalListProps {
+  int height = 0;
   int lineWidth = 20;
   int lineGap = 2;
   SDL_Color bgColor = SDL_Color{255, 255, 255, 0};

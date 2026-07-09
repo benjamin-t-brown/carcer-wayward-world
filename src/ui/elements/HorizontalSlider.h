@@ -34,6 +34,8 @@ public:
   void setProps(const HorizontalSliderProps& _props);
   HorizontalSliderProps& getProps();
   const HorizontalSliderProps& getProps() const;
+  void setPos(int x, int y) override;
+  void setScale(float scale) override;
   void increment();
   void decrement();
   bool checkMouseDownEvent(int mouseX,

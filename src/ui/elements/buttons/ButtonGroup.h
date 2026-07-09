@@ -19,6 +19,7 @@ struct ButtonGroupButtonProps {
   bool isSelected = false;
 };
 struct ButtonGroupProps {
+  int width = 0;
   ButtonGroupAlignment alignment = ButtonGroupAlignment::LEFT;
   int buttonWidth = 80;
   int buttonHeight = 32;

@@ -1,10 +1,10 @@
 #include "lib/hiscore/hiscore.h"
-#include "lib/sdl2w/AssetLoader.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Events.h"
-#include "lib/sdl2w/Init.h"
-#include "lib/sdl2w/L10n.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/AssetLoader.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Events.h"
+#include "sdl2w/Init.h"
+#include "sdl2w/L10n.h"
+#include "sdl2w/Logger.h"
 
 void runProgram(int argc, char** argv) {
   const int w = 640;

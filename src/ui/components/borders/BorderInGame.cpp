@@ -16,13 +16,11 @@ int BorderInGame::scaledHeight() const {
 
 void BorderInGame::addOutsetRect(int x, int y, int width, int height) {
   auto rectangle = new OutsetRectangle(window, this);
-  auto& rectStyle = rectangle->getStyle();
-  rectStyle.x = x;
-  rectStyle.y = y;
-  rectStyle.width = width;
-  rectStyle.height = height;
-  rectStyle.scale = style.scale;
+  rectangle->setPos(x, y);
+  rectangle->setScale(style.scale);
   rectangle->setProps(OutsetRectangleProps{
+      .width = width,
+      .height = height,
       .borderSize = inGameProps().outsetBorderSize,
   });
   addChild(rectangle);

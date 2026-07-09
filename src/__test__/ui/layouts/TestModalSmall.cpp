@@ -1,7 +1,7 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/elements/TextLine.h"
@@ -23,26 +23,26 @@ int main(int argc, char** argv) {
 
     // Create ModalSmall layout
     auto modalSmall = new ui::ModalSmall(&window);
-    auto& modalSmallStyle = modalSmall->getStyle();
-    modalSmallStyle.width = 500;
-    modalSmallStyle.height = windowHeight - 50;
-    modalSmallStyle.x = (windowWidth - modalSmallStyle.width) / 2;
-    modalSmallStyle.y = (windowHeight - modalSmallStyle.height) / 2;
+    const int modalWidth = 500;
+    const int modalHeight = windowHeight - 50;
+    modalSmall->setPos((windowWidth - modalWidth) / 2, (windowHeight - modalHeight) / 2);
 
     // Set layout properties
     ui::ModalSmallProps props;
+    props.width = modalWidth;
+    props.height = modalHeight;
     props.backgroundColor = ui::Colors::ModalStandardBackground;
     props.iconSprite = "";
     modalSmall->setProps(props);
 
     // Create title
     auto title = new ui::TextLine(&window, modalSmall);
-    ui::BaseStyle titleStyle;
-    ui::setBaseFontConfig(titleStyle, ui::BaseFontConfig::MODAL_TITLE);
-    titleStyle.fontSize = sdl2w::TEXT_SIZE_24;
-    titleStyle.fontColor = ui::Colors::Black;
-    title->setStyle(titleStyle);
+    ui::TextFontProps titleFont;
+    ui::setBaseFontConfig(titleFont, ui::BaseFontConfig::MODAL_TITLE);
     ui::TextLineProps titleProps;
+    titleProps.fontFamily = titleFont.fontFamily;
+    titleProps.fontSize = sdl2w::TEXT_SIZE_24;
+    titleProps.fontColor = ui::Colors::Black;
     ui::TextBlock titleBlock;
     titleBlock.text = "Small Modal Title";
     titleProps.textBlocks.pushBack(titleBlock);
@@ -50,16 +50,13 @@ int main(int argc, char** argv) {
     modalSmall->setTitleElement(title);
 
     // auto subtitle = bmin::makeUnique<ui::TextLine>(&window);
-    // ui::BaseStyle subtitleStyle;
-    // subtitleStyle.fontFamily = ui::FontFamily::TEXT;
-    // subtitleStyle.fontSize = sdl2w::TEXT_SIZE_16;
-    // subtitleStyle.fontColor = ui::Colors::White;
-    // subtitle->setStyle(subtitleStyle);
-    // ui::TextLineProps subtitleProps;
-    // ui::TextBlock subtitleBlock;
-    // subtitleBlock.text = "This is a small modal subtitle";
-    // subtitleProps.textBlocks.pushBack(subtitleBlock);
-    // subtitle->setProps(subtitleProps);
+    // subtitle->setPos(0, 0);
+    // subtitle->setProps(ui::TextLineProps{
+    //     .textBlocks = {{.text = "This is a small modal subtitle"}},
+    //     .fontFamily = ui::FontFamily::TEXT,
+    //     .fontSize = sdl2w::TEXT_SIZE_16,
+    //     .fontColor = ui::Colors::White,
+    // });
     // modalLayout->setSubtitleElement(subtitle.release());
 
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(modalSmall));

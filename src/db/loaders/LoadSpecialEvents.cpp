@@ -2,7 +2,7 @@
 #include "bmin/StringInterop.h"
 #include "lib/Json.h"
 #include "lib/StringUtil.h"
-#include "lib/sdl2w/AssetLoader.h"
+#include "sdl2w/AssetLoader.h"
 #include "model/templates/SpecialEvents.h"
 #include <algorithm>
 #include <optional>

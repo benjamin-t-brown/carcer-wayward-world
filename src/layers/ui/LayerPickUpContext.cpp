@@ -28,11 +28,6 @@ LayerPickUpContext::LayerPickUpContext(sdl2w::Window* _window,
   auto popupPickupItem = new ui::PopupPickupItem(window, this, orientation);
   popupPickupItem->setId("popupPickupItem");
 
-  auto& style = popupPickupItem->getStyle();
-  style.x = (windowWidth - style.width) / 2;
-  style.y = (windowHeight - style.height) / 2;
-  style.scale = 1.0f;
-
   ui::PopupPickupItemProps popupProps;
   popupProps.spriteName = itemTemplate.iconSpriteName;
   popupProps.label = itemTemplate.label.empty() ? itemTemplate.name : itemTemplate.label;
@@ -41,6 +36,11 @@ LayerPickUpContext::LayerPickUpContext(sdl2w::Window* _window,
   popupProps.value = item.quantity * itemTemplate.value;
   popupProps.orientation = orientation;
   popupPickupItem->setProps(popupProps);
+
+  auto [popupW, popupH] = popupPickupItem->getDims();
+  popupPickupItem->setPos((windowWidth - popupW) / 2, (windowHeight - popupH) / 2);
+  popupPickupItem->setScale(1.0f);
+  popupPickupItem->build();
 
   addUiElement(popupPickupItem);
 

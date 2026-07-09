@@ -1,6 +1,6 @@
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "bmin/DynArray.h"
 #include "bmin/UniquePtr.h"
 
@@ -13,12 +13,11 @@
 
 ui::Quad* createBasicQuad(sdl2w::Window* window, int w, int h) {
   auto q = new ui::Quad(window);
-  ui::BaseStyle quadStyle;
-  quadStyle.x = 0;
-  quadStyle.y = 0;
-  quadStyle.width = w;
-  quadStyle.height = h;
-  q->setStyle(quadStyle);
+  q->setPos(0, 0);
+  q->setProps(ui::QuadProps{
+      .width = w,
+      .height = h,
+  });
   return q;
 }
 
@@ -31,9 +30,10 @@ int main(int argc, char** argv) {
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     {
       auto q = createBasicQuad(&window, 40, 40);
-      q->getStyle().x = 10;
-      q->getStyle().y = 10;
+      q->setPos(10, 10);
       q->setProps({
+          .width = 40,
+          .height = 40,
           .bgColor = ui::Colors::DarkGrey,
           .bgSprite = "actors0_0",
       });
@@ -42,10 +42,11 @@ int main(int argc, char** argv) {
 
     {
       auto q = createBasicQuad(&window, 40, 40);
-      q->getStyle().x = 52;
-      q->getStyle().y = 10;
-      q->getStyle().scale = 2.0f;
+      q->setPos(52, 10);
+      q->setScale(2.0f);
       q->setProps({
+          .width = 40,
+          .height = 40,
           .bgColor = ui::Colors::DarkGrey,
           .bgSprite = "actors0_0",
       });
@@ -54,10 +55,11 @@ int main(int argc, char** argv) {
 
     {
       auto q = createBasicQuad(&window, 40, 40);
-      q->getStyle().x = 52 + 40 * 2;
-      q->getStyle().y = 10;
-      q->getStyle().scale = 4.0f;
+      q->setPos(52 + 40 * 2, 10);
+      q->setScale(4.0f);
       q->setProps({
+          .width = 40,
+          .height = 40,
           .bgColor = ui::Colors::DarkGrey,
           .bgSprite = "actors0_0",
       });
@@ -68,9 +70,10 @@ int main(int argc, char** argv) {
 
     {
       auto q = createBasicQuad(&window, 40, 40);
-      q->getStyle().x = 10;
-      q->getStyle().y = 150;
+      q->setPos(10, 150);
       q->setProps({
+          .width = 40,
+          .height = 40,
           .bgColor = ui::Colors::DarkBlue,
           .bgSprite = "actors0_2",
           .borderColor = ui::Colors::Red,
@@ -81,10 +84,11 @@ int main(int argc, char** argv) {
 
     {
       auto q = createBasicQuad(&window, 40, 40);
-      q->getStyle().x = 52;
-      q->getStyle().y = 150;
-      q->getStyle().scale = 2.0f;
+      q->setPos(52, 150);
+      q->setScale(2.0f);
       q->setProps({
+          .width = 40,
+          .height = 40,
           .bgColor = ui::Colors::DarkBlue,
           .bgSprite = "actors0_2",
           .borderColor = ui::Colors::Red,
@@ -95,10 +99,11 @@ int main(int argc, char** argv) {
 
     {
       auto q = createBasicQuad(&window, 40, 40);
-      q->getStyle().x = 52 + 40 * 2;
-      q->getStyle().y = 150;
-      q->getStyle().scale = 4.0f;
+      q->setPos(52 + 40 * 2, 150);
+      q->setScale(4.0f);
       q->setProps({
+          .width = 40,
+          .height = 40,
           .bgColor = ui::Colors::DarkBlue,
           .bgSprite = "actors0_2",
           .borderColor = ui::Colors::Red,
@@ -110,9 +115,10 @@ int main(int argc, char** argv) {
     // Test quad in quad
     {
       auto q = createBasicQuad(&window, 100, 100);
-      q->getStyle().x = 330;
-      q->getStyle().y = 10;
+      q->setPos(330, 10);
       q->setProps({
+          .width = 100,
+          .height = 100,
           .bgColor = ui::Colors::DarkBlue,
           // .bgSprite = "actors0_2",
           .borderColor = ui::Colors::Red,
@@ -121,9 +127,10 @@ int main(int argc, char** argv) {
       elements.pushBack(bmin::UniquePtr<ui::UiElement>(q));
 
       auto q2 = createBasicQuad(&window, 75, 75);
-      q2->getStyle().x = 10;
-      q2->getStyle().y = 10;
+      q2->setPos(10, 10);
       q2->setProps({
+          .width = 75,
+          .height = 75,
           .bgColor = ui::Colors::DarkGrey,
           .bgSprite = "actors0_0",
           .borderColor = ui::Colors::Transparent,
@@ -134,10 +141,11 @@ int main(int argc, char** argv) {
 
     {
       auto q = createBasicQuad(&window, 100, 100);
-      q->getStyle().x = 330;
-      q->getStyle().y = 100;
-      q->getStyle().scale = 3.0f;
+      q->setPos(330, 100);
+      q->setScale(3.0f);
       q->setProps({
+          .width = 100,
+          .height = 100,
           .bgColor = ui::Colors::DarkBlue,
           // .bgSprite = "actors0_2",
           .borderColor = ui::Colors::Red,
@@ -146,9 +154,10 @@ int main(int argc, char** argv) {
       elements.pushBack(bmin::UniquePtr<ui::UiElement>(q));
 
       auto q2 = createBasicQuad(&window, 75, 75);
-      q2->getStyle().x = 10;
-      q2->getStyle().y = 10;
+      q2->setPos(10, 10);
       q2->setProps({
+          .width = 75,
+          .height = 75,
           .bgColor = ui::Colors::DarkGrey,
           .bgSprite = "actors0_0",
           .borderColor = ui::Colors::Transparent,

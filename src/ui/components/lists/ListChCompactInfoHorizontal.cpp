@@ -6,9 +6,7 @@ namespace ui {
 
 ListChCompactInfoHorizontal::ListChCompactInfoHorizontal(sdl2w::Window* _window,
                                                          UiElement* _parent)
-    : UiElement(_window, _parent) {
-  style.fontSize = sdl2w::TEXT_SIZE_18;
-}
+    : UiElement(_window, _parent) {}
 
 const std::pair<int, int> ListChCompactInfoHorizontal::getDims() const {
   if (children.empty()) {
@@ -38,7 +36,7 @@ void ListChCompactInfoHorizontal::build() {
   int numStatusColumns = 2;
 
   auto defaultChCompactInfo = ChCompactInfo(window, nullptr);
-  defaultChCompactInfo.getStyle().scale = style.scale;
+  defaultChCompactInfo.setScale(style.scale);
   defaultChCompactInfo.setProps(ChCompactInfoProps{
       .numStatusColumns = numStatusColumns,
   });
@@ -51,15 +49,13 @@ void ListChCompactInfoHorizontal::build() {
 
   auto list = new HorizontalList(window, this);
   list->setId("list");
+  list->setPos(style.x, style.y);
+  list->setScale(1.f);
 
   for (size_t i = 0; i < props.entries.size(); i++) {
     auto chCompactInfo = new ChCompactInfo(window, this);
-    auto& s = chCompactInfo->getStyle();
-    s.width = style.width;
-    s.x = style.x;
-    s.y = style.y;
-    s.scale = style.scale;
-    s.fontSize = style.fontSize;
+    chCompactInfo->setPos(style.x, style.y);
+    chCompactInfo->setScale(style.scale);
     auto chCompactInfoProps = props.entries[i];
     chCompactInfoProps.numStatusColumns = numStatusColumns;
     chCompactInfoProps.isSelected = static_cast<int>(i) == props.selectedIndex;
@@ -67,13 +63,8 @@ void ListChCompactInfoHorizontal::build() {
     list->addChild(chCompactInfo);
   }
 
-  auto& listStyle = list->getStyle();
-  listStyle.x = style.x;
-  listStyle.y = style.y;
-  listStyle.height = chCompactInfoScaledHeight;
-  listStyle.scale = 1.;
-
   HorizontalListProps listProps;
+  listProps.height = chCompactInfoScaledHeight;
   listProps.lineWidth = chCompactInfoScaledWidth;
   listProps.lineGap = static_cast<int>(props.lineGap * style.scale);
   list->setProps(listProps);

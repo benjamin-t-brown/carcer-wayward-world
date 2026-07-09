@@ -1,6 +1,6 @@
 #include "PopupGive.h"
 #include "layers/ui/LayerGiveContext.h"
-#include "lib/sdl2w/L10n.h"
+#include "sdl2w/L10n.h"
 #include "ui/colors.h"
 #include "ui/elements/VerticalList.h"
 #include "ui/components/borders/BorderDropShadow.h"
@@ -50,13 +50,10 @@ void PopupGive::build() {
 
   auto closeButton = new ButtonClose(window, this);
   closeButton->setId("closeButton");
-  auto& closeStyle = closeButton->getStyle();
-  closeStyle.x =
-      style.x + scaledWidth - closeButtonSize * style.scale - padding * style.scale;
-  closeStyle.y = style.y + padding * style.scale;
-  closeStyle.width = closeButtonSize;
-  closeStyle.height = closeButtonSize;
-  closeStyle.scale = style.scale;
+  closeButton->setPos(
+      style.x + scaledWidth - closeButtonSize * style.scale - padding * style.scale,
+      style.y + padding * style.scale);
+  closeButton->setScale(style.scale);
   closeButton->setProps(ButtonCloseProps{.closeType = CloseType::POPUP});
   closeButton->addEventObserver(
       new ObserverRemoveLayer(layers::LayerGiveContext::LAYER_ID));
@@ -64,13 +61,11 @@ void PopupGive::build() {
 
   auto title = new TextLine(window, this);
   title->setId("title");
-  auto& titleStyle = title->getStyle();
-  setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
-  titleStyle.x = style.x + padding * style.scale;
-  titleStyle.y = style.y + padding * style.scale + (closeButtonSize * style.scale) / 2;
-  titleStyle.scale = 1.f;
-  titleStyle.fontColor = Colors::Black;
-  titleStyle.textAlign = TextAlign::LEFT_CENTER;
+  TextFontProps titleFont;
+  setBaseFontConfig(titleFont, BaseFontConfig::MODAL_TITLE);
+  title->setPos(style.x + padding * style.scale,
+                style.y + padding * style.scale + (closeButtonSize * style.scale) / 2);
+  title->setScale(1.f);
   bmin::String titleText = TRANSLATE("Give");
   if (!props.itemLabel.empty()) {
     titleText += " " + props.itemLabel;
@@ -82,6 +77,10 @@ void PopupGive::build() {
                   .text = titleText,
               },
           },
+      .fontFamily = titleFont.fontFamily,
+      .fontSize = titleFont.fontSize,
+      .fontColor = Colors::Black,
+      .textAlign = TextAlign::LEFT_CENTER,
   });
   addChild(title);
   auto [titleWidth, titleHeight] = title->calculateTextDims();
@@ -92,10 +91,8 @@ void PopupGive::build() {
     auto slider = new HorizontalSlider(window, this);
     slider->setId("quantitySlider");
     quantitySlider = slider;
-    auto& sliderStyle = slider->getStyle();
-    sliderStyle.x = style.x + padding * style.scale;
-    sliderStyle.y = contentY;
-    sliderStyle.scale = style.scale;
+    slider->setPos(style.x + padding * style.scale, contentY);
+    slider->setScale(style.scale);
     slider->setProps(HorizontalSliderProps{
         .minValue = 1,
         .maxValue = std::max(1, props.maxQuantity),
@@ -112,11 +109,8 @@ void PopupGive::build() {
 
   auto list = new VerticalList(window, this);
   list->setId("partyList");
-  auto& listStyle = list->getStyle();
-  listStyle.x = style.x + padding * style.scale;
-  listStyle.y = contentY;
-  listStyle.width = contentWidth;
-  listStyle.scale = style.scale;
+  list->setPos(style.x + padding * style.scale, contentY);
+  list->setScale(style.scale);
 
   const int iconSize = 32;
   const int rowHeight = 32;
@@ -126,22 +120,21 @@ void PopupGive::build() {
   for (const auto& member : props.partyMembers) {
     auto row = new Quad(window, list);
     row->setId("row-" + member.characterPlayerId);
-    auto& rowStyle = row->getStyle();
-    rowStyle.width = rowWidth;
-    rowStyle.height = rowHeight;
-    rowStyle.scale = style.scale;
-    row->setProps(QuadProps{.bgColor = Colors::Transparent});
+    row->setScale(style.scale);
+    row->setProps(QuadProps{
+        .width = rowWidth,
+        .height = rowHeight,
+        .bgColor = Colors::Transparent,
+    });
 
     auto button = new ButtonModal(window, row);
     button->setId("btn-" + member.characterPlayerId);
-    auto& buttonStyle = button->getStyle();
-    buttonStyle.x = iconSize;
-    buttonStyle.y = 0;
-    buttonStyle.width = buttonWidth;
-    buttonStyle.height = rowHeight;
-    buttonStyle.scale = style.scale;
+    button->setPos(iconSize, 0);
+    button->setScale(style.scale);
     button->setProps(ButtonModalProps{
         .text = member.label,
+        .width = buttonWidth,
+        .height = rowHeight,
     });
     button->addEventObserver(new ObserverGiveInventoryItem(
         member.characterPlayerId, props.fromCharacterPlayerId, props.itemId, this));
@@ -149,13 +142,11 @@ void PopupGive::build() {
 
     auto iconBg = new OutsetRectangle(window, row);
     iconBg->setId("iconBg-" + member.characterPlayerId);
-    auto& iconBgStyle = iconBg->getStyle();
-    iconBgStyle.x = 0;
-    iconBgStyle.y = 0;
-    iconBgStyle.width = iconSize;
-    iconBgStyle.height = iconSize;
-    iconBgStyle.scale = style.scale;
+    iconBg->setPos(0, 0);
+    iconBg->setScale(style.scale);
     iconBg->setProps(OutsetRectangleProps{
+        .width = iconSize,
+        .height = iconSize,
         .color = Colors::LightGrey,
         .colorTopRight = Colors::White,
         .colorBottomLeft = Colors::ButtonModalGrey2,
@@ -165,19 +156,20 @@ void PopupGive::build() {
 
     auto sprite = new Quad(window, iconBg);
     sprite->setId("sprite-" + member.characterPlayerId);
-    auto& spriteStyle = sprite->getStyle();
-    spriteStyle.x = 0;
-    spriteStyle.y = 0;
-    spriteStyle.width = iconSize;
-    spriteStyle.height = iconSize;
-    spriteStyle.scale = style.scale;
-    sprite->setProps(QuadProps{.bgSprite = member.spriteName});
+    sprite->setPos(0, 0);
+    sprite->setScale(style.scale);
+    sprite->setProps(QuadProps{
+        .width = iconSize,
+        .height = iconSize,
+        .bgSprite = member.spriteName,
+    });
     iconBg->addChild(sprite);
 
     list->addListItem(row);
   }
 
   list->setProps({
+      .width = contentWidth,
       .lineHeight = static_cast<int>((rowHeight + rowGap) * style.scale),
       .lineGap = rowGap,
       .bgColor = Colors::Transparent,
@@ -188,13 +180,12 @@ void PopupGive::build() {
   style.height = ((contentY + listH + paddingScaled) - style.y) / style.scale;
 
   auto border = new BorderDropShadow(window, this);
-  auto& borderStyle = border->getStyle();
-  borderStyle.x = style.x;
-  borderStyle.y = style.y;
-  borderStyle.width = style.width;
-  borderStyle.height = style.height;
-  borderStyle.scale = style.scale;
-  border->setProps(BorderDropShadowProps{});
+  border->setPos(style.x, style.y);
+  border->setScale(style.scale);
+  border->setProps(BorderDropShadowProps{
+      .width = style.width,
+      .height = style.height,
+  });
   children.insert(children.begin(), bmin::UniquePtr<UiElement>(border));
 }
 

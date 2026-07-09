@@ -1,8 +1,8 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Events.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Events.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/UiElement.h"
 #include "ui/colors.h"
 #include "ui/elements/TextBanner.h"
@@ -75,12 +75,12 @@ int main(int argc, char** argv) {
 
     auto switchCornerButton = new ui::ButtonModal(&window);
     switchCornerButton->setId("switchCorner");
-    auto& buttonStyle = switchCornerButton->getStyle();
-    buttonStyle.x = containerX;
-    buttonStyle.y = containerY + containerHeight + 24;
-    buttonStyle.width = 220;
-    buttonStyle.height = 40;
-    switchCornerButton->setProps(ui::ButtonModalProps{.text = "Next Corner"});
+    switchCornerButton->setPos(containerX, containerY + containerHeight + 24);
+    switchCornerButton->setProps(ui::ButtonModalProps{
+        .text = "Next Corner",
+        .width = 220,
+        .height = 40,
+    });
     switchCornerButton->addEventObserver(
         new SwitchCornerObserver(banner, &corner));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(switchCornerButton));

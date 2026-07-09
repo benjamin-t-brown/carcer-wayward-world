@@ -17,6 +17,8 @@ struct ButtonScrollProps {
   ScrollDirection direction = ScrollDirection::UP;
   bool isSelected = false;
   bool isDisabled = false;
+  int width = 32;
+  int height = 32;
 };
 
 // ButtonScroll element - renders a square clickable button used to scroll windows up/down

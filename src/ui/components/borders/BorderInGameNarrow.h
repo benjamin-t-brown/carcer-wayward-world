@@ -5,6 +5,8 @@
 namespace ui {
 
 struct BorderInGameNarrowProps : BorderInGameProps {
+  int width = 0;
+  int height = 0;
   int partyMemberAreaHeight = 72;
   int sideBorderWidth = 16;
 };

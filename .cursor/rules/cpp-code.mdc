@@ -13,6 +13,6 @@ globs: ["src/**/*.cpp", "src/**/*.h"]
 - prefer declaring variables with auto instead of the type, like: "auto a = int{1}".
 - use structs for any groups of data or classes that have no methods.
 - prefer const references if passing by reference.
-- prefer using LOG macro from "lib/sdl2w/Logger.h" instead of iostream or printf
+- prefer using LOG macro from "sdl2w/Logger.h" instead of iostream or printf
 - prefer cpp standard library instead of c standard library
 - mark override when a method is overridden

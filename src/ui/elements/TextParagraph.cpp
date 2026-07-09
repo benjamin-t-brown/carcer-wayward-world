@@ -1,7 +1,7 @@
 #include "TextParagraph.h"
 #include "state/StateManager.h"
 #include "Quad.h"
-#include "lib/sdl2w/Draw.h"
+#include "sdl2w/Draw.h"
 #include "ui/FontScale.h"
 #include <algorithm>
 #include "bmin/StringInterop.h"
@@ -35,6 +35,16 @@ TextParagraphProps& TextParagraph::getProps() { return props; }
 
 const TextParagraphProps& TextParagraph::getProps() const { return props; }
 
+void TextParagraph::setPos(int x, int y) {
+  UiElement::setPos(x, y);
+  build();
+}
+
+void TextParagraph::setScale(float scale) {
+  UiElement::setScale(scale);
+  build();
+}
+
 size_t TextParagraph::getNumLines() const {
   if (generatedBlocks.empty()) {
     return 0;
@@ -54,16 +64,20 @@ int TextParagraph::getContentHeight() const {
   if (generatedBlocks.empty() || lineHeightFromFont <= 0) {
     return 0;
   }
-  return static_cast<int>(getNumLines()) * (style.lineSpacing + lineHeightFromFont);
+  return static_cast<int>(getNumLines()) * (props.lineSpacing + lineHeightFromFont);
 }
 
 const std::pair<int, int> TextParagraph::getDims() const {
   const int contentHeight = getContentHeight();
-  return {style.width + 2 * props.padding, contentHeight + 2 * props.padding};
+  const int logicalW = style.width + 2 * props.padding;
+  const int logicalH = contentHeight + 2 * props.padding;
+  return {static_cast<int>(logicalW * style.scale),
+          static_cast<int>(logicalH * style.scale)};
 }
 
 void TextParagraph::build() {
   generatedBlocks.clear();
+  style.width = props.width;
   auto& draw = window->getDraw();
   int fontScale = 0;
   try {
@@ -129,9 +143,9 @@ void TextParagraph::build() {
     }
     lastProcessedBlock = &block;
 
-    auto fontFamily = block.fontFamily.value_or(style.fontFamily);
-    auto fontSize = block.fontSize.value_or(style.fontSize);
-    auto fontColor = block.fontColor.value_or(style.fontColor);
+    auto fontFamily = block.fontFamily.value_or(props.fontFamily);
+    auto fontSize = block.fontSize.value_or(props.fontSize);
+    auto fontColor = block.fontColor.value_or(props.fontColor);
     auto fontName = TextLine::getFontNameFromFamily(fontFamily);
 
     sdl2w::RenderTextParams params;
@@ -176,9 +190,9 @@ void TextParagraph::build() {
   }
 
   if (!lineAggregate.empty() && lastProcessedBlock != nullptr) {
-    auto fontFamily = lastProcessedBlock->fontFamily.value_or(style.fontFamily);
-    auto fontSize = lastProcessedBlock->fontSize.value_or(style.fontSize);
-    auto fontColor = lastProcessedBlock->fontColor.value_or(style.fontColor);
+    auto fontFamily = lastProcessedBlock->fontFamily.value_or(props.fontFamily);
+    auto fontSize = lastProcessedBlock->fontSize.value_or(props.fontSize);
+    auto fontColor = lastProcessedBlock->fontColor.value_or(props.fontColor);
     sdl2w::RenderTextParams params;
     params.fontName = TextLine::getFontNameFromFamily(fontFamily);
     params.fontSize = ui::applyFontScale(fontSize, fontScale);
@@ -202,27 +216,22 @@ void TextParagraph::build() {
       if (genBlock.lineNumber != currentLineNumber) {
         if (!currentLineBlocks.empty()) {
           auto textLine = new TextLine(window, quad.get());
-
-          ui::BaseStyle lineStyle;
-          lineStyle.x = props.padding;
-          lineStyle.y = currentY;
-          lineStyle.width = style.width;
-          lineStyle.height = currentLineMaxHeight;
-          lineStyle.fontFamily = genBlock.textBlock.fontFamily.value_or(style.fontFamily);
-          lineStyle.fontSize = genBlock.textBlock.fontSize.value_or(style.fontSize);
-          lineStyle.fontColor = genBlock.textBlock.fontColor.value_or(style.fontColor);
-          lineStyle.textAlign = style.textAlign;
-          lineStyle.scale = 1.f;
-          textLine->setStyle(lineStyle);
+          textLine->setPos(props.padding, currentY);
+          textLine->setScale(1.f);
 
           TextLineProps lineProps;
           lineProps.textBlocks = currentLineBlocks;
+          lineProps.fontFamily =
+              genBlock.textBlock.fontFamily.value_or(props.fontFamily);
+          lineProps.fontSize = genBlock.textBlock.fontSize.value_or(props.fontSize);
+          lineProps.fontColor = genBlock.textBlock.fontColor.value_or(props.fontColor);
+          lineProps.textAlign = props.textAlign;
           textLine->setProps(lineProps);
 
           quad->addChild(textLine);
           currentLineBlocks.clear();
 
-          currentY += currentLineMaxHeight + style.lineSpacing;
+          currentY += currentLineMaxHeight + props.lineSpacing;
           currentLineMaxHeight = 0;
         }
         currentLineNumber = genBlock.lineNumber;
@@ -232,9 +241,9 @@ void TextParagraph::build() {
 
       TextBlock textBlock;
       textBlock.text = genBlock.text;
-      textBlock.fontFamily = genBlock.textBlock.fontFamily.value_or(style.fontFamily);
-      textBlock.fontSize = genBlock.textBlock.fontSize.value_or(style.fontSize);
-      textBlock.fontColor = genBlock.textBlock.fontColor.value_or(style.fontColor);
+      textBlock.fontFamily = genBlock.textBlock.fontFamily.value_or(props.fontFamily);
+      textBlock.fontSize = genBlock.textBlock.fontSize.value_or(props.fontSize);
+      textBlock.fontColor = genBlock.textBlock.fontColor.value_or(props.fontColor);
       currentLineBlocks.pushBack(textBlock);
     }
 
@@ -242,20 +251,16 @@ void TextParagraph::build() {
       auto textLine = new TextLine(window, quad.get());
       const auto& lastGenBlock = generatedBlocks.back();
 
-      ui::BaseStyle lineStyle;
-      lineStyle.x = props.padding;
-      lineStyle.y = currentY;
-      lineStyle.width = style.width;
-      lineStyle.height = currentLineMaxHeight;
-      lineStyle.fontFamily = lastGenBlock.textBlock.fontFamily.value_or(style.fontFamily);
-      lineStyle.fontSize = lastGenBlock.textBlock.fontSize.value_or(style.fontSize);
-      lineStyle.fontColor = lastGenBlock.textBlock.fontColor.value_or(style.fontColor);
-      lineStyle.textAlign = style.textAlign;
-      lineStyle.scale = 1.f;
-      textLine->setStyle(lineStyle);
+      textLine->setPos(props.padding, currentY);
+      textLine->setScale(1.f);
 
       TextLineProps lineProps;
       lineProps.textBlocks = currentLineBlocks;
+      lineProps.fontFamily =
+          lastGenBlock.textBlock.fontFamily.value_or(props.fontFamily);
+      lineProps.fontSize = lastGenBlock.textBlock.fontSize.value_or(props.fontSize);
+      lineProps.fontColor = lastGenBlock.textBlock.fontColor.value_or(props.fontColor);
+      lineProps.textAlign = props.textAlign;
       textLine->setProps(lineProps);
 
       quad->addChild(textLine);
@@ -263,17 +268,15 @@ void TextParagraph::build() {
   }
 
   const int contentHeight = getContentHeight();
-  auto& quadStyle = quad->getStyle();
-  quadStyle.x = style.x;
-  quadStyle.y = style.y;
-  quadStyle.width = style.width + 2 * props.padding;
-  quadStyle.height = contentHeight + 2 * props.padding;
-  quadStyle.scale = style.scale;
+  style.height = contentHeight + 2 * props.padding;
 
+  quad->setPos(style.x, style.y);
+  quad->setScale(style.scale);
   QuadProps quadProps;
+  quadProps.width = style.width + 2 * props.padding;
+  quadProps.height = contentHeight + 2 * props.padding;
   quadProps.bgColor = props.bgColor;
   quad->setProps(quadProps);
-  quad->build();
 }
 
 void TextParagraph::render(int dt) {

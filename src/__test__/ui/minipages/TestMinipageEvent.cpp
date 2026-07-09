@@ -1,8 +1,8 @@
 #include "../../setupTestUi.h"
 #include "layers/LayerManager.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "state/LayerManagerInterface.h"
 #include "ui/UiElement.h"
 #include "ui/minipages/MinipageEvent.h"
@@ -17,14 +17,13 @@ public:
 
     auto minipageEvent = bmin::makeUnique<ui::MinipageEvent>(window);
     minipageEvent->setId("minipageEvent");
-    ui::BaseStyle style = minipageEvent->getStyle();
-    style.width = 500;
-    style.height = windowHeight - 50;
-    style.x = (windowWidth - style.width) / 2;
-    style.y = (windowHeight - style.height) / 2;
-    minipageEvent->setStyle(style);
-
-    minipageEvent->setProps(ui::MinipageEventProps{});
+    const int width = 500;
+    const int height = windowHeight - 50;
+    minipageEvent->setPos((windowWidth - width) / 2, (windowHeight - height) / 2);
+    minipageEvent->setProps(ui::MinipageEventProps{
+        .width = width,
+        .height = height,
+    });
     addUiElement(minipageEvent.release());
   }
 };

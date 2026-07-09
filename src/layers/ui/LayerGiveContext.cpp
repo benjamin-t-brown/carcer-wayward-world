@@ -1,5 +1,5 @@
 #include "LayerGiveContext.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/Player.h"
 #include "ui/components/FloatingNotificationSection.h"
@@ -81,11 +81,9 @@ LayerGiveContext::LayerGiveContext(sdl2w::Window* _window,
   }
   popupGive->setProps(popupProps);
 
-  auto& style = popupGive->getStyle();
-  style.scale = 1.f;
+  popupGive->setScale(1.f);
   auto [popupW, popupH] = popupGive->getDims();
-  style.x = (windowWidth - popupW) / 2;
-  style.y = (windowHeight - popupH) / 2;
+  popupGive->setPos((windowWidth - popupW) / 2, (windowHeight - popupH) / 2);
   popupGive->build();
 
   addUiElement(popupGive);

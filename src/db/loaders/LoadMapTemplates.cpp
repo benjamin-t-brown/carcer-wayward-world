@@ -1,7 +1,7 @@
 #include "LoadMapTemplates.h"
 #include "bmin/StringInterop.h"
 #include "lib/Json.h"
-#include "lib/sdl2w/AssetLoader.h"
+#include "sdl2w/AssetLoader.h"
 #include <stdexcept>
 
 namespace db {

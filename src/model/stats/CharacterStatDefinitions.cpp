@@ -1,5 +1,5 @@
 #include "model/stats/CharacterStatDefinitions.h"
-#include "lib/sdl2w/L10n.h"
+#include "sdl2w/L10n.h"
 
 namespace model {
 

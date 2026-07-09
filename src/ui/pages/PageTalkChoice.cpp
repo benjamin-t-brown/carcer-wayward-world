@@ -17,6 +17,12 @@ PageTalkChoice::PageTalkChoice(sdl2w::Window* _window, UiElement* _parent)
 
 void PageTalkChoice::setProps(const PageTalkChoiceProps& _props) {
   props = _props;
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
   build();
 }
 
@@ -34,18 +40,22 @@ const std::pair<int, int> PageTalkChoice::getDims() const {
 void PageTalkChoice::build() {
   children.clear();
 
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
+
   // Create ModalStandard layout
   auto modal = new ModalStandard(window, this);
   modal->setId("modal");
-  auto& modalStyle = modal->getStyle();
-  modalStyle.x = style.x;
-  modalStyle.y = style.y;
-  modalStyle.width = style.width;
-  modalStyle.height = style.height;
-  modalStyle.scale = style.scale;
-
-  ModalStandardProps modalProps;
-  modal->setProps(modalProps);
+  modal->setPos(style.x, style.y);
+  modal->setScale(style.scale);
+  modal->setProps(ModalStandardProps{
+      .width = style.width,
+      .height = style.height,
+  });
 
   children.pushBack(bmin::UniquePtr<UiElement>(modal));
 
@@ -62,11 +72,13 @@ void PageTalkChoice::build() {
 
   // Create title element
   auto title = new TextLine(window, this);
-  auto& titleStyle = title->getStyle();
-  setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
-  titleStyle.fontSize = sdl2w::TEXT_SIZE_24;
-  titleStyle.textAlign = TextAlign::LEFT_TOP;
+  TextFontProps titleFont;
+  setBaseFontConfig(titleFont, BaseFontConfig::MODAL_TITLE);
   TextLineProps titleProps;
+  titleProps.fontFamily = titleFont.fontFamily;
+  titleProps.fontSize = sdl2w::TEXT_SIZE_24;
+  titleProps.fontColor = titleFont.fontColor;
+  titleProps.textAlign = TextAlign::LEFT_TOP;
   TextBlock titleBlock;
   titleBlock.text = props.title;
   titleProps.textBlocks.pushBack(titleBlock);
@@ -76,75 +88,79 @@ void PageTalkChoice::build() {
   // Create SectionScrollable for content area
   auto textSection = new SectionScrollable(window, this);
   textSection->setId("textSection");
-  auto& textSectionStyle = textSection->getStyle();
-  textSectionStyle.width = scaledContentW / style.scale;
-  textSectionStyle.height = textSectionHeight;
-  textSectionStyle.x = contentX;
-  textSectionStyle.y = contentY;
-  textSectionStyle.scale = style.scale;
-  textSection->setProps(SectionScrollableProps{.scrollBarWidth = scrollBarWidth});
+  textSection->setPos(contentX, contentY);
+  textSection->setScale(style.scale);
+  textSection->setProps(SectionScrollableProps{
+      .width = static_cast<int>(scaledContentW / style.scale),
+      .height = static_cast<int>(textSectionHeight),
+      .scrollBarWidth = scrollBarWidth,
+  });
   addChild(textSection);
   auto [textScrollableContentWidthScaled, _] = textSection->getContentDims();
 
   auto textBlock = new TextParagraph(window, textSection);
   textBlock->setId("textBlocks");
-  auto& textBlockStyle = textBlock->getStyle();
-  setBaseFontConfig(textBlockStyle, BaseFontConfig::MODAL_CHOICE_TEXT);
-  textBlockStyle.lineSpacing = 0;
-  textBlockStyle.x = 0;
-  textBlockStyle.y = 0;
-  textBlockStyle.width = textScrollableContentWidthScaled;
-  textBlockStyle.scale = 1.f;
+  TextFontProps textFont;
+  setBaseFontConfig(textFont, BaseFontConfig::MODAL_CHOICE_TEXT);
+  textBlock->setPos(0, 0);
+  textBlock->setScale(1.f);
   textBlock->setProps(TextParagraphProps{
-      .textBlocks = props.textBlocks, .bgColor = Colors::OffWhite, .padding = 4});
+      .textBlocks = props.textBlocks,
+      .width = textScrollableContentWidthScaled,
+      .bgColor = Colors::OffWhite,
+      .padding = 4,
+      .lineSpacing = 0,
+      .fontFamily = textFont.fontFamily,
+      .fontSize = textFont.fontSize,
+      .fontColor = textFont.fontColor,
+  });
   textSection->addChild(textBlock);
   textSection->build();
 
   auto sepBorder = new OutsetRectangle(window, this);
-  BaseStyle sepBorderStyle;
-  sepBorderStyle.width = scaledContentW / style.scale;
-  sepBorderStyle.height = 10;
-  sepBorderStyle.x = contentX;
-  sepBorderStyle.y = contentY + textSectionHeight * style.scale;
-  sepBorderStyle.scale = style.scale;
-  sepBorder->setStyle(sepBorderStyle);
-  sepBorder->setProps(OutsetRectangleProps{});
+  sepBorder->setPos(contentX, contentY + textSectionHeight * style.scale);
+  sepBorder->setScale(style.scale);
+  sepBorder->setProps(OutsetRectangleProps{
+      .width = static_cast<int>(scaledContentW / style.scale),
+      .height = 10,
+  });
   addChild(sepBorder);
 
   auto choiceSection = new SectionScrollable(window, this);
   choiceSection->setId("choiceSection");
-  auto& choiceSectionStyle = choiceSection->getStyle();
-  choiceSectionStyle.width = scaledContentW / style.scale;
-  choiceSectionStyle.height = choiceSectionHeight;
-  choiceSectionStyle.x = contentX;
-  choiceSectionStyle.y = contentY + (textSectionHeight + borderHeight) * style.scale;
-  choiceSectionStyle.scale = style.scale;
-  choiceSection->setProps(
-      SectionScrollableProps{.scrollBarWidth = scrollBarWidth, .indicatorHeight = 0});
+  choiceSection->setPos(contentX,
+                        contentY + (textSectionHeight + borderHeight) * style.scale);
+  choiceSection->setScale(style.scale);
+  choiceSection->setProps(SectionScrollableProps{
+      .width = static_cast<int>(scaledContentW / style.scale),
+      .height = choiceSectionHeight,
+      .scrollBarWidth = scrollBarWidth,
+      .indicatorHeight = 0,
+  });
   addChild(choiceSection);
 
   // Create choices
   for (int i = 0; i < static_cast<int>(props.choices.size()); i++) {
     auto choiceButton = new ButtonTextWrap(window, choiceSection);
     choiceButton->setId("choice" + bmin::toString(i));
-    auto& choiceButtonStyle = choiceButton->getStyle();
-    choiceButtonStyle.width =
-        scaledContentW - 8 * style.scale - scrollBarWidth * style.scale;
-    setBaseFontConfig(choiceButtonStyle, BaseFontConfig::MODAL_CHOICE_TEXT);
-    choiceButtonStyle.scale = 1.f;
-    choiceButtonStyle.fontColor = Colors::DarkBlue;
+    TextFontProps choiceFont;
+    setBaseFontConfig(choiceFont, BaseFontConfig::MODAL_CHOICE_TEXT);
     ui::ButtonTextWrapProps choiceButtonProps;
     const bmin::String& prefixText = props.choices[i].prefixText;
     choiceButtonProps.text =
         bmin::toString(i + 1) + ". " +
         ((prefixText.empty() ? props.choices[i].text
                              : prefixText + " " + props.choices[i].text));
+    choiceButtonProps.width =
+        scaledContentW - 8 * style.scale - scrollBarWidth * style.scale;
     choiceButtonProps.isSelected = false;
+    choiceButtonProps.fontFamily = choiceFont.fontFamily;
+    choiceButtonProps.fontSize = choiceFont.fontSize;
+    choiceButtonProps.fontColor = Colors::DarkBlue;
+    choiceButton->setScale(1.f);
     choiceButton->setProps(choiceButtonProps);
     auto [choiceWidth, choiceHeight] = choiceButton->getDims();
-    choiceButtonStyle.x = 4 * style.scale;
-    choiceButtonStyle.y = i * choiceHeight;
-    choiceButton->build();
+    choiceButton->setPos(4 * style.scale, i * choiceHeight);
     choiceSection->addChild(choiceButton);
   }
 

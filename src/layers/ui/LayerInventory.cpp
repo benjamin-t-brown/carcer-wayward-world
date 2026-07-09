@@ -1,5 +1,5 @@
 #include "LayerInventory.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
 #include "state/actions/ui/UiReorderInventoryItem.hpp"
 #include "state/actions/ui/UiSetCurrentPartyMemberInventory.hpp"
@@ -23,12 +23,12 @@ LayerInventory::LayerInventory(sdl2w::Window* _window) : Layer(_window, LAYER_ID
   auto [windowWidth, windowHeight] = window->getDims();
   const auto scale = 1.f;
 
-  auto& style = pageInventory->getStyle();
-  style.width = windowWidth / scale;
-  style.height = windowHeight / scale;
-  style.x = 0;
-  style.y = 0;
-  style.scale = scale;
+  pageInventory->setPos(0, 0);
+  pageInventory->setScale(scale);
+  auto pageInitProps = pageInventory->getProps();
+  pageInitProps.width = static_cast<int>(windowWidth / scale);
+  pageInitProps.height = static_cast<int>(windowHeight / scale);
+  pageInventory->setProps(pageInitProps);
 
   addUiElement(pageInventory);
 

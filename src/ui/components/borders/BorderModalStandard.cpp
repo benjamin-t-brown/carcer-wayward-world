@@ -73,37 +73,35 @@ void BorderModalStandard::build() {
   auto scaledBorder = static_cast<int>(props.borderWidth * style.scale);
 
   auto iconOutsetRect = new OutsetRectangle(window, this);
-  auto& iconOutsetRectStyle = iconOutsetRect->getStyle();
-  iconOutsetRectStyle.x = style.x + scaledBorder;
-  iconOutsetRectStyle.y = style.y + scaledBorder;
-  iconOutsetRectStyle.width = props.headerHeight;
-  iconOutsetRectStyle.height = props.headerHeight;
-  iconOutsetRectStyle.scale = style.scale;
-  iconOutsetRect->setProps(OutsetRectangleProps{});
+  iconOutsetRect->setPos(style.x + scaledBorder, style.y + scaledBorder);
+  iconOutsetRect->setScale(style.scale);
+  iconOutsetRect->setProps(OutsetRectangleProps{
+      .width = props.headerHeight,
+      .height = props.headerHeight,
+  });
   iconOutsetRect->setId("iconOutsetRect");
   addChild(iconOutsetRect);
 
   auto topBarOutsetRect = new OutsetRectangle(window, this);
-  auto& topBarOutsetRectStyle = topBarOutsetRect->getStyle();
-  topBarOutsetRectStyle.x =
-      iconOutsetRectStyle.x + iconOutsetRectStyle.width * style.scale;
-  topBarOutsetRectStyle.y = iconOutsetRectStyle.y;
-  topBarOutsetRectStyle.width =
-      scaledWidth / style.scale - props.borderWidth * 2 - iconOutsetRectStyle.width;
-  topBarOutsetRectStyle.height = props.headerHeight / 2;
-  topBarOutsetRectStyle.scale = style.scale;
-  topBarOutsetRect->setProps(OutsetRectangleProps{});
+  topBarOutsetRect->setPos(style.x + scaledBorder + props.headerHeight * style.scale,
+                           style.y + scaledBorder);
+  topBarOutsetRect->setScale(style.scale);
+  topBarOutsetRect->setProps(OutsetRectangleProps{
+      .width = static_cast<int>(scaledWidth / style.scale - props.borderWidth * 2 -
+                                props.headerHeight),
+      .height = props.headerHeight / 2,
+  });
   addChild(topBarOutsetRect);
 
   auto bottomBarOutsetRect = new OutsetRectangle(window, this);
-  auto& bottomBarOutsetRectStyle = bottomBarOutsetRect->getStyle();
-  bottomBarOutsetRectStyle.x = style.x + scaledBorder;
-  bottomBarOutsetRectStyle.y =
-      style.y + scaledHeight - scaledBorder - BOTTOM_BORDER_HEIGHT * style.scale;
-  bottomBarOutsetRectStyle.width = scaledWidth / style.scale - props.borderWidth * 2;
-  bottomBarOutsetRectStyle.height = BOTTOM_BORDER_HEIGHT;
-  bottomBarOutsetRectStyle.scale = style.scale;
-  bottomBarOutsetRect->setProps(OutsetRectangleProps{});
+  bottomBarOutsetRect->setPos(
+      style.x + scaledBorder,
+      style.y + scaledHeight - scaledBorder - BOTTOM_BORDER_HEIGHT * style.scale);
+  bottomBarOutsetRect->setScale(style.scale);
+  bottomBarOutsetRect->setProps(OutsetRectangleProps{
+      .width = static_cast<int>(scaledWidth / style.scale - props.borderWidth * 2),
+      .height = BOTTOM_BORDER_HEIGHT,
+  });
   addChild(bottomBarOutsetRect);
 }
 

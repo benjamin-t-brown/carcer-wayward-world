@@ -1,7 +1,7 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/colors.h"
@@ -22,38 +22,28 @@ int main(int argc, char** argv) {
 
     {
       auto outsetRect1 = new ui::OutsetRectangle(&window);
-      auto& style1 = outsetRect1->getStyle();
-      style1.x = 10;
-      style1.y = 10;
-      style1.width = 200;
-      style1.height = 200;
-      style1.scale = 1.0f;
-
-      ui::OutsetRectangleProps props1;
-      // props1.color = ui::Colors::White;
-      // props1.colorTopRight = ui::Colors::LightBlue;
-      // props1.colorBottomLeft = ui::Colors::Black;
-      // props1.borderSize = 3;
-      outsetRect1->setProps(props1);
+      outsetRect1->setPos(10, 10);
+      outsetRect1->setScale(1.0f);
+      outsetRect1->setProps(ui::OutsetRectangleProps{
+          .width = 200,
+          .height = 200,
+      });
 
       elements.pushBack(bmin::UniquePtr<ui::UiElement>(outsetRect1));
     }
 
     {
       auto rect = new ui::OutsetRectangle(&window);
-      auto& style = rect->getStyle();
-      style.x = 250;
-      style.y = 50;
-      style.width = 100;
-      style.height = 100;
-      style.scale = 4.f;
-
-      ui::OutsetRectangleProps props;
-      props.color = ui::Colors::White;
-      props.colorTopRight = ui::Colors::LightBlue;
-      props.colorBottomLeft = ui::Colors::DarkBlue;
-      props.borderSize = 4;
-      rect->setProps(props);
+      rect->setPos(250, 50);
+      rect->setScale(4.f);
+      rect->setProps(ui::OutsetRectangleProps{
+          .width = 100,
+          .height = 100,
+          .color = ui::Colors::White,
+          .colorTopRight = ui::Colors::LightBlue,
+          .colorBottomLeft = ui::Colors::DarkBlue,
+          .borderSize = 4,
+      });
 
       elements.pushBack(bmin::UniquePtr<ui::UiElement>(rect));
     }

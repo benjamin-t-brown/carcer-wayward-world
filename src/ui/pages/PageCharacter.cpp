@@ -1,5 +1,5 @@
 #include "PageCharacter.h"
-#include "lib/sdl2w/L10n.h"
+#include "sdl2w/L10n.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/stats/CharacterDerivedStatDefinitions.h"
 #include "model/stats/CharacterDerivedStats.h"
@@ -22,6 +22,12 @@ PageCharacter::PageCharacter(sdl2w::Window* _window, UiElement* _parent)
 
 void PageCharacter::setProps(const PageCharacterProps& _props) {
   props = _props;
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
   build();
 }
 
@@ -55,15 +61,15 @@ PageCharacter::buildStatSection(const PageCharacterStatRowSectionArgs& sectionPr
 
   auto* header = new TextLine(window, section);
   header->setId("title_" + title);
-  auto& headerStyle = header->getStyle();
-  headerStyle.x = headerPadding * style.scale;
-  headerStyle.y = headerPadding * style.scale;
-  headerStyle.scale = 1.f;
-  setBaseFontConfig(headerStyle, BaseFontConfig::MODAL_TITLE);
-  headerStyle.fontColor = Colors::DarkBlue;
-  headerStyle.fontSize = sdl2w::TEXT_SIZE_24;
-  headerStyle.textAlign = TextAlign::LEFT_TOP;
+  TextFontProps headerFont;
+  setBaseFontConfig(headerFont, BaseFontConfig::MODAL_TITLE);
+  header->setPos(headerPadding * style.scale, headerPadding * style.scale);
+  header->setScale(1.f);
   TextLineProps headerProps;
+  headerProps.fontFamily = headerFont.fontFamily;
+  headerProps.fontSize = sdl2w::TEXT_SIZE_24;
+  headerProps.fontColor = Colors::DarkBlue;
+  headerProps.textAlign = TextAlign::LEFT_TOP;
   headerProps.textBlocks.pushBack(TextBlock{.text = title});
   header->setProps(headerProps);
   section->addChild(header);
@@ -72,21 +78,18 @@ PageCharacter::buildStatSection(const PageCharacterStatRowSectionArgs& sectionPr
 
   auto* list = new VerticalList(window, section);
   list->setId("list_" + title);
-  auto& listStyle = list->getStyle();
-  listStyle.x = linePadding * style.scale;
-  listStyle.y = headerH + headerBottomMargin * style.scale;
-  listStyle.width = sectionWidth - 2 * linePadding;
-  listStyle.scale = style.scale;
-  list->setProps(VerticalListProps{.lineHeight = 32, .lineGap = 0});
+  list->setPos(linePadding * style.scale, headerH + headerBottomMargin * style.scale);
+  list->setScale(style.scale);
+  list->setProps(VerticalListProps{
+      .width = sectionWidth - 2 * linePadding,
+      .lineHeight = 32,
+      .lineGap = 0,
+  });
   for (const auto& row : rows) {
     auto* statRow = new Quad(window, list);
     statRow->setId("row_" + row.label);
-    auto& statRowStyle = statRow->getStyle();
-    statRowStyle.x = 0;
-    statRowStyle.y = 0;
-    statRowStyle.width = sectionWidth - 2 * linePadding;
-    statRowStyle.height = list->getProps().lineHeight;
-    statRowStyle.scale = style.scale;
+    statRow->setPos(0, 0);
+    statRow->setScale(style.scale);
 
     const int buttonSize = 32;
     const int rowWidth = sectionWidth - 2 * linePadding;
@@ -95,19 +98,17 @@ PageCharacter::buildStatSection(const PageCharacterStatRowSectionArgs& sectionPr
 
     auto* buttonHelp = new ButtonModal(window, statRow);
     buttonHelp->setId("button_help_" + row.label);
-    auto& buttonHelpStyle = buttonHelp->getStyle();
-    buttonHelpStyle.x = leftX * style.scale;
-    buttonHelpStyle.y = 0;
-    buttonHelpStyle.width = buttonSize;
-    buttonHelpStyle.height = buttonSize;
-    buttonHelpStyle.scale = style.scale;
-    buttonHelpStyle.fontColor = Colors::Grey;
-    buttonHelpStyle.fontSize = sdl2w::TEXT_SIZE_14;
+    buttonHelp->setPos(leftX * style.scale, 0);
+    buttonHelp->setScale(style.scale);
     buttonHelp->setProps(ButtonModalProps{
         .text = "?",
+        .width = buttonSize,
+        .height = buttonSize,
         .bgColor = Colors::Transparent,
         .bgColorTopRight = Colors::Transparent,
         .bgColorBottomLeft = Colors::Transparent,
+        .fontSize = sdl2w::TEXT_SIZE_14,
+        .fontColor = Colors::Grey,
     });
     if (!row.helpDescription.empty()) {
       buttonHelp->addEventObserver(
@@ -118,66 +119,64 @@ PageCharacter::buildStatSection(const PageCharacterStatRowSectionArgs& sectionPr
 
     auto* statLine = new TextLine(window, list);
     statLine->setId("item_" + row.label);
-    auto& statLineStyle = statLine->getStyle();
-    statLineStyle.fontSize = sdl2w::TEXT_SIZE_20;
-    statLineStyle.scale = 1.f;
-    statLineStyle.x = leftX * style.scale;
-    statLineStyle.y = list->getProps().lineHeight * style.scale / 2;
-    setBaseFontConfig(statLineStyle, BaseFontConfig::MODAL_TEXT);
-    statLineStyle.fontColor = Colors::Black;
-    statLineStyle.textAlign = TextAlign::LEFT_CENTER;
+    TextFontProps statFont;
+    setBaseFontConfig(statFont, BaseFontConfig::MODAL_TEXT);
     const bmin::String statValueText =
         row.valueText.empty() ? bmin::toString(row.value) : row.valueText;
     TextLineProps rowProps;
+    rowProps.fontFamily = statFont.fontFamily;
+    rowProps.fontSize = sdl2w::TEXT_SIZE_20;
+    rowProps.fontColor = Colors::Black;
+    rowProps.textAlign = TextAlign::LEFT_CENTER;
     rowProps.textBlocks.pushBack(TextBlock{.text = row.label + ": " + statValueText});
+    statLine->setScale(1.f);
     statLine->setProps(rowProps);
+    statLine->setPos(leftX * style.scale, list->getProps().lineHeight * style.scale / 2);
     statRow->addChild(statLine);
 
     if (showModButtons) {
       buttonX -= buttonSize;
       auto* buttonPlus = new ButtonIcon(window, statRow);
       buttonPlus->setId("button_plus_" + row.label);
-      auto& buttonPlusStyle = buttonPlus->getStyle();
-      buttonPlusStyle.x = buttonX * style.scale;
-      buttonPlusStyle.y = 0;
-      buttonPlusStyle.width = buttonSize;
-      buttonPlusStyle.height = buttonSize;
-      buttonPlusStyle.scale = style.scale;
+      buttonPlus->setPos(buttonX * style.scale, 0);
+      buttonPlus->setScale(style.scale);
       buttonPlus->setProps(ButtonIconProps{.regularSprite = ButtonIcon::PLUS_ICON1,
                                            .activeSprite = ButtonIcon::PLUS_ICON2,
+                                           .iconSize = buttonSize,
                                            .isDisabled = buttonPlusDisabled});
       statRow->addChild(buttonPlus);
 
       buttonX -= buttonSize;
       auto* buttonMinus = new ButtonIcon(window, statRow);
       buttonMinus->setId("button_minus_" + row.label);
-      auto& buttonMinusStyle = buttonMinus->getStyle();
-      buttonMinusStyle.x = buttonX * style.scale;
-      buttonMinusStyle.y = 0;
-      buttonMinusStyle.width = buttonSize;
-      buttonMinusStyle.height = buttonSize;
-      buttonMinusStyle.scale = style.scale;
+      buttonMinus->setPos(buttonX * style.scale, 0);
+      buttonMinus->setScale(style.scale);
       buttonMinus->setProps(ButtonIconProps{.regularSprite = ButtonIcon::MINUS_ICON1,
                                             .activeSprite = ButtonIcon::MINUS_ICON2,
+                                            .iconSize = buttonSize,
                                             .isDisabled = buttonMinusDisabled});
       statRow->addChild(buttonMinus);
     }
 
-    statRow->setProps(QuadProps{.bgColor = Colors::Transparent});
+    statRow->setProps(QuadProps{
+        .width = sectionWidth - 2 * linePadding,
+        .height = list->getProps().lineHeight,
+        .bgColor = Colors::Transparent,
+    });
     list->addListItem(statRow);
   }
   list->build();
   section->addChild(list);
   auto [listW, listH] = list->getDims();
 
-  auto& sectionStyle = section->getStyle();
-  sectionStyle.x = linePadding * style.scale;
-  sectionStyle.y = y;
-  sectionStyle.width = sectionWidth - 2 * linePadding * style.scale;
-  sectionStyle.height =
-      headerH + headerBottomMargin * style.scale + listH + linePadding * style.scale;
-  sectionStyle.scale = 1.f;
-  section->setProps(QuadProps{.bgColor = Colors::Transparent});
+  section->setPos(linePadding * style.scale, y);
+  section->setScale(1.f);
+  section->setProps(QuadProps{
+      .width = static_cast<int>(sectionWidth - 2 * linePadding * style.scale),
+      .height = static_cast<int>(headerH + headerBottomMargin * style.scale + listH +
+                                 linePadding * style.scale),
+      .bgColor = Colors::Transparent,
+  });
 
   return section;
 }
@@ -331,16 +330,21 @@ void PageCharacter::build() {
   const model::CharacterDerivedStats derivedStats =
       model::computeCharacterDerivedStats(stats, characterLevel);
 
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
+
   auto* modal = new ModalStandard(window, this);
   modal->setId("modal");
-  auto& modalStyle = modal->getStyle();
-  modalStyle.x = style.x;
-  modalStyle.y = style.y;
-  modalStyle.width = style.width;
-  modalStyle.height = style.height;
-  modalStyle.scale = style.scale;
+  modal->setPos(style.x, style.y);
+  modal->setScale(style.scale);
 
   ModalStandardProps modalProps;
+  modalProps.width = style.width;
+  modalProps.height = style.height;
   if (props.characterPlayer) {
     modalProps.iconSprite = model::characterPlayerGetSprite(*props.characterPlayer);
   }
@@ -357,10 +361,13 @@ void PageCharacter::build() {
       useSingleColumn ? unscaledContentW : unscaledContentW / 2;
 
   auto* title = new TextLine(window, modal);
-  auto& titleStyle = title->getStyle();
-  setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
-  titleStyle.textAlign = TextAlign::LEFT_TOP;
+  TextFontProps titleFont;
+  setBaseFontConfig(titleFont, BaseFontConfig::MODAL_TITLE);
   TextLineProps titleProps;
+  titleProps.fontFamily = titleFont.fontFamily;
+  titleProps.fontSize = titleFont.fontSize;
+  titleProps.fontColor = titleFont.fontColor;
+  titleProps.textAlign = TextAlign::LEFT_TOP;
   TextBlock titleBlock;
   if (props.characterPlayer && !props.characterPlayer->name.empty()) {
     titleBlock.text = props.characterPlayer->name;
@@ -375,14 +382,14 @@ void PageCharacter::build() {
 
   auto* scrollableStatsSection = new SectionScrollable(window, modal);
   scrollableStatsSection->setId("scrollableSection");
-  auto& scrollableStatsSectionStyle = scrollableStatsSection->getStyle();
-  scrollableStatsSectionStyle.x = contentX;
-  scrollableStatsSectionStyle.y = contentY;
-  scrollableStatsSectionStyle.width = scrollableSectionWidth;
-  scrollableStatsSectionStyle.height = unscaledContentH;
-  scrollableStatsSectionStyle.scale = style.scale;
-  scrollableStatsSection->setProps(
-      SectionScrollableProps{.scrollBarWidth = 32, .bgColor = Colors::White});
+  scrollableStatsSection->setPos(contentX, contentY);
+  scrollableStatsSection->setScale(style.scale);
+  scrollableStatsSection->setProps(SectionScrollableProps{
+      .width = scrollableSectionWidth,
+      .height = unscaledContentH,
+      .scrollBarWidth = 32,
+      .bgColor = Colors::White,
+  });
   addChild(scrollableStatsSection);
 
   auto [scrollableContentW, scrollableContentH] =
@@ -613,14 +620,14 @@ void PageCharacter::build() {
 
     auto* scrollableDerivedSection = new SectionScrollable(window, modal);
     scrollableDerivedSection->setId("scrollableDerivedSection");
-    auto& scrollableDerivedSectionStyle = scrollableDerivedSection->getStyle();
-    scrollableDerivedSectionStyle.x = contentX + scrollableSectionWidth;
-    scrollableDerivedSectionStyle.y = contentY;
-    scrollableDerivedSectionStyle.width = scrollableSectionWidth;
-    scrollableDerivedSectionStyle.height = unscaledContentH;
-    scrollableDerivedSectionStyle.scale = style.scale;
-    scrollableDerivedSection->setProps(
-        SectionScrollableProps{.scrollBarWidth = 32, .bgColor = Colors::White});
+    scrollableDerivedSection->setPos(contentX + scrollableSectionWidth, contentY);
+    scrollableDerivedSection->setScale(style.scale);
+    scrollableDerivedSection->setProps(SectionScrollableProps{
+        .width = scrollableSectionWidth,
+        .height = unscaledContentH,
+        .scrollBarWidth = 32,
+        .bgColor = Colors::White,
+    });
     addChild(scrollableDerivedSection);
 
     auto [scrollableDerivedContentW, scrollableDerivedContentH] =

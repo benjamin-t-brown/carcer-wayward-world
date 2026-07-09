@@ -8,6 +8,8 @@ namespace ui {
 
 // ModalStandard layout properties
 struct ModalStandardProps {
+  int width = 0;
+  int height = 0;
   SDL_Color contentBackgroundColor = Colors::White;
   bmin::String decorationSprite = "";
   bmin::String iconSprite;

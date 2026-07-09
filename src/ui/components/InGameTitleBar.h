@@ -2,11 +2,12 @@
 
 #include "../UiElement.h"
 #include "bmin/String.h"
-#include <string_view>
 
 namespace ui {
 
 struct InGameTitleBarProps {
+  int width = 0;
+  int height = 0;
   bmin::String title = "Title";
   int day = 0;
   int food = 0;

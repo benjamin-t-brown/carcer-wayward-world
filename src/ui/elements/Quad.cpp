@@ -1,7 +1,7 @@
 #include "Quad.h"
 #include "bmin/StringInterop.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
 #include "ui/uiUtils.h"
 
 namespace ui {
@@ -20,11 +20,6 @@ void Quad::setProps(const QuadProps& _props) {
 QuadProps& Quad::getProps() { return props; }
 
 const QuadProps& Quad::getProps() const { return props; }
-
-void Quad::updatePosition(int x, int y) {
-  style.x = x;
-  style.y = y;
-}
 
 void Quad::createRenderTexture() {
   // Render target stays at logical size; scale is applied when blitting to screen.
@@ -174,7 +169,8 @@ bool Quad::checkMouseWheelEvent(int mouseX,
 }
 
 void Quad::build() {
-  // Recreate render texture when size changes
+  style.width = props.width;
+  style.height = props.height;
   createRenderTexture();
 }
 

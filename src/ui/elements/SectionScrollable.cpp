@@ -2,7 +2,7 @@
 #include "bmin/UniquePtr.h"
 #include "Quad.h"
 #include "buttons/ButtonScroll.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 #include "ui/colors.h"
 #include "ui/uiUtils.h"
 #include <algorithm>
@@ -87,8 +87,8 @@ void SectionScrollable::updateScrollIndicatorPosition() {
     Quad* indicator = dynamic_cast<Quad*>(elem);
     if (indicator) {
       const int scaledContentWidth = (style.width - props.scrollBarWidth) * style.scale;
-      indicator->updatePosition(style.x + scaledContentWidth,
-                                  getScrollIndicatorY(scrollOffset));
+      indicator->setPos(style.x + scaledContentWidth,
+                        getScrollIndicatorY(scrollOffset));
     }
   }
   updateScrollButtonStates();
@@ -120,6 +120,22 @@ void SectionScrollable::updateScrollButtonStates() {
 
 void SectionScrollable::setProps(const SectionScrollableProps& _props) {
   props = _props;
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
+  build();
+}
+
+void SectionScrollable::setPos(int x, int y) {
+  UiElement::setPos(x, y);
+  build();
+}
+
+void SectionScrollable::setScale(float scale) {
+  UiElement::setScale(scale);
   build();
 }
 
@@ -231,7 +247,7 @@ void SectionScrollable::scrollUp() {
     if (innerQuad) {
       LOG(INFO) << "SectionScrollable::scrollUp: scrollOffset: " << scrollOffset
                 << LOG_ENDL;
-      innerQuad->updatePosition(0, -scrollOffset);
+      innerQuad->setPos(0, -scrollOffset);
     }
     // Update indicator position
     updateScrollIndicatorPosition();
@@ -248,7 +264,7 @@ void SectionScrollable::scrollDown() {
   if (innerQuad) {
     LOG(INFO) << "SectionScrollable::scrollDown: scrollOffset: " << scrollOffset
               << LOG_ENDL;
-    innerQuad->updatePosition(0, -scrollOffset);
+    innerQuad->setPos(0, -scrollOffset);
   }
   // Update indicator position
   updateScrollIndicatorPosition();
@@ -263,7 +279,7 @@ void SectionScrollable::scrollTo(int offset) {
     scrollOffset = maxScrollOffset;
   }
   if (innerQuad) {
-    innerQuad->updatePosition(0, -scrollOffset);
+    innerQuad->setPos(0, -scrollOffset);
   }
   // Update indicator position
   updateScrollIndicatorPosition();
@@ -276,6 +292,13 @@ void SectionScrollable::addChild(UiElement* child) {
 }
 
 void SectionScrollable::build() {
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
+
   innerHeightScaled = 0;
   for (auto& child : innerQuad->getChildren()) {
     innerHeightScaled += child->getDims().second;
@@ -285,56 +308,47 @@ void SectionScrollable::build() {
   int scaledContentHeight = innerHeightScaled;
   int scaledHeight = static_cast<int>(style.height * style.scale);
 
-  auto& innerStyle = innerQuad->getStyle();
-  innerStyle.x = 0;
-  innerStyle.y = scrollOffset * style.scale; // Apply scroll offset
-  innerStyle.width = scaledContentWidth;
-  innerStyle.height = std::max(scaledContentHeight, scaledHeight);
-  innerStyle.scale = 1.f;
-  innerQuad->setProps(QuadProps{});
+  innerQuad->setPos(0, -scrollOffset);
+  innerQuad->setScale(1.f);
+  innerQuad->setProps(QuadProps{
+      .width = scaledContentWidth,
+      .height = std::max(scaledContentHeight, scaledHeight),
+  });
 
-  auto& outerStyle = outerQuad->getStyle();
-  outerStyle.x = style.x;
-  outerStyle.y = style.y;
-  outerStyle.width = scaledContentWidth;
-  outerStyle.height = scaledHeight;
-  outerStyle.scale = 1.f;
-  ui::QuadProps outerProps;
-  outerProps.bgColor = props.bgColor;
-  outerProps.borderColor = props.borderColor;
-  outerProps.borderSize = props.borderSize;
-  outerProps.borderColor = props.borderColor;
-  outerQuad->setProps(outerProps);
+  outerQuad->setPos(style.x, style.y);
+  outerQuad->setScale(1.f);
+  outerQuad->setProps(QuadProps{
+      .width = scaledContentWidth,
+      .height = scaledHeight,
+      .bgColor = props.bgColor,
+      .borderColor = props.borderColor,
+      .borderSize = props.borderSize,
+  });
 
   // Create scroll up button
   auto scrollUpButton = new ButtonScroll(window);
-  ui::BaseStyle upButtonStyle;
-  upButtonStyle.x = style.x + scaledContentWidth;
-  upButtonStyle.y = style.y;
-  upButtonStyle.width = props.scrollBarWidth;
-  upButtonStyle.height = props.scrollBarWidth;
-  upButtonStyle.scale = style.scale;
-  scrollUpButton->setStyle(upButtonStyle);
-  ui::ButtonScrollProps upButtonProps;
-  upButtonProps.direction = ScrollDirection::UP;
-  upButtonProps.isSelected = false;
-  scrollUpButton->setProps(upButtonProps);
+  scrollUpButton->setPos(style.x + scaledContentWidth, style.y);
+  scrollUpButton->setScale(style.scale);
+  scrollUpButton->setProps(ButtonScrollProps{
+      .direction = ScrollDirection::UP,
+      .isSelected = false,
+      .width = props.scrollBarWidth,
+      .height = props.scrollBarWidth,
+  });
   scrollUpButton->setId("scrollUpButton");
   scrollUpButton->addEventObserver(new SectionScrollableScrollObserver(this, true));
 
   // Create scroll down button
   auto scrollDownButton = new ButtonScroll(window);
-  ui::BaseStyle downButtonStyle;
-  downButtonStyle.x = style.x + scaledContentWidth;
-  downButtonStyle.y = style.y + scaledHeight - props.scrollBarWidth * style.scale;
-  downButtonStyle.width = props.scrollBarWidth;
-  downButtonStyle.height = props.scrollBarWidth;
-  downButtonStyle.scale = style.scale;
-  scrollDownButton->setStyle(downButtonStyle);
-  ui::ButtonScrollProps downButtonProps;
-  downButtonProps.direction = ScrollDirection::DOWN;
-  downButtonProps.isSelected = false;
-  scrollDownButton->setProps(downButtonProps);
+  scrollDownButton->setPos(style.x + scaledContentWidth,
+                           style.y + scaledHeight - props.scrollBarWidth * style.scale);
+  scrollDownButton->setScale(style.scale);
+  scrollDownButton->setProps(ButtonScrollProps{
+      .direction = ScrollDirection::DOWN,
+      .isSelected = false,
+      .width = props.scrollBarWidth,
+      .height = props.scrollBarWidth,
+  });
   scrollDownButton->setId("scrollDownButton");
   scrollDownButton->addEventObserver(new SectionScrollableScrollObserver(this, false));
 
@@ -343,19 +357,15 @@ void SectionScrollable::build() {
 
   // Create scroll indicator (rectangle showing scroll position)
   auto scrollIndicator = new Quad(window);
-  auto& indicatorStyle = scrollIndicator->getStyle();
-  indicatorStyle.x = style.x + scaledContentWidth;
-  indicatorStyle.width = props.scrollBarWidth * style.scale;
-  indicatorStyle.height = props.indicatorHeight * style.scale;
-  indicatorStyle.scale = 1;
-
-  // Calculate indicator Y position based on scroll offset
-  indicatorStyle.y = getScrollIndicatorY(scrollOffset);
-  ui::QuadProps indicatorProps;
-  indicatorProps.bgColor = Colors::LightGrey;
-  indicatorProps.borderColor = Colors::Transparent;
-  indicatorProps.borderSize = 0;
-  scrollIndicator->setProps(indicatorProps);
+  scrollIndicator->setPos(style.x + scaledContentWidth, getScrollIndicatorY(scrollOffset));
+  scrollIndicator->setScale(1.f);
+  scrollIndicator->setProps(QuadProps{
+      .width = props.scrollBarWidth * static_cast<int>(style.scale),
+      .height = props.indicatorHeight * static_cast<int>(style.scale),
+      .bgColor = Colors::LightGrey,
+      .borderColor = Colors::Transparent,
+      .borderSize = 0,
+  });
   scrollIndicator->setId("scrollIndicator");
 
   children.clear();

@@ -1,7 +1,7 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/components/borders/BorderModalStandard.h"
@@ -20,14 +20,12 @@ int main(int argc, char** argv) {
 
     // Create BorderModalStandard component
     auto borderModal = bmin::makeUnique<ui::BorderModalStandard>(&window);
-    ui::BaseStyle style;
-    style.x = 0;
-    style.y = 0;
-    style.width = window.getDims().first;
-    style.height = window.getDims().second;
-    style.scale = 1.0f;
-    borderModal->setStyle(style);
-    borderModal->setProps({});
+    borderModal->setPos(0, 0);
+    borderModal->setScale(1.0f);
+    borderModal->setProps(ui::BorderModalSmallProps{
+        .width = window.getDims().first,
+        .height = window.getDims().second,
+    });
 
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(borderModal.release()));
   };

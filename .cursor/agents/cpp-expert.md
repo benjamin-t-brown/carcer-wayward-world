@@ -43,7 +43,7 @@ Follow `.cursor/rules/cpp-code.mdc` for all `src/**/*.cpp` and `src/**/*.h`:
 - Every new `.cpp` must be added to the Makefile source list
 - Classes live in a namespace (`program` for top-level)
 - Prefer `auto` with braced init; structs for data-only types
-- Use `LOG` from `lib/sdl2w/Logger.h` instead of iostream/printf
+- Use `LOG` from `sdl2w/Logger.h` instead of iostream/printf
 - Mark `override` on overridden methods
 
 For `src/ui/**`, also follow `.cursor/rules/cpp-ui.mdc` (UiElement hierarchy, `addChild`, call `build` after property changes).

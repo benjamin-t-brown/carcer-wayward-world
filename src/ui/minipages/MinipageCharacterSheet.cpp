@@ -13,6 +13,12 @@ MinipageCharacterSheet::MinipageCharacterSheet(sdl2w::Window* _window,
 
 void MinipageCharacterSheet::setProps(const MinipageCharacterSheetProps& _props) {
   props = _props;
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
   build();
 }
 
@@ -32,25 +38,30 @@ const std::pair<int, int> MinipageCharacterSheet::getDims() const {
 void MinipageCharacterSheet::build() {
   children.clear();
 
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
+
   auto modal = bmin::makeUnique<ModalSmall>(window, this);
   modal->setId("modal");
-  BaseStyle modalStyle;
-  modalStyle.x = style.x;
-  modalStyle.y = style.y;
-  modalStyle.width = style.width;
-  modalStyle.height = style.height;
-  modalStyle.scale = style.scale;
-  modal->setStyle(modalStyle);
-  modal->setProps(ModalSmallProps{});
+  modal->setPos(style.x, style.y);
+  modal->setScale(style.scale);
+  modal->setProps(ModalSmallProps{
+      .width = style.width,
+      .height = style.height,
+  });
 
   auto title = bmin::makeUnique<TextLine>(window, modal.get());
-  BaseStyle titleStyle;
-  setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
-  titleStyle.fontColor = Colors::Black;
-  titleStyle.textAlign = TextAlign::LEFT_TOP;
-  title->setStyle(titleStyle);
-
+  TextFontProps titleFont;
+  setBaseFontConfig(titleFont, BaseFontConfig::MODAL_TITLE);
   TextLineProps titleProps;
+  titleProps.fontFamily = titleFont.fontFamily;
+  titleProps.fontSize = titleFont.fontSize;
+  titleProps.fontColor = Colors::Black;
+  titleProps.textAlign = TextAlign::LEFT_TOP;
   TextBlock titleBlock;
   titleBlock.text = "Character";
   titleProps.textBlocks.pushBack(titleBlock);

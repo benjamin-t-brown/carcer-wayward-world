@@ -21,7 +21,8 @@ const std::pair<int, int> OutsetRectangle::getDims() const {
 }
 
 void OutsetRectangle::build() {
-  // OutsetRectangle doesn't need to build children, it renders directly
+  style.width = props.width;
+  style.height = props.height;
 }
 
 void OutsetRectangle::render(int dt) {

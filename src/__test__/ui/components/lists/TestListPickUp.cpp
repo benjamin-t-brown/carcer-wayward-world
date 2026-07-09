@@ -1,8 +1,8 @@
 #include "../../../setupTestUi.h"
 #include "db/Database.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/components/lists/ListPickUp.h"
@@ -16,6 +16,7 @@ namespace {
 
 ui::ListPickUpProps buildListPickUpPropsFromDatabase(db::Database& database) {
   ui::ListPickUpProps listProps;
+  listProps.width = 500;
   const bmin::DynArray<bmin::String> itemNames = {
       "PotionHealing",
       "DaggerBronze",
@@ -57,11 +58,8 @@ int main(int argc, char** argv) {
 
     auto listPickUp = new ui::ListPickUp(&window);
     listPickUp->setId("listPickUp");
-    auto& style = listPickUp->getStyle();
-    style.width = 500;
-    style.x = 100;
-    style.y = 50;
-    style.scale = 1.f;
+    listPickUp->setPos(100, 50);
+    listPickUp->setScale(1.f);
 
     listPickUp->setProps(buildListPickUpPropsFromDatabase(database));
 

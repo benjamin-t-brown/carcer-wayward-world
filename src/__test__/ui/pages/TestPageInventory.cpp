@@ -1,8 +1,8 @@
 #include "../../setupTestUi.h"
 #include "db/Database.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "model/instances/CharacterPlayer.h"
 #include "state/DatabaseInterface.h"
 #include "state/StateManagerInterface.h"
@@ -66,23 +66,44 @@ int main(int argc, char** argv) {
           characterPlayer, database.getItemTemplate(bmin::toStringView(itemName)), 1);
     }
 
+    // Equip a few items so the inventory list shows slot abbrevs (e.g. (m), (h)).
+    for (const auto& item : characterPlayer.inventory) {
+      if (item.itemName == "DaggerBronze") {
+        characterPlayer.equipment.weapon0Id = item.id;
+      } else if (item.itemName == "ShortSwordBronze") {
+        characterPlayer.equipment.weapon1Id = item.id;
+      } else if (item.itemName == "ArrowsStone") {
+        characterPlayer.equipment.ammoId = item.id;
+      } else if (item.itemName == "HatLeather") {
+        characterPlayer.equipment.hatId = item.id;
+      } else if (item.itemName == "ShirtSimple0") {
+        characterPlayer.equipment.garbId = item.id;
+      } else if (item.itemName == "GlovesLeather") {
+        characterPlayer.equipment.glovesId = item.id;
+      } else if (item.itemName == "PantsSimple0") {
+        characterPlayer.equipment.pantsId = item.id;
+      } else if (item.itemName == "BootsLeather") {
+        characterPlayer.equipment.shoesId = item.id;
+      } else if (item.itemName == "NecklaceSilver") {
+        characterPlayer.equipment.necklaceId = item.id;
+      }
+    }
+
     auto [windowWidth, windowHeight] = window.getDims();
 
     // Create PageInventory component
     auto pageInventory = new ui::PageInventory(&window, nullptr);
     pageInventory->setId("pageInventory");
-    auto& style = pageInventory->getStyle();
 
     auto scale = 1.f;
-    style.width = windowWidth / scale;
-    style.height = windowHeight / scale;
-    style.x = 0;
-    style.y = 0;
-    style.scale = scale;
+    pageInventory->setPos(0, 0);
+    pageInventory->setScale(scale);
 
     player.gold = 1234;
 
     ui::PageInventoryProps pageProps;
+    pageProps.width = static_cast<int>(windowWidth / scale);
+    pageProps.height = static_cast<int>(windowHeight / scale);
     pageProps.characterPlayerId = characterPlayer.instanceId;
     pageProps.characterPlayerLabel = characterPlayer.params.label;
     pageProps.partyMemberInventoryIndex = player.currentPartyMemberInventoryIndex;
@@ -96,6 +117,7 @@ int main(int argc, char** argv) {
     pageProps.weightCapacity = model::characterGetWeightCapacity(characterPlayer);
     pageProps.gold = player.gold;
     pageProps.inventory = characterPlayer.inventory;
+    pageProps.equipment = characterPlayer.equipment;
     pageInventory->setProps(pageProps);
 
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(pageInventory));

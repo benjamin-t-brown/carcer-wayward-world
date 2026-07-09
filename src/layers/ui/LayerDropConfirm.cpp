@@ -1,5 +1,5 @@
 #include "LayerDropConfirm.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/Player.h"
 #include "ui/components/FloatingNotificationSection.h"
@@ -68,11 +68,9 @@ LayerDropConfirm::LayerDropConfirm(sdl2w::Window* _window,
   }
   popup->setProps(popupProps);
 
-  auto& style = popup->getStyle();
-  style.scale = 1.f;
+  popup->setScale(1.f);
   auto [popupW, popupH] = popup->getDims();
-  style.x = (windowWidth - popupW) / 2;
-  style.y = (windowHeight - popupH) / 2;
+  popup->setPos((windowWidth - popupW) / 2, (windowHeight - popupH) / 2);
   popup->build();
 
   addUiElement(popup);

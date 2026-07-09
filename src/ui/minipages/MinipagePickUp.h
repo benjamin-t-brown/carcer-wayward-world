@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lib/sdl2w/L10n.h"
+#include "sdl2w/L10n.h"
 #include "state/DatabaseInterface.h"
 #include "ui/UiElement.h"
 #include "bmin/DynArray.h"
@@ -9,6 +9,8 @@
 namespace ui {
 
 struct MinipagePickUpProps {
+  int width = 0;
+  int height = 0;
   bmin::String titleText = TRANSLATE("Pick Up");
   bmin::String statusText;
   bmin::String weightText = "Carrying 0/100";

@@ -39,23 +39,18 @@ void PartyMemberSwitcher::build() {
   style.height = totalHeight;
 
   auto container = new Quad(window, this);
-  auto& containerStyle = container->getStyle();
-  containerStyle.x = style.x;
-  containerStyle.y = style.y;
-  containerStyle.width = totalWidth;
-  containerStyle.height = totalHeight;
-  containerStyle.scale = style.scale;
-  container->setProps(QuadProps{});
+  container->setPos(style.x, style.y);
+  container->setScale(style.scale);
+  container->setProps(QuadProps{
+      .width = totalWidth,
+      .height = totalHeight,
+  });
   addChild(container);
 
   auto leftBtn = new ButtonModal(window, container);
   leftBtn->setId("prevPartyMember");
-  auto& leftStyle = leftBtn->getStyle();
-  leftStyle.x = 0;
-  leftStyle.y = (totalHeight - buttonSize) / 2;
-  leftStyle.width = buttonSize;
-  leftStyle.height = buttonSize;
-  leftBtn->setProps(ButtonModalProps{.text = "<"});
+  leftBtn->setPos(0, (totalHeight - buttonSize) / 2);
+  leftBtn->setProps(ButtonModalProps{.text = "<", .width = buttonSize, .height = buttonSize});
   leftBtn->addEventObserver(
       new ObserverUpdateCurrentPartyMember(props.partyMemberIndex, -1));
   container->addChild(leftBtn);
@@ -63,12 +58,10 @@ void PartyMemberSwitcher::build() {
   const int spriteX = buttonSize + spacing;
 
   auto spriteRect = new OutsetRectangle(window, container);
-  auto& spriteRectStyle = spriteRect->getStyle();
-  spriteRectStyle.x = spriteX;
-  spriteRectStyle.y = 0;
-  spriteRectStyle.width = spriteSize;
-  spriteRectStyle.height = spriteSize;
+  spriteRect->setPos(spriteX, 0);
   spriteRect->setProps(OutsetRectangleProps{
+      .width = spriteSize,
+      .height = spriteSize,
       .color = props.spriteBgColor,
       .colorTopRight = props.spriteBorderColor1,
       .colorBottomLeft = props.spriteBorderColor2,
@@ -77,24 +70,18 @@ void PartyMemberSwitcher::build() {
   container->addChild(spriteRect);
 
   auto sprite = new Quad(window, container);
-  auto& spriteStyle = sprite->getStyle();
-  spriteStyle.x = spriteX + 1;
-  spriteStyle.y = 1;
-  spriteStyle.width = spriteSize;
-  spriteStyle.height = spriteSize;
+  sprite->setPos(spriteX + 1, 1);
   sprite->setProps(QuadProps{
+      .width = spriteSize,
+      .height = spriteSize,
       .bgSprite = props.spriteName,
   });
   container->addChild(sprite);
 
   auto rightBtn = new ButtonModal(window, container);
   rightBtn->setId("nextPartyMember");
-  auto& rightStyle = rightBtn->getStyle();
-  rightStyle.x = spriteX + spriteSize + spacing;
-  rightStyle.y = (totalHeight - buttonSize) / 2;
-  rightStyle.width = buttonSize;
-  rightStyle.height = buttonSize;
-  rightBtn->setProps(ButtonModalProps{.text = ">"});
+  rightBtn->setPos(spriteX + spriteSize + spacing, (totalHeight - buttonSize) / 2);
+  rightBtn->setProps(ButtonModalProps{.text = ">", .width = buttonSize, .height = buttonSize});
   rightBtn->addEventObserver(
       new ObserverUpdateCurrentPartyMember(props.partyMemberIndex, 1));
   container->addChild(rightBtn);

@@ -17,8 +17,11 @@ public:
 ButtonModal::ButtonModal(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
   addEventObserver(new ButtonModalDefaultObserver(this));
-  style.textAlign = TextAlign::CENTER;
-  setBaseFontConfig(style, BaseFontConfig::MODAL_BUTTON);
+  TextFontProps font;
+  setBaseFontConfig(font, BaseFontConfig::MODAL_BUTTON);
+  props.fontFamily = font.fontFamily;
+  props.fontSize = font.fontSize;
+  props.fontColor = font.fontColor;
   shouldPropagateEventsToChildren = false;
 }
 
@@ -34,20 +37,21 @@ const ButtonModalProps& ButtonModal::getProps() const { return props; }
 void ButtonModal::build() {
   children.clear();
 
-  auto rect = new OutsetRectangle(window);
-  auto& rectStyle = rect->getStyle();
-  rectStyle.x = style.x;
-  rectStyle.y = style.y;
-  rectStyle.width = style.width;
-  rectStyle.height = style.height;
-  rectStyle.scale = style.scale;
+  style.width = props.width;
+  style.height = props.height;
 
-  auto& rectProps = rect->getProps();
+  auto rect = new OutsetRectangle(window);
+  rect->setPos(style.x, style.y);
+  rect->setScale(style.scale);
+
+  OutsetRectangleProps rectProps;
   if (isInActiveMode) {
     rectProps.borderSize = 0;
   } else {
     rectProps.borderSize = 2;
   }
+  rectProps.width = props.width;
+  rectProps.height = props.height;
   rectProps.color = props.bgColor;
   rectProps.colorTopRight = props.bgColorTopRight;
   rectProps.colorBottomLeft = props.bgColorBottomLeft;
@@ -56,18 +60,18 @@ void ButtonModal::build() {
   addChild(rect);
 
   auto textLine = new TextLine(window, this);
-  auto& textStyle = textLine->getStyle();
-  setBaseFontConfig(textStyle, BaseFontConfig::MODAL_BUTTON);
-  textStyle.x = style.x + style.width * style.scale / 2;
-  textStyle.y = style.y + style.height * style.scale / 2;
+  int textX = style.x + style.width * style.scale / 2;
+  int textY = style.y + style.height * style.scale / 2;
   if (isInActiveMode && !props.isSelected) {
-    textStyle.x -= 1;
+    textX -= 1;
   }
-  textStyle.textAlign = TextAlign::CENTER;
-  textStyle.scale = 1.f;
-  textStyle.fontColor = style.fontColor;
-  textStyle.fontSize = style.fontSize;
+  textLine->setPos(textX, textY);
+  textLine->setScale(1.f);
   TextLineProps textLineProps;
+  textLineProps.fontFamily = props.fontFamily;
+  textLineProps.fontSize = props.fontSize;
+  textLineProps.fontColor = props.fontColor;
+  textLineProps.textAlign = TextAlign::CENTER;
   textLineProps.textBlocks.pushBack(TextBlock{props.text});
   textLine->setProps(textLineProps);
   addChild(textLine);

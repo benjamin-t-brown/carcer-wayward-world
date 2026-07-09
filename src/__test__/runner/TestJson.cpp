@@ -1,5 +1,5 @@
 #include "lib/Json.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 
 namespace {
 

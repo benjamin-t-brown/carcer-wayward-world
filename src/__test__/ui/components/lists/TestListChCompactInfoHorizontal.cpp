@@ -1,8 +1,8 @@
 #include "../../../setupTestUi.h"
-#include "lib/sdl2w/Defines.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Defines.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/UiElement.h"
 #include "ui/components/lists/ListChCompactInfoHorizontal.h"
 #include <memory>
@@ -19,11 +19,8 @@ int main(int argc, char** argv) {
     LOG(INFO) << "ListChCompactInfoHorizontal test initialized" << LOG_ENDL;
 
     auto list = new ui::ListChCompactInfoHorizontal(&window);
-    auto& style = list->getStyle();
-    style.width = 260;
-    style.x = 40;
-    style.y = 200;
-    style.scale = 1.0f;
+    list->setPos(40, 200);
+    list->setScale(1.0f);
 
     ui::ListChCompactInfoHorizontalProps listProps;
     listProps.lineGap = 2;
@@ -65,12 +62,13 @@ int main(int argc, char** argv) {
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(list));
 
     auto list2 = new ui::ListChCompactInfoHorizontal(&window);
-    list2->setStyle(list->getStyle());
-    list2->getStyle().x = 40;
-    list2->getStyle().y = 360;
-    list2->getStyle().scale = 1.25f;
-    list2->getStyle().fontSize = sdl2w::TEXT_SIZE_24;
-    list2->setProps(list->getProps());
+    list2->setPos(40, 360);
+    list2->setScale(1.25f);
+    auto list2Props = list->getProps();
+    for (size_t i = 0; i < list2Props.entries.size(); ++i) {
+      list2Props.entries[i].fontSize = sdl2w::TEXT_SIZE_24;
+    }
+    list2->setProps(list2Props);
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(list2));
   };
 

@@ -1,7 +1,7 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/popups/PopupInventoryItem.h"
@@ -24,10 +24,6 @@ int main(int argc, char** argv) {
     auto orientation = ui::PopupOrientation::WIDE;
     auto popupInventoryItem = new ui::PopupInventoryItem(&window, nullptr, orientation);
     popupInventoryItem->setId("minipagePickUp");
-    auto& style = popupInventoryItem->getStyle();
-    style.x = (windowWidth - style.width * scale) / 2;
-    style.y = (windowHeight - style.height * scale) / 2;
-    style.scale = scale;
     popupInventoryItem->setProps(ui::PopupInventoryItemProps{
         .item =
             {
@@ -45,6 +41,11 @@ int main(int argc, char** argv) {
         .equippable = true,
         .orientation = orientation,
     });
+    auto [popupW, popupH] = popupInventoryItem->getDims();
+    popupInventoryItem->setPos((windowWidth - popupW * scale) / 2,
+                               (windowHeight - popupH * scale) / 2);
+    popupInventoryItem->setScale(scale);
+    popupInventoryItem->build();
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(popupInventoryItem));
 
     auto& events = window.getEvents();

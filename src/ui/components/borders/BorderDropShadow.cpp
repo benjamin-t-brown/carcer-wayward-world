@@ -11,6 +11,12 @@ BorderDropShadow::BorderDropShadow(sdl2w::Window* _window, UiElement* _parent)
 
 void BorderDropShadow::setProps(const BorderDropShadowProps& _props) {
   props = _props;
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
   build();
 }
 
@@ -32,14 +38,19 @@ void BorderDropShadow::build() {
     }
   }
 
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
+
   auto quad = bmin::makeUnique<Quad>(window);
-  auto& quadStyle = quad->getStyle();
-  quadStyle.x = style.x;
-  quadStyle.y = style.y;
-  quadStyle.width = style.width;
-  quadStyle.height = style.height;
-  quadStyle.scale = style.scale;
+  quad->setPos(style.x, style.y);
+  quad->setScale(style.scale);
   quad->setProps(QuadProps{
+      .width = style.width,
+      .height = style.height,
       .bgColor = props.backgroundColor,
       .borderColor = Colors::Transparent,
       .borderSize = 0,

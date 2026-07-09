@@ -1,7 +1,7 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/UiElement.h"
 #include "ui/components/InGameTitleBar.h"
 #include <memory>
@@ -33,13 +33,11 @@ int main(int argc, char** argv) {
 
     auto titleBar = new ui::InGameTitleBar(&window);
     titleBar->setId("titleBar");
-    auto& style = titleBar->getStyle();
-    style.x = 16;
-    style.y = 24;
-    style.width = 768;
-    style.height = 36;
-    style.scale = 1.f;
+    titleBar->setPos(16, 24);
+    titleBar->setScale(1.f);
     titleBar->setProps(ui::InGameTitleBarProps{
+        .width = 768,
+        .height = 36,
         .title = "Boramark",
         .day = 12,
         .food = 8,

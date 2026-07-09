@@ -1,7 +1,7 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/components/borders/BorderInGameNarrow.h"
@@ -22,13 +22,11 @@ int main(int argc, char** argv) {
     auto [windowWidth, windowHeight] = window.getDims();
     auto border = new ui::BorderInGameNarrow(&window);
     border->setId("border");
-    auto& borderStyle = border->getStyle();
-    borderStyle.x = 0;
-    borderStyle.y = 0;
-    borderStyle.width = windowWidth / scale;
-    borderStyle.height = windowHeight / scale;
-    borderStyle.scale = scale;
+    border->setPos(0, 0);
+    border->setScale(scale);
     auto borderProps = ui::BorderInGameNarrowProps{};
+    borderProps.width = static_cast<int>(windowWidth / scale);
+    borderProps.height = static_cast<int>(windowHeight / scale);
     borderProps.actionButtonsScale = 2.f;
     border->setProps(borderProps);
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(border));

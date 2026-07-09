@@ -8,6 +8,8 @@ namespace ui {
 
 // ModalSmall layout properties
 struct ModalSmallProps {
+  int width = 0;
+  int height = 0;
   SDL_Color backgroundColor = Colors::White;
   bmin::String iconSprite = "";
   bool enableCloseButton = true;

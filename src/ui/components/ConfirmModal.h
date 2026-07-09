@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../UiElement.h"
-#include "lib/sdl2w/L10n.h"
+#include "sdl2w/L10n.h"
 #include "bmin/String.h"
 
 namespace ui {

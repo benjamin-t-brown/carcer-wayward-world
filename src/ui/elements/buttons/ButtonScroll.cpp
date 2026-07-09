@@ -21,7 +21,6 @@ ButtonScroll::ButtonScroll(sdl2w::Window* _window, UiElement* _parent)
   addEventObserver(new ButtonScrollDefaultObserver(this));
   shouldPropagateEventsToChildren = false;
 
-  // Set default size to 32x32px
   style.width = 32;
   style.height = 32;
 }
@@ -38,15 +37,16 @@ const ButtonScrollProps& ButtonScroll::getProps() const { return props; }
 void ButtonScroll::build() {
   children.clear();
 
-  auto rect = new OutsetRectangle(window);
-  auto& rectStyle = rect->getStyle();
-  rectStyle.x = style.x;
-  rectStyle.y = style.y;
-  rectStyle.width = style.width;
-  rectStyle.height = style.height;
-  rectStyle.scale = style.scale;
+  style.width = props.width;
+  style.height = props.height;
 
-  auto& rectProps = rect->getProps();
+  auto rect = new OutsetRectangle(window);
+  rect->setPos(style.x, style.y);
+  rect->setScale(style.scale);
+
+  OutsetRectangleProps rectProps;
+  rectProps.width = props.width;
+  rectProps.height = props.height;
   if (props.isDisabled) {
     rectProps.borderSize = 0;
     rectProps.color = Colors::Grey;
@@ -70,18 +70,6 @@ void ButtonScroll::build() {
 }
 
 void ButtonScroll::render(int dt) {
-  // if (isHovered) {
-  //   if (!isInHoverMode) {
-  //     isInHoverMode = true;
-  //     build();
-  //   }
-  // } else {
-  //   if (isInHoverMode) {
-  //     isInHoverMode = false;
-  //     build();
-  //   }
-  // }
-
   if (!props.isDisabled) {
     if (isActive) {
       if (!isInActiveMode) {

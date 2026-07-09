@@ -1,5 +1,4 @@
 #include "ChCompactInfo.h"
-#include "lib/sdl2w/Defines.h"
 #include "ui/colors.h"
 #include "ui/elements/OutsetRectangle.h"
 #include "ui/elements/Quad.h"
@@ -8,9 +7,7 @@
 namespace ui {
 
 ChCompactInfo::ChCompactInfo(sdl2w::Window* _window, UiElement* _parent)
-    : UiElement(_window, _parent) {
-  style.fontSize = sdl2w::TEXT_SIZE_18;
-}
+    : UiElement(_window, _parent) {}
 
 void ChCompactInfo::setProps(const ChCompactInfoProps& _props) {
   props = _props;
@@ -25,9 +22,7 @@ int ChCompactInfo::getContentWidth() const {
   return props.spriteBoxSize + props.statusIconSize * props.numStatusColumns;
 }
 
-int ChCompactInfo::getContentHeight() const {
-  return props.spriteBoxSize + fontHeight;
-}
+int ChCompactInfo::getContentHeight() const { return props.spriteBoxSize + fontHeight; }
 
 const std::pair<int, int> ChCompactInfo::getDims() const {
   const int contentW = getContentWidth();
@@ -49,22 +44,19 @@ void ChCompactInfo::build() {
   style.height = contentH + props.padding * 2;
 
   auto container = new Quad(window, this);
-  auto& containerStyle = container->getStyle();
-  containerStyle.x = contentX;
-  containerStyle.y = contentY;
-  containerStyle.width = contentW;
-  containerStyle.height = contentH;
-  containerStyle.scale = style.scale;
-  container->setProps(QuadProps{});
+  container->setPos(contentX, contentY);
+  container->setScale(style.scale);
+  container->setProps(QuadProps{
+      .width = contentW,
+      .height = contentH,
+  });
   addChild(container);
 
   auto spriteRect = new OutsetRectangle(window, container);
-  auto& spriteRectStyle = spriteRect->getStyle();
-  spriteRectStyle.x = 0;
-  spriteRectStyle.y = 0;
-  spriteRectStyle.width = props.spriteBoxSize;
-  spriteRectStyle.height = props.spriteBoxSize;
+  spriteRect->setPos(0, 0);
   spriteRect->setProps(OutsetRectangleProps{
+      .width = props.spriteBoxSize,
+      .height = props.spriteBoxSize,
       .color = props.spriteBgColor,
       .colorTopRight = props.spriteBorderColor1,
       .colorBottomLeft = props.spriteBorderColor2,
@@ -73,13 +65,10 @@ void ChCompactInfo::build() {
   container->addChild(spriteRect);
 
   auto sprite = new Quad(window, container);
-  auto& spriteStyle = sprite->getStyle();
-  spriteStyle.x = 1;
-  spriteStyle.y = 1;
-  spriteStyle.width = props.spriteBoxSize;
-  spriteStyle.height = props.spriteBoxSize;
-  QuadProps spriteProps;
+  sprite->setPos(1, 1);
   sprite->setProps(QuadProps{
+      .width = props.spriteBoxSize,
+      .height = props.spriteBoxSize,
       .bgSprite = props.characterSpriteName,
   });
   container->addChild(sprite);
@@ -90,17 +79,16 @@ void ChCompactInfo::build() {
   for (int j = 0; j < props.numStatusColumns; j++) {
     for (int i = 0; i < seSpritesPerColumn; i++) {
       const int index = i + j * seSpritesPerColumn;
-      if (index >= props.statusEffectSpriteNames.size()) {
+      if (static_cast<size_t>(index) >= props.statusEffectSpriteNames.size()) {
         break;
       }
 
       auto statusIcon = new Quad(window, container);
-      auto& statusIconStyle = statusIcon->getStyle();
-      statusIconStyle.x = gridX + props.statusIconSize * j;
-      statusIconStyle.y = gridY + props.statusIconSize * i;
-      statusIconStyle.width = props.statusIconSize;
-      statusIconStyle.height = props.statusIconSize;
+      statusIcon->setPos(gridX + props.statusIconSize * j,
+                         gridY + props.statusIconSize * i);
       statusIcon->setProps(QuadProps{
+          .width = props.statusIconSize,
+          .height = props.statusIconSize,
           .bgSprite = props.statusEffectSpriteNames[index],
       });
       container->addChild(statusIcon);
@@ -109,15 +97,17 @@ void ChCompactInfo::build() {
 
   const int textY = contentY + static_cast<int>(props.spriteBoxSize * style.scale) - 4;
 
+  TextFontProps font;
+  setBaseFontConfig(font, BaseFontConfig::MODAL_TEXT_BOLD);
+
   auto healthText = new TextLine(window, this);
-  auto& healthStyle = healthText->getStyle();
-  healthStyle.x = contentX;
-  healthStyle.y = textY;
-  setBaseFontConfig(healthStyle, BaseFontConfig::MODAL_TEXT_BOLD);
-  healthStyle.fontSize = style.fontSize;
-  healthStyle.fontColor = Colors::Red;
-  healthStyle.textAlign = TextAlign::LEFT_TOP;
+  healthText->setPos(contentX, textY);
+  healthText->setScale(1.f);
   TextLineProps healthProps;
+  healthProps.fontFamily = font.fontFamily;
+  healthProps.fontSize = props.fontSize;
+  healthProps.fontColor = Colors::Red;
+  healthProps.textAlign = TextAlign::LEFT_TOP;
   TextBlock healthBlock;
   healthBlock.text = bmin::toString(props.hp);
   healthProps.textBlocks.pushBack(healthBlock);
@@ -125,14 +115,13 @@ void ChCompactInfo::build() {
   addChild(healthText);
 
   auto manaText = new TextLine(window, this);
-  auto& manaStyle = manaText->getStyle();
-  manaStyle.x = contentX + static_cast<int>(props.spriteBoxSize * style.scale);
-  manaStyle.y = textY;
-  setBaseFontConfig(manaStyle, BaseFontConfig::MODAL_TEXT_BOLD);
-  manaStyle.fontSize = style.fontSize;
-  manaStyle.fontColor = Colors::LightBlue;
-  manaStyle.textAlign = TextAlign::LEFT_TOP;
+  manaText->setPos(contentX + static_cast<int>(props.spriteBoxSize * style.scale), textY);
+  manaText->setScale(1.f);
   TextLineProps manaProps;
+  manaProps.fontFamily = font.fontFamily;
+  manaProps.fontSize = props.fontSize;
+  manaProps.fontColor = Colors::LightBlue;
+  manaProps.textAlign = TextAlign::LEFT_TOP;
   TextBlock manaBlock;
   manaBlock.text = bmin::toString(props.mana);
   manaProps.textBlocks.pushBack(manaBlock);

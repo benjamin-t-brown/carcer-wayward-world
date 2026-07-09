@@ -7,6 +7,12 @@ BorderModalSmall::BorderModalSmall(sdl2w::Window* _window, UiElement* _parent)
 
 void BorderModalSmall::setProps(const BorderModalSmallProps& _props) {
   props = _props;
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
   build();
 }
 
@@ -63,7 +69,14 @@ const std::pair<int, int> BorderModalSmall::getTitleLocation() const {
   return {titleX, titleY};
 }
 
-void BorderModalSmall::build() {}
+void BorderModalSmall::build() {
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
+}
 
 void BorderModalSmall::renderBgOverlay() {
   int contentX = style.x;

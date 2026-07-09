@@ -12,6 +12,8 @@ namespace ui {
 class SectionScrollable;
 
 struct PageCharacterProps {
+  int width = 0;
+  int height = 0;
   model::CharacterPlayer* characterPlayer = nullptr;
 };
 

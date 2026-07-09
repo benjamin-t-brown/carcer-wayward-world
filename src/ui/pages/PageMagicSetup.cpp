@@ -13,6 +13,12 @@ PageMagicSetup::PageMagicSetup(sdl2w::Window* _window, UiElement* _parent)
 
 void PageMagicSetup::setProps(const PageMagicSetupProps& _props) {
   props = _props;
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
   build();
 }
 
@@ -30,26 +36,32 @@ const std::pair<int, int> PageMagicSetup::getDims() const {
 void PageMagicSetup::build() {
   children.clear();
 
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
+
   auto modal = bmin::makeUnique<ModalStandard>(window, this);
   modal->setId("modal");
-  BaseStyle modalStyle;
-  modalStyle.x = style.x;
-  modalStyle.y = style.y;
-  modalStyle.width = style.width;
-  modalStyle.height = style.height;
-  modalStyle.scale = style.scale;
-  modal->setStyle(modalStyle);
-  modal->setProps(ModalStandardProps{});
+  modal->setPos(style.x, style.y);
+  modal->setScale(style.scale);
+  modal->setProps(ModalStandardProps{
+      .width = style.width,
+      .height = style.height,
+  });
 
   auto [contentW, contentH] = modal->getContentDims();
 
   auto title = bmin::makeUnique<TextLine>(window, modal.get());
-  BaseStyle titleStyle;
-  setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
-  titleStyle.textAlign = TextAlign::LEFT_TOP;
-  title->setStyle(titleStyle);
-
+  TextFontProps titleFont;
+  setBaseFontConfig(titleFont, BaseFontConfig::MODAL_TITLE);
   TextLineProps titleProps;
+  titleProps.fontFamily = titleFont.fontFamily;
+  titleProps.fontSize = titleFont.fontSize;
+  titleProps.fontColor = titleFont.fontColor;
+  titleProps.textAlign = TextAlign::LEFT_TOP;
   TextBlock titleBlock;
   titleBlock.text = "Magic";
   titleProps.textBlocks.pushBack(titleBlock);
@@ -58,24 +70,23 @@ void PageMagicSetup::build() {
 
   auto scrollableSection = bmin::makeUnique<SectionScrollable>(window, modal.get());
   scrollableSection->setId("scrollableSection");
-  BaseStyle scrollableStyle;
-  scrollableStyle.width = contentW;
-  scrollableStyle.height = contentH;
-  scrollableStyle.scale = style.scale;
-  scrollableSection->setStyle(scrollableStyle);
-  scrollableSection->setProps(SectionScrollableProps{});
+  scrollableSection->setScale(style.scale);
+  scrollableSection->setProps(SectionScrollableProps{
+      .width = contentW,
+      .height = contentH,
+  });
 
   auto bodyText = bmin::makeUnique<TextLine>(window, scrollableSection.get());
   bodyText->setId("bodyText");
-  BaseStyle bodyStyle;
-  bodyStyle.x = 0;
-  bodyStyle.y = 4;
-  setBaseFontConfig(bodyStyle, BaseFontConfig::MODAL_TEXT);
-  bodyStyle.textAlign = TextAlign::LEFT_TOP;
-  bodyStyle.scale = style.scale;
-  bodyText->setStyle(bodyStyle);
-
+  TextFontProps bodyFont;
+  setBaseFontConfig(bodyFont, BaseFontConfig::MODAL_TEXT);
+  bodyText->setPos(0, 4);
+  bodyText->setScale(style.scale);
   TextLineProps bodyProps;
+  bodyProps.fontFamily = bodyFont.fontFamily;
+  bodyProps.fontSize = bodyFont.fontSize;
+  bodyProps.fontColor = bodyFont.fontColor;
+  bodyProps.textAlign = TextAlign::LEFT_TOP;
   TextBlock bodyBlock;
   bodyBlock.text = "Magic page placeholder.";
   bodyProps.textBlocks.pushBack(bodyBlock);

@@ -1,8 +1,8 @@
 #include "hiscore.h"
 #include "bmin/StringStream.h"
 #include "lib/StringUtil.h"
-#include "lib/sdl2w/AssetLoader.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/AssetLoader.h"
+#include "sdl2w/Logger.h"
 
 namespace hiscore {
 bool isLoaded = false;

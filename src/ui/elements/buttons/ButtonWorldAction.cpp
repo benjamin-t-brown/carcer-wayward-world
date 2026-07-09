@@ -1,7 +1,7 @@
 #include "ButtonWorldAction.h"
 #include "bmin/StringStream.h"
 #include "bmin/UniquePtr.h"
-#include "lib/sdl2w/L10n.h"
+#include "sdl2w/L10n.h"
 #include "state/WorldActions.h"
 #include "ui/elements/SpriteElement.h"
 
@@ -27,11 +27,8 @@ public:
 ButtonWorldAction::ButtonWorldAction(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
   addEventObserver(new ButtonWorldActionDefaultObserver(this));
-  style.textAlign = TextAlign::CENTER;
-  style.fontSize = sdl2w::TEXT_SIZE_20;
   shouldPropagateEventsToChildren = false;
 
-  // Set default size
   style.width = 32;
   style.height = 32;
 }
@@ -45,9 +42,6 @@ ButtonWorldAction::getButtonWorldActionMapping(state::WorldActionType worldActio
   case WorldActionType::ABILITY:
     return ButtonWorldActionMapping{TRANSLATE("Ability"), 1};
     break;
-  // case WorldActionType::STATUS:
-  //   return ButtonWorldActionMapping{TRANSLATE("Status"), 2};
-  //   break;
   case WorldActionType::TALK:
     return ButtonWorldActionMapping{TRANSLATE("Talk"), 3};
     break;
@@ -57,9 +51,6 @@ ButtonWorldAction::getButtonWorldActionMapping(state::WorldActionType worldActio
   case WorldActionType::GET:
     return ButtonWorldActionMapping{TRANSLATE("Get"), 16, true};
     break;
-  // case WorldActionType::MAP:
-  //   return ButtonWorldActionMapping{TRANSLATE("Map"), 6};
-  //   break;
   case WorldActionType::SNEAK:
     return ButtonWorldActionMapping{TRANSLATE("Sneak"), 7};
     break;
@@ -72,9 +63,6 @@ ButtonWorldAction::getButtonWorldActionMapping(state::WorldActionType worldActio
   case WorldActionType::EXAMINE:
     return ButtonWorldActionMapping{TRANSLATE("Examine"), 10};
     break;
-  // case WorldActionType::INVENTORY:
-  //   return ButtonWorldActionMapping{TRANSLATE("Inventory"), 11};
-  //   break;
   case WorldActionType::SHOOT:
     return ButtonWorldActionMapping{TRANSLATE("Shoot"), 0, true};
     break;
@@ -126,12 +114,10 @@ void ButtonWorldAction::build() {
 
   auto mapping = getButtonWorldActionMapping(props.worldActionType);
 
-  auto spriteElement = bmin::makeUnique<SpriteElement>(window);
-  BaseStyle spriteStyle;
-  spriteStyle.x = style.x;
-  spriteStyle.y = style.y;
-  spriteStyle.scale = style.scale;
-  spriteElement->setStyle(spriteStyle);
+  int spriteW = mapping.isSmall ? 32 : 32;
+  int spriteH = mapping.isSmall ? 16 : 32;
+  style.width = spriteW;
+  style.height = spriteH;
 
   int startingSpriteIndex =
       mapping.isSmall ? smallStartingSpriteIndex : normalStartingSpriteIndex;
@@ -150,18 +136,14 @@ void ButtonWorldAction::build() {
   }
   ss << (startingSpriteIndex + mapping.spriteIndex);
 
-  if (mapping.isSmall) {
-    spriteStyle.width = 32;
-    spriteStyle.height = 16;
-  } else {
-    spriteStyle.width = 32;
-    spriteStyle.height = 32;
-  }
-
-  style.width = spriteStyle.width;
-  style.height = spriteStyle.height;
-
-  spriteElement->setSprite(bmin::String(ss.str().cStr()));
+  auto spriteElement = bmin::makeUnique<SpriteElement>(window);
+  spriteElement->setPos(style.x, style.y);
+  spriteElement->setScale(style.scale);
+  spriteElement->setProps(SpriteElementProps{
+      .width = spriteW,
+      .height = spriteH,
+      .spriteName = bmin::String(ss.str().cStr()),
+  });
   children.pushBack(bmin::UniquePtr<UiElement>(spriteElement.release()));
 }
 

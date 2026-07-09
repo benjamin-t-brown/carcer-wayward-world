@@ -7,6 +7,12 @@ BorderInGameWide::BorderInGameWide(sdl2w::Window* _window, UiElement* _parent)
 
 void BorderInGameWide::setProps(const BorderInGameWideProps& _props) {
   props = _props;
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
   build();
 }
 
@@ -49,6 +55,13 @@ const std::pair<int, int> BorderInGameWide::getActionButtonsAreaLocation() const
 
 void BorderInGameWide::build() {
   children.clear();
+
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
 
   int width = scaledWidth();
   int height = scaledHeight();

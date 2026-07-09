@@ -1,7 +1,7 @@
 #include "bmin/DynArray.h"
 #include "bmin/List.h"
 #include "bmin/UniquePtr.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 
 namespace {
 

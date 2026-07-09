@@ -87,11 +87,7 @@ void FloatingNotificationSection::layoutNotifications() {
     auto [childWidth, childHeight] = child->getDims();
 
     currentY -= childHeight;
-    auto& childStyle = child->getStyle();
-    childStyle.x = (windowWidth - childWidth) / 2;
-    childStyle.y = currentY;
-    childStyle.width = childWidth;
-    childStyle.height = childHeight;
+    child->setPos((windowWidth - childWidth) / 2, currentY);
     child->build();
 
     currentY -= props.notificationGap;

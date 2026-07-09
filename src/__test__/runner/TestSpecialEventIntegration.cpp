@@ -1,6 +1,6 @@
 #include "db/loaders/LoadSpecialEvents.h"
 #include "lib/bmin/Map.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 #include "model/templates/SpecialEvents.h"
 #include "runner/SpecialEventRunner.h"
 #include "bmin/String.h"

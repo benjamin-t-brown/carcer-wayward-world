@@ -2,6 +2,7 @@
 
 #include "../../UiElement.h"
 #include "bmin/String.h"
+#include "ui/TextStyle.h"
 
 namespace ui {
 
@@ -9,14 +10,20 @@ namespace ui {
 struct ButtonModalProps {
   bmin::String text;
   bool isSelected = false;
+  int width = 80;
+  int height = 32;
 
   SDL_Color bgColor = Colors::ButtonModalGrey1;
   SDL_Color bgColorTopRight = Colors::ButtonModalGrey2;
   SDL_Color bgColorBottomLeft = Colors::ButtonModalGrey3;
+
+  FontFamily fontFamily = FontFamily::TEXT;
+  sdl2w::TextSize fontSize = sdl2w::TEXT_SIZE_20;
+  SDL_Color fontColor = Colors::White;
 };
 
 // ButtonModal element - renders a clickable button typically used inside modal windows
-// Uses Position, Size, Scale from BaseStyle
+// Position/scale via setPos/setScale; size via props.width/height → build
 class ButtonModal : public UiElement {
 private:
   ButtonModalProps props;

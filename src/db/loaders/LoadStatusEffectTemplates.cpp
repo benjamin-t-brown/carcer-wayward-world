@@ -2,7 +2,7 @@
 #include "bmin/StringInterop.h"
 #include "LoadAbilityJson.h"
 #include "lib/Json.h"
-#include "lib/sdl2w/AssetLoader.h"
+#include "sdl2w/AssetLoader.h"
 #include <stdexcept>
 
 namespace db {

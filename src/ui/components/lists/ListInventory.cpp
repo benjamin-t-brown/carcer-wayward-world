@@ -11,7 +11,6 @@
 
 namespace ui {
 
-// ListInventory Implementation
 ListInventory::ListInventory(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {}
 
@@ -28,6 +27,9 @@ const std::pair<int, int> ListInventory::getDims() const {
 
 void ListInventory::setProps(const ListInventoryProps& _props) {
   props = _props;
+  if (props.width > 0) {
+    style.width = props.width;
+  }
   build();
 }
 
@@ -35,20 +37,21 @@ const ListInventoryProps& ListInventory::getProps() const { return props; }
 
 UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
                                             int index) {
+  const int rowWidth = static_cast<int>(style.width * style.scale);
+  const int rowHeight = static_cast<int>(props.lineHeight * style.scale);
+
   auto container = new Quad(window, this);
   container->setId(item.itemName);
-  auto& s = container->getStyle();
-  s.width = style.width * style.scale;
-  s.height = props.lineHeight * style.scale;
-  s.scale = 1.0f;
-  container->setProps({
+  container->setScale(1.0f);
+  container->setProps(QuadProps{
+      .width = rowWidth,
+      .height = rowHeight,
       .bgColor = Colors::Transparent,
   });
 
   const int scaledIndexColumnWidth = static_cast<int>(indexColumnWidth * style.scale);
   const int scaledIndexPaddingLeft = static_cast<int>(indexPaddingLeft * style.scale);
   const int scaledReorderBtnWidth = static_cast<int>(reorderBtnWidth * style.scale);
-  // const int scaledReorderBtnHeight = static_cast<int>(reorderBtnHeight * style.scale);
   const int scaledReorderBtnGap = static_cast<int>(reorderBtnGap * style.scale);
   const int scaledReorderColumnGap = static_cast<int>(reorderColumnGap * style.scale);
   const int scaledReorderColumnWidth =
@@ -61,22 +64,25 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
   const int scaledIconWidth = static_cast<int>(iconSpriteSize * iconScale * style.scale);
 
   const int reorderBtnY =
-      ButtonList::yForListRow(s.height, reorderBtnHeight, style.scale);
+      ButtonList::yForListRow(rowHeight, reorderBtnHeight, style.scale);
   const int reorderButtonsX = scaledReorderColumnGap;
+
+  TextFontProps font;
+  setBaseFontConfig(font, BaseFontConfig::MODAL_TEXT);
 
   auto upBtn = new ButtonList(window, this);
   upBtn->setId("reorderUp");
-  auto& upBtnStyle = upBtn->getStyle();
-  upBtnStyle.x = reorderButtonsX;
-  upBtnStyle.y = reorderBtnY;
-  upBtnStyle.width = reorderBtnWidth;
-  upBtnStyle.height = reorderBtnHeight;
-  upBtnStyle.scale = style.scale;
-  upBtn->setProps({.arrow = ScrollDirection::UP,
-                   .bgColor = Colors::Transparent,
-                   .bgColorTopRight = Colors::Transparent,
-                   .bgColorBottomLeft = Colors::Transparent,
-                   .arrowColor = Colors::Black});
+  upBtn->setPos(reorderButtonsX, reorderBtnY);
+  upBtn->setScale(style.scale);
+  upBtn->setProps(ButtonListProps{
+      .arrow = ScrollDirection::UP,
+      .width = reorderBtnWidth,
+      .height = reorderBtnHeight,
+      .bgColor = Colors::Transparent,
+      .bgColorTopRight = Colors::Transparent,
+      .bgColorBottomLeft = Colors::Transparent,
+      .arrowColor = Colors::Black,
+  });
   if (!props.characterPlayerId.empty() && index > 0) {
     upBtn->addEventObserver(
         new ObserverReorderInventoryItem(props.characterPlayerId, index, -1));
@@ -85,17 +91,18 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
 
   auto downBtn = new ButtonList(window, this);
   downBtn->setId("reorderDown");
-  auto& downBtnStyle = downBtn->getStyle();
-  downBtnStyle.x = reorderButtonsX + scaledReorderBtnWidth + scaledReorderBtnGap;
-  downBtnStyle.y = reorderBtnY;
-  downBtnStyle.width = reorderBtnWidth;
-  downBtnStyle.height = reorderBtnHeight;
-  downBtnStyle.scale = style.scale;
-  downBtn->setProps({.arrow = ScrollDirection::DOWN,
-                     .bgColor = Colors::Transparent,
-                     .bgColorTopRight = Colors::Transparent,
-                     .bgColorBottomLeft = Colors::Transparent,
-                     .arrowColor = Colors::Black});
+  downBtn->setPos(reorderButtonsX + scaledReorderBtnWidth + scaledReorderBtnGap,
+                  reorderBtnY);
+  downBtn->setScale(style.scale);
+  downBtn->setProps(ButtonListProps{
+      .arrow = ScrollDirection::DOWN,
+      .width = reorderBtnWidth,
+      .height = reorderBtnHeight,
+      .bgColor = Colors::Transparent,
+      .bgColorTopRight = Colors::Transparent,
+      .bgColorBottomLeft = Colors::Transparent,
+      .arrowColor = Colors::Black,
+  });
   if (!props.characterPlayerId.empty() &&
       index + 1 < static_cast<int>(props.items.size())) {
     downBtn->addEventObserver(
@@ -105,43 +112,39 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
 
   auto indexLine = new TextLine(window, this);
   indexLine->setId("index");
-  auto& indexStyle = indexLine->getStyle();
-  setBaseFontConfig(indexStyle, BaseFontConfig::MODAL_TEXT);
-  indexStyle.fontSize = sdl2w::TEXT_SIZE_18;
-  indexStyle.fontColor = Colors::Black;
-  indexStyle.textAlign = TextAlign::LEFT_CENTER;
-  indexStyle.scale = 1.0f;
-  indexStyle.y = s.height / 2;
-  indexLine->setProps({
-      .textBlocks =
-          {
-              {
-                  .text = bmin::toString(index + 1) + ".",
-              },
-          },
-  });
+  indexLine->setPos(0, rowHeight / 2);
+  indexLine->setScale(1.0f);
+  TextLineProps indexProps;
+  indexProps.fontFamily = font.fontFamily;
+  indexProps.fontSize = sdl2w::TEXT_SIZE_18;
+  indexProps.fontColor = Colors::Black;
+  indexProps.textAlign = TextAlign::LEFT_CENTER;
+  indexProps.textBlocks.pushBack({.text = bmin::toString(index + 1) + "."});
+  indexLine->setProps(indexProps);
   const int indexTextWidth = indexLine->getDims().first;
-  indexStyle.x = indexColumnStartX + scaledIndexPaddingLeft +
-                 (scaledIndexColumnWidth - scaledIndexPaddingLeft - indexTextWidth);
-  indexLine->build();
+  indexLine->setPos(indexColumnStartX + scaledIndexPaddingLeft +
+                        (scaledIndexColumnWidth - scaledIndexPaddingLeft - indexTextWidth),
+                    rowHeight / 2);
   container->addChild(indexLine);
+
+  const int iconX = indexColumnStartX + scaledIndexColumnWidth + numberGap;
+  const int iconY =
+      (rowHeight - static_cast<int>(iconSpriteSize * style.scale * iconScale)) / 2;
 
   auto icon = new Quad(window, this);
   icon->setId("icon");
-  auto& iconStyle = icon->getStyle();
-  iconStyle.width = iconSpriteSize;
-  iconStyle.height = iconSpriteSize;
-  iconStyle.x = indexColumnStartX + scaledIndexColumnWidth + numberGap;
-  iconStyle.y = (s.height - iconStyle.height * style.scale * iconScale) / 2;
-  iconStyle.scale = iconScale * style.scale;
-  icon->setProps({
+  icon->setPos(iconX, iconY);
+  icon->setScale(iconScale * style.scale);
+  icon->setProps(QuadProps{
+      .width = iconSpriteSize,
+      .height = iconSpriteSize,
       .bgColor = {66, 202, 253, 50},
       .bgSprite = item.itemSprite,
   });
   container->addChild(icon);
 
   const int scaledContextBtnSize = contextBtnSize * style.scale;
-  const int labelX = iconStyle.x + scaledIconWidth + labelGapAfterIcon;
+  const int labelX = iconX + scaledIconWidth + labelGapAfterIcon;
   const int labelContextGap = static_cast<int>(4 * style.scale);
   const SDL_Color labelColor = item.isEquipped ? Colors::Blue : Colors::Black;
   auto fontConfig =
@@ -150,68 +153,68 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
   if (item.isStackable) {
     itemDisplayLabel += " (" + bmin::toString(item.quantity) + ")";
   }
+  if (!item.equippedSlotAbbrev.empty()) {
+    itemDisplayLabel += " (" + item.equippedSlotAbbrev + ")";
+  }
+
+  TextFontProps labelFont;
+  setBaseFontConfig(labelFont, fontConfig);
 
   if (item.isEquippable && !props.characterPlayerId.empty()) {
+    const int labelWidth =
+        static_cast<int>((rowWidth - scaledContextBtnSize - labelX - labelContextGap));
     auto label = new ButtonTextWrap(window, this);
     label->setId("label");
-    auto& labelStyle = label->getStyle();
-    setBaseFontConfig(labelStyle, fontConfig);
-    labelStyle.fontSize = sdl2w::TEXT_SIZE_18;
-    labelStyle.fontColor = labelColor;
-    labelStyle.scale = 1.0f;
-    labelStyle.x = labelX;
-    labelStyle.y = 0;
-    labelStyle.width = static_cast<int>(
-        (s.width - scaledContextBtnSize - labelX - labelContextGap) / labelStyle.scale);
-    label->setStyle(labelStyle);
-    label->setProps({
+    label->setPos(labelX, 0);
+    label->setScale(1.0f);
+    label->setProps(ButtonTextWrapProps{
         .text = item.itemName,
+        .width = labelWidth,
+        .fontFamily = labelFont.fontFamily,
+        .fontSize = sdl2w::TEXT_SIZE_18,
+        .fontColor = labelColor,
     });
     const int textOnlyHeight = label->getDims().second;
-    const int verticalPadding = std::max(
-        0, static_cast<int>((s.height - textOnlyHeight) / (2 * labelStyle.scale)));
-    label->setProps({
+    const int verticalPadding =
+        std::max(0, static_cast<int>((rowHeight - textOnlyHeight) / 2));
+    label->setProps(ButtonTextWrapProps{
         .text = itemDisplayLabel,
+        .width = labelWidth,
         .verticalPadding = verticalPadding,
+        .fontFamily = labelFont.fontFamily,
+        .fontSize = sdl2w::TEXT_SIZE_18,
+        .fontColor = labelColor,
     });
     label->addEventObserver(
         new ui::ObserverInventorySelectItem(props.characterPlayerId, item.itemId));
-    label->build();
     container->addChild(label);
   } else {
     auto label = new TextLine(window, this);
     label->setId("label");
-    auto& labelStyle = label->getStyle();
-    setBaseFontConfig(labelStyle, BaseFontConfig::MODAL_TEXT);
-    labelStyle.fontSize = sdl2w::TEXT_SIZE_18;
-    labelStyle.fontColor = labelColor;
-    labelStyle.textAlign = TextAlign::LEFT_CENTER;
-    labelStyle.scale = 1.0f;
-    labelStyle.x = labelX;
-    labelStyle.y = s.height / 2;
-    label->setProps({
-        .textBlocks =
-            {
-                {
-                    .text = itemDisplayLabel,
-                    .fontColor = labelColor,
-                },
-            },
+    label->setPos(labelX, rowHeight / 2);
+    label->setScale(1.0f);
+    TextLineProps labelProps;
+    labelProps.fontFamily = labelFont.fontFamily;
+    labelProps.fontSize = sdl2w::TEXT_SIZE_18;
+    labelProps.fontColor = labelColor;
+    labelProps.textAlign = TextAlign::LEFT_CENTER;
+    labelProps.textBlocks.pushBack({
+        .text = itemDisplayLabel,
+        .fontColor = labelColor,
     });
+    label->setProps(labelProps);
     container->addChild(label);
   }
 
-  // Create context button
   auto contextBtn = new ButtonModal(window, this);
   contextBtn->setId("contextBtn");
-  auto& contextBtnStyle = contextBtn->getStyle();
-  contextBtnStyle.x = s.width - scaledContextBtnSize;
-  contextBtnStyle.y = (s.height - contextBtnSize) / 2;
-  contextBtnStyle.width = scaledContextBtnSize;
-  contextBtnStyle.height = scaledContextBtnSize;
-  contextBtnStyle.scale = 1.0f;
-  contextBtn->setProps({
+  contextBtn->setPos(rowWidth - scaledContextBtnSize,
+                     (rowHeight - scaledContextBtnSize) / 2);
+  contextBtn->setScale(1.0f);
+  contextBtn->setProps(ButtonModalProps{
       .text = "*",
+      .width = scaledContextBtnSize,
+      .height = scaledContextBtnSize,
   });
   contextBtn->addEventObserver(
       new ui::ObserverShowLayerInventoryContext(window, item.itemName, item.itemId));
@@ -223,20 +226,21 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
 void ListInventory::build() {
   children.clear();
 
-  // Create VerticalList component
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+
   auto list = new VerticalList(window, this);
   list->setId("list");
-  auto& s = list->getStyle();
-  s.x = style.x;
-  s.y = style.y + static_cast<int>(props.paddingTop * style.scale);
-  s.width = style.width * style.scale;
-  s.scale = 1.0f;
+  list->setPos(style.x, style.y + static_cast<int>(props.paddingTop * style.scale));
+  list->setScale(1.0f);
 
   for (size_t i = 0; i < props.items.size(); ++i) {
     list->addChild(createItemElement(props.items[i], static_cast<int>(i)));
   }
 
-  list->setProps({
+  list->setProps(VerticalListProps{
+      .width = static_cast<int>(style.width * style.scale),
       .lineHeight = static_cast<int>(props.lineHeight * style.scale),
       .lineGap = props.lineGap,
       .bgColor = Colors::Transparent,
@@ -245,9 +249,6 @@ void ListInventory::build() {
   addChild(list);
 }
 
-void ListInventory::render(int dt) {
-  //
-  UiElement::render(dt);
-}
+void ListInventory::render(int dt) { UiElement::render(dt); }
 
 } // namespace ui

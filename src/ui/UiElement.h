@@ -3,14 +3,14 @@
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "bmin/UniquePtr.h"
-#include "lib/sdl2w/Defines.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Window.h"
 #include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
-#include "ui/colors.h"
+#include "ui/TextStyle.h" // IWYU pragma: keep
 #include <optional>
 #include <string_view>
+#include <utility>
 
 // prevents circular dependency
 #include "state/AbstractAction.h" // IWYU pragma: keep
@@ -27,72 +27,14 @@ public:
   virtual void dispatchAction(const bmin::String& action, void* payload) = 0;
 };
 
-// Enums for styling
-enum class FontFamily { TEXT, TEXT_BOLD, DEFAULT, TITLE };
-
-enum class TextAlign { LEFT_TOP, LEFT_CENTER, LEFT_BOTTOM, CENTER };
-
-// Base style structure - can be extended by specific UI elements
+// Geometry-only style. Visual fields live on component props / private caches.
 struct BaseStyle {
-  // Position
   int x = 0;
   int y = 0;
-
-  // Size
   int width = 0;
   int height = 0;
-
-  // Scale
   float scale = 1.0f;
-
-  // Text params
-  FontFamily fontFamily = FontFamily::TEXT;
-  sdl2w::TextSize fontSize = sdl2w::TEXT_SIZE_16;
-  SDL_Color fontColor = Colors::Black;
-  TextAlign textAlign = TextAlign::LEFT_TOP;
-
-  // List
-  int lineSpacing = 0;
-  SDL_Color lineBackgroundColor = SDL_Color{255, 255, 255, 0};
 };
-
-enum class BaseFontConfig {
-  MODAL_TEXT,
-  MODAL_TEXT_BOLD,
-  MODAL_TITLE,
-  MODAL_CHOICE_TEXT,
-  MODAL_BUTTON,
-};
-
-inline void setBaseFontConfig(BaseStyle& style, BaseFontConfig config) {
-  switch (config) {
-  case BaseFontConfig::MODAL_TEXT:
-    style.fontFamily = FontFamily::TEXT;
-    style.fontSize = sdl2w::TEXT_SIZE_16;
-    style.fontColor = Colors::White;
-    break;
-  case BaseFontConfig::MODAL_TEXT_BOLD:
-    style.fontFamily = FontFamily::TEXT_BOLD;
-    style.fontSize = sdl2w::TEXT_SIZE_16;
-    style.fontColor = Colors::White;
-    break;
-  case BaseFontConfig::MODAL_TITLE:
-    style.fontFamily = FontFamily::TITLE;
-    style.fontSize = sdl2w::TEXT_SIZE_20;
-    style.fontColor = Colors::White;
-    break;
-  case BaseFontConfig::MODAL_CHOICE_TEXT:
-    style.fontFamily = FontFamily::TEXT;
-    style.fontSize = sdl2w::TEXT_SIZE_24;
-    style.fontColor = Colors::Black;
-    break;
-  case BaseFontConfig::MODAL_BUTTON:
-    style.fontFamily = FontFamily::TEXT;
-    style.fontSize = sdl2w::TEXT_SIZE_20;
-    style.fontColor = Colors::White;
-    break;
-  }
-}
 
 class UiEventObserver {
 public:
@@ -126,10 +68,10 @@ public:
   virtual UiElement* getChildById(std::string_view id);
   virtual void removeChildById(std::string_view id);
 
-  // Style methods
-  virtual void setStyle(const BaseStyle& _style);
-  virtual BaseStyle& getStyle();
-  virtual const BaseStyle& getStyle() const;
+  // Layout API (style is private/protected; no public getStyle/setStyle)
+  virtual void setPos(int x, int y);
+  virtual void setScale(float scale);
+  virtual std::pair<int, int> getPos() const;
   virtual const std::pair<int, int> getDims() const;
 
   // Id methods

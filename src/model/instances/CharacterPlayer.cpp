@@ -112,18 +112,73 @@ bmin::String characterPlayerGetSprite(const CharacterPlayer& characterPlayer) {
          characterPlayer.params.spriteOffset;
 }
 
+std::optional<CharacterEquipmentSlot>
+characterPlayerGetEquipmentSlotForItemId(const CharacterPlayer& characterPlayer,
+                                         const bmin::String& itemId) {
+  const auto& equipment = characterPlayer.equipment;
+  if (equipment.weapon0Id == itemId) {
+    return CharacterEquipmentSlot::WEAPON0;
+  }
+  if (equipment.weapon1Id == itemId) {
+    return CharacterEquipmentSlot::WEAPON1;
+  }
+  if (equipment.ammoId == itemId) {
+    return CharacterEquipmentSlot::AMMO;
+  }
+  if (equipment.hatId == itemId) {
+    return CharacterEquipmentSlot::HAT;
+  }
+  if (equipment.garbId == itemId) {
+    return CharacterEquipmentSlot::GARB;
+  }
+  if (equipment.glovesId == itemId) {
+    return CharacterEquipmentSlot::GLOVES;
+  }
+  if (equipment.pantsId == itemId) {
+    return CharacterEquipmentSlot::PANTS;
+  }
+  if (equipment.shoesId == itemId) {
+    return CharacterEquipmentSlot::SHOES;
+  }
+  if (equipment.necklaceId == itemId) {
+    return CharacterEquipmentSlot::NECKLACE;
+  }
+  if (equipment.shieldId == itemId) {
+    return CharacterEquipmentSlot::SHIELD;
+  }
+  return std::nullopt;
+}
+
+bmin::String characterEquipmentSlotAbbrev(CharacterEquipmentSlot slot) {
+  switch (slot) {
+  case CharacterEquipmentSlot::WEAPON0:
+    return "m";
+  case CharacterEquipmentSlot::WEAPON1:
+    return "o";
+  case CharacterEquipmentSlot::AMMO:
+    return "a";
+  case CharacterEquipmentSlot::HAT:
+    return "h";
+  case CharacterEquipmentSlot::GARB:
+    return "b";
+  case CharacterEquipmentSlot::GLOVES:
+    return "g";
+  case CharacterEquipmentSlot::PANTS:
+    return "p";
+  case CharacterEquipmentSlot::SHOES:
+    return "f";
+  case CharacterEquipmentSlot::NECKLACE:
+    return "n";
+  case CharacterEquipmentSlot::SHIELD:
+    return "o";
+  default:
+    return "";
+  }
+}
+
 bool characterPlayerIsItemEquippedById(const CharacterPlayer& characterPlayer,
                                        const bmin::String& itemId) {
-  return characterPlayer.equipment.weapon0Id == itemId ||
-         characterPlayer.equipment.weapon1Id == itemId ||
-         characterPlayer.equipment.ammoId == itemId ||
-         characterPlayer.equipment.hatId == itemId ||
-         characterPlayer.equipment.garbId == itemId ||
-         characterPlayer.equipment.glovesId == itemId ||
-         characterPlayer.equipment.pantsId == itemId ||
-         characterPlayer.equipment.shoesId == itemId ||
-         characterPlayer.equipment.necklaceId == itemId ||
-         characterPlayer.equipment.shieldId == itemId;
+  return characterPlayerGetEquipmentSlotForItemId(characterPlayer, itemId).has_value();
 }
 
 EquipItemResult characterPlayerToggleEquipItem(CharacterPlayer& characterPlayer,

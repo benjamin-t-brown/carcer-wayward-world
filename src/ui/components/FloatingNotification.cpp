@@ -36,12 +36,17 @@ const std::pair<int, int> FloatingNotification::getDims() const {
 void FloatingNotification::build() {
   children.clear();
 
+  TextFontProps font;
+  setBaseFontConfig(font, BaseFontConfig::MODAL_TEXT);
+
   auto textLine = new TextLine(window, this);
-  auto& textStyle = textLine->getStyle();
-  setBaseFontConfig(textStyle, BaseFontConfig::MODAL_TEXT);
-  textStyle.fontColor = getTextColor();
-  textStyle.textAlign = TextAlign::CENTER;
+  textLine->setPos(style.x, style.y);
+  textLine->setScale(1.f);
   TextLineProps notificationProps;
+  notificationProps.fontFamily = font.fontFamily;
+  notificationProps.fontSize = font.fontSize;
+  notificationProps.fontColor = getTextColor();
+  notificationProps.textAlign = TextAlign::CENTER;
   notificationProps.textBlocks.pushBack(
       {.text = props.message, .fontColor = getTextColor()});
   textLine->setProps(notificationProps);
@@ -54,12 +59,10 @@ void FloatingNotification::build() {
   style.height = contentHeight;
 
   auto border = new BorderDropShadow(window, this);
-  auto& borderStyle = border->getStyle();
-  borderStyle.x = style.x;
-  borderStyle.y = style.y;
-  borderStyle.width = contentWidth;
-  borderStyle.height = contentHeight;
+  border->setPos(style.x, style.y);
   border->setProps(BorderDropShadowProps{
+      .width = contentWidth,
+      .height = contentHeight,
       .backgroundColor = Colors::White,
       .shadowColor = Colors::Black,
       .shadowOffsetX = -4,
@@ -68,11 +71,7 @@ void FloatingNotification::build() {
   });
 
   // TextLine renders in screen space (sibling of border), not inside the panel Quad.
-  textStyle.x = style.x + contentWidth / 2;
-  textStyle.y = style.y + contentHeight / 2;
-  textStyle.width = textWidth;
-  textStyle.height = textHeight;
-  textLine->build();
+  textLine->setPos(style.x + contentWidth / 2, style.y + contentHeight / 2);
 
   addChild(border);
   addChild(textLine);

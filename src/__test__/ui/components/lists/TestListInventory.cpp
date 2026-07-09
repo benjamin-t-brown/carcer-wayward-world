@@ -1,7 +1,7 @@
 #include "../../../setupTestUi.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/components/lists/ListInventory.h"
@@ -20,11 +20,7 @@ int main(int argc, char** argv) {
 
     auto listInventory = new ui::ListInventory(&window, nullptr);
     listInventory->setId("listInventory");
-    ui::BaseStyle style = listInventory->getStyle();
-    style.width = 500;
-    style.x = 100;
-    style.y = 50;
-    listInventory->setStyle(style);
+    listInventory->setPos(100, 50);
 
     listInventory->setProps({
         .items =
@@ -33,21 +29,31 @@ int main(int argc, char** argv) {
                     .itemName = "item1",
                     .itemLabel = "Item 1",
                     .itemSprite = "ui_item_icons_0",
+                    .isEquipped = true,
+                    .equippedSlotAbbrev = "m",
                 },
                 {
                     .itemName = "item2",
                     .itemLabel = "Item 2",
                     .itemSprite = "ui_item_icons_1",
+                    .isEquipped = true,
+                    .equippedSlotAbbrev = "h",
                 },
                 {
                     .itemName = "item3",
                     .itemLabel = "Item 3",
                     .itemSprite = "ui_item_icons_2",
+                    .isStackable = true,
+                    .quantity = 3,
                 },
                 {
                     .itemName = "item4",
                     .itemLabel = "Item 4",
                     .itemSprite = "ui_item_icons_3",
+                    .isEquipped = true,
+                    .equippedSlotAbbrev = "a",
+                    .isStackable = true,
+                    .quantity = 12,
                 },
                 {
                     .itemName = "item5",
@@ -58,6 +64,8 @@ int main(int argc, char** argv) {
                     .itemName = "item6",
                     .itemLabel = "Item 6",
                     .itemSprite = "ui_item_icons_5",
+                    .isEquipped = true,
+                    .equippedSlotAbbrev = "o",
                 },
                 {
                     .itemName = "item7",
@@ -65,6 +73,7 @@ int main(int argc, char** argv) {
                     .itemSprite = "ui_item_icons_6",
                 },
             },
+        .width = 500,
     });
 
     auto [listWidth, listHeight] = listInventory->getDims();

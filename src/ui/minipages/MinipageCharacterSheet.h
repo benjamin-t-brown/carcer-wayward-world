@@ -4,7 +4,10 @@
 
 namespace ui {
 
-struct MinipageCharacterSheetProps {};
+struct MinipageCharacterSheetProps {
+  int width = 0;
+  int height = 0;
+};
 
 // MinipageCharacterSheet - renders a small character sheet shell using ModalSmall.
 class MinipageCharacterSheet : public UiElement {

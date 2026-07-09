@@ -6,6 +6,7 @@
 namespace ui {
 
 struct ItemInfoProps {
+  int width = 0;
   bmin::String description;
   int weight = 0;
   int value = 0;

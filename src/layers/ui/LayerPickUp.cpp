@@ -1,6 +1,6 @@
 #include "LayerPickUp.h"
 #include "lib/StringUtil.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
 #include "state/actions/ui/UiSetCurrentPartyMember.hpp"
 #include "ui/components/FloatingNotificationSection.h"
@@ -20,12 +20,17 @@ LayerPickUp::LayerPickUp(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
   auto [windowWidth, windowHeight] = window->getDims();
   const auto scale = 1.f;
 
-  auto& style = minipagePickUp->getStyle();
-  style.width = std::min(500 / scale, windowWidth / scale);
-  style.height = std::min(500 / scale, (windowHeight - 50) / scale);
-  style.x = (windowWidth - style.width * scale) / 2;
-  style.y = (windowHeight - style.height * scale) / 2;
-  style.scale = scale;
+  const int width = std::min(static_cast<int>(500 / scale),
+                             static_cast<int>(windowWidth / scale));
+  const int height = std::min(static_cast<int>(500 / scale),
+                              static_cast<int>((windowHeight - 50) / scale));
+  minipagePickUp->setPos((windowWidth - width * scale) / 2,
+                         (windowHeight - height * scale) / 2);
+  minipagePickUp->setScale(scale);
+  auto minipageInitProps = minipagePickUp->getProps();
+  minipageInitProps.width = width;
+  minipageInitProps.height = height;
+  minipagePickUp->setProps(minipageInitProps);
 
   addUiElement(minipagePickUp);
 

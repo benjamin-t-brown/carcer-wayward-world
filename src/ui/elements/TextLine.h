@@ -2,7 +2,7 @@
 
 #include "../UiElement.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
-#include <optional>
+#include "ui/TextStyle.h"
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "bmin/UniquePtr.h"
@@ -13,7 +13,7 @@ namespace ui {
 struct TextBlock {
   bmin::String text;
 
-  // Optional style overrides - if not set, uses base style from UiElement
+  // Optional style overrides - if not set, uses TextLineProps defaults
   std::optional<FontFamily> fontFamily;
   std::optional<sdl2w::TextSize> fontSize;
   std::optional<SDL_Color> fontColor;
@@ -22,6 +22,10 @@ struct TextBlock {
 // TextLine-specific properties
 struct TextLineProps {
   bmin::DynArray<TextBlock> textBlocks;
+  FontFamily fontFamily = FontFamily::TEXT;
+  sdl2w::TextSize fontSize = sdl2w::TEXT_SIZE_16;
+  SDL_Color fontColor = Colors::Black;
+  TextAlign textAlign = TextAlign::LEFT_TOP;
 };
 
 struct TextLineRenderTextParams {
@@ -30,7 +34,6 @@ struct TextLineRenderTextParams {
 };
 
 // TextLine element - renders a stylized line of text
-// Uses Position and TextParams from BaseStyle
 class TextLine : public UiElement {
 private:
   TextLineProps props;
@@ -45,10 +48,13 @@ public:
   // Static utility method to convert FontFamily to font name
   static bmin::String getFontNameFromFamily(FontFamily fontFamily);
 
-  // Setters and getters for text line properties
   void setProps(const TextLineProps& _props);
   TextLineProps& getProps();
   const TextLineProps& getProps() const;
+
+  // Position is baked into renderables during build
+  void setPos(int x, int y) override;
+  void setScale(float scale) override;
 
   std::pair<int, int> calculateTextDims() const;
   const std::pair<int, int> getDims() const override;

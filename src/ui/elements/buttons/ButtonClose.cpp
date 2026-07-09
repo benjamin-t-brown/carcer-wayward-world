@@ -17,11 +17,8 @@ public:
 ButtonClose::ButtonClose(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
   addEventObserver(new ButtonCloseDefaultObserver(this));
-  style.textAlign = TextAlign::CENTER;
-  style.fontSize = sdl2w::TEXT_SIZE_20;
   shouldPropagateEventsToChildren = false;
 
-  // Set default size to 32x32px
   style.width = closeButtonSize;
   style.height = closeButtonSize;
 }
@@ -38,15 +35,16 @@ const ButtonCloseProps& ButtonClose::getProps() const { return props; }
 void ButtonClose::build() {
   children.clear();
 
-  auto rect = new OutsetRectangle(window);
-  auto& rectStyle = rect->getStyle();
-  rectStyle.x = style.x;
-  rectStyle.y = style.y;
-  rectStyle.width = style.width;
-  rectStyle.height = style.height;
-  rectStyle.scale = style.scale;
+  style.width = closeButtonSize;
+  style.height = closeButtonSize;
 
-  auto& rectProps = rect->getProps();
+  auto rect = new OutsetRectangle(window);
+  rect->setPos(style.x, style.y);
+  rect->setScale(style.scale);
+
+  OutsetRectangleProps rectProps;
+  rectProps.width = closeButtonSize;
+  rectProps.height = closeButtonSize;
   if (isInActiveMode) {
     rectProps.borderSize = 0;
   } else {
@@ -68,18 +66,6 @@ void ButtonClose::build() {
 }
 
 void ButtonClose::render(int dt) {
-  // if (isHovered) {
-  //   if (!isInHoverMode) {
-  //     isInHoverMode = true;
-  //     build();
-  //   }
-  // } else {
-  //   if (isInHoverMode) {
-  //     isInHoverMode = false;
-  //     build();
-  //   }
-  // }
-
   if (isActive) {
     if (!isInActiveMode) {
       isInActiveMode = true;

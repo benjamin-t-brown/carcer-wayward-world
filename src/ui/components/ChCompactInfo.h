@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../UiElement.h"
+#include "sdl2w/Defines.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
@@ -24,6 +25,7 @@ struct ChCompactInfoProps {
   int mana = 0;
   bool isSelected = false;
   int padding = 4;
+  sdl2w::TextSize fontSize = sdl2w::TEXT_SIZE_18;
 };
 
 // ChCompactInfo component - renders a character sprite, status effect icons,

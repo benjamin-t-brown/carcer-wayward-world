@@ -1,8 +1,8 @@
 #include "../../setupTestUi.h"
 #include "layers/LayerManager.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "model/instances/CharacterPlayer.h"
 #include "state/LayerManagerInterface.h"
 #include "ui/UiElement.h"
@@ -21,14 +21,12 @@ public:
 
     auto pageCharacter = bmin::makeUnique<ui::PageCharacter>(window);
     pageCharacter->setId("pageCharacter");
-    ui::BaseStyle pageStyle = pageCharacter->getStyle();
-    pageStyle.width = windowWidth;
-    pageStyle.height = windowHeight;
-    pageStyle.x = 0;
-    pageStyle.y = 0;
-    pageCharacter->setStyle(pageStyle);
-
-    pageCharacter->setProps(ui::PageCharacterProps{.characterPlayer = &characterPlayer});
+    pageCharacter->setPos(0, 0);
+    pageCharacter->setProps(ui::PageCharacterProps{
+        .width = windowWidth,
+        .height = windowHeight,
+        .characterPlayer = &characterPlayer,
+    });
 
     addUiElement(pageCharacter.release());
   }

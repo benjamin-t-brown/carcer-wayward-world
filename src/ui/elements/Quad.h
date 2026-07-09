@@ -15,6 +15,8 @@ namespace ui {
 
 // Quad-specific properties
 struct QuadProps {
+  int width = 0;
+  int height = 0;
   SDL_Color bgColor = SDL_Color{0, 0, 0, 0};
   bmin::String bgSprite;
   SDL_Color borderColor = SDL_Color{0, 0, 0, 0};
@@ -22,8 +24,7 @@ struct QuadProps {
 };
 
 // Quad element - renders a stylized rectangle with children
-// Uses Position, Size, Scale from BaseStyle
-// Children are managed through base UiElement class
+// Position/scale via setPos/setScale; size via props.width/height → build
 class Quad : public UiElement {
 private:
   SDL_Texture* renderTexture = nullptr;
@@ -43,8 +44,6 @@ public:
   void setProps(const QuadProps& _props);
   QuadProps& getProps();
   const QuadProps& getProps() const;
-
-  void updatePosition(int x, int y);
 
   bool checkMouseDownEvent(int mouseX,
                            int mouseY,

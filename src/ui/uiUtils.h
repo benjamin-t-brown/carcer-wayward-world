@@ -23,67 +23,39 @@ isInBounds(int x, int y, int rectX, int rectY, int rectWidth, int rectHeight) {
 }
 
 /**
- * Check if a point is inside a UI element using its style dimensions
- * @param x Point X coordinate
- * @param y Point Y coordinate
- * @param element UI element to check against
- * @return true if point is inside the element
+ * Check if a point is inside a UI element using getPos/getDims
  */
 inline bool isInBounds(int x, int y, const UiElement* element) {
   if (!element)
     return false;
 
-  const auto& style = element->getStyle();
+  auto [px, py] = element->getPos();
   auto dims = element->getDims();
-  return isInBounds(x, y, style.x, style.y, dims.first, dims.second);
+  return isInBounds(x, y, px, py, dims.first, dims.second);
 }
 
-/**
- * Check if a point is inside a UI element using its style dimensions (const version)
- * @param x Point X coordinate
- * @param y Point Y coordinate
- * @param element UI element to check against
- * @return true if point is inside the element
- */
 inline bool isInBounds(int x, int y, const UiElement& element) {
-  const auto& style = element.getStyle();
+  auto [px, py] = element.getPos();
   auto dims = element.getDims();
-  return isInBounds(x, y, style.x, style.y, dims.first, dims.second);
+  return isInBounds(x, y, px, py, dims.first, dims.second);
 }
 
 /**
- * Check if a point is inside a UI element with scaling applied
- * @param x Point X coordinate
- * @param y Point Y coordinate
- * @param element UI element to check against
- * @return true if point is inside the scaled element
+ * Check if a point is inside a UI element (getDims already includes scale)
  */
 inline bool isInBoundsScaled(int x, int y, const UiElement* element) {
   if (!element)
     return false;
 
-  const auto& style = element->getStyle();
+  auto [px, py] = element->getPos();
   auto dims = element->getDims();
-  int scaledWidth = static_cast<int>(dims.first);
-  int scaledHeight = static_cast<int>(dims.second);
-
-  return isInBounds(x, y, style.x, style.y, scaledWidth, scaledHeight);
+  return isInBounds(x, y, px, py, dims.first, dims.second);
 }
 
-/**
- * Check if a point is inside a UI element with scaling applied (const version)
- * @param x Point X coordinate
- * @param y Point Y coordinate
- * @param element UI element to check against
- * @return true if point is inside the scaled element
- */
 inline bool isInBoundsScaled(int x, int y, const UiElement& element) {
-  const auto& style = element.getStyle();
+  auto [px, py] = element.getPos();
   auto dims = element.getDims();
-  int scaledWidth = static_cast<int>(dims.first * style.scale);
-  int scaledHeight = static_cast<int>(dims.second * style.scale);
-
-  return isInBounds(x, y, style.x, style.y, scaledWidth, scaledHeight);
+  return isInBounds(x, y, px, py, dims.first, dims.second);
 }
 
 } // namespace ui

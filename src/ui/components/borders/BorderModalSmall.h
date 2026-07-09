@@ -5,6 +5,8 @@
 namespace ui {
 
 struct BorderModalSmallProps {
+  int width = 0;
+  int height = 0;
   int headerHeight = 80;
   int iconSize = 64;
   int borderWidth = 2;

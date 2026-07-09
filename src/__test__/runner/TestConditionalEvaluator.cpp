@@ -1,7 +1,7 @@
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "lib/bmin/Map.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 #include "runner/ConditionEvaluator.h"
 #include "bmin/Map.h"
 

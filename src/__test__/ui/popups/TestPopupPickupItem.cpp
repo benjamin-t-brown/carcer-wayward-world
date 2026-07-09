@@ -1,8 +1,8 @@
 #include "../../setupTestUi.h"
 #include "layers/Layer.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/popups/PopupPickupItem.h"
@@ -33,10 +33,6 @@ int main(int argc, char** argv) {
     auto orientation = ui::PopupOrientation::WIDE;
     auto popupPickupItem = new ui::PopupPickupItem(&window, testLayer.get(), orientation);
     popupPickupItem->setId("popupPickupItem");
-    auto& style = popupPickupItem->getStyle();
-    style.x = (windowWidth - style.width * scale) / 2;
-    style.y = (windowHeight - style.height * scale) / 2;
-    style.scale = scale;
     popupPickupItem->setProps(ui::PopupPickupItemProps{
         .spriteName = "ui_item_icons_0",
         .label = "Test Item 1",
@@ -46,6 +42,11 @@ int main(int argc, char** argv) {
         .value = 100,
         .orientation = orientation,
     });
+    auto [popupW, popupH] = popupPickupItem->getDims();
+    popupPickupItem->setPos((windowWidth - popupW * scale) / 2,
+                            (windowHeight - popupH * scale) / 2);
+    popupPickupItem->setScale(scale);
+    popupPickupItem->build();
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(popupPickupItem));
 
     auto& events = window.getEvents();

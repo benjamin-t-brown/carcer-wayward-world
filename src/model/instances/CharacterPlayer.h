@@ -67,6 +67,23 @@ enum class EquipItemResult {
   TWO_HANDED_OFF_HAND,
 };
 
+enum class CharacterEquipmentSlot {
+  WEAPON0,
+  WEAPON1,
+  AMMO,
+  HAT,
+  GARB,
+  GLOVES,
+  PANTS,
+  SHOES,
+  NECKLACE,
+  SHIELD,
+};
+
+std::optional<CharacterEquipmentSlot>
+characterPlayerGetEquipmentSlotForItemId(const CharacterPlayer& characterPlayer,
+                                         const bmin::String& itemId);
+bmin::String characterEquipmentSlotAbbrev(CharacterEquipmentSlot slot);
 bool characterPlayerIsItemEquippedById(const CharacterPlayer& characterPlayer,
                                        const bmin::String& itemId);
 EquipItemResult characterPlayerToggleEquipItem(CharacterPlayer& characterPlayer,

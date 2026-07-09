@@ -1,6 +1,6 @@
 #include "PopupDropConfirm.h"
 #include "layers/ui/LayerDropConfirm.h"
-#include "lib/sdl2w/L10n.h"
+#include "sdl2w/L10n.h"
 #include "ui/components/ConfirmModal.h"
 #include "ui/elements/buttons/ButtonGroup.h"
 #include "ui/observers/ObserverDropInventoryItem.hpp"
@@ -34,10 +34,8 @@ void PopupDropConfirm::build() {
 
   auto modal = new ConfirmModal(window, this);
   modal->setId("confirmModal");
-  auto& modalStyle = modal->getStyle();
-  modalStyle.x = style.x;
-  modalStyle.y = style.y;
-  modalStyle.scale = style.scale;
+  modal->setPos(style.x, style.y);
+  modal->setScale(style.scale);
 
   const bmin::String messageText =
       TRANSLATE("Are you sure you wish to drop ") + props.itemLabel + "?";

@@ -12,6 +12,8 @@ globs: ['src/ui/**/*.cpp', 'src/ui/**/*.h']
 - all ui elements must be constructed with at least an sdl2w window pointer and an optional parent element.
 
 ## UiElement
+- External configuration goes through **props** (`setProps` → `build`). Do not expose or mutate style from outside.
+- Layout between parent and child uses `setPos` / `setScale` / `getPos` / `getDims`. See `docs/ui-props-style-refactor.md` (temporary).
 - when overriding "set" methods, ensure that "build" is called to rebuild the component after changing properties.
 - when adding children to a children property, use addChild.
 - when overriding any methods, ensure that the overrides account for style, props, and children if they are applicable.

@@ -15,6 +15,7 @@ struct ListPickUpPropsItem {
 
 struct ListPickUpProps {
   bmin::DynArray<ListPickUpPropsItem> items;
+  int width = 0;
   int lineHeight = 32;
   int lineGap = 2;
   int paddingTop = 4;

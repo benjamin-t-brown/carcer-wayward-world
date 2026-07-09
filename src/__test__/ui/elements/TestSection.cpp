@@ -1,8 +1,8 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Events.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Events.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/components/borders/BorderDropShadow.h"
@@ -21,12 +21,10 @@ int main(int argc, char** argv) {
 
     auto section = bmin::makeUnique<ui::BorderDropShadow>(&window);
     section->setId("mainSection");
-    auto& sectionStyle = section->getStyle();
-    sectionStyle.x = 100;
-    sectionStyle.y = 100;
-    sectionStyle.width = 400;
-    sectionStyle.height = 300;
+    section->setPos(100, 100);
     section->setProps(ui::BorderDropShadowProps{
+        .width = 400,
+        .height = 300,
         .backgroundColor = ui::Colors::White,
         .shadowColor = ui::Colors::Black,
         .borderSize = 2,
@@ -36,12 +34,10 @@ int main(int argc, char** argv) {
 
     auto section2 = bmin::makeUnique<ui::BorderDropShadow>(&window);
     section2->setId("secondarySection");
-    auto& section2Style = section2->getStyle();
-    section2Style.x = 550;
-    section2Style.y = 150;
-    section2Style.width = 200;
-    section2Style.height = 200;
+    section2->setPos(550, 150);
     section2->setProps(ui::BorderDropShadowProps{
+        .width = 200,
+        .height = 200,
         .backgroundColor = ui::Colors::ButtonModalGrey1,
         .shadowColor = ui::Colors::Black,
         .shadowOffsetX = -4,
@@ -53,12 +49,10 @@ int main(int argc, char** argv) {
 
     auto section3 = bmin::makeUnique<ui::BorderDropShadow>(&window);
     section3->setId("smallSection");
-    auto& section3Style = section3->getStyle();
-    section3Style.x = 100;
-    section3Style.y = 450;
-    section3Style.width = 150;
-    section3Style.height = 100;
+    section3->setPos(100, 450);
     section3->setProps(ui::BorderDropShadowProps{
+        .width = 150,
+        .height = 100,
         .backgroundColor = ui::Colors::White,
         .shadowColor = ui::Colors::Black,
         .shadowOffsetX = -3,

@@ -72,14 +72,13 @@ void ButtonIcon::build() {
   }
 
   auto spriteElement = bmin::makeUnique<SpriteElement>(window);
-  BaseStyle spriteStyle;
-  spriteStyle.x = style.x;
-  spriteStyle.y = style.y;
-  spriteStyle.width = props.iconSize;
-  spriteStyle.height = props.iconSize;
-  spriteStyle.scale = style.scale;
-  spriteElement->setStyle(spriteStyle);
-  spriteElement->setSprite(spriteName);
+  spriteElement->setPos(style.x, style.y);
+  spriteElement->setScale(style.scale);
+  spriteElement->setProps(SpriteElementProps{
+      .width = props.iconSize,
+      .height = props.iconSize,
+      .spriteName = spriteName,
+  });
   children.pushBack(bmin::UniquePtr<UiElement>(spriteElement.release()));
 }
 

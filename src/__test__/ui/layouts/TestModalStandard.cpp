@@ -1,7 +1,7 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/UiElement.h"
 #include "ui/elements/TextLine.h"
 #include "ui/layouts/ModalStandard.h"
@@ -23,25 +23,23 @@ int main(int argc, char** argv) {
 
     // Create ModalStandard layout
     auto modalLayout = bmin::makeUnique<ui::ModalStandard>(&window);
-    ui::BaseStyle layoutStyle;
-    layoutStyle.width = windowWidth;
-    layoutStyle.height = windowHeight;
-    layoutStyle.x = 0;
-    layoutStyle.y = 0;
-    modalLayout->setStyle(layoutStyle);
+    modalLayout->setPos(0, 0);
     // Set layout properties
     ui::ModalStandardProps props;
+    props.width = windowWidth;
+    props.height = windowHeight;
     props.contentBackgroundColor = ui::Colors::ModalStandardBackground;
     props.decorationSprite = "";
     modalLayout->setProps(props);
 
     // Create title and subtitle elements
     auto title = bmin::makeUnique<ui::TextLine>(&window);
-    ui::BaseStyle titleStyle;
-    ui::setBaseFontConfig(titleStyle, ui::BaseFontConfig::MODAL_TITLE);
-    titleStyle.fontSize = sdl2w::TEXT_SIZE_24;
-    title->setStyle(titleStyle);
+    ui::TextFontProps titleFont;
+    ui::setBaseFontConfig(titleFont, ui::BaseFontConfig::MODAL_TITLE);
     ui::TextLineProps titleProps;
+    titleProps.fontFamily = titleFont.fontFamily;
+    titleProps.fontSize = sdl2w::TEXT_SIZE_24;
+    titleProps.fontColor = titleFont.fontColor;
     ui::TextBlock titleBlock;
     titleBlock.text = "Modal Title";
     titleProps.textBlocks.pushBack(titleBlock);

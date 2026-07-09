@@ -1,6 +1,6 @@
 #include "db/Database.h"
 #include "db/loaders/LoadCharacterTemplates.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 
 namespace {
 

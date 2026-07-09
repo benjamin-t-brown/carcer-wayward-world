@@ -1,5 +1,5 @@
 #include "InGameTitleBar.h"
-#include "lib/sdl2w/L10n.h"
+#include "sdl2w/L10n.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/buttons/ButtonIcon.h"
 
@@ -10,6 +10,12 @@ InGameTitleBar::InGameTitleBar(sdl2w::Window* _window, UiElement* _parent)
 
 void InGameTitleBar::setProps(const InGameTitleBarProps& _props) {
   props = _props;
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
   build();
 }
 
@@ -30,24 +36,31 @@ int InGameTitleBar::centerTopY(int elementHeight) const {
 UiElement*
 InGameTitleBar::createStatLineRightAligned(const bmin::String& text, int x, int y) {
   auto statLine = new TextLine(window, this);
-  auto& statStyle = statLine->getStyle();
-  statStyle.x = style.x;
-  statStyle.y = style.y;
-  statStyle.scale = 1.f;
-  setBaseFontConfig(statStyle, BaseFontConfig::MODAL_TEXT_BOLD);
-  statStyle.textAlign = TextAlign::LEFT_CENTER;
+  TextFontProps font;
+  setBaseFontConfig(font, BaseFontConfig::MODAL_TEXT_BOLD);
   TextLineProps statLineProps;
+  statLineProps.fontFamily = font.fontFamily;
+  statLineProps.fontSize = font.fontSize;
+  statLineProps.fontColor = font.fontColor;
+  statLineProps.textAlign = TextAlign::LEFT_CENTER;
   statLineProps.textBlocks.pushBack(TextBlock{.text = text});
+  statLine->setPos(style.x, style.y);
+  statLine->setScale(1.f);
   statLine->setProps(statLineProps);
   auto [statWidth, _] = statLine->getDims();
-  statStyle.x = x - statWidth;
-  statStyle.y = y;
-  statLine->build();
+  statLine->setPos(x - statWidth, y);
   return statLine;
 }
 
 void InGameTitleBar::build() {
   children.clear();
+
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
 
   const int scaledButtonSize = static_cast<int>(props.buttonSize * style.scale);
   const int scaledButtonSpacing = static_cast<int>(props.buttonSpacing * style.scale);
@@ -61,10 +74,8 @@ void InGameTitleBar::build() {
 
   auto menuButton = new ButtonIcon(window, this);
   menuButton->setId("menuButton");
-  auto& menuStyle = menuButton->getStyle();
-  menuStyle.x = cursorX;
-  menuStyle.y = buttonTopY;
-  menuStyle.scale = style.scale;
+  menuButton->setPos(cursorX, buttonTopY);
+  menuButton->setScale(style.scale);
   menuButton->setProps(ButtonIconProps{
       .regularSprite = ButtonIcon::HAMBURGER_ICON1,
       .activeSprite = ButtonIcon::HAMBURGER_ICON2,
@@ -75,10 +86,8 @@ void InGameTitleBar::build() {
 
   auto helpButton = new ButtonIcon(window, this);
   helpButton->setId("helpButton");
-  auto& helpStyle = helpButton->getStyle();
-  helpStyle.x = cursorX;
-  helpStyle.y = buttonTopY;
-  helpStyle.scale = style.scale;
+  helpButton->setPos(cursorX, buttonTopY);
+  helpButton->setScale(style.scale);
   helpButton->setProps(ButtonIconProps{
       .regularSprite = ButtonIcon::QUESTION_ICON1,
       .activeSprite = ButtonIcon::QUESTION_ICON2,
@@ -87,15 +96,18 @@ void InGameTitleBar::build() {
   addChild(helpButton);
   cursorX += scaledButtonSize + scaledSectionSpacing;
 
+  TextFontProps titleFont;
+  setBaseFontConfig(titleFont, BaseFontConfig::MODAL_TITLE);
+
   auto titleText = new TextLine(window, this);
   titleText->setId("titleText");
-  auto& titleStyle = titleText->getStyle();
-  titleStyle.x = cursorX;
-  titleStyle.y = barCenterY;
-  titleStyle.scale = 1.f;
-  setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
-  titleStyle.textAlign = TextAlign::LEFT_CENTER;
+  titleText->setPos(cursorX, barCenterY);
+  titleText->setScale(1.f);
   TextLineProps titleProps;
+  titleProps.fontFamily = titleFont.fontFamily;
+  titleProps.fontSize = titleFont.fontSize;
+  titleProps.fontColor = titleFont.fontColor;
+  titleProps.textAlign = TextAlign::LEFT_CENTER;
   titleProps.textBlocks.pushBack(TextBlock{.text = props.title});
   titleText->setProps(titleProps);
   addChild(titleText);

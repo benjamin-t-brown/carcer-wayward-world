@@ -13,6 +13,8 @@ struct PageInventoryPartyMember {
 };
 
 struct PageInventoryProps {
+  int width = 0;
+  int height = 0;
   bmin::String characterPlayerId;
   bmin::String characterPlayerLabel;
   bmin::String characterPlayerSprite;

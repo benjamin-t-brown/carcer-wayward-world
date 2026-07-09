@@ -1,5 +1,5 @@
 #include "db/Database.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/Items.h"
 #include "bmin/String.h"

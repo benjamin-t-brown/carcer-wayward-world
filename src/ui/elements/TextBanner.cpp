@@ -6,7 +6,11 @@ namespace ui {
 
 TextBanner::TextBanner(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
-  setBaseFontConfig(style, BaseFontConfig::MODAL_TEXT_BOLD);
+  TextFontProps font;
+  setBaseFontConfig(font, BaseFontConfig::MODAL_TEXT_BOLD);
+  props.fontFamily = font.fontFamily;
+  props.fontSize = font.fontSize;
+  props.fontColor = font.fontColor;
 }
 
 void TextBanner::setProps(const TextBannerProps& _props) {
@@ -18,18 +22,27 @@ TextBannerProps& TextBanner::getProps() { return props; }
 
 const TextBannerProps& TextBanner::getProps() const { return props; }
 
+void TextBanner::setPos(int x, int y) {
+  UiElement::setPos(x, y);
+  build();
+}
+
+void TextBanner::setScale(float scale) {
+  UiElement::setScale(scale);
+  build();
+}
+
 std::pair<int, int> TextBanner::measureTextScaled() const {
   if (props.text.empty()) {
     return {0, 0};
   }
 
   TextLine measureLine(window);
-  auto& measureStyle = measureLine.getStyle();
-  measureStyle.fontFamily = style.fontFamily;
-  measureStyle.fontSize = style.fontSize;
-  measureStyle.fontColor = style.fontColor;
-  measureStyle.scale = 1.f;
+  measureLine.setScale(1.f);
   TextLineProps measureProps;
+  measureProps.fontFamily = props.fontFamily;
+  measureProps.fontSize = props.fontSize;
+  measureProps.fontColor = props.fontColor;
   measureProps.textBlocks.pushBack(TextBlock{.text = props.text});
   measureLine.setProps(measureProps);
   return measureLine.getDims();
@@ -77,54 +90,58 @@ void TextBanner::build() {
   children.clear();
 
   auto textLine = new TextLine(window, this);
-  auto& textStyle = textLine->getStyle();
-  textStyle.scale = 1.f;
-  setBaseFontConfig(textStyle, BaseFontConfig::MODAL_TEXT_BOLD);
-  textStyle.textAlign = TextAlign::LEFT_CENTER;
+  textLine->setScale(1.f);
   TextLineProps lineProps;
+  lineProps.fontFamily = props.fontFamily;
+  lineProps.fontSize = props.fontSize;
+  lineProps.fontColor = props.fontColor;
+  lineProps.textAlign = TextAlign::LEFT_CENTER;
   lineProps.textBlocks.pushBack(TextBlock{.text = props.text});
   textLine->setProps(lineProps);
 
   auto [textWidth, textHeight] = textLine->getDims();
   auto paddingScaled = static_cast<int>(props.padding * style.scale);
+  int textX = 0;
+  int textY = 0;
   switch (props.corner) {
   case TextBannerCorner::LEFT_TOP:
-    textStyle.x = props.location.first + paddingScaled;
-    textStyle.y = props.location.second + (paddingScaled * 2 + textHeight) / 2;
+    textX = props.location.first + paddingScaled;
+    textY = props.location.second + (paddingScaled * 2 + textHeight) / 2;
     break;
   case TextBannerCorner::RIGHT_TOP:
-    textStyle.x = props.location.first + props.dims.first - textWidth - paddingScaled;
-    textStyle.y = props.location.second + (paddingScaled * 2 + textHeight) / 2;
+    textX = props.location.first + props.dims.first - textWidth - paddingScaled;
+    textY = props.location.second + (paddingScaled * 2 + textHeight) / 2;
     break;
   case TextBannerCorner::LEFT_BOTTOM:
-    textStyle.x = props.location.first + paddingScaled;
-    textStyle.y =
+    textX = props.location.first + paddingScaled;
+    textY =
         props.location.second + props.dims.second - (paddingScaled * 2 + textHeight) / 2;
     break;
   case TextBannerCorner::RIGHT_BOTTOM:
-    textStyle.x = props.location.first + props.dims.first - textWidth - paddingScaled;
-    textStyle.y =
+    textX = props.location.first + props.dims.first - textWidth - paddingScaled;
+    textY =
         props.location.second + props.dims.second - (paddingScaled * 2 + textHeight) / 2;
     break;
   }
-  textLine->build();
+  textLine->setPos(textX, textY);
 
   auto background = new OutsetRectangle(window, this);
-  auto& backgroundStyle = background->getStyle();
-  backgroundStyle.x = textStyle.x - paddingScaled;
-  backgroundStyle.y = textStyle.y - (paddingScaled * 2 + textHeight) / 2;
-  backgroundStyle.width = textWidth + paddingScaled * 2;
-  backgroundStyle.height = textHeight + paddingScaled * 2;
-  backgroundStyle.scale = 1.f;
+  background->setPos(textX - paddingScaled,
+                     textY - (paddingScaled * 2 + textHeight) / 2);
+  background->setScale(1.f);
   background->setProps(OutsetRectangleProps{
+      .width = textWidth + paddingScaled * 2,
+      .height = textHeight + paddingScaled * 2,
       .color = props.backgroundColor,
-      // .colorTopRight = Colors::White,
-      // .colorBottomLeft = Colors::White,
       .borderSize = props.outsetBorderSize,
   });
 
   addChild(background);
   addChild(textLine);
+
+  auto [bw, bh] = getDims();
+  style.width = style.scale > 0.f ? static_cast<int>(bw / style.scale) : bw;
+  style.height = style.scale > 0.f ? static_cast<int>(bh / style.scale) : bh;
 }
 
 void TextBanner::render(int dt) { UiElement::render(dt); }

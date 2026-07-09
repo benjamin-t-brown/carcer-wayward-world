@@ -1,8 +1,8 @@
 #include "../../setupTestUi.h"
 #include "layers/LayerManager.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "state/LayerManagerInterface.h"
 #include "ui/UiElement.h"
 #include "ui/pages/PageMagicSetup.h"
@@ -17,14 +17,11 @@ public:
 
     auto pageMagicSetup = bmin::makeUnique<ui::PageMagicSetup>(window);
     pageMagicSetup->setId("pageMagicSetup");
-    ui::BaseStyle style = pageMagicSetup->getStyle();
-    style.width = windowWidth;
-    style.height = windowHeight;
-    style.x = 0;
-    style.y = 0;
-    pageMagicSetup->setStyle(style);
-
-    pageMagicSetup->setProps(ui::PageMagicSetupProps{});
+    pageMagicSetup->setPos(0, 0);
+    pageMagicSetup->setProps(ui::PageMagicSetupProps{
+        .width = windowWidth,
+        .height = windowHeight,
+    });
 
     addUiElement(pageMagicSetup.release());
   }

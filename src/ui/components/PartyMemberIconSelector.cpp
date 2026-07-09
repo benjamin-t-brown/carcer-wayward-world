@@ -65,10 +65,8 @@ void PartyMemberIconSelector::build() {
 
   auto buttonGroup = new ButtonGroup(window, this);
   buttonGroup->setId("partyMemberButtonGroup");
-  auto& groupStyle = buttonGroup->getStyle();
-  groupStyle.x = style.x;
-  groupStyle.y = style.y;
-  groupStyle.scale = style.scale;
+  buttonGroup->setPos(style.x, style.y);
+  buttonGroup->setScale(style.scale);
   buttonGroup->setProps(groupProps);
 
   for (size_t i = 0; i < props.members.size(); ++i) {

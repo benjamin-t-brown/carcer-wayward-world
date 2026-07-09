@@ -13,12 +13,14 @@ struct ListInventoryPropsItem {
   bmin::String itemSprite;
   bool isEquippable = false;
   bool isEquipped = false;
+  bmin::String equippedSlotAbbrev;
   bool isStackable = false;
   int quantity = 1;
 };
 struct ListInventoryProps {
   bmin::String characterPlayerId;
   bmin::DynArray<ListInventoryPropsItem> items;
+  int width = 0;
   int lineHeight = 32;
   int lineGap = 2;
   int paddingTop = 4;

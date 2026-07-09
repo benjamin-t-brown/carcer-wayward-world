@@ -119,7 +119,7 @@ DEPENDS := $(patsubst %.cpp,%.d,$(CODE)) main.d
 LIB_DEPENDS := $(patsubst %.cpp,%.d,$(LIB_CODE))
 
 SDL2W_STAMP = $(SDL2W_DIR_NAME)/.source_ok
-SDL2W_LIB = lib/sdl2w/libsdl2w.a
+SDL2W_LIB = sdl2w/libsdl2w.a
 LIBCARCER = lib/libcarcer.a
 
 # Subset of Emscripten port flags: needed when compiling sdl2w to .o (static lib), not only at final link.

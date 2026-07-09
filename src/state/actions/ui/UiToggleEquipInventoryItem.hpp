@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bmin/String.h"
-#include "lib/sdl2w/L10n.h"
+#include "sdl2w/L10n.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/Player.h"
 #include "state/AbstractAction.h"

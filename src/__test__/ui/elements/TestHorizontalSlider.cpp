@@ -1,8 +1,9 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Events.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Events.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/TextStyle.h"
 #include "ui/UiElement.h"
 #include "ui/elements/HorizontalSlider.h"
 #include "ui/elements/TextLine.h"
@@ -25,15 +26,13 @@ int main(int argc, char** argv) {
 
     auto sliderA = new ui::HorizontalSlider(&window);
     sliderA->setId("rangeSlider");
-    auto& styleA = sliderA->getStyle();
-    styleA.x = 60;
-    styleA.y = 80;
-    styleA.width = 420;
-    styleA.scale = 1.f;
+    sliderA->setPos(60, 80);
+    sliderA->setScale(1.f);
     sliderA->setProps({
         .minValue = 1,
         .maxValue = 10,
         .value = 4,
+        .width = 420,
         .sliderBarHeight = 32,
         .indicatorWidth = 24,
         .labelColor = ui::Colors::White,
@@ -43,15 +42,13 @@ int main(int argc, char** argv) {
 
     auto sliderB = new ui::HorizontalSlider(&window);
     sliderB->setId("singleValueSlider");
-    auto& styleB = sliderB->getStyle();
-    styleB.x = 60;
-    styleB.y = 180;
-    styleB.width = 420;
-    styleB.scale = 1.f;
+    sliderB->setPos(60, 180);
+    sliderB->setScale(1.f);
     sliderB->setProps({
         .minValue = 1,
         .maxValue = 2,
         .value = 1,
+        .width = 420,
         .sliderBarHeight = 32,
         .indicatorWidth = 24,
     });
@@ -60,17 +57,19 @@ int main(int argc, char** argv) {
 
     auto readout = new ui::TextLine(&window);
     readout->setId("valueReadout");
-    auto& readoutStyle = readout->getStyle();
-    ui::setBaseFontConfig(readoutStyle, ui::BaseFontConfig::MODAL_TEXT);
-    readoutStyle.x = 60;
-    readoutStyle.y = 260;
-    readoutStyle.scale = 1.f;
-    readoutStyle.textAlign = ui::TextAlign::LEFT_TOP;
+    ui::TextFontProps font;
+    ui::setBaseFontConfig(font, ui::BaseFontConfig::MODAL_TEXT);
+    readout->setPos(60, 260);
+    readout->setScale(1.f);
     readout->setProps({
         .textBlocks =
             {
                 {.text = "Slider value: 4"},
             },
+        .fontFamily = font.fontFamily,
+        .fontSize = font.fontSize,
+        .fontColor = font.fontColor,
+        .textAlign = ui::TextAlign::LEFT_TOP,
     });
     valueReadout = readout;
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(readout));
@@ -100,13 +99,11 @@ int main(int argc, char** argv) {
     }
 
     if (rangeSlider && valueReadout) {
-      valueReadout->setProps({
-          .textBlocks =
-              {
-                  {.text =
-                       "Slider value: " + bmin::toString(rangeSlider->getProps().value)},
-              },
-      });
+      auto props = valueReadout->getProps();
+      props.textBlocks = {
+          {.text = "Slider value: " + bmin::toString(rangeSlider->getProps().value)},
+      };
+      valueReadout->setProps(props);
     }
 
     if (singleValueSlider) {

@@ -4,7 +4,10 @@
 
 namespace ui {
 
-struct PageMagicSetupProps {};
+struct PageMagicSetupProps {
+  int width = 0;
+  int height = 0;
+};
 
 // PageMagicSetup - renders the magic page with ModalStandard layout.
 class PageMagicSetup : public UiElement {

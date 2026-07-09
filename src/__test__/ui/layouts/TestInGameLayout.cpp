@@ -1,7 +1,7 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "state/WorldActions.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
@@ -83,12 +83,8 @@ void initInGameLayoutTest(sdl2w::Window& window) {
   auto [windowWidth, windowHeight] = window.getDims();
 
   auto inGameLayout = new ui::InGameLayout(&window);
-  auto& layoutStyle = inGameLayout->getStyle();
-  layoutStyle.width = windowWidth / scale;
-  layoutStyle.height = windowHeight / scale;
-  layoutStyle.x = 0;
-  layoutStyle.y = 0;
-  layoutStyle.scale = scale;
+  inGameLayout->setPos(0, 0);
+  inGameLayout->setScale(scale);
   bmin::DynArray<ui::ChCompactInfoProps> partyMembers;
   {
     ui::ChCompactInfoProps entry;
@@ -124,6 +120,8 @@ void initInGameLayoutTest(sdl2w::Window& window) {
   }
 
   ui::InGameLayoutProps layoutProps;
+  layoutProps.width = static_cast<int>(windowWidth / scale);
+  layoutProps.height = static_cast<int>(windowHeight / scale);
   copyActionTypes(layoutProps.worldActionTypes, worldActionUiState.townModeActionTypes);
   layoutProps.partyMembers = partyMembers;
   layoutProps.actionButtonScale = 1.5f;
@@ -141,30 +139,26 @@ void initInGameLayoutTest(sdl2w::Window& window) {
 
   auto switchActionsButton = new ui::ButtonModal(&window);
   switchActionsButton->setId("switchActionTypes");
-  auto& switchActionsStyle = switchActionsButton->getStyle();
-  switchActionsStyle.x = 200;
-  switchActionsStyle.y = 250;
-  switchActionsStyle.width = 300;
-  switchActionsStyle.height = 50;
-  switchActionsStyle.fontColor = ui::Colors::White;
-  ui::ButtonModalProps switchActionsProps;
-  switchActionsProps.text = "Switch World Action List";
-  switchActionsProps.isSelected = false;
-  switchActionsButton->setProps(switchActionsProps);
+  switchActionsButton->setPos(200, 250);
+  switchActionsButton->setProps(ui::ButtonModalProps{
+      .text = "Switch World Action List",
+      .isSelected = false,
+      .width = 300,
+      .height = 50,
+      .fontColor = ui::Colors::White,
+  });
   switchActionsButton->addEventObserver(new SwitchActionListObserver(inGameLayout));
 
   auto switchBorderButton = new ui::ButtonModal(&window);
   switchBorderButton->setId("switchBorderType");
-  auto& switchBorderStyle = switchBorderButton->getStyle();
-  switchBorderStyle.x = 200;
-  switchBorderStyle.y = 300;
-  switchBorderStyle.width = 300;
-  switchBorderStyle.height = 50;
-  switchBorderStyle.fontColor = ui::Colors::White;
-  ui::ButtonModalProps switchBorderProps;
-  switchBorderProps.text = "Switch Wide / Narrow Border";
-  switchBorderProps.isSelected = false;
-  switchBorderButton->setProps(switchBorderProps);
+  switchBorderButton->setPos(200, 300);
+  switchBorderButton->setProps(ui::ButtonModalProps{
+      .text = "Switch Wide / Narrow Border",
+      .isSelected = false,
+      .width = 300,
+      .height = 50,
+      .fontColor = ui::Colors::White,
+  });
   switchBorderButton->addEventObserver(new SwitchBorderTypeObserver(inGameLayout));
 
   elements.pushBack(bmin::UniquePtr<ui::UiElement>(switchActionsButton));

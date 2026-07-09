@@ -34,16 +34,18 @@ void ConfirmModal::build() {
   const int paddingScaled = static_cast<int>(padding * style.scale);
   const int contentWidth = style.width - 2 * padding;
 
+  TextFontProps titleFont;
+  setBaseFontConfig(titleFont, BaseFontConfig::MODAL_TITLE);
+
   auto title = new TextLine(window, this);
   title->setId("title");
-  auto& titleStyle = title->getStyle();
-  setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
-  titleStyle.x = style.x + paddingScaled;
-  titleStyle.y = style.y + paddingScaled;
-  titleStyle.scale = 1.f;
-  titleStyle.fontColor = Colors::Black;
-  titleStyle.textAlign = TextAlign::LEFT_TOP;
+  title->setPos(style.x + paddingScaled, style.y + paddingScaled);
+  title->setScale(1.f);
   TextLineProps titleProps;
+  titleProps.fontFamily = titleFont.fontFamily;
+  titleProps.fontSize = titleFont.fontSize;
+  titleProps.fontColor = Colors::Black;
+  titleProps.textAlign = TextAlign::LEFT_TOP;
   titleProps.textBlocks.pushBack({.text = props.title});
   title->setProps(titleProps);
   auto [titleWidth, titleHeight] = title->calculateTextDims();
@@ -51,18 +53,20 @@ void ConfirmModal::build() {
 
   const int messageY = style.y + paddingScaled + titleHeight + paddingScaled;
 
+  TextFontProps messageFont;
+  setBaseFontConfig(messageFont, BaseFontConfig::MODAL_TEXT);
+
   auto message = new TextParagraph(window, this);
   message->setId("message");
-  auto& messageStyle = message->getStyle();
-  messageStyle.x = style.x + paddingScaled;
-  messageStyle.y = messageY;
-  messageStyle.width = contentWidth;
-  messageStyle.scale = 1.f;
-  setBaseFontConfig(messageStyle, BaseFontConfig::MODAL_TEXT);
-  messageStyle.fontColor = Colors::Black;
-  messageStyle.textAlign = TextAlign::LEFT_TOP;
-  messageStyle.lineSpacing = 0;
+  message->setPos(style.x + paddingScaled, messageY);
+  message->setScale(1.f);
   TextParagraphProps messageProps;
+  messageProps.width = contentWidth;
+  messageProps.fontFamily = messageFont.fontFamily;
+  messageProps.fontSize = messageFont.fontSize;
+  messageProps.fontColor = Colors::Black;
+  messageProps.textAlign = TextAlign::LEFT_TOP;
+  messageProps.lineSpacing = 0;
   messageProps.textBlocks.pushBack({.text = props.message});
   message->setProps(messageProps);
   auto [_, messageHeight] = message->getDims();
@@ -72,11 +76,8 @@ void ConfirmModal::build() {
 
   buttonGroup = new ButtonGroup(window, this);
   buttonGroup->setId("buttonGroup");
-  auto& groupStyle = buttonGroup->getStyle();
-  groupStyle.x = style.x + paddingScaled;
-  groupStyle.y = buttonsY;
-  groupStyle.width = contentWidth;
-  groupStyle.scale = style.scale;
+  buttonGroup->setPos(style.x + paddingScaled, buttonsY);
+  buttonGroup->setScale(style.scale);
   ButtonGroupProps groupProps;
   groupProps.alignment = ButtonGroupAlignment::RIGHT;
   groupProps.buttons.pushBack({.label = props.cancelButtonLabel});
@@ -88,13 +89,12 @@ void ConfirmModal::build() {
   style.height = ((buttonsY + buttonGroupHeight + paddingScaled) - style.y) / style.scale;
 
   auto border = new BorderDropShadow(window, this);
-  auto& borderStyle = border->getStyle();
-  borderStyle.x = style.x;
-  borderStyle.y = style.y;
-  borderStyle.width = style.width;
-  borderStyle.height = style.height;
-  borderStyle.scale = style.scale;
-  border->setProps(BorderDropShadowProps{});
+  border->setPos(style.x, style.y);
+  border->setScale(style.scale);
+  border->setProps(BorderDropShadowProps{
+      .width = style.width,
+      .height = style.height,
+  });
   children.insert(children.begin(), bmin::UniquePtr<UiElement>(border));
 }
 

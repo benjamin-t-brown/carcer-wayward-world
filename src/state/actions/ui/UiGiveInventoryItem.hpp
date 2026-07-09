@@ -4,7 +4,7 @@
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerGiveContext.h"
 #include "layers/ui/LayerInventoryContext.h"
-#include "lib/sdl2w/L10n.h"
+#include "sdl2w/L10n.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/Player.h"
 #include "state/AbstractAction.h"

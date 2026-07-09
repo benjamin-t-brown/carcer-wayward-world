@@ -1,7 +1,7 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/UiElement.h"
 #include "ui/components/ChCompactInfo.h"
 #include <memory>
@@ -19,12 +19,8 @@ int main(int argc, char** argv) {
 
     {
       auto chCompactInfo = new ui::ChCompactInfo(&window);
-      auto& style = chCompactInfo->getStyle();
-      style.width = 260;
-      style.height = 88;
-      style.x = 170;
-      style.y = 220;
-      style.scale = 2.0f;
+      chCompactInfo->setPos(170, 220);
+      chCompactInfo->setScale(2.0f);
 
       ui::ChCompactInfoProps props;
       props.characterSpriteName = "actors0_0";
@@ -45,12 +41,8 @@ int main(int argc, char** argv) {
 
     {
       auto chCompactInfo = new ui::ChCompactInfo(&window);
-      auto& style = chCompactInfo->getStyle();
-      style.width = 260;
-      style.height = 88;
-      style.x = 370;
-      style.y = 220;
-      style.scale = 1.0f;
+      chCompactInfo->setPos(370, 220);
+      chCompactInfo->setScale(1.0f);
 
       ui::ChCompactInfoProps props;
       props.characterSpriteName = "actors0_6";

@@ -1,7 +1,7 @@
 #include "TextLine.h"
 #include "bmin/StringInterop.h"
 #include "bmin/UniquePtr.h"
-#include "lib/sdl2w/Draw.h"
+#include "sdl2w/Draw.h"
 #include "state/StateManager.h"
 #include "ui/FontScale.h"
 #include "ui/UiElement.h"
@@ -31,9 +31,9 @@ bmin::String TextLine::getFontNameFromFamily(FontFamily fontFamily) {
 }
 
 sdl2w::RenderTextParams TextLine::makeRenderTextParams(const TextBlock& block) const {
-  auto fontFamily = block.fontFamily.value_or(style.fontFamily);
-  auto baseFontSize = block.fontSize.value_or(style.fontSize);
-  auto fontColor = block.fontColor.value_or(style.fontColor);
+  auto fontFamily = block.fontFamily.value_or(props.fontFamily);
+  auto baseFontSize = block.fontSize.value_or(props.fontSize);
+  auto fontColor = block.fontColor.value_or(props.fontColor);
   int fontScale = 0;
   try {
     auto stateManager = getStateManager();
@@ -50,7 +50,7 @@ sdl2w::RenderTextParams TextLine::makeRenderTextParams(const TextBlock& block) c
   params.fontName = getFontNameFromFamily(fontFamily);
   params.fontSize = ui::applyFontScale(baseFontSize, fontScale);
   params.color = fontColor;
-  params.centered = style.textAlign == TextAlign::CENTER;
+  params.centered = props.textAlign == TextAlign::CENTER;
   return params;
 }
 
@@ -62,6 +62,16 @@ void TextLine::setProps(const TextLineProps& _props) {
 TextLineProps& TextLine::getProps() { return props; }
 
 const TextLineProps& TextLine::getProps() const { return props; }
+
+void TextLine::setPos(int x, int y) {
+  UiElement::setPos(x, y);
+  build();
+}
+
+void TextLine::setScale(float scale) {
+  UiElement::setScale(scale);
+  build();
+}
 
 std::pair<int, int> TextLine::calculateTextDims() const {
   if (props.textBlocks.empty()) {
@@ -116,9 +126,9 @@ void TextLine::build() {
     tlParams->text = block.text;
     renderTextParams.x = currentX;
     renderTextParams.y = currentY;
-    if (style.textAlign == TextAlign::LEFT_CENTER) {
+    if (props.textAlign == TextAlign::LEFT_CENTER) {
       renderTextParams.y -= static_cast<int>((textHeight / 2.0) * style.scale);
-    } else if (style.textAlign == TextAlign::LEFT_BOTTOM) {
+    } else if (props.textAlign == TextAlign::LEFT_BOTTOM) {
       renderTextParams.y -= static_cast<int>(textHeight * style.scale);
     }
     tlParams->params = renderTextParams;

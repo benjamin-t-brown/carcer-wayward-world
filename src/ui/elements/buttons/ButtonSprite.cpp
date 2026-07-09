@@ -51,14 +51,12 @@ void ButtonSprite::build() {
   const int pressOffset = (isInActiveMode && !props.isSelected) ? 1 : 0;
 
   auto rect = new OutsetRectangle(window);
-  auto& rectStyle = rect->getStyle();
-  rectStyle.x = style.x;
-  rectStyle.y = style.y;
-  rectStyle.width = style.width;
-  rectStyle.height = style.height;
-  rectStyle.scale = style.scale;
+  rect->setPos(style.x, style.y);
+  rect->setScale(style.scale);
 
-  auto& rectProps = rect->getProps();
+  OutsetRectangleProps rectProps;
+  rectProps.width = style.width;
+  rectProps.height = style.height;
   if (props.isSelected) {
     rectProps.borderSize = isInActiveMode ? 0 : props.selectedBorderSize;
     rectProps.color = props.selectedBgColor;
@@ -75,13 +73,14 @@ void ButtonSprite::build() {
 
   if (!props.spriteName.empty()) {
     auto sprite = new Quad(window, this);
-    auto& spriteStyle = sprite->getStyle();
-    spriteStyle.x = style.x + static_cast<int>((props.padding + pressOffset) * style.scale);
-    spriteStyle.y = style.y + static_cast<int>((props.padding + pressOffset) * style.scale);
-    spriteStyle.width = props.spriteWidth;
-    spriteStyle.height = props.spriteHeight;
-    spriteStyle.scale = style.scale;
-    sprite->setProps(QuadProps{.bgSprite = props.spriteName});
+    sprite->setPos(style.x + static_cast<int>((props.padding + pressOffset) * style.scale),
+                   style.y + static_cast<int>((props.padding + pressOffset) * style.scale));
+    sprite->setScale(style.scale);
+    sprite->setProps(QuadProps{
+        .width = props.spriteWidth,
+        .height = props.spriteHeight,
+        .bgSprite = props.spriteName,
+    });
     addChild(sprite);
   }
 }

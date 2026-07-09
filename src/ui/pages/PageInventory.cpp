@@ -1,6 +1,6 @@
 #include "PageInventory.h"
 #include "layers/ui/LayerInventory.h"
-#include "lib/sdl2w/L10n.h"
+#include "sdl2w/L10n.h"
 #include "model/templates/Items.h"
 #include "ui/colors.h"
 #include "ui/components/PartyMemberIconSelector.h"
@@ -20,6 +20,12 @@ PageInventory::PageInventory(sdl2w::Window* _window, UiElement* _parent)
 
 void PageInventory::setProps(const PageInventoryProps& _props) {
   props = _props;
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
   build();
 }
 
@@ -39,15 +45,20 @@ void PageInventory::populateInventoryProps(
 
   for (const auto& item : props.inventory) {
     auto& itemTemplate = database.getItemTemplate(bmin::toStringView(item.itemName));
+    const auto equippedSlot =
+        model::characterPlayerGetEquipmentSlotForItemId(equippedCheck, item.id);
+    bmin::String equippedSlotAbbrev;
+    if (equippedSlot.has_value()) {
+      equippedSlotAbbrev = model::characterEquipmentSlotAbbrev(*equippedSlot);
+    }
     listProps.pushBack({.itemId = item.id,
                          .itemName = item.itemName,
                          .itemLabel = itemTemplate.label.empty() ? itemTemplate.name
                                                                  : itemTemplate.label,
                          .itemSprite = itemTemplate.iconSpriteName,
                          .isEquippable = model::itemTypeIsEquippable(itemTemplate.itemType),
-                         .isEquipped =
-                             model::characterPlayerIsItemEquippedById(equippedCheck,
-                                                                      item.id),
+                         .isEquipped = equippedSlot.has_value(),
+                         .equippedSlotAbbrev = equippedSlotAbbrev,
                          .isStackable = itemTemplate.stackable,
                          .quantity = item.quantity});
   }
@@ -56,15 +67,20 @@ void PageInventory::populateInventoryProps(
 void PageInventory::build() {
   children.clear();
 
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
+
   auto modal = new ModalStandard(window, this);
   modal->setId("modal");
-  auto& modalStyle = modal->getStyle();
-  modalStyle.x = style.x;
-  modalStyle.y = style.y;
-  modalStyle.width = style.width;
-  modalStyle.height = style.height;
-  modalStyle.scale = style.scale;
+  modal->setPos(style.x, style.y);
+  modal->setScale(style.scale);
   ModalStandardProps modalProps;
+  modalProps.width = style.width;
+  modalProps.height = style.height;
   if (!props.characterPlayerSprite.empty()) {
     modalProps.iconSprite = props.characterPlayerSprite;
   }
@@ -73,10 +89,18 @@ void PageInventory::build() {
 
   if (!props.characterPlayerSprite.empty()) {
     if (auto* icon = modal->getChildById("headerIcon")) {
+      constexpr int kIconTextureSize = 32;
+      constexpr float kIconScale = 2.f;
+      auto [iconX, iconY] = icon->getPos();
       auto iconBg = bmin::makeUnique<Quad>(window, modal);
       iconBg->setId("headerIconBg");
-      iconBg->setStyle(icon->getStyle());
-      iconBg->setProps(QuadProps{.bgColor = {255, 255, 255, 50}});
+      iconBg->setPos(iconX, iconY);
+      iconBg->setScale(kIconScale * style.scale);
+      iconBg->setProps(QuadProps{
+          .width = kIconTextureSize,
+          .height = kIconTextureSize,
+          .bgColor = {255, 255, 255, 50},
+      });
 
       auto& modalChildren = modal->getChildren();
       const auto insertBefore = std::find_if(modalChildren.begin(),
@@ -103,10 +127,13 @@ void PageInventory::build() {
 
   // Create title element
   auto title = new TextLine(window, modal);
-  auto& titleStyle = title->getStyle();
-  setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
-  titleStyle.textAlign = TextAlign::LEFT_TOP;
+  TextFontProps titleFont;
+  setBaseFontConfig(titleFont, BaseFontConfig::MODAL_TITLE);
   TextLineProps titleProps;
+  titleProps.fontFamily = titleFont.fontFamily;
+  titleProps.fontSize = titleFont.fontSize;
+  titleProps.fontColor = titleFont.fontColor;
+  titleProps.textAlign = TextAlign::LEFT_TOP;
   TextBlock titleBlock;
   titleBlock.text =
       bmin::String(TRANSLATE("Inventory")) + " - " + props.characterPlayerLabel;
@@ -129,10 +156,8 @@ void PageInventory::build() {
 
     auto partySelector = new PartyMemberIconSelector(window, modal);
     partySelector->setId("partyMemberSelector");
-    auto& selectorStyle = partySelector->getStyle();
-    selectorStyle.x = subtitleX;
-    selectorStyle.y = partyIconY;
-    selectorStyle.scale = style.scale;
+    partySelector->setPos(subtitleX, partyIconY);
+    partySelector->setScale(style.scale);
     partySelector->setProps(selectorProps);
     modal->addChild(partySelector);
   }
@@ -146,78 +171,74 @@ void PageInventory::build() {
 
   auto statsBar = new Quad(window, modal);
   statsBar->setId("statsBar");
-  auto& statsBarStyle = statsBar->getStyle();
-  statsBarStyle.x = contentX;
-  statsBarStyle.y = statsRowY;
-  statsBarStyle.width = unscaledContentW;
-  statsBarStyle.height = statsRowHeight;
-  statsBarStyle.scale = style.scale;
-  statsBar->setProps(QuadProps{.bgColor = Colors::White});
+  statsBar->setPos(contentX, statsRowY);
+  statsBar->setScale(style.scale);
+  statsBar->setProps(QuadProps{
+      .width = unscaledContentW,
+      .height = statsRowHeight,
+      .bgColor = Colors::White,
+  });
   modal->addChild(statsBar);
 
   auto weightText = new TextLine(window, modal);
   weightText->setId("statsWeight");
-  auto& weightStyle = weightText->getStyle();
-  setBaseFontConfig(weightStyle, BaseFontConfig::MODAL_TEXT);
-  weightStyle.fontColor = Colors::DarkGrey;
-  weightStyle.textAlign = TextAlign::LEFT_CENTER;
-  weightStyle.scale = 1.f;
+  TextFontProps weightFont;
+  setBaseFontConfig(weightFont, BaseFontConfig::MODAL_TEXT);
   TextLineProps weightProps;
+  weightProps.fontFamily = weightFont.fontFamily;
+  weightProps.fontSize = weightFont.fontSize;
+  weightProps.fontColor = Colors::DarkGrey;
+  weightProps.textAlign = TextAlign::LEFT_CENTER;
   weightProps.textBlocks.pushBack({
       .text = bmin::String(TRANSLATE("Carrying")) + " " + bmin::toString(props.weightCarrying) + "/" +
               bmin::toString(props.weightCapacity),
   });
+  weightText->setScale(1.f);
   weightText->setProps(weightProps);
-  weightStyle.x = contentX + statsRowPadding;
-  weightStyle.y = statsRowY + scaledStatsRowHeight / 2;
-  weightText->build();
+  weightText->setPos(contentX + statsRowPadding, statsRowY + scaledStatsRowHeight / 2);
   modal->addChild(weightText);
 
   auto goldText = new TextLine(window, modal);
   goldText->setId("statsGold");
-  auto& goldStyle = goldText->getStyle();
-  setBaseFontConfig(goldStyle, BaseFontConfig::MODAL_TEXT);
-  goldStyle.fontColor = Colors::DarkGrey;
-  goldStyle.textAlign = TextAlign::LEFT_CENTER;
-  goldStyle.scale = 1.f;
+  TextFontProps goldFont;
+  setBaseFontConfig(goldFont, BaseFontConfig::MODAL_TEXT);
   TextLineProps goldProps;
+  goldProps.fontFamily = goldFont.fontFamily;
+  goldProps.fontSize = goldFont.fontSize;
+  goldProps.fontColor = Colors::DarkGrey;
+  goldProps.textAlign = TextAlign::LEFT_CENTER;
   goldProps.textBlocks.pushBack({
       .text = bmin::toString(props.gold) + bmin::String(TRANSLATE(" gp")),
       .fontColor = Colors::Blue,
   });
+  goldText->setScale(1.f);
   goldText->setProps(goldProps);
-  goldStyle.x = contentX + contentW - goldText->getDims().first - statsRowPadding;
-  goldStyle.y = statsRowY + scaledStatsRowHeight / 2;
-  goldText->build();
+  goldText->setPos(contentX + contentW - goldText->getDims().first - statsRowPadding,
+                   statsRowY + scaledStatsRowHeight / 2);
   modal->addChild(goldText);
 
   // Create SectionScrollable for content area
   auto scrollableSection = new SectionScrollable(window, modal);
   scrollableSection->setId("scrollableSection");
-  BaseStyle scrollableStyle;
-  scrollableStyle.x = contentX;
-  scrollableStyle.y = scrollableY;
-  scrollableStyle.width = unscaledContentW;
-  scrollableStyle.height = scrollableHeight;
-  scrollableStyle.scale = style.scale;
-  scrollableSection->setStyle(scrollableStyle);
-  scrollableSection->setProps(SectionScrollableProps{.scrollBarWidth = 40});
+  scrollableSection->setPos(contentX, scrollableY);
+  scrollableSection->setScale(style.scale);
+  scrollableSection->setProps(SectionScrollableProps{
+      .width = unscaledContentW,
+      .height = scrollableHeight,
+      .scrollBarWidth = 40,
+  });
   addChild(scrollableSection);
 
   // Create ListInventory inside the scrollable section
   auto listInventory = new ListInventory(window, scrollableSection);
   listInventory->setId("listInventory");
-  auto& listStyle = listInventory->getStyle();
-  listStyle.x = 0; // Positioned relative to scrollable section
-  listStyle.y = 0;
-  listStyle.width = static_cast<float>(contentW) /
-                        style.scale - // contentW and contentH are already scaled
-                    scrollableSection->getProps().scrollBarWidth -
-                    8;
-  listStyle.scale = style.scale;
+  listInventory->setPos(0, 0);
+  listInventory->setScale(style.scale);
 
   ListInventoryProps listProps;
   listProps.characterPlayerId = props.characterPlayerId;
+  listProps.width = static_cast<float>(contentW) / style.scale -
+                    scrollableSection->getProps().scrollBarWidth - 8;
   populateInventoryProps(listProps.items);
   listInventory->setProps(listProps);
   scrollableSection->addChild(listInventory);

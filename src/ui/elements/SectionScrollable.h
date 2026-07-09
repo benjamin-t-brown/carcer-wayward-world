@@ -10,6 +10,8 @@ namespace ui {
 
 // SectionScrollable-specific properties
 struct SectionScrollableProps {
+  int width = 0;
+  int height = 0;
   int scrollBarWidth = 32;
   SDL_Color borderColor = Colors::Transparent;
   SDL_Color bgColor = Colors::Transparent;
@@ -72,6 +74,9 @@ public:
   void scrollTo(int offset);
 
   void addChild(UiElement* child) override;
+
+  void setPos(int x, int y) override;
+  void setScale(float scale) override;
 
   void build() override;
   void render(int dt) override;

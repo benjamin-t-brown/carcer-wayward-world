@@ -1,10 +1,12 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
+#include "ui/TextStyle.h"
 #include "ui/colors.h"
+#include "ui/elements/Quad.h"
 #include "ui/elements/VerticalList.h"
 #include "ui/elements/TextLine.h"
 #include <memory>
@@ -22,40 +24,41 @@ int main(int argc, char** argv) {
     LOG(INFO) << "VerticalList test initialized" << LOG_ENDL;
 
     auto [windowWidth, windowHeight] = window.getDims();
+    const int listWidth = 400;
 
     auto verticalList = new ui::VerticalList(&window);
-
-    auto& style = verticalList->getStyle();
-    style.width = 400;
-    style.x = (windowWidth - 400) / 2;
-    style.y = (windowHeight - 300) / 2;
+    verticalList->setPos((windowWidth - listWidth) / 2, (windowHeight - 300) / 2);
 
     ui::VerticalListProps props;
+    props.width = listWidth;
     props.lineHeight = 30;
     props.lineGap = 2;
     props.bgColor = ui::Colors::White;
 
     for (int i = 0; i < 8; ++i) {
       auto quad = new ui::Quad(&window, verticalList);
-      auto& quadStyle = quad->getStyle();
-      quadStyle.width = style.width;
-      quadStyle.height = props.lineHeight;
-      quadStyle.scale = 1.;
+      quad->setPos(0, 0);
+      quad->setScale(1.f);
       quad->setProps(ui::QuadProps{
+          .width = listWidth,
+          .height = props.lineHeight,
           .bgColor = ui::Colors::LightGrey,
       });
 
       auto textLine = new ui::TextLine(&window, quad);
-      auto& textStyle = textLine->getStyle();
-      ui::setBaseFontConfig(textStyle, ui::BaseFontConfig::MODAL_TEXT);
-      textStyle.fontColor = ui::Colors::Black;
-      textStyle.textAlign = ui::TextAlign::LEFT_TOP;
+      ui::TextFontProps font;
+      ui::setBaseFontConfig(font, ui::BaseFontConfig::MODAL_TEXT);
+      font.fontColor = ui::Colors::Black;
+      font.textAlign = ui::TextAlign::LEFT_TOP;
 
-      ui::TextLineProps textProps;
-      ui::TextBlock textBlock;
-      textBlock.text = "List Item " + bmin::toString(i + 1);
-      textProps.textBlocks.pushBack(textBlock);
-      textLine->setProps(textProps);
+      textLine->setPos(0, 0);
+      textLine->setProps(ui::TextLineProps{
+          .textBlocks = {{.text = "List Item " + bmin::toString(i + 1)}},
+          .fontFamily = font.fontFamily,
+          .fontSize = font.fontSize,
+          .fontColor = font.fontColor,
+          .textAlign = font.textAlign,
+      });
 
       quad->addChild(textLine);
       verticalList->addListItem(quad);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lib/sdl2w/Defines.h"
+#include "sdl2w/Defines.h"
 
 namespace ui {
 

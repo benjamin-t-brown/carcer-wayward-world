@@ -1,8 +1,8 @@
 #include "../../setupTestUi.h"
 #include "layers/LayerManager.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "state/LayerManagerInterface.h"
 #include "ui/UiElement.h"
 #include "ui/minipages/MinipageCharacterSheet.h"
@@ -17,14 +17,13 @@ public:
 
     auto minipageCharacterSheet = bmin::makeUnique<ui::MinipageCharacterSheet>(window);
     minipageCharacterSheet->setId("minipageCharacterSheet");
-    ui::BaseStyle style = minipageCharacterSheet->getStyle();
-    style.width = 500;
-    style.height = windowHeight - 50;
-    style.x = (windowWidth - style.width) / 2;
-    style.y = (windowHeight - style.height) / 2;
-    minipageCharacterSheet->setStyle(style);
-
-    minipageCharacterSheet->setProps(ui::MinipageCharacterSheetProps{});
+    const int width = 500;
+    const int height = windowHeight - 50;
+    minipageCharacterSheet->setPos((windowWidth - width) / 2, (windowHeight - height) / 2);
+    minipageCharacterSheet->setProps(ui::MinipageCharacterSheetProps{
+        .width = width,
+        .height = height,
+    });
 
     addUiElement(minipageCharacterSheet.release());
   }

@@ -18,9 +18,11 @@ public:
 ButtonTextWrap::ButtonTextWrap(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
   addEventObserver(new ButtonTextWrapDefaultObserver(this));
-  style.textAlign = TextAlign::CENTER;
-  setBaseFontConfig(style, BaseFontConfig::MODAL_TEXT);
-  style.fontColor = Colors::Black;
+  TextFontProps font;
+  setBaseFontConfig(font, BaseFontConfig::MODAL_TEXT);
+  props.fontFamily = font.fontFamily;
+  props.fontSize = font.fontSize;
+  props.fontColor = Colors::Black;
   shouldPropagateEventsToChildren = false;
 }
 
@@ -47,20 +49,22 @@ const std::pair<int, int> ButtonTextWrap::getDims() const {
 void ButtonTextWrap::build() {
   children.clear();
 
+  style.width = props.width;
+  style.height = props.height;
+
   auto textParagraph = new TextParagraph(window, this);
-  auto& textStyle = textParagraph->getStyle();
-  textStyle.x = style.x + props.horizontalPadding * style.scale;
-  textStyle.y = style.y + props.verticalPadding * style.scale;
-  textStyle.width = style.width * style.scale;
-  textStyle.textAlign = TextAlign::LEFT_TOP;
-  textStyle.fontSize = style.fontSize;
-  textStyle.fontFamily = style.fontFamily;
-  textStyle.fontColor = style.fontColor;
-  textStyle.scale = 1;
+  textParagraph->setPos(style.x + props.horizontalPadding * style.scale,
+                        style.y + props.verticalPadding * style.scale);
+  textParagraph->setScale(1.f);
   TextParagraphProps textParagraphProps;
+  textParagraphProps.width = static_cast<int>(props.width * style.scale);
+  textParagraphProps.fontFamily = props.fontFamily;
+  textParagraphProps.fontSize = props.fontSize;
+  textParagraphProps.fontColor = props.fontColor;
+  textParagraphProps.textAlign = TextAlign::LEFT_TOP;
   ui::TextBlock block;
   block.text = props.text;
-  block.fontColor = style.fontColor;
+  block.fontColor = props.fontColor;
   textParagraphProps.textBlocks.pushBack(block);
   textParagraph->setProps(textParagraphProps);
 

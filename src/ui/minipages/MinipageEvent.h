@@ -4,7 +4,10 @@
 
 namespace ui {
 
-struct MinipageEventProps {};
+struct MinipageEventProps {
+  int width = 0;
+  int height = 0;
+};
 
 // MinipageEvent - renders a small event shell using ModalSmall.
 class MinipageEvent : public UiElement {

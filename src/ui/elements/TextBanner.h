@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../UiElement.h"
+#include "ui/TextStyle.h"
+#include "ui/colors.h"
 #include "bmin/String.h"
 #include <utility>
 
@@ -16,6 +18,9 @@ struct TextBannerProps {
   SDL_Color backgroundColor = Colors::Grey;
   int padding = 6;
   int outsetBorderSize = 0;
+  FontFamily fontFamily = FontFamily::TEXT_BOLD;
+  sdl2w::TextSize fontSize = sdl2w::TEXT_SIZE_16;
+  SDL_Color fontColor = Colors::White;
 };
 
 // TextBanner element - text with an outset rectangle background, placed in a corner
@@ -35,6 +40,9 @@ public:
   void setProps(const TextBannerProps& _props);
   TextBannerProps& getProps();
   const TextBannerProps& getProps() const;
+
+  void setPos(int x, int y) override;
+  void setScale(float scale) override;
 
   const std::pair<int, int> getDims() const override;
 

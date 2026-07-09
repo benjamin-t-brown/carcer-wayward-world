@@ -1,5 +1,5 @@
 #include "MinipagePickUp.h"
-#include "lib/sdl2w/L10n.h"
+#include "sdl2w/L10n.h"
 #include "ui/colors.h"
 #include "ui/components/PartyMemberIconSelector.h"
 #include "ui/components/lists/ListPickUp.h"
@@ -18,6 +18,12 @@ MinipagePickUp::MinipagePickUp(sdl2w::Window* _window, UiElement* _parent)
 
 void MinipagePickUp::setProps(const MinipagePickUpProps& _props) {
   props = _props;
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
   build();
 }
 
@@ -35,15 +41,20 @@ const std::pair<int, int> MinipagePickUp::getDims() const {
 void MinipagePickUp::build() {
   children.clear();
 
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
+
   auto modal = new ModalSmall(window, this);
   modal->setId("modal");
-  auto& modalStyle = modal->getStyle();
-  modalStyle.x = style.x;
-  modalStyle.y = style.y;
-  modalStyle.width = style.width;
-  modalStyle.height = style.height;
-  modalStyle.scale = style.scale;
+  modal->setPos(style.x, style.y);
+  modal->setScale(style.scale);
   modal->setProps(ModalSmallProps{
+      .width = style.width,
+      .height = style.height,
       .enableCloseButton = false,
   });
   addChild(modal);
@@ -54,11 +65,13 @@ void MinipagePickUp::build() {
   int unscaledContentH = static_cast<int>(contentH / style.scale);
 
   auto title = new TextLine(window, modal);
-  auto& titleStyle = title->getStyle();
-  setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
-  titleStyle.fontColor = Colors::Black;
-  titleStyle.textAlign = TextAlign::LEFT_TOP;
+  TextFontProps titleFont;
+  setBaseFontConfig(titleFont, BaseFontConfig::MODAL_TITLE);
   TextLineProps titleProps;
+  titleProps.fontFamily = titleFont.fontFamily;
+  titleProps.fontSize = titleFont.fontSize;
+  titleProps.fontColor = Colors::Black;
+  titleProps.textAlign = TextAlign::LEFT_TOP;
   TextBlock titleBlock;
   titleBlock.text = props.titleText;
   titleProps.textBlocks.pushBack(titleBlock);
@@ -67,24 +80,21 @@ void MinipagePickUp::build() {
 
   auto scrollableSection = new SectionScrollable(window, modal);
   scrollableSection->setId("scrollableSection");
-  auto& scrollableStyle = scrollableSection->getStyle();
-  scrollableStyle.width = unscaledContentW;
-  scrollableStyle.height = unscaledContentH;
-  scrollableStyle.scale = style.scale;
-  scrollableStyle.x = contentX;
-  scrollableStyle.y = contentY;
-  scrollableSection->setProps(SectionScrollableProps{});
+  scrollableSection->setPos(contentX, contentY);
+  scrollableSection->setScale(style.scale);
+  scrollableSection->setProps(SectionScrollableProps{
+      .width = unscaledContentW,
+      .height = unscaledContentH,
+  });
   auto [scrollableContentW, scrollableContentH] = scrollableSection->getContentDims();
 
   auto listPickUp = new ListPickUp(window, scrollableSection);
   listPickUp->setId("listPickUp");
-  auto& listStyle = listPickUp->getStyle();
-  listStyle.x = 4 * style.scale;
-  listStyle.y = 4 * style.scale;
-  listStyle.width = scrollableContentW / style.scale - 8;
-  listStyle.scale = style.scale;
+  listPickUp->setPos(4 * style.scale, 4 * style.scale);
+  listPickUp->setScale(style.scale);
 
   ListPickUpProps listProps;
+  listProps.width = scrollableContentW / style.scale - 8;
   if (getDatabase()) {
     for (const auto& item : props.nearbyItems) {
       const auto& itemTemplate = getDatabase()->getItemTemplate(bmin::toStringView(item.itemTemplateName));
@@ -111,13 +121,10 @@ void MinipagePickUp::build() {
 
   auto buttonGroup = new ButtonGroup(window, modal);
   buttonGroup->setId("buttonGroup");
-  auto& buttonGroupStyle = buttonGroup->getStyle();
-  buttonGroupStyle.x = buttonsX;
-  buttonGroupStyle.y = buttonsY;
-  buttonGroupStyle.width = buttonsW / style.scale;
-  buttonGroupStyle.height = buttonsH / style.scale;
-  buttonGroupStyle.scale = style.scale;
+  buttonGroup->setPos(buttonsX, buttonsY);
+  buttonGroup->setScale(style.scale);
   buttonGroup->setProps(ButtonGroupProps{
+      .width = static_cast<int>(buttonsW / style.scale),
       .alignment = ButtonGroupAlignment::RIGHT,
       .buttonWidth = buttonWidth,
       .buttonHeight = buttonHeight - 2 * buttonPadding,
@@ -134,13 +141,11 @@ void MinipagePickUp::build() {
 
   auto statusText = new TextLine(window, modal);
   statusText->setId("StatusText");
-  auto& statusTextStyle = statusText->getStyle();
-  setBaseFontConfig(statusTextStyle, BaseFontConfig::MODAL_TEXT);
-  statusTextStyle.fontColor = Colors::DarkGrey;
-  statusTextStyle.textAlign = TextAlign::LEFT_CENTER;
-  statusTextStyle.scale = style.scale;
-  statusTextStyle.x = buttonsX + static_cast<int>(8 * style.scale);
-  statusTextStyle.y = buttonsY + buttonsH / 2;
+  TextFontProps statusFont;
+  setBaseFontConfig(statusFont, BaseFontConfig::MODAL_TEXT);
+  statusText->setPos(buttonsX + static_cast<int>(8 * style.scale),
+                     buttonsY + buttonsH / 2);
+  statusText->setScale(style.scale);
   statusText->setProps({
       .textBlocks =
           {
@@ -148,33 +153,35 @@ void MinipagePickUp::build() {
                   .text = props.statusText,
               },
           },
+      .fontFamily = statusFont.fontFamily,
+      .fontSize = statusFont.fontSize,
+      .fontColor = Colors::DarkGrey,
+      .textAlign = TextAlign::LEFT_CENTER,
   });
   modal->addChild(statusText);
 
   if (!props.partyMemberSprites.empty()) {
     auto partySelector = new PartyMemberIconSelector(window, this);
     partySelector->setId("partyMemberSelector");
-    auto& selectorStyle = partySelector->getStyle();
-    selectorStyle.scale = style.scale;
+    partySelector->setScale(style.scale);
     partySelector->setProps(PartyMemberIconSelectorProps{
         .members = props.partyMemberSprites,
         .selectedIndex = props.partyMemberIndex,
         .target = PartyMemberIconSelectorTarget::PICKUP,
     });
     auto [selectorW, selectorH] = partySelector->getDims();
-    selectorStyle.x = contentX + contentW - selectorW - static_cast<int>(4 * style.scale);
-    selectorStyle.y = style.y + static_cast<int>(8 * style.scale);
+    partySelector->setPos(contentX + contentW - selectorW - static_cast<int>(4 * style.scale),
+                          style.y + static_cast<int>(8 * style.scale));
     partySelector->build();
 
     auto weightText = new TextLine(window, this);
     weightText->setId("weightText");
-    auto& weightTextStyle = weightText->getStyle();
-    setBaseFontConfig(weightTextStyle, BaseFontConfig::MODAL_TEXT);
-    weightTextStyle.fontColor = Colors::DarkGrey;
-    weightTextStyle.textAlign = TextAlign::CENTER;
-    weightTextStyle.scale = 1.f;
-    weightTextStyle.x = selectorStyle.x + selectorW / 2;
-    weightTextStyle.y = selectorStyle.y + selectorH + static_cast<int>(16 * style.scale);
+    TextFontProps weightFont;
+    setBaseFontConfig(weightFont, BaseFontConfig::MODAL_TEXT);
+    auto [selectorX, selectorY] = partySelector->getPos();
+    weightText->setPos(selectorX + selectorW / 2,
+                       selectorY + selectorH + static_cast<int>(16 * style.scale));
+    weightText->setScale(1.f);
     weightText->setProps({
         .textBlocks =
             {
@@ -182,6 +189,10 @@ void MinipagePickUp::build() {
                     .text = props.weightText,
                 },
             },
+        .fontFamily = weightFont.fontFamily,
+        .fontSize = weightFont.fontSize,
+        .fontColor = Colors::DarkGrey,
+        .textAlign = TextAlign::CENTER,
     });
 
     addChild(partySelector);

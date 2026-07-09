@@ -10,6 +10,12 @@ ModalStandard::ModalStandard(sdl2w::Window* _window, UiElement* _parent)
 
 void ModalStandard::setProps(const ModalStandardProps& _props) {
   props = _props;
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
   build();
 }
 
@@ -54,19 +60,24 @@ void ModalStandard::build() {
   removeChildById("closeButton");
   removeChildById("headerIcon");
 
+  if (props.width > 0) {
+    style.width = props.width;
+  }
+  if (props.height > 0) {
+    style.height = props.height;
+  }
+
   // Create border element
   auto border = new BorderModalStandard(window, this);
   border->setId("border");
-  auto& borderStyle = border->getStyle();
-  borderStyle.x = style.x;
-  borderStyle.y = style.y;
-  borderStyle.width = style.width;
-  borderStyle.height = style.height;
-  borderStyle.scale = style.scale;
+  border->setPos(style.x, style.y);
+  border->setScale(style.scale);
   border->setProps(BorderModalSmallProps{
-    .headerHeight = 80,
-    .iconSize = 64,
-    .borderWidth = 2,
+      .width = style.width,
+      .height = style.height,
+      .headerHeight = 80,
+      .iconSize = 64,
+      .borderWidth = 2,
   });
 
   // Insert border at the beginning
@@ -77,10 +88,8 @@ void ModalStandard::build() {
 
   auto modalClose = new ButtonClose(window, this);
   modalClose->setId("closeButton");
-  auto& modalCloseStyle = modalClose->getStyle();
-  modalCloseStyle.x = closeX;
-  modalCloseStyle.y = closeY;
-  modalCloseStyle.scale = style.scale;
+  modalClose->setPos(closeX, closeY);
+  modalClose->setScale(style.scale);
   ui::ButtonCloseProps modalCloseProps;
   modalCloseProps.closeType = ui::CloseType::MODAL;
   modalClose->setProps(modalCloseProps);
@@ -99,13 +108,13 @@ void ModalStandard::build() {
 
       auto icon = new Quad(window, this);
       icon->setId("headerIcon");
-      auto& iconStyle = icon->getStyle();
-      iconStyle.x = centerX - screenIconSize / 2;
-      iconStyle.y = centerY - screenIconSize / 2;
-      iconStyle.width = kIconTextureSize;
-      iconStyle.height = kIconTextureSize;
-      iconStyle.scale = kIconScale * style.scale;
-      icon->setProps(QuadProps{.bgSprite = props.iconSprite});
+      icon->setPos(centerX - screenIconSize / 2, centerY - screenIconSize / 2);
+      icon->setScale(kIconScale * style.scale);
+      icon->setProps(QuadProps{
+          .width = kIconTextureSize,
+          .height = kIconTextureSize,
+          .bgSprite = props.iconSprite,
+      });
       addChild(icon);
     }
   }
@@ -118,13 +127,10 @@ void ModalStandard::setTitleElement(UiElement* _titleElement) {
   auto borderElement = dynamic_cast<BorderModalStandard*>(getChildById("border"));
   // Add new title element
   if (_titleElement && borderElement) {
-    BaseStyle& titleStyle = _titleElement->getStyle();
     auto [titleX, titleY] = borderElement->getTitleLocation();
     auto [titleWidth, titleHeight] = _titleElement->getDims();
-    titleStyle.x = titleX;
-    titleStyle.y = titleY - titleHeight / 2;
+    _titleElement->setPos(titleX, titleY - titleHeight / 2);
     _titleElement->setId("title");
-    _titleElement->build();
     addChild(_titleElement);
   }
 }

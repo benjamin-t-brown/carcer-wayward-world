@@ -1,8 +1,8 @@
 #include "../../setupTestUi.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Events.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Events.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "ui/UiElement.h"
 #include "ui/components/PartyMemberSwitcher.h"
 #include <memory>
@@ -20,10 +20,8 @@ int main(int argc, char** argv) {
 
     {
       auto switcher = new ui::PartyMemberSwitcher(&window);
-      auto& style = switcher->getStyle();
-      style.x = 200;
-      style.y = 200;
-      style.scale = 2.0f;
+      switcher->setPos(200, 200);
+      switcher->setScale(2.0f);
       switcher->setProps(ui::PartyMemberSwitcherProps{
           .spriteName = "actors0_0",
           .partyMemberIndex = 0,
@@ -33,10 +31,8 @@ int main(int argc, char** argv) {
 
     {
       auto switcher = new ui::PartyMemberSwitcher(&window);
-      auto& style = switcher->getStyle();
-      style.x = 200;
-      style.y = 320;
-      style.scale = 1.0f;
+      switcher->setPos(200, 320);
+      switcher->setScale(1.0f);
       switcher->setProps(ui::PartyMemberSwitcherProps{
           .spriteName = "actors0_6",
           .partyMemberIndex = 2,

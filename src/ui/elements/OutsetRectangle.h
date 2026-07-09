@@ -6,6 +6,8 @@ namespace ui {
 
 // OutsetRectangle-specific properties
 struct OutsetRectangleProps {
+  int width = 0;
+  int height = 0;
   SDL_Color color = Colors::BorderModalStandard;
   SDL_Color colorTopRight = Colors::BorderModalStandardLight;
   SDL_Color colorBottomLeft = Colors::BorderModalStandardDark;
@@ -13,7 +15,7 @@ struct OutsetRectangleProps {
 };
 
 // OutsetRectangle element - renders a rectangle with outset border effect
-// Uses Position, Size, Scale from BaseStyle
+// Position/scale via setPos/setScale; size via props → build
 class OutsetRectangle : public UiElement {
 private:
   OutsetRectangleProps props;

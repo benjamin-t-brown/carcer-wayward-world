@@ -40,15 +40,16 @@ const ButtonListProps& ButtonList::getProps() const { return props; }
 void ButtonList::build() {
   children.clear();
 
-  auto rect = new OutsetRectangle(window);
-  auto& rectStyle = rect->getStyle();
-  rectStyle.x = style.x;
-  rectStyle.y = style.y;
-  rectStyle.width = style.width;
-  rectStyle.height = style.height;
-  rectStyle.scale = style.scale;
+  style.width = props.width;
+  style.height = props.height;
 
-  auto& rectProps = rect->getProps();
+  auto rect = new OutsetRectangle(window);
+  rect->setPos(style.x, style.y);
+  rect->setScale(style.scale);
+
+  OutsetRectangleProps rectProps;
+  rectProps.width = props.width;
+  rectProps.height = props.height;
   if (isInActiveMode) {
     rectProps.borderSize = 0;
   } else {
@@ -63,17 +64,20 @@ void ButtonList::build() {
 
   if (!props.arrow.has_value() && !props.text.empty()) {
     auto textLine = new TextLine(window, this);
-    auto& textStyle = textLine->getStyle();
-    setBaseFontConfig(textStyle, BaseFontConfig::MODAL_BUTTON);
-    textStyle.x = style.x + style.width * style.scale / 2;
-    textStyle.y = style.y + style.height * style.scale / 2;
+    int textX = style.x + style.width * style.scale / 2;
+    int textY = style.y + style.height * style.scale / 2;
     if (isInActiveMode && !props.isSelected) {
-      textStyle.x -= 1;
+      textX -= 1;
     }
-    textStyle.textAlign = TextAlign::CENTER;
-    textStyle.scale = 1.f;
-    textStyle.fontColor = style.fontColor;
+    textLine->setPos(textX, textY);
+    textLine->setScale(1.f);
     TextLineProps listTextProps;
+    TextFontProps font;
+    setBaseFontConfig(font, BaseFontConfig::MODAL_BUTTON);
+    listTextProps.fontFamily = font.fontFamily;
+    listTextProps.fontSize = font.fontSize;
+    listTextProps.fontColor = props.fontColor;
+    listTextProps.textAlign = TextAlign::CENTER;
     listTextProps.textBlocks.pushBack(TextBlock{props.text});
     textLine->setProps(listTextProps);
     addChild(textLine);

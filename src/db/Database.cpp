@@ -1,5 +1,5 @@
 #include "Database.h"
-#include "lib/sdl2w/Logger.h"
+#include "sdl2w/Logger.h"
 #include "loaders/LoadAbilityTemplates.h"
 #include "loaders/LoadCharacterTemplates.h"
 #include "loaders/LoadItemTemplates.h"
