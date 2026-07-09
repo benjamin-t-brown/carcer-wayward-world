@@ -1,7 +1,6 @@
 #include "ButtonClose.h"
 #include "ui/colors.h"
 #include "ui/elements/OutsetRectangle.h"
-#include <memory>
 
 namespace ui {
 
@@ -65,7 +64,7 @@ void ButtonClose::build() {
   }
   rect->setProps(rectProps);
 
-  children.push_back(std::unique_ptr<OutsetRectangle>(rect));
+  children.pushBack(UniquePtr<UiElement>(rect));
 }
 
 void ButtonClose::render(int dt) {

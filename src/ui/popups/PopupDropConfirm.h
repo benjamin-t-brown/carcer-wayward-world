@@ -1,14 +1,14 @@
 #pragma once
 
 #include "ui/UiElement.h"
-#include <string>
+#include "lib/Types.h"
 
 namespace ui {
 
 struct PopupDropConfirmProps {
-  std::string characterPlayerId;
-  std::string itemId;
-  std::string itemLabel;
+  String characterPlayerId;
+  String itemId;
+  String itemLabel;
 };
 
 class PopupDropConfirm : public UiElement {

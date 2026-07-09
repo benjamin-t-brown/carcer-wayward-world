@@ -1,52 +1,51 @@
 #pragma once
 
-#include "EventRunnerHelpers.h"
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include "lib/Types.h"
+#include "lib/bmin/Map.h"
+
+#include <optional>
 
 namespace runner {
 
 struct ConditionEvaluatorFuncs {
-  const std::unordered_map<std::string, std::string>& storage;
-  std::vector<std::string> onceKeysToCommit;
+  const bmin::Map<String, String>& storage;
+  DynArray<String> onceKeysToCommit;
 
-  ConditionEvaluatorFuncs(const std::unordered_map<std::string, std::string>& storage);
+  ConditionEvaluatorFuncs(const bmin::Map<String, String>& storage);
 
-  std::optional<int> getNumFromStorageOrArgInt(const std::string& a);
-  std::optional<double> getNumFromStorageOrArgDouble(const std::string& a);
-  bool isNumber(const std::string& a);
+  std::optional<int> getNumFromStorageOrArgInt(const String& a);
+  std::optional<double> getNumFromStorageOrArgDouble(const String& a);
+  bool isNumber(const String& a);
 
-  bool IS(const std::string& a);
-  bool ISNOT(const std::string& a);
-  bool EQ(const std::string& a, const std::string& b);
-  bool NEQ(const std::string& a, const std::string& b);
-  bool GT(const std::string& a, const std::string& b);
-  bool GTE(const std::string& a, const std::string& b);
-  bool LT(const std::string& a, const std::string& b);
-  bool LTE(const std::string& a, const std::string& b);
-  bool ALL(const std::vector<std::string>& args);
-  bool ANY(const std::vector<std::string>& args);
-  bool ONCE(const std::string& a);
+  bool IS(const String& a);
+  bool ISNOT(const String& a);
+  bool EQ(const String& a, const String& b);
+  bool NEQ(const String& a, const String& b);
+  bool GT(const String& a, const String& b);
+  bool GTE(const String& a, const String& b);
+  bool LT(const String& a, const String& b);
+  bool LTE(const String& a, const String& b);
+  bool ALL(const DynArray<String>& args);
+  bool ANY(const DynArray<String>& args);
+  bool ONCE(const String& a);
 
-  bool FUNC_HasItem(const std::string& itemName);
-  bool FUNC_QuestStarted(const std::string& questName);
-  bool FUNC_QuestCompleted(const std::string& questName);
-  bool FUNC_QuestStepEq(const std::string& questName, const std::string& stepId);
+  bool FUNC_HasItem(const String& itemName);
+  bool FUNC_QuestStarted(const String& questName);
+  bool FUNC_QuestCompleted(const String& questName);
+  bool FUNC_QuestStepEq(const String& questName, const String& stepId);
 };
 
 class ConditionEvaluator {
 public:
-  std::string baseConditionStr;
+  String baseConditionStr;
   ConditionEvaluatorFuncs funcs;
 
-  ConditionEvaluator(const std::unordered_map<std::string, std::string>& storage,
-                     const std::string& baseConditionStr);
-  void assertFuncArgs(const std::string& funcName,
-                      const std::vector<std::string>& funcArgs,
+  ConditionEvaluator(const bmin::Map<String, String>& storage,
+                     const String& baseConditionStr);
+  void assertFuncArgs(const String& funcName, const DynArray<String>& funcArgs,
                       size_t expectedArgs);
-  bool evalFunc(const std::string& funcName, const std::vector<std::string>& funcArgs);
-  bool evalCondition(const std::string& str);
+  bool evalFunc(const String& funcName, const DynArray<String>& funcArgs);
+  bool evalCondition(const String& str);
 };
 
 } // namespace runner

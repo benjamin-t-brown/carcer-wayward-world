@@ -1,13 +1,13 @@
 #pragma once
 
-#include <string>
+#include "lib/Types.h"
 
 namespace model {
 
 struct CharacterInstance {
-  std::string id;
-  std::string name;
-  std::string templateName;
+  String id;
+  String name;
+  String templateName;
 };
 
 } // namespace model

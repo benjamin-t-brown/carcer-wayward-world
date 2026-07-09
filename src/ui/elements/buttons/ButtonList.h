@@ -4,12 +4,12 @@
 #include "ButtonScroll.h"
 #include "ui/colors.h"
 #include <optional>
-#include <string>
+#include "lib/Types.h"
 
 namespace ui {
 
 struct ButtonListProps {
-  std::string text;
+  String text;
   std::optional<ScrollDirection> arrow;
   bool isSelected = false;
 

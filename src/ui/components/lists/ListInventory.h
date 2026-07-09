@@ -1,22 +1,23 @@
 #pragma once
 
 #include "ui/UiElement.h"
+#include "lib/Types.h"
 
 namespace ui {
 
 struct ListInventoryPropsItem {
-  std::string itemId;
-  std::string itemName;
-  std::string itemLabel;
-  std::string itemSprite;
+  String itemId;
+  String itemName;
+  String itemLabel;
+  String itemSprite;
   bool isEquippable = false;
   bool isEquipped = false;
   bool isStackable = false;
   int quantity = 1;
 };
 struct ListInventoryProps {
-  std::string characterPlayerId;
-  std::vector<ListInventoryPropsItem> items;
+  String characterPlayerId;
+  DynArray<ListInventoryPropsItem> items;
   int lineHeight = 32;
   int lineGap = 2;
   int paddingTop = 4;

@@ -1,8 +1,7 @@
 #pragma once
 
 #include "model/stats/CharacterStats.h"
-#include <string>
-#include <vector>
+#include "lib/Types.h"
 
 namespace model {
 
@@ -23,27 +22,27 @@ enum class CharacterTemplateBehaviorName {
 };
 
 struct CharacterTemplateTalk {
-  std::string talkName;
-  std::string portraitName;
+  String talkName;
+  String portraitName;
 };
 
 struct CharacterTemplateBehavior {
-  std::string behaviorName;
+  String behaviorName;
 };
 
 struct CharacterTemplateCombat {
   int hp = 0;
   int mp = 0;
-  std::string dropTable;
+  String dropTable;
 };
 
 struct CharacterTemplateSound {
-  std::string deathSoundName;
-  std::string weaponSoundName;
+  String deathSoundName;
+  String weaponSoundName;
 };
 
 struct CharacterTemplateStatus {
-  std::string status;
+  String status;
 };
 
 struct CharacterTemplateVision {
@@ -52,19 +51,19 @@ struct CharacterTemplateVision {
 
 struct CharacterTemplate {
   CharacterTemplateType type;
-  std::string name;
-  std::string label;
-  std::string spritesheetName;
-  std::string spriteOffset;
+  String name;
+  String label;
+  String spritesheetName;
+  String spriteOffset;
   CharacterTemplateTalk talk;
   CharacterTemplateBehavior behavior;
   CharacterStats stats;
   CharacterTemplateCombat combat;
   CharacterTemplateSound sound;
-  std::vector<CharacterTemplateStatus> statuses;
+  bmin::DynArray<CharacterTemplateStatus> statuses;
   CharacterTemplateVision vision;
 };
 
-std::string characterGetSprite(const CharacterTemplate& character);
+String characterGetSprite(const CharacterTemplate& character);
 
 } // namespace model

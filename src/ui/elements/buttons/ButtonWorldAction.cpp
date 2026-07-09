@@ -1,9 +1,8 @@
 #include "ButtonWorldAction.h"
+#include "lib/Types.h"
 #include "lib/sdl2w/L10n.h"
 #include "state/WorldActions.h"
 #include "ui/elements/SpriteElement.h"
-#include <memory>
-#include <sstream>
 
 namespace ui {
 
@@ -126,7 +125,7 @@ void ButtonWorldAction::build() {
 
   auto mapping = getButtonWorldActionMapping(props.worldActionType);
 
-  auto spriteElement = std::make_unique<SpriteElement>(window);
+  auto spriteElement = makeUnique<SpriteElement>(window);
   BaseStyle spriteStyle;
   spriteStyle.x = style.x;
   spriteStyle.y = style.y;
@@ -135,7 +134,7 @@ void ButtonWorldAction::build() {
 
   int startingSpriteIndex =
       mapping.isSmall ? smallStartingSpriteIndex : normalStartingSpriteIndex;
-  std::stringstream ss;
+  StringStream ss;
   ss << spriteSheetName << "_";
   if (mapping.isSmall) {
     ss << "half_";
@@ -161,9 +160,8 @@ void ButtonWorldAction::build() {
   style.width = spriteStyle.width;
   style.height = spriteStyle.height;
 
-  std::string spriteName = ss.str();
-  spriteElement->setSprite(spriteName);
-  children.push_back(std::move(spriteElement));
+  spriteElement->setSprite(String(ss.str().cStr()));
+  children.pushBack(UniquePtr<UiElement>(spriteElement.release()));
 }
 
 void ButtonWorldAction::render(int dt) {

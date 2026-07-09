@@ -28,7 +28,7 @@ void HorizontalList::clearSelection() { selectedIndex = -1; }
 
 void HorizontalList::addListItem(UiElement* item) { addChild(item); }
 
-void HorizontalList::addListItems(const std::vector<UiElement*>& items) {
+void HorizontalList::addListItems(const DynArray<UiElement*>& items) {
   for (auto* item : items) {
     addListItem(item);
   }

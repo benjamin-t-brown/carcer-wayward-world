@@ -2,8 +2,7 @@
 
 #include "model/templates/AbilityTypes.h"
 #include <optional>
-#include <string>
-#include <vector>
+#include "lib/Types.h"
 
 namespace model {
 
@@ -24,8 +23,8 @@ enum class ItemType {
   UNKNOWN
 };
 
-std::string getStringFromItemType(ItemType itemType);
-ItemType getItemTypeFromString(const std::string& itemTypeString);
+String getStringFromItemType(ItemType itemType);
+ItemType getItemTypeFromString(const String& itemTypeString);
 
 bool itemTypeIsEquippable(ItemType itemType);
 bool itemTypeIsTwoHandedWeapon(ItemType itemType);
@@ -40,33 +39,33 @@ enum class ItemUsability {
   USABLE_TOWN_AND_COMBAT,
 };
 
-ItemUsability getItemUsabilityFromString(const std::string& value);
+ItemUsability getItemUsabilityFromString(const String& value);
 
 struct ItemWeaponConfig {
-  std::string abilityName;
-  std::vector<AbilityAttackDmg> dmgOverrides;
+  String abilityName;
+  bmin::DynArray<AbilityAttackDmg> dmgOverrides;
 };
 
 struct ItemUseAbilityConfig {
-  std::string abilityName;
-  std::vector<AbilityAttackDmg> dmgOverrides;
-  std::vector<AbilityRestore> restoreOverrides;
+  String abilityName;
+  bmin::DynArray<AbilityAttackDmg> dmgOverrides;
+  bmin::DynArray<AbilityRestore> restoreOverrides;
 };
 
 struct ItemTemplate {
   ItemType itemType = ItemType::UNKNOWN;
-  std::string name;
-  std::string label;
-  std::string iconSpriteName;
-  std::string description;
+  String name;
+  String label;
+  String iconSpriteName;
+  String description;
   int weight = 0;
   int value = 0;
   bool stackable = false;
   bool indestructable = false;
   ItemUsability itemUsability = ItemUsability::NOT_USABLE;
   std::optional<ItemUseAbilityConfig> useAbility;
-  std::optional<std::string> useSpecialEvent;
-  std::vector<std::string> statusEffectNames;
+  std::optional<String> useSpecialEvent;
+  bmin::DynArray<String> statusEffectNames;
   std::optional<ItemWeaponConfig> weapon;
 };
 

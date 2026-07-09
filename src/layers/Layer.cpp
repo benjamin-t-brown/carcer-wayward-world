@@ -1,10 +1,12 @@
 #include "Layer.h"
+#include "lib/StringUtil.h"
 #include "state/StateManager.h"
 #include "ui/UiElement.h"
 
 namespace layers {
 
-Layer::Layer(sdl2w::Window* _window, std::string_view _id) : window(_window), id(_id) {}
+Layer::Layer(sdl2w::Window* _window, std::string_view _id)
+    : window(_window), id(strutil::fromStringView(_id)) {}
 
 Layer::~Layer() {
   if (hasStateManager()) {
@@ -24,9 +26,9 @@ bool Layer::assertInterfaces() const {
   return true;
 }
 
-void Layer::setId(std::string_view _id) { id = _id; }
+void Layer::setId(std::string_view _id) { id = strutil::fromStringView(_id); }
 
-std::string Layer::getId() const { return id; }
+String Layer::getId() const { return id; }
 
 void Layer::onMouseDown(int x, int y, int button) {
   if (state != LayerState::ON) {
@@ -105,7 +107,7 @@ bool Layer::shouldRemove() const { return removeFlag; }
 LayerState Layer::getState() const { return state; }
 
 void Layer::addUiElement(ui::UiElement* element) {
-  uiElements.push_back(std::unique_ptr<ui::UiElement>(element));
+  uiElements.pushBack(UniquePtr<ui::UiElement>(element));
 }
 
 void Layer::update(int deltaTime) {

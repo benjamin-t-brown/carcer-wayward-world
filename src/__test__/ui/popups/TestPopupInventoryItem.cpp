@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start PopupInventoryItem test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "PopupInventoryItem test initialized" << LOG_ENDL;
@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
         .equippable = true,
         .orientation = orientation,
     });
-    elements.push_back(std::unique_ptr<ui::UiElement>(popupInventoryItem));
+    elements.pushBack(UniquePtr<ui::UiElement>(popupInventoryItem));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

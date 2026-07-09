@@ -2,12 +2,12 @@
 
 #include "../../UiElement.h"
 #include "ui/colors.h"
-#include <string>
+#include "lib/Types.h"
 
 namespace ui {
 
 struct ButtonSpriteProps {
-  std::string spriteName;
+  String spriteName;
   int spriteWidth = 16;
   int spriteHeight = 16;
   int padding = 2;

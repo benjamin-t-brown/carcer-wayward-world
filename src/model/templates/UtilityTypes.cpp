@@ -6,8 +6,8 @@ namespace model {
 
 TimerStruct::TimerStruct(int duration) : duration(duration) {}
 
-std::string createRandomId() {
-  return std::to_string((rand() % 1000000) + (rand() % 1000000) + (rand() % 1000000));
+String createRandomId() {
+  return bmin::toString((rand() % 1000000) + (rand() % 1000000) + (rand() % 1000000));
 }
 
 void timerStructStart(TimerStruct& timer, int duration) {

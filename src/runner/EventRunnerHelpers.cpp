@@ -1,50 +1,45 @@
 #include "EventRunnerHelpers.h"
-#include <sstream>
+#include "lib/StringUtil.h"
 
 namespace runner {
 
 // Helper functions for storage (flat map, no nesting)
-void setStorage(std::unordered_map<std::string, std::string>& storage,
-                const std::string& key, const std::string& value) {
+void setStorage(bmin::Map<String, String>& storage, const String& key,
+                const String& value) {
   storage[key] = value;
 }
 
-std::optional<std::string>
-getStorage(const std::unordered_map<std::string, std::string>& storage,
-           const std::string& key) {
-  auto it = storage.find(key);
+std::optional<String> getStorage(const bmin::Map<String, String>& storage,
+                                 const String& key) {
+  auto it = const_cast<bmin::Map<String, String>&>(storage).find(key);
   if (it != storage.end()) {
-    return it->second;
+    return it->value;
   }
   return std::nullopt;
 }
 
 // Helper to trim whitespace
-std::string trim(const std::string& str) {
-  size_t first = str.find_first_not_of(" \t\n\r");
-  if (first == std::string::npos) {
-    return "";
-  }
-  size_t last = str.find_last_not_of(" \t\n\r");
-  return str.substr(first, (last - first + 1));
+String trim(const String& str) {
+  return strutil::trim(str);
 }
 
 // Helper to split string by delimiter
-std::vector<std::string> splitString(const std::string& str, char delimiter) {
-  std::vector<std::string> result;
-  std::stringstream ss(str);
-  std::string item;
-  while (std::getline(ss, item, delimiter)) {
-    result.push_back(item);
+DynArray<String> splitString(const String& str, char delimiter) {
+  const bmin::DynArray<String> parts = strutil::splitByChar(str, delimiter);
+  DynArray<String> result;
+  result.reserve(parts.size());
+  for (size_t i = 0; i < parts.size(); ++i) {
+    result.pushBack(parts[i]);
   }
   return result;
 }
 
-std::vector<std::string> splitExecStatements(const std::string& str) {
-  std::vector<std::string> result;
+DynArray<String> splitExecStatements(const String& str) {
+  DynArray<String> result;
   int parenDepth = 0;
-  std::string current;
-  for (char c : str) {
+  String current;
+  for (size_t i = 0; i < str.size(); ++i) {
+    const char c = str[i];
     if (c == '(') {
       parenDepth++;
       current += c;
@@ -52,45 +47,50 @@ std::vector<std::string> splitExecStatements(const std::string& str) {
       parenDepth--;
       current += c;
     } else if ((c == ';' || c == '\n') && parenDepth == 0) {
-      std::string trimmed = trim(current);
+      const String trimmed = trim(current);
       if (!trimmed.empty()) {
-        result.push_back(trimmed);
+        result.pushBack(trimmed);
       }
       current.clear();
     } else {
       current += c;
     }
   }
-  std::string trimmed = trim(current);
+  const String trimmed = trim(current);
   if (!trimmed.empty()) {
-    result.push_back(trimmed);
+    result.pushBack(trimmed);
   }
   return result;
 }
 
 // Parse function call: "FUNC_NAME(arg1, arg2, ...)"
-FunctionCall parseFunctionCall(const std::string& str) {
+FunctionCall parseFunctionCall(const String& str) {
   FunctionCall result;
-  size_t openParen = str.find('(');
-  if (openParen == std::string::npos) {
+  const size_t openParen = str.find("(");
+  if (openParen == String::npos) {
     result.funcName = trim(str);
     return result;
   }
 
   result.funcName = trim(str.substr(0, openParen));
-  size_t closeParen = str.rfind(')');
-  if (closeParen == std::string::npos || closeParen <= openParen) {
+  size_t closeParen = String::npos;
+  for (size_t i = str.size(); i > 0; --i) {
+    if (str[i - 1] == ')') {
+      closeParen = i - 1;
+      break;
+    }
+  }
+  if (closeParen == String::npos || closeParen <= openParen) {
     return result;
   }
 
-  std::string argsStr = str.substr(openParen + 1, closeParen - openParen - 1);
-  std::vector<std::string> args;
+  const String argsStr = str.substr(openParen + 1, closeParen - openParen - 1);
 
   // Properly parse comma-separated args allowing for nested parentheses
   size_t parenDepth = 0;
-  std::string currentArg;
-  for (size_t i = 0; i < argsStr.length(); ++i) {
-    char c = argsStr[i];
+  String currentArg;
+  for (size_t i = 0; i < argsStr.size(); ++i) {
+    const char c = argsStr[i];
     if (c == '(') {
       parenDepth++;
       currentArg += c;
@@ -98,22 +98,21 @@ FunctionCall parseFunctionCall(const std::string& str) {
       parenDepth--;
       currentArg += c;
     } else if (c == ',' && parenDepth == 0) {
-      result.args.push_back(trim(currentArg));
+      result.args.pushBack(trim(currentArg));
       currentArg.clear();
     } else {
       currentArg += c;
     }
   }
   if (!currentArg.empty()) {
-    result.args.push_back(trim(currentArg));
+    result.args.pushBack(trim(currentArg));
   }
 
   return result;
 }
 
-bool isFunctionCall(const std::string& str) {
-  return str.find('(') != std::string::npos && str.find(')') != std::string::npos;
+bool isFunctionCall(const String& str) {
+  return str.find("(") != String::npos && str.find(")") != String::npos;
 }
 
 } // namespace runner
-

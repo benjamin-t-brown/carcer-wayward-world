@@ -9,10 +9,10 @@
 #include <memory>
 
 class TestButtonGroupObserver : public ui::UiEventObserver {
-  std::string id;
+  String id;
 
 public:
-  explicit TestButtonGroupObserver(std::string _id) : id(std::move(_id)) {}
+  explicit TestButtonGroupObserver(String _id) : id(std::move(_id)) {}
   ~TestButtonGroupObserver() override = default;
 
   void onClick(int x, int y, int button) override {
@@ -22,16 +22,16 @@ public:
 };
 
 static void addButtonGroup(sdl2w::Window& window,
-                           std::vector<std::unique_ptr<ui::UiElement>>& elements,
-                           const std::string& id,
+                           DynArray<UniquePtr<ui::UiElement>>& elements,
+                           const String& id,
                            int x,
                            int y,
                            ui::ButtonGroupAlignment alignment,
-                           const std::vector<std::string>& labels) {
+                           const DynArray<String>& labels) {
 
-  std::vector<ui::ButtonGroupButtonProps> buttons;
+  DynArray<ui::ButtonGroupButtonProps> buttons;
   for (size_t i = 0; i < labels.size(); i++) {
-    buttons.push_back(ui::ButtonGroupButtonProps{
+    buttons.pushBack(ui::ButtonGroupButtonProps{
         .label = labels[i],
         .type = ui::ButtonGroupButtonType::MODAL,
     });
@@ -53,14 +53,14 @@ static void addButtonGroup(sdl2w::Window& window,
     group->addObserverToButtonAtIndex(static_cast<int>(i),
                                       new TestButtonGroupObserver(id + ":" + labels[i]));
   }
-  elements.push_back(std::unique_ptr<ui::UiElement>(group));
+  elements.pushBack(UniquePtr<ui::UiElement>(group));
 }
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start ButtonGroup test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ButtonGroup test initialized" << LOG_ENDL;

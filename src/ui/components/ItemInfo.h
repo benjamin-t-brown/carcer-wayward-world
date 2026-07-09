@@ -1,12 +1,12 @@
 #pragma once
 
 #include "../UiElement.h"
-#include <string>
+#include "lib/Types.h"
 
 namespace ui {
 
 struct ItemInfoProps {
-  std::string description;
+  String description;
   int weight = 0;
   int value = 0;
 };

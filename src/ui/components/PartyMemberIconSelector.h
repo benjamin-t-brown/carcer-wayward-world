@@ -2,15 +2,14 @@
 
 #include "../UiElement.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
-#include <string>
-#include <vector>
+#include "lib/Types.h"
 
 namespace ui {
 
 enum class PartyMemberIconSelectorTarget { INVENTORY, PICKUP };
 
 struct PartyMemberIconSelectorProps {
-  std::vector<std::string> members;
+  DynArray<String> members;
   int selectedIndex = 0;
   PartyMemberIconSelectorTarget target = PartyMemberIconSelectorTarget::INVENTORY;
   int iconSize = 32;

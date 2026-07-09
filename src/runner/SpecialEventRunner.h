@@ -1,64 +1,63 @@
 #pragma once
 
+#include "lib/Types.h"
+#include "lib/bmin/Map.h"
 #include "model/templates/SpecialEvents.h"
+
 #include <optional>
-#include <string>
-#include <unordered_map>
-#include <vector>
 
 namespace runner {
 
 struct ConditionResult {
   bool result;
-  std::vector<std::string> onceKeysToCommit;
+  DynArray<String> onceKeysToCommit;
 };
 
 struct DisplayTextChoice {
-  std::string execStr;
-  std::string text;
-  std::string prefix;
-  std::string next;
-  std::vector<std::string> onceKeysToCommit;
+  String execStr;
+  String text;
+  String prefix;
+  String next;
+  DynArray<String> onceKeysToCommit;
 };
 
 struct ErrorInfo {
-  std::string nodeId;
-  std::string message;
+  String nodeId;
+  String message;
 };
 
 class SpecialEventRunner {
 public:
-  std::unordered_map<std::string, std::string> storage;
+  bmin::Map<String, String> storage;
   model::GameEvent gameEvent;
-  std::unordered_map<std::string, model::GameEvent> gameEvents;
-  std::string currentNodeId;
+  bmin::Map<String, model::GameEvent> gameEvents;
+  String currentNodeId;
 
-  std::string displayText;
-  // std::string nextNodeId;
-  std::vector<DisplayTextChoice> displayTextChoices;
-  std::vector<ErrorInfo> errors;
+  String displayText;
+  DynArray<DisplayTextChoice> displayTextChoices;
+  DynArray<ErrorInfo> errors;
 
-  SpecialEventRunner(const std::unordered_map<std::string, std::string>& initialStorage,
+  SpecialEventRunner(const bmin::Map<String, String>& initialStorage,
                      const model::GameEvent& gameEvent,
-                     const std::unordered_map<std::string, model::GameEvent>& gameEvents);
+                     const bmin::Map<String, model::GameEvent>& gameEvents);
 
   void reset();
   std::optional<model::GameEventChild> getCurrentNode();
-  std::string getNextNodeId();
-  std::string replaceVariables(const std::string& text);
-  bool evalExecStr(const std::string& str);
-  ConditionResult evalCondition(const std::string& conditionStr);
-  void commitOnceKeys(const std::vector<std::string>& onceKeysToCommit);
-  void advance(const std::string& nodeId,
-               const std::vector<std::string>& onceKeysToCommit = {},
-               const std::string& execStr = "");
-  std::string storageToString() const;
+  String getNextNodeId();
+  String replaceVariables(const String& text);
+  bool evalExecStr(const String& str);
+  ConditionResult evalCondition(const String& conditionStr);
+  void commitOnceKeys(const DynArray<String>& onceKeysToCommit);
+  void advance(const String& nodeId,
+               const DynArray<String>& onceKeysToCommit = {},
+               const String& execStr = "");
+  String storageToString() const;
 
 private:
-  std::vector<model::Variable> getVarsFromNode();
-  std::string joinParagraphs(const std::vector<std::string>& paragraphs);
-  std::string resolveChoiceText(const model::Choice& choice,
-                                std::vector<std::string>& onceKeysToCommit);
+  DynArray<model::Variable> getVarsFromNode();
+  String joinParagraphs(const bmin::DynArray<String>& paragraphs);
+  String resolveChoiceText(const model::Choice& choice,
+                           DynArray<String>& onceKeysToCommit);
 };
 
 enum class SpecialEventRunnerInterfaceState {
@@ -76,7 +75,7 @@ public:
   void continueEvent();
   void selectChoice(int choiceIndex);
   SpecialEventRunnerInterfaceState getState();
-  static std::string stateToString(SpecialEventRunnerInterfaceState state);
+  static String stateToString(SpecialEventRunnerInterfaceState state);
 };
 
 } // namespace runner

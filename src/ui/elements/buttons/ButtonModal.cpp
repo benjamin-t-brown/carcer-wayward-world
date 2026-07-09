@@ -68,7 +68,7 @@ void ButtonModal::build() {
   textStyle.fontColor = style.fontColor;
   textStyle.fontSize = style.fontSize;
   TextLineProps textLineProps;
-  textLineProps.textBlocks = {TextBlock{props.text}};
+  textLineProps.textBlocks.pushBack(TextBlock{props.text});
   textLine->setProps(textLineProps);
   addChild(textLine);
 }

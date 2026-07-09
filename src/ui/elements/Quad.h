@@ -2,7 +2,7 @@
 
 #include "../UiElement.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
-#include <string>
+#include "lib/Types.h"
 
 #if defined(MIYOOA30) || defined(MIYOOMINI)
 #include <SDL.h>
@@ -15,7 +15,7 @@ namespace ui {
 // Quad-specific properties
 struct QuadProps {
   SDL_Color bgColor = SDL_Color{0, 0, 0, 0};
-  std::string bgSprite;
+  String bgSprite;
   SDL_Color borderColor = SDL_Color{0, 0, 0, 0};
   int borderSize = 0;
 };
@@ -48,18 +48,18 @@ public:
   bool checkMouseDownEvent(int mouseX,
                            int mouseY,
                            int button,
-                           std::vector<UiElement*> additionalElements = {}) override;
+                           DynArray<UiElement*> additionalElements = {}) override;
   bool checkMouseUpEvent(int mouseX,
                          int mouseY,
                          int button,
-                         std::vector<UiElement*> additionalElements = {}) override;
+                         DynArray<UiElement*> additionalElements = {}) override;
   bool checkHoverEvent(int mouseX,
                        int mouseY,
-                       std::vector<UiElement*> additionalElements = {}) override;
+                       DynArray<UiElement*> additionalElements = {}) override;
   bool checkMouseWheelEvent(int mouseX,
                             int mouseY,
                             int delta,
-                            std::vector<UiElement*> additionalElements = {}) override;
+                            DynArray<UiElement*> additionalElements = {}) override;
 
   void build() override;
   void render(int dt) override;

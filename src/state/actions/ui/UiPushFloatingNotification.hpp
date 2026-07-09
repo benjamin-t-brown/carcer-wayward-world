@@ -9,7 +9,7 @@ namespace state {
 namespace actions {
 
 class UiPushFloatingNotification : public AbstractAction {
-  std::string message;
+  String message;
   UiFloatingNotificationType type;
 
   void act() override {
@@ -20,11 +20,11 @@ class UiPushFloatingNotification : public AbstractAction {
     notification.type = type;
     model::timerStructStart(notification.timer,
                             state->settings.floatingNotificationDurationMs);
-    localState.uiState.floatingNotifications.push_back(std::move(notification));
+    localState.uiState.floatingNotifications.pushBack(std::move(notification));
   }
 
 public:
-  UiPushFloatingNotification(std::string _message, UiFloatingNotificationType _type)
+  UiPushFloatingNotification(String _message, UiFloatingNotificationType _type)
       : message(std::move(_message)), type(_type) {}
 };
 

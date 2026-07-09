@@ -95,7 +95,7 @@ UiElement* ListPickUp::createItemElement(const ListPickUpPropsItem& listItem) {
           {
               {
                   .text =
-                      std::to_string(listItem.item.quantity * listItem.weight) + " lbs",
+                      bmin::toString(listItem.item.quantity * listItem.weight) + " lbs",
               },
           },
   });

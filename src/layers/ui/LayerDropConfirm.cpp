@@ -8,8 +8,8 @@
 namespace layers {
 
 LayerDropConfirm::LayerDropConfirm(sdl2w::Window* _window,
-                                   std::string characterPlayerId,
-                                   std::string itemId)
+                                   String characterPlayerId,
+                                   String itemId)
     : Layer(_window, LAYER_ID) {
 
   if (!assertInterfaces()) {
@@ -62,7 +62,7 @@ LayerDropConfirm::LayerDropConfirm(sdl2w::Window* _window,
   popupProps.characterPlayerId = characterPlayerId;
   popupProps.itemId = itemId;
   {
-    const auto& itemTemplate = database->getItemTemplate(itemInstance.itemTemplateName);
+    const auto& itemTemplate = database->getItemTemplate(bmin::toStringView(itemInstance.itemTemplateName));
     popupProps.itemLabel =
         itemTemplate.label.empty() ? itemTemplate.name : itemTemplate.label;
   }

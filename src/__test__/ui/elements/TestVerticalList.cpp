@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start VerticalList test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "VerticalList test initialized" << LOG_ENDL;
@@ -50,8 +50,8 @@ int main(int argc, char** argv) {
 
       ui::TextLineProps textProps;
       ui::TextBlock textBlock;
-      textBlock.text = "List Item " + std::to_string(i + 1);
-      textProps.textBlocks.push_back(textBlock);
+      textBlock.text = "List Item " + bmin::toString(i + 1);
+      textProps.textBlocks.pushBack(textBlock);
       textLine->setProps(textProps);
 
       quad->addChild(textLine);
@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
 
     verticalList->setProps(props);
 
-    elements.push_back(std::unique_ptr<ui::UiElement>(verticalList));
+    elements.pushBack(UniquePtr<ui::UiElement>(verticalList));
 
     auto& events = window.getEvents();
     events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_DOWN,

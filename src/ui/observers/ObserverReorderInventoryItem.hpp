@@ -8,12 +8,12 @@ namespace ui {
 
 class ObserverReorderInventoryItem : public ui::UiEventObserver,
                                      public state::StateManagerInterface {
-  std::string characterPlayerId;
+  String characterPlayerId;
   int inventoryIndex;
   int direction;
 
 public:
-  ObserverReorderInventoryItem(std::string_view _characterPlayerId,
+  ObserverReorderInventoryItem(const String& _characterPlayerId,
                                int _inventoryIndex,
                                int _direction)
       : characterPlayerId(_characterPlayerId),

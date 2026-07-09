@@ -2,17 +2,17 @@
 
 #include "../UiElement.h"
 #include "lib/sdl2w/L10n.h"
-#include <string>
+#include "lib/Types.h"
 
 namespace ui {
 
 class ButtonGroup;
 
 struct ConfirmModalProps {
-  std::string title = std::string(TRANSLATE("Confirm"));
-  std::string message;
-  std::string confirmButtonLabel = std::string(TRANSLATE("Yes"));
-  std::string cancelButtonLabel = std::string(TRANSLATE("No"));
+  String title = String(TRANSLATE("Confirm"));
+  String message;
+  String confirmButtonLabel = String(TRANSLATE("Yes"));
+  String cancelButtonLabel = String(TRANSLATE("No"));
 };
 
 class ConfirmModal : public UiElement {

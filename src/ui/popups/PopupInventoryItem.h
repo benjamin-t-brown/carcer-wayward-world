@@ -2,18 +2,18 @@
 
 #include "model/templates/Items.h"
 #include "ui/UiElement.h"
-#include <string>
+#include "lib/Types.h"
 
 namespace ui {
 
 enum PopupOrientation { NARROW, WIDE };
 
 struct PopupInventoryItemProps {
-  std::string characterPlayerId;
+  String characterPlayerId;
   model::ItemInstance item;
-  std::string label;
-  std::string description;
-  std::string spriteName;
+  String label;
+  String description;
+  String spriteName;
   int weight = 0;
   int value = 0;
   bool usable = false;

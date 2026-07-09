@@ -19,7 +19,7 @@ LayerPickUpContext::LayerPickUpContext(sdl2w::Window* _window,
     return;
   }
   auto database = getDatabase();
-  auto& itemTemplate = database->getItemTemplate(item.itemTemplateName);
+  auto& itemTemplate = database->getItemTemplate(bmin::toStringView(item.itemTemplateName));
 
   auto [windowWidth, windowHeight] = window->getDims();
   const auto orientation =

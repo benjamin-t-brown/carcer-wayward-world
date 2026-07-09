@@ -18,10 +18,10 @@ PopupDropConfirm::~PopupDropConfirm() = default;
 void PopupDropConfirm::setProps(const PopupDropConfirmProps& _props) {
   props = _props;
   //   confirmObserver =
-  //       std::make_unique<ObserverDropInventoryItem>(props.characterPlayerId,
+  //       makeUnique<ObserverDropInventoryItem>(props.characterPlayerId,
   //       props.itemId);
   //   cancelObserver =
-  //       std::make_unique<ObserverRemoveLayer>(layers::LayerDropConfirm::LAYER_ID);
+  //       makeUnique<ObserverRemoveLayer>(layers::LayerDropConfirm::LAYER_ID);
   build();
 }
 
@@ -39,7 +39,7 @@ void PopupDropConfirm::build() {
   modalStyle.y = style.y;
   modalStyle.scale = style.scale;
 
-  const std::string messageText =
+  const String messageText =
       TRANSLATE("Are you sure you wish to drop ") + props.itemLabel + "?";
   modal->setProps(ConfirmModalProps{
       .title = TRANSLATE("Drop"),

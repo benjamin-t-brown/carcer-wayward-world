@@ -2,7 +2,7 @@
 
 namespace model {
 
-std::string getStringFromItemType(ItemType itemType) {
+String getStringFromItemType(ItemType itemType) {
   switch (itemType) {
   case ItemType::WEAPON_MELEE:
     return "WEAPON_MELEE";
@@ -36,7 +36,7 @@ std::string getStringFromItemType(ItemType itemType) {
   return "UNKNOWN";
 }
 
-ItemType getItemTypeFromString(const std::string& itemTypeString) {
+ItemType getItemTypeFromString(const String& itemTypeString) {
   if (itemTypeString == "WEAPON_MELEE") {
     return ItemType::WEAPON_MELEE;
   } else if (itemTypeString == "WEAPON_MELEE_2H") {
@@ -101,7 +101,7 @@ bool itemTypeUsesWeaponSlots(ItemType itemType) {
   }
 }
 
-ItemUsability getItemUsabilityFromString(const std::string& value) {
+ItemUsability getItemUsabilityFromString(const String& value) {
   if (value == "USABLE_EVERYWHERE") {
     return ItemUsability::USABLE_EVERYWHERE;
   }

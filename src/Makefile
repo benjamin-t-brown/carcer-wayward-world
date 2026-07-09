@@ -13,6 +13,7 @@ db/loaders/LoadCharacterTemplates.cpp \
 db/loaders/LoadMapTemplates.cpp \
 model/templates/AbilityTypes.cpp \
 db/loaders/LoadSpecialEvents.cpp \
+lib/Json.cpp \
 layers/Layer.cpp \
 layers/LayerManager.cpp \
 layers/ui/LayerInventoryContext.cpp \
@@ -165,7 +166,7 @@ ifeq ($(TARGET),wasm)
     CXX = em++
     AR = emar
 else
-    FLAGS = -Og -fuse-ld=lld -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -fno-omit-frame-pointer -DJSON_NO_IO
+    FLAGS = -Og -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -fno-omit-frame-pointer -DJSON_NO_IO
     ifndef CXX
         CXX = g++
     endif
@@ -189,6 +190,7 @@ else
 endif
 
 COMPILER_LINK_INPUTS = $(LIBCARCER)
+LINK_FLAGS=-fuse-ld=lld
 
 SOURCES = $(CODE) $(LIB_CODE) $(MAIN_ALL)
 
@@ -204,7 +206,7 @@ $(LIBCARCER): $(OBJECTS) $(LIB_OBJECTS)
 libcarcer: $(LIBCARCER)
 
 $(EXE): $(MAIN_ALL_OBJECT) $(LIBCARCER) $(SDL2W_LIB)
-	$(CXX) $(FLAGS) $(INCLUDES) $(MAIN_ALL_OBJECT) $(LIBCARCER) -o $(EXE)$(EXE_SUFFIX) $(LIBS)
+	$(CXX) $(FLAGS) $(LINK_FLAGS) $(INCLUDES) $(MAIN_ALL_OBJECT) $(LIBCARCER) -o $(EXE)$(EXE_SUFFIX) $(LIBS)
 
 # Convenience alias: builds $(SDL2W_LIB) only when needed (see rule below).
 sdl2w: $(SDL2W_LIB)
@@ -251,7 +253,7 @@ _copy_bmin_artifacts:
 	@cp $(SDL2W_BUILD_OUTPUT_DIR)/include/bmin/internal/*.hpp lib/bmin/internal
 
 compiler_args:
-	@echo $(FLAGS) $(INCLUDES) $(COMPILER_LINK_INPUTS) $(LIBS)
+	@echo $(FLAGS) $(LINK_FLAGS) $(INCLUDES) $(COMPILER_LINK_INPUTS) $(LIBS)
 
 print_cxx:
 	@echo $(CXX)

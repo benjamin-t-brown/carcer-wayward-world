@@ -9,8 +9,8 @@ namespace ui {
 TextLine::TextLine(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {}
 
-std::string TextLine::getFontNameFromFamily(FontFamily fontFamily) {
-  auto fontName = std::string("default");
+String TextLine::getFontNameFromFamily(FontFamily fontFamily) {
+  auto fontName = String("default");
   switch (fontFamily) {
   case FontFamily::TEXT:
     fontName = "text";
@@ -71,9 +71,9 @@ std::pair<int, int> TextLine::calculateTextDims() const {
   int totalHeight = 0;
 
   for (const auto& block : props.textBlocks) {
-    const std::string& measureStr = block.text.empty() ? " " : block.text;
+    const String& measureStr = block.text.empty() ? String(" ") : block.text;
     auto [textWidth, textHeight] =
-        draw.measureText(measureStr, makeRenderTextParams(block));
+        draw.measureText(bmin::toStringView(measureStr), makeRenderTextParams(block));
     if (!block.text.empty()) {
       totalWidth += textWidth;
     }
@@ -106,11 +106,11 @@ void TextLine::build() {
 
     auto renderTextParams = makeRenderTextParams(block);
     auto [textWidth, textHeight] =
-        window->getDraw().measureText(block.text, renderTextParams);
+        window->getDraw().measureText(bmin::toStringView(block.text), renderTextParams);
     textHeight += 2; // HACK: Measure text doesn't seem accurate per height, so this will
                      // need overrides...
 
-    auto tlParams = std::make_unique<TextLineRenderTextParams>();
+    auto tlParams = makeUnique<TextLineRenderTextParams>();
     tlParams->text = block.text;
     renderTextParams.x = currentX;
     renderTextParams.y = currentY;
@@ -120,7 +120,7 @@ void TextLine::build() {
       renderTextParams.y -= static_cast<int>(textHeight * style.scale);
     }
     tlParams->params = renderTextParams;
-    textRenderables.push_back(std::move(tlParams));
+    textRenderables.pushBack(std::move(tlParams));
 
     currentX += static_cast<int>(textWidth * style.scale);
   }
@@ -134,7 +134,7 @@ void TextLine::render(int dt) {
   auto& draw = window->getDraw();
 
   for (const auto& rtParams : textRenderables) {
-    draw.drawText(rtParams->text, rtParams->params);
+    draw.drawText(bmin::toStringView(rtParams->text), rtParams->params);
   }
 }
 

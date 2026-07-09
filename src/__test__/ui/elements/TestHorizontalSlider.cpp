@@ -12,7 +12,7 @@
 int main(int argc, char** argv) {
   LOG(INFO) << "Start HorizontalSlider test" << LOG_ENDL;
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
   ui::HorizontalSlider* rangeSlider = nullptr;
   ui::HorizontalSlider* singleValueSlider = nullptr;
   ui::TextLine* valueReadout = nullptr;
@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
         .labelColor = ui::Colors::White,
     });
     rangeSlider = sliderA;
-    elements.push_back(std::unique_ptr<ui::UiElement>(sliderA));
+    elements.pushBack(UniquePtr<ui::UiElement>(sliderA));
 
     auto sliderB = new ui::HorizontalSlider(&window);
     sliderB->setId("singleValueSlider");
@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
         .indicatorWidth = 24,
     });
     singleValueSlider = sliderB;
-    elements.push_back(std::unique_ptr<ui::UiElement>(sliderB));
+    elements.pushBack(UniquePtr<ui::UiElement>(sliderB));
 
     auto readout = new ui::TextLine(&window);
     readout->setId("valueReadout");
@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
             },
     });
     valueReadout = readout;
-    elements.push_back(std::unique_ptr<ui::UiElement>(readout));
+    elements.pushBack(UniquePtr<ui::UiElement>(readout));
 
     auto& events = window.getEvents();
     events.setMouseEvent(
@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
           .textBlocks =
               {
                   {.text =
-                       "Slider value: " + std::to_string(rangeSlider->getProps().value)},
+                       "Slider value: " + bmin::toString(rangeSlider->getProps().value)},
               },
       });
     }

@@ -41,9 +41,10 @@ void FloatingNotification::build() {
   setBaseFontConfig(textStyle, BaseFontConfig::MODAL_TEXT);
   textStyle.fontColor = getTextColor();
   textStyle.textAlign = TextAlign::CENTER;
-  textLine->setProps(TextLineProps{
-      .textBlocks = {{.text = props.message, .fontColor = getTextColor()}},
-  });
+  TextLineProps notificationProps;
+  notificationProps.textBlocks.pushBack(
+      {.text = props.message, .fontColor = getTextColor()});
+  textLine->setProps(notificationProps);
 
   auto [textWidth, textHeight] = textLine->calculateTextDims();
   const int contentWidth = textWidth + kHorizontalPadding * 2;

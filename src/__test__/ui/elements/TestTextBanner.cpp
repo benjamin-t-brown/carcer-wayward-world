@@ -49,13 +49,13 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start TextBanner test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
   const int containerX = 40;
   const int containerY = 40;
   const int containerWidth = 320;
   const int containerHeight = 180;
   ui::TextBannerCorner corner = ui::TextBannerCorner::LEFT_TOP;
-  const std::string text = "Hello, world!";
+  const String text = "Hello, world!";
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "TextBanner test initialized" << LOG_ENDL;
@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
         .corner = corner,
         .text = text,
     });
-    elements.push_back(std::unique_ptr<ui::UiElement>(banner));
+    elements.pushBack(UniquePtr<ui::UiElement>(banner));
 
     auto switchCornerButton = new ui::ButtonModal(&window);
     switchCornerButton->setId("switchCorner");
@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
     switchCornerButton->setProps(ui::ButtonModalProps{.text = "Next Corner"});
     switchCornerButton->addEventObserver(
         new SwitchCornerObserver(banner, &corner));
-    elements.push_back(std::unique_ptr<ui::UiElement>(switchCornerButton));
+    elements.pushBack(UniquePtr<ui::UiElement>(switchCornerButton));
 
     auto& events = window.getEvents();
     events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_DOWN,

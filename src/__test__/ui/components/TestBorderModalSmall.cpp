@@ -11,14 +11,14 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start BorderModalSmall test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "BorderModalSmall test initialized" << LOG_ENDL;
 
     auto [windowWidth, windowHeight] = window.getDims();
     // Create BorderModalSmall component
-    auto borderModal = std::make_unique<ui::BorderModalSmall>(&window);
+    auto borderModal = makeUnique<ui::BorderModalSmall>(&window);
     ui::BaseStyle style;
     style.width = 500;
     style.height = windowHeight - 50;
@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
     style.scale = 1.0f;
     borderModal->setStyle(style);
 
-    elements.push_back(std::move(borderModal));
+    elements.pushBack(UniquePtr<ui::UiElement>(borderModal.release()));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

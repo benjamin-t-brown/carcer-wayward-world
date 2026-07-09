@@ -76,7 +76,7 @@ std::pair<int, int> toTextureCoords(int mouseX, int mouseY, const BaseStyle& sty
 bool Quad::checkMouseDownEvent(int mouseX,
                                int mouseY,
                                int button,
-                               std::vector<UiElement*> additionalElements) {
+                               DynArray<UiElement*> additionalElements) {
   // Check if click is within bounds using utility function
   if (isInBoundsScaled(mouseX, mouseY, this)) {
     isClicked = true;
@@ -103,7 +103,7 @@ bool Quad::checkMouseDownEvent(int mouseX,
 bool Quad::checkMouseUpEvent(int mouseX,
                              int mouseY,
                              int button,
-                             std::vector<UiElement*> additionalElements) {
+                             DynArray<UiElement*> additionalElements) {
   auto [localX, localY] = toTextureCoords(mouseX, mouseY, style);
   if (shouldPropagateEventsToChildren) {
     // Check children first (front to back)
@@ -132,7 +132,7 @@ bool Quad::checkMouseUpEvent(int mouseX,
 
 bool Quad::checkHoverEvent(int mouseX,
                            int mouseY,
-                           std::vector<UiElement*> additionalElements) {
+                           DynArray<UiElement*> additionalElements) {
   auto [localX, localY] = toTextureCoords(mouseX, mouseY, style);
   if (shouldPropagateEventsToChildren) {
     for (auto& child : children) {
@@ -154,7 +154,7 @@ bool Quad::checkHoverEvent(int mouseX,
 bool Quad::checkMouseWheelEvent(int mouseX,
                                 int mouseY,
                                 int delta,
-                                std::vector<UiElement*> additionalElements) {
+                                DynArray<UiElement*> additionalElements) {
   if (isInBoundsScaled(mouseX, mouseY, this)) {
     auto [localX, localY] = toTextureCoords(mouseX, mouseY, style);
     if (shouldPropagateEventsToChildren) {
@@ -205,7 +205,7 @@ void Quad::render(int dt) {
 
   // Render background sprite if specified
   if (!props.bgSprite.empty()) {
-    auto& spriteData = store.getSprite(props.bgSprite);
+    auto& spriteData = store.getSprite(bmin::toStringView(props.bgSprite));
 
     sdl2w::RenderableParamsEx params;
     params.x = 0;

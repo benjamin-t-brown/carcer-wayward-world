@@ -24,14 +24,14 @@ void BorderDropShadow::addChild(UiElement* child) {
 }
 
 void BorderDropShadow::build() {
-  std::vector<std::unique_ptr<UiElement>> preservedChildren;
+  DynArray<UniquePtr<UiElement>> preservedChildren;
   if (!children.empty()) {
     for (auto& child : children[0]->getChildren()) {
-      preservedChildren.push_back(std::move(child));
+      preservedChildren.pushBack(std::move(child));
     }
   }
 
-  auto quad = std::make_unique<Quad>(window);
+  auto quad = makeUnique<Quad>(window);
   auto& quadStyle = quad->getStyle();
   quadStyle.x = style.x;
   quadStyle.y = style.y;
@@ -49,7 +49,7 @@ void BorderDropShadow::build() {
   }
 
   children.clear();
-  children.push_back(std::move(quad));
+  children.pushBack(UniquePtr<UiElement>(quad.release()));
 }
 
 void BorderDropShadow::render(int dt) {

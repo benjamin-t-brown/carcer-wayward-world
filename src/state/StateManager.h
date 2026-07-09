@@ -1,12 +1,10 @@
 #pragma once
 
+#include "lib/Types.h"
 #include "state/ActionBus.h"
 #include "state/DatabaseInterface.h"
 #include "state/State.h"
 #include "state/UiManager.h"
-#include <list>
-#include <memory>
-#include <vector>
 
 namespace db {
 class Database;
@@ -18,10 +16,10 @@ class AbstractAction;
 struct AsyncAction;
 
 struct ActionData {
-  std::list<std::unique_ptr<AsyncAction>> sequentialActions;
-  std::list<std::unique_ptr<AsyncAction>> sequentialActionsNext;
-  std::list<std::unique_ptr<AsyncAction>> insertActions;
-  std::vector<std::unique_ptr<AsyncAction>> parallelActions;
+  List<UniquePtr<AsyncAction>> sequentialActions;
+  List<UniquePtr<AsyncAction>> sequentialActionsNext;
+  List<UniquePtr<AsyncAction>> insertActions;
+  DynArray<UniquePtr<AsyncAction>> parallelActions;
 };
 
 class StateManager : public state::DatabaseInterface {

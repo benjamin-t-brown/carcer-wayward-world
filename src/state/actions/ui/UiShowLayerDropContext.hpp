@@ -10,8 +10,8 @@ namespace actions {
 
 class UiShowLayerDropContext : public AbstractAction {
   sdl2w::Window* window;
-  std::string characterPlayerId;
-  std::string itemId;
+  String characterPlayerId;
+  String itemId;
 
   void act() override {
     auto layerManager = getLayerManager();
@@ -25,8 +25,8 @@ class UiShowLayerDropContext : public AbstractAction {
 
 public:
   UiShowLayerDropContext(sdl2w::Window* _window,
-                         std::string _characterPlayerId,
-                         std::string _itemId)
+                         String _characterPlayerId,
+                         String _itemId)
       : window(_window),
         characterPlayerId(std::move(_characterPlayerId)),
         itemId(std::move(_itemId)) {}

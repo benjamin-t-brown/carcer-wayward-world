@@ -119,8 +119,8 @@ void ChCompactInfo::build() {
   healthStyle.textAlign = TextAlign::LEFT_TOP;
   TextLineProps healthProps;
   TextBlock healthBlock;
-  healthBlock.text = std::to_string(props.hp);
-  healthProps.textBlocks.push_back(healthBlock);
+  healthBlock.text = bmin::toString(props.hp);
+  healthProps.textBlocks.pushBack(healthBlock);
   healthText->setProps(healthProps);
   addChild(healthText);
 
@@ -134,8 +134,8 @@ void ChCompactInfo::build() {
   manaStyle.textAlign = TextAlign::LEFT_TOP;
   TextLineProps manaProps;
   TextBlock manaBlock;
-  manaBlock.text = std::to_string(props.mana);
-  manaProps.textBlocks.push_back(manaBlock);
+  manaBlock.text = bmin::toString(props.mana);
+  manaProps.textBlocks.pushBack(manaBlock);
   manaText->setProps(manaProps);
   addChild(manaText);
 }

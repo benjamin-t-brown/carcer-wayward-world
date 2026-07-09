@@ -22,9 +22,9 @@ void runProgram(int argc, char** argv) {
                            .renderW = w,
                            .renderH = h,
                        });
-  sdl2w::L10n::init({{"en", "la"}});
+  sdl2w::L10n::init({"en", "la"});
   sdl2w::setupStartupArgs(argc, argv, window);
-  sdl2w::L10n::setLanguage("default");
+  sdl2w::L10n::setLanguage(DISABLE_TRANSLATIONS);
   window.getDraw().setBackgroundColor({0, 0, 0});
 
   sdl2w::AssetLoader assetLoader(window.getDraw(), window.getStore());
@@ -37,7 +37,7 @@ void runProgram(int argc, char** argv) {
   auto& events = window.getEvents();
   // events.setKeyboardEvent(
   //     sdl2w::ON_KEY_PRESS,
-  //     [&](const std::string& key, int) { game.handleKeyPress(key); });
+  //     [&](const String& key, int) { game.handleKeyPress(key); });
 
   auto _initializeLoop = [&]() {
     sdl2w::renderSplash(window);

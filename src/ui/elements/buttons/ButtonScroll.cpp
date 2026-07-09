@@ -2,7 +2,6 @@
 #include "ui/colors.h"
 #include "ui/elements/OutsetRectangle.h"
 #include <algorithm>
-#include <memory>
 
 namespace ui {
 
@@ -67,7 +66,7 @@ void ButtonScroll::build() {
 
   rect->setProps(rectProps);
 
-  children.push_back(std::unique_ptr<OutsetRectangle>(rect));
+  children.pushBack(UniquePtr<UiElement>(rect));
 }
 
 void ButtonScroll::render(int dt) {

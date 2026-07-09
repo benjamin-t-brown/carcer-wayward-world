@@ -2,15 +2,15 @@
 
 #include "../UiElement.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
-#include <string>
+#include "lib/Types.h"
 
 namespace ui {
 
 // ModalStandard layout properties
 struct ModalStandardProps {
   SDL_Color contentBackgroundColor = Colors::White;
-  std::string decorationSprite = "";
-  std::string iconSprite;
+  String decorationSprite = "";
+  String iconSprite;
 };
 
 // ModalStandard layout - renders a modal with background, border, title, subtitle, close

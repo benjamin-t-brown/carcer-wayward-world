@@ -1,7 +1,7 @@
 #pragma once
 
 #include "model/stats/CharacterStats.h"
-#include <string>
+#include "lib/Types.h"
 
 namespace model {
 
@@ -16,7 +16,7 @@ struct CharacterDerivedStats {
   int damageReduction = 0;
   int armorClass = 10;
   int spellPotency = 1;
-  std::string resistancesSummary = "None";
+  String resistancesSummary = "None";
   int jumpDistance = 2;
   int healingEffectivenessPercent = 100;
   int statusEffectShield = 0;

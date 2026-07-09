@@ -61,7 +61,7 @@ void MinipagePickUp::build() {
   TextLineProps titleProps;
   TextBlock titleBlock;
   titleBlock.text = props.titleText;
-  titleProps.textBlocks.push_back(titleBlock);
+  titleProps.textBlocks.pushBack(titleBlock);
   title->setProps(titleProps);
   modal->setTitleElement(title);
 
@@ -87,8 +87,8 @@ void MinipagePickUp::build() {
   ListPickUpProps listProps;
   if (getDatabase()) {
     for (const auto& item : props.nearbyItems) {
-      const auto& itemTemplate = getDatabase()->getItemTemplate(item.itemTemplateName);
-      listProps.items.push_back({
+      const auto& itemTemplate = getDatabase()->getItemTemplate(bmin::toStringView(item.itemTemplateName));
+      listProps.items.pushBack({
           .item = item,
           .itemLabel =
               itemTemplate.label.empty() ? itemTemplate.name : itemTemplate.label,

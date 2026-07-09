@@ -14,7 +14,7 @@ public:
   TestLayer(sdl2w::Window* _window) : layers::Layer(_window) {
     auto [windowWidth, windowHeight] = window->getDims();
 
-    auto minipageEvent = std::make_unique<ui::MinipageEvent>(window);
+    auto minipageEvent = makeUnique<ui::MinipageEvent>(window);
     minipageEvent->setId("minipageEvent");
     ui::BaseStyle style = minipageEvent->getStyle();
     style.width = 500;
@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start MinipageEvent test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::unique_ptr<layers::LayerManager> layerManager;
+  UniquePtr<layers::LayerManager> layerManager;
 
   db::Database database;
   state::DatabaseInterface::setDatabase(&database);
@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "MinipageEvent test initialized" << LOG_ENDL;
 
-    layerManager = std::make_unique<layers::LayerManager>(&window);
+    layerManager = makeUnique<layers::LayerManager>(&window);
     state::LayerManagerInterface::setLayerManager(layerManager.get());
     layerManager->addLayer(new TestLayer(&window));
 

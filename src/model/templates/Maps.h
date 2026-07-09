@@ -1,9 +1,8 @@
 #pragma once
 
 #include <optional>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include "lib/Types.h"
+#include "lib/bmin/Map.h"
 
 namespace model {
 
@@ -15,19 +14,19 @@ struct MapTileRef {
 };
 
 struct MapTileItemEntry {
-  std::string name;
+  String name;
   int quantity = 1;
 };
 
 struct TileEventTrigger {
-  std::string eventId;
+  String eventId;
   bool isNonCombatTrigger = true;
   bool isLookTrigger = false;
 };
 
 struct TravelTrigger {
-  std::string destinationMapName;
-  std::string destinationMarkerName;
+  String destinationMapName;
+  String destinationMarkerName;
   int destinationX = 0;
   int destinationY = 0;
 };
@@ -50,20 +49,20 @@ enum class MapType {
   OUTDOOR,
 };
 
-std::string getStringFromMapType(MapType mapType);
-MapType getMapTypeFromString(const std::string& mapTypeString);
+String getStringFromMapType(MapType mapType);
+MapType getMapTypeFromString(const String& mapTypeString);
 
 struct MapCharacterPlacement : MapTileRef {
-  std::string name;
+  String name;
 };
 
 struct MapItemPlacement : MapTileRef {
-  std::string name;
+  String name;
   int quantity = 1;
 };
 
 struct MapMarkerPlacement : MapTileRef {
-  std::string name;
+  String name;
 };
 
 struct MapEventTriggerPlacement : MapTileRef, TileEventTrigger {};
@@ -77,34 +76,34 @@ struct MapTileOverridePlacement : MapTileRef {
 struct MapLightSourcePlacement : MapTileRef, TileLightSource {};
 
 struct CarcerMapTemplate {
-  std::string name;
-  std::string label;
+  String name;
+  String label;
   MapType type = MapType::TOWN;
   int width = 0;
   int height = 0;
   int spriteWidth = 28;
   int spriteHeight = 32;
-  std::vector<std::string> tilesets;
-  std::vector<int> layers;
-  std::unordered_map<int, std::vector<int>> tiles;
-  std::vector<MapCharacterPlacement> characters;
-  std::vector<MapItemPlacement> items;
-  std::vector<MapMarkerPlacement> markers;
-  std::vector<MapEventTriggerPlacement> eventTriggers;
-  std::vector<MapTravelTriggerPlacement> travelTriggers;
-  std::vector<MapTileOverridePlacement> tileOverrides;
-  std::vector<MapLightSourcePlacement> lightSources;
+  bmin::DynArray<String> tilesets;
+  bmin::DynArray<int> layers;
+  bmin::Map<int, bmin::DynArray<int>> tiles;
+  bmin::DynArray<MapCharacterPlacement> characters;
+  bmin::DynArray<MapItemPlacement> items;
+  bmin::DynArray<MapMarkerPlacement> markers;
+  bmin::DynArray<MapEventTriggerPlacement> eventTriggers;
+  bmin::DynArray<MapTravelTriggerPlacement> travelTriggers;
+  bmin::DynArray<MapTileOverridePlacement> tileOverrides;
+  bmin::DynArray<MapLightSourcePlacement> lightSources;
 };
 
 struct CarcerMapTileTemplate {
-  std::vector<std::string> characters;
-  std::vector<MapTileItemEntry> items;
-  std::vector<std::string> markers;
+  bmin::DynArray<String> characters;
+  bmin::DynArray<MapTileItemEntry> items;
+  bmin::DynArray<String> markers;
   std::optional<TileOverrides> tileOverrides;
   std::optional<TileLightSource> lightSource;
   std::optional<TileEventTrigger> eventTrigger;
   std::optional<TravelTrigger> travelTrigger;
-  std::string tilesetName;
+  String tilesetName;
   int tileId = 0;
 };
 

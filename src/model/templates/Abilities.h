@@ -1,25 +1,24 @@
 #pragma once
 
 #include "model/templates/AbilityTypes.h"
-#include <string>
-#include <vector>
+#include "lib/Types.h"
 
 namespace model {
 
 struct AbilityTemplate {
-  std::string name;
-  std::string label;
-  std::string description;
-  std::string icon;
+  String name;
+  String label;
+  String description;
+  String icon;
   AbilityType type = AbilityType::ABILITY_ATTACK;
   TargetSelectInfo targetSelect;
   int apCost = 0;
   AbilityCostType costType = AbilityCostType::ABILITY_COST_NONE;
   int costValue = 0;
   AbilityDepiction depiction;
-  std::vector<AbilityAttack> attacks;
-  std::vector<AbilityStatus> statuses;
-  std::vector<AbilityRestore> restores;
+  bmin::DynArray<AbilityAttack> attacks;
+  bmin::DynArray<AbilityStatus> statuses;
+  bmin::DynArray<AbilityRestore> restores;
 };
 
 } // namespace model

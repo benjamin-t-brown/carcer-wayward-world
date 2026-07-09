@@ -4,15 +4,14 @@
 #include "model/instances/ItemInstance.h"
 #include "model/templates/Maps.h"
 #include <optional>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include "lib/Types.h"
+#include "lib/bmin/Map.h"
 
 namespace model {
 
 struct TileInstance {
-  std::string id;
-  std::string tilesetName;
+  String id;
+  String tilesetName;
   int tileId = 0;
   int x = 0;
   int y = 0;
@@ -27,12 +26,12 @@ struct TileInstance {
 enum class TurnMode { TURN_TOWN, TURN_OUTDOOR, TURN_COMBAT };
 
 struct MapInstance {
-  std::string id;
-  std::string label;
-  std::string templateName;
-  std::unordered_map<int, std::vector<TileInstance>> tiles;
-  std::vector<CharacterInstance> characters;
-  std::vector<ItemInstance> items;
+  String id;
+  String label;
+  String templateName;
+  bmin::Map<int, bmin::DynArray<TileInstance>> tiles;
+  bmin::DynArray<CharacterInstance> characters;
+  bmin::DynArray<ItemInstance> items;
   int width = 0;
   int height = 0;
   int spriteWidth = 0;
@@ -43,7 +42,7 @@ struct MapInstance {
 };
 
 struct World {
-  std::string name;
+  String name;
   MapInstance currentMap;
 };
 

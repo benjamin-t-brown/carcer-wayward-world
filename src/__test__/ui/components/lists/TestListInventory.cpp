@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start ListInventory test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ListInventory test initialized" << LOG_ENDL;
@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
     LOG(INFO) << "ListInventory dimensions: " << listWidth << ", " << listHeight
               << LOG_ENDL;
 
-    elements.push_back(std::unique_ptr<ui::UiElement>(listInventory));
+    elements.pushBack(UniquePtr<ui::UiElement>(listInventory));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start ChCompactInfo test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ChCompactInfo test initialized" << LOG_ENDL;
@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
       props.mana = 37;
       chCompactInfo->setProps(props);
 
-      elements.push_back(std::unique_ptr<ui::UiElement>(chCompactInfo));
+      elements.pushBack(UniquePtr<ui::UiElement>(chCompactInfo));
     }
 
     {
@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
       props.mana = 99;
       chCompactInfo->setProps(props);
 
-      elements.push_back(std::unique_ptr<ui::UiElement>(chCompactInfo));
+      elements.pushBack(UniquePtr<ui::UiElement>(chCompactInfo));
     }
   };
 

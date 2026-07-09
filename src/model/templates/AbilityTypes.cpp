@@ -3,7 +3,7 @@
 
 namespace model {
 
-StatusEffectCondition statusEffectConditionFromString(const std::string& value) {
+StatusEffectCondition statusEffectConditionFromString(const String& value) {
   if (value == "CONDITION_ALWAYS") {
     return StatusEffectCondition::CONDITION_ALWAYS;
   }
@@ -25,10 +25,10 @@ StatusEffectCondition statusEffectConditionFromString(const std::string& value) 
   if (value == "CONDITION_FIRST_TIME_ATTACKED") {
     return StatusEffectCondition::CONDITION_FIRST_TIME_ATTACKED;
   }
-  throw std::runtime_error("Invalid StatusEffectCondition: " + value);
+  throw std::runtime_error(("Invalid StatusEffectCondition: " + value).cStr());
 }
 
-std::string statusEffectConditionToString(StatusEffectCondition value) {
+String statusEffectConditionToString(StatusEffectCondition value) {
   switch (value) {
   case StatusEffectCondition::CONDITION_ALWAYS:
     return "CONDITION_ALWAYS";
@@ -48,7 +48,7 @@ std::string statusEffectConditionToString(StatusEffectCondition value) {
   throw std::runtime_error("Unknown StatusEffectCondition");
 }
 
-AbilityType abilityTypeFromString(const std::string& value) {
+AbilityType abilityTypeFromString(const String& value) {
   if (value == "ABILITY_ATTACK") {
     return AbilityType::ABILITY_ATTACK;
   }
@@ -61,10 +61,10 @@ AbilityType abilityTypeFromString(const std::string& value) {
   if (value == "ABILITY_SUB_ATTACK") {
     return AbilityType::ABILITY_SUB_ATTACK;
   }
-  throw std::runtime_error("Invalid AbilityType: " + value);
+  throw std::runtime_error(("Invalid AbilityType: " + value).cStr());
 }
 
-std::string abilityTypeToString(AbilityType value) {
+String abilityTypeToString(AbilityType value) {
   switch (value) {
   case AbilityType::ABILITY_ATTACK:
     return "ABILITY_ATTACK";
@@ -78,7 +78,7 @@ std::string abilityTypeToString(AbilityType value) {
   throw std::runtime_error("Unknown AbilityType");
 }
 
-TargetSelectType targetSelectTypeFromString(const std::string& value) {
+TargetSelectType targetSelectTypeFromString(const String& value) {
   if (value == "TARGET_SELF") {
     return TargetSelectType::TARGET_SELF;
   }
@@ -91,10 +91,10 @@ TargetSelectType targetSelectTypeFromString(const std::string& value) {
   if (value == "TARGET_ALL_IN_RANGE") {
     return TargetSelectType::TARGET_ALL_IN_RANGE;
   }
-  throw std::runtime_error("Invalid TargetSelectType: " + value);
+  throw std::runtime_error(("Invalid TargetSelectType: " + value).cStr());
 }
 
-std::string targetSelectTypeToString(TargetSelectType value) {
+String targetSelectTypeToString(TargetSelectType value) {
   switch (value) {
   case TargetSelectType::TARGET_SELF:
     return "TARGET_SELF";
@@ -109,7 +109,7 @@ std::string targetSelectTypeToString(TargetSelectType value) {
 }
 
 TargetAllegianceSelectType
-targetAllegianceSelectTypeFromString(const std::string& value) {
+targetAllegianceSelectTypeFromString(const String& value) {
   if (value == "TARGET_ALLEGIANCE_SAME") {
     return TargetAllegianceSelectType::TARGET_ALLEGIANCE_SAME;
   }
@@ -125,10 +125,10 @@ targetAllegianceSelectTypeFromString(const std::string& value) {
   if (value == "TARGET_ALLEGIANCE_ALL_AND_SELF") {
     return TargetAllegianceSelectType::TARGET_ALLEGIANCE_ALL_AND_SELF;
   }
-  throw std::runtime_error("Invalid TargetAllegianceSelectType: " + value);
+  throw std::runtime_error(("Invalid TargetAllegianceSelectType: " + value).cStr());
 }
 
-std::string targetAllegianceSelectTypeToString(TargetAllegianceSelectType value) {
+String targetAllegianceSelectTypeToString(TargetAllegianceSelectType value) {
   switch (value) {
   case TargetAllegianceSelectType::TARGET_ALLEGIANCE_SAME:
     return "TARGET_ALLEGIANCE_SAME";
@@ -144,7 +144,7 @@ std::string targetAllegianceSelectTypeToString(TargetAllegianceSelectType value)
   throw std::runtime_error("Unknown TargetAllegianceSelectType");
 }
 
-Dice diceFromString(const std::string& value) {
+Dice diceFromString(const String& value) {
   if (value == "D0") {
     return Dice::D0;
   }
@@ -172,10 +172,10 @@ Dice diceFromString(const std::string& value) {
   if (value == "D100") {
     return Dice::D100;
   }
-  throw std::runtime_error("Invalid Dice: " + value);
+  throw std::runtime_error(("Invalid Dice: " + value).cStr());
 }
 
-std::string diceToString(Dice value) {
+String diceToString(Dice value) {
   switch (value) {
   case Dice::D0:
     return "D0";
@@ -199,7 +199,7 @@ std::string diceToString(Dice value) {
   throw std::runtime_error("Unknown Dice");
 }
 
-StatsEnum statsEnumFromString(const std::string& value) {
+StatsEnum statsEnumFromString(const String& value) {
   if (value == "STAT_STR") {
     return StatsEnum::STAT_STR;
   }
@@ -215,10 +215,10 @@ StatsEnum statsEnumFromString(const std::string& value) {
   if (value == "STAT_LCK") {
     return StatsEnum::STAT_LCK;
   }
-  throw std::runtime_error("Invalid StatsEnum: " + value);
+  throw std::runtime_error(("Invalid StatsEnum: " + value).cStr());
 }
 
-std::string statsEnumToString(StatsEnum value) {
+String statsEnumToString(StatsEnum value) {
   switch (value) {
   case StatsEnum::STAT_STR:
     return "STAT_STR";
@@ -234,7 +234,7 @@ std::string statsEnumToString(StatsEnum value) {
   throw std::runtime_error("Unknown StatsEnum");
 }
 
-StatusEventType statusEventTypeFromString(const std::string& value) {
+StatusEventType statusEventTypeFromString(const String& value) {
   if (value == "STATUS_EVENT_ON_APPLIED") {
     return StatusEventType::STATUS_EVENT_ON_APPLIED;
   }
@@ -262,10 +262,10 @@ StatusEventType statusEventTypeFromString(const std::string& value) {
   if (value == "STATUS_EVENT_ON_ROUND_START") {
     return StatusEventType::STATUS_EVENT_ON_ROUND_START;
   }
-  throw std::runtime_error("Invalid StatusEventType: " + value);
+  throw std::runtime_error(("Invalid StatusEventType: " + value).cStr());
 }
 
-std::string statusEventTypeToString(StatusEventType value) {
+String statusEventTypeToString(StatusEventType value) {
   switch (value) {
   case StatusEventType::STATUS_EVENT_ON_APPLIED:
     return "STATUS_EVENT_ON_APPLIED";
@@ -289,7 +289,7 @@ std::string statusEventTypeToString(StatusEventType value) {
   throw std::runtime_error("Unknown StatusEventType");
 }
 
-CurrentStatEnum currentStatEnumFromString(const std::string& value) {
+CurrentStatEnum currentStatEnumFromString(const String& value) {
   if (value == "CURRENT_STAT_HP") {
     return CurrentStatEnum::CURRENT_STAT_HP;
   }
@@ -302,10 +302,10 @@ CurrentStatEnum currentStatEnumFromString(const std::string& value) {
   if (value == "CURRENT_STAT_AC") {
     return CurrentStatEnum::CURRENT_STAT_AC;
   }
-  throw std::runtime_error("Invalid CurrentStatEnum: " + value);
+  throw std::runtime_error(("Invalid CurrentStatEnum: " + value).cStr());
 }
 
-std::string currentStatEnumToString(CurrentStatEnum value) {
+String currentStatEnumToString(CurrentStatEnum value) {
   switch (value) {
   case CurrentStatEnum::CURRENT_STAT_HP:
     return "CURRENT_STAT_HP";
@@ -319,7 +319,7 @@ std::string currentStatEnumToString(CurrentStatEnum value) {
   throw std::runtime_error("Unknown CurrentStatEnum");
 }
 
-StatusActionTargetType statusActionTargetTypeFromString(const std::string& value) {
+StatusActionTargetType statusActionTargetTypeFromString(const String& value) {
   if (value == "STATUS_ACTION_TARGET_SELF") {
     return StatusActionTargetType::STATUS_ACTION_TARGET_SELF;
   }
@@ -329,10 +329,10 @@ StatusActionTargetType statusActionTargetTypeFromString(const std::string& value
   if (value == "STATUS_ACTION_TARGET_LAST_LOCATION") {
     return StatusActionTargetType::STATUS_ACTION_TARGET_LAST_LOCATION;
   }
-  throw std::runtime_error("Invalid StatusActionTargetType: " + value);
+  throw std::runtime_error(("Invalid StatusActionTargetType: " + value).cStr());
 }
 
-std::string statusActionTargetTypeToString(StatusActionTargetType value) {
+String statusActionTargetTypeToString(StatusActionTargetType value) {
   switch (value) {
   case StatusActionTargetType::STATUS_ACTION_TARGET_SELF:
     return "STATUS_ACTION_TARGET_SELF";
@@ -344,7 +344,7 @@ std::string statusActionTargetTypeToString(StatusActionTargetType value) {
   throw std::runtime_error("Unknown StatusActionTargetType");
 }
 
-AbilityCostType abilityCostTypeFromString(const std::string& value) {
+AbilityCostType abilityCostTypeFromString(const String& value) {
   if (value == "ABILITY_COST_NONE") {
     return AbilityCostType::ABILITY_COST_NONE;
   }
@@ -357,10 +357,10 @@ AbilityCostType abilityCostTypeFromString(const std::string& value) {
   if (value == "ABILITY_COST_HP") {
     return AbilityCostType::ABILITY_COST_HP;
   }
-  throw std::runtime_error("Invalid AbilityCostType: " + value);
+  throw std::runtime_error(("Invalid AbilityCostType: " + value).cStr());
 }
 
-std::string abilityCostTypeToString(AbilityCostType value) {
+String abilityCostTypeToString(AbilityCostType value) {
   switch (value) {
   case AbilityCostType::ABILITY_COST_NONE:
     return "ABILITY_COST_NONE";
@@ -374,7 +374,7 @@ std::string abilityCostTypeToString(AbilityCostType value) {
   throw std::runtime_error("Unknown AbilityCostType");
 }
 
-AttackClass attackClassFromString(const std::string& value) {
+AttackClass attackClassFromString(const String& value) {
   if (value == "ATTACK_CLASS_MELEE") {
     return AttackClass::ATTACK_CLASS_MELEE;
   }
@@ -387,10 +387,10 @@ AttackClass attackClassFromString(const std::string& value) {
   if (value == "ATTACK_CLASS_AUTO_HIT") {
     return AttackClass::ATTACK_CLASS_AUTO_HIT;
   }
-  throw std::runtime_error("Invalid AttackClass: " + value);
+  throw std::runtime_error(("Invalid AttackClass: " + value).cStr());
 }
 
-std::string attackClassToString(AttackClass value) {
+String attackClassToString(AttackClass value) {
   switch (value) {
   case AttackClass::ATTACK_CLASS_MELEE:
     return "ATTACK_CLASS_MELEE";
@@ -404,7 +404,7 @@ std::string attackClassToString(AttackClass value) {
   throw std::runtime_error("Unknown AttackClass");
 }
 
-DamageType damageTypeFromString(const std::string& value) {
+DamageType damageTypeFromString(const String& value) {
   if (value == "DAMAGE_TYPE_EDGED") {
     return DamageType::DAMAGE_TYPE_EDGED;
   }
@@ -432,10 +432,10 @@ DamageType damageTypeFromString(const std::string& value) {
   if (value == "DAMAGE_TYPE_TRUE") {
     return DamageType::DAMAGE_TYPE_TRUE;
   }
-  throw std::runtime_error("Invalid DamageType: " + value);
+  throw std::runtime_error(("Invalid DamageType: " + value).cStr());
 }
 
-std::string damageTypeToString(DamageType value) {
+String damageTypeToString(DamageType value) {
   switch (value) {
   case DamageType::DAMAGE_TYPE_EDGED:
     return "DAMAGE_TYPE_EDGED";
@@ -459,7 +459,7 @@ std::string damageTypeToString(DamageType value) {
   throw std::runtime_error("Unknown DamageType");
 }
 
-ProjectilePath projectilePathFromString(const std::string& value) {
+ProjectilePath projectilePathFromString(const String& value) {
   if (value == "PROJECTILE_PATH_SHORT") {
     return ProjectilePath::PROJECTILE_PATH_SHORT;
   }
@@ -472,10 +472,10 @@ ProjectilePath projectilePathFromString(const std::string& value) {
   if (value == "PROJECTILE_PATH_NONE") {
     return ProjectilePath::PROJECTILE_PATH_NONE;
   }
-  throw std::runtime_error("Invalid ProjectilePath: " + value);
+  throw std::runtime_error(("Invalid ProjectilePath: " + value).cStr());
 }
 
-std::string projectilePathToString(ProjectilePath value) {
+String projectilePathToString(ProjectilePath value) {
   switch (value) {
   case ProjectilePath::PROJECTILE_PATH_SHORT:
     return "PROJECTILE_PATH_SHORT";
@@ -507,7 +507,7 @@ bool projectileTypeHasFacing(ProjectileType value) {
   throw std::runtime_error("Unknown ProjectileType");
 }
 
-std::string projectileTypeToAnimBase(ProjectileType value) {
+String projectileTypeToAnimBase(ProjectileType value) {
   switch (value) {
   case ProjectileType::PROJECTILE_NONE:
     return "";
@@ -533,7 +533,7 @@ std::string projectileTypeToAnimBase(ProjectileType value) {
   throw std::runtime_error("Unknown ProjectileType");
 }
 
-ProjectileType projectileTypeFromString(const std::string& value) {
+ProjectileType projectileTypeFromString(const String& value) {
   if (value == "PROJECTILE_NONE") {
     return ProjectileType::PROJECTILE_NONE;
   }
@@ -564,10 +564,10 @@ ProjectileType projectileTypeFromString(const std::string& value) {
   if (value == "ARROW_NORMAL") {
     return ProjectileType::ARROW_NORMAL;
   }
-  throw std::runtime_error("Invalid ProjectileType: " + value);
+  throw std::runtime_error(("Invalid ProjectileType: " + value).cStr());
 }
 
-ProjectileType projectileTypeFromAnimName(const std::string& animName) {
+ProjectileType projectileTypeFromAnimName(const String& animName) {
   if (animName.empty()) {
     return ProjectileType::PROJECTILE_NONE;
   }
@@ -590,16 +590,16 @@ ProjectileType projectileTypeFromAnimName(const std::string& animName) {
   };
 
   for (const auto& entry : bases) {
-    const std::string base = entry.base;
-    if (animName == base || animName.starts_with(base + "_")) {
+    const String base = entry.base;
+    if (animName == base || animName.startsWith((base + "_").cStr())) {
       return entry.type;
     }
   }
 
-  throw std::runtime_error("Invalid projectile anim name: " + animName);
+  throw std::runtime_error(("Invalid projectile anim name: " + animName).cStr());
 }
 
-std::string projectileTypeToString(ProjectileType value) {
+String projectileTypeToString(ProjectileType value) {
   switch (value) {
   case ProjectileType::PROJECTILE_NONE:
     return "PROJECTILE_NONE";

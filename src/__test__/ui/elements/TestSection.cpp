@@ -12,12 +12,12 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start BorderDropShadow test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "BorderDropShadow test initialized" << LOG_ENDL;
 
-    auto section = std::make_unique<ui::BorderDropShadow>(&window);
+    auto section = makeUnique<ui::BorderDropShadow>(&window);
     section->setId("mainSection");
     auto& sectionStyle = section->getStyle();
     sectionStyle.x = 100;
@@ -30,9 +30,9 @@ int main(int argc, char** argv) {
         .borderSize = 2,
         .isSelected = false,
     });
-    elements.push_back(std::move(section));
+    elements.pushBack(UniquePtr<ui::UiElement>(section.release()));
 
-    auto section2 = std::make_unique<ui::BorderDropShadow>(&window);
+    auto section2 = makeUnique<ui::BorderDropShadow>(&window);
     section2->setId("secondarySection");
     auto& section2Style = section2->getStyle();
     section2Style.x = 550;
@@ -47,9 +47,9 @@ int main(int argc, char** argv) {
         .borderSize = 1,
         .isSelected = true,
     });
-    elements.push_back(std::move(section2));
+    elements.pushBack(UniquePtr<ui::UiElement>(section2.release()));
 
-    auto section3 = std::make_unique<ui::BorderDropShadow>(&window);
+    auto section3 = makeUnique<ui::BorderDropShadow>(&window);
     section3->setId("smallSection");
     auto& section3Style = section3->getStyle();
     section3Style.x = 100;
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
         .borderSize = 1,
         .isSelected = false,
     });
-    elements.push_back(std::move(section3));
+    elements.pushBack(UniquePtr<ui::UiElement>(section3.release()));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

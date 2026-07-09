@@ -3,18 +3,17 @@
 #include "state/State.h"
 #include "state/StateManager.h"
 #include "state/actions/ui/UiRemoveFloatingNotification.hpp"
-#include <vector>
 
 namespace state {
 
 void UiManager::update(int dt, State& state, StateManager& stateManager) {
   auto& notifications = state.uiState.floatingNotifications;
-  std::vector<std::string> expiredIds;
+  DynArray<String> expiredIds;
 
   for (auto& notification : notifications) {
     model::timerStructUpdate(notification.timer, dt);
     if (model::timerStructIsComplete(notification.timer)) {
-      expiredIds.push_back(notification.id);
+      expiredIds.pushBack(notification.id);
     }
   }
 

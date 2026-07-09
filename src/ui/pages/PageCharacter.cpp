@@ -13,9 +13,8 @@
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/layouts/ModalStandard.h"
 #include "ui/observers/ObserverShowLayerPopupText.hpp"
-#include <string>
+#include "lib/Types.h"
 #include <utility>
-#include <vector>
 
 namespace ui {
 
@@ -65,7 +64,9 @@ PageCharacter::buildStatSection(const PageCharacterStatRowSectionArgs& sectionPr
   headerStyle.fontColor = Colors::DarkBlue;
   headerStyle.fontSize = sdl2w::TEXT_SIZE_24;
   headerStyle.textAlign = TextAlign::LEFT_TOP;
-  header->setProps(TextLineProps{.textBlocks = {TextBlock{.text = title}}});
+  TextLineProps headerProps;
+  headerProps.textBlocks.pushBack(TextBlock{.text = title});
+  header->setProps(headerProps);
   section->addChild(header);
 
   auto [headerW, headerH] = header->getDims();
@@ -126,10 +127,11 @@ PageCharacter::buildStatSection(const PageCharacterStatRowSectionArgs& sectionPr
     setBaseFontConfig(statLineStyle, BaseFontConfig::MODAL_TEXT);
     statLineStyle.fontColor = Colors::Black;
     statLineStyle.textAlign = TextAlign::LEFT_CENTER;
-    const std::string statValueText =
-        row.valueText.empty() ? std::to_string(row.value) : row.valueText;
-    statLine->setProps(TextLineProps{
-        .textBlocks = {TextBlock{.text = row.label + ": " + statValueText}}});
+    const String statValueText =
+        row.valueText.empty() ? bmin::toString(row.value) : row.valueText;
+    TextLineProps rowProps;
+    rowProps.textBlocks.pushBack(TextBlock{.text = row.label + ": " + statValueText});
+    statLine->setProps(rowProps);
     statRow->addChild(statLine);
 
     if (showModButtons) {
@@ -368,7 +370,7 @@ void PageCharacter::build() {
   } else {
     titleBlock.text = "Character";
   }
-  titleProps.textBlocks.push_back(titleBlock);
+  titleProps.textBlocks.pushBack(titleBlock);
   title->setProps(titleProps);
   modal->setTitleElement(title);
 

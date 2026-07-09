@@ -27,15 +27,15 @@ int main(int argc, char** argv) {
     ok = assertEqual(member.combat.hp, 100, "testPartyMember1.hp") && ok;
     ok = assertEqual(member.combat.mp, 50, "testPartyMember1.mp") && ok;
 
-    std::unordered_map<std::string, model::CharacterTemplate> backcompatCharacters;
+    bmin::Map<String, model::CharacterTemplate> backcompatCharacters;
     db::loadCharacterTemplates("__test__/assets/characters-backcompat.json",
                                backcompatCharacters);
-    const auto backcompatIt = backcompatCharacters.find("backcompatEnemy");
+    const auto backcompatIt = backcompatCharacters.find(String("backcompatEnemy"));
     if (backcompatIt == backcompatCharacters.end()) {
       LOG(ERROR) << "Missing backcompatEnemy" << LOG_ENDL;
       return 1;
     }
-    ok = assertEqual(backcompatIt->second.stats.generic.str, 7, "backcompatEnemy.str") && ok;
+    ok = assertEqual(backcompatIt->value.stats.generic.str, 7, "backcompatEnemy.str") && ok;
 
     if (!ok) {
       LOG(ERROR) << "Character template assertions failed" << LOG_ENDL;

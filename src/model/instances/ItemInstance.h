@@ -1,12 +1,12 @@
 #pragma once
 
-#include <string>
+#include "lib/Types.h"
 
 namespace model {
 
 struct ItemInstance {
-  std::string id;
-  std::string itemTemplateName;
+  String id;
+  String itemTemplateName;
   int quantity = 1;
 };
 

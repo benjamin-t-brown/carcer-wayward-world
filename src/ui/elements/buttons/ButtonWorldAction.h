@@ -11,7 +11,7 @@ struct ButtonWorldActionProps {
 };
 
 struct ButtonWorldActionMapping {
-  std::string label;
+  String label;
   int spriteIndex;
   bool isSmall = false;
 };
@@ -23,7 +23,7 @@ private:
   ButtonWorldActionProps props;
   bool isInHoverMode = false;
   bool isInActiveMode = false;
-  const std::string spriteSheetName = "ui_action_buttons";
+  const String spriteSheetName = "ui_action_buttons";
   const int normalStartingSpriteIndex = 16;
   const int smallStartingSpriteIndex = 0;
   const int normalSpriteOffsetToActive = 16;

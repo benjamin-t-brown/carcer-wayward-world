@@ -13,8 +13,8 @@ namespace state {
 namespace actions {
 
 class UiDropInventoryItem : public AbstractAction {
-  std::string characterPlayerId;
-  std::string itemId;
+  String characterPlayerId;
+  String itemId;
 
   void act() override {
     auto& localState = *state;
@@ -69,7 +69,7 @@ class UiDropInventoryItem : public AbstractAction {
   }
 
 public:
-  UiDropInventoryItem(std::string _characterPlayerId, std::string _itemId)
+  UiDropInventoryItem(String _characterPlayerId, String _itemId)
       : characterPlayerId(std::move(_characterPlayerId)), itemId(std::move(_itemId)) {}
 };
 

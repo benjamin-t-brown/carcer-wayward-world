@@ -6,9 +6,7 @@
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
 #include "ui/UiElement.h"
-#include <memory>
 #include <string_view>
-#include <vector>
 
 namespace layers {
 
@@ -18,9 +16,9 @@ class Layer : public state::StateManagerInterface, public state::DatabaseInterfa
 protected:
   sdl2w::Window* window;
   LayerState state = LayerState::ON;
-  std::vector<std::unique_ptr<ui::UiElement>> uiElements;
+  DynArray<UniquePtr<ui::UiElement>> uiElements;
   bool removeFlag = false;
-  std::string id;
+  String id;
 
 public:
   explicit Layer(sdl2w::Window* _window, std::string_view _id = "");
@@ -43,7 +41,7 @@ public:
   void remove();
   bool shouldRemove() const;
   LayerState getState() const;
-  std::string getId() const;
+  String getId() const;
   void setId(std::string_view id);
 
   void addUiElement(ui::UiElement* element);

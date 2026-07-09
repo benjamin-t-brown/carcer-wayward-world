@@ -7,8 +7,8 @@
 namespace layers {
 
 LayerInventoryContext::LayerInventoryContext(sdl2w::Window* _window,
-                                             std::string itemId,
-                                             std::string itemName)
+                                             String itemId,
+                                             String itemName)
     : Layer(_window, LAYER_ID) {
 
   if (!assertInterfaces()) {
@@ -46,7 +46,7 @@ LayerInventoryContext::LayerInventoryContext(sdl2w::Window* _window,
     }
   }
 
-  auto& itemTemplate = database->getItemTemplate(itemInstance.itemTemplateName);
+  auto& itemTemplate = database->getItemTemplate(bmin::toStringView(itemInstance.itemTemplateName));
 
   auto [windowWidth, windowHeight] = window->getDims();
   const auto orientation =

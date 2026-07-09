@@ -1,7 +1,6 @@
 #include "ButtonIcon.h"
 #include "ui/elements/SpriteElement.h"
 #include "ui/uiUtils.h"
-#include <memory>
 
 namespace ui {
 
@@ -41,7 +40,7 @@ const ButtonIconProps& ButtonIcon::getProps() const { return props; }
 bool ButtonIcon::checkMouseDownEvent(int mouseX,
                                      int mouseY,
                                      int button,
-                                     std::vector<UiElement*> additionalElements) {
+                                     DynArray<UiElement*> additionalElements) {
   if (props.isDisabled) {
     return isInBoundsScaled(mouseX, mouseY, this);
   }
@@ -51,7 +50,7 @@ bool ButtonIcon::checkMouseDownEvent(int mouseX,
 bool ButtonIcon::checkMouseUpEvent(int mouseX,
                                    int mouseY,
                                    int button,
-                                   std::vector<UiElement*> additionalElements) {
+                                   DynArray<UiElement*> additionalElements) {
   if (props.isDisabled) {
     isClicked = false;
     return isInBoundsScaled(mouseX, mouseY, this);
@@ -66,12 +65,12 @@ void ButtonIcon::build() {
   style.height = props.iconSize;
 
   const bool showActive = props.isDisabled || isActive;
-  const std::string& spriteName = showActive ? props.activeSprite : props.regularSprite;
+  const String& spriteName = showActive ? props.activeSprite : props.regularSprite;
   if (spriteName.empty()) {
     return;
   }
 
-  auto spriteElement = std::make_unique<SpriteElement>(window);
+  auto spriteElement = makeUnique<SpriteElement>(window);
   BaseStyle spriteStyle;
   spriteStyle.x = style.x;
   spriteStyle.y = style.y;
@@ -80,7 +79,7 @@ void ButtonIcon::build() {
   spriteStyle.scale = style.scale;
   spriteElement->setStyle(spriteStyle);
   spriteElement->setSprite(spriteName);
-  children.push_back(std::move(spriteElement));
+  children.pushBack(UniquePtr<UiElement>(spriteElement.release()));
 }
 
 void ButtonIcon::render(int dt) {

@@ -1,36 +1,36 @@
 #include "StringEvaluator.h"
+#include "EventRunnerHelpers.h"
 #include <cmath>
 #include <stdexcept>
 
 namespace runner {
 
 // Helper function to format number as string: integer if no decimal, otherwise keep decimals
-static std::string formatNumber(double n) {
-  // Check if the number is an integer (no fractional part)
+static String formatNumber(double n) {
   double intPart;
   if (std::modf(n, &intPart) == 0.0) {
-    // It's an integer, convert to int then to string
-    return std::to_string(static_cast<int>(n));
-  } else {
-    // It has decimal places, convert to string and remove trailing zeros
-    std::string result = std::to_string(n);
-    // Remove trailing zeros and decimal point if needed
-    result.erase(result.find_last_not_of('0') + 1, std::string::npos);
-    result.erase(result.find_last_not_of('.') + 1, std::string::npos);
-    return result;
+    return bmin::toString(static_cast<int>(n));
   }
+
+  String result = bmin::toString(n);
+  while (!result.empty() && result[result.size() - 1] == '0') {
+    result.erase(result.size() - 1, 1);
+  }
+  if (!result.empty() && result[result.size() - 1] == '.') {
+    result.erase(result.size() - 1, 1);
+  }
+  return result;
 }
 
-StringEvaluatorFuncs::StringEvaluatorFuncs(
-    std::unordered_map<std::string, std::string>& storage)
+StringEvaluatorFuncs::StringEvaluatorFuncs(bmin::Map<String, String>& storage)
     : storage(storage) {}
 
-std::string StringEvaluatorFuncs::GET(const std::string& a) {
+String StringEvaluatorFuncs::GET(const String& a) {
   auto v = getStorage(storage, a);
   return v.value_or("");
 }
 
-void StringEvaluatorFuncs::SET_BOOL(const std::string& a, const std::string& b) {
+void StringEvaluatorFuncs::SET_BOOL(const String& a, const String& b) {
   bool v = true;
   if (b == "true") {
     v = true;
@@ -42,113 +42,107 @@ void StringEvaluatorFuncs::SET_BOOL(const std::string& a, const std::string& b) 
   setStorage(storage, a, v ? "true" : "false");
 }
 
-void StringEvaluatorFuncs::SET_NUM(const std::string& a, const std::string& b) {
-  try {
-    double n = std::stod(b);
-    setStorage(storage, a, formatNumber(n));
-  } catch (...) {
-    throw std::runtime_error("Invalid number value: " + b);
+void StringEvaluatorFuncs::SET_NUM(const String& a, const String& b) {
+  if (!bmin::isDouble(b)) {
+    throw std::runtime_error(("Invalid number value: " + b).cStr());
   }
+  const double n = bmin::parseDouble(b);
+  setStorage(storage, a, formatNumber(n));
 }
 
-void StringEvaluatorFuncs::MOD_NUM(const std::string& a, const std::string& b) {
-  try {
-    double n = std::stod(b);
-    auto current = getStorage(storage, a);
-    double currentN = 0.0;
-    if (current) {
-      try {
-        currentN = std::stod(*current);
-      } catch (...) {
-        throw std::runtime_error("Variable " + a + " is not a number");
-      }
+void StringEvaluatorFuncs::MOD_NUM(const String& a, const String& b) {
+  if (!bmin::isDouble(b)) {
+    throw std::runtime_error(("Invalid number value: " + b).cStr());
+  }
+  const double n = bmin::parseDouble(b);
+  auto current = getStorage(storage, a);
+  double currentN = 0.0;
+  if (current) {
+    if (!bmin::isDouble(*current)) {
+      throw std::runtime_error(("Variable " + a + " is not a number").cStr());
     }
-    setStorage(storage, a, formatNumber(currentN + n));
-  } catch (...) {
-    throw std::runtime_error("Invalid number value: " + b);
+    currentN = bmin::parseDouble(*current);
   }
+  setStorage(storage, a, formatNumber(currentN + n));
 }
 
-void StringEvaluatorFuncs::SET_STR(const std::string& a, const std::string& b) {
+void StringEvaluatorFuncs::SET_STR(const String& a, const String& b) {
   setStorage(storage, a, b);
 }
 
-void StringEvaluatorFuncs::SETUP_DISPOSITION(const std::string& characterName) {
+void StringEvaluatorFuncs::SETUP_DISPOSITION(const String& characterName) {
   // noop
 }
 
-void StringEvaluatorFuncs::START_QUEST(const std::string& questName) {
+void StringEvaluatorFuncs::START_QUEST(const String& questName) {
   // noop
 }
 
-void StringEvaluatorFuncs::COMPLETE_QUEST_STEP(const std::string& questName,
-                                         const std::string& stepId) {
+void StringEvaluatorFuncs::COMPLETE_QUEST_STEP(const String& questName,
+                                               const String& stepId) {
   // noop
 }
 
-void StringEvaluatorFuncs::COMPLETE_QUEST(const std::string& questName) {
+void StringEvaluatorFuncs::COMPLETE_QUEST(const String& questName) {
   // noop
 }
 
-void StringEvaluatorFuncs::SPAWN_CH(const std::string& chName) {
+void StringEvaluatorFuncs::SPAWN_CH(const String& chName) {
   // noop
 }
 
-void StringEvaluatorFuncs::DESPAWN_CH(const std::string& chName) {
+void StringEvaluatorFuncs::DESPAWN_CH(const String& chName) {
   // noop
 }
 
-void StringEvaluatorFuncs::CHANGE_TILE_AT(const std::string& x,
-                                          const std::string& y,
-                                          const std::string& tileName) {
+void StringEvaluatorFuncs::CHANGE_TILE_AT(const String& x, const String& y,
+                                          const String& tileName) {
   // noop
 }
 
-void StringEvaluatorFuncs::TELEPORT_TO(const std::string& x,
-                                       const std::string& y,
-                                       const std::string& mapName) {
+void StringEvaluatorFuncs::TELEPORT_TO(const String& x, const String& y,
+                                       const String& mapName) {
   // noop
 }
 
-void StringEvaluatorFuncs::ADD_ITEM_AT(const std::string& x,
-                                       const std::string& y,
-                                       const std::string& itemName) {
+void StringEvaluatorFuncs::ADD_ITEM_AT(const String& x, const String& y,
+                                       const String& itemName) {
   // noop
 }
 
-void StringEvaluatorFuncs::REMOVE_ITEM_AT(const std::string& x,
-                                          const std::string& y,
-                                          const std::string& itemName) {
+void StringEvaluatorFuncs::REMOVE_ITEM_AT(const String& x, const String& y,
+                                          const String& itemName) {
   // noop
 }
 
-void StringEvaluatorFuncs::ADD_ITEM_TO_PLAYER(const std::string& itemName) {
+void StringEvaluatorFuncs::ADD_ITEM_TO_PLAYER(const String& itemName) {
   // noop
 }
 
-void StringEvaluatorFuncs::REMOVE_ITEM_FROM_PLAYER(const std::string& itemName) {
+void StringEvaluatorFuncs::REMOVE_ITEM_FROM_PLAYER(const String& itemName) {
   // noop
 }
 
-void StringEvaluatorFuncs::OPEN_SHOP(const std::string& shopName) {
+void StringEvaluatorFuncs::OPEN_SHOP(const String& shopName) {
   // noop
 }
 
-StringEvaluator::StringEvaluator(std::unordered_map<std::string, std::string>& storage,
-                                 const std::string& baseStringStr)
+StringEvaluator::StringEvaluator(bmin::Map<String, String>& storage,
+                                 const String& baseStringStr)
     : baseStringStr(baseStringStr), funcs(storage) {}
 
-void StringEvaluator::assertFuncArgs(const std::string& funcName,
-                                     const std::vector<std::string>& funcArgs,
+void StringEvaluator::assertFuncArgs(const String& funcName,
+                                     const DynArray<String>& funcArgs,
                                      size_t expectedArgs) {
   if (funcArgs.size() != expectedArgs) {
-    throw std::runtime_error("Invalid number of arguments for function '" + funcName +
-                             "'. Expected " + std::to_string(expectedArgs) + ", got " +
-                             std::to_string(funcArgs.size()));
+    throw std::runtime_error(
+        ("Invalid number of arguments for function '" + funcName + "'. Expected " +
+         bmin::toString(expectedArgs) + ", got " + bmin::toString(funcArgs.size()))
+            .cStr());
   }
 }
 
-void StringEvaluator::evalStr(const std::string& str) {
+void StringEvaluator::evalStr(const String& str) {
   if (isFunctionCall(str)) {
     FunctionCall call = parseFunctionCall(str);
     if (call.funcName == "GET") {
@@ -201,11 +195,11 @@ void StringEvaluator::evalStr(const std::string& str) {
       assertFuncArgs(call.funcName, call.args, 3);
       funcs.REMOVE_ITEM_AT(call.args[0], call.args[1], call.args[2]);
     } else {
-      throw std::runtime_error("Function '" + call.funcName +
-                               "' not found: " + baseStringStr);
+      throw std::runtime_error(
+          ("Function '" + call.funcName + "' not found: " + baseStringStr).cStr());
     }
   } else {
-    throw std::runtime_error("Invalid eval string: " + baseStringStr);
+    throw std::runtime_error(("Invalid eval string: " + baseStringStr).cStr());
   }
 }
 

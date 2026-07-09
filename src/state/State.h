@@ -18,14 +18,14 @@ enum class UiFloatingNotificationType {
 };
 
 struct UiFloatingNotification {
-  std::string id;
-  std::string message;
+  String id;
+  String message;
   UiFloatingNotificationType type;
   model::TimerStruct timer;
 };
 
 struct UiState {
-  std::vector<UiFloatingNotification> floatingNotifications;
+  DynArray<UiFloatingNotification> floatingNotifications;
 };
 
 struct State {

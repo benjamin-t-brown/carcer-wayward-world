@@ -10,7 +10,7 @@ namespace state {
 namespace actions {
 
 class UiReorderInventoryItem : public AbstractAction {
-  std::string characterPlayerId;
+  String characterPlayerId;
   int inventoryIndex = 0;
   int direction = 0;
 
@@ -31,7 +31,7 @@ class UiReorderInventoryItem : public AbstractAction {
   }
 
 public:
-  UiReorderInventoryItem(std::string_view _characterPlayerId,
+  UiReorderInventoryItem(const String& _characterPlayerId,
                          int _inventoryIndex,
                          int _direction)
       : characterPlayerId(_characterPlayerId),

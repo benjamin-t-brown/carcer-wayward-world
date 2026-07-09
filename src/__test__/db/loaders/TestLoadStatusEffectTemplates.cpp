@@ -1,39 +1,38 @@
 #include "db/loaders/LoadStatusEffectTemplates.h"
 #include "lib/sdl2w/Logger.h"
-#include <unordered_map>
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Starting TestLoadStatusEffectTemplates" << LOG_ENDL;
 
-  std::unordered_map<std::string, model::StatusEffectTemplate> statusEffectTemplates;
+  bmin::Map<String, model::StatusEffectTemplate> statusEffectTemplates;
 
   try {
     db::loadStatusEffectTemplates("assets/db/status-effects.json", statusEffectTemplates);
     LOG(INFO) << "Loaded " << statusEffectTemplates.size() << " status effect templates"
               << LOG_ENDL;
 
-    const auto burningIt = statusEffectTemplates.find("BURNING");
+    const auto burningIt = statusEffectTemplates.find(String("BURNING"));
     if (burningIt == statusEffectTemplates.end()) {
       LOG(ERROR) << "Missing BURNING status effect" << LOG_ENDL;
       return 1;
     }
-    if (burningIt->second.baseDuration != 3) {
+    if (burningIt->value.baseDuration != 3) {
       LOG(ERROR) << "BURNING baseDuration should be 3" << LOG_ENDL;
       return 1;
     }
-    if (burningIt->second.actions.empty()) {
+    if (burningIt->value.actions.empty()) {
       LOG(ERROR) << "BURNING should have actions" << LOG_ENDL;
       return 1;
     }
-    if (burningIt->second.actions[0].events.empty()) {
+    if (burningIt->value.actions[0].events.empty()) {
       LOG(ERROR) << "BURNING action should have events" << LOG_ENDL;
       return 1;
     }
-    if (burningIt->second.applyResistances.empty()) {
+    if (burningIt->value.applyResistances.empty()) {
       LOG(ERROR) << "BURNING should have applyResistances" << LOG_ENDL;
       return 1;
     }
-    if (burningIt->second.applyResistances[0].attackType !=
+    if (burningIt->value.applyResistances[0].attackType !=
         model::DamageType::DAMAGE_TYPE_HEAT) {
       LOG(ERROR) << "BURNING resistance should be DAMAGE_TYPE_HEAT" << LOG_ENDL;
       return 1;

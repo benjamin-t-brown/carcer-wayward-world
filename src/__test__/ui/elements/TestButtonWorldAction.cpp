@@ -10,17 +10,17 @@
 #include <memory>
 
 class TestButtonWorldActionObserver : public ui::UiEventObserver {
-  std::string id;
+  String id;
 
 public:
-  TestButtonWorldActionObserver(std::string _id);
+  TestButtonWorldActionObserver(String _id);
   ~TestButtonWorldActionObserver() override = default;
   void onMouseDown(int x, int y, int button) override;
   void onMouseUp(int x, int y, int button) override;
   void onClick(int x, int y, int button) override;
 };
 
-TestButtonWorldActionObserver::TestButtonWorldActionObserver(std::string _id) : id(_id) {}
+TestButtonWorldActionObserver::TestButtonWorldActionObserver(String _id) : id(_id) {}
 
 void TestButtonWorldActionObserver::onMouseDown(int x, int y, int button) {
   LOG(INFO) << "TestButtonWorldActionObserver mousedown at: " << x << ", " << y
@@ -41,13 +41,13 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start ButtonWorldAction test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ButtonWorldAction test initialized" << LOG_ENDL;
 
     // Create EXAMINE button
-    auto examineButton = std::make_unique<ui::ButtonWorldAction>(&window);
+    auto examineButton = makeUnique<ui::ButtonWorldAction>(&window);
     examineButton->setId("examineButton");
     ui::BaseStyle examineStyle;
     examineStyle.x = 50;
@@ -57,10 +57,10 @@ int main(int argc, char** argv) {
     examineProps.worldActionType = state::WorldActionType::EXAMINE;
     examineButton->setProps(examineProps);
     examineButton->addEventObserver(new TestButtonWorldActionObserver("examineButton"));
-    elements.push_back(std::move(examineButton));
+    elements.pushBack(UniquePtr<ui::UiElement>(examineButton.release()));
 
     // Create GET button
-    auto getButton = std::make_unique<ui::ButtonWorldAction>(&window);
+    auto getButton = makeUnique<ui::ButtonWorldAction>(&window);
     getButton->setId("getButton");
     ui::BaseStyle getStyle;
     getStyle.x = 200;
@@ -70,10 +70,10 @@ int main(int argc, char** argv) {
     getProps.worldActionType = state::WorldActionType::GET;
     getButton->setProps(getProps);
     getButton->addEventObserver(new TestButtonWorldActionObserver("getButton"));
-    elements.push_back(std::move(getButton));
+    elements.pushBack(UniquePtr<ui::UiElement>(getButton.release()));
 
     // Create SNEAK button
-    auto sneakButton = std::make_unique<ui::ButtonWorldAction>(&window);
+    auto sneakButton = makeUnique<ui::ButtonWorldAction>(&window);
     sneakButton->setId("sneakButton");
     ui::BaseStyle sneakStyle;
     sneakStyle.x = 350;
@@ -83,10 +83,10 @@ int main(int argc, char** argv) {
     sneakProps.worldActionType = state::WorldActionType::SNEAK;
     sneakButton->setProps(sneakProps);
     sneakButton->addEventObserver(new TestButtonWorldActionObserver("sneakButton"));
-    elements.push_back(std::move(sneakButton));
+    elements.pushBack(UniquePtr<ui::UiElement>(sneakButton.release()));
 
     // Create TALK button
-    auto talkButton = std::make_unique<ui::ButtonWorldAction>(&window);
+    auto talkButton = makeUnique<ui::ButtonWorldAction>(&window);
     talkButton->setId("talkButton");
     ui::BaseStyle talkStyle;
     talkStyle.x = 50;
@@ -96,10 +96,10 @@ int main(int argc, char** argv) {
     talkProps.worldActionType = state::WorldActionType::TALK;
     talkButton->setProps(talkProps);
     talkButton->addEventObserver(new TestButtonWorldActionObserver("talkButton"));
-    elements.push_back(std::move(talkButton));
+    elements.pushBack(UniquePtr<ui::UiElement>(talkButton.release()));
 
     // Create JUMP button
-    auto jumpButton = std::make_unique<ui::ButtonWorldAction>(&window);
+    auto jumpButton = makeUnique<ui::ButtonWorldAction>(&window);
     jumpButton->setId("jumpButton");
     ui::BaseStyle jumpStyle;
     jumpStyle.x = 200;
@@ -109,10 +109,10 @@ int main(int argc, char** argv) {
     jumpProps.worldActionType = state::WorldActionType::JUMP;
     jumpButton->setProps(jumpProps);
     jumpButton->addEventObserver(new TestButtonWorldActionObserver("jumpButton"));
-    elements.push_back(std::move(jumpButton));
+    elements.pushBack(UniquePtr<ui::UiElement>(jumpButton.release()));
 
     // Create ABILITY button
-    auto abilityButton = std::make_unique<ui::ButtonWorldAction>(&window);
+    auto abilityButton = makeUnique<ui::ButtonWorldAction>(&window);
     abilityButton->setId("abilityButton");
     ui::BaseStyle abilityStyle;
     abilityStyle.x = 350;
@@ -122,10 +122,10 @@ int main(int argc, char** argv) {
     abilityProps.worldActionType = state::WorldActionType::ABILITY;
     abilityButton->setProps(abilityProps);
     abilityButton->addEventObserver(new TestButtonWorldActionObserver("abilityButton"));
-    elements.push_back(std::move(abilityButton));
+    elements.pushBack(UniquePtr<ui::UiElement>(abilityButton.release()));
 
     // Create FIGHT button
-    auto fightButton = std::make_unique<ui::ButtonWorldAction>(&window);
+    auto fightButton = makeUnique<ui::ButtonWorldAction>(&window);
     fightButton->setId("fightButton");
     ui::BaseStyle fightStyle;
     fightStyle.x = 50;
@@ -135,10 +135,10 @@ int main(int argc, char** argv) {
     fightProps.worldActionType = state::WorldActionType::START_FIGHT;
     fightButton->setProps(fightProps);
     fightButton->addEventObserver(new TestButtonWorldActionObserver("fightButton"));
-    elements.push_back(std::move(fightButton));
+    elements.pushBack(UniquePtr<ui::UiElement>(fightButton.release()));
 
     // // Create SHOOT button
-    auto shootButton = std::make_unique<ui::ButtonWorldAction>(&window);
+    auto shootButton = makeUnique<ui::ButtonWorldAction>(&window);
     shootButton->setId("shootButton");
     ui::BaseStyle shootStyle;
     shootStyle.x = 200;
@@ -148,10 +148,10 @@ int main(int argc, char** argv) {
     shootProps.worldActionType = state::WorldActionType::SHOOT;
     shootButton->setProps(shootProps);
     shootButton->addEventObserver(new TestButtonWorldActionObserver("shootButton"));
-    elements.push_back(std::move(shootButton));
+    elements.pushBack(UniquePtr<ui::UiElement>(shootButton.release()));
 
     // Create INVENTORY button
-    auto inventoryButton = std::make_unique<ui::ButtonWorldAction>(&window);
+    auto inventoryButton = makeUnique<ui::ButtonWorldAction>(&window);
     inventoryButton->setId("inventoryButton");
     ui::BaseStyle inventoryStyle;
     inventoryStyle.x = 350;
@@ -163,7 +163,7 @@ int main(int argc, char** argv) {
     inventoryButton->setProps(inventoryProps);
     inventoryButton->addEventObserver(
         new TestButtonWorldActionObserver("inventoryButton"));
-    elements.push_back(std::move(inventoryButton));
+    elements.pushBack(UniquePtr<ui::UiElement>(inventoryButton.release()));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

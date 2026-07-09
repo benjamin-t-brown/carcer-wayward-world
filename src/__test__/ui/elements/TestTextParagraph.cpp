@@ -17,17 +17,17 @@
 //   SDL_Color bgColor = SDL_Color{50, 50, 50, 255};
 //   SDL_Color borderColor = SDL_Color{0, 0, 0, 0};
 //   int borderSize = 0;
-//   std::vector<ui::TextBlock> textBlocks;
+//   DynArray<ui::TextBlock> textBlocks;
 //   sdl2w::TextSize fontSize = sdl2w::TEXT_SIZE_16;
 //   SDL_Color fontColor = SDL_Color{255, 255, 255, 255};
 //   int lineSpacing = 0;
 //   int padding = 0;
 // };
 
-// std::unique_ptr<ui::Quad>
+// UniquePtr<ui::Quad>
 // createQuadWithParagraph(sdl2w::Window* window,
 //                         const QuadWithParagraphParams& params) {
-//   auto quad = std::make_unique<ui::Quad>(window);
+//   auto quad = makeUnique<ui::Quad>(window);
 
 //   // Set quad style
 //   ui::BaseStyle quadStyle;
@@ -45,7 +45,7 @@
 //   quad->setProps(quadProps);
 
 //   // Create paragraph inside the quad
-//   auto paragraph = std::make_unique<ui::TextParagraph>(window);
+//   auto paragraph = makeUnique<ui::TextParagraph>(window);
 
 //   // Set paragraph style
 //   ui::BaseStyle paragraphStyle;
@@ -64,7 +64,7 @@
 //   paragraph->setProps(paragraphProps);
 
 //   // Add paragraph as child of quad
-//   quad->getChildren().push_back(std::move(paragraph));
+//   quad->getChildren().pushBack(std::move(paragraph));
 
 //   return quad;
 // }
@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "STUFF INITTED" << LOG_ENDL;
@@ -90,12 +90,12 @@ int main(int argc, char** argv) {
     // params1.fontColor = SDL_Color{255, 255, 255, 255};
     // params1.lineSpacing = 4;
     // params1.padding = 10;
-    // params1.textBlocks.push_back(
+    // params1.textBlocks.pushBack(
     //     {"Hello World And Friends. This is a dire situation about the great brown fox "
     //      "jumping over the lazy dog!"});
 
     // auto quad1 = createQuadWithParagraph(&window, params1);
-    // elements.push_back(std::move(quad1));
+    // elements.pushBack(UniquePtr<ui::UiElement>(quad1.release()));
 
     auto textParagraph = new ui::TextParagraph(&window, nullptr);
     auto& style = textParagraph->getStyle();
@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
     props.padding = 0;
     props.bgColor = ui::Colors::OffWhite;
     textParagraph->setProps(props);
-    elements.push_back(std::unique_ptr<ui::UiElement>(textParagraph));
+    elements.pushBack(UniquePtr<ui::UiElement>(textParagraph));
 
     // Example 2: Multi-styled paragraph
     // QuadWithParagraphParams params2;
@@ -142,24 +142,24 @@ int main(int argc, char** argv) {
 
     // ui::TextBlock block1;
     // block1.text = "This is a paragraph with ";
-    // params2.textBlocks.push_back(block1);
+    // params2.textBlocks.pushBack(block1);
 
     // ui::TextBlock block2;
     // block2.text = "multiple styles! ";
     // // block2.fontSize = sdl2w::TEXT_SIZE_24;
     // block2.fontColor = SDL_Color{255, 200, 0, 255};
-    // params2.textBlocks.push_back(block2);
+    // params2.textBlocks.pushBack(block2);
 
     // ui::TextBlock block3;
     // block3.text = "You can mix different font sizes and colors in the same paragraph.
-    // "; params2.textBlocks.push_back(block3);
+    // "; params2.textBlocks.pushBack(block3);
 
     // ui::TextBlock block4;
     // block4.text = "\nAnd it also supports\nnewlines!\nisn't that cool!";
-    // params2.textBlocks.push_back(block4);
+    // params2.textBlocks.pushBack(block4);
 
     // auto quad2 = createQuadWithParagraph(&window, params2);
-    // elements.push_back(std::move(quad2));
+    // elements.pushBack(UniquePtr<ui::UiElement>(quad2.release()));
   };
 
   auto _updateRender = [&](sdl2w::Window& window, sdl2w::Store& store) {

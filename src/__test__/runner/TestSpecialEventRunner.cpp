@@ -1,8 +1,8 @@
+#include "lib/bmin/Map.h"
 #include "lib/sdl2w/Logger.h"
 #include "model/templates/SpecialEvents.h"
 #include "runner/SpecialEventRunner.h"
-#include <unordered_map>
-#include <vector>
+
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Starting TestSpecialEventRunner" << LOG_ENDL;
@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
     var.key = "TEST_VAR";
     var.value = "Hello";
     var.importFrom = "";
-    testEvent.vars.push_back(var);
+    testEvent.vars.pushBack(var);
 
     // Create an EXEC node (root)
     model::GameEventChildExec execNode;
@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
     execNode.execStr = "SET_STR(test_key, test_value)";
     execNode.next = "choice_node";
     execNode.autoAdvance = false;
-    testEvent.children.push_back(execNode);
+    testEvent.children.pushBack(execNode);
 
     // Create a CHOICE node
     model::GameEventChildChoice choiceNode;
@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
     choice1.conditionStr = "";
     choice1.evalStr = "SET_BOOL(choice1_selected, true)";
     choice1.next = "end_node";
-    choiceNode.choices.push_back(choice1);
+    choiceNode.choices.pushBack(choice1);
 
     model::Choice choice2;
     choice2.text = "Option 2 (requires test_key)";
@@ -53,23 +53,21 @@ int main(int argc, char** argv) {
     choice2.conditionStr = "IS(test_key)";
     choice2.evalStr = "SET_BOOL(choice2_selected, true)";
     choice2.next = "end_node";
-    choiceNode.choices.push_back(choice2);
+    choiceNode.choices.pushBack(choice2);
 
-    testEvent.children.push_back(choiceNode);
+    testEvent.children.pushBack(choiceNode);
 
     // Create an END node
     model::GameEventChildEnd endNode;
     endNode.eventChildType = model::GameEventChildType::END;
     endNode.id = "end_node";
     endNode.next = "";
-    testEvent.children.push_back(endNode);
+    testEvent.children.pushBack(endNode);
 
-    // Create empty gameEvents vector
-    std::unordered_map<std::string, model::GameEvent> gameEvents;
+    bmin::Map<String, model::GameEvent> gameEvents;
 
-    // Initialize storage
-    std::unordered_map<std::string, std::string> initialStorage;
-    initialStorage["initial_value"] = "100";
+    bmin::Map<String, String> initialStorage;
+    initialStorage.insert(String("initial_value"), String("100"));
 
     // Create the runner
     runner::SpecialEventRunner runner(initialStorage, testEvent, gameEvents);
@@ -101,11 +99,11 @@ int main(int argc, char** argv) {
 
     // Check that storage was updated
     auto testValue = runner.storage.find("test_key");
-    if (testValue == runner.storage.end() || testValue->second != "test_value") {
+    if (testValue == runner.storage.end() || testValue->value != "test_value") {
       LOG(ERROR) << "Storage was not updated correctly by SET_STR" << LOG_ENDL;
       return 1;
     }
-    LOG(INFO) << "Storage correctly updated: test_key = " << testValue->second
+    LOG(INFO) << "Storage correctly updated: test_key = " << testValue->value
               << LOG_ENDL;
 
     // Test: Advance to CHOICE node (this will process the choice node)
@@ -122,7 +120,7 @@ int main(int argc, char** argv) {
     // Check that choice2 is available (because test_key exists)
     bool foundChoice2 = false;
     for (const auto& choice : runner.displayTextChoices) {
-      if (choice.text.find("Option 2") != std::string::npos) {
+      if (choice.text.find("Option 2") != String::npos) {
         foundChoice2 = true;
         LOG(INFO) << "Choice 2 is available (condition passed)" << LOG_ENDL;
         break;
@@ -140,7 +138,7 @@ int main(int argc, char** argv) {
 
       // Check that choice1_selected was set
       auto choice1Selected = runner.storage.find("choice1_selected");
-      if (choice1Selected == runner.storage.end() || choice1Selected->second != "true") {
+      if (choice1Selected == runner.storage.end() || choice1Selected->value != "true") {
         LOG(ERROR) << "choice1_selected was not set correctly" << LOG_ENDL;
         return 1;
       }
@@ -158,10 +156,10 @@ int main(int argc, char** argv) {
     }
 
     // Test: Variable replacement
-    std::string testText = "Hello @TEST_VAR world";
-    std::string replaced = runner.replaceVariables(testText);
-    if (replaced.find("Hello") == std::string::npos ||
-        replaced.find("world") == std::string::npos) {
+    String testText = "Hello @TEST_VAR world";
+    String replaced = runner.replaceVariables(testText);
+    if (replaced.find("Hello") == String::npos ||
+        replaced.find("world") == String::npos) {
       LOG(ERROR) << "Variable replacement failed" << LOG_ENDL;
       return 1;
     }
@@ -183,7 +181,7 @@ int main(int argc, char** argv) {
       return 1;
     }
     auto numTest = runner.storage.find("num_test");
-    if (numTest == runner.storage.end() || numTest->second != "42.000000") {
+    if (numTest == runner.storage.end() || numTest->value != "42") {
       LOG(ERROR) << "SET_NUM did not work correctly" << LOG_ENDL;
       return 1;
     }

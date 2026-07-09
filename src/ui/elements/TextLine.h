@@ -3,14 +3,13 @@
 #include "../UiElement.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <optional>
-#include <string>
-#include <vector>
+#include "lib/Types.h"
 
 namespace ui {
 
 // Individual text block with optional style overrides
 struct TextBlock {
-  std::string text;
+  String text;
 
   // Optional style overrides - if not set, uses base style from UiElement
   std::optional<FontFamily> fontFamily;
@@ -20,11 +19,11 @@ struct TextBlock {
 
 // TextLine-specific properties
 struct TextLineProps {
-  std::vector<TextBlock> textBlocks;
+  DynArray<TextBlock> textBlocks;
 };
 
 struct TextLineRenderTextParams {
-  std::string text;
+  String text;
   sdl2w::RenderTextParams params;
 };
 
@@ -33,7 +32,7 @@ struct TextLineRenderTextParams {
 class TextLine : public UiElement {
 private:
   TextLineProps props;
-  std::vector<std::unique_ptr<TextLineRenderTextParams>> textRenderables;
+  DynArray<UniquePtr<TextLineRenderTextParams>> textRenderables;
 
   sdl2w::RenderTextParams makeRenderTextParams(const TextBlock& block) const;
 
@@ -42,7 +41,7 @@ public:
   ~TextLine() override = default;
 
   // Static utility method to convert FontFamily to font name
-  static std::string getFontNameFromFamily(FontFamily fontFamily);
+  static String getFontNameFromFamily(FontFamily fontFamily);
 
   // Setters and getters for text line properties
   void setProps(const TextLineProps& _props);

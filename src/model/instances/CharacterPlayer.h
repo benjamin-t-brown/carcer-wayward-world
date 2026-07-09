@@ -6,8 +6,7 @@
 #include "model/templates/Items.h"
 #include "model/templates/UtilityTypes.h"
 #include <optional>
-#include <string>
-#include <vector>
+#include "lib/Types.h"
 
 namespace db {
 class Database;
@@ -17,29 +16,29 @@ namespace model {
 
 struct CharacterPlayerEquipment {
   // these represent ids of items inside the character's inventory
-  std::string weapon0Id;
-  std::string weapon1Id;
-  std::string ammoId;
-  std::string hatId;
-  std::string garbId;
-  std::string glovesId;
-  std::string pantsId;
-  std::string shoesId;
-  std::string necklaceId;
-  std::string shieldId;
+  String weapon0Id;
+  String weapon1Id;
+  String ammoId;
+  String hatId;
+  String garbId;
+  String glovesId;
+  String pantsId;
+  String shoesId;
+  String necklaceId;
+  String shieldId;
 };
 
 struct CharacterInventoryItem {
-  std::string itemName;
-  std::string id;
+  String itemName;
+  String id;
   int quantity;
 };
 
 struct CharacterPlayer {
-  std::string instanceId;
-  std::string name;
-  std::string templateName;
-  std::vector<CharacterInventoryItem> inventory;
+  String instanceId;
+  String name;
+  String templateName;
+  bmin::DynArray<CharacterInventoryItem> inventory;
   CharacterPlayerEquipment equipment;
   CharacterTemplate params;
   CharacterStats stats;
@@ -47,7 +46,7 @@ struct CharacterPlayer {
   int currentMp = 0;
 
   CharacterPlayer(const CharacterTemplate& _params = CharacterTemplate(),
-                  const std::vector<CharacterInventoryItem>& _inventory = {},
+                  const bmin::DynArray<CharacterInventoryItem>& _inventory = {},
                   const CharacterPlayerEquipment& _equipment = {}) {
     instanceId = createRandomId();
     params = _params;
@@ -59,7 +58,7 @@ struct CharacterPlayer {
   }
 };
 
-std::string characterPlayerGetSprite(const CharacterPlayer& characterPlayer);
+String characterPlayerGetSprite(const CharacterPlayer& characterPlayer);
 
 enum class EquipItemResult {
   EQUIPPED,
@@ -71,21 +70,21 @@ enum class EquipItemResult {
 };
 
 bool characterPlayerIsItemEquippedById(const CharacterPlayer& characterPlayer,
-                                       const std::string& itemId);
+                                       const String& itemId);
 EquipItemResult characterPlayerToggleEquipItem(CharacterPlayer& characterPlayer,
-                                               const std::string& itemId,
+                                               const String& itemId,
                                                const db::Database& database);
 std::optional<CharacterInventoryItem>
 characterPlayerFindItemInInventoryByName(const CharacterPlayer& characterPlayer,
-                                         const std::string& itemName);
+                                         const String& itemName);
 void characterPlayerAddItemToInventory(CharacterPlayer& characterPlayer,
                                        const model::ItemTemplate& itemTemplate,
                                        int quantity = 1);
 void characterPlayerRemoveItemFromInventoryByName(CharacterPlayer& characterPlayer,
-                                                  const std::string& itemName,
+                                                  const String& itemName,
                                                   int quantity = 1);
 void characterPlayerRemoveItemFromInventoryById(CharacterPlayer& characterPlayer,
-                                                const std::string& itemId,
+                                                const String& itemId,
                                                 int quantity = 1);
 
 enum class GiveItemResult {
@@ -97,7 +96,7 @@ enum class GiveItemResult {
 
 GiveItemResult characterPlayerGiveInventoryItem(CharacterPlayer& from,
                                                 CharacterPlayer& to,
-                                                const std::string& itemId,
+                                                const String& itemId,
                                                 int quantity,
                                                 const db::Database& database);
 bool characterPlayerReorderInventoryItem(CharacterPlayer& characterPlayer,
@@ -108,6 +107,6 @@ int characterGetWeightCarrying(const CharacterPlayer& characterPlayer,
 int characterGetWeightCapacity(const CharacterPlayer& characterPlayer);
 int characterGetRationSlotCapacity(const CharacterPlayer& characterPlayer,
                                    const db::Database& database);
-std::vector<ItemInstance> characterGetNearbyItems(const CharacterPlayer& characterPlayer);
+bmin::DynArray<ItemInstance> characterGetNearbyItems(const CharacterPlayer& characterPlayer);
 
 } // namespace model

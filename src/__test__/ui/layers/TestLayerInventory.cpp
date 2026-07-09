@@ -12,7 +12,7 @@
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <cassert>
 #include <memory>
-#include <string>
+#include "lib/Types.h"
 #include <vector>
 
 namespace {
@@ -26,7 +26,7 @@ constexpr const char* TEST_PARTY_TEMPLATE_NAMES[] = {
     "testPartyMember6",
 };
 
-const std::vector<std::vector<std::string>> PARTY_MEMBER_ITEMS = {
+const DynArray<DynArray<String>> PARTY_MEMBER_ITEMS = {
     {"PotionHealing", "DaggerBronze", "DaggerBronze", "DaggerBronze", "SwordBronze"},
     {"ShortSwordBronze", "SwordBronze"},
     {"LongbowOak",
@@ -56,7 +56,7 @@ void setupTestParty(model::Player& player, db::Database& database) {
           member, database.getItemTemplate(itemName), 1);
     }
 
-    player.party.push_back(std::move(member));
+    player.party.pushBack(std::move(member));
   }
 }
 
@@ -73,12 +73,12 @@ int main(int argc, char** argv) {
   state::StateManagerInterface::setStateManager(&stateManager);
   setupTestParty(stateManager.getState().player, database);
 
-  std::unique_ptr<layers::LayerManager> layerManager;
+  UniquePtr<layers::LayerManager> layerManager;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "LayerInventory test initialized" << LOG_ENDL;
 
-    layerManager = std::make_unique<layers::LayerManager>(&window);
+    layerManager = makeUnique<layers::LayerManager>(&window);
     state::LayerManagerInterface::setLayerManager(layerManager.get());
 
     auto* layerInventory = new layers::LayerInventory(&window);

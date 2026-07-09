@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start OutsetRectangle test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "OutsetRectangle test initialized" << LOG_ENDL;
@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
       // props1.borderSize = 3;
       outsetRect1->setProps(props1);
 
-      elements.push_back(std::unique_ptr<ui::OutsetRectangle>(outsetRect1));
+      elements.pushBack(UniquePtr<ui::UiElement>(outsetRect1));
     }
 
     {
@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
       props.borderSize = 4;
       rect->setProps(props);
 
-      elements.push_back(std::unique_ptr<ui::OutsetRectangle>(rect));
+      elements.pushBack(UniquePtr<ui::UiElement>(rect));
     }
   };
 

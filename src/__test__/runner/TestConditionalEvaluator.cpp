@@ -1,24 +1,26 @@
+#include "lib/bmin/Map.h"
 #include "lib/sdl2w/Logger.h"
 #include "runner/ConditionEvaluator.h"
+
+#include <vector>
 
 #define TEST_NAME "TestConditionalEvaluator"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Starting " << TEST_NAME << LOG_ENDL;
-  std::unordered_map<std::string, std::string> initialStorage = {
-      // clang-format off
-      {"a", "0"},
-      {"b", "1"},
-      {"c", "2"},
-      {"d", "3"},
-      {"vars.quests.WoodThief.started", "true"},
-      {"vars.quests.WoodThief.completed", "false"},
-      {"vars.quests.WoodThief.step", "2"},
-      {"vars.items.BeerPappysLager", "1"},
-      // z is undefined
-      // clang-format on
-  };
-  const std::vector<std::pair<std::string, bool>> basicTestCases = {
+  bmin::Map<String, String> initialStorage;
+  // clang-format off
+  initialStorage.insert(String("a"), String("0"));
+  initialStorage.insert(String("b"), String("1"));
+  initialStorage.insert(String("c"), String("2"));
+  initialStorage.insert(String("d"), String("3"));
+  initialStorage.insert(String("vars.quests.WoodThief.started"), String("true"));
+  initialStorage.insert(String("vars.quests.WoodThief.completed"), String("false"));
+  initialStorage.insert(String("vars.quests.WoodThief.step"), String("2"));
+  initialStorage.insert(String("vars.items.BeerPappysLager"), String("1"));
+  // z is undefined
+  // clang-format on
+  const DynArray<std::pair<String, bool>> basicTestCases = {
       // clang-format off
       {"IS(a)", false}, // IS("0") should be false
       {"IS(b)", true},
@@ -87,7 +89,7 @@ int main(int argc, char** argv) {
       {"HAS_ITEM(MissingItem)", false},
       // clang-format on
   };
-  const std::vector<std::pair<std::string, bool>> invalidSyntax = {
+  const DynArray<std::pair<String, bool>> invalidSyntax = {
       // clang-format off
     {"a", false},
     {"1", false},
@@ -101,7 +103,7 @@ int main(int argc, char** argv) {
   try {
     LOG(INFO) << "== Running basic tests ==" << LOG_ENDL;
 
-    std::vector<std::pair<std::string, bool>> failedTests;
+    DynArray<std::pair<String, bool>> failedTests;
     for (int i = 0; i < static_cast<int>(basicTestCases.size()); i++) {
       const auto& [condition, expected] = basicTestCases[i];
       if (i == runOnlyIndex || runOnlyIndex == -1) {
@@ -112,7 +114,7 @@ int main(int argc, char** argv) {
         if (result != expected) {
           LOG(ERROR) << " Test " << i << " failed: " << condition << " should be "
                      << (expected ? "true" : "false") << LOG_ENDL;
-          failedTests.push_back({condition, result});
+          failedTests.pushBack({condition, result});
         }
       }
     }

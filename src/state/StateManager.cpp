@@ -14,22 +14,20 @@ ActionBus& StateManager::getActionBus() { return actionBus; }
 const ActionBus& StateManager::getActionBus() const { return actionBus; }
 
 void StateManager::enqueueAction(ActionData& actions, AbstractAction* action, int ms) {
-  auto actionPtr =
-      new AsyncAction{std::unique_ptr<AbstractAction>(action), model::TimerStruct(ms)};
-  actions.sequentialActionsNext.push_back(std::unique_ptr<AsyncAction>(actionPtr));
+  actions.sequentialActionsNext.pushBack(
+      makeUnique<AsyncAction>(AsyncAction{UniquePtr<AbstractAction>(action), model::TimerStruct(ms)}));
 }
 
 void StateManager::insertAction(ActionData& actions, AbstractAction* action, int ms) {
-  auto actionPtr =
-      new AsyncAction{std::unique_ptr<AbstractAction>(action), model::TimerStruct(ms)};
-  actions.insertActions.push_back(std::unique_ptr<AsyncAction>(actionPtr));
+  actions.insertActions.pushBack(
+      makeUnique<AsyncAction>(AsyncAction{UniquePtr<AbstractAction>(action), model::TimerStruct(ms)}));
 }
 
 void StateManager::addParallelAction(ActionData& actions,
                                      AbstractAction* action,
                                      int ms) {
-  actions.parallelActions.push_back(std::unique_ptr<AsyncAction>(
-      new AsyncAction{std::unique_ptr<AbstractAction>(action), model::TimerStruct(ms)}));
+  actions.parallelActions.pushBack(makeUnique<AsyncAction>(
+      AsyncAction{UniquePtr<AbstractAction>(action), model::TimerStruct(ms)}));
 }
 
 void StateManager::moveSequentialActions(ActionData& actions) {
@@ -46,7 +44,7 @@ void StateManager::update(int dt) {
       AbstractAction& executedAction = *delayedAction.action;
       executedAction.execute(&state);
       actionBus.notify(executedAction, state);
-      delayedAction.action = nullptr;
+      delayedAction.action.reset();
     }
 
     model::timerStructUpdate(delayedAction.timer, dt);
@@ -68,12 +66,12 @@ void StateManager::update(int dt) {
     AsyncAction& delayedAction = *delayedActionPtr;
     model::timerStructUpdate(delayedAction.timer, dt);
     if (model::timerStructIsComplete(delayedAction.timer)) {
-      if (delayedAction.action != nullptr) {
+      if (delayedAction.action.get() != nullptr) {
         AbstractAction& executedAction = *delayedAction.action;
         executedAction.execute(&state);
         actionBus.notify(executedAction, state);
       }
-      actionData.parallelActions.erase(actionData.parallelActions.begin() + i);
+      actionData.parallelActions.erase(static_cast<size_t>(i));
       i--;
     }
   }

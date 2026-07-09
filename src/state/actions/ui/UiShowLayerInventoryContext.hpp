@@ -10,8 +10,8 @@ namespace actions {
 
 class UiShowLayerInventoryContext : public AbstractAction {
   sdl2w::Window* window;
-  std::string itemName;
-  std::string itemId; // id of item in inventory
+  String itemName;
+  String itemId; // id of item in inventory
   void act() override {
     auto layerManager = getLayerManager();
     if (!layerManager) {
@@ -24,8 +24,8 @@ class UiShowLayerInventoryContext : public AbstractAction {
 
 public:
   UiShowLayerInventoryContext(sdl2w::Window* _window,
-                              std::string itemName,
-                              std::string itemId)
+                              String itemName,
+                              String itemId)
       : window(_window), itemName(itemName), itemId(itemId) {}
 };
 

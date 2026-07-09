@@ -3,24 +3,24 @@
 #include "model/instances/CharacterPlayer.h"
 #include "ui/UiElement.h"
 #include "ui/components/lists/ListInventory.h"
-#include <string>
+#include "lib/Types.h"
 
 namespace ui {
 
 struct PageInventoryPartyMember {
-  std::string spriteName;
+  String spriteName;
 };
 
 struct PageInventoryProps {
-  std::string characterPlayerId;
-  std::string characterPlayerLabel;
-  std::string characterPlayerSprite;
+  String characterPlayerId;
+  String characterPlayerLabel;
+  String characterPlayerSprite;
   int partyMemberInventoryIndex = 0;
-  std::vector<PageInventoryPartyMember> partyMembers;
+  DynArray<PageInventoryPartyMember> partyMembers;
   int weightCarrying = 0;
   int weightCapacity = 0;
   int gold = 0;
-  std::vector<model::CharacterInventoryItem> inventory;
+  DynArray<model::CharacterInventoryItem> inventory;
   model::CharacterPlayerEquipment equipment;
 };
 
@@ -28,7 +28,7 @@ class PageInventory : public UiElement, public state::DatabaseInterface {
 private:
   PageInventoryProps props;
 
-  void populateInventoryProps(std::vector<ListInventoryPropsItem>& listProps);
+  void populateInventoryProps(DynArray<ListInventoryPropsItem>& listProps);
 
 public:
   PageInventory(sdl2w::Window* _window, UiElement* _parent = nullptr);

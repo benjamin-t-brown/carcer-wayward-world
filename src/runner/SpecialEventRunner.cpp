@@ -4,32 +4,28 @@
 #include "StringEvaluator.h"
 #include <algorithm>
 #include <functional>
-#include <vector>
 
 namespace runner {
 
-// Helper to replace all occurrences of a substring
-static std::string
-replaceAll(std::string str, const std::string& from, const std::string& to) {
+static String replaceAll(String str, const String& from, const String& to) {
   size_t pos = 0;
-  while ((pos = str.find(from, pos)) != std::string::npos) {
-    str.replace(pos, from.length(), to);
-    pos += to.length();
+  while ((pos = str.find(from, pos)) != String::npos) {
+    str.erase(pos, from.size());
+    str.insert(pos, to);
+    pos += to.size();
   }
   return str;
 }
 
-// SpecialEventRunner implementation
 SpecialEventRunner::SpecialEventRunner(
-    const std::unordered_map<std::string, std::string>& initialStorage,
+    const bmin::Map<String, String>& initialStorage,
     const model::GameEvent& gameEvent,
-    const std::unordered_map<std::string, model::GameEvent>& gameEvents)
+    const bmin::Map<String, model::GameEvent>& gameEvents)
     : storage(initialStorage), gameEvent(gameEvent), gameEvents(gameEvents) {
   reset();
 }
 
 void SpecialEventRunner::reset() {
-  // Find root node or use first node
   bool hasRoot = false;
   displayText.clear();
   displayTextChoices.clear();
@@ -71,12 +67,12 @@ std::optional<model::GameEventChild> SpecialEventRunner::getCurrentNode() {
   return std::nullopt;
 }
 
-std::string SpecialEventRunner::getNextNodeId() {
+String SpecialEventRunner::getNextNodeId() {
   auto currentNode = getCurrentNode();
   if (!currentNode) {
     return "";
   }
-  std::string nextNodeId;
+  String nextNodeId;
   std::visit(
       [&nextNodeId](const auto& node) {
         using T = std::decay_t<decltype(node)>;
@@ -88,31 +84,28 @@ std::string SpecialEventRunner::getNextNodeId() {
   return nextNodeId;
 }
 
-std::vector<model::Variable> SpecialEventRunner::getVarsFromNode() {
-  std::vector<model::Variable> vars;
-  std::vector<std::string> usedNodes;
+DynArray<model::Variable> SpecialEventRunner::getVarsFromNode() {
+  DynArray<model::Variable> vars;
+  DynArray<String> usedNodes;
 
   std::function<void(const model::GameEvent&)> innerHelper =
       [&](const model::GameEvent& event) {
-        // Infinite loop protection
         if (std::find(usedNodes.begin(), usedNodes.end(), event.id) != usedNodes.end()) {
           return;
         }
-        usedNodes.push_back(event.id);
+        usedNodes.pushBack(event.id);
 
-        // Add variables without importFrom
         for (const auto& variable : event.vars) {
           if (variable.importFrom.empty()) {
-            vars.push_back(variable);
+            vars.pushBack(variable);
           }
         }
 
-        // Add variables from imported events
         for (const auto& variable : event.vars) {
           if (!variable.importFrom.empty()) {
-            for (const auto& [id, sourceEvent] : gameEvents) {
-              if (sourceEvent.id == variable.importFrom) {
-                innerHelper(sourceEvent);
+            for (auto it = gameEvents.begin(); it != gameEvents.end(); ++it) {
+              if (it->value.id == variable.importFrom) {
+                innerHelper(it->value);
                 break;
               }
             }
@@ -124,21 +117,21 @@ std::vector<model::Variable> SpecialEventRunner::getVarsFromNode() {
   return vars;
 }
 
-std::string SpecialEventRunner::replaceVariables(const std::string& text) {
+String SpecialEventRunner::replaceVariables(const String& text) {
   auto vars = getVarsFromNode();
-  std::string result = trim(text);
+  String result = trim(text);
 
   for (const auto& variable : vars) {
-    std::string placeholder = "@" + variable.key;
-    std::string value = variable.value;
+    const String placeholder = "@" + variable.key;
+    const String value = variable.value;
     result = replaceAll(result, placeholder, value);
   }
 
   return result;
 }
 
-bool SpecialEventRunner::evalExecStr(const std::string& str) {
-  std::string trimmed = trim(str);
+bool SpecialEventRunner::evalExecStr(const String& str) {
+  const String trimmed = trim(str);
   if (trimmed.empty()) {
     return true;
   }
@@ -154,35 +147,33 @@ bool SpecialEventRunner::evalExecStr(const std::string& str) {
     evaluator.evalStr(trimmed);
     return true;
   } catch (const std::exception& e) {
-    errors.push_back({currentNodeId, e.what()});
+    errors.pushBack({currentNodeId, e.what()});
     return false;
   }
 }
 
-ConditionResult SpecialEventRunner::evalCondition(const std::string& conditionStr) {
+ConditionResult SpecialEventRunner::evalCondition(const String& conditionStr) {
   ConditionEvaluator evaluator(storage, conditionStr);
   try {
-    bool result = evaluator.evalCondition(conditionStr);
+    const bool result = evaluator.evalCondition(conditionStr);
     return {result, evaluator.funcs.onceKeysToCommit};
   } catch (const std::exception& e) {
-    errors.push_back({currentNodeId, e.what()});
+    errors.pushBack({currentNodeId, e.what()});
     return {false, {}};
   }
 }
 
-void SpecialEventRunner::commitOnceKeys(
-    const std::vector<std::string>& onceKeysToCommit) {
+void SpecialEventRunner::commitOnceKeys(const DynArray<String>& onceKeysToCommit) {
   for (const auto& onceKeyToCommit : onceKeysToCommit) {
     setStorage(storage, onceKeyToCommit, "true");
   }
 }
 
-std::string
-SpecialEventRunner::joinParagraphs(const std::vector<std::string>& paragraphs) {
+String SpecialEventRunner::joinParagraphs(const bmin::DynArray<String>& paragraphs) {
   if (paragraphs.empty()) {
     return "";
   }
-  std::string result;
+  String result;
   for (size_t i = 0; i < paragraphs.size(); ++i) {
     if (i > 0) {
       result += "\n";
@@ -192,14 +183,15 @@ SpecialEventRunner::joinParagraphs(const std::vector<std::string>& paragraphs) {
   return result;
 }
 
-std::string SpecialEventRunner::resolveChoiceText(
-    const model::Choice& choice, std::vector<std::string>& onceKeysToCommit) {
+String SpecialEventRunner::resolveChoiceText(const model::Choice& choice,
+                                             DynArray<String>& onceKeysToCommit) {
   for (const auto& switchText : choice.switchText) {
     if (!switchText.conditionStr.empty()) {
       ConditionResult obj = evalCondition(replaceVariables(switchText.conditionStr));
       if (obj.result) {
-        onceKeysToCommit.insert(onceKeysToCommit.end(), obj.onceKeysToCommit.begin(),
-                                obj.onceKeysToCommit.end());
+        for (const auto& key : obj.onceKeysToCommit) {
+          onceKeysToCommit.pushBack(key);
+        }
         return replaceVariables(switchText.text);
       }
     }
@@ -207,9 +199,9 @@ std::string SpecialEventRunner::resolveChoiceText(
   return replaceVariables(choice.text);
 }
 
-void SpecialEventRunner::advance(const std::string& nodeId,
-                                 const std::vector<std::string>& onceKeysToCommit,
-                                 const std::string& execStr) {
+void SpecialEventRunner::advance(const String& nodeId,
+                                 const DynArray<String>& onceKeysToCommit,
+                                 const String& execStr) {
   if (!errors.empty()) {
     return;
   }
@@ -243,7 +235,7 @@ void SpecialEventRunner::advance(const std::string& nodeId,
             advance(node.next, {}, "");
           }
         } else if constexpr (std::is_same_v<T, model::GameEventChildChoice>) {
-          const std::string choiceDisplayText = replaceVariables(node.text);
+          const String choiceDisplayText = replaceVariables(node.text);
           if (!choiceDisplayText.empty()) {
             displayText = choiceDisplayText;
           }
@@ -256,16 +248,16 @@ void SpecialEventRunner::advance(const std::string& nodeId,
             }
             if (obj.result) {
               DisplayTextChoice displayChoice;
-              displayChoice.prefix = (replaceVariables(choice.prefixText));
-              std::vector<std::string> switchOnceKeys;
+              displayChoice.prefix = replaceVariables(choice.prefixText);
+              DynArray<String> switchOnceKeys;
               displayChoice.text = resolveChoiceText(choice, switchOnceKeys);
-              displayChoice.execStr = (replaceVariables(choice.evalStr));
+              displayChoice.execStr = replaceVariables(choice.evalStr);
               displayChoice.next = choice.next;
               displayChoice.onceKeysToCommit = obj.onceKeysToCommit;
-              displayChoice.onceKeysToCommit.insert(
-                  displayChoice.onceKeysToCommit.end(), switchOnceKeys.begin(),
-                  switchOnceKeys.end());
-              displayTextChoices.push_back(displayChoice);
+              for (const auto& key : switchOnceKeys) {
+                displayChoice.onceKeysToCommit.pushBack(key);
+              }
+              displayTextChoices.pushBack(displayChoice);
             }
           }
         } else if constexpr (std::is_same_v<T, model::GameEventChildSwitch>) {
@@ -288,28 +280,24 @@ void SpecialEventRunner::advance(const std::string& nodeId,
       *currentNode);
 }
 
-std::string SpecialEventRunner::storageToString() const {
-  // Collect all key-value pairs into a vector
-  std::vector<std::pair<std::string, std::string>> pairs;
+String SpecialEventRunner::storageToString() const {
+  DynArray<std::pair<String, String>> pairs;
   pairs.reserve(storage.size());
-  for (const auto& [key, value] : storage) {
-    pairs.emplace_back(key, value);
+  auto& mutableStorage = const_cast<bmin::Map<String, String>&>(storage);
+  for (auto it = mutableStorage.begin(); it != mutableStorage.end(); ++it) {
+    pairs.emplaceBack(it->key, it->value);
   }
 
-  // Sort by key alphabetically
-  std::sort(pairs.begin(), pairs.end(), [](const auto& a, const auto& b) {
-    return a.first < b.first;
-  });
+  std::sort(pairs.begin(), pairs.end(),
+            [](const auto& a, const auto& b) { return a.first < b.first; });
 
-  // Build result string from sorted pairs
-  std::string result;
+  String result;
   for (const auto& [key, value] : pairs) {
     result += key + "=" + value + "\n";
   }
   return result;
 }
 
-// SpecialEventRunnerInterface implementation
 SpecialEventRunnerInterface::SpecialEventRunnerInterface(SpecialEventRunner& runner)
     : runner(runner) {}
 
@@ -319,7 +307,7 @@ void SpecialEventRunnerInterface::startEvent() {
 }
 
 void SpecialEventRunnerInterface::continueEvent() {
-  std::string nextNodeId = runner.getNextNodeId();
+  const String nextNodeId = runner.getNextNodeId();
   if (!nextNodeId.empty()) {
     runner.advance(nextNodeId);
   }
@@ -335,35 +323,29 @@ void SpecialEventRunnerInterface::selectChoice(int choiceIndex) {
 }
 
 SpecialEventRunnerInterfaceState SpecialEventRunnerInterface::getState() {
-  // If we haven't started processing yet (no display text and no choices)
   if (runner.displayText.empty() && runner.displayTextChoices.empty()) {
     return SpecialEventRunnerInterfaceState::WAITING_TO_START;
   }
 
-  // If we have choices available, we're waiting for a choice selection
   if (!runner.displayTextChoices.empty()) {
     return SpecialEventRunnerInterfaceState::WAITING_TO_SELECT_CHOICE;
   }
 
-  // If we have display text and a next node, we're waiting to continue
   if (!runner.displayText.empty()) {
-    std::string nextNodeId = runner.getNextNodeId();
+    const String nextNodeId = runner.getNextNodeId();
     if (!nextNodeId.empty()) {
       return SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE;
     }
   }
 
-  // Default to waiting to continue if we have display text
   if (!runner.displayText.empty()) {
     return SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE;
   }
 
-  // Fallback to waiting to start
   return SpecialEventRunnerInterfaceState::WAITING_TO_START;
 }
 
-std::string
-SpecialEventRunnerInterface::stateToString(SpecialEventRunnerInterfaceState state) {
+String SpecialEventRunnerInterface::stateToString(SpecialEventRunnerInterfaceState state) {
   switch (state) {
   case SpecialEventRunnerInterfaceState::WAITING_TO_START:
     return "WAITING_TO_START";

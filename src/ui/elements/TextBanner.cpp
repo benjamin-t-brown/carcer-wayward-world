@@ -29,7 +29,9 @@ std::pair<int, int> TextBanner::measureTextScaled() const {
   measureStyle.fontSize = style.fontSize;
   measureStyle.fontColor = style.fontColor;
   measureStyle.scale = 1.f;
-  measureLine.setProps(TextLineProps{.textBlocks = {TextBlock{.text = props.text}}});
+  TextLineProps measureProps;
+  measureProps.textBlocks.pushBack(TextBlock{.text = props.text});
+  measureLine.setProps(measureProps);
   return measureLine.getDims();
 }
 
@@ -79,7 +81,9 @@ void TextBanner::build() {
   textStyle.scale = 1.f;
   setBaseFontConfig(textStyle, BaseFontConfig::MODAL_TEXT_BOLD);
   textStyle.textAlign = TextAlign::LEFT_CENTER;
-  textLine->setProps(TextLineProps{.textBlocks = {TextBlock{.text = props.text}}});
+  TextLineProps lineProps;
+  lineProps.textBlocks.pushBack(TextBlock{.text = props.text});
+  textLine->setProps(lineProps);
 
   auto [textWidth, textHeight] = textLine->getDims();
   auto paddingScaled = static_cast<int>(props.padding * style.scale);

@@ -1,23 +1,35 @@
 #pragma once
 
+#include "lib/Types.h"
+#include "lib/bmin/Map.h"
 #include "model/templates/Abilities.h"
 #include "model/templates/CharacterTemplate.h"
 #include "model/templates/Items.h"
-#include "model/templates/StatusEffects.h"
-#include "model/templates/SpecialEvents.h"
 #include "model/templates/Maps.h"
-#include <unordered_map>
+#include "model/templates/SpecialEvents.h"
+#include "model/templates/StatusEffects.h"
+#include <stdexcept>
+#include <string_view>
 
 namespace db {
 
+template <typename V>
+const V& mapGet(const bmin::Map<String, V>& map, std::string_view key, const char* notFoundMsg) {
+  const String mapKey(key.data(), key.size());
+  if (!map.contains(mapKey)) {
+    throw std::runtime_error((String(notFoundMsg) + mapKey.cStr()).cStr());
+  }
+  return (*const_cast<bmin::Map<String, V>&>(map).find(mapKey)).value;
+}
+
 class Database {
 private:
-  std::unordered_map<std::string, model::ItemTemplate> itemTemplates;
-  std::unordered_map<std::string, model::CharacterTemplate> characterTemplates;
-  std::unordered_map<std::string, model::AbilityTemplate> abilityTemplates;
-  std::unordered_map<std::string, model::StatusEffectTemplate> statusEffectTemplates;
-  std::unordered_map<std::string, model::GameEvent> gameEvents;
-  std::unordered_map<std::string, model::CarcerMapTemplate> mapTemplates;
+  bmin::Map<String, model::ItemTemplate> itemTemplates;
+  bmin::Map<String, model::CharacterTemplate> characterTemplates;
+  bmin::Map<String, model::AbilityTemplate> abilityTemplates;
+  bmin::Map<String, model::StatusEffectTemplate> statusEffectTemplates;
+  bmin::Map<String, model::GameEvent> gameEvents;
+  bmin::Map<String, model::CarcerMapTemplate> mapTemplates;
 
 public:
   Database();

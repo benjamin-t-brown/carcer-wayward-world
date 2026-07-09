@@ -1,38 +1,36 @@
 #pragma once
 
+#include "lib/Types.h"
+#include "lib/bmin/Map.h"
+
 #include <optional>
-#include <string>
-#include <unordered_map>
-#include <vector>
 
 namespace runner {
 
 // Helper functions for storage (flat map, no nesting)
-void setStorage(std::unordered_map<std::string, std::string>& storage,
-                const std::string& key, const std::string& value);
+void setStorage(bmin::Map<String, String>& storage, const String& key,
+                const String& value);
 
-std::optional<std::string>
-getStorage(const std::unordered_map<std::string, std::string>& storage,
-           const std::string& key);
+std::optional<String> getStorage(const bmin::Map<String, String>& storage,
+                                 const String& key);
 
 // Split exec/eval strings into statements (newlines or semicolons, not inside parens)
-std::vector<std::string> splitExecStatements(const std::string& str);
+DynArray<String> splitExecStatements(const String& str);
 
 // Helper to split string by delimiter
-std::vector<std::string> splitString(const std::string& str, char delimiter);
+DynArray<String> splitString(const String& str, char delimiter);
 
 // Helper to trim whitespace
-std::string trim(const std::string& str);
+String trim(const String& str);
 
 // Parse function call: "FUNC_NAME(arg1, arg2, ...)"
 struct FunctionCall {
-  std::string funcName;
-  std::vector<std::string> args;
+  String funcName;
+  DynArray<String> args;
 };
 
-FunctionCall parseFunctionCall(const std::string& str);
+FunctionCall parseFunctionCall(const String& str);
 
-bool isFunctionCall(const std::string& str);
+bool isFunctionCall(const String& str);
 
 } // namespace runner
-

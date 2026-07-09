@@ -1,17 +1,16 @@
 #pragma once
 
-#include <string>
-#include <vector>
+#include "lib/Types.h"
 
 namespace hiscore {
 
 struct HiscoreRow {
-  std::string name;
+  String name;
   int score;
 };
 
-std::vector<HiscoreRow> getHighScores();
+DynArray<HiscoreRow> getHighScores();
 
-void saveHighScores(const std::vector<HiscoreRow>& hiscores);
+void saveHighScores(const DynArray<HiscoreRow>& hiscores);
 
 }; // namespace hiscore

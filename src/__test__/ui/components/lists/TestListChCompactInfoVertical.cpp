@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start ListChCompactInfoVertical test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ListChCompactInfoVertical test initialized" << LOG_ENDL;
@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
       };
       entry.hp = 84;
       entry.mana = 37;
-      listProps.entries.push_back(entry);
+      listProps.entries.pushBack(entry);
     }
     {
       ui::ChCompactInfoProps entry;
@@ -47,18 +47,18 @@ int main(int argc, char** argv) {
       };
       entry.hp = 12;
       entry.mana = 99;
-      listProps.entries.push_back(entry);
+      listProps.entries.pushBack(entry);
     }
     {
       ui::ChCompactInfoProps entry;
       entry.characterSpriteName = "actors0_8";
       entry.hp = 200;
       entry.mana = 5;
-      listProps.entries.push_back(entry);
+      listProps.entries.pushBack(entry);
     }
 
     list->setProps(listProps);
-    elements.push_back(std::unique_ptr<ui::UiElement>(list));
+    elements.pushBack(UniquePtr<ui::UiElement>(list));
 
     auto list2 = new ui::ListChCompactInfoVertical(&window);
     list2->setStyle(list->getStyle());
@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
     list2->getStyle().scale = 2.f;
     list2->getStyle().fontSize = sdl2w::TEXT_SIZE_36;
     list2->setProps(list->getProps());
-    elements.push_back(std::unique_ptr<ui::UiElement>(list2));
+    elements.pushBack(UniquePtr<ui::UiElement>(list2));
   };
 
   auto _update = [&](sdl2w::Window& window, sdl2w::Store& store) {};

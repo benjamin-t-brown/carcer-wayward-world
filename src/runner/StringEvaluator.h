@@ -1,53 +1,46 @@
 #pragma once
 
-#include "EventRunnerHelpers.h"
-#include <string>
-#include <unordered_map>
+#include "lib/Types.h"
+#include "lib/bmin/Map.h"
 
 namespace runner {
 
 struct StringEvaluatorFuncs {
-  std::unordered_map<std::string, std::string>& storage;
+  bmin::Map<String, String>& storage;
 
-  StringEvaluatorFuncs(std::unordered_map<std::string, std::string>& storage);
+  StringEvaluatorFuncs(bmin::Map<String, String>& storage);
 
-  std::string GET(const std::string& a);
-  void SET_BOOL(const std::string& a, const std::string& b);
-  void SET_NUM(const std::string& a, const std::string& b);
-  void MOD_NUM(const std::string& a, const std::string& b);
-  void SET_STR(const std::string& a, const std::string& b);
-  void SETUP_DISPOSITION(const std::string& characterName);
-  void START_QUEST(const std::string& questName);
-  void COMPLETE_QUEST_STEP(const std::string& questName, const std::string& stepId);
-  void COMPLETE_QUEST(const std::string& questName);
-  void SPAWN_CH(const std::string& chName);
-  void DESPAWN_CH(const std::string& chName);
-  void
-  CHANGE_TILE_AT(const std::string& x, const std::string& y, const std::string& tileName);
-  void
-  TELEPORT_TO(const std::string& x, const std::string& y, const std::string& mapName);
-  void
-  ADD_ITEM_AT(const std::string& x, const std::string& y, const std::string& itemName);
-  void
-  REMOVE_ITEM_AT(const std::string& x, const std::string& y, const std::string& itemName);
-  void ADD_ITEM_TO_PLAYER(const std::string& itemName);
-  void REMOVE_ITEM_FROM_PLAYER(const std::string& itemName);
-  void OPEN_SHOP(const std::string& shopName);
+  String GET(const String& a);
+  void SET_BOOL(const String& a, const String& b);
+  void SET_NUM(const String& a, const String& b);
+  void MOD_NUM(const String& a, const String& b);
+  void SET_STR(const String& a, const String& b);
+  void SETUP_DISPOSITION(const String& characterName);
+  void START_QUEST(const String& questName);
+  void COMPLETE_QUEST_STEP(const String& questName, const String& stepId);
+  void COMPLETE_QUEST(const String& questName);
+  void SPAWN_CH(const String& chName);
+  void DESPAWN_CH(const String& chName);
+  void CHANGE_TILE_AT(const String& x, const String& y, const String& tileName);
+  void TELEPORT_TO(const String& x, const String& y, const String& mapName);
+  void ADD_ITEM_AT(const String& x, const String& y, const String& itemName);
+  void REMOVE_ITEM_AT(const String& x, const String& y, const String& itemName);
+  void ADD_ITEM_TO_PLAYER(const String& itemName);
+  void REMOVE_ITEM_FROM_PLAYER(const String& itemName);
+  void OPEN_SHOP(const String& shopName);
 };
 
 class StringEvaluator {
 public:
-  std::string baseStringStr;
+  String baseStringStr;
   StringEvaluatorFuncs funcs;
-  std::string strResult;
+  String strResult;
 
-  StringEvaluator(std::unordered_map<std::string, std::string>& storage,
-                  const std::string& baseStringStr);
+  StringEvaluator(bmin::Map<String, String>& storage, const String& baseStringStr);
 
-  void assertFuncArgs(const std::string& funcName,
-                      const std::vector<std::string>& funcArgs,
+  void assertFuncArgs(const String& funcName, const DynArray<String>& funcArgs,
                       size_t expectedArgs);
-  void evalStr(const std::string& str);
+  void evalStr(const String& str);
 };
 
 } // namespace runner

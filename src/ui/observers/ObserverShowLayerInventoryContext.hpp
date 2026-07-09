@@ -9,13 +9,13 @@ class ObserverShowLayerInventoryContext : public ui::UiEventObserver,
                                           public state::StateManagerInterface {
 
   sdl2w::Window* window;
-  std::string itemName;
-  std::string itemId;
+  String itemName;
+  String itemId;
 
 public:
   ObserverShowLayerInventoryContext(sdl2w::Window* _window,
-                                    std::string_view itemName,
-                                    std::string_view itemId)
+                                    const String& itemName,
+                                    const String& itemId)
       : window(_window), itemName(itemName), itemId(itemId) {}
 
   void onClick(int mouseX, int mouseY, int button) override {

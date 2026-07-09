@@ -8,12 +8,11 @@ namespace ui {
 
 class ObserverDropInventoryItem : public ui::UiEventObserver,
                                   public state::StateManagerInterface {
-  std::string characterPlayerId;
-  std::string itemId;
+  String characterPlayerId;
+  String itemId;
 
 public:
-  ObserverDropInventoryItem(std::string_view _characterPlayerId,
-                            std::string_view _itemId)
+  ObserverDropInventoryItem(const String& _characterPlayerId, const String& _itemId)
       : characterPlayerId(_characterPlayerId), itemId(_itemId) {}
 
   void onClick(int mouseX, int mouseY, int button) override {

@@ -15,10 +15,10 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start SectionScrollable test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto addTextToQuad =
-      [&](sdl2w::Window& window, ui::Quad* quad, const std::string& text) {
+      [&](sdl2w::Window& window, ui::Quad* quad, const String& text) {
         auto textLine = new ui::TextLine(&window, quad);
         auto& textStyle = textLine->getStyle();
         textStyle.x = quad->getStyle().width / 2.f;
@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
   auto addScrollableRows =
       [&](sdl2w::Window& window,
           ui::SectionScrollable* section,
-          const std::vector<std::pair<SDL_Color, std::string>>& rows) {
+          const DynArray<std::pair<SDL_Color, String>>& rows) {
         int y = 0;
         for (const auto& [color, label] : rows) {
           auto row = new ui::Quad(&window);
@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
     sectionProps.scrollStep = 30;
     scrollableSection->setProps(sectionProps);
 
-    elements.push_back(std::unique_ptr<ui::UiElement>(scrollableSection));
+    elements.pushBack(UniquePtr<ui::UiElement>(scrollableSection));
 
     // Test 2: bordered section with many rows (production-like scroll)
     // auto listSection = new ui::SectionScrollable(&window);
@@ -140,7 +140,7 @@ int main(int argc, char** argv) {
     //                       {ui::Colors::LightGrey, "Row 5"},
     //                       {ui::Colors::White, "Row 6"},
     //                   });
-    // elements.push_back(std::unique_ptr<ui::UiElement>(listSection));
+    // elements.pushBack(UniquePtr<ui::UiElement>(listSection));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

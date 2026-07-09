@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
   state::StateManager stateManager;
   state::StateManagerInterface::setStateManager(&stateManager);
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "PageTalkChoice test initialized" << LOG_ENDL;
@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
     // clang-format on
     pageTalkChoice->setProps(pageProps);
 
-    elements.push_back(std::unique_ptr<ui::UiElement>(pageTalkChoice));
+    elements.pushBack(UniquePtr<ui::UiElement>(pageTalkChoice));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <string>
-#include <vector>
+#include "lib/Types.h"
 
 namespace model {
 
@@ -16,7 +15,7 @@ enum TileStepSound {
 
 struct TileMetadata {
   int id;
-  std::string description = "";
+  String description = "";
   TileStepSound stepSound = TILE_STEP_SOUND_FLOOR;
   bool isWalkable = true;
   bool isSeeThrough = true;
@@ -25,11 +24,11 @@ struct TileMetadata {
 };
 
 struct TilesetTemplate {
-  std::string name;
-  std::string spriteBase;
+  String name;
+  String spriteBase;
   int tileWidth;
   int tileHeight;
-  std::vector<TileMetadata> tiles;
+  bmin::DynArray<TileMetadata> tiles;
 };
 
 } // namespace model

@@ -68,14 +68,14 @@ void LayerPickUp::syncCurrentPartyMember() {
   const int maxWeight = model::characterGetWeightCapacity(*currentPartyMember);
 
   auto minipageProps = minipagePickUp->getProps();
-  minipageProps.doneButtonRemoveLayerId = std::string(LAYER_ID);
+  minipageProps.doneButtonRemoveLayerId = stringFromView(LAYER_ID);
   minipageProps.partyMemberIndex = player.currentPartyMemberIndex;
   minipageProps.partyMemberSprites.clear();
   for (const auto& member : player.party) {
-    minipageProps.partyMemberSprites.push_back(model::characterPlayerGetSprite(member));
+    minipageProps.partyMemberSprites.pushBack(model::characterPlayerGetSprite(member));
   }
-  minipageProps.weightText = std::string(TRANSLATE("Carrying")) + " " +
-                             std::to_string(carrying) + "/" + std::to_string(maxWeight);
+  minipageProps.weightText = String(TRANSLATE("Carrying")) + " " +
+                             bmin::toString(carrying) + "/" + bmin::toString(maxWeight);
   auto nearbyItems = model::characterGetNearbyItems(*currentPartyMember);
   minipageProps.nearbyItems = nearbyItems;
   minipagePickUp->setProps(minipageProps);

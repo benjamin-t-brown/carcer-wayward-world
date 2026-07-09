@@ -10,8 +10,8 @@ namespace actions {
 
 class UiShowLayerPopupText : public AbstractAction {
   sdl2w::Window* window;
-  std::string title;
-  std::string text;
+  String title;
+  String text;
 
   void act() override {
     auto layerManager = getLayerManager();
@@ -27,7 +27,7 @@ class UiShowLayerPopupText : public AbstractAction {
   }
 
 public:
-  UiShowLayerPopupText(sdl2w::Window* _window, std::string _title, std::string _text)
+  UiShowLayerPopupText(sdl2w::Window* _window, String _title, String _text)
       : window(_window), title(std::move(_title)), text(std::move(_text)) {}
 };
 

@@ -28,7 +28,7 @@ int InGameTitleBar::centerTopY(int elementHeight) const {
 }
 
 UiElement*
-InGameTitleBar::createStatLineRightAligned(std::string_view text, int x, int y) {
+InGameTitleBar::createStatLineRightAligned(const String& text, int x, int y) {
   auto statLine = new TextLine(window, this);
   auto& statStyle = statLine->getStyle();
   statStyle.x = style.x;
@@ -36,7 +36,9 @@ InGameTitleBar::createStatLineRightAligned(std::string_view text, int x, int y) 
   statStyle.scale = 1.f;
   setBaseFontConfig(statStyle, BaseFontConfig::MODAL_TEXT_BOLD);
   statStyle.textAlign = TextAlign::LEFT_CENTER;
-  statLine->setProps(TextLineProps{.textBlocks = {TextBlock{.text = std::string(text)}}});
+  TextLineProps statLineProps;
+  statLineProps.textBlocks.pushBack(TextBlock{.text = text});
+  statLine->setProps(statLineProps);
   auto [statWidth, _] = statLine->getDims();
   statStyle.x = x - statWidth;
   statStyle.y = y;
@@ -94,24 +96,24 @@ void InGameTitleBar::build() {
   setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
   titleStyle.textAlign = TextAlign::LEFT_CENTER;
   TextLineProps titleProps;
-  titleProps.textBlocks.push_back(TextBlock{.text = props.title});
+  titleProps.textBlocks.pushBack(TextBlock{.text = props.title});
   titleText->setProps(titleProps);
   addChild(titleText);
 
   int statX = style.x + scaledWidth - scaledStatSpacing;
   auto* dayStatLine = createStatLineRightAligned(
-      TRANSLATE("Day: ") + std::to_string(props.day), statX, barCenterY);
+      TRANSLATE("Day: ") + bmin::toString(props.day), statX, barCenterY);
   addChild(dayStatLine);
   auto [dayStatWidth, _] = dayStatLine->getDims();
   statX -= dayStatWidth + scaledStatSpacing;
   auto* foodStatLine = createStatLineRightAligned(
-      TRANSLATE("Food: ") + std::to_string(props.food), statX, barCenterY);
+      TRANSLATE("Food: ") + bmin::toString(props.food), statX, barCenterY);
   addChild(foodStatLine);
   if (props.showAp) {
     auto [foodStatWidth, _] = foodStatLine->getDims();
     statX -= foodStatWidth + scaledStatSpacing;
     auto* apStatLine = createStatLineRightAligned(
-        TRANSLATE("AP: ") + std::to_string(props.ap), statX, barCenterY);
+        TRANSLATE("AP: ") + bmin::toString(props.ap), statX, barCenterY);
     addChild(apStatLine);
   }
 }

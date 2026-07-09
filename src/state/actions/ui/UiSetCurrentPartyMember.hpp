@@ -17,8 +17,8 @@ class UiSetCurrentPartyMember : public AbstractAction {
         partyMemberIndex >= static_cast<int>(localState.player.party.size())) {
       nextPartyMemberIndex = 0;
       LOG(WARN) << "UiSetCurrentPartyMember::act: partyMemberIndex is out of range " +
-                       std::to_string(partyMemberIndex) + " " +
-                       std::to_string(localState.player.party.size())
+                       bmin::toString(partyMemberIndex) + " " +
+                       bmin::toString(localState.player.party.size())
                 << LOG_ENDL;
     }
     localState.player.currentPartyMemberIndex = nextPartyMemberIndex;

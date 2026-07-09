@@ -28,7 +28,7 @@ PageInventoryProps& PageInventory::getProps() { return props; }
 const PageInventoryProps& PageInventory::getProps() const { return props; }
 
 void PageInventory::populateInventoryProps(
-    std::vector<ListInventoryPropsItem>& listProps) {
+    DynArray<ListInventoryPropsItem>& listProps) {
   if (!getStateManager() || !getDatabase()) {
     return;
   }
@@ -38,8 +38,8 @@ void PageInventory::populateInventoryProps(
   equippedCheck.equipment = props.equipment;
 
   for (const auto& item : props.inventory) {
-    auto& itemTemplate = database.getItemTemplate(item.itemName);
-    listProps.push_back({.itemId = item.id,
+    auto& itemTemplate = database.getItemTemplate(bmin::toStringView(item.itemName));
+    listProps.pushBack({.itemId = item.id,
                          .itemName = item.itemName,
                          .itemLabel = itemTemplate.label.empty() ? itemTemplate.name
                                                                  : itemTemplate.label,
@@ -73,7 +73,7 @@ void PageInventory::build() {
 
   if (!props.characterPlayerSprite.empty()) {
     if (auto* icon = modal->getChildById("headerIcon")) {
-      auto iconBg = std::make_unique<Quad>(window, modal);
+      auto iconBg = makeUnique<Quad>(window, modal);
       iconBg->setId("headerIconBg");
       iconBg->setStyle(icon->getStyle());
       iconBg->setProps(QuadProps{.bgColor = {255, 255, 255, 50}});
@@ -81,11 +81,11 @@ void PageInventory::build() {
       auto& modalChildren = modal->getChildren();
       const auto insertBefore = std::find_if(modalChildren.begin(),
                                              modalChildren.end(),
-                                             [](const std::unique_ptr<UiElement>& child) {
+                                             [](const UniquePtr<UiElement>& child) {
                                                return child->getId() == "headerIcon";
                                              });
       if (insertBefore != modalChildren.end()) {
-        modalChildren.insert(insertBefore, std::move(iconBg));
+        modalChildren.insert(insertBefore, UniquePtr<UiElement>(iconBg.release()));
       }
     }
   }
@@ -109,8 +109,8 @@ void PageInventory::build() {
   TextLineProps titleProps;
   TextBlock titleBlock;
   titleBlock.text =
-      std::string(TRANSLATE("Inventory")) + " - " + props.characterPlayerLabel;
-  titleProps.textBlocks.push_back(titleBlock);
+      String(TRANSLATE("Inventory")) + " - " + props.characterPlayerLabel;
+  titleProps.textBlocks.pushBack(titleBlock);
   title->setProps(titleProps);
   modal->setTitleElement(title);
 
@@ -124,7 +124,7 @@ void PageInventory::build() {
     PartyMemberIconSelectorProps selectorProps;
     selectorProps.selectedIndex = props.partyMemberInventoryIndex;
     for (const auto& member : props.partyMembers) {
-      selectorProps.members.push_back(member.spriteName);
+      selectorProps.members.pushBack(member.spriteName);
     }
 
     auto partySelector = new PartyMemberIconSelector(window, modal);
@@ -162,13 +162,12 @@ void PageInventory::build() {
   weightStyle.fontColor = Colors::DarkGrey;
   weightStyle.textAlign = TextAlign::LEFT_CENTER;
   weightStyle.scale = 1.f;
-  weightText->setProps(TextLineProps{
-      .textBlocks = {{
-          .text = std::string(TRANSLATE("Carrying")) + " " +
-                  std::to_string(props.weightCarrying) + "/" +
-                  std::to_string(props.weightCapacity),
-      }},
+  TextLineProps weightProps;
+  weightProps.textBlocks.pushBack({
+      .text = String(TRANSLATE("Carrying")) + " " + bmin::toString(props.weightCarrying) + "/" +
+              bmin::toString(props.weightCapacity),
   });
+  weightText->setProps(weightProps);
   weightStyle.x = contentX + statsRowPadding;
   weightStyle.y = statsRowY + scaledStatsRowHeight / 2;
   weightText->build();
@@ -181,12 +180,12 @@ void PageInventory::build() {
   goldStyle.fontColor = Colors::DarkGrey;
   goldStyle.textAlign = TextAlign::LEFT_CENTER;
   goldStyle.scale = 1.f;
-  goldText->setProps(TextLineProps{
-      .textBlocks = {{
-          .text = std::to_string(props.gold) + std::string(TRANSLATE(" gp")),
-          .fontColor = Colors::Blue,
-      }},
+  TextLineProps goldProps;
+  goldProps.textBlocks.pushBack({
+      .text = bmin::toString(props.gold) + String(TRANSLATE(" gp")),
+      .fontColor = Colors::Blue,
   });
+  goldText->setProps(goldProps);
   goldStyle.x = contentX + contentW - goldText->getDims().first - statsRowPadding;
   goldStyle.y = statsRowY + scaledStatsRowHeight / 2;
   goldText->build();

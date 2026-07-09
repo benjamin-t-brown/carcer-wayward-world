@@ -8,15 +8,15 @@
 #include "ui/elements/TextLine.h"
 #include "ui/elements/buttons/ButtonGroup.h"
 #include <memory>
-#include <string>
+#include "lib/Types.h"
 
 namespace {
 
 class TestConfirmModalObserver : public ui::UiEventObserver {
-  std::string buttonId;
+  String buttonId;
 
 public:
-  TestConfirmModalObserver(std::string _buttonId) : buttonId(_buttonId) {}
+  TestConfirmModalObserver(String _buttonId) : buttonId(_buttonId) {}
 
   void onClick(int x, int y, int button) override {
     LOG(INFO) << "ConfirmModal " << buttonId << " clicked at " << x << ", " << y
@@ -29,7 +29,7 @@ public:
 int main(int argc, char** argv) {
   LOG(INFO) << "Start ConfirmModal test" << LOG_ENDL;
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ConfirmModal test initialized" << LOG_ENDL;
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
       LOG(ERROR) << "ConfirmModal getButtonGroup() returned nullptr" << LOG_ENDL;
     }
 
-    elements.push_back(std::unique_ptr<ui::UiElement>(modal));
+    elements.pushBack(UniquePtr<ui::UiElement>(modal));
 
     auto& events = window.getEvents();
     events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_DOWN,

@@ -1,12 +1,13 @@
 #pragma once
 
 #include "../UiElement.h"
-#include <string>
+#include "lib/Types.h"
+#include <string_view>
 
 namespace ui {
 
 struct InGameTitleBarProps {
-  std::string title = "Title";
+  String title = "Title";
   int day = 0;
   int food = 0;
   int ap = 0;
@@ -39,7 +40,7 @@ public:
   // void addMenuButtonObserver(UiEventObserver* observer);
   // void addHelpButtonObserver(UiEventObserver* observer);
 
-  UiElement* createStatLineRightAligned(std::string_view text, int x, int y);
+  UiElement* createStatLineRightAligned(const String& text, int x, int y);
 
   void build() override;
   void render(int dt) override;

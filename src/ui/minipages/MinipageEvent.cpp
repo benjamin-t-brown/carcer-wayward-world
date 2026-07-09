@@ -2,7 +2,6 @@
 #include "ui/colors.h"
 #include "ui/elements/TextLine.h"
 #include "ui/layouts/ModalSmall.h"
-#include <memory>
 
 namespace ui {
 
@@ -30,7 +29,7 @@ const std::pair<int, int> MinipageEvent::getDims() const {
 void MinipageEvent::build() {
   children.clear();
 
-  auto modal = std::make_unique<ModalSmall>(window, this);
+  auto modal = makeUnique<ModalSmall>(window, this);
   modal->setId("modal");
   BaseStyle modalStyle;
   modalStyle.x = style.x;
@@ -41,7 +40,7 @@ void MinipageEvent::build() {
   modal->setStyle(modalStyle);
   modal->setProps(ModalSmallProps{});
 
-  auto title = std::make_unique<TextLine>(window, modal.get());
+  auto title = makeUnique<TextLine>(window, modal.get());
   BaseStyle titleStyle;
   setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
   titleStyle.fontColor = Colors::Black;
@@ -51,11 +50,11 @@ void MinipageEvent::build() {
   TextLineProps titleProps;
   TextBlock titleBlock;
   titleBlock.text = "Event";
-  titleProps.textBlocks.push_back(titleBlock);
+  titleProps.textBlocks.pushBack(titleBlock);
   title->setProps(titleProps);
   modal->setTitleElement(title.release());
 
-  children.push_back(std::move(modal));
+  children.pushBack(UniquePtr<UiElement>(modal.release()));
 }
 
 void MinipageEvent::render(int dt) { UiElement::render(dt); }

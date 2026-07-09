@@ -5,7 +5,6 @@
 #include "ui/colors.h"
 #include "ui/uiUtils.h"
 #include <algorithm>
-#include <memory>
 
 namespace ui {
 
@@ -51,7 +50,7 @@ SectionScrollable::SectionScrollable(sdl2w::Window* _window, UiElement* _parent)
   shouldPropagateEventsToChildren = true;
   addEventObserver(new SectionScrollableScrollWheelObserver(this));
 
-  outerQuad = std::make_unique<Quad>(window, this);
+  outerQuad = makeUnique<Quad>(window, this);
   outerQuad->setId("outerQuad");
 
   innerQuad = new Quad(window, outerQuad.get());
@@ -169,12 +168,24 @@ void SectionScrollable::scrollFromIndicatorMouseY(int mouseY) {
   scrollTo(static_cast<int>(ratio * maxScrollOffset + 0.5f));
 }
 
+namespace {
+
+DynArray<UiElement*> additionalWithQuad(Quad* quad) {
+  DynArray<UiElement*> elements;
+  if (quad != nullptr) {
+    elements.pushBack(quad);
+  }
+  return elements;
+}
+
+}  // namespace
+
 bool SectionScrollable::checkMouseDownEvent(int mouseX,
                                             int mouseY,
                                             int button,
-                                            std::vector<UiElement*> additionalElements) {
+                                            DynArray<UiElement*> additionalElements) {
   const bool handled =
-      UiElement::checkMouseDownEvent(mouseX, mouseY, button, {outerQuad.get()});
+      UiElement::checkMouseDownEvent(mouseX, mouseY, button, additionalWithQuad(outerQuad.get()));
   if (maxScrollOffset > 0 && isInScrollTrack(mouseX, mouseY) &&
       !hitScrollButton(mouseX, mouseY)) {
     scrollFromIndicatorMouseY(mouseY);
@@ -188,26 +199,26 @@ bool SectionScrollable::checkMouseDownEvent(int mouseX,
 bool SectionScrollable::checkMouseUpEvent(int mouseX,
                                           int mouseY,
                                           int button,
-                                          std::vector<UiElement*> additionalElements) {
+                                          DynArray<UiElement*> additionalElements) {
   isDraggingIndicator = false;
-  return UiElement::checkMouseUpEvent(mouseX, mouseY, button, {outerQuad.get()});
+  return UiElement::checkMouseUpEvent(mouseX, mouseY, button, additionalWithQuad(outerQuad.get()));
 }
 
 bool SectionScrollable::checkHoverEvent(int mouseX,
                                         int mouseY,
-                                        std::vector<UiElement*> additionalElements) {
+                                        DynArray<UiElement*> additionalElements) {
   if (isDraggingIndicator) {
     scrollFromIndicatorMouseY(mouseY);
     return true;
   }
-  return UiElement::checkHoverEvent(mouseX, mouseY, {outerQuad.get()});
+  return UiElement::checkHoverEvent(mouseX, mouseY, additionalWithQuad(outerQuad.get()));
 }
 
 bool SectionScrollable::checkMouseWheelEvent(int mouseX,
                                              int mouseY,
                                              int delta,
-                                             std::vector<UiElement*> additionalElements) {
-  return UiElement::checkMouseWheelEvent(mouseX, mouseY, delta, {outerQuad.get()});
+                                             DynArray<UiElement*> additionalElements) {
+  return UiElement::checkMouseWheelEvent(mouseX, mouseY, delta, additionalWithQuad(outerQuad.get()));
 }
 
 void SectionScrollable::scrollUp() {

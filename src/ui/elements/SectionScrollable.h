@@ -26,7 +26,7 @@ private:
   int innerHeightScaled = 0;
   bool isDraggingIndicator = false;
 
-  std::unique_ptr<Quad> outerQuad = nullptr;
+  UniquePtr<Quad> outerQuad;
   Quad* innerQuad = nullptr;
 
   int getScrollIndicatorY(int offset) const;
@@ -51,18 +51,18 @@ public:
   bool checkMouseDownEvent(int mouseX,
                            int mouseY,
                            int button,
-                           std::vector<UiElement*> additionalElements = {}) override;
+                           DynArray<UiElement*> additionalElements = {}) override;
   bool checkMouseUpEvent(int mouseX,
                          int mouseY,
                          int button,
-                         std::vector<UiElement*> additionalElements = {}) override;
+                         DynArray<UiElement*> additionalElements = {}) override;
   bool checkHoverEvent(int mouseX,
                        int mouseY,
-                       std::vector<UiElement*> additionalElements = {}) override;
+                       DynArray<UiElement*> additionalElements = {}) override;
   bool checkMouseWheelEvent(int mouseX,
                             int mouseY,
                             int delta,
-                            std::vector<UiElement*> additionalElements = {}) override;
+                            DynArray<UiElement*> additionalElements = {}) override;
 
   // Scroll methods
   void scrollUp();

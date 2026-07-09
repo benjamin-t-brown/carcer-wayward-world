@@ -2,7 +2,7 @@
 
 namespace model {
 
-std::string characterGetSprite(const CharacterTemplate& characterTemplate) {
+String characterGetSprite(const CharacterTemplate& characterTemplate) {
   return characterTemplate.spritesheetName + "_" + characterTemplate.spriteOffset;
 }
 

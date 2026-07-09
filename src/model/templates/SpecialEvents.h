@@ -1,9 +1,8 @@
 #pragma once
 
 #include <optional>
-#include <string>
+#include "lib/Types.h"
 #include <variant>
-#include <vector>
 
 namespace model {
 
@@ -27,57 +26,57 @@ using GameEventChild = std::variant<GameEventChildChoice,
                                     GameEventChildEnd>;
 
 struct GameEvent {
-  std::string id;
-  std::string title;
+  String id;
+  String title;
   GameEventType eventType; // indicates which ui layer to use for the event
-  std::string icon;        // name of sprite to use for the event
+  String icon;        // name of sprite to use for the event
   // a mapping from variable name to its original text and it's evaluated value
-  std::vector<Variable> vars;
-  std::vector<GameEventChild> children;
+  bmin::DynArray<Variable> vars;
+  bmin::DynArray<GameEventChild> children;
 };
 
 struct Variable {
-  std::string id;
-  std::string key;
-  std::string value;
-  std::string importFrom;
+  String id;
+  String key;
+  String value;
+  String importFrom;
 };
 
 struct VariableValue {
-  std::string str;
-  std::optional<std::string> evaluated;
+  String str;
+  std::optional<String> evaluated;
 };
 
 struct AudioInfo {
-  std::string audioName;
+  String audioName;
   int volume;
   int offset;
 };
 
 // struct KeywordDataK {
 //   KeywordType keywordType = KeywordType::K;
-//   std::string text;
+//   String text;
 // };
 
 // struct KeywordDataKDup {
 //   KeywordType keywordType = KeywordType::K_DUP;
-//   std::string keyword;
+//   String keyword;
 // };
 
 // struct KeywordCheck {
-//   std::string conditionStr;
-//   std::string next;
+//   String conditionStr;
+//   String next;
 // };
 
 // struct KeywordDataKSwitch {
 //   KeywordType keywordType = KeywordType::K_SWITCH;
-//   std::string defaultNext; // id of next child
-//   std::vector<KeywordCheck> checks;
+//   String defaultNext; // id of next child
+//   bmin::DynArray<KeywordCheck> checks;
 // };
 
 // struct KeywordDataKChild {
 //   KeywordType keywordType = KeywordType::K_CHILD;
-//   std::string next; // id of next child
+//   String next; // id of next child
 // };
 
 // // Discriminated union for KeywordData
@@ -92,60 +91,60 @@ struct AudioInfo {
 
 // struct GameEventChildKeyword {
 //   GameEventChildType eventChildType = GameEventChildType::KEYWORD;
-//   std::string id;
-//   std::map<std::string, KeywordData> keywords;
+//   String id;
+//   std::map<String, KeywordData> keywords;
 // };
 
 struct ChoiceSwitchText {
-  std::string conditionStr;
-  std::string text;
+  String conditionStr;
+  String text;
 };
 
 struct Choice {
-  std::string text;
-  std::vector<ChoiceSwitchText> switchText;
-  std::string prefixText;
-  std::string conditionStr;
-  std::string evalStr;
-  std::string next;
+  String text;
+  bmin::DynArray<ChoiceSwitchText> switchText;
+  String prefixText;
+  String conditionStr;
+  String evalStr;
+  String next;
 };
 
 
 
 struct GameEventChildChoice {
   GameEventChildType eventChildType = GameEventChildType::CHOICE;
-  std::string id;
-  std::string text;
-  std::vector<Choice> choices;
+  String id;
+  String text;
+  bmin::DynArray<Choice> choices;
   std::optional<AudioInfo> audioInfo;
 };
 
 struct SwitchCase {
-  std::string conditionStr;
-  std::string next;
+  String conditionStr;
+  String next;
 };
 
 struct GameEventChildSwitch {
   GameEventChildType eventChildType = GameEventChildType::SWITCH;
-  std::string id;
-  std::string defaultNext;
-  std::vector<SwitchCase> cases;
+  String id;
+  String defaultNext;
+  bmin::DynArray<SwitchCase> cases;
 };
 
 struct GameEventChildExec {
   GameEventChildType eventChildType = GameEventChildType::EXEC;
-  std::string id;
-  std::vector<std::string> paragraphs;
-  std::string execStr;
-  std::string next;
+  String id;
+  bmin::DynArray<String> paragraphs;
+  String execStr;
+  String next;
   bool autoAdvance;
   std::optional<AudioInfo> audioInfo;
 };
 
 struct GameEventChildEnd {
   GameEventChildType eventChildType = GameEventChildType::END;
-  std::string id;
-  std::string next;
+  String id;
+  String next;
 };
 
 } // namespace model

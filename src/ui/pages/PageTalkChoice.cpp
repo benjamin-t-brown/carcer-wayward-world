@@ -7,7 +7,6 @@
 #include "ui/elements/TextParagraph.h"
 #include "ui/elements/buttons/ButtonTextWrap.h"
 #include "ui/layouts/ModalStandard.h"
-#include <memory>
 
 namespace ui {
 
@@ -48,7 +47,7 @@ void PageTalkChoice::build() {
   ModalStandardProps modalProps;
   modal->setProps(modalProps);
 
-  children.push_back(std::unique_ptr<ModalStandard>(modal));
+  children.pushBack(UniquePtr<UiElement>(modal));
 
   auto [scaledContentW, scaledContentH] = modal->getContentDims();
   auto [contentX, contentY] = modal->getContentLocation();
@@ -70,7 +69,7 @@ void PageTalkChoice::build() {
   TextLineProps titleProps;
   TextBlock titleBlock;
   titleBlock.text = props.title;
-  titleProps.textBlocks.push_back(titleBlock);
+  titleProps.textBlocks.pushBack(titleBlock);
   title->setProps(titleProps);
   modal->setTitleElement(title);
 
@@ -127,7 +126,7 @@ void PageTalkChoice::build() {
   // Create choices
   for (int i = 0; i < static_cast<int>(props.choices.size()); i++) {
     auto choiceButton = new ButtonTextWrap(window, choiceSection);
-    choiceButton->setId("choice" + std::to_string(i));
+    choiceButton->setId("choice" + bmin::toString(i));
     auto& choiceButtonStyle = choiceButton->getStyle();
     choiceButtonStyle.width =
         scaledContentW - 8 * style.scale - scrollBarWidth * style.scale;
@@ -135,9 +134,9 @@ void PageTalkChoice::build() {
     choiceButtonStyle.scale = 1.f;
     choiceButtonStyle.fontColor = Colors::DarkBlue;
     ui::ButtonTextWrapProps choiceButtonProps;
-    const std::string& prefixText = props.choices[i].prefixText;
+    const String& prefixText = props.choices[i].prefixText;
     choiceButtonProps.text =
-        std::to_string(i + 1) + ". " +
+        bmin::toString(i + 1) + ". " +
         ((prefixText.empty() ? props.choices[i].text
                              : prefixText + " " + props.choices[i].text));
     choiceButtonProps.isSelected = false;

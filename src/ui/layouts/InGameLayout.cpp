@@ -78,7 +78,7 @@ void InGameLayout::buildActionButtons(const std::pair<int, int>& actionButtonsAr
       }
     }
 
-    button->setId("worldActionButton_" + std::to_string(i));
+    button->setId("worldActionButton_" + bmin::toString(i));
     button->setProps(ButtonWorldActionProps{worldActionType});
     actionButtonsQuad->addChild(button);
   }
@@ -182,7 +182,7 @@ void InGameLayout::build() {
                              2 * borderProps.outsetBorderSize;
     actionButtonsQuadHeight = BorderInGame::ACTION_BUTTON_SIZE * 2 * borderProps.actionButtonsScale +
                               borderProps.outsetBorderSize * 2;
-    children.insert(children.begin(), std::unique_ptr<UiElement>(wideBorder));
+    children.insert(children.begin(), UniquePtr<UiElement>(wideBorder));
   } else {
     auto narrowBorder = new BorderInGameNarrow(window, this);
     narrowBorder->setId("border");
@@ -200,7 +200,7 @@ void InGameLayout::build() {
         style.width - borderProps.sideBorderWidth * 2 - 2 * borderProps.outsetBorderSize;
     actionButtonsQuadHeight = BorderInGame::ACTION_BUTTON_SIZE * 2 * borderProps.actionButtonsScale +
                               borderProps.outsetBorderSize * 2;
-    children.insert(children.begin(), std::unique_ptr<UiElement>(narrowBorder));
+    children.insert(children.begin(), UniquePtr<UiElement>(narrowBorder));
   }
 
   auto actionButtonsQuad = new Quad(window, this);

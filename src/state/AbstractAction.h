@@ -4,7 +4,7 @@
 #include "model/templates/UtilityTypes.h"
 #include "state/DatabaseInterface.h"
 #include "state/LayerManagerInterface.h"
-#include <memory>
+#include "lib/Types.h"
 #ifdef __GNUG__
 #include <cxxabi.h>
 #endif
@@ -23,11 +23,11 @@ protected:
   };
 
 public:
-  virtual std::string getName() const {
+  virtual String getName() const {
 #ifdef __GNUG__
     int status;
     char* realname = abi::__cxa_demangle(typeid(*this).name(), 0, 0, &status);
-    std::string name = (status == 0) ? realname : typeid(*this).name();
+    String name = (status == 0) ? realname : typeid(*this).name();
     free(realname);
     return name;
 #else
@@ -47,7 +47,7 @@ public:
 };
 
 struct AsyncAction {
-  std::unique_ptr<state::AbstractAction> action;
+  UniquePtr<state::AbstractAction> action;
   model::TimerStruct timer;
 };
 

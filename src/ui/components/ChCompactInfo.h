@@ -2,14 +2,13 @@
 
 #include "../UiElement.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
-#include <string>
-#include <vector>
+#include "lib/Types.h"
 
 namespace ui {
 
 struct ChCompactInfoProps {
-  std::string characterSpriteName;
-  std::vector<std::string> statusEffectSpriteNames;
+  String characterSpriteName;
+  DynArray<String> statusEffectSpriteNames;
 
   SDL_Color spriteBgColor = Colors::OffWhite;
   SDL_Color spriteBorderColor1 = Colors::LightGrey;

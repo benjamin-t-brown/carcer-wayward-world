@@ -9,7 +9,7 @@ namespace state {
 namespace actions {
 
 class UiRemoveFloatingNotification : public AbstractAction {
-  std::string notificationId;
+  String notificationId;
 
   void act() override {
     auto& notifications = state->uiState.floatingNotifications;
@@ -21,7 +21,7 @@ class UiRemoveFloatingNotification : public AbstractAction {
   }
 
 public:
-  explicit UiRemoveFloatingNotification(std::string _notificationId)
+  explicit UiRemoveFloatingNotification(String _notificationId)
       : notificationId(std::move(_notificationId)) {}
 };
 

@@ -1,9 +1,9 @@
 #include "model/instances/Player.h"
-#include <string>
+#include "lib/Types.h"
 
 namespace model {
 
-CharacterPlayer* playerFindPartyMemberById(Player& _player, const std::string& _id) {
+CharacterPlayer* playerFindPartyMemberById(Player& _player, const String& _id) {
   for (auto& member : _player.party) {
     if (member.instanceId == _id) {
       return &member;

@@ -116,7 +116,7 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
       .textBlocks =
           {
               {
-                  .text = std::to_string(index + 1) + ".",
+                  .text = bmin::toString(index + 1) + ".",
               },
           },
   });
@@ -146,9 +146,9 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
   const SDL_Color labelColor = item.isEquipped ? Colors::Blue : Colors::Black;
   auto fontConfig =
       item.isEquipped ? BaseFontConfig::MODAL_TEXT_BOLD : BaseFontConfig::MODAL_TEXT;
-  std::string itemDisplayLabel = item.itemLabel;
+  String itemDisplayLabel = item.itemLabel;
   if (item.isStackable) {
-    itemDisplayLabel += " (" + std::to_string(item.quantity) + ")";
+    itemDisplayLabel += " (" + bmin::toString(item.quantity) + ")";
   }
 
   if (item.isEquippable && !props.characterPlayerId.empty()) {

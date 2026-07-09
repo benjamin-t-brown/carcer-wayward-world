@@ -1,39 +1,38 @@
 #include "hiscore.h"
+#include "lib/StringUtil.h"
 #include "lib/sdl2w/AssetLoader.h"
 #include "lib/sdl2w/Logger.h"
-#include <sstream>
 
 namespace hiscore {
 bool isLoaded = false;
-std::string hiscorePath = "hiscore.txt";
-std::vector<HiscoreRow> hiscores;
+String hiscorePath = "hiscore.txt";
+DynArray<HiscoreRow> hiscores;
 
-std::vector<HiscoreRow> parseHiscoreText(const std::string& hiscoreText) {
-  std::vector<HiscoreRow> hiscores;
-  std::stringstream ss(hiscoreText);
-  std::string line;
-  while (std::getline(ss, line)) {
-    std::stringstream lineStream(line);
-    std::string name;
-    int score;
-    lineStream >> name >> score;
+DynArray<HiscoreRow> parseHiscoreText(const String& hiscoreText) {
+  DynArray<HiscoreRow> rows;
+  const bmin::DynArray<String> lines = strutil::splitLines(hiscoreText);
+  for (size_t i = 0; i < lines.size(); ++i) {
+    String name;
+    int score = 0;
+    if (!strutil::parseFirstTokenAndInt(lines[i], name, score)) {
+      continue;
+    }
     LOG(INFO) << "Parsed hiscore: " << name << " " << score << LOG_ENDL;
-    hiscores.push_back({name, score});
+    rows.pushBack({name, score});
   }
-  return hiscores;
+  return rows;
 }
 
-std::string serializeHiscoreRow(const HiscoreRow& row) {
-  std::stringstream ss;
+String serializeHiscoreRow(const HiscoreRow& row) {
+  StringStream ss;
   ss << row.name << " " << row.score;
   return ss.str();
 }
 
-std::vector<HiscoreRow> getHighScores() {
+DynArray<HiscoreRow> getHighScores() {
   if (!isLoaded) {
     try {
-      const std::string hiscoreText =
-          std::string(sdl2w::loadFileAsString(hiscorePath).sliceView());
+      const String hiscoreText = sdl2w::loadFileAsString(hiscorePath.sliceView());
       if (hiscoreText.size() == 0) {
         saveHighScores(hiscores);
         isLoaded = true;
@@ -50,13 +49,13 @@ std::vector<HiscoreRow> getHighScores() {
   return {};
 }
 
-void saveHighScores(const std::vector<HiscoreRow>& hiscoresA) {
+void saveHighScores(const DynArray<HiscoreRow>& hiscoresA) {
   hiscores = hiscoresA;
 
-  std::string content = "";
-  for (auto& score : hiscoresA) {
+  String content;
+  for (const auto& score : hiscoresA) {
     content += serializeHiscoreRow(score) + "\n";
   }
-  sdl2w::saveFileAsString(hiscorePath, content);
+  sdl2w::saveFileAsString(hiscorePath.sliceView(), content.sliceView());
 }
 } // namespace hiscore

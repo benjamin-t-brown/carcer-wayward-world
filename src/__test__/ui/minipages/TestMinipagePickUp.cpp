@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
   state::StateManager stateManager;
   state::StateManagerInterface::setStateManager(&stateManager);
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "MinipagePickUp test initialized" << LOG_ENDL;
@@ -149,7 +149,7 @@ int main(int argc, char** argv) {
             },
     });
 
-    elements.push_back(std::unique_ptr<ui::UiElement>(minipagePickUp));
+    elements.pushBack(UniquePtr<ui::UiElement>(minipagePickUp));
 
     auto& events = window.getEvents();
     events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_DOWN,

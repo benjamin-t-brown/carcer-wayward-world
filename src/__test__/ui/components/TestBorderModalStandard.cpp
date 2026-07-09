@@ -11,13 +11,13 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start BorderModalStandard test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "BorderModalStandard test initialized" << LOG_ENDL;
 
     // Create BorderModalStandard component
-    auto borderModal = std::make_unique<ui::BorderModalStandard>(&window);
+    auto borderModal = makeUnique<ui::BorderModalStandard>(&window);
     ui::BaseStyle style;
     style.x = 0;
     style.y = 0;
@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
     borderModal->setStyle(style);
     borderModal->setProps({});
 
-    elements.push_back(std::move(borderModal));
+    elements.pushBack(UniquePtr<ui::UiElement>(borderModal.release()));
   };
 
   auto _update = [&](sdl2w::Window& window, sdl2w::Store& store) {

@@ -7,7 +7,7 @@
 namespace ui {
 
 struct ListChCompactInfoVerticalProps {
-  std::vector<ChCompactInfoProps> entries;
+  DynArray<ChCompactInfoProps> entries;
   int selectedIndex = 0;
   int lineGap = 0;
 };

@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     {
@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
           .bgColor = ui::Colors::DarkGrey,
           .bgSprite = "actors0_0",
       });
-      elements.push_back(std::unique_ptr<ui::UiElement>(q));
+      elements.pushBack(UniquePtr<ui::UiElement>(q));
     }
 
     {
@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
           .bgColor = ui::Colors::DarkGrey,
           .bgSprite = "actors0_0",
       });
-      elements.push_back(std::unique_ptr<ui::UiElement>(q));
+      elements.pushBack(UniquePtr<ui::UiElement>(q));
     }
 
     {
@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
           .bgColor = ui::Colors::DarkGrey,
           .bgSprite = "actors0_0",
       });
-      elements.push_back(std::unique_ptr<ui::UiElement>(q));
+      elements.pushBack(UniquePtr<ui::UiElement>(q));
     }
 
     // check text and border ----
@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
           .borderColor = ui::Colors::Red,
           .borderSize = 4,
       });
-      elements.push_back(std::unique_ptr<ui::UiElement>(q));
+      elements.pushBack(UniquePtr<ui::UiElement>(q));
     }
 
     {
@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
           .borderColor = ui::Colors::Red,
           .borderSize = 4,
       });
-      elements.push_back(std::unique_ptr<ui::UiElement>(q));
+      elements.pushBack(UniquePtr<ui::UiElement>(q));
     }
 
     {
@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
           .borderColor = ui::Colors::Red,
           .borderSize = 4,
       });
-      elements.push_back(std::unique_ptr<ui::UiElement>(q));
+      elements.pushBack(UniquePtr<ui::UiElement>(q));
     }
 
     // Test quad in quad
@@ -116,7 +116,7 @@ int main(int argc, char** argv) {
           .borderColor = ui::Colors::Red,
           .borderSize = 1,
       });
-      elements.push_back(std::unique_ptr<ui::UiElement>(q));
+      elements.pushBack(UniquePtr<ui::UiElement>(q));
 
       auto q2 = createBasicQuad(&window, 75, 75);
       q2->getStyle().x = 10;
@@ -141,7 +141,7 @@ int main(int argc, char** argv) {
           .borderColor = ui::Colors::Red,
           .borderSize = 1,
       });
-      elements.push_back(std::unique_ptr<ui::UiElement>(q));
+      elements.pushBack(UniquePtr<ui::UiElement>(q));
 
       auto q2 = createBasicQuad(&window, 75, 75);
       q2->getStyle().x = 10;

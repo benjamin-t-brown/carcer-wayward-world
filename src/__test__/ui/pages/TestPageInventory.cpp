@@ -19,12 +19,12 @@ int main(int argc, char** argv) {
   state::StateManager stateManager;
   state::StateManagerInterface::setStateManager(&stateManager);
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "PageInventory test initialized" << LOG_ENDL;
 
-    std::vector<std::string> partyTemplateNames = {
+    DynArray<String> partyTemplateNames = {
         "testPartyMember1",
         "testPartyMember2",
         "testPartyMember3",
@@ -33,12 +33,12 @@ int main(int argc, char** argv) {
 
     auto& player = stateManager.getState().player;
     for (const auto& templateName : partyTemplateNames) {
-      player.party.push_back(
+      player.party.pushBack(
           model::CharacterPlayer(database.getCharacterTemplate(templateName)));
     }
     auto& characterPlayer = player.party.front();
 
-    std::vector<std::string>
+    DynArray<String>
         //
         itemNames = {"PotionHealing",
                      "DaggerBronze",
@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
     pageProps.characterPlayerLabel = characterPlayer.params.label;
     pageProps.partyMemberInventoryIndex = player.currentPartyMemberInventoryIndex;
     for (const auto& member : player.party) {
-      pageProps.partyMembers.push_back(
+      pageProps.partyMembers.pushBack(
           {.spriteName = model::characterPlayerGetSprite(member)});
     }
     pageProps.characterPlayerSprite = model::characterPlayerGetSprite(characterPlayer);
@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
     pageProps.inventory = characterPlayer.inventory;
     pageInventory->setProps(pageProps);
 
-    elements.push_back(std::unique_ptr<ui::UiElement>(pageInventory));
+    elements.pushBack(UniquePtr<ui::UiElement>(pageInventory));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

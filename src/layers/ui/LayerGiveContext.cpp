@@ -8,8 +8,8 @@
 namespace layers {
 
 LayerGiveContext::LayerGiveContext(sdl2w::Window* _window,
-                                   std::string fromCharacterPlayerId,
-                                   std::string itemId)
+                                   String fromCharacterPlayerId,
+                                   String itemId)
     : Layer(_window, LAYER_ID) {
 
   if (!assertInterfaces()) {
@@ -63,18 +63,18 @@ LayerGiveContext::LayerGiveContext(sdl2w::Window* _window,
   popupProps.fromCharacterPlayerId = fromCharacterPlayerId;
   popupProps.itemId = itemId;
   {
-    const auto& itemTemplate = database->getItemTemplate(itemInstance.itemTemplateName);
+    const auto& itemTemplate = database->getItemTemplate(bmin::toStringView(itemInstance.itemTemplateName));
     popupProps.itemLabel =
         itemTemplate.label.empty() ? itemTemplate.name : itemTemplate.label;
   }
   popupProps.maxQuantity = itemInstance.quantity;
   popupProps.selectedQuantity = std::max(1, itemInstance.quantity);
   popupProps.showQuantitySlider =
-      database->getItemTemplate(itemInstance.itemTemplateName).stackable &&
+      database->getItemTemplate(bmin::toStringView(itemInstance.itemTemplateName)).stackable &&
       itemInstance.quantity > 1;
   for (const auto& member : player.party) {
     const auto label = member.params.label.empty() ? member.name : member.params.label;
-    popupProps.partyMembers.push_back(
+    popupProps.partyMembers.pushBack(
         {.characterPlayerId = member.instanceId,
          .label = label,
          .spriteName = model::characterPlayerGetSprite(member)});

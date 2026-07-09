@@ -9,13 +9,13 @@ namespace ui {
 class ObserverShowLayerGiveContext : public ui::UiEventObserver,
                                      public state::StateManagerInterface {
   sdl2w::Window* window;
-  std::string fromCharacterPlayerId;
-  std::string itemId;
+  String fromCharacterPlayerId;
+  String itemId;
 
 public:
   ObserverShowLayerGiveContext(sdl2w::Window* _window,
-                             std::string_view _fromCharacterPlayerId,
-                             std::string_view _itemId)
+                               const String& _fromCharacterPlayerId,
+                               const String& _itemId)
       : window(_window),
         fromCharacterPlayerId(_fromCharacterPlayerId),
         itemId(_itemId) {}

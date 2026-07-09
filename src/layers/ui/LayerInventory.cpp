@@ -81,7 +81,7 @@ void LayerInventory::syncInventoryPartyMember() {
   pageProps.partyMemberInventoryIndex = player.currentPartyMemberInventoryIndex;
   pageProps.partyMembers.clear();
   for (const auto& member : player.party) {
-    pageProps.partyMembers.push_back(
+    pageProps.partyMembers.pushBack(
         {.spriteName = model::characterPlayerGetSprite(member)});
   }
   pageProps.characterPlayerSprite = model::characterPlayerGetSprite(*inventoryPartyMember);

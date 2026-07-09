@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start BorderInGameNarrow test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "BorderInGameNarrow test initialized" << LOG_ENDL;
@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
     auto borderProps = ui::BorderInGameNarrowProps{};
     borderProps.actionButtonsScale = 2.f;
     border->setProps(borderProps);
-    elements.push_back(std::unique_ptr<ui::UiElement>(border));
+    elements.pushBack(UniquePtr<ui::UiElement>(border));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

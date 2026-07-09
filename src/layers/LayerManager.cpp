@@ -1,6 +1,5 @@
 #include "LayerManager.h"
 #include "lib/sdl2w/Logger.h"
-#include <algorithm>
 
 namespace layers {
 
@@ -12,7 +11,7 @@ void LayerManager::removeLayer(const Layer* layer) {
   if (layer == nullptr) {
     return;
   }
-  layers.erase(std::remove(layers.begin(), layers.end(), layer), layers.end());
+  layers.eraseIf([layer](Layer* entry) { return entry == layer; });
   delete layer;
 }
 
@@ -30,7 +29,7 @@ void LayerManager::clearLayers() {
   layers.clear();
 }
 
-void LayerManager::addLayer(Layer* layer) { layers.push_back(layer); }
+void LayerManager::addLayer(Layer* layer) { layers.pushBack(layer); }
 
 // set a layer to be the "front" layer, and suspend all other layers
 void LayerManager::moveToFront(Layer* layer) {
@@ -41,7 +40,7 @@ void LayerManager::moveToFront(Layer* layer) {
   LOG(DEBUG) << "LayerManager::moveToFront: moving layer to front: " << layer->getId()
              << LOG_ENDL;
 
-  layerEventsStack.push_back(layer);
+  layerEventsStack.pushBack(layer);
 
   bool found = false;
   for (auto l : layers) {
@@ -148,9 +147,9 @@ void LayerManager::handleKeyUp(std::string_view key, int keyCode) {
   }
 }
 
-std::vector<Layer*>& LayerManager::getLayers() { return layers; }
+DynArray<Layer*>& LayerManager::getLayers() { return layers; }
 
-const std::vector<Layer*>& LayerManager::getLayers() const { return layers; }
+const DynArray<Layer*>& LayerManager::getLayers() const { return layers; }
 
 size_t LayerManager::getLayerCount() const { return layers.size(); }
 
@@ -184,14 +183,14 @@ Layer* LayerManager::getLastActiveLayer() {
 }
 
 void LayerManager::update(int deltaTime) {
-  std::vector<Layer*> layersToBeRemoved;
+  DynArray<Layer*> layersToBeRemoved;
   for (unsigned int i = 0; i < layers.size(); i++) {
     auto& layer = layers[i];
     if (layer->getState() == LayerState::ON) {
       layer->update(deltaTime);
     }
     if (layer->shouldRemove()) {
-      layersToBeRemoved.push_back(layer);
+      layersToBeRemoved.pushBack(layer);
     }
   }
   for (auto& layer : layersToBeRemoved) {

@@ -1,12 +1,12 @@
 #pragma once
 
+#include "lib/Types.h"
+#include "lib/bmin/Map.h"
 #include "model/templates/Abilities.h"
-#include <string>
-#include <unordered_map>
 
 namespace db {
 
-void loadAbilityTemplates(const std::string& abilitiesFilePath,
-                          std::unordered_map<std::string, model::AbilityTemplate>& abilityTemplates);
+void loadAbilityTemplates(const String& abilitiesFilePath,
+                          bmin::Map<String, model::AbilityTemplate>& abilityTemplates);
 
 } // namespace db

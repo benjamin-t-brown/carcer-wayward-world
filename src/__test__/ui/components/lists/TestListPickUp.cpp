@@ -12,7 +12,7 @@ namespace {
 
 ui::ListPickUpProps buildListPickUpPropsFromDatabase(db::Database& database) {
   ui::ListPickUpProps listProps;
-  const std::vector<std::string> itemNames = {
+  const DynArray<String> itemNames = {
       "PotionHealing",
       "DaggerBronze",
       "ShortSwordBronze",
@@ -22,7 +22,7 @@ ui::ListPickUpProps buildListPickUpPropsFromDatabase(db::Database& database) {
 
   for (const auto& itemName : itemNames) {
     const auto& itemTemplate = database.getItemTemplate(itemName);
-    listProps.items.push_back({
+    listProps.items.pushBack({
         .item =
             model::ItemInstance{
                 .id = model::createRandomId(),
@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
   db::Database database;
   database.load();
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ListPickUp test initialized" << LOG_ENDL;
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
     auto [listWidth, listHeight] = listPickUp->getDims();
     LOG(INFO) << "ListPickUp dimensions: " << listWidth << ", " << listHeight << LOG_ENDL;
 
-    elements.push_back(std::unique_ptr<ui::UiElement>(listPickUp));
+    elements.pushBack(UniquePtr<ui::UiElement>(listPickUp));
 
     auto& events = window.getEvents();
     events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_DOWN,

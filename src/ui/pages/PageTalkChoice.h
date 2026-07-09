@@ -6,16 +6,16 @@
 namespace ui {
 
 struct PageTalkChoiceItem {
-  std::string nextId;
-  std::string text;
-  std::string prefixText;
+  String nextId;
+  String text;
+  String prefixText;
 };
 struct PageTalkChoiceProps {
-  std::string title;
-  std::string portraitSpriteName;
+  String title;
+  String portraitSpriteName;
   int choiceAreaHeight = 100;
-  std::vector<PageTalkChoiceItem> choices;
-  std::vector<TextBlock> textBlocks;
+  DynArray<PageTalkChoiceItem> choices;
+  DynArray<TextBlock> textBlocks;
 };
 
 class PageTalkChoice : public UiElement {

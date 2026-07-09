@@ -6,8 +6,8 @@
 namespace ui {
 
 struct FloatingNotificationProps {
-  std::string id;
-  std::string message;
+  String id;
+  String message;
   state::UiFloatingNotificationType type = state::UiFloatingNotificationType::INFO;
 };
 

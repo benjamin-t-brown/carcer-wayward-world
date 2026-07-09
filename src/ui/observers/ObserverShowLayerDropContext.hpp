@@ -9,13 +9,13 @@ namespace ui {
 class ObserverShowLayerDropContext : public ui::UiEventObserver,
                                      public state::StateManagerInterface {
   sdl2w::Window* window;
-  std::string characterPlayerId;
-  std::string itemId;
+  String characterPlayerId;
+  String itemId;
 
 public:
   ObserverShowLayerDropContext(sdl2w::Window* _window,
-                               std::string_view _characterPlayerId,
-                               std::string_view _itemId)
+                               const String& _characterPlayerId,
+                               const String& _itemId)
       : window(_window),
         characterPlayerId(_characterPlayerId),
         itemId(_itemId) {}

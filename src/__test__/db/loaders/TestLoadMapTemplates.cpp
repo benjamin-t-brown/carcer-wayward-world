@@ -18,23 +18,25 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Starting TestLoadMapTemplates" << LOG_ENDL;
 
   try {
-    std::unordered_map<std::string, model::CarcerMapTemplate> maps;
+    bmin::Map<String, model::CarcerMapTemplate> maps;
     db::loadMapTemplates("__test__/assets/maps-flat-fixture.json", maps);
 
-    const auto it = maps.find("flat_test_map");
+    const auto it = maps.find(String("flat_test_map"));
     if (it == maps.end()) {
       LOG(ERROR) << "Missing flat_test_map" << LOG_ENDL;
       return 1;
     }
 
-    const model::CarcerMapTemplate& map = it->second;
+    const model::CarcerMapTemplate& map = it->value;
     bool ok = true;
     ok = assertEqual(map.width, 2, "flat_test_map.width") && ok;
     ok = assertEqual(map.height, 2, "flat_test_map.height") && ok;
     ok = assertEqual(static_cast<int>(map.tilesets.size()), 2, "flat_test_map.tilesets") && ok;
-    ok = assertEqual(map.tiles.at(0).size(), 8, "flat_test_map.tiles[0].size") && ok;
-    ok = assertEqual(map.tiles.at(0)[2], 1, "flat_test_map.tiles[0][2]") && ok;
-    ok = assertEqual(map.tiles.at(0)[3], 6, "flat_test_map.tiles[0][3]") && ok;
+    const bmin::DynArray<int>& layer0 =
+        const_cast<bmin::Map<int, bmin::DynArray<int>>&>(map.tiles)[0];
+    ok = assertEqual(static_cast<int>(layer0.size()), 8, "flat_test_map.tiles[0].size") && ok;
+    ok = assertEqual(layer0[2], 1, "flat_test_map.tiles[0][2]") && ok;
+    ok = assertEqual(layer0[3], 6, "flat_test_map.tiles[0][3]") && ok;
     ok = assertEqual(static_cast<int>(map.characters.size()), 1, "flat_test_map.characters") && ok;
     ok = assertEqual(map.characters[0].l, 0, "flat_test_map.characters[0].l") && ok;
     ok = assertEqual(map.characters[0].i, 1, "flat_test_map.characters[0].i") && ok;
@@ -48,7 +50,7 @@ int main(int argc, char** argv) {
     database.load();
     const model::CarcerMapTemplate& loaded = database.getMapTemplate("alinea_outside1");
     ok = assertEqual(loaded.width, 30, "alinea_outside1.width") && ok;
-    ok = assertEqual(static_cast<int>(loaded.layers.size()), 1, "alinea_outside1.layers") && ok;
+    ok = assertEqual(static_cast<int>(loaded.layers.size()), 2, "alinea_outside1.layers") && ok;
 
     if (!ok) {
       LOG(ERROR) << "Map template assertions failed" << LOG_ENDL;

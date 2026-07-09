@@ -53,7 +53,7 @@ void PartyMemberIconSelector::build() {
   groupProps.spriteSelectedBgColorBottomLeft = props.spriteSelectedBgColorBottomLeft;
 
   for (size_t i = 0; i < props.members.size(); ++i) {
-    groupProps.buttons.push_back(ButtonGroupButtonProps{
+    groupProps.buttons.pushBack(ButtonGroupButtonProps{
         .type = ButtonGroupButtonType::SPRITE,
         .spriteName = props.members[i],
         .spriteWidth = props.iconSize,

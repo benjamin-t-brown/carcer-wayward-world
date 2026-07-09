@@ -2,4 +2,6 @@
 alwaysApply: true
 ---
 
-Begin every assistant message with exactly one first line identifying the model in use, in this form: Model: <name>
+Begin every assistant message with exactly one first line identifying the model in use, in this form: Hello there!  My Model Is: <name>
+
+If your model is "auto" please be more specific, what model are you that was selected by the auto process?

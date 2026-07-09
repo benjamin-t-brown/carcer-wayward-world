@@ -3,7 +3,6 @@
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
 #include "ui/layouts/ModalStandard.h"
-#include <memory>
 
 namespace ui {
 
@@ -31,7 +30,7 @@ const std::pair<int, int> PageMagicSetup::getDims() const {
 void PageMagicSetup::build() {
   children.clear();
 
-  auto modal = std::make_unique<ModalStandard>(window, this);
+  auto modal = makeUnique<ModalStandard>(window, this);
   modal->setId("modal");
   BaseStyle modalStyle;
   modalStyle.x = style.x;
@@ -44,7 +43,7 @@ void PageMagicSetup::build() {
 
   auto [contentW, contentH] = modal->getContentDims();
 
-  auto title = std::make_unique<TextLine>(window, modal.get());
+  auto title = makeUnique<TextLine>(window, modal.get());
   BaseStyle titleStyle;
   setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
   titleStyle.textAlign = TextAlign::LEFT_TOP;
@@ -53,11 +52,11 @@ void PageMagicSetup::build() {
   TextLineProps titleProps;
   TextBlock titleBlock;
   titleBlock.text = "Magic";
-  titleProps.textBlocks.push_back(titleBlock);
+  titleProps.textBlocks.pushBack(titleBlock);
   title->setProps(titleProps);
   modal->setTitleElement(title.release());
 
-  auto scrollableSection = std::make_unique<SectionScrollable>(window, modal.get());
+  auto scrollableSection = makeUnique<SectionScrollable>(window, modal.get());
   scrollableSection->setId("scrollableSection");
   BaseStyle scrollableStyle;
   scrollableStyle.width = contentW;
@@ -66,7 +65,7 @@ void PageMagicSetup::build() {
   scrollableSection->setStyle(scrollableStyle);
   scrollableSection->setProps(SectionScrollableProps{});
 
-  auto bodyText = std::make_unique<TextLine>(window, scrollableSection.get());
+  auto bodyText = makeUnique<TextLine>(window, scrollableSection.get());
   bodyText->setId("bodyText");
   BaseStyle bodyStyle;
   bodyStyle.x = 0;
@@ -79,12 +78,12 @@ void PageMagicSetup::build() {
   TextLineProps bodyProps;
   TextBlock bodyBlock;
   bodyBlock.text = "Magic page placeholder.";
-  bodyProps.textBlocks.push_back(bodyBlock);
+  bodyProps.textBlocks.pushBack(bodyBlock);
   bodyText->setProps(bodyProps);
   scrollableSection->addChild(bodyText.release());
 
   // modal->setContentElement(scrollableSection.release());
-  children.push_back(std::move(modal));
+  children.pushBack(UniquePtr<UiElement>(modal.release()));
 }
 
 void PageMagicSetup::render(int dt) { UiElement::render(dt); }

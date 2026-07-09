@@ -3,14 +3,14 @@
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/Items.h"
 #include <cassert>
-#include <string>
+#include "lib/Types.h"
 
 #define TEST_NAME "TestCharacterEquip"
 
 namespace {
 
 void addItemTemplate(db::Database& database,
-                     const std::string& name,
+                     const String& name,
                      model::ItemType itemType) {
   model::ItemTemplate itemTemplate;
   itemTemplate.name = name;
@@ -18,8 +18,8 @@ void addItemTemplate(db::Database& database,
   database.addItemTemplate(itemTemplate);
 }
 
-model::CharacterInventoryItem makeInventoryItem(const std::string& id,
-                                                const std::string& itemName) {
+model::CharacterInventoryItem makeInventoryItem(const String& id,
+                                                const String& itemName) {
   return {.itemName = itemName, .id = id, .quantity = 1};
 }
 
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
   assert(character.equipment.hatId.empty());
 
   character.equipment = {};
-  character.inventory.push_back(makeInventoryItem("daggerOff", "DaggerOne"));
+  character.inventory.pushBack(makeInventoryItem("daggerOff", "DaggerOne"));
   assertResult(model::characterPlayerToggleEquipItem(character, "daggerOff", database),
                model::EquipItemResult::EQUIPPED);
   assert(character.equipment.weapon0Id == "daggerOff");

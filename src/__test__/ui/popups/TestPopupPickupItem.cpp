@@ -17,15 +17,15 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start PopupPickupItem test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
-  std::unique_ptr<TestLayer> testLayer;
+  DynArray<UniquePtr<ui::UiElement>> elements;
+  UniquePtr<TestLayer> testLayer;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "PopupPickupItem test initialized" << LOG_ENDL;
 
     auto [windowWidth, windowHeight] = window.getDims();
 
-    testLayer = std::make_unique<TestLayer>(&window);
+    testLayer = makeUnique<TestLayer>(&window);
 
     auto scale = 1.f;
     auto orientation = ui::PopupOrientation::WIDE;
@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
         .value = 100,
         .orientation = orientation,
     });
-    elements.push_back(std::unique_ptr<ui::UiElement>(popupPickupItem));
+    elements.pushBack(UniquePtr<ui::UiElement>(popupPickupItem));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

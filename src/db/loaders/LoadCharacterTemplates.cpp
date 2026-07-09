@@ -1,14 +1,13 @@
 #include "LoadCharacterTemplates.h"
-#include "lib/json.hpp"
+#include "lib/Json.h"
 #include "lib/sdl2w/AssetLoader.h"
 #include "model/stats/CharacterStats.h"
-#include <set>
 #include <stdexcept>
 
 namespace {
 
 model::CharacterTemplateType
-getCharacterTemplateTypeFromString(const std::string& typeStr) {
+getCharacterTemplateTypeFromString(const String& typeStr) {
   if (typeStr == "TOWNSPERSON") {
     return model::CharacterTemplateType::TOWNSPERSON;
   } else if (typeStr == "TOWNSPERSON_STATIC") {
@@ -18,11 +17,11 @@ getCharacterTemplateTypeFromString(const std::string& typeStr) {
   } else if (typeStr == "ENEMY_STATIC") {
     return model::CharacterTemplateType::ENEMY_STATIC;
   }
-  throw std::runtime_error("Invalid character template type: " + typeStr);
+  throw std::runtime_error((String("Invalid character template type: ") + typeStr).cStr());
 }
 
 model::CharacterTemplateBehaviorName
-getCharacterTemplateBehaviorNameFromString(const std::string& behaviorStr) {
+getCharacterTemplateBehaviorNameFromString(const String& behaviorStr) {
   if (behaviorStr == "MOVE_RANDOMLY") {
     return model::CharacterTemplateBehaviorName::MOVE_RANDOMLY;
   } else if (behaviorStr == "IMMOBILE") {
@@ -36,10 +35,11 @@ getCharacterTemplateBehaviorNameFromString(const std::string& behaviorStr) {
   } else if (behaviorStr == "MOVE_UP_DOWN") {
     return model::CharacterTemplateBehaviorName::MOVE_UP_DOWN;
   }
-  throw std::runtime_error("Invalid character template behavior: " + behaviorStr);
+  throw std::runtime_error((String("Invalid character template behavior: ") + behaviorStr)
+                               .cStr());
 }
 
-std::string getStringFromCharacterTemplateBehaviorName(
+String getStringFromCharacterTemplateBehaviorName(
     model::CharacterTemplateBehaviorName behaviorName) {
   switch (behaviorName) {
   case model::CharacterTemplateBehaviorName::MOVE_RANDOMLY:
@@ -58,14 +58,13 @@ std::string getStringFromCharacterTemplateBehaviorName(
   throw std::runtime_error("Unknown character template behavior enum value");
 }
 
-void loadIntField(const nlohmann::json& json, const char* fieldName, int& out) {
+void loadIntField(const Json& json, const char* fieldName, int& out) {
   if (json.contains(fieldName)) {
-    out = json[fieldName];
+    out = json[fieldName].get<int>();
   }
 }
 
-void loadGenericCombatStats(const nlohmann::json& json,
-                            model::GenericCombatStats& stats) {
+void loadGenericCombatStats(const Json& json, model::GenericCombatStats& stats) {
   loadIntField(json, "str", stats.str);
   loadIntField(json, "mnd", stats.mnd);
   loadIntField(json, "con", stats.con);
@@ -73,8 +72,7 @@ void loadGenericCombatStats(const nlohmann::json& json,
   loadIntField(json, "lck", stats.lck);
 }
 
-void loadWeaponMasteryStats(const nlohmann::json& json,
-                            model::WeaponMasteryStats& stats) {
+void loadWeaponMasteryStats(const Json& json, model::WeaponMasteryStats& stats) {
   loadIntField(json, "edged", stats.edged);
   loadIntField(json, "pole", stats.pole);
   loadIntField(json, "blunt", stats.blunt);
@@ -82,7 +80,7 @@ void loadWeaponMasteryStats(const nlohmann::json& json,
   loadIntField(json, "unarmed", stats.unarmed);
 }
 
-void loadMagicMasteryStats(const nlohmann::json& json, model::MagicMasteryStats& stats) {
+void loadMagicMasteryStats(const Json& json, model::MagicMasteryStats& stats) {
   loadIntField(json, "mana", stats.mana);
   loadIntField(json, "abilityPower", stats.abilityPower);
   loadIntField(json, "attunement", stats.attunement);
@@ -90,7 +88,7 @@ void loadMagicMasteryStats(const nlohmann::json& json, model::MagicMasteryStats&
   loadIntField(json, "lore", stats.lore);
 }
 
-void loadBodyMasteryStats(const nlohmann::json& json, model::BodyMasteryStats& stats) {
+void loadBodyMasteryStats(const Json& json, model::BodyMasteryStats& stats) {
   loadIntField(json, "resistPhysical", stats.resistPhysical);
   loadIntField(json, "resistMagical", stats.resistMagical);
   loadIntField(json, "healingEffectiveness", stats.healingEffectiveness);
@@ -98,8 +96,7 @@ void loadBodyMasteryStats(const nlohmann::json& json, model::BodyMasteryStats& s
   loadIntField(json, "armorTraining", stats.armorTraining);
 }
 
-void loadTrainableCombatStats(const nlohmann::json& json,
-                              model::TrainableCombatStats& stats) {
+void loadTrainableCombatStats(const Json& json, model::TrainableCombatStats& stats) {
   if (json.contains("weapon") && json["weapon"].is_object()) {
     loadWeaponMasteryStats(json["weapon"], stats.weapon);
   }
@@ -111,7 +108,7 @@ void loadTrainableCombatStats(const nlohmann::json& json,
   }
 }
 
-void loadCharacterSkills(const nlohmann::json& json, model::CharacterSkills& skills) {
+void loadCharacterSkills(const Json& json, model::CharacterSkills& skills) {
   loadIntField(json, "trickery", skills.trickery);
   loadIntField(json, "stealth", skills.stealth);
   loadIntField(json, "social", skills.social);
@@ -123,8 +120,7 @@ void loadCharacterSkills(const nlohmann::json& json, model::CharacterSkills& ski
   loadIntField(json, "conditioning", skills.conditioning);
 }
 
-void loadCharacterStats(const nlohmann::json& characterJson,
-                        model::CharacterStats& stats) {
+void loadCharacterStats(const Json& characterJson, model::CharacterStats& stats) {
   if (characterJson.contains("stats") && characterJson["stats"].is_object()) {
     const auto& statsJson = characterJson["stats"];
     if (statsJson.contains("generic") && statsJson["generic"].is_object()) {
@@ -146,15 +142,15 @@ void loadCharacterStats(const nlohmann::json& characterJson,
   }
 }
 
-std::string getSpriteOffsetAsString(const nlohmann::json& characterJson) {
+String getSpriteOffsetAsString(const Json& characterJson) {
   if (!characterJson.contains("spriteOffset")) {
     throw std::runtime_error("Character missing required field: spriteOffset");
   }
   if (characterJson["spriteOffset"].is_number_integer()) {
-    return std::to_string(characterJson["spriteOffset"].get<int>());
+    return bmin::toString(characterJson["spriteOffset"].get<int>());
   }
   if (characterJson["spriteOffset"].is_string()) {
-    return characterJson["spriteOffset"];
+    return characterJson["spriteOffset"].get<String>();
   }
   throw std::runtime_error("Character spriteOffset must be a number or string");
 }
@@ -164,17 +160,17 @@ std::string getSpriteOffsetAsString(const nlohmann::json& characterJson) {
 namespace db {
 
 void loadCharacterTemplates(
-    const std::string& charactersFilePath,
-    std::unordered_map<std::string, model::CharacterTemplate>& characterTemplates) {
-  std::string fileContent =
-      std::string(sdl2w::loadFileAsString(charactersFilePath).sliceView());
+    const String& charactersFilePath,
+    bmin::Map<String, model::CharacterTemplate>& characterTemplates) {
+  const String fileContent = sdl2w::loadFileAsString(bmin::toStringView(charactersFilePath));
 
-  nlohmann::json jsonData;
+  Json jsonData;
   try {
-    jsonData = nlohmann::json::parse(fileContent, nullptr, true, true);
-  } catch (const nlohmann::json::parse_error& e) {
-    throw std::runtime_error("Failed to parse JSON file " + charactersFilePath + ": " +
-                             e.what());
+    jsonData = Json::parse(fileContent.cStr(), nullptr, true, true);
+  } catch (const Json::parse_error& e) {
+    throw std::runtime_error((String("Failed to parse JSON file ") +
+                              charactersFilePath.cStr() + ": " + e.what())
+                                 .cStr());
   }
 
   if (!jsonData.is_array()) {
@@ -187,32 +183,32 @@ void loadCharacterTemplates(
     if (!characterJson.contains("type") || !characterJson["type"].is_string()) {
       throw std::runtime_error("Character missing required field: type");
     }
-    characterTemplate.type = getCharacterTemplateTypeFromString(characterJson["type"]);
+    characterTemplate.type = getCharacterTemplateTypeFromString(characterJson["type"].get<String>());
 
     if (!characterJson.contains("name") || !characterJson["name"].is_string()) {
       throw std::runtime_error("Character missing required field: name");
     }
-    characterTemplate.name = characterJson["name"];
+    characterTemplate.name = characterJson["name"].get<String>();
 
     if (!characterJson.contains("label") || !characterJson["label"].is_string()) {
       throw std::runtime_error("Character missing required field: label");
     }
-    characterTemplate.label = characterJson["label"];
+    characterTemplate.label = characterJson["label"].get<String>();
 
     if (!characterJson.contains("spritesheet") ||
         !characterJson["spritesheet"].is_string()) {
       throw std::runtime_error("Character missing required field: spritesheet");
     }
-    characterTemplate.spritesheetName = characterJson["spritesheet"];
+    characterTemplate.spritesheetName = characterJson["spritesheet"].get<String>();
     characterTemplate.spriteOffset = getSpriteOffsetAsString(characterJson);
 
     if (characterJson.contains("talk") && characterJson["talk"].is_object()) {
       const auto& talkJson = characterJson["talk"];
       if (talkJson.contains("talkName") && talkJson["talkName"].is_string()) {
-        characterTemplate.talk.talkName = talkJson["talkName"];
+        characterTemplate.talk.talkName = talkJson["talkName"].get<String>();
       }
       if (talkJson.contains("portraitName") && talkJson["portraitName"].is_string()) {
-        characterTemplate.talk.portraitName = talkJson["portraitName"];
+        characterTemplate.talk.portraitName = talkJson["portraitName"].get<String>();
       }
     }
 
@@ -220,7 +216,7 @@ void loadCharacterTemplates(
       const auto& behaviorJson = characterJson["behavior"];
       if (behaviorJson.contains("behaviorName") &&
           behaviorJson["behaviorName"].is_string()) {
-        const std::string behaviorStr = behaviorJson["behaviorName"];
+        const String behaviorStr = behaviorJson["behaviorName"].get<String>();
         if (!behaviorStr.empty()) {
           characterTemplate.behavior.behaviorName =
               getStringFromCharacterTemplateBehaviorName(
@@ -234,13 +230,13 @@ void loadCharacterTemplates(
     if (characterJson.contains("combat") && characterJson["combat"].is_object()) {
       const auto& combatJson = characterJson["combat"];
       if (combatJson.contains("hp")) {
-        characterTemplate.combat.hp = combatJson["hp"];
+        characterTemplate.combat.hp = combatJson["hp"].get<int>();
       }
       if (combatJson.contains("mp")) {
-        characterTemplate.combat.mp = combatJson["mp"];
+        characterTemplate.combat.mp = combatJson["mp"].get<int>();
       }
       if (combatJson.contains("dropTable") && combatJson["dropTable"].is_string()) {
-        characterTemplate.combat.dropTable = combatJson["dropTable"];
+        characterTemplate.combat.dropTable = combatJson["dropTable"].get<String>();
       }
     }
 
@@ -248,24 +244,24 @@ void loadCharacterTemplates(
       const auto& soundJson = characterJson["sound"];
       if (soundJson.contains("deathSoundName") &&
           soundJson["deathSoundName"].is_string()) {
-        characterTemplate.sound.deathSoundName = soundJson["deathSoundName"];
+        characterTemplate.sound.deathSoundName = soundJson["deathSoundName"].get<String>();
       } else if (soundJson.contains("deathSound") &&
                  soundJson["deathSound"].is_string()) {
-        characterTemplate.sound.deathSoundName = soundJson["deathSound"];
+        characterTemplate.sound.deathSoundName = soundJson["deathSound"].get<String>();
       }
       if (soundJson.contains("weaponSoundName") &&
           soundJson["weaponSoundName"].is_string()) {
-        characterTemplate.sound.weaponSoundName = soundJson["weaponSoundName"];
+        characterTemplate.sound.weaponSoundName = soundJson["weaponSoundName"].get<String>();
       } else if (soundJson.contains("weaponSound") &&
                  soundJson["weaponSound"].is_string()) {
-        characterTemplate.sound.weaponSoundName = soundJson["weaponSound"];
+        characterTemplate.sound.weaponSoundName = soundJson["weaponSound"].get<String>();
       }
     }
 
     if (characterJson.contains("statuses") && characterJson["statuses"].is_array()) {
       for (const auto& statusJson : characterJson["statuses"]) {
         if (statusJson.contains("status") && statusJson["status"].is_string()) {
-          characterTemplate.statuses.push_back({statusJson["status"]});
+          characterTemplate.statuses.pushBack({statusJson["status"].get<String>()});
         }
       }
     }
@@ -273,13 +269,14 @@ void loadCharacterTemplates(
     if (characterJson.contains("vision") && characterJson["vision"].is_object()) {
       const auto& visionJson = characterJson["vision"];
       if (visionJson.contains("radius")) {
-        characterTemplate.vision.radius = visionJson["radius"];
+        characterTemplate.vision.radius = visionJson["radius"].get<int>();
       }
     }
 
-    if (characterTemplates.find(characterTemplate.name) != characterTemplates.end()) {
-      throw std::runtime_error("Character template already exists: " +
-                               characterTemplate.name);
+    if (characterTemplates.contains(characterTemplate.name)) {
+      throw std::runtime_error((String("Character template already exists: ") +
+                                characterTemplate.name)
+                                   .cStr());
     }
 
     characterTemplates[characterTemplate.name] = characterTemplate;

@@ -21,8 +21,8 @@ constexpr int CLOSE_BUTTON_PADDING = 4;
 } // namespace
 
 LayerPopupText::LayerPopupText(sdl2w::Window* _window,
-                               std::string title,
-                               std::string text)
+                               String title,
+                               String text)
     : Layer(_window, LAYER_ID) {
 
   if (!assertInterfaces()) {
@@ -53,7 +53,9 @@ LayerPopupText::LayerPopupText(sdl2w::Window* _window,
   ui::setBaseFontConfig(titleStyle, ui::BaseFontConfig::MODAL_TITLE);
   titleStyle.fontColor = ui::Colors::Black;
   titleStyle.textAlign = ui::TextAlign::LEFT_CENTER;
-  titleLine->setProps(ui::TextLineProps{.textBlocks = {{.text = title}}});
+  ui::TextLineProps titleProps;
+  titleProps.textBlocks.pushBack({.text = title});
+  titleLine->setProps(titleProps);
   auto [_, titleHeight] = titleLine->calculateTextDims();
   const int headerHeight = std::max(titleHeight, closeButtonSize);
   int contentY = headerY + headerHeight + PADDING;
@@ -69,10 +71,10 @@ LayerPopupText::LayerPopupText(sdl2w::Window* _window,
   paragraphStyle.fontColor = ui::Colors::Black;
   paragraphStyle.textAlign = ui::TextAlign::LEFT_TOP;
   paragraphStyle.lineSpacing = 0;
-  paragraph->setProps(ui::TextParagraphProps{
-      .textBlocks = {{.text = text}},
-      .padding = 0,
-  });
+  ui::TextParagraphProps paragraphProps;
+  paragraphProps.textBlocks.pushBack({.text = text});
+  paragraphProps.padding = 0;
+  paragraph->setProps(paragraphProps);
   auto [__, messageHeight] = paragraph->getDims();
   contentY += messageHeight;
 

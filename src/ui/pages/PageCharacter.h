@@ -14,15 +14,15 @@ struct PageCharacterProps {
 };
 
 struct PageCharacterStatRowEntry {
-  std::string label;
-  std::string helpDescription;
+  String label;
+  String helpDescription;
   int value = 0;
-  std::string valueText;
+  String valueText;
 };
 
 struct PageCharacterStatRowSectionArgs {
-  std::string title;
-  std::vector<PageCharacterStatRowEntry> rows;
+  String title;
+  DynArray<PageCharacterStatRowEntry> rows;
   int width  = 0;
   int y = 0;
   bool showModButtons = false;

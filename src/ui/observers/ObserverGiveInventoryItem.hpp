@@ -9,15 +9,15 @@ namespace ui {
 
 class ObserverGiveInventoryItem : public ui::UiEventObserver,
                                   public state::StateManagerInterface {
-  std::string toCharacterPlayerId;
-  std::string fromCharacterPlayerId;
-  std::string itemId;
+  String toCharacterPlayerId;
+  String fromCharacterPlayerId;
+  String itemId;
   PopupGive* popupGive;
 
 public:
-  ObserverGiveInventoryItem(std::string_view _toCharacterPlayerId,
-                            std::string_view _fromCharacterPlayerId,
-                            std::string_view _itemId,
+  ObserverGiveInventoryItem(const String& _toCharacterPlayerId,
+                            const String& _fromCharacterPlayerId,
+                            const String& _itemId,
                             PopupGive* _popupGive)
       : toCharacterPlayerId(_toCharacterPlayerId),
         fromCharacterPlayerId(_fromCharacterPlayerId),

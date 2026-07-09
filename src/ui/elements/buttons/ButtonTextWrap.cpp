@@ -1,7 +1,6 @@
 #include "ButtonTextWrap.h"
 #include "../TextParagraph.h"
 #include "ui/colors.h"
-#include <memory>
 
 namespace ui {
 
@@ -62,7 +61,7 @@ void ButtonTextWrap::build() {
   ui::TextBlock block;
   block.text = props.text;
   block.fontColor = style.fontColor;
-  textParagraphProps.textBlocks.push_back(block);
+  textParagraphProps.textBlocks.pushBack(block);
   textParagraph->setProps(textParagraphProps);
 
   addChild(textParagraph);

@@ -30,7 +30,7 @@ public:
   void clearSelection();
 
   void addListItem(UiElement* item);
-  void addListItems(const std::vector<UiElement*>& items);
+  void addListItems(const DynArray<UiElement*>& items);
   void removeListItemAtIndex(size_t index);
 
   const std::pair<int, int> getDims() const override;

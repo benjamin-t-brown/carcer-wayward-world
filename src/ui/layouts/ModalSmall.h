@@ -2,14 +2,14 @@
 
 #include "../UiElement.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
-#include <string>
+#include "lib/Types.h"
 
 namespace ui {
 
 // ModalSmall layout properties
 struct ModalSmallProps {
   SDL_Color backgroundColor = Colors::White;
-  std::string iconSprite = "";
+  String iconSprite = "";
   bool enableCloseButton = true;
 };
 

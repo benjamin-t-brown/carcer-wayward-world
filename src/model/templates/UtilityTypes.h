@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include "lib/Types.h"
 
 namespace model {
 
@@ -11,7 +11,7 @@ struct TimerStruct {
   TimerStruct(int duration = 1000);
 };
 
-std::string createRandomId();
+String createRandomId();
 void timerStructStart(TimerStruct& timer, int duration = 0);
 void timerStructRestart(TimerStruct& timer);
 void timerStructUpdate(TimerStruct& timer, int deltaTimeMs);

@@ -1,13 +1,13 @@
 #pragma once
 
+#include "lib/Types.h"
+#include "lib/bmin/Map.h"
 #include "model/templates/StatusEffects.h"
-#include <string>
-#include <unordered_map>
 
 namespace db {
 
 void loadStatusEffectTemplates(
-    const std::string& statusEffectsFilePath,
-    std::unordered_map<std::string, model::StatusEffectTemplate>& statusEffectTemplates);
+    const String& statusEffectsFilePath,
+    bmin::Map<String, model::StatusEffectTemplate>& statusEffectTemplates);
 
 } // namespace db

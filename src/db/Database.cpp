@@ -2,40 +2,54 @@
 #include "lib/sdl2w/Logger.h"
 #include "loaders/LoadAbilityTemplates.h"
 #include "loaders/LoadCharacterTemplates.h"
-#include "loaders/LoadMapTemplates.h"
 #include "loaders/LoadItemTemplates.h"
+#include "loaders/LoadMapTemplates.h"
 #include "loaders/LoadStatusEffectTemplates.h"
 #include <stdexcept>
-#include <string>
 
 namespace db {
 
 Database::Database() {}
 
 void Database::validateCombatReferences() const {
-  for (const auto& [abilityName, abilityTemplate] : abilityTemplates) {
+  auto& abilities = const_cast<decltype(abilityTemplates)&>(abilityTemplates);
+  for (auto it = abilities.begin(); it != abilities.end(); ++it) {
+    const String& abilityName = (*it).key;
+    const auto& abilityTemplate = (*it).value;
     for (const auto& status : abilityTemplate.statuses) {
-      if (statusEffectTemplates.find(status.statusEffect) == statusEffectTemplates.end()) {
-        throw std::runtime_error("Ability " + abilityName + " references unknown status effect: " +
-                                 status.statusEffect);
+      if (!statusEffectTemplates.contains(status.statusEffect)) {
+        throw std::runtime_error(
+            (String("Ability ") + abilityName.cStr() + " references unknown status effect: " +
+             status.statusEffect.cStr())
+                .cStr());
       }
     }
   }
 
-  for (const auto& [statusName, statusTemplate] : statusEffectTemplates) {
+  auto& statusEffects = const_cast<decltype(statusEffectTemplates)&>(statusEffectTemplates);
+  for (auto it = statusEffects.begin(); it != statusEffects.end(); ++it) {
+    const String& statusName = (*it).key;
+    const auto& statusTemplate = (*it).value;
     for (const auto& invoked : statusTemplate.actions) {
-      if (abilityTemplates.find(invoked.abilityName) == abilityTemplates.end()) {
-        throw std::runtime_error("Status effect " + statusName +
-                                 " references unknown ability: " + invoked.abilityName);
+      if (!abilityTemplates.contains(invoked.abilityName)) {
+        throw std::runtime_error(
+            (String("Status effect ") + statusName.cStr() + " references unknown ability: " +
+             invoked.abilityName.cStr())
+                .cStr());
       }
     }
   }
 
-  for (const auto& [itemName, itemTemplate] : itemTemplates) {
+  auto& items = const_cast<decltype(itemTemplates)&>(itemTemplates);
+  for (auto it = items.begin(); it != items.end(); ++it) {
+    const String& itemName = (*it).key;
+    const auto& itemTemplate = (*it).value;
     for (const auto& statusName : itemTemplate.statusEffectNames) {
-      if (statusEffectTemplates.find(statusName) == statusEffectTemplates.end()) {
-        throw std::runtime_error("Item " + itemName + " references unknown status effect: " +
-                                 statusName);
+      if (!statusEffectTemplates.contains(statusName)) {
+        throw std::runtime_error(
+            (String("Item ") + itemName.cStr() + " references unknown status effect: " +
+             statusName.cStr())
+                .cStr());
       }
     }
   }
@@ -53,10 +67,7 @@ void Database::load() {
 }
 
 const model::ItemTemplate& Database::getItemTemplate(std::string_view itemName) const {
-  if (itemTemplates.find(std::string(itemName)) == itemTemplates.end()) {
-    throw std::runtime_error("Item template not found: " + std::string(itemName));
-  }
-  return itemTemplates.at(std::string(itemName));
+  return mapGet(itemTemplates, itemName, "Item template not found: ");
 }
 
 void Database::addItemTemplate(const model::ItemTemplate& itemTemplate) {
@@ -65,11 +76,7 @@ void Database::addItemTemplate(const model::ItemTemplate& itemTemplate) {
 
 const model::CharacterTemplate&
 Database::getCharacterTemplate(std::string_view templateName) const {
-  if (characterTemplates.find(std::string(templateName)) == characterTemplates.end()) {
-    throw std::runtime_error("Character template not found: " +
-                             std::string(templateName));
-  }
-  return characterTemplates.at(std::string(templateName));
+  return mapGet(characterTemplates, templateName, "Character template not found: ");
 }
 
 void Database::addCharacterTemplate(const model::CharacterTemplate& characterTemplate) {
@@ -77,10 +84,7 @@ void Database::addCharacterTemplate(const model::CharacterTemplate& characterTem
 }
 
 const model::AbilityTemplate& Database::getAbilityTemplate(std::string_view abilityName) const {
-  if (abilityTemplates.find(std::string(abilityName)) == abilityTemplates.end()) {
-    throw std::runtime_error("Ability template not found: " + std::string(abilityName));
-  }
-  return abilityTemplates.at(std::string(abilityName));
+  return mapGet(abilityTemplates, abilityName, "Ability template not found: ");
 }
 
 void Database::addAbilityTemplate(const model::AbilityTemplate& abilityTemplate) {
@@ -89,10 +93,7 @@ void Database::addAbilityTemplate(const model::AbilityTemplate& abilityTemplate)
 
 const model::StatusEffectTemplate&
 Database::getStatusEffectTemplate(std::string_view statusName) const {
-  if (statusEffectTemplates.find(std::string(statusName)) == statusEffectTemplates.end()) {
-    throw std::runtime_error("Status effect template not found: " + std::string(statusName));
-  }
-  return statusEffectTemplates.at(std::string(statusName));
+  return mapGet(statusEffectTemplates, statusName, "Status effect template not found: ");
 }
 
 void Database::addStatusEffectTemplate(const model::StatusEffectTemplate& statusEffectTemplate) {
@@ -100,10 +101,7 @@ void Database::addStatusEffectTemplate(const model::StatusEffectTemplate& status
 }
 
 const model::GameEvent& Database::getGameEvent(std::string_view eventId) const {
-  if (gameEvents.find(std::string(eventId)) == gameEvents.end()) {
-    throw std::runtime_error("Game event not found: " + std::string(eventId));
-  }
-  return gameEvents.at(std::string(eventId));
+  return mapGet(gameEvents, eventId, "Game event not found: ");
 }
 
 void Database::addGameEvent(const model::GameEvent& gameEvent) {
@@ -111,10 +109,7 @@ void Database::addGameEvent(const model::GameEvent& gameEvent) {
 }
 
 const model::CarcerMapTemplate& Database::getMapTemplate(std::string_view mapName) const {
-  if (mapTemplates.find(std::string(mapName)) == mapTemplates.end()) {
-    throw std::runtime_error("Map template not found: " + std::string(mapName));
-  }
-  return mapTemplates.at(std::string(mapName));
+  return mapGet(mapTemplates, mapName, "Map template not found: ");
 }
 
 void Database::addMapTemplate(const model::CarcerMapTemplate& mapTemplate) {

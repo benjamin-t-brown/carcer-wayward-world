@@ -1,27 +1,26 @@
 #pragma once
 
 #include "ui/UiElement.h"
-#include <string>
-#include <vector>
+#include "lib/Types.h"
 
 namespace ui {
 
 class HorizontalSlider;
 
 struct PopupGivePartyMember {
-  std::string characterPlayerId;
-  std::string label;
-  std::string spriteName;
+  String characterPlayerId;
+  String label;
+  String spriteName;
 };
 
 struct PopupGiveProps {
-  std::string fromCharacterPlayerId;
-  std::string itemId;
-  std::string itemLabel;
+  String fromCharacterPlayerId;
+  String itemId;
+  String itemLabel;
   int maxQuantity = 1;
   int selectedQuantity = 1;
   bool showQuantitySlider = true;
-  std::vector<PopupGivePartyMember> partyMembers;
+  DynArray<PopupGivePartyMember> partyMembers;
 };
 
 class PopupGive : public UiElement {

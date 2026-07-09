@@ -43,14 +43,9 @@ void ConfirmModal::build() {
   titleStyle.scale = 1.f;
   titleStyle.fontColor = Colors::Black;
   titleStyle.textAlign = TextAlign::LEFT_TOP;
-  title->setProps(TextLineProps{
-      .textBlocks =
-          {
-              {
-                  .text = props.title,
-              },
-          },
-  });
+  TextLineProps titleProps;
+  titleProps.textBlocks.pushBack({.text = props.title});
+  title->setProps(titleProps);
   auto [titleWidth, titleHeight] = title->calculateTextDims();
   addChild(title);
 
@@ -67,14 +62,9 @@ void ConfirmModal::build() {
   messageStyle.fontColor = Colors::Black;
   messageStyle.textAlign = TextAlign::LEFT_TOP;
   messageStyle.lineSpacing = 0;
-  message->setProps(TextParagraphProps{
-      .textBlocks =
-          {
-              {
-                  .text = props.message,
-              },
-          },
-  });
+  TextParagraphProps messageProps;
+  messageProps.textBlocks.pushBack({.text = props.message});
+  message->setProps(messageProps);
   auto [_, messageHeight] = message->getDims();
   addChild(message);
 
@@ -87,14 +77,11 @@ void ConfirmModal::build() {
   groupStyle.y = buttonsY;
   groupStyle.width = contentWidth;
   groupStyle.scale = style.scale;
-  buttonGroup->setProps(ButtonGroupProps{
-      .alignment = ButtonGroupAlignment::RIGHT,
-      .buttons =
-          {
-              {.label = props.cancelButtonLabel},
-              {.label = props.confirmButtonLabel},
-          },
-  });
+  ButtonGroupProps groupProps;
+  groupProps.alignment = ButtonGroupAlignment::RIGHT;
+  groupProps.buttons.pushBack({.label = props.cancelButtonLabel});
+  groupProps.buttons.pushBack({.label = props.confirmButtonLabel});
+  buttonGroup->setProps(groupProps);
   auto [__, buttonGroupHeight] = buttonGroup->getDims();
   addChild(buttonGroup);
 
@@ -108,7 +95,7 @@ void ConfirmModal::build() {
   borderStyle.height = style.height;
   borderStyle.scale = style.scale;
   border->setProps(BorderDropShadowProps{});
-  children.insert(children.begin(), std::unique_ptr<UiElement>(border));
+  children.insert(children.begin(), UniquePtr<UiElement>(border));
 }
 
 void ConfirmModal::render(int dt) { UiElement::render(dt); }

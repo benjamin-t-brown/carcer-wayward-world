@@ -1,6 +1,5 @@
 #include "UiElement.h"
 #include "uiUtils.h"
-#include <algorithm>
 
 namespace ui {
 
@@ -35,13 +34,10 @@ UiElement* UiElement::getChildById(std::string_view searchId) {
   return nullptr;
 }
 
-void UiElement::removeChildById(std::string_view id) {
-  children.erase(std::remove_if(children.begin(),
-                                children.end(),
-                                [id](const std::unique_ptr<UiElement>& child) {
-                                  return child->getId() == id;
-                                }),
-                 children.end());
+void UiElement::removeChildById(std::string_view childId) {
+  children.eraseIf([childId](const UniquePtr<UiElement>& child) {
+    return child->getId() == childId;
+  });
 }
 
 void UiElement::setStyle(const BaseStyle& _style) { style = _style; }
@@ -54,30 +50,30 @@ const std::pair<int, int> UiElement::getDims() const {
   return {round(style.width * style.scale), round(style.height * style.scale)};
 }
 
-void UiElement::setId(const std::string& _id) { id = _id; }
+void UiElement::setId(const String& _id) { id = _id; }
 
-const std::string& UiElement::getId() const { return id; }
+const String& UiElement::getId() const { return id; }
 
-std::vector<std::unique_ptr<UiElement>>& UiElement::getChildren() { return children; }
+DynArray<UniquePtr<UiElement>>& UiElement::getChildren() { return children; }
 
-const std::vector<std::unique_ptr<UiElement>>& UiElement::getChildren() const {
+const DynArray<UniquePtr<UiElement>>& UiElement::getChildren() const {
   return children;
 }
 
 void UiElement::removeChildAtIndex(size_t index) {
   if (index < children.size()) {
-    children.erase(children.begin() + index);
+    children.erase(static_cast<size_t>(index));
   }
 }
 
 void UiElement::addChild(UiElement* child) {
-  children.push_back(std::unique_ptr<UiElement>(child));
+  children.pushBack(UniquePtr<UiElement>(child));
 }
 
 bool UiElement::checkMouseDownEvent(int mouseX,
                                     int mouseY,
                                     int button,
-                                    std::vector<UiElement*> additionalElements) {
+                                    DynArray<UiElement*> additionalElements) {
   if (isInBoundsScaled(mouseX, mouseY, this)) {
     isClicked = true;
     // Check children first (front to back)
@@ -108,7 +104,7 @@ bool UiElement::checkMouseDownEvent(int mouseX,
 bool UiElement::checkMouseUpEvent(int mouseX,
                                   int mouseY,
                                   int button,
-                                  std::vector<UiElement*> additionalElements) {
+                                  DynArray<UiElement*> additionalElements) {
   if (shouldPropagateEventsToChildren) {
     // Check children first (front to back)
     for (auto it = children.rbegin(); it != children.rend(); ++it) {
@@ -140,7 +136,7 @@ bool UiElement::checkMouseUpEvent(int mouseX,
 
 bool UiElement::checkHoverEvent(int mouseX,
                                 int mouseY,
-                                std::vector<UiElement*> additionalElements) {
+                                DynArray<UiElement*> additionalElements) {
   if (shouldPropagateEventsToChildren) {
     for (auto& child : children) {
       child->checkHoverEvent(mouseX, mouseY);
@@ -164,7 +160,7 @@ bool UiElement::checkHoverEvent(int mouseX,
 bool UiElement::checkMouseWheelEvent(int mouseX,
                                      int mouseY,
                                      int delta,
-                                     std::vector<UiElement*> additionalElements) {
+                                     DynArray<UiElement*> additionalElements) {
   if (isInBoundsScaled(mouseX, mouseY, this)) {
     if (shouldPropagateEventsToChildren) {
       for (auto& child : children) {
@@ -193,17 +189,13 @@ void UiElement::checkResizeEvent(int width, int height) {
 }
 
 void UiElement::addEventObserver(UiEventObserver* observer) {
-  eventObservers.push_back(std::unique_ptr<UiEventObserver>(observer));
+  eventObservers.pushBack(UniquePtr<UiEventObserver>(observer));
 }
 
 void UiElement::removeEventObserver(UiEventObserver* observer) {
-  eventObservers.erase(
-      std::remove_if(eventObservers.begin(),
-                     eventObservers.end(),
-                     [observer](const std::unique_ptr<UiEventObserver>& obs) {
-                       return obs.get() == observer;
-                     }),
-      eventObservers.end());
+  eventObservers.eraseIf([observer](const UniquePtr<UiEventObserver>& obs) {
+    return obs.get() == observer;
+  });
 }
 
 void UiElement::build() {

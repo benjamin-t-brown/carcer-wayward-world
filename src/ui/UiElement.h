@@ -6,10 +6,9 @@
 #include "state/StateManagerInterface.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/colors.h"
-#include <memory>
 #include <optional>
-#include <string>
-#include <vector>
+#include "lib/Types.h"
+#include <string_view>
 
 // prevents circular dependency
 #include "state/AbstractAction.h" // IWYU pragma: keep
@@ -23,7 +22,7 @@ class UiElement;
 class StateInterface {
 public:
   virtual ~StateInterface() = default;
-  virtual void dispatchAction(const std::string& action, void* payload) = 0;
+  virtual void dispatchAction(const String& action, void* payload) = 0;
 };
 
 // Enums for styling
@@ -108,11 +107,11 @@ class UiElement : public state::StateManagerInterface,
 protected:
   sdl2w::Window* window;
   UiElement* parent;
-  std::vector<std::unique_ptr<UiElement>> children;
+  DynArray<UniquePtr<UiElement>> children;
   std::optional<StateInterface*> stateInterface;
   BaseStyle style;
-  std::string id;
-  std::vector<std::unique_ptr<UiEventObserver>> eventObservers;
+  String id;
+  DynArray<UniquePtr<UiEventObserver>> eventObservers;
   bool shouldPropagateEventsToChildren = true;
 
 public:
@@ -132,12 +131,12 @@ public:
   virtual const std::pair<int, int> getDims() const;
 
   // Id methods
-  virtual void setId(const std::string& _id);
-  virtual const std::string& getId() const;
+  virtual void setId(const String& _id);
+  virtual const String& getId() const;
 
   // Children methods
-  virtual std::vector<std::unique_ptr<UiElement>>& getChildren();
-  virtual const std::vector<std::unique_ptr<UiElement>>& getChildren() const;
+  virtual DynArray<UniquePtr<UiElement>>& getChildren();
+  virtual const DynArray<UniquePtr<UiElement>>& getChildren() const;
   virtual void removeChildAtIndex(size_t index);
   virtual void addChild(UiElement* child);
 
@@ -145,18 +144,18 @@ public:
   virtual bool checkMouseDownEvent(int mouseX,
                                    int mouseY,
                                    int button,
-                                   std::vector<UiElement*> additionalElements = {});
+                                   DynArray<UiElement*> additionalElements = {});
   virtual bool checkMouseUpEvent(int mouseX,
                                  int mouseY,
                                  int button,
-                                 std::vector<UiElement*> additionalElements = {});
+                                 DynArray<UiElement*> additionalElements = {});
   virtual bool checkHoverEvent(int mouseX,
                                int mouseY,
-                               std::vector<UiElement*> additionalElements = {});
+                               DynArray<UiElement*> additionalElements = {});
   virtual bool checkMouseWheelEvent(int mouseX,
                                     int mouseY,
                                     int delta,
-                                    std::vector<UiElement*> additionalElements = {});
+                                    DynArray<UiElement*> additionalElements = {});
   virtual void checkResizeEvent(int width, int height);
   virtual void addEventObserver(UiEventObserver* observer);
   virtual void removeEventObserver(UiEventObserver* observer);

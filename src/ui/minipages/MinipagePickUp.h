@@ -3,19 +3,18 @@
 #include "lib/sdl2w/L10n.h"
 #include "state/DatabaseInterface.h"
 #include "ui/UiElement.h"
-#include <string>
-#include <vector>
+#include "lib/Types.h"
 
 namespace ui {
 
 struct MinipagePickUpProps {
-  std::string titleText = TRANSLATE("Pick Up");
-  std::string statusText;
-  std::string weightText = "Carrying 0/100";
+  String titleText = TRANSLATE("Pick Up");
+  String statusText;
+  String weightText = "Carrying 0/100";
   int partyMemberIndex = 0;
-  std::vector<std::string> partyMemberSprites;
-  std::vector<model::ItemInstance> nearbyItems;
-  std::string doneButtonRemoveLayerId;
+  DynArray<String> partyMemberSprites;
+  DynArray<model::ItemInstance> nearbyItems;
+  String doneButtonRemoveLayerId;
 };
 
 // MinipagePickUp - renders the pickup minipage with ModalSmall layout containing

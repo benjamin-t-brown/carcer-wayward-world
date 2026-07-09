@@ -2,8 +2,7 @@
 
 #include "model/templates/AbilityTypes.h"
 #include <optional>
-#include <string>
-#include <vector>
+#include "lib/Types.h"
 
 namespace model {
 
@@ -20,20 +19,20 @@ struct StatusEffectDurationScale {
 struct StatusEffectAction {
   StatusActionTargetType statusActionTargetType =
       StatusActionTargetType::STATUS_ACTION_TARGET_SELF;
-  std::string abilityName;
-  std::vector<StatusEffectEvent> events;
+  String abilityName;
+  bmin::DynArray<StatusEffectEvent> events;
 };
 
 struct StatusEffectTemplate {
-  std::string name;
-  std::string description;
+  String name;
+  String description;
   // Default turns before apply-time modifiers (applier spellPotency, victim shield, feats).
   int baseDuration = 0;
   std::optional<StatusEffectDurationScale> durationScale;
   std::optional<Stats> applyBonuses;
   std::optional<CurrentStats> applyCurrentStatChange;
-  std::vector<Resistance> applyResistances;
-  std::vector<StatusEffectAction> actions;
+  bmin::DynArray<Resistance> applyResistances;
+  bmin::DynArray<StatusEffectAction> actions;
 };
 
 } // namespace model

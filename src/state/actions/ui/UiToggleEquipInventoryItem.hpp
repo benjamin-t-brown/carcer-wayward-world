@@ -11,8 +11,8 @@ namespace state {
 namespace actions {
 
 class UiToggleEquipInventoryItem : public AbstractAction {
-  std::string characterPlayerId;
-  std::string itemId;
+  String characterPlayerId;
+  String itemId;
 
   void act() override {
     auto& localState = *state;
@@ -41,7 +41,7 @@ class UiToggleEquipInventoryItem : public AbstractAction {
       notification.type = UiFloatingNotificationType::WARNING;
       model::timerStructStart(notification.timer,
                               state->settings.floatingNotificationDurationMs);
-      localState.uiState.floatingNotifications.push_back(std::move(notification));
+      localState.uiState.floatingNotifications.pushBack(std::move(notification));
       break;
     }
     case model::EquipItemResult::TWO_HANDED_OFF_HAND: {
@@ -52,7 +52,7 @@ class UiToggleEquipInventoryItem : public AbstractAction {
       notification.type = UiFloatingNotificationType::WARNING;
       model::timerStructStart(notification.timer,
                               state->settings.floatingNotificationDurationMs);
-      localState.uiState.floatingNotifications.push_back(std::move(notification));
+      localState.uiState.floatingNotifications.pushBack(std::move(notification));
       break;
     }
     default:
@@ -61,8 +61,7 @@ class UiToggleEquipInventoryItem : public AbstractAction {
   }
 
 public:
-  UiToggleEquipInventoryItem(std::string_view _characterPlayerId,
-                             std::string_view _itemId)
+  UiToggleEquipInventoryItem(const String& _characterPlayerId, const String& _itemId)
       : characterPlayerId(_characterPlayerId), itemId(_itemId) {}
 };
 

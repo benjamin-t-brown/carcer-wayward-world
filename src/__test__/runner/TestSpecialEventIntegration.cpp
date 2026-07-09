@@ -1,15 +1,17 @@
 #include "db/loaders/LoadSpecialEvents.h"
+#include "lib/bmin/Map.h"
 #include "lib/sdl2w/Logger.h"
 #include "model/templates/SpecialEvents.h"
 #include "runner/SpecialEventRunner.h"
-#include <unordered_map>
+
+#include <vector>
 
 #define TEST_NAME "TestSpecialEventIntegration"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Starting " << TEST_NAME << LOG_ENDL;
 
-  std::unordered_map<std::string, model::GameEvent> specialEvents;
+  bmin::Map<String, model::GameEvent> specialEvents;
   try {
     // files are relative to executable in src dir
     db::loadSpecialEvents("__test__/runner/data/TestEvent.json", specialEvents);
@@ -21,7 +23,7 @@ int main(int argc, char** argv) {
   model::GameEvent& testEvent = specialEvents["TestEvent"];
 
   // -1 is advance next node, other numbers are choice indexes
-  std::vector<std::pair<int, std::string>> inputSteps = {
+  DynArray<std::pair<int, String>> inputSteps = {
       // clang-format off
       {-1, "This should display once."},
       {0, "You chose choice 1."},
@@ -87,7 +89,7 @@ int main(int argc, char** argv) {
         LOG(INFO) << "Errors: " << runner.errors.size() << LOG_ENDL;
         return 1;
       }
-      std::string expectedDisplayText = p.second;
+      String expectedDisplayText = p.second;
       if (runner.displayText != expectedDisplayText) {
         LOG(ERROR) << "Display text mismatch (found/expected): '" << runner.displayText
                    << "' != '" << expectedDisplayText << "'" << LOG_ENDL;

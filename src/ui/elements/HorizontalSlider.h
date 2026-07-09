@@ -38,14 +38,14 @@ public:
   bool checkMouseDownEvent(int mouseX,
                            int mouseY,
                            int button,
-                           std::vector<UiElement*> additionalElements = {}) override;
+                           DynArray<UiElement*> additionalElements = {}) override;
   bool checkMouseUpEvent(int mouseX,
                          int mouseY,
                          int button,
-                         std::vector<UiElement*> additionalElements = {}) override;
+                         DynArray<UiElement*> additionalElements = {}) override;
   bool checkHoverEvent(int mouseX,
                        int mouseY,
-                       std::vector<UiElement*> additionalElements = {}) override;
+                       DynArray<UiElement*> additionalElements = {}) override;
   const std::pair<int, int> getDims() const override;
 
   void build() override;

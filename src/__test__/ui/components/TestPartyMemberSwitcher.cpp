@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start PartyMemberSwitcher test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "PartyMemberSwitcher test initialized" << LOG_ENDL;
@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
           .spriteName = "actors0_0",
           .partyMemberIndex = 0,
       });
-      elements.push_back(std::unique_ptr<ui::UiElement>(switcher));
+      elements.pushBack(UniquePtr<ui::UiElement>(switcher));
     }
 
     {
@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
           .spriteName = "actors0_6",
           .partyMemberIndex = 2,
       });
-      elements.push_back(std::unique_ptr<ui::UiElement>(switcher));
+      elements.pushBack(UniquePtr<ui::UiElement>(switcher));
     }
 
     auto& events = window.getEvents();

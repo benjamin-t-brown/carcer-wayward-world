@@ -8,10 +8,21 @@
 #include "ui/components/InGameTitleBar.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/layouts/InGameLayout.h"
-#include <memory>
-#include <string>
+#include "lib/Types.h"
 
-std::vector<std::unique_ptr<ui::UiElement>> elements;
+namespace {
+
+void copyActionTypes(DynArray<state::WorldActionType>& dest,
+                     const auto& source) {
+  dest.clear();
+  for (const auto& type : source) {
+    dest.pushBack(type);
+  }
+}
+
+}  // namespace
+
+DynArray<UniquePtr<ui::UiElement>> elements;
 int actionModeNum = 0;
 
 const state::WorldActionUiState worldActionUiState;
@@ -31,17 +42,13 @@ public:
     auto newProps = inGameLayout->getProps();
     if (actionModeNum == 0) {
       LOG(INFO) << "Switching to town mode action list" << LOG_ENDL;
-      newProps.worldActionTypes.assign(worldActionUiState.townModeActionTypes.begin(),
-                                       worldActionUiState.townModeActionTypes.end());
+      copyActionTypes(newProps.worldActionTypes, worldActionUiState.townModeActionTypes);
     } else if (actionModeNum == 1) {
       LOG(INFO) << "Switching to town mode fight action list" << LOG_ENDL;
-      newProps.worldActionTypes.assign(
-          worldActionUiState.townModeFightActionTypes.begin(),
-          worldActionUiState.townModeFightActionTypes.end());
+      copyActionTypes(newProps.worldActionTypes, worldActionUiState.townModeFightActionTypes);
     } else if (actionModeNum == 2) {
       LOG(INFO) << "Switching to outdoor mode action list" << LOG_ENDL;
-      newProps.worldActionTypes.assign(worldActionUiState.outdoorModeActionTypes.begin(),
-                                       worldActionUiState.outdoorModeActionTypes.end());
+      copyActionTypes(newProps.worldActionTypes, worldActionUiState.outdoorModeActionTypes);
     }
     inGameLayout->setProps(newProps);
   };
@@ -80,7 +87,7 @@ void initInGameLayoutTest(sdl2w::Window& window) {
   layoutStyle.x = 0;
   layoutStyle.y = 0;
   layoutStyle.scale = scale;
-  std::vector<ui::ChCompactInfoProps> partyMembers;
+  DynArray<ui::ChCompactInfoProps> partyMembers;
   {
     ui::ChCompactInfoProps entry;
     entry.characterSpriteName = "actors0_0";
@@ -90,7 +97,7 @@ void initInGameLayoutTest(sdl2w::Window& window) {
     };
     entry.hp = 84;
     entry.mana = 37;
-    partyMembers.push_back(entry);
+    partyMembers.pushBack(entry);
   }
   {
     ui::ChCompactInfoProps entry;
@@ -104,23 +111,21 @@ void initInGameLayoutTest(sdl2w::Window& window) {
     };
     entry.hp = 12;
     entry.mana = 99;
-    partyMembers.push_back(entry);
+    partyMembers.pushBack(entry);
   }
   {
     ui::ChCompactInfoProps entry;
     entry.characterSpriteName = "actors0_8";
     entry.hp = 200;
     entry.mana = 5;
-    partyMembers.push_back(entry);
+    partyMembers.pushBack(entry);
   }
 
-  inGameLayout->setProps(ui::InGameLayoutProps{
-      .worldActionTypes =
-          std::vector(worldActionUiState.townModeActionTypes.begin(),
-                      worldActionUiState.townModeActionTypes.end()),
-      .partyMembers = partyMembers,
-      .actionButtonScale = 1.5f,
-  });
+  ui::InGameLayoutProps layoutProps;
+  copyActionTypes(layoutProps.worldActionTypes, worldActionUiState.townModeActionTypes);
+  layoutProps.partyMembers = partyMembers;
+  layoutProps.actionButtonScale = 1.5f;
+  inGameLayout->setProps(layoutProps);
 
   auto titleBar = new ui::InGameTitleBar(&window);
   titleBar->setProps(ui::InGameTitleBarProps{
@@ -160,13 +165,13 @@ void initInGameLayoutTest(sdl2w::Window& window) {
   switchBorderButton->setProps(switchBorderProps);
   switchBorderButton->addEventObserver(new SwitchBorderTypeObserver(inGameLayout));
 
-  elements.push_back(std::unique_ptr<ui::UiElement>(switchActionsButton));
-  elements.push_back(std::unique_ptr<ui::UiElement>(switchBorderButton));
-  elements.push_back(std::unique_ptr<ui::UiElement>(inGameLayout));
+  elements.pushBack(UniquePtr<ui::UiElement>(switchActionsButton));
+  elements.pushBack(UniquePtr<ui::UiElement>(switchBorderButton));
+  elements.pushBack(UniquePtr<ui::UiElement>(inGameLayout));
 }
 
 int main(int argc, char** argv) {
-  std::string windowTitle = "InGameLayout Test";
+  String windowTitle = "InGameLayout Test";
   int windowWidth = 640;
   int windowHeight = 480;
 
@@ -215,7 +220,7 @@ int main(int argc, char** argv) {
 
   setupTestUi(argc,
               argv,
-              TestUiParams{windowWidth, windowHeight, windowTitle.c_str()},
+              TestUiParams{windowWidth, windowHeight, windowTitle.cStr()},
               _initWithEvents,
               _updateRender,
               [&]() { elements.clear(); });

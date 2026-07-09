@@ -1,13 +1,13 @@
 #pragma once
 
+#include "lib/Types.h"
+#include "lib/bmin/Map.h"
 #include "model/templates/CharacterTemplate.h"
-#include <string>
-#include <unordered_map>
 
 namespace db {
 
 void loadCharacterTemplates(
-    const std::string& charactersFilePath,
-    std::unordered_map<std::string, model::CharacterTemplate>& characterTemplates);
+    const String& charactersFilePath,
+    bmin::Map<String, model::CharacterTemplate>& characterTemplates);
 
 } // namespace db

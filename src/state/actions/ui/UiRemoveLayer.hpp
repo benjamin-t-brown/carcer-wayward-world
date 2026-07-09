@@ -8,13 +8,13 @@ namespace state {
 namespace actions {
 
 class UiRemoveLayer : public AbstractAction {
-  std::string layerId;
+  String layerId;
   void act() override {
     auto layerManager = getLayerManager();
     if (!layerManager) {
       return;
     }
-    auto layer = layerManager->getLayerById(layerId);
+    auto layer = layerManager->getLayerById(bmin::toStringView(layerId));
     if (layer == nullptr) {
       return;
     }
@@ -23,7 +23,7 @@ class UiRemoveLayer : public AbstractAction {
   }
 
 public:
-  UiRemoveLayer(std::string_view layerId) : layerId(layerId) {}
+  UiRemoveLayer(const String& _layerId) : layerId(_layerId) {}
 };
 
 } // namespace actions

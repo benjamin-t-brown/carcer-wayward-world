@@ -73,7 +73,9 @@ void ButtonList::build() {
     textStyle.textAlign = TextAlign::CENTER;
     textStyle.scale = 1.f;
     textStyle.fontColor = style.fontColor;
-    textLine->setProps({.textBlocks = {TextBlock{props.text}}});
+    TextLineProps listTextProps;
+    listTextProps.textBlocks.pushBack(TextBlock{props.text});
+    textLine->setProps(listTextProps);
     addChild(textLine);
   }
 }

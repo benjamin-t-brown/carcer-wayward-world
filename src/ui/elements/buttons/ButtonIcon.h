@@ -1,13 +1,13 @@
 #pragma once
 
 #include "../../UiElement.h"
-#include <string>
+#include "lib/Types.h"
 
 namespace ui {
 
 struct ButtonIconProps {
-  std::string regularSprite;
-  std::string activeSprite;
+  String regularSprite;
+  String activeSprite;
   int iconSize = 32;
   bool isDisabled = false;
 };
@@ -39,11 +39,11 @@ public:
   bool checkMouseDownEvent(int mouseX,
                            int mouseY,
                            int button,
-                           std::vector<UiElement*> additionalElements = {}) override;
+                           DynArray<UiElement*> additionalElements = {}) override;
   bool checkMouseUpEvent(int mouseX,
                          int mouseY,
                          int button,
-                         std::vector<UiElement*> additionalElements = {}) override;
+                         DynArray<UiElement*> additionalElements = {}) override;
 
   void build() override;
   void render(int dt) override;

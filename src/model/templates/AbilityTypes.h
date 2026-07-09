@@ -1,8 +1,7 @@
 #pragma once
 
 #include <optional>
-#include <string>
-#include <vector>
+#include "lib/Types.h"
 
 namespace model {
 
@@ -155,7 +154,7 @@ struct AbilitySave {
 };
 
 struct AbilityAttackDmg {
-  std::vector<Dice> dmgDice;
+  bmin::DynArray<Dice> dmgDice;
   int dmgBonus = 0;
   StatsEnum dmgStat = StatsEnum::STAT_STR;
   int dmgStatMult = 0;
@@ -169,7 +168,7 @@ struct AbilityAttack {
 };
 
 struct AbilityStatus {
-  std::string statusEffect;
+  String statusEffect;
   std::optional<AbilitySave> save;
   std::optional<int> baseDuration;
   std::optional<int> durationBonus;
@@ -177,63 +176,63 @@ struct AbilityStatus {
 
 struct AbilityRestore {
   CurrentStatEnum restoreWhich = CurrentStatEnum::CURRENT_STAT_HP;
-  std::vector<Dice> restoreDice;
+  bmin::DynArray<Dice> restoreDice;
   int restoreBonus = 0;
   StatsEnum restoreStat = StatsEnum::STAT_STR;
   int restoreStatMult = 0;
 };
 
 struct AbilityDepiction {
-  std::string dmgAnim;
+  String dmgAnim;
   ProjectileType projectileType = ProjectileType::PROJECTILE_NONE;
   ProjectilePath projectilePath = ProjectilePath::PROJECTILE_PATH_NONE;
-  std::string startSound;
-  std::string dmgSound;
+  String startSound;
+  String dmgSound;
 };
 
-StatusEffectCondition statusEffectConditionFromString(const std::string& value);
-std::string statusEffectConditionToString(StatusEffectCondition value);
+StatusEffectCondition statusEffectConditionFromString(const String& value);
+String statusEffectConditionToString(StatusEffectCondition value);
 
-AbilityType abilityTypeFromString(const std::string& value);
-std::string abilityTypeToString(AbilityType value);
+AbilityType abilityTypeFromString(const String& value);
+String abilityTypeToString(AbilityType value);
 
-TargetSelectType targetSelectTypeFromString(const std::string& value);
-std::string targetSelectTypeToString(TargetSelectType value);
+TargetSelectType targetSelectTypeFromString(const String& value);
+String targetSelectTypeToString(TargetSelectType value);
 
-TargetAllegianceSelectType targetAllegianceSelectTypeFromString(const std::string& value);
-std::string targetAllegianceSelectTypeToString(TargetAllegianceSelectType value);
+TargetAllegianceSelectType targetAllegianceSelectTypeFromString(const String& value);
+String targetAllegianceSelectTypeToString(TargetAllegianceSelectType value);
 
-Dice diceFromString(const std::string& value);
-std::string diceToString(Dice value);
+Dice diceFromString(const String& value);
+String diceToString(Dice value);
 
-StatsEnum statsEnumFromString(const std::string& value);
-std::string statsEnumToString(StatsEnum value);
+StatsEnum statsEnumFromString(const String& value);
+String statsEnumToString(StatsEnum value);
 
-StatusEventType statusEventTypeFromString(const std::string& value);
-std::string statusEventTypeToString(StatusEventType value);
+StatusEventType statusEventTypeFromString(const String& value);
+String statusEventTypeToString(StatusEventType value);
 
-CurrentStatEnum currentStatEnumFromString(const std::string& value);
-std::string currentStatEnumToString(CurrentStatEnum value);
+CurrentStatEnum currentStatEnumFromString(const String& value);
+String currentStatEnumToString(CurrentStatEnum value);
 
-StatusActionTargetType statusActionTargetTypeFromString(const std::string& value);
-std::string statusActionTargetTypeToString(StatusActionTargetType value);
+StatusActionTargetType statusActionTargetTypeFromString(const String& value);
+String statusActionTargetTypeToString(StatusActionTargetType value);
 
-AbilityCostType abilityCostTypeFromString(const std::string& value);
-std::string abilityCostTypeToString(AbilityCostType value);
+AbilityCostType abilityCostTypeFromString(const String& value);
+String abilityCostTypeToString(AbilityCostType value);
 
-AttackClass attackClassFromString(const std::string& value);
-std::string attackClassToString(AttackClass value);
+AttackClass attackClassFromString(const String& value);
+String attackClassToString(AttackClass value);
 
-DamageType damageTypeFromString(const std::string& value);
-std::string damageTypeToString(DamageType value);
+DamageType damageTypeFromString(const String& value);
+String damageTypeToString(DamageType value);
 
-ProjectilePath projectilePathFromString(const std::string& value);
-std::string projectilePathToString(ProjectilePath value);
+ProjectilePath projectilePathFromString(const String& value);
+String projectilePathToString(ProjectilePath value);
 
 bool projectileTypeHasFacing(ProjectileType value);
-std::string projectileTypeToAnimBase(ProjectileType value);
-ProjectileType projectileTypeFromString(const std::string& value);
-ProjectileType projectileTypeFromAnimName(const std::string& animName);
-std::string projectileTypeToString(ProjectileType value);
+String projectileTypeToAnimBase(ProjectileType value);
+ProjectileType projectileTypeFromString(const String& value);
+ProjectileType projectileTypeFromAnimName(const String& animName);
+String projectileTypeToString(ProjectileType value);
 
 } // namespace model

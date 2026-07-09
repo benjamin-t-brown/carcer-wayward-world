@@ -14,9 +14,9 @@ namespace state {
 namespace actions {
 
 class UiGiveInventoryItem : public AbstractAction {
-  std::string fromCharacterPlayerId;
-  std::string toCharacterPlayerId;
-  std::string itemId;
+  String fromCharacterPlayerId;
+  String toCharacterPlayerId;
+  String itemId;
   int quantity;
 
   void act() override {
@@ -52,7 +52,7 @@ class UiGiveInventoryItem : public AbstractAction {
       notification.type = UiFloatingNotificationType::WARNING;
       model::timerStructStart(notification.timer,
                               state->settings.floatingNotificationDurationMs);
-      localState.uiState.floatingNotifications.push_back(std::move(notification));
+      localState.uiState.floatingNotifications.pushBack(std::move(notification));
 
       auto* giveLayer = layerManager->getLayerById(layers::LayerGiveContext::LAYER_ID);
       if (giveLayer) {
@@ -81,9 +81,9 @@ class UiGiveInventoryItem : public AbstractAction {
   }
 
 public:
-  UiGiveInventoryItem(std::string _fromCharacterPlayerId,
-                      std::string _toCharacterPlayerId,
-                      std::string _itemId,
+  UiGiveInventoryItem(String _fromCharacterPlayerId,
+                      String _toCharacterPlayerId,
+                      String _itemId,
                       int _quantity)
       : fromCharacterPlayerId(std::move(_fromCharacterPlayerId)),
         toCharacterPlayerId(std::move(_toCharacterPlayerId)),

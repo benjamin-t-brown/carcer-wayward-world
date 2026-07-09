@@ -1,22 +1,23 @@
+#include "lib/bmin/Map.h"
 #include "lib/sdl2w/Logger.h"
 #include "runner/StringEvaluator.h"
-#include <unordered_map>
+
+#include <vector>
 
 #define TEST_NAME "TestStringEvaluator"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Starting " << TEST_NAME << LOG_ENDL;
-  std::unordered_map<std::string, std::string> initialStorage = {
-      // clang-format off
-      {"a", "0"},
-      {"b", "1"},
-      {"c", "2"},
-      {"d", "3"},
-      // z is undefined
-      // clang-format on
-  };
+  bmin::Map<String, String> initialStorage;
+  // clang-format off
+  initialStorage.insert(String("a"), String("0"));
+  initialStorage.insert(String("b"), String("1"));
+  initialStorage.insert(String("c"), String("2"));
+  initialStorage.insert(String("d"), String("3"));
+  // z is undefined
+  // clang-format on
 
-  const std::vector<std::pair<std::string, std::pair<std::string, std::string>>>
+  const DynArray<std::pair<String, std::pair<String, String>>>
       basicTestCases = {
           // clang-format off
       {"SET_BOOL(bool1, true)", {"bool1", "true"}},
@@ -33,7 +34,7 @@ int main(int argc, char** argv) {
           // clang-format on
       };
 
-  const std::vector<std::pair<std::string, bool>> invalidSyntax = {
+  const DynArray<std::pair<String, bool>> invalidSyntax = {
       // clang-format off
       {"a", false},
       {"1", false},
@@ -46,13 +47,13 @@ int main(int argc, char** argv) {
   try {
     LOG(INFO) << "== Running basic tests ==" << LOG_ENDL;
 
-    std::vector<std::pair<std::string, std::string>> failedTests;
+    DynArray<std::pair<String, String>> failedTests;
     for (int i = 0; i < static_cast<int>(basicTestCases.size()); i++) {
       const auto& [expression, expectedPair] = basicTestCases[i];
       if (i == runOnlyIndex || runOnlyIndex == -1) {
         runner::StringEvaluator evaluator(initialStorage, expression);
         evaluator.evalStr(expression);
-        std::string result =
+        String result =
             runner::getStorage(initialStorage, expectedPair.first).value_or("");
         LOG(INFO) << "Running test " << i << ": " << expression << " -> storage["
                   << expectedPair.first << "] = \"" << result << "\"" << LOG_ENDL;
@@ -61,7 +62,7 @@ int main(int argc, char** argv) {
           LOG(ERROR) << " Test " << i << " failed: " << expression << " should be \""
                      << expectedPair.second << "\" but got \"" << result << "\""
                      << LOG_ENDL;
-          failedTests.push_back({expression, result});
+          failedTests.pushBack({expression, result});
         }
       }
     }
@@ -71,7 +72,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < static_cast<int>(invalidSyntax.size()); i++) {
       const auto& [expression, expected] = invalidSyntax[i];
       if (i == runOnlyIndex || runOnlyIndex == -1) {
-        std::unordered_map<std::string, std::string> storage = initialStorage;
+        bmin::Map<String, String> storage = initialStorage;
         runner::StringEvaluator evaluator(storage, expression);
         try {
           LOG(INFO) << "Running invalid syntax test " << i << ": " << expression

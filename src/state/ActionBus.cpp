@@ -1,13 +1,12 @@
 #include "state/ActionBus.h"
 #include "state/AbstractAction.h"
-#include <algorithm>
 
 namespace state {
 
 void ActionBus::subscribe(void* owner,
                            std::type_index actionType,
                            std::function<void(AbstractAction&, State&)> handler) {
-  entries.push_back(Entry{
+  entries.pushBack(Entry{
       .owner = owner,
       .actionType = actionType,
       .handler = std::move(handler),
@@ -15,11 +14,7 @@ void ActionBus::subscribe(void* owner,
 }
 
 void ActionBus::unsubscribe(void* owner) {
-  entries.erase(
-      std::remove_if(entries.begin(),
-                     entries.end(),
-                     [owner](const Entry& entry) { return entry.owner == owner; }),
-      entries.end());
+  entries.eraseIf([owner](const Entry& entry) { return entry.owner == owner; });
 }
 
 void ActionBus::notify(AbstractAction& action, State& state) {

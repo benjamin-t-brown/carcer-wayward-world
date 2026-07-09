@@ -10,8 +10,8 @@ namespace actions {
 
 class UiShowLayerGiveContext : public AbstractAction {
   sdl2w::Window* window;
-  std::string fromCharacterPlayerId;
-  std::string itemId;
+  String fromCharacterPlayerId;
+  String itemId;
 
   void act() override {
     auto layerManager = getLayerManager();
@@ -26,8 +26,8 @@ class UiShowLayerGiveContext : public AbstractAction {
 
 public:
   UiShowLayerGiveContext(sdl2w::Window* _window,
-                         std::string _fromCharacterPlayerId,
-                         std::string _itemId)
+                         String _fromCharacterPlayerId,
+                         String _itemId)
       : window(_window),
         fromCharacterPlayerId(std::move(_fromCharacterPlayerId)),
         itemId(std::move(_itemId)) {}

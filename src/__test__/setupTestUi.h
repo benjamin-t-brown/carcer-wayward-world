@@ -1,30 +1,30 @@
 #pragma once
 
-#include "lib/sdl2w/AssetLoader.h"
-#include "lib/sdl2w/Draw.h"
-#include "lib/sdl2w/Events.h"
-#include "lib/sdl2w/Init.h"
-#include "lib/sdl2w/L10n.h"
-#include "lib/sdl2w/Logger.h"
-#include "lib/sdl2w/Window.h"
+#include "lib/Types.h"
+#include "sdl2w/AssetLoader.h"
+#include "sdl2w/Draw.h"
+#include "sdl2w/Events.h"
+#include "sdl2w/Init.h"
+#include "sdl2w/L10n.h"
+#include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include <functional>
 
 struct TestUiParams {
   int width;
   int height;
-  std::string title = "UI Test";
+  String title = "UI Test";
 };
 
 // Runs after the render loop exits, while window/store are still alive.
 // Clear UI elements here so Quad and other SDL-owned resources are released
 // before the window is destroyed and SDL_Quit is called.
-inline void
-setupTestUi(int argc,
-            char** argv,
-            const TestUiParams& params,
-            std::function<void(sdl2w::Window&, sdl2w::Store&)> _init,
-            std::function<bool(sdl2w::Window&, sdl2w::Store&)> _updateRender,
-            std::function<void()> _teardown = {}) {
+inline void setupTestUi(int argc,
+                        char** argv,
+                        const TestUiParams& params,
+                        std::function<void(sdl2w::Window&, sdl2w::Store&)> _init,
+                        std::function<bool(sdl2w::Window&, sdl2w::Store&)> _updateRender,
+                        std::function<void()> _teardown = {}) {
   LOG(INFO) << "Starting UI Test: " << params.title << LOG_ENDL;
   sdl2w::Window::init();
 
@@ -33,7 +33,7 @@ setupTestUi(int argc,
     sdl2w::Window window(store,
                          {
                              .mode = sdl2w::DrawMode::GPU,
-                             .title = params.title,
+                             .title = params.title.cStr(),
                              .w = params.width,
                              .h = params.height,
                              .x = 25,
@@ -42,9 +42,9 @@ setupTestUi(int argc,
                              .renderH = params.height,
                          });
 
-    sdl2w::L10n::init(std::vector<std::string>({"en"}));
+    sdl2w::L10n::init({{"en"}});
     sdl2w::setupStartupArgs(argc, argv, window);
-    sdl2w::L10n::setLanguage("default");
+    sdl2w::L10n::setLanguage(DISABLE_TRANSLATIONS);
     window.getDraw().setBackgroundColor({0, 0, 0});
 
     sdl2w::AssetLoader assetLoader(window.getDraw(), window.getStore());

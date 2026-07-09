@@ -18,7 +18,7 @@ public:
       : layers::Layer(_window), characterPlayer(std::move(_characterPlayer)) {
     auto [windowWidth, windowHeight] = window->getDims();
 
-    auto pageCharacter = std::make_unique<ui::PageCharacter>(window);
+    auto pageCharacter = makeUnique<ui::PageCharacter>(window);
     pageCharacter->setId("pageCharacter");
     ui::BaseStyle pageStyle = pageCharacter->getStyle();
     pageStyle.width = windowWidth;
@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start PageCharacter test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::unique_ptr<layers::LayerManager> layerManager;
+  UniquePtr<layers::LayerManager> layerManager;
 
   db::Database database;
   state::DatabaseInterface::setDatabase(&database);
@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "PageCharacter test initialized" << LOG_ENDL;
 
-    layerManager = std::make_unique<layers::LayerManager>(&window);
+    layerManager = makeUnique<layers::LayerManager>(&window);
     state::LayerManagerInterface::setLayerManager(layerManager.get());
 
     auto characterPlayer =

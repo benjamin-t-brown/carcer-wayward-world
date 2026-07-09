@@ -31,14 +31,9 @@ void ItemInfo::build() {
   descStyle.fontColor = Colors::Black;
   descStyle.textAlign = TextAlign::LEFT_TOP;
   descStyle.lineSpacing = 0;
-  description->setProps(TextParagraphProps{
-      .textBlocks =
-          {
-              {
-                  .text = props.description,
-              },
-          },
-  });
+  TextParagraphProps descProps;
+  descProps.textBlocks.pushBack({.text = props.description});
+  description->setProps(descProps);
   addChild(description);
 
   auto [descWidthScaled, descHeightScaled] = description->getDims();
@@ -51,15 +46,11 @@ void ItemInfo::build() {
   setBaseFontConfig(weightStyle, BaseFontConfig::MODAL_TEXT);
   weightStyle.fontColor = Colors::DarkBlue;
   weightStyle.textAlign = TextAlign::LEFT_TOP;
-  weightLine->setProps(TextLineProps{
-      .textBlocks =
-          {
-              {
-                  .text = TRANSLATE("Weight: ") + std::to_string(props.weight) +
-                          std::string(TRANSLATE(" lbs")),
-              },
-          },
+  TextLineProps weightProps;
+  weightProps.textBlocks.pushBack({
+      .text = TRANSLATE("Weight: ") + bmin::toString(props.weight) + String(TRANSLATE(" lbs")),
   });
+  weightLine->setProps(weightProps);
   addChild(weightLine);
   const auto weightLineHeight = weightLine->getDims().second;
 
@@ -72,15 +63,11 @@ void ItemInfo::build() {
   setBaseFontConfig(valueStyle, BaseFontConfig::MODAL_TEXT);
   valueStyle.fontColor = Colors::DarkGrey;
   valueStyle.textAlign = TextAlign::LEFT_TOP;
-  valueLine->setProps(TextLineProps{
-      .textBlocks =
-          {
-              {
-                  .text = TRANSLATE("Value: ") + std::to_string(props.value) +
-                          std::string(TRANSLATE(" gp")),
-              },
-          },
+  TextLineProps valueProps;
+  valueProps.textBlocks.pushBack({
+      .text = TRANSLATE("Value: ") + bmin::toString(props.value) + String(TRANSLATE(" gp")),
   });
+  valueLine->setProps(valueProps);
   addChild(valueLine);
 
   const auto valueLineHeight = valueLine->getDims().second;

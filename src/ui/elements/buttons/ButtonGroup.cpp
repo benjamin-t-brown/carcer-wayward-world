@@ -72,7 +72,7 @@ void ButtonGroup::build() {
     switch (buttonProps.type) {
     case ButtonGroupButtonType::MODAL: {
       auto button = new ButtonModal(window, this);
-      button->setId("buttonGroupButton_" + std::to_string(i));
+      button->setId("buttonGroupButton_" + bmin::toString(i));
       auto& buttonStyle = button->getStyle();
       buttonStyle.x = buttonX;
       buttonStyle.y = buttonY;
@@ -86,7 +86,7 @@ void ButtonGroup::build() {
     }
     case ButtonGroupButtonType::SPRITE: {
       auto button = new ButtonSprite(window, this);
-      button->setId("buttonGroupButton_" + std::to_string(i));
+      button->setId("buttonGroupButton_" + bmin::toString(i));
       auto& buttonStyle = button->getStyle();
       buttonStyle.x = buttonX;
       buttonStyle.y = buttonY;

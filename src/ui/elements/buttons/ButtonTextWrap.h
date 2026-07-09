@@ -6,7 +6,7 @@ namespace ui {
 
 // ButtonTextWrap-specific properties
 struct ButtonTextWrapProps {
-  std::string text;
+  String text;
   int verticalPadding = 0; // Padding added to top and bottom
   int horizontalPadding = 0; // Padding added to left and right
   bool isSelected = false;

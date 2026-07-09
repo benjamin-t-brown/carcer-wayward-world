@@ -1,9 +1,9 @@
 #pragma once
 
+#include "lib/Types.h"
 #include "state/State.h"
 #include <functional>
 #include <typeindex>
-#include <vector>
 
 namespace state {
 
@@ -16,7 +16,7 @@ class ActionBus {
     std::function<void(AbstractAction&, State&)> handler;
   };
 
-  std::vector<Entry> entries;
+  DynArray<Entry> entries;
 
 public:
   void subscribe(void* owner,

@@ -9,13 +9,13 @@ namespace ui {
 class ObserverShowLayerPopupText : public ui::UiEventObserver,
                                    public state::StateManagerInterface {
   sdl2w::Window* window;
-  std::string title;
-  std::string helpText;
+  String title;
+  String helpText;
 
 public:
   ObserverShowLayerPopupText(sdl2w::Window* _window,
-                             std::string _title,
-                             std::string _helpText)
+                             String _title,
+                             String _helpText)
       : window(_window), title(std::move(_title)), helpText(std::move(_helpText)) {}
 
   void onClick(int mouseX, int mouseY, int button) override {

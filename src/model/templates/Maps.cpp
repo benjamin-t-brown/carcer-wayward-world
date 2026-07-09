@@ -4,7 +4,7 @@
 
 namespace model {
 
-std::string getStringFromMapType(MapType mapType) {
+String getStringFromMapType(MapType mapType) {
   switch (mapType) {
   case MapType::TOWN:
     return "TOWN";
@@ -15,13 +15,13 @@ std::string getStringFromMapType(MapType mapType) {
   }
 }
 
-MapType getMapTypeFromString(const std::string& mapTypeString) {
+MapType getMapTypeFromString(const String& mapTypeString) {
   if (mapTypeString == "TOWN") {
     return MapType::TOWN;
   } else if (mapTypeString == "OUTDOOR") {
     return MapType::OUTDOOR;
   }
-  throw std::runtime_error("Invalid map type: " + mapTypeString);
+  throw std::runtime_error(("Invalid map type: " + mapTypeString).cStr());
 }
 
 } // namespace model

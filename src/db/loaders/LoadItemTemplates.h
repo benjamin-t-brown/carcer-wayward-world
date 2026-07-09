@@ -1,14 +1,12 @@
 #pragma once
 
+#include "lib/Types.h"
+#include "lib/bmin/Map.h"
 #include "model/templates/Items.h"
-#include <string>
-#include <unordered_map>
 
 namespace db {
 
-void loadItemTemplates(
-    const std::string& itemsFilePath,
-    std::unordered_map<std::string, model::ItemTemplate>& itemTemplates);
+void loadItemTemplates(const String& itemsFilePath,
+                       bmin::Map<String, model::ItemTemplate>& itemTemplates);
 
 } // namespace db
-

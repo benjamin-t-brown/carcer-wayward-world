@@ -1,17 +1,17 @@
 #pragma once
 
 #include "Layer.h"
+#include "lib/Types.h"
 #include "state/StateManagerInterface.h"
-#include <vector>
 
 namespace layers {
 
 class LayerManager : public state::StateManagerInterface,
                      public state::DatabaseInterface {
 private:
-  std::vector<Layer*> layers;
+  DynArray<Layer*> layers;
   sdl2w::Window* window;
-  std::vector<Layer*> layerEventsStack;
+  DynArray<Layer*> layerEventsStack;
 
   void removeLayer(const Layer* layer);
   void removeLayerAt(size_t index);
@@ -35,8 +35,8 @@ public:
   void handleKeyUp(std::string_view key, int keyCode);
 
   // Getters
-  std::vector<Layer*>& getLayers();
-  const std::vector<Layer*>& getLayers() const;
+  DynArray<Layer*>& getLayers();
+  const DynArray<Layer*>& getLayers() const;
   size_t getLayerCount() const;
   Layer* getLayerAt(size_t index);
   Layer* getLayerById(std::string_view id);

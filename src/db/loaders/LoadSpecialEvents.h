@@ -1,16 +1,16 @@
 #pragma once
 
+#include "lib/Types.h"
+#include "lib/bmin/Map.h"
 #include "model/templates/SpecialEvents.h"
-#include <string>
-#include <unordered_map>
 
 namespace db {
 
-void loadSpecialEvents(const std::string& specialEventsFilePath,
-                       std::unordered_map<std::string, model::GameEvent>& specialEvents);
+void loadSpecialEvents(const String& specialEventsFilePath,
+                       bmin::Map<String, model::GameEvent>& specialEvents);
 
-void loadSpecialEvents(const std::string& specialEventsFilePath,
-                       std::unordered_map<std::string, model::GameEvent>& specialEvents,
-                       std::vector<std::string>& eventsToLoad);
+void loadSpecialEvents(const String& specialEventsFilePath,
+                       bmin::Map<String, model::GameEvent>& specialEvents,
+                       bmin::DynArray<String>& eventsToLoad);
 
 } // namespace db

@@ -3,7 +3,7 @@
 #include "ui/FontScale.h"
 #include <cassert>
 #include <iostream>
-#include <string>
+#include "lib/Types.h"
 #include <vector>
 
 struct ScalePreviewRow {
@@ -28,12 +28,12 @@ int main(int argc, char** argv) {
   assert(static_cast<int>(ui::applyFontScale(sdl2w::TEXT_SIZE_72, 100)) == 72);
 
   const sdl2w::TextSize previewBaseSize = sdl2w::TEXT_SIZE_10;
-  const std::vector<int> previewScales{-1, 0, 1, 2, 3};
-  const std::vector<std::string> previewFonts{"default", "alternate", "text", "title"};
-  std::vector<ScalePreviewRow> previewRows;
+  const DynArray<int> previewScales{-1, 0, 1, 2, 3};
+  const DynArray<String> previewFonts{"default", "alternate", "text", "title"};
+  DynArray<ScalePreviewRow> previewRows;
   previewRows.reserve(previewScales.size());
   for (int scale : previewScales) {
-    previewRows.push_back(
+    previewRows.pushBack(
         ScalePreviewRow{scale, ui::applyFontScale(previewBaseSize, scale)});
   }
 
@@ -75,9 +75,9 @@ int main(int argc, char** argv) {
         params.centered = false;
         params.color = SDL_Color{255, 255, 255, 255};
 
-        std::string label =
-            "[" + std::to_string(row.scale) + "/" +
-            std::to_string(static_cast<int>(row.renderedSize)) + "] Quick Brown Fox";
+        String label =
+            "[" + bmin::toString(row.scale) + "/" +
+            bmin::toString(static_cast<int>(row.renderedSize)) + "] Quick Brown Fox";
         draw.drawText(label, params);
       }
     }

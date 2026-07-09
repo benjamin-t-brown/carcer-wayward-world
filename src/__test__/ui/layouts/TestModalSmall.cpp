@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start ModalSmall test" << LOG_ENDL;
   srand(time(NULL));
 
-  std::vector<std::unique_ptr<ui::UiElement>> elements;
+  DynArray<UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ModalSmall test initialized" << LOG_ENDL;
@@ -43,11 +43,11 @@ int main(int argc, char** argv) {
     ui::TextLineProps titleProps;
     ui::TextBlock titleBlock;
     titleBlock.text = "Small Modal Title";
-    titleProps.textBlocks.push_back(titleBlock);
+    titleProps.textBlocks.pushBack(titleBlock);
     title->setProps(titleProps);
     modalSmall->setTitleElement(title);
 
-    // auto subtitle = std::make_unique<ui::TextLine>(&window);
+    // auto subtitle = makeUnique<ui::TextLine>(&window);
     // ui::BaseStyle subtitleStyle;
     // subtitleStyle.fontFamily = ui::FontFamily::TEXT;
     // subtitleStyle.fontSize = sdl2w::TEXT_SIZE_16;
@@ -56,11 +56,11 @@ int main(int argc, char** argv) {
     // ui::TextLineProps subtitleProps;
     // ui::TextBlock subtitleBlock;
     // subtitleBlock.text = "This is a small modal subtitle";
-    // subtitleProps.textBlocks.push_back(subtitleBlock);
+    // subtitleProps.textBlocks.pushBack(subtitleBlock);
     // subtitle->setProps(subtitleProps);
     // modalLayout->setSubtitleElement(subtitle.release());
 
-    elements.push_back(std::unique_ptr<ui::UiElement>(modalSmall));
+    elements.pushBack(UniquePtr<ui::UiElement>(modalSmall));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

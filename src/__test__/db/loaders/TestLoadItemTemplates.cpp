@@ -1,12 +1,11 @@
 #include "db/loaders/LoadItemTemplates.h"
 #include "lib/sdl2w/Logger.h"
 #include "model/templates/Items.h"
-#include <unordered_map>
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Starting TestLoadItemTemplates" << LOG_ENDL;
 
-  std::unordered_map<std::string, model::ItemTemplate> itemTemplates;
+  bmin::Map<String, model::ItemTemplate> itemTemplates;
 
   try {
     db::loadItemTemplates("assets/db/items.json", itemTemplates);

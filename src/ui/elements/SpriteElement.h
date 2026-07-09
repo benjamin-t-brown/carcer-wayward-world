@@ -2,7 +2,7 @@
 
 #include "../UiElement.h"
 #include "lib/sdl2w/Draw.h"
-#include <string>
+#include "lib/Types.h"
 
 namespace ui {
 
@@ -16,7 +16,7 @@ public:
   SpriteElement(sdl2w::Window* _window, UiElement* _parent = nullptr);
   ~SpriteElement() override = default;
 
-  void setSprite(const std::string& name);
+  void setSprite(const String& name);
   const sdl2w::Sprite& getSprite() const;
 
   void build() override;

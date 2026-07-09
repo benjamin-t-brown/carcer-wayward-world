@@ -1,20 +1,19 @@
 #pragma once
 
 #include "ui/UiElement.h"
-#include <string>
-#include <vector>
+#include "lib/Types.h"
 
 namespace ui {
 
 struct ListPickUpPropsItem {
   model::ItemInstance item;
-  std::string itemLabel;
+  String itemLabel;
   int weight = 1;
-  std::string itemSprite;
+  String itemSprite;
 };
 
 struct ListPickUpProps {
-  std::vector<ListPickUpPropsItem> items;
+  DynArray<ListPickUpPropsItem> items;
   int lineHeight = 32;
   int lineGap = 2;
   int paddingTop = 4;

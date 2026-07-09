@@ -5,7 +5,7 @@
 #include "ui/elements/buttons/ButtonScroll.h"
 #include "ui/uiUtils.h"
 #include <algorithm>
-#include <string>
+#include "lib/Types.h"
 
 namespace ui {
 
@@ -111,16 +111,12 @@ void HorizontalSlider::refreshValueUi() {
   }
 
   if (auto* valueLabel = dynamic_cast<TextLine*>(getChildById("valueLabel"))) {
-    valueLabel->setProps({
-        .textBlocks =
-            {
-                {
-                    .text = std::to_string(props.value) + " / " +
-                            std::to_string(props.maxValue),
-                    .fontColor = props.labelColor,
-                },
-            },
+    TextLineProps valueProps;
+    valueProps.textBlocks.pushBack({
+        .text = bmin::toString(props.value) + " / " + bmin::toString(props.maxValue),
+        .fontColor = props.labelColor,
     });
+    valueLabel->setProps(valueProps);
   }
 }
 
@@ -135,7 +131,7 @@ void HorizontalSlider::decrement() {
 }
 
 bool HorizontalSlider::checkMouseDownEvent(
-    int mouseX, int mouseY, int button, std::vector<UiElement*> additionalElements) {
+    int mouseX, int mouseY, int button, DynArray<UiElement*> additionalElements) {
   const bool handled = UiElement::checkMouseDownEvent(mouseX, mouseY, button);
   if (isInSliderTrack(mouseX, mouseY) && !hitButton(mouseX, mouseY)) {
     setValueFromIndicatorMouseX(mouseX);
@@ -147,14 +143,14 @@ bool HorizontalSlider::checkMouseDownEvent(
 }
 
 bool HorizontalSlider::checkMouseUpEvent(
-    int mouseX, int mouseY, int button, std::vector<UiElement*> additionalElements) {
+    int mouseX, int mouseY, int button, DynArray<UiElement*> additionalElements) {
   isDraggingIndicator = false;
   return UiElement::checkMouseUpEvent(mouseX, mouseY, button);
 }
 
 bool HorizontalSlider::checkHoverEvent(int mouseX,
                                        int mouseY,
-                                       std::vector<UiElement*> additionalElements) {
+                                       DynArray<UiElement*> additionalElements) {
   if (isDraggingIndicator) {
     setValueFromIndicatorMouseX(mouseX);
     return true;
@@ -245,7 +241,9 @@ void HorizontalSlider::build() {
   labelStyle.scale = 1.f;
   labelStyle.x = style.x + scaledWidth / 2;
   labelStyle.y = style.y + scaledBarHeight + static_cast<int>(8 * style.scale);
-  valueLabel->setProps({.textBlocks = {{.text = ""}}});
+  TextLineProps valueLabelProps;
+  valueLabelProps.textBlocks.pushBack({.text = ""});
+  valueLabel->setProps(valueLabelProps);
   addChild(valueLabel);
   refreshValueUi();
 }

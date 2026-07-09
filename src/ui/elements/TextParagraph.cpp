@@ -4,24 +4,24 @@
 #include "lib/sdl2w/Draw.h"
 #include "ui/FontScale.h"
 #include <algorithm>
-#include <string>
+#include "lib/Types.h"
 
 namespace ui {
 
 namespace {
 
 std::pair<int, int> measureLine(sdl2w::Draw& draw,
-                                const std::string& lineText,
+                                const String& lineText,
                                 const sdl2w::RenderTextParams& params) {
-  const std::string& sample = lineText.empty() ? std::string(" ") : lineText;
-  return draw.measureText(sample, params);
+  const String& sample = lineText.empty() ? String(" ") : lineText;
+  return draw.measureText(bmin::toStringView(sample), params);
 }
 
 } // namespace
 
 TextParagraph::TextParagraph(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
-  quad = std::make_unique<Quad>(window, this);
+  quad = makeUnique<Quad>(window, this);
   quad->setId("textParagraphQuad");
 }
 
@@ -77,14 +77,14 @@ void TextParagraph::build() {
   }
 
   int lineNumber = 0;
-  std::string lineAggregate;
-  std::string nextWord;
+  String lineAggregate;
+  String nextWord;
 
   auto flushCurrentLine = [&](const TextBlock& block,
                               const sdl2w::RenderTextParams& params) {
     auto [textWidth, textHeight] = measureLine(draw, lineAggregate, params);
     lineHeightFromFont = std::max(lineHeightFromFont, textHeight);
-    generatedBlocks.push_back(TextParagraphGeneratedBlock{
+    generatedBlocks.pushBack(TextParagraphGeneratedBlock{
         lineNumber,
         block,
         lineAggregate,
@@ -94,13 +94,13 @@ void TextParagraph::build() {
     lineAggregate.clear();
   };
 
-  auto appendToCurrentLine = [&](const std::string& text,
+  auto appendToCurrentLine = [&](const String& text,
                                    const TextBlock& block,
                                    const sdl2w::RenderTextParams& params) {
     if (text.empty()) {
       return;
     }
-    const std::string candidate = lineAggregate + text;
+    const String candidate = lineAggregate + text;
     auto [candidateWidth, textHeight] = measureLine(draw, candidate, params);
     lineHeightFromFont = std::max(lineHeightFromFont, textHeight);
 
@@ -134,7 +134,7 @@ void TextParagraph::build() {
     auto fontName = TextLine::getFontNameFromFamily(fontFamily);
 
     sdl2w::RenderTextParams params;
-    params.fontName = fontName;
+    params.fontName = fontName.cStr();
     params.fontSize = ui::applyFontScale(fontSize, fontScale);
     params.color = fontColor;
     params.centered = false;
@@ -193,7 +193,7 @@ void TextParagraph::build() {
   // Create TextLine children inside the quad (texture-local coordinates)
   if (!generatedBlocks.empty()) {
     auto currentLineNumber = -1;
-    std::vector<TextBlock> currentLineBlocks;
+    DynArray<TextBlock> currentLineBlocks;
     auto currentY = props.padding;
     int currentLineMaxHeight = 0;
 
@@ -234,7 +234,7 @@ void TextParagraph::build() {
       textBlock.fontFamily = genBlock.textBlock.fontFamily.value_or(style.fontFamily);
       textBlock.fontSize = genBlock.textBlock.fontSize.value_or(style.fontSize);
       textBlock.fontColor = genBlock.textBlock.fontColor.value_or(style.fontColor);
-      currentLineBlocks.push_back(textBlock);
+      currentLineBlocks.pushBack(textBlock);
     }
 
     if (!currentLineBlocks.empty()) {
