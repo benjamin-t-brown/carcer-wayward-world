@@ -8,6 +8,8 @@
 #include "ui/elements/Quad.h"
 #include "ui/elements/TextParagraph.h"
 #include <memory>
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 // struct QuadWithParagraphParams {
 //   int x = 0;
@@ -17,17 +19,17 @@
 //   SDL_Color bgColor = SDL_Color{50, 50, 50, 255};
 //   SDL_Color borderColor = SDL_Color{0, 0, 0, 0};
 //   int borderSize = 0;
-//   DynArray<ui::TextBlock> textBlocks;
+//   bmin::DynArray<ui::TextBlock> textBlocks;
 //   sdl2w::TextSize fontSize = sdl2w::TEXT_SIZE_16;
 //   SDL_Color fontColor = SDL_Color{255, 255, 255, 255};
 //   int lineSpacing = 0;
 //   int padding = 0;
 // };
 
-// UniquePtr<ui::Quad>
+// bmin::UniquePtr<ui::Quad>
 // createQuadWithParagraph(sdl2w::Window* window,
 //                         const QuadWithParagraphParams& params) {
-//   auto quad = makeUnique<ui::Quad>(window);
+//   auto quad = bmin::makeUnique<ui::Quad>(window);
 
 //   // Set quad style
 //   ui::BaseStyle quadStyle;
@@ -45,7 +47,7 @@
 //   quad->setProps(quadProps);
 
 //   // Create paragraph inside the quad
-//   auto paragraph = makeUnique<ui::TextParagraph>(window);
+//   auto paragraph = bmin::makeUnique<ui::TextParagraph>(window);
 
 //   // Set paragraph style
 //   ui::BaseStyle paragraphStyle;
@@ -73,7 +75,7 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "STUFF INITTED" << LOG_ENDL;
@@ -95,7 +97,7 @@ int main(int argc, char** argv) {
     //      "jumping over the lazy dog!"});
 
     // auto quad1 = createQuadWithParagraph(&window, params1);
-    // elements.pushBack(UniquePtr<ui::UiElement>(quad1.release()));
+    // elements.pushBack(bmin::UniquePtr<ui::UiElement>(quad1.release()));
 
     auto textParagraph = new ui::TextParagraph(&window, nullptr);
     auto& style = textParagraph->getStyle();
@@ -124,7 +126,7 @@ int main(int argc, char** argv) {
     props.padding = 0;
     props.bgColor = ui::Colors::OffWhite;
     textParagraph->setProps(props);
-    elements.pushBack(UniquePtr<ui::UiElement>(textParagraph));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(textParagraph));
 
     // Example 2: Multi-styled paragraph
     // QuadWithParagraphParams params2;
@@ -159,7 +161,7 @@ int main(int argc, char** argv) {
     // params2.textBlocks.pushBack(block4);
 
     // auto quad2 = createQuadWithParagraph(&window, params2);
-    // elements.pushBack(UniquePtr<ui::UiElement>(quad2.release()));
+    // elements.pushBack(bmin::UniquePtr<ui::UiElement>(quad2.release()));
   };
 
   auto _updateRender = [&](sdl2w::Window& window, sdl2w::Store& store) {

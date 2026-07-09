@@ -8,8 +8,8 @@
 namespace layers {
 
 LayerDropConfirm::LayerDropConfirm(sdl2w::Window* _window,
-                                   String characterPlayerId,
-                                   String itemId)
+                                   bmin::String characterPlayerId,
+                                   bmin::String itemId)
     : Layer(_window, LAYER_ID) {
 
   if (!assertInterfaces()) {

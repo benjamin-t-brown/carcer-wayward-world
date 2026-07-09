@@ -80,7 +80,7 @@ After C++ edits, run the narrowest test that covers the change:
 
 - **Unit/runner tests**: `test-runners/runner/<TestName>.sh` (via Invoke-Ucrt64 on Windows)
 - **DB loader tests**: `test-runners/db/<TestName>.sh`
-- **UI tests**: `test-runners/ui/<TestName>.sh`
+- **UI tests**: compile only — see `.cursor/rules/cpp-ui-tests.mdc`. Use `test-runners/ui/<TestName>.sh --build-only` or `./scripts/compile-ui-tests.sh`. **Never run UI test executables** in automation.
 
 If no specific test exists, at minimum:
 
@@ -107,7 +107,7 @@ Fix compile errors before reporting COMPLETE.
 ### 3. Verify
 
 - Build (`make -j8`).
-- Run assigned or nearest relevant test script.
+- Run assigned or nearest relevant test script (UI tests: compile-only with `--build-only`).
 - Rebuild after translation or asset changes if needed.
 
 ### 4. Report

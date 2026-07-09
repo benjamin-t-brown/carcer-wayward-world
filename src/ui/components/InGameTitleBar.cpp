@@ -28,7 +28,7 @@ int InGameTitleBar::centerTopY(int elementHeight) const {
 }
 
 UiElement*
-InGameTitleBar::createStatLineRightAligned(const String& text, int x, int y) {
+InGameTitleBar::createStatLineRightAligned(const bmin::String& text, int x, int y) {
   auto statLine = new TextLine(window, this);
   auto& statStyle = statLine->getStyle();
   statStyle.x = style.x;

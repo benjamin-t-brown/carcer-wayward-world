@@ -8,12 +8,14 @@
 #include "ui/elements/OutsetRectangle.h"
 #include "ui/elements/buttons/ButtonClose.h"
 #include <memory>
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start OutsetRectangle test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "OutsetRectangle test initialized" << LOG_ENDL;
@@ -34,7 +36,7 @@ int main(int argc, char** argv) {
       // props1.borderSize = 3;
       outsetRect1->setProps(props1);
 
-      elements.pushBack(UniquePtr<ui::UiElement>(outsetRect1));
+      elements.pushBack(bmin::UniquePtr<ui::UiElement>(outsetRect1));
     }
 
     {
@@ -53,7 +55,7 @@ int main(int argc, char** argv) {
       props.borderSize = 4;
       rect->setProps(props);
 
-      elements.pushBack(UniquePtr<ui::UiElement>(rect));
+      elements.pushBack(bmin::UniquePtr<ui::UiElement>(rect));
     }
   };
 

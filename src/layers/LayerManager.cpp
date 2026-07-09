@@ -147,9 +147,9 @@ void LayerManager::handleKeyUp(std::string_view key, int keyCode) {
   }
 }
 
-DynArray<Layer*>& LayerManager::getLayers() { return layers; }
+bmin::DynArray<Layer*>& LayerManager::getLayers() { return layers; }
 
-const DynArray<Layer*>& LayerManager::getLayers() const { return layers; }
+const bmin::DynArray<Layer*>& LayerManager::getLayers() const { return layers; }
 
 size_t LayerManager::getLayerCount() const { return layers.size(); }
 
@@ -183,7 +183,7 @@ Layer* LayerManager::getLastActiveLayer() {
 }
 
 void LayerManager::update(int deltaTime) {
-  DynArray<Layer*> layersToBeRemoved;
+  bmin::DynArray<Layer*> layersToBeRemoved;
   for (unsigned int i = 0; i < layers.size(); i++) {
     auto& layer = layers[i];
     if (layer->getState() == LayerState::ON) {

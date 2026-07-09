@@ -1,4 +1,5 @@
 #include "model/instances/CharacterPlayer.h"
+#include "bmin/StringInterop.h"
 #include "db/Database.h"
 #include "model/templates/UtilityTypes.h"
 #include <utility>
@@ -9,7 +10,7 @@ namespace {
 
 std::optional<CharacterInventoryItem>
 characterPlayerFindItemInInventoryById(const CharacterPlayer& characterPlayer,
-                                       const String& itemId) {
+                                       const bmin::String& itemId) {
   for (const auto& item : characterPlayer.inventory) {
     if (item.id == itemId) {
       return item;
@@ -18,7 +19,7 @@ characterPlayerFindItemInInventoryById(const CharacterPlayer& characterPlayer,
   return std::nullopt;
 }
 
-String* equipmentSlotForItemType(CharacterPlayerEquipment& equipment,
+bmin::String* equipmentSlotForItemType(CharacterPlayerEquipment& equipment,
                                       ItemType itemType) {
   switch (itemType) {
   case ItemType::WEAPON_AMMO:
@@ -52,7 +53,7 @@ void unequipMainWeapon(CharacterPlayerEquipment& equipment) {
 }
 
 void unequipWeaponByItemId(CharacterPlayerEquipment& equipment,
-                           const String& itemId) {
+                           const bmin::String& itemId) {
   if (equipment.weapon0Id == itemId) {
     unequipMainWeapon(equipment);
   } else if (equipment.weapon1Id == itemId) {
@@ -61,7 +62,7 @@ void unequipWeaponByItemId(CharacterPlayerEquipment& equipment,
 }
 
 EquipItemResult equipWeapon(CharacterPlayerEquipment& equipment,
-                            const String& itemId,
+                            const bmin::String& itemId,
                             ItemType itemType) {
   const bool isTwoHanded = itemTypeIsTwoHandedWeapon(itemType);
 
@@ -88,7 +89,7 @@ EquipItemResult equipWeapon(CharacterPlayerEquipment& equipment,
 }
 
 EquipItemResult equipSingleSlot(CharacterPlayerEquipment& equipment,
-                                const String& itemId,
+                                const bmin::String& itemId,
                                 ItemType itemType) {
   auto* slot = equipmentSlotForItemType(equipment, itemType);
   if (slot == nullptr) {
@@ -106,13 +107,13 @@ EquipItemResult equipSingleSlot(CharacterPlayerEquipment& equipment,
 
 } // namespace
 
-String characterPlayerGetSprite(const CharacterPlayer& characterPlayer) {
+bmin::String characterPlayerGetSprite(const CharacterPlayer& characterPlayer) {
   return characterPlayer.params.spritesheetName + "_" +
          characterPlayer.params.spriteOffset;
 }
 
 bool characterPlayerIsItemEquippedById(const CharacterPlayer& characterPlayer,
-                                       const String& itemId) {
+                                       const bmin::String& itemId) {
   return characterPlayer.equipment.weapon0Id == itemId ||
          characterPlayer.equipment.weapon1Id == itemId ||
          characterPlayer.equipment.ammoId == itemId ||
@@ -126,7 +127,7 @@ bool characterPlayerIsItemEquippedById(const CharacterPlayer& characterPlayer,
 }
 
 EquipItemResult characterPlayerToggleEquipItem(CharacterPlayer& characterPlayer,
-                                               const String& itemId,
+                                               const bmin::String& itemId,
                                                const db::Database& database) {
   const auto inventoryItem =
       characterPlayerFindItemInInventoryById(characterPlayer, itemId);
@@ -161,7 +162,7 @@ EquipItemResult characterPlayerToggleEquipItem(CharacterPlayer& characterPlayer,
 
 std::optional<CharacterInventoryItem>
 characterPlayerFindItemInInventoryByName(const CharacterPlayer& characterPlayer,
-                                         const String& itemName) {
+                                         const bmin::String& itemName) {
   for (const auto& item : characterPlayer.inventory) {
     if (item.itemName == itemName) {
       return item;
@@ -219,7 +220,7 @@ bool characterPlayerReorderInventoryItem(CharacterPlayer& characterPlayer,
 }
 
 void characterPlayerRemoveItemFromInventoryByName(CharacterPlayer& characterPlayer,
-                                                  const String& itemName,
+                                                  const bmin::String& itemName,
                                                   int quantity) {
   for (auto it = characterPlayer.inventory.begin(); it != characterPlayer.inventory.end();
        ++it) {
@@ -235,7 +236,7 @@ void characterPlayerRemoveItemFromInventoryByName(CharacterPlayer& characterPlay
 }
 
 void unequipItemById(CharacterPlayer& characterPlayer,
-                     const String& itemId,
+                     const bmin::String& itemId,
                      const db::Database& database) {
   const auto inventoryItem =
       characterPlayerFindItemInInventoryById(characterPlayer, itemId);
@@ -255,7 +256,7 @@ void unequipItemById(CharacterPlayer& characterPlayer,
 }
 
 void characterPlayerRemoveItemFromInventoryById(CharacterPlayer& characterPlayer,
-                                                const String& itemId,
+                                                const bmin::String& itemId,
                                                 int quantity) {
   for (auto it = characterPlayer.inventory.begin(); it != characterPlayer.inventory.end();
        ++it) {
@@ -272,7 +273,7 @@ void characterPlayerRemoveItemFromInventoryById(CharacterPlayer& characterPlayer
 
 GiveItemResult characterPlayerGiveInventoryItem(CharacterPlayer& from,
                                                 CharacterPlayer& to,
-                                                const String& itemId,
+                                                const bmin::String& itemId,
                                                 int quantity,
                                                 const db::Database& database) {
   const auto inventoryItem = characterPlayerFindItemInInventoryById(from, itemId);

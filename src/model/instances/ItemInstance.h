@@ -1,12 +1,12 @@
 #pragma once
 
-#include "lib/Types.h"
+#include "bmin/String.h"
 
 namespace model {
 
 struct ItemInstance {
-  String id;
-  String itemTemplateName;
+  bmin::String id;
+  bmin::String itemTemplateName;
   int quantity = 1;
 };
 

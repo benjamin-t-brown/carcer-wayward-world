@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bmin/String.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerDropConfirm.h"
 #include "state/AbstractAction.h"
@@ -10,8 +11,8 @@ namespace actions {
 
 class UiShowLayerDropContext : public AbstractAction {
   sdl2w::Window* window;
-  String characterPlayerId;
-  String itemId;
+  bmin::String characterPlayerId;
+  bmin::String itemId;
 
   void act() override {
     auto layerManager = getLayerManager();
@@ -25,8 +26,8 @@ class UiShowLayerDropContext : public AbstractAction {
 
 public:
   UiShowLayerDropContext(sdl2w::Window* _window,
-                         String _characterPlayerId,
-                         String _itemId)
+                         bmin::String _characterPlayerId,
+                         bmin::String _itemId)
       : window(_window),
         characterPlayerId(std::move(_characterPlayerId)),
         itemId(std::move(_itemId)) {}

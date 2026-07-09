@@ -1,18 +1,19 @@
 #include "hiscore.h"
+#include "bmin/StringStream.h"
 #include "lib/StringUtil.h"
 #include "lib/sdl2w/AssetLoader.h"
 #include "lib/sdl2w/Logger.h"
 
 namespace hiscore {
 bool isLoaded = false;
-String hiscorePath = "hiscore.txt";
-DynArray<HiscoreRow> hiscores;
+bmin::String hiscorePath = "hiscore.txt";
+bmin::DynArray<HiscoreRow> hiscores;
 
-DynArray<HiscoreRow> parseHiscoreText(const String& hiscoreText) {
-  DynArray<HiscoreRow> rows;
-  const bmin::DynArray<String> lines = strutil::splitLines(hiscoreText);
+bmin::DynArray<HiscoreRow> parseHiscoreText(const bmin::String& hiscoreText) {
+  bmin::DynArray<HiscoreRow> rows;
+  const bmin::DynArray<bmin::String> lines = strutil::splitLines(hiscoreText);
   for (size_t i = 0; i < lines.size(); ++i) {
-    String name;
+    bmin::String name;
     int score = 0;
     if (!strutil::parseFirstTokenAndInt(lines[i], name, score)) {
       continue;
@@ -23,16 +24,16 @@ DynArray<HiscoreRow> parseHiscoreText(const String& hiscoreText) {
   return rows;
 }
 
-String serializeHiscoreRow(const HiscoreRow& row) {
-  StringStream ss;
+bmin::String serializeHiscoreRow(const HiscoreRow& row) {
+  bmin::StringStream ss;
   ss << row.name << " " << row.score;
   return ss.str();
 }
 
-DynArray<HiscoreRow> getHighScores() {
+bmin::DynArray<HiscoreRow> getHighScores() {
   if (!isLoaded) {
     try {
-      const String hiscoreText = sdl2w::loadFileAsString(hiscorePath.sliceView());
+      const bmin::String hiscoreText = sdl2w::loadFileAsString(hiscorePath.sliceView());
       if (hiscoreText.size() == 0) {
         saveHighScores(hiscores);
         isLoaded = true;
@@ -49,10 +50,10 @@ DynArray<HiscoreRow> getHighScores() {
   return {};
 }
 
-void saveHighScores(const DynArray<HiscoreRow>& hiscoresA) {
+void saveHighScores(const bmin::DynArray<HiscoreRow>& hiscoresA) {
   hiscores = hiscoresA;
 
-  String content;
+  bmin::String content;
   for (const auto& score : hiscoresA) {
     content += serializeHiscoreRow(score) + "\n";
   }

@@ -30,7 +30,7 @@ const std::pair<int, int> PageMagicSetup::getDims() const {
 void PageMagicSetup::build() {
   children.clear();
 
-  auto modal = makeUnique<ModalStandard>(window, this);
+  auto modal = bmin::makeUnique<ModalStandard>(window, this);
   modal->setId("modal");
   BaseStyle modalStyle;
   modalStyle.x = style.x;
@@ -43,7 +43,7 @@ void PageMagicSetup::build() {
 
   auto [contentW, contentH] = modal->getContentDims();
 
-  auto title = makeUnique<TextLine>(window, modal.get());
+  auto title = bmin::makeUnique<TextLine>(window, modal.get());
   BaseStyle titleStyle;
   setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
   titleStyle.textAlign = TextAlign::LEFT_TOP;
@@ -56,7 +56,7 @@ void PageMagicSetup::build() {
   title->setProps(titleProps);
   modal->setTitleElement(title.release());
 
-  auto scrollableSection = makeUnique<SectionScrollable>(window, modal.get());
+  auto scrollableSection = bmin::makeUnique<SectionScrollable>(window, modal.get());
   scrollableSection->setId("scrollableSection");
   BaseStyle scrollableStyle;
   scrollableStyle.width = contentW;
@@ -65,7 +65,7 @@ void PageMagicSetup::build() {
   scrollableSection->setStyle(scrollableStyle);
   scrollableSection->setProps(SectionScrollableProps{});
 
-  auto bodyText = makeUnique<TextLine>(window, scrollableSection.get());
+  auto bodyText = bmin::makeUnique<TextLine>(window, scrollableSection.get());
   bodyText->setId("bodyText");
   BaseStyle bodyStyle;
   bodyStyle.x = 0;
@@ -83,7 +83,7 @@ void PageMagicSetup::build() {
   scrollableSection->addChild(bodyText.release());
 
   // modal->setContentElement(scrollableSection.release());
-  children.pushBack(UniquePtr<UiElement>(modal.release()));
+  children.pushBack(bmin::UniquePtr<UiElement>(modal.release()));
 }
 
 void PageMagicSetup::render(int dt) { UiElement::render(dt); }

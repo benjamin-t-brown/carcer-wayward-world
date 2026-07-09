@@ -1,4 +1,5 @@
 #include "UiElement.h"
+#include "bmin/StringInterop.h"
 #include "uiUtils.h"
 
 namespace ui {
@@ -35,7 +36,7 @@ UiElement* UiElement::getChildById(std::string_view searchId) {
 }
 
 void UiElement::removeChildById(std::string_view childId) {
-  children.eraseIf([childId](const UniquePtr<UiElement>& child) {
+  children.eraseIf([childId](const bmin::UniquePtr<UiElement>& child) {
     return child->getId() == childId;
   });
 }
@@ -50,13 +51,13 @@ const std::pair<int, int> UiElement::getDims() const {
   return {round(style.width * style.scale), round(style.height * style.scale)};
 }
 
-void UiElement::setId(const String& _id) { id = _id; }
+void UiElement::setId(const bmin::String& _id) { id = _id; }
 
-const String& UiElement::getId() const { return id; }
+const bmin::String& UiElement::getId() const { return id; }
 
-DynArray<UniquePtr<UiElement>>& UiElement::getChildren() { return children; }
+bmin::DynArray<bmin::UniquePtr<UiElement>>& UiElement::getChildren() { return children; }
 
-const DynArray<UniquePtr<UiElement>>& UiElement::getChildren() const {
+const bmin::DynArray<bmin::UniquePtr<UiElement>>& UiElement::getChildren() const {
   return children;
 }
 
@@ -67,13 +68,13 @@ void UiElement::removeChildAtIndex(size_t index) {
 }
 
 void UiElement::addChild(UiElement* child) {
-  children.pushBack(UniquePtr<UiElement>(child));
+  children.pushBack(bmin::UniquePtr<UiElement>(child));
 }
 
 bool UiElement::checkMouseDownEvent(int mouseX,
                                     int mouseY,
                                     int button,
-                                    DynArray<UiElement*> additionalElements) {
+                                    bmin::DynArray<UiElement*> additionalElements) {
   if (isInBoundsScaled(mouseX, mouseY, this)) {
     isClicked = true;
     // Check children first (front to back)
@@ -104,7 +105,7 @@ bool UiElement::checkMouseDownEvent(int mouseX,
 bool UiElement::checkMouseUpEvent(int mouseX,
                                   int mouseY,
                                   int button,
-                                  DynArray<UiElement*> additionalElements) {
+                                  bmin::DynArray<UiElement*> additionalElements) {
   if (shouldPropagateEventsToChildren) {
     // Check children first (front to back)
     for (auto it = children.rbegin(); it != children.rend(); ++it) {
@@ -136,7 +137,7 @@ bool UiElement::checkMouseUpEvent(int mouseX,
 
 bool UiElement::checkHoverEvent(int mouseX,
                                 int mouseY,
-                                DynArray<UiElement*> additionalElements) {
+                                bmin::DynArray<UiElement*> additionalElements) {
   if (shouldPropagateEventsToChildren) {
     for (auto& child : children) {
       child->checkHoverEvent(mouseX, mouseY);
@@ -160,7 +161,7 @@ bool UiElement::checkHoverEvent(int mouseX,
 bool UiElement::checkMouseWheelEvent(int mouseX,
                                      int mouseY,
                                      int delta,
-                                     DynArray<UiElement*> additionalElements) {
+                                     bmin::DynArray<UiElement*> additionalElements) {
   if (isInBoundsScaled(mouseX, mouseY, this)) {
     if (shouldPropagateEventsToChildren) {
       for (auto& child : children) {
@@ -189,11 +190,11 @@ void UiElement::checkResizeEvent(int width, int height) {
 }
 
 void UiElement::addEventObserver(UiEventObserver* observer) {
-  eventObservers.pushBack(UniquePtr<UiEventObserver>(observer));
+  eventObservers.pushBack(bmin::UniquePtr<UiEventObserver>(observer));
 }
 
 void UiElement::removeEventObserver(UiEventObserver* observer) {
-  eventObservers.eraseIf([observer](const UniquePtr<UiEventObserver>& obs) {
+  eventObservers.eraseIf([observer](const bmin::UniquePtr<UiEventObserver>& obs) {
     return obs.get() == observer;
   });
 }

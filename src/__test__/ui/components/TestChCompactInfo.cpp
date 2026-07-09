@@ -5,12 +5,14 @@
 #include "ui/UiElement.h"
 #include "ui/components/ChCompactInfo.h"
 #include <memory>
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start ChCompactInfo test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ChCompactInfo test initialized" << LOG_ENDL;
@@ -38,7 +40,7 @@ int main(int argc, char** argv) {
       props.mana = 37;
       chCompactInfo->setProps(props);
 
-      elements.pushBack(UniquePtr<ui::UiElement>(chCompactInfo));
+      elements.pushBack(bmin::UniquePtr<ui::UiElement>(chCompactInfo));
     }
 
     {
@@ -63,7 +65,7 @@ int main(int argc, char** argv) {
       props.mana = 99;
       chCompactInfo->setProps(props);
 
-      elements.pushBack(UniquePtr<ui::UiElement>(chCompactInfo));
+      elements.pushBack(bmin::UniquePtr<ui::UiElement>(chCompactInfo));
     }
   };
 

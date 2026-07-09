@@ -6,12 +6,14 @@
 #include "ui/UiElement.h"
 #include "ui/components/lists/ListChCompactInfoHorizontal.h"
 #include <memory>
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start ListChCompactInfoHorizontal test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ListChCompactInfoHorizontal test initialized" << LOG_ENDL;
@@ -60,7 +62,7 @@ int main(int argc, char** argv) {
     }
 
     list->setProps(listProps);
-    elements.pushBack(UniquePtr<ui::UiElement>(list));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(list));
 
     auto list2 = new ui::ListChCompactInfoHorizontal(&window);
     list2->setStyle(list->getStyle());
@@ -69,7 +71,7 @@ int main(int argc, char** argv) {
     list2->getStyle().scale = 1.25f;
     list2->getStyle().fontSize = sdl2w::TEXT_SIZE_24;
     list2->setProps(list->getProps());
-    elements.pushBack(UniquePtr<ui::UiElement>(list2));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(list2));
   };
 
   auto _update = [&](sdl2w::Window& window, sdl2w::Store& store) {};

@@ -1,6 +1,10 @@
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 #include "lib/bmin/Map.h"
 #include "lib/sdl2w/Logger.h"
+#include "runner/EventRunnerHelpers.h"
 #include "runner/StringEvaluator.h"
+#include "bmin/Map.h"
 
 #include <vector>
 
@@ -8,16 +12,16 @@
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Starting " << TEST_NAME << LOG_ENDL;
-  bmin::Map<String, String> initialStorage;
+  bmin::Map<bmin::String, bmin::String> initialStorage;
   // clang-format off
-  initialStorage.insert(String("a"), String("0"));
-  initialStorage.insert(String("b"), String("1"));
-  initialStorage.insert(String("c"), String("2"));
-  initialStorage.insert(String("d"), String("3"));
+  initialStorage.insert(bmin::String("a"), bmin::String("0"));
+  initialStorage.insert(bmin::String("b"), bmin::String("1"));
+  initialStorage.insert(bmin::String("c"), bmin::String("2"));
+  initialStorage.insert(bmin::String("d"), bmin::String("3"));
   // z is undefined
   // clang-format on
 
-  const DynArray<std::pair<String, std::pair<String, String>>>
+  const bmin::DynArray<std::pair<bmin::String, std::pair<bmin::String, bmin::String>>>
       basicTestCases = {
           // clang-format off
       {"SET_BOOL(bool1, true)", {"bool1", "true"}},
@@ -34,7 +38,7 @@ int main(int argc, char** argv) {
           // clang-format on
       };
 
-  const DynArray<std::pair<String, bool>> invalidSyntax = {
+  const bmin::DynArray<std::pair<bmin::String, bool>> invalidSyntax = {
       // clang-format off
       {"a", false},
       {"1", false},
@@ -47,13 +51,13 @@ int main(int argc, char** argv) {
   try {
     LOG(INFO) << "== Running basic tests ==" << LOG_ENDL;
 
-    DynArray<std::pair<String, String>> failedTests;
+    bmin::DynArray<std::pair<bmin::String, bmin::String>> failedTests;
     for (int i = 0; i < static_cast<int>(basicTestCases.size()); i++) {
       const auto& [expression, expectedPair] = basicTestCases[i];
       if (i == runOnlyIndex || runOnlyIndex == -1) {
         runner::StringEvaluator evaluator(initialStorage, expression);
         evaluator.evalStr(expression);
-        String result =
+        bmin::String result =
             runner::getStorage(initialStorage, expectedPair.first).value_or("");
         LOG(INFO) << "Running test " << i << ": " << expression << " -> storage["
                   << expectedPair.first << "] = \"" << result << "\"" << LOG_ENDL;
@@ -72,7 +76,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < static_cast<int>(invalidSyntax.size()); i++) {
       const auto& [expression, expected] = invalidSyntax[i];
       if (i == runOnlyIndex || runOnlyIndex == -1) {
-        bmin::Map<String, String> storage = initialStorage;
+        bmin::Map<bmin::String, bmin::String> storage = initialStorage;
         runner::StringEvaluator evaluator(storage, expression);
         try {
           LOG(INFO) << "Running invalid syntax test " << i << ": " << expression

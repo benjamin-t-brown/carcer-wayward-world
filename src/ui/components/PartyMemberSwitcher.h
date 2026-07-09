@@ -2,12 +2,12 @@
 
 #include "../UiElement.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
-#include "lib/Types.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 struct PartyMemberSwitcherProps {
-  String spriteName;
+  bmin::String spriteName;
   int partyMemberIndex = 0;
 
   SDL_Color spriteBgColor = Colors::OffWhite;

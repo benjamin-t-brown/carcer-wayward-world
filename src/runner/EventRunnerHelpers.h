@@ -1,6 +1,7 @@
 #pragma once
 
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 #include "lib/bmin/Map.h"
 
 #include <optional>
@@ -8,29 +9,29 @@
 namespace runner {
 
 // Helper functions for storage (flat map, no nesting)
-void setStorage(bmin::Map<String, String>& storage, const String& key,
-                const String& value);
+void setStorage(bmin::Map<bmin::String, bmin::String>& storage, const bmin::String& key,
+                const bmin::String& value);
 
-std::optional<String> getStorage(const bmin::Map<String, String>& storage,
-                                 const String& key);
+std::optional<bmin::String> getStorage(const bmin::Map<bmin::String, bmin::String>& storage,
+                                       const bmin::String& key);
 
 // Split exec/eval strings into statements (newlines or semicolons, not inside parens)
-DynArray<String> splitExecStatements(const String& str);
+bmin::DynArray<bmin::String> splitExecStatements(const bmin::String& str);
 
 // Helper to split string by delimiter
-DynArray<String> splitString(const String& str, char delimiter);
+bmin::DynArray<bmin::String> splitString(const bmin::String& str, char delimiter);
 
 // Helper to trim whitespace
-String trim(const String& str);
+bmin::String trim(const bmin::String& str);
 
 // Parse function call: "FUNC_NAME(arg1, arg2, ...)"
 struct FunctionCall {
-  String funcName;
-  DynArray<String> args;
+  bmin::String funcName;
+  bmin::DynArray<bmin::String> args;
 };
 
-FunctionCall parseFunctionCall(const String& str);
+FunctionCall parseFunctionCall(const bmin::String& str);
 
-bool isFunctionCall(const String& str);
+bool isFunctionCall(const bmin::String& str);
 
 } // namespace runner

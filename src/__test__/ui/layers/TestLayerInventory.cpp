@@ -10,9 +10,12 @@
 #include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
+#include "bmin/StringInterop.h"
+#include "bmin/UniquePtr.h"
 #include <cassert>
 #include <memory>
-#include "lib/Types.h"
 #include <vector>
 
 namespace {
@@ -26,7 +29,7 @@ constexpr const char* TEST_PARTY_TEMPLATE_NAMES[] = {
     "testPartyMember6",
 };
 
-const DynArray<DynArray<String>> PARTY_MEMBER_ITEMS = {
+const bmin::DynArray<bmin::DynArray<bmin::String>> PARTY_MEMBER_ITEMS = {
     {"PotionHealing", "DaggerBronze", "DaggerBronze", "DaggerBronze", "SwordBronze"},
     {"ShortSwordBronze", "SwordBronze"},
     {"LongbowOak",
@@ -53,7 +56,7 @@ void setupTestParty(model::Player& player, db::Database& database) {
 
     for (const auto& itemName : PARTY_MEMBER_ITEMS[i]) {
       model::characterPlayerAddItemToInventory(
-          member, database.getItemTemplate(itemName), 1);
+          member, database.getItemTemplate(bmin::toStringView(itemName)), 1);
     }
 
     player.party.pushBack(std::move(member));
@@ -73,12 +76,12 @@ int main(int argc, char** argv) {
   state::StateManagerInterface::setStateManager(&stateManager);
   setupTestParty(stateManager.getState().player, database);
 
-  UniquePtr<layers::LayerManager> layerManager;
+  bmin::UniquePtr<layers::LayerManager> layerManager;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "LayerInventory test initialized" << LOG_ENDL;
 
-    layerManager = makeUnique<layers::LayerManager>(&window);
+    layerManager = bmin::makeUnique<layers::LayerManager>(&window);
     state::LayerManagerInterface::setLayerManager(layerManager.get());
 
     auto* layerInventory = new layers::LayerInventory(&window);

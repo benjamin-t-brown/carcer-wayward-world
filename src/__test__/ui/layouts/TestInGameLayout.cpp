@@ -8,11 +8,13 @@
 #include "ui/components/InGameTitleBar.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/layouts/InGameLayout.h"
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
+#include "bmin/UniquePtr.h"
 
 namespace {
 
-void copyActionTypes(DynArray<state::WorldActionType>& dest,
+void copyActionTypes(bmin::DynArray<state::WorldActionType>& dest,
                      const auto& source) {
   dest.clear();
   for (const auto& type : source) {
@@ -22,7 +24,7 @@ void copyActionTypes(DynArray<state::WorldActionType>& dest,
 
 }  // namespace
 
-DynArray<UniquePtr<ui::UiElement>> elements;
+bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 int actionModeNum = 0;
 
 const state::WorldActionUiState worldActionUiState;
@@ -87,7 +89,7 @@ void initInGameLayoutTest(sdl2w::Window& window) {
   layoutStyle.x = 0;
   layoutStyle.y = 0;
   layoutStyle.scale = scale;
-  DynArray<ui::ChCompactInfoProps> partyMembers;
+  bmin::DynArray<ui::ChCompactInfoProps> partyMembers;
   {
     ui::ChCompactInfoProps entry;
     entry.characterSpriteName = "actors0_0";
@@ -165,13 +167,13 @@ void initInGameLayoutTest(sdl2w::Window& window) {
   switchBorderButton->setProps(switchBorderProps);
   switchBorderButton->addEventObserver(new SwitchBorderTypeObserver(inGameLayout));
 
-  elements.pushBack(UniquePtr<ui::UiElement>(switchActionsButton));
-  elements.pushBack(UniquePtr<ui::UiElement>(switchBorderButton));
-  elements.pushBack(UniquePtr<ui::UiElement>(inGameLayout));
+  elements.pushBack(bmin::UniquePtr<ui::UiElement>(switchActionsButton));
+  elements.pushBack(bmin::UniquePtr<ui::UiElement>(switchBorderButton));
+  elements.pushBack(bmin::UniquePtr<ui::UiElement>(inGameLayout));
 }
 
 int main(int argc, char** argv) {
-  String windowTitle = "InGameLayout Test";
+  bmin::String windowTitle = "InGameLayout Test";
   int windowWidth = 640;
   int windowHeight = 480;
 

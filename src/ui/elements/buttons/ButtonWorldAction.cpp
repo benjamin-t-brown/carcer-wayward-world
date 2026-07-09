@@ -1,5 +1,6 @@
 #include "ButtonWorldAction.h"
-#include "lib/Types.h"
+#include "bmin/StringStream.h"
+#include "bmin/UniquePtr.h"
 #include "lib/sdl2w/L10n.h"
 #include "state/WorldActions.h"
 #include "ui/elements/SpriteElement.h"
@@ -125,7 +126,7 @@ void ButtonWorldAction::build() {
 
   auto mapping = getButtonWorldActionMapping(props.worldActionType);
 
-  auto spriteElement = makeUnique<SpriteElement>(window);
+  auto spriteElement = bmin::makeUnique<SpriteElement>(window);
   BaseStyle spriteStyle;
   spriteStyle.x = style.x;
   spriteStyle.y = style.y;
@@ -134,7 +135,7 @@ void ButtonWorldAction::build() {
 
   int startingSpriteIndex =
       mapping.isSmall ? smallStartingSpriteIndex : normalStartingSpriteIndex;
-  StringStream ss;
+  bmin::StringStream ss;
   ss << spriteSheetName << "_";
   if (mapping.isSmall) {
     ss << "half_";
@@ -160,8 +161,8 @@ void ButtonWorldAction::build() {
   style.width = spriteStyle.width;
   style.height = spriteStyle.height;
 
-  spriteElement->setSprite(String(ss.str().cStr()));
-  children.pushBack(UniquePtr<UiElement>(spriteElement.release()));
+  spriteElement->setSprite(bmin::String(ss.str().cStr()));
+  children.pushBack(bmin::UniquePtr<UiElement>(spriteElement.release()));
 }
 
 void ButtonWorldAction::render(int dt) {

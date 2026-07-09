@@ -2,6 +2,8 @@
 #include "lib/sdl2w/Logger.h"
 #include "model/templates/SpecialEvents.h"
 #include "runner/SpecialEventRunner.h"
+#include "bmin/String.h"
+#include "bmin/Map.h"
 
 
 int main(int argc, char** argv) {
@@ -64,10 +66,10 @@ int main(int argc, char** argv) {
     endNode.next = "";
     testEvent.children.pushBack(endNode);
 
-    bmin::Map<String, model::GameEvent> gameEvents;
+    bmin::Map<bmin::String, model::GameEvent> gameEvents;
 
-    bmin::Map<String, String> initialStorage;
-    initialStorage.insert(String("initial_value"), String("100"));
+    bmin::Map<bmin::String, bmin::String> initialStorage;
+    initialStorage.insert(bmin::String("initial_value"), bmin::String("100"));
 
     // Create the runner
     runner::SpecialEventRunner runner(initialStorage, testEvent, gameEvents);
@@ -120,7 +122,7 @@ int main(int argc, char** argv) {
     // Check that choice2 is available (because test_key exists)
     bool foundChoice2 = false;
     for (const auto& choice : runner.displayTextChoices) {
-      if (choice.text.find("Option 2") != String::npos) {
+      if (choice.text.find("Option 2") != bmin::String::npos) {
         foundChoice2 = true;
         LOG(INFO) << "Choice 2 is available (condition passed)" << LOG_ENDL;
         break;
@@ -156,10 +158,10 @@ int main(int argc, char** argv) {
     }
 
     // Test: Variable replacement
-    String testText = "Hello @TEST_VAR world";
-    String replaced = runner.replaceVariables(testText);
-    if (replaced.find("Hello") == String::npos ||
-        replaced.find("world") == String::npos) {
+    bmin::String testText = "Hello @TEST_VAR world";
+    bmin::String replaced = runner.replaceVariables(testText);
+    if (replaced.find("Hello") == bmin::String::npos ||
+        replaced.find("world") == bmin::String::npos) {
       LOG(ERROR) << "Variable replacement failed" << LOG_ENDL;
       return 1;
     }

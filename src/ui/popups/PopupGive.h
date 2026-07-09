@@ -1,26 +1,27 @@
 #pragma once
 
 #include "ui/UiElement.h"
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 class HorizontalSlider;
 
 struct PopupGivePartyMember {
-  String characterPlayerId;
-  String label;
-  String spriteName;
+  bmin::String characterPlayerId;
+  bmin::String label;
+  bmin::String spriteName;
 };
 
 struct PopupGiveProps {
-  String fromCharacterPlayerId;
-  String itemId;
-  String itemLabel;
+  bmin::String fromCharacterPlayerId;
+  bmin::String itemId;
+  bmin::String itemLabel;
   int maxQuantity = 1;
   int selectedQuantity = 1;
   bool showQuantitySlider = true;
-  DynArray<PopupGivePartyMember> partyMembers;
+  bmin::DynArray<PopupGivePartyMember> partyMembers;
 };
 
 class PopupGive : public UiElement {

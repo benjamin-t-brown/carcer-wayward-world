@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bmin/String.h"
 #include "lib/sdl2w/L10n.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/Player.h"
@@ -11,8 +12,8 @@ namespace state {
 namespace actions {
 
 class UiToggleEquipInventoryItem : public AbstractAction {
-  String characterPlayerId;
-  String itemId;
+  bmin::String characterPlayerId;
+  bmin::String itemId;
 
   void act() override {
     auto& localState = *state;
@@ -61,7 +62,7 @@ class UiToggleEquipInventoryItem : public AbstractAction {
   }
 
 public:
-  UiToggleEquipInventoryItem(const String& _characterPlayerId, const String& _itemId)
+  UiToggleEquipInventoryItem(const bmin::String& _characterPlayerId, const bmin::String& _itemId)
       : characterPlayerId(_characterPlayerId), itemId(_itemId) {}
 };
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 #include "model/instances/Player.h"
 #include "model/instances/World.h"
 #include "model/templates/UtilityTypes.h"
@@ -18,14 +20,14 @@ enum class UiFloatingNotificationType {
 };
 
 struct UiFloatingNotification {
-  String id;
-  String message;
+  bmin::String id;
+  bmin::String message;
   UiFloatingNotificationType type;
   model::TimerStruct timer;
 };
 
 struct UiState {
-  DynArray<UiFloatingNotification> floatingNotifications;
+  bmin::DynArray<UiFloatingNotification> floatingNotifications;
 };
 
 struct State {

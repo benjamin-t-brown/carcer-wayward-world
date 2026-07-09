@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Layer.h"
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
 #include "state/StateManagerInterface.h"
 
 namespace layers {
@@ -9,9 +9,9 @@ namespace layers {
 class LayerManager : public state::StateManagerInterface,
                      public state::DatabaseInterface {
 private:
-  DynArray<Layer*> layers;
+  bmin::DynArray<Layer*> layers;
   sdl2w::Window* window;
-  DynArray<Layer*> layerEventsStack;
+  bmin::DynArray<Layer*> layerEventsStack;
 
   void removeLayer(const Layer* layer);
   void removeLayerAt(size_t index);
@@ -35,8 +35,8 @@ public:
   void handleKeyUp(std::string_view key, int keyCode);
 
   // Getters
-  DynArray<Layer*>& getLayers();
-  const DynArray<Layer*>& getLayers() const;
+  bmin::DynArray<Layer*>& getLayers();
+  const bmin::DynArray<Layer*>& getLayers() const;
   size_t getLayerCount() const;
   Layer* getLayerAt(size_t index);
   Layer* getLayerById(std::string_view id);

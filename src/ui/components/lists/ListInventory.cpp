@@ -146,7 +146,7 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
   const SDL_Color labelColor = item.isEquipped ? Colors::Blue : Colors::Black;
   auto fontConfig =
       item.isEquipped ? BaseFontConfig::MODAL_TEXT_BOLD : BaseFontConfig::MODAL_TEXT;
-  String itemDisplayLabel = item.itemLabel;
+  bmin::String itemDisplayLabel = item.itemLabel;
   if (item.isStackable) {
     itemDisplayLabel += " (" + bmin::toString(item.quantity) + ")";
   }

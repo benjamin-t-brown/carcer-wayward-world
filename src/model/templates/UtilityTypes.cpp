@@ -6,7 +6,7 @@ namespace model {
 
 TimerStruct::TimerStruct(int duration) : duration(duration) {}
 
-String createRandomId() {
+bmin::String createRandomId() {
   return bmin::toString((rand() % 1000000) + (rand() % 1000000) + (rand() % 1000000));
 }
 

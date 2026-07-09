@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bmin/String.h"
 #include "model/templates/UtilityTypes.h"
 #include "state/AbstractAction.h"
 #include "state/State.h"
@@ -9,7 +10,7 @@ namespace state {
 namespace actions {
 
 class UiPushFloatingNotification : public AbstractAction {
-  String message;
+  bmin::String message;
   UiFloatingNotificationType type;
 
   void act() override {
@@ -24,7 +25,7 @@ class UiPushFloatingNotification : public AbstractAction {
   }
 
 public:
-  UiPushFloatingNotification(String _message, UiFloatingNotificationType _type)
+  UiPushFloatingNotification(bmin::String _message, UiFloatingNotificationType _type)
       : message(std::move(_message)), type(_type) {}
 };
 

@@ -1,12 +1,12 @@
 #pragma once
 
+#include "bmin/String.h"
 #include "lib/Json.h"
-#include "lib/Types.h"
 #include "model/templates/AbilityTypes.h"
 
 namespace db {
 
-bmin::DynArray<model::Dice> parseDiceArray(const Json& json, const String& fieldName);
+bmin::DynArray<model::Dice> parseDiceArray(const Json& json, const bmin::String& fieldName);
 model::TargetSelectInfo parseTargetSelectInfo(const Json& json);
 model::Stats parseStats(const Json& json);
 model::CurrentStats parseCurrentStats(const Json& json);

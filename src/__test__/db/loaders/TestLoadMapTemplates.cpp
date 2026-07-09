@@ -1,6 +1,9 @@
 #include "db/Database.h"
 #include "db/loaders/LoadMapTemplates.h"
 #include "lib/sdl2w/Logger.h"
+#include "bmin/String.h"
+#include "bmin/DynArray.h"
+#include "bmin/Map.h"
 
 namespace {
 
@@ -18,10 +21,10 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Starting TestLoadMapTemplates" << LOG_ENDL;
 
   try {
-    bmin::Map<String, model::CarcerMapTemplate> maps;
+    bmin::Map<bmin::String, model::CarcerMapTemplate> maps;
     db::loadMapTemplates("__test__/assets/maps-flat-fixture.json", maps);
 
-    const auto it = maps.find(String("flat_test_map"));
+    const auto it = maps.find(bmin::String("flat_test_map"));
     if (it == maps.end()) {
       LOG(ERROR) << "Missing flat_test_map" << LOG_ENDL;
       return 1;

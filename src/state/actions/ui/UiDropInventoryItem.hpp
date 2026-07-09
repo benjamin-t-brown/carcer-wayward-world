@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bmin/String.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerDropConfirm.h"
 #include "layers/ui/LayerInventoryContext.h"
@@ -13,8 +14,8 @@ namespace state {
 namespace actions {
 
 class UiDropInventoryItem : public AbstractAction {
-  String characterPlayerId;
-  String itemId;
+  bmin::String characterPlayerId;
+  bmin::String itemId;
 
   void act() override {
     auto& localState = *state;
@@ -69,7 +70,7 @@ class UiDropInventoryItem : public AbstractAction {
   }
 
 public:
-  UiDropInventoryItem(String _characterPlayerId, String _itemId)
+  UiDropInventoryItem(bmin::String _characterPlayerId, bmin::String _itemId)
       : characterPlayerId(std::move(_characterPlayerId)), itemId(std::move(_itemId)) {}
 };
 

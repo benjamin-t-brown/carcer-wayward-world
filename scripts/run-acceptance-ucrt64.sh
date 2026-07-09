@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Run acceptance tests via UCRT64 make/cxx (no Node required).
+# The UI section is interactive — agents should use ./scripts/compile-ui-tests.sh
+# for UI verification instead of running this script end-to-end.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

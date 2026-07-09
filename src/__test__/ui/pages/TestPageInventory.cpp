@@ -1,12 +1,18 @@
 #include "../../setupTestUi.h"
+#include "db/Database.h"
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "lib/sdl2w/Window.h"
 #include "model/instances/CharacterPlayer.h"
+#include "state/DatabaseInterface.h"
+#include "state/StateManagerInterface.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/pages/PageInventory.h"
-#include <memory>
+#include "bmin/String.h"
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
+#include "bmin/StringInterop.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start PageInventory test" << LOG_ENDL;
@@ -19,12 +25,12 @@ int main(int argc, char** argv) {
   state::StateManager stateManager;
   state::StateManagerInterface::setStateManager(&stateManager);
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "PageInventory test initialized" << LOG_ENDL;
 
-    DynArray<String> partyTemplateNames = {
+    bmin::DynArray<bmin::String> partyTemplateNames = {
         "testPartyMember1",
         "testPartyMember2",
         "testPartyMember3",
@@ -34,11 +40,12 @@ int main(int argc, char** argv) {
     auto& player = stateManager.getState().player;
     for (const auto& templateName : partyTemplateNames) {
       player.party.pushBack(
-          model::CharacterPlayer(database.getCharacterTemplate(templateName)));
+          model::CharacterPlayer(
+              database.getCharacterTemplate(bmin::toStringView(templateName))));
     }
     auto& characterPlayer = player.party.front();
 
-    DynArray<String>
+    bmin::DynArray<bmin::String>
         //
         itemNames = {"PotionHealing",
                      "DaggerBronze",
@@ -56,7 +63,7 @@ int main(int argc, char** argv) {
 
     for (const auto& itemName : itemNames) {
       model::characterPlayerAddItemToInventory(
-          characterPlayer, database.getItemTemplate(itemName), 1);
+          characterPlayer, database.getItemTemplate(bmin::toStringView(itemName)), 1);
     }
 
     auto [windowWidth, windowHeight] = window.getDims();
@@ -91,7 +98,7 @@ int main(int argc, char** argv) {
     pageProps.inventory = characterPlayer.inventory;
     pageInventory->setProps(pageProps);
 
-    elements.pushBack(UniquePtr<ui::UiElement>(pageInventory));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(pageInventory));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

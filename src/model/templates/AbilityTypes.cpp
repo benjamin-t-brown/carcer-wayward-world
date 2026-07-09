@@ -3,7 +3,7 @@
 
 namespace model {
 
-StatusEffectCondition statusEffectConditionFromString(const String& value) {
+StatusEffectCondition statusEffectConditionFromString(const bmin::String& value) {
   if (value == "CONDITION_ALWAYS") {
     return StatusEffectCondition::CONDITION_ALWAYS;
   }
@@ -28,7 +28,7 @@ StatusEffectCondition statusEffectConditionFromString(const String& value) {
   throw std::runtime_error(("Invalid StatusEffectCondition: " + value).cStr());
 }
 
-String statusEffectConditionToString(StatusEffectCondition value) {
+bmin::String statusEffectConditionToString(StatusEffectCondition value) {
   switch (value) {
   case StatusEffectCondition::CONDITION_ALWAYS:
     return "CONDITION_ALWAYS";
@@ -48,7 +48,7 @@ String statusEffectConditionToString(StatusEffectCondition value) {
   throw std::runtime_error("Unknown StatusEffectCondition");
 }
 
-AbilityType abilityTypeFromString(const String& value) {
+AbilityType abilityTypeFromString(const bmin::String& value) {
   if (value == "ABILITY_ATTACK") {
     return AbilityType::ABILITY_ATTACK;
   }
@@ -64,7 +64,7 @@ AbilityType abilityTypeFromString(const String& value) {
   throw std::runtime_error(("Invalid AbilityType: " + value).cStr());
 }
 
-String abilityTypeToString(AbilityType value) {
+bmin::String abilityTypeToString(AbilityType value) {
   switch (value) {
   case AbilityType::ABILITY_ATTACK:
     return "ABILITY_ATTACK";
@@ -78,7 +78,7 @@ String abilityTypeToString(AbilityType value) {
   throw std::runtime_error("Unknown AbilityType");
 }
 
-TargetSelectType targetSelectTypeFromString(const String& value) {
+TargetSelectType targetSelectTypeFromString(const bmin::String& value) {
   if (value == "TARGET_SELF") {
     return TargetSelectType::TARGET_SELF;
   }
@@ -94,7 +94,7 @@ TargetSelectType targetSelectTypeFromString(const String& value) {
   throw std::runtime_error(("Invalid TargetSelectType: " + value).cStr());
 }
 
-String targetSelectTypeToString(TargetSelectType value) {
+bmin::String targetSelectTypeToString(TargetSelectType value) {
   switch (value) {
   case TargetSelectType::TARGET_SELF:
     return "TARGET_SELF";
@@ -109,7 +109,7 @@ String targetSelectTypeToString(TargetSelectType value) {
 }
 
 TargetAllegianceSelectType
-targetAllegianceSelectTypeFromString(const String& value) {
+targetAllegianceSelectTypeFromString(const bmin::String& value) {
   if (value == "TARGET_ALLEGIANCE_SAME") {
     return TargetAllegianceSelectType::TARGET_ALLEGIANCE_SAME;
   }
@@ -128,7 +128,7 @@ targetAllegianceSelectTypeFromString(const String& value) {
   throw std::runtime_error(("Invalid TargetAllegianceSelectType: " + value).cStr());
 }
 
-String targetAllegianceSelectTypeToString(TargetAllegianceSelectType value) {
+bmin::String targetAllegianceSelectTypeToString(TargetAllegianceSelectType value) {
   switch (value) {
   case TargetAllegianceSelectType::TARGET_ALLEGIANCE_SAME:
     return "TARGET_ALLEGIANCE_SAME";
@@ -144,7 +144,7 @@ String targetAllegianceSelectTypeToString(TargetAllegianceSelectType value) {
   throw std::runtime_error("Unknown TargetAllegianceSelectType");
 }
 
-Dice diceFromString(const String& value) {
+Dice diceFromString(const bmin::String& value) {
   if (value == "D0") {
     return Dice::D0;
   }
@@ -175,7 +175,7 @@ Dice diceFromString(const String& value) {
   throw std::runtime_error(("Invalid Dice: " + value).cStr());
 }
 
-String diceToString(Dice value) {
+bmin::String diceToString(Dice value) {
   switch (value) {
   case Dice::D0:
     return "D0";
@@ -199,7 +199,7 @@ String diceToString(Dice value) {
   throw std::runtime_error("Unknown Dice");
 }
 
-StatsEnum statsEnumFromString(const String& value) {
+StatsEnum statsEnumFromString(const bmin::String& value) {
   if (value == "STAT_STR") {
     return StatsEnum::STAT_STR;
   }
@@ -218,7 +218,7 @@ StatsEnum statsEnumFromString(const String& value) {
   throw std::runtime_error(("Invalid StatsEnum: " + value).cStr());
 }
 
-String statsEnumToString(StatsEnum value) {
+bmin::String statsEnumToString(StatsEnum value) {
   switch (value) {
   case StatsEnum::STAT_STR:
     return "STAT_STR";
@@ -234,7 +234,7 @@ String statsEnumToString(StatsEnum value) {
   throw std::runtime_error("Unknown StatsEnum");
 }
 
-StatusEventType statusEventTypeFromString(const String& value) {
+StatusEventType statusEventTypeFromString(const bmin::String& value) {
   if (value == "STATUS_EVENT_ON_APPLIED") {
     return StatusEventType::STATUS_EVENT_ON_APPLIED;
   }
@@ -265,7 +265,7 @@ StatusEventType statusEventTypeFromString(const String& value) {
   throw std::runtime_error(("Invalid StatusEventType: " + value).cStr());
 }
 
-String statusEventTypeToString(StatusEventType value) {
+bmin::String statusEventTypeToString(StatusEventType value) {
   switch (value) {
   case StatusEventType::STATUS_EVENT_ON_APPLIED:
     return "STATUS_EVENT_ON_APPLIED";
@@ -289,7 +289,7 @@ String statusEventTypeToString(StatusEventType value) {
   throw std::runtime_error("Unknown StatusEventType");
 }
 
-CurrentStatEnum currentStatEnumFromString(const String& value) {
+CurrentStatEnum currentStatEnumFromString(const bmin::String& value) {
   if (value == "CURRENT_STAT_HP") {
     return CurrentStatEnum::CURRENT_STAT_HP;
   }
@@ -305,7 +305,7 @@ CurrentStatEnum currentStatEnumFromString(const String& value) {
   throw std::runtime_error(("Invalid CurrentStatEnum: " + value).cStr());
 }
 
-String currentStatEnumToString(CurrentStatEnum value) {
+bmin::String currentStatEnumToString(CurrentStatEnum value) {
   switch (value) {
   case CurrentStatEnum::CURRENT_STAT_HP:
     return "CURRENT_STAT_HP";
@@ -319,7 +319,7 @@ String currentStatEnumToString(CurrentStatEnum value) {
   throw std::runtime_error("Unknown CurrentStatEnum");
 }
 
-StatusActionTargetType statusActionTargetTypeFromString(const String& value) {
+StatusActionTargetType statusActionTargetTypeFromString(const bmin::String& value) {
   if (value == "STATUS_ACTION_TARGET_SELF") {
     return StatusActionTargetType::STATUS_ACTION_TARGET_SELF;
   }
@@ -332,7 +332,7 @@ StatusActionTargetType statusActionTargetTypeFromString(const String& value) {
   throw std::runtime_error(("Invalid StatusActionTargetType: " + value).cStr());
 }
 
-String statusActionTargetTypeToString(StatusActionTargetType value) {
+bmin::String statusActionTargetTypeToString(StatusActionTargetType value) {
   switch (value) {
   case StatusActionTargetType::STATUS_ACTION_TARGET_SELF:
     return "STATUS_ACTION_TARGET_SELF";
@@ -344,7 +344,7 @@ String statusActionTargetTypeToString(StatusActionTargetType value) {
   throw std::runtime_error("Unknown StatusActionTargetType");
 }
 
-AbilityCostType abilityCostTypeFromString(const String& value) {
+AbilityCostType abilityCostTypeFromString(const bmin::String& value) {
   if (value == "ABILITY_COST_NONE") {
     return AbilityCostType::ABILITY_COST_NONE;
   }
@@ -360,7 +360,7 @@ AbilityCostType abilityCostTypeFromString(const String& value) {
   throw std::runtime_error(("Invalid AbilityCostType: " + value).cStr());
 }
 
-String abilityCostTypeToString(AbilityCostType value) {
+bmin::String abilityCostTypeToString(AbilityCostType value) {
   switch (value) {
   case AbilityCostType::ABILITY_COST_NONE:
     return "ABILITY_COST_NONE";
@@ -374,7 +374,7 @@ String abilityCostTypeToString(AbilityCostType value) {
   throw std::runtime_error("Unknown AbilityCostType");
 }
 
-AttackClass attackClassFromString(const String& value) {
+AttackClass attackClassFromString(const bmin::String& value) {
   if (value == "ATTACK_CLASS_MELEE") {
     return AttackClass::ATTACK_CLASS_MELEE;
   }
@@ -390,7 +390,7 @@ AttackClass attackClassFromString(const String& value) {
   throw std::runtime_error(("Invalid AttackClass: " + value).cStr());
 }
 
-String attackClassToString(AttackClass value) {
+bmin::String attackClassToString(AttackClass value) {
   switch (value) {
   case AttackClass::ATTACK_CLASS_MELEE:
     return "ATTACK_CLASS_MELEE";
@@ -404,7 +404,7 @@ String attackClassToString(AttackClass value) {
   throw std::runtime_error("Unknown AttackClass");
 }
 
-DamageType damageTypeFromString(const String& value) {
+DamageType damageTypeFromString(const bmin::String& value) {
   if (value == "DAMAGE_TYPE_EDGED") {
     return DamageType::DAMAGE_TYPE_EDGED;
   }
@@ -435,7 +435,7 @@ DamageType damageTypeFromString(const String& value) {
   throw std::runtime_error(("Invalid DamageType: " + value).cStr());
 }
 
-String damageTypeToString(DamageType value) {
+bmin::String damageTypeToString(DamageType value) {
   switch (value) {
   case DamageType::DAMAGE_TYPE_EDGED:
     return "DAMAGE_TYPE_EDGED";
@@ -459,7 +459,7 @@ String damageTypeToString(DamageType value) {
   throw std::runtime_error("Unknown DamageType");
 }
 
-ProjectilePath projectilePathFromString(const String& value) {
+ProjectilePath projectilePathFromString(const bmin::String& value) {
   if (value == "PROJECTILE_PATH_SHORT") {
     return ProjectilePath::PROJECTILE_PATH_SHORT;
   }
@@ -475,7 +475,7 @@ ProjectilePath projectilePathFromString(const String& value) {
   throw std::runtime_error(("Invalid ProjectilePath: " + value).cStr());
 }
 
-String projectilePathToString(ProjectilePath value) {
+bmin::String projectilePathToString(ProjectilePath value) {
   switch (value) {
   case ProjectilePath::PROJECTILE_PATH_SHORT:
     return "PROJECTILE_PATH_SHORT";
@@ -507,7 +507,7 @@ bool projectileTypeHasFacing(ProjectileType value) {
   throw std::runtime_error("Unknown ProjectileType");
 }
 
-String projectileTypeToAnimBase(ProjectileType value) {
+bmin::String projectileTypeToAnimBase(ProjectileType value) {
   switch (value) {
   case ProjectileType::PROJECTILE_NONE:
     return "";
@@ -533,7 +533,7 @@ String projectileTypeToAnimBase(ProjectileType value) {
   throw std::runtime_error("Unknown ProjectileType");
 }
 
-ProjectileType projectileTypeFromString(const String& value) {
+ProjectileType projectileTypeFromString(const bmin::String& value) {
   if (value == "PROJECTILE_NONE") {
     return ProjectileType::PROJECTILE_NONE;
   }
@@ -567,7 +567,7 @@ ProjectileType projectileTypeFromString(const String& value) {
   throw std::runtime_error(("Invalid ProjectileType: " + value).cStr());
 }
 
-ProjectileType projectileTypeFromAnimName(const String& animName) {
+ProjectileType projectileTypeFromAnimName(const bmin::String& animName) {
   if (animName.empty()) {
     return ProjectileType::PROJECTILE_NONE;
   }
@@ -590,7 +590,7 @@ ProjectileType projectileTypeFromAnimName(const String& animName) {
   };
 
   for (const auto& entry : bases) {
-    const String base = entry.base;
+    const bmin::String base = entry.base;
     if (animName == base || animName.startsWith((base + "_").cStr())) {
       return entry.type;
     }
@@ -599,7 +599,7 @@ ProjectileType projectileTypeFromAnimName(const String& animName) {
   throw std::runtime_error(("Invalid projectile anim name: " + animName).cStr());
 }
 
-String projectileTypeToString(ProjectileType value) {
+bmin::String projectileTypeToString(ProjectileType value) {
   switch (value) {
   case ProjectileType::PROJECTILE_NONE:
     return "PROJECTILE_NONE";

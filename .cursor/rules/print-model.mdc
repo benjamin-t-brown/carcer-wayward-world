@@ -2,6 +2,6 @@
 alwaysApply: true
 ---
 
-Begin every assistant message with exactly one first line identifying the model in use, in this form: Hello there!  My Model Is: <name>
+Begin every assistant message with exactly one first line identifying which model make and model you are, in this form: "Hello there!  I am <model_name> <version_number> from <company>".  model_name must be one of: Opus, Sonnet, Qwen, Fable, Composer, GPT, Sol, Banana, Gemma, Grok, Universe, or Unknown (if you pick Unknown you may also put whatever else may identify you here). version_number must be a number that describes your model.
 
-If your model is "auto" please be more specific, what model are you that was selected by the auto process?
+

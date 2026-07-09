@@ -95,7 +95,7 @@ void ConfirmModal::build() {
   borderStyle.height = style.height;
   borderStyle.scale = style.scale;
   border->setProps(BorderDropShadowProps{});
-  children.insert(children.begin(), UniquePtr<UiElement>(border));
+  children.insert(children.begin(), bmin::UniquePtr<UiElement>(border));
 }
 
 void ConfirmModal::render(int dt) { UiElement::render(dt); }

@@ -160,13 +160,13 @@ LIBS += -Llib/sdl2w -lsdl2w -Llib/bmin -lbmin
 INCLUDES += -I. -Ilib
 CPP_STANDARD = -std=c++23
 ifeq ($(TARGET),wasm)
-    FLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -Oz -DJSON_NO_IO
+    FLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -Oz
     LIBS += $(EMCC_LIBS) $(EMCC_EXPORTED) --preload-file assets
     EXE_SUFFIX = .js
     CXX = em++
     AR = emar
 else
-    FLAGS = -Og -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -fno-omit-frame-pointer -DJSON_NO_IO
+    FLAGS = -Og -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -fno-omit-frame-pointer
     ifndef CXX
         CXX = g++
     endif

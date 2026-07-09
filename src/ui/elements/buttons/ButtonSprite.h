@@ -2,12 +2,12 @@
 
 #include "../../UiElement.h"
 #include "ui/colors.h"
-#include "lib/Types.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 struct ButtonSpriteProps {
-  String spriteName;
+  bmin::String spriteName;
   int spriteWidth = 16;
   int spriteHeight = 16;
   int padding = 2;

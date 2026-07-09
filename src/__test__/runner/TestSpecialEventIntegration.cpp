@@ -3,6 +3,9 @@
 #include "lib/sdl2w/Logger.h"
 #include "model/templates/SpecialEvents.h"
 #include "runner/SpecialEventRunner.h"
+#include "bmin/String.h"
+#include "bmin/DynArray.h"
+#include "bmin/Map.h"
 
 #include <vector>
 
@@ -11,7 +14,7 @@
 int main(int argc, char** argv) {
   LOG(INFO) << "Starting " << TEST_NAME << LOG_ENDL;
 
-  bmin::Map<String, model::GameEvent> specialEvents;
+  bmin::Map<bmin::String, model::GameEvent> specialEvents;
   try {
     // files are relative to executable in src dir
     db::loadSpecialEvents("__test__/runner/data/TestEvent.json", specialEvents);
@@ -23,7 +26,7 @@ int main(int argc, char** argv) {
   model::GameEvent& testEvent = specialEvents["TestEvent"];
 
   // -1 is advance next node, other numbers are choice indexes
-  DynArray<std::pair<int, String>> inputSteps = {
+  bmin::DynArray<std::pair<int, bmin::String>> inputSteps = {
       // clang-format off
       {-1, "This should display once."},
       {0, "You chose choice 1."},
@@ -56,7 +59,7 @@ int main(int argc, char** argv) {
         } else {
           LOG(ERROR) << "Error, test indicated to continue event, but state is not "
                         "WAITING_TO_CONTINUE.  State: "
-                     << runner::SpecialEventRunnerInterface::stateToString(state)
+                     << runner::SpecialEventRunnerInterface::stateTobmin::String(state)
                      << LOG_ENDL;
           return 1;
         }
@@ -69,7 +72,7 @@ int main(int argc, char** argv) {
         } else {
           LOG(ERROR) << "Error, test indicated to select choice, but state is not "
                         "WAITING_TO_SELECT_CHOICE.  State: "
-                     << runner::SpecialEventRunnerInterface::stateToString(state)
+                     << runner::SpecialEventRunnerInterface::stateTobmin::String(state)
                      << LOG_ENDL;
           return 1;
         }
@@ -89,7 +92,7 @@ int main(int argc, char** argv) {
         LOG(INFO) << "Errors: " << runner.errors.size() << LOG_ENDL;
         return 1;
       }
-      String expectedDisplayText = p.second;
+      bmin::String expectedDisplayText = p.second;
       if (runner.displayText != expectedDisplayText) {
         LOG(ERROR) << "Display text mismatch (found/expected): '" << runner.displayText
                    << "' != '" << expectedDisplayText << "'" << LOG_ENDL;
@@ -97,7 +100,7 @@ int main(int argc, char** argv) {
       }
     }
 
-    LOG(INFO) << "Storage: \n" << runner.storageToString() << LOG_ENDL;
+    LOG(INFO) << "Storage: \n" << runner.storageTobmin::String() << LOG_ENDL;
 
     LOG(INFO) << TEST_NAME << " completed successfully" << LOG_ENDL;
     return 0;

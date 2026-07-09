@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bmin/String.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerInventoryContext.h"
 #include "state/AbstractAction.h"
@@ -10,8 +11,8 @@ namespace actions {
 
 class UiShowLayerInventoryContext : public AbstractAction {
   sdl2w::Window* window;
-  String itemName;
-  String itemId; // id of item in inventory
+  bmin::String itemName;
+  bmin::String itemId; // id of item in inventory
   void act() override {
     auto layerManager = getLayerManager();
     if (!layerManager) {
@@ -24,8 +25,8 @@ class UiShowLayerInventoryContext : public AbstractAction {
 
 public:
   UiShowLayerInventoryContext(sdl2w::Window* _window,
-                              String itemName,
-                              String itemId)
+                              bmin::String itemName,
+                              bmin::String itemId)
       : window(_window), itemName(itemName), itemId(itemId) {}
 };
 

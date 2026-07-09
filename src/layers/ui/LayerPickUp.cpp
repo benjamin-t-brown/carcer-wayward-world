@@ -1,4 +1,5 @@
 #include "LayerPickUp.h"
+#include "lib/StringUtil.h"
 #include "lib/sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
 #include "state/actions/ui/UiSetCurrentPartyMember.hpp"
@@ -68,13 +69,13 @@ void LayerPickUp::syncCurrentPartyMember() {
   const int maxWeight = model::characterGetWeightCapacity(*currentPartyMember);
 
   auto minipageProps = minipagePickUp->getProps();
-  minipageProps.doneButtonRemoveLayerId = stringFromView(LAYER_ID);
+  minipageProps.doneButtonRemoveLayerId = strutil::fromStringView(LAYER_ID);
   minipageProps.partyMemberIndex = player.currentPartyMemberIndex;
   minipageProps.partyMemberSprites.clear();
   for (const auto& member : player.party) {
     minipageProps.partyMemberSprites.pushBack(model::characterPlayerGetSprite(member));
   }
-  minipageProps.weightText = String(TRANSLATE("Carrying")) + " " +
+  minipageProps.weightText = bmin::String(TRANSLATE("Carrying")) + " " +
                              bmin::toString(carrying) + "/" + bmin::toString(maxWeight);
   auto nearbyItems = model::characterGetNearbyItems(*currentPartyMember);
   minipageProps.nearbyItems = nearbyItems;

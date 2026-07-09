@@ -1,4 +1,5 @@
 #include "LoadItemTemplates.h"
+#include "bmin/StringInterop.h"
 #include "db/loaders/LoadAbilityJson.h"
 #include "lib/Json.h"
 #include "lib/sdl2w/AssetLoader.h"
@@ -7,15 +8,15 @@
 
 namespace db {
 
-void loadItemTemplates(const String& itemsFilePath,
-                       bmin::Map<String, model::ItemTemplate>& itemTemplates) {
-  const String fileContent = sdl2w::loadFileAsString(bmin::toStringView(itemsFilePath));
+void loadItemTemplates(const bmin::String& itemsFilePath,
+                       bmin::Map<bmin::String, model::ItemTemplate>& itemTemplates) {
+  const bmin::String fileContent = sdl2w::loadFileAsString(bmin::toStringView(itemsFilePath));
 
   Json jsonData;
   try {
     jsonData = Json::parse(fileContent.cStr(), nullptr, true, true);
   } catch (const Json::parse_error& e) {
-    throw std::runtime_error((String("Failed to parse JSON file ") + itemsFilePath.cStr() +
+    throw std::runtime_error((bmin::String("Failed to parse JSON file ") + itemsFilePath.cStr() +
                               ": " + e.what())
                                  .cStr());
   }
@@ -30,32 +31,32 @@ void loadItemTemplates(const String& itemsFilePath,
     if (!itemJson.contains("itemType") || !itemJson["itemType"].is_string()) {
       throw std::runtime_error("Item missing required field: itemType");
     }
-    const String itemTypeStr = itemJson["itemType"].get<String>();
+    const bmin::String itemTypeStr = itemJson["itemType"].get<bmin::String>();
     auto itemType = model::getItemTypeFromString(itemTypeStr);
     if (itemType == model::ItemType::UNKNOWN) {
-      throw std::runtime_error((String("Invalid item type: ") + itemTypeStr).cStr());
+      throw std::runtime_error((bmin::String("Invalid item type: ") + itemTypeStr).cStr());
     }
     itemTemplate.itemType = itemType;
 
     if (!itemJson.contains("name") || !itemJson["name"].is_string()) {
       throw std::runtime_error("Item missing required field: name");
     }
-    itemTemplate.name = itemJson["name"].get<String>();
+    itemTemplate.name = itemJson["name"].get<bmin::String>();
 
     if (!itemJson.contains("label") || !itemJson["label"].is_string()) {
       throw std::runtime_error("Item missing required field: label");
     }
-    itemTemplate.label = itemJson["label"].get<String>();
+    itemTemplate.label = itemJson["label"].get<bmin::String>();
 
     if (!itemJson.contains("icon") || !itemJson["icon"].is_string()) {
       throw std::runtime_error("Item missing required field: icon");
     }
-    itemTemplate.iconSpriteName = itemJson["icon"].get<String>();
+    itemTemplate.iconSpriteName = itemJson["icon"].get<bmin::String>();
 
     if (!itemJson.contains("description") || !itemJson["description"].is_string()) {
       throw std::runtime_error("Item missing required field: description");
     }
-    itemTemplate.description = itemJson["description"].get<String>();
+    itemTemplate.description = itemJson["description"].get<bmin::String>();
 
     if (!itemJson.contains("weight") || !itemJson["weight"].is_number_integer()) {
       throw std::runtime_error("Item missing required field: weight");
@@ -82,17 +83,17 @@ void loadItemTemplates(const String& itemsFilePath,
     if (itemJson.contains("statusEffects") && itemJson["statusEffects"].is_array()) {
       for (const auto& statusJson : itemJson["statusEffects"]) {
         if (statusJson.is_string()) {
-          itemTemplate.statusEffectNames.pushBack(statusJson.get<String>());
+          itemTemplate.statusEffectNames.pushBack(statusJson.get<bmin::String>());
         } else if (statusJson.is_object() && statusJson.contains("name") &&
                    statusJson["name"].is_string()) {
-          itemTemplate.statusEffectNames.pushBack(statusJson["name"].get<String>());
+          itemTemplate.statusEffectNames.pushBack(statusJson["name"].get<bmin::String>());
         }
       }
     }
 
     if (itemJson.contains("itemUsability") && itemJson["itemUsability"].is_string()) {
       itemTemplate.itemUsability =
-          model::getItemUsabilityFromString(itemJson["itemUsability"].get<String>());
+          model::getItemUsabilityFromString(itemJson["itemUsability"].get<bmin::String>());
     }
 
     if (itemJson.contains("useAbility") && itemJson["useAbility"].is_object()) {
@@ -100,7 +101,7 @@ void loadItemTemplates(const String& itemsFilePath,
       if (useAbilityJson.contains("abilityName") &&
           useAbilityJson["abilityName"].is_string()) {
         model::ItemUseAbilityConfig useAbility;
-        useAbility.abilityName = useAbilityJson["abilityName"].get<String>();
+        useAbility.abilityName = useAbilityJson["abilityName"].get<bmin::String>();
         if (useAbilityJson.contains("dmgOverrides") &&
             useAbilityJson["dmgOverrides"].is_array()) {
           for (const auto& dmgJson : useAbilityJson["dmgOverrides"]) {
@@ -122,7 +123,7 @@ void loadItemTemplates(const String& itemsFilePath,
     }
 
     if (itemJson.contains("useSpecialEvent") && itemJson["useSpecialEvent"].is_string()) {
-      const String useSpecialEvent = itemJson["useSpecialEvent"].get<String>();
+      const bmin::String useSpecialEvent = itemJson["useSpecialEvent"].get<bmin::String>();
       if (!useSpecialEvent.empty()) {
         itemTemplate.useSpecialEvent = useSpecialEvent;
       }
@@ -132,7 +133,7 @@ void loadItemTemplates(const String& itemsFilePath,
       const auto& weaponJson = itemJson["weapon"];
       if (weaponJson.contains("abilityName") && weaponJson["abilityName"].is_string()) {
         model::ItemWeaponConfig weapon;
-        weapon.abilityName = weaponJson["abilityName"].get<String>();
+        weapon.abilityName = weaponJson["abilityName"].get<bmin::String>();
         if (weaponJson.contains("dmgOverrides") &&
             weaponJson["dmgOverrides"].is_array()) {
           for (const auto& dmgJson : weaponJson["dmgOverrides"]) {
@@ -156,7 +157,7 @@ void loadItemTemplates(const String& itemsFilePath,
     }
 
     if (itemTemplates.contains(itemTemplate.name)) {
-      throw std::runtime_error((String("Item template already exists: ") + itemTemplate.name)
+      throw std::runtime_error((bmin::String("Item template already exists: ") + itemTemplate.name)
                                    .cStr());
     }
 

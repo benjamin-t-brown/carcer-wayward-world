@@ -28,7 +28,7 @@ bool Layer::assertInterfaces() const {
 
 void Layer::setId(std::string_view _id) { id = strutil::fromStringView(_id); }
 
-String Layer::getId() const { return id; }
+bmin::String Layer::getId() const { return id; }
 
 void Layer::onMouseDown(int x, int y, int button) {
   if (state != LayerState::ON) {
@@ -107,7 +107,7 @@ bool Layer::shouldRemove() const { return removeFlag; }
 LayerState Layer::getState() const { return state; }
 
 void Layer::addUiElement(ui::UiElement* element) {
-  uiElements.pushBack(UniquePtr<ui::UiElement>(element));
+  uiElements.pushBack(bmin::UniquePtr<ui::UiElement>(element));
 }
 
 void Layer::update(int deltaTime) {

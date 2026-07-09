@@ -1,4 +1,5 @@
 #include "LoadAbilityTemplates.h"
+#include "bmin/StringInterop.h"
 #include "LoadAbilityJson.h"
 #include "lib/Json.h"
 #include "lib/sdl2w/AssetLoader.h"
@@ -7,15 +8,15 @@
 namespace db {
 
 void loadAbilityTemplates(
-    const String& abilitiesFilePath,
-    bmin::Map<String, model::AbilityTemplate>& abilityTemplates) {
-  const String fileContent = sdl2w::loadFileAsString(bmin::toStringView(abilitiesFilePath));
+    const bmin::String& abilitiesFilePath,
+    bmin::Map<bmin::String, model::AbilityTemplate>& abilityTemplates) {
+  const bmin::String fileContent = sdl2w::loadFileAsString(bmin::toStringView(abilitiesFilePath));
 
   Json jsonData;
   try {
     jsonData = Json::parse(fileContent.cStr(), nullptr, true, true);
   } catch (const Json::parse_error& e) {
-    throw std::runtime_error((String("Failed to parse JSON file ") + abilitiesFilePath.cStr() +
+    throw std::runtime_error((bmin::String("Failed to parse JSON file ") + abilitiesFilePath.cStr() +
                               ": " + e.what())
                                  .cStr());
   }
@@ -30,27 +31,27 @@ void loadAbilityTemplates(
     if (!abilityJson.contains("name") || !abilityJson["name"].is_string()) {
       throw std::runtime_error("Ability missing required field: name");
     }
-    abilityTemplate.name = abilityJson["name"].get<String>();
+    abilityTemplate.name = abilityJson["name"].get<bmin::String>();
 
     if (!abilityJson.contains("label") || !abilityJson["label"].is_string()) {
       throw std::runtime_error("Ability missing required field: label");
     }
-    abilityTemplate.label = abilityJson["label"].get<String>();
+    abilityTemplate.label = abilityJson["label"].get<bmin::String>();
 
     if (!abilityJson.contains("description") || !abilityJson["description"].is_string()) {
       throw std::runtime_error("Ability missing required field: description");
     }
-    abilityTemplate.description = abilityJson["description"].get<String>();
+    abilityTemplate.description = abilityJson["description"].get<bmin::String>();
 
     if (!abilityJson.contains("icon") || !abilityJson["icon"].is_string()) {
       throw std::runtime_error("Ability missing required field: icon");
     }
-    abilityTemplate.icon = abilityJson["icon"].get<String>();
+    abilityTemplate.icon = abilityJson["icon"].get<bmin::String>();
 
     if (!abilityJson.contains("type") || !abilityJson["type"].is_string()) {
       throw std::runtime_error("Ability missing required field: type");
     }
-    abilityTemplate.type = model::abilityTypeFromString(abilityJson["type"].get<String>());
+    abilityTemplate.type = model::abilityTypeFromString(abilityJson["type"].get<bmin::String>());
 
     if (!abilityJson.contains("targetSelect") ||
         !abilityJson["targetSelect"].is_object()) {
@@ -66,7 +67,7 @@ void loadAbilityTemplates(
     if (!abilityJson.contains("costType") || !abilityJson["costType"].is_string()) {
       throw std::runtime_error("Ability missing required field: costType");
     }
-    abilityTemplate.costType = model::abilityCostTypeFromString(abilityJson["costType"].get<String>());
+    abilityTemplate.costType = model::abilityCostTypeFromString(abilityJson["costType"].get<bmin::String>());
 
     if (!abilityJson.contains("costValue") ||
         !abilityJson["costValue"].is_number_integer()) {
@@ -98,7 +99,7 @@ void loadAbilityTemplates(
     }
 
     if (abilityTemplates.contains(abilityTemplate.name)) {
-      throw std::runtime_error((String("Ability template already exists: ") +
+      throw std::runtime_error((bmin::String("Ability template already exists: ") +
                                 abilityTemplate.name)
                                    .cStr());
     }

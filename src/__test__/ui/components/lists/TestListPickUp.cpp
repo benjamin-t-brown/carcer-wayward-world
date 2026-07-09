@@ -7,12 +7,16 @@
 #include "ui/UiElement.h"
 #include "ui/components/lists/ListPickUp.h"
 #include <memory>
+#include "bmin/String.h"
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
+#include "bmin/StringInterop.h"
 
 namespace {
 
 ui::ListPickUpProps buildListPickUpPropsFromDatabase(db::Database& database) {
   ui::ListPickUpProps listProps;
-  const DynArray<String> itemNames = {
+  const bmin::DynArray<bmin::String> itemNames = {
       "PotionHealing",
       "DaggerBronze",
       "ShortSwordBronze",
@@ -21,12 +25,12 @@ ui::ListPickUpProps buildListPickUpPropsFromDatabase(db::Database& database) {
   };
 
   for (const auto& itemName : itemNames) {
-    const auto& itemTemplate = database.getItemTemplate(itemName);
+    const auto& itemTemplate = database.getItemTemplate(bmin::toStringView(itemName));
     listProps.items.pushBack({
         .item =
             model::ItemInstance{
                 .id = model::createRandomId(),
-                .itemName = itemTemplate.name,
+                .itemTemplateName = itemTemplate.name,
                 .quantity = 1,
             },
         .weight = itemTemplate.weight,
@@ -46,7 +50,7 @@ int main(int argc, char** argv) {
   db::Database database;
   database.load();
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ListPickUp test initialized" << LOG_ENDL;
@@ -64,7 +68,7 @@ int main(int argc, char** argv) {
     auto [listWidth, listHeight] = listPickUp->getDims();
     LOG(INFO) << "ListPickUp dimensions: " << listWidth << ", " << listHeight << LOG_ENDL;
 
-    elements.pushBack(UniquePtr<ui::UiElement>(listPickUp));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(listPickUp));
 
     auto& events = window.getEvents();
     events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_DOWN,

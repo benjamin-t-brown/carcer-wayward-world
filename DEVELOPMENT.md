@@ -3,6 +3,7 @@
 Development Requirements
 
 - GCC/Clang
+- Node.js (test runners under `test-runners/` use Node to compile and run C++ tests)
 - SDL2
 - SDL2_image
 - SDL2_ttf
@@ -43,6 +44,7 @@ pacman -S ucrt64/mingw-w64-ucrt-x86_64-clang\
  ucrt64/mingw-w64-ucrt-x86_64-clang-tools-extra\
  ucrt64/mingw-w64-x86_64-include-what-you-use\
  msys/python\
+ msys/nodejs\
  ucrt64/mingw-w64-ucrt-x86_64-imagemagick
 
 # this linker is potentially faster on Windows
@@ -56,6 +58,7 @@ pacman -S ucrt64/mingw-w64-ucrt-x86_64-lld
 apt install\
  build-essential\
  make\
+ nodejs\
  clangd-17\
  clang-format\
  libsdl2-ttf-dev\
@@ -68,7 +71,7 @@ apt install\
 
 ```
 brew install gcc@16
-brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf
+brew install node sdl2 sdl2_image sdl2_mixer sdl2_ttf
 
 # additional development tools
 python3 -m pip install --upgrade setuptools

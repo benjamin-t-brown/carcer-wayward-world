@@ -90,7 +90,7 @@ void PopupInventoryItem::build() {
     buttonsY += 75 * style.scale;
   }
 
-  auto createButton = [&](const String& text, int _x, int _y) {
+  auto createButton = [&](const bmin::String& text, int _x, int _y) {
     auto button = new ButtonModal(window, this);
     button->setId(text);
     auto& buttonStyle = button->getStyle();

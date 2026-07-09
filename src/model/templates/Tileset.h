@@ -1,6 +1,7 @@
 #pragma once
 
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 
 namespace model {
 
@@ -15,7 +16,7 @@ enum TileStepSound {
 
 struct TileMetadata {
   int id;
-  String description = "";
+  bmin::String description = "";
   TileStepSound stepSound = TILE_STEP_SOUND_FLOOR;
   bool isWalkable = true;
   bool isSeeThrough = true;
@@ -24,8 +25,8 @@ struct TileMetadata {
 };
 
 struct TilesetTemplate {
-  String name;
-  String spriteBase;
+  bmin::String name;
+  bmin::String spriteBase;
   int tileWidth;
   int tileHeight;
   bmin::DynArray<TileMetadata> tiles;

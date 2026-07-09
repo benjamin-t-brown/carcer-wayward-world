@@ -3,6 +3,8 @@
 #include "../UiElement.h"
 #include "ui/colors.h"
 #include "ui/elements/Quad.h"
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 namespace ui {
 
@@ -26,7 +28,7 @@ private:
   int innerHeightScaled = 0;
   bool isDraggingIndicator = false;
 
-  UniquePtr<Quad> outerQuad;
+  bmin::UniquePtr<Quad> outerQuad;
   Quad* innerQuad = nullptr;
 
   int getScrollIndicatorY(int offset) const;
@@ -51,18 +53,18 @@ public:
   bool checkMouseDownEvent(int mouseX,
                            int mouseY,
                            int button,
-                           DynArray<UiElement*> additionalElements = {}) override;
+                           bmin::DynArray<UiElement*> additionalElements = {}) override;
   bool checkMouseUpEvent(int mouseX,
                          int mouseY,
                          int button,
-                         DynArray<UiElement*> additionalElements = {}) override;
+                         bmin::DynArray<UiElement*> additionalElements = {}) override;
   bool checkHoverEvent(int mouseX,
                        int mouseY,
-                       DynArray<UiElement*> additionalElements = {}) override;
+                       bmin::DynArray<UiElement*> additionalElements = {}) override;
   bool checkMouseWheelEvent(int mouseX,
                             int mouseY,
                             int delta,
-                            DynArray<UiElement*> additionalElements = {}) override;
+                            bmin::DynArray<UiElement*> additionalElements = {}) override;
 
   // Scroll methods
   void scrollUp();

@@ -2,6 +2,7 @@
 
 #include "../UiElement.h"
 #include "ui/colors.h"
+#include "bmin/DynArray.h"
 
 namespace ui {
 
@@ -38,14 +39,14 @@ public:
   bool checkMouseDownEvent(int mouseX,
                            int mouseY,
                            int button,
-                           DynArray<UiElement*> additionalElements = {}) override;
+                           bmin::DynArray<UiElement*> additionalElements = {}) override;
   bool checkMouseUpEvent(int mouseX,
                          int mouseY,
                          int button,
-                         DynArray<UiElement*> additionalElements = {}) override;
+                         bmin::DynArray<UiElement*> additionalElements = {}) override;
   bool checkHoverEvent(int mouseX,
                        int mouseY,
-                       DynArray<UiElement*> additionalElements = {}) override;
+                       bmin::DynArray<UiElement*> additionalElements = {}) override;
   const std::pair<int, int> getDims() const override;
 
   void build() override;

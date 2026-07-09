@@ -1,12 +1,12 @@
 #pragma once
 
 #include "../UiElement.h"
-#include "lib/Types.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 struct ItemInfoProps {
-  String description;
+  bmin::String description;
   int weight = 0;
   int value = 0;
 };

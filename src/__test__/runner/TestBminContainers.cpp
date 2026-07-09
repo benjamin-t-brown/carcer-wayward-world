@@ -1,4 +1,6 @@
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/List.h"
+#include "bmin/UniquePtr.h"
 #include "lib/sdl2w/Logger.h"
 
 namespace {
@@ -18,7 +20,7 @@ int main(int argc, char** argv) {
 
   bool ok = true;
 
-  DynArray<int> values;
+  bmin::DynArray<int> values;
   values.pushBack(1);
   values.pushBack(2);
   values.pushBack(3);
@@ -57,12 +59,12 @@ int main(int argc, char** argv) {
   }
   ok = assertEqual(reverseSum, 8, "rbegin.sum") && ok;
 
-  List<int> queue;
+  bmin::List<int> queue;
   queue.pushBack(10);
   queue.pushBack(20);
   ok = assertEqual(queue.front(), 10, "list.front") && ok;
 
-  List<int> pending;
+  bmin::List<int> pending;
   pending.pushBack(30);
   pending.pushBack(40);
   queue.splice(queue.end(), pending);
@@ -76,7 +78,7 @@ int main(int argc, char** argv) {
   }
   ok = assertEqual(listSum, 100, "splice.order") && ok;
 
-  auto unique = makeUnique<int>(7);
+  auto unique = bmin::makeUnique<int>(7);
   ok = assertEqual(*unique, 7, "makeUnique.value") && ok;
 
   if (!ok) {

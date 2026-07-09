@@ -1,16 +1,17 @@
 #pragma once
 
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 
 namespace hiscore {
 
 struct HiscoreRow {
-  String name;
+  bmin::String name;
   int score;
 };
 
-DynArray<HiscoreRow> getHighScores();
+bmin::DynArray<HiscoreRow> getHighScores();
 
-void saveHighScores(const DynArray<HiscoreRow>& hiscores);
+void saveHighScores(const bmin::DynArray<HiscoreRow>& hiscores);
 
 }; // namespace hiscore

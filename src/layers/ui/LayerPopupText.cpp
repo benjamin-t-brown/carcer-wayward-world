@@ -21,8 +21,8 @@ constexpr int CLOSE_BUTTON_PADDING = 4;
 } // namespace
 
 LayerPopupText::LayerPopupText(sdl2w::Window* _window,
-                               String title,
-                               String text)
+                               bmin::String title,
+                               bmin::String text)
     : Layer(_window, LAYER_ID) {
 
   if (!assertInterfaces()) {

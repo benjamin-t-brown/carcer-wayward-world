@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lib/Types.h"
+#include "bmin/String.h"
 #include "sdl2w/AssetLoader.h"
 #include "sdl2w/Draw.h"
 #include "sdl2w/Events.h"
@@ -13,7 +13,7 @@
 struct TestUiParams {
   int width;
   int height;
-  String title = "UI Test";
+  bmin::String title = "UI Test";
 };
 
 // Runs after the render loop exits, while window/store are still alive.
@@ -50,6 +50,7 @@ inline void setupTestUi(int argc,
     sdl2w::AssetLoader assetLoader(window.getDraw(), window.getStore());
     window.getStore().loadAndStoreFont("title", "assets/squealer.ttf");
     window.getStore().loadAndStoreFont("default", "assets/monofonto.ttf");
+    window.getStore().loadAndStoreFont("alternate", "assets/monofonto.ttf");
     window.getStore().loadAndStoreFont("text", "assets/notosans-regular.ttf");
     window.getStore().loadAndStoreFont("text-bold", "assets/notosans-bold.ttf");
     assetLoader.loadAssetsFromFile(sdl2w::ASSET_FILE, "assets/assets.ui.txt");

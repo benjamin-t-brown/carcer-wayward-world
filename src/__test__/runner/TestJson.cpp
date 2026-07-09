@@ -3,7 +3,7 @@
 
 namespace {
 
-bool assertEqual(const String& actual, const String& expected, const char* label) {
+bool assertEqual(const bmin::String& actual, const bmin::String& expected, const char* label) {
   if (actual != expected) {
     LOG(ERROR) << label << " expected '" << expected.cStr() << "' but got '" << actual.cStr() << "'"
                << LOG_ENDL;
@@ -12,7 +12,7 @@ bool assertEqual(const String& actual, const String& expected, const char* label
   return true;
 }
 
-bool assertEqual(const String& actual, const char* expected, const char* label) {
+bool assertEqual(const bmin::String& actual, const char* expected, const char* label) {
   if (actual != expected) {
     LOG(ERROR) << label << " expected '" << expected << "' but got '" << actual.cStr() << "'"
                << LOG_ENDL;
@@ -41,14 +41,14 @@ int main(int argc, char** argv) {
         Json::parse(R"({"name":"sword","value":10})", nullptr, true, true);
     ok = parsed.is_object() && ok;
     ok = parsed["name"].is_string() && ok;
-    ok = assertEqual(parsed["name"].get<String>(), "sword", "parsed.name") && ok;
+    ok = assertEqual(parsed["name"].get<bmin::String>(), "sword", "parsed.name") && ok;
     ok = assertEqual(parsed["value"].get<int>(), 10, "parsed.value") && ok;
 
     Json built;
-    built["label"] = String("potion");
-    ok = assertEqual(built["label"].get<String>(), "potion", "built.label") && ok;
+    built["label"] = bmin::String("potion");
+    ok = assertEqual(built["label"].get<bmin::String>(), "potion", "built.label") && ok;
 
-    ok = assertEqual(parsed.value("missing", String()), String(), "value.string_default") && ok;
+    ok = assertEqual(parsed.value("missing", bmin::String()), bmin::String(), "value.string_default") && ok;
     ok = assertEqual(parsed.value("value", 0), 10, "value.int_present") && ok;
 
     const Json tilesDoc =

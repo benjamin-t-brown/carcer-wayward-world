@@ -1,4 +1,5 @@
 #include "SectionScrollable.h"
+#include "bmin/UniquePtr.h"
 #include "Quad.h"
 #include "buttons/ButtonScroll.h"
 #include "lib/sdl2w/Logger.h"
@@ -50,7 +51,7 @@ SectionScrollable::SectionScrollable(sdl2w::Window* _window, UiElement* _parent)
   shouldPropagateEventsToChildren = true;
   addEventObserver(new SectionScrollableScrollWheelObserver(this));
 
-  outerQuad = makeUnique<Quad>(window, this);
+  outerQuad = bmin::makeUnique<Quad>(window, this);
   outerQuad->setId("outerQuad");
 
   innerQuad = new Quad(window, outerQuad.get());
@@ -170,8 +171,8 @@ void SectionScrollable::scrollFromIndicatorMouseY(int mouseY) {
 
 namespace {
 
-DynArray<UiElement*> additionalWithQuad(Quad* quad) {
-  DynArray<UiElement*> elements;
+bmin::DynArray<UiElement*> additionalWithQuad(Quad* quad) {
+  bmin::DynArray<UiElement*> elements;
   if (quad != nullptr) {
     elements.pushBack(quad);
   }
@@ -183,7 +184,7 @@ DynArray<UiElement*> additionalWithQuad(Quad* quad) {
 bool SectionScrollable::checkMouseDownEvent(int mouseX,
                                             int mouseY,
                                             int button,
-                                            DynArray<UiElement*> additionalElements) {
+                                            bmin::DynArray<UiElement*> additionalElements) {
   const bool handled =
       UiElement::checkMouseDownEvent(mouseX, mouseY, button, additionalWithQuad(outerQuad.get()));
   if (maxScrollOffset > 0 && isInScrollTrack(mouseX, mouseY) &&
@@ -199,14 +200,14 @@ bool SectionScrollable::checkMouseDownEvent(int mouseX,
 bool SectionScrollable::checkMouseUpEvent(int mouseX,
                                           int mouseY,
                                           int button,
-                                          DynArray<UiElement*> additionalElements) {
+                                          bmin::DynArray<UiElement*> additionalElements) {
   isDraggingIndicator = false;
   return UiElement::checkMouseUpEvent(mouseX, mouseY, button, additionalWithQuad(outerQuad.get()));
 }
 
 bool SectionScrollable::checkHoverEvent(int mouseX,
                                         int mouseY,
-                                        DynArray<UiElement*> additionalElements) {
+                                        bmin::DynArray<UiElement*> additionalElements) {
   if (isDraggingIndicator) {
     scrollFromIndicatorMouseY(mouseY);
     return true;
@@ -217,7 +218,7 @@ bool SectionScrollable::checkHoverEvent(int mouseX,
 bool SectionScrollable::checkMouseWheelEvent(int mouseX,
                                              int mouseY,
                                              int delta,
-                                             DynArray<UiElement*> additionalElements) {
+                                             bmin::DynArray<UiElement*> additionalElements) {
   return UiElement::checkMouseWheelEvent(mouseX, mouseY, delta, additionalWithQuad(outerQuad.get()));
 }
 

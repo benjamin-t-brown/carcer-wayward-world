@@ -1,4 +1,5 @@
 #include "SpriteElement.h"
+#include "bmin/StringInterop.h"
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 
@@ -7,16 +8,16 @@ namespace ui {
 SpriteElement::SpriteElement(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {}
 
-void SpriteElement::setSprite(const String& name) {
+void SpriteElement::setSprite(const bmin::String& name) {
   try {
     sprite = window->getStore().getSprite(bmin::toStringView(name));
   } catch (const std::runtime_error& e) {
     LOG_LINE(ERROR)
-        << (String("[ui] ERROR When setting Sprite for ui sprite element. Cannot get Sprite '") +
+        << (bmin::String("[ui] ERROR When setting Sprite for ui sprite element. Cannot get Sprite '") +
             name.cStr() + "' because it has not been loaded.")
                .cStr()
         << LOG_ENDL;
-    throw std::runtime_error((String("Failed to get Sprite '") + name.cStr() + "'").cStr());
+    throw std::runtime_error((bmin::String("Failed to get Sprite '") + name.cStr() + "'").cStr());
   }
   build();
 }

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "lib/Types.h"
+#include "bmin/String.h"
 #include "lib/bmin/Map.h"
 #include "model/templates/Maps.h"
 
 namespace db {
 
-void loadMapTemplates(const String& mapsFilePath,
-                      bmin::Map<String, model::CarcerMapTemplate>& mapTemplates);
+void loadMapTemplates(const bmin::String& mapsFilePath,
+                      bmin::Map<bmin::String, model::CarcerMapTemplate>& mapTemplates);
 
 } // namespace db

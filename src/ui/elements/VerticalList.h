@@ -3,6 +3,7 @@
 #include "../UiElement.h"
 #include "ui/elements/Quad.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "bmin/DynArray.h"
 
 namespace ui {
 
@@ -31,7 +32,7 @@ public:
   void clearSelection();
 
   void addListItem(UiElement* item);
-  void addListItems(const DynArray<UiElement*>& items);
+  void addListItems(const bmin::DynArray<UiElement*>& items);
   void removeListItemAtIndex(size_t index);
 
   const std::pair<int, int> getDims() const override;

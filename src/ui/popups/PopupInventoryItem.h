@@ -2,18 +2,18 @@
 
 #include "model/templates/Items.h"
 #include "ui/UiElement.h"
-#include "lib/Types.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 enum PopupOrientation { NARROW, WIDE };
 
 struct PopupInventoryItemProps {
-  String characterPlayerId;
+  bmin::String characterPlayerId;
   model::ItemInstance item;
-  String label;
-  String description;
-  String spriteName;
+  bmin::String label;
+  bmin::String description;
+  bmin::String spriteName;
   int weight = 0;
   int value = 0;
   bool usable = false;

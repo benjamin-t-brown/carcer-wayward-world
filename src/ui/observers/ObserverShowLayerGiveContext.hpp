@@ -3,19 +3,20 @@
 #include "state/StateManager.h"
 #include "state/actions/ui/UiShowLayerGiveContext.hpp"
 #include "ui/UiElement.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 class ObserverShowLayerGiveContext : public ui::UiEventObserver,
                                      public state::StateManagerInterface {
   sdl2w::Window* window;
-  String fromCharacterPlayerId;
-  String itemId;
+  bmin::String fromCharacterPlayerId;
+  bmin::String itemId;
 
 public:
   ObserverShowLayerGiveContext(sdl2w::Window* _window,
-                               const String& _fromCharacterPlayerId,
-                               const String& _itemId)
+                               const bmin::String& _fromCharacterPlayerId,
+                               const bmin::String& _itemId)
       : window(_window),
         fromCharacterPlayerId(_fromCharacterPlayerId),
         itemId(_itemId) {}

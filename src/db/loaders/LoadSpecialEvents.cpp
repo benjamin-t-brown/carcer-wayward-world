@@ -1,4 +1,5 @@
 #include "LoadSpecialEvents.h"
+#include "bmin/StringInterop.h"
 #include "lib/Json.h"
 #include "lib/StringUtil.h"
 #include "lib/sdl2w/AssetLoader.h"
@@ -9,17 +10,17 @@
 
 namespace db {
 
-static model::GameEventType getGameEventTypeFromString(const String& typeStr) {
+static model::GameEventType getGameEventTypeFromString(const bmin::String& typeStr) {
   if (typeStr == "MODAL") {
     return model::GameEventType::MODAL;
   } else if (typeStr == "TALK") {
     return model::GameEventType::TALK;
   } else {
-    throw std::runtime_error((String("Invalid eventType: ") + typeStr).cStr());
+    throw std::runtime_error((bmin::String("Invalid eventType: ") + typeStr).cStr());
   }
 }
 
-static model::GameEventChildType getGameEventChildTypeFromString(const String& typeStr) {
+static model::GameEventChildType getGameEventChildTypeFromString(const bmin::String& typeStr) {
   if (typeStr == "EXEC") {
     return model::GameEventChildType::EXEC;
   } else if (typeStr == "CHOICE") {
@@ -29,16 +30,16 @@ static model::GameEventChildType getGameEventChildTypeFromString(const String& t
   } else if (typeStr == "END") {
     return model::GameEventChildType::END;
   } else {
-    throw std::runtime_error((String("Invalid eventChildType: ") + typeStr).cStr());
+    throw std::runtime_error((bmin::String("Invalid eventChildType: ") + typeStr).cStr());
   }
 }
 
-static bmin::DynArray<String> splitParagraphs(const String& p) {
+static bmin::DynArray<bmin::String> splitParagraphs(const bmin::String& p) {
   if (p.empty()) {
     return {};
   }
-  const bmin::DynArray<String> lines = strutil::splitLines(p);
-  bmin::DynArray<String> paragraphs;
+  const bmin::DynArray<bmin::String> lines = strutil::splitLines(p);
+  bmin::DynArray<bmin::String> paragraphs;
   paragraphs.reserve(lines.size());
   for (size_t i = 0; i < lines.size(); ++i) {
     if (!lines[i].empty() || !paragraphs.empty()) {
@@ -54,7 +55,7 @@ static bmin::DynArray<String> splitParagraphs(const String& p) {
 static model::AudioInfo parseAudioInfo(const Json& audioJson) {
   model::AudioInfo audioInfo;
   if (audioJson.contains("audioName") && audioJson["audioName"].is_string()) {
-    audioInfo.audioName = audioJson["audioName"].get<String>();
+    audioInfo.audioName = audioJson["audioName"].get<bmin::String>();
   }
   if (audioJson.contains("volume") && audioJson["volume"].is_number_integer()) {
     audioInfo.volume = audioJson["volume"].get<int>();
@@ -73,7 +74,7 @@ static std::optional<model::GameEventChild> parseGameEventChild(const Json& chil
     throw std::runtime_error("Child missing required field: id");
   }
 
-  const String eventChildTypeStr = childJson["eventChildType"].get<String>();
+  const bmin::String eventChildTypeStr = childJson["eventChildType"].get<bmin::String>();
 
   if (eventChildTypeStr == "COMMENT") {
     return std::nullopt;
@@ -84,22 +85,22 @@ static std::optional<model::GameEventChild> parseGameEventChild(const Json& chil
   if (childType == model::GameEventChildType::EXEC) {
     model::GameEventChildExec execNode;
     execNode.eventChildType = model::GameEventChildType::EXEC;
-    execNode.id = childJson["id"].get<String>();
+    execNode.id = childJson["id"].get<bmin::String>();
 
     if (childJson.contains("p") && childJson["p"].is_string()) {
-      execNode.paragraphs = splitParagraphs(childJson["p"].get<String>());
+      execNode.paragraphs = splitParagraphs(childJson["p"].get<bmin::String>());
     } else {
       execNode.paragraphs = {};
     }
 
     if (childJson.contains("execStr") && childJson["execStr"].is_string()) {
-      execNode.execStr = childJson["execStr"].get<String>();
+      execNode.execStr = childJson["execStr"].get<bmin::String>();
     } else {
       execNode.execStr = "";
     }
 
     if (childJson.contains("next") && childJson["next"].is_string()) {
-      execNode.next = childJson["next"].get<String>();
+      execNode.next = childJson["next"].get<bmin::String>();
     } else {
       execNode.next = "";
     }
@@ -118,10 +119,10 @@ static std::optional<model::GameEventChild> parseGameEventChild(const Json& chil
   } else if (childType == model::GameEventChildType::CHOICE) {
     model::GameEventChildChoice choiceNode;
     choiceNode.eventChildType = model::GameEventChildType::CHOICE;
-    choiceNode.id = childJson["id"].get<String>();
+    choiceNode.id = childJson["id"].get<bmin::String>();
 
     if (childJson.contains("text") && childJson["text"].is_string()) {
-      choiceNode.text = childJson["text"].get<String>();
+      choiceNode.text = childJson["text"].get<bmin::String>();
     } else {
       choiceNode.text = "";
     }
@@ -130,29 +131,29 @@ static std::optional<model::GameEventChild> parseGameEventChild(const Json& chil
       for (const auto& choiceJson : childJson["choices"]) {
         model::Choice choice;
         if (choiceJson.contains("text") && choiceJson["text"].is_string()) {
-          choice.text = choiceJson["text"].get<String>();
+          choice.text = choiceJson["text"].get<bmin::String>();
         }
         if (choiceJson.contains("prefixText") && choiceJson["prefixText"].is_string()) {
-          choice.prefixText = choiceJson["prefixText"].get<String>();
+          choice.prefixText = choiceJson["prefixText"].get<bmin::String>();
         }
         if (choiceJson.contains("conditionStr") && choiceJson["conditionStr"].is_string()) {
-          choice.conditionStr = choiceJson["conditionStr"].get<String>();
+          choice.conditionStr = choiceJson["conditionStr"].get<bmin::String>();
         }
         if (choiceJson.contains("evalStr") && choiceJson["evalStr"].is_string()) {
-          choice.evalStr = choiceJson["evalStr"].get<String>();
+          choice.evalStr = choiceJson["evalStr"].get<bmin::String>();
         }
         if (choiceJson.contains("next") && choiceJson["next"].is_string()) {
-          choice.next = choiceJson["next"].get<String>();
+          choice.next = choiceJson["next"].get<bmin::String>();
         }
         if (choiceJson.contains("switchText") && choiceJson["switchText"].is_array()) {
           for (const auto& switchTextJson : choiceJson["switchText"]) {
             model::ChoiceSwitchText switchText;
             if (switchTextJson.contains("conditionStr") &&
                 switchTextJson["conditionStr"].is_string()) {
-              switchText.conditionStr = switchTextJson["conditionStr"].get<String>();
+              switchText.conditionStr = switchTextJson["conditionStr"].get<bmin::String>();
             }
             if (switchTextJson.contains("text") && switchTextJson["text"].is_string()) {
-              switchText.text = switchTextJson["text"].get<String>();
+              switchText.text = switchTextJson["text"].get<bmin::String>();
             }
             choice.switchText.pushBack(switchText);
           }
@@ -169,10 +170,10 @@ static std::optional<model::GameEventChild> parseGameEventChild(const Json& chil
   } else if (childType == model::GameEventChildType::SWITCH) {
     model::GameEventChildSwitch switchNode;
     switchNode.eventChildType = model::GameEventChildType::SWITCH;
-    switchNode.id = childJson["id"].get<String>();
+    switchNode.id = childJson["id"].get<bmin::String>();
 
     if (childJson.contains("defaultNext") && childJson["defaultNext"].is_string()) {
-      switchNode.defaultNext = childJson["defaultNext"].get<String>();
+      switchNode.defaultNext = childJson["defaultNext"].get<bmin::String>();
     } else {
       switchNode.defaultNext = "";
     }
@@ -181,10 +182,10 @@ static std::optional<model::GameEventChild> parseGameEventChild(const Json& chil
       for (const auto& caseJson : childJson["cases"]) {
         model::SwitchCase switchCase;
         if (caseJson.contains("conditionStr") && caseJson["conditionStr"].is_string()) {
-          switchCase.conditionStr = caseJson["conditionStr"].get<String>();
+          switchCase.conditionStr = caseJson["conditionStr"].get<bmin::String>();
         }
         if (caseJson.contains("next") && caseJson["next"].is_string()) {
-          switchCase.next = caseJson["next"].get<String>();
+          switchCase.next = caseJson["next"].get<bmin::String>();
         }
         switchNode.cases.pushBack(switchCase);
       }
@@ -194,37 +195,37 @@ static std::optional<model::GameEventChild> parseGameEventChild(const Json& chil
   } else if (childType == model::GameEventChildType::END) {
     model::GameEventChildEnd endNode;
     endNode.eventChildType = model::GameEventChildType::END;
-    endNode.id = childJson["id"].get<String>();
+    endNode.id = childJson["id"].get<bmin::String>();
 
     if (childJson.contains("next") && childJson["next"].is_string()) {
-      endNode.next = childJson["next"].get<String>();
+      endNode.next = childJson["next"].get<bmin::String>();
     } else {
       endNode.next = "";
     }
 
     return endNode;
   } else {
-    throw std::runtime_error((String("Unsupported eventChildType: ") + eventChildTypeStr)
+    throw std::runtime_error((bmin::String("Unsupported eventChildType: ") + eventChildTypeStr)
                                  .cStr());
   }
 }
 
-void loadSpecialEvents(const String& specialEventsFilePath,
-                       bmin::Map<String, model::GameEvent>& specialEvents) {
-  bmin::DynArray<String> emptyEventsToLoad;
+void loadSpecialEvents(const bmin::String& specialEventsFilePath,
+                       bmin::Map<bmin::String, model::GameEvent>& specialEvents) {
+  bmin::DynArray<bmin::String> emptyEventsToLoad;
   loadSpecialEvents(specialEventsFilePath, specialEvents, emptyEventsToLoad);
 }
 
-void loadSpecialEvents(const String& specialEventsFilePath,
-                       bmin::Map<String, model::GameEvent>& specialEvents,
-                       bmin::DynArray<String>& eventsToLoad) {
-  const String fileContent = sdl2w::loadFileAsString(bmin::toStringView(specialEventsFilePath));
+void loadSpecialEvents(const bmin::String& specialEventsFilePath,
+                       bmin::Map<bmin::String, model::GameEvent>& specialEvents,
+                       bmin::DynArray<bmin::String>& eventsToLoad) {
+  const bmin::String fileContent = sdl2w::loadFileAsString(bmin::toStringView(specialEventsFilePath));
 
   Json jsonData;
   try {
     jsonData = Json::parse(fileContent.cStr(), nullptr, true, true);
   } catch (const Json::parse_error& e) {
-    throw std::runtime_error((String("Failed to parse JSON file ") + specialEventsFilePath.cStr() +
+    throw std::runtime_error((bmin::String("Failed to parse JSON file ") + specialEventsFilePath.cStr() +
                               ": " + e.what())
                                  .cStr());
   }
@@ -241,7 +242,7 @@ void loadSpecialEvents(const String& specialEventsFilePath,
     if (!eventJson.contains("id") || !eventJson["id"].is_string()) {
       throw std::runtime_error("Event missing required field: id");
     }
-    gameEvent.id = eventJson["id"].get<String>();
+    gameEvent.id = eventJson["id"].get<bmin::String>();
 
     if (filterByEventsToLoad) {
       if (std::find(eventsToLoad.begin(), eventsToLoad.end(), gameEvent.id) ==
@@ -253,33 +254,33 @@ void loadSpecialEvents(const String& specialEventsFilePath,
     if (!eventJson.contains("title") || !eventJson["title"].is_string()) {
       throw std::runtime_error("Event missing required field: title");
     }
-    gameEvent.title = eventJson["title"].get<String>();
+    gameEvent.title = eventJson["title"].get<bmin::String>();
 
     if (!eventJson.contains("eventType") || !eventJson["eventType"].is_string()) {
       throw std::runtime_error("Event missing required field: eventType");
     }
-    const String eventTypeStr = eventJson["eventType"].get<String>();
+    const bmin::String eventTypeStr = eventJson["eventType"].get<bmin::String>();
     gameEvent.eventType = getGameEventTypeFromString(eventTypeStr);
 
     if (!eventJson.contains("icon") || !eventJson["icon"].is_string()) {
       throw std::runtime_error("Event missing required field: icon");
     }
-    gameEvent.icon = eventJson["icon"].get<String>();
+    gameEvent.icon = eventJson["icon"].get<bmin::String>();
 
     if (eventJson.contains("vars") && eventJson["vars"].is_array()) {
       for (const auto& varJson : eventJson["vars"]) {
         model::Variable var;
         if (varJson.contains("id") && varJson["id"].is_string()) {
-          var.id = varJson["id"].get<String>();
+          var.id = varJson["id"].get<bmin::String>();
         }
         if (varJson.contains("key") && varJson["key"].is_string()) {
-          var.key = varJson["key"].get<String>();
+          var.key = varJson["key"].get<bmin::String>();
         }
         if (varJson.contains("value") && varJson["value"].is_string()) {
-          var.value = varJson["value"].get<String>();
+          var.value = varJson["value"].get<bmin::String>();
         }
         if (varJson.contains("importFrom") && varJson["importFrom"].is_string()) {
-          var.importFrom = varJson["importFrom"].get<String>();
+          var.importFrom = varJson["importFrom"].get<bmin::String>();
         }
         gameEvent.vars.pushBack(var);
       }
@@ -299,7 +300,7 @@ void loadSpecialEvents(const String& specialEventsFilePath,
     }
 
     if (specialEvents.contains(gameEvent.id)) {
-      throw std::runtime_error((String("Event already exists: ") + gameEvent.id).cStr());
+      throw std::runtime_error((bmin::String("Event already exists: ") + gameEvent.id).cStr());
     }
 
     specialEvents[gameEvent.id] = gameEvent;

@@ -2,7 +2,7 @@
 
 #include "model/templates/AbilityTypes.h"
 #include <optional>
-#include "lib/Types.h"
+#include "bmin/String.h"
 
 namespace model {
 
@@ -19,13 +19,13 @@ struct StatusEffectDurationScale {
 struct StatusEffectAction {
   StatusActionTargetType statusActionTargetType =
       StatusActionTargetType::STATUS_ACTION_TARGET_SELF;
-  String abilityName;
+  bmin::String abilityName;
   bmin::DynArray<StatusEffectEvent> events;
 };
 
 struct StatusEffectTemplate {
-  String name;
-  String description;
+  bmin::String name;
+  bmin::String description;
   // Default turns before apply-time modifiers (applier spellPotency, victim shield, feats).
   int baseDuration = 0;
   std::optional<StatusEffectDurationScale> durationScale;

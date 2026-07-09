@@ -6,12 +6,14 @@
 #include "ui/UiElement.h"
 #include "ui/popups/PopupInventoryItem.h"
 #include <memory>
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start PopupInventoryItem test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "PopupInventoryItem test initialized" << LOG_ENDL;
@@ -30,7 +32,7 @@ int main(int argc, char** argv) {
         .item =
             {
                 .id = model::createRandomId(),
-                .itemName = "TestItem1",
+                .itemTemplateName = "TestItem1",
                 .quantity = 1,
             },
         .label = "Test Item 1",
@@ -43,7 +45,7 @@ int main(int argc, char** argv) {
         .equippable = true,
         .orientation = orientation,
     });
-    elements.pushBack(UniquePtr<ui::UiElement>(popupInventoryItem));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(popupInventoryItem));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

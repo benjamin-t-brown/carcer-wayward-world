@@ -4,6 +4,7 @@
 #include "state/WorldActions.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/components/ChCompactInfo.h"
+#include "bmin/DynArray.h"
 
 namespace ui {
 
@@ -14,8 +15,8 @@ enum class InGameBorderType { Wide, Narrow };
 
 // InGameLayout layout properties
 struct InGameLayoutProps {
-  DynArray<state::WorldActionType> worldActionTypes;
-  DynArray<ChCompactInfoProps> partyMembers;
+  bmin::DynArray<state::WorldActionType> worldActionTypes;
+  bmin::DynArray<ChCompactInfoProps> partyMembers;
   float actionButtonScale = 1.f;
   InGameBorderType borderType = InGameBorderType::Wide;
 };

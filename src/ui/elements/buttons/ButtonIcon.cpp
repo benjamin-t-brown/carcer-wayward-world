@@ -1,4 +1,5 @@
 #include "ButtonIcon.h"
+#include "bmin/UniquePtr.h"
 #include "ui/elements/SpriteElement.h"
 #include "ui/uiUtils.h"
 
@@ -40,7 +41,7 @@ const ButtonIconProps& ButtonIcon::getProps() const { return props; }
 bool ButtonIcon::checkMouseDownEvent(int mouseX,
                                      int mouseY,
                                      int button,
-                                     DynArray<UiElement*> additionalElements) {
+                                     bmin::DynArray<UiElement*> additionalElements) {
   if (props.isDisabled) {
     return isInBoundsScaled(mouseX, mouseY, this);
   }
@@ -50,7 +51,7 @@ bool ButtonIcon::checkMouseDownEvent(int mouseX,
 bool ButtonIcon::checkMouseUpEvent(int mouseX,
                                    int mouseY,
                                    int button,
-                                   DynArray<UiElement*> additionalElements) {
+                                   bmin::DynArray<UiElement*> additionalElements) {
   if (props.isDisabled) {
     isClicked = false;
     return isInBoundsScaled(mouseX, mouseY, this);
@@ -65,12 +66,12 @@ void ButtonIcon::build() {
   style.height = props.iconSize;
 
   const bool showActive = props.isDisabled || isActive;
-  const String& spriteName = showActive ? props.activeSprite : props.regularSprite;
+  const bmin::String& spriteName = showActive ? props.activeSprite : props.regularSprite;
   if (spriteName.empty()) {
     return;
   }
 
-  auto spriteElement = makeUnique<SpriteElement>(window);
+  auto spriteElement = bmin::makeUnique<SpriteElement>(window);
   BaseStyle spriteStyle;
   spriteStyle.x = style.x;
   spriteStyle.y = style.y;
@@ -79,7 +80,7 @@ void ButtonIcon::build() {
   spriteStyle.scale = style.scale;
   spriteElement->setStyle(spriteStyle);
   spriteElement->setSprite(spriteName);
-  children.pushBack(UniquePtr<UiElement>(spriteElement.release()));
+  children.pushBack(bmin::UniquePtr<UiElement>(spriteElement.release()));
 }
 
 void ButtonIcon::render(int dt) {

@@ -1,17 +1,19 @@
 #include "db/loaders/LoadStatusEffectTemplates.h"
 #include "lib/sdl2w/Logger.h"
+#include "bmin/String.h"
+#include "bmin/Map.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Starting TestLoadStatusEffectTemplates" << LOG_ENDL;
 
-  bmin::Map<String, model::StatusEffectTemplate> statusEffectTemplates;
+  bmin::Map<bmin::String, model::StatusEffectTemplate> statusEffectTemplates;
 
   try {
     db::loadStatusEffectTemplates("assets/db/status-effects.json", statusEffectTemplates);
     LOG(INFO) << "Loaded " << statusEffectTemplates.size() << " status effect templates"
               << LOG_ENDL;
 
-    const auto burningIt = statusEffectTemplates.find(String("BURNING"));
+    const auto burningIt = statusEffectTemplates.find(bmin::String("BURNING"));
     if (burningIt == statusEffectTemplates.end()) {
       LOG(ERROR) << "Missing BURNING status effect" << LOG_ENDL;
       return 1;

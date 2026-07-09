@@ -1,8 +1,7 @@
 #pragma once
 
 #include "model/stats/CharacterStats.h"
-#include "lib/Types.h"
-
+#include "bmin/String.h"
 namespace model {
 
 struct CharacterDerivedStats {
@@ -16,7 +15,7 @@ struct CharacterDerivedStats {
   int damageReduction = 0;
   int armorClass = 10;
   int spellPotency = 1;
-  String resistancesSummary = "None";
+  bmin::String resistancesSummary = "None";
   int jumpDistance = 2;
   int healingEffectivenessPercent = 100;
   int statusEffectShield = 0;

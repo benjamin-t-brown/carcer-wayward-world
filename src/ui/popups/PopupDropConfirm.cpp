@@ -18,10 +18,10 @@ PopupDropConfirm::~PopupDropConfirm() = default;
 void PopupDropConfirm::setProps(const PopupDropConfirmProps& _props) {
   props = _props;
   //   confirmObserver =
-  //       makeUnique<ObserverDropInventoryItem>(props.characterPlayerId,
+  //       bmin::makeUnique<ObserverDropInventoryItem>(props.characterPlayerId,
   //       props.itemId);
   //   cancelObserver =
-  //       makeUnique<ObserverRemoveLayer>(layers::LayerDropConfirm::LAYER_ID);
+  //       bmin::makeUnique<ObserverRemoveLayer>(layers::LayerDropConfirm::LAYER_ID);
   build();
 }
 
@@ -39,7 +39,7 @@ void PopupDropConfirm::build() {
   modalStyle.y = style.y;
   modalStyle.scale = style.scale;
 
-  const String messageText =
+  const bmin::String messageText =
       TRANSLATE("Are you sure you wish to drop ") + props.itemLabel + "?";
   modal->setProps(ConfirmModalProps{
       .title = TRANSLATE("Drop"),

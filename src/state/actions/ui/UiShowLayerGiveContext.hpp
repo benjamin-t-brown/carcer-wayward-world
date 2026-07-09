@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bmin/String.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerGiveContext.h"
 #include "state/AbstractAction.h"
@@ -10,8 +11,8 @@ namespace actions {
 
 class UiShowLayerGiveContext : public AbstractAction {
   sdl2w::Window* window;
-  String fromCharacterPlayerId;
-  String itemId;
+  bmin::String fromCharacterPlayerId;
+  bmin::String itemId;
 
   void act() override {
     auto layerManager = getLayerManager();
@@ -26,8 +27,8 @@ class UiShowLayerGiveContext : public AbstractAction {
 
 public:
   UiShowLayerGiveContext(sdl2w::Window* _window,
-                         String _fromCharacterPlayerId,
-                         String _itemId)
+                         bmin::String _fromCharacterPlayerId,
+                         bmin::String _itemId)
       : window(_window),
         fromCharacterPlayerId(std::move(_fromCharacterPlayerId)),
         itemId(std::move(_itemId)) {}

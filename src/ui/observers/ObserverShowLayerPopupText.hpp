@@ -3,19 +3,20 @@
 #include "state/StateManager.h"
 #include "state/actions/ui/UiShowLayerPopupText.hpp"
 #include "ui/UiElement.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 class ObserverShowLayerPopupText : public ui::UiEventObserver,
                                    public state::StateManagerInterface {
   sdl2w::Window* window;
-  String title;
-  String helpText;
+  bmin::String title;
+  bmin::String helpText;
 
 public:
   ObserverShowLayerPopupText(sdl2w::Window* _window,
-                             String _title,
-                             String _helpText)
+                             bmin::String _title,
+                             bmin::String _helpText)
       : window(_window), title(std::move(_title)), helpText(std::move(_helpText)) {}
 
   void onClick(int mouseX, int mouseY, int button) override {

@@ -2,20 +2,22 @@
 
 #include "ui/UiElement.h"
 #include "ui/elements/TextLine.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 struct PageTalkChoiceItem {
-  String nextId;
-  String text;
-  String prefixText;
+  bmin::String nextId;
+  bmin::String text;
+  bmin::String prefixText;
 };
 struct PageTalkChoiceProps {
-  String title;
-  String portraitSpriteName;
+  bmin::String title;
+  bmin::String portraitSpriteName;
   int choiceAreaHeight = 100;
-  DynArray<PageTalkChoiceItem> choices;
-  DynArray<TextBlock> textBlocks;
+  bmin::DynArray<PageTalkChoiceItem> choices;
+  bmin::DynArray<TextBlock> textBlocks;
 };
 
 class PageTalkChoice : public UiElement {

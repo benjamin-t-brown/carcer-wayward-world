@@ -1,5 +1,7 @@
 #include "lib/Json.h"
 
+#include "bmin/StringStream.h"
+
 #include <algorithm>
 #include <cctype>
 #include <cerrno>
@@ -10,9 +12,9 @@
 namespace {
 
 struct EmptyJsonObjectIterators {
-  bmin::Map<String, Json> map;
-  bmin::Map<String, Json>::Iterator it;
-  bmin::Map<String, Json>::Iterator end;
+  bmin::Map<bmin::String, Json> map;
+  bmin::Map<bmin::String, Json>::Iterator it;
+  bmin::Map<bmin::String, Json>::Iterator end;
 
   EmptyJsonObjectIterators() : it(map.end()), end(map.end()) {}
 };
@@ -47,7 +49,7 @@ class JsonParser {
   Json parseObject();
   Json parseArray();
   Json parseStringValue();
-  String parseString();
+  bmin::String parseString();
   Json parseNumberValue();
 };
 
@@ -69,7 +71,7 @@ size_t JsonParser::column() const {
 }
 
 void JsonParser::throwError(const char* message) const {
-  StringStream ss;
+  bmin::StringStream ss;
   ss << "parse error at column " << column() << ": " << message;
   throw Json::parse_error(ss.str());
 }
@@ -174,7 +176,7 @@ Json JsonParser::parseObject() {
     if (peek() != '"') {
       throwError("expected string key");
     }
-    const String key = parseString();
+    const bmin::String key = parseString();
     expect(':');
     object[key.cStr()] = parseValue();
     skipWsAndComments();
@@ -218,9 +220,9 @@ Json JsonParser::parseStringValue() {
   return value;
 }
 
-String JsonParser::parseString() {
+bmin::String JsonParser::parseString() {
   expect('"');
-  String result;
+  bmin::String result;
   while (true) {
     const char ch = take();
     if (ch == '\0') {
@@ -343,31 +345,31 @@ Json JsonParser::parseNumberValue() {
   return value;
 }
 
-Json::parse_error::parse_error(String message) : _message(std::move(message)) {}
+Json::parse_error::parse_error(bmin::String message) : _message(std::move(message)) {}
 
 const char* Json::parse_error::what() const noexcept {
   return _message.cStr();
 }
 
 Json::Json() : _kind(Kind::Object) {
-  new (&_storage.object) bmin::Map<String, Json>();
+  new (&_storage.object) bmin::Map<bmin::String, Json>();
 }
 
 Json::Json(const Json& other) : _kind(Kind::Object) {
-  new (&_storage.object) bmin::Map<String, Json>();
+  new (&_storage.object) bmin::Map<bmin::String, Json>();
   copyFrom(other);
 }
 
 Json::Json(Json&& other) noexcept : _kind(other._kind) {
   switch (_kind) {
     case Kind::Object:
-      new (&_storage.object) bmin::Map<String, Json>(std::move(other._storage.object));
+      new (&_storage.object) bmin::Map<bmin::String, Json>(std::move(other._storage.object));
       break;
     case Kind::Array:
       new (&_storage.array) bmin::DynArray<Json>(std::move(other._storage.array));
       break;
     case Kind::String:
-      new (&_storage.string) String(std::move(other._storage.string));
+      new (&_storage.string) bmin::String(std::move(other._storage.string));
       break;
     case Kind::Int:
       _storage.integer = other._storage.integer;
@@ -380,7 +382,7 @@ Json::Json(Json&& other) noexcept : _kind(other._kind) {
       break;
   }
   other._kind = Kind::Object;
-  new (&other._storage.object) bmin::Map<String, Json>();
+  new (&other._storage.object) bmin::Map<bmin::String, Json>();
 }
 
 Json& Json::operator=(Json other) {
@@ -415,13 +417,13 @@ void Json::copyFrom(const Json& other) {
   _kind = other._kind;
   switch (_kind) {
     case Kind::Object:
-      new (&_storage.object) bmin::Map<String, Json>(other._storage.object);
+      new (&_storage.object) bmin::Map<bmin::String, Json>(other._storage.object);
       break;
     case Kind::Array:
       new (&_storage.array) bmin::DynArray<Json>(other._storage.array);
       break;
     case Kind::String:
-      new (&_storage.string) String(other._storage.string);
+      new (&_storage.string) bmin::String(other._storage.string);
       break;
     case Kind::Int:
       _storage.integer = other._storage.integer;
@@ -471,7 +473,7 @@ void Json::swap(Json& other) noexcept {
   other._kind = _kind;
   switch (_kind) {
     case Kind::Object:
-      new (&other._storage.object) bmin::Map<String, Json>(std::move(_storage.object));
+      new (&other._storage.object) bmin::Map<bmin::String, Json>(std::move(_storage.object));
       _storage.object.~Map();
       break;
     case Kind::Array:
@@ -479,7 +481,7 @@ void Json::swap(Json& other) noexcept {
       _storage.array.~DynArray();
       break;
     case Kind::String:
-      new (&other._storage.string) String(std::move(_storage.string));
+      new (&other._storage.string) bmin::String(std::move(_storage.string));
       _storage.string.~String();
       break;
     case Kind::Int:
@@ -496,13 +498,13 @@ void Json::swap(Json& other) noexcept {
   _kind = tmp._kind;
   switch (_kind) {
     case Kind::Object:
-      new (&_storage.object) bmin::Map<String, Json>(std::move(tmp._storage.object));
+      new (&_storage.object) bmin::Map<bmin::String, Json>(std::move(tmp._storage.object));
       break;
     case Kind::Array:
       new (&_storage.array) bmin::DynArray<Json>(std::move(tmp._storage.array));
       break;
     case Kind::String:
-      new (&_storage.string) String(std::move(tmp._storage.string));
+      new (&_storage.string) bmin::String(std::move(tmp._storage.string));
       break;
     case Kind::Int:
       _storage.integer = tmp._storage.integer;
@@ -516,7 +518,7 @@ void Json::swap(Json& other) noexcept {
   }
 
   tmp._kind = Kind::Object;
-  new (&tmp._storage.object) bmin::Map<String, Json>();
+  new (&tmp._storage.object) bmin::Map<bmin::String, Json>();
 }
 
 void Json::resetToArray() {
@@ -534,11 +536,11 @@ const Json& Json::emptySentinel() {
   return empty;
 }
 
-Json& Json::operator=(String value) {
+Json& Json::operator=(bmin::String value) {
   if (_kind != Kind::String) {
     destroy();
     _kind = Kind::String;
-    new (&_storage.string) String(std::move(value));
+    new (&_storage.string) bmin::String(std::move(value));
   } else {
     _storage.string = std::move(value);
   }
@@ -546,7 +548,7 @@ Json& Json::operator=(String value) {
 }
 
 Json& Json::operator=(const char* value) {
-  return *this = String(value);
+  return *this = bmin::String(value);
 }
 
 Json& Json::operator=(int value) {
@@ -595,8 +597,8 @@ const Json& Json::operator[](const char* key) const {
   if (!is_object()) {
     return emptySentinel();
   }
-  const String lookupKey(key);
-  auto& map = const_cast<bmin::Map<String, Json>&>(_storage.object);
+  const bmin::String lookupKey(key);
+  auto& map = const_cast<bmin::Map<bmin::String, Json>&>(_storage.object);
   const auto it = map.find(lookupKey);
   if (it == map.end()) {
     return emptySentinel();
@@ -608,9 +610,9 @@ Json& Json::operator[](const char* key) {
   if (!is_object()) {
     destroy();
     _kind = Kind::Object;
-    new (&_storage.object) bmin::Map<String, Json>();
+    new (&_storage.object) bmin::Map<bmin::String, Json>();
   }
-  return _storage.object[String(key)];
+  return _storage.object[bmin::String(key)];
 }
 
 const Json& Json::operator[](int index) const {
@@ -645,11 +647,11 @@ bool Json::contains(const char* key) const {
   if (!is_object()) {
     return false;
   }
-  return _storage.object.contains(String(key));
+  return _storage.object.contains(bmin::String(key));
 }
 
 template <>
-String Json::get<String>() const {
+bmin::String Json::get<bmin::String>() const {
   if (!is_string()) {
     throw std::runtime_error("Json value is not a string");
   }
@@ -672,7 +674,7 @@ bool Json::get<bool>() const {
   return _storage.boolean;
 }
 
-String Json::value(const char* key, String defaultValue) const {
+bmin::String Json::value(const char* key, bmin::String defaultValue) const {
   if (!is_object() || !contains(key)) {
     return defaultValue;
   }
@@ -680,7 +682,7 @@ String Json::value(const char* key, String defaultValue) const {
   if (!entry.is_string()) {
     return defaultValue;
   }
-  return entry.get<String>();
+  return entry.get<bmin::String>();
 }
 
 int Json::value(const char* key, int defaultValue) const {
@@ -732,9 +734,9 @@ Json::JsonObjectIterator::JsonObjectIterator()
       _end(emptyJsonObjectIterators().end),
       _valid(false) {}
 
-Json::JsonObjectIterator::JsonObjectIterator(bmin::Map<String, Json>* map,
-                                             bmin::Map<String, Json>::Iterator it,
-                                             bmin::Map<String, Json>::Iterator endIt)
+Json::JsonObjectIterator::JsonObjectIterator(bmin::Map<bmin::String, Json>* map,
+                                             bmin::Map<bmin::String, Json>::Iterator it,
+                                             bmin::Map<bmin::String, Json>::Iterator endIt)
     : _map(map), _it(it), _end(endIt), _valid(true) {}
 
 Json::JsonObjectItem Json::JsonObjectIterator::operator*() const {

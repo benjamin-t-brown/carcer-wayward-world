@@ -7,17 +7,19 @@
 #include "ui/UiElement.h"
 #include "ui/components/borders/BorderDropShadow.h"
 #include <memory>
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start BorderDropShadow test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "BorderDropShadow test initialized" << LOG_ENDL;
 
-    auto section = makeUnique<ui::BorderDropShadow>(&window);
+    auto section = bmin::makeUnique<ui::BorderDropShadow>(&window);
     section->setId("mainSection");
     auto& sectionStyle = section->getStyle();
     sectionStyle.x = 100;
@@ -30,9 +32,9 @@ int main(int argc, char** argv) {
         .borderSize = 2,
         .isSelected = false,
     });
-    elements.pushBack(UniquePtr<ui::UiElement>(section.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(section.release()));
 
-    auto section2 = makeUnique<ui::BorderDropShadow>(&window);
+    auto section2 = bmin::makeUnique<ui::BorderDropShadow>(&window);
     section2->setId("secondarySection");
     auto& section2Style = section2->getStyle();
     section2Style.x = 550;
@@ -47,9 +49,9 @@ int main(int argc, char** argv) {
         .borderSize = 1,
         .isSelected = true,
     });
-    elements.pushBack(UniquePtr<ui::UiElement>(section2.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(section2.release()));
 
-    auto section3 = makeUnique<ui::BorderDropShadow>(&window);
+    auto section3 = bmin::makeUnique<ui::BorderDropShadow>(&window);
     section3->setId("smallSection");
     auto& section3Style = section3->getStyle();
     section3Style.x = 100;
@@ -64,7 +66,7 @@ int main(int argc, char** argv) {
         .borderSize = 1,
         .isSelected = false,
     });
-    elements.pushBack(UniquePtr<ui::UiElement>(section3.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(section3.release()));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

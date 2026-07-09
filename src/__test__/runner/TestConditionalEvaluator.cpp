@@ -1,6 +1,9 @@
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 #include "lib/bmin/Map.h"
 #include "lib/sdl2w/Logger.h"
 #include "runner/ConditionEvaluator.h"
+#include "bmin/Map.h"
 
 #include <vector>
 
@@ -8,19 +11,19 @@
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Starting " << TEST_NAME << LOG_ENDL;
-  bmin::Map<String, String> initialStorage;
+  bmin::Map<bmin::String, bmin::String> initialStorage;
   // clang-format off
-  initialStorage.insert(String("a"), String("0"));
-  initialStorage.insert(String("b"), String("1"));
-  initialStorage.insert(String("c"), String("2"));
-  initialStorage.insert(String("d"), String("3"));
-  initialStorage.insert(String("vars.quests.WoodThief.started"), String("true"));
-  initialStorage.insert(String("vars.quests.WoodThief.completed"), String("false"));
-  initialStorage.insert(String("vars.quests.WoodThief.step"), String("2"));
-  initialStorage.insert(String("vars.items.BeerPappysLager"), String("1"));
+  initialStorage.insert(bmin::String("a"), bmin::String("0"));
+  initialStorage.insert(bmin::String("b"), bmin::String("1"));
+  initialStorage.insert(bmin::String("c"), bmin::String("2"));
+  initialStorage.insert(bmin::String("d"), bmin::String("3"));
+  initialStorage.insert(bmin::String("vars.quests.WoodThief.started"), bmin::String("true"));
+  initialStorage.insert(bmin::String("vars.quests.WoodThief.completed"), bmin::String("false"));
+  initialStorage.insert(bmin::String("vars.quests.WoodThief.step"), bmin::String("2"));
+  initialStorage.insert(bmin::String("vars.items.BeerPappysLager"), bmin::String("1"));
   // z is undefined
   // clang-format on
-  const DynArray<std::pair<String, bool>> basicTestCases = {
+  const bmin::DynArray<std::pair<bmin::String, bool>> basicTestCases = {
       // clang-format off
       {"IS(a)", false}, // IS("0") should be false
       {"IS(b)", true},
@@ -89,7 +92,7 @@ int main(int argc, char** argv) {
       {"HAS_ITEM(MissingItem)", false},
       // clang-format on
   };
-  const DynArray<std::pair<String, bool>> invalidSyntax = {
+  const bmin::DynArray<std::pair<bmin::String, bool>> invalidSyntax = {
       // clang-format off
     {"a", false},
     {"1", false},
@@ -103,7 +106,7 @@ int main(int argc, char** argv) {
   try {
     LOG(INFO) << "== Running basic tests ==" << LOG_ENDL;
 
-    DynArray<std::pair<String, bool>> failedTests;
+    bmin::DynArray<std::pair<bmin::String, bool>> failedTests;
     for (int i = 0; i < static_cast<int>(basicTestCases.size()); i++) {
       const auto& [condition, expected] = basicTestCases[i];
       if (i == runOnlyIndex || runOnlyIndex == -1) {

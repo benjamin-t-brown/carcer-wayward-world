@@ -1,4 +1,5 @@
 #include "LoadMapTemplates.h"
+#include "bmin/StringInterop.h"
 #include "lib/Json.h"
 #include "lib/sdl2w/AssetLoader.h"
 #include <stdexcept>
@@ -50,13 +51,13 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
   if (!mapJson.contains("name") || !mapJson["name"].is_string()) {
     throw std::runtime_error("Map template missing name");
   }
-  mapTemplate.name = mapJson["name"].get<String>();
+  mapTemplate.name = mapJson["name"].get<bmin::String>();
 
   if (mapJson.contains("label") && mapJson["label"].is_string()) {
-    mapTemplate.label = mapJson["label"].get<String>();
+    mapTemplate.label = mapJson["label"].get<bmin::String>();
   }
   if (mapJson.contains("type") && mapJson["type"].is_string()) {
-    mapTemplate.type = model::getMapTypeFromString(mapJson["type"].get<String>());
+    mapTemplate.type = model::getMapTypeFromString(mapJson["type"].get<bmin::String>());
   }
   if (mapJson.contains("width")) {
     mapTemplate.width = mapJson["width"].get<int>();
@@ -73,7 +74,7 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
 
   if (mapJson.contains("tilesets") && mapJson["tilesets"].is_array()) {
     for (const auto& tilesetJson : mapJson["tilesets"]) {
-      mapTemplate.tilesets.pushBack(tilesetJson.get<String>());
+      mapTemplate.tilesets.pushBack(tilesetJson.get<bmin::String>());
     }
   }
   if (mapTemplate.tilesets.empty()) {
@@ -94,7 +95,7 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       if (!graphicsJson.is_array()) {
         continue;
       }
-      const int layer = bmin::parseInt(String(layerKey.c_str()));
+      const int layer = bmin::parseInt(bmin::String(layerKey.c_str()));
       bmin::DynArray<int> graphics;
       graphics.reserve(graphicsJson.size());
       for (const auto& value : graphicsJson) {
@@ -109,7 +110,7 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       model::MapCharacterPlacement placement;
       placement.l = entry.value("l", 0);
       placement.i = entry.value("i", 0);
-      placement.name = entry.value("name", String());
+      placement.name = entry.value("name", bmin::String());
       mapTemplate.characters.pushBack(std::move(placement));
     }
   }
@@ -119,7 +120,7 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       model::MapItemPlacement placement;
       placement.l = entry.value("l", 0);
       placement.i = entry.value("i", 0);
-      placement.name = entry.value("name", String());
+      placement.name = entry.value("name", bmin::String());
       placement.quantity = entry.value("quantity", 1);
       mapTemplate.items.pushBack(std::move(placement));
     }
@@ -130,7 +131,7 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       model::MapMarkerPlacement placement;
       placement.l = entry.value("l", 0);
       placement.i = entry.value("i", 0);
-      placement.name = entry.value("name", String());
+      placement.name = entry.value("name", bmin::String());
       mapTemplate.markers.pushBack(std::move(placement));
     }
   }
@@ -140,7 +141,7 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       model::MapEventTriggerPlacement placement;
       placement.l = entry.value("l", 0);
       placement.i = entry.value("i", 0);
-      placement.eventId = entry.value("eventId", String());
+      placement.eventId = entry.value("eventId", bmin::String());
       placement.isNonCombatTrigger = entry.value("isNonCombatTrigger", true);
       placement.isLookTrigger = entry.value("isLookTrigger", false);
       mapTemplate.eventTriggers.pushBack(std::move(placement));
@@ -152,8 +153,8 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       model::MapTravelTriggerPlacement placement;
       placement.l = entry.value("l", 0);
       placement.i = entry.value("i", 0);
-      placement.destinationMapName = entry.value("destinationMapName", String());
-      placement.destinationMarkerName = entry.value("destinationMarkerName", String());
+      placement.destinationMapName = entry.value("destinationMapName", bmin::String());
+      placement.destinationMarkerName = entry.value("destinationMarkerName", bmin::String());
       placement.destinationX = entry.value("destinationX", 0);
       placement.destinationY = entry.value("destinationY", 0);
       mapTemplate.travelTriggers.pushBack(std::move(placement));
@@ -187,15 +188,15 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
 
 } // namespace
 
-void loadMapTemplates(const String& mapsFilePath,
-                      bmin::Map<String, model::CarcerMapTemplate>& mapTemplates) {
-  const String fileContent = sdl2w::loadFileAsString(bmin::toStringView(mapsFilePath));
+void loadMapTemplates(const bmin::String& mapsFilePath,
+                      bmin::Map<bmin::String, model::CarcerMapTemplate>& mapTemplates) {
+  const bmin::String fileContent = sdl2w::loadFileAsString(bmin::toStringView(mapsFilePath));
 
   Json jsonData;
   try {
     jsonData = Json::parse(fileContent.cStr(), nullptr, true, true);
   } catch (const Json::parse_error& e) {
-    throw std::runtime_error((String("Failed to parse maps JSON: ") + e.what()).cStr());
+    throw std::runtime_error((bmin::String("Failed to parse maps JSON: ") + e.what()).cStr());
   }
 
   if (!jsonData.is_array()) {
@@ -205,7 +206,7 @@ void loadMapTemplates(const String& mapsFilePath,
   for (const auto& mapJson : jsonData) {
     model::CarcerMapTemplate mapTemplate = parseFlatMap(mapJson);
     if (mapTemplates.contains(mapTemplate.name)) {
-      throw std::runtime_error((String("Duplicate map template name: ") + mapTemplate.name)
+      throw std::runtime_error((bmin::String("Duplicate map template name: ") + mapTemplate.name)
                                    .cStr());
     }
     mapTemplates[mapTemplate.name] = std::move(mapTemplate);

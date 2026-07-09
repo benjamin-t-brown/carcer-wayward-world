@@ -1,4 +1,5 @@
 #include "LoadCharacterTemplates.h"
+#include "bmin/StringInterop.h"
 #include "lib/Json.h"
 #include "lib/sdl2w/AssetLoader.h"
 #include "model/stats/CharacterStats.h"
@@ -7,7 +8,7 @@
 namespace {
 
 model::CharacterTemplateType
-getCharacterTemplateTypeFromString(const String& typeStr) {
+getCharacterTemplateTypeFromString(const bmin::String& typeStr) {
   if (typeStr == "TOWNSPERSON") {
     return model::CharacterTemplateType::TOWNSPERSON;
   } else if (typeStr == "TOWNSPERSON_STATIC") {
@@ -17,11 +18,11 @@ getCharacterTemplateTypeFromString(const String& typeStr) {
   } else if (typeStr == "ENEMY_STATIC") {
     return model::CharacterTemplateType::ENEMY_STATIC;
   }
-  throw std::runtime_error((String("Invalid character template type: ") + typeStr).cStr());
+  throw std::runtime_error((bmin::String("Invalid character template type: ") + typeStr).cStr());
 }
 
 model::CharacterTemplateBehaviorName
-getCharacterTemplateBehaviorNameFromString(const String& behaviorStr) {
+getCharacterTemplateBehaviorNameFromString(const bmin::String& behaviorStr) {
   if (behaviorStr == "MOVE_RANDOMLY") {
     return model::CharacterTemplateBehaviorName::MOVE_RANDOMLY;
   } else if (behaviorStr == "IMMOBILE") {
@@ -35,11 +36,11 @@ getCharacterTemplateBehaviorNameFromString(const String& behaviorStr) {
   } else if (behaviorStr == "MOVE_UP_DOWN") {
     return model::CharacterTemplateBehaviorName::MOVE_UP_DOWN;
   }
-  throw std::runtime_error((String("Invalid character template behavior: ") + behaviorStr)
+  throw std::runtime_error((bmin::String("Invalid character template behavior: ") + behaviorStr)
                                .cStr());
 }
 
-String getStringFromCharacterTemplateBehaviorName(
+bmin::String getStringFromCharacterTemplateBehaviorName(
     model::CharacterTemplateBehaviorName behaviorName) {
   switch (behaviorName) {
   case model::CharacterTemplateBehaviorName::MOVE_RANDOMLY:
@@ -142,7 +143,7 @@ void loadCharacterStats(const Json& characterJson, model::CharacterStats& stats)
   }
 }
 
-String getSpriteOffsetAsString(const Json& characterJson) {
+bmin::String getSpriteOffsetAsString(const Json& characterJson) {
   if (!characterJson.contains("spriteOffset")) {
     throw std::runtime_error("Character missing required field: spriteOffset");
   }
@@ -150,7 +151,7 @@ String getSpriteOffsetAsString(const Json& characterJson) {
     return bmin::toString(characterJson["spriteOffset"].get<int>());
   }
   if (characterJson["spriteOffset"].is_string()) {
-    return characterJson["spriteOffset"].get<String>();
+    return characterJson["spriteOffset"].get<bmin::String>();
   }
   throw std::runtime_error("Character spriteOffset must be a number or string");
 }
@@ -160,15 +161,15 @@ String getSpriteOffsetAsString(const Json& characterJson) {
 namespace db {
 
 void loadCharacterTemplates(
-    const String& charactersFilePath,
-    bmin::Map<String, model::CharacterTemplate>& characterTemplates) {
-  const String fileContent = sdl2w::loadFileAsString(bmin::toStringView(charactersFilePath));
+    const bmin::String& charactersFilePath,
+    bmin::Map<bmin::String, model::CharacterTemplate>& characterTemplates) {
+  const bmin::String fileContent = sdl2w::loadFileAsString(bmin::toStringView(charactersFilePath));
 
   Json jsonData;
   try {
     jsonData = Json::parse(fileContent.cStr(), nullptr, true, true);
   } catch (const Json::parse_error& e) {
-    throw std::runtime_error((String("Failed to parse JSON file ") +
+    throw std::runtime_error((bmin::String("Failed to parse JSON file ") +
                               charactersFilePath.cStr() + ": " + e.what())
                                  .cStr());
   }
@@ -183,32 +184,32 @@ void loadCharacterTemplates(
     if (!characterJson.contains("type") || !characterJson["type"].is_string()) {
       throw std::runtime_error("Character missing required field: type");
     }
-    characterTemplate.type = getCharacterTemplateTypeFromString(characterJson["type"].get<String>());
+    characterTemplate.type = getCharacterTemplateTypeFromString(characterJson["type"].get<bmin::String>());
 
     if (!characterJson.contains("name") || !characterJson["name"].is_string()) {
       throw std::runtime_error("Character missing required field: name");
     }
-    characterTemplate.name = characterJson["name"].get<String>();
+    characterTemplate.name = characterJson["name"].get<bmin::String>();
 
     if (!characterJson.contains("label") || !characterJson["label"].is_string()) {
       throw std::runtime_error("Character missing required field: label");
     }
-    characterTemplate.label = characterJson["label"].get<String>();
+    characterTemplate.label = characterJson["label"].get<bmin::String>();
 
     if (!characterJson.contains("spritesheet") ||
         !characterJson["spritesheet"].is_string()) {
       throw std::runtime_error("Character missing required field: spritesheet");
     }
-    characterTemplate.spritesheetName = characterJson["spritesheet"].get<String>();
+    characterTemplate.spritesheetName = characterJson["spritesheet"].get<bmin::String>();
     characterTemplate.spriteOffset = getSpriteOffsetAsString(characterJson);
 
     if (characterJson.contains("talk") && characterJson["talk"].is_object()) {
       const auto& talkJson = characterJson["talk"];
       if (talkJson.contains("talkName") && talkJson["talkName"].is_string()) {
-        characterTemplate.talk.talkName = talkJson["talkName"].get<String>();
+        characterTemplate.talk.talkName = talkJson["talkName"].get<bmin::String>();
       }
       if (talkJson.contains("portraitName") && talkJson["portraitName"].is_string()) {
-        characterTemplate.talk.portraitName = talkJson["portraitName"].get<String>();
+        characterTemplate.talk.portraitName = talkJson["portraitName"].get<bmin::String>();
       }
     }
 
@@ -216,7 +217,7 @@ void loadCharacterTemplates(
       const auto& behaviorJson = characterJson["behavior"];
       if (behaviorJson.contains("behaviorName") &&
           behaviorJson["behaviorName"].is_string()) {
-        const String behaviorStr = behaviorJson["behaviorName"].get<String>();
+        const bmin::String behaviorStr = behaviorJson["behaviorName"].get<bmin::String>();
         if (!behaviorStr.empty()) {
           characterTemplate.behavior.behaviorName =
               getStringFromCharacterTemplateBehaviorName(
@@ -236,7 +237,7 @@ void loadCharacterTemplates(
         characterTemplate.combat.mp = combatJson["mp"].get<int>();
       }
       if (combatJson.contains("dropTable") && combatJson["dropTable"].is_string()) {
-        characterTemplate.combat.dropTable = combatJson["dropTable"].get<String>();
+        characterTemplate.combat.dropTable = combatJson["dropTable"].get<bmin::String>();
       }
     }
 
@@ -244,24 +245,24 @@ void loadCharacterTemplates(
       const auto& soundJson = characterJson["sound"];
       if (soundJson.contains("deathSoundName") &&
           soundJson["deathSoundName"].is_string()) {
-        characterTemplate.sound.deathSoundName = soundJson["deathSoundName"].get<String>();
+        characterTemplate.sound.deathSoundName = soundJson["deathSoundName"].get<bmin::String>();
       } else if (soundJson.contains("deathSound") &&
                  soundJson["deathSound"].is_string()) {
-        characterTemplate.sound.deathSoundName = soundJson["deathSound"].get<String>();
+        characterTemplate.sound.deathSoundName = soundJson["deathSound"].get<bmin::String>();
       }
       if (soundJson.contains("weaponSoundName") &&
           soundJson["weaponSoundName"].is_string()) {
-        characterTemplate.sound.weaponSoundName = soundJson["weaponSoundName"].get<String>();
+        characterTemplate.sound.weaponSoundName = soundJson["weaponSoundName"].get<bmin::String>();
       } else if (soundJson.contains("weaponSound") &&
                  soundJson["weaponSound"].is_string()) {
-        characterTemplate.sound.weaponSoundName = soundJson["weaponSound"].get<String>();
+        characterTemplate.sound.weaponSoundName = soundJson["weaponSound"].get<bmin::String>();
       }
     }
 
     if (characterJson.contains("statuses") && characterJson["statuses"].is_array()) {
       for (const auto& statusJson : characterJson["statuses"]) {
         if (statusJson.contains("status") && statusJson["status"].is_string()) {
-          characterTemplate.statuses.pushBack({statusJson["status"].get<String>()});
+          characterTemplate.statuses.pushBack({statusJson["status"].get<bmin::String>()});
         }
       }
     }
@@ -274,7 +275,7 @@ void loadCharacterTemplates(
     }
 
     if (characterTemplates.contains(characterTemplate.name)) {
-      throw std::runtime_error((String("Character template already exists: ") +
+      throw std::runtime_error((bmin::String("Character template already exists: ") +
                                 characterTemplate.name)
                                    .cStr());
     }

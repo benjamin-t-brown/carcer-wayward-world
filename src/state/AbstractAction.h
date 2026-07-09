@@ -1,10 +1,10 @@
 #pragma once
 
+#include "bmin/UniquePtr.h"
 #include "lib/sdl2w/Logger.h"
 #include "model/templates/UtilityTypes.h"
 #include "state/DatabaseInterface.h"
 #include "state/LayerManagerInterface.h"
-#include "lib/Types.h"
 #ifdef __GNUG__
 #include <cxxabi.h>
 #endif
@@ -23,11 +23,11 @@ protected:
   };
 
 public:
-  virtual String getName() const {
+  virtual bmin::String getName() const {
 #ifdef __GNUG__
     int status;
     char* realname = abi::__cxa_demangle(typeid(*this).name(), 0, 0, &status);
-    String name = (status == 0) ? realname : typeid(*this).name();
+    bmin::String name = (status == 0) ? realname : typeid(*this).name();
     free(realname);
     return name;
 #else
@@ -47,7 +47,7 @@ public:
 };
 
 struct AsyncAction {
-  UniquePtr<state::AbstractAction> action;
+  bmin::UniquePtr<state::AbstractAction> action;
   model::TimerStruct timer;
 };
 

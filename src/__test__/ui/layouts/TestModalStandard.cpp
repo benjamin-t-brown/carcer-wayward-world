@@ -7,12 +7,14 @@
 #include "ui/layouts/ModalStandard.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start ModalStandard test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ModalStandard test initialized" << LOG_ENDL;
@@ -20,7 +22,7 @@ int main(int argc, char** argv) {
     auto [windowWidth, windowHeight] = window.getDims();
 
     // Create ModalStandard layout
-    auto modalLayout = makeUnique<ui::ModalStandard>(&window);
+    auto modalLayout = bmin::makeUnique<ui::ModalStandard>(&window);
     ui::BaseStyle layoutStyle;
     layoutStyle.width = windowWidth;
     layoutStyle.height = windowHeight;
@@ -34,7 +36,7 @@ int main(int argc, char** argv) {
     modalLayout->setProps(props);
 
     // Create title and subtitle elements
-    auto title = makeUnique<ui::TextLine>(&window);
+    auto title = bmin::makeUnique<ui::TextLine>(&window);
     ui::BaseStyle titleStyle;
     ui::setBaseFontConfig(titleStyle, ui::BaseFontConfig::MODAL_TITLE);
     titleStyle.fontSize = sdl2w::TEXT_SIZE_24;
@@ -46,7 +48,7 @@ int main(int argc, char** argv) {
     title->setProps(titleProps);
     modalLayout->setTitleElement(title.release());
 
-    elements.pushBack(UniquePtr<ui::UiElement>(modalLayout.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(modalLayout.release()));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

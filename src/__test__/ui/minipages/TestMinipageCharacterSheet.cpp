@@ -8,13 +8,14 @@
 #include "ui/minipages/MinipageCharacterSheet.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
+#include "bmin/UniquePtr.h"
 
 class TestLayer : public layers::Layer {
 public:
   TestLayer(sdl2w::Window* _window) : layers::Layer(_window) {
     auto [windowWidth, windowHeight] = window->getDims();
 
-    auto minipageCharacterSheet = makeUnique<ui::MinipageCharacterSheet>(window);
+    auto minipageCharacterSheet = bmin::makeUnique<ui::MinipageCharacterSheet>(window);
     minipageCharacterSheet->setId("minipageCharacterSheet");
     ui::BaseStyle style = minipageCharacterSheet->getStyle();
     style.width = 500;
@@ -33,7 +34,7 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start MinipageCharacterSheet test" << LOG_ENDL;
   srand(time(NULL));
 
-  UniquePtr<layers::LayerManager> layerManager;
+  bmin::UniquePtr<layers::LayerManager> layerManager;
 
   db::Database database;
   state::DatabaseInterface::setDatabase(&database);
@@ -45,7 +46,7 @@ int main(int argc, char** argv) {
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "MinipageCharacterSheet test initialized" << LOG_ENDL;
 
-    layerManager = makeUnique<layers::LayerManager>(&window);
+    layerManager = bmin::makeUnique<layers::LayerManager>(&window);
     state::LayerManagerInterface::setLayerManager(layerManager.get());
 
     layerManager->addLayer(new TestLayer(&window));

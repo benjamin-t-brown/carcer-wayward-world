@@ -1,9 +1,11 @@
 #include "../../setupTestUi.h"
 #include "lib/sdl2w/Draw.h"
 #include "ui/FontScale.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
+#include "bmin/StringInterop.h"
 #include <cassert>
 #include <iostream>
-#include "lib/Types.h"
 #include <vector>
 
 struct ScalePreviewRow {
@@ -28,9 +30,9 @@ int main(int argc, char** argv) {
   assert(static_cast<int>(ui::applyFontScale(sdl2w::TEXT_SIZE_72, 100)) == 72);
 
   const sdl2w::TextSize previewBaseSize = sdl2w::TEXT_SIZE_10;
-  const DynArray<int> previewScales{-1, 0, 1, 2, 3};
-  const DynArray<String> previewFonts{"default", "alternate", "text", "title"};
-  DynArray<ScalePreviewRow> previewRows;
+  const bmin::DynArray<int> previewScales{-1, 0, 1, 2, 3};
+  const bmin::DynArray<bmin::String> previewFonts{"default", "alternate", "text", "title"};
+  bmin::DynArray<ScalePreviewRow> previewRows;
   previewRows.reserve(previewScales.size());
   for (int scale : previewScales) {
     previewRows.pushBack(
@@ -60,7 +62,8 @@ int main(int argc, char** argv) {
       headerParams.y = headerY;
       headerParams.centered = false;
       headerParams.color = SDL_Color{255, 220, 120, 255};
-      draw.drawText("Font: " + previewFonts[col], headerParams);
+      const bmin::String headerText = bmin::String("Font: ") + previewFonts[col];
+      draw.drawText(bmin::toStringView(headerText), headerParams);
     }
 
     for (size_t rowIdx = 0; rowIdx < previewRows.size(); rowIdx++) {
@@ -75,10 +78,10 @@ int main(int argc, char** argv) {
         params.centered = false;
         params.color = SDL_Color{255, 255, 255, 255};
 
-        String label =
+        bmin::String label =
             "[" + bmin::toString(row.scale) + "/" +
             bmin::toString(static_cast<int>(row.renderedSize)) + "] Quick Brown Fox";
-        draw.drawText(label, params);
+        draw.drawText(bmin::toStringView(label), params);
       }
     }
 

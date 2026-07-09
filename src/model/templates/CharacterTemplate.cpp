@@ -2,7 +2,7 @@
 
 namespace model {
 
-String characterGetSprite(const CharacterTemplate& characterTemplate) {
+bmin::String characterGetSprite(const CharacterTemplate& characterTemplate) {
   return characterTemplate.spritesheetName + "_" + characterTemplate.spriteOffset;
 }
 

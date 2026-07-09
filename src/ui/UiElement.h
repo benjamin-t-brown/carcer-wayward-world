@@ -1,5 +1,8 @@
 #pragma once
 
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
+#include "bmin/UniquePtr.h"
 #include "lib/sdl2w/Defines.h"
 #include "lib/sdl2w/Window.h"
 #include "state/LayerManagerInterface.h"
@@ -7,7 +10,6 @@
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/colors.h"
 #include <optional>
-#include "lib/Types.h"
 #include <string_view>
 
 // prevents circular dependency
@@ -22,7 +24,7 @@ class UiElement;
 class StateInterface {
 public:
   virtual ~StateInterface() = default;
-  virtual void dispatchAction(const String& action, void* payload) = 0;
+  virtual void dispatchAction(const bmin::String& action, void* payload) = 0;
 };
 
 // Enums for styling
@@ -107,11 +109,11 @@ class UiElement : public state::StateManagerInterface,
 protected:
   sdl2w::Window* window;
   UiElement* parent;
-  DynArray<UniquePtr<UiElement>> children;
+  bmin::DynArray<bmin::UniquePtr<UiElement>> children;
   std::optional<StateInterface*> stateInterface;
   BaseStyle style;
-  String id;
-  DynArray<UniquePtr<UiEventObserver>> eventObservers;
+  bmin::String id;
+  bmin::DynArray<bmin::UniquePtr<UiEventObserver>> eventObservers;
   bool shouldPropagateEventsToChildren = true;
 
 public:
@@ -131,12 +133,12 @@ public:
   virtual const std::pair<int, int> getDims() const;
 
   // Id methods
-  virtual void setId(const String& _id);
-  virtual const String& getId() const;
+  virtual void setId(const bmin::String& _id);
+  virtual const bmin::String& getId() const;
 
   // Children methods
-  virtual DynArray<UniquePtr<UiElement>>& getChildren();
-  virtual const DynArray<UniquePtr<UiElement>>& getChildren() const;
+  virtual bmin::DynArray<bmin::UniquePtr<UiElement>>& getChildren();
+  virtual const bmin::DynArray<bmin::UniquePtr<UiElement>>& getChildren() const;
   virtual void removeChildAtIndex(size_t index);
   virtual void addChild(UiElement* child);
 
@@ -144,18 +146,18 @@ public:
   virtual bool checkMouseDownEvent(int mouseX,
                                    int mouseY,
                                    int button,
-                                   DynArray<UiElement*> additionalElements = {});
+                                   bmin::DynArray<UiElement*> additionalElements = {});
   virtual bool checkMouseUpEvent(int mouseX,
                                  int mouseY,
                                  int button,
-                                 DynArray<UiElement*> additionalElements = {});
+                                 bmin::DynArray<UiElement*> additionalElements = {});
   virtual bool checkHoverEvent(int mouseX,
                                int mouseY,
-                               DynArray<UiElement*> additionalElements = {});
+                               bmin::DynArray<UiElement*> additionalElements = {});
   virtual bool checkMouseWheelEvent(int mouseX,
                                     int mouseY,
                                     int delta,
-                                    DynArray<UiElement*> additionalElements = {});
+                                    bmin::DynArray<UiElement*> additionalElements = {});
   virtual void checkResizeEvent(int width, int height);
   virtual void addEventObserver(UiEventObserver* observer);
   virtual void removeEventObserver(UiEventObserver* observer);

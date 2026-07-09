@@ -1,9 +1,8 @@
 #include "model/instances/Player.h"
-#include "lib/Types.h"
 
 namespace model {
 
-CharacterPlayer* playerFindPartyMemberById(Player& _player, const String& _id) {
+CharacterPlayer* playerFindPartyMemberById(Player& _player, const bmin::String& _id) {
   for (auto& member : _player.party) {
     if (member.instanceId == _id) {
       return &member;

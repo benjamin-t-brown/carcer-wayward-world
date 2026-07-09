@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bmin/String.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/Player.h"
 #include "state/AbstractAction.h"
@@ -10,7 +11,7 @@ namespace state {
 namespace actions {
 
 class UiReorderInventoryItem : public AbstractAction {
-  String characterPlayerId;
+  bmin::String characterPlayerId;
   int inventoryIndex = 0;
   int direction = 0;
 
@@ -31,7 +32,7 @@ class UiReorderInventoryItem : public AbstractAction {
   }
 
 public:
-  UiReorderInventoryItem(const String& _characterPlayerId,
+  UiReorderInventoryItem(const bmin::String& _characterPlayerId,
                          int _inventoryIndex,
                          int _direction)
       : characterPlayerId(_characterPlayerId),

@@ -6,6 +6,8 @@
 #include "ui/UiElement.h"
 #include "ui/pages/PageTalkChoice.h"
 #include <memory>
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start PageTalkChoice test" << LOG_ENDL;
@@ -18,7 +20,7 @@ int main(int argc, char** argv) {
   state::StateManager stateManager;
   state::StateManagerInterface::setStateManager(&stateManager);
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "PageTalkChoice test initialized" << LOG_ENDL;
@@ -57,7 +59,7 @@ int main(int argc, char** argv) {
     // clang-format on
     pageTalkChoice->setProps(pageProps);
 
-    elements.pushBack(UniquePtr<ui::UiElement>(pageTalkChoice));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(pageTalkChoice));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

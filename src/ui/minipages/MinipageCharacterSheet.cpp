@@ -32,7 +32,7 @@ const std::pair<int, int> MinipageCharacterSheet::getDims() const {
 void MinipageCharacterSheet::build() {
   children.clear();
 
-  auto modal = makeUnique<ModalSmall>(window, this);
+  auto modal = bmin::makeUnique<ModalSmall>(window, this);
   modal->setId("modal");
   BaseStyle modalStyle;
   modalStyle.x = style.x;
@@ -43,7 +43,7 @@ void MinipageCharacterSheet::build() {
   modal->setStyle(modalStyle);
   modal->setProps(ModalSmallProps{});
 
-  auto title = makeUnique<TextLine>(window, modal.get());
+  auto title = bmin::makeUnique<TextLine>(window, modal.get());
   BaseStyle titleStyle;
   setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
   titleStyle.fontColor = Colors::Black;
@@ -57,7 +57,7 @@ void MinipageCharacterSheet::build() {
   title->setProps(titleProps);
   modal->setTitleElement(title.release());
 
-  children.pushBack(UniquePtr<UiElement>(modal.release()));
+  children.pushBack(bmin::UniquePtr<UiElement>(modal.release()));
 }
 
 void MinipageCharacterSheet::render(int dt) { UiElement::render(dt); }

@@ -4,7 +4,7 @@
 
 namespace model {
 
-String getStringFromMapType(MapType mapType) {
+bmin::String getStringFromMapType(MapType mapType) {
   switch (mapType) {
   case MapType::TOWN:
     return "TOWN";
@@ -15,7 +15,7 @@ String getStringFromMapType(MapType mapType) {
   }
 }
 
-MapType getMapTypeFromString(const String& mapTypeString) {
+MapType getMapTypeFromString(const bmin::String& mapTypeString) {
   if (mapTypeString == "TOWN") {
     return MapType::TOWN;
   } else if (mapTypeString == "OUTDOOR") {

@@ -27,10 +27,10 @@ int main(int argc, char** argv) {
     ok = assertEqual(member.combat.hp, 100, "testPartyMember1.hp") && ok;
     ok = assertEqual(member.combat.mp, 50, "testPartyMember1.mp") && ok;
 
-    bmin::Map<String, model::CharacterTemplate> backcompatCharacters;
+    bmin::Map<bmin::String, model::CharacterTemplate> backcompatCharacters;
     db::loadCharacterTemplates("__test__/assets/characters-backcompat.json",
                                backcompatCharacters);
-    const auto backcompatIt = backcompatCharacters.find(String("backcompatEnemy"));
+    const auto backcompatIt = backcompatCharacters.find(bmin::String("backcompatEnemy"));
     if (backcompatIt == backcompatCharacters.end()) {
       LOG(ERROR) << "Missing backcompatEnemy" << LOG_ENDL;
       return 1;

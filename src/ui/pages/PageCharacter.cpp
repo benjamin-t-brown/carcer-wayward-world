@@ -13,7 +13,6 @@
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/layouts/ModalStandard.h"
 #include "ui/observers/ObserverShowLayerPopupText.hpp"
-#include "lib/Types.h"
 #include <utility>
 
 namespace ui {
@@ -127,7 +126,7 @@ PageCharacter::buildStatSection(const PageCharacterStatRowSectionArgs& sectionPr
     setBaseFontConfig(statLineStyle, BaseFontConfig::MODAL_TEXT);
     statLineStyle.fontColor = Colors::Black;
     statLineStyle.textAlign = TextAlign::LEFT_CENTER;
-    const String statValueText =
+    const bmin::String statValueText =
         row.valueText.empty() ? bmin::toString(row.value) : row.valueText;
     TextLineProps rowProps;
     rowProps.textBlocks.pushBack(TextBlock{.text = row.label + ": " + statValueText});

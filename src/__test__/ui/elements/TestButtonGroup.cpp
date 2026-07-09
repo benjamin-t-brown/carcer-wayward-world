@@ -7,12 +7,15 @@
 #include "ui/UiElement.h"
 #include "ui/elements/buttons/ButtonGroup.h"
 #include <memory>
+#include "bmin/String.h"
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 class TestButtonGroupObserver : public ui::UiEventObserver {
-  String id;
+  bmin::String id;
 
 public:
-  explicit TestButtonGroupObserver(String _id) : id(std::move(_id)) {}
+  explicit TestButtonGroupObserver(bmin::String _id) : id(std::move(_id)) {}
   ~TestButtonGroupObserver() override = default;
 
   void onClick(int x, int y, int button) override {
@@ -22,14 +25,14 @@ public:
 };
 
 static void addButtonGroup(sdl2w::Window& window,
-                           DynArray<UniquePtr<ui::UiElement>>& elements,
-                           const String& id,
+                           bmin::DynArray<bmin::UniquePtr<ui::UiElement>>& elements,
+                           const bmin::String& id,
                            int x,
                            int y,
                            ui::ButtonGroupAlignment alignment,
-                           const DynArray<String>& labels) {
+                           const bmin::DynArray<bmin::String>& labels) {
 
-  DynArray<ui::ButtonGroupButtonProps> buttons;
+  bmin::DynArray<ui::ButtonGroupButtonProps> buttons;
   for (size_t i = 0; i < labels.size(); i++) {
     buttons.pushBack(ui::ButtonGroupButtonProps{
         .label = labels[i],
@@ -53,14 +56,14 @@ static void addButtonGroup(sdl2w::Window& window,
     group->addObserverToButtonAtIndex(static_cast<int>(i),
                                       new TestButtonGroupObserver(id + ":" + labels[i]));
   }
-  elements.pushBack(UniquePtr<ui::UiElement>(group));
+  elements.pushBack(bmin::UniquePtr<ui::UiElement>(group));
 }
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start ButtonGroup test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ButtonGroup test initialized" << LOG_ENDL;

@@ -1,11 +1,13 @@
 #include "db/loaders/LoadItemTemplates.h"
 #include "lib/sdl2w/Logger.h"
 #include "model/templates/Items.h"
+#include "bmin/String.h"
+#include "bmin/Map.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Starting TestLoadItemTemplates" << LOG_ENDL;
 
-  bmin::Map<String, model::ItemTemplate> itemTemplates;
+  bmin::Map<bmin::String, model::ItemTemplate> itemTemplates;
 
   try {
     db::loadItemTemplates("assets/db/items.json", itemTemplates);

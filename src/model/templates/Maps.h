@@ -1,7 +1,8 @@
 #pragma once
 
 #include <optional>
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 #include "lib/bmin/Map.h"
 
 namespace model {
@@ -14,19 +15,19 @@ struct MapTileRef {
 };
 
 struct MapTileItemEntry {
-  String name;
+  bmin::String name;
   int quantity = 1;
 };
 
 struct TileEventTrigger {
-  String eventId;
+  bmin::String eventId;
   bool isNonCombatTrigger = true;
   bool isLookTrigger = false;
 };
 
 struct TravelTrigger {
-  String destinationMapName;
-  String destinationMarkerName;
+  bmin::String destinationMapName;
+  bmin::String destinationMarkerName;
   int destinationX = 0;
   int destinationY = 0;
 };
@@ -49,20 +50,20 @@ enum class MapType {
   OUTDOOR,
 };
 
-String getStringFromMapType(MapType mapType);
-MapType getMapTypeFromString(const String& mapTypeString);
+bmin::String getStringFromMapType(MapType mapType);
+MapType getMapTypeFromString(const bmin::String& mapTypeString);
 
 struct MapCharacterPlacement : MapTileRef {
-  String name;
+  bmin::String name;
 };
 
 struct MapItemPlacement : MapTileRef {
-  String name;
+  bmin::String name;
   int quantity = 1;
 };
 
 struct MapMarkerPlacement : MapTileRef {
-  String name;
+  bmin::String name;
 };
 
 struct MapEventTriggerPlacement : MapTileRef, TileEventTrigger {};
@@ -76,14 +77,14 @@ struct MapTileOverridePlacement : MapTileRef {
 struct MapLightSourcePlacement : MapTileRef, TileLightSource {};
 
 struct CarcerMapTemplate {
-  String name;
-  String label;
+  bmin::String name;
+  bmin::String label;
   MapType type = MapType::TOWN;
   int width = 0;
   int height = 0;
   int spriteWidth = 28;
   int spriteHeight = 32;
-  bmin::DynArray<String> tilesets;
+  bmin::DynArray<bmin::String> tilesets;
   bmin::DynArray<int> layers;
   bmin::Map<int, bmin::DynArray<int>> tiles;
   bmin::DynArray<MapCharacterPlacement> characters;
@@ -96,14 +97,14 @@ struct CarcerMapTemplate {
 };
 
 struct CarcerMapTileTemplate {
-  bmin::DynArray<String> characters;
+  bmin::DynArray<bmin::String> characters;
   bmin::DynArray<MapTileItemEntry> items;
-  bmin::DynArray<String> markers;
+  bmin::DynArray<bmin::String> markers;
   std::optional<TileOverrides> tileOverrides;
   std::optional<TileLightSource> lightSource;
   std::optional<TileEventTrigger> eventTrigger;
   std::optional<TravelTrigger> travelTrigger;
-  String tilesetName;
+  bmin::String tilesetName;
   int tileId = 0;
 };
 

@@ -7,12 +7,14 @@
 #include "ui/elements/TextLine.h"
 #include "ui/layouts/ModalSmall.h"
 #include <memory>
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start ModalSmall test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ModalSmall test initialized" << LOG_ENDL;
@@ -47,7 +49,7 @@ int main(int argc, char** argv) {
     title->setProps(titleProps);
     modalSmall->setTitleElement(title);
 
-    // auto subtitle = makeUnique<ui::TextLine>(&window);
+    // auto subtitle = bmin::makeUnique<ui::TextLine>(&window);
     // ui::BaseStyle subtitleStyle;
     // subtitleStyle.fontFamily = ui::FontFamily::TEXT;
     // subtitleStyle.fontSize = sdl2w::TEXT_SIZE_16;
@@ -60,7 +62,7 @@ int main(int argc, char** argv) {
     // subtitle->setProps(subtitleProps);
     // modalLayout->setSubtitleElement(subtitle.release());
 
-    elements.pushBack(UniquePtr<ui::UiElement>(modalSmall));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(modalSmall));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

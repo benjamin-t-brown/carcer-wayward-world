@@ -71,7 +71,7 @@ void PopupGive::build() {
   titleStyle.scale = 1.f;
   titleStyle.fontColor = Colors::Black;
   titleStyle.textAlign = TextAlign::LEFT_CENTER;
-  String titleText = TRANSLATE("Give");
+  bmin::String titleText = TRANSLATE("Give");
   if (!props.itemLabel.empty()) {
     titleText += " " + props.itemLabel;
   }
@@ -195,7 +195,7 @@ void PopupGive::build() {
   borderStyle.height = style.height;
   borderStyle.scale = style.scale;
   border->setProps(BorderDropShadowProps{});
-  children.insert(children.begin(), UniquePtr<UiElement>(border));
+  children.insert(children.begin(), bmin::UniquePtr<UiElement>(border));
 }
 
 void PopupGive::render(int dt) { UiElement::render(dt); }

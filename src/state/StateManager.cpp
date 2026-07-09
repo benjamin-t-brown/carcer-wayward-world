@@ -1,3 +1,4 @@
+#include "bmin/UniquePtr.h"
 #include "state/StateManager.h"
 #include "state/AbstractAction.h"
 
@@ -15,19 +16,19 @@ const ActionBus& StateManager::getActionBus() const { return actionBus; }
 
 void StateManager::enqueueAction(ActionData& actions, AbstractAction* action, int ms) {
   actions.sequentialActionsNext.pushBack(
-      makeUnique<AsyncAction>(AsyncAction{UniquePtr<AbstractAction>(action), model::TimerStruct(ms)}));
+      bmin::makeUnique<AsyncAction>(AsyncAction{bmin::UniquePtr<AbstractAction>(action), model::TimerStruct(ms)}));
 }
 
 void StateManager::insertAction(ActionData& actions, AbstractAction* action, int ms) {
   actions.insertActions.pushBack(
-      makeUnique<AsyncAction>(AsyncAction{UniquePtr<AbstractAction>(action), model::TimerStruct(ms)}));
+      bmin::makeUnique<AsyncAction>(AsyncAction{bmin::UniquePtr<AbstractAction>(action), model::TimerStruct(ms)}));
 }
 
 void StateManager::addParallelAction(ActionData& actions,
                                      AbstractAction* action,
                                      int ms) {
-  actions.parallelActions.pushBack(makeUnique<AsyncAction>(
-      AsyncAction{UniquePtr<AbstractAction>(action), model::TimerStruct(ms)}));
+  actions.parallelActions.pushBack(bmin::makeUnique<AsyncAction>(
+      AsyncAction{bmin::UniquePtr<AbstractAction>(action), model::TimerStruct(ms)}));
 }
 
 void StateManager::moveSequentialActions(ActionData& actions) {

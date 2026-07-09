@@ -8,11 +8,14 @@
 #include "ui/elements/TextLine.h"
 #include <memory>
 #include <vector>
+#include "bmin/String.h"
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start HorizontalSlider test" << LOG_ENDL;
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
   ui::HorizontalSlider* rangeSlider = nullptr;
   ui::HorizontalSlider* singleValueSlider = nullptr;
   ui::TextLine* valueReadout = nullptr;
@@ -36,7 +39,7 @@ int main(int argc, char** argv) {
         .labelColor = ui::Colors::White,
     });
     rangeSlider = sliderA;
-    elements.pushBack(UniquePtr<ui::UiElement>(sliderA));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(sliderA));
 
     auto sliderB = new ui::HorizontalSlider(&window);
     sliderB->setId("singleValueSlider");
@@ -53,7 +56,7 @@ int main(int argc, char** argv) {
         .indicatorWidth = 24,
     });
     singleValueSlider = sliderB;
-    elements.pushBack(UniquePtr<ui::UiElement>(sliderB));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(sliderB));
 
     auto readout = new ui::TextLine(&window);
     readout->setId("valueReadout");
@@ -70,7 +73,7 @@ int main(int argc, char** argv) {
             },
     });
     valueReadout = readout;
-    elements.pushBack(UniquePtr<ui::UiElement>(readout));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(readout));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

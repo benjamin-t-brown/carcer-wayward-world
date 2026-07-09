@@ -8,8 +8,8 @@
 namespace layers {
 
 LayerGiveContext::LayerGiveContext(sdl2w::Window* _window,
-                                   String fromCharacterPlayerId,
-                                   String itemId)
+                                   bmin::String fromCharacterPlayerId,
+                                   bmin::String itemId)
     : Layer(_window, LAYER_ID) {
 
   if (!assertInterfaces()) {

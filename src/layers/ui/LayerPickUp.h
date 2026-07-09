@@ -11,7 +11,7 @@ public:
   explicit LayerPickUp(sdl2w::Window* _window);
   virtual ~LayerPickUp() = default;
 
-  // void setPickUpItemNames(const DynArray<String>& itemNames);
+  // void setPickUpItemNames(const bmin::DynArray<bmin::String>& itemNames);
   void syncCurrentPartyMember();
 };
 

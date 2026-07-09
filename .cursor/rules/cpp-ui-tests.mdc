@@ -1,0 +1,48 @@
+---
+description: C++ UI tests are interactive — agents verify compile only, never run
+alwaysApply: true
+---
+
+# C++ UI test verification (agents)
+
+UI tests under `src/__test__/ui/` open an SDL window for **manual** inspection. They run until the user closes them (Escape or window close) and may last minutes. They are not automated unit tests.
+
+Test runners under `test-runners/` require **Node.js** (see `DEVELOPMENT.md`).
+
+## Agent rule
+
+When verifying UI tests (or UI-related changes), **compile only — do not run the test executable**.
+
+- Do **not** run `scripts/run-ui-tests-ucrt64.sh` in automation.
+- Do **not** run UI tests via `test-runners/ui/*.sh` without `--build-only`.
+- Do **not** run the UI section of `scripts/run-acceptance-ucrt64.sh` in automation.
+
+Running UI tests leaves windows open and blocks until a human closes each one.
+
+## How to verify
+
+**One test** (`--build-only` passes through the shell wrapper):
+
+```powershell
+.\scripts\Invoke-Ucrt64.ps1 "test-runners/ui/TestConfirmModal.sh --build-only"
+```
+
+```bash
+test-runners/ui/TestConfirmModal.sh --build-only
+```
+
+**All UI tests** (compile every UI test, no execution):
+
+```powershell
+.\scripts\Invoke-Ucrt64.ps1 "./scripts/compile-ui-tests.sh"
+```
+
+```bash
+./scripts/compile-ui-tests.sh
+```
+
+A successful compile (exit code 0) is sufficient verification. Leave interactive visual checks to the user.
+
+## Other C++ tests
+
+Runner, DB loader, and model tests under `src/__test__/runner/`, `src/__test__/db/`, and `src/__test__/model/` **do** finish on their own — agents may run those normally via `test-runners/`.

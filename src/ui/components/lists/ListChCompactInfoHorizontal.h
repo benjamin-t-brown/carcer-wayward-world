@@ -3,11 +3,12 @@
 #include "ui/UiElement.h"
 #include "ui/components/ChCompactInfo.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "bmin/DynArray.h"
 
 namespace ui {
 
 struct ListChCompactInfoHorizontalProps {
-  DynArray<ChCompactInfoProps> entries;
+  bmin::DynArray<ChCompactInfoProps> entries;
   int selectedIndex = 0;
   int lineGap = 0;
 };

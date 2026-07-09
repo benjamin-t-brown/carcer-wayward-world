@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bmin/String.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerPopupText.h"
 #include "state/AbstractAction.h"
@@ -10,8 +11,8 @@ namespace actions {
 
 class UiShowLayerPopupText : public AbstractAction {
   sdl2w::Window* window;
-  String title;
-  String text;
+  bmin::String title;
+  bmin::String text;
 
   void act() override {
     auto layerManager = getLayerManager();
@@ -27,7 +28,7 @@ class UiShowLayerPopupText : public AbstractAction {
   }
 
 public:
-  UiShowLayerPopupText(sdl2w::Window* _window, String _title, String _text)
+  UiShowLayerPopupText(sdl2w::Window* _window, bmin::String _title, bmin::String _text)
       : window(_window), title(std::move(_title)), text(std::move(_text)) {}
 };
 

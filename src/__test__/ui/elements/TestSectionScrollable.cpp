@@ -10,15 +10,18 @@
 #include "ui/elements/TextLine.h"
 #include <memory>
 #include <vector>
+#include "bmin/String.h"
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start SectionScrollable test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto addTextToQuad =
-      [&](sdl2w::Window& window, ui::Quad* quad, const String& text) {
+      [&](sdl2w::Window& window, ui::Quad* quad, const bmin::String& text) {
         auto textLine = new ui::TextLine(&window, quad);
         auto& textStyle = textLine->getStyle();
         textStyle.x = quad->getStyle().width / 2.f;
@@ -35,7 +38,7 @@ int main(int argc, char** argv) {
   auto addScrollableRows =
       [&](sdl2w::Window& window,
           ui::SectionScrollable* section,
-          const DynArray<std::pair<SDL_Color, String>>& rows) {
+          const bmin::DynArray<std::pair<SDL_Color, bmin::String>>& rows) {
         int y = 0;
         for (const auto& [color, label] : rows) {
           auto row = new ui::Quad(&window);
@@ -112,7 +115,7 @@ int main(int argc, char** argv) {
     sectionProps.scrollStep = 30;
     scrollableSection->setProps(sectionProps);
 
-    elements.pushBack(UniquePtr<ui::UiElement>(scrollableSection));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(scrollableSection));
 
     // Test 2: bordered section with many rows (production-like scroll)
     // auto listSection = new ui::SectionScrollable(&window);
@@ -140,7 +143,7 @@ int main(int argc, char** argv) {
     //                       {ui::Colors::LightGrey, "Row 5"},
     //                       {ui::Colors::White, "Row 6"},
     //                   });
-    // elements.pushBack(UniquePtr<ui::UiElement>(listSection));
+    // elements.pushBack(bmin::UniquePtr<ui::UiElement>(listSection));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

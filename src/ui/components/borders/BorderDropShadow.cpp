@@ -1,4 +1,5 @@
 #include "BorderDropShadow.h"
+#include "bmin/UniquePtr.h"
 #include "ui/elements/Quad.h"
 
 namespace ui {
@@ -24,14 +25,14 @@ void BorderDropShadow::addChild(UiElement* child) {
 }
 
 void BorderDropShadow::build() {
-  DynArray<UniquePtr<UiElement>> preservedChildren;
+  bmin::DynArray<bmin::UniquePtr<UiElement>> preservedChildren;
   if (!children.empty()) {
     for (auto& child : children[0]->getChildren()) {
       preservedChildren.pushBack(std::move(child));
     }
   }
 
-  auto quad = makeUnique<Quad>(window);
+  auto quad = bmin::makeUnique<Quad>(window);
   auto& quadStyle = quad->getStyle();
   quadStyle.x = style.x;
   quadStyle.y = style.y;
@@ -49,7 +50,7 @@ void BorderDropShadow::build() {
   }
 
   children.clear();
-  children.pushBack(UniquePtr<UiElement>(quad.release()));
+  children.pushBack(bmin::UniquePtr<UiElement>(quad.release()));
 }
 
 void BorderDropShadow::render(int dt) {

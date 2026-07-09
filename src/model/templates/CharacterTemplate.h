@@ -1,7 +1,8 @@
 #pragma once
 
 #include "model/stats/CharacterStats.h"
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 
 namespace model {
 
@@ -22,27 +23,27 @@ enum class CharacterTemplateBehaviorName {
 };
 
 struct CharacterTemplateTalk {
-  String talkName;
-  String portraitName;
+  bmin::String talkName;
+  bmin::String portraitName;
 };
 
 struct CharacterTemplateBehavior {
-  String behaviorName;
+  bmin::String behaviorName;
 };
 
 struct CharacterTemplateCombat {
   int hp = 0;
   int mp = 0;
-  String dropTable;
+  bmin::String dropTable;
 };
 
 struct CharacterTemplateSound {
-  String deathSoundName;
-  String weaponSoundName;
+  bmin::String deathSoundName;
+  bmin::String weaponSoundName;
 };
 
 struct CharacterTemplateStatus {
-  String status;
+  bmin::String status;
 };
 
 struct CharacterTemplateVision {
@@ -51,10 +52,10 @@ struct CharacterTemplateVision {
 
 struct CharacterTemplate {
   CharacterTemplateType type;
-  String name;
-  String label;
-  String spritesheetName;
-  String spriteOffset;
+  bmin::String name;
+  bmin::String label;
+  bmin::String spritesheetName;
+  bmin::String spriteOffset;
   CharacterTemplateTalk talk;
   CharacterTemplateBehavior behavior;
   CharacterStats stats;
@@ -64,6 +65,6 @@ struct CharacterTemplate {
   CharacterTemplateVision vision;
 };
 
-String characterGetSprite(const CharacterTemplate& character);
+bmin::String characterGetSprite(const CharacterTemplate& character);
 
 } // namespace model

@@ -3,17 +3,18 @@
 #include "state/StateManager.h"
 #include "state/actions/ui/UiReorderInventoryItem.hpp"
 #include "ui/UiElement.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 class ObserverReorderInventoryItem : public ui::UiEventObserver,
                                      public state::StateManagerInterface {
-  String characterPlayerId;
+  bmin::String characterPlayerId;
   int inventoryIndex;
   int direction;
 
 public:
-  ObserverReorderInventoryItem(const String& _characterPlayerId,
+  ObserverReorderInventoryItem(const bmin::String& _characterPlayerId,
                                int _inventoryIndex,
                                int _direction)
       : characterPlayerId(_characterPlayerId),

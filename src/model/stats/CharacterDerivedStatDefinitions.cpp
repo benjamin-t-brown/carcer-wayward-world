@@ -1,281 +1,279 @@
 #include "model/stats/CharacterDerivedStatDefinitions.h"
 #include "lib/sdl2w/L10n.h"
-#include "lib/Types.h"
-
 namespace model {
 
 namespace {
 
-String percentValue(int value) { return bmin::toString(value) + "%"; }
+bmin::String percentValue(int value) { return bmin::toString(value) + "%"; }
 
 } // namespace
 
-String CharacterDerivedStatDefinitions::derivedTitle() { return TRANSLATE("Derived"); }
-String CharacterDerivedStatDefinitions::derivedSkillsTitle() {
+bmin::String CharacterDerivedStatDefinitions::derivedTitle() { return TRANSLATE("Derived"); }
+bmin::String CharacterDerivedStatDefinitions::derivedSkillsTitle() {
   return TRANSLATE("Derived Skills");
 }
 
-String CharacterDerivedStatDefinitions::actionPointsLabel() {
+bmin::String CharacterDerivedStatDefinitions::actionPointsLabel() {
   return TRANSLATE("Action Points");
 }
-String CharacterDerivedStatDefinitions::actionPointsDescription() {
+bmin::String CharacterDerivedStatDefinitions::actionPointsDescription() {
   return TRANSLATE("Base 1.");
 }
-String CharacterDerivedStatDefinitions::actionPointsValue(
+bmin::String CharacterDerivedStatDefinitions::actionPointsValue(
     const CharacterDerivedStats& derived) {
   return bmin::toString(derived.actionPoints);
 }
 
-String CharacterDerivedStatDefinitions::mightDamageLabel() {
+bmin::String CharacterDerivedStatDefinitions::mightDamageLabel() {
   return TRANSLATE("Might/Damage");
 }
-String CharacterDerivedStatDefinitions::mightDamageDescription() {
+bmin::String CharacterDerivedStatDefinitions::mightDamageDescription() {
   return TRANSLATE("Base 1, plus Strength.");
 }
-String CharacterDerivedStatDefinitions::mightDamageValue(
+bmin::String CharacterDerivedStatDefinitions::mightDamageValue(
     const CharacterDerivedStats& derived) {
   return bmin::toString(derived.mightDamage);
 }
 
-String CharacterDerivedStatDefinitions::magicDamageLabel() {
+bmin::String CharacterDerivedStatDefinitions::magicDamageLabel() {
   return TRANSLATE("Magic/Damage");
 }
-String CharacterDerivedStatDefinitions::magicDamageDescription() {
+bmin::String CharacterDerivedStatDefinitions::magicDamageDescription() {
   return TRANSLATE("Base 0, plus Mind.");
 }
-String CharacterDerivedStatDefinitions::magicDamageValue(
+bmin::String CharacterDerivedStatDefinitions::magicDamageValue(
     const CharacterDerivedStats& derived) {
   return bmin::toString(derived.magicDamage);
 }
 
-String CharacterDerivedStatDefinitions::hpLabel() { return TRANSLATE("HP"); }
-String CharacterDerivedStatDefinitions::hpDescription() {
+bmin::String CharacterDerivedStatDefinitions::hpLabel() { return TRANSLATE("HP"); }
+bmin::String CharacterDerivedStatDefinitions::hpDescription() {
   return TRANSLATE("Base 10, plus 5 per Constitution.");
 }
-String CharacterDerivedStatDefinitions::hpValue(const CharacterDerivedStats& derived) {
+bmin::String CharacterDerivedStatDefinitions::hpValue(const CharacterDerivedStats& derived) {
   return bmin::toString(derived.hp);
 }
 
-String CharacterDerivedStatDefinitions::attackHitChanceLabel() {
+bmin::String CharacterDerivedStatDefinitions::attackHitChanceLabel() {
   return TRANSLATE("Attack Hit Chance");
 }
-String CharacterDerivedStatDefinitions::attackHitChanceDescription() {
+bmin::String CharacterDerivedStatDefinitions::attackHitChanceDescription() {
   return TRANSLATE("Base 50%.");
 }
-String CharacterDerivedStatDefinitions::attackHitChanceValue(
+bmin::String CharacterDerivedStatDefinitions::attackHitChanceValue(
     const CharacterDerivedStats& derived) {
   return percentValue(derived.attackHitChancePercent);
 }
 
-String CharacterDerivedStatDefinitions::abilityPowerLabel() {
+bmin::String CharacterDerivedStatDefinitions::abilityPowerLabel() {
   return TRANSLATE("Ability Power");
 }
-String CharacterDerivedStatDefinitions::abilityPowerDescription() {
+bmin::String CharacterDerivedStatDefinitions::abilityPowerDescription() {
   return TRANSLATE("Base 0, from Magic Mastery training.");
 }
-String CharacterDerivedStatDefinitions::abilityPowerValue(
+bmin::String CharacterDerivedStatDefinitions::abilityPowerValue(
     const CharacterDerivedStats& derived) {
   return bmin::toString(derived.abilityPower);
 }
 
-String CharacterDerivedStatDefinitions::damageReductionLabel() {
+bmin::String CharacterDerivedStatDefinitions::damageReductionLabel() {
   return TRANSLATE("Damage Reduction");
 }
-String CharacterDerivedStatDefinitions::damageReductionDescription() {
+bmin::String CharacterDerivedStatDefinitions::damageReductionDescription() {
   return TRANSLATE("Base 0, from Body Mastery training.");
 }
-String CharacterDerivedStatDefinitions::damageReductionValue(
+bmin::String CharacterDerivedStatDefinitions::damageReductionValue(
     const CharacterDerivedStats& derived) {
   return bmin::toString(derived.damageReduction);
 }
 
-String CharacterDerivedStatDefinitions::armorClassLabel() {
+bmin::String CharacterDerivedStatDefinitions::armorClassLabel() {
   return TRANSLATE("Armor Class");
 }
-String CharacterDerivedStatDefinitions::armorClassDescription() {
+bmin::String CharacterDerivedStatDefinitions::armorClassDescription() {
   return TRANSLATE("Base 10.");
 }
-String CharacterDerivedStatDefinitions::armorClassValue(
+bmin::String CharacterDerivedStatDefinitions::armorClassValue(
     const CharacterDerivedStats& derived) {
   return bmin::toString(derived.armorClass);
 }
 
-String CharacterDerivedStatDefinitions::spellPotencyLabel() {
+bmin::String CharacterDerivedStatDefinitions::spellPotencyLabel() {
   return TRANSLATE("Spell Potency");
 }
-String CharacterDerivedStatDefinitions::spellPotencyDescription() {
+bmin::String CharacterDerivedStatDefinitions::spellPotencyDescription() {
   return TRANSLATE("Spell potency, status effect length, and field length. Base 1.");
 }
-String CharacterDerivedStatDefinitions::spellPotencyValue(
+bmin::String CharacterDerivedStatDefinitions::spellPotencyValue(
     const CharacterDerivedStats& derived) {
   return bmin::toString(derived.spellPotency);
 }
 
-String CharacterDerivedStatDefinitions::manaLabel() { return TRANSLATE("Mana"); }
-String CharacterDerivedStatDefinitions::manaDescription() {
+bmin::String CharacterDerivedStatDefinitions::manaLabel() { return TRANSLATE("Mana"); }
+bmin::String CharacterDerivedStatDefinitions::manaDescription() {
   return TRANSLATE("Base 10, plus Magic Mastery and Focus.");
 }
-String CharacterDerivedStatDefinitions::manaValue(const CharacterDerivedStats& derived) {
+bmin::String CharacterDerivedStatDefinitions::manaValue(const CharacterDerivedStats& derived) {
   return bmin::toString(derived.maxMana);
 }
 
-String CharacterDerivedStatDefinitions::resistancesLabel() {
+bmin::String CharacterDerivedStatDefinitions::resistancesLabel() {
   return TRANSLATE("Resistances");
 }
-String CharacterDerivedStatDefinitions::resistancesDescription() {
+bmin::String CharacterDerivedStatDefinitions::resistancesDescription() {
   return TRANSLATE("Base none.");
 }
-String CharacterDerivedStatDefinitions::resistancesValue(
+bmin::String CharacterDerivedStatDefinitions::resistancesValue(
     const CharacterDerivedStats&) {
   return TRANSLATE("None");
 }
 
-String CharacterDerivedStatDefinitions::jumpDistanceLabel() {
+bmin::String CharacterDerivedStatDefinitions::jumpDistanceLabel() {
   return TRANSLATE("Jump Distance");
 }
-String CharacterDerivedStatDefinitions::jumpDistanceDescription() {
+bmin::String CharacterDerivedStatDefinitions::jumpDistanceDescription() {
   return TRANSLATE("Base 2.");
 }
-String CharacterDerivedStatDefinitions::jumpDistanceValue(
+bmin::String CharacterDerivedStatDefinitions::jumpDistanceValue(
     const CharacterDerivedStats& derived) {
   return bmin::toString(derived.jumpDistance);
 }
 
-String CharacterDerivedStatDefinitions::healingEffectivenessLabel() {
+bmin::String CharacterDerivedStatDefinitions::healingEffectivenessLabel() {
   return TRANSLATE("Healing Effectiveness");
 }
-String CharacterDerivedStatDefinitions::healingEffectivenessDescription() {
+bmin::String CharacterDerivedStatDefinitions::healingEffectivenessDescription() {
   return TRANSLATE("Base 100%.");
 }
-String CharacterDerivedStatDefinitions::healingEffectivenessValue(
+bmin::String CharacterDerivedStatDefinitions::healingEffectivenessValue(
     const CharacterDerivedStats& derived) {
   return percentValue(derived.healingEffectivenessPercent);
 }
 
-String CharacterDerivedStatDefinitions::statusEffectShieldLabel() {
+bmin::String CharacterDerivedStatDefinitions::statusEffectShieldLabel() {
   return TRANSLATE("Status Effect Shield");
 }
-String CharacterDerivedStatDefinitions::statusEffectShieldDescription() {
+bmin::String CharacterDerivedStatDefinitions::statusEffectShieldDescription() {
   return TRANSLATE("Base 0.");
 }
-String CharacterDerivedStatDefinitions::statusEffectShieldValue(
+bmin::String CharacterDerivedStatDefinitions::statusEffectShieldValue(
     const CharacterDerivedStats& derived) {
   return bmin::toString(derived.statusEffectShield);
 }
 
-String CharacterDerivedStatDefinitions::materiaSlotsLabel() {
+bmin::String CharacterDerivedStatDefinitions::materiaSlotsLabel() {
   return TRANSLATE("Materia Slots");
 }
-String CharacterDerivedStatDefinitions::materiaSlotsDescription() {
+bmin::String CharacterDerivedStatDefinitions::materiaSlotsDescription() {
   return TRANSLATE("Base 0.");
 }
-String CharacterDerivedStatDefinitions::materiaSlotsValue(
+bmin::String CharacterDerivedStatDefinitions::materiaSlotsValue(
     const CharacterDerivedStats& derived) {
   return bmin::toString(derived.materiaSlots);
 }
 
-String CharacterDerivedStatDefinitions::shieldBonusLabel() {
+bmin::String CharacterDerivedStatDefinitions::shieldBonusLabel() {
   return TRANSLATE("Shield Bonus");
 }
-String CharacterDerivedStatDefinitions::shieldBonusDescription() {
+bmin::String CharacterDerivedStatDefinitions::shieldBonusDescription() {
   return TRANSLATE("Base 0.");
 }
-String CharacterDerivedStatDefinitions::shieldBonusValue(
+bmin::String CharacterDerivedStatDefinitions::shieldBonusValue(
     const CharacterDerivedStats& derived) {
   return bmin::toString(derived.shieldBonus);
 }
 
-String CharacterDerivedStatDefinitions::enemyVisionRangeLabel() {
+bmin::String CharacterDerivedStatDefinitions::enemyVisionRangeLabel() {
   return TRANSLATE("Enemy Vision Range");
 }
-String CharacterDerivedStatDefinitions::enemyVisionRangeDescription() {
+bmin::String CharacterDerivedStatDefinitions::enemyVisionRangeDescription() {
   return TRANSLATE("Affected by Stealth training.");
 }
-String CharacterDerivedStatDefinitions::enemyVisionRangeValue(
+bmin::String CharacterDerivedStatDefinitions::enemyVisionRangeValue(
     const CharacterDerivedStats& derived) {
   return bmin::toString(derived.enemyVisionRange);
 }
 
-String CharacterDerivedStatDefinitions::mageLoreLabel() {
+bmin::String CharacterDerivedStatDefinitions::mageLoreLabel() {
   return TRANSLATE("Mage Lore");
 }
-String CharacterDerivedStatDefinitions::mageLoreDescription() {
+bmin::String CharacterDerivedStatDefinitions::mageLoreDescription() {
   return TRANSLATE("Affected by Magic Item Use training.");
 }
-String CharacterDerivedStatDefinitions::mageLoreValue(
+bmin::String CharacterDerivedStatDefinitions::mageLoreValue(
     const CharacterDerivedStats& derived) {
   return bmin::toString(derived.mageLore);
 }
 
-String CharacterDerivedStatDefinitions::toolUseLabel() { return TRANSLATE("Tool Use"); }
-String CharacterDerivedStatDefinitions::toolUseDescription() {
+bmin::String CharacterDerivedStatDefinitions::toolUseLabel() { return TRANSLATE("Tool Use"); }
+bmin::String CharacterDerivedStatDefinitions::toolUseDescription() {
   return TRANSLATE("Affected by Trickery training.");
 }
-String CharacterDerivedStatDefinitions::toolUseValue(
+bmin::String CharacterDerivedStatDefinitions::toolUseValue(
     const CharacterDerivedStats& derived) {
   return bmin::toString(derived.toolUse);
 }
 
-String CharacterDerivedStatDefinitions::tradeDiscountLabel() {
+bmin::String CharacterDerivedStatDefinitions::tradeDiscountLabel() {
   return TRANSLATE("Trade Discount");
 }
-String CharacterDerivedStatDefinitions::tradeDiscountDescription() {
+bmin::String CharacterDerivedStatDefinitions::tradeDiscountDescription() {
   return TRANSLATE("Base 0%, plus 1% per Social level.");
 }
-String CharacterDerivedStatDefinitions::tradeDiscountValue(
+bmin::String CharacterDerivedStatDefinitions::tradeDiscountValue(
     const CharacterDerivedStats& derived) {
   return percentValue(derived.tradeDiscountPercent);
 }
 
-String CharacterDerivedStatDefinitions::itemUsageLabel() {
+bmin::String CharacterDerivedStatDefinitions::itemUsageLabel() {
   return TRANSLATE("Item Usage");
 }
-String CharacterDerivedStatDefinitions::itemUsageDescription() {
+bmin::String CharacterDerivedStatDefinitions::itemUsageDescription() {
   return TRANSLATE("Base 100%.");
 }
-String CharacterDerivedStatDefinitions::itemUsageValue(
+bmin::String CharacterDerivedStatDefinitions::itemUsageValue(
     const CharacterDerivedStats& derived) {
   return percentValue(derived.itemUsagePercent);
 }
 
-String CharacterDerivedStatDefinitions::foodConsumptionLabel() {
+bmin::String CharacterDerivedStatDefinitions::foodConsumptionLabel() {
   return TRANSLATE("Food Consumption");
 }
-String CharacterDerivedStatDefinitions::foodConsumptionDescription() {
+bmin::String CharacterDerivedStatDefinitions::foodConsumptionDescription() {
   return TRANSLATE("Base 100, reduced by Cooking training.");
 }
-String CharacterDerivedStatDefinitions::foodConsumptionValue(
+bmin::String CharacterDerivedStatDefinitions::foodConsumptionValue(
     const CharacterDerivedStats& derived) {
   return bmin::toString(derived.foodConsumption);
 }
 
-String CharacterDerivedStatDefinitions::firstAidLabel() { return TRANSLATE("First Aid"); }
-String CharacterDerivedStatDefinitions::firstAidDescription() {
+bmin::String CharacterDerivedStatDefinitions::firstAidLabel() { return TRANSLATE("First Aid"); }
+bmin::String CharacterDerivedStatDefinitions::firstAidDescription() {
   return TRANSLATE("Base 1d4 per level.");
 }
-String CharacterDerivedStatDefinitions::firstAidValue(
+bmin::String CharacterDerivedStatDefinitions::firstAidValue(
     const CharacterDerivedStats& derived) {
   return "1d4 x " + bmin::toString(derived.firstAidPerLevel);
 }
 
-String CharacterDerivedStatDefinitions::ingredientFindChanceLabel() {
+bmin::String CharacterDerivedStatDefinitions::ingredientFindChanceLabel() {
   return TRANSLATE("Ingredient Find Chance");
 }
-String CharacterDerivedStatDefinitions::ingredientFindChanceDescription() {
+bmin::String CharacterDerivedStatDefinitions::ingredientFindChanceDescription() {
   return TRANSLATE("Base 10%, plus Survival training.");
 }
-String CharacterDerivedStatDefinitions::ingredientFindChanceValue(
+bmin::String CharacterDerivedStatDefinitions::ingredientFindChanceValue(
     const CharacterDerivedStats& derived) {
   return percentValue(derived.ingredientFindChancePercent);
 }
 
-String CharacterDerivedStatDefinitions::foodConsumptionPerDayLabel() {
+bmin::String CharacterDerivedStatDefinitions::foodConsumptionPerDayLabel() {
   return TRANSLATE("Food Consumption Per Day");
 }
-String CharacterDerivedStatDefinitions::foodConsumptionPerDayDescription() {
+bmin::String CharacterDerivedStatDefinitions::foodConsumptionPerDayDescription() {
   return TRANSLATE("Base 100.");
 }
-String CharacterDerivedStatDefinitions::foodConsumptionPerDayValue(
+bmin::String CharacterDerivedStatDefinitions::foodConsumptionPerDayValue(
     const CharacterDerivedStats& derived) {
   return bmin::toString(derived.foodConsumptionPerDay);
 }

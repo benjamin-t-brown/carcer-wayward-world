@@ -1,16 +1,18 @@
 #include "db/loaders/LoadAbilityTemplates.h"
 #include "lib/sdl2w/Logger.h"
+#include "bmin/String.h"
+#include "bmin/Map.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Starting TestLoadAbilityTemplates" << LOG_ENDL;
 
-  bmin::Map<String, model::AbilityTemplate> abilityTemplates;
+  bmin::Map<bmin::String, model::AbilityTemplate> abilityTemplates;
 
   try {
     db::loadAbilityTemplates("assets/db/abilities.json", abilityTemplates);
     LOG(INFO) << "Loaded " << abilityTemplates.size() << " ability templates" << LOG_ENDL;
 
-    const auto meleeIt = abilityTemplates.find(String("MELEE_ATTACK_METAL_SWORD"));
+    const auto meleeIt = abilityTemplates.find(bmin::String("MELEE_ATTACK_METAL_SWORD"));
     if (meleeIt == abilityTemplates.end()) {
       LOG(ERROR) << "Missing MELEE_ATTACK_METAL_SWORD ability" << LOG_ENDL;
       return 1;

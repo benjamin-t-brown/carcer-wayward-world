@@ -64,7 +64,7 @@ void ButtonClose::build() {
   }
   rect->setProps(rectProps);
 
-  children.pushBack(UniquePtr<UiElement>(rect));
+  children.pushBack(bmin::UniquePtr<UiElement>(rect));
 }
 
 void ButtonClose::render(int dt) {

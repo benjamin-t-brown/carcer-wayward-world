@@ -4,6 +4,7 @@
 #include "loaders/LoadCharacterTemplates.h"
 #include "loaders/LoadItemTemplates.h"
 #include "loaders/LoadMapTemplates.h"
+#include "loaders/LoadSpecialEvents.h"
 #include "loaders/LoadStatusEffectTemplates.h"
 #include <stdexcept>
 
@@ -14,12 +15,12 @@ Database::Database() {}
 void Database::validateCombatReferences() const {
   auto& abilities = const_cast<decltype(abilityTemplates)&>(abilityTemplates);
   for (auto it = abilities.begin(); it != abilities.end(); ++it) {
-    const String& abilityName = (*it).key;
+    const bmin::String& abilityName = (*it).key;
     const auto& abilityTemplate = (*it).value;
     for (const auto& status : abilityTemplate.statuses) {
       if (!statusEffectTemplates.contains(status.statusEffect)) {
         throw std::runtime_error(
-            (String("Ability ") + abilityName.cStr() + " references unknown status effect: " +
+            (bmin::String("Ability ") + abilityName.cStr() + " references unknown status effect: " +
              status.statusEffect.cStr())
                 .cStr());
       }
@@ -28,12 +29,12 @@ void Database::validateCombatReferences() const {
 
   auto& statusEffects = const_cast<decltype(statusEffectTemplates)&>(statusEffectTemplates);
   for (auto it = statusEffects.begin(); it != statusEffects.end(); ++it) {
-    const String& statusName = (*it).key;
+    const bmin::String& statusName = (*it).key;
     const auto& statusTemplate = (*it).value;
     for (const auto& invoked : statusTemplate.actions) {
       if (!abilityTemplates.contains(invoked.abilityName)) {
         throw std::runtime_error(
-            (String("Status effect ") + statusName.cStr() + " references unknown ability: " +
+            (bmin::String("Status effect ") + statusName.cStr() + " references unknown ability: " +
              invoked.abilityName.cStr())
                 .cStr());
       }
@@ -42,12 +43,12 @@ void Database::validateCombatReferences() const {
 
   auto& items = const_cast<decltype(itemTemplates)&>(itemTemplates);
   for (auto it = items.begin(); it != items.end(); ++it) {
-    const String& itemName = (*it).key;
+    const bmin::String& itemName = (*it).key;
     const auto& itemTemplate = (*it).value;
     for (const auto& statusName : itemTemplate.statusEffectNames) {
       if (!statusEffectTemplates.contains(statusName)) {
         throw std::runtime_error(
-            (String("Item ") + itemName.cStr() + " references unknown status effect: " +
+            (bmin::String("Item ") + itemName.cStr() + " references unknown status effect: " +
              statusName.cStr())
                 .cStr());
       }
@@ -62,6 +63,7 @@ void Database::load() {
   loadItemTemplates("assets/db/items.json", itemTemplates);
   loadCharacterTemplates("assets/db/characters.json", characterTemplates);
   loadMapTemplates("assets/db/maps.json", mapTemplates);
+  loadSpecialEvents("assets/db/special-events.json", gameEvents);
   validateCombatReferences();
   LOG(INFO) << "Loaded database." << LOG_ENDL;
 }

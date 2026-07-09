@@ -1,4 +1,5 @@
 #include "Quad.h"
+#include "bmin/StringInterop.h"
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Logger.h"
 #include "ui/uiUtils.h"
@@ -76,7 +77,7 @@ std::pair<int, int> toTextureCoords(int mouseX, int mouseY, const BaseStyle& sty
 bool Quad::checkMouseDownEvent(int mouseX,
                                int mouseY,
                                int button,
-                               DynArray<UiElement*> additionalElements) {
+                               bmin::DynArray<UiElement*> additionalElements) {
   // Check if click is within bounds using utility function
   if (isInBoundsScaled(mouseX, mouseY, this)) {
     isClicked = true;
@@ -103,7 +104,7 @@ bool Quad::checkMouseDownEvent(int mouseX,
 bool Quad::checkMouseUpEvent(int mouseX,
                              int mouseY,
                              int button,
-                             DynArray<UiElement*> additionalElements) {
+                             bmin::DynArray<UiElement*> additionalElements) {
   auto [localX, localY] = toTextureCoords(mouseX, mouseY, style);
   if (shouldPropagateEventsToChildren) {
     // Check children first (front to back)
@@ -132,7 +133,7 @@ bool Quad::checkMouseUpEvent(int mouseX,
 
 bool Quad::checkHoverEvent(int mouseX,
                            int mouseY,
-                           DynArray<UiElement*> additionalElements) {
+                           bmin::DynArray<UiElement*> additionalElements) {
   auto [localX, localY] = toTextureCoords(mouseX, mouseY, style);
   if (shouldPropagateEventsToChildren) {
     for (auto& child : children) {
@@ -154,7 +155,7 @@ bool Quad::checkHoverEvent(int mouseX,
 bool Quad::checkMouseWheelEvent(int mouseX,
                                 int mouseY,
                                 int delta,
-                                DynArray<UiElement*> additionalElements) {
+                                bmin::DynArray<UiElement*> additionalElements) {
   if (isInBoundsScaled(mouseX, mouseY, this)) {
     auto [localX, localY] = toTextureCoords(mouseX, mouseY, style);
     if (shouldPropagateEventsToChildren) {

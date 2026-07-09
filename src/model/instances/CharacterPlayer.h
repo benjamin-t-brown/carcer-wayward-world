@@ -6,8 +6,6 @@
 #include "model/templates/Items.h"
 #include "model/templates/UtilityTypes.h"
 #include <optional>
-#include "lib/Types.h"
-
 namespace db {
 class Database;
 }
@@ -16,28 +14,28 @@ namespace model {
 
 struct CharacterPlayerEquipment {
   // these represent ids of items inside the character's inventory
-  String weapon0Id;
-  String weapon1Id;
-  String ammoId;
-  String hatId;
-  String garbId;
-  String glovesId;
-  String pantsId;
-  String shoesId;
-  String necklaceId;
-  String shieldId;
+  bmin::String weapon0Id;
+  bmin::String weapon1Id;
+  bmin::String ammoId;
+  bmin::String hatId;
+  bmin::String garbId;
+  bmin::String glovesId;
+  bmin::String pantsId;
+  bmin::String shoesId;
+  bmin::String necklaceId;
+  bmin::String shieldId;
 };
 
 struct CharacterInventoryItem {
-  String itemName;
-  String id;
+  bmin::String itemName;
+  bmin::String id;
   int quantity;
 };
 
 struct CharacterPlayer {
-  String instanceId;
-  String name;
-  String templateName;
+  bmin::String instanceId;
+  bmin::String name;
+  bmin::String templateName;
   bmin::DynArray<CharacterInventoryItem> inventory;
   CharacterPlayerEquipment equipment;
   CharacterTemplate params;
@@ -58,7 +56,7 @@ struct CharacterPlayer {
   }
 };
 
-String characterPlayerGetSprite(const CharacterPlayer& characterPlayer);
+bmin::String characterPlayerGetSprite(const CharacterPlayer& characterPlayer);
 
 enum class EquipItemResult {
   EQUIPPED,
@@ -70,21 +68,21 @@ enum class EquipItemResult {
 };
 
 bool characterPlayerIsItemEquippedById(const CharacterPlayer& characterPlayer,
-                                       const String& itemId);
+                                       const bmin::String& itemId);
 EquipItemResult characterPlayerToggleEquipItem(CharacterPlayer& characterPlayer,
-                                               const String& itemId,
+                                               const bmin::String& itemId,
                                                const db::Database& database);
 std::optional<CharacterInventoryItem>
 characterPlayerFindItemInInventoryByName(const CharacterPlayer& characterPlayer,
-                                         const String& itemName);
+                                         const bmin::String& itemName);
 void characterPlayerAddItemToInventory(CharacterPlayer& characterPlayer,
                                        const model::ItemTemplate& itemTemplate,
                                        int quantity = 1);
 void characterPlayerRemoveItemFromInventoryByName(CharacterPlayer& characterPlayer,
-                                                  const String& itemName,
+                                                  const bmin::String& itemName,
                                                   int quantity = 1);
 void characterPlayerRemoveItemFromInventoryById(CharacterPlayer& characterPlayer,
-                                                const String& itemId,
+                                                const bmin::String& itemId,
                                                 int quantity = 1);
 
 enum class GiveItemResult {
@@ -96,7 +94,7 @@ enum class GiveItemResult {
 
 GiveItemResult characterPlayerGiveInventoryItem(CharacterPlayer& from,
                                                 CharacterPlayer& to,
-                                                const String& itemId,
+                                                const bmin::String& itemId,
                                                 int quantity,
                                                 const db::Database& database);
 bool characterPlayerReorderInventoryItem(CharacterPlayer& characterPlayer,

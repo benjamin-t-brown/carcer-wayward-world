@@ -1,13 +1,13 @@
 #pragma once
 
 #include "../../UiElement.h"
-#include "lib/Types.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 // ButtonModal-specific properties
 struct ButtonModalProps {
-  String text;
+  bmin::String text;
   bool isSelected = false;
 
   SDL_Color bgColor = Colors::ButtonModalGrey1;

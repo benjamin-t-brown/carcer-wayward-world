@@ -1,4 +1,7 @@
 #include "../../setupTestUi.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
+#include "bmin/UniquePtr.h"
 #include "lib/sdl2w/Draw.h"
 #include "lib/sdl2w/Events.h"
 #include "lib/sdl2w/Logger.h"
@@ -10,17 +13,17 @@
 #include <memory>
 
 class TestButtonWorldActionObserver : public ui::UiEventObserver {
-  String id;
+  bmin::String id;
 
 public:
-  TestButtonWorldActionObserver(String _id);
+  TestButtonWorldActionObserver(bmin::String _id);
   ~TestButtonWorldActionObserver() override = default;
   void onMouseDown(int x, int y, int button) override;
   void onMouseUp(int x, int y, int button) override;
   void onClick(int x, int y, int button) override;
 };
 
-TestButtonWorldActionObserver::TestButtonWorldActionObserver(String _id) : id(_id) {}
+TestButtonWorldActionObserver::TestButtonWorldActionObserver(bmin::String _id) : id(_id) {}
 
 void TestButtonWorldActionObserver::onMouseDown(int x, int y, int button) {
   LOG(INFO) << "TestButtonWorldActionObserver mousedown at: " << x << ", " << y
@@ -41,13 +44,13 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start ButtonWorldAction test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ButtonWorldAction test initialized" << LOG_ENDL;
 
     // Create EXAMINE button
-    auto examineButton = makeUnique<ui::ButtonWorldAction>(&window);
+    auto examineButton = bmin::makeUnique<ui::ButtonWorldAction>(&window);
     examineButton->setId("examineButton");
     ui::BaseStyle examineStyle;
     examineStyle.x = 50;
@@ -57,10 +60,10 @@ int main(int argc, char** argv) {
     examineProps.worldActionType = state::WorldActionType::EXAMINE;
     examineButton->setProps(examineProps);
     examineButton->addEventObserver(new TestButtonWorldActionObserver("examineButton"));
-    elements.pushBack(UniquePtr<ui::UiElement>(examineButton.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(examineButton.release()));
 
     // Create GET button
-    auto getButton = makeUnique<ui::ButtonWorldAction>(&window);
+    auto getButton = bmin::makeUnique<ui::ButtonWorldAction>(&window);
     getButton->setId("getButton");
     ui::BaseStyle getStyle;
     getStyle.x = 200;
@@ -70,10 +73,10 @@ int main(int argc, char** argv) {
     getProps.worldActionType = state::WorldActionType::GET;
     getButton->setProps(getProps);
     getButton->addEventObserver(new TestButtonWorldActionObserver("getButton"));
-    elements.pushBack(UniquePtr<ui::UiElement>(getButton.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(getButton.release()));
 
     // Create SNEAK button
-    auto sneakButton = makeUnique<ui::ButtonWorldAction>(&window);
+    auto sneakButton = bmin::makeUnique<ui::ButtonWorldAction>(&window);
     sneakButton->setId("sneakButton");
     ui::BaseStyle sneakStyle;
     sneakStyle.x = 350;
@@ -83,10 +86,10 @@ int main(int argc, char** argv) {
     sneakProps.worldActionType = state::WorldActionType::SNEAK;
     sneakButton->setProps(sneakProps);
     sneakButton->addEventObserver(new TestButtonWorldActionObserver("sneakButton"));
-    elements.pushBack(UniquePtr<ui::UiElement>(sneakButton.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(sneakButton.release()));
 
     // Create TALK button
-    auto talkButton = makeUnique<ui::ButtonWorldAction>(&window);
+    auto talkButton = bmin::makeUnique<ui::ButtonWorldAction>(&window);
     talkButton->setId("talkButton");
     ui::BaseStyle talkStyle;
     talkStyle.x = 50;
@@ -96,10 +99,10 @@ int main(int argc, char** argv) {
     talkProps.worldActionType = state::WorldActionType::TALK;
     talkButton->setProps(talkProps);
     talkButton->addEventObserver(new TestButtonWorldActionObserver("talkButton"));
-    elements.pushBack(UniquePtr<ui::UiElement>(talkButton.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(talkButton.release()));
 
     // Create JUMP button
-    auto jumpButton = makeUnique<ui::ButtonWorldAction>(&window);
+    auto jumpButton = bmin::makeUnique<ui::ButtonWorldAction>(&window);
     jumpButton->setId("jumpButton");
     ui::BaseStyle jumpStyle;
     jumpStyle.x = 200;
@@ -109,10 +112,10 @@ int main(int argc, char** argv) {
     jumpProps.worldActionType = state::WorldActionType::JUMP;
     jumpButton->setProps(jumpProps);
     jumpButton->addEventObserver(new TestButtonWorldActionObserver("jumpButton"));
-    elements.pushBack(UniquePtr<ui::UiElement>(jumpButton.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(jumpButton.release()));
 
     // Create ABILITY button
-    auto abilityButton = makeUnique<ui::ButtonWorldAction>(&window);
+    auto abilityButton = bmin::makeUnique<ui::ButtonWorldAction>(&window);
     abilityButton->setId("abilityButton");
     ui::BaseStyle abilityStyle;
     abilityStyle.x = 350;
@@ -122,10 +125,10 @@ int main(int argc, char** argv) {
     abilityProps.worldActionType = state::WorldActionType::ABILITY;
     abilityButton->setProps(abilityProps);
     abilityButton->addEventObserver(new TestButtonWorldActionObserver("abilityButton"));
-    elements.pushBack(UniquePtr<ui::UiElement>(abilityButton.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(abilityButton.release()));
 
     // Create FIGHT button
-    auto fightButton = makeUnique<ui::ButtonWorldAction>(&window);
+    auto fightButton = bmin::makeUnique<ui::ButtonWorldAction>(&window);
     fightButton->setId("fightButton");
     ui::BaseStyle fightStyle;
     fightStyle.x = 50;
@@ -135,10 +138,10 @@ int main(int argc, char** argv) {
     fightProps.worldActionType = state::WorldActionType::START_FIGHT;
     fightButton->setProps(fightProps);
     fightButton->addEventObserver(new TestButtonWorldActionObserver("fightButton"));
-    elements.pushBack(UniquePtr<ui::UiElement>(fightButton.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(fightButton.release()));
 
     // // Create SHOOT button
-    auto shootButton = makeUnique<ui::ButtonWorldAction>(&window);
+    auto shootButton = bmin::makeUnique<ui::ButtonWorldAction>(&window);
     shootButton->setId("shootButton");
     ui::BaseStyle shootStyle;
     shootStyle.x = 200;
@@ -148,10 +151,10 @@ int main(int argc, char** argv) {
     shootProps.worldActionType = state::WorldActionType::SHOOT;
     shootButton->setProps(shootProps);
     shootButton->addEventObserver(new TestButtonWorldActionObserver("shootButton"));
-    elements.pushBack(UniquePtr<ui::UiElement>(shootButton.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(shootButton.release()));
 
     // Create INVENTORY button
-    auto inventoryButton = makeUnique<ui::ButtonWorldAction>(&window);
+    auto inventoryButton = bmin::makeUnique<ui::ButtonWorldAction>(&window);
     inventoryButton->setId("inventoryButton");
     ui::BaseStyle inventoryStyle;
     inventoryStyle.x = 350;
@@ -163,7 +166,7 @@ int main(int argc, char** argv) {
     inventoryButton->setProps(inventoryProps);
     inventoryButton->addEventObserver(
         new TestButtonWorldActionObserver("inventoryButton"));
-    elements.pushBack(UniquePtr<ui::UiElement>(inventoryButton.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(inventoryButton.release()));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

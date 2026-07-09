@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bmin/String.h"
 #include "state/AbstractAction.h"
 #include "state/State.h"
 #include <algorithm>
@@ -9,7 +10,7 @@ namespace state {
 namespace actions {
 
 class UiRemoveFloatingNotification : public AbstractAction {
-  String notificationId;
+  bmin::String notificationId;
 
   void act() override {
     auto& notifications = state->uiState.floatingNotifications;
@@ -21,7 +22,7 @@ class UiRemoveFloatingNotification : public AbstractAction {
   }
 
 public:
-  explicit UiRemoveFloatingNotification(String _notificationId)
+  explicit UiRemoveFloatingNotification(bmin::String _notificationId)
       : notificationId(std::move(_notificationId)) {}
 };
 

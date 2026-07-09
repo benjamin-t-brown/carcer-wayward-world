@@ -28,7 +28,7 @@ PageInventoryProps& PageInventory::getProps() { return props; }
 const PageInventoryProps& PageInventory::getProps() const { return props; }
 
 void PageInventory::populateInventoryProps(
-    DynArray<ListInventoryPropsItem>& listProps) {
+    bmin::DynArray<ListInventoryPropsItem>& listProps) {
   if (!getStateManager() || !getDatabase()) {
     return;
   }
@@ -73,7 +73,7 @@ void PageInventory::build() {
 
   if (!props.characterPlayerSprite.empty()) {
     if (auto* icon = modal->getChildById("headerIcon")) {
-      auto iconBg = makeUnique<Quad>(window, modal);
+      auto iconBg = bmin::makeUnique<Quad>(window, modal);
       iconBg->setId("headerIconBg");
       iconBg->setStyle(icon->getStyle());
       iconBg->setProps(QuadProps{.bgColor = {255, 255, 255, 50}});
@@ -81,11 +81,11 @@ void PageInventory::build() {
       auto& modalChildren = modal->getChildren();
       const auto insertBefore = std::find_if(modalChildren.begin(),
                                              modalChildren.end(),
-                                             [](const UniquePtr<UiElement>& child) {
+                                             [](const bmin::UniquePtr<UiElement>& child) {
                                                return child->getId() == "headerIcon";
                                              });
       if (insertBefore != modalChildren.end()) {
-        modalChildren.insert(insertBefore, UniquePtr<UiElement>(iconBg.release()));
+        modalChildren.insert(insertBefore, bmin::UniquePtr<UiElement>(iconBg.release()));
       }
     }
   }
@@ -109,7 +109,7 @@ void PageInventory::build() {
   TextLineProps titleProps;
   TextBlock titleBlock;
   titleBlock.text =
-      String(TRANSLATE("Inventory")) + " - " + props.characterPlayerLabel;
+      bmin::String(TRANSLATE("Inventory")) + " - " + props.characterPlayerLabel;
   titleProps.textBlocks.pushBack(titleBlock);
   title->setProps(titleProps);
   modal->setTitleElement(title);
@@ -164,7 +164,7 @@ void PageInventory::build() {
   weightStyle.scale = 1.f;
   TextLineProps weightProps;
   weightProps.textBlocks.pushBack({
-      .text = String(TRANSLATE("Carrying")) + " " + bmin::toString(props.weightCarrying) + "/" +
+      .text = bmin::String(TRANSLATE("Carrying")) + " " + bmin::toString(props.weightCarrying) + "/" +
               bmin::toString(props.weightCapacity),
   });
   weightText->setProps(weightProps);
@@ -182,7 +182,7 @@ void PageInventory::build() {
   goldStyle.scale = 1.f;
   TextLineProps goldProps;
   goldProps.textBlocks.pushBack({
-      .text = bmin::toString(props.gold) + String(TRANSLATE(" gp")),
+      .text = bmin::toString(props.gold) + bmin::String(TRANSLATE(" gp")),
       .fontColor = Colors::Blue,
   });
   goldText->setProps(goldProps);

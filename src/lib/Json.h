@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Types.h"
+#include "bmin/String.h"
 #include "bmin/DynArray.h"
 #include "bmin/Map.h"
 
@@ -12,11 +12,11 @@ class Json {
  public:
   class parse_error : public std::exception {
    public:
-    explicit parse_error(String message);
+    explicit parse_error(bmin::String message);
     const char* what() const noexcept override;
 
    private:
-    String _message;
+    bmin::String _message;
   };
 
   Json();
@@ -25,7 +25,7 @@ class Json {
   Json& operator=(Json other);
   ~Json();
 
-  Json& operator=(String value);
+  Json& operator=(bmin::String value);
   Json& operator=(const char* value);
   Json& operator=(int value);
   Json& operator=(bool value);
@@ -48,7 +48,7 @@ class Json {
   template <typename T>
   T get() const;
 
-  String value(const char* key, String defaultValue) const;
+  bmin::String value(const char* key, bmin::String defaultValue) const;
   int value(const char* key, int defaultValue) const;
   bool value(const char* key, bool defaultValue) const;
 
@@ -58,15 +58,15 @@ class Json {
   const Json* end() const;
 
   struct JsonObjectItem {
-    const String& key;
+    const bmin::String& key;
     const Json& value;
   };
 
   class JsonObjectIterator {
    public:
     JsonObjectIterator();
-    JsonObjectIterator(bmin::Map<String, Json>* map, bmin::Map<String, Json>::Iterator it,
-                       bmin::Map<String, Json>::Iterator endIt);
+    JsonObjectIterator(bmin::Map<bmin::String, Json>* map, bmin::Map<bmin::String, Json>::Iterator it,
+                       bmin::Map<bmin::String, Json>::Iterator endIt);
 
     JsonObjectItem operator*() const;
     JsonObjectIterator& operator++();
@@ -74,9 +74,9 @@ class Json {
     bool operator!=(const JsonObjectIterator& other) const;
 
    private:
-    bmin::Map<String, Json>* _map = nullptr;
-    bmin::Map<String, Json>::Iterator _it;
-    bmin::Map<String, Json>::Iterator _end;
+    bmin::Map<bmin::String, Json>* _map = nullptr;
+    bmin::Map<bmin::String, Json>::Iterator _it;
+    bmin::Map<bmin::String, Json>::Iterator _end;
     bool _valid = false;
   };
 
@@ -103,9 +103,9 @@ class Json {
 
   Kind _kind;
   union Storage {
-    bmin::Map<String, Json> object;
+    bmin::Map<bmin::String, Json> object;
     bmin::DynArray<Json> array;
-    String string;
+    bmin::String string;
     std::int64_t integer;
     bool boolean;
     double floating;

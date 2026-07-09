@@ -29,7 +29,7 @@ const std::pair<int, int> MinipageEvent::getDims() const {
 void MinipageEvent::build() {
   children.clear();
 
-  auto modal = makeUnique<ModalSmall>(window, this);
+  auto modal = bmin::makeUnique<ModalSmall>(window, this);
   modal->setId("modal");
   BaseStyle modalStyle;
   modalStyle.x = style.x;
@@ -40,7 +40,7 @@ void MinipageEvent::build() {
   modal->setStyle(modalStyle);
   modal->setProps(ModalSmallProps{});
 
-  auto title = makeUnique<TextLine>(window, modal.get());
+  auto title = bmin::makeUnique<TextLine>(window, modal.get());
   BaseStyle titleStyle;
   setBaseFontConfig(titleStyle, BaseFontConfig::MODAL_TITLE);
   titleStyle.fontColor = Colors::Black;
@@ -54,7 +54,7 @@ void MinipageEvent::build() {
   title->setProps(titleProps);
   modal->setTitleElement(title.release());
 
-  children.pushBack(UniquePtr<UiElement>(modal.release()));
+  children.pushBack(bmin::UniquePtr<UiElement>(modal.release()));
 }
 
 void MinipageEvent::render(int dt) { UiElement::render(dt); }

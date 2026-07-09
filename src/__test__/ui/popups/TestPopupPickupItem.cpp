@@ -7,6 +7,8 @@
 #include "ui/UiElement.h"
 #include "ui/popups/PopupPickupItem.h"
 #include <memory>
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 class TestLayer : public layers::Layer {
 public:
@@ -17,15 +19,15 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start PopupPickupItem test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
-  UniquePtr<TestLayer> testLayer;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
+  bmin::UniquePtr<TestLayer> testLayer;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "PopupPickupItem test initialized" << LOG_ENDL;
 
     auto [windowWidth, windowHeight] = window.getDims();
 
-    testLayer = makeUnique<TestLayer>(&window);
+    testLayer = bmin::makeUnique<TestLayer>(&window);
 
     auto scale = 1.f;
     auto orientation = ui::PopupOrientation::WIDE;
@@ -44,7 +46,7 @@ int main(int argc, char** argv) {
         .value = 100,
         .orientation = orientation,
     });
-    elements.pushBack(UniquePtr<ui::UiElement>(popupPickupItem));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(popupPickupItem));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

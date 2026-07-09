@@ -1,19 +1,20 @@
 #pragma once
 
 #include "ui/UiElement.h"
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 struct ListPickUpPropsItem {
   model::ItemInstance item;
-  String itemLabel;
+  bmin::String itemLabel;
   int weight = 1;
-  String itemSprite;
+  bmin::String itemSprite;
 };
 
 struct ListPickUpProps {
-  DynArray<ListPickUpPropsItem> items;
+  bmin::DynArray<ListPickUpPropsItem> items;
   int lineHeight = 32;
   int lineGap = 2;
   int paddingTop = 4;

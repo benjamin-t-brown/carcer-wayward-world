@@ -1,12 +1,13 @@
 #pragma once
 
 #include "../../UiElement.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 // ButtonTextWrap-specific properties
 struct ButtonTextWrapProps {
-  String text;
+  bmin::String text;
   int verticalPadding = 0; // Padding added to top and bottom
   int horizontalPadding = 0; // Padding added to left and right
   bool isSelected = false;

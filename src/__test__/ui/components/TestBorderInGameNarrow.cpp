@@ -6,12 +6,14 @@
 #include "ui/UiElement.h"
 #include "ui/components/borders/BorderInGameNarrow.h"
 #include <memory>
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start BorderInGameNarrow test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "BorderInGameNarrow test initialized" << LOG_ENDL;
@@ -29,7 +31,7 @@ int main(int argc, char** argv) {
     auto borderProps = ui::BorderInGameNarrowProps{};
     borderProps.actionButtonsScale = 2.f;
     border->setProps(borderProps);
-    elements.pushBack(UniquePtr<ui::UiElement>(border));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(border));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

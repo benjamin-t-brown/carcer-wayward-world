@@ -4,6 +4,8 @@
 #include "model/stats/CharacterDerivedStats.h"
 #include "state/DatabaseInterface.h"
 #include "ui/UiElement.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 
 namespace ui {
 
@@ -14,15 +16,15 @@ struct PageCharacterProps {
 };
 
 struct PageCharacterStatRowEntry {
-  String label;
-  String helpDescription;
+  bmin::String label;
+  bmin::String helpDescription;
   int value = 0;
-  String valueText;
+  bmin::String valueText;
 };
 
 struct PageCharacterStatRowSectionArgs {
-  String title;
-  DynArray<PageCharacterStatRowEntry> rows;
+  bmin::String title;
+  bmin::DynArray<PageCharacterStatRowEntry> rows;
   int width  = 0;
   int y = 0;
   bool showModButtons = false;

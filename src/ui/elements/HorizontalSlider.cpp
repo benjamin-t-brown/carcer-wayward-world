@@ -5,7 +5,6 @@
 #include "ui/elements/buttons/ButtonScroll.h"
 #include "ui/uiUtils.h"
 #include <algorithm>
-#include "lib/Types.h"
 
 namespace ui {
 
@@ -131,7 +130,7 @@ void HorizontalSlider::decrement() {
 }
 
 bool HorizontalSlider::checkMouseDownEvent(
-    int mouseX, int mouseY, int button, DynArray<UiElement*> additionalElements) {
+    int mouseX, int mouseY, int button, bmin::DynArray<UiElement*> additionalElements) {
   const bool handled = UiElement::checkMouseDownEvent(mouseX, mouseY, button);
   if (isInSliderTrack(mouseX, mouseY) && !hitButton(mouseX, mouseY)) {
     setValueFromIndicatorMouseX(mouseX);
@@ -143,14 +142,14 @@ bool HorizontalSlider::checkMouseDownEvent(
 }
 
 bool HorizontalSlider::checkMouseUpEvent(
-    int mouseX, int mouseY, int button, DynArray<UiElement*> additionalElements) {
+    int mouseX, int mouseY, int button, bmin::DynArray<UiElement*> additionalElements) {
   isDraggingIndicator = false;
   return UiElement::checkMouseUpEvent(mouseX, mouseY, button);
 }
 
 bool HorizontalSlider::checkHoverEvent(int mouseX,
                                        int mouseY,
-                                       DynArray<UiElement*> additionalElements) {
+                                       bmin::DynArray<UiElement*> additionalElements) {
   if (isDraggingIndicator) {
     setValueFromIndicatorMouseX(mouseX);
     return true;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
 #include "state/State.h"
 #include <functional>
 #include <typeindex>
@@ -16,7 +16,7 @@ class ActionBus {
     std::function<void(AbstractAction&, State&)> handler;
   };
 
-  DynArray<Entry> entries;
+  bmin::DynArray<Entry> entries;
 
 public:
   void subscribe(void* owner,

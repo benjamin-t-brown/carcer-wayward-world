@@ -2,7 +2,8 @@
 
 #include "model/templates/AbilityTypes.h"
 #include <optional>
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 
 namespace model {
 
@@ -23,8 +24,8 @@ enum class ItemType {
   UNKNOWN
 };
 
-String getStringFromItemType(ItemType itemType);
-ItemType getItemTypeFromString(const String& itemTypeString);
+bmin::String getStringFromItemType(ItemType itemType);
+ItemType getItemTypeFromString(const bmin::String& itemTypeString);
 
 bool itemTypeIsEquippable(ItemType itemType);
 bool itemTypeIsTwoHandedWeapon(ItemType itemType);
@@ -39,33 +40,33 @@ enum class ItemUsability {
   USABLE_TOWN_AND_COMBAT,
 };
 
-ItemUsability getItemUsabilityFromString(const String& value);
+ItemUsability getItemUsabilityFromString(const bmin::String& value);
 
 struct ItemWeaponConfig {
-  String abilityName;
+  bmin::String abilityName;
   bmin::DynArray<AbilityAttackDmg> dmgOverrides;
 };
 
 struct ItemUseAbilityConfig {
-  String abilityName;
+  bmin::String abilityName;
   bmin::DynArray<AbilityAttackDmg> dmgOverrides;
   bmin::DynArray<AbilityRestore> restoreOverrides;
 };
 
 struct ItemTemplate {
   ItemType itemType = ItemType::UNKNOWN;
-  String name;
-  String label;
-  String iconSpriteName;
-  String description;
+  bmin::String name;
+  bmin::String label;
+  bmin::String iconSpriteName;
+  bmin::String description;
   int weight = 0;
   int value = 0;
   bool stackable = false;
   bool indestructable = false;
   ItemUsability itemUsability = ItemUsability::NOT_USABLE;
   std::optional<ItemUseAbilityConfig> useAbility;
-  std::optional<String> useSpecialEvent;
-  bmin::DynArray<String> statusEffectNames;
+  std::optional<bmin::String> useSpecialEvent;
+  bmin::DynArray<bmin::String> statusEffectNames;
   std::optional<ItemWeaponConfig> weapon;
 };
 

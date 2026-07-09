@@ -3,16 +3,18 @@
 #include "state/StateManager.h"
 #include "state/actions/ui/UiToggleEquipInventoryItem.hpp"
 #include "ui/UiElement.h"
+#include "bmin/String.h"
 
 namespace ui {
 class ObserverInventorySelectItem : public ui::UiEventObserver,
                                     public state::StateManagerInterface {
 
-  String characterPlayerId;
-  String itemId;
+  bmin::String characterPlayerId;
+  bmin::String itemId;
 
 public:
-  ObserverInventorySelectItem(const String& _characterPlayerId, const String& _itemId)
+  ObserverInventorySelectItem(const bmin::String& _characterPlayerId,
+                              const bmin::String& _itemId)
       : characterPlayerId(_characterPlayerId), itemId(_itemId) {}
 
   void onClick(int mouseX, int mouseY, int button) override {

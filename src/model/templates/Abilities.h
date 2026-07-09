@@ -1,15 +1,16 @@
 #pragma once
 
 #include "model/templates/AbilityTypes.h"
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 
 namespace model {
 
 struct AbilityTemplate {
-  String name;
-  String label;
-  String description;
-  String icon;
+  bmin::String name;
+  bmin::String label;
+  bmin::String description;
+  bmin::String icon;
   AbilityType type = AbilityType::ABILITY_ATTACK;
   TargetSelectInfo targetSelect;
   int apCost = 0;

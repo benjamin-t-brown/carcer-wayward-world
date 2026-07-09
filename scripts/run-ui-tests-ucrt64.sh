@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Run all UI tests via UCRT64 (no Node required).
+# Interactive/manual — opens SDL windows until the user closes each test.
+# Agents/automation: use ./scripts/compile-ui-tests.sh instead (compile only).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

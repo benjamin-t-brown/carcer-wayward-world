@@ -7,8 +7,8 @@
 namespace layers {
 
 LayerInventoryContext::LayerInventoryContext(sdl2w::Window* _window,
-                                             String itemId,
-                                             String itemName)
+                                             bmin::String itemId,
+                                             bmin::String itemName)
     : Layer(_window, LAYER_ID) {
 
   if (!assertInterfaces()) {

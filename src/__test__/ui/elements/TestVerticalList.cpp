@@ -8,12 +8,15 @@
 #include "ui/elements/VerticalList.h"
 #include "ui/elements/TextLine.h"
 #include <memory>
+#include "bmin/String.h"
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start VerticalList test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "VerticalList test initialized" << LOG_ENDL;
@@ -60,7 +63,7 @@ int main(int argc, char** argv) {
 
     verticalList->setProps(props);
 
-    elements.pushBack(UniquePtr<ui::UiElement>(verticalList));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(verticalList));
 
     auto& events = window.getEvents();
     events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_DOWN,

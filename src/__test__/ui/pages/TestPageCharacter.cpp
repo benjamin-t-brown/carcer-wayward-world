@@ -9,6 +9,7 @@
 #include "ui/pages/PageCharacter.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
+#include "bmin/UniquePtr.h"
 
 class TestLayer : public layers::Layer {
   model::CharacterPlayer characterPlayer;
@@ -18,7 +19,7 @@ public:
       : layers::Layer(_window), characterPlayer(std::move(_characterPlayer)) {
     auto [windowWidth, windowHeight] = window->getDims();
 
-    auto pageCharacter = makeUnique<ui::PageCharacter>(window);
+    auto pageCharacter = bmin::makeUnique<ui::PageCharacter>(window);
     pageCharacter->setId("pageCharacter");
     ui::BaseStyle pageStyle = pageCharacter->getStyle();
     pageStyle.width = windowWidth;
@@ -37,7 +38,7 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start PageCharacter test" << LOG_ENDL;
   srand(time(NULL));
 
-  UniquePtr<layers::LayerManager> layerManager;
+  bmin::UniquePtr<layers::LayerManager> layerManager;
 
   db::Database database;
   state::DatabaseInterface::setDatabase(&database);
@@ -49,7 +50,7 @@ int main(int argc, char** argv) {
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "PageCharacter test initialized" << LOG_ENDL;
 
-    layerManager = makeUnique<layers::LayerManager>(&window);
+    layerManager = bmin::makeUnique<layers::LayerManager>(&window);
     state::LayerManagerInterface::setLayerManager(layerManager.get());
 
     auto characterPlayer =

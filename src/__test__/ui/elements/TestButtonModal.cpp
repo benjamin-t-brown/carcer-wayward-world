@@ -9,19 +9,22 @@
 #include "ui/elements/buttons/ButtonClose.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
+#include "bmin/String.h"
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 class TestButtonObserver : public ui::UiEventObserver {
-  String id;
+  bmin::String id;
 
 public:
-  TestButtonObserver(String _id);
+  TestButtonObserver(bmin::String _id);
   ~TestButtonObserver() override = default;
   void onMouseDown(int x, int y, int button) override;
   void onMouseUp(int x, int y, int button) override;
   void onClick(int x, int y, int button) override;
 };
 
-TestButtonObserver::TestButtonObserver(String _id) : id(_id) {}
+TestButtonObserver::TestButtonObserver(bmin::String _id) : id(_id) {}
 
 void TestButtonObserver::onMouseDown(int x, int y, int button) {
   LOG(INFO) << "TestButtonObserver mousedown at: " << x << ", " << y
@@ -42,13 +45,13 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start ButtonModal test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ButtonModal test initialized" << LOG_ENDL;
 
     // Create first button (not selected)
-    auto button1 = makeUnique<ui::ButtonModal>(&window);
+    auto button1 = bmin::makeUnique<ui::ButtonModal>(&window);
     button1->setId("button1");
     ui::BaseStyle button1Style;
     button1Style.x = 50;
@@ -61,10 +64,10 @@ int main(int argc, char** argv) {
     button1Props.isSelected = false;
     button1->setProps(button1Props);
     button1->addEventObserver(new TestButtonObserver("button1"));
-    elements.pushBack(UniquePtr<ui::UiElement>(button1.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(button1.release()));
 
     // Create second button (selected)
-    auto button2 = makeUnique<ui::ButtonModal>(&window);
+    auto button2 = bmin::makeUnique<ui::ButtonModal>(&window);
     button2->setId("button2");
 
     button2->addEventObserver(new TestButtonObserver("button2"));
@@ -80,10 +83,10 @@ int main(int argc, char** argv) {
     button2Props.isSelected = true;
     button2->setProps(button2Props);
     button2->addEventObserver(new TestButtonObserver("button2"));
-    elements.pushBack(UniquePtr<ui::UiElement>(button2.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(button2.release()));
 
     // Create third button (different size)
-    auto button3 = makeUnique<ui::ButtonModal>(&window);
+    auto button3 = bmin::makeUnique<ui::ButtonModal>(&window);
     button3->setId("button3");
     ui::BaseStyle button3Style;
     button3Style.x = 50;
@@ -96,10 +99,10 @@ int main(int argc, char** argv) {
     button3Props.isSelected = false;
     button3->setProps(button3Props);
     button3->addEventObserver(new TestButtonObserver("button3"));
-    elements.pushBack(UniquePtr<ui::UiElement>(button3.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(button3.release()));
 
     // Create fourth button (scaled)
-    auto button4 = makeUnique<ui::ButtonModal>(&window);
+    auto button4 = bmin::makeUnique<ui::ButtonModal>(&window);
     button4->setId("button4");
     ui::BaseStyle button4Style;
     button4Style.x = 50;
@@ -113,10 +116,10 @@ int main(int argc, char** argv) {
     button4Props.isSelected = true;
     button4->setProps(button4Props);
     button4->addEventObserver(new TestButtonObserver("button4"));
-    elements.pushBack(UniquePtr<ui::UiElement>(button4.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(button4.release()));
 
     // Create fifth button (empty text)
-    auto button5 = makeUnique<ui::ButtonModal>(&window);
+    auto button5 = bmin::makeUnique<ui::ButtonModal>(&window);
     button5->setId("button5");
     ui::BaseStyle button5Style;
     button5Style.x = 50;
@@ -129,10 +132,10 @@ int main(int argc, char** argv) {
     button5Props.isSelected = false;
     button5->setProps(button5Props);
     button5->addEventObserver(new TestButtonObserver("button5"));
-    elements.pushBack(UniquePtr<ui::UiElement>(button5.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(button5.release()));
 
     // Create sixth button (long text)
-    auto button6 = makeUnique<ui::ButtonModal>(&window);
+    auto button6 = bmin::makeUnique<ui::ButtonModal>(&window);
     button6->setId("button6");
     ui::BaseStyle button6Style;
     button6Style.x = 50;
@@ -145,10 +148,10 @@ int main(int argc, char** argv) {
     button6Props.isSelected = true;
     button6->setProps(button6Props);
     button6->addEventObserver(new TestButtonObserver("button6"));
-    elements.pushBack(UniquePtr<ui::UiElement>(button6.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(button6.release()));
 
     // Create scroll up button
-    auto scrollUp = makeUnique<ui::ButtonScroll>(&window);
+    auto scrollUp = bmin::makeUnique<ui::ButtonScroll>(&window);
     scrollUp->setId("scrollUp");
     ui::BaseStyle scrollUpStyle;
     scrollUpStyle.x = 350;
@@ -162,10 +165,10 @@ int main(int argc, char** argv) {
     scrollUpProps.isSelected = false;
     scrollUp->setProps(scrollUpProps);
     scrollUp->addEventObserver(new TestButtonObserver("scrollUp"));
-    elements.pushBack(UniquePtr<ui::UiElement>(scrollUp.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(scrollUp.release()));
 
     // Create scroll down button
-    auto scrollDown = makeUnique<ui::ButtonScroll>(&window);
+    auto scrollDown = bmin::makeUnique<ui::ButtonScroll>(&window);
     scrollDown->setId("scrollDown");
     ui::BaseStyle scrollDownStyle;
     scrollDownStyle.x = 350;
@@ -178,10 +181,10 @@ int main(int argc, char** argv) {
     scrollDownProps.isSelected = true; // Make this one selected to show the selection state
     scrollDown->setProps(scrollDownProps);
     scrollDown->addEventObserver(new TestButtonObserver("scrollDown"));
-    elements.pushBack(UniquePtr<ui::UiElement>(scrollDown.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(scrollDown.release()));
 
     // Create modal close button
-    auto modalClose = makeUnique<ui::ButtonClose>(&window);
+    auto modalClose = bmin::makeUnique<ui::ButtonClose>(&window);
     modalClose->setId("modalClose");
     auto& style = modalClose->getStyle();
     style.x = 400;
@@ -190,10 +193,10 @@ int main(int argc, char** argv) {
     modalCloseProps.closeType = ui::CloseType::MODAL;
     modalClose->setProps(modalCloseProps);
     modalClose->addEventObserver(new TestButtonObserver("modalClose"));
-    elements.pushBack(UniquePtr<ui::UiElement>(modalClose.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(modalClose.release()));
 
     {
-      auto modalClose = makeUnique<ui::ButtonClose>(&window);
+      auto modalClose = bmin::makeUnique<ui::ButtonClose>(&window);
       modalClose->setId("modalCloseScaled");
       auto& style = modalClose->getStyle();
       style.x = 475;
@@ -203,11 +206,11 @@ int main(int argc, char** argv) {
       modalCloseProps.closeType = ui::CloseType::MODAL;
       modalClose->setProps(modalCloseProps);
       modalClose->addEventObserver(new TestButtonObserver(modalClose->getId()));
-      elements.pushBack(UniquePtr<ui::UiElement>(modalClose.release()));
+      elements.pushBack(bmin::UniquePtr<ui::UiElement>(modalClose.release()));
     }
 
     // Create popup close button
-    auto popupClose = makeUnique<ui::ButtonClose>(&window);
+    auto popupClose = bmin::makeUnique<ui::ButtonClose>(&window);
     popupClose->setId("popupClose");
     ui::BaseStyle popupCloseStyle;
     popupCloseStyle.x = 400;
@@ -219,7 +222,7 @@ int main(int argc, char** argv) {
     popupCloseProps.closeType = ui::CloseType::POPUP;
     popupClose->setProps(popupCloseProps);
     popupClose->addEventObserver(new TestButtonObserver("popupClose"));
-    elements.pushBack(UniquePtr<ui::UiElement>(popupClose.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(popupClose.release()));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

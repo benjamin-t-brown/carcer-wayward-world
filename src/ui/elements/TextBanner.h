@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../UiElement.h"
-#include "lib/Types.h"
+#include "bmin/String.h"
 #include <utility>
 
 namespace ui {
@@ -12,7 +12,7 @@ struct TextBannerProps {
   std::pair<int, int> location = {0, 0};
   std::pair<int, int> dims = {0, 0};
   TextBannerCorner corner = TextBannerCorner::LEFT_TOP;
-  String text;
+  bmin::String text;
   SDL_Color backgroundColor = Colors::Grey;
   int padding = 6;
   int outsetBorderSize = 0;

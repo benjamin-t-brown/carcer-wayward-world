@@ -47,7 +47,7 @@ void PageTalkChoice::build() {
   ModalStandardProps modalProps;
   modal->setProps(modalProps);
 
-  children.pushBack(UniquePtr<UiElement>(modal));
+  children.pushBack(bmin::UniquePtr<UiElement>(modal));
 
   auto [scaledContentW, scaledContentH] = modal->getContentDims();
   auto [contentX, contentY] = modal->getContentLocation();
@@ -134,7 +134,7 @@ void PageTalkChoice::build() {
     choiceButtonStyle.scale = 1.f;
     choiceButtonStyle.fontColor = Colors::DarkBlue;
     ui::ButtonTextWrapProps choiceButtonProps;
-    const String& prefixText = props.choices[i].prefixText;
+    const bmin::String& prefixText = props.choices[i].prefixText;
     choiceButtonProps.text =
         bmin::toString(i + 1) + ". " +
         ((prefixText.empty() ? props.choices[i].text

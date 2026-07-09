@@ -3,18 +3,19 @@
 #include "lib/sdl2w/L10n.h"
 #include "state/DatabaseInterface.h"
 #include "ui/UiElement.h"
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 struct MinipagePickUpProps {
-  String titleText = TRANSLATE("Pick Up");
-  String statusText;
-  String weightText = "Carrying 0/100";
+  bmin::String titleText = TRANSLATE("Pick Up");
+  bmin::String statusText;
+  bmin::String weightText = "Carrying 0/100";
   int partyMemberIndex = 0;
-  DynArray<String> partyMemberSprites;
-  DynArray<model::ItemInstance> nearbyItems;
-  String doneButtonRemoveLayerId;
+  bmin::DynArray<bmin::String> partyMemberSprites;
+  bmin::DynArray<model::ItemInstance> nearbyItems;
+  bmin::String doneButtonRemoveLayerId;
 };
 
 // MinipagePickUp - renders the pickup minipage with ModalSmall layout containing

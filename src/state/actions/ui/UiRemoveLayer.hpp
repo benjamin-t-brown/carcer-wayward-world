@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bmin/String.h"
+#include "bmin/StringInterop.h"
 #include "layers/LayerManager.h"
 #include "state/AbstractAction.h"
 
@@ -8,7 +10,7 @@ namespace state {
 namespace actions {
 
 class UiRemoveLayer : public AbstractAction {
-  String layerId;
+  bmin::String layerId;
   void act() override {
     auto layerManager = getLayerManager();
     if (!layerManager) {
@@ -23,7 +25,7 @@ class UiRemoveLayer : public AbstractAction {
   }
 
 public:
-  UiRemoveLayer(const String& _layerId) : layerId(_layerId) {}
+  UiRemoveLayer(const bmin::String& _layerId) : layerId(_layerId) {}
 };
 
 } // namespace actions

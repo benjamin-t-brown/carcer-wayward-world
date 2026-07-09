@@ -1,4 +1,6 @@
 #include "TextLine.h"
+#include "bmin/StringInterop.h"
+#include "bmin/UniquePtr.h"
 #include "lib/sdl2w/Draw.h"
 #include "state/StateManager.h"
 #include "ui/FontScale.h"
@@ -9,8 +11,8 @@ namespace ui {
 TextLine::TextLine(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {}
 
-String TextLine::getFontNameFromFamily(FontFamily fontFamily) {
-  auto fontName = String("default");
+bmin::String TextLine::getFontNameFromFamily(FontFamily fontFamily) {
+  auto fontName = bmin::String("default");
   switch (fontFamily) {
   case FontFamily::TEXT:
     fontName = "text";
@@ -71,7 +73,7 @@ std::pair<int, int> TextLine::calculateTextDims() const {
   int totalHeight = 0;
 
   for (const auto& block : props.textBlocks) {
-    const String& measureStr = block.text.empty() ? String(" ") : block.text;
+    const bmin::String& measureStr = block.text.empty() ? bmin::String(" ") : block.text;
     auto [textWidth, textHeight] =
         draw.measureText(bmin::toStringView(measureStr), makeRenderTextParams(block));
     if (!block.text.empty()) {
@@ -110,7 +112,7 @@ void TextLine::build() {
     textHeight += 2; // HACK: Measure text doesn't seem accurate per height, so this will
                      // need overrides...
 
-    auto tlParams = makeUnique<TextLineRenderTextParams>();
+    auto tlParams = bmin::makeUnique<TextLineRenderTextParams>();
     tlParams->text = block.text;
     renderTextParams.x = currentX;
     renderTextParams.y = currentY;

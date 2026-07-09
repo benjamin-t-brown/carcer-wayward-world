@@ -1,5 +1,9 @@
 #pragma once
 
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
+#include "bmin/StringInterop.h"
+#include "bmin/UniquePtr.h"
 #include "lib/sdl2w/Window.h"
 #include "state/AbstractAction.h"
 #include "state/DatabaseInterface.h"
@@ -16,9 +20,9 @@ class Layer : public state::StateManagerInterface, public state::DatabaseInterfa
 protected:
   sdl2w::Window* window;
   LayerState state = LayerState::ON;
-  DynArray<UniquePtr<ui::UiElement>> uiElements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> uiElements;
   bool removeFlag = false;
-  String id;
+  bmin::String id;
 
 public:
   explicit Layer(sdl2w::Window* _window, std::string_view _id = "");
@@ -41,7 +45,7 @@ public:
   void remove();
   bool shouldRemove() const;
   LayerState getState() const;
-  String getId() const;
+  bmin::String getId() const;
   void setId(std::string_view id);
 
   void addUiElement(ui::UiElement* element);

@@ -4,14 +4,15 @@
 #include "model/instances/ItemInstance.h"
 #include "model/templates/Maps.h"
 #include <optional>
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 #include "lib/bmin/Map.h"
 
 namespace model {
 
 struct TileInstance {
-  String id;
-  String tilesetName;
+  bmin::String id;
+  bmin::String tilesetName;
   int tileId = 0;
   int x = 0;
   int y = 0;
@@ -26,9 +27,9 @@ struct TileInstance {
 enum class TurnMode { TURN_TOWN, TURN_OUTDOOR, TURN_COMBAT };
 
 struct MapInstance {
-  String id;
-  String label;
-  String templateName;
+  bmin::String id;
+  bmin::String label;
+  bmin::String templateName;
   bmin::Map<int, bmin::DynArray<TileInstance>> tiles;
   bmin::DynArray<CharacterInstance> characters;
   bmin::DynArray<ItemInstance> items;
@@ -42,7 +43,7 @@ struct MapInstance {
 };
 
 struct World {
-  String name;
+  bmin::String name;
   MapInstance currentMap;
 };
 

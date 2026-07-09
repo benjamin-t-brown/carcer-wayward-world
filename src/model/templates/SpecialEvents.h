@@ -1,7 +1,8 @@
 #pragma once
 
 #include <optional>
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 #include <variant>
 
 namespace model {
@@ -26,57 +27,57 @@ using GameEventChild = std::variant<GameEventChildChoice,
                                     GameEventChildEnd>;
 
 struct GameEvent {
-  String id;
-  String title;
+  bmin::String id;
+  bmin::String title;
   GameEventType eventType; // indicates which ui layer to use for the event
-  String icon;        // name of sprite to use for the event
+  bmin::String icon;        // name of sprite to use for the event
   // a mapping from variable name to its original text and it's evaluated value
   bmin::DynArray<Variable> vars;
   bmin::DynArray<GameEventChild> children;
 };
 
 struct Variable {
-  String id;
-  String key;
-  String value;
-  String importFrom;
+  bmin::String id;
+  bmin::String key;
+  bmin::String value;
+  bmin::String importFrom;
 };
 
 struct VariableValue {
-  String str;
-  std::optional<String> evaluated;
+  bmin::String str;
+  std::optional<bmin::String> evaluated;
 };
 
 struct AudioInfo {
-  String audioName;
+  bmin::String audioName;
   int volume;
   int offset;
 };
 
 // struct KeywordDataK {
 //   KeywordType keywordType = KeywordType::K;
-//   String text;
+//   bmin::String text;
 // };
 
 // struct KeywordDataKDup {
 //   KeywordType keywordType = KeywordType::K_DUP;
-//   String keyword;
+//   bmin::String keyword;
 // };
 
 // struct KeywordCheck {
-//   String conditionStr;
-//   String next;
+//   bmin::String conditionStr;
+//   bmin::String next;
 // };
 
 // struct KeywordDataKSwitch {
 //   KeywordType keywordType = KeywordType::K_SWITCH;
-//   String defaultNext; // id of next child
+//   bmin::String defaultNext; // id of next child
 //   bmin::DynArray<KeywordCheck> checks;
 // };
 
 // struct KeywordDataKChild {
 //   KeywordType keywordType = KeywordType::K_CHILD;
-//   String next; // id of next child
+//   bmin::String next; // id of next child
 // };
 
 // // Discriminated union for KeywordData
@@ -91,60 +92,60 @@ struct AudioInfo {
 
 // struct GameEventChildKeyword {
 //   GameEventChildType eventChildType = GameEventChildType::KEYWORD;
-//   String id;
-//   std::map<String, KeywordData> keywords;
+//   bmin::String id;
+//   std::map<bmin::String, KeywordData> keywords;
 // };
 
 struct ChoiceSwitchText {
-  String conditionStr;
-  String text;
+  bmin::String conditionStr;
+  bmin::String text;
 };
 
 struct Choice {
-  String text;
+  bmin::String text;
   bmin::DynArray<ChoiceSwitchText> switchText;
-  String prefixText;
-  String conditionStr;
-  String evalStr;
-  String next;
+  bmin::String prefixText;
+  bmin::String conditionStr;
+  bmin::String evalStr;
+  bmin::String next;
 };
 
 
 
 struct GameEventChildChoice {
   GameEventChildType eventChildType = GameEventChildType::CHOICE;
-  String id;
-  String text;
+  bmin::String id;
+  bmin::String text;
   bmin::DynArray<Choice> choices;
   std::optional<AudioInfo> audioInfo;
 };
 
 struct SwitchCase {
-  String conditionStr;
-  String next;
+  bmin::String conditionStr;
+  bmin::String next;
 };
 
 struct GameEventChildSwitch {
   GameEventChildType eventChildType = GameEventChildType::SWITCH;
-  String id;
-  String defaultNext;
+  bmin::String id;
+  bmin::String defaultNext;
   bmin::DynArray<SwitchCase> cases;
 };
 
 struct GameEventChildExec {
   GameEventChildType eventChildType = GameEventChildType::EXEC;
-  String id;
-  bmin::DynArray<String> paragraphs;
-  String execStr;
-  String next;
+  bmin::String id;
+  bmin::DynArray<bmin::String> paragraphs;
+  bmin::String execStr;
+  bmin::String next;
   bool autoAdvance;
   std::optional<AudioInfo> audioInfo;
 };
 
 struct GameEventChildEnd {
   GameEventChildType eventChildType = GameEventChildType::END;
-  String id;
-  String next;
+  bmin::String id;
+  bmin::String next;
 };
 
 } // namespace model

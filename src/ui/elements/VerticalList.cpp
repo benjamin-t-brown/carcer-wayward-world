@@ -28,7 +28,7 @@ void VerticalList::clearSelection() { selectedIndex = -1; }
 
 void VerticalList::addListItem(UiElement* item) { addChild(item); }
 
-void VerticalList::addListItems(const DynArray<UiElement*>& items) {
+void VerticalList::addListItems(const bmin::DynArray<UiElement*>& items) {
   for (int i = 0; i < static_cast<int>(items.size()); i++) {
     addListItem(items[i]);
   }

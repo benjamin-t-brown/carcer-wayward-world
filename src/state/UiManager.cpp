@@ -8,7 +8,7 @@ namespace state {
 
 void UiManager::update(int dt, State& state, StateManager& stateManager) {
   auto& notifications = state.uiState.floatingNotifications;
-  DynArray<String> expiredIds;
+  bmin::DynArray<bmin::String> expiredIds;
 
   for (auto& notification : notifications) {
     model::timerStructUpdate(notification.timer, dt);

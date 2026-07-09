@@ -6,12 +6,14 @@
 #include "ui/UiElement.h"
 #include "ui/components/lists/ListInventory.h"
 #include <memory>
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start ListInventory test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ListInventory test initialized" << LOG_ENDL;
@@ -69,7 +71,7 @@ int main(int argc, char** argv) {
     LOG(INFO) << "ListInventory dimensions: " << listWidth << ", " << listHeight
               << LOG_ENDL;
 
-    elements.pushBack(UniquePtr<ui::UiElement>(listInventory));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(listInventory));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

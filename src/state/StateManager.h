@@ -1,6 +1,8 @@
 #pragma once
 
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/List.h"
+#include "bmin/UniquePtr.h"
 #include "state/ActionBus.h"
 #include "state/DatabaseInterface.h"
 #include "state/State.h"
@@ -16,10 +18,10 @@ class AbstractAction;
 struct AsyncAction;
 
 struct ActionData {
-  List<UniquePtr<AsyncAction>> sequentialActions;
-  List<UniquePtr<AsyncAction>> sequentialActionsNext;
-  List<UniquePtr<AsyncAction>> insertActions;
-  DynArray<UniquePtr<AsyncAction>> parallelActions;
+  bmin::List<bmin::UniquePtr<AsyncAction>> sequentialActions;
+  bmin::List<bmin::UniquePtr<AsyncAction>> sequentialActionsNext;
+  bmin::List<bmin::UniquePtr<AsyncAction>> insertActions;
+  bmin::DynArray<bmin::UniquePtr<AsyncAction>> parallelActions;
 };
 
 class StateManager : public state::DatabaseInterface {

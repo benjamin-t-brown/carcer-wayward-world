@@ -2,6 +2,7 @@
 
 #include "../../UiElement.h"
 #include "state/WorldActions.h"
+#include "bmin/String.h"
 
 namespace ui {
 
@@ -11,7 +12,7 @@ struct ButtonWorldActionProps {
 };
 
 struct ButtonWorldActionMapping {
-  String label;
+  bmin::String label;
   int spriteIndex;
   bool isSmall = false;
 };
@@ -23,7 +24,7 @@ private:
   ButtonWorldActionProps props;
   bool isInHoverMode = false;
   bool isInActiveMode = false;
-  const String spriteSheetName = "ui_action_buttons";
+  const bmin::String spriteSheetName = "ui_action_buttons";
   const int normalStartingSpriteIndex = 16;
   const int smallStartingSpriteIndex = 0;
   const int normalSpriteOffsetToActive = 16;

@@ -6,19 +6,21 @@
 #include "ui/components/borders/BorderModalSmall.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start BorderModalSmall test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "BorderModalSmall test initialized" << LOG_ENDL;
 
     auto [windowWidth, windowHeight] = window.getDims();
     // Create BorderModalSmall component
-    auto borderModal = makeUnique<ui::BorderModalSmall>(&window);
+    auto borderModal = bmin::makeUnique<ui::BorderModalSmall>(&window);
     ui::BaseStyle style;
     style.width = 500;
     style.height = windowHeight - 50;
@@ -27,7 +29,7 @@ int main(int argc, char** argv) {
     style.scale = 1.0f;
     borderModal->setStyle(style);
 
-    elements.pushBack(UniquePtr<ui::UiElement>(borderModal.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(borderModal.release()));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

@@ -5,10 +5,10 @@
 
 namespace runner {
 
-ConditionEvaluatorFuncs::ConditionEvaluatorFuncs(const bmin::Map<String, String>& storage)
+ConditionEvaluatorFuncs::ConditionEvaluatorFuncs(const bmin::Map<bmin::String, bmin::String>& storage)
     : storage(storage) {}
 
-std::optional<int> ConditionEvaluatorFuncs::getNumFromStorageOrArgInt(const String& a) {
+std::optional<int> ConditionEvaluatorFuncs::getNumFromStorageOrArgInt(const bmin::String& a) {
   if (bmin::isInt(a)) {
     return bmin::parseInt(a);
   }
@@ -20,7 +20,7 @@ std::optional<int> ConditionEvaluatorFuncs::getNumFromStorageOrArgInt(const Stri
 }
 
 std::optional<double>
-ConditionEvaluatorFuncs::getNumFromStorageOrArgDouble(const String& a) {
+ConditionEvaluatorFuncs::getNumFromStorageOrArgDouble(const bmin::String& a) {
   if (bmin::isDouble(a)) {
     return bmin::parseDouble(a);
   }
@@ -31,27 +31,27 @@ ConditionEvaluatorFuncs::getNumFromStorageOrArgDouble(const String& a) {
   return std::nullopt;
 }
 
-bool ConditionEvaluatorFuncs::isNumber(const String& a) {
+bool ConditionEvaluatorFuncs::isNumber(const bmin::String& a) {
   return getNumFromStorageOrArgDouble(a).has_value();
 }
 
-bool ConditionEvaluatorFuncs::IS(const String& a) {
+bool ConditionEvaluatorFuncs::IS(const bmin::String& a) {
   if (a == "true") {
     return true;
   }
   if (a == "false") {
     return false;
   }
-  const String vStr = getStorage(storage, a).value_or("");
+  const bmin::String vStr = getStorage(storage, a).value_or("");
   if (vStr == "0" || vStr == "false" || vStr.empty()) {
     return false;
   }
   return true;
 }
 
-bool ConditionEvaluatorFuncs::ISNOT(const String& a) { return !IS(a); }
+bool ConditionEvaluatorFuncs::ISNOT(const bmin::String& a) { return !IS(a); }
 
-bool ConditionEvaluatorFuncs::EQ(const String& a, const String& b) {
+bool ConditionEvaluatorFuncs::EQ(const bmin::String& a, const bmin::String& b) {
   auto aStorage = getStorage(storage, a);
   auto bStorage = getStorage(storage, b);
 
@@ -74,9 +74,9 @@ bool ConditionEvaluatorFuncs::EQ(const String& a, const String& b) {
   return false;
 }
 
-bool ConditionEvaluatorFuncs::NEQ(const String& a, const String& b) { return !EQ(a, b); }
+bool ConditionEvaluatorFuncs::NEQ(const bmin::String& a, const bmin::String& b) { return !EQ(a, b); }
 
-bool ConditionEvaluatorFuncs::GT(const String& a, const String& b) {
+bool ConditionEvaluatorFuncs::GT(const bmin::String& a, const bmin::String& b) {
   auto num1 = getNumFromStorageOrArgDouble(a);
   auto num2 = getNumFromStorageOrArgDouble(b);
   if (!num1 || !num2) {
@@ -86,11 +86,11 @@ bool ConditionEvaluatorFuncs::GT(const String& a, const String& b) {
   return *num1 > *num2;
 }
 
-bool ConditionEvaluatorFuncs::GTE(const String& a, const String& b) {
+bool ConditionEvaluatorFuncs::GTE(const bmin::String& a, const bmin::String& b) {
   return EQ(a, b) || GT(a, b);
 }
 
-bool ConditionEvaluatorFuncs::LT(const String& a, const String& b) {
+bool ConditionEvaluatorFuncs::LT(const bmin::String& a, const bmin::String& b) {
   auto num1 = getNumFromStorageOrArgDouble(a);
   auto num2 = getNumFromStorageOrArgDouble(b);
   if (!num1 || !num2) {
@@ -99,11 +99,11 @@ bool ConditionEvaluatorFuncs::LT(const String& a, const String& b) {
   return *num1 < *num2;
 }
 
-bool ConditionEvaluatorFuncs::LTE(const String& a, const String& b) {
+bool ConditionEvaluatorFuncs::LTE(const bmin::String& a, const bmin::String& b) {
   return EQ(a, b) || LT(a, b);
 }
 
-bool ConditionEvaluatorFuncs::ALL(const DynArray<String>& args) {
+bool ConditionEvaluatorFuncs::ALL(const bmin::DynArray<bmin::String>& args) {
   for (const auto& arg : args) {
     if (arg == "false") {
       return false;
@@ -115,7 +115,7 @@ bool ConditionEvaluatorFuncs::ALL(const DynArray<String>& args) {
   return true;
 }
 
-bool ConditionEvaluatorFuncs::ANY(const DynArray<String>& args) {
+bool ConditionEvaluatorFuncs::ANY(const bmin::DynArray<bmin::String>& args) {
   for (const auto& arg : args) {
     if (arg == "true") {
       return true;
@@ -127,8 +127,8 @@ bool ConditionEvaluatorFuncs::ANY(const DynArray<String>& args) {
   return false;
 }
 
-bool ConditionEvaluatorFuncs::ONCE(const String& a) {
-  const String onceKey = "once." + a;
+bool ConditionEvaluatorFuncs::ONCE(const bmin::String& a) {
+  const bmin::String onceKey = "once." + a;
   auto v = getStorage(storage, onceKey);
   if (v && *v == "true") {
     return false;
@@ -140,33 +140,33 @@ bool ConditionEvaluatorFuncs::ONCE(const String& a) {
   return true;
 }
 
-bool ConditionEvaluatorFuncs::FUNC_HasItem(const String& itemName) {
+bool ConditionEvaluatorFuncs::FUNC_HasItem(const bmin::String& itemName) {
   auto v = getStorage(storage, "vars.items." + itemName);
   return v && !v->empty() && *v != "0" && *v != "false";
 }
 
-bool ConditionEvaluatorFuncs::FUNC_QuestStarted(const String& questName) {
+bool ConditionEvaluatorFuncs::FUNC_QuestStarted(const bmin::String& questName) {
   auto v = getStorage(storage, "vars.quests." + questName + ".started");
   return v && !v->empty() && *v != "0" && *v != "false";
 }
 
-bool ConditionEvaluatorFuncs::FUNC_QuestCompleted(const String& questName) {
+bool ConditionEvaluatorFuncs::FUNC_QuestCompleted(const bmin::String& questName) {
   auto v = getStorage(storage, "vars.quests." + questName + ".completed");
   return v && !v->empty() && *v != "0" && *v != "false";
 }
 
-bool ConditionEvaluatorFuncs::FUNC_QuestStepEq(const String& questName,
-                                               const String& stepId) {
+bool ConditionEvaluatorFuncs::FUNC_QuestStepEq(const bmin::String& questName,
+                                               const bmin::String& stepId) {
   auto v = getStorage(storage, "vars.quests." + questName + ".step");
   return v && *v == stepId;
 }
 
-ConditionEvaluator::ConditionEvaluator(const bmin::Map<String, String>& storage,
-                                       const String& baseConditionStr)
+ConditionEvaluator::ConditionEvaluator(const bmin::Map<bmin::String, bmin::String>& storage,
+                                       const bmin::String& baseConditionStr)
     : baseConditionStr(baseConditionStr), funcs(storage) {}
 
-void ConditionEvaluator::assertFuncArgs(const String& funcName,
-                                        const DynArray<String>& funcArgs,
+void ConditionEvaluator::assertFuncArgs(const bmin::String& funcName,
+                                        const bmin::DynArray<bmin::String>& funcArgs,
                                         size_t expectedArgs) {
   if (funcArgs.size() != expectedArgs) {
     throw std::runtime_error(("Invalid number of arguments for function '" + funcName +
@@ -176,9 +176,9 @@ void ConditionEvaluator::assertFuncArgs(const String& funcName,
   }
 }
 
-bool ConditionEvaluator::evalFunc(const String& funcName,
-                                  const DynArray<String>& funcArgs) {
-  auto simplifyArg = [this](const String& arg) -> String {
+bool ConditionEvaluator::evalFunc(const bmin::String& funcName,
+                                  const bmin::DynArray<bmin::String>& funcArgs) {
+  auto simplifyArg = [this](const bmin::String& arg) -> bmin::String {
     if (isFunctionCall(arg)) {
       FunctionCall call = parseFunctionCall(arg);
       const bool result = evalFunc(call.funcName, call.args);
@@ -189,81 +189,81 @@ bool ConditionEvaluator::evalFunc(const String& funcName,
 
   if (funcName == "IS") {
     assertFuncArgs(funcName, funcArgs, 1);
-    const String val = simplifyArg(funcArgs[0]);
+    const bmin::String val = simplifyArg(funcArgs[0]);
     return funcs.IS(val);
   } else if (funcName == "ISNOT") {
     assertFuncArgs(funcName, funcArgs, 1);
-    const String val = simplifyArg(funcArgs[0]);
+    const bmin::String val = simplifyArg(funcArgs[0]);
     return funcs.ISNOT(val);
   } else if (funcName == "EQ") {
     assertFuncArgs(funcName, funcArgs, 2);
-    const String a = simplifyArg(funcArgs[0]);
-    const String b = simplifyArg(funcArgs[1]);
+    const bmin::String a = simplifyArg(funcArgs[0]);
+    const bmin::String b = simplifyArg(funcArgs[1]);
     return funcs.EQ(a, b);
   } else if (funcName == "NEQ") {
     assertFuncArgs(funcName, funcArgs, 2);
-    const String a = simplifyArg(funcArgs[0]);
-    const String b = simplifyArg(funcArgs[1]);
+    const bmin::String a = simplifyArg(funcArgs[0]);
+    const bmin::String b = simplifyArg(funcArgs[1]);
     return funcs.NEQ(a, b);
   } else if (funcName == "GT") {
     assertFuncArgs(funcName, funcArgs, 2);
-    const String a = simplifyArg(funcArgs[0]);
-    const String b = simplifyArg(funcArgs[1]);
+    const bmin::String a = simplifyArg(funcArgs[0]);
+    const bmin::String b = simplifyArg(funcArgs[1]);
     return funcs.GT(a, b);
   } else if (funcName == "GTE") {
     assertFuncArgs(funcName, funcArgs, 2);
-    const String a = simplifyArg(funcArgs[0]);
-    const String b = simplifyArg(funcArgs[1]);
+    const bmin::String a = simplifyArg(funcArgs[0]);
+    const bmin::String b = simplifyArg(funcArgs[1]);
     return funcs.GTE(a, b);
   } else if (funcName == "LT") {
     assertFuncArgs(funcName, funcArgs, 2);
-    const String a = simplifyArg(funcArgs[0]);
-    const String b = simplifyArg(funcArgs[1]);
+    const bmin::String a = simplifyArg(funcArgs[0]);
+    const bmin::String b = simplifyArg(funcArgs[1]);
     return funcs.LT(a, b);
   } else if (funcName == "LTE") {
     assertFuncArgs(funcName, funcArgs, 2);
-    const String a = simplifyArg(funcArgs[0]);
-    const String b = simplifyArg(funcArgs[1]);
+    const bmin::String a = simplifyArg(funcArgs[0]);
+    const bmin::String b = simplifyArg(funcArgs[1]);
     return funcs.LTE(a, b);
   } else if (funcName == "ALL") {
-    DynArray<String> subArgs;
+    bmin::DynArray<bmin::String> subArgs;
     for (const auto& arg : funcArgs) {
       subArgs.pushBack(simplifyArg(arg));
     }
     return funcs.ALL(subArgs);
   } else if (funcName == "ANY") {
-    DynArray<String> subArgs;
+    bmin::DynArray<bmin::String> subArgs;
     for (const auto& arg : funcArgs) {
       subArgs.pushBack(simplifyArg(arg));
     }
     return funcs.ANY(subArgs);
   } else if (funcName == "ONCE") {
     assertFuncArgs(funcName, funcArgs, 1);
-    const String a = simplifyArg(funcArgs[0]);
+    const bmin::String a = simplifyArg(funcArgs[0]);
     return funcs.ONCE(a);
   } else if (funcName == "HAS_ITEM") {
     assertFuncArgs(funcName, funcArgs, 1);
-    const String itemName = simplifyArg(funcArgs[0]);
+    const bmin::String itemName = simplifyArg(funcArgs[0]);
     return funcs.FUNC_HasItem(itemName);
   } else if (funcName == "QUEST_IS_STARTED") {
     assertFuncArgs(funcName, funcArgs, 1);
-    const String questName = simplifyArg(funcArgs[0]);
+    const bmin::String questName = simplifyArg(funcArgs[0]);
     return funcs.FUNC_QuestStarted(questName);
   } else if (funcName == "QUEST_IS_COMPLETE") {
     assertFuncArgs(funcName, funcArgs, 1);
-    const String questName = simplifyArg(funcArgs[0]);
+    const bmin::String questName = simplifyArg(funcArgs[0]);
     return funcs.FUNC_QuestCompleted(questName);
   } else if (funcName == "QUEST_STEP_EQ") {
     assertFuncArgs(funcName, funcArgs, 2);
-    const String questName = simplifyArg(funcArgs[0]);
-    const String stepNum = simplifyArg(funcArgs[1]);
+    const bmin::String questName = simplifyArg(funcArgs[0]);
+    const bmin::String stepNum = simplifyArg(funcArgs[1]);
     return funcs.FUNC_QuestStepEq(questName, stepNum);
   }
   throw std::runtime_error(("Conditional function '" + funcName + "' not found.").cStr());
 }
 
-bool ConditionEvaluator::evalCondition(const String& str) {
-  const String conditionStr = trim(str);
+bool ConditionEvaluator::evalCondition(const bmin::String& str) {
+  const bmin::String conditionStr = trim(str);
   if (conditionStr.empty()) {
     return true;
   }

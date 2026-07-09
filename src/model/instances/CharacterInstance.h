@@ -1,13 +1,13 @@
 #pragma once
 
-#include "lib/Types.h"
+#include "bmin/String.h"
 
 namespace model {
 
 struct CharacterInstance {
-  String id;
-  String name;
-  String templateName;
+  bmin::String id;
+  bmin::String name;
+  bmin::String templateName;
 };
 
 } // namespace model

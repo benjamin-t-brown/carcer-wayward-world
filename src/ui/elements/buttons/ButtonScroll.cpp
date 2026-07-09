@@ -66,7 +66,7 @@ void ButtonScroll::build() {
 
   rect->setProps(rectProps);
 
-  children.pushBack(UniquePtr<UiElement>(rect));
+  children.pushBack(bmin::UniquePtr<UiElement>(rect));
 }
 
 void ButtonScroll::render(int dt) {

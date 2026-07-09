@@ -6,18 +6,20 @@
 #include "ui/UiElement.h"
 #include "ui/components/borders/BorderModalStandard.h"
 #include <memory>
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start BorderModalStandard test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "BorderModalStandard test initialized" << LOG_ENDL;
 
     // Create BorderModalStandard component
-    auto borderModal = makeUnique<ui::BorderModalStandard>(&window);
+    auto borderModal = bmin::makeUnique<ui::BorderModalStandard>(&window);
     ui::BaseStyle style;
     style.x = 0;
     style.y = 0;
@@ -27,7 +29,7 @@ int main(int argc, char** argv) {
     borderModal->setStyle(style);
     borderModal->setProps({});
 
-    elements.pushBack(UniquePtr<ui::UiElement>(borderModal.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(borderModal.release()));
   };
 
   auto _update = [&](sdl2w::Window& window, sdl2w::Store& store) {

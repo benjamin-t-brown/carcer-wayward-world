@@ -1,13 +1,14 @@
 #pragma once
 
 #include "../../UiElement.h"
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 struct ButtonIconProps {
-  String regularSprite;
-  String activeSprite;
+  bmin::String regularSprite;
+  bmin::String activeSprite;
   int iconSize = 32;
   bool isDisabled = false;
 };
@@ -39,11 +40,11 @@ public:
   bool checkMouseDownEvent(int mouseX,
                            int mouseY,
                            int button,
-                           DynArray<UiElement*> additionalElements = {}) override;
+                           bmin::DynArray<UiElement*> additionalElements = {}) override;
   bool checkMouseUpEvent(int mouseX,
                          int mouseY,
                          int button,
-                         DynArray<UiElement*> additionalElements = {}) override;
+                         bmin::DynArray<UiElement*> additionalElements = {}) override;
 
   void build() override;
   void render(int dt) override;

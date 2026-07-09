@@ -2,12 +2,13 @@
 
 #include "../UiElement.h"
 #include "state/State.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 struct FloatingNotificationProps {
-  String id;
-  String message;
+  bmin::String id;
+  bmin::String message;
   state::UiFloatingNotificationType type = state::UiFloatingNotificationType::INFO;
 };
 

@@ -6,12 +6,14 @@
 #include "ui/UiElement.h"
 #include "ui/components/PartyMemberSwitcher.h"
 #include <memory>
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start PartyMemberSwitcher test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "PartyMemberSwitcher test initialized" << LOG_ENDL;
@@ -26,7 +28,7 @@ int main(int argc, char** argv) {
           .spriteName = "actors0_0",
           .partyMemberIndex = 0,
       });
-      elements.pushBack(UniquePtr<ui::UiElement>(switcher));
+      elements.pushBack(bmin::UniquePtr<ui::UiElement>(switcher));
     }
 
     {
@@ -39,7 +41,7 @@ int main(int argc, char** argv) {
           .spriteName = "actors0_6",
           .partyMemberIndex = 2,
       });
-      elements.pushBack(UniquePtr<ui::UiElement>(switcher));
+      elements.pushBack(bmin::UniquePtr<ui::UiElement>(switcher));
     }
 
     auto& events = window.getEvents();

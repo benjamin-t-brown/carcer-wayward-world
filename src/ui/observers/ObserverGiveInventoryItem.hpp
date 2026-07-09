@@ -4,20 +4,21 @@
 #include "state/actions/ui/UiGiveInventoryItem.hpp"
 #include "ui/UiElement.h"
 #include "ui/popups/PopupGive.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 class ObserverGiveInventoryItem : public ui::UiEventObserver,
                                   public state::StateManagerInterface {
-  String toCharacterPlayerId;
-  String fromCharacterPlayerId;
-  String itemId;
+  bmin::String toCharacterPlayerId;
+  bmin::String fromCharacterPlayerId;
+  bmin::String itemId;
   PopupGive* popupGive;
 
 public:
-  ObserverGiveInventoryItem(const String& _toCharacterPlayerId,
-                            const String& _fromCharacterPlayerId,
-                            const String& _itemId,
+  ObserverGiveInventoryItem(const bmin::String& _toCharacterPlayerId,
+                            const bmin::String& _fromCharacterPlayerId,
+                            const bmin::String& _itemId,
                             PopupGive* _popupGive)
       : toCharacterPlayerId(_toCharacterPlayerId),
         fromCharacterPlayerId(_fromCharacterPlayerId),

@@ -2,15 +2,15 @@
 #include "lib/sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/Items.h"
+#include "bmin/String.h"
 #include <cassert>
-#include "lib/Types.h"
 
 #define TEST_NAME "TestCharacterGive"
 
 namespace {
 
 void addItemTemplate(db::Database& database,
-                     const String& name,
+                     const bmin::String& name,
                      int weight,
                      bool stackable = false) {
   model::ItemTemplate itemTemplate;
@@ -20,8 +20,8 @@ void addItemTemplate(db::Database& database,
   database.addItemTemplate(itemTemplate);
 }
 
-model::CharacterInventoryItem makeInventoryItem(const String& id,
-                                                const String& itemName,
+model::CharacterInventoryItem makeInventoryItem(const bmin::String& id,
+                                                const bmin::String& itemName,
                                                 int quantity = 1) {
   return {.itemName = itemName, .id = id, .quantity = quantity};
 }

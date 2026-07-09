@@ -1,7 +1,8 @@
 #pragma once
 
 #include <optional>
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 
 namespace model {
 
@@ -168,7 +169,7 @@ struct AbilityAttack {
 };
 
 struct AbilityStatus {
-  String statusEffect;
+  bmin::String statusEffect;
   std::optional<AbilitySave> save;
   std::optional<int> baseDuration;
   std::optional<int> durationBonus;
@@ -183,56 +184,56 @@ struct AbilityRestore {
 };
 
 struct AbilityDepiction {
-  String dmgAnim;
+  bmin::String dmgAnim;
   ProjectileType projectileType = ProjectileType::PROJECTILE_NONE;
   ProjectilePath projectilePath = ProjectilePath::PROJECTILE_PATH_NONE;
-  String startSound;
-  String dmgSound;
+  bmin::String startSound;
+  bmin::String dmgSound;
 };
 
-StatusEffectCondition statusEffectConditionFromString(const String& value);
-String statusEffectConditionToString(StatusEffectCondition value);
+StatusEffectCondition statusEffectConditionFromString(const bmin::String& value);
+bmin::String statusEffectConditionToString(StatusEffectCondition value);
 
-AbilityType abilityTypeFromString(const String& value);
-String abilityTypeToString(AbilityType value);
+AbilityType abilityTypeFromString(const bmin::String& value);
+bmin::String abilityTypeToString(AbilityType value);
 
-TargetSelectType targetSelectTypeFromString(const String& value);
-String targetSelectTypeToString(TargetSelectType value);
+TargetSelectType targetSelectTypeFromString(const bmin::String& value);
+bmin::String targetSelectTypeToString(TargetSelectType value);
 
-TargetAllegianceSelectType targetAllegianceSelectTypeFromString(const String& value);
-String targetAllegianceSelectTypeToString(TargetAllegianceSelectType value);
+TargetAllegianceSelectType targetAllegianceSelectTypeFromString(const bmin::String& value);
+bmin::String targetAllegianceSelectTypeToString(TargetAllegianceSelectType value);
 
-Dice diceFromString(const String& value);
-String diceToString(Dice value);
+Dice diceFromString(const bmin::String& value);
+bmin::String diceToString(Dice value);
 
-StatsEnum statsEnumFromString(const String& value);
-String statsEnumToString(StatsEnum value);
+StatsEnum statsEnumFromString(const bmin::String& value);
+bmin::String statsEnumToString(StatsEnum value);
 
-StatusEventType statusEventTypeFromString(const String& value);
-String statusEventTypeToString(StatusEventType value);
+StatusEventType statusEventTypeFromString(const bmin::String& value);
+bmin::String statusEventTypeToString(StatusEventType value);
 
-CurrentStatEnum currentStatEnumFromString(const String& value);
-String currentStatEnumToString(CurrentStatEnum value);
+CurrentStatEnum currentStatEnumFromString(const bmin::String& value);
+bmin::String currentStatEnumToString(CurrentStatEnum value);
 
-StatusActionTargetType statusActionTargetTypeFromString(const String& value);
-String statusActionTargetTypeToString(StatusActionTargetType value);
+StatusActionTargetType statusActionTargetTypeFromString(const bmin::String& value);
+bmin::String statusActionTargetTypeToString(StatusActionTargetType value);
 
-AbilityCostType abilityCostTypeFromString(const String& value);
-String abilityCostTypeToString(AbilityCostType value);
+AbilityCostType abilityCostTypeFromString(const bmin::String& value);
+bmin::String abilityCostTypeToString(AbilityCostType value);
 
-AttackClass attackClassFromString(const String& value);
-String attackClassToString(AttackClass value);
+AttackClass attackClassFromString(const bmin::String& value);
+bmin::String attackClassToString(AttackClass value);
 
-DamageType damageTypeFromString(const String& value);
-String damageTypeToString(DamageType value);
+DamageType damageTypeFromString(const bmin::String& value);
+bmin::String damageTypeToString(DamageType value);
 
-ProjectilePath projectilePathFromString(const String& value);
-String projectilePathToString(ProjectilePath value);
+ProjectilePath projectilePathFromString(const bmin::String& value);
+bmin::String projectilePathToString(ProjectilePath value);
 
 bool projectileTypeHasFacing(ProjectileType value);
-String projectileTypeToAnimBase(ProjectileType value);
-ProjectileType projectileTypeFromString(const String& value);
-ProjectileType projectileTypeFromAnimName(const String& animName);
-String projectileTypeToString(ProjectileType value);
+bmin::String projectileTypeToAnimBase(ProjectileType value);
+ProjectileType projectileTypeFromString(const bmin::String& value);
+ProjectileType projectileTypeFromAnimName(const bmin::String& animName);
+bmin::String projectileTypeToString(ProjectileType value);
 
 } // namespace model

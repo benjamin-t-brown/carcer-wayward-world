@@ -3,14 +3,14 @@
 #include "layers/Layer.h"
 #include "ui/popups/PopupInventoryItem.h"
 #include "ui/UiElement.h"
-#include "lib/Types.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 struct PopupPickupItemProps {
-  String spriteName;
-  String label;
-  String description;
+  bmin::String spriteName;
+  bmin::String label;
+  bmin::String description;
   int weight = 0;
   int value = 0;
   PopupOrientation orientation = WIDE;

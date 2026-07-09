@@ -5,6 +5,8 @@
 #include "ui/UiElement.h"
 #include "ui/components/InGameTitleBar.h"
 #include <memory>
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 class ToggleApObserver : public ui::UiEventObserver {
   ui::InGameTitleBar* titleBar;
@@ -24,7 +26,7 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start InGameTitleBar test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "InGameTitleBar test initialized" << LOG_ENDL;
@@ -43,7 +45,7 @@ int main(int argc, char** argv) {
         .food = 8,
         .ap = 4,
     });
-    elements.pushBack(UniquePtr<ui::UiElement>(titleBar));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(titleBar));
 
     auto& events = window.getEvents();
     events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_DOWN,

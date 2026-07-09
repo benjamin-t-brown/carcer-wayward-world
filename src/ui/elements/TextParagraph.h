@@ -5,12 +5,15 @@
 #include "TextLine.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/colors.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
+#include "bmin/UniquePtr.h"
 
 namespace ui {
 
 // TextParagraph-specific properties
 struct TextParagraphProps {
-  DynArray<TextBlock> textBlocks;
+  bmin::DynArray<TextBlock> textBlocks;
   SDL_Color bgColor = Colors::Transparent;
   int padding = 0;
 };
@@ -18,7 +21,7 @@ struct TextParagraphProps {
 struct TextParagraphGeneratedBlock {
   int lineNumber;
   TextBlock textBlock;
-  String text;
+  bmin::String text;
   int textWidth;
   int textHeight;
 };
@@ -27,8 +30,8 @@ struct TextParagraphGeneratedBlock {
 class TextParagraph : public UiElement {
 private:
   TextParagraphProps props;
-  DynArray<TextParagraphGeneratedBlock> generatedBlocks;
-  UniquePtr<Quad> quad;
+  bmin::DynArray<TextParagraphGeneratedBlock> generatedBlocks;
+  bmin::UniquePtr<Quad> quad;
 
   int lineHeightFromFont = 0;
 

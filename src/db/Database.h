@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lib/Types.h"
+#include "bmin/String.h"
 #include "lib/bmin/Map.h"
 #include "model/templates/Abilities.h"
 #include "model/templates/CharacterTemplate.h"
@@ -14,22 +14,22 @@
 namespace db {
 
 template <typename V>
-const V& mapGet(const bmin::Map<String, V>& map, std::string_view key, const char* notFoundMsg) {
-  const String mapKey(key.data(), key.size());
+const V& mapGet(const bmin::Map<bmin::String, V>& map, std::string_view key, const char* notFoundMsg) {
+  const bmin::String mapKey(key.data(), key.size());
   if (!map.contains(mapKey)) {
-    throw std::runtime_error((String(notFoundMsg) + mapKey.cStr()).cStr());
+    throw std::runtime_error((bmin::String(notFoundMsg) + mapKey.cStr()).cStr());
   }
-  return (*const_cast<bmin::Map<String, V>&>(map).find(mapKey)).value;
+  return (*const_cast<bmin::Map<bmin::String, V>&>(map).find(mapKey)).value;
 }
 
 class Database {
 private:
-  bmin::Map<String, model::ItemTemplate> itemTemplates;
-  bmin::Map<String, model::CharacterTemplate> characterTemplates;
-  bmin::Map<String, model::AbilityTemplate> abilityTemplates;
-  bmin::Map<String, model::StatusEffectTemplate> statusEffectTemplates;
-  bmin::Map<String, model::GameEvent> gameEvents;
-  bmin::Map<String, model::CarcerMapTemplate> mapTemplates;
+  bmin::Map<bmin::String, model::ItemTemplate> itemTemplates;
+  bmin::Map<bmin::String, model::CharacterTemplate> characterTemplates;
+  bmin::Map<bmin::String, model::AbilityTemplate> abilityTemplates;
+  bmin::Map<bmin::String, model::StatusEffectTemplate> statusEffectTemplates;
+  bmin::Map<bmin::String, model::GameEvent> gameEvents;
+  bmin::Map<bmin::String, model::CarcerMapTemplate> mapTemplates;
 
 public:
   Database();

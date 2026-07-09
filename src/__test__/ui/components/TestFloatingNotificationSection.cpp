@@ -8,6 +8,9 @@
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include <memory>
+#include "bmin/String.h"
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 namespace {
 
@@ -38,7 +41,7 @@ int main(int argc, char** argv) {
   state::StateManager stateManager;
   state::StateManagerInterface::setStateManager(&stateManager);
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
   int notificationCounter = 0;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
@@ -54,11 +57,11 @@ int main(int argc, char** argv) {
         .isSelected = false,
     });
     pushButton->addEventObserver(new PushNotificationObserver(&stateManager, notificationCounter));
-    elements.pushBack(UniquePtr<ui::UiElement>(pushButton));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(pushButton));
 
     auto notificationSection = new ui::FloatingNotificationSection(&window);
     notificationSection->setId("floatingNotificationSection");
-    elements.pushBack(UniquePtr<ui::UiElement>(notificationSection));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(notificationSection));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

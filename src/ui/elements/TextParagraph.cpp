@@ -4,16 +4,17 @@
 #include "lib/sdl2w/Draw.h"
 #include "ui/FontScale.h"
 #include <algorithm>
-#include "lib/Types.h"
+#include "bmin/StringInterop.h"
+#include "bmin/UniquePtr.h"
 
 namespace ui {
 
 namespace {
 
 std::pair<int, int> measureLine(sdl2w::Draw& draw,
-                                const String& lineText,
+                                const bmin::String& lineText,
                                 const sdl2w::RenderTextParams& params) {
-  const String& sample = lineText.empty() ? String(" ") : lineText;
+  const bmin::String& sample = lineText.empty() ? bmin::String(" ") : lineText;
   return draw.measureText(bmin::toStringView(sample), params);
 }
 
@@ -21,7 +22,7 @@ std::pair<int, int> measureLine(sdl2w::Draw& draw,
 
 TextParagraph::TextParagraph(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
-  quad = makeUnique<Quad>(window, this);
+  quad = bmin::makeUnique<Quad>(window, this);
   quad->setId("textParagraphQuad");
 }
 
@@ -77,8 +78,8 @@ void TextParagraph::build() {
   }
 
   int lineNumber = 0;
-  String lineAggregate;
-  String nextWord;
+  bmin::String lineAggregate;
+  bmin::String nextWord;
 
   auto flushCurrentLine = [&](const TextBlock& block,
                               const sdl2w::RenderTextParams& params) {
@@ -94,13 +95,13 @@ void TextParagraph::build() {
     lineAggregate.clear();
   };
 
-  auto appendToCurrentLine = [&](const String& text,
+  auto appendToCurrentLine = [&](const bmin::String& text,
                                    const TextBlock& block,
                                    const sdl2w::RenderTextParams& params) {
     if (text.empty()) {
       return;
     }
-    const String candidate = lineAggregate + text;
+    const bmin::String candidate = lineAggregate + text;
     auto [candidateWidth, textHeight] = measureLine(draw, candidate, params);
     lineHeightFromFont = std::max(lineHeightFromFont, textHeight);
 
@@ -193,7 +194,7 @@ void TextParagraph::build() {
   // Create TextLine children inside the quad (texture-local coordinates)
   if (!generatedBlocks.empty()) {
     auto currentLineNumber = -1;
-    DynArray<TextBlock> currentLineBlocks;
+    bmin::DynArray<TextBlock> currentLineBlocks;
     auto currentY = props.padding;
     int currentLineMaxHeight = 0;
 

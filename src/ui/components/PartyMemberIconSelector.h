@@ -2,14 +2,15 @@
 
 #include "../UiElement.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 enum class PartyMemberIconSelectorTarget { INVENTORY, PICKUP };
 
 struct PartyMemberIconSelectorProps {
-  DynArray<String> members;
+  bmin::DynArray<bmin::String> members;
   int selectedIndex = 0;
   PartyMemberIconSelectorTarget target = PartyMemberIconSelectorTarget::INVENTORY;
   int iconSize = 32;

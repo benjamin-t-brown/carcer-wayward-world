@@ -8,19 +8,22 @@
 #include "ui/elements/buttons/ButtonTextWrap.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
+#include "bmin/String.h"
+#include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 
 class TestButtonTextWrapObserver : public ui::UiEventObserver {
-  String id;
+  bmin::String id;
 
 public:
-  TestButtonTextWrapObserver(String _id);
+  TestButtonTextWrapObserver(bmin::String _id);
   ~TestButtonTextWrapObserver() override = default;
   void onMouseDown(int x, int y, int button) override;
   void onMouseUp(int x, int y, int button) override;
   void onClick(int x, int y, int button) override;
 };
 
-TestButtonTextWrapObserver::TestButtonTextWrapObserver(String _id) : id(_id) {}
+TestButtonTextWrapObserver::TestButtonTextWrapObserver(bmin::String _id) : id(_id) {}
 
 void TestButtonTextWrapObserver::onMouseDown(int x, int y, int button) {
   LOG(INFO) << "TestButtonTextWrapObserver mousedown at: " << x << ", " << y
@@ -41,13 +44,13 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Start ButtonTextWrap test" << LOG_ENDL;
   srand(time(NULL));
 
-  DynArray<UniquePtr<ui::UiElement>> elements;
+  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
   auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
     LOG(INFO) << "ButtonTextWrap test initialized" << LOG_ENDL;
 
     // Create first button with short text
-    auto button1 = makeUnique<ui::ButtonTextWrap>(&window);
+    auto button1 = bmin::makeUnique<ui::ButtonTextWrap>(&window);
     button1->setId("button1");
     ui::BaseStyle button1Style;
     button1Style.x = 50;
@@ -60,10 +63,10 @@ int main(int argc, char** argv) {
     button1Props.isSelected = false;
     button1->setProps(button1Props);
     button1->addEventObserver(new TestButtonTextWrapObserver("button1"));
-    elements.pushBack(UniquePtr<ui::UiElement>(button1.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(button1.release()));
 
     // Create second button with long text that wraps
-    auto button2 = makeUnique<ui::ButtonTextWrap>(&window);
+    auto button2 = bmin::makeUnique<ui::ButtonTextWrap>(&window);
     button2->setId("button2");
     ui::BaseStyle button2Style;
     button2Style.x = 50;
@@ -80,10 +83,10 @@ int main(int argc, char** argv) {
     button2Props.verticalPadding = 10;
     button2->setProps(button2Props);
     button2->addEventObserver(new TestButtonTextWrapObserver("button2"));
-    elements.pushBack(UniquePtr<ui::UiElement>(button2.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(button2.release()));
 
     // Create third button with medium text
-    auto button3 = makeUnique<ui::ButtonTextWrap>(&window);
+    auto button3 = bmin::makeUnique<ui::ButtonTextWrap>(&window);
     button3->setId("button3");
     ui::BaseStyle button3Style;
     button3Style.x = 50;
@@ -96,10 +99,10 @@ int main(int argc, char** argv) {
     button3Props.isSelected = false;
     button3->setProps(button3Props);
     button3->addEventObserver(new TestButtonTextWrapObserver("button3"));
-    elements.pushBack(UniquePtr<ui::UiElement>(button3.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(button3.release()));
 
     // Create fourth button with very long text
-    auto button4 = makeUnique<ui::ButtonTextWrap>(&window);
+    auto button4 = bmin::makeUnique<ui::ButtonTextWrap>(&window);
     button4->setId("button4");
     ui::BaseStyle button4Style;
     button4Style.x = 50;
@@ -113,10 +116,10 @@ int main(int argc, char** argv) {
     button4Props.isSelected = false;
     button4->setProps(button4Props);
     button4->addEventObserver(new TestButtonTextWrapObserver("button4"));
-    elements.pushBack(UniquePtr<ui::UiElement>(button4.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(button4.release()));
 
     // Create fifth button with single line text
-    auto button5 = makeUnique<ui::ButtonTextWrap>(&window);
+    auto button5 = bmin::makeUnique<ui::ButtonTextWrap>(&window);
     button5->setId("button5");
     ui::BaseStyle button5Style;
     button5Style.x = 50;
@@ -129,7 +132,7 @@ int main(int argc, char** argv) {
     button5Props.isSelected = true;
     button5->setProps(button5Props);
     button5->addEventObserver(new TestButtonTextWrapObserver("button5"));
-    elements.pushBack(UniquePtr<ui::UiElement>(button5.release()));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(button5.release()));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

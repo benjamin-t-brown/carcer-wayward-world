@@ -6,13 +6,13 @@
 namespace runner {
 
 // Helper function to format number as string: integer if no decimal, otherwise keep decimals
-static String formatNumber(double n) {
+static bmin::String formatNumber(double n) {
   double intPart;
   if (std::modf(n, &intPart) == 0.0) {
     return bmin::toString(static_cast<int>(n));
   }
 
-  String result = bmin::toString(n);
+  bmin::String result = bmin::toString(n);
   while (!result.empty() && result[result.size() - 1] == '0') {
     result.erase(result.size() - 1, 1);
   }
@@ -22,15 +22,15 @@ static String formatNumber(double n) {
   return result;
 }
 
-StringEvaluatorFuncs::StringEvaluatorFuncs(bmin::Map<String, String>& storage)
+StringEvaluatorFuncs::StringEvaluatorFuncs(bmin::Map<bmin::String, bmin::String>& storage)
     : storage(storage) {}
 
-String StringEvaluatorFuncs::GET(const String& a) {
+bmin::String StringEvaluatorFuncs::GET(const bmin::String& a) {
   auto v = getStorage(storage, a);
   return v.value_or("");
 }
 
-void StringEvaluatorFuncs::SET_BOOL(const String& a, const String& b) {
+void StringEvaluatorFuncs::SET_BOOL(const bmin::String& a, const bmin::String& b) {
   bool v = true;
   if (b == "true") {
     v = true;
@@ -42,7 +42,7 @@ void StringEvaluatorFuncs::SET_BOOL(const String& a, const String& b) {
   setStorage(storage, a, v ? "true" : "false");
 }
 
-void StringEvaluatorFuncs::SET_NUM(const String& a, const String& b) {
+void StringEvaluatorFuncs::SET_NUM(const bmin::String& a, const bmin::String& b) {
   if (!bmin::isDouble(b)) {
     throw std::runtime_error(("Invalid number value: " + b).cStr());
   }
@@ -50,7 +50,7 @@ void StringEvaluatorFuncs::SET_NUM(const String& a, const String& b) {
   setStorage(storage, a, formatNumber(n));
 }
 
-void StringEvaluatorFuncs::MOD_NUM(const String& a, const String& b) {
+void StringEvaluatorFuncs::MOD_NUM(const bmin::String& a, const bmin::String& b) {
   if (!bmin::isDouble(b)) {
     throw std::runtime_error(("Invalid number value: " + b).cStr());
   }
@@ -66,73 +66,73 @@ void StringEvaluatorFuncs::MOD_NUM(const String& a, const String& b) {
   setStorage(storage, a, formatNumber(currentN + n));
 }
 
-void StringEvaluatorFuncs::SET_STR(const String& a, const String& b) {
+void StringEvaluatorFuncs::SET_STR(const bmin::String& a, const bmin::String& b) {
   setStorage(storage, a, b);
 }
 
-void StringEvaluatorFuncs::SETUP_DISPOSITION(const String& characterName) {
+void StringEvaluatorFuncs::SETUP_DISPOSITION(const bmin::String& characterName) {
   // noop
 }
 
-void StringEvaluatorFuncs::START_QUEST(const String& questName) {
+void StringEvaluatorFuncs::START_QUEST(const bmin::String& questName) {
   // noop
 }
 
-void StringEvaluatorFuncs::COMPLETE_QUEST_STEP(const String& questName,
-                                               const String& stepId) {
+void StringEvaluatorFuncs::COMPLETE_QUEST_STEP(const bmin::String& questName,
+                                               const bmin::String& stepId) {
   // noop
 }
 
-void StringEvaluatorFuncs::COMPLETE_QUEST(const String& questName) {
+void StringEvaluatorFuncs::COMPLETE_QUEST(const bmin::String& questName) {
   // noop
 }
 
-void StringEvaluatorFuncs::SPAWN_CH(const String& chName) {
+void StringEvaluatorFuncs::SPAWN_CH(const bmin::String& chName) {
   // noop
 }
 
-void StringEvaluatorFuncs::DESPAWN_CH(const String& chName) {
+void StringEvaluatorFuncs::DESPAWN_CH(const bmin::String& chName) {
   // noop
 }
 
-void StringEvaluatorFuncs::CHANGE_TILE_AT(const String& x, const String& y,
-                                          const String& tileName) {
+void StringEvaluatorFuncs::CHANGE_TILE_AT(const bmin::String& x, const bmin::String& y,
+                                          const bmin::String& tileName) {
   // noop
 }
 
-void StringEvaluatorFuncs::TELEPORT_TO(const String& x, const String& y,
-                                       const String& mapName) {
+void StringEvaluatorFuncs::TELEPORT_TO(const bmin::String& x, const bmin::String& y,
+                                       const bmin::String& mapName) {
   // noop
 }
 
-void StringEvaluatorFuncs::ADD_ITEM_AT(const String& x, const String& y,
-                                       const String& itemName) {
+void StringEvaluatorFuncs::ADD_ITEM_AT(const bmin::String& x, const bmin::String& y,
+                                       const bmin::String& itemName) {
   // noop
 }
 
-void StringEvaluatorFuncs::REMOVE_ITEM_AT(const String& x, const String& y,
-                                          const String& itemName) {
+void StringEvaluatorFuncs::REMOVE_ITEM_AT(const bmin::String& x, const bmin::String& y,
+                                          const bmin::String& itemName) {
   // noop
 }
 
-void StringEvaluatorFuncs::ADD_ITEM_TO_PLAYER(const String& itemName) {
+void StringEvaluatorFuncs::ADD_ITEM_TO_PLAYER(const bmin::String& itemName) {
   // noop
 }
 
-void StringEvaluatorFuncs::REMOVE_ITEM_FROM_PLAYER(const String& itemName) {
+void StringEvaluatorFuncs::REMOVE_ITEM_FROM_PLAYER(const bmin::String& itemName) {
   // noop
 }
 
-void StringEvaluatorFuncs::OPEN_SHOP(const String& shopName) {
+void StringEvaluatorFuncs::OPEN_SHOP(const bmin::String& shopName) {
   // noop
 }
 
-StringEvaluator::StringEvaluator(bmin::Map<String, String>& storage,
-                                 const String& baseStringStr)
+StringEvaluator::StringEvaluator(bmin::Map<bmin::String, bmin::String>& storage,
+                                 const bmin::String& baseStringStr)
     : baseStringStr(baseStringStr), funcs(storage) {}
 
-void StringEvaluator::assertFuncArgs(const String& funcName,
-                                     const DynArray<String>& funcArgs,
+void StringEvaluator::assertFuncArgs(const bmin::String& funcName,
+                                     const bmin::DynArray<bmin::String>& funcArgs,
                                      size_t expectedArgs) {
   if (funcArgs.size() != expectedArgs) {
     throw std::runtime_error(
@@ -142,7 +142,7 @@ void StringEvaluator::assertFuncArgs(const String& funcName,
   }
 }
 
-void StringEvaluator::evalStr(const String& str) {
+void StringEvaluator::evalStr(const bmin::String& str) {
   if (isFunctionCall(str)) {
     FunctionCall call = parseFunctionCall(str);
     if (call.funcName == "GET") {

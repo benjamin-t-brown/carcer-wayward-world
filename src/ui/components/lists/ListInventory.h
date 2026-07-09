@@ -1,23 +1,24 @@
 #pragma once
 
 #include "ui/UiElement.h"
-#include "lib/Types.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 
 namespace ui {
 
 struct ListInventoryPropsItem {
-  String itemId;
-  String itemName;
-  String itemLabel;
-  String itemSprite;
+  bmin::String itemId;
+  bmin::String itemName;
+  bmin::String itemLabel;
+  bmin::String itemSprite;
   bool isEquippable = false;
   bool isEquipped = false;
   bool isStackable = false;
   int quantity = 1;
 };
 struct ListInventoryProps {
-  String characterPlayerId;
-  DynArray<ListInventoryPropsItem> items;
+  bmin::String characterPlayerId;
+  bmin::DynArray<ListInventoryPropsItem> items;
   int lineHeight = 32;
   int lineGap = 2;
   int paddingTop = 4;

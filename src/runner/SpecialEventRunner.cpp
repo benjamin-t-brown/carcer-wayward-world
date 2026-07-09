@@ -7,9 +7,9 @@
 
 namespace runner {
 
-static String replaceAll(String str, const String& from, const String& to) {
+static bmin::String replaceAll(bmin::String str, const bmin::String& from, const bmin::String& to) {
   size_t pos = 0;
-  while ((pos = str.find(from, pos)) != String::npos) {
+  while ((pos = str.find(from, pos)) != bmin::String::npos) {
     str.erase(pos, from.size());
     str.insert(pos, to);
     pos += to.size();
@@ -18,9 +18,9 @@ static String replaceAll(String str, const String& from, const String& to) {
 }
 
 SpecialEventRunner::SpecialEventRunner(
-    const bmin::Map<String, String>& initialStorage,
+    const bmin::Map<bmin::String, bmin::String>& initialStorage,
     const model::GameEvent& gameEvent,
-    const bmin::Map<String, model::GameEvent>& gameEvents)
+    const bmin::Map<bmin::String, model::GameEvent>& gameEvents)
     : storage(initialStorage), gameEvent(gameEvent), gameEvents(gameEvents) {
   reset();
 }
@@ -67,12 +67,12 @@ std::optional<model::GameEventChild> SpecialEventRunner::getCurrentNode() {
   return std::nullopt;
 }
 
-String SpecialEventRunner::getNextNodeId() {
+bmin::String SpecialEventRunner::getNextNodeId() {
   auto currentNode = getCurrentNode();
   if (!currentNode) {
     return "";
   }
-  String nextNodeId;
+  bmin::String nextNodeId;
   std::visit(
       [&nextNodeId](const auto& node) {
         using T = std::decay_t<decltype(node)>;
@@ -84,9 +84,9 @@ String SpecialEventRunner::getNextNodeId() {
   return nextNodeId;
 }
 
-DynArray<model::Variable> SpecialEventRunner::getVarsFromNode() {
-  DynArray<model::Variable> vars;
-  DynArray<String> usedNodes;
+bmin::DynArray<model::Variable> SpecialEventRunner::getVarsFromNode() {
+  bmin::DynArray<model::Variable> vars;
+  bmin::DynArray<bmin::String> usedNodes;
 
   std::function<void(const model::GameEvent&)> innerHelper =
       [&](const model::GameEvent& event) {
@@ -117,21 +117,21 @@ DynArray<model::Variable> SpecialEventRunner::getVarsFromNode() {
   return vars;
 }
 
-String SpecialEventRunner::replaceVariables(const String& text) {
+bmin::String SpecialEventRunner::replaceVariables(const bmin::String& text) {
   auto vars = getVarsFromNode();
-  String result = trim(text);
+  bmin::String result = trim(text);
 
   for (const auto& variable : vars) {
-    const String placeholder = "@" + variable.key;
-    const String value = variable.value;
+    const bmin::String placeholder = "@" + variable.key;
+    const bmin::String value = variable.value;
     result = replaceAll(result, placeholder, value);
   }
 
   return result;
 }
 
-bool SpecialEventRunner::evalExecStr(const String& str) {
-  const String trimmed = trim(str);
+bool SpecialEventRunner::evalExecStr(const bmin::String& str) {
+  const bmin::String trimmed = trim(str);
   if (trimmed.empty()) {
     return true;
   }
@@ -152,7 +152,7 @@ bool SpecialEventRunner::evalExecStr(const String& str) {
   }
 }
 
-ConditionResult SpecialEventRunner::evalCondition(const String& conditionStr) {
+ConditionResult SpecialEventRunner::evalCondition(const bmin::String& conditionStr) {
   ConditionEvaluator evaluator(storage, conditionStr);
   try {
     const bool result = evaluator.evalCondition(conditionStr);
@@ -163,17 +163,17 @@ ConditionResult SpecialEventRunner::evalCondition(const String& conditionStr) {
   }
 }
 
-void SpecialEventRunner::commitOnceKeys(const DynArray<String>& onceKeysToCommit) {
+void SpecialEventRunner::commitOnceKeys(const bmin::DynArray<bmin::String>& onceKeysToCommit) {
   for (const auto& onceKeyToCommit : onceKeysToCommit) {
     setStorage(storage, onceKeyToCommit, "true");
   }
 }
 
-String SpecialEventRunner::joinParagraphs(const bmin::DynArray<String>& paragraphs) {
+bmin::String SpecialEventRunner::joinParagraphs(const bmin::DynArray<bmin::String>& paragraphs) {
   if (paragraphs.empty()) {
     return "";
   }
-  String result;
+  bmin::String result;
   for (size_t i = 0; i < paragraphs.size(); ++i) {
     if (i > 0) {
       result += "\n";
@@ -183,8 +183,8 @@ String SpecialEventRunner::joinParagraphs(const bmin::DynArray<String>& paragrap
   return result;
 }
 
-String SpecialEventRunner::resolveChoiceText(const model::Choice& choice,
-                                             DynArray<String>& onceKeysToCommit) {
+bmin::String SpecialEventRunner::resolveChoiceText(const model::Choice& choice,
+                                             bmin::DynArray<bmin::String>& onceKeysToCommit) {
   for (const auto& switchText : choice.switchText) {
     if (!switchText.conditionStr.empty()) {
       ConditionResult obj = evalCondition(replaceVariables(switchText.conditionStr));
@@ -199,9 +199,9 @@ String SpecialEventRunner::resolveChoiceText(const model::Choice& choice,
   return replaceVariables(choice.text);
 }
 
-void SpecialEventRunner::advance(const String& nodeId,
-                                 const DynArray<String>& onceKeysToCommit,
-                                 const String& execStr) {
+void SpecialEventRunner::advance(const bmin::String& nodeId,
+                                 const bmin::DynArray<bmin::String>& onceKeysToCommit,
+                                 const bmin::String& execStr) {
   if (!errors.empty()) {
     return;
   }
@@ -235,7 +235,7 @@ void SpecialEventRunner::advance(const String& nodeId,
             advance(node.next, {}, "");
           }
         } else if constexpr (std::is_same_v<T, model::GameEventChildChoice>) {
-          const String choiceDisplayText = replaceVariables(node.text);
+          const bmin::String choiceDisplayText = replaceVariables(node.text);
           if (!choiceDisplayText.empty()) {
             displayText = choiceDisplayText;
           }
@@ -249,7 +249,7 @@ void SpecialEventRunner::advance(const String& nodeId,
             if (obj.result) {
               DisplayTextChoice displayChoice;
               displayChoice.prefix = replaceVariables(choice.prefixText);
-              DynArray<String> switchOnceKeys;
+              bmin::DynArray<bmin::String> switchOnceKeys;
               displayChoice.text = resolveChoiceText(choice, switchOnceKeys);
               displayChoice.execStr = replaceVariables(choice.evalStr);
               displayChoice.next = choice.next;
@@ -280,10 +280,10 @@ void SpecialEventRunner::advance(const String& nodeId,
       *currentNode);
 }
 
-String SpecialEventRunner::storageToString() const {
-  DynArray<std::pair<String, String>> pairs;
+bmin::String SpecialEventRunner::storageToString() const {
+  bmin::DynArray<std::pair<bmin::String, bmin::String>> pairs;
   pairs.reserve(storage.size());
-  auto& mutableStorage = const_cast<bmin::Map<String, String>&>(storage);
+  auto& mutableStorage = const_cast<bmin::Map<bmin::String, bmin::String>&>(storage);
   for (auto it = mutableStorage.begin(); it != mutableStorage.end(); ++it) {
     pairs.emplaceBack(it->key, it->value);
   }
@@ -291,7 +291,7 @@ String SpecialEventRunner::storageToString() const {
   std::sort(pairs.begin(), pairs.end(),
             [](const auto& a, const auto& b) { return a.first < b.first; });
 
-  String result;
+  bmin::String result;
   for (const auto& [key, value] : pairs) {
     result += key + "=" + value + "\n";
   }
@@ -307,7 +307,7 @@ void SpecialEventRunnerInterface::startEvent() {
 }
 
 void SpecialEventRunnerInterface::continueEvent() {
-  const String nextNodeId = runner.getNextNodeId();
+  const bmin::String nextNodeId = runner.getNextNodeId();
   if (!nextNodeId.empty()) {
     runner.advance(nextNodeId);
   }
@@ -332,7 +332,7 @@ SpecialEventRunnerInterfaceState SpecialEventRunnerInterface::getState() {
   }
 
   if (!runner.displayText.empty()) {
-    const String nextNodeId = runner.getNextNodeId();
+    const bmin::String nextNodeId = runner.getNextNodeId();
     if (!nextNodeId.empty()) {
       return SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE;
     }
@@ -345,7 +345,7 @@ SpecialEventRunnerInterfaceState SpecialEventRunnerInterface::getState() {
   return SpecialEventRunnerInterfaceState::WAITING_TO_START;
 }
 
-String SpecialEventRunnerInterface::stateToString(SpecialEventRunnerInterfaceState state) {
+bmin::String SpecialEventRunnerInterface::stateToString(SpecialEventRunnerInterfaceState state) {
   switch (state) {
   case SpecialEventRunnerInterfaceState::WAITING_TO_START:
     return "WAITING_TO_START";

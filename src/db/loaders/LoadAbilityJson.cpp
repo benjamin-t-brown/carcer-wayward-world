@@ -3,16 +3,16 @@
 
 namespace db {
 
-bmin::DynArray<model::Dice> parseDiceArray(const Json& json, const String& fieldName) {
+bmin::DynArray<model::Dice> parseDiceArray(const Json& json, const bmin::String& fieldName) {
   if (!json.contains(fieldName.cStr()) || !json[fieldName.cStr()].is_array()) {
-    throw std::runtime_error((String("Missing or invalid field: ") + fieldName).cStr());
+    throw std::runtime_error((bmin::String("Missing or invalid field: ") + fieldName).cStr());
   }
   bmin::DynArray<model::Dice> dice;
   for (const auto& dieJson : json[fieldName.cStr()]) {
     if (!dieJson.is_string()) {
-      throw std::runtime_error((String("Dice entry must be a string in ") + fieldName).cStr());
+      throw std::runtime_error((bmin::String("Dice entry must be a string in ") + fieldName).cStr());
     }
-    dice.pushBack(model::diceFromString(dieJson.get<String>()));
+    dice.pushBack(model::diceFromString(dieJson.get<bmin::String>()));
   }
   return dice;
 }
@@ -22,12 +22,12 @@ model::TargetSelectInfo parseTargetSelectInfo(const Json& json) {
   if (!json.contains("targetType") || !json["targetType"].is_string()) {
     throw std::runtime_error("targetSelect missing targetType");
   }
-  info.targetType = model::targetSelectTypeFromString(json["targetType"].get<String>());
+  info.targetType = model::targetSelectTypeFromString(json["targetType"].get<bmin::String>());
   if (!json.contains("allegianceSelectType") || !json["allegianceSelectType"].is_string()) {
     throw std::runtime_error("targetSelect missing allegianceSelectType");
   }
   info.allegianceSelectType =
-      model::targetAllegianceSelectTypeFromString(json["allegianceSelectType"].get<String>());
+      model::targetAllegianceSelectTypeFromString(json["allegianceSelectType"].get<bmin::String>());
   if (!json.contains("numTargetableUnits") || !json["numTargetableUnits"].is_number_integer()) {
     throw std::runtime_error("targetSelect missing numTargetableUnits");
   }
@@ -93,7 +93,7 @@ model::Resistance parseResistance(const Json& json) {
   if (!json.contains("attackType") || !json["attackType"].is_string()) {
     throw std::runtime_error("Resistance missing attackType");
   }
-  resistance.attackType = model::damageTypeFromString(json["attackType"].get<String>());
+  resistance.attackType = model::damageTypeFromString(json["attackType"].get<bmin::String>());
   if (!json.contains("mod") || !json["mod"].is_number_integer()) {
     throw std::runtime_error("Resistance missing mod");
   }
@@ -106,7 +106,7 @@ model::AbilitySave parseAbilitySave(const Json& json) {
   if (!json.contains("saveStat") || !json["saveStat"].is_string()) {
     throw std::runtime_error("AbilitySave missing saveStat");
   }
-  save.saveStat = model::statsEnumFromString(json["saveStat"].get<String>());
+  save.saveStat = model::statsEnumFromString(json["saveStat"].get<bmin::String>());
   if (!json.contains("saveBase") || !json["saveBase"].is_number_integer()) {
     throw std::runtime_error("AbilitySave missing saveBase");
   }
@@ -114,7 +114,7 @@ model::AbilitySave parseAbilitySave(const Json& json) {
   if (!json.contains("saveAgainst") || !json["saveAgainst"].is_string()) {
     throw std::runtime_error("AbilitySave missing saveAgainst");
   }
-  save.saveAgainst = model::statsEnumFromString(json["saveAgainst"].get<String>());
+  save.saveAgainst = model::statsEnumFromString(json["saveAgainst"].get<bmin::String>());
   if (!json.contains("saveAgainstBase") || !json["saveAgainstBase"].is_number_integer()) {
     throw std::runtime_error("AbilitySave missing saveAgainstBase");
   }
@@ -132,7 +132,7 @@ model::AbilityAttackDmg parseAbilityAttackDmg(const Json& json) {
   if (!json.contains("dmgStat") || !json["dmgStat"].is_string()) {
     throw std::runtime_error("AbilityAttackDmg missing dmgStat");
   }
-  dmg.dmgStat = model::statsEnumFromString(json["dmgStat"].get<String>());
+  dmg.dmgStat = model::statsEnumFromString(json["dmgStat"].get<bmin::String>());
   if (!json.contains("dmgStatMult") || !json["dmgStatMult"].is_number_integer()) {
     throw std::runtime_error("AbilityAttackDmg missing dmgStatMult");
   }
@@ -149,7 +149,7 @@ model::AbilityAttack parseAbilityAttack(const Json& json) {
   if (!json.contains("attackClass") || !json["attackClass"].is_string()) {
     throw std::runtime_error("AbilityAttack missing attackClass");
   }
-  attack.attackClass = model::attackClassFromString(json["attackClass"].get<String>());
+  attack.attackClass = model::attackClassFromString(json["attackClass"].get<bmin::String>());
   if (json.contains("dmg")) {
     attack.dmg = parseAbilityAttackDmg(json["dmg"]);
   }
@@ -164,7 +164,7 @@ model::AbilityStatus parseAbilityStatus(const Json& json) {
   if (!json.contains("statusEffect") || !json["statusEffect"].is_string()) {
     throw std::runtime_error("AbilityStatus missing statusEffect");
   }
-  status.statusEffect = json["statusEffect"].get<String>();
+  status.statusEffect = json["statusEffect"].get<bmin::String>();
   if (json.contains("save")) {
     status.save = parseAbilitySave(json["save"]);
   }
@@ -182,7 +182,7 @@ model::AbilityRestore parseAbilityRestore(const Json& json) {
   if (!json.contains("restoreWhich") || !json["restoreWhich"].is_string()) {
     throw std::runtime_error("AbilityRestore missing restoreWhich");
   }
-  restore.restoreWhich = model::currentStatEnumFromString(json["restoreWhich"].get<String>());
+  restore.restoreWhich = model::currentStatEnumFromString(json["restoreWhich"].get<bmin::String>());
   restore.restoreDice = parseDiceArray(json, "restoreDice");
   if (!json.contains("restoreBonus") || !json["restoreBonus"].is_number_integer()) {
     throw std::runtime_error("AbilityRestore missing restoreBonus");
@@ -191,7 +191,7 @@ model::AbilityRestore parseAbilityRestore(const Json& json) {
   if (!json.contains("restoreStat") || !json["restoreStat"].is_string()) {
     throw std::runtime_error("AbilityRestore missing restoreStat");
   }
-  restore.restoreStat = model::statsEnumFromString(json["restoreStat"].get<String>());
+  restore.restoreStat = model::statsEnumFromString(json["restoreStat"].get<bmin::String>());
   if (!json.contains("restoreStatMult") || !json["restoreStatMult"].is_number_integer()) {
     throw std::runtime_error("AbilityRestore missing restoreStatMult");
   }
@@ -204,26 +204,26 @@ model::AbilityDepiction parseAbilityDepiction(const Json& json) {
   if (!json.contains("dmgAnim") || !json["dmgAnim"].is_string()) {
     throw std::runtime_error("AbilityDepiction missing dmgAnim");
   }
-  depiction.dmgAnim = json["dmgAnim"].get<String>();
+  depiction.dmgAnim = json["dmgAnim"].get<bmin::String>();
   if (json.contains("projectileType") && json["projectileType"].is_string()) {
-    depiction.projectileType = model::projectileTypeFromString(json["projectileType"].get<String>());
+    depiction.projectileType = model::projectileTypeFromString(json["projectileType"].get<bmin::String>());
   } else if (json.contains("projectileAnim") && json["projectileAnim"].is_string()) {
-    depiction.projectileType = model::projectileTypeFromAnimName(json["projectileAnim"].get<String>());
+    depiction.projectileType = model::projectileTypeFromAnimName(json["projectileAnim"].get<bmin::String>());
   } else {
     throw std::runtime_error("AbilityDepiction missing projectileType");
   }
   if (!json.contains("projectilePath") || !json["projectilePath"].is_string()) {
     throw std::runtime_error("AbilityDepiction missing projectilePath");
   }
-  depiction.projectilePath = model::projectilePathFromString(json["projectilePath"].get<String>());
+  depiction.projectilePath = model::projectilePathFromString(json["projectilePath"].get<bmin::String>());
   if (!json.contains("startSound") || !json["startSound"].is_string()) {
     throw std::runtime_error("AbilityDepiction missing startSound");
   }
-  depiction.startSound = json["startSound"].get<String>();
+  depiction.startSound = json["startSound"].get<bmin::String>();
   if (!json.contains("dmgSound") || !json["dmgSound"].is_string()) {
     throw std::runtime_error("AbilityDepiction missing dmgSound");
   }
-  depiction.dmgSound = json["dmgSound"].get<String>();
+  depiction.dmgSound = json["dmgSound"].get<bmin::String>();
   return depiction;
 }
 

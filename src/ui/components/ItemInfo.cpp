@@ -48,7 +48,7 @@ void ItemInfo::build() {
   weightStyle.textAlign = TextAlign::LEFT_TOP;
   TextLineProps weightProps;
   weightProps.textBlocks.pushBack({
-      .text = TRANSLATE("Weight: ") + bmin::toString(props.weight) + String(TRANSLATE(" lbs")),
+      .text = TRANSLATE("Weight: ") + bmin::toString(props.weight) + bmin::String(TRANSLATE(" lbs")),
   });
   weightLine->setProps(weightProps);
   addChild(weightLine);
@@ -65,7 +65,7 @@ void ItemInfo::build() {
   valueStyle.textAlign = TextAlign::LEFT_TOP;
   TextLineProps valueProps;
   valueProps.textBlocks.pushBack({
-      .text = TRANSLATE("Value: ") + bmin::toString(props.value) + String(TRANSLATE(" gp")),
+      .text = TRANSLATE("Value: ") + bmin::toString(props.value) + bmin::String(TRANSLATE(" gp")),
   });
   valueLine->setProps(valueProps);
   addChild(valueLine);

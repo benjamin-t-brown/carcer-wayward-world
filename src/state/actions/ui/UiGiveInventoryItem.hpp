@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bmin/String.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerGiveContext.h"
 #include "layers/ui/LayerInventoryContext.h"
@@ -14,9 +15,9 @@ namespace state {
 namespace actions {
 
 class UiGiveInventoryItem : public AbstractAction {
-  String fromCharacterPlayerId;
-  String toCharacterPlayerId;
-  String itemId;
+  bmin::String fromCharacterPlayerId;
+  bmin::String toCharacterPlayerId;
+  bmin::String itemId;
   int quantity;
 
   void act() override {
@@ -81,9 +82,9 @@ class UiGiveInventoryItem : public AbstractAction {
   }
 
 public:
-  UiGiveInventoryItem(String _fromCharacterPlayerId,
-                      String _toCharacterPlayerId,
-                      String _itemId,
+  UiGiveInventoryItem(bmin::String _fromCharacterPlayerId,
+                      bmin::String _toCharacterPlayerId,
+                      bmin::String _itemId,
                       int _quantity)
       : fromCharacterPlayerId(std::move(_fromCharacterPlayerId)),
         toCharacterPlayerId(std::move(_toCharacterPlayerId)),
