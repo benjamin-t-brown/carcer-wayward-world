@@ -23,6 +23,7 @@ layers/ui/LayerInventory.cpp \
 layers/ui/LayerPickUpContext.cpp \
 layers/ui/LayerPickUp.cpp \
 layers/ui/LayerPopupText.cpp \
+layers/ui/LayerWorld.cpp \
 model/instances/Player.cpp \
 model/instances/CharacterPlayer.cpp \
 model/stats/CharacterStats.cpp \
