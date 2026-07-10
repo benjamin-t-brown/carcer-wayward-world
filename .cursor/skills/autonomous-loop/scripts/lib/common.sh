@@ -4,7 +4,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-DEFAULT_PROMPT="$SCRIPT_DIR/prompt-template.md"
+DEFAULT_PROMPT="$SKILL_DIR/prompt-template.md"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
