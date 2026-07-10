@@ -6,7 +6,7 @@
 #include <optional>
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
-#include "lib/bmin/Map.h"
+#include "bmin/Map.h"
 
 namespace model {
 
@@ -42,9 +42,45 @@ struct MapInstance {
   TurnMode turnMode = TurnMode::TURN_TOWN;
 };
 
+enum class CameraMode { Follow, Aiming, Dragging, Controlled };
+
 struct World {
   bmin::String name;
   MapInstance currentMap;
+  int camX = 0; // map pixel space
+  int camY = 0;
+  CameraMode cameraMode = CameraMode::Follow;
+  // empty = auto-resolve to current party member avatar when cameraMode is Follow
+  bmin::String cameraFollowCharacterId;
+  int viewW = 0; // MapView content size in map-pixel space (unscaled)
+  int viewH = 0;
 };
+
+struct TileXY {
+  int x = 0;
+  int y = 0;
+};
+
+struct CameraPos {
+  int camX = 0;
+  int camY = 0;
+};
+
+MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate);
+
+// Flat cell index → tile (x, y); matches createMapInstanceFromTemplate math.
+TileXY tileIndexToXY(int i, int width);
+
+// First marker whose name matches (ceditor findMarkerOnMap semantics).
+const MapMarkerPlacement* findMarkerOnTemplate(const CarcerMapTemplate& mapTemplate,
+                                               const bmin::String& markerName);
+
+// Center camera on target tile. Does not clamp — map may scroll past its edges
+// so the target stays centered (empty space outside the map is allowed).
+CameraPos computeCameraFollow(int targetTileX,
+                              int targetTileY,
+                              const MapInstance& map,
+                              int viewW,
+                              int viewH);
 
 } // namespace model

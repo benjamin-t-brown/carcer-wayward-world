@@ -4,6 +4,7 @@
 #include "state/WorldActions.h"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/components/InGameTitleBar.h"
+#include "ui/components/MapView.h"
 #include "ui/layouts/InGameLayout.h"
 
 namespace layers {
@@ -30,6 +31,28 @@ void fillWorldActionTypes(model::TurnMode turnMode,
   default:
     copyActionTypes(dest, worldActionUiState.townModeActionTypes);
     break;
+  }
+}
+
+void layoutMapView(ui::InGameLayout* inGameLayout,
+                   ui::MapView* mapView,
+                   model::World* world) {
+  if (!inGameLayout || !mapView) {
+    return;
+  }
+  auto [worldX, worldY] = inGameLayout->getWorldLocation();
+  auto [worldW, worldH] = inGameLayout->getWorldDims();
+  // getWorldLocation/Dims are already in screen pixels (scaled).
+  mapView->setPos(worldX, worldY);
+  mapView->setScale(1.f);
+  mapView->setProps(ui::MapViewProps{
+      .width = worldW,
+      .height = worldH,
+  });
+  if (world) {
+    // With MapView scale 1, content dims match map-pixel viewport size.
+    world->viewW = worldW;
+    world->viewH = worldH;
   }
 }
 
@@ -67,9 +90,11 @@ LayerWorld::LayerWorld(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
   });
   inGameLayout->setTitleElement(titleBar);
 
-  // TODO: map rendering — draw into the layout content region via
-  // InGameLayout::getWorldLocation() / border content area (no map widget yet).
-
+  // Map under chrome: layer draws uiElements in order, so MapView first.
+  auto mapView = new ui::MapView(window);
+  mapView->setId("mapView");
+  layoutMapView(inGameLayout, mapView, &getStateManager()->getState().world);
+  addUiElement(mapView);
   addUiElement(inGameLayout);
 
   auto floatingNotificationSection = new ui::FloatingNotificationSection(window);
@@ -120,6 +145,8 @@ void LayerWorld::syncFromState() {
     titleProps.showAp = (world.currentMap.turnMode == model::TurnMode::TURN_COMBAT);
     titleBar->setProps(titleProps);
   }
+
+  layoutMapView(inGameLayout, getUiElement<ui::MapView>("mapView"), &world);
 }
 
 } // namespace layers

@@ -1,0 +1,37 @@
+---
+description: Prefer bmin containers/strings over STL equivalents in C++ game code
+globs: ["src/**/*.cpp", "src/**/*.h", "src/**/*.hpp"]
+alwaysApply: false
+---
+
+# Prefer bmin over STL containers
+
+In `src/` C++ code, use **bmin** types instead of the matching STL containers/strings.
+
+| Prefer | Avoid |
+|---|---|
+| `bmin::String` | `std::string` |
+| `bmin::DynArray<T>` | `std::vector<T>` |
+| `bmin::Map<K, V>` | `std::map` / `std::unordered_map` |
+
+## Rules
+
+- New and edited code must not introduce `std::string`, `std::vector`, `std::map`, or `std::unordered_map` when a bmin equivalent exists.
+- Include the bmin headers you need (e.g. `"bmin/String.h"`, `"bmin/DynArray.h"`, `"bmin/Map.h"`).
+- Prefer `bmin::String` / `std::string_view` interop helpers (`bmin/StringInterop.h`) over converting to `std::string`.
+- `std::optional`, `std::unique_ptr` / `bmin::UniquePtr`, and other non-container STL utilities remain fine when already used by the codebase.
+- Third-party / sdl2w APIs that require STL types are an exception at the boundary only — convert at the edge, keep bmin inside game/model/ui code.
+
+## Examples
+
+```cpp
+// BAD
+std::vector<int> layerKeys;
+std::string name = "world";
+std::unordered_map<int, Tile> tiles;
+
+// GOOD
+bmin::DynArray<int> layerKeys;
+bmin::String name = "world";
+bmin::Map<int, Tile> tiles;
+```

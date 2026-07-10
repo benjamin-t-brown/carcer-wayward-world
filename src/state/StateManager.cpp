@@ -1,6 +1,7 @@
 #include "bmin/UniquePtr.h"
 #include "state/StateManager.h"
 #include "state/AbstractAction.h"
+#include "state/WorldUpdater.h"
 
 namespace state {
 
@@ -76,6 +77,7 @@ void StateManager::update(int dt) {
       i--;
     }
   }
+  worldUpdate(state, dt);
   uiManager.update(dt, state, *this);
 }
 

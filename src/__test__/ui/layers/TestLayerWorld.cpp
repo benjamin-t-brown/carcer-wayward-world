@@ -9,12 +9,13 @@
 #include "state/DatabaseInterface.h"
 #include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
+#include "state/actions/world/WorldLoadMap.hpp"
+#include "state/actions/world/WorldSpawnPlayerAtMarker.hpp"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
 #include "bmin/UniquePtr.h"
-#include <cassert>
 #include <memory>
 #include <vector>
 
@@ -71,6 +72,16 @@ int main(int argc, char** argv) {
   state::StateManager stateManager;
   state::StateManagerInterface::setStateManager(&stateManager);
   setupTestParty(stateManager.getState().player, database);
+
+  // Load map, spawn player at MarkerPlayer. Default CameraMode::Follow
+  // auto-resolves the party avatar; WorldUpdater + LayerWorld view dims snap cam.
+  {
+    auto& state = stateManager.getState();
+    auto loadMap = state::actions::WorldLoadMap("alinea_outsideAlinea1");
+    loadMap.execute(&state);
+    auto spawnPlayer = state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer");
+    spawnPlayer.execute(&state);
+  }
 
   bmin::UniquePtr<layers::LayerManager> layerManager;
 

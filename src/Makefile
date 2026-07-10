@@ -26,6 +26,7 @@ layers/ui/LayerPopupText.cpp \
 layers/ui/LayerWorld.cpp \
 model/instances/Player.cpp \
 model/instances/CharacterPlayer.cpp \
+model/instances/World.cpp \
 model/stats/CharacterStats.cpp \
 model/stats/CharacterStatDefinitions.cpp \
 model/stats/CharacterDerivedStats.cpp \
@@ -44,6 +45,7 @@ state/StateManager.cpp \
 state/StateManagerInterface.cpp \
 state/UiManager.cpp \
 state/LayerManagerInterface.cpp \
+state/WorldUpdater.cpp \
 ui/UiElement.cpp \
 ui/FontScale.cpp \
 ui/elements/SpriteElement.cpp \
@@ -79,6 +81,7 @@ ui/components/PartyMemberIconSelector.cpp \
 ui/components/FloatingNotification.cpp \
 ui/components/FloatingNotificationSection.cpp \
 ui/components/ConfirmModal.cpp \
+ui/components/MapView.cpp \
 ui/layouts/InGameLayout.cpp \
 ui/layouts/ModalStandard.cpp \
 ui/layouts/ModalSmall.cpp \

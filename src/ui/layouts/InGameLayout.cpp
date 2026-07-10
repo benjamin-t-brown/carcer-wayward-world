@@ -143,6 +143,10 @@ void InGameLayout::setTitleElement(UiElement* _titleElement) {
 UiElement* InGameLayout::getTitleElement() { return getChildById("title"); }
 
 const std::pair<int, int> InGameLayout::getWorldDims() {
+  auto* border = dynamic_cast<BorderInGame*>(getChildById("border"));
+  if (border) {
+    return border->getContentDims();
+  }
   return {style.width, style.height};
 }
 
