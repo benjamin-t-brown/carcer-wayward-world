@@ -1,7 +1,8 @@
 #include "ListInventory.h"
-#include "ui/elements/VerticalList.h"
 #include "ui/colors.h"
+#include "ui/elements/Quad.h"
 #include "ui/elements/TextLine.h"
+#include "ui/elements/VerticalList.h"
 #include "ui/elements/buttons/ButtonList.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/elements/buttons/ButtonTextWrap.h"
@@ -122,9 +123,10 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
   indexProps.textBlocks.pushBack({.text = bmin::toString(index + 1) + "."});
   indexLine->setProps(indexProps);
   const int indexTextWidth = indexLine->getDims().first;
-  indexLine->setPos(indexColumnStartX + scaledIndexPaddingLeft +
-                        (scaledIndexColumnWidth - scaledIndexPaddingLeft - indexTextWidth),
-                    rowHeight / 2);
+  indexLine->setPos(
+      indexColumnStartX + scaledIndexPaddingLeft +
+          (scaledIndexColumnWidth - scaledIndexPaddingLeft - indexTextWidth),
+      rowHeight / 2);
   container->addChild(indexLine);
 
   const int iconX = indexColumnStartX + scaledIndexColumnWidth + numberGap;
@@ -154,7 +156,7 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
     itemDisplayLabel += " (" + bmin::toString(item.quantity) + ")";
   }
   if (!item.equippedSlotAbbrev.empty()) {
-    itemDisplayLabel += " (" + item.equippedSlotAbbrev + ")";
+    itemDisplayLabel += " [" + item.equippedSlotAbbrev + "]";
   }
 
   TextFontProps labelFont;

@@ -6,6 +6,7 @@
 #include "model/templates/Items.h"
 #include "model/templates/UtilityTypes.h"
 #include <optional>
+
 namespace db {
 class Database;
 }

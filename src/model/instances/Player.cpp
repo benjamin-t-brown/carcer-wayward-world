@@ -12,7 +12,7 @@ CharacterPlayer* playerFindPartyMemberById(Player& _player, const bmin::String& 
 }
 
 CharacterPlayer* playerFindPartyMemberByIndex(Player& _player, int _index) {
-  if (_index < 0 || _index >= _player.party.size()) {
+  if (_index < 0 || static_cast<size_t>(_index) >= _player.party.size()) {
     return nullptr;
   }
   return &_player.party[_index];

@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
           characterPlayer, database.getItemTemplate(bmin::toStringView(itemName)), 1);
     }
 
-    // Equip a few items so the inventory list shows slot abbrevs (e.g. (m), (h)).
+    // Equip a few items so the inventory list shows slot abbrevs (e.g. [m], [h]).
     for (const auto& item : characterPlayer.inventory) {
       if (item.itemName == "DaggerBronze") {
         characterPlayer.equipment.weapon0Id = item.id;
