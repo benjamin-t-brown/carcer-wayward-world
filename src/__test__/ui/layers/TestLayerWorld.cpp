@@ -104,6 +104,11 @@ int main(int argc, char** argv) {
     events.setMouseEvent(
         sdl2w::MouseEventCb::ON_MOUSE_WHEEL,
         [&](int x, int y, int delta) { layerManager->handleMouseWheel(x, y, delta); });
+    events.setKeyboardEvent(
+        sdl2w::KeyboardEventCb::ON_KEY_DOWN,
+        [&](std::string_view key, int keyCode) {
+          layerManager->handleKeyDown(key, keyCode);
+        });
   };
 
   auto _updateRender = [&](sdl2w::Window& window, sdl2w::Store& store) {

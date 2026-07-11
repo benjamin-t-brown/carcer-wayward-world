@@ -11,6 +11,7 @@ public:
   explicit LayerWorld(sdl2w::Window* _window);
   virtual ~LayerWorld() = default;
 
+  void onKeyDown(std::string_view key, int keyCode) override;
   void syncFromState();
 };
 

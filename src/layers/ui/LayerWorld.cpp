@@ -2,6 +2,7 @@
 #include "sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
 #include "state/WorldActions.h"
+#include "state/actions/world/WorldMovePlayer.hpp"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/components/InGameTitleBar.h"
 #include "ui/components/MapView.h"
@@ -102,6 +103,34 @@ LayerWorld::LayerWorld(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
   addUiElement(floatingNotificationSection);
 
   syncFromState();
+}
+
+void LayerWorld::onKeyDown(std::string_view key, int keyCode) {
+  if (getState() != LayerState::ON) {
+    return;
+  }
+
+  auto dx = int{0};
+  auto dy = int{0};
+  if (key == "Up") {
+    dy = -1;
+  } else if (key == "Down") {
+    dy = 1;
+  } else if (key == "Left") {
+    dx = -1;
+  } else if (key == "Right") {
+    dx = 1;
+  } else {
+    return;
+  }
+
+  auto stateManager = getStateManager();
+  if (!stateManager) {
+    return;
+  }
+  stateManager->enqueueAction(stateManager->getActionData(),
+                              new state::actions::WorldMovePlayer(dx, dy),
+                              0);
 }
 
 void LayerWorld::syncFromState() {

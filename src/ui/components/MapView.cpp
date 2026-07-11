@@ -1,12 +1,11 @@
 #include "MapView.h"
-#include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
+#include "model/MapWalkability.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/CharacterTemplate.h"
 #include "sdl2w/Draw.h"
 #include "state/StateManager.h"
-#include <algorithm>
 #include <exception>
 
 namespace ui {
@@ -64,14 +63,6 @@ void MapView::render(int /*dt*/) {
   auto& draw = window->getDraw();
   auto& store = window->getStore();
 
-  auto& tilesMap =
-      const_cast<bmin::Map<int, bmin::DynArray<model::TileInstance>>&>(map.tiles);
-  auto layerKeys = bmin::DynArray<int>{};
-  for (auto it = tilesMap.begin(); it != tilesMap.end(); ++it) {
-    layerKeys.pushBack(it->key);
-  }
-  std::sort(layerKeys.begin(), layerKeys.end());
-
   // Draw whole sprites; overdraw past the content rect is fine (chrome draws on top).
   auto drawMapSprite = [&](sdl2w::Sprite& sprite, int screenX, int screenY) {
     if (screenX + scaledSpriteW <= contentX || screenX >= contentX + contentW ||
@@ -87,26 +78,20 @@ void MapView::render(int /*dt*/) {
                     });
   };
 
-  for (size_t li = 0; li < layerKeys.size(); li++) {
-    auto layerKey = layerKeys[li];
-    auto layerIt = tilesMap.find(layerKey);
-    if (layerIt == tilesMap.end()) {
-      continue;
-    }
-    const auto& tiles = layerIt->value;
-
-    for (size_t i = 0; i < tiles.size(); i++) {
-      const auto& tile = tiles[i];
-      if (tile.tilesetName.empty()) {
+  // One sprite per cell: highest non-empty tile at or below tileLayerNumber.
+  for (auto y = 0; y < map.height; y++) {
+    for (auto x = 0; x < map.width; x++) {
+      const auto* tile = model::resolveTileToRender(map, x, y);
+      if (!tile) {
         continue;
       }
 
       auto screenX =
-          contentX + static_cast<int>((tile.x * spriteW - world.camX) * style.scale);
+          contentX + static_cast<int>((tile->x * spriteW - world.camX) * style.scale);
       auto screenY =
-          contentY + static_cast<int>((tile.y * spriteH - world.camY) * style.scale);
+          contentY + static_cast<int>((tile->y * spriteH - world.camY) * style.scale);
 
-      auto spriteName = tile.tilesetName + "_" + bmin::toString(tile.tileId);
+      auto spriteName = tile->tilesetName + "_" + bmin::toString(tile->tileId);
       if (!store.sprites.contains(spriteName)) {
         continue;
       }

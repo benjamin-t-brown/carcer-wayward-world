@@ -7145,7 +7145,7 @@
         "id": 7,
         "description": "door",
         "stepSound": 0,
-        "isWalkable": false,
+        "isWalkable": true,
         "isSeeThrough": false,
         "isDoor": true,
         "isContainer": false

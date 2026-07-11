@@ -39,9 +39,9 @@ struct TileLightSource {
 };
 
 struct TileOverrides {
-  bool isWalkableOverride = false;
-  bool isSeeThroughOverride = false;
-  bool isContainerOverride = false;
+  std::optional<bool> isWalkableOverride;
+  std::optional<bool> isSeeThroughOverride;
+  std::optional<bool> isContainerOverride;
   std::optional<TileLightSource> lightSourceOverride;
 };
 

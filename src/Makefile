@@ -11,6 +11,7 @@ db/loaders/LoadAbilityTemplates.cpp \
 db/loaders/LoadStatusEffectTemplates.cpp \
 db/loaders/LoadCharacterTemplates.cpp \
 db/loaders/LoadMapTemplates.cpp \
+db/loaders/LoadTilesetTemplates.cpp \
 model/templates/AbilityTypes.cpp \
 db/loaders/LoadSpecialEvents.cpp \
 lib/Json.cpp \
@@ -27,6 +28,7 @@ layers/ui/LayerWorld.cpp \
 model/instances/Player.cpp \
 model/instances/CharacterPlayer.cpp \
 model/instances/World.cpp \
+model/MapWalkability.cpp \
 model/stats/CharacterStats.cpp \
 model/stats/CharacterStatDefinitions.cpp \
 model/stats/CharacterDerivedStats.cpp \
@@ -123,7 +125,8 @@ DEPENDS := $(patsubst %.cpp,%.d,$(CODE)) main.d
 LIB_DEPENDS := $(patsubst %.cpp,%.d,$(LIB_CODE))
 
 SDL2W_STAMP = $(SDL2W_DIR_NAME)/.source_ok
-SDL2W_LIB = sdl2w/libsdl2w.a
+# Must match where _copy_sdl2w_artifacts installs the archive (not the upstream build tree).
+SDL2W_LIB = lib/sdl2w/libsdl2w.a
 LIBCARCER = lib/libcarcer.a
 
 # Subset of Emscripten port flags: needed when compiling sdl2w to .o (static lib), not only at final link.
@@ -241,20 +244,31 @@ sdl2w_wasm: $(SDL2W_STAMP)
 	$(MAKE) -C "$(SDL2W_DIR_NAME)/src" wasm
 	@$(MAKE) _copy_sdl2w_artifacts
 
+# Copy headers only when content differs so identical files keep their mtimes
+# (avoids cascading rebuilds of every .o that depends on lib/sdl2w or lib/bmin).
+define copy_headers_if_changed
+	@for f in $(1); do \
+		dest="$(2)/$$(basename "$$f")"; \
+		if ! cmp -s "$$f" "$$dest" 2>/dev/null; then \
+			cp "$$f" "$$dest"; \
+		fi; \
+	done
+endef
+
 _copy_sdl2w_artifacts: _copy_bmin_artifacts
 	@mkdir -p lib/sdl2w
 	@echo "Copying sdl2w artifacts from $(SDL2W_BUILD_OUTPUT_DIR) to lib/sdl2w..."
 	@cp $(SDL2W_BUILD_OUTPUT_DIR)/lib/libsdl2w.a lib/sdl2w
-	@cp $(SDL2W_BUILD_OUTPUT_DIR)/include/*.h lib/sdl2w
+	$(call copy_headers_if_changed,$(SDL2W_BUILD_OUTPUT_DIR)/include/*.h,lib/sdl2w)
 
 _copy_bmin_artifacts:
 	@mkdir -p lib/bmin
 	@mkdir -p lib/bmin/internal
 	@echo "Copying bmin artifacts from $(SDL2W_BUILD_OUTPUT_DIR) to lib/bmin..."
 	@cp $(SDL2W_BUILD_OUTPUT_DIR)/lib/libbmin.a lib/bmin
-	@cp $(SDL2W_BUILD_OUTPUT_DIR)/include/bmin/*.h lib/bmin
-	@cp $(SDL2W_BUILD_OUTPUT_DIR)/include/bmin/internal/*.h lib/bmin/internal
-	@cp $(SDL2W_BUILD_OUTPUT_DIR)/include/bmin/internal/*.hpp lib/bmin/internal
+	$(call copy_headers_if_changed,$(SDL2W_BUILD_OUTPUT_DIR)/include/bmin/*.h,lib/bmin)
+	$(call copy_headers_if_changed,$(SDL2W_BUILD_OUTPUT_DIR)/include/bmin/internal/*.h,lib/bmin/internal)
+	$(call copy_headers_if_changed,$(SDL2W_BUILD_OUTPUT_DIR)/include/bmin/internal/*.hpp,lib/bmin/internal)
 
 compiler_args:
 	@echo $(FLAGS) $(LINK_FLAGS) $(INCLUDES) $(COMPILER_LINK_INPUTS) $(LIBS)

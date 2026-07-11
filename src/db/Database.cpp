@@ -6,6 +6,7 @@
 #include "loaders/LoadMapTemplates.h"
 #include "loaders/LoadSpecialEvents.h"
 #include "loaders/LoadStatusEffectTemplates.h"
+#include "loaders/LoadTilesetTemplates.h"
 #include <stdexcept>
 
 namespace db {
@@ -63,6 +64,7 @@ void Database::load() {
   loadItemTemplates("assets/db/items.json", itemTemplates);
   loadCharacterTemplates("assets/db/characters.json", characterTemplates);
   loadMapTemplates("assets/db/maps.json", mapTemplates);
+  loadTilesetTemplates("assets/db/tilesets.json", tilesetTemplates);
   loadSpecialEvents("assets/db/special-events.json", gameEvents);
   validateCombatReferences();
   LOG(INFO) << "Loaded database." << LOG_ENDL;
@@ -116,6 +118,27 @@ const model::CarcerMapTemplate& Database::getMapTemplate(std::string_view mapNam
 
 void Database::addMapTemplate(const model::CarcerMapTemplate& mapTemplate) {
   mapTemplates[mapTemplate.name] = mapTemplate;
+}
+
+const model::TilesetTemplate&
+Database::getTilesetTemplate(std::string_view tilesetName) const {
+  return mapGet(tilesetTemplates, tilesetName, "Tileset template not found: ");
+}
+
+const model::TilesetTemplate*
+Database::findTilesetTemplate(std::string_view tilesetName) const {
+  const auto mapKey = bmin::String(tilesetName.data(), tilesetName.size());
+  auto& map =
+      const_cast<bmin::Map<bmin::String, model::TilesetTemplate>&>(tilesetTemplates);
+  auto it = map.find(mapKey);
+  if (it == map.end()) {
+    return nullptr;
+  }
+  return &(*it).value;
+}
+
+void Database::addTilesetTemplate(const model::TilesetTemplate& tilesetTemplate) {
+  tilesetTemplates[tilesetTemplate.name] = tilesetTemplate;
 }
 
 } // namespace db
