@@ -13925,6 +13925,16 @@
     "items": [],
     "markers": [
       {
+        "l": 1,
+        "i": 37,
+        "name": "Stairs1"
+      },
+      {
+        "l": 0,
+        "i": 0,
+        "name": "Stairs0"
+      },
+      {
         "l": 0,
         "i": 337,
         "name": "MarkerPlayer"
@@ -13937,9 +13947,41 @@
         "eventId": "alinea_sign_warehouse3",
         "isNonCombatTrigger": true,
         "isLookTrigger": true
+      },
+      {
+        "l": 0,
+        "i": 280,
+        "eventId": "TestEventModal",
+        "isNonCombatTrigger": true,
+        "isLookTrigger": false
       }
     ],
-    "travelTriggers": [],
+    "travelTriggers": [
+      {
+        "l": 1,
+        "i": 0,
+        "destinationMapName": "alinea_outsideAlinea1",
+        "destinationMarkerName": "Stairs0",
+        "destinationX": 0,
+        "destinationY": 0
+      },
+      {
+        "l": 1,
+        "i": 37,
+        "destinationMapName": "alinea_outsideAlinea1",
+        "destinationMarkerName": "",
+        "destinationX": 0,
+        "destinationY": 0
+      },
+      {
+        "l": 0,
+        "i": 37,
+        "destinationMapName": "alinea_outsideAlinea1",
+        "destinationMarkerName": "Stairs1",
+        "destinationX": 0,
+        "destinationY": 0
+      }
+    ],
     "tileOverrides": [],
     "lightSources": []
   },

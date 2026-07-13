@@ -108,6 +108,10 @@ const model::GameEvent& Database::getGameEvent(std::string_view eventId) const {
   return mapGet(gameEvents, eventId, "Game event not found: ");
 }
 
+const bmin::Map<bmin::String, model::GameEvent>& Database::getGameEvents() const {
+  return gameEvents;
+}
+
 void Database::addGameEvent(const model::GameEvent& gameEvent) {
   gameEvents[gameEvent.id] = gameEvent;
 }

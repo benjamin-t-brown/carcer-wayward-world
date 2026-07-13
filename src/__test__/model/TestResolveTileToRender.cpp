@@ -5,7 +5,6 @@
 #include "state/DatabaseInterface.h"
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
-#include "bmin/StringInterop.h"
 
 namespace {
 
@@ -74,8 +73,8 @@ int main(int /*argc*/, char** /*argv*/) {
     auto map = model::MapInstance{};
     map.width = 3;
     map.height = 3;
-    map.tiles[0] = makeEmptyLayer(3, 3);
-    map.tiles[1] = makeEmptyLayer(3, 3);
+    model::mapLayerAt(map.tiles, 0) = makeEmptyLayer(3, 3);
+    model::mapLayerAt(map.tiles, 1) = makeEmptyLayer(3, 3);
     map.tiles[0][4] = makeTile(1, 1, "terrain2", 4);
     map.tiles[1][4] = makeTile(1, 1, "terrain2", 0);
 
@@ -126,9 +125,9 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertEqual(xy.y, 8, "index250.y") && ok;
 
     // Sanity: layer 0 door, layer 1 wall at that cell
-    ok = assertTrue(map.tiles.contains(0), "has layer 0") && ok;
-    ok = assertTrue(map.tiles.contains(1), "has layer 1") && ok;
-    if (map.tiles.contains(0) && map.tiles.contains(1)) {
+    ok = assertTrue(mapHasLayer(map.tiles, 0), "has layer 0") && ok;
+    ok = assertTrue(mapHasLayer(map.tiles, 1), "has layer 1") && ok;
+    if (mapHasLayer(map.tiles, 0) && mapHasLayer(map.tiles, 1)) {
       const auto& layer0 = map.tiles[0][static_cast<size_t>(index)];
       const auto& layer1 = map.tiles[1][static_cast<size_t>(index)];
       ok = assertEqualStr(layer0.tilesetName, "terrain2", "raw layer0 tileset") && ok;

@@ -35,8 +35,7 @@ int main(int argc, char** argv) {
     ok = assertEqual(map.width, 2, "flat_test_map.width") && ok;
     ok = assertEqual(map.height, 2, "flat_test_map.height") && ok;
     ok = assertEqual(static_cast<int>(map.tilesets.size()), 2, "flat_test_map.tilesets") && ok;
-    const bmin::DynArray<int>& layer0 =
-        const_cast<bmin::Map<int, bmin::DynArray<int>>&>(map.tiles)[0];
+    const bmin::DynArray<int>& layer0 = map.tiles[0];
     ok = assertEqual(static_cast<int>(layer0.size()), 8, "flat_test_map.tiles[0].size") && ok;
     ok = assertEqual(layer0[2], 1, "flat_test_map.tiles[0][2]") && ok;
     ok = assertEqual(layer0[3], 6, "flat_test_map.tiles[0][3]") && ok;

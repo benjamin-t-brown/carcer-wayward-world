@@ -24,11 +24,13 @@ layers/ui/LayerInventory.cpp \
 layers/ui/LayerPickUpContext.cpp \
 layers/ui/LayerPickUp.cpp \
 layers/ui/LayerPopupText.cpp \
+layers/ui/LayerSpecialEvent.cpp \
 layers/ui/LayerWorld.cpp \
 model/instances/Player.cpp \
 model/instances/CharacterPlayer.cpp \
 model/instances/World.cpp \
 model/MapWalkability.cpp \
+model/TileTriggers.cpp \
 model/stats/CharacterStats.cpp \
 model/stats/CharacterStatDefinitions.cpp \
 model/stats/CharacterDerivedStats.cpp \
@@ -100,6 +102,7 @@ ui/pages/PageCharacter.cpp \
 ui/pages/PageInventory.cpp \
 ui/pages/PageMagicSetup.cpp \
 ui/pages/PageTalkChoice.cpp \
+ui/pages/PageModalEvent.cpp \
 ui/minipages/MinipagePickUp.cpp \
 ui/popups/PopupPickupItem.cpp \
 

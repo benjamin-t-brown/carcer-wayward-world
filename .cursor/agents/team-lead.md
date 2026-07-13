@@ -130,7 +130,7 @@ Only spawn agents that exist as `.cursor/agents/<name>.md`. Current roster:
 | Agent / skill | Use for |
 |---|---|
 | `planner` | Requirements, design, tasks under `.ai/specs/<feature>/` |
-| `cpp-expert` | C++ under `src/` — builds, loaders, native tests |
+| `cpp-expert` | C++ under `src/` — builds with `make -j8`, loaders, native tests |
 | `ceditor-expert` | Asset editor under `ceditor/` — types, forms, `npm run build` |
 | `autonomous-loop` (skill) | Hands-off execution of all `tasks.md` items (`.cursor/skills/autonomous-loop/SKILL.md`) |
 | `routing` (skill) | Ad-hoc request classification (`.cursor/skills/routing/SKILL.md`) |

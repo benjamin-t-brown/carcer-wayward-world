@@ -12,12 +12,12 @@
       "environment": [
         {
           "name": "PATH",
-          "value": "C:\\progs\\msys2\\ucrt64\\bin;${env:PATH}"
+          "value": "${env:MSYS2_ROOT}\\ucrt64\\bin;${env:PATH}"
         }
       ],
       "externalConsole": false,
       "MIMode": "gdb",
-      "miDebuggerPath": "C:\\progs\\msys2\\ucrt64\\bin\\gdb.exe",
+      "miDebuggerPath": "${env:MSYS2_ROOT}\\ucrt64\\bin\\gdb.exe",
       "setupCommands": [
         {
           "description": "Enable pretty-printing for gdb",

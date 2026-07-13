@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
       ok = assertTrue(!instance.items[0].id.empty(), "item.id non-empty") && ok;
     }
 
-    if (!instance.tiles.contains(0)) {
+    if (!mapHasLayer(instance.tiles, 0)) {
       LOG(ERROR) << "instance.tiles missing layer 0" << LOG_ENDL;
       return 1;
     }

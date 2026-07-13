@@ -80,6 +80,8 @@ export function SelectedTileInfo({
   const y = Math.floor(selectedTileInd / map.width);
   const spriteName = getSpriteNameFromTile(selectedTile);
   const sprite = spriteMap[spriteName];
+  const hasEventAndTravel =
+    !!selectedTile.eventTrigger && !!selectedTile.travelTrigger;
 
   return (
     <div
@@ -155,6 +157,24 @@ export function SelectedTileInfo({
         selectedTile={selectedTile}
         updateTile={updateTile}
       />
+
+      {hasEventAndTravel && (
+        <div
+          style={{
+            marginTop: '12px',
+            padding: '8px',
+            backgroundColor: '#4a3a1a',
+            border: '1px solid #8a6a2a',
+            borderRadius: '4px',
+            color: '#ffd27f',
+            fontSize: '12px',
+            lineHeight: 1.4,
+          }}
+        >
+          This tile has both an event trigger and a travel trigger. At runtime the
+          event trigger runs and the travel trigger is ignored.
+        </div>
+      )}
 
       <TravelTriggerSection
         selectedTile={selectedTile}

@@ -72,7 +72,8 @@ inline void setupTestUi(int argc,
       window.getDraw().setBackgroundColor({60, 60, 60});
 
 #ifndef __EMSCRIPTEN__
-      if (window.getEvents().isKeyPressed("Escape")) {
+      if (window.getEvents().isKeyPressed("q") ||
+          window.getEvents().isKeyPressed("Q")) {
         return false;
       }
 #endif

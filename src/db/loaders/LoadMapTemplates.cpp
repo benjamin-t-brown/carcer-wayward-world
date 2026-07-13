@@ -101,7 +101,13 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       for (const auto& value : graphicsJson) {
         graphics.pushBack(value.get<int>());
       }
-      mapTemplate.tiles[layer] = std::move(graphics);
+      if (layer >= 0) {
+        const auto idx = static_cast<size_t>(layer);
+        if (mapTemplate.tiles.size() <= idx) {
+          mapTemplate.tiles.resize(idx + 1);
+        }
+        mapTemplate.tiles[idx] = std::move(graphics);
+      }
     }
   }
 

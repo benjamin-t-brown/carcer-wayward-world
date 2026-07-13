@@ -8818,6 +8818,45 @@
     ]
   },
   {
+    "id": "TestEventModal",
+    "title": "Test Event Modal",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "qkwqem6ocg",
+        "autoAdvance": true
+      },
+      {
+        "id": "qkwqem6ocg",
+        "x": 100,
+        "y": 92,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "This is a test event modal.",
+        "execStr": "",
+        "next": "gkfvxb6vh1h",
+        "autoAdvance": false
+      },
+      {
+        "id": "gkfvxb6vh1h",
+        "x": 322,
+        "y": 199,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
     "id": "util_aspect",
     "title": "Utils: Aspect",
     "eventType": "MODAL",

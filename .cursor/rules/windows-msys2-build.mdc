@@ -5,6 +5,15 @@ alwaysApply: true
 
 # Windows Build Environment (MSYS2 UCRT64)
 
+## Parallelism (all agents, all platforms)
+
+Always build with **`make -j8`**. Do not run bare `make` when compiling the game or verifying C++ changes.
+
+- Windows: `.\scripts\Invoke-Ucrt64.ps1 "cd src && make -j8"`
+- Linux / macOS / MSYS2 shell: `cd src && make -j8`
+
+## Windows shell wrapper
+
 On Windows, the agent shell is PowerShell. Do **not** run `make`, `gcc`, or `scripts/*.sh` directly in PowerShell.
 
 Run native C++ builds and bash scripts through MSYS2 **UCRT64** using the repo wrapper from the repo root:
@@ -16,6 +25,6 @@ Run native C++ builds and bash scripts through MSYS2 **UCRT64** using the repo w
 .\scripts\Invoke-Ucrt64.ps1 "./scripts/update-translations.sh"
 ```
 
-MSYS2 root defaults to `C:\progs\msys2`. Override with the `MSYS2_ROOT` environment variable if installed elsewhere.
+`scripts/Invoke-Ucrt64.ps1` auto-detects MSYS2 (`C:\msys64`, `C:\msys2`, `C:\progs\msys2`, Scoop/Chocolatey paths, or `msys2_shell.cmd` on PATH). Override with `MSYS2_ROOT` if needed.
 
-Use UCRT64 toolchain paths (e.g. `C:\progs\msys2\ucrt64\bin`) for gdb and related tools, matching `.vscode/launch.json`.
+For gdb / clangd, point at `$env:MSYS2_ROOT\ucrt64\bin` (see `.vscode/launch.json`, which uses `${env:MSYS2_ROOT}`).

@@ -3,7 +3,6 @@
 #include <optional>
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
-#include "lib/bmin/Map.h"
 
 namespace model {
 
@@ -86,7 +85,7 @@ struct CarcerMapTemplate {
   int spriteHeight = 32;
   bmin::DynArray<bmin::String> tilesets;
   bmin::DynArray<int> layers;
-  bmin::Map<int, bmin::DynArray<int>> tiles;
+  bmin::DynArray<bmin::DynArray<int>> tiles;
   bmin::DynArray<MapCharacterPlacement> characters;
   bmin::DynArray<MapItemPlacement> items;
   bmin::DynArray<MapMarkerPlacement> markers;

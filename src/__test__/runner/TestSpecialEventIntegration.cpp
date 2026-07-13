@@ -25,16 +25,23 @@ int main(int argc, char** argv) {
 
   model::GameEvent& testEvent = specialEvents["TestEvent"];
 
-  // -1 is advance next node, other numbers are choice indexes
+  // -1 is advance next node, other numbers are choice indexes.
+  // MODAL events wait on non-empty EXEC text (autoAdvance is ignored).
   bmin::DynArray<std::pair<int, bmin::String>> inputSteps = {
       // clang-format off
       {-1, "This should display once."},
+      {-1, "This should display once."}, // continue → choice menu
       {0, "You chose choice 1."},
+      {-1, "You chose choice 1."}, // continue → choice menu
       {1, "You selected choice 2."},
+      {-1, "You selected choice 2."},
       {1, "You selected choice 3."},
+      {-1, "You selected choice 3."},
       {2, "You selected choice 4.  This should wait to continue."},
       {-1, "You have waited for choice 4."},
-      {3, "This should display by default."}, // the Restart choice
+      {-1, "You have waited for choice 4."}, // continue → choice menu
+      {3, "This should display by default."}, // Restart
+      {-1, "This should display by default."}, // continue → choice menu
       {4, "End."}
       //
       // clang-format on
@@ -59,7 +66,7 @@ int main(int argc, char** argv) {
         } else {
           LOG(ERROR) << "Error, test indicated to continue event, but state is not "
                         "WAITING_TO_CONTINUE.  State: "
-                     << runner::SpecialEventRunnerInterface::stateTobmin::String(state)
+                     << runner::SpecialEventRunnerInterface::stateToString(state)
                      << LOG_ENDL;
           return 1;
         }
@@ -72,7 +79,7 @@ int main(int argc, char** argv) {
         } else {
           LOG(ERROR) << "Error, test indicated to select choice, but state is not "
                         "WAITING_TO_SELECT_CHOICE.  State: "
-                     << runner::SpecialEventRunnerInterface::stateTobmin::String(state)
+                     << runner::SpecialEventRunnerInterface::stateToString(state)
                      << LOG_ENDL;
           return 1;
         }
@@ -100,7 +107,7 @@ int main(int argc, char** argv) {
       }
     }
 
-    LOG(INFO) << "Storage: \n" << runner.storageTobmin::String() << LOG_ENDL;
+    LOG(INFO) << "Storage: \n" << runner.storageToString() << LOG_ENDL;
 
     LOG(INFO) << TEST_NAME << " completed successfully" << LOG_ENDL;
     return 0;

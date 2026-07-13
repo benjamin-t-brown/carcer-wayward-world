@@ -9,7 +9,6 @@
 #include "state/WorldUpdater.h"
 #include "state/actions/world/WorldMovePlayer.hpp"
 #include "bmin/String.h"
-#include "bmin/StringInterop.h"
 
 namespace {
 
@@ -88,7 +87,7 @@ model::MapInstance makeEmptyMap(int width, int height) {
   map.spriteHeight = 32;
   map.templateName = "test_map";
   map.tileLayerNumber = 0;
-  map.tiles[0] = makeLayerTiles(width, height, 0);
+  mapLayerAt(map.tiles, 0) = makeLayerTiles(width, height, 0);
   return map;
 }
 
@@ -221,7 +220,7 @@ int main(int /*argc*/, char** /*argv*/) {
       state::State state;
       state.world.currentMap = makeEmptyMap(5, 5);
       state.world.currentMap.tileLayerNumber = 0;
-      state.world.currentMap.tiles[1] = makeLayerTiles(5, 5, 1); // wall on layer 1
+      model::mapLayerAt(state.world.currentMap.tiles, 1) = makeLayerTiles(5, 5, 1); // wall on layer 1
       // layer 0 dest stays floor (tileId 0)
       auto* avatar = spawnAvatar(state, 2, 2);
       move(state, 1, 0);
@@ -233,7 +232,7 @@ int main(int /*argc*/, char** /*argv*/) {
     {
       state::State state;
       state.world.currentMap = makeEmptyMap(5, 5);
-      state.world.currentMap.tiles[1] = makeLayerTiles(5, 5, 0); // floor on layer 1
+      model::mapLayerAt(state.world.currentMap.tiles, 1) = makeLayerTiles(5, 5, 0); // floor on layer 1
       tileAt(state.world.currentMap, 3, 2, 0)->tileId = 1; // wall on layer 0
       state.world.currentMap.tileLayerNumber = 0;
       auto* avatar = spawnAvatar(state, 2, 2);
@@ -246,7 +245,7 @@ int main(int /*argc*/, char** /*argv*/) {
     {
       state::State state;
       state.world.currentMap = makeEmptyMap(5, 5);
-      state.world.currentMap.tiles[1] = makeLayerTiles(5, 5, 1); // wall on layer 1
+      model::mapLayerAt(state.world.currentMap.tiles, 1) = makeLayerTiles(5, 5, 1); // wall on layer 1
       state.world.currentMap.tileLayerNumber = 1;
       auto* avatar = spawnAvatar(state, 2, 2);
       move(state, 1, 0);
@@ -327,7 +326,7 @@ int main(int /*argc*/, char** /*argv*/) {
     {
       state::State state;
       state.world.currentMap = makeEmptyMap(5, 5);
-      state.world.currentMap.tiles[1] = makeLayerTiles(5, 5, 0);
+      model::mapLayerAt(state.world.currentMap.tiles, 1) = makeLayerTiles(5, 5, 0);
       auto* doorLayer0 = tileAt(state.world.currentMap, 3, 2, 0);
       auto* doorLayer1 = tileAt(state.world.currentMap, 3, 2, 1);
       doorLayer0->tileId = 2; // closed door on current layer

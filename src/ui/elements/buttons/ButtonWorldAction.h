@@ -35,6 +35,7 @@ private:
 
 public:
   bool isActive = false;
+  bool isModeSelected = false;
   ButtonWorldAction(sdl2w::Window* _window, UiElement* _parent = nullptr);
   ~ButtonWorldAction() override = default;
 

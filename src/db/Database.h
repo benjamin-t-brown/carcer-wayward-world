@@ -46,6 +46,7 @@ public:
   const model::StatusEffectTemplate& getStatusEffectTemplate(std::string_view statusName) const;
   void addStatusEffectTemplate(const model::StatusEffectTemplate& statusEffectTemplate);
   const model::GameEvent& getGameEvent(std::string_view eventId) const;
+  const bmin::Map<bmin::String, model::GameEvent>& getGameEvents() const;
   void addGameEvent(const model::GameEvent& gameEvent);
   const model::CarcerMapTemplate& getMapTemplate(std::string_view mapName) const;
   void addMapTemplate(const model::CarcerMapTemplate& mapTemplate);

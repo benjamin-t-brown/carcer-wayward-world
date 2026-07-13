@@ -5,7 +5,7 @@ alwaysApply: true
 
 # C++ UI test verification (agents)
 
-UI tests under `src/__test__/ui/` open an SDL window for **manual** inspection. They run until the user closes them (Escape or window close) and may last minutes. They are not automated unit tests.
+UI tests under `src/__test__/ui/` open an SDL window for **manual** inspection. They run until the user closes them (Q or window close) and may last minutes. They are not automated unit tests.
 
 Test runners under `test-runners/` require **Node.js** (see `DEVELOPMENT.md`).
 

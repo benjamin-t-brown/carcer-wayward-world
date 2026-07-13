@@ -1,6 +1,7 @@
 #pragma once
 
 #include "model/MapWalkability.h"
+#include "model/TileTriggers.h"
 #include "model/instances/Player.h"
 #include "model/instances/World.h"
 #include "sdl2w/Logger.h"
@@ -100,6 +101,7 @@ class WorldMovePlayer : public AbstractAction {
 
     avatar->x = destX;
     avatar->y = destY;
+    model::queueStepTriggersAt(state->world, map, destX, destY);
   }
 
 public:

@@ -2,11 +2,17 @@
 #include "sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
 #include "state/WorldActions.h"
+#include "state/actions/ui/UiShowLayerSpecialEvent.hpp"
+#include "state/actions/world/WorldExamineDirection.hpp"
 #include "state/actions/world/WorldMovePlayer.hpp"
+#include "state/actions/world/WorldSetActionMode.hpp"
+#include "state/actions/world/WorldTravel.hpp"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/components/InGameTitleBar.h"
 #include "ui/components/MapView.h"
+#include "ui/elements/buttons/ButtonWorldAction.h"
 #include "ui/layouts/InGameLayout.h"
+#include "ui/observers/ObserverWorldAction.hpp"
 
 namespace layers {
 namespace {
@@ -110,6 +116,25 @@ void LayerWorld::onKeyDown(std::string_view key, int keyCode) {
     return;
   }
 
+  auto stateManager = getStateManager();
+  if (!stateManager) {
+    return;
+  }
+
+  auto& world = stateManager->getState().world;
+  if (key == "Escape" && world.actionMode == model::WorldActionMode::EXAMINE) {
+    stateManager->enqueueAction(
+        stateManager->getActionData(),
+        new state::actions::WorldSetActionMode(model::WorldActionMode::NONE),
+        0);
+    return;
+  }
+
+  if (auto actionType = worldActionShortcutForKey(key)) {
+    activateWorldAction(*actionType);
+    return;
+  }
+
   auto dx = int{0};
   auto dy = int{0};
   if (key == "Up") {
@@ -124,13 +149,123 @@ void LayerWorld::onKeyDown(std::string_view key, int keyCode) {
     return;
   }
 
+  if (world.actionMode == model::WorldActionMode::EXAMINE) {
+    stateManager->enqueueAction(stateManager->getActionData(),
+                                new state::actions::WorldExamineDirection(dx, dy),
+                                0);
+    return;
+  }
+
+  stateManager->enqueueAction(stateManager->getActionData(),
+                              new state::actions::WorldMovePlayer(dx, dy),
+                              0);
+}
+
+std::optional<state::WorldActionType>
+LayerWorld::worldActionShortcutForKey(std::string_view key) {
+  if (key == "l" || key == "L") {
+    return state::WorldActionType::EXAMINE;
+  }
+  return std::nullopt;
+}
+
+void LayerWorld::activateWorldAction(state::WorldActionType worldActionType) {
   auto stateManager = getStateManager();
   if (!stateManager) {
     return;
   }
-  stateManager->enqueueAction(stateManager->getActionData(),
-                              new state::actions::WorldMovePlayer(dx, dy),
-                              0);
+
+  switch (worldActionType) {
+  case state::WorldActionType::EXAMINE:
+    stateManager->enqueueAction(
+        stateManager->getActionData(),
+        new state::actions::WorldSetActionMode(model::WorldActionMode::EXAMINE),
+        0);
+    break;
+  default:
+    break;
+  }
+}
+
+void LayerWorld::update(int deltaTime) {
+  Layer::update(deltaTime);
+  processPendingTriggers();
+  syncWorldActionModeHighlight();
+}
+
+void LayerWorld::syncWorldActionModeHighlight() {
+  auto inGameLayout = getUiElement<ui::InGameLayout>("inGameLayout");
+  if (!inGameLayout || !assertInterfaces()) {
+    return;
+  }
+
+  const auto actionMode = getStateManager()->getState().world.actionMode;
+  auto* actionButtons = inGameLayout->getChildById("actionButtons");
+  if (!actionButtons) {
+    return;
+  }
+
+  for (auto& childPtr : actionButtons->getChildren()) {
+    auto* button = dynamic_cast<ui::ButtonWorldAction*>(childPtr.get());
+    if (!button) {
+      continue;
+    }
+    const bool modeSelected = button->getProps().worldActionType == state::WorldActionType::EXAMINE &&
+                              actionMode == model::WorldActionMode::EXAMINE;
+    if (button->isModeSelected != modeSelected) {
+      button->isModeSelected = modeSelected;
+    }
+  }
+}
+
+void LayerWorld::processPendingTriggers() {
+  auto stateManager = getStateManager();
+  if (!stateManager) {
+    return;
+  }
+
+  auto& state = stateManager->getState();
+  auto& world = state.world;
+  bool mapChanged = false;
+
+  if (world.pendingSpecialEventId) {
+    auto eventId = *world.pendingSpecialEventId;
+    world.pendingSpecialEventId.reset();
+    state::actions::UiShowLayerSpecialEvent showEvent(window, eventId);
+    showEvent.execute(&state);
+  }
+
+  if (world.pendingTravel) {
+    auto travel = *world.pendingTravel;
+    world.pendingTravel.reset();
+    state::actions::WorldTravel travelAction(travel);
+    travelAction.execute(&state);
+    mapChanged = true;
+  }
+
+  if (mapChanged) {
+    syncFromState();
+  }
+}
+
+void LayerWorld::attachWorldActionObservers(ui::InGameLayout* inGameLayout) {
+  if (!inGameLayout) {
+    return;
+  }
+
+  auto* actionButtons = inGameLayout->getChildById("actionButtons");
+  if (!actionButtons) {
+    return;
+  }
+
+  for (auto& childPtr : actionButtons->getChildren()) {
+    auto* button = dynamic_cast<ui::ButtonWorldAction*>(childPtr.get());
+    if (!button) {
+      continue;
+    }
+    button->addEventObserver(
+        new ui::ObserverWorldAction(this, button->getProps().worldActionType));
+  }
 }
 
 void LayerWorld::syncFromState() {
@@ -163,6 +298,8 @@ void LayerWorld::syncFromState() {
     layoutProps.partyMembers.pushBack(entry);
   }
   inGameLayout->setProps(layoutProps);
+  attachWorldActionObservers(inGameLayout);
+  syncWorldActionModeHighlight();
 
   if (auto* titleBar = dynamic_cast<ui::InGameTitleBar*>(inGameLayout->getTitleElement())) {
     auto titleProps = titleBar->getProps();

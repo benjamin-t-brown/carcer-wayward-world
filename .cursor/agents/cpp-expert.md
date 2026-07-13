@@ -50,6 +50,8 @@ For `src/ui/**`, also follow `.cursor/rules/cpp-ui.mdc` (UiElement hierarchy, `a
 
 ## Build and run (critical)
 
+**Always use `make -j8`** when compiling. Never bare `make`.
+
 ### Windows (PowerShell)
 
 The shell is PowerShell. **Never** run `make`, `gcc`, or `scripts/*.sh` directly.
@@ -63,7 +65,7 @@ Use the UCRT64 wrapper from the repo root:
 .\scripts\Invoke-Ucrt64.ps1 "./scripts/update-translations.sh"
 ```
 
-MSYS2 defaults to `C:\progs\msys2` (override with `MSYS2_ROOT`).
+`Invoke-Ucrt64.ps1` auto-detects MSYS2 (common install paths / PATH); override with `MSYS2_ROOT` if needed.
 
 ### Linux / macOS / MSYS2 shell
 
@@ -126,6 +128,7 @@ See `_teammate-protocol.md`.
 ## Rules
 
 - Do not skip the build step after editing C++.
+- Always compile with `make -j8` (never bare `make`).
 - Do not run destructive git commands unless explicitly asked.
 - Ask the parent one focused question when the plan is ambiguous about game behavior.
 - Report adjacent issues; do not expand scope beyond the assignment.

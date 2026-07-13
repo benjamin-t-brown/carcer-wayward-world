@@ -231,7 +231,12 @@ void SpecialEventRunner::advance(const bmin::String& nodeId,
             evalExecStr(replaceVariables(strLine));
           }
           displayText = replaceVariables(joinParagraphs(node.paragraphs));
-          if (displayText.empty() || node.autoAdvance) {
+          // MODAL: wait for Continue whenever there is text; ignore autoAdvance.
+          // TALK (and others): keep authored autoAdvance behavior.
+          const bool shouldAutoAdvance =
+              displayText.empty() ||
+              (gameEvent.eventType != model::GameEventType::MODAL && node.autoAdvance);
+          if (shouldAutoAdvance) {
             advance(node.next, {}, "");
           }
         } else if constexpr (std::is_same_v<T, model::GameEventChildChoice>) {

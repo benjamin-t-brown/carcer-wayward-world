@@ -29,6 +29,10 @@ void collectTilesAt(const MapInstance& map,
 // Ignores layers above the current layer. Returns nullptr if none / OOB.
 const TileInstance* resolveTileToRender(const MapInstance& map, int x, int y);
 
+// Non-empty tile on map.tileLayerNumber at (x,y), or nullptr if empty/missing/OOB.
+const TileInstance* tileAtCurrentLayer(const MapInstance& map, int x, int y);
+TileInstance* tileAtCurrentLayer(MapInstance& map, int x, int y);
+
 // Walkability uses only the tile at (x,y) on map.tileLayerNumber.
 // Empty cell (missing layer, empty tilesetName, or OOB index) → walkable.
 bool isDestinationWalkable(const MapInstance& map, int x, int y, const db::Database& database);

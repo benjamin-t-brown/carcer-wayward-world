@@ -127,7 +127,7 @@ void ButtonWorldAction::build() {
     ss << "half_";
   }
 
-  if (isActive) {
+  if (isActive || isModeSelected) {
     if (mapping.isSmall) {
       startingSpriteIndex += smallSpriteOffsetToActive;
     } else {
@@ -148,7 +148,8 @@ void ButtonWorldAction::build() {
 }
 
 void ButtonWorldAction::render(int dt) {
-  if (isActive) {
+  const bool showActiveSprite = isActive || isModeSelected;
+  if (showActiveSprite) {
     if (!isInActiveMode) {
       isInActiveMode = true;
       build();

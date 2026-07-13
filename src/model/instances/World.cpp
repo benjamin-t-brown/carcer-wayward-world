@@ -5,24 +5,22 @@ namespace model {
 namespace {
 
 TileInstance* findTileAt(MapInstance& instance, int layer, int index) {
-  if (!instance.tiles.contains(layer)) {
+  const auto* layerTiles = mapLayerPtr(instance.tiles, layer);
+  if (!layerTiles) {
     return nullptr;
   }
-  auto& layerTiles = instance.tiles[layer];
-  if (index < 0 || index >= static_cast<int>(layerTiles.size())) {
+  if (index < 0 || index >= static_cast<int>(layerTiles->size())) {
     return nullptr;
   }
-  return &layerTiles[static_cast<size_t>(index)];
+  return const_cast<TileInstance*>(&(*layerTiles)[static_cast<size_t>(index)]);
 }
 
 bool isValidPlacementIndex(const MapInstance& instance, int layer, int index) {
-  if (!instance.tiles.contains(layer)) {
+  const auto* layerTiles = mapLayerPtr(instance.tiles, layer);
+  if (!layerTiles) {
     return false;
   }
-  auto& tilesMap =
-      const_cast<bmin::Map<int, bmin::DynArray<TileInstance>>&>(instance.tiles);
-  const auto& layerTiles = tilesMap[layer];
-  return index >= 0 && index < static_cast<int>(layerTiles.size());
+  return index >= 0 && index < static_cast<int>(layerTiles->size());
 }
 
 } // namespace
@@ -41,11 +39,11 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
                                                            : TurnMode::TURN_TOWN;
 
   auto cellCount = mapTemplate.width * mapTemplate.height;
-  auto& tilesMap =
-      const_cast<bmin::Map<int, bmin::DynArray<int>>&>(mapTemplate.tiles);
-  for (auto it = tilesMap.begin(); it != tilesMap.end(); ++it) {
-    auto layer = it->key;
-    const auto& flat = it->value;
+  for (size_t layer = 0; layer < mapTemplate.tiles.size(); ++layer) {
+    const auto& flat = mapTemplate.tiles[layer];
+    if (flat.empty()) {
+      continue;
+    }
     auto layerTiles = bmin::DynArray<TileInstance>{};
     layerTiles.reserve(static_cast<size_t>(cellCount));
 
@@ -66,7 +64,7 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
       }
       layerTiles.pushBack(std::move(tile));
     }
-    instance.tiles[layer] = std::move(layerTiles);
+    mapLayerAt(instance.tiles, static_cast<int>(layer)) = std::move(layerTiles);
   }
 
   for (const auto& ov : mapTemplate.tileOverrides) {

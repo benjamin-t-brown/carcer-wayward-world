@@ -1,19 +1,9 @@
 #include "model/MapWalkability.h"
 #include "bmin/StringInterop.h"
 #include "sdl2w/Logger.h"
-#include <algorithm>
 
 namespace model {
 namespace {
-
-void collectLayerKeys(const MapInstance& map, bmin::DynArray<int>& layerKeys) {
-  auto& tilesMap =
-      const_cast<bmin::Map<int, bmin::DynArray<TileInstance>>&>(map.tiles);
-  for (auto it = tilesMap.begin(); it != tilesMap.end(); ++it) {
-    layerKeys.pushBack(it->key);
-  }
-  std::sort(layerKeys.begin(), layerKeys.end());
-}
 
 int tileIndex(const MapInstance& map, int x, int y) {
   if (map.width <= 0) {
@@ -21,6 +11,8 @@ int tileIndex(const MapInstance& map, int x, int y) {
   }
   return y * map.width + x;
 }
+
+} // namespace
 
 // Non-empty tile on map.tileLayerNumber at (x,y), or nullptr if empty/missing/OOB.
 const TileInstance* tileAtCurrentLayer(const MapInstance& map, int x, int y) {
@@ -32,16 +24,14 @@ const TileInstance* tileAtCurrentLayer(const MapInstance& map, int x, int y) {
     return nullptr;
   }
 
-  auto& tilesMap =
-      const_cast<bmin::Map<int, bmin::DynArray<TileInstance>>&>(map.tiles);
-  if (!tilesMap.contains(map.tileLayerNumber)) {
+  const auto* layerTiles = mapLayerPtr(map.tiles, map.tileLayerNumber);
+  if (!layerTiles) {
     return nullptr;
   }
-  const auto& layerTiles = tilesMap[map.tileLayerNumber];
-  if (index >= static_cast<int>(layerTiles.size())) {
+  if (index >= static_cast<int>(layerTiles->size())) {
     return nullptr;
   }
-  const auto& tile = layerTiles[static_cast<size_t>(index)];
+  const auto& tile = (*layerTiles)[static_cast<size_t>(index)];
   if (tile.tilesetName.empty()) {
     return nullptr;
   }
@@ -52,8 +42,6 @@ TileInstance* tileAtCurrentLayer(MapInstance& map, int x, int y) {
   return const_cast<TileInstance*>(
       tileAtCurrentLayer(static_cast<const MapInstance&>(map), x, y));
 }
-
-} // namespace
 
 const TileMetadata* findTileMetadata(const TilesetTemplate& tileset, int tileId) {
   if (tileId >= 0 && tileId < static_cast<int>(tileset.tiles.size())) {
@@ -128,15 +116,8 @@ void collectTilesAt(MapInstance& map, int x, int y, bmin::DynArray<TileInstance*
     return;
   }
 
-  auto layerKeys = bmin::DynArray<int>{};
-  collectLayerKeys(map, layerKeys);
-
-  for (size_t li = 0; li < layerKeys.size(); li++) {
-    auto layerKey = layerKeys[li];
-    if (!map.tiles.contains(layerKey)) {
-      continue;
-    }
-    auto& layerTiles = map.tiles[layerKey];
+  for (size_t li = 0; li < map.tiles.size(); li++) {
+    auto& layerTiles = map.tiles[li];
     if (index >= static_cast<int>(layerTiles.size())) {
       continue;
     }
@@ -161,17 +142,8 @@ void collectTilesAt(const MapInstance& map,
     return;
   }
 
-  auto layerKeys = bmin::DynArray<int>{};
-  collectLayerKeys(map, layerKeys);
-
-  auto& tilesMap =
-      const_cast<bmin::Map<int, bmin::DynArray<TileInstance>>&>(map.tiles);
-  for (size_t li = 0; li < layerKeys.size(); li++) {
-    auto layerKey = layerKeys[li];
-    if (!tilesMap.contains(layerKey)) {
-      continue;
-    }
-    const auto& layerTiles = tilesMap[layerKey];
+  for (size_t li = 0; li < map.tiles.size(); li++) {
+    const auto& layerTiles = map.tiles[li];
     if (index >= static_cast<int>(layerTiles.size())) {
       continue;
     }
@@ -192,25 +164,17 @@ const TileInstance* resolveTileToRender(const MapInstance& map, int x, int y) {
     return nullptr;
   }
 
-  auto layerKeys = bmin::DynArray<int>{};
-  collectLayerKeys(map, layerKeys);
-
-  auto& tilesMap =
-      const_cast<bmin::Map<int, bmin::DynArray<TileInstance>>&>(map.tiles);
   const TileInstance* best = nullptr;
-  for (size_t li = 0; li < layerKeys.size(); li++) {
-    auto layerKey = layerKeys[li];
-    if (layerKey > map.tileLayerNumber) {
-      break;
-    }
-    if (!tilesMap.contains(layerKey)) {
+  const int maxLayer = map.tileLayerNumber;
+  for (int layerKey = 0; layerKey <= maxLayer; ++layerKey) {
+    const auto* layerTiles = mapLayerPtr(map.tiles, layerKey);
+    if (!layerTiles) {
       continue;
     }
-    const auto& layerTiles = tilesMap[layerKey];
-    if (index >= static_cast<int>(layerTiles.size())) {
+    if (index >= static_cast<int>(layerTiles->size())) {
       continue;
     }
-    const auto& tile = layerTiles[static_cast<size_t>(index)];
+    const auto& tile = (*layerTiles)[static_cast<size_t>(index)];
     if (tile.tilesetName.empty()) {
       continue;
     }
