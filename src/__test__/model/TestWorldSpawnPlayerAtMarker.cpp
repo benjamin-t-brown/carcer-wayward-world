@@ -6,6 +6,7 @@
 #include "state/State.h"
 #include "state/actions/world/WorldLoadMap.hpp"
 #include "state/actions/world/WorldSpawnPlayerAtMarker.hpp"
+#include "model/TileTriggers.h"
 #include "bmin/String.h"
 
 namespace {
@@ -125,6 +126,9 @@ int main(int /*argc*/, char** /*argv*/) {
       ok = assertEqual(avatar->x, 7, "spawned character.x") && ok;
       ok = assertEqual(avatar->y, 11, "spawned character.y") && ok;
     }
+    ok = assertEqual(state.world.currentMap.tileLayerNumber, 0,
+                     "tileLayerNumber after MarkerPlayer") &&
+         ok;
     if (claire) {
       ok = assertEqual(claire->x, 4, "claire.x") && ok;
       ok = assertEqual(claire->y, 16, "claire.y") && ok;
@@ -138,6 +142,29 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertEqual(static_cast<int>(state.world.currentMap.characters.size()),
                      2,
                      "characters.size after re-spawn") &&
+         ok;
+
+    // Stairs1 is on layer 1 — spawn must update tileLayerNumber
+    {
+      auto spawn = state::actions::WorldSpawnPlayerAtMarker("Stairs1");
+      spawn.execute(&state);
+    }
+    ok = assertEqual(state.world.currentMap.tileLayerNumber, 1,
+                     "tileLayerNumber after Stairs1") &&
+         ok;
+    {
+      const auto* stairsAvatar =
+          model::findPartyAvatarOnMap(state.world.currentMap, state.player);
+      ok = assertTrue(stairsAvatar != nullptr, "avatar after Stairs1") && ok;
+      if (stairsAvatar) {
+        // Stairs1 i=37, width=30 → (7, 1)
+        ok = assertEqual(stairsAvatar->x, 7, "Stairs1 avatar.x") && ok;
+        ok = assertEqual(stairsAvatar->y, 1, "Stairs1 avatar.y") && ok;
+      }
+    }
+    ok = assertEqual(static_cast<int>(state.world.currentMap.characters.size()),
+                     2,
+                     "characters.size after Stairs1 spawn") &&
          ok;
 
     if (!ok) {

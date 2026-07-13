@@ -68,6 +68,15 @@ std::pair<int, int> SectionScrollable::getContentDims() const {
           style.height * style.scale};
 }
 
+UiElement* SectionScrollable::getChildById(std::string_view searchId) {
+  if (outerQuad) {
+    if (auto* found = outerQuad->getChildById(searchId)) {
+      return found;
+    }
+  }
+  return UiElement::getChildById(searchId);
+}
+
 int SectionScrollable::getScrollIndicatorY(int offset) const {
   const int scaledHeight = static_cast<int>(style.height * style.scale);
   const float availableSpace =

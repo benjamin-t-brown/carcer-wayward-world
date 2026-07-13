@@ -106,6 +106,64 @@ bool isClosedDoorTile(const TileInstance& tile, const db::Database& database) {
   return !meta->isWalkable;
 }
 
+bool isOpenDoorTile(const TileInstance& tile, const db::Database& database) {
+  if (tile.tilesetName.empty()) {
+    return false;
+  }
+  const auto* meta = resolveTileMetadata(tile, database);
+  if (!meta || !meta->isDoor) {
+    return false;
+  }
+  return meta->isWalkable;
+}
+
+bmin::DynArray<OpenedDoorRecord> captureOpenedDoors(const MapInstance& map,
+                                                    const db::Database& database) {
+  auto doors = bmin::DynArray<OpenedDoorRecord>{};
+  if (map.width <= 0 || map.height <= 0) {
+    return doors;
+  }
+
+  for (size_t li = 0; li < map.tiles.size(); li++) {
+    const auto& layerTiles = map.tiles[li];
+    for (size_t ti = 0; ti < layerTiles.size(); ti++) {
+      const auto& tile = layerTiles[ti];
+      if (!isOpenDoorTile(tile, database)) {
+        continue;
+      }
+      auto record = OpenedDoorRecord{};
+      record.layer = static_cast<int>(li);
+      record.x = tile.x;
+      record.y = tile.y;
+      record.tileId = tile.tileId;
+      doors.pushBack(record);
+    }
+  }
+  return doors;
+}
+
+void applyOpenedDoors(MapInstance& map, const bmin::DynArray<OpenedDoorRecord>& doors) {
+  for (size_t i = 0; i < doors.size(); i++) {
+    const auto& record = doors[i];
+    if (record.x < 0 || record.y < 0 || record.x >= map.width || record.y >= map.height) {
+      continue;
+    }
+    if (record.layer < 0 || static_cast<size_t>(record.layer) >= map.tiles.size()) {
+      continue;
+    }
+    auto& layerTiles = map.tiles[static_cast<size_t>(record.layer)];
+    const auto index = tileIndex(map, record.x, record.y);
+    if (index < 0 || index >= static_cast<int>(layerTiles.size())) {
+      continue;
+    }
+    auto& tile = layerTiles[static_cast<size_t>(index)];
+    if (tile.tilesetName.empty()) {
+      continue;
+    }
+    tile.tileId = record.tileId;
+  }
+}
+
 void collectTilesAt(MapInstance& map, int x, int y, bmin::DynArray<TileInstance*>& out) {
   out.clear();
   if (x < 0 || y < 0 || x >= map.width || y >= map.height) {

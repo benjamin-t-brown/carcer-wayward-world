@@ -18,6 +18,18 @@ std::optional<bmin::String> getStorage(const bmin::Map<bmin::String, bmin::Strin
   return std::nullopt;
 }
 
+void clearTmpStorageKeys(bmin::Map<bmin::String, bmin::String>& storage) {
+  bmin::DynArray<bmin::String> keysToErase;
+  for (auto it = storage.begin(); it != storage.end(); ++it) {
+    if (it->key.startsWith("tmp.")) {
+      keysToErase.pushBack(it->key);
+    }
+  }
+  for (const auto& key : keysToErase) {
+    storage.erase(key);
+  }
+}
+
 // Helper to trim whitespace
 bmin::String trim(const bmin::String& str) {
   return strutil::trim(str);

@@ -2,12 +2,14 @@
 #include "sdl2w/L10n.h"
 #include "ui/colors.h"
 #include "ui/components/borders/BorderModalSmall.h"
+#include "ui/elements/Quad.h"
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/TextParagraph.h"
 #include "ui/elements/buttons/ButtonGroup.h"
 #include "ui/elements/buttons/ButtonTextWrap.h"
 #include "ui/layouts/ModalSmall.h"
+#include <algorithm>
 
 namespace ui {
 
@@ -96,7 +98,7 @@ void PageModalEvent::build() {
       .width = unscaledContentW,
       .height = unscaledContentH,
   });
-  auto [scrollableContentW, _] = scrollableSection->getContentDims();
+  auto [scrollableContentW, scrollableViewportH] = scrollableSection->getContentDims();
 
   auto textBlock = new TextParagraph(window, scrollableSection);
   textBlock->setId("textBlocks");
@@ -116,10 +118,9 @@ void PageModalEvent::build() {
   });
   scrollableSection->addChild(textBlock);
 
-  int choiceYOffset = 0;
+  int contentBottom = textBlock->getDims().second;
   if (!props.choices.empty()) {
-    auto [_, textHeight] = textBlock->getDims();
-    choiceYOffset = textHeight;
+    int choiceYOffset = contentBottom;
     for (int i = 0; i < static_cast<int>(props.choices.size()); i++) {
       auto choiceButton = new ButtonTextWrap(window, scrollableSection);
       choiceButton->setId("choice" + bmin::toString(i));
@@ -134,14 +135,31 @@ void PageModalEvent::build() {
       choiceButtonProps.width = scrollableContentW - 8;
       choiceButtonProps.fontFamily = choiceFont.fontFamily;
       choiceButtonProps.fontSize = choiceFont.fontSize;
-      choiceButtonProps.fontColor = Colors::DarkBlue;
+      choiceButtonProps.fontColor =
+          props.choices[i].previouslyChosen ? Colors::Grey : Colors::DarkBlue;
       choiceButton->setScale(1.f);
+      choiceButton->setPos(4, choiceYOffset);
       choiceButton->setProps(choiceButtonProps);
       auto [__, choiceHeight] = choiceButton->getDims();
-      choiceButton->setPos(4, choiceYOffset);
       choiceYOffset += choiceHeight;
       scrollableSection->addChild(choiceButton);
     }
+    contentBottom = choiceYOffset;
+  }
+
+  // Fill remaining viewport so short text reaches the button strip (talk modal pattern).
+  const int padHeight = std::max(0, scrollableViewportH - contentBottom);
+  if (padHeight > 0) {
+    auto* spacer = new Quad(window, scrollableSection);
+    spacer->setId("textBottomPad");
+    spacer->setPos(0, contentBottom);
+    spacer->setScale(1.f);
+    spacer->setProps(QuadProps{
+        .width = scrollableContentW,
+        .height = padHeight,
+        .bgColor = Colors::OffWhite,
+    });
+    scrollableSection->addChild(spacer);
   }
 
   scrollableSection->build();
@@ -163,7 +181,7 @@ void PageModalEvent::build() {
         .buttonWidth = buttonWidth,
         .buttonHeight = ModalSmall::BUTTONS_AREA_HEIGHT - 2 * buttonPadding,
         .padding = buttonPadding,
-        .buttons = {{.label = TRANSLATE("Continue"), .type = ButtonGroupButtonType::MODAL}},
+        .buttons = {{.label = TRANSLATE("Okay"), .type = ButtonGroupButtonType::MODAL}},
     });
     modal->addChild(buttonGroup);
   }

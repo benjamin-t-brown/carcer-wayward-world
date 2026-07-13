@@ -11,6 +11,7 @@ struct PageTalkChoiceItem {
   bmin::String nextId;
   bmin::String text;
   bmin::String prefixText;
+  bool previouslyChosen = false;
 };
 struct PageTalkChoiceProps {
   int width = 0;
@@ -20,6 +21,9 @@ struct PageTalkChoiceProps {
   int choiceAreaHeight = 100;
   bmin::DynArray<PageTalkChoiceItem> choices;
   bmin::DynArray<TextBlock> textBlocks;
+  // Blocks [pinFromBlockIndex..) are the latest dialogue; scrolled to the top of the
+  // text viewport with dynamic bottom padding so older history stays above.
+  int pinFromBlockIndex = 0;
 };
 
 class PageTalkChoice : public UiElement {

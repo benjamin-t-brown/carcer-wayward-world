@@ -29,6 +29,8 @@ void SpecialEventRunner::reset() {
   bool hasRoot = false;
   displayText.clear();
   displayTextChoices.clear();
+  autoAdvancedText.clear();
+  chosenChoiceKeys.clear();
   errors.clear();
   currentNodeId = "";
   for (const auto& child : gameEvent.children) {
@@ -50,7 +52,7 @@ void SpecialEventRunner::reset() {
   }
 }
 
-std::optional<model::GameEventChild> SpecialEventRunner::getCurrentNode() {
+std::optional<model::GameEventChild> SpecialEventRunner::getCurrentNode() const {
   for (const auto& child : gameEvent.children) {
     bool matches = false;
     std::visit(
@@ -65,6 +67,14 @@ std::optional<model::GameEventChild> SpecialEventRunner::getCurrentNode() {
     }
   }
   return std::nullopt;
+}
+
+bool SpecialEventRunner::isAtEndNode() const {
+  auto currentNode = getCurrentNode();
+  if (!currentNode) {
+    return false;
+  }
+  return std::holds_alternative<model::GameEventChildEnd>(*currentNode);
 }
 
 bmin::String SpecialEventRunner::getNextNodeId() {
@@ -183,6 +193,36 @@ bmin::String SpecialEventRunner::joinParagraphs(const bmin::DynArray<bmin::Strin
   return result;
 }
 
+bmin::String SpecialEventRunner::joinDisplaySegments(const bmin::String& earlier,
+                                                     const bmin::String& later) {
+  if (earlier.empty()) {
+    return later;
+  }
+  if (later.empty()) {
+    return earlier;
+  }
+  return earlier + "\n\n" + later;
+}
+
+bool SpecialEventRunner::wasChoiceChosen(const bmin::String& choiceKey) const {
+  if (choiceKey.empty()) {
+    return false;
+  }
+  for (const auto& key : chosenChoiceKeys) {
+    if (key == choiceKey) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void SpecialEventRunner::markChoiceChosen(const bmin::String& choiceKey) {
+  if (choiceKey.empty() || wasChoiceChosen(choiceKey)) {
+    return;
+  }
+  chosenChoiceKeys.pushBack(choiceKey);
+}
+
 bmin::String SpecialEventRunner::resolveChoiceText(const model::Choice& choice,
                                              bmin::DynArray<bmin::String>& onceKeysToCommit) {
   for (const auto& switchText : choice.switchText) {
@@ -230,21 +270,42 @@ void SpecialEventRunner::advance(const bmin::String& nodeId,
           for (const auto& strLine : strLines) {
             evalExecStr(replaceVariables(strLine));
           }
-          displayText = replaceVariables(joinParagraphs(node.paragraphs));
+          const bmin::String nodeText = replaceVariables(joinParagraphs(node.paragraphs));
           // MODAL: wait for Continue whenever there is text; ignore autoAdvance.
-          // TALK (and others): keep authored autoAdvance behavior.
+          // TALK (and others): keep authored autoAdvance behavior, but preserve
+          // non-empty EXEC text across the auto-advance chain until the next stop.
           const bool shouldAutoAdvance =
-              displayText.empty() ||
+              nodeText.empty() ||
               (gameEvent.eventType != model::GameEventType::MODAL && node.autoAdvance);
           if (shouldAutoAdvance) {
+            if (!nodeText.empty()) {
+              autoAdvancedText = joinDisplaySegments(autoAdvancedText, nodeText);
+            }
             advance(node.next, {}, "");
+          } else {
+            displayText = joinDisplaySegments(autoAdvancedText, nodeText);
+            autoAdvancedText.clear();
+            // TALK has no Continue button — surface a choice so the player can advance.
+            if (gameEvent.eventType == model::GameEventType::TALK && !node.next.empty()) {
+              DisplayTextChoice continueChoice;
+              continueChoice.text = "(Continue.)";
+              continueChoice.next = node.next;
+              continueChoice.choiceKey = currentNodeId + ":continue";
+              displayTextChoices.pushBack(continueChoice);
+            }
           }
         } else if constexpr (std::is_same_v<T, model::GameEventChildChoice>) {
           const bmin::String choiceDisplayText = replaceVariables(node.text);
-          if (!choiceDisplayText.empty()) {
-            displayText = choiceDisplayText;
+          // Flush auto-advanced EXEC text into this stop. If both are empty, keep
+          // whatever displayText was already showing (e.g. MODAL continue into an
+          // empty-text CHOICE menu).
+          if (!autoAdvancedText.empty() || !choiceDisplayText.empty()) {
+            displayText = joinDisplaySegments(autoAdvancedText, choiceDisplayText);
           }
-          for (const auto& choice : node.choices) {
+          autoAdvancedText.clear();
+          for (int authoredIndex = 0; authoredIndex < static_cast<int>(node.choices.size());
+               authoredIndex++) {
+            const auto& choice = node.choices[authoredIndex];
             ConditionResult obj;
             if (!choice.conditionStr.empty()) {
               obj = evalCondition(replaceVariables(choice.conditionStr));
@@ -262,6 +323,8 @@ void SpecialEventRunner::advance(const bmin::String& nodeId,
               for (const auto& key : switchOnceKeys) {
                 displayChoice.onceKeysToCommit.pushBack(key);
               }
+              displayChoice.choiceKey =
+                  currentNodeId + ":" + bmin::toString(authoredIndex);
               displayTextChoices.pushBack(displayChoice);
             }
           }
@@ -279,7 +342,15 @@ void SpecialEventRunner::advance(const bmin::String& nodeId,
             advance(node.defaultNext, {}, "");
           }
         } else if constexpr (std::is_same_v<T, model::GameEventChildEnd>) {
-          displayText = "End.";
+          // TALK closes immediately on END — no "End." interstitial.
+          if (gameEvent.eventType == model::GameEventType::TALK) {
+            displayText.clear();
+            displayTextChoices.clear();
+            autoAdvancedText.clear();
+          } else {
+            displayText = joinDisplaySegments(autoAdvancedText, "End.");
+            autoAdvancedText.clear();
+          }
         }
       },
       *currentNode);
@@ -323,7 +394,8 @@ void SpecialEventRunnerInterface::selectChoice(int choiceIndex) {
       static_cast<size_t>(choiceIndex) >= runner.displayTextChoices.size()) {
     return;
   }
-  const auto& choice = runner.displayTextChoices[choiceIndex];
+  const auto choice = runner.displayTextChoices[choiceIndex];
+  runner.markChoiceChosen(choice.choiceKey);
   runner.advance(choice.next, choice.onceKeysToCommit, choice.execStr);
 }
 

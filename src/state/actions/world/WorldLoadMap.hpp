@@ -1,11 +1,10 @@
 #pragma once
 
-#include "model/instances/World.h"
+#include "model/MapPersistence.h"
 #include "sdl2w/Logger.h"
 #include "state/AbstractAction.h"
 #include "state/State.h"
 #include "bmin/String.h"
-#include "bmin/StringInterop.h"
 
 namespace state {
 
@@ -25,14 +24,7 @@ class WorldLoadMap : public AbstractAction {
       return;
     }
 
-    const auto& mapTemplate = database->getMapTemplate(bmin::toStringView(mapName));
-    state->world.currentMap = model::createMapInstanceFromTemplate(mapTemplate);
-    state->world.name =
-        mapTemplate.label.empty() ? mapTemplate.name : mapTemplate.label;
-    state->world.camX = 0;
-    state->world.camY = 0;
-    state->world.cameraMode = model::CameraMode::Follow;
-    state->world.cameraFollowCharacterId = bmin::String{};
+    model::enterMap(state->world, mapName, *database);
   }
 
 public:

@@ -14,10 +14,14 @@ CharacterInstance* findPartyAvatarOnMap(MapInstance& map, Player& player);
 const CharacterInstance* findPartyAvatarOnMap(const MapInstance& map,
                                               const Player& player);
 
+// Move existing party avatar to (x, y), or create one from the current party
+// member if missing. Returns nullptr if the party is empty.
+CharacterInstance* placePartyAvatarAt(MapInstance& map, Player& player, int x, int y);
+
 // After a successful step onto (x, y): queue special event or travel on world.
 void queueStepTriggersAt(World& world, const MapInstance& map, int x, int y);
 
-// Console examine text: description line(s) plus item labels on the tile.
+// Console examine text: tile description, character labels, and item labels on the tile.
 bmin::String formatExamineMessage(const MapInstance& map,
                                   int x,
                                   int y,

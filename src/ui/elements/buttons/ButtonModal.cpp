@@ -103,6 +103,13 @@ void ButtonModal::render(int dt) {
                   props.bgColor);
   }
   UiElement::render(dt);
+
+  if (isActive) {
+    auto& draw = window->getDraw();
+    auto scaledWidth = static_cast<int>(style.width * style.scale);
+    auto scaledHeight = static_cast<int>(style.height * style.scale);
+    draw.drawRect(style.x, style.y, scaledWidth, scaledHeight, SDL_Color{0, 0, 0, 25});
+  }
 }
 
 } // namespace ui

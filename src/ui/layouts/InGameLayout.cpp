@@ -5,8 +5,11 @@
 #include "ui/components/lists/ListChCompactInfoHorizontal.h"
 #include "ui/components/lists/ListChCompactInfoVertical.h"
 #include "ui/elements/Quad.h"
+#include "ui/elements/buttons/ButtonClose.h"
 #include "ui/elements/buttons/ButtonWorldAction.h"
+#include "ui/elements/TextLine.h"
 #include "ui/components/InGameTitleBar.h"
+#include "ui/colors.h"
 
 namespace ui {
 
@@ -142,6 +145,48 @@ void InGameLayout::setTitleElement(UiElement* _titleElement) {
 
 UiElement* InGameLayout::getTitleElement() { return getChildById("title"); }
 
+void InGameLayout::setActionModeCancelVisible(bool visible,
+                                              const bmin::String& modeLabel) {
+  removeChildById("actionModeCancel");
+  removeChildById("actionModeLabel");
+  if (!visible) {
+    return;
+  }
+
+  constexpr int kPad = 4;
+  constexpr int kLabelGap = 8;
+  auto [worldX, worldY] = getWorldLocation();
+  auto [worldW, worldH] = getWorldDims();
+  (void)worldW;
+
+  auto* cancelButton = new ButtonClose(window, this);
+  cancelButton->setId("actionModeCancel");
+  cancelButton->setScale(style.scale);
+  const int buttonSize = static_cast<int>(ButtonClose::closeButtonSize * style.scale);
+  const int buttonX = worldX + kPad;
+  const int buttonY = worldY + worldH - buttonSize - kPad;
+  cancelButton->setPos(buttonX, buttonY);
+  cancelButton->setProps(ButtonCloseProps{
+      .closeType = CloseType::MODAL,
+  });
+  addChild(cancelButton);
+
+  if (!modeLabel.empty()) {
+    auto* label = new TextLine(window, this);
+    label->setId("actionModeLabel");
+    label->setScale(style.scale);
+    label->setPos(buttonX + buttonSize + kLabelGap, buttonY + buttonSize / 2);
+    label->setProps(TextLineProps{
+        .textBlocks = {{.text = modeLabel}},
+        .fontFamily = FontFamily::TEXT,
+        .fontSize = sdl2w::TEXT_SIZE_16,
+        .fontColor = Colors::White,
+        .textAlign = TextAlign::LEFT_CENTER,
+    });
+    addChild(label);
+  }
+}
+
 const std::pair<int, int> InGameLayout::getWorldDims() {
   auto* border = dynamic_cast<BorderInGame*>(getChildById("border"));
   if (border) {
@@ -170,6 +215,8 @@ void InGameLayout::build() {
   removeChildById("border");
   removeChildById("actionButtons");
   removeChildById("chList");
+  removeChildById("actionModeCancel");
+  removeChildById("actionModeLabel");
 
   if (props.width > 0) {
     style.width = props.width;

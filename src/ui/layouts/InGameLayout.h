@@ -50,6 +50,9 @@ public:
   const std::pair<int, int> getWorldLocation();
   const std::pair<int, int> getChListLocation();
 
+  // Modal-style X + mode label in the bottom-left of the map area.
+  void setActionModeCancelVisible(bool visible, const bmin::String& modeLabel = {});
+
   void build() override;
   void render(int dt) override;
 };

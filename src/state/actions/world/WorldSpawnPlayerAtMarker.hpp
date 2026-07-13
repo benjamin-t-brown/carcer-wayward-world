@@ -1,5 +1,7 @@
 #pragma once
 
+#include "model/MapVision.h"
+#include "model/TileTriggers.h"
 #include "model/instances/Player.h"
 #include "model/instances/World.h"
 #include "sdl2w/Logger.h"
@@ -44,33 +46,15 @@ class WorldSpawnPlayerAtMarker : public AbstractAction {
       return;
     }
 
-    auto& player = state->player;
-    if (player.party.empty()) {
+    auto tile = model::tileIndexToXY(marker->i, map.width > 0 ? map.width : mapTemplate.width);
+    map.tileLayerNumber = marker->l;
+
+    if (!model::placePartyAvatarAt(map, state->player, tile.x, tile.y)) {
       LOG(ERROR) << "WorldSpawnPlayerAtMarker::act: party is empty" << LOG_ENDL;
       return;
     }
 
-    auto partyIndex = player.currentPartyMemberIndex;
-    if (partyIndex < 0 ||
-        static_cast<size_t>(partyIndex) >= player.party.size()) {
-      partyIndex = 0;
-    }
-    const auto& member = player.party[static_cast<size_t>(partyIndex)];
-
-    auto tile = model::tileIndexToXY(marker->i, map.width > 0 ? map.width : mapTemplate.width);
-
-    map.characters.eraseIf([&](const model::CharacterInstance& c) {
-      return c.id == member.instanceId;
-    });
-
-    auto instance = model::CharacterInstance{};
-    instance.id = member.instanceId;
-    instance.name = member.name.empty() ? member.params.name : member.name;
-    instance.templateName =
-        member.templateName.empty() ? member.params.name : member.templateName;
-    instance.x = tile.x;
-    instance.y = tile.y;
-    map.characters.pushBack(std::move(instance));
+    model::updateMapVisibilityFromPlayer(map, tile.x, tile.y, *database);
   }
 
 public:

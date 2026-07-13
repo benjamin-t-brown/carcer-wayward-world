@@ -1,7 +1,9 @@
 #include "ModalStandard.h"
+#include "bmin/StringInterop.h"
 #include "ui/components/borders/BorderModalStandard.h"
 #include "ui/elements/Quad.h"
 #include "ui/elements/buttons/ButtonClose.h"
+#include <algorithm>
 
 namespace ui {
 
@@ -98,21 +100,29 @@ void ModalStandard::build() {
   if (!props.iconSprite.empty()) {
     auto* border = dynamic_cast<BorderModalStandard*>(getChildById("border"));
     if (border != nullptr) {
-      constexpr int kIconTextureSize = 32;
-      constexpr float kIconScale = 2.f;
-      constexpr int kIconDisplaySize = 64;
-      static_assert(kIconTextureSize * static_cast<int>(kIconScale) == kIconDisplaySize);
+      // drawSprite always uses the sprite's native w/h (params.w/h are ignored), so the
+      // Quad texture must match the sprite or the image is clipped (e.g. 52px portraits
+      // into a 32px texture looked shifted up-left).
+      const auto& sprite =
+          window->getStore().getSprite(bmin::toStringView(props.iconSprite));
+      const int spriteW = std::max(1, sprite.w);
+      const int spriteH = std::max(1, sprite.h);
+      const int iconSize = border->getProps().iconSize;
+      const float fitScale =
+          static_cast<float>(iconSize) / static_cast<float>(std::max(spriteW, spriteH));
+      const float drawScale = fitScale * style.scale;
+      const int screenW = static_cast<int>(spriteW * drawScale);
+      const int screenH = static_cast<int>(spriteH * drawScale);
 
-      auto [centerX, centerY] = border->getIconSectionCenter();
-      const int screenIconSize = static_cast<int>(kIconDisplaySize * style.scale);
+      auto [centerX, centerY] = border->getIconLocationCenter();
 
       auto icon = new Quad(window, this);
       icon->setId("headerIcon");
-      icon->setPos(centerX - screenIconSize / 2, centerY - screenIconSize / 2);
-      icon->setScale(kIconScale * style.scale);
+      icon->setPos(centerX - screenW / 2, centerY - screenH / 2);
+      icon->setScale(drawScale);
       icon->setProps(QuadProps{
-          .width = kIconTextureSize,
-          .height = kIconTextureSize,
+          .width = spriteW,
+          .height = spriteH,
           .bgSprite = props.iconSprite,
       });
       addChild(icon);

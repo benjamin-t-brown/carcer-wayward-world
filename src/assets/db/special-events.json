@@ -1645,29 +1645,29 @@
         "p": "\"What do you want now?  I'm busy.\"",
         "execStr": "",
         "next": "nexxtdo6ydo",
-        "autoAdvance": false
+        "autoAdvance": true
       },
       {
         "id": "mnz0vwcieyd",
         "x": 304,
-        "y": 649.5,
+        "y": 650.3,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Yes? What can I do for you?\"",
         "execStr": "",
         "next": "nexxtdo6ydo",
-        "autoAdvance": false
+        "autoAdvance": true
       },
       {
         "id": "2hpskpgd88y",
         "x": 298,
-        "y": 558.5,
+        "y": 559.3,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Ah, I'm honored that you would approach me.  Did you want something?\"",
         "execStr": "",
         "next": "nexxtdo6ydo",
-        "autoAdvance": false
+        "autoAdvance": true
       },
       {
         "id": "0arn7g6cays",
@@ -1709,7 +1709,7 @@
         "y": 110.5,
         "eventChildType": "CHOICE",
         "h": 226,
-        "text": "Suddenly, a shiver passes across your body.  You feel odd feeling: a contending set of forces battling in your mind, all trying to make their opinion known, all trying to shape who you are.",
+        "text": "Suddenly, a shiver passes across your body.  You feel an odd feeling: a contending set of forces battling in your mind, all trying to make their opinion known, all trying to shape who you are.",
         "choices": [
           {
             "text": "(Remain silent.)",
@@ -1816,8 +1816,8 @@
       },
       {
         "id": "lk9qky3u42",
-        "x": 790,
-        "y": 1848,
+        "x": 1002.8,
+        "y": 1918.3999999999999,
         "eventChildType": "END",
         "h": 60,
         "next": ""
@@ -1937,8 +1937,8 @@
       },
       {
         "id": "znt1b71szsf",
-        "x": 1285.5,
-        "y": 111.5,
+        "x": 1199.5,
+        "y": 61.5,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"There's a fee for using the Alinea docks.\"  She gives you a quick look up and down.  \"Even if it is to drop off a... passenger.  I can have you locked up for negligence if this situation isn't dealt with properly.\"",

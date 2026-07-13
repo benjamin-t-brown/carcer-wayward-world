@@ -28,8 +28,8 @@ class UiShowLayerSpecialEvent : public AbstractAction {
     }
 
     const auto& gameEvent = database->getGameEvent(bmin::toStringView(eventId));
-    auto* layer =
-        new layers::LayerSpecialEvent(window, gameEvent, database->getGameEvents());
+    auto* layer = new layers::LayerSpecialEvent(
+        window, gameEvent, database->getGameEvents(), state->world.specialEventStorage);
     layerManager->addLayer(layer);
     layerManager->moveToFront(layer);
   }

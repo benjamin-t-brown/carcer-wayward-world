@@ -18,6 +18,14 @@ bool isTileEffectivelyWalkable(const TileInstance& tile, const db::Database& dat
 // Closed door = tileset isDoor && !isWalkable. Ignores map walkability overrides.
 bool isClosedDoorTile(const TileInstance& tile, const db::Database& database);
 
+// Open door = tileset isDoor && isWalkable. Ignores map walkability overrides.
+bool isOpenDoorTile(const TileInstance& tile, const db::Database& database);
+
+// Capture / restore open-door tileIds (session travel persistence).
+bmin::DynArray<OpenedDoorRecord> captureOpenedDoors(const MapInstance& map,
+                                                    const db::Database& database);
+void applyOpenedDoors(MapInstance& map, const bmin::DynArray<OpenedDoorRecord>& doors);
+
 // Non-empty tiles at (x,y) across layers, sorted low→high layer.
 void collectTilesAt(MapInstance& map, int x, int y, bmin::DynArray<TileInstance*>& out);
 void collectTilesAt(const MapInstance& map,

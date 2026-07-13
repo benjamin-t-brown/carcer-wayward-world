@@ -1,6 +1,7 @@
 #include "lib/bmin/Map.h"
 #include "sdl2w/Logger.h"
 #include "model/templates/SpecialEvents.h"
+#include "runner/EventRunnerHelpers.h"
 #include "runner/SpecialEventRunner.h"
 #include "bmin/String.h"
 #include "bmin/Map.h"
@@ -188,6 +189,223 @@ int main(int argc, char** argv) {
       return 1;
     }
     LOG(INFO) << "Exec string evaluation test passed" << LOG_ENDL;
+
+    // TALK: auto-advanced EXEC text must carry into the following CHOICE prompt
+    // (Claire Remain Silent: znt1b71szsf → uj1jkcvhv0p).
+    {
+      model::GameEvent talkEvent;
+      talkEvent.id = "talk_auto_advance";
+      talkEvent.eventType = model::GameEventType::TALK;
+
+      model::GameEventChildExec execNode;
+      execNode.eventChildType = model::GameEventChildType::EXEC;
+      execNode.id = "root";
+      execNode.paragraphs = {"Fee for using the docks."};
+      execNode.next = "choice_node";
+      execNode.autoAdvance = true;
+      talkEvent.children.pushBack(execNode);
+
+      model::GameEventChildChoice choiceNode;
+      choiceNode.eventChildType = model::GameEventChildType::CHOICE;
+      choiceNode.id = "choice_node";
+      choiceNode.text = "A shiver passes across your body.";
+      model::Choice staySilent;
+      staySilent.text = "(Remain silent.)";
+      staySilent.next = "end_node";
+      choiceNode.choices.pushBack(staySilent);
+      talkEvent.children.pushBack(choiceNode);
+
+      model::GameEventChildEnd endNode;
+      endNode.eventChildType = model::GameEventChildType::END;
+      endNode.id = "end_node";
+      talkEvent.children.pushBack(endNode);
+
+      runner::SpecialEventRunner talkRunner({}, talkEvent, {});
+      runner::SpecialEventRunnerInterface talkIface(talkRunner);
+      talkIface.startEvent();
+
+      const bmin::String expected =
+          "Fee for using the docks.\n\nA shiver passes across your body.";
+      if (talkRunner.displayText != expected) {
+        LOG(ERROR) << "TALK auto-advance should keep EXEC text with CHOICE text. Got: '"
+                   << talkRunner.displayText << "'" << LOG_ENDL;
+        return 1;
+      }
+      if (talkRunner.displayTextChoices.size() != 1) {
+        LOG(ERROR) << "Expected 1 choice after auto-advanced EXEC" << LOG_ENDL;
+        return 1;
+      }
+      LOG(INFO) << "TALK auto-advance text accumulation test passed" << LOG_ENDL;
+    }
+
+    // TALK: non-auto-advance EXEC should expose a synthetic "(Continue.)" choice.
+    {
+      model::GameEvent talkEvent;
+      talkEvent.id = "talk_continue_choice";
+      talkEvent.eventType = model::GameEventType::TALK;
+
+      model::GameEventChildExec execNode;
+      execNode.eventChildType = model::GameEventChildType::EXEC;
+      execNode.id = "root";
+      execNode.paragraphs = {"Ugh, I can't deal with this right now."};
+      execNode.next = "end_node";
+      execNode.autoAdvance = false;
+      talkEvent.children.pushBack(execNode);
+
+      model::GameEventChildEnd endNode;
+      endNode.eventChildType = model::GameEventChildType::END;
+      endNode.id = "end_node";
+      talkEvent.children.pushBack(endNode);
+
+      runner::SpecialEventRunner talkRunner({}, talkEvent, {});
+      runner::SpecialEventRunnerInterface talkIface(talkRunner);
+      talkIface.startEvent();
+
+      if (talkRunner.displayText != "Ugh, I can't deal with this right now.") {
+        LOG(ERROR) << "Expected EXEC display text, got: '" << talkRunner.displayText << "'"
+                   << LOG_ENDL;
+        return 1;
+      }
+      if (talkRunner.displayTextChoices.size() != 1 ||
+          talkRunner.displayTextChoices[0].text != "(Continue.)" ||
+          talkRunner.displayTextChoices[0].next != "end_node") {
+        LOG(ERROR) << "Expected synthetic (Continue.) choice to end_node" << LOG_ENDL;
+        return 1;
+      }
+      talkIface.selectChoice(0);
+      if (!talkRunner.isAtEndNode() || !talkRunner.displayText.empty()) {
+        LOG(ERROR) << "Continue choice should land on END and clear TALK display text"
+                   << LOG_ENDL;
+        return 1;
+      }
+      LOG(INFO) << "TALK synthetic Continue choice test passed" << LOG_ENDL;
+    }
+
+    // Chosen choices are tracked and reported as previously chosen on revisit.
+    {
+      model::GameEvent talkEvent;
+      talkEvent.id = "talk_dim_choice";
+      talkEvent.eventType = model::GameEventType::TALK;
+
+      model::GameEventChildChoice choiceNode;
+      choiceNode.eventChildType = model::GameEventChildType::CHOICE;
+      choiceNode.id = "root";
+      choiceNode.text = "Pick one.";
+      model::Choice a;
+      a.text = "Option A";
+      a.next = "back";
+      choiceNode.choices.pushBack(a);
+      model::Choice b;
+      b.text = "Option B";
+      b.next = "end_node";
+      choiceNode.choices.pushBack(b);
+      talkEvent.children.pushBack(choiceNode);
+
+      model::GameEventChildChoice backNode;
+      backNode.eventChildType = model::GameEventChildType::CHOICE;
+      backNode.id = "back";
+      backNode.text = "Back to root.";
+      model::Choice back;
+      back.text = "(Go back.)";
+      back.next = "root";
+      backNode.choices.pushBack(back);
+      talkEvent.children.pushBack(backNode);
+
+      model::GameEventChildEnd endNode;
+      endNode.eventChildType = model::GameEventChildType::END;
+      endNode.id = "end_node";
+      talkEvent.children.pushBack(endNode);
+
+      runner::SpecialEventRunner talkRunner({}, talkEvent, {});
+      runner::SpecialEventRunnerInterface talkIface(talkRunner);
+      talkIface.startEvent();
+      if (talkRunner.displayTextChoices.size() != 2 ||
+          talkRunner.wasChoiceChosen(talkRunner.displayTextChoices[0].choiceKey)) {
+        LOG(ERROR) << "Expected two fresh choices at root" << LOG_ENDL;
+        return 1;
+      }
+      const auto firstKey = talkRunner.displayTextChoices[0].choiceKey;
+      talkIface.selectChoice(0); // Option A -> back
+      talkIface.selectChoice(0); // Go back -> root
+      if (!talkRunner.wasChoiceChosen(firstKey)) {
+        LOG(ERROR) << "Option A should be marked chosen after selecting it" << LOG_ENDL;
+        return 1;
+      }
+      if (talkRunner.displayTextChoices.size() != 2 ||
+          !talkRunner.wasChoiceChosen(talkRunner.displayTextChoices[0].choiceKey) ||
+          talkRunner.wasChoiceChosen(talkRunner.displayTextChoices[1].choiceKey)) {
+        LOG(ERROR) << "On revisit, only Option A should be previously chosen" << LOG_ENDL;
+        return 1;
+      }
+      LOG(INFO) << "TALK previously-chosen choice tracking test passed" << LOG_ENDL;
+    }
+
+    // Persisted dialogue storage keeps vars.*/once.* and drops tmp.*.
+    {
+      bmin::Map<bmin::String, bmin::String> storage;
+      storage.insert(bmin::String("vars.exposition.alinea.realmKnown"),
+                     bmin::String("true"));
+      storage.insert(bmin::String("once.vars.hasSpokenToalinea_claire"),
+                     bmin::String("true"));
+      storage.insert(bmin::String("once.tmp.askedPriestess"), bmin::String("true"));
+      storage.insert(bmin::String("tmp.calledLark"), bmin::String("true"));
+      storage.insert(bmin::String("tmp.otherScratch"), bmin::String("1"));
+
+      runner::clearTmpStorageKeys(storage);
+
+      if (!storage.contains("vars.exposition.alinea.realmKnown") ||
+          !storage.contains("once.vars.hasSpokenToalinea_claire") ||
+          !storage.contains("once.tmp.askedPriestess")) {
+        LOG(ERROR) << "clearTmpStorageKeys should keep vars.* and once.*" << LOG_ENDL;
+        return 1;
+      }
+      if (storage.contains("tmp.calledLark") || storage.contains("tmp.otherScratch")) {
+        LOG(ERROR) << "clearTmpStorageKeys should erase tmp.* keys" << LOG_ENDL;
+        return 1;
+      }
+      if (storage.size() != 3) {
+        LOG(ERROR) << "clearTmpStorageKeys left unexpected key count: " << storage.size()
+                   << LOG_ENDL;
+        return 1;
+      }
+
+      // Second conversation should hydrate non-tmp keys from prior storage.
+      model::GameEvent talkEvent;
+      talkEvent.id = "talk_persist_hydrate";
+      talkEvent.eventType = model::GameEventType::TALK;
+
+      model::GameEventChildChoice choiceNode;
+      choiceNode.eventChildType = model::GameEventChildType::CHOICE;
+      choiceNode.id = "root";
+      choiceNode.text = "Hello again.";
+      model::Choice realmKnown;
+      realmKnown.text = "About the realm.";
+      realmKnown.conditionStr = "IS(vars.exposition.alinea.realmKnown)";
+      realmKnown.next = "end_node";
+      choiceNode.choices.pushBack(realmKnown);
+      model::Choice calledLark;
+      calledLark.text = "About the lark.";
+      calledLark.conditionStr = "IS(tmp.calledLark)";
+      calledLark.next = "end_node";
+      choiceNode.choices.pushBack(calledLark);
+      talkEvent.children.pushBack(choiceNode);
+
+      model::GameEventChildEnd endNode;
+      endNode.eventChildType = model::GameEventChildType::END;
+      endNode.id = "end_node";
+      talkEvent.children.pushBack(endNode);
+
+      runner::SpecialEventRunner talkRunner(storage, talkEvent, {});
+      runner::SpecialEventRunnerInterface talkIface(talkRunner);
+      talkIface.startEvent();
+      if (talkRunner.displayTextChoices.size() != 1 ||
+          talkRunner.displayTextChoices[0].text != "About the realm.") {
+        LOG(ERROR) << "Hydrated storage should show realmKnown choice only, not tmp"
+                   << LOG_ENDL;
+        return 1;
+      }
+      LOG(INFO) << "Dialogue storage persist / tmp clear test passed" << LOG_ENDL;
+    }
 
     LOG(INFO) << "TestSpecialEventRunner completed successfully" << LOG_ENDL;
     return 0;

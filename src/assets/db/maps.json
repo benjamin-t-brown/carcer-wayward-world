@@ -6816,7 +6816,7 @@
       {
         "l": 1,
         "i": 208,
-        "destinationMapName": "alinea",
+        "destinationMapName": "AlineaTest",
         "destinationMarkerName": "MarkerHouseFloor1",
         "destinationX": 0,
         "destinationY": 0
@@ -6824,7 +6824,7 @@
       {
         "l": 0,
         "i": 208,
-        "destinationMapName": "alinea",
+        "destinationMapName": "AlineaTest",
         "destinationMarkerName": "MarkerHouseFloor2",
         "destinationX": 0,
         "destinationY": 0
@@ -13931,7 +13931,7 @@
       },
       {
         "l": 0,
-        "i": 0,
+        "i": 37,
         "name": "Stairs0"
       },
       {
@@ -13969,7 +13969,7 @@
         "l": 1,
         "i": 37,
         "destinationMapName": "alinea_outsideAlinea1",
-        "destinationMarkerName": "",
+        "destinationMarkerName": "Stairs0",
         "destinationX": 0,
         "destinationY": 0
       },

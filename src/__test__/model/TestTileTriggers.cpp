@@ -1,6 +1,8 @@
 #include "db/Database.h"
 #include "model/TileTriggers.h"
+#include "model/instances/CharacterInstance.h"
 #include "model/instances/World.h"
+#include "model/templates/CharacterTemplate.h"
 #include "model/templates/Items.h"
 #include "model/templates/Tileset.h"
 #include "sdl2w/Logger.h"
@@ -52,6 +54,13 @@ void addTestItem(db::Database& database) {
   database.addItemTemplate(item);
 }
 
+void addTestCharacter(db::Database& database) {
+  auto character = model::CharacterTemplate{};
+  character.name = "TestNpc";
+  character.label = "Friendly NPC";
+  database.addCharacterTemplate(character);
+}
+
 model::TileInstance makeTile(int x, int y, int tileId) {
   auto tile = model::TileInstance{};
   tile.x = x;
@@ -85,6 +94,7 @@ int main(int argc, char** argv) {
   state::DatabaseInterface::setDatabase(&database);
   addTestTileset(database);
   addTestItem(database);
+  addTestCharacter(database);
 
   bool ok = true;
 
@@ -133,6 +143,26 @@ int main(int argc, char** argv) {
     });
     const auto message = model::formatExamineMessage(map, 1, 0, database);
     ok = assertEqualStr(message, "Examine:\ngrass\nTest Beer", "examine message with item") && ok;
+  }
+
+  {
+    auto map = makeMap(2, 2);
+    map.characters.pushBack(model::CharacterInstance{
+        .id = "npc1",
+        .name = "ignored instance name",
+        .templateName = "TestNpc",
+        .x = 1,
+        .y = 0,
+    });
+    map.items.pushBack(model::ItemInstance{
+        .itemTemplateName = "TestBeer",
+        .x = 1,
+        .y = 0,
+    });
+    const auto message = model::formatExamineMessage(map, 1, 0, database);
+    ok = assertEqualStr(message, "Examine:\ngrass\nFriendly NPC\nTest Beer",
+                        "examine message with character and item") &&
+         ok;
   }
 
   {

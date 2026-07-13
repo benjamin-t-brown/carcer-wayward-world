@@ -3,8 +3,10 @@
 #include "model/instances/CharacterInstance.h"
 #include "model/instances/ItemInstance.h"
 #include "model/templates/Maps.h"
+#include <cstdint>
 #include <optional>
 #include "bmin/DynArray.h"
+#include "bmin/Map.h"
 #include "bmin/String.h"
 
 namespace model {
@@ -43,11 +45,35 @@ struct MapInstance {
 
 enum class CameraMode { Follow, Aiming, Dragging, Controlled };
 
-enum class WorldActionMode { NONE, EXAMINE };
+enum class WorldActionMode { NONE, EXAMINE, TALK };
+
+// Session-scoped fog-of-war memory for a map template (one bit per cell).
+struct ExploredMapMask {
+  int width = 0;
+  int height = 0;
+  bmin::DynArray<uint8_t> bits;
+};
+
+// Open-door tileId mutation on a map (closed doors become tileId+1 at runtime).
+struct OpenedDoorRecord {
+  int layer = 0;
+  int x = 0;
+  int y = 0;
+  int tileId = 0;
+};
+
+// Per-map session (and future disk) deltas keyed by template name — not by grid.
+struct PersistentMapState {
+  int version = 1;
+  ExploredMapMask explored;
+  bmin::DynArray<OpenedDoorRecord> openedDoors;
+};
 
 struct World {
   bmin::String name;
   MapInstance currentMap;
+  // Background persistence for visited maps; LiveArea stitch will flush/hydrate per slot.
+  bmin::Map<bmin::String, PersistentMapState> mapsByTemplate;
   int camX = 0; // map pixel space
   int camY = 0;
   CameraMode cameraMode = CameraMode::Follow;
@@ -58,6 +84,9 @@ struct World {
   WorldActionMode actionMode = WorldActionMode::NONE;
   std::optional<bmin::String> pendingSpecialEventId;
   std::optional<TravelTrigger> pendingTravel;
+  // Dialogue / special-event runner vars (vars.*, once.*, …). tmp.* is session-only
+  // and stripped when a conversation ends.
+  bmin::Map<bmin::String, bmin::String> specialEventStorage;
 };
 
 struct TileXY {

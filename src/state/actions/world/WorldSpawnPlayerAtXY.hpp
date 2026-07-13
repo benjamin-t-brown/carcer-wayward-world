@@ -1,5 +1,7 @@
 #pragma once
 
+#include "model/MapVision.h"
+#include "model/TileTriggers.h"
 #include "model/instances/Player.h"
 #include "model/instances/World.h"
 #include "sdl2w/Logger.h"
@@ -12,11 +14,18 @@ namespace state {
 namespace actions {
 
 // Places the current party avatar at tile coordinates on the current map.
+// Creates the avatar from the party if it is not already on the map (e.g. after
+// WorldLoadMap).
 class WorldSpawnPlayerAtXY : public AbstractAction {
   int destX = 0;
   int destY = 0;
 
   void act() override {
+    auto* database = getDatabase();
+    if (!database) {
+      LOG(ERROR) << "WorldSpawnPlayerAtXY::act: database is nullptr" << LOG_ENDL;
+      return;
+    }
     if (!state) {
       LOG(ERROR) << "WorldSpawnPlayerAtXY::act: state is nullptr" << LOG_ENDL;
       return;
@@ -32,14 +41,12 @@ class WorldSpawnPlayerAtXY : public AbstractAction {
       return;
     }
 
-    auto* avatar = model::findPartyAvatarOnMap(map, state->player);
-    if (!avatar) {
-      LOG(ERROR) << "WorldSpawnPlayerAtXY::act: party avatar not found on map" << LOG_ENDL;
+    if (!model::placePartyAvatarAt(map, state->player, destX, destY)) {
+      LOG(ERROR) << "WorldSpawnPlayerAtXY::act: party is empty" << LOG_ENDL;
       return;
     }
 
-    avatar->x = destX;
-    avatar->y = destY;
+    model::updateMapVisibilityFromPlayer(map, destX, destY, *database);
   }
 
 public:

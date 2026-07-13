@@ -109,6 +109,11 @@ int main(int argc, char** argv) {
         [&](std::string_view key, int keyCode) {
           layerManager->handleKeyDown(key, keyCode);
         });
+    events.setKeyboardEvent(
+        sdl2w::KeyboardEventCb::ON_KEY_UP,
+        [&](std::string_view key, int keyCode) {
+          layerManager->handleKeyUp(key, keyCode);
+        });
   };
 
   auto _updateRender = [&](sdl2w::Window& window, sdl2w::Store& store) {

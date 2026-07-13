@@ -30,6 +30,8 @@ model/instances/Player.cpp \
 model/instances/CharacterPlayer.cpp \
 model/instances/World.cpp \
 model/MapWalkability.cpp \
+model/MapVision.cpp \
+model/MapPersistence.cpp \
 model/TileTriggers.cpp \
 model/stats/CharacterStats.cpp \
 model/stats/CharacterStatDefinitions.cpp \
@@ -66,6 +68,7 @@ ui/elements/buttons/ButtonGroup.cpp \
 ui/elements/buttons/ButtonIcon.cpp \
 ui/components/borders/BorderDropShadow.cpp \
 ui/elements/SectionScrollable.cpp \
+ui/KeyboardHeldScroll.cpp \
 ui/elements/HorizontalSlider.cpp \
 ui/elements/buttons/ButtonTextWrap.cpp \
 ui/elements/buttons/ButtonWorldAction.cpp \

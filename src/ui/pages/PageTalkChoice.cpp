@@ -2,11 +2,13 @@
 #include "ui/colors.h"
 #include "ui/components/borders/BorderModalStandard.h"
 #include "ui/elements/OutsetRectangle.h"
+#include "ui/elements/Quad.h"
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/TextParagraph.h"
 #include "ui/elements/buttons/ButtonTextWrap.h"
 #include "ui/layouts/ModalStandard.h"
+#include <algorithm>
 
 namespace ui {
 
@@ -55,13 +57,41 @@ void PageTalkChoice::build() {
   modal->setProps(ModalStandardProps{
       .width = style.width,
       .height = style.height,
+      .iconSprite = props.portraitSpriteName,
   });
 
   children.pushBack(bmin::UniquePtr<UiElement>(modal));
 
+  if (!props.portraitSpriteName.empty()) {
+    if (auto* border = dynamic_cast<BorderModalStandard*>(modal->getChildById("border"))) {
+      auto [iconX, iconY] = border->getIconBorderLocation();
+      const int iconSize = border->getProps().iconSize;
+      auto iconBg = bmin::makeUnique<Quad>(window, modal);
+      iconBg->setId("headerIconBg");
+      iconBg->setPos(iconX, iconY);
+      iconBg->setScale(style.scale);
+      iconBg->setProps(QuadProps{
+          .width = iconSize,
+          .height = iconSize,
+          .bgColor = Colors::OffWhite,
+      });
+
+      auto& modalChildren = modal->getChildren();
+      const auto insertBefore = std::find_if(modalChildren.begin(),
+                                             modalChildren.end(),
+                                             [](const bmin::UniquePtr<UiElement>& child) {
+                                               return child->getId() == "headerIcon";
+                                             });
+      if (insertBefore != modalChildren.end()) {
+        modalChildren.insert(insertBefore, bmin::UniquePtr<UiElement>(iconBg.release()));
+      } else {
+        modal->addChild(iconBg.release());
+      }
+    }
+  }
+
   auto [scaledContentW, scaledContentH] = modal->getContentDims();
   auto [contentX, contentY] = modal->getContentLocation();
-  // auto choiceHeightScaled = props.choiceAreaHeight * style.scale;
 
   auto choiceSectionHeight = props.choiceAreaHeight;
   auto textSectionHeight =
@@ -96,26 +126,82 @@ void PageTalkChoice::build() {
       .scrollBarWidth = scrollBarWidth,
   });
   addChild(textSection);
-  auto [textScrollableContentWidthScaled, _] = textSection->getContentDims();
+  auto [textScrollableContentWidthScaled, textViewportHeightScaled] =
+      textSection->getContentDims();
 
-  auto textBlock = new TextParagraph(window, textSection);
-  textBlock->setId("textBlocks");
   TextFontProps textFont;
   setBaseFontConfig(textFont, BaseFontConfig::MODAL_CHOICE_TEXT);
-  textBlock->setPos(0, 0);
-  textBlock->setScale(1.f);
-  textBlock->setProps(TextParagraphProps{
-      .textBlocks = props.textBlocks,
-      .width = textScrollableContentWidthScaled,
-      .bgColor = Colors::OffWhite,
-      .padding = 4,
-      .lineSpacing = 0,
-      .fontFamily = textFont.fontFamily,
-      .fontSize = textFont.fontSize,
-      .fontColor = textFont.fontColor,
-  });
-  textSection->addChild(textBlock);
+
+  const int pinFrom = std::clamp(props.pinFromBlockIndex,
+                                 0,
+                                 static_cast<int>(props.textBlocks.size()));
+  bmin::DynArray<TextBlock> historyBlocks;
+  bmin::DynArray<TextBlock> currentBlocks;
+  for (int i = 0; i < static_cast<int>(props.textBlocks.size()); i++) {
+    if (i < pinFrom) {
+      historyBlocks.pushBack(props.textBlocks[i]);
+    } else {
+      currentBlocks.pushBack(props.textBlocks[i]);
+    }
+  }
+
+  int contentYOffset = 0;
+  int historyHeightScaled = 0;
+
+  auto addParagraph = [&](const bmin::DynArray<TextBlock>& blocks,
+                          const bmin::String& id) -> TextParagraph* {
+    if (blocks.empty()) {
+      return nullptr;
+    }
+    auto* paragraph = new TextParagraph(window, textSection);
+    paragraph->setId(id);
+    paragraph->setPos(0, contentYOffset);
+    paragraph->setScale(1.f);
+    paragraph->setProps(TextParagraphProps{
+        .textBlocks = blocks,
+        .width = textScrollableContentWidthScaled,
+        .bgColor = Colors::OffWhite,
+        .padding = 4,
+        .lineSpacing = 0,
+        .fontFamily = textFont.fontFamily,
+        .fontSize = textFont.fontSize,
+        .fontColor = textFont.fontColor,
+    });
+    textSection->addChild(paragraph);
+    const int height = paragraph->getDims().second;
+    contentYOffset += height;
+    return paragraph;
+  };
+
+  if (auto* historyParagraph = addParagraph(historyBlocks, "textBlocksHistory")) {
+    historyHeightScaled = historyParagraph->getDims().second;
+  }
+
+  int currentHeightScaled = 0;
+  if (auto* currentParagraph = addParagraph(currentBlocks, "textBlocks")) {
+    currentHeightScaled = currentParagraph->getDims().second;
+  }
+
+  // Pad so the pinned (current) dialogue can sit at the top of the viewport.
+  if (currentHeightScaled > 0) {
+    const int padHeightScaled =
+        std::max(0, textViewportHeightScaled - currentHeightScaled);
+    if (padHeightScaled > 0) {
+      auto* spacer = new Quad(window, textSection);
+      spacer->setId("textBottomPad");
+      spacer->setPos(0, contentYOffset);
+      spacer->setScale(1.f);
+      spacer->setProps(QuadProps{
+          .width = textScrollableContentWidthScaled,
+          .height = padHeightScaled,
+          .bgColor = Colors::OffWhite,
+      });
+      textSection->addChild(spacer);
+    }
+  }
+
   textSection->build();
+  textSection->scrollTo(historyHeightScaled);
 
   auto sepBorder = new OutsetRectangle(window, this);
   sepBorder->setPos(contentX, contentY + textSectionHeight * style.scale);
@@ -139,7 +225,8 @@ void PageTalkChoice::build() {
   });
   addChild(choiceSection);
 
-  // Create choices
+  // Create choices (setPos before setProps so ButtonTextWrap builds text at the right offset)
+  auto choiceYOffset = 0;
   for (int i = 0; i < static_cast<int>(props.choices.size()); i++) {
     auto choiceButton = new ButtonTextWrap(window, choiceSection);
     choiceButton->setId("choice" + bmin::toString(i));
@@ -156,12 +243,14 @@ void PageTalkChoice::build() {
     choiceButtonProps.isSelected = false;
     choiceButtonProps.fontFamily = choiceFont.fontFamily;
     choiceButtonProps.fontSize = choiceFont.fontSize;
-    choiceButtonProps.fontColor = Colors::DarkBlue;
+    choiceButtonProps.fontColor =
+        props.choices[i].previouslyChosen ? Colors::Grey : Colors::DarkBlue;
     choiceButton->setScale(1.f);
+    choiceButton->setPos(4 * style.scale, choiceYOffset);
     choiceButton->setProps(choiceButtonProps);
     auto [choiceWidth, choiceHeight] = choiceButton->getDims();
-    choiceButton->setPos(4 * style.scale, i * choiceHeight);
     choiceSection->addChild(choiceButton);
+    choiceYOffset += choiceHeight;
   }
 
   choiceSection->build();

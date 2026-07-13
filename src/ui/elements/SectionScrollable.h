@@ -52,6 +52,9 @@ public:
 
   std::pair<int, int> getContentDims() const;
 
+  // Content lives under outerQuad/innerQuad (not in children); search there too.
+  UiElement* getChildById(std::string_view searchId) override;
+
   bool checkMouseDownEvent(int mouseX,
                            int mouseY,
                            int button,

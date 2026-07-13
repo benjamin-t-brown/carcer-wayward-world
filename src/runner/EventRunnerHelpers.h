@@ -15,6 +15,9 @@ void setStorage(bmin::Map<bmin::String, bmin::String>& storage, const bmin::Stri
 std::optional<bmin::String> getStorage(const bmin::Map<bmin::String, bmin::String>& storage,
                                        const bmin::String& key);
 
+// Drop per-conversation scratch keys (prefix "tmp."). Keeps once.tmp.* and vars.*.
+void clearTmpStorageKeys(bmin::Map<bmin::String, bmin::String>& storage);
+
 // Split exec/eval strings into statements (newlines or semicolons, not inside parens)
 bmin::DynArray<bmin::String> splitExecStatements(const bmin::String& str);
 

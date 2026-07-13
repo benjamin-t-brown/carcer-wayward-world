@@ -10,6 +10,16 @@
 
 namespace ui {
 
+namespace {
+constexpr SDL_Color kMapFogColor{0, 0, 0, 128};
+constexpr SDL_Color kMapUnexploredColor{0, 0, 0, 255};
+
+bool isCellCurrentlyVisible(const model::MapInstance& map, int x, int y) {
+  const auto* tile = model::resolveTileToRender(map, x, y);
+  return tile != nullptr && tile->isVisible;
+}
+} // namespace
+
 MapView::MapView(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {}
 
@@ -79,17 +89,23 @@ void MapView::render(int /*dt*/) {
   };
 
   // One sprite per cell: highest non-empty tile at or below tileLayerNumber.
+  // Never-seen cells draw black; explored-but-not-visible get fog overlay.
   for (auto y = 0; y < map.height; y++) {
     for (auto x = 0; x < map.width; x++) {
+      auto screenX =
+          contentX + static_cast<int>((x * spriteW - world.camX) * style.scale);
+      auto screenY =
+          contentY + static_cast<int>((y * spriteH - world.camY) * style.scale);
+
       const auto* tile = model::resolveTileToRender(map, x, y);
-      if (!tile) {
+      if (!tile || !tile->isExplored) {
+        if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
+            screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
+          draw.drawRect(screenX, screenY, scaledSpriteW, scaledSpriteH,
+                        kMapUnexploredColor);
+        }
         continue;
       }
-
-      auto screenX =
-          contentX + static_cast<int>((tile->x * spriteW - world.camX) * style.scale);
-      auto screenY =
-          contentY + static_cast<int>((tile->y * spriteH - world.camY) * style.scale);
 
       auto spriteName = tile->tilesetName + "_" + bmin::toString(tile->tileId);
       if (!store.sprites.contains(spriteName)) {
@@ -98,6 +114,13 @@ void MapView::render(int /*dt*/) {
 
       auto& sprite = store.getSprite(bmin::toStringView(spriteName));
       drawMapSprite(sprite, screenX, screenY);
+
+      if (!tile->isVisible) {
+        if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
+            screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
+          draw.drawRect(screenX, screenY, scaledSpriteW, scaledSpriteH, kMapFogColor);
+        }
+      }
     }
   }
 
@@ -106,6 +129,9 @@ void MapView::render(int /*dt*/) {
     const auto& item = map.items[ii];
     if (!database) {
       break;
+    }
+    if (!isCellCurrentlyVisible(map, item.x, item.y)) {
+      continue;
     }
     bmin::String spriteName;
     try {
@@ -131,6 +157,9 @@ void MapView::render(int /*dt*/) {
   const auto& party = state.player.party;
   for (size_t ci = 0; ci < map.characters.size(); ci++) {
     const auto& character = map.characters[ci];
+    if (!isCellCurrentlyVisible(map, character.x, character.y)) {
+      continue;
+    }
     const model::CharacterPlayer* member = nullptr;
     for (size_t pi = 0; pi < party.size(); pi++) {
       if (party[pi].instanceId == character.id) {

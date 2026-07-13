@@ -1,5 +1,6 @@
 #pragma once
 
+#include "model/MapVision.h"
 #include "model/MapWalkability.h"
 #include "model/TileTriggers.h"
 #include "model/instances/Player.h"
@@ -19,17 +20,29 @@ class WorldMovePlayer : public AbstractAction {
   int dy = 0;
 
   const char* moveDirectionLabel(int dx, int dy) {
-    if (dy < 0) {
+    if (dx < 0 && dy < 0) {
+      return "nw";
+    }
+    if (dx == 0 && dy < 0) {
       return "n";
     }
-    if (dy > 0) {
-      return "s";
+    if (dx > 0 && dy < 0) {
+      return "ne";
     }
-    if (dx > 0) {
+    if (dx < 0 && dy == 0) {
+      return "w";
+    }
+    if (dx > 0 && dy == 0) {
       return "e";
     }
-    if (dx < 0) {
-      return "w";
+    if (dx < 0 && dy > 0) {
+      return "sw";
+    }
+    if (dx == 0 && dy > 0) {
+      return "s";
+    }
+    if (dx > 0 && dy > 0) {
+      return "se";
     }
     return "?";
   }
@@ -89,6 +102,7 @@ class WorldMovePlayer : public AbstractAction {
     if (auto* door = model::findClosedDoorAt(map, destX, destY, *database)) {
       door->tileId = door->tileId + 1;
       // TODO(player-tile-movement): play door-open sound
+      model::updateMapVisibilityFromPlayer(map, avatar->x, avatar->y, *database);
       return;
     }
 
@@ -102,6 +116,7 @@ class WorldMovePlayer : public AbstractAction {
     avatar->x = destX;
     avatar->y = destY;
     model::queueStepTriggersAt(state->world, map, destX, destY);
+    model::updateMapVisibilityFromPlayer(map, destX, destY, *database);
   }
 
 public:

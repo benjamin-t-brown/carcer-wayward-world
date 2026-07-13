@@ -89,16 +89,15 @@ void PageInventory::build() {
 
   if (!props.characterPlayerSprite.empty()) {
     if (auto* icon = modal->getChildById("headerIcon")) {
-      constexpr int kIconTextureSize = 32;
-      constexpr float kIconScale = 2.f;
       auto [iconX, iconY] = icon->getPos();
+      auto [iconW, iconH] = icon->getDims();
       auto iconBg = bmin::makeUnique<Quad>(window, modal);
       iconBg->setId("headerIconBg");
       iconBg->setPos(iconX, iconY);
-      iconBg->setScale(kIconScale * style.scale);
+      iconBg->setScale(1.f);
       iconBg->setProps(QuadProps{
-          .width = kIconTextureSize,
-          .height = kIconTextureSize,
+          .width = iconW,
+          .height = iconH,
           .bgColor = {255, 255, 255, 50},
       });
 
