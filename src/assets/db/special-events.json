@@ -8104,21 +8104,24 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "gat41xkmwp9",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "What are you doing over here?",
             "conditionStr": "",
             "evalStr": "",
             "next": "v8f5ixx6iz",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "I'll leave you to it. (Leave.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "ya3no0kdh1",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -8165,28 +8168,32 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "4m43o16166a",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "And they come from the ocean?",
             "conditionStr": "",
             "evalStr": "",
             "next": "p28knyfh7hg",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Have you found anybody?",
             "conditionStr": "",
             "evalStr": "",
             "next": "fjf56k1lych",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "I am worthy of attention.",
             "conditionStr": "ONCE(vars.ch.@CHARACTER_ID.dragon1)",
             "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
             "next": "fjf56k1lych",
-            "prefixText": "[DRAGON]"
+            "prefixText": "[DRAGON]",
+            "switchText": []
           }
         ]
       },
@@ -8275,21 +8282,24 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "plz3kmgwvbp",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "By who?",
             "conditionStr": "",
             "evalStr": "SET_BOOL(tmp.annoyed1)",
             "next": "a5w1pgzwv7o",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Come on, you have to tell me more than that...",
             "conditionStr": "IS(tmp.annoyed1)",
             "evalStr": "",
             "next": "5dlzm0mo2tb",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },

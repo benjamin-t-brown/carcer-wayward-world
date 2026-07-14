@@ -189,6 +189,21 @@ export const restoreEditorStateForGameEvent = (gameEventId: string) => {
   return false;
 };
 
+export const renameEditorSaveStateForGameEvent = (
+  oldId: string,
+  newId: string,
+) => {
+  const editorState = getEditorState();
+  const savedState = editorState.editorSaveStates.get(oldId);
+  if (savedState) {
+    editorState.editorSaveStates.set(newId, savedState);
+    editorState.editorSaveStates.delete(oldId);
+  }
+  if (editorState.gameEventId === oldId) {
+    editorState.gameEventId = newId;
+  }
+};
+
 export const createEditorNodesForGameEvent = (
   gameEvent: GameEvent,
   canvas: HTMLCanvasElement

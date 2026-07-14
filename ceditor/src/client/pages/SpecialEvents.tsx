@@ -17,12 +17,23 @@ import { trimStrings } from '../utils/jsonUtils';
 import {
   centerPanzoomOnNode,
   getEditorState,
+  renameEditorSaveStateForGameEvent,
   saveEditorStateForGameEvent,
   syncGameEventFromEditorState,
   updateEditorStateNoReRender,
 } from '../special-event-editor/seEditorState';
+import {
+  findGameEventReferences,
+  formatGameEventRenameWarning,
+  gameEventReferencesTotal,
+  renameGameEventIdInCharacters,
+  renameGameEventIdInGameEventImports,
+  renameGameEventIdInItems,
+  renameGameEventIdInMaps,
+} from '../utils/gameEventReferences';
 import { EventRunnerModal } from '../special-event-editor/eventRunner/EventRunnerModal';
 import { DeleteModal } from '../elements/DeleteModal';
+import { ConfirmModal } from '../elements/ConfirmModal';
 import { ValidationMenuButton } from '../special-event-editor/react-components/ValidationMenuButton';
 import { useReRender } from '../hooks/useReRender';
 import { EventRunner } from '../special-event-editor/eventRunner/EventRunner';
@@ -90,7 +101,20 @@ const filterGameEvents = (
 };
 
 export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
-  const { gameEvents, setGameEvents, saveGameEvents } = useAssets();
+  const {
+    gameEvents,
+    setGameEvents,
+    saveGameEvents,
+    maps,
+    setMaps,
+    saveMaps,
+    characters,
+    setCharacters,
+    saveCharacters,
+    items,
+    setItems,
+    saveItems,
+  } = useAssets();
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -101,6 +125,11 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmMessage, setDeleteConfirmMessage] = useState('');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [renameConfirm, setRenameConfirm] = useState<{
+    previousGameEvent: GameEvent;
+    updatedGameEvent: GameEvent;
+    message: string;
+  } | null>(null);
   const [eventRunner, setEventRunner] = useState<EventRunner | undefined>(
     undefined,
   );
@@ -255,6 +284,152 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
 
   const handleCreateCancel = () => {
     setShowCreateModal(false);
+  };
+
+  const applyGameEventEdit = async (
+    previousGameEvent: GameEvent,
+    updatedGameEvent: GameEvent,
+    updateReferences: boolean,
+  ) => {
+    const oldId = previousGameEvent.id;
+    const newId = updatedGameEvent.id;
+
+    let nextGameEvents = [...gameEvents];
+    const index = nextGameEvents.findIndex(
+      (gameEvent) => gameEvent.id === oldId,
+    );
+    if (index === -1) {
+      return;
+    }
+
+    let nextMaps = maps;
+    let nextCharacters = characters;
+    let nextItems = items;
+    const savedAssets: string[] = [];
+
+    if (oldId !== newId && updateReferences) {
+      const references = findGameEventReferences(
+        maps,
+        characters,
+        items,
+        gameEvents,
+        oldId,
+      );
+
+      if (references.tiles.length > 0) {
+        nextMaps = renameGameEventIdInMaps(maps, oldId, newId);
+      }
+      if (references.characters.length > 0) {
+        nextCharacters = renameGameEventIdInCharacters(
+          characters,
+          oldId,
+          newId,
+        );
+      }
+      if (references.items.length > 0) {
+        nextItems = renameGameEventIdInItems(items, oldId, newId);
+      }
+      if (references.eventImports.length > 0) {
+        nextGameEvents = renameGameEventIdInGameEventImports(
+          nextGameEvents,
+          oldId,
+          newId,
+        );
+      }
+
+      try {
+        if (references.tiles.length > 0) {
+          const trimmedMaps = trimStrings(nextMaps);
+          await saveMaps(trimmedMaps);
+          nextMaps = trimmedMaps;
+          setMaps(trimmedMaps);
+          savedAssets.push('maps');
+        }
+        if (references.characters.length > 0) {
+          const trimmedCharacters = trimStrings(nextCharacters);
+          await saveCharacters(trimmedCharacters);
+          nextCharacters = trimmedCharacters;
+          setCharacters(trimmedCharacters);
+          savedAssets.push('characters');
+        }
+        if (references.items.length > 0) {
+          const trimmedItems = trimStrings(nextItems);
+          await saveItems(trimmedItems);
+          nextItems = trimmedItems;
+          setItems(trimmedItems);
+          savedAssets.push('items');
+        }
+      } catch (err) {
+        showNotification(
+          `Failed to save renamed event references: ${
+            err instanceof Error ? err.message : 'Unknown error'
+          }`,
+          'error',
+        );
+        return;
+      }
+
+      renameEditorSaveStateForGameEvent(oldId, newId);
+      saveEditorSelection('specialEvents', newId);
+      setRecentGameEvents((prev) =>
+        prev.map((id) => (id === oldId ? newId : id)),
+      );
+    }
+
+    nextGameEvents[index] = updatedGameEvent;
+    setGameEvents(nextGameEvents.sort((a, b) => a.id.localeCompare(b.id)));
+    setShowEditGameEventModal(false);
+    setRenameConfirm(null);
+    showNotification(
+      updateReferences && oldId !== newId
+        ? savedAssets.length > 0
+          ? `Game event renamed and ${savedAssets.join(', ')} saved.`
+          : 'Game event renamed!'
+        : 'Game event updated!',
+      'success',
+    );
+  };
+
+  const handleEditGameEventConfirm = (
+    previousGameEvent: GameEvent,
+    updatedGameEvent: GameEvent,
+  ) => {
+    const duplicateId = gameEvents.find(
+      (gameEvent) =>
+        gameEvent.id === updatedGameEvent.id &&
+        gameEvent.id !== previousGameEvent.id,
+    );
+    if (duplicateId) {
+      showNotification(
+        `A game event with ID "${updatedGameEvent.id}" already exists. Please use a different ID.`,
+        'error',
+      );
+      return;
+    }
+
+    if (previousGameEvent.id !== updatedGameEvent.id) {
+      const references = findGameEventReferences(
+        maps,
+        characters,
+        items,
+        gameEvents,
+        previousGameEvent.id,
+      );
+      if (gameEventReferencesTotal(references) > 0) {
+        setRenameConfirm({
+          previousGameEvent,
+          updatedGameEvent,
+          message: formatGameEventRenameWarning(
+            previousGameEvent.id,
+            updatedGameEvent.id,
+            references,
+          ),
+        });
+        return;
+      }
+    }
+
+    applyGameEventEdit(previousGameEvent, updatedGameEvent, false);
   };
 
   const validateGameEvents = (): { isValid: boolean; error?: string } => {
@@ -776,19 +951,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
         <EditGameEventModal
           isOpen={showEditGameEventModal}
           gameEvent={currentGameEvent}
-          onConfirm={(previousGameEvent, updatedGameEvent) => {
-            const newGameEvents = [...gameEvents];
-            const index = newGameEvents.findIndex(
-              (gameEvent) => gameEvent.id === previousGameEvent.id,
-            );
-            if (index > -1) {
-              newGameEvents[index] = updatedGameEvent;
-            }
-            setGameEvents(
-              newGameEvents.sort((a, b) => a.id.localeCompare(b.id)),
-            );
-            setShowEditGameEventModal(false);
-          }}
+          onConfirm={handleEditGameEventConfirm}
           onCancel={() => setShowEditGameEventModal(false)}
         />
       )}
@@ -839,6 +1002,24 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
           setShowDeleteConfirm(false);
         }}
         onCancel={() => setShowDeleteConfirm(false)}
+      />
+
+      <ConfirmModal
+        isOpen={renameConfirm !== null}
+        title="Rename Special Event?"
+        message={renameConfirm?.message ?? ''}
+        confirmLabel="Rename and save references"
+        onConfirm={() => {
+          if (!renameConfirm) {
+            return;
+          }
+          applyGameEventEdit(
+            renameConfirm.previousGameEvent,
+            renameConfirm.updatedGameEvent,
+            true,
+          );
+        }}
+        onCancel={() => setRenameConfirm(null)}
       />
     </div>
   );

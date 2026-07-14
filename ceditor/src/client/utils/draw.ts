@@ -120,6 +120,8 @@ export const drawText = (
   if (strokeColor) {
     ctx.strokeStyle = strokeColor;
     ctx.lineWidth = 4;
+    // Miter joins spike on sharp glyph corners (e.g. M); round keeps a clean outline.
+    ctx.lineJoin = 'round';
     ctx.strokeText(text, x, y);
   }
 

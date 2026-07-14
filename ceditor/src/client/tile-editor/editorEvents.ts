@@ -49,9 +49,6 @@ class MapEditorEventState {
 const mapEditorEventState = new MapEditorEventState();
 
 let isPanZoomInitialized = false;
-// Track wheel event throttling
-let lastWheelTime = 0;
-const WHEEL_THROTTLE_DELAY = 125; // milliseconds
 const panZoomEvents: {
   keydown: (ev: KeyboardEvent) => void;
   keyup: (ev: KeyboardEvent) => void;
@@ -613,50 +610,50 @@ export const initPanzoom = (mapDataInterface: {
     }
   };
   const handleWheel = (ev: WheelEvent) => {
-    const currentTime = Date.now();
-    // Throttle: only process if at least 125ms have passed since last wheel event
-    if (currentTime - lastWheelTime < WHEEL_THROTTLE_DELAY) {
+    if (!isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())) {
       return;
     }
-    lastWheelTime = currentTime;
+    ev.preventDefault();
 
-    if (isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())) {
-      const [focalX, focalY] = screenCoordsToCanvasCoords(
-        ev.clientX,
-        ev.clientY,
-        mapDataInterface.getCanvas()
-      );
+    const [focalX, focalY] = screenCoordsToCanvasCoords(
+      ev.clientX,
+      ev.clientY,
+      mapDataInterface.getCanvas()
+    );
 
-      let nextScale = mapEditorEventState.scale;
-      const scaleStep = 0.5;
-
-      if (ev.deltaY > 0) {
-        // zoom out
-        nextScale -= scaleStep;
-      } else {
-        // zoom in
-        nextScale += scaleStep;
-      }
-
-      if (nextScale > 10) {
-        nextScale = 10;
-      } else if (nextScale < 0.5) {
-        nextScale = 0.5;
-      }
-
-      const offsetX =
-        focalX -
-        (nextScale / mapEditorEventState.scale) *
-          (focalX - mapEditorEventState.translateX);
-      const offsetY =
-        focalY -
-        (nextScale / mapEditorEventState.scale) *
-          (focalY - mapEditorEventState.translateY);
-
-      mapEditorEventState.translateX = offsetX;
-      mapEditorEventState.translateY = offsetY;
-      mapEditorEventState.scale = nextScale;
+    // Normalize delta across mice (lines) and trackpads (pixels).
+    let delta = ev.deltaY;
+    if (ev.deltaMode === 1) {
+      delta *= 16;
+    } else if (ev.deltaMode === 2) {
+      delta *= 100;
     }
+
+    // Multiplicative zoom tracks continuous scroll; ~15% per 100px of delta.
+    const zoomFactor = Math.exp(-delta * 0.0015);
+    let nextScale = mapEditorEventState.scale * zoomFactor;
+    if (nextScale > 10) {
+      nextScale = 10;
+    } else if (nextScale < 0.5) {
+      nextScale = 0.5;
+    }
+
+    if (nextScale === mapEditorEventState.scale) {
+      return;
+    }
+
+    const offsetX =
+      focalX -
+      (nextScale / mapEditorEventState.scale) *
+        (focalX - mapEditorEventState.translateX);
+    const offsetY =
+      focalY -
+      (nextScale / mapEditorEventState.scale) *
+        (focalY - mapEditorEventState.translateY);
+
+    mapEditorEventState.translateX = offsetX;
+    mapEditorEventState.translateY = offsetY;
+    mapEditorEventState.scale = nextScale;
   };
   window.addEventListener('keydown', handleKeyDown);
   window.addEventListener('keyup', handleKeyUp);
@@ -664,7 +661,7 @@ export const initPanzoom = (mapDataInterface: {
   window.addEventListener('mousemove', handleMouseMove);
   window.addEventListener('mouseup', handleMouseUp);
   window.addEventListener('contextmenu', handleContextMenu);
-  window.addEventListener('wheel', handleWheel);
+  window.addEventListener('wheel', handleWheel, { passive: false });
 
   isPanZoomInitialized = true;
   panZoomEvents.keydown = handleKeyDown;

@@ -1,5 +1,8 @@
 import { useMemo } from 'react';
-import { CarcerMapTemplate, CarcerMapTileTemplate } from '../../../types/assets';
+import {
+  CarcerMapTemplate,
+  CarcerMapTileTemplate,
+} from '../../../types/assets';
 import { SearchSelect } from '../../../elements/SearchSelect';
 import { collectMarkerNamesOnMap } from '../../mapLocate';
 import { OpenMapAndSelectTileArgs } from '../../TileEditor';
@@ -34,7 +37,7 @@ const numberInputStyle = {
 
 function resolveDestinationLayer(
   layerOptions: number[],
-  current: number | undefined
+  current: number | undefined,
 ): number {
   if (current !== undefined && layerOptions.includes(current)) {
     return current;
@@ -59,22 +62,22 @@ export function TravelTriggerSection({
 
   const destinationMap = useMemo(
     () => maps.find((m) => m.name === destinationMapName),
-    [maps, destinationMapName]
+    [maps, destinationMapName],
   );
 
   const markerNames = useMemo(
     () => (destinationMap ? collectMarkerNamesOnMap(destinationMap) : []),
-    [destinationMap]
+    [destinationMap],
   );
 
   const layerOptions = useMemo(
     () => (destinationMap ? sortedLayerKeys(destinationMap) : [0]),
-    [destinationMap]
+    [destinationMap],
   );
 
   const destinationLayer = resolveDestinationLayer(
     layerOptions,
-    selectedTile.travelTrigger?.destinationLayer
+    selectedTile.travelTrigger?.destinationLayer,
   );
 
   return (
@@ -109,9 +112,7 @@ export function TravelTriggerSection({
               const destinationX =
                 map.width > 0 ? selectedTileInd % map.width : 0;
               const destinationY =
-                map.width > 0
-                  ? Math.floor(selectedTileInd / map.width)
-                  : 0;
+                map.width > 0 ? Math.floor(selectedTileInd / map.width) : 0;
               updateTile((tile) => {
                 tile.travelTrigger = {
                   destinationMapName: map.name,
@@ -196,20 +197,16 @@ export function TravelTriggerSection({
                     return;
                   }
                   const nextMap = maps.find((m) => m.name === mapName);
-                  const names = nextMap
-                    ? collectMarkerNamesOnMap(nextMap)
-                    : [];
+                  const names = nextMap ? collectMarkerNamesOnMap(nextMap) : [];
                   if (
                     !names.includes(tile.travelTrigger.destinationMarkerName)
                   ) {
                     tile.travelTrigger.destinationMarkerName = '';
                   }
-                  const nextLayers = nextMap
-                    ? sortedLayerKeys(nextMap)
-                    : [0];
+                  const nextLayers = nextMap ? sortedLayerKeys(nextMap) : [0];
                   tile.travelTrigger.destinationLayer = resolveDestinationLayer(
                     nextLayers,
-                    tile.travelTrigger.destinationLayer
+                    tile.travelTrigger.destinationLayer,
                   );
                 });
               }}
