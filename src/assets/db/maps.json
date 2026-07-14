@@ -13950,10 +13950,17 @@
       },
       {
         "l": 0,
-        "i": 280,
+        "i": 340,
         "eventId": "TestEventModal",
         "isNonCombatTrigger": true,
         "isLookTrigger": false
+      },
+      {
+        "l": 0,
+        "i": 363,
+        "eventId": "alinea_sign_",
+        "isNonCombatTrigger": true,
+        "isLookTrigger": true
       }
     ],
     "travelTriggers": [
@@ -13979,7 +13986,8 @@
         "destinationMapName": "alinea_outsideAlinea1",
         "destinationMarkerName": "Stairs1",
         "destinationX": 0,
-        "destinationY": 0
+        "destinationY": 0,
+        "destinationLayer": 0
       }
     ],
     "tileOverrides": [],

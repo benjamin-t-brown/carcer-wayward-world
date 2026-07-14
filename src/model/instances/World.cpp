@@ -97,6 +97,7 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
         .destinationMarkerName = tt.destinationMarkerName,
         .destinationX = tt.destinationX,
         .destinationY = tt.destinationY,
+        .destinationLayer = tt.destinationLayer,
     };
   }
 

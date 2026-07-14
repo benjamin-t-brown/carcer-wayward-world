@@ -1210,6 +1210,8 @@ export interface TravelTrigger {
   destinationMarkerName: string;
   destinationX: number;
   destinationY: number;
+  /** Destination map layer; default 0. */
+  destinationLayer: number;
 }
 
 export type MapType = 'TOWN' | 'OUTDOOR';

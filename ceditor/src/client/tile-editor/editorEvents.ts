@@ -375,28 +375,36 @@ export const initPanzoom = (mapDataInterface: {
         getCurrentPaintAction() === PaintActionType.FILL ||
         getCurrentPaintAction() === PaintActionType.DELETE_FILL)
     ) {
+      const hoveredTileIndex =
+        getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
+          ?.hoveredTileIndex ?? -1;
+      if (hoveredTileIndex < 0) {
+        return;
+      }
+
       mapEditorEventState.isDraggingRight = true;
 
       updateEditorStateNoReRender({
-        rectSelectTileIndStart:
-          getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
-            ?.hoveredTileIndex ?? -1,
-        rectSelectTileIndEnd:
-          getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
-            ?.hoveredTileIndex ?? -1,
+        rectSelectTileIndStart: hoveredTileIndex,
+        rectSelectTileIndEnd: hoveredTileIndex,
       });
 
       // setSelectedMapTileIndex(getHoveredTileInd());
     } else if (
       ev.button === MOUSE_BUTTON_RIGHT &&
+      isEventWithCanvasTarget(ev, mapDataInterface.getCanvas()) &&
       [PaintActionType.CLONE, PaintActionType.SELECT].includes(
         getCurrentPaintAction()
       )
     ) {
+      const hoveredTileIndex =
+        getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
+          ?.hoveredTileIndex ?? -1;
+      if (hoveredTileIndex < 0) {
+        return;
+      }
       updateEditorStateMap(mapDataInterface.getEditorState().selectedMapName, {
-        selectedTileInd:
-          getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
-            ?.hoveredTileIndex ?? -1,
+        selectedTileInd: hoveredTileIndex,
       });
     }
   };
@@ -552,18 +560,6 @@ export const initPanzoom = (mapDataInterface: {
         mapDataInterface.getMapData().width ?? 0
       );
       if (dragSelectedInds.length === 0) {
-        updateEditorStateNoReRender({
-          rectCloneBrushTiles: [],
-        });
-        updateEditorStateMap(
-          mapDataInterface.getEditorState().selectedMapName,
-          {
-            selectedTileInd:
-              getEditorStateMap(
-                mapDataInterface.getEditorState().selectedMapName
-              )?.hoveredTileIndex ?? -1,
-          }
-        );
         return;
       }
       const mapTiles = getTileList(mapDataInterface.getMapData());

@@ -10,18 +10,13 @@
 
 namespace ui {
 
-namespace {
-constexpr SDL_Color kMapFogColor{0, 0, 0, 128};
-constexpr SDL_Color kMapUnexploredColor{0, 0, 0, 255};
+MapView::MapView(sdl2w::Window* _window, UiElement* _parent)
+    : UiElement(_window, _parent) {}
 
-bool isCellCurrentlyVisible(const model::MapInstance& map, int x, int y) {
+bool MapView::isCellCurrentlyVisible(const model::MapInstance& map, int x, int y) {
   const auto* tile = model::resolveTileToRender(map, x, y);
   return tile != nullptr && tile->isVisible;
 }
-} // namespace
-
-MapView::MapView(sdl2w::Window* _window, UiElement* _parent)
-    : UiElement(_window, _parent) {}
 
 void MapView::setProps(const MapViewProps& _props) {
   props = _props;
@@ -101,8 +96,8 @@ void MapView::render(int /*dt*/) {
       if (!tile || !tile->isExplored) {
         if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
             screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
-          draw.drawRect(screenX, screenY, scaledSpriteW, scaledSpriteH,
-                        kMapUnexploredColor);
+          draw.drawRect(
+              screenX, screenY, scaledSpriteW, scaledSpriteH, mapUnexploredColor);
         }
         continue;
       }
@@ -118,7 +113,7 @@ void MapView::render(int /*dt*/) {
       if (!tile->isVisible) {
         if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
             screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
-          draw.drawRect(screenX, screenY, scaledSpriteW, scaledSpriteH, kMapFogColor);
+          draw.drawRect(screenX, screenY, scaledSpriteW, scaledSpriteH, mapFogColor);
         }
       }
     }

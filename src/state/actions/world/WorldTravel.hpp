@@ -49,6 +49,7 @@ class WorldTravel : public AbstractAction {
     }
 
     if (!usedMarker) {
+      state->world.currentMap.tileLayerNumber = travel.destinationLayer;
       WorldSpawnPlayerAtXY(travel.destinationX, travel.destinationY).execute(state);
     }
   }

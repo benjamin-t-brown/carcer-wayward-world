@@ -13,27 +13,11 @@ namespace ui {
 class ButtonModal;
 class ButtonTextWrap;
 class SectionScrollable;
-}
+} // namespace ui
 
 namespace layers {
 
 class LayerSpecialEvent : public Layer {
-public:
-  constexpr static std::string_view LAYER_ID = "layer_special_event";
-
-  LayerSpecialEvent(sdl2w::Window* _window,
-                    const model::GameEvent& gameEvent,
-                    const bmin::Map<bmin::String, model::GameEvent>& gameEvents,
-                    const bmin::Map<bmin::String, bmin::String>& initialStorage = {});
-  ~LayerSpecialEvent() override = default;
-
-  void onKeyDown(std::string_view key, int keyCode) override;
-  void onKeyUp(std::string_view key, int keyCode) override;
-  void update(int deltaTime) override;
-  void onChoiceSelected(int choiceIndex);
-  void onContinue();
-  void syncUi();
-
 private:
   runner::SpecialEventRunner runner;
   runner::SpecialEventRunnerInterface runnerInterface;
@@ -58,6 +42,22 @@ private:
   void setupTalkKeyboardScroll();
   ui::SectionScrollable* getTalkTextSection();
   ui::SectionScrollable* getTalkChoiceSection();
+
+public:
+  constexpr static std::string_view LAYER_ID = "layer_special_event";
+
+  LayerSpecialEvent(sdl2w::Window* _window,
+                    const model::GameEvent& gameEvent,
+                    const bmin::Map<bmin::String, model::GameEvent>& gameEvents,
+                    const bmin::Map<bmin::String, bmin::String>& initialStorage = {});
+  ~LayerSpecialEvent() override = default;
+
+  void onKeyDown(std::string_view key, int keyCode) override;
+  void onKeyUp(std::string_view key, int keyCode) override;
+  void onChoiceSelected(int choiceIndex);
+  void onContinue();
+  void syncUi();
+  void update(int deltaTime) override;
 };
 
 } // namespace layers

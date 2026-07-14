@@ -182,16 +182,11 @@ export function TileEditor({
         overflow: 'hidden',
       }}
     >
-      {/* Left Column: Minimap and Tools */}
+      {/* Left Column: Tile-related tools */}
       <div className="tile-editor-sidebar">
         {/* <Minimap map={map} /> */}
         {editorState.current && editorState.current.selectedMapName && (
           <>
-            <LayersPanel
-              editorState={editorState.current}
-              map={map}
-              onMapUpdate={onMapUpdate}
-            />
             <TerrainToolPanel editorState={editorState.current} />
             <ToolsPanel
               editorState={editorState.current}
@@ -203,7 +198,7 @@ export function TileEditor({
         )}
       </div>
 
-      {/* Right Column: Map Canvas and Tile Picker */}
+      {/* Center Column: Map Canvas and Tile Picker */}
       <div
         style={{
           flex: 1,
@@ -231,6 +226,17 @@ export function TileEditor({
         </div>
         {editorState.current && editorState.current.selectedMapName && (
           <TilePicker editorState={editorState.current} />
+        )}
+      </div>
+
+      {/* Right Column: Non-tile controls (grid, layers, find on map) */}
+      <div className="tile-editor-sidebar tile-editor-sidebar--right">
+        {editorState.current && editorState.current.selectedMapName && (
+          <LayersPanel
+            editorState={editorState.current}
+            map={map}
+            onMapUpdate={onMapUpdate}
+          />
         )}
       </div>
     </div>

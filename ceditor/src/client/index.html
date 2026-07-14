@@ -201,7 +201,7 @@
         overflow: hidden;
       }
 
-      /* Map editor left sidebar — aligned scroll areas */
+      /* Map editor sidebars — aligned scroll areas */
       .tile-editor-sidebar {
         width: calc(250px - 8px);
         border-right: 1px solid #3e3e42;
@@ -212,6 +212,12 @@
         margin: 4px;
         min-height: 0;
         box-sizing: border-box;
+      }
+
+      .tile-editor-sidebar--right {
+        width: 150px;
+        border-right: none;
+        border-left: 1px solid #3e3e42;
       }
 
       .tile-editor-sidebar-section {
@@ -460,6 +466,10 @@
       .tile-editor-sidebar-tile-info {
         flex: 1;
         min-height: 0;
+      }
+
+      .tile-editor-sidebar .form-group.tile-editor-travel-search {
+        margin-bottom: 0;
       }
 
       .tile-editor-tool-grid {
@@ -1016,18 +1026,24 @@
       .item-template-form .form-fields-inline,
       .ability-template-form .form-fields-inline,
       .status-effect-template-form .form-fields-inline,
-      .map-grid-template-form .form-fields-inline {
+      .map-grid-template-form .form-fields-inline,
+      .tileset-template-form .form-fields-inline {
         display: flex;
         flex-wrap: wrap;
         gap: 8px 14px;
         align-items: flex-end;
       }
 
+      .tileset-template-form > form > .form-fields-inline {
+        margin-bottom: 20px;
+      }
+
       .character-template-form .form-fields-inline > .form-group,
       .item-template-form .form-fields-inline > .form-group,
       .ability-template-form .form-fields-inline > .form-group,
       .status-effect-template-form .form-fields-inline > .form-group,
-      .map-grid-template-form .form-fields-inline > .form-group {
+      .map-grid-template-form .form-fields-inline > .form-group,
+      .tileset-template-form .form-fields-inline > .form-group {
         margin-bottom: 0;
         flex: 0 1 auto;
       }
@@ -1036,7 +1052,8 @@
       .item-template-form .form-fields-inline .form-group label,
       .ability-template-form .form-fields-inline .form-group label,
       .status-effect-template-form .form-fields-inline .form-group label,
-      .map-grid-template-form .form-fields-inline .form-group label {
+      .map-grid-template-form .form-fields-inline .form-group label,
+      .tileset-template-form .form-fields-inline .form-group label {
         margin-bottom: 3px;
         font-size: 12px;
       }
@@ -1050,7 +1067,9 @@
       .status-effect-template-form .form-fields-inline .form-group input,
       .status-effect-template-form .form-fields-inline .form-group select,
       .map-grid-template-form .form-fields-inline .form-group input,
-      .map-grid-template-form .form-fields-inline .form-group select {
+      .map-grid-template-form .form-fields-inline .form-group select,
+      .tileset-template-form .form-fields-inline .form-group input,
+      .tileset-template-form .form-fields-inline .form-group select {
         width: auto;
         min-width: 120px;
         max-width: 220px;

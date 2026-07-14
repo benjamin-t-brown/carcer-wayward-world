@@ -348,10 +348,10 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
   }
 
   return (
-    <div className="item-form">
+    <div className="item-form tileset-template-form">
       <h2>Edit Tileset</h2>
       <form>
-        <div className="form-row">
+        <div className="form-fields-inline">
           <NumberInput
             id="tileset-tile-width"
             name="tileWidth"

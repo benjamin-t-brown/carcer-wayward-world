@@ -1,6 +1,6 @@
 #include "LayerSpecialEvent.h"
 #include "runner/EventRunnerHelpers.h"
-#include "sdl2w/Logger.h"
+#include "sdl2w/L10n.h"
 #include "state/State.h"
 #include "state/StateManager.h"
 #include "state/actions/ui/UiRemoveLayer.hpp"
@@ -10,12 +10,11 @@
 #include "ui/elements/TextLine.h"
 #include "ui/elements/buttons/ButtonGroup.h"
 #include "ui/elements/buttons/ButtonModal.h"
-#include "ui/observers/ObserverRemoveLayer.hpp"
+#include "ui/elements/buttons/ButtonTextWrap.h"
 #include "ui/observers/ObserverSpecialEventChoice.hpp"
 #include "ui/observers/ObserverSpecialEventContinue.hpp"
 #include "ui/pages/PageModalEvent.h"
 #include "ui/pages/PageTalkChoice.h"
-#include "ui/elements/buttons/ButtonTextWrap.h"
 #include <algorithm>
 #include <string_view>
 
@@ -261,7 +260,7 @@ void LayerSpecialEvent::beginKeyboardContinuePress() {
   // TALK injects a synthetic "(Continue.)" choice for non-auto-advance EXEC stops.
   if (runner.gameEvent.eventType == model::GameEventType::TALK) {
     if (runner.displayTextChoices.size() == 1 &&
-        runner.displayTextChoices[0].text == "(Continue.)") {
+        runner.displayTextChoices[0].text == TRANSLATE("(Continue.)")) {
       beginKeyboardChoicePress(0);
       return;
     }
@@ -320,7 +319,7 @@ void LayerSpecialEvent::onChoiceSelected(int choiceIndex) {
   if (eventFinished) {
     return;
   }
-  talkKeyboardScroll.clearHeld();
+  talkKeyboardScroll.stopScroll();
   if (runner.gameEvent.eventType == model::GameEventType::TALK) {
     appendTalkChoiceToHistory(choiceIndex);
   }
@@ -371,42 +370,6 @@ void LayerSpecialEvent::onContinue() {
   needsSyncUi = true;
 }
 
-void LayerSpecialEvent::update(int deltaTime) {
-  Layer::update(deltaTime);
-  talkKeyboardScroll.update(deltaTime, window);
-
-  if (choicePressRemainingMs > 0) {
-    choicePressRemainingMs -= deltaTime;
-    if (choicePressRemainingMs <= 0) {
-      choicePressRemainingMs = 0;
-      const int choiceIndex = pendingChoiceIndex.value_or(-1);
-      pendingChoiceIndex.reset();
-      if (auto* button = findChoiceButton(choiceIndex)) {
-        button->isActive = false;
-      }
-      if (choiceIndex >= 0) {
-        onChoiceSelected(choiceIndex);
-      }
-    }
-  }
-
-  if (continuePressRemainingMs > 0) {
-    continuePressRemainingMs -= deltaTime;
-    if (continuePressRemainingMs <= 0) {
-      continuePressRemainingMs = 0;
-      if (auto* button = findModalContinueButton()) {
-        button->isActive = false;
-      }
-      onContinue();
-    }
-  }
-
-  if (needsSyncUi) {
-    needsSyncUi = false;
-    syncUi();
-  }
-}
-
 void LayerSpecialEvent::persistRunnerStorage() {
   auto* stateManager = getStateManager();
   if (!stateManager) {
@@ -418,7 +381,7 @@ void LayerSpecialEvent::persistRunnerStorage() {
 }
 
 void LayerSpecialEvent::closeLayer() {
-  talkKeyboardScroll.clearHeld();
+  talkKeyboardScroll.stopScroll();
   choicePressRemainingMs = 0;
   pendingChoiceIndex.reset();
   continuePressRemainingMs = 0;
@@ -478,8 +441,11 @@ void LayerSpecialEvent::onKeyDown(std::string_view key, int /*keyCode*/) {
     return;
   }
 
+  // Talk must be exited via choices / the modal close control — not Escape.
   if (key == "Escape") {
-    closeLayer();
+    if (runner.gameEvent.eventType != model::GameEventType::TALK) {
+      closeLayer();
+    }
     return;
   }
 
@@ -488,13 +454,13 @@ void LayerSpecialEvent::onKeyDown(std::string_view key, int /*keyCode*/) {
   }
 
   if (key == "Return" || key == "Keypad Enter" || key == "space") {
-    talkKeyboardScroll.clearHeld();
+    talkKeyboardScroll.stopScroll();
     beginKeyboardContinuePress();
     return;
   }
 
   if (key.size() == 1 && key[0] >= '1' && key[0] <= '9') {
-    talkKeyboardScroll.clearHeld();
+    talkKeyboardScroll.stopScroll();
     const auto choiceIndex = static_cast<int>(key[0] - '1');
     beginKeyboardChoicePress(choiceIndex);
   }
@@ -502,6 +468,42 @@ void LayerSpecialEvent::onKeyDown(std::string_view key, int /*keyCode*/) {
 
 void LayerSpecialEvent::onKeyUp(std::string_view key, int /*keyCode*/) {
   talkKeyboardScroll.onKeyUp(key);
+}
+
+void LayerSpecialEvent::update(int deltaTime) {
+  Layer::update(deltaTime);
+  talkKeyboardScroll.update(deltaTime, window);
+
+  if (choicePressRemainingMs > 0) {
+    choicePressRemainingMs -= deltaTime;
+    if (choicePressRemainingMs <= 0) {
+      choicePressRemainingMs = 0;
+      const int choiceIndex = pendingChoiceIndex.value_or(-1);
+      pendingChoiceIndex.reset();
+      if (auto* button = findChoiceButton(choiceIndex)) {
+        button->isActive = false;
+      }
+      if (choiceIndex >= 0) {
+        onChoiceSelected(choiceIndex);
+      }
+    }
+  }
+
+  if (continuePressRemainingMs > 0) {
+    continuePressRemainingMs -= deltaTime;
+    if (continuePressRemainingMs <= 0) {
+      continuePressRemainingMs = 0;
+      if (auto* button = findModalContinueButton()) {
+        button->isActive = false;
+      }
+      onContinue();
+    }
+  }
+
+  if (needsSyncUi) {
+    needsSyncUi = false;
+    syncUi();
+  }
 }
 
 } // namespace layers

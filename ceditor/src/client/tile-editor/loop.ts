@@ -35,6 +35,8 @@ import {
 import { PaintActionType } from './paintTools';
 import { Sprite } from '../utils/assetLoader';
 import {
+  drawOverlayTextEntries,
+  OverlayTextEntry,
   renderGridAdjacentNavigation,
   renderMapTilesAtOffset,
   renderTileAndExtras,
@@ -195,6 +197,8 @@ export const loop = (
 
       const assets = mapDataInterface.getAssets();
       const editorState = mapDataInterface.getEditorState();
+      const overlayTextEntries: OverlayTextEntry[] | undefined =
+        editorState.drawOverlayText ? [] : undefined;
       const placement = findMapGridPlacement(currentMap.name, assets.mapGrids);
       let adjacentSlots: ReturnType<typeof getGridAdjacentSlots> = [];
       let slotWidth = currentMap.width * spriteWidth * newScale;
@@ -226,7 +230,6 @@ export const loop = (
             characters: assets.characters,
             items: assets.items,
             layer: editorState.currentLevel,
-            drawOverlayText: false,
           });
         }
 
@@ -268,7 +271,7 @@ export const loop = (
             tilesets: mapDataInterface.getTilesets(),
             characters: mapDataInterface.getAssets().characters,
             items: mapDataInterface.getAssets().items,
-            drawOverlayText: mapDataInterface.getEditorState().drawOverlayText,
+            overlayTextEntries,
           });
 
           if (i === 0) {
@@ -293,6 +296,11 @@ export const loop = (
           }
         }
       }
+
+      if (overlayTextEntries?.length) {
+        drawOverlayTextEntries(ctx, overlayTextEntries);
+      }
+
       ctx.restore();
     }
 

@@ -1,16 +1,21 @@
+import { useMemo, useState } from 'react';
 import {
   CarcerMapTileTemplate,
   GameEvent,
   TilesetTemplate,
 } from '../../../types/assets';
+import { useAssets } from '../../../contexts/AssetsContext';
 import { isMapTileWalkable } from '../../mapTileWalkability';
 import { EventSearchInput } from './EventSearchInput';
 import { OverrideCheckbox } from './OverrideCheckbox';
+import { CreateSignModal, CreateSignModalResult } from './CreateSignModal';
+import { createSignGameEvent } from './createSignGameEvent';
 
 interface EventTriggerSectionProps {
   selectedTile: CarcerMapTileTemplate;
   tilesets: TilesetTemplate[];
   gameEvents: GameEvent[];
+  mapName: string;
   updateTile: (updater: (tile: CarcerMapTileTemplate) => void) => void;
 }
 
@@ -18,8 +23,64 @@ export function EventTriggerSection({
   selectedTile,
   tilesets,
   gameEvents,
+  mapName,
   updateTile,
 }: EventTriggerSectionProps) {
+  const { setGameEvents, saveGameEvents } = useAssets();
+  const [isCreateSignOpen, setIsCreateSignOpen] = useState(false);
+  const [isCreatingSign, setIsCreatingSign] = useState(false);
+
+  const existingEventIds = useMemo(
+    () => new Set(gameEvents.map((event) => event.id)),
+    [gameEvents]
+  );
+
+  const assignEventToTile = (
+    eventId: string,
+    options?: { forceLookTrigger?: boolean }
+  ) => {
+    const walkable = isMapTileWalkable(selectedTile, tilesets);
+    updateTile((tile) => {
+      tile.eventTrigger = {
+        eventId,
+        isNonCombatTrigger: true,
+        isLookTrigger: options?.forceLookTrigger ? true : !walkable,
+      };
+    });
+  };
+
+  const handleCreateSign = async (result: CreateSignModalResult) => {
+    if (existingEventIds.has(result.triggerId)) {
+      return;
+    }
+
+    const newEvent = createSignGameEvent({
+      id: result.triggerId,
+      title: result.title,
+      contents: result.contents,
+    });
+    const nextEvents = [...gameEvents, newEvent].sort((a, b) =>
+      a.id.localeCompare(b.id)
+    );
+
+    setIsCreatingSign(true);
+    try {
+      await saveGameEvents(nextEvents);
+      setGameEvents(nextEvents);
+      assignEventToTile(result.triggerId, { forceLookTrigger: true });
+      setIsCreateSignOpen(false);
+    } catch (err) {
+      console.error('Failed to save sign event:', err);
+      alert(
+        `Failed to save sign event: ${
+          err instanceof Error ? err.message : 'Unknown error'
+        }`
+      );
+    } finally {
+      setIsCreatingSign(false);
+    }
+  };
+
   return (
     <div
       style={{
@@ -40,29 +101,68 @@ export function EventTriggerSection({
         Event Trigger
       </div>
 
-      {/* Event Search Input - only show if no event trigger */}
       {!selectedTile.eventTrigger && (
-        <EventSearchInput
-          events={gameEvents}
-          onSelect={(eventId) => {
-            // Validate that the selected event is a MODAL event
-            const event = gameEvents.find((e) => e.id === eventId);
-            if (event && event.eventType === 'MODAL') {
-              const walkable = isMapTileWalkable(selectedTile, tilesets);
-              updateTile((tile) => {
-                tile.eventTrigger = {
-                  eventId,
-                  isNonCombatTrigger: true,
-                  isLookTrigger: !walkable,
-                };
-              });
-            }
-          }}
-          placeholder="Search modal events..."
-        />
+        <>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '10px',
+            }}
+          >
+            <div
+              style={{
+                color: '#858585',
+                fontSize: '10px',
+                textTransform: 'uppercase',
+                fontWeight: 'bold',
+              }}
+            >
+              Quick create
+            </div>
+            <button
+              onClick={() => setIsCreateSignOpen(true)}
+              disabled={isCreatingSign}
+              style={{
+                padding: '4px 8px',
+                border: '1px solid #3e3e42',
+                backgroundColor: isCreatingSign ? '#2a2a2a' : '#3e3e42',
+                color: '#ffffff',
+                cursor: isCreatingSign ? 'default' : 'pointer',
+                fontSize: '11px',
+                borderRadius: '4px',
+                transition: 'background-color 0.2s',
+                opacity: isCreatingSign ? 0.6 : 1,
+              }}
+              onMouseEnter={(e) => {
+                if (!isCreatingSign) {
+                  e.currentTarget.style.backgroundColor = '#4a4a4a';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isCreatingSign) {
+                  e.currentTarget.style.backgroundColor = '#3e3e42';
+                }
+              }}
+            >
+              Create Sign
+            </button>
+          </div>
+
+          <EventSearchInput
+            events={gameEvents}
+            onSelect={(eventId) => {
+              const event = gameEvents.find((e) => e.id === eventId);
+              if (event && event.eventType === 'MODAL') {
+                assignEventToTile(eventId);
+              }
+            }}
+            placeholder="Search modal events..."
+          />
+        </>
       )}
 
-      {/* Current Event Trigger */}
       {selectedTile.eventTrigger && (
         <>
           <div
@@ -217,7 +317,6 @@ export function EventTriggerSection({
               </button>
             </div>
           </div>
-          {/* Event Trigger Options */}
           <div
             style={{
               display: 'flex',
@@ -250,7 +349,18 @@ export function EventTriggerSection({
           </div>
         </>
       )}
+
+      <CreateSignModal
+        isOpen={isCreateSignOpen}
+        mapName={mapName}
+        existingEventIds={existingEventIds}
+        onConfirm={handleCreateSign}
+        onCancel={() => {
+          if (!isCreatingSign) {
+            setIsCreateSignOpen(false);
+          }
+        }}
+      />
     </div>
   );
 }
-

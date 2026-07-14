@@ -163,6 +163,7 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       placement.destinationMarkerName = entry.value("destinationMarkerName", bmin::String());
       placement.destinationX = entry.value("destinationX", 0);
       placement.destinationY = entry.value("destinationY", 0);
+      placement.destinationLayer = entry.value("destinationLayer", 0);
       mapTemplate.travelTriggers.pushBack(std::move(placement));
     }
   }

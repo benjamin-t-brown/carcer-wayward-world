@@ -4219,21 +4219,24 @@
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1)",
             "next": "45ans4ydeds",
-            "prefixText": "[DRYAD]"
+            "prefixText": "[DRYAD]",
+            "switchText": []
           },
           {
             "text": "I'd never stoop so low as to give my property to an unwashed peasant.",
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
             "next": "583es9fod",
-            "prefixText": "[DRAGON]"
+            "prefixText": "[DRAGON]",
+            "switchText": []
           },
           {
             "text": "(Say nothing.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "bve9sg6ksn",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -4272,21 +4275,24 @@
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
             "next": "u032yp890o",
-            "prefixText": "[DRAGON]"
+            "prefixText": "[DRAGON]",
+            "switchText": []
           },
           {
             "text": "I will enjoy dissecting you all piece by piece.",
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_REAPER, 1)",
             "next": "j8n9dpbz82m",
-            "prefixText": "[REAPER]"
+            "prefixText": "[REAPER]",
+            "switchText": []
           },
           {
             "text": "Fine (hand him the dagger).",
             "conditionStr": "",
             "evalStr": "",
             "next": "rljn7to6vv",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -4352,14 +4358,16 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "1t3hfsch02j",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Fine, take it (hand him the dagger).",
             "conditionStr": "",
             "evalStr": "",
             "next": "rljn7to6vv",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -7594,6 +7602,45 @@
         "eventChildType": "COMMENT",
         "h": 54,
         "comment": "TODO: Teleport outside if peaceful, start fight if not."
+      }
+    ]
+  },
+  {
+    "id": "alinea_sign_claireOffice",
+    "title": "Office of Dockmaster Claire",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "1b7qeqsnyiu",
+        "autoAdvance": true
+      },
+      {
+        "id": "1b7qeqsnyiu",
+        "x": 248,
+        "y": 128,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "The sign says: \"Office of Dockmaster Claire\"",
+        "execStr": "",
+        "next": "we4faa5t53",
+        "autoAdvance": true
+      },
+      {
+        "id": "we4faa5t53",
+        "x": 454,
+        "y": 249,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
       }
     ]
   },

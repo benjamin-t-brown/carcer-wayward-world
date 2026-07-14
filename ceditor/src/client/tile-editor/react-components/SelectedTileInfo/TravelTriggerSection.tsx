@@ -3,10 +3,14 @@ import { CarcerMapTemplate, CarcerMapTileTemplate } from '../../../types/assets'
 import { SearchSelect } from '../../../elements/SearchSelect';
 import { collectMarkerNamesOnMap } from '../../mapLocate';
 import { OpenMapAndSelectTileArgs } from '../../TileEditor';
+import { sortedLayerKeys } from '../../../utils/mapIndex';
 
 interface TravelTriggerSectionProps {
   selectedTile: CarcerMapTileTemplate;
   maps: CarcerMapTemplate[];
+  map: CarcerMapTemplate;
+  selectedTileInd: number;
+  currentLayer: number;
   updateTile: (updater: (tile: CarcerMapTileTemplate) => void) => void;
   onOpenMapAndSelectTile?: (args: OpenMapAndSelectTileArgs) => void;
 }
@@ -18,9 +22,35 @@ const fieldLabelStyle = {
   marginBottom: '4px',
 } as const;
 
+const numberInputStyle = {
+  width: '100%',
+  padding: '6px 8px',
+  border: '1px solid #3e3e42',
+  backgroundColor: '#1e1e1e',
+  color: '#ffffff',
+  fontSize: '12px',
+  borderRadius: '4px',
+} as const;
+
+function resolveDestinationLayer(
+  layerOptions: number[],
+  current: number | undefined
+): number {
+  if (current !== undefined && layerOptions.includes(current)) {
+    return current;
+  }
+  if (layerOptions.includes(0)) {
+    return 0;
+  }
+  return layerOptions[0] ?? 0;
+}
+
 export function TravelTriggerSection({
   selectedTile,
   maps,
+  map,
+  selectedTileInd,
+  currentLayer,
   updateTile,
   onOpenMapAndSelectTile,
 }: TravelTriggerSectionProps) {
@@ -35,6 +65,16 @@ export function TravelTriggerSection({
   const markerNames = useMemo(
     () => (destinationMap ? collectMarkerNamesOnMap(destinationMap) : []),
     [destinationMap]
+  );
+
+  const layerOptions = useMemo(
+    () => (destinationMap ? sortedLayerKeys(destinationMap) : [0]),
+    [destinationMap]
+  );
+
+  const destinationLayer = resolveDestinationLayer(
+    layerOptions,
+    selectedTile.travelTrigger?.destinationLayer
   );
 
   return (
@@ -66,12 +106,19 @@ export function TravelTriggerSection({
         {!selectedTile.travelTrigger ? (
           <button
             onClick={() => {
+              const destinationX =
+                map.width > 0 ? selectedTileInd % map.width : 0;
+              const destinationY =
+                map.width > 0
+                  ? Math.floor(selectedTileInd / map.width)
+                  : 0;
               updateTile((tile) => {
                 tile.travelTrigger = {
-                  destinationMapName: '',
+                  destinationMapName: map.name,
                   destinationMarkerName: '',
-                  destinationX: 0,
-                  destinationY: 0,
+                  destinationX,
+                  destinationY,
+                  destinationLayer: currentLayer,
                 };
               });
             }}
@@ -128,13 +175,14 @@ export function TravelTriggerSection({
           style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: '10px',
+            gap: '4px',
           }}
         >
           <div>
             <label style={fieldLabelStyle}>Destination Map Name</label>
             <SearchSelect
               id="travel-trigger-destination-map"
+              className="tile-editor-travel-search"
               value={selectedTile.travelTrigger.destinationMapName}
               onChange={(mapName) => {
                 updateTile((tile) => {
@@ -144,6 +192,7 @@ export function TravelTriggerSection({
                   tile.travelTrigger.destinationMapName = mapName;
                   if (!mapName) {
                     tile.travelTrigger.destinationMarkerName = '';
+                    tile.travelTrigger.destinationLayer = 0;
                     return;
                   }
                   const nextMap = maps.find((m) => m.name === mapName);
@@ -155,6 +204,13 @@ export function TravelTriggerSection({
                   ) {
                     tile.travelTrigger.destinationMarkerName = '';
                   }
+                  const nextLayers = nextMap
+                    ? sortedLayerKeys(nextMap)
+                    : [0];
+                  tile.travelTrigger.destinationLayer = resolveDestinationLayer(
+                    nextLayers,
+                    tile.travelTrigger.destinationLayer
+                  );
                 });
               }}
               items={maps}
@@ -187,6 +243,7 @@ export function TravelTriggerSection({
             <label style={fieldLabelStyle}>Destination Marker Name</label>
             <SearchSelect
               id="travel-trigger-destination-marker"
+              className="tile-editor-travel-search"
               value={selectedTile.travelTrigger.destinationMarkerName}
               onChange={(markerName) => {
                 updateTile((tile) => {
@@ -216,20 +273,11 @@ export function TravelTriggerSection({
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
-              gap: '10px',
+              gap: '4px',
             }}
           >
             <div>
-              <label
-                style={{
-                  display: 'block',
-                  color: '#858585',
-                  fontSize: '11px',
-                  marginBottom: '4px',
-                }}
-              >
-                Destination X
-              </label>
+              <label style={fieldLabelStyle}>Destination X</label>
               <input
                 type="number"
                 value={selectedTile.travelTrigger.destinationX}
@@ -241,28 +289,11 @@ export function TravelTriggerSection({
                     }
                   });
                 }}
-                style={{
-                  width: '100%',
-                  padding: '6px 8px',
-                  border: '1px solid #3e3e42',
-                  backgroundColor: '#1e1e1e',
-                  color: '#ffffff',
-                  fontSize: '12px',
-                  borderRadius: '4px',
-                }}
+                style={numberInputStyle}
               />
             </div>
             <div>
-              <label
-                style={{
-                  display: 'block',
-                  color: '#858585',
-                  fontSize: '11px',
-                  marginBottom: '4px',
-                }}
-              >
-                Destination Y
-              </label>
+              <label style={fieldLabelStyle}>Destination Y</label>
               <input
                 type="number"
                 value={selectedTile.travelTrigger.destinationY}
@@ -274,17 +305,30 @@ export function TravelTriggerSection({
                     }
                   });
                 }}
-                style={{
-                  width: '100%',
-                  padding: '6px 8px',
-                  border: '1px solid #3e3e42',
-                  backgroundColor: '#1e1e1e',
-                  color: '#ffffff',
-                  fontSize: '12px',
-                  borderRadius: '4px',
-                }}
+                style={numberInputStyle}
               />
             </div>
+          </div>
+          <div>
+            <label style={fieldLabelStyle}>Layer</label>
+            <select
+              value={destinationLayer}
+              onChange={(e) => {
+                const value = parseInt(e.target.value, 10) || 0;
+                updateTile((tile) => {
+                  if (tile.travelTrigger) {
+                    tile.travelTrigger.destinationLayer = value;
+                  }
+                });
+              }}
+              style={numberInputStyle}
+            >
+              {layerOptions.map((layer) => (
+                <option key={layer} value={layer}>
+                  Layer {layer}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       )}
@@ -301,11 +345,11 @@ export function TravelTriggerSection({
                   destinationMarkerName,
                   destinationX,
                   destinationY,
+                  destinationLayer: destLayer,
                 } = selectedTile.travelTrigger!;
                 onOpenMapAndSelectTile({
                   mapName: destinationMapName,
-                  // level: getEditorState().currentLevel,
-                  level: undefined,
+                  level: destLayer ?? 0,
                   markerName: destinationMarkerName || undefined,
                   pos: { x: destinationX, y: destinationY },
                 });

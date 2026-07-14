@@ -4,16 +4,25 @@ import { useSDL2WAssets } from '../../contexts/SDL2WAssetsContext';
 import { EditorState, updateEditorState } from '../../tile-editor/editorState';
 import { OptionSelect } from '../../elements/OptionSelect';
 import { TileEditModal } from '../../components/TileEditModal';
+import { Notification } from '../../elements/Notification';
 import { TileMetadata } from '../../types/assets';
 import { Sprite } from '../../elements/Sprite';
 import { getCachedImage } from '../../utils/spriteUtils';
 
+interface NotificationState {
+  message: string;
+  type: 'success' | 'error';
+  id: number;
+}
+
 export function TilePicker(props: { editorState: EditorState }) {
-  const { tilesets, setTilesets } = useAssets();
+  const { tilesets, setTilesets, saveTilesets } = useAssets();
   const { pictures, spriteMap } = useSDL2WAssets();
   // const [selectedTilesetName, setSelectedTilesetName] = useState<string>('');
   const [scale, setScale] = useState<number>(1);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationState[]>([]);
+  const notificationIdRef = useRef(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const { editorState } = props;
@@ -161,7 +170,7 @@ export function TilePicker(props: { editorState: EditorState }) {
   };
 
   const handleUpdateTile = (
-    index: number,
+    tiles: { tile: TileMetadata; tileIndex: number }[],
     field: keyof TileMetadata,
     value: any
   ) => {
@@ -173,12 +182,42 @@ export function TilePicker(props: { editorState: EditorState }) {
     if (tilesetIndex >= 0) {
       const updatedTilesets = [...tilesets];
       const updatedTiles = [...selectedTileset.tiles];
-      updatedTiles[index] = { ...updatedTiles[index], [field]: value };
+      for (const { tileIndex } of tiles) {
+        updatedTiles[tileIndex] = {
+          ...updatedTiles[tileIndex],
+          [field]: value,
+        };
+      }
       updatedTilesets[tilesetIndex] = {
         ...selectedTileset,
         tiles: updatedTiles,
       };
       setTilesets(updatedTilesets);
+    }
+  };
+
+  const showNotification = (message: string, type: 'success' | 'error') => {
+    const id = notificationIdRef.current++;
+    setNotifications((prev) => [...prev, { message, type, id }]);
+  };
+
+  const removeNotification = (id: number) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
+
+  const handleCloseEditModal = async () => {
+    try {
+      await saveTilesets(tilesets);
+      setIsEditModalOpen(false);
+      showNotification('Tilesets saved successfully!', 'success');
+    } catch (err) {
+      console.error('Failed to save tilesets:', err);
+      showNotification(
+        `Failed to save tilesets: ${
+          err instanceof Error ? err.message : 'Unknown error'
+        }`,
+        'error'
+      );
     }
   };
 
@@ -497,10 +536,19 @@ export function TilePicker(props: { editorState: EditorState }) {
           // tilesetName={selectedTileset.name}
           tiles={[{ tile: selectedTile, tileIndex: editorState.selectedTileIndexInTileset }]}
           tilesetName={selectedTileset.name}
-          onClose={() => setIsEditModalOpen(false)}
-          onUpdate={handleUpdateTile as any}
+          onClose={handleCloseEditModal}
+          onUpdate={handleUpdateTile}
         />
       )}
+
+      {notifications.map((notification) => (
+        <Notification
+          key={notification.id}
+          message={notification.message}
+          type={notification.type}
+          onClose={() => removeNotification(notification.id)}
+        />
+      ))}
     </div>
   );
 }

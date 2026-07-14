@@ -17,6 +17,11 @@ class MapView : public UiElement, public state::DatabaseInterface {
 private:
   MapViewProps props;
 
+  SDL_Color mapFogColor{0, 0, 0, 128};
+  SDL_Color mapUnexploredColor{0, 0, 0, 255};
+
+  bool isCellCurrentlyVisible(const model::MapInstance& map, int x, int y);
+
 public:
   MapView(sdl2w::Window* _window, UiElement* _parent = nullptr);
   ~MapView() override = default;

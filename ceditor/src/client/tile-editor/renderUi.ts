@@ -3,9 +3,26 @@ import {
   drawRect,
   drawSprite,
   drawText,
+  DrawTextParams,
   getSpriteNameFromTile,
   getSpriteNameFromTileMetadata,
 } from '../utils/draw';
+
+export type OverlayTextEntry = {
+  text: string;
+  x: number;
+  y: number;
+  textParams: DrawTextParams;
+};
+
+export const drawOverlayTextEntries = (
+  ctx: CanvasRenderingContext2D,
+  entries: OverlayTextEntry[],
+) => {
+  for (const entry of entries) {
+    drawText(entry.text, entry.x, entry.y, entry.textParams, ctx);
+  }
+};
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
@@ -289,7 +306,6 @@ export const renderToolUi = (
           mapSpriteHeight: mapData.spriteHeight,
           characters,
           items,
-          drawOverlayText: false,
         });
         ctx.restore();
       }
@@ -455,7 +471,7 @@ export const renderMapTilesAtOffset = (args: {
   characters: CharacterTemplate[];
   items: ItemTemplate[];
   layer: number;
-  drawOverlayText: boolean;
+  overlayTextEntries?: OverlayTextEntry[];
 }) => {
   const {
     map,
@@ -469,7 +485,7 @@ export const renderMapTilesAtOffset = (args: {
     characters,
     items,
     layer,
-    drawOverlayText,
+    overlayTextEntries,
   } = args;
 
   const mapTiles = getMaterializedLayer(map, layer);
@@ -492,7 +508,7 @@ export const renderMapTilesAtOffset = (args: {
         tilesets,
         characters,
         items,
-        drawOverlayText,
+        overlayTextEntries,
       });
     }
   }
@@ -512,7 +528,7 @@ export const renderTileAndExtras = (args: {
   tilesets: TilesetTemplate[];
   characters: CharacterTemplate[];
   items: ItemTemplate[];
-  drawOverlayText: boolean;
+  overlayTextEntries?: OverlayTextEntry[];
 }) => {
   const {
     refTile,
@@ -526,7 +542,7 @@ export const renderTileAndExtras = (args: {
     tilesets,
     characters,
     items,
-    drawOverlayText,
+    overlayTextEntries,
   } = args;
   if (!refTile) {
     return;
@@ -613,55 +629,43 @@ export const renderTileAndExtras = (args: {
     controlI++;
   }
 
-  if (drawOverlayText) {
+  if (overlayTextEntries) {
+    const textParams: DrawTextParams = {
+      font: 'sans-serif',
+      size: 12,
+      color: '#ffffff',
+      align: 'center',
+    };
+    const centerX = tileX + (mapSpriteWidth * newScale) / 2;
     let textI = 0;
     for (const character of refTile.characters) {
       const characterTemplate = characters.find((c) => c.name === character);
       if (characterTemplate) {
-        drawText(
-          characterTemplate.name,
-          tileX + (mapSpriteWidth * newScale) / 2,
-          tileY + textI * 6 * newScale - 3 * newScale,
-          {
-            font: 'sans-serif',
-            size: 12,
-            color: '#ffffff',
-            align: 'center',
-          },
-          ctx,
-        );
+        overlayTextEntries.push({
+          text: characterTemplate.name,
+          x: centerX,
+          y: tileY + textI * 6 * newScale - 3 * newScale,
+          textParams,
+        });
         textI++;
       }
     }
     for (const marker of refTile.markers) {
-      drawText(
-        marker,
-        tileX + (mapSpriteWidth * newScale) / 2,
-        tileY - textI * 6 * newScale - 3 * newScale,
-        {
-          font: 'sans-serif',
-          size: 12,
-          color: '#ffffff',
-          align: 'center',
-        },
-        ctx,
-      );
+      overlayTextEntries.push({
+        text: marker,
+        x: centerX,
+        y: tileY - textI * 6 * newScale - 3 * newScale,
+        textParams,
+      });
       textI++;
     }
     if (refTile.eventTrigger) {
-      drawText(
-        refTile.eventTrigger.eventId,
-        tileX + (mapSpriteWidth * newScale) / 2,
-        tileY + textI * 6 * newScale - 3 * newScale,
-        {
-          font: 'sans-serif',
-          size: 12,
-          color: '#ffffff',
-          align: 'center',
-        },
-        ctx,
-      );
-      textI++;
+      overlayTextEntries.push({
+        text: refTile.eventTrigger.eventId,
+        x: centerX,
+        y: tileY + textI * 6 * newScale - 3 * newScale,
+        textParams,
+      });
     }
   }
 };

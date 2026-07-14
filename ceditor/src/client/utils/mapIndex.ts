@@ -314,6 +314,7 @@ export function materializeLayer(
         destinationMarkerName: travel.destinationMarkerName,
         destinationX: travel.destinationX,
         destinationY: travel.destinationY,
+        destinationLayer: travel.destinationLayer ?? 0,
       };
     }
 

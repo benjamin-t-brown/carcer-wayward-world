@@ -1,11 +1,11 @@
 #pragma once
 
 #include "bmin/String.h"
+#include "bmin/StringInterop.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerSpecialEvent.h"
 #include "state/AbstractAction.h"
 #include "state/DatabaseInterface.h"
-#include "bmin/StringInterop.h"
 
 namespace state {
 
@@ -27,7 +27,7 @@ class UiShowLayerSpecialEvent : public AbstractAction {
       existing->remove();
     }
 
-    const auto& gameEvent = database->getGameEvent(bmin::toStringView(eventId));
+    const auto& gameEvent = database->getGameEvent(eventId.sliceView());
     auto* layer = new layers::LayerSpecialEvent(
         window, gameEvent, database->getGameEvents(), state->world.specialEventStorage);
     layerManager->addLayer(layer);

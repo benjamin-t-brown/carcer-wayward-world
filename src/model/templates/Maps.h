@@ -29,6 +29,7 @@ struct TravelTrigger {
   bmin::String destinationMarkerName;
   int destinationX = 0;
   int destinationY = 0;
+  int destinationLayer = 0;
 };
 
 struct TileLightSource {

@@ -179,6 +179,9 @@ export function SelectedTileInfo({
       <TravelTriggerSection
         selectedTile={selectedTile}
         maps={maps}
+        map={map}
+        selectedTileInd={selectedTileInd}
+        currentLayer={editorState.currentLevel}
         updateTile={updateTile}
         onOpenMapAndSelectTile={onOpenMapAndSelectTile}
       />
@@ -187,6 +190,7 @@ export function SelectedTileInfo({
         selectedTile={selectedTile}
         tilesets={tilesets}
         gameEvents={gameEvents}
+        mapName={map.name}
         updateTile={updateTile}
       />
 

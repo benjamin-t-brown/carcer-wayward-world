@@ -99,53 +99,40 @@ export function LayersPanel(props: LayersPanelProps) {
       <MapSearchAccordion map={props.map} />
       <div
         style={{
-          color: '#858585',
-          fontSize: '11px',
-          textTransform: 'uppercase',
-          fontWeight: 'bold',
-          marginBottom: '5px',
           marginTop: '8px',
+          marginBottom: '5px',
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          gap: '4px',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
         }}
       >
-        <div>Current Layer</div>
-        <div
-          style={{
-            margin: '4px',
-            display: 'flex',
-            gap: '8px',
-            justifyContent: 'flex-end',
+        <LayerButton
+          color="#1e7e1a"
+          onClick={() => {
+            handleAddNewLayer('above');
           }}
         >
-          <LayerButton
-            color="#1e7e1a"
-            onClick={() => {
-              handleAddNewLayer('above');
-            }}
-          >
-            +↑
-          </LayerButton>
-          <LayerButton
-            color="#1e7e1a"
-            onClick={() => {
-              handleAddNewLayer('below');
-            }}
-          >
-            +↓
-          </LayerButton>
+          +↑
+        </LayerButton>
+        <LayerButton
+          color="#1e7e1a"
+          onClick={() => {
+            handleAddNewLayer('below');
+          }}
+        >
+          +↓
+        </LayerButton>
 
-          <LayerButton
-            disabled={props.editorState.currentLevel === 0}
-            color="#7e1a1a"
-            onClick={() => {
-              setShowDeleteConfirm(true);
-            }}
-          >
-            <span style={{ filter: 'grayscale(100%) sepia(100%)' }}>❌</span>
-          </LayerButton>
-        </div>
+        <LayerButton
+          disabled={props.editorState.currentLevel === 0}
+          color="#7e1a1a"
+          onClick={() => {
+            setShowDeleteConfirm(true);
+          }}
+        >
+          <span style={{ filter: 'grayscale(100%) sepia(100%)' }}>❌</span>
+        </LayerButton>
       </div>
       <div
         className="tile-editor-sidebar-scroll"

@@ -1,12 +1,15 @@
 #include "KeyboardHeldScroll.h"
+#include "model/templates/UtilityTypes.h"
 #include "sdl2w/Window.h"
 
 namespace ui {
 
 void KeyboardHeldScroll::clearBindings() {
-  clearHeld();
+  held.isActive = false;
   bindings.clear();
 }
+
+void KeyboardHeldScroll::stopScroll() { held.isActive = false; }
 
 void KeyboardHeldScroll::bindKey(std::string_view key, std::function<void()> action) {
   if (key.empty() || !action) {
@@ -48,8 +51,8 @@ KeyboardHeldScroll::findBinding(std::string_view key) const {
 }
 
 void KeyboardHeldScroll::applyHeldAction() {
-  if (held && held->action) {
-    held->action();
+  if (held.isActive && held.action) {
+    held.action();
   }
 }
 
@@ -60,57 +63,43 @@ bool KeyboardHeldScroll::onKeyDown(std::string_view key) {
   }
 
   // Ignore OS/SDL key-repeat; we time repeats ourselves.
-  if (held && std::string_view(held->key.cStr(), held->key.size()) == key) {
+  if (held.isActive && held.key.sliceView() == key) {
     return true;
   }
 
-  held = Held{
-      .key = binding->key,
-      .action = binding->action,
-      .heldMs = 0,
-      .repeating = false,
-  };
-  applyHeldAction();
+  held.isActive = true;
+  held.key = binding->key;
+  held.action = binding->action;
+  held.action();
+  model::timerStructStart(held.initialDelay);
+  model::timerStructStart(held.moveDelay);
   return true;
 }
 
 void KeyboardHeldScroll::onKeyUp(std::string_view key) {
-  if (held && std::string_view(held->key.cStr(), held->key.size()) == key) {
-    clearHeld();
+  if (held.isActive && held.key.sliceView() == key) {
+    held.isActive = false;
   }
-}
-
-void KeyboardHeldScroll::clearHeld() {
-  held.reset();
 }
 
 void KeyboardHeldScroll::update(int deltaTime, sdl2w::Window* window) {
-  if (!held || deltaTime <= 0) {
+  if (!held.isActive || deltaTime <= 0) {
     return;
   }
 
-  if (window &&
-      !window->getEvents().isKeyPressed(
-          std::string_view(held->key.cStr(), held->key.size()))) {
-    clearHeld();
+  if (window && !window->getEvents().isKeyPressed(held.key.sliceView())) {
+    held.isActive = false;
     return;
   }
 
-  held->heldMs += deltaTime;
+  model::timerStructUpdate(held.initialDelay, deltaTime);
+  model::timerStructUpdate(held.moveDelay, deltaTime);
 
-  if (!held->repeating) {
-    if (held->heldMs < kInitialDelayMs) {
-      return;
+  if (held.isActive && model::timerStructIsComplete(held.initialDelay)) {
+    if (model::timerStructIsComplete(held.moveDelay)) {
+      applyHeldAction();
+      model::timerStructStart(held.moveDelay);
     }
-    held->repeating = true;
-    held->heldMs -= kInitialDelayMs;
-    applyHeldAction();
-  }
-
-  // At most one step per frame so a hitch doesn't dump many scrolls.
-  if (held->repeating && held->heldMs >= kRepeatIntervalMs) {
-    held->heldMs -= kRepeatIntervalMs;
-    applyHeldAction();
   }
 }
 
