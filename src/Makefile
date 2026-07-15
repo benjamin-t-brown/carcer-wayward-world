@@ -72,6 +72,7 @@ ui/KeyboardHeldScroll.cpp \
 ui/elements/HorizontalSlider.cpp \
 ui/elements/buttons/ButtonTextWrap.cpp \
 ui/elements/buttons/ButtonWorldAction.cpp \
+ui/elements/buttons/ButtonMove.cpp \
 ui/elements/OutsetRectangle.cpp \
 ui/elements/VerticalList.cpp \
 ui/elements/HorizontalList.cpp \
@@ -88,6 +89,7 @@ ui/components/PartyMemberIconSelector.cpp \
 ui/components/FloatingNotification.cpp \
 ui/components/FloatingNotificationSection.cpp \
 ui/components/ConfirmModal.cpp \
+ui/components/TouchMovePad.cpp \
 ui/components/MapView.cpp \
 ui/layouts/InGameLayout.cpp \
 ui/layouts/ModalStandard.cpp \

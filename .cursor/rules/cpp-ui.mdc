@@ -17,3 +17,26 @@ globs: ['src/ui/**/*.cpp', 'src/ui/**/*.h']
 - when overriding "set" methods, ensure that "build" is called to rebuild the component after changing properties.
 - when adding children to a children property, use addChild.
 - when overriding any methods, ensure that the overrides account for style, props, and children if they are applicable.
+
+## Class-local constants and helpers
+
+Keep layout constants, sprite indices, and helper logic on the UI class — not as file-scope globals.
+
+- **Do not** use anonymous namespaces in `.cpp` files for UI layout/sprite constants or free helper functions.
+- **Do not** prefix class-owned constants with `k` (e.g. `kHalfButtonW`). Use `static constexpr` members on the class instead (e.g. `halfButtonW`).
+- **Do** put dimensions, sprite offsets, placement tables, and layout math in the class: `static constexpr` members, private nested structs, and private member methods.
+- **Exception:** small observer classes (e.g. `ButtonMoveDefaultObserver`) may remain in the `.cpp` when they follow existing button patterns.
+
+```cpp
+// ❌ BAD — anonymous namespace in TouchMovePad.cpp
+namespace {
+constexpr int kHalfButtonW = 22;
+int getWideRowWidth(const TouchMovePadProps& props) { ... }
+}
+
+// ✅ GOOD — on the class
+class TouchMovePad : public UiElement {
+  static constexpr int halfButtonW = 22;
+  int getWideRowWidth() const;
+};
+```

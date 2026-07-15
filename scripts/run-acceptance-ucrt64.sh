@@ -61,6 +61,7 @@ components	TestBorderInGameWide
 components	TestBorderInGameNarrow
 components	TestChCompactInfo
 components	TestInGameTitleBar
+components	TestTouchMovePad
 components	TestPartyMemberSwitcher
 components/lists	TestListPickUp
 components/lists	TestListInventory
