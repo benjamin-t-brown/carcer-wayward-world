@@ -1,20 +1,21 @@
 #pragma once
 
-#include "layers/ui/LayerWorld.h"
+#include "state/StateManager.h"
 #include "ui/UiElement.h"
+#include "ui/helpers/worldActions.h"
 
 namespace ui {
 
 class ObserverCancelWorldActionMode : public UiEventObserver {
-  layers::LayerWorld* layerWorld;
+  state::StateManager* stateManager;
 
 public:
-  explicit ObserverCancelWorldActionMode(layers::LayerWorld* _layerWorld)
-      : layerWorld(_layerWorld) {}
+  explicit ObserverCancelWorldActionMode(state::StateManager* _stateManager)
+      : stateManager(_stateManager) {}
 
   void onClick(int /*mouseX*/, int /*mouseY*/, int /*button*/) override {
-    if (layerWorld) {
-      layerWorld->cancelWorldActionMode();
+    if (stateManager) {
+      cancelCurrentWorldActionMode(*stateManager);
     }
   }
 };

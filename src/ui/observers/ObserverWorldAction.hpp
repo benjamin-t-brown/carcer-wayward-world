@@ -1,23 +1,24 @@
 #pragma once
 
-#include "layers/ui/LayerWorld.h"
+#include "state/StateManager.h"
 #include "state/WorldActions.h"
 #include "ui/UiElement.h"
+#include "ui/helpers/worldActions.h"
 
 namespace ui {
 
 class ObserverWorldAction : public UiEventObserver {
-  layers::LayerWorld* layerWorld;
+  state::StateManager* stateManager;
   state::WorldActionType worldActionType;
 
 public:
-  ObserverWorldAction(layers::LayerWorld* _layerWorld,
+  ObserverWorldAction(state::StateManager* _stateManager,
                       state::WorldActionType _worldActionType)
-      : layerWorld(_layerWorld), worldActionType(_worldActionType) {}
+      : stateManager(_stateManager), worldActionType(_worldActionType) {}
 
   void onClick(int mouseX, int mouseY, int button) override {
-    if (layerWorld) {
-      layerWorld->activateWorldAction(worldActionType);
+    if (stateManager) {
+      activateWorldAction(*stateManager, worldActionType);
     }
   }
 };

@@ -11,6 +11,60 @@
 #include <algorithm>
 
 namespace ui {
+namespace {
+
+// Split dialogue on "..." boundaries: outside quotes → outsideColor (narrative);
+// inside quotes → Charcoal (spoken dialogue), unless the source already set a fontColor.
+bmin::DynArray<TextBlock> colorizeDialogueByQuotes(const bmin::DynArray<TextBlock>& blocks,
+                                                   SDL_Color outsideColor) {
+  bmin::DynArray<TextBlock> result;
+  for (const auto& source : blocks) {
+    const auto& text = source.text;
+    if (text.empty()) {
+      continue;
+    }
+
+    bool inQuotes = false;
+    size_t segmentStart = 0;
+    auto emitSegment = [&](size_t end, bool quoted) {
+      if (end <= segmentStart) {
+        return;
+      }
+      TextBlock piece;
+      piece.text = text.substr(segmentStart, end - segmentStart);
+      piece.fontFamily = source.fontFamily;
+      piece.fontSize = source.fontSize;
+      if (source.fontColor.has_value()) {
+        // Preserve caller-set colors (e.g. echoed player choices in history).
+        piece.fontColor = source.fontColor;
+      } else if (quoted) {
+        piece.fontColor = Colors::Charcoal;
+      } else {
+        piece.fontColor = outsideColor;
+      }
+      result.pushBack(piece);
+    };
+
+    for (size_t i = 0; i < text.size(); i++) {
+      if (text[i] != '"') {
+        continue;
+      }
+      if (inQuotes) {
+        emitSegment(i + 1, true);
+        segmentStart = i + 1;
+        inQuotes = false;
+      } else {
+        emitSegment(i, false);
+        segmentStart = i;
+        inQuotes = true;
+      }
+    }
+    emitSegment(text.size(), inQuotes);
+  }
+  return result;
+}
+
+} // namespace
 
 PageTalkChoice::PageTalkChoice(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
@@ -135,15 +189,19 @@ void PageTalkChoice::build() {
   const int pinFrom = std::clamp(props.pinFromBlockIndex,
                                  0,
                                  static_cast<int>(props.textBlocks.size()));
-  bmin::DynArray<TextBlock> historyBlocks;
-  bmin::DynArray<TextBlock> currentBlocks;
+  bmin::DynArray<TextBlock> historyBlocksRaw;
+  bmin::DynArray<TextBlock> currentBlocksRaw;
   for (int i = 0; i < static_cast<int>(props.textBlocks.size()); i++) {
     if (i < pinFrom) {
-      historyBlocks.pushBack(props.textBlocks[i]);
+      historyBlocksRaw.pushBack(props.textBlocks[i]);
     } else {
-      currentBlocks.pushBack(props.textBlocks[i]);
+      currentBlocksRaw.pushBack(props.textBlocks[i]);
     }
   }
+  const auto historyBlocks =
+      colorizeDialogueByQuotes(historyBlocksRaw, Colors::WarmGrey);
+  const auto currentBlocks =
+      colorizeDialogueByQuotes(currentBlocksRaw, Colors::WarmGrey);
 
   int contentYOffset = 0;
   int historyHeightScaled = 0;
@@ -244,7 +302,7 @@ void PageTalkChoice::build() {
     choiceButtonProps.fontFamily = choiceFont.fontFamily;
     choiceButtonProps.fontSize = choiceFont.fontSize;
     choiceButtonProps.fontColor =
-        props.choices[i].previouslyChosen ? Colors::Grey : Colors::DarkBlue;
+        props.choices[i].previouslyChosen ? Colors::Grey : Colors::ButtonCloseRed;
     choiceButton->setScale(1.f);
     choiceButton->setPos(4 * style.scale, choiceYOffset);
     choiceButton->setProps(choiceButtonProps);

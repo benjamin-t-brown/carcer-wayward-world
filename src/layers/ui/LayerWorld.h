@@ -15,16 +15,6 @@ namespace layers {
 
 class LayerWorld : public Layer {
 private:
-  struct HeldMove {
-    bool isActive = false;
-    bmin::String key;
-    int dx = 0;
-    int dy = 0;
-    model::TimerStruct initialDelay = model::TimerStruct(300);
-    model::TimerStruct moveDelay = model::TimerStruct(50);
-  };
-  HeldMove heldMove;
-
   struct MoveDelta {
     int dx = 0;
     int dy = 0;
@@ -35,8 +25,8 @@ private:
   void syncWorldActionModeHighlight();
   void syncActionModeCancelButton();
   void updateHeldMoveRepeat(int deltaTime);
-  static std::optional<state::WorldActionType>
-  /**/ worldActionShortcutForKey(std::string_view key);
+  float mapScale = 1.f;
+
   void alignMapView();
   void fillWorldActionTypes(model::TurnMode turnMode,
                             bmin::DynArray<state::WorldActionType>& dest);
@@ -50,8 +40,7 @@ public:
   void onKeyDown(std::string_view key, int keyCode) override;
   void onKeyUp(std::string_view key, int keyCode) override;
   void syncFromState();
-  void activateWorldAction(state::WorldActionType worldActionType);
-  void cancelWorldActionMode();
+  void setMapScale(float scale);
   std::optional<MoveDelta> getMoveDeltaForKey(std::string_view key);
   void update(int deltaTime) override;
 };

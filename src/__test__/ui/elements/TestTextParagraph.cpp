@@ -77,11 +77,12 @@ int main(int argc, char** argv) {
                          "should be able to fly.\n"},
                 {.text = "Its wings are too small to get its fat little body off the "
                          "ground.\n"},
-                {.text = "The bee, of course, flies anyway because bees don't care what "
-                         "humans think is impossible.\n"},
+                {.text = "She says, ", .fontColor = ui::Colors::WarmGrey},
+                {.text = "\"Let's shake it up a little.\"",
+                 .fontColor = ui::Colors::Charcoal},
+                {.text = " And then smiles.\n", .fontColor = ui::Colors::WarmGrey},
                 {.text = "Yellow, black. Yellow, black. Yellow, black. Yellow, black.\n"},
                 {.text = "Ooh, black and yellow!\n"},
-                {.text = "Let's shake it up a little.\n"},
                 {.text = "Barry! Breakfast is ready!\n"},
             },
         .width = window.getDims().first - 100,

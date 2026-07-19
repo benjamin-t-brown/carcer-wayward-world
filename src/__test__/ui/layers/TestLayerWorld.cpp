@@ -92,6 +92,7 @@ int main(int argc, char** argv) {
     state::LayerManagerInterface::setLayerManager(layerManager.get());
 
     auto* layerWorld = new layers::LayerWorld(&window);
+    layerWorld->setMapScale(2.f);
     layerManager->addLayer(layerWorld);
 
     auto& events = window.getEvents();

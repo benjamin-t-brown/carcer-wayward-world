@@ -92,56 +92,71 @@ void TextParagraph::build() {
   }
 
   int lineNumber = 0;
-  bmin::String lineAggregate;
+  int currentLineWidth = 0;
+  bmin::String segmentText;
   bmin::String nextWord;
+  lineHeightFromFont = 0;
 
-  auto flushCurrentLine = [&](const TextBlock& block,
-                              const sdl2w::RenderTextParams& params) {
-    auto [textWidth, textHeight] = measureLine(draw, lineAggregate, params);
-    lineHeightFromFont = std::max(lineHeightFromFont, textHeight);
-    generatedBlocks.pushBack(TextParagraphGeneratedBlock{
-        lineNumber,
-        block,
-        lineAggregate,
-        lineAggregate.empty() ? 0 : textWidth,
-        textHeight});
-    lineNumber++;
-    lineAggregate.clear();
+  // Emit the current TextBlock's open segment. endLine advances to the next
+  // visual line; emitEmptyIfNoSegment keeps blank-line (`\n`) behavior.
+  auto emitSegment = [&](const TextBlock& block,
+                         const sdl2w::RenderTextParams& params,
+                         bool endLine,
+                         bool emitEmptyIfNoSegment) {
+    if (!segmentText.empty()) {
+      auto [textWidth, textHeight] = measureLine(draw, segmentText, params);
+      lineHeightFromFont = std::max(lineHeightFromFont, textHeight);
+      generatedBlocks.pushBack(TextParagraphGeneratedBlock{
+          lineNumber,
+          block,
+          segmentText,
+          textWidth,
+          textHeight});
+      segmentText.clear();
+    } else if (emitEmptyIfNoSegment && currentLineWidth == 0) {
+      auto [textWidth, textHeight] = measureLine(draw, segmentText, params);
+      lineHeightFromFont = std::max(lineHeightFromFont, textHeight);
+      generatedBlocks.pushBack(TextParagraphGeneratedBlock{
+          lineNumber, block, segmentText, 0, textHeight});
+    }
+
+    if (endLine) {
+      lineNumber++;
+      currentLineWidth = 0;
+    }
   };
 
   auto appendToCurrentLine = [&](const bmin::String& text,
-                                   const TextBlock& block,
-                                   const sdl2w::RenderTextParams& params) {
+                                 const TextBlock& block,
+                                 const sdl2w::RenderTextParams& params) {
     if (text.empty()) {
       return;
     }
-    const bmin::String candidate = lineAggregate + text;
-    auto [candidateWidth, textHeight] = measureLine(draw, candidate, params);
-    lineHeightFromFont = std::max(lineHeightFromFont, textHeight);
+    auto [pieceWidth, pieceHeight] = measureLine(draw, text, params);
+    lineHeightFromFont = std::max(lineHeightFromFont, pieceHeight);
 
-    if (!lineAggregate.empty() && candidateWidth >= style.width) {
-      flushCurrentLine(block, params);
-      lineAggregate = text;
-      auto [wordWidth, wordHeight] = measureLine(draw, lineAggregate, params);
-      lineHeightFromFont = std::max(lineHeightFromFont, wordHeight);
-      if (wordWidth >= style.width) {
-        flushCurrentLine(block, params);
+    if (currentLineWidth > 0 && currentLineWidth + pieceWidth >= style.width) {
+      // Wrap: close this visual line (keep any prior same-line segments).
+      emitSegment(block, params, true, false);
+      segmentText = text;
+      currentLineWidth = pieceWidth;
+      if (pieceWidth >= style.width) {
+        emitSegment(block, params, true, false);
       }
     } else {
-      lineAggregate = candidate;
-      if (lineAggregate.size() == text.size() && candidateWidth >= style.width) {
-        flushCurrentLine(block, params);
+      const bool startedFreshLine = segmentText.empty() && currentLineWidth == 0;
+      segmentText += text;
+      currentLineWidth += pieceWidth;
+      if (startedFreshLine && pieceWidth >= style.width) {
+        emitSegment(block, params, true, false);
       }
     }
   };
-
-  const TextBlock* lastProcessedBlock = nullptr;
 
   for (const auto& block : props.textBlocks) {
     if (block.text.empty()) {
       continue;
     }
-    lastProcessedBlock = &block;
 
     auto fontFamily = block.fontFamily.value_or(props.fontFamily);
     auto fontSize = block.fontSize.value_or(props.fontSize);
@@ -153,8 +168,6 @@ void TextParagraph::build() {
     params.fontSize = ui::applyFontScale(fontSize, fontScale);
     params.color = fontColor;
     params.centered = false;
-
-    lineHeightFromFont = 0;
 
     for (size_t i = 0; i < block.text.size(); i++) {
       auto c = block.text[i];
@@ -171,7 +184,7 @@ void TextParagraph::build() {
           appendToCurrentLine(nextWord, block, params);
           nextWord.clear();
         }
-        flushCurrentLine(block, params);
+        emitSegment(block, params, true, true);
       } else if (c == ' ') {
         appendToCurrentLine(nextWord + ' ', block, params);
         nextWord.clear();
@@ -187,18 +200,12 @@ void TextParagraph::build() {
       appendToCurrentLine(nextWord, block, params);
       nextWord.clear();
     }
-  }
 
-  if (!lineAggregate.empty() && lastProcessedBlock != nullptr) {
-    auto fontFamily = lastProcessedBlock->fontFamily.value_or(props.fontFamily);
-    auto fontSize = lastProcessedBlock->fontSize.value_or(props.fontSize);
-    auto fontColor = lastProcessedBlock->fontColor.value_or(props.fontColor);
-    sdl2w::RenderTextParams params;
-    params.fontName = TextLine::getFontNameFromFamily(fontFamily);
-    params.fontSize = ui::applyFontScale(fontSize, fontScale);
-    params.color = fontColor;
-    params.centered = false;
-    flushCurrentLine(*lastProcessedBlock, params);
+    // Mid-line TextBlock switch: flush this block's segment without ending the
+    // visual line so later genBlocks can share the same lineNumber.
+    if (!segmentText.empty()) {
+      emitSegment(block, params, false, false);
+    }
   }
 
   while (!quad->getChildren().empty()) {

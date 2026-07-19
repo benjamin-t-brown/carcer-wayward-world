@@ -26,8 +26,18 @@ struct UiFloatingNotification {
   model::TimerStruct timer;
 };
 
+struct HeldMove {
+  bool isActive = false;
+  bmin::String key;
+  int dx = 0;
+  int dy = 0;
+  model::TimerStruct initialDelay = model::TimerStruct(300);
+  model::TimerStruct moveDelay = model::TimerStruct(50);
+};
+
 struct UiState {
   bmin::DynArray<UiFloatingNotification> floatingNotifications;
+  HeldMove heldMove;
 };
 
 struct State {

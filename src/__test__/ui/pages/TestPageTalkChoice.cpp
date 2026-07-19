@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
       {.text ="The bee, of course, flies anyway because bees don't care what humans think is impossible.\n"},
       {.text ="Yellow, black. Yellow, black. Yellow, black. Yellow, black.\n"},
       {.text ="Ooh, black and yellow!\n"},
-      {.text ="Let's shake it up a little.\n"},
+      {.text ="She says, \"Let's shake it up a little.\" And then smiles.\n"},
       {.text ="Barry! Breakfast is ready!\n"},
     };
     // clang-format on

@@ -154,7 +154,7 @@ void LayerSpecialEvent::appendTalkChoiceToHistory(int choiceIndex) {
       choice.prefix.empty() ? choice.text : choice.prefix + " " + choice.text;
   ui::TextBlock block;
   block.text = bmin::String("> ") + label + "\n\n";
-  block.fontColor = ui::Colors::DarkBlue;
+  block.fontColor = ui::Colors::ButtonCloseRed;
   talkHistory.pushBack(block);
 }
 

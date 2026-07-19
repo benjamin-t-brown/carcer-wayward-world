@@ -1,5 +1,5 @@
-#include "bmin/UniquePtr.h"
 #include "state/StateManager.h"
+#include "bmin/UniquePtr.h"
 #include "state/AbstractAction.h"
 #include "state/WorldUpdater.h"
 
@@ -16,16 +16,16 @@ ActionBus& StateManager::getActionBus() { return actionBus; }
 const ActionBus& StateManager::getActionBus() const { return actionBus; }
 
 void StateManager::enqueueAction(ActionData& actions, AbstractAction* action, int ms) {
-  actions.sequentialActionsNext.pushBack(
-      bmin::makeUnique<AsyncAction>(AsyncAction{bmin::UniquePtr<AbstractAction>(action), model::TimerStruct(ms)}));
+  actions.sequentialActionsNext.pushBack(bmin::makeUnique<AsyncAction>(
+      AsyncAction{bmin::UniquePtr<AbstractAction>(action), model::TimerStruct(ms)}));
 }
 
 void StateManager::insertAction(ActionData& actions, AbstractAction* action, int ms) {
-  actions.insertActions.pushBack(
-      bmin::makeUnique<AsyncAction>(AsyncAction{bmin::UniquePtr<AbstractAction>(action), model::TimerStruct(ms)}));
+  actions.insertActions.pushBack(bmin::makeUnique<AsyncAction>(
+      AsyncAction{bmin::UniquePtr<AbstractAction>(action), model::TimerStruct(ms)}));
 }
 
-void StateManager::addParallelAction(ActionData& actions,
+void StateManager::pllAction(ActionData& actions,
                                      AbstractAction* action,
                                      int ms) {
   actions.parallelActions.pushBack(bmin::makeUnique<AsyncAction>(
@@ -37,8 +37,25 @@ void StateManager::moveSequentialActions(ActionData& actions) {
                                    actions.sequentialActionsNext);
 }
 
+void StateManager::drainInsertActions(ActionData& actions) {
+  if (actions.insertActions.empty()) {
+    return;
+  }
+  // StateManager owns sequentialActions here. Splice deferred inserts
+  // immediately after the front (currently executing / waiting) action.
+  if (actions.sequentialActions.empty()) {
+    actions.sequentialActions.splice(actions.sequentialActions.end(),
+                                     actions.insertActions);
+    return;
+  }
+  auto it = actions.sequentialActions.begin();
+  ++it;
+  actions.sequentialActions.splice(it, actions.insertActions);
+}
+
 void StateManager::update(int dt) {
   moveSequentialActions(actionData);
+  drainInsertActions(actionData);
   while (!actionData.sequentialActions.empty()) {
     auto& delayedActionPtr = actionData.sequentialActions.front();
     AsyncAction& delayedAction = *delayedActionPtr;
@@ -47,6 +64,9 @@ void StateManager::update(int dt) {
       executedAction.execute(&state);
       actionBus.notify(executedAction, state);
       delayedAction.action.reset();
+      // execute/notify may have deferred inserts; splice while this action
+      // is still front so they land immediately after it.
+      drainInsertActions(actionData);
     }
 
     model::timerStructUpdate(delayedAction.timer, dt);
@@ -55,6 +75,7 @@ void StateManager::update(int dt) {
       actionData.sequentialActions.erase(actionData.sequentialActions.begin());
       if (shouldLoop) {
         moveSequentialActions(actionData);
+        drainInsertActions(actionData);
         continue;
       } else {
         break;

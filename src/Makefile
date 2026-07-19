@@ -54,6 +54,7 @@ state/LayerManagerInterface.cpp \
 state/WorldUpdater.cpp \
 ui/UiElement.cpp \
 ui/FontScale.cpp \
+ui/helpers/worldActions.cpp \
 ui/elements/SpriteElement.cpp \
 ui/elements/Quad.cpp \
 ui/elements/TextLine.cpp \

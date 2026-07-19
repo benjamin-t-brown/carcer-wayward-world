@@ -42,8 +42,9 @@ public:
 
   void enqueueAction(ActionData& actions, AbstractAction* action, int ms);
   void insertAction(ActionData& actions, AbstractAction* action, int ms);
-  void addParallelAction(ActionData& actions, AbstractAction* action, int ms);
+  void pllAction(ActionData& actions, AbstractAction* action, int ms);
   void moveSequentialActions(ActionData& actions);
+  void drainInsertActions(ActionData& actions);
 
   void update(int dt);
 };

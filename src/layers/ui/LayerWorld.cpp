@@ -4,9 +4,9 @@
 #include "sdl2w/Logger.h"
 #include "state/WorldActions.h"
 #include "state/actions/ui/UiShowLayerSpecialEvent.hpp"
+#include "state/actions/ui/heldMove/UiUpdateHeldMove.hpp"
 #include "state/actions/world/WorldExamineDirection.hpp"
 #include "state/actions/world/WorldMovePlayer.hpp"
-#include "state/actions/world/WorldSetActionMode.hpp"
 #include "state/actions/world/WorldTalkDirection.hpp"
 #include "state/actions/world/WorldTravel.hpp"
 #include "ui/components/FloatingNotificationSection.h"
@@ -14,6 +14,7 @@
 #include "ui/components/MapView.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/buttons/ButtonWorldAction.h"
+#include "ui/helpers/worldActions.h"
 #include "ui/layouts/InGameLayout.h"
 #include "ui/observers/ObserverCancelWorldActionMode.hpp"
 #include "ui/observers/ObserverWorldAction.hpp"
@@ -67,37 +68,29 @@ LayerWorld::LayerWorld(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
   syncFromState();
 }
 
-// void LayerWorld::clearHeldMove() { heldMove.reset(); }
-
-// void LayerWorld::enqueuePlayerMove(int dx, int dy) {
-//   auto stateManager = getStateManager();
-//   if (!stateManager) {
-//     return;
-//   }
-//   stateManager->enqueueAction(
-//       stateManager->getActionData(), new state::actions::WorldMovePlayer(dx, dy), 0);
-// }
-
 void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (getState() != LayerState::ON) {
     return;
   }
-
   auto stateManager = getStateManager();
   if (!stateManager) {
     return;
   }
-
   auto& world = stateManager->getState().world;
-  if (key == "Escape" && (world.actionMode == model::WorldActionMode::EXAMINE ||
-                          world.actionMode == model::WorldActionMode::TALK)) {
-    cancelWorldActionMode();
-    return;
+
+  if (key == "Escape") {
+    bmin::List<model::WorldActionMode> cancellableActionModes = {
+        model::WorldActionMode::EXAMINE,
+        model::WorldActionMode::TALK,
+    };
+    if (cancellableActionModes.contains(world.actionMode)) {
+      ui::cancelCurrentWorldActionMode(*stateManager);
+      return;
+    }
   }
 
-  if (auto actionType = worldActionShortcutForKey(key)) {
-    heldMove.isActive = false;
-    activateWorldAction(*actionType);
+  if (auto actionType = ui::getWorldActionFromKeyboardShortcut(key)) {
+    ui::activateWorldAction(*stateManager, *actionType);
     return;
   }
 
@@ -107,7 +100,7 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
   }
 
   if (world.actionMode == model::WorldActionMode::EXAMINE) {
-    heldMove.isActive = false;
+    ui::setHeldMoveActive(*stateManager, false);
     stateManager->enqueueAction(
         stateManager->getActionData(),
         new state::actions::WorldExamineDirection(moveDelta->dx, moveDelta->dy),
@@ -116,7 +109,7 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
   }
 
   if (world.actionMode == model::WorldActionMode::TALK) {
-    heldMove.isActive = false;
+    ui::setHeldMoveActive(*stateManager, false);
     stateManager->enqueueAction(
         stateManager->getActionData(),
         new state::actions::WorldTalkDirection(moveDelta->dx, moveDelta->dy),
@@ -124,39 +117,38 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
     return;
   }
 
+  const auto& heldMove = stateManager->getState().uiState.heldMove;
   // Ignore OS/SDL key-repeat events for the same held key; we time repeats ourselves.
   if (heldMove.isActive && heldMove.key == key) {
     return;
   }
 
-  heldMove = HeldMove{
-      .key = bmin::String(key.data(), key.size()),
+  state::HeldMove nextHeldMove{
+      .isActive = true,
+      .key = bmin::fromStringView(key),
       .dx = moveDelta->dx,
       .dy = moveDelta->dy,
   };
-  model::timerStructRestart(heldMove.initialDelay);
-  model::timerStructRestart(heldMove.moveDelay);
-  stateManager->enqueueAction(
+  model::timerStructRestart(nextHeldMove.initialDelay);
+  model::timerStructRestart(nextHeldMove.moveDelay);
+  stateManager->pllAction(stateManager->getActionData(),
+                          new state::actions::UiUpdateHeldMove(nextHeldMove),
+                          0);
+  stateManager->pllAction(
       stateManager->getActionData(),
       new state::actions::WorldMovePlayer(moveDelta->dx, moveDelta->dy),
       0);
 }
 
 void LayerWorld::onKeyUp(std::string_view key, int /*keyCode*/) {
+  auto stateManager = getStateManager();
+  if (!stateManager) {
+    return;
+  }
+  const auto& heldMove = stateManager->getState().uiState.heldMove;
   if (heldMove.isActive && heldMove.key == key) {
-    heldMove.isActive = false;
+    ui::setHeldMoveActive(*stateManager, false);
   }
-}
-
-std::optional<state::WorldActionType>
-LayerWorld::worldActionShortcutForKey(std::string_view key) {
-  if (key == "l" || key == "L") {
-    return state::WorldActionType::EXAMINE;
-  }
-  if (key == "t" || key == "T") {
-    return state::WorldActionType::TALK;
-  }
-  return std::nullopt;
 }
 
 std::optional<LayerWorld::MoveDelta>
@@ -199,16 +191,19 @@ void LayerWorld::alignMapView() {
   auto [worldW, worldH] = inGameLayout->getWorldDims();
   // getWorldLocation/Dims are already in screen pixels (scaled).
   mapView->setPos(worldX, worldY);
-  mapView->setScale(1.f);
+  mapView->setScale(mapScale);
   mapView->setProps(ui::MapViewProps{
-      .width = worldW,
-      .height = worldH,
+      .width = static_cast<int>(worldW / mapScale),
+      .height = static_cast<int>(worldH / mapScale),
   });
-  if (world) {
-    // With MapView scale 1, content dims match map-pixel viewport size.
-    world->viewW = worldW;
-    world->viewH = worldH;
-  }
+  // Content dims are in map pixels; screen size is content * mapScale.
+  world->viewW = static_cast<int>(worldW / mapScale);
+  world->viewH = static_cast<int>(worldH / mapScale);
+}
+
+void LayerWorld::setMapScale(float scale) {
+  mapScale = scale;
+  alignMapView();
 }
 
 void LayerWorld::fillWorldActionTypes(model::TurnMode turnMode,
@@ -236,80 +231,28 @@ void LayerWorld::fillWorldActionTypes(model::TurnMode turnMode,
   }
 }
 
-void LayerWorld::cancelWorldActionMode() {
-  auto stateManager = getStateManager();
-  if (!stateManager) {
+void LayerWorld::attachWorldActionObservers(ui::InGameLayout* inGameLayout) {
+  if (!inGameLayout) {
     return;
   }
-  if (stateManager->getState().world.actionMode == model::WorldActionMode::NONE) {
-    return;
-  }
-  heldMove.isActive = false;
-  stateManager->enqueueAction(
-      stateManager->getActionData(),
-      new state::actions::WorldSetActionMode(model::WorldActionMode::NONE),
-      0);
-}
 
-void LayerWorld::activateWorldAction(state::WorldActionType worldActionType) {
-  auto stateManager = getStateManager();
+  auto* stateManager = getStateManager();
   if (!stateManager) {
     return;
   }
 
-  const auto currentMode = stateManager->getState().world.actionMode;
-
-  switch (worldActionType) {
-  case state::WorldActionType::EXAMINE:
-    heldMove.isActive = false;
-    if (currentMode == model::WorldActionMode::EXAMINE) {
-      cancelWorldActionMode();
-      break;
-    }
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::WorldSetActionMode(model::WorldActionMode::EXAMINE),
-        0);
-    break;
-  case state::WorldActionType::TALK:
-    heldMove.isActive = false;
-    if (currentMode == model::WorldActionMode::TALK) {
-      cancelWorldActionMode();
-      break;
-    }
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::WorldSetActionMode(model::WorldActionMode::TALK),
-        0);
-    break;
-  default:
-    break;
-  }
-}
-
-void LayerWorld::updateHeldMoveRepeat(int deltaTime) {
-  if (!heldMove.isActive) {
+  auto* actionButtons = inGameLayout->getChildById("actionButtons");
+  if (!actionButtons) {
     return;
   }
 
-  auto stateManager = getStateManager();
-  bool isWorldActionNoneMode =
-      stateManager->getState().world.actionMode == model::WorldActionMode::NONE;
-  bool isKeyPressed =
-      window && window->getEvents().isKeyPressed(heldMove.key.sliceView());
-  if (!stateManager || !isWorldActionNoneMode || !isKeyPressed) {
-    heldMove.isActive = false;
-    return;
-  }
-
-  model::timerStructUpdate(heldMove.initialDelay, deltaTime);
-
-  if (model::timerStructIsComplete(heldMove.initialDelay)) {
-    model::timerStructRestart(heldMove.moveDelay);
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::WorldMovePlayer(heldMove.dx, heldMove.dy),
-        0);
+  for (auto& childPtr : actionButtons->getChildren()) {
+    auto* button = dynamic_cast<ui::ButtonWorldAction*>(childPtr.get());
+    if (!button) {
+      continue;
+    }
+    button->addEventObserver(
+        new ui::ObserverWorldAction(stateManager, button->getProps().worldActionType));
   }
 }
 
@@ -371,59 +314,9 @@ void LayerWorld::syncActionModeCancelButton() {
   inGameLayout->setActionModeCancelVisible(shouldShow, modeLabel);
   if (shouldShow) {
     if (auto* cancelButton = inGameLayout->getChildById("actionModeCancel")) {
-      cancelButton->addEventObserver(new ui::ObserverCancelWorldActionMode(this));
+      cancelButton->addEventObserver(
+          new ui::ObserverCancelWorldActionMode(getStateManager()));
     }
-  }
-}
-
-void LayerWorld::processPendingTriggers() {
-  auto stateManager = getStateManager();
-  if (!stateManager) {
-    return;
-  }
-
-  auto& state = stateManager->getState();
-  auto& world = state.world;
-  bool mapChanged = false;
-
-  if (world.pendingSpecialEventId) {
-    auto eventId = *world.pendingSpecialEventId;
-    world.pendingSpecialEventId.reset();
-    state::actions::UiShowLayerSpecialEvent specialEvent =
-        state::actions::UiShowLayerSpecialEvent(window, eventId);
-    specialEvent.execute(&state);
-  }
-
-  if (world.pendingTravel) {
-    auto travel = *world.pendingTravel;
-    world.pendingTravel.reset();
-    state::actions::WorldTravel travelAction(travel);
-    travelAction.execute(&state);
-    mapChanged = true;
-  }
-
-  if (mapChanged) {
-    syncFromState();
-  }
-}
-
-void LayerWorld::attachWorldActionObservers(ui::InGameLayout* inGameLayout) {
-  if (!inGameLayout) {
-    return;
-  }
-
-  auto* actionButtons = inGameLayout->getChildById("actionButtons");
-  if (!actionButtons) {
-    return;
-  }
-
-  for (auto& childPtr : actionButtons->getChildren()) {
-    auto* button = dynamic_cast<ui::ButtonWorldAction*>(childPtr.get());
-    if (!button) {
-      continue;
-    }
-    button->addEventObserver(
-        new ui::ObserverWorldAction(this, button->getProps().worldActionType));
   }
 }
 
@@ -474,6 +367,68 @@ void LayerWorld::syncFromState() {
   }
 
   alignMapView();
+}
+
+void LayerWorld::updateHeldMoveRepeat(int deltaTime) {
+  auto stateManager = getStateManager();
+  if (!stateManager) {
+    return;
+  }
+
+  auto& heldMove = stateManager->getState().uiState.heldMove;
+  if (!heldMove.isActive) {
+    return;
+  }
+
+  if (stateManager->getState().world.actionMode != model::WorldActionMode::NONE) {
+    ui::setHeldMoveActive(*stateManager, false);
+    return;
+  }
+
+  model::timerStructUpdate(heldMove.initialDelay, deltaTime);
+  model::timerStructUpdate(heldMove.moveDelay, deltaTime);
+
+  if (model::timerStructIsComplete(heldMove.initialDelay) &&
+      model::timerStructIsComplete(heldMove.moveDelay)) {
+    model::timerStructRestart(heldMove.moveDelay);
+    stateManager->enqueueAction(
+        stateManager->getActionData(),
+        new state::actions::WorldMovePlayer(heldMove.dx, heldMove.dy),
+        0);
+  }
+}
+
+void LayerWorld::processPendingTriggers() {
+  auto stateManager = getStateManager();
+  if (!stateManager) {
+    return;
+  }
+
+  auto& state = stateManager->getState();
+  auto& world = state.world;
+  bool mapChanged = false;
+
+  if (world.pendingSpecialEventId) {
+    ui::setHeldMoveActive(*stateManager, false);
+    auto eventId = *world.pendingSpecialEventId;
+    world.pendingSpecialEventId.reset();
+    state::actions::UiShowLayerSpecialEvent specialEvent =
+        state::actions::UiShowLayerSpecialEvent(window, eventId);
+    specialEvent.execute(&state);
+  }
+
+  if (world.pendingTravel) {
+    ui::setHeldMoveActive(*stateManager, false);
+    auto travel = *world.pendingTravel;
+    world.pendingTravel.reset();
+    state::actions::WorldTravel travelAction(travel);
+    travelAction.execute(&state);
+    mapChanged = true;
+  }
+
+  if (mapChanged) {
+    syncFromState();
+  }
 }
 
 void LayerWorld::update(int deltaTime) {

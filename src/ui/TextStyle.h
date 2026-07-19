@@ -29,17 +29,17 @@ inline void setBaseFontConfig(TextFontProps& font, BaseFontConfig config) {
   switch (config) {
   case BaseFontConfig::MODAL_TEXT:
     font.fontFamily = FontFamily::TEXT;
-    font.fontSize = sdl2w::TEXT_SIZE_16;
+    font.fontSize = sdl2w::TEXT_SIZE_20;
     font.fontColor = Colors::White;
     break;
   case BaseFontConfig::MODAL_TEXT_BOLD:
     font.fontFamily = FontFamily::TEXT_BOLD;
-    font.fontSize = sdl2w::TEXT_SIZE_16;
+    font.fontSize = sdl2w::TEXT_SIZE_20;
     font.fontColor = Colors::White;
     break;
   case BaseFontConfig::MODAL_TITLE:
     font.fontFamily = FontFamily::TITLE;
-    font.fontSize = sdl2w::TEXT_SIZE_20;
+    font.fontSize = sdl2w::TEXT_SIZE_24;
     font.fontColor = Colors::White;
     break;
   case BaseFontConfig::MODAL_CHOICE_TEXT:

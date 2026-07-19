@@ -1,6 +1,6 @@
 #include "SectionScrollable.h"
-#include "bmin/UniquePtr.h"
 #include "Quad.h"
+#include "bmin/UniquePtr.h"
 #include "buttons/ButtonScroll.h"
 #include "sdl2w/Logger.h"
 #include "ui/colors.h"
@@ -96,8 +96,7 @@ void SectionScrollable::updateScrollIndicatorPosition() {
     Quad* indicator = dynamic_cast<Quad*>(elem);
     if (indicator) {
       const int scaledContentWidth = (style.width - props.scrollBarWidth) * style.scale;
-      indicator->setPos(style.x + scaledContentWidth,
-                        getScrollIndicatorY(scrollOffset));
+      indicator->setPos(style.x + scaledContentWidth, getScrollIndicatorY(scrollOffset));
     }
   }
   updateScrollButtonStates();
@@ -204,14 +203,12 @@ bmin::DynArray<UiElement*> additionalWithQuad(Quad* quad) {
   return elements;
 }
 
-}  // namespace
+} // namespace
 
-bool SectionScrollable::checkMouseDownEvent(int mouseX,
-                                            int mouseY,
-                                            int button,
-                                            bmin::DynArray<UiElement*> additionalElements) {
-  const bool handled =
-      UiElement::checkMouseDownEvent(mouseX, mouseY, button, additionalWithQuad(outerQuad.get()));
+bool SectionScrollable::checkMouseDownEvent(
+    int mouseX, int mouseY, int button, bmin::DynArray<UiElement*> additionalElements) {
+  const bool handled = UiElement::checkMouseDownEvent(
+      mouseX, mouseY, button, additionalWithQuad(outerQuad.get()));
   if (maxScrollOffset > 0 && isInScrollTrack(mouseX, mouseY) &&
       !hitScrollButton(mouseX, mouseY)) {
     scrollFromIndicatorMouseY(mouseY);
@@ -227,7 +224,8 @@ bool SectionScrollable::checkMouseUpEvent(int mouseX,
                                           int button,
                                           bmin::DynArray<UiElement*> additionalElements) {
   isDraggingIndicator = false;
-  return UiElement::checkMouseUpEvent(mouseX, mouseY, button, additionalWithQuad(outerQuad.get()));
+  return UiElement::checkMouseUpEvent(
+      mouseX, mouseY, button, additionalWithQuad(outerQuad.get()));
 }
 
 bool SectionScrollable::checkHoverEvent(int mouseX,
@@ -240,11 +238,10 @@ bool SectionScrollable::checkHoverEvent(int mouseX,
   return UiElement::checkHoverEvent(mouseX, mouseY, additionalWithQuad(outerQuad.get()));
 }
 
-bool SectionScrollable::checkMouseWheelEvent(int mouseX,
-                                             int mouseY,
-                                             int delta,
-                                             bmin::DynArray<UiElement*> additionalElements) {
-  return UiElement::checkMouseWheelEvent(mouseX, mouseY, delta, additionalWithQuad(outerQuad.get()));
+bool SectionScrollable::checkMouseWheelEvent(
+    int mouseX, int mouseY, int delta, bmin::DynArray<UiElement*> additionalElements) {
+  return UiElement::checkMouseWheelEvent(
+      mouseX, mouseY, delta, additionalWithQuad(outerQuad.get()));
 }
 
 void SectionScrollable::scrollUp() {
@@ -254,8 +251,6 @@ void SectionScrollable::scrollUp() {
       scrollOffset = 0;
     }
     if (innerQuad) {
-      LOG(INFO) << "SectionScrollable::scrollUp: scrollOffset: " << scrollOffset
-                << LOG_ENDL;
       innerQuad->setPos(0, -scrollOffset);
     }
     // Update indicator position
@@ -271,8 +266,6 @@ void SectionScrollable::scrollDown() {
     }
   }
   if (innerQuad) {
-    LOG(INFO) << "SectionScrollable::scrollDown: scrollOffset: " << scrollOffset
-              << LOG_ENDL;
     innerQuad->setPos(0, -scrollOffset);
   }
   // Update indicator position
@@ -366,7 +359,8 @@ void SectionScrollable::build() {
 
   // Create scroll indicator (rectangle showing scroll position)
   auto scrollIndicator = new Quad(window);
-  scrollIndicator->setPos(style.x + scaledContentWidth, getScrollIndicatorY(scrollOffset));
+  scrollIndicator->setPos(style.x + scaledContentWidth,
+                          getScrollIndicatorY(scrollOffset));
   scrollIndicator->setScale(1.f);
   scrollIndicator->setProps(QuadProps{
       .width = props.scrollBarWidth * static_cast<int>(style.scale),
