@@ -5,15 +5,18 @@
 #include "state/WorldActions.h"
 #include "state/actions/ui/UiShowLayerSpecialEvent.hpp"
 #include "state/actions/ui/heldMove/UiUpdateHeldMove.hpp"
-#include "state/actions/world/WorldExamineDirection.hpp"
+#include "state/actions/world/WorldExamineAt.hpp"
+#include "state/actions/world/WorldMoveActionAim.hpp"
 #include "state/actions/world/WorldMovePlayer.hpp"
-#include "state/actions/world/WorldTalkDirection.hpp"
+#include "state/actions/world/WorldSetActionAim.hpp"
+#include "state/actions/world/WorldTalkAt.hpp"
 #include "state/actions/world/WorldTravel.hpp"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/components/InGameTitleBar.h"
 #include "ui/components/MapView.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/buttons/ButtonWorldAction.h"
+#include "ui/helpers/keyboardShortcuts.h"
 #include "ui/helpers/worldActions.h"
 #include "ui/layouts/InGameLayout.h"
 #include "ui/observers/ObserverCancelWorldActionMode.hpp"
@@ -68,6 +71,27 @@ LayerWorld::LayerWorld(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
   syncFromState();
 }
 
+void LayerWorld::confirmWorldActionAim(int tileX, int tileY) {
+  auto* stateManager = getStateManager();
+  if (!stateManager) {
+    return;
+  }
+  const auto actionMode = stateManager->getState().world.actionMode;
+  if (actionMode == model::WorldActionMode::EXAMINE) {
+    ui::setHeldMoveActive(*stateManager, false);
+    stateManager->enqueueAction(stateManager->getActionData(),
+                                new state::actions::WorldExamineAt(tileX, tileY),
+                                0);
+    return;
+  }
+  if (actionMode == model::WorldActionMode::TALK) {
+    ui::setHeldMoveActive(*stateManager, false);
+    stateManager->enqueueAction(stateManager->getActionData(),
+                                new state::actions::WorldTalkAt(tileX, tileY),
+                                0);
+  }
+}
+
 void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (getState() != LayerState::ON) {
     return;
@@ -78,7 +102,7 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
   }
   auto& world = stateManager->getState().world;
 
-  if (key == "Escape") {
+  if (ui::isCancelActionKey(key)) {
     bmin::List<model::WorldActionMode> cancellableActionModes = {
         model::WorldActionMode::EXAMINE,
         model::WorldActionMode::TALK,
@@ -94,25 +118,26 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
     return;
   }
 
-  auto moveDelta = getMoveDeltaForKey(key);
+  const bool isAimMode = world.actionMode == model::WorldActionMode::EXAMINE ||
+                         world.actionMode == model::WorldActionMode::TALK;
+
+  if (isAimMode && ui::isConfirmActionKey(key)) {
+    if (world.actionAimTile) {
+      confirmWorldActionAim(world.actionAimTile->x, world.actionAimTile->y);
+    }
+    return;
+  }
+
+  auto moveDelta = ui::getMoveDeltaForKey(key);
   if (!moveDelta) {
     return;
   }
 
-  if (world.actionMode == model::WorldActionMode::EXAMINE) {
+  if (isAimMode) {
     ui::setHeldMoveActive(*stateManager, false);
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::WorldExamineDirection(moveDelta->dx, moveDelta->dy),
-        0);
-    return;
-  }
-
-  if (world.actionMode == model::WorldActionMode::TALK) {
-    ui::setHeldMoveActive(*stateManager, false);
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::WorldTalkDirection(moveDelta->dx, moveDelta->dy),
+        new state::actions::WorldMoveActionAim(moveDelta->dx, moveDelta->dy),
         0);
     return;
   }
@@ -151,33 +176,73 @@ void LayerWorld::onKeyUp(std::string_view key, int /*keyCode*/) {
   }
 }
 
-std::optional<LayerWorld::MoveDelta>
-LayerWorld::getMoveDeltaForKey(std::string_view key) {
-  if (key == "Up" || key == "Keypad 8") {
-    return MoveDelta{0, -1};
+void LayerWorld::updateAimFromMouse(int x, int y) {
+  if (getState() != LayerState::ON) {
+    return;
   }
-  if (key == "Down" || key == "Keypad 2") {
-    return MoveDelta{0, 1};
+  // Only react to actual mouse movement so keyboard aim isn't fought by a
+  // stationary cursor still sitting over the map.
+  if (hasLastMousePos && x == lastMouseX && y == lastMouseY) {
+    return;
   }
-  if (key == "Left" || key == "Keypad 4") {
-    return MoveDelta{-1, 0};
+  hasLastMousePos = true;
+  lastMouseX = x;
+  lastMouseY = y;
+
+  auto* stateManager = getStateManager();
+  if (!stateManager) {
+    return;
   }
-  if (key == "Right" || key == "Keypad 6") {
-    return MoveDelta{1, 0};
+  const auto actionMode = stateManager->getState().world.actionMode;
+  if (actionMode != model::WorldActionMode::EXAMINE &&
+      actionMode != model::WorldActionMode::TALK) {
+    return;
   }
-  if (key == "Keypad 7") {
-    return MoveDelta{-1, -1};
+  auto* mapView = getUiElement<ui::MapView>("mapView");
+  if (!mapView) {
+    return;
   }
-  if (key == "Keypad 9") {
-    return MoveDelta{1, -1};
+  auto tile = mapView->screenToTile(x, y);
+  if (!tile) {
+    return;
   }
-  if (key == "Keypad 1") {
-    return MoveDelta{-1, 1};
+  const auto& aim = stateManager->getState().world.actionAimTile;
+  if (aim && aim->x == tile->x && aim->y == tile->y) {
+    return;
   }
-  if (key == "Keypad 3") {
-    return MoveDelta{1, 1};
+  // Parallel so hover stays responsive even if sequential actions are waiting.
+  stateManager->pllAction(stateManager->getActionData(),
+                          new state::actions::WorldSetActionAim(tile->x, tile->y),
+                          0);
+}
+
+void LayerWorld::onMouseHover(int x, int y) {
+  updateAimFromMouse(x, y);
+  Layer::onMouseHover(x, y);
+}
+
+void LayerWorld::onMouseDown(int x, int y, int button) {
+  // SDL_BUTTON_LEFT == 1
+  if (getState() == LayerState::ON && button == 1) {
+    auto* stateManager = getStateManager();
+    if (stateManager) {
+      const auto actionMode = stateManager->getState().world.actionMode;
+      if (actionMode == model::WorldActionMode::EXAMINE ||
+          actionMode == model::WorldActionMode::TALK) {
+        if (auto* mapView = getUiElement<ui::MapView>("mapView")) {
+          if (auto tile = mapView->screenToTile(x, y)) {
+            stateManager->enqueueAction(
+                stateManager->getActionData(),
+                new state::actions::WorldSetActionAim(tile->x, tile->y),
+                0);
+            confirmWorldActionAim(tile->x, tile->y);
+            return;
+          }
+        }
+      }
+    }
   }
-  return std::nullopt;
+  Layer::onMouseDown(x, y, button);
 }
 
 void LayerWorld::alignMapView() {
@@ -433,6 +498,10 @@ void LayerWorld::processPendingTriggers() {
 
 void LayerWorld::update(int deltaTime) {
   Layer::update(deltaTime);
+  // Hover is polled here: LayerManager has no mouse-move dispatch, and tests/game
+  // only wire down/up/wheel. mouseX/Y are updated by SDL every frame.
+  auto& events = window->getEvents();
+  updateAimFromMouse(events.mouseX, events.mouseY);
   updateHeldMoveRepeat(deltaTime);
   processPendingTriggers();
   syncWorldActionModeHighlight();

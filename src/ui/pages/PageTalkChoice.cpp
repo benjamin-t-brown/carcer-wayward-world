@@ -11,12 +11,10 @@
 #include <algorithm>
 
 namespace ui {
-namespace {
 
-// Split dialogue on "..." boundaries: outside quotes → outsideColor (narrative);
-// inside quotes → Charcoal (spoken dialogue), unless the source already set a fontColor.
-bmin::DynArray<TextBlock> colorizeDialogueByQuotes(const bmin::DynArray<TextBlock>& blocks,
-                                                   SDL_Color outsideColor) {
+bmin::DynArray<TextBlock>
+PageTalkChoice::colorizeDialogueByQuotes(const bmin::DynArray<TextBlock>& blocks,
+                                         SDL_Color outsideColor) {
   bmin::DynArray<TextBlock> result;
   for (const auto& source : blocks) {
     const auto& text = source.text;
@@ -63,8 +61,6 @@ bmin::DynArray<TextBlock> colorizeDialogueByQuotes(const bmin::DynArray<TextBloc
   }
   return result;
 }
-
-} // namespace
 
 PageTalkChoice::PageTalkChoice(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
@@ -117,7 +113,8 @@ void PageTalkChoice::build() {
   children.pushBack(bmin::UniquePtr<UiElement>(modal));
 
   if (!props.portraitSpriteName.empty()) {
-    if (auto* border = dynamic_cast<BorderModalStandard*>(modal->getChildById("border"))) {
+    if (auto* border =
+            dynamic_cast<BorderModalStandard*>(modal->getChildById("border"))) {
       auto [iconX, iconY] = border->getIconBorderLocation();
       const int iconSize = border->getProps().iconSize;
       auto iconBg = bmin::makeUnique<Quad>(window, modal);
@@ -186,9 +183,8 @@ void PageTalkChoice::build() {
   TextFontProps textFont;
   setBaseFontConfig(textFont, BaseFontConfig::MODAL_CHOICE_TEXT);
 
-  const int pinFrom = std::clamp(props.pinFromBlockIndex,
-                                 0,
-                                 static_cast<int>(props.textBlocks.size()));
+  const int pinFrom =
+      std::clamp(props.pinFromBlockIndex, 0, static_cast<int>(props.textBlocks.size()));
   bmin::DynArray<TextBlock> historyBlocksRaw;
   bmin::DynArray<TextBlock> currentBlocksRaw;
   for (int i = 0; i < static_cast<int>(props.textBlocks.size()); i++) {
@@ -198,10 +194,8 @@ void PageTalkChoice::build() {
       currentBlocksRaw.pushBack(props.textBlocks[i]);
     }
   }
-  const auto historyBlocks =
-      colorizeDialogueByQuotes(historyBlocksRaw, Colors::WarmGrey);
-  const auto currentBlocks =
-      colorizeDialogueByQuotes(currentBlocksRaw, Colors::WarmGrey);
+  const auto historyBlocks = colorizeDialogueByQuotes(historyBlocksRaw, Colors::Grey2);
+  const auto currentBlocks = colorizeDialogueByQuotes(currentBlocksRaw, Colors::Grey2);
 
   int contentYOffset = 0;
   int historyHeightScaled = 0;
@@ -221,6 +215,8 @@ void PageTalkChoice::build() {
         .bgColor = Colors::OffWhite,
         .padding = 4,
         .lineSpacing = 0,
+        .lineHeightScale = props.lineHeightScale,
+        .blankLineHeightScale = props.blankLineHeightScale,
         .fontFamily = textFont.fontFamily,
         .fontSize = textFont.fontSize,
         .fontColor = textFont.fontColor,
@@ -283,7 +279,8 @@ void PageTalkChoice::build() {
   });
   addChild(choiceSection);
 
-  // Create choices (setPos before setProps so ButtonTextWrap builds text at the right offset)
+  // Create choices (setPos before setProps so ButtonTextWrap builds text at the right
+  // offset)
   auto choiceYOffset = 0;
   for (int i = 0; i < static_cast<int>(props.choices.size()); i++) {
     auto choiceButton = new ButtonTextWrap(window, choiceSection);
@@ -292,17 +289,22 @@ void PageTalkChoice::build() {
     setBaseFontConfig(choiceFont, BaseFontConfig::MODAL_CHOICE_TEXT);
     ui::ButtonTextWrapProps choiceButtonProps;
     const bmin::String& prefixText = props.choices[i].prefixText;
-    choiceButtonProps.text =
-        bmin::toString(i + 1) + ". " +
+    const bmin::String choiceText =
+        " " + bmin::toString(i + 1) + ". " +
         ((prefixText.empty() ? props.choices[i].text
                              : prefixText + " " + props.choices[i].text));
-    choiceButtonProps.width =
-        scaledContentW - 8 * style.scale - scrollBarWidth * style.scale;
-    choiceButtonProps.isSelected = false;
-    choiceButtonProps.fontFamily = choiceFont.fontFamily;
-    choiceButtonProps.fontSize = choiceFont.fontSize;
-    choiceButtonProps.fontColor =
+    const SDL_Color choiceColor =
         props.choices[i].previouslyChosen ? Colors::Grey : Colors::ButtonCloseRed;
+    choiceButtonProps.isSelected = false;
+    choiceButtonProps.textParagraph.textBlocks.pushBack(
+        TextBlock{.text = choiceText, .fontColor = choiceColor});
+    choiceButtonProps.textParagraph.width =
+        scaledContentW - 8 * style.scale - scrollBarWidth * style.scale;
+    choiceButtonProps.textParagraph.fontFamily = choiceFont.fontFamily;
+    choiceButtonProps.textParagraph.fontSize = choiceFont.fontSize;
+    choiceButtonProps.textParagraph.fontColor = choiceColor;
+    choiceButtonProps.textParagraph.lineHeightScale = 0.85f;
+    choiceButtonProps.verticalPadding = 0;
     choiceButton->setScale(1.f);
     choiceButton->setPos(4 * style.scale, choiceYOffset);
     choiceButton->setProps(choiceButtonProps);

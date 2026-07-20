@@ -1,5 +1,6 @@
 #pragma once
 
+#include "model/TileTriggers.h"
 #include "model/instances/World.h"
 #include "state/AbstractAction.h"
 #include "state/State.h"
@@ -16,6 +17,18 @@ class WorldSetActionMode : public AbstractAction {
       return;
     }
     state->world.actionMode = mode;
+    if (mode == model::WorldActionMode::NONE) {
+      state->world.actionAimTile.reset();
+      return;
+    }
+
+    const auto* avatar =
+        model::findPartyAvatarOnMap(state->world.currentMap, state->player);
+    if (avatar) {
+      state->world.actionAimTile = model::TileXY{avatar->x, avatar->y};
+    } else {
+      state->world.actionAimTile.reset();
+    }
   }
 
 public:

@@ -16,7 +16,6 @@
 #include "bmin/UniquePtr.h"
 #include <cassert>
 #include <memory>
-#include <vector>
 
 namespace {
 

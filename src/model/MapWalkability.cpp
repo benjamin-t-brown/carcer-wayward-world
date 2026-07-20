@@ -241,6 +241,11 @@ const TileInstance* resolveTileToRender(const MapInstance& map, int x, int y) {
   return best;
 }
 
+bool isTileCurrentlyVisible(const MapInstance& map, int x, int y) {
+  const auto* tile = resolveTileToRender(map, x, y);
+  return tile != nullptr && tile->isVisible;
+}
+
 bool isDestinationWalkable(const MapInstance& map,
                            int x,
                            int y,

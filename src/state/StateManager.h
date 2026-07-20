@@ -44,7 +44,7 @@ public:
   void insertAction(ActionData& actions, AbstractAction* action, int ms);
   void pllAction(ActionData& actions, AbstractAction* action, int ms);
   void moveSequentialActions(ActionData& actions);
-  void drainInsertActions(ActionData& actions);
+  void moveInsertActions(ActionData& actions);
 
   void update(int dt);
 };

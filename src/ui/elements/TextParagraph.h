@@ -19,6 +19,12 @@ struct TextParagraphProps {
   SDL_Color bgColor = Colors::Transparent;
   int padding = 0;
   int lineSpacing = 0;
+  // Multiplier for spacing between lines (1 = measured font height). Glyphs still
+  // paint at full size; container height keeps room for the last line's descenders.
+  float lineHeightScale = 1.f;
+  // Multiplier for blank lines created by consecutive newlines (`\n\n`).
+  // Relative to measured font height: 1 = full line, 0.5 = half, 0 = no gap.
+  float blankLineHeightScale = 1.f;
   FontFamily fontFamily = FontFamily::TEXT;
   sdl2w::TextSize fontSize = sdl2w::TEXT_SIZE_16;
   SDL_Color fontColor = Colors::Black;
@@ -39,8 +45,6 @@ private:
   TextParagraphProps props;
   bmin::DynArray<TextParagraphGeneratedBlock> generatedBlocks;
   bmin::UniquePtr<Quad> quad;
-
-  int lineHeightFromFont = 0;
 
   int getContentHeight() const;
 

@@ -47,6 +47,11 @@ enum class CameraMode { Follow, Aiming, Dragging, Controlled };
 
 enum class WorldActionMode { NONE, EXAMINE, TALK };
 
+struct TileXY {
+  int x = 0;
+  int y = 0;
+};
+
 // Session-scoped fog-of-war memory for a map template (one bit per cell).
 struct ExploredMapMask {
   int width = 0;
@@ -82,16 +87,13 @@ struct World {
   int viewW = 0; // MapView content size in map-pixel space (unscaled)
   int viewH = 0;
   WorldActionMode actionMode = WorldActionMode::NONE;
+  // Meaningful only when actionMode != NONE (Examine / Talk aim cursor).
+  std::optional<TileXY> actionAimTile;
   std::optional<bmin::String> pendingSpecialEventId;
   std::optional<TravelTrigger> pendingTravel;
   // Dialogue / special-event runner vars (vars.*, once.*, …). tmp.* is session-only
   // and stripped when a conversation ends.
   bmin::Map<bmin::String, bmin::String> specialEventStorage;
-};
-
-struct TileXY {
-  int x = 0;
-  int y = 0;
 };
 
 struct CameraPos {

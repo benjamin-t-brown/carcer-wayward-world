@@ -17,7 +17,6 @@
 #include "bmin/StringInterop.h"
 #include "bmin/UniquePtr.h"
 #include <memory>
-#include <vector>
 
 namespace {
 

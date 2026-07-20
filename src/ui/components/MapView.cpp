@@ -13,11 +13,6 @@ namespace ui {
 MapView::MapView(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {}
 
-bool MapView::isCellCurrentlyVisible(const model::MapInstance& map, int x, int y) {
-  const auto* tile = model::resolveTileToRender(map, x, y);
-  return tile != nullptr && tile->isVisible;
-}
-
 void MapView::setProps(const MapViewProps& _props) {
   props = _props;
   build();
@@ -26,6 +21,48 @@ void MapView::setProps(const MapViewProps& _props) {
 MapViewProps& MapView::getProps() { return props; }
 
 const MapViewProps& MapView::getProps() const { return props; }
+
+std::optional<model::TileXY> MapView::screenToTile(int screenX, int screenY) const {
+  auto* stateManager = getStateManager();
+  if (!stateManager) {
+    return std::nullopt;
+  }
+
+  const auto& world = stateManager->getState().world;
+  const auto& map = world.currentMap;
+  if (map.width <= 0 || map.height <= 0) {
+    return std::nullopt;
+  }
+
+  auto contentX = style.x;
+  auto contentY = style.y;
+  auto contentW = static_cast<int>(style.width * style.scale);
+  auto contentH = static_cast<int>(style.height * style.scale);
+  if (contentW <= 0 || contentH <= 0) {
+    return std::nullopt;
+  }
+  if (screenX < contentX || screenY < contentY || screenX >= contentX + contentW ||
+      screenY >= contentY + contentH) {
+    return std::nullopt;
+  }
+
+  auto spriteW = map.spriteWidth > 0 ? map.spriteWidth : 28;
+  auto spriteH = map.spriteHeight > 0 ? map.spriteHeight : 32;
+  if (spriteW <= 0 || spriteH <= 0 || style.scale <= 0.f) {
+    return std::nullopt;
+  }
+
+  const auto mapPx =
+      static_cast<int>((screenX - contentX) / style.scale) + world.camX;
+  const auto mapPy =
+      static_cast<int>((screenY - contentY) / style.scale) + world.camY;
+  const auto tileX = mapPx / spriteW;
+  const auto tileY = mapPy / spriteH;
+  if (tileX < 0 || tileY < 0 || tileX >= map.width || tileY >= map.height) {
+    return std::nullopt;
+  }
+  return model::TileXY{tileX, tileY};
+}
 
 void MapView::build() {
   if (props.width > 0) {
@@ -125,7 +162,7 @@ void MapView::render(int /*dt*/) {
     if (!database) {
       break;
     }
-    if (!isCellCurrentlyVisible(map, item.x, item.y)) {
+    if (!model::isTileCurrentlyVisible(map, item.x, item.y)) {
       continue;
     }
     bmin::String spriteName;
@@ -152,7 +189,7 @@ void MapView::render(int /*dt*/) {
   const auto& party = state.player.party;
   for (size_t ci = 0; ci < map.characters.size(); ci++) {
     const auto& character = map.characters[ci];
-    if (!isCellCurrentlyVisible(map, character.x, character.y)) {
+    if (!model::isTileCurrentlyVisible(map, character.x, character.y)) {
       continue;
     }
     const model::CharacterPlayer* member = nullptr;
@@ -189,6 +226,33 @@ void MapView::render(int /*dt*/) {
 
     auto& sprite = store.getSprite(bmin::toStringView(spriteName));
     drawMapSprite(sprite, screenX, screenY);
+  }
+
+  if (world.actionMode != model::WorldActionMode::NONE && world.actionAimTile) {
+    const auto aimX = world.actionAimTile->x;
+    const auto aimY = world.actionAimTile->y;
+    const auto screenX =
+        contentX + static_cast<int>((aimX * spriteW - world.camX) * style.scale);
+    const auto screenY =
+        contentY + static_cast<int>((aimY * spriteH - world.camY) * style.scale);
+
+    if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
+        screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
+      draw.drawRect(screenX, screenY, scaledSpriteW, scaledSpriteH, actionAimFillColor);
+      const auto border = 2;
+      draw.drawRect(screenX, screenY, scaledSpriteW, border, actionAimOutlineColor);
+      draw.drawRect(screenX,
+                    screenY + scaledSpriteH - border,
+                    scaledSpriteW,
+                    border,
+                    actionAimOutlineColor);
+      draw.drawRect(screenX, screenY, border, scaledSpriteH, actionAimOutlineColor);
+      draw.drawRect(screenX + scaledSpriteW - border,
+                    screenY,
+                    border,
+                    scaledSpriteH,
+                    actionAimOutlineColor);
+    }
   }
 }
 

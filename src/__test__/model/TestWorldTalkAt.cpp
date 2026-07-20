@@ -1,4 +1,5 @@
 #include "db/Database.h"
+#include "model/MapWalkability.h"
 #include "model/instances/CharacterInstance.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/World.h"
@@ -6,7 +7,8 @@
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
 #include "state/State.h"
-#include "state/actions/world/WorldTalkDirection.hpp"
+#include "state/actions/world/WorldTalkAt.hpp"
+#include "bmin/DynArray.h"
 #include "bmin/String.h"
 
 namespace {
@@ -38,18 +40,36 @@ bool assertEqualStr(const bmin::String& actual,
   return true;
 }
 
-model::MapInstance makeMap(int width, int height) {
+model::TileInstance makeTile(int x, int y, bool visible) {
+  auto tile = model::TileInstance{};
+  tile.x = x;
+  tile.y = y;
+  tile.tilesetName = "test_terrain";
+  tile.tileId = 0;
+  tile.isExplored = true;
+  tile.isVisible = visible;
+  return tile;
+}
+
+model::MapInstance makeMap(int width, int height, bool visible = true) {
   auto map = model::MapInstance{};
   map.width = width;
   map.height = height;
   map.tileLayerNumber = 0;
+  auto layer = bmin::DynArray<model::TileInstance>{};
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      layer.pushBack(makeTile(x, y, visible));
+    }
+  }
+  model::mapLayerAt(map.tiles, 0) = std::move(layer);
   return map;
 }
 
 } // namespace
 
 int main(int /*argc*/, char** /*argv*/) {
-  LOG(INFO) << "Starting TestWorldTalkDirection" << LOG_ENDL;
+  LOG(INFO) << "Starting TestWorldTalkAt" << LOG_ENDL;
 
   db::Database database;
   state::DatabaseInterface::setDatabase(&database);
@@ -71,6 +91,7 @@ int main(int /*argc*/, char** /*argv*/) {
     state::State state{};
     state.world.currentMap = makeMap(5, 5);
     state.world.actionMode = model::WorldActionMode::TALK;
+    state.world.actionAimTile = model::TileXY{3, 2};
 
     auto member = model::CharacterPlayer{};
     member.instanceId = "player1";
@@ -89,8 +110,8 @@ int main(int /*argc*/, char** /*argv*/) {
         .y = 2,
     });
 
-    state::actions::WorldTalkDirection talkEast(1, 0);
-    talkEast.execute(&state);
+    state::actions::WorldTalkAt talkAt(3, 2);
+    talkAt.execute(&state);
 
     ok = assertTrue(state.world.pendingSpecialEventId.has_value(),
                     "talk queues special event") &&
@@ -103,12 +124,14 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertTrue(state.world.actionMode == model::WorldActionMode::NONE,
                     "talk mode cleared") &&
          ok;
+    ok = assertFalse(state.world.actionAimTile.has_value(), "aim cleared") && ok;
   }
 
   {
     state::State state{};
     state.world.currentMap = makeMap(5, 5);
     state.world.actionMode = model::WorldActionMode::TALK;
+    state.world.actionAimTile = model::TileXY{3, 2};
 
     auto member = model::CharacterPlayer{};
     member.instanceId = "player1";
@@ -127,8 +150,8 @@ int main(int /*argc*/, char** /*argv*/) {
         .y = 2,
     });
 
-    state::actions::WorldTalkDirection talkEast(1, 0);
-    talkEast.execute(&state);
+    state::actions::WorldTalkAt talkAt(3, 2);
+    talkAt.execute(&state);
 
     ok = assertFalse(state.world.pendingSpecialEventId.has_value(),
                      "silent npc does not queue event") &&
@@ -142,6 +165,7 @@ int main(int /*argc*/, char** /*argv*/) {
     state::State state{};
     state.world.currentMap = makeMap(5, 5);
     state.world.actionMode = model::WorldActionMode::TALK;
+    state.world.actionAimTile = model::TileXY{3, 2};
 
     auto member = model::CharacterPlayer{};
     member.instanceId = "player1";
@@ -154,19 +178,65 @@ int main(int /*argc*/, char** /*argv*/) {
         .y = 2,
     });
 
-    state::actions::WorldTalkDirection talkEast(1, 0);
-    talkEast.execute(&state);
+    state::actions::WorldTalkAt talkAt(3, 2);
+    talkAt.execute(&state);
 
     ok = assertFalse(state.world.pendingSpecialEventId.has_value(),
                      "empty tile does not queue event") &&
          ok;
+    ok = assertTrue(state.world.actionMode == model::WorldActionMode::NONE,
+                    "talk mode cleared for empty") &&
+         ok;
+  }
+
+  {
+    state::State state{};
+    state.world.currentMap = makeMap(5, 5, false);
+    state.world.actionMode = model::WorldActionMode::TALK;
+    state.world.actionAimTile = model::TileXY{3, 2};
+
+    auto member = model::CharacterPlayer{};
+    member.instanceId = "player1";
+    state.player.party.pushBack(member);
+
+    state.world.currentMap.characters.pushBack(model::CharacterInstance{
+        .id = "player1",
+        .templateName = "TalkNpc",
+        .x = 2,
+        .y = 2,
+    });
+    state.world.currentMap.characters.pushBack(model::CharacterInstance{
+        .id = "npc1",
+        .templateName = "TalkNpc",
+        .x = 3,
+        .y = 2,
+    });
+
+    ok = assertFalse(model::isTileCurrentlyVisible(state.world.currentMap, 3, 2),
+                     "target not visible") &&
+         ok;
+
+    state::actions::WorldTalkAt talkAt(3, 2);
+    talkAt.execute(&state);
+
+    ok = assertFalse(state.world.pendingSpecialEventId.has_value(),
+                     "non-visible does not queue event") &&
+         ok;
+    ok = assertTrue(state.world.actionMode == model::WorldActionMode::TALK,
+                    "talk mode kept when not visible") &&
+         ok;
+    ok = assertTrue(state.world.actionAimTile.has_value() &&
+                        state.world.actionAimTile->x == 3 &&
+                        state.world.actionAimTile->y == 2,
+                    "aim kept when not visible") &&
+         ok;
   }
 
   if (!ok) {
-    LOG(ERROR) << "TestWorldTalkDirection failed" << LOG_ENDL;
+    LOG(ERROR) << "TestWorldTalkAt failed" << LOG_ENDL;
     return 1;
   }
 
-  LOG(INFO) << "TestWorldTalkDirection completed successfully" << LOG_ENDL;
+  LOG(INFO) << "TestWorldTalkAt completed successfully" << LOG_ENDL;
   return 0;
 }

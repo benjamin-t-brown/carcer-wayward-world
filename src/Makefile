@@ -55,6 +55,7 @@ state/WorldUpdater.cpp \
 ui/UiElement.cpp \
 ui/FontScale.cpp \
 ui/helpers/worldActions.cpp \
+ui/helpers/keyboardShortcuts.cpp \
 ui/elements/SpriteElement.cpp \
 ui/elements/Quad.cpp \
 ui/elements/TextLine.cpp \

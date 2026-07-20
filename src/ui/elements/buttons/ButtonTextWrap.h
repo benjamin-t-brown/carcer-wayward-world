@@ -1,23 +1,19 @@
 #pragma once
 
 #include "../../UiElement.h"
+#include "../TextParagraph.h"
 #include "bmin/String.h"
-#include "ui/TextStyle.h"
 #include "ui/colors.h"
 
 namespace ui {
 
 // ButtonTextWrap-specific properties
 struct ButtonTextWrapProps {
-  bmin::String text;
-  int width = 0;
-  int height = 0;
   int verticalPadding = 0; // Padding added to top and bottom
   int horizontalPadding = 0; // Padding added to left and right
   bool isSelected = false;
-  FontFamily fontFamily = FontFamily::TEXT;
-  sdl2w::TextSize fontSize = sdl2w::TEXT_SIZE_16;
-  SDL_Color fontColor = Colors::Black;
+  // Forwarded to the internal TextParagraph (width wraps text; height grows to fit).
+  TextParagraphProps textParagraph;
 };
 
 // ButtonTextWrap element - renders a clickable quad with wrapped text that changes color on hover
@@ -37,8 +33,6 @@ public:
   void setProps(const ButtonTextWrapProps& _props);
   ButtonTextWrapProps& getProps();
   const ButtonTextWrapProps& getProps() const;
-
-  const std::pair<int, int> getDims() const override;
 
   void build() override;
   void render(int dt) override;

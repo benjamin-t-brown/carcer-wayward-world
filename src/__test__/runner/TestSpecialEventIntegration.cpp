@@ -7,8 +7,6 @@
 #include "bmin/DynArray.h"
 #include "bmin/Map.h"
 
-#include <vector>
-
 #define TEST_NAME "TestSpecialEventIntegration"
 
 int main(int argc, char** argv) {

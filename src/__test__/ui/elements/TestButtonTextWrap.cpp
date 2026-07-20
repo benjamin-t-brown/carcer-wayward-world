@@ -54,9 +54,12 @@ int main(int argc, char** argv) {
     button1->setId("button1");
     button1->setPos(50, 50);
     button1->setProps(ui::ButtonTextWrapProps{
-        .text = "Short Text",
-        .width = 200,
         .isSelected = false,
+        .textParagraph =
+            {
+                .textBlocks = {{.text = "Short Text"}},
+                .width = 200,
+            },
     });
     button1->addEventObserver(new TestButtonTextWrapObserver("button1"));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button1.release()));
@@ -66,13 +69,17 @@ int main(int argc, char** argv) {
     button2->setId("button2");
     button2->setPos(50, 130);
     button2->setProps(ui::ButtonTextWrapProps{
-        .text = "This is a much longer text that should wrap to multiple lines "
-                "when it exceeds the button width. Lol wow that's amazing bro.",
-        .width = 300,
         .verticalPadding = 10,
         .horizontalPadding = 10,
         .isSelected = true,
-        .fontColor = ui::Colors::Black,
+        .textParagraph =
+            {
+                .textBlocks = {{.text = "This is a much longer text that should wrap to "
+                                        "multiple lines when it exceeds the button "
+                                        "width. Lol wow that's amazing bro."}},
+                .width = 300,
+                .fontColor = ui::Colors::Black,
+            },
     });
     button2->addEventObserver(new TestButtonTextWrapObserver("button2"));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button2.release()));
@@ -82,10 +89,13 @@ int main(int argc, char** argv) {
     button3->setId("button3");
     button3->setPos(50, 230);
     button3->setProps(ui::ButtonTextWrapProps{
-        .text = "Medium length text that might wrap",
-        .width = 250,
         .isSelected = false,
-        .fontColor = ui::Colors::Black,
+        .textParagraph =
+            {
+                .textBlocks = {{.text = "Medium length text that might wrap"}},
+                .width = 250,
+                .fontColor = ui::Colors::Black,
+            },
     });
     button3->addEventObserver(new TestButtonTextWrapObserver("button3"));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button3.release()));
@@ -95,11 +105,15 @@ int main(int argc, char** argv) {
     button4->setId("button4");
     button4->setPos(50, 320);
     button4->setProps(ui::ButtonTextWrapProps{
-        .text = "This is an extremely long text that will definitely wrap to "
-                "multiple lines and should demonstrate the text wrapping "
-                "functionality of the ButtonTextWrap element very well",
-        .width = 400,
         .isSelected = false,
+        .textParagraph =
+            {
+                .textBlocks = {{.text = "This is an extremely long text that will "
+                                        "definitely wrap to multiple lines and should "
+                                        "demonstrate the text wrapping functionality of "
+                                        "the ButtonTextWrap element very well"}},
+                .width = 400,
+            },
     });
     button4->addEventObserver(new TestButtonTextWrapObserver("button4"));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button4.release()));
@@ -110,9 +124,12 @@ int main(int argc, char** argv) {
     button5->setPos(50, 440);
     button5->setScale(2.f);
     button5->setProps(ui::ButtonTextWrapProps{
-        .text = "Scaled Button",
-        .width = 150,
         .isSelected = true,
+        .textParagraph =
+            {
+                .textBlocks = {{.text = "Scaled Button"}},
+                .width = 150,
+            },
     });
     button5->addEventObserver(new TestButtonTextWrapObserver("button5"));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button5.release()));

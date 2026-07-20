@@ -170,22 +170,28 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
     label->setPos(labelX, 0);
     label->setScale(1.0f);
     label->setProps(ButtonTextWrapProps{
-        .text = item.itemName,
-        .width = labelWidth,
-        .fontFamily = labelFont.fontFamily,
-        .fontSize = sdl2w::TEXT_SIZE_18,
-        .fontColor = labelColor,
+        .textParagraph =
+            {
+                .textBlocks = {{.text = item.itemName, .fontColor = labelColor}},
+                .width = labelWidth,
+                .fontFamily = labelFont.fontFamily,
+                .fontSize = sdl2w::TEXT_SIZE_18,
+                .fontColor = labelColor,
+            },
     });
     const int textOnlyHeight = label->getDims().second;
     const int verticalPadding =
         std::max(0, static_cast<int>((rowHeight - textOnlyHeight) / 2));
     label->setProps(ButtonTextWrapProps{
-        .text = itemDisplayLabel,
-        .width = labelWidth,
         .verticalPadding = verticalPadding,
-        .fontFamily = labelFont.fontFamily,
-        .fontSize = sdl2w::TEXT_SIZE_18,
-        .fontColor = labelColor,
+        .textParagraph =
+            {
+                .textBlocks = {{.text = itemDisplayLabel, .fontColor = labelColor}},
+                .width = labelWidth,
+                .fontFamily = labelFont.fontFamily,
+                .fontSize = sdl2w::TEXT_SIZE_18,
+                .fontColor = labelColor,
+            },
     });
     label->addEventObserver(
         new ui::ObserverInventorySelectItem(props.characterPlayerId, item.itemId));

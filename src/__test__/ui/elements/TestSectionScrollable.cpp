@@ -10,7 +10,6 @@
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
 #include <memory>
-#include <vector>
 #include "bmin/String.h"
 #include "bmin/DynArray.h"
 #include "bmin/UniquePtr.h"

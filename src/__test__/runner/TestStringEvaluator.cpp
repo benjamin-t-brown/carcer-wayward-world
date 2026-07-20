@@ -6,8 +6,6 @@
 #include "runner/StringEvaluator.h"
 #include "bmin/Map.h"
 
-#include <vector>
-
 #define TEST_NAME "TestStringEvaluator"
 
 int main(int argc, char** argv) {

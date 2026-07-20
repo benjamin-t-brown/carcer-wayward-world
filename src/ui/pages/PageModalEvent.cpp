@@ -128,15 +128,18 @@ void PageModalEvent::build() {
       setBaseFontConfig(choiceFont, BaseFontConfig::MODAL_CHOICE_TEXT);
       ButtonTextWrapProps choiceButtonProps;
       const bmin::String& prefixText = props.choices[i].prefixText;
-      choiceButtonProps.text =
+      const bmin::String choiceText =
           bmin::toString(i + 1) + ". " +
           (prefixText.empty() ? props.choices[i].text
                               : prefixText + " " + props.choices[i].text);
-      choiceButtonProps.width = scrollableContentW - 8;
-      choiceButtonProps.fontFamily = choiceFont.fontFamily;
-      choiceButtonProps.fontSize = choiceFont.fontSize;
-      choiceButtonProps.fontColor =
+      const SDL_Color choiceColor =
           props.choices[i].previouslyChosen ? Colors::Grey : Colors::DarkBlue;
+      choiceButtonProps.textParagraph.textBlocks.pushBack(
+          TextBlock{.text = choiceText, .fontColor = choiceColor});
+      choiceButtonProps.textParagraph.width = scrollableContentW - 8;
+      choiceButtonProps.textParagraph.fontFamily = choiceFont.fontFamily;
+      choiceButtonProps.textParagraph.fontSize = choiceFont.fontSize;
+      choiceButtonProps.textParagraph.fontColor = choiceColor;
       choiceButton->setScale(1.f);
       choiceButton->setPos(4, choiceYOffset);
       choiceButton->setProps(choiceButtonProps);

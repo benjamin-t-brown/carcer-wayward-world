@@ -1,6 +1,6 @@
 #include "ButtonTextWrap.h"
-#include "../TextParagraph.h"
 #include "ui/colors.h"
+#include <cmath>
 
 namespace ui {
 
@@ -20,9 +20,9 @@ ButtonTextWrap::ButtonTextWrap(sdl2w::Window* _window, UiElement* _parent)
   addEventObserver(new ButtonTextWrapDefaultObserver(this));
   TextFontProps font;
   setBaseFontConfig(font, BaseFontConfig::MODAL_TEXT);
-  props.fontFamily = font.fontFamily;
-  props.fontSize = font.fontSize;
-  props.fontColor = Colors::Black;
+  props.textParagraph.fontFamily = font.fontFamily;
+  props.textParagraph.fontSize = font.fontSize;
+  props.textParagraph.fontColor = Colors::Black;
   shouldPropagateEventsToChildren = false;
 }
 
@@ -35,40 +35,23 @@ ButtonTextWrapProps& ButtonTextWrap::getProps() { return props; }
 
 const ButtonTextWrapProps& ButtonTextWrap::getProps() const { return props; }
 
-const std::pair<int, int> ButtonTextWrap::getDims() const {
-  if (children.size() > 0) {
-    auto pChild = children[0].get();
-    auto pair = pChild->getDims();
-    return {pair.first + props.horizontalPadding * 2 * style.scale,
-            pair.second + props.verticalPadding * 2 * style.scale};
-  }
-  return {style.width * style.scale + props.horizontalPadding * 2 * style.scale,
-          style.height * style.scale + props.verticalPadding * 2 * style.scale};
-}
-
 void ButtonTextWrap::build() {
   children.clear();
 
-  style.width = props.width;
-  style.height = props.height;
+  const float scale = style.scale > 0.f ? style.scale : 1.f;
+  style.width = props.textParagraph.width + props.horizontalPadding * 2;
 
   auto textParagraph = new TextParagraph(window, this);
-  textParagraph->setPos(style.x + props.horizontalPadding * style.scale,
-                        style.y + props.verticalPadding * style.scale);
-  textParagraph->setScale(1.f);
-  TextParagraphProps textParagraphProps;
-  textParagraphProps.width = static_cast<int>(props.width * style.scale);
-  textParagraphProps.fontFamily = props.fontFamily;
-  textParagraphProps.fontSize = props.fontSize;
-  textParagraphProps.fontColor = props.fontColor;
-  textParagraphProps.textAlign = TextAlign::LEFT_TOP;
-  ui::TextBlock block;
-  block.text = props.text;
-  block.fontColor = props.fontColor;
-  textParagraphProps.textBlocks.pushBack(block);
-  textParagraph->setProps(textParagraphProps);
+  textParagraph->setPos(style.x + static_cast<int>(props.horizontalPadding * scale),
+                        style.y + static_cast<int>(props.verticalPadding * scale));
+  textParagraph->setScale(scale);
+  textParagraph->setProps(props.textParagraph);
 
   addChild(textParagraph);
+
+  const int paragraphHeightScaled = textParagraph->getDims().second;
+  style.height = static_cast<int>(std::round(paragraphHeightScaled / scale)) +
+                 props.verticalPadding * 2;
 }
 
 void ButtonTextWrap::render(int dt) {

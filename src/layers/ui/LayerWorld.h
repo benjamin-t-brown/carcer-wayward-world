@@ -4,7 +4,6 @@
 #include "bmin/String.h"
 #include "model/templates/UtilityTypes.h"
 #include "state/WorldActions.h"
-#include <optional>
 #include <string_view>
 
 namespace ui {
@@ -15,17 +14,17 @@ namespace layers {
 
 class LayerWorld : public Layer {
 private:
-  struct MoveDelta {
-    int dx = 0;
-    int dy = 0;
-  };
-
   void processPendingTriggers();
   void attachWorldActionObservers(ui::InGameLayout* inGameLayout);
   void syncWorldActionModeHighlight();
   void syncActionModeCancelButton();
   void updateHeldMoveRepeat(int deltaTime);
+  void confirmWorldActionAim(int tileX, int tileY);
+  void updateAimFromMouse(int x, int y);
   float mapScale = 1.f;
+  bool hasLastMousePos = false;
+  int lastMouseX = 0;
+  int lastMouseY = 0;
 
   void alignMapView();
   void fillWorldActionTypes(model::TurnMode turnMode,
@@ -39,9 +38,10 @@ public:
 
   void onKeyDown(std::string_view key, int keyCode) override;
   void onKeyUp(std::string_view key, int keyCode) override;
+  void onMouseDown(int x, int y, int button) override;
+  void onMouseHover(int x, int y) override;
   void syncFromState();
   void setMapScale(float scale);
-  std::optional<MoveDelta> getMoveDeltaForKey(std::string_view key);
   void update(int deltaTime) override;
 };
 

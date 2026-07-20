@@ -6,7 +6,6 @@
 #include "bmin/StringInterop.h"
 #include <cassert>
 #include <iostream>
-#include <vector>
 
 struct ScalePreviewRow {
   int scale = 0;

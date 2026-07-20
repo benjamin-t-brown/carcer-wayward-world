@@ -112,22 +112,28 @@ UiElement* ListPickUp::createItemElement(const ListPickUpPropsItem& listItem) {
   label->setPos(labelX, 0);
   label->setScale(1.0f);
   label->setProps(ButtonTextWrapProps{
-      .text = listItem.item.itemTemplateName,
-      .width = labelWidth,
-      .fontFamily = font.fontFamily,
-      .fontSize = sdl2w::TEXT_SIZE_18,
-      .fontColor = Colors::Black,
+      .textParagraph =
+          {
+              .textBlocks = {{.text = listItem.item.itemTemplateName}},
+              .width = labelWidth,
+              .fontFamily = font.fontFamily,
+              .fontSize = sdl2w::TEXT_SIZE_18,
+              .fontColor = Colors::Black,
+          },
   });
   const int textOnlyHeight = label->getDims().second;
   const int verticalPadding =
       std::max(0, static_cast<int>((rowHeight - textOnlyHeight) / 2));
   label->setProps(ButtonTextWrapProps{
-      .text = listItem.itemLabel,
-      .width = labelWidth,
       .verticalPadding = verticalPadding,
-      .fontFamily = font.fontFamily,
-      .fontSize = sdl2w::TEXT_SIZE_18,
-      .fontColor = Colors::Black,
+      .textParagraph =
+          {
+              .textBlocks = {{.text = listItem.itemLabel}},
+              .width = labelWidth,
+              .fontFamily = font.fontFamily,
+              .fontSize = sdl2w::TEXT_SIZE_18,
+              .fontColor = Colors::Black,
+          },
   });
   label->addEventObserver(new ui::ObserverPickUpItem(listItem.item));
   container->addChild(label);

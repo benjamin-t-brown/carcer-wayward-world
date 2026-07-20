@@ -5,8 +5,6 @@
 #include "runner/ConditionEvaluator.h"
 #include "bmin/Map.h"
 
-#include <vector>
-
 #define TEST_NAME "TestConditionalEvaluator"
 
 int main(int argc, char** argv) {

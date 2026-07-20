@@ -25,9 +25,7 @@ void StateManager::insertAction(ActionData& actions, AbstractAction* action, int
       AsyncAction{bmin::UniquePtr<AbstractAction>(action), model::TimerStruct(ms)}));
 }
 
-void StateManager::pllAction(ActionData& actions,
-                                     AbstractAction* action,
-                                     int ms) {
+void StateManager::pllAction(ActionData& actions, AbstractAction* action, int ms) {
   actions.parallelActions.pushBack(bmin::makeUnique<AsyncAction>(
       AsyncAction{bmin::UniquePtr<AbstractAction>(action), model::TimerStruct(ms)}));
 }
@@ -37,7 +35,7 @@ void StateManager::moveSequentialActions(ActionData& actions) {
                                    actions.sequentialActionsNext);
 }
 
-void StateManager::drainInsertActions(ActionData& actions) {
+void StateManager::moveInsertActions(ActionData& actions) {
   if (actions.insertActions.empty()) {
     return;
   }
@@ -55,7 +53,6 @@ void StateManager::drainInsertActions(ActionData& actions) {
 
 void StateManager::update(int dt) {
   moveSequentialActions(actionData);
-  drainInsertActions(actionData);
   while (!actionData.sequentialActions.empty()) {
     auto& delayedActionPtr = actionData.sequentialActions.front();
     AsyncAction& delayedAction = *delayedActionPtr;
@@ -66,7 +63,7 @@ void StateManager::update(int dt) {
       delayedAction.action.reset();
       // execute/notify may have deferred inserts; splice while this action
       // is still front so they land immediately after it.
-      drainInsertActions(actionData);
+      moveInsertActions(actionData);
     }
 
     model::timerStructUpdate(delayedAction.timer, dt);
@@ -75,7 +72,6 @@ void StateManager::update(int dt) {
       actionData.sequentialActions.erase(actionData.sequentialActions.begin());
       if (shouldLoop) {
         moveSequentialActions(actionData);
-        drainInsertActions(actionData);
         continue;
       } else {
         break;

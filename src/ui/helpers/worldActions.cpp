@@ -6,17 +6,6 @@
 
 namespace ui {
 
-std::optional<state::WorldActionType>
-getWorldActionFromKeyboardShortcut(std::string_view key) {
-  if (key == "l" || key == "L") {
-    return state::WorldActionType::EXAMINE;
-  }
-  if (key == "t" || key == "T") {
-    return state::WorldActionType::TALK;
-  }
-  return std::nullopt;
-}
-
 void setHeldMoveActive(state::StateManager& stateManager, bool isActive) {
   auto nextHeldMove = stateManager.getState().uiState.heldMove;
   nextHeldMove.isActive = isActive;

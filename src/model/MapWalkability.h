@@ -37,6 +37,10 @@ void collectTilesAt(const MapInstance& map,
 // Ignores layers above the current layer. Returns nullptr if none / OOB.
 const TileInstance* resolveTileToRender(const MapInstance& map, int x, int y);
 
+// Same notion MapView uses for "currently visible": resolveTileToRender + isVisible.
+// Missing / empty render tile → not visible. Does not treat isExplored alone as visible.
+bool isTileCurrentlyVisible(const MapInstance& map, int x, int y);
+
 // Non-empty tile on map.tileLayerNumber at (x,y), or nullptr if empty/missing/OOB.
 const TileInstance* tileAtCurrentLayer(const MapInstance& map, int x, int y);
 TileInstance* tileAtCurrentLayer(MapInstance& map, int x, int y);
