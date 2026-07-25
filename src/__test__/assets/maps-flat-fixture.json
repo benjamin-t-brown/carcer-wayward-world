@@ -20,7 +20,7 @@
         "l": 0,
         "i": 0,
         "eventId": "test_event",
-        "isLookTrigger": true
+        "requiresLook": true
       }
     ],
     "travelTriggers": [

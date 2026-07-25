@@ -1,12 +1,15 @@
 #include "LayerInventory.h"
+#include "bmin/String.h"
 #include "sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
-#include "state/actions/ui/UiReorderInventoryItem.hpp"
-#include "state/actions/ui/UiSetCurrentPartyMemberInventory.hpp"
 #include "state/actions/ui/UiDropInventoryItem.hpp"
 #include "state/actions/ui/UiGiveInventoryItem.hpp"
+#include "state/actions/ui/UiRemoveLayer.hpp"
+#include "state/actions/ui/UiReorderInventoryItem.hpp"
+#include "state/actions/ui/UiSetCurrentPartyMemberInventory.hpp"
 #include "state/actions/ui/UiToggleEquipInventoryItem.hpp"
 #include "ui/components/FloatingNotificationSection.h"
+#include "ui/helpers/keyboardShortcuts.h"
 #include "ui/pages/PageInventory.h"
 
 namespace layers {
@@ -26,6 +29,7 @@ LayerInventory::LayerInventory(sdl2w::Window* _window) : Layer(_window, LAYER_ID
   pageInventory->setPos(0, 0);
   pageInventory->setScale(scale);
   auto pageInitProps = pageInventory->getProps();
+  // Window dims; PageInventory → ModalStandard default CappedCentered fits/centers.
   pageInitProps.width = static_cast<int>(windowWidth / scale);
   pageInitProps.height = static_cast<int>(windowHeight / scale);
   pageInventory->setProps(pageInitProps);
@@ -48,6 +52,24 @@ LayerInventory::LayerInventory(sdl2w::Window* _window) : Layer(_window, LAYER_ID
       [this](auto&, auto&) { syncInventoryPartyMember(); });
   subscribeAction<state::actions::UiDropInventoryItem>(
       [this](auto&, auto&) { syncInventoryPartyMember(); });
+}
+
+void LayerInventory::onKeyDown(std::string_view key, int /*keyCode*/) {
+  if (getState() != LayerState::ON) {
+    return;
+  }
+  if (!ui::isCancelActionKey(key)) {
+    return;
+  }
+  auto stateManager = getStateManager();
+  if (!stateManager) {
+    remove();
+    return;
+  }
+  stateManager->enqueueAction(
+      stateManager->getActionData(),
+      new state::actions::UiRemoveLayer(bmin::String(LAYER_ID.data(), LAYER_ID.size())),
+      0);
 }
 
 void LayerInventory::syncInventoryPartyMember() {

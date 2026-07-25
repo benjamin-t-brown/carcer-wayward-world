@@ -1,7 +1,9 @@
 #include "ui/helpers/worldActions.h"
 
 #include "state/StateManager.h"
+#include "state/actions/ui/UiShowLayerInventory.hpp"
 #include "state/actions/ui/heldMove/UiUpdateHeldMove.hpp"
+#include "state/actions/world/WorldInteractAt.hpp"
 #include "state/actions/world/WorldSetActionMode.hpp"
 
 namespace ui {
@@ -26,7 +28,8 @@ void cancelCurrentWorldActionMode(state::StateManager& stateManager) {
 }
 
 void activateWorldAction(state::StateManager& stateManager,
-                         state::WorldActionType worldActionType) {
+                         state::WorldActionType worldActionType,
+                         sdl2w::Window* window) {
 
   const auto currentMode = stateManager.getState().world.actionMode;
 
@@ -52,6 +55,22 @@ void activateWorldAction(state::StateManager& stateManager,
         stateManager.getActionData(),
         new state::actions::WorldSetActionMode(model::WorldActionMode::TALK),
         0);
+    break;
+  case state::WorldActionType::INVENTORY:
+    if (!window) {
+      break;
+    }
+    setHeldMoveActive(stateManager, false);
+    stateManager.enqueueAction(stateManager.getActionData(),
+                               new state::actions::UiShowLayerInventory(window),
+                               0);
+    break;
+  case state::WorldActionType::INTERACT:
+    setHeldMoveActive(stateManager, false);
+    cancelCurrentWorldActionMode(stateManager);
+    stateManager.enqueueAction(stateManager.getActionData(),
+                               new state::actions::WorldInteractAt(),
+                               0);
     break;
   default:
     break;

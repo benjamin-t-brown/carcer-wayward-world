@@ -125,9 +125,9 @@ int main(int argc, char** argv) {
       ok = assertEqualStr(
                layer0[0].eventTrigger->eventId, "test_event", "eventTrigger.eventId") &&
            ok;
-      ok = assertEqual(static_cast<int>(layer0[0].eventTrigger->isLookTrigger),
+      ok = assertEqual(static_cast<int>(layer0[0].eventTrigger->requiresLook),
                        1,
-                       "eventTrigger.isLookTrigger") &&
+                       "eventTrigger.requiresLook") &&
            ok;
     }
     ok = assertTrue(layer0[0].travelTrigger.has_value(), "layer0[0].travelTrigger") && ok;

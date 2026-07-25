@@ -43,6 +43,7 @@ public:
   void syncFromState();
   void setMapScale(float scale);
   void update(int deltaTime) override;
+  void render(int deltaTime) override;
 };
 
 } // namespace layers

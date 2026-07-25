@@ -41,7 +41,7 @@ class WorldExamineAt : public AbstractAction {
     state->world.actionAimTile.reset();
 
     const auto* tile = model::tileAtCurrentLayer(map, x, y);
-    if (tile && tile->eventTrigger && tile->eventTrigger->isLookTrigger) {
+    if (tile && tile->eventTrigger && tile->eventTrigger->requiresLook) {
       state->world.pendingSpecialEventId = tile->eventTrigger->eventId;
       return;
     }

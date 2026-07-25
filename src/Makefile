@@ -56,6 +56,7 @@ ui/UiElement.cpp \
 ui/FontScale.cpp \
 ui/helpers/worldActions.cpp \
 ui/helpers/keyboardShortcuts.cpp \
+ui/helpers/modalLayoutFit.cpp \
 ui/elements/SpriteElement.cpp \
 ui/elements/Quad.cpp \
 ui/elements/TextLine.cpp \
@@ -93,6 +94,7 @@ ui/components/FloatingNotificationSection.cpp \
 ui/components/ConfirmModal.cpp \
 ui/components/TouchMovePad.cpp \
 ui/components/MapView.cpp \
+ui/components/TiledOverlay.cpp \
 ui/layouts/InGameLayout.cpp \
 ui/layouts/ModalStandard.cpp \
 ui/layouts/ModalSmall.cpp \

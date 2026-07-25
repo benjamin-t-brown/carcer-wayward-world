@@ -83,6 +83,7 @@ void BorderModalStandard::build() {
   addChild(iconOutsetRect);
 
   auto topBarOutsetRect = new OutsetRectangle(window, this);
+  topBarOutsetRect->setId("topBarOutsetRect");
   topBarOutsetRect->setPos(style.x + scaledBorder + props.headerHeight * style.scale,
                            style.y + scaledBorder);
   topBarOutsetRect->setScale(style.scale);
@@ -94,6 +95,7 @@ void BorderModalStandard::build() {
   addChild(topBarOutsetRect);
 
   auto bottomBarOutsetRect = new OutsetRectangle(window, this);
+  bottomBarOutsetRect->setId("bottomBarOutsetRect");
   bottomBarOutsetRect->setPos(
       style.x + scaledBorder,
       style.y + scaledHeight - scaledBorder - BOTTOM_BORDER_HEIGHT * style.scale);
@@ -103,6 +105,8 @@ void BorderModalStandard::build() {
       .height = BOTTOM_BORDER_HEIGHT,
   });
   addChild(bottomBarOutsetRect);
+
+  buildTiledOverlay();
 }
 
 void BorderModalStandard::render(int dt) { BorderModalSmall::render(dt); }

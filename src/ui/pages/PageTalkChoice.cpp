@@ -104,10 +104,15 @@ void PageTalkChoice::build() {
   modal->setId("modal");
   modal->setPos(style.x, style.y);
   modal->setScale(style.scale);
+  // FullBleed: LayerSpecialEvent talk path passes window dims and expects the dialogue
+  // shell to fill the window (history + choice panes). CappedCentered would shrink the
+  // talk UI on landscape and fight that layout.
   modal->setProps(ModalStandardProps{
       .width = style.width,
       .height = style.height,
+      .layoutFit = LayoutFit::FullBleed,
       .iconSprite = props.portraitSpriteName,
+      .portraitScale = props.portraitScale,
   });
 
   children.pushBack(bmin::UniquePtr<UiElement>(modal));
@@ -294,7 +299,7 @@ void PageTalkChoice::build() {
         ((prefixText.empty() ? props.choices[i].text
                              : prefixText + " " + props.choices[i].text));
     const SDL_Color choiceColor =
-        props.choices[i].previouslyChosen ? Colors::Grey : Colors::ButtonCloseRed;
+        props.choices[i].previouslyChosen ? Colors::Grey : Colors::DarkBlue;
     choiceButtonProps.isSelected = false;
     choiceButtonProps.textParagraph.textBlocks.pushBack(
         TextBlock{.text = choiceText, .fontColor = choiceColor});

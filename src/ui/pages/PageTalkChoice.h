@@ -18,6 +18,8 @@ struct PageTalkChoiceProps {
   int height = 0;
   bmin::String title;
   bmin::String portraitSpriteName;
+  // Passed through to ModalStandard; scales headerHeight + portrait together.
+  float portraitScale = 1.f;
   int choiceAreaHeight = 100;
   bmin::DynArray<PageTalkChoiceItem> choices;
   bmin::DynArray<TextBlock> textBlocks;

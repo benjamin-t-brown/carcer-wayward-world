@@ -20,16 +20,12 @@ LayerPickUp::LayerPickUp(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
   auto [windowWidth, windowHeight] = window->getDims();
   const auto scale = 1.f;
 
-  const int width = std::min(static_cast<int>(500 / scale),
-                             static_cast<int>(windowWidth / scale));
-  const int height = std::min(static_cast<int>(500 / scale),
-                              static_cast<int>((windowHeight - 50) / scale));
-  minipagePickUp->setPos((windowWidth - width * scale) / 2,
-                         (windowHeight - height * scale) / 2);
+  // Window dims + ModalSmall default CappedCentered (see ui::computeCappedCenteredRect).
+  minipagePickUp->setPos(0, 0);
   minipagePickUp->setScale(scale);
   auto minipageInitProps = minipagePickUp->getProps();
-  minipageInitProps.width = width;
-  minipageInitProps.height = height;
+  minipageInitProps.width = static_cast<int>(windowWidth / scale);
+  minipageInitProps.height = static_cast<int>(windowHeight / scale);
   minipagePickUp->setProps(minipageInitProps);
 
   addUiElement(minipagePickUp);

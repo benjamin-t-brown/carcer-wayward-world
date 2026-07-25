@@ -44,6 +44,7 @@ Follow `.cursor/rules/cpp-code.mdc` for all `src/**/*.cpp` and `src/**/*.h`:
 - Classes live in a namespace (`program` for top-level)
 - Prefer `auto` with braced init; structs for data-only types
 - Use `LOG` from `sdl2w/Logger.h` instead of iostream/printf
+- Wrap **user-facing display text** in `TRANSLATE("...")` from `sdl2w/L10n.h` (UI labels, button text, modal titles, in-game notifications shown to the player). Do **not** wrap error/warning/log strings (`LOG`, assert messages, loader diagnostics) — those stay plain literals for developers. After adding new `TRANSLATE` strings, run `scripts/update-translations.sh`.
 - Mark `override` on overridden methods
 
 For `src/ui/**`, also follow `.cursor/rules/cpp-ui.mdc` (UiElement hierarchy, `addChild`, call `build` after property changes).
@@ -104,6 +105,7 @@ Fix compile errors before reporting COMPLETE.
 
 - Match naming, namespaces, and error-handling patterns in neighboring code.
 - Keep diffs minimal; do not refactor unrelated code.
+- Any new player-visible string literals → `TRANSLATE("...")` + `#include "sdl2w/L10n.h"`; leave log/diagnostic strings untranslated.
 - When changing JSON-loaded templates, update matching assets under `src/assets/` and editor types only if the plan requires it.
 
 ### 3. Verify

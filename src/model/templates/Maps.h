@@ -20,8 +20,8 @@ struct MapTileItemEntry {
 
 struct TileEventTrigger {
   bmin::String eventId;
-  bool isNonCombatTrigger = true;
-  bool isLookTrigger = false;
+  bool requiresNonCombat = true;
+  bool requiresLook = false;
 };
 
 struct TravelTrigger {
@@ -30,6 +30,7 @@ struct TravelTrigger {
   int destinationX = 0;
   int destinationY = 0;
   int destinationLayer = 0;
+  bool requiresAction = false;
 };
 
 struct TileLightSource {

@@ -1,8 +1,10 @@
 #include "ModalStandard.h"
 #include "bmin/StringInterop.h"
 #include "ui/components/borders/BorderModalStandard.h"
+#include "ui/elements/OutsetRectangle.h"
 #include "ui/elements/Quad.h"
 #include "ui/elements/buttons/ButtonClose.h"
+#include "ui/helpers/modalLayoutFit.h"
 #include <algorithm>
 
 namespace ui {
@@ -12,12 +14,6 @@ ModalStandard::ModalStandard(sdl2w::Window* _window, UiElement* _parent)
 
 void ModalStandard::setProps(const ModalStandardProps& _props) {
   props = _props;
-  if (props.width > 0) {
-    style.width = props.width;
-  }
-  if (props.height > 0) {
-    style.height = props.height;
-  }
   build();
 }
 
@@ -62,11 +58,17 @@ void ModalStandard::build() {
   removeChildById("closeButton");
   removeChildById("headerIcon");
 
-  if (props.width > 0) {
-    style.width = props.width;
-  }
-  if (props.height > 0) {
-    style.height = props.height;
+  if (props.width > 0 && props.height > 0) {
+    if (props.layoutFit == LayoutFit::CappedCentered) {
+      const auto rect = computeCappedCenteredRect(props.width, props.height);
+      style.x = rect.x;
+      style.y = rect.y;
+      style.width = rect.width;
+      style.height = rect.height;
+    } else {
+      style.width = props.width;
+      style.height = props.height;
+    }
   }
 
   // Create border element
@@ -74,11 +76,17 @@ void ModalStandard::build() {
   border->setId("border");
   border->setPos(style.x, style.y);
   border->setScale(style.scale);
+  // portraitScale grows headerHeight; portrait fits the inner outset well.
+  constexpr int kBaseHeaderHeight = 80;
+  const float portraitScale = props.portraitScale > 0.f ? props.portraitScale : 1.f;
+  const int headerHeight = static_cast<int>(kBaseHeaderHeight * portraitScale);
+  const int outsetBorder = OutsetRectangleProps{}.borderSize; // 4 → inner well -8
+  const int portraitFitSize = std::max(1, headerHeight - outsetBorder * 2);
   border->setProps(BorderModalSmallProps{
       .width = style.width,
       .height = style.height,
-      .headerHeight = 80,
-      .iconSize = 64,
+      .headerHeight = headerHeight,
+      .iconSize = portraitFitSize,
       .borderWidth = 2,
   });
 
@@ -107,14 +115,15 @@ void ModalStandard::build() {
           window->getStore().getSprite(bmin::toStringView(props.iconSprite));
       const int spriteW = std::max(1, sprite.w);
       const int spriteH = std::max(1, sprite.h);
-      const int iconSize = border->getProps().iconSize;
+      // Inner area of the top-left OutsetRectangle: headerHeight - 2 * borderSize.
+      const int fitSize = border->getProps().iconSize;
       const float fitScale =
-          static_cast<float>(iconSize) / static_cast<float>(std::max(spriteW, spriteH));
+          static_cast<float>(fitSize) / static_cast<float>(std::max(spriteW, spriteH));
       const float drawScale = fitScale * style.scale;
       const int screenW = static_cast<int>(spriteW * drawScale);
       const int screenH = static_cast<int>(spriteH * drawScale);
 
-      auto [centerX, centerY] = border->getIconLocationCenter();
+      auto [centerX, centerY] = border->getIconSectionCenter();
 
       auto icon = new Quad(window, this);
       icon->setId("headerIcon");

@@ -134,6 +134,66 @@
     }
   },
   {
+    "type": "ENEMY",
+    "name": "goblinTest",
+    "label": "Goblin Test",
+    "spritesheet": "actors0",
+    "spriteOffset": 48,
+    "stats": {
+      "generic": {
+        "str": 1,
+        "mnd": 1,
+        "con": 1,
+        "agi": 1,
+        "lck": 1
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 0,
+          "abilityPower": 0,
+          "attunement": 0,
+          "faith": 0,
+          "lore": 0
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 0,
+          "healingEffectiveness": 0,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "combat": {
+      "hp": 12
+    },
+    "sound": {
+      "deathSoundName": "yell2",
+      "weaponSoundName": "punch1"
+    },
+    "vision": {
+      "radius": 6
+    }
+  },
+  {
     "type": "TOWNSPERSON",
     "name": "testPartyMember1",
     "label": "Test Party 1",

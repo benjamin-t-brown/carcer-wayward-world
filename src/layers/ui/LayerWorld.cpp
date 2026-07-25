@@ -1,7 +1,9 @@
 #include "LayerWorld.h"
+#include "layers/ui/LayerInventory.h"
 #include "model/instances/CharacterPlayer.h"
 #include "sdl2w/L10n.h"
 #include "sdl2w/Logger.h"
+#include "state/LayerManagerInterface.h"
 #include "state/WorldActions.h"
 #include "state/actions/ui/UiShowLayerSpecialEvent.hpp"
 #include "state/actions/ui/heldMove/UiUpdateHeldMove.hpp"
@@ -114,7 +116,7 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
   }
 
   if (auto actionType = ui::getWorldActionFromKeyboardShortcut(key)) {
-    ui::activateWorldAction(*stateManager, *actionType);
+    ui::activateWorldAction(*stateManager, *actionType, window);
     return;
   }
 
@@ -316,8 +318,8 @@ void LayerWorld::attachWorldActionObservers(ui::InGameLayout* inGameLayout) {
     if (!button) {
       continue;
     }
-    button->addEventObserver(
-        new ui::ObserverWorldAction(stateManager, button->getProps().worldActionType));
+    button->addEventObserver(new ui::ObserverWorldAction(
+        stateManager, button->getProps().worldActionType, window));
   }
 }
 
@@ -328,6 +330,10 @@ void LayerWorld::syncWorldActionModeHighlight() {
   }
 
   const auto actionMode = getStateManager()->getState().world.actionMode;
+  auto* layerManager = state::LayerManagerInterface::getLayerManager();
+  const bool inventoryOpen =
+      layerManager != nullptr &&
+      layerManager->getLayerById(LayerInventory::LAYER_ID) != nullptr;
   auto* actionButtons = inGameLayout->getChildById("actionButtons");
   if (!actionButtons) {
     return;
@@ -338,11 +344,13 @@ void LayerWorld::syncWorldActionModeHighlight() {
     if (!button) {
       continue;
     }
+    const auto actionType = button->getProps().worldActionType;
     const bool modeSelected =
-        (button->getProps().worldActionType == state::WorldActionType::EXAMINE &&
+        (actionType == state::WorldActionType::EXAMINE &&
          actionMode == model::WorldActionMode::EXAMINE) ||
-        (button->getProps().worldActionType == state::WorldActionType::TALK &&
-         actionMode == model::WorldActionMode::TALK);
+        (actionType == state::WorldActionType::TALK &&
+         actionMode == model::WorldActionMode::TALK) ||
+        (actionType == state::WorldActionType::INVENTORY && inventoryOpen);
     if (button->isModeSelected != modeSelected) {
       button->isModeSelected = modeSelected;
     }
@@ -506,6 +514,13 @@ void LayerWorld::update(int deltaTime) {
   processPendingTriggers();
   syncWorldActionModeHighlight();
   syncActionModeCancelButton();
+}
+
+void LayerWorld::render(int deltaTime) {
+  // World is SUSPENDED while inventory is open (update does not run); still refresh
+  // the inventory action button pressed state before drawing.
+  syncWorldActionModeHighlight();
+  Layer::render(deltaTime);
 }
 
 } // namespace layers

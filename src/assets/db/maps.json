@@ -6794,22 +6794,22 @@
         "l": 0,
         "i": 284,
         "eventId": "alinea_sign_warehouse1",
-        "isNonCombatTrigger": false,
-        "isLookTrigger": true
+        "requiresNonCombat": false,
+        "requiresLook": true
       },
       {
         "l": 0,
         "i": 327,
         "eventId": "alinea_encounterShrineOfLuck",
-        "isNonCombatTrigger": true,
-        "isLookTrigger": false
+        "requiresNonCombat": true,
+        "requiresLook": false
       },
       {
         "l": 0,
         "i": 329,
         "eventId": "alinea_sign_warehouse1",
-        "isNonCombatTrigger": false,
-        "isLookTrigger": true
+        "requiresNonCombat": false,
+        "requiresLook": true
       }
     ],
     "travelTriggers": [
@@ -13918,6 +13918,11 @@
     "characters": [
       {
         "l": 0,
+        "i": 348,
+        "name": "goblinTest"
+      },
+      {
+        "l": 0,
         "i": 484,
         "name": "alinea_Claire"
       }
@@ -13945,22 +13950,22 @@
         "l": 0,
         "i": 251,
         "eventId": "alinea_sign_warehouse3",
-        "isNonCombatTrigger": true,
-        "isLookTrigger": true
+        "requiresNonCombat": true,
+        "requiresLook": true
       },
       {
         "l": 0,
         "i": 340,
         "eventId": "TestEventModal",
-        "isNonCombatTrigger": true,
-        "isLookTrigger": false
+        "requiresNonCombat": true,
+        "requiresLook": false
       },
       {
         "l": 0,
         "i": 363,
         "eventId": "alinea_sign_claireOffice",
-        "isNonCombatTrigger": true,
-        "isLookTrigger": true
+        "requiresNonCombat": true,
+        "requiresLook": true
       }
     ],
     "travelTriggers": [
@@ -13987,7 +13992,8 @@
         "destinationMarkerName": "Stairs1",
         "destinationX": 0,
         "destinationY": 0,
-        "destinationLayer": 0
+        "destinationLayer": 0,
+        "requiresAction": true
       }
     ],
     "tileOverrides": [],

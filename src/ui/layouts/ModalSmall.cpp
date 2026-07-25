@@ -2,6 +2,7 @@
 #include "sdl2w/Draw.h"
 #include "ui/components/borders/BorderModalSmall.h"
 #include "ui/elements/buttons/ButtonClose.h"
+#include "ui/helpers/modalLayoutFit.h"
 
 namespace ui {
 
@@ -12,12 +13,6 @@ ModalSmall::ModalSmall(sdl2w::Window* _window, UiElement* _parent)
 
 void ModalSmall::setProps(const ModalSmallProps& _props) {
   props = _props;
-  if (props.width > 0) {
-    style.width = props.width;
-  }
-  if (props.height > 0) {
-    style.height = props.height;
-  }
   build();
 }
 
@@ -91,11 +86,18 @@ void ModalSmall::build() {
   removeChildById("border");
   removeChildById("closeButton");
 
-  if (props.width > 0) {
-    style.width = props.width;
-  }
-  if (props.height > 0) {
-    style.height = props.height;
+  if (props.width > 0 && props.height > 0) {
+    if (props.layoutFit == LayoutFit::CappedCentered) {
+      const auto rect =
+          computeCappedCenteredRect(props.width, props.height, ModalSizeClass::Small);
+      style.x = rect.x;
+      style.y = rect.y;
+      style.width = rect.width;
+      style.height = rect.height;
+    } else {
+      style.width = props.width;
+      style.height = props.height;
+    }
   }
 
   // Create border element

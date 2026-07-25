@@ -6,6 +6,7 @@
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/buttons/ButtonGroup.h"
+#include "ui/helpers/modalLayoutFit.h"
 #include "ui/layouts/ModalSmall.h"
 #include "ui/observers/ObserverRemoveLayer.hpp"
 
@@ -57,6 +58,7 @@ void MinipagePickUp::build() {
       .height = style.height,
       .enableCloseButton = false,
   });
+  syncHostStyleToCappedCentered(style, ModalSizeClass::Small);
   addChild(modal);
 
   auto [contentW, contentH] = modal->getContentDims();

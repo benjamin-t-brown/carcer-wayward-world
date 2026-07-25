@@ -9,6 +9,7 @@
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/buttons/ButtonClose.h"
+#include "ui/helpers/modalLayoutFit.h"
 #include "ui/layouts/ModalStandard.h"
 #include "ui/observers/ObserverRemoveLayer.hpp"
 #include <algorithm>
@@ -81,10 +82,12 @@ void PageInventory::build() {
   ModalStandardProps modalProps;
   modalProps.width = style.width;
   modalProps.height = style.height;
+  modalProps.portraitScale = props.portraitScale;
   if (!props.characterPlayerSprite.empty()) {
     modalProps.iconSprite = props.characterPlayerSprite;
   }
   modal->setProps(modalProps);
+  syncHostStyleToCappedCentered(style);
   addChild(modal);
 
   if (!props.characterPlayerSprite.empty()) {

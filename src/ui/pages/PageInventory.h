@@ -18,6 +18,8 @@ struct PageInventoryProps {
   bmin::String characterPlayerId;
   bmin::String characterPlayerLabel;
   bmin::String characterPlayerSprite;
+  // Passed through to ModalStandard; scales headerHeight + portrait together.
+  float portraitScale = 1.f;
   int partyMemberInventoryIndex = 0;
   bmin::DynArray<PageInventoryPartyMember> partyMembers;
   int weightCarrying = 0;

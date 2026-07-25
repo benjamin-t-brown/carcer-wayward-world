@@ -1,6 +1,7 @@
 #include "model/TileTriggers.h"
 #include "model/MapWalkability.h"
 #include "bmin/StringInterop.h"
+#include "sdl2w/L10n.h"
 
 namespace model {
 namespace {
@@ -103,21 +104,32 @@ void queueStepTriggersAt(World& world, const MapInstance& map, int x, int y) {
     return;
   }
 
-  if (tile->eventTrigger && !tile->eventTrigger->isLookTrigger) {
+  if (tile->eventTrigger && !tile->eventTrigger->requiresLook) {
     world.pendingSpecialEventId = tile->eventTrigger->eventId;
     return;
   }
 
-  if (tile->travelTrigger) {
+  if (tile->travelTrigger && !tile->travelTrigger->requiresAction) {
     world.pendingTravel = *tile->travelTrigger;
   }
+}
+
+void queueActionTravelAtStanding(World& world, const MapInstance& map, int x, int y) {
+  world.pendingTravel.reset();
+
+  const auto* tile = tileAtCurrentLayer(map, x, y);
+  if (!tile || !tile->travelTrigger || !tile->travelTrigger->requiresAction) {
+    return;
+  }
+
+  world.pendingTravel = *tile->travelTrigger;
 }
 
 bmin::String formatExamineMessage(const MapInstance& map,
                                   int x,
                                   int y,
                                   const db::Database& database) {
-  bmin::String message = "Examine:";
+  bmin::String message = TRANSLATE("Examine:");
 
   auto appendLine = [&](const bmin::String& line) {
     if (line.empty()) {

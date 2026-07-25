@@ -11,6 +11,8 @@ public:
   explicit LayerInventory(sdl2w::Window* _window);
   virtual ~LayerInventory() = default;
 
+  void onKeyDown(std::string_view key, int keyCode) override;
+
   void syncInventoryPartyMember();
 };
 

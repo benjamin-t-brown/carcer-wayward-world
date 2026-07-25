@@ -21,16 +21,14 @@ int main(int argc, char** argv) {
 
     auto [windowWidth, windowHeight] = window.getDims();
 
-    // Create ModalSmall layout
+    // Create ModalSmall layout — window dims; default CappedCentered fits/centers.
     auto modalSmall = new ui::ModalSmall(&window);
-    const int modalWidth = 500;
-    const int modalHeight = windowHeight - 50;
-    modalSmall->setPos((windowWidth - modalWidth) / 2, (windowHeight - modalHeight) / 2);
+    modalSmall->setPos(0, 0);
 
     // Set layout properties
     ui::ModalSmallProps props;
-    props.width = modalWidth;
-    props.height = modalHeight;
+    props.width = windowWidth;
+    props.height = windowHeight;
     props.backgroundColor = ui::Colors::ModalStandardBackground;
     props.iconSprite = "";
     modalSmall->setProps(props);

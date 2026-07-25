@@ -82,8 +82,8 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
     }
     tile->eventTrigger = TileEventTrigger{
         .eventId = et.eventId,
-        .isNonCombatTrigger = et.isNonCombatTrigger,
-        .isLookTrigger = et.isLookTrigger,
+        .requiresNonCombat = et.requiresNonCombat,
+        .requiresLook = et.requiresLook,
     };
   }
 
@@ -98,6 +98,7 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
         .destinationX = tt.destinationX,
         .destinationY = tt.destinationY,
         .destinationLayer = tt.destinationLayer,
+        .requiresAction = tt.requiresAction,
     };
   }
 

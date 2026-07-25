@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
 
     auto [windowWidth, windowHeight] = window.getDims();
 
-    // Create ModalStandard layout
+    // Create ModalStandard layout — window dims; default CappedCentered fits/centers.
     auto modalLayout = bmin::makeUnique<ui::ModalStandard>(&window);
     modalLayout->setPos(0, 0);
     // Set layout properties

@@ -34,15 +34,12 @@ int main(int argc, char** argv) {
     auto scale = 1.f;
     auto minipagePickUp = new ui::MinipagePickUp(&window);
     minipagePickUp->setId("minipagePickUp");
-    const int width = static_cast<int>(500 / scale);
-    const int height = static_cast<int>((windowHeight - 50) / scale);
-    minipagePickUp->setPos((windowWidth - width * scale) / 2,
-                           (windowHeight - height * scale) / 2);
+    minipagePickUp->setPos(0, 0);
     minipagePickUp->setScale(scale);
 
     minipagePickUp->setProps({
-        .width = width,
-        .height = height,
+        .width = static_cast<int>(windowWidth / scale),
+        .height = static_cast<int>(windowHeight / scale),
         .statusText = "Too heavy!",
         .weightText = "Carrying 199/500",
         .nearbyItems =

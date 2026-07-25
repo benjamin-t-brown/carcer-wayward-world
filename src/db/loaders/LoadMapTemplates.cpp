@@ -148,8 +148,8 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       placement.l = entry.value("l", 0);
       placement.i = entry.value("i", 0);
       placement.eventId = entry.value("eventId", bmin::String());
-      placement.isNonCombatTrigger = entry.value("isNonCombatTrigger", true);
-      placement.isLookTrigger = entry.value("isLookTrigger", false);
+      placement.requiresNonCombat = entry.value("requiresNonCombat", true);
+      placement.requiresLook = entry.value("requiresLook", false);
       mapTemplate.eventTriggers.pushBack(std::move(placement));
     }
   }
@@ -164,6 +164,7 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       placement.destinationX = entry.value("destinationX", 0);
       placement.destinationY = entry.value("destinationY", 0);
       placement.destinationLayer = entry.value("destinationLayer", 0);
+      placement.requiresAction = entry.value("requiresAction", false);
       mapTemplate.travelTriggers.pushBack(std::move(placement));
     }
   }

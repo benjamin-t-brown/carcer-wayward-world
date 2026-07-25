@@ -32,8 +32,8 @@ public:
   const std::pair<int, int> getTitleLocation() const;
   const std::pair<int, int> getContentLocation() const;
 
+  void buildTiledOverlay();
   void build() override;
-  void renderBgOverlay();
   void render(int dt) override;
 };
 

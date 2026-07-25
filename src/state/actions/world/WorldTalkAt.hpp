@@ -1,13 +1,14 @@
 #pragma once
 
+#include "bmin/StringInterop.h"
 #include "db/Database.h"
 #include "model/MapWalkability.h"
 #include "model/TileTriggers.h"
 #include "model/instances/World.h"
+#include "sdl2w/L10n.h"
 #include "sdl2w/Logger.h"
 #include "state/AbstractAction.h"
 #include "state/State.h"
-#include "bmin/StringInterop.h"
 
 namespace state {
 
@@ -36,7 +37,7 @@ class WorldTalkAt : public AbstractAction {
     }
 
     if (!model::isTileCurrentlyVisible(map, x, y)) {
-      LOG(INFO) << "You can't see there." << LOG_ENDL;
+      LOG(INFO) << TRANSLATE("You can't see there.") << LOG_ENDL;
       return;
     }
 
@@ -47,7 +48,8 @@ class WorldTalkAt : public AbstractAction {
     for (size_t i = 0; i < map.characters.size(); i++) {
       const auto& character = map.characters[i];
       if (character.x == x && character.y == y) {
-        // Prefer a character that has a talk event; otherwise remember the first occupant.
+        // Prefer a character that has a talk event; otherwise remember the first
+        // occupant.
         if (!target) {
           target = &character;
         }
@@ -64,7 +66,7 @@ class WorldTalkAt : public AbstractAction {
     }
 
     if (!target) {
-      LOG(INFO) << "Talk: there is no one there." << LOG_ENDL;
+      LOG(INFO) << TRANSLATE("Talk: there is no one there.") << LOG_ENDL;
       return;
     }
 
@@ -72,12 +74,12 @@ class WorldTalkAt : public AbstractAction {
       const auto& characterTemplate =
           database->getCharacterTemplate(bmin::toStringView(target->templateName));
       if (characterTemplate.talk.talkName.empty()) {
-        LOG(INFO) << "Talk: they have nothing to say." << LOG_ENDL;
+        LOG(INFO) << TRANSLATE("Talk: they have nothing to say.") << LOG_ENDL;
         return;
       }
       state->world.pendingSpecialEventId = characterTemplate.talk.talkName;
     } catch (...) {
-      LOG(INFO) << "Talk: they have nothing to say." << LOG_ENDL;
+      LOG(INFO) << TRANSLATE("Talk: they have nothing to say.") << LOG_ENDL;
     }
   }
 

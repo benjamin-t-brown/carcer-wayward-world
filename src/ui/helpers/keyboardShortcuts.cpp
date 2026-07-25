@@ -10,6 +10,15 @@ getWorldActionFromKeyboardShortcut(std::string_view key) {
   if (key == "t" || key == "T") {
     return state::WorldActionType::TALK;
   }
+  if (key == "i" || key == "I") {
+    return state::WorldActionType::INVENTORY;
+  }
+  if (key == " ") {
+    return state::WorldActionType::INTERACT;
+  }
+  if (key == "Keypad 5") {
+    return state::WorldActionType::INTERACT;
+  }
   return std::nullopt;
 }
 

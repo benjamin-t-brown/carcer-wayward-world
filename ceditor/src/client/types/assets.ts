@@ -1201,8 +1201,8 @@ export interface TileOverrides {
 
 export interface TileEventTrigger {
   eventId: string;
-  isNonCombatTrigger?: boolean;
-  isLookTrigger?: boolean;
+  requiresNonCombat?: boolean;
+  requiresLook?: boolean;
 }
 
 export interface TravelTrigger {
@@ -1212,6 +1212,8 @@ export interface TravelTrigger {
   destinationY: number;
   /** Destination map layer; default 0. */
   destinationLayer: number;
+  /** When true, travel fires on Interact while standing on the tile. */
+  requiresAction?: boolean;
 }
 
 export type MapType = 'TOWN' | 'OUTDOOR';

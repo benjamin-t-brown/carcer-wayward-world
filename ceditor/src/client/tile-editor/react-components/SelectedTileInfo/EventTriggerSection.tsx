@@ -37,14 +37,14 @@ export function EventTriggerSection({
 
   const assignEventToTile = (
     eventId: string,
-    options?: { forceLookTrigger?: boolean }
+    options?: { forceRequiresLook?: boolean }
   ) => {
     const walkable = isMapTileWalkable(selectedTile, tilesets);
     updateTile((tile) => {
       tile.eventTrigger = {
         eventId,
-        isNonCombatTrigger: true,
-        isLookTrigger: options?.forceLookTrigger ? true : !walkable,
+        requiresNonCombat: true,
+        requiresLook: options?.forceRequiresLook ? true : !walkable,
       };
     });
   };
@@ -67,7 +67,7 @@ export function EventTriggerSection({
     try {
       await saveGameEvents(nextEvents);
       setGameEvents(nextEvents);
-      assignEventToTile(result.triggerId, { forceLookTrigger: true });
+      assignEventToTile(result.triggerId, { forceRequiresLook: true });
       setIsCreateSignOpen(false);
     } catch (err) {
       console.error('Failed to save sign event:', err);
@@ -325,23 +325,23 @@ export function EventTriggerSection({
             }}
           >
             <OverrideCheckbox
-              value={selectedTile.eventTrigger.isNonCombatTrigger}
-              label="Non Combat Trigger"
+              value={selectedTile.eventTrigger.requiresNonCombat ?? true}
+              label="Requires Non Combat"
               onChange={(newValue) => {
                 updateTile((tile) => {
                   if (tile.eventTrigger) {
-                    tile.eventTrigger.isNonCombatTrigger = newValue;
+                    tile.eventTrigger.requiresNonCombat = newValue;
                   }
                 });
               }}
             />
             <OverrideCheckbox
-              value={selectedTile.eventTrigger.isLookTrigger}
-              label="Look Trigger"
+              value={selectedTile.eventTrigger.requiresLook ?? false}
+              label="Requires Look"
               onChange={(newValue) => {
                 updateTile((tile) => {
                   if (tile.eventTrigger) {
-                    tile.eventTrigger.isLookTrigger = newValue;
+                    tile.eventTrigger.requiresLook = newValue;
                   }
                 });
               }}

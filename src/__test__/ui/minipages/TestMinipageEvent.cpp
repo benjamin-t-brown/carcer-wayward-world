@@ -17,12 +17,10 @@ public:
 
     auto minipageEvent = bmin::makeUnique<ui::MinipageEvent>(window);
     minipageEvent->setId("minipageEvent");
-    const int width = 500;
-    const int height = windowHeight - 50;
-    minipageEvent->setPos((windowWidth - width) / 2, (windowHeight - height) / 2);
+    minipageEvent->setPos(0, 0);
     minipageEvent->setProps(ui::MinipageEventProps{
-        .width = width,
-        .height = height,
+        .width = windowWidth,
+        .height = windowHeight,
     });
     addUiElement(minipageEvent.release());
   }

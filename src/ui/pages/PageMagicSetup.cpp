@@ -2,6 +2,7 @@
 #include "ui/colors.h"
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
+#include "ui/helpers/modalLayoutFit.h"
 #include "ui/layouts/ModalStandard.h"
 
 namespace ui {
@@ -51,6 +52,7 @@ void PageMagicSetup::build() {
       .width = style.width,
       .height = style.height,
   });
+  syncHostStyleToCappedCentered(style);
 
   auto [contentW, contentH] = modal->getContentDims();
 

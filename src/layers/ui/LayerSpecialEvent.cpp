@@ -15,7 +15,6 @@
 #include "ui/observers/ObserverSpecialEventContinue.hpp"
 #include "ui/pages/PageModalEvent.h"
 #include "ui/pages/PageTalkChoice.h"
-#include <algorithm>
 #include <string_view>
 
 namespace layers {
@@ -23,7 +22,6 @@ namespace layers {
 namespace {
 
 constexpr int TALK_CHOICE_AREA_HEIGHT = 250;
-constexpr int MODAL_WIDTH = 500;
 constexpr int kKeyboardPressFlashMs = 120;
 
 ui::PageTalkChoiceProps buildTalkProps(runner::SpecialEventRunner& runner,
@@ -37,6 +35,7 @@ ui::PageTalkChoiceProps buildTalkProps(runner::SpecialEventRunner& runner,
   props.title =
       runner.gameEvent.title.empty() ? runner.gameEvent.id : runner.gameEvent.title;
   props.portraitSpriteName = runner.gameEvent.icon;
+  props.portraitScale = 1.5f;
   props.pinFromBlockIndex = static_cast<int>(talkHistory.size());
   for (const auto& block : talkHistory) {
     props.textBlocks.pushBack(block);
@@ -60,8 +59,9 @@ ui::PageTalkChoiceProps buildTalkProps(runner::SpecialEventRunner& runner,
 ui::PageModalEventProps
 buildModalProps(runner::SpecialEventRunner& runner, int windowWidth, int windowHeight) {
   ui::PageModalEventProps props;
-  props.width = MODAL_WIDTH;
-  props.height = std::min(windowHeight - 50, 420);
+  // Window dims; ModalSmall default CappedCentered sizes/centers the shell.
+  props.width = windowWidth;
+  props.height = windowHeight;
   props.title =
       runner.gameEvent.title.empty() ? runner.gameEvent.id : runner.gameEvent.title;
   if (!runner.displayText.empty()) {
@@ -117,9 +117,7 @@ LayerSpecialEvent::LayerSpecialEvent(
                                       static_cast<int>(windowHeight / scale));
     auto pageModalEvent = new ui::PageModalEvent(window);
     pageModalEvent->setId("eventPage");
-    pageModalEvent->setPos((static_cast<int>(windowWidth / scale) - modalProps.width) / 2,
-                           (static_cast<int>(windowHeight / scale) - modalProps.height) /
-                               2);
+    pageModalEvent->setPos(0, 0);
     pageModalEvent->setScale(scale);
     pageModalEvent->setProps(modalProps);
     addUiElement(pageModalEvent);
@@ -154,7 +152,7 @@ void LayerSpecialEvent::appendTalkChoiceToHistory(int choiceIndex) {
       choice.prefix.empty() ? choice.text : choice.prefix + " " + choice.text;
   ui::TextBlock block;
   block.text = bmin::String("> ") + label + "\n\n";
-  block.fontColor = ui::Colors::ButtonCloseRed;
+  block.fontColor = ui::Colors::DarkBlue;
   talkHistory.pushBack(block);
 }
 
@@ -180,8 +178,7 @@ void LayerSpecialEvent::syncUi() {
   auto [windowWidth, windowHeight] = window->getDims();
   auto modalProps = buildModalProps(
       runner, static_cast<int>(windowWidth), static_cast<int>(windowHeight));
-  pageModalEvent->setPos((static_cast<int>(windowWidth) - modalProps.width) / 2,
-                         (static_cast<int>(windowHeight) - modalProps.height) / 2);
+  pageModalEvent->setPos(0, 0);
   pageModalEvent->setProps(modalProps);
   attachChoiceObservers();
   attachModalContinueObserver();

@@ -11,6 +11,7 @@
 #include "ui/elements/VerticalList.h"
 #include "ui/elements/buttons/ButtonIcon.h"
 #include "ui/elements/buttons/ButtonModal.h"
+#include "ui/helpers/modalLayoutFit.h"
 #include "ui/layouts/ModalStandard.h"
 #include "ui/observers/ObserverShowLayerPopupText.hpp"
 #include <utility>
@@ -349,6 +350,7 @@ void PageCharacter::build() {
     modalProps.iconSprite = model::characterPlayerGetSprite(*props.characterPlayer);
   }
   modal->setProps(modalProps);
+  syncHostStyleToCappedCentered(style);
   addChild(modal);
 
   auto [contentW, contentH] = modal->getContentDims();

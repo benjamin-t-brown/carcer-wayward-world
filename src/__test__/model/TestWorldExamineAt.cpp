@@ -104,7 +104,7 @@ int main(int /*argc*/, char** /*argv*/) {
     auto& tile = state.world.currentMap.tiles[0][3 + 2 * 5];
     tile.eventTrigger = model::TileEventTrigger{
         .eventId = "look_event",
-        .isLookTrigger = true,
+        .requiresLook = true,
     };
 
     state::actions::WorldExamineAt examineAt(3, 2);
@@ -155,7 +155,7 @@ int main(int /*argc*/, char** /*argv*/) {
     auto& tile = state.world.currentMap.tiles[0][4 + 4 * 5];
     tile.eventTrigger = model::TileEventTrigger{
         .eventId = "hidden_look",
-        .isLookTrigger = true,
+        .requiresLook = true,
     };
 
     ok = assertFalse(model::isTileCurrentlyVisible(state.world.currentMap, 4, 4),

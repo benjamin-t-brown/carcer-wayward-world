@@ -7,6 +7,7 @@ import { SearchSelect } from '../../../elements/SearchSelect';
 import { collectMarkerNamesOnMap } from '../../mapLocate';
 import { OpenMapAndSelectTileArgs } from '../../TileEditor';
 import { sortedLayerKeys } from '../../../utils/mapIndex';
+import { OverrideCheckbox } from './OverrideCheckbox';
 
 interface TravelTriggerSectionProps {
   selectedTile: CarcerMapTileTemplate;
@@ -120,6 +121,7 @@ export function TravelTriggerSection({
                   destinationX,
                   destinationY,
                   destinationLayer: currentLayer,
+                  requiresAction: true,
                 };
               });
             }}
@@ -327,6 +329,20 @@ export function TravelTriggerSection({
               ))}
             </select>
           </div>
+          <OverrideCheckbox
+            value={selectedTile.travelTrigger.requiresAction ?? false}
+            label="Requires Action"
+            onChange={(newValue) => {
+              updateTile((tile) => {
+                if (tile.travelTrigger) {
+                  tile.travelTrigger = {
+                    ...tile.travelTrigger,
+                    requiresAction: newValue ?? false,
+                  };
+                }
+              });
+            }}
+          />
         </div>
       )}
 

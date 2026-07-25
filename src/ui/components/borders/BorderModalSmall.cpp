@@ -1,4 +1,5 @@
 #include "BorderModalSmall.h"
+#include "ui/components/TiledOverlay.h"
 
 namespace ui {
 
@@ -69,6 +70,25 @@ const std::pair<int, int> BorderModalSmall::getTitleLocation() const {
   return {titleX, titleY};
 }
 
+void BorderModalSmall::buildTiledOverlay() {
+  removeChildById("tiledOverlay");
+  if (style.width <= 0 || style.height <= 0) {
+    return;
+  }
+
+  auto* overlay = new TiledOverlay(window, this);
+  overlay->setId("tiledOverlay");
+  overlay->setPos(style.x, style.y);
+  overlay->setScale(style.scale);
+  overlay->setProps(TiledOverlayProps{
+      .width = style.width,
+      .height = style.height,
+      .spriteName = "ui_overlay_256",
+      .alpha = 40,
+  });
+  addChild(overlay);
+}
+
 void BorderModalSmall::build() {
   if (props.width > 0) {
     style.width = props.width;
@@ -76,46 +96,7 @@ void BorderModalSmall::build() {
   if (props.height > 0) {
     style.height = props.height;
   }
-}
-
-void BorderModalSmall::renderBgOverlay() {
-  int contentX = style.x;
-  int contentY = style.y;
-  int contentWidthScaled = style.width * style.scale;
-  int contentHeightScaled = style.height * style.scale;
-  auto& draw = window->getDraw();
-  auto& store = window->getStore();
-  auto& sprite = store.getSprite("ui_overlay_256");
-  auto alpha = draw.getGlobalAlpha();
-  draw.setGlobalAlpha(40);
-
-  // Get native sprite size (assuming sprite.w and sprite.h exist)
-  int spriteW = sprite.w;
-  int spriteH = sprite.h;
-
-  // Tile the sprite across the content area
-  for (int y = contentY; y < contentY + contentHeightScaled; y += spriteH) {
-    for (int x = contentX; x < contentX + contentWidthScaled; x += spriteW) {
-      int clipW = std::min(spriteW, contentX + contentWidthScaled - x);
-      int clipH = std::min(spriteH, contentY + contentHeightScaled - y);
-      // Only draw portion if at the edge (may be partial)
-      draw.drawSprite(sprite,
-                      sdl2w::RenderableParamsEx{
-                          .scale = {1.0, 1.0},
-                          .x = x,
-                          .y = y,
-                          .w = clipW,
-                          .h = clipH,
-                          .clipX = 0,
-                          .clipY = 0,
-                          .clipW = clipW,
-                          .clipH = clipH,
-                          .centered = false,
-                      });
-    }
-  }
-
-  draw.setGlobalAlpha(alpha);
+  buildTiledOverlay();
 }
 
 void BorderModalSmall::render(int dt) {
@@ -145,7 +126,6 @@ void BorderModalSmall::render(int dt) {
                 props.iconSize * style.scale,
                 Colors::DarkBlue);
   UiElement::render(dt);
-  renderBgOverlay();
 }
 
 } // namespace ui

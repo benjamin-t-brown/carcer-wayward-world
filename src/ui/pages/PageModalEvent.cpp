@@ -8,6 +8,7 @@
 #include "ui/elements/TextParagraph.h"
 #include "ui/elements/buttons/ButtonGroup.h"
 #include "ui/elements/buttons/ButtonTextWrap.h"
+#include "ui/helpers/modalLayoutFit.h"
 #include "ui/layouts/ModalSmall.h"
 #include <algorithm>
 
@@ -57,6 +58,7 @@ void PageModalEvent::build() {
       .height = style.height,
       .enableCloseButton = false,
   });
+  syncHostStyleToCappedCentered(style, ModalSizeClass::Small);
   addChild(modal);
 
   auto title = new TextLine(window, modal);

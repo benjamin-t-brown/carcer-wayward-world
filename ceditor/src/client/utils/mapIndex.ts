@@ -302,8 +302,8 @@ export function materializeLayer(
     if (event) {
       tile.eventTrigger = {
         eventId: event.eventId,
-        isNonCombatTrigger: event.isNonCombatTrigger,
-        isLookTrigger: event.isLookTrigger,
+        requiresNonCombat: event.requiresNonCombat,
+        requiresLook: event.requiresLook,
       };
     }
 
@@ -315,6 +315,7 @@ export function materializeLayer(
         destinationX: travel.destinationX,
         destinationY: travel.destinationY,
         destinationLayer: travel.destinationLayer ?? 0,
+        requiresAction: travel.requiresAction ?? false,
       };
     }
 
@@ -390,7 +391,12 @@ export function writeLayerFromTiles(
       map.travelTriggers.push({
         l,
         i,
-        ...tile.travelTrigger,
+        destinationMapName: tile.travelTrigger.destinationMapName,
+        destinationMarkerName: tile.travelTrigger.destinationMarkerName,
+        destinationX: tile.travelTrigger.destinationX,
+        destinationY: tile.travelTrigger.destinationY,
+        destinationLayer: tile.travelTrigger.destinationLayer ?? 0,
+        requiresAction: tile.travelTrigger.requiresAction ?? false,
       });
     }
     if (tile.tileOverrides) {
@@ -452,7 +458,6 @@ export function commitMaterializedLayer(
     return;
   }
   writeLayerFromTiles(map, l, tiles);
-  byLayer.set(l, materializeLayer(map, l));
 }
 
 export function sortedLayerKeys(map: CarcerMapTemplate): number[] {

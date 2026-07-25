@@ -2,14 +2,18 @@
 
 #include "../UiElement.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/helpers/modalLayoutFit.h"
 #include "bmin/String.h"
 
 namespace ui {
 
 // ModalSmall layout properties
 struct ModalSmallProps {
+  // For LayoutFit::CappedCentered (default), width/height are window dims.
+  // For LayoutFit::FullBleed, width/height are the modal size as-is.
   int width = 0;
   int height = 0;
+  LayoutFit layoutFit = LayoutFit::CappedCentered;
   SDL_Color backgroundColor = Colors::White;
   bmin::String iconSprite = "";
   bool enableCloseButton = true;

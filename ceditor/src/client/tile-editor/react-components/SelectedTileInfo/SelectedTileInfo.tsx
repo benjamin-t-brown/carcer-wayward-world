@@ -14,6 +14,7 @@ import { EventTriggerSection } from './EventTriggerSection';
 import { TileOverridesSection } from './TileOverridesSection';
 import { OpenMapAndSelectTileArgs } from '../../TileEditor';
 import { commitCurrentLayer, getTileList } from '../../editorEvents';
+import { invalidateMaterializedLayer } from '../../../utils/mapIndex';
 import { addMapTileItemEntry } from '../../mapTileItems';
 
 interface SelectedTileInfoProps {
@@ -40,11 +41,17 @@ export function SelectedTileInfo({
       return;
     }
 
-    const updatedTile = { ...mapTiles[selectedTileInd] };
+    const updatedTile = structuredClone(mapTiles[selectedTileInd]);
     updater(updatedTile);
     mapTiles[selectedTileInd] = updatedTile;
     commitCurrentLayer(map, getEditorState().currentLevel);
-    onMapUpdate({ ...map });
+    invalidateMaterializedLayer(map);
+    onMapUpdate({
+      ...map,
+      eventTriggers: map.eventTriggers.map((entry) => ({ ...entry })),
+      travelTriggers: map.travelTriggers.map((entry) => ({ ...entry })),
+    });
+    (window as unknown as { reRenderTileEditor?: () => void }).reRenderTileEditor?.();
   };
 
   if (selectedTileInd < 0 || selectedTileInd >= mapTiles.length) {

@@ -17,12 +17,10 @@ public:
 
     auto minipageCharacterSheet = bmin::makeUnique<ui::MinipageCharacterSheet>(window);
     minipageCharacterSheet->setId("minipageCharacterSheet");
-    const int width = 500;
-    const int height = windowHeight - 50;
-    minipageCharacterSheet->setPos((windowWidth - width) / 2, (windowHeight - height) / 2);
+    minipageCharacterSheet->setPos(0, 0);
     minipageCharacterSheet->setProps(ui::MinipageCharacterSheetProps{
-        .width = width,
-        .height = height,
+        .width = windowWidth,
+        .height = windowHeight,
     });
 
     addUiElement(minipageCharacterSheet.release());

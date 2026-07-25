@@ -10,15 +10,19 @@ namespace ui {
 class ObserverWorldAction : public UiEventObserver {
   state::StateManager* stateManager;
   state::WorldActionType worldActionType;
+  sdl2w::Window* window;
 
 public:
   ObserverWorldAction(state::StateManager* _stateManager,
-                      state::WorldActionType _worldActionType)
-      : stateManager(_stateManager), worldActionType(_worldActionType) {}
+                      state::WorldActionType _worldActionType,
+                      sdl2w::Window* _window)
+      : stateManager(_stateManager),
+        worldActionType(_worldActionType),
+        window(_window) {}
 
   void onClick(int mouseX, int mouseY, int button) override {
     if (stateManager) {
-      activateWorldAction(*stateManager, worldActionType);
+      activateWorldAction(*stateManager, worldActionType, window);
     }
   }
 };

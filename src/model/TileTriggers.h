@@ -21,6 +21,9 @@ CharacterInstance* placePartyAvatarAt(MapInstance& map, Player& player, int x, i
 // After a successful step onto (x, y): queue special event or travel on world.
 void queueStepTriggersAt(World& world, const MapInstance& map, int x, int y);
 
+// While standing on (x, y): queue travel when the tile's travel trigger requires action.
+void queueActionTravelAtStanding(World& world, const MapInstance& map, int x, int y);
+
 // Console examine text: tile description, character labels, and item labels on the tile.
 bmin::String formatExamineMessage(const MapInstance& map,
                                   int x,

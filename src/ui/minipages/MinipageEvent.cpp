@@ -1,6 +1,7 @@
 #include "MinipageEvent.h"
 #include "ui/colors.h"
 #include "ui/elements/TextLine.h"
+#include "ui/helpers/modalLayoutFit.h"
 #include "ui/layouts/ModalSmall.h"
 
 namespace ui {
@@ -50,6 +51,7 @@ void MinipageEvent::build() {
       .width = style.width,
       .height = style.height,
   });
+  syncHostStyleToCappedCentered(style, ModalSizeClass::Small);
 
   auto title = bmin::makeUnique<TextLine>(window, modal.get());
   TextFontProps titleFont;

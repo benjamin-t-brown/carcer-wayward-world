@@ -2,17 +2,24 @@
 
 #include "../UiElement.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/helpers/modalLayoutFit.h"
 #include "bmin/String.h"
 
 namespace ui {
 
 // ModalStandard layout properties
 struct ModalStandardProps {
+  // For LayoutFit::CappedCentered (default), width/height are window dims.
+  // For LayoutFit::FullBleed, width/height are the modal size as-is.
   int width = 0;
   int height = 0;
+  LayoutFit layoutFit = LayoutFit::CappedCentered;
   SDL_Color contentBackgroundColor = Colors::White;
   bmin::String decorationSprite = "";
   bmin::String iconSprite;
+  // Scales headerHeight (base 80) and the portrait that fits inside the top-left
+  // OutsetRectangle well (headerHeight - 2 * outset border).
+  float portraitScale = 1.f;
 };
 
 // ModalStandard layout - renders a modal with background, border, title, subtitle, close

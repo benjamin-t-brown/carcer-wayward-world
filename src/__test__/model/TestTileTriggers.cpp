@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
     auto& tile = map.tiles[0][0];
     tile.eventTrigger = model::TileEventTrigger{
         .eventId = "step_event",
-        .isLookTrigger = false,
+        .requiresLook = false,
     };
     tile.travelTrigger = model::TravelTrigger{
         .destinationMapName = "other",
@@ -132,6 +132,27 @@ int main(int argc, char** argv) {
     ok = assertTrue(!world.pendingSpecialEventId.has_value(), "no event pending") && ok;
     ok = assertTrue(world.pendingTravel.has_value(), "travel pending") && ok;
     ok = assertEqualStr(world.pendingTravel->destinationMapName, "dest_map", "travel map") && ok;
+  }
+
+  {
+    auto world = model::World{};
+    auto map = makeMap(2, 2);
+    map.tiles[0][0].travelTrigger = model::TravelTrigger{
+        .destinationMapName = "action_dest",
+        .requiresAction = true,
+    };
+    world.currentMap = map;
+
+    model::queueStepTriggersAt(world, map, 0, 0);
+    ok = assertTrue(!world.pendingTravel.has_value(), "action travel not queued on step") &&
+         ok;
+
+    model::queueActionTravelAtStanding(world, map, 0, 0);
+    ok = assertTrue(world.pendingTravel.has_value(), "action travel queued on interact") &&
+         ok;
+    ok = assertEqualStr(world.pendingTravel->destinationMapName, "action_dest",
+                        "action travel map") &&
+         ok;
   }
 
   {
@@ -182,7 +203,7 @@ int main(int argc, char** argv) {
 
     auto& destTile = map.tiles[0][static_cast<size_t>(1 * map.width + 2)];
     destTile.eventTrigger =
-        model::TileEventTrigger{.eventId = "on_step", .isLookTrigger = false};
+        model::TileEventTrigger{.eventId = "on_step", .requiresLook = false};
 
     state::actions::WorldMovePlayer moveEast(1, 0);
     moveEast.execute(&state);
