@@ -210,7 +210,9 @@
     },
     "sound": {
       "deathSound": "soundName",
-      "weaponSound": "soundName"
+      "weaponSound": "soundName",
+      "deathSoundName": "yell1",
+      "weaponSoundName": "punch1"
     },
     "statuses": [],
     "vision": {
@@ -277,7 +279,9 @@
     },
     "sound": {
       "deathSound": "soundName",
-      "weaponSound": "soundName"
+      "weaponSound": "soundName",
+      "deathSoundName": "yell1",
+      "weaponSoundName": "punch1"
     },
     "statuses": [],
     "vision": {
@@ -344,7 +348,9 @@
     },
     "sound": {
       "deathSound": "soundName",
-      "weaponSound": "soundName"
+      "weaponSound": "soundName",
+      "deathSoundName": "yell1",
+      "weaponSoundName": "punch1"
     },
     "statuses": [],
     "vision": {
@@ -411,7 +417,9 @@
     },
     "sound": {
       "deathSound": "soundName",
-      "weaponSound": "soundName"
+      "weaponSound": "soundName",
+      "deathSoundName": "yell1",
+      "weaponSoundName": "punch1"
     },
     "statuses": [],
     "vision": {
@@ -478,7 +486,9 @@
     },
     "sound": {
       "deathSound": "soundName",
-      "weaponSound": "soundName"
+      "weaponSound": "soundName",
+      "deathSoundName": "yell1",
+      "weaponSoundName": "punch1"
     },
     "statuses": [],
     "vision": {
@@ -545,7 +555,9 @@
     },
     "sound": {
       "deathSound": "soundName",
-      "weaponSound": "soundName"
+      "weaponSound": "soundName",
+      "deathSoundName": "yell1",
+      "weaponSoundName": "punch1"
     },
     "statuses": [],
     "vision": {
