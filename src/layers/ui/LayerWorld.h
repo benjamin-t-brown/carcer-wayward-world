@@ -14,7 +14,7 @@ namespace layers {
 
 class LayerWorld : public Layer {
 private:
-  void processPendingTriggers();
+  // void processPendingTriggers();
   void attachWorldActionObservers(ui::InGameLayout* inGameLayout);
   void syncWorldActionModeHighlight();
   void syncActionModeCancelButton();

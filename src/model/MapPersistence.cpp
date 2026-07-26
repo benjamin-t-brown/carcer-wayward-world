@@ -45,10 +45,10 @@ void enterMap(World& world, const bmin::String& templateName, const db::Database
   const auto& mapTemplate = database.getMapTemplate(bmin::toStringView(templateName));
   world.currentMap = createMapInstanceFromTemplate(mapTemplate);
   world.name = mapTemplate.label.empty() ? mapTemplate.name : mapTemplate.label;
-  world.camX = 0;
-  world.camY = 0;
-  world.cameraMode = CameraMode::Follow;
-  world.cameraFollowCharacterId = bmin::String{};
+  world.camera.camX = 0;
+  world.camera.camY = 0;
+  world.camera.cameraMode = CameraMode::Follow;
+  world.camera.cameraFollowCharacterId = bmin::String{};
 
   hydrateCurrentMapFromPersistence(world, database);
 }

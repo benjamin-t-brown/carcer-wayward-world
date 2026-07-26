@@ -1,18 +1,20 @@
 #include "LayerWorld.h"
+#include "layers/LayerManager.h"
 #include "layers/ui/LayerInventory.h"
 #include "model/instances/CharacterPlayer.h"
 #include "sdl2w/L10n.h"
 #include "sdl2w/Logger.h"
 #include "state/LayerManagerInterface.h"
 #include "state/WorldActions.h"
-#include "state/actions/ui/UiShowLayerSpecialEvent.hpp"
+#include "state/WorldUpdater.h"
+#include "state/actions/combat/EndCombat.hpp"
+#include "state/actions/combat/StartCombat.hpp"
 #include "state/actions/ui/heldMove/UiUpdateHeldMove.hpp"
 #include "state/actions/world/WorldExamineAt.hpp"
 #include "state/actions/world/WorldMoveActionAim.hpp"
 #include "state/actions/world/WorldMovePlayer.hpp"
 #include "state/actions/world/WorldSetActionAim.hpp"
 #include "state/actions/world/WorldTalkAt.hpp"
-#include "state/actions/world/WorldTravel.hpp"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/components/InGameTitleBar.h"
 #include "ui/components/MapView.h"
@@ -70,6 +72,9 @@ LayerWorld::LayerWorld(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
   floatingNotificationSection->setId("floatingNotificationSection");
   addUiElement(floatingNotificationSection);
 
+  subscribeAction<state::actions::StartCombat>([this](auto&, auto&) { syncFromState(); });
+  subscribeAction<state::actions::EndCombat>([this](auto&, auto&) { syncFromState(); });
+
   syncFromState();
 }
 
@@ -88,9 +93,8 @@ void LayerWorld::confirmWorldActionAim(int tileX, int tileY) {
   }
   if (actionMode == model::WorldActionMode::TALK) {
     ui::setHeldMoveActive(*stateManager, false);
-    stateManager->enqueueAction(stateManager->getActionData(),
-                                new state::actions::WorldTalkAt(tileX, tileY),
-                                0);
+    stateManager->enqueueAction(
+        stateManager->getActionData(), new state::actions::WorldTalkAt(tileX, tileY), 0);
   }
 }
 
@@ -264,8 +268,8 @@ void LayerWorld::alignMapView() {
       .height = static_cast<int>(worldH / mapScale),
   });
   // Content dims are in map pixels; screen size is content * mapScale.
-  world->viewW = static_cast<int>(worldW / mapScale);
-  world->viewH = static_cast<int>(worldH / mapScale);
+  world->camera.viewW = static_cast<int>(worldW / mapScale);
+  world->camera.viewH = static_cast<int>(worldH / mapScale);
 }
 
 void LayerWorld::setMapScale(float scale) {
@@ -471,38 +475,38 @@ void LayerWorld::updateHeldMoveRepeat(int deltaTime) {
   }
 }
 
-void LayerWorld::processPendingTriggers() {
-  auto stateManager = getStateManager();
-  if (!stateManager) {
-    return;
-  }
+// void LayerWorld::processPendingTriggers() {
+//   auto stateManager = getStateManager();
+//   if (!stateManager) {
+//     return;
+//   }
 
-  auto& state = stateManager->getState();
-  auto& world = state.world;
-  bool mapChanged = false;
+//   auto& state = stateManager->getState();
+//   auto& world = state.world;
+//   bool mapChanged = false;
 
-  if (world.pendingSpecialEventId) {
-    ui::setHeldMoveActive(*stateManager, false);
-    auto eventId = *world.pendingSpecialEventId;
-    world.pendingSpecialEventId.reset();
-    state::actions::UiShowLayerSpecialEvent specialEvent =
-        state::actions::UiShowLayerSpecialEvent(window, eventId);
-    specialEvent.execute(&state);
-  }
+//   if (world.pendingSpecialEventId) {
+//     ui::setHeldMoveActive(*stateManager, false);
+//     auto eventId = *world.pendingSpecialEventId;
+//     world.pendingSpecialEventId.reset();
+//     state::actions::UiShowLayerSpecialEvent specialEvent =
+//         state::actions::UiShowLayerSpecialEvent(window, eventId);
+//     specialEvent.execute(&state);
+//   }
 
-  if (world.pendingTravel) {
-    ui::setHeldMoveActive(*stateManager, false);
-    auto travel = *world.pendingTravel;
-    world.pendingTravel.reset();
-    state::actions::WorldTravel travelAction(travel);
-    travelAction.execute(&state);
-    mapChanged = true;
-  }
+//   if (world.pendingTravel) {
+//     ui::setHeldMoveActive(*stateManager, false);
+//     auto travel = *world.pendingTravel;
+//     world.pendingTravel.reset();
+//     state::actions::WorldTravel travelAction(travel);
+//     travelAction.execute(&state);
+//     mapChanged = true;
+//   }
 
-  if (mapChanged) {
-    syncFromState();
-  }
-}
+//   if (mapChanged) {
+//     syncFromState();
+//   }
+// }
 
 void LayerWorld::update(int deltaTime) {
   Layer::update(deltaTime);
@@ -511,7 +515,15 @@ void LayerWorld::update(int deltaTime) {
   auto& events = window->getEvents();
   updateAimFromMouse(events.mouseX, events.mouseY);
   updateHeldMoveRepeat(deltaTime);
-  processPendingTriggers();
+
+  auto stateManager = getStateManager();
+  if (stateManager) {
+    state::worldProcessPendingTriggers(window, *stateManager);
+    if (stateManager->getState().world.mapChangedThisTick) {
+      syncFromState();
+    }
+  }
+
   syncWorldActionModeHighlight();
   syncActionModeCancelButton();
 }

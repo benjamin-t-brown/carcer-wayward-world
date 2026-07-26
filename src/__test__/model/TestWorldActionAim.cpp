@@ -61,7 +61,7 @@ int main(int /*argc*/, char** /*argv*/) {
   {
     state::State state{};
     state.world.currentMap = makeMap(5, 5);
-    state.world.cameraMode = model::CameraMode::Follow;
+    state.world.camera.cameraMode = model::CameraMode::Follow;
     placeAvatar(state, 2, 2);
 
     state::actions::WorldSetActionMode setExamine(model::WorldActionMode::EXAMINE);
@@ -75,7 +75,7 @@ int main(int /*argc*/, char** /*argv*/) {
       ok = assertEqual(state.world.actionAimTile->x, 2, "aim x under avatar") && ok;
       ok = assertEqual(state.world.actionAimTile->y, 2, "aim y under avatar") && ok;
     }
-    ok = assertTrue(state.world.cameraMode == model::CameraMode::Follow,
+    ok = assertTrue(state.world.camera.cameraMode == model::CameraMode::Follow,
                     "camera stays Follow after enter") &&
          ok;
   }
@@ -83,7 +83,7 @@ int main(int /*argc*/, char** /*argv*/) {
   {
     state::State state{};
     state.world.currentMap = makeMap(5, 5);
-    state.world.cameraMode = model::CameraMode::Follow;
+    state.world.camera.cameraMode = model::CameraMode::Follow;
     placeAvatar(state, 2, 2);
 
     state::actions::WorldSetActionMode setTalk(model::WorldActionMode::TALK);
@@ -96,7 +96,7 @@ int main(int /*argc*/, char** /*argv*/) {
          ok;
     ok = assertFalse(state.world.actionAimTile.has_value(), "aim cleared on NONE") &&
          ok;
-    ok = assertTrue(state.world.cameraMode == model::CameraMode::Follow,
+    ok = assertTrue(state.world.camera.cameraMode == model::CameraMode::Follow,
                     "camera stays Follow after clear") &&
          ok;
   }

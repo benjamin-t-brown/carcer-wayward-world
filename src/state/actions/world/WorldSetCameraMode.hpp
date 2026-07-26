@@ -15,7 +15,7 @@ class WorldSetCameraMode : public AbstractAction {
     if (!state) {
       return;
     }
-    state->world.cameraMode = cameraMode;
+    state->world.camera.cameraMode = cameraMode;
   }
 
 public:

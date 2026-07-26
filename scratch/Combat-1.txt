@@ -1,0 +1,129 @@
+when combat button is pressed/combat started:
+
+UI
+- change action button layout
+- while pc acting, wait for action
+- while enemy acting, disable buttons
+
+COMBAT
+- add all party members to map
+- determine turn order
+MAIN COMBAT LOOP
+  - set the currently-acting character (setActiveCombatCharacter Action)
+    - center camera on character (set the anchor point)
+  - if ENEMY 
+    - send control to CPU to do turn  
+      - on CPU turn, determine behavior
+        - based on behavior, enqueue action (1 of MOVE | WAIT)
+  - if ALLY
+    - send control to player (wait for input)
+
+  - wait for actions to resolve (doCombatAction Action)
+    - state is put into WAITING.  Whenever an action is done, check the following afterwards:
+      - check for characters who are defeated
+        - if ch is defeated
+          - play death sound
+          - remove from map
+      - check if turn is ended
+        1. character has <= 0AP remaining
+          OR
+        2. character waits/passes turn
+        If ended, then increment currently-acting character index
+
+(startCombat Action)
+UI
+- change action button layout
+COMBAT
+- add all party members to map (don't duplicate them)
+- determine turn order and save in World Combat struct
+- figure out the first acting character
+- enqueue setActiveCombatCharacter action
+- set all character's AP to their starting AP (should default to 4)
+
+(setActiveCombatCharacter Action)
+set the currently-acting character
+  - if ENEMY 
+    - send control to CPU to do turn enqueue (doCPUCombatTurn Action)
+  - if ALLY
+    - do nothing
+
+(doCPUCombatTurn Action)
+  - based on behavior, enqueue action (1 of MOVE | SHOOT | SPELL | WAIT)
+    - for now, just always wait
+  - call doCombatAction Action
+
+(modifyAP Action)
+  - modify character's current AP by specified amount
+
+(modifyHP Action)
+  - modify character's current HP by specified amount
+
+(doCombatAction Action)
+  - take 1 of MOVE | SHOOT | SPELL | WAIT
+  - take args of (MOVE -> direction, SHOOT -> map location xy, SPELL spellTargetStruct, WAIT -> none)
+  - if MOVE
+    - check for whether this results in attack
+      - if this is an attack:
+        - enqueue performMeleeAttack Action
+        - reduce AP by attack cost (default 4) enqueue modifyAP action
+      - if not an attack
+        - attempt to move character.
+        - if ch can be moved
+          move character with action
+          reduce AP by the movement cost (default 1)  enqueue modifyAP action
+        - if not
+          do nothing
+  - if SPELL
+    - NOOP for now
+  - if SHOOT
+    - NOOP for now
+  - if WAIT
+    - set AP to 0
+
+  - enqueue (doCombatActionCompletion)
+
+(performMeleeAttack Action)
+  - this takes an Attacker and Victim
+  - set Attacker's sprite index to current index plus 1
+  - determine if attack hits: 75% chance
+  - if it hits
+    - play hit sound
+    - determine damage (10 for now)
+    - show hit splash with damage
+    - wait 500ms
+  - if it misses
+    - play miss sound
+    - wait 300ms
+    
+
+(doCombatActionCompletion Action)
+  - check for characters who are defeated
+    - if ch is defeated
+      - enqueue performCharacterDefeated
+  - check if turn is ended
+    1. character has <= 0AP remaining
+      OR
+    2. character waits/passes turn
+    - if ended
+      - (enqueue goNextCombatTurn action)
+    - if not ended
+      - enqueue setActiveCombatCharacter Action with same character
+
+(goNextCombatTurn Action)
+  - increment currently-acting character index 
+  - if the index is larger than the number of combat characters
+    - reset to 0
+    - go through each combat character and set all character's AP to their starting AP (should default to 4)
+  - determine next acting ch
+  - if there is a ch to act, enqueue setActiveCombatCharacterAction
+
+(performCharacterDefeated Action)
+  - play death sound (enqueue playSound action)
+  - wait 300 MS
+  - remove from map (enqueue removeCharacter action)
+
+(endCombat Action)
+  - remove all Party Members from map, excluding the first party member
+  UI
+  - change action button layout
+  - center camera on first party member

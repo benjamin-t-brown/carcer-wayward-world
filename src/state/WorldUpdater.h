@@ -1,12 +1,13 @@
 #pragma once
 
+namespace sdl2w {
+class Window;
+}
+
 namespace state {
 
-struct State;
+class StateManager;
 
-// Simulation seam invoked from StateManager::update after action processing.
-// When cameraMode is Follow, snaps camera to cameraFollowCharacterId (or the
-// current party member avatar if that id is empty) when viewW/viewH > 0.
-void worldUpdate(State& state, int dt);
-
+void worldUpdate(StateManager& stateManager, int dt);
+void worldProcessPendingTriggers(sdl2w::Window* window, StateManager& stateManager);
 } // namespace state

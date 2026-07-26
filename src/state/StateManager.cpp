@@ -94,7 +94,7 @@ void StateManager::update(int dt) {
       i--;
     }
   }
-  worldUpdate(state, dt);
+  worldUpdate(*this, dt);
   uiManager.update(dt, state, *this);
 }
 

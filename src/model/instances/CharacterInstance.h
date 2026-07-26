@@ -12,6 +12,10 @@ struct CharacterInstance {
   bmin::String templateName;
   int x = 0;
   int y = 0;
+  // Combat runtime (meaningful while world.combat.active).
+  int currentAp = 0;
+  int currentHp = 0; // enemies only; party HP lives on CharacterPlayer
+  int spriteIndex = 0;
 };
 
 } // namespace model

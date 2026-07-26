@@ -26,6 +26,7 @@ layers/ui/LayerPickUp.cpp \
 layers/ui/LayerPopupText.cpp \
 layers/ui/LayerSpecialEvent.cpp \
 layers/ui/LayerWorld.cpp \
+model/Combat.cpp \
 model/instances/Player.cpp \
 model/instances/CharacterPlayer.cpp \
 model/instances/World.cpp \

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "model/Combat.h"
 #include "model/instances/CharacterInstance.h"
 #include "model/instances/ItemInstance.h"
 #include "model/templates/Maps.h"
@@ -74,11 +75,7 @@ struct PersistentMapState {
   bmin::DynArray<OpenedDoorRecord> openedDoors;
 };
 
-struct World {
-  bmin::String name;
-  MapInstance currentMap;
-  // Background persistence for visited maps; LiveArea stitch will flush/hydrate per slot.
-  bmin::Map<bmin::String, PersistentMapState> mapsByTemplate;
+struct CameraInfo {
   int camX = 0; // map pixel space
   int camY = 0;
   CameraMode cameraMode = CameraMode::Follow;
@@ -86,6 +83,14 @@ struct World {
   bmin::String cameraFollowCharacterId;
   int viewW = 0; // MapView content size in map-pixel space (unscaled)
   int viewH = 0;
+};
+
+struct World {
+  bmin::String name;
+  MapInstance currentMap;
+  // Background persistence for visited maps; LiveArea stitch will flush/hydrate per slot.
+  bmin::Map<bmin::String, PersistentMapState> mapsByTemplate;
+  CameraInfo camera;
   WorldActionMode actionMode = WorldActionMode::NONE;
   // Meaningful only when actionMode != NONE (Examine / Talk aim cursor).
   std::optional<TileXY> actionAimTile;
@@ -94,6 +99,9 @@ struct World {
   // Dialogue / special-event runner vars (vars.*, once.*, …). tmp.* is session-only
   // and stripped when a conversation ends.
   bmin::Map<bmin::String, bmin::String> specialEventStorage;
+  Combat combat;
+
+  bool mapChangedThisTick = false;
 };
 
 struct CameraPos {

@@ -1,6 +1,8 @@
 #include "ui/helpers/worldActions.h"
 
 #include "state/StateManager.h"
+#include "state/actions/combat/EndCombat.hpp"
+#include "state/actions/combat/StartCombat.hpp"
 #include "state/actions/ui/UiShowLayerInventory.hpp"
 #include "state/actions/ui/heldMove/UiUpdateHeldMove.hpp"
 #include "state/actions/world/WorldInteractAt.hpp"
@@ -70,6 +72,20 @@ void activateWorldAction(state::StateManager& stateManager,
     cancelCurrentWorldActionMode(stateManager);
     stateManager.enqueueAction(stateManager.getActionData(),
                                new state::actions::WorldInteractAt(),
+                               0);
+    break;
+  case state::WorldActionType::START_FIGHT:
+    setHeldMoveActive(stateManager, false);
+    cancelCurrentWorldActionMode(stateManager);
+    stateManager.enqueueAction(stateManager.getActionData(),
+                               new state::actions::StartCombat(),
+                               0);
+    break;
+  case state::WorldActionType::END_FIGHT:
+    setHeldMoveActive(stateManager, false);
+    cancelCurrentWorldActionMode(stateManager);
+    stateManager.enqueueAction(stateManager.getActionData(),
+                               new state::actions::EndCombat(),
                                0);
     break;
   default:

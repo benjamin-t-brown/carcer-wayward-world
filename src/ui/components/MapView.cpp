@@ -53,9 +53,9 @@ std::optional<model::TileXY> MapView::screenToTile(int screenX, int screenY) con
   }
 
   const auto mapPx =
-      static_cast<int>((screenX - contentX) / style.scale) + world.camX;
+      static_cast<int>((screenX - contentX) / style.scale) + world.camera.camX;
   const auto mapPy =
-      static_cast<int>((screenY - contentY) / style.scale) + world.camY;
+      static_cast<int>((screenY - contentY) / style.scale) + world.camera.camY;
   const auto tileX = mapPx / spriteW;
   const auto tileY = mapPy / spriteH;
   if (tileX < 0 || tileY < 0 || tileX >= map.width || tileY >= map.height) {
@@ -125,9 +125,9 @@ void MapView::render(int /*dt*/) {
   for (auto y = 0; y < map.height; y++) {
     for (auto x = 0; x < map.width; x++) {
       auto screenX =
-          contentX + static_cast<int>((x * spriteW - world.camX) * style.scale);
+          contentX + static_cast<int>((x * spriteW - world.camera.camX) * style.scale);
       auto screenY =
-          contentY + static_cast<int>((y * spriteH - world.camY) * style.scale);
+          contentY + static_cast<int>((y * spriteH - world.camera.camY) * style.scale);
 
       const auto* tile = model::resolveTileToRender(map, x, y);
       if (!tile || !tile->isExplored) {
@@ -178,9 +178,9 @@ void MapView::render(int /*dt*/) {
     }
 
     auto screenX =
-        contentX + static_cast<int>((item.x * spriteW - world.camX) * style.scale);
+        contentX + static_cast<int>((item.x * spriteW - world.camera.camX) * style.scale);
     auto screenY =
-        contentY + static_cast<int>((item.y * spriteH - world.camY) * style.scale);
+        contentY + static_cast<int>((item.y * spriteH - world.camera.camY) * style.scale);
 
     auto& sprite = store.getSprite(bmin::toStringView(spriteName));
     drawMapSprite(sprite, screenX, screenY);
@@ -220,9 +220,9 @@ void MapView::render(int /*dt*/) {
     }
 
     auto screenX =
-        contentX + static_cast<int>((character.x * spriteW - world.camX) * style.scale);
+        contentX + static_cast<int>((character.x * spriteW - world.camera.camX) * style.scale);
     auto screenY =
-        contentY + static_cast<int>((character.y * spriteH - world.camY) * style.scale);
+        contentY + static_cast<int>((character.y * spriteH - world.camera.camY) * style.scale);
 
     auto& sprite = store.getSprite(bmin::toStringView(spriteName));
     drawMapSprite(sprite, screenX, screenY);
@@ -232,9 +232,9 @@ void MapView::render(int /*dt*/) {
     const auto aimX = world.actionAimTile->x;
     const auto aimY = world.actionAimTile->y;
     const auto screenX =
-        contentX + static_cast<int>((aimX * spriteW - world.camX) * style.scale);
+        contentX + static_cast<int>((aimX * spriteW - world.camera.camX) * style.scale);
     const auto screenY =
-        contentY + static_cast<int>((aimY * spriteH - world.camY) * style.scale);
+        contentY + static_cast<int>((aimY * spriteH - world.camera.camY) * style.scale);
 
     if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
         screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {

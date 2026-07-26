@@ -1,6 +1,6 @@
 #include "model/instances/World.h"
 #include "sdl2w/Logger.h"
-#include "state/State.h"
+#include "state/StateManager.h"
 #include "state/WorldUpdater.h"
 #include "bmin/String.h"
 
@@ -57,45 +57,47 @@ int main(int /*argc*/, char** /*argv*/) {
 
   // worldUpdate snap when Follow mode + follow id + view dims set
   {
-    state::State state;
-    ok = assertTrue(state.world.cameraMode == model::CameraMode::Follow,
+    state::StateManager stateManager;
+    auto& state = stateManager.getState();
+    ok = assertTrue(state.world.camera.cameraMode == model::CameraMode::Follow,
                     "default cameraMode Follow") &&
          ok;
     state.world.currentMap.width = 10;
     state.world.currentMap.height = 10;
     state.world.currentMap.spriteWidth = 28;
     state.world.currentMap.spriteHeight = 32;
-    state.world.viewW = 100;
-    state.world.viewH = 80;
-    state.world.camX = 999;
-    state.world.camY = 999;
+    state.world.camera.viewW = 100;
+    state.world.camera.viewH = 80;
+    state.world.camera.camX = 999;
+    state.world.camera.camY = 999;
 
     auto character = model::CharacterInstance{};
     character.id = "follow-me";
     character.x = 5;
     character.y = 5;
     state.world.currentMap.characters.pushBack(std::move(character));
-    state.world.cameraFollowCharacterId = "follow-me";
+    state.world.camera.cameraFollowCharacterId = "follow-me";
 
-    state::worldUpdate(state, 16);
+    state::worldUpdate(stateManager, 16);
 
     auto expected = model::computeCameraFollow(
-        5, 5, state.world.currentMap, state.world.viewW, state.world.viewH);
-    ok = assertEqual(state.world.camX, expected.camX, "worldUpdate.camX") && ok;
-    ok = assertEqual(state.world.camY, expected.camY, "worldUpdate.camY") && ok;
+        5, 5, state.world.currentMap, state.world.camera.viewW, state.world.camera.viewH);
+    ok = assertEqual(state.world.camera.camX, expected.camX, "worldUpdate.camX") && ok;
+    ok = assertEqual(state.world.camera.camY, expected.camY, "worldUpdate.camY") && ok;
   }
 
   // Follow mode with empty follow id → auto-resolve party member avatar
   {
-    state::State state;
+    state::StateManager stateManager;
+    auto& state = stateManager.getState();
     state.world.currentMap.width = 10;
     state.world.currentMap.height = 10;
     state.world.currentMap.spriteWidth = 28;
     state.world.currentMap.spriteHeight = 32;
-    state.world.viewW = 100;
-    state.world.viewH = 80;
-    state.world.camX = 999;
-    state.world.camY = 999;
+    state.world.camera.viewW = 100;
+    state.world.camera.viewH = 80;
+    state.world.camera.camX = 999;
+    state.world.camera.camY = 999;
 
     auto member = model::CharacterPlayer{};
     member.instanceId = "party-avatar";
@@ -108,12 +110,12 @@ int main(int /*argc*/, char** /*argv*/) {
     character.y = 5;
     state.world.currentMap.characters.pushBack(std::move(character));
 
-    state::worldUpdate(state, 16);
+    state::worldUpdate(stateManager, 16);
 
     auto expected = model::computeCameraFollow(
-        5, 5, state.world.currentMap, state.world.viewW, state.world.viewH);
-    ok = assertEqual(state.world.camX, expected.camX, "autoResolve.camX") && ok;
-    ok = assertEqual(state.world.camY, expected.camY, "autoResolve.camY") && ok;
+        5, 5, state.world.currentMap, state.world.camera.viewW, state.world.camera.viewH);
+    ok = assertEqual(state.world.camera.camX, expected.camX, "autoResolve.camX") && ok;
+    ok = assertEqual(state.world.camera.camY, expected.camY, "autoResolve.camY") && ok;
   }
 
   // Aiming / Dragging / Controlled leave cam unchanged
@@ -124,53 +126,55 @@ int main(int /*argc*/, char** /*argv*/) {
     const char* labels[] = {"Aiming", "Dragging", "Controlled"};
 
     for (size_t mi = 0; mi < 3; mi++) {
-      state::State state;
-      state.world.cameraMode = modes[mi];
+      state::StateManager stateManager;
+    auto& state = stateManager.getState();
+      state.world.camera.cameraMode = modes[mi];
       state.world.currentMap.width = 10;
       state.world.currentMap.height = 10;
       state.world.currentMap.spriteWidth = 28;
       state.world.currentMap.spriteHeight = 32;
-      state.world.viewW = 100;
-      state.world.viewH = 80;
-      state.world.camX = 42;
-      state.world.camY = 43;
+      state.world.camera.viewW = 100;
+      state.world.camera.viewH = 80;
+      state.world.camera.camX = 42;
+      state.world.camera.camY = 43;
 
       auto character = model::CharacterInstance{};
       character.id = "follow-me";
       character.x = 5;
       character.y = 5;
       state.world.currentMap.characters.pushBack(std::move(character));
-      state.world.cameraFollowCharacterId = "follow-me";
+      state.world.camera.cameraFollowCharacterId = "follow-me";
 
-      state::worldUpdate(state, 16);
+      state::worldUpdate(stateManager, 16);
 
       auto labelX = bmin::String(labels[mi]) + ".camX";
       auto labelY = bmin::String(labels[mi]) + ".camY";
-      ok = assertEqual(state.world.camX, 42, labelX.c_str()) && ok;
-      ok = assertEqual(state.world.camY, 43, labelY.c_str()) && ok;
+      ok = assertEqual(state.world.camera.camX, 42, labelX.c_str()) && ok;
+      ok = assertEqual(state.world.camera.camY, 43, labelY.c_str()) && ok;
     }
   }
 
   // Missing target / viewW<=0 → no-op
   {
-    state::State state;
+    state::StateManager stateManager;
+    auto& state = stateManager.getState();
     state.world.currentMap.width = 10;
     state.world.currentMap.height = 10;
     state.world.currentMap.spriteWidth = 28;
     state.world.currentMap.spriteHeight = 32;
-    state.world.viewW = 0;
-    state.world.viewH = 80;
-    state.world.camX = 42;
-    state.world.camY = 43;
-    state.world.cameraFollowCharacterId = "missing";
-    state::worldUpdate(state, 0);
-    ok = assertEqual(state.world.camX, 42, "noop viewW.camX") && ok;
-    ok = assertEqual(state.world.camY, 43, "noop viewW.camY") && ok;
+    state.world.camera.viewW = 0;
+    state.world.camera.viewH = 80;
+    state.world.camera.camX = 42;
+    state.world.camera.camY = 43;
+    state.world.camera.cameraFollowCharacterId = "missing";
+    state::worldUpdate(stateManager, 0);
+    ok = assertEqual(state.world.camera.camX, 42, "noop viewW.camX") && ok;
+    ok = assertEqual(state.world.camera.camY, 43, "noop viewW.camY") && ok;
 
-    state.world.viewW = 100;
-    state::worldUpdate(state, 0);
-    ok = assertEqual(state.world.camX, 42, "noop missing.camX") && ok;
-    ok = assertEqual(state.world.camY, 43, "noop missing.camY") && ok;
+    state.world.camera.viewW = 100;
+    state::worldUpdate(stateManager, 0);
+    ok = assertEqual(state.world.camera.camX, 42, "noop missing.camX") && ok;
+    ok = assertEqual(state.world.camera.camY, 43, "noop missing.camY") && ok;
   }
 
   if (!ok) {

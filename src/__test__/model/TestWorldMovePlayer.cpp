@@ -6,6 +6,7 @@
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
 #include "state/State.h"
+#include "state/StateManager.h"
 #include "state/WorldUpdater.h"
 #include "state/actions/world/WorldMovePlayer.hpp"
 #include "bmin/String.h"
@@ -355,27 +356,28 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Camera follow recenters after successful move
     {
-      state::State state;
+      state::StateManager stateManager;
+      auto& state = stateManager.getState();
       state.world.currentMap = makeEmptyMap(10, 10);
-      state.world.viewW = 100;
-      state.world.viewH = 80;
-      state.world.cameraMode = model::CameraMode::Follow;
+      state.world.camera.viewW = 100;
+      state.world.camera.viewH = 80;
+      state.world.camera.cameraMode = model::CameraMode::Follow;
       auto* avatar = spawnAvatar(state, 2, 2);
-      state.world.cameraFollowCharacterId = avatar->id;
+      state.world.camera.cameraFollowCharacterId = avatar->id;
 
-      state::worldUpdate(state, 16);
+      state::worldUpdate(stateManager, 16);
       auto before = model::computeCameraFollow(
-          2, 2, state.world.currentMap, state.world.viewW, state.world.viewH);
-      ok = assertEqual(state.world.camX, before.camX, "cam before.x") && ok;
-      ok = assertEqual(state.world.camY, before.camY, "cam before.y") && ok;
+          2, 2, state.world.currentMap, state.world.camera.viewW, state.world.camera.viewH);
+      ok = assertEqual(state.world.camera.camX, before.camX, "cam before.x") && ok;
+      ok = assertEqual(state.world.camera.camY, before.camY, "cam before.y") && ok;
 
       move(state, 1, 0);
-      state::worldUpdate(state, 16);
+      state::worldUpdate(stateManager, 16);
       auto after = model::computeCameraFollow(
-          3, 2, state.world.currentMap, state.world.viewW, state.world.viewH);
+          3, 2, state.world.currentMap, state.world.camera.viewW, state.world.camera.viewH);
       ok = assertEqual(avatar->x, 3, "cam follow move.x") && ok;
-      ok = assertEqual(state.world.camX, after.camX, "cam after.x") && ok;
-      ok = assertEqual(state.world.camY, after.camY, "cam after.y") && ok;
+      ok = assertEqual(state.world.camera.camX, after.camX, "cam after.x") && ok;
+      ok = assertEqual(state.world.camera.camY, after.camY, "cam after.y") && ok;
     }
 
     // Loaded tilesets from assets (terrain0 door pair sanity)

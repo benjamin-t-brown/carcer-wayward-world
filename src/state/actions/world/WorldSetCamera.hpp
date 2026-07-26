@@ -15,8 +15,8 @@ class WorldSetCamera : public AbstractAction {
     if (!state) {
       return;
     }
-    state->world.camX = camX;
-    state->world.camY = camY;
+    state->world.camera.camX = camX;
+    state->world.camera.camY = camY;
   }
 
 public:

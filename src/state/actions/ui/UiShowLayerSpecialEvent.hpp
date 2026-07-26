@@ -1,11 +1,9 @@
 #pragma once
 
 #include "bmin/String.h"
-#include "bmin/StringInterop.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerSpecialEvent.h"
 #include "state/AbstractAction.h"
-#include "state/DatabaseInterface.h"
 
 namespace state {
 
