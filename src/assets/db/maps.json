@@ -13930,11 +13930,6 @@
     "items": [],
     "markers": [
       {
-        "l": 1,
-        "i": 37,
-        "name": "Stairs1"
-      },
-      {
         "l": 0,
         "i": 37,
         "name": "Stairs0"
@@ -13943,6 +13938,11 @@
         "l": 0,
         "i": 337,
         "name": "MarkerPlayer"
+      },
+      {
+        "l": 1,
+        "i": 37,
+        "name": "Stairs1"
       }
     ],
     "eventTriggers": [
@@ -13970,26 +13970,30 @@
     ],
     "travelTriggers": [
       {
+        "l": 0,
+        "i": 37,
+        "destinationMapName": "alinea_outsideAlinea1",
+        "destinationMarkerName": "Stairs1",
+        "destinationX": 0,
+        "destinationY": 0,
+        "destinationLayer": 0,
+        "requiresAction": true
+      },
+      {
         "l": 1,
         "i": 0,
         "destinationMapName": "alinea_outsideAlinea1",
         "destinationMarkerName": "Stairs0",
         "destinationX": 0,
-        "destinationY": 0
+        "destinationY": 0,
+        "destinationLayer": 0,
+        "requiresAction": false
       },
       {
         "l": 1,
         "i": 37,
         "destinationMapName": "alinea_outsideAlinea1",
         "destinationMarkerName": "Stairs0",
-        "destinationX": 0,
-        "destinationY": 0
-      },
-      {
-        "l": 0,
-        "i": 37,
-        "destinationMapName": "alinea_outsideAlinea1",
-        "destinationMarkerName": "Stairs1",
         "destinationX": 0,
         "destinationY": 0,
         "destinationLayer": 0,

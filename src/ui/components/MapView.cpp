@@ -2,11 +2,16 @@
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
 #include "model/MapWalkability.h"
+#include "model/TileFields.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/CharacterTemplate.h"
+#include "sdl2w/Animation.h"
 #include "sdl2w/Draw.h"
 #include "state/StateManager.h"
+#include "ui/FontScale.h"
+#include "ui/colors.h"
 #include <exception>
+#include <cmath>
 
 namespace ui {
 
@@ -73,6 +78,67 @@ void MapView::build() {
   }
 }
 
+void MapView::renderDamageParticles(const model::World& world,
+                                    const model::MapInstance& map,
+                                    sdl2w::Draw& draw,
+                                    sdl2w::Store& store,
+                                    int contentX,
+                                    int contentY,
+                                    int spriteW,
+                                    int spriteH,
+                                    int fontScale) const {
+  if (world.damageParticles.empty() || style.scale <= 0.f) {
+    return;
+  }
+
+  for (size_t i = 0; i < world.damageParticles.size(); i++) {
+    const auto& particle = world.damageParticles[i];
+    if (!model::isTileCurrentlyVisible(map, particle.tileX, particle.tileY)) {
+      continue;
+    }
+    if (!store.anims.contains(particle.animationName)) {
+      continue;
+    }
+
+    auto screenX =
+        contentX + static_cast<int>((particle.tileX * spriteW - world.camera.camX) * style.scale);
+    auto screenY =
+        contentY + static_cast<int>((particle.tileY * spriteH - world.camera.camY) * style.scale);
+
+    auto centerX = screenX + static_cast<int>(spriteW * style.scale / 2);
+    auto centerY = screenY + static_cast<int>(spriteH * style.scale / 2);
+
+    auto animation = store.createAnimation(bmin::toStringView(particle.animationName));
+    if (!animation.isInitialized()) {
+      continue;
+    }
+    animation.start();
+    animation.update(particle.lifetime.t);
+
+    draw.drawAnimation(
+        animation,
+        sdl2w::RenderableParamsEx{
+            .scale = {style.scale, style.scale},
+            .x = centerX,
+            .y = centerY,
+            .centered = true,
+        });
+
+    if (particle.value != 0) {
+      auto damageText = bmin::toString(abs(particle.value));
+      sdl2w::RenderTextParams textParams;
+      textParams.fontName = "text-bold";
+      textParams.fontSize = ui::applyFontScale(sdl2w::TEXT_SIZE_14, fontScale);
+      textParams.x = centerX;
+      textParams.y = centerY;
+      textParams.color = Colors::White;
+      textParams.centered = true;
+      textParams.scale = {style.scale, style.scale};
+      draw.drawText(bmin::toStringView(damageText), textParams);
+    }
+  }
+}
+
 void MapView::render(int /*dt*/) {
   auto* stateManager = getStateManager();
   if (!stateManager) {
@@ -106,7 +172,7 @@ void MapView::render(int /*dt*/) {
   auto& store = window->getStore();
 
   // Draw whole sprites; overdraw past the content rect is fine (chrome draws on top).
-  auto drawMapSprite = [&](sdl2w::Sprite& sprite, int screenX, int screenY) {
+  auto drawMapSprite = [&](sdl2w::Sprite& sprite, int screenX, int screenY, bool flipped = false) {
     if (screenX + scaledSpriteW <= contentX || screenX >= contentX + contentW ||
         screenY + scaledSpriteH <= contentY || screenY >= contentY + contentH) {
       return;
@@ -117,6 +183,7 @@ void MapView::render(int /*dt*/) {
                         .x = screenX,
                         .y = screenY,
                         .centered = false,
+                        .flipped = flipped,
                     });
   };
 
@@ -146,6 +213,20 @@ void MapView::render(int /*dt*/) {
 
       auto& sprite = store.getSprite(bmin::toStringView(spriteName));
       drawMapSprite(sprite, screenX, screenY);
+
+      if (tile->isVisible) {
+        if (const auto* surfaceTile = model::tileAtCurrentLayer(map, x, y)) {
+          for (size_t fi = 0; fi < surfaceTile->fields.size(); fi++) {
+            const auto& field = surfaceTile->fields[fi];
+            const auto fieldSpriteName = model::tileFieldSpriteName(field);
+            if (!store.sprites.contains(fieldSpriteName)) {
+              continue;
+            }
+            auto& fieldSprite = store.getSprite(bmin::toStringView(fieldSpriteName));
+            drawMapSprite(fieldSprite, screenX, screenY);
+          }
+        }
+      }
 
       if (!tile->isVisible) {
         if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
@@ -187,10 +268,14 @@ void MapView::render(int /*dt*/) {
   }
 
   const auto& party = state.player.party;
-  for (size_t ci = 0; ci < map.characters.size(); ci++) {
-    const auto& character = map.characters[ci];
+  const bmin::String* activeCharacterId = nullptr;
+  if (world.combat.active && !world.combat.activeCharacterId.empty()) {
+    activeCharacterId = &world.combat.activeCharacterId;
+  }
+
+  auto drawCharacter = [&](const model::CharacterInstance& character) {
     if (!model::isTileCurrentlyVisible(map, character.x, character.y)) {
-      continue;
+      return;
     }
     const model::CharacterPlayer* member = nullptr;
     for (size_t pi = 0; pi < party.size(); pi++) {
@@ -202,21 +287,23 @@ void MapView::render(int /*dt*/) {
 
     bmin::String spriteName;
     if (member) {
-      spriteName = model::characterPlayerGetSprite(*member);
+      spriteName =
+          model::characterPlayerGetSpriteAtIndexOffset(*member, character.spriteIndexOffset);
     } else if (database) {
       try {
         const auto& characterTemplate =
             database->getCharacterTemplate(bmin::toStringView(character.templateName));
-        spriteName = model::characterGetSprite(characterTemplate);
+        spriteName = model::characterGetSpriteAtIndexOffset(characterTemplate,
+                                                            character.spriteIndexOffset);
       } catch (const std::exception&) {
-        continue;
+        return;
       }
     } else {
-      continue;
+      return;
     }
 
     if (spriteName.empty() || !store.sprites.contains(spriteName)) {
-      continue;
+      return;
     }
 
     auto screenX =
@@ -225,8 +312,31 @@ void MapView::render(int /*dt*/) {
         contentY + static_cast<int>((character.y * spriteH - world.camera.camY) * style.scale);
 
     auto& sprite = store.getSprite(bmin::toStringView(spriteName));
-    drawMapSprite(sprite, screenX, screenY);
+    drawMapSprite(sprite, screenX, screenY, model::isCharacterFacingLeft(character));
+  };
+
+  const model::CharacterInstance* activeCharacter = nullptr;
+  for (size_t ci = 0; ci < map.characters.size(); ci++) {
+    const auto& character = map.characters[ci];
+    if (activeCharacterId != nullptr && character.id == *activeCharacterId) {
+      activeCharacter = &character;
+      continue;
+    }
+    drawCharacter(character);
   }
+  if (activeCharacter != nullptr) {
+    drawCharacter(*activeCharacter);
+  }
+
+  renderDamageParticles(world,
+                        map,
+                        draw,
+                        store,
+                        contentX,
+                        contentY,
+                        spriteW,
+                        spriteH,
+                        state.settings.fontScale);
 
   if (world.actionMode != model::WorldActionMode::NONE && world.actionAimTile) {
     const auto aimX = world.actionAimTile->x;

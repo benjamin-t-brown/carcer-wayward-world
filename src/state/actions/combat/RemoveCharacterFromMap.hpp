@@ -1,6 +1,7 @@
 #pragma once
 
 #include "model/Combat.h"
+#include "model/MapPersistence.h"
 #include "state/actions/combat/ActionBase.hpp"
 
 namespace state {
@@ -14,10 +15,17 @@ class RemoveCharacterFromMap : public CombatAction {
     if (!state) {
       return;
     }
+    auto* database = getDatabase();
     auto& characters = state->world.currentMap.characters;
     for (size_t i = 0; i < characters.size();) {
       if (characters[i].id == characterId) {
+        if (database != nullptr && model::isCharacterEnemy(characters[i], *database)) {
+          model::markMapCharacterDefeated(state->world, characters[i]);
+        }
         characters.erase(i);
+        if (state->world.combat.active) {
+          model::removeCharacterFromCombatTurnOrder(state->world.combat, characterId);
+        }
         return;
       }
       i++;

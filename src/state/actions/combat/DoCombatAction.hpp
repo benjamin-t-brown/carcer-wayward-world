@@ -1,7 +1,9 @@
 #pragma once
 
+#include "model/instances/CharacterInstance.h"
 #include "model/Combat.h"
 #include "model/MapWalkability.h"
+#include "sdl2w/Logger.h"
 #include "state/actions/combat/ActionBase.hpp"
 #include "state/actions/combat/DoCombatActionCompletion.hpp"
 #include "state/actions/combat/ModifyAP.hpp"
@@ -32,6 +34,8 @@ class DoCombatAction : public CombatAction {
       insertCombatAction(new DoCombatActionCompletion(), 0);
       return;
     }
+
+    model::updateCharacterFacingFromMove(*actor, moveDx, moveDy);
 
     const auto destX = actor->x + moveDx;
     const auto destY = actor->y + moveDy;
@@ -67,6 +71,33 @@ class DoCombatAction : public CombatAction {
   void act() override {
     if (!state || !state->world.combat.active) {
       return;
+    }
+
+    const char* actionLabel = "?";
+    switch (actionType) {
+    case model::CombatActionType::MOVE:
+      actionLabel = "MOVE";
+      break;
+    case model::CombatActionType::SHOOT:
+      actionLabel = "SHOOT";
+      break;
+    case model::CombatActionType::SPELL:
+      actionLabel = "SPELL";
+      break;
+    case model::CombatActionType::WAIT:
+      actionLabel = "WAIT";
+      break;
+    }
+    if (actionType == model::CombatActionType::MOVE) {
+      LOG(INFO) << "DoCombatAction: " << actionLabel << " for "
+                << model::formatCharacterLogLabel(state->world.currentMap,
+                                                  state->world.combat.activeCharacterId)
+                << " (" << moveDx << ", " << moveDy << ")" << LOG_ENDL;
+    } else {
+      LOG(INFO) << "DoCombatAction: " << actionLabel << " for "
+                << model::formatCharacterLogLabel(state->world.currentMap,
+                                                  state->world.combat.activeCharacterId)
+                << LOG_ENDL;
     }
 
     state->world.combat.isWaitingForAction = false;

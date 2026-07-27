@@ -5,6 +5,7 @@
 #include "model/instances/World.h"
 #include "model/templates/CharacterTemplate.h"
 #include "bmin/StringInterop.h"
+#include "bmin/StringStream.h"
 #include "db/Database.h"
 
 namespace model {
@@ -61,6 +62,9 @@ int getCharacterHp(const Player& player,
       }
     }
   }
+  if (character.hpInitialized) {
+    return character.currentHp;
+  }
   if (character.currentHp > 0) {
     return character.currentHp;
   }
@@ -87,12 +91,32 @@ void setCharacterHp(Player& player,
   }
   (void)database;
   character.currentHp = hp;
+  character.hpInitialized = true;
 }
 
 bool isCharacterDefeated(const Player& player,
                          const CharacterInstance& character,
                          const db::Database& database) {
   return getCharacterHp(player, character, database) <= 0;
+}
+
+void removeCharacterFromCombatTurnOrder(Combat& combat, const bmin::String& characterId) {
+  for (size_t i = 0; i < combat.turnOrderIds.size();) {
+    if (combat.turnOrderIds[i] != characterId) {
+      ++i;
+      continue;
+    }
+    combat.turnOrderIds.erase(i);
+    if (combat.activeTurnIndex > static_cast<int>(i)) {
+      combat.activeTurnIndex -= 1;
+    } else if (!combat.turnOrderIds.empty() &&
+               combat.activeTurnIndex >= static_cast<int>(combat.turnOrderIds.size())) {
+      combat.activeTurnIndex = 0;
+    }
+  }
+  if (combat.activeCharacterId == characterId) {
+    combat.activeCharacterId = bmin::String{};
+  }
 }
 
 CharacterInstance* findCharacterAt(MapInstance& map,
@@ -132,6 +156,8 @@ void addPartyMembersToCombatMap(World& world, Player& player, const db::Database
         member.templateName.empty() ? member.params.name : member.templateName;
     instance.x = spawnX;
     instance.y = spawnY;
+    instance.spawnX = spawnX;
+    instance.spawnY = spawnY;
     instance.currentAp = COMBAT_STARTING_AP;
     instance.currentHp = member.currentHp;
     map.characters.pushBack(std::move(instance));
@@ -172,29 +198,47 @@ Combat createCombatFromWorld(const World& world,
   combat.active = true;
   combat.activeTurnIndex = 0;
 
+  auto isInTurnOrder = [&](const bmin::String& id) {
+    for (const auto& existingId : combat.turnOrderIds) {
+      if (existingId == id) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   for (const auto& member : player.party) {
-    if (findCharacterOnMap(world.currentMap, member.instanceId) != nullptr) {
+    if (findCharacterOnMap(world.currentMap, member.instanceId) != nullptr &&
+        !isInTurnOrder(member.instanceId)) {
       combat.turnOrderIds.pushBack(member.instanceId);
     }
   }
 
   for (const auto& character : world.currentMap.characters) {
-    if (!isCharacterEnemy(character, database)) {
+    if (isInTurnOrder(character.id) || isCharacterEnemy(character, database)) {
       continue;
     }
-    auto alreadyListed = false;
-    for (const auto& id : combat.turnOrderIds) {
-      if (id == character.id) {
-        alreadyListed = true;
-        break;
-      }
+    combat.turnOrderIds.pushBack(character.id);
+  }
+
+  for (const auto& character : world.currentMap.characters) {
+    if (isInTurnOrder(character.id)) {
+      continue;
     }
-    if (!alreadyListed) {
-      combat.turnOrderIds.pushBack(character.id);
-    }
+    combat.turnOrderIds.pushBack(character.id);
   }
 
   return combat;
+}
+
+bmin::String formatCharacterLogLabel(const MapInstance& map, const bmin::String& id) {
+  const auto* character = findCharacterOnMap(map, id);
+  if (character == nullptr || character->name.empty()) {
+    return id;
+  }
+  bmin::StringStream ss;
+  ss << character->name << " (" << id << ")";
+  return bmin::String(ss.str().cStr());
 }
 
 } // namespace model

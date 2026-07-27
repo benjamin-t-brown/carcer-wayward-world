@@ -54,10 +54,29 @@ void enqueueCpuCombatTurn(StateManager& stateManager) {
       stateManager.getActionData(), new actions::DoCPUCombatTurn(), 0);
 }
 
+void updateDamageParticles(model::World& world, int deltaTimeMs) {
+  if (world.damageParticles.empty() || deltaTimeMs <= 0) {
+    return;
+  }
+
+  for (size_t i = 0; i < world.damageParticles.size();) {
+    auto& particle = world.damageParticles[i];
+    timerStructUpdate(particle.lifetime, deltaTimeMs);
+    if (timerStructIsComplete(particle.lifetime)) {
+      world.damageParticles.erase(i);
+    } else {
+      ++i;
+    }
+  }
+}
+
+
 } // namespace
 
-void worldUpdate(StateManager& stateManager, int /*dt*/) {
+void worldUpdate(StateManager& stateManager, int dt) {
   auto& state = stateManager.getState();
+  updateDamageParticles(state.world, dt);
+
   auto& combat = state.world.combat;
   if (combat.active && combat.isWaitingForAction) {
     enqueueCpuCombatTurn(stateManager);

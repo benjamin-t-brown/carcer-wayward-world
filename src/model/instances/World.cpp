@@ -125,6 +125,8 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
     character.templateName = placement.name;
     character.x = tile.x;
     character.y = tile.y;
+    character.spawnX = tile.x;
+    character.spawnY = tile.y;
     instance.characters.pushBack(std::move(character));
   }
 

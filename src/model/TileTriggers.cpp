@@ -91,6 +91,8 @@ CharacterInstance* placePartyAvatarAt(MapInstance& map, Player& player, int x, i
       member.templateName.empty() ? member.params.name : member.templateName;
   instance.x = x;
   instance.y = y;
+  instance.spawnX = x;
+  instance.spawnY = y;
   map.characters.pushBack(std::move(instance));
   return findPartyAvatarOnMap(map, player);
 }

@@ -19,16 +19,6 @@ bool assertEqual(int actual, int expected, const char* label) {
   return true;
 }
 
-bool assertEqualStr(const bmin::String& actual,
-                    const bmin::String& expected,
-                    const char* label) {
-  if (actual != expected) {
-    LOG(ERROR) << label << " expected " << expected << " but got " << actual << LOG_ENDL;
-    return false;
-  }
-  return true;
-}
-
 bool assertTrue(bool cond, const char* label) {
   if (!cond) {
     LOG(ERROR) << label << " expected true" << LOG_ENDL;
@@ -107,11 +97,12 @@ int main(int /*argc*/, char** /*argv*/) {
     }
 
     const auto& characters = state.world.currentMap.characters;
-    // alinea_outsideAlinea1 has NPC alinea_Claire; spawn adds party avatar.
-    ok = assertEqual(static_cast<int>(characters.size()), 2, "characters.size after spawn") &&
+    // alinea_outsideAlinea1 has goblinTest + alinea_Claire; spawn adds party avatar.
+    ok = assertEqual(static_cast<int>(characters.size()), 3, "characters.size after spawn") &&
          ok;
     const model::CharacterInstance* avatar = nullptr;
     const model::CharacterInstance* claire = nullptr;
+    const model::CharacterInstance* goblin = nullptr;
     for (size_t i = 0; i < characters.size(); i++) {
       if (characters[i].id == partyId) {
         avatar = &characters[i];
@@ -119,9 +110,13 @@ int main(int /*argc*/, char** /*argv*/) {
       if (characters[i].templateName == "alinea_Claire") {
         claire = &characters[i];
       }
+      if (characters[i].templateName == "goblinTest") {
+        goblin = &characters[i];
+      }
     }
     ok = assertTrue(avatar != nullptr, "spawned avatar found") && ok;
     ok = assertTrue(claire != nullptr, "claire NPC found") && ok;
+    ok = assertTrue(goblin != nullptr, "goblinTest NPC found") && ok;
     if (avatar) {
       ok = assertEqual(avatar->x, 7, "spawned character.x") && ok;
       ok = assertEqual(avatar->y, 11, "spawned character.y") && ok;
@@ -133,6 +128,11 @@ int main(int /*argc*/, char** /*argv*/) {
       ok = assertEqual(claire->x, 4, "claire.x") && ok;
       ok = assertEqual(claire->y, 16, "claire.y") && ok;
     }
+    if (goblin) {
+      // goblinTest i=348, width=30 → (18, 11)
+      ok = assertEqual(goblin->x, 18, "goblinTest.x") && ok;
+      ok = assertEqual(goblin->y, 11, "goblinTest.y") && ok;
+    }
 
     // Idempotent re-spawn: still one avatar + NPCs
     {
@@ -140,7 +140,7 @@ int main(int /*argc*/, char** /*argv*/) {
       spawn.execute(&state);
     }
     ok = assertEqual(static_cast<int>(state.world.currentMap.characters.size()),
-                     2,
+                     3,
                      "characters.size after re-spawn") &&
          ok;
 
@@ -163,7 +163,7 @@ int main(int /*argc*/, char** /*argv*/) {
       }
     }
     ok = assertEqual(static_cast<int>(state.world.currentMap.characters.size()),
-                     2,
+                     3,
                      "characters.size after Stairs1 spawn") &&
          ok;
 

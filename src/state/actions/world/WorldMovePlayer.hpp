@@ -1,5 +1,6 @@
 #pragma once
 
+#include "model/instances/CharacterInstance.h"
 #include "model/MapVision.h"
 #include "model/MapWalkability.h"
 #include "model/TileTriggers.h"
@@ -87,6 +88,8 @@ class WorldMovePlayer : public AbstractAction {
       LOG(ERROR) << "WorldMovePlayer::act: party avatar not found on map" << LOG_ENDL;
       return;
     }
+
+    model::updateCharacterFacingFromMove(*avatar, dx, dy);
 
     const auto destX = avatar->x + dx;
     const auto destY = avatar->y + dy;

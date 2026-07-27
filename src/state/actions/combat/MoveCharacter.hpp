@@ -1,6 +1,8 @@
 #pragma once
 
+#include "model/instances/CharacterInstance.h"
 #include "model/Combat.h"
+#include "model/MapVision.h"
 #include "model/MapWalkability.h"
 #include "state/actions/combat/ActionBase.hpp"
 
@@ -42,6 +44,11 @@ class MoveCharacter : public CombatAction {
 
     character->x = destX;
     character->y = destY;
+    model::updateCharacterFacingFromMove(*character, dx, dy);
+
+    if (model::isPartyMember(state->player, character->id)) {
+      model::updateMapVisibilityFromParty(map, state->player, *database);
+    }
   }
 
 public:

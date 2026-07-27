@@ -1,4 +1,5 @@
 #include "db/Database.h"
+#include "model/instances/CharacterInstance.h"
 #include "model/MapWalkability.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/World.h"
@@ -166,6 +167,36 @@ int main(int /*argc*/, char** /*argv*/) {
       move(state, 1, 0);
       ok = assertEqual(avatar->x, 3, "walk right.x") && ok;
       ok = assertEqual(avatar->y, 2, "walk right.y") && ok;
+      ok = assertTrue(avatar->facing == model::CharacterFacing::Right, "walk right facing") &&
+           ok;
+    }
+
+    // Facing updates on world move
+    {
+      state::State state;
+      state.world.currentMap = makeEmptyMap(5, 5);
+      auto* avatar = spawnAvatar(state, 2, 2);
+      move(state, -1, 0);
+      ok = assertTrue(avatar->facing == model::CharacterFacing::Left, "walk left facing") && ok;
+      move(state, 0, 1);
+      ok = assertTrue(avatar->facing == model::CharacterFacing::Left, "walk down facing") && ok;
+      move(state, 1, -1);
+      ok = assertTrue(avatar->facing == model::CharacterFacing::Right, "walk up-right facing") &&
+           ok;
+    }
+
+    // Blocked move still updates facing
+    {
+      state::State state;
+      state.world.currentMap = makeEmptyMap(5, 5);
+      tileAt(state.world.currentMap, 3, 2)->tileId = 1;
+      auto* avatar = spawnAvatar(state, 2, 2);
+      avatar->facing = model::CharacterFacing::Left;
+      move(state, 1, 0);
+      ok = assertEqual(avatar->x, 2, "blocked move.x") && ok;
+      ok = assertTrue(avatar->facing == model::CharacterFacing::Right,
+                      "blocked move updates facing") &&
+           ok;
     }
 
     // Blocked by non-walkable non-door

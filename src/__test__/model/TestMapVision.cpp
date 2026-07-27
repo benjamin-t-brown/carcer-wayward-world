@@ -2,7 +2,11 @@
 #include "model/MapPersistence.h"
 #include "model/MapVision.h"
 #include "model/MapWalkability.h"
+#include "model/instances/CharacterInstance.h"
+#include "model/instances/CharacterPlayer.h"
+#include "model/instances/Player.h"
 #include "model/instances/World.h"
+#include "model/templates/CharacterTemplate.h"
 #include "model/templates/Tileset.h"
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
@@ -55,6 +59,13 @@ void addTestTileset(db::Database& database) {
   tileset.tiles.pushBack(makeMeta(2, false, false, true));
   tileset.tiles.pushBack(makeMeta(3, true, true, true));
   database.addTilesetTemplate(tileset);
+}
+
+void addAllyCharacterTemplate(db::Database& database) {
+  auto character = model::CharacterTemplate{};
+  character.type = model::CharacterTemplateType::TOWNSPERSON;
+  character.name = "ally";
+  database.addCharacterTemplate(character);
 }
 
 model::TileInstance makeTile(int x, int y, int tileId) {
@@ -284,6 +295,59 @@ int main(int /*argc*/, char** /*argv*/) {
       ok = assertFalse(tileAt(map, 19, 0)->isExplored, "never-seen tile still not explored") &&
            ok;
       ok = assertFalse(tileAt(map, 19, 0)->isVisible, "never-seen tile still not visible") && ok;
+    }
+
+    // Combined party vision during combat
+    {
+      addAllyCharacterTemplate(database);
+      auto map = makeEmptyMap(20, 20);
+      model::Player player;
+
+      auto memberNear = model::CharacterPlayer(database.getCharacterTemplate("ally"));
+      memberNear.instanceId = "party-near";
+      player.party.pushBack(std::move(memberNear));
+      auto memberFar = model::CharacterPlayer(database.getCharacterTemplate("ally"));
+      memberFar.instanceId = "party-far";
+      player.party.pushBack(std::move(memberFar));
+
+      auto allyNear = model::CharacterInstance{};
+      allyNear.id = "party-near";
+      allyNear.templateName = "ally";
+      allyNear.x = 2;
+      allyNear.y = 2;
+      map.characters.pushBack(std::move(allyNear));
+
+      auto allyFar = model::CharacterInstance{};
+      allyFar.id = "party-far";
+      allyFar.templateName = "ally";
+      allyFar.x = 15;
+      allyFar.y = 2;
+      map.characters.pushBack(std::move(allyFar));
+
+      auto npc = model::CharacterInstance{};
+      npc.id = "npc-ally";
+      npc.templateName = "ally";
+      npc.x = 15;
+      npc.y = 2;
+      map.characters.pushBack(std::move(npc));
+
+      model::updateMapVisibilityFromPlayer(map, 2, 2, database);
+      ok = assertFalse(tileAt(map, 15, 2)->isVisible,
+                       "distant party member not visible from single observer") &&
+           ok;
+
+      model::updateMapVisibilityFromParty(map, player, database);
+      ok = assertTrue(tileAt(map, 15, 2)->isVisible,
+                      "distant party member visible with combined party vision") &&
+           ok;
+      ok = assertTrue(tileAt(map, 2, 2)->isVisible, "near party member still visible") && ok;
+
+      player.party.clear();
+      model::updateMapVisibilityFromParty(map, player, database);
+      ok = assertFalse(tileAt(map, 15, 2)->isVisible,
+                       "npc ally does not contribute to party vision") &&
+           ok;
+      ok = assertFalse(tileAt(map, 2, 2)->isVisible, "empty party clears combat vision") && ok;
     }
 
     // Flags sync across all layers at a visible cell

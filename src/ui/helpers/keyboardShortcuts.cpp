@@ -3,7 +3,19 @@
 namespace ui {
 
 std::optional<state::WorldActionType>
-getWorldActionFromKeyboardShortcut(std::string_view key) {
+getWorldActionFromKeyboardShortcut(std::string_view key, model::TurnMode turnMode) {
+  if (key == "f" || key == "F") {
+    if (turnMode == model::TurnMode::TURN_COMBAT) {
+      return state::WorldActionType::END_FIGHT;
+    }
+    if (turnMode == model::TurnMode::TURN_TOWN) {
+      return state::WorldActionType::START_FIGHT;
+    }
+    return std::nullopt;
+  }
+  if ((key == "e" || key == "E") && turnMode == model::TurnMode::TURN_COMBAT) {
+    return state::WorldActionType::END_FIGHT;
+  }
   if (key == "l" || key == "L") {
     return state::WorldActionType::EXAMINE;
   }
@@ -16,10 +28,14 @@ getWorldActionFromKeyboardShortcut(std::string_view key) {
   if (key == " ") {
     return state::WorldActionType::INTERACT;
   }
-  if (key == "Keypad 5") {
+  if (key == "Keypad 5" && turnMode != model::TurnMode::TURN_COMBAT) {
     return state::WorldActionType::INTERACT;
   }
   return std::nullopt;
+}
+
+bool isCombatWaitKey(std::string_view key) {
+  return key == "Keypad 5";
 }
 
 std::optional<MoveDelta> getMoveDeltaForKey(std::string_view key) {

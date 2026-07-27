@@ -58,6 +58,8 @@ struct CharacterPlayer {
 };
 
 bmin::String characterPlayerGetSprite(const CharacterPlayer& characterPlayer);
+bmin::String characterPlayerGetSpriteAtIndexOffset(const CharacterPlayer& characterPlayer,
+                                                   int indexOffset);
 
 enum class EquipItemResult {
   EQUIPPED,

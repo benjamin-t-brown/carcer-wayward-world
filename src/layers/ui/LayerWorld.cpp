@@ -1,12 +1,14 @@
 #include "LayerWorld.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerInventory.h"
+#include "model/Combat.h"
 #include "model/instances/CharacterPlayer.h"
 #include "sdl2w/L10n.h"
 #include "sdl2w/Logger.h"
 #include "state/LayerManagerInterface.h"
 #include "state/WorldActions.h"
 #include "state/WorldUpdater.h"
+#include "state/actions/combat/DoCombatAction.hpp"
 #include "state/actions/combat/EndCombat.hpp"
 #include "state/actions/combat/StartCombat.hpp"
 #include "state/actions/ui/heldMove/UiUpdateHeldMove.hpp"
@@ -78,6 +80,77 @@ LayerWorld::LayerWorld(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
   syncFromState();
 }
 
+namespace {
+
+bool canPlayerIssueCombatMove(const state::State& state) {
+  const auto& world = state.world;
+  if (!world.combat.active || !world.combat.isWaitingForAction) {
+    return false;
+  }
+  return model::isPartyMember(state.player, world.combat.activeCharacterId);
+}
+
+void enqueueMapMove(state::StateManager& stateManager, int dx, int dy) {
+  auto& state = stateManager.getState();
+  if (state.world.combat.active) {
+    if (!canPlayerIssueCombatMove(state)) {
+      return;
+    }
+    stateManager.enqueueAction(
+        stateManager.getActionData(),
+        new state::actions::DoCombatAction(model::CombatActionType::MOVE, dx, dy),
+        0);
+    return;
+  }
+  stateManager.enqueueAction(stateManager.getActionData(),
+                             new state::actions::WorldMovePlayer(dx, dy),
+                             0);
+}
+
+void enqueueCombatWait(state::StateManager& stateManager) {
+  if (!canPlayerIssueCombatMove(stateManager.getState())) {
+    return;
+  }
+  stateManager.enqueueAction(
+      stateManager.getActionData(),
+      new state::actions::DoCombatAction(model::CombatActionType::WAIT),
+      0);
+}
+
+} // namespace
+
+void LayerWorld::syncCombatTitleBar() {
+  auto inGameLayout = getUiElement<ui::InGameLayout>("inGameLayout");
+  if (!inGameLayout) {
+    return;
+  }
+  auto* titleBar = dynamic_cast<ui::InGameTitleBar*>(inGameLayout->getTitleElement());
+  if (!titleBar) {
+    return;
+  }
+
+  auto stateManager = getStateManager();
+  if (!stateManager) {
+    return;
+  }
+
+  const auto& world = stateManager->getState().world;
+  auto titleProps = titleBar->getProps();
+  const bool showAp = world.combat.active;
+  int ap = 0;
+  if (showAp) {
+    if (const auto* character =
+            model::findCharacterOnMap(world.currentMap, world.combat.activeCharacterId)) {
+      ap = character->currentAp;
+    }
+  }
+  if (titleProps.showAp != showAp || titleProps.ap != ap) {
+    titleProps.showAp = showAp;
+    titleProps.ap = ap;
+    titleBar->setProps(titleProps);
+  }
+}
+
 void LayerWorld::confirmWorldActionAim(int tileX, int tileY) {
   auto* stateManager = getStateManager();
   if (!stateManager) {
@@ -119,7 +192,14 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
     }
   }
 
-  if (auto actionType = ui::getWorldActionFromKeyboardShortcut(key)) {
+  if (ui::isCombatWaitKey(key) && world.combat.active) {
+    ui::setHeldMoveActive(*stateManager, false);
+    enqueueCombatWait(*stateManager);
+    return;
+  }
+
+  if (auto actionType =
+          ui::getWorldActionFromKeyboardShortcut(key, world.currentMap.turnMode)) {
     ui::activateWorldAction(*stateManager, *actionType, window);
     return;
   }
@@ -136,6 +216,10 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
 
   auto moveDelta = ui::getMoveDeltaForKey(key);
   if (!moveDelta) {
+    return;
+  }
+
+  if (world.combat.active && !canPlayerIssueCombatMove(stateManager->getState())) {
     return;
   }
 
@@ -165,10 +249,7 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
   stateManager->pllAction(stateManager->getActionData(),
                           new state::actions::UiUpdateHeldMove(nextHeldMove),
                           0);
-  stateManager->pllAction(
-      stateManager->getActionData(),
-      new state::actions::WorldMovePlayer(moveDelta->dx, moveDelta->dy),
-      0);
+  enqueueMapMove(*stateManager, moveDelta->dx, moveDelta->dy);
 }
 
 void LayerWorld::onKeyUp(std::string_view key, int /*keyCode*/) {
@@ -439,7 +520,13 @@ void LayerWorld::syncFromState() {
     titleProps.day = 0;
     titleProps.food = player.food;
     titleProps.ap = 0;
-    titleProps.showAp = (world.currentMap.turnMode == model::TurnMode::TURN_COMBAT);
+    if (world.combat.active) {
+      if (const auto* character = model::findCharacterOnMap(
+              world.currentMap, world.combat.activeCharacterId)) {
+        titleProps.ap = character->currentAp;
+      }
+    }
+    titleProps.showAp = world.combat.active;
     titleBar->setProps(titleProps);
   }
 
@@ -462,16 +549,19 @@ void LayerWorld::updateHeldMoveRepeat(int deltaTime) {
     return;
   }
 
+  if (stateManager->getState().world.combat.active &&
+      !canPlayerIssueCombatMove(stateManager->getState())) {
+    ui::setHeldMoveActive(*stateManager, false);
+    return;
+  }
+
   model::timerStructUpdate(heldMove.initialDelay, deltaTime);
   model::timerStructUpdate(heldMove.moveDelay, deltaTime);
 
   if (model::timerStructIsComplete(heldMove.initialDelay) &&
       model::timerStructIsComplete(heldMove.moveDelay)) {
     model::timerStructRestart(heldMove.moveDelay);
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::WorldMovePlayer(heldMove.dx, heldMove.dy),
-        0);
+    enqueueMapMove(*stateManager, heldMove.dx, heldMove.dy);
   }
 }
 
@@ -526,6 +616,7 @@ void LayerWorld::update(int deltaTime) {
 
   syncWorldActionModeHighlight();
   syncActionModeCancelButton();
+  syncCombatTitleBar();
 }
 
 void LayerWorld::render(int deltaTime) {

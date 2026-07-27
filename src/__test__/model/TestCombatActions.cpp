@@ -8,9 +8,11 @@
 #include "state/DatabaseInterface.h"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
+#include "state/actions/combat/MoveCharacter.hpp"
 #include "state/actions/combat/EndCombat.hpp"
 #include "state/actions/combat/ModifyAP.hpp"
 #include "state/actions/combat/ModifyHP.hpp"
+#include "state/actions/combat/DoCombatActionCompletion.hpp"
 #include "state/actions/combat/StartCombat.hpp"
 #include "state/actions/combat/SetActiveCombatCharacter.hpp"
 
@@ -192,9 +194,54 @@ int main(int /*argc*/, char** /*argv*/) {
     }
   }
 
+  // combat move updates facing
+  {
+    state::actions::MoveCharacter("ally-1", -1, 0).execute(&stateManager.getState());
+    auto* ally = model::findCharacterOnMap(stateManager.getState().world.currentMap, "ally-1");
+    ok = assertTrue(ally != nullptr, "ally after combat move") && ok;
+    if (ally) {
+      ok = assertEqual(ally->x, 1, "combat move left.x") && ok;
+      ok = assertTrue(ally->facing == model::CharacterFacing::Left, "combat move left facing") &&
+           ok;
+    }
+  }
+
+  // lethal damage marks enemy defeated and DoCombatActionCompletion removes them
+  {
+    state::actions::ModifyHP("enemy-1", -15).execute(&stateManager.getState());
+    auto* enemy = model::findCharacterOnMap(stateManager.getState().world.currentMap, "enemy-1");
+    ok = assertTrue(enemy != nullptr, "enemy exists before completion") && ok;
+    if (enemy) {
+      ok = assertTrue(model::isCharacterDefeated(stateManager.getState().player, *enemy, database),
+                      "enemy defeated at 0 HP") &&
+           ok;
+    }
+
+    stateManager.enqueueAction(stateManager.getActionData(),
+                               new state::actions::DoCombatActionCompletion(),
+                               0);
+    stateManager.update(1);
+    stateManager.update(300);
+    stateManager.update(1);
+
+    enemy = model::findCharacterOnMap(stateManager.getState().world.currentMap, "enemy-1");
+    ok = assertTrue(enemy == nullptr, "defeated enemy removed from map") && ok;
+  }
+
   // CPU enemy turn waits and advances back to ally
   {
+    auto enemy = model::CharacterInstance{};
+    enemy.id = "enemy-1";
+    enemy.name = "Slime";
+    enemy.templateName = "slime";
+    enemy.x = 3;
+    enemy.y = 2;
+    enemy.currentHp = 20;
+    enemy.hpInitialized = true;
+    stateManager.getState().world.currentMap.characters.pushBack(std::move(enemy));
+
     auto& world = stateManager.getState().world;
+    world.combat.isWaitingForAction = false;
     world.combat.activeTurnIndex = 1;
     world.combat.activeCharacterId = "enemy-1";
 
@@ -203,9 +250,38 @@ int main(int /*argc*/, char** /*argv*/) {
                                0);
     stateManager.update(1);
     stateManager.update(1);
+    stateManager.update(300);
+    stateManager.update(1);
 
     ok = assertEqual(world.combat.activeTurnIndex, 0, "turn advanced after enemy wait") && ok;
     ok = assertEqualStr(world.combat.activeCharacterId, "ally-1", "back to ally") && ok;
+  }
+
+  // non-party map characters are CPU allies in turn order
+  {
+    auto npc = model::CharacterInstance{};
+    npc.id = "npc-ally-1";
+    npc.name = "Guard";
+    npc.templateName = "hero";
+    npc.x = 1;
+    npc.y = 2;
+    stateManager.getState().world.currentMap.characters.pushBack(std::move(npc));
+
+    stateManager.enqueueAction(stateManager.getActionData(),
+                               new state::actions::StartCombat(),
+                               0);
+    stateManager.update(1);
+
+    auto& world = stateManager.getState().world;
+    ok = assertEqual(static_cast<int>(world.combat.turnOrderIds.size()), 3,
+                     "turn order includes npc ally") &&
+         ok;
+    ok = assertTrue(model::isCharacterAlly(stateManager.getState().player,
+                                           *model::findCharacterOnMap(world.currentMap, "npc-ally-1"),
+                                           database),
+                    "npc is ally") &&
+         ok;
+    ok = assertEqualStr(world.combat.turnOrderIds[1], "npc-ally-1", "npc after party") && ok;
   }
 
   // endCombat removes extra party members and clears combat

@@ -32,6 +32,7 @@ model/instances/CharacterPlayer.cpp \
 model/instances/World.cpp \
 model/MapWalkability.cpp \
 model/MapVision.cpp \
+model/TileFields.cpp \
 model/MapPersistence.cpp \
 model/TileTriggers.cpp \
 model/stats/CharacterStats.cpp \

@@ -18,6 +18,7 @@ private:
   void attachWorldActionObservers(ui::InGameLayout* inGameLayout);
   void syncWorldActionModeHighlight();
   void syncActionModeCancelButton();
+  void syncCombatTitleBar();
   void updateHeldMoveRepeat(int deltaTime);
   void confirmWorldActionAim(int tileX, int tileY);
   void updateAimFromMouse(int x, int y);

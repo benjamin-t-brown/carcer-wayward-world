@@ -1,10 +1,12 @@
 #pragma once
 
+#include "model/instances/CharacterInstance.h"
 #include "model/Combat.h"
 #include "state/actions/combat/ActionBase.hpp"
+#include "state/actions/combat/CharacterSetSpriteIndexOffset.hpp"
 #include "state/actions/combat/ModifyHP.hpp"
 #include "state/actions/combat/PlaySound.hpp"
-#include "state/actions/ui/UiPushFloatingNotification.hpp"
+#include "state/actions/world/WorldSpawnDamageParticle.hpp"
 
 namespace state {
 
@@ -30,21 +32,27 @@ class PerformMeleeAttack : public CombatAction {
       return;
     }
 
-    attacker->spriteIndex += 1;
+    model::updateCharacterFacingToward(*attacker, victim->x, victim->y);
+
+    insertCombatAction(new CharacterSetSpriteIndexOffset(attackerId, 1), 0);
 
     const auto hit = (std::rand() % 100) < model::COMBAT_HIT_CHANCE_PERCENT;
     if (hit) {
       insertCombatAction(new PlaySound("punch1"), 0);
+      insertCombatAction(nullptr, 75);
       insertCombatAction(new ModifyHP(victimId, -model::COMBAT_MELEE_DAMAGE), 0);
-      auto damageText = bmin::String("-") + bmin::toString(model::COMBAT_MELEE_DAMAGE);
-      insertCombatAction(new UiPushFloatingNotification(std::move(damageText),
-                                                        UiFloatingNotificationType::INFO),
+      insertCombatAction(new WorldSpawnDamageParticle("splash_attack",
+                                                      victim->x,
+                                                      victim->y,
+                                                      model::COMBAT_MELEE_DAMAGE,
+                                                      500),
                          0);
       insertCombatAction(nullptr, 500);
     } else {
       insertCombatAction(new PlaySound("whip"), 0);
       insertCombatAction(nullptr, 300);
     }
+    insertCombatAction(new CharacterSetSpriteIndexOffset(attackerId, 0), 0);
   }
 
 public:

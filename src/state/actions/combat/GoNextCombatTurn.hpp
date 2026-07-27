@@ -1,6 +1,7 @@
 #pragma once
 
 #include "model/Combat.h"
+#include "sdl2w/Logger.h"
 #include "state/actions/combat/ActionBase.hpp"
 #include "state/actions/combat/SetActiveCombatCharacter.hpp"
 
@@ -23,8 +24,12 @@ class GoNextCombatTurn : public CombatAction {
       return;
     }
 
+    LOG(INFO) << "GoNextCombatTurn: advancing from turn index " << combat.activeTurnIndex
+              << LOG_ENDL;
+
     combat.activeTurnIndex += 1;
     if (combat.activeTurnIndex >= static_cast<int>(combat.turnOrderIds.size())) {
+      LOG(INFO) << "GoNextCombatTurn: new combat round, resetting AP" << LOG_ENDL;
       combat.activeTurnIndex = 0;
       model::resetAllCombatAp(state->world, model::COMBAT_STARTING_AP);
     }
@@ -54,6 +59,8 @@ class GoNextCombatTurn : public CombatAction {
         continue;
       }
       insertCombatAction(new SetActiveCombatCharacter(nextId), 0);
+      LOG(INFO) << "GoNextCombatTurn: next actor is "
+                << model::formatCharacterLogLabel(state->world.currentMap, nextId) << LOG_ENDL;
       return;
     }
   }

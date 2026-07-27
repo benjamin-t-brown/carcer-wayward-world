@@ -1,8 +1,10 @@
 #pragma once
 
 #include "model/Combat.h"
+#include "model/MapVision.h"
 #include "model/TileTriggers.h"
 #include "model/instances/World.h"
+#include "sdl2w/Logger.h"
 #include "state/actions/combat/ActionBase.hpp"
 #include "state/actions/world/WorldSetCamera.hpp"
 
@@ -17,6 +19,7 @@ class EndCombat : public CombatAction {
     }
 
     auto& world = state->world;
+    LOG(INFO) << "EndCombat: ending combat, returning to town mode" << LOG_ENDL;
     world.combat.active = false;
     world.combat.turnOrderIds.clear();
     world.combat.activeTurnIndex = 0;
@@ -35,6 +38,11 @@ class EndCombat : public CombatAction {
     world.camera.cameraMode = model::CameraMode::Follow;
 
     if (auto* avatar = model::findPartyAvatarOnMap(world.currentMap, state->player)) {
+      auto* database = getDatabase();
+      if (database != nullptr) {
+        model::updateMapVisibilityFromPlayer(
+            world.currentMap, avatar->x, avatar->y, *database);
+      }
       if (world.camera.viewW > 0 && world.camera.viewH > 0) {
         const auto cam = model::computeCameraFollow(avatar->x,
                                                     avatar->y,

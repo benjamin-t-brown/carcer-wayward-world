@@ -25,4 +25,7 @@ void hydrateCurrentMapFromPersistence(World& world, const db::Database& database
 // Flush current → create from template → hydrate → set currentMap and world name/camera.
 void enterMap(World& world, const bmin::String& templateName, const db::Database& database);
 
+// Record a defeated map enemy so it stays gone when revisiting the template.
+void markMapCharacterDefeated(World& world, const CharacterInstance& character);
+
 } // namespace model

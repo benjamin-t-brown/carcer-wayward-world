@@ -1,11 +1,11 @@
 #include "state/StateManager.h"
-#include "bmin/UniquePtr.h"
+#include "state/StateManagerInterface.h"
 #include "state/AbstractAction.h"
 #include "state/WorldUpdater.h"
 
 namespace state {
 
-StateManager::StateManager() {}
+StateManager::StateManager() { StateManagerInterface::setStateManager(this); }
 
 state::State& StateManager::getState() { return state; }
 

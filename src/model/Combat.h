@@ -37,6 +37,8 @@ struct Combat {
   bool isWaitingForAction = false;
 };
 
+void removeCharacterFromCombatTurnOrder(Combat& combat, const bmin::String& characterId);
+
 CharacterInstance* findCharacterOnMap(MapInstance& map, const bmin::String& id);
 const CharacterInstance* findCharacterOnMap(const MapInstance& map, const bmin::String& id);
 
@@ -69,5 +71,7 @@ void removeExtraPartyMembersFromMap(World& world, const Player& player);
 Combat createCombatFromWorld(const World& world,
                              const Player& player,
                              const db::Database& database);
+
+bmin::String formatCharacterLogLabel(const MapInstance& map, const bmin::String& id);
 
 } // namespace model

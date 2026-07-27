@@ -5,6 +5,8 @@
 
 namespace model {
 
+struct Player;
+
 // Half-extent of the vision radius (Chebyshev bound). Combined with a Manhattan cut,
 // the lit area is an octagon rather than a square.
 inline constexpr int kPlayerVisionBoxSize = 7;
@@ -40,6 +42,11 @@ void updateMapVisibilityFromPlayer(MapInstance& map,
                                    int playerX,
                                    int playerY,
                                    const db::Database& database);
+
+// Union of vision from every party member on the map.
+void updateMapVisibilityFromParty(MapInstance& map,
+                                  const Player& player,
+                                  const db::Database& database);
 
 // Capture / apply explored bits (not visibility). Used by MapPersistence.
 ExploredMapMask captureExploredMask(const MapInstance& map);

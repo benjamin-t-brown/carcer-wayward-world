@@ -107,9 +107,13 @@ EquipItemResult equipSingleSlot(CharacterPlayerEquipment& equipment,
 
 } // namespace
 
+bmin::String characterPlayerGetSpriteAtIndexOffset(const CharacterPlayer& characterPlayer,
+                                                     int indexOffset) {
+  return characterGetSpriteAtIndexOffset(characterPlayer.params, indexOffset);
+}
+
 bmin::String characterPlayerGetSprite(const CharacterPlayer& characterPlayer) {
-  return characterPlayer.params.spritesheetName + "_" +
-         characterPlayer.params.spriteOffset;
+  return characterPlayerGetSpriteAtIndexOffset(characterPlayer, 0);
 }
 
 std::optional<CharacterEquipmentSlot>

@@ -66,5 +66,7 @@ struct CharacterTemplate {
 };
 
 bmin::String characterGetSprite(const CharacterTemplate& character);
+bmin::String characterGetSpriteAtIndexOffset(const CharacterTemplate& characterTemplate,
+                                             int indexOffset);
 
 } // namespace model

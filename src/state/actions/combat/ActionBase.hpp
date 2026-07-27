@@ -12,7 +12,7 @@ class CombatAction : public AbstractAction, public StateManagerInterface {
 protected:
   void insertCombatAction(AbstractAction* action, int ms = 0) {
     auto* stateManager = getStateManager();
-    if (stateManager == nullptr || action == nullptr) {
+    if (stateManager == nullptr) {
       return;
     }
     stateManager->insertAction(stateManager->getActionData(), action, ms);
@@ -20,7 +20,7 @@ protected:
 
   void enqueueCombatAction(AbstractAction* action, int ms = 0) {
     auto* stateManager = getStateManager();
-    if (stateManager == nullptr || action == nullptr) {
+    if (stateManager == nullptr) {
       return;
     }
     stateManager->enqueueAction(stateManager->getActionData(), action, ms);

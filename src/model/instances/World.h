@@ -1,9 +1,11 @@
 #pragma once
 
 #include "model/Combat.h"
+#include "model/TileFields.h"
 #include "model/instances/CharacterInstance.h"
 #include "model/instances/ItemInstance.h"
 #include "model/templates/Maps.h"
+#include "model/templates/UtilityTypes.h"
 #include <cstdint>
 #include <optional>
 #include "bmin/DynArray.h"
@@ -24,6 +26,7 @@ struct TileInstance {
   std::optional<TravelTrigger> travelTrigger;
   bool isExplored = false;
   bool isVisible = false;
+  bmin::DynArray<TileField> fields;
 };
 
 enum class TurnMode { TURN_TOWN, TURN_OUTDOOR, TURN_COMBAT };
@@ -53,6 +56,15 @@ struct TileXY {
   int y = 0;
 };
 
+// Map-space hit feedback: splash animation plus a numeric label (not UI floating text).
+struct DamageParticle {
+  bmin::String animationName;
+  int tileX = 0;
+  int tileY = 0;
+  int value = 0;
+  TimerStruct lifetime;
+};
+
 // Session-scoped fog-of-war memory for a map template (one bit per cell).
 struct ExploredMapMask {
   int width = 0;
@@ -68,11 +80,28 @@ struct OpenedDoorRecord {
   int tileId = 0;
 };
 
+// Map-placed character removed for the session (matched on template + spawn tile).
+struct DefeatedCharacterRecord {
+  bmin::String templateName;
+  int x = 0;
+  int y = 0;
+};
+
+// Tile overlay fields persisted per layer/cell.
+struct PersistentTileFieldRecord {
+  int layer = 0;
+  int x = 0;
+  int y = 0;
+  bmin::DynArray<TileField> fields;
+};
+
 // Per-map session (and future disk) deltas keyed by template name — not by grid.
 struct PersistentMapState {
-  int version = 1;
+  int version = 2;
   ExploredMapMask explored;
   bmin::DynArray<OpenedDoorRecord> openedDoors;
+  bmin::DynArray<DefeatedCharacterRecord> defeatedCharacters;
+  bmin::DynArray<PersistentTileFieldRecord> tileFields;
 };
 
 struct CameraInfo {
@@ -100,6 +129,7 @@ struct World {
   // and stripped when a conversation ends.
   bmin::Map<bmin::String, bmin::String> specialEventStorage;
   Combat combat;
+  bmin::DynArray<DamageParticle> damageParticles;
 
   bool mapChangedThisTick = false;
 };

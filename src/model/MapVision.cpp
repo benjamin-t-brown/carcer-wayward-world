@@ -1,4 +1,6 @@
 #include "model/MapVision.h"
+#include "model/Combat.h"
+#include "model/instances/Player.h"
 #include "model/MapWalkability.h"
 #include <cstdint>
 #include <cstdlib>
@@ -157,6 +159,27 @@ void lightOpaqueWallsBesideVisibleFloors(MapInstance& map,
   }
 }
 
+void addMapVisibilityFromPoint(MapInstance& map,
+                               int playerX,
+                               int playerY,
+                               const db::Database& database) {
+  const auto boxSize = kPlayerVisionBoxSize;
+  for (auto y = playerY - boxSize; y <= playerY + boxSize; y++) {
+    for (auto x = playerX - boxSize; x <= playerX + boxSize; x++) {
+      if (x == playerX && y == playerY) {
+        continue;
+      }
+      if (!isInPlayerVisionRange(x - playerX, y - playerY, boxSize)) {
+        continue;
+      }
+      castVisibilityRay(map, playerX, playerY, x, y, database);
+    }
+  }
+
+  markCellVisibleAndExplored(map, playerX, playerY);
+  lightOpaqueWallsBesideVisibleFloors(map, playerX, playerY, boxSize, database);
+}
+
 } // namespace
 
 bool isTileEffectivelySeeThrough(const TileInstance& tile, const db::Database& database) {
@@ -195,26 +218,18 @@ void updateMapVisibilityFromPlayer(MapInstance& map,
                                    int playerY,
                                    const db::Database& database) {
   clearAllVisible(map);
+  addMapVisibilityFromPoint(map, playerX, playerY, database);
+}
 
-  const auto boxSize = kPlayerVisionBoxSize;
-  // Cast to every cell in the vision octagon (Chebyshev bound + Manhattan corner cut).
-  for (auto y = playerY - boxSize; y <= playerY + boxSize; y++) {
-    for (auto x = playerX - boxSize; x <= playerX + boxSize; x++) {
-      if (x == playerX && y == playerY) {
-        continue;
-      }
-      if (!isInPlayerVisionRange(x - playerX, y - playerY, boxSize)) {
-        continue;
-      }
-      castVisibilityRay(map, playerX, playerY, x, y, database);
+void updateMapVisibilityFromParty(MapInstance& map,
+                                  const Player& player,
+                                  const db::Database& database) {
+  clearAllVisible(map);
+  for (const auto& character : map.characters) {
+    if (model::isPartyMember(player, character.id)) {
+      addMapVisibilityFromPoint(map, character.x, character.y, database);
     }
   }
-
-  // Player's own tile is always visible (and explored).
-  markCellVisibleAndExplored(map, playerX, playerY);
-
-  // Fill opaque wall-face gaps beside visible open tiles.
-  lightOpaqueWallsBesideVisibleFloors(map, playerX, playerY, boxSize, database);
 }
 
 ExploredMapMask captureExploredMask(const MapInstance& map) {
