@@ -10,6 +10,16 @@ namespace state {
 namespace actions {
 
 class GoNextCombatTurn : public CombatAction {
+  void startNewCombatRound() {
+    auto* database = getDatabase();
+    if (database == nullptr) {
+      return;
+    }
+    LOG(INFO) << "GoNextCombatTurn: new combat round, resetting AP" << LOG_ENDL;
+    state->world.combat.activeTurnIndex = 0;
+    model::onNewCombatRound(state->world, state->mapsByTemplate, *database);
+  }
+
   void act() override {
     if (!state) {
       return;
@@ -29,9 +39,7 @@ class GoNextCombatTurn : public CombatAction {
 
     combat.activeTurnIndex += 1;
     if (combat.activeTurnIndex >= static_cast<int>(combat.turnOrderIds.size())) {
-      LOG(INFO) << "GoNextCombatTurn: new combat round, resetting AP" << LOG_ENDL;
-      combat.activeTurnIndex = 0;
-      model::resetAllCombatAp(state->world, model::COMBAT_STARTING_AP);
+      startNewCombatRound();
     }
 
     const auto turnCount = static_cast<int>(combat.turnOrderIds.size());
@@ -45,16 +53,14 @@ class GoNextCombatTurn : public CombatAction {
       if (nextCharacter == nullptr) {
         combat.activeTurnIndex += 1;
         if (combat.activeTurnIndex >= turnCount) {
-          combat.activeTurnIndex = 0;
-          model::resetAllCombatAp(state->world, model::COMBAT_STARTING_AP);
+          startNewCombatRound();
         }
         continue;
       }
       if (model::isCharacterDefeated(state->player, *nextCharacter, *database)) {
         combat.activeTurnIndex += 1;
         if (combat.activeTurnIndex >= turnCount) {
-          combat.activeTurnIndex = 0;
-          model::resetAllCombatAp(state->world, model::COMBAT_STARTING_AP);
+          startNewCombatRound();
         }
         continue;
       }

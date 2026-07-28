@@ -1,5 +1,5 @@
 #include "db/Database.h"
-#include "model/MapWalkability.h"
+#include "game/map/MapWalkability.h"
 #include "model/instances/World.h"
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
@@ -79,7 +79,7 @@ int main(int /*argc*/, char** /*argv*/) {
     map.tiles[1][4] = makeTile(1, 1, "terrain2", 0);
 
     map.tileLayerNumber = 0;
-    const auto* tile0 = model::resolveTileToRender(map, 1, 1);
+    const auto* tile0 = game::resolveTileToRender(map, 1, 1);
     ok = assertTrue(tile0 != nullptr, "layer0 present") && ok;
     if (tile0) {
       ok = assertEqualStr(tile0->tilesetName, "terrain2", "layer0 tileset") && ok;
@@ -87,7 +87,7 @@ int main(int /*argc*/, char** /*argv*/) {
     }
 
     map.tileLayerNumber = 1;
-    const auto* tile1 = model::resolveTileToRender(map, 1, 1);
+    const auto* tile1 = game::resolveTileToRender(map, 1, 1);
     ok = assertTrue(tile1 != nullptr, "layer1 present") && ok;
     if (tile1) {
       ok = assertEqualStr(tile1->tilesetName, "terrain2", "layer1 tileset") && ok;
@@ -97,14 +97,14 @@ int main(int /*argc*/, char** /*argv*/) {
     // Empty current layer falls through to highest below
     map.tiles[1][4] = makeEmptyTile(1, 1);
     map.tileLayerNumber = 1;
-    const auto* fallthrough = model::resolveTileToRender(map, 1, 1);
+    const auto* fallthrough = game::resolveTileToRender(map, 1, 1);
     ok = assertTrue(fallthrough != nullptr, "fallthrough present") && ok;
     if (fallthrough) {
       ok = assertEqual(fallthrough->tileId, 4, "fallthrough door") && ok;
     }
 
     // Empty cell → null
-    const auto* empty = model::resolveTileToRender(map, 0, 0);
+    const auto* empty = game::resolveTileToRender(map, 0, 0);
     ok = assertTrue(empty == nullptr, "empty cell null") && ok;
   }
 
@@ -136,7 +136,7 @@ int main(int /*argc*/, char** /*argv*/) {
       ok = assertEqual(layer1.tileId, 0, "raw layer1 tileId") && ok;
     }
 
-    const auto* resolved = model::resolveTileToRender(map, xy.x, xy.y);
+    const auto* resolved = game::resolveTileToRender(map, xy.x, xy.y);
     ok = assertTrue(resolved != nullptr, "index250 resolved") && ok;
     if (resolved) {
       ok = assertEqualStr(resolved->tilesetName, "terrain2", "index250 tileset") && ok;

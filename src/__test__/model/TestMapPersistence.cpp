@@ -1,8 +1,9 @@
 #include "db/Database.h"
 #include "model/Combat.h"
-#include "model/MapPersistence.h"
-#include "model/MapWalkability.h"
-#include "model/TileFields.h"
+#include "game/map/MapPersistence.h"
+#include "game/map/MapWalkability.h"
+#include "game/map/TileFields.h"
+#include "model/instances/MapInstance.h"
 #include "model/instances/World.h"
 #include "model/templates/CharacterTemplate.h"
 #include "model/templates/Tileset.h"
@@ -102,6 +103,7 @@ int main() {
   database.addMapTemplate(mapTemplate);
 
   model::World world;
+  bmin::Map<bmin::String, model::PersistentMapState> mapsByTemplate;
   world.currentMap = model::createMapInstanceFromTemplate(mapTemplate);
 
   auto* enemy = findEnemy(world.currentMap);
@@ -109,7 +111,7 @@ int main() {
   if (enemy) {
     enemy->x = 2;
     enemy->y = 1;
-    model::markMapCharacterDefeated(world, *enemy);
+    game::markMapCharacterDefeated(world, mapsByTemplate, *enemy);
     for (size_t i = 0; i < world.currentMap.characters.size();) {
       if (world.currentMap.characters[i].templateName == "slime") {
         world.currentMap.characters.erase(i);
@@ -119,20 +121,20 @@ int main() {
     }
   }
 
-  model::addTileFieldAt(world.currentMap, 1, 1, model::TileFieldType::BLOOD);
-  model::flushMapInstance(world.currentMap, world.mapsByTemplate["test_map"], database);
+  game::addTileFieldAt(world.currentMap, 1, 1, game::TileFieldType::BLOOD);
+  game::flushMapInstance(world.currentMap, mapsByTemplate["test_map"], database);
 
   world.currentMap = model::createMapInstanceFromTemplate(mapTemplate);
-  model::hydrateMapInstance(world.currentMap, world.mapsByTemplate["test_map"], database);
+  game::hydrateMapInstance(world.currentMap, mapsByTemplate["test_map"], database);
 
   ok = assertTrue(findEnemy(world.currentMap) == nullptr, "defeated enemy stays removed") && ok;
 
-  auto* tile = model::tileAtCurrentLayer(world.currentMap, 1, 1);
+  auto* tile = game::tileAtCurrentLayer(world.currentMap, 1, 1);
   ok = assertTrue(tile != nullptr, "tile with blood exists") && ok;
   if (tile) {
     ok = assertEqual(static_cast<int>(tile->fields.size()), 1, "blood field persisted") && ok;
     if (!tile->fields.empty()) {
-      ok = assertTrue(tile->fields[0].type == model::TileFieldType::BLOOD, "blood field type") &&
+      ok = assertTrue(tile->fields[0].type == game::TileFieldType::BLOOD, "blood field type") &&
            ok;
     }
   }

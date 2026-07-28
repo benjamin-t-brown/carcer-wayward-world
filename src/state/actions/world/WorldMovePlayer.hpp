@@ -1,9 +1,10 @@
 #pragma once
 
-#include "model/instances/CharacterInstance.h"
-#include "model/MapVision.h"
-#include "model/MapWalkability.h"
-#include "model/TileTriggers.h"
+#include "model/Combat.h"
+#include "game/map/MapVision.h"
+#include "game/map/MapWalkability.h"
+#include "game/map/MapPersistence.h"
+#include "game/map/TileTriggers.h"
 #include "model/instances/Player.h"
 #include "model/instances/World.h"
 #include "sdl2w/Logger.h"
@@ -102,24 +103,27 @@ class WorldMovePlayer : public AbstractAction {
     }
 
     // 2. Closed door (tileset isDoor && !isWalkable) → open, no move
-    if (auto* door = model::findClosedDoorAt(map, destX, destY, *database)) {
+    if (auto* door = game::findClosedDoorAt(map, destX, destY, *database)) {
       door->tileId = door->tileId + 1;
       // TODO(player-tile-movement): play door-open sound
-      model::updateMapVisibilityFromPlayer(map, avatar->x, avatar->y, *database);
+      game::updateMapVisibilityFromPlayer(map, avatar->x, avatar->y, *database);
       return;
     }
 
     // 3. Effectively walkable (overrides win when authored) → move
     // 4. Else blocked (open doors with walkable meta hit step 3, never step 2)
-    if (!model::isDestinationWalkable(map, destX, destY, *database)) {
+    if (!game::isDestinationWalkable(map, destX, destY, *database)) {
       LOG(DEBUG) << " blocked!" << LOG_ENDL;
       return;
     }
 
     avatar->x = destX;
     avatar->y = destY;
-    model::queueStepTriggersAt(state->world, map, destX, destY);
-    model::updateMapVisibilityFromPlayer(map, destX, destY, *database);
+    game::queueStepTriggersAt(state->triggers, map, destX, destY);
+    game::updateMapVisibilityFromPlayer(map, destX, destY, *database);
+    if (!state->world.combat.active) {
+      game::advanceWorldMovementTicks(state->world, state->mapsByTemplate, 1, *database);
+    }
   }
 
 public:

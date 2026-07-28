@@ -1,10 +1,13 @@
 #pragma once
 
 #include "bmin/DynArray.h"
+#include "bmin/Map.h"
 #include "bmin/String.h"
+#include "model/instances/MapInstance.h"
 #include "model/instances/Player.h"
 #include "model/instances/World.h"
 #include "model/templates/UtilityTypes.h"
+#include "state/Triggers.h"
 
 namespace state {
 
@@ -45,6 +48,12 @@ struct State {
   UserSettings settings;
   model::Player player;
   model::World world;
+  Triggers triggers;
+  // Background persistence for visited maps; LiveArea stitch will flush/hydrate per slot.
+  bmin::Map<bmin::String, model::PersistentMapState> mapsByTemplate;
+  // Dialogue / special-event runner vars (vars.*, once.*, …). tmp.* is session-only
+  // and stripped when a conversation ends.
+  bmin::Map<bmin::String, bmin::String> specialEventStorage;
 };
 
 } // namespace state

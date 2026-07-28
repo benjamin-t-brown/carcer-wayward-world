@@ -1,4 +1,4 @@
-#include "model/instances/World.h"
+#include "model/instances/MapInstance.h"
 #include "model/templates/UtilityTypes.h"
 
 namespace model {
@@ -164,17 +164,30 @@ const MapMarkerPlacement* findMarkerOnTemplate(const CarcerMapTemplate& mapTempl
   return nullptr;
 }
 
-CameraPos computeCameraFollow(int targetTileX,
-                              int targetTileY,
-                              const MapInstance& map,
-                              int viewW,
-                              int viewH) {
-  auto spriteW = map.spriteWidth > 0 ? map.spriteWidth : 28;
-  auto spriteH = map.spriteHeight > 0 ? map.spriteHeight : 32;
-  // Free scroll: allow negative / past-edge cam so the target stays centered.
-  auto camX = targetTileX * spriteW - viewW / 2 + spriteW / 2;
-  auto camY = targetTileY * spriteH - viewH / 2 + spriteH / 2;
-  return CameraPos{.camX = camX, .camY = camY};
+CharacterInstance* findCharacterOnMap(MapInstance& map, const bmin::String& id) {
+  for (size_t i = 0; i < map.characters.size(); i++) {
+    if (map.characters[i].id == id) {
+      return &map.characters[i];
+    }
+  }
+  return nullptr;
+}
+
+const CharacterInstance* findCharacterOnMap(const MapInstance& map, const bmin::String& id) {
+  return findCharacterOnMap(const_cast<MapInstance&>(map), id);
+}
+
+CharacterInstance* findCharacterAt(MapInstance& map,
+                                   int x,
+                                   int y,
+                                   const bmin::String& excludeId) {
+  for (size_t i = 0; i < map.characters.size(); i++) {
+    auto& character = map.characters[i];
+    if (character.x == x && character.y == y && character.id != excludeId) {
+      return &character;
+    }
+  }
+  return nullptr;
 }
 
 } // namespace model

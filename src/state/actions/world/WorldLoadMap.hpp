@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/MapPersistence.h"
+#include "game/map/MapPersistence.h"
 #include "sdl2w/Logger.h"
 #include "state/AbstractAction.h"
 #include "state/State.h"
@@ -24,7 +24,7 @@ class WorldLoadMap : public AbstractAction {
       return;
     }
 
-    model::enterMap(state->world, mapName, *database);
+    game::enterMap(state->world, state->mapsByTemplate, mapName, *database);
   }
 
 public:

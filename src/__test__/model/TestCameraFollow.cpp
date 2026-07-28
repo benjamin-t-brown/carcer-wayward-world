@@ -1,3 +1,4 @@
+#include "game/map/Camera.h"
 #include "model/instances/World.h"
 #include "sdl2w/Logger.h"
 #include "state/StateManager.h"
@@ -40,17 +41,17 @@ int main(int /*argc*/, char** /*argv*/) {
     auto viewH = 80;
 
     // Target near origin → negative cam so sprite stays centered
-    auto camNear = model::computeCameraFollow(0, 0, map, viewW, viewH);
+    auto camNear = game::computeCameraFollow(0, 0, map, viewW, viewH);
     ok = assertEqual(camNear.camX, 0 * 28 - viewW / 2 + 28 / 2, "near.camX") && ok;
     ok = assertEqual(camNear.camY, 0 * 32 - viewH / 2 + 32 / 2, "near.camY") && ok;
 
     // Target at (5,5)
-    auto camMid = model::computeCameraFollow(5, 5, map, viewW, viewH);
+    auto camMid = game::computeCameraFollow(5, 5, map, viewW, viewH);
     ok = assertEqual(camMid.camX, 5 * 28 - viewW / 2 + 28 / 2, "mid.camX") && ok;
     ok = assertEqual(camMid.camY, 5 * 32 - viewH / 2 + 32 / 2, "mid.camY") && ok;
 
     // Target at far corner → cam may exceed map size (outside visible)
-    auto camFar = model::computeCameraFollow(9, 9, map, viewW, viewH);
+    auto camFar = game::computeCameraFollow(9, 9, map, viewW, viewH);
     ok = assertEqual(camFar.camX, 9 * 28 - viewW / 2 + 28 / 2, "far.camX") && ok;
     ok = assertEqual(camFar.camY, 9 * 32 - viewH / 2 + 32 / 2, "far.camY") && ok;
   }
@@ -80,7 +81,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
     state::worldUpdate(stateManager, 16);
 
-    auto expected = model::computeCameraFollow(
+    auto expected = game::computeCameraFollow(
         5, 5, state.world.currentMap, state.world.camera.viewW, state.world.camera.viewH);
     ok = assertEqual(state.world.camera.camX, expected.camX, "worldUpdate.camX") && ok;
     ok = assertEqual(state.world.camera.camY, expected.camY, "worldUpdate.camY") && ok;
@@ -112,7 +113,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
     state::worldUpdate(stateManager, 16);
 
-    auto expected = model::computeCameraFollow(
+    auto expected = game::computeCameraFollow(
         5, 5, state.world.currentMap, state.world.camera.viewW, state.world.camera.viewH);
     ok = assertEqual(state.world.camera.camX, expected.camX, "autoResolve.camX") && ok;
     ok = assertEqual(state.world.camera.camY, expected.camY, "autoResolve.camY") && ok;

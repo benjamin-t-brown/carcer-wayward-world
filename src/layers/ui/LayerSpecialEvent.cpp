@@ -372,7 +372,7 @@ void LayerSpecialEvent::persistRunnerStorage() {
   if (!stateManager) {
     return;
   }
-  auto& persisted = stateManager->getState().world.specialEventStorage;
+  auto& persisted = stateManager->getState().specialEventStorage;
   persisted = runner.storage;
   runner::clearTmpStorageKeys(persisted);
 }

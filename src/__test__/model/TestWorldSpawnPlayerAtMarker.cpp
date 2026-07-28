@@ -6,7 +6,7 @@
 #include "state/State.h"
 #include "state/actions/world/WorldLoadMap.hpp"
 #include "state/actions/world/WorldSpawnPlayerAtMarker.hpp"
-#include "model/TileTriggers.h"
+#include "game/map/TileTriggers.h"
 #include "bmin/String.h"
 
 namespace {
@@ -154,7 +154,7 @@ int main(int /*argc*/, char** /*argv*/) {
          ok;
     {
       const auto* stairsAvatar =
-          model::findPartyAvatarOnMap(state.world.currentMap, state.player);
+          game::findPartyAvatarOnMap(state.world.currentMap, state.player);
       ok = assertTrue(stairsAvatar != nullptr, "avatar after Stairs1") && ok;
       if (stairsAvatar) {
         // Stairs1 i=37, width=30 → (7, 1)

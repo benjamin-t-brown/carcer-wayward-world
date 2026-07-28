@@ -1,6 +1,7 @@
 #include "db/Database.h"
 #include "model/instances/CharacterInstance.h"
-#include "model/MapWalkability.h"
+#include "game/map/Camera.h"
+#include "game/map/MapWalkability.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/World.h"
 #include "model/templates/Tileset.h"
@@ -136,12 +137,12 @@ int main(int /*argc*/, char** /*argv*/) {
     // Pure helper: override true vs non-walkable tileset
     {
       auto tile = makeTile(0, 0, 1);
-      ok = assertFalse(model::isTileEffectivelyWalkable(tile, database),
+      ok = assertFalse(game::isTileEffectivelyWalkable(tile, database),
                        "wall without override walkable") &&
            ok;
       tile.tileOverrides = model::TileOverrides{};
       tile.tileOverrides->isWalkableOverride = true;
-      ok = assertTrue(model::isTileEffectivelyWalkable(tile, database),
+      ok = assertTrue(game::isTileEffectivelyWalkable(tile, database),
                       "override true wins over wall") &&
            ok;
     }
@@ -149,12 +150,12 @@ int main(int /*argc*/, char** /*argv*/) {
     // Pure helper: override false vs walkable tileset
     {
       auto tile = makeTile(0, 0, 0);
-      ok = assertTrue(model::isTileEffectivelyWalkable(tile, database),
+      ok = assertTrue(game::isTileEffectivelyWalkable(tile, database),
                       "floor without override walkable") &&
            ok;
       tile.tileOverrides = model::TileOverrides{};
       tile.tileOverrides->isWalkableOverride = false;
-      ok = assertFalse(model::isTileEffectivelyWalkable(tile, database),
+      ok = assertFalse(game::isTileEffectivelyWalkable(tile, database),
                        "override false wins over floor") &&
            ok;
     }
@@ -242,7 +243,7 @@ int main(int /*argc*/, char** /*argv*/) {
     {
       auto tile = makeTile(0, 0, 0);
       tile.tileOverrides = model::TileOverrides{};
-      ok = assertTrue(model::isTileEffectivelyWalkable(tile, database),
+      ok = assertTrue(game::isTileEffectivelyWalkable(tile, database),
                       "empty overrides object still walkable") &&
            ok;
     }
@@ -397,14 +398,14 @@ int main(int /*argc*/, char** /*argv*/) {
       state.world.camera.cameraFollowCharacterId = avatar->id;
 
       state::worldUpdate(stateManager, 16);
-      auto before = model::computeCameraFollow(
+      auto before = game::computeCameraFollow(
           2, 2, state.world.currentMap, state.world.camera.viewW, state.world.camera.viewH);
       ok = assertEqual(state.world.camera.camX, before.camX, "cam before.x") && ok;
       ok = assertEqual(state.world.camera.camY, before.camY, "cam before.y") && ok;
 
       move(state, 1, 0);
       state::worldUpdate(stateManager, 16);
-      auto after = model::computeCameraFollow(
+      auto after = game::computeCameraFollow(
           3, 2, state.world.currentMap, state.world.camera.viewW, state.world.camera.viewH);
       ok = assertEqual(avatar->x, 3, "cam follow move.x") && ok;
       ok = assertEqual(state.world.camera.camX, after.camX, "cam after.x") && ok;
@@ -416,8 +417,8 @@ int main(int /*argc*/, char** /*argv*/) {
       db::Database fullDb;
       fullDb.load();
       const auto& terrain0 = fullDb.getTilesetTemplate("terrain0");
-      const auto* closed = model::findTileMetadata(terrain0, 52);
-      const auto* open = model::findTileMetadata(terrain0, 53);
+      const auto* closed = game::findTileMetadata(terrain0, 52);
+      const auto* open = game::findTileMetadata(terrain0, 53);
       ok = assertTrue(closed != nullptr, "terrain0 tile 52 exists") && ok;
       ok = assertTrue(open != nullptr, "terrain0 tile 53 exists") && ok;
       if (closed && open) {

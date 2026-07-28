@@ -1,6 +1,7 @@
 #pragma once
 
 #include "model/Combat.h"
+#include "game/map/Camera.h"
 #include "model/instances/World.h"
 #include "state/actions/combat/ActionBase.hpp"
 #include "state/actions/world/WorldSetCamera.hpp"
@@ -48,7 +49,7 @@ class SetActiveCombatCharacter : public CombatAction {
     world.camera.cameraFollowCharacterId = characterId;
     world.camera.cameraMode = model::CameraMode::Follow;
     if (world.camera.viewW > 0 && world.camera.viewH > 0) {
-      const auto cam = model::computeCameraFollow(
+      const auto cam = game::computeCameraFollow(
           character->x, character->y, world.currentMap, world.camera.viewW, world.camera.viewH);
       WorldSetCamera(cam.camX, cam.camY).execute(state);
     }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "model/Combat.h"
-#include "model/TileFields.h"
+#include "game/map/TileFields.h"
 #include "state/actions/combat/ActionBase.hpp"
 #include "state/actions/combat/PlaySound.hpp"
 #include "state/actions/combat/RemoveCharacterFromMap.hpp"
@@ -16,8 +16,8 @@ class PerformCharacterDefeated : public CombatAction {
   void act() override {
     if (state) {
       if (auto* character = model::findCharacterOnMap(state->world.currentMap, characterId)) {
-        model::addTileFieldAt(
-            state->world.currentMap, character->x, character->y, model::TileFieldType::BLOOD);
+        game::addTileFieldAt(
+            state->world.currentMap, character->x, character->y, game::TileFieldType::BLOOD);
       }
     }
     insertCombatAction(new PlaySound("yell1"), 0);

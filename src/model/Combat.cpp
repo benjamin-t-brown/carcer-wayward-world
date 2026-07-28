@@ -1,6 +1,9 @@
 #include "model/Combat.h"
-#include "model/TileTriggers.h"
+#include "game/map/MapPersistence.h"
+#include "game/map/TileFields.h"
+#include "game/map/TileTriggers.h"
 #include "model/instances/CharacterInstance.h"
+#include "model/instances/MapInstance.h"
 #include "model/instances/Player.h"
 #include "model/instances/World.h"
 #include "model/templates/CharacterTemplate.h"
@@ -9,19 +12,6 @@
 #include "db/Database.h"
 
 namespace model {
-
-CharacterInstance* findCharacterOnMap(MapInstance& map, const bmin::String& id) {
-  for (size_t i = 0; i < map.characters.size(); i++) {
-    if (map.characters[i].id == id) {
-      return &map.characters[i];
-    }
-  }
-  return nullptr;
-}
-
-const CharacterInstance* findCharacterOnMap(const MapInstance& map, const bmin::String& id) {
-  return findCharacterOnMap(const_cast<MapInstance&>(map), id);
-}
 
 bool isPartyMember(const Player& player, const bmin::String& characterId) {
   for (const auto& member : player.party) {
@@ -119,28 +109,23 @@ void removeCharacterFromCombatTurnOrder(Combat& combat, const bmin::String& char
   }
 }
 
-CharacterInstance* findCharacterAt(MapInstance& map,
-                                   int x,
-                                   int y,
-                                   const bmin::String& excludeId) {
-  for (size_t i = 0; i < map.characters.size(); i++) {
-    auto& character = map.characters[i];
-    if (character.x == x && character.y == y && character.id != excludeId) {
-      return &character;
-    }
-  }
-  return nullptr;
-}
-
 void resetAllCombatAp(World& world, int ap) {
   for (auto& character : world.currentMap.characters) {
     character.currentAp = ap;
   }
 }
 
+void onNewCombatRound(World& world,
+                      bmin::Map<bmin::String, PersistentMapState>& mapsByTemplate,
+                      const db::Database& database) {
+  resetAllCombatAp(world, COMBAT_STARTING_AP);
+  game::advanceWorldMovementTicks(
+      world, mapsByTemplate, game::TILE_FIELD_MOVES_PER_COMBAT_ROUND, database);
+}
+
 void addPartyMembersToCombatMap(World& world, Player& player, const db::Database& database) {
   auto& map = world.currentMap;
-  auto* leader = findPartyAvatarOnMap(map, player);
+  auto* leader = game::findPartyAvatarOnMap(map, player);
   const auto spawnX = leader ? leader->x : 0;
   const auto spawnY = leader ? leader->y : 0;
 

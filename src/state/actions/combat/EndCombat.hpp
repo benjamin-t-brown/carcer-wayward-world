@@ -1,8 +1,9 @@
 #pragma once
 
 #include "model/Combat.h"
-#include "model/MapVision.h"
-#include "model/TileTriggers.h"
+#include "game/map/Camera.h"
+#include "game/map/MapVision.h"
+#include "game/map/TileTriggers.h"
 #include "model/instances/World.h"
 #include "sdl2w/Logger.h"
 #include "state/actions/combat/ActionBase.hpp"
@@ -37,14 +38,14 @@ class EndCombat : public CombatAction {
     world.camera.cameraFollowCharacterId = leader.instanceId;
     world.camera.cameraMode = model::CameraMode::Follow;
 
-    if (auto* avatar = model::findPartyAvatarOnMap(world.currentMap, state->player)) {
+    if (auto* avatar = game::findPartyAvatarOnMap(world.currentMap, state->player)) {
       auto* database = getDatabase();
       if (database != nullptr) {
-        model::updateMapVisibilityFromPlayer(
+        game::updateMapVisibilityFromPlayer(
             world.currentMap, avatar->x, avatar->y, *database);
       }
       if (world.camera.viewW > 0 && world.camera.viewH > 0) {
-        const auto cam = model::computeCameraFollow(avatar->x,
+        const auto cam = game::computeCameraFollow(avatar->x,
                                                     avatar->y,
                                                     world.currentMap,
                                                     world.camera.viewW,

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "model/MapVision.h"
-#include "model/TileTriggers.h"
+#include "game/map/MapVision.h"
+#include "game/map/TileTriggers.h"
 #include "model/instances/Player.h"
 #include "model/instances/World.h"
 #include "sdl2w/Logger.h"
@@ -41,12 +41,12 @@ class WorldSpawnPlayerAtXY : public AbstractAction {
       return;
     }
 
-    if (!model::placePartyAvatarAt(map, state->player, destX, destY)) {
+    if (!game::placePartyAvatarAt(map, state->player, destX, destY)) {
       LOG(ERROR) << "WorldSpawnPlayerAtXY::act: party is empty" << LOG_ENDL;
       return;
     }
 
-    model::updateMapVisibilityFromPlayer(map, destX, destY, *database);
+    game::updateMapVisibilityFromPlayer(map, destX, destY, *database);
   }
 
 public:

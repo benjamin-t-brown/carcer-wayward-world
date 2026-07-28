@@ -1,5 +1,5 @@
-#include "model/MapWalkability.h"
-#include "model/TileFields.h"
+#include "game/map/MapWalkability.h"
+#include "game/map/TileFields.h"
 #include "model/instances/World.h"
 #include "sdl2w/Logger.h"
 
@@ -58,29 +58,35 @@ int main() {
   auto ok = true;
 
   {
-    model::TileField flameField{.type = model::TileFieldType::FLAME};
-    ok = assertEqual(model::tileFieldExtraSpriteIndex(flameField), 4, "flame sprite index") && ok;
-    ok = assertEqualStr(model::tileFieldSpriteName(flameField), "extra_4", "flame sprite name") &&
+    game::TileField flameField{.type = game::TileFieldType::FLAME};
+    ok = assertEqual(game::tileFieldExtraSpriteIndex(flameField), 4, "flame sprite index") && ok;
+    ok = assertEqualStr(game::tileFieldSpriteName(flameField), "extra_4", "flame sprite name") &&
          ok;
 
-    model::TileField staticField{.type = model::TileFieldType::STATIC};
-    ok = assertEqual(model::tileFieldExtraSpriteIndex(staticField), 5, "static sprite index") &&
+    game::TileField staticField{.type = game::TileFieldType::STATIC};
+    ok = assertEqual(game::tileFieldExtraSpriteIndex(staticField), 5, "static sprite index") &&
          ok;
   }
 
   {
     auto map = makeMap();
-    model::addTileFieldAt(map, 1, 1, model::TileFieldType::FLAME);
-    model::addTileFieldAt(map, 1, 1, model::TileFieldType::BLOOD);
-    auto* tile = model::tileAtCurrentLayer(map, 1, 1);
+    game::addTileFieldAt(map, 1, 1, game::TileFieldType::FLAME);
+    game::addTileFieldAt(map, 1, 1, game::TileFieldType::BLOOD);
+    auto* tile = game::tileAtCurrentLayer(map, 1, 1);
     ok = assertTrue(tile != nullptr, "surface tile exists") && ok;
     if (tile) {
       ok = assertEqual(static_cast<int>(tile->fields.size()), 2, "field count") && ok;
-      ok = assertTrue(tile->fields[0].type == model::TileFieldType::BLOOD, "blood at bottom") &&
+      ok = assertTrue(tile->fields[0].type == game::TileFieldType::BLOOD, "blood at bottom") &&
            ok;
-      ok = assertTrue(tile->fields[1].type == model::TileFieldType::FLAME, "flame on top") && ok;
+      ok = assertTrue(tile->fields[1].type == game::TileFieldType::FLAME, "flame on top") && ok;
       ok = assertTrue(tile->fields[0].variant >= 0 && tile->fields[0].variant < 4,
                       "blood variant in range") &&
+           ok;
+      ok = assertEqual(tile->fields[0].moveDuration, game::TILE_FIELD_BLOOD_MOVE_DURATION,
+                       "blood move duration") &&
+           ok;
+      ok = assertEqual(tile->fields[1].moveDuration, game::TILE_FIELD_FLAME_MOVE_DURATION,
+                       "flame move duration") &&
            ok;
     }
   }

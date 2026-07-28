@@ -1,8 +1,8 @@
 #include "MapView.h"
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
-#include "model/MapWalkability.h"
-#include "model/TileFields.h"
+#include "game/map/MapWalkability.h"
+#include "game/map/TileFields.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/CharacterTemplate.h"
 #include "sdl2w/Animation.h"
@@ -93,7 +93,7 @@ void MapView::renderDamageParticles(const model::World& world,
 
   for (size_t i = 0; i < world.damageParticles.size(); i++) {
     const auto& particle = world.damageParticles[i];
-    if (!model::isTileCurrentlyVisible(map, particle.tileX, particle.tileY)) {
+    if (!game::isTileCurrentlyVisible(map, particle.tileX, particle.tileY)) {
       continue;
     }
     if (!store.anims.contains(particle.animationName)) {
@@ -196,7 +196,7 @@ void MapView::render(int /*dt*/) {
       auto screenY =
           contentY + static_cast<int>((y * spriteH - world.camera.camY) * style.scale);
 
-      const auto* tile = model::resolveTileToRender(map, x, y);
+      const auto* tile = game::resolveTileToRender(map, x, y);
       if (!tile || !tile->isExplored) {
         if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
             screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
@@ -215,10 +215,10 @@ void MapView::render(int /*dt*/) {
       drawMapSprite(sprite, screenX, screenY);
 
       if (tile->isVisible) {
-        if (const auto* surfaceTile = model::tileAtCurrentLayer(map, x, y)) {
+        if (const auto* surfaceTile = game::tileAtCurrentLayer(map, x, y)) {
           for (size_t fi = 0; fi < surfaceTile->fields.size(); fi++) {
             const auto& field = surfaceTile->fields[fi];
-            const auto fieldSpriteName = model::tileFieldSpriteName(field);
+            const auto fieldSpriteName = game::tileFieldSpriteName(field);
             if (!store.sprites.contains(fieldSpriteName)) {
               continue;
             }
@@ -243,7 +243,7 @@ void MapView::render(int /*dt*/) {
     if (!database) {
       break;
     }
-    if (!model::isTileCurrentlyVisible(map, item.x, item.y)) {
+    if (!game::isTileCurrentlyVisible(map, item.x, item.y)) {
       continue;
     }
     bmin::String spriteName;
@@ -274,7 +274,7 @@ void MapView::render(int /*dt*/) {
   }
 
   auto drawCharacter = [&](const model::CharacterInstance& character) {
-    if (!model::isTileCurrentlyVisible(map, character.x, character.y)) {
+    if (!game::isTileCurrentlyVisible(map, character.x, character.y)) {
       return;
     }
     const model::CharacterPlayer* member = nullptr;

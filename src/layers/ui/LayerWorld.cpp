@@ -609,7 +609,7 @@ void LayerWorld::update(int deltaTime) {
   auto stateManager = getStateManager();
   if (stateManager) {
     state::worldProcessPendingTriggers(window, *stateManager);
-    if (stateManager->getState().world.mapChangedThisTick) {
+    if (stateManager->getState().triggers.mapChangedThisTick) {
       syncFromState();
     }
   }

@@ -1,5 +1,5 @@
 #include "db/Database.h"
-#include "model/MapWalkability.h"
+#include "game/map/MapWalkability.h"
 #include "model/instances/CharacterInstance.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/World.h"
@@ -113,11 +113,11 @@ int main(int /*argc*/, char** /*argv*/) {
     state::actions::WorldTalkAt talkAt(3, 2);
     talkAt.execute(&state);
 
-    ok = assertTrue(state.world.pendingSpecialEventId.has_value(),
+    ok = assertTrue(state.triggers.pendingSpecialEventId.has_value(),
                     "talk queues special event") &&
          ok;
-    if (state.world.pendingSpecialEventId) {
-      ok = assertEqualStr(*state.world.pendingSpecialEventId, "npc_talk_event",
+    if (state.triggers.pendingSpecialEventId) {
+      ok = assertEqualStr(*state.triggers.pendingSpecialEventId, "npc_talk_event",
                           "talk event id") &&
            ok;
     }
@@ -153,7 +153,7 @@ int main(int /*argc*/, char** /*argv*/) {
     state::actions::WorldTalkAt talkAt(3, 2);
     talkAt.execute(&state);
 
-    ok = assertFalse(state.world.pendingSpecialEventId.has_value(),
+    ok = assertFalse(state.triggers.pendingSpecialEventId.has_value(),
                      "silent npc does not queue event") &&
          ok;
     ok = assertTrue(state.world.actionMode == model::WorldActionMode::NONE,
@@ -181,7 +181,7 @@ int main(int /*argc*/, char** /*argv*/) {
     state::actions::WorldTalkAt talkAt(3, 2);
     talkAt.execute(&state);
 
-    ok = assertFalse(state.world.pendingSpecialEventId.has_value(),
+    ok = assertFalse(state.triggers.pendingSpecialEventId.has_value(),
                      "empty tile does not queue event") &&
          ok;
     ok = assertTrue(state.world.actionMode == model::WorldActionMode::NONE,
@@ -212,14 +212,14 @@ int main(int /*argc*/, char** /*argv*/) {
         .y = 2,
     });
 
-    ok = assertFalse(model::isTileCurrentlyVisible(state.world.currentMap, 3, 2),
+    ok = assertFalse(game::isTileCurrentlyVisible(state.world.currentMap, 3, 2),
                      "target not visible") &&
          ok;
 
     state::actions::WorldTalkAt talkAt(3, 2);
     talkAt.execute(&state);
 
-    ok = assertFalse(state.world.pendingSpecialEventId.has_value(),
+    ok = assertFalse(state.triggers.pendingSpecialEventId.has_value(),
                      "non-visible does not queue event") &&
          ok;
     ok = assertTrue(state.world.actionMode == model::WorldActionMode::TALK,

@@ -2,7 +2,7 @@
 
 #include "model/instances/CharacterInstance.h"
 #include "model/Combat.h"
-#include "model/MapWalkability.h"
+#include "game/map/MapWalkability.h"
 #include "sdl2w/Logger.h"
 #include "state/actions/combat/ActionBase.hpp"
 #include "state/actions/combat/DoCombatActionCompletion.hpp"
@@ -58,7 +58,7 @@ class DoCombatAction : public CombatAction {
       return;
     }
 
-    if (!model::isDestinationWalkable(world.currentMap, destX, destY, *database)) {
+    if (!game::isDestinationWalkable(world.currentMap, destX, destY, *database)) {
       insertCombatAction(new DoCombatActionCompletion(), 0);
       return;
     }

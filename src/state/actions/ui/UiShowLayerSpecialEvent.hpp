@@ -27,7 +27,7 @@ class UiShowLayerSpecialEvent : public AbstractAction {
 
     const auto& gameEvent = database->getGameEvent(eventId.sliceView());
     auto* layer = new layers::LayerSpecialEvent(
-        window, gameEvent, database->getGameEvents(), state->world.specialEventStorage);
+        window, gameEvent, database->getGameEvents(), state->specialEventStorage);
     layerManager->addLayer(layer);
     layerManager->moveToFront(layer);
   }

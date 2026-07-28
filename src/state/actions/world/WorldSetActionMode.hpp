@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/TileTriggers.h"
+#include "game/map/TileTriggers.h"
 #include "model/instances/World.h"
 #include "state/AbstractAction.h"
 #include "state/State.h"
@@ -23,7 +23,7 @@ class WorldSetActionMode : public AbstractAction {
     }
 
     const auto* avatar =
-        model::findPartyAvatarOnMap(state->world.currentMap, state->player);
+        game::findPartyAvatarOnMap(state->world.currentMap, state->player);
     if (avatar) {
       state->world.actionAimTile = model::TileXY{avatar->x, avatar->y};
     } else {

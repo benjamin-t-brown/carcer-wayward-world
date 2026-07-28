@@ -2,8 +2,8 @@
 
 #include "model/instances/CharacterInstance.h"
 #include "model/Combat.h"
-#include "model/MapVision.h"
-#include "model/MapWalkability.h"
+#include "game/map/MapVision.h"
+#include "game/map/MapWalkability.h"
 #include "state/actions/combat/ActionBase.hpp"
 
 namespace state {
@@ -35,7 +35,7 @@ class MoveCharacter : public CombatAction {
     if (destX < 0 || destY < 0 || destX >= map.width || destY >= map.height) {
       return;
     }
-    if (!model::isDestinationWalkable(map, destX, destY, *database)) {
+    if (!game::isDestinationWalkable(map, destX, destY, *database)) {
       return;
     }
     if (model::findCharacterAt(map, destX, destY, characterId) != nullptr) {
@@ -47,7 +47,7 @@ class MoveCharacter : public CombatAction {
     model::updateCharacterFacingFromMove(*character, dx, dy);
 
     if (model::isPartyMember(state->player, character->id)) {
-      model::updateMapVisibilityFromParty(map, state->player, *database);
+      game::updateMapVisibilityFromParty(map, state->player, *database);
     }
   }
 

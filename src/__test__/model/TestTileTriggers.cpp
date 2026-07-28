@@ -1,5 +1,5 @@
 #include "db/Database.h"
-#include "model/TileTriggers.h"
+#include "game/map/TileTriggers.h"
 #include "model/instances/CharacterInstance.h"
 #include "model/instances/World.h"
 #include "model/templates/CharacterTemplate.h"
@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
   bool ok = true;
 
   {
-    auto world = model::World{};
+    auto triggers = state::Triggers{};
     auto map = makeMap(2, 2);
     auto& tile = map.tiles[0][0];
     tile.eventTrigger = model::TileEventTrigger{
@@ -110,47 +110,44 @@ int main(int argc, char** argv) {
         .destinationMapName = "other",
         .destinationMarkerName = "door",
     };
-    world.currentMap = map;
 
-    model::queueStepTriggersAt(world, map, 0, 0);
-    ok = assertTrue(world.pendingSpecialEventId.has_value(), "event takes precedence") && ok;
-    ok = assertEqualStr(*world.pendingSpecialEventId, "step_event", "event id") && ok;
-    ok = assertTrue(!world.pendingTravel.has_value(), "travel ignored when event present") && ok;
+    game::queueStepTriggersAt(triggers, map, 0, 0);
+    ok = assertTrue(triggers.pendingSpecialEventId.has_value(), "event takes precedence") && ok;
+    ok = assertEqualStr(*triggers.pendingSpecialEventId, "step_event", "event id") && ok;
+    ok = assertTrue(!triggers.pendingTravel.has_value(), "travel ignored when event present") && ok;
   }
 
   {
-    auto world = model::World{};
+    auto triggers = state::Triggers{};
     auto map = makeMap(2, 2);
     map.tiles[0][0].travelTrigger = model::TravelTrigger{
         .destinationMapName = "dest_map",
         .destinationX = 3,
         .destinationY = 4,
     };
-    world.currentMap = map;
 
-    model::queueStepTriggersAt(world, map, 0, 0);
-    ok = assertTrue(!world.pendingSpecialEventId.has_value(), "no event pending") && ok;
-    ok = assertTrue(world.pendingTravel.has_value(), "travel pending") && ok;
-    ok = assertEqualStr(world.pendingTravel->destinationMapName, "dest_map", "travel map") && ok;
+    game::queueStepTriggersAt(triggers, map, 0, 0);
+    ok = assertTrue(!triggers.pendingSpecialEventId.has_value(), "no event pending") && ok;
+    ok = assertTrue(triggers.pendingTravel.has_value(), "travel pending") && ok;
+    ok = assertEqualStr(triggers.pendingTravel->destinationMapName, "dest_map", "travel map") && ok;
   }
 
   {
-    auto world = model::World{};
+    auto triggers = state::Triggers{};
     auto map = makeMap(2, 2);
     map.tiles[0][0].travelTrigger = model::TravelTrigger{
         .destinationMapName = "action_dest",
         .requiresAction = true,
     };
-    world.currentMap = map;
 
-    model::queueStepTriggersAt(world, map, 0, 0);
-    ok = assertTrue(!world.pendingTravel.has_value(), "action travel not queued on step") &&
+    game::queueStepTriggersAt(triggers, map, 0, 0);
+    ok = assertTrue(!triggers.pendingTravel.has_value(), "action travel not queued on step") &&
          ok;
 
-    model::queueActionTravelAtStanding(world, map, 0, 0);
-    ok = assertTrue(world.pendingTravel.has_value(), "action travel queued on interact") &&
+    game::queueActionTravelAtStanding(triggers, map, 0, 0);
+    ok = assertTrue(triggers.pendingTravel.has_value(), "action travel queued on interact") &&
          ok;
-    ok = assertEqualStr(world.pendingTravel->destinationMapName, "action_dest",
+    ok = assertEqualStr(triggers.pendingTravel->destinationMapName, "action_dest",
                         "action travel map") &&
          ok;
   }
@@ -162,7 +159,7 @@ int main(int argc, char** argv) {
         .x = 1,
         .y = 0,
     });
-    const auto message = model::formatExamineMessage(map, 1, 0, database);
+    const auto message = game::formatExamineMessage(map, 1, 0, database);
     ok = assertEqualStr(message, "Examine:\ngrass\nTest Beer", "examine message with item") && ok;
   }
 
@@ -180,7 +177,7 @@ int main(int argc, char** argv) {
         .x = 1,
         .y = 0,
     });
-    const auto message = model::formatExamineMessage(map, 1, 0, database);
+    const auto message = game::formatExamineMessage(map, 1, 0, database);
     ok = assertEqualStr(message, "Examine:\ngrass\nFriendly NPC\nTest Beer",
                         "examine message with character and item") &&
          ok;
@@ -208,8 +205,8 @@ int main(int argc, char** argv) {
     state::actions::WorldMovePlayer moveEast(1, 0);
     moveEast.execute(&state);
 
-    ok = assertTrue(state.world.pendingSpecialEventId.has_value(), "move queues step event") && ok;
-    ok = assertEqualStr(*state.world.pendingSpecialEventId, "on_step", "step event id after move") &&
+    ok = assertTrue(state.triggers.pendingSpecialEventId.has_value(), "move queues step event") && ok;
+    ok = assertEqualStr(*state.triggers.pendingSpecialEventId, "on_step", "step event id after move") &&
          ok;
     ok = assertTrue(map.characters[0].x == 2 && map.characters[0].y == 1, "avatar moved east") &&
          ok;

@@ -1,5 +1,5 @@
 #include "db/Database.h"
-#include "model/TileTriggers.h"
+#include "game/map/TileTriggers.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/Maps.h"
 #include "sdl2w/Logger.h"
@@ -65,7 +65,7 @@ int main(int /*argc*/, char** /*argv*/) {
       auto spawn = state::actions::WorldSpawnPlayerAtXY(1, 1);
       spawn.execute(&state);
     }
-    ok = assertTrue(model::findPartyAvatarOnMap(state.world.currentMap, state.player) !=
+    ok = assertTrue(game::findPartyAvatarOnMap(state.world.currentMap, state.player) !=
                         nullptr,
                     "avatar after XY spawn on start map") &&
          ok;
@@ -87,7 +87,7 @@ int main(int /*argc*/, char** /*argv*/) {
          ok;
     {
       const auto* avatar =
-          model::findPartyAvatarOnMap(state.world.currentMap, state.player);
+          game::findPartyAvatarOnMap(state.world.currentMap, state.player);
       ok = assertTrue(avatar != nullptr, "avatar after marker travel") && ok;
       if (avatar) {
         ok = assertEqual(avatar->x, 8, "marker travel avatar.x") && ok;
@@ -110,7 +110,7 @@ int main(int /*argc*/, char** /*argv*/) {
          ok;
     {
       const auto* avatar =
-          model::findPartyAvatarOnMap(state.world.currentMap, state.player);
+          game::findPartyAvatarOnMap(state.world.currentMap, state.player);
       ok = assertTrue(avatar != nullptr, "avatar after XY fallback travel") && ok;
       if (avatar) {
         ok = assertEqual(avatar->x, 5, "XY fallback avatar.x") && ok;
@@ -132,7 +132,7 @@ int main(int /*argc*/, char** /*argv*/) {
          ok;
     {
       const auto* avatar =
-          model::findPartyAvatarOnMap(state.world.currentMap, state.player);
+          game::findPartyAvatarOnMap(state.world.currentMap, state.player);
       ok = assertTrue(avatar != nullptr, "avatar after empty-marker travel") && ok;
       if (avatar) {
         ok = assertEqual(avatar->x, 3, "empty-marker travel avatar.x") && ok;
@@ -145,7 +145,7 @@ int main(int /*argc*/, char** /*argv*/) {
       auto loadMap = state::actions::WorldLoadMap("AlineaTest");
       loadMap.execute(&state);
     }
-    ok = assertTrue(model::findPartyAvatarOnMap(state.world.currentMap, state.player) ==
+    ok = assertTrue(game::findPartyAvatarOnMap(state.world.currentMap, state.player) ==
                         nullptr,
                     "avatar wiped after WorldLoadMap") &&
          ok;
@@ -155,7 +155,7 @@ int main(int /*argc*/, char** /*argv*/) {
     }
     {
       const auto* avatar =
-          model::findPartyAvatarOnMap(state.world.currentMap, state.player);
+          game::findPartyAvatarOnMap(state.world.currentMap, state.player);
       ok = assertTrue(avatar != nullptr, "avatar created by WorldSpawnPlayerAtXY") && ok;
       if (avatar) {
         ok = assertEqual(avatar->x, 2, "XY create avatar.x") && ok;

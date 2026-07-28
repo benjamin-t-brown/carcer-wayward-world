@@ -2,8 +2,8 @@
 
 #include "bmin/StringInterop.h"
 #include "db/Database.h"
-#include "model/MapWalkability.h"
-#include "model/TileTriggers.h"
+#include "game/map/MapWalkability.h"
+#include "game/map/TileTriggers.h"
 #include "model/instances/World.h"
 #include "sdl2w/L10n.h"
 #include "sdl2w/Logger.h"
@@ -36,7 +36,7 @@ class WorldTalkAt : public AbstractAction {
       return;
     }
 
-    if (!model::isTileCurrentlyVisible(map, x, y)) {
+    if (!game::isTileCurrentlyVisible(map, x, y)) {
       LOG(INFO) << TRANSLATE("You can't see there.") << LOG_ENDL;
       return;
     }
@@ -77,7 +77,7 @@ class WorldTalkAt : public AbstractAction {
         LOG(INFO) << TRANSLATE("Talk: they have nothing to say.") << LOG_ENDL;
         return;
       }
-      state->world.pendingSpecialEventId = characterTemplate.talk.talkName;
+      state->triggers.pendingSpecialEventId = characterTemplate.talk.talkName;
     } catch (...) {
       LOG(INFO) << TRANSLATE("Talk: they have nothing to say.") << LOG_ENDL;
     }

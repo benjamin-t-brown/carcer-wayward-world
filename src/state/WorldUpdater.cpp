@@ -1,4 +1,5 @@
 #include "state/WorldUpdater.h"
+#include "game/map/Camera.h"
 #include "model/Combat.h"
 #include "model/instances/World.h"
 #include "sdl2w/Window.h"
@@ -100,7 +101,7 @@ void worldUpdate(StateManager& stateManager, int dt) {
     return;
   }
 
-  auto cam = model::computeCameraFollow(
+  auto cam = game::computeCameraFollow(
       target->x, target->y, world.currentMap, world.camera.viewW, world.camera.viewH);
   world.camera.camX = cam.camX;
   world.camera.camY = cam.camY;
@@ -108,28 +109,27 @@ void worldUpdate(StateManager& stateManager, int dt) {
 
 void worldProcessPendingTriggers(sdl2w::Window* window, StateManager& stateManager) {
   auto& state = stateManager.getState();
-  auto& world = state.world;
   bool mapChanged = false;
 
-  if (world.pendingSpecialEventId) {
+  if (state.triggers.pendingSpecialEventId) {
     ui::setHeldMoveActive(stateManager, false);
-    auto eventId = *world.pendingSpecialEventId;
-    world.pendingSpecialEventId.reset();
+    auto eventId = *state.triggers.pendingSpecialEventId;
+    state.triggers.pendingSpecialEventId.reset();
     state::actions::UiShowLayerSpecialEvent specialEvent =
         state::actions::UiShowLayerSpecialEvent(window, eventId);
     specialEvent.execute(&state);
   }
 
-  if (world.pendingTravel) {
+  if (state.triggers.pendingTravel) {
     ui::setHeldMoveActive(stateManager, false);
-    auto travel = *world.pendingTravel;
-    world.pendingTravel.reset();
+    auto travel = *state.triggers.pendingTravel;
+    state.triggers.pendingTravel.reset();
     state::actions::WorldTravel travelAction(travel);
     travelAction.execute(&state);
     mapChanged = true;
   }
 
-  world.mapChangedThisTick = mapChanged;
+  state.triggers.mapChangedThisTick = mapChanged;
 }
 
 } // namespace state

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "db/Database.h"
-#include "model/MapWalkability.h"
-#include "model/TileTriggers.h"
+#include "game/map/MapWalkability.h"
+#include "game/map/TileTriggers.h"
 #include "model/instances/World.h"
 #include "sdl2w/Logger.h"
 #include "state/AbstractAction.h"
@@ -32,7 +32,7 @@ class WorldExamineAt : public AbstractAction {
       return;
     }
 
-    if (!model::isTileCurrentlyVisible(map, x, y)) {
+    if (!game::isTileCurrentlyVisible(map, x, y)) {
       LOG(INFO) << "You can't see there." << LOG_ENDL;
       return;
     }
@@ -40,13 +40,13 @@ class WorldExamineAt : public AbstractAction {
     state->world.actionMode = model::WorldActionMode::NONE;
     state->world.actionAimTile.reset();
 
-    const auto* tile = model::tileAtCurrentLayer(map, x, y);
+    const auto* tile = game::tileAtCurrentLayer(map, x, y);
     if (tile && tile->eventTrigger && tile->eventTrigger->requiresLook) {
-      state->world.pendingSpecialEventId = tile->eventTrigger->eventId;
+      state->triggers.pendingSpecialEventId = tile->eventTrigger->eventId;
       return;
     }
 
-    LOG(INFO) << model::formatExamineMessage(map, x, y, *database) << LOG_ENDL;
+    LOG(INFO) << game::formatExamineMessage(map, x, y, *database) << LOG_ENDL;
   }
 
 public:

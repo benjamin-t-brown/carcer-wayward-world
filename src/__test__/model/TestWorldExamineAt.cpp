@@ -1,5 +1,5 @@
 #include "db/Database.h"
-#include "model/MapWalkability.h"
+#include "game/map/MapWalkability.h"
 #include "model/instances/CharacterInstance.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/World.h"
@@ -110,11 +110,11 @@ int main(int /*argc*/, char** /*argv*/) {
     state::actions::WorldExamineAt examineAt(3, 2);
     examineAt.execute(&state);
 
-    ok = assertTrue(state.world.pendingSpecialEventId.has_value(),
+    ok = assertTrue(state.triggers.pendingSpecialEventId.has_value(),
                     "look trigger queues event") &&
          ok;
-    if (state.world.pendingSpecialEventId) {
-      ok = assertEqualStr(*state.world.pendingSpecialEventId, "look_event",
+    if (state.triggers.pendingSpecialEventId) {
+      ok = assertEqualStr(*state.triggers.pendingSpecialEventId, "look_event",
                           "look event id") &&
            ok;
     }
@@ -135,7 +135,7 @@ int main(int /*argc*/, char** /*argv*/) {
     state::actions::WorldExamineAt examineAt(1, 1);
     examineAt.execute(&state);
 
-    ok = assertFalse(state.world.pendingSpecialEventId.has_value(),
+    ok = assertFalse(state.triggers.pendingSpecialEventId.has_value(),
                      "message path does not queue event") &&
          ok;
     ok = assertTrue(state.world.actionMode == model::WorldActionMode::NONE,
@@ -158,14 +158,14 @@ int main(int /*argc*/, char** /*argv*/) {
         .requiresLook = true,
     };
 
-    ok = assertFalse(model::isTileCurrentlyVisible(state.world.currentMap, 4, 4),
+    ok = assertFalse(game::isTileCurrentlyVisible(state.world.currentMap, 4, 4),
                      "target not visible") &&
          ok;
 
     state::actions::WorldExamineAt examineAt(4, 4);
     examineAt.execute(&state);
 
-    ok = assertFalse(state.world.pendingSpecialEventId.has_value(),
+    ok = assertFalse(state.triggers.pendingSpecialEventId.has_value(),
                      "non-visible does not queue look event") &&
          ok;
     ok = assertTrue(state.world.actionMode == model::WorldActionMode::EXAMINE,

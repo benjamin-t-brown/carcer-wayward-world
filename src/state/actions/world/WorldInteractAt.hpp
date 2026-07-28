@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/TileTriggers.h"
+#include "game/map/TileTriggers.h"
 #include "model/instances/World.h"
 #include "state/AbstractAction.h"
 #include "state/State.h"
@@ -16,13 +16,13 @@ class WorldInteractAt : public AbstractAction {
     }
 
     const auto* avatar =
-        model::findPartyAvatarOnMap(state->world.currentMap, state->player);
+        game::findPartyAvatarOnMap(state->world.currentMap, state->player);
     if (!avatar) {
       return;
     }
 
-    model::queueActionTravelAtStanding(
-        state->world, state->world.currentMap, avatar->x, avatar->y);
+    game::queueActionTravelAtStanding(
+        state->triggers, state->world.currentMap, avatar->x, avatar->y);
   }
 };
 
