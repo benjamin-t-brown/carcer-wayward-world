@@ -11,6 +11,7 @@ db/loaders/LoadAbilityTemplates.cpp \
 db/loaders/LoadStatusEffectTemplates.cpp \
 db/loaders/LoadCharacterTemplates.cpp \
 db/loaders/LoadMapTemplates.cpp \
+db/loaders/LoadMapGridTemplates.cpp \
 db/loaders/LoadTilesetTemplates.cpp \
 model/templates/AbilityTypes.cpp \
 db/loaders/LoadSpecialEvents.cpp \

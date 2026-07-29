@@ -5,6 +5,7 @@
 #include "model/templates/Abilities.h"
 #include "model/templates/CharacterTemplate.h"
 #include "model/templates/Items.h"
+#include "model/templates/MapGrids.h"
 #include "model/templates/Maps.h"
 #include "model/templates/SpecialEvents.h"
 #include "model/templates/StatusEffects.h"
@@ -31,6 +32,7 @@ private:
   bmin::Map<bmin::String, model::StatusEffectTemplate> statusEffectTemplates;
   bmin::Map<bmin::String, model::GameEvent> gameEvents;
   bmin::Map<bmin::String, model::CarcerMapTemplate> mapTemplates;
+  bmin::Map<bmin::String, model::MapGridTemplate> mapGridTemplates;
   bmin::Map<bmin::String, model::TilesetTemplate> tilesetTemplates;
 
 public:
@@ -50,6 +52,9 @@ public:
   void addGameEvent(const model::GameEvent& gameEvent);
   const model::CarcerMapTemplate& getMapTemplate(std::string_view mapName) const;
   void addMapTemplate(const model::CarcerMapTemplate& mapTemplate);
+  const model::MapGridTemplate& getMapGridTemplate(std::string_view gridName) const;
+  const model::MapGridTemplate* findMapGridTemplate(std::string_view gridName) const;
+  void addMapGridTemplate(const model::MapGridTemplate& mapGridTemplate);
   const model::TilesetTemplate& getTilesetTemplate(std::string_view tilesetName) const;
   const model::TilesetTemplate* findTilesetTemplate(std::string_view tilesetName) const;
   void addTilesetTemplate(const model::TilesetTemplate& tilesetTemplate);

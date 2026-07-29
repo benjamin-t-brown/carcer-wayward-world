@@ -13,10 +13,6 @@ struct CameraPos {
 
 // Center camera on target tile. Does not clamp — map may scroll past its edges
 // so the target stays centered (empty space outside the map is allowed).
-CameraPos computeCameraFollow(int targetTileX,
-                              int targetTileY,
-                              const model::MapInstance& map,
-                              int viewW,
-                              int viewH);
+CameraPos computeCameraFollow(int targetTileX, int targetTileY, int viewW, int viewH);
 
 } // namespace game

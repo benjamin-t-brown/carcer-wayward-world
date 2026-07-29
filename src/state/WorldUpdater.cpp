@@ -1,4 +1,5 @@
 #include "state/WorldUpdater.h"
+#include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/Camera.h"
 #include "model/Combat.h"
 #include "model/instances/World.h"
@@ -13,16 +14,6 @@
 namespace state {
 
 namespace {
-
-const model::CharacterInstance* findCharacterById(const model::MapInstance& map,
-                                                  const bmin::String& id) {
-  for (size_t i = 0; i < map.characters.size(); i++) {
-    if (map.characters[i].id == id) {
-      return &map.characters[i];
-    }
-  }
-  return nullptr;
-}
 
 bmin::String resolveFollowCharacterId(const State& state) {
   if (!state.world.camera.cameraFollowCharacterId.empty()) {
@@ -44,8 +35,8 @@ bmin::String resolveFollowCharacterId(const State& state) {
 void enqueueCpuCombatTurn(StateManager& stateManager) {
   auto& state = stateManager.getState();
   auto& combat = state.world.combat;
-  const auto* character =
-      model::findCharacterOnMap(state.world.currentMap, combat.activeCharacterId);
+  game::ActiveMapOrchestrator maps(state.world);
+  const auto* character = maps.findCharacterById(combat.activeCharacterId);
   if (character == nullptr || model::isPartyMember(state.player, character->id)) {
     return;
   }
@@ -71,12 +62,12 @@ void updateDamageParticles(model::World& world, int deltaTimeMs) {
   }
 }
 
-
 } // namespace
 
 void worldUpdate(StateManager& stateManager, int dt) {
   auto& state = stateManager.getState();
   updateDamageParticles(state.world, dt);
+  game::ActiveMapOrchestrator maps(state.world);
 
   auto& combat = state.world.combat;
   if (combat.active && combat.isWaitingForAction) {
@@ -95,16 +86,12 @@ void worldUpdate(StateManager& stateManager, int dt) {
   if (followId.empty()) {
     return;
   }
-
-  const auto* target = findCharacterById(world.currentMap, followId);
-  if (!target) {
-    return;
+  if (const auto* followTarget = maps.findCharacterById(followId)) {
+    auto cam = game::computeCameraFollow(
+        followTarget->x, followTarget->y, world.camera.viewW, world.camera.viewH);
+    world.camera.camX = cam.camX;
+    world.camera.camY = cam.camY;
   }
-
-  auto cam = game::computeCameraFollow(
-      target->x, target->y, world.currentMap, world.camera.viewW, world.camera.viewH);
-  world.camera.camX = cam.camX;
-  world.camera.camY = cam.camY;
 }
 
 void worldProcessPendingTriggers(sdl2w::Window* window, StateManager& stateManager) {

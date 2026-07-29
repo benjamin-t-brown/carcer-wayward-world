@@ -3,6 +3,7 @@
 #include "loaders/LoadAbilityTemplates.h"
 #include "loaders/LoadCharacterTemplates.h"
 #include "loaders/LoadItemTemplates.h"
+#include "loaders/LoadMapGridTemplates.h"
 #include "loaders/LoadMapTemplates.h"
 #include "loaders/LoadSpecialEvents.h"
 #include "loaders/LoadStatusEffectTemplates.h"
@@ -64,6 +65,7 @@ void Database::load() {
   loadItemTemplates("assets/db/items.json", itemTemplates);
   loadCharacterTemplates("assets/db/characters.json", characterTemplates);
   loadMapTemplates("assets/db/maps.json", mapTemplates);
+  loadMapGridTemplates("assets/db/map-grids.json", mapGridTemplates);
   loadTilesetTemplates("assets/db/tilesets.json", tilesetTemplates);
   loadSpecialEvents("assets/db/special-events.json", gameEvents);
   validateCombatReferences();
@@ -122,6 +124,26 @@ const model::CarcerMapTemplate& Database::getMapTemplate(std::string_view mapNam
 
 void Database::addMapTemplate(const model::CarcerMapTemplate& mapTemplate) {
   mapTemplates[mapTemplate.name] = mapTemplate;
+}
+
+const model::MapGridTemplate& Database::getMapGridTemplate(std::string_view gridName) const {
+  return mapGet(mapGridTemplates, gridName, "Map grid template not found: ");
+}
+
+const model::MapGridTemplate*
+Database::findMapGridTemplate(std::string_view gridName) const {
+  const auto mapKey = bmin::String(gridName.data(), gridName.size());
+  auto& map =
+      const_cast<bmin::Map<bmin::String, model::MapGridTemplate>&>(mapGridTemplates);
+  auto it = map.find(mapKey);
+  if (it == map.end()) {
+    return nullptr;
+  }
+  return &(*it).value;
+}
+
+void Database::addMapGridTemplate(const model::MapGridTemplate& mapGridTemplate) {
+  mapGridTemplates[mapGridTemplate.name] = mapGridTemplate;
 }
 
 const model::TilesetTemplate&

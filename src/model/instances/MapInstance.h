@@ -25,7 +25,6 @@ struct MapInstance {
   int spriteHeight = 0;
   int tileLayerNumber = 0;
   MapType mapType = MapType::TOWN;
-  TurnMode turnMode = TurnMode::TURN_TOWN;
 };
 
 // Session-scoped fog-of-war memory for a map template (one bit per cell).

@@ -10,8 +10,8 @@
 #include "state/StateManager.h"
 #include "ui/FontScale.h"
 #include "ui/colors.h"
-#include <exception>
 #include <cmath>
+#include <exception>
 
 namespace ui {
 
@@ -101,9 +101,11 @@ void MapView::renderDamageParticles(const model::World& world,
     }
 
     auto screenX =
-        contentX + static_cast<int>((particle.tileX * spriteW - world.camera.camX) * style.scale);
+        contentX +
+        static_cast<int>((particle.tileX * spriteW - world.camera.camX) * style.scale);
     auto screenY =
-        contentY + static_cast<int>((particle.tileY * spriteH - world.camera.camY) * style.scale);
+        contentY +
+        static_cast<int>((particle.tileY * spriteH - world.camera.camY) * style.scale);
 
     auto centerX = screenX + static_cast<int>(spriteW * style.scale / 2);
     auto centerY = screenY + static_cast<int>(spriteH * style.scale / 2);
@@ -115,14 +117,13 @@ void MapView::renderDamageParticles(const model::World& world,
     animation.start();
     animation.update(particle.lifetime.t);
 
-    draw.drawAnimation(
-        animation,
-        sdl2w::RenderableParamsEx{
-            .scale = {style.scale, style.scale},
-            .x = centerX,
-            .y = centerY,
-            .centered = true,
-        });
+    draw.drawAnimation(animation,
+                       sdl2w::RenderableParamsEx{
+                           .scale = {style.scale, style.scale},
+                           .x = centerX,
+                           .y = centerY,
+                           .centered = true,
+                       });
 
     if (particle.value != 0) {
       auto damageText = bmin::toString(abs(particle.value));
@@ -172,20 +173,21 @@ void MapView::render(int /*dt*/) {
   auto& store = window->getStore();
 
   // Draw whole sprites; overdraw past the content rect is fine (chrome draws on top).
-  auto drawMapSprite = [&](sdl2w::Sprite& sprite, int screenX, int screenY, bool flipped = false) {
-    if (screenX + scaledSpriteW <= contentX || screenX >= contentX + contentW ||
-        screenY + scaledSpriteH <= contentY || screenY >= contentY + contentH) {
-      return;
-    }
-    draw.drawSprite(sprite,
-                    sdl2w::RenderableParamsEx{
-                        .scale = {style.scale, style.scale},
-                        .x = screenX,
-                        .y = screenY,
-                        .centered = false,
-                        .flipped = flipped,
-                    });
-  };
+  auto drawMapSprite =
+      [&](sdl2w::Sprite& sprite, int screenX, int screenY, bool flipped = false) {
+        if (screenX + scaledSpriteW <= contentX || screenX >= contentX + contentW ||
+            screenY + scaledSpriteH <= contentY || screenY >= contentY + contentH) {
+          return;
+        }
+        draw.drawSprite(sprite,
+                        sdl2w::RenderableParamsEx{
+                            .scale = {style.scale, style.scale},
+                            .x = screenX,
+                            .y = screenY,
+                            .centered = false,
+                            .flipped = flipped,
+                        });
+      };
 
   // One sprite per cell: highest non-empty tile at or below tileLayerNumber.
   // Never-seen cells draw black; explored-but-not-visible get fog overlay.
@@ -287,8 +289,8 @@ void MapView::render(int /*dt*/) {
 
     bmin::String spriteName;
     if (member) {
-      spriteName =
-          model::characterPlayerGetSpriteAtIndexOffset(*member, character.spriteIndexOffset);
+      spriteName = model::characterPlayerGetSpriteAtIndexOffset(
+          *member, character.spriteIndexOffset);
     } else if (database) {
       try {
         const auto& characterTemplate =
@@ -307,9 +309,11 @@ void MapView::render(int /*dt*/) {
     }
 
     auto screenX =
-        contentX + static_cast<int>((character.x * spriteW - world.camera.camX) * style.scale);
+        contentX +
+        static_cast<int>((character.x * spriteW - world.camera.camX) * style.scale);
     auto screenY =
-        contentY + static_cast<int>((character.y * spriteH - world.camera.camY) * style.scale);
+        contentY +
+        static_cast<int>((character.y * spriteH - world.camera.camY) * style.scale);
 
     auto& sprite = store.getSprite(bmin::toStringView(spriteName));
     drawMapSprite(sprite, screenX, screenY, model::isCharacterFacingLeft(character));

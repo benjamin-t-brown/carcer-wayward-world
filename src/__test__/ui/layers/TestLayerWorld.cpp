@@ -1,22 +1,21 @@
 #include "../../setupTestUi.h"
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
+#include "bmin/StringInterop.h"
+#include "bmin/UniquePtr.h"
 #include "db/Database.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerWorld.h"
+#include "model/instances/CharacterPlayer.h"
 #include "sdl2w/Draw.h"
 #include "sdl2w/Logger.h"
 #include "sdl2w/Window.h"
-#include "model/instances/CharacterPlayer.h"
 #include "state/DatabaseInterface.h"
 #include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
 #include "state/actions/world/WorldLoadMap.hpp"
 #include "state/actions/world/WorldSpawnPlayerAtMarker.hpp"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
-#include "bmin/DynArray.h"
-#include "bmin/String.h"
-#include "bmin/StringInterop.h"
-#include "bmin/UniquePtr.h"
-#include <memory>
 
 namespace {
 
@@ -104,16 +103,14 @@ int main(int argc, char** argv) {
     events.setMouseEvent(
         sdl2w::MouseEventCb::ON_MOUSE_WHEEL,
         [&](int x, int y, int delta) { layerManager->handleMouseWheel(x, y, delta); });
-    events.setKeyboardEvent(
-        sdl2w::KeyboardEventCb::ON_KEY_DOWN,
-        [&](std::string_view key, int keyCode) {
-          layerManager->handleKeyDown(key, keyCode);
-        });
-    events.setKeyboardEvent(
-        sdl2w::KeyboardEventCb::ON_KEY_UP,
-        [&](std::string_view key, int keyCode) {
-          layerManager->handleKeyUp(key, keyCode);
-        });
+    events.setKeyboardEvent(sdl2w::KeyboardEventCb::ON_KEY_DOWN,
+                            [&](std::string_view key, int keyCode) {
+                              layerManager->handleKeyDown(key, keyCode);
+                            });
+    events.setKeyboardEvent(sdl2w::KeyboardEventCb::ON_KEY_UP,
+                            [&](std::string_view key, int keyCode) {
+                              layerManager->handleKeyUp(key, keyCode);
+                            });
   };
 
   auto _updateRender = [&](sdl2w::Window& window, sdl2w::Store& store) {
@@ -127,12 +124,10 @@ int main(int argc, char** argv) {
     return true;
   };
 
-  setupTestUi(argc,
-              argv,
-              TestUiParams{800, 600, "LayerWorld Test"},
-              _init,
-              _updateRender,
-              [&]() { layerManager.reset(); });
+  setupTestUi(
+      argc, argv, TestUiParams{800, 600, "LayerWorld Test"}, _init, _updateRender, [&]() {
+        layerManager.reset();
+      });
 
   LOG(INFO) << "End LayerWorld integration test" << LOG_ENDL;
   return 0;

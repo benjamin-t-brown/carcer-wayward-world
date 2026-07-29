@@ -1,4 +1,5 @@
 #include "LayerWorld.h"
+#include "game/map/ActiveMapOrchestrator.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerInventory.h"
 #include "model/Combat.h"
@@ -102,9 +103,8 @@ void enqueueMapMove(state::StateManager& stateManager, int dx, int dy) {
         0);
     return;
   }
-  stateManager.enqueueAction(stateManager.getActionData(),
-                             new state::actions::WorldMovePlayer(dx, dy),
-                             0);
+  stateManager.enqueueAction(
+      stateManager.getActionData(), new state::actions::WorldMovePlayer(dx, dy), 0);
 }
 
 void enqueueCombatWait(state::StateManager& stateManager) {
@@ -134,13 +134,13 @@ void LayerWorld::syncCombatTitleBar() {
     return;
   }
 
-  const auto& world = stateManager->getState().world;
+  auto& world = stateManager->getState().world;
+  game::ActiveMapOrchestrator maps(world);
   auto titleProps = titleBar->getProps();
   const bool showAp = world.combat.active;
   int ap = 0;
   if (showAp) {
-    if (const auto* character =
-            model::findCharacterOnMap(world.currentMap, world.combat.activeCharacterId)) {
+    if (const auto* character = maps.findCharacterById(world.combat.activeCharacterId)) {
       ap = character->currentAp;
     }
   }
@@ -198,8 +198,8 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
     return;
   }
 
-  if (auto actionType =
-          ui::getWorldActionFromKeyboardShortcut(key, world.currentMap.turnMode)) {
+  if (auto actionType = ui::getWorldActionFromKeyboardShortcut(
+          key, stateManager->getState().turnMode)) {
     ui::activateWorldAction(*stateManager, *actionType, window);
     return;
   }
@@ -358,8 +358,8 @@ void LayerWorld::setMapScale(float scale) {
   alignMapView();
 }
 
-void LayerWorld::fillWorldActionTypes(model::TurnMode turnMode,
-                                      bmin::DynArray<state::WorldActionType>& dest) {
+void LayerWorld::setWorldActionTypes(model::TurnMode turnMode,
+                                     bmin::DynArray<state::WorldActionType>& dest) {
   auto copyActionTypes = [](bmin::DynArray<state::WorldActionType>& dest,
                             const auto& source) {
     dest.clear();
@@ -494,9 +494,10 @@ void LayerWorld::syncFromState() {
   auto& state = stateManager->getState();
   auto& player = state.player;
   auto& world = state.world;
+  auto maps = game::ActiveMapOrchestrator(world);
 
   auto layoutProps = inGameLayout->getProps();
-  fillWorldActionTypes(world.currentMap.turnMode, layoutProps.worldActionTypes);
+  setWorldActionTypes(state.turnMode, layoutProps.worldActionTypes);
   layoutProps.partyMembers.clear();
   for (int i = 0; i < static_cast<int>(player.party.size()); i++) {
     const auto& member = player.party[i];
@@ -521,8 +522,8 @@ void LayerWorld::syncFromState() {
     titleProps.food = player.food;
     titleProps.ap = 0;
     if (world.combat.active) {
-      if (const auto* character = model::findCharacterOnMap(
-              world.currentMap, world.combat.activeCharacterId)) {
+      if (const auto* character =
+              maps.findCharacterById(world.combat.activeCharacterId)) {
         titleProps.ap = character->currentAp;
       }
     }
@@ -564,39 +565,6 @@ void LayerWorld::updateHeldMoveRepeat(int deltaTime) {
     enqueueMapMove(*stateManager, heldMove.dx, heldMove.dy);
   }
 }
-
-// void LayerWorld::processPendingTriggers() {
-//   auto stateManager = getStateManager();
-//   if (!stateManager) {
-//     return;
-//   }
-
-//   auto& state = stateManager->getState();
-//   auto& world = state.world;
-//   bool mapChanged = false;
-
-//   if (world.pendingSpecialEventId) {
-//     ui::setHeldMoveActive(*stateManager, false);
-//     auto eventId = *world.pendingSpecialEventId;
-//     world.pendingSpecialEventId.reset();
-//     state::actions::UiShowLayerSpecialEvent specialEvent =
-//         state::actions::UiShowLayerSpecialEvent(window, eventId);
-//     specialEvent.execute(&state);
-//   }
-
-//   if (world.pendingTravel) {
-//     ui::setHeldMoveActive(*stateManager, false);
-//     auto travel = *world.pendingTravel;
-//     world.pendingTravel.reset();
-//     state::actions::WorldTravel travelAction(travel);
-//     travelAction.execute(&state);
-//     mapChanged = true;
-//   }
-
-//   if (mapChanged) {
-//     syncFromState();
-//   }
-// }
 
 void LayerWorld::update(int deltaTime) {
   Layer::update(deltaTime);

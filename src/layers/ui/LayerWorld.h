@@ -28,8 +28,8 @@ private:
   int lastMouseY = 0;
 
   void alignMapView();
-  void fillWorldActionTypes(model::TurnMode turnMode,
-                            bmin::DynArray<state::WorldActionType>& dest);
+  void setWorldActionTypes(model::TurnMode turnMode,
+                           bmin::DynArray<state::WorldActionType>& dest);
 
 public:
   constexpr static std::string_view LAYER_ID = "layer_world";

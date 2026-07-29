@@ -1,11 +1,11 @@
 #pragma once
 
+#include "bmin/DynArray.h"
+#include "bmin/String.h"
 #include "model/Combat.h"
 #include "model/instances/MapInstance.h"
 #include "model/templates/UtilityTypes.h"
 #include <optional>
-#include "bmin/DynArray.h"
-#include "bmin/String.h"
 
 namespace model {
 
@@ -34,11 +34,14 @@ struct CameraInfo {
 
 struct World {
   bmin::String name;
-  MapInstance currentMap;
+  bmin::Map<bmin::String, MapInstance> mapInstances;
+  int mapLayer = 0;
+
   CameraInfo camera;
   WorldActionMode actionMode = WorldActionMode::NONE;
   // Meaningful only when actionMode != NONE (Examine / Talk aim cursor).
   std::optional<TileXY> actionAimTile;
+
   Combat combat;
   bmin::DynArray<DamageParticle> damageParticles;
   // Monotonic counter of player movement ticks (world steps + combat rounds × 4).

@@ -26,7 +26,7 @@ class EndCombat : public CombatAction {
     world.combat.activeTurnIndex = 0;
     world.combat.activeCharacterId = bmin::String{};
     world.combat.isWaitingForAction = false;
-    world.currentMap.turnMode = model::TurnMode::TURN_TOWN;
+    state->turnMode = model::TurnMode::TURN_TOWN;
 
     model::removeExtraPartyMembersFromMap(world, state->player);
 

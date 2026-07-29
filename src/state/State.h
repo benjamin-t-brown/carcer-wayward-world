@@ -54,6 +54,7 @@ struct State {
   // Dialogue / special-event runner vars (vars.*, once.*, …). tmp.* is session-only
   // and stripped when a conversation ends.
   bmin::Map<bmin::String, bmin::String> specialEventStorage;
+  model::TurnMode turnMode = model::TurnMode::TURN_TOWN;
 };
 
 } // namespace state
