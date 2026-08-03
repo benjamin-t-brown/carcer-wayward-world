@@ -15,7 +15,7 @@ class PerformCharacterDefeated : public CombatAction {
 
   void act() override {
     if (state) {
-      if (auto* character = model::findCharacterOnMap(state->world.currentMap, characterId)) {
+      if (auto* character = model::mapInstanceFindCharacter(state->world.currentMap, characterId)) {
         game::addTileFieldAt(
             state->world.currentMap, character->x, character->y, game::TileFieldType::BLOOD);
       }

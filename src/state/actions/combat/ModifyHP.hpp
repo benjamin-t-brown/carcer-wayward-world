@@ -19,7 +19,7 @@ class ModifyHP : public CombatAction {
     if (database == nullptr) {
       return;
     }
-    auto* character = model::findCharacterOnMap(state->world.currentMap, characterId);
+    auto* character = model::mapInstanceFindCharacter(state->world.currentMap, characterId);
     if (character == nullptr) {
       return;
     }

@@ -35,8 +35,8 @@ bmin::String resolveFollowCharacterId(const State& state) {
 void enqueueCpuCombatTurn(StateManager& stateManager) {
   auto& state = stateManager.getState();
   auto& combat = state.world.combat;
-  game::ActiveMapOrchestrator maps(state.world);
-  const auto* character = maps.findCharacterById(combat.activeCharacterId);
+  game::ActiveMapOrchestrator activeMap;
+  const auto* character = activeMap.findCharacterById(combat.activeCharacterId);
   if (character == nullptr || model::isPartyMember(state.player, character->id)) {
     return;
   }
@@ -47,15 +47,15 @@ void enqueueCpuCombatTurn(StateManager& stateManager) {
 }
 
 void updateDamageParticles(model::World& world, int deltaTimeMs) {
-  if (world.damageParticles.empty() || deltaTimeMs <= 0) {
+  if (world.activeMap.damageParticles.empty() || deltaTimeMs <= 0) {
     return;
   }
 
-  for (size_t i = 0; i < world.damageParticles.size();) {
-    auto& particle = world.damageParticles[i];
+  for (size_t i = 0; i < world.activeMap.damageParticles.size();) {
+    auto& particle = world.activeMap.damageParticles[i];
     timerStructUpdate(particle.lifetime, deltaTimeMs);
     if (timerStructIsComplete(particle.lifetime)) {
-      world.damageParticles.erase(i);
+      world.activeMap.damageParticles.erase(i);
     } else {
       ++i;
     }
@@ -67,7 +67,7 @@ void updateDamageParticles(model::World& world, int deltaTimeMs) {
 void worldUpdate(StateManager& stateManager, int dt) {
   auto& state = stateManager.getState();
   updateDamageParticles(state.world, dt);
-  game::ActiveMapOrchestrator maps(state.world);
+  game::ActiveMapOrchestrator activeMap;
 
   auto& combat = state.world.combat;
   if (combat.active && combat.isWaitingForAction) {
@@ -86,7 +86,7 @@ void worldUpdate(StateManager& stateManager, int dt) {
   if (followId.empty()) {
     return;
   }
-  if (const auto* followTarget = maps.findCharacterById(followId)) {
+  if (const auto* followTarget = activeMap.findCharacterById(followId)) {
     auto cam = game::computeCameraFollow(
         followTarget->x, followTarget->y, world.camera.viewW, world.camera.viewH);
     world.camera.camX = cam.camX;

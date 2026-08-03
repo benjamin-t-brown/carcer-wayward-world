@@ -130,7 +130,7 @@ void addPartyMembersToCombatMap(World& world, Player& player, const db::Database
   const auto spawnY = leader ? leader->y : 0;
 
   for (const auto& member : player.party) {
-    if (findCharacterOnMap(map, member.instanceId) != nullptr) {
+    if (mapInstanceFindCharacter(map, member.instanceId) != nullptr) {
       continue;
     }
 
@@ -193,7 +193,7 @@ Combat createCombatFromWorld(const World& world,
   };
 
   for (const auto& member : player.party) {
-    if (findCharacterOnMap(world.currentMap, member.instanceId) != nullptr &&
+    if (mapInstanceFindCharacter(world.currentMap, member.instanceId) != nullptr &&
         !isInTurnOrder(member.instanceId)) {
       combat.turnOrderIds.pushBack(member.instanceId);
     }
@@ -217,7 +217,7 @@ Combat createCombatFromWorld(const World& world,
 }
 
 bmin::String formatCharacterLogLabel(const MapInstance& map, const bmin::String& id) {
-  const auto* character = findCharacterOnMap(map, id);
+  const auto* character = mapInstanceFindCharacter(map, id);
   if (character == nullptr || character->name.empty()) {
     return id;
   }

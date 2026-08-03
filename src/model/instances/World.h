@@ -32,10 +32,17 @@ struct CameraInfo {
   int viewH = 0;
 };
 
-struct World {
-  bmin::String name;
-  bmin::Map<bmin::String, MapInstance> mapInstances;
+struct ActiveMap {
+  bmin::String gridId;
   int mapLayer = 0;
+  bmin::DynArray<CharacterInstance> characters;
+  bmin::DynArray<ItemInstance> items;
+  // bmin::DynArray<TileField> fields;
+  bmin::DynArray<DamageParticle> damageParticles;
+};
+
+struct World {
+  ActiveMap activeMap;
 
   CameraInfo camera;
   WorldActionMode actionMode = WorldActionMode::NONE;
@@ -43,9 +50,6 @@ struct World {
   std::optional<TileXY> actionAimTile;
 
   Combat combat;
-  bmin::DynArray<DamageParticle> damageParticles;
-  // Monotonic counter of player movement ticks (world steps + combat rounds × 4).
-  int playerMovementCount = 0;
 };
 
 } // namespace model

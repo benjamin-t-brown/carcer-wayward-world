@@ -29,7 +29,7 @@ class DoCombatAction : public CombatAction {
 
     auto& world = state->world;
     const auto& actorId = world.combat.activeCharacterId;
-    auto* actor = model::findCharacterOnMap(world.currentMap, actorId);
+    auto* actor = model::mapInstanceFindCharacter(world.currentMap, actorId);
     if (actor == nullptr) {
       insertCombatAction(new DoCombatActionCompletion(), 0);
       return;
@@ -111,7 +111,7 @@ class DoCombatAction : public CombatAction {
       insertCombatAction(new DoCombatActionCompletion(), 0);
       break;
     case model::CombatActionType::WAIT: {
-      auto* character = model::findCharacterOnMap(state->world.currentMap,
+      auto* character = model::mapInstanceFindCharacter(state->world.currentMap,
                                                   state->world.combat.activeCharacterId);
       if (character != nullptr) {
         character->currentAp = 0;

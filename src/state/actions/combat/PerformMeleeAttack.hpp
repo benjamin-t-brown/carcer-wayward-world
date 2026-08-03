@@ -26,8 +26,8 @@ class PerformMeleeAttack : public CombatAction {
     }
 
     auto& map = state->world.currentMap;
-    auto* attacker = model::findCharacterOnMap(map, attackerId);
-    auto* victim = model::findCharacterOnMap(map, victimId);
+    auto* attacker = model::mapInstanceFindCharacter(map, attackerId);
+    auto* victim = model::mapInstanceFindCharacter(map, victimId);
     if (attacker == nullptr || victim == nullptr) {
       return;
     }

@@ -49,12 +49,16 @@ struct State {
   model::Player player;
   model::World world;
   Triggers triggers;
-  // Background persistence for visited maps; LiveArea stitch will flush/hydrate per slot.
-  bmin::Map<bmin::String, model::PersistentMapState> mapsByTemplate;
+  // persistent storage for maps
+  bmin::Map<bmin::String, model::MapInstance> mapInstances;
   // Dialogue / special-event runner vars (vars.*, once.*, …). tmp.* is session-only
   // and stripped when a conversation ends.
   bmin::Map<bmin::String, bmin::String> specialEventStorage;
+
   model::TurnMode turnMode = model::TurnMode::TURN_TOWN;
+
+  // Monotonic counter of player movement ticks (world steps + combat rounds × 4).
+  int playerMovementCount = 0;
 };
 
 } // namespace state

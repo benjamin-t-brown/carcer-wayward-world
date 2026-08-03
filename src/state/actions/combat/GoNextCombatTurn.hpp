@@ -49,7 +49,7 @@ class GoNextCombatTurn : public CombatAction {
         break;
       }
       const auto& nextId = combat.turnOrderIds[static_cast<size_t>(index)];
-      auto* nextCharacter = model::findCharacterOnMap(state->world.currentMap, nextId);
+      auto* nextCharacter = model::mapInstanceFindCharacter(state->world.currentMap, nextId);
       if (nextCharacter == nullptr) {
         combat.activeTurnIndex += 1;
         if (combat.activeTurnIndex >= turnCount) {

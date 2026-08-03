@@ -126,6 +126,10 @@ void Database::addMapTemplate(const model::CarcerMapTemplate& mapTemplate) {
   mapTemplates[mapTemplate.name] = mapTemplate;
 }
 
+const bmin::Map<bmin::String, model::CarcerMapTemplate>& Database::getMapTemplates() const {
+  return mapTemplates;
+}
+
 const model::MapGridTemplate& Database::getMapGridTemplate(std::string_view gridName) const {
   return mapGet(mapGridTemplates, gridName, "Map grid template not found: ");
 }

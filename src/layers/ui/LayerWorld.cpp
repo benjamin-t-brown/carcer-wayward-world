@@ -135,12 +135,13 @@ void LayerWorld::syncCombatTitleBar() {
   }
 
   auto& world = stateManager->getState().world;
-  game::ActiveMapOrchestrator maps(world);
+  game::ActiveMapOrchestrator activeMap;
   auto titleProps = titleBar->getProps();
   const bool showAp = world.combat.active;
   int ap = 0;
   if (showAp) {
-    if (const auto* character = maps.findCharacterById(world.combat.activeCharacterId)) {
+    if (const auto* character =
+            activeMap.findCharacterById(world.combat.activeCharacterId)) {
       ap = character->currentAp;
     }
   }
@@ -494,7 +495,7 @@ void LayerWorld::syncFromState() {
   auto& state = stateManager->getState();
   auto& player = state.player;
   auto& world = state.world;
-  auto maps = game::ActiveMapOrchestrator(world);
+  game::ActiveMapOrchestrator activeMap;
 
   auto layoutProps = inGameLayout->getProps();
   setWorldActionTypes(state.turnMode, layoutProps.worldActionTypes);
@@ -516,14 +517,14 @@ void LayerWorld::syncFromState() {
   if (auto* titleBar =
           dynamic_cast<ui::InGameTitleBar*>(inGameLayout->getTitleElement())) {
     auto titleProps = titleBar->getProps();
-    titleProps.title = world.name.empty() ? bmin::String("World") : world.name;
+    titleProps.title = bmin::String("World");
     // day/ap placeholders until those fields live on State
     titleProps.day = 0;
     titleProps.food = player.food;
     titleProps.ap = 0;
     if (world.combat.active) {
       if (const auto* character =
-              maps.findCharacterById(world.combat.activeCharacterId)) {
+              activeMap.findCharacterById(world.combat.activeCharacterId)) {
         titleProps.ap = character->currentAp;
       }
     }
@@ -568,6 +569,7 @@ void LayerWorld::updateHeldMoveRepeat(int deltaTime) {
 
 void LayerWorld::update(int deltaTime) {
   Layer::update(deltaTime);
+
   // Hover is polled here: LayerManager has no mouse-move dispatch, and tests/game
   // only wire down/up/wheel. mouseX/Y are updated by SDL every frame.
   auto& events = window->getEvents();
@@ -576,6 +578,7 @@ void LayerWorld::update(int deltaTime) {
 
   auto stateManager = getStateManager();
   if (stateManager) {
+    worldUpdate(*stateManager, deltaTime);
     state::worldProcessPendingTriggers(window, *stateManager);
     if (stateManager->getState().triggers.mapChangedThisTick) {
       syncFromState();

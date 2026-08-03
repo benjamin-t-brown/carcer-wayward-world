@@ -2,28 +2,8 @@
 #include "model/templates/UtilityTypes.h"
 
 namespace model {
-namespace {
 
-TileInstance* findTileAt(MapInstance& instance, int layer, int index) {
-  const auto* layerTiles = mapLayerPtr(instance.tiles, layer);
-  if (!layerTiles) {
-    return nullptr;
-  }
-  if (index < 0 || index >= static_cast<int>(layerTiles->size())) {
-    return nullptr;
-  }
-  return const_cast<TileInstance*>(&(*layerTiles)[static_cast<size_t>(index)]);
-}
-
-bool isValidPlacementIndex(const MapInstance& instance, int layer, int index) {
-  const auto* layerTiles = mapLayerPtr(instance.tiles, layer);
-  if (!layerTiles) {
-    return false;
-  }
-  return index >= 0 && index < static_cast<int>(layerTiles->size());
-}
-
-} // namespace
+int tileXYToIndex(int x, int y, int width) { return static_cast<int>(y * width + x); }
 
 MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) {
   auto instance = MapInstance{};
@@ -35,8 +15,6 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
   instance.spriteWidth = mapTemplate.spriteWidth;
   instance.spriteHeight = mapTemplate.spriteHeight;
   instance.mapType = mapTemplate.type;
-  instance.turnMode = mapTemplate.type == MapType::OUTDOOR ? TurnMode::TURN_OUTDOOR
-                                                           : TurnMode::TURN_TOWN;
 
   auto cellCount = mapTemplate.width * mapTemplate.height;
   for (size_t layer = 0; layer < mapTemplate.tiles.size(); ++layer) {
@@ -64,11 +42,12 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
       }
       layerTiles.pushBack(std::move(tile));
     }
-    mapLayerAt(instance.tiles, static_cast<int>(layer)) = std::move(layerTiles);
+    instance.tiles[static_cast<int>(layer)] = std::move(layerTiles);
   }
 
   for (const auto& ov : mapTemplate.tileOverrides) {
-    auto* tile = findTileAt(instance, ov.l, ov.i);
+    auto [x, y] = tileIndexToXY(ov.i, instance.width);
+    auto* tile = mapInstanceGetTileAt(instance, x, y, ov.l);
     if (!tile) {
       continue;
     }
@@ -76,7 +55,8 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
   }
 
   for (const auto& et : mapTemplate.eventTriggers) {
-    auto* tile = findTileAt(instance, et.l, et.i);
+    auto [x, y] = tileIndexToXY(et.i, instance.width);
+    auto* tile = mapInstanceGetTileAt(instance, x, y, et.l);
     if (!tile) {
       continue;
     }
@@ -88,7 +68,8 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
   }
 
   for (const auto& tt : mapTemplate.travelTriggers) {
-    auto* tile = findTileAt(instance, tt.l, tt.i);
+    auto [x, y] = tileIndexToXY(tt.i, instance.width);
+    auto* tile = mapInstanceGetTileAt(instance, x, y, tt.l);
     if (!tile) {
       continue;
     }
@@ -103,7 +84,8 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
   }
 
   for (const auto& ls : mapTemplate.lightSources) {
-    auto* tile = findTileAt(instance, ls.l, ls.i);
+    auto [x, y] = tileIndexToXY(ls.i, instance.width);
+    auto* tile = mapInstanceGetTileAt(instance, x, y, ls.l);
     if (!tile) {
       continue;
     }
@@ -115,9 +97,9 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
   }
 
   for (const auto& placement : mapTemplate.characters) {
-    if (!isValidPlacementIndex(instance, placement.l, placement.i)) {
-      continue;
-    }
+    // if (!isValidPlacementIndex(instance, placement.l, placement.i)) {
+    //   continue;
+    // }
     auto tile = tileIndexToXY(placement.i, instance.width);
     auto character = CharacterInstance{};
     character.id = createRandomId();
@@ -127,13 +109,13 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
     character.y = tile.y;
     character.spawnX = tile.x;
     character.spawnY = tile.y;
-    instance.characters.pushBack(std::move(character));
+    instance.persistentState.characters.pushBack(std::move(character));
   }
 
   for (const auto& placement : mapTemplate.items) {
-    if (!isValidPlacementIndex(instance, placement.l, placement.i)) {
-      continue;
-    }
+    // if (!isValidPlacementIndex(instance, placement.l, placement.i)) {
+    //   continue;
+    // }
     auto tile = tileIndexToXY(placement.i, instance.width);
     auto item = ItemInstance{};
     item.id = createRandomId();
@@ -141,7 +123,7 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
     item.quantity = placement.quantity;
     item.x = tile.x;
     item.y = tile.y;
-    instance.items.pushBack(std::move(item));
+    instance.persistentState.items.pushBack(std::move(item));
   }
 
   return instance;
@@ -164,7 +146,7 @@ const MapMarkerPlacement* findMarkerOnTemplate(const CarcerMapTemplate& mapTempl
   return nullptr;
 }
 
-CharacterInstance* findCharacterOnMap(MapInstance& map, const bmin::String& id) {
+CharacterInstance* mapInstanceFindCharacter(MapInstance& map, const bmin::String& id) {
   for (size_t i = 0; i < map.characters.size(); i++) {
     if (map.characters[i].id == id) {
       return &map.characters[i];
@@ -173,21 +155,22 @@ CharacterInstance* findCharacterOnMap(MapInstance& map, const bmin::String& id) 
   return nullptr;
 }
 
-const CharacterInstance* findCharacterOnMap(const MapInstance& map, const bmin::String& id) {
-  return findCharacterOnMap(const_cast<MapInstance&>(map), id);
+const CharacterInstance* mapInstanceFindCharacter(const MapInstance& map,
+                                                  const bmin::String& id) {
+  return mapInstanceFindCharacter(const_cast<MapInstance&>(map), id);
 }
 
-CharacterInstance* findCharacterAt(MapInstance& map,
-                                   int x,
-                                   int y,
-                                   const bmin::String& excludeId) {
-  for (size_t i = 0; i < map.characters.size(); i++) {
-    auto& character = map.characters[i];
-    if (character.x == x && character.y == y && character.id != excludeId) {
-      return &character;
-    }
-  }
-  return nullptr;
-}
+// CharacterInstance* findCharacterAt(MapInstance& map,
+//                                    int x,
+//                                    int y,
+//                                    const bmin::String& excludeId) {
+//   for (size_t i = 0; i < map.characters.size(); i++) {
+//     auto& character = map.characters[i];
+//     if (character.x == x && character.y == y && character.id != excludeId) {
+//       return &character;
+//     }
+//   }
+//   return nullptr;
+// }
 
 } // namespace model

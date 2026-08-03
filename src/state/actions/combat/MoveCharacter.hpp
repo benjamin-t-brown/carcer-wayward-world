@@ -25,7 +25,7 @@ class MoveCharacter : public CombatAction {
     }
 
     auto& map = state->world.currentMap;
-    auto* character = model::findCharacterOnMap(map, characterId);
+    auto* character = model::mapInstanceFindCharacter(map, characterId);
     if (character == nullptr) {
       return;
     }

@@ -116,7 +116,7 @@ void lightOpaqueWallsBesideVisibleFloors(model::MapInstance& map,
       }
       // Already visible from a ray — nothing to do.
       auto alreadyVisible = false;
-      if (model::mapHasLayer(map.tiles, 0) &&
+      if (model::mapInstanceHasLayer(map.tiles, 0) &&
           index < static_cast<int>(map.tiles[0].size())) {
         alreadyVisible = map.tiles[0][static_cast<size_t>(index)].isVisible;
       }
@@ -139,7 +139,7 @@ void lightOpaqueWallsBesideVisibleFloors(model::MapInstance& map,
             continue;
           }
           const auto nIndex = tileIndex(map, nx, ny);
-          if (nIndex < 0 || !model::mapHasLayer(map.tiles, 0) ||
+          if (nIndex < 0 || !model::mapInstanceHasLayer(map.tiles, 0) ||
               nIndex >= static_cast<int>(map.tiles[0].size())) {
             continue;
           }

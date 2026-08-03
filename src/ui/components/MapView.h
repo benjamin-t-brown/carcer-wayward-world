@@ -32,7 +32,8 @@ private:
                              int contentY,
                              int spriteW,
                              int spriteH,
-                             int fontScale) const;
+                             int fontScale);
+  void renderTile(const model::TileInstance& tile, int x, int y);
 
 public:
   MapView(sdl2w::Window* _window, UiElement* _parent = nullptr);

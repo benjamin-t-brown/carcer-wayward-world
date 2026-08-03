@@ -52,6 +52,7 @@ public:
   void addGameEvent(const model::GameEvent& gameEvent);
   const model::CarcerMapTemplate& getMapTemplate(std::string_view mapName) const;
   void addMapTemplate(const model::CarcerMapTemplate& mapTemplate);
+  const bmin::Map<bmin::String, model::CarcerMapTemplate>& getMapTemplates() const;
   const model::MapGridTemplate& getMapGridTemplate(std::string_view gridName) const;
   const model::MapGridTemplate* findMapGridTemplate(std::string_view gridName) const;
   void addMapGridTemplate(const model::MapGridTemplate& mapGridTemplate);

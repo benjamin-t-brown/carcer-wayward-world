@@ -15,7 +15,7 @@ class ModifyAP : public CombatAction {
     if (!state) {
       return;
     }
-    auto* character = model::findCharacterOnMap(state->world.currentMap, characterId);
+    auto* character = model::mapInstanceFindCharacter(state->world.currentMap, characterId);
     if (character == nullptr) {
       return;
     }

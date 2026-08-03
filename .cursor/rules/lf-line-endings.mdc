@@ -1,0 +1,12 @@
+---
+description: New and edited code files must use LF line endings
+alwaysApply: true
+---
+
+# Line Endings (LF)
+
+All new and edited source files must use **LF** (`\n`) line endings, never **CRLF** (`\r\n`).
+
+Applies to code and config such as `.cpp`, `.h`, `.hpp`, `.c`, `.cc`, `.ts`, `.tsx`, `.js`, `.jsx`, `.json`, `.md`, `.yml`, `.yaml`, `.sh`, `.cmake`, `Makefile`, and similar text sources.
+
+When creating or rewriting a file, write it with LF only. Do not introduce CRLF on Windows.

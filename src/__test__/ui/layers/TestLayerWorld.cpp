@@ -4,6 +4,7 @@
 #include "bmin/StringInterop.h"
 #include "bmin/UniquePtr.h"
 #include "db/Database.h"
+#include "game/map/MapPersistence.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerWorld.h"
 #include "model/instances/CharacterPlayer.h"
@@ -75,6 +76,8 @@ int main(int argc, char** argv) {
   // auto-resolves the party avatar; WorldUpdater + LayerWorld view dims snap cam.
   {
     auto& state = stateManager.getState();
+    game::createMapInstances(state.world, database);
+
     auto loadMap = state::actions::WorldLoadMap("alinea_outsideAlinea1");
     loadMap.execute(&state);
     auto spawnPlayer = state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer");

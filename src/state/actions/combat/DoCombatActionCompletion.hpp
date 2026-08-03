@@ -39,7 +39,7 @@ class DoCombatActionCompletion : public CombatAction {
     }
 
     auto* activeCharacter =
-        model::findCharacterOnMap(world.currentMap, combat.activeCharacterId);
+        model::mapInstanceFindCharacter(world.currentMap, combat.activeCharacterId);
     const auto apRemaining = activeCharacter != nullptr ? activeCharacter->currentAp : 0;
     const auto turnEnded = apRemaining <= 0;
 

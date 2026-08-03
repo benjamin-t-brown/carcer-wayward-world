@@ -38,7 +38,7 @@ class SetActiveCombatCharacter : public CombatAction {
       characterId = combat.turnOrderIds[static_cast<size_t>(combat.activeTurnIndex)];
     }
   
-    auto* character = model::findCharacterOnMap(world.currentMap, characterId);
+    auto* character = model::mapInstanceFindCharacter(world.currentMap, characterId);
     if (character == nullptr) {
       return;
     }

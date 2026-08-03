@@ -31,6 +31,7 @@ model/Combat.cpp \
 model/instances/Player.cpp \
 model/instances/CharacterPlayer.cpp \
 model/instances/MapInstance.cpp \
+game/map/ActiveMapOrchestrator.cpp \
 game/map/Camera.cpp \
 game/map/MapWalkability.cpp \
 game/map/MapVision.cpp \
