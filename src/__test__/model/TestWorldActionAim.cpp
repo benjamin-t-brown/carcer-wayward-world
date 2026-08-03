@@ -1,8 +1,12 @@
+#include "db/Database.h"
 #include "model/instances/CharacterInstance.h"
 #include "model/instances/CharacterPlayer.h"
-#include "model/instances/World.h"
+#include "model/templates/MapGrids.h"
 #include "sdl2w/Logger.h"
+#include "state/DatabaseInterface.h"
 #include "state/State.h"
+#include "state/StateManager.h"
+#include "state/StateManagerInterface.h"
 #include "state/actions/world/WorldMoveActionAim.hpp"
 #include "state/actions/world/WorldSetActionAim.hpp"
 #include "state/actions/world/WorldSetActionMode.hpp"
@@ -33,18 +37,30 @@ bool assertEqual(int actual, int expected, const char* label) {
   return true;
 }
 
-model::MapInstance makeMap(int width, int height) {
+void setupGrid(db::Database& database, state::State& state, int width, int height) {
   auto map = model::MapInstance{};
+  map.id = "test_map";
+  map.templateName = "test_map";
   map.width = width;
   map.height = height;
-  return map;
+  state.mapInstances[map.templateName] = std::move(map);
+
+  model::MapGridTemplate grid;
+  grid.name = "test_grid";
+  grid.gridWidth = 1;
+  grid.gridHeight = 1;
+  grid.mapWidth = width;
+  grid.mapHeight = height;
+  grid.cells = {{"test_map"}};
+  database.addMapGridTemplate(grid);
+  state.world.activeMap.gridId = "test_grid";
 }
 
 void placeAvatar(state::State& state, int x, int y) {
   auto member = model::CharacterPlayer{};
   member.instanceId = "player1";
   state.player.party.pushBack(member);
-  state.world.currentMap.characters.pushBack(model::CharacterInstance{
+  state.world.activeMap.characters.pushBack(model::CharacterInstance{
       .id = "player1",
       .templateName = "Hero",
       .x = x,
@@ -58,9 +74,15 @@ int main(int /*argc*/, char** /*argv*/) {
   LOG(INFO) << "Starting TestWorldActionAim" << LOG_ENDL;
   auto ok = true;
 
+  db::Database database;
+  state::DatabaseInterface::setDatabase(&database);
+  state::StateManager stateManager;
+  state::StateManagerInterface::setStateManager(&stateManager);
+
   {
-    state::State state{};
-    state.world.currentMap = makeMap(5, 5);
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupGrid(database, state, 5, 5);
     state.world.camera.cameraMode = model::CameraMode::Follow;
     placeAvatar(state, 2, 2);
 
@@ -81,8 +103,9 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   {
-    state::State state{};
-    state.world.currentMap = makeMap(5, 5);
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupGrid(database, state, 5, 5);
     state.world.camera.cameraMode = model::CameraMode::Follow;
     placeAvatar(state, 2, 2);
 
@@ -102,8 +125,9 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   {
-    state::State state{};
-    state.world.currentMap = makeMap(5, 5);
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupGrid(database, state, 5, 5);
     state.world.actionMode = model::WorldActionMode::EXAMINE;
     state.world.actionAimTile = model::TileXY{0, 0};
 
@@ -125,8 +149,9 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   {
-    state::State state{};
-    state.world.currentMap = makeMap(5, 5);
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupGrid(database, state, 5, 5);
     state.world.actionMode = model::WorldActionMode::TALK;
     state.world.actionAimTile = model::TileXY{1, 1};
 
@@ -142,8 +167,9 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   {
-    state::State state{};
-    state.world.currentMap = makeMap(5, 5);
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupGrid(database, state, 5, 5);
     state.world.actionMode = model::WorldActionMode::NONE;
     state.world.actionAimTile.reset();
 

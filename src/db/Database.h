@@ -55,6 +55,7 @@ public:
   const bmin::Map<bmin::String, model::CarcerMapTemplate>& getMapTemplates() const;
   const model::MapGridTemplate& getMapGridTemplate(std::string_view gridName) const;
   const model::MapGridTemplate* findMapGridTemplate(std::string_view gridName) const;
+  const bmin::Map<bmin::String, model::MapGridTemplate>& getMapGridTemplates() const;
   void addMapGridTemplate(const model::MapGridTemplate& mapGridTemplate);
   const model::TilesetTemplate& getTilesetTemplate(std::string_view tilesetName) const;
   const model::TilesetTemplate* findTilesetTemplate(std::string_view tilesetName) const;

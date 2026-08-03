@@ -1,6 +1,8 @@
 #pragma once
 
+#include "bmin/DynArray.h"
 #include "bmin/String.h"
+#include "game/map/TileFields.h"
 #include "model/templates/Maps.h"
 #include <optional>
 
@@ -18,6 +20,7 @@ struct TileInstance {
   std::optional<TravelTrigger> travelTrigger;
   bool isExplored = false;
   bool isVisible = false;
+  bmin::DynArray<game::TileField> fields;
 };
 
 } // namespace model

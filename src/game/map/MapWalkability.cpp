@@ -25,7 +25,8 @@ tileAtCurrentLayer(const model::MapInstance& map, int x, int y) {
     return nullptr;
   }
 
-  const auto* layerTiles = model::mapLayerPtr(map.tiles, map.tileLayerNumber);
+  const auto* layerTiles =
+      model::mapLayerPtr(model::mapInstanceTiles(map), map.tileLayerNumber);
   if (!layerTiles) {
     return nullptr;
   }
@@ -129,15 +130,16 @@ bmin::DynArray<model::OpenedDoorRecord> captureOpenedDoors(const model::MapInsta
     return doors;
   }
 
-  for (size_t li = 0; li < map.tiles.size(); li++) {
-    const auto& layerTiles = map.tiles[li];
+  auto& tiles = const_cast<model::TileLayerMap&>(model::mapInstanceTiles(map));
+  for (auto it = tiles.begin(); it != tiles.end(); ++it) {
+    const auto& layerTiles = it->value;
     for (size_t ti = 0; ti < layerTiles.size(); ti++) {
       const auto& tile = layerTiles[ti];
       if (!isOpenDoorTile(tile, database)) {
         continue;
       }
       auto record = model::OpenedDoorRecord{};
-      record.layer = static_cast<int>(li);
+      record.layer = it->key;
       record.x = tile.x;
       record.y = tile.y;
       record.tileId = tile.tileId;
@@ -154,15 +156,15 @@ void applyOpenedDoors(model::MapInstance& map,
     if (record.x < 0 || record.y < 0 || record.x >= map.width || record.y >= map.height) {
       continue;
     }
-    if (record.layer < 0 || static_cast<size_t>(record.layer) >= map.tiles.size()) {
+    auto* layerTiles = model::mapLayerPtr(model::mapInstanceTiles(map), record.layer);
+    if (!layerTiles) {
       continue;
     }
-    auto& layerTiles = map.tiles[static_cast<size_t>(record.layer)];
     const auto index = tileIndex(map, record.x, record.y);
-    if (index < 0 || index >= static_cast<int>(layerTiles.size())) {
+    if (index < 0 || index >= static_cast<int>(layerTiles->size())) {
       continue;
     }
-    auto& tile = layerTiles[static_cast<size_t>(index)];
+    auto& tile = (*layerTiles)[static_cast<size_t>(index)];
     if (tile.tilesetName.empty()) {
       continue;
     }
@@ -183,12 +185,13 @@ void collectTilesAt(model::MapInstance& map,
     return;
   }
 
-  for (size_t li = 0; li < map.tiles.size(); li++) {
-    auto& layerTiles = map.tiles[li];
-    if (index >= static_cast<int>(layerTiles.size())) {
+  auto minMax = model::mapInstanceGetMinMaxLayer(map);
+  for (int layerKey = minMax.x; layerKey <= minMax.y; ++layerKey) {
+    auto* layerTiles = model::mapLayerPtr(model::mapInstanceTiles(map), layerKey);
+    if (!layerTiles || index >= static_cast<int>(layerTiles->size())) {
       continue;
     }
-    auto& tile = layerTiles[static_cast<size_t>(index)];
+    auto& tile = (*layerTiles)[static_cast<size_t>(index)];
     if (tile.tilesetName.empty()) {
       continue;
     }
@@ -209,12 +212,13 @@ void collectTilesAt(const model::MapInstance& map,
     return;
   }
 
-  for (size_t li = 0; li < map.tiles.size(); li++) {
-    const auto& layerTiles = map.tiles[li];
-    if (index >= static_cast<int>(layerTiles.size())) {
+  auto minMax = model::mapInstanceGetMinMaxLayer(map);
+  for (int layerKey = minMax.x; layerKey <= minMax.y; ++layerKey) {
+    const auto* layerTiles = model::mapLayerPtr(model::mapInstanceTiles(map), layerKey);
+    if (!layerTiles || index >= static_cast<int>(layerTiles->size())) {
       continue;
     }
-    const auto& tile = layerTiles[static_cast<size_t>(index)];
+    const auto& tile = (*layerTiles)[static_cast<size_t>(index)];
     if (tile.tilesetName.empty()) {
       continue;
     }
@@ -235,7 +239,7 @@ resolveTileToRender(const model::MapInstance& map, int x, int y) {
   const model::TileInstance* best = nullptr;
   const int maxLayer = map.tileLayerNumber;
   for (int layerKey = 0; layerKey <= maxLayer; ++layerKey) {
-    const auto* layerTiles = model::mapLayerPtr(map.tiles, layerKey);
+    const auto* layerTiles = model::mapLayerPtr(model::mapInstanceTiles(map), layerKey);
     if (!layerTiles) {
       continue;
     }

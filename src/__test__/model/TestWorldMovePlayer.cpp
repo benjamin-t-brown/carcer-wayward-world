@@ -1,14 +1,16 @@
 #include "db/Database.h"
-#include "model/instances/CharacterInstance.h"
 #include "game/map/Camera.h"
 #include "game/map/MapWalkability.h"
+#include "game/map/TileTriggers.h"
+#include "model/instances/CharacterInstance.h"
 #include "model/instances/CharacterPlayer.h"
-#include "model/instances/World.h"
+#include "model/templates/MapGrids.h"
 #include "model/templates/Tileset.h"
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
 #include "state/State.h"
 #include "state/StateManager.h"
+#include "state/StateManagerInterface.h"
 #include "state/WorldUpdater.h"
 #include "state/actions/world/WorldMovePlayer.hpp"
 #include "bmin/String.h"
@@ -84,19 +86,36 @@ bmin::DynArray<model::TileInstance> makeLayerTiles(int width, int height, int ti
 
 model::MapInstance makeEmptyMap(int width, int height) {
   auto map = model::MapInstance{};
+  map.id = "test_map";
+  map.templateName = "test_map";
   map.width = width;
   map.height = height;
   map.spriteWidth = 28;
   map.spriteHeight = 32;
-  map.templateName = "test_map";
   map.tileLayerNumber = 0;
-  mapLayerAt(map.tiles, 0) = makeLayerTiles(width, height, 0);
+  model::mapLayerAt(model::mapInstanceTiles(map), 0) = makeLayerTiles(width, height, 0);
   return map;
 }
 
 model::TileInstance* tileAt(model::MapInstance& map, int x, int y, int layer = 0) {
   auto index = y * map.width + x;
-  return &map.tiles[layer][static_cast<size_t>(index)];
+  return &model::mapLayerAt(model::mapInstanceTiles(map), layer)[static_cast<size_t>(index)];
+}
+
+void setupGrid(db::Database& database, state::State& state, int width, int height) {
+  model::MapGridTemplate grid;
+  grid.name = "test_grid";
+  grid.gridWidth = 1;
+  grid.gridHeight = 1;
+  grid.mapWidth = width;
+  grid.mapHeight = height;
+  grid.cells = {{"test_map"}};
+  database.addMapGridTemplate(grid);
+
+  auto map = makeEmptyMap(width, height);
+  state.mapInstances[map.templateName] = std::move(map);
+  state.world.activeMap.gridId = "test_grid";
+  state.world.activeMap.mapLayer = 0;
 }
 
 model::CharacterInstance* spawnAvatar(state::State& state, int x, int y) {
@@ -113,13 +132,17 @@ model::CharacterInstance* spawnAvatar(state::State& state, int x, int y) {
   avatar.templateName = "testPartyMember1";
   avatar.x = x;
   avatar.y = y;
-  state.world.currentMap.characters.pushBack(std::move(avatar));
-  return &state.world.currentMap.characters[0];
+  state.world.activeMap.characters.pushBack(std::move(avatar));
+  return game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
 }
 
 void move(state::State& state, int dx, int dy) {
   auto action = state::actions::WorldMovePlayer(dx, dy);
   action.execute(&state);
+}
+
+model::MapInstance& mapOf(state::State& state) {
+  return state.mapInstances["test_map"];
 }
 
 } // namespace
@@ -133,6 +156,9 @@ int main(int /*argc*/, char** /*argv*/) {
     db::Database database;
     state::DatabaseInterface::setDatabase(&database);
     addTestTileset(database);
+
+    state::StateManager stateManager;
+    state::StateManagerInterface::setStateManager(&stateManager);
 
     // Pure helper: override true vs non-walkable tileset
     {
@@ -162,8 +188,9 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Walk onto walkable tile
     {
-      state::State state;
-      state.world.currentMap = makeEmptyMap(5, 5);
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
       auto* avatar = spawnAvatar(state, 2, 2);
       move(state, 1, 0);
       ok = assertEqual(avatar->x, 3, "walk right.x") && ok;
@@ -174,8 +201,9 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Facing updates on world move
     {
-      state::State state;
-      state.world.currentMap = makeEmptyMap(5, 5);
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
       auto* avatar = spawnAvatar(state, 2, 2);
       move(state, -1, 0);
       ok = assertTrue(avatar->facing == model::CharacterFacing::Left, "walk left facing") && ok;
@@ -188,9 +216,10 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Blocked move still updates facing
     {
-      state::State state;
-      state.world.currentMap = makeEmptyMap(5, 5);
-      tileAt(state.world.currentMap, 3, 2)->tileId = 1;
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
+      tileAt(mapOf(state), 3, 2)->tileId = 1;
       auto* avatar = spawnAvatar(state, 2, 2);
       avatar->facing = model::CharacterFacing::Left;
       move(state, 1, 0);
@@ -202,9 +231,10 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Blocked by non-walkable non-door
     {
-      state::State state;
-      state.world.currentMap = makeEmptyMap(5, 5);
-      tileAt(state.world.currentMap, 3, 2)->tileId = 1;
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
+      tileAt(mapOf(state), 3, 2)->tileId = 1;
       auto* avatar = spawnAvatar(state, 2, 2);
       move(state, 1, 0);
       ok = assertEqual(avatar->x, 2, "blocked wall.x") && ok;
@@ -213,9 +243,10 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Override true allows move onto tileset-non-walkable
     {
-      state::State state;
-      state.world.currentMap = makeEmptyMap(5, 5);
-      auto* dest = tileAt(state.world.currentMap, 3, 2);
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
+      auto* dest = tileAt(mapOf(state), 3, 2);
       dest->tileId = 1;
       dest->tileOverrides = model::TileOverrides{};
       dest->tileOverrides->isWalkableOverride = true;
@@ -227,9 +258,10 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Override false blocks tileset-walkable
     {
-      state::State state;
-      state.world.currentMap = makeEmptyMap(5, 5);
-      auto* dest = tileAt(state.world.currentMap, 3, 2);
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
+      auto* dest = tileAt(mapOf(state), 3, 2);
       dest->tileId = 0;
       dest->tileOverrides = model::TileOverrides{};
       dest->tileOverrides->isWalkableOverride = false;
@@ -250,11 +282,13 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Current layer only: wall on another layer must not block walkable current layer
     {
-      state::State state;
-      state.world.currentMap = makeEmptyMap(5, 5);
-      state.world.currentMap.tileLayerNumber = 0;
-      model::mapLayerAt(state.world.currentMap.tiles, 1) = makeLayerTiles(5, 5, 1); // wall on layer 1
-      // layer 0 dest stays floor (tileId 0)
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
+      mapOf(state).tileLayerNumber = 0;
+      state.world.activeMap.mapLayer = 0;
+      model::mapLayerAt(model::mapInstanceTiles(mapOf(state)), 1) =
+          makeLayerTiles(5, 5, 1);
       auto* avatar = spawnAvatar(state, 2, 2);
       move(state, 1, 0);
       ok = assertEqual(avatar->x, 3, "other-layer wall ignored.x") && ok;
@@ -263,23 +297,28 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Current layer only: wall on tileLayerNumber blocks even if other layers are floor
     {
-      state::State state;
-      state.world.currentMap = makeEmptyMap(5, 5);
-      model::mapLayerAt(state.world.currentMap.tiles, 1) = makeLayerTiles(5, 5, 0); // floor on layer 1
-      tileAt(state.world.currentMap, 3, 2, 0)->tileId = 1; // wall on layer 0
-      state.world.currentMap.tileLayerNumber = 0;
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
+      model::mapLayerAt(model::mapInstanceTiles(mapOf(state)), 1) =
+          makeLayerTiles(5, 5, 0);
+      tileAt(mapOf(state), 3, 2, 0)->tileId = 1;
+      mapOf(state).tileLayerNumber = 0;
+      state.world.activeMap.mapLayer = 0;
       auto* avatar = spawnAvatar(state, 2, 2);
       move(state, 1, 0);
       ok = assertEqual(avatar->x, 2, "current-layer wall blocks.x") && ok;
       ok = assertEqual(avatar->y, 2, "current-layer wall blocks.y") && ok;
     }
 
-    // Current layer only: pointing tileLayerNumber at a wall layer blocks
+    // Current layer only: pointing mapLayer at a wall layer blocks
     {
-      state::State state;
-      state.world.currentMap = makeEmptyMap(5, 5);
-      model::mapLayerAt(state.world.currentMap.tiles, 1) = makeLayerTiles(5, 5, 1); // wall on layer 1
-      state.world.currentMap.tileLayerNumber = 1;
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
+      model::mapLayerAt(model::mapInstanceTiles(mapOf(state)), 1) =
+          makeLayerTiles(5, 5, 1);
+      state.world.activeMap.mapLayer = 1;
       auto* avatar = spawnAvatar(state, 2, 2);
       move(state, 1, 0);
       ok = assertEqual(avatar->x, 2, "tileLayerNumber wall blocks.x") && ok;
@@ -288,11 +327,12 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Closed door: open without moving, then walk through
     {
-      state::State state;
-      state.world.currentMap = makeEmptyMap(5, 5);
-      state.world.currentMap.tileLayerNumber = 0;
-      auto* door = tileAt(state.world.currentMap, 3, 2, 0);
-      door->tileId = 2; // closed door
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
+      state.world.activeMap.mapLayer = 0;
+      auto* door = tileAt(mapOf(state), 3, 2, 0);
+      door->tileId = 2;
       auto* avatar = spawnAvatar(state, 2, 2);
 
       move(state, 1, 0);
@@ -306,13 +346,14 @@ int main(int /*argc*/, char** /*argv*/) {
       ok = assertEqual(door->tileId, 3, "open door tileId unchanged after walk") && ok;
     }
 
-    // Already-open door (isDoor + walkable meta): move onto it, tileId unchanged
+    // Already-open door: move onto it, tileId unchanged
     {
-      state::State state;
-      state.world.currentMap = makeEmptyMap(5, 5);
-      state.world.currentMap.tileLayerNumber = 0;
-      auto* door = tileAt(state.world.currentMap, 3, 2, 0);
-      door->tileId = 3; // open door
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
+      state.world.activeMap.mapLayer = 0;
+      auto* door = tileAt(mapOf(state), 3, 2, 0);
+      door->tileId = 3;
       auto* avatar = spawnAvatar(state, 2, 2);
 
       move(state, 1, 0);
@@ -321,13 +362,14 @@ int main(int /*argc*/, char** /*argv*/) {
       ok = assertEqual(door->tileId, 3, "already-open door tileId unchanged") && ok;
     }
 
-    // Closed door with walkable override still opens (tileset classification)
+    // Closed door with walkable override still opens
     {
-      state::State state;
-      state.world.currentMap = makeEmptyMap(5, 5);
-      state.world.currentMap.tileLayerNumber = 0;
-      auto* door = tileAt(state.world.currentMap, 3, 2, 0);
-      door->tileId = 2; // closed door meta
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
+      state.world.activeMap.mapLayer = 0;
+      auto* door = tileAt(mapOf(state), 3, 2, 0);
+      door->tileId = 2;
       door->tileOverrides = model::TileOverrides{};
       door->tileOverrides->isWalkableOverride = true;
       auto* avatar = spawnAvatar(state, 2, 2);
@@ -338,13 +380,14 @@ int main(int /*argc*/, char** /*argv*/) {
       ok = assertEqual(door->tileId, 3, "closed+override opened tileId") && ok;
     }
 
-    // Open door with non-walkable override: not re-opened; move blocked by override
+    // Open door with non-walkable override: move blocked
     {
-      state::State state;
-      state.world.currentMap = makeEmptyMap(5, 5);
-      state.world.currentMap.tileLayerNumber = 0;
-      auto* door = tileAt(state.world.currentMap, 3, 2, 0);
-      door->tileId = 3; // open door meta
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
+      state.world.activeMap.mapLayer = 0;
+      auto* door = tileAt(mapOf(state), 3, 2, 0);
+      door->tileId = 3;
       door->tileOverrides = model::TileOverrides{};
       door->tileOverrides->isWalkableOverride = false;
       auto* avatar = spawnAvatar(state, 2, 2);
@@ -355,16 +398,18 @@ int main(int /*argc*/, char** /*argv*/) {
       ok = assertEqual(door->tileId, 3, "open+override false tileId unchanged") && ok;
     }
 
-    // Door open mutates only the current layer; other-layer door untouched
+    // Door open mutates only the current layer
     {
-      state::State state;
-      state.world.currentMap = makeEmptyMap(5, 5);
-      model::mapLayerAt(state.world.currentMap.tiles, 1) = makeLayerTiles(5, 5, 0);
-      auto* doorLayer0 = tileAt(state.world.currentMap, 3, 2, 0);
-      auto* doorLayer1 = tileAt(state.world.currentMap, 3, 2, 1);
-      doorLayer0->tileId = 2; // closed door on current layer
-      doorLayer1->tileId = 2; // closed door on other layer
-      state.world.currentMap.tileLayerNumber = 0;
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
+      model::mapLayerAt(model::mapInstanceTiles(mapOf(state)), 1) =
+          makeLayerTiles(5, 5, 0);
+      auto* doorLayer0 = tileAt(mapOf(state), 3, 2, 0);
+      auto* doorLayer1 = tileAt(mapOf(state), 3, 2, 1);
+      doorLayer0->tileId = 2;
+      doorLayer1->tileId = 2;
+      state.world.activeMap.mapLayer = 0;
       auto* avatar = spawnAvatar(state, 2, 2);
 
       move(state, 1, 0);
@@ -375,8 +420,9 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Out of bounds no-op
     {
-      state::State state;
-      state.world.currentMap = makeEmptyMap(5, 5);
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
       auto* avatar = spawnAvatar(state, 0, 0);
       move(state, -1, 0);
       ok = assertEqual(avatar->x, 0, "oob left.x") && ok;
@@ -388,9 +434,9 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Camera follow recenters after successful move
     {
-      state::StateManager stateManager;
       auto& state = stateManager.getState();
-      state.world.currentMap = makeEmptyMap(10, 10);
+      state = state::State{};
+      setupGrid(database, state, 10, 10);
       state.world.camera.viewW = 100;
       state.world.camera.viewH = 80;
       state.world.camera.cameraMode = model::CameraMode::Follow;
@@ -399,14 +445,14 @@ int main(int /*argc*/, char** /*argv*/) {
 
       state::worldUpdate(stateManager, 16);
       auto before = game::computeCameraFollow(
-          2, 2, state.world.currentMap, state.world.camera.viewW, state.world.camera.viewH);
+          2, 2, state.world.camera.viewW, state.world.camera.viewH);
       ok = assertEqual(state.world.camera.camX, before.camX, "cam before.x") && ok;
       ok = assertEqual(state.world.camera.camY, before.camY, "cam before.y") && ok;
 
       move(state, 1, 0);
       state::worldUpdate(stateManager, 16);
       auto after = game::computeCameraFollow(
-          3, 2, state.world.currentMap, state.world.camera.viewW, state.world.camera.viewH);
+          3, 2, state.world.camera.viewW, state.world.camera.viewH);
       ok = assertEqual(avatar->x, 3, "cam follow move.x") && ok;
       ok = assertEqual(state.world.camera.camX, after.camX, "cam after.x") && ok;
       ok = assertEqual(state.world.camera.camY, after.camY, "cam after.y") && ok;

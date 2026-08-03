@@ -1,6 +1,7 @@
 #pragma once
 
 #include "model/Combat.h"
+#include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapVision.h"
 #include "game/map/MapWalkability.h"
 #include "game/map/MapPersistence.h"
@@ -60,8 +61,15 @@ class WorldMovePlayer : public AbstractAction {
       return;
     }
 
-    auto& map = state->world.currentMap;
-    if (map.width <= 0 || map.height <= 0) {
+    auto& world = state->world;
+    if (world.activeMap.gridId.empty()) {
+      return;
+    }
+
+    game::ActiveMapOrchestrator orch;
+    orch.fetchMapGrid(world.activeMap.gridId);
+    const auto total = orch.getTotalMapTilesSize();
+    if (!total.valid || total.x <= 0 || total.y <= 0) {
       return;
     }
 
@@ -71,20 +79,7 @@ class WorldMovePlayer : public AbstractAction {
       return;
     }
 
-    auto partyIndex = player.currentPartyMemberIndex;
-    if (partyIndex < 0 ||
-        static_cast<size_t>(partyIndex) >= player.party.size()) {
-      partyIndex = 0;
-    }
-    const auto& member = player.party[static_cast<size_t>(partyIndex)];
-
-    model::CharacterInstance* avatar = nullptr;
-    for (size_t i = 0; i < map.characters.size(); i++) {
-      if (map.characters[i].id == member.instanceId) {
-        avatar = &map.characters[i];
-        break;
-      }
-    }
+    auto* avatar = game::findPartyAvatarOnActiveMap(world.activeMap, player);
     if (!avatar) {
       LOG(ERROR) << "WorldMovePlayer::act: party avatar not found on map" << LOG_ENDL;
       return;
@@ -96,33 +91,36 @@ class WorldMovePlayer : public AbstractAction {
     const auto destY = avatar->y + dy;
     LOG(DEBUG) << "WorldMovePlayer: move " << moveDirectionLabel(dx, dy) << LOG_ENDL;
 
-    // 1. Bounds
-    if (destX < 0 || destY < 0 || destX >= map.width || destY >= map.height) {
+    if (destX < 0 || destY < 0 || destX >= total.x || destY >= total.y) {
       LOG(DEBUG) << " blocked!" << LOG_ENDL;
       return;
     }
 
-    // 2. Closed door (tileset isDoor && !isWalkable) → open, no move
-    if (auto* door = game::findClosedDoorAt(map, destX, destY, *database)) {
+    auto* destMap = orch.getMapInstanceAt(destX, destY);
+    const auto destLocal = orch.activeMapCoordToInstanceCoord(destX, destY);
+    if (!destMap || !destLocal.valid) {
+      LOG(DEBUG) << " blocked!" << LOG_ENDL;
+      return;
+    }
+    destMap->tileLayerNumber = world.activeMap.mapLayer;
+
+    if (auto* door = game::findClosedDoorAt(*destMap, destLocal.x, destLocal.y, *database)) {
       door->tileId = door->tileId + 1;
-      // TODO(player-tile-movement): play door-open sound
-      game::updateMapVisibilityFromPlayer(map, avatar->x, avatar->y, *database);
+      game::updateActiveMapVisibilityFromPlayer(world, avatar->x, avatar->y, *database);
       return;
     }
 
-    // 3. Effectively walkable (overrides win when authored) → move
-    // 4. Else blocked (open doors with walkable meta hit step 3, never step 2)
-    if (!game::isDestinationWalkable(map, destX, destY, *database)) {
+    if (!game::isDestinationWalkable(*destMap, destLocal.x, destLocal.y, *database)) {
       LOG(DEBUG) << " blocked!" << LOG_ENDL;
       return;
     }
 
     avatar->x = destX;
     avatar->y = destY;
-    game::queueStepTriggersAt(state->triggers, map, destX, destY);
-    game::updateMapVisibilityFromPlayer(map, destX, destY, *database);
-    if (!state->world.combat.active) {
-      game::advanceWorldMovementTicks(state->world, state->mapsByTemplate, 1, *database);
+    game::queueStepTriggersAt(state->triggers, *destMap, destLocal.x, destLocal.y);
+    game::updateActiveMapVisibilityFromPlayer(world, destX, destY, *database);
+    if (!world.combat.active) {
+      game::advanceWorldMovementTicks(*state, 1);
     }
   }
 

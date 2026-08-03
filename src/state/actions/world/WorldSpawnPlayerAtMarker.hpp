@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapVision.h"
 #include "game/map/TileTriggers.h"
 #include "model/instances/Player.h"
@@ -15,8 +16,7 @@ namespace state {
 namespace actions {
 
 // Spawns (or re-spawns) one player avatar CharacterInstance at a named marker on
-// the current map template. Does not move the camera. NPC/item template
-// placements remain a follow-up.
+// the active map grid. Does not move the camera.
 class WorldSpawnPlayerAtMarker : public AbstractAction {
   bmin::String markerName;
 
@@ -31,30 +31,41 @@ class WorldSpawnPlayerAtMarker : public AbstractAction {
       return;
     }
 
-    auto& map = state->world.currentMap;
-    if (map.templateName.empty()) {
-      LOG(ERROR) << "WorldSpawnPlayerAtMarker::act: no current map loaded" << LOG_ENDL;
+    auto& world = state->world;
+    if (world.activeMap.gridId.empty()) {
+      LOG(ERROR) << "WorldSpawnPlayerAtMarker::act: no active map loaded" << LOG_ENDL;
       return;
     }
 
-    const auto& mapTemplate =
-        database->getMapTemplate(bmin::toStringView(map.templateName));
-    const auto* marker = model::findMarkerOnTemplate(mapTemplate, markerName);
-    if (!marker) {
+    game::ActiveMapOrchestrator orch;
+    orch.fetchMapGrid(world.activeMap.gridId);
+    const auto& grid = orch.getMapGrid();
+
+    game::ActiveMapMarker found{};
+    for (int y = 0; y < grid.gridHeight && !found.valid; ++y) {
+      for (int x = 0; x < grid.gridWidth && !found.valid; ++x) {
+        const auto& mapName = grid.cells[static_cast<size_t>(y)][static_cast<size_t>(x)];
+        if (mapName.empty()) {
+          continue;
+        }
+        found = orch.findMarker(mapName, markerName);
+      }
+    }
+
+    if (!found.valid) {
       LOG(ERROR) << "WorldSpawnPlayerAtMarker::act: marker not found: " << markerName
                  << LOG_ENDL;
       return;
     }
 
-    auto tile = model::tileIndexToXY(marker->i, map.width > 0 ? map.width : mapTemplate.width);
-    map.tileLayerNumber = marker->l;
+    world.activeMap.mapLayer = found.layer;
 
-    if (!game::placePartyAvatarAt(map, state->player, tile.x, tile.y)) {
+    if (!game::placePartyAvatarAt(world.activeMap, state->player, found.x, found.y)) {
       LOG(ERROR) << "WorldSpawnPlayerAtMarker::act: party is empty" << LOG_ENDL;
       return;
     }
 
-    game::updateMapVisibilityFromPlayer(map, tile.x, tile.y, *database);
+    game::updateActiveMapVisibilityFromPlayer(world, found.x, found.y, *database);
   }
 
 public:

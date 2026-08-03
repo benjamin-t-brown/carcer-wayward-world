@@ -1,21 +1,27 @@
 #include "db/Database.h"
 #include "game/map/TileTriggers.h"
 #include "model/instances/CharacterInstance.h"
-#include "model/instances/World.h"
+#include "model/instances/CharacterPlayer.h"
 #include "model/templates/CharacterTemplate.h"
 #include "model/templates/Items.h"
+#include "model/templates/MapGrids.h"
 #include "model/templates/Tileset.h"
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
 #include "state/State.h"
+#include "state/StateManager.h"
+#include "state/StateManagerInterface.h"
 #include "state/actions/world/WorldMovePlayer.hpp"
 #include "bmin/String.h"
 
 namespace {
 
-bool assertEqualStr(const bmin::String& actual, const bmin::String& expected, const char* label) {
+bool assertEqualStr(const bmin::String& actual,
+                    const bmin::String& expected,
+                    const char* label) {
   if (actual != expected) {
-    LOG(ERROR) << label << " expected '" << expected << "' but got '" << actual << "'" << LOG_ENDL;
+    LOG(ERROR) << label << " expected '" << expected << "' but got '" << actual << "'"
+               << LOG_ENDL;
     return false;
   }
   return true;
@@ -72,6 +78,8 @@ model::TileInstance makeTile(int x, int y, int tileId) {
 
 model::MapInstance makeMap(int width, int height) {
   auto map = model::MapInstance{};
+  map.id = "test_map";
+  map.templateName = "test_map";
   map.width = width;
   map.height = height;
   map.tileLayerNumber = 0;
@@ -81,13 +89,13 @@ model::MapInstance makeMap(int width, int height) {
       layer.pushBack(makeTile(x, y, 0));
     }
   }
-  model::mapLayerAt(map.tiles, 0) = std::move(layer);
+  model::mapLayerAt(model::mapInstanceTiles(map), 0) = std::move(layer);
   return map;
 }
 
 } // namespace
 
-int main(int argc, char** argv) {
+int main(int /*argc*/, char** /*argv*/) {
   LOG(INFO) << "Starting TestTileTriggers" << LOG_ENDL;
 
   db::Database database;
@@ -96,12 +104,15 @@ int main(int argc, char** argv) {
   addTestItem(database);
   addTestCharacter(database);
 
+  state::StateManager stateManager;
+  state::StateManagerInterface::setStateManager(&stateManager);
+
   bool ok = true;
 
   {
     auto triggers = state::Triggers{};
     auto map = makeMap(2, 2);
-    auto& tile = map.tiles[0][0];
+    auto& tile = model::mapLayerAt(model::mapInstanceTiles(map), 0)[0];
     tile.eventTrigger = model::TileEventTrigger{
         .eventId = "step_event",
         .requiresLook = false,
@@ -112,40 +123,49 @@ int main(int argc, char** argv) {
     };
 
     game::queueStepTriggersAt(triggers, map, 0, 0);
-    ok = assertTrue(triggers.pendingSpecialEventId.has_value(), "event takes precedence") && ok;
+    ok = assertTrue(triggers.pendingSpecialEventId.has_value(), "event takes precedence") &&
+         ok;
     ok = assertEqualStr(*triggers.pendingSpecialEventId, "step_event", "event id") && ok;
-    ok = assertTrue(!triggers.pendingTravel.has_value(), "travel ignored when event present") && ok;
+    ok = assertTrue(!triggers.pendingTravel.has_value(),
+                    "travel ignored when event present") &&
+         ok;
   }
 
   {
     auto triggers = state::Triggers{};
     auto map = makeMap(2, 2);
-    map.tiles[0][0].travelTrigger = model::TravelTrigger{
-        .destinationMapName = "dest_map",
-        .destinationX = 3,
-        .destinationY = 4,
-    };
+    model::mapLayerAt(model::mapInstanceTiles(map), 0)[0].travelTrigger =
+        model::TravelTrigger{
+            .destinationMapName = "dest_map",
+            .destinationX = 3,
+            .destinationY = 4,
+        };
 
     game::queueStepTriggersAt(triggers, map, 0, 0);
     ok = assertTrue(!triggers.pendingSpecialEventId.has_value(), "no event pending") && ok;
     ok = assertTrue(triggers.pendingTravel.has_value(), "travel pending") && ok;
-    ok = assertEqualStr(triggers.pendingTravel->destinationMapName, "dest_map", "travel map") && ok;
+    ok = assertEqualStr(triggers.pendingTravel->destinationMapName, "dest_map",
+                        "travel map") &&
+         ok;
   }
 
   {
     auto triggers = state::Triggers{};
     auto map = makeMap(2, 2);
-    map.tiles[0][0].travelTrigger = model::TravelTrigger{
-        .destinationMapName = "action_dest",
-        .requiresAction = true,
-    };
+    model::mapLayerAt(model::mapInstanceTiles(map), 0)[0].travelTrigger =
+        model::TravelTrigger{
+            .destinationMapName = "action_dest",
+            .requiresAction = true,
+        };
 
     game::queueStepTriggersAt(triggers, map, 0, 0);
-    ok = assertTrue(!triggers.pendingTravel.has_value(), "action travel not queued on step") &&
+    ok = assertTrue(!triggers.pendingTravel.has_value(),
+                    "action travel not queued on step") &&
          ok;
 
     game::queueActionTravelAtStanding(triggers, map, 0, 0);
-    ok = assertTrue(triggers.pendingTravel.has_value(), "action travel queued on interact") &&
+    ok = assertTrue(triggers.pendingTravel.has_value(),
+                    "action travel queued on interact") &&
          ok;
     ok = assertEqualStr(triggers.pendingTravel->destinationMapName, "action_dest",
                         "action travel map") &&
@@ -154,39 +174,55 @@ int main(int argc, char** argv) {
 
   {
     auto map = makeMap(2, 2);
-    map.items.pushBack(model::ItemInstance{
+    model::ActiveMap activeMap;
+    activeMap.items.pushBack(model::ItemInstance{
         .itemTemplateName = "TestBeer",
         .x = 1,
         .y = 0,
     });
-    const auto message = game::formatExamineMessage(map, 1, 0, database);
-    ok = assertEqualStr(message, "Examine:\ngrass\nTest Beer", "examine message with item") && ok;
+    const auto message = game::formatExamineMessage(map, activeMap, 1, 0, 1, 0, database);
+    ok = assertEqualStr(message, "Examine:\ngrass\nTest Beer",
+                        "examine message with item") &&
+         ok;
   }
 
   {
     auto map = makeMap(2, 2);
-    map.characters.pushBack(model::CharacterInstance{
+    model::ActiveMap activeMap;
+    activeMap.characters.pushBack(model::CharacterInstance{
         .id = "npc1",
         .name = "ignored instance name",
         .templateName = "TestNpc",
         .x = 1,
         .y = 0,
     });
-    map.items.pushBack(model::ItemInstance{
+    activeMap.items.pushBack(model::ItemInstance{
         .itemTemplateName = "TestBeer",
         .x = 1,
         .y = 0,
     });
-    const auto message = game::formatExamineMessage(map, 1, 0, database);
+    const auto message = game::formatExamineMessage(map, activeMap, 1, 0, 1, 0, database);
     ok = assertEqualStr(message, "Examine:\ngrass\nFriendly NPC\nTest Beer",
                         "examine message with character and item") &&
          ok;
   }
 
   {
-    state::State state{};
-    state.world.currentMap = makeMap(3, 3);
-    auto& map = state.world.currentMap;
+    auto& state = stateManager.getState();
+    state = state::State{};
+    auto map = makeMap(3, 3);
+    state.mapInstances[map.templateName] = std::move(map);
+
+    model::MapGridTemplate grid;
+    grid.name = "test_grid";
+    grid.gridWidth = 1;
+    grid.gridHeight = 1;
+    grid.mapWidth = 3;
+    grid.mapHeight = 3;
+    grid.cells = {{"test_map"}};
+    database.addMapGridTemplate(grid);
+    state.world.activeMap.gridId = "test_grid";
+    state.world.activeMap.mapLayer = 0;
 
     auto member = model::CharacterPlayer{};
     member.instanceId = "player1";
@@ -196,19 +232,26 @@ int main(int argc, char** argv) {
     character.id = "player1";
     character.x = 1;
     character.y = 1;
-    map.characters.pushBack(character);
+    state.world.activeMap.characters.pushBack(character);
 
-    auto& destTile = map.tiles[0][static_cast<size_t>(1 * map.width + 2)];
+    auto& destMap = state.mapInstances["test_map"];
+    auto& destTile =
+        model::mapLayerAt(model::mapInstanceTiles(destMap), 0)[static_cast<size_t>(1 * 3 + 2)];
     destTile.eventTrigger =
         model::TileEventTrigger{.eventId = "on_step", .requiresLook = false};
 
     state::actions::WorldMovePlayer moveEast(1, 0);
     moveEast.execute(&state);
 
-    ok = assertTrue(state.triggers.pendingSpecialEventId.has_value(), "move queues step event") && ok;
-    ok = assertEqualStr(*state.triggers.pendingSpecialEventId, "on_step", "step event id after move") &&
+    ok = assertTrue(state.triggers.pendingSpecialEventId.has_value(),
+                    "move queues step event") &&
          ok;
-    ok = assertTrue(map.characters[0].x == 2 && map.characters[0].y == 1, "avatar moved east") &&
+    ok = assertEqualStr(*state.triggers.pendingSpecialEventId, "on_step",
+                        "step event id after move") &&
+         ok;
+    ok = assertTrue(state.world.activeMap.characters[0].x == 2 &&
+                        state.world.activeMap.characters[0].y == 1,
+                    "avatar moved east") &&
          ok;
   }
 

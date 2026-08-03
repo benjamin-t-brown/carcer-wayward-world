@@ -1,12 +1,13 @@
 #include "db/Database.h"
 #include "game/map/MapWalkability.h"
 #include "model/instances/CharacterInstance.h"
-#include "model/instances/CharacterPlayer.h"
-#include "model/instances/World.h"
+#include "model/templates/MapGrids.h"
 #include "model/templates/Tileset.h"
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
 #include "state/State.h"
+#include "state/StateManager.h"
+#include "state/StateManagerInterface.h"
 #include "state/actions/world/WorldExamineAt.hpp"
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
@@ -71,6 +72,8 @@ model::TileInstance makeTile(int x, int y, bool visible) {
 
 model::MapInstance makeMap(int width, int height, bool visible = true) {
   auto map = model::MapInstance{};
+  map.id = "test_map";
+  map.templateName = "test_map";
   map.width = width;
   map.height = height;
   map.tileLayerNumber = 0;
@@ -80,8 +83,28 @@ model::MapInstance makeMap(int width, int height, bool visible = true) {
       layer.pushBack(makeTile(x, y, visible));
     }
   }
-  model::mapLayerAt(map.tiles, 0) = std::move(layer);
+  model::mapLayerAt(model::mapInstanceTiles(map), 0) = std::move(layer);
   return map;
+}
+
+void setupState(db::Database& database, state::State& state, bool visible = true) {
+  auto map = makeMap(5, 5, visible);
+  state.mapInstances[map.templateName] = std::move(map);
+
+  model::MapGridTemplate grid;
+  grid.name = "test_grid";
+  grid.gridWidth = 1;
+  grid.gridHeight = 1;
+  grid.mapWidth = 5;
+  grid.mapHeight = 5;
+  grid.cells = {{"test_map"}};
+  database.addMapGridTemplate(grid);
+  state.world.activeMap.gridId = "test_grid";
+  state.world.activeMap.mapLayer = 0;
+}
+
+model::MapInstance& mapOf(state::State& state) {
+  return state.mapInstances["test_map"];
 }
 
 } // namespace
@@ -93,15 +116,19 @@ int main(int /*argc*/, char** /*argv*/) {
   state::DatabaseInterface::setDatabase(&database);
   addTestTileset(database);
 
+  state::StateManager stateManager;
+  state::StateManagerInterface::setStateManager(&stateManager);
+
   bool ok = true;
 
   {
-    state::State state{};
-    state.world.currentMap = makeMap(5, 5);
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupState(database, state);
     state.world.actionMode = model::WorldActionMode::EXAMINE;
     state.world.actionAimTile = model::TileXY{3, 2};
 
-    auto& tile = state.world.currentMap.tiles[0][3 + 2 * 5];
+    auto& tile = model::mapLayerAt(model::mapInstanceTiles(mapOf(state)), 0)[3 + 2 * 5];
     tile.eventTrigger = model::TileEventTrigger{
         .eventId = "look_event",
         .requiresLook = true,
@@ -127,8 +154,9 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   {
-    state::State state{};
-    state.world.currentMap = makeMap(5, 5);
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupState(database, state);
     state.world.actionMode = model::WorldActionMode::EXAMINE;
     state.world.actionAimTile = model::TileXY{1, 1};
 
@@ -147,18 +175,19 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   {
-    state::State state{};
-    state.world.currentMap = makeMap(5, 5, false);
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupState(database, state, false);
     state.world.actionMode = model::WorldActionMode::EXAMINE;
     state.world.actionAimTile = model::TileXY{4, 4};
 
-    auto& tile = state.world.currentMap.tiles[0][4 + 4 * 5];
+    auto& tile = model::mapLayerAt(model::mapInstanceTiles(mapOf(state)), 0)[4 + 4 * 5];
     tile.eventTrigger = model::TileEventTrigger{
         .eventId = "hidden_look",
         .requiresLook = true,
     };
 
-    ok = assertFalse(game::isTileCurrentlyVisible(state.world.currentMap, 4, 4),
+    ok = assertFalse(game::isTileCurrentlyVisible(mapOf(state), 4, 4),
                      "target not visible") &&
          ok;
 

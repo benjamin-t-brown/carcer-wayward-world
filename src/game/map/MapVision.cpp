@@ -1,4 +1,5 @@
 #include "game/map/MapVision.h"
+#include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapWalkability.h"
 #include "model/Combat.h"
 #include "model/instances/Player.h"
@@ -21,8 +22,10 @@ bool inBounds(const model::MapInstance& map, int x, int y) {
 }
 
 void clearAllVisible(model::MapInstance& map) {
-  for (size_t li = 0; li < map.tiles.size(); li++) {
-    auto& layerTiles = map.tiles[li];
+  for (auto it = model::mapInstanceTiles(map).begin();
+       it != model::mapInstanceTiles(map).end();
+       ++it) {
+    auto& layerTiles = it->value;
     for (size_t ti = 0; ti < layerTiles.size(); ti++) {
       layerTiles[ti].isVisible = false;
     }
@@ -39,8 +42,10 @@ void markCellVisibleAndExplored(model::MapInstance& map, int x, int y) {
     return;
   }
 
-  for (size_t li = 0; li < map.tiles.size(); li++) {
-    auto& layerTiles = map.tiles[li];
+  for (auto it = model::mapInstanceTiles(map).begin();
+       it != model::mapInstanceTiles(map).end();
+       ++it) {
+    auto& layerTiles = it->value;
     if (index >= static_cast<int>(layerTiles.size())) {
       continue;
     }
@@ -116,9 +121,10 @@ void lightOpaqueWallsBesideVisibleFloors(model::MapInstance& map,
       }
       // Already visible from a ray — nothing to do.
       auto alreadyVisible = false;
-      if (model::mapInstanceHasLayer(map.tiles, 0) &&
-          index < static_cast<int>(map.tiles[0].size())) {
-        alreadyVisible = map.tiles[0][static_cast<size_t>(index)].isVisible;
+      if (const auto* layer0 = model::mapLayerPtr(model::mapInstanceTiles(map), 0)) {
+        if (index < static_cast<int>(layer0->size())) {
+          alreadyVisible = (*layer0)[static_cast<size_t>(index)].isVisible;
+        }
       }
       if (alreadyVisible) {
         continue;
@@ -139,11 +145,11 @@ void lightOpaqueWallsBesideVisibleFloors(model::MapInstance& map,
             continue;
           }
           const auto nIndex = tileIndex(map, nx, ny);
-          if (nIndex < 0 || !model::mapInstanceHasLayer(map.tiles, 0) ||
-              nIndex >= static_cast<int>(map.tiles[0].size())) {
+          const auto* layer0 = model::mapLayerPtr(model::mapInstanceTiles(map), 0);
+          if (nIndex < 0 || !layer0 || nIndex >= static_cast<int>(layer0->size())) {
             continue;
           }
-          if (!map.tiles[0][static_cast<size_t>(nIndex)].isVisible) {
+          if (!(*layer0)[static_cast<size_t>(nIndex)].isVisible) {
             continue;
           }
           if (!isDestinationSeeThrough(map, nx, ny, database)) {
@@ -179,6 +185,183 @@ void addMapVisibilityFromPoint(model::MapInstance& map,
 
   markCellVisibleAndExplored(map, playerX, playerY);
   lightOpaqueWallsBesideVisibleFloors(map, playerX, playerY, boxSize, database);
+}
+
+bool inWorldBounds(ActiveMapOrchestrator& orch, int worldX, int worldY) {
+  const auto total = orch.getTotalMapTilesSize();
+  return total.valid && worldX >= 0 && worldY >= 0 && worldX < total.x && worldY < total.y;
+}
+
+void clearAllVisibleInActiveGrid(ActiveMapOrchestrator& orch, int mapLayer) {
+  const auto& grid = orch.getMapGrid();
+  for (int gy = 0; gy < grid.gridHeight; ++gy) {
+    for (int gx = 0; gx < grid.gridWidth; ++gx) {
+      const auto& mapName = grid.cells[static_cast<size_t>(gy)][static_cast<size_t>(gx)];
+      if (mapName.empty()) {
+        continue;
+      }
+      if (auto* map = orch.getMapInstanceAt(gx * grid.mapWidth, gy * grid.mapHeight)) {
+        clearAllVisible(*map);
+        map->tileLayerNumber = mapLayer;
+      }
+    }
+  }
+}
+
+void markWorldCellVisibleAndExplored(ActiveMapOrchestrator& orch, int worldX, int worldY) {
+  auto* map = orch.getMapInstanceAt(worldX, worldY);
+  const auto local = orch.activeMapCoordToInstanceCoord(worldX, worldY);
+  if (!map || !local.valid) {
+    return;
+  }
+  markCellVisibleAndExplored(*map, local.x, local.y);
+}
+
+bool isWorldCellSeeThrough(ActiveMapOrchestrator& orch,
+                           int worldX,
+                           int worldY,
+                           int mapLayer,
+                           const db::Database& database) {
+  auto* map = orch.getMapInstanceAt(worldX, worldY);
+  const auto local = orch.activeMapCoordToInstanceCoord(worldX, worldY);
+  if (!map || !local.valid) {
+    return true;
+  }
+  const auto* tile = model::mapInstanceGetTileAt(*map, local.x, local.y, mapLayer);
+  if (!tile || tile->tilesetName.empty()) {
+    return true;
+  }
+  return isTileEffectivelySeeThrough(*tile, database);
+}
+
+bool isWorldCellVisible(ActiveMapOrchestrator& orch, int worldX, int worldY) {
+  auto* map = orch.getMapInstanceAt(worldX, worldY);
+  const auto local = orch.activeMapCoordToInstanceCoord(worldX, worldY);
+  if (!map || !local.valid || map->width <= 0) {
+    return false;
+  }
+  const auto index = tileIndex(*map, local.x, local.y);
+  const auto* layer0 = model::mapLayerPtr(model::mapInstanceTiles(*map), 0);
+  if (index < 0 || !layer0 || index >= static_cast<int>(layer0->size())) {
+    return false;
+  }
+  return (*layer0)[static_cast<size_t>(index)].isVisible;
+}
+
+void castWorldVisibilityRay(ActiveMapOrchestrator& orch,
+                            int x1,
+                            int y1,
+                            int x2,
+                            int y2,
+                            int mapLayer,
+                            const db::Database& database) {
+  auto visibility = true;
+
+  const auto dx = std::abs(x2 - x1);
+  const auto sx = x1 < x2 ? 1 : -1;
+  const auto dy = std::abs(y2 - y1);
+  const auto sy = y1 < y2 ? 1 : -1;
+  auto err = (dx > dy ? dx : -dy) / 2;
+
+  while (true) {
+    if (!inWorldBounds(orch, x1, y1)) {
+      break;
+    }
+
+    if (visibility) {
+      markWorldCellVisibleAndExplored(orch, x1, y1);
+    }
+
+    if (!isWorldCellSeeThrough(orch, x1, y1, mapLayer, database)) {
+      visibility = false;
+    }
+
+    if (x1 == x2 && y1 == y2) {
+      break;
+    }
+
+    const auto e2 = err;
+    if (e2 > -dx) {
+      err -= dy;
+      x1 += sx;
+    }
+    if (e2 < dy) {
+      err += dx;
+      y1 += sy;
+    }
+  }
+}
+
+void lightOpaqueWallsBesideVisibleFloorsWorld(ActiveMapOrchestrator& orch,
+                                              int playerX,
+                                              int playerY,
+                                              int boxSize,
+                                              int mapLayer,
+                                              const db::Database& database) {
+  for (auto y = playerY - boxSize; y <= playerY + boxSize; y++) {
+    for (auto x = playerX - boxSize; x <= playerX + boxSize; x++) {
+      if (!isInPlayerVisionRange(x - playerX, y - playerY, boxSize)) {
+        continue;
+      }
+      if (!inWorldBounds(orch, x, y)) {
+        continue;
+      }
+      if (isWorldCellVisible(orch, x, y)) {
+        continue;
+      }
+      if (isWorldCellSeeThrough(orch, x, y, mapLayer, database)) {
+        continue;
+      }
+
+      auto besideVisibleFloor = false;
+      for (auto dy = -1; dy <= 1 && !besideVisibleFloor; dy++) {
+        for (auto dx = -1; dx <= 1; dx++) {
+          if (dx == 0 && dy == 0) {
+            continue;
+          }
+          const auto nx = x + dx;
+          const auto ny = y + dy;
+          if (!inWorldBounds(orch, nx, ny)) {
+            continue;
+          }
+          if (!isWorldCellVisible(orch, nx, ny)) {
+            continue;
+          }
+          if (!isWorldCellSeeThrough(orch, nx, ny, mapLayer, database)) {
+            continue;
+          }
+          besideVisibleFloor = true;
+          break;
+        }
+      }
+      if (besideVisibleFloor) {
+        markWorldCellVisibleAndExplored(orch, x, y);
+      }
+    }
+  }
+}
+
+void addActiveMapVisibilityFromPoint(ActiveMapOrchestrator& orch,
+                                     int worldX,
+                                     int worldY,
+                                     int mapLayer,
+                                     const db::Database& database) {
+  const auto boxSize = kPlayerVisionBoxSize;
+  for (auto y = worldY - boxSize; y <= worldY + boxSize; y++) {
+    for (auto x = worldX - boxSize; x <= worldX + boxSize; x++) {
+      if (x == worldX && y == worldY) {
+        continue;
+      }
+      if (!isInPlayerVisionRange(x - worldX, y - worldY, boxSize)) {
+        continue;
+      }
+      castWorldVisibilityRay(orch, worldX, worldY, x, y, mapLayer, database);
+    }
+  }
+
+  markWorldCellVisibleAndExplored(orch, worldX, worldY);
+  lightOpaqueWallsBesideVisibleFloorsWorld(
+      orch, worldX, worldY, boxSize, mapLayer, database);
 }
 
 } // namespace
@@ -228,11 +411,47 @@ void updateMapVisibilityFromParty(model::MapInstance& map,
                                   const model::Player& player,
                                   const db::Database& database) {
   clearAllVisible(map);
-  for (const auto& character : map.characters) {
+  for (const auto& character : map.persistentState.characters) {
     if (model::isPartyMember(player, character.id)) {
       addMapVisibilityFromPoint(map, character.x, character.y, database);
     }
   }
+}
+
+void updateActiveMapVisibilityFromParty(model::World& world,
+                                        const model::Player& player,
+                                        const db::Database& database) {
+  if (world.activeMap.gridId.empty()) {
+    return;
+  }
+  ActiveMapOrchestrator orch;
+  orch.fetchMapGrid(world.activeMap.gridId);
+  clearAllVisibleInActiveGrid(orch, world.activeMap.mapLayer);
+
+  for (const auto& character : world.activeMap.characters) {
+    if (!model::isPartyMember(player, character.id)) {
+      continue;
+    }
+    addActiveMapVisibilityFromPoint(
+        orch, character.x, character.y, world.activeMap.mapLayer, database);
+  }
+}
+
+void updateActiveMapVisibilityFromPlayer(model::World& world,
+                                         int worldX,
+                                         int worldY,
+                                         const db::Database& database) {
+  if (world.activeMap.gridId.empty()) {
+    return;
+  }
+  ActiveMapOrchestrator orch;
+  orch.fetchMapGrid(world.activeMap.gridId);
+  if (!inWorldBounds(orch, worldX, worldY)) {
+    return;
+  }
+  clearAllVisibleInActiveGrid(orch, world.activeMap.mapLayer);
+  addActiveMapVisibilityFromPoint(
+      orch, worldX, worldY, world.activeMap.mapLayer, database);
 }
 
 model::ExploredMapMask captureExploredMask(const model::MapInstance& map) {
@@ -254,8 +473,9 @@ model::ExploredMapMask captureExploredMask(const model::MapInstance& map) {
         continue;
       }
       auto explored = false;
-      for (size_t li = 0; li < map.tiles.size(); li++) {
-        const auto& layerTiles = map.tiles[li];
+      auto& tiles = const_cast<model::TileLayerMap&>(model::mapInstanceTiles(map));
+      for (auto it = tiles.begin(); it != tiles.end(); ++it) {
+        const auto& layerTiles = it->value;
         if (index >= static_cast<int>(layerTiles.size())) {
           continue;
         }
@@ -298,8 +518,10 @@ void applyExploredMask(model::MapInstance& map, const model::ExploredMapMask& ma
       if (!explored) {
         continue;
       }
-      for (size_t li = 0; li < map.tiles.size(); li++) {
-        auto& layerTiles = map.tiles[li];
+      for (auto it = model::mapInstanceTiles(map).begin();
+           it != model::mapInstanceTiles(map).end();
+           ++it) {
+        auto& layerTiles = it->value;
         if (index >= static_cast<int>(layerTiles.size())) {
           continue;
         }

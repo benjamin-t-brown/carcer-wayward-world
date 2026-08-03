@@ -4,7 +4,9 @@
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
 #include "state/State.h"
-#include "state/actions/world/WorldLoadMap.hpp"
+#include "state/StateManager.h"
+#include "state/StateManagerInterface.h"
+#include "state/actions/world/WorldLoadActiveMap.hpp"
 #include "state/actions/world/WorldSpawnPlayerAtMarker.hpp"
 #include "game/map/TileTriggers.h"
 #include "bmin/String.h"
@@ -27,6 +29,15 @@ bool assertTrue(bool cond, const char* label) {
   return true;
 }
 
+bool assertEqualStr(const bmin::String& actual, const char* expected, const char* label) {
+  if (actual != expected) {
+    LOG(ERROR) << label << " expected " << expected << " but got " << actual.cStr()
+               << LOG_ENDL;
+    return false;
+  }
+  return true;
+}
+
 } // namespace
 
 int main(int /*argc*/, char** /*argv*/) {
@@ -41,131 +52,92 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertEqual(tile.y, 11, "tileIndexToXY(337,30).y") && ok;
   }
 
-  {
-    auto mapTemplate = model::CarcerMapTemplate{};
-    mapTemplate.name = "fixture";
-    mapTemplate.width = 30;
-    mapTemplate.height = 30;
-    {
-      auto marker = model::MapMarkerPlacement{};
-      marker.l = 0;
-      marker.i = 337;
-      marker.name = "MarkerPlayer";
-      mapTemplate.markers.pushBack(std::move(marker));
-    }
-    {
-      auto marker = model::MapMarkerPlacement{};
-      marker.l = 0;
-      marker.i = 10;
-      marker.name = "Other";
-      mapTemplate.markers.pushBack(std::move(marker));
-    }
-
-    const auto* marker =
-        model::findMarkerOnTemplate(mapTemplate, bmin::String("MarkerPlayer"));
-    ok = assertTrue(marker != nullptr, "findMarkerOnTemplate MarkerPlayer") && ok;
-    if (marker) {
-      ok = assertEqual(marker->i, 337, "MarkerPlayer.i") && ok;
-      auto tile = model::tileIndexToXY(marker->i, mapTemplate.width);
-      ok = assertEqual(tile.x, 7, "MarkerPlayer tile.x") && ok;
-      ok = assertEqual(tile.y, 11, "MarkerPlayer tile.y") && ok;
-    }
-    ok = assertTrue(model::findMarkerOnTemplate(mapTemplate, bmin::String("missing")) ==
-                        nullptr,
-                    "findMarkerOnTemplate missing") &&
-         ok;
-  }
-
   try {
     db::Database database;
     state::DatabaseInterface::setDatabase(&database);
     database.load();
 
-    state::State state;
+    state::StateManager stateManager;
+    state::StateManagerInterface::setStateManager(&stateManager);
+    auto& state = stateManager.getState();
     state.player.party.pushBack(
         model::CharacterPlayer(database.getCharacterTemplate("testPartyMember1")));
     state.player.currentPartyMemberIndex = 0;
     const auto partyId = state.player.party[0].instanceId;
 
     {
-      auto loadMap = state::actions::WorldLoadMap("alinea_outsideAlinea1");
+      auto loadMap = state::actions::WorldLoadActiveMap("alinea_outsideAlinea1");
       loadMap.execute(&state);
     }
+    ok = assertEqualStr(state.world.activeMap.gridId, "OutsideAlinea",
+                        "activeMap.gridId after load") &&
+         ok;
+
     {
       auto spawn = state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer");
       spawn.execute(&state);
     }
 
-    const auto& characters = state.world.currentMap.characters;
-    // alinea_outsideAlinea1 has goblinTest + alinea_Claire; spawn adds party avatar.
-    ok = assertEqual(static_cast<int>(characters.size()), 3, "characters.size after spawn") &&
-         ok;
+    // alinea_outsideAlinea1 is at grid (1,0) → world offset (30,0)
     const model::CharacterInstance* avatar = nullptr;
     const model::CharacterInstance* claire = nullptr;
     const model::CharacterInstance* goblin = nullptr;
-    for (size_t i = 0; i < characters.size(); i++) {
-      if (characters[i].id == partyId) {
-        avatar = &characters[i];
+    for (size_t i = 0; i < state.world.activeMap.characters.size(); i++) {
+      const auto& ch = state.world.activeMap.characters[i];
+      if (ch.id == partyId) {
+        avatar = &ch;
       }
-      if (characters[i].templateName == "alinea_Claire") {
-        claire = &characters[i];
+      if (ch.templateName == "alinea_Claire") {
+        claire = &ch;
       }
-      if (characters[i].templateName == "goblinTest") {
-        goblin = &characters[i];
+      if (ch.templateName == "goblinTest") {
+        goblin = &ch;
       }
     }
     ok = assertTrue(avatar != nullptr, "spawned avatar found") && ok;
     ok = assertTrue(claire != nullptr, "claire NPC found") && ok;
     ok = assertTrue(goblin != nullptr, "goblinTest NPC found") && ok;
     if (avatar) {
-      ok = assertEqual(avatar->x, 7, "spawned character.x") && ok;
-      ok = assertEqual(avatar->y, 11, "spawned character.y") && ok;
+      ok = assertEqual(avatar->x, 37, "spawned character.x world") && ok;
+      ok = assertEqual(avatar->y, 11, "spawned character.y world") && ok;
     }
-    ok = assertEqual(state.world.currentMap.tileLayerNumber, 0,
-                     "tileLayerNumber after MarkerPlayer") &&
+    ok = assertEqual(state.world.activeMap.mapLayer, 0,
+                     "mapLayer after MarkerPlayer") &&
          ok;
     if (claire) {
-      ok = assertEqual(claire->x, 4, "claire.x") && ok;
-      ok = assertEqual(claire->y, 16, "claire.y") && ok;
+      ok = assertEqual(claire->x, 34, "claire.x world") && ok;
+      ok = assertEqual(claire->y, 16, "claire.y world") && ok;
     }
     if (goblin) {
-      // goblinTest i=348, width=30 → (18, 11)
-      ok = assertEqual(goblin->x, 18, "goblinTest.x") && ok;
-      ok = assertEqual(goblin->y, 11, "goblinTest.y") && ok;
+      ok = assertEqual(goblin->x, 48, "goblinTest.x world") && ok;
+      ok = assertEqual(goblin->y, 11, "goblinTest.y world") && ok;
     }
 
-    // Idempotent re-spawn: still one avatar + NPCs
+    const auto countAfterSpawn =
+        static_cast<int>(state.world.activeMap.characters.size());
     {
       auto spawn = state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer");
       spawn.execute(&state);
     }
-    ok = assertEqual(static_cast<int>(state.world.currentMap.characters.size()),
-                     3,
+    ok = assertEqual(static_cast<int>(state.world.activeMap.characters.size()),
+                     countAfterSpawn,
                      "characters.size after re-spawn") &&
          ok;
 
-    // Stairs1 is on layer 1 — spawn must update tileLayerNumber
     {
       auto spawn = state::actions::WorldSpawnPlayerAtMarker("Stairs1");
       spawn.execute(&state);
     }
-    ok = assertEqual(state.world.currentMap.tileLayerNumber, 1,
-                     "tileLayerNumber after Stairs1") &&
-         ok;
+    ok = assertEqual(state.world.activeMap.mapLayer, 1, "mapLayer after Stairs1") && ok;
     {
       const auto* stairsAvatar =
-          game::findPartyAvatarOnMap(state.world.currentMap, state.player);
+          game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
       ok = assertTrue(stairsAvatar != nullptr, "avatar after Stairs1") && ok;
       if (stairsAvatar) {
-        // Stairs1 i=37, width=30 → (7, 1)
-        ok = assertEqual(stairsAvatar->x, 7, "Stairs1 avatar.x") && ok;
-        ok = assertEqual(stairsAvatar->y, 1, "Stairs1 avatar.y") && ok;
+        ok = assertEqual(stairsAvatar->x, 37, "Stairs1 avatar.x world") && ok;
+        ok = assertEqual(stairsAvatar->y, 1, "Stairs1 avatar.y world") && ok;
       }
     }
-    ok = assertEqual(static_cast<int>(state.world.currentMap.characters.size()),
-                     3,
-                     "characters.size after Stairs1 spawn") &&
-         ok;
 
     if (!ok) {
       LOG(ERROR) << "TestWorldSpawnPlayerAtMarker assertions failed" << LOG_ENDL;

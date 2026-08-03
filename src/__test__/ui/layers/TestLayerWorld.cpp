@@ -14,7 +14,7 @@
 #include "state/DatabaseInterface.h"
 #include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
-#include "state/actions/world/WorldLoadMap.hpp"
+#include "state/actions/world/WorldLoadActiveMap.hpp"
 #include "state/actions/world/WorldSpawnPlayerAtMarker.hpp"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 
@@ -76,9 +76,9 @@ int main(int argc, char** argv) {
   // auto-resolves the party avatar; WorldUpdater + LayerWorld view dims snap cam.
   {
     auto& state = stateManager.getState();
-    game::createMapInstances(state.world, database);
+    game::createMapInstances(state, database);
 
-    auto loadMap = state::actions::WorldLoadMap("alinea_outsideAlinea1");
+    auto loadMap = state::actions::WorldLoadActiveMap("OutsideAlinea");
     loadMap.execute(&state);
     auto spawnPlayer = state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer");
     spawnPlayer.execute(&state);

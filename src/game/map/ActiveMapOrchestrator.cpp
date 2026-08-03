@@ -113,7 +113,7 @@ ActiveMapLoc ActiveMapOrchestrator::getGridSize() const {
 
 ActiveMapLoc ActiveMapOrchestrator::getTotalMapTilesSize() const {
   const auto& g = requireGrid();
-  return ActiveMapLoc{g.mapWidth * g.mapHeight, g.mapWidth * g.mapHeight, true};
+  return ActiveMapLoc{g.mapWidth * g.gridWidth, g.mapHeight * g.gridHeight, true};
 }
 
 model::MapInstance* ActiveMapOrchestrator::getDefaultMapInstance() {
@@ -157,12 +157,17 @@ model::CharacterInstance* ActiveMapOrchestrator::findCharacterById(
 
 model::CharacterInstance* ActiveMapOrchestrator::findCharacterAt(int worldX,
                                                                  int worldY,
-                                                                 int mapLayerId) {
+                                                                 int /*mapLayerId*/) {
+  return findCharacterAt(worldX, worldY, bmin::String{}, USE_WORLD_MAP_LAYER);
+}
+
+model::CharacterInstance* ActiveMapOrchestrator::findCharacterAt(
+    int worldX, int worldY, const bmin::String& excludeId, int /*mapLayerId*/) {
   auto& world = getStateManager()->getState().world;
   for (auto it = world.activeMap.characters.begin();
        it != world.activeMap.characters.end();
        ++it) {
-    if (it->x == worldX && it->y == worldY) {
+    if (it->x == worldX && it->y == worldY && it->id != excludeId) {
       return it;
     }
   }
@@ -184,14 +189,6 @@ model::TileInstance* ActiveMapOrchestrator::findTileAt(int worldX,
   }
 
   const int layerNum = getMapLayerId(mapLayerId);
-  const int index = local.y * map->width + local.x;
-  if (!map->persistentState.tiles.contains(layerNum)) {
-    return nullptr;
-  }
-  auto layerTiles = map->persistentState.tiles[layerNum];
-  if (index >= static_cast<int>(layerTiles.size())) {
-    return nullptr;
-  }
   return model::mapInstanceGetTileAt(*map, local.x, local.y, layerNum);
 }
 

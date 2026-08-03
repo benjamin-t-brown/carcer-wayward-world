@@ -6,6 +6,7 @@
 #include "state/actions/combat/GoNextCombatTurn.hpp"
 #include "state/actions/combat/PerformCharacterDefeated.hpp"
 #include "state/actions/combat/SetActiveCombatCharacter.hpp"
+#include "game/map/ActiveMapOrchestrator.h"
 
 namespace state {
 
@@ -25,11 +26,11 @@ class DoCombatActionCompletion : public CombatAction {
     auto& combat = world.combat;
 
     LOG(INFO) << "DoCombatActionCompletion: checking results for "
-              << model::formatCharacterLogLabel(world.currentMap, combat.activeCharacterId)
+              << model::formatCharacterLogLabel(world.activeMap, combat.activeCharacterId)
               << LOG_ENDL;
 
     bmin::DynArray<bmin::String> defeatedIds;
-    for (const auto& character : world.currentMap.characters) {
+    for (const auto& character : world.activeMap.characters) {
       if (model::isCharacterDefeated(state->player, character, *database)) {
         defeatedIds.pushBack(character.id);
       }
@@ -38,8 +39,8 @@ class DoCombatActionCompletion : public CombatAction {
       insertCombatAction(new PerformCharacterDefeated(id), 0);
     }
 
-    auto* activeCharacter =
-        model::mapInstanceFindCharacter(world.currentMap, combat.activeCharacterId);
+    game::ActiveMapOrchestrator orch;
+    auto* activeCharacter = orch.findCharacterById(combat.activeCharacterId);
     const auto apRemaining = activeCharacter != nullptr ? activeCharacter->currentAp : 0;
     const auto turnEnded = apRemaining <= 0;
 
@@ -49,7 +50,7 @@ class DoCombatActionCompletion : public CombatAction {
       insertCombatAction(new GoNextCombatTurn(), 0);
     } else if (activeCharacter != nullptr) {
       LOG(INFO) << "DoCombatActionCompletion: "
-                << model::formatCharacterLogLabel(world.currentMap, combat.activeCharacterId)
+                << model::formatCharacterLogLabel(world.activeMap, combat.activeCharacterId)
                 << " has " << apRemaining << " AP remaining, waiting for next action"
                 << LOG_ENDL;
       insertCombatAction(new SetActiveCombatCharacter(combat.activeCharacterId), 0);

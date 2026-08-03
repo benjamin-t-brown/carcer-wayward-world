@@ -51,6 +51,20 @@ void updateMapVisibilityFromParty(model::MapInstance& map,
                                   const model::Player& player,
                                   const db::Database& database);
 
+// Clear/rebuild visibility across every MapInstance in the active grid using
+// party members on world.activeMap. Rays use world tile coordinates so vision
+// crosses map-instance stitch edges within the active grid.
+void updateActiveMapVisibilityFromParty(model::World& world,
+                                        const model::Player& player,
+                                        const db::Database& database);
+
+// Clear grid visibility then light around a single world-coordinate observer
+// (cross-instance raycast / wall-face lighting).
+void updateActiveMapVisibilityFromPlayer(model::World& world,
+                                         int worldX,
+                                         int worldY,
+                                         const db::Database& database);
+
 // Capture / apply explored bits (not visibility). Used by MapPersistence.
 model::ExploredMapMask captureExploredMask(const model::MapInstance& map);
 void applyExploredMask(model::MapInstance& map, const model::ExploredMapMask& mask);

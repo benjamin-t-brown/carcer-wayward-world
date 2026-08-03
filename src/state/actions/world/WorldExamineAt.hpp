@@ -1,6 +1,7 @@
 #pragma once
 
 #include "db/Database.h"
+#include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapWalkability.h"
 #include "game/map/TileTriggers.h"
 #include "model/instances/World.h"
@@ -27,26 +28,37 @@ class WorldExamineAt : public AbstractAction {
       return;
     }
 
-    auto& map = state->world.currentMap;
-    if (x < 0 || y < 0 || x >= map.width || y >= map.height) {
+    auto& world = state->world;
+    if (world.activeMap.gridId.empty()) {
       return;
     }
 
-    if (!game::isTileCurrentlyVisible(map, x, y)) {
+    game::ActiveMapOrchestrator orch;
+    orch.fetchMapGrid(world.activeMap.gridId);
+    auto* map = orch.getMapInstanceAt(x, y);
+    const auto local = orch.activeMapCoordToInstanceCoord(x, y);
+    if (!map || !local.valid) {
+      return;
+    }
+    map->tileLayerNumber = world.activeMap.mapLayer;
+
+    if (!game::isTileCurrentlyVisible(*map, local.x, local.y)) {
       LOG(INFO) << "You can't see there." << LOG_ENDL;
       return;
     }
 
-    state->world.actionMode = model::WorldActionMode::NONE;
-    state->world.actionAimTile.reset();
+    world.actionMode = model::WorldActionMode::NONE;
+    world.actionAimTile.reset();
 
-    const auto* tile = game::tileAtCurrentLayer(map, x, y);
+    const auto* tile = game::tileAtCurrentLayer(*map, local.x, local.y);
     if (tile && tile->eventTrigger && tile->eventTrigger->requiresLook) {
       state->triggers.pendingSpecialEventId = tile->eventTrigger->eventId;
       return;
     }
 
-    LOG(INFO) << game::formatExamineMessage(map, x, y, *database) << LOG_ENDL;
+    LOG(INFO) << game::formatExamineMessage(
+                     *map, world.activeMap, x, y, local.x, local.y, *database)
+              << LOG_ENDL;
   }
 
 public:

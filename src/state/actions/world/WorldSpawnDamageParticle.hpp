@@ -28,7 +28,7 @@ class WorldSpawnDamageParticle : public AbstractAction {
     particle.tileY = tileY;
     particle.value = value;
     model::timerStructStart(particle.lifetime, lifetimeMs);
-    state->world.damageParticles.pushBack(std::move(particle));
+    state->world.activeMap.damageParticles.pushBack(std::move(particle));
   }
 
 public:

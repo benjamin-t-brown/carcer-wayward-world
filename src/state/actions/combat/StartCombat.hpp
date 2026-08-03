@@ -22,10 +22,11 @@ class StartCombat : public CombatAction {
     }
 
     auto& world = state->world;
-    LOG(INFO) << "StartCombat: starting combat on map " << world.currentMap.id << LOG_ENDL;
-    world.currentMap.turnMode = model::TurnMode::TURN_COMBAT;
+    LOG(INFO) << "StartCombat: starting combat on grid " << world.activeMap.gridId
+              << LOG_ENDL;
+    state->turnMode = model::TurnMode::TURN_COMBAT;
     model::addPartyMembersToCombatMap(world, state->player, *database);
-    game::updateMapVisibilityFromParty(world.currentMap, state->player, *database);
+    game::updateActiveMapVisibilityFromParty(world, state->player, *database);
     world.combat = model::createCombatFromWorld(world, state->player, *database);
     model::resetAllCombatAp(world, model::COMBAT_STARTING_AP);
 

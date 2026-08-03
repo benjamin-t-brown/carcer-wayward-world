@@ -8,6 +8,10 @@ namespace db {
 class Database;
 }
 
+namespace state {
+struct State;
+}
+
 namespace model {
 
 struct MapInstance;
@@ -15,6 +19,7 @@ struct PersistentMapState;
 struct Player;
 struct World;
 struct CharacterInstance;
+struct ActiveMap;
 
 inline constexpr int COMBAT_STARTING_AP = 4;
 inline constexpr int COMBAT_MOVE_COST = 1;
@@ -59,9 +64,7 @@ bool isCharacterDefeated(const Player& player,
                          const db::Database& database);
 
 void resetAllCombatAp(World& world, int ap = COMBAT_STARTING_AP);
-void onNewCombatRound(World& world,
-                      bmin::Map<bmin::String, PersistentMapState>& mapsByTemplate,
-                      const db::Database& database);
+void onNewCombatRound(state::State& state, const db::Database& database);
 void addPartyMembersToCombatMap(World& world, Player& player, const db::Database& database);
 void removeExtraPartyMembersFromMap(World& world, const Player& player);
 
@@ -69,6 +72,6 @@ Combat createCombatFromWorld(const World& world,
                              const Player& player,
                              const db::Database& database);
 
-bmin::String formatCharacterLogLabel(const MapInstance& map, const bmin::String& id);
+bmin::String formatCharacterLogLabel(const ActiveMap& activeMap, const bmin::String& id);
 
 } // namespace model

@@ -2,6 +2,7 @@
 
 #include "bmin/StringInterop.h"
 #include "db/Database.h"
+#include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapWalkability.h"
 #include "game/map/TileTriggers.h"
 #include "model/instances/World.h"
@@ -31,37 +32,45 @@ class WorldTalkAt : public AbstractAction {
       return;
     }
 
-    auto& map = state->world.currentMap;
-    if (x < 0 || y < 0 || x >= map.width || y >= map.height) {
+    auto& world = state->world;
+    if (world.activeMap.gridId.empty()) {
       return;
     }
 
-    if (!game::isTileCurrentlyVisible(map, x, y)) {
+    game::ActiveMapOrchestrator orch;
+    orch.fetchMapGrid(world.activeMap.gridId);
+    auto* map = orch.getMapInstanceAt(x, y);
+    const auto local = orch.activeMapCoordToInstanceCoord(x, y);
+    if (!map || !local.valid) {
+      return;
+    }
+    map->tileLayerNumber = world.activeMap.mapLayer;
+
+    if (!game::isTileCurrentlyVisible(*map, local.x, local.y)) {
       LOG(INFO) << TRANSLATE("You can't see there.") << LOG_ENDL;
       return;
     }
 
-    state->world.actionMode = model::WorldActionMode::NONE;
-    state->world.actionAimTile.reset();
+    world.actionMode = model::WorldActionMode::NONE;
+    world.actionAimTile.reset();
 
     const model::CharacterInstance* target = nullptr;
-    for (size_t i = 0; i < map.characters.size(); i++) {
-      const auto& character = map.characters[i];
-      if (character.x == x && character.y == y) {
-        // Prefer a character that has a talk event; otherwise remember the first
-        // occupant.
-        if (!target) {
+    for (size_t i = 0; i < world.activeMap.characters.size(); i++) {
+      const auto& character = world.activeMap.characters[i];
+      if (character.x != x || character.y != y) {
+        continue;
+      }
+      if (!target) {
+        target = &character;
+      }
+      try {
+        const auto& characterTemplate =
+            database->getCharacterTemplate(bmin::toStringView(character.templateName));
+        if (!characterTemplate.talk.talkName.empty()) {
           target = &character;
+          break;
         }
-        try {
-          const auto& characterTemplate =
-              database->getCharacterTemplate(bmin::toStringView(character.templateName));
-          if (!characterTemplate.talk.talkName.empty()) {
-            target = &character;
-            break;
-          }
-        } catch (...) {
-        }
+      } catch (...) {
       }
     }
 

@@ -3,7 +3,6 @@
 #include "game/map/MapWalkability.h"
 #include "sdl2w/L10n.h"
 
-
 namespace game {
 namespace {
 
@@ -42,15 +41,16 @@ bmin::String characterLabelAt(const db::Database& database,
 
 } // namespace
 
-model::CharacterInstance* findPartyAvatarOnMap(model::MapInstance& map,
-                                               model::Player& player) {
+model::CharacterInstance* findPartyAvatarOnActiveMap(model::ActiveMap& activeMap,
+                                                     model::Player& player) {
   return const_cast<model::CharacterInstance*>(
-      findPartyAvatarOnMap(static_cast<const model::MapInstance&>(map),
-                           static_cast<const model::Player&>(player)));
+      findPartyAvatarOnActiveMap(static_cast<const model::ActiveMap&>(activeMap),
+                                 static_cast<const model::Player&>(player)));
 }
 
-const model::CharacterInstance* findPartyAvatarOnMap(const model::MapInstance& map,
-                                                     const model::Player& player) {
+const model::CharacterInstance*
+findPartyAvatarOnActiveMap(const model::ActiveMap& activeMap,
+                           const model::Player& player) {
   if (player.party.empty()) {
     return nullptr;
   }
@@ -61,16 +61,16 @@ const model::CharacterInstance* findPartyAvatarOnMap(const model::MapInstance& m
   }
   const auto& member = player.party[static_cast<size_t>(partyIndex)];
 
-  for (size_t i = 0; i < map.characters.size(); i++) {
-    if (map.characters[i].id == member.instanceId) {
-      return &map.characters[i];
+  for (size_t i = 0; i < activeMap.characters.size(); i++) {
+    if (activeMap.characters[i].id == member.instanceId) {
+      return &activeMap.characters[i];
     }
   }
   return nullptr;
 }
 
 model::CharacterInstance*
-placePartyAvatarAt(model::MapInstance& map, model::Player& player, int x, int y) {
+placePartyAvatarAt(model::ActiveMap& activeMap, model::Player& player, int x, int y) {
   if (player.party.empty()) {
     return nullptr;
   }
@@ -81,7 +81,7 @@ placePartyAvatarAt(model::MapInstance& map, model::Player& player, int x, int y)
   }
   const auto& member = player.party[static_cast<size_t>(partyIndex)];
 
-  auto* avatar = findPartyAvatarOnMap(map, player);
+  auto* avatar = findPartyAvatarOnActiveMap(activeMap, player);
   if (avatar) {
     avatar->x = x;
     avatar->y = y;
@@ -97,8 +97,8 @@ placePartyAvatarAt(model::MapInstance& map, model::Player& player, int x, int y)
   instance.y = y;
   instance.spawnX = x;
   instance.spawnY = y;
-  map.characters.pushBack(std::move(instance));
-  return findPartyAvatarOnMap(map, player);
+  activeMap.characters.pushBack(std::move(instance));
+  return findPartyAvatarOnActiveMap(activeMap, player);
 }
 
 void queueStepTriggersAt(state::Triggers& triggers,
@@ -138,8 +138,11 @@ void queueActionTravelAtStanding(state::Triggers& triggers,
 }
 
 bmin::String formatExamineMessage(const model::MapInstance& map,
-                                  int x,
-                                  int y,
+                                  const model::ActiveMap& activeMap,
+                                  int worldX,
+                                  int worldY,
+                                  int localX,
+                                  int localY,
                                   const db::Database& database) {
   bmin::String message = TRANSLATE("Examine:");
 
@@ -151,23 +154,23 @@ bmin::String formatExamineMessage(const model::MapInstance& map,
     message += line;
   };
 
-  const auto* tile = tileAtCurrentLayer(map, x, y);
+  const auto* tile = tileAtCurrentLayer(map, localX, localY);
   if (tile) {
     if (const auto* meta = resolveTileMetadata(*tile, database)) {
       appendLine(meta->description);
     }
   }
 
-  for (size_t i = 0; i < map.characters.size(); i++) {
-    const auto& character = map.characters[i];
-    if (character.x != x || character.y != y) {
+  for (size_t i = 0; i < activeMap.characters.size(); i++) {
+    const auto& character = activeMap.characters[i];
+    if (character.x != worldX || character.y != worldY) {
       continue;
     }
     appendLine(characterLabelAt(database, character));
   }
 
-  for (const auto& item : map.items) {
-    if (item.x != x || item.y != y) {
+  for (const auto& item : activeMap.items) {
+    if (item.x != worldX || item.y != worldY) {
       continue;
     }
     appendLine(itemLabelAt(database, item.itemTemplateName));

@@ -73,10 +73,10 @@ int main(int /*argc*/, char** /*argv*/) {
     auto map = model::MapInstance{};
     map.width = 3;
     map.height = 3;
-    model::mapLayerAt(map.tiles, 0) = makeEmptyLayer(3, 3);
-    model::mapLayerAt(map.tiles, 1) = makeEmptyLayer(3, 3);
-    map.tiles[0][4] = makeTile(1, 1, "terrain2", 4);
-    map.tiles[1][4] = makeTile(1, 1, "terrain2", 0);
+    model::mapLayerAt(model::mapInstanceTiles(map), 0) = makeEmptyLayer(3, 3);
+    model::mapLayerAt(model::mapInstanceTiles(map), 1) = makeEmptyLayer(3, 3);
+    model::mapInstanceTiles(map)[0][4] = makeTile(1, 1, "terrain2", 4);
+    model::mapInstanceTiles(map)[1][4] = makeTile(1, 1, "terrain2", 0);
 
     map.tileLayerNumber = 0;
     const auto* tile0 = game::resolveTileToRender(map, 1, 1);
@@ -95,7 +95,7 @@ int main(int /*argc*/, char** /*argv*/) {
     }
 
     // Empty current layer falls through to highest below
-    map.tiles[1][4] = makeEmptyTile(1, 1);
+    model::mapInstanceTiles(map)[1][4] = makeEmptyTile(1, 1);
     map.tileLayerNumber = 1;
     const auto* fallthrough = game::resolveTileToRender(map, 1, 1);
     ok = assertTrue(fallthrough != nullptr, "fallthrough present") && ok;
@@ -125,11 +125,11 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertEqual(xy.y, 8, "index250.y") && ok;
 
     // Sanity: layer 0 door, layer 1 wall at that cell
-    ok = assertTrue(mapHasLayer(map.tiles, 0), "has layer 0") && ok;
-    ok = assertTrue(mapHasLayer(map.tiles, 1), "has layer 1") && ok;
-    if (mapHasLayer(map.tiles, 0) && mapHasLayer(map.tiles, 1)) {
-      const auto& layer0 = map.tiles[0][static_cast<size_t>(index)];
-      const auto& layer1 = map.tiles[1][static_cast<size_t>(index)];
+    ok = assertTrue(model::mapHasLayer(model::mapInstanceTiles(map), 0), "has layer 0") && ok;
+    ok = assertTrue(model::mapHasLayer(model::mapInstanceTiles(map), 1), "has layer 1") && ok;
+    if (model::mapHasLayer(model::mapInstanceTiles(map), 0) && model::mapHasLayer(model::mapInstanceTiles(map), 1)) {
+      const auto& layer0 = model::mapInstanceTiles(map)[0][static_cast<size_t>(index)];
+      const auto& layer1 = model::mapInstanceTiles(map)[1][static_cast<size_t>(index)];
       ok = assertEqualStr(layer0.tilesetName, "terrain2", "raw layer0 tileset") && ok;
       ok = assertEqual(layer0.tileId, 4, "raw layer0 tileId") && ok;
       ok = assertEqualStr(layer1.tilesetName, "terrain2", "raw layer1 tileset") && ok;

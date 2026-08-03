@@ -7,6 +7,7 @@
 #include "model/instances/Player.h"
 #include "model/instances/World.h"
 #include "model/templates/CharacterTemplate.h"
+#include "state/State.h"
 #include "bmin/StringInterop.h"
 #include "bmin/StringStream.h"
 #include "db/Database.h"
@@ -110,27 +111,32 @@ void removeCharacterFromCombatTurnOrder(Combat& combat, const bmin::String& char
 }
 
 void resetAllCombatAp(World& world, int ap) {
-  for (auto& character : world.currentMap.characters) {
+  for (auto& character : world.activeMap.characters) {
     character.currentAp = ap;
   }
 }
 
-void onNewCombatRound(World& world,
-                      bmin::Map<bmin::String, PersistentMapState>& mapsByTemplate,
-                      const db::Database& database) {
-  resetAllCombatAp(world, COMBAT_STARTING_AP);
-  game::advanceWorldMovementTicks(
-      world, mapsByTemplate, game::TILE_FIELD_MOVES_PER_COMBAT_ROUND, database);
+void onNewCombatRound(state::State& state, const db::Database& database) {
+  (void)database;
+  resetAllCombatAp(state.world, COMBAT_STARTING_AP);
+  game::advanceWorldMovementTicks(state, game::TILE_FIELD_MOVES_PER_COMBAT_ROUND);
 }
 
 void addPartyMembersToCombatMap(World& world, Player& player, const db::Database& database) {
-  auto& map = world.currentMap;
-  auto* leader = game::findPartyAvatarOnMap(map, player);
+  auto& activeMap = world.activeMap;
+  auto* leader = game::findPartyAvatarOnActiveMap(activeMap, player);
   const auto spawnX = leader ? leader->x : 0;
   const auto spawnY = leader ? leader->y : 0;
 
   for (const auto& member : player.party) {
-    if (mapInstanceFindCharacter(map, member.instanceId) != nullptr) {
+    bool found = false;
+    for (const auto& character : activeMap.characters) {
+      if (character.id == member.instanceId) {
+        found = true;
+        break;
+      }
+    }
+    if (found) {
       continue;
     }
 
@@ -145,10 +151,10 @@ void addPartyMembersToCombatMap(World& world, Player& player, const db::Database
     instance.spawnY = spawnY;
     instance.currentAp = COMBAT_STARTING_AP;
     instance.currentHp = member.currentHp;
-    map.characters.pushBack(std::move(instance));
+    activeMap.characters.pushBack(std::move(instance));
   }
 
-  for (auto& character : map.characters) {
+  for (auto& character : activeMap.characters) {
     if (character.currentHp <= 0 && isCharacterEnemy(character, database)) {
       try {
         const auto& characterTemplate =
@@ -165,7 +171,7 @@ void removeExtraPartyMembersFromMap(World& world, const Player& player) {
     return;
   }
   const auto& keepId = player.party[0].instanceId;
-  auto& characters = world.currentMap.characters;
+  auto& characters = world.activeMap.characters;
   for (size_t i = 0; i < characters.size();) {
     const auto& character = characters[i];
     if (isPartyMember(player, character.id) && character.id != keepId) {
@@ -192,21 +198,29 @@ Combat createCombatFromWorld(const World& world,
     return false;
   };
 
+  auto findOnActiveMap = [&](const bmin::String& id) {
+    for (const auto& character : world.activeMap.characters) {
+      if (character.id == id) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   for (const auto& member : player.party) {
-    if (mapInstanceFindCharacter(world.currentMap, member.instanceId) != nullptr &&
-        !isInTurnOrder(member.instanceId)) {
+    if (findOnActiveMap(member.instanceId) && !isInTurnOrder(member.instanceId)) {
       combat.turnOrderIds.pushBack(member.instanceId);
     }
   }
 
-  for (const auto& character : world.currentMap.characters) {
+  for (const auto& character : world.activeMap.characters) {
     if (isInTurnOrder(character.id) || isCharacterEnemy(character, database)) {
       continue;
     }
     combat.turnOrderIds.pushBack(character.id);
   }
 
-  for (const auto& character : world.currentMap.characters) {
+  for (const auto& character : world.activeMap.characters) {
     if (isInTurnOrder(character.id)) {
       continue;
     }
@@ -216,8 +230,14 @@ Combat createCombatFromWorld(const World& world,
   return combat;
 }
 
-bmin::String formatCharacterLogLabel(const MapInstance& map, const bmin::String& id) {
-  const auto* character = mapInstanceFindCharacter(map, id);
+bmin::String formatCharacterLogLabel(const ActiveMap& activeMap, const bmin::String& id) {
+  const CharacterInstance* character = nullptr;
+  for (const auto& ch : activeMap.characters) {
+    if (ch.id == id) {
+      character = &ch;
+      break;
+    }
+  }
   if (character == nullptr || character->name.empty()) {
     return id;
   }

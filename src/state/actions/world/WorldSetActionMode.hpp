@@ -23,7 +23,7 @@ class WorldSetActionMode : public AbstractAction {
     }
 
     const auto* avatar =
-        game::findPartyAvatarOnMap(state->world.currentMap, state->player);
+        game::findPartyAvatarOnActiveMap(state->world.activeMap, state->player);
     if (avatar) {
       state->world.actionAimTile = model::TileXY{avatar->x, avatar->y};
     } else {

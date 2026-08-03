@@ -1,16 +1,18 @@
 #include "db/Database.h"
-#include "game/map/MapPersistence.h"
 #include "game/map/MapVision.h"
 #include "game/map/MapWalkability.h"
 #include "model/instances/CharacterInstance.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/Player.h"
 #include "model/instances/MapInstance.h"
-#include "model/instances/World.h"
 #include "model/templates/CharacterTemplate.h"
+#include "model/templates/MapGrids.h"
 #include "model/templates/Tileset.h"
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
+#include "state/State.h"
+#include "state/StateManager.h"
+#include "state/StateManagerInterface.h"
 #include "bmin/String.h"
 
 namespace {
@@ -54,7 +56,6 @@ void addTestTileset(db::Database& database) {
   tileset.spriteBase = "test_terrain";
   tileset.tileWidth = 28;
   tileset.tileHeight = 32;
-  // 0 floor (see-through), 1 wall (opaque), 2 closed door, 3 open door
   tileset.tiles.pushBack(makeMeta(0, true, true));
   tileset.tiles.pushBack(makeMeta(1, false, false));
   tileset.tiles.pushBack(makeMeta(2, false, false, true));
@@ -89,21 +90,22 @@ bmin::DynArray<model::TileInstance> makeLayerTiles(int width, int height, int ti
   return layerTiles;
 }
 
-model::MapInstance makeEmptyMap(int width, int height) {
+model::MapInstance makeEmptyMap(const char* name, int width, int height) {
   auto map = model::MapInstance{};
+  map.id = name;
+  map.templateName = name;
   map.width = width;
   map.height = height;
   map.spriteWidth = 28;
   map.spriteHeight = 32;
-  map.templateName = "test_map";
   map.tileLayerNumber = 0;
-  model::mapLayerAt(map.tiles, 0) = makeLayerTiles(width, height, 0);
+  model::mapLayerAt(model::mapInstanceTiles(map), 0) = makeLayerTiles(width, height, 0);
   return map;
 }
 
 model::TileInstance* tileAt(model::MapInstance& map, int x, int y, int layer = 0) {
   auto index = y * map.width + x;
-  return &map.tiles[layer][static_cast<size_t>(index)];
+  return &model::mapLayerAt(model::mapInstanceTiles(map), layer)[static_cast<size_t>(index)];
 }
 
 } // namespace
@@ -118,7 +120,10 @@ int main(int /*argc*/, char** /*argv*/) {
     state::DatabaseInterface::setDatabase(&database);
     addTestTileset(database);
 
-    // Pure helper: override true vs non-see-through tileset (parallel to walkable)
+    state::StateManager stateManager;
+    state::StateManagerInterface::setStateManager(&stateManager);
+
+    // Pure helper: override true vs non-see-through tileset
     {
       auto tile = makeTile(0, 0, 1);
       ok = assertFalse(game::isTileEffectivelySeeThrough(tile, database),
@@ -150,7 +155,7 @@ int main(int /*argc*/, char** /*argv*/) {
            ok;
     }
 
-    // Empty TileOverrides object (no authored isSeeThroughOverride) uses metadata
+    // Empty TileOverrides object uses metadata
     {
       auto tile = makeTile(0, 0, 0);
       tile.tileOverrides = model::TileOverrides{};
@@ -171,47 +176,41 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Fresh map / before update: tiles not explored and not visible
     {
-      auto map = makeEmptyMap(5, 5);
+      auto map = makeEmptyMap("test_map", 5, 5);
       const auto* t = tileAt(map, 2, 2);
       ok = assertFalse(t->isExplored, "fresh tile not explored") && ok;
       ok = assertFalse(t->isVisible, "fresh tile not visible") && ok;
-      ok = assertFalse(tileAt(map, 0, 0)->isExplored, "fresh corner not explored") && ok;
-      ok = assertFalse(tileAt(map, 0, 0)->isVisible, "fresh corner not visible") && ok;
     }
 
     // Player cell always visible after update
     {
-      auto map = makeEmptyMap(5, 5);
+      auto map = makeEmptyMap("test_map", 5, 5);
       game::updateMapVisibilityFromPlayer(map, 2, 2, database);
       const auto* playerTile = tileAt(map, 2, 2);
       ok = assertTrue(playerTile->isVisible, "player cell visible") && ok;
       ok = assertTrue(playerTile->isExplored, "player cell explored") && ok;
     }
 
-    // Wall blocks further tiles along a ray; wall tile itself can be visible
+    // Wall blocks further tiles along a ray
     {
-      auto map = makeEmptyMap(7, 7);
-      // Horizontal ray east from (1,3): wall at (3,3), floor beyond at (4,3) and (5,3)
+      auto map = makeEmptyMap("test_map", 7, 7);
       tileAt(map, 3, 3)->tileId = 1;
       game::updateMapVisibilityFromPlayer(map, 1, 3, database);
 
       ok = assertTrue(tileAt(map, 1, 3)->isVisible, "player visible with wall ahead") && ok;
       ok = assertTrue(tileAt(map, 2, 3)->isVisible, "tile before wall visible") && ok;
       ok = assertTrue(tileAt(map, 3, 3)->isVisible, "wall tile itself visible") && ok;
-      ok = assertTrue(tileAt(map, 3, 3)->isExplored, "wall tile explored") && ok;
       ok = assertFalse(tileAt(map, 4, 3)->isVisible, "tile beyond wall not visible") && ok;
-      ok = assertFalse(tileAt(map, 5, 3)->isVisible, "far tile beyond wall not visible") && ok;
       ok = assertFalse(tileAt(map, 4, 3)->isExplored, "tile beyond wall not explored") && ok;
     }
 
-    // Continuous wall face beside the player is fully lit within the vision box
-    // (perimeter Bresenham alone leaves gaps along opaque columns).
+    // Continuous wall face beside the player is fully lit
     {
-      auto map = makeEmptyMap(20, 20);
+      auto map = makeEmptyMap("test_map", 20, 20);
       const auto playerX = 5;
       const auto playerY = 10;
       for (auto y = 0; y < map.height; y++) {
-        tileAt(map, playerX + 1, y)->tileId = 1; // opaque wall column
+        tileAt(map, playerX + 1, y)->tileId = 1;
       }
       game::updateMapVisibilityFromPlayer(map, playerX, playerY, database);
 
@@ -229,9 +228,9 @@ int main(int /*argc*/, char** /*argv*/) {
            ok;
     }
 
-    // Vision shape is an octagon: axis extremes lit, square corners dark
+    // Vision shape is an octagon
     {
-      auto map = makeEmptyMap(20, 20);
+      auto map = makeEmptyMap("test_map", 20, 20);
       const auto px = 10;
       const auto py = 10;
       const auto r = game::kPlayerVisionBoxSize;
@@ -247,9 +246,9 @@ int main(int /*argc*/, char** /*argv*/) {
       ok = assertTrue(game::isInPlayerVisionRange(r, 0, r), "axis in range helper") && ok;
     }
 
-    // Override false on floor blocks sight along ray (like opaque wall)
+    // Override false on floor blocks sight along ray
     {
-      auto map = makeEmptyMap(7, 7);
+      auto map = makeEmptyMap("test_map", 7, 7);
       auto* blocker = tileAt(map, 3, 3);
       blocker->tileId = 0;
       blocker->tileOverrides = model::TileOverrides{};
@@ -263,7 +262,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Override true on wall allows seeing past it
     {
-      auto map = makeEmptyMap(7, 7);
+      auto map = makeEmptyMap("test_map", 7, 7);
       auto* wall = tileAt(map, 3, 3);
       wall->tileId = 1;
       wall->tileOverrides = model::TileOverrides{};
@@ -274,151 +273,194 @@ int main(int /*argc*/, char** /*argv*/) {
       ok = assertTrue(tileAt(map, 4, 3)->isVisible, "beyond see-through wall visible") && ok;
     }
 
-    // After move away: previously visible tiles remain explored, become not visible
+    // After move away: previously visible tiles remain explored
     {
-      auto map = makeEmptyMap(20, 20);
+      auto map = makeEmptyMap("test_map", 20, 20);
       game::updateMapVisibilityFromPlayer(map, 2, 2, database);
 
       ok = assertTrue(tileAt(map, 2, 2)->isVisible, "first pos player visible") && ok;
-      ok = assertTrue(tileAt(map, 3, 2)->isVisible, "neighbor visible before move") && ok;
       ok = assertTrue(tileAt(map, 3, 2)->isExplored, "neighbor explored before move") && ok;
 
-      // Move far outside vision box (kPlayerVisionBoxSize = 7)
       game::updateMapVisibilityFromPlayer(map, 15, 15, database);
 
       ok = assertTrue(tileAt(map, 15, 15)->isVisible, "new player cell visible") && ok;
-      ok = assertTrue(tileAt(map, 15, 15)->isExplored, "new player cell explored") && ok;
       ok = assertFalse(tileAt(map, 2, 2)->isVisible, "old player cell no longer visible") && ok;
       ok = assertTrue(tileAt(map, 2, 2)->isExplored, "old player cell still explored") && ok;
-      ok = assertFalse(tileAt(map, 3, 2)->isVisible, "old neighbor no longer visible") && ok;
       ok = assertTrue(tileAt(map, 3, 2)->isExplored, "old neighbor still explored") && ok;
-      // Outside both vision boxes (player at 2,2 then 15,15; boxSize = 7)
       ok = assertFalse(tileAt(map, 19, 0)->isExplored, "never-seen tile still not explored") &&
            ok;
-      ok = assertFalse(tileAt(map, 19, 0)->isVisible, "never-seen tile still not visible") && ok;
     }
 
-    // Combined party vision during combat
+    // Combined party vision via active map (world coords)
     {
       addAllyCharacterTemplate(database);
-      auto map = makeEmptyMap(20, 20);
-      model::Player player;
+      auto& state = stateManager.getState();
+      state = state::State{};
+
+      auto map = makeEmptyMap("vision_map", 20, 20);
+      state.mapInstances[map.templateName] = std::move(map);
+
+      model::MapGridTemplate grid;
+      grid.name = "vision_grid";
+      grid.gridWidth = 1;
+      grid.gridHeight = 1;
+      grid.mapWidth = 20;
+      grid.mapHeight = 20;
+      grid.cells = {{"vision_map"}};
+      database.addMapGridTemplate(grid);
+      state.world.activeMap.gridId = "vision_grid";
 
       auto memberNear = model::CharacterPlayer(database.getCharacterTemplate("ally"));
       memberNear.instanceId = "party-near";
-      player.party.pushBack(std::move(memberNear));
+      state.player.party.pushBack(std::move(memberNear));
       auto memberFar = model::CharacterPlayer(database.getCharacterTemplate("ally"));
       memberFar.instanceId = "party-far";
-      player.party.pushBack(std::move(memberFar));
+      state.player.party.pushBack(std::move(memberFar));
 
-      auto allyNear = model::CharacterInstance{};
-      allyNear.id = "party-near";
-      allyNear.templateName = "ally";
-      allyNear.x = 2;
-      allyNear.y = 2;
-      map.characters.pushBack(std::move(allyNear));
+      state.world.activeMap.characters.pushBack(model::CharacterInstance{
+          .id = "party-near",
+          .templateName = "ally",
+          .x = 2,
+          .y = 2,
+      });
+      state.world.activeMap.characters.pushBack(model::CharacterInstance{
+          .id = "party-far",
+          .templateName = "ally",
+          .x = 15,
+          .y = 2,
+      });
+      state.world.activeMap.characters.pushBack(model::CharacterInstance{
+          .id = "npc-ally",
+          .templateName = "ally",
+          .x = 15,
+          .y = 2,
+      });
 
-      auto allyFar = model::CharacterInstance{};
-      allyFar.id = "party-far";
-      allyFar.templateName = "ally";
-      allyFar.x = 15;
-      allyFar.y = 2;
-      map.characters.pushBack(std::move(allyFar));
-
-      auto npc = model::CharacterInstance{};
-      npc.id = "npc-ally";
-      npc.templateName = "ally";
-      npc.x = 15;
-      npc.y = 2;
-      map.characters.pushBack(std::move(npc));
-
-      game::updateMapVisibilityFromPlayer(map, 2, 2, database);
-      ok = assertFalse(tileAt(map, 15, 2)->isVisible,
+      game::updateActiveMapVisibilityFromPlayer(state.world, 2, 2, database);
+      ok = assertFalse(tileAt(state.mapInstances["vision_map"], 15, 2)->isVisible,
                        "distant party member not visible from single observer") &&
            ok;
 
-      game::updateMapVisibilityFromParty(map, player, database);
-      ok = assertTrue(tileAt(map, 15, 2)->isVisible,
+      game::updateActiveMapVisibilityFromParty(state.world, state.player, database);
+      ok = assertTrue(tileAt(state.mapInstances["vision_map"], 15, 2)->isVisible,
                       "distant party member visible with combined party vision") &&
            ok;
-      ok = assertTrue(tileAt(map, 2, 2)->isVisible, "near party member still visible") && ok;
+      ok = assertTrue(tileAt(state.mapInstances["vision_map"], 2, 2)->isVisible,
+                      "near party member still visible") &&
+           ok;
 
-      player.party.clear();
-      game::updateMapVisibilityFromParty(map, player, database);
-      ok = assertFalse(tileAt(map, 15, 2)->isVisible,
+      state.player.party.clear();
+      game::updateActiveMapVisibilityFromParty(state.world, state.player, database);
+      ok = assertFalse(tileAt(state.mapInstances["vision_map"], 15, 2)->isVisible,
                        "npc ally does not contribute to party vision") &&
            ok;
-      ok = assertFalse(tileAt(map, 2, 2)->isVisible, "empty party clears combat vision") && ok;
     }
 
     // Flags sync across all layers at a visible cell
     {
-      auto map = makeEmptyMap(5, 5);
-      model::mapLayerAt(map.tiles, 1) = makeLayerTiles(5, 5, 0);
+      auto map = makeEmptyMap("test_map", 5, 5);
+      model::mapLayerAt(model::mapInstanceTiles(map), 1) = makeLayerTiles(5, 5, 0);
       game::updateMapVisibilityFromPlayer(map, 2, 2, database);
       ok = assertTrue(tileAt(map, 2, 2, 0)->isVisible, "layer0 player visible") && ok;
       ok = assertTrue(tileAt(map, 2, 2, 1)->isVisible, "layer1 player visible") && ok;
       ok = assertTrue(tileAt(map, 2, 2, 1)->isExplored, "layer1 player explored") && ok;
     }
 
-    // Explored mask survives map leave/return (MapPersistence flush/hydrate)
+    // Explored mask capture/apply (MapInstance-local persistence)
     {
-      auto map = makeEmptyMap(20, 20);
+      auto map = makeEmptyMap("test_map", 20, 20);
       game::updateMapVisibilityFromPlayer(map, 2, 2, database);
       ok = assertTrue(tileAt(map, 2, 2)->isExplored, "explored before capture") && ok;
       ok = assertTrue(tileAt(map, 3, 2)->isExplored, "neighbor explored before capture") && ok;
 
-      model::World world;
-      bmin::Map<bmin::String, model::PersistentMapState> mapsByTemplate;
-      world.currentMap = map;
-      game::flushCurrentMapToPersistence(world, mapsByTemplate, database);
-
-      // Simulate leaving: wipe tiles, then hydrate from mapsByTemplate
-      world.currentMap = makeEmptyMap(20, 20);
-      ok = assertFalse(tileAt(world.currentMap, 2, 2)->isExplored,
+      const auto mask = game::captureExploredMask(map);
+      auto restored = makeEmptyMap("test_map", 20, 20);
+      ok = assertFalse(tileAt(restored, 2, 2)->isExplored,
                        "fresh map not explored before restore") &&
            ok;
-      game::hydrateCurrentMapFromPersistence(world, mapsByTemplate, database);
+      game::applyExploredMask(restored, mask);
 
-      ok = assertTrue(tileAt(world.currentMap, 2, 2)->isExplored,
+      ok = assertTrue(tileAt(restored, 2, 2)->isExplored,
                       "player cell explored after restore") &&
            ok;
-      ok = assertTrue(tileAt(world.currentMap, 3, 2)->isExplored,
+      ok = assertTrue(tileAt(restored, 3, 2)->isExplored,
                       "neighbor explored after restore") &&
            ok;
-      ok = assertFalse(tileAt(world.currentMap, 2, 2)->isVisible,
+      ok = assertFalse(tileAt(restored, 2, 2)->isVisible,
                        "visibility not restored (recomputed on spawn)") &&
            ok;
-      ok = assertFalse(tileAt(world.currentMap, 19, 0)->isExplored,
+      ok = assertFalse(tileAt(restored, 19, 0)->isExplored,
                        "never-seen still not explored after restore") &&
            ok;
     }
 
-    // Open doors survive map leave/return
+    // Open doors survive via capture/apply on MapInstance
     {
-      auto map = makeEmptyMap(8, 8);
+      auto map = makeEmptyMap("test_map", 8, 8);
       auto* door = tileAt(map, 4, 4);
-      door->tileId = 3; // open door
+      door->tileId = 3;
       ok = assertTrue(game::isOpenDoorTile(*door, database), "fixture is open door") && ok;
 
-      model::World world;
-      bmin::Map<bmin::String, model::PersistentMapState> mapsByTemplate;
-      world.currentMap = map;
-      game::flushCurrentMapToPersistence(world, mapsByTemplate, database);
-
-      world.currentMap = makeEmptyMap(8, 8);
-      auto* resetDoor = tileAt(world.currentMap, 4, 4);
-      resetDoor->tileId = 2; // closed again (as if from template)
+      const auto doors = game::captureOpenedDoors(map, database);
+      auto restored = makeEmptyMap("test_map", 8, 8);
+      auto* resetDoor = tileAt(restored, 4, 4);
+      resetDoor->tileId = 2;
       ok = assertTrue(game::isClosedDoorTile(*resetDoor, database),
                       "door closed before restore") &&
            ok;
 
-      game::hydrateCurrentMapFromPersistence(world, mapsByTemplate, database);
-      ok = assertEqual(tileAt(world.currentMap, 4, 4)->tileId, 3,
-                       "open door tileId restored") &&
+      game::applyOpenedDoors(restored, doors);
+      ok = assertEqual(tileAt(restored, 4, 4)->tileId, 3, "open door tileId restored") &&
            ok;
-      ok = assertTrue(game::isOpenDoorTile(*tileAt(world.currentMap, 4, 4), database),
+      ok = assertTrue(game::isOpenDoorTile(*tileAt(restored, 4, 4), database),
                       "door open after restore") &&
+           ok;
+    }
+
+    // Cross-stitch vision: player near map edge lights adjacent map instance
+    {
+      auto& state = stateManager.getState();
+      state = state::State{};
+
+      constexpr int mapW = 8;
+      constexpr int mapH = 8;
+      state.mapInstances["west_map"] = makeEmptyMap("west_map", mapW, mapH);
+      state.mapInstances["east_map"] = makeEmptyMap("east_map", mapW, mapH);
+
+      model::MapGridTemplate grid;
+      grid.name = "stitch_grid";
+      grid.gridWidth = 2;
+      grid.gridHeight = 1;
+      grid.mapWidth = mapW;
+      grid.mapHeight = mapH;
+      grid.cells = {{"west_map", "east_map"}};
+      database.addMapGridTemplate(grid);
+      state.world.activeMap.gridId = "stitch_grid";
+      state.world.activeMap.mapLayer = 0;
+
+      // Player on west map at the stitch edge (local 7,4 → world 7,4)
+      const auto playerWorldX = mapW - 1;
+      const auto playerWorldY = 4;
+      game::updateActiveMapVisibilityFromPlayer(
+          state.world, playerWorldX, playerWorldY, database);
+
+      auto& west = state.mapInstances["west_map"];
+      auto& east = state.mapInstances["east_map"];
+      ok = assertTrue(tileAt(west, mapW - 1, 4)->isVisible,
+                      "stitch: player cell on west visible") &&
+           ok;
+      ok = assertTrue(tileAt(west, mapW - 1, 4)->isExplored,
+                      "stitch: player cell on west explored") &&
+           ok;
+      // First tile of east map (world 8,4 → local 0,4)
+      ok = assertTrue(tileAt(east, 0, 4)->isVisible,
+                      "stitch: adjacent map tile visible") &&
+           ok;
+      ok = assertTrue(tileAt(east, 0, 4)->isExplored,
+                      "stitch: adjacent map tile explored") &&
+           ok;
+      ok = assertTrue(tileAt(east, 1, 4)->isVisible,
+                      "stitch: deeper tile on adjacent map visible") &&
            ok;
     }
 

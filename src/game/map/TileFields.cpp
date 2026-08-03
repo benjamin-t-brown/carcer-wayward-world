@@ -55,8 +55,10 @@ void ageMapInstanceTileFields(model::MapInstance& map, int steps) {
   if (steps <= 0) {
     return;
   }
-  for (size_t layerIdx = 0; layerIdx < map.tiles.size(); layerIdx++) {
-    auto& layer = map.tiles[layerIdx];
+  for (auto it = model::mapInstanceTiles(map).begin();
+       it != model::mapInstanceTiles(map).end();
+       ++it) {
+    auto& layer = it->value;
     for (size_t ti = 0; ti < layer.size(); ti++) {
       ageTileFields(layer[ti].fields, steps);
     }

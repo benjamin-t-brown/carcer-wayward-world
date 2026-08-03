@@ -42,7 +42,7 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
       }
       layerTiles.pushBack(std::move(tile));
     }
-    instance.tiles[static_cast<int>(layer)] = std::move(layerTiles);
+    mapLayerAt(mapInstanceTiles(instance), static_cast<int>(layer)) = std::move(layerTiles);
   }
 
   for (const auto& ov : mapTemplate.tileOverrides) {
@@ -97,9 +97,6 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
   }
 
   for (const auto& placement : mapTemplate.characters) {
-    // if (!isValidPlacementIndex(instance, placement.l, placement.i)) {
-    //   continue;
-    // }
     auto tile = tileIndexToXY(placement.i, instance.width);
     auto character = CharacterInstance{};
     character.id = createRandomId();
@@ -113,9 +110,6 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
   }
 
   for (const auto& placement : mapTemplate.items) {
-    // if (!isValidPlacementIndex(instance, placement.l, placement.i)) {
-    //   continue;
-    // }
     auto tile = tileIndexToXY(placement.i, instance.width);
     auto item = ItemInstance{};
     item.id = createRandomId();
@@ -147,9 +141,9 @@ const MapMarkerPlacement* findMarkerOnTemplate(const CarcerMapTemplate& mapTempl
 }
 
 CharacterInstance* mapInstanceFindCharacter(MapInstance& map, const bmin::String& id) {
-  for (size_t i = 0; i < map.characters.size(); i++) {
-    if (map.characters[i].id == id) {
-      return &map.characters[i];
+  for (size_t i = 0; i < map.persistentState.characters.size(); i++) {
+    if (map.persistentState.characters[i].id == id) {
+      return &map.persistentState.characters[i];
     }
   }
   return nullptr;
@@ -159,18 +153,5 @@ const CharacterInstance* mapInstanceFindCharacter(const MapInstance& map,
                                                   const bmin::String& id) {
   return mapInstanceFindCharacter(const_cast<MapInstance&>(map), id);
 }
-
-// CharacterInstance* findCharacterAt(MapInstance& map,
-//                                    int x,
-//                                    int y,
-//                                    const bmin::String& excludeId) {
-//   for (size_t i = 0; i < map.characters.size(); i++) {
-//     auto& character = map.characters[i];
-//     if (character.x == x && character.y == y && character.id != excludeId) {
-//       return &character;
-//     }
-//   }
-//   return nullptr;
-// }
 
 } // namespace model

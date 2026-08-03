@@ -66,6 +66,10 @@ public:
   model::CharacterInstance* findCharacterAt(int worldX,
                                             int worldY,
                                             int mapLayerId = USE_WORLD_MAP_LAYER);
+  model::CharacterInstance* findCharacterAt(int worldX,
+                                            int worldY,
+                                            const bmin::String& excludeId,
+                                            int mapLayerId = USE_WORLD_MAP_LAYER);
   model::TileInstance* findTileAt(int worldX,
                                   int worldY,
                                   int mapLayerId = USE_WORLD_MAP_LAYER);

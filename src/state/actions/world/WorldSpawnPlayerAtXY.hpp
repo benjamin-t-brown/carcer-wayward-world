@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapVision.h"
 #include "game/map/TileTriggers.h"
 #include "model/instances/Player.h"
@@ -13,9 +14,7 @@ namespace state {
 
 namespace actions {
 
-// Places the current party avatar at tile coordinates on the current map.
-// Creates the avatar from the party if it is not already on the map (e.g. after
-// WorldLoadMap).
+// Places the current party avatar at world tile coordinates on the active map.
 class WorldSpawnPlayerAtXY : public AbstractAction {
   int destX = 0;
   int destY = 0;
@@ -31,22 +30,26 @@ class WorldSpawnPlayerAtXY : public AbstractAction {
       return;
     }
 
-    auto& map = state->world.currentMap;
-    if (map.width <= 0 || map.height <= 0) {
-      LOG(ERROR) << "WorldSpawnPlayerAtXY::act: invalid map dimensions" << LOG_ENDL;
+    auto& world = state->world;
+    if (world.activeMap.gridId.empty()) {
+      LOG(ERROR) << "WorldSpawnPlayerAtXY::act: no active map loaded" << LOG_ENDL;
       return;
     }
-    if (destX < 0 || destY < 0 || destX >= map.width || destY >= map.height) {
+
+    game::ActiveMapOrchestrator orch;
+    orch.fetchMapGrid(world.activeMap.gridId);
+    const auto total = orch.getTotalMapTilesSize();
+    if (!total.valid || destX < 0 || destY < 0 || destX >= total.x || destY >= total.y) {
       LOG(ERROR) << "WorldSpawnPlayerAtXY::act: destination out of bounds" << LOG_ENDL;
       return;
     }
 
-    if (!game::placePartyAvatarAt(map, state->player, destX, destY)) {
+    if (!game::placePartyAvatarAt(world.activeMap, state->player, destX, destY)) {
       LOG(ERROR) << "WorldSpawnPlayerAtXY::act: party is empty" << LOG_ENDL;
       return;
     }
 
-    game::updateMapVisibilityFromPlayer(map, destX, destY, *database);
+    game::updateActiveMapVisibilityFromPlayer(world, destX, destY, *database);
   }
 
 public:

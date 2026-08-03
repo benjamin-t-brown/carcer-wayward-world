@@ -47,7 +47,7 @@ model::MapInstance makeMap() {
       layer.pushBack(tile);
     }
   }
-  model::mapLayerAt(map.tiles, 0) = std::move(layer);
+  model::mapLayerAt(model::mapInstanceTiles(map), 0) = std::move(layer);
   return map;
 }
 

@@ -3,10 +3,10 @@
 #include "game/map/MapWalkability.h"
 #include "game/map/TileFields.h"
 #include "model/instances/MapInstance.h"
-#include "model/instances/World.h"
 #include "model/templates/Tileset.h"
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
+#include "state/State.h"
 
 namespace {
 
@@ -92,32 +92,30 @@ int main() {
   database.addMapTemplate(makeMapTemplate("map_a"));
   database.addMapTemplate(makeMapTemplate("map_b"));
 
-  model::World world;
-  bmin::Map<bmin::String, model::PersistentMapState> mapsByTemplate;
-  world.currentMap = model::createMapInstanceFromTemplate(database.getMapTemplate("map_a"));
-  game::addTileFieldAt(world.currentMap, 1, 1, game::TileFieldType::BLOOD);
-  game::flushMapInstance(world.currentMap, mapsByTemplate["map_a"], database);
+  state::State state;
+  game::createMapInstances(state, database);
 
-  // Travel to another map without loading map_a.
-  world.currentMap = model::createMapInstanceFromTemplate(database.getMapTemplate("map_b"));
-  world.currentMap.templateName = "map_b";
-
-  for (auto i = 0; i < game::TILE_FIELD_BLOOD_MOVE_DURATION; i++) {
-    game::advanceWorldMovementTicks(world, mapsByTemplate, 1, database);
+  game::addTileFieldAt(state.mapInstances["map_a"], 1, 1, game::TileFieldType::BLOOD);
+  {
+    auto* tile = game::tileAtCurrentLayer(state.mapInstances["map_a"], 1, 1);
+    ok = assertTrue(tile != nullptr && tile->fields.size() == 1, "blood placed on map_a") &&
+         ok;
   }
-  ok = assertEqual(world.playerMovementCount, game::TILE_FIELD_BLOOD_MOVE_DURATION,
+
+  // Age while "away" from map_a — advanceWorldMovementTicks ages all mapInstances.
+  for (auto i = 0; i < game::TILE_FIELD_BLOOD_MOVE_DURATION; i++) {
+    game::advanceWorldMovementTicks(state, 1);
+  }
+  ok = assertEqual(state.playerMovementCount, game::TILE_FIELD_BLOOD_MOVE_DURATION,
                    "movement counter") &&
        ok;
-  ok = assertTrue(mapsByTemplate["map_a"].tileFields.empty(),
-                  "blood expired on unloaded map") &&
-       ok;
 
-  world.currentMap = model::createMapInstanceFromTemplate(database.getMapTemplate("map_a"));
-  game::hydrateMapInstance(world.currentMap, mapsByTemplate["map_a"], database);
-  auto* tile = game::tileAtCurrentLayer(world.currentMap, 1, 1);
-  ok = assertTrue(tile != nullptr, "tile exists after revisit") && ok;
+  auto* tile = game::tileAtCurrentLayer(state.mapInstances["map_a"], 1, 1);
+  ok = assertTrue(tile != nullptr, "tile exists after aging") && ok;
   if (tile) {
-    ok = assertEqual(static_cast<int>(tile->fields.size()), 0, "blood gone after revisit") && ok;
+    ok = assertEqual(static_cast<int>(tile->fields.size()), 0,
+                     "blood expired on unloaded map") &&
+         ok;
   }
 
   if (ok) {

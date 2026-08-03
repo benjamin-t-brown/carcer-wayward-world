@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game/map/ActiveMapOrchestrator.h"
 #include "model/Combat.h"
 #include "sdl2w/Logger.h"
 #include "state/actions/combat/ActionBase.hpp"
@@ -17,7 +18,7 @@ class GoNextCombatTurn : public CombatAction {
     }
     LOG(INFO) << "GoNextCombatTurn: new combat round, resetting AP" << LOG_ENDL;
     state->world.combat.activeTurnIndex = 0;
-    model::onNewCombatRound(state->world, state->mapsByTemplate, *database);
+    model::onNewCombatRound(*state, *database);
   }
 
   void act() override {
@@ -42,6 +43,7 @@ class GoNextCombatTurn : public CombatAction {
       startNewCombatRound();
     }
 
+    game::ActiveMapOrchestrator orch;
     const auto turnCount = static_cast<int>(combat.turnOrderIds.size());
     for (int attempt = 0; attempt < turnCount; attempt++) {
       const auto index = combat.activeTurnIndex;
@@ -49,7 +51,7 @@ class GoNextCombatTurn : public CombatAction {
         break;
       }
       const auto& nextId = combat.turnOrderIds[static_cast<size_t>(index)];
-      auto* nextCharacter = model::mapInstanceFindCharacter(state->world.currentMap, nextId);
+      auto* nextCharacter = orch.findCharacterById(nextId);
       if (nextCharacter == nullptr) {
         combat.activeTurnIndex += 1;
         if (combat.activeTurnIndex >= turnCount) {
@@ -66,7 +68,8 @@ class GoNextCombatTurn : public CombatAction {
       }
       insertCombatAction(new SetActiveCombatCharacter(nextId), 0);
       LOG(INFO) << "GoNextCombatTurn: next actor is "
-                << model::formatCharacterLogLabel(state->world.currentMap, nextId) << LOG_ENDL;
+                << model::formatCharacterLogLabel(state->world.activeMap, nextId)
+                << LOG_ENDL;
       return;
     }
   }

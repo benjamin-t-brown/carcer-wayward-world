@@ -12,9 +12,9 @@ struct MapViewProps {
   int height = 0;
 };
 
-// Draws State.world.currentMap tiles, items, characters, and damage particles into a
-// clipped content rect using State.world.camera.camX / camY (map pixel space). Does not
-// own or mutate camera.
+// Draws State.world.activeMap tiles (from stitched MapInstances), items,
+// characters, and damage particles into a clipped content rect using
+// State.world.camera.camX / camY (map pixel space). Does not own or mutate camera.
 class MapView : public UiElement, public state::DatabaseInterface {
 private:
   MapViewProps props;
@@ -25,7 +25,6 @@ private:
   SDL_Color actionAimOutlineColor{66, 202, 253, 220};
 
   void renderDamageParticles(const model::World& world,
-                             const model::MapInstance& map,
                              sdl2w::Draw& draw,
                              sdl2w::Store& store,
                              int contentX,
@@ -33,7 +32,6 @@ private:
                              int spriteW,
                              int spriteH,
                              int fontScale);
-  void renderTile(const model::TileInstance& tile, int x, int y);
 
 public:
   MapView(sdl2w::Window* _window, UiElement* _parent = nullptr);

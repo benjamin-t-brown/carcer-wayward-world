@@ -150,6 +150,10 @@ void Database::addMapGridTemplate(const model::MapGridTemplate& mapGridTemplate)
   mapGridTemplates[mapGridTemplate.name] = mapGridTemplate;
 }
 
+const bmin::Map<bmin::String, model::MapGridTemplate>& Database::getMapGridTemplates() const {
+  return mapGridTemplates;
+}
+
 const model::TilesetTemplate&
 Database::getTilesetTemplate(std::string_view tilesetName) const {
   return mapGet(tilesetTemplates, tilesetName, "Tileset template not found: ");

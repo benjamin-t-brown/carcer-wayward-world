@@ -5,7 +5,9 @@
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
 #include "state/State.h"
-#include "state/actions/world/WorldLoadMap.hpp"
+#include "state/StateManager.h"
+#include "state/StateManagerInterface.h"
+#include "state/actions/world/WorldLoadActiveMap.hpp"
 #include "state/actions/world/WorldSpawnPlayerAtXY.hpp"
 #include "state/actions/world/WorldTravel.hpp"
 #include "bmin/String.h"
@@ -50,27 +52,28 @@ int main(int /*argc*/, char** /*argv*/) {
     state::DatabaseInterface::setDatabase(&database);
     database.load();
 
-    state::State state;
+    state::StateManager stateManager;
+    state::StateManagerInterface::setStateManager(&stateManager);
+    auto& state = stateManager.getState();
     state.player.party.pushBack(
         model::CharacterPlayer(database.getCharacterTemplate("testPartyMember1")));
     state.player.currentPartyMemberIndex = 0;
     const auto partyId = state.player.party[0].instanceId;
 
-    // Start on alinea_outsideAlinea1 so travel must load a different map.
     {
-      auto loadMap = state::actions::WorldLoadMap("alinea_outsideAlinea1");
+      auto loadMap = state::actions::WorldLoadActiveMap("alinea_outsideAlinea1");
       loadMap.execute(&state);
     }
     {
-      auto spawn = state::actions::WorldSpawnPlayerAtXY(1, 1);
+      // World coords on OutsideAlinea for local (1,1) on alinea_outsideAlinea1 → (31,1)
+      auto spawn = state::actions::WorldSpawnPlayerAtXY(31, 1);
       spawn.execute(&state);
     }
-    ok = assertTrue(game::findPartyAvatarOnMap(state.world.currentMap, state.player) !=
+    ok = assertTrue(game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player) !=
                         nullptr,
                     "avatar after XY spawn on start map") &&
          ok;
 
-    // Marker path: AlineaTest MarkerHouseFloor2 is l=1, i=208, width=25 → (8, 8)
     {
       auto travel = model::TravelTrigger{};
       travel.destinationMapName = "AlineaTest";
@@ -79,15 +82,15 @@ int main(int /*argc*/, char** /*argv*/) {
       travel.destinationY = 0;
       state::actions::WorldTravel(travel).execute(&state);
     }
-    ok = assertEqualStr(state.world.currentMap.templateName, "AlineaTest",
-                        "map after marker travel") &&
+    ok = assertEqualStr(state.world.activeMap.gridId, "AlineaTest",
+                        "grid after marker travel") &&
          ok;
-    ok = assertEqual(state.world.currentMap.tileLayerNumber, 1,
-                     "tileLayerNumber after MarkerHouseFloor2") &&
+    ok = assertEqual(state.world.activeMap.mapLayer, 1,
+                     "mapLayer after MarkerHouseFloor2") &&
          ok;
     {
       const auto* avatar =
-          game::findPartyAvatarOnMap(state.world.currentMap, state.player);
+          game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
       ok = assertTrue(avatar != nullptr, "avatar after marker travel") && ok;
       if (avatar) {
         ok = assertEqual(avatar->x, 8, "marker travel avatar.x") && ok;
@@ -96,7 +99,6 @@ int main(int /*argc*/, char** /*argv*/) {
       }
     }
 
-    // Missing marker falls back to XY and still creates avatar after map load.
     {
       auto travel = model::TravelTrigger{};
       travel.destinationMapName = "alinea_outsideAlinea1";
@@ -105,20 +107,20 @@ int main(int /*argc*/, char** /*argv*/) {
       travel.destinationY = 6;
       state::actions::WorldTravel(travel).execute(&state);
     }
-    ok = assertEqualStr(state.world.currentMap.templateName, "alinea_outsideAlinea1",
-                        "map after XY fallback travel") &&
+    ok = assertEqualStr(state.world.activeMap.gridId, "OutsideAlinea",
+                        "grid after XY fallback travel") &&
          ok;
     {
       const auto* avatar =
-          game::findPartyAvatarOnMap(state.world.currentMap, state.player);
+          game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
       ok = assertTrue(avatar != nullptr, "avatar after XY fallback travel") && ok;
       if (avatar) {
-        ok = assertEqual(avatar->x, 5, "XY fallback avatar.x") && ok;
+        // local (5,6) on alinea_outsideAlinea1 → world (35,6)
+        ok = assertEqual(avatar->x, 35, "XY fallback avatar.x") && ok;
         ok = assertEqual(avatar->y, 6, "XY fallback avatar.y") && ok;
       }
     }
 
-    // Empty marker name uses XY spawn-or-create after load.
     {
       auto travel = model::TravelTrigger{};
       travel.destinationMapName = "AlineaTest";
@@ -127,12 +129,12 @@ int main(int /*argc*/, char** /*argv*/) {
       travel.destinationY = 4;
       state::actions::WorldTravel(travel).execute(&state);
     }
-    ok = assertEqualStr(state.world.currentMap.templateName, "AlineaTest",
-                        "map after empty-marker travel") &&
+    ok = assertEqualStr(state.world.activeMap.gridId, "AlineaTest",
+                        "grid after empty-marker travel") &&
          ok;
     {
       const auto* avatar =
-          game::findPartyAvatarOnMap(state.world.currentMap, state.player);
+          game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
       ok = assertTrue(avatar != nullptr, "avatar after empty-marker travel") && ok;
       if (avatar) {
         ok = assertEqual(avatar->x, 3, "empty-marker travel avatar.x") && ok;
@@ -140,14 +142,57 @@ int main(int /*argc*/, char** /*argv*/) {
       }
     }
 
-    // WorldSpawnPlayerAtXY alone creates after a fresh load (no prior avatar).
+    // Same-grid travel must not unload/reload (NPC stays on activeMap).
     {
-      auto loadMap = state::actions::WorldLoadMap("AlineaTest");
+      auto npc = model::CharacterInstance{};
+      npc.id = "same-grid-npc";
+      npc.templateName = "same-grid-npc";
+      npc.x = 1;
+      npc.y = 1;
+      state.world.activeMap.characters.pushBack(std::move(npc));
+    }
+    const auto charactersBeforeSameGrid = state.world.activeMap.characters.size();
+    {
+      auto travel = model::TravelTrigger{};
+      travel.destinationMapName = "AlineaTest";
+      travel.destinationMarkerName = "";
+      travel.destinationX = 6;
+      travel.destinationY = 7;
+      travel.destinationLayer = 0;
+      state::actions::WorldTravel(travel).execute(&state);
+    }
+    ok = assertEqualStr(state.world.activeMap.gridId, "AlineaTest",
+                        "grid unchanged after same-grid travel") &&
+         ok;
+    ok = assertEqual(static_cast<int>(state.world.activeMap.characters.size()),
+                     static_cast<int>(charactersBeforeSameGrid),
+                     "same-grid travel keeps active characters") &&
+         ok;
+    {
+      bool foundNpc = false;
+      for (const auto& ch : state.world.activeMap.characters) {
+        if (ch.id == "same-grid-npc") {
+          foundNpc = true;
+          break;
+        }
+      }
+      ok = assertTrue(foundNpc, "same-grid travel keeps NPC on activeMap") && ok;
+      const auto* avatar =
+          game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
+      ok = assertTrue(avatar != nullptr, "avatar after same-grid travel") && ok;
+      if (avatar) {
+        ok = assertEqual(avatar->x, 6, "same-grid travel avatar.x") && ok;
+        ok = assertEqual(avatar->y, 7, "same-grid travel avatar.y") && ok;
+      }
+    }
+
+    {
+      auto loadMap = state::actions::WorldLoadActiveMap("AlineaTest");
       loadMap.execute(&state);
     }
-    ok = assertTrue(game::findPartyAvatarOnMap(state.world.currentMap, state.player) ==
+    ok = assertTrue(game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player) ==
                         nullptr,
-                    "avatar wiped after WorldLoadMap") &&
+                    "avatar wiped after WorldLoadActiveMap") &&
          ok;
     {
       auto spawn = state::actions::WorldSpawnPlayerAtXY(2, 3);
@@ -155,7 +200,7 @@ int main(int /*argc*/, char** /*argv*/) {
     }
     {
       const auto* avatar =
-          game::findPartyAvatarOnMap(state.world.currentMap, state.player);
+          game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
       ok = assertTrue(avatar != nullptr, "avatar created by WorldSpawnPlayerAtXY") && ok;
       if (avatar) {
         ok = assertEqual(avatar->x, 2, "XY create avatar.x") && ok;

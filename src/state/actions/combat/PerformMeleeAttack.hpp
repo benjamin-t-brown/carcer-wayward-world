@@ -2,6 +2,7 @@
 
 #include "model/instances/CharacterInstance.h"
 #include "model/Combat.h"
+#include "game/map/ActiveMapOrchestrator.h"
 #include "state/actions/combat/ActionBase.hpp"
 #include "state/actions/combat/CharacterSetSpriteIndexOffset.hpp"
 #include "state/actions/combat/ModifyHP.hpp"
@@ -25,9 +26,9 @@ class PerformMeleeAttack : public CombatAction {
       return;
     }
 
-    auto& map = state->world.currentMap;
-    auto* attacker = model::mapInstanceFindCharacter(map, attackerId);
-    auto* victim = model::mapInstanceFindCharacter(map, victimId);
+    game::ActiveMapOrchestrator orch;
+    auto* attacker = orch.findCharacterById(attackerId);
+    auto* victim = orch.findCharacterById(victimId);
     if (attacker == nullptr || victim == nullptr) {
       return;
     }

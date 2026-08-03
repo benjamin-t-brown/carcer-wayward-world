@@ -15,7 +15,7 @@ class DoCPUCombatTurn : public CombatAction {
       return;
     }
     LOG(INFO) << "DoCPUCombatTurn: choosing action for "
-              << model::formatCharacterLogLabel(state->world.currentMap,
+              << model::formatCharacterLogLabel(state->world.activeMap,
                                                 state->world.combat.activeCharacterId)
               << LOG_ENDL;
     insertCombatAction(nullptr, 300);

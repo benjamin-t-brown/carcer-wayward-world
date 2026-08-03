@@ -2,6 +2,7 @@
 
 #include "model/instances/CharacterInstance.h"
 #include "model/Combat.h"
+#include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapWalkability.h"
 #include "sdl2w/Logger.h"
 #include "state/actions/combat/ActionBase.hpp"
@@ -29,7 +30,11 @@ class DoCombatAction : public CombatAction {
 
     auto& world = state->world;
     const auto& actorId = world.combat.activeCharacterId;
-    auto* actor = model::mapInstanceFindCharacter(world.currentMap, actorId);
+    game::ActiveMapOrchestrator orch;
+    if (!world.activeMap.gridId.empty()) {
+      orch.fetchMapGrid(world.activeMap.gridId);
+    }
+    auto* actor = orch.findCharacterById(actorId);
     if (actor == nullptr) {
       insertCombatAction(new DoCombatActionCompletion(), 0);
       return;
@@ -39,13 +44,13 @@ class DoCombatAction : public CombatAction {
 
     const auto destX = actor->x + moveDx;
     const auto destY = actor->y + moveDy;
-    if (destX < 0 || destY < 0 || destX >= world.currentMap.width ||
-        destY >= world.currentMap.height) {
+    const auto total = orch.getTotalMapTilesSize();
+    if (!total.valid || destX < 0 || destY < 0 || destX >= total.x || destY >= total.y) {
       insertCombatAction(new DoCombatActionCompletion(), 0);
       return;
     }
 
-    if (auto* occupant = model::findCharacterAt(world.currentMap, destX, destY, actorId)) {
+    if (auto* occupant = orch.findCharacterAt(destX, destY, actorId)) {
       const auto actorIsEnemy = model::isCharacterEnemy(*actor, *database);
       const auto occupantIsEnemy = model::isCharacterEnemy(*occupant, *database);
       if (actorIsEnemy != occupantIsEnemy) {
@@ -58,7 +63,14 @@ class DoCombatAction : public CombatAction {
       return;
     }
 
-    if (!game::isDestinationWalkable(world.currentMap, destX, destY, *database)) {
+    auto* destMap = orch.getMapInstanceAt(destX, destY);
+    const auto destLocal = orch.activeMapCoordToInstanceCoord(destX, destY);
+    if (!destMap || !destLocal.valid) {
+      insertCombatAction(new DoCombatActionCompletion(), 0);
+      return;
+    }
+    destMap->tileLayerNumber = world.activeMap.mapLayer;
+    if (!game::isDestinationWalkable(*destMap, destLocal.x, destLocal.y, *database)) {
       insertCombatAction(new DoCombatActionCompletion(), 0);
       return;
     }
@@ -90,12 +102,12 @@ class DoCombatAction : public CombatAction {
     }
     if (actionType == model::CombatActionType::MOVE) {
       LOG(INFO) << "DoCombatAction: " << actionLabel << " for "
-                << model::formatCharacterLogLabel(state->world.currentMap,
+                << model::formatCharacterLogLabel(state->world.activeMap,
                                                   state->world.combat.activeCharacterId)
                 << " (" << moveDx << ", " << moveDy << ")" << LOG_ENDL;
     } else {
       LOG(INFO) << "DoCombatAction: " << actionLabel << " for "
-                << model::formatCharacterLogLabel(state->world.currentMap,
+                << model::formatCharacterLogLabel(state->world.activeMap,
                                                   state->world.combat.activeCharacterId)
                 << LOG_ENDL;
     }
@@ -111,8 +123,8 @@ class DoCombatAction : public CombatAction {
       insertCombatAction(new DoCombatActionCompletion(), 0);
       break;
     case model::CombatActionType::WAIT: {
-      auto* character = model::mapInstanceFindCharacter(state->world.currentMap,
-                                                  state->world.combat.activeCharacterId);
+      game::ActiveMapOrchestrator orch;
+      auto* character = orch.findCharacterById(state->world.combat.activeCharacterId);
       if (character != nullptr) {
         character->currentAp = 0;
       }

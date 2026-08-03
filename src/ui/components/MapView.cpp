@@ -29,46 +29,57 @@ MapViewProps& MapView::getProps() { return props; }
 const MapViewProps& MapView::getProps() const { return props; }
 
 std::optional<model::TileXY> MapView::screenToTile(int screenX, int screenY) const {
-  return std::nullopt;
-  // auto* stateManager = getStateManager();
-  // if (!stateManager) {
-  //   return std::nullopt;
-  // }
+  auto* stateManager = getStateManager();
+  if (!stateManager) {
+    return std::nullopt;
+  }
 
-  // const auto& world = stateManager->getState().world;
-  // const auto& map = world.currentMap;
-  // if (map.width <= 0 || map.height <= 0) {
-  //   return std::nullopt;
-  // }
+  const auto& world = stateManager->getState().world;
+  if (world.activeMap.gridId.empty()) {
+    return std::nullopt;
+  }
 
-  // auto contentX = style.x;
-  // auto contentY = style.y;
-  // auto contentW = static_cast<int>(style.width * style.scale);
-  // auto contentH = static_cast<int>(style.height * style.scale);
-  // if (contentW <= 0 || contentH <= 0) {
-  //   return std::nullopt;
-  // }
-  // if (screenX < contentX || screenY < contentY || screenX >= contentX + contentW ||
-  //     screenY >= contentY + contentH) {
-  //   return std::nullopt;
-  // }
+  game::ActiveMapOrchestrator orch;
+  try {
+    orch.fetchMapGrid(world.activeMap.gridId);
+  } catch (...) {
+    return std::nullopt;
+  }
+  const auto total = orch.getTotalMapTilesSize();
+  if (!total.valid || total.x <= 0 || total.y <= 0) {
+    return std::nullopt;
+  }
 
-  // auto spriteW = map.spriteWidth > 0 ? map.spriteWidth : 28;
-  // auto spriteH = map.spriteHeight > 0 ? map.spriteHeight : 32;
-  // if (spriteW <= 0 || spriteH <= 0 || style.scale <= 0.f) {
-  //   return std::nullopt;
-  // }
+  auto contentX = style.x;
+  auto contentY = style.y;
+  auto contentW = static_cast<int>(style.width * style.scale);
+  auto contentH = static_cast<int>(style.height * style.scale);
+  if (contentW <= 0 || contentH <= 0) {
+    return std::nullopt;
+  }
+  if (screenX < contentX || screenY < contentY || screenX >= contentX + contentW ||
+      screenY >= contentY + contentH) {
+    return std::nullopt;
+  }
 
-  // const auto mapPx =
-  //     static_cast<int>((screenX - contentX) / style.scale) + world.camera.camX;
-  // const auto mapPy =
-  //     static_cast<int>((screenY - contentY) / style.scale) + world.camera.camY;
-  // const auto tileX = mapPx / spriteW;
-  // const auto tileY = mapPy / spriteH;
-  // if (tileX < 0 || tileY < 0 || tileX >= map.width || tileY >= map.height) {
-  //   return std::nullopt;
-  // }
-  // return model::TileXY{tileX, tileY};
+  auto* defaultMap = orch.getDefaultMapInstance();
+  auto spriteW = defaultMap && defaultMap->spriteWidth > 0 ? defaultMap->spriteWidth : 28;
+  auto spriteH =
+      defaultMap && defaultMap->spriteHeight > 0 ? defaultMap->spriteHeight : 32;
+  if (spriteW <= 0 || spriteH <= 0 || style.scale <= 0.f) {
+    return std::nullopt;
+  }
+
+  const auto mapPx =
+      static_cast<int>((screenX - contentX) / style.scale) + world.camera.camX;
+  const auto mapPy =
+      static_cast<int>((screenY - contentY) / style.scale) + world.camera.camY;
+  const auto tileX = mapPx / spriteW;
+  const auto tileY = mapPy / spriteH;
+  if (tileX < 0 || tileY < 0 || tileX >= total.x || tileY >= total.y) {
+    return std::nullopt;
+  }
+  return model::TileXY{tileX, tileY};
 }
 
 void MapView::build() {
@@ -81,7 +92,6 @@ void MapView::build() {
 }
 
 void MapView::renderDamageParticles(const model::World& world,
-                                    const model::MapInstance& map,
                                     sdl2w::Draw& draw,
                                     sdl2w::Store& store,
                                     int contentX,
@@ -89,333 +99,337 @@ void MapView::renderDamageParticles(const model::World& world,
                                     int spriteW,
                                     int spriteH,
                                     int fontScale) {
-  // if (world.damageParticles.empty() || style.scale <= 0.f) {
-  //   return;
-  // }
+  if (world.activeMap.damageParticles.empty() || style.scale <= 0.f ||
+      world.activeMap.gridId.empty()) {
+    return;
+  }
 
-  // for (size_t i = 0; i < world.damageParticles.size(); i++) {
-  //   const auto& particle = world.damageParticles[i];
-  //   if (!game::isTileCurrentlyVisible(map, particle.tileX, particle.tileY)) {
-  //     continue;
-  //   }
-  //   if (!store.anims.contains(particle.animationName)) {
-  //     continue;
-  //   }
+  game::ActiveMapOrchestrator orch;
+  try {
+    orch.fetchMapGrid(world.activeMap.gridId);
+  } catch (...) {
+    return;
+  }
 
-  //   auto screenX =
-  //       contentX +
-  //       static_cast<int>((particle.tileX * spriteW - world.camera.camX) * style.scale);
-  //   auto screenY =
-  //       contentY +
-  //       static_cast<int>((particle.tileY * spriteH - world.camera.camY) * style.scale);
+  for (size_t i = 0; i < world.activeMap.damageParticles.size(); i++) {
+    const auto& particle = world.activeMap.damageParticles[i];
+    auto* map = orch.getMapInstanceAt(particle.tileX, particle.tileY);
+    const auto local =
+        orch.activeMapCoordToInstanceCoord(particle.tileX, particle.tileY);
+    if (!map || !local.valid) {
+      continue;
+    }
+    map->tileLayerNumber = world.activeMap.mapLayer;
+    if (!game::isTileCurrentlyVisible(*map, local.x, local.y)) {
+      continue;
+    }
+    if (!store.anims.contains(particle.animationName)) {
+      continue;
+    }
 
-  //   auto centerX = screenX + static_cast<int>(spriteW * style.scale / 2);
-  //   auto centerY = screenY + static_cast<int>(spriteH * style.scale / 2);
+    auto screenX =
+        contentX +
+        static_cast<int>((particle.tileX * spriteW - world.camera.camX) * style.scale);
+    auto screenY =
+        contentY +
+        static_cast<int>((particle.tileY * spriteH - world.camera.camY) * style.scale);
 
-  //   auto animation = store.createAnimation(bmin::toStringView(particle.animationName));
-  //   if (!animation.isInitialized()) {
-  //     continue;
-  //   }
-  //   animation.start();
-  //   animation.update(particle.lifetime.t);
+    auto centerX = screenX + static_cast<int>(spriteW * style.scale / 2);
+    auto centerY = screenY + static_cast<int>(spriteH * style.scale / 2);
 
-  //   draw.drawAnimation(animation,
-  //                      sdl2w::RenderableParamsEx{
-  //                          .scale = {style.scale, style.scale},
-  //                          .x = centerX,
-  //                          .y = centerY,
-  //                          .centered = true,
-  //                      });
+    auto animation = store.createAnimation(bmin::toStringView(particle.animationName));
+    if (!animation.isInitialized()) {
+      continue;
+    }
+    animation.start();
+    animation.update(particle.lifetime.t);
 
-  //   if (particle.value != 0) {
-  //     auto damageText = bmin::toString(abs(particle.value));
-  //     sdl2w::RenderTextParams textParams;
-  //     textParams.fontName = "text-bold";
-  //     textParams.fontSize = ui::applyFontScale(sdl2w::TEXT_SIZE_14, fontScale);
-  //     textParams.x = centerX;
-  //     textParams.y = centerY;
-  //     textParams.color = Colors::White;
-  //     textParams.centered = true;
-  //     textParams.scale = {style.scale, style.scale};
-  //     draw.drawText(bmin::toStringView(damageText), textParams);
-  //   }
-  // }
-}
+    draw.drawAnimation(animation,
+                       sdl2w::RenderableParamsEx{
+                           .scale = {style.scale, style.scale},
+                           .x = centerX,
+                           .y = centerY,
+                           .centered = true,
+                       });
 
-void MapView::renderTile(const model::TileInstance& tile, int x, int y) {
-  // draw.drawSprite(sprite,
-  //                 sdl2w::RenderableParamsEx{
-  //                     .scale = {style.scale, style.scale},
-  //                     .x = screenX,
-  //                     .y = screenY,
-  //                     .centered = false,
-  //                     .flipped = flipped,
-  //                 });
+    if (particle.value != 0) {
+      auto damageText = bmin::toString(abs(particle.value));
+      sdl2w::RenderTextParams textParams;
+      textParams.fontName = "text-bold";
+      textParams.fontSize = ui::applyFontScale(sdl2w::TEXT_SIZE_14, fontScale);
+      textParams.x = centerX;
+      textParams.y = centerY;
+      textParams.color = Colors::White;
+      textParams.centered = true;
+      textParams.scale = {style.scale, style.scale};
+      draw.drawText(bmin::toStringView(damageText), textParams);
+    }
+  }
 }
 
 void MapView::render(int /*dt*/) {
-  // auto* stateManager = getStateManager();
-  // if (!stateManager) {
-  //   return;
-  // }
+  auto* stateManager = getStateManager();
+  if (!stateManager) {
+    return;
+  }
 
-  // auto& draw = window->getDraw();
-  // const auto& state = stateManager->getState();
-  // const auto& world = state.world;
-  // const int currentMapLayer = world.activeMap.mapLayer;
+  auto& draw = window->getDraw();
+  const auto& state = stateManager->getState();
+  const auto& world = state.world;
+  if (world.activeMap.gridId.empty()) {
+    return;
+  }
 
-  // game::ActiveMapOrchestrator activeMapOrchestrator;
-  // auto [totalW, totalH, _] = activeMapOrchestrator.getTotalMapTilesSize();
+  game::ActiveMapOrchestrator orch;
+  try {
+    orch.fetchMapGrid(world.activeMap.gridId);
+  } catch (...) {
+    return;
+  }
 
-  // for (auto y = 0; y < totalH; y++) {
-  //   for (auto x = 0; x < totalW; x++) {
-  //     auto map = activeMapOrchestrator.getMapInstanceAt(x, y);
-  //     if (!map) {
-  //       continue;
-  //     }
+  const auto total = orch.getTotalMapTilesSize();
+  if (!total.valid || total.x <= 0 || total.y <= 0) {
+    return;
+  }
 
-  //     auto{minLayer, maxLayer} = model::mapInstanceGetMinMaxLayer(*map);
+  auto contentX = style.x;
+  auto contentY = style.y;
+  auto contentW = static_cast<int>(style.width * style.scale);
+  auto contentH = static_cast<int>(style.height * style.scale);
+  if (contentW <= 0 || contentH <= 0) {
+    return;
+  }
 
-  //     auto spriteW = map->spriteWidth > 0 ? map->spriteWidth : 28;
-  //     auto spriteH = map->spriteHeight > 0 ? map->spriteHeight : 32;
-  //     auto scaledSpriteW = static_cast<int>(spriteW * style.scale);
-  //     auto scaledSpriteH = static_cast<int>(spriteH * style.scale);
-  //     // for (int i = world.activeMap.mapLayer;
-  //     int layer = world.activeMap.mapLayer;
-  //     while (layer >= minLayer) {
-  //       auto tile = model::mapInstanceGetTileAt(*map, x, y, world.activeMap.mapLayer);
-  //       if (tile) {
-  //         // draw tile
-  //         break;
-  //       }
-  //       layer--;
-  //     }
-  //   }
-  // }
+  auto* defaultMap = orch.getDefaultMapInstance();
+  auto spriteW = defaultMap && defaultMap->spriteWidth > 0 ? defaultMap->spriteWidth : 28;
+  auto spriteH =
+      defaultMap && defaultMap->spriteHeight > 0 ? defaultMap->spriteHeight : 32;
+  auto scaledSpriteW = static_cast<int>(spriteW * style.scale);
+  auto scaledSpriteH = static_cast<int>(spriteH * style.scale);
+  if (scaledSpriteW <= 0 || scaledSpriteH <= 0) {
+    return;
+  }
 
-  // // const auto& map = world.currentMap;
-  // // if (map.width <= 0 || map.height <= 0) {
-  // //   return;
-  // // }
+  auto& store = window->getStore();
 
-  // auto contentX = style.x;
-  // auto contentY = style.y;
-  // auto contentW = static_cast<int>(style.width * style.scale);
-  // auto contentH = static_cast<int>(style.height * style.scale);
-  // if (contentW <= 0 || contentH <= 0) {
-  //   return;
-  // }
+  auto drawMapSprite =
+      [&](sdl2w::Sprite& sprite, int screenX, int screenY, bool flipped = false) {
+        if (screenX + scaledSpriteW <= contentX || screenX >= contentX + contentW ||
+            screenY + scaledSpriteH <= contentY || screenY >= contentY + contentH) {
+          return;
+        }
+        draw.drawSprite(sprite,
+                        sdl2w::RenderableParamsEx{
+                            .scale = {style.scale, style.scale},
+                            .x = screenX,
+                            .y = screenY,
+                            .centered = false,
+                            .flipped = flipped,
+                        });
+      };
 
-  // auto spriteW = map.spriteWidth > 0 ? map.spriteWidth : 28;
-  // auto spriteH = map.spriteHeight > 0 ? map.spriteHeight : 32;
-  // auto scaledSpriteW = static_cast<int>(spriteW * style.scale);
-  // auto scaledSpriteH = static_cast<int>(spriteH * style.scale);
-  // if (scaledSpriteW <= 0 || scaledSpriteH <= 0) {
-  //   return;
-  // }
+  const int startTileX = std::max(0, world.camera.camX / spriteW - 1);
+  const int startTileY = std::max(0, world.camera.camY / spriteH - 1);
+  const int endTileX =
+      std::min(total.x, (world.camera.camX + contentW / static_cast<int>(style.scale)) /
+                                spriteW +
+                            2);
+  const int endTileY =
+      std::min(total.y, (world.camera.camY + contentH / static_cast<int>(style.scale)) /
+                                spriteH +
+                            2);
 
-  // auto& draw = window->getDraw();
-  // auto& store = window->getStore();
+  for (auto y = startTileY; y < endTileY; y++) {
+    for (auto x = startTileX; x < endTileX; x++) {
+      auto* map = orch.getMapInstanceAt(x, y);
+      const auto local = orch.activeMapCoordToInstanceCoord(x, y);
+      if (!map || !local.valid) {
+        continue;
+      }
+      map->tileLayerNumber = world.activeMap.mapLayer;
 
-  // // Draw whole sprites; overdraw past the content rect is fine (chrome draws on top).
-  // auto drawMapSprite =
-  //     [&](sdl2w::Sprite& sprite, int screenX, int screenY, bool flipped = false) {
-  //       if (screenX + scaledSpriteW <= contentX || screenX >= contentX + contentW ||
-  //           screenY + scaledSpriteH <= contentY || screenY >= contentY + contentH) {
-  //         return;
-  //       }
-  //       draw.drawSprite(sprite,
-  //                       sdl2w::RenderableParamsEx{
-  //                           .scale = {style.scale, style.scale},
-  //                           .x = screenX,
-  //                           .y = screenY,
-  //                           .centered = false,
-  //                           .flipped = flipped,
-  //                       });
-  //     };
+      auto screenX =
+          contentX + static_cast<int>((x * spriteW - world.camera.camX) * style.scale);
+      auto screenY =
+          contentY + static_cast<int>((y * spriteH - world.camera.camY) * style.scale);
 
-  // // One sprite per cell: highest non-empty tile at or below tileLayerNumber.
-  // // Never-seen cells draw black; explored-but-not-visible get fog overlay.
-  // for (auto y = 0; y < map.height; y++) {
-  //   for (auto x = 0; x < map.width; x++) {
-  //     auto screenX =
-  //         contentX + static_cast<int>((x * spriteW - world.camera.camX) * style.scale);
-  //     auto screenY =
-  //         contentY + static_cast<int>((y * spriteH - world.camera.camY) * style.scale);
+      const auto* tile = game::resolveTileToRender(*map, local.x, local.y);
+      if (!tile || !tile->isExplored) {
+        if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
+            screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
+          draw.drawRect(
+              screenX, screenY, scaledSpriteW, scaledSpriteH, mapUnexploredColor);
+        }
+        continue;
+      }
 
-  //     const auto* tile = game::resolveTileToRender(map, x, y);
-  //     if (!tile || !tile->isExplored) {
-  //       if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
-  //           screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
-  //         draw.drawRect(
-  //             screenX, screenY, scaledSpriteW, scaledSpriteH, mapUnexploredColor);
-  //       }
-  //       continue;
-  //     }
+      auto spriteName = tile->tilesetName + "_" + bmin::toString(tile->tileId);
+      if (!store.sprites.contains(spriteName)) {
+        continue;
+      }
 
-  //     auto spriteName = tile->tilesetName + "_" + bmin::toString(tile->tileId);
-  //     if (!store.sprites.contains(spriteName)) {
-  //       continue;
-  //     }
+      auto& sprite = store.getSprite(bmin::toStringView(spriteName));
+      drawMapSprite(sprite, screenX, screenY);
 
-  //     auto& sprite = store.getSprite(bmin::toStringView(spriteName));
-  //     drawMapSprite(sprite, screenX, screenY);
+      if (tile->isVisible) {
+        if (const auto* surfaceTile = game::tileAtCurrentLayer(*map, local.x, local.y)) {
+          for (size_t fi = 0; fi < surfaceTile->fields.size(); fi++) {
+            const auto& field = surfaceTile->fields[fi];
+            const auto fieldSpriteName = game::tileFieldSpriteName(field);
+            if (!store.sprites.contains(fieldSpriteName)) {
+              continue;
+            }
+            auto& fieldSprite = store.getSprite(bmin::toStringView(fieldSpriteName));
+            drawMapSprite(fieldSprite, screenX, screenY);
+          }
+        }
+      }
 
-  //     if (tile->isVisible) {
-  //       if (const auto* surfaceTile = game::tileAtCurrentLayer(map, x, y)) {
-  //         for (size_t fi = 0; fi < surfaceTile->fields.size(); fi++) {
-  //           const auto& field = surfaceTile->fields[fi];
-  //           const auto fieldSpriteName = game::tileFieldSpriteName(field);
-  //           if (!store.sprites.contains(fieldSpriteName)) {
-  //             continue;
-  //           }
-  //           auto& fieldSprite = store.getSprite(bmin::toStringView(fieldSpriteName));
-  //           drawMapSprite(fieldSprite, screenX, screenY);
-  //         }
-  //       }
-  //     }
+      if (!tile->isVisible) {
+        if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
+            screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
+          draw.drawRect(screenX, screenY, scaledSpriteW, scaledSpriteH, mapFogColor);
+        }
+      }
+    }
+  }
 
-  //     if (!tile->isVisible) {
-  //       if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
-  //           screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
-  //         draw.drawRect(screenX, screenY, scaledSpriteW, scaledSpriteH, mapFogColor);
-  //       }
-  //     }
-  //   }
-  // }
+  auto* database = getDatabase();
+  for (size_t ii = 0; ii < world.activeMap.items.size(); ii++) {
+    const auto& item = world.activeMap.items[ii];
+    if (!database) {
+      break;
+    }
+    auto* map = orch.getMapInstanceAt(item.x, item.y);
+    const auto local = orch.activeMapCoordToInstanceCoord(item.x, item.y);
+    if (!map || !local.valid) {
+      continue;
+    }
+    map->tileLayerNumber = world.activeMap.mapLayer;
+    if (!game::isTileCurrentlyVisible(*map, local.x, local.y)) {
+      continue;
+    }
+    bmin::String spriteName;
+    try {
+      const auto& itemTemplate =
+          database->getItemTemplate(bmin::toStringView(item.itemTemplateName));
+      spriteName = itemTemplate.iconSpriteName;
+    } catch (const std::exception&) {
+      continue;
+    }
+    if (spriteName.empty() || !store.sprites.contains(spriteName)) {
+      continue;
+    }
 
-  // auto* database = getDatabase();
-  // for (size_t ii = 0; ii < map.items.size(); ii++) {
-  //   const auto& item = map.items[ii];
-  //   if (!database) {
-  //     break;
-  //   }
-  //   if (!game::isTileCurrentlyVisible(map, item.x, item.y)) {
-  //     continue;
-  //   }
-  //   bmin::String spriteName;
-  //   try {
-  //     const auto& itemTemplate =
-  //         database->getItemTemplate(bmin::toStringView(item.itemTemplateName));
-  //     spriteName = itemTemplate.iconSpriteName;
-  //   } catch (const std::exception&) {
-  //     continue;
-  //   }
-  //   if (spriteName.empty() || !store.sprites.contains(spriteName)) {
-  //     continue;
-  //   }
+    auto screenX =
+        contentX +
+        static_cast<int>((item.x * spriteW - world.camera.camX) * style.scale);
+    auto screenY =
+        contentY +
+        static_cast<int>((item.y * spriteH - world.camera.camY) * style.scale);
 
-  //   auto screenX =
-  //       contentX + static_cast<int>((item.x * spriteW - world.camera.camX) *
-  //       style.scale);
-  //   auto screenY =
-  //       contentY + static_cast<int>((item.y * spriteH - world.camera.camY) *
-  //       style.scale);
+    auto& sprite = store.getSprite(bmin::toStringView(spriteName));
+    drawMapSprite(sprite, screenX, screenY);
+  }
 
-  //   auto& sprite = store.getSprite(bmin::toStringView(spriteName));
-  //   drawMapSprite(sprite, screenX, screenY);
-  // }
+  const auto& party = state.player.party;
+  const bmin::String* activeCharacterId = nullptr;
+  if (world.combat.active && !world.combat.activeCharacterId.empty()) {
+    activeCharacterId = &world.combat.activeCharacterId;
+  }
 
-  // const auto& party = state.player.party;
-  // const bmin::String* activeCharacterId = nullptr;
-  // if (world.combat.active && !world.combat.activeCharacterId.empty()) {
-  //   activeCharacterId = &world.combat.activeCharacterId;
-  // }
+  auto drawCharacter = [&](const model::CharacterInstance& character) {
+    auto* map = orch.getMapInstanceAt(character.x, character.y);
+    const auto local = orch.activeMapCoordToInstanceCoord(character.x, character.y);
+    if (!map || !local.valid) {
+      return;
+    }
+    map->tileLayerNumber = world.activeMap.mapLayer;
+    if (!game::isTileCurrentlyVisible(*map, local.x, local.y)) {
+      return;
+    }
+    const model::CharacterPlayer* member = nullptr;
+    for (size_t pi = 0; pi < party.size(); pi++) {
+      if (party[pi].instanceId == character.id) {
+        member = &party[pi];
+        break;
+      }
+    }
 
-  // auto drawCharacter = [&](const model::CharacterInstance& character) {
-  //   if (!game::isTileCurrentlyVisible(map, character.x, character.y)) {
-  //     return;
-  //   }
-  //   const model::CharacterPlayer* member = nullptr;
-  //   for (size_t pi = 0; pi < party.size(); pi++) {
-  //     if (party[pi].instanceId == character.id) {
-  //       member = &party[pi];
-  //       break;
-  //     }
-  //   }
+    bmin::String spriteName;
+    if (member) {
+      spriteName = model::characterPlayerGetSpriteAtIndexOffset(
+          *member, character.spriteIndexOffset);
+    } else if (database) {
+      try {
+        const auto& characterTemplate =
+            database->getCharacterTemplate(bmin::toStringView(character.templateName));
+        spriteName = model::characterGetSpriteAtIndexOffset(characterTemplate,
+                                                            character.spriteIndexOffset);
+      } catch (const std::exception&) {
+        return;
+      }
+    } else {
+      return;
+    }
 
-  //   bmin::String spriteName;
-  //   if (member) {
-  //     spriteName = model::characterPlayerGetSpriteAtIndexOffset(
-  //         *member, character.spriteIndexOffset);
-  //   } else if (database) {
-  //     try {
-  //       const auto& characterTemplate =
-  //           database->getCharacterTemplate(bmin::toStringView(character.templateName));
-  //       spriteName = model::characterGetSpriteAtIndexOffset(characterTemplate,
-  //                                                           character.spriteIndexOffset);
-  //     } catch (const std::exception&) {
-  //       return;
-  //     }
-  //   } else {
-  //     return;
-  //   }
+    if (spriteName.empty() || !store.sprites.contains(spriteName)) {
+      return;
+    }
 
-  //   if (spriteName.empty() || !store.sprites.contains(spriteName)) {
-  //     return;
-  //   }
+    auto screenX =
+        contentX +
+        static_cast<int>((character.x * spriteW - world.camera.camX) * style.scale);
+    auto screenY =
+        contentY +
+        static_cast<int>((character.y * spriteH - world.camera.camY) * style.scale);
 
-  //   auto screenX =
-  //       contentX +
-  //       static_cast<int>((character.x * spriteW - world.camera.camX) * style.scale);
-  //   auto screenY =
-  //       contentY +
-  //       static_cast<int>((character.y * spriteH - world.camera.camY) * style.scale);
+    auto& sprite = store.getSprite(bmin::toStringView(spriteName));
+    drawMapSprite(sprite, screenX, screenY, model::isCharacterFacingLeft(character));
+  };
 
-  //   auto& sprite = store.getSprite(bmin::toStringView(spriteName));
-  //   drawMapSprite(sprite, screenX, screenY, model::isCharacterFacingLeft(character));
-  // };
+  const model::CharacterInstance* activeCharacter = nullptr;
+  for (size_t ci = 0; ci < world.activeMap.characters.size(); ci++) {
+    const auto& character = world.activeMap.characters[ci];
+    if (activeCharacterId != nullptr && character.id == *activeCharacterId) {
+      activeCharacter = &character;
+      continue;
+    }
+    drawCharacter(character);
+  }
+  if (activeCharacter != nullptr) {
+    drawCharacter(*activeCharacter);
+  }
 
-  // const model::CharacterInstance* activeCharacter = nullptr;
-  // for (size_t ci = 0; ci < map.characters.size(); ci++) {
-  //   const auto& character = map.characters[ci];
-  //   if (activeCharacterId != nullptr && character.id == *activeCharacterId) {
-  //     activeCharacter = &character;
-  //     continue;
-  //   }
-  //   drawCharacter(character);
-  // }
-  // if (activeCharacter != nullptr) {
-  //   drawCharacter(*activeCharacter);
-  // }
+  renderDamageParticles(
+      world, draw, store, contentX, contentY, spriteW, spriteH, state.settings.fontScale);
 
-  // renderDamageParticles(world,
-  //                       map,
-  //                       draw,
-  //                       store,
-  //                       contentX,
-  //                       contentY,
-  //                       spriteW,
-  //                       spriteH,
-  //                       state.settings.fontScale);
+  if (world.actionMode != model::WorldActionMode::NONE && world.actionAimTile) {
+    const auto aimX = world.actionAimTile->x;
+    const auto aimY = world.actionAimTile->y;
+    const auto screenX =
+        contentX + static_cast<int>((aimX * spriteW - world.camera.camX) * style.scale);
+    const auto screenY =
+        contentY + static_cast<int>((aimY * spriteH - world.camera.camY) * style.scale);
 
-  // if (world.actionMode != model::WorldActionMode::NONE && world.actionAimTile) {
-  //   const auto aimX = world.actionAimTile->x;
-  //   const auto aimY = world.actionAimTile->y;
-  //   const auto screenX =
-  //       contentX + static_cast<int>((aimX * spriteW - world.camera.camX) *
-  //       style.scale);
-  //   const auto screenY =
-  //       contentY + static_cast<int>((aimY * spriteH - world.camera.camY) *
-  //       style.scale);
-
-  //   if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
-  //       screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
-  //     draw.drawRect(screenX, screenY, scaledSpriteW, scaledSpriteH,
-  //     actionAimFillColor); const auto border = 2; draw.drawRect(screenX, screenY,
-  //     scaledSpriteW, border, actionAimOutlineColor); draw.drawRect(screenX,
-  //                   screenY + scaledSpriteH - border,
-  //                   scaledSpriteW,
-  //                   border,
-  //                   actionAimOutlineColor);
-  //     draw.drawRect(screenX, screenY, border, scaledSpriteH, actionAimOutlineColor);
-  //     draw.drawRect(screenX + scaledSpriteW - border,
-  //                   screenY,
-  //                   border,
-  //                   scaledSpriteH,
-  //                   actionAimOutlineColor);
-  //   }
-  // }
+    if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
+        screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
+      draw.drawRect(screenX, screenY, scaledSpriteW, scaledSpriteH, actionAimFillColor);
+      const auto border = 2;
+      draw.drawRect(screenX, screenY, scaledSpriteW, border, actionAimOutlineColor);
+      draw.drawRect(screenX,
+                    screenY + scaledSpriteH - border,
+                    scaledSpriteW,
+                    border,
+                    actionAimOutlineColor);
+      draw.drawRect(screenX, screenY, border, scaledSpriteH, actionAimOutlineColor);
+      draw.drawRect(screenX + scaledSpriteW - border,
+                    screenY,
+                    border,
+                    scaledSpriteH,
+                    actionAimOutlineColor);
+    }
+  }
 }
 
 } // namespace ui

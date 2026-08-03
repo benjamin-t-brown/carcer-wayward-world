@@ -2,11 +2,13 @@
 #include "game/map/MapWalkability.h"
 #include "model/instances/CharacterInstance.h"
 #include "model/instances/CharacterPlayer.h"
-#include "model/instances/World.h"
 #include "model/templates/CharacterTemplate.h"
+#include "model/templates/MapGrids.h"
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
 #include "state/State.h"
+#include "state/StateManager.h"
+#include "state/StateManagerInterface.h"
 #include "state/actions/world/WorldTalkAt.hpp"
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
@@ -53,6 +55,8 @@ model::TileInstance makeTile(int x, int y, bool visible) {
 
 model::MapInstance makeMap(int width, int height, bool visible = true) {
   auto map = model::MapInstance{};
+  map.id = "test_map";
+  map.templateName = "test_map";
   map.width = width;
   map.height = height;
   map.tileLayerNumber = 0;
@@ -62,8 +66,28 @@ model::MapInstance makeMap(int width, int height, bool visible = true) {
       layer.pushBack(makeTile(x, y, visible));
     }
   }
-  model::mapLayerAt(map.tiles, 0) = std::move(layer);
+  model::mapLayerAt(model::mapInstanceTiles(map), 0) = std::move(layer);
   return map;
+}
+
+void setupState(db::Database& database, state::State& state, bool visible = true) {
+  auto map = makeMap(5, 5, visible);
+  state.mapInstances[map.templateName] = std::move(map);
+
+  model::MapGridTemplate grid;
+  grid.name = "test_grid";
+  grid.gridWidth = 1;
+  grid.gridHeight = 1;
+  grid.mapWidth = 5;
+  grid.mapHeight = 5;
+  grid.cells = {{"test_map"}};
+  database.addMapGridTemplate(grid);
+  state.world.activeMap.gridId = "test_grid";
+  state.world.activeMap.mapLayer = 0;
+}
+
+model::MapInstance& mapOf(state::State& state) {
+  return state.mapInstances["test_map"];
 }
 
 } // namespace
@@ -85,11 +109,15 @@ int main(int /*argc*/, char** /*argv*/) {
   silent.label = "Quiet One";
   database.addCharacterTemplate(silent);
 
+  state::StateManager stateManager;
+  state::StateManagerInterface::setStateManager(&stateManager);
+
   bool ok = true;
 
   {
-    state::State state{};
-    state.world.currentMap = makeMap(5, 5);
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupState(database, state);
     state.world.actionMode = model::WorldActionMode::TALK;
     state.world.actionAimTile = model::TileXY{3, 2};
 
@@ -97,13 +125,13 @@ int main(int /*argc*/, char** /*argv*/) {
     member.instanceId = "player1";
     state.player.party.pushBack(member);
 
-    state.world.currentMap.characters.pushBack(model::CharacterInstance{
+    state.world.activeMap.characters.pushBack(model::CharacterInstance{
         .id = "player1",
         .templateName = "TalkNpc",
         .x = 2,
         .y = 2,
     });
-    state.world.currentMap.characters.pushBack(model::CharacterInstance{
+    state.world.activeMap.characters.pushBack(model::CharacterInstance{
         .id = "npc1",
         .templateName = "TalkNpc",
         .x = 3,
@@ -128,8 +156,9 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   {
-    state::State state{};
-    state.world.currentMap = makeMap(5, 5);
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupState(database, state);
     state.world.actionMode = model::WorldActionMode::TALK;
     state.world.actionAimTile = model::TileXY{3, 2};
 
@@ -137,13 +166,13 @@ int main(int /*argc*/, char** /*argv*/) {
     member.instanceId = "player1";
     state.player.party.pushBack(member);
 
-    state.world.currentMap.characters.pushBack(model::CharacterInstance{
+    state.world.activeMap.characters.pushBack(model::CharacterInstance{
         .id = "player1",
         .templateName = "TalkNpc",
         .x = 2,
         .y = 2,
     });
-    state.world.currentMap.characters.pushBack(model::CharacterInstance{
+    state.world.activeMap.characters.pushBack(model::CharacterInstance{
         .id = "npc2",
         .templateName = "SilentNpc",
         .x = 3,
@@ -162,8 +191,9 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   {
-    state::State state{};
-    state.world.currentMap = makeMap(5, 5);
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupState(database, state);
     state.world.actionMode = model::WorldActionMode::TALK;
     state.world.actionAimTile = model::TileXY{3, 2};
 
@@ -171,7 +201,7 @@ int main(int /*argc*/, char** /*argv*/) {
     member.instanceId = "player1";
     state.player.party.pushBack(member);
 
-    state.world.currentMap.characters.pushBack(model::CharacterInstance{
+    state.world.activeMap.characters.pushBack(model::CharacterInstance{
         .id = "player1",
         .templateName = "TalkNpc",
         .x = 2,
@@ -190,8 +220,9 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   {
-    state::State state{};
-    state.world.currentMap = makeMap(5, 5, false);
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupState(database, state, false);
     state.world.actionMode = model::WorldActionMode::TALK;
     state.world.actionAimTile = model::TileXY{3, 2};
 
@@ -199,20 +230,20 @@ int main(int /*argc*/, char** /*argv*/) {
     member.instanceId = "player1";
     state.player.party.pushBack(member);
 
-    state.world.currentMap.characters.pushBack(model::CharacterInstance{
+    state.world.activeMap.characters.pushBack(model::CharacterInstance{
         .id = "player1",
         .templateName = "TalkNpc",
         .x = 2,
         .y = 2,
     });
-    state.world.currentMap.characters.pushBack(model::CharacterInstance{
+    state.world.activeMap.characters.pushBack(model::CharacterInstance{
         .id = "npc1",
         .templateName = "TalkNpc",
         .x = 3,
         .y = 2,
     });
 
-    ok = assertFalse(game::isTileCurrentlyVisible(state.world.currentMap, 3, 2),
+    ok = assertFalse(game::isTileCurrentlyVisible(mapOf(state), 3, 2),
                      "target not visible") &&
          ok;
 

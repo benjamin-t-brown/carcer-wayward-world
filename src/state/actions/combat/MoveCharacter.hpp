@@ -2,6 +2,7 @@
 
 #include "model/instances/CharacterInstance.h"
 #include "model/Combat.h"
+#include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapVision.h"
 #include "game/map/MapWalkability.h"
 #include "state/actions/combat/ActionBase.hpp"
@@ -24,21 +25,34 @@ class MoveCharacter : public CombatAction {
       return;
     }
 
-    auto& map = state->world.currentMap;
-    auto* character = model::mapInstanceFindCharacter(map, characterId);
+    auto& world = state->world;
+    if (world.activeMap.gridId.empty()) {
+      return;
+    }
+
+    game::ActiveMapOrchestrator orch;
+    orch.fetchMapGrid(world.activeMap.gridId);
+    auto* character = orch.findCharacterById(characterId);
     if (character == nullptr) {
       return;
     }
 
     const auto destX = character->x + dx;
     const auto destY = character->y + dy;
-    if (destX < 0 || destY < 0 || destX >= map.width || destY >= map.height) {
+    const auto total = orch.getTotalMapTilesSize();
+    if (!total.valid || destX < 0 || destY < 0 || destX >= total.x || destY >= total.y) {
       return;
     }
-    if (!game::isDestinationWalkable(map, destX, destY, *database)) {
+    auto* destMap = orch.getMapInstanceAt(destX, destY);
+    const auto destLocal = orch.activeMapCoordToInstanceCoord(destX, destY);
+    if (!destMap || !destLocal.valid) {
       return;
     }
-    if (model::findCharacterAt(map, destX, destY, characterId) != nullptr) {
+    destMap->tileLayerNumber = world.activeMap.mapLayer;
+    if (!game::isDestinationWalkable(*destMap, destLocal.x, destLocal.y, *database)) {
+      return;
+    }
+    if (orch.findCharacterAt(destX, destY, characterId) != nullptr) {
       return;
     }
 
@@ -47,7 +61,7 @@ class MoveCharacter : public CombatAction {
     model::updateCharacterFacingFromMove(*character, dx, dy);
 
     if (model::isPartyMember(state->player, character->id)) {
-      game::updateMapVisibilityFromParty(map, state->player, *database);
+      game::updateActiveMapVisibilityFromParty(world, state->player, *database);
     }
   }
 

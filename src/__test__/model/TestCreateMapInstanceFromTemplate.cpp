@@ -62,49 +62,56 @@ int main(int argc, char** argv) {
                      static_cast<int>(model::MapType::TOWN),
                      "instance.mapType") &&
          ok;
-    ok = assertEqual(static_cast<int>(instance.turnMode),
-                     static_cast<int>(model::TurnMode::TURN_TOWN),
-                     "instance.turnMode") &&
-         ok;
     ok = assertEqualStr(instance.id, "flat_test_map", "instance.id") && ok;
     ok = assertEqualStr(instance.templateName, "flat_test_map", "instance.templateName") &&
          ok;
     ok = assertEqualStr(instance.label, "Flat Test Map", "instance.label") && ok;
 
     // Fixture: characters [{l:0,i:1,name:testNpc}] → tile (1,0)
-    ok = assertEqual(static_cast<int>(instance.characters.size()),
+    ok = assertEqual(static_cast<int>(instance.persistentState.characters.size()),
                      1,
-                     "instance.characters.size") &&
+                     "instance.persistentState.characters.size") &&
          ok;
-    if (!instance.characters.empty()) {
-      ok = assertEqualStr(instance.characters[0].name, "testNpc", "character.name") &&
+    if (!instance.persistentState.characters.empty()) {
+      ok = assertEqualStr(instance.persistentState.characters[0].name,
+                          "testNpc",
+                          "character.name") &&
            ok;
-      ok = assertEqualStr(
-               instance.characters[0].templateName, "testNpc", "character.templateName") &&
+      ok = assertEqualStr(instance.persistentState.characters[0].templateName,
+                          "testNpc",
+                          "character.templateName") &&
            ok;
-      ok = assertEqual(instance.characters[0].x, 1, "character.x") && ok;
-      ok = assertEqual(instance.characters[0].y, 0, "character.y") && ok;
-      ok = assertTrue(!instance.characters[0].id.empty(), "character.id non-empty") && ok;
+      ok = assertEqual(instance.persistentState.characters[0].x, 1, "character.x") && ok;
+      ok = assertEqual(instance.persistentState.characters[0].y, 0, "character.y") && ok;
+      ok = assertTrue(!instance.persistentState.characters[0].id.empty(),
+                     "character.id non-empty") &&
+           ok;
     }
 
     // Fixture: items [{l:0,i:2,name:BeerPappysLager,quantity:2}] → tile (0,1)
-    ok = assertEqual(static_cast<int>(instance.items.size()), 1, "instance.items.size") &&
+    ok = assertEqual(static_cast<int>(instance.persistentState.items.size()),
+                     1,
+                     "instance.persistentState.items.size") &&
          ok;
-    if (!instance.items.empty()) {
-      ok = assertEqualStr(
-               instance.items[0].itemTemplateName, "BeerPappysLager", "item.itemTemplateName") &&
+    if (!instance.persistentState.items.empty()) {
+      ok = assertEqualStr(instance.persistentState.items[0].itemTemplateName,
+                          "BeerPappysLager",
+                          "item.itemTemplateName") &&
            ok;
-      ok = assertEqual(instance.items[0].quantity, 2, "item.quantity") && ok;
-      ok = assertEqual(instance.items[0].x, 0, "item.x") && ok;
-      ok = assertEqual(instance.items[0].y, 1, "item.y") && ok;
-      ok = assertTrue(!instance.items[0].id.empty(), "item.id non-empty") && ok;
+      ok = assertEqual(instance.persistentState.items[0].quantity, 2, "item.quantity") &&
+           ok;
+      ok = assertEqual(instance.persistentState.items[0].x, 0, "item.x") && ok;
+      ok = assertEqual(instance.persistentState.items[0].y, 1, "item.y") && ok;
+      ok = assertTrue(!instance.persistentState.items[0].id.empty(),
+                     "item.id non-empty") &&
+           ok;
     }
 
-    if (!mapHasLayer(instance.tiles, 0)) {
+    if (!model::mapHasLayer(model::mapInstanceTiles(instance), 0)) {
       LOG(ERROR) << "instance.tiles missing layer 0" << LOG_ENDL;
       return 1;
     }
-    auto& layer0 = instance.tiles[0];
+    auto& layer0 = model::mapLayerAt(model::mapInstanceTiles(instance), 0);
     ok = assertEqual(static_cast<int>(layer0.size()), 4, "instance.tiles[0].size") && ok;
 
     // Flat pairs: [1,5, 1,6, 1,7, 1,8] → cell 1 (x=1,y=0) is terrain0 / tileId 6
