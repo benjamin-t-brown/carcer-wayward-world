@@ -3,13 +3,11 @@
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapVision.h"
 #include "game/map/TileTriggers.h"
-#include "model/instances/Player.h"
 #include "model/instances/World.h"
 #include "sdl2w/Logger.h"
 #include "state/AbstractAction.h"
 #include "state/State.h"
 #include "bmin/String.h"
-#include "bmin/StringInterop.h"
 
 namespace state {
 
@@ -60,7 +58,8 @@ class WorldSpawnPlayerAtMarker : public AbstractAction {
 
     world.activeMap.mapLayer = found.layer;
 
-    if (!game::placePartyAvatarAt(world.activeMap, state->player, found.x, found.y)) {
+    if (!game::placePartyAvatarAt(
+            world.activeMap, state->player, found.x, found.y, database)) {
       LOG(ERROR) << "WorldSpawnPlayerAtMarker::act: party is empty" << LOG_ENDL;
       return;
     }

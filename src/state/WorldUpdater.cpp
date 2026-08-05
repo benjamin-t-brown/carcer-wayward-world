@@ -32,9 +32,13 @@ bmin::String resolveFollowCharacterId(const State& state) {
 void enqueueCpuCombatTurn(StateManager& stateManager) {
   auto& state = stateManager.getState();
   auto& combat = state.world.combat;
+  if (combat.activeCharacterId.empty() ||
+      model::isPartyMember(state.player, combat.activeCharacterId)) {
+    return;
+  }
   game::ActiveMapOrchestrator activeMap;
   const auto* character = activeMap.findCharacterById(combat.activeCharacterId);
-  if (character == nullptr || model::isPartyMember(state.player, character->id)) {
+  if (character == nullptr) {
     return;
   }
 

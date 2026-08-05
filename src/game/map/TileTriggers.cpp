@@ -1,6 +1,7 @@
 #include "game/map/TileTriggers.h"
 #include "bmin/StringInterop.h"
 #include "game/map/MapWalkability.h"
+#include "model/templates/CharacterTemplate.h"
 #include "sdl2w/L10n.h"
 
 namespace game {
@@ -66,8 +67,11 @@ findPartyAvatarOnActiveMap(const model::ActiveMap& activeMap,
   return nullptr;
 }
 
-model::CharacterInstance*
-placePartyAvatarAt(model::ActiveMap& activeMap, model::Player& player, int x, int y) {
+model::CharacterInstance* placePartyAvatarAt(model::ActiveMap& activeMap,
+                                             model::Player& player,
+                                             int x,
+                                             int y,
+                                             const db::Database* database) {
   if (player.party.empty()) {
     return nullptr;
   }
@@ -90,6 +94,9 @@ placePartyAvatarAt(model::ActiveMap& activeMap, model::Player& player, int x, in
   instance.y = y;
   instance.spawnX = x;
   instance.spawnY = y;
+  if (database) {
+    model::tryApplyCharacterTemplateToInstance(instance, *database);
+  }
   activeMap.characters.pushBack(std::move(instance));
   return findPartyAvatarOnActiveMap(activeMap, player);
 }

@@ -33,6 +33,9 @@ void cancelCurrentWorldActionMode(state::StateManager& stateManager) {
 void activateWorldAction(state::StateManager& stateManager,
                          state::WorldActionType worldActionType,
                          sdl2w::Window* window) {
+  if (stateManager.getState().world.resolvingTownEnemyAi) {
+    return;
+  }
 
   const auto currentMode = stateManager.getState().world.actionMode;
 

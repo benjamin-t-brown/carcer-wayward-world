@@ -13,8 +13,12 @@ import {
   CharacterTemplate,
   CharacterTemplateBehaviorName,
   CHARACTER_TEMPLATE_BEHAVIOR_NAMES,
+  CombatBehaviorName,
+  COMBAT_BEHAVIOR_NAMES,
   createDefaultCharacterStats,
 } from '../types/assets';
+
+const DEFAULT_COMBAT_BEHAVIOR: CombatBehaviorName = 'SEEK_AND_MELEE';
 
 // Re-export for backward compatibility
 export type { CharacterTemplate };
@@ -106,6 +110,27 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
       ...formData,
       behavior: {
         behaviorName: value as CharacterTemplateBehaviorName,
+      },
+    });
+  };
+
+  const updateCombatBehavior = (
+    field: 'town' | 'combat',
+    value: string
+  ) => {
+    const nextTown =
+      field === 'town'
+        ? ((value || DEFAULT_COMBAT_BEHAVIOR) as CombatBehaviorName)
+        : (formData.combatBehavior?.town ?? DEFAULT_COMBAT_BEHAVIOR);
+    const nextCombat =
+      field === 'combat'
+        ? ((value || DEFAULT_COMBAT_BEHAVIOR) as CombatBehaviorName)
+        : (formData.combatBehavior?.combat ?? DEFAULT_COMBAT_BEHAVIOR);
+    setFormData({
+      ...formData,
+      combatBehavior: {
+        town: nextTown,
+        combat: nextCombat,
       },
     });
   };
@@ -287,7 +312,7 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
             name="type"
             label="Type"
             value={formData.type}
-            onChange={(value) => updateField('type', value)}
+            onChange={(value) => updateField('type', value as CharacterTemplate['type'])}
             options={CHARACTER_TYPES.map((type) => ({
               value: type,
               label: type,
@@ -686,14 +711,15 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
           </div>
 
           <div className="form-subsection">
-            <h4>Behavior</h4>
+            <h4>Map Behavior</h4>
             <div className="form-fields-inline">
               <OptionSelect
                 id="behavior-name"
                 name="behaviorName"
-                label="Behavior"
+                label="Map Behavior"
                 value={formData.behavior?.behaviorName || ''}
                 onChange={updateBehavior}
+                className="behavior-select-wide"
                 options={[
                   { value: '', label: '(none)' },
                   ...CHARACTER_TEMPLATE_BEHAVIOR_NAMES.map((behavior) => ({
@@ -701,6 +727,38 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
                     label: behavior,
                   })),
                 ]}
+              />
+            </div>
+          </div>
+
+          <div className="form-subsection">
+            <h4>Combat Behavior</h4>
+            <div className="form-fields-inline">
+              <OptionSelect
+                id="combat-behavior-town"
+                name="combatBehaviorTown"
+                label="Town"
+                value={formData.combatBehavior?.town || DEFAULT_COMBAT_BEHAVIOR}
+                onChange={(value) => updateCombatBehavior('town', value)}
+                className="behavior-select-wide"
+                options={COMBAT_BEHAVIOR_NAMES.map((behavior) => ({
+                  value: behavior,
+                  label: behavior,
+                }))}
+              />
+              <OptionSelect
+                id="combat-behavior-combat"
+                name="combatBehaviorCombat"
+                label="Combat"
+                value={
+                  formData.combatBehavior?.combat || DEFAULT_COMBAT_BEHAVIOR
+                }
+                onChange={(value) => updateCombatBehavior('combat', value)}
+                className="behavior-select-wide"
+                options={COMBAT_BEHAVIOR_NAMES.map((behavior) => ({
+                  value: behavior,
+                  label: behavior,
+                }))}
               />
             </div>
           </div>

@@ -13,10 +13,12 @@
 #include "state/WorldUpdater.h"
 #include "state/actions/combat/DoCombatAction.hpp"
 #include "state/actions/combat/EndCombat.hpp"
+#include "state/actions/combat/ModifyHP.hpp"
 #include "state/actions/combat/SetActiveCombatCharacter.hpp"
 #include "state/actions/combat/StartCombat.hpp"
 #include "state/actions/ui/UiSetSelectedPartyMemberId.hpp"
 #include "state/actions/ui/heldMove/UiUpdateHeldMove.hpp"
+#include "state/actions/world/PerformTownMeleeAttack.hpp"
 #include "state/actions/world/WorldExamineAt.hpp"
 #include "state/actions/world/WorldMoveActionAim.hpp"
 #include "state/actions/world/WorldMovePlayer.hpp"
@@ -86,6 +88,9 @@ LayerWorld::LayerWorld(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
       [this](auto&, auto&) { syncFromState(); });
   subscribeAction<state::actions::UiSetSelectedPartyMemberId>(
       [this](auto&, auto&) { syncFromState(); });
+  subscribeAction<state::actions::ModifyHP>([this](auto&, auto&) { syncFromState(); });
+  subscribeAction<state::actions::ModifyPartyMemberHp>(
+      [this](auto&, auto&) { syncFromState(); });
 
   syncFromState();
 }
@@ -108,6 +113,9 @@ void LayerWorld::enqueueMapMove(state::StateManager& stateManager, int dx, int d
         stateManager.getActionData(),
         new state::actions::DoCombatAction(model::CombatActionType::MOVE, dx, dy),
         0);
+    return;
+  }
+  if (state.world.resolvingTownEnemyAi) {
     return;
   }
   stateManager.enqueueAction(
@@ -177,6 +185,9 @@ void LayerWorld::confirmWorldActionAim(int tileX, int tileY) {
   if (!stateManager) {
     return;
   }
+  if (stateManager->getState().world.resolvingTownEnemyAi) {
+    return;
+  }
   const auto actionMode = stateManager->getState().world.actionMode;
   if (actionMode == model::WorldActionMode::EXAMINE) {
     ui::setHeldMoveActive(*stateManager, false);
@@ -217,6 +228,10 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (ui::isCombatWaitKey(key) && world.combat.active) {
     ui::setHeldMoveActive(*stateManager, false);
     enqueueCombatWait(*stateManager);
+    return;
+  }
+
+  if (world.resolvingTownEnemyAi) {
     return;
   }
 
@@ -606,6 +621,11 @@ void LayerWorld::updateHeldMoveRepeat(int deltaTime) {
   }
 
   if (stateManager->getState().world.actionMode != model::WorldActionMode::NONE) {
+    ui::setHeldMoveActive(*stateManager, false);
+    return;
+  }
+
+  if (stateManager->getState().world.resolvingTownEnemyAi) {
     ui::setHeldMoveActive(*stateManager, false);
     return;
   }

@@ -15,11 +15,10 @@ class RemoveCharacterFromMap : public CombatAction {
     if (!state) {
       return;
     }
-    auto* database = getDatabase();
     auto& characters = state->world.activeMap.characters;
     for (size_t i = 0; i < characters.size();) {
       if (characters[i].id == characterId) {
-        if (database != nullptr && model::isCharacterEnemy(characters[i], *database)) {
+        if (model::isCharacterEnemy(characters[i])) {
           game::markMapCharacterDefeated(*state, characters[i]);
         }
         characters.erase(i);

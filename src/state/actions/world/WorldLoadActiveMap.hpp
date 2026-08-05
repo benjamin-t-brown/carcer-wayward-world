@@ -4,6 +4,7 @@
 #include "game/map/MapPersistence.h"
 #include "model/Combat.h"
 #include "model/instances/World.h"
+#include "model/templates/CharacterTemplate.h"
 #include "state/AbstractAction.h"
 #include "state/State.h"
 
@@ -125,12 +126,16 @@ class WorldLoadActiveMap : public AbstractAction {
           }
         }
 
+        auto* database = getDatabase();
         for (auto character : persistentState.characters) {
           const auto worldLoc =
               activeMap.instanceCoordToActiveMapCoord(mapName, character.x, character.y);
           if (worldLoc.valid) {
             character.x = worldLoc.x;
             character.y = worldLoc.y;
+          }
+          if (database) {
+            model::tryApplyCharacterTemplateToInstance(character, *database);
           }
           localState.world.activeMap.characters.pushBack(std::move(character));
         }

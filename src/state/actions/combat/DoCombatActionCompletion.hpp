@@ -17,10 +17,6 @@ class DoCombatActionCompletion : public CombatAction {
     if (!state) {
       return;
     }
-    auto* database = getDatabase();
-    if (database == nullptr) {
-      return;
-    }
 
     auto& world = state->world;
     auto& combat = world.combat;
@@ -31,7 +27,7 @@ class DoCombatActionCompletion : public CombatAction {
 
     bmin::DynArray<bmin::String> defeatedIds;
     for (const auto& character : world.activeMap.characters) {
-      if (model::isCharacterDefeated(state->player, character, *database)) {
+      if (model::isCharacterDefeated(state->player, character)) {
         defeatedIds.pushBack(character.id);
       }
     }

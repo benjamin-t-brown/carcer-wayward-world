@@ -2,6 +2,7 @@
 #include "bmin/StringInterop.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/TileFields.h"
+#include "model/templates/CharacterTemplate.h"
 
 namespace game {
 
@@ -13,6 +14,10 @@ void createMapInstances(state::State& state, const db::Database& database) {
       database.getMapTemplates());
   for (auto it = templates.begin(); it != templates.end(); ++it) {
     model::MapInstance instance = model::createMapInstanceFromTemplate(it->value);
+    for (size_t ci = 0; ci < instance.persistentState.characters.size(); ci++) {
+      model::tryApplyCharacterTemplateToInstance(instance.persistentState.characters[ci],
+                                                 database);
+    }
     state.mapInstances[instance.templateName] = std::move(instance);
   }
 }

@@ -13930,6 +13930,12 @@
     "items": [
       {
         "l": 0,
+        "i": 258,
+        "name": "DaggerBronze",
+        "quantity": 1
+      },
+      {
+        "l": 0,
         "i": 285,
         "name": "BeerGuildimarcheAle",
         "quantity": 1
@@ -14022,15 +14028,7 @@
         "overlayVisibility": "SHOW_TRAVEL_UP"
       }
     ],
-    "tileOverrides": [
-      {
-        "l": 0,
-        "i": 369,
-        "overrides": {
-          "isContainerOverride": true
-        }
-      }
-    ],
+    "tileOverrides": [],
     "lightSources": []
   },
   {

@@ -3,7 +3,6 @@
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapVision.h"
 #include "game/map/TileTriggers.h"
-#include "model/instances/Player.h"
 #include "model/instances/World.h"
 #include "sdl2w/Logger.h"
 #include "state/AbstractAction.h"
@@ -44,7 +43,8 @@ class WorldSpawnPlayerAtXY : public AbstractAction {
       return;
     }
 
-    if (!game::placePartyAvatarAt(world.activeMap, state->player, destX, destY)) {
+    if (!game::placePartyAvatarAt(
+            world.activeMap, state->player, destX, destY, database)) {
       LOG(ERROR) << "WorldSpawnPlayerAtXY::act: party is empty" << LOG_ENDL;
       return;
     }

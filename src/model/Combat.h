@@ -47,30 +47,21 @@ struct Combat {
 void removeCharacterFromCombatTurnOrder(Combat& combat, const bmin::String& characterId);
 
 bool isPartyMember(const Player& player, const bmin::String& characterId);
-bool isCharacterAlly(const Player& player,
-                     const CharacterInstance& character,
-                     const db::Database& database);
-bool isCharacterEnemy(const CharacterInstance& character, const db::Database& database);
+bool isCharacterAlly(const Player& player, const CharacterInstance& character);
+bool isCharacterEnemy(const CharacterInstance& character);
 
-int getCharacterHp(const Player& player,
-                   const CharacterInstance& character,
-                   const db::Database& database);
-void setCharacterHp(Player& player,
-                    CharacterInstance& character,
-                    int hp,
-                    const db::Database& database);
-bool isCharacterDefeated(const Player& player,
-                         const CharacterInstance& character,
-                         const db::Database& database);
+int getCharacterHp(const Player& player, const CharacterInstance& character);
+void setCharacterHp(Player& player, CharacterInstance& character, int hp);
+/** Updates party member HP by instance id without requiring them on the map. */
+bool modifyPartyMemberHp(Player& player, const bmin::String& instanceId, int delta);
+bool isCharacterDefeated(const Player& player, const CharacterInstance& character);
 
 void resetAllCombatAp(World& world, int ap = COMBAT_STARTING_AP);
-void onNewCombatRound(state::State& state, const db::Database& database);
+void onNewCombatRound(state::State& state);
 void addPartyMembersToCombatMap(World& world, Player& player, const db::Database& database);
 void removeExtraPartyMembersFromMap(World& world, const Player& player);
 
-Combat createCombatFromWorld(const World& world,
-                             const Player& player,
-                             const db::Database& database);
+Combat createCombatFromWorld(const World& world, const Player& player);
 
 bmin::String formatCharacterLogLabel(const ActiveMap& activeMap, const bmin::String& id);
 

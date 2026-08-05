@@ -12,21 +12,13 @@ namespace actions {
 
 class GoNextCombatTurn : public CombatAction {
   void startNewCombatRound() {
-    auto* database = getDatabase();
-    if (database == nullptr) {
-      return;
-    }
     LOG(INFO) << "GoNextCombatTurn: new combat round, resetting AP" << LOG_ENDL;
     state->world.combat.activeTurnIndex = 0;
-    model::onNewCombatRound(*state, *database);
+    model::onNewCombatRound(*state);
   }
 
   void act() override {
     if (!state) {
-      return;
-    }
-    auto* database = getDatabase();
-    if (database == nullptr) {
       return;
     }
 
@@ -59,7 +51,7 @@ class GoNextCombatTurn : public CombatAction {
         }
         continue;
       }
-      if (model::isCharacterDefeated(state->player, *nextCharacter, *database)) {
+      if (model::isCharacterDefeated(state->player, *nextCharacter)) {
         combat.activeTurnIndex += 1;
         if (combat.activeTurnIndex >= turnCount) {
           startNewCombatRound();

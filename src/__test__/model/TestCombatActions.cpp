@@ -139,6 +139,11 @@ state::State makeCombatState(db::Database& database) {
   enemy.currentHp = 20;
   state.world.activeMap.characters.pushBack(std::move(enemy));
 
+  for (size_t i = 0; i < state.world.activeMap.characters.size(); i++) {
+    model::tryApplyCharacterTemplateToInstance(state.world.activeMap.characters[i],
+                                               database);
+  }
+
   return state;
 }
 

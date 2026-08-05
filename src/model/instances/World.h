@@ -49,6 +49,10 @@ struct World {
   // Meaningful only when actionMode != NONE (Examine / Talk aim cursor).
   std::optional<TileXY> actionAimTile;
 
+  // True while town enemy AI is resolving (seek / melee swing / particles).
+  // Blocks player movement and world actions until the timed sequence finishes.
+  bool resolvingTownEnemyAi = false;
+
   Combat combat;
 };
 

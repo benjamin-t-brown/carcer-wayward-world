@@ -62,7 +62,8 @@
       "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
     },
     "sound": {
-      "deathSoundName": "yell2"
+      "deathSoundName": "yell2",
+      "weaponSoundName": "punch1"
     }
   },
   {
@@ -191,6 +192,13 @@
     },
     "vision": {
       "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "combatBehavior": {
+      "town": "SEEK_AND_MELEE",
+      "combat": "SEEK_AND_MELEE"
     }
   },
   {

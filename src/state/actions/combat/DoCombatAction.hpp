@@ -51,8 +51,8 @@ class DoCombatAction : public CombatAction {
     }
 
     if (auto* occupant = orch.findCharacterAt(destX, destY, actorId)) {
-      const auto actorIsEnemy = model::isCharacterEnemy(*actor, *database);
-      const auto occupantIsEnemy = model::isCharacterEnemy(*occupant, *database);
+      const auto actorIsEnemy = model::isCharacterEnemy(*actor);
+      const auto occupantIsEnemy = model::isCharacterEnemy(*occupant);
       if (actorIsEnemy != occupantIsEnemy) {
         insertCombatAction(new PerformMeleeAttack(actorId, occupant->id), 0);
         insertCombatAction(new ModifyAP(actorId, -model::COMBAT_ATTACK_COST), 0);

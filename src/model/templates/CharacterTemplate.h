@@ -4,7 +4,13 @@
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 
+namespace db {
+class Database;
+}
+
 namespace model {
+
+struct CharacterInstance;
 
 enum class CharacterTemplateType {
   TOWNSPERSON,
@@ -22,6 +28,10 @@ enum class CharacterTemplateBehaviorName {
   MOVE_UP_DOWN,
 };
 
+enum class CombatBehaviorName {
+  SEEK_AND_MELEE,
+};
+
 struct CharacterTemplateTalk {
   bmin::String talkName;
   bmin::String portraitName;
@@ -37,6 +47,11 @@ struct CharacterTemplateCombat {
   bmin::String dropTable;
 };
 
+struct CharacterTemplateCombatBehavior {
+  CombatBehaviorName town = CombatBehaviorName::SEEK_AND_MELEE;
+  CombatBehaviorName combat = CombatBehaviorName::SEEK_AND_MELEE;
+};
+
 struct CharacterTemplateSound {
   bmin::String deathSoundName;
   bmin::String weaponSoundName;
@@ -47,7 +62,7 @@ struct CharacterTemplateStatus {
 };
 
 struct CharacterTemplateVision {
-  int radius;
+  int radius = 0;
 };
 
 struct CharacterTemplate {
@@ -60,6 +75,7 @@ struct CharacterTemplate {
   CharacterTemplateBehavior behavior;
   CharacterStats stats;
   CharacterTemplateCombat combat;
+  CharacterTemplateCombatBehavior combatBehavior;
   CharacterTemplateSound sound;
   bmin::DynArray<CharacterTemplateStatus> statuses;
   CharacterTemplateVision vision;
@@ -68,5 +84,13 @@ struct CharacterTemplate {
 bmin::String characterGetSprite(const CharacterTemplate& character);
 bmin::String characterGetSpriteAtIndexOffset(const CharacterTemplate& characterTemplate,
                                              int indexOffset);
+
+/** Copy AI/faction fields from template onto a map character instance. */
+void applyCharacterTemplateToInstance(CharacterInstance& character,
+                                      const CharacterTemplate& characterTemplate);
+
+/** Lookup templateName on the database and apply; returns false if missing. */
+bool tryApplyCharacterTemplateToInstance(CharacterInstance& character,
+                                         const db::Database& database);
 
 } // namespace model

@@ -3,12 +3,10 @@
 #include "game/map/TileFields.h"
 #include "game/map/TileTriggers.h"
 #include "model/instances/CharacterInstance.h"
-#include "model/instances/MapInstance.h"
 #include "model/instances/Player.h"
 #include "model/instances/World.h"
 #include "model/templates/CharacterTemplate.h"
 #include "state/State.h"
-#include "bmin/StringInterop.h"
 #include "bmin/StringStream.h"
 #include "db/Database.h"
 
@@ -23,29 +21,18 @@ bool isPartyMember(const Player& player, const bmin::String& characterId) {
   return false;
 }
 
-bool isCharacterEnemy(const CharacterInstance& character, const db::Database& database) {
-  try {
-    const auto& characterTemplate =
-        database.getCharacterTemplate(bmin::toStringView(character.templateName));
-    return characterTemplate.type == CharacterTemplateType::ENEMY ||
-           characterTemplate.type == CharacterTemplateType::ENEMY_STATIC;
-  } catch (...) {
-    return false;
-  }
+bool isCharacterEnemy(const CharacterInstance& character) {
+  return characterInstanceIsEnemy(character);
 }
 
-bool isCharacterAlly(const Player& player,
-                     const CharacterInstance& character,
-                     const db::Database& database) {
+bool isCharacterAlly(const Player& player, const CharacterInstance& character) {
   if (isPartyMember(player, character.id)) {
     return true;
   }
-  return !isCharacterEnemy(character, database);
+  return !isCharacterEnemy(character);
 }
 
-int getCharacterHp(const Player& player,
-                   const CharacterInstance& character,
-                   const db::Database& database) {
+int getCharacterHp(const Player& player, const CharacterInstance& character) {
   if (isPartyMember(player, character.id)) {
     for (const auto& member : player.party) {
       if (member.instanceId == character.id) {
@@ -59,19 +46,10 @@ int getCharacterHp(const Player& player,
   if (character.currentHp > 0) {
     return character.currentHp;
   }
-  try {
-    const auto& characterTemplate =
-        database.getCharacterTemplate(bmin::toStringView(character.templateName));
-    return characterTemplate.combat.hp;
-  } catch (...) {
-    return character.currentHp;
-  }
+  return character.maxHp;
 }
 
-void setCharacterHp(Player& player,
-                    CharacterInstance& character,
-                    int hp,
-                    const db::Database& database) {
+void setCharacterHp(Player& player, CharacterInstance& character, int hp) {
   if (isPartyMember(player, character.id)) {
     for (auto& member : player.party) {
       if (member.instanceId == character.id) {
@@ -80,15 +58,22 @@ void setCharacterHp(Player& player,
       }
     }
   }
-  (void)database;
   character.currentHp = hp;
   character.hpInitialized = true;
 }
 
-bool isCharacterDefeated(const Player& player,
-                         const CharacterInstance& character,
-                         const db::Database& database) {
-  return getCharacterHp(player, character, database) <= 0;
+bool modifyPartyMemberHp(Player& player, const bmin::String& instanceId, int delta) {
+  for (auto& member : player.party) {
+    if (member.instanceId == instanceId) {
+      member.currentHp += delta;
+      return true;
+    }
+  }
+  return false;
+}
+
+bool isCharacterDefeated(const Player& player, const CharacterInstance& character) {
+  return getCharacterHp(player, character) <= 0;
 }
 
 void removeCharacterFromCombatTurnOrder(Combat& combat, const bmin::String& characterId) {
@@ -116,8 +101,7 @@ void resetAllCombatAp(World& world, int ap) {
   }
 }
 
-void onNewCombatRound(state::State& state, const db::Database& database) {
-  (void)database;
+void onNewCombatRound(state::State& state) {
   resetAllCombatAp(state.world, COMBAT_STARTING_AP);
   game::advanceWorldMovementTicks(state, game::TILE_FIELD_MOVES_PER_COMBAT_ROUND);
 }
@@ -151,17 +135,13 @@ void addPartyMembersToCombatMap(World& world, Player& player, const db::Database
     instance.spawnY = spawnY;
     instance.currentAp = COMBAT_STARTING_AP;
     instance.currentHp = member.currentHp;
+    tryApplyCharacterTemplateToInstance(instance, database);
     activeMap.characters.pushBack(std::move(instance));
   }
 
   for (auto& character : activeMap.characters) {
-    if (character.currentHp <= 0 && isCharacterEnemy(character, database)) {
-      try {
-        const auto& characterTemplate =
-            database.getCharacterTemplate(bmin::toStringView(character.templateName));
-        character.currentHp = characterTemplate.combat.hp;
-      } catch (...) {
-      }
+    if (character.currentHp <= 0 && isCharacterEnemy(character)) {
+      character.currentHp = character.maxHp;
     }
   }
 }
@@ -182,9 +162,7 @@ void removeExtraPartyMembersFromMap(World& world, const Player& player) {
   }
 }
 
-Combat createCombatFromWorld(const World& world,
-                             const Player& player,
-                             const db::Database& database) {
+Combat createCombatFromWorld(const World& world, const Player& player) {
   Combat combat;
   combat.active = true;
   combat.activeTurnIndex = 0;
@@ -214,7 +192,7 @@ Combat createCombatFromWorld(const World& world,
   }
 
   for (const auto& character : world.activeMap.characters) {
-    if (isInTurnOrder(character.id) || isCharacterEnemy(character, database)) {
+    if (isInTurnOrder(character.id) || isCharacterEnemy(character)) {
       continue;
     }
     combat.turnOrderIds.pushBack(character.id);

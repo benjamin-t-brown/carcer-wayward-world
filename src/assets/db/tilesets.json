@@ -3193,7 +3193,8 @@
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
-        "stepSound": "1"
+        "stepSound": "1",
+        "isContainer": true
       },
       {
         "id": 41,

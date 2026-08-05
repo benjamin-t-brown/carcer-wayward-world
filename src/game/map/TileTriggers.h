@@ -21,8 +21,12 @@ findPartyAvatarOnActiveMap(const model::ActiveMap& activeMap,
 
 // Move existing party leader avatar to (x, y) world tiles, or create one from
 // party[0] if missing. Returns nullptr if the party is empty.
-model::CharacterInstance*
-placePartyAvatarAt(model::ActiveMap& activeMap, model::Player& player, int x, int y);
+// When database is set, caches template AI/faction fields on a newly created avatar.
+model::CharacterInstance* placePartyAvatarAt(model::ActiveMap& activeMap,
+                                             model::Player& player,
+                                             int x,
+                                             int y,
+                                             const db::Database* database = nullptr);
 
 // Character for drop/pickup placement: prefer the given character if present on
 // the active map, otherwise the party leader avatar.

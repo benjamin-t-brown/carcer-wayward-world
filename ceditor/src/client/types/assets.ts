@@ -776,6 +776,11 @@ export const CHARACTER_TEMPLATE_BEHAVIOR_NAMES: CharacterTemplateBehaviorName[] 
     'MOVE_UP_DOWN',
   ];
 
+/** Matches model::CombatBehaviorName in CharacterTemplate.h */
+export type CombatBehaviorName = 'SEEK_AND_MELEE';
+
+export const COMBAT_BEHAVIOR_NAMES: CombatBehaviorName[] = ['SEEK_AND_MELEE'];
+
 export interface GenericCombatStats {
   str?: number;
   mnd?: number;
@@ -890,6 +895,10 @@ export interface CharacterTemplate {
     dropTable?: string;
     /** @deprecated legacy path merged into stats.generic by game loader */
     stats?: GenericCombatStats;
+  };
+  combatBehavior?: {
+    town?: CombatBehaviorName;
+    combat?: CombatBehaviorName;
   };
   sound?: CharacterTemplateSound;
   statuses?: Array<{

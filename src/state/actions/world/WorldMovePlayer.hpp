@@ -2,6 +2,7 @@
 
 #include "model/Combat.h"
 #include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/EnemyBehavior.h"
 #include "game/map/MapVision.h"
 #include "game/map/MapWalkability.h"
 #include "game/map/MapPersistence.h"
@@ -9,7 +10,8 @@
 #include "model/instances/Player.h"
 #include "model/instances/World.h"
 #include "sdl2w/Logger.h"
-#include "state/AbstractAction.h"
+#include "state/actions/combat/ActionBase.hpp"
+#include "state/actions/world/TownEnemyAiAfterPlayerMove.hpp"
 #include "state/State.h"
 #include "bmin/String.h"
 
@@ -18,7 +20,7 @@ namespace state {
 namespace actions {
 
 // Moves the current party avatar by (dx, dy) tiles, or opens a closed door on bump.
-class WorldMovePlayer : public AbstractAction {
+class WorldMovePlayer : public CombatAction {
   int dx = 0;
   int dy = 0;
 
@@ -63,6 +65,9 @@ class WorldMovePlayer : public AbstractAction {
 
     auto& world = state->world;
     if (world.activeMap.gridId.empty()) {
+      return;
+    }
+    if (!world.combat.active && world.resolvingTownEnemyAi) {
       return;
     }
 
@@ -127,6 +132,8 @@ class WorldMovePlayer : public AbstractAction {
     game::updateActiveMapVisibilityFromPlayer(world, destX, destY, *database);
     if (!world.combat.active) {
       game::advanceWorldMovementTicks(*state, 1);
+      world.resolvingTownEnemyAi = true;
+      insertCombatAction(new TownEnemyAiAfterPlayerMove(), 0);
     }
   }
 

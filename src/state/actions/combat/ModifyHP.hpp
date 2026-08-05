@@ -16,18 +16,13 @@ class ModifyHP : public CombatAction {
     if (!state) {
       return;
     }
-    auto* database = getDatabase();
-    if (database == nullptr) {
-      return;
-    }
     game::ActiveMapOrchestrator orch;
     auto* character = orch.findCharacterById(characterId);
     if (character == nullptr) {
       return;
     }
-    const auto hp =
-        model::getCharacterHp(state->player, *character, *database) + delta;
-    model::setCharacterHp(state->player, *character, hp, *database);
+    const auto hp = model::getCharacterHp(state->player, *character) + delta;
+    model::setCharacterHp(state->player, *character, hp);
   }
 
 public:

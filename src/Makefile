@@ -39,6 +39,7 @@ game/map/TileFields.cpp \
 game/map/MapPersistence.cpp \
 game/map/MapPathfinding.cpp \
 game/map/MapPickup.cpp \
+game/map/EnemyBehavior.cpp \
 game/map/TileTriggers.cpp \
 model/stats/CharacterStats.cpp \
 model/stats/CharacterStatDefinitions.cpp \

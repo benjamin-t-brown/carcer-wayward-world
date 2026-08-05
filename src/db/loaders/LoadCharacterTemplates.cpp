@@ -59,6 +59,14 @@ bmin::String getStringFromCharacterTemplateBehaviorName(
   throw std::runtime_error("Unknown character template behavior enum value");
 }
 
+model::CombatBehaviorName getCombatBehaviorNameFromString(const bmin::String& behaviorStr) {
+  if (behaviorStr == "SEEK_AND_MELEE") {
+    return model::CombatBehaviorName::SEEK_AND_MELEE;
+  }
+  throw std::runtime_error(
+      (bmin::String("Invalid combat behavior: ") + behaviorStr).cStr());
+}
+
 void loadIntField(const Json& json, const char* fieldName, int& out) {
   if (json.contains(fieldName)) {
     out = json[fieldName].get<int>();
@@ -271,6 +279,22 @@ void loadCharacterTemplates(
       const auto& visionJson = characterJson["vision"];
       if (visionJson.contains("radius")) {
         characterTemplate.vision.radius = visionJson["radius"].get<int>();
+      }
+    }
+
+    if (characterJson.contains("combatBehavior") &&
+        characterJson["combatBehavior"].is_object()) {
+      const auto& combatBehaviorJson = characterJson["combatBehavior"];
+      if (combatBehaviorJson.contains("town") &&
+          combatBehaviorJson["town"].is_string()) {
+        characterTemplate.combatBehavior.town =
+            getCombatBehaviorNameFromString(combatBehaviorJson["town"].get<bmin::String>());
+      }
+      if (combatBehaviorJson.contains("combat") &&
+          combatBehaviorJson["combat"].is_string()) {
+        characterTemplate.combatBehavior.combat =
+            getCombatBehaviorNameFromString(
+                combatBehaviorJson["combat"].get<bmin::String>());
       }
     }
 
