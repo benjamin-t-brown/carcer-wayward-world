@@ -115,6 +115,12 @@ class WorldMovePlayer : public AbstractAction {
       return;
     }
 
+    // Town/outdoor: characters occupy tiles. Combat handles collide-to-attack separately.
+    if (orch.findCharacterAt(destX, destY, avatar->id) != nullptr) {
+      LOG(DEBUG) << " blocked!" << LOG_ENDL;
+      return;
+    }
+
     avatar->x = destX;
     avatar->y = destY;
     game::queueStepTriggersAt(state->triggers, *destMap, destLocal.x, destLocal.y);

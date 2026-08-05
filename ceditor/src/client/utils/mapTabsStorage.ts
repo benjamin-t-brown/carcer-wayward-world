@@ -96,3 +96,10 @@ export function openMapEditorInNewTab(mapName: string): void {
   const url = `${base}#/editor/maps?map=${encodeURIComponent(mapName)}`;
   window.open(url, '_blank', 'noopener,noreferrer');
 }
+
+/** Open the map grid editor in a new browser tab with this grid selected. */
+export function openMapGridEditorInNewTab(gridName: string): void {
+  const base = `${window.location.origin}${window.location.pathname}`;
+  const url = `${base}#/editor/mapGrids?mapGrid=${encodeURIComponent(gridName)}`;
+  window.open(url, '_blank', 'noopener,noreferrer');
+}

@@ -432,6 +432,33 @@ int main(int /*argc*/, char** /*argv*/) {
       ok = assertEqual(avatar->y, 0, "oob up.y") && ok;
     }
 
+    // Occupied by another character: blocked (town/outdoor), facing still updates
+    {
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
+      spawnAvatar(state, 2, 2);
+
+      auto npc = model::CharacterInstance{};
+      npc.id = "town-npc";
+      npc.name = "Townsfolk";
+      npc.templateName = "testNpc";
+      npc.x = 3;
+      npc.y = 2;
+      state.world.activeMap.characters.pushBack(std::move(npc));
+
+      auto* avatar =
+          game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
+      avatar->facing = model::CharacterFacing::Left;
+
+      move(state, 1, 0);
+      ok = assertEqual(avatar->x, 2, "occupied tile block.x") && ok;
+      ok = assertEqual(avatar->y, 2, "occupied tile block.y") && ok;
+      ok = assertTrue(avatar->facing == model::CharacterFacing::Right,
+                      "occupied tile block updates facing") &&
+           ok;
+    }
+
     // Camera follow recenters after successful move
     {
       auto& state = stateManager.getState();

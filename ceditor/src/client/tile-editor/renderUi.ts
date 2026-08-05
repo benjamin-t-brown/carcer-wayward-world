@@ -29,6 +29,7 @@ import {
   TilesetTemplate,
   CharacterTemplate,
   ItemTemplate,
+  tileOverlayVisibilitySpriteName,
 } from '../types/assets';
 import { EditorState, getEditorStateMap } from './editorState';
 import {
@@ -618,6 +619,21 @@ export const renderTileAndExtras = (args: {
 
   if (refTile.markers.length) {
     controlSprites.push('control_4');
+  }
+
+  // In-game style overlays (extra_4/5/6) for event/travel visibility settings.
+  const overlaySpriteNames = [
+    tileOverlayVisibilitySpriteName(refTile.eventTrigger?.overlayVisibility),
+    tileOverlayVisibilitySpriteName(refTile.travelTrigger?.overlayVisibility),
+  ];
+  for (const overlaySpriteName of overlaySpriteNames) {
+    if (!overlaySpriteName) {
+      continue;
+    }
+    const overlaySprite = spriteMap[overlaySpriteName];
+    if (overlaySprite) {
+      drawSprite(overlaySprite, tileX, tileY, newScale, ctx);
+    }
   }
 
   let controlI = 0;

@@ -9,9 +9,11 @@ import {
   MapGridTemplate,
   createDefaultMapGridTemplate,
   resizeMapGridCells,
+  shiftMapGridCells,
 } from '../types/assets';
 import { EditorEmptyState } from './EditorEmptyState';
 import { openMapEditorInNewTab } from '../utils/mapTabsStorage';
+import { MoveGridModal } from './MoveGridModal';
 
 export { createDefaultMapGridTemplate };
 
@@ -33,6 +35,7 @@ export function MapGridTemplateForm({
   const [pickingCell, setPickingCell] = useState<{ x: number; y: number } | null>(
     null
   );
+  const [isMoveGridOpen, setIsMoveGridOpen] = useState(false);
 
   const mapsByName = useMemo(() => {
     const byName: Record<string, (typeof maps)[number]> = {};
@@ -77,6 +80,14 @@ export function MapGridTemplateForm({
     updateCell(x, y, '');
   };
 
+  const handleMoveGrid = (offsetX: number, offsetY: number) => {
+    updateMapGrid({
+      ...mapGrid,
+      cells: shiftMapGridCells(mapGrid.cells, offsetX, offsetY),
+    });
+    setIsMoveGridOpen(false);
+  };
+
   const assignedCount = mapGrid.cells.flat().filter((name) => name.trim() !== '').length;
   const totalSlots = mapGrid.gridWidth * mapGrid.gridHeight;
   const cellPreviewSize = Math.min(
@@ -86,7 +97,25 @@ export function MapGridTemplateForm({
 
   return (
     <div className="item-form map-grid-template-form">
-      <h2>Edit Map Grid</h2>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '12px',
+          marginBottom: '8px',
+          flexWrap: 'wrap',
+        }}
+      >
+        <h2 style={{ margin: 0 }}>Edit Map Grid</h2>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => setIsMoveGridOpen(true)}
+        >
+          Move Grid
+        </Button>
+      </div>
       <form>
         <div className="form-fields-inline">
           <TextInput
@@ -331,6 +360,12 @@ export function MapGridTemplateForm({
           }}
         />
       )}
+
+      <MoveGridModal
+        isOpen={isMoveGridOpen}
+        onConfirm={handleMoveGrid}
+        onCancel={() => setIsMoveGridOpen(false)}
+      />
     </div>
   );
 }

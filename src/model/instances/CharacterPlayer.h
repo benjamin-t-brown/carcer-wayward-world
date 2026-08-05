@@ -125,6 +125,5 @@ int characterGetWeightCarrying(const CharacterPlayer& characterPlayer,
 int characterGetWeightCapacity(const CharacterPlayer& characterPlayer);
 int characterGetRationSlotCapacity(const CharacterPlayer& characterPlayer,
                                    const db::Database& database);
-bmin::DynArray<ItemInstance> characterGetNearbyItems(const CharacterPlayer& characterPlayer);
 
 } // namespace model

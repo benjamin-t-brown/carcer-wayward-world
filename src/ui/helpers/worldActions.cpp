@@ -4,6 +4,7 @@
 #include "state/actions/combat/EndCombat.hpp"
 #include "state/actions/combat/StartCombat.hpp"
 #include "state/actions/ui/UiShowLayerInventory.hpp"
+#include "state/actions/ui/UiShowLayerPickUp.hpp"
 #include "state/actions/ui/heldMove/UiUpdateHeldMove.hpp"
 #include "state/actions/world/WorldInteractAt.hpp"
 #include "state/actions/world/WorldSetActionMode.hpp"
@@ -65,6 +66,15 @@ void activateWorldAction(state::StateManager& stateManager,
     setHeldMoveActive(stateManager, false);
     stateManager.enqueueAction(stateManager.getActionData(),
                                new state::actions::UiShowLayerInventory(window),
+                               0);
+    break;
+  case state::WorldActionType::GET:
+    if (!window) {
+      break;
+    }
+    setHeldMoveActive(stateManager, false);
+    stateManager.enqueueAction(stateManager.getActionData(),
+                               new state::actions::UiShowLayerPickUp(window),
                                0);
     break;
   case state::WorldActionType::INTERACT:

@@ -3,6 +3,7 @@ import { CarcerMapTemplate } from '../../types/assets';
 import { useState } from 'react';
 import { DeleteModal } from '../../elements/DeleteModal';
 import { MapSearchAccordion } from './MapSearchAccordion';
+import { MapGridLinkSection } from './MapGridLinkSection';
 import {
   addMapLayer,
   deleteMapLayer,
@@ -140,14 +141,14 @@ export function LayersPanel(props: LayersPanelProps) {
       >
         <div className="tile-editor-sidebar-panel tile-editor-layer-list">
           {sortedEntries.map(([level]) => {
-            const levelNum = parseInt(level, 10);
+            const levelNum = parseInt(level as string, 10);
             const isSelected = props.editorState.currentLevel === levelNum;
             return (
               <button
                 key={level}
                 type="button"
                 className={`tile-editor-layer-row${isSelected ? ' selected' : ''}`}
-                onClick={() => handleSelectLayer(level)}
+                onClick={() => handleSelectLayer(level as string)}
               >
                 Layer {level}
               </button>
@@ -155,22 +156,7 @@ export function LayersPanel(props: LayersPanelProps) {
           })}
         </div>
       </div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          alignItems: 'center',
-        }}
-      >
-        <div
-          style={{
-            color: '#858585',
-            fontSize: '11px',
-            textTransform: 'uppercase',
-            fontWeight: 'bold',
-          }}
-        ></div>
-      </div>
+      <MapGridLinkSection map={props.map} />
       <DeleteModal
         isOpen={showDeleteConfirm}
         message="Are you sure you want to delete this layer (no undo)?"

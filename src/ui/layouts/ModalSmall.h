@@ -16,6 +16,8 @@ struct ModalSmallProps {
   LayoutFit layoutFit = LayoutFit::CappedCentered;
   SDL_Color backgroundColor = Colors::White;
   bmin::String iconSprite = "";
+  /** Scales headerHeight (base 80), icon well (base 64), and the header icon sprite. */
+  float iconScale = 1.f;
   bool enableCloseButton = true;
 };
 

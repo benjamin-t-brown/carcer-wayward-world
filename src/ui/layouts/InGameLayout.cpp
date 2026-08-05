@@ -4,6 +4,7 @@
 #include "ui/components/borders/BorderInGameWide.h"
 #include "ui/components/lists/ListChCompactInfoHorizontal.h"
 #include "ui/components/lists/ListChCompactInfoVertical.h"
+#include "ui/elements/OutsetRectangle.h"
 #include "ui/elements/Quad.h"
 #include "ui/elements/buttons/ButtonClose.h"
 #include "ui/elements/buttons/ButtonWorldAction.h"
@@ -114,6 +115,7 @@ void InGameLayout::buildChList(const std::pair<int, int>& chListLocation) {
     chList->setScale(style.scale);
     chList->setProps(ListChCompactInfoVerticalProps{
         .entries = props.partyMembers,
+        .selectedIndex = props.selectedPartyMemberIndex,
         .lineGap = 6,
     });
     addChild(chList);
@@ -124,6 +126,7 @@ void InGameLayout::buildChList(const std::pair<int, int>& chListLocation) {
     chList->setScale(style.scale);
     chList->setProps(ListChCompactInfoHorizontalProps{
         .entries = props.partyMembers,
+        .selectedIndex = props.selectedPartyMemberIndex,
         .lineGap = 6,
     });
     addChild(chList);
@@ -148,6 +151,7 @@ UiElement* InGameLayout::getTitleElement() { return getChildById("title"); }
 void InGameLayout::setActionModeCancelVisible(bool visible,
                                               const bmin::String& modeLabel) {
   removeChildById("actionModeCancel");
+  removeChildById("actionModeLabelBg");
   removeChildById("actionModeLabel");
   if (!visible) {
     return;
@@ -155,9 +159,9 @@ void InGameLayout::setActionModeCancelVisible(bool visible,
 
   constexpr int kPad = 4;
   constexpr int kLabelGap = 8;
+  constexpr int kLabelPad = 5;
   auto [worldX, worldY] = getWorldLocation();
   auto [worldW, worldH] = getWorldDims();
-  (void)worldW;
 
   auto* cancelButton = new ButtonClose(window, this);
   cancelButton->setId("actionModeCancel");
@@ -172,10 +176,13 @@ void InGameLayout::setActionModeCancelVisible(bool visible,
   addChild(cancelButton);
 
   if (!modeLabel.empty()) {
+    const int labelX = buttonX + buttonSize + kLabelGap;
+    const int labelY = buttonY + buttonSize / 2;
+
     auto* label = new TextLine(window, this);
     label->setId("actionModeLabel");
     label->setScale(style.scale);
-    label->setPos(buttonX + buttonSize + kLabelGap, buttonY + buttonSize / 2);
+    label->setPos(labelX, labelY);
     label->setProps(TextLineProps{
         .textBlocks = {{.text = modeLabel}},
         .fontFamily = FontFamily::TEXT,
@@ -183,6 +190,19 @@ void InGameLayout::setActionModeCancelVisible(bool visible,
         .fontColor = Colors::White,
         .textAlign = TextAlign::LEFT_CENTER,
     });
+
+    const auto [labelW, labelH] = label->getDims();
+    const int padScaled = static_cast<int>(kLabelPad * style.scale);
+
+    auto* labelBg = new OutsetRectangle(window, this);
+    labelBg->setId("actionModeLabelBg");
+    labelBg->setPos(labelX - padScaled, labelY - labelH / 2 - padScaled);
+    labelBg->setScale(1.f);
+    labelBg->setProps(OutsetRectangleProps{
+        .width = labelW + padScaled * 2,
+        .height = labelH + padScaled * 2,
+    });
+    addChild(labelBg);
     addChild(label);
   }
 }
@@ -216,6 +236,7 @@ void InGameLayout::build() {
   removeChildById("actionButtons");
   removeChildById("chList");
   removeChildById("actionModeCancel");
+  removeChildById("actionModeLabelBg");
   removeChildById("actionModeLabel");
 
   if (props.width > 0) {

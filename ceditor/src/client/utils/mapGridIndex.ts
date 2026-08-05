@@ -38,30 +38,41 @@ const NEIGHBOR_OFFSETS: ReadonlyArray<{ offsetX: number; offsetY: number }> =
     { offsetX: 1, offsetY: 1 },
   ];
 
-export function findMapGridPlacement(
+/** All grids that contain this map name (one placement per grid). */
+export function findAllMapGridPlacements(
   mapName: string,
   grids: MapGridTemplate[],
-): MapGridPlacement | null {
+): MapGridPlacement[] {
   const trimmed = mapName.trim();
   if (!trimmed) {
-    return null;
+    return [];
   }
 
+  const placements: MapGridPlacement[] = [];
   for (const grid of grids) {
-    for (let cellY = 0; cellY < grid.cells.length; cellY++) {
+    let foundInGrid = false;
+    for (let cellY = 0; cellY < grid.cells.length && !foundInGrid; cellY++) {
       const row = grid.cells[cellY];
       if (!row) {
         continue;
       }
       for (let cellX = 0; cellX < row.length; cellX++) {
         if (row[cellX]?.trim() === trimmed) {
-          return { grid, cellX, cellY };
+          placements.push({ grid, cellX, cellY });
+          foundInGrid = true;
+          break;
         }
       }
     }
   }
+  return placements;
+}
 
-  return null;
+export function findMapGridPlacement(
+  mapName: string,
+  grids: MapGridTemplate[],
+): MapGridPlacement | null {
+  return findAllMapGridPlacements(mapName, grids)[0] ?? null;
 }
 
 export function getGridAdjacentSlots(

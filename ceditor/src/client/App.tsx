@@ -52,7 +52,7 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
     case '/editor/maps':
       return <Maps routeParams={routeParams} />;
     case '/editor/mapGrids':
-      return <MapGrids />;
+      return <MapGrids routeParams={routeParams} />;
     default:
       return (
         <div className="container">

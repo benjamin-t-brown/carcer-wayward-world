@@ -99,6 +99,22 @@ bool isTileEffectivelyWalkable(const model::TileInstance& tile,
   return meta->isWalkable;
 }
 
+bool isTileEffectivelyContainer(const model::TileInstance& tile,
+                                const db::Database& database) {
+  if (tile.tilesetName.empty()) {
+    return false;
+  }
+  if (tile.tileOverrides.has_value() &&
+      tile.tileOverrides->isContainerOverride.has_value()) {
+    return *tile.tileOverrides->isContainerOverride;
+  }
+  const auto* meta = resolveTileMetadata(tile, database);
+  if (!meta) {
+    return false;
+  }
+  return meta->isContainer;
+}
+
 bool isClosedDoorTile(const model::TileInstance& tile, const db::Database& database) {
   if (tile.tilesetName.empty()) {
     return false;

@@ -3,18 +3,23 @@
     "name": "OutsideAlinea",
     "label": "Alinea Outside",
     "gridWidth": 3,
-    "gridHeight": 2,
+    "gridHeight": 3,
     "mapWidth": 30,
     "mapHeight": 30,
     "cells": [
+      [
+        "alinea_outsideAlinea7",
+        "alinea_outsideAlinea8",
+        "alinea_outsideAlinea9"
+      ],
       [
         "alinea_outsideAlinea2",
         "alinea_outsideAlinea1",
         "alinea_outsideAlinea3"
       ],
       [
-        "alinea_outsideAlinea5",
         "alinea_outsideAlinea4",
+        "alinea_outsideAlinea5",
         "alinea_outsideAlinea6"
       ]
     ]

@@ -41,6 +41,8 @@ struct HeldMove {
 struct UiState {
   bmin::DynArray<UiFloatingNotification> floatingNotifications;
   HeldMove heldMove;
+  /** HUD / inventory UI selection only — does not drive map movement. */
+  bmin::String selectedPartyMemberId;
 };
 
 struct State {

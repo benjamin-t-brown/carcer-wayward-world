@@ -18,4 +18,16 @@ CharacterPlayer* playerFindPartyMemberByIndex(Player& _player, int _index) {
   return &_player.party[_index];
 }
 
+int playerFindPartyMemberIndexById(const Player& _player, const bmin::String& _id) {
+  if (_id.empty()) {
+    return -1;
+  }
+  for (int i = 0; i < static_cast<int>(_player.party.size()); i++) {
+    if (_player.party[static_cast<size_t>(i)].instanceId == _id) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 } // namespace model

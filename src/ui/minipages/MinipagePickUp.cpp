@@ -56,6 +56,7 @@ void MinipagePickUp::build() {
   modal->setProps(ModalSmallProps{
       .width = style.width,
       .height = style.height,
+      .iconSprite = "ui_action_buttons_half_16",
       .enableCloseButton = false,
   });
   syncHostStyleToCappedCentered(style, ModalSizeClass::Small);

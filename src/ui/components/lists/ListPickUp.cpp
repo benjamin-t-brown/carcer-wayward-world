@@ -35,7 +35,15 @@ void ListPickUp::setProps(const ListPickUpProps& _props) {
 
 const ListPickUpProps& ListPickUp::getProps() const { return props; }
 
-UiElement* ListPickUp::createItemElement(const ListPickUpPropsItem& listItem) {
+bmin::String ListPickUp::shortcutLetterForIndex(int index) {
+  if (index < 0 || index >= maxShortcutItems) {
+    return {};
+  }
+  return bmin::String(1, static_cast<char>('a' + index));
+}
+
+UiElement* ListPickUp::createItemElement(const ListPickUpPropsItem& listItem,
+                                         int index) {
   const int rowWidth = static_cast<int>(style.width * style.scale);
   const int rowHeight = static_cast<int>(props.lineHeight * style.scale);
 
@@ -48,10 +56,10 @@ UiElement* ListPickUp::createItemElement(const ListPickUpPropsItem& listItem) {
       .bgColor = Colors::Transparent,
   });
 
-  float iconScale = 2.f;
+  const int iconWidth = static_cast<int>(iconSpriteSize * iconScale * style.scale);
   auto icon = new Quad(window, this);
   icon->setId("icon");
-  icon->setPos(0, (rowHeight - static_cast<int>(iconSpriteSize * style.scale * iconScale)) / 2);
+  icon->setPos(0, (rowHeight - iconWidth) / 2);
   icon->setScale(iconScale * style.scale);
   icon->setProps(QuadProps{
       .width = iconSpriteSize,
@@ -63,12 +71,33 @@ UiElement* ListPickUp::createItemElement(const ListPickUpPropsItem& listItem) {
 
   const int weightRightPadding = 8;
   const int labelWeightGap = 8;
-  const int labelX = static_cast<int>(iconSpriteSize * iconScale * style.scale) +
-                     static_cast<int>(24 * style.scale);
   const int scaledContextBtnSize = contextBtnSize * style.scale;
 
   TextFontProps font;
   setBaseFontConfig(font, BaseFontConfig::MODAL_TEXT);
+
+  int labelX =
+      iconWidth + static_cast<int>(labelGapAfterIconNoShortcut * style.scale);
+  const auto shortcutLetter = shortcutLetterForIndex(index);
+  if (!shortcutLetter.empty()) {
+    auto shortcutText = new TextLine(window, this);
+    shortcutText->setId("shortcut");
+    shortcutText->setPos(0, rowHeight / 2);
+    shortcutText->setScale(1.0f);
+    TextLineProps shortcutProps;
+    shortcutProps.fontFamily = font.fontFamily;
+    shortcutProps.fontSize = sdl2w::TEXT_SIZE_14;
+    shortcutProps.fontColor = Colors::Grey;
+    shortcutProps.textAlign = TextAlign::LEFT_CENTER;
+    shortcutProps.textBlocks.pushBack({.text = shortcutLetter});
+    shortcutText->setProps(shortcutProps);
+    const int shortcutX =
+        iconWidth + static_cast<int>(shortcutGapAfterIcon * style.scale);
+    shortcutText->setPos(shortcutX, rowHeight / 2);
+    container->addChild(shortcutText);
+    labelX = shortcutX + shortcutText->getDims().first +
+             static_cast<int>(labelGapAfterShortcut * style.scale);
+  }
 
   auto contextBtn = new ButtonModal(window, this);
   contextBtn->setId("contextBtn");
@@ -157,8 +186,8 @@ void ListPickUp::build() {
   list->setPos(style.x, style.y + static_cast<int>(props.paddingTop * style.scale));
   list->setScale(1.0f);
 
-  for (const auto& item : props.items) {
-    list->addChild(createItemElement(item));
+  for (size_t i = 0; i < props.items.size(); i++) {
+    list->addChild(createItemElement(props.items[i], static_cast<int>(i)));
   }
 
   list->setProps(VerticalListProps{

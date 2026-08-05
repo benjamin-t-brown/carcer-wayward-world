@@ -26,8 +26,10 @@ import {
 import { prepareNewMapForEditor } from '../utils/mapIndex';
 import { assignMapToGridCell, findMapGridPlacement, renameMapInGrids } from '../utils/mapGridIndex';
 import {
+  GridNavigateStitchOffset,
   GridSlotCreateRequest,
   switchMapViewport,
+  switchMapViewportPreservingStitch,
   saveViewportForMap,
 } from '../tile-editor/editorEvents';
 import {
@@ -117,12 +119,17 @@ export function Maps({ routeParams }: MapsProps = {}) {
   };
   const setActiveTabIndex = (
     index: number | null,
-    tabsForLookup: OpenTab[] = openTabs
+    tabsForLookup: OpenTab[] = openTabs,
+    stitchOffset?: GridNavigateStitchOffset
   ) => {
     const previousMapName =
       activeTabIndex !== null && tabsForLookup[activeTabIndex]
         ? tabsForLookup[activeTabIndex].map.name
         : '';
+    const previousMap =
+      activeTabIndex !== null && tabsForLookup[activeTabIndex]
+        ? tabsForLookup[activeTabIndex].map
+        : null;
 
     if (index !== null) {
       const tab = tabsForLookup[index];
@@ -130,7 +137,25 @@ export function Maps({ routeParams }: MapsProps = {}) {
         createEditorStateMapForTabIfNotExists(tab.map.name);
         const nextMapName = tab.map.name;
         if (previousMapName !== nextMapName) {
-          switchMapViewport(previousMapName, nextMapName);
+          if (stitchOffset && previousMap) {
+            const placement = findMapGridPlacement(
+              previousMapName,
+              mapGrids
+            );
+            const slotTileW =
+              placement?.grid.mapWidth ?? previousMap.width;
+            const slotTileH =
+              placement?.grid.mapHeight ?? previousMap.height;
+            switchMapViewportPreservingStitch(
+              previousMapName,
+              nextMapName,
+              stitchOffset,
+              slotTileW * previousMap.spriteWidth,
+              slotTileH * previousMap.spriteHeight
+            );
+          } else {
+            switchMapViewport(previousMapName, nextMapName);
+          }
         }
         getEditorState().selectedMapName = nextMapName;
       }
@@ -342,7 +367,10 @@ export function Maps({ routeParams }: MapsProps = {}) {
     showNotification('Map created!', 'success');
   };
 
-  const openMapTabByName = (mapName: string) => {
+  const openMapTabByName = (
+    mapName: string,
+    stitchOffset?: GridNavigateStitchOffset
+  ) => {
     const mapIndex = maps.findIndex((m) => m.name === mapName);
     if (mapIndex < 0) {
       return;
@@ -354,7 +382,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
 
     if (existingTabIndex >= 0) {
       createEditorStateMapForTabIfNotExists(mapName);
-      setActiveTabIndex(existingTabIndex);
+      setActiveTabIndex(existingTabIndex, openTabs, stitchOffset);
     } else {
       const newTab: OpenTab = {
         mapIndex,
@@ -363,13 +391,16 @@ export function Maps({ routeParams }: MapsProps = {}) {
       const newTabs = [...openTabs, newTab];
       createEditorStateMapForTabIfNotExists(mapName);
       setOpenTabs(newTabs);
-      setActiveTabIndex(newTabs.length - 1);
+      setActiveTabIndex(newTabs.length - 1, newTabs, stitchOffset);
     }
     getEditorState().selectedMapName = mapName;
   };
 
-  const handleNavigateToGridMap = (mapName: string) => {
-    openMapTabByName(mapName);
+  const handleNavigateToGridMap = (
+    mapName: string,
+    stitchOffset: GridNavigateStitchOffset
+  ) => {
+    openMapTabByName(mapName, stitchOffset);
   };
 
   const handleCreateGridMap = (request: GridSlotCreateRequest) => {

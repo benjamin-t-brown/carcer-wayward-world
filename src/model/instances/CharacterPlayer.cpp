@@ -380,23 +380,4 @@ int characterGetRationSlotCapacity(const CharacterPlayer& characterPlayer,
   return baseRationSlots;
 }
 
-bmin::DynArray<ItemInstance>
-characterGetNearbyItems(const CharacterPlayer& characterPlayer) {
-  // TODO derive
-  bmin::DynArray<ItemInstance> items;
-  items.pushBack(ItemInstance{
-      .id = createRandomId(), .itemTemplateName = "PotionHealing", .quantity = 1});
-  items.pushBack(ItemInstance{
-      .id = createRandomId(), .itemTemplateName = "DaggerBronze", .quantity = 1});
-  items.pushBack(ItemInstance{
-      .id = createRandomId(), .itemTemplateName = "ShortSwordBronze", .quantity = 1});
-  items.pushBack(ItemInstance{
-      .id = createRandomId(), .itemTemplateName = "SwordBronze", .quantity = 1});
-  items.pushBack(ItemInstance{
-      .id = createRandomId(), .itemTemplateName = "LongbowOak", .quantity = 1});
-  items.pushBack(ItemInstance{
-      .id = createRandomId(), .itemTemplateName = "ArrowsStone", .quantity = 50});
-  return items;
-}
-
 } // namespace model

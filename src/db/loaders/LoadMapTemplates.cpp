@@ -150,6 +150,8 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       placement.eventId = entry.value("eventId", bmin::String());
       placement.requiresNonCombat = entry.value("requiresNonCombat", true);
       placement.requiresLook = entry.value("requiresLook", false);
+      placement.overlayVisibility = model::getTileOverlayVisibilityFromString(
+          entry.value("overlayVisibility", bmin::String("HIDDEN")));
       mapTemplate.eventTriggers.pushBack(std::move(placement));
     }
   }
@@ -165,6 +167,8 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       placement.destinationY = entry.value("destinationY", 0);
       placement.destinationLayer = entry.value("destinationLayer", 0);
       placement.requiresAction = entry.value("requiresAction", false);
+      placement.overlayVisibility = model::getTileOverlayVisibilityFromString(
+          entry.value("overlayVisibility", bmin::String("HIDDEN")));
       mapTemplate.travelTriggers.pushBack(std::move(placement));
     }
   }

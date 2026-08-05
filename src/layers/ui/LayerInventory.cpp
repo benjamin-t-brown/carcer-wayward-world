@@ -58,12 +58,24 @@ void LayerInventory::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (getState() != LayerState::ON) {
     return;
   }
-  if (!ui::isCancelActionKey(key)) {
-    return;
-  }
   auto stateManager = getStateManager();
   if (!stateManager) {
     remove();
+    return;
+  }
+
+  if (const auto partyIndex = ui::getPartyMemberIndexFromKey(key)) {
+    if (*partyIndex <
+        static_cast<int>(stateManager->getState().player.party.size())) {
+      stateManager->enqueueAction(
+          stateManager->getActionData(),
+          new state::actions::UiSetCurrentPartyMemberInventory(*partyIndex),
+          0);
+    }
+    return;
+  }
+
+  if (!ui::isCancelActionKey(key)) {
     return;
   }
   stateManager->enqueueAction(

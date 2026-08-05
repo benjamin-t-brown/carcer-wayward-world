@@ -19,6 +19,10 @@ const model::TileMetadata* resolveTileMetadata(const model::TileInstance& tile,
 bool isTileEffectivelyWalkable(const model::TileInstance& tile,
                                const db::Database& database);
 
+// Override wins when authored; else tileset isContainer; empty/missing → false.
+bool isTileEffectivelyContainer(const model::TileInstance& tile,
+                                const db::Database& database);
+
 // Closed door = tileset isDoor && !isWalkable. Ignores map walkability overrides.
 bool isClosedDoorTile(const model::TileInstance& tile, const db::Database& database);
 

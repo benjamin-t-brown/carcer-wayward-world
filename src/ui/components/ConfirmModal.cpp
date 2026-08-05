@@ -79,6 +79,7 @@ void ConfirmModal::build() {
   buttonGroup->setPos(style.x + paddingScaled, buttonsY);
   buttonGroup->setScale(style.scale);
   ButtonGroupProps groupProps;
+  groupProps.width = contentWidth;
   groupProps.alignment = ButtonGroupAlignment::RIGHT;
   groupProps.buttons.pushBack({.label = props.cancelButtonLabel});
   groupProps.buttons.pushBack({.label = props.confirmButtonLabel});

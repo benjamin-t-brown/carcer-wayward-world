@@ -19,6 +19,7 @@ struct InGameLayoutProps {
   int height = 0;
   bmin::DynArray<state::WorldActionType> worldActionTypes;
   bmin::DynArray<ChCompactInfoProps> partyMembers;
+  int selectedPartyMemberIndex = 0;
   float actionButtonScale = 1.f;
   InGameBorderType borderType = InGameBorderType::Wide;
 };

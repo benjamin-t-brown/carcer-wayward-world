@@ -18,10 +18,26 @@ struct MapTileItemEntry {
   int quantity = 1;
 };
 
+// Overlay icon drawn on the tile in MapView when the tile is visible.
+// Missing / unknown JSON → HIDDEN.
+enum class TileOverlayVisibility {
+  HIDDEN,
+  SHOW_EVENT_ON_TILE,
+  SHOW_TRAVEL_UP,
+  SHOW_TRAVEL_DOWN,
+};
+
+bmin::String getStringFromTileOverlayVisibility(TileOverlayVisibility visibility);
+TileOverlayVisibility getTileOverlayVisibilityFromString(const bmin::String& value);
+
+// Sprite name for MapView overlay, or empty when HIDDEN.
+bmin::String tileOverlayVisibilitySpriteName(TileOverlayVisibility visibility);
+
 struct TileEventTrigger {
   bmin::String eventId;
   bool requiresNonCombat = true;
   bool requiresLook = false;
+  TileOverlayVisibility overlayVisibility = TileOverlayVisibility::HIDDEN;
 };
 
 struct TravelTrigger {
@@ -31,6 +47,7 @@ struct TravelTrigger {
   int destinationY = 0;
   int destinationLayer = 0;
   bool requiresAction = false;
+  TileOverlayVisibility overlayVisibility = TileOverlayVisibility::HIDDEN;
 };
 
 struct TileLightSource {

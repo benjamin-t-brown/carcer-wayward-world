@@ -64,6 +64,7 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
         .eventId = et.eventId,
         .requiresNonCombat = et.requiresNonCombat,
         .requiresLook = et.requiresLook,
+        .overlayVisibility = et.overlayVisibility,
     };
   }
 
@@ -80,6 +81,7 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
         .destinationY = tt.destinationY,
         .destinationLayer = tt.destinationLayer,
         .requiresAction = tt.requiresAction,
+        .overlayVisibility = tt.overlayVisibility,
     };
   }
 

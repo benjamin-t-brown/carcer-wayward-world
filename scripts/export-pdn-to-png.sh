@@ -3,10 +3,10 @@
 # Script to recursively find all .pdn files and export them as .png files
 # Uses pdn2png.exe for conversion
 
-SCRIPT_DIR="$(dirname "$0")"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TARGET_DIR="$PROJECT_ROOT/src/assets/img"
-CONVERTER="./pdn2png.exe"
+CONVERTER="$SCRIPT_DIR/pdn2png.exe"
 
 # Check if converter exists
 if [ ! -f "$CONVERTER" ]; then

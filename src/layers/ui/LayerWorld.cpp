@@ -2,8 +2,10 @@
 #include "game/map/ActiveMapOrchestrator.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerInventory.h"
+#include "layers/ui/LayerPickUp.h"
 #include "model/Combat.h"
 #include "model/instances/CharacterPlayer.h"
+#include "model/instances/Player.h"
 #include "sdl2w/L10n.h"
 #include "sdl2w/Logger.h"
 #include "state/LayerManagerInterface.h"
@@ -11,7 +13,9 @@
 #include "state/WorldUpdater.h"
 #include "state/actions/combat/DoCombatAction.hpp"
 #include "state/actions/combat/EndCombat.hpp"
+#include "state/actions/combat/SetActiveCombatCharacter.hpp"
 #include "state/actions/combat/StartCombat.hpp"
+#include "state/actions/ui/UiSetSelectedPartyMemberId.hpp"
 #include "state/actions/ui/heldMove/UiUpdateHeldMove.hpp"
 #include "state/actions/world/WorldExamineAt.hpp"
 #include "state/actions/world/WorldMoveActionAim.hpp"
@@ -27,6 +31,7 @@
 #include "ui/helpers/worldActions.h"
 #include "ui/layouts/InGameLayout.h"
 #include "ui/observers/ObserverCancelWorldActionMode.hpp"
+#include "ui/observers/ObserverSetSelectedPartyMemberId.hpp"
 #include "ui/observers/ObserverWorldAction.hpp"
 #include <string_view>
 
@@ -77,13 +82,15 @@ LayerWorld::LayerWorld(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
 
   subscribeAction<state::actions::StartCombat>([this](auto&, auto&) { syncFromState(); });
   subscribeAction<state::actions::EndCombat>([this](auto&, auto&) { syncFromState(); });
+  subscribeAction<state::actions::SetActiveCombatCharacter>(
+      [this](auto&, auto&) { syncFromState(); });
+  subscribeAction<state::actions::UiSetSelectedPartyMemberId>(
+      [this](auto&, auto&) { syncFromState(); });
 
   syncFromState();
 }
 
-namespace {
-
-bool canPlayerIssueCombatMove(const state::State& state) {
+bool LayerWorld::canPlayerIssueCombatMove(const state::State& state) {
   const auto& world = state.world;
   if (!world.combat.active || !world.combat.isWaitingForAction) {
     return false;
@@ -91,7 +98,7 @@ bool canPlayerIssueCombatMove(const state::State& state) {
   return model::isPartyMember(state.player, world.combat.activeCharacterId);
 }
 
-void enqueueMapMove(state::StateManager& stateManager, int dx, int dy) {
+void LayerWorld::enqueueMapMove(state::StateManager& stateManager, int dx, int dy) {
   auto& state = stateManager.getState();
   if (state.world.combat.active) {
     if (!canPlayerIssueCombatMove(state)) {
@@ -107,7 +114,7 @@ void enqueueMapMove(state::StateManager& stateManager, int dx, int dy) {
       stateManager.getActionData(), new state::actions::WorldMovePlayer(dx, dy), 0);
 }
 
-void enqueueCombatWait(state::StateManager& stateManager) {
+void LayerWorld::enqueueCombatWait(state::StateManager& stateManager) {
   if (!canPlayerIssueCombatMove(stateManager.getState())) {
     return;
   }
@@ -117,7 +124,20 @@ void enqueueCombatWait(state::StateManager& stateManager) {
       0);
 }
 
-} // namespace
+void LayerWorld::ensureCurrentPartyMemberSelection(state::State& state) {
+  auto& player = state.player;
+  if (player.party.empty()) {
+    state.uiState.selectedPartyMemberId.clear();
+    return;
+  }
+
+  // UI selection only — never tied to map movement / party avatar.
+  if (model::playerFindPartyMemberIndexById(
+          player, state.uiState.selectedPartyMemberId) >= 0) {
+    return;
+  }
+  state.uiState.selectedPartyMemberId = player.party[0].instanceId;
+}
 
 void LayerWorld::syncCombatTitleBar() {
   auto inGameLayout = getUiElement<ui::InGameLayout>("inGameLayout");
@@ -160,9 +180,10 @@ void LayerWorld::confirmWorldActionAim(int tileX, int tileY) {
   const auto actionMode = stateManager->getState().world.actionMode;
   if (actionMode == model::WorldActionMode::EXAMINE) {
     ui::setHeldMoveActive(*stateManager, false);
-    stateManager->enqueueAction(stateManager->getActionData(),
-                                new state::actions::WorldExamineAt(tileX, tileY),
-                                0);
+    stateManager->enqueueAction(
+        stateManager->getActionData(),
+        new state::actions::WorldExamineAt(window, tileX, tileY),
+        0);
     return;
   }
   if (actionMode == model::WorldActionMode::TALK) {
@@ -409,6 +430,33 @@ void LayerWorld::attachWorldActionObservers(ui::InGameLayout* inGameLayout) {
   }
 }
 
+void LayerWorld::attachPartyMemberObservers(ui::InGameLayout* inGameLayout) {
+  if (!inGameLayout) {
+    return;
+  }
+
+  auto* stateManager = getStateManager();
+  if (!stateManager) {
+    return;
+  }
+
+  auto* chList = inGameLayout->getChildById("chList");
+  if (!chList) {
+    return;
+  }
+  auto* list = chList->getChildById("list");
+  if (!list) {
+    return;
+  }
+
+  const auto& party = stateManager->getState().player.party;
+  auto& children = list->getChildren();
+  for (size_t i = 0; i < children.size() && i < party.size(); i++) {
+    children[i]->addEventObserver(
+        new ui::ObserverSetSelectedPartyMemberId(party[i].instanceId));
+  }
+}
+
 void LayerWorld::syncWorldActionModeHighlight() {
   auto inGameLayout = getUiElement<ui::InGameLayout>("inGameLayout");
   if (!inGameLayout || !assertInterfaces()) {
@@ -420,6 +468,9 @@ void LayerWorld::syncWorldActionModeHighlight() {
   const bool inventoryOpen =
       layerManager != nullptr &&
       layerManager->getLayerById(LayerInventory::LAYER_ID) != nullptr;
+  const bool pickUpOpen =
+      layerManager != nullptr &&
+      layerManager->getLayerById(LayerPickUp::LAYER_ID) != nullptr;
   auto* actionButtons = inGameLayout->getChildById("actionButtons");
   if (!actionButtons) {
     return;
@@ -436,7 +487,8 @@ void LayerWorld::syncWorldActionModeHighlight() {
          actionMode == model::WorldActionMode::EXAMINE) ||
         (actionType == state::WorldActionType::TALK &&
          actionMode == model::WorldActionMode::TALK) ||
-        (actionType == state::WorldActionType::INVENTORY && inventoryOpen);
+        (actionType == state::WorldActionType::INVENTORY && inventoryOpen) ||
+        (actionType == state::WorldActionType::GET && pickUpOpen);
     if (button->isModeSelected != modeSelected) {
       button->isModeSelected = modeSelected;
     }
@@ -497,20 +549,27 @@ void LayerWorld::syncFromState() {
   auto& world = state.world;
   game::ActiveMapOrchestrator activeMap;
 
+  ensureCurrentPartyMemberSelection(state);
+
+  const int selectedIndex = model::playerFindPartyMemberIndexById(
+      player, state.uiState.selectedPartyMemberId);
+
   auto layoutProps = inGameLayout->getProps();
   setWorldActionTypes(state.turnMode, layoutProps.worldActionTypes);
   layoutProps.partyMembers.clear();
+  layoutProps.selectedPartyMemberIndex = selectedIndex >= 0 ? selectedIndex : 0;
   for (int i = 0; i < static_cast<int>(player.party.size()); i++) {
     const auto& member = player.party[i];
     ui::ChCompactInfoProps entry;
     entry.characterSpriteName = model::characterPlayerGetSprite(member);
     entry.hp = member.currentHp;
     entry.mana = member.currentMp;
-    entry.isSelected = (i == player.currentPartyMemberIndex);
+    entry.isSelected = (i == layoutProps.selectedPartyMemberIndex);
     layoutProps.partyMembers.pushBack(entry);
   }
   inGameLayout->setProps(layoutProps);
   attachWorldActionObservers(inGameLayout);
+  attachPartyMemberObservers(inGameLayout);
   syncWorldActionModeHighlight();
   syncActionModeCancelButton();
 
@@ -591,8 +650,8 @@ void LayerWorld::update(int deltaTime) {
 }
 
 void LayerWorld::render(int deltaTime) {
-  // World is SUSPENDED while inventory is open (update does not run); still refresh
-  // the inventory action button pressed state before drawing.
+  // World is SUSPENDED while inventory/pickup is open (update does not run); still
+  // refresh those action button pressed states before drawing.
   syncWorldActionModeHighlight();
   Layer::render(deltaTime);
 }

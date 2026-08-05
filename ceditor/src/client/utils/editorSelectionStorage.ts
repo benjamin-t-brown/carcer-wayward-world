@@ -6,7 +6,8 @@ export type EditorSelectionKey =
   | 'characterTemplates'
   | 'tilesetTemplates'
   | 'featTemplates'
-  | 'specialEvents';
+  | 'specialEvents'
+  | 'mapGrids';
 
 const STORAGE_KEY = 'ceditor.editorSelection';
 
@@ -20,6 +21,7 @@ export const EDITOR_SELECTION_ROUTE_PARAMS: Partial<
   characterTemplates: 'character',
   tilesetTemplates: 'tileset',
   specialEvents: 'event',
+  mapGrids: 'mapGrid',
 };
 
 type SelectionStore = Partial<Record<EditorSelectionKey, string>>;

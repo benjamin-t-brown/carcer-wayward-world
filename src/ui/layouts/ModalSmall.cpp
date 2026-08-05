@@ -1,8 +1,11 @@
 #include "ModalSmall.h"
+#include "bmin/StringInterop.h"
 #include "sdl2w/Draw.h"
 #include "ui/components/borders/BorderModalSmall.h"
+#include "ui/elements/Quad.h"
 #include "ui/elements/buttons/ButtonClose.h"
 #include "ui/helpers/modalLayoutFit.h"
+#include <algorithm>
 
 namespace ui {
 
@@ -85,6 +88,7 @@ UiElement* ModalSmall::getCloseButtonElement() { return getChildById("closeButto
 void ModalSmall::build() {
   removeChildById("border");
   removeChildById("closeButton");
+  removeChildById("headerIcon");
 
   if (props.width > 0 && props.height > 0) {
     if (props.layoutFit == LayoutFit::CappedCentered) {
@@ -100,6 +104,21 @@ void ModalSmall::build() {
     }
   }
 
+  constexpr int baseHeaderHeight = 80;
+  constexpr int baseIconSize = 64;
+  const float iconScale = props.iconScale > 0.f ? props.iconScale : 1.f;
+  const int headerHeight = std::max(1, static_cast<int>(baseHeaderHeight * iconScale));
+  const int iconWellSize = std::max(1, static_cast<int>(baseIconSize * iconScale));
+
+  int spriteW = 0;
+  int spriteH = 0;
+  if (!props.iconSprite.empty() && window) {
+    const auto& sprite =
+        window->getStore().getSprite(bmin::toStringView(props.iconSprite));
+    spriteW = std::max(1, sprite.w);
+    spriteH = std::max(1, sprite.h);
+  }
+
   // Create border element
   auto border = new BorderModalSmall(window, this);
   border->setId("border");
@@ -108,6 +127,8 @@ void ModalSmall::build() {
   border->setProps(BorderModalSmallProps{
       .width = style.width,
       .height = style.height,
+      .headerHeight = headerHeight,
+      .iconSize = iconWellSize,
   });
   addChild(border);
 
@@ -124,7 +145,23 @@ void ModalSmall::build() {
     addChild(modalClose);
   }
 
-  // TODO decoration sprite
+  if (!props.iconSprite.empty() && spriteW > 0 && spriteH > 0) {
+    const float drawScale = iconScale * style.scale;
+    const int screenW = static_cast<int>(spriteW * drawScale);
+    const int screenH = static_cast<int>(spriteH * drawScale);
+    auto [centerX, centerY] = border->getIconLocationCenter();
+
+    auto icon = new Quad(window, this);
+    icon->setId("headerIcon");
+    icon->setPos(centerX - screenW / 2, centerY - screenH / 2);
+    icon->setScale(drawScale);
+    icon->setProps(QuadProps{
+        .width = spriteW,
+        .height = spriteH,
+        .bgSprite = props.iconSprite,
+    });
+    addChild(icon);
+  }
 }
 
 void ModalSmall::render(int dt) {

@@ -12,5 +12,7 @@ struct Player {
 };
 CharacterPlayer* playerFindPartyMemberById(Player& _player, const bmin::String& _id);
 CharacterPlayer* playerFindPartyMemberByIndex(Player& _player, int _index);
+/** Index of party member with instanceId, or -1 if not found. */
+int playerFindPartyMemberIndexById(const Player& _player, const bmin::String& _id);
 
 } // namespace model

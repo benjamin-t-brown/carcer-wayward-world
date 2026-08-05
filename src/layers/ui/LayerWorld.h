@@ -16,12 +16,17 @@ class LayerWorld : public Layer {
 private:
   // void processPendingTriggers();
   void attachWorldActionObservers(ui::InGameLayout* inGameLayout);
+  void attachPartyMemberObservers(ui::InGameLayout* inGameLayout);
   void syncWorldActionModeHighlight();
   void syncActionModeCancelButton();
   void syncCombatTitleBar();
   void updateHeldMoveRepeat(int deltaTime);
   void confirmWorldActionAim(int tileX, int tileY);
   void updateAimFromMouse(int x, int y);
+  static bool canPlayerIssueCombatMove(const state::State& state);
+  static void enqueueMapMove(state::StateManager& stateManager, int dx, int dy);
+  static void enqueueCombatWait(state::StateManager& stateManager);
+  static void ensureCurrentPartyMemberSelection(state::State& state);
   float mapScale = 1.f;
   bool hasLastMousePos = false;
   int lastMouseX = 0;

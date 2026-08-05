@@ -227,17 +227,25 @@ export function migrateLegacyMap(
         }
       }
       if (tile.eventTrigger) {
+        const { overlayVisibility, ...eventRest } = tile.eventTrigger;
         map.eventTriggers.push({
           l,
           i,
-          ...tile.eventTrigger,
+          ...eventRest,
+          ...(overlayVisibility && overlayVisibility !== 'HIDDEN'
+            ? { overlayVisibility }
+            : {}),
         });
       }
       if (tile.travelTrigger) {
+        const { overlayVisibility, ...travelRest } = tile.travelTrigger;
         map.travelTriggers.push({
           l,
           i,
-          ...tile.travelTrigger,
+          ...travelRest,
+          ...(overlayVisibility && overlayVisibility !== 'HIDDEN'
+            ? { overlayVisibility }
+            : {}),
         });
       }
       if (tile.tileOverrides) {
@@ -304,6 +312,7 @@ export function materializeLayer(
         eventId: event.eventId,
         requiresNonCombat: event.requiresNonCombat,
         requiresLook: event.requiresLook,
+        overlayVisibility: event.overlayVisibility ?? 'HIDDEN',
       };
     }
 
@@ -316,6 +325,7 @@ export function materializeLayer(
         destinationY: travel.destinationY,
         destinationLayer: travel.destinationLayer ?? 0,
         requiresAction: travel.requiresAction ?? false,
+        overlayVisibility: travel.overlayVisibility ?? 'HIDDEN',
       };
     }
 
@@ -381,22 +391,33 @@ export function writeLayerFromTiles(
       }
     }
     if (tile.eventTrigger) {
+      const { overlayVisibility, ...eventRest } = tile.eventTrigger;
       map.eventTriggers.push({
         l,
         i,
-        ...tile.eventTrigger,
+        ...eventRest,
+        ...(overlayVisibility && overlayVisibility !== 'HIDDEN'
+          ? { overlayVisibility }
+          : {}),
       });
     }
     if (tile.travelTrigger) {
-      map.travelTriggers.push({
-        l,
-        i,
+      const { overlayVisibility, ...travelRest } = {
         destinationMapName: tile.travelTrigger.destinationMapName,
         destinationMarkerName: tile.travelTrigger.destinationMarkerName,
         destinationX: tile.travelTrigger.destinationX,
         destinationY: tile.travelTrigger.destinationY,
         destinationLayer: tile.travelTrigger.destinationLayer ?? 0,
         requiresAction: tile.travelTrigger.requiresAction ?? false,
+        overlayVisibility: tile.travelTrigger.overlayVisibility,
+      };
+      map.travelTriggers.push({
+        l,
+        i,
+        ...travelRest,
+        ...(overlayVisibility && overlayVisibility !== 'HIDDEN'
+          ? { overlayVisibility }
+          : {}),
       });
     }
     if (tile.tileOverrides) {

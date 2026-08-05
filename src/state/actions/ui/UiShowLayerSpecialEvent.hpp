@@ -3,7 +3,9 @@
 #include "bmin/String.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerSpecialEvent.h"
+#include "sdl2w/Logger.h"
 #include "state/AbstractAction.h"
+#include <stdexcept>
 
 namespace state {
 
@@ -25,11 +27,15 @@ class UiShowLayerSpecialEvent : public AbstractAction {
       existing->remove();
     }
 
-    const auto& gameEvent = database->getGameEvent(eventId.sliceView());
-    auto* layer = new layers::LayerSpecialEvent(
-        window, gameEvent, database->getGameEvents(), state->specialEventStorage);
-    layerManager->addLayer(layer);
-    layerManager->moveToFront(layer);
+    try {
+      const auto& gameEvent = database->getGameEvent(eventId.sliceView());
+      auto* layer = new layers::LayerSpecialEvent(
+          window, gameEvent, database->getGameEvents(), state->specialEventStorage);
+      layerManager->addLayer(layer);
+      layerManager->moveToFront(layer);
+    } catch (const std::exception& e) {
+      LOG(ERROR) << "UiShowLayerSpecialEvent: " << e.what() << LOG_ENDL;
+    }
   }
 
 public:

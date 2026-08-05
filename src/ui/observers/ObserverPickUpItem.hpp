@@ -1,23 +1,29 @@
 #pragma once
 
+#include "model/instances/ItemInstance.h"
+#include "state/StateManager.h"
+#include "state/actions/ui/UiPickUpItem.hpp"
 #include "ui/UiElement.h"
 
 namespace ui {
+
 class ObserverPickUpItem : public ui::UiEventObserver,
                            public state::StateManagerInterface {
-
-  model::ItemInstance item;
+  bmin::String itemId;
 
 public:
-  ObserverPickUpItem(const model::ItemInstance& item) : item(item) {}
+  explicit ObserverPickUpItem(const model::ItemInstance& item) : itemId(item.id) {}
 
-  void onClick(int mouseX, int mouseY, int button) override {
-    LOG(INFO) << "ObserverPickUpItem::onClick " << item.itemTemplateName << " " << item.id
-              << LOG_ENDL;
+  void onClick(int /*mouseX*/, int /*mouseY*/, int /*button*/) override {
+    LOG(INFO) << "ObserverPickUpItem::onClick id=" << itemId << LOG_ENDL;
     auto stateManager = getStateManager();
     if (!stateManager) {
       return;
     }
+    stateManager->enqueueAction(stateManager->getActionData(),
+                                new state::actions::UiPickUpItem(itemId),
+                                0);
   }
 };
+
 } // namespace ui

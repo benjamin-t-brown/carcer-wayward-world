@@ -2,7 +2,9 @@
 
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerInventory.h"
+#include "model/instances/Player.h"
 #include "state/AbstractAction.h"
+#include "state/State.h"
 
 namespace state {
 
@@ -13,7 +15,7 @@ class UiShowLayerInventory : public AbstractAction {
 
   void act() override {
     auto layerManager = getLayerManager();
-    if (!layerManager) {
+    if (!layerManager || !state) {
       return;
     }
     auto existing = layerManager->getLayerById(layers::LayerInventory::LAYER_ID);
@@ -21,6 +23,13 @@ class UiShowLayerInventory : public AbstractAction {
       layerManager->moveToFront(existing);
       return;
     }
+
+    // Open inventory on the HUD-selected party member.
+    auto& player = state->player;
+    const int selectedIndex = model::playerFindPartyMemberIndexById(
+        player, state->uiState.selectedPartyMemberId);
+    player.currentPartyMemberInventoryIndex = selectedIndex >= 0 ? selectedIndex : 0;
+
     auto layer = new layers::LayerInventory(window);
     layerManager->addLayer(layer);
     layerManager->moveToFront(layer);

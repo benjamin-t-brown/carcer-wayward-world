@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import {
   CarcerMapTileTemplate,
   GameEvent,
+  TILE_OVERLAY_VISIBILITY_OPTIONS,
+  TileOverlayVisibility,
   TilesetTemplate,
 } from '../../../types/assets';
 import { useAssets } from '../../../contexts/AssetsContext';
@@ -45,6 +47,7 @@ export function EventTriggerSection({
         eventId,
         requiresNonCombat: true,
         requiresLook: options?.forceRequiresLook ? true : !walkable,
+        overlayVisibility: 'HIDDEN',
       };
     });
   };
@@ -346,6 +349,48 @@ export function EventTriggerSection({
                 });
               }}
             />
+            <div>
+              <label
+                style={{
+                  color: '#858585',
+                  fontSize: '10px',
+                  textTransform: 'uppercase',
+                  fontWeight: 'bold',
+                  display: 'block',
+                  marginBottom: '4px',
+                }}
+              >
+                Tile Overlay Visibility
+              </label>
+              <select
+                value={
+                  selectedTile.eventTrigger.overlayVisibility ?? 'HIDDEN'
+                }
+                onChange={(e) => {
+                  const value = e.target.value as TileOverlayVisibility;
+                  updateTile((tile) => {
+                    if (tile.eventTrigger) {
+                      tile.eventTrigger.overlayVisibility = value;
+                    }
+                  });
+                }}
+                style={{
+                  width: '100%',
+                  padding: '4px 6px',
+                  border: '1px solid #3e3e42',
+                  backgroundColor: '#1e1e1e',
+                  color: '#ffffff',
+                  fontSize: '12px',
+                  borderRadius: '4px',
+                }}
+              >
+                {TILE_OVERLAY_VISIBILITY_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </>
       )}

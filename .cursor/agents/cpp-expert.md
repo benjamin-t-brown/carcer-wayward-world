@@ -46,8 +46,9 @@ Follow `.cursor/rules/cpp-code.mdc` for all `src/**/*.cpp` and `src/**/*.h`:
 - Use `LOG` from `sdl2w/Logger.h` instead of iostream/printf
 - Wrap **user-facing display text** in `TRANSLATE("...")` from `sdl2w/L10n.h` (UI labels, button text, modal titles, in-game notifications shown to the player). Do **not** wrap error/warning/log strings (`LOG`, assert messages, loader diagnostics) — those stay plain literals for developers. After adding new `TRANSLATE` strings, run `scripts/update-translations.sh`.
 - Mark `override` on overridden methods
+- **Prefer private / private `static` member functions** over anonymous-namespace free helpers when the logic belongs to one class (layers, UI, model helpers, etc.). Put class-owned constants on the class as `static constexpr` members. Do **not** hide class-local helpers in `namespace { ... }` in the `.cpp` just for linkage. Exceptions: true file-local utilities with no owning class, shared peer helpers, or small observer/adapter types that match an existing pattern.
 
-For `src/ui/**`, also follow `.cursor/rules/cpp-ui.mdc` (UiElement hierarchy, `addChild`, call `build` after property changes).
+For `src/ui/**`, also follow `.cursor/rules/cpp-ui.mdc` (UiElement hierarchy, `addChild`, call `build` after property changes; same member-over-anonymous-namespace rule for layout/sprite constants).
 
 ## Build and run (critical)
 

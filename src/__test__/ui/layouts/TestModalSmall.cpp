@@ -6,9 +6,50 @@
 #include "ui/UiElement.h"
 #include "ui/elements/TextLine.h"
 #include "ui/layouts/ModalSmall.h"
-#include <memory>
 #include "bmin/DynArray.h"
+#include "bmin/String.h"
 #include "bmin/UniquePtr.h"
+
+namespace {
+
+constexpr const char* kPortraitSprite = "portraits0_2";
+
+ui::ModalSmall* makeModalSmall(sdl2w::Window& window,
+                               int x,
+                               int y,
+                               int width,
+                               int height,
+                               float iconScale,
+                               const char* titleText) {
+  auto* modal = new ui::ModalSmall(&window);
+  modal->setPos(x, y);
+  modal->setScale(1.f);
+  modal->setProps(ui::ModalSmallProps{
+      .width = width,
+      .height = height,
+      .layoutFit = ui::LayoutFit::FullBleed,
+      .backgroundColor = ui::Colors::ModalStandardBackground,
+      .iconSprite = kPortraitSprite,
+      .iconScale = iconScale,
+      .enableCloseButton = true,
+  });
+
+  auto* title = new ui::TextLine(&window, modal);
+  ui::TextFontProps titleFont;
+  ui::setBaseFontConfig(titleFont, ui::BaseFontConfig::MODAL_TITLE);
+  ui::TextLineProps titleProps;
+  titleProps.fontFamily = titleFont.fontFamily;
+  titleProps.fontSize = sdl2w::TEXT_SIZE_24;
+  titleProps.fontColor = ui::Colors::Black;
+  titleProps.textAlign = ui::TextAlign::LEFT_TOP;
+  titleProps.textBlocks.pushBack({.text = titleText});
+  title->setProps(titleProps);
+  modal->setTitleElement(title);
+
+  return modal;
+}
+
+} // namespace
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start ModalSmall test" << LOG_ENDL;
@@ -16,52 +57,23 @@ int main(int argc, char** argv) {
 
   bmin::DynArray<bmin::UniquePtr<ui::UiElement>> elements;
 
-  auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
-    LOG(INFO) << "ModalSmall test initialized" << LOG_ENDL;
+  auto _init = [&](sdl2w::Window& window, sdl2w::Store& /*store*/) {
+    LOG(INFO) << "ModalSmall test initialized (iconScale 1 vs 2)" << LOG_ENDL;
 
-    auto [windowWidth, windowHeight] = window.getDims();
+    constexpr int modalW = 360;
+    constexpr int modalH = 280;
+    constexpr int gap = 24;
+    constexpr int leftX = 40;
+    constexpr int rightX = leftX + modalW + gap;
+    constexpr int topY = 60;
 
-    // Create ModalSmall layout — window dims; default CappedCentered fits/centers.
-    auto modalSmall = new ui::ModalSmall(&window);
-    modalSmall->setPos(0, 0);
-
-    // Set layout properties
-    ui::ModalSmallProps props;
-    props.width = windowWidth;
-    props.height = windowHeight;
-    props.backgroundColor = ui::Colors::ModalStandardBackground;
-    props.iconSprite = "";
-    modalSmall->setProps(props);
-
-    // Create title
-    auto title = new ui::TextLine(&window, modalSmall);
-    ui::TextFontProps titleFont;
-    ui::setBaseFontConfig(titleFont, ui::BaseFontConfig::MODAL_TITLE);
-    ui::TextLineProps titleProps;
-    titleProps.fontFamily = titleFont.fontFamily;
-    titleProps.fontSize = sdl2w::TEXT_SIZE_24;
-    titleProps.fontColor = ui::Colors::Black;
-    ui::TextBlock titleBlock;
-    titleBlock.text = "Small Modal Title";
-    titleProps.textBlocks.pushBack(titleBlock);
-    title->setProps(titleProps);
-    modalSmall->setTitleElement(title);
-
-    // auto subtitle = bmin::makeUnique<ui::TextLine>(&window);
-    // subtitle->setPos(0, 0);
-    // subtitle->setProps(ui::TextLineProps{
-    //     .textBlocks = {{.text = "This is a small modal subtitle"}},
-    //     .fontFamily = ui::FontFamily::TEXT,
-    //     .fontSize = sdl2w::TEXT_SIZE_16,
-    //     .fontColor = ui::Colors::White,
-    // });
-    // modalLayout->setSubtitleElement(subtitle.release());
-
-    elements.pushBack(bmin::UniquePtr<ui::UiElement>(modalSmall));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(
+        makeModalSmall(window, leftX, topY, modalW, modalH, 1.f, "iconScale = 1")));
+    elements.pushBack(bmin::UniquePtr<ui::UiElement>(
+        makeModalSmall(window, rightX, topY, modalW, modalH, 2.f, "iconScale = 2")));
 
     auto& events = window.getEvents();
     events.setMouseEvent(
-        //
         sdl2w::MouseEventCb::ON_MOUSE_DOWN,
         [&](int x, int y, int button) {
           LOG(INFO) << "Mouse down at: " << x << ", " << y << " - button: " << button
@@ -70,34 +82,25 @@ int main(int argc, char** argv) {
             elem->checkMouseDownEvent(x, y, button);
           }
         });
-    events.setMouseEvent(
-        //
-        sdl2w::MouseEventCb::ON_MOUSE_UP,
-        [&](int x, int y, int button) {
-          for (auto& elem : elements) {
-            elem->checkMouseUpEvent(x, y, button);
-          }
-        });
+    events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_UP, [&](int x, int y, int button) {
+      for (auto& elem : elements) {
+        elem->checkMouseUpEvent(x, y, button);
+      }
+    });
   };
 
-  auto _update = [&](sdl2w::Window& window, sdl2w::Store& store) {
+  auto _update = [&](sdl2w::Window& window, sdl2w::Store& /*store*/) {
     auto& events = window.getEvents();
-    auto mouseX = events.mouseX;
-    auto mouseY = events.mouseY;
-
-    // Check hover events for all buttons
     for (auto& elem : elements) {
       if (elem) {
-        elem->checkHoverEvent(mouseX, mouseY);
+        elem->checkHoverEvent(events.mouseX, events.mouseY);
       }
     }
   };
 
-  auto _render = [&](sdl2w::Window& window, sdl2w::Store& store) {
+  auto _render = [&](sdl2w::Window& window, sdl2w::Store& /*store*/) {
     auto& draw = window.getDraw();
     draw.clearScreen();
-
-    // Render all elements
     for (auto& element : elements) {
       element->render(window.getDeltaTime());
     }
@@ -109,10 +112,12 @@ int main(int argc, char** argv) {
     return true;
   };
 
-  setupTestUi(
-      argc, argv, TestUiParams{800, 600, "ModalSmall Test"}, _init, _updateRender, [&]() {
-        elements.clear();
-      });
+  setupTestUi(argc,
+              argv,
+              TestUiParams{800, 600, "ModalSmall iconScale Test"},
+              _init,
+              _updateRender,
+              [&]() { elements.clear(); });
   LOG(INFO) << "End ModalSmall test" << LOG_ENDL;
   return 0;
 }

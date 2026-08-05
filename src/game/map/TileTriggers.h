@@ -10,7 +10,8 @@
 
 namespace game {
 
-// Party avatar on the active map, or nullptr.
+// Party leader avatar (party[0]) on the active map, or nullptr.
+// Independent of UI selection (selectedPartyMemberId).
 model::CharacterInstance* findPartyAvatarOnActiveMap(model::ActiveMap& activeMap,
                                                      model::Player& player);
 
@@ -18,10 +19,20 @@ const model::CharacterInstance*
 findPartyAvatarOnActiveMap(const model::ActiveMap& activeMap,
                            const model::Player& player);
 
-// Move existing party avatar to (x, y) world tiles, or create one from the
-// current party member if missing. Returns nullptr if the party is empty.
+// Move existing party leader avatar to (x, y) world tiles, or create one from
+// party[0] if missing. Returns nullptr if the party is empty.
 model::CharacterInstance*
 placePartyAvatarAt(model::ActiveMap& activeMap, model::Player& player, int x, int y);
+
+// Character for drop/pickup placement: prefer the given character if present on
+// the active map, otherwise the party leader avatar.
+const model::CharacterInstance*
+findDropCharacterOnActiveMap(const model::ActiveMap& activeMap,
+                             const model::Player& player,
+                             const bmin::String& characterId);
+model::CharacterInstance* findDropCharacterOnActiveMap(model::ActiveMap& activeMap,
+                                                       model::Player& player,
+                                                       const bmin::String& characterId);
 
 // After a successful step onto (x, y) local map coords: queue special event or travel.
 void queueStepTriggersAt(state::Triggers& triggers,

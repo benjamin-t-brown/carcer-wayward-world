@@ -3,6 +3,7 @@
 #include "model/Combat.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/Camera.h"
+#include "model/instances/Player.h"
 #include "model/instances/World.h"
 #include "state/actions/combat/ActionBase.hpp"
 #include "state/actions/world/WorldSetCamera.hpp"
@@ -47,6 +48,11 @@ class SetActiveCombatCharacter : public CombatAction {
 
     combat.activeCharacterId = characterId;
     combat.isWaitingForAction = true;
+
+    if (model::isPartyMember(state->player, characterId)) {
+      // Highlight the acting party member in the HUD only.
+      state->uiState.selectedPartyMemberId = characterId;
+    }
 
     world.camera.cameraFollowCharacterId = characterId;
     world.camera.cameraMode = model::CameraMode::Follow;

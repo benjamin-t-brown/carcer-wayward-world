@@ -25,6 +25,9 @@ getWorldActionFromKeyboardShortcut(std::string_view key, model::TurnMode turnMod
   if (key == "i" || key == "I") {
     return state::WorldActionType::INVENTORY;
   }
+  if (key == "g" || key == "G") {
+    return state::WorldActionType::GET;
+  }
   if (key == " ") {
     return state::WorldActionType::INTERACT;
   }
@@ -70,6 +73,27 @@ bool isCancelActionKey(std::string_view key) { return key == "Escape"; }
 
 bool isConfirmActionKey(std::string_view key) {
   return key == "Return" || key == "Keypad Enter";
+}
+
+std::optional<int> getPartyMemberIndexFromKey(std::string_view key) {
+  if (key.size() != 1 || key[0] < '1' || key[0] > '6') {
+    return std::nullopt;
+  }
+  return static_cast<int>(key[0] - '1');
+}
+
+std::optional<int> getPickUpItemIndexFromKey(std::string_view key) {
+  if (key.size() != 1) {
+    return std::nullopt;
+  }
+  char c = key[0];
+  if (c >= 'A' && c <= 'Z') {
+    c = static_cast<char>(c - 'A' + 'a');
+  }
+  if (c < 'a' || c > 'z') {
+    return std::nullopt;
+  }
+  return static_cast<int>(c - 'a');
 }
 
 } // namespace ui

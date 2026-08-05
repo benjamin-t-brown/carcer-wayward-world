@@ -4,6 +4,7 @@
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/CharacterTemplate.h"
 #include "model/templates/MapGrids.h"
+#include "model/templates/SpecialEvents.h"
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
 #include "state/State.h"
@@ -97,6 +98,12 @@ int main(int /*argc*/, char** /*argv*/) {
 
   db::Database database;
   state::DatabaseInterface::setDatabase(&database);
+
+  auto talkEvent = model::GameEvent{};
+  talkEvent.id = "npc_talk_event";
+  talkEvent.title = "NPC Talk";
+  talkEvent.eventType = model::GameEventType::TALK;
+  database.addGameEvent(talkEvent);
 
   auto talker = model::CharacterTemplate{};
   talker.name = "TalkNpc";
@@ -260,6 +267,47 @@ int main(int /*argc*/, char** /*argv*/) {
                         state.world.actionAimTile->x == 3 &&
                         state.world.actionAimTile->y == 2,
                     "aim kept when not visible") &&
+         ok;
+  }
+
+  {
+    auto missingTalker = model::CharacterTemplate{};
+    missingTalker.name = "BrokenTalkNpc";
+    missingTalker.label = "Broken Talker";
+    missingTalker.talk.talkName = "missing_talk_event";
+    database.addCharacterTemplate(missingTalker);
+
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupState(database, state);
+    state.world.actionMode = model::WorldActionMode::TALK;
+    state.world.actionAimTile = model::TileXY{3, 2};
+
+    auto member = model::CharacterPlayer{};
+    member.instanceId = "player1";
+    state.player.party.pushBack(member);
+
+    state.world.activeMap.characters.pushBack(model::CharacterInstance{
+        .id = "player1",
+        .templateName = "TalkNpc",
+        .x = 2,
+        .y = 2,
+    });
+    state.world.activeMap.characters.pushBack(model::CharacterInstance{
+        .id = "npc_broken",
+        .templateName = "BrokenTalkNpc",
+        .x = 3,
+        .y = 2,
+    });
+
+    state::actions::WorldTalkAt talkAt(3, 2);
+    talkAt.execute(&state);
+
+    ok = assertFalse(state.triggers.pendingSpecialEventId.has_value(),
+                     "missing talk event does not queue") &&
+         ok;
+    ok = assertTrue(state.world.actionMode == model::WorldActionMode::NONE,
+                    "talk mode cleared for missing event") &&
          ok;
   }
 

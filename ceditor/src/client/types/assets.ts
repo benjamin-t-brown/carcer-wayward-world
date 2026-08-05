@@ -1199,10 +1199,42 @@ export interface TileOverrides {
   lightSourceOverride?: TileLightSource;
 }
 
+/** Overlay icon drawn on the tile in-game. Missing → HIDDEN. */
+export type TileOverlayVisibility =
+  | 'HIDDEN'
+  | 'SHOW_EVENT_ON_TILE'
+  | 'SHOW_TRAVEL_UP'
+  | 'SHOW_TRAVEL_DOWN';
+
+export const TILE_OVERLAY_VISIBILITY_OPTIONS: TileOverlayVisibility[] = [
+  'HIDDEN',
+  'SHOW_EVENT_ON_TILE',
+  'SHOW_TRAVEL_UP',
+  'SHOW_TRAVEL_DOWN',
+];
+
+/** Sprite drawn on the tile for overlay visibility; empty when HIDDEN. */
+export function tileOverlayVisibilitySpriteName(
+  visibility: TileOverlayVisibility | undefined
+): string {
+  switch (visibility) {
+    case 'SHOW_EVENT_ON_TILE':
+      return 'extra_4';
+    case 'SHOW_TRAVEL_UP':
+      return 'extra_5';
+    case 'SHOW_TRAVEL_DOWN':
+      return 'extra_6';
+    default:
+      return '';
+  }
+}
+
 export interface TileEventTrigger {
   eventId: string;
   requiresNonCombat?: boolean;
   requiresLook?: boolean;
+  /** Default HIDDEN when omitted from JSON. */
+  overlayVisibility?: TileOverlayVisibility;
 }
 
 export interface TravelTrigger {
@@ -1214,6 +1246,8 @@ export interface TravelTrigger {
   destinationLayer: number;
   /** When true, travel fires on Interact while standing on the tile. */
   requiresAction?: boolean;
+  /** Default HIDDEN when omitted from JSON. */
+  overlayVisibility?: TileOverlayVisibility;
 }
 
 export type MapType = 'TOWN' | 'OUTDOOR';
@@ -1333,6 +1367,39 @@ export function resizeMapGridCells(
   for (let y = 0; y < Math.min(oldHeight, height); y++) {
     for (let x = 0; x < Math.min(oldWidth, width); x++) {
       next[y][x] = cells[y]?.[x] ?? '';
+    }
+  }
+  return next;
+}
+
+/**
+ * Shift map-grid cell contents by (offsetX, offsetY) slots.
+ * Cells that would leave the grid bounds are dropped (same as resize truncation).
+ */
+export function shiftMapGridCells(
+  cells: string[][],
+  offsetX: number,
+  offsetY: number
+): string[][] {
+  const height = cells.length;
+  const width = cells[0]?.length ?? 0;
+  if (height === 0 || width === 0) {
+    return cells;
+  }
+  const dx = Math.trunc(offsetX) || 0;
+  const dy = Math.trunc(offsetY) || 0;
+  if (dx === 0 && dy === 0) {
+    return cells.map((row) => row.slice());
+  }
+  const next = createEmptyMapGridCells(width, height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const destX = x + dx;
+      const destY = y + dy;
+      if (destX < 0 || destX >= width || destY < 0 || destY >= height) {
+        continue;
+      }
+      next[destY][destX] = cells[y]?.[x] ?? '';
     }
   }
   return next;

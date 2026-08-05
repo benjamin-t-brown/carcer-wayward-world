@@ -55,14 +55,11 @@ findPartyAvatarOnActiveMap(const model::ActiveMap& activeMap,
     return nullptr;
   }
 
-  auto partyIndex = player.currentPartyMemberIndex;
-  if (partyIndex < 0 || static_cast<size_t>(partyIndex) >= player.party.size()) {
-    partyIndex = 0;
-  }
-  const auto& member = player.party[static_cast<size_t>(partyIndex)];
-
+  // Town/outdoor movement always uses the party leader avatar (party[0]).
+  // UI selection (selectedPartyMemberId) must not affect which avatar moves.
+  const auto& leader = player.party[0];
   for (size_t i = 0; i < activeMap.characters.size(); i++) {
-    if (activeMap.characters[i].id == member.instanceId) {
+    if (activeMap.characters[i].id == leader.instanceId) {
       return &activeMap.characters[i];
     }
   }
@@ -75,11 +72,7 @@ placePartyAvatarAt(model::ActiveMap& activeMap, model::Player& player, int x, in
     return nullptr;
   }
 
-  auto partyIndex = player.currentPartyMemberIndex;
-  if (partyIndex < 0 || static_cast<size_t>(partyIndex) >= player.party.size()) {
-    partyIndex = 0;
-  }
-  const auto& member = player.party[static_cast<size_t>(partyIndex)];
+  const auto& leader = player.party[0];
 
   auto* avatar = findPartyAvatarOnActiveMap(activeMap, player);
   if (avatar) {
@@ -89,16 +82,39 @@ placePartyAvatarAt(model::ActiveMap& activeMap, model::Player& player, int x, in
   }
 
   auto instance = model::CharacterInstance{};
-  instance.id = member.instanceId;
-  instance.name = member.name.empty() ? member.params.name : member.name;
+  instance.id = leader.instanceId;
+  instance.name = leader.name.empty() ? leader.params.name : leader.name;
   instance.templateName =
-      member.templateName.empty() ? member.params.name : member.templateName;
+      leader.templateName.empty() ? leader.params.name : leader.templateName;
   instance.x = x;
   instance.y = y;
   instance.spawnX = x;
   instance.spawnY = y;
   activeMap.characters.pushBack(std::move(instance));
   return findPartyAvatarOnActiveMap(activeMap, player);
+}
+
+const model::CharacterInstance*
+findDropCharacterOnActiveMap(const model::ActiveMap& activeMap,
+                             const model::Player& player,
+                             const bmin::String& characterId) {
+  if (!characterId.empty()) {
+    for (size_t i = 0; i < activeMap.characters.size(); i++) {
+      if (activeMap.characters[i].id == characterId) {
+        return &activeMap.characters[i];
+      }
+    }
+  }
+  return findPartyAvatarOnActiveMap(activeMap, player);
+}
+
+model::CharacterInstance* findDropCharacterOnActiveMap(model::ActiveMap& activeMap,
+                                                       model::Player& player,
+                                                       const bmin::String& characterId) {
+  return const_cast<model::CharacterInstance*>(findDropCharacterOnActiveMap(
+      static_cast<const model::ActiveMap&>(activeMap),
+      static_cast<const model::Player&>(player),
+      characterId));
 }
 
 void queueStepTriggersAt(state::Triggers& triggers,
@@ -169,11 +185,15 @@ bmin::String formatExamineMessage(const model::MapInstance& map,
     appendLine(characterLabelAt(database, character));
   }
 
-  for (const auto& item : activeMap.items) {
-    if (item.x != worldX || item.y != worldY) {
-      continue;
+  const bool tileIsContainer =
+      tile != nullptr && isTileEffectivelyContainer(*tile, database);
+  if (!tileIsContainer) {
+    for (const auto& item : activeMap.items) {
+      if (item.x != worldX || item.y != worldY) {
+        continue;
+      }
+      appendLine(itemLabelAt(database, item.itemTemplateName));
     }
-    appendLine(itemLabelAt(database, item.itemTemplateName));
   }
 
   return message;

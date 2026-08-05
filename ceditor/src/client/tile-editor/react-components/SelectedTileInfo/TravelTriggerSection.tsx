@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
+  TILE_OVERLAY_VISIBILITY_OPTIONS,
+  TileOverlayVisibility,
 } from '../../../types/assets';
 import { SearchSelect } from '../../../elements/SearchSelect';
 import { collectMarkerNamesOnMap } from '../../mapLocate';
@@ -122,6 +124,7 @@ export function TravelTriggerSection({
                   destinationY,
                   destinationLayer: currentLayer,
                   requiresAction: true,
+                  overlayVisibility: 'HIDDEN',
                 };
               });
             }}
@@ -343,6 +346,27 @@ export function TravelTriggerSection({
               });
             }}
           />
+          <div>
+            <label style={fieldLabelStyle}>Tile Overlay Visibility</label>
+            <select
+              value={selectedTile.travelTrigger.overlayVisibility ?? 'HIDDEN'}
+              onChange={(e) => {
+                const value = e.target.value as TileOverlayVisibility;
+                updateTile((tile) => {
+                  if (tile.travelTrigger) {
+                    tile.travelTrigger.overlayVisibility = value;
+                  }
+                });
+              }}
+              style={numberInputStyle}
+            >
+              {TILE_OVERLAY_VISIBILITY_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       )}
 

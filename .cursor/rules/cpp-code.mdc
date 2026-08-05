@@ -15,3 +15,27 @@ globs: ["src/**/*.cpp", "src/**/*.h"]
 - prefer const references if passing by reference.
 - prefer using LOG macro from "sdl2w/Logger.h" instead of iostream or printf
 - mark override when a method is overridden
+
+## Class-local helpers (prefer members over anonymous namespaces)
+
+When a helper is only used by one class, put it on that class — not in an anonymous namespace in the `.cpp`.
+
+- **Prefer** private (or private `static`) member functions and `static constexpr` members on the class.
+- **Do not** stash class-owned helpers or constants in `namespace { ... }` just to hide them from the linker.
+- **OK** to keep free functions / anonymous-namespace helpers when they are shared across translation units' peers, true file-local utilities with no owning class, or small observer/adapter types that follow an existing pattern (e.g. button observers).
+
+```cpp
+// ❌ BAD — helper belongs to LayerWorld but lives in an anonymous namespace
+namespace {
+bool canPlayerIssueCombatMove(const state::State& state) { ... }
+void enqueueMapMove(state::StateManager& stateManager, int dx, int dy) { ... }
+}
+
+// ✅ GOOD — private static members on the class
+class LayerWorld : public Layer {
+  static bool canPlayerIssueCombatMove(const state::State& state);
+  static void enqueueMapMove(state::StateManager& stateManager, int dx, int dy);
+};
+```
+
+For UI layout/sprite constants specifically, also see `cpp-ui.mdc`.

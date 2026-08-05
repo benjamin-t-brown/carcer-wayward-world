@@ -21,7 +21,11 @@ interface NotificationState {
   id: number;
 }
 
-export function MapGrids() {
+export function MapGrids({
+  routeParams,
+}: {
+  routeParams?: URLSearchParams;
+}) {
   const { mapGrids, setMapGrids, saveMapGrids } = useAssets();
   const [editIndex, setEditIndex] = useState<number>(-1);
   const [searchTerm, setSearchTerm] = useState('');
@@ -54,6 +58,7 @@ export function MapGrids() {
     getId: (grid) => grid.name,
     selectedIndex: editIndex,
     setSelectedIndex: setEditIndex,
+    routeParams,
   });
 
   const handleClone = (filteredIndex: number) => {

@@ -72,7 +72,7 @@
     "spritesheet": "actors0",
     "spriteOffset": 2,
     "talk": {
-      "talkName": "talkId",
+      "talkName": "",
       "portraitName": "portraitSprite"
     },
     "combat": {
@@ -200,7 +200,7 @@
     "spritesheet": "actors0",
     "spriteOffset": 2,
     "talk": {
-      "talkName": "talkId",
+      "talkName": "",
       "portraitName": "portraitSprite"
     },
     "combat": {
@@ -269,7 +269,7 @@
     "spritesheet": "actors0",
     "spriteOffset": 6,
     "talk": {
-      "talkName": "talkId",
+      "talkName": "",
       "portraitName": "portraitSprite"
     },
     "combat": {
@@ -338,7 +338,7 @@
     "spritesheet": "actors0",
     "spriteOffset": 8,
     "talk": {
-      "talkName": "talkId",
+      "talkName": "",
       "portraitName": "portraitSprite"
     },
     "combat": {
@@ -407,7 +407,7 @@
     "spritesheet": "actors0",
     "spriteOffset": 14,
     "talk": {
-      "talkName": "talkId",
+      "talkName": "",
       "portraitName": "portraitSprite"
     },
     "combat": {
@@ -476,7 +476,7 @@
     "spritesheet": "actors0",
     "spriteOffset": 20,
     "talk": {
-      "talkName": "talkId",
+      "talkName": "",
       "portraitName": "portraitSprite"
     },
     "combat": {
@@ -545,7 +545,7 @@
     "spritesheet": "actors0",
     "spriteOffset": 28,
     "talk": {
-      "talkName": "talkId",
+      "talkName": "",
       "portraitName": "portraitSprite"
     },
     "combat": {

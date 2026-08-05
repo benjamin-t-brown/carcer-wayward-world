@@ -7645,6 +7645,45 @@
     ]
   },
   {
+    "id": "alinea_sign_shopPawn",
+    "title": "Pawn Shop - No Junk Please",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "e43r86kjy7b",
+        "autoAdvance": true
+      },
+      {
+        "id": "e43r86kjy7b",
+        "x": 248,
+        "y": 128,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "The sign says: \"Pawn Shop - No Junk Please\"",
+        "execStr": "",
+        "next": "o7us9fr10ok",
+        "autoAdvance": true
+      },
+      {
+        "id": "o7us9fr10ok",
+        "x": 454,
+        "y": 249,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
     "id": "alinea_sign_warehouse1",
     "title": "Warehouse 1",
     "eventType": "MODAL",

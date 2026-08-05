@@ -25,11 +25,8 @@ bmin::String resolveFollowCharacterId(const State& state) {
     return bmin::String{};
   }
 
-  auto partyIndex = player.currentPartyMemberIndex;
-  if (partyIndex < 0 || static_cast<size_t>(partyIndex) >= player.party.size()) {
-    partyIndex = 0;
-  }
-  return player.party[static_cast<size_t>(partyIndex)].instanceId;
+  // Default follow target is the party leader avatar used for town movement.
+  return player.party[0].instanceId;
 }
 
 void enqueueCpuCombatTurn(StateManager& stateManager) {

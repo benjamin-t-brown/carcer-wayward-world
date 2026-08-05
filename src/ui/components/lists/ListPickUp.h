@@ -27,10 +27,16 @@ class ListPickUp : public UiElement {
 private:
   ListPickUpProps props;
 
-  const int contextBtnSize = 32;
-  const int iconSpriteSize = 16;
+  static constexpr int contextBtnSize = 32;
+  static constexpr int iconSpriteSize = 16;
+  static constexpr float iconScale = 2.f;
+  static constexpr int maxShortcutItems = 26;
+  static constexpr int shortcutGapAfterIcon = 4;
+  static constexpr int labelGapAfterShortcut = 8;
+  static constexpr int labelGapAfterIconNoShortcut = 24;
 
-  UiElement* createItemElement(const ListPickUpPropsItem& item);
+  UiElement* createItemElement(const ListPickUpPropsItem& item, int index);
+  static bmin::String shortcutLetterForIndex(int index);
 
 public:
   ListPickUp(sdl2w::Window* _window, UiElement* _parent = nullptr);

@@ -100,10 +100,19 @@ export interface GridSlotCreateRequest {
   mapHeight: number;
 }
 
+export interface GridNavigateStitchOffset {
+  /** Grid cell offset from current map: -1, 0, or 1 */
+  offsetX: number;
+  offsetY: number;
+}
+
 export interface GridNavigationHandlers {
   getMaps: () => CarcerMapTemplate[];
   getMapGrids: () => MapGridTemplate[];
-  onNavigateToGridMap: (mapName: string) => void;
+  onNavigateToGridMap: (
+    mapName: string,
+    stitchOffset: GridNavigateStitchOffset
+  ) => void;
   onCreateGridMap: (request: GridSlotCreateRequest) => void;
 }
 
@@ -455,7 +464,10 @@ export const initPanzoom = (mapDataInterface: {
         const handlers = gridNavigationHandlers;
         if (handlers) {
           if (isGridSlotEditable(pending.slot)) {
-            handlers.onNavigateToGridMap(pending.slot.mapName);
+            handlers.onNavigateToGridMap(pending.slot.mapName, {
+              offsetX: pending.slot.offsetX,
+              offsetY: pending.slot.offsetY,
+            });
           } else {
             handlers.onCreateGridMap({
               gridName: pending.placement.grid.name,
@@ -763,6 +775,31 @@ export const switchMapViewport = (fromMapName: string, toMapName: string) => {
     saveViewportForMap(fromMapName);
   }
   restoreViewportForMap(toMapName);
+};
+
+/**
+ * Switch maps while keeping the stitched world under the camera fixed.
+ * Adjacent maps are drawn at offset * (mapPixelSize * scale); adjusting pan
+ * by that amount makes the neighbor become current without a visual jump.
+ */
+export const switchMapViewportPreservingStitch = (
+  fromMapName: string,
+  toMapName: string,
+  stitchOffset: GridNavigateStitchOffset,
+  mapPixelWidth: number,
+  mapPixelHeight: number
+) => {
+  if (fromMapName) {
+    saveViewportForMap(fromMapName);
+  }
+  const scale = mapEditorEventState.scale;
+  mapEditorEventState.translateX +=
+    stitchOffset.offsetX * mapPixelWidth * scale;
+  mapEditorEventState.translateY +=
+    stitchOffset.offsetY * mapPixelHeight * scale;
+  if (toMapName) {
+    saveViewportForMap(toMapName);
+  }
 };
 
 /** Pan the map view so the tile center is at the canvas center. */

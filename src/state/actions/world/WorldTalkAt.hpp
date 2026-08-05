@@ -82,11 +82,17 @@ class WorldTalkAt : public AbstractAction {
     try {
       const auto& characterTemplate =
           database->getCharacterTemplate(bmin::toStringView(target->templateName));
-      if (characterTemplate.talk.talkName.empty()) {
+      const auto& talkName = characterTemplate.talk.talkName;
+      if (talkName.empty()) {
         LOG(INFO) << TRANSLATE("Talk: they have nothing to say.") << LOG_ENDL;
         return;
       }
-      state->triggers.pendingSpecialEventId = characterTemplate.talk.talkName;
+      if (!database->getGameEvents().contains(talkName)) {
+        LOG(ERROR) << "WorldTalkAt: talk event not found: " << talkName << LOG_ENDL;
+        LOG(INFO) << TRANSLATE("Talk: they have nothing to say.") << LOG_ENDL;
+        return;
+      }
+      state->triggers.pendingSpecialEventId = talkName;
     } catch (...) {
       LOG(INFO) << TRANSLATE("Talk: they have nothing to say.") << LOG_ENDL;
     }

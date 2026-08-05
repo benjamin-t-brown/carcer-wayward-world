@@ -3,6 +3,7 @@ import { CarcerMapTemplate } from '../types/assets';
 import { useRenderLoop } from '../hooks/useRenderLoop';
 import { MapCanvas } from './react-components/MapCanvas';
 import {
+  GridNavigateStitchOffset,
   GridSlotCreateRequest,
   initPanzoom,
   setGridNavigationHandlers,
@@ -24,7 +25,10 @@ interface TileEditorProps {
   map?: CarcerMapTemplate;
   onMapUpdate: (map: CarcerMapTemplate) => void;
   onOpenMapAndSelectTile?: (args: OpenMapAndSelectTileArgs) => void;
-  onNavigateToGridMap?: (mapName: string) => void;
+  onNavigateToGridMap?: (
+    mapName: string,
+    stitchOffset: GridNavigateStitchOffset
+  ) => void;
   onCreateGridMap?: (request: GridSlotCreateRequest) => void;
 }
 
@@ -89,8 +93,11 @@ export function TileEditor({
     setGridNavigationHandlers({
       getMaps: () => gridNavigationRef.current.maps,
       getMapGrids: () => gridNavigationRef.current.mapGrids,
-      onNavigateToGridMap: (mapName) => {
-        gridNavigationRef.current.onNavigateToGridMap?.(mapName);
+      onNavigateToGridMap: (mapName, stitchOffset) => {
+        gridNavigationRef.current.onNavigateToGridMap?.(
+          mapName,
+          stitchOffset
+        );
       },
       onCreateGridMap: (request) => {
         gridNavigationRef.current.onCreateGridMap?.(request);

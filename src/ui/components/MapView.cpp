@@ -6,6 +6,7 @@
 #include "game/map/TileFields.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/CharacterTemplate.h"
+#include "model/templates/Maps.h"
 #include "sdl2w/Animation.h"
 #include "sdl2w/Draw.h"
 #include "state/StateManager.h"
@@ -282,6 +283,25 @@ void MapView::render(int /*dt*/) {
             auto& fieldSprite = store.getSprite(bmin::toStringView(fieldSpriteName));
             drawMapSprite(fieldSprite, screenX, screenY);
           }
+
+          auto drawOverlay =
+              [&](model::TileOverlayVisibility visibility) {
+                const auto overlaySpriteName =
+                    model::tileOverlayVisibilitySpriteName(visibility);
+                if (overlaySpriteName.empty() ||
+                    !store.sprites.contains(overlaySpriteName)) {
+                  return;
+                }
+                auto& overlaySprite =
+                    store.getSprite(bmin::toStringView(overlaySpriteName));
+                drawMapSprite(overlaySprite, screenX, screenY);
+              };
+          if (surfaceTile->eventTrigger) {
+            drawOverlay(surfaceTile->eventTrigger->overlayVisibility);
+          }
+          if (surfaceTile->travelTrigger) {
+            drawOverlay(surfaceTile->travelTrigger->overlayVisibility);
+          }
         }
       }
 
@@ -309,6 +329,11 @@ void MapView::render(int /*dt*/) {
     if (!game::isTileCurrentlyVisible(*map, local.x, local.y)) {
       continue;
     }
+    // Items on container tiles are stored inside the container, not drawn on the ground.
+    if (const auto* tile = game::tileAtCurrentLayer(*map, local.x, local.y);
+        tile && game::isTileEffectivelyContainer(*tile, *database)) {
+      continue;
+    }
     bmin::String spriteName;
     try {
       const auto& itemTemplate =
@@ -327,9 +352,23 @@ void MapView::render(int /*dt*/) {
     auto screenY =
         contentY +
         static_cast<int>((item.y * spriteH - world.camera.camY) * style.scale);
+    auto centerX = screenX + scaledSpriteW / 2;
+    auto centerY = screenY + scaledSpriteH / 2;
 
     auto& sprite = store.getSprite(bmin::toStringView(spriteName));
-    drawMapSprite(sprite, screenX, screenY);
+    if (centerX + scaledSpriteW / 2 <= contentX ||
+        centerX - scaledSpriteW / 2 >= contentX + contentW ||
+        centerY + scaledSpriteH / 2 <= contentY ||
+        centerY - scaledSpriteH / 2 >= contentY + contentH) {
+      continue;
+    }
+    draw.drawSprite(sprite,
+                    sdl2w::RenderableParamsEx{
+                        .scale = {style.scale, style.scale},
+                        .x = centerX,
+                        .y = centerY,
+                        .centered = true,
+                    });
   }
 
   const auto& party = state.player.party;
