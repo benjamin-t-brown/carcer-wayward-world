@@ -20,7 +20,7 @@ class UiShowLayerPickUp : public AbstractAction {
     }
     auto existing = layerManager->getLayerById(layers::LayerPickUp::LAYER_ID);
     if (existing != nullptr) {
-      existing->remove();
+      layerManager->closeLayer(existing);
     }
     auto layer = containerTile
                      ? new layers::LayerPickUp(window, containerTile->first,

@@ -10,6 +10,7 @@
 #include "state/actions/combat/ModifyAP.hpp"
 #include "state/actions/combat/MoveCharacter.hpp"
 #include "state/actions/combat/PerformMeleeAttack.hpp"
+#include "state/actions/combat/PerformSpellCast.hpp"
 
 namespace state {
 
@@ -80,6 +81,16 @@ class DoCombatAction : public CombatAction {
     insertCombatAction(new DoCombatActionCompletion(), 0);
   }
 
+  void handleSpell() {
+    if (spellTarget.spellId.empty()) {
+      LOG(INFO) << "DoCombatAction: SPELL with empty spellId" << LOG_ENDL;
+      insertCombatAction(new DoCombatActionCompletion(), 0);
+      return;
+    }
+    insertCombatAction(new PerformSpellCast(spellTarget), 0);
+    insertCombatAction(new DoCombatActionCompletion(), 0);
+  }
+
   void act() override {
     if (!state || !state->world.combat.active) {
       return;
@@ -119,6 +130,8 @@ class DoCombatAction : public CombatAction {
       handleMove();
       break;
     case model::CombatActionType::SPELL:
+      handleSpell();
+      break;
     case model::CombatActionType::SHOOT:
       insertCombatAction(new DoCombatActionCompletion(), 0);
       break;

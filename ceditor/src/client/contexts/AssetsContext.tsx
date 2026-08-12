@@ -6,14 +6,18 @@ import {
   GameEvent,
   CarcerMapTemplate,
   MapGridTemplate,
+  FeatTemplate,
 } from '../types/assets';
 import { AbilityTemplate, StatusEffectTemplate } from '../types/ability';
+import { SpellTemplate } from '../types/spell';
 
 interface AssetsContextType {
   items: ItemTemplate[];
   characters: CharacterTemplate[];
   abilities: AbilityTemplate[];
+  spells: SpellTemplate[];
   statusEffects: StatusEffectTemplate[];
+  feats: FeatTemplate[];
   tilesets: TilesetTemplate[];
   gameEvents: GameEvent[];
   maps: CarcerMapTemplate[];
@@ -23,7 +27,9 @@ interface AssetsContextType {
   setItems: (items: ItemTemplate[]) => void;
   setCharacters: (characters: CharacterTemplate[]) => void;
   setAbilities: (abilities: AbilityTemplate[]) => void;
+  setSpells: (spells: SpellTemplate[]) => void;
   setStatusEffects: (statusEffects: StatusEffectTemplate[]) => void;
+  setFeats: (feats: FeatTemplate[]) => void;
   setTilesets: (tilesets: TilesetTemplate[]) => void;
   setGameEvents: (gameEvents: GameEvent[]) => void;
   setMaps: (maps: CarcerMapTemplate[]) => void;
@@ -31,7 +37,9 @@ interface AssetsContextType {
   saveItems: (items: ItemTemplate[]) => Promise<void>;
   saveCharacters: (characters: CharacterTemplate[]) => Promise<void>;
   saveAbilities: (abilities: AbilityTemplate[]) => Promise<void>;
+  saveSpells: (spells: SpellTemplate[]) => Promise<void>;
   saveStatusEffects: (statusEffects: StatusEffectTemplate[]) => Promise<void>;
+  saveFeats: (feats: FeatTemplate[]) => Promise<void>;
   saveTilesets: (tilesets: TilesetTemplate[]) => Promise<void>;
   saveGameEvents: (gameEvents: GameEvent[]) => Promise<void>;
   saveMaps: (maps: CarcerMapTemplate[]) => Promise<void>;
@@ -53,7 +61,9 @@ interface AssetsProviderProps {
   initialItems: ItemTemplate[];
   initialCharacters: CharacterTemplate[];
   initialAbilities: AbilityTemplate[];
+  initialSpells: SpellTemplate[];
   initialStatusEffects: StatusEffectTemplate[];
+  initialFeats: FeatTemplate[];
   initialTilesets: TilesetTemplate[];
   initialGameEvents: GameEvent[];
   initialMaps: CarcerMapTemplate[];
@@ -93,6 +103,17 @@ async function saveAbilities(abilities: AbilityTemplate[]): Promise<void> {
   }
 }
 
+async function saveSpells(spells: SpellTemplate[]): Promise<void> {
+  const response = await fetch('/api/assets/spellTemplates', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(spells),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to save spells');
+  }
+}
+
 async function saveStatusEffects(statusEffects: StatusEffectTemplate[]): Promise<void> {
   const response = await fetch('/api/assets/statusEffectTemplates', {
     method: 'POST',
@@ -101,6 +122,17 @@ async function saveStatusEffects(statusEffects: StatusEffectTemplate[]): Promise
   });
   if (!response.ok) {
     throw new Error('Failed to save status effects');
+  }
+}
+
+async function saveFeats(feats: FeatTemplate[]): Promise<void> {
+  const response = await fetch('/api/assets/featTemplates', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(feats),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to save feats');
   }
 }
 
@@ -153,7 +185,9 @@ export function AssetsProvider({
   initialItems,
   initialCharacters,
   initialAbilities,
+  initialSpells,
   initialStatusEffects,
+  initialFeats,
   initialTilesets,
   initialGameEvents,
   initialMaps,
@@ -162,8 +196,10 @@ export function AssetsProvider({
   const [items, setItems] = useState<ItemTemplate[]>(initialItems);
   const [characters, setCharacters] = useState<CharacterTemplate[]>(initialCharacters);
   const [abilities, setAbilities] = useState<AbilityTemplate[]>(initialAbilities);
+  const [spells, setSpells] = useState<SpellTemplate[]>(initialSpells);
   const [statusEffects, setStatusEffects] =
     useState<StatusEffectTemplate[]>(initialStatusEffects);
+  const [feats, setFeats] = useState<FeatTemplate[]>(initialFeats);
   const [tilesets, setTilesets] = useState<TilesetTemplate[]>(initialTilesets);
   const [gameEvents, setGameEvents] = useState<GameEvent[]>(initialGameEvents);
   const [maps, setMaps] = useState<CarcerMapTemplate[]>(initialMaps);
@@ -177,7 +213,9 @@ export function AssetsProvider({
         items,
         characters,
         abilities,
+        spells,
         statusEffects,
+        feats,
         tilesets,
         gameEvents,
         maps,
@@ -187,7 +225,9 @@ export function AssetsProvider({
         setItems,
         setCharacters,
         setAbilities,
+        setSpells,
         setStatusEffects,
+        setFeats,
         setTilesets,
         setGameEvents,
         setMaps,
@@ -195,7 +235,9 @@ export function AssetsProvider({
         saveItems,
         saveCharacters,
         saveAbilities,
+        saveSpells,
         saveStatusEffects,
+        saveFeats,
         saveTilesets,
         saveGameEvents,
         saveMaps,

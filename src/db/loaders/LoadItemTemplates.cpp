@@ -156,6 +156,19 @@ void loadItemTemplates(const bmin::String& itemsFilePath,
       }
     }
 
+    if (itemType == model::ItemType::RUNE) {
+      if (!itemJson.contains("runeType") || !itemJson["runeType"].is_string()) {
+        throw std::runtime_error(
+            (bmin::String("RUNE item missing required field: runeType: ") + itemTemplate.name)
+                .cStr());
+      }
+      itemTemplate.runeType =
+          model::runeTypeFromString(itemJson["runeType"].get<bmin::String>());
+    } else if (itemJson.contains("runeType")) {
+      throw std::runtime_error(
+          (bmin::String("Non-RUNE item must not set runeType: ") + itemTemplate.name).cStr());
+    }
+
     if (itemTemplates.contains(itemTemplate.name)) {
       throw std::runtime_error((bmin::String("Item template already exists: ") + itemTemplate.name)
                                    .cStr());

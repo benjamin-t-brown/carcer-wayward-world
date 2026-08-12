@@ -8,6 +8,7 @@
 #include "model/templates/MapGrids.h"
 #include "model/templates/Maps.h"
 #include "model/templates/SpecialEvents.h"
+#include "model/templates/Spells.h"
 #include "model/templates/StatusEffects.h"
 #include "model/templates/Tileset.h"
 #include <stdexcept>
@@ -29,6 +30,7 @@ private:
   bmin::Map<bmin::String, model::ItemTemplate> itemTemplates;
   bmin::Map<bmin::String, model::CharacterTemplate> characterTemplates;
   bmin::Map<bmin::String, model::AbilityTemplate> abilityTemplates;
+  bmin::Map<bmin::String, model::SpellTemplate> spellTemplates;
   bmin::Map<bmin::String, model::StatusEffectTemplate> statusEffectTemplates;
   bmin::Map<bmin::String, model::GameEvent> gameEvents;
   bmin::Map<bmin::String, model::CarcerMapTemplate> mapTemplates;
@@ -44,7 +46,11 @@ public:
   const model::CharacterTemplate& getCharacterTemplate(std::string_view templateName) const;
   void addCharacterTemplate(const model::CharacterTemplate& characterTemplate);
   const model::AbilityTemplate& getAbilityTemplate(std::string_view abilityName) const;
+  const model::AbilityTemplate* findAbilityTemplate(std::string_view abilityName) const;
   void addAbilityTemplate(const model::AbilityTemplate& abilityTemplate);
+  const model::SpellTemplate& getSpellTemplate(std::string_view spellName) const;
+  const model::SpellTemplate* findSpellTemplate(std::string_view spellName) const;
+  void addSpellTemplate(const model::SpellTemplate& spellTemplate);
   const model::StatusEffectTemplate& getStatusEffectTemplate(std::string_view statusName) const;
   void addStatusEffectTemplate(const model::StatusEffectTemplate& statusEffectTemplate);
   const model::GameEvent& getGameEvent(std::string_view eventId) const;

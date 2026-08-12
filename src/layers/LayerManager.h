@@ -16,6 +16,10 @@ private:
   void removeLayer(const Layer* layer);
   void removeLayerAt(size_t index);
   void clearLayers();
+  void scrubFromStack(const Layer* layer);
+  bool isLiveLayer(const Layer* layer) const;
+  void activateLayerNoPush(Layer* layer);
+  void restoreFrontAfterClose();
 
 public:
   explicit LayerManager(sdl2w::Window* _window);
@@ -24,8 +28,8 @@ public:
   // Layer management
   void addLayer(Layer* layer);
   void moveToFront(Layer* layer);
-
-  // void popFront();
+  // Mark layer for removal and restore the previous live front layer.
+  void closeLayer(Layer* layer);
 
   // Event handling - pass events to layers from top to bottom
   void handleMouseDown(int x, int y, int button);

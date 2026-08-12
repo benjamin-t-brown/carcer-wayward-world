@@ -11,6 +11,7 @@ class Database;
 namespace model {
 
 struct CharacterInstance;
+struct CharacterPlayer;
 
 enum class CharacterTemplateType {
   TOWNSPERSON,
@@ -79,6 +80,10 @@ struct CharacterTemplate {
   CharacterTemplateSound sound;
   bmin::DynArray<CharacterTemplateStatus> statuses;
   CharacterTemplateVision vision;
+  /** SpellTemplate.name values applied when constructing a CharacterPlayer. */
+  bmin::DynArray<bmin::String> startingKnownSpells;
+  /** Optional prepared subset; only names also in known after apply are kept. */
+  bmin::DynArray<bmin::String> startingReadySpells;
 };
 
 bmin::String characterGetSprite(const CharacterTemplate& character);
@@ -92,5 +97,9 @@ void applyCharacterTemplateToInstance(CharacterInstance& character,
 /** Lookup templateName on the database and apply; returns false if missing. */
 bool tryApplyCharacterTemplateToInstance(CharacterInstance& character,
                                          const db::Database& database);
+
+/** Copy starting known/ready spell lists from template onto a party member. */
+void applyCharacterTemplateStartingSpells(CharacterPlayer& character,
+                                          const CharacterTemplate& characterTemplate);
 
 } // namespace model

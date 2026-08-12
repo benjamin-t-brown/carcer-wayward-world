@@ -7,22 +7,80 @@ LayerManager::LayerManager(sdl2w::Window* _window) : window(_window) {}
 
 LayerManager::~LayerManager() { clearLayers(); }
 
+void LayerManager::scrubFromStack(const Layer* layer) {
+  if (layer == nullptr) {
+    return;
+  }
+  layerEventsStack.eraseIf([layer](Layer* entry) { return entry == layer; });
+}
+
+bool LayerManager::isLiveLayer(const Layer* layer) const {
+  if (layer == nullptr || layer->shouldRemove()) {
+    return false;
+  }
+  for (auto* entry : layers) {
+    if (entry == layer) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void LayerManager::activateLayerNoPush(Layer* layer) {
+  if (layer == nullptr) {
+    return;
+  }
+  for (auto* entry : layers) {
+    if (entry->shouldRemove()) {
+      continue;
+    }
+    if (entry == layer) {
+      entry->turnOn();
+    } else {
+      entry->suspend();
+    }
+  }
+}
+
+void LayerManager::restoreFrontAfterClose() {
+  while (!layerEventsStack.empty() && !isLiveLayer(layerEventsStack.back())) {
+    layerEventsStack.popBack();
+  }
+
+  if (!layerEventsStack.empty()) {
+    activateLayerNoPush(layerEventsStack.back());
+    return;
+  }
+
+  Layer* fallback = getLastActiveLayer();
+  if (fallback == nullptr) {
+    return;
+  }
+  // Re-establish a baseline front so subsequent close/open cycles stay consistent.
+  layerEventsStack.pushBack(fallback);
+  activateLayerNoPush(fallback);
+}
+
 void LayerManager::removeLayer(const Layer* layer) {
   if (layer == nullptr) {
     return;
   }
+  scrubFromStack(layer);
   layers.eraseIf([layer](Layer* entry) { return entry == layer; });
   delete layer;
 }
 
 void LayerManager::removeLayerAt(size_t index) {
   if (index < layers.size()) {
-    delete layers[index];
+    Layer* layer = layers[index];
+    scrubFromStack(layer);
+    delete layer;
     layers.erase(layers.begin() + index);
   }
 }
 
 void LayerManager::clearLayers() {
+  layerEventsStack.clear();
   for (auto layer : layers) {
     delete layer;
   }
@@ -33,68 +91,44 @@ void LayerManager::addLayer(Layer* layer) { layers.pushBack(layer); }
 
 // set a layer to be the "front" layer, and suspend all other layers
 void LayerManager::moveToFront(Layer* layer) {
-  if (layer == nullptr) {
+  if (layer == nullptr || layer->shouldRemove()) {
     return;
   }
 
   LOG(DEBUG) << "LayerManager::moveToFront: moving layer to front: " << layer->getId()
              << LOG_ENDL;
 
-  layerEventsStack.pushBack(layer);
-
   bool found = false;
-  for (auto l : layers) {
-    if (l != layer) {
-      l->suspend();
-    } else if (l == layer) {
+  for (auto* entry : layers) {
+    if (entry == layer) {
       found = true;
-      l->turnOn();
+      break;
     }
   }
   if (!found) {
     LOG(ERROR)
         << "LayerManager::moveToFront: provided layer pointer not found in list of layers"
         << LOG_ENDL;
+    return;
   }
+
+  if (layerEventsStack.empty() || layerEventsStack.back() != layer) {
+    layerEventsStack.pushBack(layer);
+  }
+
+  activateLayerNoPush(layer);
 }
 
-// // remove a layer from the "front" layer, and turn on the previously suspended layer
-// void LayerManager::popFront() {
-//   LOG(DEBUG) << "LayerManager::popFront: popping front layer" << LOG_ENDL;
-//   if (layerEventsStack.empty()) {
-//     // if there's no event stack, just turn all suspended layers back on
-//     for (auto l : layers) {
-//       if (l->getState() == LayerState::SUSPENDED) {
-//         l->turnOn();
-//       }
-//     }
-//   } else {
-//     layerEventsStack.pop_back();
-//     if (layerEventsStack.empty()) {
-//       for (auto l : layers) {
-//         if (l->getState() == LayerState::SUSPENDED) {
-//           l->turnOn();
-//         }
-//       }
-//       return;
-//     }
-//     auto layer = layerEventsStack.back();
-//     bool found = false;
-//     for (auto l : layers) {
-//       if (l != layer && l->getState() == LayerState::ON) {
-//         l->suspend();
-//       } else if (l == layer) {
-//         found = true;
-//         l->turnOn();
-//       }
-//     }
-
-//     // if the layer pointer was not valid, then pop again
-//     if (!found) {
-//       popFront();
-//     }
-//   }
-// }
+void LayerManager::closeLayer(Layer* layer) {
+  if (layer == nullptr) {
+    return;
+  }
+  LOG(DEBUG) << "LayerManager::closeLayer: closing layer: " << layer->getId()
+             << LOG_ENDL;
+  layer->remove();
+  scrubFromStack(layer);
+  restoreFrontAfterClose();
+}
 
 void LayerManager::handleMouseDown(int x, int y, int button) {
   // Process layers from top to bottom (reverse iteration)
@@ -162,6 +196,9 @@ Layer* LayerManager::getLayerAt(size_t index) {
 
 Layer* LayerManager::getLayerById(std::string_view id) {
   for (auto& layer : layers) {
+    if (layer->shouldRemove()) {
+      continue;
+    }
     if (layer->getId() == id) {
       return layer;
     }

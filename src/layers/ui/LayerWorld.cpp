@@ -2,6 +2,7 @@
 #include "game/map/ActiveMapOrchestrator.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerInventory.h"
+#include "layers/ui/LayerMagic.h"
 #include "layers/ui/LayerPickUp.h"
 #include "model/Combat.h"
 #include "model/instances/CharacterPlayer.h"
@@ -483,6 +484,9 @@ void LayerWorld::syncWorldActionModeHighlight() {
   const bool inventoryOpen =
       layerManager != nullptr &&
       layerManager->getLayerById(LayerInventory::LAYER_ID) != nullptr;
+  const bool magicOpen =
+      layerManager != nullptr &&
+      layerManager->getLayerById(LayerMagic::LAYER_ID) != nullptr;
   const bool pickUpOpen =
       layerManager != nullptr &&
       layerManager->getLayerById(LayerPickUp::LAYER_ID) != nullptr;
@@ -503,6 +507,7 @@ void LayerWorld::syncWorldActionModeHighlight() {
         (actionType == state::WorldActionType::TALK &&
          actionMode == model::WorldActionMode::TALK) ||
         (actionType == state::WorldActionType::INVENTORY && inventoryOpen) ||
+        (actionType == state::WorldActionType::ABILITY && magicOpen) ||
         (actionType == state::WorldActionType::GET && pickUpOpen);
     if (button->isModeSelected != modeSelected) {
       button->isModeSelected = modeSelected;

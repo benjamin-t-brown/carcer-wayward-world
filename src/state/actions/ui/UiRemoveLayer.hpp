@@ -20,8 +20,7 @@ class UiRemoveLayer : public AbstractAction {
     if (layer == nullptr) {
       return;
     }
-    layer->remove();
-    layerManager->moveToFront(layerManager->getLastActiveLayer());
+    layerManager->closeLayer(layer);
   }
 
 public:

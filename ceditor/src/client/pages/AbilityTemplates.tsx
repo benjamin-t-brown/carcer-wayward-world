@@ -2,10 +2,13 @@ import { useState, useRef, useEffect } from 'react';
 import { CardList } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
 import { AbilityTemplate } from '../types/ability';
+import { AbilityTemplateForm } from '../components/AbilityTemplateForm';
 import {
-  AbilityTemplateForm,
   createDefaultAbilityTemplate,
-} from '../components/AbilityTemplateForm';
+  createDefaultMeleeAbilityTemplate,
+  createDefaultSpellAbilityTemplate,
+} from '../types/ability';
+import { validateSpellAbilityRefs } from '../types/spell';
 import { EditorHeader } from '../components/EditorHeader';
 import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
@@ -23,6 +26,7 @@ interface NotificationState {
   message: string;
   type: 'success' | 'error';
   id: number;
+  duration?: number;
 }
 
 interface AbilityTemplatesProps {
@@ -30,8 +34,16 @@ interface AbilityTemplatesProps {
 }
 
 export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
-  const { abilities, setAbilities, saveAbilities, items, setItems, statusEffects, setStatusEffects } =
-    useAssets();
+  const {
+    abilities,
+    setAbilities,
+    saveAbilities,
+    spells,
+    items,
+    setItems,
+    statusEffects,
+    setStatusEffects,
+  } = useAssets();
   const [editIndex, setEditIndex] = useState<number>(-1);
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
@@ -43,9 +55,13 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
     impacts: AbilityDeleteImpact[];
   } | null>(null);
 
-  const showNotification = (message: string, type: 'success' | 'error') => {
+  const showNotification = (
+    message: string,
+    type: 'success' | 'error',
+    duration?: number,
+  ) => {
     const id = notificationIdRef.current++;
-    setNotifications((prev) => [...prev, { message, type, id }]);
+    setNotifications((prev) => [...prev, { message, type, id, duration }]);
   };
 
   const removeNotification = (id: number) => {
@@ -121,11 +137,23 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
     setAbilityDeleteConfirm(null);
   };
 
-  const handleCreateNew = () => {
-    const next = [...abilities, createDefaultAbilityTemplate()];
+  const appendAbility = (ability: AbilityTemplate) => {
+    const next = [...abilities, ability];
     setAbilities(next);
     setEditIndex(next.length - 1);
     setSearchTerm('');
+  };
+
+  const handleCreateNewAbility = () => {
+    appendAbility(createDefaultAbilityTemplate());
+  };
+
+  const handleCreateNewSpell = () => {
+    appendAbility(createDefaultSpellAbilityTemplate());
+  };
+
+  const handleCreateNewMelee = () => {
+    appendAbility(createDefaultMeleeAbilityTemplate());
   };
 
   const updateAbility = (ability: AbilityTemplate) => {
@@ -138,10 +166,22 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
   const handleSaveAll = async () => {
     const currentName = editIndex >= 0 ? abilities[editIndex]?.name : undefined;
     const sorted = trimStrings(abilities).sort((a, b) => a.name.localeCompare(b.name));
+    const abilityRefErrors = validateSpellAbilityRefs(
+      spells,
+      sorted.map((ability) => ability.name),
+    );
     try {
       await saveAbilities(sorted);
       setAbilities(sorted);
-      showNotification('Abilities saved successfully!', 'success');
+      if (abilityRefErrors.length > 0) {
+        showNotification(
+          `Abilities saved, but spell ability reference errors:\n${abilityRefErrors.join('\n')}`,
+          'error',
+          8000,
+        );
+      } else {
+        showNotification('Abilities saved successfully!', 'success');
+      }
       if (currentName) {
         setEditIndex(sorted.findIndex((a) => a.name === currentName.trim()));
       }
@@ -185,8 +225,12 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           searchPlaceholder="Search abilities..."
-          createLabel="+ New Ability"
-          onCreate={handleCreateNew}
+          createMenuLabel="+ New"
+          createMenuItems={[
+            { label: '+ New Ability', onClick: handleCreateNewAbility },
+            { label: '+ New Melee', onClick: handleCreateNewMelee },
+            { label: '+ New Spell', onClick: handleCreateNewSpell },
+          ]}
         >
           <CardList
             items={filtered.map((a) => ({
@@ -216,6 +260,7 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
           key={notification.id}
           message={notification.message}
           type={notification.type}
+          duration={notification.duration}
           onClose={() => removeNotification(notification.id)}
         />
       ))}

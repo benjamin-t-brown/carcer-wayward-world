@@ -4,6 +4,7 @@
 #include "model/stats/CharacterStats.h"
 #include "model/templates/CharacterTemplate.h"
 #include "model/templates/Items.h"
+#include "model/templates/RuneTypes.h"
 #include "model/templates/UtilityTypes.h"
 #include <optional>
 
@@ -33,7 +34,15 @@ struct CharacterInventoryItem {
   int quantity;
 };
 
+/** Owned rune tally on the character (not bag inventory). */
+struct CharacterAvailableRune {
+  RuneType type = RuneType::HEAT;
+  int count = 0;
+};
+
 struct CharacterPlayer {
+  static constexpr size_t kRuneSlotCount = 8;
+
   bmin::String instanceId;
   bmin::String name;
   bmin::String templateName;
@@ -43,6 +52,12 @@ struct CharacterPlayer {
   CharacterStats stats;
   int currentHp = 0;
   int currentMp = 0;
+  bmin::DynArray<bmin::String> knownSpells;
+  bmin::DynArray<bmin::String> readySpells;
+  // Tallies of runes the character owns; equip capacity comes from here.
+  bmin::DynArray<CharacterAvailableRune> availableRunes;
+  // Dense list of equipped rune types; size 0..kRuneSlotCount, no mid-list holes.
+  bmin::DynArray<RuneType> equippedRunes;
 
   CharacterPlayer(const CharacterTemplate& _params = CharacterTemplate(),
                   const bmin::DynArray<CharacterInventoryItem>& _inventory = {},
@@ -54,6 +69,7 @@ struct CharacterPlayer {
     currentMp = _params.combat.mp;
     inventory = _inventory;
     equipment = _equipment;
+    applyCharacterTemplateStartingSpells(*this, _params);
   }
 };
 
@@ -92,6 +108,47 @@ bool characterPlayerIsItemEquippedById(const CharacterPlayer& characterPlayer,
 EquipItemResult characterPlayerToggleEquipItem(CharacterPlayer& characterPlayer,
                                                const bmin::String& itemId,
                                                const db::Database& database);
+
+enum class EquipRuneResult {
+  EQUIPPED,
+  UNEQUIPPED,
+  NOT_A_RUNE,
+  ITEM_NOT_IN_INVENTORY,
+  SLOT_OCCUPIED,
+  SLOT_EMPTY,
+  INVALID_SLOT,
+  ALREADY_EQUIPPED,
+  NO_RUNE_AVAILABLE,
+};
+
+int characterPlayerCountAvailableRunesOfType(const CharacterPlayer& characterPlayer,
+                                            RuneType runeType);
+void characterPlayerSetAvailableRuneCount(CharacterPlayer& characterPlayer,
+                                          RuneType runeType,
+                                          int count);
+int characterPlayerCountEquippedRunesOfType(const CharacterPlayer& characterPlayer,
+                                            RuneType runeType);
+bool characterPlayerCanEquipRuneType(const CharacterPlayer& characterPlayer,
+                                     RuneType runeType);
+std::optional<RuneType>
+characterPlayerFindFirstEquippableRuneType(const CharacterPlayer& characterPlayer);
+/** Insert `runeType` (sorted by type) when list has room and capacity remains. */
+EquipRuneResult characterPlayerEquipRuneType(CharacterPlayer& characterPlayer,
+                                             RuneType runeType);
+/** Erase at `slotIndex` and compact; fails if index is empty / out of range. */
+EquipRuneResult characterPlayerUnequipRuneFromSlot(CharacterPlayer& characterPlayer,
+                                                   size_t slotIndex);
+/** Unequip the last equipped occurrence of `runeType`, if any. */
+EquipRuneResult characterPlayerUnequipOneRuneOfType(CharacterPlayer& characterPlayer,
+                                                     RuneType runeType);
+/**
+ * Filled slot (`slotIndex < size`): unequip and compact.
+ * First empty (`slotIndex == size`): append first equippable available rune type.
+ * `slotIndex > size` or past max: INVALID_SLOT.
+ */
+EquipRuneResult characterPlayerToggleManaSlotRune(CharacterPlayer& characterPlayer,
+                                                   size_t slotIndex);
+
 std::optional<CharacterInventoryItem>
 characterPlayerFindItemInInventoryByName(const CharacterPlayer& characterPlayer,
                                          const bmin::String& itemName);

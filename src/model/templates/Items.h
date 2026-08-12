@@ -1,6 +1,7 @@
 #pragma once
 
 #include "model/templates/AbilityTypes.h"
+#include "model/templates/RuneTypes.h"
 #include <optional>
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
@@ -21,6 +22,7 @@ enum class ItemType {
   NECKLACE,
   POTION,
   UTILITY,
+  RUNE,
   UNKNOWN
 };
 
@@ -30,6 +32,7 @@ ItemType getItemTypeFromString(const bmin::String& itemTypeString);
 bool itemTypeIsEquippable(ItemType itemType);
 bool itemTypeIsTwoHandedWeapon(ItemType itemType);
 bool itemTypeUsesWeaponSlots(ItemType itemType);
+bool itemTypeUsesRuneSlots(ItemType itemType);
 
 enum class ItemUsability {
   NOT_USABLE,
@@ -68,6 +71,7 @@ struct ItemTemplate {
   std::optional<bmin::String> useSpecialEvent;
   bmin::DynArray<bmin::String> statusEffectNames;
   std::optional<ItemWeaponConfig> weapon;
+  std::optional<RuneType> runeType;
 };
 
 } // namespace model

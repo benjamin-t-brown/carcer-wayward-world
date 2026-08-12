@@ -589,6 +589,14 @@ bool Json::is_number_integer() const {
   return _kind == Kind::Int;
 }
 
+bool Json::is_number_float() const {
+  return _kind == Kind::Float;
+}
+
+bool Json::is_number() const {
+  return _kind == Kind::Int || _kind == Kind::Float;
+}
+
 bool Json::is_boolean() const {
   return _kind == Kind::Bool;
 }
@@ -664,6 +672,28 @@ int Json::get<int>() const {
     throw std::runtime_error("Json value is not an integer");
   }
   return static_cast<int>(_storage.integer);
+}
+
+template <>
+float Json::get<float>() const {
+  if (_kind == Kind::Float) {
+    return static_cast<float>(_storage.floating);
+  }
+  if (_kind == Kind::Int) {
+    return static_cast<float>(_storage.integer);
+  }
+  throw std::runtime_error("Json value is not a number");
+}
+
+template <>
+double Json::get<double>() const {
+  if (_kind == Kind::Float) {
+    return _storage.floating;
+  }
+  if (_kind == Kind::Int) {
+    return static_cast<double>(_storage.integer);
+  }
+  throw std::runtime_error("Json value is not a number");
 }
 
 template <>

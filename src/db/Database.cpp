@@ -6,6 +6,7 @@
 #include "loaders/LoadMapGridTemplates.h"
 #include "loaders/LoadMapTemplates.h"
 #include "loaders/LoadSpecialEvents.h"
+#include "loaders/LoadSpellTemplates.h"
 #include "loaders/LoadStatusEffectTemplates.h"
 #include "loaders/LoadTilesetTemplates.h"
 #include <stdexcept>
@@ -55,6 +56,41 @@ void Database::validateCombatReferences() const {
                 .cStr());
       }
     }
+    if (itemTemplate.itemType == model::ItemType::RUNE) {
+      if (!itemTemplate.runeType.has_value()) {
+        throw std::runtime_error(
+            (bmin::String("RUNE item missing required runeType: ") + itemName.cStr()).cStr());
+      }
+    } else if (itemTemplate.runeType.has_value()) {
+      throw std::runtime_error(
+          (bmin::String("Non-RUNE item must not set runeType: ") + itemName.cStr()).cStr());
+    }
+  }
+
+  auto& spells = const_cast<decltype(spellTemplates)&>(spellTemplates);
+  for (auto it = spells.begin(); it != spells.end(); ++it) {
+    const bmin::String& spellName = (*it).key;
+    const auto& spellTemplate = (*it).value;
+    if (!abilityTemplates.contains(spellTemplate.abilityName)) {
+      throw std::runtime_error(
+          (bmin::String("Spell ") + spellName.cStr() + " references unknown ability: " +
+           spellTemplate.abilityName.cStr())
+              .cStr());
+    }
+    for (const auto& requirement : spellTemplate.requiredRunes) {
+      try {
+        (void)model::runeTypeIndex(requirement.type);
+      } catch (const std::runtime_error&) {
+        throw std::runtime_error(
+            (bmin::String("Spell ") + spellName.cStr() + " requiredRunes has invalid RuneType")
+                .cStr());
+      }
+      if (requirement.count <= 0) {
+        throw std::runtime_error(
+            (bmin::String("Spell ") + spellName.cStr() + " requiredRunes count must be > 0")
+                .cStr());
+      }
+    }
   }
 }
 
@@ -63,6 +99,7 @@ void Database::load() {
   loadStatusEffectTemplates("assets/db/status-effects.json", statusEffectTemplates);
   loadAbilityTemplates("assets/db/abilities.json", abilityTemplates);
   loadItemTemplates("assets/db/items.json", itemTemplates);
+  loadSpellTemplates("assets/db/spells.json", spellTemplates);
   loadCharacterTemplates("assets/db/characters.json", characterTemplates);
   loadMapTemplates("assets/db/maps.json", mapTemplates);
   loadMapGridTemplates("assets/db/map-grids.json", mapGridTemplates);
@@ -93,8 +130,36 @@ const model::AbilityTemplate& Database::getAbilityTemplate(std::string_view abil
   return mapGet(abilityTemplates, abilityName, "Ability template not found: ");
 }
 
+const model::AbilityTemplate* Database::findAbilityTemplate(std::string_view abilityName) const {
+  const auto mapKey = bmin::String(abilityName.data(), abilityName.size());
+  auto& map = const_cast<bmin::Map<bmin::String, model::AbilityTemplate>&>(abilityTemplates);
+  auto it = map.find(mapKey);
+  if (it == map.end()) {
+    return nullptr;
+  }
+  return &(*it).value;
+}
+
 void Database::addAbilityTemplate(const model::AbilityTemplate& abilityTemplate) {
   abilityTemplates[abilityTemplate.name] = abilityTemplate;
+}
+
+const model::SpellTemplate& Database::getSpellTemplate(std::string_view spellName) const {
+  return mapGet(spellTemplates, spellName, "Spell template not found: ");
+}
+
+const model::SpellTemplate* Database::findSpellTemplate(std::string_view spellName) const {
+  const auto mapKey = bmin::String(spellName.data(), spellName.size());
+  auto& map = const_cast<bmin::Map<bmin::String, model::SpellTemplate>&>(spellTemplates);
+  auto it = map.find(mapKey);
+  if (it == map.end()) {
+    return nullptr;
+  }
+  return &(*it).value;
+}
+
+void Database::addSpellTemplate(const model::SpellTemplate& spellTemplate) {
+  spellTemplates[spellTemplate.name] = spellTemplate;
 }
 
 const model::StatusEffectTemplate&

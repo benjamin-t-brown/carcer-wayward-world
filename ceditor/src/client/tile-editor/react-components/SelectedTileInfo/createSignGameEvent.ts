@@ -54,7 +54,7 @@ export function createSignGameEvent(args: {
         h: 60,
         next: '',
       },
-    ] as SENode[],
+    ] as unknown as SENode[],
   };
 }
 

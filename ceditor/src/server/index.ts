@@ -40,9 +40,19 @@ app.get('/api/assets/types', async (req, res) => {
         file: 'abilities.json',
       },
       {
+        id: 'spellTemplates',
+        name: 'Spell Templates',
+        file: 'spells.json',
+      },
+      {
         id: 'statusEffectTemplates',
         name: 'Status Effect Templates',
         file: 'status-effects.json',
+      },
+      {
+        id: 'featTemplates',
+        name: 'Feat Templates',
+        file: 'feats.json',
       },
       {
         id: 'characterTemplates',
@@ -83,7 +93,9 @@ app.get('/api/assets/:type', async (req, res) => {
     const fileMap: Record<string, string> = {
       itemTemplates: 'items.json',
       abilityTemplates: 'abilities.json',
+      spellTemplates: 'spells.json',
       statusEffectTemplates: 'status-effects.json',
+      featTemplates: 'feats.json',
       characterTemplates: 'characters.json',
       specialEvents: 'special-events.json',
       tilesetTemplates: 'tilesets.json',
@@ -124,7 +136,9 @@ app.post('/api/assets/:type', async (req, res) => {
     const fileMap: Record<string, string> = {
       itemTemplates: 'items.json',
       abilityTemplates: 'abilities.json',
+      spellTemplates: 'spells.json',
       statusEffectTemplates: 'status-effects.json',
+      featTemplates: 'feats.json',
       characterTemplates: 'characters.json',
       specialEvents: 'special-events.json',
       tilesetTemplates: 'tilesets.json',

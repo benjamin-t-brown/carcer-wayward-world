@@ -133,10 +133,10 @@ model::AbilityAttackDmg parseAbilityAttackDmg(const Json& json) {
     throw std::runtime_error("AbilityAttackDmg missing dmgStat");
   }
   dmg.dmgStat = model::statsEnumFromString(json["dmgStat"].get<bmin::String>());
-  if (!json.contains("dmgStatMult") || !json["dmgStatMult"].is_number_integer()) {
+  if (!json.contains("dmgStatMult") || !json["dmgStatMult"].is_number()) {
     throw std::runtime_error("AbilityAttackDmg missing dmgStatMult");
   }
-  dmg.dmgStatMult = json["dmgStatMult"].get<int>();
+  dmg.dmgStatMult = json["dmgStatMult"].get<float>();
   if (!json.contains("attackBonus") || !json["attackBonus"].is_number_integer()) {
     throw std::runtime_error("AbilityAttackDmg missing attackBonus");
   }

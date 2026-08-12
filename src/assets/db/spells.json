@@ -1,0 +1,41 @@
+[
+  {
+    "name": "FLAME",
+    "label": "Flame",
+    "description": "Send a small ball of fire towards an enemy that deals some fire damage.",
+    "icon": "runes_0",
+    "abilityName": "SPELL_FLAME",
+    "requiredRunes": [
+      {
+        "type": "HEAT",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "name": "HEAL_SELF_MINOR",
+    "label": "Minor Heal Self",
+    "description": "Heal yourself for a small amount of damage.",
+    "icon": "runes_2",
+    "abilityName": "SPELL_HEAL_SELF_MINOR",
+    "requiredRunes": [
+      {
+        "type": "REGROWTH",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "name": "SINGE",
+    "label": "Singe",
+    "description": "Create a spark of fire at an enemy location, dealing a small amount of fire damage.",
+    "icon": "runes_0",
+    "abilityName": "SPELL_SINGE",
+    "requiredRunes": [
+      {
+        "type": "HEAT",
+        "count": 1
+      }
+    ]
+  }
+]

@@ -25,6 +25,9 @@ getWorldActionFromKeyboardShortcut(std::string_view key, model::TurnMode turnMod
   if (key == "i" || key == "I") {
     return state::WorldActionType::INVENTORY;
   }
+  if (key == "r" || key == "R") {
+    return state::WorldActionType::ABILITY;
+  }
   if (key == "g" || key == "G") {
     return state::WorldActionType::GET;
   }

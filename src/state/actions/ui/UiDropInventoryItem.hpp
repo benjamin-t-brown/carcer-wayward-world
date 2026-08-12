@@ -77,14 +77,13 @@ class UiDropInventoryItem : public AbstractAction {
 
     auto* dropLayer = layerManager->getLayerById(layers::LayerDropConfirm::LAYER_ID);
     if (dropLayer) {
-      dropLayer->remove();
+      layerManager->closeLayer(dropLayer);
     }
     auto* inventoryContextLayer =
         layerManager->getLayerById(layers::LayerInventoryContext::LAYER_ID);
     if (inventoryContextLayer) {
-      inventoryContextLayer->remove();
+      layerManager->closeLayer(inventoryContextLayer);
     }
-    layerManager->moveToFront(layerManager->getLastActiveLayer());
   }
 
 public:

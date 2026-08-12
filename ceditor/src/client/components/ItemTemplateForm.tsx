@@ -14,11 +14,33 @@ import {
   isItemUsable,
   isWeaponItemType,
 } from '../types/assets';
+import {
+  RuneType,
+  RUNE_TYPES,
+  isRuneType,
+  runeTypeToSpriteName,
+} from '../types/spell';
 import { useAssets } from '../contexts/AssetsContext';
 import { ItemWeaponFields } from './ItemWeaponFields';
 import { ItemUseAbilityFields } from './ItemUseAbilityFields';
 import { ItemUseSpecialEventFields } from './ItemUseSpecialEventFields';
 import { EditorEmptyState } from './EditorEmptyState';
+
+function isSuggestedRuneIcon(icon: string | undefined): boolean {
+  return typeof icon === 'string' && /^runes_[0-7]$/.test(icon);
+}
+
+function applyRuneType(
+  item: ItemTemplate,
+  runeType: RuneType,
+  forceIcon = false,
+): ItemTemplate {
+  const next = { ...item, runeType };
+  if (forceIcon || !item.icon || isSuggestedRuneIcon(item.icon)) {
+    next.icon = runeTypeToSpriteName(runeType);
+  }
+  return next;
+}
 
 // Re-export for backward compatibility
 export type { ItemTemplate };
@@ -110,7 +132,7 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
             value={formData.itemType}
             onChange={(value) => {
               const itemType = value as ItemType;
-              const next = { ...formData, itemType };
+              let next: ItemTemplate = { ...formData, itemType };
               if (
                 isWeaponItemType(itemType) &&
                 !isWeaponItemType(formData.itemType) &&
@@ -121,11 +143,36 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
               if (!isWeaponItemType(itemType)) {
                 delete next.weapon;
               }
+              if (itemType === 'RUNE') {
+                const runeType: RuneType = isRuneType(next.runeType)
+                  ? next.runeType
+                  : 'HEAT';
+                next = applyRuneType(next, runeType, true);
+              } else {
+                delete next.runeType;
+              }
               setFormData(next);
             }}
             options={ITEM_TYPES.map((type) => ({ value: type, label: type }))}
             required
           />
+
+          {formData.itemType === 'RUNE' ? (
+            <OptionSelect
+              id="item-rune-type"
+              name="runeType"
+              label="Rune Type"
+              value={isRuneType(formData.runeType) ? formData.runeType : 'HEAT'}
+              onChange={(value) => {
+                setFormData(applyRuneType(formData, value as RuneType));
+              }}
+              options={RUNE_TYPES.map((type) => ({
+                value: type,
+                label: type,
+              }))}
+              required
+            />
+          ) : null}
 
           <TextInput
             id="item-name"

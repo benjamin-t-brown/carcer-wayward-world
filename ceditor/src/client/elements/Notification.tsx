@@ -48,7 +48,9 @@ export const Notification: React.FC<NotificationProps> = ({
 
   return (
     <div className={`notification ${type} ${show ? 'show' : ''}`}>
-      <span style={{ flex: 1, marginRight: '10px' }}>{message}</span>
+      <span style={{ flex: 1, marginRight: '10px', whiteSpace: 'pre-line' }}>
+        {message}
+      </span>
       <button
         onClick={handleClose}
         style={{

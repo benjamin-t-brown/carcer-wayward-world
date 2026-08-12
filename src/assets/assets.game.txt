@@ -23,6 +23,9 @@ Sprites,special_event_icons,16,64,64
 Pic,portraits0,assets/img/game/portraits0.png
 Sprites,portraits0,64,52,52
 
+Pic,runes,assets/img/game/runes.png
+Sprites,runes,8,24,24
+
 Pic,projectiles,assets/img/game/projectiles16.png
 Sprites,projectiles,64,16,16
 Anim,dot_red,noloop
@@ -209,24 +212,52 @@ expl_30 60
 expl_31 60
 EndAnim
 
-# Mikey Soprano getting hit with a staple gun
-Sound,yell1,assets/snd/yell1.wav
-Sound,yell2,assets/snd/yell2.wav
-# Some italk 2026 video where the baseball broadcast made this sound somehow
-Sound,whip,assets/snd/whip.wav
-# Maelstrom https://github.com/libsdl-org/Maelstrom
-Sound,level_up,assets/snd/level_up.wav
-Sound,expl1,assets/snd/expl1.wav
-# https://freesound.org/people/plantmonkey/sounds/410751/
-Sound,weapon_throw,assets/snd/weapon_throw.wav
-# https://freesound.org/people/BBoz87/sounds/816449/
-Sound,bow_shoot,assets/snd/bow_shoot.wav
-# https://freesound.org/people/taylorsyoung@gmail.com/sounds/94778/
-Sound,punch1,assets/snd/punch1.wav
-# https://freesound.org/people/damnsatinist/sounds/493916/
-Sound,punch2,assets/snd/punch2.wav
-# https://freesound.org/people/nebulasnails/sounds/495118/
-Sound,punch3,assets/snd/punch3.wav
-Sound,metal_hit1,assets/snd/metal_hit1.wav
-Sound,metal_hit2,assets/snd/metal_hit2.wav
+Sound,yell1,assets/snd/yell1,1,Mikey Soprano getting hit with a staple gun
+Sound,yell2,assets/snd/yell2
+Sound,yell_goblin,assets/snd/yell_goblin,1,https://freesound.org/people/SnowFightStudios/sounds/643655/
+Sound,yell_monster1,assets/snd/yell_monster1,1,https://freesound.org/people/Soundburst/sounds/634005/
+Sound,yell_monster2,assets/snd/yell_monster2,1,https://freesound.org/people/Soundburst/sounds/634005/
+Sound,yell_bug,assets/snd/yell_bug
+Sound,yell_golem,assets/snd/yell_golem,1,zzfx
 
+Sound,hit_punch1,assets/snd/hit_punch1,1,https://freesound.org/people/taylorsyoung@gmail.com/sounds/94778/
+Sound,hit_punch2,assets/snd/hit_punch2,1,https://freesound.org/people/damnsatinist/sounds/493916/
+Sound,hit_punch3,assets/snd/hit_punch3,1,https://freesound.org/people/nebulasnails/sounds/495118/
+
+Sound,hit_icy,assets/snd/hit_icy
+Sound,hit_shock,assets/snd/hit_shock
+Sound,hit_metal1,assets/snd/hit_metal1
+Sound,hit_metal2,assets/snd/hit_metal2
+Sound,hit_metal3,assets/snd/hit_metal3,1,https://freesound.org/people/davilcol/sounds/404081/
+Sound,hit_arrow,assets/snd/hit_arrow
+Sound,hit_fireball,assets/snd/hit_fireball,1,maelstrom
+
+Sound,spell_cure,assets/snd/spell_cure,1,https://freesound.org/people/cormi/sounds/98473/
+Sound,spell_haste,assets/snd/spell_haste,1,zzfx
+Sound,spell_invis,assets/snd/spell_invis,1,zzfx
+Sound,potion,assets/snd/potion,1,https://freesound.org/people/mikiko850/sounds/848658/
+
+Sound,cast_ahh,assets/snd/cast_ahh,1,https://freesound.org/people/BaDoink/sounds/534114/
+Sound,cast_fireball,assets/snd/cast_fireball,1,https://freesound.org/people/GaryQ/sounds/140849/
+Sound,cast_chime,assets/snd/cast_chime,1,https://freesound.org/people/richcraftstudios/sounds/454611/
+Sound,cast_flame,assets/snd/cast_flame,1,https://freesound.org/people/SamuelGBorden/sounds/444107/
+Sound,cast_alternate,assets/snd/cast_alternate,1,zzfx
+
+Sound,fanfare_town,assets/snd/fanfare_town,1,fl studio
+Sound,fanfare_outpost,assets/snd/fanfare_outpost,1,fl studio
+Sound,fanfare_cave,assets/snd/fanfare_cave,1,https://freesound.org/people/chevyskulls/sounds/505642/
+
+Sound,step_gravel1,assets/snd/step_gravel1
+Sound,step_gravel2,assets/snd/step_gravel2
+Sound,step_snow1,assets/snd/step_snow1
+Sound,step_snow2,assets/snd/step_snow2
+
+Sound,shoot_bow,assets/snd/shoot_bow,1,https://freesound.org/people/BBoz87/sounds/816449/
+Sound,whip,assets/snd/whip,1,Some italk 2026 video where the baseball broadcast made this sound somehow
+Sound,level_up,assets/snd/level_up,1,Maelstrom https://github.com/libsdl-org/Maelstrom
+Sound,miss,assets/snd/miss,1,https://freesound.org/people/plantmonkey/sounds/410751/
+Sound,upgrade,assets/snd/upgrade,1,fl studio
+Sound,imp,assets/snd/imp,1,zzfx
+Sound,event,assets/snd/event,1,zzfx
+Sound,portal,assets/snd/portal
+Sound,lockpick,assets/snd/lockpick

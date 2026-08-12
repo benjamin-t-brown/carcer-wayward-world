@@ -158,7 +158,7 @@ struct AbilityAttackDmg {
   bmin::DynArray<Dice> dmgDice;
   int dmgBonus = 0;
   StatsEnum dmgStat = StatsEnum::STAT_STR;
-  int dmgStatMult = 0;
+  float dmgStatMult = 0.f;
   int attackBonus = 0;
 };
 

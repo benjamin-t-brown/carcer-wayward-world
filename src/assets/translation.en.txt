@@ -1,5 +1,6 @@
 [ gp] { gp}
 [ lbs] { lbs}
+[(Continue.)] {(Continue.)}
 [A two-handed weapon cannot be equipped in the off hand.] {A two-handed weapon cannot be equipped in the off hand.}
 [AP: ] {AP: }
 [Ability Power] {Ability Power}
@@ -10,6 +11,7 @@
 [Affected by Stealth training.] {Affected by Stealth training.}
 [Affected by Trickery training.] {Affected by Trickery training.}
 [Agility] {Agility}
+[A rune is already equipped in that slot.] {A rune is already equipped in that slot.}
 [An item is already equipped.] {An item is already equipped.}
 [Are you sure you wish to drop ] {Are you sure you wish to drop }
 [Armor Class] {Armor Class}
@@ -41,6 +43,7 @@
 [Conditioning] {Conditioning}
 [Confirm] {Confirm}
 [Constitution] {Constitution}
+[Container] {Container}
 [Cooking] {Cooking}
 [Damage Reduction] {Damage Reduction}
 [Day: ] {Day: }
@@ -59,6 +62,7 @@
 [End Fight] {End Fight}
 [Enemy Vision Range] {Enemy Vision Range}
 [Equip] {Equip}
+[Examine:] {Examine:}
 [Examine] {Examine}
 [Example Text] {Example Text}
 [Faith] {Faith}
@@ -81,6 +85,7 @@
 [Journal] {Journal}
 [Jump Distance] {Jump Distance}
 [Jump] {Jump}
+[Known] {Known}
 [Level up to increase stats and abilities.] {Level up to increase stats and abilities.}
 [Level] {Level}
 [Lore] {Lore}
@@ -89,17 +94,23 @@
 [Magic Item Use] {Magic Item Use}
 [Magic Mastery] {Magic Mastery}
 [Magic/Damage] {Magic/Damage}
+[Magic] {Magic}
 [Mana] {Mana}
 [Map] {Map}
 [Materia Slots] {Materia Slots}
 [Might/Damage] {Might/Damage}
 [Mind] {Mind}
+[No items nearby.] {No items nearby.}
+[No rune available to equip.] {No rune available to equip.}
 [No] {No}
 [None] {None}
+[Nothing inside.] {Nothing inside.}
+[Okay] {Okay}
 [Percentage-based magic damage increase.] {Percentage-based magic damage increase.}
 [Pick Up] {Pick Up}
 [Pole Weapons] {Pole Weapons}
 [Range Weapons] {Range Weapons}
+[Ready] {Ready}
 [Reduces length of bad status effects by 1 turn.] {Reduces length of bad status effects by 1 turn.}
 [Reduces magical damage by 5% per point.] {Reduces magical damage by 5% per point.}
 [Reduces physical damage by 5% per point.] {Reduces physical damage by 5% per point.}
@@ -121,7 +132,11 @@
 [Stealth] {Stealth}
 [Strength] {Strength}
 [Survival] {Survival}
+[Talk: there is no one there.] {Talk: there is no one there.}
+[Talk: they have nothing to say.] {Talk: they have nothing to say.}
 [Talk] {Talk}
+[That item is not a rune.] {That item is not a rune.}
+[That spell cannot be prepared.] {That spell cannot be prepared.}
 [Too heavy!] {Too heavy!}
 [Tool Use] {Tool Use}
 [Trade Discount] {Trade Discount}
@@ -133,3 +148,5 @@
 [Weapon Mastery] {Weapon Mastery}
 [Weight: ] {Weight: }
 [Yes] {Yes}
+[You can't see there.] {You can't see there.}
+[You need to get closer to look inside.] {You need to get closer to look inside.}

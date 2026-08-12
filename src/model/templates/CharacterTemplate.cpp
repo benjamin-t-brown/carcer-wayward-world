@@ -1,6 +1,7 @@
 #include "model/templates/CharacterTemplate.h"
 #include "db/Database.h"
 #include "model/instances/CharacterInstance.h"
+#include "model/instances/CharacterPlayer.h"
 #include "bmin/StringInterop.h"
 #include <charconv>
 #include <stdexcept>
@@ -69,6 +70,53 @@ bool tryApplyCharacterTemplateToInstance(CharacterInstance& character,
     return true;
   } catch (...) {
     return false;
+  }
+}
+
+void applyCharacterTemplateStartingSpells(CharacterPlayer& character,
+                                          const CharacterTemplate& characterTemplate) {
+  character.knownSpells.clear();
+  for (const auto& spellName : characterTemplate.startingKnownSpells) {
+    if (spellName.empty()) {
+      continue;
+    }
+    bool alreadyKnown = false;
+    for (const auto& known : character.knownSpells) {
+      if (known == spellName) {
+        alreadyKnown = true;
+        break;
+      }
+    }
+    if (!alreadyKnown) {
+      character.knownSpells.pushBack(spellName);
+    }
+  }
+
+  character.readySpells.clear();
+  for (const auto& spellName : characterTemplate.startingReadySpells) {
+    if (spellName.empty()) {
+      continue;
+    }
+    bool isKnown = false;
+    for (const auto& known : character.knownSpells) {
+      if (known == spellName) {
+        isKnown = true;
+        break;
+      }
+    }
+    if (!isKnown) {
+      continue;
+    }
+    bool alreadyReady = false;
+    for (const auto& ready : character.readySpells) {
+      if (ready == spellName) {
+        alreadyReady = true;
+        break;
+      }
+    }
+    if (!alreadyReady) {
+      character.readySpells.pushBack(spellName);
+    }
   }
 }
 

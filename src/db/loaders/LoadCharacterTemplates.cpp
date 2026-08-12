@@ -298,6 +298,24 @@ void loadCharacterTemplates(
       }
     }
 
+    if (characterJson.contains("startingKnownSpells") &&
+        characterJson["startingKnownSpells"].is_array()) {
+      for (const auto& spellJson : characterJson["startingKnownSpells"]) {
+        if (spellJson.is_string()) {
+          characterTemplate.startingKnownSpells.pushBack(spellJson.get<bmin::String>());
+        }
+      }
+    }
+
+    if (characterJson.contains("startingReadySpells") &&
+        characterJson["startingReadySpells"].is_array()) {
+      for (const auto& spellJson : characterJson["startingReadySpells"]) {
+        if (spellJson.is_string()) {
+          characterTemplate.startingReadySpells.pushBack(spellJson.get<bmin::String>());
+        }
+      }
+    }
+
     if (characterTemplates.contains(characterTemplate.name)) {
       throw std::runtime_error((bmin::String("Character template already exists: ") +
                                 characterTemplate.name)

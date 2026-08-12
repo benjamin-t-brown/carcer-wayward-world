@@ -751,7 +751,7 @@
       }
 
       .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 5px;
       }
 
       .form-row {
@@ -909,10 +909,45 @@
         margin-bottom: 0px;
       }
 
+      .editor-create-menu {
+        position: relative;
+      }
+
+      .editor-create-menu-dropdown {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        min-width: 100%;
+        background: #2d2d2d;
+        border: 1px solid #3e3e42;
+        border-radius: 4px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+        z-index: 20;
+        overflow: hidden;
+      }
+
+      .editor-create-menu-item {
+        display: block;
+        width: 100%;
+        padding: 8px 12px;
+        border: none;
+        background: transparent;
+        color: #cccccc;
+        text-align: left;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      .editor-create-menu-item:hover {
+        background: #094771;
+        color: #ffffff;
+      }
+
       .notification {
         position: fixed;
         top: 2px;
-        left: calc(50% - 150px);
+        left: calc(50% - 200px);
         padding: 10px;
         border-radius: 4px;
         color: white;
@@ -921,9 +956,11 @@
         opacity: 0;
         transform: translateY(-100%);
         transition: all 0.3s;
-        width: 300px;
+        width: 400px;
+        max-height: 40vh;
+        overflow-y: auto;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
       }
 
@@ -974,7 +1011,7 @@
       }
 
       .form-subsection {
-        margin-bottom: 25px;
+        margin-bottom: 0px;
         padding-bottom: 20px;
         border-bottom: 1px solid #2d2d30;
       }
@@ -1009,6 +1046,7 @@
       .character-template-form,
       .item-template-form,
       .ability-template-form,
+      .spell-template-form,
       .status-effect-template-form,
       .map-grid-template-form {
         padding: 16px 20px;
@@ -1017,6 +1055,7 @@
       .character-template-form h2,
       .item-template-form h2,
       .ability-template-form h2,
+      .spell-template-form h2,
       .status-effect-template-form h2,
       .map-grid-template-form h2 {
         margin-bottom: 12px;
@@ -1025,6 +1064,7 @@
       .character-template-form .form-fields-inline,
       .item-template-form .form-fields-inline,
       .ability-template-form .form-fields-inline,
+      .spell-template-form .form-fields-inline,
       .status-effect-template-form .form-fields-inline,
       .map-grid-template-form .form-fields-inline,
       .tileset-template-form .form-fields-inline {
@@ -1041,6 +1081,7 @@
       .character-template-form .form-fields-inline > .form-group,
       .item-template-form .form-fields-inline > .form-group,
       .ability-template-form .form-fields-inline > .form-group,
+      .spell-template-form .form-fields-inline > .form-group,
       .status-effect-template-form .form-fields-inline > .form-group,
       .map-grid-template-form .form-fields-inline > .form-group,
       .tileset-template-form .form-fields-inline > .form-group {
@@ -1051,6 +1092,7 @@
       .character-template-form .form-fields-inline .form-group label,
       .item-template-form .form-fields-inline .form-group label,
       .ability-template-form .form-fields-inline .form-group label,
+      .spell-template-form .form-fields-inline .form-group label,
       .status-effect-template-form .form-fields-inline .form-group label,
       .map-grid-template-form .form-fields-inline .form-group label,
       .tileset-template-form .form-fields-inline .form-group label {
@@ -1064,6 +1106,8 @@
       .item-template-form .form-fields-inline .form-group select,
       .ability-template-form .form-fields-inline .form-group input,
       .ability-template-form .form-fields-inline .form-group select,
+      .spell-template-form .form-fields-inline .form-group input,
+      .spell-template-form .form-fields-inline .form-group select,
       .status-effect-template-form .form-fields-inline .form-group input,
       .status-effect-template-form .form-fields-inline .form-group select,
       .map-grid-template-form .form-fields-inline .form-group input,
@@ -1091,6 +1135,7 @@
       .character-template-form .form-block,
       .item-template-form .form-block,
       .ability-template-form .form-block,
+      .spell-template-form .form-block,
       .status-effect-template-form .form-block,
       .map-grid-template-form .form-block {
         margin-top: 10px;
@@ -1100,6 +1145,7 @@
       .character-template-form .form-block label,
       .item-template-form .form-block label,
       .ability-template-form .form-block label,
+      .spell-template-form .form-block label,
       .status-effect-template-form .form-block label,
       .map-grid-template-form .form-block label {
         margin-bottom: 4px;
@@ -1109,6 +1155,7 @@
       .character-template-form .form-section,
       .item-template-form .form-section,
       .ability-template-form .form-section,
+      .spell-template-form .form-section,
       .status-effect-template-form .form-section,
       .map-grid-template-form .form-section {
         margin-top: 14px;
@@ -1118,6 +1165,7 @@
       .character-template-form .form-section h3,
       .item-template-form .form-section h3,
       .ability-template-form .form-section h3,
+      .spell-template-form .form-section h3,
       .status-effect-template-form .form-section h3,
       .map-grid-template-form .form-section h3 {
         margin-bottom: 8px;
@@ -1127,6 +1175,7 @@
       .character-template-form .form-subsection,
       .item-template-form .form-subsection,
       .ability-template-form .form-subsection,
+      .spell-template-form .form-subsection,
       .status-effect-template-form .form-subsection,
       .map-grid-template-form .form-subsection {
         margin-bottom: 10px;
@@ -1136,6 +1185,7 @@
       .character-template-form .form-subsection h4,
       .item-template-form .form-subsection h4,
       .ability-template-form .form-subsection h4,
+      .spell-template-form .form-subsection h4,
       .status-effect-template-form .form-subsection h4,
       .map-grid-template-form .form-subsection h4 {
         margin-bottom: 6px;
@@ -1145,6 +1195,7 @@
       .character-template-form .form-subsection > .form-fields-inline,
       .item-template-form .form-subsection > .form-fields-inline,
       .ability-template-form .form-subsection > .form-fields-inline,
+      .spell-template-form .form-subsection > .form-fields-inline,
       .status-effect-template-form .form-subsection > .form-fields-inline,
       .map-grid-template-form .form-subsection > .form-fields-inline {
         margin-bottom: 0;
@@ -1209,6 +1260,20 @@
       .item-template-form .weapon-ability-row .form-group .search-select-input {
         width: 100%;
         max-width: 500px;
+        box-sizing: border-box;
+      }
+
+      .spell-template-form .spell-ability-field {
+        flex: 0 0 250px;
+        width: 250px;
+        max-width: 250px;
+        margin-bottom: 0;
+      }
+
+      .spell-template-form .spell-ability-field .search-select-input {
+        width: 250px;
+        min-width: 250px;
+        max-width: 250px;
         box-sizing: border-box;
       }
 

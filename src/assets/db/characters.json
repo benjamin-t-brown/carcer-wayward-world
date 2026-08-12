@@ -62,8 +62,8 @@
       "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
     },
     "sound": {
-      "deathSoundName": "yell2",
-      "weaponSoundName": "punch1"
+      "deathSoundName": "yell_monster2",
+      "weaponSoundName": "hit_punch1"
     }
   },
   {
@@ -84,7 +84,8 @@
     "sound": {
       "deathSound": "soundName",
       "weaponSound": "soundName",
-      "deathSoundName": "yell2"
+      "deathSoundName": "yell2",
+      "weaponSoundName": "hit_punch1"
     },
     "statuses": [],
     "vision": {
@@ -187,8 +188,8 @@
       "hp": 12
     },
     "sound": {
-      "deathSoundName": "yell2",
-      "weaponSoundName": "punch1"
+      "deathSoundName": "yell_goblin",
+      "weaponSoundName": "hit_punch3"
     },
     "vision": {
       "radius": 6
@@ -220,7 +221,7 @@
       "deathSound": "soundName",
       "weaponSound": "soundName",
       "deathSoundName": "yell1",
-      "weaponSoundName": "punch1"
+      "weaponSoundName": "hit_punch1"
     },
     "statuses": [],
     "vision": {
@@ -289,7 +290,7 @@
       "deathSound": "soundName",
       "weaponSound": "soundName",
       "deathSoundName": "yell1",
-      "weaponSoundName": "punch1"
+      "weaponSoundName": "hit_punch1"
     },
     "statuses": [],
     "vision": {
@@ -358,7 +359,7 @@
       "deathSound": "soundName",
       "weaponSound": "soundName",
       "deathSoundName": "yell1",
-      "weaponSoundName": "punch1"
+      "weaponSoundName": "hit_punch1"
     },
     "statuses": [],
     "vision": {
@@ -427,7 +428,7 @@
       "deathSound": "soundName",
       "weaponSound": "soundName",
       "deathSoundName": "yell1",
-      "weaponSoundName": "punch1"
+      "weaponSoundName": "hit_punch1"
     },
     "statuses": [],
     "vision": {
@@ -496,7 +497,7 @@
       "deathSound": "soundName",
       "weaponSound": "soundName",
       "deathSoundName": "yell1",
-      "weaponSoundName": "punch1"
+      "weaponSoundName": "hit_punch1"
     },
     "statuses": [],
     "vision": {
@@ -565,7 +566,7 @@
       "deathSound": "soundName",
       "weaponSound": "soundName",
       "deathSoundName": "yell1",
-      "weaponSoundName": "punch1"
+      "weaponSoundName": "hit_punch1"
     },
     "statuses": [],
     "vision": {

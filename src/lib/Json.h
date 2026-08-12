@@ -34,6 +34,8 @@ class Json {
   bool is_array() const;
   bool is_string() const;
   bool is_number_integer() const;
+  bool is_number_float() const;
+  bool is_number() const;
   bool is_boolean() const;
 
   const Json& operator[](const char* key) const;

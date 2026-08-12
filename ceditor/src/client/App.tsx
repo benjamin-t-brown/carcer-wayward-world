@@ -6,6 +6,7 @@ import { CharacterTemplates } from './pages/CharacterTemplates';
 import { TilesetTemplates } from './pages/TilesetTemplates';
 import { SpecialEvents } from './pages/SpecialEvents';
 import { AbilityTemplates } from './pages/AbilityTemplates';
+import { SpellTemplates } from './pages/SpellTemplates';
 import { StatusEffectTemplates } from './pages/StatusEffectTemplates';
 import { Maps } from './pages/Maps';
 import { MapGrids } from './pages/MapGrids';
@@ -41,6 +42,8 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
       return <ItemTemplates routeParams={routeParams} />;
     case '/editor/abilityTemplates':
       return <AbilityTemplates routeParams={routeParams} />;
+    case '/editor/spellTemplates':
+      return <SpellTemplates routeParams={routeParams} />;
     case '/editor/statusEffectTemplates':
       return <StatusEffectTemplates />;
     case '/editor/characterTemplates':

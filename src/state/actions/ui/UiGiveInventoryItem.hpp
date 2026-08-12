@@ -57,22 +57,20 @@ class UiGiveInventoryItem : public AbstractAction {
 
       auto* giveLayer = layerManager->getLayerById(layers::LayerGiveContext::LAYER_ID);
       if (giveLayer) {
-        giveLayer->remove();
-        layerManager->moveToFront(layerManager->getLastActiveLayer());
+        layerManager->closeLayer(giveLayer);
       }
       break;
     }
     case model::GiveItemResult::SUCCESS: {
       auto* giveLayer = layerManager->getLayerById(layers::LayerGiveContext::LAYER_ID);
       if (giveLayer) {
-        giveLayer->remove();
+        layerManager->closeLayer(giveLayer);
       }
       auto* inventoryContextLayer =
           layerManager->getLayerById(layers::LayerInventoryContext::LAYER_ID);
       if (inventoryContextLayer) {
-        inventoryContextLayer->remove();
+        layerManager->closeLayer(inventoryContextLayer);
       }
-      layerManager->moveToFront(layerManager->getLastActiveLayer());
       break;
     }
     default:

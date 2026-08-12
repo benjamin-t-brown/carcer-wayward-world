@@ -7,7 +7,7 @@
 
 namespace ui {
 
-enum class PartyMemberIconSelectorTarget { INVENTORY, PICKUP };
+enum class PartyMemberIconSelectorTarget { INVENTORY, PICKUP, MAGIC };
 
 struct PartyMemberIconSelectorProps {
   bmin::DynArray<bmin::String> members;

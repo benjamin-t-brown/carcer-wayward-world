@@ -2,6 +2,7 @@
 #include "ui/elements/buttons/ButtonGroup.h"
 #include "ui/observers/ObserverSetCurrentPartyMember.hpp"
 #include "ui/observers/ObserverSetCurrentPartyMemberInventory.hpp"
+#include "ui/observers/ObserverSetCurrentPartyMemberMagic.hpp"
 
 namespace ui {
 
@@ -73,6 +74,10 @@ void PartyMemberIconSelector::build() {
     if (props.target == PartyMemberIconSelectorTarget::PICKUP) {
       buttonGroup->addObserverToButtonAtIndex(static_cast<int>(i),
                                               new ObserverSetCurrentPartyMember(
+                                                  static_cast<int>(i)));
+    } else if (props.target == PartyMemberIconSelectorTarget::MAGIC) {
+      buttonGroup->addObserverToButtonAtIndex(static_cast<int>(i),
+                                              new ObserverSetCurrentPartyMemberMagic(
                                                   static_cast<int>(i)));
     } else {
       buttonGroup->addObserverToButtonAtIndex(static_cast<int>(i),

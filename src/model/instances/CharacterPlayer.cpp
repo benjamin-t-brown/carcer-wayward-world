@@ -185,6 +185,135 @@ bool characterPlayerIsItemEquippedById(const CharacterPlayer& characterPlayer,
   return characterPlayerGetEquipmentSlotForItemId(characterPlayer, itemId).has_value();
 }
 
+int characterPlayerCountAvailableRunesOfType(const CharacterPlayer& characterPlayer,
+                                            RuneType runeType) {
+  for (const auto& entry : characterPlayer.availableRunes) {
+    if (entry.type == runeType) {
+      return entry.count;
+    }
+  }
+  return 0;
+}
+
+void characterPlayerSetAvailableRuneCount(CharacterPlayer& characterPlayer,
+                                          RuneType runeType,
+                                          int count) {
+  const int clamped = count < 0 ? 0 : count;
+  for (size_t i = 0; i < characterPlayer.availableRunes.size(); ++i) {
+    if (characterPlayer.availableRunes[i].type != runeType) {
+      continue;
+    }
+    if (clamped == 0) {
+      characterPlayer.availableRunes.erase(i);
+    } else {
+      characterPlayer.availableRunes[i].count = clamped;
+    }
+    return;
+  }
+  if (clamped > 0) {
+    characterPlayer.availableRunes.pushBack(
+        CharacterAvailableRune{.type = runeType, .count = clamped});
+  }
+}
+
+int characterPlayerCountEquippedRunesOfType(const CharacterPlayer& characterPlayer,
+                                            RuneType runeType) {
+  auto count = int{0};
+  for (const auto& equipped : characterPlayer.equippedRunes) {
+    if (equipped == runeType) {
+      count++;
+    }
+  }
+  return count;
+}
+
+bool characterPlayerCanEquipRuneType(const CharacterPlayer& characterPlayer,
+                                     RuneType runeType) {
+  if (characterPlayer.equippedRunes.size() >= CharacterPlayer::kRuneSlotCount) {
+    return false;
+  }
+  return characterPlayerCountAvailableRunesOfType(characterPlayer, runeType) >
+         characterPlayerCountEquippedRunesOfType(characterPlayer, runeType);
+}
+
+std::optional<RuneType>
+characterPlayerFindFirstEquippableRuneType(const CharacterPlayer& characterPlayer) {
+  for (int i = 0; i < kRuneTypeCount; ++i) {
+    const auto runeType = runeTypeFromIndex(i);
+    if (characterPlayerCanEquipRuneType(characterPlayer, runeType)) {
+      return runeType;
+    }
+  }
+  return std::nullopt;
+}
+
+EquipRuneResult characterPlayerEquipRuneType(CharacterPlayer& characterPlayer,
+                                             RuneType runeType) {
+  if (characterPlayer.equippedRunes.size() >= CharacterPlayer::kRuneSlotCount) {
+    return EquipRuneResult::INVALID_SLOT;
+  }
+  if (!characterPlayerCanEquipRuneType(characterPlayer, runeType)) {
+    return EquipRuneResult::NO_RUNE_AVAILABLE;
+  }
+  // Keep same types adjacent (enum order: HEAT, ENTROPY, REGROWTH, ...).
+  size_t insertAt = characterPlayer.equippedRunes.size();
+  const int newIndex = runeTypeIndex(runeType);
+  for (size_t i = 0; i < characterPlayer.equippedRunes.size(); ++i) {
+    if (runeTypeIndex(characterPlayer.equippedRunes[i]) > newIndex) {
+      insertAt = i;
+      break;
+    }
+  }
+  characterPlayer.equippedRunes.insert(
+      characterPlayer.equippedRunes.begin() + insertAt, runeType);
+  return EquipRuneResult::EQUIPPED;
+}
+
+EquipRuneResult characterPlayerUnequipRuneFromSlot(CharacterPlayer& characterPlayer,
+                                                   size_t slotIndex) {
+  if (slotIndex >= CharacterPlayer::kRuneSlotCount) {
+    return EquipRuneResult::INVALID_SLOT;
+  }
+  if (slotIndex >= characterPlayer.equippedRunes.size()) {
+    return EquipRuneResult::SLOT_EMPTY;
+  }
+  characterPlayer.equippedRunes.erase(slotIndex);
+  return EquipRuneResult::UNEQUIPPED;
+}
+
+EquipRuneResult characterPlayerUnequipOneRuneOfType(CharacterPlayer& characterPlayer,
+                                                     RuneType runeType) {
+  for (int i = static_cast<int>(characterPlayer.equippedRunes.size()) - 1; i >= 0;
+       --i) {
+    if (characterPlayer.equippedRunes[static_cast<size_t>(i)] == runeType) {
+      return characterPlayerUnequipRuneFromSlot(characterPlayer,
+                                               static_cast<size_t>(i));
+    }
+  }
+  return EquipRuneResult::SLOT_EMPTY;
+}
+
+EquipRuneResult characterPlayerToggleManaSlotRune(CharacterPlayer& characterPlayer,
+                                                   size_t slotIndex) {
+  if (slotIndex >= CharacterPlayer::kRuneSlotCount) {
+    return EquipRuneResult::INVALID_SLOT;
+  }
+
+  if (slotIndex < characterPlayer.equippedRunes.size()) {
+    return characterPlayerUnequipRuneFromSlot(characterPlayer, slotIndex);
+  }
+
+  if (slotIndex > characterPlayer.equippedRunes.size()) {
+    return EquipRuneResult::INVALID_SLOT;
+  }
+
+  const auto runeType = characterPlayerFindFirstEquippableRuneType(characterPlayer);
+  if (!runeType.has_value()) {
+    return EquipRuneResult::NO_RUNE_AVAILABLE;
+  }
+  return characterPlayerEquipRuneType(characterPlayer, *runeType);
+}
+
 EquipItemResult characterPlayerToggleEquipItem(CharacterPlayer& characterPlayer,
                                                const bmin::String& itemId,
                                                const db::Database& database) {

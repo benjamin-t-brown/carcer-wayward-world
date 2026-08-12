@@ -2,6 +2,7 @@
 export type EditorSelectionKey =
   | 'itemTemplates'
   | 'abilityTemplates'
+  | 'spellTemplates'
   | 'statusEffectTemplates'
   | 'characterTemplates'
   | 'tilesetTemplates'
@@ -17,6 +18,7 @@ export const EDITOR_SELECTION_ROUTE_PARAMS: Partial<
 > = {
   itemTemplates: 'item',
   abilityTemplates: 'ability',
+  spellTemplates: 'spell',
   statusEffectTemplates: 'statusEffect',
   characterTemplates: 'character',
   tilesetTemplates: 'tileset',

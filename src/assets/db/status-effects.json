@@ -12,7 +12,7 @@
     "actions": [
       {
         "statusActionTargetType": "STATUS_ACTION_TARGET_SELF",
-        "abilityName": "BURNING_SE_1",
+        "abilityName": "SE_BURNING_1",
         "events": [
           {
             "type": "STATUS_EVENT_ON_TURN_START",

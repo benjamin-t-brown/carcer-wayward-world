@@ -166,7 +166,10 @@ export function isLegacyMap(
   return (
     'levels' in raw &&
     raw.levels !== undefined &&
-    !('tilesets' in raw && Array.isArray((raw as CarcerMapTemplate).tilesets))
+    !(
+      'tilesets' in raw &&
+      Array.isArray((raw as unknown as CarcerMapTemplate).tilesets)
+    )
   );
 }
 

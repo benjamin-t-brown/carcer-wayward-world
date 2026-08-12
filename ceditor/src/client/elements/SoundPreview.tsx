@@ -40,6 +40,7 @@ export function SoundPreview({
       audioRef.current.currentTime = 0;
     }
     const audio = new Audio(getSoundUrl(sound.path));
+    audio.volume = Math.min(1, Math.max(0, sound.volume ?? 1));
     audioRef.current = audio;
     void audio.play().catch(() => {});
   };

@@ -7,6 +7,8 @@ import type {
   StatusEffectTemplate,
 } from './ability';
 import { mergeAbilityAttackDmg, mergeAbilityRestore } from './ability';
+import type { RuneType } from './spell';
+import { isRuneType, runeTypeToSpriteName } from './spell';
 
 // ============================================================================
 // Item Templates
@@ -26,7 +28,8 @@ export type ItemType =
   | 'SHOES'
   | 'NECKLACE'
   | 'POTION'
-  | 'UTILITY';
+  | 'UTILITY'
+  | 'RUNE';
 
 export const ITEM_TYPES: ItemType[] = [
   'WEAPON_MELEE',
@@ -42,6 +45,7 @@ export const ITEM_TYPES: ItemType[] = [
   'NECKLACE',
   'POTION',
   'UTILITY',
+  'RUNE',
 ];
 
 /** Matches model::ItemUsability in Items.h */
@@ -671,6 +675,8 @@ export interface ItemTemplate {
   useSpecialEvent?: string;
   statusEffects?: ItemStatusEffectRef[];
   weapon?: ItemWeaponConfig;
+  /** Required when itemType is RUNE; matches model::ItemTemplate.runeType */
+  runeType?: RuneType;
 }
 
 export function sanitizeItemTemplates(
@@ -688,6 +694,23 @@ export function sanitizeItemTemplates(
     if (next.weapon && !isWeaponItemType(next.itemType)) {
       const { weapon: _weapon, ...withoutWeapon } = next;
       next = withoutWeapon;
+    }
+
+    if (next.itemType === 'RUNE') {
+      const runeType: RuneType = isRuneType(next.runeType)
+        ? next.runeType
+        : 'HEAT';
+      next = {
+        ...next,
+        runeType,
+        icon:
+          typeof next.icon === 'string' && next.icon.trim() !== ''
+            ? next.icon
+            : runeTypeToSpriteName(runeType),
+      };
+    } else if (next.runeType !== undefined) {
+      const { runeType: _runeType, ...withoutRuneType } = next;
+      next = withoutRuneType;
     }
 
     if (!isItemUsable(next.itemUsability)) {

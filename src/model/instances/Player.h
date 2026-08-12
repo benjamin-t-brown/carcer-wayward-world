@@ -7,6 +7,7 @@ struct Player {
   bmin::DynArray<model::CharacterPlayer> party;
   int currentPartyMemberIndex = 0;
   int currentPartyMemberInventoryIndex = 0;
+  int currentPartyMemberMagicIndex = 0;
   int gold = 0;
   int food = 0;
 };

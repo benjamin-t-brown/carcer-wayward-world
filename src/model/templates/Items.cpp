@@ -30,6 +30,8 @@ bmin::String getStringFromItemType(ItemType itemType) {
     return "POTION";
   case ItemType::UTILITY:
     return "UTILITY";
+  case ItemType::RUNE:
+    return "RUNE";
   default:
     return "UNKNOWN";
   }
@@ -63,11 +65,14 @@ ItemType getItemTypeFromString(const bmin::String& itemTypeString) {
     return ItemType::POTION;
   } else if (itemTypeString == "UTILITY") {
     return ItemType::UTILITY;
+  } else if (itemTypeString == "RUNE") {
+    return ItemType::RUNE;
   }
   return ItemType::UNKNOWN;
 }
 
 bool itemTypeIsEquippable(ItemType itemType) {
+  // RUNE uses rune slots only (itemTypeUsesRuneSlots), not armor/weapon maps.
   switch (itemType) {
   case ItemType::WEAPON_MELEE:
   case ItemType::WEAPON_MELEE_2H:
@@ -99,6 +104,10 @@ bool itemTypeUsesWeaponSlots(ItemType itemType) {
   default:
     return false;
   }
+}
+
+bool itemTypeUsesRuneSlots(ItemType itemType) {
+  return itemType == ItemType::RUNE;
 }
 
 ItemUsability getItemUsabilityFromString(const bmin::String& value) {

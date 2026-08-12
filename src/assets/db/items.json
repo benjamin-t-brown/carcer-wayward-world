@@ -208,25 +208,16 @@
     "weight": 1,
     "value": 10,
     "weapon": {
-      "abilityName": "MELEE_ATTACK_METAL2",
+      "abilityName": "MELEE_ATTACK_METAL_SWORD",
       "dmgOverrides": [
         {
           "dmgDice": [
             "D6"
           ],
-          "dmgBonus": 0,
+          "dmgBonus": 1,
           "dmgStat": "STAT_STR",
           "dmgStatMult": 1,
-          "attackBonus": 0
-        },
-        {
-          "dmgDice": [
-            "D6"
-          ],
-          "dmgBonus": 0,
-          "dmgStat": "STAT_STR",
-          "dmgStatMult": 1,
-          "attackBonus": 0
+          "attackBonus": 1
         }
       ]
     }
@@ -240,16 +231,16 @@
     "weight": 1,
     "value": 10,
     "weapon": {
-      "abilityName": "MELEE_ATTACK_METAL",
+      "abilityName": "MELEE_ATTACK_METAL_SWORD",
       "dmgOverrides": [
         {
           "dmgDice": [
             "D6"
           ],
-          "dmgBonus": 0,
+          "dmgBonus": 2,
           "dmgStat": "STAT_STR",
           "dmgStatMult": 1,
-          "attackBonus": 0
+          "attackBonus": 1
         }
       ]
     }

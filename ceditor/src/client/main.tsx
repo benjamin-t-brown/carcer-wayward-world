@@ -17,6 +17,7 @@ import {
   GameEvent,
   CarcerMapTemplate,
   MapGridTemplate,
+  FeatTemplate,
   sanitizeItemTemplates,
   sanitizeMapGridTemplates,
 } from './types/assets';
@@ -25,6 +26,7 @@ import {
   sanitizeAbilityTemplates,
   StatusEffectTemplate,
 } from './types/ability';
+import { SpellTemplate, sanitizeSpellTemplates } from './types/spell';
 import { normalizeMapItemsOnLoad } from './tile-editor/mapTileItems';
 import { normalizeMapOnLoad } from './utils/mapIndex';
 
@@ -66,10 +68,26 @@ async function loadAbilities(): Promise<AbilityTemplate[]> {
   return response.json();
 }
 
+async function loadSpells(): Promise<SpellTemplate[]> {
+  const response = await fetch('/api/assets/spellTemplates');
+  if (!response.ok) {
+    throw new Error('Failed to load spells');
+  }
+  return response.json();
+}
+
 async function loadStatusEffects(): Promise<StatusEffectTemplate[]> {
   const response = await fetch('/api/assets/statusEffectTemplates');
   if (!response.ok) {
     throw new Error('Failed to load status effects');
+  }
+  return response.json();
+}
+
+async function loadFeats(): Promise<FeatTemplate[]> {
+  const response = await fetch('/api/assets/featTemplates');
+  if (!response.ok) {
+    throw new Error('Failed to load feats');
   }
   return response.json();
 }
@@ -128,7 +146,9 @@ async function load(): Promise<{
   items: ItemTemplate[];
   characters: CharacterTemplate[];
   abilities: AbilityTemplate[];
+  spells: SpellTemplate[];
   statusEffects: StatusEffectTemplate[];
+  feats: FeatTemplate[];
   tilesets: TilesetTemplate[];
   gameEvents: GameEvent[];
   maps: CarcerMapTemplate[];
@@ -167,7 +187,9 @@ async function load(): Promise<{
     loadedItems,
     characters,
     loadedAbilities,
+    loadedSpells,
     statusEffects,
+    feats,
     tilesets,
     gameEvents,
     maps,
@@ -176,7 +198,9 @@ async function load(): Promise<{
     loadItems(),
     loadCharacters(),
     loadAbilities(),
+    loadSpells(),
     loadStatusEffects(),
+    loadFeats(),
     loadTilesets(),
     loadGameEvents(),
     loadMaps(),
@@ -188,6 +212,8 @@ async function load(): Promise<{
     animationMap,
     soundMap
   );
+
+  const spells = sanitizeSpellTemplates(loadedSpells);
 
   const items = sanitizeItemTemplates(loadedItems, abilities);
 
@@ -202,7 +228,9 @@ async function load(): Promise<{
     items,
     characters,
     abilities,
+    spells,
     statusEffects,
+    feats,
     tilesets,
     gameEvents,
     maps,
@@ -220,7 +248,9 @@ async function load(): Promise<{
     items,
     characters,
     abilities,
+    spells,
     statusEffects,
+    feats,
     tilesets,
     gameEvents,
     maps,
@@ -251,7 +281,9 @@ async function init() {
       items,
       characters,
       abilities,
+      spells,
       statusEffects,
+      feats,
       tilesets,
       gameEvents,
       maps,
@@ -280,7 +312,9 @@ async function init() {
             initialItems={items}
             initialCharacters={characters}
             initialAbilities={abilities}
+            initialSpells={spells}
             initialStatusEffects={statusEffects}
+            initialFeats={feats}
             initialTilesets={tilesets}
             initialGameEvents={gameEvents}
             initialMaps={maps}

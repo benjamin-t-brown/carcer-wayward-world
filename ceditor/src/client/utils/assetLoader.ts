@@ -22,12 +22,61 @@ export interface Animation {
 export interface Sound {
   name: string;
   path: string;
+  /** Per-sound volume multiplier in [0, 1]. Defaults to 1. */
+  volume: number;
 }
 
 export interface ParsedAssetFile {
   sprites: Sprite[];
   animations: Animation[];
   sounds: Sound[];
+}
+
+/** Matches sdl2w AssetLoader SoundFileMode. */
+export type SoundFileMode = 'wav' | 'ogg';
+
+let soundFileMode: SoundFileMode = 'wav';
+
+export function setSoundFileMode(mode: SoundFileMode) {
+  soundFileMode = mode;
+}
+
+export function getSoundFileMode(): SoundFileMode {
+  return soundFileMode;
+}
+
+/**
+ * Prefer the configured sound container. Paths with an extension are rewritten;
+ * paths without one get the extension appended. Matches sdl2w resolveSoundPath.
+ */
+export function resolveSoundPath(
+  path: string,
+  mode: SoundFileMode = soundFileMode
+): string {
+  const ext = mode === 'ogg' ? '.ogg' : '.wav';
+  const slash = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+  const baseStart = slash >= 0 ? slash + 1 : 0;
+  const dot = path.lastIndexOf('.');
+
+  if (dot > baseStart) {
+    return path.slice(0, dot) + ext;
+  }
+  return path + ext;
+}
+
+/**
+ * Optional Sound line field after path: volume in [0, 1].
+ * Non-numeric tokens (attributions) are ignored.
+ */
+export function tryParseSoundVolume(token: string): number | null {
+  if (!/^-?\d+(\.\d+)?$/.test(token)) {
+    return null;
+  }
+  const value = Number(token);
+  if (!Number.isFinite(value)) {
+    return null;
+  }
+  return Math.min(1, Math.max(0, value));
 }
 
 // Parse asset file
@@ -62,9 +111,18 @@ export async function parseAssetFile(content: string) {
         nextSpriteIndex[alias] = 0;
       }
     } else if (parts[0] === 'Sound' && parts.length >= 3) {
+      // Sound,<alias>,<path>[,<volume 0-1>][,attribution...]
+      let volume = 1;
+      if (parts.length >= 4) {
+        const parsedVolume = tryParseSoundVolume(parts[3]);
+        if (parsedVolume !== null) {
+          volume = parsedVolume;
+        }
+      }
       sounds.push({
         name: parts[1],
-        path: parts[2],
+        path: resolveSoundPath(parts[2]),
+        volume,
       });
     } else if (parts[0] === 'Sprites' && parts.length >= 5) {
       const picName = parts[1];

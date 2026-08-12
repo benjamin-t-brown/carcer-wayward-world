@@ -1,5 +1,6 @@
 [ gp] {MISSING!}
 [ lbs] {MISSING!}
+[(Continue.)] {MISSING!}
 [A two-handed weapon cannot be equipped in the off hand.] {MISSING!}
 [AP: ] {MISSING!}
 [Ability Power] {MISSING!}
@@ -10,6 +11,7 @@
 [Affected by Stealth training.] {MISSING!}
 [Affected by Trickery training.] {MISSING!}
 [Agility] {MISSING!}
+[A rune is already equipped in that slot.] {MISSING!}
 [An item is already equipped.] {MISSING!}
 [Are you sure you wish to drop ] {MISSING!}
 [Armor Class] {MISSING!}
@@ -41,6 +43,7 @@
 [Conditioning] {MISSING!}
 [Confirm] {MISSING!}
 [Constitution] {MISSING!}
+[Container] {MISSING!}
 [Cooking] {MISSING!}
 [Damage Reduction] {MISSING!}
 [Day: ] {MISSING!}
@@ -59,6 +62,7 @@
 [End Fight] {MISSING!}
 [Enemy Vision Range] {MISSING!}
 [Equip] {MISSING!}
+[Examine:] {MISSING!}
 [Examine] {MISSING!}
 [Example Text] {MISSING!}
 [Faith] {MISSING!}
@@ -81,6 +85,7 @@
 [Journal] {MISSING!}
 [Jump Distance] {MISSING!}
 [Jump] {MISSING!}
+[Known] {MISSING!}
 [Level up to increase stats and abilities.] {MISSING!}
 [Level] {MISSING!}
 [Lore] {MISSING!}
@@ -89,17 +94,23 @@
 [Magic Item Use] {MISSING!}
 [Magic Mastery] {MISSING!}
 [Magic/Damage] {MISSING!}
+[Magic] {MISSING!}
 [Mana] {MISSING!}
 [Map] {MISSING!}
 [Materia Slots] {MISSING!}
 [Might/Damage] {MISSING!}
 [Mind] {MISSING!}
+[No items nearby.] {MISSING!}
+[No rune available to equip.] {MISSING!}
 [No] {MISSING!}
 [None] {MISSING!}
+[Nothing inside.] {MISSING!}
+[Okay] {MISSING!}
 [Percentage-based magic damage increase.] {MISSING!}
 [Pick Up] {MISSING!}
 [Pole Weapons] {MISSING!}
 [Range Weapons] {MISSING!}
+[Ready] {MISSING!}
 [Reduces length of bad status effects by 1 turn.] {MISSING!}
 [Reduces magical damage by 5% per point.] {MISSING!}
 [Reduces physical damage by 5% per point.] {MISSING!}
@@ -121,7 +132,11 @@
 [Stealth] {MISSING!}
 [Strength] {MISSING!}
 [Survival] {MISSING!}
+[Talk: there is no one there.] {MISSING!}
+[Talk: they have nothing to say.] {MISSING!}
 [Talk] {MISSING!}
+[That item is not a rune.] {MISSING!}
+[That spell cannot be prepared.] {MISSING!}
 [Too heavy!] {MISSING!}
 [Tool Use] {MISSING!}
 [Trade Discount] {MISSING!}
@@ -133,3 +148,5 @@
 [Weapon Mastery] {MISSING!}
 [Weight: ] {MISSING!}
 [Yes] {MISSING!}
+[You can't see there.] {MISSING!}
+[You need to get closer to look inside.] {MISSING!}

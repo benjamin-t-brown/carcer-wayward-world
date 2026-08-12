@@ -618,6 +618,90 @@ export function createDefaultAbilityTemplate(): AbilityTemplate {
   };
 }
 
+/** Defaults for "+ New Spell" on the Ability Templates screen. */
+export function createDefaultSpellAbilityTemplate(): AbilityTemplate {
+  return {
+    name: '',
+    label: '',
+    description: '',
+    icon: '',
+    type: 'ABILITY_SPELL',
+    targetSelect: {
+      targetType: 'TARGET_UNIT',
+      allegianceSelectType: 'TARGET_ALLEGIANCE_OTHER',
+      numTargetableUnits: 1,
+      zoneSize: { x: 1, y: 1 },
+      range: 10,
+    },
+    apCost: 6,
+    costType: 'ABILITY_COST_MANA',
+    costValue: 2,
+    depiction: {
+      dmgAnim: 'expl_fire',
+      projectileType: 'PROJECTILE_NONE',
+      projectilePath: 'PROJECTILE_PATH_NONE',
+      startSound: 'whip',
+      dmgSound: 'expl1',
+    },
+    attacks: [
+      {
+        attackClass: 'ATTACK_CLASS_MAGIC',
+        dmg: {
+          dmgDice: ['D6'],
+          dmgBonus: 0,
+          dmgStat: 'STAT_MND',
+          dmgStatMult: 0.5,
+          attackBonus: 0,
+        },
+      },
+    ],
+    statuses: [],
+    restores: [],
+  };
+}
+
+/** Defaults for "+ New Melee" on the Ability Templates screen. */
+export function createDefaultMeleeAbilityTemplate(): AbilityTemplate {
+  return {
+    name: '',
+    label: '',
+    description: '',
+    icon: '',
+    type: 'ABILITY_ATTACK',
+    targetSelect: {
+      targetType: 'TARGET_UNIT',
+      allegianceSelectType: 'TARGET_ALLEGIANCE_OTHER',
+      numTargetableUnits: 1,
+      zoneSize: { x: 1, y: 1 },
+      range: 1,
+    },
+    apCost: 5,
+    costType: 'ABILITY_COST_NONE',
+    costValue: 0,
+    depiction: {
+      dmgAnim: 'splash_attack',
+      projectileType: 'PROJECTILE_NONE',
+      projectilePath: 'PROJECTILE_PATH_NONE',
+      startSound: '',
+      dmgSound: 'metal_hit2',
+    },
+    attacks: [
+      {
+        attackClass: 'ATTACK_CLASS_MELEE',
+        dmg: {
+          dmgDice: ['D6'],
+          dmgBonus: 0,
+          dmgStat: 'STAT_STR',
+          dmgStatMult: 1,
+          attackBonus: 0,
+        },
+      },
+    ],
+    statuses: [],
+    restores: [],
+  };
+}
+
 export function createDefaultStatusEffectTemplate(): StatusEffectTemplate {
   return {
     name: '',
