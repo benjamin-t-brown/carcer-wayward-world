@@ -38,7 +38,7 @@ On Windows PowerShell, prefer the `.ps1` wrappers. For bash via MSYS2 UCRT64:
 
 ## Running the Loop
 
-Unlike Claude Code's `claude -p` orchestration, **you (the Cursor agent) are the loop executor**. Scripts manage state, prompts, logging, and stall detection; you implement each task (directly or by spawning `cpp-expert` / `ceditor-expert` per `.ai/specs/<feature>/routing.md`) and call the scripts between iterations.
+Unlike Claude Code's `claude -p` orchestration, **you (the Cursor agent) are the loop executor**. Scripts manage state, prompts, logging, and stall detection; you implement each task (directly or by spawning `cpp-expert` / `ceditor-expert` / `commit-reviewer` per `.ai/specs/<feature>/routing.md`) and call the scripts between iterations.
 
 ### 1. Verify readiness
 
@@ -153,7 +153,7 @@ When the user wants to run autonomously:
 1. **Verify readiness**: Check that `.ai/specs/<feature>/tasks.md` exists and has unchecked items
 2. **Check environment**: Run `check`; confirm branch, clean working tree, jq installed
 3. **Initialize**: Run `init` (or `init --resume` if resuming)
-4. **Execute the loop**: `next-prompt` → implement (or spawn `cpp-expert` / `ceditor-expert` when routing.md says so) → mark `[x]` → `record-progress` → `should-continue` until done
+4. **Execute the loop**: `next-prompt` → implement (or spawn `cpp-expert` / `ceditor-expert` / `commit-reviewer` when routing.md says so) → mark `[x]` → `record-progress` → `should-continue` until done
 5. **After completion**: Run `summarize.sh`, analyze results, report to user
 
 Do not stop between tasks for user approval unless blocked or stall-aborted.

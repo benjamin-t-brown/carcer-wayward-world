@@ -79,6 +79,11 @@ app.get('/api/assets/types', async (req, res) => {
         name: 'Map Grids',
         file: 'map-grids.json',
       },
+      {
+        id: 'soundEffects',
+        name: 'Sound Effects',
+        file: 'assets.game.txt',
+      },
     ];
     res.json(assetTypes);
   } catch (error) {

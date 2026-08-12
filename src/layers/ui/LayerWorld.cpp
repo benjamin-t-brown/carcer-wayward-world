@@ -232,21 +232,20 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
     return;
   }
 
-  if (world.resolvingTownEnemyAi) {
-    return;
-  }
-
-  if (auto actionType = ui::getWorldActionFromKeyboardShortcut(
-          key, stateManager->getState().turnMode)) {
-    ui::activateWorldAction(*stateManager, *actionType, window);
-    return;
+  // Block world-action shortcuts / aim confirm while town AI is resolving.
+  if (!world.resolvingTownEnemyAi) {
+    if (auto actionType = ui::getWorldActionFromKeyboardShortcut(
+            key, stateManager->getState().turnMode)) {
+      ui::activateWorldAction(*stateManager, *actionType, window);
+      return;
+    }
   }
 
   const bool isAimMode = world.actionMode == model::WorldActionMode::EXAMINE ||
                          world.actionMode == model::WorldActionMode::TALK;
 
   if (isAimMode && ui::isConfirmActionKey(key)) {
-    if (world.actionAimTile) {
+    if (!world.resolvingTownEnemyAi && world.actionAimTile) {
       confirmWorldActionAim(world.actionAimTile->x, world.actionAimTile->y);
     }
     return;
@@ -257,11 +256,10 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
     return;
   }
 
-  if (world.combat.active && !canPlayerIssueCombatMove(stateManager->getState())) {
-    return;
-  }
-
   if (isAimMode) {
+    if (world.resolvingTownEnemyAi) {
+      return;
+    }
     ui::setHeldMoveActive(*stateManager, false);
     stateManager->enqueueAction(
         stateManager->getActionData(),
@@ -272,9 +270,13 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
 
   const auto& heldMove = stateManager->getState().uiState.heldMove;
   // Ignore OS/SDL key-repeat events for the same held key; we time repeats ourselves.
-  if (heldMove.isActive && heldMove.key == key) {
+  if (heldMove.isActive && heldMove.key.sliceView() == key) {
     return;
   }
+
+  const bool canEnqueueMove =
+      !world.resolvingTownEnemyAi &&
+      (!world.combat.active || canPlayerIssueCombatMove(stateManager->getState()));
 
   state::HeldMove nextHeldMove{
       .isActive = true,
@@ -287,7 +289,9 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
   stateManager->pllAction(stateManager->getActionData(),
                           new state::actions::UiUpdateHeldMove(nextHeldMove),
                           0);
-  enqueueMapMove(*stateManager, moveDelta->dx, moveDelta->dy);
+  if (canEnqueueMove) {
+    enqueueMapMove(*stateManager, moveDelta->dx, moveDelta->dy);
+  }
 }
 
 void LayerWorld::onKeyUp(std::string_view key, int /*keyCode*/) {
@@ -296,7 +300,7 @@ void LayerWorld::onKeyUp(std::string_view key, int /*keyCode*/) {
     return;
   }
   const auto& heldMove = stateManager->getState().uiState.heldMove;
-  if (heldMove.isActive && heldMove.key == key) {
+  if (heldMove.isActive && heldMove.key.sliceView() == key) {
     ui::setHeldMoveActive(*stateManager, false);
   }
 }
@@ -625,19 +629,23 @@ void LayerWorld::updateHeldMoveRepeat(int deltaTime) {
     return;
   }
 
+  if (!window->getEvents().isKeyPressed(heldMove.key.sliceView())) {
+    ui::setHeldMoveActive(*stateManager, false);
+    return;
+  }
+
   if (stateManager->getState().world.actionMode != model::WorldActionMode::NONE) {
     ui::setHeldMoveActive(*stateManager, false);
     return;
   }
 
+  // Pause while town AI or combat cannot accept a move; keep hold active so repeats resume.
   if (stateManager->getState().world.resolvingTownEnemyAi) {
-    ui::setHeldMoveActive(*stateManager, false);
     return;
   }
 
   if (stateManager->getState().world.combat.active &&
       !canPlayerIssueCombatMove(stateManager->getState())) {
-    ui::setHeldMoveActive(*stateManager, false);
     return;
   }
 

@@ -38,6 +38,7 @@ This harness was designed for Claude Code Agent Teams (`TeamCreate`, `SendMessag
 
 - `cpp-expert` — C++ under `src/`
 - `ceditor-expert` — TypeScript editor under `ceditor/`
+- `commit-reviewer` — last-commit review (segfaults, types, logic, tests, style)
 
 ---
 
@@ -132,10 +133,12 @@ Only spawn agents that exist as `.cursor/agents/<name>.md`. Current roster:
 | `planner` | Requirements, design, tasks under `.ai/specs/<feature>/` |
 | `cpp-expert` | C++ under `src/` — builds with `make -j8`, loaders, native tests |
 | `ceditor-expert` | Asset editor under `ceditor/` — types, forms, `npm run build` |
+| `commit-reviewer` | Review last commit for segfaults, type/logic/style errors, and test failures |
+| `code-explorer` | Read-only feature/codebase investigation |
 | `autonomous-loop` (skill) | Hands-off execution of all `tasks.md` items (`.cursor/skills/autonomous-loop/SKILL.md`) |
 | `routing` (skill) | Ad-hoc request classification (`.cursor/skills/routing/SKILL.md`) |
 
-**Not in this workspace** (do not spawn): `sdd-planner`, `sdd-executor`, `ralphloop-executor`, `code-explorer`, `code-architect`, `code-reviewer`, `code-refactorer`, `test-engineer`, `security-auditor`, `pr-preparer`, `pr-summarizer`, `pr-reviewer`, `pr-feedback-resolver`, `agents-context-maintainer`, `docs-maintainer`, `docs-site-maintainer`.
+**Not in this workspace** (do not spawn): `sdd-planner`, `sdd-executor`, `code-architect`, `code-refactorer`, `test-engineer`, `security-auditor`, `pr-preparer`, `pr-summarizer`, `pr-reviewer`, `pr-feedback-resolver`, `agents-context-maintainer`, `docs-maintainer`, `docs-site-maintainer`.
 
 For routes in `routing-table.md` that point at missing agents, remap per [Implementation routing](#implementation-routing) or tell the user the specialist is not installed yet.
 
@@ -175,6 +178,7 @@ Ecosystem routes (`superpowers:*`, etc.) require external plugins; hard-block wh
 | `requirements.md` | Planning started |
 | `design.md` | Design done |
 | `tasks.md` | Planning complete |
+| `commit-review.md` | Last-commit review done |
 | `test-report.md` | Quality testing done |
 | `security-report.md` | Security audit done |
 
@@ -228,7 +232,26 @@ See [Implementation routing](#implementation-routing). **Gate:** human reviews i
 
 ### 4. Quality + Fix
 
-No dedicated quality agents in this workspace. Present options: human review, or spawn `bugbot` / `security-review` `Task` subagents if the user wants automated review. Run [Fix Cycle](#fix-cycle) on findings. **Gate:** human approves before PR.
+1. If `tasks.md` still has an unchecked `commit-reviewer` task, spawn it first (planner always schedules this as the last implementation task).
+2. Spawn `commit-reviewer` via `Task` on the last commit when Quality runs and no fresh `commit-review.md` exists:
+
+```
+Task(
+  subagent_type: "commit-reviewer",
+  prompt: "Feature: <name>
+Spec dir: .ai/specs/<feature>/
+
+Review the last git commit (HEAD~1..HEAD) for possible segfaults, type errors, logic errors, test failures, and style errors.
+Write .ai/specs/<feature>/commit-review.md.
+Report back per .cursor/agents/_teammate-protocol.md."
+)
+```
+
+3. Optionally offer `bugbot` / `security-review` for broader branch or security review if the user wants.
+4. Triage findings per [Fix Cycle](#fix-cycle); spawn domain experts for Critical fixes.
+5. Re-run `commit-reviewer` after Critical fixes if the fix produced a new commit.
+
+**Gate:** human approves before PR.
 
 ### 5. PR Prep
 
@@ -249,7 +272,8 @@ Read `.ai/specs/<feature>/routing.md` when present. Otherwise infer from task te
 | `src/**`, loaders, C++ tests | `cpp-expert` |
 | `ceditor/**`, editor types/forms | `ceditor-expert` |
 | Both | `cpp-expert` first if tasks depend on schema, then `ceditor-expert` (or parallel when independent) |
-| Unclear / read-only | `planner` to refine spec, or `explore` `Task` for investigation |
+| Last-commit / Quality review | `commit-reviewer` |
+| Unclear / read-only | `planner` to refine spec, or `explore` / `code-explorer` for investigation |
 
 Interactive mode: one expert per batch (1–2 tasks), wait for report-back, then next batch.
 Autonomous mode: team-lead runs `autonomous-loop` scripts and spawns experts per iteration prompt.

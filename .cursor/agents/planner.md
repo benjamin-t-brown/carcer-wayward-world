@@ -1,6 +1,6 @@
 ---
 name: planner
-description: "Creates structured requirements, design notes, and task breakdowns for team-lead and domain experts (cpp-expert, ceditor-expert, etc.) to execute. Use when the user describes a feature, change, or goal that needs scoping before implementation — or when team-lead needs an approved spec with clear acceptance criteria and agent routing. Do not use for code edits (use domain experts), orchestration (use team-lead), or hands-off execution (use sdd-executor / autonomous-loop after tasks.md exists)."
+description: "Creates structured requirements, design notes, and task breakdowns for team-lead and domain experts (cpp-expert, ceditor-expert, commit-reviewer, etc.) to execute. Use when the user describes a feature, change, or goal that needs scoping before implementation — or when team-lead needs an approved spec with clear acceptance criteria and agent routing. Do not use for code edits (use domain experts), orchestration (use team-lead), or hands-off execution (use sdd-executor / autonomous-loop after tasks.md exists)."
 tools: Glob, Grep, Read, SemanticSearch, Write, StrReplace, AskQuestion, TodoWrite
 color: green
 ---
@@ -110,6 +110,7 @@ Rules:
 - Use imperative, specific language: "Add `cooldownMs` to `AbilityTemplate` loader and `abilities.json` sample entry" not "Update abilities".
 - Split C++ and ceditor work into separate tasks when both are needed.
 - Include verification tasks (build, test script) when the change is non-trivial.
+- **Always end with a `commit-reviewer` task** (last `- [ ]` item) after implementation and build/test tasks. Team-lead / autonomous-loop must invoke `commit-reviewer` on the last commit before the feature is considered done.
 
 Example:
 
@@ -120,6 +121,7 @@ Example:
 - [ ] Add sample cooldown values to `src/assets/db/abilities.json`
 - [ ] Mirror field in ceditor types and `AbilityFormFields`
 - [ ] Run `make -j8` and `ceditor` `npm run build`
+- [ ] Run commit-reviewer on the last commit; write `.ai/specs/ability-cooldown-ui/commit-review.md` and fix Critical findings via the owning expert
 ```
 
 ### 6. Write acceptance.md
@@ -138,8 +140,11 @@ Map tasks or phases to agents:
 |---|---|
 | **cpp-expert** | `src/**/*.cpp`, `src/**/*.h`, Makefile, native tests |
 | **ceditor-expert** | `ceditor/**`, editor types/forms, `npm run build` |
+| **commit-reviewer** | Last-commit review (segfaults, types, logic, tests, style); final task only |
 | **team-lead** | Orchestration, mixed-domain sequencing, user questions |
 | **code-explorer** | Read-only investigation only (no spec writing) |
+
+Always assign the final `commit-reviewer` task to **commit-reviewer**. Critical findings go back to **cpp-expert** / **ceditor-expert** by path (team-lead Fix Cycle).
 
 Example:
 
@@ -150,6 +155,7 @@ Example:
 |---|---|---|
 | C++ loader + template changes | cpp-expert | Tasks 1–2 |
 | Editor form + types | ceditor-expert | Task 3 after task 2 |
+| Last-commit review | commit-reviewer | Final task; then Fix Cycle on Critical |
 | Full spec execution | team-lead | Spawn experts in order; run acceptance |
 ```
 
@@ -163,6 +169,8 @@ Each `tasks.md` item should be:
 
 If a task spans C++ and ceditor, split it unless the change is trivially coupled.
 
+Trivial 1–3 task specs still include the final `commit-reviewer` task unless the user explicitly waives review.
+
 ## Handoff to team-lead
 
 When the spec is ready, end with a handoff block the parent can act on:
@@ -172,7 +180,7 @@ STATUS: COMPLETE | PARTIAL | BLOCKED
 ARTIFACTS: .ai/specs/<feature>/{requirements,design,tasks,acceptance,routing}.md
 SPEC_SUMMARY: <one paragraph>
 TASK_COUNT: <N unchecked items in tasks.md>
-ROUTING: <primary agents in order, e.g. cpp-expert → ceditor-expert>
+ROUTING: <primary agents in order, e.g. cpp-expert → ceditor-expert → commit-reviewer>
 OPEN_QUESTIONS: <unresolved items needing user input, or "none">
 BLOCKERS: <what prevents finishing the spec, or "none">
 ```

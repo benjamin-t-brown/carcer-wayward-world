@@ -10,6 +10,7 @@ import { SpellTemplates } from './pages/SpellTemplates';
 import { StatusEffectTemplates } from './pages/StatusEffectTemplates';
 import { Maps } from './pages/Maps';
 import { MapGrids } from './pages/MapGrids';
+import { SoundEffects } from './pages/SoundEffects';
 
 function App({ assetTypes }: { assetTypes: { id: string; name: string; file: string }[] }) {
   const initialRoute = readHashRoute();
@@ -56,6 +57,8 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
       return <Maps routeParams={routeParams} />;
     case '/editor/mapGrids':
       return <MapGrids routeParams={routeParams} />;
+    case '/editor/soundEffects':
+      return <SoundEffects />;
     default:
       return (
         <div className="container">

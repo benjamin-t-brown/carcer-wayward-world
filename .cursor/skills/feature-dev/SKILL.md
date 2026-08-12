@@ -45,7 +45,7 @@ Feature Dev Progress:
 - [ ] 1. Setup — branch, spec dir, status dashboard
 - [ ] 2. Planning — planner → requirements, design, tasks, acceptance, routing
 - [ ] 3. Implementation — cpp-expert / ceditor-expert (interactive or autonomous-loop)
-- [ ] 4. Quality + Fix — verify acceptance.md, automated review if requested
+- [ ] 4. Quality + Fix — run commit-reviewer on last commit; verify acceptance.md; fix Critical findings
 - [ ] 5. Summary — report artifacts, test results, suggested next steps (PR if applicable)
 ```
 
@@ -98,10 +98,24 @@ After plan approval, ask:
 
 ### 4. Quality + Fix
 
-1. Read `.ai/specs/<feature>/acceptance.md` and verify each criterion (build commands, tests, manual checks).
-2. Offer automated review: spawn `bugbot` or `security-review` `Task` subagents on branch changes if the user wants.
-3. Triage findings per team-lead [Fix Cycle](.cursor/agents/team-lead.md#fix-cycle); spawn domain experts for fixes.
-4. Re-verify acceptance criteria after fixes.
+1. Spawn `commit-reviewer` on the last commit (planner schedules this as the final `tasks.md` item; run it here if still unchecked or if `commit-review.md` is missing):
+
+```
+Task(
+  subagent_type: "commit-reviewer",
+  prompt: "Feature: <name>
+Spec dir: .ai/specs/<feature>/
+
+Review HEAD~1..HEAD for possible segfaults, type errors, logic errors, test failures, and style errors.
+Write .ai/specs/<feature>/commit-review.md.
+Report back per .cursor/agents/_teammate-protocol.md."
+)
+```
+
+2. Read `.ai/specs/<feature>/acceptance.md` and verify each criterion (build commands, tests, manual checks).
+3. Optionally offer `bugbot` or `security-review` for broader branch/security review if the user wants.
+4. Triage findings per team-lead [Fix Cycle](.cursor/agents/team-lead.md#fix-cycle); spawn domain experts for Critical fixes.
+5. Re-verify acceptance criteria (and re-run `commit-reviewer` after Critical fix commits).
 
 **Gate:** user approves quality results.
 
@@ -121,7 +135,7 @@ PR prep and review are **out of scope** unless the user asks — point them to `
 
 - Max 3–4 concurrent `Task` subagents.
 - Every spawn prompt must include the report-back contract from `.cursor/agents/_teammate-protocol.md`.
-- Prefer `cpp-expert` (`src/`), `ceditor-expert` (`ceditor/`), `planner` (specs) — never `generalPurpose` when a specialist matches.
+- Prefer `cpp-expert` (`src/`), `ceditor-expert` (`ceditor/`), `planner` (specs), `commit-reviewer` (last-commit Quality) — never `generalPurpose` when a specialist matches.
 - Nested subagent cannot re-delegate: if you were spawned via `Task` and lack `Task` access, emit the hard-block from `.cursor/skills/routing/references/hard-block-contract.md` and stop.
 
 ## Windows builds

@@ -38,7 +38,7 @@ After confirmation → spawn `planner` → gate on plan approval → implementat
 
 **User:** Plan implement and test status effect stacking — run implementation autonomously.
 
-**Flow:** Planning gate → user picks **B. Autonomous** → follow `autonomous-loop` skill → quality step runs after all tasks `[x]`.
+**Flow:** Planning gate → user picks **B. Autonomous** → follow `autonomous-loop` skill (final task is `commit-reviewer`) → quality step confirms `commit-review.md` / acceptance → summary.
 
 ---
 

@@ -35,12 +35,13 @@ You are executing task **{{ITERATION}}** of an autonomous Ralph Loop for feature
 ## Instructions
 
 1. Implement **only** the current task. Do not skip ahead.
-2. If `.ai/specs/<feature>/routing.md` assigns an owner (`cpp-expert`, `ceditor-expert`), spawn that agent via `Task` instead of editing code yourself.
+2. If `.ai/specs/<feature>/routing.md` assigns an owner (`cpp-expert`, `ceditor-expert`, `commit-reviewer`), spawn that agent via `Task` instead of editing code yourself.
 3. Mark the task `- [x]` in `tasks.md` when complete.
 4. Run tests/build if the task or spec requires it.
 5. Do not ask for user approval — proceed autonomously unless truly blocked.
 6. If blocked, leave the task unchecked and document the blocker in your final message.
-7. When done, report: what changed, files touched, and whether the task is complete.
+7. When the current task is the final `commit-reviewer` step, spawn `commit-reviewer` only (do not implement fixes in that iteration). Critical findings become follow-up Fix Cycle work for `cpp-expert` / `ceditor-expert`.
+8. When done, report: what changed, files touched, and whether the task is complete.
 
 ## Acceptance
 

@@ -81,8 +81,7 @@ class TownEnemyAiAfterPlayerMove : public CombatAction {
     }
 
     world.resolvingTownEnemyAi = true;
-    // Stop held-move immediately so repeats cannot enqueue during AI resolution.
-    state->uiState.heldMove.isActive = false;
+    // Held-move stays active; LayerWorld pauses repeats while this flag is set.
 
     game::updateEnemySpotting(world, state->player);
 

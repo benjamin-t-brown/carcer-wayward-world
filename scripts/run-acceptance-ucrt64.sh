@@ -47,6 +47,7 @@ layouts	TestInGameLayout
 pages	TestPageInventory
 layers	TestLayerPickUp
 layers	TestLayerInventory
+layers	TestCombat
 elements	TestHorizontalSlider
 elements	TestVerticalList
 elements	TestQuad
