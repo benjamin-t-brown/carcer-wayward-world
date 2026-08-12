@@ -8,6 +8,8 @@ workspace/
 *.o
 *.d
 *.a
+# GNU ar mkstemp leftovers (stXXXXXX) when packing archives under src/lib/
+src/lib/st??????
 *.exe
 *.wasm
 *.dSYM
