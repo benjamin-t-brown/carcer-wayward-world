@@ -7,7 +7,7 @@
 #include "sdl2w/Logger.h"
 #include "state/actions/combat/ActionBase.hpp"
 #include "state/actions/combat/CharacterSetSpriteIndexOffset.hpp"
-#include "state/actions/combat/PlaySound.hpp"
+#include "state/actions/general/PlaySound.hpp"
 #include "state/actions/world/WorldSpawnDamageParticle.hpp"
 #include <cstdlib>
 

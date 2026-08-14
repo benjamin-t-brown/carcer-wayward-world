@@ -1,17 +1,28 @@
 #pragma once
 
 #include "sdl2w/Logger.h"
-#include "state/actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.h"
+#include "state/State.h"
 
 namespace state {
 
 namespace actions {
 
-class PlaySound : public CombatAction {
+class PlaySound : public AbstractAction {
   bmin::String soundName;
 
   void act() override {
+    if (!state) {
+      return;
+    }
+    if (soundName.empty()) {
+      return;
+    }
     LOG(DEBUG) << "PlaySound: " << soundName << LOG_ENDL;
+    if (state->soundsToPlay.contains(soundName)) {
+      return;
+    }
+    state->soundsToPlay.pushBack(soundName);
   }
 
 public:

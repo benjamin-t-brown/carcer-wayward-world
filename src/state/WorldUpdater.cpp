@@ -1,4 +1,5 @@
 #include "state/WorldUpdater.h"
+#include "bmin/StringInterop.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/Camera.h"
 #include "model/Combat.h"
@@ -113,6 +114,15 @@ void updateProjectiles(model::World& world, int deltaTimeMs) {
 
 void worldUpdate(sdl2w::Window* window, StateManager& stateManager, int dt) {
   auto& state = stateManager.getState();
+  if (window != nullptr) {
+    for (const auto& soundName : state.soundsToPlay) {
+      if (soundName.empty()) {
+        continue;
+      }
+      window->playSound(bmin::toStringView(soundName));
+    }
+  }
+  state.soundsToPlay.clear();
   updateDamageParticles(state.world, window, dt);
   updateProjectiles(state.world, dt);
   game::ActiveMapOrchestrator activeMap;

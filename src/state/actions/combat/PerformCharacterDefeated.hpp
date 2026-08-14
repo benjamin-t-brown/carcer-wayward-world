@@ -4,7 +4,7 @@
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/TileFields.h"
 #include "state/actions/combat/ActionBase.hpp"
-#include "state/actions/combat/PlaySound.hpp"
+#include "state/actions/general/PlaySound.hpp"
 #include "state/actions/combat/RemoveCharacterFromMap.hpp"
 
 namespace state {

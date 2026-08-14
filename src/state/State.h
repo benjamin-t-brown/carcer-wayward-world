@@ -61,6 +61,9 @@ struct State {
 
   // Monotonic counter of player movement ticks (world steps + combat rounds × 4).
   int playerMovementCount = 0;
+
+  // One-shot sound names queued by PlaySound; WorldUpdater plays then clears.
+  bmin::DynArray<bmin::String> soundsToPlay;
 };
 
 } // namespace state

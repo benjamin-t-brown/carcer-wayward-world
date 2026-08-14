@@ -6,7 +6,7 @@
 #include "state/actions/combat/ActionBase.hpp"
 #include "state/actions/combat/CharacterSetSpriteIndexOffset.hpp"
 #include "state/actions/combat/ModifyHP.hpp"
-#include "state/actions/combat/PlaySound.hpp"
+#include "state/actions/general/PlaySound.hpp"
 #include "state/actions/world/WorldSpawnDamageParticle.hpp"
 
 namespace state {
@@ -39,7 +39,7 @@ class PerformMeleeAttack : public CombatAction {
 
     const auto hit = (std::rand() % 100) < model::COMBAT_HIT_CHANCE_PERCENT;
     if (hit) {
-      insertAction(new PlaySound("punch1"), 0);
+      insertAction(new PlaySound("hit_punch1"), 0);
       insertAction(nullptr, 75);
       insertAction(new ModifyHP(victimId, -model::COMBAT_MELEE_DAMAGE), 0);
       insertAction(
@@ -51,7 +51,7 @@ class PerformMeleeAttack : public CombatAction {
           0);
       insertAction(nullptr, 500);
     } else {
-      insertAction(new PlaySound("whip"), 0);
+      insertAction(new PlaySound("miss"), 0);
       insertAction(nullptr, 300);
     }
     insertAction(new CharacterSetSpriteIndexOffset(attackerId, 0), 0);

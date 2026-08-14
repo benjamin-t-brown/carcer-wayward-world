@@ -16,6 +16,7 @@
 #include "state/actions/combat/ModifyAP.hpp"
 #include "state/actions/combat/ModifyHP.hpp"
 #include "state/actions/combat/StartCombat.hpp"
+#include "state/actions/general/PlaySound.hpp"
 #include "bmin/String.h"
 
 namespace {
@@ -38,7 +39,7 @@ bool assertTrue(bool cond, const char* label) {
 
 void tickState(state::StateManager& stateManager, int dt) {
   stateManager.update(dt);
-  state::worldUpdate(stateManager, dt);
+  state::worldUpdate(nullptr, stateManager, dt);
 }
 
 model::CharacterInstance* findOnActiveMap(model::ActiveMap& activeMap,
@@ -210,7 +211,7 @@ int main(int /*argc*/, char** /*argv*/) {
     const auto startX = allyBefore ? allyBefore->x : -1;
     stateManager.enqueueAction(
         stateManager.getActionData(),
-        new state::actions::DoCombatAction(model::CombatActionType::WAIT),
+        new state::actions::DoCombatAction("ally-1", model::CombatActionType::WAIT),
         0);
     for (int i = 0; i < 30; ++i) {
       tickState(stateManager, 50);
@@ -232,6 +233,29 @@ int main(int /*argc*/, char** /*argv*/) {
                      static_cast<int>(model::TurnMode::TURN_TOWN),
                      "town mode after end") &&
          ok;
+  }
+
+  {
+    state::StateManager soundStateManager;
+    auto& soundState = soundStateManager.getState();
+    state::actions::PlaySound("punch1").execute(&soundState);
+    state::actions::PlaySound("punch1").execute(&soundState);
+    state::actions::PlaySound("whip").execute(&soundState);
+    state::actions::PlaySound("").execute(&soundState);
+
+    ok = assertEqual(static_cast<int>(soundState.soundsToPlay.size()),
+                     2,
+                     "soundsToPlay unique size") &&
+         ok;
+    ok = assertTrue(soundState.soundsToPlay.contains(bmin::String("punch1")),
+                    "soundsToPlay punch1") &&
+         ok;
+    ok = assertTrue(soundState.soundsToPlay.contains(bmin::String("whip")),
+                    "soundsToPlay whip") &&
+         ok;
+
+    state::worldUpdate(nullptr, soundStateManager, 1);
+    ok = assertTrue(soundState.soundsToPlay.empty(), "soundsToPlay drained") && ok;
   }
 
   if (!ok) {
