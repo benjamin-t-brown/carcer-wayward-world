@@ -39,7 +39,9 @@
 [Base none.] {MISSING!}
 [Blunt Weapons] {MISSING!}
 [Body Mastery] {MISSING!}
+[Cannot cast that spell.] {MISSING!}
 [Carrying] {MISSING!}
+[Cast Spell] {MISSING!}
 [Conditioning] {MISSING!}
 [Confirm] {MISSING!}
 [Constitution] {MISSING!}
@@ -101,9 +103,11 @@
 [Might/Damage] {MISSING!}
 [Mind] {MISSING!}
 [No items nearby.] {MISSING!}
+[No known spells.] {MISSING!}
 [No rune available to equip.] {MISSING!}
 [No] {MISSING!}
 [None] {MISSING!}
+[Not enough mana.] {MISSING!}
 [Nothing inside.] {MISSING!}
 [Okay] {MISSING!}
 [Percentage-based magic damage increase.] {MISSING!}
@@ -114,6 +118,7 @@
 [Reduces length of bad status effects by 1 turn.] {MISSING!}
 [Reduces magical damage by 5% per point.] {MISSING!}
 [Reduces physical damage by 5% per point.] {MISSING!}
+[Required runes are not equipped.] {MISSING!}
 [Resist Magical] {MISSING!}
 [Resist Physical] {MISSING!}
 [Resistances] {MISSING!}
@@ -136,6 +141,7 @@
 [Talk: they have nothing to say.] {MISSING!}
 [Talk] {MISSING!}
 [That item is not a rune.] {MISSING!}
+[That spell cannot be aimed on the map.] {MISSING!}
 [That spell cannot be prepared.] {MISSING!}
 [Too heavy!] {MISSING!}
 [Tool Use] {MISSING!}

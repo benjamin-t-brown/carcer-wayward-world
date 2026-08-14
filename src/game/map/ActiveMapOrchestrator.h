@@ -24,6 +24,8 @@ struct ActiveMapMarker {
 
 class ActiveMapOrchestrator : public state::DatabaseInterface,
                               public state::StateManagerInterface {
+
+  model::MapGridTemplate defaultGrid;
   // can assume this exists, since it will load from the db, or this
   // class will throw if it doesn't exist.
   const model::MapGridTemplate* grid = nullptr;
@@ -66,6 +68,8 @@ public:
   model::CharacterInstance* findCharacterAt(int worldX,
                                             int worldY,
                                             int mapLayerId = USE_WORLD_MAP_LAYER);
+  bmin::DynArray<model::CharacterInstance*> findAllCharactersAt(
+      int worldX, int worldY, int mapLayerId = USE_WORLD_MAP_LAYER);
   model::CharacterInstance* findCharacterAt(int worldX,
                                             int worldY,
                                             const bmin::String& excludeId,
@@ -73,7 +77,6 @@ public:
   model::TileInstance* findTileAt(int worldX,
                                   int worldY,
                                   int mapLayerId = USE_WORLD_MAP_LAYER);
-  ActiveMapMarker findMarker(const bmin::String& mapName,
-                             const bmin::String& markerName);
+  ActiveMapMarker findMarker(const bmin::String& mapName, const bmin::String& markerName);
 };
 } // namespace game

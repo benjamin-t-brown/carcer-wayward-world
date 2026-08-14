@@ -146,7 +146,7 @@ bmin::DynArray<model::OpenedDoorRecord> captureOpenedDoors(const model::MapInsta
     return doors;
   }
 
-  auto& tiles = const_cast<model::TileLayerMap&>(model::mapInstanceTiles(map));
+  const auto& tiles = model::mapInstanceTiles(map);
   for (auto it = tiles.begin(); it != tiles.end(); ++it) {
     const auto& layerTiles = it->value;
     for (size_t ti = 0; ti < layerTiles.size(); ti++) {

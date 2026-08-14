@@ -25,6 +25,7 @@ layers/ui/LayerGiveContext.cpp \
 layers/ui/LayerDropConfirm.cpp \
 layers/ui/LayerInventory.cpp \
 layers/ui/LayerMagic.cpp \
+layers/ui/LayerSpellCast.cpp \
 layers/ui/LayerEquipRunes.cpp \
 layers/ui/LayerSpellInfo.cpp \
 layers/ui/LayerPickUpContext.cpp \
@@ -33,7 +34,7 @@ layers/ui/LayerPopupText.cpp \
 layers/ui/LayerSpecialEvent.cpp \
 layers/ui/LayerWorld.cpp \
 model/Combat.cpp \
-model/SpellRules.cpp \
+game/combat/SpellRules.cpp \
 model/instances/Player.cpp \
 model/instances/CharacterPlayer.cpp \
 model/instances/MapInstance.cpp \
@@ -45,8 +46,12 @@ game/map/TileFields.cpp \
 game/map/MapPersistence.cpp \
 game/map/MapPathfinding.cpp \
 game/map/MapPickup.cpp \
-game/map/EnemyBehavior.cpp \
+game/map/TileDistance.cpp \
 game/map/TileTriggers.cpp \
+game/combat/projectileHelpers.cpp \
+game/combat/Damage.cpp \
+game/diceHelpers.cpp \
+game/combat/EnemyBehavior.cpp \
 model/stats/CharacterStats.cpp \
 model/stats/CharacterStatDefinitions.cpp \
 model/stats/CharacterDerivedStats.cpp \
@@ -130,6 +135,7 @@ ui/pages/PageMagicSetup.cpp \
 ui/pages/PageTalkChoice.cpp \
 ui/pages/PageModalEvent.cpp \
 ui/minipages/MinipagePickUp.cpp \
+ui/minipages/MinipageSpellCast.cpp \
 ui/popups/PopupPickupItem.cpp \
 
 LIB_CODE=\

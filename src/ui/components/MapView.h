@@ -24,14 +24,28 @@ private:
   SDL_Color actionAimFillColor{66, 202, 253, 64};
   SDL_Color actionAimOutlineColor{66, 202, 253, 220};
 
+  bmin::Map<bmin::String, bmin::UniquePtr<sdl2w::Animation>> animations;
+
   void renderDamageParticles(const model::World& world,
                              sdl2w::Draw& draw,
                              sdl2w::Store& store,
                              int contentX,
                              int contentY,
                              int spriteW,
-                             int spriteH,
+                             int spriteH, 
                              int fontScale);
+
+  void renderProjectiles(const model::World& world,
+                         sdl2w::Draw& draw,
+                         sdl2w::Store& store,
+                         int contentX,
+                         int contentY,
+                         int spriteW,
+                         int spriteH);
+
+  void addAnimation(const bmin::String& animationName);
+  sdl2w::Animation* getAnimation(const bmin::String& animationName);
+  sdl2w::Animation* upsertAnimation(const bmin::String& animationName);
 
 public:
   MapView(sdl2w::Window* _window, UiElement* _parent = nullptr);

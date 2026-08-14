@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bmin/String.h"
+#include "model/stats/CharacterStats.h"
 #include "model/templates/CharacterTemplate.h"
 
 namespace model {
@@ -23,30 +24,41 @@ struct CharacterInstance {
   bmin::String templateName;
   int x = 0;
   int y = 0;
-  // Original map spawn tile; used to persist defeated map-placed characters after movement.
+  // Original map spawn tile; used to persist defeated map-placed characters after
+  // movement.
   int spawnX = -1;
   int spawnY = -1;
   // Combat runtime (meaningful while world.combat.active).
   int currentAp = 0;
   int currentHp = 0; // enemies only; party HP lives on CharacterPlayer
-  // Cached from CharacterTemplate.combat.hp (enemies/NPCs); party HP lives on CharacterPlayer.
+  // Cached from CharacterTemplate.combat.hp (enemies/NPCs); party HP lives on
+  // CharacterPlayer.
   int maxHp = 0;
   // True once currentHp has been set from combat (distinguishes 0 HP from uninitialized).
   bool hpInitialized = false;
-  // Transient pose offset (e.g. weapon swing frame); reset via CharacterSetSpriteIndexOffset.
+  // enemies/NPCs only; party MP lives on CharacterPlayer.
+  int currentMp = 0;
+  // Cached from CharacterTemplate.combat.mp (enemies/NPCs).
+  int maxMp = 0;
+  // True once currentMp has been set from combat (distinguishes 0 MP from uninitialized).
+  bool mpInitialized = false;
+  // Transient pose offset (e.g. weapon swing frame); reset via
+  // CharacterSetSpriteIndexOffset.
   int spriteIndexOffset = 0;
   // Default art faces right; left uses horizontal flip at render time.
   CharacterFacing facing = CharacterFacing::Right;
   // Map AI: set when IMMOBILE_UNTIL_ENEMY_SPOTTED spots the party (not persisted).
   bool agitated = false;
 
-  // Cached from CharacterTemplate at spawn / active-map hoist (for AI without DB lookups).
+  // Cached from CharacterTemplate at spawn / active-map hoist (for AI without DB
+  // lookups).
   CharacterTemplateType type = CharacterTemplateType::TOWNSPERSON;
   bmin::String label;
   bmin::String behaviorName;
   int visionRadius = 0;
   CombatBehaviorName combatBehaviorTown = CombatBehaviorName::SEEK_AND_MELEE;
   CombatBehaviorName combatBehaviorCombat = CombatBehaviorName::SEEK_AND_MELEE;
+  CharacterStats stats;
 };
 
 inline bool characterInstanceIsEnemy(const CharacterInstance& character) {
@@ -60,7 +72,9 @@ inline void updateCharacterFacingFromMove(CharacterInstance& character, int dx, 
   }
 }
 
-inline void updateCharacterFacingToward(CharacterInstance& character, int targetX, int targetY) {
+inline void updateCharacterFacingToward(CharacterInstance& character,
+                                        int targetX,
+                                        int targetY) {
   updateCharacterFacingFromMove(character, targetX - character.x, targetY - character.y);
 }
 

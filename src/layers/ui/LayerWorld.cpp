@@ -1,14 +1,18 @@
 #include "LayerWorld.h"
+#include "bmin/StringInterop.h"
 #include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/TileDistance.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerInventory.h"
 #include "layers/ui/LayerMagic.h"
 #include "layers/ui/LayerPickUp.h"
+#include "layers/ui/LayerSpellCast.h"
 #include "model/Combat.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/Player.h"
 #include "sdl2w/L10n.h"
 #include "sdl2w/Logger.h"
+#include "state/DatabaseInterface.h"
 #include "state/LayerManagerInterface.h"
 #include "state/WorldActions.h"
 #include "state/WorldUpdater.h"
@@ -24,6 +28,7 @@
 #include "state/actions/world/WorldMoveActionAim.hpp"
 #include "state/actions/world/WorldMovePlayer.hpp"
 #include "state/actions/world/WorldSetActionAim.hpp"
+#include "state/actions/world/WorldSetActionMode.hpp"
 #include "state/actions/world/WorldTalkAt.hpp"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/components/InGameTitleBar.h"
@@ -112,7 +117,9 @@ void LayerWorld::enqueueMapMove(state::StateManager& stateManager, int dx, int d
     }
     stateManager.enqueueAction(
         stateManager.getActionData(),
-        new state::actions::DoCombatAction(model::CombatActionType::MOVE, dx, dy),
+        new state::actions::DoCombatAction(state.world.combat.activeCharacterId,
+                                           model::CombatActionType::MOVE,
+                                           {.targetLoc = {dx, dy}}),
         0);
     return;
   }
@@ -127,10 +134,11 @@ void LayerWorld::enqueueCombatWait(state::StateManager& stateManager) {
   if (!canPlayerIssueCombatMove(stateManager.getState())) {
     return;
   }
-  stateManager.enqueueAction(
-      stateManager.getActionData(),
-      new state::actions::DoCombatAction(model::CombatActionType::WAIT),
-      0);
+  stateManager.enqueueAction(stateManager.getActionData(),
+                             new state::actions::DoCombatAction(
+                                 stateManager.getState().world.combat.activeCharacterId,
+                                 model::CombatActionType::WAIT),
+                             0);
 }
 
 void LayerWorld::ensureCurrentPartyMemberSelection(state::State& state) {
@@ -141,8 +149,8 @@ void LayerWorld::ensureCurrentPartyMemberSelection(state::State& state) {
   }
 
   // UI selection only — never tied to map movement / party avatar.
-  if (model::playerFindPartyMemberIndexById(
-          player, state.uiState.selectedPartyMemberId) >= 0) {
+  if (model::playerFindPartyMemberIndexById(player,
+                                            state.uiState.selectedPartyMemberId) >= 0) {
     return;
   }
   state.uiState.selectedPartyMemberId = player.party[0].instanceId;
@@ -192,17 +200,73 @@ void LayerWorld::confirmWorldActionAim(int tileX, int tileY) {
   const auto actionMode = stateManager->getState().world.actionMode;
   if (actionMode == model::WorldActionMode::EXAMINE) {
     ui::setHeldMoveActive(*stateManager, false);
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::WorldExamineAt(window, tileX, tileY),
-        0);
+    stateManager->enqueueAction(stateManager->getActionData(),
+                                new state::actions::WorldExamineAt(window, tileX, tileY),
+                                0);
     return;
   }
   if (actionMode == model::WorldActionMode::TALK) {
     ui::setHeldMoveActive(*stateManager, false);
     stateManager->enqueueAction(
         stateManager->getActionData(), new state::actions::WorldTalkAt(tileX, tileY), 0);
+    return;
   }
+  if (actionMode != model::WorldActionMode::SPELL) {
+    return;
+  }
+
+  auto& state = stateManager->getState();
+  auto& world = state.world;
+  if (!canPlayerIssueCombatMove(state)) {
+    return;
+  }
+  if (world.pendingSpellId.empty()) {
+    return;
+  }
+
+  auto* database = getDatabase();
+  if (database == nullptr) {
+    return;
+  }
+  const auto* spell =
+      database->findSpellTemplate(bmin::toStringView(world.pendingSpellId));
+  if (spell == nullptr) {
+    return;
+  }
+  const auto* ability =
+      database->findAbilityTemplate(bmin::toStringView(spell->abilityName));
+  if (ability == nullptr) {
+    return;
+  }
+
+  const model::CharacterInstance* caster = nullptr;
+  for (const auto& character : world.activeMap.characters) {
+    if (character.id == world.combat.activeCharacterId) {
+      caster = &character;
+      break;
+    }
+  }
+  if (caster == nullptr) {
+    return;
+  }
+
+  const int distance = game::chebyshevDistance(caster->x, caster->y, tileX, tileY);
+  if (distance > ability->targetSelect.range) {
+    return;
+  }
+
+  ui::setHeldMoveActive(*stateManager, false);
+  stateManager->enqueueAction(
+      stateManager->getActionData(),
+      new state::actions::DoCombatAction(
+          world.combat.activeCharacterId,
+          model::CombatActionType::SPELL,
+          {.abilityId = world.pendingSpellId, .targetLoc = {tileX, tileY}}),
+      0);
+  stateManager->pllAction(
+      stateManager->getActionData(),
+      new state::actions::WorldSetActionMode(model::WorldActionMode::NONE),
+      0);
 }
 
 void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
@@ -219,6 +283,7 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
     bmin::List<model::WorldActionMode> cancellableActionModes = {
         model::WorldActionMode::EXAMINE,
         model::WorldActionMode::TALK,
+        model::WorldActionMode::SPELL,
     };
     if (cancellableActionModes.contains(world.actionMode)) {
       ui::cancelCurrentWorldActionMode(*stateManager);
@@ -234,6 +299,15 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
 
   // Block world-action shortcuts / aim confirm while town AI is resolving.
   if (!world.resolvingTownEnemyAi) {
+    // `r` always opens magic setup (not remapped through combat Ability → cast).
+    if (ui::isOpenMagicSetupKey(key)) {
+      ui::showMagicSetupLayer(*stateManager, window);
+      return;
+    }
+    if (ui::isOpenSpellCastKey(key)) {
+      ui::showSpellCastLayer(*stateManager, window);
+      return;
+    }
     if (auto actionType = ui::getWorldActionFromKeyboardShortcut(
             key, stateManager->getState().turnMode)) {
       ui::activateWorldAction(*stateManager, *actionType, window);
@@ -242,7 +316,8 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
   }
 
   const bool isAimMode = world.actionMode == model::WorldActionMode::EXAMINE ||
-                         world.actionMode == model::WorldActionMode::TALK;
+                         world.actionMode == model::WorldActionMode::TALK ||
+                         world.actionMode == model::WorldActionMode::SPELL;
 
   if (isAimMode && ui::isConfirmActionKey(key)) {
     if (!world.resolvingTownEnemyAi && world.actionAimTile) {
@@ -324,7 +399,8 @@ void LayerWorld::updateAimFromMouse(int x, int y) {
   }
   const auto actionMode = stateManager->getState().world.actionMode;
   if (actionMode != model::WorldActionMode::EXAMINE &&
-      actionMode != model::WorldActionMode::TALK) {
+      actionMode != model::WorldActionMode::TALK &&
+      actionMode != model::WorldActionMode::SPELL) {
     return;
   }
   auto* mapView = getUiElement<ui::MapView>("mapView");
@@ -357,7 +433,8 @@ void LayerWorld::onMouseDown(int x, int y, int button) {
     if (stateManager) {
       const auto actionMode = stateManager->getState().world.actionMode;
       if (actionMode == model::WorldActionMode::EXAMINE ||
-          actionMode == model::WorldActionMode::TALK) {
+          actionMode == model::WorldActionMode::TALK ||
+          actionMode == model::WorldActionMode::SPELL) {
         if (auto* mapView = getUiElement<ui::MapView>("mapView")) {
           if (auto tile = mapView->screenToTile(x, y)) {
             stateManager->enqueueAction(
@@ -488,12 +565,13 @@ void LayerWorld::syncWorldActionModeHighlight() {
   const bool inventoryOpen =
       layerManager != nullptr &&
       layerManager->getLayerById(LayerInventory::LAYER_ID) != nullptr;
-  const bool magicOpen =
+  const bool magicOpen = layerManager != nullptr &&
+                         layerManager->getLayerById(LayerMagic::LAYER_ID) != nullptr;
+  const bool spellCastOpen =
       layerManager != nullptr &&
-      layerManager->getLayerById(LayerMagic::LAYER_ID) != nullptr;
-  const bool pickUpOpen =
-      layerManager != nullptr &&
-      layerManager->getLayerById(LayerPickUp::LAYER_ID) != nullptr;
+      layerManager->getLayerById(LayerSpellCast::LAYER_ID) != nullptr;
+  const bool pickUpOpen = layerManager != nullptr &&
+                          layerManager->getLayerById(LayerPickUp::LAYER_ID) != nullptr;
   auto* actionButtons = inGameLayout->getChildById("actionButtons");
   if (!actionButtons) {
     return;
@@ -511,7 +589,7 @@ void LayerWorld::syncWorldActionModeHighlight() {
         (actionType == state::WorldActionType::TALK &&
          actionMode == model::WorldActionMode::TALK) ||
         (actionType == state::WorldActionType::INVENTORY && inventoryOpen) ||
-        (actionType == state::WorldActionType::ABILITY && magicOpen) ||
+        (actionType == state::WorldActionType::ABILITY && (magicOpen || spellCastOpen)) ||
         (actionType == state::WorldActionType::GET && pickUpOpen);
     if (button->isModeSelected != modeSelected) {
       button->isModeSelected = modeSelected;
@@ -531,6 +609,8 @@ void LayerWorld::syncActionModeCancelButton() {
     modeLabel = TRANSLATE("Examine");
   } else if (actionMode == model::WorldActionMode::TALK) {
     modeLabel = TRANSLATE("Talk");
+  } else if (actionMode == model::WorldActionMode::SPELL) {
+    modeLabel = TRANSLATE("Cast Spell");
   }
 
   const bool shouldShow = !modeLabel.empty();
@@ -575,8 +655,8 @@ void LayerWorld::syncFromState() {
 
   ensureCurrentPartyMemberSelection(state);
 
-  const int selectedIndex = model::playerFindPartyMemberIndexById(
-      player, state.uiState.selectedPartyMemberId);
+  const int selectedIndex =
+      model::playerFindPartyMemberIndexById(player, state.uiState.selectedPartyMemberId);
 
   auto layoutProps = inGameLayout->getProps();
   setWorldActionTypes(state.turnMode, layoutProps.worldActionTypes);
@@ -639,7 +719,8 @@ void LayerWorld::updateHeldMoveRepeat(int deltaTime) {
     return;
   }
 
-  // Pause while town AI or combat cannot accept a move; keep hold active so repeats resume.
+  // Pause while town AI or combat cannot accept a move; keep hold active so repeats
+  // resume.
   if (stateManager->getState().world.resolvingTownEnemyAi) {
     return;
   }
@@ -670,7 +751,7 @@ void LayerWorld::update(int deltaTime) {
 
   auto stateManager = getStateManager();
   if (stateManager) {
-    worldUpdate(*stateManager, deltaTime);
+    worldUpdate(window, *stateManager, deltaTime);
     state::worldProcessPendingTriggers(window, *stateManager);
     if (stateManager->getState().triggers.mapChangedThisTick) {
       syncFromState();

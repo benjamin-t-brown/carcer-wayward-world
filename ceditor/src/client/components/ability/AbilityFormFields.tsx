@@ -15,8 +15,10 @@ import {
   AbilitySave,
   AbilityAttackDmg,
   AbilityAttack,
+  DamageType,
   AbilityStatus,
   AbilityRestore,
+  AbilityDamage,
   StatusEffectEvent,
   StatusEffectAction,
   Resistance,
@@ -645,6 +647,7 @@ export function AbilityAttackEditor({
   onRemove: () => void;
 }) {
   const idPrefix = `attack-${index}`;
+  const damageType: DamageType = attack.damageType ?? 'DAMAGE_TYPE_EDGED';
   const dmg = attack.dmg ?? {
     dmgDice: ['D6'] as AbilityAttackDmg['dmgDice'],
     dmgBonus: 0,
@@ -672,9 +675,23 @@ export function AbilityAttackEditor({
             onChange({
               ...attack,
               attackClass: v as AbilityAttack['attackClass'],
+              damageType,
             })
           }
           options={enumOptions(ATTACK_CLASSES)}
+        />
+        <OptionSelect
+          id={`${idPrefix}-damage-type`}
+          name="damageType"
+          label="Damage Type"
+          value={damageType}
+          onChange={(v) =>
+            onChange({
+              ...attack,
+              damageType: (v as AbilityAttack['damageType']) || 'DAMAGE_TYPE_EDGED',
+            })
+          }
+          options={enumOptions(DAMAGE_TYPES)}
         />
         <DiceListEditor
           idPrefix={`${idPrefix}-dmg`}
@@ -892,6 +909,99 @@ export function AbilityRestoreEditor({
           <AbilityListItemRemoveButton
             onRemove={onRemove}
             ariaLabel="Remove restore"
+          />
+        }
+      />
+    </div>
+  );
+}
+
+export function AbilityDamageFields({
+  value,
+  onChange,
+  idPrefix,
+  trailing,
+}: {
+  value: AbilityDamage;
+  onChange: (value: AbilityDamage) => void;
+  idPrefix: string;
+  trailing?: ReactNode;
+}) {
+  const update = <K extends keyof AbilityDamage>(
+    field: K,
+    fieldValue: AbilityDamage[K],
+  ) => {
+    onChange({ ...value, [field]: fieldValue });
+  };
+
+  return (
+    <div className="form-fields-inline">
+      <OptionSelect
+        id={`${idPrefix}-damage-type`}
+        name="damageType"
+        label="Damage Type"
+        value={value.damageType}
+        onChange={(v) =>
+          update('damageType', v as AbilityDamage['damageType'])
+        }
+        options={enumOptions(DAMAGE_TYPES)}
+      />
+      <DiceListEditor
+        idPrefix={`${idPrefix}-dmg`}
+        label="Dice"
+        dice={value.dmgDice}
+        onChange={(dmgDice) => update('dmgDice', dmgDice)}
+      />
+      <NumberInput
+        id={`${idPrefix}-bonus`}
+        name="dmgBonus"
+        label="Dmg +"
+        value={value.dmgBonus}
+        onChange={(v) => update('dmgBonus', v ?? 0)}
+      />
+      <OptionSelect
+        id={`${idPrefix}-stat`}
+        name="dmgStat"
+        label="Stat"
+        value={value.dmgStat}
+        onChange={(v) => update('dmgStat', v as AbilityDamage['dmgStat'])}
+        options={enumOptions(STATS_ENUMS)}
+      />
+      <NumberInput
+        id={`${idPrefix}-mult`}
+        name="dmgStatMult"
+        label="× Stat"
+        value={value.dmgStatMult}
+        onChange={(v) => update('dmgStatMult', v ?? 0)}
+      />
+      {trailing}
+    </div>
+  );
+}
+
+export function AbilityDamageEditor({
+  damage,
+  index,
+  onChange,
+  onRemove,
+}: {
+  damage: AbilityDamage;
+  index: number;
+  onChange: (damage: AbilityDamage) => void;
+  onRemove: () => void;
+}) {
+  const idPrefix = `damage-${index}`;
+
+  return (
+    <div className="combat-list-item">
+      <AbilityDamageFields
+        value={damage}
+        onChange={onChange}
+        idPrefix={idPrefix}
+        trailing={
+          <AbilityListItemRemoveButton
+            onRemove={onRemove}
+            ariaLabel="Remove damage"
           />
         }
       />

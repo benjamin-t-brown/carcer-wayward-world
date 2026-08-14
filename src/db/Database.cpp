@@ -16,8 +16,7 @@ namespace db {
 Database::Database() {}
 
 void Database::validateCombatReferences() const {
-  auto& abilities = const_cast<decltype(abilityTemplates)&>(abilityTemplates);
-  for (auto it = abilities.begin(); it != abilities.end(); ++it) {
+  for (auto it = abilityTemplates.begin(); it != abilityTemplates.end(); ++it) {
     const bmin::String& abilityName = (*it).key;
     const auto& abilityTemplate = (*it).value;
     for (const auto& status : abilityTemplate.statuses) {
@@ -30,8 +29,7 @@ void Database::validateCombatReferences() const {
     }
   }
 
-  auto& statusEffects = const_cast<decltype(statusEffectTemplates)&>(statusEffectTemplates);
-  for (auto it = statusEffects.begin(); it != statusEffects.end(); ++it) {
+  for (auto it = statusEffectTemplates.begin(); it != statusEffectTemplates.end(); ++it) {
     const bmin::String& statusName = (*it).key;
     const auto& statusTemplate = (*it).value;
     for (const auto& invoked : statusTemplate.actions) {
@@ -44,8 +42,7 @@ void Database::validateCombatReferences() const {
     }
   }
 
-  auto& items = const_cast<decltype(itemTemplates)&>(itemTemplates);
-  for (auto it = items.begin(); it != items.end(); ++it) {
+  for (auto it = itemTemplates.begin(); it != itemTemplates.end(); ++it) {
     const bmin::String& itemName = (*it).key;
     const auto& itemTemplate = (*it).value;
     for (const auto& statusName : itemTemplate.statusEffectNames) {
@@ -67,8 +64,7 @@ void Database::validateCombatReferences() const {
     }
   }
 
-  auto& spells = const_cast<decltype(spellTemplates)&>(spellTemplates);
-  for (auto it = spells.begin(); it != spells.end(); ++it) {
+  for (auto it = spellTemplates.begin(); it != spellTemplates.end(); ++it) {
     const bmin::String& spellName = (*it).key;
     const auto& spellTemplate = (*it).value;
     if (!abilityTemplates.contains(spellTemplate.abilityName)) {

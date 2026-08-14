@@ -12,6 +12,8 @@ import {
   AbilityAttack,
   AbilityStatus,
   AbilityRestore,
+  AbilityDamage,
+  createDefaultAbilityDamage,
 } from '../types/ability';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import {
@@ -20,6 +22,7 @@ import {
   AbilityAttackEditor,
   AbilityStatusEditor,
   AbilityRestoreEditor,
+  AbilityDamageEditor,
   ABILITY_COST_TYPES,
   enumOptions,
 } from './ability/AbilityFormFields';
@@ -92,6 +95,7 @@ export function AbilityTemplateForm(props: AbilityTemplateFormProps) {
   const addAttack = () => {
     const newAttack: AbilityAttack = {
       attackClass: 'ATTACK_CLASS_MELEE',
+      damageType: 'DAMAGE_TYPE_EDGED',
       dmg: {
         dmgDice: ['D6'],
         dmgBonus: 0,
@@ -192,6 +196,26 @@ export function AbilityTemplateForm(props: AbilityTemplateFormProps) {
     updateField(
       'restores',
       ability.restores?.filter((_, i) => i !== index) || []
+    );
+  };
+
+  const updateDamage = (index: number, damage: AbilityDamage) => {
+    const damages = [...(ability.damages || [])];
+    damages[index] = damage;
+    updateField('damages', damages);
+  };
+
+  const addDamage = () => {
+    updateField('damages', [
+      ...(ability.damages || []),
+      createDefaultAbilityDamage(),
+    ]);
+  };
+
+  const removeDamage = (index: number) => {
+    updateField(
+      'damages',
+      ability.damages?.filter((_, i) => i !== index) || []
     );
   };
 
@@ -343,6 +367,22 @@ export function AbilityTemplateForm(props: AbilityTemplateFormProps) {
             ))}
             <Button type="button" variant="secondary" onClick={addRestore}>
               + Add Restore
+            </Button>
+          </div>
+
+          <div className="form-subsection">
+            <h4>Damages</h4>
+            {ability.damages?.map((damage, index) => (
+              <AbilityDamageEditor
+                key={index}
+                damage={damage}
+                index={index}
+                onChange={(updated) => updateDamage(index, updated)}
+                onRemove={() => removeDamage(index)}
+              />
+            ))}
+            <Button type="button" variant="secondary" onClick={addDamage}>
+              + Add Damage
             </Button>
           </div>
         </div>

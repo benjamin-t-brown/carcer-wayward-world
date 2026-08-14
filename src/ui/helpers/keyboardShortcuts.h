@@ -23,6 +23,12 @@ bool isConfirmActionKey(std::string_view key);
 
 bool isCombatWaitKey(std::string_view key);
 
+/** `m` / `M` — open combat spell-cast list (combat-only at call site). */
+bool isOpenSpellCastKey(std::string_view key);
+
+/** `r` / `R` — open magic setup (LayerMagic); always, combat or not. */
+bool isOpenMagicSetupKey(std::string_view key);
+
 /** Keys "1"-"6" → party index 0-5. */
 std::optional<int> getPartyMemberIndexFromKey(std::string_view key);
 

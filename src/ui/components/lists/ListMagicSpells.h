@@ -16,6 +16,7 @@ struct ListMagicSpellsPropsSpell {
 
 struct ListMagicSpellsProps {
   bmin::DynArray<ListMagicSpellsPropsSpell> spells;
+  bmin::String casterId;
   int width = 0;
   int lineHeight = 32;
   int lineGap = 2;
@@ -23,6 +24,9 @@ struct ListMagicSpellsProps {
   int paddingBottom = 12;
   // When set with a spell id, row click opens the spell info popup.
   bool enableSpellInfoOnClick = true;
+  // When set with a spell id, row click selects the spell for combat cast aim.
+  // Takes precedence over enableSpellInfoOnClick.
+  bool enableSpellCastOnClick = false;
 };
 
 // ListMagicSpells - vertical list of spell rows (icon + label), read-only

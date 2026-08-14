@@ -1,7 +1,8 @@
-#include "game/map/EnemyBehavior.h"
+#include "game/combat/EnemyBehavior.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapPathfinding.h"
 #include "game/map/MapWalkability.h"
+#include "game/map/TileDistance.h"
 #include "game/map/TileTriggers.h"
 #include "model/Combat.h"
 #include "model/templates/CharacterTemplate.h"
@@ -24,16 +25,6 @@ bool isAiEnemy(const model::CharacterInstance& character) {
 }
 
 } // namespace
-
-int chebyshevDistance(int x0, int y0, int x1, int y1) {
-  const auto dx = x0 < x1 ? x1 - x0 : x0 - x1;
-  const auto dy = y0 < y1 ? y1 - y0 : y0 - y1;
-  return dx > dy ? dx : dy;
-}
-
-bool isChebyshevAdjacent(int x0, int y0, int x1, int y1) {
-  return chebyshevDistance(x0, y0, x1, y1) == 1;
-}
 
 bool canEnemySpotPartyAvatar(model::World& world,
                              const model::Player& player,
@@ -223,27 +214,27 @@ bool chooseSeekAndMeleeCombatAction(model::World& world,
       world.activeMap, actor, targetX, targetY, database, outDx, outDy);
 }
 
-void runTownEnemyAiAfterPlayerMove(state::State& state, const db::Database& /*database*/) {
-  if (state.world.combat.active) {
-    return;
-  }
+// void runTownEnemyAiAfterPlayerMove(state::State& state, const db::Database& /*database*/) {
+//   if (state.world.combat.active) {
+//     return;
+//   }
 
-  // StateManagerInterface::getStateManager is protected; use a local accessor.
-  struct TownAiEnqueuer : state::StateManagerInterface {
-    void enqueue(state::State& state) {
-      auto* stateManager = getStateManager(false);
-      if (stateManager == nullptr) {
-        LOG(ERROR) << "runTownEnemyAiAfterPlayerMove: StateManager not set" << LOG_ENDL;
-        return;
-      }
-      state.world.resolvingTownEnemyAi = true;
-      stateManager->enqueueAction(stateManager->getActionData(),
-                                  new state::actions::TownEnemyAiAfterPlayerMove(),
-                                  0);
-    }
-  };
+//   // StateManagerInterface::getStateManager is protected; use a local accessor.
+//   struct TownAiEnqueuer : state::StateManagerInterface {
+//     void enqueue(state::State& state) {
+//       auto* stateManager = getStateManager(false);
+//       if (stateManager == nullptr) {
+//         LOG(ERROR) << "runTownEnemyAiAfterPlayerMove: StateManager not set" << LOG_ENDL;
+//         return;
+//       }
+//       state.world.resolvingTownEnemyAi = true;
+//       stateManager->enqueueAction(stateManager->getActionData(),
+//                                   new state::actions::TownEnemyAiAfterPlayerMove(),
+//                                   0);
+//     }
+//   };
 
-  TownAiEnqueuer{}.enqueue(state);
-}
+//   TownAiEnqueuer{}.enqueue(state);
+// }
 
 } // namespace game

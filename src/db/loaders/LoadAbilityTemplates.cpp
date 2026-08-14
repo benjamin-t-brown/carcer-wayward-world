@@ -98,6 +98,12 @@ void loadAbilityTemplates(
       }
     }
 
+    if (abilityJson.contains("damages") && abilityJson["damages"].is_array()) {
+      for (const auto& damageJson : abilityJson["damages"]) {
+        abilityTemplate.damages.pushBack(parseAbilityDamage(damageJson));
+      }
+    }
+
     if (abilityTemplates.contains(abilityTemplate.name)) {
       throw std::runtime_error((bmin::String("Ability template already exists: ") +
                                 abilityTemplate.name)

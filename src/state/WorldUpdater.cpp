@@ -47,13 +47,25 @@ void enqueueCpuCombatTurn(StateManager& stateManager) {
       stateManager.getActionData(), new actions::DoCPUCombatTurn(), 0);
 }
 
-void updateDamageParticles(model::World& world, int deltaTimeMs) {
+void updateDamageParticles(model::World& world, sdl2w::Window* window, int deltaTimeMs) {
   if (world.activeMap.damageParticles.empty() || deltaTimeMs <= 0) {
     return;
   }
 
+  if (!window) {
+    return;
+  }
+  auto& store = window->getStore();
+
   for (size_t i = 0; i < world.activeMap.damageParticles.size();) {
     auto& particle = world.activeMap.damageParticles[i];
+
+    if (!particle.animation) {
+      particle.animation = std::make_optional<sdl2w::Animation>(
+          store.createAnimation(bmin::toStringView(particle.animationName)));
+    }
+    particle.animation->update(deltaTimeMs);
+
     timerStructUpdate(particle.lifetime, deltaTimeMs);
     if (timerStructIsComplete(particle.lifetime)) {
       world.activeMap.damageParticles.erase(i);
@@ -63,11 +75,46 @@ void updateDamageParticles(model::World& world, int deltaTimeMs) {
   }
 }
 
+void updateProjectiles(model::World& world, int deltaTimeMs) {
+  if (world.activeMap.projectiles.empty() || deltaTimeMs <= 0) {
+    return;
+  }
+  static const double tileHeight = 32;
+  static const double pi = 3.14159265358979323846;
+
+  for (size_t i = 0; i < world.activeMap.projectiles.size();) {
+    auto& projectile = world.activeMap.projectiles[i];
+    timerStructUpdate(projectile.travel, deltaTimeMs);
+
+    if (timerStructIsComplete(projectile.travel)) {
+      world.activeMap.projectiles.erase(i);
+    } else {
+      auto pct = timerStructGetPct(projectile.travel);
+      switch (projectile.projectilePath) {
+      case model::ProjectilePath::PROJECTILE_PATH_SHORT:
+        projectile.yOffset = (tileHeight) * sin(pct * pi);
+        break;
+      case model::ProjectilePath::PROJECTILE_PATH_MEDIUM:
+        projectile.yOffset = (tileHeight * 1.5) * sin(pct * pi);
+        break;
+      case model::ProjectilePath::PROJECTILE_PATH_TALL:
+        projectile.yOffset = (tileHeight * 3) * sin(pct * pi);
+        break;
+      case model::ProjectilePath::PROJECTILE_PATH_NONE:
+        projectile.yOffset = 0;
+        break;
+      }
+      ++i;
+    }
+  }
+}
+
 } // namespace
 
-void worldUpdate(StateManager& stateManager, int dt) {
+void worldUpdate(sdl2w::Window* window, StateManager& stateManager, int dt) {
   auto& state = stateManager.getState();
-  updateDamageParticles(state.world, dt);
+  updateDamageParticles(state.world, window, dt);
+  updateProjectiles(state.world, dt);
   game::ActiveMapOrchestrator activeMap;
 
   auto& combat = state.world.combat;

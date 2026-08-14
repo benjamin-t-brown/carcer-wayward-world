@@ -150,6 +150,12 @@ model::AbilityAttack parseAbilityAttack(const Json& json) {
     throw std::runtime_error("AbilityAttack missing attackClass");
   }
   attack.attackClass = model::attackClassFromString(json["attackClass"].get<bmin::String>());
+  if (json.contains("damageType")) {
+    if (!json["damageType"].is_string()) {
+      throw std::runtime_error("AbilityAttack damageType must be a string");
+    }
+    attack.damageType = model::damageTypeFromString(json["damageType"].get<bmin::String>());
+  }
   if (json.contains("dmg")) {
     attack.dmg = parseAbilityAttackDmg(json["dmg"]);
   }
@@ -197,6 +203,28 @@ model::AbilityRestore parseAbilityRestore(const Json& json) {
   }
   restore.restoreStatMult = json["restoreStatMult"].get<int>();
   return restore;
+}
+
+model::AbilityDamage parseAbilityDamage(const Json& json) {
+  model::AbilityDamage damage;
+  if (!json.contains("damageType") || !json["damageType"].is_string()) {
+    throw std::runtime_error("AbilityDamage missing damageType");
+  }
+  damage.damageType = model::damageTypeFromString(json["damageType"].get<bmin::String>());
+  damage.dmgDice = parseDiceArray(json, "dmgDice");
+  if (!json.contains("dmgBonus") || !json["dmgBonus"].is_number_integer()) {
+    throw std::runtime_error("AbilityDamage missing dmgBonus");
+  }
+  damage.dmgBonus = json["dmgBonus"].get<int>();
+  if (!json.contains("dmgStat") || !json["dmgStat"].is_string()) {
+    throw std::runtime_error("AbilityDamage missing dmgStat");
+  }
+  damage.dmgStat = model::statsEnumFromString(json["dmgStat"].get<bmin::String>());
+  if (!json.contains("dmgStatMult") || !json["dmgStatMult"].is_number()) {
+    throw std::runtime_error("AbilityDamage missing dmgStatMult");
+  }
+  damage.dmgStatMult = json["dmgStatMult"].get<float>();
+  return damage;
 }
 
 model::AbilityDepiction parseAbilityDepiction(const Json& json) {

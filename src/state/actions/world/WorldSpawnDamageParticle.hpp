@@ -1,10 +1,10 @@
 #pragma once
 
+#include "bmin/String.h"
 #include "model/instances/World.h"
 #include "model/templates/UtilityTypes.h"
 #include "state/AbstractAction.h"
 #include "state/State.h"
-#include "bmin/String.h"
 
 namespace state {
 
@@ -12,9 +12,9 @@ namespace actions {
 
 class WorldSpawnDamageParticle : public AbstractAction {
   bmin::String animationName;
+  bmin::String text;
   int tileX = 0;
   int tileY = 0;
-  int value = 0;
   int lifetimeMs = 0;
 
   void act() override {
@@ -26,21 +26,21 @@ class WorldSpawnDamageParticle : public AbstractAction {
     particle.animationName = animationName;
     particle.tileX = tileX;
     particle.tileY = tileY;
-    particle.value = value;
+    particle.text = text;
     model::timerStructStart(particle.lifetime, lifetimeMs);
     state->world.activeMap.damageParticles.pushBack(std::move(particle));
   }
 
 public:
-  WorldSpawnDamageParticle(bmin::String _animationName,
+  WorldSpawnDamageParticle(const bmin::String& _animationName,
+                           const bmin::String& _text,
                            int _tileX,
                            int _tileY,
-                           int _value,
                            int _lifetimeMs)
-      : animationName(std::move(_animationName)),
+      : animationName((_animationName)),
+        text((_text)),
         tileX(_tileX),
         tileY(_tileY),
-        value(_value),
         lifetimeMs(_lifetimeMs) {}
 };
 

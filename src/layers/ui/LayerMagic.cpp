@@ -1,10 +1,10 @@
 #include "LayerMagic.h"
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
-#include "sdl2w/Logger.h"
-#include "model/SpellRules.h"
+#include "game/combat/SpellRules.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/RuneTypes.h"
+#include "sdl2w/Logger.h"
 #include "state/actions/ui/UiCancelEquipRunes.hpp"
 #include "state/actions/ui/UiCommitEquipRunes.hpp"
 #include "state/actions/ui/UiRemoveLayer.hpp"
@@ -15,8 +15,8 @@
 
 namespace layers {
 
-ui::PageMagicSetupSpellEntry
-LayerMagic::makeSpellEntry(const db::Database& database, const bmin::String& spellName) {
+ui::PageMagicSetupSpellEntry LayerMagic::makeSpellEntry(const db::Database& database,
+                                                        const bmin::String& spellName) {
   ui::PageMagicSetupSpellEntry entry;
   entry.id = spellName;
 
@@ -38,7 +38,8 @@ LayerMagic::makeSpellEntry(const db::Database& database, const bmin::String& spe
   if (entry.iconSprite.empty() && ability != nullptr) {
     entry.iconSprite = ability->icon;
   }
-  entry.manaCost = model::spellAbilityManaCost(*spell, database);
+  // entry.manaCost = model::spellAbilityManaCost(*spell, database);
+  entry.manaCost = ability->costValue;
   for (const auto& req : spell->requiredRunes) {
     const auto sprite = model::runeTypeToSpriteName(req.type);
     const int count = req.count > 0 ? req.count : 1;
@@ -49,8 +50,8 @@ LayerMagic::makeSpellEntry(const db::Database& database, const bmin::String& spe
   return entry;
 }
 
-ui::PageMagicSetupRuneSlot
-LayerMagic::makeRuneSlotFromRuneType(model::RuneType runeType) {
+ui::PageMagicSetupRuneSlot LayerMagic::makeRuneSlotFromRuneType(
+    model::RuneType runeType) {
   ui::PageMagicSetupRuneSlot slot{.filled = true};
   slot.iconSprite = model::runeTypeToSpriteName(runeType);
   return slot;
@@ -101,8 +102,7 @@ void LayerMagic::onKeyDown(std::string_view key, int /*keyCode*/) {
   }
 
   if (const auto partyIndex = ui::getPartyMemberIndexFromKey(key)) {
-    if (*partyIndex <
-        static_cast<int>(stateManager->getState().player.party.size())) {
+    if (*partyIndex < static_cast<int>(stateManager->getState().player.party.size())) {
       stateManager->enqueueAction(
           stateManager->getActionData(),
           new state::actions::UiSetCurrentPartyMemberMagic(*partyIndex),
@@ -139,8 +139,7 @@ void LayerMagic::syncMagicPartyMember() {
       model::playerFindPartyMemberByIndex(player, player.currentPartyMemberMagicIndex);
 
   if (!magicPartyMember) {
-    LOG(ERROR) << "LayerMagic::syncMagicPartyMember: party member is nullptr"
-               << LOG_ENDL;
+    LOG(ERROR) << "LayerMagic::syncMagicPartyMember: party member is nullptr" << LOG_ENDL;
     remove();
     return;
   }
@@ -168,10 +167,10 @@ void LayerMagic::syncMagicPartyMember() {
   pageProps.elementCounts.clear();
   for (int i = 0; i < model::kRuneTypeCount; ++i) {
     const auto runeType = model::runeTypeFromIndex(i);
-    const int available = model::characterPlayerCountAvailableRunesOfType(
-        *magicPartyMember, runeType);
-    const int equipped = model::characterPlayerCountEquippedRunesOfType(
-        *magicPartyMember, runeType);
+    const int available =
+        model::characterPlayerCountAvailableRunesOfType(*magicPartyMember, runeType);
+    const int equipped =
+        model::characterPlayerCountEquippedRunesOfType(*magicPartyMember, runeType);
     pageProps.elementCounts.pushBack(ui::PageMagicSetupElementCount{
         .iconSprite = model::runeTypeToSpriteName(runeType),
         // Remaining unequipped (same as Equip Runes modal center counts).
@@ -181,10 +180,10 @@ void LayerMagic::syncMagicPartyMember() {
 
   // Single spell list; ready = equipped runes meet requiredRunes (shown as "(r)").
   pageProps.spells.clear();
+  // TODO fix spell list
   for (const auto& spellName : magicPartyMember->knownSpells) {
     auto entry = makeSpellEntry(*database, spellName);
-    entry.ready = model::characterHasSpellReady(
-        *magicPartyMember, bmin::toStringView(spellName), *database);
+    entry.ready = true;
     pageProps.spells.pushBack(entry);
   }
 

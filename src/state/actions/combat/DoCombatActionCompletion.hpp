@@ -32,7 +32,7 @@ class DoCombatActionCompletion : public CombatAction {
       }
     }
     for (const auto& id : defeatedIds) {
-      insertCombatAction(new PerformCharacterDefeated(id), 0);
+      insertAction(new PerformCharacterDefeated(id), 0);
     }
 
     game::ActiveMapOrchestrator orch;
@@ -43,13 +43,13 @@ class DoCombatActionCompletion : public CombatAction {
     if (turnEnded) {
       LOG(INFO) << "DoCombatActionCompletion: turn ended, advancing to next character"
                 << LOG_ENDL;
-      insertCombatAction(new GoNextCombatTurn(), 0);
+      insertAction(new GoNextCombatTurn(), 0);
     } else if (activeCharacter != nullptr) {
       LOG(INFO) << "DoCombatActionCompletion: "
                 << model::formatCharacterLogLabel(world.activeMap, combat.activeCharacterId)
                 << " has " << apRemaining << " AP remaining, waiting for next action"
                 << LOG_ENDL;
-      insertCombatAction(new SetActiveCombatCharacter(combat.activeCharacterId), 0);
+      insertAction(new SetActiveCombatCharacter(combat.activeCharacterId), 0);
     }
   }
 

@@ -276,6 +276,7 @@ export function mergeAbilityAttackDmg(
 
 export interface AbilityAttack {
   attackClass: AttackClass;
+  damageType: DamageType;
   dmg?: AbilityAttackDmg;
   save?: AbilitySave;
 }
@@ -322,6 +323,37 @@ export function mergeAbilityRestore(base?: AbilityRestore): AbilityRestore {
   };
 }
 
+export interface AbilityDamage {
+  damageType: DamageType;
+  dmgDice: Dice[];
+  dmgBonus: number;
+  dmgStat: StatsEnum;
+  dmgStatMult: number;
+}
+
+export function createDefaultAbilityDamage(): AbilityDamage {
+  return {
+    damageType: 'DAMAGE_TYPE_HEAT',
+    dmgDice: ['D6'],
+    dmgBonus: 0,
+    dmgStat: 'STAT_MND',
+    dmgStatMult: 1,
+  };
+}
+
+/** Fills missing damage fields; keeps dice from base when present. */
+export function mergeAbilityDamage(base?: AbilityDamage): AbilityDamage {
+  const defaults = createDefaultAbilityDamage();
+  if (!base) {
+    return defaults;
+  }
+  return {
+    ...defaults,
+    ...base,
+    dmgDice: base.dmgDice?.length ? [...base.dmgDice] : [...defaults.dmgDice],
+  };
+}
+
 export interface StatusEffectDurationScale {
   durationStat: StatsEnum;
   durationStatMult: number;
@@ -354,6 +386,7 @@ export interface AbilityTemplate {
   attacks?: AbilityAttack[];
   statuses?: AbilityStatus[];
   restores?: AbilityRestore[];
+  damages?: AbilityDamage[];
 }
 
 export interface StatusEffectTemplate {
@@ -615,6 +648,7 @@ export function createDefaultAbilityTemplate(): AbilityTemplate {
     attacks: [],
     statuses: [],
     restores: [],
+    damages: [],
   };
 }
 
@@ -646,6 +680,7 @@ export function createDefaultSpellAbilityTemplate(): AbilityTemplate {
     attacks: [
       {
         attackClass: 'ATTACK_CLASS_MAGIC',
+        damageType: 'DAMAGE_TYPE_HEAT',
         dmg: {
           dmgDice: ['D6'],
           dmgBonus: 0,
@@ -657,6 +692,7 @@ export function createDefaultSpellAbilityTemplate(): AbilityTemplate {
     ],
     statuses: [],
     restores: [],
+    damages: [],
   };
 }
 
@@ -688,6 +724,7 @@ export function createDefaultMeleeAbilityTemplate(): AbilityTemplate {
     attacks: [
       {
         attackClass: 'ATTACK_CLASS_MELEE',
+        damageType: 'DAMAGE_TYPE_EDGED',
         dmg: {
           dmgDice: ['D6'],
           dmgBonus: 0,
@@ -699,6 +736,7 @@ export function createDefaultMeleeAbilityTemplate(): AbilityTemplate {
     ],
     statuses: [],
     restores: [],
+    damages: [],
   };
 }
 

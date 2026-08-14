@@ -5,6 +5,7 @@
 #include "ui/elements/SpriteElement.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/VerticalList.h"
+#include "ui/observers/ObserverSelectSpellCast.hpp"
 #include "ui/observers/ObserverShowLayerSpellInfo.hpp"
 
 namespace ui {
@@ -33,8 +34,7 @@ void ListMagicSpells::setProps(const ListMagicSpellsProps& _props) {
 
 const ListMagicSpellsProps& ListMagicSpells::getProps() const { return props; }
 
-UiElement* ListMagicSpells::createSpellElement(
-    const ListMagicSpellsPropsSpell& spell) {
+UiElement* ListMagicSpells::createSpellElement(const ListMagicSpellsPropsSpell& spell) {
   const int rowWidth = static_cast<int>(style.width * style.scale);
   const int rowHeight = static_cast<int>(props.lineHeight * style.scale);
 
@@ -46,7 +46,9 @@ UiElement* ListMagicSpells::createSpellElement(
       .height = rowHeight,
       .bgColor = Colors::Transparent,
   });
-  if (props.enableSpellInfoOnClick && !spell.id.empty()) {
+  if (props.enableSpellCastOnClick && !spell.id.empty()) {
+    container->addEventObserver(new ObserverSelectSpellCast(spell.id, props.casterId));
+  } else if (props.enableSpellInfoOnClick && !spell.id.empty()) {
     container->addEventObserver(new ObserverShowLayerSpellInfo(window, spell.id));
   }
 
@@ -75,8 +77,7 @@ UiElement* ListMagicSpells::createSpellElement(
   TextFontProps font;
   setBaseFontConfig(font, BaseFontConfig::MODAL_TEXT);
 
-  const int labelX =
-      iconDrawW + static_cast<int>(labelGapAfterIcon * style.scale);
+  const int labelX = iconDrawW + static_cast<int>(labelGapAfterIcon * style.scale);
 
   auto label = new TextLine(window, this);
   label->setId("label");
@@ -91,17 +92,15 @@ UiElement* ListMagicSpells::createSpellElement(
   label->setProps(labelProps);
   container->addChild(label);
 
-  const int scaledRequiredRuneSize = static_cast<int>(
-      requiredRuneIconSize * requiredRuneIconScale * style.scale);
-  const int scaledRequiredRuneGap =
-      static_cast<int>(requiredRuneGap * style.scale);
+  const int scaledRequiredRuneSize =
+      static_cast<int>(requiredRuneIconSize * requiredRuneIconScale * style.scale);
+  const int scaledRequiredRuneGap = static_cast<int>(requiredRuneGap * style.scale);
   const int scaledRightPadding =
       static_cast<int>(requiredRunesRightPadding * style.scale);
   const int requiredCount = static_cast<int>(spell.requiredRuneSprites.size());
   if (requiredCount > 0) {
-    const int totalRequiredWidth =
-        requiredCount * scaledRequiredRuneSize +
-        (requiredCount - 1) * scaledRequiredRuneGap;
+    const int totalRequiredWidth = requiredCount * scaledRequiredRuneSize +
+                                   (requiredCount - 1) * scaledRequiredRuneGap;
     int runeX = rowWidth - scaledRightPadding - totalRequiredWidth;
     const int runeY = (rowHeight - scaledRequiredRuneSize) / 2;
     for (int i = 0; i < requiredCount; ++i) {
@@ -140,8 +139,7 @@ void ListMagicSpells::build() {
 
   auto list = new VerticalList(window, this);
   list->setId("list");
-  list->setPos(style.x,
-               style.y + static_cast<int>(props.paddingTop * style.scale));
+  list->setPos(style.x, style.y + static_cast<int>(props.paddingTop * style.scale));
   list->setScale(1.0f);
 
   for (size_t i = 0; i < props.spells.size(); i++) {

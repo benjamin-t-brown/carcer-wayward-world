@@ -11,12 +11,14 @@
 #include "model/instances/CharacterInstance.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/CharacterTemplate.h"
+#include "model/templates/RuneTypes.h"
 #include "sdl2w/Draw.h"
 #include "sdl2w/Logger.h"
 #include "sdl2w/Window.h"
 #include "state/DatabaseInterface.h"
 #include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
+#include "state/WorldUpdater.h"
 #include "state/actions/combat/StartCombat.hpp"
 #include "state/actions/world/WorldLoadActiveMap.hpp"
 #include "state/actions/world/WorldSpawnPlayerAtMarker.hpp"
@@ -59,6 +61,12 @@ void setupTestParty(model::Player& player, db::Database& database) {
     for (const auto& itemName : PARTY_MEMBER_ITEMS[i]) {
       model::characterPlayerAddItemToInventory(
           member, database.getItemTemplate(bmin::toStringView(itemName)), 1);
+    }
+
+    member.knownSpells.pushBack("FLAME");
+    member.equippedRunes = {model::RuneType::HEAT};
+    if (member.currentMp < 10) {
+      member.currentMp = 10;
     }
 
     player.party.pushBack(std::move(member));
@@ -106,8 +114,7 @@ void spawnEnemiesAtMarkers(state::State& state,
     const auto markerName = "Enemy" + bmin::toString(static_cast<int>(i));
     const auto found = findMarkerOnActiveGrid(orch, markerName);
     if (!found.valid) {
-      LOG(ERROR) << "spawnEnemiesAtMarkers: marker not found: " << markerName
-                 << LOG_ENDL;
+      LOG(ERROR) << "spawnEnemiesAtMarkers: marker not found: " << markerName << LOG_ENDL;
       continue;
     }
 
@@ -149,10 +156,10 @@ int main(int argc, char** argv) {
     spawnEnemiesAtMarkers(state, database, enemyTemplates);
 
     // Enqueue so SetActiveCombatCharacter (inserted by StartCombat) runs via update.
-    stateManager.enqueueAction(stateManager.getActionData(),
-                               new state::actions::StartCombat(),
-                               0);
+    stateManager.enqueueAction(
+        stateManager.getActionData(), new state::actions::StartCombat(), 0);
     stateManager.update(1);
+    state::worldUpdate(nullptr, stateManager, 1);
   }
 
   bmin::UniquePtr<layers::LayerManager> layerManager;
@@ -188,8 +195,8 @@ int main(int argc, char** argv) {
   };
 
   auto _updateRender = [&](sdl2w::Window& window, sdl2w::Store& store) {
-    layerManager->update(window.getDeltaTime());
     stateManager.update(window.getDeltaTime());
+    layerManager->update(window.getDeltaTime());
 
     auto& draw = window.getDraw();
     draw.setBackgroundColor(SDL_Color{100, 100, 100, 255});

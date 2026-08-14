@@ -70,30 +70,30 @@ class PerformTownMeleeAttack : public CombatAction {
 
     model::updateCharacterFacingToward(*attacker, avatar->x, avatar->y);
 
-    insertCombatAction(new CharacterSetSpriteIndexOffset(attackerId, 1), 0);
+    insertAction(new CharacterSetSpriteIndexOffset(attackerId, 1), 0);
 
     const auto hit = (std::rand() % 100) < model::COMBAT_HIT_CHANCE_PERCENT;
     if (hit) {
-      insertCombatAction(new PlaySound("punch1"), 0);
-      insertCombatAction(nullptr, 75);
-      insertCombatAction(new ModifyPartyMemberHp(victim->instanceId, -model::COMBAT_MELEE_DAMAGE),
+      insertAction(new PlaySound("punch1"), 0);
+      insertAction(nullptr, 75);
+      insertAction(new ModifyPartyMemberHp(victim->instanceId, -model::COMBAT_MELEE_DAMAGE),
                          0);
-      insertCombatAction(new WorldSpawnDamageParticle("splash_attack",
+      insertAction(new WorldSpawnDamageParticle("splash_attack",
+                                                      bmin::toString(model::COMBAT_MELEE_DAMAGE),
                                                       avatar->x,
                                                       avatar->y,
-                                                      model::COMBAT_MELEE_DAMAGE,
                                                       500),
                          0);
-      insertCombatAction(nullptr, 500);
+      insertAction(nullptr, 500);
       LOG(INFO) << "TownMeleeAttack: " << attackerId << " hit " << victim->instanceId
                 << " for " << model::COMBAT_MELEE_DAMAGE << LOG_ENDL;
     } else {
-      insertCombatAction(new PlaySound("whip"), 0);
-      insertCombatAction(nullptr, 300);
+      insertAction(new PlaySound("whip"), 0);
+      insertAction(nullptr, 300);
       LOG(DEBUG) << "TownMeleeAttack: miss by " << attackerId << " vs party member "
                  << victim->instanceId << LOG_ENDL;
     }
-    insertCombatAction(new CharacterSetSpriteIndexOffset(attackerId, 0), 0);
+    insertAction(new CharacterSetSpriteIndexOffset(attackerId, 0), 0);
   }
 
 public:

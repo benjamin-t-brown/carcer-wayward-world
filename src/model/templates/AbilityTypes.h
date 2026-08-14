@@ -164,6 +164,7 @@ struct AbilityAttackDmg {
 
 struct AbilityAttack {
   AttackClass attackClass = AttackClass::ATTACK_CLASS_MELEE;
+  DamageType damageType = DamageType::DAMAGE_TYPE_EDGED;
   std::optional<AbilityAttackDmg> dmg;
   std::optional<AbilitySave> save;
 };
@@ -181,6 +182,14 @@ struct AbilityRestore {
   int restoreBonus = 0;
   StatsEnum restoreStat = StatsEnum::STAT_STR;
   int restoreStatMult = 0;
+};
+
+struct AbilityDamage {
+  DamageType damageType = DamageType::DAMAGE_TYPE_EDGED;
+  bmin::DynArray<Dice> dmgDice;
+  int dmgBonus = 0;
+  StatsEnum dmgStat = StatsEnum::STAT_STR;
+  float dmgStatMult = 0.f;
 };
 
 struct AbilityDepiction {

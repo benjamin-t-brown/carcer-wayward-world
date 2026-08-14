@@ -1,5 +1,7 @@
 #include "bmin/DynArray.h"
 #include "bmin/List.h"
+#include "bmin/Map.h"
+#include "bmin/String.h"
 #include "bmin/UniquePtr.h"
 #include "sdl2w/Logger.h"
 
@@ -77,6 +79,16 @@ int main(int argc, char** argv) {
     listSum += v;
   }
   ok = assertEqual(listSum, 100, "splice.order") && ok;
+
+  bmin::Map<bmin::String, int> keyed;
+  keyed.insert(bmin::String("a"), 1);
+  keyed.insert(bmin::String("b"), 2);
+  const bmin::Map<bmin::String, int>& constKeyed = keyed;
+  int mapSum = 0;
+  for (auto it = constKeyed.begin(); it != constKeyed.end(); ++it) {
+    mapSum += it->value;
+  }
+  ok = assertEqual(mapSum, 3, "map.const.begin") && ok;
 
   auto unique = bmin::makeUnique<int>(7);
   ok = assertEqual(*unique, 7, "makeUnique.value") && ok;

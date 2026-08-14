@@ -87,6 +87,7 @@ class WorldLoadActiveMap : public AbstractAction {
     localState.world.camera.cameraFollowCharacterId = bmin::String{};
     localState.world.actionMode = model::WorldActionMode::NONE;
     localState.world.actionAimTile.reset();
+    localState.world.pendingSpellId = bmin::String{};
 
     game::ActiveMapOrchestrator activeMap;
     activeMap.fetchMapGrid(resolvedGridId);

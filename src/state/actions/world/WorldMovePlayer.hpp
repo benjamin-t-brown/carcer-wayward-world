@@ -2,7 +2,7 @@
 
 #include "model/Combat.h"
 #include "game/map/ActiveMapOrchestrator.h"
-#include "game/map/EnemyBehavior.h"
+#include "game/combat/EnemyBehavior.h"
 #include "game/map/MapVision.h"
 #include "game/map/MapWalkability.h"
 #include "game/map/MapPersistence.h"
@@ -133,7 +133,7 @@ class WorldMovePlayer : public CombatAction {
     if (!world.combat.active) {
       game::advanceWorldMovementTicks(*state, 1);
       world.resolvingTownEnemyAi = true;
-      insertCombatAction(new TownEnemyAiAfterPlayerMove(), 0);
+      insertAction(new TownEnemyAiAfterPlayerMove(), 0);
     }
   }
 

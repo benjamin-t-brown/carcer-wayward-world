@@ -1,5 +1,5 @@
 #include "db/Database.h"
-#include "model/SpellRules.h"
+#include "game/combat/SpellRules.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/Abilities.h"
 #include "model/templates/Items.h"

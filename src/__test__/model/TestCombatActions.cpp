@@ -10,6 +10,7 @@
 #include "state/DatabaseInterface.h"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
+#include "state/WorldUpdater.h"
 #include "state/actions/combat/DoCombatAction.hpp"
 #include "state/actions/combat/EndCombat.hpp"
 #include "state/actions/combat/ModifyAP.hpp"
@@ -33,6 +34,11 @@ bool assertTrue(bool cond, const char* label) {
     return false;
   }
   return true;
+}
+
+void tickState(state::StateManager& stateManager, int dt) {
+  stateManager.update(dt);
+  state::worldUpdate(stateManager, dt);
 }
 
 model::CharacterInstance* findOnActiveMap(model::ActiveMap& activeMap,
@@ -163,7 +169,7 @@ int main(int /*argc*/, char** /*argv*/) {
     stateManager.enqueueAction(stateManager.getActionData(),
                                new state::actions::StartCombat(),
                                0);
-    stateManager.update(1);
+    tickState(stateManager, 1);
 
     auto& world = stateManager.getState().world;
     ok = assertTrue(world.combat.active, "combat.active") && ok;
@@ -207,7 +213,7 @@ int main(int /*argc*/, char** /*argv*/) {
         new state::actions::DoCombatAction(model::CombatActionType::WAIT),
         0);
     for (int i = 0; i < 30; ++i) {
-      stateManager.update(50);
+      tickState(stateManager, 50);
     }
     auto* ally = findOnActiveMap(stateManager.getState().world.activeMap, "ally-1");
     ok = assertTrue(ally != nullptr, "ally after wait") && ok;
@@ -220,7 +226,7 @@ int main(int /*argc*/, char** /*argv*/) {
     stateManager.enqueueAction(stateManager.getActionData(),
                                new state::actions::EndCombat(),
                                0);
-    stateManager.update(1);
+    tickState(stateManager, 1);
     ok = assertTrue(!stateManager.getState().world.combat.active, "combat ended") && ok;
     ok = assertEqual(static_cast<int>(stateManager.getState().turnMode),
                      static_cast<int>(model::TurnMode::TURN_TOWN),

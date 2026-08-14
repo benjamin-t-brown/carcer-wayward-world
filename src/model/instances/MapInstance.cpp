@@ -42,7 +42,8 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
       }
       layerTiles.pushBack(std::move(tile));
     }
-    mapLayerAt(mapInstanceTiles(instance), static_cast<int>(layer)) = std::move(layerTiles);
+    mapLayerAt(mapInstanceTiles(instance), static_cast<int>(layer)) =
+        std::move(layerTiles);
   }
 
   for (const auto& ov : mapTemplate.tileOverrides) {

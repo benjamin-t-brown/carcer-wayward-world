@@ -1,7 +1,7 @@
 #pragma once
 
+#include "game/combat/EnemyBehavior.h"
 #include "game/map/ActiveMapOrchestrator.h"
-#include "game/map/EnemyBehavior.h"
 #include "model/Combat.h"
 #include "model/templates/CharacterTemplate.h"
 #include "sdl2w/Logger.h"
@@ -41,8 +41,8 @@ class DoCPUCombatTurn : public CombatAction {
     }
     auto* actor = orch.findCharacterById(actorId);
     if (actor == nullptr) {
-      insertCombatAction(nullptr, 300);
-      insertCombatAction(new DoCombatAction(model::CombatActionType::WAIT), 0);
+      insertAction(nullptr, 300);
+      insertAction(new DoCombatAction(actorId, model::CombatActionType::WAIT), 0);
       return;
     }
 
@@ -51,14 +51,16 @@ class DoCPUCombatTurn : public CombatAction {
       auto dy = 0;
       if (game::chooseSeekAndMeleeCombatAction(
               world, state->player, *actor, *database, dx, dy)) {
-        insertCombatAction(nullptr, 300);
-        insertCombatAction(new DoCombatAction(model::CombatActionType::MOVE, dx, dy), 0);
+        insertAction(nullptr, 300);
+        insertAction(new DoCombatAction(
+                         actorId, model::CombatActionType::MOVE, {.targetLoc = {dx, dy}}),
+                     0);
         return;
       }
     }
 
-    insertCombatAction(nullptr, 300);
-    insertCombatAction(new DoCombatAction(model::CombatActionType::WAIT), 0);
+    insertAction(nullptr, 300);
+    insertAction(new DoCombatAction(actorId, model::CombatActionType::WAIT), 0);
   }
 
 public:

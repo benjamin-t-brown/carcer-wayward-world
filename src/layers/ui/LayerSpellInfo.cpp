@@ -1,6 +1,6 @@
 #include "LayerSpellInfo.h"
 #include "bmin/StringInterop.h"
-#include "model/SpellRules.h"
+#include "game/combat/SpellRules.h"
 #include "model/templates/RuneTypes.h"
 #include "sdl2w/Logger.h"
 #include "state/actions/ui/UiRemoveLayer.hpp"

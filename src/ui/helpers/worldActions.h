@@ -14,6 +14,8 @@ namespace ui {
 
 void setHeldMoveActive(state::StateManager& stateManager, bool isActive);
 void cancelCurrentWorldActionMode(state::StateManager& stateManager);
+void showMagicSetupLayer(state::StateManager& stateManager, sdl2w::Window* window);
+void showSpellCastLayer(state::StateManager& stateManager, sdl2w::Window* window);
 void activateWorldAction(state::StateManager& stateManager,
                          state::WorldActionType worldActionType,
                          sdl2w::Window* window = nullptr);

@@ -30,8 +30,8 @@ class PerformCharacterDefeated : public CombatAction {
         }
       }
     }
-    insertCombatAction(new PlaySound("yell1"), 0);
-    insertCombatAction(new RemoveCharacterFromMap(characterId), 300);
+    insertAction(new PlaySound("yell1"), 0);
+    insertAction(new RemoveCharacterFromMap(characterId), 300);
   }
 
 public:

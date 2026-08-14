@@ -1,6 +1,7 @@
 #pragma once
 
 #include "db/Database.h"
+#include "game/map/TileDistance.h"
 #include "model/instances/CharacterInstance.h"
 #include "model/instances/Player.h"
 #include "model/instances/World.h"
@@ -10,10 +11,6 @@ struct State;
 }
 
 namespace game {
-
-int chebyshevDistance(int x0, int y0, int x1, int y1);
-
-bool isChebyshevAdjacent(int x0, int y0, int x1, int y1);
 
 bool canEnemySpotPartyAvatar(model::World& world,
                              const model::Player& player,
@@ -50,6 +47,6 @@ bool chooseSeekAndMeleeCombatAction(model::World& world,
  * Enqueues timed town enemy AI (seek / melee with combat swing timing).
  * Requires StateManager; sets world.resolvingTownEnemyAi until the sequence ends.
  */
-void runTownEnemyAiAfterPlayerMove(state::State& state, const db::Database& database);
+// void runTownEnemyAiAfterPlayerMove(state::State& state, const db::Database& database);
 
 } // namespace game

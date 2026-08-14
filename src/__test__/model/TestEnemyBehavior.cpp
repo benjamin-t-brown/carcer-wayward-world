@@ -1,5 +1,6 @@
 #include "db/Database.h"
-#include "game/map/EnemyBehavior.h"
+#include "game/combat/EnemyBehavior.h"
+#include "game/map/TileDistance.h"
 #include "game/map/MapVision.h"
 #include "model/Combat.h"
 #include "model/instances/CharacterInstance.h"
@@ -13,6 +14,7 @@
 #include "state/State.h"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
+#include "state/WorldUpdater.h"
 #include "state/actions/combat/DoCPUCombatTurn.hpp"
 #include "state/actions/combat/StartCombat.hpp"
 #include "state/actions/world/WorldMovePlayer.hpp"
@@ -45,9 +47,14 @@ bool assertFalse(bool cond, const char* label) {
   return true;
 }
 
+void tickState(state::StateManager& stateManager, int dt) {
+  stateManager.update(dt);
+  state::worldUpdate(stateManager, dt);
+}
+
 void pumpTownEnemyAi(state::StateManager& stateManager, int maxMs = 2000) {
   for (int elapsed = 0; elapsed < maxMs; elapsed += 50) {
-    stateManager.update(50);
+    tickState(stateManager, 50);
     const auto& actions = stateManager.getActionData();
     if (!stateManager.getState().world.resolvingTownEnemyAi &&
         actions.sequentialActions.empty() && actions.sequentialActionsNext.empty()) {
@@ -473,7 +480,7 @@ int main(int /*argc*/, char** /*argv*/) {
     stateManager.enqueueAction(
         stateManager.getActionData(), new state::actions::StartCombat(), 0);
     for (int i = 0; i < 20; ++i) {
-      stateManager.update(50);
+      tickState(stateManager, 50);
     }
 
     auto& combat = stateManager.getState().world.combat;
@@ -488,7 +495,7 @@ int main(int /*argc*/, char** /*argv*/) {
     stateManager.enqueueAction(
         stateManager.getActionData(), new state::actions::DoCPUCombatTurn(), 0);
     for (int i = 0; i < 40; ++i) {
-      stateManager.update(50);
+      tickState(stateManager, 50);
     }
 
     auto* enemyAfter = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
@@ -543,7 +550,7 @@ int main(int /*argc*/, char** /*argv*/) {
     stateManager.enqueueAction(
         stateManager.getActionData(), new state::actions::StartCombat(), 0);
     for (int i = 0; i < 20; ++i) {
-      stateManager.update(50);
+      tickState(stateManager, 50);
     }
 
     auto& combat = stateManager.getState().world.combat;
@@ -567,7 +574,7 @@ int main(int /*argc*/, char** /*argv*/) {
       stateManager.enqueueAction(
           stateManager.getActionData(), new state::actions::DoCPUCombatTurn(), 0);
       for (int i = 0; i < 40; ++i) {
-        stateManager.update(50);
+        tickState(stateManager, 50);
       }
       if (stateManager.getState().player.party[0].currentHp < allyHpBefore) {
         hit = true;

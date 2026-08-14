@@ -29,7 +29,7 @@ export function SoundSearchField({
   const soundItems = useMemo(() => {
     const byName = new Map(sounds.map((sound) => [sound.name, sound]));
     if (value && !byName.has(value)) {
-      byName.set(value, { name: value, path: '' });
+      byName.set(value, { name: value, path: '', volume: 1 });
     }
     return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name));
   }, [sounds, value]);

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "game/map/EnemyBehavior.h"
+#include "game/combat/EnemyBehavior.h"
+#include "game/map/TileDistance.h"
 #include "model/instances/CharacterInstance.h"
 #include "model/templates/CharacterTemplate.h"
 #include "sdl2w/Logger.h"
@@ -42,7 +43,7 @@ class TownEnemySeekAndMelee : public CombatAction {
     }
 
     if (game::isChebyshevAdjacent(enemy->x, enemy->y, avatar->x, avatar->y)) {
-      insertCombatAction(new PerformTownMeleeAttack(enemyId), 0);
+      insertAction(new PerformTownMeleeAttack(enemyId), 0);
       return;
     }
 
@@ -60,7 +61,7 @@ class TownEnemySeekAndMelee : public CombatAction {
                << LOG_ENDL;
 
     if (game::isChebyshevAdjacent(enemy->x, enemy->y, avatar->x, avatar->y)) {
-      insertCombatAction(new PerformTownMeleeAttack(enemyId), 0);
+      insertAction(new PerformTownMeleeAttack(enemyId), 0);
     }
   }
 
@@ -99,10 +100,10 @@ class TownEnemyAiAfterPlayerMove : public CombatAction {
       if (character.combatBehaviorTown != model::CombatBehaviorName::SEEK_AND_MELEE) {
         continue;
       }
-      insertCombatAction(new TownEnemySeekAndMelee(character.id), 0);
+      insertAction(new TownEnemySeekAndMelee(character.id), 0);
     }
 
-    insertCombatAction(new ClearTownEnemyAiResolving(), 0);
+    insertAction(new ClearTownEnemyAiResolving(), 0);
   }
 };
 

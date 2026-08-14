@@ -28,6 +28,7 @@
     "attacks": [
       {
         "attackClass": "ATTACK_CLASS_MELEE",
+        "damageType": "DAMAGE_TYPE_EDGED",
         "dmg": {
           "dmgDice": [
             "D6"
@@ -71,6 +72,7 @@
     "attacks": [
       {
         "attackClass": "ATTACK_CLASS_MELEE",
+        "damageType": "DAMAGE_TYPE_EDGED",
         "dmg": {
           "dmgDice": [
             "D6"
@@ -114,6 +116,7 @@
     "attacks": [
       {
         "attackClass": "ATTACK_CLASS_MELEE",
+        "damageType": "DAMAGE_TYPE_EDGED",
         "dmg": {
           "dmgDice": [
             "D6"
@@ -126,6 +129,7 @@
       },
       {
         "attackClass": "ATTACK_CLASS_MELEE",
+        "damageType": "DAMAGE_TYPE_EDGED",
         "dmg": {
           "dmgDice": [
             "D6"
@@ -169,6 +173,7 @@
     "attacks": [
       {
         "attackClass": "ATTACK_CLASS_MELEE",
+        "damageType": "DAMAGE_TYPE_PIERCING",
         "dmg": {
           "dmgDice": [
             "D6"
@@ -209,22 +214,20 @@
       "startSound": "",
       "dmgSound": "hit_punch2"
     },
-    "attacks": [
-      {
-        "attackClass": "ATTACK_CLASS_AUTO_HIT",
-        "dmg": {
-          "dmgDice": [
-            "D6"
-          ],
-          "dmgBonus": 1,
-          "dmgStat": "STAT_MND",
-          "dmgStatMult": 1,
-          "attackBonus": 0
-        }
-      }
-    ],
+    "attacks": [],
     "statuses": [],
-    "restores": []
+    "restores": [],
+    "damages": [
+      {
+        "damageType": "DAMAGE_TYPE_HEAT",
+        "dmgDice": [
+          "D6"
+        ],
+        "dmgBonus": 1,
+        "dmgStat": "STAT_MND",
+        "dmgStatMult": 0
+      }
+    ]
   },
   {
     "name": "SPELL_FLAME",
@@ -233,7 +236,7 @@
     "icon": "",
     "type": "ABILITY_SPELL",
     "targetSelect": {
-      "targetType": "TARGET_UNIT",
+      "targetType": "TARGET_ZONE",
       "allegianceSelectType": "TARGET_ALLEGIANCE_OTHER",
       "numTargetableUnits": 1,
       "zoneSize": {
@@ -252,22 +255,20 @@
       "startSound": "cast_flame",
       "dmgSound": "hit_fireball"
     },
-    "attacks": [
-      {
-        "attackClass": "ATTACK_CLASS_MAGIC",
-        "dmg": {
-          "dmgDice": [
-            "D8"
-          ],
-          "dmgBonus": 2,
-          "dmgStat": "STAT_MND",
-          "dmgStatMult": 0.5,
-          "attackBonus": 0
-        }
-      }
-    ],
+    "attacks": [],
     "statuses": [],
-    "restores": []
+    "restores": [],
+    "damages": [
+      {
+        "damageType": "DAMAGE_TYPE_HEAT",
+        "dmgDice": [
+          "D6"
+        ],
+        "dmgBonus": 2,
+        "dmgStat": "STAT_MND",
+        "dmgStatMult": 1
+      }
+    ]
   },
   {
     "name": "SPELL_HEAL_SELF_MINOR",
@@ -335,21 +336,19 @@
       "startSound": "cast_flame",
       "dmgSound": "hit_punch2"
     },
-    "attacks": [
-      {
-        "attackClass": "ATTACK_CLASS_MAGIC",
-        "dmg": {
-          "dmgDice": [
-            "D6"
-          ],
-          "dmgBonus": 2,
-          "dmgStat": "STAT_MND",
-          "dmgStatMult": 1,
-          "attackBonus": 0
-        }
-      }
-    ],
+    "attacks": [],
     "statuses": [],
-    "restores": []
+    "restores": [],
+    "damages": [
+      {
+        "damageType": "DAMAGE_TYPE_HEAT",
+        "dmgDice": [
+          "D4"
+        ],
+        "dmgBonus": 2,
+        "dmgStat": "STAT_MND",
+        "dmgStatMult": 0.25
+      }
+    ]
   }
 ]

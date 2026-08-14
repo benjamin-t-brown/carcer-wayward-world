@@ -25,9 +25,7 @@ getWorldActionFromKeyboardShortcut(std::string_view key, model::TurnMode turnMod
   if (key == "i" || key == "I") {
     return state::WorldActionType::INVENTORY;
   }
-  if (key == "r" || key == "R") {
-    return state::WorldActionType::ABILITY;
-  }
+  // `r`/`R` → LayerMagic via isOpenMagicSetupKey (not ABILITY: combat Ability opens cast).
   if (key == "g" || key == "G") {
     return state::WorldActionType::GET;
   }
@@ -42,6 +40,14 @@ getWorldActionFromKeyboardShortcut(std::string_view key, model::TurnMode turnMod
 
 bool isCombatWaitKey(std::string_view key) {
   return key == "Keypad 5";
+}
+
+bool isOpenSpellCastKey(std::string_view key) {
+  return key == "m" || key == "M";
+}
+
+bool isOpenMagicSetupKey(std::string_view key) {
+  return key == "r" || key == "R";
 }
 
 std::optional<MoveDelta> getMoveDeltaForKey(std::string_view key) {

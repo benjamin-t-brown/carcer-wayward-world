@@ -20,6 +20,8 @@ struct TileInstance {
   std::optional<TravelTrigger> travelTrigger;
   bool isExplored = false;
   bool isVisible = false;
+  bool isContainer = false;
+  bool isWalkable = false;
   bmin::DynArray<game::TileField> fields;
 };
 

@@ -39,7 +39,7 @@ class StartCombat : public CombatAction {
     world.combat.activeTurnIndex = 0;
     LOG(INFO) << "StartCombat: turn order has " << world.combat.turnOrderIds.size()
               << " characters" << LOG_ENDL;
-    insertCombatAction(new SetActiveCombatCharacter(), 0);
+    insertAction(new SetActiveCombatCharacter(), 0);
   }
 
 public:

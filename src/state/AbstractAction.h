@@ -1,10 +1,11 @@
 #pragma once
 
 #include "bmin/UniquePtr.h"
-#include "sdl2w/Logger.h"
 #include "model/templates/UtilityTypes.h"
+#include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
 #include "state/LayerManagerInterface.h"
+#include "state/StateManagerInterface.h"
 #ifdef __GNUG__
 #include <cxxabi.h>
 #endif
@@ -14,7 +15,8 @@ namespace state {
 struct State;
 
 class AbstractAction : public state::DatabaseInterface,
-                       public state::LayerManagerInterface {
+                       public state::LayerManagerInterface,
+                       public state::StateManagerInterface {
 protected:
   State* state = nullptr;
 
@@ -41,6 +43,22 @@ public:
     this->state = state;
     // LOG(INFO) << "Executing action: " << getName() << LOG_ENDL;
     act();
+  }
+
+  void insertAction(AbstractAction* action, int ms = 0) {
+    auto* stateManager = getStateManager();
+    if (stateManager == nullptr) {
+      return;
+    }
+    stateManager->insertAction(stateManager->getActionData(), action, ms);
+  }
+
+  void enqueueAction(AbstractAction* action, int ms = 0) {
+    auto* stateManager = getStateManager();
+    if (stateManager == nullptr) {
+      return;
+    }
+    stateManager->enqueueAction(stateManager->getActionData(), action, ms);
   }
 
   virtual ~AbstractAction() = default;

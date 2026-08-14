@@ -2,7 +2,7 @@
 
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
-#include "model/SpellRules.h"
+#include "game/combat/SpellRules.h"
 #include "model/instances/Player.h"
 #include "sdl2w/L10n.h"
 #include "state/AbstractAction.h"
@@ -33,22 +33,22 @@ class UiSetSpellReady : public AbstractAction {
       return;
     }
 
-    if (ready) {
-      const auto result = model::characterPlayerPrepareSpell(
-          *characterPlayer, bmin::toStringView(spellName), true, *database);
-      if (result == model::SpellReadyResult::CANNOT_EQUIP) {
-        UiFloatingNotification notification;
-        notification.id = model::createRandomId();
-        notification.message = TRANSLATE("That spell cannot be prepared.");
-        notification.type = UiFloatingNotificationType::WARNING;
-        model::timerStructStart(notification.timer,
-                                state->settings.floatingNotificationDurationMs);
-        localState.uiState.floatingNotifications.pushBack(std::move(notification));
-      }
-      return;
-    }
+    // if (ready) {
+    //   const auto result = model::characterPlayerPrepareSpell(
+    //       *characterPlayer, bmin::toStringView(spellName), true, *database);
+    //   if (result == model::SpellReadyResult::CANNOT_EQUIP) {
+    //     UiFloatingNotification notification;
+    //     notification.id = model::createRandomId();
+    //     notification.message = TRANSLATE("That spell cannot be prepared.");
+    //     notification.type = UiFloatingNotificationType::WARNING;
+    //     model::timerStructStart(notification.timer,
+    //                             state->settings.floatingNotificationDurationMs);
+    //     localState.uiState.floatingNotifications.pushBack(std::move(notification));
+    //   }
+    //   return;
+    // }
 
-    model::characterPlayerUnprepareSpell(*characterPlayer, bmin::toStringView(spellName));
+    // model::characterPlayerUnprepareSpell(*characterPlayer, bmin::toStringView(spellName));
   }
 
 public:

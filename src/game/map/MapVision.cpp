@@ -473,7 +473,7 @@ model::ExploredMapMask captureExploredMask(const model::MapInstance& map) {
         continue;
       }
       auto explored = false;
-      auto& tiles = const_cast<model::TileLayerMap&>(model::mapInstanceTiles(map));
+      const auto& tiles = model::mapInstanceTiles(map);
       for (auto it = tiles.begin(); it != tiles.end(); ++it) {
         const auto& layerTiles = it->value;
         if (index >= static_cast<int>(layerTiles.size())) {

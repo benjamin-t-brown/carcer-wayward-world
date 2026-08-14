@@ -1,128 +1,195 @@
 #pragma once
 
+#include "bmin/StringInterop.h"
+#include "game/combat/Damage.h"
+#include "game/combat/SpellRules.h"
+#include "game/combat/projectileHelpers.h"
 #include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/TileDistance.h"
 #include "model/Combat.h"
-#include "model/SpellRules.h"
 #include "model/instances/Player.h"
+#include "model/templates/AbilityTypes.h"
 #include "sdl2w/Logger.h"
 #include "state/actions/combat/ActionBase.hpp"
 #include "state/actions/combat/CharacterSetSpriteIndexOffset.hpp"
 #include "state/actions/combat/ModifyAP.hpp"
 #include "state/actions/combat/ModifyHP.hpp"
 #include "state/actions/combat/PlaySound.hpp"
+#include "state/actions/world/WorldSetActionMode.hpp"
 #include "state/actions/world/WorldSpawnDamageParticle.hpp"
-#include "bmin/StringInterop.h"
+#include "state/actions/world/WorldSpawnProjectile.hpp"
 
 namespace state {
 
 namespace actions {
 
-/** Combat SPELL execution: canCastSpell → spend ability mana cost → apply linked ability effects. */
 class PerformSpellCast : public CombatAction {
-  model::CombatSpellTarget spellTarget;
+  bmin::String casterId;
+  bmin::String spellId;
+  model::SpellTargetInfo spellTargetInfo;
+
+  void doZoneSpell(const model::AbilityTemplate& ability,
+                   model::CharacterInstance& caster,
+                   game::ActiveMapOrchestrator& orch) {
+    const auto& depiction = ability.depiction;
+    auto casterX = caster.x;
+    auto casterY = caster.y;
+    auto targetTileX = spellTargetInfo.tileX;
+    auto targetTileY = spellTargetInfo.tileY;
+    auto zoneW = ability.targetSelect.zoneSize.x;
+    auto zoneH = ability.targetSelect.zoneSize.y;
+    // ignore attacks/restores
+
+    // TODO status effects
+
+    bmin::DynArray<model::CharacterInstance*> charactersInZone;
+    bmin::DynArray<int> damageDealtToCharactersInZone;
+
+    for (int i = 0; i < zoneW; ++i) {
+      for (int j = 0; j < zoneH; ++j) {
+        const auto tileX = targetTileX + i - zoneW / 2;
+        const auto tileY = targetTileY + j - zoneH / 2;
+        auto chAtTile = orch.findAllCharactersAt(tileX, tileY);
+        for (auto ch : chAtTile) {
+          charactersInZone.pushBack(ch);
+          damageDealtToCharactersInZone.pushBack(0);
+        }
+      }
+    }
+
+    for (size_t i = 0; i < charactersInZone.size(); i++) {
+      auto ch = charactersInZone[i];
+      auto damageDealt = 0;
+      for (const auto& damage : ability.damages) {
+        auto result = game::calculateAbilityDamage(damage, caster, *ch);
+        damageDealt += result.damage;
+      }
+      damageDealtToCharactersInZone[i] = damageDealt;
+    }
+
+    model::updateCharacterFacingToward(
+        caster, spellTargetInfo.tileX, spellTargetInfo.tileY);
+
+    insertAction(new CharacterSetSpriteIndexOffset(casterId, 1), 0);
+    insertAction(new PlaySound(depiction.startSound), 0);
+
+    int delayMs = 300;
+    if (depiction.projectileType != model::ProjectileType::PROJECTILE_NONE) {
+      delayMs = game::getProjectileTravelDurationMs(depiction.projectilePath);
+      auto animBase = model::projectileTypeToAnimBase(depiction.projectileType);
+      if (!animBase.empty()) {
+        if (model::projectileTypeHasFacing(depiction.projectileType)) {
+          animBase += game::getProjectileFacingSuffix(spellTargetInfo.tileX - caster.x,
+                                                      spellTargetInfo.tileY - caster.y);
+        }
+        insertAction(new WorldSpawnProjectile(animBase,
+                                              static_cast<float>(casterX),
+                                              static_cast<float>(casterY),
+                                              static_cast<float>(targetTileX),
+                                              static_cast<float>(targetTileY),
+                                              delayMs,
+                                              depiction.projectilePath),
+                     0);
+      }
+    }
+
+    insertAction(nullptr, delayMs);
+
+    const int damageParticleLifetimeMs = 500;
+    if (!depiction.dmgAnim.empty()) {
+      for (size_t i = 0; i < charactersInZone.size(); i++) {
+        auto ch = charactersInZone[i];
+        auto chX = ch->x;
+        auto chY = ch->y;
+        auto damageDealt = damageDealtToCharactersInZone[i];
+        insertAction(new WorldSpawnDamageParticle(depiction.dmgAnim,
+                                                  bmin::toString(damageDealt),
+                                                  chX,
+                                                  chY,
+                                                  damageParticleLifetimeMs),
+                     i * 50);
+        insertAction(new ModifyHP(casterId, damageDealt), i * 50);
+      }
+    }
+
+    if (charactersInZone.size() > 0) {
+      insertAction(new PlaySound(depiction.dmgSound), 0);
+      insertAction(nullptr, damageParticleLifetimeMs);
+    } else {
+      LOG(INFO) << "Missed!" << LOG_ENDL;
+    }
+  }
+
+  bool verifySpellCanBeCast(const model::CharacterInstance& caster,
+                            const model::AbilityTemplate& ability) {
+    if (ability.costType == model::AbilityCostType::ABILITY_COST_MANA) {
+      if (caster.currentMp < ability.costValue) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 
   void act() override {
     if (!state) {
       return;
     }
-    auto* database = getDatabase();
+
+    // gather data
+
+    auto database = getDatabase();
     if (database == nullptr) {
       return;
     }
-
-    const auto& actorId = state->world.combat.activeCharacterId;
-    auto* caster = model::playerFindPartyMemberById(state->player, actorId);
-    if (caster == nullptr) {
-      LOG(INFO) << "PerformSpellCast: caster is not a party member: " << actorId
-                << LOG_ENDL;
-      return;
-    }
-
-    if (spellTarget.spellId.empty()) {
-      LOG(INFO) << "PerformSpellCast: empty spellId" << LOG_ENDL;
-      return;
-    }
-
-    // Party-member casts during the player's combat turn are player-controlled.
-    const auto playerControlled = true;
-    const auto outcome =
-        model::castSpell(*caster,
-                         bmin::toStringView(spellTarget.spellId),
-                         bmin::toStringView(spellTarget.targetCharacterId),
-                         playerControlled,
-                         *database);
-
-    if (outcome.result != model::CastSpellResult::CAST) {
-      LOG(INFO) << "PerformSpellCast: cast failed for " << spellTarget.spellId
-                << " result=" << static_cast<int>(outcome.result) << LOG_ENDL;
-      return;
-    }
-
     game::ActiveMapOrchestrator orch;
-    auto* actor = orch.findCharacterById(actorId);
-    auto* target = orch.findCharacterById(outcome.effects.targetCharacterId);
-    if (actor != nullptr && target != nullptr && actor->id != target->id) {
-      model::updateCharacterFacingToward(*actor, target->x, target->y);
+    orch.fetchMapGrid(state->world.activeMap.gridId);
+
+    auto caster = orch.findCharacterById(casterId);
+    if (caster == nullptr) {
+      LOG(ERROR) << "PerformSpellCast: no map character for caster " << casterId
+                 << LOG_ENDL;
+      return;
+    }
+    auto spell = database->findSpellTemplate(bmin::toStringView(spellId));
+    if (spell == nullptr) {
+      LOG(ERROR) << "PerformSpellCast: no spell for " << spellId << LOG_ENDL;
+      return;
+    }
+    const auto ability =
+        database->findAbilityTemplate(bmin::toStringView(spell->abilityName));
+    if (ability == nullptr) {
+      LOG(ERROR) << "PerformSpellCast: missing ability " << spell->abilityName
+                 << LOG_ENDL;
+      return;
     }
 
-    insertCombatAction(new CharacterSetSpriteIndexOffset(actorId, 1), 0);
+    // verify
 
-    if (!outcome.effects.depiction.startSound.empty()) {
-      insertCombatAction(new PlaySound(outcome.effects.depiction.startSound), 0);
+    // if (!verifySpellCanBeCast(*caster, *ability)) {
+    //   LOG(ERROR) << "PerformSpellCast: spell not allowed to be cast" << LOG_ENDL;
+    //   return;
+    // }
+
+    // do
+
+    if (ability->apCost != 0) {
+      insertAction(new ModifyAP(casterId, -ability->apCost), 0);
     }
 
-    if (outcome.effects.hpDelta != 0 && target != nullptr) {
-      if (!outcome.effects.depiction.dmgSound.empty()) {
-        insertCombatAction(new PlaySound(outcome.effects.depiction.dmgSound), 0);
-      }
-      insertCombatAction(nullptr, 75);
-      insertCombatAction(
-          new ModifyHP(outcome.effects.targetCharacterId, outcome.effects.hpDelta), 0);
-
-      if (!outcome.effects.depiction.dmgAnim.empty()) {
-        const auto particleAmount =
-            outcome.effects.hpDelta < 0 ? -outcome.effects.hpDelta : outcome.effects.hpDelta;
-        insertCombatAction(new WorldSpawnDamageParticle(outcome.effects.depiction.dmgAnim,
-                                                        target->x,
-                                                        target->y,
-                                                        particleAmount,
-                                                        500),
-                           0);
-      }
-      insertCombatAction(nullptr, 300);
+    if (ability->targetSelect.targetType == model::TargetSelectType::TARGET_ZONE) {
+      doZoneSpell(*ability, *caster, orch);
     }
 
-    if (outcome.effects.mpDelta != 0) {
-      auto* targetPlayer =
-          model::playerFindPartyMemberById(state->player, outcome.effects.targetCharacterId);
-      if (targetPlayer != nullptr) {
-        targetPlayer->currentMp += outcome.effects.mpDelta;
-        if (targetPlayer->currentMp < 0) {
-          targetPlayer->currentMp = 0;
-        }
-      }
-    }
-
-    if (outcome.effects.apDelta != 0) {
-      insertCombatAction(
-          new ModifyAP(outcome.effects.targetCharacterId, outcome.effects.apDelta), 0);
-    }
-
-    if (outcome.effects.casterApCost != 0) {
-      insertCombatAction(new ModifyAP(actorId, -outcome.effects.casterApCost), 0);
-    }
-
-    insertCombatAction(new CharacterSetSpriteIndexOffset(actorId, 0), 0);
-
-    LOG(INFO) << "PerformSpellCast: " << actorId << " cast " << spellTarget.spellId
-              << " on " << outcome.effects.targetCharacterId
-              << " hpDelta=" << outcome.effects.hpDelta
-              << " mpSpent (caster now " << caster->currentMp << ")" << LOG_ENDL;
+    insertAction(new CharacterSetSpriteIndexOffset(casterId, 0), 0);
+    insertAction(new WorldSetActionMode(model::WorldActionMode::NONE), 0);
   }
 
 public:
-  explicit PerformSpellCast(model::CombatSpellTarget _spellTarget)
-      : spellTarget(std::move(_spellTarget)) {}
+  explicit PerformSpellCast(const bmin::String& casterId,
+                            const bmin::String& spellId,
+                            const model::SpellTargetInfo& spellTargetInfo)
+      : casterId(casterId), spellId(spellId), spellTargetInfo(spellTargetInfo) {}
 };
 
 } // namespace actions

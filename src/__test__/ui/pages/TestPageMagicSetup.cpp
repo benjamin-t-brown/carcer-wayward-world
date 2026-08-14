@@ -5,7 +5,7 @@
 #include "bmin/UniquePtr.h"
 #include "db/Database.h"
 #include "layers/LayerManager.h"
-#include "model/SpellRules.h"
+#include "game/combat/SpellRules.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/Player.h"
 #include "model/templates/RuneTypes.h"

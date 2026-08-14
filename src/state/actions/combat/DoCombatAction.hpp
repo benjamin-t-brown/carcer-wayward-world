@@ -1,9 +1,9 @@
 #pragma once
 
-#include "model/instances/CharacterInstance.h"
-#include "model/Combat.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapWalkability.h"
+#include "model/Combat.h"
+#include "model/instances/CharacterInstance.h"
 #include "sdl2w/Logger.h"
 #include "state/actions/combat/ActionBase.hpp"
 #include "state/actions/combat/DoCombatActionCompletion.hpp"
@@ -16,12 +16,16 @@ namespace state {
 
 namespace actions {
 
+struct CombatActionContext {
+  bmin::String targetChId;
+  bmin::String abilityId;
+  model::TileXY targetLoc{};
+};
+
 class DoCombatAction : public CombatAction {
+  bmin::String chId;
   model::CombatActionType actionType = model::CombatActionType::WAIT;
-  int moveDx = 0;
-  int moveDy = 0;
-  model::TileXY shootTarget{};
-  model::CombatSpellTarget spellTarget;
+  CombatActionContext ctx;
 
   void handleMove() {
     auto* database = getDatabase();
@@ -37,17 +41,17 @@ class DoCombatAction : public CombatAction {
     }
     auto* actor = orch.findCharacterById(actorId);
     if (actor == nullptr) {
-      insertCombatAction(new DoCombatActionCompletion(), 0);
       return;
     }
+    auto dx = ctx.targetLoc.x;
+    auto dy = ctx.targetLoc.y;
 
-    model::updateCharacterFacingFromMove(*actor, moveDx, moveDy);
+    model::updateCharacterFacingFromMove(*actor, dx, dy);
 
-    const auto destX = actor->x + moveDx;
-    const auto destY = actor->y + moveDy;
+    const auto destX = actor->x + dx;
+    const auto destY = actor->y + dy;
     const auto total = orch.getTotalMapTilesSize();
     if (!total.valid || destX < 0 || destY < 0 || destX >= total.x || destY >= total.y) {
-      insertCombatAction(new DoCombatActionCompletion(), 0);
       return;
     }
 
@@ -55,40 +59,38 @@ class DoCombatAction : public CombatAction {
       const auto actorIsEnemy = model::isCharacterEnemy(*actor);
       const auto occupantIsEnemy = model::isCharacterEnemy(*occupant);
       if (actorIsEnemy != occupantIsEnemy) {
-        insertCombatAction(new PerformMeleeAttack(actorId, occupant->id), 0);
-        insertCombatAction(new ModifyAP(actorId, -model::COMBAT_ATTACK_COST), 0);
-        insertCombatAction(new DoCombatActionCompletion(), 0);
+        insertAction(new PerformMeleeAttack(actorId, occupant->id), 0);
+        insertAction(new ModifyAP(actorId, -model::COMBAT_ATTACK_COST), 0);
         return;
       }
-      insertCombatAction(new DoCombatActionCompletion(), 0);
       return;
     }
 
     auto* destMap = orch.getMapInstanceAt(destX, destY);
     const auto destLocal = orch.activeMapCoordToInstanceCoord(destX, destY);
     if (!destMap || !destLocal.valid) {
-      insertCombatAction(new DoCombatActionCompletion(), 0);
       return;
     }
     destMap->tileLayerNumber = world.activeMap.mapLayer;
     if (!game::isDestinationWalkable(*destMap, destLocal.x, destLocal.y, *database)) {
-      insertCombatAction(new DoCombatActionCompletion(), 0);
       return;
     }
 
-    insertCombatAction(new MoveCharacter(actorId, moveDx, moveDy), 0);
-    insertCombatAction(new ModifyAP(actorId, -model::COMBAT_MOVE_COST), 0);
-    insertCombatAction(new DoCombatActionCompletion(), 0);
+    insertAction(new MoveCharacter(actorId, ctx.targetLoc.x, ctx.targetLoc.y), 0);
+    insertAction(new ModifyAP(actorId, -model::COMBAT_MOVE_COST), 0);
   }
 
   void handleSpell() {
-    if (spellTarget.spellId.empty()) {
+    model::SpellTargetInfo spellTargetInfo;
+    spellTargetInfo.targetCharacterId = ctx.targetChId;
+    spellTargetInfo.tileX = ctx.targetLoc.x;
+    spellTargetInfo.tileY = ctx.targetLoc.y;
+    if (ctx.abilityId.empty()) {
       LOG(INFO) << "DoCombatAction: SPELL with empty spellId" << LOG_ENDL;
-      insertCombatAction(new DoCombatActionCompletion(), 0);
       return;
     }
-    insertCombatAction(new PerformSpellCast(spellTarget), 0);
-    insertCombatAction(new DoCombatActionCompletion(), 0);
+    insertAction(new PerformSpellCast(chId, ctx.abilityId, spellTargetInfo), 0);
+    insertAction(nullptr, 150);
   }
 
   void act() override {
@@ -115,7 +117,7 @@ class DoCombatAction : public CombatAction {
       LOG(INFO) << "DoCombatAction: " << actionLabel << " for "
                 << model::formatCharacterLogLabel(state->world.activeMap,
                                                   state->world.combat.activeCharacterId)
-                << " (" << moveDx << ", " << moveDy << ")" << LOG_ENDL;
+                << " (" << ctx.targetLoc.x << ", " << ctx.targetLoc.y << ")" << LOG_ENDL;
     } else {
       LOG(INFO) << "DoCombatAction: " << actionLabel << " for "
                 << model::formatCharacterLogLabel(state->world.activeMap,
@@ -133,31 +135,29 @@ class DoCombatAction : public CombatAction {
       handleSpell();
       break;
     case model::CombatActionType::SHOOT:
-      insertCombatAction(new DoCombatActionCompletion(), 0);
+      insertAction(new DoCombatActionCompletion(), 0);
       break;
     case model::CombatActionType::WAIT: {
       game::ActiveMapOrchestrator orch;
-      auto* character = orch.findCharacterById(state->world.combat.activeCharacterId);
+      orch.fetchMapGrid(state->world.activeMap.gridId);
+      auto* character = orch.findCharacterById(chId);
       if (character != nullptr) {
-        character->currentAp = 0;
+        insertAction(new ModifyAP(chId, -character->currentAp), 0);
       }
-      insertCombatAction(new DoCombatActionCompletion(), 0);
       break;
     }
     }
+    insertAction(new DoCombatActionCompletion(), 0);
   }
 
 public:
-  explicit DoCombatAction(model::CombatActionType _actionType) : actionType(_actionType) {}
+  explicit DoCombatAction(const bmin::String& chId, model::CombatActionType _actionType)
+      : chId(chId), actionType(_actionType) {}
 
-  DoCombatAction(model::CombatActionType _actionType, int dx, int dy)
-      : actionType(_actionType), moveDx(dx), moveDy(dy) {}
-
-  DoCombatAction(model::CombatActionType _actionType, model::TileXY target)
-      : actionType(_actionType), shootTarget(target) {}
-
-  DoCombatAction(model::CombatActionType _actionType, model::CombatSpellTarget target)
-      : actionType(_actionType), spellTarget(std::move(target)) {}
+  DoCombatAction(const bmin::String& chId,
+                 model::CombatActionType _actionType,
+                 const CombatActionContext& ctx)
+      : chId(chId), actionType(_actionType), ctx(ctx) {}
 };
 
 } // namespace actions

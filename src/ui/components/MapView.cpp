@@ -12,7 +12,6 @@
 #include "state/StateManager.h"
 #include "ui/FontScale.h"
 #include "ui/colors.h"
-#include <cmath>
 #include <exception>
 
 namespace ui {
@@ -92,6 +91,29 @@ void MapView::build() {
   }
 }
 
+void MapView::addAnimation(const bmin::String& animationName) {
+  auto& store = window->getStore();
+  auto anim = store.createAnimation(bmin::toStringView(animationName));
+  animations.insert(animationName, bmin::makeUnique<sdl2w::Animation>(std::move(anim)));
+}
+
+sdl2w::Animation* MapView::getAnimation(const bmin::String& animationName) {
+  for (auto& animation : animations) {
+    if (animation.key == animationName) {
+      return animation.value.get();
+    }
+  }
+  return nullptr;
+}
+
+sdl2w::Animation* MapView::upsertAnimation(const bmin::String& animationName) {
+  if (getAnimation(animationName)) {
+    return getAnimation(animationName);
+  }
+  addAnimation(animationName);
+  return getAnimation(animationName);
+}
+
 void MapView::renderDamageParticles(const model::World& world,
                                     sdl2w::Draw& draw,
                                     sdl2w::Store& store,
@@ -106,25 +128,17 @@ void MapView::renderDamageParticles(const model::World& world,
   }
 
   game::ActiveMapOrchestrator orch;
-  try {
-    orch.fetchMapGrid(world.activeMap.gridId);
-  } catch (...) {
-    return;
-  }
+  orch.fetchMapGrid(world.activeMap.gridId);
 
   for (size_t i = 0; i < world.activeMap.damageParticles.size(); i++) {
-    const auto& particle = world.activeMap.damageParticles[i];
+    auto& particle = world.activeMap.damageParticles[i];
     auto* map = orch.getMapInstanceAt(particle.tileX, particle.tileY);
-    const auto local =
-        orch.activeMapCoordToInstanceCoord(particle.tileX, particle.tileY);
+    const auto local = orch.activeMapCoordToInstanceCoord(particle.tileX, particle.tileY);
     if (!map || !local.valid) {
       continue;
     }
     map->tileLayerNumber = world.activeMap.mapLayer;
     if (!game::isTileCurrentlyVisible(*map, local.x, local.y)) {
-      continue;
-    }
-    if (!store.anims.contains(particle.animationName)) {
       continue;
     }
 
@@ -138,23 +152,18 @@ void MapView::renderDamageParticles(const model::World& world,
     auto centerX = screenX + static_cast<int>(spriteW * style.scale / 2);
     auto centerY = screenY + static_cast<int>(spriteH * style.scale / 2);
 
-    auto animation = store.createAnimation(bmin::toStringView(particle.animationName));
-    if (!animation.isInitialized()) {
-      continue;
+    if (particle.animation) {
+      draw.drawAnimation(*particle.animation,
+                         sdl2w::RenderableParamsEx{
+                             .scale = {style.scale, style.scale},
+                             .x = centerX,
+                             .y = centerY,
+                             .centered = true,
+                         });
     }
-    animation.start();
-    animation.update(particle.lifetime.t);
 
-    draw.drawAnimation(animation,
-                       sdl2w::RenderableParamsEx{
-                           .scale = {style.scale, style.scale},
-                           .x = centerX,
-                           .y = centerY,
-                           .centered = true,
-                       });
-
-    if (particle.value != 0) {
-      auto damageText = bmin::toString(abs(particle.value));
+    if (!particle.text.empty()) {
+      auto& damageText = particle.text;
       sdl2w::RenderTextParams textParams;
       textParams.fontName = "text-bold";
       textParams.fontSize = ui::applyFontScale(sdl2w::TEXT_SIZE_14, fontScale);
@@ -168,10 +177,67 @@ void MapView::renderDamageParticles(const model::World& world,
   }
 }
 
-void MapView::render(int /*dt*/) {
+void MapView::renderProjectiles(const model::World& world,
+                                sdl2w::Draw& draw,
+                                sdl2w::Store& store,
+                                int contentX,
+                                int contentY,
+                                int spriteW,
+                                int spriteH) {
+  if (world.activeMap.projectiles.empty() || style.scale <= 0.f) {
+    return;
+  }
+
+  for (size_t i = 0; i < world.activeMap.projectiles.size(); i++) {
+    const auto& projectile = world.activeMap.projectiles[i];
+    auto anim = upsertAnimation(projectile.animationName);
+    if (!anim) {
+      continue;
+    }
+
+    const auto pct = model::timerStructGetPct(projectile.travel);
+    const auto tileX =
+        projectile.fromTileX +
+        (projectile.toTileX - projectile.fromTileX) * static_cast<float>(pct);
+    const auto tileY =
+        projectile.fromTileY +
+        (projectile.toTileY - projectile.fromTileY) * static_cast<float>(pct);
+
+    auto screenX =
+        contentX +
+        static_cast<int>((tileX * static_cast<float>(spriteW) - world.camera.camX) *
+                         style.scale);
+    auto screenY =
+        contentY +
+        static_cast<int>((tileY * static_cast<float>(spriteH) - world.camera.camY) *
+                         style.scale);
+
+    auto centerX = screenX + static_cast<int>(spriteW * style.scale / 2);
+    auto centerY = screenY + static_cast<int>(spriteH * style.scale / 2) -
+                   static_cast<int>(projectile.yOffset * style.scale);
+
+    draw.drawAnimation(*anim,
+                       sdl2w::RenderableParamsEx{
+                           .scale = {style.scale, style.scale},
+                           .x = centerX,
+                           .y = centerY,
+                           .centered = true,
+                       });
+  }
+}
+
+void MapView::render(int dt) {
   auto* stateManager = getStateManager();
   if (!stateManager) {
     return;
+  }
+  auto* database = getDatabase();
+  if (!database) {
+    return;
+  }
+
+  for (auto& animation : animations) {
+    animation.value->update(dt);
   }
 
   auto& draw = window->getDraw();
@@ -182,11 +248,7 @@ void MapView::render(int /*dt*/) {
   }
 
   game::ActiveMapOrchestrator orch;
-  try {
-    orch.fetchMapGrid(world.activeMap.gridId);
-  } catch (...) {
-    return;
-  }
+  orch.fetchMapGrid(world.activeMap.gridId);
 
   const auto total = orch.getTotalMapTilesSize();
   if (!total.valid || total.x <= 0 || total.y <= 0) {
@@ -231,14 +293,12 @@ void MapView::render(int /*dt*/) {
 
   const int startTileX = std::max(0, world.camera.camX / spriteW - 1);
   const int startTileY = std::max(0, world.camera.camY / spriteH - 1);
-  const int endTileX =
-      std::min(total.x, (world.camera.camX + contentW / static_cast<int>(style.scale)) /
-                                spriteW +
-                            2);
-  const int endTileY =
-      std::min(total.y, (world.camera.camY + contentH / static_cast<int>(style.scale)) /
-                                spriteH +
-                            2);
+  const int endTileX = std::min(
+      total.x,
+      (world.camera.camX + contentW / static_cast<int>(style.scale)) / spriteW + 2);
+  const int endTileY = std::min(
+      total.y,
+      (world.camera.camY + contentH / static_cast<int>(style.scale)) / spriteH + 2);
 
   for (auto y = startTileY; y < endTileY; y++) {
     for (auto x = startTileX; x < endTileX; x++) {
@@ -284,18 +344,15 @@ void MapView::render(int /*dt*/) {
             drawMapSprite(fieldSprite, screenX, screenY);
           }
 
-          auto drawOverlay =
-              [&](model::TileOverlayVisibility visibility) {
-                const auto overlaySpriteName =
-                    model::tileOverlayVisibilitySpriteName(visibility);
-                if (overlaySpriteName.empty() ||
-                    !store.sprites.contains(overlaySpriteName)) {
-                  return;
-                }
-                auto& overlaySprite =
-                    store.getSprite(bmin::toStringView(overlaySpriteName));
-                drawMapSprite(overlaySprite, screenX, screenY);
-              };
+          auto drawOverlay = [&](model::TileOverlayVisibility visibility) {
+            const auto overlaySpriteName =
+                model::tileOverlayVisibilitySpriteName(visibility);
+            if (overlaySpriteName.empty() || !store.sprites.contains(overlaySpriteName)) {
+              return;
+            }
+            auto& overlaySprite = store.getSprite(bmin::toStringView(overlaySpriteName));
+            drawMapSprite(overlaySprite, screenX, screenY);
+          };
           if (surfaceTile->eventTrigger) {
             drawOverlay(surfaceTile->eventTrigger->overlayVisibility);
           }
@@ -314,12 +371,8 @@ void MapView::render(int /*dt*/) {
     }
   }
 
-  auto* database = getDatabase();
   for (size_t ii = 0; ii < world.activeMap.items.size(); ii++) {
     const auto& item = world.activeMap.items[ii];
-    if (!database) {
-      break;
-    }
     auto* map = orch.getMapInstanceAt(item.x, item.y);
     const auto local = orch.activeMapCoordToInstanceCoord(item.x, item.y);
     if (!map || !local.valid) {
@@ -331,7 +384,7 @@ void MapView::render(int /*dt*/) {
     }
     // Items on container tiles are stored inside the container, not drawn on the ground.
     if (const auto* tile = game::tileAtCurrentLayer(*map, local.x, local.y);
-        tile && game::isTileEffectivelyContainer(*tile, *database)) {
+        tile && tile->isContainer) {
       continue;
     }
     bmin::String spriteName;
@@ -347,11 +400,9 @@ void MapView::render(int /*dt*/) {
     }
 
     auto screenX =
-        contentX +
-        static_cast<int>((item.x * spriteW - world.camera.camX) * style.scale);
+        contentX + static_cast<int>((item.x * spriteW - world.camera.camX) * style.scale);
     auto screenY =
-        contentY +
-        static_cast<int>((item.y * spriteH - world.camera.camY) * style.scale);
+        contentY + static_cast<int>((item.y * spriteH - world.camera.camY) * style.scale);
     auto centerX = screenX + scaledSpriteW / 2;
     auto centerY = screenY + scaledSpriteH / 2;
 
@@ -436,37 +487,72 @@ void MapView::render(int /*dt*/) {
     }
     drawCharacter(character);
   }
+  // draw the active ch on the top
   if (activeCharacter != nullptr) {
     drawCharacter(*activeCharacter);
   }
 
   renderDamageParticles(
       world, draw, store, contentX, contentY, spriteW, spriteH, state.settings.fontScale);
+  renderProjectiles(world, draw, store, contentX, contentY, spriteW, spriteH);
 
   if (world.actionMode != model::WorldActionMode::NONE && world.actionAimTile) {
     const auto aimX = world.actionAimTile->x;
     const auto aimY = world.actionAimTile->y;
-    const auto screenX =
-        contentX + static_cast<int>((aimX * spriteW - world.camera.camX) * style.scale);
-    const auto screenY =
-        contentY + static_cast<int>((aimY * spriteH - world.camera.camY) * style.scale);
 
-    if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
-        screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
-      draw.drawRect(screenX, screenY, scaledSpriteW, scaledSpriteH, actionAimFillColor);
-      const auto border = 2;
-      draw.drawRect(screenX, screenY, scaledSpriteW, border, actionAimOutlineColor);
-      draw.drawRect(screenX,
-                    screenY + scaledSpriteH - border,
-                    scaledSpriteW,
-                    border,
-                    actionAimOutlineColor);
-      draw.drawRect(screenX, screenY, border, scaledSpriteH, actionAimOutlineColor);
-      draw.drawRect(screenX + scaledSpriteW - border,
-                    screenY,
-                    border,
-                    scaledSpriteH,
-                    actionAimOutlineColor);
+    int zoneW = 1;
+    int zoneH = 1;
+    if (world.actionMode == model::WorldActionMode::SPELL &&
+        !world.pendingSpellId.empty()) {
+      auto* database = getDatabase();
+      if (database != nullptr) {
+        const auto* spell =
+            database->findSpellTemplate(bmin::toStringView(world.pendingSpellId));
+        if (spell != nullptr) {
+          const auto* ability =
+              database->findAbilityTemplate(bmin::toStringView(spell->abilityName));
+          if (ability != nullptr) {
+            zoneW = ability->targetSelect.zoneSize.x > 0
+                        ? ability->targetSelect.zoneSize.x
+                        : 1;
+            zoneH = ability->targetSelect.zoneSize.y > 0
+                        ? ability->targetSelect.zoneSize.y
+                        : 1;
+          }
+        }
+      }
+    }
+
+    for (int zy = 0; zy < zoneH; ++zy) {
+      for (int zx = 0; zx < zoneW; ++zx) {
+        const auto tileX = aimX + zx;
+        const auto tileY = aimY + zy;
+        const auto screenX =
+            contentX +
+            static_cast<int>((tileX * spriteW - world.camera.camX) * style.scale);
+        const auto screenY =
+            contentY +
+            static_cast<int>((tileY * spriteH - world.camera.camY) * style.scale);
+
+        if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
+            screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
+          draw.drawRect(
+              screenX, screenY, scaledSpriteW, scaledSpriteH, actionAimFillColor);
+          const auto border = 2;
+          draw.drawRect(screenX, screenY, scaledSpriteW, border, actionAimOutlineColor);
+          draw.drawRect(screenX,
+                        screenY + scaledSpriteH - border,
+                        scaledSpriteW,
+                        border,
+                        actionAimOutlineColor);
+          draw.drawRect(screenX, screenY, border, scaledSpriteH, actionAimOutlineColor);
+          draw.drawRect(screenX + scaledSpriteW - border,
+                        screenY,
+                        border,
+                        scaledSpriteH,
+                        actionAimOutlineColor);
+        }
+      }
     }
   }
 }

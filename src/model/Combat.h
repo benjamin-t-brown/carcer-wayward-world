@@ -29,8 +29,7 @@ inline constexpr int COMBAT_HIT_CHANCE_PERCENT = 75;
 
 enum class CombatActionType { MOVE, SHOOT, SPELL, WAIT };
 
-struct CombatSpellTarget {
-  bmin::String spellId;
+struct SpellTargetInfo {
   bmin::String targetCharacterId;
   int tileX = 0;
   int tileY = 0;

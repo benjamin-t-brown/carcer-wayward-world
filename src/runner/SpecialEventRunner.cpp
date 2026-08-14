@@ -359,8 +359,7 @@ void SpecialEventRunner::advance(const bmin::String& nodeId,
 bmin::String SpecialEventRunner::storageToString() const {
   bmin::DynArray<std::pair<bmin::String, bmin::String>> pairs;
   pairs.reserve(storage.size());
-  auto& mutableStorage = const_cast<bmin::Map<bmin::String, bmin::String>&>(storage);
-  for (auto it = mutableStorage.begin(); it != mutableStorage.end(); ++it) {
+  for (auto it = storage.begin(); it != storage.end(); ++it) {
     pairs.emplaceBack(it->key, it->value);
   }
 

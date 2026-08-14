@@ -16,6 +16,7 @@ model::AbilityAttackDmg parseAbilityAttackDmg(const Json& json);
 model::AbilityAttack parseAbilityAttack(const Json& json);
 model::AbilityStatus parseAbilityStatus(const Json& json);
 model::AbilityRestore parseAbilityRestore(const Json& json);
+model::AbilityDamage parseAbilityDamage(const Json& json);
 model::AbilityDepiction parseAbilityDepiction(const Json& json);
 
 } // namespace db

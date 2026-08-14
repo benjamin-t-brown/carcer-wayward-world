@@ -1,8 +1,8 @@
 #pragma once
 
-#include "model/instances/CharacterInstance.h"
-#include "model/Combat.h"
 #include "game/map/ActiveMapOrchestrator.h"
+#include "model/Combat.h"
+#include "model/instances/CharacterInstance.h"
 #include "state/actions/combat/ActionBase.hpp"
 #include "state/actions/combat/CharacterSetSpriteIndexOffset.hpp"
 #include "state/actions/combat/ModifyHP.hpp"
@@ -35,25 +35,26 @@ class PerformMeleeAttack : public CombatAction {
 
     model::updateCharacterFacingToward(*attacker, victim->x, victim->y);
 
-    insertCombatAction(new CharacterSetSpriteIndexOffset(attackerId, 1), 0);
+    insertAction(new CharacterSetSpriteIndexOffset(attackerId, 1), 0);
 
     const auto hit = (std::rand() % 100) < model::COMBAT_HIT_CHANCE_PERCENT;
     if (hit) {
-      insertCombatAction(new PlaySound("punch1"), 0);
-      insertCombatAction(nullptr, 75);
-      insertCombatAction(new ModifyHP(victimId, -model::COMBAT_MELEE_DAMAGE), 0);
-      insertCombatAction(new WorldSpawnDamageParticle("splash_attack",
-                                                      victim->x,
-                                                      victim->y,
-                                                      model::COMBAT_MELEE_DAMAGE,
-                                                      500),
-                         0);
-      insertCombatAction(nullptr, 500);
+      insertAction(new PlaySound("punch1"), 0);
+      insertAction(nullptr, 75);
+      insertAction(new ModifyHP(victimId, -model::COMBAT_MELEE_DAMAGE), 0);
+      insertAction(
+          new WorldSpawnDamageParticle("splash_attack",
+                                       bmin::toString(model::COMBAT_MELEE_DAMAGE),
+                                       victim->x,
+                                       victim->y,
+                                       500),
+          0);
+      insertAction(nullptr, 500);
     } else {
-      insertCombatAction(new PlaySound("whip"), 0);
-      insertCombatAction(nullptr, 300);
+      insertAction(new PlaySound("whip"), 0);
+      insertAction(nullptr, 300);
     }
-    insertCombatAction(new CharacterSetSpriteIndexOffset(attackerId, 0), 0);
+    insertAction(new CharacterSetSpriteIndexOffset(attackerId, 0), 0);
   }
 
 public:

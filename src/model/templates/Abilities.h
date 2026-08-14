@@ -20,6 +20,7 @@ struct AbilityTemplate {
   bmin::DynArray<AbilityAttack> attacks;
   bmin::DynArray<AbilityStatus> statuses;
   bmin::DynArray<AbilityRestore> restores;
+  bmin::DynArray<AbilityDamage> damages;
 };
 
 } // namespace model

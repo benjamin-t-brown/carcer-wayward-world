@@ -138,7 +138,7 @@ inline const TileInstance* mapInstanceGetTileAt(const MapInstance& map,
 inline TileXY mapInstanceGetMinMaxLayer(const MapInstance& map) {
   TileXY minMaxLayer = {0, 0};
   bool first = true;
-  auto& tiles = const_cast<TileLayerMap&>(mapInstanceTiles(map));
+  const auto& tiles = mapInstanceTiles(map);
   for (auto it = tiles.begin(); it != tiles.end(); ++it) {
     if (first) {
       minMaxLayer.x = it->key;

@@ -1,6 +1,7 @@
 #include "game/map/MapPersistence.h"
 #include "bmin/StringInterop.h"
 #include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/MapWalkability.h"
 #include "game/map/TileFields.h"
 #include "model/templates/CharacterTemplate.h"
 
@@ -9,14 +10,24 @@ namespace game {
 void createMapInstances(state::State& state, const db::Database& database) {
   state.mapInstances = bmin::Map<bmin::String, model::MapInstance>{};
 
-  // getMapTemplates() returns const Map&; bmin::Map iteration needs a non-const begin().
-  auto& templates = const_cast<bmin::Map<bmin::String, model::CarcerMapTemplate>&>(
-      database.getMapTemplates());
+  const auto& templates = database.getMapTemplates();
   for (auto it = templates.begin(); it != templates.end(); ++it) {
     model::MapInstance instance = model::createMapInstanceFromTemplate(it->value);
     for (size_t ci = 0; ci < instance.persistentState.characters.size(); ci++) {
       model::tryApplyCharacterTemplateToInstance(instance.persistentState.characters[ci],
                                                  database);
+    }
+    auto layers = model::mapInstanceTiles(instance);
+    for (auto layer : layers) {
+      auto& layerTiles = layer.value;
+      for (auto& tile : layerTiles) {
+        if (game::isTileEffectivelyContainer(tile, database)) {
+          tile.isContainer = true;
+        }
+        if (game::isTileEffectivelyWalkable(tile, database)) {
+          tile.isWalkable = true;
+        }
+      }
     }
     state.mapInstances[instance.templateName] = std::move(instance);
   }
@@ -80,8 +91,7 @@ bmin::String resolveGridIdForMapOrGrid(db::Database& database,
     return mapOrGridName;
   }
 
-  auto& grids = const_cast<bmin::Map<bmin::String, model::MapGridTemplate>&>(
-      database.getMapGridTemplates());
+  const auto& grids = database.getMapGridTemplates();
   for (auto it = grids.begin(); it != grids.end(); ++it) {
     const auto& grid = it->value;
     for (size_t y = 0; y < grid.cells.size(); ++y) {
@@ -95,8 +105,7 @@ bmin::String resolveGridIdForMapOrGrid(db::Database& database,
 
   // Standalone map: ensure a 1x1 grid exists so ActiveMapOrchestrator can load it.
   try {
-    const auto& mapTemplate =
-        database.getMapTemplate(bmin::toStringView(mapOrGridName));
+    const auto& mapTemplate = database.getMapTemplate(bmin::toStringView(mapOrGridName));
     model::MapGridTemplate grid;
     grid.name = mapOrGridName;
     grid.label = mapTemplate.label.empty() ? mapTemplate.name : mapTemplate.label;

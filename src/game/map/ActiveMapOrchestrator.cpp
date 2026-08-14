@@ -69,7 +69,11 @@ void ActiveMapOrchestrator::fetchMapGrid(const bmin::String& gridName) {
   if (!database) {
     throw std::runtime_error("ActiveMapOrchestrator::loadMapGrid: database is nullptr");
   }
-  grid = &database->getMapGridTemplate(bmin::toStringView(gridName));
+  if (gridName.empty()) {
+    grid = &defaultGrid;
+  } else {
+    grid = &database->getMapGridTemplate(bmin::toStringView(gridName));
+  }
 }
 
 const model::MapGridTemplate& ActiveMapOrchestrator::getMapGrid() const {
@@ -159,6 +163,20 @@ model::CharacterInstance* ActiveMapOrchestrator::findCharacterAt(int worldX,
                                                                  int worldY,
                                                                  int /*mapLayerId*/) {
   return findCharacterAt(worldX, worldY, bmin::String{}, USE_WORLD_MAP_LAYER);
+}
+
+bmin::DynArray<model::CharacterInstance*> ActiveMapOrchestrator::findAllCharactersAt(
+    int worldX, int worldY, int /*mapLayerId*/) {
+  bmin::DynArray<model::CharacterInstance*> characters;
+  auto& world = getStateManager()->getState().world;
+  for (auto it = world.activeMap.characters.begin();
+       it != world.activeMap.characters.end();
+       ++it) {
+    if (it->x == worldX && it->y == worldY) {
+      characters.pushBack(it);
+    }
+  }
+  return characters;
 }
 
 model::CharacterInstance* ActiveMapOrchestrator::findCharacterAt(

@@ -39,7 +39,9 @@
 [Base none.] {Base none.}
 [Blunt Weapons] {Blunt Weapons}
 [Body Mastery] {Body Mastery}
+[Cannot cast that spell.] {Cannot cast that spell.}
 [Carrying] {Carrying}
+[Cast Spell] {Cast Spell}
 [Conditioning] {Conditioning}
 [Confirm] {Confirm}
 [Constitution] {Constitution}
@@ -101,9 +103,11 @@
 [Might/Damage] {Might/Damage}
 [Mind] {Mind}
 [No items nearby.] {No items nearby.}
+[No known spells.] {No known spells.}
 [No rune available to equip.] {No rune available to equip.}
 [No] {No}
 [None] {None}
+[Not enough mana.] {Not enough mana.}
 [Nothing inside.] {Nothing inside.}
 [Okay] {Okay}
 [Percentage-based magic damage increase.] {Percentage-based magic damage increase.}
@@ -114,6 +118,7 @@
 [Reduces length of bad status effects by 1 turn.] {Reduces length of bad status effects by 1 turn.}
 [Reduces magical damage by 5% per point.] {Reduces magical damage by 5% per point.}
 [Reduces physical damage by 5% per point.] {Reduces physical damage by 5% per point.}
+[Required runes are not equipped.] {Required runes are not equipped.}
 [Resist Magical] {Resist Magical}
 [Resist Physical] {Resist Physical}
 [Resistances] {Resistances}
@@ -136,6 +141,7 @@
 [Talk: they have nothing to say.] {Talk: they have nothing to say.}
 [Talk] {Talk}
 [That item is not a rune.] {That item is not a rune.}
+[That spell cannot be aimed on the map.] {That spell cannot be aimed on the map.}
 [That spell cannot be prepared.] {That spell cannot be prepared.}
 [Too heavy!] {Too heavy!}
 [Tool Use] {Tool Use}
