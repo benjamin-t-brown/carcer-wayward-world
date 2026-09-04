@@ -11,7 +11,7 @@ module;
 #endif
 #include <algorithm>
 
-export module carcer.ui.layouts.ModalSmall;
+export module carcer.ui.layouts:ModalSmall;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;

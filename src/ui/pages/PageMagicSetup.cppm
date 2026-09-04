@@ -11,7 +11,7 @@ import bmin.string_interop;
 export import carcer.ui.core;
 export import carcer.ui.lists;
 export import carcer.ui.elements;
-export import carcer.ui.layouts.ModalStandard;
+export import carcer.ui.layouts;
 import sdl2w;
 import carcer.actions.ui.UiSetSpellReady;
 import carcer.actions.ui.UiShowLayerEquipRunes;

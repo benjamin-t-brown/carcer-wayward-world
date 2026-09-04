@@ -10,7 +10,7 @@ module;
 export module carcer.layers.LayerSpellCast;
 export import carcer.layers.Layer;
 export import carcer.db;
-export import carcer.ui.minipages.MinipageSpellCast;
+export import carcer.ui.minipages;
 import sdl2w;
 import carcer.actions.ui.UiRemoveLayer;
 import carcer.lib.StringUtil;

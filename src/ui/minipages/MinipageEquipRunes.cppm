@@ -4,7 +4,7 @@ module;
 #include <utility>
 #include <algorithm>
 
-export module carcer.ui.minipages.MinipageEquipRunes;
+export module carcer.ui.minipages:MinipageEquipRunes;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.model.templates.RuneTypes;
@@ -17,7 +17,7 @@ import carcer.model.instances.CharacterPlayer;
 import carcer.ui.elements;
 import carcer.ui.core;
 import carcer.ui.helpers;
-import carcer.ui.layouts.ModalSmall;
+import carcer.ui.layouts;
 import carcer.ui.pages.PageCharacter;
 #include "macros.h"
 

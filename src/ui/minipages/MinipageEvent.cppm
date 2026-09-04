@@ -3,13 +3,13 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.ui.minipages.MinipageEvent;
+export module carcer.ui.minipages:MinipageEvent;
 export import carcer.ui.core;
 import sdl2w;
 import carcer.ui.core;
 import carcer.ui.elements;
 import carcer.ui.helpers;
-import carcer.ui.layouts.ModalSmall;
+import carcer.ui.layouts;
 import bmin.string_interop;
 #include "macros.h"
 

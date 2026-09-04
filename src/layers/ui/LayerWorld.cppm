@@ -11,7 +11,7 @@ export module carcer.layers.LayerWorld;
 export import carcer.layers.Layer;
 export import carcer.model.instances.MapInstance;
 export import carcer.state.WorldActions;
-export import carcer.ui.layouts.InGameLayout;
+export import carcer.ui.layouts;
 import sdl2w;
 import carcer.layers;
 import carcer.actions.combat.DoCombatAction;

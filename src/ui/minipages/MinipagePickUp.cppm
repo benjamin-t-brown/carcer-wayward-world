@@ -3,7 +3,7 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.ui.minipages.MinipagePickUp;
+export module carcer.ui.minipages:MinipagePickUp;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.state;
@@ -15,7 +15,7 @@ import carcer.ui.lists;
 import carcer.ui.core;
 import carcer.ui.components;
 import carcer.ui.helpers;
-import carcer.ui.layouts.ModalSmall;
+import carcer.ui.layouts;
 #include "macros.h"
 
 export {

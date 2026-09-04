@@ -21,7 +21,7 @@ import carcer.ui.components;
 import carcer.ui.elements;
 import carcer.ui.core;
 import carcer.ui.helpers;
-import carcer.ui.layouts.ModalSmall;
+import carcer.ui.layouts;
 #include "macros.h"
 
 export {

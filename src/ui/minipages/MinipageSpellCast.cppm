@@ -4,7 +4,7 @@ module;
 #include <utility>
 #include <vector>
 
-export module carcer.ui.minipages.MinipageSpellCast;
+export module carcer.ui.minipages:MinipageSpellCast;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;
@@ -14,7 +14,7 @@ import carcer.ui.elements;
 import carcer.ui.lists;
 import carcer.ui.core;
 import carcer.ui.helpers;
-import carcer.ui.layouts.ModalSmall;
+import carcer.ui.layouts;
 #include "macros.h"
 
 export {

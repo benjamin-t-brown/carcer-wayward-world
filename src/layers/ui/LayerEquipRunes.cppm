@@ -16,7 +16,7 @@ import carcer.actions.ui.UiCancelEquipRunes;
 import carcer.model.instances.CharacterPlayer;
 import carcer.model.instances.Player;
 import carcer.ui.helpers;
-import carcer.ui.minipages.MinipageEquipRunes;
+import carcer.ui.minipages;
 import bmin.containers;
 import bmin.string_interop;
 #include "macros.h"

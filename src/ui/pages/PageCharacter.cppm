@@ -18,7 +18,7 @@ import carcer.model.stats.CharacterStatDefinitions;
 import carcer.ui.elements;
 import carcer.ui.core;
 import carcer.ui.helpers;
-import carcer.ui.layouts.ModalStandard;
+import carcer.ui.layouts;
 import carcer.model.stats.CharacterStats;
 #include "macros.h"
 

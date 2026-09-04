@@ -21,7 +21,7 @@ import carcer.model.instances.CharacterPlayer;
 import carcer.model.instances.Player;
 import carcer.ui.components;
 import carcer.ui.helpers;
-import carcer.ui.minipages.MinipagePickUp;
+import carcer.ui.minipages;
 import bmin.string_interop;
 #include "macros.h"
 
