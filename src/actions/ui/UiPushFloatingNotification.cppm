@@ -1,0 +1,40 @@
+module;
+#include <utility>
+#include <cstddef>
+
+export module carcer.actions.ui:UiPushFloatingNotification;
+export import carcer.state;
+import carcer.model.instances;
+#include "macros.h"
+
+export {
+
+namespace state {
+
+namespace actions {
+
+class UiPushFloatingNotification : public AbstractAction {
+  bmin::String message;
+  UiFloatingNotificationType type;
+
+  void act() override {
+    auto& localState = *state;
+    UiFloatingNotification notification;
+    notification.id = model::createRandomId();
+    notification.message = message;
+    notification.type = type;
+    model::timerStructStart(notification.timer,
+                            state->settings.floatingNotificationDurationMs);
+    localState.uiState.floatingNotifications.pushBack(std::move(notification));
+  }
+
+public:
+  UiPushFloatingNotification(bmin::String _message, UiFloatingNotificationType _type)
+      : message(std::move(_message)), type(_type) {}
+};
+
+} // namespace actions
+
+} // namespace state
+
+} // export
