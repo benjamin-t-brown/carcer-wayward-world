@@ -34,6 +34,7 @@ enum class LayerId {
   SpellInfo,
   EquipRunes,
   PickUp,
+  PickUpContext,
   DropConfirm,
   GiveContext,
   PopupText,
@@ -64,90 +65,77 @@ inline std::string_view layerIdString(LayerId id) {
     return "layer_give_context";
   case LayerId::PopupText:
     return "layer_popup_text";
+  case LayerId::PickUpContext:
+    return "layer_pick_up_context";
   case LayerId::SpecialEvent:
     return "layer_special_event";
   }
   return {};
 }
 
-struct LayerManagerOps {
-  void (*closeById)(void* layerManager, LayerId id) = nullptr;
-  void (*closeByString)(void* layerManager, std::string_view id) = nullptr;
-  void (*showInventory)(void* layerManager, void* window) = nullptr;
-  void (*showMagic)(void* layerManager, void* window) = nullptr;
-  void (*showSpellCast)(void* layerManager, void* window, const bmin::String* chId) = nullptr;
-  void (*showSpellInfo)(void* layerManager,
-                        void* window,
-                        const bmin::String* spellName) = nullptr;
-  void (*showEquipRunes)(void* layerManager,
-                         void* window,
-                         const bmin::String* characterPlayerId) = nullptr;
-  void (*showPickUp)(void* layerManager,
-                     void* window,
-                     const int* containerX,
-                     const int* containerY) = nullptr;
-  void (*showPickupContext)(void* layerManager,
-                            void* window,
-                            const model::ItemInstance* item) = nullptr;
-  void (*showInventoryContext)(void* layerManager,
-                               void* window,
-                               const bmin::String* itemId,
-                               const bmin::String* itemName) = nullptr;
-  void (*showDropConfirm)(void* layerManager,
-                          void* window,
-                          const bmin::String* characterPlayerId,
-                          const bmin::String* itemId) = nullptr;
-  void (*showGiveContext)(void* layerManager,
-                          void* window,
-                          const bmin::String* fromCharacterPlayerId,
-                          const bmin::String* itemId) = nullptr;
-  void (*showPopupText)(void* layerManager,
-                        void* window,
-                        const bmin::String* title,
-                        const bmin::String* text) = nullptr;
-  void (*showSpecialEvent)(void* layerManager,
-                           void* window,
-                           const bmin::String* eventId,
-                           State* state) = nullptr;
-  void (*cancelEquipRunes)(void* layerManager) = nullptr;
+inline std::optional<LayerId> layerIdFromString(std::string_view s) {
+  if (s == "layer_world") return LayerId::World;
+  if (s == "layer_inventory") return LayerId::Inventory;
+  if (s == "layer_inventory_context") return LayerId::InventoryContext;
+  if (s == "layer_magic") return LayerId::Magic;
+  if (s == "layer_spell_cast") return LayerId::SpellCast;
+  if (s == "layer_spell_info") return LayerId::SpellInfo;
+  if (s == "layer_equip_runes") return LayerId::EquipRunes;
+  if (s == "layer_pick_up") return LayerId::PickUp;
+  if (s == "layer_pick_up_context") return LayerId::PickUpContext;
+  if (s == "layer_drop_confirm") return LayerId::DropConfirm;
+  if (s == "layer_give_context") return LayerId::GiveContext;
+  if (s == "layer_popup_text") return LayerId::PopupText;
+  if (s == "layer_special_event") return LayerId::SpecialEvent;
+  return std::nullopt;
+}
+
+/**
+ * A UI-requested overlay layer, queued on State so actions never need to
+ * import carcer.layers -- actions touch only State; LayerManager (which
+ * already sees carcer.state) is the only thing that names concrete Layer*
+ * types.
+ *
+ * LayerManager::update() is meant to reconcile this list against its live
+ * Layer* objects each frame (construct/destroy to match) -- reconciliation
+ * itself is not yet implemented; that's real feature work (DB lookups for
+ * e.g. SpecialEvent's GameEvent, re-resolving PickUpContext's ItemInstance by
+ * id) left for when the main loop is wired up (see MODULES.md, "Phase 3a").
+ * Field meaning is per-LayerId; unused fields stay default:
+ *   InventoryContext: a=itemId, b=itemName
+ *   SpellCast:        a=chId
+ *   SpellInfo:        a=spellName
+ *   EquipRunes:       a=characterPlayerId
+ *   PickUp:           x,y=container tile (both 0 => floor pickup, no container)
+ *   PickUpContext:    a=itemId (reconciler re-resolves the ItemInstance)
+ *   DropConfirm:      a=characterPlayerId, b=itemId
+ *   GiveContext:      a=fromCharacterPlayerId, b=itemId
+ *   PopupText:        a=title, b=text
+ *   SpecialEvent:     a=eventId
+ *   World, Inventory, Magic: no payload
+ */
+struct LayerRequest {
+  LayerId id;
+  bmin::String a;
+  bmin::String b;
+  int x = 0;
+  int y = 0;
 };
 
+/** Just the LayerManager pointer seam -- how actions/layers reach the live
+    LayerManager without importing carcer.layers. Opening/closing layers goes
+    through State::uiState.layerStack (LayerRequest) instead of a callback
+    vtable; LayerManager::update() is meant to reconcile that list each frame
+    (not yet implemented). */
 class LayerManagerInterface {
 private:
   static void* layerManager;
-  static LayerManagerOps ops;
 
 public:
   virtual ~LayerManagerInterface() = default;
 
   static void setLayerManager(void* _layerManager);
   static void* getLayerManager();
-  static void bindLayerOps(LayerManagerOps _ops);
-
-  static void closeLayer(LayerId id);
-  static void closeLayer(std::string_view id);
-  static void showInventory(void* window);
-  static void showMagic(void* window);
-  static void showSpellCast(void* window, const bmin::String& chId);
-  static void showSpellInfo(void* window, const bmin::String& spellName);
-  static void showEquipRunes(void* window, const bmin::String& characterPlayerId);
-  static void showPickUp(void* window);
-  static void showPickUp(void* window, int containerX, int containerY);
-  static void showPickupContext(void* window, const model::ItemInstance& item);
-  static void showInventoryContext(void* window,
-                                   const bmin::String& itemId,
-                                   const bmin::String& itemName);
-  static void showDropConfirm(void* window,
-                              const bmin::String& characterPlayerId,
-                              const bmin::String& itemId);
-  static void showGiveContext(void* window,
-                              const bmin::String& fromCharacterPlayerId,
-                              const bmin::String& itemId);
-  static void showPopupText(void* window,
-                            const bmin::String& title,
-                            const bmin::String& text);
-  static void showSpecialEvent(void* window, const bmin::String& eventId, State& state);
-  static void cancelEquipRunes();
 };
 
 class DatabaseInterface {
@@ -200,6 +188,10 @@ struct UiState {
   HeldMove heldMove;
   /** HUD / inventory UI selection only — does not drive map movement. */
   bmin::String selectedPartyMemberId;
+  /** Overlay layers the UI wants open, in stack order. The base LayerWorld is
+      added directly at startup (see setupTestUi-style bootstrap), not through
+      here -- this is for user-triggered overlays only. See LayerRequest. */
+  bmin::DynArray<LayerRequest> layerStack;
 };
 
 struct State {
@@ -217,6 +209,24 @@ struct State {
 
   bmin::DynArray<bmin::String> soundsToPlay;
 };
+
+/** Request that a layer be open, replacing any existing request for the same
+    id (re-opening with new params rather than stacking duplicates). */
+inline void pushLayerRequest(State& state, LayerRequest request) {
+  for (auto& existing : state.uiState.layerStack) {
+    if (existing.id == request.id) {
+      existing = std::move(request);
+      return;
+    }
+  }
+  state.uiState.layerStack.pushBack(std::move(request));
+}
+
+/** Request that a layer be closed. No-op if it wasn't open. */
+inline void removeLayerRequest(State& state, LayerId id) {
+  state.uiState.layerStack.eraseIf(
+      [id](const LayerRequest& r) { return r.id == id; });
+}
 
 class StateManager;
 

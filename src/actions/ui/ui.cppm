@@ -56,9 +56,17 @@ namespace state {
 
 namespace actions {
 
-/** Restore equipped runes from the open-editor snapshot and close the layer. */
+/** Close the Equip Runes layer without committing edits.
+    TODO(reconciler): snapshot restore belongs to the Layer itself (it can
+    revert on close) once LayerManager::update() reconciles layerStack --
+    see LayerRequest in carcer.state. */
 class UiCancelEquipRunes : public AbstractAction {
-  void act() override { LayerManagerInterface::cancelEquipRunes(); }
+  void act() override {
+    if (!state) {
+      return;
+    }
+    removeLayerRequest(*state, LayerId::EquipRunes);
+  }
 };
 
 } // namespace actions
@@ -71,7 +79,12 @@ namespace actions {
 
 /** Keep live equipped-rune edits and close the Equip Runes layer. */
 class UiCommitEquipRunes : public AbstractAction {
-  void act() override { LayerManagerInterface::closeLayer(LayerId::EquipRunes); }
+  void act() override {
+    if (!state) {
+      return;
+    }
+    removeLayerRequest(*state, LayerId::EquipRunes);
+  }
 };
 
 } // namespace actions
@@ -137,8 +150,8 @@ class UiDropInventoryItem : public AbstractAction {
 
     model::characterPlayerRemoveItemFromInventoryById(*partyMember, itemId, quantity);
 
-    LayerManagerInterface::closeLayer(LayerId::DropConfirm);
-    LayerManagerInterface::closeLayer(LayerId::InventoryContext);
+    removeLayerRequest(localState, LayerId::DropConfirm);
+    removeLayerRequest(localState, LayerId::InventoryContext);
   }
 
 public:
@@ -190,12 +203,12 @@ class UiGiveInventoryItem : public AbstractAction {
                               state->settings.floatingNotificationDurationMs);
       localState.uiState.floatingNotifications.pushBack(std::move(notification));
 
-      LayerManagerInterface::closeLayer(LayerId::GiveContext);
+      removeLayerRequest(localState, LayerId::GiveContext);
       break;
     }
     case model::GiveItemResult::SUCCESS: {
-      LayerManagerInterface::closeLayer(LayerId::GiveContext);
-      LayerManagerInterface::closeLayer(LayerId::InventoryContext);
+      removeLayerRequest(localState, LayerId::GiveContext);
+      removeLayerRequest(localState, LayerId::InventoryContext);
       break;
     }
     default:
@@ -353,7 +366,14 @@ namespace actions {
 
 class UiRemoveLayer : public AbstractAction {
   bmin::String layerId;
-  void act() override { LayerManagerInterface::closeLayer(bmin::toStringView(layerId)); }
+  void act() override {
+    if (!state) {
+      return;
+    }
+    if (auto id = layerIdFromString(bmin::toStringView(layerId))) {
+      removeLayerRequest(*state, *id);
+    }
+  }
 
 public:
   UiRemoveLayer(const bmin::String& _layerId) : layerId(_layerId) {}
@@ -580,20 +600,24 @@ namespace state {
 namespace actions {
 
 class UiShowLayerDropContext : public AbstractAction {
-  sdl2w::Window* window;
   bmin::String characterPlayerId;
   bmin::String itemId;
 
   void act() override {
-    LayerManagerInterface::showDropConfirm(window, characterPlayerId, itemId);
+    if (!state) {
+      return;
+    }
+    pushLayerRequest(*state,
+                     LayerRequest{.id = LayerId::DropConfirm,
+                                  .a = characterPlayerId,
+                                  .b = itemId});
   }
 
 public:
-  UiShowLayerDropContext(sdl2w::Window* _window,
+  UiShowLayerDropContext(sdl2w::Window* /*_window*/,
                          bmin::String _characterPlayerId,
                          bmin::String _itemId)
-      : window(_window),
-        characterPlayerId(std::move(_characterPlayerId)),
+      : characterPlayerId(std::move(_characterPlayerId)),
         itemId(std::move(_itemId)) {}
 };
 
@@ -606,16 +630,19 @@ namespace state {
 namespace actions {
 
 class UiShowLayerEquipRunes : public AbstractAction {
-  sdl2w::Window* window;
   bmin::String characterPlayerId;
 
   void act() override {
-    LayerManagerInterface::showEquipRunes(window, characterPlayerId);
+    if (!state) {
+      return;
+    }
+    pushLayerRequest(*state,
+                     LayerRequest{.id = LayerId::EquipRunes, .a = characterPlayerId});
   }
 
 public:
-  UiShowLayerEquipRunes(sdl2w::Window* _window, const bmin::String& _characterPlayerId)
-      : window(_window), characterPlayerId(_characterPlayerId) {}
+  UiShowLayerEquipRunes(sdl2w::Window* /*_window*/, const bmin::String& _characterPlayerId)
+      : characterPlayerId(_characterPlayerId) {}
 };
 
 } // namespace actions
@@ -627,20 +654,24 @@ namespace state {
 namespace actions {
 
 class UiShowLayerGiveContext : public AbstractAction {
-  sdl2w::Window* window;
   bmin::String fromCharacterPlayerId;
   bmin::String itemId;
 
   void act() override {
-    LayerManagerInterface::showGiveContext(window, fromCharacterPlayerId, itemId);
+    if (!state) {
+      return;
+    }
+    pushLayerRequest(*state,
+                     LayerRequest{.id = LayerId::GiveContext,
+                                  .a = fromCharacterPlayerId,
+                                  .b = itemId});
   }
 
 public:
-  UiShowLayerGiveContext(sdl2w::Window* _window,
+  UiShowLayerGiveContext(sdl2w::Window* /*_window*/,
                          bmin::String _fromCharacterPlayerId,
                          bmin::String _itemId)
-      : window(_window),
-        fromCharacterPlayerId(std::move(_fromCharacterPlayerId)),
+      : fromCharacterPlayerId(std::move(_fromCharacterPlayerId)),
         itemId(std::move(_itemId)) {}
 };
 
@@ -653,8 +684,6 @@ namespace state {
 namespace actions {
 
 class UiShowLayerInventory : public AbstractAction {
-  sdl2w::Window* window;
-
   void act() override {
     if (!state) {
       return;
@@ -663,11 +692,11 @@ class UiShowLayerInventory : public AbstractAction {
     const int selectedIndex = model::playerFindPartyMemberIndexById(
         player, state->uiState.selectedPartyMemberId);
     player.currentPartyMemberInventoryIndex = selectedIndex >= 0 ? selectedIndex : 0;
-    LayerManagerInterface::showInventory(window);
+    pushLayerRequest(*state, LayerRequest{.id = LayerId::Inventory});
   }
 
 public:
-  explicit UiShowLayerInventory(sdl2w::Window* _window) : window(_window) {}
+  explicit UiShowLayerInventory(sdl2w::Window* /*_window*/) {}
 };
 
 } // namespace actions
@@ -679,18 +708,22 @@ namespace state {
 namespace actions {
 
 class UiShowLayerInventoryContext : public AbstractAction {
-  sdl2w::Window* window;
   bmin::String itemName;
   bmin::String itemId;
   void act() override {
-    LayerManagerInterface::showInventoryContext(window, itemId, itemName);
+    if (!state) {
+      return;
+    }
+    pushLayerRequest(
+        *state,
+        LayerRequest{.id = LayerId::InventoryContext, .a = itemId, .b = itemName});
   }
 
 public:
-  UiShowLayerInventoryContext(sdl2w::Window* _window,
+  UiShowLayerInventoryContext(sdl2w::Window* /*_window*/,
                               bmin::String itemName,
                               bmin::String itemId)
-      : window(_window), itemName(itemName), itemId(itemId) {}
+      : itemName(itemName), itemId(itemId) {}
 };
 
 } // namespace actions
@@ -702,8 +735,6 @@ namespace state {
 namespace actions {
 
 class UiShowLayerMagic : public AbstractAction {
-  sdl2w::Window* window;
-
   void act() override {
     if (!state) {
       return;
@@ -712,11 +743,11 @@ class UiShowLayerMagic : public AbstractAction {
     const int selectedIndex = model::playerFindPartyMemberIndexById(
         player, state->uiState.selectedPartyMemberId);
     player.currentPartyMemberMagicIndex = selectedIndex >= 0 ? selectedIndex : 0;
-    LayerManagerInterface::showMagic(window);
+    pushLayerRequest(*state, LayerRequest{.id = LayerId::Magic});
   }
 
 public:
-  explicit UiShowLayerMagic(sdl2w::Window* _window) : window(_window) {}
+  explicit UiShowLayerMagic(sdl2w::Window* /*_window*/) {}
 };
 
 } // namespace actions
@@ -728,22 +759,25 @@ namespace state {
 namespace actions {
 
 class UiShowLayerPickUp : public AbstractAction {
-  sdl2w::Window* window;
   std::optional<std::pair<int, int>> containerTile;
 
   void act() override {
-    if (containerTile) {
-      LayerManagerInterface::showPickUp(window, containerTile->first, containerTile->second);
-    } else {
-      LayerManagerInterface::showPickUp(window);
+    if (!state) {
+      return;
     }
+    LayerRequest request{.id = LayerId::PickUp};
+    if (containerTile) {
+      request.x = containerTile->first;
+      request.y = containerTile->second;
+    }
+    pushLayerRequest(*state, std::move(request));
   }
 
 public:
-  explicit UiShowLayerPickUp(sdl2w::Window* _window) : window(_window) {}
+  explicit UiShowLayerPickUp(sdl2w::Window* /*_window*/) {}
 
-  UiShowLayerPickUp(sdl2w::Window* _window, int containerX, int containerY)
-      : window(_window), containerTile(std::make_pair(containerX, containerY)) {}
+  UiShowLayerPickUp(sdl2w::Window* /*_window*/, int containerX, int containerY)
+      : containerTile(std::make_pair(containerX, containerY)) {}
 };
 
 } // namespace actions
@@ -755,13 +789,18 @@ namespace state {
 namespace actions {
 
 class UiShowLayerPickupContext : public AbstractAction {
-  sdl2w::Window* window;
-  model::ItemInstance item;
-  void act() override { LayerManagerInterface::showPickupContext(window, item); }
+  bmin::String itemId;
+  void act() override {
+    if (!state) {
+      return;
+    }
+    // Reconciler re-resolves the full ItemInstance from state by id.
+    pushLayerRequest(*state, LayerRequest{.id = LayerId::PickUpContext, .a = itemId});
+  }
 
 public:
-  UiShowLayerPickupContext(sdl2w::Window* _window, const model::ItemInstance& item)
-      : window(_window), item(item) {}
+  UiShowLayerPickupContext(sdl2w::Window* /*_window*/, const model::ItemInstance& item)
+      : itemId(item.id) {}
 };
 
 } // namespace actions
@@ -773,15 +812,20 @@ namespace state {
 namespace actions {
 
 class UiShowLayerPopupText : public AbstractAction {
-  sdl2w::Window* window;
   bmin::String title;
   bmin::String text;
 
-  void act() override { LayerManagerInterface::showPopupText(window, title, text); }
+  void act() override {
+    if (!state) {
+      return;
+    }
+    pushLayerRequest(*state,
+                     LayerRequest{.id = LayerId::PopupText, .a = title, .b = text});
+  }
 
 public:
-  UiShowLayerPopupText(sdl2w::Window* _window, bmin::String _title, bmin::String _text)
-      : window(_window), title(std::move(_title)), text(std::move(_text)) {}
+  UiShowLayerPopupText(sdl2w::Window* /*_window*/, bmin::String _title, bmin::String _text)
+      : title(std::move(_title)), text(std::move(_text)) {}
 };
 
 } // namespace actions
@@ -793,19 +837,20 @@ namespace state {
 namespace actions {
 
 class UiShowLayerSpecialEvent : public AbstractAction {
-  sdl2w::Window* window;
   bmin::String eventId;
 
   void act() override {
     if (!state) {
       return;
     }
-    LayerManagerInterface::showSpecialEvent(window, eventId, *state);
+    // Reconciler looks up the GameEvent (+ related events, storage) from
+    // eventId via the database.
+    pushLayerRequest(*state, LayerRequest{.id = LayerId::SpecialEvent, .a = eventId});
   }
 
 public:
-  UiShowLayerSpecialEvent(sdl2w::Window* _window, bmin::String _eventId)
-      : window(_window), eventId(std::move(_eventId)) {}
+  UiShowLayerSpecialEvent(sdl2w::Window* /*_window*/, bmin::String _eventId)
+      : eventId(std::move(_eventId)) {}
 };
 
 } // namespace actions
@@ -817,14 +862,18 @@ namespace state {
 namespace actions {
 
 class UiShowLayerSpellCast : public AbstractAction {
-  sdl2w::Window* window;
   bmin::String chId;
 
-  void act() override { LayerManagerInterface::showSpellCast(window, chId); }
+  void act() override {
+    if (!state) {
+      return;
+    }
+    pushLayerRequest(*state, LayerRequest{.id = LayerId::SpellCast, .a = chId});
+  }
 
 public:
-  explicit UiShowLayerSpellCast(sdl2w::Window* _window, const bmin::String& chId)
-      : window(_window), chId(chId) {}
+  explicit UiShowLayerSpellCast(sdl2w::Window* /*_window*/, const bmin::String& chId)
+      : chId(chId) {}
 };
 
 } // namespace actions
@@ -836,14 +885,18 @@ namespace state {
 namespace actions {
 
 class UiShowLayerSpellInfo : public AbstractAction {
-  sdl2w::Window* window;
   bmin::String spellName;
 
-  void act() override { LayerManagerInterface::showSpellInfo(window, spellName); }
+  void act() override {
+    if (!state) {
+      return;
+    }
+    pushLayerRequest(*state, LayerRequest{.id = LayerId::SpellInfo, .a = spellName});
+  }
 
 public:
-  UiShowLayerSpellInfo(sdl2w::Window* _window, const bmin::String& _spellName)
-      : window(_window), spellName(_spellName) {}
+  UiShowLayerSpellInfo(sdl2w::Window* /*_window*/, const bmin::String& _spellName)
+      : spellName(_spellName) {}
 };
 
 } // namespace actions
