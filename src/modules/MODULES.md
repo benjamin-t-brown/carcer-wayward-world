@@ -4,15 +4,13 @@ Carcer ships as C++23 named modules (`carcer.*`). This doc is the contract for
 how the tree is organised, how to import across it, and how the build graph works.
 
 > **Migration status (2026-09):** the ~185-module-per-class tree has been
-> consolidated to **30 top-level modules** (28 domain modules + the `carcer`
-> umbrella + the `carcer.game.map.TileFields` leaf). `carcer.layers` is now
-> one module, 15 partitions, no exceptions. One holdout remains:
-> `carcer.ui.pages` is still 5 separate per-widget modules, blocked by the
-> same GCC bug that used to force `carcer.layers` apart — see §6a for the
-> full diagnosis and how `carcer.layers` got fixed for real (not worked
-> around). `scripts/modules/
+> consolidated to **26 top-level modules** (24 domain modules + the `carcer`
+> umbrella + the `carcer.game.map.TileFields` leaf). Both former holdouts —
+> `carcer.layers` and `carcer.ui.pages` — are now fully unified with no
+> exceptions; see §6a for the two GCC bugs that blocked them and how each
+> was actually resolved (not worked around). `scripts/modules/
 > partitionize_folder.py` and `consolidate_module.py` do the mechanical
-> conversion when revisiting `pages` or splitting a module later;
+> conversion for any future folder consolidation;
 > `scripts/modules/gen_bmi_makefile.py` regenerates the build graph and is a
 > permanent tool (see §6), not a migration one-shot.
 
@@ -48,7 +46,7 @@ fix it by moving the shared type down (usually into `carcer.model.templates` or
 | 4 Rules | `carcer.game.map`, `carcer.game.combat`, `carcer.in3` | pure-ish logic over the model; compute results, don't own state. Independent siblings. |
 | 5 State kernel | `carcer.state` | store + `ActionBus` + `AbstractAction` base + `WorldUpdater` + interface seams + `LayerRequest`/`layerStack`. Small, stable, universally depended on. |
 | 6 Actions | `carcer.actions` (partitions `:combat` / `:world` / `:ui`) | one command class per state transition; `act()` mutates state, calls rules, enqueues timed follow-ups. Pushes `LayerRequest`s onto `state` rather than calling layers directly. |
-| 7 UI widgets | `carcer.ui.core` → `carcer.ui.elements` → `carcer.ui.components` → `carcer.ui.layouts` → `carcer.ui.{minipages,popups,pages.*}` (+ `carcer.ui.helpers`, `carcer.ui.lists`, `carcer.ui.KeyboardHeldScroll`, `carcer.ui.ObserverRemoveLayer`) | framework → primitives → game-aware composites → screens. Read model/state to render; enqueue actions on interaction. |
+| 7 UI widgets | `carcer.ui.core` → `carcer.ui.elements` → `carcer.ui.components` → `carcer.ui.layouts` → `carcer.ui.{minipages,popups,pages}` (+ `carcer.ui.helpers`, `carcer.ui.lists`, `carcer.ui.KeyboardHeldScroll`, `carcer.ui.ObserverRemoveLayer`, `carcer.ui.ObserverSpecialEvent`) | framework → primitives → game-aware composites → screens. Read model/state to render; enqueue actions on interaction. |
 | 8 Screen stack | `carcer.layers` | `LayerManager` owns the stack; each `Layer*` binds a UI page + input + its state slice. One module, 15 partitions (`Layer`, `LayerManager`, and 13 `LayerX` screens), one file per class, no exceptions — see §6a for why that took two attempts. |
 | 9 Entry | `carcer` umbrella, `main.cpp` | umbrella used only by `main` + tests. |
 
@@ -124,12 +122,16 @@ src/<folder>/Thing.cpp         module carcer.<folder>;                 (impl uni
 
 Used by `carcer.model.templates`, `carcer.model.instances`, `carcer.ui.core`,
 `carcer.ui.elements`, `carcer.ui.components`, `carcer.ui.lists`,
-`carcer.ui.layouts`, `carcer.ui.minipages`, `carcer.ui.popups`, `carcer.layers`
-(15 partitions: `Layer`, `LayerManager`, and 13 `LayerX` screens — each
-partition file still declares its class in `export { … }` and defines the
-body out-of-line after `} // export`, same convention as shape (b) below;
-that's a per-file style choice, independent of whether the file is a
-partition or its own module).
+`carcer.ui.layouts`, `carcer.ui.minipages`, `carcer.ui.popups`,
+`carcer.ui.pages` (5 partitions: `PageCharacter`, `PageInventory`,
+`PageMagicSetup`, `PageModalEvent`, `PageTalkChoice` — `PageModalEvent`
+`export import`s `:PageTalkChoice` for its shared `PageTalkChoiceItem`
+type, so it must build after it; `gen_bmi_makefile.py` orders this
+automatically), `carcer.layers` (15 partitions: `Layer`, `LayerManager`, and
+13 `LayerX` screens — each partition file still declares its class in
+`export { … }` and defines the body out-of-line after `} // export`, same
+convention as shape (b) below; that's a per-file style choice, independent
+of whether the file is a partition or its own module).
 
 **(b) One merged interface unit per module**, declarations for every class in
 one `export { … }` block, method bodies defined out-of-line *after* the
@@ -224,12 +226,13 @@ step runs `-j1`; `.cpp` implementation units and the final link are parallel.
 
 **`gen_bmi_makefile.py` is a permanent tool, not a migration one-shot.** The
 original plan assumed it'd be replaced by a hand-written makefile once the
-module count dropped to ~20; at 30 domain modules with a mix of partitions and
+module count dropped to ~20; at 24 domain modules with a mix of partitions and
 merged-interface modules, regenerating from the actual `export module`/`import`
-graph is still less error-prone than hand-maintaining ~30 module→module
-prerequisite edges, especially since that graph still shifts as `pages` gets
-revisited or `layers` gets re-merged. Rerun it after any change to
-cross-module `import` edges.
+graph is still less error-prone than hand-maintaining ~24 module→module
+prerequisite edges by hand, especially since partition-to-partition ordering
+(e.g. `carcer.ui.pages:PageModalEvent` needing `:PageTalkChoice` built first)
+is exactly the kind of edge that's easy to get wrong manually. Rerun it after
+any change to cross-module `import` edges.
 
 - Stamp contract: `gcm.cache/.carcer-ready` gates the `%.o: %.cpp` rule in the
   top `Makefile`.
@@ -306,11 +309,11 @@ further, and use the same bisection technique.
      has a complexity/recursion cost that only shows up at `carcer.layers`'s
      scale — not a simple "never reopen a namespace from another module"
      rule.
-   - This is the same root cause already suspected for the `carcer.ui.pages`
-     blocker below (both crash at the same relative point,
-     `export import carcer.layers.LayerSpecialEvent;`) — `carcer.ui.pages` is
-     itself part of the `ui.*` family already crowding `namespace ui`, so
-     it's a plausible second data point for the same mechanism.
+   - This was also the root cause behind the `carcer.ui.pages` blocker
+     described below — both crashed at the same relative point,
+     `export import carcer.layers.LayerSpecialEvent;`, and both were
+     resolved by the same fix (confirmed once `LayerSpecialEvent` stopped
+     reopening `namespace ui`).
    - **Real fix, not a workaround: the two observer classes didn't belong in
      `carcer.layers` in the first place.** `ObserverSpecialEventChoice` /
      `ObserverSpecialEventContinue` are UI event-observer classes (`ui::`),
@@ -336,20 +339,37 @@ further, and use the same bisection technique.
      again, same as every other `LayerX`. Verified with a full
      `make clean && make -j8` and the complete test suite (identical 26/12/43
      baseline).
-   - `carcer.ui.pages` (5 classes) still crashes `cc1plus` when merged *and*
-     `carcer.layers.LayerSpecialEvent` was reachable from the same umbrella
-     — reproduced at the exact same relative point across three retests
-     before this fix landed. **Still open** — `pages` stays 5 separate
-     modules; hasn't been retried since `LayerSpecialEvent` stopped being a
-     separate module (it's just a `carcer.layers` partition now, so the old
-     repro shape doesn't directly apply — worth a fresh probe). Given the
-     confirmed mechanism above, the concrete next step if revisited: check
-     whether any of the 5 `carcer.ui.pages.*` classes (or their would-be
-     merged module) declares into a namespace already populated elsewhere in
-     its closure, the same way the two special-event observers did.
-     Otherwise, file the GCC bug with a minimal repro (`-freport-bug`; the
-     trivial `namespace ui { struct Stub {}; }` reproduction above is a good
-     starting point for one), or try `-fmodules` (non-TS) / a newer GCC.
+   - **`carcer.ui.pages` was never the real problem — resolved.** It used to
+     crash `cc1plus` specifically when merged *and*
+     `carcer.layers.LayerSpecialEvent` was reachable from the same umbrella,
+     reproduced at the same relative point across three retests. Once
+     `LayerSpecialEvent` stopped independently reopening `namespace ui`
+     (previous bullet), that repro shape no longer applied — retried merging
+     `pages` into partitions (`carcer.ui.pages`, 5 partitions, one file per
+     class) with the probe-first discipline, and it built and imported
+     externally clean on the first try. This confirms `pages` itself was
+     never the culprit; it just happened to sit next to `LayerSpecialEvent`
+     in the umbrella's failure mode.
+   - Wiring it into the full tree *did* surface one real, separate bug: a
+     dead import in `MinipageEquipRunes.cppm`
+     (`import carcer.ui.pages.PageCharacter;`, confirmed unused — zero
+     `ui::Page*` references in the file, first flagged as dead back when
+     `pages` was still 5 modules and never cleaned up). `partitionize_folder.py`'s
+     repo-wide rewrite mechanically widened it to `import carcer.ui.pages;`
+     (the new merged module name), and pulling in the *entire* merged pages
+     closure from `carcer.ui.minipages`, itself imported deep inside the
+     large `carcer.layers` (via `LayerEquipRunes`), was enough on its own to
+     retrigger a `cc1plus` segfault — a third data point for the same class
+     of GCC limit: an unnecessarily wide import between two already-large
+     modules. Deleting the dead import (it cost nothing — it was never used)
+     fixed it. **Lesson:** a dead import that's cheap while pointing at a
+     single small module can become a real problem once the module on the
+     other end gets consolidated — worth clearing dead imports *before*
+     merging the module they point at, not just when they're first noticed.
+   - Verified: `make clean && make -j8` green, full test suite identical
+     26/12/43. `carcer.ui.pages` is now one module, 5 partitions, no
+     exceptions — every page has its own file, matching every other UI
+     domain.
 
 **Bisection technique** (fast — seconds, not the 3-4 min full rebuild):
 targeted single-object builds via
@@ -400,6 +420,14 @@ server. First open of a module-heavy TU may index for a minute or two.
   classes, or heavy classes like the `LayerX` screens): probe-test external
   importability first with a minimal one-line probe file (§6a) — cheaper than
   bisecting a `cc1plus` segfault after wiring it in for real.
+- **Before merging module `B` into a folder that other code already imports
+  narrowly from** — e.g. `import carcer.B.SomeLeaf;` — grep for dead imports
+  of `B`'s pieces first (`grep -rn "import carcer.B\." src`, then check each
+  hit is actually used). `partitionize_folder.py`'s repo-wide rewrite
+  mechanically widens `import carcer.B.SomeLeaf;` to `import carcer.B;` once
+  merged; a dead import that cost nothing pointed at a single small leaf can
+  become a real `cc1plus`-crash risk once it points at the whole merged
+  module instead (§6a, the `MinipageEquipRunes` case).
 - **Changed cross-module `import` edges** → rerun
   `scripts/modules/gen_bmi_makefile.py`.
 - **Don't** create a new top-level module for a single type — that's what

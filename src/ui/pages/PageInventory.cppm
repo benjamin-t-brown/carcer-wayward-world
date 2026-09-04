@@ -4,7 +4,7 @@ module;
 #include <utility>
 #include <algorithm>
 
-export module carcer.ui.pages.PageInventory;
+export module carcer.ui.pages:PageInventory;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.model.instances;

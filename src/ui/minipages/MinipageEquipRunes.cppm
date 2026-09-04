@@ -16,7 +16,6 @@ import carcer.ui.elements;
 import carcer.ui.core;
 import carcer.ui.helpers;
 import carcer.ui.layouts;
-import carcer.ui.pages.PageCharacter;
 #include "macros.h"
 
 export {

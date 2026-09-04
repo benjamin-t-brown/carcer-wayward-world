@@ -11,7 +11,7 @@ export module carcer.layers:LayerMagic;
 export import :Layer;
 export import carcer.db;
 export import carcer.model.templates;
-export import carcer.ui.pages.PageMagicSetup;
+export import carcer.ui.pages;
 import sdl2w;
 import carcer.actions;
 import carcer.game.combat;

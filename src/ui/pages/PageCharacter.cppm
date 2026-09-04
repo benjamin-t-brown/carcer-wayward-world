@@ -3,7 +3,7 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.ui.pages.PageCharacter;
+export module carcer.ui.pages:PageCharacter;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.model.instances;

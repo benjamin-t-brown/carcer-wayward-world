@@ -14,7 +14,7 @@ import carcer.actions;
 import carcer.model.instances;
 import carcer.ui.components;
 import carcer.ui.helpers;
-import carcer.ui.pages.PageInventory;
+import carcer.ui.pages;
 import bmin.string_interop;
 #include "macros.h"
 

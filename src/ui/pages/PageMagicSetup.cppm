@@ -5,7 +5,7 @@ module;
 #include <vector>
 #include <algorithm>
 
-export module carcer.ui.pages.PageMagicSetup;
+export module carcer.ui.pages:PageMagicSetup;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;

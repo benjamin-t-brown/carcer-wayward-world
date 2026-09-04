@@ -114,6 +114,7 @@ layers/ui/LayerPickUpContext.cppm
 layers/ui/LayerSpellInfo.cppm
 layers/ui/LayerWorld.cppm
 ui/minipages/MinipageCharacterSheet.cppm
+ui/minipages/MinipageEquipRunes.cppm
 ui/minipages/MinipageEvent.cppm
 ui/minipages/MinipagePickUp.cppm
 ui/minipages/MinipageSpellCast.cppm
@@ -121,14 +122,14 @@ ui/pages/PageCharacter.cppm
 ui/pages/PageInventory.cppm
 ui/pages/PageMagicSetup.cppm
 ui/pages/PageTalkChoice.cppm
-ui/minipages/MinipageEquipRunes.cppm
-layers/ui/LayerInventory.cppm
-layers/ui/LayerMagic.cppm
-ui/pages/PageModalEvent.cppm
 ui/minipages/minipages.cppm
-layers/ui/LayerSpecialEvent.cppm
+ui/pages/PageModalEvent.cppm
 layers/ui/LayerEquipRunes.cppm
 layers/ui/LayerPickUp.cppm
 layers/ui/LayerSpellCast.cppm
+ui/pages/pages.cppm
+layers/ui/LayerInventory.cppm
+layers/ui/LayerMagic.cppm
+layers/ui/LayerSpecialEvent.cppm
 layers/layers.cppm
 modules/carcer.cppm

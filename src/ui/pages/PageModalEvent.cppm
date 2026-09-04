@@ -11,11 +11,11 @@ module;
 #include <SDL2/SDL_pixels.h>
 #endif
 
-export module carcer.ui.pages.PageModalEvent;
+export module carcer.ui.pages:PageModalEvent;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;
-export import carcer.ui.pages.PageTalkChoice;
+export import :PageTalkChoice;
 import sdl2w;
 import carcer.ui.components;
 import carcer.ui.elements;
