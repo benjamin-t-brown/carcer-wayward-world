@@ -44,7 +44,7 @@ actions/combat/combat.cppm
 actions/ui/ui.cppm
 ui/core.cppm
 actions/world/world.cppm
-layers/layers.cppm
+layers/Layer.cppm
 ui/components/ChCompactInfo.cppm
 ui/components/MapView.cppm
 ui/elements/HorizontalList.cppm
@@ -55,6 +55,7 @@ ui/elements/TextLine.cppm
 ui/elements/VerticalList.cppm
 ui/helpers/helpers.cppm
 actions/actions.cppm
+layers/LayerManager.cppm
 ui/elements/buttons/ButtonClose.cppm
 ui/elements/buttons/ButtonScroll.cppm
 ui/elements/buttons/ButtonSprite.cppm
@@ -91,6 +92,7 @@ ui/components/FloatingNotificationSection.cppm
 ui/components/borders/BorderModalStandard.cppm
 ui/components/TouchMovePad.cppm
 ui/components/components.cppm
+layers/ui/LayerPopupText.cppm
 ui/layouts/ModalSmall.cppm
 ui/layouts/ModalStandard.cppm
 ui/components/lists/ListChCompactInfoHorizontal.cppm
@@ -104,6 +106,11 @@ ui/popups/PopupSpellInfo.cppm
 ui/layouts/InGameLayout.cppm
 ui/popups/popups.cppm
 ui/layouts/layouts.cppm
+layers/ui/LayerDropConfirm.cppm
+layers/ui/LayerGiveContext.cppm
+layers/ui/LayerInventoryContext.cppm
+layers/ui/LayerPickUpContext.cppm
+layers/ui/LayerSpellInfo.cppm
 layers/ui/LayerWorld.cppm
 ui/minipages/MinipageCharacterSheet.cppm
 ui/minipages/MinipageEvent.cppm
@@ -114,8 +121,13 @@ ui/pages/PageInventory.cppm
 ui/pages/PageMagicSetup.cppm
 ui/pages/PageTalkChoice.cppm
 ui/minipages/MinipageEquipRunes.cppm
+layers/ui/LayerInventory.cppm
+layers/ui/LayerMagic.cppm
 ui/pages/PageModalEvent.cppm
 ui/minipages/minipages.cppm
 layers/ui/LayerSpecialEvent.cppm
-layers/ui/screens.cppm
+layers/ui/LayerEquipRunes.cppm
+layers/ui/LayerPickUp.cppm
+layers/ui/LayerSpellCast.cppm
+layers/layers.cppm
 modules/carcer.cppm

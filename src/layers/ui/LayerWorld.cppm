@@ -7,13 +7,13 @@ module;
 #include <typeinfo>
 #include <typeindex>
 
-export module carcer.layers.LayerWorld;
-export import carcer.layers;
+export module carcer.layers:LayerWorld;
+export import carcer.layers.Layer;
 export import carcer.model.instances;
 export import carcer.state;
 export import carcer.ui.layouts;
 import sdl2w;
-import carcer.layers;
+import :LayerManager;
 import carcer.actions;
 import carcer.state;
 import carcer.game.map;

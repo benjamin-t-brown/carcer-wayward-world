@@ -9,7 +9,7 @@ module;
 #include <typeindex>
 
 export module carcer.layers.LayerSpecialEvent;
-export import carcer.layers;
+export import carcer.layers.Layer;
 export import carcer.model.templates;
 export import carcer.in3;
 export import carcer.ui.elements;
