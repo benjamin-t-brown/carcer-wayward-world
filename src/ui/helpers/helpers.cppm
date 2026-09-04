@@ -8,7 +8,7 @@ module;
 
 export module carcer.ui.helpers;
 export import carcer.ui.core;
-export import carcer.model.instances.World;
+export import carcer.model.instances;
 export import carcer.state.WorldActions;
 export import carcer.state;
 import sdl2w;

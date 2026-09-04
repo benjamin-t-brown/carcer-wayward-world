@@ -33,8 +33,9 @@ model/instances/CharacterInstance.cppm
 model/instances/CharacterPlayer.cppm
 model/instances/MapInstance.cppm
 model/instances/Player.cppm
-model/Combat.cppm
+model/instances/Combat.cppm
 model/instances/World.cppm
+model/instances/instances.cppm
 state/State.cppm
 actions/combat/CombatAction.cppm
 actions/general/PlaySound.cppm

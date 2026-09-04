@@ -5,12 +5,8 @@ module;
 #include <cmath>
 
 module carcer.game.map;
-import carcer.model.Combat;
-import carcer.model.instances.MapInstance;
-import carcer.model.instances.TileInstance;
+import carcer.model.instances;
 import carcer.db;
-import carcer.model.instances.Player;
-import carcer.model.instances.World;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"

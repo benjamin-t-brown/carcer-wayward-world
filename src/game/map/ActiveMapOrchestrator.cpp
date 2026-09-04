@@ -5,11 +5,8 @@ module;
 #include <stdexcept>
 
 module carcer.game.map;
-import carcer.model.instances.CharacterInstance;
-import carcer.model.instances.TileInstance;
+import carcer.model.instances;
 import bmin.containers;
-import carcer.model.instances.MapInstance;
-import carcer.model.instances.World;
 import carcer.model.templates;
 import carcer.state;
 import bmin.string_interop;

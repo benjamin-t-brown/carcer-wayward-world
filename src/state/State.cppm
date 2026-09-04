@@ -13,10 +13,7 @@ module;
 export module carcer.state;
 export import bmin.containers;
 export import carcer.db;
-export import carcer.model.instances.ItemInstance;
-export import carcer.model.instances.MapInstance;
-export import carcer.model.instances.Player;
-export import carcer.model.instances.World;
+export import carcer.model.instances;
 export import carcer.model.templates;
 
 export {

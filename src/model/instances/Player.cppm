@@ -3,10 +3,10 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.model.instances.Player;
+export module carcer.model.instances:Player;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.model.instances.CharacterPlayer;
+export import :CharacterPlayer;
 import sdl2w;
 #include "macros.h"
 

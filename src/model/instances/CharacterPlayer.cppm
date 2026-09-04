@@ -5,11 +5,11 @@ module;
 #include <optional>
 #include <algorithm>
 
-export module carcer.model.instances.CharacterPlayer;
+export module carcer.model.instances:CharacterPlayer;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.db;
-export import carcer.model.instances.ItemInstance;
+export import :ItemInstance;
 export import carcer.model.templates;
 import sdl2w;
 #include "macros.h"

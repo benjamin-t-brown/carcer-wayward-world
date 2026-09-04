@@ -5,12 +5,10 @@ module;
 #include <algorithm>
 
 module carcer.game.map;
-import carcer.model.instances.CharacterInstance;
-import carcer.model.instances.MapInstance;
+import carcer.model.instances;
 import carcer.model.templates;
 import bmin.containers;
 import carcer.db;
-import carcer.model.instances.World;
 import carcer.state;
 import bmin.string_interop;
 import sdl2w;

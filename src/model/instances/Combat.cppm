@@ -3,11 +3,11 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.model.Combat;
+export module carcer.model.instances:Combat;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.model.instances.CharacterInstance;
-export import carcer.model.instances.Player;
+export import :CharacterInstance;
+export import :Player;
 import sdl2w;
 #include "macros.h"
 

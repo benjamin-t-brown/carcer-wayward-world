@@ -5,16 +5,16 @@ module;
 #include <optional>
 #include <algorithm>
 
-export module carcer.model.instances.World;
+export module carcer.model.instances:World;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.db;
-export import carcer.model.Combat;
-export import carcer.model.instances.MapInstance;
-export import carcer.model.instances.Player;
+export import :Combat;
+export import :MapInstance;
+export import :Player;
 export import carcer.model.templates;
 import sdl2w;
-import carcer.model.instances.CharacterInstance;
+import :CharacterInstance;
 #include "macros.h"
 
 export {

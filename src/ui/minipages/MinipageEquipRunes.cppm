@@ -13,7 +13,7 @@ import sdl2w;
 import carcer.actions.ui.UiAdjustEquippedRune;
 import carcer.actions.ui.UiCancelEquipRunes;
 import carcer.actions.ui.UiCommitEquipRunes;
-import carcer.model.instances.CharacterPlayer;
+import carcer.model.instances;
 import carcer.ui.elements;
 import carcer.ui.core;
 import carcer.ui.helpers;

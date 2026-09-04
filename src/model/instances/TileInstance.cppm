@@ -4,7 +4,7 @@ module;
 #include <utility>
 #include <optional>
 
-export module carcer.model.instances.TileInstance;
+export module carcer.model.instances:TileInstance;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.game.map.TileFields;

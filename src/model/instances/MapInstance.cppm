@@ -5,13 +5,13 @@ module;
 #include <algorithm>
 #include <cstdlib>
 
-export module carcer.model.instances.MapInstance;
+export module carcer.model.instances:MapInstance;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.game.map.TileFields;
-export import carcer.model.instances.CharacterInstance;
-export import carcer.model.instances.ItemInstance;
-export import carcer.model.instances.TileInstance;
+export import :CharacterInstance;
+export import :ItemInstance;
+export import :TileInstance;
 export import carcer.model.templates;
 import carcer.model.templates;
 import sdl2w;

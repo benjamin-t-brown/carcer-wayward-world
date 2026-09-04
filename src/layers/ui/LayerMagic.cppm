@@ -19,10 +19,9 @@ import carcer.actions.ui.UiRemoveLayer;
 import carcer.actions.ui.UiSetCurrentPartyMemberMagic;
 import carcer.actions.ui.UiSetSpellReady;
 import carcer.game.combat;
-import carcer.model.instances.Player;
+import carcer.model.instances;
 import carcer.ui.helpers;
 import bmin.containers;
-import carcer.model.instances.CharacterPlayer;
 import bmin.string_interop;
 #include "macros.h"
 

@@ -9,7 +9,7 @@ import carcer.actions.ui.UiPickUpItem;
 import carcer.actions.ui.UiShowLayerPickupContext;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.model.instances.ItemInstance;
+export import carcer.model.instances;
 export import carcer.ui.core;
 import sdl2w;
 import carcer.ui.elements;

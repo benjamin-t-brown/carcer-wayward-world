@@ -6,12 +6,10 @@ module;
 #include <string>
 
 export module carcer.game.combat;
-export import carcer.model.instances.World;
-export import carcer.model.instances.CharacterInstance;
+export import carcer.model.instances;
 export import carcer.model.templates;
 export import carcer.db;
 export import carcer.game.map;
-export import carcer.model.instances.Player;
 export import carcer.state;
 export import bmin.containers;
 import bmin.string_interop;

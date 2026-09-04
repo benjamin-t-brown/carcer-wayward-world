@@ -7,7 +7,7 @@ module;
 export module carcer.ui.pages.PageInventory;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.model.instances.CharacterPlayer;
+export import carcer.model.instances;
 export import carcer.ui.core;
 export import carcer.ui.lists;
 import sdl2w;

@@ -7,8 +7,7 @@ module;
 #include <optional>
 
 module carcer.ui.helpers;
-import carcer.model.instances.MapInstance;
-import carcer.model.instances.World;
+import carcer.model.instances;
 import carcer.state.WorldActions;
 import bmin.string_interop;
 import sdl2w;

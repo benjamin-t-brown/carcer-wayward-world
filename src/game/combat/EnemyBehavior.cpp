@@ -5,12 +5,9 @@ module;
 
 module carcer.game.combat;
 import carcer.game.map;
-import carcer.model.Combat;
+import carcer.model.instances;
 import carcer.state;
 import carcer.db;
-import carcer.model.instances.CharacterInstance;
-import carcer.model.instances.Player;
-import carcer.model.instances.World;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"

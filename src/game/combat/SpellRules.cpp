@@ -8,11 +8,7 @@ module;
 #include <cstdlib>
 
 module carcer.game.combat;
-import carcer.model.Combat;
-import carcer.model.instances.CharacterInstance;
-import carcer.model.instances.CharacterPlayer;
-import carcer.model.instances.Player;
-import carcer.model.instances.World;
+import carcer.model.instances;
 import carcer.model.templates;
 import carcer.game.map;
 import bmin.containers;

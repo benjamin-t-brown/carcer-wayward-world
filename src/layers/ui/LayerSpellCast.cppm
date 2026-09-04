@@ -14,7 +14,7 @@ export import carcer.ui.minipages;
 import sdl2w;
 import carcer.actions.ui.UiRemoveLayer;
 import carcer.lib.StringUtil;
-import carcer.model.instances.Player;
+import carcer.model.instances;
 import carcer.model.templates;
 import carcer.ui.components;
 import carcer.ui.helpers;

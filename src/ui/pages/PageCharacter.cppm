@@ -6,7 +6,7 @@ module;
 export module carcer.ui.pages.PageCharacter;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.model.instances.CharacterPlayer;
+export import carcer.model.instances;
 export import carcer.model.templates;
 export import carcer.state;
 export import carcer.ui.core;

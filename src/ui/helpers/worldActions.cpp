@@ -13,7 +13,7 @@ import carcer.actions.ui.UiShowLayerSpellCast;
 import carcer.actions.ui.UiUpdateHeldMove;
 import carcer.actions.world.WorldInteractAt;
 import carcer.actions.world.WorldSetActionMode;
-import carcer.model.instances.World;
+import carcer.model.instances;
 import carcer.state;
 import carcer.state.WorldActions;
 import bmin.string_interop;

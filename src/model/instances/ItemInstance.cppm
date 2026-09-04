@@ -3,7 +3,7 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.model.instances.ItemInstance;
+export module carcer.model.instances:ItemInstance;
 export import bmin.containers;
 import bmin.string_interop;
 

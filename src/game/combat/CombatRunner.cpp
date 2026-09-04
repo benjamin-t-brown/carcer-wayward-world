@@ -4,7 +4,7 @@ module;
 #include <utility>
 
 module carcer.game.combat;
-import carcer.model.instances.World;
+import carcer.model.instances;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"
