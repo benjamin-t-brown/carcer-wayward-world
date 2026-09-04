@@ -4,15 +4,17 @@ Carcer ships as C++23 named modules (`carcer.*`). This doc is the contract for
 how the tree is organised, how to import across it, and how the build graph works.
 
 > **Migration status (2026-09):** the ~185-module-per-class tree has been
-> consolidated to **26 top-level modules** (24 domain modules + the `carcer`
-> umbrella + the `carcer.game.map.TileFields` leaf). Both former holdouts —
-> `carcer.layers` and `carcer.ui.pages` — are now fully unified with no
-> exceptions; see §6a for the two GCC bugs that blocked them and how each
-> was actually resolved (not worked around). `scripts/modules/
-> partitionize_folder.py` and `consolidate_module.py` do the mechanical
-> conversion for any future folder consolidation;
-> `scripts/modules/gen_bmi_makefile.py` regenerates the build graph and is a
-> permanent tool (see §6), not a migration one-shot.
+> consolidated to **31 top-level modules**. Every domain is one-class-per-file
+> now — `carcer.actions` was the last holdout (used to be 4 partitions each
+> cramming 16–33 unrelated classes into one file) and is now a thin re-export
+> of 5 real modules (`carcer.actions.{combat,world,general,ui,ui.layers}`),
+> each with one partition per class; see §3 and §4. `carcer.layers` and
+> `carcer.ui.pages` are fully unified with no exceptions; see §6a for the two
+> GCC bugs that blocked them and how each was actually resolved (not worked
+> around). `scripts/modules/partitionize_folder.py` and
+> `consolidate_module.py` do the mechanical conversion for any future folder
+> consolidation; `scripts/modules/gen_bmi_makefile.py` regenerates the build
+> graph and is a permanent tool (see §6), not a migration one-shot.
 
 ## 1. Why modules here
 
@@ -45,7 +47,7 @@ fix it by moving the shared type down (usually into `carcer.model.templates` or
 | 3 Runtime model | `carcer.model.instances` | the mutable store shape: live characters, maps, items, world, combat state. |
 | 4 Rules | `carcer.game.map`, `carcer.game.combat`, `carcer.in3` | pure-ish logic over the model; compute results, don't own state. Independent siblings. |
 | 5 State kernel | `carcer.state` | store + `ActionBus` + `AbstractAction` base + `WorldUpdater` + interface seams + `LayerRequest`/`layerStack`. Small, stable, universally depended on. |
-| 6 Actions | `carcer.actions` (partitions `:combat` / `:world` / `:ui`) | one command class per state transition; `act()` mutates state, calls rules, enqueues timed follow-ups. Pushes `LayerRequest`s onto `state` rather than calling layers directly. |
+| 6 Actions | `carcer.actions` (pure re-export of `carcer.actions.{combat,world,general,ui,ui.layers}`) | one command class per state transition, one file per class; `act()` mutates state, calls rules, enqueues timed follow-ups. `ui.layers` requests screens by pushing a `LayerRequest` onto `state` rather than calling layers directly; everything else mutates player/world/UI state or rules-layer data. |
 | 7 UI widgets | `carcer.ui.core` → `carcer.ui.elements` → `carcer.ui.components` → `carcer.ui.layouts` → `carcer.ui.{minipages,popups,pages}` (+ `carcer.ui.helpers`, `carcer.ui.lists`, `carcer.ui.KeyboardHeldScroll`, `carcer.ui.ObserverRemoveLayer`, `carcer.ui.ObserverSpecialEvent`) | framework → primitives → game-aware composites → screens. Read model/state to render; enqueue actions on interaction. |
 | 8 Screen stack | `carcer.layers` | `LayerManager` owns the stack; each `Layer*` binds a UI page + input + its state slice. One module, 15 partitions (`Layer`, `LayerManager`, and 13 `LayerX` screens), one file per class, no exceptions — see §6a for why that took two attempts. |
 | 9 Entry | `carcer` umbrella, `main.cpp` | umbrella used only by `main` + tests. |
@@ -80,16 +82,29 @@ stateManager.update(dt); … layerManager->render(dt);`).
 ## 3. What is (and isn't) a module
 
 - **A module is a directory of cohesive code** — roughly, something you could
-  ship as a static lib with a documented surface. 30 domain modules total.
+  ship as a static lib with a documented surface. 29 domain modules total.
 - Two pieces of code go in **separate modules** when they differ in *change
   frequency* or *dependency footprint*, even if related — a module is the unit
-  of rebuild invalidation. They share a module (as partitions, or as one merged
-  interface unit) when they change together and share downstream deps.
+  of rebuild invalidation. They share a module (as partitions) when they change
+  together and share downstream deps.
   - `carcer.state` vs `carcer.actions`: the kernel is small, stable, and
     depended on by everything; actions are numerous, churny, and drag in
     `game` + `model`. Separate.
   - `carcer.in3` vs `carcer.game.*`: narrower footprint (`lib` + `model` only),
     different cadence (a scripting VM, not spatial/combat mechanics). Separate.
+  - `carcer.actions.combat` / `.world` / `.general` / `.ui` / `.ui.layers`:
+    conceptually one thing (`carcer.actions`, which is what every consumer
+    still imports — it's a pure re-export of these 5). Split into 5 real
+    modules purely because 71 classes as one module's partitions would blow
+    well past the ~17–20 GCM-corruption ceiling (§6a); the split follows real
+    seams anyway (`ui.layers`'s classes are pure `pushLayerRequest` calls,
+    a genuinely different shape from `ui`'s state-mutating ones) rather than
+    being arbitrary. `carcer.actions.world` needs `carcer.actions.combat` at
+    the *declaration* level (`WorldMovePlayer : public CombatAction`); the
+    reverse direction (`carcer.actions.combat`'s two deferred-FX classes
+    constructing `carcer.actions.world` types) only happens in `combat.cpp`,
+    an implementation unit — a distinct build-graph node from `combat`'s own
+    interface, so this isn't a cycle (see §4's note on implementation units).
   - `carcer.layers`: the screen stack is genuinely one module — every
     `LayerX` (15 of them, `Layer` and `LayerManager` included) is a
     partition, each in its own file. A UI-observer helper that needed to
@@ -106,9 +121,8 @@ stateManager.update(dt); … layerManager->render(dt);`).
 
 ## 4. File layout & partition mechanics
 
-Two equally-valid shapes are in use, depending on the module:
-
-**(a) Partitions** — one file per class, declaration + inline bodies:
+Every module in the tree is **partitions — one file per class**, declaration
+plus (usually) inline bodies:
 
 ```
 src/<folder>/<folder>.cppm     export module carcer.<folder>;          (primary interface unit / aggregator)
@@ -120,63 +134,42 @@ src/<folder>/Thing.cppm        export module carcer.<folder>:Thing;    (partitio
 src/<folder>/Thing.cpp         module carcer.<folder>;                 (impl unit: bodies for any partition)
 ```
 
-Used by `carcer.model.templates`, `carcer.model.instances`, `carcer.ui.core`,
-`carcer.ui.elements`, `carcer.ui.components`, `carcer.ui.lists`,
-`carcer.ui.layouts`, `carcer.ui.minipages`, `carcer.ui.popups`,
-`carcer.ui.pages` (5 partitions: `PageCharacter`, `PageInventory`,
-`PageMagicSetup`, `PageModalEvent`, `PageTalkChoice` — `PageModalEvent`
-`export import`s `:PageTalkChoice` for its shared `PageTalkChoiceItem`
-type, so it must build after it; `gen_bmi_makefile.py` orders this
-automatically), `carcer.layers` (15 partitions: `Layer`, `LayerManager`, and
-13 `LayerX` screens — each partition file still declares its class in
-`export { … }` and defines the body out-of-line after `} // export`, same
-convention as shape (b) below; that's a per-file style choice, independent
-of whether the file is a partition or its own module).
+This is universal now — `carcer.model.templates`, `carcer.model.instances`,
+`carcer.ui.core`, `carcer.ui.elements`, `carcer.ui.components`,
+`carcer.ui.lists`, `carcer.ui.layouts`, `carcer.ui.minipages`,
+`carcer.ui.popups`, `carcer.ui.pages`, `carcer.layers`, and all 5
+`carcer.actions.*` modules. A folder that used to be one module with 20–70
+classes crammed into a single merged `export { … }` block (`carcer.actions`
+before it was split, `carcer.layers`'s old `screens.cppm`) is always a sign
+that folder needs splitting into more partitions or, past the GCM ceiling
+(§6a), more modules — not a shape to reach for on purpose.
 
-**(b) One merged interface unit per module**, declarations for every class in
-one `export { … }` block, method bodies defined out-of-line *after* the
-`} // export` closer (still non-exported — module-linkage-only, just not in a
-separate `.cpp`), with a handful of specific classes' bodies pulled into a
-sibling `.cpp` impl unit when they're the exception (see below):
+A partition's body can be:
+- **Inline**, in the same file as the declaration (the common case).
+- **Out-of-line but still in the same file, after `} // export`** (still
+  non-exported / module-linkage-only) — used where a class's declaration and
+  definition are naturally kept apart for readability (e.g. every `LayerX` in
+  `carcer.layers` — see the file-format note in §2/§6a).
+- **In a sibling `.cpp` implementation unit**, when a body needs something its
+  own partition's declaration-time position in the build order can't see. An
+  implementation unit implicitly imports its module's primary interface unit,
+  so it sees every sibling partition regardless of declared order — and it's
+  a *distinct node* in the build graph from its own module's interface, so it
+  can freely `import` a different module even one that itself depends on this
+  module's interface (this is exactly how `carcer.actions.combat`'s two
+  deferred-FX classes, `PerformMeleeAttack` / `PerformSpellCast`, reach
+  `carcer.actions.world` in `combat.cpp`, while `carcer.actions.world`'s own
+  interface depends on `carcer.actions.combat`'s interface the other way —
+  not a cycle, see §3). Reach for this only when the reference is genuine
+  (see §6a's "fake vs. real coupling" writeup) — most classes never need it.
+- Two bodies **must** stay in a `.cpp` regardless of anything else —
+  `ChCompactInfo`, `ListMagicSpells` — their nested `bmin::DynArray` shapes
+  corrupt GCC GCMs when inline.
 
-```
-src/<folder>/<folder>.cppm     module;
-                               #include <...>                         (global module fragment)
-                               export module carcer.<folder>;
-                               import ...;
-                               export {
-                                 class A { ... };                     (declarations, all classes)
-                                 class B { ... };
-                               } // export
-                               A::method() { ... }                    (bodies, non-exported, same TU)
-                               B::method() { ... }
-src/<folder>/hot.cpp           module carcer.<folder>;                (impl unit: body for one specific class)
-```
-
-Used by `carcer.actions` (4 partitions `:combat`/`:world`/`:ui`, each this
-shape, multiple classes per file). This shape was adopted (rather than
-per-class partitions) where a folder's class count blew past GCC's
-GCM-corruption ceiling (§6a) — merging into fewer, larger translation units
-sidesteps that, at the cost of coarser rebuild invalidation within the
-module.
-
-Both shapes:
-
-- **Partition names are flat** — `carcer.ui.elements:Quad`, never dotted after
-  the `:` (GCC BMI stability).
-- The primary unit of a partitioned module only `export import`s partitions —
-  no code of its own beyond what's needed to curate the surface.
-- **Bodies out-of-line, in a `.cpp` impl unit, when:** a file is a build
-  hotspot, its bodies pull heavy deps you don't want in the interface, or (in
-  `carcer.actions`) the body itself would create an import cycle between
-  partitions — see the `EndCombat`/`PerformMeleeAttack`/`PerformSpellCast`/
-  `SetActiveCombatCharacter`/`WorldExamineAt`/`UiSelectSpellCast` bodies in
-  `actions/{combat,world,ui}/{combat,world,ui}.cpp`. An implementation unit
-  implicitly imports the primary interface unit, so it sees every partition
-  without importing them.
-- Two bodies **must** stay in `.cpp` regardless of shape — `ChCompactInfo`,
-  `ListMagicSpells` — their nested `bmin::DynArray` shapes corrupt GCC GCMs
-  when inline.
+Partition names are **flat** — `carcer.ui.elements:Quad`, never dotted after
+the `:` (GCC BMI stability). The primary unit of a partitioned module only
+`export import`s partitions — no code of its own beyond what's needed to
+curate the surface.
 - Namespaces (`ui::`, `state::`, …) are unchanged by any of this. Modules are the
   shipping boundary; namespaces are the naming one.
 
@@ -226,11 +219,12 @@ step runs `-j1`; `.cpp` implementation units and the final link are parallel.
 
 **`gen_bmi_makefile.py` is a permanent tool, not a migration one-shot.** The
 original plan assumed it'd be replaced by a hand-written makefile once the
-module count dropped to ~20; at 24 domain modules with a mix of partitions and
-merged-interface modules, regenerating from the actual `export module`/`import`
-graph is still less error-prone than hand-maintaining ~24 module→module
-prerequisite edges by hand, especially since partition-to-partition ordering
-(e.g. `carcer.ui.pages:PageModalEvent` needing `:PageTalkChoice` built first)
+module count dropped to ~20; at 29 domain modules, all partitioned,
+regenerating from the actual `export module`/`import` graph is still less
+error-prone than hand-maintaining ~29 module→module prerequisite edges by
+hand, especially since partition-to-partition ordering (e.g.
+`carcer.ui.pages:PageModalEvent` needing `:PageTalkChoice` built first, or
+`carcer.actions.combat`'s `PerformSpellCast` needing `:CombatAction` first)
 is exactly the kind of edge that's easy to get wrong manually. Rerun it after
 any change to cross-module `import` edges.
 
@@ -382,6 +376,55 @@ probe-tested for external importability before touching the umbrella or real
 consumers, after an earlier costly mistake of wiring first and bisecting a
 crash after the fact.
 
+### 6b. `carcer.actions`: telling fake cross-domain coupling from real
+
+`carcer.actions` used to be 4 partitions (`:combat`/`:world`/`:ui`/`:general`)
+each merging 16–33 unrelated classes into one file, specifically because 6 of
+those 71 classes' bodies needed a class from a different domain that their
+own partition's position in the build order couldn't see yet — the standard
+fix for that is a `.cpp` implementation unit (§4), but 6 classes needing one
+was also the reason the domains couldn't be split into their own top-level
+modules or given per-class partitions without exceeding the GCM ceiling
+(§6a). Splitting those 71 classes one-per-file (into
+`carcer.actions.{combat,world,general,ui,ui.layers}`) meant looking hard at
+each of the 6 first, because most of them turned out not to need the
+cross-domain reference at all:
+
+- **4 were fake coupling.** `EndCombat`, `SetActiveCombatCharacter`
+  (`combat`), `WorldExamineAt` (`world`), and `UiSelectSpellCast` (`ui`) each
+  constructed a sibling-domain action object purely to call `.execute(state)`
+  on it once, synchronously, right there — no deferral, no polymorphism
+  actually exercised. Two of the four target actions
+  (`WorldSetCamera`, the `UiShowLayerPickUp`-style `LayerRequest` push) were
+  trivial one-line state setters and got inlined directly, dropping the
+  cross-domain reference entirely. The third, `WorldSetActionMode`, has real
+  ~40 lines of branching logic (aim-tile targeting via
+  `game::findPartyAvatarOnActiveMap`) that two call sites needed without
+  duplicating it — extracted to a free function, `game::resolveWorldActionMode()`,
+  in `carcer.game.map` (a layer below `carcer.actions` that both `world` and
+  `ui` already import), so both call it directly with no module dependency
+  between them at all.
+- **2 are genuine.** `PerformMeleeAttack` and `PerformSpellCast` (`combat`)
+  use `insertAction(new WorldSpawnDamageParticle(...), delayMs)` — real
+  deferred, timed follow-ups queued through the same polymorphic `ActionBus`
+  dispatch everything else uses. That fundamentally needs the concrete
+  `carcer.actions.world` class to exist as a heap-allocated, queueable
+  object; there is no way to defer a timed effect without it. Their bodies
+  stay in `combat.cpp`, an implementation unit that `import`s
+  `carcer.actions.world` — the standard, correct way to handle this, not a
+  smell (§4).
+
+**The test to apply when a body seems to need a cross-domain type:** does it
+construct that type and call `.execute()` on it immediately, in the same
+statement or nearly so? If yes, look at what that type's own `act()` actually
+does — if it's a small, self-contained mutation, it's very likely cheaper and
+clearer to inline that mutation (or, if two+ places need the exact same
+logic, extract a free function in whatever layer already sits below both)
+than to carry the cross-domain reference. Reach for a real `.cpp` impl unit
+only when the need is genuinely deferred/queued, or otherwise can't be
+satisfied by reading — not just constructing and immediately calling — the
+other domain's public surface.
+
 ## 7. clangd
 
 Repo-root `.clangd` adds `-Isrc/modules` and the sdl2w/bmin module dirs.
@@ -396,13 +439,16 @@ server. First open of a module-heavy TU may index for a minute or two.
 - **New class in an existing partitioned module** → add a partition
   `export module carcer.<folder>:NewThing;` and one `export import :NewThing;`
   line in `<folder>.cppm`. No new module. Regenerate the graph.
-- **New class in a merged-interface module** (`carcer.actions`) → add its
-  declaration to the appropriate `export { … }` block and its body either
-  inline after `} // export` or in the module's `.cpp` impl unit if it's
-  heavy. No new file needed. Regenerate the graph if new cross-module `import`s
-  were added.
+- **New action class** → decide which of `carcer.actions.{combat,world,general,ui,ui.layers}`
+  it belongs to by what its `act()` does (a screen open/close request →
+  `ui.layers`; anything else → its domain), then add a partition there, same
+  as the first bullet. `carcer.actions` (what everything else imports)
+  re-exports all 5 already — no umbrella edit needed. If a body needs a class
+  from a *different* `carcer.actions.*` domain and it's a real, deferred/
+  queued need (not just "call one setter and return" — inline that instead,
+  see §6a), put that one body in the module's `.cpp` impl unit.
 - **New `LayerX` screen** → add a partition of `carcer.layers`, same as any
-  other partitioned module (previous bullet) — own file, own
+  other partitioned module (first bullet) — own file, own
   `export module carcer.layers:LayerX;`.
 - **A UI element/observer needs to react to something a specific `Layer`
   does** → don't hold a pointer to the concrete `Layer` from `ui::` code.
