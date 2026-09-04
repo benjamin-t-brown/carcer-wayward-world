@@ -278,14 +278,50 @@ further, and use the same bisection technique.
      partitions, no `LayerWorld`) crashes every time. **`LayerSpecialEvent`
      is the actual cause**, confirmed in isolation, independent of partition
      count or which other classes are present.
+   - **Root cause, isolated down to one language construct.** Subtractively
+     bisected `LayerSpecialEvent`'s own content (not just which module it
+     sits in) by copying it into the crashing partition set and stripping
+     pieces, rebuilding + re-probing after each cut. Every "obviously heavy"
+     candidate tested clean in isolation — a by-value `in3::SpecialEventRunner`
+     member, a `bmin::Map<bmin::String, model::GameEvent>` parameter (itself
+     nesting a `bmin::DynArray<std::variant<...>>`), importing *two*
+     `carcer.ui.pages.*` modules at once — none of them reproduced the crash
+     on their own. What did: `LayerSpecialEvent` is the **only** `LayerX`
+     class that declares anything in `namespace ui { ... }` — two small
+     observer classes (`ObserverSpecialEventChoice`,
+     `ObserverSpecialEventContinue`), reopening `ui::` from inside a
+     `carcer.layers` partition, alongside its own `namespace layers { ... }`
+     declaration in the same file. Deleting just those two classes (with
+     their two call sites) made the crash disappear; replacing them with a
+     single trivial `namespace ui { struct Stub {}; }` — nothing else,
+     dropping the real members/imports entirely — **reproduced the crash on
+     its own**. So the trigger is exactly: *a partition of `carcer.layers`
+     contributing a declaration to `namespace ui`*, a namespace that's
+     already independently populated by the many separate `carcer.ui.*`
+     modules `carcer.layers` imports.
+   - This isn't simply "reopening a foreign namespace is unsafe," though —
+     the identical trivial stub, in an isolated one-file module unrelated to
+     `carcer.layers` (`import carcer.ui.core;` then
+     `export namespace ui { struct Stub {}; }`), imports externally with no
+     problem at all. The bug needs *both*: a large, many-partition, deeply
+     `carcer.ui.*`-connected module (`carcer.layers`, 13+ partitions) *and*
+     one of its partitions independently reopening `ui::`. Read as a GCC
+     internal limit: merging a namespace's member list across partitions
+     *and* across every imported module that also populates it apparently
+     has a complexity/recursion cost that only shows up at `carcer.layers`'s
+     scale — not a simple "never reopen a namespace from another module"
+     rule.
    - This is the same root cause already suspected for the `carcer.ui.pages`
      blocker below (both crash at the same relative point,
      `export import carcer.layers.LayerSpecialEvent;`, and both went away
      once `LayerSpecialEvent` was kept out of the merged/partitioned
-     module). It's specifically the module `LayerSpecialEvent` is *part of*
-     that must stay small — importing `LayerSpecialEvent` itself, alone, is
-     fine (it's `carcer.layers.LayerSpecialEvent`'s own module, and the
-     umbrella imports it directly without issue).
+     module) — `carcer.ui.pages` is itself part of the `ui.*` family already
+     crowding `namespace ui`, so it's a plausible second data point for the
+     same mechanism, not just a coincidence of relative position. Importing
+     `LayerSpecialEvent` itself, alone, is always fine (it's
+     `carcer.layers.LayerSpecialEvent`'s own module, and the umbrella imports
+     it directly without issue) — it's specifically the module
+     `LayerSpecialEvent` is *merged/partitioned into* that must stay small.
    - **Fix, applied to `carcer.layers`:** every layer still gets its own
      `.cppm` file (13 partitions of `carcer.layers`, one per class, including
      `LayerManager` and `LayerWorld`), but `Layer` (the base class) and
@@ -297,12 +333,15 @@ further, and use the same bisection technique.
      *and* `carcer.layers.LayerSpecialEvent` is reachable from the same
      umbrella — reproduced at the exact same relative point across three
      retests, including after the umbrella shrank from ~185 lines to 43.
-     **Still open** — `pages` stays 5 separate modules. Given `LayerSpecialEvent`
-     is now confirmed (not just suspected) as the trigger, the next step if
-     revisited is bisecting *its own* import list/types (candidates:
-     `carcer.in3`, `carcer.model.templates`) the same way, or filing the GCC
-     bug with a minimal repro (`-freport-bug`), or trying `-fmodules`
-     (non-TS) / a newer GCC.
+     **Still open** — `pages` stays 5 separate modules. Given the root cause
+     above, the concrete next step if revisited: check whether any of the 5
+     `carcer.ui.pages.*` classes (or their would-be merged module) itself
+     reopens a namespace already populated elsewhere in its closure the same
+     way `LayerSpecialEvent` reopens `ui::` — that's the mechanism to test
+     for directly now, rather than bisecting imports blind. Otherwise, file
+     the GCC bug with a minimal repro (`-freport-bug`; the trivial
+     `namespace ui { struct Stub {}; }` reproduction above is a good starting
+     point for one), or try `-fmodules` (non-TS) / a newer GCC.
 
 **Bisection technique** (fast — seconds, not the 3-4 min full rebuild):
 targeted single-object builds via
