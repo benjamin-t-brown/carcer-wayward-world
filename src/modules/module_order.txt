@@ -26,7 +26,6 @@ carcer.model.templates:CharacterDerivedStatDefinitions
 carcer.ui.core:TextStyle
 carcer.model.templates
 carcer.db
-carcer.game.diceHelpers
 carcer.model.instances:TileInstance
 carcer.runner
 carcer.model.instances:CharacterInstance

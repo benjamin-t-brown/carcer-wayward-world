@@ -4,7 +4,6 @@ module;
 #include <utility>
 
 module carcer.game.combat;
-import carcer.game.diceHelpers;
 import carcer.model.instances;
 import carcer.model.templates;
 import bmin.string_interop;

@@ -26,7 +26,6 @@ model/stats/CharacterDerivedStatDefinitions.cppm
 ui/TextStyle.cppm
 model/templates/templates.cppm
 db/db.cppm
-game/diceHelpers.cppm
 model/instances/TileInstance.cppm
 runner/runner.cppm
 model/instances/CharacterInstance.cppm

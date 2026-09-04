@@ -337,6 +337,15 @@ int spellAbilityManaCost(const SpellTemplate& spell, const db::Database& databas
 
 // } // namespace model
 
+// --- from game/diceHelpers.h ---
+namespace game {
+
+int getNumDiceSides(model::Dice dice);
+int rollDice(model::Dice dice);
+int rollDiceList(const bmin::DynArray<model::Dice>& diceList);
+
+} // namespace game
+
 } // export
 
 namespace game {

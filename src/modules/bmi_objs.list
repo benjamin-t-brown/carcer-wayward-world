@@ -26,7 +26,6 @@
 .carcer-bmi/carcer.ui.core-TextStyle.o
 .carcer-bmi/carcer.model.templates.o
 .carcer-bmi/carcer.db.o
-.carcer-bmi/carcer.game.diceHelpers.o
 .carcer-bmi/carcer.model.instances-TileInstance.o
 .carcer-bmi/carcer.runner.o
 .carcer-bmi/carcer.model.instances-CharacterInstance.o

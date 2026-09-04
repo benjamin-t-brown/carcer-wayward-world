@@ -4,7 +4,7 @@ module;
 #include <utility>
 #include <cstdlib>
 
-module carcer.game.diceHelpers;
+module carcer.game.combat;
 import bmin.containers;
 import carcer.model.templates;
 import bmin.string_interop;

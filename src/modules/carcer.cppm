@@ -10,7 +10,6 @@ export import carcer.lib.StringUtil;
 export import carcer.runner;
 export import carcer.state.WorldActions;
 export import carcer.lib.hiscore.hiscore;
-export import carcer.game.diceHelpers;
 export import carcer.game.combat;
 export import carcer.db;
 export import carcer.ui.helpers;
