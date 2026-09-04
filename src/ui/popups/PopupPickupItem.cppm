@@ -3,11 +3,11 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.ui.popups.PopupPickupItem;
+export module carcer.ui.popups:PopupPickupItem;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;
-export import carcer.ui.popups.PopupInventoryItem;
+export import :PopupInventoryItem;
 import sdl2w;
 import carcer.actions.ui.UiRemoveLayer;
 import carcer.ui.components;

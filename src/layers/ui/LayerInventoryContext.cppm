@@ -12,7 +12,7 @@ import sdl2w;
 import carcer.model.instances.ItemInstance;
 import carcer.model.instances.Player;
 import carcer.ui.components;
-import carcer.ui.popups.PopupInventoryItem;
+import carcer.ui.popups;
 import bmin.containers;
 import bmin.string_interop;
 #include "macros.h"

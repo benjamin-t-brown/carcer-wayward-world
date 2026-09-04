@@ -14,7 +14,7 @@ import carcer.model.instances.CharacterPlayer;
 import carcer.model.instances.ItemInstance;
 import carcer.model.instances.Player;
 import carcer.ui.components;
-import carcer.ui.popups.PopupGive;
+import carcer.ui.popups;
 import bmin.containers;
 import bmin.string_interop;
 #include "macros.h"

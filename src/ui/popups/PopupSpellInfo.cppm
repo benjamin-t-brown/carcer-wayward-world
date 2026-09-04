@@ -3,11 +3,11 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.ui.popups.PopupSpellInfo;
+export module carcer.ui.popups:PopupSpellInfo;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;
-export import carcer.ui.popups.PopupInventoryItem;
+export import :PopupInventoryItem;
 import sdl2w;
 import carcer.ui.ObserverRemoveLayer;
 import carcer.state;

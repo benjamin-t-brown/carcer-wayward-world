@@ -11,11 +11,10 @@ export module carcer.layers.LayerSpellInfo;
 export import carcer.layers.Layer;
 import sdl2w;
 import carcer.actions.ui.UiRemoveLayer;
-import carcer.ui.popups.PopupInventoryItem;
+import carcer.ui.popups;
 import carcer.game.combat;
 import carcer.model.templates.RuneTypes;
 import carcer.ui.helpers;
-import carcer.ui.popups.PopupSpellInfo;
 import bmin.containers;
 import bmin.string_interop;
 #include "macros.h"

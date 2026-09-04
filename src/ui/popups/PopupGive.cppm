@@ -4,7 +4,7 @@ module;
 #include <utility>
 #include <algorithm>
 
-export module carcer.ui.popups.PopupGive;
+export module carcer.ui.popups:PopupGive;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;
