@@ -8,7 +8,7 @@ module;
 #include <typeindex>
 
 export module carcer.layers:LayerMagic;
-export import carcer.layers.Layer;
+export import :Layer;
 export import carcer.db;
 export import carcer.model.templates;
 export import carcer.ui.pages.PageMagicSetup;

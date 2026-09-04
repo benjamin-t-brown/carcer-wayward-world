@@ -44,7 +44,7 @@ carcer.actions:combat
 carcer.actions:ui
 carcer.ui.core
 carcer.actions:world
-carcer.layers.Layer
+carcer.layers:Layer
 carcer.ui.components:ChCompactInfo
 carcer.ui.components:MapView
 carcer.ui.elements:HorizontalList
@@ -66,6 +66,7 @@ carcer.ui.elements:ButtonModal
 carcer.ui.elements:TextBanner
 carcer.ui.elements:TextParagraph
 carcer.ui.ObserverRemoveLayer
+carcer.ui.ObserverSpecialEvent
 carcer.ui.elements:ButtonList
 carcer.ui.elements:HorizontalSlider
 carcer.ui.elements:SectionScrollable
@@ -125,7 +126,7 @@ carcer.layers:LayerInventory
 carcer.layers:LayerMagic
 carcer.ui.pages.PageModalEvent
 carcer.ui.minipages
-carcer.layers.LayerSpecialEvent
+carcer.layers:LayerSpecialEvent
 carcer.layers:LayerEquipRunes
 carcer.layers:LayerPickUp
 carcer.layers:LayerSpellCast

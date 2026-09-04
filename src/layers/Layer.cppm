@@ -7,7 +7,7 @@ module;
 #include <typeinfo>
 #include <utility>
 
-export module carcer.layers.Layer;
+export module carcer.layers:Layer;
 export import bmin.containers;
 export import carcer.state;
 export import carcer.ui.core;

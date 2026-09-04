@@ -4,13 +4,13 @@ Carcer ships as C++23 named modules (`carcer.*`). This doc is the contract for
 how the tree is organised, how to import across it, and how the build graph works.
 
 > **Migration status (2026-09):** the ~185-module-per-class tree has been
-> consolidated to **31 top-level modules** (29 domain modules + the `carcer`
-> umbrella + the `carcer.game.map.TileFields` leaf). One holdout remains:
-> `carcer.ui.pages` is still 5 separate per-widget modules, blocked by a
-> precisely-diagnosed but unresolved GCC bug — see §6a (the same bug, now
-> pinned to `carcer.layers.LayerSpecialEvent` specifically, also forces
-> `carcer.layers.Layer` and `carcer.layers.LayerSpecialEvent` to stay outside
-> the main `carcer.layers` module). `scripts/modules/
+> consolidated to **30 top-level modules** (28 domain modules + the `carcer`
+> umbrella + the `carcer.game.map.TileFields` leaf). `carcer.layers` is now
+> one module, 15 partitions, no exceptions. One holdout remains:
+> `carcer.ui.pages` is still 5 separate per-widget modules, blocked by the
+> same GCC bug that used to force `carcer.layers` apart — see §6a for the
+> full diagnosis and how `carcer.layers` got fixed for real (not worked
+> around). `scripts/modules/
 > partitionize_folder.py` and `consolidate_module.py` do the mechanical
 > conversion when revisiting `pages` or splitting a module later;
 > `scripts/modules/gen_bmi_makefile.py` regenerates the build graph and is a
@@ -49,7 +49,7 @@ fix it by moving the shared type down (usually into `carcer.model.templates` or
 | 5 State kernel | `carcer.state` | store + `ActionBus` + `AbstractAction` base + `WorldUpdater` + interface seams + `LayerRequest`/`layerStack`. Small, stable, universally depended on. |
 | 6 Actions | `carcer.actions` (partitions `:combat` / `:world` / `:ui`) | one command class per state transition; `act()` mutates state, calls rules, enqueues timed follow-ups. Pushes `LayerRequest`s onto `state` rather than calling layers directly. |
 | 7 UI widgets | `carcer.ui.core` → `carcer.ui.elements` → `carcer.ui.components` → `carcer.ui.layouts` → `carcer.ui.{minipages,popups,pages.*}` (+ `carcer.ui.helpers`, `carcer.ui.lists`, `carcer.ui.KeyboardHeldScroll`, `carcer.ui.ObserverRemoveLayer`) | framework → primitives → game-aware composites → screens. Read model/state to render; enqueue actions on interaction. |
-| 8 Screen stack | `carcer.layers.Layer`, `carcer.layers`, `carcer.layers.LayerSpecialEvent` | `LayerManager` (in `carcer.layers`, one partition per `LayerX`) owns the stack; each `Layer*` binds a UI page + input + its state slice. `Layer` itself and `LayerSpecialEvent` are pulled out to their own tiny modules — see §6a. |
+| 8 Screen stack | `carcer.layers` | `LayerManager` owns the stack; each `Layer*` binds a UI page + input + its state slice. One module, 15 partitions (`Layer`, `LayerManager`, and 13 `LayerX` screens), one file per class, no exceptions — see §6a for why that took two attempts. |
 | 9 Entry | `carcer` umbrella, `main.cpp` | umbrella used only by `main` + tests. |
 
 **Frame flow:** input → `LayerManager` → active `Layer` → widget `onClick`
@@ -92,12 +92,15 @@ stateManager.update(dt); … layerManager->render(dt);`).
     `game` + `model`. Separate.
   - `carcer.in3` vs `carcer.game.*`: narrower footprint (`lib` + `model` only),
     different cadence (a scripting VM, not spatial/combat mechanics). Separate.
-  - `carcer.layers` vs `carcer.layers.Layer` vs `carcer.layers.LayerSpecialEvent`:
-    conceptually one thing (the screen stack; every `LayerX` — 13 of them,
-    `LayerManager` included — is a partition of `carcer.layers`, each in its
-    own file). `Layer` (the base class) and `LayerSpecialEvent` are pulled out
-    to their own modules purely because GCC can't compile the merged form —
-    see §6a. Revisit as one module if that's ever fixed.
+  - `carcer.layers`: the screen stack is genuinely one module — every
+    `LayerX` (15 of them, `Layer` and `LayerManager` included) is a
+    partition, each in its own file. A UI-observer helper that needed to
+    call back into `LayerSpecialEvent` briefly forced `Layer` and
+    `LayerSpecialEvent` out into their own modules to work around a GCC bug
+    (§6a); the actual fix was relocating that helper to `carcer.ui.*` (it
+    belonged there anyway — see `carcer.ui.ObserverRemoveLayer` in the
+    layering table above, the existing precedent for a UI observer), which
+    let `carcer.layers` go back to being one module.
 - If two folders turn out to be mutually dependent at folder granularity (e.g.
   an element imports a button while a button imports an element), that's **one
   module**, not two with a forced layer. (`carcer.ui.elements` absorbs its
@@ -122,12 +125,11 @@ src/<folder>/Thing.cpp         module carcer.<folder>;                 (impl uni
 Used by `carcer.model.templates`, `carcer.model.instances`, `carcer.ui.core`,
 `carcer.ui.elements`, `carcer.ui.components`, `carcer.ui.lists`,
 `carcer.ui.layouts`, `carcer.ui.minipages`, `carcer.ui.popups`, `carcer.layers`
-(13 partitions: `LayerManager`, `LayerWorld`, and 11 `LayerX` screens — each
-partition file
-still declares its class in `export { … }` and defines the body out-of-line
-after `} // export`, same convention as shape (b) below; that's a per-file
-style choice, independent of whether the file is a partition or its own
-module).
+(15 partitions: `Layer`, `LayerManager`, and 13 `LayerX` screens — each
+partition file still declares its class in `export { … }` and defines the
+body out-of-line after `} // export`, same convention as shape (b) below;
+that's a per-file style choice, independent of whether the file is a
+partition or its own module).
 
 **(b) One merged interface unit per module**, declarations for every class in
 one `export { … }` block, method bodies defined out-of-line *after* the
@@ -155,13 +157,6 @@ per-class partitions) where a folder's class count blew past GCC's
 GCM-corruption ceiling (§6a) — merging into fewer, larger translation units
 sidesteps that, at the cost of coarser rebuild invalidation within the
 module.
-
-`carcer.layers.Layer` and `carcer.layers.LayerSpecialEvent` also use this
-declare/trailing-body convention, but each is a single-class standalone
-module (not a multi-class merge, and not a partition of `carcer.layers`) —
-they were pulled out for the *external-import* GCC bug in §6a, an entirely
-different failure mode than the GCM-corruption ceiling this shape was
-originally adopted for.
 
 Both shapes:
 
@@ -313,35 +308,48 @@ further, and use the same bisection technique.
      rule.
    - This is the same root cause already suspected for the `carcer.ui.pages`
      blocker below (both crash at the same relative point,
-     `export import carcer.layers.LayerSpecialEvent;`, and both went away
-     once `LayerSpecialEvent` was kept out of the merged/partitioned
-     module) — `carcer.ui.pages` is itself part of the `ui.*` family already
-     crowding `namespace ui`, so it's a plausible second data point for the
-     same mechanism, not just a coincidence of relative position. Importing
-     `LayerSpecialEvent` itself, alone, is always fine (it's
-     `carcer.layers.LayerSpecialEvent`'s own module, and the umbrella imports
-     it directly without issue) — it's specifically the module
-     `LayerSpecialEvent` is *merged/partitioned into* that must stay small.
-   - **Fix, applied to `carcer.layers`:** every layer still gets its own
-     `.cppm` file (13 partitions of `carcer.layers`, one per class, including
-     `LayerManager` and `LayerWorld`), but `Layer` (the base class) and
-     `LayerSpecialEvent` are pulled out to their own tiny standalone modules
-     (`carcer.layers.Layer`, `carcer.layers.LayerSpecialEvent`) — 3 modules
-     total, down from the earlier 4-module split, and with no merged
-     "screens" file to lose track of individual layers in.
-   - `carcer.ui.pages` (5 classes) crashes `cc1plus` specifically when merged
-     *and* `carcer.layers.LayerSpecialEvent` is reachable from the same
-     umbrella — reproduced at the exact same relative point across three
-     retests, including after the umbrella shrank from ~185 lines to 43.
-     **Still open** — `pages` stays 5 separate modules. Given the root cause
-     above, the concrete next step if revisited: check whether any of the 5
-     `carcer.ui.pages.*` classes (or their would-be merged module) itself
-     reopens a namespace already populated elsewhere in its closure the same
-     way `LayerSpecialEvent` reopens `ui::` — that's the mechanism to test
-     for directly now, rather than bisecting imports blind. Otherwise, file
-     the GCC bug with a minimal repro (`-freport-bug`; the trivial
-     `namespace ui { struct Stub {}; }` reproduction above is a good starting
-     point for one), or try `-fmodules` (non-TS) / a newer GCC.
+     `export import carcer.layers.LayerSpecialEvent;`) — `carcer.ui.pages` is
+     itself part of the `ui.*` family already crowding `namespace ui`, so
+     it's a plausible second data point for the same mechanism.
+   - **Real fix, not a workaround: the two observer classes didn't belong in
+     `carcer.layers` in the first place.** `ObserverSpecialEventChoice` /
+     `ObserverSpecialEventContinue` are UI event-observer classes (`ui::`),
+     and every other UI-domain observer in the codebase already lives in its
+     own `carcer.ui.*` module and reaches back into game state only through
+     the action bus, never by holding a raw pointer into a concrete `Layer`
+     — see `carcer.ui.ObserverRemoveLayer` for the existing precedent. The
+     two special-event observers were the one exception: they held a
+     `layers::LayerSpecialEvent*` back-pointer and called its methods
+     directly, which is both the layering smell that put a `ui::` namespace
+     declaration inside `carcer.layers` in the first place *and*, it turned
+     out, the literal trigger for the GCC bug above. Moved them to their own
+     module, `carcer.ui.ObserverSpecialEvent` (same shape as
+     `ObserverRemoveLayer`); they now enqueue `state::actions::
+     UiSelectSpecialEventChoice` / `UiContinueSpecialEvent` (broadcast-only
+     actions — no `act()` override, `LayerSpecialEvent` is the sole
+     subscriber via its existing `subscribeAction<>()`) instead of calling
+     back into the layer.
+   - With that done, `carcer.layers` no longer has *any* partition
+     contributing to `namespace ui` — and the crash is gone for real.
+     `carcer.layers` is genuinely one module, **15 partitions, no
+     exceptions**: `Layer` and `LayerSpecialEvent` are ordinary partitions
+     again, same as every other `LayerX`. Verified with a full
+     `make clean && make -j8` and the complete test suite (identical 26/12/43
+     baseline).
+   - `carcer.ui.pages` (5 classes) still crashes `cc1plus` when merged *and*
+     `carcer.layers.LayerSpecialEvent` was reachable from the same umbrella
+     — reproduced at the exact same relative point across three retests
+     before this fix landed. **Still open** — `pages` stays 5 separate
+     modules; hasn't been retried since `LayerSpecialEvent` stopped being a
+     separate module (it's just a `carcer.layers` partition now, so the old
+     repro shape doesn't directly apply — worth a fresh probe). Given the
+     confirmed mechanism above, the concrete next step if revisited: check
+     whether any of the 5 `carcer.ui.pages.*` classes (or their would-be
+     merged module) declares into a namespace already populated elsewhere in
+     its closure, the same way the two special-event observers did.
+     Otherwise, file the GCC bug with a minimal repro (`-freport-bug`; the
+     trivial `namespace ui { struct Stub {}; }` reproduction above is a good
+     starting point for one), or try `-fmodules` (non-TS) / a newer GCC.
 
 **Bisection technique** (fast — seconds, not the 3-4 min full rebuild):
 targeted single-object builds via
@@ -375,9 +383,15 @@ server. First open of a module-heavy TU may index for a minute or two.
   were added.
 - **New `LayerX` screen** → add a partition of `carcer.layers`, same as any
   other partitioned module (previous bullet) — own file, own
-  `export module carcer.layers:LayerX;`. Don't add it to
-  `carcer.layers.Layer` or `carcer.layers.LayerSpecialEvent`; those two stay
-  single-class by design (§3, §6a).
+  `export module carcer.layers:LayerX;`.
+- **A UI element/observer needs to react to something a specific `Layer`
+  does** → don't hold a pointer to the concrete `Layer` from `ui::` code.
+  Enqueue an action (broadcast-only is fine — no `act()` override needed)
+  and have the `Layer` `subscribeAction<>()` it, same as
+  `carcer.ui.ObserverRemoveLayer` / `carcer.ui.ObserverSpecialEvent`. Besides
+  being the established decoupling pattern, a `ui::`-namespace declaration
+  living inside a `carcer.layers` partition is exactly what triggered the
+  GCC bug in §6a — keep observer classes in `carcer.ui.*`.
 - **New folder / subsystem** → new module. Place it in the layering (§2), add
   its cross-module prerequisites, and add one `export import carcer.<new>;` to
   the umbrella.

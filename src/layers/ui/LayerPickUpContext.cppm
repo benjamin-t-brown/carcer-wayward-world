@@ -7,7 +7,7 @@ module;
 #include <typeindex>
 
 export module carcer.layers:LayerPickUpContext;
-export import carcer.layers.Layer;
+export import :Layer;
 export import carcer.model.instances;
 import sdl2w;
 import carcer.ui.popups;

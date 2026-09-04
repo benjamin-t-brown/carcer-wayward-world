@@ -8,7 +8,7 @@ module;
 #include <typeindex>
 
 export module carcer.layers:LayerPopupText;
-export import carcer.layers.Layer;
+export import :Layer;
 import sdl2w;
 import carcer.ui.ObserverRemoveLayer;
 import carcer.ui.core;

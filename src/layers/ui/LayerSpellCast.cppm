@@ -8,7 +8,7 @@ module;
 #include <typeindex>
 
 export module carcer.layers:LayerSpellCast;
-export import carcer.layers.Layer;
+export import :Layer;
 export import carcer.db;
 export import carcer.ui.minipages;
 import sdl2w;

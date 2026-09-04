@@ -6,7 +6,7 @@ module;
 export module carcer.layers:LayerManager;
 export import bmin.containers;
 export import carcer.state;
-export import carcer.layers.Layer;
+export import :Layer;
 import sdl2w;
 
 export {

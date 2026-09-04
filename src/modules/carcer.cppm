@@ -14,7 +14,7 @@ export import carcer.db;
 export import carcer.ui.helpers;
 export import carcer.actions;
 export import carcer.layers;
-export import carcer.layers.LayerSpecialEvent;
+export import carcer.ui.ObserverSpecialEvent;
 export import carcer.ui.elements;
 export import carcer.ui.components;
 export import carcer.ui.minipages;

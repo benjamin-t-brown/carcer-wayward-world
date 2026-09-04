@@ -8,7 +8,7 @@ module;
 #include <typeindex>
 
 export module carcer.layers:LayerSpellInfo;
-export import carcer.layers.Layer;
+export import :Layer;
 import sdl2w;
 import carcer.actions;
 import carcer.ui.popups;

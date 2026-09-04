@@ -8,7 +8,7 @@ module;
 #include <typeindex>
 
 export module carcer.layers:LayerEquipRunes;
-export import carcer.layers.Layer;
+export import :Layer;
 export import carcer.model.templates;
 import sdl2w;
 import carcer.actions;

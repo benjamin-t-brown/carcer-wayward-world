@@ -9,7 +9,7 @@ module;
 #include <typeindex>
 
 export module carcer.layers:LayerPickUp;
-export import carcer.layers.Layer;
+export import :Layer;
 export import carcer.ui.elements;
 import sdl2w;
 import carcer.actions;

@@ -7,7 +7,7 @@ module;
 #include <typeindex>
 
 export module carcer.layers:LayerDropConfirm;
-export import carcer.layers.Layer;
+export import :Layer;
 import sdl2w;
 import carcer.model.instances;
 import carcer.ui.components;

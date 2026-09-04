@@ -8,8 +8,8 @@ module;
 #include <typeinfo>
 #include <typeindex>
 
-export module carcer.layers.LayerSpecialEvent;
-export import carcer.layers.Layer;
+export module carcer.layers:LayerSpecialEvent;
+export import :Layer;
 export import carcer.model.templates;
 export import carcer.in3;
 export import carcer.ui.elements;
@@ -21,6 +21,7 @@ import carcer.ui.elements;
 import carcer.ui.components;
 import carcer.ui.pages.PageModalEvent;
 import carcer.ui.pages.PageTalkChoice;
+import carcer.ui.ObserverSpecialEvent;
 import bmin.containers;
 import bmin.string_interop;
 #include "macros.h"
@@ -71,38 +72,6 @@ public:
 };
 
 } // namespace layers
-
-namespace ui {
-
-class ObserverSpecialEventChoice : public UiEventObserver {
-  layers::LayerSpecialEvent* layer;
-  int choiceIndex;
-
-public:
-  ObserverSpecialEventChoice(layers::LayerSpecialEvent* _layer, int _choiceIndex)
-      : layer(_layer), choiceIndex(_choiceIndex) {}
-
-  void onClick(int mouseX, int mouseY, int button) override {
-    if (layer) {
-      layer->onChoiceSelected(choiceIndex);
-    }
-  }
-};
-
-class ObserverSpecialEventContinue : public UiEventObserver {
-  layers::LayerSpecialEvent* layer;
-
-public:
-  explicit ObserverSpecialEventContinue(layers::LayerSpecialEvent* _layer) : layer(_layer) {}
-
-  void onClick(int mouseX, int mouseY, int button) override {
-    if (layer) {
-      layer->onContinue();
-    }
-  }
-};
-
-} // namespace ui
 
 } // export
 
@@ -219,6 +188,11 @@ LayerSpecialEvent::LayerSpecialEvent(
   runnerInterface.startEvent();
   syncUi();
   setupTalkKeyboardScroll();
+
+  subscribeAction<state::actions::UiSelectSpecialEventChoice>(
+      [this](auto& action, auto&) { onChoiceSelected(action.choiceIndex); });
+  subscribeAction<state::actions::UiContinueSpecialEvent>(
+      [this](auto&, auto&) { onContinue(); });
 }
 
 void LayerSpecialEvent::appendCurrentTalkTextToHistory() {
@@ -286,7 +260,7 @@ void LayerSpecialEvent::attachChoiceObservers() {
       if (!choice) {
         continue;
       }
-      choice->addEventObserver(new ui::ObserverSpecialEventChoice(this, i));
+      choice->addEventObserver(new ui::ObserverSpecialEventChoice(i));
     }
     return;
   }
@@ -302,7 +276,7 @@ void LayerSpecialEvent::attachChoiceObservers() {
     if (!choice) {
       continue;
     }
-    choice->addEventObserver(new ui::ObserverSpecialEventChoice(this, i));
+    choice->addEventObserver(new ui::ObserverSpecialEventChoice(i));
   }
 }
 
@@ -315,7 +289,7 @@ void LayerSpecialEvent::attachModalContinueObserver() {
   if (!button) {
     return;
   }
-  button->addEventObserver(new ui::ObserverSpecialEventContinue(this));
+  button->addEventObserver(new ui::ObserverSpecialEventContinue());
 }
 
 ui::ButtonModal* LayerSpecialEvent::findModalContinueButton() {

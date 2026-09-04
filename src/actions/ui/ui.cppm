@@ -381,6 +381,18 @@ public:
       : layerId(strutil::fromStringView(layerIdString(id))) {}
 };
 
+// Broadcast-only: carries the payload for LayerSpecialEvent's own
+// subscribeAction<> to react to. UI never mutates a special event's talk
+// history / runner state directly.
+class UiSelectSpecialEventChoice : public AbstractAction {
+public:
+  int choiceIndex = -1;
+  explicit UiSelectSpecialEventChoice(int _choiceIndex) : choiceIndex(_choiceIndex) {}
+};
+
+// Broadcast-only, see UiSelectSpecialEventChoice.
+class UiContinueSpecialEvent : public AbstractAction {};
+
 } // namespace actions
 
 } // namespace state

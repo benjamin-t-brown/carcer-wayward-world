@@ -8,7 +8,7 @@ module;
 #include <typeindex>
 
 export module carcer.layers:LayerWorld;
-export import carcer.layers.Layer;
+export import :Layer;
 export import carcer.model.instances;
 export import carcer.state;
 export import carcer.ui.layouts;

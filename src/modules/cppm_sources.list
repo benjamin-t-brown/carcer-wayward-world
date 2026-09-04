@@ -66,6 +66,7 @@ ui/elements/buttons/ButtonModal.cppm
 ui/elements/TextBanner.cppm
 ui/elements/TextParagraph.cppm
 ui/ObserverRemoveLayer.cppm
+ui/ObserverSpecialEvent.cppm
 ui/elements/buttons/ButtonList.cppm
 ui/elements/HorizontalSlider.cppm
 ui/elements/SectionScrollable.cppm
