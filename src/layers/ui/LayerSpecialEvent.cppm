@@ -11,7 +11,7 @@ module;
 export module carcer.layers.LayerSpecialEvent;
 export import carcer.layers.Layer;
 export import carcer.model.templates;
-export import carcer.runner;
+export import carcer.in3;
 export import carcer.ui.elements;
 export import carcer.ui.KeyboardHeldScroll;
 import sdl2w;
@@ -31,8 +31,8 @@ namespace layers {
 
 class LayerSpecialEvent : public Layer {
 private:
-  runner::SpecialEventRunner runner;
-  runner::SpecialEventRunnerInterface runnerInterface;
+  in3::SpecialEventRunner runner;
+  in3::SpecialEventRunnerInterface runnerInterface;
   bmin::DynArray<ui::TextBlock> talkHistory;
   ui::KeyboardHeldScroll talkKeyboardScroll;
   bool eventFinished = false;
@@ -113,7 +113,7 @@ namespace {
 constexpr int TALK_CHOICE_AREA_HEIGHT = 250;
 constexpr int kKeyboardPressFlashMs = 120;
 
-ui::PageTalkChoiceProps buildTalkProps(runner::SpecialEventRunner& runner,
+ui::PageTalkChoiceProps buildTalkProps(in3::SpecialEventRunner& runner,
                                        const bmin::DynArray<ui::TextBlock>& talkHistory,
                                        int windowWidth,
                                        int windowHeight) {
@@ -146,7 +146,7 @@ ui::PageTalkChoiceProps buildTalkProps(runner::SpecialEventRunner& runner,
 }
 
 ui::PageModalEventProps
-buildModalProps(runner::SpecialEventRunner& runner, int windowWidth, int windowHeight) {
+buildModalProps(in3::SpecialEventRunner& runner, int windowWidth, int windowHeight) {
   ui::PageModalEventProps props;
   // Window dims; ModalSmall default CappedCentered sizes/centers the shell.
   props.width = windowWidth;
@@ -463,7 +463,7 @@ void LayerSpecialEvent::persistRunnerStorage() {
   }
   auto& persisted = stateManager->getState().specialEventStorage;
   persisted = runner.storage;
-  runner::clearTmpStorageKeys(persisted);
+  in3::clearTmpStorageKeys(persisted);
 }
 
 void LayerSpecialEvent::closeLayer() {

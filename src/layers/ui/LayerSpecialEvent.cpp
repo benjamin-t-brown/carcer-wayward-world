@@ -24,7 +24,7 @@ namespace {
 constexpr int TALK_CHOICE_AREA_HEIGHT = 250;
 constexpr int kKeyboardPressFlashMs = 120;
 
-ui::PageTalkChoiceProps buildTalkProps(runner::SpecialEventRunner& runner,
+ui::PageTalkChoiceProps buildTalkProps(in3::SpecialEventRunner& runner,
                                        const bmin::DynArray<ui::TextBlock>& talkHistory,
                                        int windowWidth,
                                        int windowHeight) {
@@ -57,7 +57,7 @@ ui::PageTalkChoiceProps buildTalkProps(runner::SpecialEventRunner& runner,
 }
 
 ui::PageModalEventProps
-buildModalProps(runner::SpecialEventRunner& runner, int windowWidth, int windowHeight) {
+buildModalProps(in3::SpecialEventRunner& runner, int windowWidth, int windowHeight) {
   ui::PageModalEventProps props;
   // Window dims; ModalSmall default CappedCentered sizes/centers the shell.
   props.width = windowWidth;
@@ -374,7 +374,7 @@ void LayerSpecialEvent::persistRunnerStorage() {
   }
   auto& persisted = stateManager->getState().specialEventStorage;
   persisted = runner.storage;
-  runner::clearTmpStorageKeys(persisted);
+  in3::clearTmpStorageKeys(persisted);
 }
 
 void LayerSpecialEvent::closeLayer() {

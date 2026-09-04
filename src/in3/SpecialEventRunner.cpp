@@ -8,14 +8,14 @@ module;
 #include <algorithm>
 #include <variant>
 
-module carcer.runner;
+module carcer.in3;
 import bmin.containers;
 import carcer.model.templates;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"
 
-namespace runner {
+namespace in3 {
 
 static bmin::String replaceAll(bmin::String str, const bmin::String& from, const bmin::String& to) {
   size_t pos = 0;
@@ -443,4 +443,4 @@ bmin::String SpecialEventRunnerInterface::stateToString(SpecialEventRunnerInterf
   return "UNKNOWN";
 }
 
-} // namespace runner
+} // namespace in3

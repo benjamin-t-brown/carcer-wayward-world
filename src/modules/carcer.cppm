@@ -7,7 +7,7 @@ export import carcer.game.map;
 export import carcer.ui.core;
 export import carcer.lib.Json;
 export import carcer.lib.StringUtil;
-export import carcer.runner;
+export import carcer.in3;
 export import carcer.lib.hiscore.hiscore;
 export import carcer.game.combat;
 export import carcer.db;

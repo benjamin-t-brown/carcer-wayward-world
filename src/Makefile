@@ -35,10 +35,10 @@ game/combat/projectileHelpers.cpp \
 game/combat/Damage.cpp \
 game/diceHelpers.cpp \
 game/combat/EnemyBehavior.cpp \
-runner/SpecialEventRunner.cpp \
-runner/ConditionEvaluator.cpp \
-runner/StringEvaluator.cpp \
-runner/EventRunnerHelpers.cpp \
+in3/SpecialEventRunner.cpp \
+in3/ConditionEvaluator.cpp \
+in3/StringEvaluator.cpp \
+in3/EventRunnerHelpers.cpp \
 state/DatabaseInterface.cpp \
 state/ActionBus.cpp \
 state/StateManager.cpp \

@@ -47,8 +47,8 @@ int main(int argc, char** argv) {
   };
 
   try {
-    runner::SpecialEventRunner runner({}, testEvent, specialEvents);
-    runner::SpecialEventRunnerInterface runnerInterface(runner);
+    in3::SpecialEventRunner runner({}, testEvent, specialEvents);
+    in3::SpecialEventRunnerInterface runnerInterface(runner);
 
     for (int stepIndex = 0; static_cast<size_t>(stepIndex) < inputSteps.size();
          stepIndex++) {
@@ -59,26 +59,26 @@ int main(int argc, char** argv) {
         runnerInterface.startEvent();
       } else if (choiceIndex == -1) {
         auto state = runnerInterface.getState();
-        if (state == runner::SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE) {
+        if (state == in3::SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE) {
           LOG(INFO) << "Continuing event." << LOG_ENDL;
           runnerInterface.continueEvent();
         } else {
           LOG(ERROR) << "Error, test indicated to continue event, but state is not "
                         "WAITING_TO_CONTINUE.  State: "
-                     << runner::SpecialEventRunnerInterface::stateToString(state)
+                     << in3::SpecialEventRunnerInterface::stateToString(state)
                      << LOG_ENDL;
           return 1;
         }
       } else {
         auto state = runnerInterface.getState();
-        if (state == runner::SpecialEventRunnerInterfaceState::WAITING_TO_SELECT_CHOICE) {
+        if (state == in3::SpecialEventRunnerInterfaceState::WAITING_TO_SELECT_CHOICE) {
           LOG(INFO) << "Selecting choice: " << choiceIndex << " - "
                     << runner.displayTextChoices[choiceIndex].text << LOG_ENDL;
           runnerInterface.selectChoice(choiceIndex);
         } else {
           LOG(ERROR) << "Error, test indicated to select choice, but state is not "
                         "WAITING_TO_SELECT_CHOICE.  State: "
-                     << runner::SpecialEventRunnerInterface::stateToString(state)
+                     << in3::SpecialEventRunnerInterface::stateToString(state)
                      << LOG_ENDL;
           return 1;
         }

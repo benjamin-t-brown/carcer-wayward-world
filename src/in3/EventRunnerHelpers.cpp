@@ -4,14 +4,14 @@ module;
 #include <utility>
 #include <optional>
 
-module carcer.runner;
+module carcer.in3;
 import carcer.lib.StringUtil;
 import bmin.containers;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"
 
-namespace runner {
+namespace in3 {
 
 // Helper functions for storage (flat map, no nesting)
 void setStorage(bmin::Map<bmin::String, bmin::String>& storage, const bmin::String& key,
@@ -137,4 +137,4 @@ bool isFunctionCall(const bmin::String& str) {
   return str.find("(") != bmin::String::npos && str.find(")") != bmin::String::npos;
 }
 
-} // namespace runner
+} // namespace in3

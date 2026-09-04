@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
     initialStorage.insert(bmin::String("initial_value"), bmin::String("100"));
 
     // Create the runner
-    runner::SpecialEventRunner runner(initialStorage, testEvent, gameEvents);
+    in3::SpecialEventRunner runner(initialStorage, testEvent, gameEvents);
 
     LOG(INFO) << "Created runner with currentNodeId: " << runner.currentNodeId
               << LOG_ENDL;
@@ -171,7 +171,7 @@ int main(int argc, char** argv) {
               << LOG_ENDL;
 
     // Test: Condition evaluation
-    runner::ConditionResult condResult = runner.evalCondition("IS(test_key)");
+    in3::ConditionResult condResult = runner.evalCondition("IS(test_key)");
     if (!condResult.result) {
       LOG(ERROR) << "Condition IS(test_key) should be true" << LOG_ENDL;
       return 1;
@@ -221,8 +221,8 @@ int main(int argc, char** argv) {
       endNode.id = "end_node";
       talkEvent.children.pushBack(endNode);
 
-      runner::SpecialEventRunner talkRunner({}, talkEvent, {});
-      runner::SpecialEventRunnerInterface talkIface(talkRunner);
+      in3::SpecialEventRunner talkRunner({}, talkEvent, {});
+      in3::SpecialEventRunnerInterface talkIface(talkRunner);
       talkIface.startEvent();
 
       const bmin::String expected =
@@ -258,8 +258,8 @@ int main(int argc, char** argv) {
       endNode.id = "end_node";
       talkEvent.children.pushBack(endNode);
 
-      runner::SpecialEventRunner talkRunner({}, talkEvent, {});
-      runner::SpecialEventRunnerInterface talkIface(talkRunner);
+      in3::SpecialEventRunner talkRunner({}, talkEvent, {});
+      in3::SpecialEventRunnerInterface talkIface(talkRunner);
       talkIface.startEvent();
 
       if (talkRunner.displayText != "Ugh, I can't deal with this right now.") {
@@ -317,8 +317,8 @@ int main(int argc, char** argv) {
       endNode.id = "end_node";
       talkEvent.children.pushBack(endNode);
 
-      runner::SpecialEventRunner talkRunner({}, talkEvent, {});
-      runner::SpecialEventRunnerInterface talkIface(talkRunner);
+      in3::SpecialEventRunner talkRunner({}, talkEvent, {});
+      in3::SpecialEventRunnerInterface talkIface(talkRunner);
       talkIface.startEvent();
       if (talkRunner.displayTextChoices.size() != 2 ||
           talkRunner.wasChoiceChosen(talkRunner.displayTextChoices[0].choiceKey)) {
@@ -352,7 +352,7 @@ int main(int argc, char** argv) {
       storage.insert(bmin::String("tmp.calledLark"), bmin::String("true"));
       storage.insert(bmin::String("tmp.otherScratch"), bmin::String("1"));
 
-      runner::clearTmpStorageKeys(storage);
+      in3::clearTmpStorageKeys(storage);
 
       if (!storage.contains("vars.exposition.alinea.realmKnown") ||
           !storage.contains("once.vars.hasSpokenToalinea_claire") ||
@@ -396,8 +396,8 @@ int main(int argc, char** argv) {
       endNode.id = "end_node";
       talkEvent.children.pushBack(endNode);
 
-      runner::SpecialEventRunner talkRunner(storage, talkEvent, {});
-      runner::SpecialEventRunnerInterface talkIface(talkRunner);
+      in3::SpecialEventRunner talkRunner(storage, talkEvent, {});
+      in3::SpecialEventRunnerInterface talkIface(talkRunner);
       talkIface.startEvent();
       if (talkRunner.displayTextChoices.size() != 1 ||
           talkRunner.displayTextChoices[0].text != "About the realm.") {

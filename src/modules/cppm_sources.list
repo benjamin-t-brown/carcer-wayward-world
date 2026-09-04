@@ -25,8 +25,8 @@ model/stats/CharacterDerivedStatDefinitions.cppm
 ui/TextStyle.cppm
 model/templates/templates.cppm
 db/db.cppm
+in3/in3.cppm
 model/instances/TileInstance.cppm
-runner/runner.cppm
 model/instances/CharacterInstance.cppm
 model/instances/CharacterPlayer.cppm
 model/instances/MapInstance.cppm

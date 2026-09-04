@@ -4,7 +4,7 @@ module;
 #include <utility>
 #include <optional>
 
-export module carcer.runner;
+export module carcer.in3;
 export import bmin.containers;
 export import carcer.model.templates;
 import bmin.string_interop;
@@ -12,7 +12,7 @@ import bmin.string_interop;
 export {
 
 // --- from runner/ConditionEvaluator.h ---
-namespace runner {
+namespace in3 {
 
 struct ConditionEvaluatorFuncs {
   const bmin::Map<bmin::String, bmin::String>& storage;
@@ -57,10 +57,10 @@ public:
   bool evalCondition(const bmin::String& str);
 };
 
-} // namespace runner
+} // namespace in3
 
 // --- from runner/EventRunnerHelpers.h ---
-namespace runner {
+namespace in3 {
 
 // Helper functions for storage (flat map, no nesting)
 void setStorage(bmin::Map<bmin::String, bmin::String>& storage, const bmin::String& key,
@@ -91,10 +91,10 @@ FunctionCall parseFunctionCall(const bmin::String& str);
 
 bool isFunctionCall(const bmin::String& str);
 
-} // namespace runner
+} // namespace in3
 
 // --- from runner/SpecialEventRunner.h ---
-namespace runner {
+namespace in3 {
 
 struct ConditionResult {
   bool result;
@@ -178,10 +178,10 @@ public:
   static bmin::String stateToString(SpecialEventRunnerInterfaceState state);
 };
 
-} // namespace runner
+} // namespace in3
 
 // --- from runner/StringEvaluator.h ---
-namespace runner {
+namespace in3 {
 
 struct StringEvaluatorFuncs {
   bmin::Map<bmin::String, bmin::String>& storage;
@@ -223,6 +223,6 @@ public:
   void evalStr(const bmin::String& str);
 };
 
-} // namespace runner
+} // namespace in3
 
 } // export

@@ -5,13 +5,13 @@ module;
 #include <stdexcept>
 #include <cmath>
 
-module carcer.runner;
+module carcer.in3;
 import bmin.containers;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"
 
-namespace runner {
+namespace in3 {
 
 // Helper function to format number as string: integer if no decimal, otherwise keep decimals
 static bmin::String formatNumber(double n) {
@@ -211,4 +211,4 @@ void StringEvaluator::evalStr(const bmin::String& str) {
   }
 }
 
-} // namespace runner
+} // namespace in3

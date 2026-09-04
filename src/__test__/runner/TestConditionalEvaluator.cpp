@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < static_cast<int>(basicTestCases.size()); i++) {
       const auto& [condition, expected] = basicTestCases[i];
       if (i == runOnlyIndex || runOnlyIndex == -1) {
-        runner::ConditionEvaluator evaluator(initialStorage, condition);
+        in3::ConditionEvaluator evaluator(initialStorage, condition);
         bool result = evaluator.evalCondition(condition);
         LOG(INFO) << "Running test " << i << ": " << condition << " -> "
                   << (result ? "true" : "false") << LOG_ENDL;
@@ -128,7 +128,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < static_cast<int>(invalidSyntax.size()); i++) {
       const auto& [condition, expected] = invalidSyntax[i];
       if (i == runOnlyIndex || runOnlyIndex == -1) {
-        runner::ConditionEvaluator evaluator(initialStorage, condition);
+        in3::ConditionEvaluator evaluator(initialStorage, condition);
         try {
           LOG(INFO) << "Running invalid syntax test " << i << ": " << condition
                     << LOG_ENDL;
