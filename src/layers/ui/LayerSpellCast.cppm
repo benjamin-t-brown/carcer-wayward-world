@@ -12,7 +12,7 @@ export import carcer.layers.Layer;
 export import carcer.db;
 export import carcer.ui.minipages;
 import sdl2w;
-import carcer.actions.ui.UiRemoveLayer;
+import carcer.actions;
 import carcer.lib.StringUtil;
 import carcer.model.instances;
 import carcer.model.templates;

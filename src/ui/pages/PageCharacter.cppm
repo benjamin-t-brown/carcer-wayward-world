@@ -12,7 +12,7 @@ export import carcer.state;
 export import carcer.ui.core;
 export import carcer.ui.elements;
 import sdl2w;
-import carcer.actions.ui.UiShowLayerPopupText;
+import carcer.actions;
 import carcer.model.templates;
 import carcer.ui.elements;
 import carcer.ui.core;

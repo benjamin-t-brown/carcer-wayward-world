@@ -18,7 +18,7 @@ export import carcer.ui.core;
 export import carcer.ui.components;
 export import carcer.ui.elements;
 import sdl2w;
-import carcer.actions.ui.UiSetSelectedPartyMemberId;
+import carcer.actions;
 import carcer.ui.helpers;
 import carcer.ui.components;
 import carcer.ui.elements;

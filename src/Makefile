@@ -53,6 +53,9 @@ ui/helpers/keyboardShortcuts.cpp \
 ui/helpers/modalLayoutFit.cpp \
 ui/KeyboardHeldScroll.cpp \
 ui/components/ChCompactInfo.cpp \
+actions/combat/combat.cpp \
+actions/world/world.cpp \
+actions/ui/ui.cpp \
 game/combat/CombatRunner.cpp \
 
 TARGET ?= native

@@ -9,7 +9,7 @@ import bmin.string_interop;
 export import carcer.ui.core;
 export import :PopupInventoryItem;
 import sdl2w;
-import carcer.actions.ui.UiRemoveLayer;
+import carcer.actions;
 import carcer.ui.components;
 import carcer.ui.elements;
 import carcer.ui.core;

@@ -1,7 +1,7 @@
 module;
 #include <utility>
 
-export module carcer.actions.general.PlaySound;
+export module carcer.actions:general;
 export import carcer.state;
 import sdl2w;
 #include "macros.h"

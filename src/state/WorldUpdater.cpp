@@ -5,9 +5,7 @@ module;
 #include <cmath>
 
 module carcer.state;
-import carcer.actions.combat.DoCPUCombatTurn;
-import carcer.actions.ui.UiShowLayerSpecialEvent;
-import carcer.actions.world.WorldTravel;
+import carcer.actions;
 import carcer.model.templates;
 import carcer.game.map;
 import carcer.model.instances;

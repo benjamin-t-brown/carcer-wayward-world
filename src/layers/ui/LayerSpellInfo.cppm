@@ -10,7 +10,7 @@ module;
 export module carcer.layers.LayerSpellInfo;
 export import carcer.layers.Layer;
 import sdl2w;
-import carcer.actions.ui.UiRemoveLayer;
+import carcer.actions;
 import carcer.ui.popups;
 import carcer.game.combat;
 import carcer.model.templates;

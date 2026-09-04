@@ -8,7 +8,7 @@ export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;
 import sdl2w;
-import carcer.actions.ui.UiDropInventoryItem;
+import carcer.actions;
 import carcer.ui.ObserverRemoveLayer;
 import carcer.state;
 import carcer.ui.components;

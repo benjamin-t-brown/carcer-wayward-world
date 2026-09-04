@@ -10,7 +10,7 @@ import bmin.string_interop;
 export import carcer.ui.core;
 export import carcer.ui.elements;
 import sdl2w;
-import carcer.actions.ui.UiGiveInventoryItem;
+import carcer.actions;
 import carcer.ui.ObserverRemoveLayer;
 import carcer.state;
 import carcer.ui.components;

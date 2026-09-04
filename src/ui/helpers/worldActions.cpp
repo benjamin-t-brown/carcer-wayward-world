@@ -4,15 +4,7 @@ module;
 #include <utility>
 
 module carcer.ui.helpers;
-import carcer.actions.combat.EndCombat;
-import carcer.actions.combat.StartCombat;
-import carcer.actions.ui.UiShowLayerInventory;
-import carcer.actions.ui.UiShowLayerMagic;
-import carcer.actions.ui.UiShowLayerPickUp;
-import carcer.actions.ui.UiShowLayerSpellCast;
-import carcer.actions.ui.UiUpdateHeldMove;
-import carcer.actions.world.WorldInteractAt;
-import carcer.actions.world.WorldSetActionMode;
+import carcer.actions;
 import carcer.model.instances;
 import carcer.state;
 import bmin.string_interop;

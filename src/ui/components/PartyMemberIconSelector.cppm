@@ -11,9 +11,7 @@ module;
 #endif
 
 export module carcer.ui.components:PartyMemberIconSelector;
-import carcer.actions.ui.UiSetCurrentPartyMember;
-import carcer.actions.ui.UiSetCurrentPartyMemberInventory;
-import carcer.actions.ui.UiSetCurrentPartyMemberMagic;
+import carcer.actions;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;

@@ -9,8 +9,7 @@ export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;
 import sdl2w;
-import carcer.actions.ui.UiSelectSpellCast;
-import carcer.actions.ui.UiShowLayerSpellInfo;
+import carcer.actions;
 import carcer.ui.core;
 import carcer.ui.elements;
 #include "macros.h"

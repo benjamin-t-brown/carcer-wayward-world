@@ -7,10 +7,7 @@ module;
 #include <algorithm>
 
 export module carcer.ui.components:FloatingNotificationSection;
-import carcer.actions.ui.UiGiveInventoryItem;
-import carcer.actions.ui.UiPushFloatingNotification;
-import carcer.actions.ui.UiRemoveFloatingNotification;
-import carcer.actions.ui.UiToggleEquipInventoryItem;
+import carcer.actions;
 export import carcer.state;
 export import carcer.ui.core;
 import sdl2w;

@@ -12,9 +12,7 @@ module;
 #endif
 
 export module carcer.ui.lists:ListInventory;
-import carcer.actions.ui.UiReorderInventoryItem;
-import carcer.actions.ui.UiShowLayerInventoryContext;
-import carcer.actions.ui.UiToggleEquipInventoryItem;
+import carcer.actions;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;

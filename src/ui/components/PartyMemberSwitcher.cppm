@@ -12,7 +12,7 @@ module;
 #include <algorithm>
 
 export module carcer.ui.components:PartyMemberSwitcher;
-import carcer.actions.ui.UiSetCurrentPartyMember;
+import carcer.actions;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;
