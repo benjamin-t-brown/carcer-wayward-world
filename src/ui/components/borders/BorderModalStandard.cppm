@@ -4,7 +4,7 @@ module;
 #include <utility>
 
 export module carcer.ui.BorderModalStandard;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 export import carcer.ui.BorderModalSmall;
 import sdl2w;
 import carcer.ui.elements;

@@ -8,18 +8,16 @@ export module carcer.ui.pages.PageInventory;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.model.instances.CharacterPlayer;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 export import carcer.ui.ListInventory;
 import sdl2w;
 import carcer.ui.ObserverRemoveLayer;
 import carcer.state;
 import carcer.ui.elements;
-import carcer.ui.TextStyle;
-import carcer.ui.colors;
+import carcer.ui.core;
 import carcer.ui.components.PartyMemberIconSelector;
 import carcer.ui.helpers;
 import carcer.ui.layouts.ModalStandard;
-import carcer.ui.uiUtils;
 import carcer.model.templates.Items;
 #include "macros.h"
 

@@ -10,9 +10,9 @@ module;
 #include <SDL2/SDL_pixels.h>
 #endif
 
-export module carcer.ui.TextStyle;
-export import carcer.ui.SdlPixels;
-export import carcer.ui.colors;
+export module carcer.ui.core:TextStyle;
+export import :SdlPixels;
+export import :colors;
 import sdl2w;
 #include "macros.h"
 

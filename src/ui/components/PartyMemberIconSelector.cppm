@@ -16,8 +16,7 @@ import carcer.actions.ui.UiSetCurrentPartyMemberInventory;
 import carcer.actions.ui.UiSetCurrentPartyMemberMagic;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.ui.SdlPixels;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 import sdl2w;
 import carcer.ui.elements;
 #include "macros.h"

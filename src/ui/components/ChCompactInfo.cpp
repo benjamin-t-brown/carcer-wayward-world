@@ -11,7 +11,7 @@ module;
 module carcer.ui.components.ChCompactInfo;
 import sdl2w;
 import bmin.string_interop;
-import carcer.ui.colors;
+import carcer.ui.core;
 import carcer.ui.elements;
 #include "macros.h"
 

@@ -8,7 +8,7 @@ export module carcer.ui.ObserverRemoveLayer;
 import carcer.actions.ui.UiRemoveLayer;
 export import bmin.containers;
 export import carcer.lib.StringUtil;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 import carcer.state;
 import bmin.string_interop;
 import sdl2w;

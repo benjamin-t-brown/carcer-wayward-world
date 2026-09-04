@@ -7,7 +7,7 @@ module;
 #include <optional>
 
 export module carcer.ui.helpers;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 export import carcer.model.instances.World;
 export import carcer.state.WorldActions;
 export import carcer.state;

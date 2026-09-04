@@ -7,7 +7,7 @@ module;
 export module carcer.ui.popups.PopupGive;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 export import carcer.ui.elements;
 import sdl2w;
 import carcer.actions.ui.UiGiveInventoryItem;
@@ -15,8 +15,7 @@ import carcer.ui.ObserverRemoveLayer;
 import carcer.state;
 import carcer.ui.BorderDropShadow;
 import carcer.ui.elements;
-import carcer.ui.TextStyle;
-import carcer.ui.colors;
+import carcer.ui.core;
 #include "macros.h"
 
 export {

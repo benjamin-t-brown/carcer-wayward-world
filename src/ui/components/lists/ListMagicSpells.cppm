@@ -7,12 +7,11 @@ module;
 export module carcer.ui.ListMagicSpells;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 import sdl2w;
 import carcer.actions.ui.UiSelectSpellCast;
 import carcer.actions.ui.UiShowLayerSpellInfo;
-import carcer.ui.TextStyle;
-import carcer.ui.colors;
+import carcer.ui.core;
 import carcer.ui.elements;
 #include "macros.h"
 

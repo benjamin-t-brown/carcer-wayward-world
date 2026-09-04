@@ -50,6 +50,10 @@ def main() -> int:
     ap.add_argument("--module", required=True, help="target module, e.g. carcer.ui.elements")
     ap.add_argument("--dir", required=True, help="folder to absorb, e.g. src/ui/elements")
     ap.add_argument("--primary", help="primary .cppm basename (default: last dir segment)")
+    ap.add_argument("--non-recursive", action="store_true",
+                    help="only direct .cppm children of --dir (not sub-folders)")
+    ap.add_argument("--exclude", default="",
+                    help="comma-separated .cppm stems under --dir to leave as their own module")
     args = ap.parse_args()
 
     target = args.module
@@ -57,12 +61,14 @@ def main() -> int:
     if not d.is_dir():
         raise SystemExit(f"not a dir: {d}")
     primary_path = d / f"{args.primary or d.name}.cppm"
+    excluded = {s.strip() for s in args.exclude.split(",") if s.strip()}
 
     # 1. discover absorbed modules  ({old module name -> partition name}, files)
     absorbed: dict[str, str] = {}
     files: dict[str, Path] = {}
-    for cppm in sorted(d.rglob("*.cppm")):
-        if cppm == primary_path:
+    globber = d.glob if args.non_recursive else d.rglob
+    for cppm in sorted(globber("*.cppm")):
+        if cppm == primary_path or cppm.stem in excluded:
             continue
         m = EXPORT_MOD_RE.search(cppm.read_text(encoding="utf-8"))
         if not m:
@@ -115,6 +121,9 @@ def main() -> int:
         print(f"  impl     {cpp.relative_to(ROOT).as_posix()}")
 
     # 5. repo-wide: `import <absorbed>;` -> `import <target>;`
+    # skip only the files we just partitioned + the primary; other files under
+    # <dir> (e.g. sub-folder modules not absorbed) still need the rewrite.
+    partitioned = {f.resolve() for f in files.values()} | {primary_path.resolve()}
     imp_repo_re = re.compile(rf"^([ \t]*)(export import|import)\s+({alt})\s*;", re.M)
     changed = 0
     for p in SRC.rglob("*"):
@@ -123,7 +132,7 @@ def main() -> int:
         rel = p.relative_to(SRC).as_posix()
         if rel.startswith(("lib/sdl2w/", "lib/bmin/")):
             continue
-        if d in p.parents or p == primary_path:
+        if p.resolve() in partitioned:
             continue
         old = p.read_text(encoding="utf-8")
         if not imp_repo_re.search(old):

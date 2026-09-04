@@ -7,12 +7,12 @@ module;
 #include <optional>
 #include <cmath>
 
-module carcer.ui.UiElement;
-import carcer.ui.uiUtils;
+module carcer.ui.core;
+
 import bmin.containers;
 import carcer.state;
-import carcer.ui.SdlPixels;
-import carcer.ui.TextStyle;
+
+
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"

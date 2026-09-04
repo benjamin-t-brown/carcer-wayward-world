@@ -14,8 +14,7 @@ export module carcer.ui.layouts.InGameLayout;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.state.WorldActions;
-export import carcer.ui.SdlPixels;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 export import carcer.ui.components.ChCompactInfo;
 export import carcer.ui.BorderInGame;
 export import carcer.ui.elements;
@@ -27,8 +26,7 @@ import carcer.ui.BorderInGameWide;
 import carcer.ui.elements;
 import carcer.ui.ListChCompactInfoHorizontal;
 import carcer.ui.ListChCompactInfoVertical;
-import carcer.ui.TextStyle;
-import carcer.ui.colors;
+import carcer.ui.core;
 import carcer.ui.components.InGameTitleBar;
 #include "macros.h"
 

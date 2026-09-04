@@ -15,14 +15,11 @@ module;
 export module carcer.ui.elements:TextParagraph;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.ui.SdlPixels;
-export import carcer.ui.TextStyle;
-export import carcer.ui.UiElement;
-export import carcer.ui.colors;
+export import carcer.ui.core;
 export import :Quad;
 export import :TextLine;
 import sdl2w;
-import carcer.ui.FontScale;
+import carcer.ui.core;
 #include "macros.h"
 
 export {

@@ -18,10 +18,10 @@ export import bmin.containers;
 import bmin.string_interop;
 export import carcer.model.instances.World;
 export import carcer.state;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 import sdl2w;
 import carcer.game.map.TileFields;
-import carcer.ui.colors;
+import carcer.ui.core;
 import carcer.game.map;
 import carcer.model.instances.CharacterInstance;
 import carcer.model.instances.CharacterPlayer;
@@ -29,7 +29,6 @@ import carcer.model.instances.MapInstance;
 import carcer.model.templates.CharacterTemplate;
 import carcer.model.templates.Maps;
 import carcer.model.templates.UtilityTypes;
-import carcer.ui.FontScale;
 #include "macros.h"
 
 export {

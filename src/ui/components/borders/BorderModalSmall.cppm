@@ -4,9 +4,9 @@ module;
 #include <utility>
 
 export module carcer.ui.BorderModalSmall;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 import sdl2w;
-import carcer.ui.colors;
+import carcer.ui.core;
 import carcer.ui.components.TiledOverlay;
 import bmin.string_interop;
 #include "macros.h"

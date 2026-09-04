@@ -4,10 +4,9 @@ module;
 #include <utility>
 
 export module carcer.ui.minipages.MinipageCharacterSheet;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 import sdl2w;
-import carcer.ui.TextStyle;
-import carcer.ui.colors;
+import carcer.ui.core;
 import carcer.ui.elements;
 import carcer.ui.helpers;
 import carcer.ui.layouts.ModalSmall;

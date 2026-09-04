@@ -10,9 +10,9 @@ module;
 #include <SDL2/SDL_pixels.h>
 #endif
 
-export module carcer.ui.uiUtils;
-export import carcer.ui.SdlPixels;
-export import carcer.ui.UiElement;
+export module carcer.ui.core:uiUtils;
+export import :SdlPixels;
+export import :UiElement;
 
 export {
 

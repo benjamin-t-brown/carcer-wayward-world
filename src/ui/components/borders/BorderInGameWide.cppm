@@ -6,7 +6,7 @@ module;
 export module carcer.ui.BorderInGameWide;
 export import carcer.ui.BorderInGame;
 import sdl2w;
-import carcer.ui.UiElement;
+import carcer.ui.core;
 import bmin.string_interop;
 #include "macros.h"
 

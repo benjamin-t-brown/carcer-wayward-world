@@ -5,7 +5,7 @@ module;
 #include <algorithm>
 
 module carcer.ui.helpers;
-import carcer.ui.UiElement;
+import carcer.ui.core;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"

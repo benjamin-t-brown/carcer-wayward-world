@@ -6,13 +6,12 @@ module;
 export module carcer.ui.components.TouchMovePad;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 export import carcer.ui.elements;
 import sdl2w;
 import carcer.ui.BorderModalStandard;
-import carcer.ui.colors;
+import carcer.ui.core;
 import carcer.ui.elements;
-import carcer.ui.uiUtils;
 #include "macros.h"
 
 export {

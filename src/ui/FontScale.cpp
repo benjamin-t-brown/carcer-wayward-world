@@ -6,7 +6,7 @@ module;
 #include <algorithm>
 #include <cmath>
 
-module carcer.ui.FontScale;
+module carcer.ui.core;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"

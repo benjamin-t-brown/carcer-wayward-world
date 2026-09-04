@@ -14,14 +14,12 @@ module;
 export module carcer.ui.elements:HorizontalSlider;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.ui.UiElement;
-export import carcer.ui.colors;
+export import carcer.ui.core;
 import sdl2w;
 import :ButtonScroll;
-import carcer.ui.TextStyle;
+import carcer.ui.core;
 import :Quad;
 import :TextLine;
-import carcer.ui.uiUtils;
 #include "macros.h"
 
 export {

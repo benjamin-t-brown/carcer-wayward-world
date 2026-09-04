@@ -11,7 +11,7 @@ module;
 #endif
 
 export module carcer.ui.elements:OutsetRectangle;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 import sdl2w;
 import bmin.string_interop;
 #include "macros.h"

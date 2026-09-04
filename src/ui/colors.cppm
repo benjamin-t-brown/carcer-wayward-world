@@ -10,8 +10,8 @@ module;
 #include <SDL2/SDL_pixels.h>
 #endif
 
-export module carcer.ui.colors;
-export import carcer.ui.SdlPixels;
+export module carcer.ui.core:colors;
+export import :SdlPixels;
 
 export {
 

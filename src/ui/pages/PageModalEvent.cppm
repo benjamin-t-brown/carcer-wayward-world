@@ -14,13 +14,12 @@ module;
 export module carcer.ui.pages.PageModalEvent;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 export import carcer.ui.pages.PageTalkChoice;
 import sdl2w;
 import carcer.ui.BorderModalSmall;
 import carcer.ui.elements;
-import carcer.ui.TextStyle;
-import carcer.ui.colors;
+import carcer.ui.core;
 import carcer.ui.helpers;
 import carcer.ui.layouts.ModalSmall;
 #include "macros.h"

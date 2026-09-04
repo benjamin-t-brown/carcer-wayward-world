@@ -13,12 +13,12 @@ module;
 #include <SDL2/SDL_pixels.h>
 #endif
 
-export module carcer.ui.UiElement;
+export module carcer.ui.core:UiElement;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.state;
-export import carcer.ui.SdlPixels;
-export import carcer.ui.TextStyle;
+export import :SdlPixels;
+export import :TextStyle;
 import sdl2w;
 #include "macros.h"
 

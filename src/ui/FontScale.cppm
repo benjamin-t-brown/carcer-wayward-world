@@ -3,7 +3,7 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.ui.FontScale;
+export module carcer.ui.core:FontScale;
 import sdl2w;
 #include "macros.h"
 

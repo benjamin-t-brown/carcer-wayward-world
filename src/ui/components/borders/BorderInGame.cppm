@@ -4,7 +4,7 @@ module;
 #include <utility>
 
 export module carcer.ui.BorderInGame;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 import sdl2w;
 import carcer.ui.elements;
 import bmin.string_interop;

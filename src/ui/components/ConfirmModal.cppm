@@ -6,12 +6,11 @@ module;
 export module carcer.ui.components.ConfirmModal;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 export import carcer.ui.elements;
 import sdl2w;
 import carcer.ui.BorderDropShadow;
-import carcer.ui.TextStyle;
-import carcer.ui.colors;
+import carcer.ui.core;
 import carcer.ui.elements;
 #include "macros.h"
 

@@ -7,7 +7,7 @@ export module carcer.ui.elements:ButtonWorldAction;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.state.WorldActions;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 import sdl2w;
 import :SpriteElement;
 #include "macros.h"

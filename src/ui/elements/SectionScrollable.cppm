@@ -16,12 +16,11 @@ module;
 export module carcer.ui.elements:SectionScrollable;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.ui.UiElement;
-export import carcer.ui.colors;
+export import carcer.ui.core;
 export import :Quad;
 import sdl2w;
 import :ButtonScroll;
-import carcer.ui.uiUtils;
+import carcer.ui.core;
 #include "macros.h"
 
 export {

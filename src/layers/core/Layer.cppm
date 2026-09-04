@@ -10,7 +10,7 @@ module;
 export module carcer.layers.Layer;
 export import bmin.containers;
 export import carcer.state;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 import bmin.string_interop;
 import sdl2w;
 import carcer.lib.StringUtil;

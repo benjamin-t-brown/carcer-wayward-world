@@ -15,11 +15,10 @@ module;
 export module carcer.ui.elements:ButtonList;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.ui.UiElement;
-export import carcer.ui.colors;
+export import carcer.ui.core;
 export import :ButtonScroll;
 import sdl2w;
-import carcer.ui.TextStyle;
+import carcer.ui.core;
 import :OutsetRectangle;
 import :TextLine;
 #include "macros.h"

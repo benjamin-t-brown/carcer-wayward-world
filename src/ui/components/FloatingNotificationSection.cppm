@@ -12,7 +12,7 @@ import carcer.actions.ui.UiPushFloatingNotification;
 import carcer.actions.ui.UiRemoveFloatingNotification;
 import carcer.actions.ui.UiToggleEquipInventoryItem;
 export import carcer.state;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 import sdl2w;
 import carcer.ui.components.FloatingNotification;
 import bmin.string_interop;

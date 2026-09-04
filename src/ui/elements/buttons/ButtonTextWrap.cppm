@@ -14,11 +14,10 @@ module;
 export module carcer.ui.elements:ButtonTextWrap;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.ui.UiElement;
-export import carcer.ui.colors;
+export import carcer.ui.core;
 export import :TextParagraph;
 import sdl2w;
-import carcer.ui.TextStyle;
+import carcer.ui.core;
 #include "macros.h"
 
 export {

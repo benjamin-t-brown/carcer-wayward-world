@@ -14,13 +14,12 @@ module;
 export module carcer.ui.layouts.ModalSmall;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.ui.SdlPixels;
-export import carcer.ui.UiElement;
+export import carcer.ui.core;
 export import carcer.ui.helpers;
 import sdl2w;
 import carcer.ui.BorderModalSmall;
 import carcer.ui.elements;
-import carcer.ui.uiUtils;
+import carcer.ui.core;
 #include "macros.h"
 
 export {
