@@ -9,7 +9,7 @@ export module carcer.ui.pages.PageMagicSetup;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;
-export import carcer.ui.ListMagicSpells;
+export import carcer.ui.lists;
 export import carcer.ui.elements;
 export import carcer.ui.layouts.ModalStandard;
 import sdl2w;
@@ -20,7 +20,7 @@ import carcer.ui.ObserverRemoveLayer;
 import carcer.state;
 import carcer.ui.elements;
 import carcer.ui.core;
-import carcer.ui.components.PartyMemberIconSelector;
+import carcer.ui.components;
 import carcer.ui.helpers;
 #include "macros.h"
 

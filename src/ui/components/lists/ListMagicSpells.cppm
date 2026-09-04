@@ -4,7 +4,7 @@ module;
 #include <utility>
 #include <vector>
 
-export module carcer.ui.ListMagicSpells;
+export module carcer.ui.lists:ListMagicSpells;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;

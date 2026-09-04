@@ -12,10 +12,9 @@ import carcer.actions.ui.UiShowLayerDropContext;
 import carcer.actions.ui.UiShowLayerGiveContext;
 import carcer.ui.ObserverRemoveLayer;
 import carcer.state;
-import carcer.ui.BorderDropShadow;
+import carcer.ui.components;
 import carcer.ui.elements;
 import carcer.ui.core;
-import carcer.ui.components.ItemInfo;
 #include "macros.h"
 
 export {

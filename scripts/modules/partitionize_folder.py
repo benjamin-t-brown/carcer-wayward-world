@@ -50,6 +50,10 @@ def main() -> int:
     ap.add_argument("--module", required=True, help="target module, e.g. carcer.ui.elements")
     ap.add_argument("--dir", required=True, help="folder to absorb, e.g. src/ui/elements")
     ap.add_argument("--primary", help="primary .cppm basename (default: last dir segment)")
+    ap.add_argument("--primary-path", help="explicit path to primary .cppm (repo-relative); "
+                    "use when absorbing a sub-folder into a module whose primary is elsewhere")
+    ap.add_argument("--append", action="store_true",
+                    help="merge into an existing primary unit instead of overwriting it")
     ap.add_argument("--non-recursive", action="store_true",
                     help="only direct .cppm children of --dir (not sub-folders)")
     ap.add_argument("--exclude", default="",
@@ -60,8 +64,14 @@ def main() -> int:
     d = (ROOT / args.dir).resolve()
     if not d.is_dir():
         raise SystemExit(f"not a dir: {d}")
-    primary_path = d / f"{args.primary or d.name}.cppm"
+    if args.primary_path:
+        primary_path = (ROOT / args.primary_path).resolve()
+    else:
+        primary_path = d / f"{args.primary or d.name}.cppm"
     excluded = {s.strip() for s in args.exclude.split(",") if s.strip()}
+    existing_parts: list[str] = []
+    if args.append and primary_path.exists():
+        existing_parts = re.findall(r"export import :(\w+)\s*;", primary_path.read_text(encoding="utf-8"))
 
     # 1. discover absorbed modules  ({old module name -> partition name}, files)
     absorbed: dict[str, str] = {}
@@ -70,8 +80,12 @@ def main() -> int:
     for cppm in sorted(globber("*.cppm")):
         if cppm == primary_path or cppm.stem in excluded:
             continue
-        m = EXPORT_MOD_RE.search(cppm.read_text(encoding="utf-8"))
+        head = cppm.read_text(encoding="utf-8")
+        m = EXPORT_MOD_RE.search(head)
         if not m:
+            # already a partition (export module X:Y;) of some module -> leave it
+            if re.search(r"^export module carcer[\w.]+:\w+\s*;", head, re.M):
+                continue
             raise SystemExit(f"{cppm}: no `export module`")
         name = m.group(1)
         part = name.split(".")[-1]
@@ -87,9 +101,15 @@ def main() -> int:
     # regex: `import <one-of-absorbed>;`  (captures indent + export? + the name)
     alt = "|".join(re.escape(n) for n in sorted(absorbed, key=len, reverse=True))
     imp_absorbed_re = re.compile(rf"^([ \t]*)(export import|import)\s+({alt})\s*;", re.M)
+    # `import <target>.<Seg>;` and bare `import <target>;` (self-refs inside a partition)
+    self_dotted_re = re.compile(rf"^([ \t]*)(export import|import)\s+{re.escape(target)}\.(\w+)\s*;", re.M)
+    self_bare_re = re.compile(rf"^[ \t]*(?:export import|import)\s+{re.escape(target)}\s*;\n?", re.M)
 
     def to_partition_import(txt: str) -> str:
-        return imp_absorbed_re.sub(lambda m: f"{m.group(1)}{m.group(2)} :{absorbed[m.group(3)]};", txt)
+        txt = imp_absorbed_re.sub(lambda m: f"{m.group(1)}{m.group(2)} :{absorbed[m.group(3)]};", txt)
+        txt = self_dotted_re.sub(r"\1\2 :\3;", txt)
+        txt = self_bare_re.sub("", txt)
+        return txt
 
     # 2. rewrite each absorbed .cppm in place
     for name, cppm in files.items():
@@ -101,13 +121,14 @@ def main() -> int:
         print(f"  :{part:<24} {cppm.relative_to(ROOT).as_posix()}")
 
     # 3. primary interface unit
+    all_parts = sorted(set(existing_parts) | set(absorbed.values()))
     primary_path.write_text(
         f"export module {target};\n"
-        + "".join(f"export import :{p};\n" for p in sorted(absorbed.values())),
+        + "".join(f"export import :{p};\n" for p in all_parts),
         encoding="utf-8",
         newline="\n",
     )
-    print(f"  primary  {primary_path.relative_to(ROOT).as_posix()}")
+    print(f"  primary  {primary_path.relative_to(ROOT).as_posix()}  ({len(all_parts)} partitions)")
 
     # 4. impl units under <dir>
     for cpp in sorted(d.rglob("*.cpp")):
@@ -121,9 +142,11 @@ def main() -> int:
         print(f"  impl     {cpp.relative_to(ROOT).as_posix()}")
 
     # 5. repo-wide: `import <absorbed>;` -> `import <target>;`
-    # skip only the files we just partitioned + the primary; other files under
-    # <dir> (e.g. sub-folder modules not absorbed) still need the rewrite.
+    #  - files that ARE partitions of <target> get the :partition form instead
+    #    (and self-imports of <target> dropped), never `import <target>;`.
+    #  - the primary + the files we just partitioned in this pass are skipped.
     partitioned = {f.resolve() for f in files.values()} | {primary_path.resolve()}
+    target_part_decl = re.compile(rf"^export module {re.escape(target)}:", re.M)
     imp_repo_re = re.compile(rf"^([ \t]*)(export import|import)\s+({alt})\s*;", re.M)
     changed = 0
     for p in SRC.rglob("*"):
@@ -135,9 +158,12 @@ def main() -> int:
         if p.resolve() in partitioned:
             continue
         old = p.read_text(encoding="utf-8")
-        if not imp_repo_re.search(old):
+        if target_part_decl.search(old):
+            new = dedupe_imports(to_partition_import(old))  # sibling partition of <target>
+        elif imp_repo_re.search(old):
+            new = dedupe_imports(imp_repo_re.sub(rf"\1\2 {target};", old))
+        else:
             continue
-        new = dedupe_imports(imp_repo_re.sub(rf"\1\2 {target};", old))
         if new != old:
             p.write_text(new, encoding="utf-8", newline="\n")
             print(f"  ref      {rel}")

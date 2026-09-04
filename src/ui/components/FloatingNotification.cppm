@@ -12,13 +12,13 @@ module;
 #include <typeinfo>
 #include <typeindex>
 
-export module carcer.ui.components.FloatingNotification;
+export module carcer.ui.components:FloatingNotification;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.state;
 export import carcer.ui.core;
 import sdl2w;
-import carcer.ui.BorderDropShadow;
+import :BorderDropShadow;
 import carcer.ui.core;
 import carcer.ui.elements;
 #include "macros.h"

@@ -18,7 +18,7 @@ import carcer.actions.ui.UiSetCurrentPartyMemberInventory;
 import carcer.actions.ui.UiToggleEquipInventoryItem;
 import carcer.model.instances.CharacterPlayer;
 import carcer.model.instances.Player;
-import carcer.ui.components.FloatingNotificationSection;
+import carcer.ui.components;
 import carcer.ui.helpers;
 import carcer.ui.pages.PageInventory;
 import bmin.string_interop;

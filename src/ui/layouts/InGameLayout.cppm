@@ -15,19 +15,15 @@ export import bmin.containers;
 import bmin.string_interop;
 export import carcer.state.WorldActions;
 export import carcer.ui.core;
-export import carcer.ui.components.ChCompactInfo;
-export import carcer.ui.BorderInGame;
+export import carcer.ui.components;
 export import carcer.ui.elements;
 import sdl2w;
 import carcer.actions.ui.UiSetSelectedPartyMemberId;
 import carcer.ui.helpers;
-import carcer.ui.BorderInGameNarrow;
-import carcer.ui.BorderInGameWide;
+import carcer.ui.components;
 import carcer.ui.elements;
-import carcer.ui.ListChCompactInfoHorizontal;
-import carcer.ui.ListChCompactInfoVertical;
+import carcer.ui.lists;
 import carcer.ui.core;
-import carcer.ui.components.InGameTitleBar;
 #include "macros.h"
 
 export {

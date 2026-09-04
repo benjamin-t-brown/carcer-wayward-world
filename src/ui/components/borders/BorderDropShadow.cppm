@@ -11,7 +11,7 @@ module;
 #endif
 #include <algorithm>
 
-export module carcer.ui.BorderDropShadow;
+export module carcer.ui.components:BorderDropShadow;
 export import carcer.ui.core;
 import sdl2w;
 import carcer.ui.elements;

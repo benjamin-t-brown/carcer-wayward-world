@@ -3,7 +3,7 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.ui.components.InGameTitleBar;
+export module carcer.ui.components:InGameTitleBar;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;

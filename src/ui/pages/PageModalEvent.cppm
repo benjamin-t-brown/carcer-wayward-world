@@ -17,7 +17,7 @@ import bmin.string_interop;
 export import carcer.ui.core;
 export import carcer.ui.pages.PageTalkChoice;
 import sdl2w;
-import carcer.ui.BorderModalSmall;
+import carcer.ui.components;
 import carcer.ui.elements;
 import carcer.ui.core;
 import carcer.ui.helpers;

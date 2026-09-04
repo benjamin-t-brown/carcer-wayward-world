@@ -11,7 +11,7 @@ export import carcer.layers.Layer;
 export import carcer.model.instances.ItemInstance;
 import sdl2w;
 import carcer.ui.popups.PopupInventoryItem;
-import carcer.ui.components.FloatingNotificationSection;
+import carcer.ui.components;
 import carcer.ui.popups.PopupPickupItem;
 import bmin.string_interop;
 #include "macros.h"

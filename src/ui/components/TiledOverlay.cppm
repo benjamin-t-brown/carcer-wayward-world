@@ -10,7 +10,7 @@ module;
 #include <SDL2/SDL_pixels.h>
 #endif
 
-export module carcer.ui.components.TiledOverlay;
+export module carcer.ui.components:TiledOverlay;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;

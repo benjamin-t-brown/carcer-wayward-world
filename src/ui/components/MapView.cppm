@@ -13,7 +13,7 @@ module;
 #include <stdexcept>
 #include <algorithm>
 
-export module carcer.ui.components.MapView;
+export module carcer.ui.components:MapView;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.model.instances.World;

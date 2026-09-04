@@ -3,9 +3,9 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.ui.BorderModalStandard;
+export module carcer.ui.components:BorderModalStandard;
 export import carcer.ui.core;
-export import carcer.ui.BorderModalSmall;
+export import :BorderModalSmall;
 import sdl2w;
 import carcer.ui.elements;
 import bmin.string_interop;

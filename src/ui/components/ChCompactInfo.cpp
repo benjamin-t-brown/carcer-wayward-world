@@ -8,7 +8,7 @@ module;
 #include <SDL2/SDL_pixels.h>
 #endif
 
-module carcer.ui.components.ChCompactInfo;
+module carcer.ui.components;
 import sdl2w;
 import bmin.string_interop;
 import carcer.ui.core;

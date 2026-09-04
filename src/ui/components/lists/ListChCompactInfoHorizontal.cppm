@@ -10,11 +10,11 @@ module;
 #include <SDL2/SDL_pixels.h>
 #endif
 
-export module carcer.ui.ListChCompactInfoHorizontal;
+export module carcer.ui.lists:ListChCompactInfoHorizontal;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;
-export import carcer.ui.components.ChCompactInfo;
+export import carcer.ui.components;
 import sdl2w;
 import carcer.ui.elements;
 #include "macros.h"

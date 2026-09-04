@@ -4,7 +4,7 @@ module;
 #include <utility>
 #include <algorithm>
 
-export module carcer.ui.ListPickUp;
+export module carcer.ui.lists:ListPickUp;
 import carcer.actions.ui.UiPickUpItem;
 import carcer.actions.ui.UiShowLayerPickupContext;
 export import bmin.containers;

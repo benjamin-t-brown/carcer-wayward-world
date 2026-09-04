@@ -12,9 +12,8 @@ export import carcer.layers.Layer;
 import sdl2w;
 import carcer.ui.ObserverRemoveLayer;
 import carcer.ui.core;
-import carcer.ui.BorderDropShadow;
+import carcer.ui.components;
 import carcer.ui.elements;
-import carcer.ui.components.FloatingNotificationSection;
 import bmin.containers;
 import bmin.string_interop;
 #include "macros.h"

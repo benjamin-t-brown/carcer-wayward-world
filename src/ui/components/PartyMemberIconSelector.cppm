@@ -10,7 +10,7 @@ module;
 #include <SDL2/SDL_pixels.h>
 #endif
 
-export module carcer.ui.components.PartyMemberIconSelector;
+export module carcer.ui.components:PartyMemberIconSelector;
 import carcer.actions.ui.UiSetCurrentPartyMember;
 import carcer.actions.ui.UiSetCurrentPartyMemberInventory;
 import carcer.actions.ui.UiSetCurrentPartyMemberMagic;

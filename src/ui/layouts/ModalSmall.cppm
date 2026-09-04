@@ -17,7 +17,7 @@ import bmin.string_interop;
 export import carcer.ui.core;
 export import carcer.ui.helpers;
 import sdl2w;
-import carcer.ui.BorderModalSmall;
+import carcer.ui.components;
 import carcer.ui.elements;
 import carcer.ui.core;
 #include "macros.h"

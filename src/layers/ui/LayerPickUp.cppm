@@ -19,7 +19,7 @@ import carcer.game.map;
 import carcer.lib.StringUtil;
 import carcer.model.instances.CharacterPlayer;
 import carcer.model.instances.Player;
-import carcer.ui.components.FloatingNotificationSection;
+import carcer.ui.components;
 import carcer.ui.helpers;
 import carcer.ui.minipages.MinipagePickUp;
 import bmin.string_interop;

@@ -11,7 +11,7 @@ import sdl2w;
 import carcer.actions.ui.UiDropInventoryItem;
 import carcer.ui.ObserverRemoveLayer;
 import carcer.state;
-import carcer.ui.components.ConfirmModal;
+import carcer.ui.components;
 #include "macros.h"
 
 export {

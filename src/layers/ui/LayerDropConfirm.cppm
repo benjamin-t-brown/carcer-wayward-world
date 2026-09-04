@@ -11,7 +11,7 @@ export import carcer.layers.Layer;
 import sdl2w;
 import carcer.model.instances.ItemInstance;
 import carcer.model.instances.Player;
-import carcer.ui.components.FloatingNotificationSection;
+import carcer.ui.components;
 import carcer.ui.popups.PopupDropConfirm;
 import bmin.containers;
 import bmin.string_interop;

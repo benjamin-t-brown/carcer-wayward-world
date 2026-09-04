@@ -11,7 +11,7 @@ export import carcer.ui.popups.PopupInventoryItem;
 import sdl2w;
 import carcer.ui.ObserverRemoveLayer;
 import carcer.state;
-import carcer.ui.BorderDropShadow;
+import carcer.ui.components;
 import carcer.ui.elements;
 import carcer.ui.core;
 #include "macros.h"

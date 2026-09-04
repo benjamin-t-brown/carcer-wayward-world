@@ -17,7 +17,7 @@ import bmin.string_interop;
 export import carcer.ui.core;
 export import carcer.ui.elements;
 import sdl2w;
-import carcer.ui.BorderModalStandard;
+import carcer.ui.components;
 import carcer.ui.core;
 import carcer.ui.elements;
 import carcer.ui.helpers;

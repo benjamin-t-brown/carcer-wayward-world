@@ -3,7 +3,7 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.ui.BorderInGame;
+export module carcer.ui.components:BorderInGame;
 export import carcer.ui.core;
 import sdl2w;
 import carcer.ui.elements;

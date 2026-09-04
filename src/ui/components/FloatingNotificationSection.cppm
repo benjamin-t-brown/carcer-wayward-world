@@ -6,7 +6,7 @@ module;
 #include <typeindex>
 #include <algorithm>
 
-export module carcer.ui.components.FloatingNotificationSection;
+export module carcer.ui.components:FloatingNotificationSection;
 import carcer.actions.ui.UiGiveInventoryItem;
 import carcer.actions.ui.UiPushFloatingNotification;
 import carcer.actions.ui.UiRemoveFloatingNotification;
@@ -14,7 +14,7 @@ import carcer.actions.ui.UiToggleEquipInventoryItem;
 export import carcer.state;
 export import carcer.ui.core;
 import sdl2w;
-import carcer.ui.components.FloatingNotification;
+import :FloatingNotification;
 import bmin.string_interop;
 #include "macros.h"
 

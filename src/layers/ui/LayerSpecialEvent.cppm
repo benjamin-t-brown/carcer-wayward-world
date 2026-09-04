@@ -18,7 +18,7 @@ import sdl2w;
 import carcer.actions.ui.UiRemoveLayer;
 import carcer.ui.core;
 import carcer.ui.elements;
-import carcer.ui.components.FloatingNotificationSection;
+import carcer.ui.components;
 import carcer.ui.pages.PageModalEvent;
 import carcer.ui.pages.PageTalkChoice;
 import bmin.containers;

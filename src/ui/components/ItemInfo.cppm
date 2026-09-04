@@ -5,7 +5,7 @@ module;
 #include <algorithm>
 #include <cmath>
 
-export module carcer.ui.components.ItemInfo;
+export module carcer.ui.components:ItemInfo;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.ui.core;

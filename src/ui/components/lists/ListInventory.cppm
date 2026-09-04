@@ -11,7 +11,7 @@ module;
 #include <SDL2/SDL_pixels.h>
 #endif
 
-export module carcer.ui.ListInventory;
+export module carcer.ui.lists:ListInventory;
 import carcer.actions.ui.UiReorderInventoryItem;
 import carcer.actions.ui.UiShowLayerInventoryContext;
 import carcer.actions.ui.UiToggleEquipInventoryItem;

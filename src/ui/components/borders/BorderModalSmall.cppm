@@ -3,11 +3,11 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.ui.BorderModalSmall;
+export module carcer.ui.components:BorderModalSmall;
 export import carcer.ui.core;
 import sdl2w;
 import carcer.ui.core;
-import carcer.ui.components.TiledOverlay;
+import :TiledOverlay;
 import bmin.string_interop;
 #include "macros.h"
 
