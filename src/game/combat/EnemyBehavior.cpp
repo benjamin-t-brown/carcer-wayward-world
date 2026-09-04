@@ -215,27 +215,4 @@ bool chooseSeekAndMeleeCombatAction(model::World& world,
       world.activeMap, actor, targetX, targetY, database, outDx, outDy);
 }
 
-// void runTownEnemyAiAfterPlayerMove(state::State& state, const db::Database& /*database*/) {
-//   if (state.world.combat.active) {
-//     return;
-//   }
-
-//   // StateManagerInterface::getStateManager is protected; use a local accessor.
-//   struct TownAiEnqueuer : state::StateManagerInterface {
-//     void enqueue(state::State& state) {
-//       auto* stateManager = getStateManager(false);
-//       if (stateManager == nullptr) {
-//         LOG(ERROR) << "runTownEnemyAiAfterPlayerMove: StateManager not set" << LOG_ENDL;
-//         return;
-//       }
-//       state.world.resolvingTownEnemyAi = true;
-//       stateManager->enqueueAction(stateManager->getActionData(),
-//                                   new state::actions::TownEnemyAiAfterPlayerMove(),
-//                                   0);
-//     }
-//   };
-
-//   TownAiEnqueuer{}.enqueue(state);
-// }
-
 } // namespace game
