@@ -6,6 +6,13 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 FAIL=0
 PASS=0
 
+# Build the game library once; per-test scripts skip the rebuild.
+if [[ "${SKIP_REBUILD:-}" != "1" ]]; then
+  make -C "$ROOT/src" carcer-bmi
+  make -C "$ROOT/src" object_files -j8
+fi
+
+export SKIP_REBUILD=1
 for script in "$ROOT"/test-runners/ui/*.sh; do
   name=$(basename "$script")
   echo ""

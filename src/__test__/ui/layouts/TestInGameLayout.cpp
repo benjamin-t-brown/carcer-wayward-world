@@ -1,16 +1,13 @@
+#include <functional>
+#include <ctime>
+#include <cstdlib>
+#include <memory>
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
 #include "../../setupTestUi.h"
-#include "sdl2w/Draw.h"
-#include "sdl2w/Logger.h"
-#include "sdl2w/Window.h"
-#include "state/WorldActions.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
-#include "ui/UiElement.h"
-#include "ui/components/InGameTitleBar.h"
-#include "ui/elements/buttons/ButtonModal.h"
-#include "ui/layouts/InGameLayout.h"
-#include "bmin/DynArray.h"
-#include "bmin/String.h"
-#include "bmin/UniquePtr.h"
 
 namespace {
 

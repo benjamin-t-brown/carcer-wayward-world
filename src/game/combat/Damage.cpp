@@ -1,5 +1,15 @@
-#include "game/combat/Damage.h"
-#include "game/diceHelpers.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
+module carcer.game.combat;
+import carcer.game.diceHelpers;
+import carcer.model.instances.CharacterInstance;
+import carcer.model.templates.AbilityTypes;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace game {
 

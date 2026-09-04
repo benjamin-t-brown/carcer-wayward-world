@@ -1,8 +1,19 @@
-#include "ChCompactInfo.h"
-#include "ui/colors.h"
-#include "ui/elements/OutsetRectangle.h"
-#include "ui/elements/Quad.h"
-#include "ui/elements/TextLine.h"
+module;
+#include <utility>
+#if __has_include(<SDL.h>)
+#include <SDL.h>
+#include <SDL_pixels.h>
+#else
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_pixels.h>
+#endif
+
+module carcer.ui.components.ChCompactInfo;
+import sdl2w;
+import bmin.string_interop;
+import carcer.ui.colors;
+import carcer.ui.elements;
+#include "macros.h"
 
 namespace ui {
 

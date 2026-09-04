@@ -47,28 +47,42 @@ try {
   // Ignore errors if files don't exist
 }
 
-// Compile objects
-console.log('compile objects');
-try {
-  execSync('make object_files -j8', { cwd: SRC_DIR, stdio: 'inherit' });
-} catch (err) {
-  console.error('Failed to compile objects');
-  process.exit(1);
+// Ensure module BMIs then compile implementation objects
+if (!process.env.SKIP_REBUILD) {
+  console.log('compile carcer BMIs');
+  try {
+    execSync('make carcer-bmi', { cwd: SRC_DIR, stdio: 'inherit' });
+  } catch (err) {
+    console.error('Failed to compile carcer BMIs');
+    process.exit(1);
+  }
+
+  console.log('compile objects');
+  try {
+    execSync('make object_files -j8', { cwd: SRC_DIR, stdio: 'inherit' });
+  } catch (err) {
+    console.error('Failed to compile objects');
+    process.exit(1);
+  }
 }
 
 // Compile test
 console.log('compile test');
 let compilerArgs;
+let linkArgs;
 let cxx;
 try {
-  compilerArgs = execSync('make compiler_args', { cwd: SRC_DIR, encoding: 'utf8' }).trim();
+  compilerArgs = execSync('make print_compile_flags', { cwd: SRC_DIR, encoding: 'utf8' }).trim();
+  compilerArgs = compilerArgs.replace(/\r/g, '') + ' -Ilib/sdl2w/modules -Ilib/sdl2w/modules/bmin -Imodules';
+  linkArgs = execSync('make compiler_link_args', { cwd: SRC_DIR, encoding: 'utf8' }).trim().replace(/\r/g, '');
+  linkArgs += ' -Llib/sdl2w';
   cxx = execSync('make print_cxx', { cwd: SRC_DIR, encoding: 'utf8' }).trim();
 } catch (err) {
   console.error('Failed to get compiler args');
   process.exit(1);
 }
 
-const COMPILE_TEST = `${cxx} __test__/ui/${TEST_FOLDER}/${TEST_FILE_NAME}.cpp ${compilerArgs} -o ${TEST_EXE_NAME}`;
+const COMPILE_TEST = `${cxx} ${compilerArgs} __test__/ui/${TEST_FOLDER}/${TEST_FILE_NAME}.cpp ${linkArgs} -o ${TEST_EXE_NAME}`;
 console.log(COMPILE_TEST);
 
 try {

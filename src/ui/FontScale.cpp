@@ -1,7 +1,15 @@
-#include "FontScale.h"
-#include "lib/bmin/Map.h"
-#include <algorithm>
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
 #include <array>
+#include <algorithm>
+#include <cmath>
+
+module carcer.ui.FontScale;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace {
 

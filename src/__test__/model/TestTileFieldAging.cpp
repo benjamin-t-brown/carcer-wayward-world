@@ -1,12 +1,12 @@
-#include "db/Database.h"
-#include "game/map/MapPersistence.h"
-#include "game/map/MapWalkability.h"
-#include "game/map/TileFields.h"
-#include "model/instances/MapInstance.h"
-#include "model/templates/Tileset.h"
-#include "sdl2w/Logger.h"
-#include "state/DatabaseInterface.h"
-#include "state/State.h"
+#include <functional>
+#include <ctime>
+#include <cstdlib>
+#include <memory>
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
 
 namespace {
 

@@ -1,11 +1,15 @@
-#include "../../setupTestUi.h"
-#include "sdl2w/Draw.h"
-#include "ui/FontScale.h"
-#include "bmin/DynArray.h"
-#include "bmin/String.h"
-#include "bmin/StringInterop.h"
+#include <functional>
+#include <ctime>
+#include <cstdlib>
+#include <memory>
+#include <string_view>
 #include <cassert>
 #include <iostream>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
+#include "../../setupTestUi.h"
 
 struct ScalePreviewRow {
   int scale = 0;
@@ -15,18 +19,28 @@ struct ScalePreviewRow {
 int main(int argc, char** argv) {
   using sdl2w::TextSize;
 
+  auto requireEq = [](int got, int want, const char* what) {
+    if (got != want) {
+      std::cerr << what << " got " << got << " want " << want << std::endl;
+      std::abort();
+    }
+  };
+
   const auto base10 = static_cast<TextSize>(10);
-  assert(static_cast<int>(ui::applyFontScale(base10, -1)) == 10);
-  assert(static_cast<int>(ui::applyFontScale(base10, 0)) == 10);
-  assert(static_cast<int>(ui::applyFontScale(base10, 1)) == 12);
+  requireEq(static_cast<int>(ui::applyFontScale(base10, -1)), 10, "scale -1");
+  requireEq(static_cast<int>(ui::applyFontScale(base10, 0)), 10, "scale 0");
+  requireEq(static_cast<int>(ui::applyFontScale(base10, 1)), 12, "scale 1");
 
   // Validate fallback preset stepping still works for known presets.
-  assert(static_cast<int>(ui::applyFontScale(sdl2w::TEXT_SIZE_20, -1)) == 18);
-  assert(static_cast<int>(ui::applyFontScale(sdl2w::TEXT_SIZE_20, 1)) == 22);
+  requireEq(static_cast<int>(ui::applyFontScale(sdl2w::TEXT_SIZE_20, -1)), 18,
+            "preset -1");
+  requireEq(static_cast<int>(ui::applyFontScale(sdl2w::TEXT_SIZE_20, 1)), 22, "preset 1");
 
   // Validate clamping at both ends.
-  assert(static_cast<int>(ui::applyFontScale(sdl2w::TEXT_SIZE_10, -100)) == 10);
-  assert(static_cast<int>(ui::applyFontScale(sdl2w::TEXT_SIZE_72, 100)) == 72);
+  requireEq(static_cast<int>(ui::applyFontScale(sdl2w::TEXT_SIZE_10, -100)), 10,
+            "clamp low");
+  requireEq(static_cast<int>(ui::applyFontScale(sdl2w::TEXT_SIZE_72, 100)), 72,
+            "clamp high");
 
   const sdl2w::TextSize previewBaseSize = sdl2w::TEXT_SIZE_10;
   const bmin::DynArray<int> previewScales{-1, 0, 1, 2, 3};
@@ -60,7 +74,7 @@ int main(int argc, char** argv) {
       headerParams.x = firstColX + static_cast<int>(col) * colWidth;
       headerParams.y = headerY;
       headerParams.centered = false;
-      headerParams.color = SDL_Color{255, 220, 120, 255};
+      headerParams.color = {255, 220, 120, 255};
       const bmin::String headerText = bmin::String("Font: ") + previewFonts[col];
       draw.drawText(bmin::toStringView(headerText), headerParams);
     }
@@ -75,7 +89,7 @@ int main(int argc, char** argv) {
         params.x = firstColX + static_cast<int>(col) * colWidth;
         params.y = y;
         params.centered = false;
-        params.color = SDL_Color{255, 255, 255, 255};
+        params.color = {255, 255, 255, 255};
 
         bmin::String label =
             "[" + bmin::toString(row.scale) + "/" +

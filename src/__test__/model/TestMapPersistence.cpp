@@ -1,17 +1,12 @@
-#include "db/Database.h"
-#include "game/map/MapPersistence.h"
-#include "game/map/MapWalkability.h"
-#include "game/map/TileFields.h"
-#include "game/map/TileTriggers.h"
-#include "model/templates/CharacterTemplate.h"
-#include "model/templates/MapGrids.h"
-#include "model/templates/Tileset.h"
-#include "sdl2w/Logger.h"
-#include "state/DatabaseInterface.h"
-#include "state/State.h"
-#include "state/StateManager.h"
-#include "state/StateManagerInterface.h"
-#include "state/actions/world/WorldLoadActiveMap.hpp"
+#include <functional>
+#include <ctime>
+#include <cstdlib>
+#include <memory>
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
 
 namespace {
 

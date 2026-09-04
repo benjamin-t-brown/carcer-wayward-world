@@ -1,10 +1,13 @@
+#include <functional>
+#include <ctime>
+#include <cstdlib>
+#include <memory>
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
 #include "../../setupTestUi.h"
-#include "bmin/DynArray.h"
-#include "bmin/UniquePtr.h"
-#include "sdl2w/Logger.h"
-#include "sdl2w/Window.h"
-#include "ui/UiElement.h"
-#include "ui/components/TouchMovePad.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start TouchMovePad test" << LOG_ENDL;

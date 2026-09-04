@@ -1,10 +1,12 @@
-#include "bmin/DynArray.h"
-#include "bmin/String.h"
-#include "lib/bmin/Map.h"
-#include "sdl2w/Logger.h"
-#include "runner/EventRunnerHelpers.h"
-#include "runner/StringEvaluator.h"
-#include "bmin/Map.h"
+#include <functional>
+#include <ctime>
+#include <cstdlib>
+#include <memory>
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
 
 #define TEST_NAME "TestStringEvaluator"
 

@@ -1,4 +1,13 @@
-#include "game/combat/CombatRunner.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
+module carcer.game.combat;
+import carcer.model.instances.World;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace game {
 

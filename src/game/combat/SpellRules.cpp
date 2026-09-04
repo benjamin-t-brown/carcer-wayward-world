@@ -1,8 +1,30 @@
-#include "game/combat/SpellRules.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+#include <string_view>
+#include <string>
+#include <algorithm>
+#include <cstdlib>
 
-#include "bmin/StringInterop.h"
-#include "db/Database.h"
-#include "model/templates/AbilityTypes.h"
+module carcer.game.combat;
+import carcer.model.Combat;
+import carcer.model.instances.CharacterInstance;
+import carcer.model.instances.CharacterPlayer;
+import carcer.model.instances.Player;
+import carcer.model.instances.World;
+import carcer.model.stats.CharacterStats;
+import carcer.model.templates.AbilityTypes;
+import carcer.model.templates.CharacterTemplate;
+import carcer.model.templates.RuneTypes;
+import carcer.game.map;
+import bmin.containers;
+import carcer.db;
+import carcer.model.templates.Spells;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
+
 // #include "game/map/ActiveMapOrchestrator.h"
 // #include "model/Combat.h"
 // #include "model/stats/CharacterStats.h"

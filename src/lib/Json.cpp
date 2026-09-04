@@ -1,13 +1,16 @@
-#include "lib/Json.h"
-
-#include "bmin/StringStream.h"
-
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+#include <stdexcept>
 #include <algorithm>
 #include <cctype>
-#include <cerrno>
-#include <cstdlib>
-#include <stdexcept>
-#include <utility>
+
+module carcer.lib.Json;
+import bmin.containers;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace {
 

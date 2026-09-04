@@ -1,7 +1,9 @@
-#include "state/StateManager.h"
-#include "state/StateManagerInterface.h"
-#include "state/AbstractAction.h"
-#include "state/WorldUpdater.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
+module carcer.state;
 
 namespace state {
 
@@ -39,8 +41,6 @@ void StateManager::moveInsertActions(ActionData& actions) {
   if (actions.insertActions.empty()) {
     return;
   }
-  // StateManager owns sequentialActions here. Splice deferred inserts
-  // immediately after the front (currently executing / waiting) action.
   if (actions.sequentialActions.empty()) {
     actions.sequentialActions.splice(actions.sequentialActions.end(),
                                      actions.insertActions);
@@ -61,8 +61,6 @@ void StateManager::update(int dt) {
       executedAction.execute(&state);
       actionBus.notify(executedAction, state);
       delayedAction.action.reset();
-      // execute/notify may have deferred inserts; splice while this action
-      // is still front so they land immediately after it.
       moveInsertActions(actionData);
     }
 
@@ -94,7 +92,6 @@ void StateManager::update(int dt) {
       i--;
     }
   }
-  // worldUpdate(*this, dt);
   uiManager.update(dt, state, *this);
 }
 

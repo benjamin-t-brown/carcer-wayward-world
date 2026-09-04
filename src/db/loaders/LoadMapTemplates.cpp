@@ -1,8 +1,17 @@
-#include "LoadMapTemplates.h"
-#include "bmin/StringInterop.h"
-#include "lib/Json.h"
-#include "sdl2w/AssetLoader.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
 #include <stdexcept>
+#include <algorithm>
+
+module carcer.db;
+import bmin.containers;
+import carcer.model.templates.Maps;
+import carcer.lib.Json;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace db {
 namespace {

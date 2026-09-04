@@ -1,15 +1,24 @@
-#include "ui/helpers/worldActions.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
 
-#include "state/StateManager.h"
-#include "state/actions/combat/EndCombat.hpp"
-#include "state/actions/combat/StartCombat.hpp"
-#include "state/actions/ui/UiShowLayerInventory.hpp"
-#include "state/actions/ui/UiShowLayerMagic.hpp"
-#include "state/actions/ui/UiShowLayerPickUp.hpp"
-#include "state/actions/ui/UiShowLayerSpellCast.hpp"
-#include "state/actions/ui/heldMove/UiUpdateHeldMove.hpp"
-#include "state/actions/world/WorldInteractAt.hpp"
-#include "state/actions/world/WorldSetActionMode.hpp"
+module carcer.ui.helpers;
+import carcer.actions.combat.EndCombat;
+import carcer.actions.combat.StartCombat;
+import carcer.actions.ui.UiShowLayerInventory;
+import carcer.actions.ui.UiShowLayerMagic;
+import carcer.actions.ui.UiShowLayerPickUp;
+import carcer.actions.ui.UiShowLayerSpellCast;
+import carcer.actions.ui.UiUpdateHeldMove;
+import carcer.actions.world.WorldInteractAt;
+import carcer.actions.world.WorldSetActionMode;
+import carcer.model.instances.World;
+import carcer.state;
+import carcer.state.WorldActions;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace ui {
 

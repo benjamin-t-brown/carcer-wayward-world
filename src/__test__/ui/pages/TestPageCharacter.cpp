@@ -1,15 +1,13 @@
-#include "../../setupTestUi.h"
-#include "layers/LayerManager.h"
-#include "sdl2w/Draw.h"
-#include "sdl2w/Logger.h"
-#include "sdl2w/Window.h"
-#include "model/instances/CharacterPlayer.h"
-#include "state/LayerManagerInterface.h"
-#include "ui/UiElement.h"
-#include "ui/pages/PageCharacter.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
+#include <functional>
+#include <ctime>
+#include <cstdlib>
 #include <memory>
-#include "bmin/UniquePtr.h"
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
+#include "../../setupTestUi.h"
 
 class TestLayer : public layers::Layer {
   model::CharacterPlayer characterPlayer;
@@ -81,7 +79,7 @@ int main(int argc, char** argv) {
 
   auto _render = [&](sdl2w::Window& window, sdl2w::Store& store) {
     auto& draw = window.getDraw();
-    draw.setBackgroundColor(SDL_Color{100, 100, 100, 255});
+    draw.setBackgroundColor({100, 100, 100, 255});
     draw.clearScreen();
 
     layerManager->render(window.getDeltaTime());

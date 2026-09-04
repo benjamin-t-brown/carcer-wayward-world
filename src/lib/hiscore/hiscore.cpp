@@ -1,8 +1,15 @@
-#include "hiscore.h"
-#include "bmin/StringStream.h"
-#include "lib/StringUtil.h"
-#include "sdl2w/AssetLoader.h"
-#include "sdl2w/Logger.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+#include <stdexcept>
+
+module carcer.lib.hiscore.hiscore;
+import carcer.lib.StringUtil;
+import bmin.containers;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace hiscore {
 bool isLoaded = false;

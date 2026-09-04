@@ -1,6 +1,18 @@
-#include "game/map/MapWalkability.h"
-#include "bmin/StringInterop.h"
-#include "sdl2w/Logger.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
+module carcer.game.map;
+import carcer.model.instances.MapInstance;
+import carcer.model.instances.TileInstance;
+import bmin.containers;
+import carcer.db;
+import carcer.model.instances.World;
+import carcer.model.templates.Tileset;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace game {
 namespace {

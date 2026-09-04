@@ -1,8 +1,20 @@
-#include "game/map/TileTriggers.h"
-#include "bmin/StringInterop.h"
-#include "game/map/MapWalkability.h"
-#include "model/templates/CharacterTemplate.h"
-#include "sdl2w/L10n.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+#include <algorithm>
+
+module carcer.game.map;
+import bmin.containers;
+import carcer.db;
+import carcer.model.instances.CharacterInstance;
+import carcer.model.instances.MapInstance;
+import carcer.model.instances.Player;
+import carcer.model.instances.World;
+import carcer.state;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace game {
 namespace {

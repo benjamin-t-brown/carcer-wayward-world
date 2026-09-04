@@ -1,9 +1,20 @@
-#include "game/map/MapPersistence.h"
-#include "bmin/StringInterop.h"
-#include "game/map/ActiveMapOrchestrator.h"
-#include "game/map/MapWalkability.h"
-#include "game/map/TileFields.h"
-#include "model/templates/CharacterTemplate.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+#include <algorithm>
+
+module carcer.game.map;
+import carcer.model.instances.CharacterInstance;
+import carcer.model.instances.MapInstance;
+import carcer.model.templates.MapGrids;
+import bmin.containers;
+import carcer.db;
+import carcer.model.instances.World;
+import carcer.state;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace game {
 

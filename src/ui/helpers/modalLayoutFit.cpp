@@ -1,6 +1,14 @@
-#include "modalLayoutFit.h"
-#include "ui/UiElement.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
 #include <algorithm>
+
+module carcer.ui.helpers;
+import carcer.ui.UiElement;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace ui {
 

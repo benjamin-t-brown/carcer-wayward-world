@@ -1,17 +1,13 @@
-#include "../../setupTestUi.h"
-#include "db/Database.h"
-#include "sdl2w/Draw.h"
-#include "sdl2w/Logger.h"
-#include "sdl2w/Window.h"
-#include "model/templates/UtilityTypes.h"
-#include "state/DatabaseInterface.h"
-#include "state/StateManagerInterface.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
-#include "ui/UiElement.h"
-#include "ui/minipages/MinipagePickUp.h"
+#include <functional>
+#include <ctime>
+#include <cstdlib>
 #include <memory>
-#include "bmin/DynArray.h"
-#include "bmin/UniquePtr.h"
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
+#include "../../setupTestUi.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start MinipagePickUp test" << LOG_ENDL;
@@ -182,7 +178,7 @@ int main(int argc, char** argv) {
 
   auto _render = [&](sdl2w::Window& window, sdl2w::Store& store) {
     auto& draw = window.getDraw();
-    draw.setBackgroundColor(SDL_Color{100, 100, 100, 255});
+    draw.setBackgroundColor({100, 100, 100, 255});
     draw.clearScreen();
 
     for (auto& elem : elements) {

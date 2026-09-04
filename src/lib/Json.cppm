@@ -1,0 +1,130 @@
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+#include <stdexcept>
+
+export module carcer.lib.Json;
+export import bmin.containers;
+import bmin.string_interop;
+
+export {
+
+// --- from lib/Json.h ---
+class Json {
+ public:
+  class parse_error : public std::exception {
+   public:
+    explicit parse_error(bmin::String message);
+    const char* what() const noexcept override;
+
+   private:
+    bmin::String _message;
+  };
+
+  Json();
+  Json(const Json& other);
+  Json(Json&& other) noexcept;
+  Json& operator=(Json other);
+  ~Json();
+
+  Json& operator=(bmin::String value);
+  Json& operator=(const char* value);
+  Json& operator=(int value);
+  Json& operator=(bool value);
+
+  bool is_object() const;
+  bool is_array() const;
+  bool is_string() const;
+  bool is_number_integer() const;
+  bool is_number_float() const;
+  bool is_number() const;
+  bool is_boolean() const;
+
+  const Json& operator[](const char* key) const;
+  Json& operator[](const char* key);
+  const Json& operator[](int index) const;
+  Json& operator[](int index);
+  const Json& operator[](size_t index) const;
+  Json& operator[](size_t index);
+
+  bool contains(const char* key) const;
+
+  template <typename T>
+  T get() const;
+
+  bmin::String value(const char* key, bmin::String defaultValue) const;
+  int value(const char* key, int defaultValue) const;
+  bool value(const char* key, bool defaultValue) const;
+
+  size_t size() const;
+
+  const Json* begin() const;
+  const Json* end() const;
+
+  struct JsonObjectItem {
+    const bmin::String& key;
+    const Json& value;
+  };
+
+  class JsonObjectIterator {
+   public:
+    JsonObjectIterator();
+    JsonObjectIterator(bmin::Map<bmin::String, Json>* map, bmin::Map<bmin::String, Json>::Iterator it,
+                       bmin::Map<bmin::String, Json>::Iterator endIt);
+
+    JsonObjectItem operator*() const;
+    JsonObjectIterator& operator++();
+    bool operator==(const JsonObjectIterator& other) const;
+    bool operator!=(const JsonObjectIterator& other) const;
+
+   private:
+    bmin::Map<bmin::String, Json>* _map = nullptr;
+    bmin::Map<bmin::String, Json>::Iterator _it;
+    bmin::Map<bmin::String, Json>::Iterator _end;
+    bool _valid = false;
+  };
+
+  class JsonObjectItemRange {
+   public:
+    explicit JsonObjectItemRange(const Json& json);
+
+    JsonObjectIterator begin() const;
+    JsonObjectIterator end() const;
+
+   private:
+    const Json& _json;
+  };
+
+  JsonObjectItemRange items() const;
+
+  static Json parse(const char* text, void* callback, bool allowExceptions,
+                    bool ignoreComments);
+
+ private:
+  friend class JsonParser;
+
+  enum class Kind { Object, Array, String, Int, Bool, Float };
+
+  Kind _kind;
+  union Storage {
+    bmin::Map<bmin::String, Json> object;
+    bmin::DynArray<Json> array;
+    bmin::String string;
+    std::int64_t integer;
+    bool boolean;
+    double floating;
+
+    Storage() {}
+    ~Storage() {}
+  } _storage;
+
+  void destroy();
+  void copyFrom(const Json& other);
+  void swap(Json& other) noexcept;
+  void resetToArray();
+  void pushArrayValue(Json value);
+  static const Json& emptySentinel();
+};
+
+} // export

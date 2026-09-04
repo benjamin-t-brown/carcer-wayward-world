@@ -1,12 +1,19 @@
-#include "LoadSpecialEvents.h"
-#include "bmin/StringInterop.h"
-#include "lib/Json.h"
-#include "lib/StringUtil.h"
-#include "sdl2w/AssetLoader.h"
-#include "model/templates/SpecialEvents.h"
-#include <algorithm>
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
 #include <optional>
 #include <stdexcept>
+#include <algorithm>
+
+module carcer.db;
+import carcer.lib.StringUtil;
+import bmin.containers;
+import carcer.model.templates.SpecialEvents;
+import carcer.lib.Json;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace db {
 

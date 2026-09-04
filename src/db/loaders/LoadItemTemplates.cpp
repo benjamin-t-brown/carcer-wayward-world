@@ -1,10 +1,17 @@
-#include "LoadItemTemplates.h"
-#include "bmin/StringInterop.h"
-#include "db/loaders/LoadAbilityJson.h"
-#include "lib/Json.h"
-#include "sdl2w/AssetLoader.h"
-
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
 #include <stdexcept>
+
+module carcer.db;
+import carcer.model.templates.RuneTypes;
+import bmin.containers;
+import carcer.model.templates.Items;
+import carcer.lib.Json;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace db {
 

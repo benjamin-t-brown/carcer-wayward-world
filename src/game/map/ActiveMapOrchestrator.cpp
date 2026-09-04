@@ -1,6 +1,20 @@
-#include "game/map/ActiveMapOrchestrator.h"
-#include "bmin/StringInterop.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
 #include <stdexcept>
+
+module carcer.game.map;
+import carcer.model.instances.CharacterInstance;
+import carcer.model.instances.TileInstance;
+import bmin.containers;
+import carcer.model.instances.MapInstance;
+import carcer.model.instances.World;
+import carcer.model.templates.MapGrids;
+import carcer.state;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace game {
 

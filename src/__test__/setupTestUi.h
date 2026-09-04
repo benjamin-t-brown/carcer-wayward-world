@@ -1,14 +1,11 @@
 #pragma once
 
-#include "bmin/String.h"
-#include "sdl2w/AssetLoader.h"
-#include "sdl2w/Draw.h"
-#include "sdl2w/Events.h"
-#include "sdl2w/Init.h"
-#include "sdl2w/L10n.h"
-#include "sdl2w/Logger.h"
-#include "sdl2w/Window.h"
-#include <functional>
+// Requires the including TU to include <functional> (and any other std headers)
+// BEFORE any `import`, then:
+//   import carcer;
+//   import sdl2w;
+//   import bmin.string_interop;
+//   #include "macros.h"
 
 struct TestUiParams {
   int width;

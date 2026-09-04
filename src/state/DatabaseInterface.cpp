@@ -1,4 +1,10 @@
-#include "DatabaseInterface.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
+module carcer.state;
+import carcer.db;
 
 namespace state {
 

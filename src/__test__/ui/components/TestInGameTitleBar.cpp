@@ -1,12 +1,13 @@
-#include "../../setupTestUi.h"
-#include "sdl2w/Draw.h"
-#include "sdl2w/Logger.h"
-#include "sdl2w/Window.h"
-#include "ui/UiElement.h"
-#include "ui/components/InGameTitleBar.h"
+#include <functional>
+#include <ctime>
+#include <cstdlib>
 #include <memory>
-#include "bmin/DynArray.h"
-#include "bmin/UniquePtr.h"
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
+#include "../../setupTestUi.h"
 
 class ToggleApObserver : public ui::UiEventObserver {
   ui::InGameTitleBar* titleBar;

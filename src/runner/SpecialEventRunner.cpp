@@ -1,9 +1,19 @@
-#include "SpecialEventRunner.h"
-#include "ConditionEvaluator.h"
-#include "EventRunnerHelpers.h"
-#include "StringEvaluator.h"
-#include <algorithm>
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+#include <optional>
 #include <functional>
+#include <stdexcept>
+#include <algorithm>
+#include <variant>
+
+module carcer.runner;
+import bmin.containers;
+import carcer.model.templates.SpecialEvents;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace runner {
 

@@ -1,6 +1,10 @@
-#include "StateManagerInterface.h"
-#include "state/StateManager.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
 #include <stdexcept>
+
+module carcer.state;
 
 namespace state {
 

@@ -1,22 +1,12 @@
-#include "db/Database.h"
-#include "game/map/MapPersistence.h"
-#include "game/combat/SpellRules.h"
-#include "model/instances/CharacterInstance.h"
-#include "model/instances/CharacterPlayer.h"
-#include "model/templates/Abilities.h"
-#include "model/templates/AbilityTypes.h"
-#include "model/templates/CharacterTemplate.h"
-#include "model/templates/MapGrids.h"
-#include "model/templates/RuneTypes.h"
-#include "model/templates/Spells.h"
-#include "model/templates/Tileset.h"
-#include "sdl2w/Logger.h"
-#include "state/DatabaseInterface.h"
-#include "state/StateManager.h"
-#include "state/StateManagerInterface.h"
-#include "state/actions/combat/DoCombatAction.hpp"
-#include "state/actions/combat/StartCombat.hpp"
-#include "bmin/String.h"
+#include <functional>
+#include <ctime>
+#include <cstdlib>
+#include <memory>
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
 
 namespace {
 

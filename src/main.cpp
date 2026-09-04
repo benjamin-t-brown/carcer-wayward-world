@@ -1,10 +1,11 @@
-#include "lib/hiscore/hiscore.h"
-#include "sdl2w/AssetLoader.h"
-#include "sdl2w/Draw.h"
-#include "sdl2w/Events.h"
-#include "sdl2w/Init.h"
-#include "sdl2w/L10n.h"
-#include "sdl2w/Logger.h"
+#include <cstdlib>
+#include <ctime>
+#include <functional>
+#include <typeinfo>
+
+import carcer;
+import sdl2w;
+#include "macros.h"
 
 void runProgram(int argc, char** argv) {
   const int w = 640;
@@ -35,9 +36,7 @@ void runProgram(int argc, char** argv) {
   window.setSoundPct(33);
 
   auto& events = window.getEvents();
-  // events.setKeyboardEvent(
-  //     sdl2w::ON_KEY_PRESS,
-  //     [&](const String& key, int) { game.handleKeyPress(key); });
+  (void)events;
 
   auto _initializeLoop = [&]() {
     sdl2w::renderSplash(window);
@@ -45,13 +44,6 @@ void runProgram(int argc, char** argv) {
   };
 
   auto _onInitialized = [&]() {
-    // load high scores
-    // auto hiscores = hiscore::getHighScores();
-    // if (hiscores.size()) {
-    //   game.state.wins = hiscores[0].score;
-    // }
-
-    // game.start();
   };
 
   auto _mainLoop = [&]() {
@@ -63,8 +55,6 @@ void runProgram(int argc, char** argv) {
     }
 #endif
 
-    // game.update(std::min(window.getDeltaTime(), 100));
-    // game.render();
     return true;
   };
 
@@ -74,12 +64,10 @@ void runProgram(int argc, char** argv) {
 int main(int argc, char** argv) {
   LOG(INFO) << "Start program" << LOG_ENDL;
   sdl2w::Window::init();
-  srand(time(NULL));
+  srand(static_cast<unsigned>(time(nullptr)));
 
   runProgram(argc, argv);
 
-  sdl2w::Window::unInit();
   LOG(INFO) << "End program" << LOG_ENDL;
-
   return 0;
 }

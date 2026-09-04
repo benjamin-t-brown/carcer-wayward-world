@@ -1,11 +1,12 @@
-#include "lib/bmin/Map.h"
-#include "sdl2w/Logger.h"
-#include "model/templates/SpecialEvents.h"
-#include "runner/EventRunnerHelpers.h"
-#include "runner/SpecialEventRunner.h"
-#include "bmin/String.h"
-#include "bmin/Map.h"
-
+#include <functional>
+#include <ctime>
+#include <cstdlib>
+#include <memory>
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Starting TestSpecialEventRunner" << LOG_ENDL;

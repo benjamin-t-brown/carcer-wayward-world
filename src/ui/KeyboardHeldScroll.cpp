@@ -1,6 +1,12 @@
-#include "KeyboardHeldScroll.h"
-#include "model/templates/UtilityTypes.h"
-#include "sdl2w/Window.h"
+module;
+#include <functional>
+#include <string_view>
+#include <utility>
+
+module carcer.ui.KeyboardHeldScroll;
+import sdl2w;
+import bmin.string_interop;
+import carcer.model.templates.UtilityTypes;
 
 namespace ui {
 
@@ -23,7 +29,7 @@ void KeyboardHeldScroll::bindKey(std::string_view key, std::function<void()> act
 
 void KeyboardHeldScroll::bindSectionKey(std::string_view key,
                                         std::function<SectionScrollable*()> sectionGetter,
-                                        ScrollDirection direction) {
+                                        HeldScrollDirection direction) {
   if (!sectionGetter) {
     return;
   }
@@ -32,7 +38,7 @@ void KeyboardHeldScroll::bindSectionKey(std::string_view key,
     if (!section) {
       return;
     }
-    if (direction == ScrollDirection::Up) {
+    if (direction == HeldScrollDirection::Up) {
       section->scrollUp();
     } else {
       section->scrollDown();

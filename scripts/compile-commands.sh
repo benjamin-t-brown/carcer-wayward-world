@@ -1,140 +1,115 @@
 #!/bin/bash
-
-# Generate compile_commands.json for clangd from src/Makefile variables.
-# No external tools required beyond make and bash.
+# Generate compile_commands.json for clangd with C++ modules support.
+# Prefer clang++ (not g++ -fmodules-ts) so clangd can build its own BMIs.
+# Re-run after adding/moving/deleting .cppm files, then restart clangd.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-SRC_DIR="$ROOT_DIR/src"
-OUTPUT="$ROOT_DIR/compile_commands.json"
 
-json_string() {
-  local value="$1"
-  value="${value//\\/\\\\}"
-  value="${value//\"/\\\"}"
-  printf '%s' "$value"
-}
+cd "$ROOT_DIR"
 
-abs_directory() {
-  if command -v cygpath >/dev/null 2>&1; then
-    cygpath -m "$(pwd)"
+if [[ -z "${CLANGXX:-}" ]]; then
+  if command -v clang++ >/dev/null 2>&1; then
+    CLANGXX="$(command -v clang++)"
+  elif [[ -x /c/progs/msys2/ucrt64/bin/clang++.exe ]]; then
+    CLANGXX=/c/progs/msys2/ucrt64/bin/clang++.exe
+  elif [[ -x /ucrt64/bin/clang++.exe ]]; then
+    CLANGXX=/ucrt64/bin/clang++.exe
   else
-    pwd
+    CLANGXX=clang++
+    echo "warning: clang++ not found; using 'clang++' as the driver name" >&2
   fi
-}
-
-to_json_path() {
-  local path="$1"
-  if command -v cygpath >/dev/null 2>&1; then
-    cygpath -m "$path" 2>/dev/null || printf '%s' "$path"
-  else
-    printf '%s' "$path"
-  fi
-}
-
-cd "$SRC_DIR"
-
-echo "Reading compile settings from Makefile..." >&2
-
-MAKE_DB=""
-TMP_OUTPUT=""
-cleanup() {
-  rm -f "$MAKE_DB" "$TMP_OUTPUT"
-}
-trap cleanup EXIT
-
-MAKE_DB="$(mktemp)"
-make --no-print-directory -s print_compile_db > "$MAKE_DB"
-
-CXX=""
-COMPILE_FLAGS=()
-SOURCES=()
-
-while IFS= read -r line || [[ -n "$line" ]]; do
-  case "$line" in
-    CXX:*)
-      CXX="${line#CXX:}"
-      ;;
-    FLAGS:*)
-      read -r -a COMPILE_FLAGS <<< "${line#FLAGS:}"
-      ;;
-    SOURCE:*)
-      SOURCES+=("${line#SOURCE:}")
-      ;;
-  esac
-done < "$MAKE_DB"
-
-if [[ -z "$CXX" ]]; then
-  echo "Error: make print_compile_db did not return CXX" >&2
-  exit 1
 fi
 
-TEST_SOURCES=()
-TEST_LIST="$(mktemp)"
-find __test__ -name '*.cpp' 2>/dev/null | sort > "$TEST_LIST" || true
-while IFS= read -r line; do
-  [[ -n "$line" ]] && TEST_SOURCES+=("$line")
-done < "$TEST_LIST"
-rm -f "$TEST_LIST"
+if [[ -z "${PYTHON:-}" ]]; then
+  if command -v python >/dev/null 2>&1; then
+    PYTHON=python
+  elif command -v python3 >/dev/null 2>&1; then
+    PYTHON=python3
+  else
+    echo "python not found on PATH" >&2
+    exit 1
+  fi
+fi
 
-DIRECTORY="$(abs_directory)"
-TMP_OUTPUT="$(mktemp)"
+COMPILER="$CLANGXX"
+ROOT_JSON="$ROOT_DIR"
+if command -v cygpath >/dev/null 2>&1; then
+  COMPILER="$(cygpath -m "$CLANGXX")"
+  ROOT_JSON="$(cygpath -m "$ROOT_DIR")"
+fi
 
-echo "Writing compile_commands.json..." >&2
+"$PYTHON" - "$ROOT_JSON" "$COMPILER" <<'PY'
+import json
+import sys
+from pathlib import Path
 
-{
-  printf '[\n'
-  first=1
+root = Path(sys.argv[1]).resolve()
+compiler = sys.argv[2].replace("\\", "/")
+src = root / "src"
+mod_dir = src / "modules"
+sdl_mod = src / "lib" / "sdl2w" / "modules"
+bmin_mod = sdl_mod / "bmin"
 
-  emit_entry() {
-    local source="$1"
-    local object="${source%.cpp}.o"
-    local file_path
-    file_path="$(to_json_path "$source")"
+COMMON = [
+    "-Wall",
+    "-std=c++23",
+    "-Isrc/modules",
+]
+if sdl_mod.is_dir():
+    COMMON.append("-Isrc/lib/sdl2w/modules")
+if bmin_mod.is_dir():
+    COMMON.append("-Isrc/lib/sdl2w/modules/bmin")
 
-    if [[ $first -eq 1 ]]; then
-      first=0
-    else
-      printf ',\n'
-    fi
 
-    printf '  {\n'
-    printf '    "directory": "%s",\n' "$(json_string "$DIRECTORY")"
-    printf '    "arguments": [\n'
-    printf '      "%s"' "$(json_string "$CXX")"
-    for flag in "${COMPILE_FLAGS[@]}"; do
-      printf ',\n      "%s"' "$(json_string "$flag")"
-    done
-    printf ',\n      "-MMD",\n'
-    printf '      "-MP",\n'
-    printf '      "-c",\n'
-    printf '      "%s",\n' "$(json_string "$source")"
-    printf '      "-o",\n'
-    printf '      "%s"\n' "$(json_string "$object")"
-    printf '    ],\n'
-    printf '    "file": "%s"\n' "$(json_string "$file_path")"
-    printf '  }'
-  }
+def entry(source: Path) -> dict:
+    rel = source.relative_to(root).as_posix()
+    obj = ".cache/clangd-obj/" + rel.replace("/", "__") + ".o"
+    args = [compiler, *COMMON]
+    if source.suffix == ".cppm":
+        args.extend(["-x", "c++-module"])
+    args.extend(["-c", source.as_posix(), "-o", (root / obj).as_posix()])
+    return {
+        "directory": root.as_posix(),
+        "arguments": args,
+        "file": source.as_posix(),
+    }
 
-  for source in "${SOURCES[@]}"; do
-    [[ -n "$source" ]] || continue
-    emit_entry "$source"
-  done
 
-  for source in "${TEST_SOURCES[@]}"; do
-    [[ -n "$source" ]] || continue
-    emit_entry "$source"
-  done
+entries: list[dict] = []
+seen: set[Path] = set()
 
-  printf '\n]\n'
-} > "$TMP_OUTPUT"
 
-mv -f "$TMP_OUTPUT" "$OUTPUT"
-TMP_OUTPUT=""
-trap - EXIT
-rm -f "$MAKE_DB"
-MAKE_DB=""
+def add(p: Path) -> None:
+    if not p.is_file() or p in seen:
+        return
+    seen.add(p)
+    entries.append(entry(p))
 
-echo "Wrote $OUTPUT ($((${#SOURCES[@]} + ${#TEST_SOURCES[@]})) entries)" >&2
+
+if sdl_mod.is_dir():
+    for p in sorted(sdl_mod.glob("sdl2w*.cppm")):
+        add(p)
+if bmin_mod.is_dir():
+    for p in sorted(bmin_mod.glob("bmin*.cppm")):
+        add(p)
+
+for p in sorted(src.rglob("*.cppm")):
+    rel = p.relative_to(src).as_posix()
+    if rel.startswith(("lib/sdl2w/", "lib/bmin/")):
+        continue
+    add(p)
+
+for p in sorted(src.rglob("*.cpp")):
+    rel = p.relative_to(src).as_posix()
+    if rel.startswith(("lib/sdl2w/", "lib/bmin/", "modules/")):
+        continue
+    add(p)
+
+out = root / "compile_commands.json"
+out.write_text(json.dumps(entries, indent=2) + "\n", encoding="utf-8", newline="\n")
+print(f"Wrote {out} ({len(entries)} entries)", file=sys.stderr)
+print(f"Compiler driver: {compiler}", file=sys.stderr)
+PY

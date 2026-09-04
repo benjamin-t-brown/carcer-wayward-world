@@ -1,14 +1,13 @@
+#include <functional>
+#include <ctime>
+#include <cstdlib>
+#include <memory>
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
 #include "../../setupTestUi.h"
-#include "sdl2w/Draw.h"
-#include "sdl2w/Logger.h"
-#include "sdl2w/Window.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
-#include "ui/UiElement.h"
-#include "ui/elements/TextLine.h"
-#include "ui/layouts/ModalSmall.h"
-#include "bmin/DynArray.h"
-#include "bmin/String.h"
-#include "bmin/UniquePtr.h"
 
 namespace {
 

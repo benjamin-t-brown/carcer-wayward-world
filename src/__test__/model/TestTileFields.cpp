@@ -1,7 +1,12 @@
-#include "game/map/MapWalkability.h"
-#include "game/map/TileFields.h"
-#include "model/instances/World.h"
-#include "sdl2w/Logger.h"
+#include <functional>
+#include <ctime>
+#include <cstdlib>
+#include <memory>
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
 
 namespace {
 

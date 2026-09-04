@@ -1,4 +1,12 @@
-#include "game/map/TileDistance.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
+module carcer.game.map;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace game {
 

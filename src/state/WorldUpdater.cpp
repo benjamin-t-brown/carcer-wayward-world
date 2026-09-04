@@ -1,16 +1,22 @@
-#include "state/WorldUpdater.h"
-#include "bmin/StringInterop.h"
-#include "game/map/ActiveMapOrchestrator.h"
-#include "game/map/Camera.h"
-#include "model/Combat.h"
-#include "model/instances/World.h"
-#include "sdl2w/Window.h"
-#include "state/State.h"
-#include "state/StateManager.h"
-#include "state/actions/combat/DoCPUCombatTurn.hpp"
-#include "state/actions/ui/UiShowLayerSpecialEvent.hpp"
-#include "state/actions/world/WorldTravel.hpp"
-#include "ui/helpers/worldActions.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+#include <cmath>
+
+module carcer.state.WorldUpdater;
+import carcer.actions.combat.DoCPUCombatTurn;
+import carcer.actions.ui.UiShowLayerSpecialEvent;
+import carcer.actions.world.WorldTravel;
+import carcer.model.templates.AbilityTypes;
+import carcer.state;
+import carcer.game.map;
+import carcer.model.Combat;
+import carcer.model.instances.World;
+import carcer.ui.helpers;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace state {
 
@@ -61,11 +67,7 @@ void updateDamageParticles(model::World& world, sdl2w::Window* window, int delta
   for (size_t i = 0; i < world.activeMap.damageParticles.size();) {
     auto& particle = world.activeMap.damageParticles[i];
 
-    if (!particle.animation) {
-      particle.animation = std::make_optional<sdl2w::Animation>(
-          store.createAnimation(bmin::toStringView(particle.animationName)));
-    }
-    particle.animation->update(deltaTimeMs);
+    /* animation via MapView */
 
     timerStructUpdate(particle.lifetime, deltaTimeMs);
     if (timerStructIsComplete(particle.lifetime)) {

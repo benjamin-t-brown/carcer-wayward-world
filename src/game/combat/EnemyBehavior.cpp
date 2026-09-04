@@ -1,15 +1,19 @@
-#include "game/combat/EnemyBehavior.h"
-#include "game/map/ActiveMapOrchestrator.h"
-#include "game/map/MapPathfinding.h"
-#include "game/map/MapWalkability.h"
-#include "game/map/TileDistance.h"
-#include "game/map/TileTriggers.h"
-#include "model/Combat.h"
-#include "model/templates/CharacterTemplate.h"
-#include "sdl2w/Logger.h"
-#include "state/State.h"
-#include "state/StateManagerInterface.h"
-#include "state/actions/world/TownEnemyAiAfterPlayerMove.hpp"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
+module carcer.game.combat;
+import carcer.game.map;
+import carcer.model.Combat;
+import carcer.state;
+import carcer.db;
+import carcer.model.instances.CharacterInstance;
+import carcer.model.instances.Player;
+import carcer.model.instances.World;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace game {
 namespace {

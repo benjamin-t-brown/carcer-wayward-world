@@ -1,7 +1,13 @@
-#include "game/map/TileFields.h"
-#include "game/map/MapWalkability.h"
-#include "model/instances/World.h"
-#include <cstdlib>
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
+module carcer.game.map.TileFields;
+import bmin.containers;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace game {
 
@@ -49,55 +55,6 @@ void ageTileFields(bmin::DynArray<TileField>& fields, int steps) {
     }
     ++i;
   }
-}
-
-void ageMapInstanceTileFields(model::MapInstance& map, int steps) {
-  if (steps <= 0) {
-    return;
-  }
-  for (auto it = model::mapInstanceTiles(map).begin();
-       it != model::mapInstanceTiles(map).end();
-       ++it) {
-    auto& layer = it->value;
-    for (size_t ti = 0; ti < layer.size(); ti++) {
-      ageTileFields(layer[ti].fields, steps);
-    }
-  }
-}
-
-void agePersistentTileFieldRecords(
-    bmin::DynArray<model::PersistentTileFieldRecord>& records, int steps) {
-  if (steps <= 0) {
-    return;
-  }
-  for (size_t i = 0; i < records.size();) {
-    ageTileFields(records[i].fields, steps);
-    if (records[i].fields.empty()) {
-      records.erase(i);
-    } else {
-      ++i;
-    }
-  }
-}
-
-void addTileField(model::TileInstance& tile, TileFieldType type) {
-  TileField field;
-  field.type = type;
-  field.moveDuration = tileFieldDefaultMoveDuration(type);
-  if (type == TileFieldType::BLOOD) {
-    field.variant = std::rand() % 4;
-    tile.fields.insert(tile.fields.begin(), field);
-    return;
-  }
-  tile.fields.pushBack(field);
-}
-
-void addTileFieldAt(model::MapInstance& map, int tileX, int tileY, TileFieldType type) {
-  auto* tile = tileAtCurrentLayer(map, tileX, tileY);
-  if (tile == nullptr) {
-    return;
-  }
-  addTileField(*tile, type);
 }
 
 } // namespace game

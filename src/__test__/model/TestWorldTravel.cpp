@@ -1,16 +1,12 @@
-#include "db/Database.h"
-#include "game/map/TileTriggers.h"
-#include "model/instances/CharacterPlayer.h"
-#include "model/templates/Maps.h"
-#include "sdl2w/Logger.h"
-#include "state/DatabaseInterface.h"
-#include "state/State.h"
-#include "state/StateManager.h"
-#include "state/StateManagerInterface.h"
-#include "state/actions/world/WorldLoadActiveMap.hpp"
-#include "state/actions/world/WorldSpawnPlayerAtXY.hpp"
-#include "state/actions/world/WorldTravel.hpp"
-#include "bmin/String.h"
+#include <functional>
+#include <ctime>
+#include <cstdlib>
+#include <memory>
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
 
 namespace {
 

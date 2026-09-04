@@ -1,4 +1,14 @@
-#include "game/combat/projectileHelpers.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
+module carcer.game.combat;
+import bmin.containers;
+import carcer.model.templates.AbilityTypes;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace game {
 

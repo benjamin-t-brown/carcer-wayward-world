@@ -1,11 +1,19 @@
-#include "game/map/MapVision.h"
-#include "game/map/ActiveMapOrchestrator.h"
-#include "game/map/MapWalkability.h"
-#include "model/Combat.h"
-#include "model/instances/Player.h"
+module;
+#include <cstddef>
 #include <cstdint>
-#include <cstdlib>
+#include <utility>
+#include <cmath>
 
+module carcer.game.map;
+import carcer.model.Combat;
+import carcer.model.instances.MapInstance;
+import carcer.model.instances.TileInstance;
+import carcer.db;
+import carcer.model.instances.Player;
+import carcer.model.instances.World;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace game {
 namespace {

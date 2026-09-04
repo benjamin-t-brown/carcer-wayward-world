@@ -1,5 +1,11 @@
-#include "LayerManager.h"
-#include "sdl2w/Logger.h"
+module;
+#include <cstddef>
+#include <string_view>
+
+module carcer.layers;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
 
 namespace layers {
 

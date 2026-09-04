@@ -1,4 +1,13 @@
-#include "game/map/Camera.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
+module carcer.game.map;
+import carcer.model.instances.MapInstance;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace game {
 

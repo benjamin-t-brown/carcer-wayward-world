@@ -1,27 +1,13 @@
-#include "../../setupTestUi.h"
-#include "bmin/DynArray.h"
-#include "bmin/String.h"
-#include "bmin/StringInterop.h"
-#include "bmin/UniquePtr.h"
-#include "db/Database.h"
-#include "layers/LayerManager.h"
-#include "game/combat/SpellRules.h"
-#include "model/instances/CharacterPlayer.h"
-#include "model/instances/Player.h"
-#include "model/templates/RuneTypes.h"
-#include "sdl2w/Draw.h"
-#include "sdl2w/Logger.h"
-#include "sdl2w/Window.h"
-#include "state/DatabaseInterface.h"
-#include "state/LayerManagerInterface.h"
-#include "state/StateManagerInterface.h"
-#include "state/actions/ui/UiCancelEquipRunes.hpp"
-#include "state/actions/ui/UiCommitEquipRunes.hpp"
-#include "state/actions/ui/UiSetCurrentPartyMemberMagic.hpp"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
-#include "ui/UiElement.h"
-#include "ui/pages/PageMagicSetup.h"
+#include <functional>
+#include <ctime>
+#include <cstdlib>
 #include <memory>
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
+#include "../../setupTestUi.h"
 
 namespace {
 
@@ -47,7 +33,7 @@ ui::PageMagicSetupSpellEntry makeSpellEntryFromDb(const db::Database& database,
     const auto sprite = model::runeTypeToSpriteName(req.type);
     const int count = req.count > 0 ? req.count : 1;
     for (int i = 0; i < count; ++i) {
-      entry.requiredRuneSprites.pushBack(sprite);
+      entry.requiredRuneSprites.push_back(sprite);
     }
   }
   return entry;
@@ -116,8 +102,17 @@ ui::PageMagicSetupProps makeMagicSetupFixtureProps(
     }
     runeCheckCharacter.knownSpells.pushBack(spellName);
     auto entry = makeSpellEntryFromDb(database, *spell);
-    entry.ready = model::characterHasSpellReady(
-        runeCheckCharacter, bmin::toStringView(spellName), database);
+    int equippedCounts[model::kRuneTypeCount] = {};
+    for (const auto& runeType : runeCheckCharacter.equippedRunes) {
+      equippedCounts[model::runeTypeIndex(runeType)]++;
+    }
+    entry.ready = true;
+    for (const auto& requiredRune : spell->requiredRunes) {
+      if (equippedCounts[model::runeTypeIndex(requiredRune.type)] < requiredRune.count) {
+        entry.ready = false;
+        break;
+      }
+    }
     pageProps.spells.pushBack(entry);
   }
 
@@ -282,7 +277,7 @@ int main(int argc, char** argv) {
 
   auto _render = [&](sdl2w::Window& window, sdl2w::Store& store) {
     auto& draw = window.getDraw();
-    draw.setBackgroundColor(SDL_Color{100, 100, 100, 255});
+    draw.setBackgroundColor({100, 100, 100, 255});
     draw.clearScreen();
 
     layerManager->render(window.getDeltaTime());

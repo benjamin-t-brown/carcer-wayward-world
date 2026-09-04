@@ -1,18 +1,13 @@
-#include "../../setupTestUi.h"
-#include "sdl2w/Draw.h"
-#include "sdl2w/Logger.h"
-#include "sdl2w/Window.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
-#include "ui/UiElement.h"
-#include "ui/TextStyle.h"
-#include "ui/colors.h"
-#include "ui/elements/Quad.h"
-#include "ui/elements/VerticalList.h"
-#include "ui/elements/TextLine.h"
+#include <functional>
+#include <ctime>
+#include <cstdlib>
 #include <memory>
-#include "bmin/String.h"
-#include "bmin/DynArray.h"
-#include "bmin/UniquePtr.h"
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
+#include "../../setupTestUi.h"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Start VerticalList test" << LOG_ENDL;

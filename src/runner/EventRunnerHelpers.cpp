@@ -1,5 +1,15 @@
-#include "EventRunnerHelpers.h"
-#include "lib/StringUtil.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+#include <optional>
+
+module carcer.runner;
+import carcer.lib.StringUtil;
+import bmin.containers;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace runner {
 

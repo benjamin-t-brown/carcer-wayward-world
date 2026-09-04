@@ -1,9 +1,13 @@
-#include "db/Database.h"
-#include "sdl2w/Logger.h"
-#include "model/instances/CharacterPlayer.h"
-#include "model/templates/Items.h"
-#include "bmin/String.h"
+#include <functional>
+#include <ctime>
+#include <cstdlib>
+#include <memory>
+#include <string_view>
 #include <cassert>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
 
 #define TEST_NAME "TestCharacterEquip"
 

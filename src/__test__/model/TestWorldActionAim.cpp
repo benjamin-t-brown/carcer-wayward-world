@@ -1,15 +1,12 @@
-#include "db/Database.h"
-#include "model/instances/CharacterInstance.h"
-#include "model/instances/CharacterPlayer.h"
-#include "model/templates/MapGrids.h"
-#include "sdl2w/Logger.h"
-#include "state/DatabaseInterface.h"
-#include "state/State.h"
-#include "state/StateManager.h"
-#include "state/StateManagerInterface.h"
-#include "state/actions/world/WorldMoveActionAim.hpp"
-#include "state/actions/world/WorldSetActionAim.hpp"
-#include "state/actions/world/WorldSetActionMode.hpp"
+#include <functional>
+#include <ctime>
+#include <cstdlib>
+#include <memory>
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
 
 namespace {
 

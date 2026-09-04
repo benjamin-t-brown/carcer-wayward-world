@@ -1,0 +1,327 @@
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+#if __has_include(<SDL.h>)
+#include <SDL.h>
+#include <SDL_pixels.h>
+#else
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_pixels.h>
+#endif
+
+export module carcer.ui.elements:Quad;
+export import bmin.containers;
+import bmin.string_interop;
+export import carcer.ui.SdlPixels;
+export import carcer.ui.UiElement;
+import sdl2w;
+import carcer.ui.uiUtils;
+#include "macros.h"
+
+export {
+
+// --- from ui/elements/Quad.h ---
+// IWYU pragma: keep
+
+#if defined(MIYOOA30) || defined(MIYOOMINI)
+
+#else
+
+#endif
+
+namespace ui {
+
+// Quad-specific properties
+struct QuadProps {
+  int width = 0;
+  int height = 0;
+  SDL_Color bgColor = SDL_Color{0, 0, 0, 0};
+  bmin::String bgSprite;
+  SDL_Color borderColor = SDL_Color{0, 0, 0, 0};
+  int borderSize = 0;
+};
+
+// Quad element - renders a stylized rectangle with children
+// Position/scale via setPos/setScale; size via props.width/height → build
+class Quad : public UiElement {
+private:
+  SDL_Texture* renderTexture = nullptr;
+  int currentWidth = 0;
+  int currentHeight = 0;
+
+  QuadProps props;
+
+  void createRenderTexture();
+  void destroyRenderTexture();
+
+public:
+  Quad(sdl2w::Window* _window, UiElement* _parent = nullptr);
+  ~Quad() override;
+
+  // Setters and getters for quad-specific properties
+  void setProps(const QuadProps& _props);
+  QuadProps& getProps();
+  const QuadProps& getProps() const;
+
+  bool checkMouseDownEvent(int mouseX,
+                           int mouseY,
+                           int button,
+                           bmin::DynArray<UiElement*> additionalElements = {}) override;
+  bool checkMouseUpEvent(int mouseX,
+                         int mouseY,
+                         int button,
+                         bmin::DynArray<UiElement*> additionalElements = {}) override;
+  bool checkHoverEvent(int mouseX,
+                       int mouseY,
+                       bmin::DynArray<UiElement*> additionalElements = {}) override;
+  bool checkMouseWheelEvent(int mouseX,
+                            int mouseY,
+                            int delta,
+                            bmin::DynArray<UiElement*> additionalElements = {}) override;
+
+  void build() override;
+  void render(int dt) override;
+};
+
+} // namespace ui
+
+} // export
+
+namespace ui {
+
+Quad::Quad(sdl2w::Window* _window, UiElement* _parent) : UiElement(_window, _parent) {
+  build();
+}
+
+Quad::~Quad() { destroyRenderTexture(); }
+
+void Quad::setProps(const QuadProps& _props) {
+  props = _props;
+  build();
+}
+
+QuadProps& Quad::getProps() { return props; }
+
+const QuadProps& Quad::getProps() const { return props; }
+
+void Quad::createRenderTexture() {
+  // Render target stays at logical size; scale is applied when blitting to screen.
+  if (renderTexture == nullptr || currentWidth != style.width ||
+      currentHeight != style.height) {
+    destroyRenderTexture();
+
+    auto& draw = window->getDraw();
+    auto renderer = draw.getSdlRenderer();
+
+    if (style.width > 0 && style.height > 0) {
+      renderTexture = SDL_CreateTexture(renderer,
+                                        SDL_PIXELFORMAT_RGBA8888,
+                                        SDL_TEXTUREACCESS_TARGET,
+                                        style.width,
+                                        style.height);
+
+      if (renderTexture) {
+        SDL_SetTextureBlendMode(renderTexture, SDL_BLENDMODE_BLEND);
+        currentWidth = style.width;
+        currentHeight = style.height;
+      } else {
+        LOG(ERROR) << "Quad::createRenderTexture - Failed to create texture: "
+                   << SDL_GetError() << LOG_ENDL;
+      }
+    }
+  }
+}
+
+void Quad::destroyRenderTexture() {
+  if (renderTexture != nullptr) {
+    SDL_DestroyTexture(renderTexture);
+    renderTexture = nullptr;
+    currentWidth = 0;
+    currentHeight = 0;
+  }
+}
+
+namespace {
+
+// Map screen-space coords within the quad to texture-local (logical) coords.
+std::pair<int, int> toTextureCoords(int mouseX, int mouseY, const BaseStyle& style) {
+  const int localX = static_cast<int>((mouseX - style.x) / style.scale);
+  const int localY = static_cast<int>((mouseY - style.y) / style.scale);
+  return {localX, localY};
+}
+
+} // namespace
+
+bool Quad::checkMouseDownEvent(int mouseX,
+                               int mouseY,
+                               int button,
+                               bmin::DynArray<UiElement*> additionalElements) {
+  // Check if click is within bounds using utility function
+  if (isInBoundsScaled(mouseX, mouseY, this)) {
+    isClicked = true;
+    auto [localX, localY] = toTextureCoords(mouseX, mouseY, style);
+    // Check children first (front to back)
+    if (shouldPropagateEventsToChildren) {
+      for (auto it = children.rbegin(); it != children.rend(); ++it) {
+        if ((*it)->checkMouseDownEvent(localX, localY, button)) {
+          return true;
+        }
+      }
+    }
+
+    for (auto& observer : eventObservers) {
+      observer->onMouseDown(localX, localY, button);
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
+bool Quad::checkMouseUpEvent(int mouseX,
+                             int mouseY,
+                             int button,
+                             bmin::DynArray<UiElement*> additionalElements) {
+  auto [localX, localY] = toTextureCoords(mouseX, mouseY, style);
+  if (shouldPropagateEventsToChildren) {
+    // Check children first (front to back)
+    for (auto it = children.rbegin(); it != children.rend(); ++it) {
+      (*it)->checkMouseUpEvent(localX, localY, button);
+    }
+  }
+
+  if (isInBoundsScaled(mouseX, mouseY, this)) {
+    if (isClicked) {
+      // click event happens when mouse up occurs inside this element
+      // after a mouse down also occurred inside this element.
+      for (auto& observer : eventObservers) {
+        observer->onClick(localX, localY, button);
+      }
+    }
+  }
+
+  for (auto& observer : eventObservers) {
+    observer->onMouseUp(localX, localY, button);
+  }
+  isClicked = false;
+
+  return true;
+}
+
+bool Quad::checkHoverEvent(int mouseX,
+                           int mouseY,
+                           bmin::DynArray<UiElement*> additionalElements) {
+  auto [localX, localY] = toTextureCoords(mouseX, mouseY, style);
+  if (shouldPropagateEventsToChildren) {
+    for (auto& child : children) {
+      child->checkHoverEvent(localX, localY);
+    }
+  }
+
+  if (isInBoundsScaled(mouseX, mouseY, this)) {
+    isHovered = true;
+
+    return true;
+  } else {
+    isHovered = false;
+  }
+
+  return false;
+}
+
+bool Quad::checkMouseWheelEvent(int mouseX,
+                                int mouseY,
+                                int delta,
+                                bmin::DynArray<UiElement*> additionalElements) {
+  if (isInBoundsScaled(mouseX, mouseY, this)) {
+    auto [localX, localY] = toTextureCoords(mouseX, mouseY, style);
+    if (shouldPropagateEventsToChildren) {
+      for (auto& child : children) {
+        child->checkMouseWheelEvent(localX, localY, delta);
+      }
+    }
+
+    for (auto& observer : eventObservers) {
+      observer->onMouseWheel(localX, localY, delta);
+    }
+
+    return true;
+  }
+  return false;
+}
+
+void Quad::build() {
+  style.width = props.width;
+  style.height = props.height;
+  createRenderTexture();
+}
+
+void Quad::render(int dt) {
+  if (renderTexture == nullptr) {
+    return;
+  }
+
+  auto& draw = window->getDraw();
+  auto& store = window->getStore();
+  auto renderer = draw.getSdlRenderer();
+
+  const int textureWidth = style.width;
+  const int textureHeight = style.height;
+  const int scaledWidth = static_cast<int>(style.width * style.scale);
+  const int scaledHeight = static_cast<int>(style.height * style.scale);
+
+  // Save current render target
+  auto previousTarget = SDL_GetRenderTarget(renderer);
+
+  // Set render target to our texture
+  SDL_SetRenderTarget(renderer, renderTexture);
+
+  // Clear the texture with transparency
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+  SDL_RenderClear(renderer);
+
+  draw.drawRect(0, 0, textureWidth, textureHeight, props.bgColor);
+
+  // Render background sprite if specified
+  if (!props.bgSprite.empty()) {
+    auto& spriteData = store.getSprite(bmin::toStringView(props.bgSprite));
+
+    sdl2w::RenderableParamsEx params;
+    params.x = 0;
+    params.y = 0;
+    params.w = textureWidth;
+    params.h = textureHeight;
+    params.scale = {1.0, 1.0};
+    params.centered = false;
+
+    draw.drawSprite(spriteData, params);
+  }
+
+  // Draw border as four rectangles (top, right, bottom, left)
+  auto bs = props.borderSize;
+
+  if (bs > 0) {
+    // Top border
+    draw.drawRect(0, 0, textureWidth, bs, props.borderColor);
+    // Bottom border
+    draw.drawRect(0, textureHeight - bs, textureWidth, bs, props.borderColor);
+    // Left border
+    draw.drawRect(0, 0, bs, textureHeight, props.borderColor);
+    // Right border
+    draw.drawRect(textureWidth - bs, 0, bs, textureHeight, props.borderColor);
+  }
+
+  // Render children (they render relative to 0,0 on the texture)
+  UiElement::render(dt);
+
+  // Restore previous render target
+  SDL_SetRenderTarget(renderer, previousTarget);
+
+  // Blit texture scaled to screen position
+  SDL_Rect destRect = {style.x, style.y, scaledWidth, scaledHeight};
+  SDL_RenderCopy(renderer, renderTexture, nullptr, &destRect);
+}
+
+} // namespace ui

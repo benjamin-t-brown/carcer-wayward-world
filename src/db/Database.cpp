@@ -1,15 +1,26 @@
-#include "Database.h"
-#include "sdl2w/Logger.h"
-#include "loaders/LoadAbilityTemplates.h"
-#include "loaders/LoadCharacterTemplates.h"
-#include "loaders/LoadItemTemplates.h"
-#include "loaders/LoadMapGridTemplates.h"
-#include "loaders/LoadMapTemplates.h"
-#include "loaders/LoadSpecialEvents.h"
-#include "loaders/LoadSpellTemplates.h"
-#include "loaders/LoadStatusEffectTemplates.h"
-#include "loaders/LoadTilesetTemplates.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+#include <string_view>
+#include <string>
 #include <stdexcept>
+
+module carcer.db;
+import carcer.model.templates.RuneTypes;
+import bmin.containers;
+import carcer.model.templates.Abilities;
+import carcer.model.templates.CharacterTemplate;
+import carcer.model.templates.Items;
+import carcer.model.templates.MapGrids;
+import carcer.model.templates.Maps;
+import carcer.model.templates.SpecialEvents;
+import carcer.model.templates.Spells;
+import carcer.model.templates.StatusEffects;
+import carcer.model.templates.Tileset;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace db {
 

@@ -1,6 +1,16 @@
-#include "game/map/MapPathfinding.h"
-#include "game/map/ActiveMapOrchestrator.h"
-#include "game/map/MapWalkability.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
+module carcer.game.map;
+import bmin.containers;
+import carcer.db;
+import carcer.model.instances.CharacterInstance;
+import carcer.model.instances.World;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace game {
 namespace {

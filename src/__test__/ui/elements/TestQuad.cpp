@@ -1,15 +1,13 @@
-#include "sdl2w/Draw.h"
-#include "sdl2w/Logger.h"
-#include "sdl2w/Window.h"
-#include "bmin/DynArray.h"
-#include "bmin/UniquePtr.h"
-
-#include "../../setupTestUi.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
-#include "ui/UiElement.h"
-#include "ui/colors.h"
-#include "ui/elements/Quad.h"
+#include <functional>
+#include <ctime>
+#include <cstdlib>
 #include <memory>
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
+#include "../../setupTestUi.h"
 
 ui::Quad* createBasicQuad(sdl2w::Window* window, int w, int h) {
   auto q = new ui::Quad(window);

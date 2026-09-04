@@ -1,4 +1,18 @@
-#include "ui/helpers/keyboardShortcuts.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+#include <string_view>
+#include <string>
+#include <optional>
+
+module carcer.ui.helpers;
+import carcer.model.instances.MapInstance;
+import carcer.model.instances.World;
+import carcer.state.WorldActions;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace ui {
 

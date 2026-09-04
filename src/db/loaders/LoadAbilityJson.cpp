@@ -1,5 +1,16 @@
-#include "LoadAbilityJson.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
 #include <stdexcept>
+
+module carcer.db;
+import bmin.containers;
+import carcer.model.templates.AbilityTypes;
+import carcer.lib.Json;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace db {
 

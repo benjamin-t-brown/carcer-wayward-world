@@ -1,21 +1,14 @@
-#include "../../setupTestUi.h"
-#include "db/Database.h"
-#include "layers/LayerManager.h"
-#include "layers/ui/LayerInventory.h"
-#include "sdl2w/Draw.h"
-#include "sdl2w/Logger.h"
-#include "sdl2w/Window.h"
-#include "model/instances/CharacterPlayer.h"
-#include "state/DatabaseInterface.h"
-#include "state/LayerManagerInterface.h"
-#include "state/StateManagerInterface.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
-#include "bmin/DynArray.h"
-#include "bmin/String.h"
-#include "bmin/StringInterop.h"
-#include "bmin/UniquePtr.h"
-#include <cassert>
+#include <functional>
+#include <ctime>
+#include <cstdlib>
 #include <memory>
+#include <string_view>
+#include <cassert>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
+#include "../../setupTestUi.h"
 
 namespace {
 
@@ -103,7 +96,7 @@ int main(int argc, char** argv) {
     stateManager.update(window.getDeltaTime());
 
     auto& draw = window.getDraw();
-    draw.setBackgroundColor(SDL_Color{100, 100, 100, 255});
+    draw.setBackgroundColor({100, 100, 100, 255});
     draw.clearScreen();
     layerManager->render(window.getDeltaTime());
     return true;

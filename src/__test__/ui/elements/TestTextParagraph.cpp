@@ -1,28 +1,25 @@
-#include "../../setupTestUi.h"
-#include "sdl2w/Defines.h"
-#include "sdl2w/Draw.h"
-#include "sdl2w/Logger.h"
-#include "sdl2w/Window.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
-#include "ui/TextStyle.h"
-#include "ui/UiElement.h"
-#include "ui/elements/Quad.h"
-#include "ui/elements/TextParagraph.h"
+#include <functional>
+#include <ctime>
+#include <cstdlib>
 #include <memory>
-#include "bmin/DynArray.h"
-#include "bmin/UniquePtr.h"
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
+#include "../../setupTestUi.h"
 
 // struct QuadWithParagraphParams {
 //   int x = 0;
 //   int y = 0;
 //   int width = 300;
 //   int height = 200;
-//   SDL_Color bgColor = SDL_Color{50, 50, 50, 255};
-//   SDL_Color borderColor = SDL_Color{0, 0, 0, 0};
+//   SDL_Color bgColor = {50, 50, 50, 255};
+//   SDL_Color borderColor = {0, 0, 0, 0};
 //   int borderSize = 0;
 //   bmin::DynArray<ui::TextBlock> textBlocks;
 //   sdl2w::TextSize fontSize = sdl2w::TEXT_SIZE_16;
-//   SDL_Color fontColor = SDL_Color{255, 255, 255, 255};
+//   SDL_Color fontColor = {255, 255, 255, 255};
 //   int lineSpacing = 0;
 //   int padding = 0;
 // };

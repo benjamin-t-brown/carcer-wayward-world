@@ -1,10 +1,12 @@
-#include "db/Database.h"
-#include "game/map/MapWalkability.h"
-#include "model/instances/World.h"
-#include "sdl2w/Logger.h"
-#include "state/DatabaseInterface.h"
-#include "bmin/DynArray.h"
-#include "bmin/String.h"
+#include <functional>
+#include <ctime>
+#include <cstdlib>
+#include <memory>
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
 
 namespace {
 

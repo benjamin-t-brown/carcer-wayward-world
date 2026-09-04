@@ -1,5 +1,13 @@
-#include "state/ActionBus.h"
-#include "state/AbstractAction.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+#include <functional>
+#include <algorithm>
+#include <typeinfo>
+#include <typeindex>
+
+module carcer.state;
 
 namespace state {
 

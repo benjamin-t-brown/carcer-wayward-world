@@ -96,5 +96,17 @@
   "C_Cpp_Runner.useLeakSanitizer": false,
   "C_Cpp_Runner.showCompilationTime": false,
   "C_Cpp_Runner.useLinkTimeOptimization": false,
-  "C_Cpp_Runner.msvcSecureNoWarnings": false
+  "C_Cpp_Runner.msvcSecureNoWarnings": false,
+  "files.associations": {
+    "*.cppm": "cpp"
+  },
+  "C_Cpp.intelliSenseEngine": "disabled",
+  "clangd.path": "${env:MSYS2_ROOT}/ucrt64/bin/clangd.exe",
+  "clangd.arguments": [
+    "--experimental-modules-support",
+    "--query-driver=C:/msys64/ucrt64/bin/clang++.exe,C:/msys64/ucrt64/bin/g++.exe,C:/progs/msys2/ucrt64/bin/clang++.exe,C:/progs/msys2/ucrt64/bin/g++.exe,/ucrt64/bin/clang++.exe,/ucrt64/bin/g++.exe",
+    "--compile-commands-dir=${workspaceFolder}",
+    "--background-index"
+  ],
+  "clangd.checkUpdates": false
 }

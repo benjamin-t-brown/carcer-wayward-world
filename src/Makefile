@@ -3,6 +3,8 @@ EXE_SUFFIX=
 
 MAIN_ALL=main.cpp
 
+# Implementation units (.cpp) sit next to their interface units (.cppm).
+# Umbrella + macros.h live in modules/. BMI graph: modules/make/build-bmi.mk.
 CODE=\
 db/Database.cpp \
 db/loaders/LoadItemTemplates.cpp \
@@ -14,30 +16,11 @@ db/loaders/LoadCharacterTemplates.cpp \
 db/loaders/LoadMapTemplates.cpp \
 db/loaders/LoadMapGridTemplates.cpp \
 db/loaders/LoadTilesetTemplates.cpp \
-model/templates/AbilityTypes.cpp \
-model/templates/RuneTypes.cpp \
 db/loaders/LoadSpecialEvents.cpp \
 lib/Json.cpp \
-layers/Layer.cpp \
+lib/hiscore/hiscore.cpp \
 layers/LayerManager.cpp \
-layers/ui/LayerInventoryContext.cpp \
-layers/ui/LayerGiveContext.cpp \
-layers/ui/LayerDropConfirm.cpp \
-layers/ui/LayerInventory.cpp \
-layers/ui/LayerMagic.cpp \
-layers/ui/LayerSpellCast.cpp \
-layers/ui/LayerEquipRunes.cpp \
-layers/ui/LayerSpellInfo.cpp \
-layers/ui/LayerPickUpContext.cpp \
-layers/ui/LayerPickUp.cpp \
-layers/ui/LayerPopupText.cpp \
-layers/ui/LayerSpecialEvent.cpp \
-layers/ui/LayerWorld.cpp \
-model/Combat.cpp \
 game/combat/SpellRules.cpp \
-model/instances/Player.cpp \
-model/instances/CharacterPlayer.cpp \
-model/instances/MapInstance.cpp \
 game/map/ActiveMapOrchestrator.cpp \
 game/map/Camera.cpp \
 game/map/MapWalkability.cpp \
@@ -52,14 +35,6 @@ game/combat/projectileHelpers.cpp \
 game/combat/Damage.cpp \
 game/diceHelpers.cpp \
 game/combat/EnemyBehavior.cpp \
-model/stats/CharacterStats.cpp \
-model/stats/CharacterStatDefinitions.cpp \
-model/stats/CharacterDerivedStats.cpp \
-model/stats/CharacterDerivedStatDefinitions.cpp \
-model/templates/CharacterTemplate.cpp \
-model/templates/Items.cpp \
-model/templates/Maps.cpp \
-model/templates/UtilityTypes.cpp \
 runner/SpecialEventRunner.cpp \
 runner/ConditionEvaluator.cpp \
 runner/StringEvaluator.cpp \
@@ -76,238 +51,149 @@ ui/FontScale.cpp \
 ui/helpers/worldActions.cpp \
 ui/helpers/keyboardShortcuts.cpp \
 ui/helpers/modalLayoutFit.cpp \
-ui/elements/SpriteElement.cpp \
-ui/elements/Quad.cpp \
-ui/elements/TextLine.cpp \
-ui/elements/TextBanner.cpp \
-ui/elements/TextParagraph.cpp \
-ui/elements/buttons/ButtonClose.cpp \
-ui/elements/buttons/ButtonModal.cpp \
-ui/elements/buttons/ButtonScroll.cpp \
-ui/elements/buttons/ButtonList.cpp \
-ui/elements/buttons/ButtonSprite.cpp \
-ui/elements/buttons/ButtonGroup.cpp \
-ui/elements/buttons/ButtonIcon.cpp \
-ui/components/borders/BorderDropShadow.cpp \
-ui/elements/SectionScrollable.cpp \
 ui/KeyboardHeldScroll.cpp \
-ui/elements/HorizontalSlider.cpp \
-ui/elements/buttons/ButtonTextWrap.cpp \
-ui/elements/buttons/ButtonWorldAction.cpp \
-ui/elements/buttons/ButtonMove.cpp \
-ui/elements/OutsetRectangle.cpp \
-ui/elements/VerticalList.cpp \
-ui/elements/HorizontalList.cpp \
-ui/components/borders/BorderModalStandard.cpp \
-ui/components/borders/BorderModalSmall.cpp \
-ui/components/borders/BorderInGame.cpp \
-ui/components/borders/BorderInGameWide.cpp \
-ui/components/borders/BorderInGameNarrow.cpp \
 ui/components/ChCompactInfo.cpp \
-ui/components/InGameTitleBar.cpp \
-ui/components/ItemInfo.cpp \
-ui/components/PartyMemberSwitcher.cpp \
-ui/components/PartyMemberIconSelector.cpp \
-ui/components/FloatingNotification.cpp \
-ui/components/FloatingNotificationSection.cpp \
-ui/components/ConfirmModal.cpp \
-ui/components/TouchMovePad.cpp \
-ui/components/MapView.cpp \
-ui/components/TiledOverlay.cpp \
-ui/layouts/InGameLayout.cpp \
-ui/layouts/ModalStandard.cpp \
-ui/layouts/ModalSmall.cpp \
-ui/minipages/MinipageCharacterSheet.cpp \
-ui/minipages/MinipageEvent.cpp \
-ui/minipages/MinipageEquipRunes.cpp \
-ui/components/lists/ListInventory.cpp \
-ui/components/lists/ListPickUp.cpp \
-ui/components/lists/ListMagicSpells.cpp \
-ui/components/lists/ListChCompactInfoVertical.cpp \
-ui/components/lists/ListChCompactInfoHorizontal.cpp \
-ui/popups/PopupInventoryItem.cpp \
-ui/popups/PopupSpellInfo.cpp \
-ui/popups/PopupGive.cpp \
-ui/popups/PopupDropConfirm.cpp \
-ui/pages/PageCharacter.cpp \
-ui/pages/PageInventory.cpp \
-ui/pages/PageMagicSetup.cpp \
-ui/pages/PageTalkChoice.cpp \
-ui/pages/PageModalEvent.cpp \
-ui/minipages/MinipagePickUp.cpp \
-ui/minipages/MinipageSpellCast.cpp \
-ui/popups/PopupPickupItem.cpp \
-
-LIB_CODE=\
-
-TEST_CODE=\
-
-TEST_CODE_UI=\
+game/combat/CombatRunner.cpp \
 
 TARGET ?= native
-BASE_BUILD_DIR = build
+
+.DEFAULT_GOAL := all
 
 SDL2W_REPO_URL = https://github.com/benjamin-t-brown/sdl2w.git
-SDL2W_DIR_NAME = ../sdl2w
+SDL2W_DIR_NAME = ../../sdl2w
+SDL2W_REF = experiment/cpp-modules
 SDL2W_BUILD_OUTPUT_DIR = $(SDL2W_DIR_NAME)/sdl2w
+SDL2W_MODULES_LIB = lib/sdl2w/libsdl2w_modules.a
 
 MAIN_ALL_OBJECT=$(MAIN_ALL:.cpp=.o)
-
 OBJECTS=$(CODE:.cpp=.o)
-LIB_OBJECTS=$(LIB_CODE:.cpp=.o)
-
 DEPENDS := $(patsubst %.cpp,%.d,$(CODE)) main.d
-LIB_DEPENDS := $(patsubst %.cpp,%.d,$(LIB_CODE))
-
-SDL2W_STAMP = $(SDL2W_DIR_NAME)/.source_ok
-# Must match where _copy_sdl2w_artifacts installs the archive (not the upstream build tree).
-SDL2W_LIB = lib/sdl2w/libsdl2w.a
 LIBCARCER = lib/libcarcer.a
+CARCER_BMI_STAMP = gcm.cache/.carcer-ready
+SDL2W_STAMP = $(SDL2W_DIR_NAME)/.source_ok
 
-# Subset of Emscripten port flags: needed when compiling sdl2w to .o (static lib), not only at final link.
-EMCC_SDL_PORTS=\
--s USE_SDL=2\
--s USE_SDL_IMAGE=2\
--s USE_SDL_MIXER=2\
--s SDL2_IMAGE_FORMATS='["png"]'\
--s USE_SDL_TTF=2\
--s USE_SDL_GFX=2
+# Copied layout from copy-sdl2w-artifacts.sh (archives next to modules/, not in lib/).
+# Set paths before include so use.mk's ?= defaults do not pick the in-tree build/ path.
+SDL2W_LIB = $(abspath lib/sdl2w/libsdl2w_modules.a)
+BMIN_LIB = $(abspath lib/sdl2w/libbmin_modules.a)
+SDL2W_LIBDIR = $(abspath lib/sdl2w)
+BMIN_LIBDIR = $(abspath lib/sdl2w)
+SDL2W_MODULES_DIR = $(abspath lib/sdl2w/modules)
+BMIN_MODULES_DIR = $(abspath lib/sdl2w/modules/bmin)
 
-# Link-time (includes EMCC_SDL_PORTS).
-EMCC_LIBS=\
-$(EMCC_SDL_PORTS)\
--s ALLOW_MEMORY_GROWTH=1\
--s SAFE_HEAP=0\
--s ASSERTIONS=1\
--s INITIAL_MEMORY=326565888\
--s ENVIRONMENT=web\
--s DISABLE_EXCEPTION_CATCHING=0\
--lidbfs.js
-
-EMCC_EXPORTED=\
--s EXPORTED_FUNCTIONS='[\
- "_main",\
- "_enableSound",\
- "_disableSound",\
- "_setVolume",\
- "_setKeyDown",\
- "_setKeyUp",\
- "_setKeyStatus",\
- "_sendEvent"\
-]'\
--s EXPORTED_RUNTIME_METHODS=['ccall']
-
-DEBUG = true
-LIBS += -Llib/sdl2w -lsdl2w -Llib/bmin -lbmin
-INCLUDES += -I. -Ilib
-CPP_STANDARD = -std=c++23
-ifeq ($(TARGET),wasm)
-    FLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -Oz
-    LIBS += $(EMCC_LIBS) $(EMCC_EXPORTED) --preload-file assets
-    EXE_SUFFIX = .js
-    CXX = em++
-    AR = emar
+# Prefer copied consumer bundle; fall back to in-tree sdl2w modules during bootstrap.
+ifeq ($(wildcard lib/sdl2w/modules/make/use.mk),)
+  ifneq ($(wildcard $(SDL2W_DIR_NAME)/src/modules/make/use.mk),)
+    include $(SDL2W_DIR_NAME)/src/modules/make/use.mk
+  endif
 else
-    FLAGS = -Og -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -fno-omit-frame-pointer
-    ifndef CXX
-        CXX = g++
-    endif
-    ifeq ($(OS),Windows_NT)
-        LIBS += -mconsole -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lSDL2_gfx
-    else
-        UNAME_S := $(shell uname -s)
-        ifeq ($(UNAME_S),Darwin)
-            LIBS += -L/opt/homebrew/lib -L/usr/local/lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lSDL2_gfx
-            INCLUDES += -I/opt/homebrew/include -I/usr/local/include
-        else
-            LIBS += -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lSDL2_gfx
-        endif
-    endif
-    ifeq ($(DEBUG),true)
-        FLAGS += -g
-    endif
-    ifndef AR
-        AR = ar
-    endif
+  include lib/sdl2w/modules/make/use.mk
 endif
 
-COMPILER_LINK_INPUTS = $(LIBCARCER)
-LINK_FLAGS=-fuse-ld=lld
+DEBUG = true
+LINK_FLAGS = -fuse-ld=lld
 
-SOURCES = $(CODE) $(LIB_CODE) $(MAIN_ALL)
+ifeq ($(TARGET),wasm)
+  EXE_SUFFIX = .js
+  CXX = em++
+  AR = emar
+  FLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Oz
+else
+  ifndef CXX
+    CXX = g++
+  endif
+  ifndef AR
+    AR = ar
+  endif
+  FLAGS = -Og -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -fno-omit-frame-pointer
+  ifeq ($(DEBUG),true)
+    FLAGS += -g
+  endif
+endif
 
-.PHONY: all sdl2w sdl2w_wasm sdl2w_rebuild _copy_sdl2w_artifacts _copy_bmin_artifacts libcarcer print_cxx print_sources print_compile_flags print_compile_db
+# Game flags = project warnings + sdl2w module flags (adds -std=c++23 -fmodules-ts -I…).
+CARCER_CXXFLAGS = $(FLAGS) $(SDL2W_CXXFLAGS) -Imodules
+CARCER_LDLIBS = $(SDL2W_LDLIBS)
+
+CARCER_BMI_OBJS = $(shell cat modules/bmi_objs.list 2>/dev/null)
+CARCER_IFACES = $(shell cat modules/cppm_sources.list 2>/dev/null)
+
+SOURCES = $(CODE) $(MAIN_ALL)
+
+# Do not -include old header-era .d files (modules break those deps).
+
+
+.PHONY: all sdl2w sdl2w_wasm sdl2w_rebuild carcer-bmi libcarcer object_files \
+	print_cxx print_sources print_compile_flags print_compile_db compiler_args \
+	compiler_link_args \
+	run js debug clean _copy_sdl2w_artifacts
 
 all: sdl2w
 	$(MAKE) $(EXE)
 
-$(LIBCARCER): $(OBJECTS) $(LIB_OBJECTS)
-	@mkdir -p lib
-	$(AR) rcs $@ $(OBJECTS) $(LIB_OBJECTS)
+sdl2w: $(SDL2W_MODULES_LIB)
 
-libcarcer: $(LIBCARCER)
-
-$(EXE): $(MAIN_ALL_OBJECT) $(LIBCARCER) $(SDL2W_LIB)
-	$(CXX) $(FLAGS) $(LINK_FLAGS) $(INCLUDES) $(MAIN_ALL_OBJECT) $(LIBCARCER) -o $(EXE)$(EXE_SUFFIX) $(LIBS)
-
-# Convenience alias: builds $(SDL2W_LIB) only when needed (see rule below).
-sdl2w: $(SDL2W_LIB)
-
-# Force a full sdl2w rebuild + copy (use after upgrading sdl2w or changing its build).
 sdl2w_rebuild:
-	$(MAKE) -C "$(SDL2W_DIR_NAME)/src" all
+	$(MAKE) -C "$(SDL2W_DIR_NAME)/src" native
 	@$(MAKE) _copy_sdl2w_artifacts
 
 $(SDL2W_STAMP):
 	@if [ ! -d $(SDL2W_DIR_NAME) ]; then \
-		echo "Directory $(SDL2W_DIR_NAME) not found. Cloning $(SDL2W_REPO_URL) into $(SDL2W_DIR_NAME)..."; \
+		echo "Cloning $(SDL2W_REPO_URL) into $(SDL2W_DIR_NAME)..."; \
 		git clone $(SDL2W_REPO_URL) $(SDL2W_DIR_NAME); \
-		cd $(SDL2W_DIR_NAME); \
-		git checkout bmin; \
+		cd $(SDL2W_DIR_NAME) && git checkout $(SDL2W_REF); \
 	else \
-		echo "Directory $(SDL2W_DIR_NAME) found. Assuming it is the sdl2w repository."; \
+		echo "Using existing $(SDL2W_DIR_NAME)"; \
 	fi
 	@touch $@
 
-$(SDL2W_LIB): $(SDL2W_STAMP)
-	@echo "Building standard sdl2w library (running 'make all' in $(SDL2W_DIR_NAME)/src)...";
-	$(MAKE) -C "$(SDL2W_DIR_NAME)/src" all
+$(SDL2W_MODULES_LIB): $(SDL2W_STAMP)
+	@echo "Building sdl2w modules (make native in $(SDL2W_DIR_NAME)/src)..."
+	$(MAKE) -C "$(SDL2W_DIR_NAME)/src" native
 	@$(MAKE) _copy_sdl2w_artifacts
 
 sdl2w_wasm: $(SDL2W_STAMP)
-	@echo "Building sdl2w library for WebAssembly (running 'make wasm' in $(SDL2W_DIR_NAME)/src)...";
-	$(MAKE) -C "$(SDL2W_DIR_NAME)/src" wasm
+	@echo "Building sdl2w modules for wasm..."
+	$(MAKE) -C "$(SDL2W_DIR_NAME)/src" TARGET=wasm
 	@$(MAKE) _copy_sdl2w_artifacts
 
-# Copy headers only when content differs so identical files keep their mtimes
-# (avoids cascading rebuilds of every .o that depends on lib/sdl2w or lib/bmin).
-define copy_headers_if_changed
-	@for f in $(1); do \
-		dest="$(2)/$$(basename "$$f")"; \
-		if ! cmp -s "$$f" "$$dest" 2>/dev/null; then \
-			cp "$$f" "$$dest"; \
-		fi; \
-	done
-endef
-
-_copy_sdl2w_artifacts: _copy_bmin_artifacts
+_copy_sdl2w_artifacts:
 	@mkdir -p lib/sdl2w
-	@echo "Copying sdl2w artifacts from $(SDL2W_BUILD_OUTPUT_DIR) to lib/sdl2w..."
-	@cp $(SDL2W_BUILD_OUTPUT_DIR)/lib/libsdl2w.a lib/sdl2w
-	$(call copy_headers_if_changed,$(SDL2W_BUILD_OUTPUT_DIR)/include/*.h,lib/sdl2w)
+	$(SDL2W_DIR_NAME)/copy-sdl2w-artifacts.sh lib/sdl2w
 
-_copy_bmin_artifacts:
-	@mkdir -p lib/bmin
-	@mkdir -p lib/bmin/internal
-	@echo "Copying bmin artifacts from $(SDL2W_BUILD_OUTPUT_DIR) to lib/bmin..."
-	@cp $(SDL2W_BUILD_OUTPUT_DIR)/lib/libbmin.a lib/bmin
-	$(call copy_headers_if_changed,$(SDL2W_BUILD_OUTPUT_DIR)/include/bmin/*.h,lib/bmin)
-	$(call copy_headers_if_changed,$(SDL2W_BUILD_OUTPUT_DIR)/include/bmin/internal/*.h,lib/bmin/internal)
-	$(call copy_headers_if_changed,$(SDL2W_BUILD_OUTPUT_DIR)/include/bmin/internal/*.hpp,lib/bmin/internal)
+carcer-bmi: $(CARCER_BMI_STAMP)
+
+$(CARCER_BMI_STAMP): sdl2w-bmi $(CARCER_IFACES) modules/make/build-bmi.mk modules/bmi_objs.list
+	$(MAKE) -f modules/make/build-bmi.mk CXX=$(CXX) -j1
+	@touch $(CARCER_BMI_STAMP)
+
+$(LIBCARCER): $(OBJECTS) carcer-bmi
+	@mkdir -p lib
+	$(file >lib/libcarcer.objs,$(OBJECTS) $(CARCER_BMI_OBJS))
+	$(AR) rcs $@ @lib/libcarcer.objs
+
+libcarcer object_files: $(LIBCARCER)
+
+$(EXE): $(MAIN_ALL_OBJECT) $(LIBCARCER) carcer-bmi sdl2w-bmi
+ifeq ($(TARGET),wasm)
+	$(CXX) $(CARCER_CXXFLAGS) $(LINK_FLAGS) -o $(EXE)$(EXE_SUFFIX) \
+		$(MAIN_ALL_OBJECT) -Wl,--start-group $(LIBCARCER) -Wl,--end-group $(CARCER_LDLIBS)
+else
+	$(CXX) $(CARCER_CXXFLAGS) $(LINK_FLAGS) -o $(EXE)$(EXE_SUFFIX) \
+		$(MAIN_ALL_OBJECT) -Wl,--start-group $(LIBCARCER) -Wl,--end-group $(CARCER_LDLIBS)
+endif
+
+%.o: %.cpp $(CARCER_BMI_STAMP)
+	$(CXX) $(CARCER_CXXFLAGS) -c $< -o $@
+
+# GCC modules may emit fictional *.c++-module make prerequisites; ignore them.
+%.c++-module: ;
 
 compiler_args:
-	@echo $(FLAGS) $(LINK_FLAGS) $(INCLUDES) $(COMPILER_LINK_INPUTS) $(LIBS)
+	@echo $(CARCER_CXXFLAGS) $(LINK_FLAGS) -Wl,--start-group $(LIBCARCER) -Wl,--end-group $(CARCER_LDLIBS)
 
+compiler_link_args:
+	@echo $(LINK_FLAGS) -Wl,--start-group $(LIBCARCER) -Wl,--end-group $(CARCER_LDLIBS)
 print_cxx:
 	@echo $(CXX)
 
@@ -315,42 +201,37 @@ print_sources:
 	@printf '%s\n' $(SOURCES)
 
 print_compile_flags:
-	@echo $(FLAGS) $(INCLUDES)
+	@echo $(CARCER_CXXFLAGS)
 
-# Single-shot metadata dump for scripts/compile-commands.sh (avoids multiple make subprocesses).
 print_compile_db:
 	@printf 'CXX:%s\n' '$(CXX)'
-	@printf 'FLAGS:%s\n' '$(FLAGS) $(INCLUDES)'
+	@printf 'FLAGS:%s\n' '$(CARCER_CXXFLAGS)'
 	@for src in $(SOURCES); do printf 'SOURCE:%s\n' "$$src"; done
+	@for m in $(CARCER_IFACES); do \
+		printf 'MODULE:%s\n' "$$m"; \
+	done
 
-object_files: $(LIBCARCER)
-
--include $(DEPENDS)
--include $(LIB_DEPENDS)
-
-%.o: %.cpp
-	$(CXX) $(FLAGS) $(INCLUDES) -MMD -MP -c $< -o $@
+# Module builds: skip classic -include $(DEPENDS); BMI stamps gate rebuilds.
 
 run:
-	./$(EXE)
+	./$(EXE)$(EXE_SUFFIX)
 
 js: sdl2w_wasm
 	$(MAKE) TARGET=wasm $(EXE)
-	mv $(EXE).js ../web/
-	mv $(EXE).data ../web/
-	mv $(EXE).wasm ../web/
+	mv -f $(EXE).js ../web/
+	mv -f $(EXE).data ../web/
+	mv -f $(EXE).wasm ../web/
 
 debug:
 	gdb $(EXE)
 
 clean:
-	rm -f $(OBJECTS) $(LIB_OBJECTS) $(MAIN_ALL_OBJECT)
+	rm -f $(OBJECTS) $(MAIN_ALL_OBJECT)
 	rm -f $(LIBCARCER)
-	rm -f $(DEPENDS) $(LIB_DEPENDS)
-	rm -f $(EXE) $(EXE).exe
+	rm -f lib/libcarcer.objs
+	rm -f $(DEPENDS)
+	rm -f $(EXE) $(EXE).exe $(EXE).js $(EXE).wasm $(EXE).data
 	rm -rf main.d
-	rm -rf .build
-	rm -rf lib/sdl2w
-	rm -rf lib/bmin
-	rm -rf ../dist/$(EXE).*
+	rm -rf gcm.cache pcm.cache .bmin-bmi .sdl2w-bmi .carcer-bmi
+	# Keep lib/sdl2w module artifacts; use sdl2w_rebuild to refresh them.
 	rm -rf $(SDL2W_STAMP)

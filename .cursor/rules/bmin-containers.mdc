@@ -1,6 +1,6 @@
 ---
 description: Prefer bmin containers/strings over STL equivalents in C++ game code
-globs: ["src/**/*.cpp", "src/**/*.h", "src/**/*.hpp"]
+globs: ["src/**/*.cpp", "src/**/*.cppm", "src/**/*.h", "src/**/*.hpp"]
 alwaysApply: false
 ---
 
@@ -17,10 +17,11 @@ In `src/` C++ code, use **bmin** types instead of the matching STL containers/st
 ## Rules
 
 - New and edited code must not introduce `std::string`, `std::vector`, `std::map`, or `std::unordered_map` when a bmin equivalent exists.
-- Include the bmin headers you need (e.g. `"bmin/String.h"`, `"bmin/DynArray.h"`, `"bmin/Map.h"`).
-- Prefer `bmin::String` / `std::string_view` interop helpers (`bmin/StringInterop.h`) over converting to `std::string`.
+- Prefer modules: `import sdl2w;` (re-exports `bmin.containers`) or `import bmin.containers;` / `import bmin.string_interop;`. Do **not** `#include "bmin/….h"` alongside module imports.
+- Prefer `bmin::String` / `std::string_view` interop helpers (`import bmin.string_interop;`) over converting to `std::string`.
 - `std::optional`, `std::unique_ptr` / `bmin::UniquePtr`, and other non-container STL utilities remain fine when already used by the codebase.
 - Third-party / sdl2w APIs that require STL types are an exception at the boundary only — convert at the edge, keep bmin inside game/model/ui code.
+- Rare GCC BMI workaround: nested `DynArray` under a `UiElement`-derived type may need `std::vector` for the nested leaf (see `src/modules/MODULES.md`).
 
 ## Examples
 
@@ -29,8 +30,10 @@ In `src/` C++ code, use **bmin** types instead of the matching STL containers/st
 std::vector<int> layerKeys;
 std::string name = "world";
 std::unordered_map<int, Tile> tiles;
+#include "bmin/DynArray.h"
 
 // GOOD
+import sdl2w; // or import bmin.containers;
 bmin::DynArray<int> layerKeys;
 bmin::String name = "world";
 bmin::Map<int, Tile> tiles;

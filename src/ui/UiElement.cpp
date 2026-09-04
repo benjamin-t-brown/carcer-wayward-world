@@ -1,6 +1,21 @@
-#include "UiElement.h"
-#include "bmin/StringInterop.h"
-#include "uiUtils.h"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+#include <string_view>
+#include <string>
+#include <optional>
+#include <cmath>
+
+module carcer.ui.UiElement;
+import carcer.ui.uiUtils;
+import bmin.containers;
+import carcer.state;
+import carcer.ui.SdlPixels;
+import carcer.ui.TextStyle;
+import bmin.string_interop;
+import sdl2w;
+#include "macros.h"
 
 namespace ui {
 

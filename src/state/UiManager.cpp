@@ -1,8 +1,11 @@
-#include "state/UiManager.h"
-#include "model/templates/UtilityTypes.h"
-#include "state/State.h"
-#include "state/StateManager.h"
-#include "state/actions/ui/UiRemoveFloatingNotification.hpp"
+module;
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
+module carcer.state;
+import carcer.actions.ui.UiRemoveFloatingNotification;
+import carcer.model.templates.UtilityTypes;
 
 namespace state {
 

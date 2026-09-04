@@ -1,25 +1,12 @@
-#include "db/Database.h"
-#include "game/combat/EnemyBehavior.h"
-#include "game/map/TileDistance.h"
-#include "game/map/MapVision.h"
-#include "model/Combat.h"
-#include "model/instances/CharacterInstance.h"
-#include "model/instances/CharacterPlayer.h"
-#include "model/instances/MapInstance.h"
-#include "model/templates/CharacterTemplate.h"
-#include "model/templates/MapGrids.h"
-#include "model/templates/Tileset.h"
-#include "sdl2w/Logger.h"
-#include "state/DatabaseInterface.h"
-#include "state/State.h"
-#include "state/StateManager.h"
-#include "state/StateManagerInterface.h"
-#include "state/WorldUpdater.h"
-#include "state/actions/combat/DoCPUCombatTurn.hpp"
-#include "state/actions/combat/StartCombat.hpp"
-#include "state/actions/world/WorldMovePlayer.hpp"
-#include "bmin/String.h"
+#include <functional>
+#include <ctime>
 #include <cstdlib>
+#include <memory>
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
 
 namespace {
 

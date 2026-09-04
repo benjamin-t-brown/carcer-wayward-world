@@ -1,17 +1,13 @@
-#include "../../setupTestUi.h"
-#include "sdl2w/Draw.h"
-#include "sdl2w/Events.h"
-#include "sdl2w/Logger.h"
-#include "sdl2w/Window.h"
-#include "ui/UiElement.h"
-#include "ui/elements/buttons/ButtonModal.h"
-#include "ui/elements/buttons/ButtonScroll.h"
-#include "ui/elements/buttons/ButtonClose.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
+#include <functional>
+#include <ctime>
+#include <cstdlib>
 #include <memory>
-#include "bmin/String.h"
-#include "bmin/DynArray.h"
-#include "bmin/UniquePtr.h"
+#include <string_view>
+import carcer;
+import sdl2w;
+import bmin.string_interop;
+#include "macros.h"
+#include "../../setupTestUi.h"
 
 class TestButtonObserver : public ui::UiEventObserver {
   bmin::String id;
