@@ -1085,8 +1085,35 @@ class UiSelectSpellCast : public AbstractAction {
     state->uiState.floatingNotifications.pushBack(std::move(notification));
   }
 
-  // body in ui.cpp: needs :world (WorldSetActionMode), impl-only.
-  void act() override;
+  void act() override {
+    if (!state) {
+      return;
+    }
+    auto* database = getDatabase();
+    if (!database) {
+      LOG(WARN) << "UiSelectSpellCast::act: database is nullptr" << LOG_ENDL;
+      return;
+    }
+
+    auto* character = model::playerFindPartyMemberById(
+        state->player, state->world.combat.activeCharacterId);
+    if (!character) {
+      LOG(WARN) << "UiSelectSpellCast::act: active combat party member not found"
+                << LOG_ENDL;
+      pushWarning(TRANSLATE("Cannot cast that spell."));
+      return;
+    }
+
+    const auto* spell = database->findSpellTemplate(bmin::toStringView(spellId));
+    if (spell == nullptr) {
+      pushWarning(TRANSLATE("Cannot cast that spell."));
+      return;
+    }
+
+    UiRemoveLayer(LayerId::SpellCast).execute(state);
+    game::resolveWorldActionMode(
+        state->world, state->player, model::WorldActionMode::SPELL, spellId, chId);
+  }
 
 public:
   explicit UiSelectSpellCast(const bmin::String& _spellId, const bmin::String& _chId)

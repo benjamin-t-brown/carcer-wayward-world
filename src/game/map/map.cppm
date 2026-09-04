@@ -338,6 +338,18 @@ const model::CharacterInstance*
 findPartyAvatarOnActiveMap(const model::ActiveMap& activeMap,
                            const model::Player& player);
 
+// Resolve a world action-mode change: sets `world.actionMode`, the pending
+// spell/caster context, and `world.actionAimTile` (combat caster if one is
+// active, else the party leader avatar). Shared by the WorldSetActionMode
+// action and any UI code that needs the same targeting logic without
+// depending on the actions module (e.g. entering spell-aim mode from a
+// spell-cast picker).
+void resolveWorldActionMode(model::World& world,
+                            const model::Player& player,
+                            model::WorldActionMode mode,
+                            const bmin::String& spellId = {},
+                            const bmin::String& chId = {});
+
 // Move existing party leader avatar to (x, y) world tiles, or create one from
 // party[0] if missing. Returns nullptr if the party is empty.
 // When database is set, caches template AI/faction fields on a newly created avatar.

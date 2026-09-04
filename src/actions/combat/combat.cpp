@@ -16,45 +16,6 @@ namespace state {
 
 namespace actions {
 
-void EndCombat::act() {
-  if (!state) {
-    return;
-  }
-
-  auto& world = state->world;
-  LOG(INFO) << "EndCombat: ending combat, returning to town mode" << LOG_ENDL;
-  world.combat.active = false;
-  world.combat.turnOrderIds.clear();
-  world.combat.activeTurnIndex = 0;
-  world.combat.activeCharacterId = bmin::String{};
-  world.combat.isWaitingForAction = false;
-  state->turnMode = model::TurnMode::TURN_TOWN;
-
-  model::removeExtraPartyMembersFromMap(world, state->player);
-
-  if (state->player.party.empty()) {
-    return;
-  }
-
-  const auto& leader = state->player.party[0];
-  world.camera.cameraFollowCharacterId = leader.instanceId;
-  world.camera.cameraMode = model::CameraMode::Follow;
-
-  if (auto* avatar =
-          game::findPartyAvatarOnActiveMap(world.activeMap, state->player)) {
-    auto* database = getDatabase();
-    if (database != nullptr) {
-      game::updateActiveMapVisibilityFromPlayer(
-          world, avatar->x, avatar->y, *database);
-    }
-    if (world.camera.viewW > 0 && world.camera.viewH > 0) {
-      const auto cam = game::computeCameraFollow(
-          avatar->x, avatar->y, world.camera.viewW, world.camera.viewH);
-      WorldSetCamera(cam.camX, cam.camY).execute(state);
-    }
-  }
-}
-
 void PerformMeleeAttack::act() {
   if (!state) {
     return;
@@ -239,52 +200,6 @@ void PerformSpellCast::act() {
 
   insertAction(new CharacterSetSpriteIndexOffset(casterId, 0), 0);
   insertAction(new WorldSetActionMode(model::WorldActionMode::NONE), 0);
-}
-
-void SetActiveCombatCharacter::act() {
-  if (!state) {
-    return;
-  }
-  auto* database = getDatabase();
-  if (database == nullptr) {
-    return;
-  }
-
-  auto& world = state->world;
-  auto& combat = world.combat;
-  if (!combat.active) {
-    return;
-  }
-
-  if (characterId.empty()) {
-    if (combat.activeTurnIndex < 0 ||
-        combat.activeTurnIndex >= static_cast<int>(combat.turnOrderIds.size())) {
-      return;
-    }
-    characterId = combat.turnOrderIds[static_cast<size_t>(combat.activeTurnIndex)];
-  }
-
-  game::ActiveMapOrchestrator orch;
-  auto* character = orch.findCharacterById(characterId);
-  if (character == nullptr) {
-    return;
-  }
-
-  combat.activeCharacterId = characterId;
-  combat.isWaitingForAction = true;
-
-  if (model::isPartyMember(state->player, characterId)) {
-    // Highlight the acting party member in the HUD only.
-    state->uiState.selectedPartyMemberId = characterId;
-  }
-
-  world.camera.cameraFollowCharacterId = characterId;
-  world.camera.cameraMode = model::CameraMode::Follow;
-  if (world.camera.viewW > 0 && world.camera.viewH > 0) {
-    const auto cam = game::computeCameraFollow(
-        character->x, character->y, world.camera.viewW, world.camera.viewH);
-    WorldSetCamera(cam.camX, cam.camY).execute(state);
-  }
 }
 
 } // namespace actions

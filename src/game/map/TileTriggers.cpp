@@ -215,4 +215,45 @@ bmin::String formatExamineMessage(const model::MapInstance& map,
   return message;
 }
 
+void resolveWorldActionMode(model::World& world,
+                            const model::Player& player,
+                            model::WorldActionMode mode,
+                            const bmin::String& spellId,
+                            const bmin::String& chId) {
+  world.actionMode = mode;
+  if (mode == model::WorldActionMode::SPELL) {
+    if (!spellId.empty()) {
+      world.pendingSpellId = spellId;
+    }
+    if (!chId.empty()) {
+      world.pendingChId = chId;
+    }
+  } else {
+    world.pendingSpellId = bmin::String{};
+  }
+  if (mode == model::WorldActionMode::NONE) {
+    world.actionAimTile.reset();
+    return;
+  }
+
+  // Combat SPELL: aim under the active combat character (caster).
+  if (mode == model::WorldActionMode::SPELL && world.combat.active &&
+      !world.combat.activeCharacterId.empty()) {
+    for (const auto& character : world.activeMap.characters) {
+      if (character.id == world.combat.activeCharacterId) {
+        world.actionAimTile = model::TileXY{character.x, character.y};
+        return;
+      }
+    }
+  }
+
+  // EXAMINE / TALK / SPELL fallback: start aim under the party leader avatar.
+  const auto* avatar = findPartyAvatarOnActiveMap(world.activeMap, player);
+  if (avatar) {
+    world.actionAimTile = model::TileXY{avatar->x, avatar->y};
+  } else {
+    world.actionAimTile.reset();
+  }
+}
+
 } // namespace game
