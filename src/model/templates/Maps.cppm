@@ -5,7 +5,7 @@ module;
 #include <optional>
 #include <stdexcept>
 
-export module carcer.model.templates.Maps;
+export module carcer.model.templates:Maps;
 export import bmin.containers;
 import bmin.string_interop;
 import sdl2w;

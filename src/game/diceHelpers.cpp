@@ -6,7 +6,7 @@ module;
 
 module carcer.game.diceHelpers;
 import bmin.containers;
-import carcer.model.templates.AbilityTypes;
+import carcer.model.templates;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"

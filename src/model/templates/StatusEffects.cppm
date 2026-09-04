@@ -4,10 +4,10 @@ module;
 #include <utility>
 #include <optional>
 
-export module carcer.model.templates.StatusEffects;
+export module carcer.model.templates:StatusEffects;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.model.templates.AbilityTypes;
+export import :AbilityTypes;
 
 export {
 

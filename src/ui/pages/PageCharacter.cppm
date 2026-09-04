@@ -7,19 +7,17 @@ export module carcer.ui.pages.PageCharacter;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.model.instances.CharacterPlayer;
-export import carcer.model.stats.CharacterDerivedStats;
+export import carcer.model.templates;
 export import carcer.state;
 export import carcer.ui.core;
 export import carcer.ui.elements;
 import sdl2w;
 import carcer.actions.ui.UiShowLayerPopupText;
-import carcer.model.stats.CharacterDerivedStatDefinitions;
-import carcer.model.stats.CharacterStatDefinitions;
+import carcer.model.templates;
 import carcer.ui.elements;
 import carcer.ui.core;
 import carcer.ui.helpers;
 import carcer.ui.layouts;
-import carcer.model.stats.CharacterStats;
 #include "macros.h"
 
 export {

@@ -6,7 +6,7 @@ module;
 
 export module carcer.runner;
 export import bmin.containers;
-export import carcer.model.templates.SpecialEvents;
+export import carcer.model.templates;
 import bmin.string_interop;
 
 export {

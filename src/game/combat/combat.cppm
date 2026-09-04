@@ -8,13 +8,12 @@ module;
 export module carcer.game.combat;
 export import carcer.model.instances.World;
 export import carcer.model.instances.CharacterInstance;
-export import carcer.model.templates.AbilityTypes;
+export import carcer.model.templates;
 export import carcer.db;
 export import carcer.game.map;
 export import carcer.model.instances.Player;
 export import carcer.state;
 export import bmin.containers;
-export import carcer.model.templates.Spells;
 import bmin.string_interop;
 
 export {

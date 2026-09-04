@@ -26,9 +26,7 @@ import carcer.game.map;
 import carcer.model.instances.CharacterInstance;
 import carcer.model.instances.CharacterPlayer;
 import carcer.model.instances.MapInstance;
-import carcer.model.templates.CharacterTemplate;
-import carcer.model.templates.Maps;
-import carcer.model.templates.UtilityTypes;
+import carcer.model.templates;
 #include "macros.h"
 
 export {

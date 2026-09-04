@@ -12,8 +12,8 @@ export import carcer.game.map.TileFields;
 export import carcer.model.instances.CharacterInstance;
 export import carcer.model.instances.ItemInstance;
 export import carcer.model.instances.TileInstance;
-export import carcer.model.templates.Maps;
-import carcer.model.templates.UtilityTypes;
+export import carcer.model.templates;
+import carcer.model.templates;
 import sdl2w;
 #include "macros.h"
 

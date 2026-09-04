@@ -3,7 +3,7 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.model.stats.CharacterStats;
+export module carcer.model.templates:CharacterStats;
 
 export {
 

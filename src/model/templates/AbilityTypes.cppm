@@ -5,7 +5,7 @@ module;
 #include <optional>
 #include <stdexcept>
 
-export module carcer.model.templates.AbilityTypes;
+export module carcer.model.templates:AbilityTypes;
 export import bmin.containers;
 import bmin.string_interop;
 import sdl2w;

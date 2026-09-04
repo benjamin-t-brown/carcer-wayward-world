@@ -3,10 +3,10 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.model.templates.Abilities;
+export module carcer.model.templates:Abilities;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.model.templates.AbilityTypes;
+export import :AbilityTypes;
 
 export {
 

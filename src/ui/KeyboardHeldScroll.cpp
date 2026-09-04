@@ -6,7 +6,7 @@ module;
 module carcer.ui.KeyboardHeldScroll;
 import sdl2w;
 import bmin.string_interop;
-import carcer.model.templates.UtilityTypes;
+import carcer.model.templates;
 
 namespace ui {
 

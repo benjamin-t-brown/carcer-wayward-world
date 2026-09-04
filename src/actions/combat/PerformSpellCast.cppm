@@ -12,7 +12,7 @@ import carcer.actions.combat.ModifyHP;
 import carcer.actions.world.WorldSetActionMode;
 import carcer.actions.world.WorldSpawnDamageParticle;
 import carcer.actions.world.WorldSpawnProjectile;
-import carcer.model.templates.Abilities;
+import carcer.model.templates;
 import carcer.game.combat;
 import carcer.actions.general.PlaySound;
 #include "macros.h"

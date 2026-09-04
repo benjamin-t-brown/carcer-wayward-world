@@ -8,7 +8,7 @@ export module carcer.model.instances.TileInstance;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.game.map.TileFields;
-export import carcer.model.templates.Maps;
+export import carcer.model.templates;
 
 export {
 

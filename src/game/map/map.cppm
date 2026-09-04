@@ -8,13 +8,12 @@ export import carcer.game.map.TileFields;
 export import bmin.containers;
 export import carcer.model.instances.MapInstance;
 export import carcer.model.instances.World;
-export import carcer.model.templates.MapGrids;
+export import carcer.model.templates;
 export import carcer.state;
 export import carcer.db;
 export import carcer.model.instances.CharacterInstance;
 export import carcer.model.instances.ItemInstance;
 export import carcer.model.instances.Player;
-export import carcer.model.templates.Tileset;
 import bmin.string_interop;
 
 export {

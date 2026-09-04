@@ -5,9 +5,8 @@ module;
 #include <stdexcept>
 
 module carcer.db;
-import carcer.model.templates.AbilityTypes;
+import carcer.model.templates;
 import bmin.containers;
-import carcer.model.templates.Abilities;
 import carcer.lib.Json;
 import bmin.string_interop;
 import sdl2w;

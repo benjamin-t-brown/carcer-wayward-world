@@ -13,14 +13,10 @@ import carcer.model.instances.CharacterInstance;
 import carcer.model.instances.CharacterPlayer;
 import carcer.model.instances.Player;
 import carcer.model.instances.World;
-import carcer.model.stats.CharacterStats;
-import carcer.model.templates.AbilityTypes;
-import carcer.model.templates.CharacterTemplate;
-import carcer.model.templates.RuneTypes;
+import carcer.model.templates;
 import carcer.game.map;
 import bmin.containers;
 import carcer.db;
-import carcer.model.templates.Spells;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"

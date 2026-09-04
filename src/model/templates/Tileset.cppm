@@ -3,7 +3,7 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.model.templates.Tileset;
+export module carcer.model.templates:Tileset;
 export import bmin.containers;
 import bmin.string_interop;
 

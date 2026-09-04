@@ -4,11 +4,11 @@ module;
 #include <utility>
 #include <optional>
 
-export module carcer.model.templates.Items;
+export module carcer.model.templates:Items;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.model.templates.AbilityTypes;
-export import carcer.model.templates.RuneTypes;
+export import :AbilityTypes;
+export import :RuneTypes;
 import sdl2w;
 #include "macros.h"
 

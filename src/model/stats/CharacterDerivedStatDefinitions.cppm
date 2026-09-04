@@ -3,10 +3,10 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.model.stats.CharacterDerivedStatDefinitions;
+export module carcer.model.templates:CharacterDerivedStatDefinitions;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.model.stats.CharacterDerivedStats;
+export import :CharacterDerivedStats;
 import sdl2w;
 #include "macros.h"
 

@@ -4,7 +4,7 @@ module;
 #include <utility>
 #include <stdexcept>
 
-export module carcer.model.templates.RuneTypes;
+export module carcer.model.templates:RuneTypes;
 export import bmin.containers;
 import bmin.string_interop;
 import sdl2w;

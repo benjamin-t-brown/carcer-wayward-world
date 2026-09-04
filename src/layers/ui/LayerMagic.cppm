@@ -10,7 +10,7 @@ module;
 export module carcer.layers.LayerMagic;
 export import carcer.layers.Layer;
 export import carcer.db;
-export import carcer.model.templates.RuneTypes;
+export import carcer.model.templates;
 export import carcer.ui.pages.PageMagicSetup;
 import sdl2w;
 import carcer.actions.ui.UiCancelEquipRunes;

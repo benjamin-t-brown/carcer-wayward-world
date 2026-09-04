@@ -6,10 +6,10 @@ module;
 #include <charconv>
 #include <system_error>
 
-export module carcer.model.templates.CharacterTemplate;
+export module carcer.model.templates:CharacterTemplate;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.model.stats.CharacterStats;
+export import :CharacterStats;
 import sdl2w;
 #include "macros.h"
 

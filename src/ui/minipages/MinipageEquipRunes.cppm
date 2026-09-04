@@ -7,7 +7,7 @@ module;
 export module carcer.ui.minipages:MinipageEquipRunes;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.model.templates.RuneTypes;
+export import carcer.model.templates;
 export import carcer.ui.core;
 import sdl2w;
 import carcer.actions.ui.UiAdjustEquippedRune;

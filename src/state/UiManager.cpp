@@ -5,7 +5,7 @@ module;
 
 module carcer.state;
 import carcer.actions.ui.UiRemoveFloatingNotification;
-import carcer.model.templates.UtilityTypes;
+import carcer.model.templates;
 
 namespace state {
 

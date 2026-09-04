@@ -40,7 +40,7 @@ import carcer.ui.elements;
 import carcer.ui.components;
 import carcer.ui.helpers;
 import bmin.containers;
-import carcer.model.templates.UtilityTypes;
+import carcer.model.templates;
 import bmin.string_interop;
 #include "macros.h"
 

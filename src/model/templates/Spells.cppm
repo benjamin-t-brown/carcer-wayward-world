@@ -3,10 +3,10 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.model.templates.Spells;
+export module carcer.model.templates:Spells;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.model.templates.RuneTypes;
+export import :RuneTypes;
 
 export {
 

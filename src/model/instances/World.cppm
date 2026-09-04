@@ -12,8 +12,7 @@ export import carcer.db;
 export import carcer.model.Combat;
 export import carcer.model.instances.MapInstance;
 export import carcer.model.instances.Player;
-export import carcer.model.templates.AbilityTypes;
-export import carcer.model.templates.UtilityTypes;
+export import carcer.model.templates;
 import sdl2w;
 import carcer.model.instances.CharacterInstance;
 #include "macros.h"

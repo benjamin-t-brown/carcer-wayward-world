@@ -4,7 +4,7 @@ module;
 #include <utility>
 #include <cstdlib>
 
-export module carcer.model.templates.UtilityTypes;
+export module carcer.model.templates:UtilityTypes;
 export import bmin.containers;
 import bmin.string_interop;
 import sdl2w;

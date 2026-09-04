@@ -1,0 +1,17 @@
+export module carcer.model.templates;
+export import :Abilities;
+export import :AbilityTypes;
+export import :CharacterDerivedStatDefinitions;
+export import :CharacterDerivedStats;
+export import :CharacterStatDefinitions;
+export import :CharacterStats;
+export import :CharacterTemplate;
+export import :Items;
+export import :MapGrids;
+export import :Maps;
+export import :RuneTypes;
+export import :SpecialEvents;
+export import :Spells;
+export import :StatusEffects;
+export import :Tileset;
+export import :UtilityTypes;

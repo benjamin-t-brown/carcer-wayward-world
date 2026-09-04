@@ -18,7 +18,7 @@ import carcer.ui.core;
 import carcer.ui.components;
 import carcer.ui.helpers;
 import carcer.ui.layouts;
-import carcer.model.templates.Items;
+import carcer.model.templates;
 #include "macros.h"
 
 export {

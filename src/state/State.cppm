@@ -17,8 +17,7 @@ export import carcer.model.instances.ItemInstance;
 export import carcer.model.instances.MapInstance;
 export import carcer.model.instances.Player;
 export import carcer.model.instances.World;
-export import carcer.model.templates.Maps;
-export import carcer.model.templates.UtilityTypes;
+export import carcer.model.templates;
 
 export {
 

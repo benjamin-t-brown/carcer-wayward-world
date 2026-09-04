@@ -9,7 +9,7 @@ module;
 
 export module carcer.layers.LayerEquipRunes;
 export import carcer.layers.Layer;
-export import carcer.model.templates.RuneTypes;
+export import carcer.model.templates;
 import sdl2w;
 import carcer.actions.ui.UiAdjustEquippedRune;
 import carcer.actions.ui.UiCancelEquipRunes;

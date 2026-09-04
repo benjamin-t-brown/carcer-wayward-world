@@ -6,7 +6,7 @@ module;
 export module carcer.game.diceHelpers;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.model.templates.AbilityTypes;
+export import carcer.model.templates;
 
 export {
 

@@ -7,8 +7,7 @@ export module carcer.model.instances.CharacterInstance;
 export import bmin.containers;
 import bmin.string_interop;
 export import carcer.db;
-export import carcer.model.stats.CharacterStats;
-export import carcer.model.templates.CharacterTemplate;
+export import carcer.model.templates;
 import sdl2w;
 #include "macros.h"
 

@@ -3,7 +3,7 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.model.templates.MapGrids;
+export module carcer.model.templates:MapGrids;
 export import bmin.containers;
 import bmin.string_interop;
 

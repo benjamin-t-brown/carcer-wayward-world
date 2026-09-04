@@ -10,7 +10,7 @@ import carcer.model.instances.TileInstance;
 import bmin.containers;
 import carcer.model.instances.MapInstance;
 import carcer.model.instances.World;
-import carcer.model.templates.MapGrids;
+import carcer.model.templates;
 import carcer.state;
 import bmin.string_interop;
 import sdl2w;

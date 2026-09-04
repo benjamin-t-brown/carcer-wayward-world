@@ -8,7 +8,7 @@ module carcer.state.WorldUpdater;
 import carcer.actions.combat.DoCPUCombatTurn;
 import carcer.actions.ui.UiShowLayerSpecialEvent;
 import carcer.actions.world.WorldTravel;
-import carcer.model.templates.AbilityTypes;
+import carcer.model.templates;
 import carcer.state;
 import carcer.game.map;
 import carcer.model.Combat;

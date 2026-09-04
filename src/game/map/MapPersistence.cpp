@@ -7,7 +7,7 @@ module;
 module carcer.game.map;
 import carcer.model.instances.CharacterInstance;
 import carcer.model.instances.MapInstance;
-import carcer.model.templates.MapGrids;
+import carcer.model.templates;
 import bmin.containers;
 import carcer.db;
 import carcer.model.instances.World;

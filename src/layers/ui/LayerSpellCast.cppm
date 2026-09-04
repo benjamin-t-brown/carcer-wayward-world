@@ -15,7 +15,7 @@ import sdl2w;
 import carcer.actions.ui.UiRemoveLayer;
 import carcer.lib.StringUtil;
 import carcer.model.instances.Player;
-import carcer.model.templates.RuneTypes;
+import carcer.model.templates;
 import carcer.ui.components;
 import carcer.ui.helpers;
 import bmin.containers;

@@ -4,10 +4,10 @@ module;
 #include <utility>
 #include <algorithm>
 
-export module carcer.model.stats.CharacterDerivedStats;
+export module carcer.model.templates:CharacterDerivedStats;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.model.stats.CharacterStats;
+export import :CharacterStats;
 import sdl2w;
 #include "macros.h"
 

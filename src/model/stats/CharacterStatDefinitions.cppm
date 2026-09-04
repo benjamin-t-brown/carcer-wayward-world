@@ -3,7 +3,7 @@ module;
 #include <cstdint>
 #include <utility>
 
-export module carcer.model.stats.CharacterStatDefinitions;
+export module carcer.model.templates:CharacterStatDefinitions;
 export import bmin.containers;
 import bmin.string_interop;
 import sdl2w;

@@ -8,17 +8,8 @@ module;
 
 export module carcer.db;
 export import bmin.containers;
-export import carcer.model.templates.Abilities;
-export import carcer.model.templates.CharacterTemplate;
-export import carcer.model.templates.Items;
-export import carcer.model.templates.MapGrids;
-export import carcer.model.templates.Maps;
-export import carcer.model.templates.SpecialEvents;
-export import carcer.model.templates.Spells;
-export import carcer.model.templates.StatusEffects;
-export import carcer.model.templates.Tileset;
+export import carcer.model.templates;
 export import carcer.lib.Json;
-export import carcer.model.templates.AbilityTypes;
 import bmin.string_interop;
 
 export {
