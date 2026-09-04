@@ -12,7 +12,6 @@ carcer.model.templates:RuneTypes
 carcer.model.templates:SpecialEvents
 carcer.model.templates:Tileset
 carcer.model.templates:UtilityTypes
-carcer.state.WorldActions
 carcer.ui.core:FontScale
 carcer.ui.core:SdlPixels
 carcer.model.templates:Abilities
@@ -71,7 +70,6 @@ carcer.actions.world.WorldSetCameraMode
 carcer.actions.world.WorldSpawnDamageParticle
 carcer.actions.world.WorldSpawnProjectile
 carcer.game.map
-carcer.state.WorldUpdater
 carcer.ui.core:UiElement
 carcer.actions.combat.CharacterSetSpriteIndexOffset
 carcer.actions.combat.EndCombat

@@ -15,7 +15,6 @@ import carcer.actions.world.WorldInteractAt;
 import carcer.actions.world.WorldSetActionMode;
 import carcer.model.instances;
 import carcer.state;
-import carcer.state.WorldActions;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"

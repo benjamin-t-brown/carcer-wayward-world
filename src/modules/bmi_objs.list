@@ -12,7 +12,6 @@
 .carcer-bmi/carcer.model.templates-SpecialEvents.o
 .carcer-bmi/carcer.model.templates-Tileset.o
 .carcer-bmi/carcer.model.templates-UtilityTypes.o
-.carcer-bmi/carcer.state.WorldActions.o
 .carcer-bmi/carcer.ui.core-FontScale.o
 .carcer-bmi/carcer.ui.core-SdlPixels.o
 .carcer-bmi/carcer.model.templates-Abilities.o
@@ -71,7 +70,6 @@
 .carcer-bmi/carcer.actions.world.WorldSpawnDamageParticle.o
 .carcer-bmi/carcer.actions.world.WorldSpawnProjectile.o
 .carcer-bmi/carcer.game.map.o
-.carcer-bmi/carcer.state.WorldUpdater.o
 .carcer-bmi/carcer.ui.core-UiElement.o
 .carcer-bmi/carcer.actions.combat.CharacterSetSpriteIndexOffset.o
 .carcer-bmi/carcer.actions.combat.EndCombat.o

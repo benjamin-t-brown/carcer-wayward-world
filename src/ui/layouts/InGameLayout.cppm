@@ -13,7 +13,7 @@ module;
 export module carcer.ui.layouts:InGameLayout;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.state.WorldActions;
+export import carcer.state;
 export import carcer.ui.core;
 export import carcer.ui.components;
 export import carcer.ui.elements;

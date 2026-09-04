@@ -12,7 +12,6 @@ model/templates/RuneTypes.cppm
 model/templates/SpecialEvents.cppm
 model/templates/Tileset.cppm
 model/templates/UtilityTypes.cppm
-state/WorldActions.cppm
 ui/FontScale.cppm
 ui/SdlPixels.cppm
 model/templates/Abilities.cppm
@@ -71,7 +70,6 @@ actions/world/WorldSetCameraMode.cppm
 actions/world/WorldSpawnDamageParticle.cppm
 actions/world/WorldSpawnProjectile.cppm
 game/map/map.cppm
-state/WorldUpdater.cppm
 ui/UiElement.cppm
 actions/combat/CharacterSetSpriteIndexOffset.cppm
 actions/combat/EndCombat.cppm

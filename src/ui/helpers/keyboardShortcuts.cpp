@@ -8,7 +8,7 @@ module;
 
 module carcer.ui.helpers;
 import carcer.model.instances;
-import carcer.state.WorldActions;
+import carcer.state;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"
