@@ -44,7 +44,7 @@ carcer.actions:combat
 carcer.actions:ui
 carcer.ui.core
 carcer.actions:world
-carcer.layers.Layer
+carcer.layers
 carcer.ui.components:ChCompactInfo
 carcer.ui.components:MapView
 carcer.ui.elements:HorizontalList
@@ -55,7 +55,6 @@ carcer.ui.elements:TextLine
 carcer.ui.elements:VerticalList
 carcer.ui.helpers
 carcer.actions
-carcer.layers
 carcer.ui.elements:ButtonClose
 carcer.ui.elements:ButtonScroll
 carcer.ui.elements:ButtonSprite
@@ -92,7 +91,6 @@ carcer.ui.components:FloatingNotificationSection
 carcer.ui.components:BorderModalStandard
 carcer.ui.components:TouchMovePad
 carcer.ui.components
-carcer.layers.LayerPopupText
 carcer.ui.layouts:ModalSmall
 carcer.ui.layouts:ModalStandard
 carcer.ui.lists:ListChCompactInfoHorizontal
@@ -106,11 +104,6 @@ carcer.ui.popups:PopupSpellInfo
 carcer.ui.layouts:InGameLayout
 carcer.ui.popups
 carcer.ui.layouts
-carcer.layers.LayerDropConfirm
-carcer.layers.LayerGiveContext
-carcer.layers.LayerInventoryContext
-carcer.layers.LayerPickUpContext
-carcer.layers.LayerSpellInfo
 carcer.layers.LayerWorld
 carcer.ui.minipages:MinipageCharacterSheet
 carcer.ui.minipages:MinipageEvent
@@ -121,11 +114,7 @@ carcer.ui.pages.PageInventory
 carcer.ui.pages.PageMagicSetup
 carcer.ui.pages.PageTalkChoice
 carcer.ui.minipages:MinipageEquipRunes
-carcer.layers.LayerInventory
-carcer.layers.LayerMagic
 carcer.ui.pages.PageModalEvent
 carcer.ui.minipages
 carcer.layers.LayerSpecialEvent
-carcer.layers.LayerEquipRunes
-carcer.layers.LayerPickUp
-carcer.layers.LayerSpellCast
+carcer.layers.screens

@@ -44,7 +44,7 @@
 .carcer-bmi/carcer.actions-ui.o
 .carcer-bmi/carcer.ui.core.o
 .carcer-bmi/carcer.actions-world.o
-.carcer-bmi/carcer.layers.Layer.o
+.carcer-bmi/carcer.layers.o
 .carcer-bmi/carcer.ui.components-ChCompactInfo.o
 .carcer-bmi/carcer.ui.components-MapView.o
 .carcer-bmi/carcer.ui.elements-HorizontalList.o
@@ -55,7 +55,6 @@
 .carcer-bmi/carcer.ui.elements-VerticalList.o
 .carcer-bmi/carcer.ui.helpers.o
 .carcer-bmi/carcer.actions.o
-.carcer-bmi/carcer.layers.o
 .carcer-bmi/carcer.ui.elements-ButtonClose.o
 .carcer-bmi/carcer.ui.elements-ButtonScroll.o
 .carcer-bmi/carcer.ui.elements-ButtonSprite.o
@@ -92,7 +91,6 @@
 .carcer-bmi/carcer.ui.components-BorderModalStandard.o
 .carcer-bmi/carcer.ui.components-TouchMovePad.o
 .carcer-bmi/carcer.ui.components.o
-.carcer-bmi/carcer.layers.LayerPopupText.o
 .carcer-bmi/carcer.ui.layouts-ModalSmall.o
 .carcer-bmi/carcer.ui.layouts-ModalStandard.o
 .carcer-bmi/carcer.ui.lists-ListChCompactInfoHorizontal.o
@@ -106,11 +104,6 @@
 .carcer-bmi/carcer.ui.layouts-InGameLayout.o
 .carcer-bmi/carcer.ui.popups.o
 .carcer-bmi/carcer.ui.layouts.o
-.carcer-bmi/carcer.layers.LayerDropConfirm.o
-.carcer-bmi/carcer.layers.LayerGiveContext.o
-.carcer-bmi/carcer.layers.LayerInventoryContext.o
-.carcer-bmi/carcer.layers.LayerPickUpContext.o
-.carcer-bmi/carcer.layers.LayerSpellInfo.o
 .carcer-bmi/carcer.layers.LayerWorld.o
 .carcer-bmi/carcer.ui.minipages-MinipageCharacterSheet.o
 .carcer-bmi/carcer.ui.minipages-MinipageEvent.o
@@ -121,12 +114,8 @@
 .carcer-bmi/carcer.ui.pages.PageMagicSetup.o
 .carcer-bmi/carcer.ui.pages.PageTalkChoice.o
 .carcer-bmi/carcer.ui.minipages-MinipageEquipRunes.o
-.carcer-bmi/carcer.layers.LayerInventory.o
-.carcer-bmi/carcer.layers.LayerMagic.o
 .carcer-bmi/carcer.ui.pages.PageModalEvent.o
 .carcer-bmi/carcer.ui.minipages.o
 .carcer-bmi/carcer.layers.LayerSpecialEvent.o
-.carcer-bmi/carcer.layers.LayerEquipRunes.o
-.carcer-bmi/carcer.layers.LayerPickUp.o
-.carcer-bmi/carcer.layers.LayerSpellCast.o
+.carcer-bmi/carcer.layers.screens.o
 .carcer-bmi/carcer.o
