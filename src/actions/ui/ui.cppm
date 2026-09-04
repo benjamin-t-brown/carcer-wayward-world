@@ -4,7 +4,7 @@ module;
 #include <algorithm>
 #include <optional>
 
-export module carcer.actions:ui;
+export module carcer.actions.ui;
 export import carcer.state;
 import sdl2w;
 import carcer.game.map;

@@ -3,7 +3,9 @@ module;
 #include <cstdlib>
 #include <utility>
 
-module carcer.actions;
+module carcer.actions.combat;
+import carcer.actions.general;
+import carcer.actions.world;
 import sdl2w;
 import bmin.string_interop;
 import carcer.model.templates;

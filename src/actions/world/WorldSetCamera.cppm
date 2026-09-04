@@ -1,0 +1,34 @@
+module;
+#include <cstddef>
+
+export module carcer.actions.world:WorldSetCamera;
+export import carcer.state;
+#include "macros.h"
+
+export {
+
+namespace state {
+
+namespace actions {
+
+class WorldSetCamera : public AbstractAction {
+  int camX = 0;
+  int camY = 0;
+
+  void act() override {
+    if (!state) {
+      return;
+    }
+    state->world.camera.camX = camX;
+    state->world.camera.camY = camY;
+  }
+
+public:
+  WorldSetCamera(int _camX, int _camY) : camX(_camX), camY(_camY) {}
+};
+
+} // namespace actions
+
+} // namespace state
+
+} // export
