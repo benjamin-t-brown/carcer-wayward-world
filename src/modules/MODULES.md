@@ -138,13 +138,31 @@ src/<folder>/Thing.cppm        export module carcer.<folder>:Thing;    (partitio
 src/<folder>/Thing.cpp         module carcer.<folder>;                 (impl unit: bodies for any partition)
 ```
 
-**Barrel files are prefixed `_`** — `_elements.cppm`, `_layers.cppm`,
-`modules/_carcer.cppm` for the umbrella — purely so they sort first in a
-directory listing and are easy to spot; the leading underscore has no
-meaning to the compiler and isn't part of the module name (the file is
-still `export module carcer.ui.elements;` inside, unrelated to what it's
-called on disk). `partitionize_folder.py` defaults new primaries to this
-name; pass `--primary <name>` to override.
+**Every "look here first for this folder" file is prefixed `_`** — not just
+partition-aggregating barrels (`_elements.cppm`, `_layers.cppm`,
+`modules/_carcer.cppm`) but any single `.cppm` that holds a whole module's
+content directly, no partitions at all (`state/_State.cppm`, `in3/_in3.cppm`,
+`game/combat/_combat.cppm`, `game/map/_map.cppm`, `db/_db.cppm`,
+`ui/helpers/_helpers.cppm`, `lib/hiscore/_hiscore.cppm`,
+`actions/general/_general.cppm`). The test: does this file's name just
+repeat its containing folder's name, such that in a listing of several
+files you'd have to know that convention to find it? If yes, prefix it.
+The leading underscore has no meaning to the compiler and isn't part of the
+module name (the file is still `export module carcer.ui.elements;` inside,
+unrelated to what it's called on disk) — it's purely so the file sorts
+first and is easy to spot. `partitionize_folder.py` defaults new primaries
+to this name; pass `--primary <name>` to override.
+
+**Not every root-level `.cppm` needs it.** A handful of modules are
+standalone leaves that happen to share a directory with other, unrelated
+modules — `game/map/TileFields.cppm` (sibling to `_map.cppm`, its own
+module), `lib/Json.cppm` / `lib/StringUtil.cppm` (no unifying `carcer.lib`
+folder-module to be "the" file for), `ui/KeyboardHeldScroll.cppm` /
+`ui/ObserverRemoveLayer.cppm` / `ui/ObserverSpecialEvent.cppm` (standalone
+modules living directly under `ui/`, distinct from its real barrel,
+`_core.cppm`). These already have specific, self-explanatory names — there's
+no "which file is the one for this folder" ambiguity to resolve, so leave
+them alone.
 
 This is universal now — `carcer.model.templates`, `carcer.model.instances`,
 `carcer.ui.core`, `carcer.ui.elements`, `carcer.ui.components`,

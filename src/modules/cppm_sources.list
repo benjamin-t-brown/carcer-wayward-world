@@ -1,7 +1,7 @@
 game/map/TileFields.cppm
 lib/Json.cppm
 lib/StringUtil.cppm
-lib/hiscore/hiscore.cppm
+lib/hiscore/_hiscore.cppm
 model/instances/ItemInstance.cppm
 model/templates/AbilityTypes.cppm
 model/stats/CharacterStatDefinitions.cppm
@@ -24,8 +24,8 @@ ui/colors.cppm
 model/stats/CharacterDerivedStatDefinitions.cppm
 ui/TextStyle.cppm
 model/templates/_templates.cppm
-db/db.cppm
-in3/in3.cppm
+db/_db.cppm
+in3/_in3.cppm
 model/instances/TileInstance.cppm
 model/instances/CharacterInstance.cppm
 model/instances/CharacterPlayer.cppm
@@ -34,9 +34,9 @@ model/instances/Player.cppm
 model/instances/Combat.cppm
 model/instances/World.cppm
 model/instances/_instances.cppm
-state/State.cppm
+state/_State.cppm
 actions/combat/PerformMeleeAttack.cppm
-actions/general/general.cppm
+actions/general/_general.cppm
 actions/ui/layers/UiCancelEquipRunes.cppm
 actions/ui/layers/UiCommitEquipRunes.cppm
 actions/ui/layers/UiRemoveLayer.cppm
@@ -74,7 +74,7 @@ actions/world/WorldSetCamera.cppm
 actions/world/WorldSetCameraMode.cppm
 actions/world/WorldSpawnDamageParticle.cppm
 actions/world/WorldSpawnProjectile.cppm
-game/map/map.cppm
+game/map/_map.cppm
 ui/UiElement.cppm
 actions/ui/layers/_layers.cppm
 actions/combat/CharacterSetSpriteIndexOffset.cppm
@@ -94,7 +94,7 @@ actions/world/WorldSetActionMode.cppm
 actions/world/WorldSpawnPlayerAtMarker.cppm
 actions/world/WorldSpawnPlayerAtXY.cppm
 actions/world/WorldTalkAt.cppm
-game/combat/combat.cppm
+game/combat/_combat.cppm
 ui/uiUtils.cppm
 actions/ui/UiSelectSpellCast.cppm
 actions/combat/StartCombat.cppm
@@ -114,7 +114,7 @@ ui/elements/Quad.cppm
 ui/elements/SpriteElement.cppm
 ui/elements/TextLine.cppm
 ui/elements/VerticalList.cppm
-ui/helpers/helpers.cppm
+ui/helpers/_helpers.cppm
 actions/combat/DoCombatActionCompletion.cppm
 layers/LayerManager.cppm
 ui/elements/buttons/ButtonClose.cppm

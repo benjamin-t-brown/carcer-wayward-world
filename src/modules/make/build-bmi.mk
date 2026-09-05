@@ -23,8 +23,8 @@ $(OBJDIR)/carcer.lib.Json.o: lib/Json.cppm | $(OBJDIR)
 $(OBJDIR)/carcer.lib.StringUtil.o: lib/StringUtil.cppm | $(OBJDIR)
 	$(CXX) $(FLAGS) -c lib/StringUtil.cppm -o $@
 
-$(OBJDIR)/carcer.lib.hiscore.hiscore.o: lib/hiscore/hiscore.cppm | $(OBJDIR)
-	$(CXX) $(FLAGS) -c lib/hiscore/hiscore.cppm -o $@
+$(OBJDIR)/carcer.lib.hiscore.hiscore.o: lib/hiscore/_hiscore.cppm | $(OBJDIR)
+	$(CXX) $(FLAGS) -c lib/hiscore/_hiscore.cppm -o $@
 
 $(OBJDIR)/carcer.model.instances-ItemInstance.o: model/instances/ItemInstance.cppm | $(OBJDIR)
 	$(CXX) $(FLAGS) -c model/instances/ItemInstance.cppm -o $@
@@ -92,11 +92,11 @@ $(OBJDIR)/carcer.ui.core-TextStyle.o: ui/TextStyle.cppm $(OBJDIR)/carcer.ui.core
 $(OBJDIR)/carcer.model.templates.o: model/templates/_templates.cppm $(OBJDIR)/carcer.model.templates-Abilities.o $(OBJDIR)/carcer.model.templates-AbilityTypes.o $(OBJDIR)/carcer.model.templates-CharacterDerivedStatDefinitions.o $(OBJDIR)/carcer.model.templates-CharacterDerivedStats.o $(OBJDIR)/carcer.model.templates-CharacterStatDefinitions.o $(OBJDIR)/carcer.model.templates-CharacterStats.o $(OBJDIR)/carcer.model.templates-CharacterTemplate.o $(OBJDIR)/carcer.model.templates-Items.o $(OBJDIR)/carcer.model.templates-MapGrids.o $(OBJDIR)/carcer.model.templates-Maps.o $(OBJDIR)/carcer.model.templates-RuneTypes.o $(OBJDIR)/carcer.model.templates-SpecialEvents.o $(OBJDIR)/carcer.model.templates-Spells.o $(OBJDIR)/carcer.model.templates-StatusEffects.o $(OBJDIR)/carcer.model.templates-Tileset.o $(OBJDIR)/carcer.model.templates-UtilityTypes.o | $(OBJDIR)
 	$(CXX) $(FLAGS) -c model/templates/_templates.cppm -o $@
 
-$(OBJDIR)/carcer.db.o: db/db.cppm $(OBJDIR)/carcer.lib.Json.o $(OBJDIR)/carcer.model.templates.o | $(OBJDIR)
-	$(CXX) $(FLAGS) -c db/db.cppm -o $@
+$(OBJDIR)/carcer.db.o: db/_db.cppm $(OBJDIR)/carcer.lib.Json.o $(OBJDIR)/carcer.model.templates.o | $(OBJDIR)
+	$(CXX) $(FLAGS) -c db/_db.cppm -o $@
 
-$(OBJDIR)/carcer.in3.o: in3/in3.cppm $(OBJDIR)/carcer.model.templates.o | $(OBJDIR)
-	$(CXX) $(FLAGS) -c in3/in3.cppm -o $@
+$(OBJDIR)/carcer.in3.o: in3/_in3.cppm $(OBJDIR)/carcer.model.templates.o | $(OBJDIR)
+	$(CXX) $(FLAGS) -c in3/_in3.cppm -o $@
 
 $(OBJDIR)/carcer.model.instances-TileInstance.o: model/instances/TileInstance.cppm $(OBJDIR)/carcer.game.map.TileFields.o $(OBJDIR)/carcer.model.templates.o | $(OBJDIR)
 	$(CXX) $(FLAGS) -c model/instances/TileInstance.cppm -o $@
@@ -122,14 +122,14 @@ $(OBJDIR)/carcer.model.instances-World.o: model/instances/World.cppm $(OBJDIR)/c
 $(OBJDIR)/carcer.model.instances.o: model/instances/_instances.cppm $(OBJDIR)/carcer.model.instances-CharacterInstance.o $(OBJDIR)/carcer.model.instances-CharacterPlayer.o $(OBJDIR)/carcer.model.instances-Combat.o $(OBJDIR)/carcer.model.instances-ItemInstance.o $(OBJDIR)/carcer.model.instances-MapInstance.o $(OBJDIR)/carcer.model.instances-Player.o $(OBJDIR)/carcer.model.instances-TileInstance.o $(OBJDIR)/carcer.model.instances-World.o | $(OBJDIR)
 	$(CXX) $(FLAGS) -c model/instances/_instances.cppm -o $@
 
-$(OBJDIR)/carcer.state.o: state/State.cppm $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.model.templates.o | $(OBJDIR)
-	$(CXX) $(FLAGS) -c state/State.cppm -o $@
+$(OBJDIR)/carcer.state.o: state/_State.cppm $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.model.templates.o | $(OBJDIR)
+	$(CXX) $(FLAGS) -c state/_State.cppm -o $@
 
 $(OBJDIR)/carcer.actions.combat-PerformMeleeAttack.o: actions/combat/PerformMeleeAttack.cppm $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(FLAGS) -c actions/combat/PerformMeleeAttack.cppm -o $@
 
-$(OBJDIR)/carcer.actions.general.o: actions/general/general.cppm $(OBJDIR)/carcer.state.o | $(OBJDIR)
-	$(CXX) $(FLAGS) -c actions/general/general.cppm -o $@
+$(OBJDIR)/carcer.actions.general.o: actions/general/_general.cppm $(OBJDIR)/carcer.state.o | $(OBJDIR)
+	$(CXX) $(FLAGS) -c actions/general/_general.cppm -o $@
 
 $(OBJDIR)/carcer.actions.ui.layers-UiCancelEquipRunes.o: actions/ui/layers/UiCancelEquipRunes.cppm $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(FLAGS) -c actions/ui/layers/UiCancelEquipRunes.cppm -o $@
@@ -242,8 +242,8 @@ $(OBJDIR)/carcer.actions.world-WorldSpawnDamageParticle.o: actions/world/WorldSp
 $(OBJDIR)/carcer.actions.world-WorldSpawnProjectile.o: actions/world/WorldSpawnProjectile.cppm $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(FLAGS) -c actions/world/WorldSpawnProjectile.cppm -o $@
 
-$(OBJDIR)/carcer.game.map.o: game/map/map.cppm $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.game.map.TileFields.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
-	$(CXX) $(FLAGS) -c game/map/map.cppm -o $@
+$(OBJDIR)/carcer.game.map.o: game/map/_map.cppm $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.game.map.TileFields.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+	$(CXX) $(FLAGS) -c game/map/_map.cppm -o $@
 
 $(OBJDIR)/carcer.ui.core-UiElement.o: ui/UiElement.cppm $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.ui.core-SdlPixels.o $(OBJDIR)/carcer.ui.core-TextStyle.o | $(OBJDIR)
 	$(CXX) $(FLAGS) -c ui/UiElement.cppm -o $@
@@ -302,8 +302,8 @@ $(OBJDIR)/carcer.actions.world-WorldSpawnPlayerAtXY.o: actions/world/WorldSpawnP
 $(OBJDIR)/carcer.actions.world-WorldTalkAt.o: actions/world/WorldTalkAt.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(FLAGS) -c actions/world/WorldTalkAt.cppm -o $@
 
-$(OBJDIR)/carcer.game.combat.o: game/combat/combat.cppm $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
-	$(CXX) $(FLAGS) -c game/combat/combat.cppm -o $@
+$(OBJDIR)/carcer.game.combat.o: game/combat/_combat.cppm $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+	$(CXX) $(FLAGS) -c game/combat/_combat.cppm -o $@
 
 $(OBJDIR)/carcer.ui.core-uiUtils.o: ui/uiUtils.cppm $(OBJDIR)/carcer.ui.core-SdlPixels.o $(OBJDIR)/carcer.ui.core-UiElement.o | $(OBJDIR)
 	$(CXX) $(FLAGS) -c ui/uiUtils.cppm -o $@
@@ -362,8 +362,8 @@ $(OBJDIR)/carcer.ui.elements-TextLine.o: ui/elements/TextLine.cppm $(OBJDIR)/car
 $(OBJDIR)/carcer.ui.elements-VerticalList.o: ui/elements/VerticalList.cppm $(OBJDIR)/carcer.ui.core.o | $(OBJDIR)
 	$(CXX) $(FLAGS) -c ui/elements/VerticalList.cppm -o $@
 
-$(OBJDIR)/carcer.ui.helpers.o: ui/helpers/helpers.cppm $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.ui.core.o | $(OBJDIR)
-	$(CXX) $(FLAGS) -c ui/helpers/helpers.cppm -o $@
+$(OBJDIR)/carcer.ui.helpers.o: ui/helpers/_helpers.cppm $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.ui.core.o | $(OBJDIR)
+	$(CXX) $(FLAGS) -c ui/helpers/_helpers.cppm -o $@
 
 $(OBJDIR)/carcer.actions.combat-DoCombatActionCompletion.o: actions/combat/DoCombatActionCompletion.cppm $(OBJDIR)/carcer.actions.combat-GoNextCombatTurn.o $(OBJDIR)/carcer.actions.combat-PerformCharacterDefeated.o $(OBJDIR)/carcer.actions.combat-SetActiveCombatCharacter.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(FLAGS) -c actions/combat/DoCombatActionCompletion.cppm -o $@
