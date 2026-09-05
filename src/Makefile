@@ -164,18 +164,18 @@ _copy_sdl2w_artifacts:
 
 carcer-bmi: $(CARCER_BMI_STAMP)
 
-$(CARCER_BMI_STAMP): sdl2w-bmi $(CARCER_IFACES) modules/make/build-bmi.mk modules/bmi_objs.list
+$(CARCER_BMI_STAMP): $(SDL2W_BMI_STAMP) $(CARCER_IFACES) modules/make/build-bmi.mk modules/bmi_objs.list
 	$(MAKE) -f modules/make/build-bmi.mk CXX=$(CXX) -j1
 	@touch $(CARCER_BMI_STAMP)
 
-$(LIBCARCER): $(OBJECTS) carcer-bmi
+$(LIBCARCER): $(OBJECTS) $(CARCER_BMI_STAMP)
 	@mkdir -p lib
 	$(file >lib/libcarcer.objs,$(OBJECTS) $(CARCER_BMI_OBJS))
 	$(AR) rcs $@ @lib/libcarcer.objs
 
 libcarcer object_files: $(LIBCARCER)
 
-$(EXE): $(MAIN_ALL_OBJECT) $(LIBCARCER) carcer-bmi sdl2w-bmi
+$(EXE): $(MAIN_ALL_OBJECT) $(LIBCARCER) $(CARCER_BMI_STAMP) $(SDL2W_BMI_STAMP)
 ifeq ($(TARGET),wasm)
 	$(CXX) $(CARCER_CXXFLAGS) $(LINK_FLAGS) -o $(EXE)$(EXE_SUFFIX) \
 		$(MAIN_ALL_OBJECT) -Wl,--start-group $(LIBCARCER) -Wl,--end-group $(CARCER_LDLIBS)
