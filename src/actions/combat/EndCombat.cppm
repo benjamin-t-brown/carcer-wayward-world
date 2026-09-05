@@ -3,7 +3,7 @@ module;
 #include <cstddef>
 
 export module carcer.actions.combat:EndCombat;
-export import :CombatAction;
+export import carcer.state;
 import carcer.game.map;
 import carcer.model.templates;
 import bmin.string_interop;
@@ -16,7 +16,7 @@ namespace state {
 
 namespace actions {
 
-class EndCombat : public CombatAction {
+class EndCombat : public AbstractAction {
   void act() override {
     if (!state) {
       return;

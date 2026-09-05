@@ -3,7 +3,7 @@ module;
 #include <cstddef>
 
 export module carcer.actions.combat:ModifyHP;
-export import :CombatAction;
+export import carcer.state;
 import carcer.game.map;
 import carcer.model.templates;
 import bmin.string_interop;
@@ -15,7 +15,7 @@ namespace state {
 
 namespace actions {
 
-class ModifyHP : public CombatAction {
+class ModifyHP : public AbstractAction {
   bmin::String characterId;
   int delta = 0;
 

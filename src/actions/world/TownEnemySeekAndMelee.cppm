@@ -4,7 +4,6 @@ module;
 
 export module carcer.actions.world:TownEnemySeekAndMelee;
 export import carcer.state;
-export import carcer.actions.combat;
 import :PerformTownMeleeAttack;
 import carcer.game.map;
 import carcer.game.combat;
@@ -19,7 +18,7 @@ namespace state {
 namespace actions {
 
 // One agitated enemy: optional seek step, then town melee if adjacent.
-class TownEnemySeekAndMelee : public CombatAction {
+class TownEnemySeekAndMelee : public AbstractAction {
   bmin::String enemyId;
 
   void act() override {

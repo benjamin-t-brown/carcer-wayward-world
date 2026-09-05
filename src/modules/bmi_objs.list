@@ -35,7 +35,7 @@
 .carcer-bmi/carcer.model.instances-World.o
 .carcer-bmi/carcer.model.instances.o
 .carcer-bmi/carcer.state.o
-.carcer-bmi/carcer.actions.combat-CombatAction.o
+.carcer-bmi/carcer.actions.combat-PerformMeleeAttack.o
 .carcer-bmi/carcer.actions.general.o
 .carcer-bmi/carcer.actions.ui.layers-UiCancelEquipRunes.o
 .carcer-bmi/carcer.actions.ui.layers-UiCommitEquipRunes.o
@@ -76,7 +76,6 @@
 .carcer-bmi/carcer.actions.world-WorldSpawnProjectile.o
 .carcer-bmi/carcer.game.map.o
 .carcer-bmi/carcer.ui.core-UiElement.o
-.carcer-bmi/carcer.actions.combat-PerformMeleeAttack.o
 .carcer-bmi/carcer.actions.ui.layers.o
 .carcer-bmi/carcer.actions.combat-CharacterSetSpriteIndexOffset.o
 .carcer-bmi/carcer.actions.combat-EndCombat.o

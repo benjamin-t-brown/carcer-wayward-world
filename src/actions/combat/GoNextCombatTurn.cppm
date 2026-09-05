@@ -3,7 +3,7 @@ module;
 #include <cstddef>
 
 export module carcer.actions.combat:GoNextCombatTurn;
-export import :CombatAction;
+export import carcer.state;
 import :SetActiveCombatCharacter;
 import carcer.game.map;
 import carcer.game.combat;
@@ -17,7 +17,7 @@ namespace state {
 
 namespace actions {
 
-class GoNextCombatTurn : public CombatAction {
+class GoNextCombatTurn : public AbstractAction {
   void startNewCombatRound() {
     LOG(INFO) << "GoNextCombatTurn: new combat round, resetting AP" << LOG_ENDL;
     state->world.combat.activeTurnIndex = 0;

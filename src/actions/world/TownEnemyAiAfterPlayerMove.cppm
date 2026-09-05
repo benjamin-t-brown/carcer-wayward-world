@@ -3,7 +3,6 @@ module;
 
 export module carcer.actions.world:TownEnemyAiAfterPlayerMove;
 export import carcer.state;
-export import carcer.actions.combat;
 import :TownEnemySeekAndMelee;
 import :ClearTownEnemyAiResolving;
 import carcer.game.map;
@@ -18,7 +17,7 @@ namespace state {
 namespace actions {
 
 // Spotting + one town action per agitated enemy (queued with combat-style delays).
-class TownEnemyAiAfterPlayerMove : public CombatAction {
+class TownEnemyAiAfterPlayerMove : public AbstractAction {
   void act() override {
     if (!state) {
       return;

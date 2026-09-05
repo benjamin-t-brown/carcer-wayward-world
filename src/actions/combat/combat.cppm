@@ -1,6 +1,5 @@
 export module carcer.actions.combat;
 
-export import :CombatAction;
 export import :CharacterSetSpriteIndexOffset;
 export import :EndCombat;
 export import :ModifyAP;

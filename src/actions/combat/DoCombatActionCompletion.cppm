@@ -3,7 +3,7 @@ module;
 #include <cstddef>
 
 export module carcer.actions.combat:DoCombatActionCompletion;
-export import :CombatAction;
+export import carcer.state;
 import :PerformCharacterDefeated;
 import :GoNextCombatTurn;
 import :SetActiveCombatCharacter;
@@ -18,7 +18,7 @@ namespace state {
 
 namespace actions {
 
-class DoCombatActionCompletion : public CombatAction {
+class DoCombatActionCompletion : public AbstractAction {
   void act() override {
     if (!state) {
       return;

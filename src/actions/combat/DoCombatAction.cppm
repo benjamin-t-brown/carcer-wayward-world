@@ -3,7 +3,7 @@ module;
 #include <cstddef>
 
 export module carcer.actions.combat:DoCombatAction;
-export import :CombatAction;
+export import carcer.state;
 import :PerformMeleeAttack;
 import :ModifyAP;
 import :MoveCharacter;
@@ -27,7 +27,7 @@ struct CombatActionContext {
   model::TileXY targetLoc{};
 };
 
-class DoCombatAction : public CombatAction {
+class DoCombatAction : public AbstractAction {
   bmin::String chId;
   model::CombatActionType actionType = model::CombatActionType::WAIT;
   CombatActionContext ctx;

@@ -3,7 +3,7 @@ module;
 #include <cstddef>
 
 export module carcer.actions.combat:MoveCharacter;
-export import :CombatAction;
+export import carcer.state;
 import carcer.game.map;
 import bmin.string_interop;
 #include "macros.h"
@@ -14,7 +14,7 @@ namespace state {
 
 namespace actions {
 
-class MoveCharacter : public CombatAction {
+class MoveCharacter : public AbstractAction {
   bmin::String characterId;
   int dx = 0;
   int dy = 0;

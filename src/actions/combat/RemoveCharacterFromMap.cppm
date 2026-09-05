@@ -3,7 +3,7 @@ module;
 #include <cstddef>
 
 export module carcer.actions.combat:RemoveCharacterFromMap;
-export import :CombatAction;
+export import carcer.state;
 import carcer.game.map;
 import carcer.game.combat;
 import bmin.string_interop;
@@ -15,7 +15,7 @@ namespace state {
 
 namespace actions {
 
-class RemoveCharacterFromMap : public CombatAction {
+class RemoveCharacterFromMap : public AbstractAction {
   bmin::String characterId;
 
   void act() override {

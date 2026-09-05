@@ -3,7 +3,6 @@ module;
 
 export module carcer.actions.world:WorldMovePlayer;
 export import carcer.state;
-export import carcer.actions.combat;
 import :TownEnemyAiAfterPlayerMove;
 import carcer.game.map;
 import sdl2w;
@@ -16,7 +15,7 @@ namespace state {
 namespace actions {
 
 // Moves the current party avatar by (dx, dy) tiles, or opens a closed door on bump.
-class WorldMovePlayer : public CombatAction {
+class WorldMovePlayer : public AbstractAction {
   int dx = 0;
   int dy = 0;
 

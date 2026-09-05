@@ -3,7 +3,7 @@ module;
 #include <cstddef>
 
 export module carcer.actions.combat:PerformMeleeAttack;
-export import :CombatAction;
+export import carcer.state;
 import bmin.string_interop;
 #include "macros.h"
 
@@ -13,7 +13,7 @@ namespace state {
 
 namespace actions {
 
-class PerformMeleeAttack : public CombatAction {
+class PerformMeleeAttack : public AbstractAction {
   bmin::String attackerId;
   bmin::String victimId;
 

@@ -3,7 +3,7 @@ module;
 #include <cstddef>
 
 export module carcer.actions.combat:PerformCharacterDefeated;
-export import :CombatAction;
+export import carcer.state;
 import :RemoveCharacterFromMap;
 import carcer.actions.general;
 import carcer.game.map;
@@ -16,7 +16,7 @@ namespace state {
 
 namespace actions {
 
-class PerformCharacterDefeated : public CombatAction {
+class PerformCharacterDefeated : public AbstractAction {
   bmin::String characterId;
 
   void act() override {

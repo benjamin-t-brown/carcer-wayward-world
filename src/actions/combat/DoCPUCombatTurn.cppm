@@ -3,7 +3,7 @@ module;
 #include <cstddef>
 
 export module carcer.actions.combat:DoCPUCombatTurn;
-export import :CombatAction;
+export import carcer.state;
 import :DoCombatAction;
 import carcer.game.map;
 import carcer.game.combat;
@@ -17,7 +17,7 @@ namespace state {
 
 namespace actions {
 
-class DoCPUCombatTurn : public CombatAction {
+class DoCPUCombatTurn : public AbstractAction {
   void act() override {
     if (!state) {
       return;

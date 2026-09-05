@@ -35,7 +35,7 @@ carcer.model.instances:Combat
 carcer.model.instances:World
 carcer.model.instances
 carcer.state
-carcer.actions.combat:CombatAction
+carcer.actions.combat:PerformMeleeAttack
 carcer.actions.general
 carcer.actions.ui.layers:UiCancelEquipRunes
 carcer.actions.ui.layers:UiCommitEquipRunes
@@ -76,7 +76,6 @@ carcer.actions.world:WorldSpawnDamageParticle
 carcer.actions.world:WorldSpawnProjectile
 carcer.game.map
 carcer.ui.core:UiElement
-carcer.actions.combat:PerformMeleeAttack
 carcer.actions.ui.layers
 carcer.actions.combat:CharacterSetSpriteIndexOffset
 carcer.actions.combat:EndCombat

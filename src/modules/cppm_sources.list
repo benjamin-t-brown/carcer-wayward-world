@@ -35,7 +35,7 @@ model/instances/Combat.cppm
 model/instances/World.cppm
 model/instances/instances.cppm
 state/State.cppm
-actions/combat/CombatAction.cppm
+actions/combat/PerformMeleeAttack.cppm
 actions/general/general.cppm
 actions/ui/layers/UiCancelEquipRunes.cppm
 actions/ui/layers/UiCommitEquipRunes.cppm
@@ -76,7 +76,6 @@ actions/world/WorldSpawnDamageParticle.cppm
 actions/world/WorldSpawnProjectile.cppm
 game/map/map.cppm
 ui/UiElement.cppm
-actions/combat/PerformMeleeAttack.cppm
 actions/ui/layers/layers.cppm
 actions/combat/CharacterSetSpriteIndexOffset.cppm
 actions/combat/EndCombat.cppm

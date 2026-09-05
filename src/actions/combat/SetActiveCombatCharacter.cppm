@@ -3,7 +3,7 @@ module;
 #include <cstddef>
 
 export module carcer.actions.combat:SetActiveCombatCharacter;
-export import :CombatAction;
+export import carcer.state;
 import carcer.game.map;
 import bmin.string_interop;
 #include "macros.h"
@@ -14,7 +14,7 @@ namespace state {
 
 namespace actions {
 
-class SetActiveCombatCharacter : public CombatAction {
+class SetActiveCombatCharacter : public AbstractAction {
   bmin::String characterId;
 
   void act() override {

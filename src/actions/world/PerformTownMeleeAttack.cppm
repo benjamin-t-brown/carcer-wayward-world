@@ -5,7 +5,7 @@ module;
 
 export module carcer.actions.world:PerformTownMeleeAttack;
 export import carcer.state;
-export import carcer.actions.combat;
+import carcer.actions.combat;
 import :ModifyPartyMemberHp;
 import :WorldSpawnDamageParticle;
 import carcer.actions.general;
@@ -23,7 +23,7 @@ namespace actions {
 
 // Town melee with the same swing / particle / reset timing as combat melee.
 // Damages a random living party member; FX play on the party avatar tile.
-class PerformTownMeleeAttack : public CombatAction {
+class PerformTownMeleeAttack : public AbstractAction {
   bmin::String attackerId;
 
   static model::CharacterPlayer* pickRandomLivingPartyMember(model::Player& player) {
