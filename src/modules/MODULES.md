@@ -129,7 +129,7 @@ Every module in the tree is **partitions — one file per class**, declaration
 plus (usually) inline bodies:
 
 ```
-src/<folder>/<folder>.cppm     export module carcer.<folder>;          (primary interface unit / aggregator)
+src/<folder>/_<folder>.cppm    export module carcer.<folder>;          (primary interface unit / aggregator — the "barrel" file)
                                export import :Thing;
                                export import :Other;
 src/<folder>/Thing.cppm        export module carcer.<folder>:Thing;    (partition: declaration + inline bodies)
@@ -137,6 +137,14 @@ src/<folder>/Thing.cppm        export module carcer.<folder>:Thing;    (partitio
                                import carcer.model.instances;          (cross-module: full name)
 src/<folder>/Thing.cpp         module carcer.<folder>;                 (impl unit: bodies for any partition)
 ```
+
+**Barrel files are prefixed `_`** — `_elements.cppm`, `_layers.cppm`,
+`modules/_carcer.cppm` for the umbrella — purely so they sort first in a
+directory listing and are easy to spot; the leading underscore has no
+meaning to the compiler and isn't part of the module name (the file is
+still `export module carcer.ui.elements;` inside, unrelated to what it's
+called on disk). `partitionize_folder.py` defaults new primaries to this
+name; pass `--primary <name>` to override.
 
 This is universal now — `carcer.model.templates`, `carcer.model.instances`,
 `carcer.ui.core`, `carcer.ui.elements`, `carcer.ui.components`,
@@ -459,7 +467,7 @@ server. First open of a module-heavy TU may index for a minute or two.
 
 - **New class in an existing partitioned module** → add a partition
   `export module carcer.<folder>:NewThing;` and one `export import :NewThing;`
-  line in `<folder>.cppm`. No new module. Regenerate the graph.
+  line in `_<folder>.cppm` (the barrel). No new module. Regenerate the graph.
 - **New action class** → decide which of `carcer.actions.{combat,world,general,ui,ui.layers}`
   it belongs to by what its `act()` does (a screen open/close request →
   `ui.layers`; anything else → its domain), then add a partition there, same

@@ -5,7 +5,7 @@ Example (layers):
 
   python scripts/modules/consolidate_module.py \\
       --name carcer.layers \\
-      --out src/layers/layers.cppm \\
+      --out src/layers/_layers.cppm \\
       src/layers/Layer.cppm src/layers/LayerManager.cppm src/layers/ui/*.cppm
 
 Then: python scripts/modules/gen_bmi_makefile.py

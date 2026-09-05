@@ -13,7 +13,8 @@ partition named after the LAST dotted segment of its current module name:
 
 Within the folder, `import <absorbed-module>;` becomes `import :<Part>;`
 (the `export import` prefix is preserved). A primary interface unit
-`<dir>/<basename>.cppm` is written that `export import`s every partition.
+`<dir>/_<basename>.cppm` is written that `export import`s every partition
+(leading `_` so the barrel file sorts first in a directory listing).
 Sibling `.cpp` impl units get `module <target>;` and their self-imports dropped.
 Repo-wide (incl. the umbrella), `import <absorbed-module>;` becomes
 `import <target>;`, deduped.
@@ -49,7 +50,9 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--module", required=True, help="target module, e.g. carcer.ui.elements")
     ap.add_argument("--dir", required=True, help="folder to absorb, e.g. src/ui/elements")
-    ap.add_argument("--primary", help="primary .cppm basename (default: last dir segment)")
+    ap.add_argument("--primary", help="primary .cppm basename, e.g. _elements "
+                    "(default: '_' + last dir segment, so the barrel file sorts "
+                    "first in a directory listing)")
     ap.add_argument("--primary-path", help="explicit path to primary .cppm (repo-relative); "
                     "use when absorbing a sub-folder into a module whose primary is elsewhere")
     ap.add_argument("--append", action="store_true",
@@ -67,7 +70,7 @@ def main() -> int:
     if args.primary_path:
         primary_path = (ROOT / args.primary_path).resolve()
     else:
-        primary_path = d / f"{args.primary or d.name}.cppm"
+        primary_path = d / f"{args.primary or '_' + d.name}.cppm"
     excluded = {s.strip() for s in args.exclude.split(",") if s.strip()}
     existing_parts: list[str] = []
     if args.append and primary_path.exists():

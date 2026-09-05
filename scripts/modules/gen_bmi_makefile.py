@@ -51,7 +51,7 @@ def module_name(path: Path, text: str) -> str:
 
 cppms = iter_carcer_cppm()
 unit_file: dict[str, str] = {}  # unit name (may contain ':') -> path relative to src/
-umbrella_rel = "modules/carcer.cppm"
+umbrella_rel = "modules/_carcer.cppm"
 
 for p in cppms:
     rel = p.relative_to(SRC).as_posix()

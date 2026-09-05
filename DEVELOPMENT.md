@@ -18,7 +18,7 @@ For Building WASM Executable
 
 - Emscripten
 
-This program is built with the Makefile in the src directory. The game uses **C++23 named modules** (`carcer.*`) and depends on modules-only sdl2w (bundled bmin) via `copy-sdl2w-artifacts.sh` / `use.mk`. Interface units (`.cppm`) live next to their `.cpp` files; the umbrella is `src/modules/carcer.cppm`. See [src/modules/MODULES.md](src/modules/MODULES.md).
+This program is built with the Makefile in the src directory. The game uses **C++23 named modules** (`carcer.*`) and depends on modules-only sdl2w (bundled bmin) via `copy-sdl2w-artifacts.sh` / `use.mk`. Interface units (`.cppm`) live next to their `.cpp` files; the umbrella is `src/modules/_carcer.cppm` (barrel files — pure `export import` aggregators — are named `_<folder>.cppm` so they sort first in a directory listing). See [src/modules/MODULES.md](src/modules/MODULES.md).
 
 ```
 cd src
