@@ -258,8 +258,9 @@ hand, especially since partition-to-partition ordering (e.g.
 is exactly the kind of edge that's easy to get wrong manually. Rerun it after
 any change to cross-module `import` edges.
 
-- Stamp contract: `gcm.cache/.carcer-ready` gates the `%.o: %.cpp` rule in the
-  top `Makefile`.
+- Stamp contract: `gcm.cache/.carcer-ready` (`$(CARCER_BMI_STAMP)`) gates
+  whether the BMI submake needs to run at all; it does **not** gate individual
+  `.cpp` recompiles directly (see below).
 - `src/modules/{bmi_objs.list,cppm_sources.list,module_order.txt}` are
   regenerated alongside the makefile; the top `Makefile` reads the first two.
 - Caches: `gcm.cache/` (GCC BMIs), `pcm.cache/` (Clang PCMs), `.carcer-bmi/`
@@ -270,6 +271,44 @@ any change to cross-module `import` edges.
   `build-bmi-em.mk` is the existing reference for the two-phase
   `--precompile` → `.pcm` → `.o` shape; `carcer`'s wasm build graph needs the
   same treatment once wasm work resumes.
+
+### 6c. Per-file `.cpp` → BMI dependencies, and a real GNU Make scheduling gap
+
+Every `.cpp` implementation unit used to depend on the single coarse
+`$(CARCER_BMI_STAMP)` file, so touching *any one* `.cppm` anywhere forced
+*every* `.cpp` impl unit to recompile — correct, but far coarser than
+necessary. `gen_bmi_makefile.py` now also emits
+`src/modules/cpp_bmi_deps.mk`: for each `.cpp`, the specific
+`.carcer-bmi/*.o` objects it (or its own module's primary, which covers every
+sibling partition) actually imports, as prerequisite-only lines with no
+recipe — GNU Make unions these with the top Makefile's `%.o: %.cpp` pattern
+rule. `%.o: %.cpp` itself now takes `carcer-bmi` only as an *order-only*
+prerequisite (a `.carcer-bmi/%.o: | carcer-bmi` placeholder rule gives the top
+Makefile something to point at, since the real files are only ever produced by
+the recursive `build-bmi.mk` submake). Net effect: touching one leaf module
+now recompiles only the `.cpp` files that actually import it, not all of them.
+
+**Real bug found and fixed while wiring this up, not just a design nuance:**
+with a parallel (`-j>1`) build, a single `make` process can "consider" a
+`.cpp` target's `.carcer-bmi/*.o` prerequisite *before* a sibling target's
+dependency chain finishes rebuilding that same file as a recursive-submake
+side effect, and then use the pre-rebuild mtime for the first target's
+freshness check — confirmed directly with `make --debug=v` (a target's own
+"Finished prerequisites" trace reported a `.carcer-bmi/*.o` file as "older"
+immediately after a `--debug=v` line elsewhere in the *same run* showed that
+exact file being "Successfully remade"). This is a real GNU Make scheduling
+gap around a file that one target's order-only prerequisite recipe produces
+as a side effect while a *different* target references it as a normal
+prerequisite — not a misreading of the order-only docs, and not fixable by
+rearranging prerequisite order within one `make` process. The fix: `all` and
+`libcarcer`/`object_files` (the only real entry points — `object_files` is
+what every `run-*-tests-ucrt64.sh` script calls) now run `carcer-bmi` as its
+**own, already-exited `$(MAKE)` invocation** before recursing into a second,
+completely fresh `$(MAKE)` process to compile/link. The second process stats
+every BMI object for the first time (already final, never changing again
+during its own lifetime), so the race has no window to occur in. Verified
+stable across repeated leaf-touch rebuilds at both `-j8` and `-j16`, through
+both entry points.
 
 ### 6a. Known GCC 16 `-fmodules-ts` limits (and how to work around them)
 

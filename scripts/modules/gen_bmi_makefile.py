@@ -165,4 +165,56 @@ iface_list = [unit_file[u] for u in order] + [umbrella_rel]
     encoding="utf-8",
     newline="\n",
 )
+
+# --- .cpp implementation-unit BMI dependencies --------------------------
+# Each `.cpp` impl unit (`module carcer.X;`, not `export module`) implicitly
+# sees every partition of X once X's own primary .o is built (the primary
+# already depends on all its partitions), plus whatever it explicitly
+# imports. Emitted as prerequisite-only rules (no recipe - GNU Make unions
+# these with the top Makefile's `%.o: %.cpp` pattern rule) so each impl
+# unit rebuilds only when a BMI it actually imports changes, instead of
+# unconditionally on any change anywhere via one shared stamp.
+CPP_MODULE_RE = re.compile(r"^module (carcer[\w.]*)\s*;", re.M)
+
+
+def resolve_obj(name: str) -> str | None:
+    if name == "carcer":
+        return ".carcer-bmi/carcer.o"
+    if name in unit_file:
+        return f".carcer-bmi/{objname(name)}.o"
+    return None
+
+
+cpp_dep_lines: list[str] = []
+for p in sorted(SRC.rglob("*.cpp")):
+    rel = p.relative_to(SRC).as_posix()
+    if rel.startswith(("lib/sdl2w/", "lib/bmin/", "__test__/")):
+        continue
+    text = p.read_text(encoding="utf-8")
+    m = CPP_MODULE_RE.search(text)
+    objs: set[str] = set()
+    if m:
+        # Impl unit: depends on its own module's primary (covers every
+        # sibling partition transitively) plus anything it explicitly imports.
+        own_obj = resolve_obj(m.group(1))
+        if own_obj:
+            objs.add(own_obj)
+        for im in IMPORT_RE.finditer(text):
+            obj = resolve_obj(im.group(1).split(":", 1)[0])
+            if obj:
+                objs.add(obj)
+    elif re.search(r"^import carcer\s*;", text, re.M):
+        # main.cpp and similar: no `module` line, imports the umbrella.
+        objs.add(".carcer-bmi/carcer.o")
+    if objs:
+        obj_path = rel[:-4] + ".o"
+        cpp_dep_lines.append(f"{obj_path}: " + " ".join(sorted(objs)))
+
+(MODULES / "cpp_bmi_deps.mk").write_text(
+    "\n".join(cpp_dep_lines) + "\n",
+    encoding="utf-8",
+    newline="\n",
+)
+
 print(f"wrote {out} units={len(order)}")
+print(f"wrote {MODULES / 'cpp_bmi_deps.mk'} .cpp deps={len(cpp_dep_lines)}")
