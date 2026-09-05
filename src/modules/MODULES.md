@@ -99,12 +99,16 @@ stateManager.update(dt); … layerManager->render(dt);`).
     well past the ~17–20 GCM-corruption ceiling (§6a); the split follows real
     seams anyway (`ui.layers`'s classes are pure `pushLayerRequest` calls,
     a genuinely different shape from `ui`'s state-mutating ones) rather than
-    being arbitrary. `carcer.actions.world` needs `carcer.actions.combat` at
-    the *declaration* level (`WorldMovePlayer : public CombatAction`); the
-    reverse direction (`carcer.actions.combat`'s two deferred-FX classes
-    constructing `carcer.actions.world` types) only happens in `combat.cpp`,
-    an implementation unit — a distinct build-graph node from `combat`'s own
-    interface, so this isn't a cycle (see §4's note on implementation units).
+    being arbitrary. `world` and `combat` are otherwise as separate as two
+    related domains can be: neither needs the other at the *declaration*
+    level (a shared `CombatAction` base that used to force this was removed
+    — see §6b, it added no actual behavior over `AbstractAction`). The one
+    remaining link is directional and narrow — `combat.cpp`'s two genuinely
+    deferred-FX classes construct `carcer.actions.world` types, and
+    `PerformTownMeleeAttack` (`world`) constructs one `combat` sprite-effect
+    helper in its body — and the `combat.cpp` case is an implementation unit,
+    a distinct build-graph node from `combat`'s own interface, so none of
+    this is a cycle (see §4's note on implementation units).
   - `carcer.layers`: the screen stack is genuinely one module — every
     `LayerX` (15 of them, `Layer` and `LayerManager` included) is a
     partition, each in its own file. A UI-observer helper that needed to
@@ -224,7 +228,7 @@ regenerating from the actual `export module`/`import` graph is still less
 error-prone than hand-maintaining ~29 module→module prerequisite edges by
 hand, especially since partition-to-partition ordering (e.g.
 `carcer.ui.pages:PageModalEvent` needing `:PageTalkChoice` built first, or
-`carcer.actions.combat`'s `PerformSpellCast` needing `:CombatAction` first)
+`carcer.actions.combat`'s `DoCombatAction` needing five sibling partitions built first)
 is exactly the kind of edge that's easy to get wrong manually. Rerun it after
 any change to cross-module `import` edges.
 
@@ -424,6 +428,23 @@ than to carry the cross-domain reference. Reach for a real `.cpp` impl unit
 only when the need is genuinely deferred/queued, or otherwise can't be
 satisfied by reading — not just constructing and immediately calling — the
 other domain's public surface.
+
+**A base class can be fake coupling too, not just a body reference.**
+`carcer.actions.world`'s `WorldMovePlayer`, `TownEnemyAiAfterPlayerMove`,
+`TownEnemySeekAndMelee`, and `PerformTownMeleeAttack` all derived from a
+`CombatAction` class declared in `carcer.actions.combat` — the *entire*
+reason `world`'s interface needed `combat`'s interface. `CombatAction`
+turned out to provide zero actual behavior: its only members
+(`insertAction()`/`enqueueAction()` wrappers) were commented out and already
+duplicated on `AbstractAction` itself, and nothing anywhere used
+`CombatAction` polymorphically (no `dynamic_cast`, no `CombatAction*`
+container, no `typeid` check) — it was a pure compile-time tag, a fossil
+from before those two methods got hoisted onto the shared base. Deleted it;
+every former subclass now derives from `AbstractAction` directly. Same
+underlying lesson as the `.execute()` case above, one level up the
+hierarchy: before treating a shared base class as a reason two domains must
+depend on each other, check whether it actually contributes anything a
+plain `AbstractAction` doesn't.
 
 ## 7. clangd
 
