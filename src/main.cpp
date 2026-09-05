@@ -67,6 +67,7 @@ int main(int argc, char** argv) {
   srand(static_cast<unsigned>(time(nullptr)));
 
   runProgram(argc, argv);
+  sdl2w::Window::unInit();
 
   LOG(INFO) << "End program" << LOG_ENDL;
   return 0;

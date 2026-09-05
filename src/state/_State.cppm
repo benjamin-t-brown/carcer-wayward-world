@@ -278,6 +278,28 @@ public:
   virtual ~AbstractAction() = default;
 };
 
+namespace actions {
+
+// UiManager constructs this action from inside carcer.state. Keeping the
+// small state-only action here avoids a state -> actions -> state module cycle
+// while preserving the ActionBus notification consumed by the UI.
+class UiRemoveFloatingNotification : public AbstractAction {
+  bmin::String notificationId;
+
+  void act() override {
+    state->uiState.floatingNotifications.eraseIf(
+        [&](const UiFloatingNotification& notification) {
+          return notification.id == notificationId;
+        });
+  }
+
+public:
+  explicit UiRemoveFloatingNotification(bmin::String id)
+      : notificationId(std::move(id)) {}
+};
+
+} // namespace actions
+
 class ActionBus {
   struct Entry {
     void* owner = nullptr;
@@ -419,13 +441,6 @@ struct WorldActionUiState {
       WorldActionType::JOURNAL,
   };
 };
-
-} // namespace state
-
-namespace state {
-
-void worldUpdate(sdl2w::Window* window, StateManager& stateManager, int dt);
-void worldProcessPendingTriggers(sdl2w::Window* window, StateManager& stateManager);
 
 } // namespace state
 

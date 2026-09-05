@@ -5,7 +5,7 @@ module;
 
 module carcer.actions.combat;
 import carcer.actions.general;
-import carcer.actions.world;
+import carcer.actions.world_effects;
 import sdl2w;
 import bmin.string_interop;
 import carcer.model.templates;

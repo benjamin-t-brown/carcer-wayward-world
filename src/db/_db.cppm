@@ -23,7 +23,7 @@ const V& mapGet(const bmin::Map<bmin::String, V>& map, std::string_view key, con
   if (!map.contains(mapKey)) {
     throw std::runtime_error((bmin::String(notFoundMsg) + mapKey.cStr()).cStr());
   }
-  return (*const_cast<bmin::Map<bmin::String, V>&>(map).find(mapKey)).value;
+  return map.find(mapKey)->value;
 }
 
 class Database {

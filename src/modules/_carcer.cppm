@@ -13,6 +13,7 @@ export import carcer.game.combat;
 export import carcer.db;
 export import carcer.ui.helpers;
 export import carcer.actions;
+export import carcer.world_updater;
 export import carcer.layers;
 export import carcer.ui.ObserverSpecialEvent;
 export import carcer.ui.elements;

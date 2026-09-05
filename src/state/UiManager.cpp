@@ -4,7 +4,6 @@ module;
 #include <utility>
 
 module carcer.state;
-import carcer.actions;
 import carcer.model.templates;
 
 namespace state {

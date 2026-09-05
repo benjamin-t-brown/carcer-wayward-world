@@ -130,9 +130,8 @@ const model::AbilityTemplate& Database::getAbilityTemplate(std::string_view abil
 
 const model::AbilityTemplate* Database::findAbilityTemplate(std::string_view abilityName) const {
   const auto mapKey = bmin::String(abilityName.data(), abilityName.size());
-  auto& map = const_cast<bmin::Map<bmin::String, model::AbilityTemplate>&>(abilityTemplates);
-  auto it = map.find(mapKey);
-  if (it == map.end()) {
+  auto it = abilityTemplates.find(mapKey);
+  if (it == abilityTemplates.end()) {
     return nullptr;
   }
   return &(*it).value;
@@ -148,9 +147,8 @@ const model::SpellTemplate& Database::getSpellTemplate(std::string_view spellNam
 
 const model::SpellTemplate* Database::findSpellTemplate(std::string_view spellName) const {
   const auto mapKey = bmin::String(spellName.data(), spellName.size());
-  auto& map = const_cast<bmin::Map<bmin::String, model::SpellTemplate>&>(spellTemplates);
-  auto it = map.find(mapKey);
-  if (it == map.end()) {
+  auto it = spellTemplates.find(mapKey);
+  if (it == spellTemplates.end()) {
     return nullptr;
   }
   return &(*it).value;
@@ -200,10 +198,8 @@ const model::MapGridTemplate& Database::getMapGridTemplate(std::string_view grid
 const model::MapGridTemplate*
 Database::findMapGridTemplate(std::string_view gridName) const {
   const auto mapKey = bmin::String(gridName.data(), gridName.size());
-  auto& map =
-      const_cast<bmin::Map<bmin::String, model::MapGridTemplate>&>(mapGridTemplates);
-  auto it = map.find(mapKey);
-  if (it == map.end()) {
+  auto it = mapGridTemplates.find(mapKey);
+  if (it == mapGridTemplates.end()) {
     return nullptr;
   }
   return &(*it).value;
@@ -225,10 +221,8 @@ Database::getTilesetTemplate(std::string_view tilesetName) const {
 const model::TilesetTemplate*
 Database::findTilesetTemplate(std::string_view tilesetName) const {
   const auto mapKey = bmin::String(tilesetName.data(), tilesetName.size());
-  auto& map =
-      const_cast<bmin::Map<bmin::String, model::TilesetTemplate>&>(tilesetTemplates);
-  auto it = map.find(mapKey);
-  if (it == map.end()) {
+  auto it = tilesetTemplates.find(mapKey);
+  if (it == tilesetTemplates.end()) {
     return nullptr;
   }
   return &(*it).value;

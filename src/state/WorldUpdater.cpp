@@ -4,7 +4,7 @@ module;
 #include <utility>
 #include <cmath>
 
-module carcer.state;
+module carcer.world_updater;
 import carcer.actions;
 import carcer.model.templates;
 import carcer.game.map;

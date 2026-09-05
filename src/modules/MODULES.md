@@ -4,7 +4,7 @@ Carcer ships as C++23 named modules (`carcer.*`). This doc is the contract for
 how the tree is organised, how to import across it, and how the build graph works.
 
 > **Migration status (2026-09):** the ~185-module-per-class tree has been
-> consolidated to **31 top-level modules**. Every domain is one-class-per-file
+> consolidated to **33 top-level modules**. Every domain is one-class-per-file
 > now — `carcer.actions` was the last holdout (used to be 4 partitions each
 > cramming 16–33 unrelated classes into one file) and is now a thin re-export
 > of 5 real modules (`carcer.actions.{combat,world,general,ui,ui.layers}`),
@@ -29,7 +29,8 @@ Modules replaced headers for two payoffs:
 Both payoffs need a **shallow, wide** dependency graph. 185 micro-modules in a
 deep chain gave neither (the graph was as deep as the old `#include` graph, and
 `import carcer;` everywhere dragged the whole closure). Hence **folder-sized
-modules** — 30 of them, plus the umbrella and one intentional leaf — like
+modules** — 30 of them, plus two narrow cycle-breaking modules and the
+umbrella — like
 `sdl2w.window` / `sdl2w.draw`.
 
 ## 2. The layering
@@ -46,8 +47,8 @@ fix it by moving the shared type down (usually into `carcer.model.templates` or
 | 2 Data access | `carcer.db` | loads templates, owns lookup registries. |
 | 3 Runtime model | `carcer.model.instances` | the mutable store shape: live characters, maps, items, world, combat state. |
 | 4 Rules | `carcer.game.map`, `carcer.game.combat`, `carcer.in3` | pure-ish logic over the model; compute results, don't own state. Independent siblings. |
-| 5 State kernel | `carcer.state` | store + `ActionBus` + `AbstractAction` base + `WorldUpdater` + interface seams + `LayerRequest`/`layerStack`. Small, stable, universally depended on. |
-| 6 Actions | `carcer.actions` (pure re-export of `carcer.actions.{combat,world,general,ui,ui.layers}`) | one command class per state transition, one file per class; `act()` mutates state, calls rules, enqueues timed follow-ups. `ui.layers` requests screens by pushing a `LayerRequest` onto `state` rather than calling layers directly; everything else mutates player/world/UI state or rules-layer data. |
+| 5 State kernel | `carcer.state` | store + `ActionBus` + `AbstractAction` base + interface seams + `LayerRequest`/`layerStack`. Small, stable, universally depended on. |
+| 6 Actions / orchestration | `carcer.actions` (pure re-export of `carcer.actions.{combat,world,general,ui,ui.layers}`), internal `carcer.actions.world_effects`, and `carcer.world_updater` | one command class per state transition, one file per class; `act()` mutates state, calls rules, enqueues timed follow-ups. The two narrow modules keep shared deferred world effects and the frame updater above `state` but below their consumers, avoiding reverse imports into a module's own purview. |
 | 7 UI widgets | `carcer.ui.core` → `carcer.ui.elements` → `carcer.ui.components` → `carcer.ui.layouts` → `carcer.ui.{minipages,popups,pages}` (+ `carcer.ui.helpers`, `carcer.ui.lists`, `carcer.ui.KeyboardHeldScroll`, `carcer.ui.ObserverRemoveLayer`, `carcer.ui.ObserverSpecialEvent`) | framework → primitives → game-aware composites → screens. Read model/state to render; enqueue actions on interaction. |
 | 8 Screen stack | `carcer.layers` | `LayerManager` owns the stack; each `Layer*` binds a UI page + input + its state slice. One module, 15 partitions (`Layer`, `LayerManager`, and 13 `LayerX` screens), one file per class, no exceptions — see §6a for why that took two attempts. |
 | 9 Entry | `carcer` umbrella, `main.cpp` | umbrella used only by `main` + tests. |
@@ -103,12 +104,11 @@ stateManager.update(dt); … layerManager->render(dt);`).
     related domains can be: neither needs the other at the *declaration*
     level (a shared `CombatAction` base that used to force this was removed
     — see §6b, it added no actual behavior over `AbstractAction`). The one
-    remaining link is directional and narrow — `combat.cpp`'s two genuinely
-    deferred-FX classes construct `carcer.actions.world` types, and
-    `PerformTownMeleeAttack` (`world`) constructs one `combat` sprite-effect
-    helper in its body — and the `combat.cpp` case is an implementation unit,
-    a distinct build-graph node from `combat`'s own interface, so none of
-    this is a cycle (see §4's note on implementation units).
+    remaining link is narrow: both domains use the lower-level
+    `carcer.actions.world_effects` module for queueable particles,
+    projectiles, and action-mode changes. `PerformTownMeleeAttack` (`world`)
+    still imports one `combat` sprite-effect partition, but combat no longer
+    imports world, so the graph stays acyclic (see §4).
   - `carcer.layers`: the screen stack is genuinely one module — every
     `LayerX` (15 of them, `Layer` and `LayerManager` included) is a
     partition, each in its own file. A UI-observer helper that needed to
@@ -183,15 +183,12 @@ A partition's body can be:
 - **In a sibling `.cpp` implementation unit**, when a body needs something its
   own partition's declaration-time position in the build order can't see. An
   implementation unit implicitly imports its module's primary interface unit,
-  so it sees every sibling partition regardless of declared order — and it's
-  a *distinct node* in the build graph from its own module's interface, so it
-  can freely `import` a different module even one that itself depends on this
-  module's interface (this is exactly how `carcer.actions.combat`'s two
-  deferred-FX classes, `PerformMeleeAttack` / `PerformSpellCast`, reach
-  `carcer.actions.world` in `combat.cpp`, while `carcer.actions.world`'s own
-  interface depends on `carcer.actions.combat`'s interface the other way —
-  not a cycle, see §3). Reach for this only when the reference is genuine
-  (see §6a's "fake vs. real coupling" writeup) — most classes never need it.
+  so it sees every sibling partition regardless of declared order. The whole
+  module graph must still be acyclic: GCC rejects importing a module that
+  depends on the implementation unit's own module as "cannot import module in
+  its own purview." Put genuinely shared deferred types in a lower-level module
+  instead; `carcer.actions.world_effects` is the concrete example used by both
+  combat and world actions. Most classes never need an implementation unit.
 - Two bodies **must** stay in a `.cpp` regardless of anything else —
   `ChCompactInfo`, `ListMagicSpells` — their nested `bmin::DynArray` shapes
   corrupt GCC GCMs when inline.
@@ -477,11 +474,12 @@ cross-domain reference at all:
   use `insertAction(new WorldSpawnDamageParticle(...), delayMs)` — real
   deferred, timed follow-ups queued through the same polymorphic `ActionBus`
   dispatch everything else uses. That fundamentally needs the concrete
-  `carcer.actions.world` class to exist as a heap-allocated, queueable
-  object; there is no way to defer a timed effect without it. Their bodies
-  stay in `combat.cpp`, an implementation unit that `import`s
-  `carcer.actions.world` — the standard, correct way to handle this, not a
-  smell (§4).
+  action class to exist as a heap-allocated, queueable object; there is no way
+  to defer a timed effect without it. The shared `WorldSpawnDamageParticle`,
+  `WorldSpawnProjectile`, and `WorldSetActionMode` types therefore live in
+  `carcer.actions.world_effects`, below both action domains. `combat.cpp`
+  imports that module, while the original world partitions re-export it to
+  preserve the public `carcer.actions.world` API.
 
 **The test to apply when a body seems to need a cross-domain type:** does it
 construct that type and call `.execute()` on it immediately, in the same

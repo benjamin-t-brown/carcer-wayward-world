@@ -111,7 +111,7 @@ lines = [
     "CARCER_MOD ?= modules",
     "SDL2W_MOD ?= lib/sdl2w/modules",
     "BMIN_MOD ?= lib/sdl2w/modules/bmin",
-    "FLAGS = -Wall -std=c++23 -g -fmodules-ts -I$(CARCER_MOD) -I$(SDL2W_MOD) -I$(BMIN_MOD)",
+    "CARCER_BMI_FLAGS ?= -Wall -std=c++23 -g -fmodules-ts -I$(CARCER_MOD) -I$(SDL2W_MOD) -I$(BMIN_MOD)",
     "OBJDIR = .carcer-bmi",
     "",
     ".PHONY: all clean",
@@ -135,11 +135,11 @@ for unit in order:
     if dep_objs:
         prereq += " " + dep_objs
     lines.append(f"{obj}: {prereq} | $(OBJDIR)")
-    lines.append(f"\t$(CXX) $(FLAGS) -c {rel} -o $@")
+    lines.append(f"\t$(CXX) $(CARCER_BMI_FLAGS) -c {rel} -o $@")
     lines.append("")
 
 lines.append(f"$(OBJDIR)/carcer.o: {umbrella_rel} {' '.join(objs)} | $(OBJDIR)")
-lines.append(f"\t$(CXX) $(FLAGS) -c {umbrella_rel} -o $@")
+lines.append(f"\t$(CXX) $(CARCER_BMI_FLAGS) -c {umbrella_rel} -o $@")
 lines.append("")
 lines.append("clean:")
 lines.append("\trm -rf $(OBJDIR)")
