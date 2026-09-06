@@ -1,6 +1,6 @@
 # Carcer C++ Modules v2 Implementation Plan
 
-Status: Phase 3 coarse-module pilot implemented; Gate 2 passes natively
+Status: Phase 4 ownership refactor in progress; Gate 2 passes natively
 Baseline commit: `95562b3` on `experiment/cpp-modules`  
 Date: 2026-09-05
 
@@ -15,6 +15,11 @@ Date: 2026-09-05
 - Phase 3 replaces the model/template partition forest with `carcer.data` and
   `carcer.model`, each using a declarations-only interface and grouped
   implementation units. The generated Make graph remains buildable.
+- Phase 4 has started by removing the concrete
+  `UiRemoveFloatingNotification` action from `carcer.state`. Notification
+  expiry is now state maintenance, explicit dismissal remains owned by
+  `carcer.actions.ui`, and UI synchronization uses a state revision rather
+  than requiring the state module to construct an action-layer type.
 - GCC 15.3 and Homebrew Clang 22.1.8 debug builds pass on the qualification
   host. Thirty current non-UI tests pass under both compilers, five stale tests
   compile but are disabled, three tests call already-disabled production APIs,

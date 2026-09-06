@@ -92,7 +92,7 @@ void StateManager::update(int dt) {
       i--;
     }
   }
-  uiManager.update(dt, state, *this);
+  updateUiState(state, dt);
 }
 
 } // namespace state

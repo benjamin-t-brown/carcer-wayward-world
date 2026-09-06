@@ -5,6 +5,7 @@ module;
 #include <typeinfo>
 #include <typeindex>
 #include <algorithm>
+#include <limits>
 
 export module carcer.ui.components:FloatingNotificationSection;
 import carcer.actions;
@@ -28,6 +29,8 @@ struct FloatingNotificationSectionProps {
 class FloatingNotificationSection : public UiElement {
 private:
   FloatingNotificationSectionProps props;
+  std::uint64_t syncedNotificationRevision =
+      std::numeric_limits<std::uint64_t>::max();
 
   template <typename ActionT, typename Fn> void subscribeAction(Fn&& fn) {
     if (!hasStateManager()) {
@@ -106,6 +109,7 @@ const FloatingNotificationSectionProps& FloatingNotificationSection::getProps() 
 }
 
 void FloatingNotificationSection::syncFromState(const state::State& state) {
+  syncedNotificationRevision = state.uiState.floatingNotificationRevision;
   children.clear();
 
   for (const auto& notification : state.uiState.floatingNotifications) {
@@ -163,6 +167,14 @@ void FloatingNotificationSection::build() {
   }
 }
 
-void FloatingNotificationSection::render(int dt) { UiElement::render(dt); }
+void FloatingNotificationSection::render(int dt) {
+  if (hasStateManager()) {
+    const auto& state = getStateManager()->getState();
+    if (syncedNotificationRevision != state.uiState.floatingNotificationRevision) {
+      syncFromState(state);
+    }
+  }
+  UiElement::render(dt);
+}
 
 } // namespace ui

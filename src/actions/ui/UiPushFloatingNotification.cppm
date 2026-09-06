@@ -26,6 +26,7 @@ class UiPushFloatingNotification : public AbstractAction {
     model::timerStructStart(notification.timer,
                             state->settings.floatingNotificationDurationMs);
     localState.uiState.floatingNotifications.pushBack(std::move(notification));
+    ++localState.uiState.floatingNotificationRevision;
   }
 
 public:
