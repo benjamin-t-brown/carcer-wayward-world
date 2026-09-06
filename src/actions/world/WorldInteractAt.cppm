@@ -34,7 +34,8 @@ class WorldInteractAt : public AbstractAction {
     }
     map->tileLayerNumber = world.activeMap.mapLayer;
 
-    game::queueActionTravelAtStanding(state->triggers, *map, local.x, local.y);
+    state->triggers.pendingTravel =
+        game::resolveActionTravelAtStanding(*map, local.x, local.y);
   }
 };
 

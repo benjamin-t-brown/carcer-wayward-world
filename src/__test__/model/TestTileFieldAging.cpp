@@ -93,7 +93,7 @@ int main() {
   database.addMapTemplate(makeMapTemplate("map_b"));
 
   state::State state;
-  game::createMapInstances(state, database);
+  state.mapInstances = game::createMapInstances(database);
 
   game::addTileFieldAt(state.mapInstances["map_a"], 1, 1, game::TileFieldType::BLOOD);
   {
@@ -102,9 +102,10 @@ int main() {
          ok;
   }
 
-  // Age while "away" from map_a — advanceWorldMovementTicks ages all mapInstances.
+  // Age while "away" from map_a — ageMapInstances ages all mapInstances.
   for (auto i = 0; i < game::TILE_FIELD_BLOOD_MOVE_DURATION; i++) {
-    game::advanceWorldMovementTicks(state, 1);
+    state.playerMovementCount += 1;
+    game::ageMapInstances(state.mapInstances, 1);
   }
   ok = assertEqual(state.playerMovementCount, game::TILE_FIELD_BLOOD_MOVE_DURATION,
                    "movement counter") &&

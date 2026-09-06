@@ -104,7 +104,6 @@ int main(int /*argc*/, char** /*argv*/) {
   bool ok = true;
 
   {
-    auto triggers = state::Triggers{};
     auto map = makeMap(2, 2);
     auto& tile = model::mapLayerAt(model::mapInstanceTiles(map), 0)[0];
     tile.eventTrigger = model::TileEventTrigger{
@@ -116,17 +115,16 @@ int main(int /*argc*/, char** /*argv*/) {
         .destinationMarkerName = "door",
     };
 
-    game::queueStepTriggersAt(triggers, map, 0, 0);
-    ok = assertTrue(triggers.pendingSpecialEventId.has_value(), "event takes precedence") &&
+    const auto result = game::resolveStepTriggersAt(map, 0, 0);
+    ok = assertTrue(result.specialEventId.has_value(), "event takes precedence") &&
          ok;
-    ok = assertEqualStr(*triggers.pendingSpecialEventId, "step_event", "event id") && ok;
-    ok = assertTrue(!triggers.pendingTravel.has_value(),
+    ok = assertEqualStr(*result.specialEventId, "step_event", "event id") && ok;
+    ok = assertTrue(!result.travel.has_value(),
                     "travel ignored when event present") &&
          ok;
   }
 
   {
-    auto triggers = state::Triggers{};
     auto map = makeMap(2, 2);
     model::mapLayerAt(model::mapInstanceTiles(map), 0)[0].travelTrigger =
         model::TravelTrigger{
@@ -135,16 +133,15 @@ int main(int /*argc*/, char** /*argv*/) {
             .destinationY = 4,
         };
 
-    game::queueStepTriggersAt(triggers, map, 0, 0);
-    ok = assertTrue(!triggers.pendingSpecialEventId.has_value(), "no event pending") && ok;
-    ok = assertTrue(triggers.pendingTravel.has_value(), "travel pending") && ok;
-    ok = assertEqualStr(triggers.pendingTravel->destinationMapName, "dest_map",
+    const auto result = game::resolveStepTriggersAt(map, 0, 0);
+    ok = assertTrue(!result.specialEventId.has_value(), "no event pending") && ok;
+    ok = assertTrue(result.travel.has_value(), "travel pending") && ok;
+    ok = assertEqualStr(result.travel->destinationMapName, "dest_map",
                         "travel map") &&
          ok;
   }
 
   {
-    auto triggers = state::Triggers{};
     auto map = makeMap(2, 2);
     model::mapLayerAt(model::mapInstanceTiles(map), 0)[0].travelTrigger =
         model::TravelTrigger{
@@ -152,16 +149,16 @@ int main(int /*argc*/, char** /*argv*/) {
             .requiresAction = true,
         };
 
-    game::queueStepTriggersAt(triggers, map, 0, 0);
-    ok = assertTrue(!triggers.pendingTravel.has_value(),
+    const auto stepResult = game::resolveStepTriggersAt(map, 0, 0);
+    ok = assertTrue(!stepResult.travel.has_value(),
                     "action travel not queued on step") &&
          ok;
 
-    game::queueActionTravelAtStanding(triggers, map, 0, 0);
-    ok = assertTrue(triggers.pendingTravel.has_value(),
+    const auto actionTravel = game::resolveActionTravelAtStanding(map, 0, 0);
+    ok = assertTrue(actionTravel.has_value(),
                     "action travel queued on interact") &&
          ok;
-    ok = assertEqualStr(triggers.pendingTravel->destinationMapName, "action_dest",
+    ok = assertEqualStr(actionTravel->destinationMapName, "action_dest",
                         "action travel map") &&
          ok;
   }

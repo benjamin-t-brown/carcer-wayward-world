@@ -1,5 +1,6 @@
 module;
 #include <cstddef>
+#include <utility>
 
 export module carcer.actions.world:WorldMovePlayer;
 export import carcer.state;
@@ -124,11 +125,15 @@ class WorldMovePlayer : public AbstractAction {
 
     avatar->x = destX;
     avatar->y = destY;
-    game::queueStepTriggersAt(state->triggers, *destMap, destLocal.x, destLocal.y);
+    auto triggerResult =
+        game::resolveStepTriggersAt(*destMap, destLocal.x, destLocal.y);
+    state->triggers.pendingSpecialEventId = std::move(triggerResult.specialEventId);
+    state->triggers.pendingTravel = std::move(triggerResult.travel);
     game::updateActiveMapVisibilityFromPlayer(
         world, state->mapInstances, destX, destY, *database);
     if (!world.combat.active) {
-      game::advanceWorldMovementTicks(*state, 1);
+      state->playerMovementCount += 1;
+      game::ageMapInstances(state->mapInstances, 1);
       world.resolvingTownEnemyAi = true;
       insertAction(new TownEnemyAiAfterPlayerMove(), 0);
     }

@@ -21,13 +21,13 @@ game/diceHelpers.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.combat.o
 game/map/ActiveMapOrchestrator.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 game/map/Camera.o: .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 game/map/MapPathfinding.o: .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
-game/map/MapPersistence.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o .carcer-bmi/carcer.state.o
+game/map/MapPersistence.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 game/map/MapPickup.o: .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 game/map/MapVision.o: .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 game/map/MapWalkability.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 game/map/TileDistance.o: .carcer-bmi/carcer.game.map.o
 game/map/TileFields.o: .carcer-bmi/carcer.game.map.TileFields.o
-game/map/TileTriggers.o: .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o .carcer-bmi/carcer.state.o
+game/map/TileTriggers.o: .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 in3/ConditionEvaluator.o: .carcer-bmi/carcer.in3.o
 in3/EventRunnerHelpers.o: .carcer-bmi/carcer.in3.o .carcer-bmi/carcer.lib.StringUtil.o
 in3/SpecialEventRunner.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.in3.o

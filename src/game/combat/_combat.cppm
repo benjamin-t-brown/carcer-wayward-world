@@ -359,7 +359,8 @@ namespace game {
 
 void onNewCombatRound(state::State& state) {
   model::resetAllCombatAp(state.world, model::COMBAT_STARTING_AP);
-  advanceWorldMovementTicks(state, TILE_FIELD_MOVES_PER_COMBAT_ROUND);
+  state.playerMovementCount += TILE_FIELD_MOVES_PER_COMBAT_ROUND;
+  ageMapInstances(state.mapInstances, TILE_FIELD_MOVES_PER_COMBAT_ROUND);
 }
 
 } // namespace game

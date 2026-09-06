@@ -25,6 +25,11 @@ Date: 2026-09-05
   explicit constructor inputs; map visibility, pathfinding, pickup, enemy-AI,
   and persistence APIs now carry the same narrow dependencies through their
   call chains instead of recovering them from process-global service locators.
+- `carcer.game.map` no longer imports `carcer.state`. Map persistence operates
+  on explicit map-instance data, movement aging is driven by its callers, and
+  tile-trigger rules return values that the action layer applies to state. The
+  generated graph falls from 847 to 846 edges and from 30 to 29 critical
+  levels.
 - GCC 15.3 and Homebrew Clang 22.1.8 debug builds pass on the qualification
   host. Thirty current non-UI tests pass under both compilers, five stale tests
   compile but are disabled, three tests call already-disabled production APIs,

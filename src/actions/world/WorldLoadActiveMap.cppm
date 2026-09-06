@@ -78,7 +78,7 @@ class WorldLoadActiveMap : public AbstractAction {
     }
 
     if (localState.mapInstances.empty()) {
-      game::createMapInstances(localState, *database);
+      localState.mapInstances = game::createMapInstances(*database);
     }
 
     saveCurrentMapToPersistentState();

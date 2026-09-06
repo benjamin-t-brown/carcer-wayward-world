@@ -1,6 +1,7 @@
 module;
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <utility>
 
 export module carcer.game.map;
@@ -8,7 +9,6 @@ export import carcer.game.map.TileFields;
 export import bmin.containers;
 export import carcer.model;
 export import carcer.data;
-export import carcer.state;
 export import carcer.db;
 import bmin.string_interop;
 
@@ -146,16 +146,17 @@ bool isTileInReachableSet(const bmin::DynArray<PathTile>& reachable, int x, int 
 // --- from game/map/MapPersistence.h ---
 namespace game {
 
-// Create a MapInstance for every map template in the database and store them on
-// state.mapInstances.
-void createMapInstances(state::State& state, const db::Database& database);
+// Create a MapInstance for every map template in the database.
+MapInstanceStore createMapInstances(const db::Database& database);
 
-// Age tile fields on every MapInstance (and bump playerMovementCount).
-void advanceWorldMovementTicks(state::State& state, int steps);
+// Age tile fields on every MapInstance. Movement-count ownership remains with
+// the orchestration layer.
+void ageMapInstances(MapInstanceStore& mapInstances, int steps);
 
 // Record a defeated map enemy on the MapInstance under its world position so it
 // stays gone when entities are next hoisted into the active map.
-void markMapCharacterDefeated(state::State& state,
+void markMapCharacterDefeated(model::ActiveMap& activeMap,
+                              MapInstanceStore& mapInstances,
                               const model::CharacterInstance& character,
                               const db::Database& database);
 
@@ -381,17 +382,20 @@ model::CharacterInstance* findDropCharacterOnActiveMap(model::ActiveMap& activeM
                                                        model::Player& player,
                                                        const bmin::String& characterId);
 
-// After a successful step onto (x, y) local map coords: queue special event or travel.
-void queueStepTriggersAt(state::Triggers& triggers,
-                         const model::MapInstance& map,
-                         int x,
-                         int y);
+struct StepTriggerResult {
+  std::optional<bmin::String> specialEventId;
+  std::optional<model::TravelTrigger> travel;
+};
 
-// While standing on (x, y) local map coords: queue travel when requires action.
-void queueActionTravelAtStanding(state::Triggers& triggers,
-                                 const model::MapInstance& map,
-                                 int x,
-                                 int y);
+// After a successful step onto (x, y) local map coords: resolve the special
+// event or travel request. The caller owns queue/state mutation.
+StepTriggerResult resolveStepTriggersAt(const model::MapInstance& map,
+                                        int x,
+                                        int y);
+
+// While standing on (x, y) local map coords: resolve travel when it requires action.
+std::optional<model::TravelTrigger>
+resolveActionTravelAtStanding(const model::MapInstance& map, int x, int y);
 
 // Console examine text: tile description, character labels, and item labels.
 bmin::String formatExamineMessage(const model::MapInstance& map,

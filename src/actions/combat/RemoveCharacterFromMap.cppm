@@ -27,7 +27,11 @@ class RemoveCharacterFromMap : public AbstractAction {
       if (characters[i].id == characterId) {
         if (model::isCharacterEnemy(characters[i])) {
           if (auto* database = getDatabase()) {
-            game::markMapCharacterDefeated(*state, characters[i], *database);
+            game::markMapCharacterDefeated(
+                state->world.activeMap,
+                state->mapInstances,
+                characters[i],
+                *database);
           }
         }
         characters.erase(i);
