@@ -1,8 +1,53 @@
 # Carcer C++ Modules v2 Implementation Plan
 
-Status: proposed  
+Status: Phase 2 implemented; Emscripten verification remains open
 Baseline commit: `95562b3` on `experiment/cpp-modules`  
 Date: 2026-09-05
+
+## Implementation status
+
+- Phase 1 completed in `e0c0b83`: dependencies are pinned by `deps.lock`,
+  bootstrapped explicitly into `.deps/`, and validated without build-time
+  repository mutation.
+- Phase 2 adds a parallel CMake/Ninja build using `CXX_MODULES` file sets and
+  compiler dependency scanning for BMIN, SDL2W, and the unchanged Carcer module
+  tree. Make remains available.
+- GCC 15.3 and Homebrew Clang 22.1.8 debug builds pass on the qualification
+  host. Thirty current non-UI tests pass under both compilers, five stale tests
+  compile but are disabled, three tests call already-disabled production APIs,
+  and all 43 UI test programs compile and link with GCC.
+- Emscripten presets are present, but the SDK is not installed on the
+  qualification host; that platform remains unverified and must be closed
+  during the Phase 3 pilot rather than deferred to final cleanup.
+
+### Phase 2 qualification results
+
+Qualification host: Darwin x86_64, 20 logical CPUs; eight build jobs; CMake
+4.4.3; Ninja 1.13.2; GCC 15.3.0; Homebrew Clang 22.1.8; SDL2W
+`e5415231257b4a25f25ad3af5cb4e01c125ada15`; BMIN
+`e60f65b1d3a36def8221bd93c5702d323c714cea`.
+
+| Check | Result |
+|---|---:|
+| Repeated clean GCC builds | 10/10 passed |
+| Clean GCC build median | 143.5 s |
+| Clean GCC build range | 139-147 s |
+| GCC no-op build | 0.38 s |
+| `Json.cpp` implementation touch | 4.03 s; one object plus relink |
+| `Items.cppm` interface touch | 88.06 s; 236 build actions |
+| Make `Items.cppm` interface touch | 277.02 s; build passed |
+| GCC runtime tests | 30 passed, 5 explicitly disabled |
+| Clang runtime tests | 30 passed, 5 explicitly disabled |
+| GCC UI compile/link tests | 43/43 passed |
+| GCC debug build directory after `CARCER` | approximately 1.1 GiB |
+
+Gate 1 passes for the native compiler-scanned build: automatic ordering is
+repeatable, independent BMIs compile in parallel, implementation-only edits do
+not regenerate downstream BMIs, and both native compiler families build and
+test. The measurements also confirm that build-system repair alone cannot meet
+the final performance or artifact-size targets. The deep, high-fan-out module
+graph remains the next bottleneck, so the coarse `data`/`model` pilot in Phase 3
+is warranted.
 
 ## Summary
 
@@ -438,4 +483,3 @@ header/module distributions.
 - Do not combine build-system removal with the final domain migration.
 - Do not rewrite the original experiment branch; preserve it for comparison and
   for recovering architectural changes.
-

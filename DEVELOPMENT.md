@@ -18,7 +18,11 @@ For Building WASM Executable
 
 - Emscripten
 
-This program is built with the Makefile in the src directory. The game uses **C++23 named modules** (`carcer.*`) and consumes the dual header/module SDL2W + BMIN bundle via `copy-sdl2w-artifacts.sh` / `use.mk`. Interface units (`.cppm`) live next to their `.cpp` files; the umbrella is `src/modules/_carcer.cppm` (barrel files — pure `export import` aggregators — are named `_<folder>.cppm` so they sort first in a directory listing). See [src/modules/MODULES.md](src/modules/MODULES.md).
+The game uses **C++23 named modules** (`carcer.*`). Interface units (`.cppm`)
+live next to their `.cpp` files; the umbrella is `src/modules/_carcer.cppm`
+(barrel files — pure `export import` aggregators — are named `_<folder>.cppm`
+so they sort first in a directory listing). See
+[src/modules/MODULES.md](src/modules/MODULES.md).
 
 Dependency source revisions are pinned in `deps.lock` and materialized inside
 the ignored `.deps/` directory. Bootstrap is explicit: ordinary builds never
@@ -44,6 +48,62 @@ a dual-bundle refresh. Bundle identity includes the dependency lock, compiler,
 target, and module flags.
 
 Module BMIs are built into `src/gcm.cache` (ordered, typically `-j1` for the BMI step). `make clean` removes `gcm.cache`, `pcm.cache`, and `.carcer-bmi` / `.sdl2w-bmi` / `.bmin-bmi`. After a clean, the next build rebuilds sdl2w BMIs then carcer BMIs before compiling `.cpp` implementation units.
+
+## Compiler-scanned CMake build
+
+The experimental v2 build is available alongside Make. It requires CMake 3.28
+or newer, Ninja, and either GCC 14+ or a Clang installation that includes
+`clang-scan-deps`. Apple's Command Line Tools Clang does not include the scanner
+on this host, so the Clang presets use Homebrew LLVM.
+
+Configure, build, and test with GCC:
+
+```
+cmake --preset gcc-debug
+cmake --build --preset gcc-debug
+ctest --preset gcc-debug
+```
+
+Equivalent `gcc-release`, `clang-debug`, and `clang-release` configure, build,
+and test presets are defined in `CMakePresets.json`. The GCC presets resolve
+`g++-15` from `PATH`. The Clang presets prefer common Homebrew LLVM paths before
+the inherited `PATH` and reject a compiler installation without
+`clang-scan-deps`; override `CMAKE_CXX_COMPILER` when using another installation.
+
+CMake discovers imports with compiler dependency scanning and builds BMIN,
+SDL2W, and Carcer in one graph. It does not consume the checked-in Make BMI
+manifests. Configuration and every build validate `.deps/` against `deps.lock`
+without modifying either checkout.
+
+The default native build compiles the game and all non-UI tests whose production
+APIs still exist. Run the 43 UI programs as a compile/link-only suite with:
+
+```
+cmake --build --preset gcc-debug --target carcer_ui_tests
+```
+
+CTest reports five pre-existing tests as disabled because their assertions no
+longer match this branch's assets or coordinate behavior. Three more test
+sources are not built because they call production APIs already commented out
+on this branch. Both groups are listed explicitly in `CMakeLists.txt`; they must
+be updated or retired before final adoption of the new build.
+
+The Emscripten presets require an activated SDK (`EMSDK` must be set):
+
+```
+cmake --preset emscripten-debug
+cmake --build --preset emscripten-debug
+```
+
+Record repeatable clean-build results as CSV plus individual logs under the
+ignored `build/benchmarks/` directory:
+
+```
+./scripts/modules/verify-cmake-clean-builds.sh gcc-debug 10 CARCER 8
+```
+
+The script records the compiler, build tools, host architecture, logical CPU
+count, configuration, target, and exact Carcer/SDL2W/BMIN commits.
 
 Windows (PowerShell) via MSYS2 UCRT64:
 

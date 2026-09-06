@@ -5,6 +5,8 @@ module;
 #include <stdexcept>
 #include <algorithm>
 #include <cctype>
+#include <cerrno>
+#include <cstdlib>
 
 module carcer.lib.Json;
 import bmin.containers;

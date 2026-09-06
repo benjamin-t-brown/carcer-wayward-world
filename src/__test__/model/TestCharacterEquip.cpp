@@ -2,6 +2,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <memory>
+#include <optional>
 #include <string_view>
 #include <cassert>
 import carcer;
