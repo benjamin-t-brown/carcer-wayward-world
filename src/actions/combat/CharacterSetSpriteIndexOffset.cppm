@@ -22,7 +22,8 @@ class CharacterSetSpriteIndexOffset : public AbstractAction {
     if (!state) {
       return;
     }
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(
+        state->world.activeMap, state->mapInstances, getDatabase());
     auto* character = orch.findCharacterById(characterId);
     if (character == nullptr) {
       return;

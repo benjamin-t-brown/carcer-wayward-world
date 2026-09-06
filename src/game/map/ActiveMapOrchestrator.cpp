@@ -8,7 +8,6 @@ module carcer.game.map;
 import carcer.model;
 import bmin.containers;
 import carcer.data;
-import carcer.state;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"
@@ -24,7 +23,7 @@ const model::MapGridTemplate& ActiveMapOrchestrator::requireGrid() const {
 
 int ActiveMapOrchestrator::getMapLayerId(int mapLayerId) const {
   if (mapLayerId == USE_WORLD_MAP_LAYER) {
-    return getStateManager()->getState().world.activeMap.mapLayer;
+    return activeMap->mapLayer;
   }
   return mapLayerId;
 }
@@ -44,9 +43,8 @@ ActiveMapLoc ActiveMapOrchestrator::findMapGridEntry(const bmin::String& mapName
 
 model::MapInstance* ActiveMapOrchestrator::getMapInstanceByName(
     const bmin::String& mapName) {
-  auto& state = getStateManager()->getState();
-  auto it = state.mapInstances.find(mapName);
-  if (it == state.mapInstances.end()) {
+  auto it = mapInstances->find(mapName);
+  if (it == mapInstances->end()) {
     return nullptr;
   }
   return &it->value;
@@ -73,12 +71,14 @@ model::MapInstance* ActiveMapOrchestrator::getMapInstanceAtGrid(int gridX, int g
   return mapInstance;
 }
 
-ActiveMapOrchestrator::ActiveMapOrchestrator() {}
+ActiveMapOrchestrator::ActiveMapOrchestrator(model::ActiveMap& activeMap,
+                                             MapInstanceStore& mapInstances,
+                                             const db::Database* database)
+    : activeMap(&activeMap), mapInstances(&mapInstances), database(database) {}
 
 void ActiveMapOrchestrator::fetchMapGrid(const bmin::String& gridName) {
-  auto* database = getDatabase();
-  if (!database) {
-    throw std::runtime_error("ActiveMapOrchestrator::loadMapGrid: database is nullptr");
+  if (database == nullptr) {
+    throw std::runtime_error("ActiveMapOrchestrator::fetchMapGrid: database is nullptr");
   }
   if (gridName.empty()) {
     grid = &defaultGrid;
@@ -159,10 +159,7 @@ model::MapInstance* ActiveMapOrchestrator::getMapInstanceAt(int worldX, int worl
 
 model::CharacterInstance* ActiveMapOrchestrator::findCharacterById(
     const bmin::String& characterId, int /*mapLayerId*/) {
-  auto& world = getStateManager()->getState().world;
-  for (auto it = world.activeMap.characters.begin();
-       it != world.activeMap.characters.end();
-       ++it) {
+  for (auto it = activeMap->characters.begin(); it != activeMap->characters.end(); ++it) {
     if (it->id == characterId) {
       return it;
     }
@@ -179,10 +176,7 @@ model::CharacterInstance* ActiveMapOrchestrator::findCharacterAt(int worldX,
 bmin::DynArray<model::CharacterInstance*> ActiveMapOrchestrator::findAllCharactersAt(
     int worldX, int worldY, int /*mapLayerId*/) {
   bmin::DynArray<model::CharacterInstance*> characters;
-  auto& world = getStateManager()->getState().world;
-  for (auto it = world.activeMap.characters.begin();
-       it != world.activeMap.characters.end();
-       ++it) {
+  for (auto it = activeMap->characters.begin(); it != activeMap->characters.end(); ++it) {
     if (it->x == worldX && it->y == worldY) {
       characters.pushBack(it);
     }
@@ -192,10 +186,7 @@ bmin::DynArray<model::CharacterInstance*> ActiveMapOrchestrator::findAllCharacte
 
 model::CharacterInstance* ActiveMapOrchestrator::findCharacterAt(
     int worldX, int worldY, const bmin::String& excludeId, int /*mapLayerId*/) {
-  auto& world = getStateManager()->getState().world;
-  for (auto it = world.activeMap.characters.begin();
-       it != world.activeMap.characters.end();
-       ++it) {
+  for (auto it = activeMap->characters.begin(); it != activeMap->characters.end(); ++it) {
     if (it->x == worldX && it->y == worldY && it->id != excludeId) {
       return it;
     }
@@ -236,7 +227,6 @@ ActiveMapMarker ActiveMapOrchestrator::findMarker(const bmin::String& mapName,
     return ActiveMapMarker{};
   }
 
-  auto* database = getDatabase();
   auto& mapTemplate =
       database->getMapTemplate(bmin::toStringView(mapInstance->templateName));
   auto marker = model::findMarkerOnTemplate(mapTemplate, markerName);

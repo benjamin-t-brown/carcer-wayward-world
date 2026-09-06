@@ -200,8 +200,10 @@ void LayerWorld::syncCombatTitleBar() {
     return;
   }
 
-  auto& world = stateManager->getState().world;
-  game::ActiveMapOrchestrator activeMap;
+  auto& state = stateManager->getState();
+  auto& world = state.world;
+  game::ActiveMapOrchestrator activeMap(
+      world.activeMap, state.mapInstances, getDatabase());
   auto titleProps = titleBar->getProps();
   const bool showAp = world.combat.active;
   int ap = 0;
@@ -680,7 +682,8 @@ void LayerWorld::syncFromState() {
   auto& state = stateManager->getState();
   auto& player = state.player;
   auto& world = state.world;
-  game::ActiveMapOrchestrator activeMap;
+  game::ActiveMapOrchestrator activeMap(
+      world.activeMap, state.mapInstances, getDatabase());
 
   ensureCurrentPartyMemberSelection(state);
 

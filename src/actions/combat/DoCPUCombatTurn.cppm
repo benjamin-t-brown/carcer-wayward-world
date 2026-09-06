@@ -40,7 +40,8 @@ class DoCPUCombatTurn : public AbstractAction {
     LOG(INFO) << "DoCPUCombatTurn: choosing action for "
               << model::formatCharacterLogLabel(world.activeMap, actorId) << LOG_ENDL;
 
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(
+        world.activeMap, state->mapInstances, getDatabase());
     if (!world.activeMap.gridId.empty()) {
       orch.fetchMapGrid(world.activeMap.gridId);
     }
@@ -55,7 +56,7 @@ class DoCPUCombatTurn : public AbstractAction {
       auto dx = 0;
       auto dy = 0;
       if (game::chooseSeekAndMeleeCombatAction(
-              world, state->player, *actor, *database, dx, dy)) {
+              world, state->mapInstances, state->player, *actor, *database, dx, dy)) {
         insertAction(nullptr, 300);
         insertAction(new DoCombatAction(
                          actorId, model::CombatActionType::MOVE, {.targetLoc = {dx, dy}}),

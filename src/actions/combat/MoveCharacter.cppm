@@ -33,7 +33,7 @@ class MoveCharacter : public AbstractAction {
       return;
     }
 
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(world.activeMap, state->mapInstances, database);
     orch.fetchMapGrid(world.activeMap.gridId);
     auto* character = orch.findCharacterById(characterId);
     if (character == nullptr) {
@@ -64,7 +64,8 @@ class MoveCharacter : public AbstractAction {
     model::updateCharacterFacingFromMove(*character, dx, dy);
 
     if (model::isPartyMember(state->player, character->id)) {
-      game::updateActiveMapVisibilityFromParty(world, state->player, *database);
+      game::updateActiveMapVisibilityFromParty(
+          world, state->mapInstances, state->player, *database);
     }
   }
 

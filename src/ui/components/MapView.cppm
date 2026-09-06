@@ -112,12 +112,13 @@ std::optional<model::TileXY> MapView::screenToTile(int screenX, int screenY) con
     return std::nullopt;
   }
 
-  const auto& world = stateManager->getState().world;
+  auto& state = stateManager->getState();
+  auto& world = state.world;
   if (world.activeMap.gridId.empty()) {
     return std::nullopt;
   }
 
-  game::ActiveMapOrchestrator orch;
+  game::ActiveMapOrchestrator orch(world.activeMap, state.mapInstances, getDatabase());
   try {
     orch.fetchMapGrid(world.activeMap.gridId);
   } catch (...) {
@@ -205,7 +206,13 @@ void MapView::renderDamageParticles(const model::World& world,
     return;
   }
 
-  game::ActiveMapOrchestrator orch;
+  auto* stateManager = getStateManager();
+  if (stateManager == nullptr) {
+    return;
+  }
+  auto& state = stateManager->getState();
+  game::ActiveMapOrchestrator orch(
+      state.world.activeMap, state.mapInstances, getDatabase());
   orch.fetchMapGrid(world.activeMap.gridId);
 
   for (size_t i = 0; i < world.activeMap.damageParticles.size(); i++) {
@@ -320,13 +327,13 @@ void MapView::render(int dt) {
   }
 
   auto& draw = window->getDraw();
-  const auto& state = stateManager->getState();
-  const auto& world = state.world;
+  auto& state = stateManager->getState();
+  auto& world = state.world;
   if (world.activeMap.gridId.empty()) {
     return;
   }
 
-  game::ActiveMapOrchestrator orch;
+  game::ActiveMapOrchestrator orch(world.activeMap, state.mapInstances, database);
   orch.fetchMapGrid(world.activeMap.gridId);
 
   const auto total = orch.getTotalMapTilesSize();

@@ -40,7 +40,7 @@ class WorldExamineAt : public AbstractAction {
       return;
     }
 
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(world.activeMap, state->mapInstances, getDatabase());
     orch.fetchMapGrid(world.activeMap.gridId);
     auto* map = orch.getMapInstanceAt(x, y);
     const auto local = orch.activeMapCoordToInstanceCoord(x, y);

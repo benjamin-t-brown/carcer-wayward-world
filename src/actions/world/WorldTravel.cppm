@@ -49,7 +49,8 @@ class WorldTravel : public AbstractAction {
 
     auto usedMarker = false;
     if (!travel.destinationMarkerName.empty()) {
-      game::ActiveMapOrchestrator orch;
+      game::ActiveMapOrchestrator orch(
+          state->world.activeMap, state->mapInstances, getDatabase());
       orch.fetchMapGrid(gridId);
       const auto marker =
           orch.findMarker(travel.destinationMapName, travel.destinationMarkerName);
@@ -67,7 +68,8 @@ class WorldTravel : public AbstractAction {
     if (!usedMarker) {
       state->world.activeMap.mapLayer = travel.destinationLayer;
       // destinationX/Y are local to destinationMapName — convert to world.
-      game::ActiveMapOrchestrator orch;
+      game::ActiveMapOrchestrator orch(
+          state->world.activeMap, state->mapInstances, getDatabase());
       orch.fetchMapGrid(gridId);
       const auto worldLoc = orch.instanceCoordToActiveMapCoord(
           travel.destinationMapName, travel.destinationX, travel.destinationY);

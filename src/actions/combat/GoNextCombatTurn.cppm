@@ -42,7 +42,8 @@ class GoNextCombatTurn : public AbstractAction {
       startNewCombatRound();
     }
 
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(
+        state->world.activeMap, state->mapInstances, getDatabase());
     const auto turnCount = static_cast<int>(combat.turnOrderIds.size());
     for (int attempt = 0; attempt < turnCount; attempt++) {
       const auto index = combat.activeTurnIndex;

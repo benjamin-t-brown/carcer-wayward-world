@@ -20,6 +20,11 @@ Date: 2026-09-05
   expiry is now state maintenance, explicit dismissal remains owned by
   `carcer.actions.ui`, and UI synchronization uses a state revision rather
   than requiring the state module to construct an action-layer type.
+- `ActiveMapOrchestrator` no longer inherits `StateManagerInterface` or
+  `DatabaseInterface`. Its active map, map-instance store, and database are
+  explicit constructor inputs; map visibility, pathfinding, pickup, enemy-AI,
+  and persistence APIs now carry the same narrow dependencies through their
+  call chains instead of recovering them from process-global service locators.
 - GCC 15.3 and Homebrew Clang 22.1.8 debug builds pass on the qualification
   host. Thirty current non-UI tests pass under both compilers, five stale tests
   compile but are disabled, three tests call already-disabled production APIs,

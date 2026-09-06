@@ -123,7 +123,7 @@ int main() {
     enemy->y = 1;
     enemy->spawnX = 1;
     enemy->spawnY = 1;
-    game::markMapCharacterDefeated(state, *enemy);
+    game::markMapCharacterDefeated(state, *enemy, database);
     for (size_t i = 0; i < state.world.activeMap.characters.size();) {
       if (state.world.activeMap.characters[i].templateName == "slime") {
         state.world.activeMap.characters.erase(i);

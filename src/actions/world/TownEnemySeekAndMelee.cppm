@@ -30,7 +30,8 @@ class TownEnemySeekAndMelee : public AbstractAction {
       return;
     }
 
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(
+        state->world.activeMap, state->mapInstances, database);
     auto* enemy = orch.findCharacterById(enemyId);
     auto* avatar =
         game::findPartyAvatarOnActiveMap(state->world.activeMap, state->player);
@@ -46,7 +47,14 @@ class TownEnemySeekAndMelee : public AbstractAction {
     auto dx = 0;
     auto dy = 0;
     if (!game::chooseSeekStepToward(
-            state->world.activeMap, *enemy, avatar->x, avatar->y, *database, dx, dy)) {
+            state->world.activeMap,
+            state->mapInstances,
+            *enemy,
+            avatar->x,
+            avatar->y,
+            *database,
+            dx,
+            dy)) {
       return;
     }
 

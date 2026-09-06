@@ -21,7 +21,8 @@ class PerformCharacterDefeated : public AbstractAction {
 
   void act() override {
     if (state) {
-      game::ActiveMapOrchestrator orch;
+      game::ActiveMapOrchestrator orch(
+          state->world.activeMap, state->mapInstances, getDatabase());
       if (!state->world.activeMap.gridId.empty()) {
         orch.fetchMapGrid(state->world.activeMap.gridId);
       }

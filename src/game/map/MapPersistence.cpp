@@ -55,12 +55,13 @@ void advanceWorldMovementTicks(state::State& state, int steps) {
 }
 
 void markMapCharacterDefeated(state::State& state,
-                              const model::CharacterInstance& character) {
+                              const model::CharacterInstance& character,
+                              const db::Database& database) {
   if (state.world.activeMap.gridId.empty()) {
     return;
   }
 
-  ActiveMapOrchestrator orch;
+  ActiveMapOrchestrator orch(state.world.activeMap, state.mapInstances, &database);
   orch.fetchMapGrid(state.world.activeMap.gridId);
   auto* map = orch.getMapInstanceAt(character.x, character.y);
   if (!map) {

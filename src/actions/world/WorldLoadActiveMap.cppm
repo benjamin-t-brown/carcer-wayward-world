@@ -25,7 +25,8 @@ class WorldLoadActiveMap : public AbstractAction {
     if (previousGridId.empty()) {
       return;
     }
-    game::ActiveMapOrchestrator previousActiveMap;
+    game::ActiveMapOrchestrator previousActiveMap(
+        localState.world.activeMap, localState.mapInstances, getDatabase());
     previousActiveMap.fetchMapGrid(previousGridId);
 
     for (auto ch : localState.world.activeMap.characters) {
@@ -92,7 +93,8 @@ class WorldLoadActiveMap : public AbstractAction {
     localState.world.actionAimTile.reset();
     localState.world.pendingSpellId = bmin::String{};
 
-    game::ActiveMapOrchestrator activeMap;
+    game::ActiveMapOrchestrator activeMap(
+        localState.world.activeMap, localState.mapInstances, database);
     activeMap.fetchMapGrid(resolvedGridId);
     auto& grid = activeMap.getMapGrid();
     for (int y = 0; y < grid.gridHeight; y++) {

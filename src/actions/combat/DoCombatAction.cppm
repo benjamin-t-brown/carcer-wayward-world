@@ -40,7 +40,8 @@ class DoCombatAction : public AbstractAction {
 
     auto& world = state->world;
     const auto& actorId = world.combat.activeCharacterId;
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(
+        world.activeMap, state->mapInstances, getDatabase());
     if (!world.activeMap.gridId.empty()) {
       orch.fetchMapGrid(world.activeMap.gridId);
     }
@@ -143,7 +144,8 @@ class DoCombatAction : public AbstractAction {
       insertAction(new DoCombatActionCompletion(), 0);
       break;
     case model::CombatActionType::WAIT: {
-      game::ActiveMapOrchestrator orch;
+      game::ActiveMapOrchestrator orch(
+          state->world.activeMap, state->mapInstances, getDatabase());
       orch.fetchMapGrid(state->world.activeMap.gridId);
       auto* character = orch.findCharacterById(chId);
       if (character != nullptr) {

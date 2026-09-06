@@ -39,7 +39,8 @@ void enqueueCpuCombatTurn(StateManager& stateManager) {
       model::isPartyMember(state.player, combat.activeCharacterId)) {
     return;
   }
-  game::ActiveMapOrchestrator activeMap;
+  game::ActiveMapOrchestrator activeMap(
+      state.world.activeMap, state.mapInstances, nullptr);
   const auto* character = activeMap.findCharacterById(combat.activeCharacterId);
   if (character == nullptr) {
     return;
@@ -123,7 +124,8 @@ void worldUpdate(sdl2w::Window* window, StateManager& stateManager, int dt) {
   state.soundsToPlay.clear();
   updateDamageParticles(state.world, window, dt);
   updateProjectiles(state.world, dt);
-  game::ActiveMapOrchestrator activeMap;
+  game::ActiveMapOrchestrator activeMap(
+      state.world.activeMap, state.mapInstances, nullptr);
 
   auto& combat = state.world.combat;
   if (combat.active && combat.isWaitingForAction) {

@@ -28,8 +28,10 @@ bool isAiEnemy(const model::CharacterInstance& character) {
 } // namespace
 
 bool canEnemySpotPartyAvatar(model::World& world,
+                             MapInstanceStore& mapInstances,
                              const model::Player& player,
-                             const model::CharacterInstance& enemy) {
+                             const model::CharacterInstance& enemy,
+                             const db::Database& database) {
   if (!model::characterInstanceIsEnemy(enemy)) {
     return false;
   }
@@ -48,7 +50,7 @@ bool canEnemySpotPartyAvatar(model::World& world,
     return false;
   }
 
-  ActiveMapOrchestrator orch;
+  ActiveMapOrchestrator orch(world.activeMap, mapInstances, &database);
   orch.fetchMapGrid(world.activeMap.gridId);
   auto* map = orch.getMapInstanceAt(enemy.x, enemy.y);
   const auto local = orch.activeMapCoordToInstanceCoord(enemy.x, enemy.y);
@@ -59,7 +61,10 @@ bool canEnemySpotPartyAvatar(model::World& world,
   return isTileCurrentlyVisible(*map, local.x, local.y);
 }
 
-void updateEnemySpotting(model::World& world, const model::Player& player) {
+void updateEnemySpotting(model::World& world,
+                         MapInstanceStore& mapInstances,
+                         const model::Player& player,
+                         const db::Database& database) {
   for (size_t i = 0; i < world.activeMap.characters.size(); i++) {
     auto& character = world.activeMap.characters[i];
     if (character.agitated) {
@@ -68,7 +73,8 @@ void updateEnemySpotting(model::World& world, const model::Player& player) {
     if (!isAiEnemy(character)) {
       continue;
     }
-    if (!canEnemySpotPartyAvatar(world, player, character)) {
+    if (!canEnemySpotPartyAvatar(
+            world, mapInstances, player, character, database)) {
       continue;
     }
 
@@ -89,6 +95,7 @@ void updateEnemySpotting(model::World& world, const model::Player& player) {
 }
 
 bool chooseSeekStepToward(model::ActiveMap& activeMap,
+                          MapInstanceStore& mapInstances,
                           const model::CharacterInstance& actor,
                           int targetX,
                           int targetY,
@@ -102,7 +109,8 @@ bool chooseSeekStepToward(model::ActiveMap& activeMap,
     return false;
   }
 
-  const auto reachable = collectReachableTiles(activeMap, actor, 1, database);
+  const auto reachable =
+      collectReachableTiles(activeMap, mapInstances, actor, 1, database);
   auto bestCheb = startDist;
   auto bestManhattan = 0;
   auto found = false;
@@ -139,6 +147,7 @@ bool chooseSeekStepToward(model::ActiveMap& activeMap,
 }
 
 bool chooseSeekAndMeleeCombatAction(model::World& world,
+                                    MapInstanceStore& mapInstances,
                                     const model::Player& player,
                                     const model::CharacterInstance& actor,
                                     const db::Database& database,
@@ -212,7 +221,7 @@ bool chooseSeekAndMeleeCombatAction(model::World& world,
     return false;
   }
   return chooseSeekStepToward(
-      world.activeMap, actor, targetX, targetY, database, outDx, outDy);
+      world.activeMap, mapInstances, actor, targetX, targetY, database, outDx, outDy);
 }
 
 } // namespace game

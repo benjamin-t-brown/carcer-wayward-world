@@ -31,7 +31,13 @@ class TownEnemyAiAfterPlayerMove : public AbstractAction {
     world.resolvingTownEnemyAi = true;
     // Held-move stays active; LayerWorld pauses repeats while this flag is set.
 
-    game::updateEnemySpotting(world, state->player);
+    auto* database = getDatabase();
+    if (database == nullptr) {
+      world.resolvingTownEnemyAi = false;
+      return;
+    }
+    game::updateEnemySpotting(
+        world, state->mapInstances, state->player, *database);
 
     for (size_t i = 0; i < world.activeMap.characters.size(); i++) {
       const auto& character = world.activeMap.characters[i];

@@ -17,6 +17,8 @@ export {
 // --- from game/map/ActiveMapOrchestrator.h ---
 namespace game {
 
+using MapInstanceStore = bmin::Map<bmin::String, model::MapInstance>;
+
 struct ActiveMapLoc {
   int x = 0;
   int y = 0;
@@ -31,9 +33,10 @@ struct ActiveMapMarker {
   bool valid = false;
 };
 
-class ActiveMapOrchestrator : public state::DatabaseInterface,
-                              public state::StateManagerInterface {
-
+class ActiveMapOrchestrator {
+  model::ActiveMap* activeMap;
+  MapInstanceStore* mapInstances;
+  const db::Database* database;
   model::MapGridTemplate defaultGrid;
   // can assume this exists, since it will load from the db, or this
   // class will throw if it doesn't exist.
@@ -48,7 +51,9 @@ class ActiveMapOrchestrator : public state::DatabaseInterface,
   model::MapInstance* getMapInstanceAtGrid(int gridX, int gridY);
 
 public:
-  ActiveMapOrchestrator();
+  ActiveMapOrchestrator(model::ActiveMap& activeMap,
+                        MapInstanceStore& mapInstances,
+                        const db::Database* database);
   ~ActiveMapOrchestrator() = default;
 
   void fetchMapGrid(const bmin::String& gridName);
@@ -120,6 +125,7 @@ struct PathTile {
  * Other characters block tiles; characterId is ignored for occupancy.
  */
 bmin::DynArray<PathTile> collectReachableTiles(model::ActiveMap& activeMap,
+                                               MapInstanceStore& mapInstances,
                                                int startX,
                                                int startY,
                                                int maxSteps,
@@ -128,6 +134,7 @@ bmin::DynArray<PathTile> collectReachableTiles(model::ActiveMap& activeMap,
 
 /** Same as above, using the character's current tile and id. */
 bmin::DynArray<PathTile> collectReachableTiles(model::ActiveMap& activeMap,
+                                               MapInstanceStore& mapInstances,
                                                const model::CharacterInstance& character,
                                                int maxSteps,
                                                const db::Database& database);
@@ -149,7 +156,8 @@ void advanceWorldMovementTicks(state::State& state, int steps);
 // Record a defeated map enemy on the MapInstance under its world position so it
 // stays gone when entities are next hoisted into the active map.
 void markMapCharacterDefeated(state::State& state,
-                              const model::CharacterInstance& character);
+                              const model::CharacterInstance& character,
+                              const db::Database& database);
 
 // Resolve which map-grid to load for a travel destination (grid name, or the
 // grid that contains the map, or a synthetic 1x1 grid for standalone maps).
@@ -165,6 +173,7 @@ inline constexpr int PICKUP_PATH_RANGE = 4;
 
 /** True when the active-map tile at (worldX, worldY) is effectively a container. */
 bool isActiveMapTileContainer(model::ActiveMap& activeMap,
+                              MapInstanceStore& mapInstances,
                               int worldX,
                               int worldY,
                               const db::Database& database);
@@ -172,6 +181,7 @@ bool isActiveMapTileContainer(model::ActiveMap& activeMap,
 /** Ground items the character can path to within maxSteps (excludes container tiles). */
 bmin::DynArray<model::ItemInstance>
 collectItemsWithinPickupRange(model::ActiveMap& activeMap,
+                              MapInstanceStore& mapInstances,
                               const model::CharacterInstance& character,
                               int maxSteps,
                               const db::Database& database);
@@ -232,12 +242,14 @@ void updateMapVisibilityFromParty(model::MapInstance& map,
 // party members on world.activeMap. Rays use world tile coordinates so vision
 // crosses map-instance stitch edges within the active grid.
 void updateActiveMapVisibilityFromParty(model::World& world,
+                                        MapInstanceStore& mapInstances,
                                         const model::Player& player,
                                         const db::Database& database);
 
 // Clear grid visibility then light around a single world-coordinate observer
 // (cross-instance raycast / wall-face lighting).
 void updateActiveMapVisibilityFromPlayer(model::World& world,
+                                         MapInstanceStore& mapInstances,
                                          int worldX,
                                          int worldY,
                                          const db::Database& database);

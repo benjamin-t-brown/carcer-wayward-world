@@ -41,7 +41,8 @@ class DoCombatActionCompletion : public AbstractAction {
       insertAction(new PerformCharacterDefeated(id), 0);
     }
 
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(
+        state->world.activeMap, state->mapInstances, getDatabase());
     auto* activeCharacter = orch.findCharacterById(combat.activeCharacterId);
     const auto apRemaining = activeCharacter != nullptr ? activeCharacter->currentAp : 0;
     const auto turnEnded = apRemaining <= 0;

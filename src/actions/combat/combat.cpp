@@ -27,7 +27,8 @@ void PerformMeleeAttack::act() {
     return;
   }
 
-  game::ActiveMapOrchestrator orch;
+  game::ActiveMapOrchestrator orch(
+      state->world.activeMap, state->mapInstances, database);
   auto* attacker = orch.findCharacterById(attackerId);
   auto* victim = orch.findCharacterById(victimId);
   if (attacker == nullptr || victim == nullptr) {
@@ -161,7 +162,8 @@ void PerformSpellCast::act() {
   if (database == nullptr) {
     return;
   }
-  game::ActiveMapOrchestrator orch;
+  game::ActiveMapOrchestrator orch(
+      state->world.activeMap, state->mapInstances, database);
   orch.fetchMapGrid(state->world.activeMap.gridId);
 
   auto caster = orch.findCharacterById(casterId);

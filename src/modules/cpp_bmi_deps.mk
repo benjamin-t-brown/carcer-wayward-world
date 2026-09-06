@@ -18,7 +18,7 @@ game/combat/EnemyBehavior.o: .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.com
 game/combat/SpellRules.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.combat.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 game/combat/projectileHelpers.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.combat.o
 game/diceHelpers.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.combat.o
-game/map/ActiveMapOrchestrator.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o .carcer-bmi/carcer.state.o
+game/map/ActiveMapOrchestrator.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 game/map/Camera.o: .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 game/map/MapPathfinding.o: .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 game/map/MapPersistence.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o .carcer-bmi/carcer.state.o
