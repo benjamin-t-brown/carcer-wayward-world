@@ -1,9 +1,0 @@
-export module carcer.model.instances;
-export import :CharacterInstance;
-export import :CharacterPlayer;
-export import :Combat;
-export import :ItemInstance;
-export import :MapInstance;
-export import :Player;
-export import :TileInstance;
-export import :World;

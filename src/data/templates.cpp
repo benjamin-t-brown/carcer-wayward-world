@@ -1,263 +1,23 @@
 module;
+#include <algorithm>
+#include <charconv>
 #include <cstddef>
 #include <cstdint>
-#include <utility>
+#include <cstdlib>
 #include <optional>
 #include <stdexcept>
+#include <system_error>
+#include <utility>
+#include <variant>
 
-export module carcer.model.templates:AbilityTypes;
-export import bmin.containers;
+module carcer.data;
+
 import bmin.string_interop;
 import sdl2w;
+
 #include "macros.h"
 
-export {
-
-// --- from model/templates/AbilityTypes.h ---
-namespace model {
-
-enum class StatusEffectCondition {
-  CONDITION_ALWAYS,
-  CONDITION_TARGET_HP_BELOW_HALF,
-  CONDITION_SELF_HP_BELOW_HALF,
-  CONDITION_AT_LEAST_ENEMY_IN_RANGE_OF_TARGET,
-  CONDITION_HAS_NOT_MOVED_SINCE_LAST_ROUND,
-  CONDITION_ATTACK_MISSED,
-  CONDITION_FIRST_TIME_ATTACKED,
-};
-
-enum class AbilityType {
-  ABILITY_ATTACK,
-  ABILITY_SPELL,
-  ABILITY_SKILL,
-  ABILITY_SUB_ATTACK,
-};
-
-enum class TargetSelectType {
-  TARGET_SELF,
-  TARGET_UNIT,
-  TARGET_ZONE,
-  TARGET_ALL_IN_RANGE,
-};
-
-enum class TargetAllegianceSelectType {
-  TARGET_ALLEGIANCE_SAME,
-  TARGET_ALLEGIANCE_SAME_AND_SELF,
-  TARGET_ALLEGIANCE_OTHER,
-  TARGET_ALLEGIANCE_ALL,
-  TARGET_ALLEGIANCE_ALL_AND_SELF,
-};
-
-enum class Dice { D0, D2, D4, D6, D8, D10, D12, D20, D100 };
-
-enum class StatsEnum { STAT_STR, STAT_MND, STAT_CON, STAT_AGI, STAT_LCK };
-
-enum class StatusEventType {
-  STATUS_EVENT_ON_APPLIED,
-  STATUS_EVENT_ON_ATTACK,
-  STATUS_EVENT_ON_ATTACKED_MELEE,
-  STATUS_EVENT_ON_ATTACKED_RANGE,
-  STATUS_EVENT_ON_ATTACKED_MAGIC,
-  STATUS_EVENT_ON_MOVE,
-  STATUS_EVENT_ON_TURN_START,
-  STATUS_EVENT_ON_TURN_END,
-  STATUS_EVENT_ON_ROUND_START,
-};
-
-enum class CurrentStatEnum {
-  CURRENT_STAT_HP,
-  CURRENT_STAT_AP,
-  CURRENT_STAT_MANA,
-  CURRENT_STAT_AC,
-};
-
-enum class StatusActionTargetType {
-  STATUS_ACTION_TARGET_SELF,
-  STATUS_ACTION_TARGET_ATTACKER_LOCATION,
-  STATUS_ACTION_TARGET_LAST_LOCATION,
-};
-
-enum class AbilityCostType {
-  ABILITY_COST_NONE,
-  ABILITY_COST_MANA,
-  ABILITY_COST_COOLDOWN,
-  ABILITY_COST_HP,
-};
-
-enum class AttackClass {
-  ATTACK_CLASS_MELEE,
-  ATTACK_CLASS_RANGED,
-  ATTACK_CLASS_MAGIC,
-  ATTACK_CLASS_AUTO_HIT,
-};
-
-enum class DamageType {
-  DAMAGE_TYPE_EDGED,
-  DAMAGE_TYPE_BASHING,
-  DAMAGE_TYPE_PIERCING,
-  DAMAGE_TYPE_HEAT,
-  DAMAGE_TYPE_FREEZE,
-  DAMAGE_TYPE_STATIC,
-  DAMAGE_TYPE_NECROTIC,
-  DAMAGE_TYPE_EPHEMERAL,
-  DAMAGE_TYPE_TRUE,
-};
-
-enum class ProjectilePath {
-  PROJECTILE_PATH_SHORT,
-  PROJECTILE_PATH_MEDIUM,
-  PROJECTILE_PATH_TALL,
-  PROJECTILE_PATH_NONE,
-};
-
-enum class ProjectileType {
-  PROJECTILE_NONE,
-  DOT_RED,
-  DOT_WHITE,
-  DOT_BLUE,
-  DOT_BIG_YELLOW,
-  COMET_BLUE,
-  COMET_RED,
-  COMET_GREEN,
-  ARROW_FIRE,
-  ARROW_NORMAL,
-};
-
-struct TargetSelectInfoPoint {
-  int x = 0;
-  int y = 0;
-};
-
-struct TargetSelectInfo {
-  TargetSelectType targetType = TargetSelectType::TARGET_SELF;
-  TargetAllegianceSelectType allegianceSelectType =
-      TargetAllegianceSelectType::TARGET_ALLEGIANCE_SAME;
-  int numTargetableUnits = 1;
-  TargetSelectInfoPoint zoneSize;
-  int range = 0;
-};
-
-struct Stats {
-  int STR = 0;
-  int MND = 0;
-  int CON = 0;
-  int AGI = 0;
-  int LCK = 0;
-};
-
-struct CurrentStats {
-  int HP = 0;
-  int AP = 0;
-  int MANA = 0;
-  int AC = 0;
-};
-
-struct Resistance {
-  DamageType attackType = DamageType::DAMAGE_TYPE_EDGED;
-  int mod = 0;
-};
-
-struct AbilitySave {
-  StatsEnum saveStat = StatsEnum::STAT_STR;
-  int saveBase = 0;
-  StatsEnum saveAgainst = StatsEnum::STAT_STR;
-  int saveAgainstBase = 0;
-};
-
-struct AbilityAttackDmg {
-  bmin::DynArray<Dice> dmgDice;
-  int dmgBonus = 0;
-  StatsEnum dmgStat = StatsEnum::STAT_STR;
-  float dmgStatMult = 0.f;
-  int attackBonus = 0;
-};
-
-struct AbilityAttack {
-  AttackClass attackClass = AttackClass::ATTACK_CLASS_MELEE;
-  DamageType damageType = DamageType::DAMAGE_TYPE_EDGED;
-  std::optional<AbilityAttackDmg> dmg;
-  std::optional<AbilitySave> save;
-};
-
-struct AbilityStatus {
-  bmin::String statusEffect;
-  std::optional<AbilitySave> save;
-  std::optional<int> baseDuration;
-  std::optional<int> durationBonus;
-};
-
-struct AbilityRestore {
-  CurrentStatEnum restoreWhich = CurrentStatEnum::CURRENT_STAT_HP;
-  bmin::DynArray<Dice> restoreDice;
-  int restoreBonus = 0;
-  StatsEnum restoreStat = StatsEnum::STAT_STR;
-  int restoreStatMult = 0;
-};
-
-struct AbilityDamage {
-  DamageType damageType = DamageType::DAMAGE_TYPE_EDGED;
-  bmin::DynArray<Dice> dmgDice;
-  int dmgBonus = 0;
-  StatsEnum dmgStat = StatsEnum::STAT_STR;
-  float dmgStatMult = 0.f;
-};
-
-struct AbilityDepiction {
-  bmin::String dmgAnim;
-  ProjectileType projectileType = ProjectileType::PROJECTILE_NONE;
-  ProjectilePath projectilePath = ProjectilePath::PROJECTILE_PATH_NONE;
-  bmin::String startSound;
-  bmin::String dmgSound;
-};
-
-StatusEffectCondition statusEffectConditionFromString(const bmin::String& value);
-bmin::String statusEffectConditionToString(StatusEffectCondition value);
-
-AbilityType abilityTypeFromString(const bmin::String& value);
-bmin::String abilityTypeToString(AbilityType value);
-
-TargetSelectType targetSelectTypeFromString(const bmin::String& value);
-bmin::String targetSelectTypeToString(TargetSelectType value);
-
-TargetAllegianceSelectType targetAllegianceSelectTypeFromString(const bmin::String& value);
-bmin::String targetAllegianceSelectTypeToString(TargetAllegianceSelectType value);
-
-Dice diceFromString(const bmin::String& value);
-bmin::String diceToString(Dice value);
-
-StatsEnum statsEnumFromString(const bmin::String& value);
-bmin::String statsEnumToString(StatsEnum value);
-
-StatusEventType statusEventTypeFromString(const bmin::String& value);
-bmin::String statusEventTypeToString(StatusEventType value);
-
-CurrentStatEnum currentStatEnumFromString(const bmin::String& value);
-bmin::String currentStatEnumToString(CurrentStatEnum value);
-
-StatusActionTargetType statusActionTargetTypeFromString(const bmin::String& value);
-bmin::String statusActionTargetTypeToString(StatusActionTargetType value);
-
-AbilityCostType abilityCostTypeFromString(const bmin::String& value);
-bmin::String abilityCostTypeToString(AbilityCostType value);
-
-AttackClass attackClassFromString(const bmin::String& value);
-bmin::String attackClassToString(AttackClass value);
-
-DamageType damageTypeFromString(const bmin::String& value);
-bmin::String damageTypeToString(DamageType value);
-
-ProjectilePath projectilePathFromString(const bmin::String& value);
-bmin::String projectilePathToString(ProjectilePath value);
-
-bool projectileTypeHasFacing(ProjectileType value);
-bmin::String projectileTypeToAnimBase(ProjectileType value);
-ProjectileType projectileTypeFromString(const bmin::String& value);
-ProjectileType projectileTypeFromAnimName(const bmin::String& animName);
-bmin::String projectileTypeToString(ProjectileType value);
-
-} // namespace model
-
-} // export
+// --- templates/AbilityTypes.cppm ---
 
 namespace model {
 
@@ -881,6 +641,352 @@ bmin::String projectileTypeToString(ProjectileType value) {
     return "ARROW_NORMAL";
   }
   throw std::runtime_error("Unknown ProjectileType");
+}
+
+} // namespace model
+// --- templates/CharacterTemplate.cppm ---
+
+namespace model {
+
+namespace {
+
+int parseSpriteOffsetIndex(const bmin::String& spriteOffset) {
+  const auto view = bmin::toStringView(spriteOffset);
+  int value = 0;
+  const auto [ptr, ec] = std::from_chars(view.data(), view.data() + view.size(), value);
+  if (ec != std::errc{} || ptr != view.data() + view.size()) {
+    throw std::runtime_error("Invalid character spriteOffset");
+  }
+  return value;
+}
+
+bmin::String buildCharacterSpriteName(const bmin::String& spritesheetName,
+                                      const bmin::String& spriteOffset,
+                                      int indexOffset) {
+  const auto index = parseSpriteOffsetIndex(spriteOffset) + indexOffset;
+  return spritesheetName + "_" + bmin::toString(index);
+}
+
+} // namespace
+
+bmin::String characterGetSpriteAtIndexOffset(const CharacterTemplate& characterTemplate,
+                                               int indexOffset) {
+  return buildCharacterSpriteName(
+      characterTemplate.spritesheetName, characterTemplate.spriteOffset, indexOffset);
+}
+
+bmin::String characterGetSprite(const CharacterTemplate& characterTemplate) {
+  return characterGetSpriteAtIndexOffset(characterTemplate, 0);
+}
+
+void initCharacterStatsFromTemplate(CharacterStats& out, const CharacterTemplate& tmpl) {
+  out = tmpl.stats;
+}
+
+} // namespace model
+
+// --- templates/Items.cppm ---
+
+namespace model {
+
+bmin::String getStringFromItemType(ItemType itemType) {
+  switch (itemType) {
+  case ItemType::WEAPON_MELEE:
+    return "WEAPON_MELEE";
+  case ItemType::WEAPON_MELEE_2H:
+    return "WEAPON_MELEE_2H";
+  case ItemType::WEAPON_RANGED:
+    return "WEAPON_RANGED";
+  case ItemType::WEAPON_AMMO:
+    return "WEAPON_AMMO";
+  case ItemType::SHIELD:
+    return "SHIELD";
+  case ItemType::GARB:
+    return "GARB";
+  case ItemType::PANTS:
+    return "PANTS";
+  case ItemType::GLOVES:
+    return "GLOVES";
+  case ItemType::HAT:
+    return "HAT";
+  case ItemType::SHOES:
+    return "SHOES";
+  case ItemType::NECKLACE:
+    return "NECKLACE";
+  case ItemType::POTION:
+    return "POTION";
+  case ItemType::UTILITY:
+    return "UTILITY";
+  case ItemType::RUNE:
+    return "RUNE";
+  default:
+    return "UNKNOWN";
+  }
+  return "UNKNOWN";
+}
+
+ItemType getItemTypeFromString(const bmin::String& itemTypeString) {
+  if (itemTypeString == "WEAPON_MELEE") {
+    return ItemType::WEAPON_MELEE;
+  } else if (itemTypeString == "WEAPON_MELEE_2H") {
+    return ItemType::WEAPON_MELEE_2H;
+  } else if (itemTypeString == "WEAPON_RANGED") {
+    return ItemType::WEAPON_RANGED;
+  } else if (itemTypeString == "WEAPON_AMMO") {
+    return ItemType::WEAPON_AMMO;
+  } else if (itemTypeString == "SHIELD") {
+    return ItemType::SHIELD;
+  } else if (itemTypeString == "GARB") {
+    return ItemType::GARB;
+  } else if (itemTypeString == "PANTS") {
+    return ItemType::PANTS;
+  } else if (itemTypeString == "GLOVES") {
+    return ItemType::GLOVES;
+  } else if (itemTypeString == "HAT") {
+    return ItemType::HAT;
+  } else if (itemTypeString == "SHOES") {
+    return ItemType::SHOES;
+  } else if (itemTypeString == "NECKLACE") {
+    return ItemType::NECKLACE;
+  } else if (itemTypeString == "POTION") {
+    return ItemType::POTION;
+  } else if (itemTypeString == "UTILITY") {
+    return ItemType::UTILITY;
+  } else if (itemTypeString == "RUNE") {
+    return ItemType::RUNE;
+  }
+  return ItemType::UNKNOWN;
+}
+
+bool itemTypeIsEquippable(ItemType itemType) {
+  // RUNE uses rune slots only (itemTypeUsesRuneSlots), not armor/weapon maps.
+  switch (itemType) {
+  case ItemType::WEAPON_MELEE:
+  case ItemType::WEAPON_MELEE_2H:
+  case ItemType::WEAPON_RANGED:
+  case ItemType::WEAPON_AMMO:
+  case ItemType::SHIELD:
+  case ItemType::GARB:
+  case ItemType::PANTS:
+  case ItemType::GLOVES:
+  case ItemType::HAT:
+  case ItemType::SHOES:
+  case ItemType::NECKLACE:
+    return true;
+  default:
+    return false;
+  }
+}
+
+bool itemTypeIsTwoHandedWeapon(ItemType itemType) {
+  return itemType == ItemType::WEAPON_MELEE_2H;
+}
+
+bool itemTypeUsesWeaponSlots(ItemType itemType) {
+  switch (itemType) {
+  case ItemType::WEAPON_MELEE:
+  case ItemType::WEAPON_MELEE_2H:
+  case ItemType::WEAPON_RANGED:
+    return true;
+  default:
+    return false;
+  }
+}
+
+bool itemTypeUsesRuneSlots(ItemType itemType) {
+  return itemType == ItemType::RUNE;
+}
+
+ItemUsability getItemUsabilityFromString(const bmin::String& value) {
+  if (value == "USABLE_EVERYWHERE") {
+    return ItemUsability::USABLE_EVERYWHERE;
+  }
+  if (value == "USABLE_TOWN_ONLY") {
+    return ItemUsability::USABLE_TOWN_ONLY;
+  }
+  if (value == "USABLE_COMBAT_ONLY") {
+    return ItemUsability::USABLE_COMBAT_ONLY;
+  }
+  if (value == "USABLE_OUTSIDE_ONLY") {
+    return ItemUsability::USABLE_OUTSIDE_ONLY;
+  }
+  if (value == "USABLE_TOWN_AND_COMBAT") {
+    return ItemUsability::USABLE_TOWN_AND_COMBAT;
+  }
+  return ItemUsability::NOT_USABLE;
+}
+
+} // namespace model
+
+// --- templates/Maps.cppm ---
+
+namespace model {
+
+bmin::String getStringFromMapType(MapType mapType) {
+  switch (mapType) {
+  case MapType::TOWN:
+    return "TOWN";
+  case MapType::OUTDOOR:
+    return "OUTDOOR";
+  default:
+    throw std::runtime_error("Invalid map type");
+  }
+}
+
+MapType getMapTypeFromString(const bmin::String& mapTypeString) {
+  if (mapTypeString == "TOWN") {
+    return MapType::TOWN;
+  } else if (mapTypeString == "OUTDOOR") {
+    return MapType::OUTDOOR;
+  }
+  throw std::runtime_error(("Invalid map type: " + mapTypeString).cStr());
+}
+
+bmin::String getStringFromTileOverlayVisibility(TileOverlayVisibility visibility) {
+  switch (visibility) {
+  case TileOverlayVisibility::HIDDEN:
+    return "HIDDEN";
+  case TileOverlayVisibility::SHOW_EVENT_ON_TILE:
+    return "SHOW_EVENT_ON_TILE";
+  case TileOverlayVisibility::SHOW_TRAVEL_UP:
+    return "SHOW_TRAVEL_UP";
+  case TileOverlayVisibility::SHOW_TRAVEL_DOWN:
+    return "SHOW_TRAVEL_DOWN";
+  default:
+    return "HIDDEN";
+  }
+}
+
+TileOverlayVisibility getTileOverlayVisibilityFromString(const bmin::String& value) {
+  if (value == "SHOW_EVENT_ON_TILE") {
+    return TileOverlayVisibility::SHOW_EVENT_ON_TILE;
+  }
+  if (value == "SHOW_TRAVEL_UP") {
+    return TileOverlayVisibility::SHOW_TRAVEL_UP;
+  }
+  if (value == "SHOW_TRAVEL_DOWN") {
+    return TileOverlayVisibility::SHOW_TRAVEL_DOWN;
+  }
+  return TileOverlayVisibility::HIDDEN;
+}
+
+bmin::String tileOverlayVisibilitySpriteName(TileOverlayVisibility visibility) {
+  switch (visibility) {
+  case TileOverlayVisibility::SHOW_EVENT_ON_TILE:
+    return "extra_4";
+  case TileOverlayVisibility::SHOW_TRAVEL_UP:
+    return "extra_5";
+  case TileOverlayVisibility::SHOW_TRAVEL_DOWN:
+    return "extra_6";
+  case TileOverlayVisibility::HIDDEN:
+  default:
+    return bmin::String{};
+  }
+}
+
+} // namespace model
+
+// --- templates/RuneTypes.cppm ---
+
+namespace model {
+
+RuneType runeTypeFromString(const bmin::String& value) {
+  if (value == "HEAT") {
+    return RuneType::HEAT;
+  }
+  if (value == "ENTROPY") {
+    return RuneType::ENTROPY;
+  }
+  if (value == "REGROWTH") {
+    return RuneType::REGROWTH;
+  }
+  if (value == "DISPLACE") {
+    return RuneType::DISPLACE;
+  }
+  if (value == "EXPAND") {
+    return RuneType::EXPAND;
+  }
+  if (value == "ATTACH") {
+    return RuneType::ATTACH;
+  }
+  if (value == "TRANSFORM") {
+    return RuneType::TRANSFORM;
+  }
+  if (value == "COMPACT") {
+    return RuneType::COMPACT;
+  }
+  throw std::runtime_error(("Invalid RuneType: " + value).cStr());
+}
+
+bmin::String runeTypeToString(RuneType value) {
+  switch (value) {
+  case RuneType::HEAT:
+    return "HEAT";
+  case RuneType::ENTROPY:
+    return "ENTROPY";
+  case RuneType::REGROWTH:
+    return "REGROWTH";
+  case RuneType::DISPLACE:
+    return "DISPLACE";
+  case RuneType::EXPAND:
+    return "EXPAND";
+  case RuneType::ATTACH:
+    return "ATTACH";
+  case RuneType::TRANSFORM:
+    return "TRANSFORM";
+  case RuneType::COMPACT:
+    return "COMPACT";
+  }
+  throw std::runtime_error("Unknown RuneType");
+}
+
+int runeTypeIndex(RuneType value) {
+  const auto index = static_cast<int>(value);
+  if (index < 0 || index >= kRuneTypeCount) {
+    throw std::runtime_error("Unknown RuneType");
+  }
+  return index;
+}
+
+RuneType runeTypeFromIndex(int index) {
+  if (index < 0 || index >= kRuneTypeCount) {
+    throw std::runtime_error(
+        ("Invalid RuneType index: " + bmin::toString(index)).cStr());
+  }
+  return static_cast<RuneType>(index);
+}
+
+bmin::String runeTypeToSpriteName(RuneType value) {
+  return "runes_" + bmin::toString(runeTypeIndex(value));
+}
+
+} // namespace model
+
+// --- templates/UtilityTypes.cppm ---
+
+namespace model {
+
+TimerStruct::TimerStruct(int duration) : duration(duration) {}
+
+bmin::String createRandomId() {
+  return bmin::toString((rand() % 1000000) + (rand() % 1000000) + (rand() % 1000000));
+}
+
+void timerStructStart(TimerStruct& timer, int duration) {
+  timer.t = 0;
+  if (duration > 0) {
+    timer.duration = duration;
+  }
+}
+
+void timerStructRestart(TimerStruct& timer) { timer.t = 0; }
+
+void timerStructUpdate(TimerStruct& timer, int deltaTimeMs) { timer.t += deltaTimeMs; }
+
+bool timerStructIsComplete(const TimerStruct& timer) { return timer.t >= timer.duration; }
+
+double timerStructGetPct(const TimerStruct& timer) {
+  return static_cast<double>(timer.t) / timer.duration;
 }
 
 } // namespace model

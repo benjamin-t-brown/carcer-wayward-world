@@ -11,7 +11,7 @@ export module carcer.layers:LayerInventory;
 export import :Layer;
 import sdl2w;
 import carcer.actions;
-import carcer.model.instances;
+import carcer.model;
 import carcer.ui.components;
 import carcer.ui.helpers;
 import carcer.ui.pages;

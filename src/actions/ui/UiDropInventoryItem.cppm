@@ -6,7 +6,7 @@ export module carcer.actions.ui:UiDropInventoryItem;
 export import carcer.state;
 import sdl2w;
 import carcer.game.map;
-import carcer.model.instances;
+import carcer.model;
 #include "macros.h"
 
 export {

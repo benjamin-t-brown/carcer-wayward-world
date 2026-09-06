@@ -4,7 +4,7 @@ module;
 export module carcer.actions.ui:UiReorderInventoryItem;
 export import carcer.state;
 import sdl2w;
-import carcer.model.instances;
+import carcer.model;
 #include "macros.h"
 
 export {

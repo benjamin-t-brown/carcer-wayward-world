@@ -3,12 +3,13 @@
 Carcer ships as C++23 named modules (`carcer.*`). This doc is the contract for
 how the tree is organised, how to import across it, and how the build graph works.
 
-> **Migration status (2026-09):** the ~185-module-per-class tree has been
-> consolidated to **33 top-level modules**. Every domain is one-class-per-file
-> now — `carcer.actions` was the last holdout (used to be 4 partitions each
-> cramming 16–33 unrelated classes into one file) and is now a thin re-export
-> of 5 real modules (`carcer.actions.{combat,world,general,ui,ui.layers}`),
-> each with one partition per class; see §3 and §4. `carcer.layers` and
+> **Migration status (2026-09):** the v2 pilot has replaced the static-data and
+> runtime-model partition forests with declarations-only `carcer.data` and
+> `carcer.model` interfaces backed by grouped implementation units. The other
+> domains still use the experimental partition-per-class layout:
+> `carcer.actions` is a thin re-export of 5 modules
+> (`carcer.actions.{combat,world,general,ui,ui.layers}`), each with one
+> partition per class; see §3 and §4. `carcer.layers` and
 > `carcer.ui.pages` are fully unified with no exceptions; see §6a for the two
 > GCC bugs that blocked them and how each was actually resolved (not worked
 > around). `scripts/modules/partitionize_folder.py` and
@@ -36,16 +37,16 @@ umbrella — like
 ## 2. The layering
 
 Dependencies point **down** this list. An arrow pointing up is a design smell —
-fix it by moving the shared type down (usually into `carcer.model.templates` or
+fix it by moving the shared type down (usually into `carcer.data` or
 `carcer.ui.core`) or by routing through an interface seam:
 `StateManagerInterface`, `DatabaseInterface`, `LayerManagerInterface`.
 
 | Layer | Modules | Role |
 |---|---|---|
 | 0 Foundations | `carcer.lib.Json`, `carcer.lib.StringUtil`, `carcer.lib.hiscore.hiscore` (+ external `sdl2w`, `bmin`) | pure utilities: json, strings, hiscore. No game knowledge. |
-| 1 Static data | `carcer.model.templates`, `carcer.game.map.TileFields` (leaf) | immutable definitions mirrored from `assets/db`. |
+| 1 Static data | `carcer.data`, `carcer.game.map.TileFields` (leaf) | immutable definitions mirrored from `assets/db`. |
 | 2 Data access | `carcer.db` | loads templates, owns lookup registries. |
-| 3 Runtime model | `carcer.model.instances` | the mutable store shape: live characters, maps, items, world, combat state. |
+| 3 Runtime model | `carcer.model` | the mutable store shape: live characters, maps, items, world, combat state. |
 | 4 Rules | `carcer.game.map`, `carcer.game.combat`, `carcer.in3` | pure-ish logic over the model; compute results, don't own state. Independent siblings. |
 | 5 State kernel | `carcer.state` | store + `ActionBus` + `AbstractAction` base + interface seams + `LayerRequest`/`layerStack`. Small, stable, universally depended on. |
 | 6 Actions / orchestration | `carcer.actions` (pure re-export of `carcer.actions.{combat,world,general,ui,ui.layers}`), internal `carcer.actions.world_effects`, and `carcer.world_updater` | one command class per state transition, one file per class; `act()` mutates state, calls rules, enqueues timed follow-ups. The two narrow modules keep shared deferred world effects and the frame updater above `state` but below their consumers, avoiding reverse imports into a module's own purview. |
@@ -134,7 +135,7 @@ src/<folder>/_<folder>.cppm    export module carcer.<folder>;          (primary 
                                export import :Other;
 src/<folder>/Thing.cppm        export module carcer.<folder>:Thing;    (partition: declaration + inline bodies)
                                import :Other;                          (sibling partition)
-                               import carcer.model.instances;          (cross-module: full name)
+                               import carcer.model;          (cross-module: full name)
 src/<folder>/Thing.cpp         module carcer.<folder>;                 (impl unit: bodies for any partition)
 ```
 
@@ -164,7 +165,7 @@ modules living directly under `ui/`, distinct from its real barrel,
 no "which file is the one for this folder" ambiguity to resolve, so leave
 them alone.
 
-This is universal now — `carcer.model.templates`, `carcer.model.instances`,
+This is universal now — `carcer.data`, `carcer.model`,
 `carcer.ui.core`, `carcer.ui.elements`, `carcer.ui.components`,
 `carcer.ui.lists`, `carcer.ui.layouts`, `carcer.ui.minipages`,
 `carcer.ui.popups`, `carcer.ui.pages`, `carcer.layers`, and all 5
@@ -203,7 +204,7 @@ curate the surface.
 ## 5. Import rules
 
 - **Production `.cpp` / `.cppm` import the specific domain modules they use**
-  (`import carcer.model.instances;`, `import carcer.ui.elements;`). Do **not**
+  (`import carcer.model;`, `import carcer.ui.elements;`). Do **not**
   `import carcer;` outside `main.cpp` and `src/__test__/` — the umbrella
   `export import`s every domain and flattens all isolation. (Verified
   2026-09: no production `.cpp` currently does this — the rule is a guardrail

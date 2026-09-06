@@ -16,15 +16,15 @@ module;
 export module carcer.ui.components:MapView;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.model.instances;
+export import carcer.model;
 export import carcer.state;
 export import carcer.ui.core;
 import sdl2w;
 import carcer.game.map.TileFields;
 import carcer.ui.core;
 import carcer.game.map;
-import carcer.model.instances;
-import carcer.model.templates;
+import carcer.model;
+import carcer.data;
 #include "macros.h"
 
 export {

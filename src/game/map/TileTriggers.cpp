@@ -7,7 +7,7 @@ module;
 module carcer.game.map;
 import bmin.containers;
 import carcer.db;
-import carcer.model.instances;
+import carcer.model;
 import carcer.state;
 import bmin.string_interop;
 import sdl2w;

@@ -8,8 +8,8 @@ import carcer.actions.general;
 import carcer.actions.world_effects;
 import sdl2w;
 import bmin.string_interop;
-import carcer.model.templates;
-import carcer.model.instances;
+import carcer.data;
+import carcer.model;
 import carcer.game.map;
 import carcer.game.combat;
 #include "macros.h"

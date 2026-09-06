@@ -6,7 +6,7 @@ module;
 
 module carcer.db;
 import bmin.containers;
-import carcer.model.templates;
+import carcer.data;
 import carcer.lib.Json;
 import bmin.string_interop;
 import sdl2w;

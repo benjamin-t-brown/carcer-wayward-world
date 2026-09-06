@@ -6,9 +6,9 @@ module;
 
 module carcer.world_updater;
 import carcer.actions;
-import carcer.model.templates;
+import carcer.data;
 import carcer.game.map;
-import carcer.model.instances;
+import carcer.model;
 import carcer.ui.helpers;
 import bmin.string_interop;
 import sdl2w;

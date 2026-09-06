@@ -5,7 +5,7 @@ module;
 
 module carcer.ui.helpers;
 import carcer.actions;
-import carcer.model.instances;
+import carcer.model;
 import carcer.state;
 import bmin.string_interop;
 import sdl2w;

@@ -5,7 +5,7 @@ module;
 
 module carcer.game.combat;
 import carcer.game.map;
-import carcer.model.instances;
+import carcer.model;
 import carcer.state;
 import carcer.db;
 import bmin.string_interop;

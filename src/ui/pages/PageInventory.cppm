@@ -7,7 +7,7 @@ module;
 export module carcer.ui.pages:PageInventory;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.model.instances;
+export import carcer.model;
 export import carcer.ui.core;
 export import carcer.ui.lists;
 import sdl2w;
@@ -18,7 +18,7 @@ import carcer.ui.core;
 import carcer.ui.components;
 import carcer.ui.helpers;
 import carcer.ui.layouts;
-import carcer.model.templates;
+import carcer.data;
 #include "macros.h"
 
 export {

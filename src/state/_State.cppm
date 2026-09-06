@@ -14,8 +14,8 @@ module;
 export module carcer.state;
 export import bmin.containers;
 export import carcer.db;
-export import carcer.model.instances;
-export import carcer.model.templates;
+export import carcer.model;
+export import carcer.data;
 import sdl2w;
 #include "macros.h"
 

@@ -6,7 +6,7 @@ module;
 
 export module carcer.in3;
 export import bmin.containers;
-export import carcer.model.templates;
+export import carcer.data;
 import bmin.string_interop;
 
 export {

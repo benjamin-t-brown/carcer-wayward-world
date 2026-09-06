@@ -1,6 +1,6 @@
 # Carcer C++ Modules v2 Implementation Plan
 
-Status: Phase 2 implemented; Emscripten verification remains open
+Status: Phase 3 coarse-module pilot implemented; Gate 2 passes natively
 Baseline commit: `95562b3` on `experiment/cpp-modules`  
 Date: 2026-09-05
 
@@ -12,6 +12,9 @@ Date: 2026-09-05
 - Phase 2 adds a parallel CMake/Ninja build using `CXX_MODULES` file sets and
   compiler dependency scanning for BMIN, SDL2W, and the unchanged Carcer module
   tree. Make remains available.
+- Phase 3 replaces the model/template partition forest with `carcer.data` and
+  `carcer.model`, each using a declarations-only interface and grouped
+  implementation units. The generated Make graph remains buildable.
 - GCC 15.3 and Homebrew Clang 22.1.8 debug builds pass on the qualification
   host. Thirty current non-UI tests pass under both compilers, five stale tests
   compile but are disabled, three tests call already-disabled production APIs,
@@ -48,6 +51,52 @@ test. The measurements also confirm that build-system repair alone cannot meet
 the final performance or artifact-size targets. The deep, high-fan-out module
 graph remains the next bottleneck, so the coarse `data`/`model` pilot in Phase 3
 is warranted.
+
+### Phase 3 qualification results
+
+The pilot replaces the 26-file `carcer.model.templates` and
+`carcer.model.instances` partition forests with two declarations-only public
+interfaces and six grouped implementation units. The corresponding header-era
+subsystem used 38 files. Imports now name `carcer.data` and `carcer.model`, and
+the latter's data, database, tile-field, and SDL dependencies are private rather
+than accidental re-exports.
+
+| Check | Result |
+|---|---:|
+| Repeated clean GCC builds | 10/10 passed |
+| Clean GCC build median | 128 s |
+| Clean GCC build range | 126-130 s |
+| GCC no-op build | 0.33 s |
+| `templates.cpp` implementation touch | 4.37 s; one object plus relink; no BMI rebuild |
+| `characters.cpp` implementation touch | 3.70 s; one object plus relink; no BMI rebuild |
+| `data.cppm` interface touch | 80.73 s; 234 build actions |
+| `model.cppm` interface touch | 75.84 s; 214 build actions |
+| Generated Make clean build | 283.49 s; passed |
+| GCC runtime tests | 30 passed plus 2 import probes; 5 explicitly disabled |
+| Clang runtime tests | 30 passed plus 2 import probes; 5 explicitly disabled |
+| GCC UI compile/link tests | 43/43 passed |
+| GCC debug build directory after `CARCER` | approximately 547 MiB |
+
+The checked graph changed from 207 to 183 interface units, 921 to 847 edges,
+a critical depth of 37 to 30, and a maximum transitive dependent count of 185
+to 174. Production source files fell from 258 to 239. The pilot subsystem
+itself fell from 26 module files to 8 grouped files.
+
+Gate 2 passes as a native feasibility gate, not as final acceptance. Stable
+implementation edits now have the required isolation, the cold build improved
+by about 11%, graph depth fell about 19%, and the artifact directory is about
+half its Phase 2 size. Public-interface edits remain expensive, and the
+remaining partition forests still dominate the graph. Further migration must
+keep declarations stable and apply the same coarse interface/grouped
+implementation shape; returning to partition-per-class would erase the gain.
+
+Two Phase 3 follow-ups remain before starting the ownership work in Phase 4:
+
+- Emscripten is still unverified because no Emscripten SDK is installed on the
+  qualification host.
+- Database-dependent equipment, inventory, and construction operations still
+  live in `carcer.model`; move them behind rules/service APIs as the first
+  ownership change rather than carrying the database dependency further.
 
 ## Summary
 

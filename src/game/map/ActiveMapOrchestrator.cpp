@@ -5,9 +5,9 @@ module;
 #include <stdexcept>
 
 module carcer.game.map;
-import carcer.model.instances;
+import carcer.model;
 import bmin.containers;
-import carcer.model.templates;
+import carcer.data;
 import carcer.state;
 import bmin.string_interop;
 import sdl2w;

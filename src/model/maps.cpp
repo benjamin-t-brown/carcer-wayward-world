@@ -1,114 +1,41 @@
 module;
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <utility>
-#include <algorithm>
 #include <cstdlib>
+#include <optional>
+#include <utility>
 
-export module carcer.model.instances:MapInstance;
-export import bmin.containers;
+module carcer.model;
+
 import bmin.string_interop;
-export import carcer.game.map.TileFields;
-export import :CharacterInstance;
-export import :ItemInstance;
-export import :TileInstance;
-export import carcer.model.templates;
-import carcer.model.templates;
-import sdl2w;
+
 #include "macros.h"
 
-export {
+// --- MapInstance.cppm ---
 
-// --- from model/instances/MapInstance.h ---
 namespace model {
 
-enum class TurnMode { TURN_TOWN, TURN_OUTDOOR, TURN_COMBAT };
+TileLayerMap& mapInstanceTiles(MapInstance& map) { return map.persistentState.tiles; }
 
-// Session-scoped fog-of-war memory for a map template (one bit per cell).
-struct ExploredMapMask {
-  int width = 0;
-  int height = 0;
-  bmin::DynArray<uint8_t> bits;
-};
-
-// Open-door tileId mutation on a map (closed doors become tileId+1 at runtime).
-struct OpenedDoorRecord {
-  int layer = 0;
-  int x = 0;
-  int y = 0;
-  int tileId = 0;
-};
-
-// Map-placed character removed for the session (matched on template + spawn tile).
-struct DefeatedCharacterRecord {
-  bmin::String templateName;
-  int x = 0;
-  int y = 0;
-};
-
-// Tile overlay fields persisted per layer/cell.
-struct PersistentTileFieldRecord {
-  int layer = 0;
-  int x = 0;
-  int y = 0;
-  bmin::DynArray<game::TileField> fields;
-};
-
-struct PersistentMapState {
-  int version = 2;
-  ExploredMapMask explored;
-  bmin::DynArray<OpenedDoorRecord> openedDoors;
-  bmin::DynArray<DefeatedCharacterRecord> defeatedCharacters;
-  bmin::DynArray<PersistentTileFieldRecord> tileFields;
-
-  bmin::Map<int, bmin::DynArray<TileInstance>> tiles;
-  bmin::DynArray<CharacterInstance> characters;
-  bmin::DynArray<ItemInstance> items;
-};
-
-struct MapInstance {
-  bmin::String id;
-  bmin::String label;
-  bmin::String templateName;
-
-  PersistentMapState persistentState;
-  int width = 0;
-  int height = 0;
-  int spriteWidth = 0;
-  int spriteHeight = 0;
-  int tileLayerNumber = 0;
-  MapType mapType = MapType::TOWN;
-};
-
-struct TileXY {
-  int x = 0;
-  int y = 0;
-};
-
-using TileLayerMap = bmin::Map<int, bmin::DynArray<TileInstance>>;
-
-inline TileLayerMap& mapInstanceTiles(MapInstance& map) { return map.persistentState.tiles; }
-
-inline const TileLayerMap& mapInstanceTiles(const MapInstance& map) {
+const TileLayerMap& mapInstanceTiles(const MapInstance& map) {
   return map.persistentState.tiles;
 }
 
-inline bool mapHasLayer(const TileLayerMap& layers, int layer) {
-  return layers.contains(layer);
-}
+bool mapHasLayer(const TileLayerMap& layers, int layer) { return layers.contains(layer); }
 
-inline bool mapInstanceHasLayer(const TileLayerMap& layers, int layer) {
+bool mapInstanceHasLayer(const TileLayerMap& layers, int layer) {
   return mapHasLayer(layers, layer);
 }
 
-inline bmin::DynArray<TileInstance>& mapLayerAt(TileLayerMap& layers, int layer) {
+bmin::DynArray<TileInstance>& mapLayerAt(TileLayerMap& layers, int layer) {
   if (!layers.contains(layer)) {
     layers[layer] = bmin::DynArray<TileInstance>{};
   }
   return layers[layer];
 }
 
-inline const bmin::DynArray<TileInstance>* mapLayerPtr(const TileLayerMap& layers, int layer) {
+const bmin::DynArray<TileInstance>* mapLayerPtr(const TileLayerMap& layers, int layer) {
   if (!layers.contains(layer)) {
     return nullptr;
   }
@@ -116,14 +43,14 @@ inline const bmin::DynArray<TileInstance>* mapLayerPtr(const TileLayerMap& layer
   return &mutableLayers[layer];
 }
 
-inline bmin::DynArray<TileInstance>* mapLayerPtr(TileLayerMap& layers, int layer) {
+bmin::DynArray<TileInstance>* mapLayerPtr(TileLayerMap& layers, int layer) {
   if (!layers.contains(layer)) {
     return nullptr;
   }
   return &layers[layer];
 }
 
-inline TileInstance* mapInstanceGetTileAt(MapInstance& map, int x, int y, int layer) {
+TileInstance* mapInstanceGetTileAt(MapInstance& map, int x, int y, int layer) {
   auto* layerTiles = mapLayerPtr(mapInstanceTiles(map), layer);
   if (!layerTiles || map.width <= 0) {
     return nullptr;
@@ -138,14 +65,11 @@ inline TileInstance* mapInstanceGetTileAt(MapInstance& map, int x, int y, int la
   return &(*layerTiles)[index];
 }
 
-inline const TileInstance* mapInstanceGetTileAt(const MapInstance& map,
-                                                int x,
-                                                int y,
-                                                int layer) {
+const TileInstance* mapInstanceGetTileAt(const MapInstance& map, int x, int y, int layer) {
   return mapInstanceGetTileAt(const_cast<MapInstance&>(map), x, y, layer);
 }
 
-inline TileXY mapInstanceGetMinMaxLayer(const MapInstance& map) {
+TileXY mapInstanceGetMinMaxLayer(const MapInstance& map) {
   TileXY minMaxLayer = {0, 0};
   bool first = true;
   const auto& tiles = mapInstanceTiles(map);
@@ -162,33 +86,7 @@ inline TileXY mapInstanceGetMinMaxLayer(const MapInstance& map) {
   return minMaxLayer;
 }
 
-MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate);
-
-// Flat cell index → tile (x, y); matches createMapInstanceFromTemplate math.
-TileXY tileIndexToXY(int i, int width);
-int tileXYToIndex(int x, int y, int width);
-
-// First marker whose name matches (ceditor findMarkerOnMap semantics).
-const MapMarkerPlacement* findMarkerOnTemplate(const CarcerMapTemplate& mapTemplate,
-                                               const bmin::String& markerName);
-
-CharacterInstance* mapInstanceFindCharacter(MapInstance& map, const bmin::String& id);
-const CharacterInstance* mapInstanceFindCharacter(const MapInstance& map,
-                                                  const bmin::String& id);
-
 } // namespace model
-
-namespace game {
-
-void ageMapInstanceTileFields(model::MapInstance& map, int steps);
-void agePersistentTileFieldRecords(bmin::DynArray<model::PersistentTileFieldRecord>& records,
-                                   int steps);
-void addTileField(model::TileInstance& tile, TileFieldType type);
-void addTileFieldAt(model::MapInstance& map, int tileX, int tileY, TileFieldType type);
-
-} // namespace game
-
-} // export
 
 namespace game {
 

@@ -7,7 +7,7 @@ module;
 #include <stdexcept>
 
 module carcer.db;
-import carcer.model.templates;
+import carcer.data;
 import bmin.containers;
 import bmin.string_interop;
 import sdl2w;

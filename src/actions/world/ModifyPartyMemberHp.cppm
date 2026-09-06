@@ -4,7 +4,7 @@ module;
 
 export module carcer.actions.world:ModifyPartyMemberHp;
 export import carcer.state;
-import carcer.model.templates;
+import carcer.data;
 import bmin.string_interop;
 #include "macros.h"
 

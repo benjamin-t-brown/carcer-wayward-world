@@ -1,204 +1,102 @@
 module;
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <utility>
+#include <cstdlib>
 #include <optional>
-#include <algorithm>
+#include <utility>
 
-export module carcer.model.instances:CharacterPlayer;
-export import bmin.containers;
+module carcer.model;
+
 import bmin.string_interop;
-export import carcer.db;
-export import :ItemInstance;
-export import carcer.model.templates;
-import sdl2w;
+
 #include "macros.h"
 
-export {
-
-// --- from model/instances/CharacterPlayer.h ---
 namespace model {
 
-struct CharacterPlayerEquipment {
-  // these represent ids of items inside the character's inventory
-  bmin::String weapon0Id;
-  bmin::String weapon1Id;
-  bmin::String ammoId;
-  bmin::String hatId;
-  bmin::String garbId;
-  bmin::String glovesId;
-  bmin::String pantsId;
-  bmin::String shoesId;
-  bmin::String necklaceId;
-  bmin::String shieldId;
-};
-
-struct CharacterInventoryItem {
-  bmin::String itemName;
-  bmin::String id;
-  int quantity;
-};
-
-/** Owned rune tally on the character (not bag inventory). */
-struct CharacterAvailableRune {
-  RuneType type = RuneType::HEAT;
-  int count = 0;
-};
-
-struct CharacterPlayer;
-void applyCharacterTemplateStartingSpells(CharacterPlayer& character,
-                                          const CharacterTemplate& characterTemplate);
-
-struct CharacterPlayer {
-  static constexpr size_t kRuneSlotCount = 8;
-
-  bmin::String instanceId;
-  bmin::String name;
-  bmin::String templateName;
-  bmin::DynArray<CharacterInventoryItem> inventory;
-  CharacterPlayerEquipment equipment;
-  CharacterTemplate params;
-  CharacterStats stats;
-  int currentHp = 0;
-  int currentMp = 0;
-  bmin::DynArray<bmin::String> knownSpells;
-  bmin::DynArray<bmin::String> readySpells;
-  // Tallies of runes the character owns; equip capacity comes from here.
-  bmin::DynArray<CharacterAvailableRune> availableRunes;
-  // Dense list of equipped rune types; size 0..kRuneSlotCount, no mid-list holes.
-  bmin::DynArray<RuneType> equippedRunes;
-
-  CharacterPlayer(const CharacterTemplate& _params = CharacterTemplate(),
-                  const bmin::DynArray<CharacterInventoryItem>& _inventory = {},
-                  const CharacterPlayerEquipment& _equipment = {}) {
-    instanceId = createRandomId();
-    params = _params;
-    initCharacterStatsFromTemplate(stats, _params);
-    currentHp = _params.combat.hp;
-    currentMp = _params.combat.mp;
-    inventory = _inventory;
-    equipment = _equipment;
-    applyCharacterTemplateStartingSpells(*this, _params);
+CharacterFacing facingFromMoveDelta(int dx, int dy) {
+  if (dx < 0 || (dx == 0 && dy > 0)) {
+    return CharacterFacing::Left;
   }
-};
+  return CharacterFacing::Right;
+}
 
-bmin::String characterPlayerGetSprite(const CharacterPlayer& characterPlayer);
-bmin::String characterPlayerGetSpriteAtIndexOffset(const CharacterPlayer& characterPlayer,
-                                                   int indexOffset);
+bool characterInstanceIsEnemy(const CharacterInstance& character) {
+  return character.type == CharacterTemplateType::ENEMY ||
+         character.type == CharacterTemplateType::ENEMY_STATIC;
+}
 
-enum class EquipItemResult {
-  EQUIPPED,
-  UNEQUIPPED,
-  NOT_EQUIPPABLE,
-  ITEM_NOT_IN_INVENTORY,
-  SLOT_OCCUPIED,
-  TWO_HANDED_OFF_HAND,
-};
+void updateCharacterFacingFromMove(CharacterInstance& character, int dx, int dy) {
+  if (dx != 0 || dy != 0) {
+    character.facing = facingFromMoveDelta(dx, dy);
+  }
+}
 
-enum class CharacterEquipmentSlot {
-  WEAPON0,
-  WEAPON1,
-  AMMO,
-  HAT,
-  GARB,
-  GLOVES,
-  PANTS,
-  SHOES,
-  NECKLACE,
-  SHIELD,
-};
+void updateCharacterFacingToward(CharacterInstance& character, int targetX, int targetY) {
+  updateCharacterFacingFromMove(character, targetX - character.x, targetY - character.y);
+}
 
-std::optional<CharacterEquipmentSlot>
-characterPlayerGetEquipmentSlotForItemId(const CharacterPlayer& characterPlayer,
-                                         const bmin::String& itemId);
-bmin::String characterEquipmentSlotAbbrev(CharacterEquipmentSlot slot);
-bool characterPlayerIsItemEquippedById(const CharacterPlayer& characterPlayer,
-                                       const bmin::String& itemId);
-EquipItemResult characterPlayerToggleEquipItem(CharacterPlayer& characterPlayer,
-                                               const bmin::String& itemId,
-                                               const db::Database& database);
+bool isCharacterFacingLeft(const CharacterInstance& character) {
+  return character.facing == CharacterFacing::Left;
+}
 
-enum class EquipRuneResult {
-  EQUIPPED,
-  UNEQUIPPED,
-  NOT_A_RUNE,
-  ITEM_NOT_IN_INVENTORY,
-  SLOT_OCCUPIED,
-  SLOT_EMPTY,
-  INVALID_SLOT,
-  ALREADY_EQUIPPED,
-  NO_RUNE_AVAILABLE,
-};
-
-int characterPlayerCountAvailableRunesOfType(const CharacterPlayer& characterPlayer,
-                                            RuneType runeType);
-void characterPlayerSetAvailableRuneCount(CharacterPlayer& characterPlayer,
-                                          RuneType runeType,
-                                          int count);
-int characterPlayerCountEquippedRunesOfType(const CharacterPlayer& characterPlayer,
-                                            RuneType runeType);
-bool characterPlayerCanEquipRuneType(const CharacterPlayer& characterPlayer,
-                                     RuneType runeType);
-std::optional<RuneType>
-characterPlayerFindFirstEquippableRuneType(const CharacterPlayer& characterPlayer);
-/** Insert `runeType` (sorted by type) when list has room and capacity remains. */
-EquipRuneResult characterPlayerEquipRuneType(CharacterPlayer& characterPlayer,
-                                             RuneType runeType);
-/** Erase at `slotIndex` and compact; fails if index is empty / out of range. */
-EquipRuneResult characterPlayerUnequipRuneFromSlot(CharacterPlayer& characterPlayer,
-                                                   size_t slotIndex);
-/** Unequip the last equipped occurrence of `runeType`, if any. */
-EquipRuneResult characterPlayerUnequipOneRuneOfType(CharacterPlayer& characterPlayer,
-                                                     RuneType runeType);
-/**
- * Filled slot (`slotIndex < size`): unequip and compact.
- * First empty (`slotIndex == size`): append first equippable available rune type.
- * `slotIndex > size` or past max: INVALID_SLOT.
- */
-EquipRuneResult characterPlayerToggleManaSlotRune(CharacterPlayer& characterPlayer,
-                                                   size_t slotIndex);
-
-std::optional<CharacterInventoryItem>
-characterPlayerFindItemInInventoryByName(const CharacterPlayer& characterPlayer,
-                                         const bmin::String& itemName);
-void characterPlayerAddItemToInventory(CharacterPlayer& characterPlayer,
-                                       const model::ItemTemplate& itemTemplate,
-                                       int quantity = 1);
-void characterPlayerRemoveItemFromInventoryByName(CharacterPlayer& characterPlayer,
-                                                  const bmin::String& itemName,
-                                                  int quantity = 1);
-void characterPlayerRemoveItemFromInventoryById(CharacterPlayer& characterPlayer,
-                                                const bmin::String& itemId,
-                                                int quantity = 1);
-
-enum class GiveItemResult {
-  SUCCESS,
-  ITEM_NOT_FOUND,
-  INVALID_QUANTITY,
-  TOO_HEAVY,
-};
-
-GiveItemResult characterPlayerGiveInventoryItem(CharacterPlayer& from,
-                                                CharacterPlayer& to,
-                                                const bmin::String& itemId,
-                                                int quantity,
-                                                const db::Database& database);
-bool characterPlayerReorderInventoryItem(CharacterPlayer& characterPlayer,
-                                         size_t index,
-                                         int direction);
-int characterGetWeightCarrying(const CharacterPlayer& characterPlayer,
-                               const db::Database* database);
-int characterGetWeightCapacity(const CharacterPlayer& characterPlayer);
-int characterGetRationSlotCapacity(const CharacterPlayer& characterPlayer,
-                                   const db::Database& database);
-
-/** Copy starting known/ready spell lists from template onto a party member. */
-void applyCharacterTemplateStartingSpells(CharacterPlayer& character,
-                                          const CharacterTemplate& characterTemplate);
+CharacterPlayer::CharacterPlayer(
+    const CharacterTemplate& characterTemplate,
+    const bmin::DynArray<CharacterInventoryItem>& characterInventory,
+    const CharacterPlayerEquipment& characterEquipment) {
+  instanceId = createRandomId();
+  params = characterTemplate;
+  initCharacterStatsFromTemplate(stats, characterTemplate);
+  currentHp = characterTemplate.combat.hp;
+  currentMp = characterTemplate.combat.mp;
+  inventory = characterInventory;
+  equipment = characterEquipment;
+  applyCharacterTemplateStartingSpells(*this, characterTemplate);
+}
 
 } // namespace model
 
-} // export
+// --- CharacterInstance.cppm ---
+
+namespace model {
+
+void applyCharacterTemplateToInstance(CharacterInstance& character,
+                                      const CharacterTemplate& characterTemplate) {
+  character.type = characterTemplate.type;
+  character.label = characterTemplate.label;
+  character.behaviorName = characterTemplate.behavior.behaviorName;
+  character.visionRadius = characterTemplate.vision.radius;
+  character.combatBehaviorTown = characterTemplate.combatBehavior.town;
+  character.combatBehaviorCombat = characterTemplate.combatBehavior.combat;
+  character.maxHp = characterTemplate.combat.hp;
+  character.maxMp = characterTemplate.combat.mp;
+  if (character.name.empty()) {
+    character.name = characterTemplate.label.empty() ? characterTemplate.name
+                                                     : characterTemplate.label;
+  }
+  if (character.templateName.empty()) {
+    character.templateName = characterTemplate.name;
+  }
+}
+
+bool tryApplyCharacterTemplateToInstance(CharacterInstance& character,
+                                         const db::Database& database) {
+  if (character.templateName.empty()) {
+    return false;
+  }
+  try {
+    const auto& characterTemplate =
+        database.getCharacterTemplate(bmin::toStringView(character.templateName));
+    applyCharacterTemplateToInstance(character, characterTemplate);
+    return true;
+  } catch (...) {
+    return false;
+  }
+}
+
+} // namespace model
+
+// --- CharacterPlayer.cppm ---
 
 namespace model {
 
@@ -750,6 +648,40 @@ void applyCharacterTemplateStartingSpells(CharacterPlayer& character,
       character.readySpells.pushBack(spellName);
     }
   }
+}
+
+} // namespace model
+
+// --- Player.cppm ---
+
+namespace model {
+
+CharacterPlayer* playerFindPartyMemberById(Player& _player, const bmin::String& _id) {
+  for (auto& member : _player.party) {
+    if (member.instanceId == _id) {
+      return &member;
+    }
+  }
+  return nullptr;
+}
+
+CharacterPlayer* playerFindPartyMemberByIndex(Player& _player, int _index) {
+  if (_index < 0 || static_cast<size_t>(_index) >= _player.party.size()) {
+    return nullptr;
+  }
+  return &_player.party[_index];
+}
+
+int playerFindPartyMemberIndexById(const Player& _player, const bmin::String& _id) {
+  if (_id.empty()) {
+    return -1;
+  }
+  for (int i = 0; i < static_cast<int>(_player.party.size()); i++) {
+    if (_player.party[static_cast<size_t>(i)].instanceId == _id) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 } // namespace model

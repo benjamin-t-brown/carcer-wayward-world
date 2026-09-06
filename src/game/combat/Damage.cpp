@@ -4,8 +4,8 @@ module;
 #include <utility>
 
 module carcer.game.combat;
-import carcer.model.instances;
-import carcer.model.templates;
+import carcer.model;
+import carcer.data;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"

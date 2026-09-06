@@ -10,7 +10,7 @@ module;
 
 module carcer.in3;
 import bmin.containers;
-import carcer.model.templates;
+import carcer.data;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"

@@ -6,8 +6,8 @@ module;
 #include <string>
 
 export module carcer.game.combat;
-export import carcer.model.instances;
-export import carcer.model.templates;
+export import carcer.model;
+export import carcer.data;
 export import carcer.db;
 export import carcer.game.map;
 export import carcer.state;

@@ -1,8 +1,8 @@
 export module carcer;
 
-export import carcer.model.templates;
+export import carcer.data;
 export import carcer.state;
-export import carcer.model.instances;
+export import carcer.model;
 export import carcer.game.map;
 export import carcer.ui.core;
 export import carcer.lib.Json;

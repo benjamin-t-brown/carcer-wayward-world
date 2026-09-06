@@ -10,7 +10,7 @@ import :ModifyPartyMemberHp;
 import :WorldSpawnDamageParticle;
 import carcer.actions.general;
 import carcer.game.map;
-import carcer.model.templates;
+import carcer.data;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"

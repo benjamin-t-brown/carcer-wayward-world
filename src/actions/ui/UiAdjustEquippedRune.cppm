@@ -4,7 +4,7 @@ module;
 export module carcer.actions.ui:UiAdjustEquippedRune;
 export import carcer.state;
 import sdl2w;
-import carcer.model.instances;
+import carcer.model;
 import bmin.string_interop;
 #include "macros.h"
 

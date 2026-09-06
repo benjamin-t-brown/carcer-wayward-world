@@ -15,7 +15,7 @@ import sdl2w;
 import carcer.actions;
 import carcer.game.map;
 import carcer.lib.StringUtil;
-import carcer.model.instances;
+import carcer.model;
 import carcer.ui.components;
 import carcer.ui.helpers;
 import carcer.ui.minipages;

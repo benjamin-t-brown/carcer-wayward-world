@@ -8,7 +8,7 @@ export module carcer.ui.lists:ListPickUp;
 import carcer.actions;
 export import bmin.containers;
 import bmin.string_interop;
-export import carcer.model.instances;
+export import carcer.model;
 export import carcer.ui.core;
 import sdl2w;
 import carcer.ui.elements;

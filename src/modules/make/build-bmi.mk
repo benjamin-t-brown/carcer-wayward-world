@@ -14,6 +14,9 @@ all: $(OBJDIR)/carcer.o
 $(OBJDIR):
 	@mkdir -p $@
 
+$(OBJDIR)/carcer.data.o: data/data.cppm | $(OBJDIR)
+	$(CXX) $(CARCER_BMI_FLAGS) -c data/data.cppm -o $@
+
 $(OBJDIR)/carcer.game.map.TileFields.o: game/map/TileFields.cppm | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c game/map/TileFields.cppm -o $@
 
@@ -26,103 +29,28 @@ $(OBJDIR)/carcer.lib.StringUtil.o: lib/StringUtil.cppm | $(OBJDIR)
 $(OBJDIR)/carcer.lib.hiscore.hiscore.o: lib/hiscore/_hiscore.cppm | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c lib/hiscore/_hiscore.cppm -o $@
 
-$(OBJDIR)/carcer.model.instances-ItemInstance.o: model/instances/ItemInstance.cppm | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/instances/ItemInstance.cppm -o $@
-
-$(OBJDIR)/carcer.model.templates-AbilityTypes.o: model/templates/AbilityTypes.cppm | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/templates/AbilityTypes.cppm -o $@
-
-$(OBJDIR)/carcer.model.templates-CharacterStatDefinitions.o: model/stats/CharacterStatDefinitions.cppm | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/stats/CharacterStatDefinitions.cppm -o $@
-
-$(OBJDIR)/carcer.model.templates-CharacterStats.o: model/stats/CharacterStats.cppm | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/stats/CharacterStats.cppm -o $@
-
-$(OBJDIR)/carcer.model.templates-MapGrids.o: model/templates/MapGrids.cppm | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/templates/MapGrids.cppm -o $@
-
-$(OBJDIR)/carcer.model.templates-Maps.o: model/templates/Maps.cppm | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/templates/Maps.cppm -o $@
-
-$(OBJDIR)/carcer.model.templates-RuneTypes.o: model/templates/RuneTypes.cppm | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/templates/RuneTypes.cppm -o $@
-
-$(OBJDIR)/carcer.model.templates-SpecialEvents.o: model/templates/SpecialEvents.cppm | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/templates/SpecialEvents.cppm -o $@
-
-$(OBJDIR)/carcer.model.templates-Tileset.o: model/templates/Tileset.cppm | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/templates/Tileset.cppm -o $@
-
-$(OBJDIR)/carcer.model.templates-UtilityTypes.o: model/templates/UtilityTypes.cppm | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/templates/UtilityTypes.cppm -o $@
-
 $(OBJDIR)/carcer.ui.core-FontScale.o: ui/FontScale.cppm | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/FontScale.cppm -o $@
 
 $(OBJDIR)/carcer.ui.core-SdlPixels.o: ui/SdlPixels.cppm | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/SdlPixels.cppm -o $@
 
-$(OBJDIR)/carcer.model.templates-Abilities.o: model/templates/Abilities.cppm $(OBJDIR)/carcer.model.templates-AbilityTypes.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/templates/Abilities.cppm -o $@
+$(OBJDIR)/carcer.in3.o: in3/_in3.cppm $(OBJDIR)/carcer.data.o | $(OBJDIR)
+	$(CXX) $(CARCER_BMI_FLAGS) -c in3/_in3.cppm -o $@
 
-$(OBJDIR)/carcer.model.templates-StatusEffects.o: model/templates/StatusEffects.cppm $(OBJDIR)/carcer.model.templates-AbilityTypes.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/templates/StatusEffects.cppm -o $@
-
-$(OBJDIR)/carcer.model.templates-CharacterDerivedStats.o: model/stats/CharacterDerivedStats.cppm $(OBJDIR)/carcer.model.templates-CharacterStats.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/stats/CharacterDerivedStats.cppm -o $@
-
-$(OBJDIR)/carcer.model.templates-CharacterTemplate.o: model/templates/CharacterTemplate.cppm $(OBJDIR)/carcer.model.templates-CharacterStats.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/templates/CharacterTemplate.cppm -o $@
-
-$(OBJDIR)/carcer.model.templates-Items.o: model/templates/Items.cppm $(OBJDIR)/carcer.model.templates-AbilityTypes.o $(OBJDIR)/carcer.model.templates-RuneTypes.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/templates/Items.cppm -o $@
-
-$(OBJDIR)/carcer.model.templates-Spells.o: model/templates/Spells.cppm $(OBJDIR)/carcer.model.templates-RuneTypes.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/templates/Spells.cppm -o $@
+$(OBJDIR)/carcer.db.o: db/_db.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.lib.Json.o | $(OBJDIR)
+	$(CXX) $(CARCER_BMI_FLAGS) -c db/_db.cppm -o $@
 
 $(OBJDIR)/carcer.ui.core-colors.o: ui/colors.cppm $(OBJDIR)/carcer.ui.core-SdlPixels.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/colors.cppm -o $@
 
-$(OBJDIR)/carcer.model.templates-CharacterDerivedStatDefinitions.o: model/stats/CharacterDerivedStatDefinitions.cppm $(OBJDIR)/carcer.model.templates-CharacterDerivedStats.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/stats/CharacterDerivedStatDefinitions.cppm -o $@
+$(OBJDIR)/carcer.model.o: model/model.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.game.map.TileFields.o | $(OBJDIR)
+	$(CXX) $(CARCER_BMI_FLAGS) -c model/model.cppm -o $@
 
 $(OBJDIR)/carcer.ui.core-TextStyle.o: ui/TextStyle.cppm $(OBJDIR)/carcer.ui.core-SdlPixels.o $(OBJDIR)/carcer.ui.core-colors.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/TextStyle.cppm -o $@
 
-$(OBJDIR)/carcer.model.templates.o: model/templates/_templates.cppm $(OBJDIR)/carcer.model.templates-Abilities.o $(OBJDIR)/carcer.model.templates-AbilityTypes.o $(OBJDIR)/carcer.model.templates-CharacterDerivedStatDefinitions.o $(OBJDIR)/carcer.model.templates-CharacterDerivedStats.o $(OBJDIR)/carcer.model.templates-CharacterStatDefinitions.o $(OBJDIR)/carcer.model.templates-CharacterStats.o $(OBJDIR)/carcer.model.templates-CharacterTemplate.o $(OBJDIR)/carcer.model.templates-Items.o $(OBJDIR)/carcer.model.templates-MapGrids.o $(OBJDIR)/carcer.model.templates-Maps.o $(OBJDIR)/carcer.model.templates-RuneTypes.o $(OBJDIR)/carcer.model.templates-SpecialEvents.o $(OBJDIR)/carcer.model.templates-Spells.o $(OBJDIR)/carcer.model.templates-StatusEffects.o $(OBJDIR)/carcer.model.templates-Tileset.o $(OBJDIR)/carcer.model.templates-UtilityTypes.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/templates/_templates.cppm -o $@
-
-$(OBJDIR)/carcer.db.o: db/_db.cppm $(OBJDIR)/carcer.lib.Json.o $(OBJDIR)/carcer.model.templates.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c db/_db.cppm -o $@
-
-$(OBJDIR)/carcer.in3.o: in3/_in3.cppm $(OBJDIR)/carcer.model.templates.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c in3/_in3.cppm -o $@
-
-$(OBJDIR)/carcer.model.instances-TileInstance.o: model/instances/TileInstance.cppm $(OBJDIR)/carcer.game.map.TileFields.o $(OBJDIR)/carcer.model.templates.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/instances/TileInstance.cppm -o $@
-
-$(OBJDIR)/carcer.model.instances-CharacterInstance.o: model/instances/CharacterInstance.cppm $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.model.templates.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/instances/CharacterInstance.cppm -o $@
-
-$(OBJDIR)/carcer.model.instances-CharacterPlayer.o: model/instances/CharacterPlayer.cppm $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.model.instances-ItemInstance.o $(OBJDIR)/carcer.model.templates.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/instances/CharacterPlayer.cppm -o $@
-
-$(OBJDIR)/carcer.model.instances-MapInstance.o: model/instances/MapInstance.cppm $(OBJDIR)/carcer.game.map.TileFields.o $(OBJDIR)/carcer.model.instances-CharacterInstance.o $(OBJDIR)/carcer.model.instances-ItemInstance.o $(OBJDIR)/carcer.model.instances-TileInstance.o $(OBJDIR)/carcer.model.templates.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/instances/MapInstance.cppm -o $@
-
-$(OBJDIR)/carcer.model.instances-Player.o: model/instances/Player.cppm $(OBJDIR)/carcer.model.instances-CharacterPlayer.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/instances/Player.cppm -o $@
-
-$(OBJDIR)/carcer.model.instances-Combat.o: model/instances/Combat.cppm $(OBJDIR)/carcer.model.instances-CharacterInstance.o $(OBJDIR)/carcer.model.instances-Player.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/instances/Combat.cppm -o $@
-
-$(OBJDIR)/carcer.model.instances-World.o: model/instances/World.cppm $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.model.instances-CharacterInstance.o $(OBJDIR)/carcer.model.instances-Combat.o $(OBJDIR)/carcer.model.instances-MapInstance.o $(OBJDIR)/carcer.model.instances-Player.o $(OBJDIR)/carcer.model.templates.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/instances/World.cppm -o $@
-
-$(OBJDIR)/carcer.model.instances.o: model/instances/_instances.cppm $(OBJDIR)/carcer.model.instances-CharacterInstance.o $(OBJDIR)/carcer.model.instances-CharacterPlayer.o $(OBJDIR)/carcer.model.instances-Combat.o $(OBJDIR)/carcer.model.instances-ItemInstance.o $(OBJDIR)/carcer.model.instances-MapInstance.o $(OBJDIR)/carcer.model.instances-Player.o $(OBJDIR)/carcer.model.instances-TileInstance.o $(OBJDIR)/carcer.model.instances-World.o | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c model/instances/_instances.cppm -o $@
-
-$(OBJDIR)/carcer.state.o: state/_State.cppm $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.model.templates.o | $(OBJDIR)
+$(OBJDIR)/carcer.state.o: state/_State.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.model.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c state/_State.cppm -o $@
 
 $(OBJDIR)/carcer.actions.combat-PerformMeleeAttack.o: actions/combat/PerformMeleeAttack.cppm $(OBJDIR)/carcer.state.o | $(OBJDIR)
@@ -149,19 +77,19 @@ $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerEquipRunes.o: actions/ui/layers/Ui
 $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerGiveContext.o: actions/ui/layers/UiShowLayerGiveContext.cppm $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/layers/UiShowLayerGiveContext.cppm -o $@
 
-$(OBJDIR)/carcer.actions.ui.layers-UiShowLayerInventory.o: actions/ui/layers/UiShowLayerInventory.cppm $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.ui.layers-UiShowLayerInventory.o: actions/ui/layers/UiShowLayerInventory.cppm $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/layers/UiShowLayerInventory.cppm -o $@
 
 $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerInventoryContext.o: actions/ui/layers/UiShowLayerInventoryContext.cppm $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/layers/UiShowLayerInventoryContext.cppm -o $@
 
-$(OBJDIR)/carcer.actions.ui.layers-UiShowLayerMagic.o: actions/ui/layers/UiShowLayerMagic.cppm $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.ui.layers-UiShowLayerMagic.o: actions/ui/layers/UiShowLayerMagic.cppm $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/layers/UiShowLayerMagic.cppm -o $@
 
 $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerPickUp.o: actions/ui/layers/UiShowLayerPickUp.cppm $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/layers/UiShowLayerPickUp.cppm -o $@
 
-$(OBJDIR)/carcer.actions.ui.layers-UiShowLayerPickupContext.o: actions/ui/layers/UiShowLayerPickupContext.cppm $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.ui.layers-UiShowLayerPickupContext.o: actions/ui/layers/UiShowLayerPickupContext.cppm $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/layers/UiShowLayerPickupContext.cppm -o $@
 
 $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerPopupText.o: actions/ui/layers/UiShowLayerPopupText.cppm $(OBJDIR)/carcer.state.o | $(OBJDIR)
@@ -176,25 +104,25 @@ $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerSpellCast.o: actions/ui/layers/UiS
 $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerSpellInfo.o: actions/ui/layers/UiShowLayerSpellInfo.cppm $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/layers/UiShowLayerSpellInfo.cppm -o $@
 
-$(OBJDIR)/carcer.actions.ui-UiAdjustEquippedRune.o: actions/ui/UiAdjustEquippedRune.cppm $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.ui-UiAdjustEquippedRune.o: actions/ui/UiAdjustEquippedRune.cppm $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/UiAdjustEquippedRune.cppm -o $@
 
 $(OBJDIR)/carcer.actions.ui-UiContinueSpecialEvent.o: actions/ui/UiContinueSpecialEvent.cppm $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/UiContinueSpecialEvent.cppm -o $@
 
-$(OBJDIR)/carcer.actions.ui-UiGiveInventoryItem.o: actions/ui/UiGiveInventoryItem.cppm $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.ui-UiGiveInventoryItem.o: actions/ui/UiGiveInventoryItem.cppm $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/UiGiveInventoryItem.cppm -o $@
 
-$(OBJDIR)/carcer.actions.ui-UiPickUpItem.o: actions/ui/UiPickUpItem.cppm $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.ui-UiPickUpItem.o: actions/ui/UiPickUpItem.cppm $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/UiPickUpItem.cppm -o $@
 
-$(OBJDIR)/carcer.actions.ui-UiPushFloatingNotification.o: actions/ui/UiPushFloatingNotification.cppm $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.ui-UiPushFloatingNotification.o: actions/ui/UiPushFloatingNotification.cppm $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/UiPushFloatingNotification.cppm -o $@
 
 $(OBJDIR)/carcer.actions.ui-UiRemoveFloatingNotification.o: actions/ui/UiRemoveFloatingNotification.cppm $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/UiRemoveFloatingNotification.cppm -o $@
 
-$(OBJDIR)/carcer.actions.ui-UiReorderInventoryItem.o: actions/ui/UiReorderInventoryItem.cppm $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.ui-UiReorderInventoryItem.o: actions/ui/UiReorderInventoryItem.cppm $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/UiReorderInventoryItem.cppm -o $@
 
 $(OBJDIR)/carcer.actions.ui-UiSelectSpecialEventChoice.o: actions/ui/UiSelectSpecialEventChoice.cppm $(OBJDIR)/carcer.state.o | $(OBJDIR)
@@ -209,16 +137,16 @@ $(OBJDIR)/carcer.actions.ui-UiSetCurrentPartyMemberInventory.o: actions/ui/UiSet
 $(OBJDIR)/carcer.actions.ui-UiSetCurrentPartyMemberMagic.o: actions/ui/UiSetCurrentPartyMemberMagic.cppm $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/UiSetCurrentPartyMemberMagic.cppm -o $@
 
-$(OBJDIR)/carcer.actions.ui-UiSetSelectedPartyMemberId.o: actions/ui/UiSetSelectedPartyMemberId.cppm $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.ui-UiSetSelectedPartyMemberId.o: actions/ui/UiSetSelectedPartyMemberId.cppm $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/UiSetSelectedPartyMemberId.cppm -o $@
 
-$(OBJDIR)/carcer.actions.ui-UiSetSpellReady.o: actions/ui/UiSetSpellReady.cppm $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.ui-UiSetSpellReady.o: actions/ui/UiSetSpellReady.cppm $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/UiSetSpellReady.cppm -o $@
 
-$(OBJDIR)/carcer.actions.ui-UiToggleEquipInventoryItem.o: actions/ui/UiToggleEquipInventoryItem.cppm $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.ui-UiToggleEquipInventoryItem.o: actions/ui/UiToggleEquipInventoryItem.cppm $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/UiToggleEquipInventoryItem.cppm -o $@
 
-$(OBJDIR)/carcer.actions.ui-UiToggleManaSlotRune.o: actions/ui/UiToggleManaSlotRune.cppm $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.ui-UiToggleManaSlotRune.o: actions/ui/UiToggleManaSlotRune.cppm $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/UiToggleManaSlotRune.cppm -o $@
 
 $(OBJDIR)/carcer.actions.ui-UiUpdateHeldMove.o: actions/ui/UiUpdateHeldMove.cppm $(OBJDIR)/carcer.state.o | $(OBJDIR)
@@ -227,16 +155,16 @@ $(OBJDIR)/carcer.actions.ui-UiUpdateHeldMove.o: actions/ui/UiUpdateHeldMove.cppm
 $(OBJDIR)/carcer.actions.world-ClearTownEnemyAiResolving.o: actions/world/ClearTownEnemyAiResolving.cppm $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/world/ClearTownEnemyAiResolving.cppm -o $@
 
-$(OBJDIR)/carcer.actions.world-ModifyPartyMemberHp.o: actions/world/ModifyPartyMemberHp.cppm $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.world-ModifyPartyMemberHp.o: actions/world/ModifyPartyMemberHp.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/world/ModifyPartyMemberHp.cppm -o $@
 
 $(OBJDIR)/carcer.actions.world-WorldSetCamera.o: actions/world/WorldSetCamera.cppm $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/world/WorldSetCamera.cppm -o $@
 
-$(OBJDIR)/carcer.actions.world-WorldSetCameraMode.o: actions/world/WorldSetCameraMode.cppm $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.world-WorldSetCameraMode.o: actions/world/WorldSetCameraMode.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/world/WorldSetCameraMode.cppm -o $@
 
-$(OBJDIR)/carcer.game.map.o: game/map/_map.cppm $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.game.map.TileFields.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.game.map.o: game/map/_map.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.game.map.TileFields.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c game/map/_map.cppm -o $@
 
 $(OBJDIR)/carcer.ui.core-UiElement.o: ui/UiElement.cppm $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.ui.core-SdlPixels.o $(OBJDIR)/carcer.ui.core-TextStyle.o | $(OBJDIR)
@@ -251,25 +179,25 @@ $(OBJDIR)/carcer.actions.ui.layers.o: actions/ui/layers/_layers.cppm $(OBJDIR)/c
 $(OBJDIR)/carcer.actions.combat-CharacterSetSpriteIndexOffset.o: actions/combat/CharacterSetSpriteIndexOffset.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/combat/CharacterSetSpriteIndexOffset.cppm -o $@
 
-$(OBJDIR)/carcer.actions.combat-EndCombat.o: actions/combat/EndCombat.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.combat-EndCombat.o: actions/combat/EndCombat.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/combat/EndCombat.cppm -o $@
 
 $(OBJDIR)/carcer.actions.combat-ModifyAP.o: actions/combat/ModifyAP.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/combat/ModifyAP.cppm -o $@
 
-$(OBJDIR)/carcer.actions.combat-ModifyHP.o: actions/combat/ModifyHP.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.combat-ModifyHP.o: actions/combat/ModifyHP.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/combat/ModifyHP.cppm -o $@
 
 $(OBJDIR)/carcer.actions.combat-MoveCharacter.o: actions/combat/MoveCharacter.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/combat/MoveCharacter.cppm -o $@
 
-$(OBJDIR)/carcer.actions.combat-PerformSpellCast.o: actions/combat/PerformSpellCast.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.combat-PerformSpellCast.o: actions/combat/PerformSpellCast.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/combat/PerformSpellCast.cppm -o $@
 
 $(OBJDIR)/carcer.actions.combat-SetActiveCombatCharacter.o: actions/combat/SetActiveCombatCharacter.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/combat/SetActiveCombatCharacter.cppm -o $@
 
-$(OBJDIR)/carcer.actions.ui-UiDropInventoryItem.o: actions/ui/UiDropInventoryItem.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.ui-UiDropInventoryItem.o: actions/ui/UiDropInventoryItem.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/UiDropInventoryItem.cppm -o $@
 
 $(OBJDIR)/carcer.actions.world-WorldExamineAt.o: actions/world/WorldExamineAt.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
@@ -278,13 +206,13 @@ $(OBJDIR)/carcer.actions.world-WorldExamineAt.o: actions/world/WorldExamineAt.cp
 $(OBJDIR)/carcer.actions.world-WorldInteractAt.o: actions/world/WorldInteractAt.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/world/WorldInteractAt.cppm -o $@
 
-$(OBJDIR)/carcer.actions.world-WorldLoadActiveMap.o: actions/world/WorldLoadActiveMap.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.world-WorldLoadActiveMap.o: actions/world/WorldLoadActiveMap.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/world/WorldLoadActiveMap.cppm -o $@
 
-$(OBJDIR)/carcer.actions.world-WorldMoveActionAim.o: actions/world/WorldMoveActionAim.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.world-WorldMoveActionAim.o: actions/world/WorldMoveActionAim.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/world/WorldMoveActionAim.cppm -o $@
 
-$(OBJDIR)/carcer.actions.world-WorldSetActionAim.o: actions/world/WorldSetActionAim.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.world-WorldSetActionAim.o: actions/world/WorldSetActionAim.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/world/WorldSetActionAim.cppm -o $@
 
 $(OBJDIR)/carcer.actions.world-WorldSpawnPlayerAtMarker.o: actions/world/WorldSpawnPlayerAtMarker.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
@@ -296,16 +224,16 @@ $(OBJDIR)/carcer.actions.world-WorldSpawnPlayerAtXY.o: actions/world/WorldSpawnP
 $(OBJDIR)/carcer.actions.world-WorldTalkAt.o: actions/world/WorldTalkAt.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/world/WorldTalkAt.cppm -o $@
 
-$(OBJDIR)/carcer.actions.world_effects.o: actions/WorldEffects.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.world_effects.o: actions/WorldEffects.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/WorldEffects.cppm -o $@
 
-$(OBJDIR)/carcer.game.combat.o: game/combat/_combat.cppm $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.game.combat.o: game/combat/_combat.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c game/combat/_combat.cppm -o $@
 
 $(OBJDIR)/carcer.ui.core-uiUtils.o: ui/uiUtils.cppm $(OBJDIR)/carcer.ui.core-SdlPixels.o $(OBJDIR)/carcer.ui.core-UiElement.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/uiUtils.cppm -o $@
 
-$(OBJDIR)/carcer.actions.ui-UiSelectSpellCast.o: actions/ui/UiSelectSpellCast.cppm $(OBJDIR)/carcer.actions.ui.layers.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.ui-UiSelectSpellCast.o: actions/ui/UiSelectSpellCast.cppm $(OBJDIR)/carcer.actions.ui.layers.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/ui/UiSelectSpellCast.cppm -o $@
 
 $(OBJDIR)/carcer.actions.combat-StartCombat.o: actions/combat/StartCombat.cppm $(OBJDIR)/carcer.actions.combat-SetActiveCombatCharacter.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
@@ -314,7 +242,7 @@ $(OBJDIR)/carcer.actions.combat-StartCombat.o: actions/combat/StartCombat.cppm $
 $(OBJDIR)/carcer.actions.world-WorldSpawnPlayer.o: actions/world/WorldSpawnPlayer.cppm $(OBJDIR)/carcer.actions.world-WorldLoadActiveMap.o $(OBJDIR)/carcer.actions.world-WorldSpawnPlayerAtMarker.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/world/WorldSpawnPlayer.cppm -o $@
 
-$(OBJDIR)/carcer.actions.world-WorldTravel.o: actions/world/WorldTravel.cppm $(OBJDIR)/carcer.actions.world-WorldLoadActiveMap.o $(OBJDIR)/carcer.actions.world-WorldSpawnPlayerAtXY.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.world-WorldTravel.o: actions/world/WorldTravel.cppm $(OBJDIR)/carcer.actions.world-WorldLoadActiveMap.o $(OBJDIR)/carcer.actions.world-WorldSpawnPlayerAtXY.o $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/world/WorldTravel.cppm -o $@
 
 $(OBJDIR)/carcer.actions.world-WorldSetActionMode.o: actions/world/WorldSetActionMode.cppm $(OBJDIR)/carcer.actions.world_effects.o | $(OBJDIR)
@@ -347,7 +275,7 @@ $(OBJDIR)/carcer.layers-Layer.o: layers/Layer.cppm $(OBJDIR)/carcer.lib.StringUt
 $(OBJDIR)/carcer.ui.components-ChCompactInfo.o: ui/components/ChCompactInfo.cppm $(OBJDIR)/carcer.ui.core.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/components/ChCompactInfo.cppm -o $@
 
-$(OBJDIR)/carcer.ui.components-MapView.o: ui/components/MapView.cppm $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.game.map.TileFields.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.ui.core.o | $(OBJDIR)
+$(OBJDIR)/carcer.ui.components-MapView.o: ui/components/MapView.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.game.map.TileFields.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.ui.core.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/components/MapView.cppm -o $@
 
 $(OBJDIR)/carcer.ui.elements-HorizontalList.o: ui/elements/HorizontalList.cppm $(OBJDIR)/carcer.ui.core.o | $(OBJDIR)
@@ -368,7 +296,7 @@ $(OBJDIR)/carcer.ui.elements-TextLine.o: ui/elements/TextLine.cppm $(OBJDIR)/car
 $(OBJDIR)/carcer.ui.elements-VerticalList.o: ui/elements/VerticalList.cppm $(OBJDIR)/carcer.ui.core.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/elements/VerticalList.cppm -o $@
 
-$(OBJDIR)/carcer.ui.helpers.o: ui/helpers/_helpers.cppm $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.ui.core.o | $(OBJDIR)
+$(OBJDIR)/carcer.ui.helpers.o: ui/helpers/_helpers.cppm $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.ui.core.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/helpers/_helpers.cppm -o $@
 
 $(OBJDIR)/carcer.actions.combat-DoCombatActionCompletion.o: actions/combat/DoCombatActionCompletion.cppm $(OBJDIR)/carcer.actions.combat-GoNextCombatTurn.o $(OBJDIR)/carcer.actions.combat-PerformCharacterDefeated.o $(OBJDIR)/carcer.actions.combat-SetActiveCombatCharacter.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
@@ -404,7 +332,7 @@ $(OBJDIR)/carcer.ui.elements-TextBanner.o: ui/elements/TextBanner.cppm $(OBJDIR)
 $(OBJDIR)/carcer.ui.elements-TextParagraph.o: ui/elements/TextParagraph.cppm $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements-Quad.o $(OBJDIR)/carcer.ui.elements-TextLine.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/elements/TextParagraph.cppm -o $@
 
-$(OBJDIR)/carcer.actions.combat-DoCombatAction.o: actions/combat/DoCombatAction.cppm $(OBJDIR)/carcer.actions.combat-DoCombatActionCompletion.o $(OBJDIR)/carcer.actions.combat-ModifyAP.o $(OBJDIR)/carcer.actions.combat-MoveCharacter.o $(OBJDIR)/carcer.actions.combat-PerformMeleeAttack.o $(OBJDIR)/carcer.actions.combat-PerformSpellCast.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.combat-DoCombatAction.o: actions/combat/DoCombatAction.cppm $(OBJDIR)/carcer.actions.combat-DoCombatActionCompletion.o $(OBJDIR)/carcer.actions.combat-ModifyAP.o $(OBJDIR)/carcer.actions.combat-MoveCharacter.o $(OBJDIR)/carcer.actions.combat-PerformMeleeAttack.o $(OBJDIR)/carcer.actions.combat-PerformSpellCast.o $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/combat/DoCombatAction.cppm -o $@
 
 $(OBJDIR)/carcer.ui.elements-ButtonList.o: ui/elements/buttons/ButtonList.cppm $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements-ButtonScroll.o $(OBJDIR)/carcer.ui.elements-OutsetRectangle.o $(OBJDIR)/carcer.ui.elements-TextLine.o | $(OBJDIR)
@@ -449,7 +377,7 @@ $(OBJDIR)/carcer.ui.components-ItemInfo.o: ui/components/ItemInfo.cppm $(OBJDIR)
 $(OBJDIR)/carcer.ui.components-TiledOverlay.o: ui/components/TiledOverlay.cppm $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/components/TiledOverlay.cppm -o $@
 
-$(OBJDIR)/carcer.actions.world-PerformTownMeleeAttack.o: actions/world/PerformTownMeleeAttack.cppm $(OBJDIR)/carcer.actions.combat.o $(OBJDIR)/carcer.actions.general.o $(OBJDIR)/carcer.actions.world-ModifyPartyMemberHp.o $(OBJDIR)/carcer.actions.world-WorldSpawnDamageParticle.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.world-PerformTownMeleeAttack.o: actions/world/PerformTownMeleeAttack.cppm $(OBJDIR)/carcer.actions.combat.o $(OBJDIR)/carcer.actions.general.o $(OBJDIR)/carcer.actions.world-ModifyPartyMemberHp.o $(OBJDIR)/carcer.actions.world-WorldSpawnDamageParticle.o $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/world/PerformTownMeleeAttack.cppm -o $@
 
 $(OBJDIR)/carcer.ui.components-ConfirmModal.o: ui/components/ConfirmModal.cppm $(OBJDIR)/carcer.ui.components-BorderDropShadow.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o | $(OBJDIR)
@@ -473,7 +401,7 @@ $(OBJDIR)/carcer.actions.world-TownEnemySeekAndMelee.o: actions/world/TownEnemyS
 $(OBJDIR)/carcer.ui.components-BorderModalStandard.o: ui/components/borders/BorderModalStandard.cppm $(OBJDIR)/carcer.ui.components-BorderModalSmall.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/components/borders/BorderModalStandard.cppm -o $@
 
-$(OBJDIR)/carcer.actions.world-TownEnemyAiAfterPlayerMove.o: actions/world/TownEnemyAiAfterPlayerMove.cppm $(OBJDIR)/carcer.actions.world-ClearTownEnemyAiResolving.o $(OBJDIR)/carcer.actions.world-TownEnemySeekAndMelee.o $(OBJDIR)/carcer.game.combat.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
+$(OBJDIR)/carcer.actions.world-TownEnemyAiAfterPlayerMove.o: actions/world/TownEnemyAiAfterPlayerMove.cppm $(OBJDIR)/carcer.actions.world-ClearTownEnemyAiResolving.o $(OBJDIR)/carcer.actions.world-TownEnemySeekAndMelee.o $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.combat.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c actions/world/TownEnemyAiAfterPlayerMove.cppm -o $@
 
 $(OBJDIR)/carcer.ui.components-TouchMovePad.o: ui/components/TouchMovePad.cppm $(OBJDIR)/carcer.ui.components-BorderModalStandard.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o | $(OBJDIR)
@@ -509,7 +437,7 @@ $(OBJDIR)/carcer.ui.lists-ListInventory.o: ui/components/lists/ListInventory.cpp
 $(OBJDIR)/carcer.ui.lists-ListMagicSpells.o: ui/components/lists/ListMagicSpells.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/components/lists/ListMagicSpells.cppm -o $@
 
-$(OBJDIR)/carcer.ui.lists-ListPickUp.o: ui/components/lists/ListPickUp.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o | $(OBJDIR)
+$(OBJDIR)/carcer.ui.lists-ListPickUp.o: ui/components/lists/ListPickUp.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/components/lists/ListPickUp.cppm -o $@
 
 $(OBJDIR)/carcer.ui.components.o: ui/components/_components.cppm $(OBJDIR)/carcer.ui.components-BorderDropShadow.o $(OBJDIR)/carcer.ui.components-BorderInGame.o $(OBJDIR)/carcer.ui.components-BorderInGameNarrow.o $(OBJDIR)/carcer.ui.components-BorderInGameWide.o $(OBJDIR)/carcer.ui.components-BorderModalSmall.o $(OBJDIR)/carcer.ui.components-BorderModalStandard.o $(OBJDIR)/carcer.ui.components-ChCompactInfo.o $(OBJDIR)/carcer.ui.components-ConfirmModal.o $(OBJDIR)/carcer.ui.components-FloatingNotification.o $(OBJDIR)/carcer.ui.components-FloatingNotificationSection.o $(OBJDIR)/carcer.ui.components-InGameTitleBar.o $(OBJDIR)/carcer.ui.components-ItemInfo.o $(OBJDIR)/carcer.ui.components-MapView.o $(OBJDIR)/carcer.ui.components-PartyMemberIconSelector.o $(OBJDIR)/carcer.ui.components-PartyMemberSwitcher.o $(OBJDIR)/carcer.ui.components-TiledOverlay.o $(OBJDIR)/carcer.ui.components-TouchMovePad.o | $(OBJDIR)
@@ -557,28 +485,28 @@ $(OBJDIR)/carcer.ui.popups.o: ui/popups/_popups.cppm $(OBJDIR)/carcer.ui.popups-
 $(OBJDIR)/carcer.ui.layouts.o: ui/layouts/_layouts.cppm $(OBJDIR)/carcer.ui.layouts-InGameLayout.o $(OBJDIR)/carcer.ui.layouts-ModalSmall.o $(OBJDIR)/carcer.ui.layouts-ModalStandard.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/layouts/_layouts.cppm -o $@
 
-$(OBJDIR)/carcer.layers-LayerDropConfirm.o: layers/ui/LayerDropConfirm.cppm $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.popups.o | $(OBJDIR)
+$(OBJDIR)/carcer.layers-LayerDropConfirm.o: layers/ui/LayerDropConfirm.cppm $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.popups.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c layers/ui/LayerDropConfirm.cppm -o $@
 
-$(OBJDIR)/carcer.layers-LayerGiveContext.o: layers/ui/LayerGiveContext.cppm $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.popups.o | $(OBJDIR)
+$(OBJDIR)/carcer.layers-LayerGiveContext.o: layers/ui/LayerGiveContext.cppm $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.popups.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c layers/ui/LayerGiveContext.cppm -o $@
 
-$(OBJDIR)/carcer.layers-LayerInventoryContext.o: layers/ui/LayerInventoryContext.cppm $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.popups.o | $(OBJDIR)
+$(OBJDIR)/carcer.layers-LayerInventoryContext.o: layers/ui/LayerInventoryContext.cppm $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.popups.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c layers/ui/LayerInventoryContext.cppm -o $@
 
-$(OBJDIR)/carcer.layers-LayerPickUpContext.o: layers/ui/LayerPickUpContext.cppm $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.popups.o | $(OBJDIR)
+$(OBJDIR)/carcer.layers-LayerPickUpContext.o: layers/ui/LayerPickUpContext.cppm $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.popups.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c layers/ui/LayerPickUpContext.cppm -o $@
 
-$(OBJDIR)/carcer.layers-LayerSpellInfo.o: layers/ui/LayerSpellInfo.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.game.combat.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.popups.o | $(OBJDIR)
+$(OBJDIR)/carcer.layers-LayerSpellInfo.o: layers/ui/LayerSpellInfo.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.combat.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.popups.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c layers/ui/LayerSpellInfo.cppm -o $@
 
-$(OBJDIR)/carcer.layers-LayerWorld.o: layers/ui/LayerWorld.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.layers-LayerManager.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.layouts.o $(OBJDIR)/carcer.world_updater.o | $(OBJDIR)
+$(OBJDIR)/carcer.layers-LayerWorld.o: layers/ui/LayerWorld.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.layers-LayerManager.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.layouts.o $(OBJDIR)/carcer.world_updater.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c layers/ui/LayerWorld.cppm -o $@
 
 $(OBJDIR)/carcer.ui.minipages-MinipageCharacterSheet.o: ui/minipages/MinipageCharacterSheet.cppm $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.layouts.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/minipages/MinipageCharacterSheet.cppm -o $@
 
-$(OBJDIR)/carcer.ui.minipages-MinipageEquipRunes.o: ui/minipages/MinipageEquipRunes.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.layouts.o | $(OBJDIR)
+$(OBJDIR)/carcer.ui.minipages-MinipageEquipRunes.o: ui/minipages/MinipageEquipRunes.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.layouts.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/minipages/MinipageEquipRunes.cppm -o $@
 
 $(OBJDIR)/carcer.ui.minipages-MinipageEvent.o: ui/minipages/MinipageEvent.cppm $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.layouts.o | $(OBJDIR)
@@ -590,10 +518,10 @@ $(OBJDIR)/carcer.ui.minipages-MinipagePickUp.o: ui/minipages/MinipagePickUp.cppm
 $(OBJDIR)/carcer.ui.minipages-MinipageSpellCast.o: ui/minipages/MinipageSpellCast.cppm $(OBJDIR)/carcer.ui.ObserverRemoveLayer.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.layouts.o $(OBJDIR)/carcer.ui.lists.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/minipages/MinipageSpellCast.cppm -o $@
 
-$(OBJDIR)/carcer.ui.pages-PageCharacter.o: ui/pages/PageCharacter.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.layouts.o | $(OBJDIR)
+$(OBJDIR)/carcer.ui.pages-PageCharacter.o: ui/pages/PageCharacter.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.layouts.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/pages/PageCharacter.cppm -o $@
 
-$(OBJDIR)/carcer.ui.pages-PageInventory.o: ui/pages/PageInventory.cppm $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.ui.ObserverRemoveLayer.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.layouts.o $(OBJDIR)/carcer.ui.lists.o | $(OBJDIR)
+$(OBJDIR)/carcer.ui.pages-PageInventory.o: ui/pages/PageInventory.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.ui.ObserverRemoveLayer.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.layouts.o $(OBJDIR)/carcer.ui.lists.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/pages/PageInventory.cppm -o $@
 
 $(OBJDIR)/carcer.ui.pages-PageMagicSetup.o: ui/pages/PageMagicSetup.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.ui.ObserverRemoveLayer.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.layouts.o $(OBJDIR)/carcer.ui.lists.o | $(OBJDIR)
@@ -608,35 +536,35 @@ $(OBJDIR)/carcer.ui.minipages.o: ui/minipages/_minipages.cppm $(OBJDIR)/carcer.u
 $(OBJDIR)/carcer.ui.pages-PageModalEvent.o: ui/pages/PageModalEvent.cppm $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.layouts.o $(OBJDIR)/carcer.ui.pages-PageTalkChoice.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/pages/PageModalEvent.cppm -o $@
 
-$(OBJDIR)/carcer.layers-LayerEquipRunes.o: layers/ui/LayerEquipRunes.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.minipages.o | $(OBJDIR)
+$(OBJDIR)/carcer.layers-LayerEquipRunes.o: layers/ui/LayerEquipRunes.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.minipages.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c layers/ui/LayerEquipRunes.cppm -o $@
 
-$(OBJDIR)/carcer.layers-LayerPickUp.o: layers/ui/LayerPickUp.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.lib.StringUtil.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.minipages.o | $(OBJDIR)
+$(OBJDIR)/carcer.layers-LayerPickUp.o: layers/ui/LayerPickUp.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.lib.StringUtil.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.minipages.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c layers/ui/LayerPickUp.cppm -o $@
 
-$(OBJDIR)/carcer.layers-LayerSpellCast.o: layers/ui/LayerSpellCast.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.lib.StringUtil.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.minipages.o | $(OBJDIR)
+$(OBJDIR)/carcer.layers-LayerSpellCast.o: layers/ui/LayerSpellCast.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.lib.StringUtil.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.minipages.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c layers/ui/LayerSpellCast.cppm -o $@
 
 $(OBJDIR)/carcer.ui.pages.o: ui/pages/_pages.cppm $(OBJDIR)/carcer.ui.pages-PageCharacter.o $(OBJDIR)/carcer.ui.pages-PageInventory.o $(OBJDIR)/carcer.ui.pages-PageMagicSetup.o $(OBJDIR)/carcer.ui.pages-PageModalEvent.o $(OBJDIR)/carcer.ui.pages-PageTalkChoice.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/pages/_pages.cppm -o $@
 
-$(OBJDIR)/carcer.layers-LayerInventory.o: layers/ui/LayerInventory.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.pages.o | $(OBJDIR)
+$(OBJDIR)/carcer.layers-LayerInventory.o: layers/ui/LayerInventory.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.pages.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c layers/ui/LayerInventory.cppm -o $@
 
-$(OBJDIR)/carcer.layers-LayerMagic.o: layers/ui/LayerMagic.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.game.combat.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.pages.o | $(OBJDIR)
+$(OBJDIR)/carcer.layers-LayerMagic.o: layers/ui/LayerMagic.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.game.combat.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.ui.pages.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c layers/ui/LayerMagic.cppm -o $@
 
-$(OBJDIR)/carcer.layers-LayerSpecialEvent.o: layers/ui/LayerSpecialEvent.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.in3.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.ui.KeyboardHeldScroll.o $(OBJDIR)/carcer.ui.ObserverSpecialEvent.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.ui.pages.o | $(OBJDIR)
+$(OBJDIR)/carcer.layers-LayerSpecialEvent.o: layers/ui/LayerSpecialEvent.cppm $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.in3.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.ui.KeyboardHeldScroll.o $(OBJDIR)/carcer.ui.ObserverSpecialEvent.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.ui.pages.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c layers/ui/LayerSpecialEvent.cppm -o $@
 
 $(OBJDIR)/carcer.layers.o: layers/_layers.cppm $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.layers-LayerDropConfirm.o $(OBJDIR)/carcer.layers-LayerEquipRunes.o $(OBJDIR)/carcer.layers-LayerGiveContext.o $(OBJDIR)/carcer.layers-LayerInventory.o $(OBJDIR)/carcer.layers-LayerInventoryContext.o $(OBJDIR)/carcer.layers-LayerMagic.o $(OBJDIR)/carcer.layers-LayerManager.o $(OBJDIR)/carcer.layers-LayerPickUp.o $(OBJDIR)/carcer.layers-LayerPickUpContext.o $(OBJDIR)/carcer.layers-LayerPopupText.o $(OBJDIR)/carcer.layers-LayerSpecialEvent.o $(OBJDIR)/carcer.layers-LayerSpellCast.o $(OBJDIR)/carcer.layers-LayerSpellInfo.o $(OBJDIR)/carcer.layers-LayerWorld.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c layers/_layers.cppm -o $@
 
-$(OBJDIR)/carcer.o: modules/_carcer.cppm $(OBJDIR)/carcer.game.map.TileFields.o $(OBJDIR)/carcer.lib.Json.o $(OBJDIR)/carcer.lib.StringUtil.o $(OBJDIR)/carcer.lib.hiscore.hiscore.o $(OBJDIR)/carcer.model.instances-ItemInstance.o $(OBJDIR)/carcer.model.templates-AbilityTypes.o $(OBJDIR)/carcer.model.templates-CharacterStatDefinitions.o $(OBJDIR)/carcer.model.templates-CharacterStats.o $(OBJDIR)/carcer.model.templates-MapGrids.o $(OBJDIR)/carcer.model.templates-Maps.o $(OBJDIR)/carcer.model.templates-RuneTypes.o $(OBJDIR)/carcer.model.templates-SpecialEvents.o $(OBJDIR)/carcer.model.templates-Tileset.o $(OBJDIR)/carcer.model.templates-UtilityTypes.o $(OBJDIR)/carcer.ui.core-FontScale.o $(OBJDIR)/carcer.ui.core-SdlPixels.o $(OBJDIR)/carcer.model.templates-Abilities.o $(OBJDIR)/carcer.model.templates-StatusEffects.o $(OBJDIR)/carcer.model.templates-CharacterDerivedStats.o $(OBJDIR)/carcer.model.templates-CharacterTemplate.o $(OBJDIR)/carcer.model.templates-Items.o $(OBJDIR)/carcer.model.templates-Spells.o $(OBJDIR)/carcer.ui.core-colors.o $(OBJDIR)/carcer.model.templates-CharacterDerivedStatDefinitions.o $(OBJDIR)/carcer.ui.core-TextStyle.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.in3.o $(OBJDIR)/carcer.model.instances-TileInstance.o $(OBJDIR)/carcer.model.instances-CharacterInstance.o $(OBJDIR)/carcer.model.instances-CharacterPlayer.o $(OBJDIR)/carcer.model.instances-MapInstance.o $(OBJDIR)/carcer.model.instances-Player.o $(OBJDIR)/carcer.model.instances-Combat.o $(OBJDIR)/carcer.model.instances-World.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.actions.combat-PerformMeleeAttack.o $(OBJDIR)/carcer.actions.general.o $(OBJDIR)/carcer.actions.ui.layers-UiCancelEquipRunes.o $(OBJDIR)/carcer.actions.ui.layers-UiCommitEquipRunes.o $(OBJDIR)/carcer.actions.ui.layers-UiRemoveLayer.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerDropContext.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerEquipRunes.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerGiveContext.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerInventory.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerInventoryContext.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerMagic.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerPickUp.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerPickupContext.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerPopupText.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerSpecialEvent.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerSpellCast.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerSpellInfo.o $(OBJDIR)/carcer.actions.ui-UiAdjustEquippedRune.o $(OBJDIR)/carcer.actions.ui-UiContinueSpecialEvent.o $(OBJDIR)/carcer.actions.ui-UiGiveInventoryItem.o $(OBJDIR)/carcer.actions.ui-UiPickUpItem.o $(OBJDIR)/carcer.actions.ui-UiPushFloatingNotification.o $(OBJDIR)/carcer.actions.ui-UiRemoveFloatingNotification.o $(OBJDIR)/carcer.actions.ui-UiReorderInventoryItem.o $(OBJDIR)/carcer.actions.ui-UiSelectSpecialEventChoice.o $(OBJDIR)/carcer.actions.ui-UiSetCurrentPartyMember.o $(OBJDIR)/carcer.actions.ui-UiSetCurrentPartyMemberInventory.o $(OBJDIR)/carcer.actions.ui-UiSetCurrentPartyMemberMagic.o $(OBJDIR)/carcer.actions.ui-UiSetSelectedPartyMemberId.o $(OBJDIR)/carcer.actions.ui-UiSetSpellReady.o $(OBJDIR)/carcer.actions.ui-UiToggleEquipInventoryItem.o $(OBJDIR)/carcer.actions.ui-UiToggleManaSlotRune.o $(OBJDIR)/carcer.actions.ui-UiUpdateHeldMove.o $(OBJDIR)/carcer.actions.world-ClearTownEnemyAiResolving.o $(OBJDIR)/carcer.actions.world-ModifyPartyMemberHp.o $(OBJDIR)/carcer.actions.world-WorldSetCamera.o $(OBJDIR)/carcer.actions.world-WorldSetCameraMode.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.ui.core-UiElement.o $(OBJDIR)/carcer.world_updater.o $(OBJDIR)/carcer.actions.ui.layers.o $(OBJDIR)/carcer.actions.combat-CharacterSetSpriteIndexOffset.o $(OBJDIR)/carcer.actions.combat-EndCombat.o $(OBJDIR)/carcer.actions.combat-ModifyAP.o $(OBJDIR)/carcer.actions.combat-ModifyHP.o $(OBJDIR)/carcer.actions.combat-MoveCharacter.o $(OBJDIR)/carcer.actions.combat-PerformSpellCast.o $(OBJDIR)/carcer.actions.combat-SetActiveCombatCharacter.o $(OBJDIR)/carcer.actions.ui-UiDropInventoryItem.o $(OBJDIR)/carcer.actions.world-WorldExamineAt.o $(OBJDIR)/carcer.actions.world-WorldInteractAt.o $(OBJDIR)/carcer.actions.world-WorldLoadActiveMap.o $(OBJDIR)/carcer.actions.world-WorldMoveActionAim.o $(OBJDIR)/carcer.actions.world-WorldSetActionAim.o $(OBJDIR)/carcer.actions.world-WorldSpawnPlayerAtMarker.o $(OBJDIR)/carcer.actions.world-WorldSpawnPlayerAtXY.o $(OBJDIR)/carcer.actions.world-WorldTalkAt.o $(OBJDIR)/carcer.actions.world_effects.o $(OBJDIR)/carcer.game.combat.o $(OBJDIR)/carcer.ui.core-uiUtils.o $(OBJDIR)/carcer.actions.ui-UiSelectSpellCast.o $(OBJDIR)/carcer.actions.combat-StartCombat.o $(OBJDIR)/carcer.actions.world-WorldSpawnPlayer.o $(OBJDIR)/carcer.actions.world-WorldTravel.o $(OBJDIR)/carcer.actions.world-WorldSetActionMode.o $(OBJDIR)/carcer.actions.world-WorldSpawnDamageParticle.o $(OBJDIR)/carcer.actions.world-WorldSpawnProjectile.o $(OBJDIR)/carcer.actions.combat-GoNextCombatTurn.o $(OBJDIR)/carcer.actions.combat-RemoveCharacterFromMap.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.actions.ui.o $(OBJDIR)/carcer.actions.combat-PerformCharacterDefeated.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.ui.components-ChCompactInfo.o $(OBJDIR)/carcer.ui.components-MapView.o $(OBJDIR)/carcer.ui.elements-HorizontalList.o $(OBJDIR)/carcer.ui.elements-OutsetRectangle.o $(OBJDIR)/carcer.ui.elements-Quad.o $(OBJDIR)/carcer.ui.elements-SpriteElement.o $(OBJDIR)/carcer.ui.elements-TextLine.o $(OBJDIR)/carcer.ui.elements-VerticalList.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.actions.combat-DoCombatActionCompletion.o $(OBJDIR)/carcer.layers-LayerManager.o $(OBJDIR)/carcer.ui.elements-ButtonClose.o $(OBJDIR)/carcer.ui.elements-ButtonScroll.o $(OBJDIR)/carcer.ui.elements-ButtonSprite.o $(OBJDIR)/carcer.ui.elements-ButtonIcon.o $(OBJDIR)/carcer.ui.elements-ButtonMove.o $(OBJDIR)/carcer.ui.elements-ButtonWorldAction.o $(OBJDIR)/carcer.ui.elements-ButtonModal.o $(OBJDIR)/carcer.ui.elements-TextBanner.o $(OBJDIR)/carcer.ui.elements-TextParagraph.o $(OBJDIR)/carcer.actions.combat-DoCombatAction.o $(OBJDIR)/carcer.ui.elements-ButtonList.o $(OBJDIR)/carcer.ui.elements-HorizontalSlider.o $(OBJDIR)/carcer.ui.elements-SectionScrollable.o $(OBJDIR)/carcer.ui.elements-ButtonGroup.o $(OBJDIR)/carcer.ui.elements-ButtonTextWrap.o $(OBJDIR)/carcer.actions.combat-DoCPUCombatTurn.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.actions.combat.o $(OBJDIR)/carcer.ui.KeyboardHeldScroll.o $(OBJDIR)/carcer.ui.components-BorderDropShadow.o $(OBJDIR)/carcer.ui.components-BorderInGame.o $(OBJDIR)/carcer.ui.components-InGameTitleBar.o $(OBJDIR)/carcer.ui.components-ItemInfo.o $(OBJDIR)/carcer.ui.components-TiledOverlay.o $(OBJDIR)/carcer.actions.world-PerformTownMeleeAttack.o $(OBJDIR)/carcer.ui.components-ConfirmModal.o $(OBJDIR)/carcer.ui.components-FloatingNotification.o $(OBJDIR)/carcer.ui.components-BorderInGameNarrow.o $(OBJDIR)/carcer.ui.components-BorderInGameWide.o $(OBJDIR)/carcer.ui.components-BorderModalSmall.o $(OBJDIR)/carcer.actions.world-TownEnemySeekAndMelee.o $(OBJDIR)/carcer.ui.components-BorderModalStandard.o $(OBJDIR)/carcer.actions.world-TownEnemyAiAfterPlayerMove.o $(OBJDIR)/carcer.ui.components-TouchMovePad.o $(OBJDIR)/carcer.actions.world-WorldMovePlayer.o $(OBJDIR)/carcer.actions.world.o $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.ui.ObserverRemoveLayer.o $(OBJDIR)/carcer.ui.ObserverSpecialEvent.o $(OBJDIR)/carcer.ui.components-FloatingNotificationSection.o $(OBJDIR)/carcer.ui.components-PartyMemberIconSelector.o $(OBJDIR)/carcer.ui.components-PartyMemberSwitcher.o $(OBJDIR)/carcer.ui.lists-ListInventory.o $(OBJDIR)/carcer.ui.lists-ListMagicSpells.o $(OBJDIR)/carcer.ui.lists-ListPickUp.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.layers-LayerPopupText.o $(OBJDIR)/carcer.ui.layouts-ModalSmall.o $(OBJDIR)/carcer.ui.layouts-ModalStandard.o $(OBJDIR)/carcer.ui.lists-ListChCompactInfoHorizontal.o $(OBJDIR)/carcer.ui.lists-ListChCompactInfoVertical.o $(OBJDIR)/carcer.ui.popups-PopupDropConfirm.o $(OBJDIR)/carcer.ui.popups-PopupGive.o $(OBJDIR)/carcer.ui.popups-PopupInventoryItem.o $(OBJDIR)/carcer.ui.lists.o $(OBJDIR)/carcer.ui.popups-PopupPickupItem.o $(OBJDIR)/carcer.ui.popups-PopupSpellInfo.o $(OBJDIR)/carcer.ui.layouts-InGameLayout.o $(OBJDIR)/carcer.ui.popups.o $(OBJDIR)/carcer.ui.layouts.o $(OBJDIR)/carcer.layers-LayerDropConfirm.o $(OBJDIR)/carcer.layers-LayerGiveContext.o $(OBJDIR)/carcer.layers-LayerInventoryContext.o $(OBJDIR)/carcer.layers-LayerPickUpContext.o $(OBJDIR)/carcer.layers-LayerSpellInfo.o $(OBJDIR)/carcer.layers-LayerWorld.o $(OBJDIR)/carcer.ui.minipages-MinipageCharacterSheet.o $(OBJDIR)/carcer.ui.minipages-MinipageEquipRunes.o $(OBJDIR)/carcer.ui.minipages-MinipageEvent.o $(OBJDIR)/carcer.ui.minipages-MinipagePickUp.o $(OBJDIR)/carcer.ui.minipages-MinipageSpellCast.o $(OBJDIR)/carcer.ui.pages-PageCharacter.o $(OBJDIR)/carcer.ui.pages-PageInventory.o $(OBJDIR)/carcer.ui.pages-PageMagicSetup.o $(OBJDIR)/carcer.ui.pages-PageTalkChoice.o $(OBJDIR)/carcer.ui.minipages.o $(OBJDIR)/carcer.ui.pages-PageModalEvent.o $(OBJDIR)/carcer.layers-LayerEquipRunes.o $(OBJDIR)/carcer.layers-LayerPickUp.o $(OBJDIR)/carcer.layers-LayerSpellCast.o $(OBJDIR)/carcer.ui.pages.o $(OBJDIR)/carcer.layers-LayerInventory.o $(OBJDIR)/carcer.layers-LayerMagic.o $(OBJDIR)/carcer.layers-LayerSpecialEvent.o $(OBJDIR)/carcer.layers.o | $(OBJDIR)
+$(OBJDIR)/carcer.o: modules/_carcer.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.TileFields.o $(OBJDIR)/carcer.lib.Json.o $(OBJDIR)/carcer.lib.StringUtil.o $(OBJDIR)/carcer.lib.hiscore.hiscore.o $(OBJDIR)/carcer.ui.core-FontScale.o $(OBJDIR)/carcer.ui.core-SdlPixels.o $(OBJDIR)/carcer.in3.o $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.ui.core-colors.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.ui.core-TextStyle.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.actions.combat-PerformMeleeAttack.o $(OBJDIR)/carcer.actions.general.o $(OBJDIR)/carcer.actions.ui.layers-UiCancelEquipRunes.o $(OBJDIR)/carcer.actions.ui.layers-UiCommitEquipRunes.o $(OBJDIR)/carcer.actions.ui.layers-UiRemoveLayer.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerDropContext.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerEquipRunes.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerGiveContext.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerInventory.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerInventoryContext.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerMagic.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerPickUp.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerPickupContext.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerPopupText.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerSpecialEvent.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerSpellCast.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerSpellInfo.o $(OBJDIR)/carcer.actions.ui-UiAdjustEquippedRune.o $(OBJDIR)/carcer.actions.ui-UiContinueSpecialEvent.o $(OBJDIR)/carcer.actions.ui-UiGiveInventoryItem.o $(OBJDIR)/carcer.actions.ui-UiPickUpItem.o $(OBJDIR)/carcer.actions.ui-UiPushFloatingNotification.o $(OBJDIR)/carcer.actions.ui-UiRemoveFloatingNotification.o $(OBJDIR)/carcer.actions.ui-UiReorderInventoryItem.o $(OBJDIR)/carcer.actions.ui-UiSelectSpecialEventChoice.o $(OBJDIR)/carcer.actions.ui-UiSetCurrentPartyMember.o $(OBJDIR)/carcer.actions.ui-UiSetCurrentPartyMemberInventory.o $(OBJDIR)/carcer.actions.ui-UiSetCurrentPartyMemberMagic.o $(OBJDIR)/carcer.actions.ui-UiSetSelectedPartyMemberId.o $(OBJDIR)/carcer.actions.ui-UiSetSpellReady.o $(OBJDIR)/carcer.actions.ui-UiToggleEquipInventoryItem.o $(OBJDIR)/carcer.actions.ui-UiToggleManaSlotRune.o $(OBJDIR)/carcer.actions.ui-UiUpdateHeldMove.o $(OBJDIR)/carcer.actions.world-ClearTownEnemyAiResolving.o $(OBJDIR)/carcer.actions.world-ModifyPartyMemberHp.o $(OBJDIR)/carcer.actions.world-WorldSetCamera.o $(OBJDIR)/carcer.actions.world-WorldSetCameraMode.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.ui.core-UiElement.o $(OBJDIR)/carcer.world_updater.o $(OBJDIR)/carcer.actions.ui.layers.o $(OBJDIR)/carcer.actions.combat-CharacterSetSpriteIndexOffset.o $(OBJDIR)/carcer.actions.combat-EndCombat.o $(OBJDIR)/carcer.actions.combat-ModifyAP.o $(OBJDIR)/carcer.actions.combat-ModifyHP.o $(OBJDIR)/carcer.actions.combat-MoveCharacter.o $(OBJDIR)/carcer.actions.combat-PerformSpellCast.o $(OBJDIR)/carcer.actions.combat-SetActiveCombatCharacter.o $(OBJDIR)/carcer.actions.ui-UiDropInventoryItem.o $(OBJDIR)/carcer.actions.world-WorldExamineAt.o $(OBJDIR)/carcer.actions.world-WorldInteractAt.o $(OBJDIR)/carcer.actions.world-WorldLoadActiveMap.o $(OBJDIR)/carcer.actions.world-WorldMoveActionAim.o $(OBJDIR)/carcer.actions.world-WorldSetActionAim.o $(OBJDIR)/carcer.actions.world-WorldSpawnPlayerAtMarker.o $(OBJDIR)/carcer.actions.world-WorldSpawnPlayerAtXY.o $(OBJDIR)/carcer.actions.world-WorldTalkAt.o $(OBJDIR)/carcer.actions.world_effects.o $(OBJDIR)/carcer.game.combat.o $(OBJDIR)/carcer.ui.core-uiUtils.o $(OBJDIR)/carcer.actions.ui-UiSelectSpellCast.o $(OBJDIR)/carcer.actions.combat-StartCombat.o $(OBJDIR)/carcer.actions.world-WorldSpawnPlayer.o $(OBJDIR)/carcer.actions.world-WorldTravel.o $(OBJDIR)/carcer.actions.world-WorldSetActionMode.o $(OBJDIR)/carcer.actions.world-WorldSpawnDamageParticle.o $(OBJDIR)/carcer.actions.world-WorldSpawnProjectile.o $(OBJDIR)/carcer.actions.combat-GoNextCombatTurn.o $(OBJDIR)/carcer.actions.combat-RemoveCharacterFromMap.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.actions.ui.o $(OBJDIR)/carcer.actions.combat-PerformCharacterDefeated.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.ui.components-ChCompactInfo.o $(OBJDIR)/carcer.ui.components-MapView.o $(OBJDIR)/carcer.ui.elements-HorizontalList.o $(OBJDIR)/carcer.ui.elements-OutsetRectangle.o $(OBJDIR)/carcer.ui.elements-Quad.o $(OBJDIR)/carcer.ui.elements-SpriteElement.o $(OBJDIR)/carcer.ui.elements-TextLine.o $(OBJDIR)/carcer.ui.elements-VerticalList.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.actions.combat-DoCombatActionCompletion.o $(OBJDIR)/carcer.layers-LayerManager.o $(OBJDIR)/carcer.ui.elements-ButtonClose.o $(OBJDIR)/carcer.ui.elements-ButtonScroll.o $(OBJDIR)/carcer.ui.elements-ButtonSprite.o $(OBJDIR)/carcer.ui.elements-ButtonIcon.o $(OBJDIR)/carcer.ui.elements-ButtonMove.o $(OBJDIR)/carcer.ui.elements-ButtonWorldAction.o $(OBJDIR)/carcer.ui.elements-ButtonModal.o $(OBJDIR)/carcer.ui.elements-TextBanner.o $(OBJDIR)/carcer.ui.elements-TextParagraph.o $(OBJDIR)/carcer.actions.combat-DoCombatAction.o $(OBJDIR)/carcer.ui.elements-ButtonList.o $(OBJDIR)/carcer.ui.elements-HorizontalSlider.o $(OBJDIR)/carcer.ui.elements-SectionScrollable.o $(OBJDIR)/carcer.ui.elements-ButtonGroup.o $(OBJDIR)/carcer.ui.elements-ButtonTextWrap.o $(OBJDIR)/carcer.actions.combat-DoCPUCombatTurn.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.actions.combat.o $(OBJDIR)/carcer.ui.KeyboardHeldScroll.o $(OBJDIR)/carcer.ui.components-BorderDropShadow.o $(OBJDIR)/carcer.ui.components-BorderInGame.o $(OBJDIR)/carcer.ui.components-InGameTitleBar.o $(OBJDIR)/carcer.ui.components-ItemInfo.o $(OBJDIR)/carcer.ui.components-TiledOverlay.o $(OBJDIR)/carcer.actions.world-PerformTownMeleeAttack.o $(OBJDIR)/carcer.ui.components-ConfirmModal.o $(OBJDIR)/carcer.ui.components-FloatingNotification.o $(OBJDIR)/carcer.ui.components-BorderInGameNarrow.o $(OBJDIR)/carcer.ui.components-BorderInGameWide.o $(OBJDIR)/carcer.ui.components-BorderModalSmall.o $(OBJDIR)/carcer.actions.world-TownEnemySeekAndMelee.o $(OBJDIR)/carcer.ui.components-BorderModalStandard.o $(OBJDIR)/carcer.actions.world-TownEnemyAiAfterPlayerMove.o $(OBJDIR)/carcer.ui.components-TouchMovePad.o $(OBJDIR)/carcer.actions.world-WorldMovePlayer.o $(OBJDIR)/carcer.actions.world.o $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.ui.ObserverRemoveLayer.o $(OBJDIR)/carcer.ui.ObserverSpecialEvent.o $(OBJDIR)/carcer.ui.components-FloatingNotificationSection.o $(OBJDIR)/carcer.ui.components-PartyMemberIconSelector.o $(OBJDIR)/carcer.ui.components-PartyMemberSwitcher.o $(OBJDIR)/carcer.ui.lists-ListInventory.o $(OBJDIR)/carcer.ui.lists-ListMagicSpells.o $(OBJDIR)/carcer.ui.lists-ListPickUp.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.layers-LayerPopupText.o $(OBJDIR)/carcer.ui.layouts-ModalSmall.o $(OBJDIR)/carcer.ui.layouts-ModalStandard.o $(OBJDIR)/carcer.ui.lists-ListChCompactInfoHorizontal.o $(OBJDIR)/carcer.ui.lists-ListChCompactInfoVertical.o $(OBJDIR)/carcer.ui.popups-PopupDropConfirm.o $(OBJDIR)/carcer.ui.popups-PopupGive.o $(OBJDIR)/carcer.ui.popups-PopupInventoryItem.o $(OBJDIR)/carcer.ui.lists.o $(OBJDIR)/carcer.ui.popups-PopupPickupItem.o $(OBJDIR)/carcer.ui.popups-PopupSpellInfo.o $(OBJDIR)/carcer.ui.layouts-InGameLayout.o $(OBJDIR)/carcer.ui.popups.o $(OBJDIR)/carcer.ui.layouts.o $(OBJDIR)/carcer.layers-LayerDropConfirm.o $(OBJDIR)/carcer.layers-LayerGiveContext.o $(OBJDIR)/carcer.layers-LayerInventoryContext.o $(OBJDIR)/carcer.layers-LayerPickUpContext.o $(OBJDIR)/carcer.layers-LayerSpellInfo.o $(OBJDIR)/carcer.layers-LayerWorld.o $(OBJDIR)/carcer.ui.minipages-MinipageCharacterSheet.o $(OBJDIR)/carcer.ui.minipages-MinipageEquipRunes.o $(OBJDIR)/carcer.ui.minipages-MinipageEvent.o $(OBJDIR)/carcer.ui.minipages-MinipagePickUp.o $(OBJDIR)/carcer.ui.minipages-MinipageSpellCast.o $(OBJDIR)/carcer.ui.pages-PageCharacter.o $(OBJDIR)/carcer.ui.pages-PageInventory.o $(OBJDIR)/carcer.ui.pages-PageMagicSetup.o $(OBJDIR)/carcer.ui.pages-PageTalkChoice.o $(OBJDIR)/carcer.ui.minipages.o $(OBJDIR)/carcer.ui.pages-PageModalEvent.o $(OBJDIR)/carcer.layers-LayerEquipRunes.o $(OBJDIR)/carcer.layers-LayerPickUp.o $(OBJDIR)/carcer.layers-LayerSpellCast.o $(OBJDIR)/carcer.ui.pages.o $(OBJDIR)/carcer.layers-LayerInventory.o $(OBJDIR)/carcer.layers-LayerMagic.o $(OBJDIR)/carcer.layers-LayerSpecialEvent.o $(OBJDIR)/carcer.layers.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c modules/_carcer.cppm -o $@
 
 clean:
 	rm -rf $(OBJDIR)
 
-CARCER_BMI_OBJ_LIST = $(OBJDIR)/carcer.game.map.TileFields.o $(OBJDIR)/carcer.lib.Json.o $(OBJDIR)/carcer.lib.StringUtil.o $(OBJDIR)/carcer.lib.hiscore.hiscore.o $(OBJDIR)/carcer.model.instances-ItemInstance.o $(OBJDIR)/carcer.model.templates-AbilityTypes.o $(OBJDIR)/carcer.model.templates-CharacterStatDefinitions.o $(OBJDIR)/carcer.model.templates-CharacterStats.o $(OBJDIR)/carcer.model.templates-MapGrids.o $(OBJDIR)/carcer.model.templates-Maps.o $(OBJDIR)/carcer.model.templates-RuneTypes.o $(OBJDIR)/carcer.model.templates-SpecialEvents.o $(OBJDIR)/carcer.model.templates-Tileset.o $(OBJDIR)/carcer.model.templates-UtilityTypes.o $(OBJDIR)/carcer.ui.core-FontScale.o $(OBJDIR)/carcer.ui.core-SdlPixels.o $(OBJDIR)/carcer.model.templates-Abilities.o $(OBJDIR)/carcer.model.templates-StatusEffects.o $(OBJDIR)/carcer.model.templates-CharacterDerivedStats.o $(OBJDIR)/carcer.model.templates-CharacterTemplate.o $(OBJDIR)/carcer.model.templates-Items.o $(OBJDIR)/carcer.model.templates-Spells.o $(OBJDIR)/carcer.ui.core-colors.o $(OBJDIR)/carcer.model.templates-CharacterDerivedStatDefinitions.o $(OBJDIR)/carcer.ui.core-TextStyle.o $(OBJDIR)/carcer.model.templates.o $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.in3.o $(OBJDIR)/carcer.model.instances-TileInstance.o $(OBJDIR)/carcer.model.instances-CharacterInstance.o $(OBJDIR)/carcer.model.instances-CharacterPlayer.o $(OBJDIR)/carcer.model.instances-MapInstance.o $(OBJDIR)/carcer.model.instances-Player.o $(OBJDIR)/carcer.model.instances-Combat.o $(OBJDIR)/carcer.model.instances-World.o $(OBJDIR)/carcer.model.instances.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.actions.combat-PerformMeleeAttack.o $(OBJDIR)/carcer.actions.general.o $(OBJDIR)/carcer.actions.ui.layers-UiCancelEquipRunes.o $(OBJDIR)/carcer.actions.ui.layers-UiCommitEquipRunes.o $(OBJDIR)/carcer.actions.ui.layers-UiRemoveLayer.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerDropContext.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerEquipRunes.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerGiveContext.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerInventory.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerInventoryContext.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerMagic.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerPickUp.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerPickupContext.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerPopupText.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerSpecialEvent.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerSpellCast.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerSpellInfo.o $(OBJDIR)/carcer.actions.ui-UiAdjustEquippedRune.o $(OBJDIR)/carcer.actions.ui-UiContinueSpecialEvent.o $(OBJDIR)/carcer.actions.ui-UiGiveInventoryItem.o $(OBJDIR)/carcer.actions.ui-UiPickUpItem.o $(OBJDIR)/carcer.actions.ui-UiPushFloatingNotification.o $(OBJDIR)/carcer.actions.ui-UiRemoveFloatingNotification.o $(OBJDIR)/carcer.actions.ui-UiReorderInventoryItem.o $(OBJDIR)/carcer.actions.ui-UiSelectSpecialEventChoice.o $(OBJDIR)/carcer.actions.ui-UiSetCurrentPartyMember.o $(OBJDIR)/carcer.actions.ui-UiSetCurrentPartyMemberInventory.o $(OBJDIR)/carcer.actions.ui-UiSetCurrentPartyMemberMagic.o $(OBJDIR)/carcer.actions.ui-UiSetSelectedPartyMemberId.o $(OBJDIR)/carcer.actions.ui-UiSetSpellReady.o $(OBJDIR)/carcer.actions.ui-UiToggleEquipInventoryItem.o $(OBJDIR)/carcer.actions.ui-UiToggleManaSlotRune.o $(OBJDIR)/carcer.actions.ui-UiUpdateHeldMove.o $(OBJDIR)/carcer.actions.world-ClearTownEnemyAiResolving.o $(OBJDIR)/carcer.actions.world-ModifyPartyMemberHp.o $(OBJDIR)/carcer.actions.world-WorldSetCamera.o $(OBJDIR)/carcer.actions.world-WorldSetCameraMode.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.ui.core-UiElement.o $(OBJDIR)/carcer.world_updater.o $(OBJDIR)/carcer.actions.ui.layers.o $(OBJDIR)/carcer.actions.combat-CharacterSetSpriteIndexOffset.o $(OBJDIR)/carcer.actions.combat-EndCombat.o $(OBJDIR)/carcer.actions.combat-ModifyAP.o $(OBJDIR)/carcer.actions.combat-ModifyHP.o $(OBJDIR)/carcer.actions.combat-MoveCharacter.o $(OBJDIR)/carcer.actions.combat-PerformSpellCast.o $(OBJDIR)/carcer.actions.combat-SetActiveCombatCharacter.o $(OBJDIR)/carcer.actions.ui-UiDropInventoryItem.o $(OBJDIR)/carcer.actions.world-WorldExamineAt.o $(OBJDIR)/carcer.actions.world-WorldInteractAt.o $(OBJDIR)/carcer.actions.world-WorldLoadActiveMap.o $(OBJDIR)/carcer.actions.world-WorldMoveActionAim.o $(OBJDIR)/carcer.actions.world-WorldSetActionAim.o $(OBJDIR)/carcer.actions.world-WorldSpawnPlayerAtMarker.o $(OBJDIR)/carcer.actions.world-WorldSpawnPlayerAtXY.o $(OBJDIR)/carcer.actions.world-WorldTalkAt.o $(OBJDIR)/carcer.actions.world_effects.o $(OBJDIR)/carcer.game.combat.o $(OBJDIR)/carcer.ui.core-uiUtils.o $(OBJDIR)/carcer.actions.ui-UiSelectSpellCast.o $(OBJDIR)/carcer.actions.combat-StartCombat.o $(OBJDIR)/carcer.actions.world-WorldSpawnPlayer.o $(OBJDIR)/carcer.actions.world-WorldTravel.o $(OBJDIR)/carcer.actions.world-WorldSetActionMode.o $(OBJDIR)/carcer.actions.world-WorldSpawnDamageParticle.o $(OBJDIR)/carcer.actions.world-WorldSpawnProjectile.o $(OBJDIR)/carcer.actions.combat-GoNextCombatTurn.o $(OBJDIR)/carcer.actions.combat-RemoveCharacterFromMap.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.actions.ui.o $(OBJDIR)/carcer.actions.combat-PerformCharacterDefeated.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.ui.components-ChCompactInfo.o $(OBJDIR)/carcer.ui.components-MapView.o $(OBJDIR)/carcer.ui.elements-HorizontalList.o $(OBJDIR)/carcer.ui.elements-OutsetRectangle.o $(OBJDIR)/carcer.ui.elements-Quad.o $(OBJDIR)/carcer.ui.elements-SpriteElement.o $(OBJDIR)/carcer.ui.elements-TextLine.o $(OBJDIR)/carcer.ui.elements-VerticalList.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.actions.combat-DoCombatActionCompletion.o $(OBJDIR)/carcer.layers-LayerManager.o $(OBJDIR)/carcer.ui.elements-ButtonClose.o $(OBJDIR)/carcer.ui.elements-ButtonScroll.o $(OBJDIR)/carcer.ui.elements-ButtonSprite.o $(OBJDIR)/carcer.ui.elements-ButtonIcon.o $(OBJDIR)/carcer.ui.elements-ButtonMove.o $(OBJDIR)/carcer.ui.elements-ButtonWorldAction.o $(OBJDIR)/carcer.ui.elements-ButtonModal.o $(OBJDIR)/carcer.ui.elements-TextBanner.o $(OBJDIR)/carcer.ui.elements-TextParagraph.o $(OBJDIR)/carcer.actions.combat-DoCombatAction.o $(OBJDIR)/carcer.ui.elements-ButtonList.o $(OBJDIR)/carcer.ui.elements-HorizontalSlider.o $(OBJDIR)/carcer.ui.elements-SectionScrollable.o $(OBJDIR)/carcer.ui.elements-ButtonGroup.o $(OBJDIR)/carcer.ui.elements-ButtonTextWrap.o $(OBJDIR)/carcer.actions.combat-DoCPUCombatTurn.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.actions.combat.o $(OBJDIR)/carcer.ui.KeyboardHeldScroll.o $(OBJDIR)/carcer.ui.components-BorderDropShadow.o $(OBJDIR)/carcer.ui.components-BorderInGame.o $(OBJDIR)/carcer.ui.components-InGameTitleBar.o $(OBJDIR)/carcer.ui.components-ItemInfo.o $(OBJDIR)/carcer.ui.components-TiledOverlay.o $(OBJDIR)/carcer.actions.world-PerformTownMeleeAttack.o $(OBJDIR)/carcer.ui.components-ConfirmModal.o $(OBJDIR)/carcer.ui.components-FloatingNotification.o $(OBJDIR)/carcer.ui.components-BorderInGameNarrow.o $(OBJDIR)/carcer.ui.components-BorderInGameWide.o $(OBJDIR)/carcer.ui.components-BorderModalSmall.o $(OBJDIR)/carcer.actions.world-TownEnemySeekAndMelee.o $(OBJDIR)/carcer.ui.components-BorderModalStandard.o $(OBJDIR)/carcer.actions.world-TownEnemyAiAfterPlayerMove.o $(OBJDIR)/carcer.ui.components-TouchMovePad.o $(OBJDIR)/carcer.actions.world-WorldMovePlayer.o $(OBJDIR)/carcer.actions.world.o $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.ui.ObserverRemoveLayer.o $(OBJDIR)/carcer.ui.ObserverSpecialEvent.o $(OBJDIR)/carcer.ui.components-FloatingNotificationSection.o $(OBJDIR)/carcer.ui.components-PartyMemberIconSelector.o $(OBJDIR)/carcer.ui.components-PartyMemberSwitcher.o $(OBJDIR)/carcer.ui.lists-ListInventory.o $(OBJDIR)/carcer.ui.lists-ListMagicSpells.o $(OBJDIR)/carcer.ui.lists-ListPickUp.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.layers-LayerPopupText.o $(OBJDIR)/carcer.ui.layouts-ModalSmall.o $(OBJDIR)/carcer.ui.layouts-ModalStandard.o $(OBJDIR)/carcer.ui.lists-ListChCompactInfoHorizontal.o $(OBJDIR)/carcer.ui.lists-ListChCompactInfoVertical.o $(OBJDIR)/carcer.ui.popups-PopupDropConfirm.o $(OBJDIR)/carcer.ui.popups-PopupGive.o $(OBJDIR)/carcer.ui.popups-PopupInventoryItem.o $(OBJDIR)/carcer.ui.lists.o $(OBJDIR)/carcer.ui.popups-PopupPickupItem.o $(OBJDIR)/carcer.ui.popups-PopupSpellInfo.o $(OBJDIR)/carcer.ui.layouts-InGameLayout.o $(OBJDIR)/carcer.ui.popups.o $(OBJDIR)/carcer.ui.layouts.o $(OBJDIR)/carcer.layers-LayerDropConfirm.o $(OBJDIR)/carcer.layers-LayerGiveContext.o $(OBJDIR)/carcer.layers-LayerInventoryContext.o $(OBJDIR)/carcer.layers-LayerPickUpContext.o $(OBJDIR)/carcer.layers-LayerSpellInfo.o $(OBJDIR)/carcer.layers-LayerWorld.o $(OBJDIR)/carcer.ui.minipages-MinipageCharacterSheet.o $(OBJDIR)/carcer.ui.minipages-MinipageEquipRunes.o $(OBJDIR)/carcer.ui.minipages-MinipageEvent.o $(OBJDIR)/carcer.ui.minipages-MinipagePickUp.o $(OBJDIR)/carcer.ui.minipages-MinipageSpellCast.o $(OBJDIR)/carcer.ui.pages-PageCharacter.o $(OBJDIR)/carcer.ui.pages-PageInventory.o $(OBJDIR)/carcer.ui.pages-PageMagicSetup.o $(OBJDIR)/carcer.ui.pages-PageTalkChoice.o $(OBJDIR)/carcer.ui.minipages.o $(OBJDIR)/carcer.ui.pages-PageModalEvent.o $(OBJDIR)/carcer.layers-LayerEquipRunes.o $(OBJDIR)/carcer.layers-LayerPickUp.o $(OBJDIR)/carcer.layers-LayerSpellCast.o $(OBJDIR)/carcer.ui.pages.o $(OBJDIR)/carcer.layers-LayerInventory.o $(OBJDIR)/carcer.layers-LayerMagic.o $(OBJDIR)/carcer.layers-LayerSpecialEvent.o $(OBJDIR)/carcer.layers.o $(OBJDIR)/carcer.o
+CARCER_BMI_OBJ_LIST = $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.TileFields.o $(OBJDIR)/carcer.lib.Json.o $(OBJDIR)/carcer.lib.StringUtil.o $(OBJDIR)/carcer.lib.hiscore.hiscore.o $(OBJDIR)/carcer.ui.core-FontScale.o $(OBJDIR)/carcer.ui.core-SdlPixels.o $(OBJDIR)/carcer.in3.o $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.ui.core-colors.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.ui.core-TextStyle.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.actions.combat-PerformMeleeAttack.o $(OBJDIR)/carcer.actions.general.o $(OBJDIR)/carcer.actions.ui.layers-UiCancelEquipRunes.o $(OBJDIR)/carcer.actions.ui.layers-UiCommitEquipRunes.o $(OBJDIR)/carcer.actions.ui.layers-UiRemoveLayer.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerDropContext.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerEquipRunes.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerGiveContext.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerInventory.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerInventoryContext.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerMagic.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerPickUp.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerPickupContext.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerPopupText.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerSpecialEvent.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerSpellCast.o $(OBJDIR)/carcer.actions.ui.layers-UiShowLayerSpellInfo.o $(OBJDIR)/carcer.actions.ui-UiAdjustEquippedRune.o $(OBJDIR)/carcer.actions.ui-UiContinueSpecialEvent.o $(OBJDIR)/carcer.actions.ui-UiGiveInventoryItem.o $(OBJDIR)/carcer.actions.ui-UiPickUpItem.o $(OBJDIR)/carcer.actions.ui-UiPushFloatingNotification.o $(OBJDIR)/carcer.actions.ui-UiRemoveFloatingNotification.o $(OBJDIR)/carcer.actions.ui-UiReorderInventoryItem.o $(OBJDIR)/carcer.actions.ui-UiSelectSpecialEventChoice.o $(OBJDIR)/carcer.actions.ui-UiSetCurrentPartyMember.o $(OBJDIR)/carcer.actions.ui-UiSetCurrentPartyMemberInventory.o $(OBJDIR)/carcer.actions.ui-UiSetCurrentPartyMemberMagic.o $(OBJDIR)/carcer.actions.ui-UiSetSelectedPartyMemberId.o $(OBJDIR)/carcer.actions.ui-UiSetSpellReady.o $(OBJDIR)/carcer.actions.ui-UiToggleEquipInventoryItem.o $(OBJDIR)/carcer.actions.ui-UiToggleManaSlotRune.o $(OBJDIR)/carcer.actions.ui-UiUpdateHeldMove.o $(OBJDIR)/carcer.actions.world-ClearTownEnemyAiResolving.o $(OBJDIR)/carcer.actions.world-ModifyPartyMemberHp.o $(OBJDIR)/carcer.actions.world-WorldSetCamera.o $(OBJDIR)/carcer.actions.world-WorldSetCameraMode.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.ui.core-UiElement.o $(OBJDIR)/carcer.world_updater.o $(OBJDIR)/carcer.actions.ui.layers.o $(OBJDIR)/carcer.actions.combat-CharacterSetSpriteIndexOffset.o $(OBJDIR)/carcer.actions.combat-EndCombat.o $(OBJDIR)/carcer.actions.combat-ModifyAP.o $(OBJDIR)/carcer.actions.combat-ModifyHP.o $(OBJDIR)/carcer.actions.combat-MoveCharacter.o $(OBJDIR)/carcer.actions.combat-PerformSpellCast.o $(OBJDIR)/carcer.actions.combat-SetActiveCombatCharacter.o $(OBJDIR)/carcer.actions.ui-UiDropInventoryItem.o $(OBJDIR)/carcer.actions.world-WorldExamineAt.o $(OBJDIR)/carcer.actions.world-WorldInteractAt.o $(OBJDIR)/carcer.actions.world-WorldLoadActiveMap.o $(OBJDIR)/carcer.actions.world-WorldMoveActionAim.o $(OBJDIR)/carcer.actions.world-WorldSetActionAim.o $(OBJDIR)/carcer.actions.world-WorldSpawnPlayerAtMarker.o $(OBJDIR)/carcer.actions.world-WorldSpawnPlayerAtXY.o $(OBJDIR)/carcer.actions.world-WorldTalkAt.o $(OBJDIR)/carcer.actions.world_effects.o $(OBJDIR)/carcer.game.combat.o $(OBJDIR)/carcer.ui.core-uiUtils.o $(OBJDIR)/carcer.actions.ui-UiSelectSpellCast.o $(OBJDIR)/carcer.actions.combat-StartCombat.o $(OBJDIR)/carcer.actions.world-WorldSpawnPlayer.o $(OBJDIR)/carcer.actions.world-WorldTravel.o $(OBJDIR)/carcer.actions.world-WorldSetActionMode.o $(OBJDIR)/carcer.actions.world-WorldSpawnDamageParticle.o $(OBJDIR)/carcer.actions.world-WorldSpawnProjectile.o $(OBJDIR)/carcer.actions.combat-GoNextCombatTurn.o $(OBJDIR)/carcer.actions.combat-RemoveCharacterFromMap.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.actions.ui.o $(OBJDIR)/carcer.actions.combat-PerformCharacterDefeated.o $(OBJDIR)/carcer.layers-Layer.o $(OBJDIR)/carcer.ui.components-ChCompactInfo.o $(OBJDIR)/carcer.ui.components-MapView.o $(OBJDIR)/carcer.ui.elements-HorizontalList.o $(OBJDIR)/carcer.ui.elements-OutsetRectangle.o $(OBJDIR)/carcer.ui.elements-Quad.o $(OBJDIR)/carcer.ui.elements-SpriteElement.o $(OBJDIR)/carcer.ui.elements-TextLine.o $(OBJDIR)/carcer.ui.elements-VerticalList.o $(OBJDIR)/carcer.ui.helpers.o $(OBJDIR)/carcer.actions.combat-DoCombatActionCompletion.o $(OBJDIR)/carcer.layers-LayerManager.o $(OBJDIR)/carcer.ui.elements-ButtonClose.o $(OBJDIR)/carcer.ui.elements-ButtonScroll.o $(OBJDIR)/carcer.ui.elements-ButtonSprite.o $(OBJDIR)/carcer.ui.elements-ButtonIcon.o $(OBJDIR)/carcer.ui.elements-ButtonMove.o $(OBJDIR)/carcer.ui.elements-ButtonWorldAction.o $(OBJDIR)/carcer.ui.elements-ButtonModal.o $(OBJDIR)/carcer.ui.elements-TextBanner.o $(OBJDIR)/carcer.ui.elements-TextParagraph.o $(OBJDIR)/carcer.actions.combat-DoCombatAction.o $(OBJDIR)/carcer.ui.elements-ButtonList.o $(OBJDIR)/carcer.ui.elements-HorizontalSlider.o $(OBJDIR)/carcer.ui.elements-SectionScrollable.o $(OBJDIR)/carcer.ui.elements-ButtonGroup.o $(OBJDIR)/carcer.ui.elements-ButtonTextWrap.o $(OBJDIR)/carcer.actions.combat-DoCPUCombatTurn.o $(OBJDIR)/carcer.ui.elements.o $(OBJDIR)/carcer.actions.combat.o $(OBJDIR)/carcer.ui.KeyboardHeldScroll.o $(OBJDIR)/carcer.ui.components-BorderDropShadow.o $(OBJDIR)/carcer.ui.components-BorderInGame.o $(OBJDIR)/carcer.ui.components-InGameTitleBar.o $(OBJDIR)/carcer.ui.components-ItemInfo.o $(OBJDIR)/carcer.ui.components-TiledOverlay.o $(OBJDIR)/carcer.actions.world-PerformTownMeleeAttack.o $(OBJDIR)/carcer.ui.components-ConfirmModal.o $(OBJDIR)/carcer.ui.components-FloatingNotification.o $(OBJDIR)/carcer.ui.components-BorderInGameNarrow.o $(OBJDIR)/carcer.ui.components-BorderInGameWide.o $(OBJDIR)/carcer.ui.components-BorderModalSmall.o $(OBJDIR)/carcer.actions.world-TownEnemySeekAndMelee.o $(OBJDIR)/carcer.ui.components-BorderModalStandard.o $(OBJDIR)/carcer.actions.world-TownEnemyAiAfterPlayerMove.o $(OBJDIR)/carcer.ui.components-TouchMovePad.o $(OBJDIR)/carcer.actions.world-WorldMovePlayer.o $(OBJDIR)/carcer.actions.world.o $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.ui.ObserverRemoveLayer.o $(OBJDIR)/carcer.ui.ObserverSpecialEvent.o $(OBJDIR)/carcer.ui.components-FloatingNotificationSection.o $(OBJDIR)/carcer.ui.components-PartyMemberIconSelector.o $(OBJDIR)/carcer.ui.components-PartyMemberSwitcher.o $(OBJDIR)/carcer.ui.lists-ListInventory.o $(OBJDIR)/carcer.ui.lists-ListMagicSpells.o $(OBJDIR)/carcer.ui.lists-ListPickUp.o $(OBJDIR)/carcer.ui.components.o $(OBJDIR)/carcer.layers-LayerPopupText.o $(OBJDIR)/carcer.ui.layouts-ModalSmall.o $(OBJDIR)/carcer.ui.layouts-ModalStandard.o $(OBJDIR)/carcer.ui.lists-ListChCompactInfoHorizontal.o $(OBJDIR)/carcer.ui.lists-ListChCompactInfoVertical.o $(OBJDIR)/carcer.ui.popups-PopupDropConfirm.o $(OBJDIR)/carcer.ui.popups-PopupGive.o $(OBJDIR)/carcer.ui.popups-PopupInventoryItem.o $(OBJDIR)/carcer.ui.lists.o $(OBJDIR)/carcer.ui.popups-PopupPickupItem.o $(OBJDIR)/carcer.ui.popups-PopupSpellInfo.o $(OBJDIR)/carcer.ui.layouts-InGameLayout.o $(OBJDIR)/carcer.ui.popups.o $(OBJDIR)/carcer.ui.layouts.o $(OBJDIR)/carcer.layers-LayerDropConfirm.o $(OBJDIR)/carcer.layers-LayerGiveContext.o $(OBJDIR)/carcer.layers-LayerInventoryContext.o $(OBJDIR)/carcer.layers-LayerPickUpContext.o $(OBJDIR)/carcer.layers-LayerSpellInfo.o $(OBJDIR)/carcer.layers-LayerWorld.o $(OBJDIR)/carcer.ui.minipages-MinipageCharacterSheet.o $(OBJDIR)/carcer.ui.minipages-MinipageEquipRunes.o $(OBJDIR)/carcer.ui.minipages-MinipageEvent.o $(OBJDIR)/carcer.ui.minipages-MinipagePickUp.o $(OBJDIR)/carcer.ui.minipages-MinipageSpellCast.o $(OBJDIR)/carcer.ui.pages-PageCharacter.o $(OBJDIR)/carcer.ui.pages-PageInventory.o $(OBJDIR)/carcer.ui.pages-PageMagicSetup.o $(OBJDIR)/carcer.ui.pages-PageTalkChoice.o $(OBJDIR)/carcer.ui.minipages.o $(OBJDIR)/carcer.ui.pages-PageModalEvent.o $(OBJDIR)/carcer.layers-LayerEquipRunes.o $(OBJDIR)/carcer.layers-LayerPickUp.o $(OBJDIR)/carcer.layers-LayerSpellCast.o $(OBJDIR)/carcer.ui.pages.o $(OBJDIR)/carcer.layers-LayerInventory.o $(OBJDIR)/carcer.layers-LayerMagic.o $(OBJDIR)/carcer.layers-LayerSpecialEvent.o $(OBJDIR)/carcer.layers.o $(OBJDIR)/carcer.o
 

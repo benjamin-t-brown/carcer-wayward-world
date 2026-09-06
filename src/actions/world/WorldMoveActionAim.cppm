@@ -4,7 +4,7 @@ module;
 export module carcer.actions.world:WorldMoveActionAim;
 export import carcer.state;
 import carcer.game.map;
-import carcer.model.templates;
+import carcer.data;
 #include "macros.h"
 
 export {

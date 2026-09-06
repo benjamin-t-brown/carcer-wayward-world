@@ -5,7 +5,7 @@ module;
 #include <stdexcept>
 
 module carcer.db;
-import carcer.model.templates;
+import carcer.data;
 import bmin.containers;
 import carcer.lib.Json;
 import bmin.string_interop;

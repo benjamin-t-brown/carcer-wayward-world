@@ -8,7 +8,7 @@ module;
 
 export module carcer.db;
 export import bmin.containers;
-export import carcer.model.templates;
+export import carcer.data;
 export import carcer.lib.Json;
 import bmin.string_interop;
 

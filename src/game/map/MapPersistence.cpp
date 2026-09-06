@@ -5,8 +5,8 @@ module;
 #include <algorithm>
 
 module carcer.game.map;
-import carcer.model.instances;
-import carcer.model.templates;
+import carcer.model;
+import carcer.data;
 import bmin.containers;
 import carcer.db;
 import carcer.state;

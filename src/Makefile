@@ -6,6 +6,12 @@ MAIN_ALL=main.cpp
 # Implementation units (.cpp) sit next to their interface units (.cppm).
 # Umbrella + macros.h live in modules/. BMI graph: modules/make/build-bmi.mk.
 CODE=\
+data/templates.cpp \
+data/stats.cpp \
+model/characters.cpp \
+model/maps.cpp \
+model/world.cpp \
+model/combat.cpp \
 db/Database.cpp \
 db/loaders/LoadItemTemplates.cpp \
 db/loaders/LoadAbilityJson.cpp \

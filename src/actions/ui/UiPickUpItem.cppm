@@ -5,7 +5,7 @@ module;
 export module carcer.actions.ui:UiPickUpItem;
 export import carcer.state;
 import sdl2w;
-import carcer.model.instances;
+import carcer.model;
 import bmin.string_interop;
 #include "macros.h"
 

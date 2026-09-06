@@ -3,7 +3,7 @@ module;
 
 export module carcer.actions.world:WorldSetCameraMode;
 export import carcer.state;
-import carcer.model.templates;
+import carcer.data;
 #include "macros.h"
 
 export {

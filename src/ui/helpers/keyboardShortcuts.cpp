@@ -7,7 +7,7 @@ module;
 #include <optional>
 
 module carcer.ui.helpers;
-import carcer.model.instances;
+import carcer.model;
 import carcer.state;
 import bmin.string_interop;
 import sdl2w;

@@ -9,7 +9,7 @@ module;
 
 export module carcer.layers:LayerWorld;
 export import :Layer;
-export import carcer.model.instances;
+export import carcer.model;
 export import carcer.state;
 export import carcer.ui.layouts;
 import sdl2w;
@@ -18,12 +18,12 @@ import carcer.actions;
 import carcer.state;
 import carcer.world_updater;
 import carcer.game.map;
-import carcer.model.instances;
+import carcer.model;
 import carcer.ui.elements;
 import carcer.ui.components;
 import carcer.ui.helpers;
 import bmin.containers;
-import carcer.model.templates;
+import carcer.data;
 import bmin.string_interop;
 #include "macros.h"
 

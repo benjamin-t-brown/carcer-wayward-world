@@ -106,6 +106,22 @@ if len(order) != len(unit_file):
     print("WARNING cycle involving", leftover[:10], "... appending")
     order.extend(leftover)
 
+depth: dict[str, int] = {}
+for unit in order:
+    depth[unit] = 1 + max((depth.get(dep, 0) for dep in deps[unit]), default=0)
+
+max_transitive_dependents = 0
+for root in unit_file:
+    seen: set[str] = set()
+    pending = list(adj[root])
+    while pending:
+        dependent = pending.pop()
+        if dependent in seen:
+            continue
+        seen.add(dependent)
+        pending.extend(adj[dependent])
+    max_transitive_dependents = max(max_transitive_dependents, len(seen))
+
 lines = [
     "CXX ?= g++",
     "CARCER_MOD ?= modules",
@@ -218,3 +234,10 @@ for p in sorted(SRC.rglob("*.cpp")):
 
 print(f"wrote {out} units={len(order)}")
 print(f"wrote {MODULES / 'cpp_bmi_deps.mk'} .cpp deps={len(cpp_dep_lines)}")
+print(
+    "graph "
+    f"interfaces={len(order) + 1} "
+    f"edges={sum(len(unit_deps) for unit_deps in deps.values()) + len(order)} "
+    f"critical_depth={max(depth.values(), default=0) + 1} "
+    f"max_transitive_dependents={max_transitive_dependents + 1}"
+)

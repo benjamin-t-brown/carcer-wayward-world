@@ -9,10 +9,10 @@ module;
 
 export module carcer.layers:LayerEquipRunes;
 export import :Layer;
-export import carcer.model.templates;
+export import carcer.data;
 import sdl2w;
 import carcer.actions;
-import carcer.model.instances;
+import carcer.model;
 import carcer.ui.helpers;
 import carcer.ui.minipages;
 import bmin.containers;

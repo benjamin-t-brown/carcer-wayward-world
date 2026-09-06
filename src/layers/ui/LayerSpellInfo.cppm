@@ -13,7 +13,7 @@ import sdl2w;
 import carcer.actions;
 import carcer.ui.popups;
 import carcer.game.combat;
-import carcer.model.templates;
+import carcer.data;
 import carcer.ui.helpers;
 import bmin.containers;
 import bmin.string_interop;

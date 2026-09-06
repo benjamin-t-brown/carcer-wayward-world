@@ -10,7 +10,7 @@ module;
 
 export module carcer.layers:LayerSpecialEvent;
 export import :Layer;
-export import carcer.model.templates;
+export import carcer.data;
 export import carcer.in3;
 export import carcer.ui.elements;
 export import carcer.ui.KeyboardHeldScroll;

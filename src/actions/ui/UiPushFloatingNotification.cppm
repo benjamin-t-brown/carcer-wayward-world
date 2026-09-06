@@ -4,7 +4,7 @@ module;
 
 export module carcer.actions.ui:UiPushFloatingNotification;
 export import carcer.state;
-import carcer.model.instances;
+import carcer.model;
 #include "macros.h"
 
 export {

@@ -5,7 +5,7 @@ module;
 export module carcer.actions.world:WorldLoadActiveMap;
 export import carcer.state;
 import carcer.game.map;
-import carcer.model.templates;
+import carcer.data;
 import bmin.string_interop;
 #include "macros.h"
 

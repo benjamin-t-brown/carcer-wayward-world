@@ -7,7 +7,7 @@ import :TownEnemySeekAndMelee;
 import :ClearTownEnemyAiResolving;
 import carcer.game.map;
 import carcer.game.combat;
-import carcer.model.templates;
+import carcer.data;
 #include "macros.h"
 
 export {

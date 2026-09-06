@@ -7,7 +7,7 @@ export import carcer.state;
 import carcer.actions.ui.layers;
 import sdl2w;
 import carcer.game.map;
-import carcer.model.instances;
+import carcer.model;
 import bmin.string_interop;
 #include "macros.h"
 

@@ -1,59 +1,18 @@
 module;
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
+#include <optional>
 #include <utility>
 
-export module carcer.model.instances:Combat;
-export import bmin.containers;
+module carcer.model;
+
 import bmin.string_interop;
-export import :CharacterInstance;
-export import :Player;
-import sdl2w;
+
 #include "macros.h"
 
-export {
-
-// --- from model/Combat.h ---
-namespace model {
-
-
-inline constexpr int COMBAT_STARTING_AP = 4;
-inline constexpr int COMBAT_MOVE_COST = 1;
-inline constexpr int COMBAT_ATTACK_COST = 4;
-inline constexpr int COMBAT_MELEE_DAMAGE = 10;
-inline constexpr int COMBAT_HIT_CHANCE_PERCENT = 75;
-
-enum class CombatActionType { MOVE, SHOOT, SPELL, WAIT };
-
-struct SpellTargetInfo {
-  bmin::String targetCharacterId;
-  int tileX = 0;
-  int tileY = 0;
-};
-
-struct Combat {
-  bool active = false;
-  bmin::DynArray<bmin::String> turnOrderIds;
-  int activeTurnIndex = 0;
-  bmin::String activeCharacterId;
-  bool isWaitingForAction = false;
-};
-
-void removeCharacterFromCombatTurnOrder(Combat& combat, const bmin::String& characterId);
-
-bool isPartyMember(const Player& player, const bmin::String& characterId);
-bool isCharacterAlly(const Player& player, const CharacterInstance& character);
-bool isCharacterEnemy(const CharacterInstance& character);
-
-int getCharacterHp(const Player& player, const CharacterInstance& character);
-void setCharacterHp(Player& player, CharacterInstance& character, int hp);
-/** Updates party member HP by instance id without requiring them on the map. */
-bool modifyPartyMemberHp(Player& player, const bmin::String& instanceId, int delta);
-bool isCharacterDefeated(const Player& player, const CharacterInstance& character);
-
-} // namespace model
-
-} // export
+// --- Combat.cppm ---
 
 namespace model {
 
