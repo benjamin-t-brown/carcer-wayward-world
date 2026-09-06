@@ -6,7 +6,6 @@ export module carcer.actions.combat:GoNextCombatTurn;
 export import carcer.state;
 import :SetActiveCombatCharacter;
 import carcer.game.map;
-import carcer.game.combat;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"
@@ -21,7 +20,10 @@ class GoNextCombatTurn : public AbstractAction {
   void startNewCombatRound() {
     LOG(INFO) << "GoNextCombatTurn: new combat round, resetting AP" << LOG_ENDL;
     state->world.combat.activeTurnIndex = 0;
-    game::onNewCombatRound(*state);
+    model::resetAllCombatAp(state->world, model::COMBAT_STARTING_AP);
+    state->playerMovementCount += game::TILE_FIELD_MOVES_PER_COMBAT_ROUND;
+    game::ageMapInstances(
+        state->mapInstances, game::TILE_FIELD_MOVES_PER_COMBAT_ROUND);
   }
 
   void act() override {

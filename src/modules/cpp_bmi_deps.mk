@@ -14,7 +14,7 @@ db/loaders/LoadStatusEffectTemplates.o: .carcer-bmi/carcer.data.o .carcer-bmi/ca
 db/loaders/LoadTilesetTemplates.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.db.o .carcer-bmi/carcer.lib.Json.o
 game/combat/CombatRunner.o: .carcer-bmi/carcer.game.combat.o .carcer-bmi/carcer.model.o
 game/combat/Damage.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.combat.o .carcer-bmi/carcer.model.o
-game/combat/EnemyBehavior.o: .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.combat.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o .carcer-bmi/carcer.state.o
+game/combat/EnemyBehavior.o: .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.combat.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 game/combat/SpellRules.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.combat.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 game/combat/projectileHelpers.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.combat.o
 game/diceHelpers.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.combat.o

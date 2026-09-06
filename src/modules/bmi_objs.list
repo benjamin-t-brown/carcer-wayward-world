@@ -12,6 +12,7 @@
 .carcer-bmi/carcer.ui.core-TextStyle.o
 .carcer-bmi/carcer.game.map.o
 .carcer-bmi/carcer.state.o
+.carcer-bmi/carcer.game.combat.o
 .carcer-bmi/carcer.actions.combat-CharacterSetSpriteIndexOffset.o
 .carcer-bmi/carcer.actions.combat-EndCombat.o
 .carcer-bmi/carcer.actions.combat-ModifyAP.o
@@ -66,9 +67,10 @@
 .carcer-bmi/carcer.actions.world-WorldSpawnPlayerAtXY.o
 .carcer-bmi/carcer.actions.world-WorldTalkAt.o
 .carcer-bmi/carcer.actions.world_effects.o
-.carcer-bmi/carcer.game.combat.o
 .carcer-bmi/carcer.ui.core-UiElement.o
 .carcer-bmi/carcer.world_updater.o
+.carcer-bmi/carcer.actions.combat-RemoveCharacterFromMap.o
+.carcer-bmi/carcer.actions.combat-GoNextCombatTurn.o
 .carcer-bmi/carcer.actions.combat-StartCombat.o
 .carcer-bmi/carcer.actions.ui.layers.o
 .carcer-bmi/carcer.actions.world-WorldSpawnPlayer.o
@@ -76,14 +78,12 @@
 .carcer-bmi/carcer.actions.world-WorldSetActionMode.o
 .carcer-bmi/carcer.actions.world-WorldSpawnDamageParticle.o
 .carcer-bmi/carcer.actions.world-WorldSpawnProjectile.o
-.carcer-bmi/carcer.actions.combat-GoNextCombatTurn.o
-.carcer-bmi/carcer.actions.combat-RemoveCharacterFromMap.o
 .carcer-bmi/carcer.ui.core-uiUtils.o
-.carcer-bmi/carcer.actions.ui-UiSelectSpellCast.o
 .carcer-bmi/carcer.actions.combat-PerformCharacterDefeated.o
+.carcer-bmi/carcer.actions.ui-UiSelectSpellCast.o
 .carcer-bmi/carcer.ui.core.o
-.carcer-bmi/carcer.actions.ui.o
 .carcer-bmi/carcer.actions.combat-DoCombatActionCompletion.o
+.carcer-bmi/carcer.actions.ui.o
 .carcer-bmi/carcer.layers-Layer.o
 .carcer-bmi/carcer.ui.components-ChCompactInfo.o
 .carcer-bmi/carcer.ui.components-MapView.o

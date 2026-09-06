@@ -196,6 +196,47 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   {
+    auto& currentState = stateManager.getState();
+    auto& combat = currentState.world.combat;
+    combat.activeTurnIndex = static_cast<int>(combat.turnOrderIds.size()) - 1;
+    for (auto& character : currentState.world.activeMap.characters) {
+      character.currentAp = 0;
+    }
+
+    auto& map = currentState.mapInstances["combat_test_map"];
+    game::addTileFieldAt(map, 0, 0, game::TileFieldType::BLOOD);
+    auto* tile = game::tileAtCurrentLayer(map, 0, 0);
+    const auto startingDuration =
+        tile && !tile->fields.empty() ? tile->fields[0].moveDuration : -1;
+    const auto startingMovementCount = currentState.playerMovementCount;
+
+    state::actions::GoNextCombatTurn nextTurn;
+    nextTurn.execute(&currentState);
+
+    ok = assertEqual(combat.activeTurnIndex, 0, "new round turn index") && ok;
+    ok = assertEqual(currentState.playerMovementCount,
+                     startingMovementCount + game::TILE_FIELD_MOVES_PER_COMBAT_ROUND,
+                     "new round movement count") &&
+         ok;
+    for (const auto& character : currentState.world.activeMap.characters) {
+      ok = assertEqual(character.currentAp,
+                       model::COMBAT_STARTING_AP,
+                       "new round character AP") &&
+           ok;
+    }
+    tile = game::tileAtCurrentLayer(map, 0, 0);
+    ok = assertTrue(tile != nullptr && tile->fields.size() == 1,
+                    "new round field remains") &&
+         ok;
+    if (tile && !tile->fields.empty()) {
+      ok = assertEqual(tile->fields[0].moveDuration,
+                       startingDuration - game::TILE_FIELD_MOVES_PER_COMBAT_ROUND,
+                       "new round field aging") &&
+           ok;
+    }
+  }
+
+  {
     auto* allyBefore = findOnActiveMap(stateManager.getState().world.activeMap, "ally-1");
     const auto startX = allyBefore ? allyBefore->x : -1;
     stateManager.enqueueAction(

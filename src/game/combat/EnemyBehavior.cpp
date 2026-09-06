@@ -6,7 +6,6 @@ module;
 module carcer.game.combat;
 import carcer.game.map;
 import carcer.model;
-import carcer.state;
 import carcer.db;
 import bmin.string_interop;
 import sdl2w;

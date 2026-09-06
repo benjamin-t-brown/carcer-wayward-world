@@ -10,7 +10,6 @@ export import carcer.model;
 export import carcer.data;
 export import carcer.db;
 export import carcer.game.map;
-export import carcer.state;
 export import bmin.containers;
 import bmin.string_interop;
 
@@ -31,8 +30,6 @@ struct CombatRunner {
   void endTurn();
   void endCombat();
 };
-
-void onNewCombatRound(state::State& state);
 
 } // namespace game
 
@@ -97,12 +94,6 @@ bool chooseSeekAndMeleeCombatAction(model::World& world,
                                     const db::Database& database,
                                     int& outDx,
                                     int& outDy);
-
-/**
- * Enqueues timed town enemy AI (seek / melee with combat swing timing).
- * Requires StateManager; sets world.resolvingTownEnemyAi until the sequence ends.
- */
-// void runTownEnemyAiAfterPlayerMove(state::State& state, const db::Database& database);
 
 } // namespace game
 
@@ -354,13 +345,3 @@ int rollDiceList(const bmin::DynArray<model::Dice>& diceList);
 } // namespace game
 
 } // export
-
-namespace game {
-
-void onNewCombatRound(state::State& state) {
-  model::resetAllCombatAp(state.world, model::COMBAT_STARTING_AP);
-  state.playerMovementCount += TILE_FIELD_MOVES_PER_COMBAT_ROUND;
-  ageMapInstances(state.mapInstances, TILE_FIELD_MOVES_PER_COMBAT_ROUND);
-}
-
-} // namespace game

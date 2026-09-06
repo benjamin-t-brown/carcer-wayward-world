@@ -12,6 +12,7 @@ model/model.cppm
 ui/TextStyle.cppm
 game/map/_map.cppm
 state/_State.cppm
+game/combat/_combat.cppm
 actions/combat/CharacterSetSpriteIndexOffset.cppm
 actions/combat/EndCombat.cppm
 actions/combat/ModifyAP.cppm
@@ -66,9 +67,10 @@ actions/world/WorldSpawnPlayerAtMarker.cppm
 actions/world/WorldSpawnPlayerAtXY.cppm
 actions/world/WorldTalkAt.cppm
 actions/WorldEffects.cppm
-game/combat/_combat.cppm
 ui/UiElement.cppm
 state/WorldUpdater.cppm
+actions/combat/RemoveCharacterFromMap.cppm
+actions/combat/GoNextCombatTurn.cppm
 actions/combat/StartCombat.cppm
 actions/ui/layers/_layers.cppm
 actions/world/WorldSpawnPlayer.cppm
@@ -76,14 +78,12 @@ actions/world/WorldTravel.cppm
 actions/world/WorldSetActionMode.cppm
 actions/world/WorldSpawnDamageParticle.cppm
 actions/world/WorldSpawnProjectile.cppm
-actions/combat/GoNextCombatTurn.cppm
-actions/combat/RemoveCharacterFromMap.cppm
 ui/uiUtils.cppm
-actions/ui/UiSelectSpellCast.cppm
 actions/combat/PerformCharacterDefeated.cppm
+actions/ui/UiSelectSpellCast.cppm
 ui/_core.cppm
-actions/ui/_ui.cppm
 actions/combat/DoCombatActionCompletion.cppm
+actions/ui/_ui.cppm
 layers/Layer.cppm
 ui/components/ChCompactInfo.cppm
 ui/components/MapView.cppm

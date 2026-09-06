@@ -12,6 +12,7 @@ carcer.model
 carcer.ui.core:TextStyle
 carcer.game.map
 carcer.state
+carcer.game.combat
 carcer.actions.combat:CharacterSetSpriteIndexOffset
 carcer.actions.combat:EndCombat
 carcer.actions.combat:ModifyAP
@@ -66,9 +67,10 @@ carcer.actions.world:WorldSpawnPlayerAtMarker
 carcer.actions.world:WorldSpawnPlayerAtXY
 carcer.actions.world:WorldTalkAt
 carcer.actions.world_effects
-carcer.game.combat
 carcer.ui.core:UiElement
 carcer.world_updater
+carcer.actions.combat:RemoveCharacterFromMap
+carcer.actions.combat:GoNextCombatTurn
 carcer.actions.combat:StartCombat
 carcer.actions.ui.layers
 carcer.actions.world:WorldSpawnPlayer
@@ -76,14 +78,12 @@ carcer.actions.world:WorldTravel
 carcer.actions.world:WorldSetActionMode
 carcer.actions.world:WorldSpawnDamageParticle
 carcer.actions.world:WorldSpawnProjectile
-carcer.actions.combat:GoNextCombatTurn
-carcer.actions.combat:RemoveCharacterFromMap
 carcer.ui.core:uiUtils
-carcer.actions.ui:UiSelectSpellCast
 carcer.actions.combat:PerformCharacterDefeated
+carcer.actions.ui:UiSelectSpellCast
 carcer.ui.core
-carcer.actions.ui
 carcer.actions.combat:DoCombatActionCompletion
+carcer.actions.ui
 carcer.layers:Layer
 carcer.ui.components:ChCompactInfo
 carcer.ui.components:MapView
