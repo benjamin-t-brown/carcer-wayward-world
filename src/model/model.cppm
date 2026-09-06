@@ -9,7 +9,6 @@ export module carcer.model;
 
 export import bmin.containers;
 import carcer.data;
-import carcer.db;
 import carcer.game.map.TileFields;
 import sdl2w;
 
@@ -93,10 +92,6 @@ bool isCharacterFacingLeft(const CharacterInstance& character);
 /** Copy AI/faction fields from template onto a map character instance. */
 void applyCharacterTemplateToInstance(CharacterInstance& character,
                                       const CharacterTemplate& characterTemplate);
-
-/** Lookup templateName on the database and apply; returns false if missing. */
-bool tryApplyCharacterTemplateToInstance(CharacterInstance& character,
-                                         const db::Database& database);
 
 } // namespace model
 
@@ -191,10 +186,6 @@ characterPlayerGetEquipmentSlotForItemId(const CharacterPlayer& characterPlayer,
 bmin::String characterEquipmentSlotAbbrev(CharacterEquipmentSlot slot);
 bool characterPlayerIsItemEquippedById(const CharacterPlayer& characterPlayer,
                                        const bmin::String& itemId);
-EquipItemResult characterPlayerToggleEquipItem(CharacterPlayer& characterPlayer,
-                                               const bmin::String& itemId,
-                                               const db::Database& database);
-
 enum class EquipRuneResult {
   EQUIPPED,
   UNEQUIPPED,
@@ -255,19 +246,10 @@ enum class GiveItemResult {
   TOO_HEAVY,
 };
 
-GiveItemResult characterPlayerGiveInventoryItem(CharacterPlayer& from,
-                                                CharacterPlayer& to,
-                                                const bmin::String& itemId,
-                                                int quantity,
-                                                const db::Database& database);
 bool characterPlayerReorderInventoryItem(CharacterPlayer& characterPlayer,
                                          size_t index,
                                          int direction);
-int characterGetWeightCarrying(const CharacterPlayer& characterPlayer,
-                               const db::Database* database);
 int characterGetWeightCapacity(const CharacterPlayer& characterPlayer);
-int characterGetRationSlotCapacity(const CharacterPlayer& characterPlayer,
-                                   const db::Database& database);
 
 /** Copy starting known/ready spell lists from template onto a party member. */
 void applyCharacterTemplateStartingSpells(CharacterPlayer& character,
@@ -538,7 +520,6 @@ struct World {
 };
 
 void resetAllCombatAp(World& world, int ap = COMBAT_STARTING_AP);
-void addPartyMembersToCombatMap(World& world, Player& player, const db::Database& database);
 void removeExtraPartyMembersFromMap(World& world, const Player& player);
 
 Combat createCombatFromWorld(const World& world, const Player& player);

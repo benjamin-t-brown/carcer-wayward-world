@@ -6,6 +6,7 @@ export module carcer.actions.ui:UiDropInventoryItem;
 export import carcer.state;
 import sdl2w;
 import carcer.game.map;
+import carcer.game.inventory;
 import carcer.model;
 #include "macros.h"
 
@@ -57,7 +58,7 @@ class UiDropInventoryItem : public AbstractAction {
     }
 
     if (model::characterPlayerIsItemEquippedById(*partyMember, itemId)) {
-      model::characterPlayerToggleEquipItem(*partyMember, itemId, *database);
+      game::toggleEquippedInventoryItem(*partyMember, itemId, *database);
     }
 
     model::ItemInstance dropped;

@@ -22,8 +22,8 @@ MapInstanceStore createMapInstances(const db::Database& database) {
   for (auto it = templates.begin(); it != templates.end(); ++it) {
     model::MapInstance instance = model::createMapInstanceFromTemplate(it->value);
     for (size_t ci = 0; ci < instance.persistentState.characters.size(); ci++) {
-      model::tryApplyCharacterTemplateToInstance(instance.persistentState.characters[ci],
-                                                 database);
+      applyCharacterTemplateFromDatabase(instance.persistentState.characters[ci],
+                                         database);
     }
     auto layers = model::mapInstanceTiles(instance);
     for (auto layer : layers) {

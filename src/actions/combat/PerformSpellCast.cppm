@@ -20,9 +20,8 @@ class PerformSpellCast : public AbstractAction {
   bmin::String spellId;
   model::SpellTargetInfo spellTargetInfo;
 
-  // body in combat.cpp: needs carcer.actions.world (WorldSpawnProjectile /
-  // WorldSpawnDamageParticle / WorldSetActionMode), impl-only - genuine
-  // deferred/timed follow-ups, not eliminable by inlining.
+  // The implementation imports carcer.actions.world for deferred visual effects
+  // and action-mode changes.
   void doZoneSpell(const model::AbilityTemplate& ability,
                    model::CharacterInstance& caster,
                    game::ActiveMapOrchestrator& orch);

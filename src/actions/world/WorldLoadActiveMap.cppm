@@ -141,7 +141,7 @@ class WorldLoadActiveMap : public AbstractAction {
             character.y = worldLoc.y;
           }
           if (database) {
-            model::tryApplyCharacterTemplateToInstance(character, *database);
+            game::applyCharacterTemplateFromDatabase(character, *database);
           }
           localState.world.activeMap.characters.pushBack(std::move(character));
         }

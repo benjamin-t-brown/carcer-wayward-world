@@ -27,7 +27,9 @@ lib/Json.cpp \
 lib/hiscore/hiscore.cpp \
 layers/LayerManager.cpp \
 game/combat/SpellRules.cpp \
+game/combat/CombatParty.cpp \
 game/map/ActiveMapOrchestrator.cpp \
+game/map/CharacterConstruction.cpp \
 game/map/Camera.cpp \
 game/map/MapWalkability.cpp \
 game/map/MapVision.cpp \
@@ -41,6 +43,7 @@ game/combat/projectileHelpers.cpp \
 game/combat/Damage.cpp \
 game/diceHelpers.cpp \
 game/combat/EnemyBehavior.cpp \
+game/inventory/InventoryRules.cpp \
 in3/SpecialEventRunner.cpp \
 in3/ConditionEvaluator.cpp \
 in3/StringEvaluator.cpp \
@@ -51,7 +54,7 @@ state/StateManager.cpp \
 state/StateManagerInterface.cpp \
 state/UiManager.cpp \
 state/LayerManagerInterface.cpp \
-state/WorldUpdater.cpp \
+actions/world/WorldUpdater.cpp \
 ui/UiElement.cpp \
 ui/FontScale.cpp \
 ui/helpers/worldActions.cpp \

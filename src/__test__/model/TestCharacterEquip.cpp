@@ -53,12 +53,12 @@ int main(int argc, char** argv) {
       makeInventoryItem("hatB", "HatB"),
   };
 
-  assertResult(model::characterPlayerToggleEquipItem(character, "dagger1", database),
+  assertResult(game::toggleEquippedInventoryItem(character, "dagger1", database),
                model::EquipItemResult::EQUIPPED);
   assert(character.equipment.weapon0Id == "dagger1");
   assert(character.equipment.weapon1Id.empty());
 
-  assertResult(model::characterPlayerToggleEquipItem(character, "dagger2", database),
+  assertResult(game::toggleEquippedInventoryItem(character, "dagger2", database),
                model::EquipItemResult::EQUIPPED);
   assert(character.equipment.weapon0Id == "dagger1");
   assert(character.equipment.weapon1Id == "dagger2");
@@ -78,46 +78,46 @@ int main(int argc, char** argv) {
   assert(model::characterEquipmentSlotAbbrev(model::CharacterEquipmentSlot::SHIELD) ==
          "o");
 
-  assertResult(model::characterPlayerToggleEquipItem(character, "dagger3", database),
+  assertResult(game::toggleEquippedInventoryItem(character, "dagger3", database),
                model::EquipItemResult::SLOT_OCCUPIED);
   assert(character.equipment.weapon1Id == "dagger2");
 
-  assertResult(model::characterPlayerToggleEquipItem(character, "dagger1", database),
+  assertResult(game::toggleEquippedInventoryItem(character, "dagger1", database),
                model::EquipItemResult::UNEQUIPPED);
   assert(character.equipment.weapon0Id == "dagger2");
   assert(character.equipment.weapon1Id.empty());
 
   character.equipment = {};
-  assertResult(model::characterPlayerToggleEquipItem(character, "hatA", database),
+  assertResult(game::toggleEquippedInventoryItem(character, "hatA", database),
                model::EquipItemResult::EQUIPPED);
   assert(character.equipment.hatId == "hatA");
 
-  assertResult(model::characterPlayerToggleEquipItem(character, "hatB", database),
+  assertResult(game::toggleEquippedInventoryItem(character, "hatB", database),
                model::EquipItemResult::SLOT_OCCUPIED);
   assert(character.equipment.hatId == "hatA");
 
-  assertResult(model::characterPlayerToggleEquipItem(character, "hatA", database),
+  assertResult(game::toggleEquippedInventoryItem(character, "hatA", database),
                model::EquipItemResult::UNEQUIPPED);
   assert(character.equipment.hatId.empty());
 
   character.equipment = {};
   character.inventory.pushBack(makeInventoryItem("daggerOff", "DaggerOne"));
-  assertResult(model::characterPlayerToggleEquipItem(character, "daggerOff", database),
+  assertResult(game::toggleEquippedInventoryItem(character, "daggerOff", database),
                model::EquipItemResult::EQUIPPED);
   assert(character.equipment.weapon0Id == "daggerOff");
 
-  assertResult(model::characterPlayerToggleEquipItem(character, "sword2h", database),
+  assertResult(game::toggleEquippedInventoryItem(character, "sword2h", database),
                model::EquipItemResult::TWO_HANDED_OFF_HAND);
   assert(character.equipment.weapon0Id == "daggerOff");
 
   character.equipment.weapon0Id.clear();
   character.equipment.weapon1Id = "daggerOff";
-  assertResult(model::characterPlayerToggleEquipItem(character, "sword2h", database),
+  assertResult(game::toggleEquippedInventoryItem(character, "sword2h", database),
                model::EquipItemResult::SLOT_OCCUPIED);
   assert(character.equipment.weapon1Id == "daggerOff");
 
   character.equipment = {};
-  assertResult(model::characterPlayerToggleEquipItem(character, "sword2h", database),
+  assertResult(game::toggleEquippedInventoryItem(character, "sword2h", database),
                model::EquipItemResult::EQUIPPED);
   assert(character.equipment.weapon0Id == "sword2h");
 

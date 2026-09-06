@@ -17,8 +17,7 @@ class PerformMeleeAttack : public AbstractAction {
   bmin::String attackerId;
   bmin::String victimId;
 
-  // body in combat.cpp: needs carcer.actions.world (WorldSpawnDamageParticle),
-  // impl-only - a genuine deferred/timed follow-up, not eliminable by inlining.
+  // The implementation imports carcer.actions.world for deferred visual effects.
   void act() override;
 
 public:

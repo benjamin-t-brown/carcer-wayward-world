@@ -110,7 +110,7 @@ void spawnEnemiesAtMarkers(state::State& state,
     enemy.y = found.y;
     enemy.spawnX = found.x;
     enemy.spawnY = found.y;
-    model::tryApplyCharacterTemplateToInstance(enemy, database);
+    game::applyCharacterTemplateFromDatabase(enemy, database);
     world.activeMap.characters.pushBack(std::move(enemy));
   }
 }

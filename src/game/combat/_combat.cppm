@@ -19,6 +19,10 @@ export {
 
 namespace game {
 
+void addPartyMembersToCombatMap(model::World& world,
+                                model::Player& player,
+                                const db::Database& database);
+
 struct CombatRunner {
   const model::World* world;
 

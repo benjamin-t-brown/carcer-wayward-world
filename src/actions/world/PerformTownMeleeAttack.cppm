@@ -5,7 +5,7 @@ module;
 
 export module carcer.actions.world:PerformTownMeleeAttack;
 export import carcer.state;
-import carcer.actions.combat;
+import :CharacterSetSpriteIndexOffset;
 import :ModifyPartyMemberHp;
 import :WorldSpawnDamageParticle;
 import carcer.actions.general;

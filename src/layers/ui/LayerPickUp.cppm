@@ -13,6 +13,7 @@ export import :Layer;
 export import carcer.ui.elements;
 import sdl2w;
 import carcer.actions;
+import carcer.game.inventory;
 import carcer.game.map;
 import carcer.lib.StringUtil;
 import carcer.model;
@@ -194,7 +195,7 @@ void LayerPickUp::syncCurrentPartyMember() {
     return;
   }
 
-  const int carrying = model::characterGetWeightCarrying(*currentPartyMember, database);
+  const int carrying = game::inventoryWeight(*currentPartyMember, *database);
   const int maxWeight = model::characterGetWeightCapacity(*currentPartyMember);
 
   auto minipageProps = minipagePickUp->getProps();

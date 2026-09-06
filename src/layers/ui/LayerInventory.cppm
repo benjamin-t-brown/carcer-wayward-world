@@ -11,6 +11,7 @@ export module carcer.layers:LayerInventory;
 export import :Layer;
 import sdl2w;
 import carcer.actions;
+import carcer.game.inventory;
 import carcer.model;
 import carcer.ui.components;
 import carcer.ui.helpers;
@@ -144,7 +145,7 @@ void LayerInventory::syncInventoryPartyMember() {
   }
   pageProps.characterPlayerSprite = model::characterPlayerGetSprite(*inventoryPartyMember);
   pageProps.weightCarrying =
-      model::characterGetWeightCarrying(*inventoryPartyMember, getDatabase());
+      game::inventoryWeight(*inventoryPartyMember, *getDatabase());
   pageProps.weightCapacity = model::characterGetWeightCapacity(*inventoryPartyMember);
   pageProps.gold = player.gold;
   pageProps.inventory = inventoryPartyMember->inventory;

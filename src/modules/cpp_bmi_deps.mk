@@ -1,4 +1,5 @@
-actions/combat/combat.o: .carcer-bmi/carcer.actions.combat.o .carcer-bmi/carcer.actions.general.o .carcer-bmi/carcer.actions.world_effects.o .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.combat.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
+actions/combat/combat.o: .carcer-bmi/carcer.actions.combat.o .carcer-bmi/carcer.actions.general.o .carcer-bmi/carcer.actions.world.o .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.combat.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
+actions/world/WorldUpdater.o: .carcer-bmi/carcer.actions.combat.o .carcer-bmi/carcer.actions.ui.layers.o .carcer-bmi/carcer.actions.world.o .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o .carcer-bmi/carcer.ui.helpers.o
 data/stats.o: .carcer-bmi/carcer.data.o
 data/templates.o: .carcer-bmi/carcer.data.o
 db/Database.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.db.o
@@ -12,14 +13,17 @@ db/loaders/LoadSpecialEvents.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.db.
 db/loaders/LoadSpellTemplates.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.db.o .carcer-bmi/carcer.lib.Json.o
 db/loaders/LoadStatusEffectTemplates.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.db.o .carcer-bmi/carcer.lib.Json.o
 db/loaders/LoadTilesetTemplates.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.db.o .carcer-bmi/carcer.lib.Json.o
+game/combat/CombatParty.o: .carcer-bmi/carcer.game.combat.o
 game/combat/CombatRunner.o: .carcer-bmi/carcer.game.combat.o .carcer-bmi/carcer.model.o
 game/combat/Damage.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.combat.o .carcer-bmi/carcer.model.o
 game/combat/EnemyBehavior.o: .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.combat.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 game/combat/SpellRules.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.combat.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 game/combat/projectileHelpers.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.combat.o
 game/diceHelpers.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.combat.o
+game/inventory/InventoryRules.o: .carcer-bmi/carcer.game.inventory.o
 game/map/ActiveMapOrchestrator.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 game/map/Camera.o: .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
+game/map/CharacterConstruction.o: .carcer-bmi/carcer.game.map.o
 game/map/MapPathfinding.o: .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 game/map/MapPersistence.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
 game/map/MapPickup.o: .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
@@ -46,7 +50,6 @@ state/LayerManagerInterface.o: .carcer-bmi/carcer.state.o
 state/StateManager.o: .carcer-bmi/carcer.state.o
 state/StateManagerInterface.o: .carcer-bmi/carcer.state.o
 state/UiManager.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.state.o
-state/WorldUpdater.o: .carcer-bmi/carcer.actions.o .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o .carcer-bmi/carcer.ui.helpers.o .carcer-bmi/carcer.world_updater.o
 ui/FontScale.o: .carcer-bmi/carcer.ui.core.o
 ui/KeyboardHeldScroll.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.ui.KeyboardHeldScroll.o
 ui/UiElement.o: .carcer-bmi/carcer.state.o .carcer-bmi/carcer.ui.core.o

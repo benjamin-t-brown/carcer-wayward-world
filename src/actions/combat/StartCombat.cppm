@@ -5,7 +5,7 @@ module;
 export module carcer.actions.combat:StartCombat;
 export import carcer.state;
 import :SetActiveCombatCharacter;
-import carcer.game.map;
+import carcer.game.combat;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"
@@ -30,7 +30,7 @@ class StartCombat : public AbstractAction {
     LOG(INFO) << "StartCombat: starting combat on grid " << world.activeMap.gridId
               << LOG_ENDL;
     state->turnMode = model::TurnMode::TURN_COMBAT;
-    model::addPartyMembersToCombatMap(world, state->player, *database);
+    game::addPartyMembersToCombatMap(world, state->player, *database);
     game::updateActiveMapVisibilityFromParty(
         world, state->mapInstances, state->player, *database);
     world.combat = model::createCombatFromWorld(world, state->player);

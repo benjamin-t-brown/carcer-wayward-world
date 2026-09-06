@@ -108,7 +108,7 @@ int main(int argc, char** argv) {
     }
     pageProps.characterPlayerSprite = model::characterPlayerGetSprite(characterPlayer);
     pageProps.weightCarrying =
-        model::characterGetWeightCarrying(characterPlayer, &database);
+        game::inventoryWeight(characterPlayer, database);
     pageProps.weightCapacity = model::characterGetWeightCapacity(characterPlayer);
     pageProps.gold = player.gold;
     pageProps.inventory = characterPlayer.inventory;

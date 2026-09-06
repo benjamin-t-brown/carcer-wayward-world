@@ -6,6 +6,7 @@ export module carcer.actions.ui:UiPickUpItem;
 export import carcer.state;
 import sdl2w;
 import carcer.model;
+import carcer.game.inventory;
 import bmin.string_interop;
 #include "macros.h"
 
@@ -61,7 +62,7 @@ class UiPickUpItem : public AbstractAction {
     }
 
     const int addedWeight = mapItem->quantity * itemTemplate->weight;
-    if (model::characterGetWeightCarrying(*partyMember, database) + addedWeight >
+    if (game::inventoryWeight(*partyMember, *database) + addedWeight >
         model::characterGetWeightCapacity(*partyMember)) {
       UiFloatingNotification notification;
       notification.id = model::createRandomId();

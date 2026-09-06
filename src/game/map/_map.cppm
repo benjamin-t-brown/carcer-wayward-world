@@ -17,6 +17,10 @@ export {
 // --- from game/map/ActiveMapOrchestrator.h ---
 namespace game {
 
+/** Apply the instance's named character template; false when absent or unknown. */
+bool applyCharacterTemplateFromDatabase(model::CharacterInstance& character,
+                                        const db::Database& database);
+
 using MapInstanceStore = bmin::Map<bmin::String, model::MapInstance>;
 
 struct ActiveMapLoc {

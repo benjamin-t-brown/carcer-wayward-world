@@ -6,6 +6,7 @@ export module carcer.actions.ui:UiToggleEquipInventoryItem;
 export import carcer.state;
 import sdl2w;
 import carcer.model;
+import carcer.game.inventory;
 #include "macros.h"
 
 export {
@@ -35,7 +36,7 @@ class UiToggleEquipInventoryItem : public AbstractAction {
     }
 
     const auto result =
-        model::characterPlayerToggleEquipItem(*characterPlayer, itemId, *database);
+        game::toggleEquippedInventoryItem(*characterPlayer, itemId, *database);
 
     switch (result) {
     case model::EquipItemResult::SLOT_OCCUPIED: {

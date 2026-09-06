@@ -16,7 +16,6 @@ import sdl2w;
 import :LayerManager;
 import carcer.actions;
 import carcer.state;
-import carcer.world_updater;
 import carcer.game.map;
 import carcer.model;
 import carcer.ui.elements;

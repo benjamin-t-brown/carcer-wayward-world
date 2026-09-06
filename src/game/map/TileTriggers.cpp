@@ -104,7 +104,7 @@ model::CharacterInstance* placePartyAvatarAt(model::ActiveMap& activeMap,
   instance.spawnX = x;
   instance.spawnY = y;
   if (database) {
-    model::tryApplyCharacterTemplateToInstance(instance, *database);
+    applyCharacterTemplateFromDatabase(instance, *database);
   }
   activeMap.characters.pushBack(std::move(instance));
   return findPartyAvatarOnActiveMap(activeMap, player);

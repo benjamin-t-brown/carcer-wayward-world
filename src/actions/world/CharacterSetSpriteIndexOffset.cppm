@@ -1,18 +1,14 @@
 module;
-#include <utility>
 #include <cstddef>
+#include <utility>
 
-export module carcer.actions.combat:CharacterSetSpriteIndexOffset;
+export module carcer.actions.world:CharacterSetSpriteIndexOffset;
 export import carcer.state;
 import carcer.game.map;
-import bmin.string_interop;
-#include "macros.h"
 
 export {
 
-namespace state {
-
-namespace actions {
+namespace state::actions {
 
 class CharacterSetSpriteIndexOffset : public AbstractAction {
   bmin::String characterId;
@@ -36,8 +32,6 @@ public:
       : characterId(std::move(_characterId)), offset(_offset) {}
 };
 
-} // namespace actions
-
-} // namespace state
+} // namespace state::actions
 
 } // export

@@ -4,8 +4,9 @@ module;
 #include <utility>
 #include <cmath>
 
-module carcer.world_updater;
-import carcer.actions;
+module carcer.actions.world;
+import carcer.actions.combat;
+import carcer.actions.ui.layers;
 import carcer.data;
 import carcer.game.map;
 import carcer.model;

@@ -6,6 +6,7 @@ export module carcer.actions.ui:UiGiveInventoryItem;
 export import carcer.state;
 import sdl2w;
 import carcer.model;
+import carcer.game.inventory;
 #include "macros.h"
 
 export {
@@ -37,7 +38,7 @@ class UiGiveInventoryItem : public AbstractAction {
       return;
     }
 
-    const auto result = model::characterPlayerGiveInventoryItem(
+    const auto result = game::giveInventoryItem(
         *fromMember, *toMember, itemId, quantity, *database);
 
     switch (result) {

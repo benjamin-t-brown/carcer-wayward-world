@@ -1,6 +1,6 @@
 # Carcer C++ Modules v2 Implementation Plan
 
-Status: Phase 4 ownership refactor in progress; Gate 2 passes natively
+Status: Phase 4 complete; Gate 2 passes natively
 Baseline commit: `95562b3` on `experiment/cpp-modules`  
 Date: 2026-09-05
 
@@ -15,7 +15,7 @@ Date: 2026-09-05
 - Phase 3 replaces the model/template partition forest with `carcer.data` and
   `carcer.model`, each using a declarations-only interface and grouped
   implementation units. The generated Make graph remains buildable.
-- Phase 4 has started by removing the concrete
+- Phase 4 removes the concrete
   `UiRemoveFloatingNotification` action from `carcer.state`. Notification
   expiry is now state maintenance, explicit dismissal remains owned by
   `carcer.actions.ui`, and UI synchronization uses a state revision rather
@@ -35,10 +35,21 @@ Date: 2026-09-05
   exposes only rules over explicit model, map, and database inputs. Removing
   the inversion and the action's now-redundant combat import lowers the graph
   from 846 to 844 edges.
+- The `carcer.actions.world_effects` and `carcer.world_updater` cycle-break
+  modules have been folded into `carcer.actions.world`. Generic world effects
+  remain available to combat implementation units, the updater remains action
+  orchestration, and the world/combat primary interfaces are independent. The
+  graph falls from 183 to 181 interfaces, 844 to 838 edges, 29 to 26 critical
+  levels, and 174 to 172 maximum transitive dependents.
+- `carcer.model` no longer imports `carcer.db` or exposes database-dependent
+  operations. Inventory and equipment lookups now live in
+  `carcer.game.inventory`, map-character construction lives in
+  `carcer.game.map`, and combat-party population lives in
+  `carcer.game.combat`.
 - GCC 15.3 and Homebrew Clang 22.1.8 debug builds pass on the qualification
-  host. Thirty current non-UI tests pass under both compilers, five stale tests
-  compile but are disabled, three tests call already-disabled production APIs,
-  and all 43 UI test programs compile and link with GCC.
+  host. Thirty-two current non-UI tests pass under both compilers, five stale
+  tests compile but are disabled, three tests call already-disabled production
+  APIs, and all 43 UI test programs compile and link with GCC.
 - Emscripten presets are present, but the SDK is not installed on the
   qualification host; that platform remains unverified and must be closed
   during the Phase 3 pilot rather than deferred to final cleanup.
@@ -110,13 +121,10 @@ remaining partition forests still dominate the graph. Further migration must
 keep declarations stable and apply the same coarse interface/grouped
 implementation shape; returning to partition-per-class would erase the gain.
 
-Two Phase 3 follow-ups remain before starting the ownership work in Phase 4:
+One platform follow-up remains after the ownership work in Phase 4:
 
 - Emscripten is still unverified because no Emscripten SDK is installed on the
   qualification host.
-- Database-dependent equipment, inventory, and construction operations still
-  live in `carcer.model`; move them behind rules/service APIs as the first
-  ownership change rather than carrying the database dependency further.
 
 ## Summary
 
