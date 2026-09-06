@@ -1,19 +1,22 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-if [ ! -f "../src/Anims" ] && [ ! -f "../src/Anims.exe" ]; then
-  echo "go to sdl2w src folder"
-  cd ../sdl2w/src
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DEPS_ROOT="${CARCER_DEPS_ROOT:-${ROOT}/.deps}"
+SDL2W_ROOT="${DEPS_ROOT}/sdl2w"
+BMIN_ROOT="${DEPS_ROOT}/bmin"
+ANIMS="${SDL2W_ROOT}/src/build/tools/Anims"
+
+CARCER_DEPS_ROOT="${DEPS_ROOT}" "${ROOT}/scripts/bootstrap-deps.sh" --check
+
+if [[ ! -x "${ANIMS}" && ! -x "${ANIMS}.exe" ]]; then
   echo "Building Anims..."
-  make clean
-  make -j8
-  make tools
-  echo "cp Anims to top level src folder"
-  cp build/tools/Anims ../../src
-  cd ../../scripts
+  make -C "${SDL2W_ROOT}/src" tools BMIN_REPO="${BMIN_ROOT}"
 fi
 
-echo "cd to top level src folder"
-cd ../src
+if [[ -x "${ANIMS}.exe" ]]; then
+  ANIMS="${ANIMS}.exe"
+fi
 
-ls
-./Anims --assets-dir assets --asset-file assets/assets.game.txt
+"${ANIMS}" --assets-dir "${ROOT}/src/assets" \
+  --asset-file "${ROOT}/src/assets/assets.game.txt"

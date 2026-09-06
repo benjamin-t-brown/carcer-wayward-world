@@ -60,10 +60,13 @@ TARGET ?= native
 
 .DEFAULT_GOAL := all
 
-SDL2W_REPO_URL = https://github.com/benjamin-t-brown/sdl2w.git
-SDL2W_DIR_NAME = ../../sdl2w
-SDL2W_REF = experiment/cpp-modules
-SDL2W_BUILD_OUTPUT_DIR = $(SDL2W_DIR_NAME)/sdl2w
+PROJECT_ROOT := $(abspath ..)
+DEPS_ROOT ?= $(PROJECT_ROOT)/.deps
+DEPS_LOCK ?= $(PROJECT_ROOT)/deps.lock
+DEPS_BOOTSTRAP := $(PROJECT_ROOT)/scripts/bootstrap-deps.sh
+DEPS_BUILDER := $(PROJECT_ROOT)/scripts/build-deps.sh
+SDL2W_DIR_NAME := $(DEPS_ROOT)/sdl2w
+BMIN_DIR_NAME := $(DEPS_ROOT)/bmin
 SDL2W_BUNDLE_DIR = lib/sdl2w
 SDL2W_MODULES_LIB = $(SDL2W_BUNDLE_DIR)/lib/libsdl2w_modules.a
 
@@ -72,11 +75,11 @@ OBJECTS=$(CODE:.cpp=.o)
 DEPENDS := $(patsubst %.cpp,%.d,$(CODE)) main.d
 LIBCARCER = lib/libcarcer.a
 CARCER_BMI_STAMP = gcm.cache/.carcer-ready
-SDL2W_STAMP = $(SDL2W_DIR_NAME)/.source_ok
 
 # Prefer copied consumer bundle; fall back to in-tree sdl2w modules during bootstrap.
 ifeq ($(wildcard $(SDL2W_BUNDLE_DIR)/modules/make/use.mk),)
   ifneq ($(wildcard $(SDL2W_DIR_NAME)/src/modules/make/use.mk),)
+    BMIN_REPO_DIR := $(BMIN_DIR_NAME)
     include $(SDL2W_DIR_NAME)/src/modules/make/use.mk
   endif
 else
@@ -137,46 +140,64 @@ SOURCES = $(CODE) $(MAIN_ALL)
 # Do not -include old header-era .d files (modules break those deps).
 
 
-.PHONY: all sdl2w sdl2w_wasm sdl2w_rebuild carcer-bmi libcarcer object_files \
+.PHONY: all deps-bootstrap deps-validate sdl2w sdl2w_headers sdl2w_wasm \
+	sdl2w_rebuild carcer-bmi _carcer-bmi libcarcer object_files \
 	print_cxx print_sources print_compile_flags print_compile_db compiler_args \
-	compiler_link_args \
-	run js debug clean _copy_sdl2w_artifacts
+	compiler_link_args run js debug clean
 
 all: sdl2w
 	$(MAKE) carcer-bmi
 	$(MAKE) $(EXE)
 
-sdl2w: $(SDL2W_MODULES_LIB)
+deps-bootstrap:
+	CARCER_DEPS_LOCK="$(DEPS_LOCK)" CARCER_DEPS_ROOT="$(DEPS_ROOT)" \
+		"$(DEPS_BOOTSTRAP)"
 
-sdl2w_rebuild:
-	$(MAKE) -C "$(SDL2W_DIR_NAME)/src" native
-	@$(MAKE) _copy_sdl2w_artifacts
+deps-validate:
+	CARCER_DEPS_LOCK="$(DEPS_LOCK)" \
+		CARCER_DEPS_ROOT="$(DEPS_ROOT)" \
+		CARCER_ALLOW_DIRTY_DEPS="$(CARCER_ALLOW_DIRTY_DEPS)" \
+		"$(DEPS_BOOTSTRAP)" --check
 
-$(SDL2W_STAMP):
-	@if [ ! -d $(SDL2W_DIR_NAME) ]; then \
-		echo "Cloning $(SDL2W_REPO_URL) into $(SDL2W_DIR_NAME)..."; \
-		git clone $(SDL2W_REPO_URL) $(SDL2W_DIR_NAME); \
-		cd $(SDL2W_DIR_NAME) && git checkout $(SDL2W_REF); \
-	else \
-		echo "Using existing $(SDL2W_DIR_NAME)"; \
-	fi
-	@touch $@
+sdl2w: deps-validate
+	CARCER_DEPS_LOCK="$(DEPS_LOCK)" \
+		CARCER_DEPS_ROOT="$(DEPS_ROOT)" \
+		CARCER_SDL2W_BUNDLE="$(abspath $(SDL2W_BUNDLE_DIR))" \
+		CARCER_DEPS_CXX="$(CXX)" \
+		CARCER_DEPS_TARGET="$(TARGET)" \
+		CARCER_DEPS_MODULE_CXXFLAGS="$(SDL2W_MODULE_CXXFLAGS)" \
+		CARCER_DEPS_MODULE_INTERFACE_FLAGS="$(SDL2W_MODULE_INTERFACE_FLAGS)" \
+		CARCER_ALLOW_DIRTY_DEPS="$(CARCER_ALLOW_DIRTY_DEPS)" \
+		"$(DEPS_BUILDER)" dual
 
-$(SDL2W_MODULES_LIB): $(SDL2W_STAMP)
-	@echo "Building sdl2w modules (make native in $(SDL2W_DIR_NAME)/src)..."
-	$(MAKE) -C "$(SDL2W_DIR_NAME)/src" native
-	@$(MAKE) _copy_sdl2w_artifacts
+sdl2w_headers: deps-validate
+	CARCER_DEPS_LOCK="$(DEPS_LOCK)" \
+		CARCER_DEPS_ROOT="$(DEPS_ROOT)" \
+		CARCER_SDL2W_BUNDLE="$(abspath $(SDL2W_BUNDLE_DIR))" \
+		CARCER_DEPS_CXX="$(CXX)" \
+		CARCER_DEPS_TARGET="$(TARGET)" \
+		CARCER_ALLOW_DIRTY_DEPS="$(CARCER_ALLOW_DIRTY_DEPS)" \
+		"$(DEPS_BUILDER)" headers
 
-sdl2w_wasm: $(SDL2W_STAMP)
-	@echo "Building sdl2w modules for wasm..."
-	$(MAKE) -C "$(SDL2W_DIR_NAME)/src" TARGET=wasm
-	@$(MAKE) _copy_sdl2w_artifacts
+sdl2w_rebuild: deps-validate
+	CARCER_DEPS_LOCK="$(DEPS_LOCK)" \
+		CARCER_DEPS_ROOT="$(DEPS_ROOT)" \
+		CARCER_SDL2W_BUNDLE="$(abspath $(SDL2W_BUNDLE_DIR))" \
+		CARCER_DEPS_CXX="$(CXX)" \
+		CARCER_DEPS_TARGET="$(TARGET)" \
+		CARCER_DEPS_MODULE_CXXFLAGS="$(SDL2W_MODULE_CXXFLAGS)" \
+		CARCER_DEPS_MODULE_INTERFACE_FLAGS="$(SDL2W_MODULE_INTERFACE_FLAGS)" \
+		CARCER_ALLOW_DIRTY_DEPS="$(CARCER_ALLOW_DIRTY_DEPS)" \
+		CARCER_DEPS_FORCE=1 \
+		"$(DEPS_BUILDER)" dual
 
-_copy_sdl2w_artifacts:
-	@mkdir -p $(SDL2W_BUNDLE_DIR)
-	$(SDL2W_DIR_NAME)/copy-sdl2w-artifacts.sh $(SDL2W_BUNDLE_DIR)
+sdl2w_wasm:
+	$(MAKE) TARGET=wasm sdl2w
 
-carcer-bmi: $(CARCER_BMI_STAMP)
+carcer-bmi: sdl2w
+	$(MAKE) _carcer-bmi
+
+_carcer-bmi: $(CARCER_BMI_STAMP)
 
 $(CARCER_BMI_STAMP): $(SDL2W_BMI_STAMP) $(CARCER_IFACES) modules/make/build-bmi.mk modules/bmi_objs.list
 	$(MAKE) -f modules/make/build-bmi.mk CXX=$(CXX) \
@@ -197,7 +218,7 @@ $(LIBCARCER): Makefile modules/bmi_objs.list $(OBJECTS) $(CARCER_BMI_STAMP)
 # of the docs (reproduced directly with `make --debug=v`). Splitting into two
 # sequential process invocations sidesteps it entirely: the second process
 # stats every BMI object fresh, and none of them change during its lifetime.
-libcarcer object_files:
+libcarcer object_files: sdl2w
 	$(MAKE) carcer-bmi
 	$(MAKE) $(LIBCARCER)
 
@@ -273,5 +294,4 @@ clean:
 	rm -f $(EXE) $(EXE).exe $(EXE).js $(EXE).wasm $(EXE).data
 	rm -rf main.d
 	rm -rf gcm.cache pcm.cache .bmin-bmi .sdl2w-bmi .carcer-bmi
-	# Keep lib/sdl2w module artifacts; use sdl2w_rebuild to refresh them.
-	rm -rf $(SDL2W_STAMP)
+	# Keep the pinned lib/sdl2w bundle; use sdl2w_rebuild to refresh it.

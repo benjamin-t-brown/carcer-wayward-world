@@ -5,7 +5,7 @@ This is a 2d, grid based adventure rpg featuring a robust story with consequenti
 ## Quick Start
 
 ```
-cd src
-make -j8
-(cd ../scripts && ./compile-commands.sh)
+./scripts/bootstrap-deps.sh
+make -C src -j8
+./scripts/compile-commands.sh
 ```
