@@ -1,0 +1,3 @@
+# name  repository  ref  commit
+sdl2w https://github.com/benjamin-t-brown/sdl2w.git experiment/cpp-modules e5415231257b4a25f25ad3af5cb4e01c125ada15
+bmin https://github.com/benjamin-t-brown/bmin.git experiment/cpp-modules e60f65b1d3a36def8221bd93c5702d323c714cea

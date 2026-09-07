@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bmin/String.h"
-#include "lib/bmin/Map.h"
+#include "bmin/Map.h"
 #include "model/templates/CharacterTemplate.h"
 
 namespace db {

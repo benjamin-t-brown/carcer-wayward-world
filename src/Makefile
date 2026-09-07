@@ -147,9 +147,9 @@ TEST_CODE_UI=\
 TARGET ?= native
 BASE_BUILD_DIR = build
 
-SDL2W_REPO_URL = https://github.com/benjamin-t-brown/sdl2w.git
-SDL2W_DIR_NAME = ../sdl2w
-SDL2W_BUILD_OUTPUT_DIR = $(SDL2W_DIR_NAME)/sdl2w
+PROJECT_ROOT = $(abspath ..)
+DEPS_ROOT = $(PROJECT_ROOT)/.deps
+DEPS_BUNDLE = $(PROJECT_ROOT)/build/compat/make-headers
 
 MAIN_ALL_OBJECT=$(MAIN_ALL:.cpp=.o)
 
@@ -159,9 +159,7 @@ LIB_OBJECTS=$(LIB_CODE:.cpp=.o)
 DEPENDS := $(patsubst %.cpp,%.d,$(CODE)) main.d
 LIB_DEPENDS := $(patsubst %.cpp,%.d,$(LIB_CODE))
 
-SDL2W_STAMP = $(SDL2W_DIR_NAME)/.source_ok
-# Must match where _copy_sdl2w_artifacts installs the archive (not the upstream build tree).
-SDL2W_LIB = lib/sdl2w/libsdl2w.a
+SDL2W_LIB = $(DEPS_BUNDLE)/lib/libsdl2w.a
 LIBCARCER = lib/libcarcer.a
 
 # Subset of Emscripten port flags: needed when compiling sdl2w to .o (static lib), not only at final link.
@@ -198,8 +196,8 @@ EMCC_EXPORTED=\
 -s EXPORTED_RUNTIME_METHODS=['ccall']
 
 DEBUG = true
-LIBS += -Llib/sdl2w -lsdl2w -Llib/bmin -lbmin
-INCLUDES += -I. -Ilib
+LIBS += -L$(DEPS_BUNDLE)/lib -lsdl2w -lbmin
+INCLUDES += -I. -I$(DEPS_BUNDLE)/include
 CPP_STANDARD = -std=c++23
 ifeq ($(TARGET),wasm)
     FLAGS = -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers $(CPP_STANDARD) -Oz
@@ -232,13 +230,13 @@ else
 endif
 
 COMPILER_LINK_INPUTS = $(LIBCARCER)
-LINK_FLAGS=-fuse-ld=lld
+LINK_FLAGS=
 
 SOURCES = $(CODE) $(LIB_CODE) $(MAIN_ALL)
 
-.PHONY: all sdl2w sdl2w_wasm sdl2w_rebuild _copy_sdl2w_artifacts _copy_bmin_artifacts libcarcer print_cxx print_sources print_compile_flags print_compile_db
+.PHONY: all validate_deps sdl2w sdl2w_wasm sdl2w_rebuild libcarcer print_cxx print_sources print_compile_flags print_compile_db
 
-all: sdl2w
+all: validate_deps sdl2w
 	$(MAKE) $(EXE)
 
 $(LIBCARCER): $(OBJECTS) $(LIB_OBJECTS)
@@ -255,55 +253,25 @@ sdl2w: $(SDL2W_LIB)
 
 # Force a full sdl2w rebuild + copy (use after upgrading sdl2w or changing its build).
 sdl2w_rebuild:
-	$(MAKE) -C "$(SDL2W_DIR_NAME)/src" all
-	@$(MAKE) _copy_sdl2w_artifacts
+	CARCER_DEPS_ROOT="$(DEPS_ROOT)" \
+	CARCER_SDL2W_BUNDLE="$(DEPS_BUNDLE)" \
+	CARCER_DEPS_CXX="$(CXX)" CARCER_DEPS_FORCE=1 \
+		$(PROJECT_ROOT)/scripts/build-deps.sh headers
 
-$(SDL2W_STAMP):
-	@if [ ! -d $(SDL2W_DIR_NAME) ]; then \
-		echo "Directory $(SDL2W_DIR_NAME) not found. Cloning $(SDL2W_REPO_URL) into $(SDL2W_DIR_NAME)..."; \
-		git clone $(SDL2W_REPO_URL) $(SDL2W_DIR_NAME); \
-		cd $(SDL2W_DIR_NAME); \
-		git checkout bmin; \
-	else \
-		echo "Directory $(SDL2W_DIR_NAME) found. Assuming it is the sdl2w repository."; \
-	fi
-	@touch $@
+validate_deps:
+	CARCER_DEPS_ROOT="$(DEPS_ROOT)" $(PROJECT_ROOT)/scripts/bootstrap-deps.sh --check
 
-$(SDL2W_LIB): $(SDL2W_STAMP)
-	@echo "Building standard sdl2w library (running 'make all' in $(SDL2W_DIR_NAME)/src)...";
-	$(MAKE) -C "$(SDL2W_DIR_NAME)/src" all
-	@$(MAKE) _copy_sdl2w_artifacts
+$(SDL2W_LIB): $(PROJECT_ROOT)/deps.lock $(PROJECT_ROOT)/scripts/bootstrap-deps.sh $(PROJECT_ROOT)/scripts/build-deps.sh
+	CARCER_DEPS_ROOT="$(DEPS_ROOT)" \
+	CARCER_SDL2W_BUNDLE="$(DEPS_BUNDLE)" \
+	CARCER_DEPS_CXX="$(CXX)" \
+		$(PROJECT_ROOT)/scripts/build-deps.sh headers
 
-sdl2w_wasm: $(SDL2W_STAMP)
-	@echo "Building sdl2w library for WebAssembly (running 'make wasm' in $(SDL2W_DIR_NAME)/src)...";
-	$(MAKE) -C "$(SDL2W_DIR_NAME)/src" wasm
-	@$(MAKE) _copy_sdl2w_artifacts
-
-# Copy headers only when content differs so identical files keep their mtimes
-# (avoids cascading rebuilds of every .o that depends on lib/sdl2w or lib/bmin).
-define copy_headers_if_changed
-	@for f in $(1); do \
-		dest="$(2)/$$(basename "$$f")"; \
-		if ! cmp -s "$$f" "$$dest" 2>/dev/null; then \
-			cp "$$f" "$$dest"; \
-		fi; \
-	done
-endef
-
-_copy_sdl2w_artifacts: _copy_bmin_artifacts
-	@mkdir -p lib/sdl2w
-	@echo "Copying sdl2w artifacts from $(SDL2W_BUILD_OUTPUT_DIR) to lib/sdl2w..."
-	@cp $(SDL2W_BUILD_OUTPUT_DIR)/lib/libsdl2w.a lib/sdl2w
-	$(call copy_headers_if_changed,$(SDL2W_BUILD_OUTPUT_DIR)/include/*.h,lib/sdl2w)
-
-_copy_bmin_artifacts:
-	@mkdir -p lib/bmin
-	@mkdir -p lib/bmin/internal
-	@echo "Copying bmin artifacts from $(SDL2W_BUILD_OUTPUT_DIR) to lib/bmin..."
-	@cp $(SDL2W_BUILD_OUTPUT_DIR)/lib/libbmin.a lib/bmin
-	$(call copy_headers_if_changed,$(SDL2W_BUILD_OUTPUT_DIR)/include/bmin/*.h,lib/bmin)
-	$(call copy_headers_if_changed,$(SDL2W_BUILD_OUTPUT_DIR)/include/bmin/internal/*.h,lib/bmin/internal)
-	$(call copy_headers_if_changed,$(SDL2W_BUILD_OUTPUT_DIR)/include/bmin/internal/*.hpp,lib/bmin/internal)
+sdl2w_wasm: validate_deps
+	CARCER_DEPS_ROOT="$(DEPS_ROOT)" \
+	CARCER_SDL2W_BUNDLE="$(DEPS_BUNDLE)-wasm" \
+	CARCER_DEPS_CXX="$(CXX)" CARCER_DEPS_TARGET=wasm \
+		$(PROJECT_ROOT)/scripts/build-deps.sh headers
 
 compiler_args:
 	@echo $(FLAGS) $(LINK_FLAGS) $(INCLUDES) $(COMPILER_LINK_INPUTS) $(LIBS)
@@ -334,7 +302,8 @@ object_files: $(LIBCARCER)
 run:
 	./$(EXE)
 
-js: sdl2w_wasm
+js:
+	$(MAKE) TARGET=wasm sdl2w_wasm
 	$(MAKE) TARGET=wasm $(EXE)
 	mv $(EXE).js ../web/
 	mv $(EXE).data ../web/
@@ -353,4 +322,3 @@ clean:
 	rm -rf lib/sdl2w
 	rm -rf lib/bmin
 	rm -rf ../dist/$(EXE).*
-	rm -rf $(SDL2W_STAMP)

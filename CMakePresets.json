@@ -1,0 +1,97 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 28, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "native-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/cmake/${presetName}",
+      "cacheVariables": { "CMAKE_EXPORT_COMPILE_COMMANDS": "ON" }
+    },
+    {
+      "name": "gcc-debug",
+      "displayName": "Native GCC debug",
+      "inherits": "native-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "g++-15"
+      }
+    },
+    {
+      "name": "gcc-release",
+      "displayName": "Native GCC release",
+      "inherits": "native-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_COMPILER": "g++-15"
+      }
+    },
+    {
+      "name": "clang-debug",
+      "displayName": "Native Clang debug",
+      "inherits": "native-base",
+      "environment": {
+        "PATH": "/opt/homebrew/opt/llvm/bin:/usr/local/opt/llvm/bin:$penv{PATH}"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
+      "name": "clang-release",
+      "displayName": "Native Clang release",
+      "inherits": "native-base",
+      "environment": {
+        "PATH": "/opt/homebrew/opt/llvm/bin:/usr/local/opt/llvm/bin:$penv{PATH}"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
+      "name": "ucrt64-debug",
+      "displayName": "MSYS2 UCRT64 GCC debug",
+      "inherits": "native-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
+      "name": "ucrt64-release",
+      "displayName": "MSYS2 UCRT64 GCC release",
+      "inherits": "native-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
+      "name": "emscripten-debug",
+      "displayName": "Emscripten debug",
+      "inherits": "native-base",
+      "toolchainFile": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "emscripten-release",
+      "displayName": "Emscripten release",
+      "inherits": "native-base",
+      "toolchainFile": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    }
+  ],
+  "buildPresets": [
+    { "name": "gcc-debug", "configurePreset": "gcc-debug", "jobs": 8 },
+    { "name": "gcc-release", "configurePreset": "gcc-release", "jobs": 8 },
+    { "name": "clang-debug", "configurePreset": "clang-debug", "jobs": 8 },
+    { "name": "clang-release", "configurePreset": "clang-release", "jobs": 8 },
+    { "name": "ucrt64-debug", "configurePreset": "ucrt64-debug", "jobs": 8 },
+    { "name": "ucrt64-release", "configurePreset": "ucrt64-release", "jobs": 8 },
+    { "name": "emscripten-debug", "configurePreset": "emscripten-debug", "jobs": 8 },
+    { "name": "emscripten-release", "configurePreset": "emscripten-release", "jobs": 8 }
+  ]
+}

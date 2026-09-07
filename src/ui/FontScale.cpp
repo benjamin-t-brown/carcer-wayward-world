@@ -1,7 +1,8 @@
 #include "FontScale.h"
-#include "lib/bmin/Map.h"
+#include "bmin/Map.h"
 #include <algorithm>
 #include <array>
+#include <cmath>
 
 namespace {
 

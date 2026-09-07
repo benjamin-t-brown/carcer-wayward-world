@@ -1,14 +1,21 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-cd ../sdl2w/src
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DEPS_ROOT="${CARCER_DEPS_ROOT:-${ROOT}/.deps}"
+SDL2W_ROOT="${DEPS_ROOT}/sdl2w"
+BMIN_ROOT="${DEPS_ROOT}/bmin"
+SCANNER="${SDL2W_ROOT}/src/build/tools/L10nScanner"
 
-if [ ! -f "build/tools/L10nScanner" ] && [ ! -f "build/tools/L10nScanner.exe" ]; then
+CARCER_DEPS_ROOT="${DEPS_ROOT}" "${ROOT}/scripts/bootstrap-deps.sh" --check
+
+if [[ ! -x "${SCANNER}" && ! -x "${SCANNER}.exe" ]]; then
   echo "Building L10nScanner..."
-  make clean
-  make -j8
-  make tools
+  make -C "${SDL2W_ROOT}/src" tools BMIN_REPO="${BMIN_ROOT}"
+fi
+if [[ -x "${SCANNER}.exe" ]]; then
+  SCANNER="${SCANNER}.exe"
 fi
 
-L10N_SCANNER_COMMAND="build/tools/L10nScanner --input-dir ../../src --output-dir ../../src/assets en la"
-echo "Running: $L10N_SCANNER_COMMAND"
-$L10N_SCANNER_COMMAND
+echo "Running L10nScanner"
+"${SCANNER}" --input-dir "${ROOT}/src" --output-dir "${ROOT}/src/assets" en la

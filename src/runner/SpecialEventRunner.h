@@ -2,7 +2,7 @@
 
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
-#include "lib/bmin/Map.h"
+#include "bmin/Map.h"
 #include "model/templates/SpecialEvents.h"
 
 #include <optional>

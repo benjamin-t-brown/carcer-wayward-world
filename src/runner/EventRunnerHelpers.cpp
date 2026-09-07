@@ -11,7 +11,7 @@ void setStorage(bmin::Map<bmin::String, bmin::String>& storage, const bmin::Stri
 
 std::optional<bmin::String> getStorage(const bmin::Map<bmin::String, bmin::String>& storage,
                                  const bmin::String& key) {
-  auto it = const_cast<bmin::Map<bmin::String, bmin::String>&>(storage).find(key);
+  auto it = storage.find(key);
   if (it != storage.end()) {
     return it->value;
   }

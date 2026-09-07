@@ -325,7 +325,7 @@ void MapView::render(int dt) {
       }
 
       auto spriteName = tile->tilesetName + "_" + bmin::toString(tile->tileId);
-      if (!store.sprites.contains(spriteName)) {
+      if (!store.hasSprite(bmin::toStringView(spriteName))) {
         continue;
       }
 
@@ -337,7 +337,7 @@ void MapView::render(int dt) {
           for (size_t fi = 0; fi < surfaceTile->fields.size(); fi++) {
             const auto& field = surfaceTile->fields[fi];
             const auto fieldSpriteName = game::tileFieldSpriteName(field);
-            if (!store.sprites.contains(fieldSpriteName)) {
+            if (!store.hasSprite(bmin::toStringView(fieldSpriteName))) {
               continue;
             }
             auto& fieldSprite = store.getSprite(bmin::toStringView(fieldSpriteName));
@@ -347,7 +347,8 @@ void MapView::render(int dt) {
           auto drawOverlay = [&](model::TileOverlayVisibility visibility) {
             const auto overlaySpriteName =
                 model::tileOverlayVisibilitySpriteName(visibility);
-            if (overlaySpriteName.empty() || !store.sprites.contains(overlaySpriteName)) {
+            if (overlaySpriteName.empty() ||
+                !store.hasSprite(bmin::toStringView(overlaySpriteName))) {
               return;
             }
             auto& overlaySprite = store.getSprite(bmin::toStringView(overlaySpriteName));
@@ -395,7 +396,8 @@ void MapView::render(int dt) {
     } catch (const std::exception&) {
       continue;
     }
-    if (spriteName.empty() || !store.sprites.contains(spriteName)) {
+    if (spriteName.empty() ||
+        !store.hasSprite(bmin::toStringView(spriteName))) {
       continue;
     }
 
@@ -463,7 +465,8 @@ void MapView::render(int dt) {
       return;
     }
 
-    if (spriteName.empty() || !store.sprites.contains(spriteName)) {
+    if (spriteName.empty() ||
+        !store.hasSprite(bmin::toStringView(spriteName))) {
       return;
     }
 

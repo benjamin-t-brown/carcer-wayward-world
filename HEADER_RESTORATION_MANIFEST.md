@@ -41,6 +41,30 @@ The exact legacy command `make -C src -j8` failed immediately because its mutabl
 
 The two primary compatibility failures are: (1) the old Carcer include topology instantiates `bmin::DynArray<sdl2w::Sprite>` through `sdl2w::Animation` while `Sprite` is incomplete; (2) `runner/EventRunnerHelpers.cpp` compares `bmin::Map::Iterator` with `ConstIterator`, which the current BMIN header API rejects. The representative runners compile all legacy production objects before their requested test, so all encounter these unrelated failures. Phase 1/3 must fix them in the owning architecture, not by modifying this baseline.
 
+## Phase 1 local qualification
+
+The conventional header build and pinned dependency staging are implemented in
+the current worktree. The following results are local and must be committed only
+after the Phase 1 cross-platform disposition is agreed:
+
+| Check | Result |
+|---|---|
+| Pinned checkout validation | PASS; missing and wrong-revision fixtures both fail with actionable diagnostics and exit status 1 |
+| Transitional Make application build | PASS with the pinned header bundle |
+| GCC 15 debug / release CMake builds | PASS / PASS |
+| Clang 22 debug / release CMake builds | PASS / PASS |
+| Immediate GCC debug rebuild | PASS; revision validation only, zero C++ compilation |
+| Representative legacy wrappers | `TestJson` PASS, `TestCharacterEquip` PASS, `TestConfirmModal --build-only` PASS |
+| Module machinery in Carcer compile commands | PASS; no `.cppm`, `-fmodules-ts`, prebuilt-module, or scan command |
+| UCRT64 | Not runnable on this macOS host; commands documented in `DEVELOPMENT.md` |
+| Emscripten | Not runnable because no activated/installed EMSDK is present; commands documented in `DEVELOPMENT.md` |
+
+Compatibility changes required to reach the local passes were limited to
+canonical BMIN include spelling, the current const-map iterator API, the current
+`Store::hasSprite` API, the missing standard `<cmath>` include, and a centralized
+`Sdl2wAnimation.h` header-order adapter for the upstream incomplete `Sprite`
+declaration.
+
 ## Inventory counts
 
 - Header reference production inventory: 248 headers and 136 sources (384 paths total).
@@ -52,7 +76,7 @@ The two primary compatibility failures are: (1) the old Carcer include topology 
 
 | Commit | Behavior to preserve | Owning phase | Status |
 |---|---|---|---|
-| `e0c0b83` | Pinned dependency bootstrap and reproducible validation | 1 | pending |
+| `e0c0b83` | Pinned dependency bootstrap and reproducible validation | 1 | ported; local checks pass |
 | `d60964c` | Notification expiry removed from action ownership | 4 | pending |
 | `58b4cc9` | Active-map dependencies made explicit | 4 | pending |
 | `9e9617e` | Map rules removed from state | 4 | pending |
@@ -62,7 +86,7 @@ The two primary compatibility failures are: (1) the old Carcer include topology 
 | `5030c80` | Layers above screens; UI does not own layers | 7 | pending |
 | `a34939a` | Narrow application composition root | 7/8 | pending |
 | `aae59e4` | Boundary checks and architecture documentation | 3/8 | pending |
-| `d85a0e1` | Native Windows/MSYS2 and clangd fixes | 1/8 | pending |
+| `d85a0e1` | Native Windows/MSYS2 and clangd fixes | 1/8 | Windows shim ported; UCRT64 verification pending |
 
 ## Exported API migration ledger
 
@@ -1275,7 +1299,7 @@ src/ui/uiUtils.h
 | Phase | Commit | Verification |
 |---|---|---|
 | 0 | `Record the header restoration baseline` (this manifest's commit) | PASS: fixed references and 20 interfaces inventoried; baseline commands recorded; tracked diff contains this manifest only |
-| 1 | pending | pending |
+| 1 | `Add the conventional pinned-dependency CMake build` (pending commit hash) | PASS with user-approved platform deferral: local GCC/Clang debug/release, Make parity, dependency diagnostics, no-op build, and representative wrappers pass; UCRT64 is deferred to final qualification and Emscripten remains part of the final supported-host matrix |
 | 2 | pending | pending |
 | 3 | pending | pending |
 | 4 | pending | pending |

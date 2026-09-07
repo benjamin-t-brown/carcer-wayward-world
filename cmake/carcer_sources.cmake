@@ -1,0 +1,161 @@
+# Explicit, domain-grouped production source inventory. Keep this list in sync
+# when a class is split into or moved between implementation files.
+
+set(CARCER_DB_SOURCES
+  src/db/Database.cpp
+  src/db/loaders/LoadItemTemplates.cpp
+  src/db/loaders/LoadAbilityJson.cpp
+  src/db/loaders/LoadAbilityTemplates.cpp
+  src/db/loaders/LoadSpellTemplates.cpp
+  src/db/loaders/LoadStatusEffectTemplates.cpp
+  src/db/loaders/LoadCharacterTemplates.cpp
+  src/db/loaders/LoadMapTemplates.cpp
+  src/db/loaders/LoadMapGridTemplates.cpp
+  src/db/loaders/LoadTilesetTemplates.cpp
+  src/db/loaders/LoadSpecialEvents.cpp)
+
+set(CARCER_FOUNDATION_SOURCES
+  src/lib/Json.cpp)
+
+set(CARCER_LAYER_SOURCES
+  src/layers/Layer.cpp
+  src/layers/LayerManager.cpp
+  src/layers/ui/LayerInventoryContext.cpp
+  src/layers/ui/LayerGiveContext.cpp
+  src/layers/ui/LayerDropConfirm.cpp
+  src/layers/ui/LayerInventory.cpp
+  src/layers/ui/LayerMagic.cpp
+  src/layers/ui/LayerSpellCast.cpp
+  src/layers/ui/LayerEquipRunes.cpp
+  src/layers/ui/LayerSpellInfo.cpp
+  src/layers/ui/LayerPickUpContext.cpp
+  src/layers/ui/LayerPickUp.cpp
+  src/layers/ui/LayerPopupText.cpp
+  src/layers/ui/LayerSpecialEvent.cpp
+  src/layers/ui/LayerWorld.cpp)
+
+set(CARCER_MODEL_SOURCES
+  src/model/Combat.cpp
+  src/model/instances/Player.cpp
+  src/model/instances/CharacterPlayer.cpp
+  src/model/instances/MapInstance.cpp
+  src/model/stats/CharacterStats.cpp
+  src/model/stats/CharacterStatDefinitions.cpp
+  src/model/stats/CharacterDerivedStats.cpp
+  src/model/stats/CharacterDerivedStatDefinitions.cpp
+  src/model/templates/AbilityTypes.cpp
+  src/model/templates/RuneTypes.cpp
+  src/model/templates/CharacterTemplate.cpp
+  src/model/templates/Items.cpp
+  src/model/templates/Maps.cpp
+  src/model/templates/UtilityTypes.cpp)
+
+set(CARCER_RULE_SOURCES
+  src/game/combat/SpellRules.cpp
+  src/game/combat/projectileHelpers.cpp
+  src/game/combat/Damage.cpp
+  src/game/combat/EnemyBehavior.cpp
+  src/game/diceHelpers.cpp
+  src/game/map/ActiveMapOrchestrator.cpp
+  src/game/map/Camera.cpp
+  src/game/map/MapWalkability.cpp
+  src/game/map/MapVision.cpp
+  src/game/map/TileFields.cpp
+  src/game/map/MapPersistence.cpp
+  src/game/map/MapPathfinding.cpp
+  src/game/map/MapPickup.cpp
+  src/game/map/TileDistance.cpp
+  src/game/map/TileTriggers.cpp)
+
+set(CARCER_RUNNER_SOURCES
+  src/runner/SpecialEventRunner.cpp
+  src/runner/ConditionEvaluator.cpp
+  src/runner/StringEvaluator.cpp
+  src/runner/EventRunnerHelpers.cpp)
+
+set(CARCER_STATE_SOURCES
+  src/state/DatabaseInterface.cpp
+  src/state/ActionBus.cpp
+  src/state/StateManager.cpp
+  src/state/StateManagerInterface.cpp
+  src/state/UiManager.cpp
+  src/state/LayerManagerInterface.cpp
+  src/state/WorldUpdater.cpp)
+
+set(CARCER_UI_SOURCES
+  src/ui/UiElement.cpp
+  src/ui/FontScale.cpp
+  src/ui/KeyboardHeldScroll.cpp
+  src/ui/helpers/worldActions.cpp
+  src/ui/helpers/keyboardShortcuts.cpp
+  src/ui/helpers/modalLayoutFit.cpp
+  src/ui/elements/SpriteElement.cpp
+  src/ui/elements/Quad.cpp
+  src/ui/elements/TextLine.cpp
+  src/ui/elements/TextBanner.cpp
+  src/ui/elements/TextParagraph.cpp
+  src/ui/elements/SectionScrollable.cpp
+  src/ui/elements/HorizontalSlider.cpp
+  src/ui/elements/OutsetRectangle.cpp
+  src/ui/elements/VerticalList.cpp
+  src/ui/elements/HorizontalList.cpp
+  src/ui/elements/buttons/ButtonClose.cpp
+  src/ui/elements/buttons/ButtonModal.cpp
+  src/ui/elements/buttons/ButtonScroll.cpp
+  src/ui/elements/buttons/ButtonList.cpp
+  src/ui/elements/buttons/ButtonSprite.cpp
+  src/ui/elements/buttons/ButtonGroup.cpp
+  src/ui/elements/buttons/ButtonIcon.cpp
+  src/ui/elements/buttons/ButtonTextWrap.cpp
+  src/ui/elements/buttons/ButtonWorldAction.cpp
+  src/ui/elements/buttons/ButtonMove.cpp
+  src/ui/components/borders/BorderDropShadow.cpp
+  src/ui/components/borders/BorderModalStandard.cpp
+  src/ui/components/borders/BorderModalSmall.cpp
+  src/ui/components/borders/BorderInGame.cpp
+  src/ui/components/borders/BorderInGameWide.cpp
+  src/ui/components/borders/BorderInGameNarrow.cpp
+  src/ui/components/ChCompactInfo.cpp
+  src/ui/components/InGameTitleBar.cpp
+  src/ui/components/ItemInfo.cpp
+  src/ui/components/PartyMemberSwitcher.cpp
+  src/ui/components/PartyMemberIconSelector.cpp
+  src/ui/components/FloatingNotification.cpp
+  src/ui/components/FloatingNotificationSection.cpp
+  src/ui/components/ConfirmModal.cpp
+  src/ui/components/TouchMovePad.cpp
+  src/ui/components/MapView.cpp
+  src/ui/components/TiledOverlay.cpp
+  src/ui/components/lists/ListInventory.cpp
+  src/ui/components/lists/ListPickUp.cpp
+  src/ui/components/lists/ListMagicSpells.cpp
+  src/ui/components/lists/ListChCompactInfoVertical.cpp
+  src/ui/components/lists/ListChCompactInfoHorizontal.cpp
+  src/ui/layouts/InGameLayout.cpp
+  src/ui/layouts/ModalStandard.cpp
+  src/ui/layouts/ModalSmall.cpp
+  src/ui/minipages/MinipageCharacterSheet.cpp
+  src/ui/minipages/MinipageEvent.cpp
+  src/ui/minipages/MinipageEquipRunes.cpp
+  src/ui/minipages/MinipagePickUp.cpp
+  src/ui/minipages/MinipageSpellCast.cpp
+  src/ui/popups/PopupInventoryItem.cpp
+  src/ui/popups/PopupSpellInfo.cpp
+  src/ui/popups/PopupGive.cpp
+  src/ui/popups/PopupDropConfirm.cpp
+  src/ui/popups/PopupPickupItem.cpp
+  src/ui/pages/PageCharacter.cpp
+  src/ui/pages/PageInventory.cpp
+  src/ui/pages/PageMagicSetup.cpp
+  src/ui/pages/PageTalkChoice.cpp
+  src/ui/pages/PageModalEvent.cpp)
+
+set(CARCER_SOURCES
+  ${CARCER_FOUNDATION_SOURCES}
+  ${CARCER_DB_SOURCES}
+  ${CARCER_MODEL_SOURCES}
+  ${CARCER_RULE_SOURCES}
+  ${CARCER_RUNNER_SOURCES}
+  ${CARCER_STATE_SOURCES}
+  ${CARCER_UI_SOURCES}
+  ${CARCER_LAYER_SOURCES})
