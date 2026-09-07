@@ -105,7 +105,24 @@ if(EMSCRIPTEN)
       "-sSDL2_IMAGE_FORMATS=[\"png\"]"
       -sUSE_SDL_TTF=2
       -sUSE_SDL_GFX=2)
-  target_compile_options(sdl2w_modules PRIVATE ${_carcer_emscripten_sdl_options})
+  # SDL types occur in exported SDL2W and Carcer declarations, so the options
+  # must be usage requirements for synthesized module-interface scans. Keeping
+  # them on SDL2W avoids making unrelated BMIN scans initialize SDL ports.
+  target_compile_options(sdl2w_modules PUBLIC
+    ${_carcer_emscripten_sdl_options})
+
+  get_filename_component(_carcer_emscripten_bin_dir
+    "${CMAKE_CXX_COMPILER}" DIRECTORY)
+  find_program(CARCER_EMBUILDER
+    NAMES embuilder embuilder.py
+    HINTS "${_carcer_emscripten_bin_dir}"
+    REQUIRED)
+  add_custom_target(carcer_emscripten_ports
+    COMMAND "${CARCER_EMBUILDER}" build
+            zlib libpng sdl2 sdl2_image sdl2_ttf sdl2_mixer sdl2_gfx
+    COMMENT "Preparing Emscripten SDL ports serially"
+    VERBATIM)
+  add_dependencies(sdl2w_modules carcer_emscripten_ports)
 else()
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(SDL2_STACK REQUIRED IMPORTED_TARGET
@@ -139,7 +156,6 @@ add_executable(CARCER "${CMAKE_SOURCE_DIR}/src/main.cpp")
 target_link_libraries(CARCER PRIVATE carcer_modules)
 
 if(EMSCRIPTEN)
-  target_compile_options(CARCER PRIVATE ${_carcer_emscripten_sdl_options})
   target_link_options(CARCER PRIVATE
     ${_carcer_emscripten_sdl_options}
     -sALLOW_MEMORY_GROWTH=1

@@ -1,6 +1,6 @@
 # Carcer C++ Modules v2 Implementation Plan
 
-Status: Phase 6 complete; ready for Phase 7
+Status: Phase 7 coverage complete; Phase 8 blocked by final acceptance gates
 Baseline commit: `95562b3` on `experiment/cpp-modules`  
 Date: 2026-09-05
 
@@ -78,9 +78,9 @@ Date: 2026-09-05
   compile but are disabled, three tests call already-disabled production APIs,
   and all 43 UI test programs compile and link with both compilers. The legacy
   GCC Make build also passes.
-- Emscripten presets are present, but the SDK is not installed on the
-  qualification host; that platform remains unverified and must be closed
-  during the Phase 3 pilot rather than deferred to final cleanup.
+- Phase 7 qualifies native GCC, native Clang, and Emscripten 6.0.9 builds.
+  SDL2W/BMIN module consumers and classic-header consumers are both covered,
+  and dependency artifacts are keyed by their complete build identity.
 
 ### Phase 2 qualification results
 
@@ -148,11 +148,6 @@ half its Phase 2 size. Public-interface edits remain expensive, and the
 remaining partition forests still dominate the graph. Further migration must
 keep declarations stable and apply the same coarse interface/grouped
 implementation shape; returning to partition-per-class would erase the gain.
-
-One platform follow-up remains after the ownership work in Phase 4:
-
-- Emscripten is still unverified because no Emscripten SDK is installed on the
-  qualification host.
 
 ## Summary
 
@@ -515,6 +510,42 @@ Before removing the old build, verify:
 
 Segregate BMI caches by compiler identity, compiler version, target platform,
 build configuration, relevant flags, and dependency revision.
+
+Completion result: the full compatibility matrix passes. Native GCC 15.3 and
+Clang 22.1.8 debug/release builds each pass all 36 enabled CTest entries and
+compile/link all 43 UI test programs; five known-stale tests remain explicitly
+disabled. The legacy GCC Make build also passes. Ten clean parallel debug
+builds succeed under each native compiler. GCC ranges from 89–115 seconds with
+a 111-second median; Clang ranges from 97–104 seconds with a 101.5-second
+median. Separate classic-header probes build, link, and run against pinned
+SDL2W/BMIN with both compilers.
+
+Emscripten 6.0.9 debug and release builds produce `CARCER.js`, `CARCER.wasm`,
+and `CARCER.data`. The SDL port options are propagated through SDL2W's public
+module usage requirements, and a serial port-preparation target prevents
+first-build cache races during parallel module scans.
+
+Every CMake preset has a compiler/configuration-specific binary directory.
+SDL2W/BMIN consumer bundles add compiler path/version, target, flags, mode, and
+the pinned revisions to their key; shared Make outputs are cleaned whenever
+that identity changes. Switching GCC/Clang header consumers and native/wasm
+module builds therefore cannot reuse an incompatible artifact.
+
+Phase 7 completes compatibility coverage but does **not** pass the final
+adoption gate. The final graph has 26 interfaces and depth 14 (target: at most
+12). A build in a genuinely fresh directory takes 77.05 seconds for GCC debug
+`CARCER` (target: at most 60). Full default clean builds, which also compile
+the runtime suite, have medians above 100 seconds.
+
+The fresh app-only build directory occupies approximately 438 MiB. The
+acceptance criterion's literal objects, archives, and BMIs account for about
+260 MiB and pass the 300 MiB target; another 172 MiB is retained CMake/GCC
+dependency-scan preprocessing data. An earlier 1.1 GiB reading was invalid
+because the reused build directory still contained outputs for interfaces
+deleted during prior phases, which Ninja could no longer identify during
+`clean`. Phase 8 must not remove the fallback build machinery until the project
+explicitly chooses either another optimization pass or the documented
+header-architecture fallback.
 
 ### Phase 8: Remove experimental machinery
 

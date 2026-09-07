@@ -54,6 +54,7 @@ key="$({
     "interface_flags=${MODULE_INTERFACE_FLAGS}"
 } | hash_stream)"
 key_file="${BUNDLE_ROOT}/.carcer-${MODE}-${TARGET}-build-key"
+source_key_file="${ROOT}/build/dependency-source-build.key"
 
 bundle_is_ready() {
   [[ -f "${key_file}" ]] || return 1
@@ -89,9 +90,37 @@ if [[ -n "${MODULE_INTERFACE_FLAGS}" ]]; then
   make_args+=("SDL2W_MODULE_INTERFACE_FLAGS=${MODULE_INTERFACE_FLAGS}")
 fi
 
+# SDL2W and BMIN's Make outputs live in their source checkouts. Make does not
+# consider a compiler or flag change when deciding whether those objects are
+# current, so clean the dependency outputs before changing build identity.
+# Consumer bundles remain separately keyed and can still be reused directly.
+if [[ ! -f "${source_key_file}" ]] || [[ "$(<"${source_key_file}")" != "${key}" ]]; then
+  echo "Dependency build identity changed; cleaning shared source outputs"
+  make "${make_args[@]}" clean TARGET="${TARGET}"
+fi
+
 if [[ "${MODE}" == "headers" ]]; then
   echo "Building pinned SDL2W/BMIN header artifacts with ${CXX_COMMAND}"
-  make "${make_args[@]}" install-headers TARGET="${TARGET}"
+  make -C "${BMIN_ROOT}/src" install-headers \
+    "CXX=${CXX_COMMAND}" TARGET="${TARGET}"
+
+  # SDL2W's upstream install-headers target stages BMIN through a dual-mode
+  # prerequisite. Supply an already-complete header-only staging directory so
+  # a classic consumer does not need to compile BMIN modules (notably, the GCC
+  # -fmodules-ts Make path is invalid for Clang).
+  header_stage="${SDL2W_ROOT}/src/bmin"
+  mkdir -p "${header_stage}"
+  cp -R "${BMIN_ROOT}/bmin/include/." "${header_stage}/"
+  cp -f "${BMIN_ROOT}/bmin/lib/libbmin.a" "${header_stage}/libbmin.a"
+  cp -f "${BMIN_ROOT}/bmin/lib/libbmin.a" "${header_stage}/libbmin_modules.a"
+  header_stamp="${header_stage}/.artifacts-ready"
+  touch "${header_stamp}"
+  make "${make_args[@]}" install-headers TARGET="${TARGET}" \
+    "DEPS_BMIN_DIR=${header_stage}" \
+    "DEPS_BMIN_STAMP=${header_stamp}" \
+    "DEPS_BMIN_HEADER_LIB=${header_stage}/libbmin.a" \
+    "BMIN_BUILT_MODULE_LIB=${header_stage}/libbmin_modules.a" \
+    BMIN_MODULE_INPUTS=
   mkdir -p "${BUNDLE_ROOT}/lib" "${BUNDLE_ROOT}/include"
   cp -f "${SDL2W_ROOT}/sdl2w/lib/libsdl2w.a" "${BUNDLE_ROOT}/lib/"
   cp -f "${SDL2W_ROOT}/sdl2w/lib/libbmin.a" "${BUNDLE_ROOT}/lib/"
@@ -114,4 +143,8 @@ mkdir -p "${BUNDLE_ROOT}"
 tmp_key="$(mktemp "${BUNDLE_ROOT}/.build-key.XXXXXX")"
 printf '%s\n' "${key}" >"${tmp_key}"
 mv -f "${tmp_key}" "${key_file}"
+mkdir -p "$(dirname "${source_key_file}")"
+tmp_source_key="$(mktemp "${source_key_file}.XXXXXX")"
+printf '%s\n' "${key}" >"${tmp_source_key}"
+mv -f "${tmp_source_key}" "${source_key_file}"
 echo "Prepared ${MODE} SDL2W/BMIN bundle for ${TARGET} (${key:0:12})"

@@ -3,10 +3,12 @@
 Carcer ships as C++23 named modules (`carcer.*`). This document describes the
 current module boundaries, import policy, and build graph.
 
-Migration status (2026-09): phases 1–6 of `MODULES_V2_PLAN.md` are complete.
+Migration status (2026-09): phases 1–7 of `MODULES_V2_PLAN.md` are complete.
 The original class-per-module experiment has been reduced to 26 interfaces and
 117 import edges. Data, model, actions, and UI now expose domain-sized APIs;
-concrete action and layer implementations are private.
+concrete action and layer implementations are private. Platform qualification
+and the literal artifact-size gate pass, but the final cold-build and graph-
+depth gates do not; Phase 8 is therefore not authorized yet.
 
 ## 1. Design goals
 
@@ -165,7 +167,29 @@ ctest --preset gcc-debug
 cmake --preset clang-debug
 cmake --build --preset clang-debug -j 8
 ctest --preset clang-debug
+
+cmake --preset gcc-release
+cmake --build --preset gcc-release -j 8
+ctest --preset gcc-release
+
+cmake --preset clang-release
+cmake --build --preset clang-release -j 8
+ctest --preset clang-release
 ```
+
+After activating an Emscripten SDK, build both web configurations with:
+
+```sh
+source "$EMSDK/emsdk_env.sh"
+cmake --preset emscripten-debug
+cmake --build --preset emscripten-debug -j 8
+cmake --preset emscripten-release
+cmake --build --preset emscripten-release -j 8
+```
+
+The build prepares Emscripten's SDL ports serially before module scanning.
+Successful builds produce `CARCER.js`, `CARCER.wasm`, and `CARCER.data` in the
+corresponding preset directory.
 
 The legacy GCC Make path remains available from `src/`:
 
@@ -197,6 +221,13 @@ and Make validate those revisions before building. On native Make builds,
 `sdl2-config --cflags` supplies the platform SDL include flags needed by UI
 interfaces that mention SDL types.
 
+Preset build directories segregate BMIs by compiler, target, and configuration.
+Dependency bundles are additionally keyed by compiler path/version, target,
+mode, flags, and `deps.lock`; `build-deps.sh` cleans shared upstream Make
+outputs when that identity changes. Do not manually copy BMIs or dependency
+objects between preset directories. The legacy Make `gcm.cache` is not keyed,
+so clean it before changing the compiler while that build remains available.
+
 ## 7. Tests and boundary checks
 
 The public interfaces have standalone import probes in
@@ -214,6 +245,19 @@ incomplete exported BMI data.
 The regular CTest suite covers non-visual behavior. The `carcer_ui_tests`
 CMake target compiles and links all 43 UI programs even though those programs
 are not registered as headless runtime tests.
+
+The compatibility and repeatability checks are:
+
+```sh
+scripts/validate-dependency-headers.sh g++-15
+scripts/validate-dependency-headers.sh clang++
+scripts/validate-native-repeatability.sh gcc-debug 10
+scripts/validate-native-repeatability.sh clang-debug 10
+```
+
+The header probe uses a separately keyed consumer bundle and never mixes
+classic SDL2W/BMIN headers with named-module imports. Repeatability logs are
+written below the ignored `build/validation/` directory.
 
 ## 8. Adding or changing code
 
