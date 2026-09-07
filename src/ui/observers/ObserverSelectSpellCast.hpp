@@ -2,7 +2,7 @@
 
 #include "bmin/String.h"
 #include "state/StateManager.h"
-#include "state/actions/ui/UiSelectSpellCast.hpp"
+#include "actions/navigation/UiSelectSpellCast.hpp"
 #include "ui/UiElement.h"
 
 namespace ui {

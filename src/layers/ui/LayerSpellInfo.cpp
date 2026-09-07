@@ -3,7 +3,7 @@
 #include "game/combat/SpellRules.h"
 #include "model/templates/RuneTypes.h"
 #include "sdl2w/Logger.h"
-#include "state/actions/ui/UiRemoveLayer.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
 #include "ui/helpers/keyboardShortcuts.h"
 #include "ui/popups/PopupSpellInfo.h"
 

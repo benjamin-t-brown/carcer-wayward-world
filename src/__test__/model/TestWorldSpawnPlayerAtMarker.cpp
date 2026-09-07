@@ -6,8 +6,8 @@
 #include "state/State.h"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
-#include "state/actions/world/WorldLoadActiveMap.hpp"
-#include "state/actions/world/WorldSpawnPlayerAtMarker.hpp"
+#include "actions/world/WorldLoadActiveMap.hpp"
+#include "actions/world/WorldSpawnPlayerAtMarker.hpp"
 #include "game/map/TileTriggers.h"
 #include "bmin/String.h"
 

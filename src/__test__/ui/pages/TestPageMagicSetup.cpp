@@ -15,9 +15,9 @@
 #include "state/DatabaseInterface.h"
 #include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
-#include "state/actions/ui/UiCancelEquipRunes.hpp"
-#include "state/actions/ui/UiCommitEquipRunes.hpp"
-#include "state/actions/ui/UiSetCurrentPartyMemberMagic.hpp"
+#include "actions/navigation/UiCancelEquipRunes.hpp"
+#include "actions/navigation/UiCommitEquipRunes.hpp"
+#include "actions/navigation/UiSetCurrentPartyMemberMagic.hpp"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/pages/PageMagicSetup.h"
@@ -159,11 +159,11 @@ public:
     addUiElement(pageMagicSetup.release());
 
     // Match LayerMagic: refresh page when selection or equip editor changes.
-    subscribeAction<state::actions::UiSetCurrentPartyMemberMagic>(
+    subscribeAction<state::ActionEvent::UiSetCurrentPartyMemberMagic>(
         [this](auto&, auto&) { syncFromCharacter(); });
-    subscribeAction<state::actions::UiCommitEquipRunes>(
+    subscribeAction<state::ActionEvent::UiCommitEquipRunes>(
         [this](auto&, auto&) { syncFromCharacter(); });
-    subscribeAction<state::actions::UiCancelEquipRunes>(
+    subscribeAction<state::ActionEvent::UiCancelEquipRunes>(
         [this](auto&, auto&) { syncFromCharacter(); });
   }
 };

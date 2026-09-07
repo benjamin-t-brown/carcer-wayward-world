@@ -1,6 +1,6 @@
 # Header Restoration Manifest
 
-Status: Phase 4 verified locally; cross-platform qualification remains deferred to Phase 8.
+Status: Phase 5 verified locally; cross-platform qualification remains deferred to Phase 8.
 
 This is the parity ledger for `HEADER_ARCHITECTURE_RESTORATION_PLAN.md`. A row may move from `pending` to `ported` only when its declaration and current behavior have been placed in the target file; it moves to `verified` only after the owning phase gate passes. Class/struct rows account for their public members as one indivisible API surface.
 
@@ -80,9 +80,9 @@ declaration.
 | `d60964c` | Notification expiry removed from action ownership | 4 | verified |
 | `58b4cc9` | Active-map dependencies made explicit | 4 | verified |
 | `9e9617e` | Map rules removed from state | 4 | verified |
-| `eebd21f` | Combat sequencing moved to actions/orchestration | 4/5 | rules/state portion verified; action API pending Phase 5 |
-| `e25ff69` | Rules/state/action ownership split | 4/5 | rules/state portion verified; action API pending Phase 5 |
-| `ba41411` | Narrow action API and action-event behavior | 5 | pending |
+| `eebd21f` | Combat sequencing moved to actions/orchestration | 4/5 | verified |
+| `e25ff69` | Rules/state/action ownership split | 4/5 | verified |
+| `ba41411` | Narrow action API and action-event behavior | 5 | verified |
 | `5030c80` | Layers above screens; UI does not own layers | 7 | pending |
 | `a34939a` | Narrow application composition root | 7/8 | pending |
 | `aae59e4` | Boundary checks and architecture documentation | 3/8 | phase-aware checker ported; full enforcement remains for Phase 8 |
@@ -94,68 +94,75 @@ Rows are generated from column-zero exported declarations before each interface'
 
 ### `src/actions/_actions.cppm`
 
+The module-only free-function factory facade is intentionally retired. It was
+needed to hide action implementations behind one named-module interface; the
+header architecture exposes the corresponding concrete action constructor in
+one `.hpp` instead. `Command` remains available for move-only ownership at API
+boundaries. The focused state-manager test verifies ordering, semantic event
+delivery, payloads, and neutral navigation requests.
+
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `Command` | class | `src/actions/actions.cpp` | `src/actions/Command.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `adjustEquippedRune` | function | `src/actions/actions.cpp` | `src/actions/adjustEquippedRune.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `cancelEquipRunes` | function | `src/actions/actions.cpp` | `src/actions/cancelEquipRunes.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `commitEquipRunes` | function | `src/actions/actions.cpp` | `src/actions/commitEquipRunes.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `continueSpecialEvent` | function | `src/actions/actions.cpp` | `src/actions/continueSpecialEvent.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `doCombatAction` | function | `src/actions/actions.cpp` | `src/actions/doCombatAction.hpp (proposed; verify during owning phase)` | pending | TestCombatActions |
-| `doCPUCombatTurn` | function | `src/actions/actions.cpp` | `src/actions/doCPUCombatTurn.hpp (proposed; verify during owning phase)` | pending | TestEnemyBehavior |
-| `dropInventoryItem` | function | `src/actions/actions.cpp` | `src/actions/dropInventoryItem.hpp (proposed; verify during owning phase)` | pending | TestDropInventoryItem |
-| `endCombat` | function | `src/actions/actions.cpp` | `src/actions/endCombat.hpp (proposed; verify during owning phase)` | pending | TestCombatActions |
-| `examineAt` | function | `src/actions/actions.cpp` | `src/actions/examineAt.hpp (proposed; verify during owning phase)` | pending | TestWorldExamineAt |
-| `giveInventoryItem` | function | `src/actions/actions.cpp` | `src/actions/giveInventoryItem.hpp (proposed; verify during owning phase)` | pending | TestCharacterGive |
-| `goNextCombatTurn` | function | `src/actions/actions.cpp` | `src/actions/goNextCombatTurn.hpp (proposed; verify during owning phase)` | pending | TestCombatActions |
-| `interactAt` | function | `src/actions/actions.cpp` | `src/actions/interactAt.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `loadActiveMap` | function | `src/actions/actions.cpp` | `src/actions/loadActiveMap.hpp (proposed; verify during owning phase)` | pending | TestMapPersistence, TestWorldSpawnPlayerAtMarker, TestWorldTravel |
-| `modifyAP` | function | `src/actions/actions.cpp` | `src/actions/modifyAP.hpp (proposed; verify during owning phase)` | pending | TestCombatActions |
-| `modifyHP` | function | `src/actions/actions.cpp` | `src/actions/modifyHP.hpp (proposed; verify during owning phase)` | pending | TestCombatActions |
+| `Command` | class | `src/actions/actions.cpp` | `src/actions/Command.hpp` | verified | model/action suite |
+| `adjustEquippedRune` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `cancelEquipRunes` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `commitEquipRunes` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `continueSpecialEvent` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `doCombatAction` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestCombatActions |
+| `doCPUCombatTurn` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestEnemyBehavior |
+| `dropInventoryItem` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestDropInventoryItem |
+| `endCombat` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestCombatActions |
+| `examineAt` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestWorldExamineAt |
+| `giveInventoryItem` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestCharacterGive |
+| `goNextCombatTurn` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestCombatActions |
+| `interactAt` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `loadActiveMap` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestMapPersistence, TestWorldSpawnPlayerAtMarker, TestWorldTravel |
+| `modifyAP` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestCombatActions |
+| `modifyHP` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestCombatActions |
 | `modifyPartyMemberHp` | function | `src/model/combat.cpp` | `src/model/Combat.h` | pending | model/action suite |
-| `moveActionAim` | function | `src/actions/actions.cpp` | `src/actions/moveActionAim.hpp (proposed; verify during owning phase)` | pending | TestWorldActionAim |
-| `movePlayer` | function | `src/actions/actions.cpp` | `src/actions/movePlayer.hpp (proposed; verify during owning phase)` | pending | TestEnemyBehavior, TestTileTriggers, TestWorldMovePlayer |
-| `pickUpItem` | function | `src/actions/actions.cpp` | `src/actions/pickUpItem.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `playSound` | function | `src/actions/actions.cpp` | `src/actions/playSound.hpp (proposed; verify during owning phase)` | pending | TestCombatActions |
-| `pushFloatingNotification` | function | `src/actions/actions.cpp` | `src/actions/pushFloatingNotification.hpp (proposed; verify during owning phase)` | pending | TestFloatingNotificationSection |
-| `removeFloatingNotification` | function | `src/actions/actions.cpp` | `src/actions/removeFloatingNotification.hpp (proposed; verify during owning phase)` | pending | TestStateManagerActions |
-| `removeLayer` | function | `src/actions/actions.cpp` | `src/actions/removeLayer.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `reorderInventoryItem` | function | `src/actions/actions.cpp` | `src/actions/reorderInventoryItem.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `selectSpecialEventChoice` | function | `src/actions/actions.cpp` | `src/actions/selectSpecialEventChoice.hpp (proposed; verify during owning phase)` | pending | TestStateManagerActions |
-| `selectSpellCast` | function | `src/actions/actions.cpp` | `src/actions/selectSpellCast.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `setActionAim` | function | `src/actions/actions.cpp` | `src/actions/setActionAim.hpp (proposed; verify during owning phase)` | pending | TestWorldActionAim |
-| `setActionMode` | function | `src/actions/actions.cpp` | `src/actions/setActionMode.hpp (proposed; verify during owning phase)` | pending | TestWorldActionAim |
-| `setActiveCombatCharacter` | function | `src/actions/actions.cpp` | `src/actions/setActiveCombatCharacter.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `setCurrentPartyMember` | function | `src/actions/actions.cpp` | `src/actions/setCurrentPartyMember.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `setCurrentPartyMemberInventory` | function | `src/actions/actions.cpp` | `src/actions/setCurrentPartyMemberInventory.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `setCurrentPartyMemberMagic` | function | `src/actions/actions.cpp` | `src/actions/setCurrentPartyMemberMagic.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `setSelectedPartyMemberId` | function | `src/actions/actions.cpp` | `src/actions/setSelectedPartyMemberId.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `setSpellReady` | function | `src/actions/actions.cpp` | `src/actions/setSpellReady.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `showLayerDropContext` | function | `src/actions/actions.cpp` | `src/actions/showLayerDropContext.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `showLayerEquipRunes` | function | `src/actions/actions.cpp` | `src/actions/showLayerEquipRunes.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `showLayerGiveContext` | function | `src/actions/actions.cpp` | `src/actions/showLayerGiveContext.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `showLayerInventory` | function | `src/actions/actions.cpp` | `src/actions/showLayerInventory.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `showLayerInventoryContext` | function | `src/actions/actions.cpp` | `src/actions/showLayerInventoryContext.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `showLayerMagic` | function | `src/actions/actions.cpp` | `src/actions/showLayerMagic.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `showLayerPickUp` | function | `src/actions/actions.cpp` | `src/actions/showLayerPickUp.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `showLayerPickupContext` | function | `src/actions/actions.cpp` | `src/actions/showLayerPickupContext.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `showLayerPopupText` | function | `src/actions/actions.cpp` | `src/actions/showLayerPopupText.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `showLayerSpecialEvent` | function | `src/actions/actions.cpp` | `src/actions/showLayerSpecialEvent.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `showLayerSpellCast` | function | `src/actions/actions.cpp` | `src/actions/showLayerSpellCast.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `showLayerSpellInfo` | function | `src/actions/actions.cpp` | `src/actions/showLayerSpellInfo.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `spawnPlayer` | function | `src/actions/actions.cpp` | `src/actions/spawnPlayer.hpp (proposed; verify during owning phase)` | pending | TestCombat, TestLayerWorld |
-| `spawnPlayerAtMarker` | function | `src/actions/actions.cpp` | `src/actions/spawnPlayerAtMarker.hpp (proposed; verify during owning phase)` | pending | TestWorldSpawnPlayerAtMarker, TestCombat, TestLayerWorld |
-| `spawnPlayerAtXY` | function | `src/actions/actions.cpp` | `src/actions/spawnPlayerAtXY.hpp (proposed; verify during owning phase)` | pending | TestWorldTravel |
-| `startCombat` | function | `src/actions/actions.cpp` | `src/actions/startCombat.hpp (proposed; verify during owning phase)` | pending | TestCombatActions, TestEnemyBehavior, TestCombat |
-| `talkAt` | function | `src/actions/actions.cpp` | `src/actions/talkAt.hpp (proposed; verify during owning phase)` | pending | TestWorldTalkAt |
-| `toggleEquipInventoryItem` | function | `src/actions/actions.cpp` | `src/actions/toggleEquipInventoryItem.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `toggleManaSlotRune` | function | `src/actions/actions.cpp` | `src/actions/toggleManaSlotRune.hpp (proposed; verify during owning phase)` | pending | model/action suite |
-| `travel` | function | `src/actions/actions.cpp` | `src/actions/travel.hpp (proposed; verify during owning phase)` | pending | TestCreateMapInstanceFromTemplate, TestTileTriggers, TestWorldTravel |
-| `updateHeldMove` | function | `src/actions/actions.cpp` | `src/actions/updateHeldMove.hpp (proposed; verify during owning phase)` | pending | ImportActions |
-| `worldProcessPendingTriggers` | function | `src/actions/world/WorldUpdater.cpp` | `src/state/WorldUpdater.h` | pending | model/action suite |
-| `worldUpdate` | function | `src/actions/world/WorldUpdater.cpp` | `src/state/WorldUpdater.h` | pending | TestCameraFollow, TestCombatActions, TestEnemyBehavior |
-| `CombatActionContext` | struct | `src/actions/_actions.cppm (inline/declaration-only)` | `src/state/actions/combat/DoCombatAction.hpp` | pending | model/action suite |
-| `WorldSetActionModeCtx` | struct | `src/actions/_actions.cppm (inline/declaration-only)` | `src/state/actions/world/WorldSetActionMode.hpp` | pending | model/action suite |
+| `moveActionAim` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestWorldActionAim |
+| `movePlayer` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestEnemyBehavior, TestTileTriggers, TestWorldMovePlayer |
+| `pickUpItem` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `playSound` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestCombatActions |
+| `pushFloatingNotification` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestFloatingNotificationSection |
+| `removeFloatingNotification` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestStateManagerActions |
+| `removeLayer` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `reorderInventoryItem` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `selectSpecialEventChoice` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestStateManagerActions |
+| `selectSpellCast` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `setActionAim` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestWorldActionAim |
+| `setActionMode` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestWorldActionAim |
+| `setActiveCombatCharacter` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `setCurrentPartyMember` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `setCurrentPartyMemberInventory` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `setCurrentPartyMemberMagic` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `setSelectedPartyMemberId` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `setSpellReady` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `showLayerDropContext` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `showLayerEquipRunes` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `showLayerGiveContext` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `showLayerInventory` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `showLayerInventoryContext` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `showLayerMagic` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `showLayerPickUp` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `showLayerPickupContext` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `showLayerPopupText` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `showLayerSpecialEvent` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `showLayerSpellCast` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `showLayerSpellInfo` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `spawnPlayer` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestCombat, TestLayerWorld |
+| `spawnPlayerAtMarker` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestWorldSpawnPlayerAtMarker, TestCombat, TestLayerWorld |
+| `spawnPlayerAtXY` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestWorldTravel |
+| `startCombat` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestCombatActions, TestEnemyBehavior, TestCombat |
+| `talkAt` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestWorldTalkAt |
+| `toggleEquipInventoryItem` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `toggleManaSlotRune` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
+| `travel` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestCreateMapInstanceFromTemplate, TestTileTriggers, TestWorldTravel |
+| `updateHeldMove` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | ImportActions |
+| `worldProcessPendingTriggers` | function | `src/actions/world/WorldUpdater.cpp` | `src/state/WorldUpdater.h` | verified | model/action suite |
+| `worldUpdate` | function | `src/actions/world/WorldUpdater.cpp` | `src/state/WorldUpdater.h` | verified | TestCameraFollow, TestCombatActions, TestEnemyBehavior |
+| `CombatActionContext` | struct | `src/actions/_actions.cppm (inline/declaration-only)` | `src/actions/combat/DoCombatAction.hpp` | verified | model/action suite |
+| `WorldSetActionModeCtx` | struct | `src/actions/_actions.cppm (inline/declaration-only)` | `src/actions/world/WorldSetActionMode.hpp` | verified | model/action suite |
 
 ### `src/data/data.cppm`
 
@@ -588,19 +595,19 @@ Rows are generated from column-zero exported declarations before each interface'
 | `LayerManagerInterface` | class | `src/state/LayerManagerInterface.cpp` | `src/state/LayerManagerInterface.h` | verified | TestCombat, TestLayerInventory, TestLayerPickUp |
 | `StateManager` | class | `src/state/StateManager.cpp` | `src/state/StateManager.h` | verified | TestCameraFollow, TestCombatActions, TestCombatZoneCast |
 | `StateManagerInterface` | class | `src/state/StateManager.cpp` | `src/state/StateManagerInterface.h` | verified | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
-| `ActionEvent` | enum-class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/ActionEvent.h (proposed; verify during owning phase)` | pending | TestStateManagerActions, TestPageMagicSetup |
-| `LayerId` | enum-class | `src/ui/layers.cpp` | `src/state/LayerId.h (proposed; verify during owning phase)` | pending | model/state suite |
+| `ActionEvent` | enum-class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/ActionEvent.h` | verified | TestStateManagerActions, TestPageMagicSetup |
+| `LayerId` | enum-class | `src/ui/layers.cpp` | `src/state/LayerRequest.h` | verified | model/state suite |
 | `UiFloatingNotificationType` | enum-class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | verified | TestFloatingNotificationSection |
 | `WorldActionType` | enum-class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/WorldActions.h` | verified | TestButtonWorldAction, TestInGameLayout |
-| `layerIdFromString` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | pending | model/state suite |
-| `layerIdString` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | pending | model/state suite |
-| `pushLayerRequest` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | pending | model/state suite |
-| `removeLayerRequest` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | pending | model/state suite |
+| `layerIdFromString` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | verified | model/state suite |
+| `layerIdString` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | verified | model/state suite |
+| `pushLayerRequest` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | verified | model/state suite |
+| `removeLayerRequest` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | verified | model/state suite |
 | `updateUiState` | function | `src/state/UiManager.cpp` | `src/state/UiManager.h` | verified | TestStateManagerActions |
 | `ActionData` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/StateManager.h` | verified | model/state suite |
 | `AsyncAction` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/StateManager.h` | verified | model/state suite |
 | `HeldMove` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | verified | ImportActions |
-| `LayerRequest` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | pending | model/state suite |
+| `LayerRequest` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | verified | model/state suite |
 | `State` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | verified | TestCombatActions, TestCombatZoneCast, TestDropInventoryItem |
 | `Triggers` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/Triggers.h` | verified | model/state suite |
 | `UiFloatingNotification` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | verified | TestStateManagerActions |

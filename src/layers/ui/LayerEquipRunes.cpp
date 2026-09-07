@@ -1,8 +1,8 @@
 #include "LayerEquipRunes.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/Player.h"
-#include "state/actions/ui/UiAdjustEquippedRune.hpp"
-#include "state/actions/ui/UiCancelEquipRunes.hpp"
+#include "actions/navigation/UiAdjustEquippedRune.hpp"
+#include "actions/navigation/UiCancelEquipRunes.hpp"
 #include "ui/helpers/keyboardShortcuts.h"
 #include "ui/minipages/MinipageEquipRunes.h"
 
@@ -31,7 +31,7 @@ LayerEquipRunes::LayerEquipRunes(sdl2w::Window* _window,
 
   syncFromCharacter();
 
-  subscribeAction<state::actions::UiAdjustEquippedRune>(
+  subscribeAction<state::ActionEvent::UiAdjustEquippedRune>(
       [this](auto&, auto&) { syncFromCharacter(); });
 }
 

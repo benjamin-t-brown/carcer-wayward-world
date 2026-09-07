@@ -2,7 +2,7 @@
 
 #include "bmin/String.h"
 #include "state/StateManager.h"
-#include "state/actions/ui/UiSetSpellReady.hpp"
+#include "actions/navigation/UiSetSpellReady.hpp"
 #include "ui/UiElement.h"
 
 namespace ui {

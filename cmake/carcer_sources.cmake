@@ -85,6 +85,7 @@ set(CARCER_STATE_SOURCES
   src/state/StateManager.cpp
   src/state/StateManagerInterface.cpp
   src/state/UiManager.cpp
+  src/state/LayerRequest.cpp
   src/state/LayerManagerInterface.cpp)
 
 set(CARCER_UI_SOURCES

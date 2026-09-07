@@ -4,7 +4,7 @@
 #include "model/templates/UtilityTypes.h"
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
-#include "state/LayerManagerInterface.h"
+#include "state/ActionEvent.h"
 #include "state/StateManagerInterface.h"
 #ifdef __GNUG__
 #include <cxxabi.h>
@@ -15,7 +15,6 @@ namespace state {
 struct State;
 
 class AbstractAction : public state::DatabaseInterface,
-                       public state::LayerManagerInterface,
                        public state::StateManagerInterface {
 protected:
   State* state = nullptr;
@@ -25,6 +24,9 @@ protected:
   };
 
 public:
+  virtual ActionEvent getEvent() const { return ActionEvent::None; }
+  virtual int getEventValue() const { return 0; }
+
   virtual bmin::String getName() const {
 #ifdef __GNUG__
     int status;

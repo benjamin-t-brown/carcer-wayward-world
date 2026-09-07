@@ -2,7 +2,7 @@
 
 #include "bmin/String.h"
 #include "state/StateManager.h"
-#include "state/actions/ui/UiToggleManaSlotRune.hpp"
+#include "actions/navigation/UiToggleManaSlotRune.hpp"
 #include "ui/UiElement.h"
 
 namespace ui {

@@ -2,7 +2,7 @@
 
 #include "model/instances/ItemInstance.h"
 #include "state/StateManager.h"
-#include "state/actions/ui/UiPickUpItem.hpp"
+#include "actions/navigation/UiPickUpItem.hpp"
 #include "ui/UiElement.h"
 
 namespace ui {

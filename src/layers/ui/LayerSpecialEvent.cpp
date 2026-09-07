@@ -3,7 +3,7 @@
 #include "sdl2w/L10n.h"
 #include "state/State.h"
 #include "state/StateManager.h"
-#include "state/actions/ui/UiRemoveLayer.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
 #include "ui/colors.h"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/elements/SectionScrollable.h"

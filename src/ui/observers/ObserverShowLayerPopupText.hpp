@@ -1,7 +1,7 @@
 #pragma once
 
 #include "state/StateManager.h"
-#include "state/actions/ui/UiShowLayerPopupText.hpp"
+#include "actions/navigation/UiShowLayerPopupText.hpp"
 #include "ui/UiElement.h"
 #include "bmin/String.h"
 

@@ -8,7 +8,7 @@
 #include "state/State.h"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
-#include "state/actions/world/WorldExamineAt.hpp"
+#include "actions/world/WorldExamineAt.hpp"
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 

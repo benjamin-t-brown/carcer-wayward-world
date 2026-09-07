@@ -1,7 +1,7 @@
 #pragma once
 
 #include "state/StateManager.h"
-#include "state/actions/ui/UiCancelEquipRunes.hpp"
+#include "actions/navigation/UiCancelEquipRunes.hpp"
 #include "ui/UiElement.h"
 
 namespace ui {

@@ -8,6 +8,7 @@
 #include "model/instances/World.h"
 #include "model/templates/UtilityTypes.h"
 #include "state/Triggers.h"
+#include "state/LayerRequest.h"
 #include <cstdint>
 
 namespace state {
@@ -42,6 +43,7 @@ struct HeldMove {
 struct UiState {
   bmin::DynArray<UiFloatingNotification> floatingNotifications;
   std::uint64_t floatingNotificationRevision = 0;
+  bmin::DynArray<LayerRequest> layerStack;
   HeldMove heldMove;
   /** HUD / inventory UI selection only — does not drive map movement. */
   bmin::String selectedPartyMemberId;

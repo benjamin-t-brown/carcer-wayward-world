@@ -3,12 +3,12 @@
 #include "game/inventory/InventoryRules.h"
 #include "sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
-#include "state/actions/ui/UiDropInventoryItem.hpp"
-#include "state/actions/ui/UiGiveInventoryItem.hpp"
-#include "state/actions/ui/UiRemoveLayer.hpp"
-#include "state/actions/ui/UiReorderInventoryItem.hpp"
-#include "state/actions/ui/UiSetCurrentPartyMemberInventory.hpp"
-#include "state/actions/ui/UiToggleEquipInventoryItem.hpp"
+#include "actions/navigation/UiDropInventoryItem.hpp"
+#include "actions/navigation/UiGiveInventoryItem.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
+#include "actions/navigation/UiReorderInventoryItem.hpp"
+#include "actions/navigation/UiSetCurrentPartyMemberInventory.hpp"
+#include "actions/navigation/UiToggleEquipInventoryItem.hpp"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/helpers/keyboardShortcuts.h"
 #include "ui/pages/PageInventory.h"
@@ -43,15 +43,15 @@ LayerInventory::LayerInventory(sdl2w::Window* _window) : Layer(_window, LAYER_ID
 
   syncInventoryPartyMember();
 
-  subscribeAction<state::actions::UiSetCurrentPartyMemberInventory>(
+  subscribeAction<state::ActionEvent::UiSetCurrentPartyMemberInventory>(
       [this](auto&, auto&) { syncInventoryPartyMember(); });
-  subscribeAction<state::actions::UiReorderInventoryItem>(
+  subscribeAction<state::ActionEvent::UiReorderInventoryItem>(
       [this](auto&, auto&) { syncInventoryPartyMember(); });
-  subscribeAction<state::actions::UiToggleEquipInventoryItem>(
+  subscribeAction<state::ActionEvent::UiToggleEquipInventoryItem>(
       [this](auto&, auto&) { syncInventoryPartyMember(); });
-  subscribeAction<state::actions::UiGiveInventoryItem>(
+  subscribeAction<state::ActionEvent::UiGiveInventoryItem>(
       [this](auto&, auto&) { syncInventoryPartyMember(); });
-  subscribeAction<state::actions::UiDropInventoryItem>(
+  subscribeAction<state::ActionEvent::UiDropInventoryItem>(
       [this](auto&, auto&) { syncInventoryPartyMember(); });
 }
 

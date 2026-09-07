@@ -20,9 +20,9 @@
 #include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
 #include "state/WorldUpdater.h"
-#include "state/actions/combat/StartCombat.hpp"
-#include "state/actions/world/WorldLoadActiveMap.hpp"
-#include "state/actions/world/WorldSpawnPlayerAtMarker.hpp"
+#include "actions/combat/StartCombat.hpp"
+#include "actions/world/WorldLoadActiveMap.hpp"
+#include "actions/world/WorldSpawnPlayerAtMarker.hpp"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 
 namespace {

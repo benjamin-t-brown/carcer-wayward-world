@@ -1,8 +1,8 @@
 #include "FloatingNotificationSection.h"
-#include "state/actions/ui/UiPushFloatingNotification.hpp"
-#include "state/actions/ui/UiRemoveFloatingNotification.hpp"
-#include "state/actions/ui/UiGiveInventoryItem.hpp"
-#include "state/actions/ui/UiToggleEquipInventoryItem.hpp"
+#include "actions/navigation/UiPushFloatingNotification.hpp"
+#include "actions/navigation/UiRemoveFloatingNotification.hpp"
+#include "actions/navigation/UiGiveInventoryItem.hpp"
+#include "actions/navigation/UiToggleEquipInventoryItem.hpp"
 #include "ui/components/FloatingNotification.h"
 
 namespace ui {
@@ -12,20 +12,20 @@ FloatingNotificationSection::FloatingNotificationSection(sdl2w::Window* _window,
     : UiElement(_window, _parent) {
   shouldPropagateEventsToChildren = false;
 
-  subscribeAction<state::actions::UiPushFloatingNotification>(
-      [this](const state::actions::UiPushFloatingNotification&, const state::State& state) {
+  subscribeAction<state::ActionEvent::UiPushFloatingNotification>(
+      [this](const auto&, const state::State& state) {
         syncFromState(state);
       });
-  subscribeAction<state::actions::UiRemoveFloatingNotification>(
-      [this](const state::actions::UiRemoveFloatingNotification&, const state::State& state) {
+  subscribeAction<state::ActionEvent::UiRemoveFloatingNotification>(
+      [this](const auto&, const state::State& state) {
         syncFromState(state);
       });
-  subscribeAction<state::actions::UiToggleEquipInventoryItem>(
-      [this](const state::actions::UiToggleEquipInventoryItem&, const state::State& state) {
+  subscribeAction<state::ActionEvent::UiToggleEquipInventoryItem>(
+      [this](const auto&, const state::State& state) {
         syncFromState(state);
       });
-  subscribeAction<state::actions::UiGiveInventoryItem>(
-      [this](const state::actions::UiGiveInventoryItem&, const state::State& state) {
+  subscribeAction<state::ActionEvent::UiGiveInventoryItem>(
+      [this](const auto&, const state::State& state) {
         syncFromState(state);
       });
 

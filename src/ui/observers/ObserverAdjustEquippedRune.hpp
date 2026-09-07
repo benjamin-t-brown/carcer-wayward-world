@@ -2,7 +2,7 @@
 
 #include "model/templates/RuneTypes.h"
 #include "state/StateManager.h"
-#include "state/actions/ui/UiAdjustEquippedRune.hpp"
+#include "actions/navigation/UiAdjustEquippedRune.hpp"
 #include "ui/UiElement.h"
 
 namespace ui {

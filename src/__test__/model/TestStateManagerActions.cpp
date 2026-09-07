@@ -1,4 +1,7 @@
 #include "bmin/DynArray.h"
+#include "actions/navigation/UiContinueSpecialEvent.hpp"
+#include "actions/navigation/UiSelectSpecialEventChoice.hpp"
+#include "actions/navigation/UiShowLayerPopupText.hpp"
 #include "sdl2w/Logger.h"
 #include "state/AbstractAction.h"
 #include "state/StateManager.h"
@@ -284,6 +287,63 @@ int main(int /*argc*/, char** /*argv*/) {
                      1,
                      "notification expiry increments revision") &&
          ok;
+  }
+
+  // Subscribers receive stable semantic events and payloads without RTTI.
+  {
+    state::StateManager sm;
+    int owner = 0;
+    int continueCount = 0;
+    int selectedChoice = -1;
+    sm.getActionBus().subscribe(
+        &owner,
+        state::ActionEvent::UiContinueSpecialEvent,
+        [&](state::AbstractAction&, state::State&) { ++continueCount; });
+    sm.getActionBus().subscribe(
+        &owner,
+        state::ActionEvent::UiSelectSpecialEventChoice,
+        [&](state::AbstractAction& action, state::State&) {
+          selectedChoice = action.getEventValue();
+        });
+
+    sm.enqueueAction(sm.getActionData(),
+                     new state::actions::UiContinueSpecialEvent(),
+                     0);
+    sm.enqueueAction(sm.getActionData(),
+                     new state::actions::UiSelectSpecialEventChoice(3),
+                     0);
+    sm.update(1);
+
+    ok = assertEqual(continueCount, 1, "semantic continue event delivered") && ok;
+    ok = assertEqual(selectedChoice, 3, "semantic choice payload delivered") && ok;
+    sm.getActionBus().unsubscribe(&owner);
+  }
+
+  // Navigation actions write neutral layer requests; they never construct layers.
+  {
+    state::StateManager sm;
+    sm.enqueueAction(sm.getActionData(),
+                     new state::actions::UiShowLayerPopupText(
+                         nullptr, "A title", "Some text"),
+                     0);
+    sm.update(1);
+
+    const auto& requests = sm.getState().uiState.layerStack;
+    ok = assertEqual(static_cast<int>(requests.size()),
+                     1,
+                     "navigation action writes one request") &&
+         ok;
+    if (!requests.empty()) {
+      ok = assertTrue(requests[0].id == state::LayerId::PopupText,
+                      "navigation request carries layer id") &&
+           ok;
+      ok = assertTrue(requests[0].a == "A title",
+                      "navigation request carries title") &&
+           ok;
+      ok = assertTrue(requests[0].b == "Some text",
+                      "navigation request carries text") &&
+           ok;
+    }
   }
 
   if (ok) {

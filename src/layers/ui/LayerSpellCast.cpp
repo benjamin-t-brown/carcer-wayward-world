@@ -7,7 +7,7 @@
 #include "model/templates/RuneTypes.h"
 #include "sdl2w/L10n.h"
 #include "sdl2w/Logger.h"
-#include "state/actions/ui/UiRemoveLayer.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/helpers/keyboardShortcuts.h"
 #include "ui/minipages/MinipageSpellCast.h"

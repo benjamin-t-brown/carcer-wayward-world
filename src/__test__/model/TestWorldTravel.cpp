@@ -7,9 +7,9 @@
 #include "state/State.h"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
-#include "state/actions/world/WorldLoadActiveMap.hpp"
-#include "state/actions/world/WorldSpawnPlayerAtXY.hpp"
-#include "state/actions/world/WorldTravel.hpp"
+#include "actions/world/WorldLoadActiveMap.hpp"
+#include "actions/world/WorldSpawnPlayerAtXY.hpp"
+#include "actions/world/WorldTravel.hpp"
 #include "bmin/String.h"
 
 namespace {

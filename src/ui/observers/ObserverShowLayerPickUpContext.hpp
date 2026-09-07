@@ -1,7 +1,7 @@
 #pragma once
 
 #include "state/StateManager.h"
-#include "state/actions/ui/UiShowLayerPickupContext.hpp"
+#include "actions/navigation/UiShowLayerPickupContext.hpp"
 #include "ui/UiElement.h"
 
 namespace ui {

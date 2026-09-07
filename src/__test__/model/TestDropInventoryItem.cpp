@@ -5,7 +5,7 @@
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
 #include "state/State.h"
-#include "state/actions/ui/UiDropInventoryItem.hpp"
+#include "actions/navigation/UiDropInventoryItem.hpp"
 #include "bmin/String.h"
 #include <cassert>
 

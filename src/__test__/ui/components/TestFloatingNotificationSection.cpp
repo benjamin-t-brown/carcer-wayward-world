@@ -3,7 +3,7 @@
 #include "sdl2w/Window.h"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
-#include "state/actions/ui/UiPushFloatingNotification.hpp"
+#include "actions/navigation/UiPushFloatingNotification.hpp"
 #include "ui/UiElement.h"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/elements/buttons/ButtonModal.h"

@@ -2,7 +2,7 @@
 
 #include "lib/StringUtil.h"
 #include "state/StateManager.h"
-#include "state/actions/ui/UiRemoveLayer.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
 #include "ui/UiElement.h"
 
 namespace ui {

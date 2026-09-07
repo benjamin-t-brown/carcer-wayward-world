@@ -10,7 +10,7 @@
 #include "state/State.h"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
-#include "state/actions/world/WorldTalkAt.hpp"
+#include "actions/world/WorldTalkAt.hpp"
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 

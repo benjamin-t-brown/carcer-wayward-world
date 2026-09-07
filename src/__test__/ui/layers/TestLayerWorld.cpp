@@ -14,8 +14,8 @@
 #include "state/DatabaseInterface.h"
 #include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
-#include "state/actions/world/WorldLoadActiveMap.hpp"
-#include "state/actions/world/WorldSpawnPlayerAtMarker.hpp"
+#include "actions/world/WorldLoadActiveMap.hpp"
+#include "actions/world/WorldSpawnPlayerAtMarker.hpp"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 
 namespace {

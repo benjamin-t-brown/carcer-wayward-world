@@ -12,7 +12,7 @@
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
 #include "state/WorldUpdater.h"
-#include "state/actions/world/WorldMovePlayer.hpp"
+#include "actions/world/WorldMovePlayer.hpp"
 #include "bmin/String.h"
 
 namespace {

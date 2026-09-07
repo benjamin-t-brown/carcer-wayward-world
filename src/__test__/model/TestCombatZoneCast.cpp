@@ -14,8 +14,8 @@
 #include "state/DatabaseInterface.h"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
-#include "state/actions/combat/DoCombatAction.hpp"
-#include "state/actions/combat/StartCombat.hpp"
+#include "actions/combat/DoCombatAction.hpp"
+#include "actions/combat/StartCombat.hpp"
 #include "bmin/String.h"
 
 namespace {

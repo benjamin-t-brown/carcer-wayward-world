@@ -2,7 +2,7 @@
 
 #include "bmin/String.h"
 #include "state/StateManager.h"
-#include "state/actions/ui/UiShowLayerSpellInfo.hpp"
+#include "actions/navigation/UiShowLayerSpellInfo.hpp"
 #include "ui/UiElement.h"
 
 namespace ui {

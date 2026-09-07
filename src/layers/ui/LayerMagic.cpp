@@ -5,11 +5,11 @@
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/RuneTypes.h"
 #include "sdl2w/Logger.h"
-#include "state/actions/ui/UiCancelEquipRunes.hpp"
-#include "state/actions/ui/UiCommitEquipRunes.hpp"
-#include "state/actions/ui/UiRemoveLayer.hpp"
-#include "state/actions/ui/UiSetCurrentPartyMemberMagic.hpp"
-#include "state/actions/ui/UiSetSpellReady.hpp"
+#include "actions/navigation/UiCancelEquipRunes.hpp"
+#include "actions/navigation/UiCommitEquipRunes.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
+#include "actions/navigation/UiSetCurrentPartyMemberMagic.hpp"
+#include "actions/navigation/UiSetSpellReady.hpp"
 #include "ui/helpers/keyboardShortcuts.h"
 #include "ui/pages/PageMagicSetup.h"
 
@@ -81,13 +81,13 @@ LayerMagic::LayerMagic(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
 
   syncMagicPartyMember();
 
-  subscribeAction<state::actions::UiSetCurrentPartyMemberMagic>(
+  subscribeAction<state::ActionEvent::UiSetCurrentPartyMemberMagic>(
       [this](auto&, auto&) { syncMagicPartyMember(); });
-  subscribeAction<state::actions::UiSetSpellReady>(
+  subscribeAction<state::ActionEvent::UiSetSpellReady>(
       [this](auto&, auto&) { syncMagicPartyMember(); });
-  subscribeAction<state::actions::UiCommitEquipRunes>(
+  subscribeAction<state::ActionEvent::UiCommitEquipRunes>(
       [this](auto&, auto&) { syncMagicPartyMember(); });
-  subscribeAction<state::actions::UiCancelEquipRunes>(
+  subscribeAction<state::ActionEvent::UiCancelEquipRunes>(
       [this](auto&, auto&) { syncMagicPartyMember(); });
 }
 

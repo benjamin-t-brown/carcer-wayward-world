@@ -1,7 +1,7 @@
 #pragma once
 
 #include "state/StateManager.h"
-#include "state/actions/ui/UiGiveInventoryItem.hpp"
+#include "actions/navigation/UiGiveInventoryItem.hpp"
 #include "ui/UiElement.h"
 #include "ui/popups/PopupGive.h"
 #include "bmin/String.h"

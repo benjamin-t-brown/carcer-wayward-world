@@ -16,10 +16,10 @@
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
 #include "state/WorldUpdater.h"
-#include "state/actions/combat/DoCPUCombatTurn.hpp"
-#include "state/actions/combat/StartCombat.hpp"
-#include "state/actions/world/TownEnemyAiAfterPlayerMove.hpp"
-#include "state/actions/world/WorldMovePlayer.hpp"
+#include "actions/combat/DoCPUCombatTurn.hpp"
+#include "actions/combat/StartCombat.hpp"
+#include "actions/world/TownEnemyAiAfterPlayerMove.hpp"
+#include "actions/world/WorldMovePlayer.hpp"
 #include "bmin/String.h"
 #include <cstdlib>
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "state/StateManager.h"
-#include "state/actions/ui/UiSetCurrentPartyMemberMagic.hpp"
+#include "actions/navigation/UiSetCurrentPartyMemberMagic.hpp"
 #include "ui/UiElement.h"
 
 namespace ui {

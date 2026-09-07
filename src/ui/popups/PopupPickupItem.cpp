@@ -1,7 +1,7 @@
 #include "PopupPickupItem.h"
 #include "sdl2w/Logger.h"
 #include "state/StateManager.h"
-#include "state/actions/ui/UiRemoveLayer.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
 #include "ui/colors.h"
 #include "ui/components/ItemInfo.h"
 #include "ui/components/borders/BorderDropShadow.h"

@@ -12,12 +12,12 @@
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
 #include "state/WorldUpdater.h"
-#include "state/actions/combat/DoCombatAction.hpp"
-#include "state/actions/combat/EndCombat.hpp"
-#include "state/actions/combat/ModifyAP.hpp"
-#include "state/actions/combat/ModifyHP.hpp"
-#include "state/actions/combat/StartCombat.hpp"
-#include "state/actions/general/PlaySound.hpp"
+#include "actions/combat/DoCombatAction.hpp"
+#include "actions/combat/EndCombat.hpp"
+#include "actions/combat/ModifyAP.hpp"
+#include "actions/combat/ModifyHP.hpp"
+#include "actions/combat/StartCombat.hpp"
+#include "actions/general/PlaySound.hpp"
 #include "bmin/String.h"
 
 namespace {

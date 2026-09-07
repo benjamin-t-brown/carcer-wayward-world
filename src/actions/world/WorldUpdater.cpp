@@ -7,10 +7,10 @@
 #include "sdl2w/Window.h"
 #include "state/State.h"
 #include "state/StateManager.h"
-#include "state/actions/combat/DoCPUCombatTurn.hpp"
-#include "state/actions/ui/heldMove/UiUpdateHeldMove.hpp"
-#include "state/actions/ui/UiShowLayerSpecialEvent.hpp"
-#include "state/actions/world/WorldTravel.hpp"
+#include "actions/combat/DoCPUCombatTurn.hpp"
+#include "actions/navigation/heldMove/UiUpdateHeldMove.hpp"
+#include "actions/navigation/UiShowLayerSpecialEvent.hpp"
+#include "actions/world/WorldTravel.hpp"
 
 namespace state {
 

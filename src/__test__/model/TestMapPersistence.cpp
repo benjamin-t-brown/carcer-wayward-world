@@ -11,7 +11,7 @@
 #include "state/State.h"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
-#include "state/actions/world/WorldLoadActiveMap.hpp"
+#include "actions/world/WorldLoadActiveMap.hpp"
 
 namespace {
 

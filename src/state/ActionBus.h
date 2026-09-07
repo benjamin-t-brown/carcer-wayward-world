@@ -1,9 +1,9 @@
 #pragma once
 
 #include "bmin/DynArray.h"
+#include "state/ActionEvent.h"
 #include "state/State.h"
 #include <functional>
-#include <typeindex>
 
 namespace state {
 
@@ -12,7 +12,7 @@ class AbstractAction;
 class ActionBus {
   struct Entry {
     void* owner = nullptr;
-    std::type_index actionType{typeid(void)};
+    ActionEvent event = ActionEvent::None;
     std::function<void(AbstractAction&, State&)> handler;
   };
 
@@ -20,7 +20,7 @@ class ActionBus {
 
 public:
   void subscribe(void* owner,
-                 std::type_index actionType,
+                 ActionEvent event,
                  std::function<void(AbstractAction&, State&)> handler);
 
   void unsubscribe(void* owner);

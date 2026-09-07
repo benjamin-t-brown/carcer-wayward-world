@@ -16,20 +16,20 @@
 #include "state/LayerManagerInterface.h"
 #include "state/WorldActions.h"
 #include "state/WorldUpdater.h"
-#include "state/actions/combat/DoCombatAction.hpp"
-#include "state/actions/combat/EndCombat.hpp"
-#include "state/actions/combat/ModifyHP.hpp"
-#include "state/actions/combat/SetActiveCombatCharacter.hpp"
-#include "state/actions/combat/StartCombat.hpp"
-#include "state/actions/ui/UiSetSelectedPartyMemberId.hpp"
-#include "state/actions/ui/heldMove/UiUpdateHeldMove.hpp"
-#include "state/actions/world/PerformTownMeleeAttack.hpp"
-#include "state/actions/world/WorldExamineAt.hpp"
-#include "state/actions/world/WorldMoveActionAim.hpp"
-#include "state/actions/world/WorldMovePlayer.hpp"
-#include "state/actions/world/WorldSetActionAim.hpp"
-#include "state/actions/world/WorldSetActionMode.hpp"
-#include "state/actions/world/WorldTalkAt.hpp"
+#include "actions/combat/DoCombatAction.hpp"
+#include "actions/combat/EndCombat.hpp"
+#include "actions/combat/ModifyHP.hpp"
+#include "actions/combat/SetActiveCombatCharacter.hpp"
+#include "actions/combat/StartCombat.hpp"
+#include "actions/navigation/UiSetSelectedPartyMemberId.hpp"
+#include "actions/navigation/heldMove/UiUpdateHeldMove.hpp"
+#include "actions/world/PerformTownMeleeAttack.hpp"
+#include "actions/world/WorldExamineAt.hpp"
+#include "actions/world/WorldMoveActionAim.hpp"
+#include "actions/world/WorldMovePlayer.hpp"
+#include "actions/world/WorldSetActionAim.hpp"
+#include "actions/world/WorldSetActionMode.hpp"
+#include "actions/world/WorldTalkAt.hpp"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/components/InGameTitleBar.h"
 #include "ui/components/MapView.h"
@@ -88,14 +88,14 @@ LayerWorld::LayerWorld(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
   floatingNotificationSection->setId("floatingNotificationSection");
   addUiElement(floatingNotificationSection);
 
-  subscribeAction<state::actions::StartCombat>([this](auto&, auto&) { syncFromState(); });
-  subscribeAction<state::actions::EndCombat>([this](auto&, auto&) { syncFromState(); });
-  subscribeAction<state::actions::SetActiveCombatCharacter>(
+  subscribeAction<state::ActionEvent::StartCombat>([this](auto&, auto&) { syncFromState(); });
+  subscribeAction<state::ActionEvent::EndCombat>([this](auto&, auto&) { syncFromState(); });
+  subscribeAction<state::ActionEvent::SetActiveCombatCharacter>(
       [this](auto&, auto&) { syncFromState(); });
-  subscribeAction<state::actions::UiSetSelectedPartyMemberId>(
+  subscribeAction<state::ActionEvent::UiSetSelectedPartyMemberId>(
       [this](auto&, auto&) { syncFromState(); });
-  subscribeAction<state::actions::ModifyHP>([this](auto&, auto&) { syncFromState(); });
-  subscribeAction<state::actions::ModifyPartyMemberHp>(
+  subscribeAction<state::ActionEvent::ModifyHP>([this](auto&, auto&) { syncFromState(); });
+  subscribeAction<state::ActionEvent::ModifyPartyMemberHp>(
       [this](auto&, auto&) { syncFromState(); });
 
   syncFromState();

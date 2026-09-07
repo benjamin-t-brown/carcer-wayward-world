@@ -6,9 +6,9 @@
 #include "sdl2w/L10n.h"
 #include "sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
-#include "state/actions/ui/UiPickUpItem.hpp"
-#include "state/actions/ui/UiRemoveLayer.hpp"
-#include "state/actions/ui/UiSetCurrentPartyMember.hpp"
+#include "actions/navigation/UiPickUpItem.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
+#include "actions/navigation/UiSetCurrentPartyMember.hpp"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/helpers/keyboardShortcuts.h"
@@ -71,9 +71,9 @@ LayerPickUp::LayerPickUp(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
 
   syncCurrentPartyMember();
 
-  subscribeAction<state::actions::UiSetCurrentPartyMember>(
+  subscribeAction<state::ActionEvent::UiSetCurrentPartyMember>(
       [this](auto&, auto&) { syncCurrentPartyMember(); });
-  subscribeAction<state::actions::UiPickUpItem>(
+  subscribeAction<state::ActionEvent::UiPickUpItem>(
       [this](auto&, auto&) { syncCurrentPartyMember(); });
 }
 

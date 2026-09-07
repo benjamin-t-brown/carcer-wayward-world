@@ -1,15 +1,15 @@
 #include "ui/helpers/worldActions.h"
 
 #include "state/StateManager.h"
-#include "state/actions/combat/EndCombat.hpp"
-#include "state/actions/combat/StartCombat.hpp"
-#include "state/actions/ui/UiShowLayerInventory.hpp"
-#include "state/actions/ui/UiShowLayerMagic.hpp"
-#include "state/actions/ui/UiShowLayerPickUp.hpp"
-#include "state/actions/ui/UiShowLayerSpellCast.hpp"
-#include "state/actions/ui/heldMove/UiUpdateHeldMove.hpp"
-#include "state/actions/world/WorldInteractAt.hpp"
-#include "state/actions/world/WorldSetActionMode.hpp"
+#include "actions/combat/EndCombat.hpp"
+#include "actions/combat/StartCombat.hpp"
+#include "actions/navigation/UiShowLayerInventory.hpp"
+#include "actions/navigation/UiShowLayerMagic.hpp"
+#include "actions/navigation/UiShowLayerPickUp.hpp"
+#include "actions/navigation/UiShowLayerSpellCast.hpp"
+#include "actions/navigation/heldMove/UiUpdateHeldMove.hpp"
+#include "actions/world/WorldInteractAt.hpp"
+#include "actions/world/WorldSetActionMode.hpp"
 
 namespace ui {
 

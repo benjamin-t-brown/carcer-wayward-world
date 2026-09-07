@@ -7,9 +7,9 @@
 #include "state/State.h"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
-#include "state/actions/world/WorldMoveActionAim.hpp"
-#include "state/actions/world/WorldSetActionAim.hpp"
-#include "state/actions/world/WorldSetActionMode.hpp"
+#include "actions/world/WorldMoveActionAim.hpp"
+#include "actions/world/WorldSetActionAim.hpp"
+#include "actions/world/WorldSetActionMode.hpp"
 
 namespace {
 

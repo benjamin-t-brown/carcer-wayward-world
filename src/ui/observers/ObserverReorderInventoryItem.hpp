@@ -1,7 +1,7 @@
 #pragma once
 
 #include "state/StateManager.h"
-#include "state/actions/ui/UiReorderInventoryItem.hpp"
+#include "actions/navigation/UiReorderInventoryItem.hpp"
 #include "ui/UiElement.h"
 #include "bmin/String.h"
 

@@ -2,7 +2,7 @@
 
 #include "bmin/String.h"
 #include "state/StateManager.h"
-#include "state/actions/ui/UiShowLayerEquipRunes.hpp"
+#include "actions/navigation/UiShowLayerEquipRunes.hpp"
 #include "ui/UiElement.h"
 
 namespace ui {
