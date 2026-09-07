@@ -1,6 +1,8 @@
 #pragma once
 
 #include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/MapPersistence.h"
+#include "game/map/TileFields.h"
 #include "model/Combat.h"
 #include "sdl2w/Logger.h"
 #include "state/actions/combat/ActionBase.hpp"
@@ -14,7 +16,8 @@ class GoNextCombatTurn : public CombatAction {
   void startNewCombatRound() {
     LOG(INFO) << "GoNextCombatTurn: new combat round, resetting AP" << LOG_ENDL;
     state->world.combat.activeTurnIndex = 0;
-    model::onNewCombatRound(*state);
+    model::resetAllCombatAp(state->world, model::COMBAT_STARTING_AP);
+    game::advanceWorldMovementTicks(*state, game::TILE_FIELD_MOVES_PER_COMBAT_ROUND);
   }
 
   void act() override {

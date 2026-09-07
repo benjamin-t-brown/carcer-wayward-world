@@ -228,3 +228,38 @@ if(CARCER_BUILD_UI_TESTS)
     add_dependencies(carcer_ui_tests "${CARCER_LAST_TEST_TARGET}")
   endforeach()
 endif()
+
+if(BUILD_TESTING)
+  find_package(Python3 COMPONENTS Interpreter REQUIRED)
+  add_test(NAME IncludeArchitecture
+    COMMAND "${Python3_EXECUTABLE}"
+            "${CMAKE_SOURCE_DIR}/scripts/check-include-architecture.py"
+            --root "${CMAKE_SOURCE_DIR}"
+            --source-subsystem model)
+
+  file(GLOB_RECURSE CARCER_PHASE3_HEADERS CONFIGURE_DEPENDS
+    "${CMAKE_SOURCE_DIR}/src/lib/*.h"
+    "${CMAKE_SOURCE_DIR}/src/data/*.h"
+    "${CMAKE_SOURCE_DIR}/src/model/*.h"
+    "${CMAKE_SOURCE_DIR}/src/db/*.h")
+  list(APPEND CARCER_PHASE3_HEADERS
+    "${CMAKE_SOURCE_DIR}/src/game/combat/CombatParty.h"
+    "${CMAKE_SOURCE_DIR}/src/game/inventory/InventoryRules.h"
+    "${CMAKE_SOURCE_DIR}/src/game/map/CharacterConstruction.h"
+    "${CMAKE_SOURCE_DIR}/src/game/map/TileFields.h")
+  set(CARCER_PHASE3_HEADER_PROBES)
+  foreach(header IN LISTS CARCER_PHASE3_HEADERS)
+    file(RELATIVE_PATH relative_header "${CMAKE_SOURCE_DIR}/src" "${header}")
+    string(MD5 header_id "${relative_header}")
+    set(probe "${CMAKE_BINARY_DIR}/header-self-containment/phase3/${header_id}.cpp")
+    file(WRITE "${probe}" "#include \"${relative_header}\"\nint carcer_header_probe_${header_id} = 0;\n")
+    list(APPEND CARCER_PHASE3_HEADER_PROBES "${probe}")
+  endforeach()
+  add_library(carcer_phase3_header_checks OBJECT EXCLUDE_FROM_ALL
+    ${CARCER_PHASE3_HEADER_PROBES})
+  set_property(TARGET carcer_phase3_header_checks PROPERTY CXX_SCAN_FOR_MODULES OFF)
+  target_link_libraries(carcer_phase3_header_checks PRIVATE carcer_lib)
+  add_test(NAME Phase3HeaderSelfContainment
+    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}"
+            --target carcer_phase3_header_checks --parallel 8)
+endif()

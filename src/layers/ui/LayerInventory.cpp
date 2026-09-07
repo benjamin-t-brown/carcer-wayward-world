@@ -1,5 +1,6 @@
 #include "LayerInventory.h"
 #include "bmin/String.h"
+#include "game/inventory/InventoryRules.h"
 #include "sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
 #include "state/actions/ui/UiDropInventoryItem.hpp"
@@ -120,7 +121,7 @@ void LayerInventory::syncInventoryPartyMember() {
   }
   pageProps.characterPlayerSprite = model::characterPlayerGetSprite(*inventoryPartyMember);
   pageProps.weightCarrying =
-      model::characterGetWeightCarrying(*inventoryPartyMember, getDatabase());
+      game::inventoryWeight(*inventoryPartyMember, *getDatabase());
   pageProps.weightCapacity = model::characterGetWeightCapacity(*inventoryPartyMember);
   pageProps.gold = player.gold;
   pageProps.inventory = inventoryPartyMember->inventory;

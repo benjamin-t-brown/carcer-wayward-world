@@ -1,7 +1,8 @@
 #pragma once
 
-#include "model/Combat.h"
+#include "game/combat/CombatParty.h"
 #include "game/map/MapVision.h"
+#include "model/Combat.h"
 #include "model/instances/World.h"
 #include "sdl2w/Logger.h"
 #include "state/actions/combat/ActionBase.hpp"
@@ -25,7 +26,7 @@ class StartCombat : public CombatAction {
     LOG(INFO) << "StartCombat: starting combat on grid " << world.activeMap.gridId
               << LOG_ENDL;
     state->turnMode = model::TurnMode::TURN_COMBAT;
-    model::addPartyMembersToCombatMap(world, state->player, *database);
+    game::addPartyMembersToCombatMap(world, state->player, *database);
     game::updateActiveMapVisibilityFromParty(world, state->player, *database);
     world.combat = model::createCombatFromWorld(world, state->player);
     model::resetAllCombatAp(world, model::COMBAT_STARTING_AP);

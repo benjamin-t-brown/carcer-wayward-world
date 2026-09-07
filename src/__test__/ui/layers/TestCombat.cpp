@@ -5,6 +5,7 @@
 #include "bmin/UniquePtr.h"
 #include "db/Database.h"
 #include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/CharacterConstruction.h"
 #include "game/map/MapPersistence.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerWorld.h"
@@ -125,7 +126,7 @@ void spawnEnemiesAtMarkers(state::State& state,
     enemy.y = found.y;
     enemy.spawnX = found.x;
     enemy.spawnY = found.y;
-    model::tryApplyCharacterTemplateToInstance(enemy, database);
+    game::applyCharacterTemplateFromDatabase(enemy, database);
     world.activeMap.characters.pushBack(std::move(enemy));
   }
 }

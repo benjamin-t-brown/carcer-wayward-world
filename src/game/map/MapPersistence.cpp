@@ -1,9 +1,9 @@
 #include "game/map/MapPersistence.h"
 #include "bmin/StringInterop.h"
 #include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/CharacterConstruction.h"
 #include "game/map/MapWalkability.h"
 #include "game/map/TileFields.h"
-#include "model/templates/CharacterTemplate.h"
 
 namespace game {
 
@@ -14,8 +14,8 @@ void createMapInstances(state::State& state, const db::Database& database) {
   for (auto it = templates.begin(); it != templates.end(); ++it) {
     model::MapInstance instance = model::createMapInstanceFromTemplate(it->value);
     for (size_t ci = 0; ci < instance.persistentState.characters.size(); ci++) {
-      model::tryApplyCharacterTemplateToInstance(instance.persistentState.characters[ci],
-                                                 database);
+      applyCharacterTemplateFromDatabase(instance.persistentState.characters[ci],
+                                         database);
     }
     auto layers = model::mapInstanceTiles(instance);
     for (auto layer : layers) {

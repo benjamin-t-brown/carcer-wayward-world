@@ -51,13 +51,16 @@ set(CARCER_MODEL_SOURCES
   src/model/templates/UtilityTypes.cpp)
 
 set(CARCER_RULE_SOURCES
+  src/game/combat/CombatParty.cpp
   src/game/combat/SpellRules.cpp
   src/game/combat/projectileHelpers.cpp
   src/game/combat/Damage.cpp
   src/game/combat/EnemyBehavior.cpp
   src/game/diceHelpers.cpp
+  src/game/inventory/InventoryRules.cpp
   src/game/map/ActiveMapOrchestrator.cpp
   src/game/map/Camera.cpp
+  src/game/map/CharacterConstruction.cpp
   src/game/map/MapWalkability.cpp
   src/game/map/MapVision.cpp
   src/game/map/TileFields.cpp

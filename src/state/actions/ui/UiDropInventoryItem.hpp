@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bmin/String.h"
+#include "game/inventory/InventoryRules.h"
 #include "game/map/TileTriggers.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerDropConfirm.h"
@@ -57,7 +58,7 @@ class UiDropInventoryItem : public AbstractAction {
     }
 
     if (model::characterPlayerIsItemEquippedById(*partyMember, itemId)) {
-      model::characterPlayerToggleEquipItem(*partyMember, itemId, *database);
+      game::toggleEquippedInventoryItem(*partyMember, itemId, *database);
     }
 
     model::ItemInstance dropped;

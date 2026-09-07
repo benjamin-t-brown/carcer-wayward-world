@@ -2,6 +2,7 @@
 
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
+#include "game/inventory/InventoryRules.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/Player.h"
 #include "model/templates/Items.h"
@@ -60,7 +61,7 @@ class UiPickUpItem : public AbstractAction {
     }
 
     const int addedWeight = mapItem->quantity * itemTemplate->weight;
-    if (model::characterGetWeightCarrying(*partyMember, database) + addedWeight >
+    if (game::inventoryWeight(*partyMember, *database) + addedWeight >
         model::characterGetWeightCapacity(*partyMember)) {
       UiFloatingNotification notification;
       notification.id = model::createRandomId();

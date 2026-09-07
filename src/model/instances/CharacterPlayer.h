@@ -8,10 +8,6 @@
 #include "model/templates/UtilityTypes.h"
 #include <optional>
 
-namespace db {
-class Database;
-}
-
 namespace model {
 
 struct CharacterPlayerEquipment {
@@ -59,18 +55,9 @@ struct CharacterPlayer {
   // Dense list of equipped rune types; size 0..kRuneSlotCount, no mid-list holes.
   bmin::DynArray<RuneType> equippedRunes;
 
-  CharacterPlayer(const CharacterTemplate& _params = CharacterTemplate(),
-                  const bmin::DynArray<CharacterInventoryItem>& _inventory = {},
-                  const CharacterPlayerEquipment& _equipment = {}) {
-    instanceId = createRandomId();
-    params = _params;
-    initCharacterStatsFromTemplate(stats, _params);
-    currentHp = _params.combat.hp;
-    currentMp = _params.combat.mp;
-    inventory = _inventory;
-    equipment = _equipment;
-    applyCharacterTemplateStartingSpells(*this, _params);
-  }
+  CharacterPlayer(const CharacterTemplate& params = CharacterTemplate(),
+                  const bmin::DynArray<CharacterInventoryItem>& inventory = {},
+                  const CharacterPlayerEquipment& equipment = {});
 };
 
 bmin::String characterPlayerGetSprite(const CharacterPlayer& characterPlayer);
@@ -105,9 +92,6 @@ characterPlayerGetEquipmentSlotForItemId(const CharacterPlayer& characterPlayer,
 bmin::String characterEquipmentSlotAbbrev(CharacterEquipmentSlot slot);
 bool characterPlayerIsItemEquippedById(const CharacterPlayer& characterPlayer,
                                        const bmin::String& itemId);
-EquipItemResult characterPlayerToggleEquipItem(CharacterPlayer& characterPlayer,
-                                               const bmin::String& itemId,
-                                               const db::Database& database);
 
 enum class EquipRuneResult {
   EQUIPPED,
@@ -169,18 +153,13 @@ enum class GiveItemResult {
   TOO_HEAVY,
 };
 
-GiveItemResult characterPlayerGiveInventoryItem(CharacterPlayer& from,
-                                                CharacterPlayer& to,
-                                                const bmin::String& itemId,
-                                                int quantity,
-                                                const db::Database& database);
 bool characterPlayerReorderInventoryItem(CharacterPlayer& characterPlayer,
                                          size_t index,
                                          int direction);
-int characterGetWeightCarrying(const CharacterPlayer& characterPlayer,
-                               const db::Database* database);
 int characterGetWeightCapacity(const CharacterPlayer& characterPlayer);
-int characterGetRationSlotCapacity(const CharacterPlayer& characterPlayer,
-                                   const db::Database& database);
+
+/** Copy starting known/ready spell lists from template onto a party member. */
+void applyCharacterTemplateStartingSpells(CharacterPlayer& character,
+                                          const CharacterTemplate& characterTemplate);
 
 } // namespace model

@@ -606,9 +606,8 @@ const Json& Json::operator[](const char* key) const {
     return emptySentinel();
   }
   const bmin::String lookupKey(key);
-  auto& map = const_cast<bmin::Map<bmin::String, Json>&>(_storage.object);
-  const auto it = map.find(lookupKey);
-  if (it == map.end()) {
+  const auto it = _storage.object.find(lookupKey);
+  if (it == _storage.object.end()) {
     return emptySentinel();
   }
   return it->value;

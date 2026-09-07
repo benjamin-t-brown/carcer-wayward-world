@@ -1,4 +1,5 @@
 #include "db/Database.h"
+#include "game/inventory/InventoryRules.h"
 #include "sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/Items.h"
@@ -45,7 +46,7 @@ int main(int argc, char** argv) {
   giver.inventory = {makeInventoryItem("item1", "LightItem", 3)};
   recipient.inventory = {};
 
-  assertResult(model::characterPlayerGiveInventoryItem(
+  assertResult(game::giveInventoryItem(
                    giver, recipient, "item1", 2, database),
                model::GiveItemResult::SUCCESS);
   assert(giver.inventory.size() == 1);
@@ -56,15 +57,15 @@ int main(int argc, char** argv) {
 
   giver.inventory = {makeInventoryItem("heavy1", "HeavyItem", 1)};
   recipient.inventory = {makeInventoryItem("fill", "LightItem", 18)};
-  assertResult(model::characterPlayerGiveInventoryItem(
+  assertResult(game::giveInventoryItem(
                    giver, recipient, "heavy1", 1, database),
                model::GiveItemResult::TOO_HEAVY);
 
   assertResult(
-      model::characterPlayerGiveInventoryItem(giver, recipient, "missing", 1, database),
+      game::giveInventoryItem(giver, recipient, "missing", 1, database),
       model::GiveItemResult::ITEM_NOT_FOUND);
 
-  assertResult(model::characterPlayerGiveInventoryItem(
+  assertResult(game::giveInventoryItem(
                    giver, recipient, "heavy1", 0, database),
                model::GiveItemResult::INVALID_QUANTITY);
 

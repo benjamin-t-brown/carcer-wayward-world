@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bmin/String.h"
+#include "game/inventory/InventoryRules.h"
 #include "sdl2w/L10n.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/Player.h"
@@ -32,7 +33,7 @@ class UiToggleEquipInventoryItem : public AbstractAction {
     }
 
     const auto result =
-        model::characterPlayerToggleEquipItem(*characterPlayer, itemId, *database);
+        game::toggleEquippedInventoryItem(*characterPlayer, itemId, *database);
 
     switch (result) {
     case model::EquipItemResult::SLOT_OCCUPIED: {

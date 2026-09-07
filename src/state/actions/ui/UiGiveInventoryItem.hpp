@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bmin/String.h"
+#include "game/inventory/InventoryRules.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerGiveContext.h"
 #include "layers/ui/LayerInventoryContext.h"
@@ -37,7 +38,7 @@ class UiGiveInventoryItem : public AbstractAction {
       return;
     }
 
-    const auto result = model::characterPlayerGiveInventoryItem(
+    const auto result = game::giveInventoryItem(
         *fromMember, *toMember, itemId, quantity, *database);
 
     auto layerManager = getLayerManager();

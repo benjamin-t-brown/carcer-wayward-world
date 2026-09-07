@@ -4,10 +4,6 @@
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 
-namespace db {
-class Database;
-}
-
 namespace model {
 
 struct CharacterInstance;
@@ -93,10 +89,6 @@ bmin::String characterGetSpriteAtIndexOffset(const CharacterTemplate& characterT
 /** Copy AI/faction fields from template onto a map character instance. */
 void applyCharacterTemplateToInstance(CharacterInstance& character,
                                       const CharacterTemplate& characterTemplate);
-
-/** Lookup templateName on the database and apply; returns false if missing. */
-bool tryApplyCharacterTemplateToInstance(CharacterInstance& character,
-                                         const db::Database& database);
 
 /** Copy starting known/ready spell lists from template onto a party member. */
 void applyCharacterTemplateStartingSpells(CharacterPlayer& character,

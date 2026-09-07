@@ -1,14 +1,8 @@
 #include "model/Combat.h"
-#include "game/map/MapPersistence.h"
-#include "game/map/TileFields.h"
-#include "game/map/TileTriggers.h"
 #include "model/instances/CharacterInstance.h"
 #include "model/instances/Player.h"
 #include "model/instances/World.h"
-#include "model/templates/CharacterTemplate.h"
-#include "state/State.h"
 #include "bmin/StringStream.h"
-#include "db/Database.h"
 
 namespace model {
 
@@ -98,51 +92,6 @@ void removeCharacterFromCombatTurnOrder(Combat& combat, const bmin::String& char
 void resetAllCombatAp(World& world, int ap) {
   for (auto& character : world.activeMap.characters) {
     character.currentAp = ap;
-  }
-}
-
-void onNewCombatRound(state::State& state) {
-  resetAllCombatAp(state.world, COMBAT_STARTING_AP);
-  game::advanceWorldMovementTicks(state, game::TILE_FIELD_MOVES_PER_COMBAT_ROUND);
-}
-
-void addPartyMembersToCombatMap(World& world, Player& player, const db::Database& database) {
-  auto& activeMap = world.activeMap;
-  auto* leader = game::findPartyAvatarOnActiveMap(activeMap, player);
-  const auto spawnX = leader ? leader->x : 0;
-  const auto spawnY = leader ? leader->y : 0;
-
-  for (const auto& member : player.party) {
-    bool found = false;
-    for (const auto& character : activeMap.characters) {
-      if (character.id == member.instanceId) {
-        found = true;
-        break;
-      }
-    }
-    if (found) {
-      continue;
-    }
-
-    auto instance = CharacterInstance{};
-    instance.id = member.instanceId;
-    instance.name = member.name.empty() ? member.params.name : member.name;
-    instance.templateName =
-        member.templateName.empty() ? member.params.name : member.templateName;
-    instance.x = spawnX;
-    instance.y = spawnY;
-    instance.spawnX = spawnX;
-    instance.spawnY = spawnY;
-    instance.currentAp = COMBAT_STARTING_AP;
-    instance.currentHp = member.currentHp;
-    tryApplyCharacterTemplateToInstance(instance, database);
-    activeMap.characters.pushBack(std::move(instance));
-  }
-
-  for (auto& character : activeMap.characters) {
-    if (character.currentHp <= 0 && isCharacterEnemy(character)) {
-      character.currentHp = character.maxHp;
-    }
   }
 }
 

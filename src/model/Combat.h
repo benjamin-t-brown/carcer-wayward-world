@@ -4,14 +4,6 @@
 #include "bmin/Map.h"
 #include "bmin/String.h"
 
-namespace db {
-class Database;
-}
-
-namespace state {
-struct State;
-}
-
 namespace model {
 
 struct MapInstance;
@@ -56,8 +48,6 @@ bool modifyPartyMemberHp(Player& player, const bmin::String& instanceId, int del
 bool isCharacterDefeated(const Player& player, const CharacterInstance& character);
 
 void resetAllCombatAp(World& world, int ap = COMBAT_STARTING_AP);
-void onNewCombatRound(state::State& state);
-void addPartyMembersToCombatMap(World& world, Player& player, const db::Database& database);
 void removeExtraPartyMembersFromMap(World& world, const Player& player);
 
 Combat createCombatFromWorld(const World& world, const Player& player);

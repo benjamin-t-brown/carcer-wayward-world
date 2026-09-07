@@ -1,4 +1,5 @@
 #include "LayerPickUp.h"
+#include "game/inventory/InventoryRules.h"
 #include "game/map/MapPickup.h"
 #include "game/map/TileTriggers.h"
 #include "lib/StringUtil.h"
@@ -157,7 +158,7 @@ void LayerPickUp::syncCurrentPartyMember() {
     return;
   }
 
-  const int carrying = model::characterGetWeightCarrying(*currentPartyMember, database);
+  const int carrying = game::inventoryWeight(*currentPartyMember, *database);
   const int maxWeight = model::characterGetWeightCapacity(*currentPartyMember);
 
   auto minipageProps = minipagePickUp->getProps();

@@ -1,6 +1,7 @@
 #include "db/Database.h"
 #include "game/combat/EnemyBehavior.h"
 #include "game/map/TileDistance.h"
+#include "game/map/CharacterConstruction.h"
 #include "game/map/MapVision.h"
 #include "model/Combat.h"
 #include "model/instances/CharacterInstance.h"
@@ -203,8 +204,8 @@ state::State makeTownState(db::Database& database,
   state.world.activeMap.characters.pushBack(std::move(enemy));
 
   for (size_t i = 0; i < state.world.activeMap.characters.size(); i++) {
-    model::tryApplyCharacterTemplateToInstance(state.world.activeMap.characters[i],
-                                               database);
+    game::applyCharacterTemplateFromDatabase(state.world.activeMap.characters[i],
+                                             database);
   }
 
   return state;
@@ -474,8 +475,8 @@ int main(int /*argc*/, char** /*argv*/) {
     enemy.hpInitialized = true;
     state.world.activeMap.characters.pushBack(std::move(enemy));
     for (size_t i = 0; i < state.world.activeMap.characters.size(); i++) {
-      model::tryApplyCharacterTemplateToInstance(state.world.activeMap.characters[i],
-                                                 database);
+      game::applyCharacterTemplateFromDatabase(state.world.activeMap.characters[i],
+                                               database);
     }
 
     state::StateManager stateManager;
@@ -544,8 +545,8 @@ int main(int /*argc*/, char** /*argv*/) {
     enemy.hpInitialized = true;
     state.world.activeMap.characters.pushBack(std::move(enemy));
     for (size_t i = 0; i < state.world.activeMap.characters.size(); i++) {
-      model::tryApplyCharacterTemplateToInstance(state.world.activeMap.characters[i],
-                                                 database);
+      game::applyCharacterTemplateFromDatabase(state.world.activeMap.characters[i],
+                                               database);
     }
 
     state::StateManager stateManager;

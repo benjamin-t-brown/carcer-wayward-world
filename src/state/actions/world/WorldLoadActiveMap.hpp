@@ -1,10 +1,10 @@
 #pragma once
 
 #include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/CharacterConstruction.h"
 #include "game/map/MapPersistence.h"
 #include "model/Combat.h"
 #include "model/instances/World.h"
-#include "model/templates/CharacterTemplate.h"
 #include "state/AbstractAction.h"
 #include "state/State.h"
 
@@ -136,7 +136,7 @@ class WorldLoadActiveMap : public AbstractAction {
             character.y = worldLoc.y;
           }
           if (database) {
-            model::tryApplyCharacterTemplateToInstance(character, *database);
+            game::applyCharacterTemplateFromDatabase(character, *database);
           }
           localState.world.activeMap.characters.pushBack(std::move(character));
         }

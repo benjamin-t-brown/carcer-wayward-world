@@ -1,6 +1,6 @@
 # Header Restoration Manifest
 
-Status: Phase 0 baseline recorded; production migration not started.
+Status: Phase 3 verified locally; cross-platform qualification remains deferred to Phase 8.
 
 This is the parity ledger for `HEADER_ARCHITECTURE_RESTORATION_PLAN.md`. A row may move from `pending` to `ported` only when its declaration and current behavior have been placed in the target file; it moves to `verified` only after the owning phase gate passes. Class/struct rows account for their public members as one indivisible API surface.
 
@@ -85,7 +85,7 @@ declaration.
 | `ba41411` | Narrow action API and action-event behavior | 5 | pending |
 | `5030c80` | Layers above screens; UI does not own layers | 7 | pending |
 | `a34939a` | Narrow application composition root | 7/8 | pending |
-| `aae59e4` | Boundary checks and architecture documentation | 3/8 | pending |
+| `aae59e4` | Boundary checks and architecture documentation | 3/8 | phase-aware checker ported; full enforcement remains for Phase 8 |
 | `d85a0e1` | Native Windows/MSYS2 and clangd fixes | 1/8 | Windows shim ported; UCRT64 verification pending |
 
 ## Exported API migration ledger
@@ -161,197 +161,197 @@ Rows are generated from column-zero exported declarations before each interface'
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `TileStepSound` | enum | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Tileset.h` | pending | data/model suite |
-| `AbilityCostType` | enum-class | `src/game/combat/SpellRules.cpp` | `src/model/templates/AbilityTypes.h` | pending | TestCombatZoneCast, TestSpellRules |
-| `AbilityType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | TestCombatZoneCast, TestSpellRules |
-| `AttackClass` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | TestCombatZoneCast |
-| `CharacterTemplateBehaviorName` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | pending | data/model suite |
-| `CharacterTemplateType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | pending | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
-| `CombatBehaviorName` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | pending | TestEnemyBehavior |
-| `CurrentStatEnum` | enum-class | `src/game/combat/SpellRules.cpp` | `src/model/templates/AbilityTypes.h` | pending | TestSpellRules |
-| `DamageType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | TestLoadAbilityTemplates, TestLoadStatusEffectTemplates |
-| `Dice` | enum-class | `src/game/combat/SpellRules.cpp` | `src/model/templates/AbilityTypes.h` | pending | TestLoadAbilityTemplates, TestCombatZoneCast, TestSpellRules |
-| `GameEventChildType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | pending | TestSpecialEventRunner |
-| `GameEventType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | pending | TestWorldTalkAt, TestSpecialEventRunner |
-| `ItemType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Items.h` | pending | TestCharacterEquip |
-| `ItemUsability` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Items.h` | pending | data/model suite |
-| `MapType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | pending | TestCreateMapInstanceFromTemplate |
-| `ProjectilePath` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | TestCombatZoneCast |
-| `ProjectileType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | TestCombatZoneCast |
-| `RuneType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/RuneTypes.h` | pending | TestLoadSpellTemplates, TestCombatZoneCast, TestSpellRules |
-| `StatsEnum` | enum-class | `src/game/combat/SpellRules.cpp` | `src/model/templates/AbilityTypes.h` | pending | TestLoadAbilityTemplates, TestCombatZoneCast, TestSpellRules |
-| `StatusActionTargetType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `StatusEffectCondition` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `StatusEventType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `TargetAllegianceSelectType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `TargetSelectType` | enum-class | `src/game/combat/SpellRules.cpp` | `src/model/templates/AbilityTypes.h` | pending | TestCombatZoneCast, TestSpellRules |
-| `TileOverlayVisibility` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | pending | data/model suite |
-| `abilityCostTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `abilityCostTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `abilityTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `abilityTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `attackClassFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `attackClassToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `characterGetSprite` | function | `src/data/templates.cpp` | `src/model/templates/CharacterTemplate.h` | pending | data/model suite |
-| `characterGetSpriteAtIndexOffset` | function | `src/data/templates.cpp` | `src/model/templates/CharacterTemplate.h` | pending | data/model suite |
-| `computeCharacterDerivedStats` | function | `src/data/stats.cpp` | `src/model/stats/CharacterDerivedStats.h` | pending | data/model suite |
-| `createRandomId` | function | `src/data/templates.cpp` | `src/model/templates/UtilityTypes.h` | pending | TestListPickUp, TestMinipagePickUp, TestPopupInventoryItem |
-| `currentStatEnumFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `currentStatEnumToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `damageTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `damageTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `diceFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `diceToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `getHighScores` | function | `src/lib/hiscore/hiscore.cpp` | `src/lib/hiscore/hiscore.h` | pending | data/model suite |
-| `getItemTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/Items.h` | pending | data/model suite |
-| `getItemUsabilityFromString` | function | `src/data/templates.cpp` | `src/model/templates/Items.h` | pending | data/model suite |
-| `getMapTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/Maps.h` | pending | data/model suite |
-| `getStringFromItemType` | function | `src/data/templates.cpp` | `src/model/templates/Items.h` | pending | data/model suite |
-| `getStringFromMapType` | function | `src/data/templates.cpp` | `src/model/templates/Maps.h` | pending | data/model suite |
-| `getStringFromTileOverlayVisibility` | function | `src/data/templates.cpp` | `src/model/templates/Maps.h` | pending | data/model suite |
-| `getTileOverlayVisibilityFromString` | function | `src/data/templates.cpp` | `src/model/templates/Maps.h` | pending | data/model suite |
-| `initCharacterStatsFromTemplate` | function | `src/data/templates.cpp` | `src/model/stats/CharacterStats.h` | pending | data/model suite |
-| `itemTypeIsEquippable` | function | `src/data/templates.cpp` | `src/model/templates/Items.h` | pending | data/model suite |
-| `itemTypeIsTwoHandedWeapon` | function | `src/data/templates.cpp` | `src/model/templates/Items.h` | pending | data/model suite |
-| `itemTypeUsesRuneSlots` | function | `src/data/templates.cpp` | `src/model/templates/Items.h` | pending | data/model suite |
-| `itemTypeUsesWeaponSlots` | function | `src/data/templates.cpp` | `src/model/templates/Items.h` | pending | data/model suite |
-| `projectilePathFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `projectilePathToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `projectileTypeFromAnimName` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `projectileTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `projectileTypeHasFacing` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `projectileTypeToAnimBase` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `projectileTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `runeTypeFromIndex` | function | `src/data/templates.cpp` | `src/model/templates/RuneTypes.h` | pending | TestPageMagicSetup |
-| `runeTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/RuneTypes.h` | pending | data/model suite |
-| `runeTypeIndex` | function | `src/data/templates.cpp` | `src/model/templates/RuneTypes.h` | pending | TestPageMagicSetup |
-| `runeTypeToSpriteName` | function | `src/data/templates.cpp` | `src/model/templates/RuneTypes.h` | pending | TestPageMagicSetup |
-| `runeTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/RuneTypes.h` | pending | data/model suite |
-| `saveHighScores` | function | `src/lib/hiscore/hiscore.cpp` | `src/lib/hiscore/hiscore.h` | pending | data/model suite |
-| `statsEnumFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `statsEnumToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `statusActionTargetTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `statusActionTargetTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `statusEffectConditionFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `statusEffectConditionToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `statusEventTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `statusEventTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `targetAllegianceSelectTypeFromString` | function | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `targetAllegianceSelectTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `targetSelectTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `targetSelectTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `tileOverlayVisibilitySpriteName` | function | `src/data/templates.cpp` | `src/model/templates/Maps.h` | pending | data/model suite |
-| `timerStructGetPct` | function | `src/data/templates.cpp` | `src/model/templates/UtilityTypes.h` | pending | data/model suite |
-| `timerStructIsComplete` | function | `src/data/templates.cpp` | `src/model/templates/UtilityTypes.h` | pending | data/model suite |
-| `timerStructRestart` | function | `src/data/templates.cpp` | `src/model/templates/UtilityTypes.h` | pending | data/model suite |
-| `timerStructStart` | function | `src/data/templates.cpp` | `src/model/templates/UtilityTypes.h` | pending | TestStateManagerActions |
-| `timerStructUpdate` | function | `src/data/templates.cpp` | `src/model/templates/UtilityTypes.h` | pending | data/model suite |
-| `AbilityAttack` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | TestCombatZoneCast |
-| `AbilityAttackDmg` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | TestCombatZoneCast |
-| `AbilityDamage` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `AbilityDepiction` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `AbilityRestore` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | TestSpellRules |
-| `AbilitySave` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `AbilityStatus` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `AbilityTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Abilities.h` | pending | TestLoadAbilityTemplates, TestCombatZoneCast, TestSpellRules |
-| `AudioInfo` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | pending | data/model suite |
-| `BodyMasteryStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | pending | data/model suite |
-| `CarcerMapTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | pending | TestLoadMapTemplates, TestCreateMapInstanceFromTemplate, TestMapPersistence |
-| `CarcerMapTileTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | pending | data/model suite |
-| `CharacterDerivedStatDefinitions` | struct | `src/data/stats.cpp` | `src/model/stats/CharacterDerivedStatDefinitions.h` | pending | data/model suite |
-| `CharacterDerivedStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterDerivedStats.h` | pending | data/model suite |
-| `CharacterSkills` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | pending | data/model suite |
-| `CharacterStatDefinitions` | struct | `src/data/stats.cpp` | `src/model/stats/CharacterStatDefinitions.h` | pending | data/model suite |
-| `CharacterStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | pending | ImportData |
-| `CharacterTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | pending | TestLoadCharacterTemplates, TestCombatActions, TestCombatZoneCast |
-| `CharacterTemplateBehavior` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | pending | data/model suite |
-| `CharacterTemplateCombat` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | pending | data/model suite |
-| `CharacterTemplateCombatBehavior` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | pending | data/model suite |
-| `CharacterTemplateSound` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | pending | data/model suite |
-| `CharacterTemplateStatus` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | pending | data/model suite |
-| `CharacterTemplateTalk` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | pending | data/model suite |
-| `CharacterTemplateVision` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | pending | data/model suite |
-| `Choice` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | pending | TestSpecialEventRunner, TestPageTalkChoice |
-| `ChoiceSwitchText` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | pending | data/model suite |
-| `CurrentStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `GameEvent` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | pending | TestLoadSpecialEvents, TestWorldTalkAt, TestSpecialEventIntegration |
-| `GameEventChildChoice` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | pending | TestSpecialEventRunner |
-| `GameEventChildEnd` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | pending | TestSpecialEventRunner |
-| `GameEventChildExec` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | pending | TestSpecialEventRunner |
-| `GameEventChildSwitch` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | pending | data/model suite |
-| `GenericCombatStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | pending | data/model suite |
-| `HiscoreRow` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/lib/hiscore/hiscore.h` | pending | data/model suite |
-| `ItemTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Items.h` | pending | TestLoadItemTemplates, TestCharacterEquip, TestCharacterGive |
-| `ItemUseAbilityConfig` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Items.h` | pending | data/model suite |
-| `ItemWeaponConfig` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Items.h` | pending | data/model suite |
-| `MagicMasteryStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | pending | data/model suite |
-| `MapCharacterPlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | pending | TestMapPersistence |
-| `MapEventTriggerPlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | pending | data/model suite |
-| `MapGridTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/MapGrids.h` | pending | TestLoadMapGridTemplates, TestCombatActions, TestCombatZoneCast |
-| `MapItemPlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | pending | data/model suite |
-| `MapLightSourcePlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | pending | data/model suite |
-| `MapMarkerPlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | pending | data/model suite |
-| `MapTileItemEntry` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | pending | data/model suite |
-| `MapTileOverridePlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | pending | data/model suite |
-| `MapTileRef` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | pending | data/model suite |
-| `MapTravelTriggerPlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | pending | data/model suite |
-| `Resistance` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `SpellRuneRequirement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Spells.h` | pending | TestCombatZoneCast, TestSpellRules |
-| `SpellTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/game/combat/SpellRules.h` | pending | TestLoadSpellTemplates, TestCombatZoneCast, TestSpellRules |
-| `Stats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `StatusEffectAction` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/StatusEffects.h` | pending | data/model suite |
-| `StatusEffectDurationScale` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/StatusEffects.h` | pending | data/model suite |
-| `StatusEffectEvent` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/StatusEffects.h` | pending | data/model suite |
-| `StatusEffectTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/StatusEffects.h` | pending | TestLoadStatusEffectTemplates |
-| `SwitchCase` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | pending | data/model suite |
-| `TargetSelectInfo` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `TargetSelectInfoPoint` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | pending | data/model suite |
-| `TileEventTrigger` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | pending | TestTileTriggers, TestWorldExamineAt |
-| `TileLightSource` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | pending | data/model suite |
-| `TileMetadata` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Tileset.h` | pending | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
-| `TileOverrides` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | pending | TestMapVision, TestWorldMovePlayer |
-| `TilesetTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Tileset.h` | pending | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
-| `TimerStruct` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/UtilityTypes.h` | pending | data/model suite |
-| `TrainableCombatStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | pending | data/model suite |
-| `TravelTrigger` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | pending | TestTileTriggers, TestWorldTravel |
-| `Variable` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | pending | TestSpecialEventRunner |
-| `VariableValue` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | pending | data/model suite |
-| `WeaponMasteryStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | pending | data/model suite |
-| `GameEventChild` | using | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | pending | data/model suite |
+| `TileStepSound` | enum | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Tileset.h` | verified | data/model suite |
+| `AbilityCostType` | enum-class | `src/game/combat/SpellRules.cpp` | `src/model/templates/AbilityTypes.h` | verified | TestCombatZoneCast, TestSpellRules |
+| `AbilityType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | TestCombatZoneCast, TestSpellRules |
+| `AttackClass` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | TestCombatZoneCast |
+| `CharacterTemplateBehaviorName` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | verified | data/model suite |
+| `CharacterTemplateType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | verified | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
+| `CombatBehaviorName` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | verified | TestEnemyBehavior |
+| `CurrentStatEnum` | enum-class | `src/game/combat/SpellRules.cpp` | `src/model/templates/AbilityTypes.h` | verified | TestSpellRules |
+| `DamageType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | TestLoadAbilityTemplates, TestLoadStatusEffectTemplates |
+| `Dice` | enum-class | `src/game/combat/SpellRules.cpp` | `src/model/templates/AbilityTypes.h` | verified | TestLoadAbilityTemplates, TestCombatZoneCast, TestSpellRules |
+| `GameEventChildType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | TestSpecialEventRunner |
+| `GameEventType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | TestWorldTalkAt, TestSpecialEventRunner |
+| `ItemType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Items.h` | verified | TestCharacterEquip |
+| `ItemUsability` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Items.h` | verified | data/model suite |
+| `MapType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | TestCreateMapInstanceFromTemplate |
+| `ProjectilePath` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | TestCombatZoneCast |
+| `ProjectileType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | TestCombatZoneCast |
+| `RuneType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/RuneTypes.h` | verified | TestLoadSpellTemplates, TestCombatZoneCast, TestSpellRules |
+| `StatsEnum` | enum-class | `src/game/combat/SpellRules.cpp` | `src/model/templates/AbilityTypes.h` | verified | TestLoadAbilityTemplates, TestCombatZoneCast, TestSpellRules |
+| `StatusActionTargetType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `StatusEffectCondition` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `StatusEventType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `TargetAllegianceSelectType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `TargetSelectType` | enum-class | `src/game/combat/SpellRules.cpp` | `src/model/templates/AbilityTypes.h` | verified | TestCombatZoneCast, TestSpellRules |
+| `TileOverlayVisibility` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
+| `abilityCostTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `abilityCostTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `abilityTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `abilityTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `attackClassFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `attackClassToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `characterGetSprite` | function | `src/data/templates.cpp` | `src/model/templates/CharacterTemplate.h` | verified | data/model suite |
+| `characterGetSpriteAtIndexOffset` | function | `src/data/templates.cpp` | `src/model/templates/CharacterTemplate.h` | verified | data/model suite |
+| `computeCharacterDerivedStats` | function | `src/data/stats.cpp` | `src/model/stats/CharacterDerivedStats.h` | verified | data/model suite |
+| `createRandomId` | function | `src/data/templates.cpp` | `src/model/templates/UtilityTypes.h` | verified | TestListPickUp, TestMinipagePickUp, TestPopupInventoryItem |
+| `currentStatEnumFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `currentStatEnumToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `damageTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `damageTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `diceFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `diceToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `getHighScores` | function | `src/lib/hiscore/hiscore.cpp` | `src/lib/hiscore/hiscore.h` | verified | data/model suite |
+| `getItemTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/Items.h` | verified | data/model suite |
+| `getItemUsabilityFromString` | function | `src/data/templates.cpp` | `src/model/templates/Items.h` | verified | data/model suite |
+| `getMapTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/Maps.h` | verified | data/model suite |
+| `getStringFromItemType` | function | `src/data/templates.cpp` | `src/model/templates/Items.h` | verified | data/model suite |
+| `getStringFromMapType` | function | `src/data/templates.cpp` | `src/model/templates/Maps.h` | verified | data/model suite |
+| `getStringFromTileOverlayVisibility` | function | `src/data/templates.cpp` | `src/model/templates/Maps.h` | verified | data/model suite |
+| `getTileOverlayVisibilityFromString` | function | `src/data/templates.cpp` | `src/model/templates/Maps.h` | verified | data/model suite |
+| `initCharacterStatsFromTemplate` | function | `src/data/templates.cpp` | `src/model/stats/CharacterStats.h` | verified | data/model suite |
+| `itemTypeIsEquippable` | function | `src/data/templates.cpp` | `src/model/templates/Items.h` | verified | data/model suite |
+| `itemTypeIsTwoHandedWeapon` | function | `src/data/templates.cpp` | `src/model/templates/Items.h` | verified | data/model suite |
+| `itemTypeUsesRuneSlots` | function | `src/data/templates.cpp` | `src/model/templates/Items.h` | verified | data/model suite |
+| `itemTypeUsesWeaponSlots` | function | `src/data/templates.cpp` | `src/model/templates/Items.h` | verified | data/model suite |
+| `projectilePathFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `projectilePathToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `projectileTypeFromAnimName` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `projectileTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `projectileTypeHasFacing` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `projectileTypeToAnimBase` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `projectileTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `runeTypeFromIndex` | function | `src/data/templates.cpp` | `src/model/templates/RuneTypes.h` | verified | TestPageMagicSetup |
+| `runeTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/RuneTypes.h` | verified | data/model suite |
+| `runeTypeIndex` | function | `src/data/templates.cpp` | `src/model/templates/RuneTypes.h` | verified | TestPageMagicSetup |
+| `runeTypeToSpriteName` | function | `src/data/templates.cpp` | `src/model/templates/RuneTypes.h` | verified | TestPageMagicSetup |
+| `runeTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/RuneTypes.h` | verified | data/model suite |
+| `saveHighScores` | function | `src/lib/hiscore/hiscore.cpp` | `src/lib/hiscore/hiscore.h` | verified | data/model suite |
+| `statsEnumFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `statsEnumToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `statusActionTargetTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `statusActionTargetTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `statusEffectConditionFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `statusEffectConditionToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `statusEventTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `statusEventTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `targetAllegianceSelectTypeFromString` | function | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `targetAllegianceSelectTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `targetSelectTypeFromString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `targetSelectTypeToString` | function | `src/data/templates.cpp` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `tileOverlayVisibilitySpriteName` | function | `src/data/templates.cpp` | `src/model/templates/Maps.h` | verified | data/model suite |
+| `timerStructGetPct` | function | `src/data/templates.cpp` | `src/model/templates/UtilityTypes.h` | verified | data/model suite |
+| `timerStructIsComplete` | function | `src/data/templates.cpp` | `src/model/templates/UtilityTypes.h` | verified | data/model suite |
+| `timerStructRestart` | function | `src/data/templates.cpp` | `src/model/templates/UtilityTypes.h` | verified | data/model suite |
+| `timerStructStart` | function | `src/data/templates.cpp` | `src/model/templates/UtilityTypes.h` | verified | TestStateManagerActions |
+| `timerStructUpdate` | function | `src/data/templates.cpp` | `src/model/templates/UtilityTypes.h` | verified | data/model suite |
+| `AbilityAttack` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | TestCombatZoneCast |
+| `AbilityAttackDmg` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | TestCombatZoneCast |
+| `AbilityDamage` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `AbilityDepiction` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `AbilityRestore` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | TestSpellRules |
+| `AbilitySave` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `AbilityStatus` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `AbilityTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Abilities.h` | verified | TestLoadAbilityTemplates, TestCombatZoneCast, TestSpellRules |
+| `AudioInfo` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | data/model suite |
+| `BodyMasteryStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | verified | data/model suite |
+| `CarcerMapTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | TestLoadMapTemplates, TestCreateMapInstanceFromTemplate, TestMapPersistence |
+| `CarcerMapTileTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
+| `CharacterDerivedStatDefinitions` | struct | `src/data/stats.cpp` | `src/model/stats/CharacterDerivedStatDefinitions.h` | verified | data/model suite |
+| `CharacterDerivedStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterDerivedStats.h` | verified | data/model suite |
+| `CharacterSkills` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | verified | data/model suite |
+| `CharacterStatDefinitions` | struct | `src/data/stats.cpp` | `src/model/stats/CharacterStatDefinitions.h` | verified | data/model suite |
+| `CharacterStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | verified | ImportData |
+| `CharacterTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | verified | TestLoadCharacterTemplates, TestCombatActions, TestCombatZoneCast |
+| `CharacterTemplateBehavior` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | verified | data/model suite |
+| `CharacterTemplateCombat` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | verified | data/model suite |
+| `CharacterTemplateCombatBehavior` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | verified | data/model suite |
+| `CharacterTemplateSound` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | verified | data/model suite |
+| `CharacterTemplateStatus` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | verified | data/model suite |
+| `CharacterTemplateTalk` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | verified | data/model suite |
+| `CharacterTemplateVision` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | verified | data/model suite |
+| `Choice` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | TestSpecialEventRunner, TestPageTalkChoice |
+| `ChoiceSwitchText` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | data/model suite |
+| `CurrentStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `GameEvent` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | TestLoadSpecialEvents, TestWorldTalkAt, TestSpecialEventIntegration |
+| `GameEventChildChoice` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | TestSpecialEventRunner |
+| `GameEventChildEnd` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | TestSpecialEventRunner |
+| `GameEventChildExec` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | TestSpecialEventRunner |
+| `GameEventChildSwitch` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | data/model suite |
+| `GenericCombatStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | verified | data/model suite |
+| `HiscoreRow` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/lib/hiscore/hiscore.h` | verified | data/model suite |
+| `ItemTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Items.h` | verified | TestLoadItemTemplates, TestCharacterEquip, TestCharacterGive |
+| `ItemUseAbilityConfig` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Items.h` | verified | data/model suite |
+| `ItemWeaponConfig` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Items.h` | verified | data/model suite |
+| `MagicMasteryStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | verified | data/model suite |
+| `MapCharacterPlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | TestMapPersistence |
+| `MapEventTriggerPlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
+| `MapGridTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/MapGrids.h` | verified | TestLoadMapGridTemplates, TestCombatActions, TestCombatZoneCast |
+| `MapItemPlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
+| `MapLightSourcePlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
+| `MapMarkerPlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
+| `MapTileItemEntry` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
+| `MapTileOverridePlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
+| `MapTileRef` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
+| `MapTravelTriggerPlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
+| `Resistance` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `SpellRuneRequirement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Spells.h` | verified | TestCombatZoneCast, TestSpellRules |
+| `SpellTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/game/combat/SpellRules.h` | verified | TestLoadSpellTemplates, TestCombatZoneCast, TestSpellRules |
+| `Stats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `StatusEffectAction` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/StatusEffects.h` | verified | data/model suite |
+| `StatusEffectDurationScale` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/StatusEffects.h` | verified | data/model suite |
+| `StatusEffectEvent` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/StatusEffects.h` | verified | data/model suite |
+| `StatusEffectTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/StatusEffects.h` | verified | TestLoadStatusEffectTemplates |
+| `SwitchCase` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | data/model suite |
+| `TargetSelectInfo` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `TargetSelectInfoPoint` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
+| `TileEventTrigger` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | TestTileTriggers, TestWorldExamineAt |
+| `TileLightSource` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
+| `TileMetadata` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Tileset.h` | verified | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
+| `TileOverrides` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | TestMapVision, TestWorldMovePlayer |
+| `TilesetTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Tileset.h` | verified | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
+| `TimerStruct` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/UtilityTypes.h` | verified | data/model suite |
+| `TrainableCombatStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | verified | data/model suite |
+| `TravelTrigger` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | TestTileTriggers, TestWorldTravel |
+| `Variable` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | TestSpecialEventRunner |
+| `VariableValue` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | data/model suite |
+| `WeaponMasteryStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | verified | data/model suite |
+| `GameEventChild` | using | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | data/model suite |
 
 ### `src/db/_db.cppm`
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `Database` | class | `src/db/Database.cpp` | `src/db/Database.h` | pending | TestLoadCharacterTemplates, TestLoadMapGridTemplates, TestLoadMapTemplates |
-| `loadAbilityTemplates` | function | `src/db/loaders/LoadAbilityTemplates.cpp` | `src/db/loaders/LoadAbilityTemplates.h` | pending | TestLoadAbilityTemplates |
-| `loadCharacterTemplates` | function | `src/db/loaders/LoadCharacterTemplates.cpp` | `src/db/loaders/LoadCharacterTemplates.h` | pending | TestLoadCharacterTemplates |
-| `loadItemTemplates` | function | `src/db/loaders/LoadItemTemplates.cpp` | `src/db/loaders/LoadItemTemplates.h` | pending | TestLoadItemTemplates |
-| `loadMapGridTemplates` | function | `src/db/loaders/LoadMapGridTemplates.cpp` | `src/db/loaders/LoadMapGridTemplates.h` | pending | TestLoadMapGridTemplates |
-| `loadMapTemplates` | function | `src/db/loaders/LoadMapTemplates.cpp` | `src/db/loaders/LoadMapTemplates.h` | pending | TestLoadMapTemplates, TestCreateMapInstanceFromTemplate |
-| `loadSpecialEvents` | function | `src/db/loaders/LoadSpecialEvents.cpp` | `src/db/loaders/LoadSpecialEvents.h` | pending | TestLoadSpecialEvents, TestSpecialEventIntegration |
-| `loadSpellTemplates` | function | `src/db/loaders/LoadSpellTemplates.cpp` | `src/db/loaders/LoadSpellTemplates.h` | pending | TestLoadSpellTemplates |
-| `loadStatusEffectTemplates` | function | `src/db/loaders/LoadStatusEffectTemplates.cpp` | `src/db/loaders/LoadStatusEffectTemplates.h` | pending | TestLoadStatusEffectTemplates |
-| `loadTilesetTemplates` | function | `src/db/loaders/LoadTilesetTemplates.cpp` | `src/db/loaders/LoadTilesetTemplates.h` | pending | db suite |
-| `mapGet` | function | `src/db/_db.cppm (inline/declaration-only)` | `src/db/Database.h` | pending | db suite |
-| `parseAbilityAttack` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | pending | db suite |
-| `parseAbilityAttackDmg` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | pending | db suite |
-| `parseAbilityDamage` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | pending | db suite |
-| `parseAbilityDepiction` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | pending | db suite |
-| `parseAbilityRestore` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | pending | db suite |
-| `parseAbilitySave` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | pending | db suite |
-| `parseAbilityStatus` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | pending | db suite |
-| `parseCurrentStats` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | pending | db suite |
-| `parseDiceArray` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | pending | db suite |
-| `parseResistance` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | pending | db suite |
-| `parseStats` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | pending | db suite |
-| `parseTargetSelectInfo` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | pending | db suite |
+| `Database` | class | `src/db/Database.cpp` | `src/db/Database.h` | verified | TestLoadCharacterTemplates, TestLoadMapGridTemplates, TestLoadMapTemplates |
+| `loadAbilityTemplates` | function | `src/db/loaders/LoadAbilityTemplates.cpp` | `src/db/loaders/LoadAbilityTemplates.h` | verified | TestLoadAbilityTemplates |
+| `loadCharacterTemplates` | function | `src/db/loaders/LoadCharacterTemplates.cpp` | `src/db/loaders/LoadCharacterTemplates.h` | verified | TestLoadCharacterTemplates |
+| `loadItemTemplates` | function | `src/db/loaders/LoadItemTemplates.cpp` | `src/db/loaders/LoadItemTemplates.h` | verified | TestLoadItemTemplates |
+| `loadMapGridTemplates` | function | `src/db/loaders/LoadMapGridTemplates.cpp` | `src/db/loaders/LoadMapGridTemplates.h` | verified | TestLoadMapGridTemplates |
+| `loadMapTemplates` | function | `src/db/loaders/LoadMapTemplates.cpp` | `src/db/loaders/LoadMapTemplates.h` | verified | TestLoadMapTemplates, TestCreateMapInstanceFromTemplate |
+| `loadSpecialEvents` | function | `src/db/loaders/LoadSpecialEvents.cpp` | `src/db/loaders/LoadSpecialEvents.h` | verified | TestLoadSpecialEvents, TestSpecialEventIntegration |
+| `loadSpellTemplates` | function | `src/db/loaders/LoadSpellTemplates.cpp` | `src/db/loaders/LoadSpellTemplates.h` | verified | TestLoadSpellTemplates |
+| `loadStatusEffectTemplates` | function | `src/db/loaders/LoadStatusEffectTemplates.cpp` | `src/db/loaders/LoadStatusEffectTemplates.h` | verified | TestLoadStatusEffectTemplates |
+| `loadTilesetTemplates` | function | `src/db/loaders/LoadTilesetTemplates.cpp` | `src/db/loaders/LoadTilesetTemplates.h` | verified | db suite |
+| `mapGet` | function | `src/db/_db.cppm (inline/declaration-only)` | `src/db/Database.h` | verified | db suite |
+| `parseAbilityAttack` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | verified | db suite |
+| `parseAbilityAttackDmg` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | verified | db suite |
+| `parseAbilityDamage` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | verified | db suite |
+| `parseAbilityDepiction` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | verified | db suite |
+| `parseAbilityRestore` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | verified | db suite |
+| `parseAbilitySave` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | verified | db suite |
+| `parseAbilityStatus` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | verified | db suite |
+| `parseCurrentStats` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | verified | db suite |
+| `parseDiceArray` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | verified | db suite |
+| `parseResistance` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | verified | db suite |
+| `parseStats` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | verified | db suite |
+| `parseTargetSelectInfo` | function | `src/db/loaders/LoadAbilityJson.cpp` | `src/db/loaders/LoadAbilityJson.h` | verified | db suite |
 
 ### `src/game/combat/_combat.cppm`
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `addPartyMembersToCombatMap` | function | `src/game/combat/CombatParty.cpp` | `src/model/Combat.h` | pending | model rules suite |
+| `addPartyMembersToCombatMap` | function | `src/game/combat/CombatParty.cpp` | `src/game/combat/CombatParty.h` | verified | TestCombatActions, TestEnemyBehavior |
 | `calculateAbilityDamage` | function | `src/game/combat/Damage.cpp` | `src/game/combat/Damage.h` | pending | model rules suite |
 | `calculateAttackDamage` | function | `src/game/combat/Damage.cpp` | `src/game/combat/Damage.h` | pending | model rules suite |
 | `canEnemySpotPartyAvatar` | function | `src/game/combat/EnemyBehavior.cpp` | `src/game/combat/EnemyBehavior.h` | pending | TestEnemyBehavior |
@@ -371,20 +371,20 @@ Rows are generated from column-zero exported declarations before each interface'
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `giveInventoryItem` | function | `src/actions/actions.cpp` | `src/game/inventory/giveInventoryItem.h (proposed; verify during owning phase)` | pending | TestCharacterGive |
-| `inventoryWeight` | function | `src/game/inventory/InventoryRules.cpp` | `src/game/inventory/inventoryWeight.h (proposed; verify during owning phase)` | pending | TestPageInventory |
-| `toggleEquippedInventoryItem` | function | `src/game/inventory/InventoryRules.cpp` | `src/game/inventory/toggleEquippedInventoryItem.h (proposed; verify during owning phase)` | pending | TestCharacterEquip |
+| `giveInventoryItem` | function | `src/game/inventory/InventoryRules.cpp` | `src/game/inventory/InventoryRules.h` | verified | TestCharacterGive |
+| `inventoryWeight` | function | `src/game/inventory/InventoryRules.cpp` | `src/game/inventory/InventoryRules.h` | verified | TestPageInventory |
+| `toggleEquippedInventoryItem` | function | `src/game/inventory/InventoryRules.cpp` | `src/game/inventory/InventoryRules.h` | verified | TestCharacterEquip |
 
 ### `src/game/map/TileFields.cppm`
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `TileFieldType` | enum-class | `src/game/map/TileFields.cppm (inline/declaration-only)` | `src/game/map/TileFields.h` | pending | TestCombatActions, TestMapPersistence, TestTileFieldAging |
-| `ageTileFields` | function | `src/game/map/TileFields.cpp` | `src/game/map/TileFields.h` | pending | TestTileFieldAging |
-| `tileFieldDefaultMoveDuration` | function | `src/game/map/TileFields.cpp` | `src/game/map/TileFields.h` | pending | TestTileFieldAging |
-| `tileFieldExtraSpriteIndex` | function | `src/game/map/TileFields.cpp` | `src/game/map/TileFields.h` | pending | TestTileFields |
-| `tileFieldSpriteName` | function | `src/game/map/TileFields.cpp` | `src/game/map/TileFields.h` | pending | TestTileFields |
-| `TileField` | struct | `src/game/map/TileFields.cppm (inline/declaration-only)` | `src/game/map/TileFields.h` | pending | TestTileFieldAging, TestTileFields |
+| `TileFieldType` | enum-class | `src/game/map/TileFields.cppm (inline/declaration-only)` | `src/game/map/TileFields.h` | verified | TestCombatActions, TestMapPersistence, TestTileFieldAging |
+| `ageTileFields` | function | `src/game/map/TileFields.cpp` | `src/game/map/TileFields.h` | verified | TestTileFieldAging |
+| `tileFieldDefaultMoveDuration` | function | `src/game/map/TileFields.cpp` | `src/game/map/TileFields.h` | verified | TestTileFieldAging |
+| `tileFieldExtraSpriteIndex` | function | `src/game/map/TileFields.cpp` | `src/game/map/TileFields.h` | verified | TestTileFields |
+| `tileFieldSpriteName` | function | `src/game/map/TileFields.cpp` | `src/game/map/TileFields.h` | verified | TestTileFields |
+| `TileField` | struct | `src/game/map/TileFields.cppm (inline/declaration-only)` | `src/game/map/TileFields.h` | verified | TestTileFieldAging, TestTileFields |
 
 ### `src/game/map/_map.cppm`
 
@@ -392,7 +392,7 @@ Rows are generated from column-zero exported declarations before each interface'
 |---|---|---|---|---|---|
 | `ActiveMapOrchestrator` | class | `src/game/map/ActiveMapOrchestrator.cpp` | `src/game/map/ActiveMapOrchestrator.h` | pending | TestCombat |
 | `ageMapInstances` | function | `src/game/map/MapPersistence.cpp` | `src/game/map/ageMapInstances.h (proposed; verify during owning phase)` | pending | TestTileFieldAging |
-| `applyCharacterTemplateFromDatabase` | function | `src/game/map/CharacterConstruction.cpp` | `src/game/map/applyCharacterTemplateFromDatabase.h (proposed; verify during owning phase)` | pending | TestCombatActions, TestEnemyBehavior, TestCombat |
+| `applyCharacterTemplateFromDatabase` | function | `src/game/map/CharacterConstruction.cpp` | `src/game/map/CharacterConstruction.h` | verified | TestCombatActions, TestEnemyBehavior, TestCombat |
 | `applyExploredMask` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | pending | TestMapVision |
 | `applyOpenedDoors` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | pending | TestMapVision |
 | `captureExploredMask` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | pending | TestMapVision |
@@ -465,112 +465,112 @@ Rows are generated from column-zero exported declarations before each interface'
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `Json` | class | `src/lib/Json.cpp` | `src/lib/Json.h` | pending | TestJson |
+| `Json` | class | `src/lib/Json.cpp` | `src/lib/Json.h` | verified | TestJson |
 
 ### `src/lib/StringUtil.cppm`
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `findFirstNotOf` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | pending | runner suite |
-| `findLastNotOf` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | pending | runner suite |
-| `fromStringView` | function | `src/layers/Layer.cpp` | `src/lib/StringUtil.h` | pending | runner suite |
-| `isWhitespace` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | pending | runner suite |
-| `parseFirstTokenAndInt` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | pending | runner suite |
-| `splitByChar` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | pending | runner suite |
-| `splitLines` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | pending | runner suite |
-| `trim` | function | `src/in3/EventRunnerHelpers.cpp` | `src/lib/StringUtil.h` | pending | runner suite |
+| `findFirstNotOf` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | verified | runner suite |
+| `findLastNotOf` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | verified | runner suite |
+| `fromStringView` | function | `src/layers/Layer.cpp` | `src/lib/StringUtil.h` | verified | runner suite |
+| `isWhitespace` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | verified | runner suite |
+| `parseFirstTokenAndInt` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | verified | runner suite |
+| `splitByChar` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | verified | runner suite |
+| `splitLines` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | verified | runner suite |
+| `trim` | function | `src/in3/EventRunnerHelpers.cpp` | `src/lib/StringUtil.h` | verified | runner suite |
 
 ### `src/model/model.cppm`
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `CameraMode` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | pending | TestCameraFollow, TestWorldActionAim, TestWorldMovePlayer |
-| `CharacterEquipmentSlot` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | pending | TestCharacterEquip |
-| `CharacterFacing` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterInstance.h` | pending | TestCharacterFacing, TestWorldMovePlayer |
-| `CombatActionType` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/Combat.h` | pending | TestCombatActions |
-| `EquipItemResult` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | pending | TestCharacterEquip |
-| `EquipRuneResult` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | pending | TestSpellRules |
-| `GiveItemResult` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | pending | TestCharacterGive |
-| `TurnMode` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | pending | TestCombatActions |
-| `WorldActionMode` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | pending | TestWorldActionAim, TestWorldExamineAt, TestWorldTalkAt |
-| `addTileField` | function | `src/model/maps.cpp` | `src/game/map/TileFields.h` | pending | model suite |
-| `addTileFieldAt` | function | `src/model/maps.cpp` | `src/game/map/TileFields.h` | pending | TestCombatActions, TestMapPersistence, TestTileFieldAging |
-| `ageMapInstanceTileFields` | function | `src/model/maps.cpp` | `src/game/map/TileFields.h` | pending | model suite |
-| `agePersistentTileFieldRecords` | function | `src/model/maps.cpp` | `src/game/map/TileFields.h` | pending | model suite |
-| `applyCharacterTemplateStartingSpells` | function | `src/model/characters.cpp` | `src/model/templates/CharacterTemplate.h` | pending | model suite |
-| `applyCharacterTemplateToInstance` | function | `src/model/characters.cpp` | `src/model/templates/CharacterTemplate.h` | pending | model suite |
-| `characterEquipmentSlotAbbrev` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | pending | TestCharacterEquip |
-| `characterGetWeightCapacity` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | pending | TestPageInventory |
-| `characterInstanceIsEnemy` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.h` | pending | model suite |
-| `characterPlayerAddItemToInventory` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | pending | TestCombat, TestLayerInventory, TestLayerPickUp |
-| `characterPlayerCanEquipRuneType` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | pending | model suite |
-| `characterPlayerCountAvailableRunesOfType` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | pending | TestPageMagicSetup |
-| `characterPlayerCountEquippedRunesOfType` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | pending | TestPageMagicSetup |
-| `characterPlayerEquipRuneType` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | pending | TestSpellRules |
-| `characterPlayerGetSprite` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | pending | TestPageInventory, TestPageMagicSetup |
-| `characterPlayerGetSpriteAtIndexOffset` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | pending | model suite |
-| `characterPlayerIsItemEquippedById` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | pending | model suite |
-| `characterPlayerRemoveItemFromInventoryById` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | pending | model suite |
-| `characterPlayerRemoveItemFromInventoryByName` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | pending | model suite |
-| `characterPlayerReorderInventoryItem` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | pending | model suite |
-| `characterPlayerSetAvailableRuneCount` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | pending | TestPageMagicSetup |
-| `characterPlayerToggleManaSlotRune` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | pending | TestSpellRules |
-| `characterPlayerUnequipOneRuneOfType` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | pending | model suite |
-| `characterPlayerUnequipRuneFromSlot` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | pending | model suite |
-| `createCombatFromWorld` | function | `src/model/world.cpp` | `src/model/Combat.h` | pending | model suite |
-| `createMapInstanceFromTemplate` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | pending | TestCreateMapInstanceFromTemplate, TestResolveTileToRender |
-| `facingFromMoveDelta` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.h` | pending | TestCharacterFacing |
-| `findMarkerOnTemplate` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | pending | model suite |
-| `formatCharacterLogLabel` | function | `src/model/world.cpp` | `src/model/Combat.h` | pending | model suite |
-| `getCharacterHp` | function | `src/model/combat.cpp` | `src/model/Combat.h` | pending | model suite |
-| `isCharacterAlly` | function | `src/model/combat.cpp` | `src/model/Combat.h` | pending | model suite |
-| `isCharacterDefeated` | function | `src/model/combat.cpp` | `src/model/Combat.h` | pending | model suite |
-| `isCharacterEnemy` | function | `src/model/combat.cpp` | `src/model/Combat.h` | pending | model suite |
-| `isCharacterFacingLeft` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.h` | pending | model suite |
-| `isPartyMember` | function | `src/model/combat.cpp` | `src/model/Combat.h` | pending | model suite |
-| `mapHasLayer` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | pending | TestCreateMapInstanceFromTemplate, TestResolveTileToRender |
-| `mapInstanceFindCharacter` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | pending | model suite |
-| `mapInstanceGetMinMaxLayer` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | pending | model suite |
-| `mapInstanceGetTileAt` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | pending | model suite |
-| `mapInstanceHasLayer` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | pending | model suite |
-| `mapInstanceTiles` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | pending | TestCombatActions, TestCombatZoneCast, TestCreateMapInstanceFromTemplate |
-| `mapLayerAt` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | pending | TestCombatActions, TestCombatZoneCast, TestCreateMapInstanceFromTemplate |
-| `mapLayerPtr` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | pending | model suite |
-| `modifyPartyMemberHp` | function | `src/model/combat.cpp` | `src/model/Combat.h` | pending | model suite |
-| `playerFindPartyMemberById` | function | `src/model/characters.cpp` | `src/model/instances/Player.h` | pending | model suite |
-| `playerFindPartyMemberByIndex` | function | `src/model/characters.cpp` | `src/model/instances/Player.h` | pending | TestPageMagicSetup |
-| `playerFindPartyMemberIndexById` | function | `src/model/characters.cpp` | `src/model/instances/Player.h` | pending | model suite |
-| `removeCharacterFromCombatTurnOrder` | function | `src/model/combat.cpp` | `src/model/Combat.h` | pending | model suite |
-| `removeExtraPartyMembersFromMap` | function | `src/model/world.cpp` | `src/model/Combat.h` | pending | model suite |
-| `resetAllCombatAp` | function | `src/model/world.cpp` | `src/model/Combat.h` | pending | model suite |
-| `setCharacterHp` | function | `src/model/combat.cpp` | `src/model/Combat.h` | pending | model suite |
-| `tileIndexToXY` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | pending | TestResolveTileToRender, TestWorldSpawnPlayerAtMarker |
-| `tileXYToIndex` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | pending | model suite |
-| `updateCharacterFacingFromMove` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.h` | pending | TestCharacterFacing |
-| `updateCharacterFacingToward` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.h` | pending | TestCharacterFacing |
-| `ActiveMap` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/Combat.h` | pending | TestCombatActions, TestEnemyBehavior, TestMapPersistence |
-| `CameraInfo` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | pending | model suite |
-| `CharacterAvailableRune` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | pending | model suite |
-| `CharacterInstance` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterInstance.h` | pending | TestCameraFollow, TestCharacterFacing, TestCombatActions |
-| `CharacterInventoryItem` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | pending | TestCharacterEquip, TestCharacterGive, TestDropInventoryItem |
-| `CharacterPlayer` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | pending | TestCameraFollow, TestCharacterEquip, TestCharacterGive |
-| `CharacterPlayerEquipment` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | pending | model suite |
-| `Combat` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/Combat.h` | pending | TestCombat |
-| `DamageParticle` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | pending | model suite |
-| `DefeatedCharacterRecord` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | pending | model suite |
-| `ExploredMapMask` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | pending | model suite |
-| `ItemInstance` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/ItemInstance.h` | pending | TestMapPickup, TestTileTriggers, TestListPickUp |
-| `MapInstance` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | pending | TestCameraFollow, TestCombatActions, TestCombatZoneCast |
-| `OpenedDoorRecord` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | pending | model suite |
-| `PersistentMapState` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/Combat.h` | pending | model suite |
-| `PersistentTileFieldRecord` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/game/map/TileFields.h` | pending | model suite |
-| `Player` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/Player.h` | pending | TestEnemyBehavior, TestMapVision, ImportModel |
-| `SpellTargetInfo` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/Combat.h` | pending | model suite |
-| `TileInstance` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/TileInstance.h` | pending | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
-| `TileXY` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | pending | TestWorldActionAim, TestWorldExamineAt, TestWorldTalkAt |
-| `World` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | pending | TestWorldTravel, ImportModel, TestSectionScrollable |
-| `WorldProjectile` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | pending | model suite |
-| `TileLayerMap` | using | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | pending | model suite |
+| `CameraMode` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | verified | TestCameraFollow, TestWorldActionAim, TestWorldMovePlayer |
+| `CharacterEquipmentSlot` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | verified | TestCharacterEquip |
+| `CharacterFacing` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterInstance.h` | verified | TestCharacterFacing, TestWorldMovePlayer |
+| `CombatActionType` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/Combat.h` | verified | TestCombatActions |
+| `EquipItemResult` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | verified | TestCharacterEquip |
+| `EquipRuneResult` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | verified | TestSpellRules |
+| `GiveItemResult` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | verified | TestCharacterGive |
+| `TurnMode` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | verified | TestCombatActions |
+| `WorldActionMode` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | verified | TestWorldActionAim, TestWorldExamineAt, TestWorldTalkAt |
+| `addTileField` | function | `src/model/maps.cpp` | `src/game/map/TileFields.h` | verified | model suite |
+| `addTileFieldAt` | function | `src/model/maps.cpp` | `src/game/map/TileFields.h` | verified | TestCombatActions, TestMapPersistence, TestTileFieldAging |
+| `ageMapInstanceTileFields` | function | `src/model/maps.cpp` | `src/game/map/TileFields.h` | verified | model suite |
+| `agePersistentTileFieldRecords` | function | `src/model/maps.cpp` | `src/game/map/TileFields.h` | verified | model suite |
+| `applyCharacterTemplateStartingSpells` | function | `src/model/characters.cpp` | `src/model/templates/CharacterTemplate.h` | verified | model suite |
+| `applyCharacterTemplateToInstance` | function | `src/model/characters.cpp` | `src/model/templates/CharacterTemplate.h` | verified | model suite |
+| `characterEquipmentSlotAbbrev` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | TestCharacterEquip |
+| `characterGetWeightCapacity` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | TestPageInventory |
+| `characterInstanceIsEnemy` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.h` | verified | model suite |
+| `characterPlayerAddItemToInventory` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | TestCombat, TestLayerInventory, TestLayerPickUp |
+| `characterPlayerCanEquipRuneType` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | model suite |
+| `characterPlayerCountAvailableRunesOfType` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | TestPageMagicSetup |
+| `characterPlayerCountEquippedRunesOfType` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | TestPageMagicSetup |
+| `characterPlayerEquipRuneType` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | TestSpellRules |
+| `characterPlayerGetSprite` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | TestPageInventory, TestPageMagicSetup |
+| `characterPlayerGetSpriteAtIndexOffset` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | model suite |
+| `characterPlayerIsItemEquippedById` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | model suite |
+| `characterPlayerRemoveItemFromInventoryById` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | model suite |
+| `characterPlayerRemoveItemFromInventoryByName` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | model suite |
+| `characterPlayerReorderInventoryItem` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | model suite |
+| `characterPlayerSetAvailableRuneCount` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | TestPageMagicSetup |
+| `characterPlayerToggleManaSlotRune` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | TestSpellRules |
+| `characterPlayerUnequipOneRuneOfType` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | model suite |
+| `characterPlayerUnequipRuneFromSlot` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | model suite |
+| `createCombatFromWorld` | function | `src/model/world.cpp` | `src/model/Combat.h` | verified | model suite |
+| `createMapInstanceFromTemplate` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | TestCreateMapInstanceFromTemplate, TestResolveTileToRender |
+| `facingFromMoveDelta` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.h` | verified | TestCharacterFacing |
+| `findMarkerOnTemplate` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | model suite |
+| `formatCharacterLogLabel` | function | `src/model/world.cpp` | `src/model/Combat.h` | verified | model suite |
+| `getCharacterHp` | function | `src/model/combat.cpp` | `src/model/Combat.h` | verified | model suite |
+| `isCharacterAlly` | function | `src/model/combat.cpp` | `src/model/Combat.h` | verified | model suite |
+| `isCharacterDefeated` | function | `src/model/combat.cpp` | `src/model/Combat.h` | verified | model suite |
+| `isCharacterEnemy` | function | `src/model/combat.cpp` | `src/model/Combat.h` | verified | model suite |
+| `isCharacterFacingLeft` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.h` | verified | model suite |
+| `isPartyMember` | function | `src/model/combat.cpp` | `src/model/Combat.h` | verified | model suite |
+| `mapHasLayer` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | TestCreateMapInstanceFromTemplate, TestResolveTileToRender |
+| `mapInstanceFindCharacter` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | model suite |
+| `mapInstanceGetMinMaxLayer` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | model suite |
+| `mapInstanceGetTileAt` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | model suite |
+| `mapInstanceHasLayer` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | model suite |
+| `mapInstanceTiles` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | TestCombatActions, TestCombatZoneCast, TestCreateMapInstanceFromTemplate |
+| `mapLayerAt` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | TestCombatActions, TestCombatZoneCast, TestCreateMapInstanceFromTemplate |
+| `mapLayerPtr` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | model suite |
+| `modifyPartyMemberHp` | function | `src/model/combat.cpp` | `src/model/Combat.h` | verified | model suite |
+| `playerFindPartyMemberById` | function | `src/model/characters.cpp` | `src/model/instances/Player.h` | verified | model suite |
+| `playerFindPartyMemberByIndex` | function | `src/model/characters.cpp` | `src/model/instances/Player.h` | verified | TestPageMagicSetup |
+| `playerFindPartyMemberIndexById` | function | `src/model/characters.cpp` | `src/model/instances/Player.h` | verified | model suite |
+| `removeCharacterFromCombatTurnOrder` | function | `src/model/combat.cpp` | `src/model/Combat.h` | verified | model suite |
+| `removeExtraPartyMembersFromMap` | function | `src/model/world.cpp` | `src/model/Combat.h` | verified | model suite |
+| `resetAllCombatAp` | function | `src/model/world.cpp` | `src/model/Combat.h` | verified | model suite |
+| `setCharacterHp` | function | `src/model/combat.cpp` | `src/model/Combat.h` | verified | model suite |
+| `tileIndexToXY` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | TestResolveTileToRender, TestWorldSpawnPlayerAtMarker |
+| `tileXYToIndex` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | model suite |
+| `updateCharacterFacingFromMove` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.h` | verified | TestCharacterFacing |
+| `updateCharacterFacingToward` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.h` | verified | TestCharacterFacing |
+| `ActiveMap` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/Combat.h` | verified | TestCombatActions, TestEnemyBehavior, TestMapPersistence |
+| `CameraInfo` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | verified | model suite |
+| `CharacterAvailableRune` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | verified | model suite |
+| `CharacterInstance` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterInstance.h` | verified | TestCameraFollow, TestCharacterFacing, TestCombatActions |
+| `CharacterInventoryItem` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | verified | TestCharacterEquip, TestCharacterGive, TestDropInventoryItem |
+| `CharacterPlayer` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | verified | TestCameraFollow, TestCharacterEquip, TestCharacterGive |
+| `CharacterPlayerEquipment` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | verified | model suite |
+| `Combat` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/Combat.h` | verified | TestCombat |
+| `DamageParticle` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | verified | model suite |
+| `DefeatedCharacterRecord` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | verified | model suite |
+| `ExploredMapMask` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | verified | model suite |
+| `ItemInstance` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/ItemInstance.h` | verified | TestMapPickup, TestTileTriggers, TestListPickUp |
+| `MapInstance` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | verified | TestCameraFollow, TestCombatActions, TestCombatZoneCast |
+| `OpenedDoorRecord` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | verified | model suite |
+| `PersistentMapState` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/Combat.h` | verified | model suite |
+| `PersistentTileFieldRecord` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/game/map/TileFields.h` | verified | model suite |
+| `Player` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/Player.h` | verified | TestEnemyBehavior, TestMapVision, ImportModel |
+| `SpellTargetInfo` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/Combat.h` | verified | model suite |
+| `TileInstance` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/TileInstance.h` | verified | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
+| `TileXY` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | verified | TestWorldActionAim, TestWorldExamineAt, TestWorldTalkAt |
+| `World` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | verified | TestWorldTravel, ImportModel, TestSectionScrollable |
+| `WorldProjectile` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | verified | model suite |
+| `TileLayerMap` | using | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | verified | model suite |
 
 ### `src/modules/_carcer.cppm`
 
@@ -1298,10 +1298,10 @@ src/ui/uiUtils.h
 
 | Phase | Commit | Verification |
 |---|---|---|
-| 0 | `Record the header restoration baseline` (this manifest's commit) | PASS: fixed references and 20 interfaces inventoried; baseline commands recorded; tracked diff contains this manifest only |
-| 1 | `Add the conventional pinned-dependency CMake build` (pending commit hash) | PASS with user-approved platform deferral: local GCC/Clang debug/release, Make parity, dependency diagnostics, no-op build, and representative wrappers pass; UCRT64 is deferred to final qualification and Emscripten remains part of the final supported-host matrix |
-| 2 | `50a4885` (`Restore CMake-backed test runners`); `Retire the transitional Make build` (pending follow-up hash) | PASS locally: 81 distinct CMake test targets; all 38 non-UI tests pass under GCC and Clang; all 79 legacy wrappers pass from `/private/tmp` (43 UI wrappers with `--build-only`); aggregate UI compilation passes under GCC and Clang; an induced compile error propagates exit status 1; user approved deferring MSYS2 qualification until the final gate |
-| 3 | pending | pending |
+| 0 | `0f758e0` (`Record the header restoration baseline`) | PASS: fixed references and 20 interfaces inventoried; baseline commands recorded; tracked diff contains this manifest only |
+| 1 | `9f379c0` (`Add the conventional pinned-dependency CMake build`) | PASS with user-approved platform deferral: local GCC/Clang debug/release, Make parity, dependency diagnostics, no-op build, and representative wrappers pass; UCRT64 is deferred to final qualification and Emscripten remains part of the final supported-host matrix |
+| 2 | `50a4885` (`Restore CMake-backed test runners`); `583bb64` (`Retire the transitional Make build`) | PASS locally: 81 distinct CMake test targets; all 38 non-UI tests pass under GCC and Clang; all 79 legacy wrappers pass from `/private/tmp` (43 UI wrappers with `--build-only`); aggregate UI compilation passes under GCC and Clang; an induced compile error propagates exit status 1; user approved deferring MSYS2 qualification until the final gate |
+| 3 | `Restore header boundaries for data and model` (this commit) | PASS locally: database-dependent inventory, character construction, and combat-party logic live in rules; model has zero forbidden edges; GCC and Clang builds, 38 behavioral tests, architecture checks, and self-containment checks for 42 Phase 3 headers pass |
 | 4 | pending | pending |
 | 5 | pending | pending |
 | 6 | pending | pending |

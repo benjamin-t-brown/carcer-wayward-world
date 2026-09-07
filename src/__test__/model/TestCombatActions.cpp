@@ -1,5 +1,6 @@
 #include "db/Database.h"
 #include "game/map/MapPersistence.h"
+#include "game/map/CharacterConstruction.h"
 #include "model/Combat.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/MapInstance.h"
@@ -147,8 +148,8 @@ state::State makeCombatState(db::Database& database) {
   state.world.activeMap.characters.pushBack(std::move(enemy));
 
   for (size_t i = 0; i < state.world.activeMap.characters.size(); i++) {
-    model::tryApplyCharacterTemplateToInstance(state.world.activeMap.characters[i],
-                                               database);
+    game::applyCharacterTemplateFromDatabase(state.world.activeMap.characters[i],
+                                             database);
   }
 
   return state;

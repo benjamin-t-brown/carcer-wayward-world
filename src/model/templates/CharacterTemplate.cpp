@@ -1,8 +1,7 @@
 #include "model/templates/CharacterTemplate.h"
-#include "db/Database.h"
+#include "bmin/StringInterop.h"
 #include "model/instances/CharacterInstance.h"
 #include "model/instances/CharacterPlayer.h"
-#include "bmin/StringInterop.h"
 #include <charconv>
 #include <stdexcept>
 #include <system_error>
@@ -56,21 +55,6 @@ void applyCharacterTemplateToInstance(CharacterInstance& character,
   }
   if (character.templateName.empty()) {
     character.templateName = characterTemplate.name;
-  }
-}
-
-bool tryApplyCharacterTemplateToInstance(CharacterInstance& character,
-                                         const db::Database& database) {
-  if (character.templateName.empty()) {
-    return false;
-  }
-  try {
-    const auto& characterTemplate =
-        database.getCharacterTemplate(bmin::toStringView(character.templateName));
-    applyCharacterTemplateToInstance(character, characterTemplate);
-    return true;
-  } catch (...) {
-    return false;
   }
 }
 
