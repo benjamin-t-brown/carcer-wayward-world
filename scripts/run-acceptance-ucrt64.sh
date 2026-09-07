@@ -1,90 +1,14 @@
 #!/usr/bin/env bash
-# Run acceptance tests via UCRT64 make/cxx (no Node required).
-# The UI section is interactive — agents should use ./scripts/compile-ui-tests.sh
-# for UI verification instead of running this script end-to-end.
+# UCRT64 native acceptance: game, non-UI tests, and compile-only UI tests.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-cd "$ROOT/src"
+PRESET="${CARCER_CMAKE_PRESET:-ucrt64-debug}"
 
-echo "Building object_files..."
-make object_files -j8
+cd "$ROOT"
+cmake --preset "$PRESET"
+cmake --build --preset "$PRESET" --target CARCER carcer_non_ui_tests
+ctest --preset "$PRESET"
+cmake --build --preset "$PRESET" --target carcer_ui_tests
 
-CXX=$(make print_cxx)
-ARGS=$(make compiler_args)
-
-run_cpp() {
-  local cpp="$1"
-  echo ""
-  echo "========== $cpp =========="
-  $CXX "$cpp" $ARGS -o TestUi
-  ./TestUi
-}
-
-# runner
-for t in TestJson TestBminContainers TestConditionalEvaluator TestStringEvaluator \
-         TestSpecialEventRunner TestSpecialEventIntegration; do
-  run_cpp "__test__/runner/${t}.cpp"
-done
-
-# db loaders
-for t in TestLoadItemTemplates TestLoadMapTemplates TestLoadAbilityTemplates \
-         TestLoadCharacterTemplates TestLoadStatusEffectTemplates TestLoadSpecialEvents; do
-  run_cpp "__test__/db/loaders/${t}.cpp"
-done
-
-# model
-for t in TestCharacterEquip TestCharacterGive; do
-  run_cpp "__test__/model/${t}.cpp"
-done
-
-# ui — folder/name pairs from test-runners/ui/*.sh
-while IFS=$'\t' read -r folder name; do
-  run_cpp "__test__/ui/${folder}/${name}.cpp"
-done <<'TESTS'
-components	TestConfirmModal
-layouts	TestInGameLayout
-pages	TestPageInventory
-layers	TestLayerPickUp
-layers	TestLayerInventory
-layers	TestCombat
-elements	TestHorizontalSlider
-elements	TestVerticalList
-elements	TestQuad
-elements	TestButtonGroup
-components	TestFloatingNotificationSection
-system	TestSystemFontScale
-elements	TestTextBanner
-elements	TestOutsetRectangle
-components	TestBorderModalStandard
-components	TestBorderModalSmall
-components	TestBorderInGameWide
-components	TestBorderInGameNarrow
-components	TestChCompactInfo
-components	TestInGameTitleBar
-components	TestTouchMovePad
-components	TestPartyMemberSwitcher
-components/lists	TestListPickUp
-components/lists	TestListInventory
-components/lists	TestListChCompactInfoHorizontal
-components/lists	TestListChCompactInfoVertical
-elements	TestButtonModal
-elements	TestButtonTextWrap
-elements	TestButtonWorldAction
-elements	TestSection
-elements	TestSectionScrollable
-elements	TestTextParagraph
-layouts	TestModalSmall
-layouts	TestModalStandard
-minipages	TestMinipagePickUp
-minipages	TestMinipageEvent
-minipages	TestMinipageCharacterSheet
-pages	TestPageCharacter
-pages	TestPageTalkChoice
-pages	TestPageMagicSetup
-popups	TestPopupPickupItem
-popups	TestPopupInventoryItem
-TESTS
-
-echo ""
-echo "All acceptance tests passed."
+echo "Acceptance passed. UI executables were compiled but not opened."

@@ -120,7 +120,7 @@ Example:
 - [ ] Add `cooldownMs` field to C++ `AbilityTemplate` and `LoadAbilityJson`
 - [ ] Add sample cooldown values to `src/assets/db/abilities.json`
 - [ ] Mirror field in ceditor types and `AbilityFormFields`
-- [ ] Run `make -j8` and `ceditor` `npm run build`
+- [ ] Run the CMake build/tests and `ceditor` `npm run build`
 - [ ] Run commit-reviewer on the last commit; write `.ai/specs/ability-cooldown-ui/commit-review.md` and fix Critical findings via the owning expert
 ```
 
@@ -129,7 +129,7 @@ Example:
 List concrete verification steps: commands to run, routes to open, game behavior to observe, test scripts under `test-runners/`. Reference Windows build wrapper when relevant:
 
 ```powershell
-.\scripts\Invoke-Ucrt64.ps1 "cd src && make -j8"
+.\scripts\Invoke-Ucrt64.ps1 "cmake --build --preset ucrt64-debug --target CARCER"
 ```
 
 ### 7. Write routing.md (multi-domain specs)

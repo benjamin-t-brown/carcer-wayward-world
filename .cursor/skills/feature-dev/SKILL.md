@@ -143,7 +143,7 @@ PR prep and review are **out of scope** unless the user asks — point them to `
 When acceptance or experts need C++ builds, use MSYS2 UCRT64 per `.cursor/rules/windows-msys2-build.mdc`:
 
 ```powershell
-.\scripts\Invoke-Ucrt64.ps1 "cd src && make -j8"
+.\scripts\Invoke-Ucrt64.ps1 "cmake --build --preset ucrt64-debug --target CARCER"
 ```
 
 ## Examples

@@ -41,9 +41,8 @@ cmake --preset clang-debug -DCMAKE_CXX_COMPILER=/path/to/clang++
 ```
 
 The first build prepares the pinned header dependency bundle. A second build is
-a no-op apart from fast pinned-revision validation. `src/Makefile` remains
-temporarily available as a parity oracle until the test-runner migration in
-Phase 2; it is not the long-term build interface.
+a no-op apart from fast pinned-revision validation. CMake is the only Carcer
+build graph.
 
 ## Windows with MSYS2 UCRT64
 
@@ -74,6 +73,23 @@ cmake --build --preset emscripten-debug --target CARCER
 ports, asset preload, memory settings, exported functions, and JavaScript
 runtime methods required by the web build.
 
+## Tests
+
+Every test source has a distinct CMake executable. Non-UI tests run through
+CTest; UI tests are compile-only by default so automation never opens SDL
+windows:
+
+```sh
+cmake --build --preset gcc-debug --target carcer_non_ui_tests
+ctest --preset gcc-debug
+cmake --build --preset gcc-debug --target carcer_ui_tests
+```
+
+The scripts under `test-runners/` preserve their previous interface and may be
+called from any directory. Set `CARCER_CMAKE_PRESET` to select another build.
+Non-UI wrappers run by default and honor `--build-only`; UI wrappers pass
+remaining arguments to their executable when run interactively.
+
 ## Dependency module compatibility
 
 Carcer does not compile named modules. When changing SDL2W or BMIN themselves,
@@ -88,9 +104,10 @@ Those commands are opt-in and never add module flags to a Carcer target.
 
 ## IDE setup
 
-CMake writes `compile_commands.json` into each preset build directory. Point
-clangd at the configured directory, for example `build/cmake/clang-debug`. No
-module-specific clangd option is required.
+CMake writes `compile_commands.json` into each preset build directory. The
+workspace defaults to `build/cmake/gcc-debug/compile_commands.json`; select the
+matching configured directory when using another preset. No module-specific
+clangd option is required.
 
 ## Localization and animation tools
 

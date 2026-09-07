@@ -61,15 +61,15 @@ For each substantive change:
 
 ### 3. Verify
 
-Run the narrowest checks for what changed. On Windows PowerShell, wrap bash/`make` via:
+Run the narrowest checks for what changed. On Windows PowerShell, use UCRT64 via:
 
 ```powershell
-.\scripts\Invoke-Ucrt64.ps1 "cd src && make -j8"
+.\scripts\Invoke-Ucrt64.ps1 "cmake --build --preset ucrt64-debug --target CARCER"
 ```
 
 | Change | Verification |
 |---|---|
-| `src/**` C++ | `make -j8`; nearest `test-runners/runner|db|model` script if obvious |
+| `src/**` C++ | Build the affected CMake target; run the nearest `test-runners/runner|db|model` script if obvious |
 | `src/ui/**` or UI tests | Compile only — `test-runners/ui/<Test>.sh --build-only` or `./scripts/compile-ui-tests.sh`. **Never run UI test executables.** |
 | `ceditor/**` | `cd ceditor && npm run build` (or project typecheck script) |
 

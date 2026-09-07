@@ -1300,7 +1300,7 @@ src/ui/uiUtils.h
 |---|---|---|
 | 0 | `Record the header restoration baseline` (this manifest's commit) | PASS: fixed references and 20 interfaces inventoried; baseline commands recorded; tracked diff contains this manifest only |
 | 1 | `Add the conventional pinned-dependency CMake build` (pending commit hash) | PASS with user-approved platform deferral: local GCC/Clang debug/release, Make parity, dependency diagnostics, no-op build, and representative wrappers pass; UCRT64 is deferred to final qualification and Emscripten remains part of the final supported-host matrix |
-| 2 | `Restore CMake-backed test runners` (pending commit hash) | PASS locally: 81 distinct CMake test targets; all 38 non-UI tests pass under GCC and Clang; all 79 legacy wrappers pass from `/private/tmp` (43 UI wrappers with `--build-only`); aggregate UI compilation passes under GCC and Clang; an induced compile error propagates exit status 1 |
+| 2 | `50a4885` (`Restore CMake-backed test runners`); `Retire the transitional Make build` (pending follow-up hash) | PASS locally: 81 distinct CMake test targets; all 38 non-UI tests pass under GCC and Clang; all 79 legacy wrappers pass from `/private/tmp` (43 UI wrappers with `--build-only`); aggregate UI compilation passes under GCC and Clang; an induced compile error propagates exit status 1; user approved deferring MSYS2 qualification until the final gate |
 | 3 | pending | pending |
 | 4 | pending | pending |
 | 5 | pending | pending |

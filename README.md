@@ -14,3 +14,7 @@ Carcer is a conventional C++23 header/source project. SDL2W and BMIN are pinned
 to their module-capable experimental revisions, but this project deliberately
 consumes their classic header API. See [DEVELOPMENT.md](DEVELOPMENT.md) for
 other compilers and targets.
+
+Run native tests with `ctest --preset gcc-debug`; compile all interactive UI
+tests without opening windows with
+`cmake --build --preset gcc-debug --target carcer_ui_tests`.
