@@ -4,10 +4,7 @@ module;
 #include <utility>
 #include <algorithm>
 
-module carcer.ui.screens.runtime;
-import carcer.ui.core;
-import bmin.string_interop;
-import sdl2w;
+module carcer.ui.screens;
 #include "macros.h"
 
 namespace ui {

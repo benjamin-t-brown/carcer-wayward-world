@@ -17,9 +17,5 @@
 .carcer-bmi/carcer.ui.widgets.composites.o
 .carcer-bmi/carcer.ui.widgets.views.o
 .carcer-bmi/carcer.ui.widgets.o
-.carcer-bmi/carcer.ui.screens.runtime.o
-.carcer-bmi/carcer.ui.screens.layouts.o
-.carcer-bmi/carcer.ui.screens.overlays.o
-.carcer-bmi/carcer.ui.screens.pages.o
 .carcer-bmi/carcer.ui.screens.o
 .carcer-bmi/carcer.o

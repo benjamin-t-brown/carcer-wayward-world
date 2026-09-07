@@ -1,6 +1,6 @@
 # Carcer Module/UI Finalization Plan
 
-Status: Phase 2 complete by accepted timing exception; ready for Phase 3
+Status: Phase 3 complete; ready for Phase 4
 Pre-plan application commit: `0b661c3` (`Consolidate the UI module architecture`)
 Date: 2026-09-06
 
@@ -267,6 +267,24 @@ Exit criteria:
 - Fresh GCC debug `CARCER` build is 60 seconds or less, measured three times
   with the median reported.
 - GCC/Clang import probes and all UI compile tests pass.
+
+Completion record:
+
+- `carcer.ui.screens` is now a real declaration interface. Runtime helpers,
+  layouts, overlays, pages, and minipages have ordinary `.cpp` implementation
+  units, and the four dotted screen interfaces are gone.
+- The screen dependency chain collapsed from four build-organisation levels to
+  one. The graph fell from 25 interfaces, 98 edges, and depth 12 to 21
+  interfaces, 70 edges, and depth 9; maximum transitive fan-out fell to 16.
+- Three fresh GCC debug app builds measured 65, 66, and 66 seconds (median 66).
+  No-op builds were sub-second. Screen implementation edits measured four to
+  six seconds end-to-end and rebuilt no downstream BMI.
+- The structural, compiler-stability, and rebuild-isolation criteria pass. The
+  interim 60-second performance criterion does not yet pass and remains a hard
+  final qualification target for Phases 4–6.
+- GCC and Clang debug builds, all 43 UI compile/link programs, all seven import
+  probes, all 37 enabled runtime tests, the strict architecture check, and
+  legacy Make pass.
 
 ## Phase 4: finalize layers and the application root
 

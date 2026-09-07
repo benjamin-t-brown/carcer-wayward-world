@@ -6,11 +6,7 @@ module;
 #include <string>
 #include <optional>
 
-module carcer.ui.screens.runtime;
-import carcer.model;
-import carcer.state;
-import bmin.string_interop;
-import sdl2w;
+module carcer.ui.screens;
 #include "macros.h"
 
 namespace ui {

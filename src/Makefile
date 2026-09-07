@@ -70,6 +70,10 @@ ui/widgets/foundation_views.cpp \
 ui/widgets/views.cpp \
 ui/widgets/composites.cpp \
 ui/components/ChCompactInfo.cpp \
+ui/screens/runtime.cpp \
+ui/screens/layouts.cpp \
+ui/screens/overlays.cpp \
+ui/screens/pages.cpp \
 game/combat/CombatRunner.cpp \
 
 TARGET ?= native

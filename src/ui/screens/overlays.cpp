@@ -5,66 +5,8 @@ module;
 #include <algorithm>
 #include <vector>
 
-export module carcer.ui.screens.overlays;
-export import bmin.containers;
-export import carcer.ui.core;
-export import carcer.state;
-export import carcer.ui.widgets;
-export import carcer.data;
-import bmin.string_interop;
-import sdl2w;
-import carcer.actions;
-import carcer.ui.screens.runtime;
-import carcer.ui.screens.layouts;
-import carcer.model;
+module carcer.ui.screens;
 #include "macros.h"
-
-export {
-
-// --- from ui/popups/PopupDropConfirm.h ---
-namespace ui {
-
-struct PopupDropConfirmProps {
-  bmin::String characterPlayerId;
-  bmin::String itemId;
-  bmin::String itemLabel;
-};
-
-class PopupDropConfirm : public UiElement {
-  PopupDropConfirmProps props;
-
-public:
-  PopupDropConfirm(sdl2w::Window* _window, UiElement* _parent = nullptr);
-  ~PopupDropConfirm() override;
-
-  void setProps(const PopupDropConfirmProps& _props);
-  PopupDropConfirmProps& getProps();
-  const PopupDropConfirmProps& getProps() const;
-
-  void build() override;
-  void render(int dt) override;
-};
-
-} // namespace ui
-
-// --- from ui/observers/ObserverDropInventoryItem.hpp ---
-namespace ui {
-
-class ObserverDropInventoryItem : public ui::UiEventObserver,
-                                  public state::StateManagerInterface {
-  bmin::String characterPlayerId;
-  bmin::String itemId;
-
-public:
-  ObserverDropInventoryItem(const bmin::String& _characterPlayerId, const bmin::String& _itemId)
-      : characterPlayerId(_characterPlayerId), itemId(_itemId) {}
-
-  void onClick(int mouseX, int mouseY, int button) override;
-};
-
-} // namespace ui
-
-} // export
 
 namespace ui {
 
@@ -135,73 +77,6 @@ void ObserverDropInventoryItem::onClick(int mouseX, int mouseY, int button) {
 
 } // namespace ui
 
-export {
-
-// --- from ui/popups/PopupGive.h ---
-namespace ui {
-
-
-struct PopupGivePartyMember {
-  bmin::String characterPlayerId;
-  bmin::String label;
-  bmin::String spriteName;
-};
-
-struct PopupGiveProps {
-  bmin::String fromCharacterPlayerId;
-  bmin::String itemId;
-  bmin::String itemLabel;
-  int maxQuantity = 1;
-  int selectedQuantity = 1;
-  bool showQuantitySlider = true;
-  bmin::DynArray<PopupGivePartyMember> partyMembers;
-};
-
-class PopupGive : public UiElement {
-  PopupGiveProps props;
-  HorizontalSlider* quantitySlider = nullptr;
-
-public:
-  PopupGive(sdl2w::Window* _window, UiElement* _parent = nullptr);
-
-  void setProps(const PopupGiveProps& _props);
-  PopupGiveProps& getProps();
-  const PopupGiveProps& getProps() const;
-
-  int getSelectedQuantity() const;
-
-  void build() override;
-  void render(int dt) override;
-};
-
-} // namespace ui
-
-// --- from ui/observers/ObserverGiveInventoryItem.hpp ---
-namespace ui {
-
-class ObserverGiveInventoryItem : public ui::UiEventObserver,
-                                  public state::StateManagerInterface {
-  bmin::String toCharacterPlayerId;
-  bmin::String fromCharacterPlayerId;
-  bmin::String itemId;
-  PopupGive* popupGive;
-
-public:
-  ObserverGiveInventoryItem(const bmin::String& _toCharacterPlayerId,
-                            const bmin::String& _fromCharacterPlayerId,
-                            const bmin::String& _itemId,
-                            PopupGive* _popupGive)
-      : toCharacterPlayerId(_toCharacterPlayerId),
-        fromCharacterPlayerId(_fromCharacterPlayerId),
-        itemId(_itemId),
-        popupGive(_popupGive) {}
-
-  void onClick(int mouseX, int mouseY, int button) override;
-};
-
-} // namespace ui
-
-} // export
 
 namespace ui {
 
@@ -402,89 +277,6 @@ void ObserverGiveInventoryItem::onClick(int mouseX, int mouseY, int button) {
 
 } // namespace ui
 
-export {
-
-// --- from ui/popups/PopupInventoryItem.h ---
-namespace ui {
-
-enum PopupOrientation { NARROW, WIDE };
-
-struct PopupInventoryItemProps {
-  bmin::String characterPlayerId;
-  model::ItemInstance item;
-  bmin::String label;
-  bmin::String description;
-  bmin::String spriteName;
-  int weight = 0;
-  int value = 0;
-  bool usable = false;
-  bool equippable = false;
-  PopupOrientation orientation = WIDE;
-};
-
-class PopupInventoryItem : public UiElement {
-  PopupInventoryItemProps props;
-
-public:
-  PopupInventoryItem(sdl2w::Window* _window,
-                     UiElement* _parent,
-                     PopupOrientation _orientation = WIDE);
-
-  void setProps(const PopupInventoryItemProps& _props);
-  PopupInventoryItemProps& getProps();
-  const PopupInventoryItemProps& getProps() const;
-
-  void build() override;
-  void render(int dt) override;
-};
-
-} // namespace ui
-
-// --- from ui/observers/ObserverShowLayerDropContext.hpp ---
-namespace ui {
-
-class ObserverShowLayerDropContext : public ui::UiEventObserver,
-                                     public state::StateManagerInterface {
-  sdl2w::Window* window;
-  bmin::String characterPlayerId;
-  bmin::String itemId;
-
-public:
-  ObserverShowLayerDropContext(sdl2w::Window* _window,
-                               const bmin::String& _characterPlayerId,
-                               const bmin::String& _itemId)
-      : window(_window),
-        characterPlayerId(_characterPlayerId),
-        itemId(_itemId) {}
-
-  void onClick(int mouseX, int mouseY, int button) override;
-};
-
-} // namespace ui
-
-// --- from ui/observers/ObserverShowLayerGiveContext.hpp ---
-namespace ui {
-
-class ObserverShowLayerGiveContext : public ui::UiEventObserver,
-                                     public state::StateManagerInterface {
-  sdl2w::Window* window;
-  bmin::String fromCharacterPlayerId;
-  bmin::String itemId;
-
-public:
-  ObserverShowLayerGiveContext(sdl2w::Window* _window,
-                               const bmin::String& _fromCharacterPlayerId,
-                               const bmin::String& _itemId)
-      : window(_window),
-        fromCharacterPlayerId(_fromCharacterPlayerId),
-        itemId(_itemId) {}
-
-  void onClick(int mouseX, int mouseY, int button) override;
-};
-
-} // namespace ui
-
-} // export
 
 namespace ui {
 
@@ -693,41 +485,6 @@ void ObserverShowLayerGiveContext::onClick(int mouseX, int mouseY, int button) {
 
 } // namespace ui
 
-export {
-
-// --- from ui/popups/PopupPickupItem.h ---
-namespace ui {
-
-struct PopupPickupItemProps {
-  bmin::String spriteName;
-  bmin::String label;
-  bmin::String description;
-  int weight = 0;
-  int value = 0;
-  PopupOrientation orientation = WIDE;
-};
-
-// PopupPickupItem - shows info about an item that can be picked up
-class PopupPickupItem : public UiElement {
-  PopupPickupItemProps props;
-  bmin::String closeLayerId;
-
-public:
-  PopupPickupItem(sdl2w::Window* _window,
-                  bmin::String _closeLayerId,
-                  PopupOrientation _orientation = WIDE);
-
-  void setProps(const PopupPickupItemProps& _props);
-  PopupPickupItemProps& getProps();
-  const PopupPickupItemProps& getProps() const;
-
-  void build() override;
-  void render(int dt) override;
-};
-
-} // namespace ui
-
-} // export
 
 namespace ui {
 
@@ -877,45 +634,6 @@ void PopupPickupItem::render(int dt) { UiElement::render(dt); }
 
 } // namespace ui
 
-export {
-
-// --- from ui/popups/PopupSpellInfo.h ---
-namespace ui {
-
-struct PopupSpellInfoRuneReq {
-  bmin::String iconSprite;
-  int count = 1;
-};
-
-struct PopupSpellInfoProps {
-  bmin::String label;
-  bmin::String description;
-  bmin::String spriteName;
-  int manaCost = 0;
-  bmin::DynArray<PopupSpellInfoRuneReq> requiredRunes;
-  PopupOrientation orientation = WIDE;
-};
-
-// Spell info popup: name, mana cost, required runes, description; close only.
-class PopupSpellInfo : public UiElement {
-  PopupSpellInfoProps props;
-
-public:
-  PopupSpellInfo(sdl2w::Window* _window,
-                 UiElement* _parent = nullptr,
-                 PopupOrientation _orientation = WIDE);
-
-  void setProps(const PopupSpellInfoProps& _props);
-  PopupSpellInfoProps& getProps();
-  const PopupSpellInfoProps& getProps() const;
-
-  void build() override;
-  void render(int dt) override;
-};
-
-} // namespace ui
-
-} // export
 
 namespace ui {
 
@@ -1119,38 +837,6 @@ void PopupSpellInfo::render(int dt) { UiElement::render(dt); }
 
 } // namespace ui
 
-export {
-
-// --- from ui/minipages/MinipageCharacterSheet.h ---
-namespace ui {
-
-struct MinipageCharacterSheetProps {
-  int width = 0;
-  int height = 0;
-};
-
-// MinipageCharacterSheet - renders a small character sheet shell using ModalSmall.
-class MinipageCharacterSheet : public UiElement {
-private:
-  MinipageCharacterSheetProps props;
-
-public:
-  MinipageCharacterSheet(sdl2w::Window* _window, UiElement* _parent = nullptr);
-  ~MinipageCharacterSheet() override = default;
-
-  void setProps(const MinipageCharacterSheetProps& _props);
-  MinipageCharacterSheetProps& getProps();
-  const MinipageCharacterSheetProps& getProps() const;
-
-  const std::pair<int, int> getDims() const override;
-
-  void build() override;
-  void render(int dt) override;
-};
-
-} // namespace ui
-
-} // export
 
 namespace ui {
 
@@ -1225,124 +911,6 @@ void MinipageCharacterSheet::render(int dt) { UiElement::render(dt); }
 
 } // namespace ui
 
-export {
-
-// --- from ui/minipages/MinipageEquipRunes.h ---
-namespace ui {
-
-struct MinipageEquipRunesSlot {
-  bool filled = false;
-  bmin::String iconSprite;
-};
-
-struct MinipageEquipRunesRow {
-  model::RuneType type = model::RuneType::HEAT;
-  bmin::String iconSprite;
-  int availableCount = 0;
-  int equippedCount = 0;
-};
-
-struct MinipageEquipRunesProps {
-  int width = 0;
-  int height = 0;
-  bmin::String characterPlayerId;
-  bmin::String characterPlayerLabel;
-  bmin::DynArray<MinipageEquipRunesSlot> runeSlots;
-  bmin::DynArray<MinipageEquipRunesRow> runeRows;
-};
-
-/** ModalSmall editor: equipped strip + available rune +/- list; Okay commits, X cancels. */
-class MinipageEquipRunes : public UiElement {
-private:
-  MinipageEquipRunesProps props;
-
-  static constexpr int contentPadding = 8;
-  static constexpr int nameRowHeight = 28;
-  static constexpr int runeSlotSize = 24;
-  static constexpr int runeSlotGap = 4;
-  static constexpr int runeSlotIconSize = 24;
-  static constexpr float runeSlotIconScale = 1.f;
-  static constexpr int equippedRowHeight = 40;
-  static constexpr int gridCols = 2;
-  // Match PageCharacter +/- ButtonIcon size (32).
-  static constexpr int adjustButtonSize = 32;
-  static constexpr int cellHeight = adjustButtonSize;
-  static constexpr int cellGapX = 8;
-  static constexpr int cellGapY = 4;
-  static constexpr int cellInnerGap = 2;
-  static constexpr int countTextWidth = 20;
-  static constexpr int footerButtonWidth = 100;
-  static constexpr int modalBorderWidth = 2;
-  static constexpr int modalHeaderHeight = 80;
-
-  int runeCellContentWidth() const;
-  int contentInnerWidth() const;
-  int contentInnerHeight() const;
-  int modalWidth() const;
-  int modalHeight() const;
-
-  void addEquippedSlots(UiElement* parent, int x, int y, int width);
-  void addRuneGrid(UiElement* parent, int x, int y, int width);
-
-public:
-  MinipageEquipRunes(sdl2w::Window* _window, UiElement* _parent = nullptr);
-  ~MinipageEquipRunes() override = default;
-
-  void setProps(const MinipageEquipRunesProps& _props);
-  MinipageEquipRunesProps& getProps();
-  const MinipageEquipRunesProps& getProps() const;
-
-  const std::pair<int, int> getDims() const override;
-
-  void build() override;
-  void render(int dt) override;
-};
-
-} // namespace ui
-
-// --- from ui/observers/ObserverAdjustEquippedRune.hpp ---
-namespace ui {
-
-class ObserverAdjustEquippedRune : public ui::UiEventObserver,
-                                   public state::StateManagerInterface {
-  bmin::String characterPlayerId;
-  model::RuneType runeType = model::RuneType::HEAT;
-  int delta = 0;
-
-public:
-  ObserverAdjustEquippedRune(const bmin::String& _characterPlayerId,
-                             model::RuneType _runeType,
-                             int _delta)
-      : characterPlayerId(_characterPlayerId), runeType(_runeType), delta(_delta) {}
-
-  void onClick(int /*mouseX*/, int /*mouseY*/, int /*button*/) override;
-};
-
-} // namespace ui
-
-// --- from ui/observers/ObserverCancelEquipRunes.hpp ---
-namespace ui {
-
-class ObserverCancelEquipRunes : public ui::UiEventObserver,
-                                 public state::StateManagerInterface {
-public:
-  void onClick(int /*mouseX*/, int /*mouseY*/, int /*button*/) override;
-};
-
-} // namespace ui
-
-// --- from ui/observers/ObserverCommitEquipRunes.hpp ---
-namespace ui {
-
-class ObserverCommitEquipRunes : public ui::UiEventObserver,
-                                 public state::StateManagerInterface {
-public:
-  void onClick(int /*mouseX*/, int /*mouseY*/, int /*button*/) override;
-};
-
-} // namespace ui
-
-} // export
 
 namespace ui {
 
@@ -1702,38 +1270,6 @@ void ObserverCommitEquipRunes::onClick(int /*mouseX*/, int /*mouseY*/, int /*but
 
 } // namespace ui
 
-export {
-
-// --- from ui/minipages/MinipageEvent.h ---
-namespace ui {
-
-struct MinipageEventProps {
-  int width = 0;
-  int height = 0;
-};
-
-// MinipageEvent - renders a small event shell using ModalSmall.
-class MinipageEvent : public UiElement {
-private:
-  MinipageEventProps props;
-
-public:
-  MinipageEvent(sdl2w::Window* _window, UiElement* _parent = nullptr);
-  ~MinipageEvent() override = default;
-
-  void setProps(const MinipageEventProps& _props);
-  MinipageEventProps& getProps();
-  const MinipageEventProps& getProps() const;
-
-  const std::pair<int, int> getDims() const override;
-
-  void build() override;
-  void render(int dt) override;
-};
-
-} // namespace ui
-
-} // export
 
 namespace ui {
 
@@ -1805,46 +1341,6 @@ void MinipageEvent::render(int dt) { UiElement::render(dt); }
 
 } // namespace ui
 
-export {
-
-// --- from ui/minipages/MinipagePickUp.h ---
-namespace ui {
-
-struct MinipagePickUpProps {
-  int width = 0;
-  int height = 0;
-  bmin::String titleText = TRANSLATE("Pick Up");
-  bmin::String statusText;
-  bmin::String weightText = "Carrying 0/100";
-  int partyMemberIndex = 0;
-  bmin::DynArray<bmin::String> partyMemberSprites;
-  bmin::DynArray<model::ItemInstance> nearbyItems;
-  bmin::String doneButtonRemoveLayerId;
-};
-
-// MinipagePickUp - renders the pickup minipage with ModalSmall layout containing
-// a scrollable list of items that can be picked up.
-class MinipagePickUp : public UiElement, public state::DatabaseInterface {
-private:
-  MinipagePickUpProps props;
-
-public:
-  MinipagePickUp(sdl2w::Window* _window, UiElement* _parent = nullptr);
-  ~MinipagePickUp() override = default;
-
-  void setProps(const MinipagePickUpProps& _props);
-  MinipagePickUpProps& getProps();
-  const MinipagePickUpProps& getProps() const;
-
-  const std::pair<int, int> getDims() const override;
-
-  void build() override;
-  void render(int dt) override;
-};
-
-} // namespace ui
-
-} // export
 
 namespace ui {
 
@@ -2043,51 +1539,6 @@ void MinipagePickUp::render(int dt) { UiElement::render(dt); }
 
 } // namespace ui
 
-export {
-
-// --- from ui/minipages/MinipageSpellCast.h ---
-namespace ui {
-
-struct MinipageSpellCastSpell {
-  bmin::String id;
-  bmin::String label;
-  bmin::String iconSprite;
-  // GCC BMI: DynArray nested in DynArray under UiElement corrupts GCM.
-  std::vector<bmin::String> requiredRuneSprites;
-};
-
-struct MinipageSpellCastProps {
-  bmin::String casterId;
-  int width = 0;
-  int height = 0;
-  bmin::String titleText = TRANSLATE("Cast Spell");
-  bmin::String statusText;
-  bmin::DynArray<MinipageSpellCastSpell> spells;
-  bmin::String doneButtonRemoveLayerId;
-};
-
-/** ModalSmall combat cast list: known spells; row click validates then aims. */
-class MinipageSpellCast : public UiElement {
-private:
-  MinipageSpellCastProps props;
-
-public:
-  MinipageSpellCast(sdl2w::Window* _window, UiElement* _parent = nullptr);
-  ~MinipageSpellCast() override = default;
-
-  void setProps(const MinipageSpellCastProps& _props);
-  MinipageSpellCastProps& getProps();
-  const MinipageSpellCastProps& getProps() const;
-
-  const std::pair<int, int> getDims() const override;
-
-  void build() override;
-  void render(int dt) override;
-};
-
-} // namespace ui
-
-} // export
 
 namespace ui {
 

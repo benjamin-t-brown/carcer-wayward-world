@@ -79,13 +79,14 @@ carcer.ui.widgets.views
 carcer.ui.widgets.composites
 ```
 
-`carcer.ui.screens` reexports four:
+`carcer.ui.screens` is one declaration interface with grouped ordinary
+implementation units:
 
 ```text
-carcer.ui.screens.runtime
-carcer.ui.screens.layouts
-carcer.ui.screens.overlays
-carcer.ui.screens.pages
+ui/screens/runtime.cpp
+ui/screens/layouts.cpp
+ui/screens/overlays.cpp
+ui/screens/pages.cpp
 ```
 
 The widget method bodies live in ordinary implementation units rather than
@@ -132,7 +133,7 @@ src/ui/_widgets.cppm
 src/ui/_widget_{foundation,views,composites}.cppm
 src/ui/widgets/{primitives,controls,foundation_views,views,composites}.cpp
 src/ui/_screens.cppm
-src/ui/screens/{runtime,layouts,overlays,pages}.cppm
+src/ui/screens/{runtime,layouts,overlays,pages}.cpp
 src/ui/_layers.cppm
 src/ui/layers.cpp
 src/layers/{Layer,LayerManager}.cpp
@@ -220,8 +221,8 @@ This updates:
 - `src/modules/module_order.txt`
 
 Regenerate after adding/removing an interface or changing an import edge. The
-current graph has 25 interfaces, 98 edges, critical depth 12, and maximum
-transitive fan-out 20.
+current graph has 21 interfaces, 70 edges, critical depth 9, and maximum
+transitive fan-out 16.
 
 SDL2W and BMIN revisions are pinned in the repository-level `deps.lock` and
 materialized into `.deps/`/the consumer bundle by the bootstrap scripts. CMake

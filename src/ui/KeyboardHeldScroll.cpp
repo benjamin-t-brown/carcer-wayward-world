@@ -3,10 +3,7 @@ module;
 #include <string_view>
 #include <utility>
 
-module carcer.ui.screens.runtime;
-import sdl2w;
-import bmin.string_interop;
-import carcer.data;
+module carcer.ui.screens;
 
 namespace ui {
 
