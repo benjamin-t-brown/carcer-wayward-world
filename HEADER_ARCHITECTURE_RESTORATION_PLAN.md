@@ -1,6 +1,6 @@
 # Header Architecture Restoration Plan
 
-Status: Accepted; implementation has not started  
+Status: Implemented through Phase 8 locally; supported-host UCRT64 and Emscripten qualification remains open
 Plan source branch: `experiment/cpp-modules` at `d85a0e1`  
 Header-layout reference: `origin/main` at `fe50a90`  
 Date: 2026-09-07
@@ -626,20 +626,20 @@ Commit: `Complete the return to header architecture`
 
 ## Final acceptance checklist
 
-- [ ] New work lives on `refactor/header-architecture`; module branch preserved.
-- [ ] Pinned SDL2W/BMIN bootstrap retained.
-- [ ] Carcer consumes self-contained dependency headers without named imports.
-- [ ] Conventional CMake is the only Carcer build graph.
-- [ ] Layers are top-level and UI never includes them.
-- [ ] Actions are individually readable `.hpp` files.
-- [ ] UI classes are restored to class-level header/source pairs.
-- [ ] Include direction is enforced automatically.
-- [ ] Explicit map/combat/state ownership improvements are retained.
-- [ ] Stable action events are retained.
-- [ ] Every test runner works with its old command-line behavior.
+- [x] New work lives on `refactor/header-architecture`; module branch preserved.
+- [x] Pinned SDL2W/BMIN bootstrap retained.
+- [x] Carcer consumes self-contained dependency headers without named imports.
+- [x] Conventional CMake is the only Carcer build graph.
+- [x] Layers are top-level and UI never includes them.
+- [x] Actions are individually readable `.hpp` files.
+- [x] UI classes are restored to class-level header/source pairs.
+- [x] Include direction is enforced automatically.
+- [x] Explicit map/combat/state ownership improvements are retained.
+- [x] Stable action events are retained.
+- [x] Every test runner works with its old command-line behavior.
 - [ ] Native, UCRT64, and Emscripten matrices pass.
-- [ ] Header build-time target passes.
-- [ ] Module experiment results are captured in the retrospective.
+- [x] Header build-time target passes.
+- [x] Module experiment results are captured in the retrospective.
 
 ## Stop conditions
 

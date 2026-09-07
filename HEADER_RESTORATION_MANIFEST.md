@@ -1,6 +1,6 @@
 # Header Restoration Manifest
 
-Status: Phase 7 verified locally; cross-platform qualification remains deferred to Phase 8.
+Status: Phase 8 implemented and verified locally; supported-host UCRT64 and Emscripten qualification remains open.
 
 This is the parity ledger for `HEADER_ARCHITECTURE_RESTORATION_PLAN.md`. A row may move from `pending` to `ported` only when its declaration and current behavior have been placed in the target file; it moves to `verified` only after the owning phase gate passes. Class/struct rows account for their public members as one indivisible API surface.
 
@@ -43,9 +43,9 @@ The two primary compatibility failures are: (1) the old Carcer include topology 
 
 ## Phase 1 local qualification
 
-The conventional header build and pinned dependency staging are implemented in
-the current worktree. The following results are local and must be committed only
-after the Phase 1 cross-platform disposition is agreed:
+The conventional header build and pinned dependency staging were implemented
+and locally qualified in Phase 1. Supported-host qualification was explicitly
+deferred to the final phase:
 
 | Check | Result |
 |---|---|
@@ -71,14 +71,16 @@ declaration.
 |---|---|
 | 5: actions | `1db12d0`; GCC and Clang full 42-test suites passed, including 70 action-header self-containment probes and stable event/navigation checks |
 | 6: UI | `1260da9`; GCC and Clang built every UI executable and all 98 UI headers independently; UI → layers is zero |
-| 7: layers | GCC and Clang full 45-test suites passed; all layer headers compile independently; visual UI executables compile; the non-visual lifecycle test proves activation, suspension, request ordering, event/update dispatch, and optional rendering |
+| 7: layers | `b631dac`; GCC and Clang full 45-test suites passed; all layer headers compile independently; visual UI executables compile; the non-visual lifecycle test proves activation, suspension, request ordering, event/update dispatch, and optional rendering |
+| 8: final local qualification | GCC and Clang debug/release builds and all 41 final CTest entries passed; all 264 production headers compile independently; all 79 legacy wrappers pass; include/module/artifact gates and build-time target pass |
 
 ## Inventory counts
 
 - Header reference production inventory: 248 headers and 136 sources (384 paths total).
 - Module behavior reference: 20 module interfaces and 670 exported top-level types/functions (class members are covered by their type row).
-- Test inventory at the header reference: 81 C++ test sources and 79 shell wrappers.
-- Known intentionally disabled tests: none identified. Known stale tests: not yet classified; the three representative wrappers are blocked before test compilation by production incompatibilities listed above.
+- Test inventory at the header reference: 81 C++ test sources and 79 shell wrappers. The restored tree has 82 C++ test sources after adding the non-visual layer lifecycle test.
+- Known intentionally disabled tests: none. The three baseline wrapper failures
+  were resolved in Phases 1–2, and all 79 wrappers pass in final qualification.
 
 ## Semantic commit ledger
 
@@ -92,8 +94,8 @@ declaration.
 | `e25ff69` | Rules/state/action ownership split | 4/5 | verified |
 | `ba41411` | Narrow action API and action-event behavior | 5 | verified |
 | `5030c80` | Layers above screens; UI does not own layers | 7 | verified |
-| `a34939a` | Narrow application composition root | 7/8 | Phase 7 bootstrap and ownership verified; final cleanup remains for Phase 8 |
-| `aae59e4` | Boundary checks and architecture documentation | 3/8 | phase-aware checker ported; full enforcement remains for Phase 8 |
+| `a34939a` | Narrow application composition root | 7/8 | verified; `main.cpp` delegates to `app/runCarcer.cpp` |
+| `aae59e4` | Boundary checks and architecture documentation | 3/8 | verified; the complete production graph is enforced |
 | `d85a0e1` | Native Windows/MSYS2 and clangd fixes | 1/8 | Windows shim ported; UCRT64 verification pending |
 
 ## Exported API migration ledger
@@ -591,7 +593,7 @@ delivery, payloads, and neutral navigation requests.
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `runCarcer` | function | `src/main.cpp` | `src/app/runCarcer.h (proposed; verify during owning phase)` | pending | ImportCarcer |
+| `runCarcer` | function | `src/main.cpp` | `src/app/runCarcer.h` and `src/app/runCarcer.cpp` | verified | CARCER application link; all native matrices |
 
 ### `src/state/_State.cppm`
 
@@ -1320,8 +1322,8 @@ src/ui/uiUtils.h
 | 4 | `14bacc4` (`Port rules and state ownership to headers`) | PASS locally: rules and state have zero forbidden edges; map orchestration dependencies are explicit; trigger rules return values; notification expiry is state maintenance; GCC and Clang builds, all 38 behavioral tests, architecture checks, and 34-header Phase 4 self-containment pass |
 | 5 | `1db12d0` (`Restore one action per header`) | PASS locally: individual action headers, neutral navigation requests, stable semantic events, 42-test GCC/Clang suites, and 70 action-header probes pass |
 | 6 | `1260da9` (`Restore class-level UI headers and sources`) | PASS locally: class-level UI tree restored, UI → layers is zero, all visual wrappers compile under GCC/Clang, and 98 UI-header probes pass |
-| 7 | `Restore layers as top-level loop orchestration` (this commit) | PASS locally: UI-free base layer, optional visual specialization, neutral request reconciliation, top-level loop manager, non-visual lifecycle/ordering test, all visual wrappers, 45-test GCC/Clang suites, architecture checks, and layer-header probes pass |
-| 8 | pending | pending |
+| 7 | `b631dac` (`Restore layers as top-level loop orchestration`) | PASS locally: UI-free base layer, optional visual specialization, neutral request reconciliation, top-level loop manager, non-visual lifecycle/ordering test, all visual wrappers, 45-test GCC/Clang suites, architecture checks, and layer-header probes pass |
+| 8 | `Complete the return to header architecture` (this commit) | PASS locally: clean GCC/Clang debug/release builds; 41/41 CTest entries in every native configuration; GCC/Clang UI targets; all 264 public-header probes; all 79 legacy wrappers from outside the repository; pinned dependency validation; zero production interfaces/imports/generated artifacts/forbidden edges; 32.27 s median fresh build, 0.18 s median no-op, and 2.69 s leaf rebuild. UCRT64 and Emscripten execution remain supported-host qualification items: this Darwin host has neither MSYS2/PowerShell nor EMSDK; all three UCRT64 shell entry points pass syntax validation. |
 
 ## Known stale, disabled, or retired tests
 

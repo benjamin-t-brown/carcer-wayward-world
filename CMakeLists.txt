@@ -7,6 +7,7 @@ include(CTest)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(CARCER_ALLOW_DIRTY_DEPS "Allow tracked changes in pinned dependency checkouts" OFF)
@@ -153,18 +154,24 @@ add_library(carcer_build_options INTERFACE)
 target_compile_features(carcer_build_options INTERFACE cxx_std_23)
 target_compile_options(carcer_build_options INTERFACE
   $<$<COMPILE_LANG_AND_ID:CXX,GNU,Clang,AppleClang>:-Wall;-Wextra;-Wno-unused-parameter;-Wno-missing-field-initializers>
-  $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANG_AND_ID:CXX,GNU,Clang,AppleClang>>:-Og;-g;-fno-omit-frame-pointer>)
+  $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANG_AND_ID:CXX,GNU,Clang,AppleClang>>:-g;-fno-omit-frame-pointer>)
 
 include(cmake/carcer_sources.cmake)
 add_library(carcer_lib STATIC ${CARCER_SOURCES})
 add_dependencies(carcer_lib carcer_dependency_bundle)
-set_property(TARGET carcer_lib PROPERTY CXX_SCAN_FOR_MODULES OFF)
 target_include_directories(carcer_lib PUBLIC "${CMAKE_SOURCE_DIR}/src")
 target_link_libraries(carcer_lib PUBLIC
   carcer_sdl2w carcer_bmin carcer_build_options)
+target_precompile_headers(carcer_lib PRIVATE
+  <string_view>
+  "<bmin/DynArray.h>"
+  "<bmin/String.h>"
+  "<sdl2w/Logger.h>"
+  "<sdl2w/Window.h>")
 
-add_executable(CARCER src/main.cpp)
-set_property(TARGET CARCER PROPERTY CXX_SCAN_FOR_MODULES OFF)
+add_executable(CARCER
+  src/main.cpp
+  src/app/runCarcer.cpp)
 target_link_libraries(CARCER PRIVATE carcer_lib)
 if(WIN32)
   target_sources(CARCER PRIVATE cmake/win_sdl_main_ready.cpp)
@@ -195,7 +202,6 @@ function(carcer_add_test_executable test_source is_ui)
   else()
     add_executable("${test_target}" "${test_source}")
   endif()
-  set_property(TARGET "${test_target}" PROPERTY CXX_SCAN_FOR_MODULES OFF)
   target_link_libraries("${test_target}" PRIVATE carcer_lib)
 
   if(NOT is_ui)
@@ -234,113 +240,23 @@ if(BUILD_TESTING)
   add_test(NAME IncludeArchitecture
     COMMAND "${Python3_EXECUTABLE}"
             "${CMAKE_SOURCE_DIR}/scripts/check-include-architecture.py"
-            --root "${CMAKE_SOURCE_DIR}"
-            --source-subsystem model
-            --source-subsystem rules
-            --source-subsystem state
-            --source-subsystem actions
-            --source-subsystem ui)
+            --root "${CMAKE_SOURCE_DIR}")
 
-  file(GLOB_RECURSE CARCER_PHASE3_HEADERS CONFIGURE_DEPENDS
-    "${CMAKE_SOURCE_DIR}/src/lib/*.h"
-    "${CMAKE_SOURCE_DIR}/src/data/*.h"
-    "${CMAKE_SOURCE_DIR}/src/model/*.h"
-    "${CMAKE_SOURCE_DIR}/src/db/*.h")
-  list(APPEND CARCER_PHASE3_HEADERS
-    "${CMAKE_SOURCE_DIR}/src/game/combat/CombatParty.h"
-    "${CMAKE_SOURCE_DIR}/src/game/inventory/InventoryRules.h"
-    "${CMAKE_SOURCE_DIR}/src/game/map/CharacterConstruction.h"
-    "${CMAKE_SOURCE_DIR}/src/game/map/TileFields.h")
-  set(CARCER_PHASE3_HEADER_PROBES)
-  foreach(header IN LISTS CARCER_PHASE3_HEADERS)
+  file(GLOB_RECURSE CARCER_PUBLIC_HEADERS CONFIGURE_DEPENDS
+    "${CMAKE_SOURCE_DIR}/src/*.h"
+    "${CMAKE_SOURCE_DIR}/src/*.hpp")
+  list(FILTER CARCER_PUBLIC_HEADERS EXCLUDE REGEX "/__test__/")
+  set(CARCER_HEADER_PROBES)
+  foreach(header IN LISTS CARCER_PUBLIC_HEADERS)
     file(RELATIVE_PATH relative_header "${CMAKE_SOURCE_DIR}/src" "${header}")
     string(MD5 header_id "${relative_header}")
-    set(probe "${CMAKE_BINARY_DIR}/header-self-containment/phase3/${header_id}.cpp")
+    set(probe "${CMAKE_BINARY_DIR}/header-self-containment/${header_id}.cpp")
     file(WRITE "${probe}" "#include \"${relative_header}\"\nint carcer_header_probe_${header_id} = 0;\n")
-    list(APPEND CARCER_PHASE3_HEADER_PROBES "${probe}")
+    list(APPEND CARCER_HEADER_PROBES "${probe}")
   endforeach()
-  add_library(carcer_phase3_header_checks OBJECT EXCLUDE_FROM_ALL
-    ${CARCER_PHASE3_HEADER_PROBES})
-  set_property(TARGET carcer_phase3_header_checks PROPERTY CXX_SCAN_FOR_MODULES OFF)
-  target_link_libraries(carcer_phase3_header_checks PRIVATE carcer_lib)
-  add_test(NAME Phase3HeaderSelfContainment
+  add_library(carcer_header_checks OBJECT EXCLUDE_FROM_ALL ${CARCER_HEADER_PROBES})
+  target_link_libraries(carcer_header_checks PRIVATE carcer_lib)
+  add_test(NAME HeaderSelfContainment
     COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}"
-            --target carcer_phase3_header_checks --parallel 8)
-
-  file(GLOB_RECURSE CARCER_PHASE4_HEADERS CONFIGURE_DEPENDS
-    "${CMAKE_SOURCE_DIR}/src/game/*.h"
-    "${CMAKE_SOURCE_DIR}/src/in3/*.h"
-    "${CMAKE_SOURCE_DIR}/src/runner/*.h"
-    "${CMAKE_SOURCE_DIR}/src/state/*.h")
-  set(CARCER_PHASE4_HEADER_PROBES)
-  foreach(header IN LISTS CARCER_PHASE4_HEADERS)
-    file(RELATIVE_PATH relative_header "${CMAKE_SOURCE_DIR}/src" "${header}")
-    string(MD5 header_id "phase4-${relative_header}")
-    set(probe "${CMAKE_BINARY_DIR}/header-self-containment/phase4/${header_id}.cpp")
-    file(WRITE "${probe}" "#include \"${relative_header}\"\nint carcer_header_probe_${header_id} = 0;\n")
-    list(APPEND CARCER_PHASE4_HEADER_PROBES "${probe}")
-  endforeach()
-  add_library(carcer_phase4_header_checks OBJECT EXCLUDE_FROM_ALL
-    ${CARCER_PHASE4_HEADER_PROBES})
-  set_property(TARGET carcer_phase4_header_checks PROPERTY CXX_SCAN_FOR_MODULES OFF)
-  target_link_libraries(carcer_phase4_header_checks PRIVATE carcer_lib)
-  add_test(NAME Phase4HeaderSelfContainment
-    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}"
-            --target carcer_phase4_header_checks --parallel 8)
-
-  file(GLOB_RECURSE CARCER_PHASE5_HEADERS CONFIGURE_DEPENDS
-    "${CMAKE_SOURCE_DIR}/src/actions/*.hpp")
-  set(CARCER_PHASE5_HEADER_PROBES)
-  foreach(header IN LISTS CARCER_PHASE5_HEADERS)
-    file(RELATIVE_PATH relative_header "${CMAKE_SOURCE_DIR}/src" "${header}")
-    string(MD5 header_id "phase5-${relative_header}")
-    set(probe "${CMAKE_BINARY_DIR}/header-self-containment/phase5/${header_id}.cpp")
-    file(WRITE "${probe}" "#include \"${relative_header}\"\nint carcer_header_probe_${header_id} = 0;\n")
-    list(APPEND CARCER_PHASE5_HEADER_PROBES "${probe}")
-  endforeach()
-  add_library(carcer_phase5_header_checks OBJECT EXCLUDE_FROM_ALL
-    ${CARCER_PHASE5_HEADER_PROBES})
-  set_property(TARGET carcer_phase5_header_checks PROPERTY CXX_SCAN_FOR_MODULES OFF)
-  target_link_libraries(carcer_phase5_header_checks PRIVATE carcer_lib)
-  add_test(NAME Phase5HeaderSelfContainment
-    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}"
-            --target carcer_phase5_header_checks --parallel 8)
-
-  file(GLOB_RECURSE CARCER_PHASE6_HEADERS CONFIGURE_DEPENDS
-    "${CMAKE_SOURCE_DIR}/src/ui/*.h"
-    "${CMAKE_SOURCE_DIR}/src/ui/*.hpp")
-  set(CARCER_PHASE6_HEADER_PROBES)
-  foreach(header IN LISTS CARCER_PHASE6_HEADERS)
-    file(RELATIVE_PATH relative_header "${CMAKE_SOURCE_DIR}/src" "${header}")
-    string(MD5 header_id "phase6-${relative_header}")
-    set(probe "${CMAKE_BINARY_DIR}/header-self-containment/phase6/${header_id}.cpp")
-    file(WRITE "${probe}" "#include \"${relative_header}\"\nint carcer_header_probe_${header_id} = 0;\n")
-    list(APPEND CARCER_PHASE6_HEADER_PROBES "${probe}")
-  endforeach()
-  add_library(carcer_phase6_header_checks OBJECT EXCLUDE_FROM_ALL
-    ${CARCER_PHASE6_HEADER_PROBES})
-  set_property(TARGET carcer_phase6_header_checks PROPERTY CXX_SCAN_FOR_MODULES OFF)
-  target_link_libraries(carcer_phase6_header_checks PRIVATE carcer_lib)
-  add_test(NAME Phase6HeaderSelfContainment
-    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}"
-            --target carcer_phase6_header_checks --parallel 8)
-
-  file(GLOB_RECURSE CARCER_PHASE7_HEADERS CONFIGURE_DEPENDS
-    "${CMAKE_SOURCE_DIR}/src/layers/*.h"
-    "${CMAKE_SOURCE_DIR}/src/layers/*.hpp")
-  set(CARCER_PHASE7_HEADER_PROBES)
-  foreach(header IN LISTS CARCER_PHASE7_HEADERS)
-    file(RELATIVE_PATH relative_header "${CMAKE_SOURCE_DIR}/src" "${header}")
-    string(MD5 header_id "phase7-${relative_header}")
-    set(probe "${CMAKE_BINARY_DIR}/header-self-containment/phase7/${header_id}.cpp")
-    file(WRITE "${probe}" "#include \"${relative_header}\"\nint carcer_header_probe_${header_id} = 0;\n")
-    list(APPEND CARCER_PHASE7_HEADER_PROBES "${probe}")
-  endforeach()
-  add_library(carcer_phase7_header_checks OBJECT EXCLUDE_FROM_ALL
-    ${CARCER_PHASE7_HEADER_PROBES})
-  set_property(TARGET carcer_phase7_header_checks PROPERTY CXX_SCAN_FOR_MODULES OFF)
-  target_link_libraries(carcer_phase7_header_checks PRIVATE carcer_lib)
-  add_test(NAME Phase7HeaderSelfContainment
-    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}"
-            --target carcer_phase7_header_checks --parallel 8)
+            --target carcer_header_checks --parallel 8)
 endif()

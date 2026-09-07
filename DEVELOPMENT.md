@@ -20,10 +20,10 @@ For offline mirrors, set `CARCER_SDL2W_REPOSITORY` and
 `CARCER_BMIN_REPOSITORY`. Tracked dependency changes are rejected unless
 `CARCER_ALLOW_DIRTY_DEPS=1` is explicitly selected.
 
-The pinned upstreams can build both modules and headers. Carcer stages only
-their header archives and include trees under ignored `build/compat/`, keyed by
-compiler, target, flags, and lock identity. This keeps the dependency work
-reusable without adding module scanning or BMI ordering to the game.
+The pinned upstream revisions retain both APIs, but Carcer stages only their
+classic headers and static archives under ignored `build/compat/`, keyed by
+compiler, target, flags, and lock identity. This keeps dependency work reusable
+without adding an alternate build graph to the game.
 
 ## Native builds
 
@@ -41,8 +41,10 @@ cmake --preset clang-debug -DCMAKE_CXX_COMPILER=/path/to/clang++
 ```
 
 The first build prepares the pinned header dependency bundle. A second build is
-a no-op apart from fast pinned-revision validation. CMake is the only Carcer
-build graph.
+a no-op apart from fast pinned-revision validation. The production library uses
+one CMake-managed precompiled header for common BMIN/SDL2W headers; source files
+and dependency ordering remain conventional. CMake is the only Carcer build
+graph.
 
 ## Windows with MSYS2 UCRT64
 
@@ -83,31 +85,24 @@ windows:
 cmake --build --preset gcc-debug --target carcer_non_ui_tests
 ctest --preset gcc-debug
 cmake --build --preset gcc-debug --target carcer_ui_tests
+cmake --build --preset gcc-debug --target carcer_header_checks
 ```
+
+CTest also runs the include-direction checker and the complete public-header
+self-containment target. The enforced production direction is
+`model -> rules -> state -> actions -> ui -> layers -> app`; higher domains may
+depend on lower ones, while upward edges are rejected.
 
 The scripts under `test-runners/` preserve their previous interface and may be
 called from any directory. Set `CARCER_CMAKE_PRESET` to select another build.
 Non-UI wrappers run by default and honor `--build-only`; UI wrappers pass
 remaining arguments to their executable when run interactively.
 
-## Dependency module compatibility
-
-Carcer does not compile named modules. When changing SDL2W or BMIN themselves,
-their module-capable upstream branches remain testable independently:
-
-```sh
-make -C .deps/bmin/src/modules check
-make -C .deps/sdl2w/src/modules check BMIN_REPO="$PWD/.deps/bmin"
-```
-
-Those commands are opt-in and never add module flags to a Carcer target.
-
 ## IDE setup
 
 CMake writes `compile_commands.json` into each preset build directory. The
 workspace defaults to `build/cmake/gcc-debug/compile_commands.json`; select the
-matching configured directory when using another preset. No module-specific
-clangd option is required.
+matching configured directory when using another preset.
 
 ## Localization and animation tools
 

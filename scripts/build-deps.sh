@@ -16,7 +16,6 @@ CONSUMER_FLAGS="${CARCER_DEPS_CONSUMER_FLAGS:-}"
 
 if [[ "${MODE}" != "headers" ]]; then
   echo "error: Carcer only stages the dependencies' classic header API" >&2
-  echo "Use the upstream SDL2W/BMIN commands to validate their optional modules." >&2
   exit 2
 fi
 
@@ -78,29 +77,25 @@ fi
 echo "Building pinned SDL2W/BMIN header artifacts with ${CXX_COMMAND}"
 make -C "${BMIN_ROOT}/src" install-headers "CXX=${CXX_COMMAND}" TARGET="${TARGET}"
 
-# SDL2W's upstream install-headers target has a dual-mode BMIN prerequisite.
-# Seed that staging directory with the already-built classic archive so Carcer
-# does not compile dependency modules merely to consume headers.
+# Seed SDL2W's classic include/library staging directory from the pinned BMIN
+# header build. Build the SDL2W archive target directly so dependency packaging
+# remains entirely a conventional header/archive workflow.
 header_stage="${SDL2W_ROOT}/src/bmin"
 mkdir -p "${header_stage}"
 cp -R "${BMIN_ROOT}/bmin/include/." "${header_stage}/"
 cp -f "${BMIN_ROOT}/bmin/lib/libbmin.a" "${header_stage}/libbmin.a"
-cp -f "${BMIN_ROOT}/bmin/lib/libbmin.a" "${header_stage}/libbmin_modules.a"
 header_stamp="${header_stage}/.artifacts-ready"
 touch "${header_stamp}"
-make "${make_args[@]}" install-headers TARGET="${TARGET}" \
+make -o "${header_stamp}" "${make_args[@]}" build/lib/libsdl2w.a TARGET="${TARGET}" \
   "DEPS_BMIN_DIR=${header_stage}" \
-  "DEPS_BMIN_STAMP=${header_stamp}" \
-  "DEPS_BMIN_HEADER_LIB=${header_stage}/libbmin.a" \
-  "BMIN_BUILT_MODULE_LIB=${header_stage}/libbmin_modules.a" \
-  BMIN_MODULE_INPUTS=
+  "DEPS_BMIN_STAMP=${header_stamp}"
 
 mkdir -p "${BUNDLE_ROOT}/lib" "${BUNDLE_ROOT}/include/sdl2w" \
   "${BUNDLE_ROOT}/include/bmin"
-cp -f "${SDL2W_ROOT}/sdl2w/lib/libsdl2w.a" "${BUNDLE_ROOT}/lib/"
-cp -f "${SDL2W_ROOT}/sdl2w/lib/libbmin.a" "${BUNDLE_ROOT}/lib/"
-cp -f "${SDL2W_ROOT}/sdl2w/include/"*.h "${BUNDLE_ROOT}/include/sdl2w/"
-cp -R "${SDL2W_ROOT}/sdl2w/include/bmin/." "${BUNDLE_ROOT}/include/bmin/"
+cp -f "${SDL2W_ROOT}/src/build/lib/libsdl2w.a" "${BUNDLE_ROOT}/lib/"
+cp -f "${BMIN_ROOT}/bmin/lib/libbmin.a" "${BUNDLE_ROOT}/lib/"
+cp -f "${SDL2W_ROOT}/src/lib/"*.h "${BUNDLE_ROOT}/include/sdl2w/"
+cp -R "${BMIN_ROOT}/bmin/include/." "${BUNDLE_ROOT}/include/bmin/"
 
 mkdir -p "${BUNDLE_ROOT}"
 tmp_key="$(mktemp "${BUNDLE_ROOT}/.build-key.XXXXXX")"

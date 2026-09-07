@@ -2,14 +2,46 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "CMake build (UCRT64 debug)",
+      "label": "CMake configure (GCC debug)",
       "type": "shell",
-      "command": "${workspaceFolder}/scripts/Invoke-Ucrt64.ps1",
-      "args": ["cmake --preset ucrt64-debug && cmake --build --preset ucrt64-debug --target CARCER"],
+      "command": "cmake",
+      "args": ["--preset", "gcc-debug"],
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake build (GCC debug)",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--build", "--preset", "gcc-debug", "--target", "CARCER"],
+      "dependsOn": "CMake configure (GCC debug)",
       "group": {
         "kind": "build",
         "isDefault": true
       },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "CMake tests (GCC debug)",
+      "type": "shell",
+      "command": "ctest",
+      "args": ["--preset", "gcc-debug"],
+      "dependsOn": "CMake configure (GCC debug)",
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "CMake UI compile checks (GCC debug)",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--build", "--preset", "gcc-debug", "--target", "carcer_ui_tests"],
+      "dependsOn": "CMake configure (GCC debug)",
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "CMake build (UCRT64 debug)",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/Invoke-Ucrt64.ps1",
+      "args": ["cmake --preset ucrt64-debug && cmake --build --preset ucrt64-debug --target CARCER"],
+      "group": "build",
       "problemMatcher": ["$gcc"]
     },
     {

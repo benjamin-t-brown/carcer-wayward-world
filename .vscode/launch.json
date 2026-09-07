@@ -2,10 +2,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "(gdb) Launch Tests UI Win",
+      "name": "Launch CARCER (Windows)",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}\\src\\TestUi.exe",
+      "program": "${workspaceFolder}\\build\\cmake\\ucrt64-debug\\CARCER.exe",
       "args": [],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}\\src",
@@ -25,16 +25,16 @@
           "ignoreFailures": true
         }
       ],
-      "preLaunchTask": ""
+      "preLaunchTask": "CMake build (UCRT64 debug)"
     },
     {
-      "name": "(gdb) Launch Tests UI Mac",
+      "name": "Launch CARCER (macOS)",
       "type": "lldb",
       "request": "launch",
-      "program": "${workspaceFolder}/src/TestUi",
+      "program": "${workspaceFolder}/build/cmake/gcc-debug/CARCER",
       "args": [],
       "cwd": "${workspaceFolder}/src",
-      "preLaunchTask": ""
+      "preLaunchTask": "CMake build (GCC debug)"
     }
   ]
 }

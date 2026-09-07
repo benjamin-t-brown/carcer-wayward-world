@@ -7,7 +7,9 @@ globs: ["src/**/*.cpp", "src/**/*.h"]
 - use camelCase for variable names and UpperCase for class or struct names
 - prefer bmin containers/strings over STL (`bmin::DynArray`, `bmin::String`, `bmin::Map`) — see `bmin-containers.mdc`
 - prefer using std::unique_ptr / bmin::UniquePtr or std::optional instead of raw pointers
-- all cpp functions must be in a cpp file and not declared inline.
+- keep non-template implementation functions in `.cpp` files; actions under
+  `src/actions/` are intentionally one-class-per-header and may define their
+  small command bodies inline.
 - every cpp file must be explicitly defined in the source file.
 - all classes must exist within a namespace, if the namespace is the top level use the "program" namespace.
 - prefer declaring variables with auto instead of the type, like: "auto a = int{1}".
@@ -15,6 +17,24 @@ globs: ["src/**/*.cpp", "src/**/*.h"]
 - prefer const references if passing by reference.
 - prefer using LOG macro from "sdl2w/Logger.h" instead of iostream or printf
 - mark override when a method is overridden
+
+## Dependency direction
+
+Keep the enforced dependency graph pointing in this direction:
+
+```text
+model <- rules <- state <- actions <- ui <- layers <- app
+```
+
+- `model` owns data only and does not depend on database, state, actions, UI, or layers.
+- `rules` may depend on model, but not state, actions, UI, or layers.
+- `state` does not depend on actions, UI, or layers.
+- `actions` express UI/layer intent through neutral state requests; they do not include UI or layer headers.
+- `ui` is visual composition and does not include or construct layers.
+- `layers` own loop lifecycle, event dispatch, ordering, and optional visual UI trees.
+- `app` is the composition root.
+
+Run `ctest --preset gcc-debug -R IncludeArchitecture` after changing a boundary.
 
 ## Class-local helpers (prefer members over anonymous namespaces)
 
