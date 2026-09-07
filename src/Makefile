@@ -57,6 +57,7 @@ state/UiManager.cpp \
 state/LayerManagerInterface.cpp \
 actions/world/WorldUpdater.cpp \
 actions/actions.cpp \
+modules/carcer.cpp \
 ui/UiElement.cpp \
 ui/FontScale.cpp \
 ui/helpers/worldActions.cpp \

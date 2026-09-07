@@ -12,10 +12,10 @@
 .carcer-bmi/carcer.game.combat.o
 .carcer-bmi/carcer.actions.o
 .carcer-bmi/carcer.ui.core.o
-.carcer-bmi/carcer.ui.layers.o
 .carcer-bmi/carcer.ui.widgets.foundation.o
 .carcer-bmi/carcer.ui.widgets.composites.o
 .carcer-bmi/carcer.ui.widgets.views.o
 .carcer-bmi/carcer.ui.widgets.o
 .carcer-bmi/carcer.ui.screens.o
+.carcer-bmi/carcer.ui.layers.o
 .carcer-bmi/carcer.o

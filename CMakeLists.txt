@@ -207,11 +207,16 @@ if(BUILD_TESTING AND NOT EMSCRIPTEN)
   target_link_libraries(carcer_import_probe_ui_layers PRIVATE carcer_modules)
   add_test(NAME ImportUiLayersModule COMMAND carcer_import_probe_ui_layers)
 
+  add_executable(carcer_import_probe_application
+    "${CMAKE_SOURCE_DIR}/src/__test__/modules/ImportCarcer.cpp")
+  target_link_libraries(carcer_import_probe_application PRIVATE carcer_modules)
+  add_test(NAME ImportCarcerModule COMMAND carcer_import_probe_application)
+
   add_custom_target(carcer_module_import_probes
     DEPENDS carcer_import_probe_data carcer_import_probe_model
             carcer_import_probe_actions carcer_import_probe_ui_core
             carcer_import_probe_ui_widgets carcer_import_probe_ui_screens
-            carcer_import_probe_ui_layers)
+            carcer_import_probe_ui_layers carcer_import_probe_application)
 
   function(carcer_add_test_executable test_source should_run)
     get_filename_component(test_name "${test_source}" NAME_WE)

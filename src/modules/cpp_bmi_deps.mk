@@ -45,6 +45,7 @@ model/characters.o: .carcer-bmi/carcer.model.o
 model/combat.o: .carcer-bmi/carcer.model.o
 model/maps.o: .carcer-bmi/carcer.model.o
 model/world.o: .carcer-bmi/carcer.model.o
+modules/carcer.o: .carcer-bmi/carcer.o
 state/ActionBus.o: .carcer-bmi/carcer.state.o
 state/DatabaseInterface.o: .carcer-bmi/carcer.db.o .carcer-bmi/carcer.state.o
 state/LayerManagerInterface.o: .carcer-bmi/carcer.state.o

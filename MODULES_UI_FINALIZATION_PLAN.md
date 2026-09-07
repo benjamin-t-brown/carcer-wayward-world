@@ -1,6 +1,6 @@
 # Carcer Module/UI Finalization Plan
 
-Status: Phase 3 complete; ready for Phase 4
+Status: Phase 4 complete; ready for Phase 5
 Pre-plan application commit: `0b661c3` (`Consolidate the UI module architecture`)
 Date: 2026-09-06
 
@@ -308,6 +308,26 @@ Exit criteria:
 - No production consumer uses `carcer` as a convenience umbrella.
 - Critical dependency depth, including `carcer`, is 12 or less.
 - Application behavior and all tests remain unchanged.
+
+Completion record:
+
+- `carcer` now exports only `runCarcer(int, char**)`; it no longer re-exports
+  project subsystems. A dedicated implementation unit owns SDL2W setup, asset
+  and font initialization, and shutdown.
+- `main.cpp` imports only `carcer` and delegates directly to `runCarcer`.
+- `LayerManager` now registers and unregisters itself deterministically, binds
+  mouse and keyboard routing, advances the state/layers, renders the stack,
+  and owns `Window::startRenderLoop`. The current splash-only application
+  behavior remains unchanged while the controller is ready for layer startup.
+- Private interface imports make the terminal dependency direction explicit:
+  `carcer.ui.screens -> carcer.ui.layers -> carcer`. The graph has 21
+  interfaces, 71 edges, critical depth 10, and maximum fan-out 16.
+- A narrow `ImportCarcer` probe was added. GCC and Clang debug builds, all 43 UI
+  programs, all eight import probes, all 38 enabled runtime/probe tests, the
+  architecture check, and legacy Make pass.
+- One fresh GCC debug measurement was 68 seconds with a three-second
+  LayerManager implementation rebuild. The 60-second final target remains for
+  Phase 6 rather than being relaxed.
 
 ## Phase 5: import hygiene and enforcement
 

@@ -12,9 +12,9 @@ carcer.state
 carcer.game.combat
 carcer.actions
 carcer.ui.core
-carcer.ui.layers
 carcer.ui.widgets.foundation
 carcer.ui.widgets.composites
 carcer.ui.widgets.views
 carcer.ui.widgets
 carcer.ui.screens
+carcer.ui.layers

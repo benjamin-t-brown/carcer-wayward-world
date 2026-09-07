@@ -12,10 +12,10 @@ state/_State.cppm
 game/combat/_combat.cppm
 actions/_actions.cppm
 ui/_core.cppm
-ui/_layers.cppm
 ui/_widget_foundation.cppm
 ui/_widget_composites.cppm
 ui/_widget_views.cppm
 ui/_widgets.cppm
 ui/_screens.cppm
+ui/_layers.cppm
 modules/_carcer.cppm

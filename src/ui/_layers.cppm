@@ -7,6 +7,7 @@ export module carcer.ui.layers;
 export import carcer.ui.core;
 export import carcer.state;
 export import bmin.containers;
+import carcer.ui.screens;
 import sdl2w;
 import bmin.string_interop;
 
@@ -87,10 +88,13 @@ private:
   bool isLiveLayer(const Layer* layer) const;
   void activateLayerNoPush(Layer* layer);
   void restoreFrontAfterClose();
+  void bindEvents();
 
 public:
   explicit LayerManager(sdl2w::Window* _window);
   ~LayerManager();
+
+  void start();
 
   void addLayer(Layer* layer);
   void moveToFront(Layer* layer);

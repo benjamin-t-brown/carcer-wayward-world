@@ -1,6 +1,8 @@
 module;
 #include <cstddef>
+#include <functional>
 #include <string_view>
+#include <typeinfo>
 
 module carcer.ui.layers;
 import sdl2w;
@@ -9,9 +11,69 @@ import bmin.string_interop;
 
 namespace layers {
 
-LayerManager::LayerManager(sdl2w::Window* _window) : window(_window) {}
+LayerManager::LayerManager(sdl2w::Window* _window) : window(_window) {
+  state::LayerManagerInterface::setLayerManager(this);
+}
 
-LayerManager::~LayerManager() { clearLayers(); }
+LayerManager::~LayerManager() {
+  clearLayers();
+  if (state::LayerManagerInterface::getLayerManager() == this) {
+    state::LayerManagerInterface::setLayerManager(nullptr);
+  }
+}
+
+void LayerManager::bindEvents() {
+  auto& events = window->getEvents();
+  events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_DOWN,
+                       [this](int x, int y, int button) {
+                         handleMouseDown(x, y, button);
+                       });
+  events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_UP,
+                       [this](int x, int y, int button) {
+                         handleMouseUp(x, y, button);
+                       });
+  events.setMouseEvent(sdl2w::MouseEventCb::ON_MOUSE_WHEEL,
+                       [this](int x, int y, int delta) {
+                         handleMouseWheel(x, y, delta);
+                       });
+  events.setKeyboardEvent(sdl2w::KeyboardEventCb::ON_KEY_DOWN,
+                          [this](std::string_view key, int keyCode) {
+                            handleKeyDown(key, keyCode);
+                          });
+  events.setKeyboardEvent(sdl2w::KeyboardEventCb::ON_KEY_UP,
+                          [this](std::string_view key, int keyCode) {
+                            handleKeyUp(key, keyCode);
+                          });
+}
+
+void LayerManager::start() {
+  bindEvents();
+
+  auto initialize = [this]() {
+    sdl2w::renderSplash(*window);
+    return true;
+  };
+  auto initialized = []() {};
+  auto frame = [this]() {
+    window->getDraw().setBackgroundColor({10, 10, 10});
+
+#ifndef __EMSCRIPTEN__
+    if (window->getEvents().isKeyPressed("Escape")) {
+      return false;
+    }
+#endif
+
+    const auto deltaTime = static_cast<int>(window->getDeltaTime());
+    if (hasStateManager()) {
+      getStateManager()->update(deltaTime);
+    }
+    update(deltaTime);
+    render(deltaTime);
+    return true;
+  };
+
+  window->startRenderLoop(initialize, initialized, frame);
+}
 
 void LayerManager::scrubFromStack(const Layer* layer) {
   if (layer == nullptr) {

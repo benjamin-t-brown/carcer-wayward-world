@@ -3,10 +3,10 @@
 Carcer ships as C++23 named modules (`carcer.*`). This document describes the
 current module boundaries, import policy, and build graph.
 
-Migration status (2026-09): phases 1–7 of `MODULES_V2_PLAN.md` and Phase 1 of
-`MODULES_UI_FINALIZATION_PLAN.md` are complete.
-The original class-per-module experiment has been reduced to 26 interfaces and
-102 import edges. Data, model, actions, and UI now expose domain-sized APIs;
+Migration status (2026-09): phases 1–7 of `MODULES_V2_PLAN.md` and Phases 0–4
+of `MODULES_UI_FINALIZATION_PLAN.md` are complete.
+The original class-per-module experiment has been reduced to 21 interfaces and
+71 import edges. Data, model, actions, and UI now expose domain-sized APIs;
 concrete action and layer implementations are private. Platform qualification
 and the literal artifact-size gate pass, but the final cold-build and graph-
 depth gates do not; Phase 8 is therefore not authorized yet.
@@ -26,9 +26,8 @@ The current rules are:
   implementation units when the compiler supports that shape reliably.
 - Implementation classes use module linkage unless another domain genuinely
   needs their type.
-- Import the narrowest owning domain. `carcer` is reserved for the application
-  entry point; its remaining broad re-exports are transitional, not a default
-  dependency.
+- Import the narrowest owning domain. `carcer` is the narrow application entry
+  API and does not re-export subsystem declarations.
 - Dependency edges point from orchestration toward rules and data, never from
   lower-level state or rules back toward actions or UI.
 
@@ -49,7 +48,7 @@ Dependencies point down this table.
 | UI widgets | `carcer.ui.widgets` | Primitives, controls, views, and game-aware composites. |
 | Screens | `carcer.ui.screens` | Passive layouts, overlays, pages, and screen runtime. |
 | UI controllers | `carcer.ui.layers` | Layers, layer stack, lifecycle, input routing, and interactive orchestration. |
-| Entry | `carcer` | Application/bootstrap boundary consumed by `main.cpp`; its implementation ultimately starts the layer controller. |
+| Entry | `carcer` | Narrow application/bootstrap boundary consumed by `main.cpp`; its implementation starts the layer controller. |
 
 The frame flow is input → `LayerManager` → active `Layer` → widget callback →
 `state::actions::Command` → `StateManager` → rules/model mutation →
@@ -149,8 +148,8 @@ unit when practical.
 
 ## 5. Import and source rules
 
-- Production and tests import the narrowest supported domain they use. No test
-  should import `carcer`; `main.cpp` is its only intended external consumer.
+- Production and tests import the narrowest supported domain they use. Only
+  `main.cpp` and the dedicated application import probe import `carcer`.
 - Internal UI implementation may import a grouped dotted module to avoid
   making GCC traverse a facade back into its own implementation graph.
 - Never mix classic BMIN/SDL2W headers with their named modules in the same
@@ -221,7 +220,7 @@ This updates:
 - `src/modules/module_order.txt`
 
 Regenerate after adding/removing an interface or changing an import edge. The
-current graph has 21 interfaces, 70 edges, critical depth 9, and maximum
+current graph has 21 interfaces, 71 edges, critical depth 10, and maximum
 transitive fan-out 16.
 
 SDL2W and BMIN revisions are pinned in the repository-level `deps.lock` and
