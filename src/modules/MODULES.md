@@ -70,11 +70,11 @@ import carcer.ui.screens;
 import carcer.ui.layers;
 ```
 
-`carcer.ui.widgets` reexports four cohesive implementation modules:
+`carcer.ui.widgets` is a six-line public facade over three compiler-sized,
+declaration-only build units:
 
 ```text
-carcer.ui.widgets.primitives
-carcer.ui.widgets.controls
+carcer.ui.widgets.foundation
 carcer.ui.widgets.views
 carcer.ui.widgets.composites
 ```
@@ -88,7 +88,8 @@ carcer.ui.screens.overlays
 carcer.ui.screens.pages
 ```
 
-These dotted modules are build-organisation units. Application code and tests
+The widget method bodies live in ordinary implementation units rather than
+BMIs. The dotted modules are build-organisation units. Application code and tests
 should use the facades unless they are themselves implementing the UI
 subsystem. They are standalone modules rather than standard partitions because
 GCC 15 produced corrupt external BMI data when the entire UI was represented
@@ -128,7 +129,8 @@ The consolidated UI currently has this shape:
 ```text
 src/ui/_core.cppm
 src/ui/_widgets.cppm
-src/ui/widgets/{primitives,controls,views,composites}.cppm
+src/ui/_widget_{foundation,views,composites}.cppm
+src/ui/widgets/{primitives,controls,foundation_views,views,composites}.cpp
 src/ui/_screens.cppm
 src/ui/screens/{runtime,layouts,overlays,pages}.cppm
 src/ui/_layers.cppm
@@ -137,8 +139,8 @@ src/layers/{Layer,LayerManager}.cpp
 ```
 
 `UiElement.cpp`, `FontScale.cpp`, `KeyboardHeldScroll.cpp`, helper `.cpp`
-files, `LayerManager.cpp`, and `ChCompactInfo.cpp` remain implementation units
-where out-of-line code is useful or avoids a known GCC GCM issue.
+files, `LayerManager.cpp`, and `ChCompactInfo.cpp` are also implementation
+units where out-of-line code is useful or avoids a known GCC GCM issue.
 
 Do not infer that a new class needs a new module interface. Add it to the
 cohesive owning interface and move substantial bodies to an implementation
@@ -218,8 +220,8 @@ This updates:
 - `src/modules/module_order.txt`
 
 Regenerate after adding/removing an interface or changing an import edge. The
-current graph has 26 interfaces, 102 edges, critical depth 13, and maximum
-transitive fan-out 21.
+current graph has 25 interfaces, 98 edges, critical depth 12, and maximum
+transitive fan-out 20.
 
 SDL2W and BMIN revisions are pinned in the repository-level `deps.lock` and
 materialized into `.deps/`/the consumer bundle by the bootstrap scripts. CMake

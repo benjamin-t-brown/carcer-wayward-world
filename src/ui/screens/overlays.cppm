@@ -9,7 +9,7 @@ export module carcer.ui.screens.overlays;
 export import bmin.containers;
 export import carcer.ui.core;
 export import carcer.state;
-export import carcer.ui.widgets.composites;
+export import carcer.ui.widgets;
 export import carcer.data;
 import bmin.string_interop;
 import sdl2w;

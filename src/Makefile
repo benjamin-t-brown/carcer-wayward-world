@@ -64,6 +64,11 @@ ui/helpers/keyboardShortcuts.cpp \
 ui/helpers/modalLayoutFit.cpp \
 ui/KeyboardHeldScroll.cpp \
 ui/layers.cpp \
+ui/widgets/primitives.cpp \
+ui/widgets/controls.cpp \
+ui/widgets/foundation_views.cpp \
+ui/widgets/views.cpp \
+ui/widgets/composites.cpp \
 ui/components/ChCompactInfo.cpp \
 game/combat/CombatRunner.cpp \
 

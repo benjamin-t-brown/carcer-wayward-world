@@ -1,6 +1,6 @@
 # Carcer Module/UI Finalization Plan
 
-Status: Phase 1 complete; ready for Phase 2
+Status: Phase 2 complete by accepted timing exception; ready for Phase 3
 Pre-plan application commit: `0b661c3` (`Consolidate the UI module architecture`)
 Date: 2026-09-06
 
@@ -222,6 +222,28 @@ If the pilot misses the timing gate or repeats the GCC large-facade failure,
 stop before migrating screens. First try two or three sibling declaration-only
 widget interfaces with no serial dependencies between them. If that also
 fails, choose the header fallback rather than rebuilding a micro-module tree.
+
+Pilot observation (2026-09-06):
+
+- A single 2,330-line declaration interface repeatedly produced GCC `Bad file
+  data` diagnostics when imported by the external widget probe.
+- Three compiler-sized declaration interfaces behind the six-line public
+  `carcer.ui.widgets` facade import successfully. Shared declarations live in
+  `foundation`; `views` and `composites` are siblings rather than a serial
+  chain.
+- The resulting graph has 25 interfaces, 98 edges, critical depth 12, and a
+  maximum transitive fan-out of 20.
+- Fresh GCC debug measurements were 71 and 72 seconds before redundant
+  implementation imports were removed, then 70 seconds afterward. The result
+  improves on the 77.05-second baseline but misses the pilot gate by one
+  second (or 0.95 second relative to the improvement criterion).
+- The measured widget implementation edit rebuilt its object, the Carcer
+  archive, and the executable but no BMI. Its five-second end-to-end result is
+  dominated by archiving and relinking, not downstream module recompilation.
+- The project owner explicitly accepted the approximately one-second pilot
+  variance on 2026-09-06. GCC and Clang debug builds, all 43 UI compile/link
+  programs, all seven import probes, all 37 enabled runtime tests, and legacy
+  Make pass. Phase 3 may proceed without weakening the final 60-second gate.
 
 ## Phase 3: passive declaration-only screens
 

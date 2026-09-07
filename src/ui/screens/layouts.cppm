@@ -12,7 +12,7 @@ export module carcer.ui.screens.layouts;
 export import bmin.containers;
 export import carcer.ui.core;
 export import carcer.ui.screens.runtime;
-export import carcer.ui.widgets.composites;
+export import carcer.ui.widgets;
 export import carcer.state;
 import bmin.string_interop;
 import sdl2w;

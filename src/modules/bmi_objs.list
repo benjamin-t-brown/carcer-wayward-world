@@ -13,12 +13,11 @@
 .carcer-bmi/carcer.actions.o
 .carcer-bmi/carcer.ui.core.o
 .carcer-bmi/carcer.ui.layers.o
-.carcer-bmi/carcer.ui.widgets.primitives.o
-.carcer-bmi/carcer.ui.widgets.controls.o
-.carcer-bmi/carcer.ui.widgets.views.o
+.carcer-bmi/carcer.ui.widgets.foundation.o
 .carcer-bmi/carcer.ui.widgets.composites.o
-.carcer-bmi/carcer.ui.screens.runtime.o
+.carcer-bmi/carcer.ui.widgets.views.o
 .carcer-bmi/carcer.ui.widgets.o
+.carcer-bmi/carcer.ui.screens.runtime.o
 .carcer-bmi/carcer.ui.screens.layouts.o
 .carcer-bmi/carcer.ui.screens.overlays.o
 .carcer-bmi/carcer.ui.screens.pages.o

@@ -13,12 +13,11 @@ carcer.game.combat
 carcer.actions
 carcer.ui.core
 carcer.ui.layers
-carcer.ui.widgets.primitives
-carcer.ui.widgets.controls
-carcer.ui.widgets.views
+carcer.ui.widgets.foundation
 carcer.ui.widgets.composites
-carcer.ui.screens.runtime
+carcer.ui.widgets.views
 carcer.ui.widgets
+carcer.ui.screens.runtime
 carcer.ui.screens.layouts
 carcer.ui.screens.overlays
 carcer.ui.screens.pages

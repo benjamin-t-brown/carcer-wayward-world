@@ -10,58 +10,8 @@ module;
 #include <optional>
 #include <algorithm>
 
-export module carcer.ui.widgets.primitives;
-export import bmin.containers;
-export import carcer.ui.core;
-import bmin.string_interop;
-import sdl2w;
+module carcer.ui.widgets.foundation;
 #include "macros.h"
-
-export {
-
-// --- from ui/elements/HorizontalList.h ---
-// IWYU pragma: keep
-
-namespace ui {
-
-struct HorizontalListProps {
-  int height = 0;
-  int lineWidth = 20;
-  int lineGap = 2;
-  SDL_Color bgColor = SDL_Color{255, 255, 255, 0};
-};
-
-// HorizontalList element - lays out child UiElements in a row.
-class HorizontalList : public UiElement {
-private:
-  HorizontalListProps props;
-  int selectedIndex = -1;
-
-public:
-  HorizontalList(sdl2w::Window* _window, UiElement* _parent = nullptr);
-  ~HorizontalList() override = default;
-
-  void setProps(const HorizontalListProps& _props);
-  HorizontalListProps& getProps();
-  const HorizontalListProps& getProps() const;
-
-  void setSelectedIndex(int index);
-  int getSelectedIndex() const;
-  void clearSelection();
-
-  void addListItem(UiElement* item);
-  void addListItems(const bmin::DynArray<UiElement*>& items);
-  void removeListItemAtIndex(size_t index);
-
-  const std::pair<int, int> getDims() const override;
-
-  void build() override;
-  void render(int dt) override;
-};
-
-} // namespace ui
-
-} // export
 
 namespace ui {
 
@@ -125,45 +75,6 @@ void HorizontalList::render(int dt) { UiElement::render(dt); }
 
 } // namespace ui
 
-export {
-
-// --- from ui/elements/OutsetRectangle.h ---
-namespace ui {
-
-// OutsetRectangle-specific properties
-struct OutsetRectangleProps {
-  int width = 0;
-  int height = 0;
-  SDL_Color color = Colors::BorderModalStandard;
-  SDL_Color colorTopRight = Colors::BorderModalStandardLight;
-  SDL_Color colorBottomLeft = Colors::BorderModalStandardDark;
-  int borderSize = 4;
-};
-
-// OutsetRectangle element - renders a rectangle with outset border effect
-// Position/scale via setPos/setScale; size via props → build
-class OutsetRectangle : public UiElement {
-private:
-  OutsetRectangleProps props;
-
-public:
-  OutsetRectangle(sdl2w::Window* _window, UiElement* _parent = nullptr);
-  ~OutsetRectangle() override = default;
-
-  // Setters and getters for OutsetRectangle-specific properties
-  void setProps(const OutsetRectangleProps& _props);
-  OutsetRectangleProps& getProps();
-  const OutsetRectangleProps& getProps() const;
-
-  const std::pair<int, int> getDims() const override;
-
-  void build() override;
-  void render(int dt) override;
-};
-
-} // namespace ui
-
-} // export
 
 namespace ui {
 
@@ -250,74 +161,6 @@ void OutsetRectangle::render(int dt) {
 
 } // namespace ui
 
-export {
-
-// --- from ui/elements/Quad.h ---
-// IWYU pragma: keep
-
-#if defined(MIYOOA30) || defined(MIYOOMINI)
-
-#else
-
-#endif
-
-namespace ui {
-
-// Quad-specific properties
-struct QuadProps {
-  int width = 0;
-  int height = 0;
-  SDL_Color bgColor = SDL_Color{0, 0, 0, 0};
-  bmin::String bgSprite;
-  SDL_Color borderColor = SDL_Color{0, 0, 0, 0};
-  int borderSize = 0;
-};
-
-// Quad element - renders a stylized rectangle with children
-// Position/scale via setPos/setScale; size via props.width/height → build
-class Quad : public UiElement {
-private:
-  SDL_Texture* renderTexture = nullptr;
-  int currentWidth = 0;
-  int currentHeight = 0;
-
-  QuadProps props;
-
-  void createRenderTexture();
-  void destroyRenderTexture();
-
-public:
-  Quad(sdl2w::Window* _window, UiElement* _parent = nullptr);
-  ~Quad() override;
-
-  // Setters and getters for quad-specific properties
-  void setProps(const QuadProps& _props);
-  QuadProps& getProps();
-  const QuadProps& getProps() const;
-
-  bool checkMouseDownEvent(int mouseX,
-                           int mouseY,
-                           int button,
-                           bmin::DynArray<UiElement*> additionalElements = {}) override;
-  bool checkMouseUpEvent(int mouseX,
-                         int mouseY,
-                         int button,
-                         bmin::DynArray<UiElement*> additionalElements = {}) override;
-  bool checkHoverEvent(int mouseX,
-                       int mouseY,
-                       bmin::DynArray<UiElement*> additionalElements = {}) override;
-  bool checkMouseWheelEvent(int mouseX,
-                            int mouseY,
-                            int delta,
-                            bmin::DynArray<UiElement*> additionalElements = {}) override;
-
-  void build() override;
-  void render(int dt) override;
-};
-
-} // namespace ui
-
-} // export
 
 namespace ui {
 
@@ -557,43 +400,6 @@ void Quad::render(int dt) {
 
 } // namespace ui
 
-export {
-
-// --- from ui/elements/SpriteElement.h ---
-namespace ui {
-
-struct SpriteElementProps {
-  int width = 0;
-  int height = 0;
-  bmin::String spriteName;
-};
-
-// Sprite element - renders a stylized sprite
-// Position/scale via setPos/setScale; size/sprite via props → build
-class SpriteElement : public UiElement {
-private:
-  SpriteElementProps props;
-  sdl2w::Sprite sprite;
-
-public:
-  SpriteElement(sdl2w::Window* _window, UiElement* _parent = nullptr);
-  ~SpriteElement() override = default;
-
-  void setProps(const SpriteElementProps& _props);
-  SpriteElementProps& getProps();
-  const SpriteElementProps& getProps() const;
-
-  // Convenience: sets sprite name and rebuilds
-  void setSprite(const bmin::String& name);
-  const sdl2w::Sprite& getSprite() const;
-
-  void build() override;
-  void render(int dt) override;
-};
-
-} // namespace ui
-
-} // export
 
 namespace ui {
 
@@ -656,70 +462,6 @@ void SpriteElement::render(int dt) {
 
 } // namespace ui
 
-export {
-
-// --- from ui/elements/TextLine.h ---
-// IWYU pragma: keep
-
-namespace ui {
-
-// Individual text block with optional style overrides
-struct TextBlock {
-  bmin::String text;
-
-  // Optional style overrides - if not set, uses TextLineProps defaults
-  std::optional<FontFamily> fontFamily;
-  std::optional<sdl2w::TextSize> fontSize;
-  std::optional<SDL_Color> fontColor;
-};
-
-// TextLine-specific properties
-struct TextLineProps {
-  bmin::DynArray<TextBlock> textBlocks;
-  FontFamily fontFamily = FontFamily::TEXT;
-  sdl2w::TextSize fontSize = sdl2w::TEXT_SIZE_16;
-  SDL_Color fontColor = Colors::Black;
-  TextAlign textAlign = TextAlign::LEFT_TOP;
-};
-
-struct TextLineRenderTextParams {
-  bmin::String text;
-  sdl2w::RenderTextParams params;
-};
-
-// TextLine element - renders a stylized line of text
-class TextLine : public UiElement {
-private:
-  TextLineProps props;
-  bmin::DynArray<bmin::UniquePtr<TextLineRenderTextParams>> textRenderables;
-
-  sdl2w::RenderTextParams makeRenderTextParams(const TextBlock& block) const;
-
-public:
-  TextLine(sdl2w::Window* _window, UiElement* _parent = nullptr);
-  ~TextLine() override = default;
-
-  // Static utility method to convert FontFamily to font name
-  static bmin::String getFontNameFromFamily(FontFamily fontFamily);
-
-  void setProps(const TextLineProps& _props);
-  TextLineProps& getProps();
-  const TextLineProps& getProps() const;
-
-  // Position is baked into renderables during build
-  void setPos(int x, int y) override;
-  void setScale(float scale) override;
-
-  std::pair<int, int> calculateTextDims() const;
-  const std::pair<int, int> getDims() const override;
-
-  void build() override;
-  void render(int dt) override;
-};
-
-} // namespace ui
-
-} // export
 
 namespace ui {
 
@@ -867,51 +609,6 @@ void TextLine::render(int dt) {
 
 } // namespace ui
 
-export {
-
-// --- from ui/elements/VerticalList.h ---
-// IWYU pragma: keep
-
-namespace ui {
-
-struct VerticalListProps {
-  int width = 0;
-  int lineHeight = 20;
-  int lineGap = 2;
-  SDL_Color bgColor = SDL_Color{255, 255, 255, 0};
-};
-
-// VerticalList element - renders an opinionated list of UiElements
-class VerticalList : public UiElement {
-private:
-  VerticalListProps props;
-  int selectedIndex = -1;
-
-public:
-  VerticalList(sdl2w::Window* _window, UiElement* _parent = nullptr);
-  ~VerticalList() override = default;
-
-  void setProps(const VerticalListProps& _props);
-  VerticalListProps& getProps();
-  const VerticalListProps& getProps() const;
-
-  void setSelectedIndex(int index);
-  int getSelectedIndex() const;
-  void clearSelection();
-
-  void addListItem(UiElement* item);
-  void addListItems(const bmin::DynArray<UiElement*>& items);
-  void removeListItemAtIndex(size_t index);
-
-  const std::pair<int, int> getDims() const override;
-
-  void build() override;
-  void render(int dt) override;
-};
-
-} // namespace ui
-
-} // export
 
 namespace ui {
 

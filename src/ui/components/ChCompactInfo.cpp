@@ -8,10 +8,7 @@ module;
 #include <SDL2/SDL_pixels.h>
 #endif
 
-module carcer.ui.widgets.views;
-import sdl2w;
-import bmin.string_interop;
-import carcer.ui.core;
+module carcer.ui.widgets.foundation;
 #include "macros.h"
 
 namespace ui {

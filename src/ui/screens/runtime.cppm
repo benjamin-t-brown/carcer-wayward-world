@@ -13,7 +13,7 @@ export import carcer.model;
 export import carcer.state;
 export import bmin.containers;
 export import carcer.lib.StringUtil;
-export import carcer.ui.widgets.composites;
+export import carcer.ui.widgets;
 import sdl2w;
 import carcer.actions;
 import bmin.string_interop;

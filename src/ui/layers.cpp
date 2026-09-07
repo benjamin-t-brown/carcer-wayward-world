@@ -11,7 +11,7 @@ module;
 
 module carcer.ui.layers;
 import carcer.ui.screens.runtime;
-import carcer.ui.widgets.composites;
+import carcer.ui.widgets;
 import carcer.model;
 import carcer.data;
 import carcer.state;

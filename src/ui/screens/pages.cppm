@@ -15,7 +15,7 @@ export import carcer.model;
 export import carcer.data;
 export import carcer.state;
 export import carcer.ui.core;
-export import carcer.ui.widgets.composites;
+export import carcer.ui.widgets;
 export import carcer.ui.screens.layouts;
 import bmin.string_interop;
 import sdl2w;
