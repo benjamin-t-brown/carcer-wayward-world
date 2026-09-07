@@ -138,7 +138,12 @@ else
 endif
 
 # Game flags = project warnings + sdl2w module flags (adds -std=c++23 -fmodules-ts -I…).
-CARCER_CXXFLAGS = $(FLAGS) $(SDL2W_CXXFLAGS) -Imodules
+ifeq ($(TARGET),wasm)
+  SDL2_CXXFLAGS =
+else
+  SDL2_CXXFLAGS ?= $(shell sdl2-config --cflags 2>/dev/null)
+endif
+CARCER_CXXFLAGS = $(FLAGS) $(SDL2W_CXXFLAGS) $(SDL2_CXXFLAGS) -Imodules
 CARCER_LDLIBS = $(SDL2W_LDLIBS)
 
 CARCER_BMI_OBJS = $(shell cat modules/bmi_objs.list 2>/dev/null)

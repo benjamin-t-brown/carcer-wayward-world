@@ -3,7 +3,8 @@
 #include <cstdlib>
 #include <memory>
 #include <string_view>
-import carcer;
+import carcer.game.map;
+import carcer.state;
 import sdl2w;
 import bmin.string_interop;
 #include "macros.h"

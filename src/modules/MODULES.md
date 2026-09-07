@@ -1,571 +1,234 @@
 # Carcer C++ modules
 
-Carcer ships as C++23 named modules (`carcer.*`). This doc is the contract for
-how the tree is organised, how to import across it, and how the build graph works.
+Carcer ships as C++23 named modules (`carcer.*`). This document describes the
+current module boundaries, import policy, and build graph.
 
-> **Migration status (2026-09):** the v2 migration has replaced the static-data,
-> runtime-model, and action partition forests with declarations-only public
-> interfaces backed by coarse implementation units. `carcer.actions` is now
-> one command interface; its concrete action classes are private implementation
-> details. `carcer.layers` and
-> `carcer.ui.pages` are fully unified with no exceptions; see §6a for the two
-> GCC bugs that blocked them and how each was actually resolved (not worked
-> around). `scripts/modules/partitionize_folder.py` and
-> `consolidate_module.py` do the mechanical conversion for any future folder
-> consolidation; `scripts/modules/gen_bmi_makefile.py` regenerates the build
-> graph and is a permanent tool (see §6), not a migration one-shot.
+Migration status (2026-09): phases 1–6 of `MODULES_V2_PLAN.md` are complete.
+The original class-per-module experiment has been reduced to 26 interfaces and
+117 import edges. Data, model, actions, and UI now expose domain-sized APIs;
+concrete action and layer implementations are private.
 
-## 1. Why modules here
+## 1. Design goals
 
-Modules replaced headers for two payoffs:
+Modules provide isolation only when the exported surface is intentional, and
+compile-time leverage only when the dependency graph is shallow. The original
+185-micro-module tree recreated the header dependency graph as serialized BMI
+work and made `import carcer;` invalidate almost everything.
 
-- **Isolation.** No include-order fragility, no macro leakage, and names that
-  aren't `export`ed have module linkage — genuinely invisible outside, so no ODR
-  landmines.
-- **Build speed.** An interface is parsed once into a BMI; importers load the
-  BMI instead of re-parsing text.
+The current rules are:
 
-Both payoffs need a **shallow, wide** dependency graph. 185 micro-modules in a
-deep chain gave neither (the graph was as deep as the old `#include` graph, and
-`import carcer;` everywhere dragged the whole closure). Hence **folder-sized
-modules** plus the umbrella, like `sdl2w.window` / `sdl2w.draw`. The former
-`carcer.actions.world_effects` and `carcer.world_updater` cycle breakers were
-first folded into the world-action domain, then subsumed by the single
-`carcer.actions` module once concrete actions became private.
-`carcer.model` is now database-independent: map-character construction belongs
-to `carcer.game.map`, combat-party population to `carcer.game.combat`, and
-equipment/inventory rules that require item templates to
-`carcer.game.inventory`.
+- A supported module is a cohesive domain API, not one class or one source
+  file.
+- Interface files primarily contain declarations. Put bodies in grouped
+  implementation units when the compiler supports that shape reliably.
+- Implementation classes use module linkage unless another domain genuinely
+  needs their type.
+- Import the narrowest owning domain. The `carcer` umbrella exists for the
+  entry point during migration, not as a default dependency.
+- Dependency edges point from orchestration toward rules and data, never from
+  lower-level state or rules back toward actions or UI.
 
-## 2. The layering
+## 2. Supported boundaries and layering
 
-Dependencies point **down** this list. An arrow pointing up is a design smell —
-fix it by moving the shared type down (usually into `carcer.data` or
-`carcer.ui.core`) or by routing through an interface seam:
-`StateManagerInterface`, `DatabaseInterface`, `LayerManagerInterface`.
+Dependencies point down this table.
 
-| Layer | Modules | Role |
+| Layer | Supported modules | Responsibility |
 |---|---|---|
-| 0 Foundations | `carcer.lib.Json`, `carcer.lib.StringUtil`, `carcer.lib.hiscore.hiscore` (+ external `sdl2w`, `bmin`) | pure utilities: json, strings, hiscore. No game knowledge. |
-| 1 Static data | `carcer.data`, `carcer.game.map.TileFields` (leaf) | immutable definitions mirrored from `assets/db`. |
-| 2 Data access | `carcer.db` | loads templates, owns lookup registries. |
-| 3 Runtime model | `carcer.model` | the mutable store shape: live characters, maps, items, world, combat state. |
-| 4 Rules | `carcer.game.map`, `carcer.game.combat`, `carcer.game.inventory`, `carcer.in3` | pure-ish logic over explicit model/database inputs; compute results, don't own state. Independent siblings. |
-| 5 State kernel | `carcer.state` | store + `ActionBus` + `AbstractAction` base + interface seams + `LayerRequest`/`layerStack`. Small, stable, universally depended on. |
-| 6 Actions / orchestration | `carcer.actions` | one exported command API over private action implementations. Commands mutate state, call rules, and enqueue timed follow-ups; the frame updater is a sibling implementation unit. |
-| 7 UI widgets | `carcer.ui.core` → `carcer.ui.elements` → `carcer.ui.components` → `carcer.ui.layouts` → `carcer.ui.{minipages,popups,pages}` (+ `carcer.ui.helpers`, `carcer.ui.lists`, `carcer.ui.KeyboardHeldScroll`, `carcer.ui.ObserverRemoveLayer`, `carcer.ui.ObserverSpecialEvent`) | framework → primitives → game-aware composites → screens. Read model/state to render; enqueue actions on interaction. |
-| 8 Screen stack | `carcer.layers` | `LayerManager` owns the stack; each `Layer*` binds a UI page + input + its state slice. One module, 15 partitions (`Layer`, `LayerManager`, and 13 `LayerX` screens), one file per class, no exceptions — see §6a for why that took two attempts. |
-| 9 Entry | `carcer` umbrella, `main.cpp` | umbrella used only by `main` + tests. |
+| Foundations | `carcer.lib.Json`, `carcer.lib.StringUtil`, `carcer.lib.hiscore.hiscore`, external `sdl2w` and `bmin` | Generic utilities and platform wrappers. |
+| Static data | `carcer.data`, `carcer.game.map.TileFields` | Immutable definitions and leaf tile-field types. |
+| Data access | `carcer.db` | Template loading and lookup registries. |
+| Runtime model | `carcer.model` | Mutable characters, maps, items, world, and combat state. |
+| Rules | `carcer.game.map`, `carcer.game.combat`, `carcer.game.inventory`, `carcer.in3` | Logic over explicit model/database inputs. |
+| State kernel | `carcer.state` | Store, action queue/bus, interfaces, and UI request data. |
+| Commands | `carcer.actions` | Public command factories over private action implementations and frame orchestration. |
+| UI foundation | `carcer.ui.core` | Scaling, pixels, colors, styles, `UiElement`, and general UI utilities. |
+| UI widgets | `carcer.ui.widgets` | Primitives, controls, views, and game-aware composites. |
+| Screens | `carcer.ui.screens` | Layouts, overlays, pages, screen runtime, and the layer stack. |
+| Entry | `carcer` | Temporary umbrella consumed by `main.cpp`. |
 
-**Frame flow:** input → `LayerManager` → active `Layer` → widget `onClick`
-submits an owning `state::actions::Command` → `StateManager` drains the queue,
-each private action mutates `State` / calls rules / enqueues follow-ups and
-publishes a stable `ActionEvent` to observers →
-`WorldUpdater` ticks time-based logic → `LayerManager.render` → widgets read the
-new state and draw.
+The frame flow is input → `LayerManager` → active `Layer` → widget callback →
+`state::actions::Command` → `StateManager` → rules/model mutation →
+`WorldUpdater` → layer render.
 
-`carcer.in3` (special-event / dialogue-trigger scripting, named for the
-*Imagine Nation* lineage) holds event state such as "awaiting a dialogue choice".
-UI reads that state to render dialogue / signs / modals and, on interaction,
-enqueues an action that calls back into `in3` to advance it. `in3` therefore
-**never imports `carcer.actions` in its interface**.
+Actions request screen changes through `state::LayerRequest`; they do not
+import UI. `LayerManager` consumes those requests from the screen side of the
+boundary.
 
-**Layers as a function of state.** `carcer.actions` never imports
-`carcer.layers` (there'd be no acyclic order — `layers` sits above `actions`).
-Instead an action that wants to open/close a screen pushes/removes a
-`state::LayerRequest` on `State::uiState.layerStack`
-(`pushLayerRequest()`/`removeLayerRequest()` in `carcer.state`).
-`LayerManager::update()` is meant to reconcile its live `Layer*` stack against
-`layerStack` each frame (construct/destroy to match, resolving a request's
-`itemId`/`eventId` fields back to real objects via `state`/`db` at that point).
-**That reconciler body, and `main.cpp`'s `StateManager`/`LayerManager`
-construction + per-frame wiring, are not implemented yet** — both are
-TODO-marked at their integration points; this is real game-loop feature work,
-out of scope for the modules conversion. `__test__/ui/layers/TestLayerWorld.cpp`
-shows the intended per-frame shape (`layerManager->update(dt);
-stateManager.update(dt); … layerManager->render(dt);`).
+## 3. UI organisation
 
-## 3. What is (and isn't) a module
+The supported UI surface is exactly three facades:
 
-- **A module is a directory of cohesive code** — roughly, something you could
-  ship as a static lib with a documented surface.
-- Two pieces of code go in **separate modules** when they differ in *change
-  frequency* or *dependency footprint*, even if related — a module is the unit
-  of rebuild invalidation. They share a module (as partitions) when they change
-  together and share downstream deps.
-  - `carcer.state` vs `carcer.actions`: the kernel is small, stable, and
-    depended on by everything; actions are numerous, churny, and drag in
-    `game` + `model`. Separate.
-  - `carcer.in3` vs `carcer.game.*`: narrower footprint (`lib` + `model` only),
-    different cadence (a scripting VM, not spatial/combat mechanics). Separate.
-  - `carcer.actions`: action classes are deliberately not shipping boundaries.
-    The module exports move-only command handles and named factories; world,
-    combat, inventory, and UI implementations share one module so their timed
-    follow-ups remain private. This removes the old five-module, 74-interface
-    action graph without exposing cross-domain implementation types.
-  - `carcer.layers`: the screen stack is genuinely one module — every
-    `LayerX` (15 of them, `Layer` and `LayerManager` included) is a
-    partition, each in its own file. A UI-observer helper that needed to
-    call back into `LayerSpecialEvent` briefly forced `Layer` and
-    `LayerSpecialEvent` out into their own modules to work around a GCC bug
-    (§6a); the actual fix was relocating that helper to `carcer.ui.*` (it
-    belonged there anyway — see `carcer.ui.ObserverRemoveLayer` in the
-    layering table above, the existing precedent for a UI observer), which
-    let `carcer.layers` go back to being one module.
-- If two folders turn out to be mutually dependent at folder granularity (e.g.
-  an element imports a button while a button imports an element), that's **one
-  module**, not two with a forced layer. (`carcer.ui.elements` absorbs its
-  `buttons/` subfolder for exactly this reason.)
-
-## 4. File layout & partition mechanics
-
-The tree intentionally uses two layouts. Stable, broad domains use one small
-public interface plus ordinary implementation units:
-
-```
-src/<folder>/_<folder>.cppm    export module carcer.<folder>;  // declarations
-src/<folder>/behavior.cpp      module carcer.<folder>;         // definitions
+```cpp
+import carcer.ui.core;
+import carcer.ui.widgets;
+import carcer.ui.screens;
 ```
 
-`carcer.data`, `carcer.model`, and `carcer.actions` use this coarse form. It
-keeps ordinary bodies out of BMIs, makes an implementation edit a local object
-rebuild, and prevents classes that are merely implementation strategy from
-becoming import-graph nodes. In particular, `_actions.cppm` exports commands;
-`actions.cpp` owns all private action classes and `world/WorldUpdater.cpp` owns
-frame orchestration.
+`carcer.ui.widgets` reexports four cohesive implementation modules:
 
-The UI and layer domains still use primary interfaces that re-export class
-partitions. Their current shape is:
-
-```
-src/<folder>/_<folder>.cppm    export module carcer.<folder>;
-                               export import :Thing;
-src/<folder>/Thing.cppm        export module carcer.<folder>:Thing;
+```text
+carcer.ui.widgets.primitives
+carcer.ui.widgets.controls
+carcer.ui.widgets.views
+carcer.ui.widgets.composites
 ```
 
-**Every "look here first for this folder" interface is prefixed `_`**. The
-leading underscore has no compiler meaning and is not part of the module name;
-it only keeps the primary interface easy to find in a directory listing.
+`carcer.ui.screens` reexports five:
 
-**Not every root-level `.cppm` needs it.** A handful of modules are
-standalone leaves that happen to share a directory with other, unrelated
-modules — `game/map/TileFields.cppm` (sibling to `_map.cppm`, its own
-module), `lib/Json.cppm` / `lib/StringUtil.cppm` (no unifying `carcer.lib`
-folder-module to be "the" file for), `ui/KeyboardHeldScroll.cppm` /
-`ui/ObserverRemoveLayer.cppm` / `ui/ObserverSpecialEvent.cppm` (standalone
-modules living directly under `ui/`, distinct from its real barrel,
-`_core.cppm`). These already have specific, self-explanatory names — there's
-no "which file is the one for this folder" ambiguity to resolve, so leave
-them alone.
+```text
+carcer.ui.screens.runtime
+carcer.ui.screens.layouts
+carcer.ui.screens.overlays
+carcer.ui.screens.pages
+carcer.ui.screens.layers
+```
 
-Do not infer that each class deserves a partition. A public partition is useful
-only when it creates a meaningful API or rebuild boundary. Prefer declarations
-in a coarse interface and grouped `.cpp` bodies for cohesive data, model, rule,
-and orchestration code. The remaining class-per-partition UI tree is the input
-to Phase 6, not the target pattern for new modules.
+These dotted modules are build-organisation units. Application code and tests
+should use the facades unless they are themselves implementing the UI
+subsystem. They are standalone modules rather than standard partitions because
+GCC 15 produced corrupt external BMI data when the entire UI was represented
+as one very large interface/partition set. Dedicated external-import probes
+protect the facade shape on GCC and Clang.
 
-A partition's body can be:
-- **Inline**, in the same file as the declaration (the common case).
-- **Out-of-line but still in the same file, after `} // export`** (still
-  non-exported / module-linkage-only) — used where a class's declaration and
-  definition are naturally kept apart for readability (e.g. every `LayerX` in
-  `carcer.layers` — see the file-format note in §2/§6a).
-- **In a sibling `.cpp` implementation unit**, when a body needs something its
-  own partition's declaration-time position in the build order can't see. An
-  implementation unit implicitly imports its module's primary interface unit,
-  so it sees every sibling partition regardless of declared order. The whole
-  module graph must still be acyclic: GCC rejects importing a module that
-  depends on the implementation unit's own module as "cannot import module in
-  its own purview." Put genuinely shared deferred types in a lower-level module
-  instead. The action consolidation avoids this problem entirely: deferred
-  world/combat effects are private classes inside the same module rather than
-  exported types connected by cross-module imports.
-- Two bodies **must** stay in a `.cpp` regardless of anything else —
-  `ChCompactInfo`, `ListMagicSpells` — their nested `bmin::DynArray` shapes
-  corrupt GCC GCMs when inline.
+Concrete `LayerX` classes in `carcer.ui.screens.layers` have module linkage.
+Code outside the implementation uses `Layer`, `LayerManager`, and the exported
+construction functions:
 
-Partition names are **flat** — `carcer.ui.elements:Quad`, never dotted after
-the `:` (GCC BMI stability). The primary unit of a partitioned module only
-`export import`s partitions — no code of its own beyond what's needed to
-curate the surface.
-- Namespaces (`ui::`, `state::`, …) are unchanged by any of this. Modules are the
-  shipping boundary; namespaces are the naming one.
+```cpp
+layers::createWorldLayer(window, mapScale);
+layers::createInventoryLayer(window);
+layers::createPickUpLayer(window);
+```
 
-## 5. Import rules
+Add another factory or registration seam when a new external caller truly
+needs to create a screen. Do not export the concrete layer merely for a test.
 
-- **Production `.cpp` / `.cppm` import the specific domain modules they use**
-  (`import carcer.model;`, `import carcer.ui.elements;`). Do **not**
-  `import carcer;` outside `main.cpp` and `src/__test__/` — the umbrella
-  `export import`s every domain and flattens all isolation. (Verified
-  2026-09: no production `.cpp` currently does this — the rule is a guardrail
-  for new code, not a pending cleanup.)
-- `main.cpp` and tests may `import carcer;` for convenience.
-- **Never mix** classic `#include "bmin/…"` / `#include "sdl2w/…"` headers with
-  `import bmin.*` / `import sdl2w;` in the same TU.
-- **Include ordering.** Textually `#include <std-header>` *after* an `import`
-  whose reachable code already included that header makes GCC choke
-  (`redefinition of 'std::__is_constant_evaluated'` and similar). So:
-  - in a `.cppm`, put std `#include`s in the global module fragment
-    (`module;` … before `export module`);
-  - in a `.cpp` / `main.cpp`, put all `#include`s at the very top, before any
-    `import`.
-  - `#include "macros.h"` is the deliberate exception — it only `#define`s
-    (`TRANSLATE`, `LOG`, `THROW_RUNTIME_ERROR`), so it goes *after*
-    `import sdl2w;`. It's found via `-Imodules`. `TRANSLATE` must stay a macro
-    (L10nScanner greps sources for it).
-- External deps: `sdl2w` + bundled `bmin` are consumed as prebuilt modules via
-  `lib/sdl2w/modules/make/use.mk` (populated by `copy-sdl2w-artifacts.sh`).
-  Flags and BMIs come from `use.mk` — don't hand-roll include paths to them.
+## 4. File layout
+
+Broad domains use a small public interface and ordinary implementation units:
+
+```text
+src/actions/_actions.cppm      export module carcer.actions;
+src/actions/actions.cpp        module carcer.actions;
+src/actions/world/WorldUpdater.cpp
+```
+
+The same pattern is used by `carcer.data`, `carcer.model`, and most rule/state
+domains. An underscore on a facade filename only keeps the entry file easy to
+find; it is not part of the module name.
+
+The consolidated UI currently has this shape:
+
+```text
+src/ui/_core.cppm
+src/ui/_widgets.cppm
+src/ui/widgets/{primitives,controls,views,composites}.cppm
+src/ui/_screens.cppm
+src/ui/screens/{runtime,layouts,overlays,pages,layers}.cppm
+```
+
+`UiElement.cpp`, `FontScale.cpp`, `KeyboardHeldScroll.cpp`, helper `.cpp`
+files, `LayerManager.cpp`, and `ChCompactInfo.cpp` remain implementation units
+where out-of-line code is useful or avoids a known GCC GCM issue.
+
+Do not infer that a new class needs a new module interface. Add it to the
+cohesive owning interface and move substantial bodies to an implementation
+unit when practical.
+
+## 5. Import and source rules
+
+- Production and tests import the narrowest supported domain they use. No test
+  should import `carcer`; `main.cpp` is its only intended consumer while the
+  umbrella remains.
+- Internal UI implementation may import a grouped dotted module to avoid
+  making GCC traverse a facade back into its own implementation graph.
+- Never mix classic BMIN/SDL2W headers with their named modules in the same
+  translation unit.
+- Put standard-library includes in a module interface's global module fragment
+  (`module;` before `export module`). In ordinary `.cpp` files, put textual
+  includes before imports.
+- `macros.h` is the deliberate exception: it only defines project macros and
+  remains after module imports. `TRANSLATE` must stay a macro because the
+  localization scanner finds it textually.
+- Namespaces and module ownership are separate. Existing `ui::`, `state::`,
+  and `model::` namespaces do not imply matching micro-modules.
 
 ## 6. Build graph
 
-Two toolchains, two module models:
+CMake/Ninja is the primary compiler-scanned build:
 
-| | native | wasm |
-|---|---|---|
-| compiler | `g++` (UCRT64) | `em++` / Clang |
-| flag | `-std=c++23 -fmodules-ts` | `-std=c++23` (Clang rejects `-fmodules-ts`) |
-| BMI | `gcm.cache/` (auto-discovered) | `pcm.cache/*.pcm` via `--precompile` + `-fprebuilt-module-path` |
-| partition BMI file | automatic | `pcm.cache/carcer.<mod>-<Part>.pcm` (`:` → `-`) |
-| driven by | `src/modules/make/build-bmi.mk` | `src/modules/make/build-bmi-em.mk` (not yet built for `carcer` — wasm is deferred, see below) |
+```sh
+cmake --preset gcc-debug
+cmake --build --preset gcc-debug -j 8
+ctest --preset gcc-debug
 
-For CMake, configure and build Clang through `cmake --preset clang-debug` and
-`cmake --build --preset clang-debug`. The preset supplies the Homebrew LLVM
-`PATH`; regenerating that tree with a bare build command from a different
-environment can otherwise resolve `/usr/bin/clang++`, which lacks
-`clang-scan-deps`.
+cmake --preset clang-debug
+cmake --build --preset clang-debug -j 8
+ctest --preset clang-debug
+```
 
-Both are generated by `scripts/modules/gen_bmi_makefile.py` from the
-`export module` / `import` / `import :part` edges in the `.cppm` files. Ordering
-rules: a module's partitions compile before its primary interface unit; a module
-compiles before anything that imports it; `carcer` (umbrella) is last. The BMI
-step runs `-j1`; `.cpp` implementation units and the final link are parallel.
+The legacy GCC Make path remains available from `src/`:
 
-**`gen_bmi_makefile.py` is a permanent tool, not a migration one-shot.** The
-original plan assumed it'd be replaced by a hand-written makefile once the
-module count dropped substantially. While the remaining modules are still
-partitioned, regenerating from the actual `export module`/`import` graph is
-less error-prone than hand-maintaining module prerequisite edges, especially
-since partition-to-partition ordering (e.g.
-`carcer.ui.pages:PageModalEvent` needing `:PageTalkChoice` built first, or
-several UI screen partitions needing sibling widgets built first)
-is exactly the kind of edge that's easy to get wrong manually. Rerun it after
-any change to cross-module `import` edges.
+```sh
+make -j8
+```
 
-- Stamp contract: `gcm.cache/.carcer-ready` (`$(CARCER_BMI_STAMP)`) gates
-  whether the BMI submake needs to run at all; it does **not** gate individual
-  `.cpp` recompiles directly (see below).
-- `src/modules/{bmi_objs.list,cppm_sources.list,module_order.txt}` are
-  regenerated alongside the makefile; the top `Makefile` reads the first two.
-- Caches: `gcm.cache/` (GCC BMIs), `pcm.cache/` (Clang PCMs), `.carcer-bmi/`
-  `.sdl2w-bmi/` `.bmin-bmi/` (objects). Never share `gcm.cache` between
-  compilers. `make clean` wipes them; the next build rebuilds sdl2w BMIs then
-  carcer BMIs before any `.cpp`.
-- **wasm for `carcer`'s new module graph is deferred.** `lib/sdl2w`'s
-  `build-bmi-em.mk` is the existing reference for the two-phase
-  `--precompile` → `.pcm` → `.o` shape; `carcer`'s wasm build graph needs the
-  same treatment once wasm work resumes.
+The Make BMI graph is generated from module declarations and imports:
 
-### 6c. Per-file `.cpp` → BMI dependencies, and a real GNU Make scheduling gap
+```sh
+python3 scripts/modules/gen_bmi_makefile.py
+```
 
-Every `.cpp` implementation unit used to depend on the single coarse
-`$(CARCER_BMI_STAMP)` file, so touching *any one* `.cppm` anywhere forced
-*every* `.cpp` impl unit to recompile — correct, but far coarser than
-necessary. `gen_bmi_makefile.py` now also emits
-`src/modules/cpp_bmi_deps.mk`: for each `.cpp`, the specific
-`.carcer-bmi/*.o` objects it (or its own module's primary, which covers every
-sibling partition) actually imports, as prerequisite-only lines with no
-recipe — GNU Make unions these with the top Makefile's `%.o: %.cpp` pattern
-rule. `%.o: %.cpp` itself now takes `carcer-bmi` only as an *order-only*
-prerequisite (a `.carcer-bmi/%.o: | carcer-bmi` placeholder rule gives the top
-Makefile something to point at, since the real files are only ever produced by
-the recursive `build-bmi.mk` submake). Net effect: touching one leaf module
-now recompiles only the `.cpp` files that actually import it, not all of them.
+This updates:
 
-**Real bug found and fixed while wiring this up, not just a design nuance:**
-with a parallel (`-j>1`) build, a single `make` process can "consider" a
-`.cpp` target's `.carcer-bmi/*.o` prerequisite *before* a sibling target's
-dependency chain finishes rebuilding that same file as a recursive-submake
-side effect, and then use the pre-rebuild mtime for the first target's
-freshness check — confirmed directly with `make --debug=v` (a target's own
-"Finished prerequisites" trace reported a `.carcer-bmi/*.o` file as "older"
-immediately after a `--debug=v` line elsewhere in the *same run* showed that
-exact file being "Successfully remade"). This is a real GNU Make scheduling
-gap around a file that one target's order-only prerequisite recipe produces
-as a side effect while a *different* target references it as a normal
-prerequisite — not a misreading of the order-only docs, and not fixable by
-rearranging prerequisite order within one `make` process. The fix: `all` and
-`libcarcer`/`object_files` (the only real entry points — `object_files` is
-what every `run-*-tests-ucrt64.sh` script calls) now run `carcer-bmi` as its
-**own, already-exited `$(MAKE)` invocation** before recursing into a second,
-completely fresh `$(MAKE)` process to compile/link. The second process stats
-every BMI object for the first time (already final, never changing again
-during its own lifetime), so the race has no window to occur in. Verified
-stable across repeated leaf-touch rebuilds at both `-j8` and `-j16`, through
-both entry points.
+- `src/modules/make/build-bmi.mk`
+- `src/modules/cpp_bmi_deps.mk`
+- `src/modules/cppm_sources.list`
+- `src/modules/bmi_objs.list`
+- `src/modules/module_order.txt`
 
-### 6a. Known GCC 16 `-fmodules-ts` limits (and how to work around them)
+Regenerate after adding/removing an interface or changing an import edge. The
+current graph has 26 interfaces, 117 edges, critical depth 14, and maximum
+transitive fan-out 21.
 
-Two distinct failure modes were hit and diagnosed while consolidating. Both are
-GCC bugs/limits, not modeling mistakes — expect to hit them again when merging
-further, and use the same bisection technique.
+SDL2W and BMIN revisions are pinned in the repository-level `deps.lock` and
+materialized into `.deps/`/the consumer bundle by the bootstrap scripts. CMake
+and Make validate those revisions before building. On native Make builds,
+`sdl2-config --cflags` supplies the platform SDL include flags needed by UI
+interfaces that mention SDL types.
 
-1. **GCM corruption ("Bad file data") from too many partitions in one module.**
-   Folding ~22 small classes into one partitioned module corrupted the merged
-   BMI. Rough ceiling: **~17–20 partitions per module** for this GCC. Fix:
-   split the module (e.g. `carcer.ui.components` (17) + `carcer.ui.lists` (5)).
-2. **`cc1plus` internal compiler error (segfault) importing an externally
-   too-large/complex module** — **not** about the module's own partition
-   *count*, physical-merge-vs-partition shape, or total size. Pinned down (via
-   the probe-and-bisect technique) to a specific culprit: `LayerSpecialEvent`.
-   - First observed as `carcer.layers` (all 15 `LayerX` classes physically
-     merged into one TU) compiling standalone but segfaulting `cc1plus` on
-     **any external import**, confirmed with a one-line probe file
-     (`import carcer.layers;`).
-   - Retried as **partitions** instead of a physical merge (one file per
-     class, `carcer.layers:LayerX`, 15 partitions of one module) — same
-     crash, on the same minimal probe. This ruled out "single giant TU" as
-     the cause.
-   - Bisected by adding partitions to the primary one group at a time and
-     re-running the probe: 13 partitions (everything except
-     `LayerSpecialEvent`/`LayerWorld`) import fine; adding `LayerWorld` (14
-     partitions) still imports fine; adding `LayerSpecialEvent` instead (14
-     partitions, no `LayerWorld`) crashes every time. **`LayerSpecialEvent`
-     is the actual cause**, confirmed in isolation, independent of partition
-     count or which other classes are present.
-   - **Root cause, isolated down to one language construct.** Subtractively
-     bisected `LayerSpecialEvent`'s own content (not just which module it
-     sits in) by copying it into the crashing partition set and stripping
-     pieces, rebuilding + re-probing after each cut. Every "obviously heavy"
-     candidate tested clean in isolation — a by-value `in3::SpecialEventRunner`
-     member, a `bmin::Map<bmin::String, model::GameEvent>` parameter (itself
-     nesting a `bmin::DynArray<std::variant<...>>`), importing *two*
-     `carcer.ui.pages.*` modules at once — none of them reproduced the crash
-     on their own. What did: `LayerSpecialEvent` is the **only** `LayerX`
-     class that declares anything in `namespace ui { ... }` — two small
-     observer classes (`ObserverSpecialEventChoice`,
-     `ObserverSpecialEventContinue`), reopening `ui::` from inside a
-     `carcer.layers` partition, alongside its own `namespace layers { ... }`
-     declaration in the same file. Deleting just those two classes (with
-     their two call sites) made the crash disappear; replacing them with a
-     single trivial `namespace ui { struct Stub {}; }` — nothing else,
-     dropping the real members/imports entirely — **reproduced the crash on
-     its own**. So the trigger is exactly: *a partition of `carcer.layers`
-     contributing a declaration to `namespace ui`*, a namespace that's
-     already independently populated by the many separate `carcer.ui.*`
-     modules `carcer.layers` imports.
-   - This isn't simply "reopening a foreign namespace is unsafe," though —
-     the identical trivial stub, in an isolated one-file module unrelated to
-     `carcer.layers` (`import carcer.ui.core;` then
-     `export namespace ui { struct Stub {}; }`), imports externally with no
-     problem at all. The bug needs *both*: a large, many-partition, deeply
-     `carcer.ui.*`-connected module (`carcer.layers`, 13+ partitions) *and*
-     one of its partitions independently reopening `ui::`. Read as a GCC
-     internal limit: merging a namespace's member list across partitions
-     *and* across every imported module that also populates it apparently
-     has a complexity/recursion cost that only shows up at `carcer.layers`'s
-     scale — not a simple "never reopen a namespace from another module"
-     rule.
-   - This was also the root cause behind the `carcer.ui.pages` blocker
-     described below — both crashed at the same relative point,
-     `export import carcer.layers.LayerSpecialEvent;`, and both were
-     resolved by the same fix (confirmed once `LayerSpecialEvent` stopped
-     reopening `namespace ui`).
-   - **Real fix, not a workaround: the two observer classes didn't belong in
-     `carcer.layers` in the first place.** `ObserverSpecialEventChoice` /
-     `ObserverSpecialEventContinue` are UI event-observer classes (`ui::`),
-     and every other UI-domain observer in the codebase already lives in its
-     own `carcer.ui.*` module and reaches back into game state only through
-     the action bus, never by holding a raw pointer into a concrete `Layer`
-     — see `carcer.ui.ObserverRemoveLayer` for the existing precedent. The
-     two special-event observers were the one exception: they held a
-     `layers::LayerSpecialEvent*` back-pointer and called its methods
-     directly, which is both the layering smell that put a `ui::` namespace
-     declaration inside `carcer.layers` in the first place *and*, it turned
-     out, the literal trigger for the GCC bug above. Moved them to their own
-     module, `carcer.ui.ObserverSpecialEvent` (same shape as
-     `ObserverRemoveLayer`); they now enqueue `state::actions::
-     UiSelectSpecialEventChoice` / `UiContinueSpecialEvent` (broadcast-only
-     actions — no `act()` override, `LayerSpecialEvent` is the sole
-     subscriber via its existing `subscribeAction<>()`) instead of calling
-     back into the layer.
-   - With that done, `carcer.layers` no longer has *any* partition
-     contributing to `namespace ui` — and the crash is gone for real.
-     `carcer.layers` is genuinely one module, **15 partitions, no
-     exceptions**: `Layer` and `LayerSpecialEvent` are ordinary partitions
-     again, same as every other `LayerX`. Verified with a full
-     `make clean && make -j8` and the complete test suite (identical 26/12/43
-     baseline).
-   - **`carcer.ui.pages` was never the real problem — resolved.** It used to
-     crash `cc1plus` specifically when merged *and*
-     `carcer.layers.LayerSpecialEvent` was reachable from the same umbrella,
-     reproduced at the same relative point across three retests. Once
-     `LayerSpecialEvent` stopped independently reopening `namespace ui`
-     (previous bullet), that repro shape no longer applied — retried merging
-     `pages` into partitions (`carcer.ui.pages`, 5 partitions, one file per
-     class) with the probe-first discipline, and it built and imported
-     externally clean on the first try. This confirms `pages` itself was
-     never the culprit; it just happened to sit next to `LayerSpecialEvent`
-     in the umbrella's failure mode.
-   - Wiring it into the full tree *did* surface one real, separate bug: a
-     dead import in `MinipageEquipRunes.cppm`
-     (`import carcer.ui.pages.PageCharacter;`, confirmed unused — zero
-     `ui::Page*` references in the file, first flagged as dead back when
-     `pages` was still 5 modules and never cleaned up). `partitionize_folder.py`'s
-     repo-wide rewrite mechanically widened it to `import carcer.ui.pages;`
-     (the new merged module name), and pulling in the *entire* merged pages
-     closure from `carcer.ui.minipages`, itself imported deep inside the
-     large `carcer.layers` (via `LayerEquipRunes`), was enough on its own to
-     retrigger a `cc1plus` segfault — a third data point for the same class
-     of GCC limit: an unnecessarily wide import between two already-large
-     modules. Deleting the dead import (it cost nothing — it was never used)
-     fixed it. **Lesson:** a dead import that's cheap while pointing at a
-     single small module can become a real problem once the module on the
-     other end gets consolidated — worth clearing dead imports *before*
-     merging the module they point at, not just when they're first noticed.
-   - Verified: `make clean && make -j8` green, full test suite identical
-     26/12/43. `carcer.ui.pages` is now one module, 5 partitions, no
-     exceptions — every page has its own file, matching every other UI
-     domain.
+## 7. Tests and boundary checks
 
-**Bisection technique** (fast — seconds, not the 3-4 min full rebuild):
-targeted single-object builds via
-`make -f modules/make/build-bmi.mk CXX=g++ -j1 .carcer-bmi/<target>.o`, and
-for testing whether a *candidate merge* is externally importable before
-wiring it into the real tree, a minimal one-line probe `.cppm`
-(`import carcer.<candidate>;`) built the same way. Established discipline:
-**probe first, wire second** — every module split in Phase 4/5 was
-probe-tested for external importability before touching the umbrella or real
-consumers, after an earlier costly mistake of wiring first and bisecting a
-crash after the fact.
+The public interfaces have standalone import probes in
+`src/__test__/modules/`. The UI probes are:
 
-### 6b. Historical action coupling lessons
+- `ImportUiCore.cpp`
+- `ImportUiWidgets.cpp`
+- `ImportUiScreens.cpp`
 
-This section records the Phase 4 predecessor to the current action layout. In
-Phase 5 all five named action modules and their exported concrete classes were
-removed. Their useful lesson remains: distinguish an actual delayed behavior
-dependency from a class reference that merely performs a synchronous mutation.
+Keep a probe minimal: import the supported facade, instantiate or reference a
+small representative API, and link it outside the owning module target. A
+successful in-tree build alone is insufficient to catch corrupted or
+incomplete exported BMI data.
 
-`carcer.actions` used to be 4 partitions (`:combat`/`:world`/`:ui`/`:general`)
-each merging 16–33 unrelated classes into one file, specifically because 6 of
-those 71 classes' bodies needed a class from a different domain that their
-own partition's position in the build order couldn't see yet — the standard
-fix for that is a `.cpp` implementation unit (§4), but 6 classes needing one
-was also the reason the domains couldn't be split into their own top-level
-modules or given per-class partitions without exceeding the GCM ceiling
-(§6a). Splitting those 71 classes one-per-file (into
-`carcer.actions.{combat,world,general,ui,ui.layers}`) meant looking hard at
-each of the 6 first, because most of them turned out not to need the
-cross-domain reference at all:
+The regular CTest suite covers non-visual behavior. The `carcer_ui_tests`
+CMake target compiles and links all 43 UI programs even though those programs
+are not registered as headless runtime tests.
 
-- **4 were fake coupling.** `EndCombat`, `SetActiveCombatCharacter`
-  (`combat`), `WorldExamineAt` (`world`), and `UiSelectSpellCast` (`ui`) each
-  constructed a sibling-domain action object purely to call `.execute(state)`
-  on it once, synchronously, right there — no deferral, no polymorphism
-  actually exercised. Two of the four target actions
-  (`WorldSetCamera`, the `UiShowLayerPickUp`-style `LayerRequest` push) were
-  trivial one-line state setters and got inlined directly, dropping the
-  cross-domain reference entirely. The third, `WorldSetActionMode`, has real
-  ~40 lines of branching logic (aim-tile targeting via
-  `game::findPartyAvatarOnActiveMap`) that two call sites needed without
-  duplicating it — extracted to a free function, `game::resolveWorldActionMode()`,
-  in `carcer.game.map` (a layer below `carcer.actions` that both `world` and
-  `ui` already import), so both call it directly with no module dependency
-  between them at all.
-- **2 are genuine.** `PerformMeleeAttack` and `PerformSpellCast` (`combat`)
-  use `insertAction(new WorldSpawnDamageParticle(...), delayMs)` — real
-  deferred, timed follow-ups queued through the same polymorphic action queue.
-  Those concrete types still exist, but now have module linkage inside
-  `carcer.actions`; they no longer create public interface edges.
+## 8. Adding or changing code
 
-**The test to apply when a body seems to need a cross-domain type:** does it
-construct that type and call `.execute()` on it immediately, in the same
-statement or nearly so? If yes, look at what that type's own `act()` actually
-does — if it's a small, self-contained mutation, it's very likely cheaper and
-clearer to inline that mutation (or, if two+ places need the exact same
-logic, extract a free function in whatever layer already sits below both)
-than to carry the cross-domain reference. Reach for a real `.cpp` impl unit
-only when the need is genuinely deferred/queued, or otherwise can't be
-satisfied by reading — not just constructing and immediately calling — the
-other domain's public surface.
+1. Choose the lowest cohesive domain that owns the behavior.
+2. Add declarations only when another domain needs them; keep implementation
+   types private.
+3. Import the narrow supported boundary, not `carcer`.
+4. Regenerate the Make graph when interfaces or imports change.
+5. Run the relevant public import probe before wiring a changed facade into
+   wider consumers.
+6. Build and test with both native compiler presets. During compatibility work,
+   also run the legacy Make build.
 
-**A base class can be fake coupling too, not just a body reference.**
-`carcer.actions.world`'s `WorldMovePlayer`, `TownEnemyAiAfterPlayerMove`,
-`TownEnemySeekAndMelee`, and `PerformTownMeleeAttack` all derived from a
-`CombatAction` class declared in `carcer.actions.combat` — the *entire*
-reason `world`'s interface needed `combat`'s interface. `CombatAction`
-turned out to provide zero actual behavior: its only members
-(`insertAction()`/`enqueueAction()` wrappers) were commented out and already
-duplicated on `AbstractAction` itself, and nothing anywhere used
-`CombatAction` polymorphically (no `dynamic_cast`, no `CombatAction*`
-container, no `typeid` check) — it was a pure compile-time tag, a fossil
-from before those two methods got hoisted onto the shared base. Deleted it;
-every former subclass now derives from `AbstractAction` directly. Same
-underlying lesson as the `.execute()` case above, one level up the
-hierarchy: before treating a shared base class as a reason two domains must
-depend on each other, check whether it actually contributes anything a
-plain `AbstractAction` doesn't.
-
-## 7. clangd
-
-Repo-root `.clangd` adds `-Isrc/modules` and the sdl2w/bmin module dirs.
-`--experimental-modules-support` belongs in `clangd.arguments`
-(`.vscode/settings.json`) **only**, never in `.clangd` `CompileFlags` (clang++
-rejects it and module scanning breaks). Regenerate `compile_commands.json` with
-`scripts/compile-commands.sh` after module changes, then restart the clangd
-server. First open of a module-heavy TU may index for a minute or two.
-
-## 8. Adding / changing code
-
-- **New class in an existing partitioned module** → add a partition
-  `export module carcer.<folder>:NewThing;` and one `export import :NewThing;`
-  line in `_<folder>.cppm` (the barrel). No new module. Regenerate the graph.
-- **New action behavior** → add or extend a named command factory in
-  `_actions.cppm`, then keep its concrete `AbstractAction` subclass private in
-  `actions.cpp`. Internal delayed follow-ups may construct private action
-  classes directly; do not export a class or add a module partition for them.
-- **New `LayerX` screen** → add a partition of `carcer.layers`, same as any
-  other partitioned module (first bullet) — own file, own
-  `export module carcer.layers:LayerX;`.
-- **A UI element/observer needs to react to something a specific `Layer`
-  does** → don't hold a pointer to the concrete `Layer` from `ui::` code.
-  Publish an `ActionEvent` (broadcast-only is fine — no state mutation needed)
-  and have the `Layer` subscribe to that event, same as
-  `carcer.ui.ObserverRemoveLayer` / `carcer.ui.ObserverSpecialEvent`. Besides
-  being the established decoupling pattern, a `ui::`-namespace declaration
-  living inside a `carcer.layers` partition is exactly what triggered the
-  GCC bug in §6a — keep observer classes in `carcer.ui.*`.
-- **New folder / subsystem** → new module. Place it in the layering (§2), add
-  its cross-module prerequisites, and add one `export import carcer.<new>;` to
-  the umbrella.
-- **Before merging classes into an existing module, or adding a new
-  `export import` to the umbrella**, if the module is already large (~15+
-  classes, or heavy classes like the `LayerX` screens): probe-test external
-  importability first with a minimal one-line probe file (§6a) — cheaper than
-  bisecting a `cc1plus` segfault after wiring it in for real.
-- **Before merging module `B` into a folder that other code already imports
-  narrowly from** — e.g. `import carcer.B.SomeLeaf;` — grep for dead imports
-  of `B`'s pieces first (`grep -rn "import carcer.B\." src`, then check each
-  hit is actually used). `partitionize_folder.py`'s repo-wide rewrite
-  mechanically widens `import carcer.B.SomeLeaf;` to `import carcer.B;` once
-  merged; a dead import that cost nothing pointed at a single small leaf can
-  become a real `cc1plus`-crash risk once it points at the whole merged
-  module instead (§6a, the `MinipageEquipRunes` case).
-- **Changed cross-module `import` edges** → rerun
-  `scripts/modules/gen_bmi_makefile.py`.
-- **Don't** create a new top-level module for a single type — that's what
-  partitions and the `carcer.*.core` modules are for.
-- **Converting a folder** to the partition shape:
-  `python scripts/modules/partitionize_folder.py --module carcer.<folder> --dir src/<folder>`
-  then `python scripts/modules/gen_bmi_makefile.py`, then build native + wasm.
-- **Merging a folder's classes into one interface unit** (shape (b), §4) when
-  partition count would exceed GCC's ceiling:
-  `scripts/modules/consolidate_module.py` — but check every source file for
-  **trailing non-exported content** (bodies defined after `} // export`)
-  first. The tool's per-file strip logic silently no-ops when a file has that
-  shape, producing a corrupted multi-closer merge (caught, at small and large
-  scale, by `grep -c "^} // export$" <merged file>` not equaling 1). For a
-  folder where every file has that shape (as with `layers/`), hand-roll the
-  merge instead: read each source at its git HEAD, locate its own
-  `export {`/`} // export` boundary explicitly, and reassemble declarations
-  into one block with bodies concatenated after.
+`scripts/modules/consolidate_module.py` remains a migration helper for
+mechanically combining old interfaces. Review its output for ownership and
+exports; it cannot decide the correct public API. The generated graph script is
+permanent build tooling and must remain after the migration scripts are
+eventually removed in Phase 8.

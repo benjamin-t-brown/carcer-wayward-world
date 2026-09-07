@@ -4,7 +4,7 @@
 #include <memory>
 #include <string_view>
 #include <cassert>
-import carcer;
+import carcer.ui.screens;
 import sdl2w;
 import bmin.string_interop;
 #include "macros.h"
@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
     layerManager = bmin::makeUnique<layers::LayerManager>(&window);
     state::LayerManagerInterface::setLayerManager(layerManager.get());
 
-    auto* layerPickUp = new layers::LayerPickUp(&window);
+    auto* layerPickUp = layers::createPickUpLayer(&window);
     // layerPickUp->setPickUpItemNames(GROUND_PICKUP_ITEMS);
     layerManager->addLayer(layerPickUp);
 

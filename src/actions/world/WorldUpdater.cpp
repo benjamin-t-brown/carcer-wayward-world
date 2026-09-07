@@ -8,7 +8,6 @@ module carcer.actions;
 import carcer.data;
 import carcer.game.map;
 import carcer.model;
-import carcer.ui.helpers;
 import bmin.string_interop;
 import sdl2w;
 #include "macros.h"
@@ -16,6 +15,13 @@ import sdl2w;
 namespace state {
 
 namespace {
+
+void deactivateHeldMove(StateManager& stateManager) {
+  auto nextHeldMove = stateManager.getState().uiState.heldMove;
+  nextHeldMove.isActive = false;
+  stateManager.pllAction(
+      stateManager.getActionData(), actions::updateHeldMove(nextHeldMove), 0);
+}
 
 bmin::String resolveFollowCharacterId(const State& state) {
   if (!state.world.camera.cameraFollowCharacterId.empty()) {
@@ -156,7 +162,7 @@ void worldProcessPendingTriggers(sdl2w::Window* window, StateManager& stateManag
   bool mapChanged = false;
 
   if (state.triggers.pendingSpecialEventId) {
-    ui::setHeldMoveActive(stateManager, false);
+    deactivateHeldMove(stateManager);
     auto eventId = *state.triggers.pendingSpecialEventId;
     state.triggers.pendingSpecialEventId.reset();
     auto specialEvent = state::actions::showLayerSpecialEvent(window, eventId);
@@ -164,7 +170,7 @@ void worldProcessPendingTriggers(sdl2w::Window* window, StateManager& stateManag
   }
 
   if (state.triggers.pendingTravel) {
-    ui::setHeldMoveActive(stateManager, false);
+    deactivateHeldMove(stateManager);
     auto travel = *state.triggers.pendingTravel;
     state.triggers.pendingTravel.reset();
     auto travelAction = state::actions::travel(travel);

@@ -4,7 +4,9 @@
 #include <memory>
 #include <string_view>
 #include <cassert>
-import carcer;
+import carcer.game.inventory;
+import carcer.db;
+import carcer.model;
 import sdl2w;
 import bmin.string_interop;
 #include "macros.h"

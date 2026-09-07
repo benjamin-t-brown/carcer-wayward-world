@@ -171,9 +171,25 @@ if(BUILD_TESTING AND NOT EMSCRIPTEN)
   target_link_libraries(carcer_import_probe_actions PRIVATE carcer_modules)
   add_test(NAME ImportActionsModule COMMAND carcer_import_probe_actions)
 
+  add_executable(carcer_import_probe_ui_core
+    "${CMAKE_SOURCE_DIR}/src/__test__/modules/ImportUiCore.cpp")
+  target_link_libraries(carcer_import_probe_ui_core PRIVATE carcer_modules)
+  add_test(NAME ImportUiCoreModule COMMAND carcer_import_probe_ui_core)
+
+  add_executable(carcer_import_probe_ui_widgets
+    "${CMAKE_SOURCE_DIR}/src/__test__/modules/ImportUiWidgets.cpp")
+  target_link_libraries(carcer_import_probe_ui_widgets PRIVATE carcer_modules)
+  add_test(NAME ImportUiWidgetsModule COMMAND carcer_import_probe_ui_widgets)
+
+  add_executable(carcer_import_probe_ui_screens
+    "${CMAKE_SOURCE_DIR}/src/__test__/modules/ImportUiScreens.cpp")
+  target_link_libraries(carcer_import_probe_ui_screens PRIVATE carcer_modules)
+  add_test(NAME ImportUiScreensModule COMMAND carcer_import_probe_ui_screens)
+
   add_custom_target(carcer_module_import_probes
     DEPENDS carcer_import_probe_data carcer_import_probe_model
-            carcer_import_probe_actions)
+            carcer_import_probe_actions carcer_import_probe_ui_core
+            carcer_import_probe_ui_widgets carcer_import_probe_ui_screens)
 
   function(carcer_add_test_executable test_source should_run)
     get_filename_component(test_name "${test_source}" NAME_WE)

@@ -1,6 +1,6 @@
 # Carcer C++ Modules v2 Implementation Plan
 
-Status: Phase 5 complete; ready for Phase 6
+Status: Phase 6 complete; ready for Phase 7
 Baseline commit: `95562b3` on `experiment/cpp-modules`  
 Date: 2026-09-05
 
@@ -58,11 +58,26 @@ Date: 2026-09-05
 - A narrow `carcer.actions` external-import probe and behavioral coverage now
   verify command ownership, sequential dispatch, semantic event delivery, and
   event payloads without naming a concrete action class.
+- Phase 6 replaces 94 UI/layer interfaces with 12 cohesive interfaces behind
+  three supported boundaries: `carcer.ui.core`, `carcer.ui.widgets`, and
+  `carcer.ui.screens`. Widgets and screens use a small facade over grouped
+  internal modules because both GCC 15 and Clang accept that shape, while GCC
+  corrupts the external BMI for a single very large facade implementation.
+- Concrete `LayerX` classes now have module linkage. The supported layer API
+  exposes `Layer`, `LayerManager`, and construction functions for the world,
+  inventory, and pickup layers used outside the screen implementation.
+- Tests no longer import the `carcer` umbrella. Three UI external-import
+  probes exercise the supported boundaries, and UI tests import the narrowest
+  public domain plus explicit game dependencies where needed.
+- After Phase 6 the generated Make graph contains 26 interfaces and 117 import
+  edges, with critical depth 14 and maximum transitive fan-out 21. The UI/layer
+  tree falls from 102 C++ source files (94 interfaces) to 20 (12 interfaces).
 - GCC 15.3 and Homebrew Clang 22.1.8 debug builds pass on the qualification
-  host. Thirty-three enabled native CTest entries (30 behavioral tests and
-  three narrow module-import probes) pass under both compilers, five stale
-  tests compile but are disabled, three tests call already-disabled production
-  APIs, and all 43 UI test programs compile and link with GCC.
+  host. Thirty-six enabled native CTest entries (30 behavioral tests and six
+  narrow module-import probes) pass under both compilers, five stale tests
+  compile but are disabled, three tests call already-disabled production APIs,
+  and all 43 UI test programs compile and link with both compilers. The legacy
+  GCC Make build also passes.
 - Emscripten presets are present, but the SDK is not installed on the
   qualification host; that platform remains unverified and must be closed
   during the Phase 3 pilot rather than deferred to final cleanup.
@@ -418,7 +433,7 @@ Refactor existing inversions by:
 
 ### Phase 5: Consolidate the action API
 
-Completed in the working tree after Phase 4 commit `e25ff69`.
+Completed in commit `ba41411` after Phase 4 commit `e25ff69`.
 
 Replace exported concrete action classes with a small command API. Timed
 internal actions may continue deriving from `AbstractAction`, but their types
@@ -453,6 +468,8 @@ behavioral tests before deleting each concrete exported action.
 
 ### Phase 6: Redesign UI exposure
 
+Completed in the working tree after Phase 5 commit `ba41411`.
+
 Consolidate UI into three public boundaries:
 
 ```text
@@ -474,6 +491,13 @@ Requirements:
   relevant module.
 - Run external-import probes during each UI consolidation to detect GCC issues
   before connecting the module to the full graph.
+
+Completion result: all three public boundaries have dedicated probes under
+both native compilers. The implementation uses four grouped widget modules and
+five grouped screen modules behind the facades; these are internal organisation
+units, not additional supported application-facing APIs. Concrete layers are
+private and tests that need a live layer construct one through an exported
+factory. No test imports the umbrella.
 
 ### Phase 7: Complete platform and compatibility coverage
 

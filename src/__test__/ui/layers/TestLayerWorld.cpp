@@ -3,7 +3,9 @@
 #include <cstdlib>
 #include <memory>
 #include <string_view>
-import carcer;
+import carcer.ui.screens;
+import carcer.actions;
+import carcer.game.map;
 import sdl2w;
 import bmin.string_interop;
 #include "macros.h"
@@ -83,8 +85,7 @@ int main(int argc, char** argv) {
     layerManager = bmin::makeUnique<layers::LayerManager>(&window);
     state::LayerManagerInterface::setLayerManager(layerManager.get());
 
-    auto* layerWorld = new layers::LayerWorld(&window);
-    layerWorld->setMapScale(2.f);
+    auto* layerWorld = layers::createWorldLayer(&window, 2.f);
     layerManager->addLayer(layerWorld);
 
     auto& events = window.getEvents();

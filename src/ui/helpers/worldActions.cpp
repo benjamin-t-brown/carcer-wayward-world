@@ -3,7 +3,7 @@ module;
 #include <cstdint>
 #include <utility>
 
-module carcer.ui.helpers;
+module carcer.ui.screens.runtime;
 import carcer.actions;
 import carcer.model;
 import carcer.state;

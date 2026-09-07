@@ -4,7 +4,7 @@
 #include <memory>
 #include <string_view>
 #include <cassert>
-import carcer;
+import carcer.ui.screens;
 import sdl2w;
 import bmin.string_interop;
 #include "macros.h"
@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
     layerManager = bmin::makeUnique<layers::LayerManager>(&window);
     state::LayerManagerInterface::setLayerManager(layerManager.get());
 
-    auto* layerInventory = new layers::LayerInventory(&window);
+    auto* layerInventory = layers::createInventoryLayer(&window);
     layerManager->addLayer(layerInventory);
 
     auto& events = window.getEvents();

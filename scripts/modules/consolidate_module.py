@@ -20,9 +20,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
 
-EXPORT_MOD_RE = re.compile(r"^export module ([\w.]+);", re.M)
-MODULE_RE = re.compile(r"^module ([\w.]+);", re.M)
+EXPORT_MOD_RE = re.compile(r"^export module ([\w.:]+);", re.M)
+MODULE_RE = re.compile(r"^module ([\w.:]+);", re.M)
 EXPORT_BRACE_RE = re.compile(r"^export \{", re.M)
+
+
+def display_path(path: Path) -> str:
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
 
 
 def parse_cppm(path: Path) -> dict:
@@ -34,10 +41,13 @@ def parse_cppm(path: Path) -> dict:
     head, rest = text[: m.start()], text[m.end() :]
     includes = re.findall(r"^#include .+$", head, re.M)
     em = EXPORT_BRACE_RE.search(rest)
-    if not em:
-        raise SystemExit(f"no export {{ in {path}")
-    preamble, body = rest[: em.start()], rest[em.end() :]
-    body = re.sub(r"\}\s*//\s*export\s*$", "", body.strip())
+    if em:
+        preamble, body = rest[: em.start()], rest[em.start() :].strip()
+    else:
+        # Primary aggregate units often contain only `export import`
+        # declarations. They still need to participate so their consumers are
+        # rewritten to the consolidated boundary.
+        preamble, body = rest, ""
     imports: list[str] = []
     for line in preamble.splitlines():
         s = line.strip()
@@ -48,9 +58,14 @@ def parse_cppm(path: Path) -> dict:
     return {"name": name, "path": path, "includes": includes, "imports": imports, "body": body}
 
 
-def import_target(line: str) -> str | None:
-    m = re.search(r"import ([\w.]+)\s*;", line)
-    return m.group(1) if m else None
+def import_target(line: str, owner: str | None = None) -> str | None:
+    m = re.search(r"import ([\w.:]+)\s*;", line)
+    if not m:
+        return None
+    target = m.group(1)
+    if target.startswith(":") and owner:
+        return owner.split(":", 1)[0] + target
+    return target
 
 
 def merge_units(units: list[dict], new_name: str) -> str:
@@ -66,8 +81,8 @@ def merge_units(units: list[dict], new_name: str) -> str:
             seen_inc.add(inc)
             includes.append(inc)
 
-    def add_import(line: str) -> None:
-        tgt = import_target(line)
+    def add_import(line: str, owner: str) -> None:
+        tgt = import_target(line, owner)
         if tgt is None or tgt in merged_names or tgt == new_name:
             return
         key = tgt
@@ -84,7 +99,7 @@ def merge_units(units: list[dict], new_name: str) -> str:
         for inc in u["includes"]:
             add_include(inc)
         for imp in u["imports"]:
-            add_import(imp)
+            add_import(imp, u["name"])
         bodies.append(u["body"].rstrip())
 
     export_imps = [x for x in imports if x.startswith("export import ")]
@@ -98,15 +113,22 @@ def merge_units(units: list[dict], new_name: str) -> str:
         + export_imps
         + plain_imps
         + macros
-        + ["", "export {", "", "\n\n".join(bodies), "", "} // export", ""]
+        + ["", "\n\n".join(body for body in bodies if body), ""]
     )
     return "\n".join(lines)
 
 
 def rewrite_imports(text: str, old_names: list[str], new_name: str) -> str:
+    owner_match = re.search(r"^(?:export )?module ([\w.:]+);", text, re.M)
+    owner_base = owner_match.group(1).split(":", 1)[0] if owner_match else None
     names = sorted(old_names, key=len, reverse=True)
     for old in names:
-        text = re.sub(rf"(?<![\w.]){re.escape(old)}(?![\w.])", new_name, text)
+        if owner_base and ":" in old and old.split(":", 1)[0] == owner_base:
+            relative = ":" + old.split(":", 1)[1]
+            text = re.sub(
+                rf"(?<=import ){re.escape(relative)}(?=\s*;)", new_name, text
+            )
+        text = re.sub(rf"(?<![\w.:]){re.escape(old)}(?![\w.:])", new_name, text)
     return text
 
 
@@ -123,17 +145,18 @@ def dedupe_import_lines(text: str) -> str:
     return "".join(out)
 
 
-def iter_rewrite_files() -> list[Path]:
+def iter_rewrite_files(roots: list[Path]) -> list[Path]:
     files: list[Path] = []
-    for p in SRC.rglob("*"):
-        if not p.is_file():
-            continue
-        rel = p.relative_to(SRC).as_posix()
-        if rel.startswith(("lib/sdl2w/", "lib/bmin/")):
-            continue
-        if p.suffix not in {".cpp", ".cppm", ".h", ".hpp"}:
-            continue
-        files.append(p)
+    for root in roots:
+        for p in root.rglob("*"):
+            if not p.is_file():
+                continue
+            rel = p.relative_to(root).as_posix()
+            if rel.startswith(("lib/sdl2w/", "lib/bmin/")):
+                continue
+            if p.suffix not in {".cpp", ".cppm", ".h", ".hpp"}:
+                continue
+            files.append(p)
     return files
 
 
@@ -142,6 +165,12 @@ def main() -> int:
     ap.add_argument("--name", required=True, help="new module name, e.g. carcer.layers")
     ap.add_argument("--out", required=True, help="output .cppm path relative to repo or src")
     ap.add_argument("sources", nargs="+", help="interface .cppm files to merge")
+    ap.add_argument(
+        "--rewrite-root",
+        action="append",
+        default=[],
+        help="additional source tree whose imports should be migrated",
+    )
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -195,9 +224,10 @@ def main() -> int:
                 continue
             lines.append(line)
         cpp.write_text("".join(lines), encoding="utf-8", newline="\n")
-        print(f"impl {cpp.relative_to(ROOT).as_posix()}")
+        print(f"impl {display_path(cpp)}")
 
-    for p in iter_rewrite_files():
+    rewrite_roots = [SRC] + [Path(root).resolve() for root in args.rewrite_root]
+    for p in iter_rewrite_files(rewrite_roots):
         if p.resolve() == out:
             continue
         if p.resolve() in {u["path"].resolve() for u in units}:
@@ -206,12 +236,12 @@ def main() -> int:
         text = rewrite_imports(orig, old_names, args.name)
         if text != orig:
             p.write_text(dedupe_import_lines(text), encoding="utf-8", newline="\n")
-            print(f"rewrite {p.relative_to(ROOT).as_posix()}")
+            print(f"rewrite {display_path(p)}")
 
     for u in units:
         if u["path"].resolve() != out:
             u["path"].unlink()
-            print(f"delete {u['path'].relative_to(ROOT).as_posix()}")
+            print(f"delete {display_path(u['path'])}")
 
     return 0
 

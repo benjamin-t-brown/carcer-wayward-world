@@ -5,7 +5,7 @@
 #include <string_view>
 #include <cassert>
 #include <iostream>
-import carcer;
+import carcer.ui.core;
 import sdl2w;
 import bmin.string_interop;
 #include "macros.h"

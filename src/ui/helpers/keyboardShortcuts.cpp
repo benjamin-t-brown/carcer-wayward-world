@@ -6,7 +6,7 @@ module;
 #include <string>
 #include <optional>
 
-module carcer.ui.helpers;
+module carcer.ui.screens.runtime;
 import carcer.model;
 import carcer.state;
 import bmin.string_interop;

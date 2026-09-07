@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <memory>
 #include <string_view>
-import carcer;
+import carcer.ui.widgets;
 import sdl2w;
 import bmin.string_interop;
 #include "macros.h"
