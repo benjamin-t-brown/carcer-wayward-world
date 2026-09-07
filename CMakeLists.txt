@@ -36,10 +36,15 @@ if(CARCER_ALLOW_DIRTY_DEPS)
   list(APPEND _carcer_dependency_check_args --allow-dirty)
 endif()
 
+# CMake on Windows cannot exec a shebang script directly, so always invoke the
+# bootstrap helpers through bash.
+find_program(CARCER_BASH_EXECUTABLE NAMES bash REQUIRED)
+
 set(_carcer_dependency_check_command
     "${CMAKE_COMMAND}" -E env
     "CARCER_DEPS_ROOT=${CARCER_DEPS_ROOT}"
     "CARCER_DEPS_LOCK=${CARCER_DEPS_LOCK}"
+    "${CARCER_BASH_EXECUTABLE}"
     "${CMAKE_SOURCE_DIR}/scripts/bootstrap-deps.sh"
     ${_carcer_dependency_check_args})
 
@@ -127,6 +132,28 @@ else()
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(SDL2_STACK REQUIRED IMPORTED_TARGET
     sdl2 SDL2_image SDL2_ttf SDL2_mixer SDL2_gfx)
+
+  if(WIN32)
+    # MSYS2's SDL2 pkg-config files rewrite main->SDL_main, link SDL2main, and
+    # select the GUI subsystem so that SDL2main's WinMain marks the main thread
+    # ready before calling the app. Carcer's entry translation units import the
+    # sdl2w module instead of including <SDL.h>, so the rewritten main() keeps
+    # C++ linkage and never satisfies SDL2main's `extern "C" SDL_main`. Drop that
+    # machinery from the usage requirements; the game target calls
+    # SDL_SetMainReady() itself (see cmake/win_sdl_main_ready.cpp).
+    get_target_property(_sdl2_opts PkgConfig::SDL2_STACK INTERFACE_COMPILE_OPTIONS)
+    list(REMOVE_ITEM _sdl2_opts "-Dmain=SDL_main")
+    set_property(TARGET PkgConfig::SDL2_STACK PROPERTY
+      INTERFACE_COMPILE_OPTIONS "${_sdl2_opts}")
+
+    get_target_property(_sdl2_libs PkgConfig::SDL2_STACK INTERFACE_LINK_LIBRARIES)
+    list(FILTER _sdl2_libs EXCLUDE REGEX "libSDL2main\\.a$")
+    set_property(TARGET PkgConfig::SDL2_STACK PROPERTY
+      INTERFACE_LINK_LIBRARIES "${_sdl2_libs}")
+
+    set_property(TARGET PkgConfig::SDL2_STACK PROPERTY INTERFACE_LINK_OPTIONS "")
+  endif()
+
   target_link_libraries(sdl2w_modules PUBLIC PkgConfig::SDL2_STACK)
 endif()
 
@@ -154,6 +181,9 @@ target_link_libraries(carcer_modules PUBLIC sdl2w_modules carcer_build_options)
 
 add_executable(CARCER "${CMAKE_SOURCE_DIR}/src/main.cpp")
 target_link_libraries(CARCER PRIVATE carcer_modules)
+if(WIN32)
+  target_sources(CARCER PRIVATE "${CMAKE_SOURCE_DIR}/cmake/win_sdl_main_ready.cpp")
+endif()
 
 if(EMSCRIPTEN)
   target_link_options(CARCER PRIVATE
@@ -173,7 +203,8 @@ endif()
 
 if(BUILD_TESTING AND NOT EMSCRIPTEN)
   add_test(NAME ModuleArchitecture
-    COMMAND "${CMAKE_SOURCE_DIR}/scripts/modules/check_ui_architecture.sh")
+    COMMAND "${CARCER_BASH_EXECUTABLE}"
+            "${CMAKE_SOURCE_DIR}/scripts/modules/check_ui_architecture.sh")
 
   add_executable(carcer_import_probe_data
     "${CMAKE_SOURCE_DIR}/src/__test__/modules/ImportData.cpp")

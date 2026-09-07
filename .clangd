@@ -1,3 +1,9 @@
 CompileFlags:
   Add:
     - -std=c++23
+  # GCC-only module flags in the compile database that clangd (clang) rejects.
+  # Dropping them lets clangd's own module scanner run.
+  Remove:
+    - -fmodules-ts
+    - -fmodule-mapper=*
+    - -fdeps-format=*
