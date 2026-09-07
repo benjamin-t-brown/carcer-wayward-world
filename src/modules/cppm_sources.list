@@ -2,7 +2,6 @@ data/data.cppm
 game/map/TileFields.cppm
 lib/Json.cppm
 lib/StringUtil.cppm
-lib/hiscore/_hiscore.cppm
 in3/_in3.cppm
 model/model.cppm
 db/_db.cppm

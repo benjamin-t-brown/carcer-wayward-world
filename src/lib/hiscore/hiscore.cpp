@@ -4,7 +4,7 @@ module;
 #include <utility>
 #include <stdexcept>
 
-module carcer.lib.hiscore.hiscore;
+module carcer.data;
 import carcer.lib.StringUtil;
 import bmin.containers;
 import bmin.string_interop;

@@ -39,7 +39,7 @@ in3/StringEvaluator.o: .carcer-bmi/carcer.in3.o
 layers/Layer.o: .carcer-bmi/carcer.lib.StringUtil.o .carcer-bmi/carcer.ui.layers.o
 layers/LayerManager.o: .carcer-bmi/carcer.ui.layers.o
 lib/Json.o: .carcer-bmi/carcer.lib.Json.o
-lib/hiscore/hiscore.o: .carcer-bmi/carcer.lib.StringUtil.o .carcer-bmi/carcer.lib.hiscore.hiscore.o
+lib/hiscore/hiscore.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.lib.StringUtil.o
 main.o: .carcer-bmi/carcer.o
 model/characters.o: .carcer-bmi/carcer.model.o
 model/combat.o: .carcer-bmi/carcer.model.o

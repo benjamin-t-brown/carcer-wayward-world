@@ -2,7 +2,6 @@ carcer.data
 carcer.game.map.TileFields
 carcer.lib.Json
 carcer.lib.StringUtil
-carcer.lib.hiscore.hiscore
 carcer.in3
 carcer.model
 carcer.db

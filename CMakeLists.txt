@@ -172,6 +172,9 @@ if(EMSCRIPTEN)
 endif()
 
 if(BUILD_TESTING AND NOT EMSCRIPTEN)
+  add_test(NAME ModuleArchitecture
+    COMMAND "${CMAKE_SOURCE_DIR}/scripts/modules/check_ui_architecture.sh")
+
   add_executable(carcer_import_probe_data
     "${CMAKE_SOURCE_DIR}/src/__test__/modules/ImportData.cpp")
   target_link_libraries(carcer_import_probe_data PRIVATE carcer_modules)

@@ -1164,4 +1164,18 @@ double timerStructGetPct(const TimerStruct& timer);
 
 } // namespace model
 
+// Persisted application score data is part of the data boundary; it does not
+// need a standalone module with no consumers.
+namespace hiscore {
+
+struct HiscoreRow {
+  bmin::String name;
+  int score;
+};
+
+bmin::DynArray<HiscoreRow> getHighScores();
+void saveHighScores(const bmin::DynArray<HiscoreRow>& hiscores);
+
+} // namespace hiscore
+
 } // export

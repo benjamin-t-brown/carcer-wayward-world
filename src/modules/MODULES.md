@@ -3,10 +3,10 @@
 Carcer ships as C++23 named modules (`carcer.*`). This document describes the
 current module boundaries, import policy, and build graph.
 
-Migration status (2026-09): phases 1–7 of `MODULES_V2_PLAN.md` and Phases 0–4
+Migration status (2026-09): phases 1–7 of `MODULES_V2_PLAN.md` and Phases 0–5
 of `MODULES_UI_FINALIZATION_PLAN.md` are complete.
-The original class-per-module experiment has been reduced to 21 interfaces and
-71 import edges. Data, model, actions, and UI now expose domain-sized APIs;
+The original class-per-module experiment has been reduced to 20 interfaces and
+70 import edges. Data, model, actions, and UI now expose domain-sized APIs;
 concrete action and layer implementations are private. Platform qualification
 and the literal artifact-size gate pass, but the final cold-build and graph-
 depth gates do not; Phase 8 is therefore not authorized yet.
@@ -37,7 +37,7 @@ Dependencies point down this table.
 
 | Layer | Supported modules | Responsibility |
 |---|---|---|
-| Foundations | `carcer.lib.Json`, `carcer.lib.StringUtil`, `carcer.lib.hiscore.hiscore`, external `sdl2w` and `bmin` | Generic utilities and platform wrappers. |
+| Foundations | `carcer.lib.Json`, `carcer.lib.StringUtil`, external `sdl2w` and `bmin` | Generic utilities and platform wrappers. |
 | Static data | `carcer.data`, `carcer.game.map.TileFields` | Immutable definitions and leaf tile-field types. |
 | Data access | `carcer.db` | Template loading and lookup registries. |
 | Runtime model | `carcer.model` | Mutable characters, maps, items, world, and combat state. |
@@ -163,6 +163,26 @@ unit when practical.
 - Namespaces and module ownership are separate. Existing `ui::`, `state::`,
   and `model::` namespaces do not imply matching micro-modules.
 
+### Intentional public re-exports
+
+Every remaining `export import` is part of a supported domain contract:
+
+- Domain interfaces re-export BMIN containers, and selected adjacent Carcer
+  domains, where those named types occur throughout their exported fields,
+  bases, return values, or templates. This preserves standalone imports rather
+  than forcing consumers to reconstruct an interface's implementation graph.
+- `carcer.ui.core`, `carcer.ui.screens`, and `carcer.ui.layers` re-export the
+  lower public UI/domain types used directly by their declarations. Screens do
+  not re-export layers, and layers privately import screens.
+- `carcer.ui.widgets` deliberately re-exports exactly `foundation`, `views`,
+  and `composites`. Those three declaration-only modules are compiler-sized
+  implementation of one supported facade, not consumer-facing boundaries.
+- `carcer` re-exports nothing. It is a narrow application entry contract.
+
+The architecture test rejects new root-module consumers, imports of internal
+widget units, screens-to-layers edges, lower-domain-to-UI edges, changes to the
+widget facade set, and subsystem re-exports from `carcer`.
+
 ## 6. Build graph
 
 CMake/Ninja is the primary compiler-scanned build:
@@ -220,7 +240,7 @@ This updates:
 - `src/modules/module_order.txt`
 
 Regenerate after adding/removing an interface or changing an import edge. The
-current graph has 21 interfaces, 71 edges, critical depth 10, and maximum
+current graph has 20 interfaces, 70 edges, critical depth 10, and maximum
 transitive fan-out 16.
 
 SDL2W and BMIN revisions are pinned in the repository-level `deps.lock` and

@@ -26,9 +26,6 @@ $(OBJDIR)/carcer.lib.Json.o: lib/Json.cppm | $(OBJDIR)
 $(OBJDIR)/carcer.lib.StringUtil.o: lib/StringUtil.cppm | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c lib/StringUtil.cppm -o $@
 
-$(OBJDIR)/carcer.lib.hiscore.hiscore.o: lib/hiscore/_hiscore.cppm | $(OBJDIR)
-	$(CXX) $(CARCER_BMI_FLAGS) -c lib/hiscore/_hiscore.cppm -o $@
-
 $(OBJDIR)/carcer.in3.o: in3/_in3.cppm $(OBJDIR)/carcer.data.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c in3/_in3.cppm -o $@
 
@@ -74,11 +71,11 @@ $(OBJDIR)/carcer.ui.screens.o: ui/_screens.cppm $(OBJDIR)/carcer.actions.o $(OBJ
 $(OBJDIR)/carcer.ui.layers.o: ui/_layers.cppm $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.screens.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c ui/_layers.cppm -o $@
 
-$(OBJDIR)/carcer.o: modules/_carcer.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.TileFields.o $(OBJDIR)/carcer.lib.Json.o $(OBJDIR)/carcer.lib.StringUtil.o $(OBJDIR)/carcer.lib.hiscore.hiscore.o $(OBJDIR)/carcer.in3.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.game.inventory.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.game.combat.o $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.widgets.foundation.o $(OBJDIR)/carcer.ui.widgets.composites.o $(OBJDIR)/carcer.ui.widgets.views.o $(OBJDIR)/carcer.ui.widgets.o $(OBJDIR)/carcer.ui.screens.o $(OBJDIR)/carcer.ui.layers.o | $(OBJDIR)
+$(OBJDIR)/carcer.o: modules/_carcer.cppm $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.TileFields.o $(OBJDIR)/carcer.lib.Json.o $(OBJDIR)/carcer.lib.StringUtil.o $(OBJDIR)/carcer.in3.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.game.inventory.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.game.combat.o $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.widgets.foundation.o $(OBJDIR)/carcer.ui.widgets.composites.o $(OBJDIR)/carcer.ui.widgets.views.o $(OBJDIR)/carcer.ui.widgets.o $(OBJDIR)/carcer.ui.screens.o $(OBJDIR)/carcer.ui.layers.o | $(OBJDIR)
 	$(CXX) $(CARCER_BMI_FLAGS) -c modules/_carcer.cppm -o $@
 
 clean:
 	rm -rf $(OBJDIR)
 
-CARCER_BMI_OBJ_LIST = $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.TileFields.o $(OBJDIR)/carcer.lib.Json.o $(OBJDIR)/carcer.lib.StringUtil.o $(OBJDIR)/carcer.lib.hiscore.hiscore.o $(OBJDIR)/carcer.in3.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.game.inventory.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.game.combat.o $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.widgets.foundation.o $(OBJDIR)/carcer.ui.widgets.composites.o $(OBJDIR)/carcer.ui.widgets.views.o $(OBJDIR)/carcer.ui.widgets.o $(OBJDIR)/carcer.ui.screens.o $(OBJDIR)/carcer.ui.layers.o $(OBJDIR)/carcer.o
+CARCER_BMI_OBJ_LIST = $(OBJDIR)/carcer.data.o $(OBJDIR)/carcer.game.map.TileFields.o $(OBJDIR)/carcer.lib.Json.o $(OBJDIR)/carcer.lib.StringUtil.o $(OBJDIR)/carcer.in3.o $(OBJDIR)/carcer.model.o $(OBJDIR)/carcer.db.o $(OBJDIR)/carcer.game.inventory.o $(OBJDIR)/carcer.game.map.o $(OBJDIR)/carcer.state.o $(OBJDIR)/carcer.game.combat.o $(OBJDIR)/carcer.actions.o $(OBJDIR)/carcer.ui.core.o $(OBJDIR)/carcer.ui.widgets.foundation.o $(OBJDIR)/carcer.ui.widgets.composites.o $(OBJDIR)/carcer.ui.widgets.views.o $(OBJDIR)/carcer.ui.widgets.o $(OBJDIR)/carcer.ui.screens.o $(OBJDIR)/carcer.ui.layers.o $(OBJDIR)/carcer.o
 

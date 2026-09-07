@@ -2,7 +2,6 @@
 .carcer-bmi/carcer.game.map.TileFields.o
 .carcer-bmi/carcer.lib.Json.o
 .carcer-bmi/carcer.lib.StringUtil.o
-.carcer-bmi/carcer.lib.hiscore.hiscore.o
 .carcer-bmi/carcer.in3.o
 .carcer-bmi/carcer.model.o
 .carcer-bmi/carcer.db.o

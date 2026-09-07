@@ -1,6 +1,6 @@
 # Carcer Module/UI Finalization Plan
 
-Status: Phase 4 complete; ready for Phase 5
+Status: Phase 5 implementation complete; Phase 6 qualification pending
 Pre-plan application commit: `0b661c3` (`Consolidate the UI module architecture`)
 Date: 2026-09-06
 
@@ -346,6 +346,22 @@ Exit criteria:
 - No forbidden upward import exists.
 - Touching a stable implementation rebuilds only its object and necessary
   links, not public BMIs.
+
+Completion record:
+
+- The unused standalone `carcer.lib.hiscore.hiscore` boundary was folded into
+  `carcer.data`, preserving its namespace and API while reducing the graph to
+  20 interfaces, 70 edges, critical depth 10, and maximum fan-out 16.
+- Every remaining `export import` was reviewed. Re-exports now represent types
+  deliberately exposed by domain declarations or the three compiler-sized
+  build units behind `carcer.ui.widgets`; `carcer` itself re-exports nothing.
+- The permanent architecture check now rejects upward UI edges, new consumers
+  of the application root, direct consumers of internal widget units, changes
+  to the widget facade set, and a root module that re-exports subsystems. It is
+  registered with CTest.
+- The regenerated legacy Make graph contains no migration adapter for the
+  removed hiscore interface. A hiscore implementation edit rebuilds its object
+  and required links without rebuilding a public BMI.
 
 ## Phase 6: final qualification and Phase 8 decision
 
