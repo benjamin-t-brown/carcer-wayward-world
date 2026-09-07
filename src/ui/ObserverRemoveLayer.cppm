@@ -35,7 +35,7 @@ public:
       return;
     }
     stateManager->enqueueAction(
-        stateManager->getActionData(), new state::actions::UiRemoveLayer(layerId), 0);
+        stateManager->getActionData(), state::actions::removeLayer(layerId), 0);
   }
 };
 } // namespace ui

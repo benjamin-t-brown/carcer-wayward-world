@@ -294,12 +294,20 @@ int main(int /*argc*/, char** /*argv*/) {
   {
     state::StateManager sm;
     auto& uiState = sm.getState().uiState;
+    bool removalEventObserved = false;
+    int owner = 0;
+    sm.getActionBus().subscribe(
+        &owner,
+        state::ActionEvent::UiRemoveFloatingNotification,
+        [&removalEventObserved](state::AbstractAction&, state::State&) {
+          removalEventObserved = true;
+        });
     state::UiFloatingNotification notification;
     notification.id = "dismissed";
     uiState.floatingNotifications.pushBack(std::move(notification));
 
     sm.enqueueAction(sm.getActionData(),
-                     new state::actions::UiRemoveFloatingNotification("dismissed"),
+                     state::actions::removeFloatingNotification("dismissed"),
                      0);
     sm.update(1);
 
@@ -309,6 +317,33 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertEqual(static_cast<int>(uiState.floatingNotificationRevision),
                      1,
                      "notification removal action increments revision") &&
+         ok;
+    ok = assertTrue(removalEventObserved,
+                    "command publishes its semantic action event") &&
+         ok;
+  }
+
+  // Semantic events carry the small payload needed by observers without
+  // exposing or downcasting to a private concrete action type.
+  {
+    state::StateManager sm;
+    int observedChoice = -1;
+    int owner = 0;
+    sm.getActionBus().subscribe(
+        &owner,
+        state::ActionEvent::UiSelectSpecialEventChoice,
+        [&observedChoice](state::AbstractAction& action, state::State&) {
+          observedChoice = action.getEventValue();
+        });
+
+    sm.enqueueAction(sm.getActionData(),
+                     state::actions::selectSpecialEventChoice(7),
+                     0);
+    sm.update(1);
+
+    ok = assertEqual(observedChoice,
+                     7,
+                     "semantic action event exposes choice payload") &&
          ok;
   }
 

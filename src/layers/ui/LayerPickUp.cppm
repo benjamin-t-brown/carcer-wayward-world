@@ -109,9 +109,9 @@ LayerPickUp::LayerPickUp(sdl2w::Window* _window) : Layer(_window, state::LayerId
 
   syncCurrentPartyMember();
 
-  subscribeAction<state::actions::UiSetCurrentPartyMember>(
+  subscribeAction<state::ActionEvent::UiSetCurrentPartyMember>(
       [this](auto&, auto&) { syncCurrentPartyMember(); });
-  subscribeAction<state::actions::UiPickUpItem>(
+  subscribeAction<state::ActionEvent::UiPickUpItem>(
       [this](auto&, auto&) { syncCurrentPartyMember(); });
 }
 
@@ -136,7 +136,7 @@ void LayerPickUp::onKeyDown(std::string_view key, int /*keyCode*/) {
         static_cast<int>(stateManager->getState().player.party.size())) {
       stateManager->enqueueAction(
           stateManager->getActionData(),
-          new state::actions::UiSetCurrentPartyMember(*partyIndex),
+          state::actions::setCurrentPartyMember(*partyIndex),
           0);
     }
     return;
@@ -149,7 +149,7 @@ void LayerPickUp::onKeyDown(std::string_view key, int /*keyCode*/) {
             static_cast<int>(minipagePickUp->getProps().nearbyItems.size())) {
       const auto& item = minipagePickUp->getProps().nearbyItems[*itemIndex];
       stateManager->enqueueAction(stateManager->getActionData(),
-                                  new state::actions::UiPickUpItem(item.id),
+                                  state::actions::pickUpItem(item.id),
                                   0);
     }
     return;
@@ -263,7 +263,7 @@ void LayerPickUp::update(int deltaTime) {
   closeEnqueued = true;
   stateManager->enqueueAction(
       stateManager->getActionData(),
-      new state::actions::UiRemoveLayer(state::LayerId::PickUp),
+      state::actions::removeLayer(state::LayerId::PickUp),
       0);
 }
 

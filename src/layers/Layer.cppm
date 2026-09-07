@@ -3,8 +3,6 @@ module;
 #include <cstdint>
 #include <string>
 #include <string_view>
-#include <typeindex>
-#include <typeinfo>
 #include <utility>
 
 export module carcer.layers:Layer;
@@ -64,17 +62,15 @@ public:
     return nullptr;
   }
 
-  template <typename ActionT, typename Fn> void subscribeAction(Fn&& fn) {
+  template <state::ActionEvent Event, typename Fn> void subscribeAction(Fn&& fn) {
     if (!hasStateManager()) {
       return;
     }
     getStateManager()->getActionBus().subscribe(
         this,
-        std::type_index(typeid(ActionT)),
+        Event,
         [fn = std::forward<Fn>(fn)](state::AbstractAction& action, state::State& state) {
-          if (auto* typed = dynamic_cast<ActionT*>(&action)) {
-            fn(*typed, state);
-          }
+          fn(action, state);
         });
   }
 

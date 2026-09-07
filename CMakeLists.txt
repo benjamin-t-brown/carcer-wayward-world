@@ -166,8 +166,14 @@ if(BUILD_TESTING AND NOT EMSCRIPTEN)
   target_link_libraries(carcer_import_probe_model PRIVATE carcer_modules)
   add_test(NAME ImportModelModule COMMAND carcer_import_probe_model)
 
+  add_executable(carcer_import_probe_actions
+    "${CMAKE_SOURCE_DIR}/src/__test__/modules/ImportActions.cpp")
+  target_link_libraries(carcer_import_probe_actions PRIVATE carcer_modules)
+  add_test(NAME ImportActionsModule COMMAND carcer_import_probe_actions)
+
   add_custom_target(carcer_module_import_probes
-    DEPENDS carcer_import_probe_data carcer_import_probe_model)
+    DEPENDS carcer_import_probe_data carcer_import_probe_model
+            carcer_import_probe_actions)
 
   function(carcer_add_test_executable test_source should_run)
     get_filename_component(test_name "${test_source}" NAME_WE)

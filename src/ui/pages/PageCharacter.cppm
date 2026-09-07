@@ -739,7 +739,7 @@ void ObserverShowLayerPopupText::onClick(int mouseX, int mouseY, int button) {
     }
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiShowLayerPopupText(window, title, helpText),
+        state::actions::showLayerPopupText(window, title, helpText),
         0);
   }
 

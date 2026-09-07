@@ -130,7 +130,7 @@ model::CharacterInstance* spawnAvatar(state::State& state, int x, int y) {
 }
 
 void move(state::State& state, int dx, int dy) {
-  auto action = state::actions::WorldMovePlayer(dx, dy);
+  auto action = state::actions::movePlayer(dx, dy);
   action.execute(&state);
 }
 

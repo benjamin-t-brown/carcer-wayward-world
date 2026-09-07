@@ -114,7 +114,7 @@ int main() {
   auto& state = stateManager.getState();
 
   state.mapInstances = game::createMapInstances(database);
-  state::actions::WorldLoadActiveMap("test_grid").execute(&state);
+  state::actions::loadActiveMap("test_grid").execute(&state);
 
   auto* enemy = findEnemyOnActive(state.world.activeMap);
   ok = assertTrue(enemy != nullptr, "enemy hoisted from template") && ok;
@@ -150,7 +150,7 @@ int main() {
         std::move(resurrected));
   }
 
-  state::actions::WorldLoadActiveMap("test_grid").execute(&state);
+  state::actions::loadActiveMap("test_grid").execute(&state);
 
   ok = assertTrue(findEnemyOnActive(state.world.activeMap) == nullptr,
                   "defeated enemy filtered on hoist") &&

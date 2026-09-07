@@ -615,7 +615,7 @@ void ObserverShowLayerEquipRunes::onClick(int /*mouseX*/, int /*mouseY*/, int /*
     }
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiShowLayerEquipRunes(window, characterPlayerId),
+        state::actions::showLayerEquipRunes(window, characterPlayerId),
         0);
   }
 
@@ -628,7 +628,7 @@ void ObserverSetSpellReady::onClick(int /*mouseX*/, int /*mouseY*/, int /*button
     }
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiSetSpellReady(characterPlayerId, spellName, ready),
+        state::actions::setSpellReady(characterPlayerId, spellName, ready),
         0);
   }
 
@@ -640,7 +640,7 @@ void ObserverToggleManaSlotRune::onClick(int /*mouseX*/, int /*mouseY*/, int /*b
     }
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiToggleManaSlotRune(characterPlayerId, slotIndex),
+        state::actions::toggleManaSlotRune(characterPlayerId, slotIndex),
         0);
   }
 

@@ -112,13 +112,13 @@ LayerMagic::LayerMagic(sdl2w::Window* _window) : Layer(_window, state::LayerId::
 
   syncMagicPartyMember();
 
-  subscribeAction<state::actions::UiSetCurrentPartyMemberMagic>(
+  subscribeAction<state::ActionEvent::UiSetCurrentPartyMemberMagic>(
       [this](auto&, auto&) { syncMagicPartyMember(); });
-  subscribeAction<state::actions::UiSetSpellReady>(
+  subscribeAction<state::ActionEvent::UiSetSpellReady>(
       [this](auto&, auto&) { syncMagicPartyMember(); });
-  subscribeAction<state::actions::UiCommitEquipRunes>(
+  subscribeAction<state::ActionEvent::UiCommitEquipRunes>(
       [this](auto&, auto&) { syncMagicPartyMember(); });
-  subscribeAction<state::actions::UiCancelEquipRunes>(
+  subscribeAction<state::ActionEvent::UiCancelEquipRunes>(
       [this](auto&, auto&) { syncMagicPartyMember(); });
 }
 
@@ -136,7 +136,7 @@ void LayerMagic::onKeyDown(std::string_view key, int /*keyCode*/) {
     if (*partyIndex < static_cast<int>(stateManager->getState().player.party.size())) {
       stateManager->enqueueAction(
           stateManager->getActionData(),
-          new state::actions::UiSetCurrentPartyMemberMagic(*partyIndex),
+          state::actions::setCurrentPartyMemberMagic(*partyIndex),
           0);
     }
     return;
@@ -147,7 +147,7 @@ void LayerMagic::onKeyDown(std::string_view key, int /*keyCode*/) {
   }
   stateManager->enqueueAction(
       stateManager->getActionData(),
-      new state::actions::UiRemoveLayer(state::LayerId::Magic),
+      state::actions::removeLayer(state::LayerId::Magic),
       0);
 }
 

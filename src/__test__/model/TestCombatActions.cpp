@@ -157,7 +157,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
   {
     stateManager.enqueueAction(stateManager.getActionData(),
-                               new state::actions::StartCombat(),
+                               state::actions::startCombat(),
                                0);
     tickState(stateManager, 1);
 
@@ -180,8 +180,8 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   {
-    state::actions::ModifyAP("ally-1", -2).execute(&stateManager.getState());
-    state::actions::ModifyHP("enemy-1", -5).execute(&stateManager.getState());
+    state::actions::modifyAP("ally-1", -2).execute(&stateManager.getState());
+    state::actions::modifyHP("enemy-1", -5).execute(&stateManager.getState());
 
     auto* ally = findOnActiveMap(stateManager.getState().world.activeMap, "ally-1");
     auto* enemy = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
@@ -210,7 +210,7 @@ int main(int /*argc*/, char** /*argv*/) {
         tile && !tile->fields.empty() ? tile->fields[0].moveDuration : -1;
     const auto startingMovementCount = currentState.playerMovementCount;
 
-    state::actions::GoNextCombatTurn nextTurn;
+    auto nextTurn = state::actions::goNextCombatTurn();
     nextTurn.execute(&currentState);
 
     ok = assertEqual(combat.activeTurnIndex, 0, "new round turn index") && ok;
@@ -241,7 +241,7 @@ int main(int /*argc*/, char** /*argv*/) {
     const auto startX = allyBefore ? allyBefore->x : -1;
     stateManager.enqueueAction(
         stateManager.getActionData(),
-        new state::actions::DoCombatAction("ally-1", model::CombatActionType::WAIT),
+        state::actions::doCombatAction("ally-1", model::CombatActionType::WAIT),
         0);
     for (int i = 0; i < 30; ++i) {
       tickState(stateManager, 50);
@@ -255,7 +255,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
   {
     stateManager.enqueueAction(stateManager.getActionData(),
-                               new state::actions::EndCombat(),
+                               state::actions::endCombat(),
                                0);
     tickState(stateManager, 1);
     ok = assertTrue(!stateManager.getState().world.combat.active, "combat ended") && ok;
@@ -268,10 +268,10 @@ int main(int /*argc*/, char** /*argv*/) {
   {
     state::StateManager soundStateManager;
     auto& soundState = soundStateManager.getState();
-    state::actions::PlaySound("punch1").execute(&soundState);
-    state::actions::PlaySound("punch1").execute(&soundState);
-    state::actions::PlaySound("whip").execute(&soundState);
-    state::actions::PlaySound("").execute(&soundState);
+    state::actions::playSound("punch1").execute(&soundState);
+    state::actions::playSound("punch1").execute(&soundState);
+    state::actions::playSound("whip").execute(&soundState);
+    state::actions::playSound("").execute(&soundState);
 
     ok = assertEqual(static_cast<int>(soundState.soundsToPlay.size()),
                      2,

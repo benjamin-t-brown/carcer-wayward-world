@@ -116,14 +116,14 @@ LayerWorld::LayerWorld(sdl2w::Window* _window) : Layer(_window, state::LayerId::
   floatingNotificationSection->setId("floatingNotificationSection");
   addUiElement(floatingNotificationSection);
 
-  subscribeAction<state::actions::StartCombat>([this](auto&, auto&) { syncFromState(); });
-  subscribeAction<state::actions::EndCombat>([this](auto&, auto&) { syncFromState(); });
-  subscribeAction<state::actions::SetActiveCombatCharacter>(
+  subscribeAction<state::ActionEvent::StartCombat>([this](auto&, auto&) { syncFromState(); });
+  subscribeAction<state::ActionEvent::EndCombat>([this](auto&, auto&) { syncFromState(); });
+  subscribeAction<state::ActionEvent::SetActiveCombatCharacter>(
       [this](auto&, auto&) { syncFromState(); });
-  subscribeAction<state::actions::UiSetSelectedPartyMemberId>(
+  subscribeAction<state::ActionEvent::UiSetSelectedPartyMemberId>(
       [this](auto&, auto&) { syncFromState(); });
-  subscribeAction<state::actions::ModifyHP>([this](auto&, auto&) { syncFromState(); });
-  subscribeAction<state::actions::ModifyPartyMemberHp>(
+  subscribeAction<state::ActionEvent::ModifyHP>([this](auto&, auto&) { syncFromState(); });
+  subscribeAction<state::ActionEvent::ModifyPartyMemberHp>(
       [this](auto&, auto&) { syncFromState(); });
 
   syncFromState();
@@ -145,7 +145,7 @@ void LayerWorld::enqueueMapMove(state::StateManager& stateManager, int dx, int d
     }
     stateManager.enqueueAction(
         stateManager.getActionData(),
-        new state::actions::DoCombatAction(state.world.combat.activeCharacterId,
+        state::actions::doCombatAction(state.world.combat.activeCharacterId,
                                            model::CombatActionType::MOVE,
                                            {.targetLoc = {dx, dy}}),
         0);
@@ -155,7 +155,7 @@ void LayerWorld::enqueueMapMove(state::StateManager& stateManager, int dx, int d
     return;
   }
   stateManager.enqueueAction(
-      stateManager.getActionData(), new state::actions::WorldMovePlayer(dx, dy), 0);
+      stateManager.getActionData(), state::actions::movePlayer(dx, dy), 0);
 }
 
 void LayerWorld::enqueueCombatWait(state::StateManager& stateManager) {
@@ -163,7 +163,7 @@ void LayerWorld::enqueueCombatWait(state::StateManager& stateManager) {
     return;
   }
   stateManager.enqueueAction(stateManager.getActionData(),
-                             new state::actions::DoCombatAction(
+                             state::actions::doCombatAction(
                                  stateManager.getState().world.combat.activeCharacterId,
                                  model::CombatActionType::WAIT),
                              0);
@@ -231,14 +231,14 @@ void LayerWorld::confirmWorldActionAim(int tileX, int tileY) {
   if (actionMode == model::WorldActionMode::EXAMINE) {
     ui::setHeldMoveActive(*stateManager, false);
     stateManager->enqueueAction(stateManager->getActionData(),
-                                new state::actions::WorldExamineAt(window, tileX, tileY),
+                                state::actions::examineAt(window, tileX, tileY),
                                 0);
     return;
   }
   if (actionMode == model::WorldActionMode::TALK) {
     ui::setHeldMoveActive(*stateManager, false);
     stateManager->enqueueAction(
-        stateManager->getActionData(), new state::actions::WorldTalkAt(tileX, tileY), 0);
+        stateManager->getActionData(), state::actions::talkAt(tileX, tileY), 0);
     return;
   }
   if (actionMode != model::WorldActionMode::SPELL) {
@@ -288,14 +288,14 @@ void LayerWorld::confirmWorldActionAim(int tileX, int tileY) {
   ui::setHeldMoveActive(*stateManager, false);
   stateManager->enqueueAction(
       stateManager->getActionData(),
-      new state::actions::DoCombatAction(
+      state::actions::doCombatAction(
           world.combat.activeCharacterId,
           model::CombatActionType::SPELL,
           {.abilityId = world.pendingSpellId, .targetLoc = {tileX, tileY}}),
       0);
   stateManager->pllAction(
       stateManager->getActionData(),
-      new state::actions::WorldSetActionMode(model::WorldActionMode::NONE),
+      state::actions::setActionMode(model::WorldActionMode::NONE),
       0);
 }
 
@@ -368,7 +368,7 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
     ui::setHeldMoveActive(*stateManager, false);
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::WorldMoveActionAim(moveDelta->dx, moveDelta->dy),
+        state::actions::moveActionAim(moveDelta->dx, moveDelta->dy),
         0);
     return;
   }
@@ -392,7 +392,7 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
   model::timerStructRestart(nextHeldMove.initialDelay);
   model::timerStructRestart(nextHeldMove.moveDelay);
   stateManager->pllAction(stateManager->getActionData(),
-                          new state::actions::UiUpdateHeldMove(nextHeldMove),
+                          state::actions::updateHeldMove(nextHeldMove),
                           0);
   if (canEnqueueMove) {
     enqueueMapMove(*stateManager, moveDelta->dx, moveDelta->dy);
@@ -447,7 +447,7 @@ void LayerWorld::updateAimFromMouse(int x, int y) {
   }
   // Parallel so hover stays responsive even if sequential actions are waiting.
   stateManager->pllAction(stateManager->getActionData(),
-                          new state::actions::WorldSetActionAim(tile->x, tile->y),
+                          state::actions::setActionAim(tile->x, tile->y),
                           0);
 }
 
@@ -469,7 +469,7 @@ void LayerWorld::onMouseDown(int x, int y, int button) {
           if (auto tile = mapView->screenToTile(x, y)) {
             stateManager->enqueueAction(
                 stateManager->getActionData(),
-                new state::actions::WorldSetActionAim(tile->x, tile->y),
+                state::actions::setActionAim(tile->x, tile->y),
                 0);
             confirmWorldActionAim(tile->x, tile->y);
             return;

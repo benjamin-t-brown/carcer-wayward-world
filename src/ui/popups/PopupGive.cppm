@@ -278,7 +278,7 @@ void ObserverGiveInventoryItem::onClick(int mouseX, int mouseY, int button) {
     const int quantity = popupGive->getSelectedQuantity();
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiGiveInventoryItem(
+        state::actions::giveInventoryItem(
             fromCharacterPlayerId, toCharacterPlayerId, itemId, quantity),
         0);
   }

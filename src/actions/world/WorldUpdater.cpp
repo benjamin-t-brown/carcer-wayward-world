@@ -4,9 +4,7 @@ module;
 #include <utility>
 #include <cmath>
 
-module carcer.actions.world;
-import carcer.actions.combat;
-import carcer.actions.ui.layers;
+module carcer.actions;
 import carcer.data;
 import carcer.game.map;
 import carcer.model;
@@ -49,7 +47,7 @@ void enqueueCpuCombatTurn(StateManager& stateManager) {
 
   combat.isWaitingForAction = false;
   stateManager.enqueueAction(
-      stateManager.getActionData(), new actions::DoCPUCombatTurn(), 0);
+      stateManager.getActionData(), actions::doCPUCombatTurn(), 0);
 }
 
 void updateDamageParticles(model::World& world, sdl2w::Window* window, int deltaTimeMs) {
@@ -161,8 +159,7 @@ void worldProcessPendingTriggers(sdl2w::Window* window, StateManager& stateManag
     ui::setHeldMoveActive(stateManager, false);
     auto eventId = *state.triggers.pendingSpecialEventId;
     state.triggers.pendingSpecialEventId.reset();
-    state::actions::UiShowLayerSpecialEvent specialEvent =
-        state::actions::UiShowLayerSpecialEvent(window, eventId);
+    auto specialEvent = state::actions::showLayerSpecialEvent(window, eventId);
     specialEvent.execute(&state);
   }
 
@@ -170,7 +167,7 @@ void worldProcessPendingTriggers(sdl2w::Window* window, StateManager& stateManag
     ui::setHeldMoveActive(stateManager, false);
     auto travel = *state.triggers.pendingTravel;
     state.triggers.pendingTravel.reset();
-    state::actions::WorldTravel travelAction(travel);
+    auto travelAction = state::actions::travel(travel);
     travelAction.execute(&state);
     mapChanged = true;
   }

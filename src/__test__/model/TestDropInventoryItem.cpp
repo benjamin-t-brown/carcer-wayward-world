@@ -54,7 +54,7 @@ int main(int /*argc*/, char** /*argv*/) {
     state.player.party = {leader, companion};
     state.world.activeMap.characters = {makeMapCharacter("leader-id", 3, 4)};
 
-    state::actions::UiDropInventoryItem("companion-id", "potion-2").execute(&state);
+    state::actions::dropInventoryItem("companion-id", "potion-2").execute(&state);
 
     assert(state.player.party[1].inventory.empty());
     assert(state.world.activeMap.items.size() == 1);
@@ -78,7 +78,7 @@ int main(int /*argc*/, char** /*argv*/) {
         makeMapCharacter("companion-id", 5, 6),
     };
 
-    state::actions::UiDropInventoryItem("companion-id", "potion-2").execute(&state);
+    state::actions::dropInventoryItem("companion-id", "potion-2").execute(&state);
 
     assert(state.player.party[1].inventory.empty());
     assert(state.world.activeMap.items.size() == 1);

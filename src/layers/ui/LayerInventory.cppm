@@ -67,15 +67,15 @@ LayerInventory::LayerInventory(sdl2w::Window* _window) : Layer(_window, state::L
 
   syncInventoryPartyMember();
 
-  subscribeAction<state::actions::UiSetCurrentPartyMemberInventory>(
+  subscribeAction<state::ActionEvent::UiSetCurrentPartyMemberInventory>(
       [this](auto&, auto&) { syncInventoryPartyMember(); });
-  subscribeAction<state::actions::UiReorderInventoryItem>(
+  subscribeAction<state::ActionEvent::UiReorderInventoryItem>(
       [this](auto&, auto&) { syncInventoryPartyMember(); });
-  subscribeAction<state::actions::UiToggleEquipInventoryItem>(
+  subscribeAction<state::ActionEvent::UiToggleEquipInventoryItem>(
       [this](auto&, auto&) { syncInventoryPartyMember(); });
-  subscribeAction<state::actions::UiGiveInventoryItem>(
+  subscribeAction<state::ActionEvent::UiGiveInventoryItem>(
       [this](auto&, auto&) { syncInventoryPartyMember(); });
-  subscribeAction<state::actions::UiDropInventoryItem>(
+  subscribeAction<state::ActionEvent::UiDropInventoryItem>(
       [this](auto&, auto&) { syncInventoryPartyMember(); });
 }
 
@@ -94,7 +94,7 @@ void LayerInventory::onKeyDown(std::string_view key, int /*keyCode*/) {
         static_cast<int>(stateManager->getState().player.party.size())) {
       stateManager->enqueueAction(
           stateManager->getActionData(),
-          new state::actions::UiSetCurrentPartyMemberInventory(*partyIndex),
+          state::actions::setCurrentPartyMemberInventory(*partyIndex),
           0);
     }
     return;
@@ -105,7 +105,7 @@ void LayerInventory::onKeyDown(std::string_view key, int /*keyCode*/) {
   }
   stateManager->enqueueAction(
       stateManager->getActionData(),
-      new state::actions::UiRemoveLayer(state::LayerId::Inventory),
+      state::actions::removeLayer(state::LayerId::Inventory),
       0);
 }
 

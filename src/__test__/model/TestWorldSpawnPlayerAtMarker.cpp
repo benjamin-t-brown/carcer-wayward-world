@@ -63,7 +63,7 @@ int main(int /*argc*/, char** /*argv*/) {
     const auto partyId = state.player.party[0].instanceId;
 
     {
-      auto loadMap = state::actions::WorldLoadActiveMap("alinea_outsideAlinea1");
+      auto loadMap = state::actions::loadActiveMap("alinea_outsideAlinea1");
       loadMap.execute(&state);
     }
     ok = assertEqualStr(state.world.activeMap.gridId, "OutsideAlinea",
@@ -71,7 +71,7 @@ int main(int /*argc*/, char** /*argv*/) {
          ok;
 
     {
-      auto spawn = state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer");
+      auto spawn = state::actions::spawnPlayerAtMarker("MarkerPlayer");
       spawn.execute(&state);
     }
 
@@ -113,7 +113,7 @@ int main(int /*argc*/, char** /*argv*/) {
     const auto countAfterSpawn =
         static_cast<int>(state.world.activeMap.characters.size());
     {
-      auto spawn = state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer");
+      auto spawn = state::actions::spawnPlayerAtMarker("MarkerPlayer");
       spawn.execute(&state);
     }
     ok = assertEqual(static_cast<int>(state.world.activeMap.characters.size()),
@@ -122,7 +122,7 @@ int main(int /*argc*/, char** /*argv*/) {
          ok;
 
     {
-      auto spawn = state::actions::WorldSpawnPlayerAtMarker("Stairs1");
+      auto spawn = state::actions::spawnPlayerAtMarker("Stairs1");
       spawn.execute(&state);
     }
     ok = assertEqual(state.world.activeMap.mapLayer, 1, "mapLayer after Stairs1") && ok;

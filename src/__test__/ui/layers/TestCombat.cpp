@@ -132,9 +132,9 @@ int main(int argc, char** argv) {
     auto& state = stateManager.getState();
     state.mapInstances = game::createMapInstances(database);
 
-    auto loadMap = state::actions::WorldLoadActiveMap("combat_test1");
+    auto loadMap = state::actions::loadActiveMap("combat_test1");
     loadMap.execute(&state);
-    auto spawnPlayer = state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer");
+    auto spawnPlayer = state::actions::spawnPlayerAtMarker("MarkerPlayer");
     spawnPlayer.execute(&state);
 
     const bmin::DynArray<bmin::String> enemyTemplates = {"goblinTest"};
@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
 
     // Enqueue so SetActiveCombatCharacter (inserted by StartCombat) runs via update.
     stateManager.enqueueAction(
-        stateManager.getActionData(), new state::actions::StartCombat(), 0);
+        stateManager.getActionData(), state::actions::startCombat(), 0);
     stateManager.update(1);
     state::worldUpdate(nullptr, stateManager, 1);
   }

@@ -213,7 +213,7 @@ void ObserverSetCurrentPartyMember::onClick(int mouseX, int mouseY, int button) 
       return;
     }
     stateManager->enqueueAction(stateManager->getActionData(),
-                                new state::actions::UiSetCurrentPartyMember(partyMemberIndex),
+                                state::actions::setCurrentPartyMember(partyMemberIndex),
                                 0);
   }
 
@@ -226,7 +226,7 @@ void ObserverSetCurrentPartyMemberInventory::onClick(int mouseX, int mouseY, int
     }
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiSetCurrentPartyMemberInventory(partyMemberInventoryIndex),
+        state::actions::setCurrentPartyMemberInventory(partyMemberInventoryIndex),
         0);
   }
 
@@ -239,7 +239,7 @@ void ObserverSetCurrentPartyMemberMagic::onClick(int mouseX, int mouseY, int but
     }
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiSetCurrentPartyMemberMagic(partyMemberMagicIndex),
+        state::actions::setCurrentPartyMemberMagic(partyMemberMagicIndex),
         0);
   }
 

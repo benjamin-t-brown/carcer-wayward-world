@@ -154,11 +154,11 @@ public:
     addUiElement(pageMagicSetup.release());
 
     // Match LayerMagic: refresh page when selection or equip editor changes.
-    subscribeAction<state::actions::UiSetCurrentPartyMemberMagic>(
+    subscribeAction<state::ActionEvent::UiSetCurrentPartyMemberMagic>(
         [this](auto&, auto&) { syncFromCharacter(); });
-    subscribeAction<state::actions::UiCommitEquipRunes>(
+    subscribeAction<state::ActionEvent::UiCommitEquipRunes>(
         [this](auto&, auto&) { syncFromCharacter(); });
-    subscribeAction<state::actions::UiCancelEquipRunes>(
+    subscribeAction<state::ActionEvent::UiCancelEquipRunes>(
         [this](auto&, auto&) { syncFromCharacter(); });
   }
 };

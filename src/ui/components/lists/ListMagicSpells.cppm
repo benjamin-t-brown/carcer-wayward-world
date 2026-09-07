@@ -256,7 +256,7 @@ void ObserverSelectSpellCast::onClick(int /*mouseX*/, int /*mouseY*/, int /*butt
     return;
   }
   stateManager->enqueueAction(stateManager->getActionData(),
-                              new state::actions::UiSelectSpellCast(spellId, chId),
+                              state::actions::selectSpellCast(spellId, chId),
                               0);
 }
 
@@ -268,7 +268,7 @@ void ObserverShowLayerSpellInfo::onClick(int /*mouseX*/, int /*mouseY*/, int /*b
   }
   stateManager->enqueueAction(
       stateManager->getActionData(),
-      new state::actions::UiShowLayerSpellInfo(window, spellName),
+      state::actions::showLayerSpellInfo(window, spellName),
       0);
 }
 

@@ -399,7 +399,7 @@ void ObserverInventorySelectItem::onClick(int mouseX, int mouseY, int button) {
     }
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiToggleEquipInventoryItem(characterPlayerId, itemId),
+        state::actions::toggleEquipInventoryItem(characterPlayerId, itemId),
         0);
   }
 
@@ -412,7 +412,7 @@ void ObserverReorderInventoryItem::onClick(int mouseX, int mouseY, int button) {
     }
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiReorderInventoryItem(
+        state::actions::reorderInventoryItem(
             characterPlayerId, inventoryIndex, direction),
         0);
   }
@@ -425,7 +425,7 @@ void ObserverShowLayerInventoryContext::onClick(int mouseX, int mouseY, int butt
     }
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiShowLayerInventoryContext(window, itemName, itemId),
+        state::actions::showLayerInventoryContext(window, itemName, itemId),
         0);
   }
 

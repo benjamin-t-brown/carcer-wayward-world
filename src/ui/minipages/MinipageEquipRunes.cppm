@@ -471,7 +471,7 @@ void ObserverAdjustEquippedRune::onClick(int /*mouseX*/, int /*mouseY*/, int /*b
     }
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiAdjustEquippedRune(characterPlayerId, runeType, delta),
+        state::actions::adjustEquippedRune(characterPlayerId, runeType, delta),
         0);
   }
 
@@ -481,7 +481,7 @@ void ObserverCancelEquipRunes::onClick(int /*mouseX*/, int /*mouseY*/, int /*but
       return;
     }
     stateManager->enqueueAction(
-        stateManager->getActionData(), new state::actions::UiCancelEquipRunes(), 0);
+        stateManager->getActionData(), state::actions::cancelEquipRunes(), 0);
   }
 
 void ObserverCommitEquipRunes::onClick(int /*mouseX*/, int /*mouseY*/, int /*button*/) {
@@ -490,7 +490,7 @@ void ObserverCommitEquipRunes::onClick(int /*mouseX*/, int /*mouseY*/, int /*but
       return;
     }
     stateManager->enqueueAction(
-        stateManager->getActionData(), new state::actions::UiCommitEquipRunes(), 0);
+        stateManager->getActionData(), state::actions::commitEquipRunes(), 0);
   }
 
 } // namespace ui

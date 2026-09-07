@@ -1,5 +1,5 @@
-actions/combat/combat.o: .carcer-bmi/carcer.actions.combat.o .carcer-bmi/carcer.actions.general.o .carcer-bmi/carcer.actions.world.o .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.combat.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o
-actions/world/WorldUpdater.o: .carcer-bmi/carcer.actions.combat.o .carcer-bmi/carcer.actions.ui.layers.o .carcer-bmi/carcer.actions.world.o .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o .carcer-bmi/carcer.ui.helpers.o
+actions/actions.o: .carcer-bmi/carcer.actions.o .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.combat.o .carcer-bmi/carcer.game.inventory.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.lib.StringUtil.o .carcer-bmi/carcer.model.o .carcer-bmi/carcer.state.o
+actions/world/WorldUpdater.o: .carcer-bmi/carcer.actions.o .carcer-bmi/carcer.data.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.model.o .carcer-bmi/carcer.ui.helpers.o
 data/stats.o: .carcer-bmi/carcer.data.o
 data/templates.o: .carcer-bmi/carcer.data.o
 db/Database.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.db.o

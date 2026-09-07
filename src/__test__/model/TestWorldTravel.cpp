@@ -57,12 +57,12 @@ int main(int /*argc*/, char** /*argv*/) {
     const auto partyId = state.player.party[0].instanceId;
 
     {
-      auto loadMap = state::actions::WorldLoadActiveMap("alinea_outsideAlinea1");
+      auto loadMap = state::actions::loadActiveMap("alinea_outsideAlinea1");
       loadMap.execute(&state);
     }
     {
       // World coords on OutsideAlinea for local (1,1) on alinea_outsideAlinea1 → (31,1)
-      auto spawn = state::actions::WorldSpawnPlayerAtXY(31, 1);
+      auto spawn = state::actions::spawnPlayerAtXY(31, 1);
       spawn.execute(&state);
     }
     ok = assertTrue(game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player) !=
@@ -76,7 +76,7 @@ int main(int /*argc*/, char** /*argv*/) {
       travel.destinationMarkerName = "MarkerHouseFloor2";
       travel.destinationX = 0;
       travel.destinationY = 0;
-      state::actions::WorldTravel(travel).execute(&state);
+      state::actions::travel(travel).execute(&state);
     }
     ok = assertEqualStr(state.world.activeMap.gridId, "AlineaTest",
                         "grid after marker travel") &&
@@ -101,7 +101,7 @@ int main(int /*argc*/, char** /*argv*/) {
       travel.destinationMarkerName = "MissingMarkerDoesNotExist";
       travel.destinationX = 5;
       travel.destinationY = 6;
-      state::actions::WorldTravel(travel).execute(&state);
+      state::actions::travel(travel).execute(&state);
     }
     ok = assertEqualStr(state.world.activeMap.gridId, "OutsideAlinea",
                         "grid after XY fallback travel") &&
@@ -123,7 +123,7 @@ int main(int /*argc*/, char** /*argv*/) {
       travel.destinationMarkerName = "";
       travel.destinationX = 3;
       travel.destinationY = 4;
-      state::actions::WorldTravel(travel).execute(&state);
+      state::actions::travel(travel).execute(&state);
     }
     ok = assertEqualStr(state.world.activeMap.gridId, "AlineaTest",
                         "grid after empty-marker travel") &&
@@ -155,7 +155,7 @@ int main(int /*argc*/, char** /*argv*/) {
       travel.destinationX = 6;
       travel.destinationY = 7;
       travel.destinationLayer = 0;
-      state::actions::WorldTravel(travel).execute(&state);
+      state::actions::travel(travel).execute(&state);
     }
     ok = assertEqualStr(state.world.activeMap.gridId, "AlineaTest",
                         "grid unchanged after same-grid travel") &&
@@ -183,7 +183,7 @@ int main(int /*argc*/, char** /*argv*/) {
     }
 
     {
-      auto loadMap = state::actions::WorldLoadActiveMap("AlineaTest");
+      auto loadMap = state::actions::loadActiveMap("AlineaTest");
       loadMap.execute(&state);
     }
     ok = assertTrue(game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player) ==
@@ -191,7 +191,7 @@ int main(int /*argc*/, char** /*argv*/) {
                     "avatar wiped after WorldLoadActiveMap") &&
          ok;
     {
-      auto spawn = state::actions::WorldSpawnPlayerAtXY(2, 3);
+      auto spawn = state::actions::spawnPlayerAtXY(2, 3);
       spawn.execute(&state);
     }
     {

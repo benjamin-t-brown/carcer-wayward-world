@@ -231,7 +231,7 @@ int main(int /*argc*/, char** /*argv*/) {
     destTile.eventTrigger =
         model::TileEventTrigger{.eventId = "on_step", .requiresLook = false};
 
-    state::actions::WorldMovePlayer moveEast(1, 0);
+    auto moveEast = state::actions::movePlayer(1, 0);
     moveEast.execute(&state);
 
     ok = assertTrue(state.triggers.pendingSpecialEventId.has_value(),

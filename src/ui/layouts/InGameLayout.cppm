@@ -457,7 +457,7 @@ void ObserverSetSelectedPartyMemberId::onClick(int /*mouseX*/, int /*mouseY*/, i
               << LOG_ENDL;
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiSetSelectedPartyMemberId(partyMemberId),
+        state::actions::setSelectedPartyMemberId(partyMemberId),
         0);
   }
 

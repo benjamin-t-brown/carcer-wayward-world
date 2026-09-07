@@ -83,7 +83,7 @@ int main(int /*argc*/, char** /*argv*/) {
     state.world.camera.cameraMode = model::CameraMode::Follow;
     placeAvatar(state, 2, 2);
 
-    state::actions::WorldSetActionMode setExamine(model::WorldActionMode::EXAMINE);
+    auto setExamine = state::actions::setActionMode(model::WorldActionMode::EXAMINE);
     setExamine.execute(&state);
 
     ok = assertTrue(state.world.actionMode == model::WorldActionMode::EXAMINE,
@@ -106,9 +106,9 @@ int main(int /*argc*/, char** /*argv*/) {
     state.world.camera.cameraMode = model::CameraMode::Follow;
     placeAvatar(state, 2, 2);
 
-    state::actions::WorldSetActionMode setTalk(model::WorldActionMode::TALK);
+    auto setTalk = state::actions::setActionMode(model::WorldActionMode::TALK);
     setTalk.execute(&state);
-    state::actions::WorldSetActionMode clear(model::WorldActionMode::NONE);
+    auto clear = state::actions::setActionMode(model::WorldActionMode::NONE);
     clear.execute(&state);
 
     ok = assertTrue(state.world.actionMode == model::WorldActionMode::NONE,
@@ -128,18 +128,18 @@ int main(int /*argc*/, char** /*argv*/) {
     state.world.actionMode = model::WorldActionMode::EXAMINE;
     state.world.actionAimTile = model::TileXY{0, 0};
 
-    state::actions::WorldMoveActionAim moveWest(-1, 0);
+    auto moveWest = state::actions::moveActionAim(-1, 0);
     moveWest.execute(&state);
     ok = assertEqual(state.world.actionAimTile->x, 0, "clamp west x") && ok;
     ok = assertEqual(state.world.actionAimTile->y, 0, "clamp west y") && ok;
 
-    state::actions::WorldMoveActionAim moveSouthEast(1, 1);
+    auto moveSouthEast = state::actions::moveActionAim(1, 1);
     moveSouthEast.execute(&state);
     ok = assertEqual(state.world.actionAimTile->x, 1, "move se x") && ok;
     ok = assertEqual(state.world.actionAimTile->y, 1, "move se y") && ok;
 
     state.world.actionAimTile = model::TileXY{4, 4};
-    state::actions::WorldMoveActionAim moveEast(1, 0);
+    auto moveEast = state::actions::moveActionAim(1, 0);
     moveEast.execute(&state);
     ok = assertEqual(state.world.actionAimTile->x, 4, "clamp east x") && ok;
     ok = assertEqual(state.world.actionAimTile->y, 4, "clamp east y") && ok;
@@ -152,12 +152,12 @@ int main(int /*argc*/, char** /*argv*/) {
     state.world.actionMode = model::WorldActionMode::TALK;
     state.world.actionAimTile = model::TileXY{1, 1};
 
-    state::actions::WorldSetActionAim setAim(3, 4);
+    auto setAim = state::actions::setActionAim(3, 4);
     setAim.execute(&state);
     ok = assertEqual(state.world.actionAimTile->x, 3, "absolute aim x") && ok;
     ok = assertEqual(state.world.actionAimTile->y, 4, "absolute aim y") && ok;
 
-    state::actions::WorldSetActionAim clampAim(99, -5);
+    auto clampAim = state::actions::setActionAim(99, -5);
     clampAim.execute(&state);
     ok = assertEqual(state.world.actionAimTile->x, 4, "absolute clamp x") && ok;
     ok = assertEqual(state.world.actionAimTile->y, 0, "absolute clamp y") && ok;
@@ -170,13 +170,13 @@ int main(int /*argc*/, char** /*argv*/) {
     state.world.actionMode = model::WorldActionMode::NONE;
     state.world.actionAimTile.reset();
 
-    state::actions::WorldMoveActionAim move(1, 0);
+    auto move = state::actions::moveActionAim(1, 0);
     move.execute(&state);
     ok = assertFalse(state.world.actionAimTile.has_value(),
                      "move aim no-op when mode NONE") &&
          ok;
 
-    state::actions::WorldSetActionAim setAim(2, 2);
+    auto setAim = state::actions::setActionAim(2, 2);
     setAim.execute(&state);
     ok = assertFalse(state.world.actionAimTile.has_value(),
                      "set aim no-op when mode NONE") &&

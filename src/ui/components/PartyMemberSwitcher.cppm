@@ -190,7 +190,7 @@ void ObserverUpdateCurrentPartyMember::onClick(int mouseX, int mouseY, int butto
     }
 
     stateManager->enqueueAction(stateManager->getActionData(),
-                                new state::actions::UiSetCurrentPartyMember(nextIndex),
+                                state::actions::setCurrentPartyMember(nextIndex),
                                 0);
   }
 

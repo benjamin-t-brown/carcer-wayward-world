@@ -130,7 +130,7 @@ int main(int /*argc*/, char** /*argv*/) {
         .requiresLook = true,
     };
 
-    state::actions::WorldExamineAt examineAt(3, 2);
+    auto examineAt = state::actions::examineAt(3, 2);
     examineAt.execute(&state);
 
     ok = assertTrue(state.triggers.pendingSpecialEventId.has_value(),
@@ -156,7 +156,7 @@ int main(int /*argc*/, char** /*argv*/) {
     state.world.actionMode = model::WorldActionMode::EXAMINE;
     state.world.actionAimTile = model::TileXY{1, 1};
 
-    state::actions::WorldExamineAt examineAt(1, 1);
+    auto examineAt = state::actions::examineAt(1, 1);
     examineAt.execute(&state);
 
     ok = assertFalse(state.triggers.pendingSpecialEventId.has_value(),
@@ -187,7 +187,7 @@ int main(int /*argc*/, char** /*argv*/) {
                      "target not visible") &&
          ok;
 
-    state::actions::WorldExamineAt examineAt(4, 4);
+    auto examineAt = state::actions::examineAt(4, 4);
     examineAt.execute(&state);
 
     ok = assertFalse(state.triggers.pendingSpecialEventId.has_value(),

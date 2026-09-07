@@ -55,6 +55,7 @@ state/StateManagerInterface.cpp \
 state/UiManager.cpp \
 state/LayerManagerInterface.cpp \
 actions/world/WorldUpdater.cpp \
+actions/actions.cpp \
 ui/UiElement.cpp \
 ui/FontScale.cpp \
 ui/helpers/worldActions.cpp \
@@ -62,7 +63,6 @@ ui/helpers/keyboardShortcuts.cpp \
 ui/helpers/modalLayoutFit.cpp \
 ui/KeyboardHeldScroll.cpp \
 ui/components/ChCompactInfo.cpp \
-actions/combat/combat.cpp \
 game/combat/CombatRunner.cpp \
 
 TARGET ?= native

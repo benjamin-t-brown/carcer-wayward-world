@@ -30,7 +30,7 @@ public:
     }
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiSelectSpecialEventChoice(choiceIndex),
+        state::actions::selectSpecialEventChoice(choiceIndex),
         0);
   }
 };
@@ -44,7 +44,7 @@ public:
       return;
     }
     stateManager->enqueueAction(
-        stateManager->getActionData(), new state::actions::UiContinueSpecialEvent(), 0);
+        stateManager->getActionData(), state::actions::continueSpecialEvent(), 0);
   }
 };
 

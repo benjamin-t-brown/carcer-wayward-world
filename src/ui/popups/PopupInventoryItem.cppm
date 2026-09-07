@@ -288,7 +288,7 @@ void ObserverShowLayerDropContext::onClick(int mouseX, int mouseY, int button) {
     }
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiShowLayerDropContext(window, characterPlayerId, itemId),
+        state::actions::showLayerDropContext(window, characterPlayerId, itemId),
         0);
   }
 
@@ -300,7 +300,7 @@ void ObserverShowLayerGiveContext::onClick(int mouseX, int mouseY, int button) {
     }
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiShowLayerGiveContext(
+        state::actions::showLayerGiveContext(
             window, fromCharacterPlayerId, itemId),
         0);
   }

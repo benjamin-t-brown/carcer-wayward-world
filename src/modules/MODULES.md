@@ -3,13 +3,11 @@
 Carcer ships as C++23 named modules (`carcer.*`). This doc is the contract for
 how the tree is organised, how to import across it, and how the build graph works.
 
-> **Migration status (2026-09):** the v2 pilot has replaced the static-data and
-> runtime-model partition forests with declarations-only `carcer.data` and
-> `carcer.model` interfaces backed by grouped implementation units. The other
-> domains still use the experimental partition-per-class layout:
-> `carcer.actions` is a thin re-export of 5 modules
-> (`carcer.actions.{combat,world,general,ui,ui.layers}`), each with one
-> partition per class; see §3 and §4. `carcer.layers` and
+> **Migration status (2026-09):** the v2 migration has replaced the static-data,
+> runtime-model, and action partition forests with declarations-only public
+> interfaces backed by coarse implementation units. `carcer.actions` is now
+> one command interface; its concrete action classes are private implementation
+> details. `carcer.layers` and
 > `carcer.ui.pages` are fully unified with no exceptions; see §6a for the two
 > GCC bugs that blocked them and how each was actually resolved (not worked
 > around). `scripts/modules/partitionize_folder.py` and
@@ -32,7 +30,8 @@ deep chain gave neither (the graph was as deep as the old `#include` graph, and
 `import carcer;` everywhere dragged the whole closure). Hence **folder-sized
 modules** plus the umbrella, like `sdl2w.window` / `sdl2w.draw`. The former
 `carcer.actions.world_effects` and `carcer.world_updater` cycle breakers were
-folded into `carcer.actions.world` once its interface dependencies were fixed.
+first folded into the world-action domain, then subsumed by the single
+`carcer.actions` module once concrete actions became private.
 `carcer.model` is now database-independent: map-character construction belongs
 to `carcer.game.map`, combat-party population to `carcer.game.combat`, and
 equipment/inventory rules that require item templates to
@@ -51,16 +50,17 @@ fix it by moving the shared type down (usually into `carcer.data` or
 | 1 Static data | `carcer.data`, `carcer.game.map.TileFields` (leaf) | immutable definitions mirrored from `assets/db`. |
 | 2 Data access | `carcer.db` | loads templates, owns lookup registries. |
 | 3 Runtime model | `carcer.model` | the mutable store shape: live characters, maps, items, world, combat state. |
-| 4 Rules | `carcer.game.map`, `carcer.game.combat`, `carcer.in3` | pure-ish logic over the model; compute results, don't own state. Independent siblings. |
+| 4 Rules | `carcer.game.map`, `carcer.game.combat`, `carcer.game.inventory`, `carcer.in3` | pure-ish logic over explicit model/database inputs; compute results, don't own state. Independent siblings. |
 | 5 State kernel | `carcer.state` | store + `ActionBus` + `AbstractAction` base + interface seams + `LayerRequest`/`layerStack`. Small, stable, universally depended on. |
-| 6 Actions / orchestration | `carcer.actions` (pure re-export of `carcer.actions.{combat,world,general,ui,ui.layers}`) | one command class per state transition; `act()` mutates state, calls rules, and enqueues timed follow-ups. Shared world effects and the frame updater are owned by `carcer.actions.world`; cross-domain dependencies needed only by bodies stay in implementation units. |
+| 6 Actions / orchestration | `carcer.actions` | one exported command API over private action implementations. Commands mutate state, call rules, and enqueue timed follow-ups; the frame updater is a sibling implementation unit. |
 | 7 UI widgets | `carcer.ui.core` → `carcer.ui.elements` → `carcer.ui.components` → `carcer.ui.layouts` → `carcer.ui.{minipages,popups,pages}` (+ `carcer.ui.helpers`, `carcer.ui.lists`, `carcer.ui.KeyboardHeldScroll`, `carcer.ui.ObserverRemoveLayer`, `carcer.ui.ObserverSpecialEvent`) | framework → primitives → game-aware composites → screens. Read model/state to render; enqueue actions on interaction. |
 | 8 Screen stack | `carcer.layers` | `LayerManager` owns the stack; each `Layer*` binds a UI page + input + its state slice. One module, 15 partitions (`Layer`, `LayerManager`, and 13 `LayerX` screens), one file per class, no exceptions — see §6a for why that took two attempts. |
 | 9 Entry | `carcer` umbrella, `main.cpp` | umbrella used only by `main` + tests. |
 
 **Frame flow:** input → `LayerManager` → active `Layer` → widget `onClick`
-constructs an action and enqueues it on `ActionBus` → `StateManager` drains the
-queue, each `act()` mutates `State` / calls rules / enqueues follow-ups →
+submits an owning `state::actions::Command` → `StateManager` drains the queue,
+each private action mutates `State` / calls rules / enqueues follow-ups and
+publishes a stable `ActionEvent` to observers →
 `WorldUpdater` ticks time-based logic → `LayerManager.render` → widgets read the
 new state and draw.
 
@@ -98,21 +98,11 @@ stateManager.update(dt); … layerManager->render(dt);`).
     `game` + `model`. Separate.
   - `carcer.in3` vs `carcer.game.*`: narrower footprint (`lib` + `model` only),
     different cadence (a scripting VM, not spatial/combat mechanics). Separate.
-  - `carcer.actions.combat` / `.world` / `.general` / `.ui` / `.ui.layers`:
-    conceptually one thing (`carcer.actions`, which is what every consumer
-    still imports — it's a pure re-export of these 5). Split into 5 real
-    modules purely because 71 classes as one module's partitions would blow
-    well past the ~17–20 GCM-corruption ceiling (§6a); the split follows real
-    seams anyway (`ui.layers`'s classes are pure `pushLayerRequest` calls,
-    a genuinely different shape from `ui`'s state-mutating ones) rather than
-    being arbitrary. `world` and `combat` are otherwise as separate as two
-    related domains can be: neither needs the other at the *declaration*
-    level (a shared `CombatAction` base that used to force this was removed
-    — see §6b, it added no actual behavior over `AbstractAction`). The one
-    remaining links are implementation-only: combat bodies use world-owned
-    particles, projectiles, and action-mode changes, while the world updater
-    queues the CPU combat action. The primary interfaces remain independent,
-    so those implementation units compile after both BMIs without a cycle.
+  - `carcer.actions`: action classes are deliberately not shipping boundaries.
+    The module exports move-only command handles and named factories; world,
+    combat, inventory, and UI implementations share one module so their timed
+    follow-ups remain private. This removes the old five-module, 74-interface
+    action graph without exposing cross-domain implementation types.
   - `carcer.layers`: the screen stack is genuinely one module — every
     `LayerX` (15 of them, `Layer` and `LayerManager` included) is a
     partition, each in its own file. A UI-observer helper that needed to
@@ -129,33 +119,33 @@ stateManager.update(dt); … layerManager->render(dt);`).
 
 ## 4. File layout & partition mechanics
 
-Every module in the tree is **partitions — one file per class**, declaration
-plus (usually) inline bodies:
+The tree intentionally uses two layouts. Stable, broad domains use one small
+public interface plus ordinary implementation units:
 
 ```
-src/<folder>/_<folder>.cppm    export module carcer.<folder>;          (primary interface unit / aggregator — the "barrel" file)
+src/<folder>/_<folder>.cppm    export module carcer.<folder>;  // declarations
+src/<folder>/behavior.cpp      module carcer.<folder>;         // definitions
+```
+
+`carcer.data`, `carcer.model`, and `carcer.actions` use this coarse form. It
+keeps ordinary bodies out of BMIs, makes an implementation edit a local object
+rebuild, and prevents classes that are merely implementation strategy from
+becoming import-graph nodes. In particular, `_actions.cppm` exports commands;
+`actions.cpp` owns all private action classes and `world/WorldUpdater.cpp` owns
+frame orchestration.
+
+The UI and layer domains still use primary interfaces that re-export class
+partitions. Their current shape is:
+
+```
+src/<folder>/_<folder>.cppm    export module carcer.<folder>;
                                export import :Thing;
-                               export import :Other;
-src/<folder>/Thing.cppm        export module carcer.<folder>:Thing;    (partition: declaration + inline bodies)
-                               import :Other;                          (sibling partition)
-                               import carcer.model;          (cross-module: full name)
-src/<folder>/Thing.cpp         module carcer.<folder>;                 (impl unit: bodies for any partition)
+src/<folder>/Thing.cppm        export module carcer.<folder>:Thing;
 ```
 
-**Every "look here first for this folder" file is prefixed `_`** — not just
-partition-aggregating barrels (`_elements.cppm`, `_layers.cppm`,
-`modules/_carcer.cppm`) but any single `.cppm` that holds a whole module's
-content directly, no partitions at all (`state/_State.cppm`, `in3/_in3.cppm`,
-`game/combat/_combat.cppm`, `game/map/_map.cppm`, `db/_db.cppm`,
-`ui/helpers/_helpers.cppm`, `lib/hiscore/_hiscore.cppm`,
-`actions/general/_general.cppm`). The test: does this file's name just
-repeat its containing folder's name, such that in a listing of several
-files you'd have to know that convention to find it? If yes, prefix it.
-The leading underscore has no meaning to the compiler and isn't part of the
-module name (the file is still `export module carcer.ui.elements;` inside,
-unrelated to what it's called on disk) — it's purely so the file sorts
-first and is easy to spot. `partitionize_folder.py` defaults new primaries
-to this name; pass `--primary <name>` to override.
+**Every "look here first for this folder" interface is prefixed `_`**. The
+leading underscore has no compiler meaning and is not part of the module name;
+it only keeps the primary interface easy to find in a directory listing.
 
 **Not every root-level `.cppm` needs it.** A handful of modules are
 standalone leaves that happen to share a directory with other, unrelated
@@ -168,15 +158,11 @@ modules living directly under `ui/`, distinct from its real barrel,
 no "which file is the one for this folder" ambiguity to resolve, so leave
 them alone.
 
-This is universal now — `carcer.data`, `carcer.model`,
-`carcer.ui.core`, `carcer.ui.elements`, `carcer.ui.components`,
-`carcer.ui.lists`, `carcer.ui.layouts`, `carcer.ui.minipages`,
-`carcer.ui.popups`, `carcer.ui.pages`, `carcer.layers`, and all 5
-`carcer.actions.*` modules. A folder that used to be one module with 20–70
-classes crammed into a single merged `export { … }` block (`carcer.actions`
-before it was split, `carcer.layers`'s old `screens.cppm`) is always a sign
-that folder needs splitting into more partitions or, past the GCM ceiling
-(§6a), more modules — not a shape to reach for on purpose.
+Do not infer that each class deserves a partition. A public partition is useful
+only when it creates a meaningful API or rebuild boundary. Prefer declarations
+in a coarse interface and grouped `.cpp` bodies for cohesive data, model, rule,
+and orchestration code. The remaining class-per-partition UI tree is the input
+to Phase 6, not the target pattern for new modules.
 
 A partition's body can be:
 - **Inline**, in the same file as the declaration (the common case).
@@ -191,9 +177,9 @@ A partition's body can be:
   module graph must still be acyclic: GCC rejects importing a module that
   depends on the implementation unit's own module as "cannot import module in
   its own purview." Put genuinely shared deferred types in a lower-level module
-  instead. Cross-domain deferred effects in the action modules are the concrete
-  example: their implementation units import the other domain only after both
-  primary interfaces exist. Most classes never need an implementation unit.
+  instead. The action consolidation avoids this problem entirely: deferred
+  world/combat effects are private classes inside the same module rather than
+  exported types connected by cross-module imports.
 - Two bodies **must** stay in a `.cpp` regardless of anything else —
   `ChCompactInfo`, `ListMagicSpells` — their nested `bmin::DynArray` shapes
   corrupt GCC GCMs when inline.
@@ -243,6 +229,12 @@ Two toolchains, two module models:
 | partition BMI file | automatic | `pcm.cache/carcer.<mod>-<Part>.pcm` (`:` → `-`) |
 | driven by | `src/modules/make/build-bmi.mk` | `src/modules/make/build-bmi-em.mk` (not yet built for `carcer` — wasm is deferred, see below) |
 
+For CMake, configure and build Clang through `cmake --preset clang-debug` and
+`cmake --build --preset clang-debug`. The preset supplies the Homebrew LLVM
+`PATH`; regenerating that tree with a bare build command from a different
+environment can otherwise resolve `/usr/bin/clang++`, which lacks
+`clang-scan-deps`.
+
 Both are generated by `scripts/modules/gen_bmi_makefile.py` from the
 `export module` / `import` / `import :part` edges in the `.cppm` files. Ordering
 rules: a module's partitions compile before its primary interface unit; a module
@@ -256,7 +248,7 @@ partitioned, regenerating from the actual `export module`/`import` graph is
 less error-prone than hand-maintaining module prerequisite edges, especially
 since partition-to-partition ordering (e.g.
 `carcer.ui.pages:PageModalEvent` needing `:PageTalkChoice` built first, or
-`carcer.actions.combat`'s `DoCombatAction` needing five sibling partitions built first)
+several UI screen partitions needing sibling widgets built first)
 is exactly the kind of edge that's easy to get wrong manually. Rerun it after
 any change to cross-module `import` edges.
 
@@ -447,7 +439,12 @@ probe-tested for external importability before touching the umbrella or real
 consumers, after an earlier costly mistake of wiring first and bisecting a
 crash after the fact.
 
-### 6b. `carcer.actions`: telling fake cross-domain coupling from real
+### 6b. Historical action coupling lessons
+
+This section records the Phase 4 predecessor to the current action layout. In
+Phase 5 all five named action modules and their exported concrete classes were
+removed. Their useful lesson remains: distinguish an actual delayed behavior
+dependency from a class reference that merely performs a synchronous mutation.
 
 `carcer.actions` used to be 4 partitions (`:combat`/`:world`/`:ui`/`:general`)
 each merging 16–33 unrelated classes into one file, specifically because 6 of
@@ -477,15 +474,9 @@ cross-domain reference at all:
   between them at all.
 - **2 are genuine.** `PerformMeleeAttack` and `PerformSpellCast` (`combat`)
   use `insertAction(new WorldSpawnDamageParticle(...), delayMs)` — real
-  deferred, timed follow-ups queued through the same polymorphic `ActionBus`
-  dispatch everything else uses. That fundamentally needs the concrete
-  action class to exist as a heap-allocated, queueable object; there is no way
-  to defer a timed effect without it. These types now live directly in their
-  owning `carcer.actions.world` partitions. `combat.cpp` imports the world
-  primary interface, while world-to-combat use is confined to the world
-  updater implementation unit. `CharacterSetSpriteIndexOffset` also moved to
-  world actions so `PerformTownMeleeAttack` no longer adds a world-interface
-  dependency on combat.
+  deferred, timed follow-ups queued through the same polymorphic action queue.
+  Those concrete types still exist, but now have module linkage inside
+  `carcer.actions`; they no longer create public interface edges.
 
 **The test to apply when a body seems to need a cross-domain type:** does it
 construct that type and call `.execute()` on it immediately, in the same
@@ -529,21 +520,17 @@ server. First open of a module-heavy TU may index for a minute or two.
 - **New class in an existing partitioned module** → add a partition
   `export module carcer.<folder>:NewThing;` and one `export import :NewThing;`
   line in `_<folder>.cppm` (the barrel). No new module. Regenerate the graph.
-- **New action class** → decide which of `carcer.actions.{combat,world,general,ui,ui.layers}`
-  it belongs to by what its `act()` does (a screen open/close request →
-  `ui.layers`; anything else → its domain), then add a partition there, same
-  as the first bullet. `carcer.actions` (what everything else imports)
-  re-exports all 5 already — no umbrella edit needed. If a body needs a class
-  from a *different* `carcer.actions.*` domain and it's a real, deferred/
-  queued need (not just "call one setter and return" — inline that instead,
-  see §6a), put that one body in the module's `.cpp` impl unit.
+- **New action behavior** → add or extend a named command factory in
+  `_actions.cppm`, then keep its concrete `AbstractAction` subclass private in
+  `actions.cpp`. Internal delayed follow-ups may construct private action
+  classes directly; do not export a class or add a module partition for them.
 - **New `LayerX` screen** → add a partition of `carcer.layers`, same as any
   other partitioned module (first bullet) — own file, own
   `export module carcer.layers:LayerX;`.
 - **A UI element/observer needs to react to something a specific `Layer`
   does** → don't hold a pointer to the concrete `Layer` from `ui::` code.
-  Enqueue an action (broadcast-only is fine — no `act()` override needed)
-  and have the `Layer` `subscribeAction<>()` it, same as
+  Publish an `ActionEvent` (broadcast-only is fine — no state mutation needed)
+  and have the `Layer` subscribe to that event, same as
   `carcer.ui.ObserverRemoveLayer` / `carcer.ui.ObserverSpecialEvent`. Besides
   being the established decoupling pattern, a `ui::`-namespace declaration
   living inside a `carcer.layers` partition is exactly what triggered the

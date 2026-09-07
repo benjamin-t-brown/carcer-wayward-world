@@ -122,7 +122,7 @@ void LayerSpellInfo::onKeyDown(std::string_view key, int /*keyCode*/) {
   }
   stateManager->enqueueAction(
       stateManager->getActionData(),
-      new state::actions::UiRemoveLayer(state::LayerId::SpellInfo),
+      state::actions::removeLayer(state::LayerId::SpellInfo),
       0);
 }
 

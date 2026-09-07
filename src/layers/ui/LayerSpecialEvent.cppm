@@ -188,9 +188,9 @@ LayerSpecialEvent::LayerSpecialEvent(
   syncUi();
   setupTalkKeyboardScroll();
 
-  subscribeAction<state::actions::UiSelectSpecialEventChoice>(
-      [this](auto& action, auto&) { onChoiceSelected(action.choiceIndex); });
-  subscribeAction<state::actions::UiContinueSpecialEvent>(
+  subscribeAction<state::ActionEvent::UiSelectSpecialEventChoice>(
+      [this](auto& action, auto&) { onChoiceSelected(action.getEventValue()); });
+  subscribeAction<state::ActionEvent::UiContinueSpecialEvent>(
       [this](auto&, auto&) { onContinue(); });
 }
 
@@ -452,7 +452,7 @@ void LayerSpecialEvent::closeLayer() {
   }
   stateManager->enqueueAction(
       stateManager->getActionData(),
-      new state::actions::UiRemoveLayer(state::LayerId::SpecialEvent),
+      state::actions::removeLayer(state::LayerId::SpecialEvent),
       0);
 }
 

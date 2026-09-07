@@ -304,7 +304,7 @@ void ObserverPickUpItem::onClick(int /*mouseX*/, int /*mouseY*/, int /*button*/)
       return;
     }
     stateManager->enqueueAction(stateManager->getActionData(),
-                                new state::actions::UiPickUpItem(itemId),
+                                state::actions::pickUpItem(itemId),
                                 0);
   }
 
@@ -317,7 +317,7 @@ void ObserverShowLayerPickUpContext::onClick(int mouseX, int mouseY, int button)
     }
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiShowLayerPickupContext(window, item),
+        state::actions::showLayerPickupContext(window, item),
         0);
   }
 

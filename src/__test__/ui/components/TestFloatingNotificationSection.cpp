@@ -24,7 +24,7 @@ public:
     const auto type = static_cast<state::UiFloatingNotificationType>((counter - 1) % 3);
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiPushFloatingNotification(
+        state::actions::pushFloatingNotification(
             "Notification #" + bmin::toString(counter), type),
         0);
   }

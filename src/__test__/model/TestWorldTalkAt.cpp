@@ -139,7 +139,7 @@ int main(int /*argc*/, char** /*argv*/) {
         .y = 2,
     });
 
-    state::actions::WorldTalkAt talkAt(3, 2);
+    auto talkAt = state::actions::talkAt(3, 2);
     talkAt.execute(&state);
 
     ok = assertTrue(state.triggers.pendingSpecialEventId.has_value(),
@@ -180,7 +180,7 @@ int main(int /*argc*/, char** /*argv*/) {
         .y = 2,
     });
 
-    state::actions::WorldTalkAt talkAt(3, 2);
+    auto talkAt = state::actions::talkAt(3, 2);
     talkAt.execute(&state);
 
     ok = assertFalse(state.triggers.pendingSpecialEventId.has_value(),
@@ -209,7 +209,7 @@ int main(int /*argc*/, char** /*argv*/) {
         .y = 2,
     });
 
-    state::actions::WorldTalkAt talkAt(3, 2);
+    auto talkAt = state::actions::talkAt(3, 2);
     talkAt.execute(&state);
 
     ok = assertFalse(state.triggers.pendingSpecialEventId.has_value(),
@@ -248,7 +248,7 @@ int main(int /*argc*/, char** /*argv*/) {
                      "target not visible") &&
          ok;
 
-    state::actions::WorldTalkAt talkAt(3, 2);
+    auto talkAt = state::actions::talkAt(3, 2);
     talkAt.execute(&state);
 
     ok = assertFalse(state.triggers.pendingSpecialEventId.has_value(),
@@ -294,7 +294,7 @@ int main(int /*argc*/, char** /*argv*/) {
         .y = 2,
     });
 
-    state::actions::WorldTalkAt talkAt(3, 2);
+    auto talkAt = state::actions::talkAt(3, 2);
     talkAt.execute(&state);
 
     ok = assertFalse(state.triggers.pendingSpecialEventId.has_value(),

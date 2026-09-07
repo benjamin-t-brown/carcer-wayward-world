@@ -1,6 +1,6 @@
 # Carcer C++ Modules v2 Implementation Plan
 
-Status: Phase 4 complete; Gate 2 passes natively
+Status: Phase 5 complete; ready for Phase 6
 Baseline commit: `95562b3` on `experiment/cpp-modules`  
 Date: 2026-09-05
 
@@ -18,7 +18,7 @@ Date: 2026-09-05
 - Phase 4 removes the concrete
   `UiRemoveFloatingNotification` action from `carcer.state`. Notification
   expiry is now state maintenance, explicit dismissal remains owned by
-  `carcer.actions.ui`, and UI synchronization uses a state revision rather
+  the action layer, and UI synchronization uses a state revision rather
   than requiring the state module to construct an action-layer type.
 - `ActiveMapOrchestrator` no longer inherits `StateManagerInterface` or
   `DatabaseInterface`. Its active map, map-instance store, and database are
@@ -35,19 +35,32 @@ Date: 2026-09-05
   exposes only rules over explicit model, map, and database inputs. Removing
   the inversion and the action's now-redundant combat import lowers the graph
   from 846 to 844 edges.
-- The `carcer.actions.world_effects` and `carcer.world_updater` cycle-break
-  modules have been folded into `carcer.actions.world`. Generic world effects
-  remain available to combat implementation units, the updater remains action
-  orchestration, and the world/combat primary interfaces are independent. The
-  graph falls from 183 to 181 interfaces, 844 to 838 edges, 29 to 26 critical
-  levels, and 174 to 172 maximum transitive dependents.
+- During Phase 4 the `carcer.actions.world_effects` and
+  `carcer.world_updater` cycle-break modules were folded into
+  `carcer.actions.world`, reducing that intermediate graph from 183 to 181
+  interfaces, 844 to 838 edges, 29 to 26 critical levels, and 174 to 172
+  maximum transitive dependents. Phase 5 subsequently subsumed that module
+  into the single `carcer.actions` boundary.
 - `carcer.model` no longer imports `carcer.db` or exposes database-dependent
   operations. Inventory and equipment lookups now live in
   `carcer.game.inventory`, map-character construction lives in
   `carcer.game.map`, and combat-party population lives in
   `carcer.game.combat`.
+- Phase 5 replaces 74 exported per-action interfaces with one
+  `carcer.actions` command interface. Concrete and timed action classes now
+  have module linkage in two implementation units, callers use owning command
+  factories, and `ActionBus` subscriptions use stable `ActionEvent` values
+  instead of RTTI and concrete-type downcasts. The action subsystem falls from
+  77 C++ source files to 3.
+- After Phase 5 the generated Make graph contains 108 interfaces and 537
+  import edges, with critical depth 25 and maximum transitive fan-out 99. The
+  Phase 4 graph had 182 interfaces, 846 edges, depth 25, and fan-out 173.
+- A narrow `carcer.actions` external-import probe and behavioral coverage now
+  verify command ownership, sequential dispatch, semantic event delivery, and
+  event payloads without naming a concrete action class.
 - GCC 15.3 and Homebrew Clang 22.1.8 debug builds pass on the qualification
-  host. Thirty-two current non-UI tests pass under both compilers, five stale
+  host. Thirty-three enabled native CTest entries (30 behavioral tests and
+  three narrow module-import probes) pass under both compilers, five stale
   tests compile but are disabled, three tests call already-disabled production
   APIs, and all 43 UI test programs compile and link with GCC.
 - Emscripten presets are present, but the SDK is not installed on the
@@ -404,6 +417,8 @@ Refactor existing inversions by:
   them unnecessary.
 
 ### Phase 5: Consolidate the action API
+
+Completed in the working tree after Phase 4 commit `e25ff69`.
 
 Replace exported concrete action classes with a small command API. Timed
 internal actions may continue deriving from `AbstractAction`, but their types

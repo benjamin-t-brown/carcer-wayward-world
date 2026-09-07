@@ -422,7 +422,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Player steps closer; spotting + seek should run via WorldMovePlayer.
     stateManager.enqueueAction(
-        stateManager.getActionData(), new state::actions::WorldMovePlayer(1, 0), 0);
+        stateManager.getActionData(), state::actions::movePlayer(1, 0), 0);
     pumpTownEnemyAi(stateManager);
 
     auto* enemy = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
@@ -481,7 +481,7 @@ int main(int /*argc*/, char** /*argv*/) {
     state::StateManagerInterface::setStateManager(&stateManager);
 
     stateManager.enqueueAction(
-        stateManager.getActionData(), new state::actions::StartCombat(), 0);
+        stateManager.getActionData(), state::actions::startCombat(), 0);
     for (int i = 0; i < 20; ++i) {
       tickState(stateManager, 50);
     }
@@ -496,7 +496,7 @@ int main(int /*argc*/, char** /*argv*/) {
     const auto enemyStartX = enemyBefore ? enemyBefore->x : -1;
 
     stateManager.enqueueAction(
-        stateManager.getActionData(), new state::actions::DoCPUCombatTurn(), 0);
+        stateManager.getActionData(), state::actions::doCPUCombatTurn(), 0);
     for (int i = 0; i < 40; ++i) {
       tickState(stateManager, 50);
     }
@@ -551,7 +551,7 @@ int main(int /*argc*/, char** /*argv*/) {
     state::StateManagerInterface::setStateManager(&stateManager);
 
     stateManager.enqueueAction(
-        stateManager.getActionData(), new state::actions::StartCombat(), 0);
+        stateManager.getActionData(), state::actions::startCombat(), 0);
     for (int i = 0; i < 20; ++i) {
       tickState(stateManager, 50);
     }
@@ -575,7 +575,7 @@ int main(int /*argc*/, char** /*argv*/) {
       }
       combat.isWaitingForAction = false;
       stateManager.enqueueAction(
-          stateManager.getActionData(), new state::actions::DoCPUCombatTurn(), 0);
+          stateManager.getActionData(), state::actions::doCPUCombatTurn(), 0);
       for (int i = 0; i < 40; ++i) {
         tickState(stateManager, 50);
       }

@@ -67,7 +67,7 @@ LayerEquipRunes::LayerEquipRunes(sdl2w::Window* _window,
 
   syncFromCharacter();
 
-  subscribeAction<state::actions::UiAdjustEquippedRune>(
+  subscribeAction<state::ActionEvent::UiAdjustEquippedRune>(
       [this](auto&, auto&) { syncFromCharacter(); });
 }
 
@@ -149,7 +149,7 @@ void LayerEquipRunes::onKeyDown(std::string_view key, int /*keyCode*/) {
     return;
   }
   stateManager->enqueueAction(stateManager->getActionData(),
-                              new state::actions::UiCancelEquipRunes(),
+                              state::actions::cancelEquipRunes(),
                               0);
 }
 

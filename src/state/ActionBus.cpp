@@ -4,19 +4,17 @@ module;
 #include <utility>
 #include <functional>
 #include <algorithm>
-#include <typeinfo>
-#include <typeindex>
 
 module carcer.state;
 
 namespace state {
 
 void ActionBus::subscribe(void* owner,
-                           std::type_index actionType,
+                           ActionEvent event,
                            std::function<void(AbstractAction&, State&)> handler) {
   entries.pushBack(Entry{
       .owner = owner,
-      .actionType = actionType,
+      .event = event,
       .handler = std::move(handler),
   });
 }
@@ -26,9 +24,9 @@ void ActionBus::unsubscribe(void* owner) {
 }
 
 void ActionBus::notify(AbstractAction& action, State& state) {
-  const std::type_index actionType = std::type_index(typeid(action));
+  const auto event = action.getEvent();
   for (const auto& entry : entries) {
-    if (entry.actionType == actionType) {
+    if (entry.event == event) {
       entry.handler(action, state);
     }
   }

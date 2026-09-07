@@ -124,7 +124,7 @@ void ObserverDropInventoryItem::onClick(int mouseX, int mouseY, int button) {
     }
     stateManager->enqueueAction(
         stateManager->getActionData(),
-        new state::actions::UiDropInventoryItem(characterPlayerId, itemId),
+        state::actions::dropInventoryItem(characterPlayerId, itemId),
         0);
   }
 

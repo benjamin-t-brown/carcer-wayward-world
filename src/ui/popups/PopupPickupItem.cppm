@@ -70,7 +70,7 @@ public:
       return;
     }
     stateManager->enqueueAction(
-        stateManager->getActionData(), new state::actions::UiRemoveLayer(closeLayerId), 0);
+        stateManager->getActionData(), state::actions::removeLayer(closeLayerId), 0);
   }
 };
 

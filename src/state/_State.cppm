@@ -8,7 +8,6 @@ module;
 #include <string_view>
 #include <typeinfo>
 #include <cxxabi.h>
-#include <typeindex>
 #include <array>
 
 export module carcer.state;
@@ -24,6 +23,81 @@ export {
 namespace state {
 
 struct State;
+
+/** Stable semantic notification emitted after an action executes. */
+enum class ActionEvent {
+  None,
+  DoCPUCombatTurn,
+  DoCombatAction,
+  DoCombatActionCompletion,
+  EndCombat,
+  GoNextCombatTurn,
+  ModifyAP,
+  ModifyHP,
+  MoveCharacter,
+  PerformCharacterDefeated,
+  PerformMeleeAttack,
+  PerformSpellCast,
+  RemoveCharacterFromMap,
+  SetActiveCombatCharacter,
+  StartCombat,
+  PlaySound,
+  UiAdjustEquippedRune,
+  UiContinueSpecialEvent,
+  UiDropInventoryItem,
+  UiGiveInventoryItem,
+  UiPickUpItem,
+  UiPushFloatingNotification,
+  UiRemoveFloatingNotification,
+  UiReorderInventoryItem,
+  UiSelectSpecialEventChoice,
+  UiSelectSpellCast,
+  UiSetCurrentPartyMember,
+  UiSetCurrentPartyMemberInventory,
+  UiSetCurrentPartyMemberMagic,
+  UiSetSelectedPartyMemberId,
+  UiSetSpellReady,
+  UiToggleEquipInventoryItem,
+  UiToggleManaSlotRune,
+  UiUpdateHeldMove,
+  UiCancelEquipRunes,
+  UiCommitEquipRunes,
+  UiRemoveLayer,
+  UiShowLayerDropContext,
+  UiShowLayerEquipRunes,
+  UiShowLayerGiveContext,
+  UiShowLayerInventory,
+  UiShowLayerInventoryContext,
+  UiShowLayerMagic,
+  UiShowLayerPickUp,
+  UiShowLayerPickupContext,
+  UiShowLayerPopupText,
+  UiShowLayerSpecialEvent,
+  UiShowLayerSpellCast,
+  UiShowLayerSpellInfo,
+  CharacterSetSpriteIndexOffset,
+  ClearTownEnemyAiResolving,
+  ModifyPartyMemberHp,
+  PerformTownMeleeAttack,
+  TownEnemyAiAfterPlayerMove,
+  TownEnemySeekAndMelee,
+  WorldExamineAt,
+  WorldInteractAt,
+  WorldLoadActiveMap,
+  WorldMoveActionAim,
+  WorldMovePlayer,
+  WorldSetActionAim,
+  WorldSetActionMode,
+  WorldSetCamera,
+  WorldSetCameraMode,
+  WorldSpawnDamageParticle,
+  WorldSpawnPlayer,
+  WorldSpawnPlayerAtMarker,
+  WorldSpawnPlayerAtXY,
+  WorldSpawnProjectile,
+  WorldTalkAt,
+  WorldTravel,
+};
 
 enum class LayerId {
   World,
@@ -254,6 +328,9 @@ protected:
   };
 
 public:
+  virtual ActionEvent getEvent() const { return ActionEvent::None; }
+  virtual int getEventValue() const { return 0; }
+
   virtual bmin::String getName() const {
 #ifdef __GNUG__
     int status;
@@ -282,7 +359,7 @@ public:
 class ActionBus {
   struct Entry {
     void* owner = nullptr;
-    std::type_index actionType{typeid(void)};
+    ActionEvent event = ActionEvent::None;
     std::function<void(AbstractAction&, State&)> handler;
   };
 
@@ -290,7 +367,7 @@ class ActionBus {
 
 public:
   void subscribe(void* owner,
-                 std::type_index actionType,
+                 ActionEvent event,
                  std::function<void(AbstractAction&, State&)> handler);
 
   void unsubscribe(void* owner);

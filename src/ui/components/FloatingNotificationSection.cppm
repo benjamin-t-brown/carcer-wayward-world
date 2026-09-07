@@ -2,8 +2,6 @@ module;
 #include <cstddef>
 #include <cstdint>
 #include <utility>
-#include <typeinfo>
-#include <typeindex>
 #include <algorithm>
 #include <limits>
 
@@ -32,17 +30,15 @@ private:
   std::uint64_t syncedNotificationRevision =
       std::numeric_limits<std::uint64_t>::max();
 
-  template <typename ActionT, typename Fn> void subscribeAction(Fn&& fn) {
+  template <state::ActionEvent Event, typename Fn> void subscribeAction(Fn&& fn) {
     if (!hasStateManager()) {
       return;
     }
     getStateManager()->getActionBus().subscribe(
         this,
-        std::type_index(typeid(ActionT)),
+        Event,
         [fn = std::forward<Fn>(fn)](state::AbstractAction& action, state::State& state) {
-          if (auto* typed = dynamic_cast<ActionT*>(&action)) {
-            fn(*typed, state);
-          }
+          fn(action, state);
         });
   }
 
@@ -71,20 +67,20 @@ FloatingNotificationSection::FloatingNotificationSection(sdl2w::Window* _window,
     : UiElement(_window, _parent) {
   shouldPropagateEventsToChildren = false;
 
-  subscribeAction<state::actions::UiPushFloatingNotification>(
-      [this](const state::actions::UiPushFloatingNotification&, const state::State& state) {
+  subscribeAction<state::ActionEvent::UiPushFloatingNotification>(
+      [this](const state::AbstractAction&, const state::State& state) {
         syncFromState(state);
       });
-  subscribeAction<state::actions::UiRemoveFloatingNotification>(
-      [this](const state::actions::UiRemoveFloatingNotification&, const state::State& state) {
+  subscribeAction<state::ActionEvent::UiRemoveFloatingNotification>(
+      [this](const state::AbstractAction&, const state::State& state) {
         syncFromState(state);
       });
-  subscribeAction<state::actions::UiToggleEquipInventoryItem>(
-      [this](const state::actions::UiToggleEquipInventoryItem&, const state::State& state) {
+  subscribeAction<state::ActionEvent::UiToggleEquipInventoryItem>(
+      [this](const state::AbstractAction&, const state::State& state) {
         syncFromState(state);
       });
-  subscribeAction<state::actions::UiGiveInventoryItem>(
-      [this](const state::actions::UiGiveInventoryItem&, const state::State& state) {
+  subscribeAction<state::ActionEvent::UiGiveInventoryItem>(
+      [this](const state::AbstractAction&, const state::State& state) {
         syncFromState(state);
       });
 
