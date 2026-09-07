@@ -1,6 +1,6 @@
 # Carcer Module/UI Finalization Plan
 
-Status: ready for Phase 0
+Status: Phase 0 complete; ready for Phase 1
 Pre-plan application commit: `0b661c3` (`Consolidate the UI module architecture`)
 Date: 2026-09-06
 
@@ -142,6 +142,23 @@ Exit criteria:
 - Phase 7 changes and the new plan are reviewable independently from source
   migration.
 - All existing native tests remain green.
+
+Completion record:
+
+- Phase 7 compatibility work is checkpointed in `8c61ef5`; this plan is
+  checkpointed separately in `795b421`.
+- `scripts/benchmark-fresh-modules.sh` creates a unique ignored directory and
+  records cold, no-op, leaf-edit, categorized-artifact, scan-intermediate, and
+  total-directory measurements.
+- Its first full GCC debug run records an 81-second cold build, a sub-second
+  no-op build, a 3-second `Json.cpp` implementation rebuild, 264,924 KiB of
+  objects/archives/BMIs, 186,164 KiB of retained scan preprocessing data, and
+  457,384 KiB total. The cold result is consistent with the manually timed
+  77.05-second baseline and shows normal host variance.
+- `scripts/modules/check_ui_architecture.sh` passes all permanent lower-layer
+  checks. Its temporary Phase 0 mode permits only the known
+  `carcer.ui.screens -> carcer.ui.screens.layers` facade edge; strict mode
+  already fails on that edge and will become mandatory in Phase 1.
 
 ## Phase 1: put layers above screens
 
