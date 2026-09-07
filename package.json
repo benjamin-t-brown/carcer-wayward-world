@@ -3,7 +3,7 @@
   "version": "1.0",
   "license": "MIT",
   "scripts": {
-    "build": "npm install && npm run clean && (cd src && make clean && make js) && npm run mv",
+    "build": "npm install && npm run clean && ./scripts/ci-build.sh && npm run mv",
     "build:dev": "npm run build",
     "mv": "mkdirp dist && cp -rv web/* dist/",
     "clean": "rm -rf dist",

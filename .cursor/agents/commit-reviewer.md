@@ -25,7 +25,7 @@ Inspect every changed file for:
 | Category | Look for |
 |---|---|
 | **Segfaults / memory safety** | Dangling/null pointers, use-after-free, invalid iterators, unchecked optional/unique_ptr dereference, out-of-bounds index, lifetime bugs across UI/model ownership |
-| **Type errors** | C++ type mismatches, missing includes/Makefile entries, TS type errors, editor↔game schema drift |
+| **Type errors** | C++ type mismatches, missing imports/CMake sources, TS type errors, editor↔game schema drift |
 | **Logic errors** | Wrong conditions, inverted flags, off-by-one, missing edge cases, broken state transitions, incorrect defaults |
 | **Test failures** | Builds/tests that fail for the change; missing coverage for non-trivial logic; UI tests not compile-checked when UI changed |
 | **Style errors** | Violations of `.cursor/rules/` and neighboring code (naming, containers, TRANSLATE, member-over-anonymous-namespace, LF endings, ceditor patterns) |
@@ -61,16 +61,16 @@ For each substantive change:
 
 ### 3. Verify
 
-Run the narrowest checks for what changed. On Windows PowerShell, wrap bash/`make` via:
+Run the narrowest checks for what changed. On Windows PowerShell, use:
 
 ```powershell
-.\scripts\Invoke-Ucrt64.ps1 "cd src && make -j8"
+.\scripts\Invoke-Ucrt64.ps1 "cmake --build --preset ucrt64-debug"
 ```
 
 | Change | Verification |
 |---|---|
-| `src/**` C++ | `make -j8`; nearest `test-runners/runner|db|model` script if obvious |
-| `src/ui/**` or UI tests | Compile only — `test-runners/ui/<Test>.sh --build-only` or `./scripts/compile-ui-tests.sh`. **Never run UI test executables.** |
+| `src/**` C++ | `cmake --build --preset gcc-debug`; nearest `test-runners/runner|db|model` script if obvious |
+| `src/ui/**` or UI tests | Compile only — `bash test-runners/ui/<Test>.sh --build-only` or `./scripts/compile-ui-tests.sh`. **Never run UI test executables.** |
 | `ceditor/**` | `cd ceditor && npm run build` (or project typecheck script) |
 
 Record pass/fail in the report. A failed build/test is a **Critical** finding under test failures.

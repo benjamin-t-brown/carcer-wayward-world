@@ -1,30 +1,28 @@
 ---
-description: Windows native builds use MSYS2 UCRT64
+description: Windows native builds use CMake/Ninja under MSYS2 UCRT64
 alwaysApply: true
 ---
 
 # Windows Build Environment (MSYS2 UCRT64)
 
-## Parallelism (all agents, all platforms)
+Use the checked-in CMake presets. Build presets already select eight parallel
+Ninja jobs.
 
-Always build with **`make -j8`**. Do not run bare `make` when compiling the game or verifying C++ changes.
+- Windows: `ucrt64-debug` or `ucrt64-release`
+- Linux/macOS GCC: `gcc-debug` or `gcc-release`
+- Linux/macOS Clang: `clang-debug` or `clang-release`
 
-- Windows: `.\scripts\Invoke-Ucrt64.ps1 "cd src && make -j8"`
-- Linux / macOS / MSYS2 shell: `cd src && make -j8`
-
-## Windows shell wrapper
-
-On Windows, the agent shell is PowerShell. Do **not** run `make`, `gcc`, or `scripts/*.sh` directly in PowerShell.
-
-Run native C++ builds and bash scripts through MSYS2 **UCRT64** using the repo wrapper from the repo root:
+On Windows PowerShell, run native tools and bash scripts through the repository
+wrapper:
 
 ```powershell
-.\scripts\Invoke-Ucrt64.ps1 "cd src && make -j8"
-.\scripts\Invoke-Ucrt64.ps1 "cd src && make run"
-.\scripts\Invoke-Ucrt64.ps1 "./scripts/compile-commands.sh"
+.\scripts\Invoke-Ucrt64.ps1 "cmake --preset ucrt64-debug"
+.\scripts\Invoke-Ucrt64.ps1 "cmake --build --preset ucrt64-debug"
+.\scripts\Invoke-Ucrt64.ps1 "ctest --preset ucrt64-debug"
+.\scripts\Invoke-Ucrt64.ps1 "./scripts/compile-ui-tests.sh"
 .\scripts\Invoke-Ucrt64.ps1 "./scripts/update-translations.sh"
 ```
 
-`scripts/Invoke-Ucrt64.ps1` auto-detects MSYS2 (`C:\msys64`, `C:\msys2`, `C:\progs\msys2`, Scoop/Chocolatey paths, or `msys2_shell.cmd` on PATH). Override with `MSYS2_ROOT` if needed.
-
-For gdb / clangd, point at `$env:MSYS2_ROOT\ucrt64\bin` (see `.vscode/launch.json`, which uses `${env:MSYS2_ROOT}`).
+`scripts/Invoke-Ucrt64.ps1` auto-detects MSYS2. Override its search with
+`MSYS2_ROOT` when necessary. For gdb and clangd, use the UCRT64 `bin` directory
+under that root.

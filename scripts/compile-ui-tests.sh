@@ -1,30 +1,13 @@
 #!/usr/bin/env bash
-# Compile all UI tests (no execution). Requires Node — see DEVELOPMENT.md.
+# Compile all UI tests without executing interactive SDL programs.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-FAIL=0
-PASS=0
-
-# Build the game library once; per-test scripts skip the rebuild.
-if [[ "${SKIP_REBUILD:-}" != "1" ]]; then
-  make -C "$ROOT/src" carcer-bmi
-  make -C "$ROOT/src" object_files -j8
+DEFAULT_PRESET=gcc-debug
+if [[ "${MSYSTEM:-}" == "UCRT64" ]]; then
+  DEFAULT_PRESET=ucrt64-debug
 fi
+PRESET="${CARCER_CMAKE_PRESET:-$DEFAULT_PRESET}"
 
-export SKIP_REBUILD=1
-for script in "$ROOT"/test-runners/ui/*.sh; do
-  name=$(basename "$script")
-  echo ""
-  echo "========== $name =========="
-  if bash "$script" --build-only; then
-    PASS=$((PASS + 1))
-  else
-    echo "FAILED: $name"
-    FAIL=$((FAIL + 1))
-  fi
-done
-
-echo ""
-echo "UI tests compiled: $PASS passed, $FAIL failed"
-[ "$FAIL" -eq 0 ]
+cmake --preset "$PRESET" -S "$ROOT"
+cmake --build --preset "$PRESET" --target carcer_ui_tests

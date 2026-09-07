@@ -1,239 +1,122 @@
 # Development
 
-Development Requirements
+Carcer is built as a C++23 named-module project with CMake 3.28+ and Ninja.
+Native builds require GCC 14+ or Clang 16+ with `clang-scan-deps`, plus SDL2,
+SDL2_image, SDL2_ttf, SDL2_mixer, and SDL2_gfx. Web builds require an activated
+Emscripten SDK. See [src/modules/MODULES.md](src/modules/MODULES.md) for the
+module boundaries and dependency rules.
 
-- GCC/Clang
-- Node.js (test runners under `test-runners/` use Node to compile and run C++ tests)
-- SDL2
-- SDL2_image
-- SDL2_ttf
-- SDL2_mixer
-- SDL2_gfx
+## Dependencies
 
-For IDE
-- clangd
-- include-what-you-use
+SDL2W and BMIN revisions are pinned in `deps.lock` and materialized under the
+ignored `.deps/` directory. Normal configure and build commands validate these
+checkouts but never clone, fetch, switch, or modify them.
 
-For Building WASM Executable
-
-- Emscripten
-
-The game uses **C++23 named modules** (`carcer.*`). Interface units (`.cppm`)
-live next to their `.cpp` files; the umbrella is `src/modules/_carcer.cppm`
-(barrel files — pure `export import` aggregators — are named `_<folder>.cppm`
-so they sort first in a directory listing). See
-[src/modules/MODULES.md](src/modules/MODULES.md).
-
-Dependency source revisions are pinned in `deps.lock` and materialized inside
-the ignored `.deps/` directory. Bootstrap is explicit: ordinary builds never
-clone, fetch, or switch dependency repositories.
-
-```
+```sh
 ./scripts/bootstrap-deps.sh
-make -C src -j8
-make -C src run
+./scripts/bootstrap-deps.sh --check
 ```
 
-`./scripts/bootstrap-deps.sh --check` validates the exact revisions without
-network or filesystem changes. Existing checkouts at other revisions are left
-untouched; use `--repair` to explicitly fetch and select the locked revisions.
-For offline/local mirrors, set `CARCER_SDL2W_REPOSITORY` and
-`CARCER_BMIN_REPOSITORY` when bootstrapping. Tracked dependency edits are
-rejected by default; dependency developers can explicitly set
-`CARCER_ALLOW_DIRTY_DEPS=1`.
+Use `--repair` to fetch and select the locked revisions. For local mirrors, set
+`CARCER_SDL2W_REPOSITORY` and `CARCER_BMIN_REPOSITORY`. Tracked dependency edits
+are rejected unless `CARCER_ALLOW_DIRTY_DEPS=1` is explicitly set.
 
-`make -C src sdl2w` prepares the compiler-compatible dual bundle. Use
-`sdl2w_headers` for classic header artifacts only and `sdl2w_rebuild` to force
-a dual-bundle refresh. Bundle identity includes the dependency lock, compiler,
-target, and module flags.
+## Native build and tests
 
-Module BMIs are built into `src/gcm.cache` (ordered, typically `-j1` for the BMI step). `make clean` removes `gcm.cache`, `pcm.cache`, and `.carcer-bmi` / `.sdl2w-bmi` / `.bmin-bmi`. After a clean, the next build rebuilds sdl2w BMIs then carcer BMIs before compiling `.cpp` implementation units.
-
-## Compiler-scanned CMake build
-
-The experimental v2 build is available alongside Make. It requires CMake 3.28
-or newer, Ninja, and either GCC 14+ or a Clang installation that includes
-`clang-scan-deps`. Apple's Command Line Tools Clang does not include the scanner
-on this host, so the Clang presets use Homebrew LLVM.
-
-Configure, build, and test with GCC:
-
-```
+```sh
 cmake --preset gcc-debug
 cmake --build --preset gcc-debug
 ctest --preset gcc-debug
 ```
 
 Equivalent `gcc-release`, `clang-debug`, and `clang-release` configure, build,
-and test presets are defined in `CMakePresets.json`. The GCC presets resolve
-`g++-15` from `PATH`. The Clang presets prefer common Homebrew LLVM paths before
-the inherited `PATH` and reject a compiler installation without
-`clang-scan-deps`; override `CMAKE_CXX_COMPILER` when using another installation.
+and test presets live in `CMakePresets.json`. GCC presets resolve `g++-15` from
+`PATH`. Clang presets search common Homebrew LLVM paths and require
+`clang-scan-deps`; override `CMAKE_CXX_COMPILER` for another installation.
 
-CMake discovers imports with compiler dependency scanning and builds BMIN,
-SDL2W, and Carcer in one graph. It does not consume the checked-in Make BMI
-manifests. Configuration and every build validate `.deps/` against `deps.lock`
-without modifying either checkout.
+The default native build includes the game, enabled runtime tests, and module
+import/architecture tests. Five pre-existing runtime tests are explicitly
+disabled because their expectations are stale; three more sources are excluded
+because they call disabled production APIs. Both lists are in `CMakeLists.txt`.
 
-The default native build compiles the game and all non-UI tests whose production
-APIs still exist. Run the 43 UI programs as a compile/link-only suite with:
+Compile all 43 interactive UI tests without running them:
 
-```
+```sh
 cmake --build --preset gcc-debug --target carcer_ui_tests
+# or
+CARCER_CMAKE_PRESET=gcc-debug ./scripts/compile-ui-tests.sh
 ```
 
-CTest reports five pre-existing tests as disabled because their assertions no
-longer match this branch's assets or coordinate behavior. Three more test
-sources are not built because they call production APIs already commented out
-on this branch. Both groups are listed explicitly in `CMakeLists.txt`; they must
-be updated or retired before final adoption of the new build.
+Build or run one test through its existing convenience wrapper:
 
-The Emscripten presets require an activated SDK (`EMSDK` must be set):
-
+```sh
+bash test-runners/runner/TestJson.sh
+bash test-runners/ui/TestConfirmModal.sh --build-only
 ```
+
+The wrappers use `gcc-debug` by default. Set `CARCER_CMAKE_PRESET` to select a
+different configured toolchain. UI executables open SDL windows and must not be
+run by unattended automation.
+
+## Windows with MSYS2 UCRT64
+
+Install CMake, Ninja, a GCC 14+ UCRT64 toolchain, and the UCRT64 SDL packages.
+Run commands from PowerShell through the repository wrapper:
+
+```powershell
+.\scripts\Invoke-Ucrt64.ps1 "cmake --preset ucrt64-debug"
+.\scripts\Invoke-Ucrt64.ps1 "cmake --build --preset ucrt64-debug"
+.\scripts\Invoke-Ucrt64.ps1 "ctest --preset ucrt64-debug"
+.\scripts\Invoke-Ucrt64.ps1 "./scripts/compile-ui-tests.sh"
+```
+
+`Invoke-Ucrt64.ps1` discovers common MSYS2 locations. Set `MSYS2_ROOT` when the
+installation is elsewhere. The `ucrt64-release` preset is also available.
+
+## Emscripten and web distribution
+
+Activate the SDK so `EMSDK` is set, then run:
+
+```sh
 cmake --preset emscripten-debug
 cmake --build --preset emscripten-debug
 ```
 
-Record repeatable clean-build results as CSV plus individual logs under the
-ignored `build/benchmarks/` directory:
+`emscripten-release` is the release equivalent. `npm run build` uses that
+preset, copies `CARCER.js`, `CARCER.wasm`, and `CARCER.data` into `web/`, then
+assembles `dist/`.
 
-```
-./scripts/modules/verify-cmake-clean-builds.sh gcc-debug 10 CARCER 8
-```
+## IDE setup
 
-The script records the compiler, build tools, host architecture, logical CPU
-count, configuration, target, and exact Carcer/SDL2W/BMIN commits.
+CMake exports `compile_commands.json` into each preset build directory. The
+checked-in VS Code settings point clangd at `build/cmake/clang-debug`; configure
+that preset before indexing:
 
-Windows (PowerShell) via MSYS2 UCRT64:
-
-```
-.\scripts\Invoke-Ucrt64.ps1 "cd src && make -j8"
+```sh
+cmake --preset clang-debug
 ```
 
-### Ucrt64/Mingw64 via MSYS2 (Windows)
+Keep `--experimental-modules-support` in clangd's arguments, not `.clangd`
+compile flags.
 
-Assuming you're using ucrt64 (other distribs like mingw64 or clang should work fine):
+## Qualification commands
 
-```
-pacman -S git make\
- mingw-w64-ucrt-x86_64-toolchain\
- ucrt64/mingw-w64-x86_64-SDL2\
- ucrt64/mingw-w64-x86_64-SDL2_image\
- ucrt64/mingw-w64-x86_64-SDL2_mixer\
- ucrt64/mingw-w64-x86_64-SDL2_ttf\
- ucrt64/mingw-w64-x86_64-SDL2_gfx
-
-# additional development tools
-pacman -S ucrt64/mingw-w64-ucrt-x86_64-clang\
- ucrt64/mingw-w64-ucrt-x86_64-clang-tools-extra\
- ucrt64/mingw-w64-x86_64-include-what-you-use\
- msys/python\
- msys/nodejs\
- ucrt64/mingw-w64-ucrt-x86_64-imagemagick
-
-# this linker is potentially faster on Windows
-pacman -S ucrt64/mingw-w64-ucrt-x86_64-lld
-
+```sh
+./scripts/benchmark-fresh-modules.sh gcc-debug 3 8
+./scripts/validate-native-repeatability.sh gcc-debug 10 8
+./scripts/validate-dependency-headers.sh g++-15
+./scripts/modules/check_ui_architecture.sh
 ```
 
-### Ubuntu
+Benchmark output is written below ignored `build/benchmarks/` paths. The
+architecture check is also registered with CTest.
 
-```
-apt install\
- build-essential\
- make\
- nodejs\
- clangd-17\
- clang-format\
- libsdl2-ttf-dev\
- libsdl2-image-dev\
- libsdl2-mixer-dev\
- libsdl2-gfx-dev -y
-```
+## Localization and animation tools
 
-### Mac M1^ (brew)
+`scripts/update-translations.sh` builds SDL2W's pinned `L10nScanner`, scans
+`src/`, and updates the translation files. New player-visible text must use
+`TRANSLATE("...")`; developer logs and diagnostics remain untranslated.
 
-```
-brew install gcc@16
-brew install node sdl2 sdl2_image sdl2_mixer sdl2_ttf
-
-# additional development tools
-python3 -m pip install --upgrade setuptools
-python3 -m pip install --upgrade pip
-```
-
-### Clangd Setup
-
-Generate `compile_commands.json` for clangd (modules-aware; prefers `clang++` + `-x c++-module` for `.cppm`):
-
-```
-cd scripts
-./compile-commands.sh
-```
-
-On Windows from the repo root:
-
-```
-.\scripts\Invoke-Ucrt64.ps1 "./scripts/compile-commands.sh"
-```
-
-Repo root [`.clangd`](.clangd) adds module include paths (`-Isrc/modules`, sdl2w/bmin module dirs). Put **`--experimental-modules-support` only in `clangd.arguments`** (`.vscode/settings.json`) — not in `.clangd` `CompileFlags`, or clang++ will reject it and module scanning breaks.
-
-Ensure `MSYS2_ROOT` points at your MSYS2 install (e.g. `C:\progs\msys2`) so `clangd.path` resolves to UCRT64 `clangd` (needs 17+; UCRT64 packages ship 22.x). Install if missing:
-
-```
-pacman -S mingw-w64-ucrt-x86_64-clang
-```
-
-After regenerating the DB, restart clangd: Command Palette → **clangd: Restart language server**. First open of a module-heavy TU may index ~2 minutes while BMIs build.
-
-
-### Localization
-
-Game strings use `TRANSLATE("...")` from sdl2w (`#include "macros.h"` after `import sdl2w;`). Translation files are generated by **L10nScanner**, a tool built from the pinned [sdl2w](https://github.com/benjamin-t-brown/sdl2w) checkout under `.deps/sdl2w`.
-
-From the repo root:
-
-```
-cd scripts
-./update-translations.sh
-```
-
-That script:
-
-1. Validates the pinned SDL2W/BMIN checkouts and builds `L10nScanner` if needed
-2. Scans `src/` for translatable strings
-3. Writes `src/assets/translation.<lang>.txt` for each language (currently `en` and `la`)
-
-To change languages or paths, edit the `L10nScanner` command at the bottom of `scripts/update-translations.sh`. New strings are appended; existing entries in the translation files are not overwritten.
-
-The game loads these files at runtime (`sdl2w::L10n::init` in `main.cpp`). Supported languages must match what you pass to L10nScanner and to `L10n::init`.
-
-The localization doesn't work for the MiyooA30 because the json library that the sdl2w wrapper uses is not supported by the version of gcc on the distro.
-
-### Emscripten
-
-Install Emscripten the normal way using git.
-```
-git clone https://github.com/emscripten-core/emsdk.git
-cd emsdk
-./emsdk install latest
-./emsdk activate latest
-source ./emsdk_env.sh
-```
-
-If there are cert errors, then the SSL_CERT_FILE bash variable needs to be set.  This can be discovered with python.
-
-```
-pip install certifi
-python3
-
-# inside python cli
-import certifi
-print(certifi.where())
-quit()
-
-# set the path that was printed above (MSYS2 requires cygwin path parser) for example:
-export SSL_CERT_FILE=$(cygpath -u "C:/progs/msys2/ucrt64/lib/python3.12/site-packages/certifi/cacert.pem")
-```
+`scripts/anims.sh` similarly builds and invokes SDL2W tooling from `.deps/`.
+These scripts use the dependencies' own build interfaces; they do not build
+Carcer.

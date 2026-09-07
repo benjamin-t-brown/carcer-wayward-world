@@ -11,8 +11,6 @@ cmake --build --preset gcc-debug
 ctest --preset gcc-debug
 ```
 
-The experimental C++ module build uses CMake's compiler dependency scanner and
-Ninja. The original Make build remains available with `make -C src -j8` while
-the module redesign is evaluated. See [DEVELOPMENT.md](DEVELOPMENT.md) for
-compiler requirements, other presets, UI test compilation, and known stale
-tests.
+The C++23 module build uses CMake's compiler dependency scanner and Ninja. See
+[DEVELOPMENT.md](DEVELOPMENT.md) for compiler requirements, other presets, UI
+test compilation, and known stale tests.

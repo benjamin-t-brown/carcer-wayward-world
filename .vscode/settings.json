@@ -105,7 +105,7 @@
   "clangd.arguments": [
     "--experimental-modules-support",
     "--query-driver=C:/msys64/ucrt64/bin/clang++.exe,C:/msys64/ucrt64/bin/g++.exe,C:/progs/msys2/ucrt64/bin/clang++.exe,C:/progs/msys2/ucrt64/bin/g++.exe,/ucrt64/bin/clang++.exe,/ucrt64/bin/g++.exe",
-    "--compile-commands-dir=${workspaceFolder}",
+    "--compile-commands-dir=${workspaceFolder}/build/cmake/clang-debug",
     "--background-index"
   ],
   "clangd.checkUpdates": false

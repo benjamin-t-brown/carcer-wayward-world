@@ -131,7 +131,7 @@ Only spawn agents that exist as `.cursor/agents/<name>.md`. Current roster:
 | Agent / skill | Use for |
 |---|---|
 | `planner` | Requirements, design, tasks under `.ai/specs/<feature>/` |
-| `cpp-expert` | C++ under `src/` — builds with `make -j8`, loaders, native tests |
+| `cpp-expert` | C++ under `src/` — CMake/Ninja builds, loaders, native tests |
 | `ceditor-expert` | Asset editor under `ceditor/` — types, forms, `npm run build` |
 | `commit-reviewer` | Review last commit for segfaults, type/logic/style errors, and test failures |
 | `code-explorer` | Read-only feature/codebase investigation |

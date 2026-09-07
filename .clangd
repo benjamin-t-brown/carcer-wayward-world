@@ -1,10 +1,3 @@
-# Include paths are relative to the compilation database `directory`
-# (repo root). Do not put --experimental-modules-support here — clang++
-# rejects it; it belongs in clangd.arguments only.
-
 CompileFlags:
   Add:
     - -std=c++23
-    - -Isrc/modules
-    - -Isrc/lib/sdl2w/modules
-    - -Isrc/lib/sdl2w/modules/bmin

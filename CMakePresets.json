@@ -61,6 +61,24 @@
       }
     },
     {
+      "name": "ucrt64-debug",
+      "displayName": "MSYS2 UCRT64 GCC debug",
+      "inherits": "native-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
+      "name": "ucrt64-release",
+      "displayName": "MSYS2 UCRT64 GCC release",
+      "inherits": "native-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
       "name": "emscripten-debug",
       "displayName": "Emscripten debug",
       "inherits": "native-base",
@@ -90,6 +108,8 @@
     { "name": "gcc-release", "configurePreset": "gcc-release", "jobs": 8 },
     { "name": "clang-debug", "configurePreset": "clang-debug", "jobs": 8 },
     { "name": "clang-release", "configurePreset": "clang-release", "jobs": 8 },
+    { "name": "ucrt64-debug", "configurePreset": "ucrt64-debug", "jobs": 8 },
+    { "name": "ucrt64-release", "configurePreset": "ucrt64-release", "jobs": 8 },
     { "name": "emscripten-debug", "configurePreset": "emscripten-debug", "jobs": 8 },
     { "name": "emscripten-release", "configurePreset": "emscripten-release", "jobs": 8 }
   ],
@@ -112,6 +132,16 @@
     {
       "name": "clang-release",
       "configurePreset": "clang-release",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "ucrt64-debug",
+      "configurePreset": "ucrt64-debug",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "ucrt64-release",
+      "configurePreset": "ucrt64-release",
       "output": { "outputOnFailure": true }
     }
   ]

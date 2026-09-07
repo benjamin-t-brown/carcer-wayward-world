@@ -1,79 +1,31 @@
 #!/usr/bin/env bash
-# Run all UI tests via UCRT64 (no Node required).
-# Interactive/manual — opens SDL windows until the user closes each test.
-# Agents/automation: use ./scripts/compile-ui-tests.sh instead (compile only).
+# Build and run every interactive UI test in sequence.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-cd "$ROOT/src"
+PRESET="${CARCER_CMAKE_PRESET:-ucrt64-debug}"
+BUILD_DIR="$ROOT/build/cmake/$PRESET"
+EXE_SUFFIX=""
+if [[ "${OS:-}" == "Windows_NT" ]]; then
+  EXE_SUFFIX=".exe"
+fi
 
-echo "Building object_files..."
-make object_files -j8
+cd "$ROOT"
+cmake --preset "$PRESET"
+cmake --build --preset "$PRESET" --target carcer_ui_tests
 
-CXX=$(make print_cxx)
-ARGS=$(make compiler_args)
-FAIL=0
-PASS=0
-
-run_cpp() {
-  local cpp="$1"
-  echo ""
-  echo "========== $cpp =========="
-  if $CXX "$cpp" $ARGS -o TestUi && ./TestUi; then
-    PASS=$((PASS + 1))
+passed=0
+failed=0
+while IFS= read -r source; do
+  name="$(basename "${source%.cpp}")"
+  executable="$BUILD_DIR/carcer_test_${name}${EXE_SUFFIX}"
+  echo "========== $name =========="
+  if (cd "$ROOT/src" && "$executable"); then
+    passed=$((passed + 1))
   else
-    echo "FAILED: $cpp"
-    FAIL=$((FAIL + 1))
+    failed=$((failed + 1))
   fi
-}
+done < <(find "$ROOT/src/__test__/ui" -name '*.cpp' | sort)
 
-while IFS=$'\t' read -r folder name; do
-  run_cpp "__test__/ui/${folder}/${name}.cpp"
-done <<'TESTS'
-components	TestConfirmModal
-layouts	TestInGameLayout
-pages	TestPageInventory
-layers	TestLayerPickUp
-layers	TestLayerInventory
-layers	TestCombat
-elements	TestHorizontalSlider
-elements	TestVerticalList
-elements	TestQuad
-elements	TestButtonGroup
-components	TestFloatingNotificationSection
-system	TestSystemFontScale
-elements	TestTextBanner
-elements	TestOutsetRectangle
-components	TestBorderModalStandard
-components	TestBorderModalSmall
-components	TestBorderInGameWide
-components	TestBorderInGameNarrow
-components	TestChCompactInfo
-components	TestInGameTitleBar
-components	TestTouchMovePad
-components	TestPartyMemberSwitcher
-components/lists	TestListPickUp
-components/lists	TestListInventory
-components/lists	TestListChCompactInfoHorizontal
-components/lists	TestListChCompactInfoVertical
-elements	TestButtonModal
-elements	TestButtonTextWrap
-elements	TestButtonWorldAction
-elements	TestSection
-elements	TestSectionScrollable
-elements	TestTextParagraph
-layouts	TestModalSmall
-layouts	TestModalStandard
-minipages	TestMinipagePickUp
-minipages	TestMinipageEvent
-minipages	TestMinipageCharacterSheet
-pages	TestPageCharacter
-pages	TestPageTalkChoice
-pages	TestPageMagicSetup
-popups	TestPopupPickupItem
-popups	TestPopupInventoryItem
-TESTS
-
-echo ""
-echo "UI tests: $PASS passed, $FAIL failed"
-[ "$FAIL" -eq 0 ]
+echo "UI tests: $passed passed, $failed failed"
+[[ "$failed" -eq 0 ]]

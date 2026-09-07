@@ -1,5 +1,5 @@
 # Run a command in MSYS2 UCRT64 from PowerShell (used by Cursor agent and local dev).
-# Usage: .\scripts\Invoke-Ucrt64.ps1 "cd src && make -j8"
+# Usage: .\scripts\Invoke-Ucrt64.ps1 "cmake --preset ucrt64-debug"
 #
 # Resolves MSYS2 root in order:
 #   1. $env:MSYS2_ROOT (explicit override)

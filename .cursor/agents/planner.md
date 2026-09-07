@@ -120,7 +120,7 @@ Example:
 - [ ] Add `cooldownMs` field to C++ `AbilityTemplate` and `LoadAbilityJson`
 - [ ] Add sample cooldown values to `src/assets/db/abilities.json`
 - [ ] Mirror field in ceditor types and `AbilityFormFields`
-- [ ] Run `make -j8` and `ceditor` `npm run build`
+- [ ] Run `cmake --build --preset gcc-debug` and `ceditor` `npm run build`
 - [ ] Run commit-reviewer on the last commit; write `.ai/specs/ability-cooldown-ui/commit-review.md` and fix Critical findings via the owning expert
 ```
 
@@ -129,7 +129,7 @@ Example:
 List concrete verification steps: commands to run, routes to open, game behavior to observe, test scripts under `test-runners/`. Reference Windows build wrapper when relevant:
 
 ```powershell
-.\scripts\Invoke-Ucrt64.ps1 "cd src && make -j8"
+.\scripts\Invoke-Ucrt64.ps1 "cmake --build --preset ucrt64-debug"
 ```
 
 ### 7. Write routing.md (multi-domain specs)
@@ -138,7 +138,7 @@ Map tasks or phases to agents:
 
 | Agent | Scope |
 |---|---|
-| **cpp-expert** | `src/**/*.cpp`, `src/**/*.h`, Makefile, native tests |
+| **cpp-expert** | `src/**/*.cpp`, `src/**/*.cppm`, CMake, native tests |
 | **ceditor-expert** | `ceditor/**`, editor types/forms, `npm run build` |
 | **commit-reviewer** | Last-commit review (segfaults, types, logic, tests, style); final task only |
 | **team-lead** | Orchestration, mixed-domain sequencing, user questions |
