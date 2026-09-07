@@ -2,7 +2,7 @@
 
 // Requires the including TU to include <functional> (and any other std headers)
 // BEFORE any `import`, then:
-//   import carcer;
+//   import the narrow carcer.ui.* and game domains used by the test;
 //   import sdl2w;
 //   import bmin.string_interop;
 //   #include "macros.h"

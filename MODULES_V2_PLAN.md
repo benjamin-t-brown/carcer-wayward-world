@@ -1,6 +1,6 @@
 # Carcer C++ Modules v2 Implementation Plan
 
-Status: Narrow optimization follow-up exhausted; Phase 8 blocked by the cold-build gate
+Status: Phase 8 complete; CMake/Ninja module architecture adopted
 Baseline commit: `95562b3` on `experiment/cpp-modules`  
 Date: 2026-09-05
 
@@ -81,6 +81,10 @@ Date: 2026-09-05
 - Phase 7 qualifies native GCC, native Clang, and Emscripten 6.0.9 builds.
   SDL2W/BMIN module consumers and classic-header consumers are both covered,
   and dependency artifacts are keyed by their complete build identity.
+- On 2026-09-07 the measured 69-second cold-build median was explicitly
+  accepted after the bounded optimization follow-up found no responsible
+  compiler-flag improvement. This revises that one adoption gate and authorizes
+  Phase 8; all other acceptance gates remain unchanged.
 
 ### Phase 2 qualification results
 
@@ -543,24 +547,44 @@ acceptance criterion's literal objects, archives, and BMIs account for about
 dependency-scan preprocessing data. An earlier 1.1 GiB reading was invalid
 because the reused build directory still contained outputs for interfaces
 deleted during prior phases, which Ninja could no longer identify during
-`clean`. Phase 8 must not remove the fallback build machinery until the project
-explicitly chooses either another optimization pass or the documented
-header-architecture fallback.
+`clean`. A bounded follow-up did not materially improve the cold result. The
+project explicitly accepted the measured 69-second median on 2026-09-07 and
+authorized removal of the fallback machinery.
 
 ### Phase 8: Remove experimental machinery
 
-After all gates pass:
+After all gates pass or a measured exception is explicitly accepted:
 
 - Remove the generated BMI Make graph and manifests.
 - Remove migration-only scripts.
 - Delete superseded module partitions.
-- Delete the umbrella module.
+- Delete the umbrella module, or retain it only after narrowing it to a real
+  application boundary that re-exports no subsystem.
 - Remove sibling-checkout assumptions.
 - Replace the current module document with a concise architecture and build
   contract.
 - Retain the benchmark and architecture-validation commands in CI.
 - Keep the old Make build until the CMake/Ninja build passes on every supported
   platform, then remove it in a dedicated commit.
+
+Phase 8 implementation record (2026-09-07):
+
+- The generated Carcer BMI Make graph, manifests, and legacy `src/Makefile`
+  were removed in dedicated commit `fdc4f77`. Existing test, web, Windows, IDE,
+  and agent entry points now invoke CMake presets.
+- Migration-only consolidation, partitioning, import-rewrite, ordering, and
+  old qualification scripts were removed. Compiler scanning is the only module
+  ordering mechanism.
+- No superseded module partitions remained after Phases 3–6. The narrow
+  `carcer` application module is deliberately retained because it owns current
+  bootstrap and will eventually contain the complete game; architecture tests
+  prohibit it from becoming an umbrella again.
+- Active dependency paths use the pinned `.deps/` checkouts. Compatibility
+  bundles live under ignored `build/compat/`, not the source tree.
+- `src/modules/MODULES.md` is now the concise final architecture/build
+  contract. Fresh-build benchmarking, repeated clean validation, dependency
+  compatibility, and the CTest-registered architecture check remain permanent
+  tooling.
 
 ## Public API changes
 

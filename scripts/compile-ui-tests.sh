@@ -9,5 +9,6 @@ if [[ "${MSYSTEM:-}" == "UCRT64" ]]; then
 fi
 PRESET="${CARCER_CMAKE_PRESET:-$DEFAULT_PRESET}"
 
-cmake --preset "$PRESET" -S "$ROOT"
+cd "$ROOT"
+cmake --preset "$PRESET"
 cmake --build --preset "$PRESET" --target carcer_ui_tests

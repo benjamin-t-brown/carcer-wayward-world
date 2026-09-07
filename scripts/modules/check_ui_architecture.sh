@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
-# Enforce the permanent UI dependency direction during the finalization pass.
+# Enforce the permanent module dependency direction.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-ALLOW_LEGACY_FACADE=0
-if [[ "${1:-}" == "--allow-legacy-layer-facade" ]]; then
-  ALLOW_LEGACY_FACADE=1
-elif [[ -n "${1:-}" ]]; then
-  echo "usage: $0 [--allow-legacy-layer-facade]" >&2
+if [[ -n "${1:-}" ]]; then
+  echo "usage: $0" >&2
   exit 2
 fi
 
@@ -60,12 +57,6 @@ screen_to_layers="$(
   rg -n '^(export )?import carcer\.ui\.(screens\.)?layers;' \
     "${ROOT}/src/ui/_screens.cppm" "${ROOT}/src/ui/screens" 2>/dev/null || true
 )"
-if [[ "${ALLOW_LEGACY_FACADE}" == "1" && -n "${screen_to_layers}" ]]; then
-  screen_to_layers="$(
-    printf '%s\n' "${screen_to_layers}" |
-      awk '!(/_screens\.cppm:8:export import carcer\.ui\.screens\.layers;/)'
-  )"
-fi
 
 failed=0
 if [[ -n "${lower_to_ui}" ]]; then
@@ -116,8 +107,4 @@ if [[ "${failed}" == "1" ]]; then
   exit 1
 fi
 
-if [[ "${ALLOW_LEGACY_FACADE}" == "1" ]]; then
-  echo "UI dependency direction passes with the Phase 0 legacy-facade exception"
-else
-  echo "UI dependency direction passes"
-fi
+echo "Module dependency direction passes"

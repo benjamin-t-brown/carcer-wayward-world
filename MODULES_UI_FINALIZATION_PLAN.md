@@ -1,6 +1,6 @@
 # Carcer Module/UI Finalization Plan
 
-Status: Phase 6 complete; Phase 8 remains blocked by the cold-build gate
+Status: Complete; Phase 8 adopted after explicit acceptance on 2026-09-07
 Pre-plan application commit: `0b661c3` (`Consolidate the UI module architecture`)
 Date: 2026-09-06
 
@@ -14,7 +14,8 @@ is implemented as a serial chain of large interface units.
 This plan is a focused finalization pass. It preserves the architectural gains,
 keeps `carcer` as the eventual application entry module, and makes layers the
 top UI/controller boundary. It does not remove the fallback build machinery;
-that remains Phase 8 work and is unlocked only after the final gates pass.
+that remains Phase 8 work and is unlocked after the final measurements are
+either met or explicitly accepted.
 
 ## Corrected baseline
 
@@ -425,9 +426,9 @@ Completion record (2026-09-07):
   rebuilding the pinned named-module bundle and generated Carcer BMI graph.
 - The 69-second final median is an eight-second improvement over the 77.05-
   second corrected baseline, but it misses the non-negotiable 60-second target
-  by nine seconds. Phase 8 is therefore not authorized. The next decision is
-  between one narrowly measured build-time follow-up and the documented
-  header-architecture fallback; the fallback/migration machinery stays intact.
+  by nine seconds. At this qualification checkpoint Phase 8 was not yet
+  authorized, so the fallback/migration machinery stayed intact pending the
+  bounded follow-up and explicit acceptance decision recorded below.
 
 Narrow build-time follow-up (2026-09-07):
 
@@ -444,9 +445,16 @@ Narrow build-time follow-up (2026-09-07):
   reverted rather than weakening the debug configuration for a result that
   still misses the target by eight seconds.
 - This exhausts the single narrowly measured follow-up authorized after Phase
-  6. Phase 8 remains blocked. The remaining decision is to adopt the documented
-  header architecture or explicitly revise the acceptance target in a new
-  plan; another unbounded module micro-optimization pass is not justified.
+  6. Another unbounded module micro-optimization pass is not justified.
+
+Acceptance decision (2026-09-07):
+
+- The project explicitly accepted the measured 69-second GCC debug cold-build
+  median after reviewing the bounded follow-up. This revises only the
+  60-second gate, preserves the other final criteria, and authorizes Phase 8 of
+  `MODULES_V2_PLAN.md`.
+- The narrow `carcer` application boundary remains by design; it is not the
+  superseded umbrella and re-exports no subsystem.
 
 ## Commit discipline
 

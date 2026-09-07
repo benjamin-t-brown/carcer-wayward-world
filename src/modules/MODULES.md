@@ -1,77 +1,46 @@
-# Carcer C++ modules
+# Carcer module architecture
 
-Carcer ships as C++23 named modules (`carcer.*`). This document describes the
-current module boundaries, import policy, and build graph.
+Carcer is a C++23 named-module application built with CMake/Ninja dependency
+scanning. The production graph has 20 interface units, 70 import edges, and a
+critical depth of 10.
 
-Migration status (2026-09): phases 1–7 of `MODULES_V2_PLAN.md` and Phases 0–6
-of `MODULES_UI_FINALIZATION_PLAN.md` are complete.
-The original class-per-module experiment has been reduced to 20 interfaces and
-70 import edges. Data, model, actions, and UI now expose domain-sized APIs;
-concrete action and layer implementations are private. Platform qualification
-and the graph, stability, compatibility, rebuild-isolation, and literal
-artifact-size gates pass. The final 69-second GCC cold-build median misses the
-60-second target, so Phase 8 is not authorized yet.
+## Boundaries
 
-## 1. Design goals
+Dependencies point down this table; orchestration may depend on rules and data,
+but lower layers must not depend back on actions or UI.
 
-Modules provide isolation only when the exported surface is intentional, and
-compile-time leverage only when the dependency graph is shallow. The original
-185-micro-module tree recreated the header dependency graph as serialized BMI
-work and made `import carcer;` invalidate almost everything.
-
-The current rules are:
-
-- A supported module is a cohesive domain API, not one class or one source
-  file.
-- Interface files primarily contain declarations. Put bodies in grouped
-  implementation units when the compiler supports that shape reliably.
-- Implementation classes use module linkage unless another domain genuinely
-  needs their type.
-- Import the narrowest owning domain. `carcer` is the narrow application entry
-  API and does not re-export subsystem declarations.
-- Dependency edges point from orchestration toward rules and data, never from
-  lower-level state or rules back toward actions or UI.
-
-## 2. Supported boundaries and layering
-
-Dependencies point down this table.
-
-| Layer | Supported modules | Responsibility |
+| Layer | Modules | Responsibility |
 |---|---|---|
-| Foundations | `carcer.lib.Json`, `carcer.lib.StringUtil`, external `sdl2w` and `bmin` | Generic utilities and platform wrappers. |
-| Static data | `carcer.data`, `carcer.game.map.TileFields` | Immutable definitions and leaf tile-field types. |
-| Data access | `carcer.db` | Template loading and lookup registries. |
-| Runtime model | `carcer.model` | Mutable characters, maps, items, world, and combat state. |
-| Rules | `carcer.game.map`, `carcer.game.combat`, `carcer.game.inventory`, `carcer.in3` | Logic over explicit model/database inputs. |
-| State kernel | `carcer.state` | Store, action queue/bus, interfaces, and UI request data. |
-| Commands | `carcer.actions` | Public command factories over private action implementations and frame orchestration. |
-| UI foundation | `carcer.ui.core` | Scaling, pixels, colors, styles, `UiElement`, and general UI utilities. |
-| UI widgets | `carcer.ui.widgets` | Primitives, controls, views, and game-aware composites. |
-| Screens | `carcer.ui.screens` | Passive layouts, overlays, pages, and screen runtime. |
-| UI controllers | `carcer.ui.layers` | Layers, layer stack, lifecycle, input routing, and interactive orchestration. |
-| Entry | `carcer` | Narrow application/bootstrap boundary consumed by `main.cpp`; its implementation starts the layer controller. |
+| Foundation | `carcer.lib.Json`, `carcer.lib.StringUtil`, `sdl2w`, `bmin` | Generic utilities and platform wrappers |
+| Data | `carcer.data`, `carcer.db`, `carcer.game.map.TileFields` | Definitions, lookup registries, and leaf tile types |
+| Model | `carcer.model` | Mutable game state values |
+| Rules | `carcer.game.map`, `carcer.game.combat`, `carcer.game.inventory`, `carcer.in3` | Logic over explicit model/database inputs |
+| State | `carcer.state` | Store, action queue/bus, service interfaces, and UI requests |
+| Commands | `carcer.actions` | Public command factories and frame orchestration |
+| UI core | `carcer.ui.core` | UI primitives, scaling, style, and `UiElement` |
+| Widgets | `carcer.ui.widgets` | Controls, reusable views, and composites |
+| Screens | `carcer.ui.screens` | Passive layouts, pages, overlays, and screen runtime |
+| Controllers | `carcer.ui.layers` | Layer stack, lifecycle, input routing, and interaction |
+| Application | `carcer` | Narrow bootstrap API used by `main.cpp` |
 
-The frame flow is input → `LayerManager` → active `Layer` → widget callback →
-`state::actions::Command` → `StateManager` → rules/model mutation →
-`WorldUpdater` → layer render.
+The runtime flow is input → `LayerManager` → active `Layer` → widget callback
+→ command → `StateManager` → rules/model mutation → `WorldUpdater` → render.
+Actions request screen changes through `state::LayerRequest`; they never import
+UI. Layers own screen composition and consume those requests.
 
-Actions request screen changes through `state::LayerRequest`; they do not
-import UI. `LayerManager` consumes those requests from the layer/controller
-side of the boundary.
+`carcer` is intentionally retained as the narrow application boundary because
+it will eventually contain the complete game bootstrap. It is not an umbrella:
+it re-exports no subsystem, and only `main.cpp` plus its import probe may import
+it.
 
-## 3. UI organisation
+## Source shape
 
-The supported UI surface has four boundaries:
+A public module represents a cohesive domain, not one class. Interfaces should
+mostly contain declarations; substantial method bodies belong in grouped
+implementation units. Implementation-only types have module linkage unless a
+different domain genuinely needs the type.
 
-```cpp
-import carcer.ui.core;
-import carcer.ui.widgets;
-import carcer.ui.screens;
-import carcer.ui.layers;
-```
-
-`carcer.ui.widgets` is a six-line public facade over three compiler-sized,
-declaration-only build units:
+The widget facade re-exports three compiler-sized declaration units:
 
 ```text
 carcer.ui.widgets.foundation
@@ -79,245 +48,91 @@ carcer.ui.widgets.views
 carcer.ui.widgets.composites
 ```
 
-`carcer.ui.screens` is one declaration interface with grouped ordinary
-implementation units:
+These are build-organization units, not consumer APIs. Application code and
+tests import `carcer.ui.widgets`. This shape avoids a GCC 15 corruption issue
+seen with one very large UI interface while preserving one supported boundary.
 
-```text
-ui/screens/runtime.cpp
-ui/screens/layouts.cpp
-ui/screens/overlays.cpp
-ui/screens/pages.cpp
-```
+`carcer.ui.screens` is a declaration interface backed by grouped implementation
+files. `carcer.ui.layers` sits above it and exposes `Layer`, `LayerManager`, and
+construction functions; concrete `LayerX` types remain private.
 
-The widget method bodies live in ordinary implementation units rather than
-BMIs. The dotted modules are build-organisation units. Application code and tests
-should use the facades unless they are themselves implementing the UI
-subsystem. They are standalone modules rather than standard partitions because
-GCC 15 produced corrupt external BMI data when the entire UI was represented
-as one very large interface/partition set. Dedicated external-import probes
-protect the facade shape on GCC and Clang.
+## Import contract
 
-`carcer.ui.layers` is a declarations-only public interface above screens.
-Concrete `LayerX` classes have module linkage in its implementation. Code
-outside that implementation uses `Layer`, `LayerManager`, and the exported
-construction functions:
-
-```cpp
-layers::createWorldLayer(window, mapScale);
-layers::createInventoryLayer(window);
-layers::createPickUpLayer(window);
-```
-
-Add another factory or registration seam when a new external caller truly
-needs to create a screen. Do not export the concrete layer merely for a test.
-
-## 4. File layout
-
-Broad domains use a small public interface and ordinary implementation units:
-
-```text
-src/actions/_actions.cppm      export module carcer.actions;
-src/actions/actions.cpp        module carcer.actions;
-src/actions/world/WorldUpdater.cpp
-```
-
-The same pattern is used by `carcer.data`, `carcer.model`, and most rule/state
-domains. An underscore on a facade filename only keeps the entry file easy to
-find; it is not part of the module name.
-
-The consolidated UI currently has this shape:
-
-```text
-src/ui/_core.cppm
-src/ui/_widgets.cppm
-src/ui/_widget_{foundation,views,composites}.cppm
-src/ui/widgets/{primitives,controls,foundation_views,views,composites}.cpp
-src/ui/_screens.cppm
-src/ui/screens/{runtime,layouts,overlays,pages}.cpp
-src/ui/_layers.cppm
-src/ui/layers.cpp
-src/layers/{Layer,LayerManager}.cpp
-```
-
-`UiElement.cpp`, `FontScale.cpp`, `KeyboardHeldScroll.cpp`, helper `.cpp`
-files, `LayerManager.cpp`, and `ChCompactInfo.cpp` are also implementation
-units where out-of-line code is useful or avoids a known GCC GCM issue.
-
-Do not infer that a new class needs a new module interface. Add it to the
-cohesive owning interface and move substantial bodies to an implementation
-unit when practical.
-
-## 5. Import and source rules
-
-- Production and tests import the narrowest supported domain they use. Only
-  `main.cpp` and the dedicated application import probe import `carcer`.
-- Internal UI implementation may import a grouped dotted module to avoid
-  making GCC traverse a facade back into its own implementation graph.
-- Never mix classic BMIN/SDL2W headers with their named modules in the same
+- Import the narrowest supported owning domain. Do not use `carcer` as a
+  convenience import.
+- Screens never import layers. Layers import screens and own loop management
+  and interactivity.
+- State, actions, rules, model, database, and data never import UI.
+- Do not import internal `carcer.ui.widgets.*` units outside the UI
+  implementation.
+- Never mix classic SDL2W/BMIN headers with their named modules in one
   translation unit.
-- Put standard-library includes in a module interface's global module fragment
-  (`module;` before `export module`). In ordinary `.cpp` files, put textual
-  includes before imports.
-- `macros.h` is the deliberate exception: it only defines project macros and
-  remains after module imports. `TRANSLATE` must stay a macro because the
-  localization scanner finds it textually.
-- Namespaces and module ownership are separate. Existing `ui::`, `state::`,
-  and `model::` namespaces do not imply matching micro-modules.
+- Put standard-library includes in an interface's global module fragment
+  (`module;` before `export module`). In implementation files, textual includes
+  precede imports.
+- `src/modules/macros.h` is the deliberate exception: localization keeps
+  `TRANSLATE` textual for the scanner.
+- A namespace does not imply a separate module. Add declarations to the owning
+  cohesive interface instead of creating a module per class.
 
-### Intentional public re-exports
+Intentional `export import` declarations are limited to types that form part of
+a domain contract and to the three-unit widget facade. The application module
+must never re-export a subsystem.
 
-Every remaining `export import` is part of a supported domain contract:
+## Build and test contract
 
-- Domain interfaces re-export BMIN containers, and selected adjacent Carcer
-  domains, where those named types occur throughout their exported fields,
-  bases, return values, or templates. This preserves standalone imports rather
-  than forcing consumers to reconstruct an interface's implementation graph.
-- `carcer.ui.core`, `carcer.ui.screens`, and `carcer.ui.layers` re-export the
-  lower public UI/domain types used directly by their declarations. Screens do
-  not re-export layers, and layers privately import screens.
-- `carcer.ui.widgets` deliberately re-exports exactly `foundation`, `views`,
-  and `composites`. Those three declaration-only modules are compiler-sized
-  implementation of one supported facade, not consumer-facing boundaries.
-- `carcer` re-exports nothing. It is a narrow application entry contract.
-
-The architecture test rejects new root-module consumers, imports of internal
-widget units, screens-to-layers edges, lower-domain-to-UI edges, changes to the
-widget facade set, and subsystem re-exports from `carcer`.
-
-## 6. Build graph
-
-CMake/Ninja is the primary compiler-scanned build:
+Dependencies are pinned by `deps.lock` and explicitly bootstrapped into
+`.deps/`. Configure and build validate the revisions without mutating them.
 
 ```sh
+./scripts/bootstrap-deps.sh
 cmake --preset gcc-debug
-cmake --build --preset gcc-debug -j 8
+cmake --build --preset gcc-debug
 ctest --preset gcc-debug
-
-cmake --preset clang-debug
-cmake --build --preset clang-debug -j 8
-ctest --preset clang-debug
-
-cmake --preset gcc-release
-cmake --build --preset gcc-release -j 8
-ctest --preset gcc-release
-
-cmake --preset clang-release
-cmake --build --preset clang-release -j 8
-ctest --preset clang-release
+cmake --build --preset gcc-debug --target carcer_ui_tests
 ```
 
-After activating an Emscripten SDK, build both web configurations with:
+The equivalent native presets are `gcc-release`, `clang-debug`, and
+`clang-release`. Emscripten uses `emscripten-debug` and `emscripten-release`.
+MSYS2 UCRT64 uses `ucrt64-debug` and `ucrt64-release` through
+`scripts/Invoke-Ucrt64.ps1`.
+
+CMake discovers module order with the compiler scanner. Do not add checked-in
+BMI manifests, hand-maintained ordering, or copied dependency trees. Every
+preset has its own build directory so compiler, target, and configuration
+artifacts cannot mix.
+
+Public interfaces have standalone probes under `src/__test__/modules/`. The
+regular CTest suite covers non-visual behavior; `carcer_ui_tests` compiles and
+links all 43 interactive UI programs without running them.
+
+Permanent architecture and performance checks are:
 
 ```sh
-source "$EMSDK/emsdk_env.sh"
-cmake --preset emscripten-debug
-cmake --build --preset emscripten-debug -j 8
-cmake --preset emscripten-release
-cmake --build --preset emscripten-release -j 8
+./scripts/modules/check_ui_architecture.sh
+./scripts/benchmark-fresh-modules.sh gcc-debug
+./scripts/validate-native-repeatability.sh gcc-debug 10
+./scripts/validate-dependency-headers.sh g++-15
 ```
 
-The build prepares Emscripten's SDL ports serially before module scanning.
-Successful builds produce `CARCER.js`, `CARCER.wasm`, and `CARCER.data` in the
-corresponding preset directory.
+The architecture check is registered with CTest. Benchmark and repeatability
+results are written below ignored `build/` directories.
 
-The legacy GCC Make path remains available from `src/`:
+## Qualification record
 
-```sh
-make -j8
-```
+The adopted graph passes GCC 15.3 and Clang 22.1.8 debug/release builds, 10/10
+repeated clean builds for each native compiler, 39 enabled CTests, all 43 UI
+compile/link tests, Emscripten 6.0.9 debug/release builds, and both dependency
+API modes. Five known-stale runtime tests remain explicitly disabled and three
+sources targeting disabled APIs remain excluded in `CMakeLists.txt`.
 
-The Make BMI graph is generated from module declarations and imports:
+Fresh GCC debug application builds measured 68, 69, and 69 seconds (median 69),
+with a zero-second median no-op build, three-second leaf rebuilds, and 277,056
+KiB of objects, archives, and BMIs. The original 60-second cold target was not
+met; after one bounded optimization pass yielded no meaningful improvement,
+the 69-second result was explicitly accepted on 2026-09-07 to complete module
+adoption.
 
-```sh
-python3 scripts/modules/gen_bmi_makefile.py
-```
-
-This updates:
-
-- `src/modules/make/build-bmi.mk`
-- `src/modules/cpp_bmi_deps.mk`
-- `src/modules/cppm_sources.list`
-- `src/modules/bmi_objs.list`
-- `src/modules/module_order.txt`
-
-Regenerate after adding/removing an interface or changing an import edge. The
-current graph has 20 interfaces, 70 edges, critical depth 10, and maximum
-transitive fan-out 16.
-
-SDL2W and BMIN revisions are pinned in the repository-level `deps.lock` and
-materialized into `.deps/`/the consumer bundle by the bootstrap scripts. CMake
-and Make validate those revisions before building. On native Make builds,
-`sdl2-config --cflags` supplies the platform SDL include flags needed by UI
-interfaces that mention SDL types.
-
-Preset build directories segregate BMIs by compiler, target, and configuration.
-Dependency bundles are additionally keyed by compiler path/version, target,
-mode, flags, and `deps.lock`; `build-deps.sh` cleans shared upstream Make
-outputs when that identity changes. Do not manually copy BMIs or dependency
-objects between preset directories. The legacy Make `gcm.cache` is not keyed,
-so clean it before changing the compiler while that build remains available.
-
-## 7. Tests and boundary checks
-
-The public interfaces have standalone import probes in
-`src/__test__/modules/`. The UI probes are:
-
-- `ImportUiCore.cpp`
-- `ImportUiWidgets.cpp`
-- `ImportUiScreens.cpp`
-- `ImportUiLayers.cpp`
-
-Keep a probe minimal: import the supported facade, instantiate or reference a
-small representative API, and link it outside the owning module target. A
-successful in-tree build alone is insufficient to catch corrupted or
-incomplete exported BMI data.
-
-The regular CTest suite covers non-visual behavior. The `carcer_ui_tests`
-CMake target compiles and links all 43 UI programs even though those programs
-are not registered as headless runtime tests.
-
-The compatibility and repeatability checks are:
-
-```sh
-scripts/validate-dependency-headers.sh g++-15
-scripts/validate-dependency-headers.sh clang++
-scripts/validate-native-repeatability.sh gcc-debug 10
-scripts/validate-native-repeatability.sh clang-debug 10
-```
-
-The header probe uses a separately keyed consumer bundle and never mixes
-classic SDL2W/BMIN headers with named-module imports. Repeatability logs are
-written below the ignored `build/validation/` directory.
-
-The Phase 6 qualification matrix passes GCC 15.3 and Homebrew Clang 22.1.8 in
-debug and release, all 43 UI compile/link programs in every native
-configuration, 10/10 clean debug builds per native compiler, Emscripten 6.0.9
-debug and release, both dependency API modes, and the clean legacy Make build.
-Three fresh GCC debug measurements were 68, 69, and 69 seconds (median 69),
-with 0-second median no-op work, three-second leaf rebuilds, and 277,056 KiB of
-objects/archives/BMIs. Only the 60-second cold-build target remains unmet.
-
-A subsequent bounded GCC debug-info experiment measured 67, 68, and 69
-seconds (median 68) after reducing optimized-local variable tracking. Because
-the one-second change is within normal host variance, still misses the gate by
-eight seconds, and reduces debugger precision, it was reverted. The authorized
-narrow follow-up is exhausted; Phase 8 remains blocked pending an explicit
-header-fallback or acceptance-target decision.
-
-## 8. Adding or changing code
-
-1. Choose the lowest cohesive domain that owns the behavior.
-2. Add declarations only when another domain needs them; keep implementation
-   types private.
-3. Import the narrow supported boundary, not `carcer`.
-4. Regenerate the Make graph when interfaces or imports change.
-5. Run the relevant public import probe before wiring a changed facade into
-   wider consumers.
-6. Build and test with both native compiler presets. During compatibility work,
-   also run the legacy Make build.
-
-`scripts/modules/consolidate_module.py` remains a migration helper for
-mechanically combining old interfaces. Review its output for ownership and
-exports; it cannot decide the correct public API. The generated graph script is
-permanent build tooling and must remain after the migration scripts are
-eventually removed in Phase 8.
+When changing a boundary, run its import probe, the architecture check, the
+relevant behavioral tests, and both native compiler builds. Re-run the fresh
+benchmark when an interface or high-fan-out import changes.
