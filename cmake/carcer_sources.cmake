@@ -19,7 +19,11 @@ set(CARCER_FOUNDATION_SOURCES
 
 set(CARCER_LAYER_SOURCES
   src/layers/Layer.cpp
+  src/layers/UiLayer.cpp
   src/layers/LayerManager.cpp
+  src/layers/createInventoryLayer.cpp
+  src/layers/createPickUpLayer.cpp
+  src/layers/createWorldLayer.cpp
   src/layers/ui/LayerInventoryContext.cpp
   src/layers/ui/LayerGiveContext.cpp
   src/layers/ui/LayerDropConfirm.cpp
@@ -85,8 +89,7 @@ set(CARCER_STATE_SOURCES
   src/state/StateManager.cpp
   src/state/StateManagerInterface.cpp
   src/state/UiManager.cpp
-  src/state/LayerRequest.cpp
-  src/state/LayerManagerInterface.cpp)
+  src/state/LayerRequest.cpp)
 
 set(CARCER_UI_SOURCES
   src/ui/UiElement.cpp

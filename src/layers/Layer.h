@@ -1,16 +1,16 @@
 #pragma once
 
-#include "bmin/DynArray.h"
 #include "bmin/String.h"
-#include "bmin/StringInterop.h"
-#include "bmin/UniquePtr.h"
-#include "sdl2w/Window.h"
 #include "state/AbstractAction.h"
 #include "state/DatabaseInterface.h"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
-#include "ui/UiElement.h"
 #include <string_view>
+#include <utility>
+
+namespace sdl2w {
+class Window;
+}
 
 namespace layers {
 
@@ -20,7 +20,6 @@ class Layer : public state::StateManagerInterface, public state::DatabaseInterfa
 protected:
   sdl2w::Window* window;
   LayerState state = LayerState::ON;
-  bmin::DynArray<bmin::UniquePtr<ui::UiElement>> uiElements;
   bool removeFlag = false;
   bmin::String id;
 
@@ -37,6 +36,9 @@ public:
   virtual void onMouseWheel(int x, int y, int dir);
   virtual void onKeyDown(std::string_view key, int keyCode);
   virtual void onKeyUp(std::string_view key, int keyCode);
+  virtual void onActivate();
+  virtual void onSuspend();
+  virtual void onDeactivate();
 
   // State management
   void turnOn();
@@ -45,19 +47,8 @@ public:
   void remove();
   bool shouldRemove() const;
   LayerState getState() const;
-  bmin::String getId() const;
+  const bmin::String& getId() const;
   void setId(std::string_view id);
-
-  void addUiElement(ui::UiElement* element);
-
-  template <typename T> T* getUiElement(std::string_view elementId) {
-    for (auto& elem : uiElements) {
-      if (elem->getId() == elementId) {
-        return dynamic_cast<T*>(elem.get());
-      }
-    }
-    return nullptr;
-  }
 
   template <state::ActionEvent Event, typename Fn> void subscribeAction(Fn&& fn) {
     if (!hasStateManager()) {

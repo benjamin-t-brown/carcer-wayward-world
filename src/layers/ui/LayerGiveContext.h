@@ -1,10 +1,10 @@
 #pragma once
 
-#include "layers/Layer.h"
+#include "layers/UiLayer.h"
 
 namespace layers {
 
-class LayerGiveContext : public Layer {
+class LayerGiveContext : public UiLayer {
 public:
   constexpr static std::string_view LAYER_ID = "layer_give_context";
   explicit LayerGiveContext(sdl2w::Window* _window,

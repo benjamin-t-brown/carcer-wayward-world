@@ -1,14 +1,15 @@
 #pragma once
 
-#include "layers/Layer.h"
+#include "layers/UiLayer.h"
 
 namespace layers {
 
-class LayerPickUpContext : public Layer {
+class LayerPickUpContext : public UiLayer {
 private:
   model::ItemInstance item;
 
 public:
+  constexpr static std::string_view LAYER_ID = "layer_pick_up_context";
   explicit LayerPickUpContext(sdl2w::Window* _window, const model::ItemInstance& item);
   virtual ~LayerPickUpContext() = default;
 

@@ -15,7 +15,7 @@
 
 namespace layers {
 
-LayerInventory::LayerInventory(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
+LayerInventory::LayerInventory(sdl2w::Window* _window) : UiLayer(_window, LAYER_ID) {
   if (!assertInterfaces()) {
     remove();
     return;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Layer.h"
+#include "../UiLayer.h"
 #include "bmin/String.h"
 #include "db/Database.h"
 #include "model/instances/CharacterPlayer.h"
@@ -8,7 +8,7 @@
 
 namespace layers {
 
-class LayerMagic : public Layer {
+class LayerMagic : public UiLayer {
 private:
   static ui::PageMagicSetupSpellEntry makeSpellEntry(const db::Database& database,
                                                      const bmin::String& spellName);

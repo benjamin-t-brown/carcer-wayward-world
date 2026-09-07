@@ -5,6 +5,7 @@
 #include "bmin/UniquePtr.h"
 #include "db/Database.h"
 #include "layers/LayerManager.h"
+#include "layers/UiLayer.h"
 #include "game/combat/SpellRules.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/Player.h"
@@ -13,7 +14,6 @@
 #include "sdl2w/Logger.h"
 #include "sdl2w/Window.h"
 #include "state/DatabaseInterface.h"
-#include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
 #include "actions/navigation/UiCancelEquipRunes.hpp"
 #include "actions/navigation/UiCommitEquipRunes.hpp"
@@ -126,7 +126,7 @@ ui::PageMagicSetupProps makeMagicSetupFixtureProps(
 
 } // namespace
 
-class TestLayer : public layers::Layer {
+class TestLayer : public layers::UiLayer {
   db::Database* database = nullptr;
 
   void syncFromCharacter() {
@@ -151,7 +151,7 @@ public:
   TestLayer(sdl2w::Window* _window,
             db::Database* _database,
             ui::PageMagicSetupProps pageProps)
-      : layers::Layer(_window, LAYER_ID), database(_database) {
+      : layers::UiLayer(_window, LAYER_ID), database(_database) {
     auto pageMagicSetup = bmin::makeUnique<ui::PageMagicSetup>(window);
     pageMagicSetup->setId("pageMagicSetup");
     pageMagicSetup->setPos(0, 0);
@@ -247,7 +247,6 @@ int main(int argc, char** argv) {
         windowWidth, windowHeight, player, member0, database);
 
     layerManager = bmin::makeUnique<layers::LayerManager>(&window);
-    state::LayerManagerInterface::setLayerManager(layerManager.get());
 
     auto* testLayer = new TestLayer(&window, &database, std::move(pageProps));
     layerManager->addLayer(testLayer);

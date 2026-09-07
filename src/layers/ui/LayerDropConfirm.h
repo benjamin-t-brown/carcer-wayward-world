@@ -1,10 +1,10 @@
 #pragma once
 
-#include "layers/Layer.h"
+#include "layers/UiLayer.h"
 
 namespace layers {
 
-class LayerDropConfirm : public Layer {
+class LayerDropConfirm : public UiLayer {
 public:
   constexpr static std::string_view LAYER_ID = "layer_drop_confirm";
   explicit LayerDropConfirm(sdl2w::Window* _window,

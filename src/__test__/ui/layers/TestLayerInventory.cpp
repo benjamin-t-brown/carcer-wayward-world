@@ -7,7 +7,6 @@
 #include "sdl2w/Window.h"
 #include "model/instances/CharacterPlayer.h"
 #include "state/DatabaseInterface.h"
-#include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "bmin/DynArray.h"
@@ -81,7 +80,6 @@ int main(int argc, char** argv) {
     LOG(INFO) << "LayerInventory test initialized" << LOG_ENDL;
 
     layerManager = bmin::makeUnique<layers::LayerManager>(&window);
-    state::LayerManagerInterface::setLayerManager(layerManager.get());
 
     auto* layerInventory = new layers::LayerInventory(&window);
     layerManager->addLayer(layerInventory);

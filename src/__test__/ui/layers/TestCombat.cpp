@@ -17,7 +17,6 @@
 #include "sdl2w/Logger.h"
 #include "sdl2w/Window.h"
 #include "state/DatabaseInterface.h"
-#include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
 #include "state/WorldUpdater.h"
 #include "actions/combat/StartCombat.hpp"
@@ -169,7 +168,6 @@ int main(int argc, char** argv) {
     LOG(INFO) << "Combat test initialized" << LOG_ENDL;
 
     layerManager = bmin::makeUnique<layers::LayerManager>(&window);
-    state::LayerManagerInterface::setLayerManager(layerManager.get());
 
     auto* layerWorld = new layers::LayerWorld(&window);
     layerWorld->setMapScale(2.f);

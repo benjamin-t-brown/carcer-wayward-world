@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../Layer.h"
+#include "../UiLayer.h"
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "model/templates/RuneTypes.h"
 
 namespace layers {
 
-class LayerEquipRunes : public Layer {
+class LayerEquipRunes : public UiLayer {
 private:
   bmin::String characterPlayerId;
   bmin::DynArray<model::RuneType> equippedSnapshot;

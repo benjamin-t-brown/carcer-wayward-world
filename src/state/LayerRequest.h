@@ -70,6 +70,7 @@ struct LayerRequest {
   bmin::String b;
   int x = 0;
   int y = 0;
+  bool hasPosition = false;
 };
 
 void pushLayerRequest(State& state, LayerRequest request);

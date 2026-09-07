@@ -1,18 +1,18 @@
 #include "../../setupTestUi.h"
 #include "layers/LayerManager.h"
+#include "layers/UiLayer.h"
 #include "sdl2w/Draw.h"
 #include "sdl2w/Logger.h"
 #include "sdl2w/Window.h"
-#include "state/LayerManagerInterface.h"
 #include "ui/UiElement.h"
 #include "ui/minipages/MinipageCharacterSheet.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
 #include "bmin/UniquePtr.h"
 
-class TestLayer : public layers::Layer {
+class TestLayer : public layers::UiLayer {
 public:
-  TestLayer(sdl2w::Window* _window) : layers::Layer(_window) {
+  TestLayer(sdl2w::Window* _window) : layers::UiLayer(_window) {
     auto [windowWidth, windowHeight] = window->getDims();
 
     auto minipageCharacterSheet = bmin::makeUnique<ui::MinipageCharacterSheet>(window);
@@ -44,7 +44,6 @@ int main(int argc, char** argv) {
     LOG(INFO) << "MinipageCharacterSheet test initialized" << LOG_ENDL;
 
     layerManager = bmin::makeUnique<layers::LayerManager>(&window);
-    state::LayerManagerInterface::setLayerManager(layerManager.get());
 
     layerManager->addLayer(new TestLayer(&window));
 

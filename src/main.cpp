@@ -1,10 +1,15 @@
 #include "lib/hiscore/hiscore.h"
+#include "db/Database.h"
+#include "layers/LayerManager.h"
 #include "sdl2w/AssetLoader.h"
 #include "sdl2w/Draw.h"
 #include "sdl2w/Events.h"
 #include "sdl2w/Init.h"
 #include "sdl2w/L10n.h"
 #include "sdl2w/Logger.h"
+#include "state/DatabaseInterface.h"
+#include "state/LayerRequest.h"
+#include "state/StateManager.h"
 
 void runProgram(int argc, char** argv) {
   const int w = 640;
@@ -31,44 +36,17 @@ void runProgram(int argc, char** argv) {
   window.getStore().loadAndStoreFont("default", "assets/cabal.ttf");
   window.getStore().loadAndStoreFont("alternate", "assets/monofonto.ttf");
 
-  sdl2w::Draw& d = window.getDraw();
   window.setSoundPct(33);
 
-  auto& events = window.getEvents();
-  // events.setKeyboardEvent(
-  //     sdl2w::ON_KEY_PRESS,
-  //     [&](const String& key, int) { game.handleKeyPress(key); });
-
-  auto _initializeLoop = [&]() {
-    sdl2w::renderSplash(window);
-    return true;
-  };
-
-  auto _onInitialized = [&]() {
-    // load high scores
-    // auto hiscores = hiscore::getHighScores();
-    // if (hiscores.size()) {
-    //   game.state.wins = hiscores[0].score;
-    // }
-
-    // game.start();
-  };
-
-  auto _mainLoop = [&]() {
-    d.setBackgroundColor({10, 10, 10});
-
-#ifndef __EMSCRIPTEN__
-    if (window.getEvents().isKeyPressed("Escape")) {
-      return false;
-    }
-#endif
-
-    // game.update(std::min(window.getDeltaTime(), 100));
-    // game.render();
-    return true;
-  };
-
-  window.startRenderLoop(_initializeLoop, _onInitialized, _mainLoop);
+  db::Database database;
+  database.load();
+  state::DatabaseInterface::setDatabase(&database);
+  state::StateManager stateManager;
+  state::pushLayerRequest(stateManager.getState(),
+                          state::LayerRequest{.id = state::LayerId::World});
+  layers::LayerManager layerManager(&window);
+  layerManager.start();
+  state::DatabaseInterface::setDatabase(nullptr);
 }
 
 int main(int argc, char** argv) {

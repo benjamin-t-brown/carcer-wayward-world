@@ -1,22 +1,22 @@
 #include "../../setupTestUi.h"
 #include "layers/LayerManager.h"
+#include "layers/UiLayer.h"
 #include "sdl2w/Draw.h"
 #include "sdl2w/Logger.h"
 #include "sdl2w/Window.h"
 #include "model/instances/CharacterPlayer.h"
-#include "state/LayerManagerInterface.h"
 #include "ui/UiElement.h"
 #include "ui/pages/PageCharacter.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include <memory>
 #include "bmin/UniquePtr.h"
 
-class TestLayer : public layers::Layer {
+class TestLayer : public layers::UiLayer {
   model::CharacterPlayer characterPlayer;
 
 public:
   TestLayer(sdl2w::Window* _window, model::CharacterPlayer _characterPlayer)
-      : layers::Layer(_window), characterPlayer(std::move(_characterPlayer)) {
+      : layers::UiLayer(_window), characterPlayer(std::move(_characterPlayer)) {
     auto [windowWidth, windowHeight] = window->getDims();
 
     auto pageCharacter = bmin::makeUnique<ui::PageCharacter>(window);
@@ -49,7 +49,6 @@ int main(int argc, char** argv) {
     LOG(INFO) << "PageCharacter test initialized" << LOG_ENDL;
 
     layerManager = bmin::makeUnique<layers::LayerManager>(&window);
-    state::LayerManagerInterface::setLayerManager(layerManager.get());
 
     auto characterPlayer =
         model::CharacterPlayer(database.getCharacterTemplate("testPartyMember1"));

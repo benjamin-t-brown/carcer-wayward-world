@@ -1,12 +1,12 @@
 #pragma once
 
 #include "bmin/String.h"
-#include "layers/Layer.h"
+#include "layers/UiLayer.h"
 #include <string_view>
 
 namespace layers {
 
-class LayerPopupText : public Layer {
+class LayerPopupText : public UiLayer {
 public:
   constexpr static std::string_view LAYER_ID = "layer_popup_text";
 

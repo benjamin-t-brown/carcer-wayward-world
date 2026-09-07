@@ -1,6 +1,6 @@
 #pragma once
 
-#include "layers/Layer.h"
+#include "layers/UiLayer.h"
 #include "bmin/Map.h"
 #include "model/templates/SpecialEvents.h"
 #include "runner/SpecialEventRunner.h"
@@ -17,7 +17,7 @@ class SectionScrollable;
 
 namespace layers {
 
-class LayerSpecialEvent : public Layer {
+class LayerSpecialEvent : public UiLayer {
 private:
   runner::SpecialEventRunner runner;
   runner::SpecialEventRunnerInterface runnerInterface;

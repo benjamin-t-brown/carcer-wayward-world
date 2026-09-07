@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Layer.h"
+#include "../UiLayer.h"
 #include "ui/minipages/MinipageSpellCast.h"
 #include <string_view>
 
@@ -11,7 +11,7 @@ class Database;
 namespace layers {
 
 /** Combat spell-cast list for the active party member's known spells. */
-class LayerSpellCast : public Layer {
+class LayerSpellCast : public UiLayer {
   bmin::String chId;
   static ui::MinipageSpellCastSpell makeSpellEntry(const db::Database& database,
                                                    const bmin::String& spellName);

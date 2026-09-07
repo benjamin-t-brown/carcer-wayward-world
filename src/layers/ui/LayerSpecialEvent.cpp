@@ -89,7 +89,7 @@ LayerSpecialEvent::LayerSpecialEvent(
     const model::GameEvent& gameEvent,
     const bmin::Map<bmin::String, model::GameEvent>& gameEvents,
     const bmin::Map<bmin::String, bmin::String>& initialStorage)
-    : Layer(_window, LAYER_ID),
+    : UiLayer(_window, LAYER_ID),
       runner(initialStorage, gameEvent, gameEvents),
       runnerInterface(runner) {
 
@@ -475,7 +475,7 @@ void LayerSpecialEvent::onKeyUp(std::string_view key, int /*keyCode*/) {
 }
 
 void LayerSpecialEvent::update(int deltaTime) {
-  Layer::update(deltaTime);
+  UiLayer::update(deltaTime);
   talkKeyboardScroll.update(deltaTime, window);
 
   if (choicePressRemainingMs > 0) {

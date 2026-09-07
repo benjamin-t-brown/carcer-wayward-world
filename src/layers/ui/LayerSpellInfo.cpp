@@ -10,7 +10,7 @@
 namespace layers {
 
 LayerSpellInfo::LayerSpellInfo(sdl2w::Window* _window, const bmin::String& spellName)
-    : Layer(_window, LAYER_ID) {
+    : UiLayer(_window, LAYER_ID) {
   if (!assertInterfaces()) {
     remove();
     return;

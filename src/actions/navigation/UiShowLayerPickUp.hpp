@@ -22,6 +22,7 @@ class UiShowLayerPickUp : public AbstractAction {
     if (containerTile) {
       request.x = containerTile->first;
       request.y = containerTile->second;
+      request.hasPosition = true;
     }
     pushLayerRequest(*state, std::move(request));
   }

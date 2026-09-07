@@ -10,7 +10,7 @@ namespace layers {
 LayerGiveContext::LayerGiveContext(sdl2w::Window* _window,
                                    bmin::String fromCharacterPlayerId,
                                    bmin::String itemId)
-    : Layer(_window, LAYER_ID) {
+    : UiLayer(_window, LAYER_ID) {
 
   if (!assertInterfaces()) {
     remove();
@@ -93,8 +93,8 @@ LayerGiveContext::LayerGiveContext(sdl2w::Window* _window,
   addUiElement(floatingNotificationSection);
 }
 
-void LayerGiveContext::update(int deltaTime) { Layer::update(deltaTime); }
+void LayerGiveContext::update(int deltaTime) { UiLayer::update(deltaTime); }
 
-void LayerGiveContext::render(int deltaTime) { Layer::render(deltaTime); }
+void LayerGiveContext::render(int deltaTime) { UiLayer::render(deltaTime); }
 
 } // namespace layers

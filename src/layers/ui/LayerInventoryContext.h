@@ -1,10 +1,10 @@
 #pragma once
 
-#include "layers/Layer.h"
+#include "layers/UiLayer.h"
 
 namespace layers {
 
-class LayerInventoryContext : public Layer {
+class LayerInventoryContext : public UiLayer {
 public:
   constexpr static std::string_view LAYER_ID = "layer_inventory_context";
   explicit LayerInventoryContext(sdl2w::Window* _window,

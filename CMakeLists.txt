@@ -324,4 +324,23 @@ if(BUILD_TESTING)
   add_test(NAME Phase6HeaderSelfContainment
     COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}"
             --target carcer_phase6_header_checks --parallel 8)
+
+  file(GLOB_RECURSE CARCER_PHASE7_HEADERS CONFIGURE_DEPENDS
+    "${CMAKE_SOURCE_DIR}/src/layers/*.h"
+    "${CMAKE_SOURCE_DIR}/src/layers/*.hpp")
+  set(CARCER_PHASE7_HEADER_PROBES)
+  foreach(header IN LISTS CARCER_PHASE7_HEADERS)
+    file(RELATIVE_PATH relative_header "${CMAKE_SOURCE_DIR}/src" "${header}")
+    string(MD5 header_id "phase7-${relative_header}")
+    set(probe "${CMAKE_BINARY_DIR}/header-self-containment/phase7/${header_id}.cpp")
+    file(WRITE "${probe}" "#include \"${relative_header}\"\nint carcer_header_probe_${header_id} = 0;\n")
+    list(APPEND CARCER_PHASE7_HEADER_PROBES "${probe}")
+  endforeach()
+  add_library(carcer_phase7_header_checks OBJECT EXCLUDE_FROM_ALL
+    ${CARCER_PHASE7_HEADER_PROBES})
+  set_property(TARGET carcer_phase7_header_checks PROPERTY CXX_SCAN_FOR_MODULES OFF)
+  target_link_libraries(carcer_phase7_header_checks PRIVATE carcer_lib)
+  add_test(NAME Phase7HeaderSelfContainment
+    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}"
+            --target carcer_phase7_header_checks --parallel 8)
 endif()

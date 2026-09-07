@@ -12,7 +12,6 @@
 #include "sdl2w/Logger.h"
 #include "sdl2w/Window.h"
 #include "state/DatabaseInterface.h"
-#include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
 #include "actions/world/WorldLoadActiveMap.hpp"
 #include "actions/world/WorldSpawnPlayerAtMarker.hpp"
@@ -90,7 +89,6 @@ int main(int argc, char** argv) {
     LOG(INFO) << "LayerWorld test initialized" << LOG_ENDL;
 
     layerManager = bmin::makeUnique<layers::LayerManager>(&window);
-    state::LayerManagerInterface::setLayerManager(layerManager.get());
 
     auto* layerWorld = new layers::LayerWorld(&window);
     layerWorld->setMapScale(2.f);

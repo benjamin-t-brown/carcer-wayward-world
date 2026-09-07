@@ -6,10 +6,12 @@
 namespace state {
 
 void pushLayerRequest(State& state, LayerRequest request) {
-  for (auto& existing : state.uiState.layerStack) {
-    if (existing.id == request.id) {
-      existing = std::move(request);
-      return;
+  for (auto it = state.uiState.layerStack.begin();
+       it != state.uiState.layerStack.end();
+       ++it) {
+    if (it->id == request.id) {
+      state.uiState.layerStack.erase(it);
+      break;
     }
   }
   state.uiState.layerStack.pushBack(std::move(request));

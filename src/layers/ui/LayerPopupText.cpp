@@ -23,7 +23,7 @@ constexpr int CLOSE_BUTTON_PADDING = 4;
 LayerPopupText::LayerPopupText(sdl2w::Window* _window,
                                bmin::String title,
                                bmin::String text)
-    : Layer(_window, LAYER_ID) {
+    : UiLayer(_window, LAYER_ID) {
 
   if (!assertInterfaces()) {
     remove();
@@ -131,8 +131,8 @@ LayerPopupText::LayerPopupText(sdl2w::Window* _window,
   addUiElement(floatingNotificationSection);
 }
 
-void LayerPopupText::update(int deltaTime) { Layer::update(deltaTime); }
+void LayerPopupText::update(int deltaTime) { UiLayer::update(deltaTime); }
 
-void LayerPopupText::render(int deltaTime) { Layer::render(deltaTime); }
+void LayerPopupText::render(int deltaTime) { UiLayer::render(deltaTime); }
 
 } // namespace layers

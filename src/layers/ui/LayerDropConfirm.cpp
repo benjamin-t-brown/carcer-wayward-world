@@ -10,7 +10,7 @@ namespace layers {
 LayerDropConfirm::LayerDropConfirm(sdl2w::Window* _window,
                                    bmin::String characterPlayerId,
                                    bmin::String itemId)
-    : Layer(_window, LAYER_ID) {
+    : UiLayer(_window, LAYER_ID) {
 
   if (!assertInterfaces()) {
     remove();
@@ -80,8 +80,8 @@ LayerDropConfirm::LayerDropConfirm(sdl2w::Window* _window,
   addUiElement(floatingNotificationSection);
 }
 
-void LayerDropConfirm::update(int deltaTime) { Layer::update(deltaTime); }
+void LayerDropConfirm::update(int deltaTime) { UiLayer::update(deltaTime); }
 
-void LayerDropConfirm::render(int deltaTime) { Layer::render(deltaTime); }
+void LayerDropConfirm::render(int deltaTime) { UiLayer::render(deltaTime); }
 
 } // namespace layers

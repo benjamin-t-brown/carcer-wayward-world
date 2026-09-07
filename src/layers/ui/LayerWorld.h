@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Layer.h"
+#include "../UiLayer.h"
 #include "bmin/String.h"
 #include "model/templates/UtilityTypes.h"
 #include "state/WorldActions.h"
@@ -12,7 +12,7 @@ class InGameLayout;
 
 namespace layers {
 
-class LayerWorld : public Layer {
+class LayerWorld : public UiLayer {
 private:
   // void processPendingTriggers();
   void attachWorldActionObservers(ui::InGameLayout* inGameLayout);

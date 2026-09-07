@@ -2,18 +2,13 @@
 #include "bmin/StringInterop.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/TileDistance.h"
-#include "layers/LayerManager.h"
-#include "layers/ui/LayerInventory.h"
-#include "layers/ui/LayerMagic.h"
-#include "layers/ui/LayerPickUp.h"
-#include "layers/ui/LayerSpellCast.h"
 #include "model/Combat.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/Player.h"
 #include "sdl2w/L10n.h"
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
-#include "state/LayerManagerInterface.h"
+#include "state/LayerRequest.h"
 #include "state/WorldActions.h"
 #include "state/WorldUpdater.h"
 #include "actions/combat/DoCombatAction.hpp"
@@ -45,7 +40,7 @@
 
 namespace layers {
 
-LayerWorld::LayerWorld(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
+LayerWorld::LayerWorld(sdl2w::Window* _window) : UiLayer(_window, LAYER_ID) {
   if (!assertInterfaces()) {
     remove();
     return;
@@ -563,17 +558,19 @@ void LayerWorld::syncWorldActionModeHighlight() {
   }
 
   const auto actionMode = getStateManager()->getState().world.actionMode;
-  auto* layerManager = state::LayerManagerInterface::getLayerManager();
-  const bool inventoryOpen =
-      layerManager != nullptr &&
-      layerManager->getLayerById(LayerInventory::LAYER_ID) != nullptr;
-  const bool magicOpen = layerManager != nullptr &&
-                         layerManager->getLayerById(LayerMagic::LAYER_ID) != nullptr;
-  const bool spellCastOpen =
-      layerManager != nullptr &&
-      layerManager->getLayerById(LayerSpellCast::LAYER_ID) != nullptr;
-  const bool pickUpOpen = layerManager != nullptr &&
-                          layerManager->getLayerById(LayerPickUp::LAYER_ID) != nullptr;
+  const auto& layerStack = getStateManager()->getState().uiState.layerStack;
+  const auto isOpen = [&](state::LayerId id) {
+    for (const auto& request : layerStack) {
+      if (request.id == id) {
+        return true;
+      }
+    }
+    return false;
+  };
+  const bool inventoryOpen = isOpen(state::LayerId::Inventory);
+  const bool magicOpen = isOpen(state::LayerId::Magic);
+  const bool spellCastOpen = isOpen(state::LayerId::SpellCast);
+  const bool pickUpOpen = isOpen(state::LayerId::PickUp);
   auto* actionButtons = inGameLayout->getChildById("actionButtons");
   if (!actionButtons) {
     return;
@@ -744,7 +741,7 @@ void LayerWorld::updateHeldMoveRepeat(int deltaTime) {
 }
 
 void LayerWorld::update(int deltaTime) {
-  Layer::update(deltaTime);
+  UiLayer::update(deltaTime);
 
   // Hover is polled here: LayerManager has no mouse-move dispatch, and tests/game
   // only wire down/up/wheel. mouseX/Y are updated by SDL every frame.
@@ -770,7 +767,7 @@ void LayerWorld::render(int deltaTime) {
   // World is SUSPENDED while inventory/pickup is open (update does not run); still
   // refresh those action button pressed states before drawing.
   syncWorldActionModeHighlight();
-  Layer::render(deltaTime);
+  UiLayer::render(deltaTime);
 }
 
 } // namespace layers

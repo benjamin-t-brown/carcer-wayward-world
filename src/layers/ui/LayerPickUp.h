@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Layer.h"
+#include "../UiLayer.h"
 #include <optional>
 #include <string_view>
 #include <utility>
@@ -11,7 +11,7 @@ class ButtonModal;
 
 namespace layers {
 
-class LayerPickUp : public Layer {
+class LayerPickUp : public UiLayer {
   static constexpr int donePressDurationMs = 200;
 
   bool isClosing = false;

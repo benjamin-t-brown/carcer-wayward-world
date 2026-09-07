@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../Layer.h"
+#include "../UiLayer.h"
 #include "bmin/String.h"
 
 namespace layers {
 
-class LayerSpellInfo : public Layer {
+class LayerSpellInfo : public UiLayer {
 public:
   constexpr static std::string_view LAYER_ID = "layer_spell_info";
 

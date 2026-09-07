@@ -6,7 +6,7 @@ namespace layers {
 
 LayerPickUpContext::LayerPickUpContext(sdl2w::Window* _window,
                                        const model::ItemInstance& item)
-    : Layer(_window), item(item) {
+    : UiLayer(_window, LAYER_ID), item(item) {
 
   if (!assertInterfaces()) {
     remove();
@@ -50,8 +50,8 @@ LayerPickUpContext::LayerPickUpContext(sdl2w::Window* _window,
   addUiElement(floatingNotificationSection);
 }
 
-void LayerPickUpContext::update(int deltaTime) { Layer::update(deltaTime); }
+void LayerPickUpContext::update(int deltaTime) { UiLayer::update(deltaTime); }
 
-void LayerPickUpContext::render(int deltaTime) { Layer::render(deltaTime); }
+void LayerPickUpContext::render(int deltaTime) { UiLayer::render(deltaTime); }
 
 } // namespace layers

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../Layer.h"
+#include "../UiLayer.h"
 
 namespace layers {
 
-class LayerInventory : public Layer {
+class LayerInventory : public UiLayer {
 public:
   constexpr static std::string_view LAYER_ID = "layer_inventory";
 

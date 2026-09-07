@@ -1,6 +1,6 @@
 # Header Restoration Manifest
 
-Status: Phase 6 verified locally; cross-platform qualification remains deferred to Phase 8.
+Status: Phase 7 verified locally; cross-platform qualification remains deferred to Phase 8.
 
 This is the parity ledger for `HEADER_ARCHITECTURE_RESTORATION_PLAN.md`. A row may move from `pending` to `ported` only when its declaration and current behavior have been placed in the target file; it moves to `verified` only after the owning phase gate passes. Class/struct rows account for their public members as one indivisible API surface.
 
@@ -65,12 +65,13 @@ canonical BMIN include spelling, the current const-map iterator API, the current
 `Sdl2wAnimation.h` header-order adapter for the upstream incomplete `Sprite`
 declaration.
 
-## Phase 5 and 6 local qualification
+## Phase 5 through 7 local qualification
 
 | Phase | Commit / result |
 |---|---|
 | 5: actions | `1db12d0`; GCC and Clang full 42-test suites passed, including 70 action-header self-containment probes and stable event/navigation checks |
-| 6: UI | GCC and Clang built every UI executable and all 98 UI headers independently; UI → layers is zero |
+| 6: UI | `1260da9`; GCC and Clang built every UI executable and all 98 UI headers independently; UI → layers is zero |
+| 7: layers | GCC and Clang full 45-test suites passed; all layer headers compile independently; visual UI executables compile; the non-visual lifecycle test proves activation, suspension, request ordering, event/update dispatch, and optional rendering |
 
 ## Inventory counts
 
@@ -90,8 +91,8 @@ declaration.
 | `eebd21f` | Combat sequencing moved to actions/orchestration | 4/5 | verified |
 | `e25ff69` | Rules/state/action ownership split | 4/5 | verified |
 | `ba41411` | Narrow action API and action-event behavior | 5 | verified |
-| `5030c80` | Layers above screens; UI does not own layers | 7 | pending |
-| `a34939a` | Narrow application composition root | 7/8 | pending |
+| `5030c80` | Layers above screens; UI does not own layers | 7 | verified |
+| `a34939a` | Narrow application composition root | 7/8 | Phase 7 bootstrap and ownership verified; final cleanup remains for Phase 8 |
 | `aae59e4` | Boundary checks and architecture documentation | 3/8 | phase-aware checker ported; full enforcement remains for Phase 8 |
 | `d85a0e1` | Native Windows/MSYS2 and clangd fixes | 1/8 | Windows shim ported; UCRT64 verification pending |
 
@@ -599,7 +600,7 @@ delivery, payloads, and neutral navigation requests.
 | `AbstractAction` | class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/AbstractAction.h` | verified | TestStateManagerActions |
 | `ActionBus` | class | `src/state/ActionBus.cpp` | `src/state/ActionBus.h` | verified | model/state suite |
 | `DatabaseInterface` | class | `src/state/DatabaseInterface.cpp` | `src/state/DatabaseInterface.h` | verified | TestCombatActions, TestCombatZoneCast, TestDropInventoryItem |
-| `LayerManagerInterface` | class | `src/state/LayerManagerInterface.cpp` | `src/state/LayerManagerInterface.h` | verified | TestCombat, TestLayerInventory, TestLayerPickUp |
+| `LayerManagerInterface` | class | `src/state/LayerManagerInterface.cpp` | removed | intentionally retired | TestLayerLifecycle, TestCombat, TestLayerInventory, TestLayerPickUp |
 | `StateManager` | class | `src/state/StateManager.cpp` | `src/state/StateManager.h` | verified | TestCameraFollow, TestCombatActions, TestCombatZoneCast |
 | `StateManagerInterface` | class | `src/state/StateManager.cpp` | `src/state/StateManagerInterface.h` | verified | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
 | `ActionEvent` | enum-class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/ActionEvent.h` | verified | TestStateManagerActions, TestPageMagicSetup |
@@ -646,12 +647,12 @@ delivery, payloads, and neutral navigation requests.
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `Layer` | class | `src/ui/layers.cpp` | `src/layers/Layer.h` | pending | TestMinipageCharacterSheet, TestMinipageEvent, TestPageCharacter |
-| `LayerManager` | class | `src/layers/LayerManager.cpp` | `src/layers/LayerManager.h` | pending | TestCombat, TestLayerInventory, TestLayerPickUp |
-| `LayerState` | enum-class | `src/layers/Layer.cpp` | `src/layers/Layer.h` | pending | ImportUiLayers |
-| `createInventoryLayer` | function | `src/ui/layers.cpp` | `src/layers/createInventoryLayer.h (proposed; verify during owning phase)` | pending | TestLayerInventory |
-| `createPickUpLayer` | function | `src/ui/layers.cpp` | `src/layers/createPickUpLayer.h (proposed; verify during owning phase)` | pending | TestLayerPickUp |
-| `createWorldLayer` | function | `src/ui/layers.cpp` | `src/layers/createWorldLayer.h (proposed; verify during owning phase)` | pending | ImportUiLayers, TestCombat, TestLayerWorld |
+| `Layer` | class | `src/ui/layers.cpp` | `src/layers/Layer.h` | verified | TestLayerLifecycle, TestMinipageCharacterSheet, TestMinipageEvent, TestPageCharacter |
+| `LayerManager` | class | `src/layers/LayerManager.cpp` | `src/layers/LayerManager.h` | verified | TestLayerLifecycle, TestCombat, TestLayerInventory, TestLayerPickUp |
+| `LayerState` | enum-class | `src/layers/Layer.cpp` | `src/layers/Layer.h` | verified | TestLayerLifecycle |
+| `createInventoryLayer` | function | `src/ui/layers.cpp` | `src/layers/createInventoryLayer.h` | verified | TestLayerInventory |
+| `createPickUpLayer` | function | `src/ui/layers.cpp` | `src/layers/createPickUpLayer.h` | verified | TestLayerPickUp |
+| `createWorldLayer` | function | `src/ui/layers.cpp` | `src/layers/createWorldLayer.h` | verified | TestCombat, TestLayerWorld |
 
 ### `src/ui/_screens.cppm`
 
@@ -1316,10 +1317,10 @@ src/ui/uiUtils.h
 | 1 | `9f379c0` (`Add the conventional pinned-dependency CMake build`) | PASS with user-approved platform deferral: local GCC/Clang debug/release, Make parity, dependency diagnostics, no-op build, and representative wrappers pass; UCRT64 is deferred to final qualification and Emscripten remains part of the final supported-host matrix |
 | 2 | `50a4885` (`Restore CMake-backed test runners`); `583bb64` (`Retire the transitional Make build`) | PASS locally: 81 distinct CMake test targets; all 38 non-UI tests pass under GCC and Clang; all 79 legacy wrappers pass from `/private/tmp` (43 UI wrappers with `--build-only`); aggregate UI compilation passes under GCC and Clang; an induced compile error propagates exit status 1; user approved deferring MSYS2 qualification until the final gate |
 | 3 | `4314f0f` (`Restore header boundaries for data and model`) | PASS locally: database-dependent inventory, character construction, and combat-party logic live in rules; model has zero forbidden edges; GCC and Clang builds, 38 behavioral tests, architecture checks, and self-containment checks for 42 Phase 3 headers pass |
-| 4 | `Port rules and state ownership to headers` (this commit) | PASS locally: rules and state have zero forbidden edges; map orchestration dependencies are explicit; trigger rules return values; notification expiry is state maintenance; GCC and Clang builds, all 38 behavioral tests, architecture checks, and 34-header Phase 4 self-containment pass |
-| 5 | pending | pending |
-| 6 | pending | pending |
-| 7 | pending | pending |
+| 4 | `14bacc4` (`Port rules and state ownership to headers`) | PASS locally: rules and state have zero forbidden edges; map orchestration dependencies are explicit; trigger rules return values; notification expiry is state maintenance; GCC and Clang builds, all 38 behavioral tests, architecture checks, and 34-header Phase 4 self-containment pass |
+| 5 | `1db12d0` (`Restore one action per header`) | PASS locally: individual action headers, neutral navigation requests, stable semantic events, 42-test GCC/Clang suites, and 70 action-header probes pass |
+| 6 | `1260da9` (`Restore class-level UI headers and sources`) | PASS locally: class-level UI tree restored, UI → layers is zero, all visual wrappers compile under GCC/Clang, and 98 UI-header probes pass |
+| 7 | `Restore layers as top-level loop orchestration` (this commit) | PASS locally: UI-free base layer, optional visual specialization, neutral request reconciliation, top-level loop manager, non-visual lifecycle/ordering test, all visual wrappers, 45-test GCC/Clang suites, architecture checks, and layer-header probes pass |
 | 8 | pending | pending |
 
 ## Known stale, disabled, or retired tests

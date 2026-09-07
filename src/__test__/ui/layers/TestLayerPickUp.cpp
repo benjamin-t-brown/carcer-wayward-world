@@ -7,7 +7,6 @@
 #include "sdl2w/Window.h"
 #include "model/instances/CharacterPlayer.h"
 #include "state/DatabaseInterface.h"
-#include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "bmin/DynArray.h"
@@ -85,7 +84,6 @@ int main(int argc, char** argv) {
     LOG(INFO) << "LayerPickUp test initialized" << LOG_ENDL;
 
     layerManager = bmin::makeUnique<layers::LayerManager>(&window);
-    state::LayerManagerInterface::setLayerManager(layerManager.get());
 
     auto* layerPickUp = new layers::LayerPickUp(&window);
     // layerPickUp->setPickUpItemNames(GROUND_PICKUP_ITEMS);

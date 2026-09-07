@@ -43,7 +43,7 @@ void LayerPickUp::beginCloseWithDonePress() {
   }
 }
 
-LayerPickUp::LayerPickUp(sdl2w::Window* _window) : Layer(_window, LAYER_ID) {
+LayerPickUp::LayerPickUp(sdl2w::Window* _window) : UiLayer(_window, LAYER_ID) {
   if (!assertInterfaces()) {
     remove();
     return;
@@ -203,7 +203,7 @@ void LayerPickUp::syncCurrentPartyMember() {
 }
 
 void LayerPickUp::update(int deltaTime) {
-  Layer::update(deltaTime);
+  UiLayer::update(deltaTime);
   if (!isClosing || closeEnqueued) {
     return;
   }

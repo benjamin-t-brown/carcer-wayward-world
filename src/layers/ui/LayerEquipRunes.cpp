@@ -10,7 +10,7 @@ namespace layers {
 
 LayerEquipRunes::LayerEquipRunes(sdl2w::Window* _window,
                                  const bmin::String& _characterPlayerId)
-    : Layer(_window, LAYER_ID), characterPlayerId(_characterPlayerId) {
+    : UiLayer(_window, LAYER_ID), characterPlayerId(_characterPlayerId) {
   if (!assertInterfaces()) {
     remove();
     return;

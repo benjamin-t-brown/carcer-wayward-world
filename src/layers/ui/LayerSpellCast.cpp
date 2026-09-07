@@ -15,7 +15,7 @@
 namespace layers {
 
 LayerSpellCast::LayerSpellCast(sdl2w::Window* _window, const bmin::String& chId)
-    : Layer(_window, LAYER_ID), chId(chId) {
+    : UiLayer(_window, LAYER_ID), chId(chId) {
   if (!assertInterfaces()) {
     remove();
     return;
