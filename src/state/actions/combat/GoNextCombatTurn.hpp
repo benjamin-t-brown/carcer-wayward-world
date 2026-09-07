@@ -17,7 +17,9 @@ class GoNextCombatTurn : public CombatAction {
     LOG(INFO) << "GoNextCombatTurn: new combat round, resetting AP" << LOG_ENDL;
     state->world.combat.activeTurnIndex = 0;
     model::resetAllCombatAp(state->world, model::COMBAT_STARTING_AP);
-    game::advanceWorldMovementTicks(*state, game::TILE_FIELD_MOVES_PER_COMBAT_ROUND);
+    state->playerMovementCount += game::TILE_FIELD_MOVES_PER_COMBAT_ROUND;
+    game::ageMapInstances(
+        state->mapInstances, game::TILE_FIELD_MOVES_PER_COMBAT_ROUND);
   }
 
   void act() override {
@@ -38,7 +40,7 @@ class GoNextCombatTurn : public CombatAction {
       startNewCombatRound();
     }
 
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
     const auto turnCount = static_cast<int>(combat.turnOrderIds.size());
     for (int attempt = 0; attempt < turnCount; attempt++) {
       const auto index = combat.activeTurnIndex;

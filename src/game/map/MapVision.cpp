@@ -419,12 +419,13 @@ void updateMapVisibilityFromParty(model::MapInstance& map,
 }
 
 void updateActiveMapVisibilityFromParty(model::World& world,
+                                        MapInstanceStore& mapInstances,
                                         const model::Player& player,
                                         const db::Database& database) {
   if (world.activeMap.gridId.empty()) {
     return;
   }
-  ActiveMapOrchestrator orch;
+  ActiveMapOrchestrator orch(world.activeMap, mapInstances, &database);
   orch.fetchMapGrid(world.activeMap.gridId);
   clearAllVisibleInActiveGrid(orch, world.activeMap.mapLayer);
 
@@ -438,13 +439,14 @@ void updateActiveMapVisibilityFromParty(model::World& world,
 }
 
 void updateActiveMapVisibilityFromPlayer(model::World& world,
+                                         MapInstanceStore& mapInstances,
                                          int worldX,
                                          int worldY,
                                          const db::Database& database) {
   if (world.activeMap.gridId.empty()) {
     return;
   }
-  ActiveMapOrchestrator orch;
+  ActiveMapOrchestrator orch(world.activeMap, mapInstances, &database);
   orch.fetchMapGrid(world.activeMap.gridId);
   if (!inWorldBounds(orch, worldX, worldY)) {
     return;

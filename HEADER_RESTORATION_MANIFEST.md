@@ -1,6 +1,6 @@
 # Header Restoration Manifest
 
-Status: Phase 3 verified locally; cross-platform qualification remains deferred to Phase 8.
+Status: Phase 4 verified locally; cross-platform qualification remains deferred to Phase 8.
 
 This is the parity ledger for `HEADER_ARCHITECTURE_RESTORATION_PLAN.md`. A row may move from `pending` to `ported` only when its declaration and current behavior have been placed in the target file; it moves to `verified` only after the owning phase gate passes. Class/struct rows account for their public members as one indivisible API surface.
 
@@ -77,11 +77,11 @@ declaration.
 | Commit | Behavior to preserve | Owning phase | Status |
 |---|---|---|---|
 | `e0c0b83` | Pinned dependency bootstrap and reproducible validation | 1 | ported; local checks pass |
-| `d60964c` | Notification expiry removed from action ownership | 4 | pending |
-| `58b4cc9` | Active-map dependencies made explicit | 4 | pending |
-| `9e9617e` | Map rules removed from state | 4 | pending |
-| `eebd21f` | Combat sequencing moved to actions/orchestration | 4/5 | pending |
-| `e25ff69` | Rules/state/action ownership split | 4/5 | pending |
+| `d60964c` | Notification expiry removed from action ownership | 4 | verified |
+| `58b4cc9` | Active-map dependencies made explicit | 4 | verified |
+| `9e9617e` | Map rules removed from state | 4 | verified |
+| `eebd21f` | Combat sequencing moved to actions/orchestration | 4/5 | rules/state portion verified; action API pending Phase 5 |
+| `e25ff69` | Rules/state/action ownership split | 4/5 | rules/state portion verified; action API pending Phase 5 |
 | `ba41411` | Narrow action API and action-event behavior | 5 | pending |
 | `5030c80` | Layers above screens; UI does not own layers | 7 | pending |
 | `a34939a` | Narrow application composition root | 7/8 | pending |
@@ -352,20 +352,20 @@ Rows are generated from column-zero exported declarations before each interface'
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
 | `addPartyMembersToCombatMap` | function | `src/game/combat/CombatParty.cpp` | `src/game/combat/CombatParty.h` | verified | TestCombatActions, TestEnemyBehavior |
-| `calculateAbilityDamage` | function | `src/game/combat/Damage.cpp` | `src/game/combat/Damage.h` | pending | model rules suite |
-| `calculateAttackDamage` | function | `src/game/combat/Damage.cpp` | `src/game/combat/Damage.h` | pending | model rules suite |
-| `canEnemySpotPartyAvatar` | function | `src/game/combat/EnemyBehavior.cpp` | `src/game/combat/EnemyBehavior.h` | pending | TestEnemyBehavior |
-| `chooseSeekAndMeleeCombatAction` | function | `src/game/combat/EnemyBehavior.cpp` | `src/game/combat/EnemyBehavior.h` | pending | model rules suite |
-| `chooseSeekStepToward` | function | `src/game/combat/EnemyBehavior.cpp` | `src/game/combat/EnemyBehavior.h` | pending | model rules suite |
-| `getNumDiceSides` | function | `src/game/diceHelpers.cpp` | `src/game/diceHelpers.h` | pending | model rules suite |
-| `getProjectileFacingSuffix` | function | `src/game/combat/projectileHelpers.cpp` | `src/game/combat/projectileHelpers.h` | pending | model rules suite |
-| `getProjectileTravelDurationMs` | function | `src/game/combat/projectileHelpers.cpp` | `src/game/combat/projectileHelpers.h` | pending | model rules suite |
-| `rollDice` | function | `src/game/diceHelpers.cpp` | `src/game/diceHelpers.h` | pending | model rules suite |
-| `rollDiceList` | function | `src/game/diceHelpers.cpp` | `src/game/diceHelpers.h` | pending | model rules suite |
-| `spellAbilityManaCost` | function | `src/game/combat/SpellRules.cpp` | `src/game/combat/SpellRules.h` | pending | TestPageMagicSetup |
-| `updateEnemySpotting` | function | `src/game/combat/EnemyBehavior.cpp` | `src/game/combat/EnemyBehavior.h` | pending | TestEnemyBehavior |
-| `CalculatedAbilityDamageResult` | struct | `src/game/combat/_combat.cppm (inline/declaration-only)` | `src/game/combat/Damage.h` | pending | model rules suite |
-| `CombatRunner` | struct | `src/game/combat/CombatRunner.cpp` | `src/game/combat/CombatRunner.h` | pending | model rules suite |
+| `calculateAbilityDamage` | function | `src/game/combat/Damage.cpp` | `src/game/combat/Damage.h` | verified | model rules suite |
+| `calculateAttackDamage` | function | `src/game/combat/Damage.cpp` | `src/game/combat/Damage.h` | verified | model rules suite |
+| `canEnemySpotPartyAvatar` | function | `src/game/combat/EnemyBehavior.cpp` | `src/game/combat/EnemyBehavior.h` | verified | TestEnemyBehavior |
+| `chooseSeekAndMeleeCombatAction` | function | `src/game/combat/EnemyBehavior.cpp` | `src/game/combat/EnemyBehavior.h` | verified | model rules suite |
+| `chooseSeekStepToward` | function | `src/game/combat/EnemyBehavior.cpp` | `src/game/combat/EnemyBehavior.h` | verified | model rules suite |
+| `getNumDiceSides` | function | `src/game/diceHelpers.cpp` | `src/game/diceHelpers.h` | verified | model rules suite |
+| `getProjectileFacingSuffix` | function | `src/game/combat/projectileHelpers.cpp` | `src/game/combat/projectileHelpers.h` | verified | model rules suite |
+| `getProjectileTravelDurationMs` | function | `src/game/combat/projectileHelpers.cpp` | `src/game/combat/projectileHelpers.h` | verified | model rules suite |
+| `rollDice` | function | `src/game/diceHelpers.cpp` | `src/game/diceHelpers.h` | verified | model rules suite |
+| `rollDiceList` | function | `src/game/diceHelpers.cpp` | `src/game/diceHelpers.h` | verified | model rules suite |
+| `spellAbilityManaCost` | function | `src/game/combat/SpellRules.cpp` | `src/game/combat/SpellRules.h` | verified | TestPageMagicSetup |
+| `updateEnemySpotting` | function | `src/game/combat/EnemyBehavior.cpp` | `src/game/combat/EnemyBehavior.h` | verified | TestEnemyBehavior |
+| `CalculatedAbilityDamageResult` | struct | `src/game/combat/_combat.cppm (inline/declaration-only)` | `src/game/combat/Damage.h` | verified | model rules suite |
+| `CombatRunner` | struct | `src/game/combat/CombatRunner.cpp` | `src/game/combat/CombatRunner.h` | verified | model rules suite |
 
 ### `src/game/inventory/_inventory.cppm`
 
@@ -390,76 +390,76 @@ Rows are generated from column-zero exported declarations before each interface'
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `ActiveMapOrchestrator` | class | `src/game/map/ActiveMapOrchestrator.cpp` | `src/game/map/ActiveMapOrchestrator.h` | pending | TestCombat |
-| `ageMapInstances` | function | `src/game/map/MapPersistence.cpp` | `src/game/map/ageMapInstances.h (proposed; verify during owning phase)` | pending | TestTileFieldAging |
+| `ActiveMapOrchestrator` | class | `src/game/map/ActiveMapOrchestrator.cpp` | `src/game/map/ActiveMapOrchestrator.h` | verified | TestCombat |
+| `ageMapInstances` | function | `src/game/map/MapPersistence.cpp` | `src/game/map/MapPersistence.h` | verified | TestTileFieldAging |
 | `applyCharacterTemplateFromDatabase` | function | `src/game/map/CharacterConstruction.cpp` | `src/game/map/CharacterConstruction.h` | verified | TestCombatActions, TestEnemyBehavior, TestCombat |
-| `applyExploredMask` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | pending | TestMapVision |
-| `applyOpenedDoors` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | pending | TestMapVision |
-| `captureExploredMask` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | pending | TestMapVision |
-| `captureOpenedDoors` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | pending | TestMapVision |
-| `chebyshevDistance` | function | `src/game/map/TileDistance.cpp` | `src/game/map/TileDistance.h` | pending | TestEnemyBehavior |
-| `collectReachableTiles` | function | `src/game/map/MapPathfinding.cpp` | `src/game/map/MapPathfinding.h` | pending | TestMapPickup |
-| `collectTilesAt` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | pending | model rules suite |
-| `computeCameraFollow` | function | `src/game/map/Camera.cpp` | `src/game/map/Camera.h` | pending | TestCameraFollow, TestWorldMovePlayer |
-| `createMapInstances` | function | `src/game/map/MapPersistence.cpp` | `src/game/map/MapPersistence.h` | pending | TestMapPersistence, TestTileFieldAging, TestCombat |
-| `doesTileBlockSight` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | pending | TestMapVision |
-| `findDropCharacterOnActiveMap` | function | `src/game/map/TileTriggers.cpp` | `src/game/map/TileTriggers.h` | pending | model rules suite |
-| `findPartyAvatarOnActiveMap` | function | `src/game/map/TileTriggers.cpp` | `src/game/map/TileTriggers.h` | pending | TestWorldMovePlayer, TestWorldSpawnPlayerAtMarker, TestWorldTravel |
-| `findTileMetadata` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | pending | TestWorldMovePlayer |
-| `formatExamineMessage` | function | `src/game/map/TileTriggers.cpp` | `src/game/map/TileTriggers.h` | pending | TestTileTriggers |
-| `isActiveMapTileContainer` | function | `src/game/map/MapPickup.cpp` | `src/game/map/MapPickup.h` | pending | TestMapPickup |
-| `isChebyshevAdjacent` | function | `src/game/map/TileDistance.cpp` | `src/game/map/TileDistance.h` | pending | TestEnemyBehavior |
-| `isClosedDoorTile` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | pending | TestMapVision |
-| `isDestinationSeeThrough` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | pending | model rules suite |
-| `isDestinationWalkable` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | pending | model rules suite |
-| `isInPlayerVisionRange` | function | `src/game/map/_map.cppm (inline/declaration-only)` | `src/game/map/MapVision.h` | pending | TestMapVision |
-| `isOpenDoorTile` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | pending | TestMapVision |
-| `isTileCurrentlyVisible` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | pending | TestWorldExamineAt, TestWorldTalkAt |
-| `isTileEffectivelyContainer` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | pending | model rules suite |
-| `isTileEffectivelySeeThrough` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | pending | TestMapVision |
-| `isTileEffectivelyWalkable` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | pending | TestWorldMovePlayer |
-| `isTileInReachableSet` | function | `src/game/map/MapPathfinding.cpp` | `src/game/map/MapPathfinding.h` | pending | TestMapPickup |
-| `markMapCharacterDefeated` | function | `src/game/map/MapPersistence.cpp` | `src/game/map/MapPersistence.h` | pending | TestMapPersistence |
-| `placePartyAvatarAt` | function | `src/game/map/TileTriggers.cpp` | `src/game/map/TileTriggers.h` | pending | model rules suite |
-| `resolveGridIdForMapOrGrid` | function | `src/game/map/MapPersistence.cpp` | `src/game/map/MapPersistence.h` | pending | model rules suite |
-| `resolveStepTriggersAt` | function | `src/game/map/TileTriggers.cpp` | `src/game/map/resolveStepTriggersAt.h (proposed; verify during owning phase)` | pending | TestTileTriggers |
-| `resolveTileMetadata` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | pending | model rules suite |
-| `resolveWorldActionMode` | function | `src/game/map/TileTriggers.cpp` | `src/game/map/resolveWorldActionMode.h (proposed; verify during owning phase)` | pending | model rules suite |
-| `tileAtCurrentLayer` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | pending | TestCombatActions, TestMapPersistence, TestMapPickup |
-| `updateActiveMapVisibilityFromParty` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | pending | TestMapVision |
-| `updateActiveMapVisibilityFromPlayer` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | pending | TestEnemyBehavior, TestMapVision |
-| `updateMapVisibilityFromParty` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | pending | model rules suite |
-| `updateMapVisibilityFromPlayer` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | pending | TestMapVision |
-| `ActiveMapLoc` | struct | `src/game/map/_map.cppm (inline/declaration-only)` | `src/game/map/ActiveMapOrchestrator.h` | pending | model rules suite |
-| `ActiveMapMarker` | struct | `src/game/map/_map.cppm (inline/declaration-only)` | `src/game/map/ActiveMapOrchestrator.h` | pending | TestCombat |
-| `CameraPos` | struct | `src/game/map/_map.cppm (inline/declaration-only)` | `src/game/map/Camera.h` | pending | model rules suite |
-| `PathTile` | struct | `src/game/map/_map.cppm (inline/declaration-only)` | `src/game/map/MapPathfinding.h` | pending | model rules suite |
-| `StepTriggerResult` | struct | `src/game/map/_map.cppm (inline/declaration-only)` | `src/game/map/StepTriggerResult.h (proposed; verify during owning phase)` | pending | model rules suite |
-| `MapInstanceStore` | using | `src/game/map/_map.cppm (inline/declaration-only)` | `src/game/map/MapInstanceStore.h (proposed; verify during owning phase)` | pending | model rules suite |
+| `applyExploredMask` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | verified | TestMapVision |
+| `applyOpenedDoors` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | verified | TestMapVision |
+| `captureExploredMask` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | verified | TestMapVision |
+| `captureOpenedDoors` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | verified | TestMapVision |
+| `chebyshevDistance` | function | `src/game/map/TileDistance.cpp` | `src/game/map/TileDistance.h` | verified | TestEnemyBehavior |
+| `collectReachableTiles` | function | `src/game/map/MapPathfinding.cpp` | `src/game/map/MapPathfinding.h` | verified | TestMapPickup |
+| `collectTilesAt` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | verified | model rules suite |
+| `computeCameraFollow` | function | `src/game/map/Camera.cpp` | `src/game/map/Camera.h` | verified | TestCameraFollow, TestWorldMovePlayer |
+| `createMapInstances` | function | `src/game/map/MapPersistence.cpp` | `src/game/map/MapPersistence.h` | verified | TestMapPersistence, TestTileFieldAging, TestCombat |
+| `doesTileBlockSight` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | verified | TestMapVision |
+| `findDropCharacterOnActiveMap` | function | `src/game/map/TileTriggers.cpp` | `src/game/map/TileTriggers.h` | verified | model rules suite |
+| `findPartyAvatarOnActiveMap` | function | `src/game/map/TileTriggers.cpp` | `src/game/map/TileTriggers.h` | verified | TestWorldMovePlayer, TestWorldSpawnPlayerAtMarker, TestWorldTravel |
+| `findTileMetadata` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | verified | TestWorldMovePlayer |
+| `formatExamineMessage` | function | `src/game/map/TileTriggers.cpp` | `src/game/map/TileTriggers.h` | verified | TestTileTriggers |
+| `isActiveMapTileContainer` | function | `src/game/map/MapPickup.cpp` | `src/game/map/MapPickup.h` | verified | TestMapPickup |
+| `isChebyshevAdjacent` | function | `src/game/map/TileDistance.cpp` | `src/game/map/TileDistance.h` | verified | TestEnemyBehavior |
+| `isClosedDoorTile` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | verified | TestMapVision |
+| `isDestinationSeeThrough` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | verified | model rules suite |
+| `isDestinationWalkable` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | verified | model rules suite |
+| `isInPlayerVisionRange` | function | `src/game/map/_map.cppm (inline/declaration-only)` | `src/game/map/MapVision.h` | verified | TestMapVision |
+| `isOpenDoorTile` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | verified | TestMapVision |
+| `isTileCurrentlyVisible` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | verified | TestWorldExamineAt, TestWorldTalkAt |
+| `isTileEffectivelyContainer` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | verified | model rules suite |
+| `isTileEffectivelySeeThrough` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | verified | TestMapVision |
+| `isTileEffectivelyWalkable` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | verified | TestWorldMovePlayer |
+| `isTileInReachableSet` | function | `src/game/map/MapPathfinding.cpp` | `src/game/map/MapPathfinding.h` | verified | TestMapPickup |
+| `markMapCharacterDefeated` | function | `src/game/map/MapPersistence.cpp` | `src/game/map/MapPersistence.h` | verified | TestMapPersistence |
+| `placePartyAvatarAt` | function | `src/game/map/TileTriggers.cpp` | `src/game/map/TileTriggers.h` | verified | model rules suite |
+| `resolveGridIdForMapOrGrid` | function | `src/game/map/MapPersistence.cpp` | `src/game/map/MapPersistence.h` | verified | model rules suite |
+| `resolveStepTriggersAt` | function | `src/game/map/TileTriggers.cpp` | `src/game/map/TileTriggers.h` | verified | TestTileTriggers |
+| `resolveTileMetadata` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | verified | model rules suite |
+| `resolveWorldActionMode` | function | `src/game/map/TileTriggers.cpp` | `src/game/map/TileTriggers.h` | verified | model rules suite |
+| `tileAtCurrentLayer` | function | `src/game/map/MapWalkability.cpp` | `src/game/map/MapWalkability.h` | verified | TestCombatActions, TestMapPersistence, TestMapPickup |
+| `updateActiveMapVisibilityFromParty` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | verified | TestMapVision |
+| `updateActiveMapVisibilityFromPlayer` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | verified | TestEnemyBehavior, TestMapVision |
+| `updateMapVisibilityFromParty` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | verified | model rules suite |
+| `updateMapVisibilityFromPlayer` | function | `src/game/map/MapVision.cpp` | `src/game/map/MapVision.h` | verified | TestMapVision |
+| `ActiveMapLoc` | struct | `src/game/map/_map.cppm (inline/declaration-only)` | `src/game/map/ActiveMapOrchestrator.h` | verified | model rules suite |
+| `ActiveMapMarker` | struct | `src/game/map/_map.cppm (inline/declaration-only)` | `src/game/map/ActiveMapOrchestrator.h` | verified | TestCombat |
+| `CameraPos` | struct | `src/game/map/_map.cppm (inline/declaration-only)` | `src/game/map/Camera.h` | verified | model rules suite |
+| `PathTile` | struct | `src/game/map/_map.cppm (inline/declaration-only)` | `src/game/map/MapPathfinding.h` | verified | model rules suite |
+| `StepTriggerResult` | struct | `src/game/map/_map.cppm (inline/declaration-only)` | `src/game/map/TileTriggers.h` | verified | TestTileTriggers |
+| `MapInstanceStore` | using | `src/game/map/_map.cppm (inline/declaration-only)` | `src/game/map/ActiveMapOrchestrator.h` | verified | map/rules suite |
 
 ### `src/in3/_in3.cppm`
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `ConditionEvaluator` | class | `src/in3/ConditionEvaluator.cpp` | `src/runner/ConditionEvaluator.h` | pending | TestConditionalEvaluator |
-| `SpecialEventRunner` | class | `src/in3/SpecialEventRunner.cpp` | `src/runner/SpecialEventRunner.h` | pending | TestSpecialEventIntegration, TestSpecialEventRunner |
-| `SpecialEventRunnerInterface` | class | `src/in3/SpecialEventRunner.cpp` | `src/runner/SpecialEventRunner.h` | pending | TestSpecialEventIntegration, TestSpecialEventRunner |
-| `StringEvaluator` | class | `src/in3/StringEvaluator.cpp` | `src/runner/StringEvaluator.h` | pending | TestStringEvaluator |
-| `SpecialEventRunnerInterfaceState` | enum-class | `src/in3/_in3.cppm (inline/declaration-only)` | `src/runner/SpecialEventRunner.h` | pending | TestSpecialEventIntegration |
-| `clearTmpStorageKeys` | function | `src/in3/EventRunnerHelpers.cpp` | `src/runner/EventRunnerHelpers.h` | pending | TestSpecialEventRunner |
-| `getStorage` | function | `src/in3/EventRunnerHelpers.cpp` | `src/runner/EventRunnerHelpers.h` | pending | TestStringEvaluator |
-| `isFunctionCall` | function | `src/in3/EventRunnerHelpers.cpp` | `src/runner/EventRunnerHelpers.h` | pending | runner suite |
-| `parseFunctionCall` | function | `src/in3/EventRunnerHelpers.cpp` | `src/runner/EventRunnerHelpers.h` | pending | runner suite |
-| `setStorage` | function | `src/in3/EventRunnerHelpers.cpp` | `src/runner/EventRunnerHelpers.h` | pending | runner suite |
-| `splitExecStatements` | function | `src/in3/EventRunnerHelpers.cpp` | `src/runner/EventRunnerHelpers.h` | pending | runner suite |
-| `splitString` | function | `src/in3/EventRunnerHelpers.cpp` | `src/runner/EventRunnerHelpers.h` | pending | runner suite |
-| `trim` | function | `src/in3/EventRunnerHelpers.cpp` | `src/lib/StringUtil.h` | pending | runner suite |
-| `ConditionEvaluatorFuncs` | struct | `src/in3/ConditionEvaluator.cpp` | `src/runner/ConditionEvaluator.h` | pending | runner suite |
-| `ConditionResult` | struct | `src/in3/_in3.cppm (inline/declaration-only)` | `src/runner/SpecialEventRunner.h` | pending | TestSpecialEventRunner |
-| `DisplayTextChoice` | struct | `src/in3/_in3.cppm (inline/declaration-only)` | `src/runner/SpecialEventRunner.h` | pending | runner suite |
-| `ErrorInfo` | struct | `src/in3/_in3.cppm (inline/declaration-only)` | `src/runner/SpecialEventRunner.h` | pending | runner suite |
-| `FunctionCall` | struct | `src/in3/_in3.cppm (inline/declaration-only)` | `src/runner/EventRunnerHelpers.h` | pending | runner suite |
-| `StringEvaluatorFuncs` | struct | `src/in3/StringEvaluator.cpp` | `src/runner/StringEvaluator.h` | pending | runner suite |
+| `ConditionEvaluator` | class | `src/in3/ConditionEvaluator.cpp` | `src/runner/ConditionEvaluator.h` | verified | TestConditionalEvaluator |
+| `SpecialEventRunner` | class | `src/in3/SpecialEventRunner.cpp` | `src/runner/SpecialEventRunner.h` | verified | TestSpecialEventIntegration, TestSpecialEventRunner |
+| `SpecialEventRunnerInterface` | class | `src/in3/SpecialEventRunner.cpp` | `src/runner/SpecialEventRunner.h` | verified | TestSpecialEventIntegration, TestSpecialEventRunner |
+| `StringEvaluator` | class | `src/in3/StringEvaluator.cpp` | `src/runner/StringEvaluator.h` | verified | TestStringEvaluator |
+| `SpecialEventRunnerInterfaceState` | enum-class | `src/in3/_in3.cppm (inline/declaration-only)` | `src/runner/SpecialEventRunner.h` | verified | TestSpecialEventIntegration |
+| `clearTmpStorageKeys` | function | `src/in3/EventRunnerHelpers.cpp` | `src/runner/EventRunnerHelpers.h` | verified | TestSpecialEventRunner |
+| `getStorage` | function | `src/in3/EventRunnerHelpers.cpp` | `src/runner/EventRunnerHelpers.h` | verified | TestStringEvaluator |
+| `isFunctionCall` | function | `src/in3/EventRunnerHelpers.cpp` | `src/runner/EventRunnerHelpers.h` | verified | runner suite |
+| `parseFunctionCall` | function | `src/in3/EventRunnerHelpers.cpp` | `src/runner/EventRunnerHelpers.h` | verified | runner suite |
+| `setStorage` | function | `src/in3/EventRunnerHelpers.cpp` | `src/runner/EventRunnerHelpers.h` | verified | runner suite |
+| `splitExecStatements` | function | `src/in3/EventRunnerHelpers.cpp` | `src/runner/EventRunnerHelpers.h` | verified | runner suite |
+| `splitString` | function | `src/in3/EventRunnerHelpers.cpp` | `src/runner/EventRunnerHelpers.h` | verified | runner suite |
+| `trim` | function | `src/in3/EventRunnerHelpers.cpp` | `src/lib/StringUtil.h` | verified | runner suite |
+| `ConditionEvaluatorFuncs` | struct | `src/in3/ConditionEvaluator.cpp` | `src/runner/ConditionEvaluator.h` | verified | runner suite |
+| `ConditionResult` | struct | `src/in3/_in3.cppm (inline/declaration-only)` | `src/runner/SpecialEventRunner.h` | verified | TestSpecialEventRunner |
+| `DisplayTextChoice` | struct | `src/in3/_in3.cppm (inline/declaration-only)` | `src/runner/SpecialEventRunner.h` | verified | runner suite |
+| `ErrorInfo` | struct | `src/in3/_in3.cppm (inline/declaration-only)` | `src/runner/SpecialEventRunner.h` | verified | runner suite |
+| `FunctionCall` | struct | `src/in3/_in3.cppm (inline/declaration-only)` | `src/runner/EventRunnerHelpers.h` | verified | runner suite |
+| `StringEvaluatorFuncs` | struct | `src/in3/StringEvaluator.cpp` | `src/runner/StringEvaluator.h` | verified | runner suite |
 
 ### `src/lib/Json.cppm`
 
@@ -582,31 +582,31 @@ Rows are generated from column-zero exported declarations before each interface'
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `AbstractAction` | class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/AbstractAction.h` | pending | TestStateManagerActions |
-| `ActionBus` | class | `src/state/ActionBus.cpp` | `src/state/ActionBus.h` | pending | model/state suite |
-| `DatabaseInterface` | class | `src/state/DatabaseInterface.cpp` | `src/state/DatabaseInterface.h` | pending | TestCombatActions, TestCombatZoneCast, TestDropInventoryItem |
-| `LayerManagerInterface` | class | `src/state/LayerManagerInterface.cpp` | `src/state/LayerManagerInterface.h` | pending | TestCombat, TestLayerInventory, TestLayerPickUp |
-| `StateManager` | class | `src/state/StateManager.cpp` | `src/state/StateManager.h` | pending | TestCameraFollow, TestCombatActions, TestCombatZoneCast |
-| `StateManagerInterface` | class | `src/state/StateManager.cpp` | `src/state/StateManagerInterface.h` | pending | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
+| `AbstractAction` | class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/AbstractAction.h` | verified | TestStateManagerActions |
+| `ActionBus` | class | `src/state/ActionBus.cpp` | `src/state/ActionBus.h` | verified | model/state suite |
+| `DatabaseInterface` | class | `src/state/DatabaseInterface.cpp` | `src/state/DatabaseInterface.h` | verified | TestCombatActions, TestCombatZoneCast, TestDropInventoryItem |
+| `LayerManagerInterface` | class | `src/state/LayerManagerInterface.cpp` | `src/state/LayerManagerInterface.h` | verified | TestCombat, TestLayerInventory, TestLayerPickUp |
+| `StateManager` | class | `src/state/StateManager.cpp` | `src/state/StateManager.h` | verified | TestCameraFollow, TestCombatActions, TestCombatZoneCast |
+| `StateManagerInterface` | class | `src/state/StateManager.cpp` | `src/state/StateManagerInterface.h` | verified | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
 | `ActionEvent` | enum-class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/ActionEvent.h (proposed; verify during owning phase)` | pending | TestStateManagerActions, TestPageMagicSetup |
 | `LayerId` | enum-class | `src/ui/layers.cpp` | `src/state/LayerId.h (proposed; verify during owning phase)` | pending | model/state suite |
-| `UiFloatingNotificationType` | enum-class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | pending | TestFloatingNotificationSection |
-| `WorldActionType` | enum-class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/WorldActions.h` | pending | TestButtonWorldAction, TestInGameLayout |
-| `layerIdFromString` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/layerIdFromString.h (proposed; verify during owning phase)` | pending | model/state suite |
-| `layerIdString` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/layerIdString.h (proposed; verify during owning phase)` | pending | model/state suite |
-| `pushLayerRequest` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/pushLayerRequest.h (proposed; verify during owning phase)` | pending | model/state suite |
-| `removeLayerRequest` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/removeLayerRequest.h (proposed; verify during owning phase)` | pending | model/state suite |
-| `updateUiState` | function | `src/state/UiManager.cpp` | `src/state/updateUiState.h (proposed; verify during owning phase)` | pending | model/state suite |
-| `ActionData` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/StateManager.h` | pending | model/state suite |
-| `AsyncAction` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/StateManager.h` | pending | model/state suite |
-| `HeldMove` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | pending | ImportActions |
-| `LayerRequest` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h (proposed; verify during owning phase)` | pending | model/state suite |
-| `State` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | pending | TestCombatActions, TestCombatZoneCast, TestDropInventoryItem |
-| `Triggers` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/Triggers.h` | pending | model/state suite |
-| `UiFloatingNotification` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | pending | TestStateManagerActions |
-| `UiState` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | pending | model/state suite |
-| `UserSettings` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | pending | model/state suite |
-| `WorldActionUiState` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/WorldActions.h` | pending | TestInGameLayout |
+| `UiFloatingNotificationType` | enum-class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | verified | TestFloatingNotificationSection |
+| `WorldActionType` | enum-class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/WorldActions.h` | verified | TestButtonWorldAction, TestInGameLayout |
+| `layerIdFromString` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | pending | model/state suite |
+| `layerIdString` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | pending | model/state suite |
+| `pushLayerRequest` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | pending | model/state suite |
+| `removeLayerRequest` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | pending | model/state suite |
+| `updateUiState` | function | `src/state/UiManager.cpp` | `src/state/UiManager.h` | verified | TestStateManagerActions |
+| `ActionData` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/StateManager.h` | verified | model/state suite |
+| `AsyncAction` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/StateManager.h` | verified | model/state suite |
+| `HeldMove` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | verified | ImportActions |
+| `LayerRequest` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | pending | model/state suite |
+| `State` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | verified | TestCombatActions, TestCombatZoneCast, TestDropInventoryItem |
+| `Triggers` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/Triggers.h` | verified | model/state suite |
+| `UiFloatingNotification` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | verified | TestStateManagerActions |
+| `UiState` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | verified | model/state suite |
+| `UserSettings` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | verified | model/state suite |
+| `WorldActionUiState` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/WorldActions.h` | verified | TestInGameLayout |
 
 ### `src/ui/_core.cppm`
 
@@ -1301,8 +1301,8 @@ src/ui/uiUtils.h
 | 0 | `0f758e0` (`Record the header restoration baseline`) | PASS: fixed references and 20 interfaces inventoried; baseline commands recorded; tracked diff contains this manifest only |
 | 1 | `9f379c0` (`Add the conventional pinned-dependency CMake build`) | PASS with user-approved platform deferral: local GCC/Clang debug/release, Make parity, dependency diagnostics, no-op build, and representative wrappers pass; UCRT64 is deferred to final qualification and Emscripten remains part of the final supported-host matrix |
 | 2 | `50a4885` (`Restore CMake-backed test runners`); `583bb64` (`Retire the transitional Make build`) | PASS locally: 81 distinct CMake test targets; all 38 non-UI tests pass under GCC and Clang; all 79 legacy wrappers pass from `/private/tmp` (43 UI wrappers with `--build-only`); aggregate UI compilation passes under GCC and Clang; an induced compile error propagates exit status 1; user approved deferring MSYS2 qualification until the final gate |
-| 3 | `Restore header boundaries for data and model` (this commit) | PASS locally: database-dependent inventory, character construction, and combat-party logic live in rules; model has zero forbidden edges; GCC and Clang builds, 38 behavioral tests, architecture checks, and self-containment checks for 42 Phase 3 headers pass |
-| 4 | pending | pending |
+| 3 | `4314f0f` (`Restore header boundaries for data and model`) | PASS locally: database-dependent inventory, character construction, and combat-party logic live in rules; model has zero forbidden edges; GCC and Clang builds, 38 behavioral tests, architecture checks, and self-containment checks for 42 Phase 3 headers pass |
+| 4 | `Port rules and state ownership to headers` (this commit) | PASS locally: rules and state have zero forbidden edges; map orchestration dependencies are explicit; trigger rules return values; notification expiry is state maintenance; GCC and Clang builds, all 38 behavioral tests, architecture checks, and 34-header Phase 4 self-containment pass |
 | 5 | pending | pending |
 | 6 | pending | pending |
 | 7 | pending | pending |

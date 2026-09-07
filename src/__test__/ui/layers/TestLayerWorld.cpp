@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
   // auto-resolves the party avatar; WorldUpdater + LayerWorld view dims snap cam.
   {
     auto& state = stateManager.getState();
-    game::createMapInstances(state, database);
+    state.mapInstances = game::createMapInstances(database);
 
     auto loadMap = state::actions::WorldLoadActiveMap("OutsideAlinea");
     loadMap.execute(&state);

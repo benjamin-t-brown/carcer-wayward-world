@@ -71,7 +71,7 @@ class WorldMovePlayer : public CombatAction {
       return;
     }
 
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
     orch.fetchMapGrid(world.activeMap.gridId);
     const auto total = orch.getTotalMapTilesSize();
     if (!total.valid || total.x <= 0 || total.y <= 0) {
@@ -111,7 +111,8 @@ class WorldMovePlayer : public CombatAction {
 
     if (auto* door = game::findClosedDoorAt(*destMap, destLocal.x, destLocal.y, *database)) {
       door->tileId = door->tileId + 1;
-      game::updateActiveMapVisibilityFromPlayer(world, avatar->x, avatar->y, *database);
+      game::updateActiveMapVisibilityFromPlayer(
+          world, state->mapInstances, avatar->x, avatar->y, *database);
       return;
     }
 
@@ -128,10 +129,15 @@ class WorldMovePlayer : public CombatAction {
 
     avatar->x = destX;
     avatar->y = destY;
-    game::queueStepTriggersAt(state->triggers, *destMap, destLocal.x, destLocal.y);
-    game::updateActiveMapVisibilityFromPlayer(world, destX, destY, *database);
+    const auto triggerResult =
+        game::resolveStepTriggersAt(*destMap, destLocal.x, destLocal.y);
+    state->triggers.pendingSpecialEventId = triggerResult.specialEventId;
+    state->triggers.pendingTravel = triggerResult.travel;
+    game::updateActiveMapVisibilityFromPlayer(
+        world, state->mapInstances, destX, destY, *database);
     if (!world.combat.active) {
-      game::advanceWorldMovementTicks(*state, 1);
+      state->playerMovementCount += 1;
+      game::ageMapInstances(state->mapInstances, 1);
       world.resolvingTownEnemyAi = true;
       insertAction(new TownEnemyAiAfterPlayerMove(), 0);
     }

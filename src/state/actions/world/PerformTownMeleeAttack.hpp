@@ -56,7 +56,7 @@ class PerformTownMeleeAttack : public CombatAction {
       return;
     }
 
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
     auto* attacker = orch.findCharacterById(attackerId);
     auto* avatar = game::findPartyAvatarOnActiveMap(state->world.activeMap, state->player);
     if (attacker == nullptr || avatar == nullptr) {

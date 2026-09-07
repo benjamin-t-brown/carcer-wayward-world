@@ -34,7 +34,7 @@ class TownEnemySeekAndMelee : public CombatAction {
       return;
     }
 
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
     auto* enemy = orch.findCharacterById(enemyId);
     auto* avatar =
         game::findPartyAvatarOnActiveMap(state->world.activeMap, state->player);
@@ -49,8 +49,14 @@ class TownEnemySeekAndMelee : public CombatAction {
 
     auto dx = 0;
     auto dy = 0;
-    if (!game::chooseSeekStepToward(
-            state->world.activeMap, *enemy, avatar->x, avatar->y, *database, dx, dy)) {
+    if (!game::chooseSeekStepToward(state->world.activeMap,
+                                    state->mapInstances,
+                                    *enemy,
+                                    avatar->x,
+                                    avatar->y,
+                                    *database,
+                                    dx,
+                                    dy)) {
       return;
     }
 
@@ -80,11 +86,17 @@ class TownEnemyAiAfterPlayerMove : public CombatAction {
       world.resolvingTownEnemyAi = false;
       return;
     }
+    auto* database = getDatabase();
+    if (database == nullptr) {
+      world.resolvingTownEnemyAi = false;
+      return;
+    }
 
     world.resolvingTownEnemyAi = true;
     // Held-move stays active; LayerWorld pauses repeats while this flag is set.
 
-    game::updateEnemySpotting(world, state->player);
+    game::updateEnemySpotting(
+        world, state->mapInstances, state->player, *database);
 
     for (size_t i = 0; i < world.activeMap.characters.size(); i++) {
       const auto& character = world.activeMap.characters[i];

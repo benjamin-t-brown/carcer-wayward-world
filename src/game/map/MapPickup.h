@@ -2,6 +2,7 @@
 
 #include "bmin/DynArray.h"
 #include "db/Database.h"
+#include "game/map/ActiveMapOrchestrator.h"
 #include "model/instances/CharacterInstance.h"
 #include "model/instances/ItemInstance.h"
 #include "model/instances/World.h"
@@ -12,6 +13,7 @@ inline constexpr int PICKUP_PATH_RANGE = 4;
 
 /** True when the active-map tile at (worldX, worldY) is effectively a container. */
 bool isActiveMapTileContainer(model::ActiveMap& activeMap,
+                              MapInstanceStore& mapInstances,
                               int worldX,
                               int worldY,
                               const db::Database& database);
@@ -19,6 +21,7 @@ bool isActiveMapTileContainer(model::ActiveMap& activeMap,
 /** Ground items the character can path to within maxSteps (excludes container tiles). */
 bmin::DynArray<model::ItemInstance>
 collectItemsWithinPickupRange(model::ActiveMap& activeMap,
+                              MapInstanceStore& mapInstances,
                               const model::CharacterInstance& character,
                               int maxSteps,
                               const db::Database& database);

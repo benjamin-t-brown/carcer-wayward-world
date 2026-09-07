@@ -163,12 +163,17 @@ int main(int /*argc*/, char** /*argv*/) {
 
   const auto& hero = state.world.activeMap.characters[0];
   ok = assertTrue(
-      game::isActiveMapTileContainer(state.world.activeMap, 1, 1, database),
+      game::isActiveMapTileContainer(
+          state.world.activeMap, state.mapInstances, 1, 1, database),
       "crate is container") &&
        ok;
 
   const auto reachable = game::collectReachableTiles(
-      state.world.activeMap, hero, game::PICKUP_PATH_RANGE, database);
+      state.world.activeMap,
+      state.mapInstances,
+      hero,
+      game::PICKUP_PATH_RANGE,
+      database);
   ok = assertTrue(game::isTileInReachableSet(reachable, 2, 1), "near tile reachable") &&
        ok;
   ok = assertTrue(!game::isTileInReachableSet(reachable, 5, 1),
@@ -178,7 +183,11 @@ int main(int /*argc*/, char** /*argv*/) {
        ok;
 
   const auto nearby = game::collectItemsWithinPickupRange(
-      state.world.activeMap, hero, game::PICKUP_PATH_RANGE, database);
+      state.world.activeMap,
+      state.mapInstances,
+      hero,
+      game::PICKUP_PATH_RANGE,
+      database);
 
   ok = assertEqual(static_cast<int>(nearby.size()), 1, "nearby count") && ok;
   if (!nearby.empty()) {

@@ -40,7 +40,7 @@ class SetActiveCombatCharacter : public CombatAction {
       characterId = combat.turnOrderIds[static_cast<size_t>(combat.activeTurnIndex)];
     }
 
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
     auto* character = orch.findCharacterById(characterId);
     if (character == nullptr) {
       return;

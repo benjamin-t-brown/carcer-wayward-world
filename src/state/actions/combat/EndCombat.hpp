@@ -43,7 +43,7 @@ class EndCombat : public CombatAction {
       auto* database = getDatabase();
       if (database != nullptr) {
         game::updateActiveMapVisibilityFromPlayer(
-            world, avatar->x, avatar->y, *database);
+            world, state->mapInstances, avatar->x, avatar->y, *database);
       }
       if (world.camera.viewW > 0 && world.camera.viewH > 0) {
         const auto cam = game::computeCameraFollow(

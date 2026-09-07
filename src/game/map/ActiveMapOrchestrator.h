@@ -3,10 +3,14 @@
 #include "model/instances/MapInstance.h"
 #include "model/instances/World.h"
 #include "model/templates/MapGrids.h"
-#include "state/DatabaseInterface.h"
-#include "state/StateManagerInterface.h"
+
+namespace db {
+class Database;
+}
 
 namespace game {
+
+using MapInstanceStore = bmin::Map<bmin::String, model::MapInstance>;
 
 struct ActiveMapLoc {
   int x = 0;
@@ -22,9 +26,10 @@ struct ActiveMapMarker {
   bool valid = false;
 };
 
-class ActiveMapOrchestrator : public state::DatabaseInterface,
-                              public state::StateManagerInterface {
-
+class ActiveMapOrchestrator {
+  model::ActiveMap* activeMap;
+  MapInstanceStore* mapInstances;
+  const db::Database* database;
   model::MapGridTemplate defaultGrid;
   // can assume this exists, since it will load from the db, or this
   // class will throw if it doesn't exist.
@@ -39,7 +44,9 @@ class ActiveMapOrchestrator : public state::DatabaseInterface,
   model::MapInstance* getMapInstanceAtGrid(int gridX, int gridY);
 
 public:
-  ActiveMapOrchestrator();
+  ActiveMapOrchestrator(model::ActiveMap& activeMap,
+                        MapInstanceStore& mapInstances,
+                        const db::Database* database);
   ~ActiveMapOrchestrator() = default;
 
   void fetchMapGrid(const bmin::String& gridName);

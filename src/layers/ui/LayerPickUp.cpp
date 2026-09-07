@@ -186,7 +186,11 @@ void LayerPickUp::syncCurrentPartyMember() {
     if (const auto* avatar = game::findDropCharacterOnActiveMap(
             state.world.activeMap, player, currentPartyMember->instanceId)) {
       minipageProps.nearbyItems = game::collectItemsWithinPickupRange(
-          state.world.activeMap, *avatar, game::PICKUP_PATH_RANGE, *database);
+          state.world.activeMap,
+          state.mapInstances,
+          *avatar,
+          game::PICKUP_PATH_RANGE,
+          *database);
     }
     if (minipageProps.nearbyItems.empty()) {
       minipageProps.statusText = TRANSLATE("No items nearby.");

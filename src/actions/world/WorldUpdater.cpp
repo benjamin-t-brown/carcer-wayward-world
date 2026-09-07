@@ -8,13 +8,20 @@
 #include "state/State.h"
 #include "state/StateManager.h"
 #include "state/actions/combat/DoCPUCombatTurn.hpp"
+#include "state/actions/ui/heldMove/UiUpdateHeldMove.hpp"
 #include "state/actions/ui/UiShowLayerSpecialEvent.hpp"
 #include "state/actions/world/WorldTravel.hpp"
-#include "ui/helpers/worldActions.h"
 
 namespace state {
 
 namespace {
+
+void deactivateHeldMove(StateManager& stateManager) {
+  auto nextHeldMove = stateManager.getState().uiState.heldMove;
+  nextHeldMove.isActive = false;
+  stateManager.pllAction(
+      stateManager.getActionData(), new actions::UiUpdateHeldMove(nextHeldMove), 0);
+}
 
 bmin::String resolveFollowCharacterId(const State& state) {
   if (!state.world.camera.cameraFollowCharacterId.empty()) {
@@ -37,7 +44,8 @@ void enqueueCpuCombatTurn(StateManager& stateManager) {
       model::isPartyMember(state.player, combat.activeCharacterId)) {
     return;
   }
-  game::ActiveMapOrchestrator activeMap;
+  game::ActiveMapOrchestrator activeMap(
+      state.world.activeMap, state.mapInstances, nullptr);
   const auto* character = activeMap.findCharacterById(combat.activeCharacterId);
   if (character == nullptr) {
     return;
@@ -125,7 +133,8 @@ void worldUpdate(sdl2w::Window* window, StateManager& stateManager, int dt) {
   state.soundsToPlay.clear();
   updateDamageParticles(state.world, window, dt);
   updateProjectiles(state.world, dt);
-  game::ActiveMapOrchestrator activeMap;
+  game::ActiveMapOrchestrator activeMap(
+      state.world.activeMap, state.mapInstances, nullptr);
 
   auto& combat = state.world.combat;
   if (combat.active && combat.isWaitingForAction) {
@@ -157,7 +166,7 @@ void worldProcessPendingTriggers(sdl2w::Window* window, StateManager& stateManag
   bool mapChanged = false;
 
   if (state.triggers.pendingSpecialEventId) {
-    ui::setHeldMoveActive(stateManager, false);
+    deactivateHeldMove(stateManager);
     auto eventId = *state.triggers.pendingSpecialEventId;
     state.triggers.pendingSpecialEventId.reset();
     state::actions::UiShowLayerSpecialEvent specialEvent =
@@ -166,7 +175,7 @@ void worldProcessPendingTriggers(sdl2w::Window* window, StateManager& stateManag
   }
 
   if (state.triggers.pendingTravel) {
-    ui::setHeldMoveActive(stateManager, false);
+    deactivateHeldMove(stateManager);
     auto travel = *state.triggers.pendingTravel;
     state.triggers.pendingTravel.reset();
     state::actions::WorldTravel travelAction(travel);

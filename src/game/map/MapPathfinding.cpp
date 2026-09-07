@@ -48,6 +48,7 @@ bool isTileInReachableSet(const bmin::DynArray<PathTile>& reachable, int x, int 
 }
 
 bmin::DynArray<PathTile> collectReachableTiles(model::ActiveMap& activeMap,
+                                               MapInstanceStore& mapInstances,
                                                int startX,
                                                int startY,
                                                int maxSteps,
@@ -58,7 +59,7 @@ bmin::DynArray<PathTile> collectReachableTiles(model::ActiveMap& activeMap,
     return reachable;
   }
 
-  ActiveMapOrchestrator orch;
+  ActiveMapOrchestrator orch(activeMap, mapInstances, &database);
   orch.fetchMapGrid(activeMap.gridId);
   const auto total = orch.getTotalMapTilesSize();
   if (!total.valid || total.x <= 0 || total.y <= 0) {
@@ -99,11 +100,18 @@ bmin::DynArray<PathTile> collectReachableTiles(model::ActiveMap& activeMap,
 }
 
 bmin::DynArray<PathTile> collectReachableTiles(model::ActiveMap& activeMap,
+                                               MapInstanceStore& mapInstances,
                                                const model::CharacterInstance& character,
                                                int maxSteps,
                                                const db::Database& database) {
   return collectReachableTiles(
-      activeMap, character.x, character.y, maxSteps, character.id, database);
+      activeMap,
+      mapInstances,
+      character.x,
+      character.y,
+      maxSteps,
+      character.id,
+      database);
 }
 
 } // namespace game

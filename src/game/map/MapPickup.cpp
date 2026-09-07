@@ -6,13 +6,14 @@
 namespace game {
 
 bool isActiveMapTileContainer(model::ActiveMap& activeMap,
+                              MapInstanceStore& mapInstances,
                               int worldX,
                               int worldY,
                               const db::Database& database) {
   if (activeMap.gridId.empty()) {
     return false;
   }
-  ActiveMapOrchestrator orch;
+  ActiveMapOrchestrator orch(activeMap, mapInstances, &database);
   orch.fetchMapGrid(activeMap.gridId);
   auto* map = orch.getMapInstanceAt(worldX, worldY);
   const auto local = orch.activeMapCoordToInstanceCoord(worldX, worldY);
@@ -41,18 +42,19 @@ collectItemsAtActiveMapTile(const model::ActiveMap& activeMap, int worldX, int w
 
 bmin::DynArray<model::ItemInstance>
 collectItemsWithinPickupRange(model::ActiveMap& activeMap,
+                              MapInstanceStore& mapInstances,
                               const model::CharacterInstance& character,
                               int maxSteps,
                               const db::Database& database) {
   bmin::DynArray<model::ItemInstance> items;
   const auto reachable =
-      collectReachableTiles(activeMap, character, maxSteps, database);
+      collectReachableTiles(activeMap, mapInstances, character, maxSteps, database);
   for (size_t i = 0; i < activeMap.items.size(); i++) {
     const auto& item = activeMap.items[i];
     if (!isTileInReachableSet(reachable, item.x, item.y)) {
       continue;
     }
-    if (isActiveMapTileContainer(activeMap, item.x, item.y, database)) {
+    if (isActiveMapTileContainer(activeMap, mapInstances, item.x, item.y, database)) {
       continue;
     }
     items.pushBack(item);

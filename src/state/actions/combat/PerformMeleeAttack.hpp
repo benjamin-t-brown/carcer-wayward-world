@@ -26,7 +26,7 @@ class PerformMeleeAttack : public CombatAction {
       return;
     }
 
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
     auto* attacker = orch.findCharacterById(attackerId);
     auto* victim = orch.findCharacterById(victimId);
     if (attacker == nullptr || victim == nullptr) {

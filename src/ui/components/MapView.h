@@ -3,6 +3,7 @@
 #include "../UiElement.h"
 #include "model/instances/World.h"
 #include "state/DatabaseInterface.h"
+#include "state/State.h"
 #include <optional>
 
 namespace ui {
@@ -26,7 +27,7 @@ private:
 
   bmin::Map<bmin::String, bmin::UniquePtr<sdl2w::Animation>> animations;
 
-  void renderDamageParticles(const model::World& world,
+  void renderDamageParticles(state::State& state,
                              sdl2w::Draw& draw,
                              sdl2w::Store& store,
                              int contentX,

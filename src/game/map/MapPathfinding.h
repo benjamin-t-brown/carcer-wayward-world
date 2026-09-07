@@ -3,6 +3,7 @@
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "db/Database.h"
+#include "game/map/ActiveMapOrchestrator.h"
 #include "model/instances/CharacterInstance.h"
 #include "model/instances/World.h"
 
@@ -21,6 +22,7 @@ struct PathTile {
  * Other characters block tiles; characterId is ignored for occupancy.
  */
 bmin::DynArray<PathTile> collectReachableTiles(model::ActiveMap& activeMap,
+                                               MapInstanceStore& mapInstances,
                                                int startX,
                                                int startY,
                                                int maxSteps,
@@ -29,6 +31,7 @@ bmin::DynArray<PathTile> collectReachableTiles(model::ActiveMap& activeMap,
 
 /** Same as above, using the character's current tile and id. */
 bmin::DynArray<PathTile> collectReachableTiles(model::ActiveMap& activeMap,
+                                               MapInstanceStore& mapInstances,
                                                const model::CharacterInstance& character,
                                                int maxSteps,
                                                const db::Database& database);

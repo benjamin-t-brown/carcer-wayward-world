@@ -6,7 +6,7 @@
 #include "model/instances/MapInstance.h"
 #include "model/instances/Player.h"
 #include "model/instances/World.h"
-#include "state/Triggers.h"
+#include <optional>
 
 namespace game {
 
@@ -38,17 +38,18 @@ model::CharacterInstance* findDropCharacterOnActiveMap(model::ActiveMap& activeM
                                                        model::Player& player,
                                                        const bmin::String& characterId);
 
-// After a successful step onto (x, y) local map coords: queue special event or travel.
-void queueStepTriggersAt(state::Triggers& triggers,
-                         const model::MapInstance& map,
-                         int x,
-                         int y);
+struct StepTriggerResult {
+  std::optional<bmin::String> specialEventId;
+  std::optional<model::TravelTrigger> travel;
+};
 
-// While standing on (x, y) local map coords: queue travel when requires action.
-void queueActionTravelAtStanding(state::Triggers& triggers,
-                                 const model::MapInstance& map,
-                                 int x,
-                                 int y);
+// After a successful step onto (x, y) local map coords: resolve the special
+// event or travel request. The caller owns queue/state mutation.
+StepTriggerResult resolveStepTriggersAt(const model::MapInstance& map, int x, int y);
+
+// While standing on (x, y) local map coords: resolve travel when it requires action.
+std::optional<model::TravelTrigger>
+resolveActionTravelAtStanding(const model::MapInstance& map, int x, int y);
 
 // Console examine text: tile description, character labels, and item labels.
 bmin::String formatExamineMessage(const model::MapInstance& map,

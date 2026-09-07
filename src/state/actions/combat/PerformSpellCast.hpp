@@ -142,7 +142,7 @@ class PerformSpellCast : public CombatAction {
     if (database == nullptr) {
       return;
     }
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
     orch.fetchMapGrid(state->world.activeMap.gridId);
 
     auto caster = orch.findCharacterById(casterId);

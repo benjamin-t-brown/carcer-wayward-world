@@ -257,6 +257,35 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertOrder(order, {1, 2}, "enqueue then pll both run same update") && ok;
   }
 
+  // Notification expiry is state maintenance, not a state-owned concrete action.
+  {
+    state::StateManager sm;
+    auto& uiState = sm.getState().uiState;
+    state::UiFloatingNotification notification;
+    notification.id = "expired";
+    model::timerStructStart(notification.timer, 10);
+    uiState.floatingNotifications.pushBack(std::move(notification));
+
+    sm.update(9);
+    ok = assertEqual(static_cast<int>(uiState.floatingNotifications.size()),
+                     1,
+                     "notification remains before expiry") &&
+         ok;
+    ok = assertEqual(static_cast<int>(uiState.floatingNotificationRevision),
+                     0,
+                     "notification revision unchanged before expiry") &&
+         ok;
+
+    sm.update(1);
+    ok = assertTrue(uiState.floatingNotifications.empty(),
+                    "notification removed at expiry") &&
+         ok;
+    ok = assertEqual(static_cast<int>(uiState.floatingNotificationRevision),
+                     1,
+                     "notification expiry increments revision") &&
+         ok;
+  }
+
   if (ok) {
     LOG(INFO) << "TestStateManagerActions passed" << LOG_ENDL;
     return 0;

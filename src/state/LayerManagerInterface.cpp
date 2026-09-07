@@ -1,5 +1,4 @@
 #include "LayerManagerInterface.h"
-#include "layers/LayerManager.h"
 
 namespace state {
 

@@ -103,7 +103,7 @@ void spawnEnemiesAtMarkers(state::State& state,
     return;
   }
 
-  game::ActiveMapOrchestrator orch;
+  game::ActiveMapOrchestrator orch(world.activeMap, state.mapInstances, &database);
   orch.fetchMapGrid(world.activeMap.gridId);
 
   auto count = enemyTemplateNames.size();
@@ -146,7 +146,7 @@ int main(int argc, char** argv) {
 
   {
     auto& state = stateManager.getState();
-    game::createMapInstances(state, database);
+    state.mapInstances = game::createMapInstances(database);
 
     auto loadMap = state::actions::WorldLoadActiveMap("combat_test1");
     loadMap.execute(&state);

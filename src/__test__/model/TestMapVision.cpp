@@ -336,12 +336,14 @@ int main(int /*argc*/, char** /*argv*/) {
           .y = 2,
       });
 
-      game::updateActiveMapVisibilityFromPlayer(state.world, 2, 2, database);
+      game::updateActiveMapVisibilityFromPlayer(
+          state.world, state.mapInstances, 2, 2, database);
       ok = assertFalse(tileAt(state.mapInstances["vision_map"], 15, 2)->isVisible,
                        "distant party member not visible from single observer") &&
            ok;
 
-      game::updateActiveMapVisibilityFromParty(state.world, state.player, database);
+      game::updateActiveMapVisibilityFromParty(
+          state.world, state.mapInstances, state.player, database);
       ok = assertTrue(tileAt(state.mapInstances["vision_map"], 15, 2)->isVisible,
                       "distant party member visible with combined party vision") &&
            ok;
@@ -350,7 +352,8 @@ int main(int /*argc*/, char** /*argv*/) {
            ok;
 
       state.player.party.clear();
-      game::updateActiveMapVisibilityFromParty(state.world, state.player, database);
+      game::updateActiveMapVisibilityFromParty(
+          state.world, state.mapInstances, state.player, database);
       ok = assertFalse(tileAt(state.mapInstances["vision_map"], 15, 2)->isVisible,
                        "npc ally does not contribute to party vision") &&
            ok;
@@ -442,7 +445,7 @@ int main(int /*argc*/, char** /*argv*/) {
       const auto playerWorldX = mapW - 1;
       const auto playerWorldY = 4;
       game::updateActiveMapVisibilityFromPlayer(
-          state.world, playerWorldX, playerWorldY, database);
+          state.world, state.mapInstances, playerWorldX, playerWorldY, database);
 
       auto& west = state.mapInstances["west_map"];
       auto& east = state.mapInstances["east_map"];

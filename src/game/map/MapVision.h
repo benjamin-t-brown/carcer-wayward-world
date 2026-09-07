@@ -1,6 +1,7 @@
 #pragma once
 
 #include "db/Database.h"
+#include "game/map/ActiveMapOrchestrator.h"
 #include "model/instances/World.h"
 
 namespace model {
@@ -55,12 +56,14 @@ void updateMapVisibilityFromParty(model::MapInstance& map,
 // party members on world.activeMap. Rays use world tile coordinates so vision
 // crosses map-instance stitch edges within the active grid.
 void updateActiveMapVisibilityFromParty(model::World& world,
+                                        MapInstanceStore& mapInstances,
                                         const model::Player& player,
                                         const db::Database& database);
 
 // Clear grid visibility then light around a single world-coordinate observer
 // (cross-instance raycast / wall-face lighting).
 void updateActiveMapVisibilityFromPlayer(model::World& world,
+                                         MapInstanceStore& mapInstances,
                                          int worldX,
                                          int worldY,
                                          const db::Database& database);

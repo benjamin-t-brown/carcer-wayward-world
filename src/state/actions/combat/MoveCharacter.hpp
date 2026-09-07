@@ -30,7 +30,7 @@ class MoveCharacter : public CombatAction {
       return;
     }
 
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
     orch.fetchMapGrid(world.activeMap.gridId);
     auto* character = orch.findCharacterById(characterId);
     if (character == nullptr) {
@@ -61,7 +61,8 @@ class MoveCharacter : public CombatAction {
     model::updateCharacterFacingFromMove(*character, dx, dy);
 
     if (model::isPartyMember(state->player, character->id)) {
-      game::updateActiveMapVisibilityFromParty(world, state->player, *database);
+      game::updateActiveMapVisibilityFromParty(
+          world, state->mapInstances, state->player, *database);
     }
   }
 

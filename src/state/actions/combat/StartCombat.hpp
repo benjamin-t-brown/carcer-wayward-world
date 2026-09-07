@@ -27,7 +27,8 @@ class StartCombat : public CombatAction {
               << LOG_ENDL;
     state->turnMode = model::TurnMode::TURN_COMBAT;
     game::addPartyMembersToCombatMap(world, state->player, *database);
-    game::updateActiveMapVisibilityFromParty(world, state->player, *database);
+    game::updateActiveMapVisibilityFromParty(
+        world, state->mapInstances, state->player, *database);
     world.combat = model::createCombatFromWorld(world, state->player);
     model::resetAllCombatAp(world, model::COMBAT_STARTING_AP);
 

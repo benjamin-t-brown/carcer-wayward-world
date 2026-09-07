@@ -217,7 +217,7 @@ void lightFromAvatar(state::State& state, const db::Database& database) {
     return;
   }
   game::updateActiveMapVisibilityFromPlayer(
-      state.world, avatar->x, avatar->y, database);
+      state.world, state.mapInstances, avatar->x, avatar->y, database);
 }
 
 int partyHpSum(const model::Player& player) {
@@ -250,12 +250,18 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertTrue(enemy != nullptr, "enemy exists") && ok;
     ok = assertTrue(
         game::canEnemySpotPartyAvatar(
-            stateManager.getState().world, stateManager.getState().player, *enemy),
+            stateManager.getState().world,
+            stateManager.getState().mapInstances,
+            stateManager.getState().player,
+            *enemy,
+            database),
         "can spot in range + visible") &&
          ok;
 
     game::updateEnemySpotting(stateManager.getState().world,
-                              stateManager.getState().player);
+                              stateManager.getState().mapInstances,
+                              stateManager.getState().player,
+                              database);
     enemy = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
     ok = assertTrue(enemy != nullptr && enemy->agitated, "agitated after spot") && ok;
   }
@@ -272,12 +278,18 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertTrue(enemy != nullptr, "enemy out of range exists") && ok;
     ok = assertFalse(
         game::canEnemySpotPartyAvatar(
-            stateManager.getState().world, stateManager.getState().player, *enemy),
+            stateManager.getState().world,
+            stateManager.getState().mapInstances,
+            stateManager.getState().player,
+            *enemy,
+            database),
         "cannot spot out of vision radius") &&
          ok;
 
     game::updateEnemySpotting(stateManager.getState().world,
-                              stateManager.getState().player);
+                              stateManager.getState().mapInstances,
+                              stateManager.getState().player,
+                              database);
     enemy = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
     ok = assertTrue(enemy != nullptr && !enemy->agitated, "not agitated out of range") &&
          ok;
@@ -295,7 +307,11 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertTrue(enemy != nullptr, "enemy for not-visible") && ok;
     ok = assertFalse(
         game::canEnemySpotPartyAvatar(
-            stateManager.getState().world, stateManager.getState().player, *enemy),
+            stateManager.getState().world,
+            stateManager.getState().mapInstances,
+            stateManager.getState().player,
+            *enemy,
+            database),
         "cannot spot when not visible") &&
          ok;
   }

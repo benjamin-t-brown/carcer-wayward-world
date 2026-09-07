@@ -124,40 +124,31 @@ model::CharacterInstance* findDropCharacterOnActiveMap(model::ActiveMap& activeM
       characterId));
 }
 
-void queueStepTriggersAt(state::Triggers& triggers,
-                         const model::MapInstance& map,
-                         int x,
-                         int y) {
-  triggers.pendingSpecialEventId.reset();
-  triggers.pendingTravel.reset();
-
+StepTriggerResult resolveStepTriggersAt(const model::MapInstance& map, int x, int y) {
+  auto result = StepTriggerResult{};
   const auto* tile = tileAtCurrentLayer(map, x, y);
   if (!tile) {
-    return;
+    return result;
   }
 
   if (tile->eventTrigger && !tile->eventTrigger->requiresLook) {
-    triggers.pendingSpecialEventId = tile->eventTrigger->eventId;
-    return;
+    result.specialEventId = tile->eventTrigger->eventId;
+    return result;
   }
 
   if (tile->travelTrigger && !tile->travelTrigger->requiresAction) {
-    triggers.pendingTravel = *tile->travelTrigger;
+    result.travel = *tile->travelTrigger;
   }
+  return result;
 }
 
-void queueActionTravelAtStanding(state::Triggers& triggers,
-                                 const model::MapInstance& map,
-                                 int x,
-                                 int y) {
-  triggers.pendingTravel.reset();
-
+std::optional<model::TravelTrigger>
+resolveActionTravelAtStanding(const model::MapInstance& map, int x, int y) {
   const auto* tile = tileAtCurrentLayer(map, x, y);
   if (!tile || !tile->travelTrigger || !tile->travelTrigger->requiresAction) {
-    return;
+    return std::nullopt;
   }
-
-  triggers.pendingTravel = *tile->travelTrigger;
+  return *tile->travelTrigger;
 }
 
 bmin::String formatExamineMessage(const model::MapInstance& map,

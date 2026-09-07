@@ -35,7 +35,7 @@ class WorldSpawnPlayerAtMarker : public AbstractAction {
       return;
     }
 
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
     orch.fetchMapGrid(world.activeMap.gridId);
     const auto& grid = orch.getMapGrid();
 
@@ -64,7 +64,8 @@ class WorldSpawnPlayerAtMarker : public AbstractAction {
       return;
     }
 
-    game::updateActiveMapVisibilityFromPlayer(world, found.x, found.y, *database);
+    game::updateActiveMapVisibilityFromPlayer(
+        world, state->mapInstances, found.x, found.y, *database);
   }
 
 public:

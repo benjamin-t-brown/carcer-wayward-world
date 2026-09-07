@@ -23,7 +23,7 @@ class WorldInteractAt : public AbstractAction {
       return;
     }
 
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
     orch.fetchMapGrid(world.activeMap.gridId);
     auto* map = orch.getMapInstanceAt(avatar->x, avatar->y);
     const auto local = orch.activeMapCoordToInstanceCoord(avatar->x, avatar->y);
@@ -32,7 +32,8 @@ class WorldInteractAt : public AbstractAction {
     }
     map->tileLayerNumber = world.activeMap.mapLayer;
 
-    game::queueActionTravelAtStanding(state->triggers, *map, local.x, local.y);
+    state->triggers.pendingTravel =
+        game::resolveActionTravelAtStanding(*map, local.x, local.y);
   }
 };
 

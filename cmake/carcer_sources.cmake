@@ -76,14 +76,16 @@ set(CARCER_RUNNER_SOURCES
   src/runner/StringEvaluator.cpp
   src/runner/EventRunnerHelpers.cpp)
 
+set(CARCER_ACTION_SOURCES
+  src/actions/world/WorldUpdater.cpp)
+
 set(CARCER_STATE_SOURCES
   src/state/DatabaseInterface.cpp
   src/state/ActionBus.cpp
   src/state/StateManager.cpp
   src/state/StateManagerInterface.cpp
   src/state/UiManager.cpp
-  src/state/LayerManagerInterface.cpp
-  src/state/WorldUpdater.cpp)
+  src/state/LayerManagerInterface.cpp)
 
 set(CARCER_UI_SOURCES
   src/ui/UiElement.cpp
@@ -159,6 +161,7 @@ set(CARCER_SOURCES
   ${CARCER_MODEL_SOURCES}
   ${CARCER_RULE_SOURCES}
   ${CARCER_RUNNER_SOURCES}
+  ${CARCER_ACTION_SOURCES}
   ${CARCER_STATE_SOURCES}
   ${CARCER_UI_SOURCES}
   ${CARCER_LAYER_SOURCES})

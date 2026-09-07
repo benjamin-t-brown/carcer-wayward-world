@@ -118,7 +118,7 @@ int main() {
   state::StateManagerInterface::setStateManager(&stateManager);
   auto& state = stateManager.getState();
 
-  game::createMapInstances(state, database);
+  state.mapInstances = game::createMapInstances(database);
   state::actions::WorldLoadActiveMap("test_grid").execute(&state);
 
   auto* enemy = findEnemyOnActive(state.world.activeMap);
@@ -128,7 +128,8 @@ int main() {
     enemy->y = 1;
     enemy->spawnX = 1;
     enemy->spawnY = 1;
-    game::markMapCharacterDefeated(state, *enemy);
+    game::markMapCharacterDefeated(
+        state.world.activeMap, state.mapInstances, *enemy, database);
     for (size_t i = 0; i < state.world.activeMap.characters.size();) {
       if (state.world.activeMap.characters[i].templateName == "slime") {
         state.world.activeMap.characters.erase(i);

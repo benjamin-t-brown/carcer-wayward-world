@@ -35,7 +35,7 @@ class WorldSpawnPlayerAtXY : public AbstractAction {
       return;
     }
 
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
     orch.fetchMapGrid(world.activeMap.gridId);
     const auto total = orch.getTotalMapTilesSize();
     if (!total.valid || destX < 0 || destY < 0 || destX >= total.x || destY >= total.y) {
@@ -49,7 +49,8 @@ class WorldSpawnPlayerAtXY : public AbstractAction {
       return;
     }
 
-    game::updateActiveMapVisibilityFromPlayer(world, destX, destY, *database);
+    game::updateActiveMapVisibilityFromPlayer(
+        world, state->mapInstances, destX, destY, *database);
   }
 
 public:

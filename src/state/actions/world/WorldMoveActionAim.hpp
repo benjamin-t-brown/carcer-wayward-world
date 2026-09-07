@@ -27,7 +27,7 @@ class WorldMoveActionAim : public AbstractAction {
       return;
     }
 
-    game::ActiveMapOrchestrator orch;
+    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
     orch.fetchMapGrid(state->world.activeMap.gridId);
     const auto total = orch.getTotalMapTilesSize();
     if (!total.valid || total.x <= 0 || total.y <= 0) {

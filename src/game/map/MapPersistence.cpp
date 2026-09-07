@@ -7,8 +7,8 @@
 
 namespace game {
 
-void createMapInstances(state::State& state, const db::Database& database) {
-  state.mapInstances = bmin::Map<bmin::String, model::MapInstance>{};
+MapInstanceStore createMapInstances(const db::Database& database) {
+  auto mapInstances = MapInstanceStore{};
 
   const auto& templates = database.getMapTemplates();
   for (auto it = templates.begin(); it != templates.end(); ++it) {
@@ -29,30 +29,32 @@ void createMapInstances(state::State& state, const db::Database& database) {
         }
       }
     }
-    state.mapInstances[instance.templateName] = std::move(instance);
+    mapInstances[instance.templateName] = std::move(instance);
   }
+  return mapInstances;
 }
 
-void advanceWorldMovementTicks(state::State& state, int steps) {
+void ageMapInstances(MapInstanceStore& mapInstances, int steps) {
   if (steps <= 0) {
     return;
   }
-  state.playerMovementCount += steps;
 
-  for (auto it = state.mapInstances.begin(); it != state.mapInstances.end(); ++it) {
+  for (auto it = mapInstances.begin(); it != mapInstances.end(); ++it) {
     ageMapInstanceTileFields(it->value, steps);
     agePersistentTileFieldRecords(it->value.persistentState.tileFields, steps);
   }
 }
 
-void markMapCharacterDefeated(state::State& state,
-                              const model::CharacterInstance& character) {
-  if (state.world.activeMap.gridId.empty()) {
+void markMapCharacterDefeated(model::ActiveMap& activeMap,
+                              MapInstanceStore& mapInstances,
+                              const model::CharacterInstance& character,
+                              const db::Database& database) {
+  if (activeMap.gridId.empty()) {
     return;
   }
 
-  ActiveMapOrchestrator orch;
-  orch.fetchMapGrid(state.world.activeMap.gridId);
+  ActiveMapOrchestrator orch(activeMap, mapInstances, &database);
+  orch.fetchMapGrid(activeMap.gridId);
   auto* map = orch.getMapInstanceAt(character.x, character.y);
   if (!map) {
     map = orch.getDefaultMapInstance();
