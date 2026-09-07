@@ -3,9 +3,10 @@
 Carcer ships as C++23 named modules (`carcer.*`). This document describes the
 current module boundaries, import policy, and build graph.
 
-Migration status (2026-09): phases 1–7 of `MODULES_V2_PLAN.md` are complete.
+Migration status (2026-09): phases 1–7 of `MODULES_V2_PLAN.md` and Phase 1 of
+`MODULES_UI_FINALIZATION_PLAN.md` are complete.
 The original class-per-module experiment has been reduced to 26 interfaces and
-117 import edges. Data, model, actions, and UI now expose domain-sized APIs;
+102 import edges. Data, model, actions, and UI now expose domain-sized APIs;
 concrete action and layer implementations are private. Platform qualification
 and the literal artifact-size gate pass, but the final cold-build and graph-
 depth gates do not; Phase 8 is therefore not authorized yet.
@@ -25,8 +26,9 @@ The current rules are:
   implementation units when the compiler supports that shape reliably.
 - Implementation classes use module linkage unless another domain genuinely
   needs their type.
-- Import the narrowest owning domain. The `carcer` umbrella exists for the
-  entry point during migration, not as a default dependency.
+- Import the narrowest owning domain. `carcer` is reserved for the application
+  entry point; its remaining broad re-exports are transitional, not a default
+  dependency.
 - Dependency edges point from orchestration toward rules and data, never from
   lower-level state or rules back toward actions or UI.
 
@@ -45,25 +47,27 @@ Dependencies point down this table.
 | Commands | `carcer.actions` | Public command factories over private action implementations and frame orchestration. |
 | UI foundation | `carcer.ui.core` | Scaling, pixels, colors, styles, `UiElement`, and general UI utilities. |
 | UI widgets | `carcer.ui.widgets` | Primitives, controls, views, and game-aware composites. |
-| Screens | `carcer.ui.screens` | Layouts, overlays, pages, screen runtime, and the layer stack. |
-| Entry | `carcer` | Temporary umbrella consumed by `main.cpp`. |
+| Screens | `carcer.ui.screens` | Passive layouts, overlays, pages, and screen runtime. |
+| UI controllers | `carcer.ui.layers` | Layers, layer stack, lifecycle, input routing, and interactive orchestration. |
+| Entry | `carcer` | Application/bootstrap boundary consumed by `main.cpp`; its implementation ultimately starts the layer controller. |
 
 The frame flow is input → `LayerManager` → active `Layer` → widget callback →
 `state::actions::Command` → `StateManager` → rules/model mutation →
 `WorldUpdater` → layer render.
 
 Actions request screen changes through `state::LayerRequest`; they do not
-import UI. `LayerManager` consumes those requests from the screen side of the
-boundary.
+import UI. `LayerManager` consumes those requests from the layer/controller
+side of the boundary.
 
 ## 3. UI organisation
 
-The supported UI surface is exactly three facades:
+The supported UI surface has four boundaries:
 
 ```cpp
 import carcer.ui.core;
 import carcer.ui.widgets;
 import carcer.ui.screens;
+import carcer.ui.layers;
 ```
 
 `carcer.ui.widgets` reexports four cohesive implementation modules:
@@ -75,14 +79,13 @@ carcer.ui.widgets.views
 carcer.ui.widgets.composites
 ```
 
-`carcer.ui.screens` reexports five:
+`carcer.ui.screens` reexports four:
 
 ```text
 carcer.ui.screens.runtime
 carcer.ui.screens.layouts
 carcer.ui.screens.overlays
 carcer.ui.screens.pages
-carcer.ui.screens.layers
 ```
 
 These dotted modules are build-organisation units. Application code and tests
@@ -92,8 +95,9 @@ GCC 15 produced corrupt external BMI data when the entire UI was represented
 as one very large interface/partition set. Dedicated external-import probes
 protect the facade shape on GCC and Clang.
 
-Concrete `LayerX` classes in `carcer.ui.screens.layers` have module linkage.
-Code outside the implementation uses `Layer`, `LayerManager`, and the exported
+`carcer.ui.layers` is a declarations-only public interface above screens.
+Concrete `LayerX` classes have module linkage in its implementation. Code
+outside that implementation uses `Layer`, `LayerManager`, and the exported
 construction functions:
 
 ```cpp
@@ -126,7 +130,10 @@ src/ui/_core.cppm
 src/ui/_widgets.cppm
 src/ui/widgets/{primitives,controls,views,composites}.cppm
 src/ui/_screens.cppm
-src/ui/screens/{runtime,layouts,overlays,pages,layers}.cppm
+src/ui/screens/{runtime,layouts,overlays,pages}.cppm
+src/ui/_layers.cppm
+src/ui/layers.cpp
+src/layers/{Layer,LayerManager}.cpp
 ```
 
 `UiElement.cpp`, `FontScale.cpp`, `KeyboardHeldScroll.cpp`, helper `.cpp`
@@ -140,8 +147,7 @@ unit when practical.
 ## 5. Import and source rules
 
 - Production and tests import the narrowest supported domain they use. No test
-  should import `carcer`; `main.cpp` is its only intended consumer while the
-  umbrella remains.
+  should import `carcer`; `main.cpp` is its only intended external consumer.
 - Internal UI implementation may import a grouped dotted module to avoid
   making GCC traverse a facade back into its own implementation graph.
 - Never mix classic BMIN/SDL2W headers with their named modules in the same
@@ -212,7 +218,7 @@ This updates:
 - `src/modules/module_order.txt`
 
 Regenerate after adding/removing an interface or changing an import edge. The
-current graph has 26 interfaces, 117 edges, critical depth 14, and maximum
+current graph has 26 interfaces, 102 edges, critical depth 13, and maximum
 transitive fan-out 21.
 
 SDL2W and BMIN revisions are pinned in the repository-level `deps.lock` and
@@ -236,6 +242,7 @@ The public interfaces have standalone import probes in
 - `ImportUiCore.cpp`
 - `ImportUiWidgets.cpp`
 - `ImportUiScreens.cpp`
+- `ImportUiLayers.cpp`
 
 Keep a probe minimal: import the supported facade, instantiate or reference a
 small representative API, and link it outside the owning module target. A

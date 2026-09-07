@@ -36,7 +36,8 @@ in3/ConditionEvaluator.o: .carcer-bmi/carcer.in3.o
 in3/EventRunnerHelpers.o: .carcer-bmi/carcer.in3.o .carcer-bmi/carcer.lib.StringUtil.o
 in3/SpecialEventRunner.o: .carcer-bmi/carcer.data.o .carcer-bmi/carcer.in3.o
 in3/StringEvaluator.o: .carcer-bmi/carcer.in3.o
-layers/LayerManager.o: .carcer-bmi/carcer.ui.screens.runtime.o
+layers/Layer.o: .carcer-bmi/carcer.lib.StringUtil.o .carcer-bmi/carcer.ui.layers.o
+layers/LayerManager.o: .carcer-bmi/carcer.ui.layers.o
 lib/Json.o: .carcer-bmi/carcer.lib.Json.o
 lib/hiscore/hiscore.o: .carcer-bmi/carcer.lib.StringUtil.o .carcer-bmi/carcer.lib.hiscore.hiscore.o
 main.o: .carcer-bmi/carcer.o
@@ -57,3 +58,4 @@ ui/components/ChCompactInfo.o: .carcer-bmi/carcer.ui.core.o .carcer-bmi/carcer.u
 ui/helpers/keyboardShortcuts.o: .carcer-bmi/carcer.model.o .carcer-bmi/carcer.state.o .carcer-bmi/carcer.ui.screens.runtime.o
 ui/helpers/modalLayoutFit.o: .carcer-bmi/carcer.ui.core.o .carcer-bmi/carcer.ui.screens.runtime.o
 ui/helpers/worldActions.o: .carcer-bmi/carcer.actions.o .carcer-bmi/carcer.model.o .carcer-bmi/carcer.state.o .carcer-bmi/carcer.ui.screens.runtime.o
+ui/layers.o: .carcer-bmi/carcer.actions.o .carcer-bmi/carcer.data.o .carcer-bmi/carcer.db.o .carcer-bmi/carcer.game.combat.o .carcer-bmi/carcer.game.inventory.o .carcer-bmi/carcer.game.map.o .carcer-bmi/carcer.in3.o .carcer-bmi/carcer.lib.StringUtil.o .carcer-bmi/carcer.model.o .carcer-bmi/carcer.state.o .carcer-bmi/carcer.ui.core.o .carcer-bmi/carcer.ui.layers.o .carcer-bmi/carcer.ui.screens.layouts.o .carcer-bmi/carcer.ui.screens.overlays.o .carcer-bmi/carcer.ui.screens.pages.o .carcer-bmi/carcer.ui.screens.runtime.o .carcer-bmi/carcer.ui.widgets.composites.o

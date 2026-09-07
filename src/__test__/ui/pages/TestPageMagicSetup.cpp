@@ -4,6 +4,7 @@
 #include <memory>
 #include <string_view>
 import carcer.ui.screens;
+import carcer.ui.layers;
 import carcer.game.combat;
 import sdl2w;
 import bmin.string_interop;

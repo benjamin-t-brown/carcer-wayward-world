@@ -1,6 +1,6 @@
 # Carcer Module/UI Finalization Plan
 
-Status: Phase 0 complete; ready for Phase 1
+Status: Phase 1 complete; ready for Phase 2
 Pre-plan application commit: `0b661c3` (`Consolidate the UI module architecture`)
 Date: 2026-09-06
 
@@ -179,6 +179,23 @@ Exit criteria:
 - Critical depth falls by at least one level.
 - GCC and Clang debug builds, runtime tests, UI compile tests, import probes,
   and legacy Make all pass.
+
+Completion record:
+
+- `carcer.ui.layers` is now a standalone declarations-only public boundary.
+  `Layer`, `LayerManager`, and the public layer factories are owned there.
+- Concrete layer bodies, the base `Layer` body, and `LayerManager` are ordinary
+  implementation units of `carcer.ui.layers`.
+- `carcer.ui.screens` no longer imports or re-exports layers. `carcer` imports
+  screens and layers as siblings, with layers as the final UI/controller
+  dependency.
+- The strict architecture check passes with no exception. A dedicated external
+  `ImportUiLayers` probe passes under GCC and Clang.
+- The graph remains at 26 interfaces but falls from 117 to 102 edges and from
+  depth 14 to 13. The maximum transitive dependent count remains 21.
+- All 37 enabled native runtime/probe tests pass under GCC and Clang; five stale
+  tests remain disabled. All 43 UI programs compile and link under both debug
+  compilers, and the corrected legacy Make source/archive list builds.
 
 ## Phase 2: declaration-only widgets pilot
 

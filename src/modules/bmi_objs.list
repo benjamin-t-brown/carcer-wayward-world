@@ -12,6 +12,7 @@
 .carcer-bmi/carcer.game.combat.o
 .carcer-bmi/carcer.actions.o
 .carcer-bmi/carcer.ui.core.o
+.carcer-bmi/carcer.ui.layers.o
 .carcer-bmi/carcer.ui.widgets.primitives.o
 .carcer-bmi/carcer.ui.widgets.controls.o
 .carcer-bmi/carcer.ui.widgets.views.o
@@ -21,6 +22,5 @@
 .carcer-bmi/carcer.ui.screens.layouts.o
 .carcer-bmi/carcer.ui.screens.overlays.o
 .carcer-bmi/carcer.ui.screens.pages.o
-.carcer-bmi/carcer.ui.screens.layers.o
 .carcer-bmi/carcer.ui.screens.o
 .carcer-bmi/carcer.o

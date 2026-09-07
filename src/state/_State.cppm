@@ -166,7 +166,7 @@ inline std::optional<LayerId> layerIdFromString(std::string_view s) {
 
 /**
  * A UI-requested overlay layer, queued on State so actions never need to
- * import carcer.ui.screens -- actions touch only State; LayerManager (which
+ * import carcer.ui.layers -- actions touch only State; LayerManager (which
  * already sees carcer.state) is the only thing that names concrete Layer*
  * types.
  *
@@ -197,7 +197,7 @@ struct LayerRequest {
 };
 
 /** Just the LayerManager pointer seam -- how actions/layers reach the live
-    LayerManager without importing carcer.ui.screens. Opening/closing layers goes
+    LayerManager without importing carcer.ui.layers. Opening/closing layers goes
     through State::uiState.layerStack (LayerRequest) instead of a callback
     vtable; LayerManager::update() is meant to reconcile that list each frame
     (not yet implemented). */

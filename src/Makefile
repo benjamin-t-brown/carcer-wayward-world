@@ -25,6 +25,7 @@ db/loaders/LoadTilesetTemplates.cpp \
 db/loaders/LoadSpecialEvents.cpp \
 lib/Json.cpp \
 lib/hiscore/hiscore.cpp \
+layers/Layer.cpp \
 layers/LayerManager.cpp \
 game/combat/SpellRules.cpp \
 game/combat/CombatParty.cpp \
@@ -62,6 +63,7 @@ ui/helpers/worldActions.cpp \
 ui/helpers/keyboardShortcuts.cpp \
 ui/helpers/modalLayoutFit.cpp \
 ui/KeyboardHeldScroll.cpp \
+ui/layers.cpp \
 ui/components/ChCompactInfo.cpp \
 game/combat/CombatRunner.cpp \
 

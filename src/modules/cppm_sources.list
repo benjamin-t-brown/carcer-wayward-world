@@ -12,6 +12,7 @@ state/_State.cppm
 game/combat/_combat.cppm
 actions/_actions.cppm
 ui/_core.cppm
+ui/_layers.cppm
 ui/widgets/primitives.cppm
 ui/widgets/controls.cppm
 ui/widgets/views.cppm
@@ -21,6 +22,5 @@ ui/_widgets.cppm
 ui/screens/layouts.cppm
 ui/screens/overlays.cppm
 ui/screens/pages.cppm
-ui/screens/layers.cppm
 ui/_screens.cppm
 modules/_carcer.cppm

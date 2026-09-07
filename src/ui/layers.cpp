@@ -9,17 +9,17 @@ module;
 #include <string>
 #include <optional>
 
-export module carcer.ui.screens.layers;
-export import carcer.ui.screens.runtime;
-export import carcer.ui.widgets.composites;
-export import carcer.model;
-export import carcer.data;
-export import carcer.state;
-export import carcer.ui.screens.layouts;
-export import carcer.ui.screens.overlays;
-export import carcer.ui.screens.pages;
-export import carcer.db;
-export import carcer.in3;
+module carcer.ui.layers;
+import carcer.ui.screens.runtime;
+import carcer.ui.widgets.composites;
+import carcer.model;
+import carcer.data;
+import carcer.state;
+import carcer.ui.screens.layouts;
+import carcer.ui.screens.overlays;
+import carcer.ui.screens.pages;
+import carcer.db;
+import carcer.in3;
 import sdl2w;
 import carcer.ui.core;
 import bmin.containers;
@@ -30,15 +30,6 @@ import carcer.game.map;
 import carcer.game.inventory;
 import carcer.lib.StringUtil;
 #include "macros.h"
-
-export namespace layers {
-
-Layer* createWorldLayer(sdl2w::Window* window, float mapScale = 1.f);
-Layer* createInventoryLayer(sdl2w::Window* window);
-Layer* createPickUpLayer(sdl2w::Window* window);
-
-} // namespace layers
-
 
 namespace layers {
 
