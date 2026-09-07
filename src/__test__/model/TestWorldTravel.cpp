@@ -115,9 +115,9 @@ int main(int /*argc*/, char** /*argv*/) {
           game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
       ok = assertTrue(avatar != nullptr, "avatar after XY fallback travel") && ok;
       if (avatar) {
-        // local (5,6) on alinea_outsideAlinea1 → world (35,6)
+        // local (5,6) on alinea_outsideAlinea1 at grid (1,1) → world (35,36)
         ok = assertEqual(avatar->x, 35, "XY fallback avatar.x") && ok;
-        ok = assertEqual(avatar->y, 6, "XY fallback avatar.y") && ok;
+        ok = assertEqual(avatar->y, 36, "XY fallback avatar.y") && ok;
       }
     }
 

@@ -93,5 +93,13 @@
     { "name": "ucrt64-release", "configurePreset": "ucrt64-release", "jobs": 8 },
     { "name": "emscripten-debug", "configurePreset": "emscripten-debug", "jobs": 8 },
     { "name": "emscripten-release", "configurePreset": "emscripten-release", "jobs": 8 }
+  ],
+  "testPresets": [
+    { "name": "gcc-debug", "configurePreset": "gcc-debug", "output": { "outputOnFailure": true } },
+    { "name": "gcc-release", "configurePreset": "gcc-release", "output": { "outputOnFailure": true } },
+    { "name": "clang-debug", "configurePreset": "clang-debug", "output": { "outputOnFailure": true } },
+    { "name": "clang-release", "configurePreset": "clang-release", "output": { "outputOnFailure": true } },
+    { "name": "ucrt64-debug", "configurePreset": "ucrt64-debug", "output": { "outputOnFailure": true } },
+    { "name": "ucrt64-release", "configurePreset": "ucrt64-release", "output": { "outputOnFailure": true } }
   ]
 }

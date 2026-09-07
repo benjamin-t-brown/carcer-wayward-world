@@ -75,7 +75,7 @@ int main(int /*argc*/, char** /*argv*/) {
     state.world.activeMap.characters.pushBack(std::move(character));
     state.world.camera.cameraFollowCharacterId = "follow-me";
 
-    state::worldUpdate(stateManager, 16);
+    state::worldUpdate(nullptr, stateManager, 16);
 
     auto expected = game::computeCameraFollow(
         5, 5, state.world.camera.viewW, state.world.camera.viewH);
@@ -103,7 +103,7 @@ int main(int /*argc*/, char** /*argv*/) {
     character.y = 5;
     state.world.activeMap.characters.pushBack(std::move(character));
 
-    state::worldUpdate(stateManager, 16);
+    state::worldUpdate(nullptr, stateManager, 16);
 
     auto expected = game::computeCameraFollow(
         5, 5, state.world.camera.viewW, state.world.camera.viewH);
@@ -134,7 +134,7 @@ int main(int /*argc*/, char** /*argv*/) {
       state.world.activeMap.characters.pushBack(std::move(character));
       state.world.camera.cameraFollowCharacterId = "follow-me";
 
-      state::worldUpdate(stateManager, 16);
+      state::worldUpdate(nullptr, stateManager, 16);
 
       auto labelX = bmin::String(labels[mi]) + ".camX";
       auto labelY = bmin::String(labels[mi]) + ".camY";
@@ -152,12 +152,12 @@ int main(int /*argc*/, char** /*argv*/) {
     state.world.camera.camX = 42;
     state.world.camera.camY = 43;
     state.world.camera.cameraFollowCharacterId = "missing";
-    state::worldUpdate(stateManager, 0);
+    state::worldUpdate(nullptr, stateManager, 0);
     ok = assertEqual(state.world.camera.camX, 42, "noop viewW.camX") && ok;
     ok = assertEqual(state.world.camera.camY, 43, "noop viewW.camY") && ok;
 
     state.world.camera.viewW = 100;
-    state::worldUpdate(stateManager, 0);
+    state::worldUpdate(nullptr, stateManager, 0);
     ok = assertEqual(state.world.camera.camX, 42, "noop missing.camX") && ok;
     ok = assertEqual(state.world.camera.camY, 43, "noop missing.camY") && ok;
   }

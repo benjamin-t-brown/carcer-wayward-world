@@ -18,27 +18,27 @@ int main(int argc, char** argv) {
       return 1;
     }
 
-    const auto healIt = spellTemplates.find(bmin::String("HEAL_SELF"));
+    const auto healIt = spellTemplates.find(bmin::String("HEAL_SELF_MINOR"));
     if (healIt == spellTemplates.end()) {
-      LOG(ERROR) << "Missing HEAL_SELF spell" << LOG_ENDL;
+      LOG(ERROR) << "Missing HEAL_SELF_MINOR spell" << LOG_ENDL;
       return 1;
     }
-    if (healIt->value.abilityName != bmin::String("SPELL_HEAL_SELF")) {
-      LOG(ERROR) << "HEAL_SELF abilityName mismatch" << LOG_ENDL;
+    if (healIt->value.abilityName != bmin::String("SPELL_HEAL_SELF_MINOR")) {
+      LOG(ERROR) << "HEAL_SELF_MINOR abilityName mismatch" << LOG_ENDL;
       return 1;
     }
     if (healIt->value.requiredRunes.size() != 1) {
-      LOG(ERROR) << "HEAL_SELF expected exactly 1 requiredRunes entry, got "
+      LOG(ERROR) << "HEAL_SELF_MINOR expected exactly 1 requiredRunes entry, got "
                  << healIt->value.requiredRunes.size() << LOG_ENDL;
       return 1;
     }
     if (healIt->value.requiredRunes[0].type != model::RuneType::REGROWTH ||
         healIt->value.requiredRunes[0].count != 1) {
-      LOG(ERROR) << "HEAL_SELF requiredRunes[0] type/count mismatch" << LOG_ENDL;
+      LOG(ERROR) << "HEAL_SELF_MINOR requiredRunes[0] type/count mismatch" << LOG_ENDL;
       return 1;
     }
     if (healIt->value.label.empty()) {
-      LOG(ERROR) << "HEAL_SELF label should be set" << LOG_ENDL;
+      LOG(ERROR) << "HEAL_SELF_MINOR label should be set" << LOG_ENDL;
       return 1;
     }
 

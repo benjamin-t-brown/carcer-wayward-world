@@ -1300,7 +1300,7 @@ src/ui/uiUtils.h
 |---|---|---|
 | 0 | `Record the header restoration baseline` (this manifest's commit) | PASS: fixed references and 20 interfaces inventoried; baseline commands recorded; tracked diff contains this manifest only |
 | 1 | `Add the conventional pinned-dependency CMake build` (pending commit hash) | PASS with user-approved platform deferral: local GCC/Clang debug/release, Make parity, dependency diagnostics, no-op build, and representative wrappers pass; UCRT64 is deferred to final qualification and Emscripten remains part of the final supported-host matrix |
-| 2 | pending | pending |
+| 2 | `Restore CMake-backed test runners` (pending commit hash) | PASS locally: 81 distinct CMake test targets; all 38 non-UI tests pass under GCC and Clang; all 79 legacy wrappers pass from `/private/tmp` (43 UI wrappers with `--build-only`); aggregate UI compilation passes under GCC and Clang; an induced compile error propagates exit status 1 |
 | 3 | pending | pending |
 | 4 | pending | pending |
 | 5 | pending | pending |
@@ -1314,4 +1314,6 @@ No test is approved for retirement or disablement. Add a row here before changin
 
 | Test | Classification | Evidence / approval |
 |---|---|---|
-| Representative baseline wrappers | blocked, not stale | Production header incompatibilities prevent the requested test target from compiling |
+| Representative baseline wrappers | resolved in Phases 1–2 | Pinned header compatibility fixes and CMake-backed wrapper targets compile and run successfully |
+| Previously compile-disabled spell/enemy tests | resolved in Phase 2 | Restored the authored spell-rule implementation and updated enemy orchestration to enqueue the explicit action; focused tests pass under GCC and Clang |
+| Previously runtime-disabled asset/coordinate tests | resolved in Phase 2 | Expectations now match current spell/map-grid assets and world-grid coordinates; all five tests pass under GCC and Clang |

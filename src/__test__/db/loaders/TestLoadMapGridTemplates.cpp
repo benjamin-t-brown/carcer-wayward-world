@@ -58,10 +58,10 @@ int main(int argc, char** argv) {
     database.load();
     const model::MapGridTemplate& loaded = database.getMapGridTemplate("OutsideAlinea");
     ok = assertEqual(loaded.gridWidth, 3, "OutsideAlinea.gridWidth") && ok;
-    ok = assertEqual(loaded.gridHeight, 2, "OutsideAlinea.gridHeight") && ok;
+    ok = assertEqual(loaded.gridHeight, 3, "OutsideAlinea.gridHeight") && ok;
     ok = assertEqual(loaded.mapWidth, 30, "OutsideAlinea.mapWidth") && ok;
     ok = assertEqual(loaded.mapHeight, 30, "OutsideAlinea.mapHeight") && ok;
-    ok = assertEqualStr(loaded.cells[0][0], "alinea_outsideAlinea2", "OutsideAlinea.cells[0][0]") &&
+    ok = assertEqualStr(loaded.cells[0][0], "alinea_outsideAlinea7", "OutsideAlinea.cells[0][0]") &&
          ok;
 
     if (!ok) {

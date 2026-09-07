@@ -2,12 +2,16 @@ cmake_minimum_required(VERSION 3.28)
 
 project(carcer_wayward_world LANGUAGES CXX)
 
+include(CTest)
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(CARCER_ALLOW_DIRTY_DEPS "Allow tracked changes in pinned dependency checkouts" OFF)
+option(CARCER_BUILD_TESTS "Build the non-UI C++ test suite" ON)
+option(CARCER_BUILD_UI_TESTS "Provide compile-only UI test targets" ON)
 set(CARCER_DEPS_ROOT "${CMAKE_SOURCE_DIR}/.deps" CACHE PATH
     "Directory containing pinned SDL2W and BMIN source checkouts")
 set(CARCER_DEPS_LOCK "${CMAKE_SOURCE_DIR}/deps.lock" CACHE FILEPATH
@@ -180,4 +184,47 @@ if(EMSCRIPTEN)
     "-sEXPORTED_RUNTIME_METHODS=[\"ccall\"]"
     --preload-file "${CMAKE_SOURCE_DIR}/src/assets@assets")
   set_target_properties(CARCER PROPERTIES SUFFIX ".js")
+endif()
+
+function(carcer_add_test_executable test_source is_ui)
+  get_filename_component(test_name "${test_source}" NAME_WE)
+  set(test_target "carcer_test_${test_name}")
+
+  if(is_ui)
+    add_executable("${test_target}" EXCLUDE_FROM_ALL "${test_source}")
+  else()
+    add_executable("${test_target}" "${test_source}")
+  endif()
+  set_property(TARGET "${test_target}" PROPERTY CXX_SCAN_FOR_MODULES OFF)
+  target_link_libraries("${test_target}" PRIVATE carcer_lib)
+
+  if(NOT is_ui)
+    add_test(NAME "${test_name}" COMMAND "${test_target}")
+    set_tests_properties("${test_name}" PROPERTIES
+      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/src")
+  endif()
+
+  set(CARCER_LAST_TEST_TARGET "${test_target}" PARENT_SCOPE)
+endfunction()
+
+if(BUILD_TESTING AND CARCER_BUILD_TESTS)
+  file(GLOB_RECURSE CARCER_NON_UI_TEST_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_SOURCE_DIR}/src/__test__/runner/*.cpp"
+    "${CMAKE_SOURCE_DIR}/src/__test__/db/*.cpp"
+    "${CMAKE_SOURCE_DIR}/src/__test__/model/*.cpp")
+  add_custom_target(carcer_non_ui_tests)
+  foreach(test_source IN LISTS CARCER_NON_UI_TEST_SOURCES)
+    carcer_add_test_executable("${test_source}" FALSE)
+    add_dependencies(carcer_non_ui_tests "${CARCER_LAST_TEST_TARGET}")
+  endforeach()
+endif()
+
+if(CARCER_BUILD_UI_TESTS)
+  file(GLOB_RECURSE CARCER_UI_TEST_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_SOURCE_DIR}/src/__test__/ui/*.cpp")
+  add_custom_target(carcer_ui_tests)
+  foreach(test_source IN LISTS CARCER_UI_TEST_SOURCES)
+    carcer_add_test_executable("${test_source}" TRUE)
+    add_dependencies(carcer_ui_tests "${CARCER_LAST_TEST_TARGET}")
+  endforeach()
 endif()

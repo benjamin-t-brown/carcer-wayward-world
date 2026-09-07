@@ -207,8 +207,10 @@ int main(int /*argc*/, char** /*argv*/) {
       auto* avatar = spawnAvatar(state, 2, 2);
       move(state, -1, 0);
       ok = assertTrue(avatar->facing == model::CharacterFacing::Left, "walk left facing") && ok;
+      state.world.resolvingTownEnemyAi = false;
       move(state, 0, 1);
       ok = assertTrue(avatar->facing == model::CharacterFacing::Left, "walk down facing") && ok;
+      state.world.resolvingTownEnemyAi = false;
       move(state, 1, -1);
       ok = assertTrue(avatar->facing == model::CharacterFacing::Right, "walk up-right facing") &&
            ok;
@@ -470,14 +472,14 @@ int main(int /*argc*/, char** /*argv*/) {
       auto* avatar = spawnAvatar(state, 2, 2);
       state.world.camera.cameraFollowCharacterId = avatar->id;
 
-      state::worldUpdate(stateManager, 16);
+      state::worldUpdate(nullptr, stateManager, 16);
       auto before = game::computeCameraFollow(
           2, 2, state.world.camera.viewW, state.world.camera.viewH);
       ok = assertEqual(state.world.camera.camX, before.camX, "cam before.x") && ok;
       ok = assertEqual(state.world.camera.camY, before.camY, "cam before.y") && ok;
 
       move(state, 1, 0);
-      state::worldUpdate(stateManager, 16);
+      state::worldUpdate(nullptr, stateManager, 16);
       auto after = game::computeCameraFollow(
           3, 2, state.world.camera.viewW, state.world.camera.viewH);
       ok = assertEqual(avatar->x, 3, "cam follow move.x") && ok;

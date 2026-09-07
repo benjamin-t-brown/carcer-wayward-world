@@ -78,7 +78,7 @@ int main(int /*argc*/, char** /*argv*/) {
       spawn.execute(&state);
     }
 
-    // alinea_outsideAlinea1 is at grid (1,0) → world offset (30,0)
+    // alinea_outsideAlinea1 is at grid (1,1) → world offset (30,30)
     const model::CharacterInstance* avatar = nullptr;
     const model::CharacterInstance* claire = nullptr;
     const model::CharacterInstance* goblin = nullptr;
@@ -99,18 +99,18 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertTrue(goblin != nullptr, "goblinTest NPC found") && ok;
     if (avatar) {
       ok = assertEqual(avatar->x, 37, "spawned character.x world") && ok;
-      ok = assertEqual(avatar->y, 11, "spawned character.y world") && ok;
+      ok = assertEqual(avatar->y, 41, "spawned character.y world") && ok;
     }
     ok = assertEqual(state.world.activeMap.mapLayer, 0,
                      "mapLayer after MarkerPlayer") &&
          ok;
     if (claire) {
       ok = assertEqual(claire->x, 34, "claire.x world") && ok;
-      ok = assertEqual(claire->y, 16, "claire.y world") && ok;
+      ok = assertEqual(claire->y, 46, "claire.y world") && ok;
     }
     if (goblin) {
       ok = assertEqual(goblin->x, 48, "goblinTest.x world") && ok;
-      ok = assertEqual(goblin->y, 11, "goblinTest.y world") && ok;
+      ok = assertEqual(goblin->y, 41, "goblinTest.y world") && ok;
     }
 
     const auto countAfterSpawn =
@@ -135,7 +135,7 @@ int main(int /*argc*/, char** /*argv*/) {
       ok = assertTrue(stairsAvatar != nullptr, "avatar after Stairs1") && ok;
       if (stairsAvatar) {
         ok = assertEqual(stairsAvatar->x, 37, "Stairs1 avatar.x world") && ok;
-        ok = assertEqual(stairsAvatar->y, 1, "Stairs1 avatar.y world") && ok;
+        ok = assertEqual(stairsAvatar->y, 31, "Stairs1 avatar.y world") && ok;
       }
     }
 

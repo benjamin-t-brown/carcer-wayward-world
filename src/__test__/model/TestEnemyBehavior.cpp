@@ -17,6 +17,7 @@
 #include "state/WorldUpdater.h"
 #include "state/actions/combat/DoCPUCombatTurn.hpp"
 #include "state/actions/combat/StartCombat.hpp"
+#include "state/actions/world/TownEnemyAiAfterPlayerMove.hpp"
 #include "state/actions/world/WorldMovePlayer.hpp"
 #include "bmin/String.h"
 #include <cstdlib>
@@ -49,7 +50,7 @@ bool assertFalse(bool cond, const char* label) {
 
 void tickState(state::StateManager& stateManager, int dt) {
   stateManager.update(dt);
-  state::worldUpdate(stateManager, dt);
+  state::worldUpdate(nullptr, stateManager, dt);
 }
 
 void pumpTownEnemyAi(state::StateManager& stateManager, int maxMs = 2000) {
@@ -64,7 +65,11 @@ void pumpTownEnemyAi(state::StateManager& stateManager, int maxMs = 2000) {
 }
 
 void runAndPumpTownEnemyAi(state::StateManager& stateManager, db::Database& database) {
-  game::runTownEnemyAiAfterPlayerMove(stateManager.getState(), database);
+  (void)database;
+  stateManager.getState().world.resolvingTownEnemyAi = true;
+  stateManager.enqueueAction(stateManager.getActionData(),
+                             new state::actions::TownEnemyAiAfterPlayerMove(),
+                             0);
   pumpTownEnemyAi(stateManager);
 }
 
