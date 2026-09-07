@@ -1,6 +1,6 @@
 # Header Restoration Manifest
 
-Status: Phase 5 verified locally; cross-platform qualification remains deferred to Phase 8.
+Status: Phase 6 verified locally; cross-platform qualification remains deferred to Phase 8.
 
 This is the parity ledger for `HEADER_ARCHITECTURE_RESTORATION_PLAN.md`. A row may move from `pending` to `ported` only when its declaration and current behavior have been placed in the target file; it moves to `verified` only after the owning phase gate passes. Class/struct rows account for their public members as one indivisible API surface.
 
@@ -65,6 +65,13 @@ canonical BMIN include spelling, the current const-map iterator API, the current
 `Sdl2wAnimation.h` header-order adapter for the upstream incomplete `Sprite`
 declaration.
 
+## Phase 5 and 6 local qualification
+
+| Phase | Commit / result |
+|---|---|
+| 5: actions | `1db12d0`; GCC and Clang full 42-test suites passed, including 70 action-header self-containment probes and stable event/navigation checks |
+| 6: UI | GCC and Clang built every UI executable and all 98 UI headers independently; UI → layers is zero |
+
 ## Inventory counts
 
 - Header reference production inventory: 248 headers and 136 sources (384 paths total).
@@ -119,7 +126,7 @@ delivery, payloads, and neutral navigation requests.
 | `loadActiveMap` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestMapPersistence, TestWorldSpawnPlayerAtMarker, TestWorldTravel |
 | `modifyAP` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestCombatActions |
 | `modifyHP` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestCombatActions |
-| `modifyPartyMemberHp` | function | `src/model/combat.cpp` | `src/model/Combat.h` | pending | model/action suite |
+| `modifyPartyMemberHp` | function | `src/model/combat.cpp` | `src/model/Combat.h` | verified | model/action suite |
 | `moveActionAim` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestWorldActionAim |
 | `movePlayer` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestEnemyBehavior, TestTileTriggers, TestWorldMovePlayer |
 | `pickUpItem` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
@@ -619,21 +626,21 @@ delivery, payloads, and neutral navigation requests.
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `StateInterface` | class | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/UiElement.h` | pending | UI compile-only suite |
-| `UiElement` | class | `src/ui/UiElement.cpp` | `src/ui/UiElement.h` | pending | TestBorderInGameNarrow, TestBorderInGameWide, TestBorderModalSmall |
-| `UiEventObserver` | class | `src/ui/UiElement.cpp` | `src/ui/UiElement.h` | pending | TestConfirmModal, TestFloatingNotificationSection, TestInGameTitleBar |
-| `BaseFontConfig` | enum-class | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.h` | pending | TestHorizontalSlider, TestSectionScrollable, TestTextParagraph |
-| `FontFamily` | enum-class | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.h` | pending | UI compile-only suite |
-| `TextAlign` | enum-class | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.h` | pending | TestHorizontalSlider, TestSectionScrollable, TestVerticalList |
-| `applyFontScale` | function | `src/ui/FontScale.cpp` | `src/ui/FontScale.h` | pending | TestSystemFontScale |
-| `isInBounds` | function | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/uiUtils.h` | pending | UI compile-only suite |
-| `isInBoundsScaled` | function | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/uiUtils.h` | pending | UI compile-only suite |
-| `mapFontSizeToPixels` | function | `src/ui/FontScale.cpp` | `src/ui/FontScale.h` | pending | UI compile-only suite |
-| `mapPixelsToFontSize` | function | `src/ui/FontScale.cpp` | `src/ui/FontScale.h` | pending | UI compile-only suite |
-| `setBaseFontConfig` | function | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.h` | pending | TestHorizontalSlider, TestSectionScrollable, TestTextParagraph |
-| `BaseStyle` | struct | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/UiElement.h` | pending | ImportUiCore |
-| `Colors` | struct | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/colors.h` | pending | ImportUiCore, TestButtonTextWrap, TestHorizontalSlider |
-| `TextFontProps` | struct | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.h` | pending | ImportUiCore, TestHorizontalSlider, TestSectionScrollable |
+| `StateInterface` | class | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/UiElement.h` | verified | UI compile-only suite |
+| `UiElement` | class | `src/ui/UiElement.cpp` | `src/ui/UiElement.h` | verified | TestBorderInGameNarrow, TestBorderInGameWide, TestBorderModalSmall |
+| `UiEventObserver` | class | `src/ui/UiElement.cpp` | `src/ui/UiElement.h` | verified | TestConfirmModal, TestFloatingNotificationSection, TestInGameTitleBar |
+| `BaseFontConfig` | enum-class | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.h` | verified | TestHorizontalSlider, TestSectionScrollable, TestTextParagraph |
+| `FontFamily` | enum-class | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.h` | verified | UI compile-only suite |
+| `TextAlign` | enum-class | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.h` | verified | TestHorizontalSlider, TestSectionScrollable, TestVerticalList |
+| `applyFontScale` | function | `src/ui/FontScale.cpp` | `src/ui/FontScale.h` | verified | TestSystemFontScale |
+| `isInBounds` | function | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/uiUtils.h` | verified | UI compile-only suite |
+| `isInBoundsScaled` | function | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/uiUtils.h` | verified | UI compile-only suite |
+| `mapFontSizeToPixels` | function | `src/ui/FontScale.cpp` | `src/ui/FontScale.h` | verified | UI compile-only suite |
+| `mapPixelsToFontSize` | function | `src/ui/FontScale.cpp` | `src/ui/FontScale.h` | verified | UI compile-only suite |
+| `setBaseFontConfig` | function | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.h` | verified | TestHorizontalSlider, TestSectionScrollable, TestTextParagraph |
+| `BaseStyle` | struct | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/UiElement.h` | verified | ImportUiCore |
+| `Colors` | struct | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/colors.h` | verified | ImportUiCore, TestButtonTextWrap, TestHorizontalSlider |
+| `TextFontProps` | struct | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.h` | verified | ImportUiCore, TestHorizontalSlider, TestSectionScrollable |
 
 ### `src/ui/_layers.cppm`
 
@@ -650,223 +657,223 @@ delivery, payloads, and neutral navigation requests.
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `InGameLayout` | class | `src/ui/screens/layouts.cpp` | `src/ui/layouts/InGameLayout.h` | pending | TestInGameLayout |
-| `KeyboardHeldScroll` | class | `src/ui/KeyboardHeldScroll.cpp` | `src/ui/KeyboardHeldScroll.h` | pending | UI compile-only suite |
-| `MinipageCharacterSheet` | class | `src/ui/screens/overlays.cpp` | `src/ui/minipages/MinipageCharacterSheet.h` | pending | TestMinipageCharacterSheet |
-| `MinipageEquipRunes` | class | `src/ui/screens/overlays.cpp` | `src/ui/minipages/MinipageEquipRunes.h` | pending | UI compile-only suite |
-| `MinipageEvent` | class | `src/ui/screens/overlays.cpp` | `src/ui/minipages/MinipageEvent.h` | pending | TestMinipageEvent |
-| `MinipagePickUp` | class | `src/ui/screens/overlays.cpp` | `src/ui/minipages/MinipagePickUp.h` | pending | TestMinipagePickUp |
-| `MinipageSpellCast` | class | `src/ui/screens/overlays.cpp` | `src/ui/minipages/MinipageSpellCast.h` | pending | UI compile-only suite |
-| `ModalSmall` | class | `src/ui/screens/layouts.cpp` | `src/ui/layouts/ModalSmall.h` | pending | TestModalSmall |
-| `ModalStandard` | class | `src/ui/screens/layouts.cpp` | `src/ui/layouts/ModalStandard.h` | pending | TestModalStandard |
-| `ObserverAdjustEquippedRune` | class | `src/ui/screens/overlays.cpp` | `src/ui/observers/ObserverAdjustEquippedRune.hpp` | pending | UI compile-only suite |
-| `ObserverCancelEquipRunes` | class | `src/ui/screens/overlays.cpp` | `src/ui/observers/ObserverCancelEquipRunes.hpp` | pending | UI compile-only suite |
-| `ObserverCancelWorldActionMode` | class | `src/ui/screens/layouts.cpp` | `src/ui/observers/ObserverCancelWorldActionMode.hpp` | pending | UI compile-only suite |
-| `ObserverCommitEquipRunes` | class | `src/ui/screens/overlays.cpp` | `src/ui/observers/ObserverCommitEquipRunes.hpp` | pending | UI compile-only suite |
-| `ObserverDropInventoryItem` | class | `src/ui/screens/overlays.cpp` | `src/ui/observers/ObserverDropInventoryItem.hpp` | pending | UI compile-only suite |
-| `ObserverGiveInventoryItem` | class | `src/ui/screens/overlays.cpp` | `src/ui/observers/ObserverGiveInventoryItem.hpp` | pending | UI compile-only suite |
-| `ObserverRemoveLayer` | class | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/observers/ObserverRemoveLayer.hpp` | pending | UI compile-only suite |
-| `ObserverSetSelectedPartyMemberId` | class | `src/ui/screens/layouts.cpp` | `src/ui/observers/ObserverSetSelectedPartyMemberId.hpp` | pending | UI compile-only suite |
-| `ObserverSetSpellReady` | class | `src/ui/screens/pages.cpp` | `src/ui/observers/ObserverSetSpellReady.hpp` | pending | UI compile-only suite |
-| `ObserverShowLayerDropContext` | class | `src/ui/screens/overlays.cpp` | `src/ui/observers/ObserverShowLayerDropContext.hpp` | pending | UI compile-only suite |
-| `ObserverShowLayerEquipRunes` | class | `src/ui/screens/pages.cpp` | `src/ui/observers/ObserverShowLayerEquipRunes.hpp` | pending | UI compile-only suite |
-| `ObserverShowLayerGiveContext` | class | `src/ui/screens/overlays.cpp` | `src/ui/observers/ObserverShowLayerGiveContext.hpp` | pending | UI compile-only suite |
-| `ObserverShowLayerPopupText` | class | `src/ui/screens/pages.cpp` | `src/ui/observers/ObserverShowLayerPopupText.hpp` | pending | UI compile-only suite |
-| `ObserverSpecialEventChoice` | class | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/observers/ObserverSpecialEventChoice.hpp` | pending | UI compile-only suite |
-| `ObserverSpecialEventContinue` | class | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/observers/ObserverSpecialEventContinue.hpp` | pending | UI compile-only suite |
-| `ObserverToggleManaSlotRune` | class | `src/ui/screens/pages.cpp` | `src/ui/observers/ObserverToggleManaSlotRune.hpp` | pending | UI compile-only suite |
-| `ObserverWorldAction` | class | `src/ui/screens/layouts.cpp` | `src/ui/observers/ObserverWorldAction.hpp` | pending | UI compile-only suite |
-| `PageCharacter` | class | `src/ui/screens/pages.cpp` | `src/ui/pages/PageCharacter.h` | pending | TestPageCharacter |
-| `PageInventory` | class | `src/ui/screens/pages.cpp` | `src/ui/pages/PageInventory.h` | pending | TestPageInventory |
-| `PageMagicSetup` | class | `src/ui/screens/pages.cpp` | `src/ui/pages/PageMagicSetup.h` | pending | TestPageMagicSetup |
-| `PageModalEvent` | class | `src/ui/screens/pages.cpp` | `src/ui/pages/PageModalEvent.h` | pending | UI compile-only suite |
-| `PageTalkChoice` | class | `src/ui/screens/pages.cpp` | `src/ui/pages/PageTalkChoice.h` | pending | TestPageTalkChoice |
-| `PopupDropConfirm` | class | `src/ui/screens/overlays.cpp` | `src/ui/popups/PopupDropConfirm.h` | pending | UI compile-only suite |
-| `PopupGive` | class | `src/ui/screens/overlays.cpp` | `src/ui/popups/PopupGive.h` | pending | UI compile-only suite |
-| `PopupInventoryItem` | class | `src/ui/screens/overlays.cpp` | `src/ui/popups/PopupInventoryItem.h` | pending | TestPopupInventoryItem |
-| `PopupPickupItem` | class | `src/ui/screens/overlays.cpp` | `src/ui/popups/PopupPickupItem.h` | pending | TestPopupPickupItem |
-| `PopupSpellInfo` | class | `src/ui/screens/overlays.cpp` | `src/ui/popups/PopupSpellInfo.h` | pending | UI compile-only suite |
-| `PopupOrientation` | enum | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/popups/PopupInventoryItem.h` | pending | TestPopupInventoryItem, TestPopupPickupItem |
-| `HeldScrollDirection` | enum-class | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/HeldScrollDirection.h (proposed; verify during owning phase)` | pending | UI compile-only suite |
-| `InGameBorderType` | enum-class | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/layouts/InGameLayout.h` | pending | TestInGameLayout |
-| `LayoutFit` | enum-class | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/helpers/modalLayoutFit.h` | pending | TestModalSmall |
-| `ModalSizeClass` | enum-class | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/helpers/modalLayoutFit.h` | pending | UI compile-only suite |
-| `activateWorldAction` | function | `src/ui/helpers/worldActions.cpp` | `src/ui/helpers/worldActions.h` | pending | UI compile-only suite |
-| `cancelCurrentWorldActionMode` | function | `src/ui/helpers/worldActions.cpp` | `src/ui/helpers/worldActions.h` | pending | UI compile-only suite |
-| `computeCappedCenteredRect` | function | `src/ui/helpers/modalLayoutFit.cpp` | `src/ui/helpers/modalLayoutFit.h` | pending | UI compile-only suite |
-| `getMoveDeltaForKey` | function | `src/ui/helpers/keyboardShortcuts.cpp` | `src/ui/helpers/keyboardShortcuts.h` | pending | UI compile-only suite |
-| `getPartyMemberIndexFromKey` | function | `src/ui/helpers/keyboardShortcuts.cpp` | `src/ui/helpers/keyboardShortcuts.h` | pending | UI compile-only suite |
-| `getPickUpItemIndexFromKey` | function | `src/ui/helpers/keyboardShortcuts.cpp` | `src/ui/helpers/keyboardShortcuts.h` | pending | UI compile-only suite |
-| `isCancelActionKey` | function | `src/ui/helpers/keyboardShortcuts.cpp` | `src/ui/helpers/keyboardShortcuts.h` | pending | UI compile-only suite |
-| `isCombatWaitKey` | function | `src/ui/helpers/keyboardShortcuts.cpp` | `src/ui/helpers/keyboardShortcuts.h` | pending | UI compile-only suite |
-| `isConfirmActionKey` | function | `src/ui/helpers/keyboardShortcuts.cpp` | `src/ui/helpers/keyboardShortcuts.h` | pending | UI compile-only suite |
-| `isOpenMagicSetupKey` | function | `src/ui/helpers/keyboardShortcuts.cpp` | `src/ui/helpers/keyboardShortcuts.h` | pending | UI compile-only suite |
-| `isOpenSpellCastKey` | function | `src/ui/helpers/keyboardShortcuts.cpp` | `src/ui/helpers/keyboardShortcuts.h` | pending | UI compile-only suite |
-| `setHeldMoveActive` | function | `src/ui/helpers/worldActions.cpp` | `src/ui/helpers/worldActions.h` | pending | UI compile-only suite |
-| `showMagicSetupLayer` | function | `src/ui/helpers/worldActions.cpp` | `src/ui/helpers/worldActions.h` | pending | UI compile-only suite |
-| `showSpellCastLayer` | function | `src/ui/helpers/worldActions.cpp` | `src/ui/helpers/worldActions.h` | pending | UI compile-only suite |
-| `syncHostStyleToCappedCentered` | function | `src/ui/helpers/modalLayoutFit.cpp` | `src/ui/helpers/modalLayoutFit.h` | pending | UI compile-only suite |
-| `InGameLayoutProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/layouts/InGameLayout.h` | pending | TestInGameLayout |
-| `LayoutRect` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/helpers/modalLayoutFit.h` | pending | ImportUiScreens |
-| `MinipageCharacterSheetProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/minipages/MinipageCharacterSheet.h` | pending | TestMinipageCharacterSheet |
-| `MinipageEquipRunesProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/minipages/MinipageEquipRunes.h` | pending | UI compile-only suite |
-| `MinipageEquipRunesRow` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/minipages/MinipageEquipRunes.h` | pending | UI compile-only suite |
-| `MinipageEquipRunesSlot` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/minipages/MinipageEquipRunes.h` | pending | UI compile-only suite |
-| `MinipageEventProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/minipages/MinipageEvent.h` | pending | TestMinipageEvent |
-| `MinipagePickUpProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/minipages/MinipagePickUp.h` | pending | UI compile-only suite |
-| `MinipageSpellCastProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/minipages/MinipageSpellCast.h` | pending | UI compile-only suite |
-| `MinipageSpellCastSpell` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/minipages/MinipageSpellCast.h` | pending | UI compile-only suite |
-| `ModalSmallProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/layouts/ModalSmall.h` | pending | TestModalSmall |
-| `ModalStandardProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/layouts/ModalStandard.h` | pending | TestModalStandard |
-| `MoveDelta` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/helpers/keyboardShortcuts.h` | pending | UI compile-only suite |
-| `PageCharacterProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageCharacter.h` | pending | TestPageCharacter |
-| `PageCharacterStatRowEntry` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageCharacter.h` | pending | UI compile-only suite |
-| `PageCharacterStatRowSectionArgs` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageCharacter.h` | pending | UI compile-only suite |
-| `PageInventoryPartyMember` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageInventory.h` | pending | UI compile-only suite |
-| `PageInventoryProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageInventory.h` | pending | TestPageInventory |
-| `PageMagicSetupElementCount` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageMagicSetup.h` | pending | TestPageMagicSetup |
-| `PageMagicSetupPartyMember` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageMagicSetup.h` | pending | UI compile-only suite |
-| `PageMagicSetupProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageMagicSetup.h` | pending | TestPageMagicSetup |
-| `PageMagicSetupRuneSlot` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageMagicSetup.h` | pending | TestPageMagicSetup |
-| `PageMagicSetupSpellEntry` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageMagicSetup.h` | pending | TestPageMagicSetup |
-| `PageModalEventProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageModalEvent.h` | pending | UI compile-only suite |
-| `PageTalkChoiceItem` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageTalkChoice.h` | pending | UI compile-only suite |
-| `PageTalkChoiceProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageTalkChoice.h` | pending | TestPageTalkChoice |
-| `PopupDropConfirmProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/popups/PopupDropConfirm.h` | pending | UI compile-only suite |
-| `PopupGivePartyMember` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/popups/PopupGive.h` | pending | UI compile-only suite |
-| `PopupGiveProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/popups/PopupGive.h` | pending | UI compile-only suite |
-| `PopupInventoryItemProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/popups/PopupInventoryItem.h` | pending | TestPopupInventoryItem |
-| `PopupPickupItemProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/popups/PopupPickupItem.h` | pending | TestPopupPickupItem |
-| `PopupSpellInfoProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/popups/PopupSpellInfo.h` | pending | UI compile-only suite |
-| `PopupSpellInfoRuneReq` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/popups/PopupSpellInfo.h` | pending | UI compile-only suite |
+| `InGameLayout` | class | `src/ui/screens/layouts.cpp` | `src/ui/layouts/InGameLayout.h` | verified | TestInGameLayout |
+| `KeyboardHeldScroll` | class | `src/ui/KeyboardHeldScroll.cpp` | `src/ui/KeyboardHeldScroll.h` | verified | UI compile-only suite |
+| `MinipageCharacterSheet` | class | `src/ui/screens/overlays.cpp` | `src/ui/minipages/MinipageCharacterSheet.h` | verified | TestMinipageCharacterSheet |
+| `MinipageEquipRunes` | class | `src/ui/screens/overlays.cpp` | `src/ui/minipages/MinipageEquipRunes.h` | verified | UI compile-only suite |
+| `MinipageEvent` | class | `src/ui/screens/overlays.cpp` | `src/ui/minipages/MinipageEvent.h` | verified | TestMinipageEvent |
+| `MinipagePickUp` | class | `src/ui/screens/overlays.cpp` | `src/ui/minipages/MinipagePickUp.h` | verified | TestMinipagePickUp |
+| `MinipageSpellCast` | class | `src/ui/screens/overlays.cpp` | `src/ui/minipages/MinipageSpellCast.h` | verified | UI compile-only suite |
+| `ModalSmall` | class | `src/ui/screens/layouts.cpp` | `src/ui/layouts/ModalSmall.h` | verified | TestModalSmall |
+| `ModalStandard` | class | `src/ui/screens/layouts.cpp` | `src/ui/layouts/ModalStandard.h` | verified | TestModalStandard |
+| `ObserverAdjustEquippedRune` | class | `src/ui/screens/overlays.cpp` | `src/ui/observers/ObserverAdjustEquippedRune.hpp` | verified | UI compile-only suite |
+| `ObserverCancelEquipRunes` | class | `src/ui/screens/overlays.cpp` | `src/ui/observers/ObserverCancelEquipRunes.hpp` | verified | UI compile-only suite |
+| `ObserverCancelWorldActionMode` | class | `src/ui/screens/layouts.cpp` | `src/ui/observers/ObserverCancelWorldActionMode.hpp` | verified | UI compile-only suite |
+| `ObserverCommitEquipRunes` | class | `src/ui/screens/overlays.cpp` | `src/ui/observers/ObserverCommitEquipRunes.hpp` | verified | UI compile-only suite |
+| `ObserverDropInventoryItem` | class | `src/ui/screens/overlays.cpp` | `src/ui/observers/ObserverDropInventoryItem.hpp` | verified | UI compile-only suite |
+| `ObserverGiveInventoryItem` | class | `src/ui/screens/overlays.cpp` | `src/ui/observers/ObserverGiveInventoryItem.hpp` | verified | UI compile-only suite |
+| `ObserverRemoveLayer` | class | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/observers/ObserverRemoveLayer.hpp` | verified | UI compile-only suite |
+| `ObserverSetSelectedPartyMemberId` | class | `src/ui/screens/layouts.cpp` | `src/ui/observers/ObserverSetSelectedPartyMemberId.hpp` | verified | UI compile-only suite |
+| `ObserverSetSpellReady` | class | `src/ui/screens/pages.cpp` | `src/ui/observers/ObserverSetSpellReady.hpp` | verified | UI compile-only suite |
+| `ObserverShowLayerDropContext` | class | `src/ui/screens/overlays.cpp` | `src/ui/observers/ObserverShowLayerDropContext.hpp` | verified | UI compile-only suite |
+| `ObserverShowLayerEquipRunes` | class | `src/ui/screens/pages.cpp` | `src/ui/observers/ObserverShowLayerEquipRunes.hpp` | verified | UI compile-only suite |
+| `ObserverShowLayerGiveContext` | class | `src/ui/screens/overlays.cpp` | `src/ui/observers/ObserverShowLayerGiveContext.hpp` | verified | UI compile-only suite |
+| `ObserverShowLayerPopupText` | class | `src/ui/screens/pages.cpp` | `src/ui/observers/ObserverShowLayerPopupText.hpp` | verified | UI compile-only suite |
+| `ObserverSpecialEventChoice` | class | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/observers/ObserverSpecialEventChoice.hpp` | verified | UI compile-only suite |
+| `ObserverSpecialEventContinue` | class | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/observers/ObserverSpecialEventContinue.hpp` | verified | UI compile-only suite |
+| `ObserverToggleManaSlotRune` | class | `src/ui/screens/pages.cpp` | `src/ui/observers/ObserverToggleManaSlotRune.hpp` | verified | UI compile-only suite |
+| `ObserverWorldAction` | class | `src/ui/screens/layouts.cpp` | `src/ui/observers/ObserverWorldAction.hpp` | verified | UI compile-only suite |
+| `PageCharacter` | class | `src/ui/screens/pages.cpp` | `src/ui/pages/PageCharacter.h` | verified | TestPageCharacter |
+| `PageInventory` | class | `src/ui/screens/pages.cpp` | `src/ui/pages/PageInventory.h` | verified | TestPageInventory |
+| `PageMagicSetup` | class | `src/ui/screens/pages.cpp` | `src/ui/pages/PageMagicSetup.h` | verified | TestPageMagicSetup |
+| `PageModalEvent` | class | `src/ui/screens/pages.cpp` | `src/ui/pages/PageModalEvent.h` | verified | UI compile-only suite |
+| `PageTalkChoice` | class | `src/ui/screens/pages.cpp` | `src/ui/pages/PageTalkChoice.h` | verified | TestPageTalkChoice |
+| `PopupDropConfirm` | class | `src/ui/screens/overlays.cpp` | `src/ui/popups/PopupDropConfirm.h` | verified | UI compile-only suite |
+| `PopupGive` | class | `src/ui/screens/overlays.cpp` | `src/ui/popups/PopupGive.h` | verified | UI compile-only suite |
+| `PopupInventoryItem` | class | `src/ui/screens/overlays.cpp` | `src/ui/popups/PopupInventoryItem.h` | verified | TestPopupInventoryItem |
+| `PopupPickupItem` | class | `src/ui/screens/overlays.cpp` | `src/ui/popups/PopupPickupItem.h` | verified | TestPopupPickupItem |
+| `PopupSpellInfo` | class | `src/ui/screens/overlays.cpp` | `src/ui/popups/PopupSpellInfo.h` | verified | UI compile-only suite |
+| `PopupOrientation` | enum | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/popups/PopupInventoryItem.h` | verified | TestPopupInventoryItem, TestPopupPickupItem |
+| `HeldScrollDirection` | enum-class | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/HeldScrollDirection.h (proposed; verify during owning phase)` | verified | UI compile-only suite |
+| `InGameBorderType` | enum-class | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/layouts/InGameLayout.h` | verified | TestInGameLayout |
+| `LayoutFit` | enum-class | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/helpers/modalLayoutFit.h` | verified | TestModalSmall |
+| `ModalSizeClass` | enum-class | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/helpers/modalLayoutFit.h` | verified | UI compile-only suite |
+| `activateWorldAction` | function | `src/ui/helpers/worldActions.cpp` | `src/ui/helpers/worldActions.h` | verified | UI compile-only suite |
+| `cancelCurrentWorldActionMode` | function | `src/ui/helpers/worldActions.cpp` | `src/ui/helpers/worldActions.h` | verified | UI compile-only suite |
+| `computeCappedCenteredRect` | function | `src/ui/helpers/modalLayoutFit.cpp` | `src/ui/helpers/modalLayoutFit.h` | verified | UI compile-only suite |
+| `getMoveDeltaForKey` | function | `src/ui/helpers/keyboardShortcuts.cpp` | `src/ui/helpers/keyboardShortcuts.h` | verified | UI compile-only suite |
+| `getPartyMemberIndexFromKey` | function | `src/ui/helpers/keyboardShortcuts.cpp` | `src/ui/helpers/keyboardShortcuts.h` | verified | UI compile-only suite |
+| `getPickUpItemIndexFromKey` | function | `src/ui/helpers/keyboardShortcuts.cpp` | `src/ui/helpers/keyboardShortcuts.h` | verified | UI compile-only suite |
+| `isCancelActionKey` | function | `src/ui/helpers/keyboardShortcuts.cpp` | `src/ui/helpers/keyboardShortcuts.h` | verified | UI compile-only suite |
+| `isCombatWaitKey` | function | `src/ui/helpers/keyboardShortcuts.cpp` | `src/ui/helpers/keyboardShortcuts.h` | verified | UI compile-only suite |
+| `isConfirmActionKey` | function | `src/ui/helpers/keyboardShortcuts.cpp` | `src/ui/helpers/keyboardShortcuts.h` | verified | UI compile-only suite |
+| `isOpenMagicSetupKey` | function | `src/ui/helpers/keyboardShortcuts.cpp` | `src/ui/helpers/keyboardShortcuts.h` | verified | UI compile-only suite |
+| `isOpenSpellCastKey` | function | `src/ui/helpers/keyboardShortcuts.cpp` | `src/ui/helpers/keyboardShortcuts.h` | verified | UI compile-only suite |
+| `setHeldMoveActive` | function | `src/ui/helpers/worldActions.cpp` | `src/ui/helpers/worldActions.h` | verified | UI compile-only suite |
+| `showMagicSetupLayer` | function | `src/ui/helpers/worldActions.cpp` | `src/ui/helpers/worldActions.h` | verified | UI compile-only suite |
+| `showSpellCastLayer` | function | `src/ui/helpers/worldActions.cpp` | `src/ui/helpers/worldActions.h` | verified | UI compile-only suite |
+| `syncHostStyleToCappedCentered` | function | `src/ui/helpers/modalLayoutFit.cpp` | `src/ui/helpers/modalLayoutFit.h` | verified | UI compile-only suite |
+| `InGameLayoutProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/layouts/InGameLayout.h` | verified | TestInGameLayout |
+| `LayoutRect` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/helpers/modalLayoutFit.h` | verified | ImportUiScreens |
+| `MinipageCharacterSheetProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/minipages/MinipageCharacterSheet.h` | verified | TestMinipageCharacterSheet |
+| `MinipageEquipRunesProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/minipages/MinipageEquipRunes.h` | verified | UI compile-only suite |
+| `MinipageEquipRunesRow` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/minipages/MinipageEquipRunes.h` | verified | UI compile-only suite |
+| `MinipageEquipRunesSlot` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/minipages/MinipageEquipRunes.h` | verified | UI compile-only suite |
+| `MinipageEventProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/minipages/MinipageEvent.h` | verified | TestMinipageEvent |
+| `MinipagePickUpProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/minipages/MinipagePickUp.h` | verified | UI compile-only suite |
+| `MinipageSpellCastProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/minipages/MinipageSpellCast.h` | verified | UI compile-only suite |
+| `MinipageSpellCastSpell` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/minipages/MinipageSpellCast.h` | verified | UI compile-only suite |
+| `ModalSmallProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/layouts/ModalSmall.h` | verified | TestModalSmall |
+| `ModalStandardProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/layouts/ModalStandard.h` | verified | TestModalStandard |
+| `MoveDelta` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/helpers/keyboardShortcuts.h` | verified | UI compile-only suite |
+| `PageCharacterProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageCharacter.h` | verified | TestPageCharacter |
+| `PageCharacterStatRowEntry` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageCharacter.h` | verified | UI compile-only suite |
+| `PageCharacterStatRowSectionArgs` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageCharacter.h` | verified | UI compile-only suite |
+| `PageInventoryPartyMember` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageInventory.h` | verified | UI compile-only suite |
+| `PageInventoryProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageInventory.h` | verified | TestPageInventory |
+| `PageMagicSetupElementCount` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageMagicSetup.h` | verified | TestPageMagicSetup |
+| `PageMagicSetupPartyMember` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageMagicSetup.h` | verified | UI compile-only suite |
+| `PageMagicSetupProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageMagicSetup.h` | verified | TestPageMagicSetup |
+| `PageMagicSetupRuneSlot` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageMagicSetup.h` | verified | TestPageMagicSetup |
+| `PageMagicSetupSpellEntry` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageMagicSetup.h` | verified | TestPageMagicSetup |
+| `PageModalEventProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageModalEvent.h` | verified | UI compile-only suite |
+| `PageTalkChoiceItem` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageTalkChoice.h` | verified | UI compile-only suite |
+| `PageTalkChoiceProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/pages/PageTalkChoice.h` | verified | TestPageTalkChoice |
+| `PopupDropConfirmProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/popups/PopupDropConfirm.h` | verified | UI compile-only suite |
+| `PopupGivePartyMember` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/popups/PopupGive.h` | verified | UI compile-only suite |
+| `PopupGiveProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/popups/PopupGive.h` | verified | UI compile-only suite |
+| `PopupInventoryItemProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/popups/PopupInventoryItem.h` | verified | TestPopupInventoryItem |
+| `PopupPickupItemProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/popups/PopupPickupItem.h` | verified | TestPopupPickupItem |
+| `PopupSpellInfoProps` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/popups/PopupSpellInfo.h` | verified | UI compile-only suite |
+| `PopupSpellInfoRuneReq` | struct | `src/ui/_screens.cppm (inline/declaration-only)` | `src/ui/popups/PopupSpellInfo.h` | verified | UI compile-only suite |
 
 ### `src/ui/_widget_composites.cppm`
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `BorderInGameNarrow` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/borders/BorderInGameNarrow.h` | pending | TestBorderInGameNarrow |
-| `BorderInGameWide` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/borders/BorderInGameWide.h` | pending | TestBorderInGameWide |
-| `BorderModalSmall` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/borders/BorderModalSmall.h` | pending | TestBorderModalSmall |
-| `BorderModalStandard` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/borders/BorderModalStandard.h` | pending | TestBorderModalStandard |
-| `ConfirmModal` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/ConfirmModal.h` | pending | TestConfirmModal |
-| `FloatingNotification` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/FloatingNotification.h` | pending | UI compile-only suite |
-| `FloatingNotificationSection` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/FloatingNotificationSection.h` | pending | TestFloatingNotificationSection |
-| `ListChCompactInfoHorizontal` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/lists/ListChCompactInfoHorizontal.h` | pending | TestListChCompactInfoHorizontal |
-| `ListChCompactInfoVertical` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/lists/ListChCompactInfoVertical.h` | pending | TestListChCompactInfoVertical |
-| `ListInventory` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/lists/ListInventory.h` | pending | TestListInventory |
-| `ListMagicSpells` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/lists/ListMagicSpells.h` | pending | UI compile-only suite |
-| `ListPickUp` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/lists/ListPickUp.h` | pending | TestListPickUp |
-| `ObserverInventorySelectItem` | class | `src/ui/widgets/composites.cpp` | `src/ui/observers/ObserverInventorySelectItem.hpp` | pending | UI compile-only suite |
-| `ObserverPickUpItem` | class | `src/ui/widgets/composites.cpp` | `src/ui/observers/ObserverPickUpItem.hpp` | pending | UI compile-only suite |
-| `ObserverReorderInventoryItem` | class | `src/ui/widgets/composites.cpp` | `src/ui/observers/ObserverReorderInventoryItem.hpp` | pending | UI compile-only suite |
-| `ObserverSelectSpellCast` | class | `src/ui/widgets/composites.cpp` | `src/ui/observers/ObserverSelectSpellCast.hpp` | pending | UI compile-only suite |
-| `ObserverShowLayerInventoryContext` | class | `src/ui/widgets/composites.cpp` | `src/ui/observers/ObserverShowLayerInventoryContext.hpp` | pending | UI compile-only suite |
-| `ObserverShowLayerPickUpContext` | class | `src/ui/widgets/composites.cpp` | `src/ui/observers/ObserverShowLayerPickUpContext.hpp` | pending | UI compile-only suite |
-| `ObserverShowLayerSpellInfo` | class | `src/ui/widgets/composites.cpp` | `src/ui/observers/ObserverShowLayerSpellInfo.hpp` | pending | UI compile-only suite |
-| `TouchMovePad` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/TouchMovePad.h` | pending | TestTouchMovePad |
-| `BorderInGameNarrowProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/borders/BorderInGameNarrow.h` | pending | TestBorderInGameNarrow |
-| `BorderInGameWideProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/borders/BorderInGameWide.h` | pending | TestBorderInGameWide |
-| `BorderModalSmallProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/borders/BorderModalSmall.h` | pending | TestBorderModalSmall, TestBorderModalStandard |
-| `ConfirmModalProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/ConfirmModal.h` | pending | TestConfirmModal |
-| `FloatingNotificationProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/FloatingNotification.h` | pending | UI compile-only suite |
-| `FloatingNotificationSectionProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/FloatingNotificationSection.h` | pending | UI compile-only suite |
-| `ListChCompactInfoHorizontalProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/lists/ListChCompactInfoHorizontal.h` | pending | TestListChCompactInfoHorizontal |
-| `ListChCompactInfoVerticalProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/lists/ListChCompactInfoVertical.h` | pending | TestListChCompactInfoVertical |
-| `ListInventoryProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/lists/ListInventory.h` | pending | UI compile-only suite |
-| `ListInventoryPropsItem` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/lists/ListInventory.h` | pending | UI compile-only suite |
-| `ListMagicSpellsProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/lists/ListMagicSpells.h` | pending | UI compile-only suite |
-| `ListMagicSpellsPropsSpell` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/lists/ListMagicSpells.h` | pending | UI compile-only suite |
-| `ListPickUpProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/lists/ListPickUp.h` | pending | TestListPickUp |
-| `ListPickUpPropsItem` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/lists/ListPickUp.h` | pending | UI compile-only suite |
-| `TouchMovePadProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/TouchMovePad.h` | pending | TestTouchMovePad |
+| `BorderInGameNarrow` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/borders/BorderInGameNarrow.h` | verified | TestBorderInGameNarrow |
+| `BorderInGameWide` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/borders/BorderInGameWide.h` | verified | TestBorderInGameWide |
+| `BorderModalSmall` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/borders/BorderModalSmall.h` | verified | TestBorderModalSmall |
+| `BorderModalStandard` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/borders/BorderModalStandard.h` | verified | TestBorderModalStandard |
+| `ConfirmModal` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/ConfirmModal.h` | verified | TestConfirmModal |
+| `FloatingNotification` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/FloatingNotification.h` | verified | UI compile-only suite |
+| `FloatingNotificationSection` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/FloatingNotificationSection.h` | verified | TestFloatingNotificationSection |
+| `ListChCompactInfoHorizontal` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/lists/ListChCompactInfoHorizontal.h` | verified | TestListChCompactInfoHorizontal |
+| `ListChCompactInfoVertical` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/lists/ListChCompactInfoVertical.h` | verified | TestListChCompactInfoVertical |
+| `ListInventory` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/lists/ListInventory.h` | verified | TestListInventory |
+| `ListMagicSpells` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/lists/ListMagicSpells.h` | verified | UI compile-only suite |
+| `ListPickUp` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/lists/ListPickUp.h` | verified | TestListPickUp |
+| `ObserverInventorySelectItem` | class | `src/ui/widgets/composites.cpp` | `src/ui/observers/ObserverInventorySelectItem.hpp` | verified | UI compile-only suite |
+| `ObserverPickUpItem` | class | `src/ui/widgets/composites.cpp` | `src/ui/observers/ObserverPickUpItem.hpp` | verified | UI compile-only suite |
+| `ObserverReorderInventoryItem` | class | `src/ui/widgets/composites.cpp` | `src/ui/observers/ObserverReorderInventoryItem.hpp` | verified | UI compile-only suite |
+| `ObserverSelectSpellCast` | class | `src/ui/widgets/composites.cpp` | `src/ui/observers/ObserverSelectSpellCast.hpp` | verified | UI compile-only suite |
+| `ObserverShowLayerInventoryContext` | class | `src/ui/widgets/composites.cpp` | `src/ui/observers/ObserverShowLayerInventoryContext.hpp` | verified | UI compile-only suite |
+| `ObserverShowLayerPickUpContext` | class | `src/ui/widgets/composites.cpp` | `src/ui/observers/ObserverShowLayerPickUpContext.hpp` | verified | UI compile-only suite |
+| `ObserverShowLayerSpellInfo` | class | `src/ui/widgets/composites.cpp` | `src/ui/observers/ObserverShowLayerSpellInfo.hpp` | verified | UI compile-only suite |
+| `TouchMovePad` | class | `src/ui/widgets/composites.cpp` | `src/ui/components/TouchMovePad.h` | verified | TestTouchMovePad |
+| `BorderInGameNarrowProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/borders/BorderInGameNarrow.h` | verified | TestBorderInGameNarrow |
+| `BorderInGameWideProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/borders/BorderInGameWide.h` | verified | TestBorderInGameWide |
+| `BorderModalSmallProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/borders/BorderModalSmall.h` | verified | TestBorderModalSmall, TestBorderModalStandard |
+| `ConfirmModalProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/ConfirmModal.h` | verified | TestConfirmModal |
+| `FloatingNotificationProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/FloatingNotification.h` | verified | UI compile-only suite |
+| `FloatingNotificationSectionProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/FloatingNotificationSection.h` | verified | UI compile-only suite |
+| `ListChCompactInfoHorizontalProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/lists/ListChCompactInfoHorizontal.h` | verified | TestListChCompactInfoHorizontal |
+| `ListChCompactInfoVerticalProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/lists/ListChCompactInfoVertical.h` | verified | TestListChCompactInfoVertical |
+| `ListInventoryProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/lists/ListInventory.h` | verified | UI compile-only suite |
+| `ListInventoryPropsItem` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/lists/ListInventory.h` | verified | UI compile-only suite |
+| `ListMagicSpellsProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/lists/ListMagicSpells.h` | verified | UI compile-only suite |
+| `ListMagicSpellsPropsSpell` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/lists/ListMagicSpells.h` | verified | UI compile-only suite |
+| `ListPickUpProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/lists/ListPickUp.h` | verified | TestListPickUp |
+| `ListPickUpPropsItem` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/lists/ListPickUp.h` | verified | UI compile-only suite |
+| `TouchMovePadProps` | struct | `src/ui/_widget_composites.cppm (inline/declaration-only)` | `src/ui/components/TouchMovePad.h` | verified | TestTouchMovePad |
 
 ### `src/ui/_widget_foundation.cppm`
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `BorderDropShadow` | class | `src/ui/widgets/foundation_views.cpp` | `src/ui/components/borders/BorderDropShadow.h` | pending | TestSection |
-| `BorderInGame` | class | `src/ui/widgets/foundation_views.cpp` | `src/ui/components/borders/BorderInGame.h` | pending | UI compile-only suite |
-| `ButtonClose` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonClose.h` | pending | TestButtonModal |
-| `ButtonGroup` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonGroup.h` | pending | TestButtonGroup |
-| `ButtonIcon` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonIcon.h` | pending | UI compile-only suite |
-| `ButtonList` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonList.h` | pending | UI compile-only suite |
-| `ButtonModal` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonModal.h` | pending | TestFloatingNotificationSection, TestButtonModal, TestTextBanner |
-| `ButtonMove` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonMove.h` | pending | UI compile-only suite |
-| `ButtonScroll` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonScroll.h` | pending | TestButtonModal |
-| `ButtonSprite` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonSprite.h` | pending | UI compile-only suite |
-| `ButtonTextWrap` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonTextWrap.h` | pending | TestButtonTextWrap |
-| `ButtonWorldAction` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonWorldAction.h` | pending | TestButtonWorldAction |
-| `ChCompactInfo` | class | `src/ui/components/ChCompactInfo.cpp` | `src/ui/components/ChCompactInfo.h` | pending | TestChCompactInfo |
-| `HorizontalList` | class | `src/ui/widgets/primitives.cpp` | `src/ui/elements/HorizontalList.h` | pending | UI compile-only suite |
-| `HorizontalSlider` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/HorizontalSlider.h` | pending | TestHorizontalSlider |
-| `OutsetRectangle` | class | `src/ui/widgets/primitives.cpp` | `src/ui/elements/OutsetRectangle.h` | pending | TestOutsetRectangle |
-| `Quad` | class | `src/ui/widgets/primitives.cpp` | `src/ui/elements/Quad.h` | pending | TestQuad, TestSectionScrollable, TestTextParagraph |
-| `SectionScrollable` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/SectionScrollable.h` | pending | TestSectionScrollable |
-| `SpriteElement` | class | `src/ui/widgets/primitives.cpp` | `src/ui/elements/SpriteElement.h` | pending | UI compile-only suite |
-| `TextBanner` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/TextBanner.h` | pending | TestTextBanner |
-| `TextLine` | class | `src/ui/widgets/primitives.cpp` | `src/ui/elements/TextLine.h` | pending | TestHorizontalSlider, TestSectionScrollable, TestVerticalList |
-| `TextParagraph` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/TextParagraph.h` | pending | TestTextParagraph |
-| `TiledOverlay` | class | `src/ui/widgets/foundation_views.cpp` | `src/ui/components/TiledOverlay.h` | pending | UI compile-only suite |
-| `VerticalList` | class | `src/ui/widgets/primitives.cpp` | `src/ui/elements/VerticalList.h` | pending | TestVerticalList |
-| `ButtonGroupAlignment` | enum-class | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonGroup.h` | pending | TestButtonGroup |
-| `ButtonGroupButtonType` | enum-class | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonGroup.h` | pending | TestButtonGroup |
-| `CloseType` | enum-class | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonClose.h` | pending | TestButtonModal |
-| `MoveDirection` | enum-class | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonMove.h` | pending | UI compile-only suite |
-| `ScrollDirection` | enum-class | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/KeyboardHeldScroll.h` | pending | TestButtonModal |
-| `TextBannerCorner` | enum-class | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/TextBanner.h` | pending | TestTextBanner |
-| `BorderDropShadowProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/components/borders/BorderDropShadow.h` | pending | TestSection |
-| `BorderInGameProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/components/borders/BorderInGame.h` | pending | UI compile-only suite |
-| `ButtonCloseProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonClose.h` | pending | TestButtonModal |
-| `ButtonGroupButtonProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonGroup.h` | pending | TestButtonGroup |
-| `ButtonGroupProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonGroup.h` | pending | TestButtonGroup |
-| `ButtonIconProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonIcon.h` | pending | UI compile-only suite |
-| `ButtonListProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonList.h` | pending | UI compile-only suite |
-| `ButtonModalProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonModal.h` | pending | TestFloatingNotificationSection, TestButtonModal, TestTextBanner |
-| `ButtonMoveProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonMove.h` | pending | UI compile-only suite |
-| `ButtonScrollProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonScroll.h` | pending | TestButtonModal |
-| `ButtonSpriteProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonSprite.h` | pending | UI compile-only suite |
-| `ButtonTextWrapProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonTextWrap.h` | pending | TestButtonTextWrap |
-| `ButtonWorldActionMapping` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonWorldAction.h` | pending | UI compile-only suite |
-| `ButtonWorldActionProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonWorldAction.h` | pending | TestButtonWorldAction |
-| `ChCompactInfoProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/components/ChCompactInfo.h` | pending | ImportUiWidgets, TestChCompactInfo, TestListChCompactInfoHorizontal |
-| `HorizontalListProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/HorizontalList.h` | pending | UI compile-only suite |
-| `HorizontalSliderProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/HorizontalSlider.h` | pending | UI compile-only suite |
-| `OutsetRectangleProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/OutsetRectangle.h` | pending | TestOutsetRectangle |
-| `QuadProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/Quad.h` | pending | ImportUiWidgets, TestQuad, TestSectionScrollable |
-| `SectionScrollableProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/SectionScrollable.h` | pending | TestSectionScrollable |
-| `SpriteElementProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/SpriteElement.h` | pending | UI compile-only suite |
-| `TextBannerProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/TextBanner.h` | pending | TestTextBanner |
-| `TextBlock` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/TextLine.h` | pending | TestSectionScrollable, TestTextParagraph, TestModalStandard |
-| `TextLineProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/TextLine.h` | pending | TestSectionScrollable, TestVerticalList, TestModalSmall |
-| `TextLineRenderTextParams` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/TextLine.h` | pending | UI compile-only suite |
-| `TextParagraphGeneratedBlock` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/TextParagraph.h` | pending | UI compile-only suite |
-| `TextParagraphProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/TextParagraph.h` | pending | TestTextParagraph |
-| `TiledOverlayProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/components/TiledOverlay.h` | pending | UI compile-only suite |
-| `VerticalListProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/VerticalList.h` | pending | TestVerticalList |
+| `BorderDropShadow` | class | `src/ui/widgets/foundation_views.cpp` | `src/ui/components/borders/BorderDropShadow.h` | verified | TestSection |
+| `BorderInGame` | class | `src/ui/widgets/foundation_views.cpp` | `src/ui/components/borders/BorderInGame.h` | verified | UI compile-only suite |
+| `ButtonClose` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonClose.h` | verified | TestButtonModal |
+| `ButtonGroup` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonGroup.h` | verified | TestButtonGroup |
+| `ButtonIcon` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonIcon.h` | verified | UI compile-only suite |
+| `ButtonList` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonList.h` | verified | UI compile-only suite |
+| `ButtonModal` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonModal.h` | verified | TestFloatingNotificationSection, TestButtonModal, TestTextBanner |
+| `ButtonMove` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonMove.h` | verified | UI compile-only suite |
+| `ButtonScroll` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonScroll.h` | verified | TestButtonModal |
+| `ButtonSprite` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonSprite.h` | verified | UI compile-only suite |
+| `ButtonTextWrap` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonTextWrap.h` | verified | TestButtonTextWrap |
+| `ButtonWorldAction` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/buttons/ButtonWorldAction.h` | verified | TestButtonWorldAction |
+| `ChCompactInfo` | class | `src/ui/components/ChCompactInfo.cpp` | `src/ui/components/ChCompactInfo.h` | verified | TestChCompactInfo |
+| `HorizontalList` | class | `src/ui/widgets/primitives.cpp` | `src/ui/elements/HorizontalList.h` | verified | UI compile-only suite |
+| `HorizontalSlider` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/HorizontalSlider.h` | verified | TestHorizontalSlider |
+| `OutsetRectangle` | class | `src/ui/widgets/primitives.cpp` | `src/ui/elements/OutsetRectangle.h` | verified | TestOutsetRectangle |
+| `Quad` | class | `src/ui/widgets/primitives.cpp` | `src/ui/elements/Quad.h` | verified | TestQuad, TestSectionScrollable, TestTextParagraph |
+| `SectionScrollable` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/SectionScrollable.h` | verified | TestSectionScrollable |
+| `SpriteElement` | class | `src/ui/widgets/primitives.cpp` | `src/ui/elements/SpriteElement.h` | verified | UI compile-only suite |
+| `TextBanner` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/TextBanner.h` | verified | TestTextBanner |
+| `TextLine` | class | `src/ui/widgets/primitives.cpp` | `src/ui/elements/TextLine.h` | verified | TestHorizontalSlider, TestSectionScrollable, TestVerticalList |
+| `TextParagraph` | class | `src/ui/widgets/controls.cpp` | `src/ui/elements/TextParagraph.h` | verified | TestTextParagraph |
+| `TiledOverlay` | class | `src/ui/widgets/foundation_views.cpp` | `src/ui/components/TiledOverlay.h` | verified | UI compile-only suite |
+| `VerticalList` | class | `src/ui/widgets/primitives.cpp` | `src/ui/elements/VerticalList.h` | verified | TestVerticalList |
+| `ButtonGroupAlignment` | enum-class | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonGroup.h` | verified | TestButtonGroup |
+| `ButtonGroupButtonType` | enum-class | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonGroup.h` | verified | TestButtonGroup |
+| `CloseType` | enum-class | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonClose.h` | verified | TestButtonModal |
+| `MoveDirection` | enum-class | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonMove.h` | verified | UI compile-only suite |
+| `ScrollDirection` | enum-class | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/KeyboardHeldScroll.h` | verified | TestButtonModal |
+| `TextBannerCorner` | enum-class | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/TextBanner.h` | verified | TestTextBanner |
+| `BorderDropShadowProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/components/borders/BorderDropShadow.h` | verified | TestSection |
+| `BorderInGameProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/components/borders/BorderInGame.h` | verified | UI compile-only suite |
+| `ButtonCloseProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonClose.h` | verified | TestButtonModal |
+| `ButtonGroupButtonProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonGroup.h` | verified | TestButtonGroup |
+| `ButtonGroupProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonGroup.h` | verified | TestButtonGroup |
+| `ButtonIconProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonIcon.h` | verified | UI compile-only suite |
+| `ButtonListProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonList.h` | verified | UI compile-only suite |
+| `ButtonModalProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonModal.h` | verified | TestFloatingNotificationSection, TestButtonModal, TestTextBanner |
+| `ButtonMoveProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonMove.h` | verified | UI compile-only suite |
+| `ButtonScrollProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonScroll.h` | verified | TestButtonModal |
+| `ButtonSpriteProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonSprite.h` | verified | UI compile-only suite |
+| `ButtonTextWrapProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonTextWrap.h` | verified | TestButtonTextWrap |
+| `ButtonWorldActionMapping` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonWorldAction.h` | verified | UI compile-only suite |
+| `ButtonWorldActionProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/buttons/ButtonWorldAction.h` | verified | TestButtonWorldAction |
+| `ChCompactInfoProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/components/ChCompactInfo.h` | verified | ImportUiWidgets, TestChCompactInfo, TestListChCompactInfoHorizontal |
+| `HorizontalListProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/HorizontalList.h` | verified | UI compile-only suite |
+| `HorizontalSliderProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/HorizontalSlider.h` | verified | UI compile-only suite |
+| `OutsetRectangleProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/OutsetRectangle.h` | verified | TestOutsetRectangle |
+| `QuadProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/Quad.h` | verified | ImportUiWidgets, TestQuad, TestSectionScrollable |
+| `SectionScrollableProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/SectionScrollable.h` | verified | TestSectionScrollable |
+| `SpriteElementProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/SpriteElement.h` | verified | UI compile-only suite |
+| `TextBannerProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/TextBanner.h` | verified | TestTextBanner |
+| `TextBlock` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/TextLine.h` | verified | TestSectionScrollable, TestTextParagraph, TestModalStandard |
+| `TextLineProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/TextLine.h` | verified | TestSectionScrollable, TestVerticalList, TestModalSmall |
+| `TextLineRenderTextParams` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/TextLine.h` | verified | UI compile-only suite |
+| `TextParagraphGeneratedBlock` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/TextParagraph.h` | verified | UI compile-only suite |
+| `TextParagraphProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/TextParagraph.h` | verified | TestTextParagraph |
+| `TiledOverlayProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/components/TiledOverlay.h` | verified | UI compile-only suite |
+| `VerticalListProps` | struct | `src/ui/_widget_foundation.cppm (inline/declaration-only)` | `src/ui/elements/VerticalList.h` | verified | TestVerticalList |
 
 ### `src/ui/_widget_views.cppm`
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `InGameTitleBar` | class | `src/ui/widgets/views.cpp` | `src/ui/components/InGameTitleBar.h` | pending | TestInGameTitleBar, TestInGameLayout |
-| `ItemInfo` | class | `src/ui/widgets/views.cpp` | `src/ui/components/ItemInfo.h` | pending | UI compile-only suite |
-| `MapView` | class | `src/ui/widgets/views.cpp` | `src/ui/components/MapView.h` | pending | UI compile-only suite |
-| `ObserverSetCurrentPartyMember` | class | `src/ui/widgets/views.cpp` | `src/ui/observers/ObserverSetCurrentPartyMember.hpp` | pending | UI compile-only suite |
-| `ObserverSetCurrentPartyMemberInventory` | class | `src/ui/widgets/views.cpp` | `src/ui/observers/ObserverSetCurrentPartyMemberInventory.hpp` | pending | UI compile-only suite |
-| `ObserverSetCurrentPartyMemberMagic` | class | `src/ui/widgets/views.cpp` | `src/ui/observers/ObserverSetCurrentPartyMemberMagic.hpp` | pending | UI compile-only suite |
-| `ObserverUpdateCurrentPartyMember` | class | `src/ui/widgets/views.cpp` | `src/ui/observers/ObserverUpdateCurrentPartyMember.hpp` | pending | UI compile-only suite |
-| `PartyMemberIconSelector` | class | `src/ui/widgets/views.cpp` | `src/ui/components/PartyMemberIconSelector.h` | pending | UI compile-only suite |
-| `PartyMemberSwitcher` | class | `src/ui/widgets/views.cpp` | `src/ui/components/PartyMemberSwitcher.h` | pending | TestPartyMemberSwitcher |
-| `PartyMemberIconSelectorTarget` | enum-class | `src/ui/_widget_views.cppm (inline/declaration-only)` | `src/ui/components/PartyMemberIconSelector.h` | pending | UI compile-only suite |
-| `InGameTitleBarProps` | struct | `src/ui/_widget_views.cppm (inline/declaration-only)` | `src/ui/components/InGameTitleBar.h` | pending | TestInGameTitleBar, TestInGameLayout |
-| `ItemInfoProps` | struct | `src/ui/_widget_views.cppm (inline/declaration-only)` | `src/ui/components/ItemInfo.h` | pending | UI compile-only suite |
-| `MapViewProps` | struct | `src/ui/_widget_views.cppm (inline/declaration-only)` | `src/ui/components/MapView.h` | pending | UI compile-only suite |
-| `PartyMemberIconSelectorProps` | struct | `src/ui/_widget_views.cppm (inline/declaration-only)` | `src/ui/components/PartyMemberIconSelector.h` | pending | UI compile-only suite |
-| `PartyMemberSwitcherProps` | struct | `src/ui/_widget_views.cppm (inline/declaration-only)` | `src/ui/components/PartyMemberSwitcher.h` | pending | TestPartyMemberSwitcher |
+| `InGameTitleBar` | class | `src/ui/widgets/views.cpp` | `src/ui/components/InGameTitleBar.h` | verified | TestInGameTitleBar, TestInGameLayout |
+| `ItemInfo` | class | `src/ui/widgets/views.cpp` | `src/ui/components/ItemInfo.h` | verified | UI compile-only suite |
+| `MapView` | class | `src/ui/widgets/views.cpp` | `src/ui/components/MapView.h` | verified | UI compile-only suite |
+| `ObserverSetCurrentPartyMember` | class | `src/ui/widgets/views.cpp` | `src/ui/observers/ObserverSetCurrentPartyMember.hpp` | verified | UI compile-only suite |
+| `ObserverSetCurrentPartyMemberInventory` | class | `src/ui/widgets/views.cpp` | `src/ui/observers/ObserverSetCurrentPartyMemberInventory.hpp` | verified | UI compile-only suite |
+| `ObserverSetCurrentPartyMemberMagic` | class | `src/ui/widgets/views.cpp` | `src/ui/observers/ObserverSetCurrentPartyMemberMagic.hpp` | verified | UI compile-only suite |
+| `ObserverUpdateCurrentPartyMember` | class | `src/ui/widgets/views.cpp` | `src/ui/observers/ObserverUpdateCurrentPartyMember.hpp` | verified | UI compile-only suite |
+| `PartyMemberIconSelector` | class | `src/ui/widgets/views.cpp` | `src/ui/components/PartyMemberIconSelector.h` | verified | UI compile-only suite |
+| `PartyMemberSwitcher` | class | `src/ui/widgets/views.cpp` | `src/ui/components/PartyMemberSwitcher.h` | verified | TestPartyMemberSwitcher |
+| `PartyMemberIconSelectorTarget` | enum-class | `src/ui/_widget_views.cppm (inline/declaration-only)` | `src/ui/components/PartyMemberIconSelector.h` | verified | UI compile-only suite |
+| `InGameTitleBarProps` | struct | `src/ui/_widget_views.cppm (inline/declaration-only)` | `src/ui/components/InGameTitleBar.h` | verified | TestInGameTitleBar, TestInGameLayout |
+| `ItemInfoProps` | struct | `src/ui/_widget_views.cppm (inline/declaration-only)` | `src/ui/components/ItemInfo.h` | verified | UI compile-only suite |
+| `MapViewProps` | struct | `src/ui/_widget_views.cppm (inline/declaration-only)` | `src/ui/components/MapView.h` | verified | UI compile-only suite |
+| `PartyMemberIconSelectorProps` | struct | `src/ui/_widget_views.cppm (inline/declaration-only)` | `src/ui/components/PartyMemberIconSelector.h` | verified | UI compile-only suite |
+| `PartyMemberSwitcherProps` | struct | `src/ui/_widget_views.cppm (inline/declaration-only)` | `src/ui/components/PartyMemberSwitcher.h` | verified | TestPartyMemberSwitcher |
 
 ### `src/ui/_widgets.cppm`
 
-Aggregator only; no independently declared public type/function. Status: `pending` until all re-exported owning interfaces are verified.
+Aggregator only; no independently declared public type/function. Status: `verified`; all re-exported owning interfaces passed Phase 6 self-containment.
 
 ## Header-reference production path inventory
 

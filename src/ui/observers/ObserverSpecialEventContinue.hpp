@@ -1,19 +1,20 @@
 #pragma once
 
-#include "layers/ui/LayerSpecialEvent.h"
+#include "actions/navigation/UiContinueSpecialEvent.hpp"
+#include "state/StateManager.h"
 #include "ui/UiElement.h"
 
 namespace ui {
 
-class ObserverSpecialEventContinue : public UiEventObserver {
-  layers::LayerSpecialEvent* layer;
-
+class ObserverSpecialEventContinue : public UiEventObserver,
+                                     public state::StateManagerInterface {
 public:
-  explicit ObserverSpecialEventContinue(layers::LayerSpecialEvent* _layer) : layer(_layer) {}
-
-  void onClick(int mouseX, int mouseY, int button) override {
-    if (layer) {
-      layer->onContinue();
+  void onClick(int /*mouseX*/, int /*mouseY*/, int /*button*/) override {
+    if (auto* stateManager = getStateManager()) {
+      stateManager->enqueueAction(
+          stateManager->getActionData(),
+          new state::actions::UiContinueSpecialEvent(),
+          0);
     }
   }
 };

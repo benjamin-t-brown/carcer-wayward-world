@@ -1,6 +1,6 @@
 #pragma once
 
-#include "layers/Layer.h"
+#include "state/LayerRequest.h"
 #include "ui/popups/PopupInventoryItem.h"
 #include "ui/UiElement.h"
 #include "bmin/String.h"
@@ -19,11 +19,11 @@ struct PopupPickupItemProps {
 // PopupPickupItem - shows info about an item that can be picked up
 class PopupPickupItem : public UiElement {
   PopupPickupItemProps props;
-  layers::Layer* layer;
+  state::LayerId ownerLayerId;
 
 public:
   PopupPickupItem(sdl2w::Window* _window,
-                  layers::Layer* _layer,
+                  state::LayerId ownerLayerId,
                   PopupOrientation _orientation = WIDE);
 
   void setProps(const PopupPickupItemProps& _props);

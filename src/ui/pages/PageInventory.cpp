@@ -1,5 +1,4 @@
 #include "PageInventory.h"
-#include "layers/ui/LayerInventory.h"
 #include "sdl2w/L10n.h"
 #include "model/templates/Items.h"
 #include "ui/colors.h"
@@ -119,7 +118,7 @@ void PageInventory::build() {
   auto closeButton = modal->getCloseButtonElement();
   if (closeButton) {
     closeButton->addEventObserver(
-        new ObserverRemoveLayer(layers::LayerInventory::LAYER_ID));
+        new ObserverRemoveLayer(state::LayerId::Inventory));
   }
 
   auto [contentW, contentH] = modal->getContentDims();

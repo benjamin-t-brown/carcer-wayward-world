@@ -1,6 +1,5 @@
 #pragma once
 
-#include "lib/StringUtil.h"
 #include "state/StateManager.h"
 #include "actions/navigation/UiRemoveLayer.hpp"
 #include "ui/UiElement.h"
@@ -8,20 +7,23 @@
 namespace ui {
 class ObserverRemoveLayer : public ui::UiEventObserver,
                             public state::StateManagerInterface {
-  bmin::String layerId;
+  std::optional<state::LayerId> layerId;
 
 public:
-  ObserverRemoveLayer(const bmin::String& _layerId) : layerId(_layerId) {}
-  ObserverRemoveLayer(std::string_view _layerId) : layerId(strutil::fromStringView(_layerId)) {}
+  explicit ObserverRemoveLayer(state::LayerId layerId) : layerId(layerId) {}
+  explicit ObserverRemoveLayer(const bmin::String& value)
+      : layerId(state::layerIdFromString(bmin::toStringView(value))) {}
+  explicit ObserverRemoveLayer(std::string_view value)
+      : layerId(state::layerIdFromString(value)) {}
 
   void onClick(int mouseX, int mouseY, int button) override {
-    LOG(INFO) << "ObserverRemoveLayer::onClick " << layerId << LOG_ENDL;
+    LOG(INFO) << "ObserverRemoveLayer::onClick" << LOG_ENDL;
     auto stateManager = getStateManager();
-    if (!stateManager || layerId.empty()) {
+    if (!stateManager || !layerId) {
       return;
     }
     stateManager->enqueueAction(
-        stateManager->getActionData(), new state::actions::UiRemoveLayer(layerId), 0);
+        stateManager->getActionData(), new state::actions::UiRemoveLayer(*layerId), 0);
   }
 };
 } // namespace ui

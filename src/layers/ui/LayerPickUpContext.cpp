@@ -25,7 +25,8 @@ LayerPickUpContext::LayerPickUpContext(sdl2w::Window* _window,
   const auto orientation =
       windowWidth < 500 ? ui::PopupOrientation::NARROW : ui::PopupOrientation::WIDE;
 
-  auto popupPickupItem = new ui::PopupPickupItem(window, this, orientation);
+  auto popupPickupItem =
+      new ui::PopupPickupItem(window, state::LayerId::PickUpContext, orientation);
   popupPickupItem->setId("popupPickupItem");
 
   ui::PopupPickupItemProps popupProps;

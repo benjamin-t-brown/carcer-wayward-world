@@ -14,10 +14,11 @@ namespace ui {
 class PopupPickupItemCloseButtonObserver : public UiEventObserver,
                                            public state::StateManagerInterface {
 
-  layers::Layer* layer;
+  state::LayerId ownerLayerId;
 
 public:
-  PopupPickupItemCloseButtonObserver(layers::Layer* _layer) : layer(_layer) {}
+  explicit PopupPickupItemCloseButtonObserver(state::LayerId ownerLayerId)
+      : ownerLayerId(ownerLayerId) {}
 
   void onClick(int mouseX, int mouseY, int button) override {
     LOG(INFO) << "PopupPickupItemCloseButtonObserver::onClick" << LOG_ENDL;
@@ -26,15 +27,16 @@ public:
       return;
     }
     stateManager->enqueueAction(
-        stateManager->getActionData(), new state::actions::UiRemoveLayer(layer->getId()), 0);
+        stateManager->getActionData(),
+        new state::actions::UiRemoveLayer(ownerLayerId),
+        0);
   }
 };
 
 PopupPickupItem::PopupPickupItem(sdl2w::Window* _window,
-                                 layers::Layer* _layer,
+                                 state::LayerId ownerLayerId,
                                  PopupOrientation _orientation)
-    : UiElement(_window, nullptr) {
-  this->layer = _layer;
+    : UiElement(_window, nullptr), ownerLayerId(ownerLayerId) {
   shouldPropagateEventsToChildren = true;
   props.orientation = _orientation;
   build();
@@ -89,7 +91,8 @@ void PopupPickupItem::build() {
       style.y + padding * style.scale);
   closeButton->setScale(style.scale);
   closeButton->setProps(ButtonCloseProps{.closeType = CloseType::POPUP});
-  closeButton->addEventObserver(new PopupPickupItemCloseButtonObserver(layer));
+  closeButton->addEventObserver(
+      new PopupPickupItemCloseButtonObserver(ownerLayerId));
   addChild(closeButton);
 
   auto spriteBgQuad = new Quad(window, this);

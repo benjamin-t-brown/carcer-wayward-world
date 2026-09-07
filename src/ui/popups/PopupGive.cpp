@@ -1,5 +1,4 @@
 #include "PopupGive.h"
-#include "layers/ui/LayerGiveContext.h"
 #include "sdl2w/L10n.h"
 #include "ui/colors.h"
 #include "ui/elements/VerticalList.h"
@@ -56,7 +55,7 @@ void PopupGive::build() {
   closeButton->setScale(style.scale);
   closeButton->setProps(ButtonCloseProps{.closeType = CloseType::POPUP});
   closeButton->addEventObserver(
-      new ObserverRemoveLayer(layers::LayerGiveContext::LAYER_ID));
+      new ObserverRemoveLayer(state::LayerId::GiveContext));
   addChild(closeButton);
 
   auto title = new TextLine(window, this);

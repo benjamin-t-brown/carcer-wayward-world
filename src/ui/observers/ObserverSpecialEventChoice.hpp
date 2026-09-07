@@ -1,21 +1,25 @@
 #pragma once
 
-#include "layers/ui/LayerSpecialEvent.h"
+#include "actions/navigation/UiSelectSpecialEventChoice.hpp"
+#include "state/StateManager.h"
 #include "ui/UiElement.h"
 
 namespace ui {
 
-class ObserverSpecialEventChoice : public UiEventObserver {
-  layers::LayerSpecialEvent* layer;
+class ObserverSpecialEventChoice : public UiEventObserver,
+                                   public state::StateManagerInterface {
   int choiceIndex;
 
 public:
-  ObserverSpecialEventChoice(layers::LayerSpecialEvent* _layer, int _choiceIndex)
-      : layer(_layer), choiceIndex(_choiceIndex) {}
+  explicit ObserverSpecialEventChoice(int choiceIndex)
+      : choiceIndex(choiceIndex) {}
 
-  void onClick(int mouseX, int mouseY, int button) override {
-    if (layer) {
-      layer->onChoiceSelected(choiceIndex);
+  void onClick(int /*mouseX*/, int /*mouseY*/, int /*button*/) override {
+    if (auto* stateManager = getStateManager()) {
+      stateManager->enqueueAction(
+          stateManager->getActionData(),
+          new state::actions::UiSelectSpecialEventChoice(choiceIndex),
+          0);
     }
   }
 };

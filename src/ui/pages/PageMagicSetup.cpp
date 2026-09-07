@@ -1,5 +1,4 @@
 #include "PageMagicSetup.h"
-#include "layers/ui/LayerMagic.h"
 #include "sdl2w/L10n.h"
 #include "ui/colors.h"
 #include "ui/components/PartyMemberIconSelector.h"
@@ -354,7 +353,7 @@ void PageMagicSetup::build() {
   auto closeButton = modal->getCloseButtonElement();
   if (closeButton) {
     closeButton->addEventObserver(
-        new ObserverRemoveLayer(layers::LayerMagic::LAYER_ID));
+        new ObserverRemoveLayer(state::LayerId::Magic));
   }
 
   auto [contentW, contentH] = modal->getContentDims();

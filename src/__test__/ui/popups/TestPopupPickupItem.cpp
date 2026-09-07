@@ -31,7 +31,8 @@ int main(int argc, char** argv) {
 
     auto scale = 1.f;
     auto orientation = ui::PopupOrientation::WIDE;
-    auto popupPickupItem = new ui::PopupPickupItem(&window, testLayer.get(), orientation);
+    auto popupPickupItem = new ui::PopupPickupItem(
+        &window, state::LayerId::PickUpContext, orientation);
     popupPickupItem->setId("popupPickupItem");
     popupPickupItem->setProps(ui::PopupPickupItemProps{
         .spriteName = "ui_item_icons_0",

@@ -4,7 +4,6 @@
 #include "bmin/String.h"
 #include "bmin/UniquePtr.h"
 #include "sdl2w/Window.h"
-#include "state/LayerManagerInterface.h"
 #include "state/StateManagerInterface.h"
 #include "ui/SdlPixels.h" // IWYU pragma: keep
 #include "ui/TextStyle.h" // IWYU pragma: keep
@@ -46,8 +45,7 @@ public:
 };
 
 // Main UiElement base class
-class UiElement : public state::StateManagerInterface,
-                  public state::LayerManagerInterface {
+class UiElement : public state::StateManagerInterface {
 protected:
   sdl2w::Window* window;
   UiElement* parent;

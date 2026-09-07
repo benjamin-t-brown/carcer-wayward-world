@@ -1,5 +1,4 @@
 #include "PopupDropConfirm.h"
-#include "layers/ui/LayerDropConfirm.h"
 #include "sdl2w/L10n.h"
 #include "ui/components/ConfirmModal.h"
 #include "ui/elements/buttons/ButtonGroup.h"
@@ -21,7 +20,7 @@ void PopupDropConfirm::setProps(const PopupDropConfirmProps& _props) {
   //       bmin::makeUnique<ObserverDropInventoryItem>(props.characterPlayerId,
   //       props.itemId);
   //   cancelObserver =
-  //       bmin::makeUnique<ObserverRemoveLayer>(layers::LayerDropConfirm::LAYER_ID);
+  //       bmin::makeUnique<ObserverRemoveLayer>(state::LayerId::DropConfirm);
   build();
 }
 
@@ -46,7 +45,7 @@ void PopupDropConfirm::build() {
   modal->getButtonGroup()->addObserverToButtonAtIndex(
       1, new ObserverDropInventoryItem(props.characterPlayerId, props.itemId));
   modal->getButtonGroup()->addObserverToButtonAtIndex(
-      0, new ObserverRemoveLayer(layers::LayerDropConfirm::LAYER_ID));
+      0, new ObserverRemoveLayer(state::LayerId::DropConfirm));
 
   auto [modalW, modalH] = modal->getDims();
   style.width = modalW / style.scale;

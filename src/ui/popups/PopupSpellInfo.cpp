@@ -1,5 +1,4 @@
 #include "PopupSpellInfo.h"
-#include "layers/ui/LayerSpellInfo.h"
 #include "sdl2w/L10n.h"
 #include "ui/colors.h"
 #include "ui/components/borders/BorderDropShadow.h"
@@ -67,7 +66,7 @@ void PopupSpellInfo::build() {
   closeButton->setScale(style.scale);
   closeButton->setProps(ButtonCloseProps{.closeType = CloseType::POPUP});
   closeButton->addEventObserver(
-      new ObserverRemoveLayer(layers::LayerSpellInfo::LAYER_ID));
+      new ObserverRemoveLayer(state::LayerId::SpellInfo));
   addChild(closeButton);
 
   auto spriteBgQuad = new Quad(window, this);

@@ -98,6 +98,13 @@ LayerSpecialEvent::LayerSpecialEvent(
     return;
   }
 
+  subscribeAction<state::ActionEvent::UiContinueSpecialEvent>(
+      [this](auto&, auto&) { onContinue(); });
+  subscribeAction<state::ActionEvent::UiSelectSpecialEventChoice>(
+      [this](state::AbstractAction& action, auto&) {
+        onChoiceSelected(action.getEventValue());
+      });
+
   auto [windowWidth, windowHeight] = window->getDims();
   const auto scale = 1.f;
 
@@ -197,7 +204,7 @@ void LayerSpecialEvent::attachChoiceObservers() {
       if (!choice) {
         continue;
       }
-      choice->addEventObserver(new ui::ObserverSpecialEventChoice(this, i));
+      choice->addEventObserver(new ui::ObserverSpecialEventChoice(i));
     }
     return;
   }
@@ -213,7 +220,7 @@ void LayerSpecialEvent::attachChoiceObservers() {
     if (!choice) {
       continue;
     }
-    choice->addEventObserver(new ui::ObserverSpecialEventChoice(this, i));
+    choice->addEventObserver(new ui::ObserverSpecialEventChoice(i));
   }
 }
 
@@ -226,7 +233,7 @@ void LayerSpecialEvent::attachModalContinueObserver() {
   if (!button) {
     return;
   }
-  button->addEventObserver(new ui::ObserverSpecialEventContinue(this));
+  button->addEventObserver(new ui::ObserverSpecialEventContinue());
 }
 
 ui::ButtonModal* LayerSpecialEvent::findModalContinueButton() {

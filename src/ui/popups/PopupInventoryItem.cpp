@@ -1,5 +1,4 @@
 #include "PopupInventoryItem.h"
-#include "layers/ui/LayerInventoryContext.h"
 #include "sdl2w/L10n.h"
 #include "ui/colors.h"
 #include "ui/components/ItemInfo.h"
@@ -71,7 +70,7 @@ void PopupInventoryItem::build() {
   closeButton->setScale(style.scale);
   closeButton->setProps(ButtonCloseProps{.closeType = CloseType::POPUP});
   closeButton->addEventObserver(
-      new ObserverRemoveLayer(layers::LayerInventoryContext::LAYER_ID));
+      new ObserverRemoveLayer(state::LayerId::InventoryContext));
   addChild(closeButton);
 
   int actionButtonHeightTotalScaled =

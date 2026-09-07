@@ -238,7 +238,8 @@ if(BUILD_TESTING)
             --source-subsystem model
             --source-subsystem rules
             --source-subsystem state
-            --source-subsystem actions)
+            --source-subsystem actions
+            --source-subsystem ui)
 
   file(GLOB_RECURSE CARCER_PHASE3_HEADERS CONFIGURE_DEPENDS
     "${CMAKE_SOURCE_DIR}/src/lib/*.h"
@@ -304,4 +305,23 @@ if(BUILD_TESTING)
   add_test(NAME Phase5HeaderSelfContainment
     COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}"
             --target carcer_phase5_header_checks --parallel 8)
+
+  file(GLOB_RECURSE CARCER_PHASE6_HEADERS CONFIGURE_DEPENDS
+    "${CMAKE_SOURCE_DIR}/src/ui/*.h"
+    "${CMAKE_SOURCE_DIR}/src/ui/*.hpp")
+  set(CARCER_PHASE6_HEADER_PROBES)
+  foreach(header IN LISTS CARCER_PHASE6_HEADERS)
+    file(RELATIVE_PATH relative_header "${CMAKE_SOURCE_DIR}/src" "${header}")
+    string(MD5 header_id "phase6-${relative_header}")
+    set(probe "${CMAKE_BINARY_DIR}/header-self-containment/phase6/${header_id}.cpp")
+    file(WRITE "${probe}" "#include \"${relative_header}\"\nint carcer_header_probe_${header_id} = 0;\n")
+    list(APPEND CARCER_PHASE6_HEADER_PROBES "${probe}")
+  endforeach()
+  add_library(carcer_phase6_header_checks OBJECT EXCLUDE_FROM_ALL
+    ${CARCER_PHASE6_HEADER_PROBES})
+  set_property(TARGET carcer_phase6_header_checks PROPERTY CXX_SCAN_FOR_MODULES OFF)
+  target_link_libraries(carcer_phase6_header_checks PRIVATE carcer_lib)
+  add_test(NAME Phase6HeaderSelfContainment
+    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}"
+            --target carcer_phase6_header_checks --parallel 8)
 endif()
