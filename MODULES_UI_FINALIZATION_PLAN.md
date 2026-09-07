@@ -1,6 +1,6 @@
 # Carcer Module/UI Finalization Plan
 
-Status: Phase 5 implementation complete; Phase 6 qualification pending
+Status: Phase 6 complete; Phase 8 remains blocked by the cold-build gate
 Pre-plan application commit: `0b661c3` (`Consolidate the UI module architecture`)
 Date: 2026-09-06
 
@@ -395,6 +395,39 @@ Passing every gate unlocks Phase 8 of `MODULES_V2_PLAN.md`. Failure of the
 widgets pilot or the final cold-build gate triggers an explicit choice between
 one narrowly measured follow-up and the existing header-architecture fallback;
 it does not justify recreating per-class module partitions.
+
+Completion record (2026-09-07):
+
+| Requirement | Final result | Status |
+|---|---:|---|
+| Carcer interfaces | 20 | Pass |
+| Import edges | 70 | Reduced from 117 |
+| Critical dependency depth | 10 | Pass |
+| Fresh GCC debug `CARCER` | 68, 69, 69 s; median 69 s | **Fail** |
+| Leaf implementation rebuild | 3, 3, 3 s; no BMI rebuilt | Pass |
+| No-op build | 1, 0, 0 s | Pass |
+| Objects + archives + BMIs | 277,056 KiB (about 270.6 MiB) | Pass |
+| Scan preprocessing data | median 204,932 KiB | Reported separately |
+| Entire fresh build directory | median 488,816 KiB | Reported separately |
+| Repeated GCC debug clean builds | 10/10 | Pass |
+| Repeated Clang debug clean builds | 10/10 | Pass |
+| Forbidden architecture imports | zero | Pass |
+
+- GCC 15.3 and Homebrew Clang 22.1.8 debug/release configurations build the
+  application, all enabled runtime/import/architecture tests, and all 43 UI
+  compile/link programs. Each CTest configuration reports 39 enabled tests
+  passed and five documented stale tests disabled.
+- Emscripten 6.0.9 debug and release builds were cleaned and rebuilt from the
+  pinned BMIN/SDL2W module sources. Both produce `CARCER.js`, `CARCER.wasm`,
+  and `CARCER.data`.
+- The independent classic-header dependency probes pass with GCC 15.3 and
+  Homebrew Clang 22.1.8. The clean legacy GCC Make build also passes after
+  rebuilding the pinned named-module bundle and generated Carcer BMI graph.
+- The 69-second final median is an eight-second improvement over the 77.05-
+  second corrected baseline, but it misses the non-negotiable 60-second target
+  by nine seconds. Phase 8 is therefore not authorized. The next decision is
+  between one narrowly measured build-time follow-up and the documented
+  header-architecture fallback; the fallback/migration machinery stays intact.
 
 ## Commit discipline
 

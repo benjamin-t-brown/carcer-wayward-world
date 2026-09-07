@@ -3,13 +3,14 @@
 Carcer ships as C++23 named modules (`carcer.*`). This document describes the
 current module boundaries, import policy, and build graph.
 
-Migration status (2026-09): phases 1–7 of `MODULES_V2_PLAN.md` and Phases 0–5
+Migration status (2026-09): phases 1–7 of `MODULES_V2_PLAN.md` and Phases 0–6
 of `MODULES_UI_FINALIZATION_PLAN.md` are complete.
 The original class-per-module experiment has been reduced to 20 interfaces and
 70 import edges. Data, model, actions, and UI now expose domain-sized APIs;
 concrete action and layer implementations are private. Platform qualification
-and the literal artifact-size gate pass, but the final cold-build and graph-
-depth gates do not; Phase 8 is therefore not authorized yet.
+and the graph, stability, compatibility, rebuild-isolation, and literal
+artifact-size gates pass. The final 69-second GCC cold-build median misses the
+60-second target, so Phase 8 is not authorized yet.
 
 ## 1. Design goals
 
@@ -287,6 +288,14 @@ scripts/validate-native-repeatability.sh clang-debug 10
 The header probe uses a separately keyed consumer bundle and never mixes
 classic SDL2W/BMIN headers with named-module imports. Repeatability logs are
 written below the ignored `build/validation/` directory.
+
+The Phase 6 qualification matrix passes GCC 15.3 and Homebrew Clang 22.1.8 in
+debug and release, all 43 UI compile/link programs in every native
+configuration, 10/10 clean debug builds per native compiler, Emscripten 6.0.9
+debug and release, both dependency API modes, and the clean legacy Make build.
+Three fresh GCC debug measurements were 68, 69, and 69 seconds (median 69),
+with 0-second median no-op work, three-second leaf rebuilds, and 277,056 KiB of
+objects/archives/BMIs. Only the 60-second cold-build target remains unmet.
 
 ## 8. Adding or changing code
 

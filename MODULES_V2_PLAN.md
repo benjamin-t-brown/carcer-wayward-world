@@ -1,6 +1,6 @@
 # Carcer C++ Modules v2 Implementation Plan
 
-Status: Phase 7 coverage complete; Phase 8 blocked by final acceptance gates
+Status: UI finalization Phase 6 complete; Phase 8 blocked by the 69 s cold-build median
 Baseline commit: `95562b3` on `experiment/cpp-modules`  
 Date: 2026-09-05
 
