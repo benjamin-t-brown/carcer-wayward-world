@@ -297,6 +297,13 @@ Three fresh GCC debug measurements were 68, 69, and 69 seconds (median 69),
 with 0-second median no-op work, three-second leaf rebuilds, and 277,056 KiB of
 objects/archives/BMIs. Only the 60-second cold-build target remains unmet.
 
+A subsequent bounded GCC debug-info experiment measured 67, 68, and 69
+seconds (median 68) after reducing optimized-local variable tracking. Because
+the one-second change is within normal host variance, still misses the gate by
+eight seconds, and reduces debugger precision, it was reverted. The authorized
+narrow follow-up is exhausted; Phase 8 remains blocked pending an explicit
+header-fallback or acceptance-target decision.
+
 ## 8. Adding or changing code
 
 1. Choose the lowest cohesive domain that owns the behavior.

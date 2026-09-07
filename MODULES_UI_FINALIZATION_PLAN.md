@@ -429,6 +429,25 @@ Completion record (2026-09-07):
   between one narrowly measured build-time follow-up and the documented
   header-architecture fallback; the fallback/migration machinery stays intact.
 
+Narrow build-time follow-up (2026-09-07):
+
+- Ninja timing data showed approximately 82 aggregate seconds in dependency
+  scanning, 267 aggregate seconds in object compilation, and only about 0.5
+  seconds creating the Carcer archive. There was no archive/link shortcut
+  capable of closing the nine-second wall-time gap.
+- Disabling GCC assignment-level variable tracking while retaining `-Og`, `-g`,
+  and frame pointers produced fresh builds of 67, 68, and 69 seconds (median
+  68). No-op builds remained at zero or one second and leaf builds at three
+  seconds.
+- The one-second median improvement is within host variance and trades away
+  optimized-local variable-location precision. The option was therefore
+  reverted rather than weakening the debug configuration for a result that
+  still misses the target by eight seconds.
+- This exhausts the single narrowly measured follow-up authorized after Phase
+  6. Phase 8 remains blocked. The remaining decision is to adopt the documented
+  header architecture or explicitly revise the acceptance target in a new
+  plan; another unbounded module micro-optimization pass is not justified.
+
 ## Commit discipline
 
 - One checkpoint commit for Phase 7 and its qualification tooling.
