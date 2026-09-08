@@ -1,35 +1,33 @@
 import { EditorState, setCurrentPaintAction } from '../editorState';
 import { PaintActionType } from '../paintTools';
-
-interface ToolButtonProps {
-  onClick: () => void;
-  isActive: boolean;
-  icon: string;
-  title: string;
-}
+import { MapTool, TOOL_LIST } from '../tools';
 
 function ToolButton({
-  onClick,
+  tool,
   isActive,
-  icon,
-  title,
-  iconClassName,
-}: ToolButtonProps & { iconClassName?: string }) {
+  onClick,
+}: {
+  tool: MapTool;
+  isActive: boolean;
+  onClick: () => void;
+}) {
   return (
     <button
       type="button"
       className={`tile-editor-tool-button${isActive ? ' active' : ''}`}
       onClick={onClick}
-      title={title}
+      title={tool.title}
     >
-      {iconClassName ? (
-        <span className={iconClassName}>{icon}</span>
+      {tool.iconClassName ? (
+        <span className={tool.iconClassName}>{tool.icon}</span>
       ) : (
-        icon
+        tool.icon
       )}
     </button>
   );
 }
+
+const ROWS: Array<MapTool['row']> = ['primary', 'secondary'];
 
 export function MapToolsOverlay({ editorState }: { editorState: EditorState }) {
   const currentPaintAction = editorState.currentPaintAction;
@@ -41,91 +39,27 @@ export function MapToolsOverlay({ editorState }: { editorState: EditorState }) {
       onClick={(e) => e.stopPropagation()}
     >
       <div className="tile-editor-tool-grid">
-        <div className="tile-editor-tool-row">
-          <ToolButton
-            onClick={() => {
-              if (currentPaintAction !== PaintActionType.SELECT) {
-                setCurrentPaintAction(PaintActionType.SELECT);
-              }
-            }}
-            isActive={currentPaintAction === PaintActionType.SELECT}
-            icon="👆"
-            title="Select tool"
-          />
-          <ToolButton
-            onClick={() => {
-              if (currentPaintAction !== PaintActionType.DRAW) {
-                setCurrentPaintAction(PaintActionType.DRAW);
-              }
-            }}
-            isActive={currentPaintAction === PaintActionType.DRAW}
-            icon="🖌️"
-            title="Draw tool"
-          />
-          <ToolButton
-            onClick={() => {
-              if (currentPaintAction !== PaintActionType.FILL) {
-                setCurrentPaintAction(PaintActionType.FILL);
-              }
-            }}
-            isActive={currentPaintAction === PaintActionType.FILL}
-            icon="🪣"
-            title="Fill tool"
-          />
-          <ToolButton
-            onClick={() => {
-              if (currentPaintAction !== PaintActionType.CLONE) {
-                setCurrentPaintAction(PaintActionType.CLONE);
-              }
-            }}
-            isActive={currentPaintAction === PaintActionType.CLONE}
-            icon="📋"
-            title="Clone tool"
-          />
-          <ToolButton
-            onClick={() => {
-              if (currentPaintAction !== PaintActionType.TERRAIN) {
-                setCurrentPaintAction(PaintActionType.TERRAIN);
-              }
-            }}
-            isActive={currentPaintAction === PaintActionType.TERRAIN}
-            icon="🏔️"
-            title="Terrain tool (T)"
-          />
-        </div>
-        <div className="tile-editor-tool-row tile-editor-tool-row-secondary">
-          <ToolButton
-            onClick={() => {
-              if (currentPaintAction !== PaintActionType.ERASE) {
-                setCurrentPaintAction(PaintActionType.ERASE);
-              }
-            }}
-            isActive={currentPaintAction === PaintActionType.ERASE}
-            icon="✖️"
-            title="Erase tool"
-          />
-          <ToolButton
-            onClick={() => {
-              if (currentPaintAction !== PaintActionType.ERASE_META) {
-                setCurrentPaintAction(PaintActionType.ERASE_META);
-              }
-            }}
-            isActive={currentPaintAction === PaintActionType.ERASE_META}
-            icon="🗑"
-            title="Erase metadata tool"
-          />
-          <ToolButton
-            onClick={() => {
-              if (currentPaintAction !== PaintActionType.DELETE_FILL) {
-                setCurrentPaintAction(PaintActionType.DELETE_FILL);
-              }
-            }}
-            isActive={currentPaintAction === PaintActionType.DELETE_FILL}
-            icon="🪣"
-            iconClassName="tile-editor-tool-icon-bucket-delete"
-            title="Delete fill tool"
-          />
-        </div>
+        {ROWS.map((row) => (
+          <div
+            key={row}
+            className={`tile-editor-tool-row${
+              row === 'secondary' ? ' tile-editor-tool-row-secondary' : ''
+            }`}
+          >
+            {TOOL_LIST.filter((tool) => tool.row === row).map((tool) => (
+              <ToolButton
+                key={tool.id}
+                tool={tool}
+                isActive={currentPaintAction === tool.id}
+                onClick={() => {
+                  if (currentPaintAction !== tool.id) {
+                    setCurrentPaintAction(tool.id as PaintActionType);
+                  }
+                }}
+              />
+            ))}
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import {
   onTileHoverIndChange,
   setCurrentAction,
 } from './paintTools';
+import { TOOL_LIST } from './tools';
 import { CarcerMapTemplate, MapGridTemplate, TilesetTemplate } from '../types/assets';
 import {
   commitMaterializedLayer,
@@ -185,40 +186,30 @@ export const initPanzoom = (mapDataInterface: {
 
     // keyboard shortcuts - only process if not typing in an input
     if (isEditorActive(ev) && !isInputFocused) {
-      if (ev.key === 'b') {
-        setCurrentPaintAction(PaintActionType.DRAW);
-      } else if (ev.key === 'f') {
-        setCurrentPaintAction(PaintActionType.FILL);
-        // need to wait for a state update or currentPaintAction is not set
-        setTimeout(() => {
-          const ind =
-            getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
-              ?.hoveredTileIndex ?? -1;
-          if (ind > -1) {
-            onTileHoverIndChange(
-              mapDataInterface.getMapData(),
-              mapDataInterface.getEditorState(),
-              mapDataInterface.getEditorState().currentPaintAction,
-              -1,
-              ind
-            );
+      const toolForKey = TOOL_LIST.find(
+        (tool) => tool.shortcut !== undefined && tool.shortcut === ev.key
+      );
+      if (toolForKey) {
+        if (!(toolForKey.shortcutBlockedByCtrl && ev.ctrlKey)) {
+          setCurrentPaintAction(toolForKey.id as PaintActionType);
+          if (toolForKey.id === PaintActionType.FILL) {
+            // need to wait for a state update or currentPaintAction is not set
+            setTimeout(() => {
+              const ind =
+                getEditorStateMap(
+                  mapDataInterface.getEditorState().selectedMapName
+                )?.hoveredTileIndex ?? -1;
+              if (ind > -1) {
+                onTileHoverIndChange(
+                  mapDataInterface.getMapData(),
+                  mapDataInterface.getEditorState(),
+                  mapDataInterface.getEditorState().currentPaintAction,
+                  -1,
+                  ind
+                );
+              }
+            }, 33);
           }
-        }, 33);
-      } else if (ev.key === 'e') {
-        if (!ev.ctrlKey) {
-          setCurrentPaintAction(PaintActionType.ERASE);
-        }
-      } else if (ev.key === 's') {
-        if (!ev.ctrlKey) {
-          setCurrentPaintAction(PaintActionType.SELECT);
-        }
-      } else if (ev.key === 'c') {
-        if (!ev.ctrlKey) {
-          setCurrentPaintAction(PaintActionType.CLONE);
-        }
-      } else if (ev.key === 't') {
-        if (!ev.ctrlKey) {
-          setCurrentPaintAction(PaintActionType.TERRAIN);
         }
       } else if (ev.key === 'g' && !ev.ctrlKey) {
         const editorState = getEditorState();
