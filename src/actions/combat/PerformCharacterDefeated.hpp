@@ -3,7 +3,7 @@
 #include "model/Combat.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/TileFields.h"
-#include "actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.hpp"
 #include "actions/general/PlaySound.hpp"
 #include "actions/combat/RemoveCharacterFromMap.hpp"
 
@@ -11,7 +11,7 @@ namespace state {
 
 namespace actions {
 
-class PerformCharacterDefeated : public CombatAction {
+class PerformCharacterDefeated : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::PerformCharacterDefeated; }
   bmin::String characterId;
 

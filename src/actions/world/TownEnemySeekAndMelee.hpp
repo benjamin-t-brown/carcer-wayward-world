@@ -4,13 +4,13 @@
 #include "game/map/TileDistance.h"
 #include "model/instances/CharacterInstance.hpp"
 #include "sdl2w/Logger.h"
-#include "actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.hpp"
 #include "actions/world/PerformTownMeleeAttack.hpp"
 
 namespace state::actions {
 
 // One agitated enemy: optional seek step, then town melee if adjacent.
-class TownEnemySeekAndMelee : public CombatAction {
+class TownEnemySeekAndMelee : public AbstractAction {
   ActionEvent getEvent() const override {
     return ActionEvent::TownEnemySeekAndMelee;
   }

@@ -10,7 +10,7 @@
 #include "model/instances/Player.h"
 #include "model/instances/World.hpp"
 #include "sdl2w/Logger.h"
-#include "actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.hpp"
 #include "actions/world/TownEnemyAiAfterPlayerMove.hpp"
 #include "state/State.hpp"
 #include "bmin/String.h"
@@ -20,7 +20,7 @@ namespace state {
 namespace actions {
 
 // Moves the current party avatar by (dx, dy) tiles, or opens a closed door on bump.
-class WorldMovePlayer : public CombatAction {
+class WorldMovePlayer : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::WorldMovePlayer; }
   int dx = 0;
   int dy = 0;

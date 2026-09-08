@@ -5,14 +5,14 @@
 #include "model/Combat.h"
 #include "model/templates/CharacterTemplate.h"
 #include "sdl2w/Logger.h"
-#include "actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.hpp"
 #include "actions/combat/DoCombatAction.hpp"
 
 namespace state {
 
 namespace actions {
 
-class DoCPUCombatTurn : public CombatAction {
+class DoCPUCombatTurn : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::DoCPUCombatTurn; }
   void act() override {
     if (!state) {

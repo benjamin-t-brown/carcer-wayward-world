@@ -2,13 +2,13 @@
 
 #include "game/map/ActiveMapOrchestrator.h"
 #include "model/Combat.h"
-#include "actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.hpp"
 
 namespace state {
 
 namespace actions {
 
-class CharacterSetSpriteIndexOffset : public CombatAction {
+class CharacterSetSpriteIndexOffset : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::CharacterSetSpriteIndexOffset; }
   bmin::String characterId;
   int offset = 0;

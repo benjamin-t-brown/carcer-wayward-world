@@ -5,7 +5,7 @@
 #include "model/Combat.h"
 #include "model/instances/CharacterPlayer.h"
 #include "sdl2w/Logger.h"
-#include "actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.hpp"
 #include "actions/combat/CharacterSetSpriteIndexOffset.hpp"
 #include "actions/general/PlaySound.hpp"
 #include "actions/world/ModifyPartyMemberHp.hpp"
@@ -18,7 +18,7 @@ namespace actions {
 
 // Town melee with the same swing / particle / reset timing as combat melee.
 // Damages a random living party member; FX play on the party avatar tile.
-class PerformTownMeleeAttack : public CombatAction {
+class PerformTownMeleeAttack : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::PerformTownMeleeAttack; }
   bmin::String attackerId;
 

@@ -6,7 +6,7 @@
 #include "state/ActionBus.h"
 #include "state/DatabaseInterface.h"
 #include "state/State.hpp"
-#include "state/UiManager.h"
+#include "state/UiStateUpdater.h"
 
 namespace db {
 class Database;
@@ -29,7 +29,7 @@ private:
   state::State state;
   ActionData actionData;
   ActionBus actionBus;
-  UiManager uiManager;
+  UiStateUpdater uiStateUpdater;
 
 public:
   StateManager();

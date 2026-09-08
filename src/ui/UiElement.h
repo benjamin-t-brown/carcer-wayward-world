@@ -19,13 +19,6 @@ namespace ui {
 // Forward declaration
 class UiElement;
 
-// Base StateInterface that can dispatch actions
-class StateInterface {
-public:
-  virtual ~StateInterface() = default;
-  virtual void dispatchAction(const bmin::String& action, void* payload) = 0;
-};
-
 // Geometry-only style. Visual fields live on component props / private caches.
 struct BaseStyle {
   int x = 0;
@@ -50,7 +43,6 @@ protected:
   sdl2w::Window* window;
   UiElement* parent;
   bmin::DynArray<bmin::UniquePtr<UiElement>> children;
-  std::optional<StateInterface*> stateInterface;
   BaseStyle style;
   bmin::String id;
   bmin::DynArray<bmin::UniquePtr<UiEventObserver>> eventObservers;

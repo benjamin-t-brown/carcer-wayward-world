@@ -2,13 +2,13 @@
 
 #include "game/map/ActiveMapOrchestrator.h"
 #include "model/Combat.h"
-#include "actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.hpp"
 
 namespace state {
 
 namespace actions {
 
-class ModifyAP : public CombatAction {
+class ModifyAP : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::ModifyAP; }
   bmin::String characterId;
   int delta = 0;

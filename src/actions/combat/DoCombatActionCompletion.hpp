@@ -2,7 +2,7 @@
 
 #include "model/Combat.h"
 #include "sdl2w/Logger.h"
-#include "actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.hpp"
 #include "actions/combat/GoNextCombatTurn.hpp"
 #include "actions/combat/PerformCharacterDefeated.hpp"
 #include "actions/combat/SetActiveCombatCharacter.hpp"
@@ -12,7 +12,7 @@ namespace state {
 
 namespace actions {
 
-class DoCombatActionCompletion : public CombatAction {
+class DoCombatActionCompletion : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::DoCombatActionCompletion; }
   void act() override {
     if (!state) {

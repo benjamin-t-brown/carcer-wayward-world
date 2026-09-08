@@ -3,7 +3,7 @@
 #include "game/map/ActiveMapOrchestrator.h"
 #include "model/Combat.h"
 #include "model/instances/CharacterInstance.hpp"
-#include "actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.hpp"
 #include "actions/combat/CharacterSetSpriteIndexOffset.hpp"
 #include "actions/combat/ModifyHP.hpp"
 #include "actions/general/PlaySound.hpp"
@@ -13,7 +13,7 @@ namespace state {
 
 namespace actions {
 
-class PerformMeleeAttack : public CombatAction {
+class PerformMeleeAttack : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::PerformMeleeAttack; }
   bmin::String attackerId;
   bmin::String victimId;

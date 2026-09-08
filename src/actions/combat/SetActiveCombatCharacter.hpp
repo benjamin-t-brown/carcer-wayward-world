@@ -5,7 +5,7 @@
 #include "game/map/Camera.h"
 #include "model/instances/Player.h"
 #include "model/instances/World.hpp"
-#include "actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.hpp"
 #include "actions/world/WorldSetCamera.hpp"
 
 namespace state {
@@ -14,7 +14,7 @@ namespace actions {
 
 class DoCPUCombatTurn;
 
-class SetActiveCombatCharacter : public CombatAction {
+class SetActiveCombatCharacter : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::SetActiveCombatCharacter; }
   bmin::String characterId;
 

@@ -1,10 +1,10 @@
-#include "state/UiManager.h"
+#include "state/UiStateUpdater.h"
 #include "model/templates/UtilityTypes.h"
 #include "state/State.hpp"
 
 namespace state {
 
-void UiManager::update(int dt, State& state) {
+void UiStateUpdater::update(int dt, State& state) {
   auto& notifications = state.uiState.floatingNotifications;
   bool removedNotification = false;
   for (size_t i = 0; i < notifications.size();) {

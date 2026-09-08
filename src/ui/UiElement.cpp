@@ -18,7 +18,7 @@ void UiEventObserver::onMouseWheel(int x, int y, int delta) {
 }
 
 UiElement::UiElement(sdl2w::Window* _window, UiElement* _parent)
-    : window(_window), parent(_parent), stateInterface(std::nullopt) {}
+    : window(_window), parent(_parent) {}
 
 UiElement* UiElement::getChildById(std::string_view searchId) {
   if (id == searchId) {

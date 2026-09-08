@@ -10,7 +10,7 @@
 #include "model/instances/Player.h"
 #include "model/templates/AbilityTypes.h"
 #include "sdl2w/Logger.h"
-#include "actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.hpp"
 #include "actions/combat/CharacterSetSpriteIndexOffset.hpp"
 #include "actions/combat/ModifyAP.hpp"
 #include "actions/combat/ModifyHP.hpp"
@@ -23,7 +23,7 @@ namespace state {
 
 namespace actions {
 
-class PerformSpellCast : public CombatAction {
+class PerformSpellCast : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::PerformSpellCast; }
   bmin::String casterId;
   bmin::String spellId;

@@ -5,13 +5,13 @@
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapVision.h"
 #include "game/map/MapWalkability.h"
-#include "actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.hpp"
 
 namespace state {
 
 namespace actions {
 
-class MoveCharacter : public CombatAction {
+class MoveCharacter : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::MoveCharacter; }
   bmin::String characterId;
   int dx = 0;

@@ -2,13 +2,13 @@
 
 #include "model/Combat.h"
 #include "game/map/MapPersistence.h"
-#include "actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.hpp"
 
 namespace state {
 
 namespace actions {
 
-class RemoveCharacterFromMap : public CombatAction {
+class RemoveCharacterFromMap : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::RemoveCharacterFromMap; }
   bmin::String characterId;
 

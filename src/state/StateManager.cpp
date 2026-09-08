@@ -94,7 +94,7 @@ void StateManager::update(int dt) {
     }
   }
   // worldUpdate(*this, dt);
-  uiManager.update(dt, state);
+  uiStateUpdater.update(dt, state);
 }
 
 } // namespace state

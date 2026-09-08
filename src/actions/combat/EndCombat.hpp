@@ -6,14 +6,14 @@
 #include "game/map/TileTriggers.h"
 #include "model/instances/World.hpp"
 #include "sdl2w/Logger.h"
-#include "actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.hpp"
 #include "actions/world/WorldSetCamera.hpp"
 
 namespace state {
 
 namespace actions {
 
-class EndCombat : public CombatAction {
+class EndCombat : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::EndCombat; }
   void act() override {
     if (!state) {

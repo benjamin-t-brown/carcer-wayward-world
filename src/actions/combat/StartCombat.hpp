@@ -5,14 +5,14 @@
 #include "model/Combat.h"
 #include "model/instances/World.hpp"
 #include "sdl2w/Logger.h"
-#include "actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.hpp"
 #include "actions/combat/SetActiveCombatCharacter.hpp"
 
 namespace state {
 
 namespace actions {
 
-class StartCombat : public CombatAction {
+class StartCombat : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::StartCombat; }
   void act() override {
     if (!state) {

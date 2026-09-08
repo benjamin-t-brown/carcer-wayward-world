@@ -95,8 +95,8 @@ model test; it will fail because the particle survives without a window.
 
 | Phase | Title | Status | Commit |
 | --- | --- | --- | --- |
-| 0 | Baseline and characterization tests | in progress | — |
-| 1 | Remove dormant and misleading abstractions | not started | — |
+| 0 | Baseline and characterization tests | complete | `d55a967` |
+| 1 | Remove dormant and misleading abstractions | complete | (this commit) |
 | 2 | Make action ownership explicit | not started | — |
 | 3 | Make layer and UI ownership explicit | not started | — |
 | 4 | Replace static service locators with explicit dependencies | not started | — |
@@ -104,6 +104,29 @@ model test; it will fail because the particle survives without a window.
 | 6 | Clarify world simulation and platform-output boundaries | not started | — |
 | 7 | Replace mechanical observers with reusable bindings | not started | — |
 | 8 | Final verification and documentation | not started | — |
+
+## Phase 1 notes
+
+Removed as confirmed-dormant (no references via `rg`, absent from the CMake
+manifest and test manifests):
+
+- `src/game/combat/CombatRunner.{h,cpp}` and `src/lib/hiscore/hiscore.{h,cpp}` —
+  both `.cpp` files were already silently outside the build graph.
+- `src/actions/Command.hpp` — unused raw-pointer command wrapper.
+- `src/actions/combat/ActionBase.hpp` — `CombatAction`, an empty marker base
+  whose scheduling helpers had already moved to `AbstractAction`. Its 19
+  subclasses now derive from `AbstractAction` directly; no dynamic-cast/marker
+  use existed.
+- `ui::StateInterface` and `UiElement::stateInterface` — declared and
+  initialized to `std::nullopt`, never read, set, or dispatched.
+
+Renamed `state::UiManager` → `state::UiStateUpdater` (`src/state/UiStateUpdater.{h,cpp}`)
+to reflect that it advances floating-notification timers; timing logic is
+unchanged. Manifest, include, member, and call site updated.
+
+The only production `.cpp` outside `cmake/carcer_sources.cmake` are `src/main.cpp`
+and `src/app/runCarcer.cpp`, both attached directly to the `CARCER` target in
+`CMakeLists.txt`. No silently-excluded production pair remains.
 
 ## Deferred / known items
 

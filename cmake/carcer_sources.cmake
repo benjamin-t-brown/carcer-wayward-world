@@ -88,7 +88,7 @@ set(CARCER_STATE_SOURCES
   src/state/ActionBus.cpp
   src/state/StateManager.cpp
   src/state/StateManagerInterface.cpp
-  src/state/UiManager.cpp
+  src/state/UiStateUpdater.cpp
   src/state/LayerRequest.cpp)
 
 set(CARCER_UI_SOURCES

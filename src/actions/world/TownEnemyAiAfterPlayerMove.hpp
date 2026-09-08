@@ -2,7 +2,7 @@
 
 #include "game/combat/EnemyBehavior.h"
 #include "model/templates/CharacterTemplate.h"
-#include "actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.hpp"
 #include "actions/world/ClearTownEnemyAiResolving.hpp"
 #include "actions/world/TownEnemySeekAndMelee.hpp"
 
@@ -11,7 +11,7 @@ namespace state {
 namespace actions {
 
 // Spotting + one town action per agitated enemy (queued with combat-style delays).
-class TownEnemyAiAfterPlayerMove : public CombatAction {
+class TownEnemyAiAfterPlayerMove : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::TownEnemyAiAfterPlayerMove; }
   void act() override {
     if (!state) {

@@ -5,14 +5,14 @@
 #include "game/map/TileFields.h"
 #include "model/Combat.h"
 #include "sdl2w/Logger.h"
-#include "actions/combat/ActionBase.hpp"
+#include "state/AbstractAction.hpp"
 #include "actions/combat/SetActiveCombatCharacter.hpp"
 
 namespace state {
 
 namespace actions {
 
-class GoNextCombatTurn : public CombatAction {
+class GoNextCombatTurn : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::GoNextCombatTurn; }
   void startNewCombatRound() {
     LOG(INFO) << "GoNextCombatTurn: new combat round, resetting AP" << LOG_ENDL;
