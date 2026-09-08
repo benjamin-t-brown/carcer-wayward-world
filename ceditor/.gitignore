@@ -3,4 +3,7 @@ dist/
 *.log
 .DS_Store
 *.tsbuildinfo
+# stale tsc output — dev:server runs index.ts directly under tsx
+src/server/index.js
+src/server/index.d.ts
 

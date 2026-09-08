@@ -70,8 +70,6 @@ app.post('/api/assets/:type', async (req, res) => {
   try {
     const { type } = req.params;
 
-    console.log('saving asset', type, req.body);
-
     const fileName = assetFileForId(type);
     if (!fileName) {
       return res.status(400).json({ error: 'Invalid asset type' });
@@ -83,6 +81,7 @@ app.post('/api/assets/:type', async (req, res) => {
     await fs.mkdir(ASSETS_DB_PATH, { recursive: true });
 
     const content = JSON.stringify(req.body, null, 2);
+    console.log(`saving asset ${type} (${Buffer.byteLength(content)} bytes)`);
     await fs.writeFile(filePath, content, 'utf-8');
     res.json({ success: true });
   } catch (error) {
