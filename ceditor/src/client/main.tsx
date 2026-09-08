@@ -18,17 +18,11 @@ import {
   CarcerMapTemplate,
   MapGridTemplate,
   FeatTemplate,
-  sanitizeItemTemplates,
-  sanitizeMapGridTemplates,
 } from './types/assets';
-import {
-  AbilityTemplate,
-  sanitizeAbilityTemplates,
-  StatusEffectTemplate,
-} from './types/ability';
-import { SpellTemplate, sanitizeSpellTemplates } from './types/spell';
-import { normalizeMapItemsOnLoad } from './tile-editor/mapTileItems';
-import { normalizeMapOnLoad } from './utils/mapIndex';
+import { AbilityTemplate, StatusEffectTemplate } from './types/ability';
+import { SpellTemplate } from './types/spell';
+import { ASSET_TYPES, AssetId } from '../shared/assetRegistry';
+import { normalizeAll } from './utils/assetNormalizers';
 
 interface AssetType {
   id: string;
@@ -44,94 +38,20 @@ async function loadAssetTypes(): Promise<AssetType[]> {
   return response.json();
 }
 
+async function fetchAssetList(id: string): Promise<any[]> {
+  const response = await fetch(`/api/assets/${id}`);
+  if (!response.ok) {
+    throw new Error(`Failed to load ${id}`);
+  }
+  return response.json();
+}
+
 async function loadSDL2WAssetFiles(): Promise<any> {
   const response = await fetch('/api/sdl2w-assets');
   if (!response.ok) {
     throw new Error('Failed to load SDL2W assets');
   }
   return response.json();
-}
-
-async function loadItems(): Promise<ItemTemplate[]> {
-  const response = await fetch('/api/assets/itemTemplates');
-  if (!response.ok) {
-    throw new Error('Failed to load items');
-  }
-  return response.json();
-}
-
-async function loadAbilities(): Promise<AbilityTemplate[]> {
-  const response = await fetch('/api/assets/abilityTemplates');
-  if (!response.ok) {
-    throw new Error('Failed to load abilities');
-  }
-  return response.json();
-}
-
-async function loadSpells(): Promise<SpellTemplate[]> {
-  const response = await fetch('/api/assets/spellTemplates');
-  if (!response.ok) {
-    throw new Error('Failed to load spells');
-  }
-  return response.json();
-}
-
-async function loadStatusEffects(): Promise<StatusEffectTemplate[]> {
-  const response = await fetch('/api/assets/statusEffectTemplates');
-  if (!response.ok) {
-    throw new Error('Failed to load status effects');
-  }
-  return response.json();
-}
-
-async function loadFeats(): Promise<FeatTemplate[]> {
-  const response = await fetch('/api/assets/featTemplates');
-  if (!response.ok) {
-    throw new Error('Failed to load feats');
-  }
-  return response.json();
-}
-
-async function loadCharacters(): Promise<CharacterTemplate[]> {
-  const response = await fetch('/api/assets/characterTemplates');
-  if (!response.ok) {
-    throw new Error('Failed to load characters');
-  }
-  return response.json();
-}
-
-async function loadTilesets(): Promise<TilesetTemplate[]> {
-  const response = await fetch('/api/assets/tilesetTemplates');
-  if (!response.ok) {
-    throw new Error('Failed to load tilesets');
-  }
-  return response.json();
-}
-
-async function loadGameEvents(): Promise<GameEvent[]> {
-  const response = await fetch('/api/assets/specialEvents');
-  if (!response.ok) {
-    throw new Error('Failed to load game events');
-  }
-  return response.json();
-}
-
-async function loadMaps(): Promise<CarcerMapTemplate[]> {
-  const response = await fetch('/api/assets/maps');
-  if (!response.ok) {
-    throw new Error('Failed to load maps');
-  }
-  const maps: CarcerMapTemplate[] = await response.json();
-  return normalizeMapItemsOnLoad(maps.map((map) => normalizeMapOnLoad(map)));
-}
-
-async function loadMapGrids(): Promise<MapGridTemplate[]> {
-  const response = await fetch('/api/assets/mapGrids');
-  if (!response.ok) {
-    throw new Error('Failed to load map grids');
-  }
-  const mapGrids: MapGridTemplate[] = await response.json();
-  return sanitizeMapGridTemplates(mapGrids);
 }
 
 async function load(): Promise<{
@@ -182,40 +102,25 @@ async function load(): Promise<{
     soundMap[sound.name] = sound;
   }
 
-  // Load all assets in parallel
-  const [
-    loadedItems,
-    characters,
-    loadedAbilities,
-    loadedSpells,
-    statusEffects,
-    feats,
-    tilesets,
-    gameEvents,
-    maps,
-    mapGrids,
-  ] = await Promise.all([
-    loadItems(),
-    loadCharacters(),
-    loadAbilities(),
-    loadSpells(),
-    loadStatusEffects(),
-    loadFeats(),
-    loadTilesets(),
-    loadGameEvents(),
-    loadMaps(),
-    loadMapGrids(),
-  ]);
-
-  const abilities = sanitizeAbilityTemplates(
-    loadedAbilities,
-    animationMap,
-    soundMap
+  // Load every asset list in parallel, then normalize (dependents in a 2nd pass).
+  const rawByType: Partial<Record<AssetId, any[]>> = {};
+  await Promise.all(
+    ASSET_TYPES.map(async (t) => {
+      rawByType[t.id] = await fetchAssetList(t.id);
+    })
   );
+  const normalized = normalizeAll(rawByType, { animationMap, soundMap }, ASSET_TYPES);
 
-  const spells = sanitizeSpellTemplates(loadedSpells);
-
-  const items = sanitizeItemTemplates(loadedItems, abilities);
+  const items = normalized.itemTemplates as ItemTemplate[];
+  const characters = normalized.characterTemplates as CharacterTemplate[];
+  const abilities = normalized.abilityTemplates as AbilityTemplate[];
+  const spells = normalized.spellTemplates as SpellTemplate[];
+  const statusEffects = normalized.statusEffectTemplates as StatusEffectTemplate[];
+  const feats = normalized.featTemplates as FeatTemplate[];
+  const tilesets = normalized.tilesetTemplates as TilesetTemplate[];
+  const gameEvents = normalized.specialEvents as GameEvent[];
+  const maps = normalized.maps as CarcerMapTemplate[];
+  const mapGrids = normalized.mapGrids as MapGridTemplate[];
 
   console.log('loaded', {
     assetTypes,

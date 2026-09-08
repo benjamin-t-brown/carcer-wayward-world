@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "composite": true,
     "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
@@ -10,6 +9,6 @@
     "esModuleInterop": true,
     "resolveJsonModule": true
   },
-  "include": ["vite.config.ts", "src/server/**/*"]
+  "include": ["vite.config.ts", "src/server/**/*", "src/shared/**/*"]
 }
 

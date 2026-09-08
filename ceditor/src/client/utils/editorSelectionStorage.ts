@@ -1,30 +1,14 @@
+import { AssetId, ASSET_ROUTE_PARAM_BY_ID } from '../../shared/assetRegistry';
+
 /** Editor routes / asset-type ids used as localStorage keys. */
-export type EditorSelectionKey =
-  | 'itemTemplates'
-  | 'abilityTemplates'
-  | 'spellTemplates'
-  | 'statusEffectTemplates'
-  | 'characterTemplates'
-  | 'tilesetTemplates'
-  | 'featTemplates'
-  | 'specialEvents'
-  | 'mapGrids';
+export type EditorSelectionKey = AssetId;
 
 const STORAGE_KEY = 'ceditor.editorSelection';
 
 /** Hash query param names (URL overrides stored selection). */
 export const EDITOR_SELECTION_ROUTE_PARAMS: Partial<
   Record<EditorSelectionKey, string>
-> = {
-  itemTemplates: 'item',
-  abilityTemplates: 'ability',
-  spellTemplates: 'spell',
-  statusEffectTemplates: 'statusEffect',
-  characterTemplates: 'character',
-  tilesetTemplates: 'tileset',
-  specialEvents: 'event',
-  mapGrids: 'mapGrid',
-};
+> = ASSET_ROUTE_PARAM_BY_ID;
 
 type SelectionStore = Partial<Record<EditorSelectionKey, string>>;
 

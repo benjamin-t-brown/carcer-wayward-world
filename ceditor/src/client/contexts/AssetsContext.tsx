@@ -10,6 +10,7 @@ import {
 } from '../types/assets';
 import { AbilityTemplate, StatusEffectTemplate } from '../types/ability';
 import { SpellTemplate } from '../types/spell';
+import { AssetId } from '../../shared/assetRegistry';
 
 interface AssetsContextType {
   items: ItemTemplate[];
@@ -70,115 +71,33 @@ interface AssetsProviderProps {
   initialMapGrids: MapGridTemplate[];
 }
 
-async function saveItems(items: ItemTemplate[]): Promise<void> {
-  const response = await fetch('/api/assets/itemTemplates', {
+async function saveAsset(id: AssetId, data: unknown): Promise<void> {
+  const response = await fetch(`/api/assets/${id}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(items),
+    body: JSON.stringify(data),
   });
   if (!response.ok) {
-    throw new Error('Failed to save items');
+    throw new Error(`Failed to save ${id}`);
   }
 }
 
-async function saveCharacters(characters: CharacterTemplate[]): Promise<void> {
-  const response = await fetch('/api/assets/characterTemplates', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(characters),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to save characters');
-  }
-}
-
-async function saveAbilities(abilities: AbilityTemplate[]): Promise<void> {
-  const response = await fetch('/api/assets/abilityTemplates', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(abilities),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to save abilities');
-  }
-}
-
-async function saveSpells(spells: SpellTemplate[]): Promise<void> {
-  const response = await fetch('/api/assets/spellTemplates', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(spells),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to save spells');
-  }
-}
-
-async function saveStatusEffects(statusEffects: StatusEffectTemplate[]): Promise<void> {
-  const response = await fetch('/api/assets/statusEffectTemplates', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(statusEffects),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to save status effects');
-  }
-}
-
-async function saveFeats(feats: FeatTemplate[]): Promise<void> {
-  const response = await fetch('/api/assets/featTemplates', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(feats),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to save feats');
-  }
-}
-
-async function saveTilesets(tilesets: TilesetTemplate[]): Promise<void> {
-  const response = await fetch('/api/assets/tilesetTemplates', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(tilesets),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to save tilesets');
-  }
-}
-
-async function saveGameEvents(gameEvents: GameEvent[]): Promise<void> {
-  const response = await fetch('/api/assets/specialEvents', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(gameEvents),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to save game events');
-  }
-}
-
-async function saveMaps(maps: CarcerMapTemplate[]): Promise<void> {
-  const response = await fetch('/api/assets/maps', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(maps),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to save maps');
-  }
-}
-
-async function saveMapGrids(mapGrids: MapGridTemplate[]): Promise<void> {
-  const response = await fetch('/api/assets/mapGrids', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(mapGrids),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to save map grids');
-  }
-}
+const saveItems = (items: ItemTemplate[]) => saveAsset('itemTemplates', items);
+const saveCharacters = (characters: CharacterTemplate[]) =>
+  saveAsset('characterTemplates', characters);
+const saveAbilities = (abilities: AbilityTemplate[]) =>
+  saveAsset('abilityTemplates', abilities);
+const saveSpells = (spells: SpellTemplate[]) => saveAsset('spellTemplates', spells);
+const saveStatusEffects = (statusEffects: StatusEffectTemplate[]) =>
+  saveAsset('statusEffectTemplates', statusEffects);
+const saveFeats = (feats: FeatTemplate[]) => saveAsset('featTemplates', feats);
+const saveTilesets = (tilesets: TilesetTemplate[]) =>
+  saveAsset('tilesetTemplates', tilesets);
+const saveGameEvents = (gameEvents: GameEvent[]) =>
+  saveAsset('specialEvents', gameEvents);
+const saveMaps = (maps: CarcerMapTemplate[]) => saveAsset('maps', maps);
+const saveMapGrids = (mapGrids: MapGridTemplate[]) =>
+  saveAsset('mapGrids', mapGrids);
 
 export function AssetsProvider({
   children,

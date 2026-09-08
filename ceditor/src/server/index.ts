@@ -3,6 +3,7 @@ import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import fs, { readdir } from 'fs/promises';
+import { ASSET_TYPES, assetFileForId } from '../shared/assetRegistry';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -28,64 +29,7 @@ app.use('/terrain-edges.html', express.static(join(__dirname + '/../client/', 't
 // Get list of asset types
 app.get('/api/assets/types', async (req, res) => {
   try {
-    const assetTypes = [
-      {
-        id: 'itemTemplates',
-        name: 'Item Templates',
-        file: 'items.json',
-      },
-      {
-        id: 'abilityTemplates',
-        name: 'Ability Templates',
-        file: 'abilities.json',
-      },
-      {
-        id: 'spellTemplates',
-        name: 'Spell Templates',
-        file: 'spells.json',
-      },
-      {
-        id: 'statusEffectTemplates',
-        name: 'Status Effect Templates',
-        file: 'status-effects.json',
-      },
-      {
-        id: 'featTemplates',
-        name: 'Feat Templates',
-        file: 'feats.json',
-      },
-      {
-        id: 'characterTemplates',
-        name: 'Character Templates',
-        file: 'characters.json',
-      },
-      {
-        id: 'specialEvents',
-        name: 'Special Events',
-        file: 'special-events.json',
-      },
-      {
-        id: 'tilesetTemplates',
-        name: 'Tileset Templates',
-        file: 'tilesets.json',
-      },
-      {
-        id: 'maps',
-        name: 'Maps',
-        file: 'maps.json',
-      },
-      {
-        id: 'mapGrids',
-        name: 'Map Grids',
-        file: 'map-grids.json',
-      },
-      {
-        id: 'soundEffects',
-        name: 'Sound Effects',
-        file: 'assets.game.txt',
-      },
-    ];
-    res.json(assetTypes);
+    res.json(ASSET_TYPES);
   } catch (error) {
     res.status(500).json({ error: 'Failed to load asset types' });
   }
@@ -95,20 +39,7 @@ app.get('/api/assets/types', async (req, res) => {
 app.get('/api/assets/:type', async (req, res) => {
   try {
     const { type } = req.params;
-    const fileMap: Record<string, string> = {
-      itemTemplates: 'items.json',
-      abilityTemplates: 'abilities.json',
-      spellTemplates: 'spells.json',
-      statusEffectTemplates: 'status-effects.json',
-      featTemplates: 'feats.json',
-      characterTemplates: 'characters.json',
-      specialEvents: 'special-events.json',
-      tilesetTemplates: 'tilesets.json',
-      maps: 'maps.json',
-      mapGrids: 'map-grids.json',
-    };
-
-    const fileName = fileMap[type];
+    const fileName = assetFileForId(type);
     if (!fileName) {
       console.error('Invalid asset type', type);
       return res.status(400).json({ error: 'Invalid asset type' });
@@ -138,22 +69,10 @@ app.get('/api/assets/:type', async (req, res) => {
 app.post('/api/assets/:type', async (req, res) => {
   try {
     const { type } = req.params;
-    const fileMap: Record<string, string> = {
-      itemTemplates: 'items.json',
-      abilityTemplates: 'abilities.json',
-      spellTemplates: 'spells.json',
-      statusEffectTemplates: 'status-effects.json',
-      featTemplates: 'feats.json',
-      characterTemplates: 'characters.json',
-      specialEvents: 'special-events.json',
-      tilesetTemplates: 'tilesets.json',
-      maps: 'maps.json',
-      mapGrids: 'map-grids.json',
-    };
 
     console.log('saving asset', type, req.body);
 
-    const fileName = fileMap[type];
+    const fileName = assetFileForId(type);
     if (!fileName) {
       return res.status(400).json({ error: 'Invalid asset type' });
     }
