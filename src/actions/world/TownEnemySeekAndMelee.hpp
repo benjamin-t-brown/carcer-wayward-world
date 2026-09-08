@@ -36,7 +36,7 @@ class TownEnemySeekAndMelee : public AbstractAction {
     }
 
     if (game::isChebyshevAdjacent(enemy->x, enemy->y, avatar->x, avatar->y)) {
-      insertAction(new PerformTownMeleeAttack(enemyId), 0);
+      insertAction(state::makeAction<PerformTownMeleeAttack>(enemyId), 0);
       return;
     }
 
@@ -60,7 +60,7 @@ class TownEnemySeekAndMelee : public AbstractAction {
                << dy << ")" << LOG_ENDL;
 
     if (game::isChebyshevAdjacent(enemy->x, enemy->y, avatar->x, avatar->y)) {
-      insertAction(new PerformTownMeleeAttack(enemyId), 0);
+      insertAction(state::makeAction<PerformTownMeleeAttack>(enemyId), 0);
     }
   }
 

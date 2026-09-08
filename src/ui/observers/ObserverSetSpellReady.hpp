@@ -26,9 +26,7 @@ public:
     if (!stateManager) {
       return;
     }
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::UiSetSpellReady(characterPlayerId, spellName, ready),
+    stateManager->enqueueAction(state::makeAction<state::actions::UiSetSpellReady>(characterPlayerId, spellName, ready),
         0);
   }
 };

@@ -42,7 +42,7 @@ class StartCombat : public AbstractAction {
     world.combat.activeTurnIndex = 0;
     LOG(INFO) << "StartCombat: turn order has " << world.combat.turnOrderIds.size()
               << " characters" << LOG_ENDL;
-    insertAction(new SetActiveCombatCharacter(), 0);
+    insertAction(state::makeAction<SetActiveCombatCharacter>(), 0);
   }
 
 public:

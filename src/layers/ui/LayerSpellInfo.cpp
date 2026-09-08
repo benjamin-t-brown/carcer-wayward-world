@@ -92,9 +92,7 @@ void LayerSpellInfo::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (!ui::isCancelActionKey(key)) {
     return;
   }
-  stateManager->enqueueAction(
-      stateManager->getActionData(),
-      new state::actions::UiRemoveLayer(bmin::String(LAYER_ID.data(), LAYER_ID.size())),
+  stateManager->enqueueAction(state::makeAction<state::actions::UiRemoveLayer>(bmin::String(LAYER_ID.data(), LAYER_ID.size())),
       0);
 }
 

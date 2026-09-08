@@ -31,8 +31,8 @@ class PerformCharacterDefeated : public AbstractAction {
         }
       }
     }
-    insertAction(new PlaySound("yell1"), 0);
-    insertAction(new RemoveCharacterFromMap(characterId), 300);
+    insertAction(state::makeAction<PlaySound>("yell1"), 0);
+    insertAction(state::makeAction<RemoveCharacterFromMap>(characterId), 300);
   }
 
 public:

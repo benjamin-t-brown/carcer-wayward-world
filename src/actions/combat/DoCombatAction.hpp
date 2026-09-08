@@ -60,8 +60,8 @@ class DoCombatAction : public AbstractAction {
       const auto actorIsEnemy = model::isCharacterEnemy(*actor);
       const auto occupantIsEnemy = model::isCharacterEnemy(*occupant);
       if (actorIsEnemy != occupantIsEnemy) {
-        insertAction(new PerformMeleeAttack(actorId, occupant->id), 0);
-        insertAction(new ModifyAP(actorId, -model::COMBAT_ATTACK_COST), 0);
+        insertAction(state::makeAction<PerformMeleeAttack>(actorId, occupant->id), 0);
+        insertAction(state::makeAction<ModifyAP>(actorId, -model::COMBAT_ATTACK_COST), 0);
         return;
       }
       return;
@@ -77,8 +77,8 @@ class DoCombatAction : public AbstractAction {
       return;
     }
 
-    insertAction(new MoveCharacter(actorId, ctx.targetLoc.x, ctx.targetLoc.y), 0);
-    insertAction(new ModifyAP(actorId, -model::COMBAT_MOVE_COST), 0);
+    insertAction(state::makeAction<MoveCharacter>(actorId, ctx.targetLoc.x, ctx.targetLoc.y), 0);
+    insertAction(state::makeAction<ModifyAP>(actorId, -model::COMBAT_MOVE_COST), 0);
   }
 
   void handleSpell() {
@@ -90,7 +90,7 @@ class DoCombatAction : public AbstractAction {
       LOG(INFO) << "DoCombatAction: SPELL with empty spellId" << LOG_ENDL;
       return;
     }
-    insertAction(new PerformSpellCast(chId, ctx.abilityId, spellTargetInfo), 0);
+    insertAction(state::makeAction<PerformSpellCast>(chId, ctx.abilityId, spellTargetInfo), 0);
     insertAction(nullptr, 150);
   }
 
@@ -136,19 +136,19 @@ class DoCombatAction : public AbstractAction {
       handleSpell();
       break;
     case model::CombatActionType::SHOOT:
-      insertAction(new DoCombatActionCompletion(), 0);
+      insertAction(state::makeAction<DoCombatActionCompletion>(), 0);
       break;
     case model::CombatActionType::WAIT: {
       game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
       orch.fetchMapGrid(state->world.activeMap.gridId);
       auto* character = orch.findCharacterById(chId);
       if (character != nullptr) {
-        insertAction(new ModifyAP(chId, -character->currentAp), 0);
+        insertAction(state::makeAction<ModifyAP>(chId, -character->currentAp), 0);
       }
       break;
     }
     }
-    insertAction(new DoCombatActionCompletion(), 0);
+    insertAction(state::makeAction<DoCombatActionCompletion>(), 0);
   }
 
 public:

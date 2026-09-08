@@ -110,27 +110,23 @@ void LayerWorld::enqueueMapMove(state::StateManager& stateManager, int dx, int d
     if (!canPlayerIssueCombatMove(state)) {
       return;
     }
-    stateManager.enqueueAction(
-        stateManager.getActionData(),
-        new state::actions::DoCombatAction(state.world.combat.activeCharacterId,
+    stateManager.enqueueAction(state::makeAction<state::actions::DoCombatAction>(state.world.combat.activeCharacterId,
                                            model::CombatActionType::MOVE,
-                                           {.targetLoc = {dx, dy}}),
+                                           state::actions::CombatActionContext{.targetLoc = {dx, dy}}),
         0);
     return;
   }
   if (state.world.resolvingTownEnemyAi) {
     return;
   }
-  stateManager.enqueueAction(
-      stateManager.getActionData(), new state::actions::WorldMovePlayer(dx, dy), 0);
+  stateManager.enqueueAction(state::makeAction<state::actions::WorldMovePlayer>(dx, dy), 0);
 }
 
 void LayerWorld::enqueueCombatWait(state::StateManager& stateManager) {
   if (!canPlayerIssueCombatMove(stateManager.getState())) {
     return;
   }
-  stateManager.enqueueAction(stateManager.getActionData(),
-                             new state::actions::DoCombatAction(
+  stateManager.enqueueAction(state::makeAction<state::actions::DoCombatAction>(
                                  stateManager.getState().world.combat.activeCharacterId,
                                  model::CombatActionType::WAIT),
                              0);
@@ -197,15 +193,13 @@ void LayerWorld::confirmWorldActionAim(int tileX, int tileY) {
   const auto actionMode = stateManager->getState().world.actionMode;
   if (actionMode == model::WorldActionMode::EXAMINE) {
     ui::setHeldMoveActive(*stateManager, false);
-    stateManager->enqueueAction(stateManager->getActionData(),
-                                new state::actions::WorldExamineAt(window, tileX, tileY),
+    stateManager->enqueueAction(state::makeAction<state::actions::WorldExamineAt>(window, tileX, tileY),
                                 0);
     return;
   }
   if (actionMode == model::WorldActionMode::TALK) {
     ui::setHeldMoveActive(*stateManager, false);
-    stateManager->enqueueAction(
-        stateManager->getActionData(), new state::actions::WorldTalkAt(tileX, tileY), 0);
+    stateManager->enqueueAction(state::makeAction<state::actions::WorldTalkAt>(tileX, tileY), 0);
     return;
   }
   if (actionMode != model::WorldActionMode::SPELL) {
@@ -253,16 +247,13 @@ void LayerWorld::confirmWorldActionAim(int tileX, int tileY) {
   }
 
   ui::setHeldMoveActive(*stateManager, false);
-  stateManager->enqueueAction(
-      stateManager->getActionData(),
-      new state::actions::DoCombatAction(
+  stateManager->enqueueAction(state::makeAction<state::actions::DoCombatAction>(
           world.combat.activeCharacterId,
           model::CombatActionType::SPELL,
-          {.abilityId = world.pendingSpellId, .targetLoc = {tileX, tileY}}),
+          state::actions::CombatActionContext{.abilityId = world.pendingSpellId,
+                                              .targetLoc = {tileX, tileY}}),
       0);
-  stateManager->pllAction(
-      stateManager->getActionData(),
-      new state::actions::WorldSetActionMode(model::WorldActionMode::NONE),
+  stateManager->parallelAction(state::makeAction<state::actions::WorldSetActionMode>(model::WorldActionMode::NONE),
       0);
 }
 
@@ -333,9 +324,7 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
       return;
     }
     ui::setHeldMoveActive(*stateManager, false);
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::WorldMoveActionAim(moveDelta->dx, moveDelta->dy),
+    stateManager->enqueueAction(state::makeAction<state::actions::WorldMoveActionAim>(moveDelta->dx, moveDelta->dy),
         0);
     return;
   }
@@ -358,8 +347,7 @@ void LayerWorld::onKeyDown(std::string_view key, int /*keyCode*/) {
   };
   model::timerStructRestart(nextHeldMove.initialDelay);
   model::timerStructRestart(nextHeldMove.moveDelay);
-  stateManager->pllAction(stateManager->getActionData(),
-                          new state::actions::UiUpdateHeldMove(nextHeldMove),
+  stateManager->parallelAction(state::makeAction<state::actions::UiUpdateHeldMove>(nextHeldMove),
                           0);
   if (canEnqueueMove) {
     enqueueMapMove(*stateManager, moveDelta->dx, moveDelta->dy);
@@ -413,8 +401,7 @@ void LayerWorld::updateAimFromMouse(int x, int y) {
     return;
   }
   // Parallel so hover stays responsive even if sequential actions are waiting.
-  stateManager->pllAction(stateManager->getActionData(),
-                          new state::actions::WorldSetActionAim(tile->x, tile->y),
+  stateManager->parallelAction(state::makeAction<state::actions::WorldSetActionAim>(tile->x, tile->y),
                           0);
 }
 
@@ -434,9 +421,7 @@ void LayerWorld::onMouseDown(int x, int y, int button) {
           actionMode == model::WorldActionMode::SPELL) {
         if (auto* mapView = getUiElement<ui::MapView>("mapView")) {
           if (auto tile = mapView->screenToTile(x, y)) {
-            stateManager->enqueueAction(
-                stateManager->getActionData(),
-                new state::actions::WorldSetActionAim(tile->x, tile->y),
+            stateManager->enqueueAction(state::makeAction<state::actions::WorldSetActionAim>(tile->x, tile->y),
                 0);
             confirmWorldActionAim(tile->x, tile->y);
             return;

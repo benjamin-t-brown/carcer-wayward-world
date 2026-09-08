@@ -168,8 +168,7 @@ int main(int /*argc*/, char** /*argv*/) {
   state::StateManagerInterface::setStateManager(&stateManager);
 
   {
-    stateManager.enqueueAction(stateManager.getActionData(),
-                               new state::actions::StartCombat(),
+    stateManager.enqueueAction(state::makeAction<state::actions::StartCombat>(),
                                0);
     tickState(stateManager, 1);
 
@@ -210,9 +209,7 @@ int main(int /*argc*/, char** /*argv*/) {
   {
     auto* allyBefore = findOnActiveMap(stateManager.getState().world.activeMap, "ally-1");
     const auto startX = allyBefore ? allyBefore->x : -1;
-    stateManager.enqueueAction(
-        stateManager.getActionData(),
-        new state::actions::DoCombatAction("ally-1", model::CombatActionType::WAIT),
+    stateManager.enqueueAction(state::makeAction<state::actions::DoCombatAction>("ally-1", model::CombatActionType::WAIT),
         0);
     for (int i = 0; i < 30; ++i) {
       tickState(stateManager, 50);
@@ -225,8 +222,7 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   {
-    stateManager.enqueueAction(stateManager.getActionData(),
-                               new state::actions::EndCombat(),
+    stateManager.enqueueAction(state::makeAction<state::actions::EndCombat>(),
                                0);
     tickState(stateManager, 1);
     ok = assertTrue(!stateManager.getState().world.combat.active, "combat ended") && ok;

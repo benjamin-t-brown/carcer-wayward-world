@@ -47,24 +47,43 @@ public:
     act();
   }
 
-  void insertAction(AbstractAction* action, int ms = 0) {
+  void insertAction(bmin::UniquePtr<AbstractAction> action, int ms = 0) {
     auto* stateManager = getStateManager();
     if (stateManager == nullptr) {
-      return;
+      return; // action is destroyed here when there is no manager
     }
-    stateManager->insertAction(stateManager->getActionData(), action, ms);
+    stateManager->insertAction(bmin::move(action), ms);
   }
 
-  void enqueueAction(AbstractAction* action, int ms = 0) {
+  void enqueueAction(bmin::UniquePtr<AbstractAction> action, int ms = 0) {
     auto* stateManager = getStateManager();
     if (stateManager == nullptr) {
-      return;
+      return; // action is destroyed here when there is no manager
     }
-    stateManager->enqueueAction(stateManager->getActionData(), action, ms);
+    stateManager->enqueueAction(bmin::move(action), ms);
+  }
+
+  // Schedule a pure delay: a null action advances the timer without running
+  // anything. Distinct from an owning raw pointer; nothing is owned here.
+  void insertAction(decltype(nullptr), int ms = 0) {
+    insertAction(bmin::UniquePtr<AbstractAction>(), ms);
+  }
+
+  void enqueueAction(decltype(nullptr), int ms = 0) {
+    enqueueAction(bmin::UniquePtr<AbstractAction>(), ms);
   }
 
   virtual ~AbstractAction() = default;
 };
+
+// Allocate a concrete action as an owning handle to its abstract base. This is
+// the single allocation point for scheduled actions; bmin::UniquePtr has no
+// derived-to-base converting constructor and the pinned dependency must not be
+// modified, so callers cannot pass bmin::makeUnique<Derived>() directly.
+template <typename T, typename... Args>
+bmin::UniquePtr<AbstractAction> makeAction(Args&&... args) {
+  return bmin::UniquePtr<AbstractAction>(new T(bmin::forward<Args>(args)...));
+}
 
 struct AsyncAction {
   bmin::UniquePtr<state::AbstractAction> action;

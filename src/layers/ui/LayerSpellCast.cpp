@@ -110,9 +110,7 @@ void LayerSpellCast::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (!stateManager) {
     return;
   }
-  stateManager->enqueueAction(
-      stateManager->getActionData(),
-      new state::actions::UiRemoveLayer(bmin::String(LAYER_ID.data(), LAYER_ID.size())),
+  stateManager->enqueueAction(state::makeAction<state::actions::UiRemoveLayer>(bmin::String(LAYER_ID.data(), LAYER_ID.size())),
       0);
 }
 

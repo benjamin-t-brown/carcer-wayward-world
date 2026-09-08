@@ -19,8 +19,7 @@ namespace {
 void deactivateHeldMove(StateManager& stateManager) {
   auto nextHeldMove = stateManager.getState().uiState.heldMove;
   nextHeldMove.isActive = false;
-  stateManager.pllAction(
-      stateManager.getActionData(), new actions::UiUpdateHeldMove(nextHeldMove), 0);
+  stateManager.parallelAction(state::makeAction<actions::UiUpdateHeldMove>(nextHeldMove), 0);
 }
 
 bmin::String resolveFollowCharacterId(const State& state) {
@@ -52,8 +51,7 @@ void enqueueCpuCombatTurn(StateManager& stateManager) {
   }
 
   combat.isWaitingForAction = false;
-  stateManager.enqueueAction(
-      stateManager.getActionData(), new actions::DoCPUCombatTurn(), 0);
+  stateManager.enqueueAction(state::makeAction<actions::DoCPUCombatTurn>(), 0);
 }
 
 void updateDamageParticles(model::World& world, sdl2w::Window* window, int deltaTimeMs) {

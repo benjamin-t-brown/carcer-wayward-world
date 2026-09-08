@@ -40,9 +40,12 @@ public:
   ActionBus& getActionBus();
   const ActionBus& getActionBus() const;
 
-  void enqueueAction(ActionData& actions, AbstractAction* action, int ms);
-  void insertAction(ActionData& actions, AbstractAction* action, int ms);
-  void pllAction(ActionData& actions, AbstractAction* action, int ms);
+  // The manager owns scheduled actions. Callers pass an owning handle built
+  // with state::makeAction<Concrete>(...); no scheduling API accepts a raw
+  // owning AbstractAction*.
+  void enqueueAction(bmin::UniquePtr<AbstractAction> action, int ms = 0);
+  void insertAction(bmin::UniquePtr<AbstractAction> action, int ms = 0);
+  void parallelAction(bmin::UniquePtr<AbstractAction> action, int ms = 0);
   void moveSequentialActions(ActionData& actions);
   void moveInsertActions(ActionData& actions);
 

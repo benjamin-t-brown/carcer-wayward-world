@@ -140,7 +140,7 @@ class WorldMovePlayer : public AbstractAction {
       state->playerMovementCount += 1;
       game::ageMapInstances(state->mapInstances, 1);
       world.resolvingTownEnemyAi = true;
-      insertAction(new TownEnemyAiAfterPlayerMove(), 0);
+      insertAction(state::makeAction<TownEnemyAiAfterPlayerMove>(), 0);
     }
   }
 

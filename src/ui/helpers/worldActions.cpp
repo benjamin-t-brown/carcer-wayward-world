@@ -16,8 +16,7 @@ namespace ui {
 void setHeldMoveActive(state::StateManager& stateManager, bool isActive) {
   auto nextHeldMove = stateManager.getState().uiState.heldMove;
   nextHeldMove.isActive = isActive;
-  stateManager.pllAction(stateManager.getActionData(),
-                         new state::actions::UiUpdateHeldMove(nextHeldMove),
+  stateManager.parallelAction(state::makeAction<state::actions::UiUpdateHeldMove>(nextHeldMove),
                          0);
 }
 
@@ -27,9 +26,7 @@ void cancelCurrentWorldActionMode(state::StateManager& stateManager) {
     return;
   }
   setHeldMoveActive(stateManager, false);
-  stateManager.pllAction(
-      stateManager.getActionData(),
-      new state::actions::WorldSetActionMode(model::WorldActionMode::NONE),
+  stateManager.parallelAction(state::makeAction<state::actions::WorldSetActionMode>(model::WorldActionMode::NONE),
       0);
 }
 
@@ -38,8 +35,7 @@ void showMagicSetupLayer(state::StateManager& stateManager, sdl2w::Window* windo
     return;
   }
   setHeldMoveActive(stateManager, false);
-  stateManager.enqueueAction(
-      stateManager.getActionData(), new state::actions::UiShowLayerMagic(window), 0);
+  stateManager.enqueueAction(state::makeAction<state::actions::UiShowLayerMagic>(window), 0);
 }
 
 void showSpellCastLayer(state::StateManager& stateManager, sdl2w::Window* window) {
@@ -54,8 +50,7 @@ void showSpellCastLayer(state::StateManager& stateManager, sdl2w::Window* window
     chId = state.uiState.selectedPartyMemberId;
   }
   setHeldMoveActive(stateManager, false);
-  stateManager.enqueueAction(stateManager.getActionData(),
-                             new state::actions::UiShowLayerSpellCast(window, chId),
+  stateManager.enqueueAction(state::makeAction<state::actions::UiShowLayerSpellCast>(window, chId),
                              0);
 }
 
@@ -75,9 +70,7 @@ void activateWorldAction(state::StateManager& stateManager,
       cancelCurrentWorldActionMode(stateManager);
       break;
     }
-    stateManager.pllAction(
-        stateManager.getActionData(),
-        new state::actions::WorldSetActionMode(model::WorldActionMode::EXAMINE),
+    stateManager.parallelAction(state::makeAction<state::actions::WorldSetActionMode>(model::WorldActionMode::EXAMINE),
         0);
     break;
   case state::WorldActionType::TALK:
@@ -86,9 +79,7 @@ void activateWorldAction(state::StateManager& stateManager,
       cancelCurrentWorldActionMode(stateManager);
       break;
     }
-    stateManager.pllAction(
-        stateManager.getActionData(),
-        new state::actions::WorldSetActionMode(model::WorldActionMode::TALK),
+    stateManager.parallelAction(state::makeAction<state::actions::WorldSetActionMode>(model::WorldActionMode::TALK),
         0);
     break;
   case state::WorldActionType::INVENTORY:
@@ -96,8 +87,7 @@ void activateWorldAction(state::StateManager& stateManager,
       break;
     }
     setHeldMoveActive(stateManager, false);
-    stateManager.enqueueAction(stateManager.getActionData(),
-                               new state::actions::UiShowLayerInventory(window),
+    stateManager.enqueueAction(state::makeAction<state::actions::UiShowLayerInventory>(window),
                                0);
     break;
   case state::WorldActionType::ABILITY:
@@ -114,26 +104,22 @@ void activateWorldAction(state::StateManager& stateManager,
       break;
     }
     setHeldMoveActive(stateManager, false);
-    stateManager.enqueueAction(
-        stateManager.getActionData(), new state::actions::UiShowLayerPickUp(window), 0);
+    stateManager.enqueueAction(state::makeAction<state::actions::UiShowLayerPickUp>(window), 0);
     break;
   case state::WorldActionType::INTERACT:
     setHeldMoveActive(stateManager, false);
     cancelCurrentWorldActionMode(stateManager);
-    stateManager.enqueueAction(
-        stateManager.getActionData(), new state::actions::WorldInteractAt(), 0);
+    stateManager.enqueueAction(state::makeAction<state::actions::WorldInteractAt>(), 0);
     break;
   case state::WorldActionType::START_FIGHT:
     setHeldMoveActive(stateManager, false);
     cancelCurrentWorldActionMode(stateManager);
-    stateManager.enqueueAction(
-        stateManager.getActionData(), new state::actions::StartCombat(), 0);
+    stateManager.enqueueAction(state::makeAction<state::actions::StartCombat>(), 0);
     break;
   case state::WorldActionType::END_FIGHT:
     setHeldMoveActive(stateManager, false);
     cancelCurrentWorldActionMode(stateManager);
-    stateManager.enqueueAction(
-        stateManager.getActionData(), new state::actions::EndCombat(), 0);
+    stateManager.enqueueAction(state::makeAction<state::actions::EndCombat>(), 0);
     break;
   default:
     break;

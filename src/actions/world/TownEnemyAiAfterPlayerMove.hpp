@@ -48,10 +48,10 @@ class TownEnemyAiAfterPlayerMove : public AbstractAction {
       if (character.combatBehaviorTown != model::CombatBehaviorName::SEEK_AND_MELEE) {
         continue;
       }
-      insertAction(new TownEnemySeekAndMelee(character.id), 0);
+      insertAction(state::makeAction<TownEnemySeekAndMelee>(character.id), 0);
     }
 
-    insertAction(new ClearTownEnemyAiResolving(), 0);
+    insertAction(state::makeAction<ClearTownEnemyAiResolving>(), 0);
   }
 };
 

@@ -25,9 +25,7 @@ public:
   void onClick(int, int, int) override {
     counter++;
     const auto type = static_cast<state::UiFloatingNotificationType>((counter - 1) % 3);
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::UiPushFloatingNotification(
+    stateManager->enqueueAction(state::makeAction<state::actions::UiPushFloatingNotification>(
             "Notification #" + bmin::toString(counter), type),
         0);
   }

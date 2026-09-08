@@ -28,9 +28,7 @@ public:
     if (!stateManager) {
       return;
     }
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::UiReorderInventoryItem(
+    stateManager->enqueueAction(state::makeAction<state::actions::UiReorderInventoryItem>(
             characterPlayerId, inventoryIndex, direction),
         0);
   }

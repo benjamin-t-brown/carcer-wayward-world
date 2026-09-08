@@ -23,8 +23,7 @@ public:
     if (!stateManager || spellId.empty()) {
       return;
     }
-    stateManager->enqueueAction(stateManager->getActionData(),
-                                new state::actions::UiSelectSpellCast(spellId, chId),
+    stateManager->enqueueAction(state::makeAction<state::actions::UiSelectSpellCast>(spellId, chId),
                                 0);
   }
 };

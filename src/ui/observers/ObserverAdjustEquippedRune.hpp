@@ -24,9 +24,7 @@ public:
     if (!stateManager || characterPlayerId.empty() || delta == 0) {
       return;
     }
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::UiAdjustEquippedRune(characterPlayerId, runeType, delta),
+    stateManager->enqueueAction(state::makeAction<state::actions::UiAdjustEquippedRune>(characterPlayerId, runeType, delta),
         0);
   }
 };

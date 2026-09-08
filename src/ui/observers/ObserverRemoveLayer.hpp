@@ -22,8 +22,7 @@ public:
     if (!stateManager || !layerId) {
       return;
     }
-    stateManager->enqueueAction(
-        stateManager->getActionData(), new state::actions::UiRemoveLayer(*layerId), 0);
+    stateManager->enqueueAction(state::makeAction<state::actions::UiRemoveLayer>(*layerId), 0);
   }
 };
 } // namespace ui

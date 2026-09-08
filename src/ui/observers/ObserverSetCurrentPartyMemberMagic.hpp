@@ -21,9 +21,7 @@ public:
     if (!stateManager) {
       return;
     }
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::UiSetCurrentPartyMemberMagic(partyMemberMagicIndex),
+    stateManager->enqueueAction(state::makeAction<state::actions::UiSetCurrentPartyMemberMagic>(partyMemberMagicIndex),
         0);
   }
 };

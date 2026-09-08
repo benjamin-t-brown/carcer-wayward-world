@@ -84,7 +84,7 @@ public:
       return;
     }
     for (auto* action : inserts) {
-      stateManager->insertAction(stateManager->getActionData(), action, insertMs);
+      stateManager->insertAction(bmin::UniquePtr<state::AbstractAction>(action), insertMs);
     }
     inserts.clear();
   }
@@ -101,9 +101,9 @@ int main(int /*argc*/, char** /*argv*/) {
     state::StateManager sm;
     bmin::DynArray<int> order;
 
-    sm.enqueueAction(sm.getActionData(), new RecordAction(&order, 1), 0);
-    sm.enqueueAction(sm.getActionData(), new RecordAction(&order, 2), 0);
-    sm.enqueueAction(sm.getActionData(), new RecordAction(&order, 3), 0);
+    sm.enqueueAction(state::makeAction<RecordAction>(&order, 1), 0);
+    sm.enqueueAction(state::makeAction<RecordAction>(&order, 2), 0);
+    sm.enqueueAction(state::makeAction<RecordAction>(&order, 3), 0);
 
     ok = assertEqual(static_cast<int>(sm.getActionData().sequentialActionsNext.size()),
                      3,
@@ -130,10 +130,9 @@ int main(int /*argc*/, char** /*argv*/) {
     bmin::DynArray<int> order;
 
     auto* inserted = new RecordAction(&order, 20);
-    sm.enqueueAction(sm.getActionData(),
-                     new RecordAction(&order, 10, &sm, inserted, 0),
+    sm.enqueueAction(state::makeAction<RecordAction>(&order, 10, &sm, inserted, 0),
                      0);
-    sm.enqueueAction(sm.getActionData(), new RecordAction(&order, 30), 0);
+    sm.enqueueAction(state::makeAction<RecordAction>(&order, 30), 0);
 
     sm.update(1);
 
@@ -156,10 +155,9 @@ int main(int /*argc*/, char** /*argv*/) {
     auto* child3 = new RecordAction(&order, 30, &sm, new RecordAction(&order, 31), 0);
     bmin::DynArray<state::AbstractAction*> children{child1, child2, child3};
 
-    sm.enqueueAction(sm.getActionData(),
-                     new RecordAction(&order, 1, &sm, std::move(children), 0),
+    sm.enqueueAction(state::makeAction<RecordAction>(&order, 1, &sm, std::move(children), 0),
                      0);
-    sm.enqueueAction(sm.getActionData(), new RecordAction(&order, 99), 0);
+    sm.enqueueAction(state::makeAction<RecordAction>(&order, 99), 0);
 
     sm.update(1);
 
@@ -181,8 +179,7 @@ int main(int /*argc*/, char** /*argv*/) {
     bmin::DynArray<int> order;
 
     auto* inserted = new RecordAction(&order, 2);
-    sm.enqueueAction(sm.getActionData(),
-                     new RecordAction(&order, 1, &sm, inserted, 0),
+    sm.enqueueAction(state::makeAction<RecordAction>(&order, 1, &sm, inserted, 0),
                      100);
 
     sm.update(1);
@@ -203,13 +200,13 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertOrder(order, {1, 2}, "inserted runs on following update") && ok;
   }
 
-  // pllAction: parallel queue executes when timer completes
+  // parallelAction: parallel queue executes when timer completes
   {
     state::StateManager sm;
     bmin::DynArray<int> order;
 
-    sm.pllAction(sm.getActionData(), new RecordAction(&order, 1), 0);
-    sm.pllAction(sm.getActionData(), new RecordAction(&order, 2), 0);
+    sm.parallelAction(state::makeAction<RecordAction>(&order, 1), 0);
+    sm.parallelAction(state::makeAction<RecordAction>(&order, 2), 0);
 
     ok = assertEqual(static_cast<int>(sm.getActionData().parallelActions.size()),
                      2,
@@ -225,12 +222,12 @@ int main(int /*argc*/, char** /*argv*/) {
          ok;
   }
 
-  // pllAction with delay: runs only after timer
+  // parallelAction with delay: runs only after timer
   {
     state::StateManager sm;
     bmin::DynArray<int> order;
 
-    sm.pllAction(sm.getActionData(), new RecordAction(&order, 7), 50);
+    sm.parallelAction(state::makeAction<RecordAction>(&order, 7), 50);
 
     sm.update(25);
     ok = assertEqual(static_cast<int>(order.size()), 0, "pll waits for timer") && ok;
@@ -252,8 +249,8 @@ int main(int /*argc*/, char** /*argv*/) {
     state::StateManager sm;
     bmin::DynArray<int> order;
 
-    sm.enqueueAction(sm.getActionData(), new RecordAction(&order, 1), 0);
-    sm.pllAction(sm.getActionData(), new RecordAction(&order, 2), 0);
+    sm.enqueueAction(state::makeAction<RecordAction>(&order, 1), 0);
+    sm.parallelAction(state::makeAction<RecordAction>(&order, 2), 0);
 
     sm.update(1);
 
@@ -306,11 +303,9 @@ int main(int /*argc*/, char** /*argv*/) {
           selectedChoice = action.getEventValue();
         });
 
-    sm.enqueueAction(sm.getActionData(),
-                     new state::actions::UiContinueSpecialEvent(),
+    sm.enqueueAction(state::makeAction<state::actions::UiContinueSpecialEvent>(),
                      0);
-    sm.enqueueAction(sm.getActionData(),
-                     new state::actions::UiSelectSpecialEventChoice(3),
+    sm.enqueueAction(state::makeAction<state::actions::UiSelectSpecialEventChoice>(3),
                      0);
     sm.update(1);
 
@@ -322,8 +317,7 @@ int main(int /*argc*/, char** /*argv*/) {
   // Navigation actions write neutral layer requests; they never construct layers.
   {
     state::StateManager sm;
-    sm.enqueueAction(sm.getActionData(),
-                     new state::actions::UiShowLayerPopupText(
+    sm.enqueueAction(state::makeAction<state::actions::UiShowLayerPopupText>(
                          nullptr, "A title", "Some text"),
                      0);
     sm.update(1);

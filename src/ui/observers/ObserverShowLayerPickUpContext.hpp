@@ -22,9 +22,7 @@ public:
     if (!stateManager) {
       return;
     }
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::UiShowLayerPickupContext(window, item),
+    stateManager->enqueueAction(state::makeAction<state::actions::UiShowLayerPickupContext>(window, item),
         0);
   }
 };

@@ -43,7 +43,7 @@ class DoCPUCombatTurn : public AbstractAction {
     auto* actor = orch.findCharacterById(actorId);
     if (actor == nullptr) {
       insertAction(nullptr, 300);
-      insertAction(new DoCombatAction(actorId, model::CombatActionType::WAIT), 0);
+      insertAction(state::makeAction<DoCombatAction>(actorId, model::CombatActionType::WAIT), 0);
       return;
     }
 
@@ -53,15 +53,15 @@ class DoCPUCombatTurn : public AbstractAction {
       if (game::chooseSeekAndMeleeCombatAction(
               world, state->mapInstances, state->player, *actor, *database, dx, dy)) {
         insertAction(nullptr, 300);
-        insertAction(new DoCombatAction(
-                         actorId, model::CombatActionType::MOVE, {.targetLoc = {dx, dy}}),
+        insertAction(state::makeAction<DoCombatAction>(
+                         actorId, model::CombatActionType::MOVE, CombatActionContext{.targetLoc = {dx, dy}}),
                      0);
         return;
       }
     }
 
     insertAction(nullptr, 300);
-    insertAction(new DoCombatAction(actorId, model::CombatActionType::WAIT), 0);
+    insertAction(state::makeAction<DoCombatAction>(actorId, model::CombatActionType::WAIT), 0);
   }
 
 public:

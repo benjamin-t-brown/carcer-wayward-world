@@ -25,9 +25,7 @@ public:
     if (!stateManager || helpText.empty()) {
       return;
     }
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::UiShowLayerPopupText(window, title, helpText),
+    stateManager->enqueueAction(state::makeAction<state::actions::UiShowLayerPopupText>(window, title, helpText),
         0);
   }
 };

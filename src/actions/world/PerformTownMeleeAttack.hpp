@@ -55,15 +55,15 @@ class PerformTownMeleeAttack : public AbstractAction {
 
     model::updateCharacterFacingToward(*attacker, avatar->x, avatar->y);
 
-    insertAction(new CharacterSetSpriteIndexOffset(attackerId, 1), 0);
+    insertAction(state::makeAction<CharacterSetSpriteIndexOffset>(attackerId, 1), 0);
 
     const auto hit = (std::rand() % 100) < model::COMBAT_HIT_CHANCE_PERCENT;
     if (hit) {
-      insertAction(new PlaySound("punch1"), 0);
+      insertAction(state::makeAction<PlaySound>("punch1"), 0);
       insertAction(nullptr, 75);
-      insertAction(new ModifyPartyMemberHp(victim->instanceId, -model::COMBAT_MELEE_DAMAGE),
+      insertAction(state::makeAction<ModifyPartyMemberHp>(victim->instanceId, -model::COMBAT_MELEE_DAMAGE),
                          0);
-      insertAction(new WorldSpawnDamageParticle("splash_attack",
+      insertAction(state::makeAction<WorldSpawnDamageParticle>("splash_attack",
                                                       bmin::toString(model::COMBAT_MELEE_DAMAGE),
                                                       avatar->x,
                                                       avatar->y,
@@ -73,12 +73,12 @@ class PerformTownMeleeAttack : public AbstractAction {
       LOG(INFO) << "TownMeleeAttack: " << attackerId << " hit " << victim->instanceId
                 << " for " << model::COMBAT_MELEE_DAMAGE << LOG_ENDL;
     } else {
-      insertAction(new PlaySound("whip"), 0);
+      insertAction(state::makeAction<PlaySound>("whip"), 0);
       insertAction(nullptr, 300);
       LOG(DEBUG) << "TownMeleeAttack: miss by " << attackerId << " vs party member "
                  << victim->instanceId << LOG_ENDL;
     }
-    insertAction(new CharacterSetSpriteIndexOffset(attackerId, 0), 0);
+    insertAction(state::makeAction<CharacterSetSpriteIndexOffset>(attackerId, 0), 0);
   }
 
 public:

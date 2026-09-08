@@ -14,8 +14,7 @@ public:
     if (!stateManager) {
       return;
     }
-    stateManager->enqueueAction(
-        stateManager->getActionData(), new state::actions::UiCancelEquipRunes(), 0);
+    stateManager->enqueueAction(state::makeAction<state::actions::UiCancelEquipRunes>(), 0);
   }
 };
 

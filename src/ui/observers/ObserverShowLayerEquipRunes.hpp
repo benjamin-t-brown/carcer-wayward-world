@@ -24,9 +24,7 @@ public:
     if (!stateManager || characterPlayerId.empty()) {
       return;
     }
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::UiShowLayerEquipRunes(window, characterPlayerId),
+    stateManager->enqueueAction(state::makeAction<state::actions::UiShowLayerEquipRunes>(window, characterPlayerId),
         0);
   }
 };

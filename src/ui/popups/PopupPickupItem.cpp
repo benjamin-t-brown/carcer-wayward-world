@@ -26,9 +26,7 @@ public:
     if (!stateManager) {
       return;
     }
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::UiRemoveLayer(ownerLayerId),
+    stateManager->enqueueAction(state::makeAction<state::actions::UiRemoveLayer>(ownerLayerId),
         0);
   }
 };

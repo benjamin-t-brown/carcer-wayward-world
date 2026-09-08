@@ -35,8 +35,7 @@ public:
       nextIndex = 0;
     }
 
-    stateManager->enqueueAction(stateManager->getActionData(),
-                                new state::actions::UiSetCurrentPartyMember(nextIndex),
+    stateManager->enqueueAction(state::makeAction<state::actions::UiSetCurrentPartyMember>(nextIndex),
                                 0);
   }
 };

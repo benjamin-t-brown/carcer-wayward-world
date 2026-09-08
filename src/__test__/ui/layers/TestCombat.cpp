@@ -156,8 +156,7 @@ int main(int argc, char** argv) {
     spawnEnemiesAtMarkers(state, database, enemyTemplates);
 
     // Enqueue so SetActiveCombatCharacter (inserted by StartCombat) runs via update.
-    stateManager.enqueueAction(
-        stateManager.getActionData(), new state::actions::StartCombat(), 0);
+    stateManager.enqueueAction(state::makeAction<state::actions::StartCombat>(), 0);
     stateManager.update(1);
     state::worldUpdate(nullptr, stateManager, 1);
   }

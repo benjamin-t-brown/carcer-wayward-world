@@ -16,9 +16,7 @@ public:
 
   void onClick(int /*mouseX*/, int /*mouseY*/, int /*button*/) override {
     if (auto* stateManager = getStateManager()) {
-      stateManager->enqueueAction(
-          stateManager->getActionData(),
-          new state::actions::UiSelectSpecialEventChoice(choiceIndex),
+      stateManager->enqueueAction(state::makeAction<state::actions::UiSelectSpecialEventChoice>(choiceIndex),
           0);
     }
   }

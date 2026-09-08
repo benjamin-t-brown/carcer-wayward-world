@@ -25,9 +25,7 @@ public:
     }
     LOG(INFO) << "ObserverSetSelectedPartyMemberId::onClick id=" << partyMemberId
               << LOG_ENDL;
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::UiSetSelectedPartyMemberId(partyMemberId),
+    stateManager->enqueueAction(state::makeAction<state::actions::UiSetSelectedPartyMemberId>(partyMemberId),
         0);
   }
 };

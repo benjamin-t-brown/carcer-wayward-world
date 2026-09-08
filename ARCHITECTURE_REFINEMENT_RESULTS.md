@@ -96,8 +96,8 @@ model test; it will fail because the particle survives without a window.
 | Phase | Title | Status | Commit |
 | --- | --- | --- | --- |
 | 0 | Baseline and characterization tests | complete | `d55a967` |
-| 1 | Remove dormant and misleading abstractions | complete | (this commit) |
-| 2 | Make action ownership explicit | not started | — |
+| 1 | Remove dormant and misleading abstractions | complete | `983cc55` |
+| 2 | Make action ownership explicit | complete | (this commit) |
 | 3 | Make layer and UI ownership explicit | not started | — |
 | 4 | Replace static service locators with explicit dependencies | not started | — |
 | 5 | Give LayerManager one authoritative stack | not started | — |
@@ -127,6 +127,33 @@ unchanged. Manifest, include, member, and call site updated.
 The only production `.cpp` outside `cmake/carcer_sources.cmake` are `src/main.cpp`
 and `src/app/runCarcer.cpp`, both attached directly to the `CARCER` target in
 `CMakeLists.txt`. No silently-excluded production pair remains.
+
+## Phase 2 notes
+
+Action ownership is now explicit end to end. The scheduling API no longer
+accepts an owning `AbstractAction*`:
+
+- `StateManager::enqueueAction/insertAction/parallelAction` each take a
+  `bmin::UniquePtr<AbstractAction>` by value and operate on the manager's own
+  `actionData` (the old `(ActionData&, AbstractAction*, int)` signatures and
+  `pllAction` are gone). `pllAction` is renamed `parallelAction`.
+- `AbstractAction::enqueueAction/insertAction` forward a `bmin::UniquePtr`; on a
+  missing manager the handle is destroyed rather than leaked.
+- Call sites allocate through `state::makeAction<Concrete>(...)`, the single
+  allocation point. `bmin::UniquePtr` has no derived-to-base converting
+  constructor and the pinned dependency must not change, so
+  `bmin::makeUnique<Derived>()` cannot be passed to a `UniquePtr<AbstractAction>`
+  parameter; `makeAction<T>` builds the owning base handle directly. Because
+  perfect forwarding cannot deduce a braced designated-initializer, the three
+  `CombatActionContext{...}` arguments now name their type explicitly.
+- Pure timed delays keep reading as `insertAction(nullptr, ms)` via a
+  `decltype(nullptr)` overload that schedules a null (non-owning) action; the
+  update loop already skips null actions, so ordering is unchanged.
+
+`explicit UniquePtr(T*)` is the safety net: any residual raw `new` in a
+scheduling call fails to compile. `TestStateManagerActions` (sequential, insert,
+nested insert, delayed-front, parallel, and mixed ordering) passes unchanged, so
+destruction still happens exactly once on execution and cancellation.
 
 ## Deferred / known items
 

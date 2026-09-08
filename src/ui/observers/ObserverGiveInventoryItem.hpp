@@ -33,9 +33,7 @@ public:
       return;
     }
     const int quantity = popupGive->getSelectedQuantity();
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::UiGiveInventoryItem(
+    stateManager->enqueueAction(state::makeAction<state::actions::UiGiveInventoryItem>(
             fromCharacterPlayerId, toCharacterPlayerId, itemId, quantity),
         0);
   }

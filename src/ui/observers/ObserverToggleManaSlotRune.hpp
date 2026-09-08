@@ -22,9 +22,7 @@ public:
     if (!stateManager) {
       return;
     }
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::UiToggleManaSlotRune(characterPlayerId, slotIndex),
+    stateManager->enqueueAction(state::makeAction<state::actions::UiToggleManaSlotRune>(characterPlayerId, slotIndex),
         0);
   }
 };

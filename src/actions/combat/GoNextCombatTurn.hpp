@@ -64,7 +64,7 @@ class GoNextCombatTurn : public AbstractAction {
         }
         continue;
       }
-      insertAction(new SetActiveCombatCharacter(nextId), 0);
+      insertAction(state::makeAction<SetActiveCombatCharacter>(nextId), 0);
       LOG(INFO) << "GoNextCombatTurn: next actor is "
                 << model::formatCharacterLogLabel(state->world.activeMap, nextId)
                 << LOG_ENDL;

@@ -27,9 +27,7 @@ public:
     if (!stateManager) {
       return;
     }
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::UiShowLayerDropContext(window, characterPlayerId, itemId),
+    stateManager->enqueueAction(state::makeAction<state::actions::UiShowLayerDropContext>(window, characterPlayerId, itemId),
         0);
   }
 };

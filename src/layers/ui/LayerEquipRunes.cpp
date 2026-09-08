@@ -112,8 +112,7 @@ void LayerEquipRunes::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (!ui::isCancelActionKey(key)) {
     return;
   }
-  stateManager->enqueueAction(stateManager->getActionData(),
-                              new state::actions::UiCancelEquipRunes(),
+  stateManager->enqueueAction(state::makeAction<state::actions::UiCancelEquipRunes>(),
                               0);
 }
 

@@ -36,15 +36,14 @@ class PerformMeleeAttack : public AbstractAction {
 
     model::updateCharacterFacingToward(*attacker, victim->x, victim->y);
 
-    insertAction(new CharacterSetSpriteIndexOffset(attackerId, 1), 0);
+    insertAction(state::makeAction<CharacterSetSpriteIndexOffset>(attackerId, 1), 0);
 
     const auto hit = (std::rand() % 100) < model::COMBAT_HIT_CHANCE_PERCENT;
     if (hit) {
-      insertAction(new PlaySound("hit_punch1"), 0);
+      insertAction(state::makeAction<PlaySound>("hit_punch1"), 0);
       insertAction(nullptr, 75);
-      insertAction(new ModifyHP(victimId, -model::COMBAT_MELEE_DAMAGE), 0);
-      insertAction(
-          new WorldSpawnDamageParticle("splash_attack",
+      insertAction(state::makeAction<ModifyHP>(victimId, -model::COMBAT_MELEE_DAMAGE), 0);
+      insertAction(state::makeAction<WorldSpawnDamageParticle>("splash_attack",
                                        bmin::toString(model::COMBAT_MELEE_DAMAGE),
                                        victim->x,
                                        victim->y,
@@ -52,10 +51,10 @@ class PerformMeleeAttack : public AbstractAction {
           0);
       insertAction(nullptr, 500);
     } else {
-      insertAction(new PlaySound("miss"), 0);
+      insertAction(state::makeAction<PlaySound>("miss"), 0);
       insertAction(nullptr, 300);
     }
-    insertAction(new CharacterSetSpriteIndexOffset(attackerId, 0), 0);
+    insertAction(state::makeAction<CharacterSetSpriteIndexOffset>(attackerId, 0), 0);
   }
 
 public:

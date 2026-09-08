@@ -22,9 +22,7 @@ public:
     if (!stateManager || spellName.empty()) {
       return;
     }
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::UiShowLayerSpellInfo(window, spellName),
+    stateManager->enqueueAction(state::makeAction<state::actions::UiShowLayerSpellInfo>(window, spellName),
         0);
   }
 };

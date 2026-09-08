@@ -96,9 +96,7 @@ void LayerPickUp::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (const auto partyIndex = ui::getPartyMemberIndexFromKey(key)) {
     if (*partyIndex <
         static_cast<int>(stateManager->getState().player.party.size())) {
-      stateManager->enqueueAction(
-          stateManager->getActionData(),
-          new state::actions::UiSetCurrentPartyMember(*partyIndex),
+      stateManager->enqueueAction(state::makeAction<state::actions::UiSetCurrentPartyMember>(*partyIndex),
           0);
     }
     return;
@@ -110,8 +108,7 @@ void LayerPickUp::onKeyDown(std::string_view key, int /*keyCode*/) {
         *itemIndex <
             static_cast<int>(minipagePickUp->getProps().nearbyItems.size())) {
       const auto& item = minipagePickUp->getProps().nearbyItems[*itemIndex];
-      stateManager->enqueueAction(stateManager->getActionData(),
-                                  new state::actions::UiPickUpItem(item.id),
+      stateManager->enqueueAction(state::makeAction<state::actions::UiPickUpItem>(item.id),
                                   0);
     }
     return;
@@ -224,9 +221,7 @@ void LayerPickUp::update(int deltaTime) {
     return;
   }
   closeEnqueued = true;
-  stateManager->enqueueAction(
-      stateManager->getActionData(),
-      new state::actions::UiRemoveLayer(bmin::String(LAYER_ID.data(), LAYER_ID.size())),
+  stateManager->enqueueAction(state::makeAction<state::actions::UiRemoveLayer>(bmin::String(LAYER_ID.data(), LAYER_ID.size())),
       0);
 }
 

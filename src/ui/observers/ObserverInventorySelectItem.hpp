@@ -23,9 +23,7 @@ public:
     if (!stateManager) {
       return;
     }
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::UiToggleEquipInventoryItem(characterPlayerId, itemId),
+    stateManager->enqueueAction(state::makeAction<state::actions::UiToggleEquipInventoryItem>(characterPlayerId, itemId),
         0);
   }
 };

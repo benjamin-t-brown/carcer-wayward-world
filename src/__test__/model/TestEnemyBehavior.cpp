@@ -68,8 +68,7 @@ void pumpTownEnemyAi(state::StateManager& stateManager, int maxMs = 2000) {
 void runAndPumpTownEnemyAi(state::StateManager& stateManager, db::Database& database) {
   (void)database;
   stateManager.getState().world.resolvingTownEnemyAi = true;
-  stateManager.enqueueAction(stateManager.getActionData(),
-                             new state::actions::TownEnemyAiAfterPlayerMove(),
+  stateManager.enqueueAction(state::makeAction<state::actions::TownEnemyAiAfterPlayerMove>(),
                              0);
   pumpTownEnemyAi(stateManager);
 }
@@ -440,8 +439,7 @@ int main(int /*argc*/, char** /*argv*/) {
     lightFromAvatar(stateManager.getState(), database);
 
     // Player steps closer; spotting + seek should run via WorldMovePlayer.
-    stateManager.enqueueAction(
-        stateManager.getActionData(), new state::actions::WorldMovePlayer(1, 0), 0);
+    stateManager.enqueueAction(state::makeAction<state::actions::WorldMovePlayer>(1, 0), 0);
     pumpTownEnemyAi(stateManager);
 
     auto* enemy = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
@@ -499,8 +497,7 @@ int main(int /*argc*/, char** /*argv*/) {
     stateManager.getState() = state;
     state::StateManagerInterface::setStateManager(&stateManager);
 
-    stateManager.enqueueAction(
-        stateManager.getActionData(), new state::actions::StartCombat(), 0);
+    stateManager.enqueueAction(state::makeAction<state::actions::StartCombat>(), 0);
     for (int i = 0; i < 20; ++i) {
       tickState(stateManager, 50);
     }
@@ -514,8 +511,7 @@ int main(int /*argc*/, char** /*argv*/) {
     auto* enemyBefore = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
     const auto enemyStartX = enemyBefore ? enemyBefore->x : -1;
 
-    stateManager.enqueueAction(
-        stateManager.getActionData(), new state::actions::DoCPUCombatTurn(), 0);
+    stateManager.enqueueAction(state::makeAction<state::actions::DoCPUCombatTurn>(), 0);
     for (int i = 0; i < 40; ++i) {
       tickState(stateManager, 50);
     }
@@ -569,8 +565,7 @@ int main(int /*argc*/, char** /*argv*/) {
     stateManager.getState() = state;
     state::StateManagerInterface::setStateManager(&stateManager);
 
-    stateManager.enqueueAction(
-        stateManager.getActionData(), new state::actions::StartCombat(), 0);
+    stateManager.enqueueAction(state::makeAction<state::actions::StartCombat>(), 0);
     for (int i = 0; i < 20; ++i) {
       tickState(stateManager, 50);
     }
@@ -593,8 +588,7 @@ int main(int /*argc*/, char** /*argv*/) {
         enemyAp->currentAp = model::COMBAT_STARTING_AP;
       }
       combat.isWaitingForAction = false;
-      stateManager.enqueueAction(
-          stateManager.getActionData(), new state::actions::DoCPUCombatTurn(), 0);
+      stateManager.enqueueAction(state::makeAction<state::actions::DoCPUCombatTurn>(), 0);
       for (int i = 0; i < 40; ++i) {
         tickState(stateManager, 50);
       }

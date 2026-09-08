@@ -11,9 +11,7 @@ class ObserverSpecialEventContinue : public UiEventObserver,
 public:
   void onClick(int /*mouseX*/, int /*mouseY*/, int /*button*/) override {
     if (auto* stateManager = getStateManager()) {
-      stateManager->enqueueAction(
-          stateManager->getActionData(),
-          new state::actions::UiContinueSpecialEvent(),
+      stateManager->enqueueAction(state::makeAction<state::actions::UiContinueSpecialEvent>(),
           0);
     }
   }

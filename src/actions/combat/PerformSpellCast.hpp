@@ -71,8 +71,8 @@ class PerformSpellCast : public AbstractAction {
     model::updateCharacterFacingToward(
         caster, spellTargetInfo.tileX, spellTargetInfo.tileY);
 
-    insertAction(new CharacterSetSpriteIndexOffset(casterId, 1), 0);
-    insertAction(new PlaySound(depiction.startSound), 0);
+    insertAction(state::makeAction<CharacterSetSpriteIndexOffset>(casterId, 1), 0);
+    insertAction(state::makeAction<PlaySound>(depiction.startSound), 0);
 
     int delayMs = 300;
     if (depiction.projectileType != model::ProjectileType::PROJECTILE_NONE) {
@@ -83,7 +83,7 @@ class PerformSpellCast : public AbstractAction {
           animBase += game::getProjectileFacingSuffix(spellTargetInfo.tileX - caster.x,
                                                       spellTargetInfo.tileY - caster.y);
         }
-        insertAction(new WorldSpawnProjectile(animBase,
+        insertAction(state::makeAction<WorldSpawnProjectile>(animBase,
                                               static_cast<float>(casterX),
                                               static_cast<float>(casterY),
                                               static_cast<float>(targetTileX),
@@ -103,18 +103,18 @@ class PerformSpellCast : public AbstractAction {
         auto chX = ch->x;
         auto chY = ch->y;
         auto damageDealt = damageDealtToCharactersInZone[i];
-        insertAction(new WorldSpawnDamageParticle(depiction.dmgAnim,
+        insertAction(state::makeAction<WorldSpawnDamageParticle>(depiction.dmgAnim,
                                                   bmin::toString(damageDealt),
                                                   chX,
                                                   chY,
                                                   damageParticleLifetimeMs),
                      i * 50);
-        insertAction(new ModifyHP(casterId, damageDealt), i * 50);
+        insertAction(state::makeAction<ModifyHP>(casterId, damageDealt), i * 50);
       }
     }
 
     if (charactersInZone.size() > 0) {
-      insertAction(new PlaySound(depiction.dmgSound), 0);
+      insertAction(state::makeAction<PlaySound>(depiction.dmgSound), 0);
       insertAction(nullptr, damageParticleLifetimeMs);
     } else {
       LOG(INFO) << "Missed!" << LOG_ENDL;
@@ -175,15 +175,15 @@ class PerformSpellCast : public AbstractAction {
     // do
 
     if (ability->apCost != 0) {
-      insertAction(new ModifyAP(casterId, -ability->apCost), 0);
+      insertAction(state::makeAction<ModifyAP>(casterId, -ability->apCost), 0);
     }
 
     if (ability->targetSelect.targetType == model::TargetSelectType::TARGET_ZONE) {
       doZoneSpell(*ability, *caster, orch);
     }
 
-    insertAction(new CharacterSetSpriteIndexOffset(casterId, 0), 0);
-    insertAction(new WorldSetActionMode(model::WorldActionMode::NONE), 0);
+    insertAction(state::makeAction<CharacterSetSpriteIndexOffset>(casterId, 0), 0);
+    insertAction(state::makeAction<WorldSetActionMode>(model::WorldActionMode::NONE), 0);
   }
 
 public:

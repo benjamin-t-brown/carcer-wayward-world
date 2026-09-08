@@ -25,9 +25,7 @@ public:
     if (!stateManager) {
       return;
     }
-    stateManager->enqueueAction(
-        stateManager->getActionData(),
-        new state::actions::UiShowLayerInventoryContext(window, itemName, itemId),
+    stateManager->enqueueAction(state::makeAction<state::actions::UiShowLayerInventoryContext>(window, itemName, itemId),
         0);
   }
 };
