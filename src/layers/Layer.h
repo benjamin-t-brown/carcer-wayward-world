@@ -14,6 +14,8 @@ class Window;
 
 namespace layers {
 
+class LayerManager;
+
 enum class LayerState { ON, OFF, SUSPENDED };
 
 class Layer : public state::StateManagerInterface, public state::DatabaseInterface {
@@ -22,6 +24,9 @@ protected:
   LayerState state = LayerState::ON;
   bool removeFlag = false;
   bmin::String id;
+  // Non-owning back-pointer to the owning manager, set in addLayer. Lets a
+  // layer query authoritative stack membership without a state mirror.
+  LayerManager* layerManager = nullptr;
 
 public:
   explicit Layer(sdl2w::Window* _window, std::string_view _id = "");
@@ -64,6 +69,8 @@ public:
 
   // Getters
   sdl2w::Window* getWindow() const { return window; }
+  void setLayerManager(LayerManager* manager) { layerManager = manager; }
+  LayerManager* getLayerManager() const { return layerManager; }
 
   // Update and draw methods
   virtual void update(int deltaTime);

@@ -98,9 +98,9 @@ model test; it will fail because the particle survives without a window.
 | 0 | Baseline and characterization tests | complete | `d55a967` |
 | 1 | Remove dormant and misleading abstractions | complete | `983cc55` |
 | 2 | Make action ownership explicit | complete | `fdfda72` |
-| 3 | Make layer and UI ownership explicit | complete | (this commit) |
-| 4 | Replace static service locators with explicit dependencies | not started | — |
-| 5 | Give LayerManager one authoritative stack | not started | — |
+| 3 | Make layer and UI ownership explicit | complete | `69810fe` |
+| 4 | Replace static service locators with explicit dependencies | skipped | — |
+| 5 | Give LayerManager one authoritative stack | complete | (this commit) |
 | 6 | Clarify world simulation and platform-output boundaries | not started | — |
 | 7 | Replace mechanical observers with reusable bindings | not started | — |
 | 8 | Final verification and documentation | not started | — |
@@ -199,6 +199,65 @@ Gate: `make -C src test` (42 CTest, 100%), `make -C src ui` (all targets link),
 `make -C src` (CARCER links), `git diff --check` clean. The build system exposes
 no AddressSanitizer preset/option, so the "under ASan if the host supports it"
 check was not run rather than adding untracked build configuration.
+
+## Phase 4 notes
+
+**Skipped by decision (not attempted).** Scoping showed Phase 4 touches ~150
+files: ~70 `AbstractAction::act` overrides, ~20 UI observers, the four
+`DatabaseInterface`-inheriting UI classes (`MapView`, `PageInventory`,
+`PageCharacter`, `MinipagePickUp`), `Layer`/`LayerManager`/`UiElement`, plus
+~230 `getStateManager`/`getDatabase` call sites, ~60 `execute()` call sites, and
+~33 `setStateManager` sites across ~35 test files. The base-class and
+`execute`/`act` signature changes are atomic, so the change is large and
+cross-cutting. The static locators (`StateManagerInterface`,
+`DatabaseInterface`) and `StateManager`'s self-registration remain in place.
+Later phases proceed without depending on this removal.
+
+## Phase 5 notes
+
+`LayerManager` now owns one authoritative order and there is no persistent
+state mirror of the stack.
+
+- **One-shot command queue replaces the stack mirror.** `UiState::layerStack`
+  (a persistent `DynArray<LayerRequest>` that the manager reconciled against
+  every frame) is gone. `UiState::layerCommands` is a `DynArray<LayerCommand>`
+  — `{LayerCommandType type; LayerRequest request;}` with `type` in
+  `{Push, Remove}`. `pushLayerRequest`/`removeLayerRequest` keep their names and
+  signatures but now enqueue one `Push`/`Remove` command; every existing action
+  and UI call site is unchanged.
+- **The owned layer list is the sole truth.** `LayerManager::layers`
+  (`DynArray<UniquePtr<Layer>>`) is ordered so the last non-removed entry is the
+  front/active layer. `update()` drains the command queue once via
+  `applyLayerCommands()`: a `Push` refronts an existing layer (moved to the back
+  without destroying it) or creates one and appends it, then activates it; a
+  `Remove` marks the matching layer for deferred removal. A `Push` whose factory
+  rejects the request (missing item/event) is dropped.
+- **`layerEventsStack` and its machinery are removed.** `reconcileRequests`,
+  `restoreFrontAfterClose`, `activateLayerNoPush`, `isLiveLayer`, `scrubFromStack`,
+  and the parallel non-owning event stack no longer exist. Two focused helpers
+  replace them: `focusLayer` (unconditionally activates a target so opening or
+  re-opening always fires `onActivate`, matching the previous behavior) and
+  `activateFront` (transition-guarded; reactivates the front exposed by a removal
+  without spurious callbacks). `moveToFront` now refronts within `layers` and is
+  retained for the one caller that opens a baseline layer directly.
+- **Deferred removal is preserved and documented.** `applyRemove` only sets
+  `removeFlag`; the erase happens in `update()` after the per-layer update pass,
+  so callbacks that fire during removal cannot invalidate the layer being
+  iterated. `LayerManager::closeLayer` had no callers (layers close themselves by
+  enqueuing a `UiRemoveLayer` action) and was removed.
+- **Layers query the manager, not state.** A non-owning `LayerManager*`
+  back-pointer on `Layer` is set in `addLayer`. `LayerWorld::syncWorldActionModeHighlight`
+  reads open/closed state through `LayerManager::containsLayer(LayerId)` instead
+  of scanning the former `layerStack`.
+
+Part B of the plan (position-based event-routing consumption / `bool` handlers
+with early-out) was **descoped by decision**: layers already accept events based
+on whether they are active, not on stack position, so a consumed/stop signal is
+unnecessary. Event handlers stay `void` and the front-only routing pinned by
+`TestLayerEventRouting` is unchanged.
+
+Gate: `make -C src test` (42 CTest, 100%), `make -C src ui` (all targets link),
+`make -C src` (CARCER links), `git diff --check` clean.
 
 ## Deferred / known items
 

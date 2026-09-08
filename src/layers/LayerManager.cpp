@@ -84,65 +84,56 @@ void LayerManager::start() {
   window->startRenderLoop(initialize, initialized, frame);
 }
 
-void LayerManager::scrubFromStack(const Layer* layer) {
-  if (layer == nullptr) {
+void LayerManager::moveToBack(size_t index) {
+  if (index + 1 >= layers.size()) {
     return;
   }
-  layerEventsStack.eraseIf([layer](Layer* entry) { return entry == layer; });
+  bmin::UniquePtr<Layer> entry = bmin::move(layers[index]);
+  layers.erase(index);
+  layers.pushBack(bmin::move(entry));
 }
 
-bool LayerManager::isLiveLayer(const Layer* layer) const {
-  if (layer == nullptr || layer->shouldRemove()) {
-    return false;
-  }
-  for (const auto& entry : layers) {
-    if (entry.get() == layer) {
-      return true;
-    }
-  }
-  return false;
-}
-
-void LayerManager::activateLayerNoPush(Layer* layer) {
-  if (layer == nullptr) {
+// Make target the sole ON layer, unconditionally firing onActivate so that
+// opening (or re-opening) a layer always runs its activation logic.
+void LayerManager::focusLayer(Layer* target) {
+  if (target == nullptr) {
     return;
   }
   for (const auto& entry : layers) {
     if (entry->shouldRemove()) {
       continue;
     }
-    if (entry.get() == layer) {
+    if (entry.get() == target) {
       entry->turnOn();
-    } else {
+    } else if (entry->getState() != LayerState::SUSPENDED) {
       entry->suspend();
     }
   }
 }
 
-void LayerManager::restoreFrontAfterClose() {
-  while (!layerEventsStack.empty() && !isLiveLayer(layerEventsStack.back())) {
-    layerEventsStack.popBack();
+// Transition-guarded reconciliation: the last live layer becomes the front and
+// everything else suspends. Fires callbacks only on real state changes so it is
+// safe to run after removals without spurious onActivate/onSuspend.
+void LayerManager::activateFront() {
+  Layer* front = getLastActiveLayer();
+  for (const auto& entry : layers) {
+    if (entry->shouldRemove()) {
+      continue;
+    }
+    if (entry.get() == front) {
+      if (entry->getState() != LayerState::ON) {
+        entry->turnOn();
+      }
+    } else if (entry->getState() != LayerState::SUSPENDED) {
+      entry->suspend();
+    }
   }
-
-  if (!layerEventsStack.empty()) {
-    activateLayerNoPush(layerEventsStack.back());
-    return;
-  }
-
-  Layer* fallback = getLastActiveLayer();
-  if (fallback == nullptr) {
-    return;
-  }
-  // Re-establish a baseline front so subsequent close/open cycles stay consistent.
-  layerEventsStack.pushBack(fallback);
-  activateLayerNoPush(fallback);
 }
 
 void LayerManager::removeLayer(Layer* layer) {
   if (layer == nullptr) {
     return;
   }
-  scrubFromStack(layer);
   layer->turnOff();
   layers.eraseIf(
       [layer](const bmin::UniquePtr<Layer>& entry) { return entry.get() == layer; });
@@ -152,25 +143,11 @@ void LayerManager::addLayer(bmin::UniquePtr<Layer> layer) {
   if (!layer) {
     return;
   }
-  Layer* raw = layer.get();
+  layer->setLayerManager(this);
   layers.pushBack(bmin::move(layer));
-  if (auto* stateManager = getStateManager()) {
-    if (auto id = state::layerIdFromString(bmin::toStringView(raw->getId()))) {
-      bool present = false;
-      for (const auto& request : stateManager->getState().uiState.layerStack) {
-        if (request.id == *id) {
-          present = true;
-          break;
-        }
-      }
-      if (!present) {
-        state::pushLayerRequest(stateManager->getState(), state::LayerRequest{.id = *id});
-      }
-    }
-  }
 }
 
-// set a layer to be the "front" layer, and suspend all other layers
+// Bring an existing layer to the front and activate it.
 void LayerManager::moveToFront(Layer* layer) {
   if (layer == nullptr || layer->shouldRemove()) {
     return;
@@ -179,41 +156,78 @@ void LayerManager::moveToFront(Layer* layer) {
   LOG(DEBUG) << "LayerManager::moveToFront: moving layer to front: " << layer->getId()
              << LOG_ENDL;
 
-  bool found = false;
+  for (size_t i = 0; i < layers.size(); ++i) {
+    if (layers[i].get() == layer) {
+      moveToBack(i);
+      focusLayer(layer);
+      return;
+    }
+  }
+  LOG(ERROR)
+      << "LayerManager::moveToFront: provided layer pointer not found in list of layers"
+      << LOG_ENDL;
+}
+
+void LayerManager::applyPush(const state::LayerRequest& request) {
+  const auto idString = state::layerIdString(request.id);
+  for (size_t i = 0; i < layers.size(); ++i) {
+    if (layers[i]->shouldRemove()) {
+      continue;
+    }
+    if (bmin::toStringView(layers[i]->getId()) == idString) {
+      Layer* target = layers[i].get();
+      moveToBack(i);
+      focusLayer(target);
+      return;
+    }
+  }
+  auto layer = createLayer(request);
+  if (!layer || layer->shouldRemove()) {
+    // Factory rejected the request (e.g. missing item/event); drop it.
+    return;
+  }
+  Layer* raw = layer.get();
+  addLayer(bmin::move(layer));
+  focusLayer(raw);
+}
+
+void LayerManager::applyRemove(state::LayerId id) {
+  const auto idString = state::layerIdString(id);
   for (const auto& entry : layers) {
-    if (entry.get() == layer) {
-      found = true;
+    if (entry->shouldRemove()) {
+      continue;
+    }
+    if (bmin::toStringView(entry->getId()) == idString) {
+      // Deferred: actual erase happens in update() so callbacks that fire during
+      // removal cannot invalidate the layer currently being iterated.
+      entry->remove();
+    }
+  }
+}
+
+void LayerManager::applyLayerCommands() {
+  auto* stateManager = getStateManager();
+  if (!stateManager) {
+    return;
+  }
+  auto& queue = stateManager->getState().uiState.layerCommands;
+  if (queue.empty()) {
+    return;
+  }
+  // Snapshot and clear first so any command a layer enqueues while being
+  // created/activated lands in the next update rather than this drain.
+  const auto commands = queue;
+  queue.clear();
+  for (const auto& command : commands) {
+    switch (command.type) {
+    case state::LayerCommandType::Push:
+      applyPush(command.request);
+      break;
+    case state::LayerCommandType::Remove:
+      applyRemove(command.request.id);
       break;
     }
   }
-  if (!found) {
-    LOG(ERROR)
-        << "LayerManager::moveToFront: provided layer pointer not found in list of layers"
-        << LOG_ENDL;
-    return;
-  }
-
-  if (layerEventsStack.empty() || layerEventsStack.back() != layer) {
-    layerEventsStack.pushBack(layer);
-  }
-
-  activateLayerNoPush(layer);
-}
-
-void LayerManager::closeLayer(Layer* layer) {
-  if (layer == nullptr) {
-    return;
-  }
-  LOG(DEBUG) << "LayerManager::closeLayer: closing layer: " << layer->getId()
-             << LOG_ENDL;
-  layer->remove();
-  if (auto* stateManager = getStateManager()) {
-    if (auto id = state::layerIdFromString(bmin::toStringView(layer->getId()))) {
-      state::removeLayerRequest(stateManager->getState(), *id);
-    }
-  }
-  scrubFromStack(layer);
-  restoreFrontAfterClose();
 }
 
 void LayerManager::handleMouseDown(int x, int y, int button) {
@@ -365,61 +379,22 @@ bmin::UniquePtr<Layer> LayerManager::createLayer(const state::LayerRequest& requ
   return bmin::UniquePtr<Layer>();
 }
 
-void LayerManager::reconcileRequests() {
-  auto* stateManager = getStateManager();
-  if (!stateManager) {
-    return;
-  }
-  auto& requests = stateManager->getState().uiState.layerStack;
-
-  for (const auto& layer : layers) {
-    const auto id = state::layerIdFromString(bmin::toStringView(layer->getId()));
-    if (!id || layer->shouldRemove()) {
+bool LayerManager::containsLayer(state::LayerId id) const {
+  const auto idString = state::layerIdString(id);
+  for (const auto& entry : layers) {
+    if (entry->shouldRemove()) {
       continue;
     }
-    bool requested = false;
-    for (const auto& request : requests) {
-      if (request.id == *id) {
-        requested = true;
-        break;
-      }
-    }
-    if (!requested) {
-      layer->remove();
-      scrubFromStack(layer.get());
+    if (bmin::toStringView(entry->getId()) == idString) {
+      return true;
     }
   }
-
-  const auto requestedLayers = requests;
-  for (const auto& request : requestedLayers) {
-    const auto id = state::layerIdString(request.id);
-    if (!getLayerById(id)) {
-      if (auto layer = createLayer(request)) {
-        if (layer->shouldRemove()) {
-          state::removeLayerRequest(stateManager->getState(), request.id);
-        } else {
-          addLayer(bmin::move(layer));
-        }
-      } else {
-        state::removeLayerRequest(stateManager->getState(), request.id);
-      }
-    }
-  }
-
-  if (!requests.empty()) {
-    if (auto* front = getLayerById(state::layerIdString(requests.back().id))) {
-      if (front->getState() != LayerState::ON || layerEventsStack.empty() ||
-          layerEventsStack.back() != front) {
-        moveToFront(front);
-      }
-    }
-  } else {
-    restoreFrontAfterClose();
-  }
+  return false;
 }
 
 void LayerManager::update(int deltaTime) {
-  reconcileRequests();
+  applyLayerCommands();
+
   bmin::DynArray<Layer*> layersToBeRemoved;
   for (unsigned int i = 0; i < layers.size(); i++) {
     auto& layer = layers[i];
@@ -433,7 +408,11 @@ void LayerManager::update(int deltaTime) {
   for (auto& layer : layersToBeRemoved) {
     removeLayer(layer);
   }
-  layersToBeRemoved.clear();
+  // A layer that removed itself (or was removed by command) may have exposed a
+  // new front; reactivate it. Transition-guarded, so no-op when nothing changed.
+  if (!layersToBeRemoved.empty()) {
+    activateFront();
+  }
 }
 
 void LayerManager::render(int deltaTime) {

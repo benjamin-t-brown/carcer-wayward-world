@@ -73,7 +73,19 @@ struct LayerRequest {
   bool hasPosition = false;
 };
 
+// One-shot instruction drained by LayerManager once per update. The command
+// queue is the only channel from action/UI code to the layer stack; the
+// manager's owned layer list is the sole authoritative order.
+enum class LayerCommandType { Push, Remove };
+
+struct LayerCommand {
+  LayerCommandType type;
+  LayerRequest request;
+};
+
+// Enqueue a Push (create-or-refront) command for the requested layer.
 void pushLayerRequest(State& state, LayerRequest request);
+// Enqueue a Remove command for the layer with the given id.
 void removeLayerRequest(State& state, LayerId id);
 
 } // namespace state

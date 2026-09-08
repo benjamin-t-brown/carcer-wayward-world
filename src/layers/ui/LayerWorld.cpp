@@ -1,5 +1,6 @@
 #include "LayerWorld.h"
 #include "bmin/StringInterop.h"
+#include "layers/LayerManager.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/TileDistance.h"
 #include "model/Combat.h"
@@ -543,14 +544,9 @@ void LayerWorld::syncWorldActionModeHighlight() {
   }
 
   const auto actionMode = getStateManager()->getState().world.actionMode;
-  const auto& layerStack = getStateManager()->getState().uiState.layerStack;
+  auto* manager = getLayerManager();
   const auto isOpen = [&](state::LayerId id) {
-    for (const auto& request : layerStack) {
-      if (request.id == id) {
-        return true;
-      }
-    }
-    return false;
+    return manager != nullptr && manager->containsLayer(id);
   };
   const bool inventoryOpen = isOpen(state::LayerId::Inventory);
   const bool magicOpen = isOpen(state::LayerId::Magic);

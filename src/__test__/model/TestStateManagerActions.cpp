@@ -314,7 +314,7 @@ int main(int /*argc*/, char** /*argv*/) {
     sm.getActionBus().unsubscribe(&owner);
   }
 
-  // Navigation actions write neutral layer requests; they never construct layers.
+  // Navigation actions enqueue layer commands; they never construct layers.
   {
     state::StateManager sm;
     sm.enqueueAction(state::makeAction<state::actions::UiShowLayerPopupText>(
@@ -322,20 +322,23 @@ int main(int /*argc*/, char** /*argv*/) {
                      0);
     sm.update(1);
 
-    const auto& requests = sm.getState().uiState.layerStack;
-    ok = assertEqual(static_cast<int>(requests.size()),
+    const auto& commands = sm.getState().uiState.layerCommands;
+    ok = assertEqual(static_cast<int>(commands.size()),
                      1,
-                     "navigation action writes one request") &&
+                     "navigation action enqueues one command") &&
          ok;
-    if (!requests.empty()) {
-      ok = assertTrue(requests[0].id == state::LayerId::PopupText,
-                      "navigation request carries layer id") &&
+    if (!commands.empty()) {
+      ok = assertTrue(commands[0].type == state::LayerCommandType::Push,
+                      "navigation enqueues a push command") &&
            ok;
-      ok = assertTrue(requests[0].a == "A title",
-                      "navigation request carries title") &&
+      ok = assertTrue(commands[0].request.id == state::LayerId::PopupText,
+                      "navigation command carries layer id") &&
            ok;
-      ok = assertTrue(requests[0].b == "Some text",
-                      "navigation request carries text") &&
+      ok = assertTrue(commands[0].request.a == "A title",
+                      "navigation command carries title") &&
+           ok;
+      ok = assertTrue(commands[0].request.b == "Some text",
+                      "navigation command carries text") &&
            ok;
     }
   }

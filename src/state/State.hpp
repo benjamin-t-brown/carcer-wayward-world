@@ -43,7 +43,7 @@ struct HeldMove {
 struct UiState {
   bmin::DynArray<UiFloatingNotification> floatingNotifications;
   std::uint64_t floatingNotificationRevision = 0;
-  bmin::DynArray<LayerRequest> layerStack;
+  bmin::DynArray<LayerCommand> layerCommands;
   HeldMove heldMove;
   /** HUD / inventory UI selection only — does not drive map movement. */
   bmin::String selectedPartyMemberId;
