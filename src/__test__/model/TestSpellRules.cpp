@@ -1,10 +1,10 @@
 #include "db/Database.h"
 #include "game/combat/SpellRules.h"
 #include "model/instances/CharacterPlayer.h"
-#include "model/templates/Abilities.h"
+#include "model/templates/Abilities.hpp"
 #include "model/templates/Items.h"
 #include "model/templates/RuneTypes.h"
-#include "model/templates/Spells.h"
+#include "model/templates/Spells.hpp"
 #include "sdl2w/Logger.h"
 #include "bmin/String.h"
 #include <cassert>

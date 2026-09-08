@@ -2,7 +2,7 @@
 
 #include "bmin/String.h"
 #include "bmin/Map.h"
-#include "model/templates/StatusEffects.h"
+#include "model/templates/StatusEffects.hpp"
 
 namespace db {
 

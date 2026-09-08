@@ -2,7 +2,7 @@
 
 #include "db/Database.h"
 #include "game/map/ActiveMapOrchestrator.h"
-#include "model/instances/World.h"
+#include "model/instances/World.hpp"
 
 namespace game {
 

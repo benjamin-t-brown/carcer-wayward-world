@@ -1,4 +1,4 @@
-// Mirrors src/model/templates/Spells.h SpellTemplate + RuneTypes.h
+// Mirrors src/model/templates/Spells.hpp SpellTemplate + RuneTypes.h
 
 /** Matches model::RuneType in RuneTypes.h */
 export type RuneType =
@@ -38,7 +38,7 @@ export function runeTypeToSpriteName(type: RuneType): string {
   return `runes_${runeTypeIndex(type)}`;
 }
 
-/** Matches model::SpellRuneRequirement in Spells.h */
+/** Matches model::SpellRuneRequirement in Spells.hpp */
 export interface SpellRuneRequirement {
   type: RuneType;
   count: number;

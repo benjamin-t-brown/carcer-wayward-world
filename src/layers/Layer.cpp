@@ -1,5 +1,5 @@
 #include "Layer.h"
-#include "lib/StringUtil.h"
+#include "lib/StringUtil.hpp"
 #include "state/StateManager.h"
 
 namespace layers {

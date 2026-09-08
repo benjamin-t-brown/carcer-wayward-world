@@ -1,5 +1,5 @@
 #include "state/ActionBus.h"
-#include "state/AbstractAction.h"
+#include "state/AbstractAction.hpp"
 
 namespace state {
 

@@ -1,6 +1,6 @@
 #include "db/Database.h"
 #include "game/map/MapWalkability.h"
-#include "model/instances/World.h"
+#include "model/instances/World.hpp"
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
 #include "bmin/DynArray.h"

@@ -1,4 +1,4 @@
-#include "../../setupTestUi.h"
+#include "../../setupTestUi.hpp"
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
@@ -18,7 +18,7 @@
 #include "actions/navigation/UiCancelEquipRunes.hpp"
 #include "actions/navigation/UiCommitEquipRunes.hpp"
 #include "actions/navigation/UiSetCurrentPartyMemberMagic.hpp"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/pages/PageMagicSetup.h"
 #include <memory>

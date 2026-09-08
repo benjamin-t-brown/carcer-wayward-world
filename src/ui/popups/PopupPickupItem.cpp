@@ -2,7 +2,7 @@
 #include "sdl2w/Logger.h"
 #include "state/StateManager.h"
 #include "actions/navigation/UiRemoveLayer.hpp"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "ui/components/ItemInfo.h"
 #include "ui/components/borders/BorderDropShadow.h"
 #include "ui/elements/Quad.h"

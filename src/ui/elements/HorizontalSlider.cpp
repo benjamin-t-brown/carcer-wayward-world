@@ -1,10 +1,10 @@
 #include "HorizontalSlider.h"
 #include "TextLine.h"
-#include "ui/TextStyle.h"
-#include "ui/colors.h"
+#include "ui/TextStyle.hpp"
+#include "ui/colors.hpp"
 #include "ui/elements/Quad.h"
 #include "ui/elements/buttons/ButtonScroll.h"
-#include "ui/uiUtils.h"
+#include "ui/uiUtils.hpp"
 #include <algorithm>
 
 namespace ui {

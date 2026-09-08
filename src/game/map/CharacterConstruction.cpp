@@ -2,7 +2,7 @@
 
 #include "bmin/StringInterop.h"
 #include "db/Database.h"
-#include "model/instances/CharacterInstance.h"
+#include "model/instances/CharacterInstance.hpp"
 #include "model/templates/CharacterTemplate.h"
 
 namespace game {

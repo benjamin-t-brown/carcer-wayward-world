@@ -6,7 +6,7 @@
 // #include "game/map/ActiveMapOrchestrator.h"
 #include "model/Combat.h"
 #include "model/stats/CharacterStats.h"
-#include "model/templates/Abilities.h"
+#include "model/templates/Abilities.hpp"
 #include "model/templates/CharacterTemplate.h"
 #include <cmath>
 #include <cstdlib>

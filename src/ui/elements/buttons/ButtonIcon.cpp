@@ -1,7 +1,7 @@
 #include "ButtonIcon.h"
 #include "bmin/UniquePtr.h"
 #include "ui/elements/SpriteElement.h"
-#include "ui/uiUtils.h"
+#include "ui/uiUtils.hpp"
 
 namespace ui {
 

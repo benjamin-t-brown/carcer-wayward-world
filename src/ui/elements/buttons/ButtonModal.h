@@ -2,7 +2,7 @@
 
 #include "../../UiElement.h"
 #include "bmin/String.h"
-#include "ui/TextStyle.h"
+#include "ui/TextStyle.hpp"
 
 namespace ui {
 

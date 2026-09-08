@@ -1,9 +1,9 @@
-#include "../../setupTestUi.h"
+#include "../../setupTestUi.hpp"
 #include "sdl2w/Draw.h"
 #include "sdl2w/Events.h"
 #include "sdl2w/Logger.h"
 #include "sdl2w/Window.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/components/borders/BorderDropShadow.h"
 #include <memory>

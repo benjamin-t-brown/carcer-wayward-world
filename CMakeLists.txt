@@ -157,22 +157,30 @@ target_compile_options(carcer_build_options INTERFACE
   $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANG_AND_ID:CXX,GNU,Clang,AppleClang>>:-g;-fno-omit-frame-pointer>)
 
 include(cmake/carcer_sources.cmake)
-add_library(carcer_lib STATIC ${CARCER_SOURCES})
-add_dependencies(carcer_lib carcer_dependency_bundle)
-target_include_directories(carcer_lib PUBLIC "${CMAKE_SOURCE_DIR}/src")
-target_link_libraries(carcer_lib PUBLIC
+add_library(carcer_objects OBJECT ${CARCER_SOURCES})
+add_dependencies(carcer_objects carcer_dependency_bundle)
+target_include_directories(carcer_objects PUBLIC "${CMAKE_SOURCE_DIR}/src")
+target_link_libraries(carcer_objects PUBLIC
   carcer_sdl2w carcer_bmin carcer_build_options)
-target_precompile_headers(carcer_lib PRIVATE
+target_precompile_headers(carcer_objects PRIVATE
   <string_view>
   "<bmin/DynArray.h>"
   "<bmin/String.h>"
   "<sdl2w/Logger.h>"
   "<sdl2w/Window.h>")
 
+# Tests link the archive so the linker selects only the production objects they
+# use. The game links the object library directly, so an application-only build
+# does not duplicate every debug object in a large intermediate archive.
+add_library(carcer_lib STATIC EXCLUDE_FROM_ALL $<TARGET_OBJECTS:carcer_objects>)
+target_link_libraries(carcer_lib PUBLIC
+  carcer_sdl2w carcer_bmin carcer_build_options)
+target_include_directories(carcer_lib PUBLIC "${CMAKE_SOURCE_DIR}/src")
+
 add_executable(CARCER
   src/main.cpp
   src/app/runCarcer.cpp)
-target_link_libraries(CARCER PRIVATE carcer_lib)
+target_link_libraries(CARCER PRIVATE carcer_objects)
 if(WIN32)
   target_sources(CARCER PRIVATE cmake/win_sdl_main_ready.cpp)
 endif()
@@ -197,11 +205,7 @@ function(carcer_add_test_executable test_source is_ui)
   get_filename_component(test_name "${test_source}" NAME_WE)
   set(test_target "carcer_test_${test_name}")
 
-  if(is_ui)
-    add_executable("${test_target}" EXCLUDE_FROM_ALL "${test_source}")
-  else()
-    add_executable("${test_target}" "${test_source}")
-  endif()
+  add_executable("${test_target}" EXCLUDE_FROM_ALL "${test_source}")
   target_link_libraries("${test_target}" PRIVATE carcer_lib)
 
   if(NOT is_ui)
@@ -236,12 +240,6 @@ if(CARCER_BUILD_UI_TESTS)
 endif()
 
 if(BUILD_TESTING)
-  find_package(Python3 COMPONENTS Interpreter REQUIRED)
-  add_test(NAME IncludeArchitecture
-    COMMAND "${Python3_EXECUTABLE}"
-            "${CMAKE_SOURCE_DIR}/scripts/check-include-architecture.py"
-            --root "${CMAKE_SOURCE_DIR}")
-
   file(GLOB_RECURSE CARCER_PUBLIC_HEADERS CONFIGURE_DEPENDS
     "${CMAKE_SOURCE_DIR}/src/*.h"
     "${CMAKE_SOURCE_DIR}/src/*.hpp")

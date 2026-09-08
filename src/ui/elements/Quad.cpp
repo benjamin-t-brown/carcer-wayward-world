@@ -2,7 +2,7 @@
 #include "bmin/StringInterop.h"
 #include "sdl2w/Draw.h"
 #include "sdl2w/Logger.h"
-#include "ui/uiUtils.h"
+#include "ui/uiUtils.hpp"
 
 namespace ui {
 

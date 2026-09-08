@@ -11,7 +11,7 @@
 #include "sdl2w/Draw.h"
 #include "state/StateManager.h"
 #include "ui/FontScale.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include <exception>
 
 namespace ui {

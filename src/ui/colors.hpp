@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SdlPixels.h" // IWYU pragma: keep
+#include "SdlPixels.hpp" // IWYU pragma: keep
 
 namespace ui {
 struct Colors {

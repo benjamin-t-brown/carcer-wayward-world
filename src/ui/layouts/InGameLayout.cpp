@@ -10,7 +10,7 @@
 #include "ui/elements/buttons/ButtonWorldAction.h"
 #include "ui/elements/TextLine.h"
 #include "ui/components/InGameTitleBar.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 
 namespace ui {
 

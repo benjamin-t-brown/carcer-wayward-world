@@ -1,8 +1,8 @@
 #pragma once
 
 #include "model/instances/Player.h"
-#include "state/AbstractAction.h"
-#include "state/State.h"
+#include "state/AbstractAction.hpp"
+#include "state/State.hpp"
 
 namespace state {
 

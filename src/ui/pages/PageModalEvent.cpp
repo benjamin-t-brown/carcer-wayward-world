@@ -1,6 +1,6 @@
 #include "PageModalEvent.h"
 #include "sdl2w/L10n.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "ui/components/borders/BorderModalSmall.h"
 #include "ui/elements/Quad.h"
 #include "ui/elements/SectionScrollable.h"

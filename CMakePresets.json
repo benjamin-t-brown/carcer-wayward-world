@@ -19,6 +19,14 @@
       }
     },
     {
+      "name": "dev-debug",
+      "displayName": "Current-platform developer debug",
+      "inherits": "native-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
       "name": "gcc-release",
       "displayName": "Native GCC release",
       "inherits": "native-base",
@@ -85,6 +93,7 @@
     }
   ],
   "buildPresets": [
+    { "name": "dev-debug", "configurePreset": "dev-debug", "jobs": 8 },
     { "name": "gcc-debug", "configurePreset": "gcc-debug", "jobs": 8 },
     { "name": "gcc-release", "configurePreset": "gcc-release", "jobs": 8 },
     { "name": "clang-debug", "configurePreset": "clang-debug", "jobs": 8 },
@@ -95,6 +104,7 @@
     { "name": "emscripten-release", "configurePreset": "emscripten-release", "jobs": 8 }
   ],
   "testPresets": [
+    { "name": "dev-debug", "configurePreset": "dev-debug", "output": { "outputOnFailure": true } },
     { "name": "gcc-debug", "configurePreset": "gcc-debug", "output": { "outputOnFailure": true } },
     { "name": "gcc-release", "configurePreset": "gcc-release", "output": { "outputOnFailure": true } },
     { "name": "clang-debug", "configurePreset": "clang-debug", "output": { "outputOnFailure": true } },

@@ -1,6 +1,6 @@
 #include "ItemInfo.h"
 #include "sdl2w/L10n.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include <cmath>
 #include "ui/elements/TextLine.h"
 #include "ui/elements/TextParagraph.h"

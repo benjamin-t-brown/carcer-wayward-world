@@ -1,4 +1,4 @@
-#include "../../setupTestUi.h"
+#include "../../setupTestUi.hpp"
 #include "db/Database.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerInventory.h"
@@ -8,7 +8,7 @@
 #include "model/instances/CharacterPlayer.h"
 #include "state/DatabaseInterface.h"
 #include "state/StateManagerInterface.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"

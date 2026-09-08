@@ -1,4 +1,4 @@
-#include "../../setupTestUi.h"
+#include "../../setupTestUi.hpp"
 #include "sdl2w/Draw.h"
 #include "sdl2w/Events.h"
 #include "sdl2w/Logger.h"
@@ -7,7 +7,7 @@
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/elements/buttons/ButtonScroll.h"
 #include "ui/elements/buttons/ButtonClose.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
 #include <memory>
 #include "bmin/String.h"
 #include "bmin/DynArray.h"

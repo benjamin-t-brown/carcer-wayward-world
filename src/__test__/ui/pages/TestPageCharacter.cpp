@@ -1,4 +1,4 @@
-#include "../../setupTestUi.h"
+#include "../../setupTestUi.hpp"
 #include "layers/LayerManager.h"
 #include "layers/UiLayer.h"
 #include "sdl2w/Draw.h"
@@ -7,7 +7,7 @@
 #include "model/instances/CharacterPlayer.h"
 #include "ui/UiElement.h"
 #include "ui/pages/PageCharacter.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
 #include <memory>
 #include "bmin/UniquePtr.h"
 

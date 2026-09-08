@@ -1,6 +1,6 @@
 #include "game/map/MapWalkability.h"
 #include "game/map/TileFields.h"
-#include "model/instances/World.h"
+#include "model/instances/World.hpp"
 #include "sdl2w/Logger.h"
 
 namespace {

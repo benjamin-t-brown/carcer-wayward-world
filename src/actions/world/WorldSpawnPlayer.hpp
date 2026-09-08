@@ -3,8 +3,8 @@
 #include "bmin/String.h"
 #include "game/map/MapPersistence.h"
 #include "sdl2w/Logger.h"
-#include "state/AbstractAction.h"
-#include "state/State.h"
+#include "state/AbstractAction.hpp"
+#include "state/State.hpp"
 #include "actions/world/WorldLoadActiveMap.hpp"
 #include "actions/world/WorldSpawnPlayerAtMarker.hpp"
 

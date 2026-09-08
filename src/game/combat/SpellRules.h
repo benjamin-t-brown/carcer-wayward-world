@@ -1,12 +1,12 @@
 #pragma once
 
-#include "model/instances/CharacterInstance.h"
+#include "model/instances/CharacterInstance.hpp"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/Player.h"
-#include "model/instances/World.h"
+#include "model/instances/World.hpp"
 #include "model/stats/CharacterStats.h"
 #include "model/templates/AbilityTypes.h"
-#include "model/templates/Spells.h"
+#include "model/templates/Spells.hpp"
 #include <string_view>
 
 namespace model {

@@ -1,7 +1,6 @@
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
-#include "state/AbstractAction.h"
-#include "state/WorldUpdater.h"
+#include "state/AbstractAction.hpp"
 
 namespace state {
 

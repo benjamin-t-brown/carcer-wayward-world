@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/instances/CharacterInstance.h"
+#include "model/instances/CharacterInstance.hpp"
 #include "model/Combat.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapVision.h"

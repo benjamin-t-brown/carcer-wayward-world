@@ -2,8 +2,8 @@
 
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
-#include "state/AbstractAction.h"
-#include "state/State.h"
+#include "state/AbstractAction.hpp"
+#include "state/State.hpp"
 
 namespace state {
 

@@ -5,14 +5,14 @@
 #include "bmin/UniquePtr.h"
 #include "sdl2w/Window.h"
 #include "state/StateManagerInterface.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
-#include "ui/TextStyle.h" // IWYU pragma: keep
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
+#include "ui/TextStyle.hpp" // IWYU pragma: keep
 #include <optional>
 #include <string_view>
 #include <utility>
 
 // prevents circular dependency
-#include "state/AbstractAction.h" // IWYU pragma: keep
+#include "state/AbstractAction.hpp" // IWYU pragma: keep
 
 namespace ui {
 

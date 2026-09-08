@@ -1,4 +1,4 @@
-#include "model/instances/CharacterInstance.h"
+#include "model/instances/CharacterInstance.hpp"
 #include "sdl2w/Logger.h"
 
 namespace {

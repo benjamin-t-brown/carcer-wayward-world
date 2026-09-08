@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/instances/ItemInstance.h"
+#include "model/instances/ItemInstance.hpp"
 #include "model/stats/CharacterStats.h"
 #include "model/templates/CharacterTemplate.h"
 #include "model/templates/Items.h"

@@ -3,8 +3,8 @@
 #include "bmin/UniquePtr.h"
 #include "buttons/ButtonScroll.h"
 #include "sdl2w/Logger.h"
-#include "ui/colors.h"
-#include "ui/uiUtils.h"
+#include "ui/colors.hpp"
+#include "ui/uiUtils.hpp"
 #include <algorithm>
 
 namespace ui {

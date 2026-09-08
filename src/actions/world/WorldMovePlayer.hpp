@@ -8,11 +8,11 @@
 #include "game/map/MapPersistence.h"
 #include "game/map/TileTriggers.h"
 #include "model/instances/Player.h"
-#include "model/instances/World.h"
+#include "model/instances/World.hpp"
 #include "sdl2w/Logger.h"
 #include "actions/combat/ActionBase.hpp"
 #include "actions/world/TownEnemyAiAfterPlayerMove.hpp"
-#include "state/State.h"
+#include "state/State.hpp"
 #include "bmin/String.h"
 
 namespace state {

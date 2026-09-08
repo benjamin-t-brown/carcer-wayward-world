@@ -1,4 +1,4 @@
-#include "../../setupTestUi.h"
+#include "../../setupTestUi.hpp"
 #include "db/Database.h"
 #include "game/inventory/InventoryRules.h"
 #include "sdl2w/Draw.h"
@@ -7,7 +7,7 @@
 #include "model/instances/CharacterPlayer.h"
 #include "state/DatabaseInterface.h"
 #include "state/StateManagerInterface.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/pages/PageInventory.h"
 #include "bmin/String.h"

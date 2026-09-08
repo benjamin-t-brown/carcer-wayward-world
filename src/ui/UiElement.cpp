@@ -1,6 +1,6 @@
 #include "UiElement.h"
 #include "bmin/StringInterop.h"
-#include "uiUtils.h"
+#include "uiUtils.hpp"
 
 namespace ui {
 

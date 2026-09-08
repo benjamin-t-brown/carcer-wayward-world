@@ -1,7 +1,7 @@
 #pragma once
 
 #include "state/StateManager.h"
-#include "state/WorldActions.h"
+#include "state/WorldActions.hpp"
 #include "ui/UiElement.h"
 #include "ui/helpers/worldActions.h"
 

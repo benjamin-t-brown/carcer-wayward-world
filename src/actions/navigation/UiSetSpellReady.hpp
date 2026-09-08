@@ -5,8 +5,8 @@
 #include "game/combat/SpellRules.h"
 #include "model/instances/Player.h"
 #include "sdl2w/L10n.h"
-#include "state/AbstractAction.h"
-#include "state/State.h"
+#include "state/AbstractAction.hpp"
+#include "state/State.hpp"
 
 namespace state {
 

@@ -4,7 +4,7 @@
 #include "model/templates/Maps.h"
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
-#include "state/State.h"
+#include "state/State.hpp"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
 #include "actions/world/WorldLoadActiveMap.hpp"

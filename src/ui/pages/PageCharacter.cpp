@@ -4,7 +4,7 @@
 #include "model/stats/CharacterDerivedStatDefinitions.h"
 #include "model/stats/CharacterDerivedStats.h"
 #include "model/stats/CharacterStatDefinitions.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "ui/elements/Quad.h"
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"

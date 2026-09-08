@@ -1,5 +1,5 @@
 #include "ChCompactInfo.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "ui/elements/OutsetRectangle.h"
 #include "ui/elements/Quad.h"
 #include "ui/elements/TextLine.h"

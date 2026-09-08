@@ -4,7 +4,7 @@
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/Camera.h"
 #include "model/instances/Player.h"
-#include "model/instances/World.h"
+#include "model/instances/World.hpp"
 #include "actions/combat/ActionBase.hpp"
 #include "actions/world/WorldSetCamera.hpp"
 

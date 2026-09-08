@@ -2,7 +2,7 @@
 
 #include "bmin/String.h"
 #include "bmin/Map.h"
-#include "model/templates/Abilities.h"
+#include "model/templates/Abilities.hpp"
 
 namespace db {
 

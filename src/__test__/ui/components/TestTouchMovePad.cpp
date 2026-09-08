@@ -1,4 +1,4 @@
-#include "../../setupTestUi.h"
+#include "../../setupTestUi.hpp"
 #include "bmin/DynArray.h"
 #include "bmin/UniquePtr.h"
 #include "sdl2w/Logger.h"

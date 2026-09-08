@@ -1,8 +1,8 @@
 #pragma once
 
 #include "bmin/DynArray.h"
-#include "state/ActionEvent.h"
-#include "state/State.h"
+#include "state/ActionEvent.hpp"
+#include "state/State.hpp"
 #include <functional>
 
 namespace state {

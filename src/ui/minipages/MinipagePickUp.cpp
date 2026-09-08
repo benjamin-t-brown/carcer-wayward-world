@@ -1,6 +1,6 @@
 #include "MinipagePickUp.h"
 #include "sdl2w/L10n.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "ui/components/PartyMemberIconSelector.h"
 #include "ui/components/lists/ListPickUp.h"
 #include "ui/elements/SectionScrollable.h"

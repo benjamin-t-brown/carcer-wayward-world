@@ -3,7 +3,7 @@
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapWalkability.h"
 #include "model/Combat.h"
-#include "model/instances/CharacterInstance.h"
+#include "model/instances/CharacterInstance.hpp"
 #include "sdl2w/Logger.h"
 #include "actions/combat/ActionBase.hpp"
 #include "actions/combat/DoCombatActionCompletion.hpp"

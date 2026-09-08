@@ -1,4 +1,4 @@
-#include "../../../setupTestUi.h"
+#include "../../../setupTestUi.hpp"
 #include "sdl2w/Defines.h"
 #include "sdl2w/Draw.h"
 #include "sdl2w/Logger.h"

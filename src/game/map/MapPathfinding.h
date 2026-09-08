@@ -4,8 +4,8 @@
 #include "bmin/String.h"
 #include "db/Database.h"
 #include "game/map/ActiveMapOrchestrator.h"
-#include "model/instances/CharacterInstance.h"
-#include "model/instances/World.h"
+#include "model/instances/CharacterInstance.hpp"
+#include "model/instances/World.hpp"
 
 namespace game {
 

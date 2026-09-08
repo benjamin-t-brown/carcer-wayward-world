@@ -1,5 +1,5 @@
 // Ability / status effect schema.
-// C++ mirrors most of this in model/templates/AbilityTypes.h, Abilities.h, StatusEffects.h.
+// C++ mirrors most of this in model/templates/AbilityTypes.h, Abilities.hpp, StatusEffects.hpp.
 // Where ceditor and C++ diverge, ceditor types reflect the JSON on disk (source of truth).
 
 export type StatusEffectCondition =

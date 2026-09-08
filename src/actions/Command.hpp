@@ -1,6 +1,6 @@
 #pragma once
 
-#include "state/AbstractAction.h"
+#include "state/AbstractAction.hpp"
 #include <utility>
 
 namespace state::actions {

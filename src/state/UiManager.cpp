@@ -1,6 +1,6 @@
 #include "state/UiManager.h"
 #include "model/templates/UtilityTypes.h"
-#include "state/State.h"
+#include "state/State.hpp"
 
 namespace state {
 

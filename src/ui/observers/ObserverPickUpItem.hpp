@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/instances/ItemInstance.h"
+#include "model/instances/ItemInstance.hpp"
 #include "state/StateManager.h"
 #include "actions/navigation/UiPickUpItem.hpp"
 #include "ui/UiElement.h"

@@ -1,5 +1,5 @@
 #include "MinipageCharacterSheet.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "ui/elements/TextLine.h"
 #include "ui/helpers/modalLayoutFit.h"
 #include "ui/layouts/ModalSmall.h"

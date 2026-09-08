@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../UiElement.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "bmin/DynArray.h"
 
 namespace ui {

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "sdl2w/Defines.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
-#include "ui/colors.h"
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
+#include "ui/colors.hpp"
 
 namespace ui {
 

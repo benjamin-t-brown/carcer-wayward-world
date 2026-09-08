@@ -2,7 +2,7 @@
 
 #include "game/map/ActiveMapOrchestrator.h"
 #include "model/Combat.h"
-#include "model/instances/CharacterInstance.h"
+#include "model/instances/CharacterInstance.hpp"
 #include "actions/combat/ActionBase.hpp"
 #include "actions/combat/CharacterSetSpriteIndexOffset.hpp"
 #include "actions/combat/ModifyHP.hpp"

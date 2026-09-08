@@ -4,7 +4,7 @@
 #include "model/templates/UtilityTypes.h"
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
-#include "state/ActionEvent.h"
+#include "state/ActionEvent.hpp"
 #include "state/StateManagerInterface.h"
 #ifdef __GNUG__
 #include <cxxabi.h>

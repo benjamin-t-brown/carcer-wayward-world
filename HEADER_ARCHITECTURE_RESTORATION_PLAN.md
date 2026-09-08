@@ -435,7 +435,7 @@ Required shape:
 
 ```text
 src/actions/Command.hpp
-src/state/ActionEvent.h
+src/state/ActionEvent.hpp
 src/actions/combat/*.hpp
 src/actions/general/*.hpp
 src/actions/navigation/*.hpp

@@ -1,5 +1,5 @@
 #include "PageTalkChoice.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "ui/components/borders/BorderModalStandard.h"
 #include "ui/elements/OutsetRectangle.h"
 #include "ui/elements/Quad.h"

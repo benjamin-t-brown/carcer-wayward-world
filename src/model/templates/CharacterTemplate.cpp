@@ -1,6 +1,6 @@
 #include "model/templates/CharacterTemplate.h"
 #include "bmin/StringInterop.h"
-#include "model/instances/CharacterInstance.h"
+#include "model/instances/CharacterInstance.hpp"
 #include "model/instances/CharacterPlayer.h"
 #include <charconv>
 #include <stdexcept>

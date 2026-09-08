@@ -1,10 +1,10 @@
-#include "../../setupTestUi.h"
+#include "../../setupTestUi.hpp"
 #include "sdl2w/Defines.h"
 #include "sdl2w/Draw.h"
 #include "sdl2w/Logger.h"
 #include "sdl2w/Window.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
-#include "ui/TextStyle.h"
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
+#include "ui/TextStyle.hpp"
 #include "ui/UiElement.h"
 #include "ui/elements/Quad.h"
 #include "ui/elements/TextParagraph.h"

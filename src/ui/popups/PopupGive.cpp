@@ -1,6 +1,6 @@
 #include "PopupGive.h"
 #include "sdl2w/L10n.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "ui/elements/VerticalList.h"
 #include "ui/components/borders/BorderDropShadow.h"
 #include "ui/elements/HorizontalSlider.h"

@@ -21,7 +21,7 @@
 #include "sdl2w/Init.h"
 #include "sdl2w/Logger.h"
 #include "sdl2w/Window.h"
-#include "state/State.h"
+#include "state/State.hpp"
 #include <exception>
 
 namespace layers {

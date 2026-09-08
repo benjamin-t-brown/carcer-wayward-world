@@ -3,10 +3,10 @@
 #include "game/map/MapWalkability.h"
 #include "game/map/TileFields.h"
 #include "model/instances/MapInstance.h"
-#include "model/templates/Tileset.h"
+#include "model/templates/Tileset.hpp"
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
-#include "state/State.h"
+#include "state/State.hpp"
 
 namespace {
 

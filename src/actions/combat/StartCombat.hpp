@@ -3,7 +3,7 @@
 #include "game/combat/CombatParty.h"
 #include "game/map/MapVision.h"
 #include "model/Combat.h"
-#include "model/instances/World.h"
+#include "model/instances/World.hpp"
 #include "sdl2w/Logger.h"
 #include "actions/combat/ActionBase.hpp"
 #include "actions/combat/SetActiveCombatCharacter.hpp"

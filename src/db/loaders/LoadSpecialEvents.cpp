@@ -1,9 +1,9 @@
 #include "LoadSpecialEvents.h"
 #include "bmin/StringInterop.h"
 #include "lib/Json.h"
-#include "lib/StringUtil.h"
+#include "lib/StringUtil.hpp"
 #include "sdl2w/AssetLoader.h"
-#include "model/templates/SpecialEvents.h"
+#include "model/templates/SpecialEvents.hpp"
 #include <algorithm>
 #include <optional>
 #include <stdexcept>

@@ -5,7 +5,7 @@
 #include "bmin/UniquePtr.h"
 #include "state/ActionBus.h"
 #include "state/DatabaseInterface.h"
-#include "state/State.h"
+#include "state/State.hpp"
 #include "state/UiManager.h"
 
 namespace db {

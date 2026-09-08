@@ -1,5 +1,5 @@
 #include "FloatingNotification.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "ui/components/borders/BorderDropShadow.h"
 #include "ui/elements/TextLine.h"
 

@@ -1,6 +1,6 @@
 #include "game/map/TileFields.h"
 #include "game/map/MapWalkability.h"
-#include "model/instances/World.h"
+#include "model/instances/World.hpp"
 #include <cstdlib>
 
 namespace game {

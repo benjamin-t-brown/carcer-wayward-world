@@ -1,7 +1,7 @@
 #include "model/Combat.h"
-#include "model/instances/CharacterInstance.h"
+#include "model/instances/CharacterInstance.hpp"
 #include "model/instances/Player.h"
-#include "model/instances/World.h"
+#include "model/instances/World.hpp"
 #include "bmin/StringStream.h"
 
 namespace model {

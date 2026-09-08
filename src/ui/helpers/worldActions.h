@@ -1,6 +1,6 @@
 #pragma once
 
-#include "state/WorldActions.h"
+#include "state/WorldActions.hpp"
 
 namespace sdl2w {
 class Window;

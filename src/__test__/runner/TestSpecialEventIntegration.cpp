@@ -1,7 +1,7 @@
 #include "db/loaders/LoadSpecialEvents.h"
 #include "bmin/Map.h"
 #include "sdl2w/Logger.h"
-#include "model/templates/SpecialEvents.h"
+#include "model/templates/SpecialEvents.hpp"
 #include "runner/SpecialEventRunner.h"
 #include "bmin/String.h"
 #include "bmin/DynArray.h"

@@ -2,7 +2,7 @@
 #include "game/inventory/InventoryRules.h"
 #include "game/map/MapPickup.h"
 #include "game/map/TileTriggers.h"
-#include "lib/StringUtil.h"
+#include "lib/StringUtil.hpp"
 #include "sdl2w/L10n.h"
 #include "sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"

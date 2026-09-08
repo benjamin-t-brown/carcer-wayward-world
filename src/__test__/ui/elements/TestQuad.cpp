@@ -4,10 +4,10 @@
 #include "bmin/DynArray.h"
 #include "bmin/UniquePtr.h"
 
-#include "../../setupTestUi.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "../../setupTestUi.hpp"
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
 #include "ui/UiElement.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "ui/elements/Quad.h"
 #include <memory>
 

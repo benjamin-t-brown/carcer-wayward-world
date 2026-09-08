@@ -2,7 +2,7 @@
 #include "bmin/StringStream.h"
 #include "bmin/UniquePtr.h"
 #include "sdl2w/L10n.h"
-#include "state/WorldActions.h"
+#include "state/WorldActions.hpp"
 #include "ui/elements/SpriteElement.h"
 
 namespace ui {

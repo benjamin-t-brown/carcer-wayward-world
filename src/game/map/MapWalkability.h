@@ -2,8 +2,8 @@
 
 #include "bmin/DynArray.h"
 #include "db/Database.h"
-#include "model/instances/World.h"
-#include "model/templates/Tileset.h"
+#include "model/instances/World.hpp"
+#include "model/templates/Tileset.hpp"
 
 
 namespace game {

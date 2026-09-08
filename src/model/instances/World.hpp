@@ -7,7 +7,7 @@
 #include "model/instances/MapInstance.h"
 #include "model/templates/AbilityTypes.h"
 #include "model/templates/UtilityTypes.h"
-#include "compat/Sdl2wAnimation.h"
+#include "compat/Sdl2wAnimation.hpp"
 #include <optional>
 
 namespace model {

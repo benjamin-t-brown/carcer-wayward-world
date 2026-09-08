@@ -1,6 +1,6 @@
 #include "LayerPopupText.h"
 #include "sdl2w/Logger.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "ui/components/borders/BorderDropShadow.h"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/elements/Quad.h"

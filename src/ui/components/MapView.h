@@ -1,9 +1,9 @@
 #pragma once
 
 #include "../UiElement.h"
-#include "model/instances/World.h"
+#include "model/instances/World.hpp"
 #include "state/DatabaseInterface.h"
-#include "state/State.h"
+#include "state/State.hpp"
 #include <optional>
 
 namespace ui {

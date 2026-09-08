@@ -1,7 +1,7 @@
 #pragma once
 
-#include "model/instances/World.h"
-#include "state/WorldActions.h"
+#include "model/instances/World.hpp"
+#include "state/WorldActions.hpp"
 #include <optional>
 #include <string_view>
 

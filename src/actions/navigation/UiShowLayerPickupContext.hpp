@@ -2,9 +2,9 @@
 
 namespace sdl2w { class Window; }
 
-#include "model/instances/ItemInstance.h"
-#include "state/AbstractAction.h"
-#include "state/State.h"
+#include "model/instances/ItemInstance.hpp"
+#include "state/AbstractAction.hpp"
+#include "state/State.hpp"
 
 namespace state {
 

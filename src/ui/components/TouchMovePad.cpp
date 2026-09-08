@@ -1,9 +1,9 @@
 #include "TouchMovePad.h"
 #include "bmin/UniquePtr.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "ui/elements/OutsetRectangle.h"
 #include "ui/elements/SpriteElement.h"
-#include "ui/uiUtils.h"
+#include "ui/uiUtils.hpp"
 
 namespace ui {
 

@@ -2,7 +2,7 @@
 
 #include "ui/UiElement.h"
 #include "ui/components/ChCompactInfo.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
 #include "bmin/DynArray.h"
 
 namespace ui {

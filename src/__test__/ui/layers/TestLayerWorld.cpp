@@ -1,4 +1,4 @@
-#include "../../setupTestUi.h"
+#include "../../setupTestUi.hpp"
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
@@ -15,7 +15,7 @@
 #include "state/StateManagerInterface.h"
 #include "actions/world/WorldLoadActiveMap.hpp"
 #include "actions/world/WorldSpawnPlayerAtMarker.hpp"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
 
 namespace {
 

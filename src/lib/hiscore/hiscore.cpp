@@ -1,6 +1,6 @@
 #include "hiscore.h"
 #include "bmin/StringStream.h"
-#include "lib/StringUtil.h"
+#include "lib/StringUtil.hpp"
 #include "sdl2w/AssetLoader.h"
 #include "sdl2w/Logger.h"
 

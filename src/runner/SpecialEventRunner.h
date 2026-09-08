@@ -3,7 +3,7 @@
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "bmin/Map.h"
-#include "model/templates/SpecialEvents.h"
+#include "model/templates/SpecialEvents.hpp"
 
 #include <optional>
 

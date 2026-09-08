@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../UiElement.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "ui/elements/Quad.h"
 #include "bmin/DynArray.h"
 #include "bmin/UniquePtr.h"

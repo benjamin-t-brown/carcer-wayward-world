@@ -3,7 +3,7 @@
 #include "actions/navigation/UiSelectSpecialEventChoice.hpp"
 #include "actions/navigation/UiShowLayerPopupText.hpp"
 #include "sdl2w/Logger.h"
-#include "state/AbstractAction.h"
+#include "state/AbstractAction.hpp"
 #include "state/StateManager.h"
 
 #include <initializer_list>

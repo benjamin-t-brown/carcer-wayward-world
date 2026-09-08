@@ -1,4 +1,4 @@
-#include "../../setupTestUi.h"
+#include "../../setupTestUi.hpp"
 #include "sdl2w/Draw.h"
 #include "ui/FontScale.h"
 #include "bmin/DynArray.h"

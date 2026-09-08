@@ -2,7 +2,7 @@
 
 #include "game/combat/EnemyBehavior.h"
 #include "game/map/TileDistance.h"
-#include "model/instances/CharacterInstance.h"
+#include "model/instances/CharacterInstance.hpp"
 #include "sdl2w/Logger.h"
 #include "actions/combat/ActionBase.hpp"
 #include "actions/world/PerformTownMeleeAttack.hpp"

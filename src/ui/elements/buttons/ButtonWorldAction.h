@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../UiElement.h"
-#include "state/WorldActions.h"
+#include "state/WorldActions.hpp"
 #include "bmin/String.h"
 
 namespace ui {

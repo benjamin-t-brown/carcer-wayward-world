@@ -5,9 +5,9 @@
 #include "bmin/String.h"
 #include "model/instances/MapInstance.h"
 #include "model/instances/Player.h"
-#include "model/instances/World.h"
+#include "model/instances/World.hpp"
 #include "model/templates/UtilityTypes.h"
-#include "state/Triggers.h"
+#include "state/Triggers.hpp"
 #include "state/LayerRequest.h"
 #include <cstdint>
 

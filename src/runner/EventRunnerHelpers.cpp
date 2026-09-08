@@ -1,5 +1,5 @@
 #include "EventRunnerHelpers.h"
-#include "lib/StringUtil.h"
+#include "lib/StringUtil.hpp"
 
 namespace runner {
 

@@ -3,9 +3,9 @@
 #include "bmin/DynArray.h"
 #include "bmin/Map.h"
 #include "bmin/String.h"
-#include "model/instances/CharacterInstance.h"
-#include "model/instances/ItemInstance.h"
-#include "model/instances/TileInstance.h"
+#include "model/instances/CharacterInstance.hpp"
+#include "model/instances/ItemInstance.hpp"
+#include "model/instances/TileInstance.hpp"
 #include "model/templates/Maps.h"
 #include <algorithm>
 #include <cstdint>

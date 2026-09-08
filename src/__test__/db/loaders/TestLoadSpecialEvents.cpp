@@ -1,6 +1,6 @@
 #include "db/loaders/LoadSpecialEvents.h"
 #include "sdl2w/Logger.h"
-#include "model/templates/SpecialEvents.h"
+#include "model/templates/SpecialEvents.hpp"
 
 int main(int argc, char** argv) {
   LOG(INFO) << "Starting TestLoadSpecialEvents" << LOG_ENDL;

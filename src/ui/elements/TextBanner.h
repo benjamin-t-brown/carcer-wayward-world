@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../UiElement.h"
-#include "ui/TextStyle.h"
-#include "ui/colors.h"
+#include "ui/TextStyle.hpp"
+#include "ui/colors.hpp"
 #include "bmin/String.h"
 #include <utility>
 

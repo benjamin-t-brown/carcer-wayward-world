@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../UiElement.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
-#include "ui/TextStyle.h"
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
+#include "ui/TextStyle.hpp"
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "bmin/UniquePtr.h"

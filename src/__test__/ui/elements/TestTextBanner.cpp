@@ -1,10 +1,10 @@
-#include "../../setupTestUi.h"
+#include "../../setupTestUi.hpp"
 #include "sdl2w/Draw.h"
 #include "sdl2w/Events.h"
 #include "sdl2w/Logger.h"
 #include "sdl2w/Window.h"
 #include "ui/UiElement.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "ui/elements/TextBanner.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include <memory>

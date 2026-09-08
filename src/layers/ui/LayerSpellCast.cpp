@@ -2,7 +2,7 @@
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
 #include "game/combat/SpellRules.h"
-#include "lib/StringUtil.h"
+#include "lib/StringUtil.hpp"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/RuneTypes.h"
 #include "sdl2w/L10n.h"

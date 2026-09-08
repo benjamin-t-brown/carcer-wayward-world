@@ -2,7 +2,7 @@
 #include "model/instances/CharacterPlayer.h"
 #include "sdl2w/L10n.h"
 #include <algorithm>
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "ui/elements/Quad.h"
 #include "ui/elements/SpriteElement.h"
 #include "ui/elements/TextLine.h"

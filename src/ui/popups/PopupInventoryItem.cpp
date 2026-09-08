@@ -1,6 +1,6 @@
 #include "PopupInventoryItem.h"
 #include "sdl2w/L10n.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "ui/components/ItemInfo.h"
 #include "ui/components/borders/BorderDropShadow.h"
 #include "ui/elements/Quad.h"

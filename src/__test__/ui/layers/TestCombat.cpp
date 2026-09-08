@@ -1,4 +1,4 @@
-#include "../../setupTestUi.h"
+#include "../../setupTestUi.hpp"
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
@@ -9,7 +9,7 @@
 #include "game/map/MapPersistence.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerWorld.h"
-#include "model/instances/CharacterInstance.h"
+#include "model/instances/CharacterInstance.hpp"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/CharacterTemplate.h"
 #include "model/templates/RuneTypes.h"
@@ -18,11 +18,11 @@
 #include "sdl2w/Window.h"
 #include "state/DatabaseInterface.h"
 #include "state/StateManagerInterface.h"
-#include "state/WorldUpdater.h"
+#include "actions/world/WorldUpdater.h"
 #include "actions/combat/StartCombat.hpp"
 #include "actions/world/WorldLoadActiveMap.hpp"
 #include "actions/world/WorldSpawnPlayerAtMarker.hpp"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
 
 namespace {
 

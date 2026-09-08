@@ -2,7 +2,7 @@
 
 #include "bmin/String.h"
 #include "bmin/Map.h"
-#include "model/templates/Tileset.h"
+#include "model/templates/Tileset.hpp"
 
 namespace db {
 

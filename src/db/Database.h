@@ -2,15 +2,15 @@
 
 #include "bmin/String.h"
 #include "bmin/Map.h"
-#include "model/templates/Abilities.h"
+#include "model/templates/Abilities.hpp"
 #include "model/templates/CharacterTemplate.h"
 #include "model/templates/Items.h"
-#include "model/templates/MapGrids.h"
+#include "model/templates/MapGrids.hpp"
 #include "model/templates/Maps.h"
-#include "model/templates/SpecialEvents.h"
-#include "model/templates/Spells.h"
-#include "model/templates/StatusEffects.h"
-#include "model/templates/Tileset.h"
+#include "model/templates/SpecialEvents.hpp"
+#include "model/templates/Spells.hpp"
+#include "model/templates/StatusEffects.hpp"
+#include "model/templates/Tileset.hpp"
 #include <stdexcept>
 #include <string_view>
 

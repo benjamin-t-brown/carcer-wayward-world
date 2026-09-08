@@ -2,18 +2,24 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "CMake configure (GCC debug)",
+      "label": "Setup developer build",
       "type": "shell",
-      "command": "cmake",
-      "args": ["--preset", "gcc-debug"],
+      "command": "${workspaceFolder}/scripts/setup-dev.sh",
+      "windows": {
+        "command": "${workspaceFolder}/scripts/Invoke-Ucrt64.ps1",
+        "args": ["./scripts/setup-dev.sh"]
+      },
       "problemMatcher": []
     },
     {
-      "label": "CMake build (GCC debug)",
+      "label": "Build CARCER",
       "type": "shell",
-      "command": "cmake",
-      "args": ["--build", "--preset", "gcc-debug", "--target", "CARCER"],
-      "dependsOn": "CMake configure (GCC debug)",
+      "command": "make",
+      "args": ["-C", "${workspaceFolder}/src"],
+      "windows": {
+        "command": "${workspaceFolder}/scripts/Invoke-Ucrt64.ps1",
+        "args": ["make -C src"]
+      },
       "group": {
         "kind": "build",
         "isDefault": true
@@ -21,41 +27,37 @@
       "problemMatcher": ["$gcc"]
     },
     {
-      "label": "CMake tests (GCC debug)",
+      "label": "Run CARCER",
       "type": "shell",
-      "command": "ctest",
-      "args": ["--preset", "gcc-debug"],
-      "dependsOn": "CMake configure (GCC debug)",
+      "command": "make",
+      "args": ["-C", "${workspaceFolder}/src", "run"],
+      "windows": {
+        "command": "${workspaceFolder}/scripts/Invoke-Ucrt64.ps1",
+        "args": ["make -C src run"]
+      },
       "problemMatcher": ["$gcc"]
     },
     {
-      "label": "CMake UI compile checks (GCC debug)",
+      "label": "Run unit tests",
       "type": "shell",
-      "command": "cmake",
-      "args": ["--build", "--preset", "gcc-debug", "--target", "carcer_ui_tests"],
-      "dependsOn": "CMake configure (GCC debug)",
+      "command": "make",
+      "args": ["-C", "${workspaceFolder}/src", "test"],
+      "windows": {
+        "command": "${workspaceFolder}/scripts/Invoke-Ucrt64.ps1",
+        "args": ["make -C src test"]
+      },
+      "group": "test",
       "problemMatcher": ["$gcc"]
     },
     {
-      "label": "CMake build (UCRT64 debug)",
+      "label": "Compile UI tests",
       "type": "shell",
-      "command": "${workspaceFolder}/scripts/Invoke-Ucrt64.ps1",
-      "args": ["cmake --preset ucrt64-debug && cmake --build --preset ucrt64-debug --target CARCER"],
-      "group": "build",
-      "problemMatcher": ["$gcc"]
-    },
-    {
-      "label": "CMake configure (UCRT64 debug)",
-      "type": "shell",
-      "command": "${workspaceFolder}/scripts/Invoke-Ucrt64.ps1",
-      "args": ["cmake --preset ucrt64-debug"],
-      "problemMatcher": []
-    },
-    {
-      "label": "CMake tests (UCRT64 debug)",
-      "type": "shell",
-      "command": "${workspaceFolder}/scripts/Invoke-Ucrt64.ps1",
-      "args": ["./scripts/run-all-tests-ucrt64.sh"],
+      "command": "make",
+      "args": ["-C", "${workspaceFolder}/src", "ui"],
+      "windows": {
+        "command": "${workspaceFolder}/scripts/Invoke-Ucrt64.ps1",
+        "args": ["make -C src ui"]
+      },
       "problemMatcher": ["$gcc"]
     }
   ]

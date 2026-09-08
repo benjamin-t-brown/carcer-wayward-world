@@ -1,7 +1,7 @@
 #include "PageInventory.h"
 #include "sdl2w/L10n.h"
 #include "model/templates/Items.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 #include "ui/components/PartyMemberIconSelector.h"
 #include "ui/components/lists/ListInventory.h"
 #include "ui/elements/Quad.h"

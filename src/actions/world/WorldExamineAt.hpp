@@ -7,12 +7,12 @@ namespace sdl2w { class Window; }
 #include "game/map/MapPickup.h"
 #include "game/map/MapWalkability.h"
 #include "game/map/TileTriggers.h"
-#include "model/instances/World.h"
+#include "model/instances/World.hpp"
 #include "sdl2w/L10n.h"
 #include "sdl2w/Logger.h"
 #include "sdl2w/Window.h"
-#include "state/AbstractAction.h"
-#include "state/State.h"
+#include "state/AbstractAction.hpp"
+#include "state/State.hpp"
 #include "actions/navigation/UiShowLayerPickUp.hpp"
 #include <cstdlib>
 

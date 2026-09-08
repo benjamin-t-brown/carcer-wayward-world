@@ -3,7 +3,7 @@
 #include "../../UiElement.h"
 #include "../TextParagraph.h"
 #include "bmin/String.h"
-#include "ui/colors.h"
+#include "ui/colors.hpp"
 
 namespace ui {
 

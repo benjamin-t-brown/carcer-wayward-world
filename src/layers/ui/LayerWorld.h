@@ -3,7 +3,7 @@
 #include "../UiLayer.h"
 #include "bmin/String.h"
 #include "model/templates/UtilityTypes.h"
-#include "state/WorldActions.h"
+#include "state/WorldActions.hpp"
 #include <string_view>
 
 namespace ui {

@@ -2,7 +2,7 @@
 
 #include "layers/UiLayer.h"
 #include "bmin/Map.h"
-#include "model/templates/SpecialEvents.h"
+#include "model/templates/SpecialEvents.hpp"
 #include "runner/SpecialEventRunner.h"
 #include "ui/KeyboardHeldScroll.h"
 #include "ui/elements/TextLine.h"

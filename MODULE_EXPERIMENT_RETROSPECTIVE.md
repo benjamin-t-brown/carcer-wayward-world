@@ -123,6 +123,14 @@ than the module result because there is no retained scan-preprocessing tree.
 The leaf test rebuilt only `FontScale.cpp`, the static archive, and the
 application link.
 
+A post-qualification developer-workflow follow-up removed archive duplication
+from application-only builds. Production sources now compile once into a CMake
+object library and link directly into `CARCER`; the selective-link static
+archive is created only when a test target requests it. A genuinely clean GCC
+debug application build directory measured 245,380 KiB (239.6 MiB), down from
+380,960 KiB (372.0 MiB) immediately before the change. The compilation database
+and compiled source graph are unchanged.
+
 ## Why CMake remains
 
 CMake is retained. It adds a project description layer, but unlike the custom

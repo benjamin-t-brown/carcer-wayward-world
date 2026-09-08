@@ -2,7 +2,7 @@
 
 #include "../UiElement.h"
 #include "sdl2w/Defines.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "bmin/String.h"
-#include "state/AbstractAction.h"
+#include "state/AbstractAction.hpp"
 #include "state/DatabaseInterface.h"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"

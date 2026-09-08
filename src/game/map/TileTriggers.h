@@ -2,10 +2,10 @@
 
 #include "bmin/String.h"
 #include "db/Database.h"
-#include "model/instances/CharacterInstance.h"
+#include "model/instances/CharacterInstance.hpp"
 #include "model/instances/MapInstance.h"
 #include "model/instances/Player.h"
-#include "model/instances/World.h"
+#include "model/instances/World.hpp"
 #include <optional>
 
 namespace game {

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../UiElement.h"
-#include "state/WorldActions.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "state/WorldActions.hpp"
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
 #include "ui/components/ChCompactInfo.h"
 #include "bmin/DynArray.h"
 

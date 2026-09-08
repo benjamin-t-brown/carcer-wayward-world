@@ -1,10 +1,10 @@
 #pragma once
 
 #include "bmin/String.h"
-#include "model/instances/World.h"
+#include "model/instances/World.hpp"
 #include "model/templates/UtilityTypes.h"
-#include "state/AbstractAction.h"
-#include "state/State.h"
+#include "state/AbstractAction.hpp"
+#include "state/State.hpp"
 
 namespace state {
 

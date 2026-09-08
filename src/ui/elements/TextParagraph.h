@@ -3,9 +3,9 @@
 #include "../UiElement.h"
 #include "Quad.h"
 #include "TextLine.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
-#include "ui/TextStyle.h"
-#include "ui/colors.h"
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
+#include "ui/TextStyle.hpp"
+#include "ui/colors.hpp"
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "bmin/UniquePtr.h"

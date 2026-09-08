@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../UiElement.h"
-#include "ui/SdlPixels.h" // IWYU pragma: keep
+#include "ui/SdlPixels.hpp" // IWYU pragma: keep
 #include "bmin/String.h"
 
 namespace ui {

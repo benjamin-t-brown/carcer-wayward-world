@@ -62,7 +62,7 @@ deferred to the final phase:
 Compatibility changes required to reach the local passes were limited to
 canonical BMIN include spelling, the current const-map iterator API, the current
 `Store::hasSprite` API, the missing standard `<cmath>` include, and a centralized
-`Sdl2wAnimation.h` header-order adapter for the upstream incomplete `Sprite`
+`Sdl2wAnimation.hpp` header-order adapter for the upstream incomplete `Sprite`
 declaration.
 
 ## Phase 5 through 7 local qualification
@@ -169,8 +169,8 @@ delivery, payloads, and neutral navigation requests.
 | `toggleManaSlotRune` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | model/action suite |
 | `travel` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | TestCreateMapInstanceFromTemplate, TestTileTriggers, TestWorldTravel |
 | `updateHeldMove` | function | `src/actions/actions.cpp` | corresponding concrete `src/actions/` header | intentionally retired | ImportActions |
-| `worldProcessPendingTriggers` | function | `src/actions/world/WorldUpdater.cpp` | `src/state/WorldUpdater.h` | verified | model/action suite |
-| `worldUpdate` | function | `src/actions/world/WorldUpdater.cpp` | `src/state/WorldUpdater.h` | verified | TestCameraFollow, TestCombatActions, TestEnemyBehavior |
+| `worldProcessPendingTriggers` | function | `src/actions/world/WorldUpdater.cpp` | `src/actions/world/WorldUpdater.h` | verified | model/action suite |
+| `worldUpdate` | function | `src/actions/world/WorldUpdater.cpp` | `src/actions/world/WorldUpdater.h` | verified | TestCameraFollow, TestCombatActions, TestEnemyBehavior |
 | `CombatActionContext` | struct | `src/actions/_actions.cppm (inline/declaration-only)` | `src/actions/combat/DoCombatAction.hpp` | verified | model/action suite |
 | `WorldSetActionModeCtx` | struct | `src/actions/_actions.cppm (inline/declaration-only)` | `src/actions/world/WorldSetActionMode.hpp` | verified | model/action suite |
 
@@ -178,7 +178,7 @@ delivery, payloads, and neutral navigation requests.
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `TileStepSound` | enum | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Tileset.h` | verified | data/model suite |
+| `TileStepSound` | enum | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Tileset.hpp` | verified | data/model suite |
 | `AbilityCostType` | enum-class | `src/game/combat/SpellRules.cpp` | `src/model/templates/AbilityTypes.h` | verified | TestCombatZoneCast, TestSpellRules |
 | `AbilityType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | TestCombatZoneCast, TestSpellRules |
 | `AttackClass` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | TestCombatZoneCast |
@@ -188,8 +188,8 @@ delivery, payloads, and neutral navigation requests.
 | `CurrentStatEnum` | enum-class | `src/game/combat/SpellRules.cpp` | `src/model/templates/AbilityTypes.h` | verified | TestSpellRules |
 | `DamageType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | TestLoadAbilityTemplates, TestLoadStatusEffectTemplates |
 | `Dice` | enum-class | `src/game/combat/SpellRules.cpp` | `src/model/templates/AbilityTypes.h` | verified | TestLoadAbilityTemplates, TestCombatZoneCast, TestSpellRules |
-| `GameEventChildType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | TestSpecialEventRunner |
-| `GameEventType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | TestWorldTalkAt, TestSpecialEventRunner |
+| `GameEventChildType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.hpp` | verified | TestSpecialEventRunner |
+| `GameEventType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.hpp` | verified | TestWorldTalkAt, TestSpecialEventRunner |
 | `ItemType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Items.h` | verified | TestCharacterEquip |
 | `ItemUsability` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Items.h` | verified | data/model suite |
 | `MapType` | enum-class | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | TestCreateMapInstanceFromTemplate |
@@ -270,8 +270,8 @@ delivery, payloads, and neutral navigation requests.
 | `AbilityRestore` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | TestSpellRules |
 | `AbilitySave` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
 | `AbilityStatus` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
-| `AbilityTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Abilities.h` | verified | TestLoadAbilityTemplates, TestCombatZoneCast, TestSpellRules |
-| `AudioInfo` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | data/model suite |
+| `AbilityTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Abilities.hpp` | verified | TestLoadAbilityTemplates, TestCombatZoneCast, TestSpellRules |
+| `AudioInfo` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.hpp` | verified | data/model suite |
 | `BodyMasteryStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | verified | data/model suite |
 | `CarcerMapTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | TestLoadMapTemplates, TestCreateMapInstanceFromTemplate, TestMapPersistence |
 | `CarcerMapTileTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
@@ -288,14 +288,14 @@ delivery, payloads, and neutral navigation requests.
 | `CharacterTemplateStatus` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | verified | data/model suite |
 | `CharacterTemplateTalk` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | verified | data/model suite |
 | `CharacterTemplateVision` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/CharacterTemplate.h` | verified | data/model suite |
-| `Choice` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | TestSpecialEventRunner, TestPageTalkChoice |
-| `ChoiceSwitchText` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | data/model suite |
+| `Choice` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.hpp` | verified | TestSpecialEventRunner, TestPageTalkChoice |
+| `ChoiceSwitchText` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.hpp` | verified | data/model suite |
 | `CurrentStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
-| `GameEvent` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | TestLoadSpecialEvents, TestWorldTalkAt, TestSpecialEventIntegration |
-| `GameEventChildChoice` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | TestSpecialEventRunner |
-| `GameEventChildEnd` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | TestSpecialEventRunner |
-| `GameEventChildExec` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | TestSpecialEventRunner |
-| `GameEventChildSwitch` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | data/model suite |
+| `GameEvent` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.hpp` | verified | TestLoadSpecialEvents, TestWorldTalkAt, TestSpecialEventIntegration |
+| `GameEventChildChoice` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.hpp` | verified | TestSpecialEventRunner |
+| `GameEventChildEnd` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.hpp` | verified | TestSpecialEventRunner |
+| `GameEventChildExec` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.hpp` | verified | TestSpecialEventRunner |
+| `GameEventChildSwitch` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.hpp` | verified | data/model suite |
 | `GenericCombatStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | verified | data/model suite |
 | `HiscoreRow` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/lib/hiscore/hiscore.h` | verified | data/model suite |
 | `ItemTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Items.h` | verified | TestLoadItemTemplates, TestCharacterEquip, TestCharacterGive |
@@ -304,7 +304,7 @@ delivery, payloads, and neutral navigation requests.
 | `MagicMasteryStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | verified | data/model suite |
 | `MapCharacterPlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | TestMapPersistence |
 | `MapEventTriggerPlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
-| `MapGridTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/MapGrids.h` | verified | TestLoadMapGridTemplates, TestCombatActions, TestCombatZoneCast |
+| `MapGridTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/MapGrids.hpp` | verified | TestLoadMapGridTemplates, TestCombatActions, TestCombatZoneCast |
 | `MapItemPlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
 | `MapLightSourcePlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
 | `MapMarkerPlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
@@ -313,28 +313,28 @@ delivery, payloads, and neutral navigation requests.
 | `MapTileRef` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
 | `MapTravelTriggerPlacement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
 | `Resistance` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
-| `SpellRuneRequirement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Spells.h` | verified | TestCombatZoneCast, TestSpellRules |
+| `SpellRuneRequirement` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Spells.hpp` | verified | TestCombatZoneCast, TestSpellRules |
 | `SpellTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/game/combat/SpellRules.h` | verified | TestLoadSpellTemplates, TestCombatZoneCast, TestSpellRules |
 | `Stats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
-| `StatusEffectAction` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/StatusEffects.h` | verified | data/model suite |
-| `StatusEffectDurationScale` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/StatusEffects.h` | verified | data/model suite |
-| `StatusEffectEvent` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/StatusEffects.h` | verified | data/model suite |
-| `StatusEffectTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/StatusEffects.h` | verified | TestLoadStatusEffectTemplates |
-| `SwitchCase` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | data/model suite |
+| `StatusEffectAction` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/StatusEffects.hpp` | verified | data/model suite |
+| `StatusEffectDurationScale` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/StatusEffects.hpp` | verified | data/model suite |
+| `StatusEffectEvent` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/StatusEffects.hpp` | verified | data/model suite |
+| `StatusEffectTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/StatusEffects.hpp` | verified | TestLoadStatusEffectTemplates |
+| `SwitchCase` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.hpp` | verified | data/model suite |
 | `TargetSelectInfo` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
 | `TargetSelectInfoPoint` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/AbilityTypes.h` | verified | data/model suite |
 | `TileEventTrigger` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | TestTileTriggers, TestWorldExamineAt |
 | `TileLightSource` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | data/model suite |
-| `TileMetadata` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Tileset.h` | verified | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
+| `TileMetadata` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Tileset.hpp` | verified | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
 | `TileOverrides` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | TestMapVision, TestWorldMovePlayer |
-| `TilesetTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Tileset.h` | verified | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
+| `TilesetTemplate` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Tileset.hpp` | verified | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
 | `TimerStruct` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/UtilityTypes.h` | verified | data/model suite |
 | `TrainableCombatStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | verified | data/model suite |
 | `TravelTrigger` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/Maps.h` | verified | TestTileTriggers, TestWorldTravel |
-| `Variable` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | TestSpecialEventRunner |
-| `VariableValue` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | data/model suite |
+| `Variable` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.hpp` | verified | TestSpecialEventRunner |
+| `VariableValue` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.hpp` | verified | data/model suite |
 | `WeaponMasteryStats` | struct | `src/data/data.cppm (inline/declaration-only)` | `src/model/stats/CharacterStats.h` | verified | data/model suite |
-| `GameEventChild` | using | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.h` | verified | data/model suite |
+| `GameEventChild` | using | `src/data/data.cppm (inline/declaration-only)` | `src/model/templates/SpecialEvents.hpp` | verified | data/model suite |
 
 ### `src/db/_db.cppm`
 
@@ -470,7 +470,7 @@ delivery, payloads, and neutral navigation requests.
 | `setStorage` | function | `src/in3/EventRunnerHelpers.cpp` | `src/runner/EventRunnerHelpers.h` | verified | runner suite |
 | `splitExecStatements` | function | `src/in3/EventRunnerHelpers.cpp` | `src/runner/EventRunnerHelpers.h` | verified | runner suite |
 | `splitString` | function | `src/in3/EventRunnerHelpers.cpp` | `src/runner/EventRunnerHelpers.h` | verified | runner suite |
-| `trim` | function | `src/in3/EventRunnerHelpers.cpp` | `src/lib/StringUtil.h` | verified | runner suite |
+| `trim` | function | `src/in3/EventRunnerHelpers.cpp` | `src/lib/StringUtil.hpp` | verified | runner suite |
 | `ConditionEvaluatorFuncs` | struct | `src/in3/ConditionEvaluator.cpp` | `src/runner/ConditionEvaluator.h` | verified | runner suite |
 | `ConditionResult` | struct | `src/in3/_in3.cppm (inline/declaration-only)` | `src/runner/SpecialEventRunner.h` | verified | TestSpecialEventRunner |
 | `DisplayTextChoice` | struct | `src/in3/_in3.cppm (inline/declaration-only)` | `src/runner/SpecialEventRunner.h` | verified | runner suite |
@@ -488,28 +488,28 @@ delivery, payloads, and neutral navigation requests.
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `findFirstNotOf` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | verified | runner suite |
-| `findLastNotOf` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | verified | runner suite |
-| `fromStringView` | function | `src/layers/Layer.cpp` | `src/lib/StringUtil.h` | verified | runner suite |
-| `isWhitespace` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | verified | runner suite |
-| `parseFirstTokenAndInt` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | verified | runner suite |
-| `splitByChar` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | verified | runner suite |
-| `splitLines` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.h` | verified | runner suite |
-| `trim` | function | `src/in3/EventRunnerHelpers.cpp` | `src/lib/StringUtil.h` | verified | runner suite |
+| `findFirstNotOf` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.hpp` | verified | runner suite |
+| `findLastNotOf` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.hpp` | verified | runner suite |
+| `fromStringView` | function | `src/layers/Layer.cpp` | `src/lib/StringUtil.hpp` | verified | runner suite |
+| `isWhitespace` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.hpp` | verified | runner suite |
+| `parseFirstTokenAndInt` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.hpp` | verified | runner suite |
+| `splitByChar` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.hpp` | verified | runner suite |
+| `splitLines` | function | `src/lib/StringUtil.cppm (inline/declaration-only)` | `src/lib/StringUtil.hpp` | verified | runner suite |
+| `trim` | function | `src/in3/EventRunnerHelpers.cpp` | `src/lib/StringUtil.hpp` | verified | runner suite |
 
 ### `src/model/model.cppm`
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `CameraMode` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | verified | TestCameraFollow, TestWorldActionAim, TestWorldMovePlayer |
+| `CameraMode` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.hpp` | verified | TestCameraFollow, TestWorldActionAim, TestWorldMovePlayer |
 | `CharacterEquipmentSlot` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | verified | TestCharacterEquip |
-| `CharacterFacing` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterInstance.h` | verified | TestCharacterFacing, TestWorldMovePlayer |
+| `CharacterFacing` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterInstance.hpp` | verified | TestCharacterFacing, TestWorldMovePlayer |
 | `CombatActionType` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/Combat.h` | verified | TestCombatActions |
 | `EquipItemResult` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | verified | TestCharacterEquip |
 | `EquipRuneResult` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | verified | TestSpellRules |
 | `GiveItemResult` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | verified | TestCharacterGive |
 | `TurnMode` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | verified | TestCombatActions |
-| `WorldActionMode` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | verified | TestWorldActionAim, TestWorldExamineAt, TestWorldTalkAt |
+| `WorldActionMode` | enum-class | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.hpp` | verified | TestWorldActionAim, TestWorldExamineAt, TestWorldTalkAt |
 | `addTileField` | function | `src/model/maps.cpp` | `src/game/map/TileFields.h` | verified | model suite |
 | `addTileFieldAt` | function | `src/model/maps.cpp` | `src/game/map/TileFields.h` | verified | TestCombatActions, TestMapPersistence, TestTileFieldAging |
 | `ageMapInstanceTileFields` | function | `src/model/maps.cpp` | `src/game/map/TileFields.h` | verified | model suite |
@@ -518,7 +518,7 @@ delivery, payloads, and neutral navigation requests.
 | `applyCharacterTemplateToInstance` | function | `src/model/characters.cpp` | `src/model/templates/CharacterTemplate.h` | verified | model suite |
 | `characterEquipmentSlotAbbrev` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | TestCharacterEquip |
 | `characterGetWeightCapacity` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | TestPageInventory |
-| `characterInstanceIsEnemy` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.h` | verified | model suite |
+| `characterInstanceIsEnemy` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.hpp` | verified | model suite |
 | `characterPlayerAddItemToInventory` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | TestCombat, TestLayerInventory, TestLayerPickUp |
 | `characterPlayerCanEquipRuneType` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | model suite |
 | `characterPlayerCountAvailableRunesOfType` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | TestPageMagicSetup |
@@ -536,14 +536,14 @@ delivery, payloads, and neutral navigation requests.
 | `characterPlayerUnequipRuneFromSlot` | function | `src/model/characters.cpp` | `src/model/instances/CharacterPlayer.h` | verified | model suite |
 | `createCombatFromWorld` | function | `src/model/world.cpp` | `src/model/Combat.h` | verified | model suite |
 | `createMapInstanceFromTemplate` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | TestCreateMapInstanceFromTemplate, TestResolveTileToRender |
-| `facingFromMoveDelta` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.h` | verified | TestCharacterFacing |
+| `facingFromMoveDelta` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.hpp` | verified | TestCharacterFacing |
 | `findMarkerOnTemplate` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | model suite |
 | `formatCharacterLogLabel` | function | `src/model/world.cpp` | `src/model/Combat.h` | verified | model suite |
 | `getCharacterHp` | function | `src/model/combat.cpp` | `src/model/Combat.h` | verified | model suite |
 | `isCharacterAlly` | function | `src/model/combat.cpp` | `src/model/Combat.h` | verified | model suite |
 | `isCharacterDefeated` | function | `src/model/combat.cpp` | `src/model/Combat.h` | verified | model suite |
 | `isCharacterEnemy` | function | `src/model/combat.cpp` | `src/model/Combat.h` | verified | model suite |
-| `isCharacterFacingLeft` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.h` | verified | model suite |
+| `isCharacterFacingLeft` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.hpp` | verified | model suite |
 | `isPartyMember` | function | `src/model/combat.cpp` | `src/model/Combat.h` | verified | model suite |
 | `mapHasLayer` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | TestCreateMapInstanceFromTemplate, TestResolveTileToRender |
 | `mapInstanceFindCharacter` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | model suite |
@@ -563,30 +563,30 @@ delivery, payloads, and neutral navigation requests.
 | `setCharacterHp` | function | `src/model/combat.cpp` | `src/model/Combat.h` | verified | model suite |
 | `tileIndexToXY` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | TestResolveTileToRender, TestWorldSpawnPlayerAtMarker |
 | `tileXYToIndex` | function | `src/model/maps.cpp` | `src/model/instances/MapInstance.h` | verified | model suite |
-| `updateCharacterFacingFromMove` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.h` | verified | TestCharacterFacing |
-| `updateCharacterFacingToward` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.h` | verified | TestCharacterFacing |
+| `updateCharacterFacingFromMove` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.hpp` | verified | TestCharacterFacing |
+| `updateCharacterFacingToward` | function | `src/model/characters.cpp` | `src/model/instances/CharacterInstance.hpp` | verified | TestCharacterFacing |
 | `ActiveMap` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/Combat.h` | verified | TestCombatActions, TestEnemyBehavior, TestMapPersistence |
-| `CameraInfo` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | verified | model suite |
+| `CameraInfo` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.hpp` | verified | model suite |
 | `CharacterAvailableRune` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | verified | model suite |
-| `CharacterInstance` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterInstance.h` | verified | TestCameraFollow, TestCharacterFacing, TestCombatActions |
+| `CharacterInstance` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterInstance.hpp` | verified | TestCameraFollow, TestCharacterFacing, TestCombatActions |
 | `CharacterInventoryItem` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | verified | TestCharacterEquip, TestCharacterGive, TestDropInventoryItem |
 | `CharacterPlayer` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | verified | TestCameraFollow, TestCharacterEquip, TestCharacterGive |
 | `CharacterPlayerEquipment` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/CharacterPlayer.h` | verified | model suite |
 | `Combat` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/Combat.h` | verified | TestCombat |
-| `DamageParticle` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | verified | model suite |
+| `DamageParticle` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.hpp` | verified | model suite |
 | `DefeatedCharacterRecord` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | verified | model suite |
 | `ExploredMapMask` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | verified | model suite |
-| `ItemInstance` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/ItemInstance.h` | verified | TestMapPickup, TestTileTriggers, TestListPickUp |
+| `ItemInstance` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/ItemInstance.hpp` | verified | TestMapPickup, TestTileTriggers, TestListPickUp |
 | `MapInstance` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | verified | TestCameraFollow, TestCombatActions, TestCombatZoneCast |
 | `OpenedDoorRecord` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | verified | model suite |
 | `PersistentMapState` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/Combat.h` | verified | model suite |
 | `PersistentTileFieldRecord` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/game/map/TileFields.h` | verified | model suite |
 | `Player` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/Player.h` | verified | TestEnemyBehavior, TestMapVision, ImportModel |
 | `SpellTargetInfo` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/Combat.h` | verified | model suite |
-| `TileInstance` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/TileInstance.h` | verified | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
+| `TileInstance` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/TileInstance.hpp` | verified | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
 | `TileXY` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | verified | TestWorldActionAim, TestWorldExamineAt, TestWorldTalkAt |
-| `World` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | verified | TestWorldTravel, ImportModel, TestSectionScrollable |
-| `WorldProjectile` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.h` | verified | model suite |
+| `World` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.hpp` | verified | TestWorldTravel, ImportModel, TestSectionScrollable |
+| `WorldProjectile` | struct | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/World.hpp` | verified | model suite |
 | `TileLayerMap` | using | `src/model/model.cppm (inline/declaration-only)` | `src/model/instances/MapInstance.h` | verified | model suite |
 
 ### `src/modules/_carcer.cppm`
@@ -599,16 +599,16 @@ delivery, payloads, and neutral navigation requests.
 
 | Symbol | Kind | Current implementation | Target header/source | Status | Relevant tests |
 |---|---|---|---|---|---|
-| `AbstractAction` | class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/AbstractAction.h` | verified | TestStateManagerActions |
+| `AbstractAction` | class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/AbstractAction.hpp` | verified | TestStateManagerActions |
 | `ActionBus` | class | `src/state/ActionBus.cpp` | `src/state/ActionBus.h` | verified | model/state suite |
 | `DatabaseInterface` | class | `src/state/DatabaseInterface.cpp` | `src/state/DatabaseInterface.h` | verified | TestCombatActions, TestCombatZoneCast, TestDropInventoryItem |
 | `LayerManagerInterface` | class | `src/state/LayerManagerInterface.cpp` | removed | intentionally retired | TestLayerLifecycle, TestCombat, TestLayerInventory, TestLayerPickUp |
 | `StateManager` | class | `src/state/StateManager.cpp` | `src/state/StateManager.h` | verified | TestCameraFollow, TestCombatActions, TestCombatZoneCast |
 | `StateManagerInterface` | class | `src/state/StateManager.cpp` | `src/state/StateManagerInterface.h` | verified | TestCombatActions, TestCombatZoneCast, TestEnemyBehavior |
-| `ActionEvent` | enum-class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/ActionEvent.h` | verified | TestStateManagerActions, TestPageMagicSetup |
+| `ActionEvent` | enum-class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/ActionEvent.hpp` | verified | TestStateManagerActions, TestPageMagicSetup |
 | `LayerId` | enum-class | `src/ui/layers.cpp` | `src/state/LayerRequest.h` | verified | model/state suite |
-| `UiFloatingNotificationType` | enum-class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | verified | TestFloatingNotificationSection |
-| `WorldActionType` | enum-class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/WorldActions.h` | verified | TestButtonWorldAction, TestInGameLayout |
+| `UiFloatingNotificationType` | enum-class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.hpp` | verified | TestFloatingNotificationSection |
+| `WorldActionType` | enum-class | `src/state/_State.cppm (inline/declaration-only)` | `src/state/WorldActions.hpp` | verified | TestButtonWorldAction, TestInGameLayout |
 | `layerIdFromString` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | verified | model/state suite |
 | `layerIdString` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | verified | model/state suite |
 | `pushLayerRequest` | function | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | verified | model/state suite |
@@ -616,14 +616,14 @@ delivery, payloads, and neutral navigation requests.
 | `updateUiState` | function | `src/state/UiManager.cpp` | `src/state/UiManager.h` | verified | TestStateManagerActions |
 | `ActionData` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/StateManager.h` | verified | model/state suite |
 | `AsyncAction` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/StateManager.h` | verified | model/state suite |
-| `HeldMove` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | verified | ImportActions |
+| `HeldMove` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.hpp` | verified | ImportActions |
 | `LayerRequest` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/LayerRequest.h` | verified | model/state suite |
-| `State` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | verified | TestCombatActions, TestCombatZoneCast, TestDropInventoryItem |
-| `Triggers` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/Triggers.h` | verified | model/state suite |
-| `UiFloatingNotification` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | verified | TestStateManagerActions |
-| `UiState` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | verified | model/state suite |
-| `UserSettings` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.h` | verified | model/state suite |
-| `WorldActionUiState` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/WorldActions.h` | verified | TestInGameLayout |
+| `State` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.hpp` | verified | TestCombatActions, TestCombatZoneCast, TestDropInventoryItem |
+| `Triggers` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/Triggers.hpp` | verified | model/state suite |
+| `UiFloatingNotification` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.hpp` | verified | TestStateManagerActions |
+| `UiState` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.hpp` | verified | model/state suite |
+| `UserSettings` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/State.hpp` | verified | model/state suite |
+| `WorldActionUiState` | struct | `src/state/_State.cppm (inline/declaration-only)` | `src/state/WorldActions.hpp` | verified | TestInGameLayout |
 
 ### `src/ui/_core.cppm`
 
@@ -632,18 +632,18 @@ delivery, payloads, and neutral navigation requests.
 | `StateInterface` | class | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/UiElement.h` | verified | UI compile-only suite |
 | `UiElement` | class | `src/ui/UiElement.cpp` | `src/ui/UiElement.h` | verified | TestBorderInGameNarrow, TestBorderInGameWide, TestBorderModalSmall |
 | `UiEventObserver` | class | `src/ui/UiElement.cpp` | `src/ui/UiElement.h` | verified | TestConfirmModal, TestFloatingNotificationSection, TestInGameTitleBar |
-| `BaseFontConfig` | enum-class | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.h` | verified | TestHorizontalSlider, TestSectionScrollable, TestTextParagraph |
-| `FontFamily` | enum-class | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.h` | verified | UI compile-only suite |
-| `TextAlign` | enum-class | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.h` | verified | TestHorizontalSlider, TestSectionScrollable, TestVerticalList |
+| `BaseFontConfig` | enum-class | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.hpp` | verified | TestHorizontalSlider, TestSectionScrollable, TestTextParagraph |
+| `FontFamily` | enum-class | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.hpp` | verified | UI compile-only suite |
+| `TextAlign` | enum-class | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.hpp` | verified | TestHorizontalSlider, TestSectionScrollable, TestVerticalList |
 | `applyFontScale` | function | `src/ui/FontScale.cpp` | `src/ui/FontScale.h` | verified | TestSystemFontScale |
-| `isInBounds` | function | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/uiUtils.h` | verified | UI compile-only suite |
-| `isInBoundsScaled` | function | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/uiUtils.h` | verified | UI compile-only suite |
+| `isInBounds` | function | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/uiUtils.hpp` | verified | UI compile-only suite |
+| `isInBoundsScaled` | function | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/uiUtils.hpp` | verified | UI compile-only suite |
 | `mapFontSizeToPixels` | function | `src/ui/FontScale.cpp` | `src/ui/FontScale.h` | verified | UI compile-only suite |
 | `mapPixelsToFontSize` | function | `src/ui/FontScale.cpp` | `src/ui/FontScale.h` | verified | UI compile-only suite |
-| `setBaseFontConfig` | function | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.h` | verified | TestHorizontalSlider, TestSectionScrollable, TestTextParagraph |
+| `setBaseFontConfig` | function | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.hpp` | verified | TestHorizontalSlider, TestSectionScrollable, TestTextParagraph |
 | `BaseStyle` | struct | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/UiElement.h` | verified | ImportUiCore |
-| `Colors` | struct | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/colors.h` | verified | ImportUiCore, TestButtonTextWrap, TestHorizontalSlider |
-| `TextFontProps` | struct | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.h` | verified | ImportUiCore, TestHorizontalSlider, TestSectionScrollable |
+| `Colors` | struct | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/colors.hpp` | verified | ImportUiCore, TestButtonTextWrap, TestHorizontalSlider |
+| `TextFontProps` | struct | `src/ui/_core.cppm (inline/declaration-only)` | `src/ui/TextStyle.hpp` | verified | ImportUiCore, TestHorizontalSlider, TestSectionScrollable |
 
 ### `src/ui/_layers.cppm`
 
@@ -992,7 +992,7 @@ src/layers/ui/LayerWorld.h
 ```text
 src/lib/Json.cpp
 src/lib/Json.h
-src/lib/StringUtil.h
+src/lib/StringUtil.hpp
 src/lib/hiscore/hiscore.cpp
 src/lib/hiscore/hiscore.h
 ```
@@ -1002,16 +1002,16 @@ src/lib/hiscore/hiscore.h
 ```text
 src/model/Combat.cpp
 src/model/Combat.h
-src/model/instances/CharacterInstance.h
+src/model/instances/CharacterInstance.hpp
 src/model/instances/CharacterPlayer.cpp
 src/model/instances/CharacterPlayer.h
-src/model/instances/ItemInstance.h
+src/model/instances/ItemInstance.hpp
 src/model/instances/MapInstance.cpp
 src/model/instances/MapInstance.h
 src/model/instances/Player.cpp
 src/model/instances/Player.h
-src/model/instances/TileInstance.h
-src/model/instances/World.h
+src/model/instances/TileInstance.hpp
+src/model/instances/World.hpp
 src/model/stats/CharacterDerivedStatDefinitions.cpp
 src/model/stats/CharacterDerivedStatDefinitions.h
 src/model/stats/CharacterDerivedStats.cpp
@@ -1020,22 +1020,22 @@ src/model/stats/CharacterStatDefinitions.cpp
 src/model/stats/CharacterStatDefinitions.h
 src/model/stats/CharacterStats.cpp
 src/model/stats/CharacterStats.h
-src/model/templates/Abilities.h
+src/model/templates/Abilities.hpp
 src/model/templates/AbilityTypes.cpp
 src/model/templates/AbilityTypes.h
 src/model/templates/CharacterTemplate.cpp
 src/model/templates/CharacterTemplate.h
 src/model/templates/Items.cpp
 src/model/templates/Items.h
-src/model/templates/MapGrids.h
+src/model/templates/MapGrids.hpp
 src/model/templates/Maps.cpp
 src/model/templates/Maps.h
 src/model/templates/RuneTypes.cpp
 src/model/templates/RuneTypes.h
-src/model/templates/SpecialEvents.h
-src/model/templates/Spells.h
-src/model/templates/StatusEffects.h
-src/model/templates/Tileset.h
+src/model/templates/SpecialEvents.hpp
+src/model/templates/Spells.hpp
+src/model/templates/StatusEffects.hpp
+src/model/templates/Tileset.hpp
 src/model/templates/UtilityTypes.cpp
 src/model/templates/UtilityTypes.h
 ```
@@ -1056,24 +1056,24 @@ src/runner/StringEvaluator.h
 ### state
 
 ```text
-src/state/AbstractAction.h
+src/state/AbstractAction.hpp
 src/state/ActionBus.cpp
 src/state/ActionBus.h
 src/state/DatabaseInterface.cpp
 src/state/DatabaseInterface.h
 src/state/LayerManagerInterface.cpp
 src/state/LayerManagerInterface.h
-src/state/State.h
+src/state/State.hpp
 src/state/StateManager.cpp
 src/state/StateManager.h
 src/state/StateManagerInterface.cpp
 src/state/StateManagerInterface.h
-src/state/Triggers.h
+src/state/Triggers.hpp
 src/state/UiManager.cpp
 src/state/UiManager.h
-src/state/WorldActions.h
+src/state/WorldActions.hpp
 src/state/WorldUpdater.cpp
-src/state/WorldUpdater.h
+src/actions/world/WorldUpdater.h
 src/state/actions/combat/ActionBase.hpp
 src/state/actions/combat/CharacterSetSpriteIndexOffset.hpp
 src/state/actions/combat/DoCPUCombatTurn.hpp
@@ -1149,11 +1149,11 @@ src/ui/FontScale.cpp
 src/ui/FontScale.h
 src/ui/KeyboardHeldScroll.cpp
 src/ui/KeyboardHeldScroll.h
-src/ui/SdlPixels.h
-src/ui/TextStyle.h
+src/ui/SdlPixels.hpp
+src/ui/TextStyle.hpp
 src/ui/UiElement.cpp
 src/ui/UiElement.h
-src/ui/colors.h
+src/ui/colors.hpp
 src/ui/components/ChCompactInfo.cpp
 src/ui/components/ChCompactInfo.h
 src/ui/components/ConfirmModal.cpp
@@ -1308,7 +1308,7 @@ src/ui/popups/PopupPickupItem.cpp
 src/ui/popups/PopupPickupItem.h
 src/ui/popups/PopupSpellInfo.cpp
 src/ui/popups/PopupSpellInfo.h
-src/ui/uiUtils.h
+src/ui/uiUtils.hpp
 ```
 
 ## Phase verification ledger

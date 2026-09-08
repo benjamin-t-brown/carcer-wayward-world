@@ -5,10 +5,13 @@ alwaysApply: true
 
 # Windows Build Environment (MSYS2 UCRT64)
 
-Carcer uses CMake presets with Ninja. Build the narrowest target needed.
+Carcer uses CMake presets with Ninja. After `scripts/setup-dev.sh`, the normal
+developer entry point is the convenience Makefile under `src/`:
 
-- Windows: `.\scripts\Invoke-Ucrt64.ps1 "cmake --preset ucrt64-debug && cmake --build --preset ucrt64-debug --target CARCER"`
-- Linux/macOS: `cmake --preset gcc-debug && cmake --build --preset gcc-debug --target CARCER`
+- Windows: `.\scripts\Invoke-Ucrt64.ps1 "make -C src"`
+- Linux/macOS: `make -C src`
+
+The Makefile delegates to CMake; use explicit presets for qualification work.
 
 On Windows, run UCRT64 compiler and bash commands through the repository
 wrapper from PowerShell:
@@ -21,5 +24,6 @@ wrapper from PowerShell:
 ```
 
 `scripts/Invoke-Ucrt64.ps1` auto-detects common MSYS2 installations. Override
-with `MSYS2_ROOT` if needed. CMake generates compile commands under
-`build/cmake/ucrt64-debug/compile_commands.json`.
+with `MSYS2_ROOT` if needed. Developer setup generates compile commands under
+`build/cmake/dev-debug/compile_commands.json`; explicit UCRT64 qualification
+uses `build/cmake/ucrt64-debug/compile_commands.json`.

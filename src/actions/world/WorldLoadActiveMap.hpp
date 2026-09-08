@@ -4,9 +4,9 @@
 #include "game/map/CharacterConstruction.h"
 #include "game/map/MapPersistence.h"
 #include "model/Combat.h"
-#include "model/instances/World.h"
-#include "state/AbstractAction.h"
-#include "state/State.h"
+#include "model/instances/World.hpp"
+#include "state/AbstractAction.hpp"
+#include "state/State.hpp"
 
 namespace state {
 

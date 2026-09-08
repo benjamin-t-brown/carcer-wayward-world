@@ -1,8 +1,8 @@
 #pragma once
 
 #include "model/instances/MapInstance.h"
-#include "model/instances/World.h"
-#include "model/templates/MapGrids.h"
+#include "model/instances/World.hpp"
+#include "model/templates/MapGrids.hpp"
 
 namespace db {
 class Database;
