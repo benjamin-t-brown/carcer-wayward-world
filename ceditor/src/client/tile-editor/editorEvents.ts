@@ -405,31 +405,51 @@ export const initPanzoom = (mapDataInterface: {
       });
     }
   };
+  const clearHoveredGridSlot = () => {
+    if (mapDataInterface.getEditorState().hoveredGridAdjacentSlot) {
+      updateEditorStateNoReRender({ hoveredGridAdjacentSlot: null });
+    }
+  };
+
+  const refreshHoveredGridSlot = (ev: MouseEvent) => {
+    if (!isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())) {
+      clearHoveredGridSlot();
+      return;
+    }
+    const gridSlotHit = findGridSlotAtScreen(
+      ev.clientX,
+      ev.clientY,
+      mapDataInterface
+    );
+    const nextHovered = gridSlotHit
+      ? {
+          offsetX: gridSlotHit.slot.offsetX,
+          offsetY: gridSlotHit.slot.offsetY,
+        }
+      : null;
+    const prevHovered =
+      mapDataInterface.getEditorState().hoveredGridAdjacentSlot;
+    if (
+      nextHovered?.offsetX !== prevHovered?.offsetX ||
+      nextHovered?.offsetY !== prevHovered?.offsetY
+    ) {
+      updateEditorStateNoReRender({
+        hoveredGridAdjacentSlot: nextHovered,
+      });
+    }
+  };
+
   const handleMouseMove = (ev: MouseEvent) => {
     mapEditorEventState.mouseX = ev.clientX;
     mapEditorEventState.mouseY = ev.clientY;
 
-    const canvas = mapDataInterface.getCanvas();
-    if (isEventWithCanvasTarget(ev, canvas)) {
-      const gridSlotHit = findGridSlotAtScreen(ev.clientX, ev.clientY, mapDataInterface);
-      const nextHovered = gridSlotHit
-        ? {
-            offsetX: gridSlotHit.slot.offsetX,
-            offsetY: gridSlotHit.slot.offsetY,
-          }
-        : null;
-      const prevHovered =
-        mapDataInterface.getEditorState().hoveredGridAdjacentSlot;
-      if (
-        nextHovered?.offsetX !== prevHovered?.offsetX ||
-        nextHovered?.offsetY !== prevHovered?.offsetY
-      ) {
-        updateEditorStateNoReRender({
-          hoveredGridAdjacentSlot: nextHovered,
-        });
-      }
-    } else if (mapDataInterface.getEditorState().hoveredGridAdjacentSlot) {
-      updateEditorStateNoReRender({ hoveredGridAdjacentSlot: null });
+    // While panning the slot hotspots move with the view, so a hit test against
+    // the pre-move transform is stale anyway, and mousemove outruns the frame
+    // rate. Skip it here and refresh once on mouseup.
+    if (mapEditorEventState.isDragging) {
+      clearHoveredGridSlot();
+    } else {
+      refreshHoveredGridSlot(ev);
     }
 
     if (mapEditorEventState.isDragging) {
@@ -482,6 +502,7 @@ export const initPanzoom = (mapDataInterface: {
         ev.clientY -
         mapEditorEventState.lastClickY;
       mapEditorEventState.isDragging = false;
+      refreshHoveredGridSlot(ev);
     }
     if (mapEditorEventState.isPainting) {
       mapEditorEventState.isPainting = false;
@@ -658,6 +679,9 @@ export const initPanzoom = (mapDataInterface: {
     mapEditorEventState.translateY = offsetY;
     mapEditorEventState.scale = nextScale;
   };
+  lastAppliedCursor = null;
+  invalidateCanvasRectCache();
+
   window.addEventListener('keydown', handleKeyDown);
   window.addEventListener('keyup', handleKeyUp);
   window.addEventListener('mousedown', handleMouseDown);
@@ -698,6 +722,8 @@ export const getTransform = () => {
   };
 };
 
+let lastAppliedCursor: string | null = null;
+
 export const updateMapCanvasCursor = (
   canvas: HTMLCanvasElement | null,
   paintAction: PaintActionType,
@@ -708,23 +734,24 @@ export const updateMapCanvasCursor = (
   if (!canvas) {
     return;
   }
+
+  let cursor = '';
   if (mapEditorEventState.isDragging || isSelectDragging) {
-    canvas.style.cursor = 'grabbing';
-    return;
+    cursor = 'grabbing';
+  } else if (hoveredGridAdjacentSlot) {
+    cursor = 'pointer';
+  } else if (paintAction === PaintActionType.SELECT && hoveredTileIndex >= 0) {
+    cursor = 'pointer';
+  } else if (paintAction === PaintActionType.CLONE) {
+    cursor = 'grab';
   }
-  if (hoveredGridAdjacentSlot) {
-    canvas.style.cursor = 'pointer';
-    return;
+
+  // This runs every frame; writing the style unconditionally dirties layout and
+  // makes the next getBoundingClientRect() a forced reflow.
+  if (cursor !== lastAppliedCursor) {
+    canvas.style.cursor = cursor;
+    lastAppliedCursor = cursor;
   }
-  if (paintAction === PaintActionType.SELECT && hoveredTileIndex >= 0) {
-    canvas.style.cursor = 'pointer';
-    return;
-  }
-  if (paintAction === PaintActionType.CLONE) {
-    canvas.style.cursor = 'grab';
-    return;
-  }
-  canvas.style.cursor = '';
 };
 
 export const resetPanzoom = () => {
@@ -847,17 +874,37 @@ export const getIndsOfBoundingRect = (
   return inds;
 };
 
+/**
+ * getBoundingClientRect() forces a synchronous layout. Mouse events fire far
+ * more often than frames (up to 1000Hz on a high-polling mouse), and the render
+ * loop writes canvas.style.cursor each frame, so measuring per event thrashes
+ * layout while panning. Measure at most once per frame instead.
+ */
+let cachedCanvasRect: { canvas: HTMLCanvasElement; left: number; top: number } | null =
+  null;
+
+export const invalidateCanvasRectCache = () => {
+  cachedCanvasRect = null;
+};
+
+const getCanvasOffset = (panzoomCanvas: HTMLCanvasElement) => {
+  if (cachedCanvasRect && cachedCanvasRect.canvas === panzoomCanvas) {
+    return cachedCanvasRect;
+  }
+  const { left, top } = panzoomCanvas?.getBoundingClientRect() ?? {
+    left: 0,
+    top: 0,
+  };
+  cachedCanvasRect = { canvas: panzoomCanvas, left, top };
+  return cachedCanvasRect;
+};
+
 export const screenCoordsToCanvasCoords = (
   x: number,
   y: number,
   panzoomCanvas: HTMLCanvasElement
 ) => {
-  const { left, top } = panzoomCanvas?.getBoundingClientRect() || {
-    left: 0,
-    top: 0,
-    width: 0,
-    height: 0,
-  };
+  const { left, top } = getCanvasOffset(panzoomCanvas);
 
   const canvasX = x - left;
   const canvasY = y - top;

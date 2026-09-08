@@ -30,12 +30,14 @@ import {
 import {
   getTileList,
   getTransform,
+  invalidateCanvasRectCache,
   updateMapCanvasCursor,
 } from './editorEvents';
 import { PaintActionType } from './paintTools';
 import { Sprite } from '../utils/assetLoader';
 import {
   drawOverlayTextEntries,
+  getVisibleTileRange,
   OverlayTextEntry,
   renderGridAdjacentNavigation,
   renderMapTilesAtOffset,
@@ -75,6 +77,10 @@ export const loop = (
   // if (!appState) {
   //   return;
   // }
+
+  // The canvas can only move between frames, so one measurement per frame is
+  // enough; every mouse event in between reuses it instead of forcing a layout.
+  invalidateCanvasRectCache();
 
   const ctx = mapDataInterface.getCanvas().getContext('2d');
   if (!ctx) {
@@ -150,8 +156,18 @@ export const loop = (
   if (currentMap) {
     const { x, y, scale } = getTransform();
     const canvas = mapDataInterface.getCanvas();
-    const spriteWidth = mapDataInterface.getMapData().spriteWidth;
-    const spriteHeight = mapDataInterface.getMapData().spriteHeight;
+    // Hoisted out of the per-tile loops: getAssets() allocates a fresh object
+    // on every call, and getTileList() walks the layer cache on every call.
+    const assets = mapDataInterface.getAssets();
+    const editorState = mapDataInterface.getEditorState();
+    const spriteMap = mapDataInterface.getSpriteMap();
+    const tilesets = mapDataInterface.getTilesets();
+    const mapTiles = getTileList(currentMap);
+    const hoveredMapTileIndex =
+      getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
+    const showGrid = editorState.showGrid;
+    const spriteWidth = currentMap.spriteWidth;
+    const spriteHeight = currentMap.spriteHeight;
     const { x: panX, y: panY } = snapPixelArtPanOffset(
       x,
       y,
@@ -170,33 +186,33 @@ export const loop = (
     for (let i = 0; i < 1; i++) {
       const newScale = scale * (1 + i * 0.04);
 
-      const focalX = mapDataInterface.getCanvas().width / 2;
-      const focalY = mapDataInterface.getCanvas().height / 2;
+      const focalX = canvas.width / 2;
+      const focalY = canvas.height / 2;
 
       const offsetX = focalX - (newScale / scale) * (focalX - panX);
       const offsetY = focalY - (newScale / scale) * (focalY - panY);
 
+      // Canvas-space position of this map's top-left tile, used for culling.
+      const originX =
+        offsetX +
+        (canvas.width * newScale) / 2 -
+        (currentMap.width * spriteWidth * newScale) / 2;
+      const originY =
+        offsetY +
+        (canvas.height * newScale) / 2 -
+        (currentMap.height * spriteHeight * newScale) / 2;
+
       ctx.save();
       ctx.translate(offsetX, offsetY);
       ctx.translate(
-        (mapDataInterface.getCanvas().width * newScale) / 2,
-        (mapDataInterface.getCanvas().height * newScale) / 2
+        (canvas.width * newScale) / 2,
+        (canvas.height * newScale) / 2
       );
       ctx.translate(
-        -(
-          currentMap.width *
-          mapDataInterface.getMapData().spriteWidth *
-          newScale
-        ) / 2,
-        -(
-          currentMap.height *
-          mapDataInterface.getMapData().spriteHeight *
-          newScale
-        ) / 2
+        -(currentMap.width * spriteWidth * newScale) / 2,
+        -(currentMap.height * spriteHeight * newScale) / 2
       );
 
-      const assets = mapDataInterface.getAssets();
-      const editorState = mapDataInterface.getEditorState();
       const overlayTextEntries: OverlayTextEntry[] | undefined =
         editorState.drawOverlayText ? [] : undefined;
       const placement = findMapGridPlacement(currentMap.name, assets.mapGrids);
@@ -218,18 +234,31 @@ export const loop = (
         adjacentSlots = getGridAdjacentSlots(placement, mapsByName);
         const adjacentMaps = getGridAdjacentMaps(placement, mapsByName);
         for (const adjacent of adjacentMaps) {
+          const offsetPixelX = adjacent.offsetX * slotWidth;
+          const offsetPixelY = adjacent.offsetY * slotHeight;
           renderMapTilesAtOffset({
             map: adjacent.map,
             ctx,
             scale: newScale,
-            offsetPixelX: adjacent.offsetX * slotWidth,
-            offsetPixelY: adjacent.offsetY * slotHeight,
+            offsetPixelX,
+            offsetPixelY,
             opacity: 0.5,
-            spriteMap: mapDataInterface.getSpriteMap(),
-            tilesets: mapDataInterface.getTilesets(),
+            spriteMap,
+            tilesets,
             characters: assets.characters,
             items: assets.items,
             layer: editorState.currentLevel,
+            visibleRange: getVisibleTileRange({
+              originX: originX + offsetPixelX,
+              originY: originY + offsetPixelY,
+              canvasWidth: canvas.width,
+              canvasHeight: canvas.height,
+              mapWidth: adjacent.map.width,
+              mapHeight: adjacent.map.height,
+              tileWidth: adjacent.map.spriteWidth,
+              tileHeight: adjacent.map.spriteHeight,
+              scale: newScale,
+            }),
           });
         }
 
@@ -254,10 +283,29 @@ export const loop = (
         );
       }
 
-      for (let y = 0; y < currentMap.height; y++) {
-        for (let x = 0; x < currentMap.width; x++) {
+      const visibleRange = getVisibleTileRange({
+        originX,
+        originY,
+        canvasWidth: canvas.width,
+        canvasHeight: canvas.height,
+        mapWidth: currentMap.width,
+        mapHeight: currentMap.height,
+        tileWidth: spriteWidth,
+        tileHeight: spriteHeight,
+        scale: newScale,
+      });
+
+      for (
+        let y = visibleRange?.minY ?? 0;
+        y <= (visibleRange?.maxY ?? -1);
+        y++
+      ) {
+        for (
+          let x = visibleRange?.minX ?? 0;
+          x <= (visibleRange?.maxX ?? -1);
+          x++
+        ) {
           const tileIndex = y * currentMap.width + x;
-          const mapTiles = getTileList(currentMap);
           const refTile = mapTiles[tileIndex];
           renderTileAndExtras({
             refTile,
@@ -265,12 +313,12 @@ export const loop = (
             y,
             ctx,
             newScale,
-            spriteMap: mapDataInterface.getSpriteMap(),
-            mapSpriteWidth: mapDataInterface.getMapData().spriteWidth,
-            mapSpriteHeight: mapDataInterface.getMapData().spriteHeight,
-            tilesets: mapDataInterface.getTilesets(),
-            characters: mapDataInterface.getAssets().characters,
-            items: mapDataInterface.getAssets().items,
+            spriteMap,
+            mapSpriteWidth: spriteWidth,
+            mapSpriteHeight: spriteHeight,
+            tilesets,
+            characters: assets.characters,
+            items: assets.items,
             overlayTextEntries,
           });
 
@@ -279,9 +327,6 @@ export const loop = (
             const y1 = y * spriteHeight * newScale;
             const x2 = x1 + spriteWidth * newScale;
             const y2 = y1 + spriteHeight * newScale;
-            const hoveredMapTileIndex = getEditorStateMap(
-              mapDataInterface.getEditorState().selectedMapName
-            )?.hoveredTileIndex;
             let color = 'rgba(255, 255, 255, 0.25)';
             if (tileIndex === hoveredMapTileIndex) {
               color = 'rgba(100, 100, 255, 0.5)';
@@ -289,7 +334,7 @@ export const loop = (
               drawLine(x1, y1, x1, y2, color, 2, ctx);
               drawLine(x2, y2, x2, y1, color, 2, ctx);
               drawLine(x2, y2, x1, y2, color, 2, ctx);
-            } else if (mapDataInterface.getEditorState().showGrid) {
+            } else if (showGrid) {
               drawLine(x1, y1, x2, y1, color, 1, ctx);
               drawLine(x1, y1, x1, y2, color, 1, ctx);
             }
@@ -305,13 +350,13 @@ export const loop = (
     }
 
     renderToolUi(
-      mapDataInterface.getEditorState(),
+      editorState,
       currentMap,
       ctx,
-      mapDataInterface.getSpriteMap(),
-      mapDataInterface.getTilesets(),
-      mapDataInterface.getAssets().characters,
-      mapDataInterface.getAssets().items
+      spriteMap,
+      tilesets,
+      assets.characters,
+      assets.items
     );
   }
 };

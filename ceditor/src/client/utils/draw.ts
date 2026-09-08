@@ -64,7 +64,9 @@ export const drawSprite = (
 
   const drawable = getCachedDrawable(sprite);
   if (!drawable) {
-    throw new Error('Drawable not found');
+    // Sprite sheets are extracted asynchronously; a not-yet-ready drawable is
+    // normal during load. Throwing here would abort the frame mid-transform.
+    return;
   }
 
   disableCanvasSmoothing(ctx);

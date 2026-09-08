@@ -64,7 +64,8 @@ export interface PaintAction {
   data: PaintActionData;
 }
 
-const actionList: PaintAction[] = [];
+/** Cap per-map undo depth; each entry deep-clones every tile it touched. */
+const MAX_UNDO_HISTORY = 100;
 
 let currentAction: PaintAction | null = null;
 export const setCurrentAction = (action: PaintAction) => {
@@ -87,7 +88,6 @@ export const createPaintAction = (type: PaintActionType) => {
       // prevObjectList: [],
     },
   };
-  actionList.push(paintAction);
   return paintAction;
 };
 
@@ -229,7 +229,6 @@ export const onActionComplete = (
   editorState: EditorState,
 ) => {
   currentAction = null;
-  console.log('ACTION COMPLETE', action);
   applyAction(action, mapData, editorState);
 
   // Add action to undo history
@@ -246,6 +245,10 @@ export const onActionComplete = (
 
   // Add the new action to history
   newUndoHistory.push(structuredClone(action));
+  // Drop the oldest entries rather than letting history grow for the session.
+  if (newUndoHistory.length > MAX_UNDO_HISTORY) {
+    newUndoHistory.splice(0, newUndoHistory.length - MAX_UNDO_HISTORY);
+  }
   const newUndoIndex = newUndoHistory.length - 1;
 
   updateEditorStateMapNoReRender(editorState.selectedMapName, {

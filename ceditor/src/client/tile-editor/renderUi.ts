@@ -15,6 +15,73 @@ export type OverlayTextEntry = {
   textParams: DrawTextParams;
 };
 
+/** Inclusive tile bounds that intersect the canvas, or null if fully off-screen. */
+export type VisibleTileRange = {
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+};
+
+/**
+ * Tiles outside the canvas still cost a drawImage each, so a 30x30 map with 8
+ * stitched neighbours redraws 8100 tiles a frame. Clip to what can be seen.
+ * The margin covers sprites drawn taller/wider than their tile.
+ */
+export const getVisibleTileRange = (args: {
+  originX: number;
+  originY: number;
+  canvasWidth: number;
+  canvasHeight: number;
+  mapWidth: number;
+  mapHeight: number;
+  tileWidth: number;
+  tileHeight: number;
+  scale: number;
+  marginTiles?: number;
+}): VisibleTileRange | null => {
+  const {
+    originX,
+    originY,
+    canvasWidth,
+    canvasHeight,
+    mapWidth,
+    mapHeight,
+    tileWidth,
+    tileHeight,
+    scale,
+    marginTiles = 2,
+  } = args;
+
+  const stepX = tileWidth * scale;
+  const stepY = tileHeight * scale;
+  if (stepX <= 0 || stepY <= 0) {
+    return { minX: 0, maxX: mapWidth - 1, minY: 0, maxY: mapHeight - 1 };
+  }
+
+  const minX = Math.max(
+    0,
+    Math.floor(-originX / stepX) - marginTiles,
+  );
+  const maxX = Math.min(
+    mapWidth - 1,
+    Math.ceil((canvasWidth - originX) / stepX) + marginTiles,
+  );
+  const minY = Math.max(
+    0,
+    Math.floor(-originY / stepY) - marginTiles,
+  );
+  const maxY = Math.min(
+    mapHeight - 1,
+    Math.ceil((canvasHeight - originY) / stepY) + marginTiles,
+  );
+
+  if (minX > maxX || minY > maxY) {
+    return null;
+  }
+  return { minX, maxX, minY, maxY };
+};
+
 export const drawOverlayTextEntries = (
   ctx: CanvasRenderingContext2D,
   entries: OverlayTextEntry[],
@@ -237,10 +304,13 @@ export const renderToolUi = (
       const paintX = hoveredTileInd % mapData.width;
       const paintY = Math.floor(hoveredTileInd / mapData.width);
       const mapState = getEditorStateMap(editorState.selectedMapName);
-      const lookup = buildTerrainLookup(terrainTileset);
       if (!mapState) {
+        // Must not early-return past the ctx.restore() below: an unbalanced
+        // save() grows the canvas state stack by one entry every frame.
+        ctx.restore();
         return;
       }
+      const lookup = buildTerrainLookup(terrainTileset);
 
       const tileChanges = getTileChangesForPaintingTerrainAt(
         mapData,
@@ -473,6 +543,7 @@ export const renderMapTilesAtOffset = (args: {
   items: ItemTemplate[];
   layer: number;
   overlayTextEntries?: OverlayTextEntry[];
+  visibleRange?: VisibleTileRange | null;
 }) => {
   const {
     map,
@@ -487,15 +558,26 @@ export const renderMapTilesAtOffset = (args: {
     items,
     layer,
     overlayTextEntries,
+    visibleRange,
   } = args;
+
+  if (visibleRange === null) {
+    return;
+  }
+  const range = visibleRange ?? {
+    minX: 0,
+    maxX: map.width - 1,
+    minY: 0,
+    maxY: map.height - 1,
+  };
 
   const mapTiles = getMaterializedLayer(map, layer);
   ctx.save();
   ctx.globalAlpha = opacity;
   ctx.translate(offsetPixelX, offsetPixelY);
 
-  for (let y = 0; y < map.height; y++) {
-    for (let x = 0; x < map.width; x++) {
+  for (let y = range.minY; y <= range.maxY; y++) {
+    for (let x = range.minX; x <= range.maxX; x++) {
       const tileIndex = y * map.width + x;
       renderTileAndExtras({
         refTile: mapTiles[tileIndex],

@@ -10,7 +10,13 @@ export function useRenderLoop(callback: (ts: number) => void) {
 
   useEffect(() => {
     const loop = (ts: number) => {
-      callbackRef.current(ts);
+      // Reschedule even if the frame threw (e.g. a sprite that has not loaded
+      // yet); otherwise a single exception stops the loop for the session.
+      try {
+        callbackRef.current(ts);
+      } catch (e) {
+        console.error('render loop frame failed', e);
+      }
       frameRef.current = requestAnimationFrame(loop);
     };
 

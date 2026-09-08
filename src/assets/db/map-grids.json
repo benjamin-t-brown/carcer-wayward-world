@@ -1,5 +1,30 @@
 [
   {
+    "name": "Alinea",
+    "label": "Alinea",
+    "gridWidth": 3,
+    "gridHeight": 3,
+    "mapWidth": 40,
+    "mapHeight": 40,
+    "cells": [
+      [
+        "Alinea2",
+        "",
+        ""
+      ],
+      [
+        "Alinea1",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
     "name": "OutsideAlinea",
     "label": "Alinea Outside",
     "gridWidth": 3,
