@@ -23,7 +23,7 @@ void BorderInGame::addOutsetRect(int x, int y, int width, int height) {
       .height = height,
       .borderSize = inGameProps().outsetBorderSize,
   });
-  addChild(rectangle);
+  addChild(bmin::UniquePtr<ui::UiElement>(rectangle));
 }
 
 const std::pair<int, int> BorderInGame::getTitleLocation() const {

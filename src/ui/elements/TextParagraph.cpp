@@ -285,7 +285,7 @@ void TextParagraph::build() {
       lineProps.textAlign = props.textAlign;
       textLine->setProps(lineProps);
 
-      quad->addChild(textLine);
+      quad->addChild(bmin::UniquePtr<ui::UiElement>(textLine));
       currentLineBlocks.clear();
 
       currentY += lineBoxAdvance(currentLineMaxHeight,
@@ -334,7 +334,7 @@ void TextParagraph::build() {
       lineProps.textAlign = props.textAlign;
       textLine->setProps(lineProps);
 
-      quad->addChild(textLine);
+      quad->addChild(bmin::UniquePtr<ui::UiElement>(textLine));
     }
   }
 

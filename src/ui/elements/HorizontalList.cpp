@@ -26,12 +26,8 @@ int HorizontalList::getSelectedIndex() const { return selectedIndex; }
 
 void HorizontalList::clearSelection() { selectedIndex = -1; }
 
-void HorizontalList::addListItem(UiElement* item) { addChild(item); }
-
-void HorizontalList::addListItems(const bmin::DynArray<UiElement*>& items) {
-  for (auto* item : items) {
-    addListItem(item);
-  }
+void HorizontalList::addListItem(bmin::UniquePtr<UiElement> item) {
+  addChild(bmin::move(item));
 }
 
 void HorizontalList::removeListItemAtIndex(size_t index) {

@@ -29,8 +29,6 @@ namespace layers {
 LayerManager::LayerManager(sdl2w::Window* _window, LayerFactory layerFactory)
     : window(_window), layerFactory(std::move(layerFactory)) {}
 
-LayerManager::~LayerManager() { clearLayers(); }
-
 void LayerManager::bindEvents() {
   if (!window) {
     return;
@@ -97,8 +95,8 @@ bool LayerManager::isLiveLayer(const Layer* layer) const {
   if (layer == nullptr || layer->shouldRemove()) {
     return false;
   }
-  for (auto* entry : layers) {
-    if (entry == layer) {
+  for (const auto& entry : layers) {
+    if (entry.get() == layer) {
       return true;
     }
   }
@@ -109,11 +107,11 @@ void LayerManager::activateLayerNoPush(Layer* layer) {
   if (layer == nullptr) {
     return;
   }
-  for (auto* entry : layers) {
+  for (const auto& entry : layers) {
     if (entry->shouldRemove()) {
       continue;
     }
-    if (entry == layer) {
+    if (entry.get() == layer) {
       entry->turnOn();
     } else {
       entry->suspend();
@@ -145,37 +143,19 @@ void LayerManager::removeLayer(Layer* layer) {
     return;
   }
   scrubFromStack(layer);
-  layers.eraseIf([layer](Layer* entry) { return entry == layer; });
   layer->turnOff();
-  delete layer;
+  layers.eraseIf(
+      [layer](const bmin::UniquePtr<Layer>& entry) { return entry.get() == layer; });
 }
 
-void LayerManager::removeLayerAt(size_t index) {
-  if (index < layers.size()) {
-    Layer* layer = layers[index];
-    scrubFromStack(layer);
-    layer->turnOff();
-    delete layer;
-    layers.erase(layers.begin() + index);
-  }
-}
-
-void LayerManager::clearLayers() {
-  layerEventsStack.clear();
-  for (auto layer : layers) {
-    layer->turnOff();
-    delete layer;
-  }
-  layers.clear();
-}
-
-void LayerManager::addLayer(Layer* layer) {
+void LayerManager::addLayer(bmin::UniquePtr<Layer> layer) {
   if (!layer) {
     return;
   }
-  layers.pushBack(layer);
+  Layer* raw = layer.get();
+  layers.pushBack(bmin::move(layer));
   if (auto* stateManager = getStateManager()) {
-    if (auto id = state::layerIdFromString(bmin::toStringView(layer->getId()))) {
+    if (auto id = state::layerIdFromString(bmin::toStringView(raw->getId()))) {
       bool present = false;
       for (const auto& request : stateManager->getState().uiState.layerStack) {
         if (request.id == *id) {
@@ -200,8 +180,8 @@ void LayerManager::moveToFront(Layer* layer) {
              << LOG_ENDL;
 
   bool found = false;
-  for (auto* entry : layers) {
-    if (entry == layer) {
+  for (const auto& entry : layers) {
+    if (entry.get() == layer) {
       found = true;
       break;
     }
@@ -287,26 +267,22 @@ void LayerManager::handleKeyUp(std::string_view key, int keyCode) {
   }
 }
 
-bmin::DynArray<Layer*>& LayerManager::getLayers() { return layers; }
-
-const bmin::DynArray<Layer*>& LayerManager::getLayers() const { return layers; }
-
 size_t LayerManager::getLayerCount() const { return layers.size(); }
 
 Layer* LayerManager::getLayerAt(size_t index) {
   if (index < layers.size()) {
-    return layers[index];
+    return layers[index].get();
   }
   return nullptr;
 }
 
 Layer* LayerManager::getLayerById(std::string_view id) {
-  for (auto& layer : layers) {
+  for (const auto& layer : layers) {
     if (layer->shouldRemove()) {
       continue;
     }
     if (bmin::toStringView(layer->getId()) == id) {
-      return layer;
+      return layer.get();
     }
   }
   return nullptr;
@@ -317,7 +293,7 @@ Layer* LayerManager::getLastActiveLayer() {
     return nullptr;
   }
   for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
-    auto* layer = *it;
+    auto* layer = (*it).get();
     if (layer && !layer->shouldRemove()) {
       return layer;
     }
@@ -325,7 +301,7 @@ Layer* LayerManager::getLastActiveLayer() {
   return nullptr;
 }
 
-Layer* LayerManager::createLayer(const state::LayerRequest& request) {
+bmin::UniquePtr<Layer> LayerManager::createLayer(const state::LayerRequest& request) {
   if (layerFactory) {
     return layerFactory(request);
   }
@@ -335,57 +311,58 @@ Layer* LayerManager::createLayer(const state::LayerRequest& request) {
   case state::LayerId::Inventory:
     return createInventoryLayer(window);
   case state::LayerId::InventoryContext:
-    return new LayerInventoryContext(window, request.a, request.b);
+    return bmin::UniquePtr<Layer>(new LayerInventoryContext(window, request.a, request.b));
   case state::LayerId::Magic:
-    return new LayerMagic(window);
+    return bmin::UniquePtr<Layer>(new LayerMagic(window));
   case state::LayerId::SpellCast:
-    return new LayerSpellCast(window, request.a);
+    return bmin::UniquePtr<Layer>(new LayerSpellCast(window, request.a));
   case state::LayerId::SpellInfo:
-    return new LayerSpellInfo(window, request.a);
+    return bmin::UniquePtr<Layer>(new LayerSpellInfo(window, request.a));
   case state::LayerId::EquipRunes:
-    return new LayerEquipRunes(window, request.a);
+    return bmin::UniquePtr<Layer>(new LayerEquipRunes(window, request.a));
   case state::LayerId::PickUp:
     return request.hasPosition
-               ? static_cast<Layer*>(new LayerPickUp(window, request.x, request.y))
+               ? bmin::UniquePtr<Layer>(new LayerPickUp(window, request.x, request.y))
                : createPickUpLayer(window);
   case state::LayerId::PickUpContext: {
     auto* stateManager = getStateManager();
     if (!stateManager) {
-      return nullptr;
+      return bmin::UniquePtr<Layer>();
     }
     for (const auto& item : stateManager->getState().world.activeMap.items) {
       if (item.id == request.a) {
-        return new LayerPickUpContext(window, item);
+        return bmin::UniquePtr<Layer>(new LayerPickUpContext(window, item));
       }
     }
-    return nullptr;
+    return bmin::UniquePtr<Layer>();
   }
   case state::LayerId::DropConfirm:
-    return new LayerDropConfirm(window, request.a, request.b);
+    return bmin::UniquePtr<Layer>(new LayerDropConfirm(window, request.a, request.b));
   case state::LayerId::GiveContext:
-    return new LayerGiveContext(window, request.a, request.b);
+    return bmin::UniquePtr<Layer>(new LayerGiveContext(window, request.a, request.b));
   case state::LayerId::PopupText:
-    return new LayerPopupText(window, request.a, request.b);
+    return bmin::UniquePtr<Layer>(new LayerPopupText(window, request.a, request.b));
   case state::LayerId::SpecialEvent: {
     auto* stateManager = getStateManager();
     auto* database = getDatabase();
     if (!stateManager || !database) {
-      return nullptr;
+      return bmin::UniquePtr<Layer>();
     }
     try {
       const auto& event = database->getGameEvent(request.a.sliceView());
-      return new LayerSpecialEvent(window,
-                                   event,
-                                   database->getGameEvents(),
-                                   stateManager->getState().specialEventStorage);
+      return bmin::UniquePtr<Layer>(
+          new LayerSpecialEvent(window,
+                                event,
+                                database->getGameEvents(),
+                                stateManager->getState().specialEventStorage));
     } catch (const std::exception& error) {
       LOG(ERROR) << "LayerManager: cannot create special-event layer: "
                  << error.what() << LOG_ENDL;
-      return nullptr;
+      return bmin::UniquePtr<Layer>();
     }
   }
   }
-  return nullptr;
+  return bmin::UniquePtr<Layer>();
 }
 
 void LayerManager::reconcileRequests() {
@@ -395,7 +372,7 @@ void LayerManager::reconcileRequests() {
   }
   auto& requests = stateManager->getState().uiState.layerStack;
 
-  for (auto* layer : layers) {
+  for (const auto& layer : layers) {
     const auto id = state::layerIdFromString(bmin::toStringView(layer->getId()));
     if (!id || layer->shouldRemove()) {
       continue;
@@ -409,7 +386,7 @@ void LayerManager::reconcileRequests() {
     }
     if (!requested) {
       layer->remove();
-      scrubFromStack(layer);
+      scrubFromStack(layer.get());
     }
   }
 
@@ -417,12 +394,11 @@ void LayerManager::reconcileRequests() {
   for (const auto& request : requestedLayers) {
     const auto id = state::layerIdString(request.id);
     if (!getLayerById(id)) {
-      if (auto* layer = createLayer(request)) {
+      if (auto layer = createLayer(request)) {
         if (layer->shouldRemove()) {
-          delete layer;
           state::removeLayerRequest(stateManager->getState(), request.id);
         } else {
-          addLayer(layer);
+          addLayer(bmin::move(layer));
         }
       } else {
         state::removeLayerRequest(stateManager->getState(), request.id);
@@ -451,7 +427,7 @@ void LayerManager::update(int deltaTime) {
       layer->update(deltaTime);
     }
     if (layer->shouldRemove()) {
-      layersToBeRemoved.pushBack(layer);
+      layersToBeRemoved.pushBack(layer.get());
     }
   }
   for (auto& layer : layersToBeRemoved) {

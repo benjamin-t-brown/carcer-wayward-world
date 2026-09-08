@@ -95,7 +95,7 @@ void InGameLayout::buildActionButtons(const std::pair<int, int>& actionButtonsAr
     button->setPos(buttonX, buttonY);
     button->setScale(props.actionButtonScale);
     button->setProps(ButtonWorldActionProps{worldActionType});
-    actionButtonsQuad->addChild(button);
+    actionButtonsQuad->addChild(bmin::UniquePtr<ui::UiElement>(button));
   }
 
   actionButtonsQuad->build();
@@ -118,7 +118,7 @@ void InGameLayout::buildChList(const std::pair<int, int>& chListLocation) {
         .selectedIndex = props.selectedPartyMemberIndex,
         .lineGap = 6,
     });
-    addChild(chList);
+    addChild(bmin::UniquePtr<ui::UiElement>(chList));
   } else {
     auto chList = new ListChCompactInfoHorizontal(window, this);
     chList->setId("chList");
@@ -129,21 +129,21 @@ void InGameLayout::buildChList(const std::pair<int, int>& chListLocation) {
         .selectedIndex = props.selectedPartyMemberIndex,
         .lineGap = 6,
     });
-    addChild(chList);
+    addChild(bmin::UniquePtr<ui::UiElement>(chList));
   }
 }
 
-void InGameLayout::setTitleElement(UiElement* _titleElement) {
+void InGameLayout::setTitleElement(bmin::UniquePtr<UiElement> _titleElement) {
   removeChildById("title");
   if (!_titleElement) {
     return;
   }
 
-  applyTitleLayout(_titleElement,
+  applyTitleLayout(_titleElement.get(),
                    dynamic_cast<BorderInGame*>(getChildById("border")));
 
   _titleElement->setId("title");
-  addChild(_titleElement);
+  addChild(bmin::move(_titleElement));
 }
 
 UiElement* InGameLayout::getTitleElement() { return getChildById("title"); }
@@ -173,7 +173,7 @@ void InGameLayout::setActionModeCancelVisible(bool visible,
   cancelButton->setProps(ButtonCloseProps{
       .closeType = CloseType::MODAL,
   });
-  addChild(cancelButton);
+  addChild(bmin::UniquePtr<ui::UiElement>(cancelButton));
 
   if (!modeLabel.empty()) {
     const int labelX = buttonX + buttonSize + kLabelGap;
@@ -202,8 +202,8 @@ void InGameLayout::setActionModeCancelVisible(bool visible,
         .width = labelW + padScaled * 2,
         .height = labelH + padScaled * 2,
     });
-    addChild(labelBg);
-    addChild(label);
+    addChild(bmin::UniquePtr<ui::UiElement>(labelBg));
+    addChild(bmin::UniquePtr<ui::UiElement>(label));
   }
 }
 
@@ -287,7 +287,7 @@ void InGameLayout::build() {
 
   auto actionButtonsQuad = new Quad(window, this);
   actionButtonsQuad->setId("actionButtons");
-  addChild(actionButtonsQuad);
+  addChild(bmin::UniquePtr<ui::UiElement>(actionButtonsQuad));
   buildActionButtons(actionButtonsAreaLocation,
                      actionButtonsQuadWidth,
                      actionButtonsQuadHeight,

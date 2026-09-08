@@ -2,6 +2,7 @@
 
 #include "Layer.h"
 #include "bmin/DynArray.h"
+#include "bmin/UniquePtr.h"
 #include "state/StateManagerInterface.h"
 #include "state/LayerRequest.h"
 #include <functional>
@@ -11,33 +12,32 @@ namespace layers {
 class LayerManager : public state::StateManagerInterface,
                      public state::DatabaseInterface {
 public:
-  using LayerFactory = std::function<Layer*(const state::LayerRequest&)>;
+  using LayerFactory = std::function<bmin::UniquePtr<Layer>(const state::LayerRequest&)>;
 
 private:
-  bmin::DynArray<Layer*> layers;
+  // Sole owner of the live layers. layerEventsStack below holds only non-owning
+  // observers into this container.
+  bmin::DynArray<bmin::UniquePtr<Layer>> layers;
   sdl2w::Window* window;
   bmin::DynArray<Layer*> layerEventsStack;
   LayerFactory layerFactory;
 
   void removeLayer(Layer* layer);
-  void removeLayerAt(size_t index);
-  void clearLayers();
   void scrubFromStack(const Layer* layer);
   bool isLiveLayer(const Layer* layer) const;
   void activateLayerNoPush(Layer* layer);
   void restoreFrontAfterClose();
-  Layer* createLayer(const state::LayerRequest& request);
+  bmin::UniquePtr<Layer> createLayer(const state::LayerRequest& request);
   void reconcileRequests();
   void bindEvents();
 
 public:
   explicit LayerManager(sdl2w::Window* _window, LayerFactory layerFactory = {});
-  ~LayerManager();
 
   void start();
 
   // Layer management
-  void addLayer(Layer* layer);
+  void addLayer(bmin::UniquePtr<Layer> layer);
   void moveToFront(Layer* layer);
   // Mark layer for removal and restore the previous live front layer.
   void closeLayer(Layer* layer);
@@ -50,8 +50,6 @@ public:
   void handleKeyUp(std::string_view key, int keyCode);
 
   // Getters
-  bmin::DynArray<Layer*>& getLayers();
-  const bmin::DynArray<Layer*>& getLayers() const;
   size_t getLayerCount() const;
   Layer* getLayerAt(size_t index);
   Layer* getLayerById(std::string_view id);

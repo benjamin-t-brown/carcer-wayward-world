@@ -194,8 +194,8 @@ void HorizontalSlider::build() {
       .width = props.sliderBarHeight,
       .height = props.sliderBarHeight,
   });
-  leftButton->addEventObserver(new HorizontalSliderButtonObserver(this, false));
-  addChild(leftButton);
+  leftButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new HorizontalSliderButtonObserver(this, false)));
+  addChild(bmin::UniquePtr<ui::UiElement>(leftButton));
 
   auto rightButton = new ButtonScroll(window, this);
   rightButton->setId("rightButton");
@@ -206,8 +206,8 @@ void HorizontalSlider::build() {
       .width = props.sliderBarHeight,
       .height = props.sliderBarHeight,
   });
-  rightButton->addEventObserver(new HorizontalSliderButtonObserver(this, true));
-  addChild(rightButton);
+  rightButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new HorizontalSliderButtonObserver(this, true)));
+  addChild(bmin::UniquePtr<ui::UiElement>(rightButton));
 
   auto track = new Quad(window, this);
   track->setId("track");
@@ -220,7 +220,7 @@ void HorizontalSlider::build() {
       .borderColor = Colors::Black,
       .borderSize = 0,
   });
-  addChild(track);
+  addChild(bmin::UniquePtr<ui::UiElement>(track));
 
   auto thumb = new Quad(window, this);
   thumb->setId("thumb");
@@ -233,7 +233,7 @@ void HorizontalSlider::build() {
       .borderColor = Colors::Black,
       .borderSize = 0,
   });
-  addChild(thumb);
+  addChild(bmin::UniquePtr<ui::UiElement>(thumb));
 
   auto valueLabel = new TextLine(window, this);
   valueLabel->setId("valueLabel");
@@ -249,7 +249,7 @@ void HorizontalSlider::build() {
   valueLabelProps.textAlign = TextAlign::CENTER;
   valueLabelProps.textBlocks.pushBack({.text = ""});
   valueLabel->setProps(valueLabelProps);
-  addChild(valueLabel);
+  addChild(bmin::UniquePtr<ui::UiElement>(valueLabel));
   refreshValueUi();
 }
 

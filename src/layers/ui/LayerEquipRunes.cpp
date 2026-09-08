@@ -27,7 +27,7 @@ LayerEquipRunes::LayerEquipRunes(sdl2w::Window* _window,
 
   auto minipage = new ui::MinipageEquipRunes(window);
   minipage->setId("minipageEquipRunes");
-  addUiElement(minipage);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(minipage));
 
   syncFromCharacter();
 

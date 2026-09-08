@@ -59,11 +59,11 @@ LayerSpellCast::LayerSpellCast(sdl2w::Window* _window, const bmin::String& chId)
 
   minipageSpellCast->setProps(minipageInitProps);
 
-  addUiElement(minipageSpellCast);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(minipageSpellCast));
 
   auto floatingNotificationSection = new ui::FloatingNotificationSection(window);
   floatingNotificationSection->setId("floatingNotificationSection");
-  addUiElement(floatingNotificationSection);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(floatingNotificationSection));
 }
 
 ui::MinipageSpellCastSpell LayerSpellCast::makeSpellEntry(const db::Database& database,

@@ -17,7 +17,7 @@ public:
 
 ButtonTextWrap::ButtonTextWrap(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
-  addEventObserver(new ButtonTextWrapDefaultObserver(this));
+  addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ButtonTextWrapDefaultObserver(this)));
   TextFontProps font;
   setBaseFontConfig(font, BaseFontConfig::MODAL_TEXT);
   props.textParagraph.fontFamily = font.fontFamily;
@@ -47,7 +47,7 @@ void ButtonTextWrap::build() {
   textParagraph->setScale(scale);
   textParagraph->setProps(props.textParagraph);
 
-  addChild(textParagraph);
+  addChild(bmin::UniquePtr<ui::UiElement>(textParagraph));
 
   const int paragraphHeightScaled = textParagraph->getDims().second;
   style.height = static_cast<int>(std::round(paragraphHeightScaled / scale)) +

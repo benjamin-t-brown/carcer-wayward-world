@@ -80,7 +80,7 @@ void BorderModalStandard::build() {
       .height = props.headerHeight,
   });
   iconOutsetRect->setId("iconOutsetRect");
-  addChild(iconOutsetRect);
+  addChild(bmin::UniquePtr<ui::UiElement>(iconOutsetRect));
 
   auto topBarOutsetRect = new OutsetRectangle(window, this);
   topBarOutsetRect->setId("topBarOutsetRect");
@@ -92,7 +92,7 @@ void BorderModalStandard::build() {
                                 props.headerHeight),
       .height = props.headerHeight / 2,
   });
-  addChild(topBarOutsetRect);
+  addChild(bmin::UniquePtr<ui::UiElement>(topBarOutsetRect));
 
   auto bottomBarOutsetRect = new OutsetRectangle(window, this);
   bottomBarOutsetRect->setId("bottomBarOutsetRect");
@@ -104,7 +104,7 @@ void BorderModalStandard::build() {
       .width = static_cast<int>(scaledWidth / style.scale - props.borderWidth * 2),
       .height = BOTTOM_BORDER_HEIGHT,
   });
-  addChild(bottomBarOutsetRect);
+  addChild(bmin::UniquePtr<ui::UiElement>(bottomBarOutsetRect));
 
   buildTiledOverlay();
 }

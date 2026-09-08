@@ -56,7 +56,7 @@ void PopupSpellInfo::build() {
       .width = style.width,
       .height = style.height,
   });
-  addChild(border);
+  addChild(bmin::UniquePtr<ui::UiElement>(border));
 
   auto closeButton = new ButtonClose(window, this);
   closeButton->setId("closeButton");
@@ -66,8 +66,8 @@ void PopupSpellInfo::build() {
   closeButton->setScale(style.scale);
   closeButton->setProps(ButtonCloseProps{.closeType = CloseType::POPUP});
   closeButton->addEventObserver(
-      new ObserverRemoveLayer(state::LayerId::SpellInfo));
-  addChild(closeButton);
+      bmin::UniquePtr<ui::UiEventObserver>(new ObserverRemoveLayer(state::LayerId::SpellInfo)));
+  addChild(bmin::UniquePtr<ui::UiElement>(closeButton));
 
   auto spriteBgQuad = new Quad(window, this);
   spriteBgQuad->setId("spriteBg");
@@ -78,7 +78,7 @@ void PopupSpellInfo::build() {
       .height = iconBgSize,
       .bgColor = Colors::LightGrey,
   });
-  addChild(spriteBgQuad);
+  addChild(bmin::UniquePtr<ui::UiElement>(spriteBgQuad));
 
   if (!props.spriteName.empty()) {
     const int iconOffset = (iconBgSize - spellIconSize) / 2;
@@ -91,7 +91,7 @@ void PopupSpellInfo::build() {
         .height = spellIconSize,
         .spriteName = props.spriteName,
     });
-    spriteBgQuad->addChild(sprite);
+    spriteBgQuad->addChild(bmin::UniquePtr<ui::UiElement>(sprite));
   }
 
   auto label = new TextLine(window, this);
@@ -109,7 +109,7 @@ void PopupSpellInfo::build() {
       .fontColor = Colors::Black,
       .textAlign = TextAlign::LEFT_CENTER,
   });
-  addChild(label);
+  addChild(bmin::UniquePtr<ui::UiElement>(label));
 
   TextFontProps bodyFont;
   setBaseFontConfig(bodyFont, BaseFontConfig::MODAL_TEXT);
@@ -132,7 +132,7 @@ void PopupSpellInfo::build() {
       .fontColor = Colors::DarkBlue,
       .textAlign = TextAlign::LEFT_TOP,
   });
-  addChild(manaLine);
+  addChild(bmin::UniquePtr<ui::UiElement>(manaLine));
   contentY += manaLine->getDims().second + vertSpacer * style.scale;
 
   auto runesHeader = new TextLine(window, this);
@@ -146,7 +146,7 @@ void PopupSpellInfo::build() {
       .fontColor = Colors::DarkGrey,
       .textAlign = TextAlign::LEFT_TOP,
   });
-  addChild(runesHeader);
+  addChild(bmin::UniquePtr<ui::UiElement>(runesHeader));
   contentY += runesHeader->getDims().second + 4 * style.scale;
 
   if (props.requiredRunes.empty()) {
@@ -161,7 +161,7 @@ void PopupSpellInfo::build() {
         .fontColor = Colors::DarkGrey,
         .textAlign = TextAlign::LEFT_TOP,
     });
-    addChild(noneLine);
+    addChild(bmin::UniquePtr<ui::UiElement>(noneLine));
     contentY += noneLine->getDims().second + vertSpacer * style.scale;
   } else {
     int runeX = contentX;
@@ -182,7 +182,7 @@ void PopupSpellInfo::build() {
               .height = runeIconSize,
               .spriteName = req.iconSprite,
           });
-          addChild(runeIcon);
+          addChild(bmin::UniquePtr<ui::UiElement>(runeIcon));
         }
         runeX += static_cast<int>(runeIconSize * style.scale) + runeGap;
       }
@@ -204,7 +204,7 @@ void PopupSpellInfo::build() {
   descProps.lineSpacing = 0;
   descProps.textBlocks.pushBack({.text = props.description});
   description->setProps(descProps);
-  addChild(description);
+  addChild(bmin::UniquePtr<ui::UiElement>(description));
 }
 
 void PopupSpellInfo::render(int dt) { UiElement::render(dt); }

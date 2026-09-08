@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
         .width = 260,
         .height = 50,
     });
-    pushButton->addEventObserver(new PushNotificationObserver(&stateManager, notificationCounter));
+    pushButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new PushNotificationObserver(&stateManager, notificationCounter)));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(pushButton));
 
     auto notificationSection = new ui::FloatingNotificationSection(&window);

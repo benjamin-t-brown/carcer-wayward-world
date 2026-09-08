@@ -70,18 +70,18 @@ LayerWorld::LayerWorld(sdl2w::Window* _window) : UiLayer(_window, LAYER_ID) {
       .ap = 0,
       .showAp = false,
   });
-  inGameLayout->setTitleElement(titleBar);
+  inGameLayout->setTitleElement(bmin::UniquePtr<ui::UiElement>(titleBar));
 
   // Map under action buttons: layer draws uiElements in order, so MapView first.
   auto mapView = new ui::MapView(window);
   mapView->setId("mapView");
   alignMapView();
-  addUiElement(mapView);
-  addUiElement(inGameLayout);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(mapView));
+  addUiElement(bmin::UniquePtr<ui::UiElement>(inGameLayout));
 
   auto floatingNotificationSection = new ui::FloatingNotificationSection(window);
   floatingNotificationSection->setId("floatingNotificationSection");
-  addUiElement(floatingNotificationSection);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(floatingNotificationSection));
 
   subscribeAction<state::ActionEvent::StartCombat>([this](auto&, auto&) { syncFromState(); });
   subscribeAction<state::ActionEvent::EndCombat>([this](auto&, auto&) { syncFromState(); });
@@ -504,8 +504,8 @@ void LayerWorld::attachWorldActionObservers(ui::InGameLayout* inGameLayout) {
     if (!button) {
       continue;
     }
-    button->addEventObserver(new ui::ObserverWorldAction(
-        stateManager, button->getProps().worldActionType, window));
+    button->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverWorldAction(
+        stateManager, button->getProps().worldActionType, window)));
   }
 }
 
@@ -532,7 +532,7 @@ void LayerWorld::attachPartyMemberObservers(ui::InGameLayout* inGameLayout) {
   auto& children = list->getChildren();
   for (size_t i = 0; i < children.size() && i < party.size(); i++) {
     children[i]->addEventObserver(
-        new ui::ObserverSetSelectedPartyMemberId(party[i].instanceId));
+        bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverSetSelectedPartyMemberId(party[i].instanceId)));
   }
 }
 
@@ -614,7 +614,7 @@ void LayerWorld::syncActionModeCancelButton() {
   if (shouldShow) {
     if (auto* cancelButton = inGameLayout->getChildById("actionModeCancel")) {
       cancelButton->addEventObserver(
-          new ui::ObserverCancelWorldActionMode(getStateManager()));
+          bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverCancelWorldActionMode(getStateManager())));
     }
   }
 }

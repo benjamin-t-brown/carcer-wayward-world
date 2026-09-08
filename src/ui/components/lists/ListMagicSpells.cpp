@@ -47,9 +47,9 @@ UiElement* ListMagicSpells::createSpellElement(const ListMagicSpellsPropsSpell& 
       .bgColor = Colors::Transparent,
   });
   if (props.enableSpellCastOnClick && !spell.id.empty()) {
-    container->addEventObserver(new ObserverSelectSpellCast(spell.id, props.casterId));
+    container->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ObserverSelectSpellCast(spell.id, props.casterId)));
   } else if (props.enableSpellInfoOnClick && !spell.id.empty()) {
-    container->addEventObserver(new ObserverShowLayerSpellInfo(window, spell.id));
+    container->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ObserverShowLayerSpellInfo(window, spell.id)));
   }
 
   // drawSprite uses native sprite w/h (props width/height are ignored), so center
@@ -71,7 +71,7 @@ UiElement* ListMagicSpells::createSpellElement(const ListMagicSpellsPropsSpell& 
         .height = sprite.h,
         .spriteName = spell.iconSprite,
     });
-    container->addChild(icon);
+    container->addChild(bmin::UniquePtr<ui::UiElement>(icon));
   }
 
   TextFontProps font;
@@ -90,7 +90,7 @@ UiElement* ListMagicSpells::createSpellElement(const ListMagicSpellsPropsSpell& 
   labelProps.textAlign = TextAlign::LEFT_CENTER;
   labelProps.textBlocks.pushBack({.text = spell.label});
   label->setProps(labelProps);
-  container->addChild(label);
+  container->addChild(bmin::UniquePtr<ui::UiElement>(label));
 
   const int scaledRequiredRuneSize =
       static_cast<int>(requiredRuneIconSize * requiredRuneIconScale * style.scale);
@@ -118,7 +118,7 @@ UiElement* ListMagicSpells::createSpellElement(const ListMagicSpellsPropsSpell& 
           .height = requiredRuneIconSize,
           .spriteName = runeSprite,
       });
-      container->addChild(runeIcon);
+      container->addChild(bmin::UniquePtr<ui::UiElement>(runeIcon));
       runeX += scaledRequiredRuneSize + scaledRequiredRuneGap;
     }
   }
@@ -143,7 +143,7 @@ void ListMagicSpells::build() {
   list->setScale(1.0f);
 
   for (size_t i = 0; i < props.spells.size(); i++) {
-    list->addChild(createSpellElement(props.spells[i]));
+    list->addChild(bmin::UniquePtr<ui::UiElement>(createSpellElement(props.spells[i])));
   }
 
   list->setProps(VerticalListProps{
@@ -153,7 +153,7 @@ void ListMagicSpells::build() {
       .bgColor = Colors::Transparent,
   });
 
-  addChild(list);
+  addChild(bmin::UniquePtr<ui::UiElement>(list));
 }
 
 void ListMagicSpells::render(int dt) { UiElement::render(dt); }

@@ -60,8 +60,8 @@ int main(int argc, char** argv) {
           .textAlign = font.textAlign,
       });
 
-      quad->addChild(textLine);
-      verticalList->addListItem(quad);
+      quad->addChild(bmin::UniquePtr<ui::UiElement>(textLine));
+      verticalList->addListItem(bmin::UniquePtr<ui::UiElement>(quad));
     }
 
     verticalList->setProps(props);

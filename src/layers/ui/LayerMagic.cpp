@@ -77,7 +77,7 @@ LayerMagic::LayerMagic(sdl2w::Window* _window) : UiLayer(_window, LAYER_ID) {
   pageInitProps.height = static_cast<int>(windowHeight / scale);
   pageMagicSetup->setProps(pageInitProps);
 
-  addUiElement(pageMagicSetup);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(pageMagicSetup));
 
   syncMagicPartyMember();
 

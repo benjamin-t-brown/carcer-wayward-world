@@ -141,7 +141,7 @@ void PageTalkChoice::build() {
       if (insertBefore != modalChildren.end()) {
         modalChildren.insert(insertBefore, bmin::UniquePtr<UiElement>(iconBg.release()));
       } else {
-        modal->addChild(iconBg.release());
+        modal->addChild(bmin::UniquePtr<ui::UiElement>(iconBg.release()));
       }
     }
   }
@@ -169,7 +169,7 @@ void PageTalkChoice::build() {
   titleBlock.text = props.title;
   titleProps.textBlocks.pushBack(titleBlock);
   title->setProps(titleProps);
-  modal->setTitleElement(title);
+  modal->setTitleElement(bmin::UniquePtr<ui::UiElement>(title));
 
   // Create SectionScrollable for content area
   auto textSection = new SectionScrollable(window, this);
@@ -181,7 +181,7 @@ void PageTalkChoice::build() {
       .height = static_cast<int>(textSectionHeight),
       .scrollBarWidth = scrollBarWidth,
   });
-  addChild(textSection);
+  addChild(bmin::UniquePtr<ui::UiElement>(textSection));
   auto [textScrollableContentWidthScaled, textViewportHeightScaled] =
       textSection->getContentDims();
 
@@ -226,7 +226,7 @@ void PageTalkChoice::build() {
         .fontSize = textFont.fontSize,
         .fontColor = textFont.fontColor,
     });
-    textSection->addChild(paragraph);
+    textSection->addChild(bmin::UniquePtr<ui::UiElement>(paragraph));
     const int height = paragraph->getDims().second;
     contentYOffset += height;
     return paragraph;
@@ -255,7 +255,7 @@ void PageTalkChoice::build() {
           .height = padHeightScaled,
           .bgColor = Colors::OffWhite,
       });
-      textSection->addChild(spacer);
+      textSection->addChild(bmin::UniquePtr<ui::UiElement>(spacer));
     }
   }
 
@@ -269,7 +269,7 @@ void PageTalkChoice::build() {
       .width = static_cast<int>(scaledContentW / style.scale),
       .height = 10,
   });
-  addChild(sepBorder);
+  addChild(bmin::UniquePtr<ui::UiElement>(sepBorder));
 
   auto choiceSection = new SectionScrollable(window, this);
   choiceSection->setId("choiceSection");
@@ -282,7 +282,7 @@ void PageTalkChoice::build() {
       .scrollBarWidth = scrollBarWidth,
       .indicatorHeight = 0,
   });
-  addChild(choiceSection);
+  addChild(bmin::UniquePtr<ui::UiElement>(choiceSection));
 
   // Create choices (setPos before setProps so ButtonTextWrap builds text at the right
   // offset)
@@ -314,7 +314,7 @@ void PageTalkChoice::build() {
     choiceButton->setPos(4 * style.scale, choiceYOffset);
     choiceButton->setProps(choiceButtonProps);
     auto [choiceWidth, choiceHeight] = choiceButton->getDims();
-    choiceSection->addChild(choiceButton);
+    choiceSection->addChild(bmin::UniquePtr<ui::UiElement>(choiceButton));
     choiceYOffset += choiceHeight;
   }
 

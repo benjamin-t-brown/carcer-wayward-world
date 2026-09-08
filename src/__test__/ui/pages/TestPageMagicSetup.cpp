@@ -156,7 +156,7 @@ public:
     pageMagicSetup->setId("pageMagicSetup");
     pageMagicSetup->setPos(0, 0);
     pageMagicSetup->setProps(pageProps);
-    addUiElement(pageMagicSetup.release());
+    addUiElement(bmin::UniquePtr<ui::UiElement>(pageMagicSetup.release()));
 
     // Match LayerMagic: refresh page when selection or equip editor changes.
     subscribeAction<state::ActionEvent::UiSetCurrentPartyMemberMagic>(
@@ -249,7 +249,7 @@ int main(int argc, char** argv) {
     layerManager = bmin::makeUnique<layers::LayerManager>(&window);
 
     auto* testLayer = new TestLayer(&window, &database, std::move(pageProps));
-    layerManager->addLayer(testLayer);
+    layerManager->addLayer(bmin::UniquePtr<layers::Layer>(testLayer));
     // Match production open/close: baseline layer must be on the events stack.
     layerManager->moveToFront(testLayer);
 

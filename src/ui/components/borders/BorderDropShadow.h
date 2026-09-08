@@ -29,7 +29,7 @@ public:
   BorderDropShadowProps& getProps();
   const BorderDropShadowProps& getProps() const;
 
-  void addChild(UiElement* child) override;
+  void addChild(bmin::UniquePtr<UiElement> child) override;
 
   void build() override;
   void render(int dt) override;

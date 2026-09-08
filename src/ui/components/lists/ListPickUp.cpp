@@ -67,7 +67,7 @@ UiElement* ListPickUp::createItemElement(const ListPickUpPropsItem& listItem,
       .bgColor = {66, 202, 253, 50},
       .bgSprite = listItem.itemSprite,
   });
-  container->addChild(icon);
+  container->addChild(bmin::UniquePtr<ui::UiElement>(icon));
 
   const int weightRightPadding = 8;
   const int labelWeightGap = 8;
@@ -94,7 +94,7 @@ UiElement* ListPickUp::createItemElement(const ListPickUpPropsItem& listItem,
     const int shortcutX =
         iconWidth + static_cast<int>(shortcutGapAfterIcon * style.scale);
     shortcutText->setPos(shortcutX, rowHeight / 2);
-    container->addChild(shortcutText);
+    container->addChild(bmin::UniquePtr<ui::UiElement>(shortcutText));
     labelX = shortcutX + shortcutText->getDims().first +
              static_cast<int>(labelGapAfterShortcut * style.scale);
   }
@@ -114,8 +114,8 @@ UiElement* ListPickUp::createItemElement(const ListPickUpPropsItem& listItem,
       .fontColor = Colors::DarkBlue,
   });
   contextBtn->addEventObserver(
-      new ui::ObserverShowLayerPickUpContext(window, listItem.item));
-  container->addChild(contextBtn);
+      bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverShowLayerPickUpContext(window, listItem.item)));
+  container->addChild(bmin::UniquePtr<ui::UiElement>(contextBtn));
 
   auto weightText = new TextLine(window, this);
   weightText->setId("weightText");
@@ -133,7 +133,7 @@ UiElement* ListPickUp::createItemElement(const ListPickUpPropsItem& listItem,
   auto [weightWidth, _] = weightText->getDims();
   const int weightX = rowWidth - scaledContextBtnSize - weightWidth - weightRightPadding;
   weightText->setPos(weightX, rowHeight / 2);
-  container->addChild(weightText);
+  container->addChild(bmin::UniquePtr<ui::UiElement>(weightText));
 
   const int labelWidth = static_cast<int>(weightX - labelX - labelWeightGap);
   auto label = new ButtonTextWrap(window, this);
@@ -164,8 +164,8 @@ UiElement* ListPickUp::createItemElement(const ListPickUpPropsItem& listItem,
               .fontColor = Colors::Black,
           },
   });
-  label->addEventObserver(new ui::ObserverPickUpItem(listItem.item));
-  container->addChild(label);
+  label->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverPickUpItem(listItem.item)));
+  container->addChild(bmin::UniquePtr<ui::UiElement>(label));
 
   return container;
 }
@@ -187,7 +187,7 @@ void ListPickUp::build() {
   list->setScale(1.0f);
 
   for (size_t i = 0; i < props.items.size(); i++) {
-    list->addChild(createItemElement(props.items[i], static_cast<int>(i)));
+    list->addChild(bmin::UniquePtr<ui::UiElement>(createItemElement(props.items[i], static_cast<int>(i))));
   }
 
   list->setProps(VerticalListProps{
@@ -197,7 +197,7 @@ void ListPickUp::build() {
       .bgColor = Colors::Transparent,
   });
 
-  addChild(list);
+  addChild(bmin::UniquePtr<ui::UiElement>(list));
 }
 
 void ListPickUp::render(int dt) { UiElement::render(dt); }

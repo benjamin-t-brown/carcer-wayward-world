@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
     titleBlock.text = "Modal Title";
     titleProps.textBlocks.pushBack(titleBlock);
     title->setProps(titleProps);
-    modalLayout->setTitleElement(title.release());
+    modalLayout->setTitleElement(bmin::UniquePtr<ui::UiElement>(title.release()));
 
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(modalLayout.release()));
 

@@ -73,11 +73,11 @@ LayerDropConfirm::LayerDropConfirm(sdl2w::Window* _window,
   popup->setPos((windowWidth - popupW) / 2, (windowHeight - popupH) / 2);
   popup->build();
 
-  addUiElement(popup);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(popup));
 
   auto floatingNotificationSection = new ui::FloatingNotificationSection(window);
   floatingNotificationSection->setId("floatingNotificationSection");
-  addUiElement(floatingNotificationSection);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(floatingNotificationSection));
 }
 
 void LayerDropConfirm::update(int deltaTime) { UiLayer::update(deltaTime); }

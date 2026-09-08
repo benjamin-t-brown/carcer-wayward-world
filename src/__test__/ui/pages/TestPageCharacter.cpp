@@ -28,7 +28,7 @@ public:
         .characterPlayer = &characterPlayer,
     });
 
-    addUiElement(pageCharacter.release());
+    addUiElement(bmin::UniquePtr<ui::UiElement>(pageCharacter.release()));
   }
 };
 
@@ -52,7 +52,8 @@ int main(int argc, char** argv) {
 
     auto characterPlayer =
         model::CharacterPlayer(database.getCharacterTemplate("testPartyMember1"));
-    layerManager->addLayer(new TestLayer(&window, std::move(characterPlayer)));
+    layerManager->addLayer(
+        bmin::UniquePtr<layers::Layer>(new TestLayer(&window, std::move(characterPlayer))));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

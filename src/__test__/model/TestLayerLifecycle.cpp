@@ -46,14 +46,16 @@ int main() {
 
   layers::LayerManager manager(
       nullptr,
-      [&](const state::LayerRequest& request) -> layers::Layer* {
+      [&](const state::LayerRequest& request) -> bmin::UniquePtr<layers::Layer> {
         if (request.id == state::LayerId::World) {
-          return new NonVisualLayer(world, state::layerIdString(request.id));
+          return bmin::UniquePtr<layers::Layer>(
+              new NonVisualLayer(world, state::layerIdString(request.id)));
         }
         if (request.id == state::LayerId::Inventory) {
-          return new NonVisualLayer(inventory, state::layerIdString(request.id));
+          return bmin::UniquePtr<layers::Layer>(
+              new NonVisualLayer(inventory, state::layerIdString(request.id)));
         }
-        return nullptr;
+        return bmin::UniquePtr<layers::Layer>();
       });
 
   state::pushLayerRequest(stateManager.getState(),

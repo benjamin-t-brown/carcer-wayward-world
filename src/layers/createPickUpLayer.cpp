@@ -4,8 +4,8 @@
 
 namespace layers {
 
-Layer* createPickUpLayer(sdl2w::Window* window) {
-  return new LayerPickUp(window);
+bmin::UniquePtr<Layer> createPickUpLayer(sdl2w::Window* window) {
+  return bmin::UniquePtr<Layer>(new LayerPickUp(window));
 }
 
 } // namespace layers

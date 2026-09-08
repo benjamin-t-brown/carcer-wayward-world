@@ -71,8 +71,8 @@ void UiElement::removeChildAtIndex(size_t index) {
   }
 }
 
-void UiElement::addChild(UiElement* child) {
-  children.pushBack(bmin::UniquePtr<UiElement>(child));
+void UiElement::addChild(bmin::UniquePtr<UiElement> child) {
+  children.pushBack(bmin::move(child));
 }
 
 bool UiElement::checkMouseDownEvent(int mouseX,
@@ -193,8 +193,8 @@ void UiElement::checkResizeEvent(int width, int height) {
   }
 }
 
-void UiElement::addEventObserver(UiEventObserver* observer) {
-  eventObservers.pushBack(bmin::UniquePtr<UiEventObserver>(observer));
+void UiElement::addEventObserver(bmin::UniquePtr<UiEventObserver> observer) {
+  eventObservers.pushBack(bmin::move(observer));
 }
 
 void UiElement::removeEventObserver(UiEventObserver* observer) {

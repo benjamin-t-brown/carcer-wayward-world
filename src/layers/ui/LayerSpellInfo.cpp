@@ -77,7 +77,7 @@ LayerSpellInfo::LayerSpellInfo(sdl2w::Window* _window, const bmin::String& spell
   popup->setScale(1.0f);
   popup->build();
 
-  addUiElement(popup);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(popup));
 }
 
 void LayerSpellInfo::onKeyDown(std::string_view key, int /*keyCode*/) {

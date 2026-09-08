@@ -86,11 +86,11 @@ LayerGiveContext::LayerGiveContext(sdl2w::Window* _window,
   popupGive->setPos((windowWidth - popupW) / 2, (windowHeight - popupH) / 2);
   popupGive->build();
 
-  addUiElement(popupGive);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(popupGive));
 
   auto floatingNotificationSection = new ui::FloatingNotificationSection(window);
   floatingNotificationSection->setId("floatingNotificationSection");
-  addUiElement(floatingNotificationSection);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(floatingNotificationSection));
 }
 
 void LayerGiveContext::update(int deltaTime) { UiLayer::update(deltaTime); }

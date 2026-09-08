@@ -26,7 +26,7 @@ public:
 
 ButtonWorldAction::ButtonWorldAction(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
-  addEventObserver(new ButtonWorldActionDefaultObserver(this));
+  addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ButtonWorldActionDefaultObserver(this)));
   shouldPropagateEventsToChildren = false;
 
   style.width = 32;

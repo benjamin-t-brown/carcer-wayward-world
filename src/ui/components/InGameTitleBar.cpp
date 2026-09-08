@@ -81,7 +81,7 @@ void InGameTitleBar::build() {
       .activeSprite = ButtonIcon::HAMBURGER_ICON2,
       .iconSize = props.buttonSize,
   });
-  addChild(menuButton);
+  addChild(bmin::UniquePtr<ui::UiElement>(menuButton));
   cursorX += scaledButtonSize + scaledButtonSpacing;
 
   auto helpButton = new ButtonIcon(window, this);
@@ -93,7 +93,7 @@ void InGameTitleBar::build() {
       .activeSprite = ButtonIcon::QUESTION_ICON2,
       .iconSize = props.buttonSize,
   });
-  addChild(helpButton);
+  addChild(bmin::UniquePtr<ui::UiElement>(helpButton));
   cursorX += scaledButtonSize + scaledSectionSpacing;
 
   TextFontProps titleFont;
@@ -110,23 +110,23 @@ void InGameTitleBar::build() {
   titleProps.textAlign = TextAlign::LEFT_CENTER;
   titleProps.textBlocks.pushBack(TextBlock{.text = props.title});
   titleText->setProps(titleProps);
-  addChild(titleText);
+  addChild(bmin::UniquePtr<ui::UiElement>(titleText));
 
   int statX = style.x + scaledWidth - scaledStatSpacing;
   auto* dayStatLine = createStatLineRightAligned(
       TRANSLATE("Day: ") + bmin::toString(props.day), statX, barCenterY);
-  addChild(dayStatLine);
+  addChild(bmin::UniquePtr<ui::UiElement>(dayStatLine));
   auto [dayStatWidth, _] = dayStatLine->getDims();
   statX -= dayStatWidth + scaledStatSpacing;
   auto* foodStatLine = createStatLineRightAligned(
       TRANSLATE("Food: ") + bmin::toString(props.food), statX, barCenterY);
-  addChild(foodStatLine);
+  addChild(bmin::UniquePtr<ui::UiElement>(foodStatLine));
   if (props.showAp) {
     auto [foodStatWidth, _] = foodStatLine->getDims();
     statX -= foodStatWidth + scaledStatSpacing;
     auto* apStatLine = createStatLineRightAligned(
         TRANSLATE("AP: ") + bmin::toString(props.ap), statX, barCenterY);
-    addChild(apStatLine);
+    addChild(bmin::UniquePtr<ui::UiElement>(apStatLine));
   }
 }
 

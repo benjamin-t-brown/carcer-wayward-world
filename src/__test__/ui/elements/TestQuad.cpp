@@ -136,7 +136,7 @@ int main(int argc, char** argv) {
           .borderColor = ui::Colors::Transparent,
           .borderSize = 0,
       });
-      q->addChild(q2);
+      q->addChild(bmin::UniquePtr<ui::UiElement>(q2));
     }
 
     {
@@ -163,7 +163,7 @@ int main(int argc, char** argv) {
           .borderColor = ui::Colors::Transparent,
           .borderSize = 0,
       });
-      q->addChild(q2);
+      q->addChild(bmin::UniquePtr<ui::UiElement>(q2));
     }
   };
 

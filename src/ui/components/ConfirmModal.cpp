@@ -49,7 +49,7 @@ void ConfirmModal::build() {
   titleProps.textBlocks.pushBack({.text = props.title});
   title->setProps(titleProps);
   auto [titleWidth, titleHeight] = title->calculateTextDims();
-  addChild(title);
+  addChild(bmin::UniquePtr<ui::UiElement>(title));
 
   const int messageY = style.y + paddingScaled + titleHeight + paddingScaled;
 
@@ -70,7 +70,7 @@ void ConfirmModal::build() {
   messageProps.textBlocks.pushBack({.text = props.message});
   message->setProps(messageProps);
   auto [_, messageHeight] = message->getDims();
-  addChild(message);
+  addChild(bmin::UniquePtr<ui::UiElement>(message));
 
   const int buttonsY = messageY + messageHeight + paddingScaled;
 
@@ -85,7 +85,7 @@ void ConfirmModal::build() {
   groupProps.buttons.pushBack({.label = props.confirmButtonLabel});
   buttonGroup->setProps(groupProps);
   auto [__, buttonGroupHeight] = buttonGroup->getDims();
-  addChild(buttonGroup);
+  addChild(bmin::UniquePtr<ui::UiElement>(buttonGroup));
 
   style.height = ((buttonsY + buttonGroupHeight + paddingScaled) - style.y) / style.scale;
 

@@ -43,15 +43,15 @@ void PopupDropConfirm::build() {
       .message = messageText,
   });
   modal->getButtonGroup()->addObserverToButtonAtIndex(
-      1, new ObserverDropInventoryItem(props.characterPlayerId, props.itemId));
+      1, bmin::UniquePtr<ui::UiEventObserver>(new ObserverDropInventoryItem(props.characterPlayerId, props.itemId)));
   modal->getButtonGroup()->addObserverToButtonAtIndex(
-      0, new ObserverRemoveLayer(state::LayerId::DropConfirm));
+      0, bmin::UniquePtr<ui::UiEventObserver>(new ObserverRemoveLayer(state::LayerId::DropConfirm)));
 
   auto [modalW, modalH] = modal->getDims();
   style.width = modalW / style.scale;
   style.height = modalH / style.scale;
 
-  addChild(modal);
+  addChild(bmin::UniquePtr<ui::UiElement>(modal));
 }
 
 void PopupDropConfirm::render(int dt) { UiElement::render(dt); }

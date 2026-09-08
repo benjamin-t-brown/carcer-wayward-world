@@ -18,7 +18,7 @@ public:
 
 ButtonScroll::ButtonScroll(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
-  addEventObserver(new ButtonScrollDefaultObserver(this));
+  addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ButtonScrollDefaultObserver(this)));
   shouldPropagateEventsToChildren = false;
 
   style.width = 32;

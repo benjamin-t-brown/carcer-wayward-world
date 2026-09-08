@@ -65,7 +65,7 @@ void MinipageEvent::build() {
   titleBlock.text = "Event";
   titleProps.textBlocks.pushBack(titleBlock);
   title->setProps(titleProps);
-  modal->setTitleElement(title.release());
+  modal->setTitleElement(bmin::UniquePtr<ui::UiElement>(title.release()));
 
   children.pushBack(bmin::UniquePtr<UiElement>(modal.release()));
 }

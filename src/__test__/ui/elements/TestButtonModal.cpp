@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
         .width = 200,
         .height = 50,
     });
-    button1->addEventObserver(new TestButtonObserver("button1"));
+    button1->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonObserver("button1")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button1.release()));
 
     // Create second button (selected)
@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
         .width = 200,
         .height = 50,
     });
-    button2->addEventObserver(new TestButtonObserver("button2"));
+    button2->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonObserver("button2")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button2.release()));
 
     // Create third button (different size)
@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
         .width = 300,
         .height = 60,
     });
-    button3->addEventObserver(new TestButtonObserver("button3"));
+    button3->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonObserver("button3")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button3.release()));
 
     // Create fourth button (scaled)
@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
         .width = 150,
         .height = 40,
     });
-    button4->addEventObserver(new TestButtonObserver("button4"));
+    button4->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonObserver("button4")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button4.release()));
 
     // Create fifth button (empty text)
@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
         .width = 200,
         .height = 50,
     });
-    button5->addEventObserver(new TestButtonObserver("button5"));
+    button5->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonObserver("button5")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button5.release()));
 
     // Create sixth button (long text)
@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
         .width = 250,
         .height = 50,
     });
-    button6->addEventObserver(new TestButtonObserver("button6"));
+    button6->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonObserver("button6")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button6.release()));
 
     // Create scroll up button
@@ -139,7 +139,7 @@ int main(int argc, char** argv) {
         .width = 32,
         .height = 32,
     });
-    scrollUp->addEventObserver(new TestButtonObserver("scrollUp"));
+    scrollUp->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonObserver("scrollUp")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(scrollUp.release()));
 
     // Create scroll down button
@@ -152,7 +152,7 @@ int main(int argc, char** argv) {
         .width = 32,
         .height = 32,
     });
-    scrollDown->addEventObserver(new TestButtonObserver("scrollDown"));
+    scrollDown->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonObserver("scrollDown")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(scrollDown.release()));
 
     // Create modal close button
@@ -162,7 +162,7 @@ int main(int argc, char** argv) {
     modalClose->setProps(ui::ButtonCloseProps{
         .closeType = ui::CloseType::MODAL,
     });
-    modalClose->addEventObserver(new TestButtonObserver("modalClose"));
+    modalClose->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonObserver("modalClose")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(modalClose.release()));
 
     {
@@ -173,7 +173,7 @@ int main(int argc, char** argv) {
       modalCloseScaled->setProps(ui::ButtonCloseProps{
           .closeType = ui::CloseType::MODAL,
       });
-      modalCloseScaled->addEventObserver(new TestButtonObserver(modalCloseScaled->getId()));
+      modalCloseScaled->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonObserver(modalCloseScaled->getId())));
       elements.pushBack(bmin::UniquePtr<ui::UiElement>(modalCloseScaled.release()));
     }
 
@@ -184,7 +184,7 @@ int main(int argc, char** argv) {
     popupClose->setProps(ui::ButtonCloseProps{
         .closeType = ui::CloseType::POPUP,
     });
-    popupClose->addEventObserver(new TestButtonObserver("popupClose"));
+    popupClose->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonObserver("popupClose")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(popupClose.release()));
 
     auto& events = window.getEvents();

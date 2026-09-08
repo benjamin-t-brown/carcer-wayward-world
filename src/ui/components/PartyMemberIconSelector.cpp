@@ -73,20 +73,20 @@ void PartyMemberIconSelector::build() {
   for (size_t i = 0; i < props.members.size(); ++i) {
     if (props.target == PartyMemberIconSelectorTarget::PICKUP) {
       buttonGroup->addObserverToButtonAtIndex(static_cast<int>(i),
-                                              new ObserverSetCurrentPartyMember(
-                                                  static_cast<int>(i)));
+                                              bmin::UniquePtr<ui::UiEventObserver>(new ObserverSetCurrentPartyMember(
+                                                  static_cast<int>(i))));
     } else if (props.target == PartyMemberIconSelectorTarget::MAGIC) {
       buttonGroup->addObserverToButtonAtIndex(static_cast<int>(i),
-                                              new ObserverSetCurrentPartyMemberMagic(
-                                                  static_cast<int>(i)));
+                                              bmin::UniquePtr<ui::UiEventObserver>(new ObserverSetCurrentPartyMemberMagic(
+                                                  static_cast<int>(i))));
     } else {
       buttonGroup->addObserverToButtonAtIndex(static_cast<int>(i),
-                                              new ObserverSetCurrentPartyMemberInventory(
-                                                  static_cast<int>(i)));
+                                              bmin::UniquePtr<ui::UiEventObserver>(new ObserverSetCurrentPartyMemberInventory(
+                                                  static_cast<int>(i))));
     }
   }
 
-  addChild(buttonGroup);
+  addChild(bmin::UniquePtr<ui::UiElement>(buttonGroup));
 }
 
 void PartyMemberIconSelector::render(int dt) { UiElement::render(dt); }

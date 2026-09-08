@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
         .height = 40,
     });
     switchCornerButton->addEventObserver(
-        new SwitchCornerObserver(banner, &corner));
+        bmin::UniquePtr<ui::UiEventObserver>(new SwitchCornerObserver(banner, &corner)));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(switchCornerButton));
 
     auto& events = window.getEvents();

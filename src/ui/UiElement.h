@@ -72,7 +72,7 @@ public:
   virtual bmin::DynArray<bmin::UniquePtr<UiElement>>& getChildren();
   virtual const bmin::DynArray<bmin::UniquePtr<UiElement>>& getChildren() const;
   virtual void removeChildAtIndex(size_t index);
-  virtual void addChild(UiElement* child);
+  virtual void addChild(bmin::UniquePtr<UiElement> child);
 
   // Event handlers
   virtual bool checkMouseDownEvent(int mouseX,
@@ -91,7 +91,7 @@ public:
                                     int delta,
                                     bmin::DynArray<UiElement*> additionalElements = {});
   virtual void checkResizeEvent(int width, int height);
-  virtual void addEventObserver(UiEventObserver* observer);
+  virtual void addEventObserver(bmin::UniquePtr<UiEventObserver> observer);
   virtual void removeEventObserver(UiEventObserver* observer);
 
   // Build and render

@@ -23,7 +23,7 @@ public:
         .height = windowHeight,
     });
 
-    addUiElement(minipageCharacterSheet.release());
+    addUiElement(bmin::UniquePtr<ui::UiElement>(minipageCharacterSheet.release()));
   }
 };
 
@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 
     layerManager = bmin::makeUnique<layers::LayerManager>(&window);
 
-    layerManager->addLayer(new TestLayer(&window));
+    layerManager->addLayer(bmin::UniquePtr<layers::Layer>(new TestLayer(&window)));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

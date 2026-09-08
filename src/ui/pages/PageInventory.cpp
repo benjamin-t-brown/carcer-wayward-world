@@ -87,7 +87,7 @@ void PageInventory::build() {
   }
   modal->setProps(modalProps);
   syncHostStyleToCappedCentered(style);
-  addChild(modal);
+  addChild(bmin::UniquePtr<ui::UiElement>(modal));
 
   if (!props.characterPlayerSprite.empty()) {
     if (auto* icon = modal->getChildById("headerIcon")) {
@@ -118,7 +118,7 @@ void PageInventory::build() {
   auto closeButton = modal->getCloseButtonElement();
   if (closeButton) {
     closeButton->addEventObserver(
-        new ObserverRemoveLayer(state::LayerId::Inventory));
+        bmin::UniquePtr<ui::UiEventObserver>(new ObserverRemoveLayer(state::LayerId::Inventory)));
   }
 
   auto [contentW, contentH] = modal->getContentDims();
@@ -140,7 +140,7 @@ void PageInventory::build() {
       bmin::String(TRANSLATE("Inventory")) + " - " + props.characterPlayerLabel;
   titleProps.textBlocks.pushBack(titleBlock);
   title->setProps(titleProps);
-  modal->setTitleElement(title);
+  modal->setTitleElement(bmin::UniquePtr<ui::UiElement>(title));
 
   auto [subtitleX, subtitleY] = modal->getSubTitleLocation();
 
@@ -160,7 +160,7 @@ void PageInventory::build() {
     partySelector->setPos(subtitleX, partyIconY);
     partySelector->setScale(style.scale);
     partySelector->setProps(selectorProps);
-    modal->addChild(partySelector);
+    modal->addChild(bmin::UniquePtr<ui::UiElement>(partySelector));
   }
 
   const int statsRowHeight = 32;
@@ -179,7 +179,7 @@ void PageInventory::build() {
       .height = statsRowHeight,
       .bgColor = Colors::White,
   });
-  modal->addChild(statsBar);
+  modal->addChild(bmin::UniquePtr<ui::UiElement>(statsBar));
 
   auto weightText = new TextLine(window, modal);
   weightText->setId("statsWeight");
@@ -197,7 +197,7 @@ void PageInventory::build() {
   weightText->setScale(1.f);
   weightText->setProps(weightProps);
   weightText->setPos(contentX + statsRowPadding, statsRowY + scaledStatsRowHeight / 2);
-  modal->addChild(weightText);
+  modal->addChild(bmin::UniquePtr<ui::UiElement>(weightText));
 
   auto goldText = new TextLine(window, modal);
   goldText->setId("statsGold");
@@ -216,7 +216,7 @@ void PageInventory::build() {
   goldText->setProps(goldProps);
   goldText->setPos(contentX + contentW - goldText->getDims().first - statsRowPadding,
                    statsRowY + scaledStatsRowHeight / 2);
-  modal->addChild(goldText);
+  modal->addChild(bmin::UniquePtr<ui::UiElement>(goldText));
 
   // Create SectionScrollable for content area
   auto scrollableSection = new SectionScrollable(window, modal);
@@ -228,7 +228,7 @@ void PageInventory::build() {
       .height = scrollableHeight,
       .scrollBarWidth = 40,
   });
-  addChild(scrollableSection);
+  addChild(bmin::UniquePtr<ui::UiElement>(scrollableSection));
 
   // Create ListInventory inside the scrollable section
   auto listInventory = new ListInventory(window, scrollableSection);
@@ -242,7 +242,7 @@ void PageInventory::build() {
                     scrollableSection->getProps().scrollBarWidth - 8;
   populateInventoryProps(listProps.items);
   listInventory->setProps(listProps);
-  scrollableSection->addChild(listInventory);
+  scrollableSection->addChild(bmin::UniquePtr<ui::UiElement>(listInventory));
   scrollableSection->build();
 }
 

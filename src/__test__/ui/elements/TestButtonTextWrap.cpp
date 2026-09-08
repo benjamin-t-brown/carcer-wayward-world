@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
                 .width = 200,
             },
     });
-    button1->addEventObserver(new TestButtonTextWrapObserver("button1"));
+    button1->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonTextWrapObserver("button1")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button1.release()));
 
     // Create second button with long text that wraps
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
                 .fontColor = ui::Colors::Black,
             },
     });
-    button2->addEventObserver(new TestButtonTextWrapObserver("button2"));
+    button2->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonTextWrapObserver("button2")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button2.release()));
 
     // Create third button with medium text
@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
                 .fontColor = ui::Colors::Black,
             },
     });
-    button3->addEventObserver(new TestButtonTextWrapObserver("button3"));
+    button3->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonTextWrapObserver("button3")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button3.release()));
 
     // Create fourth button with very long text
@@ -115,7 +115,7 @@ int main(int argc, char** argv) {
                 .width = 400,
             },
     });
-    button4->addEventObserver(new TestButtonTextWrapObserver("button4"));
+    button4->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonTextWrapObserver("button4")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button4.release()));
 
     // Create fifth button with single line text
@@ -131,7 +131,7 @@ int main(int argc, char** argv) {
                 .width = 150,
             },
     });
-    button5->addEventObserver(new TestButtonTextWrapObserver("button5"));
+    button5->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonTextWrapObserver("button5")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(button5.release()));
 
     auto& events = window.getEvents();

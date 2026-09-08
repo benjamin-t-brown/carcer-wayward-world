@@ -63,11 +63,11 @@ LayerPickUp::LayerPickUp(sdl2w::Window* _window) : UiLayer(_window, LAYER_ID) {
   minipageInitProps.height = static_cast<int>(windowHeight / scale);
   minipagePickUp->setProps(minipageInitProps);
 
-  addUiElement(minipagePickUp);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(minipagePickUp));
 
   auto floatingNotificationSection = new ui::FloatingNotificationSection(window);
   floatingNotificationSection->setId("floatingNotificationSection");
-  addUiElement(floatingNotificationSection);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(floatingNotificationSection));
 
   syncCurrentPartyMember();
 

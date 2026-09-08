@@ -45,15 +45,15 @@ void PartyMemberSwitcher::build() {
       .width = totalWidth,
       .height = totalHeight,
   });
-  addChild(container);
+  addChild(bmin::UniquePtr<ui::UiElement>(container));
 
   auto leftBtn = new ButtonModal(window, container);
   leftBtn->setId("prevPartyMember");
   leftBtn->setPos(0, (totalHeight - buttonSize) / 2);
   leftBtn->setProps(ButtonModalProps{.text = "<", .width = buttonSize, .height = buttonSize});
   leftBtn->addEventObserver(
-      new ObserverUpdateCurrentPartyMember(props.partyMemberIndex, -1));
-  container->addChild(leftBtn);
+      bmin::UniquePtr<ui::UiEventObserver>(new ObserverUpdateCurrentPartyMember(props.partyMemberIndex, -1)));
+  container->addChild(bmin::UniquePtr<ui::UiElement>(leftBtn));
 
   const int spriteX = buttonSize + spacing;
 
@@ -67,7 +67,7 @@ void PartyMemberSwitcher::build() {
       .colorBottomLeft = props.spriteBorderColor2,
       .borderSize = props.spriteBorderSize,
   });
-  container->addChild(spriteRect);
+  container->addChild(bmin::UniquePtr<ui::UiElement>(spriteRect));
 
   auto sprite = new Quad(window, container);
   sprite->setPos(spriteX + 1, 1);
@@ -76,15 +76,15 @@ void PartyMemberSwitcher::build() {
       .height = spriteSize,
       .bgSprite = props.spriteName,
   });
-  container->addChild(sprite);
+  container->addChild(bmin::UniquePtr<ui::UiElement>(sprite));
 
   auto rightBtn = new ButtonModal(window, container);
   rightBtn->setId("nextPartyMember");
   rightBtn->setPos(spriteX + spriteSize + spacing, (totalHeight - buttonSize) / 2);
   rightBtn->setProps(ButtonModalProps{.text = ">", .width = buttonSize, .height = buttonSize});
   rightBtn->addEventObserver(
-      new ObserverUpdateCurrentPartyMember(props.partyMemberIndex, 1));
-  container->addChild(rightBtn);
+      bmin::UniquePtr<ui::UiEventObserver>(new ObserverUpdateCurrentPartyMember(props.partyMemberIndex, 1)));
+  container->addChild(bmin::UniquePtr<ui::UiElement>(rightBtn));
 }
 
 void PartyMemberSwitcher::render(int dt) { UiElement::render(dt); }

@@ -117,7 +117,7 @@ LayerSpecialEvent::LayerSpecialEvent(
                                             talkHistory,
                                             static_cast<int>(windowWidth / scale),
                                             static_cast<int>(windowHeight / scale)));
-    addUiElement(pageTalkChoice);
+    addUiElement(bmin::UniquePtr<ui::UiElement>(pageTalkChoice));
   } else {
     auto modalProps = buildModalProps(runner,
                                       static_cast<int>(windowWidth / scale),
@@ -127,12 +127,12 @@ LayerSpecialEvent::LayerSpecialEvent(
     pageModalEvent->setPos(0, 0);
     pageModalEvent->setScale(scale);
     pageModalEvent->setProps(modalProps);
-    addUiElement(pageModalEvent);
+    addUiElement(bmin::UniquePtr<ui::UiElement>(pageModalEvent));
   }
 
   auto floatingNotificationSection = new ui::FloatingNotificationSection(window);
   floatingNotificationSection->setId("floatingNotificationSection");
-  addUiElement(floatingNotificationSection);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(floatingNotificationSection));
 
   runnerInterface.startEvent();
   syncUi();
@@ -204,7 +204,7 @@ void LayerSpecialEvent::attachChoiceObservers() {
       if (!choice) {
         continue;
       }
-      choice->addEventObserver(new ui::ObserverSpecialEventChoice(i));
+      choice->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverSpecialEventChoice(i)));
     }
     return;
   }
@@ -220,7 +220,7 @@ void LayerSpecialEvent::attachChoiceObservers() {
     if (!choice) {
       continue;
     }
-    choice->addEventObserver(new ui::ObserverSpecialEventChoice(i));
+    choice->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverSpecialEventChoice(i)));
   }
 }
 
@@ -233,7 +233,7 @@ void LayerSpecialEvent::attachModalContinueObserver() {
   if (!button) {
     return;
   }
-  button->addEventObserver(new ui::ObserverSpecialEventContinue());
+  button->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverSpecialEventContinue()));
 }
 
 ui::ButtonModal* LayerSpecialEvent::findModalContinueButton() {

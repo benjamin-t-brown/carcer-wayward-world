@@ -40,7 +40,7 @@ public:
   ModalSmallProps& getProps();
   const ModalSmallProps& getProps() const;
 
-  void setTitleElement(UiElement* _titleElement);
+  void setTitleElement(bmin::UniquePtr<UiElement> _titleElement);
   UiElement* getTitleElement();
   UiElement* getCloseButtonElement();
   const std::pair<int, int> getContentDims();

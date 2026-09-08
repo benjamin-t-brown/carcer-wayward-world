@@ -31,8 +31,7 @@ public:
   int getSelectedIndex() const;
   void clearSelection();
 
-  void addListItem(UiElement* item);
-  void addListItems(const bmin::DynArray<UiElement*>& items);
+  void addListItem(bmin::UniquePtr<UiElement> item);
   void removeListItemAtIndex(size_t index);
 
   const std::pair<int, int> getDims() const override;

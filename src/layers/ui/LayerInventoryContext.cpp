@@ -75,11 +75,11 @@ LayerInventoryContext::LayerInventoryContext(sdl2w::Window* _window,
   popupInventoryItem->setScale(1.0f);
   popupInventoryItem->build();
 
-  addUiElement(popupInventoryItem);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(popupInventoryItem));
 
   auto floatingNotificationSection = new ui::FloatingNotificationSection(window);
   floatingNotificationSection->setId("floatingNotificationSection");
-  addUiElement(floatingNotificationSection);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(floatingNotificationSection));
 }
 
 void LayerInventoryContext::update(int deltaTime) { UiLayer::update(deltaTime); }

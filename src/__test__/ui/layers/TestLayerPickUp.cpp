@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
 
     auto* layerPickUp = new layers::LayerPickUp(&window);
     // layerPickUp->setPickUpItemNames(GROUND_PICKUP_ITEMS);
-    layerManager->addLayer(layerPickUp);
+    layerManager->addLayer(bmin::UniquePtr<layers::Layer>(layerPickUp));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

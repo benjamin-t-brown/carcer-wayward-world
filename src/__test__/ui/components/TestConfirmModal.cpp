@@ -54,8 +54,8 @@ int main(int argc, char** argv) {
 
     auto* buttonGroup = modal->getButtonGroup();
     if (buttonGroup != nullptr) {
-      buttonGroup->addObserverToButtonAtIndex(0, new TestConfirmModalObserver("cancel"));
-      buttonGroup->addObserverToButtonAtIndex(1, new TestConfirmModalObserver("confirm"));
+      buttonGroup->addObserverToButtonAtIndex(0, bmin::UniquePtr<ui::UiEventObserver>(new TestConfirmModalObserver("cancel")));
+      buttonGroup->addObserverToButtonAtIndex(1, bmin::UniquePtr<ui::UiEventObserver>(new TestConfirmModalObserver("confirm")));
     } else {
       LOG(ERROR) << "ConfirmModal getButtonGroup() returned nullptr" << LOG_ENDL;
     }

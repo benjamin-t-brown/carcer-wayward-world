@@ -80,7 +80,7 @@ void PopupPickupItem::build() {
       .shadowOffsetY = 8,
       .borderSize = 2,
   });
-  addChild(border);
+  addChild(bmin::UniquePtr<ui::UiElement>(border));
 
   auto closeButton = new ButtonClose(window, this);
   closeButton->setId("closeButton");
@@ -90,8 +90,8 @@ void PopupPickupItem::build() {
   closeButton->setScale(style.scale);
   closeButton->setProps(ButtonCloseProps{.closeType = CloseType::POPUP});
   closeButton->addEventObserver(
-      new PopupPickupItemCloseButtonObserver(ownerLayerId));
-  addChild(closeButton);
+      bmin::UniquePtr<ui::UiEventObserver>(new PopupPickupItemCloseButtonObserver(ownerLayerId)));
+  addChild(bmin::UniquePtr<ui::UiElement>(closeButton));
 
   auto spriteBgQuad = new Quad(window, this);
   spriteBgQuad->setId("spriteBg");
@@ -102,7 +102,7 @@ void PopupPickupItem::build() {
       .height = iconBgSize,
       .bgColor = Colors::LightGrey,
   });
-  addChild(spriteBgQuad);
+  addChild(bmin::UniquePtr<ui::UiElement>(spriteBgQuad));
 
   auto spriteQuad = new Quad(window, this);
   spriteQuad->setId("icon");
@@ -114,7 +114,7 @@ void PopupPickupItem::build() {
       .height = itemIconSize,
       .bgSprite = props.spriteName,
   });
-  spriteBgQuad->addChild(spriteQuad);
+  spriteBgQuad->addChild(bmin::UniquePtr<ui::UiElement>(spriteQuad));
 
   auto label = new TextLine(window, this);
   label->setId("label");
@@ -136,7 +136,7 @@ void PopupPickupItem::build() {
       .fontColor = Colors::Black,
       .textAlign = TextAlign::LEFT_CENTER,
   });
-  addChild(label);
+  addChild(bmin::UniquePtr<ui::UiElement>(label));
 
   auto itemInfo = new ItemInfo(window, this);
   itemInfo->setId("itemInfo");
@@ -151,7 +151,7 @@ void PopupPickupItem::build() {
       .weight = props.weight,
       .value = props.value,
   });
-  addChild(itemInfo);
+  addChild(bmin::UniquePtr<ui::UiElement>(itemInfo));
 }
 
 void PopupPickupItem::render(int dt) { UiElement::render(dt); }

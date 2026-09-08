@@ -35,11 +35,11 @@ LayerInventory::LayerInventory(sdl2w::Window* _window) : UiLayer(_window, LAYER_
   pageInitProps.height = static_cast<int>(windowHeight / scale);
   pageInventory->setProps(pageInitProps);
 
-  addUiElement(pageInventory);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(pageInventory));
 
   auto floatingNotificationSection = new ui::FloatingNotificationSection(window);
   floatingNotificationSection->setId("floatingNotificationSection");
-  addUiElement(floatingNotificationSection);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(floatingNotificationSection));
 
   syncInventoryPartyMember();
 

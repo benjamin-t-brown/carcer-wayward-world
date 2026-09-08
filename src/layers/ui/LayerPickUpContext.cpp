@@ -43,11 +43,11 @@ LayerPickUpContext::LayerPickUpContext(sdl2w::Window* _window,
   popupPickupItem->setScale(1.0f);
   popupPickupItem->build();
 
-  addUiElement(popupPickupItem);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(popupPickupItem));
 
   auto floatingNotificationSection = new ui::FloatingNotificationSection(window);
   floatingNotificationSection->setId("floatingNotificationSection");
-  addUiElement(floatingNotificationSection);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(floatingNotificationSection));
 }
 
 void LayerPickUpContext::update(int deltaTime) { UiLayer::update(deltaTime); }

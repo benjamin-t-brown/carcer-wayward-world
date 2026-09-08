@@ -60,7 +60,7 @@ void MinipagePickUp::build() {
       .enableCloseButton = false,
   });
   syncHostStyleToCappedCentered(style, ModalSizeClass::Small);
-  addChild(modal);
+  addChild(bmin::UniquePtr<ui::UiElement>(modal));
 
   auto [contentW, contentH] = modal->getContentDims();
   auto [contentX, contentY] = modal->getContentLocation();
@@ -79,7 +79,7 @@ void MinipagePickUp::build() {
   titleBlock.text = props.titleText;
   titleProps.textBlocks.pushBack(titleBlock);
   title->setProps(titleProps);
-  modal->setTitleElement(title);
+  modal->setTitleElement(bmin::UniquePtr<ui::UiElement>(title));
 
   auto scrollableSection = new SectionScrollable(window, modal);
   scrollableSection->setId("scrollableSection");
@@ -112,9 +112,9 @@ void MinipagePickUp::build() {
   }
   listPickUp->setProps(listProps);
 
-  scrollableSection->addChild(listPickUp);
+  scrollableSection->addChild(bmin::UniquePtr<ui::UiElement>(listPickUp));
   scrollableSection->build();
-  modal->addChild(scrollableSection);
+  modal->addChild(bmin::UniquePtr<ui::UiElement>(scrollableSection));
 
   auto [buttonsW, buttonsH] = modal->getButtonsDims();
   auto [buttonsX, buttonsY] = modal->getButtonsLocation();
@@ -138,9 +138,9 @@ void MinipagePickUp::build() {
   });
   if (!props.doneButtonRemoveLayerId.empty()) {
     buttonGroup->addObserverToButtonAtIndex(
-        0, new ObserverRemoveLayer(props.doneButtonRemoveLayerId));
+        0, bmin::UniquePtr<ui::UiEventObserver>(new ObserverRemoveLayer(props.doneButtonRemoveLayerId)));
   }
-  modal->addChild(buttonGroup);
+  modal->addChild(bmin::UniquePtr<ui::UiElement>(buttonGroup));
 
   auto statusText = new TextLine(window, modal);
   statusText->setId("StatusText");
@@ -161,7 +161,7 @@ void MinipagePickUp::build() {
       .fontColor = Colors::DarkGrey,
       .textAlign = TextAlign::LEFT_CENTER,
   });
-  modal->addChild(statusText);
+  modal->addChild(bmin::UniquePtr<ui::UiElement>(statusText));
 
   if (!props.partyMemberSprites.empty()) {
     auto partySelector = new PartyMemberIconSelector(window, this);
@@ -198,8 +198,8 @@ void MinipagePickUp::build() {
         .textAlign = TextAlign::CENTER,
     });
 
-    addChild(partySelector);
-    addChild(weightText);
+    addChild(bmin::UniquePtr<ui::UiElement>(partySelector));
+    addChild(bmin::UniquePtr<ui::UiElement>(weightText));
   }
 }
 

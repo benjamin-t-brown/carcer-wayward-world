@@ -170,7 +170,7 @@ int main(int argc, char** argv) {
 
     auto* layerWorld = new layers::LayerWorld(&window);
     layerWorld->setMapScale(2.f);
-    layerManager->addLayer(layerWorld);
+    layerManager->addLayer(bmin::UniquePtr<layers::Layer>(layerWorld));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

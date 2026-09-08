@@ -16,7 +16,7 @@ public:
 
 ButtonModal::ButtonModal(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
-  addEventObserver(new ButtonModalDefaultObserver(this));
+  addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ButtonModalDefaultObserver(this)));
   TextFontProps font;
   setBaseFontConfig(font, BaseFontConfig::MODAL_BUTTON);
   props.fontFamily = font.fontFamily;
@@ -57,7 +57,7 @@ void ButtonModal::build() {
   rectProps.colorBottomLeft = props.bgColorBottomLeft;
   rect->setProps(rectProps);
 
-  addChild(rect);
+  addChild(bmin::UniquePtr<ui::UiElement>(rect));
 
   auto textLine = new TextLine(window, this);
   int textX = style.x + style.width * style.scale / 2;
@@ -74,7 +74,7 @@ void ButtonModal::build() {
   textLineProps.textAlign = TextAlign::CENTER;
   textLineProps.textBlocks.pushBack(TextBlock{props.text});
   textLine->setProps(textLineProps);
-  addChild(textLine);
+  addChild(bmin::UniquePtr<ui::UiElement>(textLine));
 }
 
 void ButtonModal::render(int dt) {

@@ -57,7 +57,7 @@ void MinipageSpellCast::build() {
       .enableCloseButton = false,
   });
   syncHostStyleToCappedCentered(style, ModalSizeClass::Small);
-  addChild(modal);
+  addChild(bmin::UniquePtr<ui::UiElement>(modal));
 
   auto [contentW, contentH] = modal->getContentDims();
   auto [contentX, contentY] = modal->getContentLocation();
@@ -76,7 +76,7 @@ void MinipageSpellCast::build() {
   titleBlock.text = props.titleText;
   titleProps.textBlocks.pushBack(titleBlock);
   title->setProps(titleProps);
-  modal->setTitleElement(title);
+  modal->setTitleElement(bmin::UniquePtr<ui::UiElement>(title));
 
   auto scrollableSection = new SectionScrollable(window, modal);
   scrollableSection->setId("scrollableSection");
@@ -109,9 +109,9 @@ void MinipageSpellCast::build() {
   }
   listSpells->setProps(listProps);
 
-  scrollableSection->addChild(listSpells);
+  scrollableSection->addChild(bmin::UniquePtr<ui::UiElement>(listSpells));
   scrollableSection->build();
-  modal->addChild(scrollableSection);
+  modal->addChild(bmin::UniquePtr<ui::UiElement>(scrollableSection));
 
   auto [buttonsW, buttonsH] = modal->getButtonsDims();
   auto [buttonsX, buttonsY] = modal->getButtonsLocation();
@@ -135,9 +135,9 @@ void MinipageSpellCast::build() {
   });
   if (!props.doneButtonRemoveLayerId.empty()) {
     buttonGroup->addObserverToButtonAtIndex(
-        0, new ObserverRemoveLayer(props.doneButtonRemoveLayerId));
+        0, bmin::UniquePtr<ui::UiEventObserver>(new ObserverRemoveLayer(props.doneButtonRemoveLayerId)));
   }
-  modal->addChild(buttonGroup);
+  modal->addChild(bmin::UniquePtr<ui::UiElement>(buttonGroup));
 
   auto statusText = new TextLine(window, modal);
   statusText->setId("StatusText");
@@ -158,7 +158,7 @@ void MinipageSpellCast::build() {
       .fontColor = Colors::DarkGrey,
       .textAlign = TextAlign::LEFT_CENTER,
   });
-  modal->addChild(statusText);
+  modal->addChild(bmin::UniquePtr<ui::UiElement>(statusText));
 }
 
 void MinipageSpellCast::render(int dt) { UiElement::render(dt); }

@@ -4,8 +4,8 @@
 
 namespace layers {
 
-Layer* createInventoryLayer(sdl2w::Window* window) {
-  return new LayerInventory(window);
+bmin::UniquePtr<Layer> createInventoryLayer(sdl2w::Window* window) {
+  return bmin::UniquePtr<Layer>(new LayerInventory(window));
 }
 
 } // namespace layers

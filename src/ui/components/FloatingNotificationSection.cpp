@@ -60,7 +60,7 @@ void FloatingNotificationSection::syncFromState(const state::State& state) {
         .message = notification.message,
         .type = notification.type,
     });
-    addChild(floatingNotification);
+    addChild(bmin::UniquePtr<ui::UiElement>(floatingNotification));
   }
 
   layoutNotifications();

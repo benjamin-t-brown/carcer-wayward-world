@@ -95,7 +95,7 @@ void PageMagicSetup::addPartyMemberSelector(ModalStandard* modal) {
   partySelector->setPos(subtitleX, partyIconY);
   partySelector->setScale(style.scale);
   partySelector->setProps(selectorProps);
-  modal->addChild(partySelector);
+  modal->addChild(bmin::UniquePtr<ui::UiElement>(partySelector));
 }
 
 bool PageMagicSetup::isNarrowLayout() const {
@@ -159,9 +159,9 @@ void PageMagicSetup::addRuneSlotRow(ModalStandard* modal,
   });
   if (!props.characterPlayerId.empty()) {
     editButton->addEventObserver(
-        new ObserverShowLayerEquipRunes(window, props.characterPlayerId));
+        bmin::UniquePtr<ui::UiEventObserver>(new ObserverShowLayerEquipRunes(window, props.characterPlayerId)));
   }
-  modal->addChild(editButton);
+  modal->addChild(bmin::UniquePtr<ui::UiElement>(editButton));
 
   for (size_t i = 0; i < props.runeSlots.size(); ++i) {
     const auto& slot = props.runeSlots[i];
@@ -179,7 +179,7 @@ void PageMagicSetup::addRuneSlotRow(ModalStandard* modal,
         .borderColor = isSelected ? Colors::ButtonModalSelected : Colors::Transparent,
         .borderSize = isSelected ? 2 : 0,
     });
-    modal->addChild(slotQuad);
+    modal->addChild(bmin::UniquePtr<ui::UiElement>(slotQuad));
 
     if (slot.filled && !slot.iconSprite.empty()) {
       auto icon = new SpriteElement(window, slotQuad);
@@ -192,7 +192,7 @@ void PageMagicSetup::addRuneSlotRow(ModalStandard* modal,
           .height = manaSlotIconSize,
           .spriteName = slot.iconSprite,
       });
-      slotQuad->addChild(icon);
+      slotQuad->addChild(bmin::UniquePtr<ui::UiElement>(icon));
     }
   }
 }
@@ -241,7 +241,7 @@ void PageMagicSetup::addElementCountGrid(ModalStandard* modal,
     countText->setProps(countProps);
     auto [countW, countH] = countText->getDims();
     countText->setPos(cellX + (scaledCellW - countW) / 2, cellY);
-    modal->addChild(countText);
+    modal->addChild(bmin::UniquePtr<ui::UiElement>(countText));
 
     if (!entry.iconSprite.empty()) {
       auto icon = new SpriteElement(window, modal);
@@ -253,7 +253,7 @@ void PageMagicSetup::addElementCountGrid(ModalStandard* modal,
           .height = elementIconSize,
           .spriteName = entry.iconSprite,
       });
-      modal->addChild(icon);
+      modal->addChild(bmin::UniquePtr<ui::UiElement>(icon));
     }
   }
 }
@@ -290,7 +290,7 @@ void PageMagicSetup::addSpellsPanel(int x, int y, int width, int height) {
       .scrollBarWidth = spellPanelScrollBarWidth,
       .bgColor = Colors::White,
   });
-  addChild(scrollable);
+  addChild(bmin::UniquePtr<ui::UiElement>(scrollable));
 
   const int scaledPadding = static_cast<int>(spellPanelHeaderPadding * style.scale);
   const int listWidth = width - spellPanelScrollBarWidth - spellPanelHeaderPadding;
@@ -308,7 +308,7 @@ void PageMagicSetup::addSpellsPanel(int x, int y, int width, int height) {
   headerProps.textAlign = TextAlign::LEFT_TOP;
   headerProps.textBlocks.pushBack({.text = TRANSLATE("Spells")});
   header->setProps(headerProps);
-  scrollable->addChild(header);
+  scrollable->addChild(bmin::UniquePtr<ui::UiElement>(header));
 
   auto [headerW, headerH] = header->getDims();
   const int listY = scaledPadding + headerH;
@@ -318,7 +318,7 @@ void PageMagicSetup::addSpellsPanel(int x, int y, int width, int height) {
   list->setPos(0, listY);
   list->setScale(style.scale);
   list->setProps(makeSpellListProps(listWidth));
-  scrollable->addChild(list);
+  scrollable->addChild(bmin::UniquePtr<ui::UiElement>(list));
 
   scrollable->build();
 }
@@ -346,14 +346,14 @@ void PageMagicSetup::build() {
   }
   modal->setProps(modalProps);
   syncHostStyleToCappedCentered(style);
-  addChild(modal);
+  addChild(bmin::UniquePtr<ui::UiElement>(modal));
 
   addPortraitBackground(modal);
 
   auto closeButton = modal->getCloseButtonElement();
   if (closeButton) {
     closeButton->addEventObserver(
-        new ObserverRemoveLayer(state::LayerId::Magic));
+        bmin::UniquePtr<ui::UiEventObserver>(new ObserverRemoveLayer(state::LayerId::Magic)));
   }
 
   auto [contentW, contentH] = modal->getContentDims();
@@ -378,7 +378,7 @@ void PageMagicSetup::build() {
   }
   titleProps.textBlocks.pushBack(titleBlock);
   title->setProps(titleProps);
-  modal->setTitleElement(title);
+  modal->setTitleElement(bmin::UniquePtr<ui::UiElement>(title));
 
   addPartyMemberSelector(modal);
 

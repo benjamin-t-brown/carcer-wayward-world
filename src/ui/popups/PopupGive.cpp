@@ -55,8 +55,8 @@ void PopupGive::build() {
   closeButton->setScale(style.scale);
   closeButton->setProps(ButtonCloseProps{.closeType = CloseType::POPUP});
   closeButton->addEventObserver(
-      new ObserverRemoveLayer(state::LayerId::GiveContext));
-  addChild(closeButton);
+      bmin::UniquePtr<ui::UiEventObserver>(new ObserverRemoveLayer(state::LayerId::GiveContext)));
+  addChild(bmin::UniquePtr<ui::UiElement>(closeButton));
 
   auto title = new TextLine(window, this);
   title->setId("title");
@@ -81,7 +81,7 @@ void PopupGive::build() {
       .fontColor = Colors::Black,
       .textAlign = TextAlign::LEFT_CENTER,
   });
-  addChild(title);
+  addChild(bmin::UniquePtr<ui::UiElement>(title));
   auto [titleWidth, titleHeight] = title->calculateTextDims();
 
   int contentY = style.y + paddingScaled + titleHeight + paddingScaled * 2;
@@ -102,7 +102,7 @@ void PopupGive::build() {
         .indicatorWidth = 24,
         .labelColor = Colors::Black,
     });
-    addChild(slider);
+    addChild(bmin::UniquePtr<ui::UiElement>(slider));
     contentY += sliderAreaHeight * style.scale + paddingScaled;
   }
 
@@ -135,9 +135,9 @@ void PopupGive::build() {
         .width = buttonWidth,
         .height = rowHeight,
     });
-    button->addEventObserver(new ObserverGiveInventoryItem(
-        member.characterPlayerId, props.fromCharacterPlayerId, props.itemId, this));
-    row->addChild(button);
+    button->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ObserverGiveInventoryItem(
+        member.characterPlayerId, props.fromCharacterPlayerId, props.itemId, this)));
+    row->addChild(bmin::UniquePtr<ui::UiElement>(button));
 
     auto iconBg = new OutsetRectangle(window, row);
     iconBg->setId("iconBg-" + member.characterPlayerId);
@@ -151,7 +151,7 @@ void PopupGive::build() {
         .colorBottomLeft = Colors::ButtonModalGrey2,
         .borderSize = 0,
     });
-    row->addChild(iconBg);
+    row->addChild(bmin::UniquePtr<ui::UiElement>(iconBg));
 
     auto sprite = new Quad(window, iconBg);
     sprite->setId("sprite-" + member.characterPlayerId);
@@ -162,9 +162,9 @@ void PopupGive::build() {
         .height = iconSize,
         .bgSprite = member.spriteName,
     });
-    iconBg->addChild(sprite);
+    iconBg->addChild(bmin::UniquePtr<ui::UiElement>(sprite));
 
-    list->addListItem(row);
+    list->addListItem(bmin::UniquePtr<ui::UiElement>(row));
   }
 
   list->setProps({
@@ -174,7 +174,7 @@ void PopupGive::build() {
       .bgColor = Colors::Transparent,
   });
   auto [listW, listH] = list->getDims();
-  addChild(list);
+  addChild(bmin::UniquePtr<ui::UiElement>(list));
 
   style.height = ((contentY + listH + paddingScaled) - style.y) / style.scale;
 

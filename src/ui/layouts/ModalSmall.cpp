@@ -68,7 +68,7 @@ const std::pair<int, int> ModalSmall::getContentLocation() {
   return borderElement->getContentLocation();
 }
 
-void ModalSmall::setTitleElement(UiElement* _titleElement) {
+void ModalSmall::setTitleElement(bmin::UniquePtr<UiElement> _titleElement) {
   removeChildById("title");
   auto borderElement = dynamic_cast<BorderModalSmall*>(getChildById("border"));
   // Add new title element
@@ -77,7 +77,7 @@ void ModalSmall::setTitleElement(UiElement* _titleElement) {
     auto [titleWidth, titleHeight] = _titleElement->getDims();
     _titleElement->setPos(titleX, titleY - titleHeight / 2);
     _titleElement->setId("title");
-    addChild(_titleElement);
+    addChild(bmin::move(_titleElement));
   }
 }
 
@@ -130,7 +130,7 @@ void ModalSmall::build() {
       .headerHeight = headerHeight,
       .iconSize = iconWellSize,
   });
-  addChild(border);
+  addChild(bmin::UniquePtr<ui::UiElement>(border));
 
   if (props.enableCloseButton) {
     auto [closeX, closeY] = border->getCloseButtonLocation();
@@ -142,7 +142,7 @@ void ModalSmall::build() {
     ui::ButtonCloseProps modalCloseProps;
     modalCloseProps.closeType = ui::CloseType::MODAL;
     modalClose->setProps(modalCloseProps);
-    addChild(modalClose);
+    addChild(bmin::UniquePtr<ui::UiElement>(modalClose));
   }
 
   if (!props.iconSprite.empty() && spriteW > 0 && spriteH > 0) {
@@ -160,7 +160,7 @@ void ModalSmall::build() {
         .height = spriteH,
         .bgSprite = props.iconSprite,
     });
-    addChild(icon);
+    addChild(bmin::UniquePtr<ui::UiElement>(icon));
   }
 }
 

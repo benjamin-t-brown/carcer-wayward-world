@@ -136,8 +136,8 @@ void TextBanner::build() {
       .borderSize = props.outsetBorderSize,
   });
 
-  addChild(background);
-  addChild(textLine);
+  addChild(bmin::UniquePtr<ui::UiElement>(background));
+  addChild(bmin::UniquePtr<ui::UiElement>(textLine));
 
   auto [bw, bh] = getDims();
   style.width = style.scale > 0.f ? static_cast<int>(bw / style.scale) : bw;

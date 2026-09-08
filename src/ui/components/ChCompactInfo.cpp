@@ -50,7 +50,7 @@ void ChCompactInfo::build() {
       .width = contentW,
       .height = contentH,
   });
-  addChild(container);
+  addChild(bmin::UniquePtr<ui::UiElement>(container));
 
   auto spriteRect = new OutsetRectangle(window, container);
   spriteRect->setPos(0, 0);
@@ -62,7 +62,7 @@ void ChCompactInfo::build() {
       .colorBottomLeft = props.spriteBorderColor2,
       .borderSize = props.spriteBorderSize,
   });
-  container->addChild(spriteRect);
+  container->addChild(bmin::UniquePtr<ui::UiElement>(spriteRect));
 
   auto sprite = new Quad(window, container);
   sprite->setPos(1, 1);
@@ -71,7 +71,7 @@ void ChCompactInfo::build() {
       .height = props.spriteBoxSize,
       .bgSprite = props.characterSpriteName,
   });
-  container->addChild(sprite);
+  container->addChild(bmin::UniquePtr<ui::UiElement>(sprite));
 
   int gridX = props.spriteBoxSize;
   int gridY = 0;
@@ -91,7 +91,7 @@ void ChCompactInfo::build() {
           .height = props.statusIconSize,
           .bgSprite = props.statusEffectSpriteNames[index],
       });
-      container->addChild(statusIcon);
+      container->addChild(bmin::UniquePtr<ui::UiElement>(statusIcon));
     }
   }
 
@@ -112,7 +112,7 @@ void ChCompactInfo::build() {
   healthBlock.text = bmin::toString(props.hp);
   healthProps.textBlocks.pushBack(healthBlock);
   healthText->setProps(healthProps);
-  addChild(healthText);
+  addChild(bmin::UniquePtr<ui::UiElement>(healthText));
 
   auto manaText = new TextLine(window, this);
   manaText->setPos(contentX + static_cast<int>(props.spriteBoxSize * style.scale), textY);
@@ -126,7 +126,7 @@ void ChCompactInfo::build() {
   manaBlock.text = bmin::toString(props.mana);
   manaProps.textBlocks.pushBack(manaBlock);
   manaText->setProps(manaProps);
-  addChild(manaText);
+  addChild(bmin::UniquePtr<ui::UiElement>(manaText));
 }
 
 void ChCompactInfo::render(int dt) {

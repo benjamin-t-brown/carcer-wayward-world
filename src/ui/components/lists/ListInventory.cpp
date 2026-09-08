@@ -86,9 +86,9 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
   });
   if (!props.characterPlayerId.empty() && index > 0) {
     upBtn->addEventObserver(
-        new ObserverReorderInventoryItem(props.characterPlayerId, index, -1));
+        bmin::UniquePtr<ui::UiEventObserver>(new ObserverReorderInventoryItem(props.characterPlayerId, index, -1)));
   }
-  container->addChild(upBtn);
+  container->addChild(bmin::UniquePtr<ui::UiElement>(upBtn));
 
   auto downBtn = new ButtonList(window, this);
   downBtn->setId("reorderDown");
@@ -107,9 +107,9 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
   if (!props.characterPlayerId.empty() &&
       index + 1 < static_cast<int>(props.items.size())) {
     downBtn->addEventObserver(
-        new ObserverReorderInventoryItem(props.characterPlayerId, index, 1));
+        bmin::UniquePtr<ui::UiEventObserver>(new ObserverReorderInventoryItem(props.characterPlayerId, index, 1)));
   }
-  container->addChild(downBtn);
+  container->addChild(bmin::UniquePtr<ui::UiElement>(downBtn));
 
   auto indexLine = new TextLine(window, this);
   indexLine->setId("index");
@@ -127,7 +127,7 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
       indexColumnStartX + scaledIndexPaddingLeft +
           (scaledIndexColumnWidth - scaledIndexPaddingLeft - indexTextWidth),
       rowHeight / 2);
-  container->addChild(indexLine);
+  container->addChild(bmin::UniquePtr<ui::UiElement>(indexLine));
 
   const int iconX = indexColumnStartX + scaledIndexColumnWidth + numberGap;
   const int iconY =
@@ -143,7 +143,7 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
       .bgColor = {66, 202, 253, 50},
       .bgSprite = item.itemSprite,
   });
-  container->addChild(icon);
+  container->addChild(bmin::UniquePtr<ui::UiElement>(icon));
 
   const int scaledContextBtnSize = contextBtnSize * style.scale;
   const int labelX = iconX + scaledIconWidth + labelGapAfterIcon;
@@ -194,8 +194,8 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
             },
     });
     label->addEventObserver(
-        new ui::ObserverInventorySelectItem(props.characterPlayerId, item.itemId));
-    container->addChild(label);
+        bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverInventorySelectItem(props.characterPlayerId, item.itemId)));
+    container->addChild(bmin::UniquePtr<ui::UiElement>(label));
   } else {
     auto label = new TextLine(window, this);
     label->setId("label");
@@ -211,7 +211,7 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
         .fontColor = labelColor,
     });
     label->setProps(labelProps);
-    container->addChild(label);
+    container->addChild(bmin::UniquePtr<ui::UiElement>(label));
   }
 
   auto contextBtn = new ButtonModal(window, this);
@@ -225,8 +225,8 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
       .height = scaledContextBtnSize,
   });
   contextBtn->addEventObserver(
-      new ui::ObserverShowLayerInventoryContext(window, item.itemName, item.itemId));
-  container->addChild(contextBtn);
+      bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverShowLayerInventoryContext(window, item.itemName, item.itemId)));
+  container->addChild(bmin::UniquePtr<ui::UiElement>(contextBtn));
 
   return container;
 }
@@ -244,7 +244,7 @@ void ListInventory::build() {
   list->setScale(1.0f);
 
   for (size_t i = 0; i < props.items.size(); ++i) {
-    list->addChild(createItemElement(props.items[i], static_cast<int>(i)));
+    list->addChild(bmin::UniquePtr<ui::UiElement>(createItemElement(props.items[i], static_cast<int>(i))));
   }
 
   list->setProps(VerticalListProps{
@@ -254,7 +254,7 @@ void ListInventory::build() {
       .bgColor = Colors::Transparent,
   });
 
-  addChild(list);
+  addChild(bmin::UniquePtr<ui::UiElement>(list));
 }
 
 void ListInventory::render(int dt) { UiElement::render(dt); }

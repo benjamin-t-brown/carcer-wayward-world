@@ -73,7 +73,7 @@ PageCharacter::buildStatSection(const PageCharacterStatRowSectionArgs& sectionPr
   headerProps.textAlign = TextAlign::LEFT_TOP;
   headerProps.textBlocks.pushBack(TextBlock{.text = title});
   header->setProps(headerProps);
-  section->addChild(header);
+  section->addChild(bmin::UniquePtr<ui::UiElement>(header));
 
   auto [headerW, headerH] = header->getDims();
 
@@ -113,9 +113,9 @@ PageCharacter::buildStatSection(const PageCharacterStatRowSectionArgs& sectionPr
     });
     if (!row.helpDescription.empty()) {
       buttonHelp->addEventObserver(
-          new ObserverShowLayerPopupText(window, row.label, row.helpDescription));
+          bmin::UniquePtr<ui::UiEventObserver>(new ObserverShowLayerPopupText(window, row.label, row.helpDescription)));
     }
-    statRow->addChild(buttonHelp);
+    statRow->addChild(bmin::UniquePtr<ui::UiElement>(buttonHelp));
     leftX += buttonSize + linePadding;
 
     auto* statLine = new TextLine(window, list);
@@ -133,7 +133,7 @@ PageCharacter::buildStatSection(const PageCharacterStatRowSectionArgs& sectionPr
     statLine->setScale(1.f);
     statLine->setProps(rowProps);
     statLine->setPos(leftX * style.scale, list->getProps().lineHeight * style.scale / 2);
-    statRow->addChild(statLine);
+    statRow->addChild(bmin::UniquePtr<ui::UiElement>(statLine));
 
     if (showModButtons) {
       buttonX -= buttonSize;
@@ -145,7 +145,7 @@ PageCharacter::buildStatSection(const PageCharacterStatRowSectionArgs& sectionPr
                                            .activeSprite = ButtonIcon::PLUS_ICON2,
                                            .iconSize = buttonSize,
                                            .isDisabled = buttonPlusDisabled});
-      statRow->addChild(buttonPlus);
+      statRow->addChild(bmin::UniquePtr<ui::UiElement>(buttonPlus));
 
       buttonX -= buttonSize;
       auto* buttonMinus = new ButtonIcon(window, statRow);
@@ -156,7 +156,7 @@ PageCharacter::buildStatSection(const PageCharacterStatRowSectionArgs& sectionPr
                                             .activeSprite = ButtonIcon::MINUS_ICON2,
                                             .iconSize = buttonSize,
                                             .isDisabled = buttonMinusDisabled});
-      statRow->addChild(buttonMinus);
+      statRow->addChild(bmin::UniquePtr<ui::UiElement>(buttonMinus));
     }
 
     statRow->setProps(QuadProps{
@@ -164,10 +164,10 @@ PageCharacter::buildStatSection(const PageCharacterStatRowSectionArgs& sectionPr
         .height = list->getProps().lineHeight,
         .bgColor = Colors::Transparent,
     });
-    list->addListItem(statRow);
+    list->addListItem(bmin::UniquePtr<ui::UiElement>(statRow));
   }
   list->build();
-  section->addChild(list);
+  section->addChild(bmin::UniquePtr<ui::UiElement>(list));
   auto [listW, listH] = list->getDims();
 
   section->setPos(linePadding * style.scale, y);
@@ -264,7 +264,7 @@ void PageCharacter::addDerivedStatSections(
         .buttonMinusDisabled = true,
         .buttonPlusDisabled = true,
     });
-    scrollable->addChild(section);
+    scrollable->addChild(bmin::UniquePtr<ui::UiElement>(section));
     yAgg += section->getDims().second;
   }
   {
@@ -316,7 +316,7 @@ void PageCharacter::addDerivedStatSections(
         .buttonMinusDisabled = true,
         .buttonPlusDisabled = true,
     });
-    scrollable->addChild(section);
+    scrollable->addChild(bmin::UniquePtr<ui::UiElement>(section));
     yAgg += section->getDims().second;
   }
 }
@@ -351,7 +351,7 @@ void PageCharacter::build() {
   }
   modal->setProps(modalProps);
   syncHostStyleToCappedCentered(style);
-  addChild(modal);
+  addChild(bmin::UniquePtr<ui::UiElement>(modal));
 
   auto [contentW, contentH] = modal->getContentDims();
   auto [contentX, contentY] = modal->getContentLocation();
@@ -380,7 +380,7 @@ void PageCharacter::build() {
   }
   titleProps.textBlocks.pushBack(titleBlock);
   title->setProps(titleProps);
-  modal->setTitleElement(title);
+  modal->setTitleElement(bmin::UniquePtr<ui::UiElement>(title));
 
   auto* scrollableStatsSection = new SectionScrollable(window, modal);
   scrollableStatsSection->setId("scrollableSection");
@@ -392,7 +392,7 @@ void PageCharacter::build() {
       .scrollBarWidth = 32,
       .bgColor = Colors::White,
   });
-  addChild(scrollableStatsSection);
+  addChild(bmin::UniquePtr<ui::UiElement>(scrollableStatsSection));
 
   auto [scrollableContentW, scrollableContentH] =
       scrollableStatsSection->getContentDims();
@@ -412,7 +412,7 @@ void PageCharacter::build() {
         .buttonMinusDisabled = true,
         .buttonPlusDisabled = true,
     });
-    scrollableStatsSection->addChild(section);
+    scrollableStatsSection->addChild(bmin::UniquePtr<ui::UiElement>(section));
     yAgg += section->getDims().second;
   }
   {
@@ -449,7 +449,7 @@ void PageCharacter::build() {
         .buttonMinusDisabled = false,
         .buttonPlusDisabled = false,
     });
-    scrollableStatsSection->addChild(section);
+    scrollableStatsSection->addChild(bmin::UniquePtr<ui::UiElement>(section));
     yAgg += section->getDims().second;
   }
   {
@@ -485,7 +485,7 @@ void PageCharacter::build() {
         .buttonMinusDisabled = false,
         .buttonPlusDisabled = false,
     });
-    scrollableStatsSection->addChild(section);
+    scrollableStatsSection->addChild(bmin::UniquePtr<ui::UiElement>(section));
     yAgg += section->getDims().second;
   }
   {
@@ -521,7 +521,7 @@ void PageCharacter::build() {
         .buttonMinusDisabled = false,
         .buttonPlusDisabled = false,
     });
-    scrollableStatsSection->addChild(section);
+    scrollableStatsSection->addChild(bmin::UniquePtr<ui::UiElement>(section));
     yAgg += section->getDims().second;
   }
   {
@@ -557,7 +557,7 @@ void PageCharacter::build() {
         .buttonMinusDisabled = false,
         .buttonPlusDisabled = false,
     });
-    scrollableStatsSection->addChild(section);
+    scrollableStatsSection->addChild(bmin::UniquePtr<ui::UiElement>(section));
     yAgg += section->getDims().second;
   }
   {
@@ -609,7 +609,7 @@ void PageCharacter::build() {
         .buttonMinusDisabled = false,
         .buttonPlusDisabled = false,
     });
-    scrollableStatsSection->addChild(section);
+    scrollableStatsSection->addChild(bmin::UniquePtr<ui::UiElement>(section));
     yAgg += section->getDims().second;
   }
 
@@ -630,7 +630,7 @@ void PageCharacter::build() {
         .scrollBarWidth = 32,
         .bgColor = Colors::White,
     });
-    addChild(scrollableDerivedSection);
+    addChild(bmin::UniquePtr<ui::UiElement>(scrollableDerivedSection));
 
     auto [scrollableDerivedContentW, scrollableDerivedContentH] =
         scrollableDerivedSection->getContentDims();

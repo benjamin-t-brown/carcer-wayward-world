@@ -52,7 +52,7 @@ static void addButtonGroup(sdl2w::Window& window,
   });
   for (size_t i = 0; i < labels.size(); i++) {
     group->addObserverToButtonAtIndex(static_cast<int>(i),
-                                      new TestButtonGroupObserver(id + ":" + labels[i]));
+                                      bmin::UniquePtr<ui::UiEventObserver>(new TestButtonGroupObserver(id + ":" + labels[i])));
   }
   elements.pushBack(bmin::UniquePtr<ui::UiElement>(group));
 }

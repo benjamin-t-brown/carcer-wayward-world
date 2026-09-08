@@ -59,7 +59,7 @@ void PageModalEvent::build() {
       .enableCloseButton = false,
   });
   syncHostStyleToCappedCentered(style, ModalSizeClass::Small);
-  addChild(modal);
+  addChild(bmin::UniquePtr<ui::UiElement>(modal));
 
   auto title = new TextLine(window, modal);
   TextFontProps titleFont;
@@ -71,7 +71,7 @@ void PageModalEvent::build() {
   titleProps.textAlign = TextAlign::LEFT_TOP;
   titleProps.textBlocks.pushBack({.text = props.title});
   title->setProps(titleProps);
-  modal->setTitleElement(title);
+  modal->setTitleElement(bmin::UniquePtr<ui::UiElement>(title));
 
   auto* border = dynamic_cast<BorderModalSmall*>(modal->getChildById("border"));
   auto [contentX, contentY] = modal->getContentLocation();
@@ -118,7 +118,7 @@ void PageModalEvent::build() {
       .fontSize = textFont.fontSize,
       .fontColor = Colors::Black,
   });
-  scrollableSection->addChild(textBlock);
+  scrollableSection->addChild(bmin::UniquePtr<ui::UiElement>(textBlock));
 
   int contentBottom = textBlock->getDims().second;
   if (!props.choices.empty()) {
@@ -147,7 +147,7 @@ void PageModalEvent::build() {
       choiceButton->setProps(choiceButtonProps);
       auto [__, choiceHeight] = choiceButton->getDims();
       choiceYOffset += choiceHeight;
-      scrollableSection->addChild(choiceButton);
+      scrollableSection->addChild(bmin::UniquePtr<ui::UiElement>(choiceButton));
     }
     contentBottom = choiceYOffset;
   }
@@ -164,11 +164,11 @@ void PageModalEvent::build() {
         .height = padHeight,
         .bgColor = Colors::OffWhite,
     });
-    scrollableSection->addChild(spacer);
+    scrollableSection->addChild(bmin::UniquePtr<ui::UiElement>(spacer));
   }
 
   scrollableSection->build();
-  modal->addChild(scrollableSection);
+  modal->addChild(bmin::UniquePtr<ui::UiElement>(scrollableSection));
 
   if (props.showContinueButton && props.choices.empty()) {
     auto [buttonsW, buttonsH] = modal->getButtonsDims();
@@ -188,7 +188,7 @@ void PageModalEvent::build() {
         .padding = buttonPadding,
         .buttons = {{.label = TRANSLATE("Okay"), .type = ButtonGroupButtonType::MODAL}},
     });
-    modal->addChild(buttonGroup);
+    modal->addChild(bmin::UniquePtr<ui::UiElement>(buttonGroup));
   }
 }
 

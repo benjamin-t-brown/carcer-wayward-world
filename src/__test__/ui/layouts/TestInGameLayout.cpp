@@ -135,7 +135,7 @@ void initInGameLayoutTest(sdl2w::Window& window) {
       .ap = 6,
       .showAp = true,
   });
-  inGameLayout->setTitleElement(titleBar);
+  inGameLayout->setTitleElement(bmin::UniquePtr<ui::UiElement>(titleBar));
 
   auto switchActionsButton = new ui::ButtonModal(&window);
   switchActionsButton->setId("switchActionTypes");
@@ -147,7 +147,7 @@ void initInGameLayoutTest(sdl2w::Window& window) {
       .height = 50,
       .fontColor = ui::Colors::White,
   });
-  switchActionsButton->addEventObserver(new SwitchActionListObserver(inGameLayout));
+  switchActionsButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new SwitchActionListObserver(inGameLayout)));
 
   auto switchBorderButton = new ui::ButtonModal(&window);
   switchBorderButton->setId("switchBorderType");
@@ -159,7 +159,7 @@ void initInGameLayoutTest(sdl2w::Window& window) {
       .height = 50,
       .fontColor = ui::Colors::White,
   });
-  switchBorderButton->addEventObserver(new SwitchBorderTypeObserver(inGameLayout));
+  switchBorderButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new SwitchBorderTypeObserver(inGameLayout)));
 
   elements.pushBack(bmin::UniquePtr<ui::UiElement>(switchActionsButton));
   elements.pushBack(bmin::UniquePtr<ui::UiElement>(switchBorderButton));

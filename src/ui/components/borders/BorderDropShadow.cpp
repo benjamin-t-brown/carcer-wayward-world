@@ -24,9 +24,9 @@ BorderDropShadowProps& BorderDropShadow::getProps() { return props; }
 
 const BorderDropShadowProps& BorderDropShadow::getProps() const { return props; }
 
-void BorderDropShadow::addChild(UiElement* child) {
+void BorderDropShadow::addChild(bmin::UniquePtr<UiElement> child) {
   if (!children.empty()) {
-    children[0]->addChild(child);
+    children[0]->addChild(bmin::move(child));
   }
 }
 
@@ -57,7 +57,7 @@ void BorderDropShadow::build() {
   });
 
   for (auto& child : preservedChildren) {
-    quad->addChild(child.release());
+    quad->addChild(bmin::UniquePtr<ui::UiElement>(child.release()));
   }
 
   children.clear();

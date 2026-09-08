@@ -22,7 +22,7 @@ int ButtonList::yForListRow(int rowHeight, int btnLogicalSize, float scale) {
 
 ButtonList::ButtonList(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
-  addEventObserver(new ButtonListDefaultObserver(this));
+  addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ButtonListDefaultObserver(this)));
   shouldPropagateEventsToChildren = false;
   style.width = defaultLogicalSize;
   style.height = defaultLogicalSize;
@@ -60,7 +60,7 @@ void ButtonList::build() {
   rectProps.colorBottomLeft = props.bgColorBottomLeft;
   rect->setProps(rectProps);
 
-  addChild(rect);
+  addChild(bmin::UniquePtr<ui::UiElement>(rect));
 
   if (!props.arrow.has_value() && !props.text.empty()) {
     auto textLine = new TextLine(window, this);
@@ -80,7 +80,7 @@ void ButtonList::build() {
     listTextProps.textAlign = TextAlign::CENTER;
     listTextProps.textBlocks.pushBack(TextBlock{props.text});
     textLine->setProps(listTextProps);
-    addChild(textLine);
+    addChild(bmin::UniquePtr<ui::UiElement>(textLine));
   }
 }
 

@@ -44,7 +44,7 @@ ui::ModalSmall* makeModalSmall(sdl2w::Window& window,
   titleProps.textAlign = ui::TextAlign::LEFT_TOP;
   titleProps.textBlocks.pushBack({.text = titleText});
   title->setProps(titleProps);
-  modal->setTitleElement(title);
+  modal->setTitleElement(bmin::UniquePtr<ui::UiElement>(title));
 
   return modal;
 }

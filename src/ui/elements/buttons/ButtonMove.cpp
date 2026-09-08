@@ -73,7 +73,7 @@ bmin::String ButtonMove::getSpriteName(bool pressed) const {
 
 ButtonMove::ButtonMove(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
-  addEventObserver(new ButtonMoveDefaultObserver(this));
+  addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ButtonMoveDefaultObserver(this)));
   shouldPropagateEventsToChildren = false;
 }
 

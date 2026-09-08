@@ -49,7 +49,7 @@ public:
 SectionScrollable::SectionScrollable(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
   shouldPropagateEventsToChildren = true;
-  addEventObserver(new SectionScrollableScrollWheelObserver(this));
+  addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new SectionScrollableScrollWheelObserver(this)));
 
   outerQuad = bmin::makeUnique<Quad>(window, this);
   outerQuad->setId("outerQuad");
@@ -57,7 +57,7 @@ SectionScrollable::SectionScrollable(sdl2w::Window* _window, UiElement* _parent)
   innerQuad = new Quad(window, outerQuad.get());
   innerQuad->setId("innerQuad");
 
-  outerQuad->addChild(innerQuad);
+  outerQuad->addChild(bmin::UniquePtr<ui::UiElement>(innerQuad));
   outerQuad->build();
 
   // dont need to add child for outerQuad, not managed by children
@@ -287,9 +287,9 @@ void SectionScrollable::scrollTo(int offset) {
   updateScrollIndicatorPosition();
 }
 
-void SectionScrollable::addChild(UiElement* child) {
+void SectionScrollable::addChild(bmin::UniquePtr<UiElement> child) {
   if (innerQuad) {
-    innerQuad->addChild(child);
+    innerQuad->addChild(bmin::move(child));
   }
 }
 
@@ -338,7 +338,7 @@ void SectionScrollable::build() {
       .height = props.scrollBarWidth,
   });
   scrollUpButton->setId("scrollUpButton");
-  scrollUpButton->addEventObserver(new SectionScrollableScrollObserver(this, true));
+  scrollUpButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new SectionScrollableScrollObserver(this, true)));
 
   // Create scroll down button
   auto scrollDownButton = new ButtonScroll(window);
@@ -352,7 +352,7 @@ void SectionScrollable::build() {
       .height = props.scrollBarWidth,
   });
   scrollDownButton->setId("scrollDownButton");
-  scrollDownButton->addEventObserver(new SectionScrollableScrollObserver(this, false));
+  scrollDownButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new SectionScrollableScrollObserver(this, false)));
 
   // Calculate maxScrollOffset before creating indicator
   maxScrollOffset = std::max(0, scaledContentHeight - scaledHeight);
@@ -373,9 +373,9 @@ void SectionScrollable::build() {
 
   children.clear();
 
-  UiElement::addChild(scrollUpButton);
-  UiElement::addChild(scrollDownButton);
-  UiElement::addChild(scrollIndicator);
+  UiElement::addChild(bmin::UniquePtr<ui::UiElement>(scrollUpButton));
+  UiElement::addChild(bmin::UniquePtr<ui::UiElement>(scrollDownButton));
+  UiElement::addChild(bmin::UniquePtr<ui::UiElement>(scrollIndicator));
 
   updateScrollButtonStates();
 }

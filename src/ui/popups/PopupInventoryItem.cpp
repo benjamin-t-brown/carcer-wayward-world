@@ -60,7 +60,7 @@ void PopupInventoryItem::build() {
       .width = style.width,
       .height = style.height,
   });
-  addChild(border);
+  addChild(bmin::UniquePtr<ui::UiElement>(border));
 
   auto closeButton = new ButtonClose(window, this);
   closeButton->setId("closeButton");
@@ -70,8 +70,8 @@ void PopupInventoryItem::build() {
   closeButton->setScale(style.scale);
   closeButton->setProps(ButtonCloseProps{.closeType = CloseType::POPUP});
   closeButton->addEventObserver(
-      new ObserverRemoveLayer(state::LayerId::InventoryContext));
-  addChild(closeButton);
+      bmin::UniquePtr<ui::UiEventObserver>(new ObserverRemoveLayer(state::LayerId::InventoryContext)));
+  addChild(bmin::UniquePtr<ui::UiElement>(closeButton));
 
   int actionButtonHeightTotalScaled =
       actionButtonsHeight * style.scale + buttonVertSpacerHeight * style.scale;
@@ -99,26 +99,26 @@ void PopupInventoryItem::build() {
   };
 
   auto giveButton = createButton(TRANSLATE("Give"), buttonsX, buttonsY);
-  giveButton->addEventObserver(new ObserverShowLayerGiveContext(
-      window, props.characterPlayerId, props.item.id));
-  addChild(giveButton);
+  giveButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ObserverShowLayerGiveContext(
+      window, props.characterPlayerId, props.item.id)));
+  addChild(bmin::UniquePtr<ui::UiElement>(giveButton));
   buttonsY -= actionButtonHeightTotalScaled;
 
   auto dropButton = createButton(TRANSLATE("Drop"), buttonsX, buttonsY);
-  dropButton->addEventObserver(new ObserverShowLayerDropContext(
-      window, props.characterPlayerId, props.item.id));
-  addChild(dropButton);
+  dropButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ObserverShowLayerDropContext(
+      window, props.characterPlayerId, props.item.id)));
+  addChild(bmin::UniquePtr<ui::UiElement>(dropButton));
   buttonsY -= actionButtonHeightTotalScaled;
 
   if (props.equippable) {
     auto equipButton = createButton(TRANSLATE("Equip"), buttonsX, buttonsY);
-    addChild(equipButton);
+    addChild(bmin::UniquePtr<ui::UiElement>(equipButton));
     buttonsY -= actionButtonHeightTotalScaled;
   }
 
   if (props.usable) {
     auto useButton = createButton(TRANSLATE("Use"), buttonsX, buttonsY);
-    addChild(useButton);
+    addChild(bmin::UniquePtr<ui::UiElement>(useButton));
     buttonsY -= actionButtonHeightTotalScaled;
   }
 
@@ -131,7 +131,7 @@ void PopupInventoryItem::build() {
       .height = iconBgSize,
       .bgColor = Colors::LightGrey,
   });
-  addChild(spriteBgQuad);
+  addChild(bmin::UniquePtr<ui::UiElement>(spriteBgQuad));
 
   auto spriteQuad = new Quad(window, this);
   spriteQuad->setId("icon");
@@ -143,7 +143,7 @@ void PopupInventoryItem::build() {
       .height = itemIconSize,
       .bgSprite = props.spriteName,
   });
-  spriteBgQuad->addChild(spriteQuad);
+  spriteBgQuad->addChild(bmin::UniquePtr<ui::UiElement>(spriteQuad));
 
   auto label = new TextLine(window, this);
   label->setId("label");
@@ -165,7 +165,7 @@ void PopupInventoryItem::build() {
       .fontColor = Colors::Black,
       .textAlign = TextAlign::LEFT_CENTER,
   });
-  addChild(label);
+  addChild(bmin::UniquePtr<ui::UiElement>(label));
 
   auto itemInfo = new ItemInfo(window, this);
   itemInfo->setId("itemInfo");
@@ -182,7 +182,7 @@ void PopupInventoryItem::build() {
       .weight = props.weight,
       .value = props.value,
   });
-  addChild(itemInfo);
+  addChild(bmin::UniquePtr<ui::UiElement>(itemInfo));
 }
 
 void PopupInventoryItem::render(int dt) { UiElement::render(dt); }

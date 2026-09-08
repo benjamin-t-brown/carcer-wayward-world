@@ -4,10 +4,10 @@
 
 namespace layers {
 
-Layer* createWorldLayer(sdl2w::Window* window, float mapScale) {
-  auto* layer = new LayerWorld(window);
-  layer->setMapScale(mapScale);
-  return layer;
+bmin::UniquePtr<Layer> createWorldLayer(sdl2w::Window* window, float mapScale) {
+  auto* worldLayer = new LayerWorld(window);
+  worldLayer->setMapScale(mapScale);
+  return bmin::UniquePtr<Layer>(worldLayer);
 }
 
 } // namespace layers

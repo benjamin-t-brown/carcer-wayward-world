@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
     examineButton->setProps(ui::ButtonWorldActionProps{
         .worldActionType = state::WorldActionType::EXAMINE,
     });
-    examineButton->addEventObserver(new TestButtonWorldActionObserver("examineButton"));
+    examineButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonWorldActionObserver("examineButton")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(examineButton.release()));
 
     // Create GET button
@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
     getButton->setProps(ui::ButtonWorldActionProps{
         .worldActionType = state::WorldActionType::GET,
     });
-    getButton->addEventObserver(new TestButtonWorldActionObserver("getButton"));
+    getButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonWorldActionObserver("getButton")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(getButton.release()));
 
     // Create SNEAK button
@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
     sneakButton->setProps(ui::ButtonWorldActionProps{
         .worldActionType = state::WorldActionType::SNEAK,
     });
-    sneakButton->addEventObserver(new TestButtonWorldActionObserver("sneakButton"));
+    sneakButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonWorldActionObserver("sneakButton")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(sneakButton.release()));
 
     // Create TALK button
@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
     talkButton->setProps(ui::ButtonWorldActionProps{
         .worldActionType = state::WorldActionType::TALK,
     });
-    talkButton->addEventObserver(new TestButtonWorldActionObserver("talkButton"));
+    talkButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonWorldActionObserver("talkButton")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(talkButton.release()));
 
     // Create JUMP button
@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
     jumpButton->setProps(ui::ButtonWorldActionProps{
         .worldActionType = state::WorldActionType::JUMP,
     });
-    jumpButton->addEventObserver(new TestButtonWorldActionObserver("jumpButton"));
+    jumpButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonWorldActionObserver("jumpButton")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(jumpButton.release()));
 
     // Create ABILITY button
@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
     abilityButton->setProps(ui::ButtonWorldActionProps{
         .worldActionType = state::WorldActionType::ABILITY,
     });
-    abilityButton->addEventObserver(new TestButtonWorldActionObserver("abilityButton"));
+    abilityButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonWorldActionObserver("abilityButton")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(abilityButton.release()));
 
     // Create FIGHT button
@@ -116,7 +116,7 @@ int main(int argc, char** argv) {
     fightButton->setProps(ui::ButtonWorldActionProps{
         .worldActionType = state::WorldActionType::START_FIGHT,
     });
-    fightButton->addEventObserver(new TestButtonWorldActionObserver("fightButton"));
+    fightButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonWorldActionObserver("fightButton")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(fightButton.release()));
 
     // Create SHOOT button
@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
     shootButton->setProps(ui::ButtonWorldActionProps{
         .worldActionType = state::WorldActionType::SHOOT,
     });
-    shootButton->addEventObserver(new TestButtonWorldActionObserver("shootButton"));
+    shootButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new TestButtonWorldActionObserver("shootButton")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(shootButton.release()));
 
     // Create INVENTORY button
@@ -138,7 +138,7 @@ int main(int argc, char** argv) {
         .worldActionType = state::WorldActionType::INVENTORY,
     });
     inventoryButton->addEventObserver(
-        new TestButtonWorldActionObserver("inventoryButton"));
+        bmin::UniquePtr<ui::UiEventObserver>(new TestButtonWorldActionObserver("inventoryButton")));
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(inventoryButton.release()));
 
     auto& events = window.getEvents();

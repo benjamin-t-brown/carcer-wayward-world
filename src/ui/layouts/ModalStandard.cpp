@@ -91,7 +91,7 @@ void ModalStandard::build() {
   });
 
   // Insert border at the beginning
-  addChild(border);
+  addChild(bmin::UniquePtr<ui::UiElement>(border));
 
   // Get close button location before moving border
   auto [closeX, closeY] = border->getCloseButtonLocation();
@@ -103,7 +103,7 @@ void ModalStandard::build() {
   ui::ButtonCloseProps modalCloseProps;
   modalCloseProps.closeType = ui::CloseType::MODAL;
   modalClose->setProps(modalCloseProps);
-  addChild(modalClose);
+  addChild(bmin::UniquePtr<ui::UiElement>(modalClose));
 
   if (!props.iconSprite.empty()) {
     auto* border = dynamic_cast<BorderModalStandard*>(getChildById("border"));
@@ -134,14 +134,14 @@ void ModalStandard::build() {
           .height = spriteH,
           .bgSprite = props.iconSprite,
       });
-      addChild(icon);
+      addChild(bmin::UniquePtr<ui::UiElement>(icon));
     }
   }
 
   // TODO decoration sprite
 }
 
-void ModalStandard::setTitleElement(UiElement* _titleElement) {
+void ModalStandard::setTitleElement(bmin::UniquePtr<UiElement> _titleElement) {
   removeChildById("title");
   auto borderElement = dynamic_cast<BorderModalStandard*>(getChildById("border"));
   // Add new title element
@@ -150,7 +150,7 @@ void ModalStandard::setTitleElement(UiElement* _titleElement) {
     auto [titleWidth, titleHeight] = _titleElement->getDims();
     _titleElement->setPos(titleX, titleY - titleHeight / 2);
     _titleElement->setId("title");
-    addChild(_titleElement);
+    addChild(bmin::move(_titleElement));
   }
 }
 

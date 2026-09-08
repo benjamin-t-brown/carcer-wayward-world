@@ -97,8 +97,8 @@ LayerPopupText::LayerPopupText(sdl2w::Window* _window,
       .height = windowHeight,
       .bgColor = ui::Colors::Transparent,
   });
-  backdrop->addEventObserver(new ui::ObserverRemoveLayer(LAYER_ID));
-  root->addChild(backdrop);
+  backdrop->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverRemoveLayer(LAYER_ID)));
+  root->addChild(bmin::UniquePtr<ui::UiElement>(backdrop));
 
   auto* border = new ui::BorderDropShadow(window, root);
   border->setId("border");
@@ -111,9 +111,9 @@ LayerPopupText::LayerPopupText(sdl2w::Window* _window,
       .shadowColor = ui::Colors::Black,
       .borderSize = 2,
   });
-  border->addChild(titleLine);
-  border->addChild(paragraph);
-  root->addChild(border);
+  border->addChild(bmin::UniquePtr<ui::UiElement>(titleLine));
+  border->addChild(bmin::UniquePtr<ui::UiElement>(paragraph));
+  root->addChild(bmin::UniquePtr<ui::UiElement>(border));
 
   auto* closeButton = new ui::ButtonClose(window, root);
   closeButton->setId("closeButton");
@@ -121,14 +121,14 @@ LayerPopupText::LayerPopupText(sdl2w::Window* _window,
                       popupY + CLOSE_BUTTON_PADDING);
   closeButton->setScale(1.f);
   closeButton->setProps(ui::ButtonCloseProps{.closeType = ui::CloseType::POPUP});
-  closeButton->addEventObserver(new ui::ObserverRemoveLayer(LAYER_ID));
-  root->addChild(closeButton);
+  closeButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverRemoveLayer(LAYER_ID)));
+  root->addChild(bmin::UniquePtr<ui::UiElement>(closeButton));
 
-  addUiElement(root);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(root));
 
   auto* floatingNotificationSection = new ui::FloatingNotificationSection(window);
   floatingNotificationSection->setId("floatingNotificationSection");
-  addUiElement(floatingNotificationSection);
+  addUiElement(bmin::UniquePtr<ui::UiElement>(floatingNotificationSection));
 }
 
 void LayerPopupText::update(int deltaTime) { UiLayer::update(deltaTime); }

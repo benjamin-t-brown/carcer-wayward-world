@@ -5,8 +5,8 @@
 
 namespace layers {
 
-void UiLayer::addUiElement(ui::UiElement* element) {
-  uiElements.pushBack(bmin::UniquePtr<ui::UiElement>(element));
+void UiLayer::addUiElement(bmin::UniquePtr<ui::UiElement> element) {
+  uiElements.pushBack(bmin::move(element));
 }
 
 void UiLayer::onMouseDown(int x, int y, int button) {

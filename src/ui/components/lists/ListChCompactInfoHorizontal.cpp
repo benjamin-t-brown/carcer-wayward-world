@@ -60,7 +60,7 @@ void ListChCompactInfoHorizontal::build() {
     chCompactInfoProps.numStatusColumns = numStatusColumns;
     chCompactInfoProps.isSelected = static_cast<int>(i) == props.selectedIndex;
     chCompactInfo->setProps(chCompactInfoProps);
-    list->addChild(chCompactInfo);
+    list->addChild(bmin::UniquePtr<ui::UiElement>(chCompactInfo));
   }
 
   HorizontalListProps listProps;
@@ -69,7 +69,7 @@ void ListChCompactInfoHorizontal::build() {
   listProps.lineGap = static_cast<int>(props.lineGap * style.scale);
   list->setProps(listProps);
 
-  addChild(list);
+  addChild(bmin::UniquePtr<ui::UiElement>(list));
 }
 
 void ListChCompactInfoHorizontal::render(int dt) { UiElement::render(dt); }

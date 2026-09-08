@@ -21,9 +21,10 @@ ButtonGroupProps& ButtonGroup::getProps() { return props; }
 
 const ButtonGroupProps& ButtonGroup::getProps() const { return props; }
 
-void ButtonGroup::addObserverToButtonAtIndex(int index, UiEventObserver* observer) {
+void ButtonGroup::addObserverToButtonAtIndex(int index,
+                                             bmin::UniquePtr<UiEventObserver> observer) {
   if (index >= 0 && index < static_cast<int>(children.size())) {
-    children[index]->addEventObserver(observer);
+    children[index]->addEventObserver(bmin::move(observer));
   } else {
     LOG(ERROR) << "ButtonGroup: Index out of bounds when adding observer: " << index
                << LOG_ENDL;
@@ -87,7 +88,7 @@ void ButtonGroup::build() {
           .width = props.buttonWidth,
           .height = props.buttonHeight,
       });
-      addChild(button);
+      addChild(bmin::UniquePtr<ui::UiElement>(button));
       break;
     }
     case ButtonGroupButtonType::SPRITE: {
@@ -110,7 +111,7 @@ void ButtonGroup::build() {
           .selectedBgColorBottomLeft = props.spriteSelectedBgColorBottomLeft,
           .selectedBorderSize = props.spriteSelectedBorderSize,
       });
-      addChild(button);
+      addChild(bmin::UniquePtr<ui::UiElement>(button));
       break;
     }
     }

@@ -43,7 +43,7 @@ void ItemInfo::build() {
   descProps.lineSpacing = 0;
   descProps.textBlocks.pushBack({.text = props.description});
   description->setProps(descProps);
-  addChild(description);
+  addChild(bmin::UniquePtr<ui::UiElement>(description));
 
   auto [descWidthScaled, descHeightScaled] = description->getDims();
   auto weightLine = new TextLine(window, this);
@@ -62,7 +62,7 @@ void ItemInfo::build() {
               bmin::String(TRANSLATE(" lbs")),
   });
   weightLine->setProps(weightProps);
-  addChild(weightLine);
+  addChild(bmin::UniquePtr<ui::UiElement>(weightLine));
   const auto weightLineHeight = weightLine->getDims().second;
 
   auto valueLine = new TextLine(window, this);
@@ -83,7 +83,7 @@ void ItemInfo::build() {
               bmin::String(TRANSLATE(" gp")),
   });
   valueLine->setProps(valueProps);
-  addChild(valueLine);
+  addChild(bmin::UniquePtr<ui::UiElement>(valueLine));
 
   const auto valueLineHeight = valueLine->getDims().second;
   const int contentHeightPx = descHeightScaled +

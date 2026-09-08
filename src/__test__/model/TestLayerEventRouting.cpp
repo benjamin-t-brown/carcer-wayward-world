@@ -53,14 +53,17 @@ int main() {
   Counts inventory;
 
   layers::LayerManager manager(
-      nullptr, [&](const state::LayerRequest& request) -> layers::Layer* {
+      nullptr,
+      [&](const state::LayerRequest& request) -> bmin::UniquePtr<layers::Layer> {
         if (request.id == state::LayerId::World) {
-          return new CountingLayer(world, state::layerIdString(request.id));
+          return bmin::UniquePtr<layers::Layer>(
+              new CountingLayer(world, state::layerIdString(request.id)));
         }
         if (request.id == state::LayerId::Inventory) {
-          return new CountingLayer(inventory, state::layerIdString(request.id));
+          return bmin::UniquePtr<layers::Layer>(
+              new CountingLayer(inventory, state::layerIdString(request.id)));
         }
-        return nullptr;
+        return bmin::UniquePtr<layers::Layer>();
       });
 
   // World layer active.

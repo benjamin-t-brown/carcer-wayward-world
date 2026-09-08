@@ -86,7 +86,7 @@ void BorderModalSmall::buildTiledOverlay() {
       .spriteName = "ui_overlay_256",
       .alpha = 40,
   });
-  addChild(overlay);
+  addChild(bmin::UniquePtr<ui::UiElement>(overlay));
 }
 
 void BorderModalSmall::build() {

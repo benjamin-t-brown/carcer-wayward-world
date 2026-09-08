@@ -24,7 +24,7 @@ int ButtonSprite::getLogicalHeight() const {
 
 ButtonSprite::ButtonSprite(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
-  addEventObserver(new ButtonSpriteDefaultObserver(this));
+  addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ButtonSpriteDefaultObserver(this)));
   shouldPropagateEventsToChildren = false;
 }
 
@@ -69,7 +69,7 @@ void ButtonSprite::build() {
     rectProps.colorBottomLeft = props.bgColorBottomLeft;
   }
   rect->setProps(rectProps);
-  addChild(rect);
+  addChild(bmin::UniquePtr<ui::UiElement>(rect));
 
   if (!props.spriteName.empty()) {
     auto sprite = new Quad(window, this);
@@ -81,7 +81,7 @@ void ButtonSprite::build() {
         .height = props.spriteHeight,
         .bgSprite = props.spriteName,
     });
-    addChild(sprite);
+    addChild(bmin::UniquePtr<ui::UiElement>(sprite));
   }
 }
 

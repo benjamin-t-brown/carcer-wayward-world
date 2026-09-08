@@ -73,8 +73,8 @@ void FloatingNotification::build() {
   // TextLine renders in screen space (sibling of border), not inside the panel Quad.
   textLine->setPos(style.x + contentWidth / 2, style.y + contentHeight / 2);
 
-  addChild(border);
-  addChild(textLine);
+  addChild(bmin::UniquePtr<ui::UiElement>(border));
+  addChild(bmin::UniquePtr<ui::UiElement>(textLine));
 }
 
 void FloatingNotification::render(int dt) { UiElement::render(dt); }

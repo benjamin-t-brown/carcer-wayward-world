@@ -97,8 +97,8 @@ model test; it will fail because the particle survives without a window.
 | --- | --- | --- | --- |
 | 0 | Baseline and characterization tests | complete | `d55a967` |
 | 1 | Remove dormant and misleading abstractions | complete | `983cc55` |
-| 2 | Make action ownership explicit | complete | (this commit) |
-| 3 | Make layer and UI ownership explicit | not started | — |
+| 2 | Make action ownership explicit | complete | `fdfda72` |
+| 3 | Make layer and UI ownership explicit | complete | (this commit) |
 | 4 | Replace static service locators with explicit dependencies | not started | — |
 | 5 | Give LayerManager one authoritative stack | not started | — |
 | 6 | Clarify world simulation and platform-output boundaries | not started | — |
@@ -154,6 +154,51 @@ accepts an owning `AbstractAction*`:
 scheduling call fails to compile. `TestStateManagerActions` (sequential, insert,
 nested insert, delayed-front, parallel, and mixed ordering) passes unchanged, so
 destruction still happens exactly once on execution and cancellation.
+
+## Phase 3 notes
+
+Layer and UI ownership is now explicit; the transfer is visible in every adopter
+API and no compatibility overload that adopts a raw pointer survives.
+
+- **LayerManager owns the layers.** `layers` is now
+  `bmin::DynArray<bmin::UniquePtr<Layer>>` — the sole owner. `addLayer` takes a
+  `bmin::UniquePtr<Layer>` by value; `LayerFactory` and `createLayer` return
+  `bmin::UniquePtr<Layer>`; the `createWorldLayer`/`createPickUpLayer`/
+  `createInventoryLayer` helpers return owning handles. `layerEventsStack` stays
+  `bmin::DynArray<Layer*>` — non-owning observers into the owning container.
+- Lookup/event-order APIs (`getLayerAt`, `getLayerById`, `getLastActiveLayer`)
+  expose only non-owning `Layer*`. The mutable owning-container accessors
+  (`getLayers()` both overloads) were removed along with the now-unused
+  `removeLayerAt`; no caller referenced them.
+- All manual layer deletion is gone: `removeLayer` erases the owning entry (drop
+  frees it), `reconcileRequests` lets a rejected freshly-created layer free
+  itself when its handle goes out of scope, and the destructor's
+  `clearLayers()` teardown loop was removed — the implicit destructor releases
+  every `UniquePtr`. `rg 'delete '` finds no manual deletion of container-owned
+  layers or UI in `src`.
+- **UI adopters transfer ownership too.** `UiElement::addChild` and
+  `UiElement::addEventObserver` take `bmin::UniquePtr` by value; every other
+  adopter (`SectionScrollable`/`BorderDropShadow` `addChild` overrides,
+  `VerticalList`/`HorizontalList::addListItem`, `ButtonGroup::addObserverToButtonAtIndex`,
+  the modal/in-game `setTitleElement`, `UiLayer::addUiElement`) was converted in
+  the same phase. Parent pointers and `getChildById`/lookup results remain
+  explicitly non-owning. Dead `addListItems` helpers were removed.
+- Call sites wrap the existing raw expression at the point of adoption
+  (`addChild(bmin::UniquePtr<ui::UiElement>(expr))`), preserving the pervasive
+  "create raw local, configure, adopt, keep using the local as a non-owning
+  observer" pattern and add-order/timing. `explicit UniquePtr(T*)` makes any
+  stray un-wrapped `new` at an adopter a compile error.
+
+The bmin `UniquePtr` has no derived-to-base converting constructor and the
+pinned dependency cannot change, so ownership is transferred by constructing the
+base handle directly from the raw pointer (`UniquePtr<Base>(derivedPtr)` via the
+`explicit UniquePtr(Base*)` ctor); `makeUnique<Derived>()` cannot be moved into a
+`UniquePtr<Base>` parameter.
+
+Gate: `make -C src test` (42 CTest, 100%), `make -C src ui` (all targets link),
+`make -C src` (CARCER links), `git diff --check` clean. The build system exposes
+no AddressSanitizer preset/option, so the "under ASan if the host supports it"
+check was not run rather than adding untracked build configuration.
 
 ## Deferred / known items
 

@@ -100,7 +100,7 @@ void MinipageEquipRunes::addEquippedSlots(UiElement* parent, int x, int y, int w
         .height = scaledSlotSize,
         .bgColor = slot.filled ? Colors::Grey2 : Colors::DarkGrey,
     });
-    parent->addChild(slotQuad);
+    parent->addChild(bmin::UniquePtr<ui::UiElement>(slotQuad));
 
     if (slot.filled && !slot.iconSprite.empty()) {
       auto icon = new SpriteElement(window, slotQuad);
@@ -113,7 +113,7 @@ void MinipageEquipRunes::addEquippedSlots(UiElement* parent, int x, int y, int w
           .height = runeSlotIconSize,
           .spriteName = slot.iconSprite,
       });
-      slotQuad->addChild(icon);
+      slotQuad->addChild(bmin::UniquePtr<ui::UiElement>(icon));
     }
   }
 }
@@ -178,10 +178,10 @@ void MinipageEquipRunes::addRuneGrid(UiElement* parent, int x, int y, int width)
         .isDisabled = !canMinus,
     });
     if (canMinus && !props.characterPlayerId.empty()) {
-      minusBtn->addEventObserver(new ObserverAdjustEquippedRune(
-          props.characterPlayerId, row.type, -1));
+      minusBtn->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ObserverAdjustEquippedRune(
+          props.characterPlayerId, row.type, -1)));
     }
-    parent->addChild(minusBtn);
+    parent->addChild(bmin::UniquePtr<ui::UiElement>(minusBtn));
 
     int cursorX = contentX + scaledBtn + scaledInnerGap;
     if (!row.iconSprite.empty()) {
@@ -194,7 +194,7 @@ void MinipageEquipRunes::addRuneGrid(UiElement* parent, int x, int y, int width)
           .height = runeSlotIconSize,
           .spriteName = row.iconSprite,
       });
-      parent->addChild(icon);
+      parent->addChild(bmin::UniquePtr<ui::UiElement>(icon));
     }
     cursorX += scaledIcon + scaledInnerGap;
 
@@ -209,7 +209,7 @@ void MinipageEquipRunes::addRuneGrid(UiElement* parent, int x, int y, int width)
     countProps.textBlocks.pushBack({.text = bmin::toString(remainingCount)});
     countText->setProps(countProps);
     countText->setPos(cursorX + scaledCountW / 2, cellY + scaledCellH / 2);
-    parent->addChild(countText);
+    parent->addChild(bmin::UniquePtr<ui::UiElement>(countText));
     cursorX += scaledCountW + scaledInnerGap;
 
     auto plusBtn = new ButtonIcon(window, parent);
@@ -223,10 +223,10 @@ void MinipageEquipRunes::addRuneGrid(UiElement* parent, int x, int y, int width)
         .isDisabled = !canPlus,
     });
     if (canPlus && !props.characterPlayerId.empty()) {
-      plusBtn->addEventObserver(new ObserverAdjustEquippedRune(
-          props.characterPlayerId, row.type, +1));
+      plusBtn->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ObserverAdjustEquippedRune(
+          props.characterPlayerId, row.type, +1)));
     }
-    parent->addChild(plusBtn);
+    parent->addChild(bmin::UniquePtr<ui::UiElement>(plusBtn));
   }
 }
 
@@ -255,7 +255,7 @@ void MinipageEquipRunes::build() {
       .height = fittedH,
       .layoutFit = LayoutFit::FullBleed,
   });
-  addChild(modal);
+  addChild(bmin::UniquePtr<ui::UiElement>(modal));
 
   auto title = new TextLine(window, modal);
   TextFontProps titleFont;
@@ -267,11 +267,11 @@ void MinipageEquipRunes::build() {
   titleProps.textAlign = TextAlign::LEFT_TOP;
   titleProps.textBlocks.pushBack({.text = TRANSLATE("Equip Runes")});
   title->setProps(titleProps);
-  modal->setTitleElement(title);
+  modal->setTitleElement(bmin::UniquePtr<ui::UiElement>(title));
 
   auto closeButton = modal->getCloseButtonElement();
   if (closeButton) {
-    closeButton->addEventObserver(new ObserverCancelEquipRunes());
+    closeButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ObserverCancelEquipRunes()));
   }
 
   const int contentW = modal->getContentDims().first;
@@ -297,7 +297,7 @@ void MinipageEquipRunes::build() {
   nameProps.textBlocks.pushBack({.text = nameLabel});
   nameText->setProps(nameProps);
   nameText->setPos(contentX + contentW / 2, contentY + scaledNameH / 2);
-  modal->addChild(nameText);
+  modal->addChild(bmin::UniquePtr<ui::UiElement>(nameText));
 
   const int equippedY = contentY + scaledNameH;
   addEquippedSlots(modal,
@@ -330,8 +330,8 @@ void MinipageEquipRunes::build() {
               {.label = TRANSLATE("Okay"), .type = ButtonGroupButtonType::MODAL},
           },
   });
-  buttonGroup->addObserverToButtonAtIndex(0, new ObserverCommitEquipRunes());
-  modal->addChild(buttonGroup);
+  buttonGroup->addObserverToButtonAtIndex(0, bmin::UniquePtr<ui::UiEventObserver>(new ObserverCommitEquipRunes()));
+  modal->addChild(bmin::UniquePtr<ui::UiElement>(buttonGroup));
 }
 
 void MinipageEquipRunes::render(int dt) { UiElement::render(dt); }

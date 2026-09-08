@@ -50,7 +50,7 @@ public:
   ButtonGroupProps& getProps();
   const ButtonGroupProps& getProps() const;
 
-  void addObserverToButtonAtIndex(int index, UiEventObserver* observer);
+  void addObserverToButtonAtIndex(int index, bmin::UniquePtr<UiEventObserver> observer);
 
   void build() override;
   void render(int dt) override;

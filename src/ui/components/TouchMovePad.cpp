@@ -214,7 +214,7 @@ void TouchMovePad::build() {
       .colorBottomLeft = Colors::BorderModalStandardDark,
       .borderSize = props.borderSize,
   });
-  addChild(background);
+  addChild(bmin::UniquePtr<ui::UiElement>(background));
 
   for (const auto& placement : buttonPlacements) {
     const auto [buttonX, buttonY] = getButtonPosition(placement.direction);
@@ -224,7 +224,7 @@ void TouchMovePad::build() {
     button->setPos(buttonX, buttonY);
     button->setScale(style.scale);
     button->setProps(ButtonMoveProps{.direction = placement.direction});
-    addChild(button);
+    addChild(bmin::UniquePtr<ui::UiElement>(button));
   }
 
   auto dragBar = new OutsetRectangle(window, this);
@@ -239,7 +239,7 @@ void TouchMovePad::build() {
       .colorBottomLeft = Colors::BorderModalStandardDark,
       .borderSize = props.borderSize,
   });
-  addChild(dragBar);
+  addChild(bmin::UniquePtr<ui::UiElement>(dragBar));
 
   auto dragHandle = new SpriteElement(window, this);
   dragHandle->setId("dragHandle");
@@ -251,7 +251,7 @@ void TouchMovePad::build() {
       .height = borderButtonH,
       .spriteName = "ui_border_buttons_0",
   });
-  addChild(dragHandle);
+  addChild(bmin::UniquePtr<ui::UiElement>(dragHandle));
 }
 
 void TouchMovePad::render(int dt) { UiElement::render(dt); }

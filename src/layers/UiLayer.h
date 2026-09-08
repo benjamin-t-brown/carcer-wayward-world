@@ -16,7 +16,7 @@ protected:
 public:
   using Layer::Layer;
 
-  void addUiElement(ui::UiElement* element);
+  void addUiElement(bmin::UniquePtr<ui::UiElement> element);
 
   template <typename T> T* getUiElement(std::string_view elementId) {
     for (auto& element : uiElements) {

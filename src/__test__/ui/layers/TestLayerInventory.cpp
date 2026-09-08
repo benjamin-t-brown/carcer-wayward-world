@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
     layerManager = bmin::makeUnique<layers::LayerManager>(&window);
 
     auto* layerInventory = new layers::LayerInventory(&window);
-    layerManager->addLayer(layerInventory);
+    layerManager->addLayer(bmin::UniquePtr<layers::Layer>(layerInventory));
 
     auto& events = window.getEvents();
     events.setMouseEvent(

@@ -45,7 +45,7 @@ public:
   InGameLayoutProps& getProps();
   const InGameLayoutProps& getProps() const;
 
-  void setTitleElement(UiElement* _titleElement);
+  void setTitleElement(bmin::UniquePtr<UiElement> _titleElement);
   UiElement* getTitleElement();
   const std::pair<int, int> getWorldDims();
   const std::pair<int, int> getWorldLocation();

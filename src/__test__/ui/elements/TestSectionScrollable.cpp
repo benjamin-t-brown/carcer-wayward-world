@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
             .fontColor = font.fontColor,
             .textAlign = ui::TextAlign::CENTER,
         });
-        quad->addChild(textLine);
+        quad->addChild(bmin::UniquePtr<ui::UiElement>(textLine));
       };
 
   // auto addScrollableRows =
@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
   //             .borderSize = 0,
   //         });
   //         addTextToQuad(window, row, label);
-  //         section->addChild(row);
+  //         section->addChild(bmin::UniquePtr<ui::UiElement>(row));
   //         y += rowHeight;
   //       }
   //     };
@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
           .borderSize = 0,
       });
       addTextToQuad(window, quad1, "Hello World 1");
-      scrollableSection->addChild(quad1);
+      scrollableSection->addChild(bmin::UniquePtr<ui::UiElement>(quad1));
 
       auto quad2 = new ui::Quad(&window);
       quad2->setId("quad2");
@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
           .borderSize = 0,
       });
       addTextToQuad(window, quad2, "Hello World 2");
-      scrollableSection->addChild(quad2);
+      scrollableSection->addChild(bmin::UniquePtr<ui::UiElement>(quad2));
     }
 
     scrollableSection->setPos(40, 50);

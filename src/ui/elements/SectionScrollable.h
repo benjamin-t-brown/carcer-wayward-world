@@ -76,7 +76,7 @@ public:
   void scrollDown();
   void scrollTo(int offset);
 
-  void addChild(UiElement* child) override;
+  void addChild(bmin::UniquePtr<UiElement> child) override;
 
   void setPos(int x, int y) override;
   void setScale(float scale) override;
