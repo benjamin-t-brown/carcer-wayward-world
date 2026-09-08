@@ -3,7 +3,12 @@ import { useSDL2WAssets } from '../../../contexts/SDL2WAssetsContext';
 import { useAssets } from '../../../contexts/AssetsContext';
 import { getSpriteNameFromTile } from '../../../utils/draw';
 import { Sprite } from '../../../elements/Sprite';
-import { EditorState, getEditorState, getEditorStateMap } from '../../editorState';
+import {
+  EditorState,
+  getEditorState,
+  getEditorStateMap,
+  bumpMapDataRevision,
+} from '../../editorState';
 import { ItemSearchInput } from './ItemSearchInput';
 import { CharacterSearchInput } from './CharacterSearchInput';
 import { MarkersSection } from './MarkersSection';
@@ -14,7 +19,6 @@ import { EventTriggerSection } from './EventTriggerSection';
 import { TileOverridesSection } from './TileOverridesSection';
 import { OpenMapAndSelectTileArgs } from '../../TileEditor';
 import { commitCurrentLayer, getTileList } from '../../editorEvents';
-import { invalidateMaterializedLayer } from '../../../utils/mapIndex';
 import { addMapTileItemEntry } from '../../mapTileItems';
 
 interface SelectedTileInfoProps {
@@ -45,7 +49,7 @@ export function SelectedTileInfo({
     updater(updatedTile);
     mapTiles[selectedTileInd] = updatedTile;
     commitCurrentLayer(map, getEditorState().currentLevel);
-    invalidateMaterializedLayer(map);
+    bumpMapDataRevision(map.name);
     onMapUpdate({
       ...map,
       eventTriggers: map.eventTriggers.map((entry) => ({ ...entry })),

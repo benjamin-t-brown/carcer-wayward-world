@@ -15,6 +15,10 @@ import {
   TileOverrides,
   TravelTrigger,
 } from '../types/assets';
+import {
+  bumpMapDataRevision,
+  getMapDataRevision,
+} from '../tile-editor/editorState';
 
 /** Legacy on-disk shape (pre-flat migration). */
 export interface LegacyCarcerMapTemplate {
@@ -465,49 +469,49 @@ export function writeLayerFromTiles(
   if (!map.layers.includes(l)) {
     map.layers = [...map.layers, l].sort((a, b) => b - a);
   }
+  bumpMapDataRevision(map.name);
 }
 
-const layerViewCache = new WeakMap<
-  CarcerMapTemplate,
-  Map<number, CarcerMapTileTemplate[]>
->();
+/**
+ * Cache of materialized layers, keyed on `name|revision|layer` rather than map
+ * object identity, so an ordinary React `{ ...map }` spread no longer discards
+ * it. Not a WeakMap, so it needs an explicit eviction rule (invariant I6).
+ */
+const MAX_CACHED_LAYERS = 32;
+const layerViewCache = new Map<string, CarcerMapTileTemplate[]>();
+
+function layerCacheKey(name: string, l: number): string {
+  return name + '|' + getMapDataRevision(name) + '|' + l;
+}
 
 export function getMaterializedLayer(
   map: CarcerMapTemplate,
   l: number
 ): CarcerMapTileTemplate[] {
-  let byLayer = layerViewCache.get(map);
-  if (!byLayer) {
-    byLayer = new Map();
-    layerViewCache.set(map, byLayer);
+  const key = layerCacheKey(map.name, l);
+  const hit = layerViewCache.get(key);
+  if (hit) {
+    return hit;
   }
-  if (!byLayer.has(l)) {
-    byLayer.set(l, materializeLayer(map, l));
-  }
-  return byLayer.get(l)!;
-}
 
-export function invalidateMaterializedLayer(
-  map: CarcerMapTemplate,
-  l?: number
-): void {
-  const byLayer = layerViewCache.get(map);
-  if (!byLayer) {
-    return;
+  const tiles = materializeLayer(map, l);
+  layerViewCache.set(key, tiles);
+  if (layerViewCache.size > MAX_CACHED_LAYERS) {
+    // Map preserves insertion order; drop the oldest entry.
+    const oldest = layerViewCache.keys().next().value;
+    if (oldest !== undefined) {
+      layerViewCache.delete(oldest);
+    }
   }
-  if (l === undefined) {
-    byLayer.clear();
-  } else {
-    byLayer.delete(l);
-  }
+  return tiles;
 }
 
 export function commitMaterializedLayer(
   map: CarcerMapTemplate,
   l: number
 ): void {
-  const byLayer = layerViewCache.get(map);
-  const tiles = byLayer?.get(l);
+  // Read before writeLayerFromTiles bumps the revision out from under the key.
+  const tiles = layerViewCache.get(layerCacheKey(map.name, l));
   if (!tiles) {
     return;
   }
@@ -611,7 +615,7 @@ export function resizeMap(
     height: newHeight,
     tiles: { ...map.tiles },
   };
-  invalidateMaterializedLayer(map);
+  bumpMapDataRevision(map.name);
 
   for (const l of map.layers) {
     const tiles = materializeLayer(map, l);
@@ -657,7 +661,7 @@ export function deleteMapLayer(map: CarcerMapTemplate, l: number): CarcerMapTemp
     next.layers = [0];
     createTilesForLayer(next, 0);
   }
-  invalidateMaterializedLayer(map);
+  bumpMapDataRevision(map.name);
   return next;
 }
 
@@ -667,7 +671,7 @@ export function addMapLayer(
 ): CarcerMapTemplate {
   const next = { ...map, tiles: { ...map.tiles } };
   createTilesForLayer(next, l);
-  invalidateMaterializedLayer(map);
+  bumpMapDataRevision(map.name);
   return next;
 }
 

@@ -18,6 +18,13 @@ export interface EditorStateMap {
   };
   undoHistory: PaintAction[];
   undoIndex: number;
+  /**
+   * Bumped whenever this map's underlying data changes (a committed paint
+   * stroke, a structural op, a tile-edit modal write). The materialized-layer
+   * cache is keyed on it, so an ordinary React `{ ...map }` spread no longer
+   * silently invalidates the cache — only an explicit bump does.
+   */
+  dataRevision: number;
   /** Per-level vertex terrain grids; length (width+1)*(height+1) each. */
   terrainVertexGridsByLevel?: Record<number, TileTerrainBorderTag[]>;
   viewport?: {
@@ -122,9 +129,31 @@ export const createEditorStateMap = (mapName: string) => {
     hoveredTileData: { x: -1, y: -1, ind: -1 },
     undoHistory: [],
     undoIndex: 0,
+    dataRevision: 0,
   };
   getEditorState().maps[mapName] = map;
   return map;
+};
+
+/**
+ * Current data revision for a map. Returns 0 for a map with no editor-state
+ * entry (e.g. a read-only neighbour rendered through renderMapTilesAtOffset).
+ */
+export const getMapDataRevision = (mapName: string): number =>
+  getEditorStateMap(mapName)?.dataRevision ?? 0;
+
+/**
+ * Advance a map's data revision, invalidating every cached materialized layer
+ * for it. No-op for a map with no editor-state entry. Call only after a commit
+ * or a structural change — never mid-stroke, or the in-flight working buffer is
+ * swapped out and the edit is lost.
+ */
+export const bumpMapDataRevision = (mapName: string): void => {
+  const current = getEditorStateMap(mapName)?.dataRevision;
+  if (current === undefined) {
+    return;
+  }
+  updateEditorStateMapNoReRender(mapName, { dataRevision: current + 1 });
 };
 
 export const renameEditorStateMap = (oldName: string, newName: string) => {
