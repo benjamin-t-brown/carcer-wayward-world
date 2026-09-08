@@ -119,26 +119,10 @@ export function ensureMapLayers(map: CarcerMapTemplate): void {
   if (!map.tiles) {
     map.tiles = {};
   }
-  if (!map.characters) {
-    map.characters = [];
-  }
-  if (!map.items) {
-    map.items = [];
-  }
-  if (!map.markers) {
-    map.markers = [];
-  }
-  if (!map.eventTriggers) {
-    map.eventTriggers = [];
-  }
-  if (!map.travelTriggers) {
-    map.travelTriggers = [];
-  }
-  if (!map.tileOverrides) {
-    map.tileOverrides = [];
-  }
-  if (!map.lightSources) {
-    map.lightSources = [];
+  for (const kind of PLACEMENT_KINDS) {
+    if (!getPlacementList(map, kind.listKey)) {
+      setPlacementList(map, kind.listKey, []);
+    }
   }
   for (const l of map.layers) {
     const key = layerKey(l);
@@ -211,52 +195,7 @@ export function migrateLegacyMap(
       graphics[i * 2] = tsIdx;
       graphics[i * 2 + 1] = tile.tileId ?? 0;
 
-      for (const name of tile.characters ?? []) {
-        if (name) {
-          map.characters.push({ l, i, name });
-        }
-      }
-      for (const item of tile.items ?? []) {
-        map.items.push({
-          l,
-          i,
-          name: item.name,
-          quantity: item.quantity ?? 1,
-        });
-      }
-      for (const name of tile.markers ?? []) {
-        if (name) {
-          map.markers.push({ l, i, name });
-        }
-      }
-      if (tile.eventTrigger) {
-        const { overlayVisibility, ...eventRest } = tile.eventTrigger;
-        map.eventTriggers.push({
-          l,
-          i,
-          ...eventRest,
-          ...(overlayVisibility && overlayVisibility !== 'HIDDEN'
-            ? { overlayVisibility }
-            : {}),
-        });
-      }
-      if (tile.travelTrigger) {
-        const { overlayVisibility, ...travelRest } = tile.travelTrigger;
-        map.travelTriggers.push({
-          l,
-          i,
-          ...travelRest,
-          ...(overlayVisibility && overlayVisibility !== 'HIDDEN'
-            ? { overlayVisibility }
-            : {}),
-        });
-      }
-      if (tile.tileOverrides) {
-        map.tileOverrides.push({ l, i, overrides: tile.tileOverrides });
-      }
-      if (tile.lightSource) {
-        map.lightSources.push({ l, i, ...tile.lightSource });
-      }
+      appendTilePlacements(map, l, i, tile);
     });
 
     map.tiles[layerKey(l)] = graphics;
@@ -274,12 +213,185 @@ export function normalizeMapOnLoad(
   return map;
 }
 
-function placementsAt<L extends MapTileRef>(
-  list: L[],
+/**
+ * One placement "kind" — a flat list on {@link CarcerMapTemplate} that mirrors a
+ * field on {@link CarcerMapTileTemplate}. Adding a new per-tile property means
+ * adding one entry here instead of editing six functions by hand.
+ */
+export interface PlacementKind {
+  /** Key on CarcerMapTemplate holding the flat placement list. */
+  listKey:
+    | 'characters'
+    | 'items'
+    | 'markers'
+    | 'eventTriggers'
+    | 'travelTriggers'
+    | 'tileOverrides'
+    | 'lightSources';
+  /** Key on CarcerMapTileTemplate holding the materialized value. */
+  tileKey: keyof CarcerMapTileTemplate;
+  /** 'many' -> array on the tile; 'one' -> single optional value. */
+  cardinality: 'many' | 'one';
+  /** Placement entry -> value stored on the materialized tile. */
+  toTile(entry: any): any;
+  /** Tile value -> placement payloads, without l/i (added by the caller). */
+  fromTile(value: any): any[];
+}
+
+/**
+ * Preserve the HIDDEN asymmetry: materialization fills in a 'HIDDEN' default when
+ * reading, but the write side omits the field entirely when it equals 'HIDDEN',
+ * keeping it out of maps.json.
+ */
+function keepOverlayVisibility(
+  visibility: string | undefined
+): { overlayVisibility: string } | Record<string, never> {
+  return visibility && visibility !== 'HIDDEN'
+    ? { overlayVisibility: visibility }
+    : {};
+}
+
+export const PLACEMENT_KINDS: readonly PlacementKind[] = [
+  {
+    listKey: 'characters',
+    tileKey: 'characters',
+    cardinality: 'many',
+    toTile: (c) => c.name,
+    fromTile: (names: string[]) =>
+      (names ?? []).filter(Boolean).map((name) => ({ name })),
+  },
+  {
+    listKey: 'items',
+    tileKey: 'items',
+    cardinality: 'many',
+    toTile: (it) => ({ name: it.name, quantity: it.quantity }),
+    fromTile: (entries: MapTileItemEntry[]) =>
+      (entries ?? []).map((e) => ({ name: e.name, quantity: e.quantity ?? 1 })),
+  },
+  {
+    listKey: 'markers',
+    tileKey: 'markers',
+    cardinality: 'many',
+    toTile: (m) => m.name,
+    fromTile: (names: string[]) =>
+      (names ?? []).filter(Boolean).map((name) => ({ name })),
+  },
+  {
+    listKey: 'eventTriggers',
+    tileKey: 'eventTrigger',
+    cardinality: 'one',
+    toTile: (e) => ({
+      eventId: e.eventId,
+      requiresNonCombat: e.requiresNonCombat,
+      requiresLook: e.requiresLook,
+      overlayVisibility: e.overlayVisibility ?? 'HIDDEN',
+    }),
+    fromTile: (v: TileEventTrigger) => [
+      {
+        eventId: v.eventId,
+        requiresNonCombat: v.requiresNonCombat,
+        requiresLook: v.requiresLook,
+        ...keepOverlayVisibility(v.overlayVisibility),
+      },
+    ],
+  },
+  {
+    listKey: 'travelTriggers',
+    tileKey: 'travelTrigger',
+    cardinality: 'one',
+    toTile: (t) => ({
+      destinationMapName: t.destinationMapName,
+      destinationMarkerName: t.destinationMarkerName,
+      destinationX: t.destinationX,
+      destinationY: t.destinationY,
+      destinationLayer: t.destinationLayer ?? 0,
+      requiresAction: t.requiresAction ?? false,
+      overlayVisibility: t.overlayVisibility ?? 'HIDDEN',
+    }),
+    fromTile: (v: TravelTrigger) => [
+      {
+        destinationMapName: v.destinationMapName,
+        destinationMarkerName: v.destinationMarkerName,
+        destinationX: v.destinationX,
+        destinationY: v.destinationY,
+        destinationLayer: v.destinationLayer ?? 0,
+        requiresAction: v.requiresAction ?? false,
+        ...keepOverlayVisibility(v.overlayVisibility),
+      },
+    ],
+  },
+  {
+    listKey: 'tileOverrides',
+    tileKey: 'tileOverrides',
+    cardinality: 'one',
+    toTile: (o) => ({ ...o.overrides }),
+    fromTile: (v: TileOverrides) => [{ overrides: v }],
+  },
+  {
+    listKey: 'lightSources',
+    tileKey: 'lightSource',
+    cardinality: 'one',
+    toTile: (ls) => ({
+      angle: ls.angle,
+      intensity: ls.intensity,
+      radius: ls.radius,
+    }),
+    fromTile: (v: TileLightSource) => [{ ...v }],
+  },
+];
+
+type PlacementListKey = PlacementKind['listKey'];
+
+function getPlacementList(
+  map: CarcerMapTemplate,
+  key: PlacementListKey
+): MapTileRef[] {
+  return map[key] as unknown as MapTileRef[];
+}
+
+function setPlacementList(
+  map: CarcerMapTemplate,
+  key: PlacementListKey,
+  list: MapTileRef[]
+): void {
+  (map as unknown as Record<PlacementListKey, MapTileRef[]>)[key] = list;
+}
+
+/** One pass over a placement list, bucketed by tile index, for a single layer. */
+function indexByTileIndex<T extends MapTileRef>(
+  list: T[] | undefined,
+  l: number
+): Map<number, T[]> {
+  const byIndex = new Map<number, T[]>();
+  for (const entry of list ?? []) {
+    if (entry.l !== l) continue;
+    const bucket = byIndex.get(entry.i);
+    if (bucket) bucket.push(entry);
+    else byIndex.set(entry.i, [entry]);
+  }
+  return byIndex;
+}
+
+/**
+ * Append every placement kind for a single materialized tile to the map's flat
+ * lists. Shared by writeLayerFromTiles and migrateLegacyMap so the two paths
+ * cannot drift.
+ */
+function appendTilePlacements(
+  map: CarcerMapTemplate,
   l: number,
-  i: number
-): L[] {
-  return list.filter((entry) => entry.l === l && entry.i === i);
+  i: number,
+  tile: CarcerMapTileTemplate
+): void {
+  const source = tile as unknown as Record<string, unknown>;
+  for (const kind of PLACEMENT_KINDS) {
+    const value = source[kind.tileKey];
+    if (kind.cardinality === 'one' && value == null) continue;
+    const list = getPlacementList(map, kind.listKey);
+    for (const payload of kind.fromTile(value)) {
+      list.push({ l, i, ...payload });
+    }
+  }
 }
 
 export function materializeLayer(
@@ -293,57 +405,28 @@ export function materializeLayer(
     createEmptyTileGraphics(map.width, map.height);
   const result: CarcerMapTileTemplate[] = [];
 
+  // One pass per kind, bucketed by tile index — O(tiles + placements).
+  const indexes = PLACEMENT_KINDS.map((kind) =>
+    indexByTileIndex(getPlacementList(map, kind.listKey), l)
+  );
+
   for (let i = 0; i < count; i++) {
     const tsIdx = graphics[i * 2] ?? 0;
     const tileId = graphics[i * 2 + 1] ?? 0;
-    const tile: CarcerMapTileTemplate = {
+    const tile = {
       tilesetName: map.tilesets[tsIdx] ?? '',
       tileId,
-      characters: placementsAt(map.characters, l, i).map((c) => c.name),
-      items: placementsAt(map.items, l, i).map(
-        (item): MapTileItemEntry => ({
-          name: item.name,
-          quantity: item.quantity,
-        })
-      ),
-      markers: placementsAt(map.markers, l, i).map((m) => m.name),
-    };
+    } as CarcerMapTileTemplate;
+    const writable = tile as unknown as Record<string, unknown>;
 
-    const event = placementsAt(map.eventTriggers, l, i)[0];
-    if (event) {
-      tile.eventTrigger = {
-        eventId: event.eventId,
-        requiresNonCombat: event.requiresNonCombat,
-        requiresLook: event.requiresLook,
-        overlayVisibility: event.overlayVisibility ?? 'HIDDEN',
-      };
-    }
-
-    const travel = placementsAt(map.travelTriggers, l, i)[0];
-    if (travel) {
-      tile.travelTrigger = {
-        destinationMapName: travel.destinationMapName,
-        destinationMarkerName: travel.destinationMarkerName,
-        destinationX: travel.destinationX,
-        destinationY: travel.destinationY,
-        destinationLayer: travel.destinationLayer ?? 0,
-        requiresAction: travel.requiresAction ?? false,
-        overlayVisibility: travel.overlayVisibility ?? 'HIDDEN',
-      };
-    }
-
-    const override = placementsAt(map.tileOverrides, l, i)[0];
-    if (override) {
-      tile.tileOverrides = { ...override.overrides };
-    }
-
-    const light = placementsAt(map.lightSources, l, i)[0];
-    if (light) {
-      tile.lightSource = {
-        angle: light.angle,
-        intensity: light.intensity,
-        radius: light.radius,
-      };
+    for (let k = 0; k < PLACEMENT_KINDS.length; k++) {
+      const kind = PLACEMENT_KINDS[k];
+      const bucket = indexes[k].get(i);
+      if (kind.cardinality === 'many') {
+        writable[kind.tileKey] = (bucket ?? []).map((e) => kind.toTile(e));
+      } else if (bucket && bucket.length > 0) {
+        writable[kind.tileKey] = kind.toTile(bucket[0]);
+      }
     }
 
     result.push(tile);
@@ -360,13 +443,13 @@ export function writeLayerFromTiles(
   ensureMapLayers(map);
   const graphics = createEmptyTileGraphics(map.width, map.height);
 
-  map.characters = map.characters.filter((c) => c.l !== l);
-  map.items = map.items.filter((item) => item.l !== l);
-  map.markers = map.markers.filter((m) => m.l !== l);
-  map.eventTriggers = map.eventTriggers.filter((e) => e.l !== l);
-  map.travelTriggers = map.travelTriggers.filter((t) => t.l !== l);
-  map.tileOverrides = map.tileOverrides.filter((o) => o.l !== l);
-  map.lightSources = map.lightSources.filter((ls) => ls.l !== l);
+  for (const kind of PLACEMENT_KINDS) {
+    setPlacementList(
+      map,
+      kind.listKey,
+      getPlacementList(map, kind.listKey).filter((entry) => entry.l !== l)
+    );
+  }
 
   const count = Math.min(tiles.length, map.width * map.height);
   for (let i = 0; i < count; i++) {
@@ -375,60 +458,7 @@ export function writeLayerFromTiles(
     graphics[i * 2] = tsIdx;
     graphics[i * 2 + 1] = tile.tileId ?? 0;
 
-    for (const name of tile.characters ?? []) {
-      if (name) {
-        map.characters.push({ l, i, name });
-      }
-    }
-    for (const item of tile.items ?? []) {
-      map.items.push({
-        l,
-        i,
-        name: item.name,
-        quantity: item.quantity ?? 1,
-      });
-    }
-    for (const name of tile.markers ?? []) {
-      if (name) {
-        map.markers.push({ l, i, name });
-      }
-    }
-    if (tile.eventTrigger) {
-      const { overlayVisibility, ...eventRest } = tile.eventTrigger;
-      map.eventTriggers.push({
-        l,
-        i,
-        ...eventRest,
-        ...(overlayVisibility && overlayVisibility !== 'HIDDEN'
-          ? { overlayVisibility }
-          : {}),
-      });
-    }
-    if (tile.travelTrigger) {
-      const { overlayVisibility, ...travelRest } = {
-        destinationMapName: tile.travelTrigger.destinationMapName,
-        destinationMarkerName: tile.travelTrigger.destinationMarkerName,
-        destinationX: tile.travelTrigger.destinationX,
-        destinationY: tile.travelTrigger.destinationY,
-        destinationLayer: tile.travelTrigger.destinationLayer ?? 0,
-        requiresAction: tile.travelTrigger.requiresAction ?? false,
-        overlayVisibility: tile.travelTrigger.overlayVisibility,
-      };
-      map.travelTriggers.push({
-        l,
-        i,
-        ...travelRest,
-        ...(overlayVisibility && overlayVisibility !== 'HIDDEN'
-          ? { overlayVisibility }
-          : {}),
-      });
-    }
-    if (tile.tileOverrides) {
-      map.tileOverrides.push({ l, i, overrides: tile.tileOverrides });
-    }
-    if (tile.lightSource) {
-      map.lightSources.push({ l, i, ...tile.lightSource });
-    }
+    appendTilePlacements(map, l, i, tile);
   }
 
   map.tiles[layerKey(l)] = graphics;
@@ -598,13 +628,13 @@ export function resizeMap(
 
   const maxI = newWidth * newHeight;
   const inBounds = (p: MapTileRef) => p.i >= 0 && p.i < maxI;
-  next.characters = next.characters.filter(inBounds);
-  next.items = next.items.filter(inBounds);
-  next.markers = next.markers.filter(inBounds);
-  next.eventTriggers = next.eventTriggers.filter(inBounds);
-  next.travelTriggers = next.travelTriggers.filter(inBounds);
-  next.tileOverrides = next.tileOverrides.filter(inBounds);
-  next.lightSources = next.lightSources.filter(inBounds);
+  for (const kind of PLACEMENT_KINDS) {
+    setPlacementList(
+      next,
+      kind.listKey,
+      getPlacementList(next, kind.listKey).filter(inBounds)
+    );
+  }
   ensureMapLayers(next);
   return next;
 }
@@ -616,13 +646,13 @@ export function deleteMapLayer(map: CarcerMapTemplate, l: number): CarcerMapTemp
     tiles: { ...map.tiles },
   };
   delete next.tiles[layerKey(l)];
-  next.characters = next.characters.filter((c) => c.l !== l);
-  next.items = next.items.filter((item) => item.l !== l);
-  next.markers = next.markers.filter((m) => m.l !== l);
-  next.eventTriggers = next.eventTriggers.filter((e) => e.l !== l);
-  next.travelTriggers = next.travelTriggers.filter((t) => t.l !== l);
-  next.tileOverrides = next.tileOverrides.filter((o) => o.l !== l);
-  next.lightSources = next.lightSources.filter((ls) => ls.l !== l);
+  for (const kind of PLACEMENT_KINDS) {
+    setPlacementList(
+      next,
+      kind.listKey,
+      getPlacementList(next, kind.listKey).filter((entry) => entry.l !== l)
+    );
+  }
   if (!next.layers.length) {
     next.layers = [0];
     createTilesForLayer(next, 0);
