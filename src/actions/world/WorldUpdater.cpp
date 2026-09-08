@@ -59,19 +59,22 @@ void updateDamageParticles(model::World& world, sdl2w::Window* window, int delta
     return;
   }
 
-  if (!window) {
-    return;
-  }
-  auto& store = window->getStore();
+  // A particle's lifetime is world simulation: it advances and expires whether
+  // or not a window is attached. The sdl2w::Animation is platform output and
+  // only exists when there is a store to create it from, so a headless update
+  // still ages and removes particles instead of leaking them forever.
+  sdl2w::Store* store = window ? &window->getStore() : nullptr;
 
   for (size_t i = 0; i < world.activeMap.damageParticles.size();) {
     auto& particle = world.activeMap.damageParticles[i];
 
-    if (!particle.animation) {
-      particle.animation = std::make_optional<sdl2w::Animation>(
-          store.createAnimation(bmin::toStringView(particle.animationName)));
+    if (store) {
+      if (!particle.animation) {
+        particle.animation = std::make_optional<sdl2w::Animation>(
+            store->createAnimation(bmin::toStringView(particle.animationName)));
+      }
+      particle.animation->update(deltaTimeMs);
     }
-    particle.animation->update(deltaTimeMs);
 
     timerStructUpdate(particle.lifetime, deltaTimeMs);
     if (timerStructIsComplete(particle.lifetime)) {

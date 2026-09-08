@@ -100,8 +100,8 @@ model test; it will fail because the particle survives without a window.
 | 2 | Make action ownership explicit | complete | `fdfda72` |
 | 3 | Make layer and UI ownership explicit | complete | `69810fe` |
 | 4 | Replace static service locators with explicit dependencies | skipped | — |
-| 5 | Give LayerManager one authoritative stack | complete | (this commit) |
-| 6 | Clarify world simulation and platform-output boundaries | not started | — |
+| 5 | Give LayerManager one authoritative stack | complete | `726191c` |
+| 6 | Clarify world simulation and platform-output boundaries | complete | (this commit) |
 | 7 | Replace mechanical observers with reusable bindings | not started | — |
 | 8 | Final verification and documentation | not started | — |
 
@@ -257,6 +257,34 @@ unnecessary. Event handlers stay `void` and the front-only routing pinned by
 `TestLayerEventRouting` is unchanged.
 
 Gate: `make -C src test` (42 CTest, 100%), `make -C src ui` (all targets link),
+`make -C src` (CARCER links), `git diff --check` clean.
+
+## Phase 6 notes
+
+The world-simulation / platform-output boundary is now explicit for damage
+particles, closing the deferred defect noted in Phase 0.
+
+- **Lifetime is simulation; the animation is output.** `updateDamageParticles`
+  (`src/actions/world/WorldUpdater.cpp`) previously returned early when
+  `window == nullptr`, so a headless `worldUpdate` never advanced a particle's
+  `lifetime` and expired particles leaked forever. The window/store is now used
+  only to lazily create and update the `sdl2w::Animation` (platform output); the
+  `lifetime` timer advances and expired particles are erased on every tick,
+  windowed or headless. No frame is created without a store.
+- **Regression test.** `src/__test__/model/TestDamageParticleLifetime.cpp` seeds
+  a particle and runs a headless `worldUpdate(nullptr, …)`: an expired particle
+  is removed, and an unexpired one survives with its `lifetime` advanced and no
+  animation allocated. This fails against the pre-Phase-6 baseline (the particle
+  survives because its lifetime never advances) and passes now. The non-UI suite
+  is 43 CTest tests (was 42).
+
+Other platform-output paths already tolerated a null window before this phase:
+`worldUpdate` guards sound playback on `window != nullptr` while still draining
+the one-shot `soundsToPlay` queue (pinned by `TestSoundQueue`), and
+`updateProjectiles` operates purely on world state. No further changes were
+needed to run the world simulation headless.
+
+Gate: `make -C src test` (43 CTest, 100%), `make -C src ui` (all targets link),
 `make -C src` (CARCER links), `git diff --check` clean.
 
 ## Deferred / known items
