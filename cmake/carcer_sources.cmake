@@ -74,11 +74,11 @@ set(CARCER_RULE_SOURCES
   src/game/map/TileDistance.cpp
   src/game/map/TileTriggers.cpp)
 
-set(CARCER_RUNNER_SOURCES
-  src/runner/SpecialEventRunner.cpp
-  src/runner/ConditionEvaluator.cpp
-  src/runner/StringEvaluator.cpp
-  src/runner/EventRunnerHelpers.cpp)
+set(CARCER_IN3_SOURCES
+  src/in3/SpecialEventRunner.cpp
+  src/in3/ConditionEvaluator.cpp
+  src/in3/StringEvaluator.cpp
+  src/in3/EventRunnerHelpers.cpp)
 
 set(CARCER_ACTION_SOURCES
   src/actions/world/WorldUpdater.cpp)
@@ -164,7 +164,7 @@ set(CARCER_SOURCES
   ${CARCER_DB_SOURCES}
   ${CARCER_MODEL_SOURCES}
   ${CARCER_RULE_SOURCES}
-  ${CARCER_RUNNER_SOURCES}
+  ${CARCER_IN3_SOURCES}
   ${CARCER_ACTION_SOURCES}
   ${CARCER_STATE_SOURCES}
   ${CARCER_UI_SOURCES}

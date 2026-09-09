@@ -3,7 +3,7 @@
 #include "layers/UiLayer.h"
 #include "bmin/Map.h"
 #include "model/templates/SpecialEvents.hpp"
-#include "runner/SpecialEventRunner.h"
+#include "in3/SpecialEventRunner.h"
 #include "ui/KeyboardHeldScroll.h"
 #include "ui/elements/TextLine.h"
 #include <optional>
@@ -19,8 +19,8 @@ namespace layers {
 
 class LayerSpecialEvent : public UiLayer {
 private:
-  runner::SpecialEventRunner runner;
-  runner::SpecialEventRunnerInterface runnerInterface;
+  in3::SpecialEventRunner runner;
+  in3::SpecialEventRunnerInterface runnerInterface;
   bmin::DynArray<ui::TextBlock> talkHistory;
   ui::KeyboardHeldScroll talkKeyboardScroll;
   bool eventFinished = false;

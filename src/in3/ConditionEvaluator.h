@@ -6,7 +6,7 @@
 
 #include <optional>
 
-namespace runner {
+namespace in3 {
 
 struct ConditionEvaluatorFuncs {
   const bmin::Map<bmin::String, bmin::String>& storage;
@@ -51,4 +51,4 @@ public:
   bool evalCondition(const bmin::String& str);
 };
 
-} // namespace runner
+} // namespace in3

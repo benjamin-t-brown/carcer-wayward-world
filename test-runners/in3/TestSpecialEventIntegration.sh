@@ -1,4 +1,4 @@
 #!/bin/bash
 SCRIPT_DIR=$(dirname "$0")
-node "$SCRIPT_DIR/../TestRunnerHelper.js" runner . TestSpecialEventIntegration "$@"
+node "$SCRIPT_DIR/../TestRunnerHelper.js" in3 . TestSpecialEventIntegration "$@"
 

@@ -7,7 +7,7 @@
 
 #include <optional>
 
-namespace runner {
+namespace in3 {
 
 struct ConditionResult {
   bool result;
@@ -91,4 +91,4 @@ public:
   static bmin::String stateToString(SpecialEventRunnerInterfaceState state);
 };
 
-} // namespace runner
+} // namespace in3

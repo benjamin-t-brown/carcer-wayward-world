@@ -2,7 +2,7 @@
 #include "bmin/Map.h"
 #include "sdl2w/Logger.h"
 #include "model/templates/SpecialEvents.hpp"
-#include "runner/SpecialEventRunner.h"
+#include "in3/SpecialEventRunner.h"
 #include "bmin/String.h"
 #include "bmin/DynArray.h"
 #include "bmin/Map.h"
@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
   bmin::Map<bmin::String, model::GameEvent> specialEvents;
   try {
     // files are relative to executable in src dir
-    db::loadSpecialEvents("__test__/runner/data/TestEvent.json", specialEvents);
+    db::loadSpecialEvents("__test__/in3/data/TestEvent.json", specialEvents);
   } catch (const std::exception& e) {
     LOG(ERROR) << "Error loading test event: " << e.what() << LOG_ENDL;
     return 1;
@@ -46,8 +46,8 @@ int main(int argc, char** argv) {
   };
 
   try {
-    runner::SpecialEventRunner runner({}, testEvent, specialEvents);
-    runner::SpecialEventRunnerInterface runnerInterface(runner);
+    in3::SpecialEventRunner runner({}, testEvent, specialEvents);
+    in3::SpecialEventRunnerInterface runnerInterface(runner);
 
     for (int stepIndex = 0; static_cast<size_t>(stepIndex) < inputSteps.size();
          stepIndex++) {
@@ -58,26 +58,26 @@ int main(int argc, char** argv) {
         runnerInterface.startEvent();
       } else if (choiceIndex == -1) {
         auto state = runnerInterface.getState();
-        if (state == runner::SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE) {
+        if (state == in3::SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE) {
           LOG(INFO) << "Continuing event." << LOG_ENDL;
           runnerInterface.continueEvent();
         } else {
           LOG(ERROR) << "Error, test indicated to continue event, but state is not "
                         "WAITING_TO_CONTINUE.  State: "
-                     << runner::SpecialEventRunnerInterface::stateToString(state)
+                     << in3::SpecialEventRunnerInterface::stateToString(state)
                      << LOG_ENDL;
           return 1;
         }
       } else {
         auto state = runnerInterface.getState();
-        if (state == runner::SpecialEventRunnerInterfaceState::WAITING_TO_SELECT_CHOICE) {
+        if (state == in3::SpecialEventRunnerInterfaceState::WAITING_TO_SELECT_CHOICE) {
           LOG(INFO) << "Selecting choice: " << choiceIndex << " - "
                     << runner.displayTextChoices[choiceIndex].text << LOG_ENDL;
           runnerInterface.selectChoice(choiceIndex);
         } else {
           LOG(ERROR) << "Error, test indicated to select choice, but state is not "
                         "WAITING_TO_SELECT_CHOICE.  State: "
-                     << runner::SpecialEventRunnerInterface::stateToString(state)
+                     << in3::SpecialEventRunnerInterface::stateToString(state)
                      << LOG_ENDL;
           return 1;
         }

@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <functional>
 
-namespace runner {
+namespace in3 {
 
 static bmin::String replaceAll(bmin::String str, const bmin::String& from, const bmin::String& to) {
   size_t pos = 0;
@@ -433,4 +433,4 @@ bmin::String SpecialEventRunnerInterface::stateToString(SpecialEventRunnerInterf
   return "UNKNOWN";
 }
 
-} // namespace runner
+} // namespace in3

@@ -4,7 +4,7 @@
 #include "bmin/String.h"
 #include "bmin/Map.h"
 
-namespace runner {
+namespace in3 {
 
 struct StringEvaluatorFuncs {
   bmin::Map<bmin::String, bmin::String>& storage;
@@ -46,4 +46,4 @@ public:
   void evalStr(const bmin::String& str);
 };
 
-} // namespace runner
+} // namespace in3

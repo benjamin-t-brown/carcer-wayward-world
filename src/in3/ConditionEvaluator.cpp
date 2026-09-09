@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-namespace runner {
+namespace in3 {
 
 ConditionEvaluatorFuncs::ConditionEvaluatorFuncs(const bmin::Map<bmin::String, bmin::String>& storage)
     : storage(storage) {}
@@ -280,4 +280,4 @@ bool ConditionEvaluator::evalCondition(const bmin::String& str) {
   throw std::runtime_error(("Invalid condition: " + baseConditionStr).cStr());
 }
 
-} // namespace runner
+} // namespace in3

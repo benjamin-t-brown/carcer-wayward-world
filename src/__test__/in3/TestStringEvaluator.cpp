@@ -2,8 +2,8 @@
 #include "bmin/String.h"
 #include "bmin/Map.h"
 #include "sdl2w/Logger.h"
-#include "runner/EventRunnerHelpers.h"
-#include "runner/StringEvaluator.h"
+#include "in3/EventRunnerHelpers.h"
+#include "in3/StringEvaluator.h"
 #include "bmin/Map.h"
 
 #define TEST_NAME "TestStringEvaluator"
@@ -53,10 +53,10 @@ int main(int argc, char** argv) {
     for (int i = 0; i < static_cast<int>(basicTestCases.size()); i++) {
       const auto& [expression, expectedPair] = basicTestCases[i];
       if (i == runOnlyIndex || runOnlyIndex == -1) {
-        runner::StringEvaluator evaluator(initialStorage, expression);
+        in3::StringEvaluator evaluator(initialStorage, expression);
         evaluator.evalStr(expression);
         bmin::String result =
-            runner::getStorage(initialStorage, expectedPair.first).value_or("");
+            in3::getStorage(initialStorage, expectedPair.first).value_or("");
         LOG(INFO) << "Running test " << i << ": " << expression << " -> storage["
                   << expectedPair.first << "] = \"" << result << "\"" << LOG_ENDL;
 
@@ -75,7 +75,7 @@ int main(int argc, char** argv) {
       const auto& [expression, expected] = invalidSyntax[i];
       if (i == runOnlyIndex || runOnlyIndex == -1) {
         bmin::Map<bmin::String, bmin::String> storage = initialStorage;
-        runner::StringEvaluator evaluator(storage, expression);
+        in3::StringEvaluator evaluator(storage, expression);
         try {
           LOG(INFO) << "Running invalid syntax test " << i << ": " << expression
                     << LOG_ENDL;
