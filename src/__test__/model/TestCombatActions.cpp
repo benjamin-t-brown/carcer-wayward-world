@@ -11,7 +11,7 @@
 #include "state/DatabaseInterface.h"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
-#include "actions/world/WorldUpdater.h"
+#include "state/WorldUpdater.h"
 #include "actions/combat/DoCombatAction.hpp"
 #include "actions/combat/EndCombat.hpp"
 #include "actions/combat/ModifyAP.hpp"

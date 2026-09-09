@@ -15,7 +15,7 @@
 #include "state/State.hpp"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
-#include "actions/world/WorldUpdater.h"
+#include "state/WorldUpdater.h"
 #include "actions/combat/DoCPUCombatTurn.hpp"
 #include "actions/combat/StartCombat.hpp"
 #include "actions/world/TownEnemyAiAfterPlayerMove.hpp"

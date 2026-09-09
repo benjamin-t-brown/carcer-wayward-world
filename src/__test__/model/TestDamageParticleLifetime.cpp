@@ -4,7 +4,7 @@
 // headless worldUpdate (no window), so expired particles are removed instead of
 // leaking forever. Before the split, updateDamageParticles returned early when
 // window == nullptr and the lifetime never advanced.
-#include "actions/world/WorldUpdater.h"
+#include "state/WorldUpdater.h"
 #include "model/instances/World.hpp"
 #include "model/templates/UtilityTypes.h"
 #include "state/State.hpp"

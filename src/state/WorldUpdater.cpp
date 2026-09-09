@@ -1,4 +1,4 @@
-#include "actions/world/WorldUpdater.h"
+#include "state/WorldUpdater.h"
 #include "bmin/StringInterop.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/Camera.h"

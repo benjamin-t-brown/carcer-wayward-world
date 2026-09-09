@@ -2,7 +2,7 @@
 #include "model/instances/World.hpp"
 #include "sdl2w/Logger.h"
 #include "state/StateManager.h"
-#include "actions/world/WorldUpdater.h"
+#include "state/WorldUpdater.h"
 #include "bmin/String.h"
 
 namespace {

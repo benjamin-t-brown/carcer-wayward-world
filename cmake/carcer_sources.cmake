@@ -79,15 +79,13 @@ set(CARCER_IN3_SOURCES
   src/in3/StringEvaluator.cpp
   src/in3/EventRunnerHelpers.cpp)
 
-set(CARCER_ACTION_SOURCES
-  src/actions/world/WorldUpdater.cpp)
-
 set(CARCER_STATE_SOURCES
   src/state/DatabaseInterface.cpp
   src/state/ActionBus.cpp
   src/state/StateManager.cpp
   src/state/StateManagerInterface.cpp
   src/state/UiStateUpdater.cpp
+  src/state/WorldUpdater.cpp
   src/state/LayerRequest.cpp)
 
 set(CARCER_UI_SOURCES
@@ -165,7 +163,6 @@ set(CARCER_SOURCES
   ${CARCER_MODEL_SOURCES}
   ${CARCER_RULE_SOURCES}
   ${CARCER_IN3_SOURCES}
-  ${CARCER_ACTION_SOURCES}
   ${CARCER_STATE_SOURCES}
   ${CARCER_UI_SOURCES}
   ${CARCER_LAYER_SOURCES})

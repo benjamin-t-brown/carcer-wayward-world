@@ -18,7 +18,7 @@
 #include "sdl2w/Window.h"
 #include "state/DatabaseInterface.h"
 #include "state/StateManagerInterface.h"
-#include "actions/world/WorldUpdater.h"
+#include "state/WorldUpdater.h"
 #include "actions/combat/StartCombat.hpp"
 #include "actions/world/WorldLoadActiveMap.hpp"
 #include "actions/world/WorldSpawnPlayerAtMarker.hpp"

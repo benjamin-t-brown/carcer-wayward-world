@@ -1,5 +1,5 @@
 #include "LayerWorld.h"
-#include "actions/world/WorldUpdater.h"
+#include "state/WorldUpdater.h"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/components/InGameTitleBar.h"
 #include "ui/components/MapView.h"

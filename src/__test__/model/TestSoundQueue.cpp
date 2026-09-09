@@ -6,7 +6,7 @@
 //   - worldUpdate drains (clears) the queue every tick even with no window,
 //     so a missing/disabled audio device does not retain an ever-growing queue.
 #include "actions/general/PlaySound.hpp"
-#include "actions/world/WorldUpdater.h"
+#include "state/WorldUpdater.h"
 #include "state/State.hpp"
 #include "state/StateManager.h"
 #include <iostream>

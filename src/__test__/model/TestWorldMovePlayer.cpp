@@ -11,7 +11,7 @@
 #include "state/State.hpp"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
-#include "actions/world/WorldUpdater.h"
+#include "state/WorldUpdater.h"
 #include "actions/world/WorldMovePlayer.hpp"
 #include "bmin/String.h"
 
