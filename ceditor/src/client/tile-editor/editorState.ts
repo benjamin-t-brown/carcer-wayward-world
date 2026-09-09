@@ -60,6 +60,28 @@ export interface EditorState {
    * `editorState.gridRenderRadius`.
    */
   gridRenderRadius: number;
+  /**
+   * When true, maps within `gridEditRadius` of the focused map are painted in
+   * place and can be edited without switching tabs. Outside that radius (up to
+   * `gridRenderRadius`) maps are still drawn as dimmed, read-only context.
+   */
+  gridEditEnabled: boolean;
+  /** Chebyshev radius of editable neighbours; must be <= gridRenderRadius. */
+  gridEditRadius: number;
+  /**
+   * The map a paint stroke is currently writing to. Empty except between
+   * mousedown and mouseup of a stroke that landed on a neighbour block; while
+   * set it overrides `selectedMapName` for per-map paint state lookups.
+   */
+  activePaintMapName: string;
+  /** Grid map the pointer is currently over ('' = the focused map or none). */
+  hoveredGridMapName: string;
+  /**
+   * Map names in the order their strokes completed, across every block in the
+   * grid. Ctrl+Z pops the last and undoes it on that map. Capped like the
+   * per-map histories.
+   */
+  gridUndoOrder: string[];
 }
 
 const editorState: EditorState = {
@@ -82,6 +104,11 @@ const editorState: EditorState = {
   tilesets: [],
   hoveredGridAdjacentSlot: null,
   gridRenderRadius: 2,
+  gridEditEnabled: true,
+  gridEditRadius: 1,
+  activePaintMapName: '',
+  hoveredGridMapName: '',
+  gridUndoOrder: [],
 };
 export const getEditorState = () => editorState;
 export const updateEditorState = (state: Partial<EditorState>) => {
@@ -141,6 +168,32 @@ export const createEditorStateMap = (mapName: string) => {
   };
   getEditorState().maps[mapName] = map;
   return map;
+};
+
+/** Per-map editor state for `mapName`, creating it if it does not exist yet. */
+export const ensureEditorStateMap = (mapName: string): EditorStateMap => {
+  return getEditorState().maps[mapName] ?? createEditorStateMap(mapName);
+};
+
+/**
+ * The map paint state should be read from / written to right now: the stroke's
+ * target block while a cross-block stroke is in flight, otherwise the focused
+ * map. Everything in paintTools keys per-map state on this.
+ */
+export const getPaintMapName = (state: EditorState): string =>
+  state.activePaintMapName || state.selectedMapName;
+
+/** Record that a stroke completed on `mapName` for grid-wide undo ordering. */
+export const pushGridUndo = (mapName: string): void => {
+  if (!mapName) {
+    return;
+  }
+  const order = getEditorState().gridUndoOrder;
+  order.push(mapName);
+  const MAX = 400;
+  if (order.length > MAX) {
+    order.splice(0, order.length - MAX);
+  }
 };
 
 /**

@@ -1,7 +1,11 @@
 import { calculateFillIndsFloor } from '../fill';
 import { CarcerMapTemplate } from '../../types/assets';
 import { createDefaultCarcerMapTile } from '../../components/MapTemplateForm';
-import { EditorState, getEditorStateMap } from '../editorState';
+import {
+  EditorState,
+  getEditorStateMap,
+  getPaintMapName,
+} from '../editorState';
 import { getTileList } from '../editorEvents';
 import type { PaintAction } from '../paintTools';
 import { MapTool } from './types';
@@ -153,7 +157,7 @@ const fill: MapTool = {
   apply(action, map, editorState) {
     const mapTiles = getTileList(map);
     const ind =
-      getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
+      getEditorStateMap(getPaintMapName(editorState))?.hoveredTileIndex ?? -1;
     const fillIndsFloor = calculateFillIndsFloor(
       ind,
       map,
@@ -183,7 +187,7 @@ const deleteFill: MapTool = {
   apply(action, map, editorState) {
     const mapTiles = getTileList(map);
     const ind =
-      getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
+      getEditorStateMap(getPaintMapName(editorState))?.hoveredTileIndex ?? -1;
     const fillIndsFloor = calculateFillIndsFloor(
       ind,
       map,

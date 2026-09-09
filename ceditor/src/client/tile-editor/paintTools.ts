@@ -11,6 +11,8 @@ import {
   EditorState,
   findEditorStateMap,
   getEditorStateMap,
+  getPaintMapName,
+  pushGridUndo,
   updateEditorStateMapNoReRender,
   updateEditorStateNoReRender,
 } from './editorState';
@@ -118,8 +120,8 @@ function applyTerrainPaintUpdate(
   tilesets: TilesetTemplate[],
 ) {
   const mapTiles = getTileList(mapData);
-  const ind =
-    getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
+  const paintMapName = getPaintMapName(editorState);
+  const ind = getEditorStateMap(paintMapName)?.hoveredTileIndex ?? -1;
   if (ind === -1) {
     return;
   }
@@ -131,7 +133,7 @@ function applyTerrainPaintUpdate(
 
   const terrainTileset = getTerrainTileset(tilesets);
 
-  const mapState = findEditorStateMap(editorState, editorState.selectedMapName);
+  const mapState = findEditorStateMap(editorState, paintMapName);
   const x = ind % mapData.width;
   const y = Math.floor(ind / mapData.width);
   const lookup = buildTerrainLookup(terrainTileset);
@@ -167,7 +169,7 @@ export const onActionUpdate = (
 ) => {
   const mapTiles = getTileList(mapData);
   const ind =
-    getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
+    getEditorStateMap(getPaintMapName(editorState))?.hoveredTileIndex ?? -1;
 
   if (ind === -1) {
     return;
@@ -231,12 +233,13 @@ export const onActionComplete = (
   currentAction = null;
   applyAction(action, mapData, editorState);
 
+  const paintMapName = getPaintMapName(editorState);
+
   // Add action to undo history
   const newUndoHistory = [
-    ...(getEditorStateMap(editorState.selectedMapName)?.undoHistory ?? []),
+    ...(getEditorStateMap(paintMapName)?.undoHistory ?? []),
   ];
-  const undoIndex =
-    getEditorStateMap(editorState.selectedMapName)?.undoIndex ?? 0;
+  const undoIndex = getEditorStateMap(paintMapName)?.undoIndex ?? 0;
 
   // If we're not at the end of the history, slice off everything after the current index
   if (undoIndex < newUndoHistory.length - 1) {
@@ -251,10 +254,12 @@ export const onActionComplete = (
   }
   const newUndoIndex = newUndoHistory.length - 1;
 
-  updateEditorStateMapNoReRender(editorState.selectedMapName, {
+  updateEditorStateMapNoReRender(paintMapName, {
     undoHistory: newUndoHistory,
     undoIndex: newUndoIndex,
   });
+  // Grid-wide undo ordering across every block edited this session.
+  pushGridUndo(paintMapName);
   commitCurrentLayer(
     mapData,
     editorState.currentLevel
@@ -264,10 +269,13 @@ export const onActionComplete = (
 export const undo = (
   mapData: CarcerMapTemplate,
   editorState: EditorState,
+  mapName?: string,
 ): boolean => {
-  const { undoHistory, undoIndex } = getEditorStateMap(
-    editorState.selectedMapName,
-  ) ?? { undoHistory: [], undoIndex: 0 };
+  const key = mapName || getPaintMapName(editorState);
+  const { undoHistory, undoIndex } = getEditorStateMap(key) ?? {
+    undoHistory: [],
+    undoIndex: 0,
+  };
 
   // Check if we can undo
   if (undoIndex < 0 || undoIndex >= undoHistory.length) {
@@ -283,7 +291,7 @@ export const undo = (
 
   // Update undo index and trigger re-render
   const newUndoIndex = undoIndex - 1;
-  updateEditorStateMapNoReRender(editorState.selectedMapName, {
+  updateEditorStateMapNoReRender(key, {
     undoIndex: newUndoIndex,
   });
 
@@ -300,7 +308,11 @@ export const onTileHoverIndChange = (
   prevHoverInd: number,
   nextHoverInd: number,
 ) => {
-  const mapState = getEditorStateMap(editorState.selectedMapName);
+  // `mapData` is whichever block the pointer is over; read its state, not the
+  // focused map's, so fill/terrain previews land on the right block.
+  const mapState = getEditorStateMap(
+    editorState.hoveredGridMapName || editorState.selectedMapName,
+  );
   if (nextHoverInd !== -1) {
     if (
       mapData &&

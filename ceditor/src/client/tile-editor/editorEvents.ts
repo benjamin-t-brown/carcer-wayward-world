@@ -16,6 +16,7 @@ import {
 } from '../utils/mapIndex';
 import {
   EditorState,
+  ensureEditorStateMap,
   getCurrentPaintAction,
   getEditorState,
   getEditorStateMap,
@@ -29,7 +30,10 @@ import {
   findAdjacentGridSlotAtCanvasPoint,
   GridSlotHit,
 } from './gridMapNavigation';
-import { isGridSlotEditable } from '../utils/mapGridIndex';
+import {
+  findMapGridPlacement,
+  isGridSlotEditable,
+} from '../utils/mapGridIndex';
 
 class MapEditorEventState {
   isDragging = false;
@@ -161,6 +165,67 @@ const findGridSlotAtScreen = (
     scale: mapEditorEventState.scale,
     radius: getEditorState().gridRenderRadius ?? 2,
   });
+};
+
+type PaintTargetInterface = {
+  getCanvas: () => HTMLCanvasElement;
+  getMapData: () => CarcerMapTemplate;
+  getEditorState: () => EditorState;
+};
+
+/**
+ * Name of the grid block the pointer is over, when grid editing is on and it is
+ * a neighbour of the focused map (not the focused map itself, and a real tile).
+ * Empty string means "paint the focused map as usual".
+ */
+const resolvePaintTargetMapName = (
+  clientX: number,
+  clientY: number,
+  mapDataInterface: PaintTargetInterface
+): string => {
+  const es = mapDataInterface.getEditorState();
+  const handlers = gridNavigationHandlers;
+  const focusedMap = mapDataInterface.getMapData();
+  const canvas = mapDataInterface.getCanvas();
+  if (!es.gridEditEnabled || !handlers || !focusedMap || !canvas) {
+    return '';
+  }
+  const editRadius = Math.min(
+    es.gridEditRadius ?? 1,
+    es.gridRenderRadius ?? 2
+  );
+  const hit = screenCoordsToGridCell(
+    clientX,
+    clientY,
+    focusedMap,
+    canvas,
+    handlers.getMapGrids(),
+    handlers.getMaps(),
+    editRadius
+  );
+  if (
+    !hit ||
+    !hit.map ||
+    hit.tileIndex < 0 ||
+    (hit.cellOffsetX === 0 && hit.cellOffsetY === 0)
+  ) {
+    return '';
+  }
+  return hit.mapName;
+};
+
+/** The map a stroke is currently writing to (activePaintMapName, or focused). */
+const getPaintTargetMap = (
+  mapDataInterface: PaintTargetInterface
+): CarcerMapTemplate => {
+  const focused = mapDataInterface.getMapData();
+  const name = mapDataInterface.getEditorState().activePaintMapName;
+  if (!name || name === focused?.name) {
+    return focused;
+  }
+  return (
+    gridNavigationHandlers?.getMaps().find((m) => m.name === name) ?? focused
+  );
 };
 
 export const initPanzoom = (mapDataInterface: {
@@ -348,6 +413,18 @@ export const initPanzoom = (mapDataInterface: {
       }
 
       mapEditorEventState.isPainting = true;
+      // Route the stroke to whichever grid block the pointer landed on. Empty
+      // means the focused map; anything else overrides the per-map paint state
+      // for the duration of the stroke (cleared on mouseup).
+      const paintTargetMapName = resolvePaintTargetMapName(
+        ev.clientX,
+        ev.clientY,
+        mapDataInterface
+      );
+      if (paintTargetMapName) {
+        ensureEditorStateMap(paintTargetMapName);
+      }
+      updateEditorStateNoReRender({ activePaintMapName: paintTargetMapName });
       const action = createPaintAction(currentPaintAction);
       action.data.paintTileRef = {
         tilesetName: mapDataInterface.getEditorState().selectedTilesetName,
@@ -509,19 +586,24 @@ export const initPanzoom = (mapDataInterface: {
     if (mapEditorEventState.isPainting) {
       mapEditorEventState.isPainting = false;
       const currentAction = getCurrentAction();
-      const mapData = mapDataInterface.getMapData();
+      const paintMapName =
+        mapDataInterface.getEditorState().activePaintMapName ||
+        mapDataInterface.getEditorState().selectedMapName;
+      const mapData = getPaintTargetMap(mapDataInterface);
       if (currentAction && mapData) {
+        // onActionComplete keys per-map state off activePaintMapName, so leave
+        // it set until after this call.
         onActionComplete(
           currentAction,
           mapData,
           mapDataInterface.getEditorState()
         );
       }
-      updateEditorStateMap(mapDataInterface.getEditorState().selectedMapName, {
+      updateEditorStateMap(paintMapName, {
         selectedTileInd:
-          getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
-            ?.hoveredTileIndex ?? -1,
+          getEditorStateMap(paintMapName)?.hoveredTileIndex ?? -1,
       });
+      updateEditorStateNoReRender({ activePaintMapName: '' });
     }
     // Handle SELECT/CLONE drag completion
     const editorState = mapDataInterface.getEditorState();
@@ -974,6 +1056,88 @@ export const screenCoordsToTileIndex = (
   }
 
   return [tileY * mapData.width + tileX, tileX, tileY, mapX, mapY];
+};
+
+export interface GridCellHit {
+  mapName: string;
+  map: CarcerMapTemplate | null;
+  /** Grid cell offset from the focused map. */
+  cellOffsetX: number;
+  cellOffsetY: number;
+  /** Local tile coords within the cell's map (-1 when there is no map there). */
+  tileX: number;
+  tileY: number;
+  /** tileY * map.width + tileX, or -1 when no map / outside that map's bounds. */
+  tileIndex: number;
+}
+
+/**
+ * Resolve which grid cell (and tile within it) the pointer is over, expressed
+ * relative to `focusedMap`'s placement. For cell offset (0, 0) this reproduces
+ * `screenCoordsToTileIndex` exactly; neighbours reuse the same transform shifted
+ * by whole slots. Returns null when the focused map is not in a grid, or the
+ * pointer is outside `radius` / off the grid.
+ */
+export const screenCoordsToGridCell = (
+  x: number,
+  y: number,
+  focusedMap: CarcerMapTemplate,
+  panzoomCanvas: HTMLCanvasElement,
+  mapGrids: MapGridTemplate[],
+  maps: CarcerMapTemplate[],
+  radius: number
+): GridCellHit | null => {
+  if (!panzoomCanvas || !focusedMap) {
+    return null;
+  }
+  const placement = findMapGridPlacement(focusedMap.name, mapGrids);
+  if (!placement) {
+    return null;
+  }
+
+  const [fx, fy] = screenCoordsToMapCoords(x, y, focusedMap, panzoomCanvas);
+  const slotW = placement.grid.mapWidth * focusedMap.spriteWidth;
+  const slotH = placement.grid.mapHeight * focusedMap.spriteHeight;
+  if (slotW <= 0 || slotH <= 0) {
+    return null;
+  }
+
+  const cellOffsetX = Math.floor(fx / slotW);
+  const cellOffsetY = Math.floor(fy / slotH);
+  if (Math.abs(cellOffsetX) > radius || Math.abs(cellOffsetY) > radius) {
+    return null;
+  }
+
+  const cellX = placement.cellX + cellOffsetX;
+  const cellY = placement.cellY + cellOffsetY;
+  if (
+    cellY < 0 ||
+    cellY >= placement.grid.gridHeight ||
+    cellX < 0 ||
+    cellX >= placement.grid.gridWidth
+  ) {
+    return null;
+  }
+
+  const mapName = placement.grid.cells[cellY]?.[cellX]?.trim() ?? '';
+  const map = mapName ? maps.find((m) => m.name === mapName) ?? null : null;
+
+  let tileX = -1;
+  let tileY = -1;
+  let tileIndex = -1;
+  if (map) {
+    const localX = fx - cellOffsetX * slotW;
+    const localY = fy - cellOffsetY * slotH;
+    const tx = Math.floor(localX / map.spriteWidth);
+    const ty = Math.floor(localY / map.spriteHeight);
+    if (tx >= 0 && tx < map.width && ty >= 0 && ty < map.height) {
+      tileX = tx;
+      tileY = ty;
+      tileIndex = ty * map.width + tx;
+    }
+  }
+
+  return { mapName, map, cellOffsetX, cellOffsetY, tileX, tileY, tileIndex };
 };
 
 export const getScreenMouseCoords = () => {

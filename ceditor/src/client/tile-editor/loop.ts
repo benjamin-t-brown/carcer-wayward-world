@@ -22,15 +22,19 @@ import {
 import { getMapGridSlotDimensions } from './gridMapNavigation';
 import {
   EditorState,
+  ensureEditorStateMap,
   getEditorStateMap,
   updateEditorStateMap,
   updateEditorStateMapNoReRender,
   updateEditorStateNoReRender,
 } from './editorState';
 import {
+  getScreenMouseCoords,
   getTileList,
   getTransform,
+  GridCellHit,
   invalidateCanvasRectCache,
+  screenCoordsToGridCell,
   updateMapCanvasCursor,
 } from './editorEvents';
 import { PaintActionType } from './paintTools';
@@ -52,6 +56,110 @@ const getColors = () => {
     BACKGROUND2: '#421',
     TEXT: 'white',
   };
+};
+
+/**
+ * Paint one map block's tiles (plus its grid lines and hover box) into the
+ * already-translated context. Shared by the focused map and each editable grid
+ * neighbour so they render identically; `hoveredTileIndex` is that block's own.
+ */
+const renderMapBlockTiles = (args: {
+  map: CarcerMapTemplate;
+  ctx: CanvasRenderingContext2D;
+  scale: number;
+  /** Canvas-space top-left of THIS block, for culling. */
+  originX: number;
+  originY: number;
+  canvasWidth: number;
+  canvasHeight: number;
+  spriteMap: Record<string, Sprite>;
+  tilesets: TilesetTemplate[];
+  characters: CharacterTemplate[];
+  items: ItemTemplate[];
+  layer: number;
+  showGrid: boolean;
+  hoveredTileIndex: number;
+  overlayTextEntries?: OverlayTextEntry[];
+}) => {
+  const {
+    map,
+    ctx,
+    scale,
+    originX,
+    originY,
+    canvasWidth,
+    canvasHeight,
+    spriteMap,
+    tilesets,
+    characters,
+    items,
+    layer,
+    showGrid,
+    hoveredTileIndex,
+    overlayTextEntries,
+  } = args;
+
+  const spriteWidth = map.spriteWidth;
+  const spriteHeight = map.spriteHeight;
+  const mapTiles = getTileList(map, layer);
+
+  drawRect(
+    0,
+    0,
+    map.width * spriteWidth * scale,
+    map.height * spriteHeight * scale,
+    'black',
+    false,
+    ctx
+  );
+
+  const visibleRange = getVisibleTileRange({
+    originX,
+    originY,
+    canvasWidth,
+    canvasHeight,
+    mapWidth: map.width,
+    mapHeight: map.height,
+    tileWidth: spriteWidth,
+    tileHeight: spriteHeight,
+    scale,
+  });
+
+  for (let y = visibleRange?.minY ?? 0; y <= (visibleRange?.maxY ?? -1); y++) {
+    for (let x = visibleRange?.minX ?? 0; x <= (visibleRange?.maxX ?? -1); x++) {
+      const tileIndex = y * map.width + x;
+      renderTileAndExtras({
+        refTile: mapTiles[tileIndex],
+        x,
+        y,
+        ctx,
+        newScale: scale,
+        spriteMap,
+        mapSpriteWidth: spriteWidth,
+        mapSpriteHeight: spriteHeight,
+        tilesets,
+        characters,
+        items,
+        overlayTextEntries,
+      });
+
+      const x1 = x * spriteWidth * scale;
+      const y1 = y * spriteHeight * scale;
+      const x2 = x1 + spriteWidth * scale;
+      const y2 = y1 + spriteHeight * scale;
+      if (tileIndex === hoveredTileIndex) {
+        const color = 'rgba(100, 100, 255, 0.5)';
+        drawLine(x1, y1, x2, y1, color, 2, ctx);
+        drawLine(x1, y1, x1, y2, color, 2, ctx);
+        drawLine(x2, y2, x2, y1, color, 2, ctx);
+        drawLine(x2, y2, x1, y2, color, 2, ctx);
+      } else if (showGrid) {
+        const color = 'rgba(255, 255, 255, 0.25)';
+        drawLine(x1, y1, x2, y1, color, 1, ctx);
+        drawLine(x1, y1, x1, y2, color, 1, ctx);
+      }
+    }
+  }
 };
 
 export const loop = (
@@ -92,53 +200,101 @@ export const loop = (
   }
 
   const currentMap = mapDataInterface.getMapData();
-  const data = calculateHoveredTile(currentMap, mapDataInterface.getCanvas());
-  if (
-    data.ind !==
-    getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
-      ?.hoveredTileIndex
-  ) {
-    onTileHoverIndChange(
+  const es = mapDataInterface.getEditorState();
+  const canvasEl = mapDataInterface.getCanvas();
+  const hoverAssets = mapDataInterface.getAssets();
+
+  // Which grid block is the pointer over? Only when grid editing is on and the
+  // focused map is in a grid; otherwise fall back to the focused map only.
+  let gridHit: GridCellHit | null = null;
+  if (es.gridEditEnabled && currentMap) {
+    const [screenX, screenY] = getScreenMouseCoords();
+    gridHit = screenCoordsToGridCell(
+      screenX,
+      screenY,
       currentMap,
-      mapDataInterface.getEditorState(),
-      mapDataInterface.getEditorState().currentPaintAction,
-      getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
-        ?.hoveredTileIndex ?? -1,
-      data.ind
+      canvasEl,
+      hoverAssets.mapGrids,
+      hoverAssets.maps,
+      Math.min(es.gridEditRadius ?? 1, es.gridRenderRadius ?? 2)
     );
   }
-  // `data.x`/`data.y` are raw floored tile coords and can land outside the map
-  // when the pointer is over a rendered neighbour map (data.ind is -1 there).
-  // Collapse them to -1 so hover previews only show on the active map.
-  const pointerOnActiveMap = data.ind >= 0;
-  updateEditorStateMapNoReRender(
-    mapDataInterface.getEditorState().selectedMapName,
-    {
-      hoveredTileIndex: data.ind,
-      hoveredTileData: {
-        x: pointerOnActiveMap ? data.x : -1,
-        y: pointerOnActiveMap ? data.y : -1,
-        ind: data.ind,
-      },
-    }
-  );
+  const pointerOnNeighbour =
+    !!gridHit &&
+    !!gridHit.map &&
+    gridHit.tileIndex >= 0 &&
+    !(gridHit.cellOffsetX === 0 && gridHit.cellOffsetY === 0);
+
+  let hoverMapName = es.selectedMapName;
+  let hoverMap: CarcerMapTemplate | undefined = currentMap;
+  let hoverInd = -1;
+  let hoverX = -1;
+  let hoverY = -1;
+  if (pointerOnNeighbour && gridHit && gridHit.map) {
+    hoverMapName = gridHit.mapName;
+    hoverMap = gridHit.map;
+    hoverInd = gridHit.tileIndex;
+    hoverX = gridHit.tileX;
+    hoverY = gridHit.tileY;
+    ensureEditorStateMap(hoverMapName);
+  } else {
+    const data = calculateHoveredTile(currentMap, canvasEl);
+    hoverInd = data.ind;
+    // data.x/y are raw floored coords; keep them only when actually on the map.
+    hoverX = data.ind >= 0 ? data.x : -1;
+    hoverY = data.ind >= 0 ? data.y : -1;
+  }
+
+  // Clear the block we were hovering last frame if it changed.
+  const prevHoverMapName = es.hoveredGridMapName || es.selectedMapName;
+  if (prevHoverMapName !== hoverMapName) {
+    updateEditorStateMapNoReRender(prevHoverMapName, {
+      hoveredTileIndex: -1,
+      hoveredTileData: { x: -1, y: -1, ind: -1 },
+    });
+  }
+  updateEditorStateNoReRender({
+    hoveredGridMapName: hoverMapName === es.selectedMapName ? '' : hoverMapName,
+  });
+
+  const prevHoverInd = getEditorStateMap(hoverMapName)?.hoveredTileIndex ?? -1;
+  if (hoverInd !== prevHoverInd && hoverMap) {
+    onTileHoverIndChange(
+      hoverMap,
+      es,
+      es.currentPaintAction,
+      prevHoverInd,
+      hoverInd
+    );
+  }
+  updateEditorStateMapNoReRender(hoverMapName, {
+    hoveredTileIndex: hoverInd,
+    hoveredTileData: { x: hoverX, y: hoverY, ind: hoverInd },
+  });
 
   updateMapCanvasCursor(
-    mapDataInterface.getCanvas(),
-    mapDataInterface.getEditorState().currentPaintAction as PaintActionType,
-    data.ind,
-    mapDataInterface.getEditorState().isSelectDragging,
-    mapDataInterface.getEditorState().hoveredGridAdjacentSlot
+    canvasEl,
+    es.currentPaintAction as PaintActionType,
+    hoverInd,
+    es.isSelectDragging,
+    es.hoveredGridAdjacentSlot
   );
 
   const currentAction = getCurrentAction();
-  if (currentAction && currentMap) {
-    onActionUpdate(
-      currentAction,
-      currentMap,
-      mapDataInterface.getEditorState(),
-      mapDataInterface.getTilesets()
-    );
+  if (currentAction) {
+    // Route stroke updates to whichever block the stroke started on.
+    const paintMap = es.activePaintMapName
+      ? hoverAssets.maps.find((m) => m.name === es.activePaintMapName) ??
+        currentMap
+      : currentMap;
+    if (paintMap) {
+      onActionUpdate(
+        currentAction,
+        paintMap,
+        es,
+        mapDataInterface.getTilesets()
+      );
+    }
   }
 
   ctx.clearRect(
@@ -166,7 +322,6 @@ export const loop = (
     const editorState = mapDataInterface.getEditorState();
     const spriteMap = mapDataInterface.getSpriteMap();
     const tilesets = mapDataInterface.getTilesets();
-    const mapTiles = getTileList(currentMap);
     const hoveredMapTileIndex =
       getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
     const showGrid = editorState.showGrid;
@@ -185,6 +340,14 @@ export const loop = (
     );
 
     disableCanvasSmoothing(ctx);
+
+    // Editable grid neighbours to run renderToolUi for, once the block loop has
+    // laid their tiles down. Populated inside the (single-iteration) layer loop.
+    const editableNeighbourToolPasses: {
+      map: CarcerMapTemplate;
+      offsetPixelX: number;
+      offsetPixelY: number;
+    }[] = [];
 
     // layers
     for (let i = 0; i < 1; i++) {
@@ -236,6 +399,9 @@ export const loop = (
           newScale,
         ));
         const gridRenderRadius = editorState.gridRenderRadius ?? 2;
+        const gridEditRadius = editorState.gridEditEnabled
+          ? Math.min(editorState.gridEditRadius ?? 1, gridRenderRadius)
+          : 0;
         adjacentSlots = getGridAdjacentSlots(
           placement,
           mapsByName,
@@ -249,30 +415,67 @@ export const loop = (
         for (const adjacent of adjacentMaps) {
           const offsetPixelX = adjacent.offsetX * slotWidth;
           const offsetPixelY = adjacent.offsetY * slotHeight;
-          renderMapTilesAtOffset({
-            map: adjacent.map,
-            ctx,
-            scale: newScale,
-            offsetPixelX,
-            offsetPixelY,
-            opacity: 0.5,
-            spriteMap,
-            tilesets,
-            characters: assets.characters,
-            items: assets.items,
-            layer: editorState.currentLevel,
-            visibleRange: getVisibleTileRange({
-              originX: originX + offsetPixelX,
-              originY: originY + offsetPixelY,
+          const chebyshev = Math.max(
+            Math.abs(adjacent.offsetX),
+            Math.abs(adjacent.offsetY),
+          );
+          const blockOriginX = originX + offsetPixelX;
+          const blockOriginY = originY + offsetPixelY;
+
+          if (chebyshev <= gridEditRadius) {
+            // Editable neighbour: same render path as the focused map.
+            ctx.save();
+            ctx.translate(offsetPixelX, offsetPixelY);
+            renderMapBlockTiles({
+              map: adjacent.map,
+              ctx,
+              scale: newScale,
+              originX: blockOriginX,
+              originY: blockOriginY,
               canvasWidth: canvas.width,
               canvasHeight: canvas.height,
-              mapWidth: adjacent.map.width,
-              mapHeight: adjacent.map.height,
-              tileWidth: adjacent.map.spriteWidth,
-              tileHeight: adjacent.map.spriteHeight,
+              spriteMap,
+              tilesets,
+              characters: assets.characters,
+              items: assets.items,
+              layer: editorState.currentLevel,
+              showGrid,
+              hoveredTileIndex:
+                getEditorStateMap(adjacent.map.name)?.hoveredTileIndex ?? -1,
+            });
+            ctx.restore();
+            editableNeighbourToolPasses.push({
+              map: adjacent.map,
+              offsetPixelX,
+              offsetPixelY,
+            });
+          } else {
+            // Context-only neighbour: dimmed, read-only.
+            renderMapTilesAtOffset({
+              map: adjacent.map,
+              ctx,
               scale: newScale,
-            }),
-          });
+              offsetPixelX,
+              offsetPixelY,
+              opacity: 0.5,
+              spriteMap,
+              tilesets,
+              characters: assets.characters,
+              items: assets.items,
+              layer: editorState.currentLevel,
+              visibleRange: getVisibleTileRange({
+                originX: blockOriginX,
+                originY: blockOriginY,
+                canvasWidth: canvas.width,
+                canvasHeight: canvas.height,
+                mapWidth: adjacent.map.width,
+                mapHeight: adjacent.map.height,
+                tileWidth: adjacent.map.spriteWidth,
+                tileHeight: adjacent.map.spriteHeight,
+                scale: newScale,
+              }),
+            });
+          }
         }
 
         renderGridAdjacentNavigation({
@@ -284,76 +487,23 @@ export const loop = (
         });
       }
 
-      if (i === 0) {
-        drawRect(
-          0,
-          0,
-          currentMap.width * spriteWidth * newScale,
-          currentMap.height * spriteHeight * newScale,
-          'black',
-          false,
-          ctx
-        );
-      }
-
-      const visibleRange = getVisibleTileRange({
+      renderMapBlockTiles({
+        map: currentMap,
+        ctx,
+        scale: newScale,
         originX,
         originY,
         canvasWidth: canvas.width,
         canvasHeight: canvas.height,
-        mapWidth: currentMap.width,
-        mapHeight: currentMap.height,
-        tileWidth: spriteWidth,
-        tileHeight: spriteHeight,
-        scale: newScale,
+        spriteMap,
+        tilesets,
+        characters: assets.characters,
+        items: assets.items,
+        layer: editorState.currentLevel,
+        showGrid,
+        hoveredTileIndex: hoveredMapTileIndex,
+        overlayTextEntries,
       });
-
-      for (
-        let y = visibleRange?.minY ?? 0;
-        y <= (visibleRange?.maxY ?? -1);
-        y++
-      ) {
-        for (
-          let x = visibleRange?.minX ?? 0;
-          x <= (visibleRange?.maxX ?? -1);
-          x++
-        ) {
-          const tileIndex = y * currentMap.width + x;
-          const refTile = mapTiles[tileIndex];
-          renderTileAndExtras({
-            refTile,
-            x,
-            y,
-            ctx,
-            newScale,
-            spriteMap,
-            mapSpriteWidth: spriteWidth,
-            mapSpriteHeight: spriteHeight,
-            tilesets,
-            characters: assets.characters,
-            items: assets.items,
-            overlayTextEntries,
-          });
-
-          if (i === 0) {
-            const x1 = x * spriteWidth * newScale;
-            const y1 = y * spriteHeight * newScale;
-            const x2 = x1 + spriteWidth * newScale;
-            const y2 = y1 + spriteHeight * newScale;
-            let color = 'rgba(255, 255, 255, 0.25)';
-            if (tileIndex === hoveredMapTileIndex) {
-              color = 'rgba(100, 100, 255, 0.5)';
-              drawLine(x1, y1, x2, y1, color, 2, ctx);
-              drawLine(x1, y1, x1, y2, color, 2, ctx);
-              drawLine(x2, y2, x2, y1, color, 2, ctx);
-              drawLine(x2, y2, x1, y2, color, 2, ctx);
-            } else if (showGrid) {
-              drawLine(x1, y1, x2, y1, color, 1, ctx);
-              drawLine(x1, y1, x1, y2, color, 1, ctx);
-            }
-          }
-        }
-      }
 
       if (overlayTextEntries?.length) {
         drawOverlayTextEntries(ctx, overlayTextEntries);
@@ -371,5 +521,23 @@ export const loop = (
       assets.characters,
       assets.items
     );
+
+    // Tool preview (hover box fill, brush ghost, fill outline) for the editable
+    // neighbour the pointer / active stroke is on. Others no-op: only the block
+    // with a hoveredTileIndex >= 0 draws anything.
+    for (const pass of editableNeighbourToolPasses) {
+      renderToolUi(
+        editorState,
+        pass.map,
+        ctx,
+        spriteMap,
+        tilesets,
+        assets.characters,
+        assets.items,
+        pass.map.name,
+        pass.offsetPixelX,
+        pass.offsetPixelY
+      );
+    }
   }
 };

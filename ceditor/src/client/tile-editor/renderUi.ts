@@ -211,6 +211,11 @@ export const renderToolUi = (
   tilesets: TilesetTemplate[],
   characters: CharacterTemplate[],
   items: ItemTemplate[],
+  /** Which block this pass is for; drives per-map state lookups. */
+  mapName: string = editorState.selectedMapName,
+  /** Pixel offset of that block from the focused map (grid neighbours). */
+  offsetPixelX = 0,
+  offsetPixelY = 0,
 ) => {
   const currentPaintAction = editorState.currentPaintAction;
   const paintTileIndexInTileset = editorState.selectedTileIndexInTileset;
@@ -230,7 +235,7 @@ export const renderToolUi = (
   const tileHeight = mapData.spriteHeight;
   const rectCloneBrushTiles = editorState.rectCloneBrushTiles;
   const selectedTileInd =
-    getEditorStateMap(editorState.selectedMapName)?.selectedTileInd ?? -1;
+    getEditorStateMap(mapName)?.selectedTileInd ?? -1;
   const mapTiles = getTileList(mapData);
 
   const { x: transformX, y: transformY, scale } = getTransform();
@@ -244,6 +249,7 @@ export const renderToolUi = (
     -(mapData.width * tileWidth * scale) / 2,
     -(mapData.height * tileHeight * scale) / 2,
   );
+  ctx.translate(offsetPixelX, offsetPixelY);
 
   // Draw selected tile indicator
   if (selectedTileInd >= 0 && selectedTileInd < mapTiles.length) {
@@ -255,24 +261,33 @@ export const renderToolUi = (
     drawSelectedTileRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
   }
 
+  // fillIndsFloor is global (one hovered block at a time); only draw it on the
+  // block the pointer is actually over, or it ghosts onto every block.
+  const isHoverBlock =
+    mapName === (editorState.hoveredGridMapName || editorState.selectedMapName);
+
   if (currentPaintAction === PaintActionType.FILL) {
-    for (const ind of editorState.fillIndsFloor) {
-      if (paintTileSprite) {
-        const tileX = (ind % mapData.width) * tileWidth * scale;
-        const tileY = Math.floor(ind / mapData.width) * tileHeight * scale;
-        drawHighlightTile(paintTileSprite, tileX, tileY, scale, ctx);
-        drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+    if (isHoverBlock) {
+      for (const ind of editorState.fillIndsFloor) {
+        if (paintTileSprite) {
+          const tileX = (ind % mapData.width) * tileWidth * scale;
+          const tileY = Math.floor(ind / mapData.width) * tileHeight * scale;
+          drawHighlightTile(paintTileSprite, tileX, tileY, scale, ctx);
+          drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+        }
       }
     }
   } else if (currentPaintAction === PaintActionType.DELETE_FILL) {
-    for (const ind of editorState.fillIndsFloor) {
-      const tileX = (ind % mapData.width) * tileWidth * scale;
-      const tileY = Math.floor(ind / mapData.width) * tileHeight * scale;
-      drawHighlightEraseRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+    if (isHoverBlock) {
+      for (const ind of editorState.fillIndsFloor) {
+        const tileX = (ind % mapData.width) * tileWidth * scale;
+        const tileY = Math.floor(ind / mapData.width) * tileHeight * scale;
+        drawHighlightEraseRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+      }
     }
   } else if (currentPaintAction === PaintActionType.ERASE) {
     const hoveredTileInd =
-      getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
+      getEditorStateMap(mapName)?.hoveredTileIndex ?? -1;
     if (hoveredTileInd > -1 && paintTileSprite) {
       const tileX = (hoveredTileInd % mapData.width) * tileWidth * scale;
       const tileY =
@@ -281,7 +296,7 @@ export const renderToolUi = (
     }
   } else if (currentPaintAction === PaintActionType.ERASE_META) {
     const hoveredTileInd =
-      getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
+      getEditorStateMap(mapName)?.hoveredTileIndex ?? -1;
     if (hoveredTileInd > -1) {
       const tileX = (hoveredTileInd % mapData.width) * tileWidth * scale;
       const tileY =
@@ -299,12 +314,12 @@ export const renderToolUi = (
     }
   } else if (currentPaintAction === PaintActionType.TERRAIN) {
     const hoveredTileInd =
-      getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
+      getEditorStateMap(mapName)?.hoveredTileIndex ?? -1;
     const terrainTileset = getTerrainTileset(tilesets);
     if (hoveredTileInd > -1 && terrainTileset) {
       const paintX = hoveredTileInd % mapData.width;
       const paintY = Math.floor(hoveredTileInd / mapData.width);
-      const mapState = getEditorStateMap(editorState.selectedMapName);
+      const mapState = getEditorStateMap(mapName);
       if (!mapState) {
         // Must not early-return past the ctx.restore() below: an unbalanced
         // save() grows the canvas state stack by one entry every frame.
@@ -353,7 +368,7 @@ export const renderToolUi = (
     if (editorState.isSelectDragging) {
       const sourceTileIndex = editorState.selectDragSourceTileIndex;
       const destTileIndex =
-        getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
+        getEditorStateMap(mapName)?.hoveredTileIndex ?? -1;
 
       if (
         sourceTileIndex >= 0 &&
@@ -365,10 +380,10 @@ export const renderToolUi = (
         renderTileAndExtras({
           refTile: mapTiles[sourceTileIndex],
           x:
-            getEditorStateMap(editorState.selectedMapName)?.hoveredTileData.x ??
+            getEditorStateMap(mapName)?.hoveredTileData.x ??
             -1,
           y:
-            getEditorStateMap(editorState.selectedMapName)?.hoveredTileData.y ??
+            getEditorStateMap(mapName)?.hoveredTileData.y ??
             -1,
           ctx,
           newScale: scale,
@@ -383,9 +398,7 @@ export const renderToolUi = (
       }
     }
   } else if (currentPaintAction === PaintActionType.DRAW) {
-    const partialHoveredTileData = getEditorStateMap(
-      editorState.selectedMapName,
-    )?.hoveredTileData ?? { x: -1, y: -1 };
+    const partialHoveredTileData = getEditorStateMap(mapName)?.hoveredTileData ?? { x: -1, y: -1 };
     if (
       getIsDraggingRight() &&
       partialHoveredTileData.x > -1 &&
@@ -430,9 +443,9 @@ export const renderToolUi = (
       }
     } else {
       const hoverX =
-        getEditorStateMap(editorState.selectedMapName)?.hoveredTileData?.x ?? -1;
+        getEditorStateMap(mapName)?.hoveredTileData?.x ?? -1;
       const hoverY =
-        getEditorStateMap(editorState.selectedMapName)?.hoveredTileData?.y ?? -1;
+        getEditorStateMap(mapName)?.hoveredTileData?.y ?? -1;
       const hoverInBounds =
         hoverX >= 0 &&
         hoverY >= 0 &&

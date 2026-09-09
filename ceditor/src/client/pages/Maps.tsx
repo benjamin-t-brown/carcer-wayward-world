@@ -163,7 +163,15 @@ export function Maps({ routeParams }: MapsProps = {}) {
         switchMapViewport(previousMapName, nextMapName);
       }
     }
-    getEditorState().selectedMapName = nextMapName;
+    const es = getEditorState();
+    es.selectedMapName = nextMapName;
+    // No stroke is in flight across a focus change.
+    es.activePaintMapName = '';
+    es.hoveredGridMapName = '';
+    // Grid-wide undo order only makes sense within one grid.
+    if (gridNameForMap(previousMapName) !== gridNameForMap(nextMapName)) {
+      es.gridUndoOrder = [];
+    }
   };
 
   const setActiveTabIndex = (
@@ -640,6 +648,19 @@ export function Maps({ routeParams }: MapsProps = {}) {
     return true;
   };
 
+  // Tile-data changes from the editor (paint strokes, undo, layer ops). Unlike
+  // updateMapInTabs this targets whatever map identifies itself by name, so grid
+  // neighbours edited in place are flushed to React state and saved by Ctrl+S.
+  const handleMapDataChange = (updatedMap: CarcerMapTemplate) => {
+    const idx = maps.findIndex((m) => m.name === updatedMap.name);
+    if (idx < 0) {
+      return;
+    }
+    const next = [...maps];
+    next[idx] = updatedMap;
+    setMaps(next);
+  };
+
   const handleEditMap = async (updatedMap: CarcerMapTemplate) => {
     const saved = await updateMapInTabs(updatedMap);
     if (saved) {
@@ -998,7 +1019,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
       <div className="editor-page-body">
         <TileEditor
           map={activeMap ?? undefined}
-          onMapUpdate={updateMapInTabs}
+          onMapUpdate={handleMapDataChange}
           onOpenMapAndSelectTile={(args: OpenMapAndSelectTileArgs) => {
             handleOpenMapAndSelectTile(args);
           }}

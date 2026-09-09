@@ -97,6 +97,28 @@ export function LayersPanel(props: LayersPanelProps) {
         />
         Show grid
       </label>
+      <label
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          cursor: 'pointer',
+          fontSize: '12px',
+          color: '#d4d4d4',
+          marginBottom: '8px',
+        }}
+        title="Paint neighbouring grid maps in place without switching tabs"
+      >
+        <input
+          type="checkbox"
+          checked={props.editorState.gridEditEnabled}
+          onChange={(e) =>
+            updateEditorState({ gridEditEnabled: e.target.checked })
+          }
+          style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+        />
+        Edit whole grid
+      </label>
       <MapSearchAccordion map={props.map} />
       <div
         style={{

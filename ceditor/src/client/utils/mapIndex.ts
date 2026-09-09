@@ -476,8 +476,12 @@ export function writeLayerFromTiles(
  * Cache of materialized layers, keyed on `name|revision|layer` rather than map
  * object identity, so an ordinary React `{ ...map }` spread no longer discards
  * it. Not a WeakMap, so it needs an explicit eviction rule (invariant I6).
+ *
+ * Sized to keep a whole grid-edit view resident: the focused map plus every
+ * neighbour within gridRenderRadius (up to 25 at radius 2), with headroom for a
+ * layer switch not evicting the set mid-frame.
  */
-const MAX_CACHED_LAYERS = 32;
+const MAX_CACHED_LAYERS = 96;
 const layerViewCache = new Map<string, CarcerMapTileTemplate[]>();
 
 function layerCacheKey(name: string, l: number): string {

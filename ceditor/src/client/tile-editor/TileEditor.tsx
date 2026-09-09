@@ -123,12 +123,29 @@ export function TileEditor({
             activeElement.tagName === 'TEXTAREA' ||
             activeElement.getAttribute('contenteditable') === 'true');
 
-        if (!isInputFocused && mapRef.current && editorState.current) {
+        if (!isInputFocused && editorState.current) {
           e.preventDefault();
-          const success = undo(mapRef.current, editorState.current);
-          if (success) {
-            // Trigger map update to reflect changes
-            onMapUpdate({ ...mapRef.current });
+          // Undo the most recent stroke anywhere in the grid, not just the
+          // focused map. Falls back to the focused map when nothing is logged.
+          const order = editorState.current.gridUndoOrder;
+          const targetName =
+            order.length > 0
+              ? order[order.length - 1]
+              : mapRef.current?.name ?? '';
+          const targetMap =
+            maps.find((m) => m.name === targetName) ?? mapRef.current;
+          if (targetMap) {
+            const success = undo(
+              targetMap,
+              editorState.current,
+              targetMap.name
+            );
+            if (success) {
+              if (order.length > 0) {
+                order.pop();
+              }
+              onMapUpdate({ ...targetMap });
+            }
           }
         }
       }
@@ -138,7 +155,7 @@ export function TileEditor({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [onMapUpdate]);
+  }, [onMapUpdate, maps]);
 
   useRenderLoop((ts) => {
     if (mapCanvasRef.current && mapRef.current && editorState.current) {
