@@ -112,6 +112,28 @@ export function isGridSlotEditable(slot: GridAdjacentSlot): boolean {
   return Boolean(slot.mapName && slot.map);
 }
 
+/**
+ * Union of layer indices across every loaded map assigned to `grid`, high →
+ * low. A new map added to the grid should be seeded with these so the whole
+ * grid shares a layer stack.
+ */
+export function getGridLayerSet(
+  grid: MapGridTemplate,
+  mapsByName: Record<string, CarcerMapTemplate>,
+): number[] {
+  const layers = new Set<number>();
+  for (const row of grid.cells) {
+    for (const cell of row ?? []) {
+      const name = cell?.trim();
+      const map = name ? mapsByName[name] : undefined;
+      for (const layer of map?.layers ?? []) {
+        layers.add(layer);
+      }
+    }
+  }
+  return [...layers].sort((a, b) => b - a);
+}
+
 export interface GridBrushCellTarget {
   map: CarcerMapTemplate;
   tileIndex: number;

@@ -24,8 +24,13 @@ import {
   getEditorState,
   renameEditorStateMap,
 } from '../tile-editor/editorState';
-import { prepareNewMapForEditor } from '../utils/mapIndex';
-import { assignMapToGridCell, findMapGridPlacement, renameMapInGrids } from '../utils/mapGridIndex';
+import { createTilesForLayer, prepareNewMapForEditor } from '../utils/mapIndex';
+import {
+  assignMapToGridCell,
+  findMapGridPlacement,
+  getGridLayerSet,
+  renameMapInGrids,
+} from '../utils/mapGridIndex';
 import {
   GridNavigateStitchOffset,
   GridSlotCreateRequest,
@@ -499,6 +504,18 @@ export function Maps({ routeParams }: MapsProps = {}) {
     }
 
     const prepared = prepareNewMapForEditor(newMap);
+
+    // Seed the new map with the grid's layer stack so the whole grid shares one.
+    const grid = mapGrids.find((g) => g.name === gridCreateRequest.gridName);
+    if (grid) {
+      const mapsByName = Object.fromEntries(maps.map((m) => [m.name, m]));
+      for (const layer of getGridLayerSet(grid, mapsByName)) {
+        if (!prepared.layers.includes(layer)) {
+          createTilesForLayer(prepared, layer);
+        }
+      }
+    }
+
     const updatedMapGrids = sanitizeMapGridTemplates(
       trimStrings(
         assignMapToGridCell(
