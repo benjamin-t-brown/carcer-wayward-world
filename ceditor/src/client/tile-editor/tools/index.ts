@@ -3,12 +3,10 @@ import { CarcerMapTemplate } from '../../types/assets';
 import { createDefaultCarcerMapTile } from '../../components/MapTemplateForm';
 import {
   EditorState,
-  ensureEditorStateMap,
   getEditorStateMap,
   getPaintMapName,
 } from '../editorState';
 import { getGridPaintContext, getTileList } from '../editorEvents';
-import { resolveGridBrushCell } from '../../utils/mapGridIndex';
 import type { PaintAction } from '../paintTools';
 import { MapTool } from './types';
 
@@ -33,62 +31,8 @@ const draw: MapTool = {
   shortcutBlockedByCtrl: false,
   row: 'primary',
   apply() {
-    // Draw writes happen in update().
-  },
-  update(action, map) {
-    const brush = action.data.floorDrawBrush;
-    if (!brush?.length) {
-      const mapTiles = getTileList(map);
-      for (const ind of action.data.tileInds) {
-        Object.assign(mapTiles[ind], action.data.paintTileRef);
-      }
-      return;
-    }
-
-    // Clone brush: each cell is placed relative to the anchor and may fall into
-    // a neighbouring grid block. Resolve every cell to its real block, capture
-    // the tile it overwrites (once) for undo, then write.
-    const ctx = getGridPaintContext();
-    const mapsByName: Record<string, CarcerMapTemplate> = { [map.name]: map };
-    if (ctx) {
-      for (const m of ctx.maps) {
-        mapsByName[m.name] = m;
-      }
-    }
-    const grids = ctx?.mapGrids ?? [];
-    const writes = (action.data.blockWrites ??= []);
-    const seen = new Set(writes.map((w) => `${w.mapName}:${w.ind}`));
-
-    for (const anchorInd of action.data.tileInds) {
-      const startX = anchorInd % map.width;
-      const startY = Math.floor(anchorInd / map.width);
-      for (const bt of brush) {
-        const target = resolveGridBrushCell(
-          map,
-          startX + bt.xOffset,
-          startY + bt.yOffset,
-          grids,
-          mapsByName,
-        );
-        if (!target) {
-          continue;
-        }
-        const targetTiles = getTileList(target.map);
-        const key = `${target.map.name}:${target.tileIndex}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          if (target.map.name !== map.name) {
-            ensureEditorStateMap(target.map.name);
-          }
-          writes.push({
-            mapName: target.map.name,
-            ind: target.tileIndex,
-            prev: structuredClone(targetTiles[target.tileIndex]),
-          });
-        }
-        Object.assign(targetTiles[target.tileIndex], bt.originalTile.ref);
-      }
-    }
+    // Draw writes happen in paintTools.applyDrawUpdate (per frame), which routes
+    // to whichever grid block the pointer is over and records action.data.blockWrites.
   },
   undo(action, map) {
     const blockWrites = action.data.blockWrites;

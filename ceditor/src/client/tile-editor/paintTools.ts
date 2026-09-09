@@ -9,6 +9,7 @@ import { FloorBrushData } from './renderState';
 import { TOOLS } from './tools';
 import {
   EditorState,
+  ensureEditorStateMap,
   findEditorStateMap,
   getEditorStateMap,
   getPaintMapName,
@@ -16,6 +17,7 @@ import {
   updateEditorStateMapNoReRender,
   updateEditorStateNoReRender,
 } from './editorState';
+import { resolveGridBrushCell } from '../utils/mapGridIndex';
 import {
   commitCurrentLayer,
   getGridPaintContext,
@@ -172,12 +174,99 @@ function applyTerrainPaintUpdate(
   }
 }
 
+/**
+ * Draw / clone-brush stroke frame: paint the tile (and brush footprint) under
+ * the pointer in whatever grid block it is currently over, so a drag continues
+ * seamlessly across block borders. Every written tile is recorded in
+ * action.data.blockWrites for a single multi-block undo.
+ */
+const applyDrawUpdate = (
+  action: PaintAction,
+  startMap: CarcerMapTemplate,
+  editorState: EditorState,
+) => {
+  const hoveredBlockName =
+    editorState.hoveredGridMapName || editorState.selectedMapName;
+  const hoveredInd =
+    getEditorStateMap(hoveredBlockName)?.hoveredTileIndex ?? -1;
+  if (hoveredInd === -1) {
+    return;
+  }
+
+  const ctx = getGridPaintContext();
+  const mapsByName: Record<string, CarcerMapTemplate> = {
+    [startMap.name]: startMap,
+  };
+  if (ctx) {
+    for (const m of ctx.maps) {
+      mapsByName[m.name] = m;
+    }
+  }
+  const grids = ctx?.mapGrids ?? [];
+  const anchorMap = mapsByName[hoveredBlockName] ?? startMap;
+
+  if (action.data.startInd === -1) {
+    action.data.startInd = hoveredInd;
+  }
+  action.data.endInd = hoveredInd;
+
+  const anchorX = hoveredInd % anchorMap.width;
+  const anchorY = Math.floor(hoveredInd / anchorMap.width);
+  const brush = action.data.floorDrawBrush;
+  const cells: { dx: number; dy: number; ref: Partial<CarcerMapTileTemplate> }[] =
+    brush?.length
+      ? brush.map((bt) => ({
+          dx: bt.xOffset,
+          dy: bt.yOffset,
+          ref: bt.originalTile.ref,
+        }))
+      : [{ dx: 0, dy: 0, ref: action.data.paintTileRef }];
+
+  const writes = (action.data.blockWrites ??= []);
+  const seen = new Set(writes.map((w) => `${w.mapName}:${w.ind}`));
+
+  for (const cell of cells) {
+    const target = resolveGridBrushCell(
+      anchorMap,
+      anchorX + cell.dx,
+      anchorY + cell.dy,
+      grids,
+      mapsByName,
+    );
+    if (!target) {
+      continue;
+    }
+    const key = `${target.map.name}:${target.tileIndex}`;
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    if (target.map.name !== startMap.name) {
+      ensureEditorStateMap(target.map.name);
+    }
+    const tiles = getTileList(target.map);
+    writes.push({
+      mapName: target.map.name,
+      ind: target.tileIndex,
+      prev: structuredClone(tiles[target.tileIndex]),
+    });
+    Object.assign(tiles[target.tileIndex], cell.ref);
+  }
+};
+
 export const onActionUpdate = (
   action: PaintAction,
   mapData: CarcerMapTemplate,
   editorState: EditorState,
   tilesets?: TilesetTemplate[],
 ) => {
+  if (action.type === PaintActionType.DRAW) {
+    // Follows the pointer across grid blocks; must run even when the start
+    // block's own hovered tile is now -1.
+    applyDrawUpdate(action, mapData, editorState);
+    return;
+  }
+
   const mapTiles = getTileList(mapData);
   const ind =
     getEditorStateMap(getPaintMapName(editorState))?.hoveredTileIndex ?? -1;
@@ -199,8 +288,6 @@ export const onActionUpdate = (
   if (!action.data.tileInds.includes(ind)) {
     action.data.tileInds.push(ind);
     action.data.prevRefData.push(structuredClone(mapTiles[ind]));
-    // Clone-brush strokes capture their own per-tile undo state (per block) in
-    // DRAW.update via action.data.blockWrites, so no pre-clone pass here.
     applyActionUpdate(action, mapData, editorState);
   }
 };
