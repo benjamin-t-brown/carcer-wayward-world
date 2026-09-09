@@ -33,7 +33,9 @@ set(CARCER_LAYER_SOURCES
   src/layers/ui/LayerPickUp.cpp
   src/layers/ui/LayerPopupText.cpp
   src/layers/ui/LayerSpecialEvent.cpp
-  src/layers/ui/LayerWorld.cpp)
+  src/layers/ui/LayerWorld.cpp
+  src/layers/ui/WorldViewSync.cpp
+  src/layers/ui/WorldInputController.cpp)
 
 set(CARCER_MODEL_SOURCES
   src/model/Combat.cpp
@@ -93,6 +95,7 @@ set(CARCER_UI_SOURCES
   src/ui/FontScale.cpp
   src/ui/KeyboardHeldScroll.cpp
   src/ui/helpers/worldActions.cpp
+  src/ui/helpers/worldCommands.cpp
   src/ui/helpers/keyboardShortcuts.cpp
   src/ui/helpers/modalLayoutFit.cpp
   src/ui/elements/SpriteElement.cpp

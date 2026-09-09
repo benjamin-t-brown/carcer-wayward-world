@@ -1,40 +1,21 @@
 #pragma once
 
 #include "../UiLayer.h"
+#include "WorldInputController.h"
+#include "WorldViewSync.h"
 #include "bmin/String.h"
-#include "model/templates/UtilityTypes.h"
-#include "state/WorldActions.hpp"
 #include <string_view>
-
-namespace ui {
-class InGameLayout;
-}
 
 namespace layers {
 
 class LayerWorld : public UiLayer {
 private:
-  // void processPendingTriggers();
-  void attachWorldActionObservers(ui::InGameLayout* inGameLayout);
-  void attachPartyMemberObservers(ui::InGameLayout* inGameLayout);
-  void syncWorldActionModeHighlight();
-  void syncActionModeCancelButton();
-  void syncCombatTitleBar();
-  void updateHeldMoveRepeat(int deltaTime);
-  void confirmWorldActionAim(int tileX, int tileY);
-  void updateAimFromMouse(int x, int y);
-  static bool canPlayerIssueCombatMove(const state::State& state);
-  static void enqueueMapMove(state::StateManager& stateManager, int dx, int dy);
-  static void enqueueCombatWait(state::StateManager& stateManager);
-  static void ensureCurrentPartyMemberSelection(state::State& state);
   float mapScale = 1.f;
-  bool hasLastMousePos = false;
-  int lastMouseX = 0;
-  int lastMouseY = 0;
+
+  WorldViewSync viewSync{*this};
+  WorldInputController inputController{*this};
 
   void alignMapView();
-  void setWorldActionTypes(model::TurnMode turnMode,
-                           bmin::DynArray<state::WorldActionType>& dest);
 
 public:
   constexpr static std::string_view LAYER_ID = "layer_world";
