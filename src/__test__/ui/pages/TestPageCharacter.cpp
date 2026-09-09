@@ -75,8 +75,10 @@ int main(int argc, char** argv) {
   };
 
   auto _update = [&](sdl2w::Window& window, sdl2w::Store& store) {
-    layerManager->update(window.getDeltaTime());
+    // Order matches LayerManager::start(): drain the action queue before layer
+    // update so UI sync and layer push/remove commands act on this frame's state.
     stateManager.update(window.getDeltaTime());
+    layerManager->update(window.getDeltaTime());
   };
 
   auto _render = [&](sdl2w::Window& window, sdl2w::Store& store) {

@@ -13,9 +13,6 @@
 #include "layers/ui/LayerSpellCast.h"
 #include "layers/ui/LayerSpellInfo.h"
 #include "layers/ui/LayerWorld.h"
-#include "layers/createInventoryLayer.h"
-#include "layers/createPickUpLayer.h"
-#include "layers/createWorldLayer.h"
 #include "sdl2w/Draw.h"
 #include "sdl2w/Events.h"
 #include "sdl2w/Init.h"
@@ -321,9 +318,9 @@ bmin::UniquePtr<Layer> LayerManager::createLayer(const state::LayerRequest& requ
   }
   switch (request.id) {
   case state::LayerId::World:
-    return createWorldLayer(window);
+    return bmin::UniquePtr<Layer>(new LayerWorld(window));
   case state::LayerId::Inventory:
-    return createInventoryLayer(window);
+    return bmin::UniquePtr<Layer>(new LayerInventory(window));
   case state::LayerId::InventoryContext:
     return bmin::UniquePtr<Layer>(new LayerInventoryContext(window, request.a, request.b));
   case state::LayerId::Magic:
@@ -337,7 +334,7 @@ bmin::UniquePtr<Layer> LayerManager::createLayer(const state::LayerRequest& requ
   case state::LayerId::PickUp:
     return request.hasPosition
                ? bmin::UniquePtr<Layer>(new LayerPickUp(window, request.x, request.y))
-               : createPickUpLayer(window);
+               : bmin::UniquePtr<Layer>(new LayerPickUp(window));
   case state::LayerId::PickUpContext: {
     auto* stateManager = getStateManager();
     if (!stateManager) {

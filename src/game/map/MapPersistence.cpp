@@ -17,8 +17,8 @@ MapInstanceStore createMapInstances(const db::Database& database) {
       applyCharacterTemplateFromDatabase(instance.persistentState.characters[ci],
                                          database);
     }
-    auto layers = model::mapInstanceTiles(instance);
-    for (auto layer : layers) {
+    auto& layers = model::mapInstanceTiles(instance);
+    for (auto& layer : layers) {
       auto& layerTiles = layer.value;
       for (auto& tile : layerTiles) {
         if (game::isTileEffectivelyContainer(tile, database)) {

@@ -1,15 +1,15 @@
 #pragma once
 
+#include "actions/combat/CharacterSetSpriteIndexOffset.hpp"
+#include "actions/general/PlaySound.hpp"
+#include "actions/world/ModifyPartyMemberHp.hpp"
+#include "actions/world/WorldSpawnDamageParticle.hpp"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/TileTriggers.h"
 #include "model/Combat.h"
 #include "model/instances/CharacterPlayer.h"
 #include "sdl2w/Logger.h"
 #include "state/AbstractAction.hpp"
-#include "actions/combat/CharacterSetSpriteIndexOffset.hpp"
-#include "actions/general/PlaySound.hpp"
-#include "actions/world/ModifyPartyMemberHp.hpp"
-#include "actions/world/WorldSpawnDamageParticle.hpp"
 #include <cstdlib>
 
 namespace state {
@@ -19,8 +19,9 @@ namespace actions {
 // Town melee with the same swing / particle / reset timing as combat melee.
 // Damages a random living party member; FX play on the party avatar tile.
 class PerformTownMeleeAttack : public AbstractAction {
-  ActionEvent getEvent() const override { return ActionEvent::PerformTownMeleeAttack; }
   bmin::String attackerId;
+
+  ActionEvent getEvent() const override { return ActionEvent::PerformTownMeleeAttack; }
 
   static model::CharacterPlayer* pickRandomLivingPartyMember(model::Player& player) {
     bmin::DynArray<model::CharacterPlayer*> living;
@@ -41,9 +42,11 @@ class PerformTownMeleeAttack : public AbstractAction {
       return;
     }
 
-    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
+    game::ActiveMapOrchestrator orch(
+        state->world.activeMap, state->mapInstances, getDatabase());
     auto* attacker = orch.findCharacterById(attackerId);
-    auto* avatar = game::findPartyAvatarOnActiveMap(state->world.activeMap, state->player);
+    auto* avatar =
+        game::findPartyAvatarOnActiveMap(state->world.activeMap, state->player);
     if (attacker == nullptr || avatar == nullptr) {
       return;
     }
@@ -59,16 +62,18 @@ class PerformTownMeleeAttack : public AbstractAction {
 
     const auto hit = (std::rand() % 100) < model::COMBAT_HIT_CHANCE_PERCENT;
     if (hit) {
-      insertAction(state::makeAction<PlaySound>("punch1"), 0);
+      insertAction(state::makeAction<PlaySound>("hit_punch1"), 0);
       insertAction(nullptr, 75);
-      insertAction(state::makeAction<ModifyPartyMemberHp>(victim->instanceId, -model::COMBAT_MELEE_DAMAGE),
-                         0);
-      insertAction(state::makeAction<WorldSpawnDamageParticle>("splash_attack",
-                                                      bmin::toString(model::COMBAT_MELEE_DAMAGE),
-                                                      avatar->x,
-                                                      avatar->y,
-                                                      500),
-                         0);
+      insertAction(state::makeAction<ModifyPartyMemberHp>(victim->instanceId,
+                                                          -model::COMBAT_MELEE_DAMAGE),
+                   0);
+      insertAction(state::makeAction<WorldSpawnDamageParticle>(
+                       "splash_attack",
+                       bmin::toString(model::COMBAT_MELEE_DAMAGE),
+                       avatar->x,
+                       avatar->y,
+                       500),
+                   0);
       insertAction(nullptr, 500);
       LOG(INFO) << "TownMeleeAttack: " << attackerId << " hit " << victim->instanceId
                 << " for " << model::COMBAT_MELEE_DAMAGE << LOG_ENDL;

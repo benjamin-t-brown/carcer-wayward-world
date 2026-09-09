@@ -390,7 +390,7 @@ void MapView::render(int dt) {
     }
     // Items on container tiles are stored inside the container, not drawn on the ground.
     if (const auto* tile = game::tileAtCurrentLayer(*map, local.x, local.y);
-        tile && tile->isContainer) {
+        tile && game::isTileEffectivelyContainer(*tile, *database)) {
       continue;
     }
     bmin::String spriteName;

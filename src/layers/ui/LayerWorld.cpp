@@ -409,7 +409,7 @@ void LayerWorld::updateAimFromMouse(int x, int y) {
 
 void LayerWorld::onMouseHover(int x, int y) {
   updateAimFromMouse(x, y);
-  Layer::onMouseHover(x, y);
+  UiLayer::onMouseHover(x, y);
 }
 
 void LayerWorld::onMouseDown(int x, int y, int button) {
@@ -432,7 +432,7 @@ void LayerWorld::onMouseDown(int x, int y, int button) {
       }
     }
   }
-  Layer::onMouseDown(x, y, button);
+  UiLayer::onMouseDown(x, y, button);
 }
 
 void LayerWorld::alignMapView() {

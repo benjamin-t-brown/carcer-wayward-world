@@ -115,8 +115,11 @@ int main(int argc, char** argv) {
   };
 
   auto _updateRender = [&](sdl2w::Window& window, sdl2w::Store& store) {
-    layerManager->update(window.getDeltaTime());
+    // Order matches LayerManager::start(): drain the action queue first so the
+    // avatar move lands, then run layer update so worldUpdate()'s camera-follow
+    // reads the new position in the same frame (otherwise the camera lags a frame).
     stateManager.update(window.getDeltaTime());
+    layerManager->update(window.getDeltaTime());
 
     auto& draw = window.getDraw();
     draw.setBackgroundColor(SDL_Color{100, 100, 100, 255});
