@@ -23,6 +23,31 @@ function restorePrevRefData(action: PaintAction, map: CarcerMapTemplate): void {
   }
 }
 
+/**
+ * Restore every tile a stroke recorded in action.data.blockWrites, in its own
+ * block. Returns false when the stroke has no block writes (pre-grid actions).
+ */
+function undoBlockWrites(action: PaintAction, map: CarcerMapTemplate): boolean {
+  const writes = action.data.blockWrites;
+  if (!writes || writes.length === 0) {
+    return false;
+  }
+  const ctx = getGridPaintContext();
+  const byName: Record<string, CarcerMapTemplate> = { [map.name]: map };
+  if (ctx) {
+    for (const m of ctx.maps) {
+      byName[m.name] = m;
+    }
+  }
+  for (const write of writes) {
+    const target = byName[write.mapName];
+    if (target) {
+      getTileList(target)[write.ind] = structuredClone(write.prev);
+    }
+  }
+  return true;
+}
+
 const draw: MapTool = {
   id: 'DRAW',
   icon: '🖌️',
@@ -35,25 +60,10 @@ const draw: MapTool = {
     // to whichever grid block the pointer is over and records action.data.blockWrites.
   },
   undo(action, map) {
-    const blockWrites = action.data.blockWrites;
-    if (blockWrites && blockWrites.length > 0) {
-      const ctx = getGridPaintContext();
-      const byName: Record<string, CarcerMapTemplate> = { [map.name]: map };
-      if (ctx) {
-        for (const m of ctx.maps) {
-          byName[m.name] = m;
-        }
-      }
-      for (const write of blockWrites) {
-        const target = byName[write.mapName];
-        if (!target) {
-          continue;
-        }
-        getTileList(target)[write.ind] = structuredClone(write.prev);
-      }
+    if (undoBlockWrites(action, map)) {
       return;
     }
-
+    // Pre-grid draw strokes: restore from tileInds / extraTileInds.
     const mapTiles = getTileList(map);
     for (let i = 0; i < action.data.tileInds.length; i++) {
       const ind = action.data.tileInds[i];
@@ -372,7 +382,12 @@ const terrain: MapTool = {
   update() {
     // Terrain writes happen in onActionUpdate -> applyTerrainPaintUpdate.
   },
-  undo: restorePrevRefData,
+  undo(action, map) {
+    if (undoBlockWrites(action, map)) {
+      return;
+    }
+    restorePrevRefData(action, map);
+  },
 };
 
 /** Every tool, keyed by its id (== PaintActionType value). */

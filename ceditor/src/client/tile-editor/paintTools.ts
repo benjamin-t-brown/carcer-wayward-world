@@ -10,7 +10,6 @@ import { TOOLS } from './tools';
 import {
   EditorState,
   ensureEditorStateMap,
-  findEditorStateMap,
   getEditorStateMap,
   getPaintMapName,
   pushGridUndo,
@@ -68,10 +67,13 @@ interface PaintActionData {
   prevRefData: CarcerMapTileTemplate[];
 
   /**
-   * Every tile a clone-brush stroke wrote, tagged with its block. Lets one
-   * stroke span grid maps and one undo restore every block it touched.
+   * Every tile a draw / clone-brush / terrain stroke wrote, tagged with its
+   * block. Lets one stroke span grid maps and one undo restore every block it
+   * touched.
    */
   blockWrites?: { mapName: string; ind: number; prev: CarcerMapTileTemplate }[];
+  /** `${blockName}:${tileIndex}` cells a terrain stroke has already painted at. */
+  terrainCenters?: string[];
 }
 
 export interface PaintAction {
@@ -128,31 +130,46 @@ export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
 
 function applyTerrainPaintUpdate(
   action: PaintAction,
-  mapData: CarcerMapTemplate,
+  startMap: CarcerMapTemplate,
   editorState: EditorState,
   tilesets: TilesetTemplate[],
 ) {
-  const mapTiles = getTileList(mapData);
-  const paintMapName = getPaintMapName(editorState);
-  const ind = getEditorStateMap(paintMapName)?.hoveredTileIndex ?? -1;
+  // Paint terrain in whichever grid block the pointer is over, so a stroke
+  // continues across block borders. Border auto-tiling is still resolved per
+  // block (each block sees only its own tiles at the seam).
+  const hoveredBlockName =
+    editorState.hoveredGridMapName || editorState.selectedMapName;
+  const ind = getEditorStateMap(hoveredBlockName)?.hoveredTileIndex ?? -1;
   if (ind === -1) {
     return;
   }
 
-  if (action.data.extraTileInds.includes(ind)) {
+  const ctx = getGridPaintContext();
+  const byName: Record<string, CarcerMapTemplate> = {
+    [startMap.name]: startMap,
+  };
+  if (ctx) {
+    for (const m of ctx.maps) {
+      byName[m.name] = m;
+    }
+  }
+  const targetMap = byName[hoveredBlockName] ?? startMap;
+
+  const centerKey = `${hoveredBlockName}:${ind}`;
+  const centers = (action.data.terrainCenters ??= []);
+  if (centers.includes(centerKey)) {
     return;
   }
-  action.data.extraTileInds.push(ind);
+  centers.push(centerKey);
 
   const terrainTileset = getTerrainTileset(tilesets);
-
-  const mapState = findEditorStateMap(editorState, paintMapName);
-  const x = ind % mapData.width;
-  const y = Math.floor(ind / mapData.width);
+  const mapState = ensureEditorStateMap(hoveredBlockName);
+  const x = ind % targetMap.width;
+  const y = Math.floor(ind / targetMap.width);
   const lookup = buildTerrainLookup(terrainTileset);
 
   const tileChanges = getTileChangesForPaintingTerrainAt(
-    mapData,
+    targetMap,
     editorState,
     mapState,
     terrainTileset,
@@ -162,15 +179,23 @@ function applyTerrainPaintUpdate(
     editorState.selectedTerrainTag,
   );
 
+  const targetTiles = getTileList(targetMap);
+  const writes = (action.data.blockWrites ??= []);
+  const seen = new Set(writes.map((w) => `${w.mapName}:${w.ind}`));
   for (const tileChange of tileChanges) {
-    if (!action.data.tileInds.includes(tileChange.ind)) {
-      action.data.tileInds.push(tileChange.ind);
-      action.data.prevRefData.push(structuredClone(mapTiles[tileChange.ind]));
+    const key = `${hoveredBlockName}:${tileChange.ind}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      writes.push({
+        mapName: hoveredBlockName,
+        ind: tileChange.ind,
+        prev: structuredClone(targetTiles[tileChange.ind]),
+      });
     }
   }
   for (const tileChange of tileChanges) {
-    mapTiles[tileChange.ind].tileId = tileChange.tileId;
-    mapTiles[tileChange.ind].tilesetName = TERRAIN_TILESET_NAME;
+    targetTiles[tileChange.ind].tileId = tileChange.tileId;
+    targetTiles[tileChange.ind].tilesetName = TERRAIN_TILESET_NAME;
   }
 }
 
@@ -260,10 +285,14 @@ export const onActionUpdate = (
   editorState: EditorState,
   tilesets?: TilesetTemplate[],
 ) => {
+  // DRAW and TERRAIN follow the pointer across grid blocks, so they must run
+  // even when the start block's own hovered tile is now -1.
   if (action.type === PaintActionType.DRAW) {
-    // Follows the pointer across grid blocks; must run even when the start
-    // block's own hovered tile is now -1.
     applyDrawUpdate(action, mapData, editorState);
+    return;
+  }
+  if (action.type === PaintActionType.TERRAIN && tilesets) {
+    applyTerrainPaintUpdate(action, mapData, editorState, tilesets);
     return;
   }
 
@@ -279,11 +308,6 @@ export const onActionUpdate = (
     action.data.startInd = ind;
   }
   action.data.endInd = ind;
-
-  if (action.type === PaintActionType.TERRAIN && tilesets) {
-    applyTerrainPaintUpdate(action, mapData, editorState, tilesets);
-    return;
-  }
 
   if (!action.data.tileInds.includes(ind)) {
     action.data.tileInds.push(ind);
