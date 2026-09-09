@@ -6,9 +6,10 @@
 #include "ui/elements/buttons/ButtonList.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/elements/buttons/ButtonTextWrap.h"
-#include "ui/observers/ObserverInventorySelectItem.hpp"
-#include "ui/observers/ObserverReorderInventoryItem.hpp"
-#include "ui/observers/ObserverShowLayerInventoryContext.hpp"
+#include "ui/observers/ActionObserver.hpp"
+#include "actions/navigation/UiToggleEquipInventoryItem.hpp"
+#include "actions/navigation/UiReorderInventoryItem.hpp"
+#include "actions/navigation/UiShowLayerInventoryContext.hpp"
 
 namespace ui {
 
@@ -86,7 +87,8 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
   });
   if (!props.characterPlayerId.empty() && index > 0) {
     upBtn->addEventObserver(
-        bmin::UniquePtr<ui::UiEventObserver>(new ObserverReorderInventoryItem(props.characterPlayerId, index, -1)));
+        ui::makeActionObserver<state::actions::UiReorderInventoryItem>(
+            props.characterPlayerId, index, -1));
   }
   container->addChild(bmin::UniquePtr<ui::UiElement>(upBtn));
 
@@ -107,7 +109,8 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
   if (!props.characterPlayerId.empty() &&
       index + 1 < static_cast<int>(props.items.size())) {
     downBtn->addEventObserver(
-        bmin::UniquePtr<ui::UiEventObserver>(new ObserverReorderInventoryItem(props.characterPlayerId, index, 1)));
+        ui::makeActionObserver<state::actions::UiReorderInventoryItem>(
+            props.characterPlayerId, index, 1));
   }
   container->addChild(bmin::UniquePtr<ui::UiElement>(downBtn));
 
@@ -194,7 +197,8 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
             },
     });
     label->addEventObserver(
-        bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverInventorySelectItem(props.characterPlayerId, item.itemId)));
+        ui::makeActionObserver<state::actions::UiToggleEquipInventoryItem>(
+            props.characterPlayerId, item.itemId));
     container->addChild(bmin::UniquePtr<ui::UiElement>(label));
   } else {
     auto label = new TextLine(window, this);
@@ -225,7 +229,8 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
       .height = scaledContextBtnSize,
   });
   contextBtn->addEventObserver(
-      bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverShowLayerInventoryContext(window, item.itemName, item.itemId)));
+      ui::makeActionObserver<state::actions::UiShowLayerInventoryContext>(
+          window, item.itemName, item.itemId));
   container->addChild(bmin::UniquePtr<ui::UiElement>(contextBtn));
 
   return container;

@@ -34,9 +34,10 @@
 #include "ui/helpers/keyboardShortcuts.h"
 #include "ui/helpers/worldActions.h"
 #include "ui/layouts/InGameLayout.h"
+#include "ui/observers/ActionObserver.hpp"
 #include "ui/observers/ObserverCancelWorldActionMode.hpp"
-#include "ui/observers/ObserverSetSelectedPartyMemberId.hpp"
 #include "ui/observers/ObserverWorldAction.hpp"
+#include "actions/navigation/UiSetSelectedPartyMemberId.hpp"
 #include <string_view>
 
 namespace layers {
@@ -532,8 +533,18 @@ void LayerWorld::attachPartyMemberObservers(ui::InGameLayout* inGameLayout) {
   const auto& party = stateManager->getState().player.party;
   auto& children = list->getChildren();
   for (size_t i = 0; i < children.size() && i < party.size(); i++) {
-    children[i]->addEventObserver(
-        bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverSetSelectedPartyMemberId(party[i].instanceId)));
+    // Party member switching is locked while combat is active, so the observer
+    // builds no action mid-combat.
+    children[i]->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(
+        new ui::ActionObserver(
+            [id = party[i].instanceId](state::StateManager& sm)
+                -> bmin::UniquePtr<state::AbstractAction> {
+              if (sm.getState().world.combat.active) {
+                return bmin::UniquePtr<state::AbstractAction>();
+              }
+              return state::makeAction<state::actions::UiSetSelectedPartyMemberId>(
+                  id);
+            })));
   }
 }
 

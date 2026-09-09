@@ -2,8 +2,9 @@
 #include "sdl2w/L10n.h"
 #include "ui/components/ConfirmModal.h"
 #include "ui/elements/buttons/ButtonGroup.h"
-#include "ui/observers/ObserverDropInventoryItem.hpp"
-#include "ui/observers/ObserverRemoveLayer.hpp"
+#include "ui/observers/ActionObserver.hpp"
+#include "actions/navigation/UiDropInventoryItem.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
 
 namespace ui {
 
@@ -16,11 +17,6 @@ PopupDropConfirm::~PopupDropConfirm() = default;
 
 void PopupDropConfirm::setProps(const PopupDropConfirmProps& _props) {
   props = _props;
-  //   confirmObserver =
-  //       bmin::makeUnique<ObserverDropInventoryItem>(props.characterPlayerId,
-  //       props.itemId);
-  //   cancelObserver =
-  //       bmin::makeUnique<ObserverRemoveLayer>(state::LayerId::DropConfirm);
   build();
 }
 
@@ -43,9 +39,11 @@ void PopupDropConfirm::build() {
       .message = messageText,
   });
   modal->getButtonGroup()->addObserverToButtonAtIndex(
-      1, bmin::UniquePtr<ui::UiEventObserver>(new ObserverDropInventoryItem(props.characterPlayerId, props.itemId)));
+      1, ui::makeActionObserver<state::actions::UiDropInventoryItem>(
+             props.characterPlayerId, props.itemId));
   modal->getButtonGroup()->addObserverToButtonAtIndex(
-      0, bmin::UniquePtr<ui::UiEventObserver>(new ObserverRemoveLayer(state::LayerId::DropConfirm)));
+      0, ui::makeActionObserver<state::actions::UiRemoveLayer>(
+             state::LayerId::DropConfirm));
 
   auto [modalW, modalH] = modal->getDims();
   style.width = modalW / style.scale;

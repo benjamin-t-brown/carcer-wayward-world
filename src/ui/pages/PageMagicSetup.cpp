@@ -9,8 +9,9 @@
 #include "ui/elements/buttons/ButtonClose.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/helpers/modalLayoutFit.h"
-#include "ui/observers/ObserverRemoveLayer.hpp"
-#include "ui/observers/ObserverShowLayerEquipRunes.hpp"
+#include "ui/observers/ActionObserver.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
+#include "actions/navigation/UiShowLayerEquipRunes.hpp"
 #include <algorithm>
 
 namespace ui {
@@ -159,7 +160,8 @@ void PageMagicSetup::addRuneSlotRow(ModalStandard* modal,
   });
   if (!props.characterPlayerId.empty()) {
     editButton->addEventObserver(
-        bmin::UniquePtr<ui::UiEventObserver>(new ObserverShowLayerEquipRunes(window, props.characterPlayerId)));
+        ui::makeActionObserver<state::actions::UiShowLayerEquipRunes>(
+            window, props.characterPlayerId));
   }
   modal->addChild(bmin::UniquePtr<ui::UiElement>(editButton));
 
@@ -353,7 +355,8 @@ void PageMagicSetup::build() {
   auto closeButton = modal->getCloseButtonElement();
   if (closeButton) {
     closeButton->addEventObserver(
-        bmin::UniquePtr<ui::UiEventObserver>(new ObserverRemoveLayer(state::LayerId::Magic)));
+        ui::makeActionObserver<state::actions::UiRemoveLayer>(
+            state::LayerId::Magic));
   }
 
   auto [contentW, contentH] = modal->getContentDims();

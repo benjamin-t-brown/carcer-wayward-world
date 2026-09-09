@@ -9,9 +9,10 @@
 #include "ui/elements/buttons/ButtonGroup.h"
 #include "ui/elements/buttons/ButtonIcon.h"
 #include "ui/layouts/ModalSmall.h"
-#include "ui/observers/ObserverAdjustEquippedRune.hpp"
-#include "ui/observers/ObserverCancelEquipRunes.hpp"
-#include "ui/observers/ObserverCommitEquipRunes.hpp"
+#include "ui/observers/ActionObserver.hpp"
+#include "actions/navigation/UiAdjustEquippedRune.hpp"
+#include "actions/navigation/UiCancelEquipRunes.hpp"
+#include "actions/navigation/UiCommitEquipRunes.hpp"
 
 namespace ui {
 
@@ -178,8 +179,9 @@ void MinipageEquipRunes::addRuneGrid(UiElement* parent, int x, int y, int width)
         .isDisabled = !canMinus,
     });
     if (canMinus && !props.characterPlayerId.empty()) {
-      minusBtn->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ObserverAdjustEquippedRune(
-          props.characterPlayerId, row.type, -1)));
+      minusBtn->addEventObserver(
+          ui::makeActionObserver<state::actions::UiAdjustEquippedRune>(
+              props.characterPlayerId, row.type, -1));
     }
     parent->addChild(bmin::UniquePtr<ui::UiElement>(minusBtn));
 
@@ -223,8 +225,9 @@ void MinipageEquipRunes::addRuneGrid(UiElement* parent, int x, int y, int width)
         .isDisabled = !canPlus,
     });
     if (canPlus && !props.characterPlayerId.empty()) {
-      plusBtn->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ObserverAdjustEquippedRune(
-          props.characterPlayerId, row.type, +1)));
+      plusBtn->addEventObserver(
+          ui::makeActionObserver<state::actions::UiAdjustEquippedRune>(
+              props.characterPlayerId, row.type, +1));
     }
     parent->addChild(bmin::UniquePtr<ui::UiElement>(plusBtn));
   }
@@ -271,7 +274,8 @@ void MinipageEquipRunes::build() {
 
   auto closeButton = modal->getCloseButtonElement();
   if (closeButton) {
-    closeButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ObserverCancelEquipRunes()));
+    closeButton->addEventObserver(
+        ui::makeActionObserver<state::actions::UiCancelEquipRunes>());
   }
 
   const int contentW = modal->getContentDims().first;
@@ -330,7 +334,8 @@ void MinipageEquipRunes::build() {
               {.label = TRANSLATE("Okay"), .type = ButtonGroupButtonType::MODAL},
           },
   });
-  buttonGroup->addObserverToButtonAtIndex(0, bmin::UniquePtr<ui::UiEventObserver>(new ObserverCommitEquipRunes()));
+  buttonGroup->addObserverToButtonAtIndex(
+      0, ui::makeActionObserver<state::actions::UiCommitEquipRunes>());
   modal->addChild(bmin::UniquePtr<ui::UiElement>(buttonGroup));
 }
 

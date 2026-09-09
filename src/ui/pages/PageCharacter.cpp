@@ -13,7 +13,8 @@
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/helpers/modalLayoutFit.h"
 #include "ui/layouts/ModalStandard.h"
-#include "ui/observers/ObserverShowLayerPopupText.hpp"
+#include "ui/observers/ActionObserver.hpp"
+#include "actions/navigation/UiShowLayerPopupText.hpp"
 #include <utility>
 
 namespace ui {
@@ -113,7 +114,8 @@ PageCharacter::buildStatSection(const PageCharacterStatRowSectionArgs& sectionPr
     });
     if (!row.helpDescription.empty()) {
       buttonHelp->addEventObserver(
-          bmin::UniquePtr<ui::UiEventObserver>(new ObserverShowLayerPopupText(window, row.label, row.helpDescription)));
+          ui::makeActionObserver<state::actions::UiShowLayerPopupText>(
+              window, row.label, row.helpDescription));
     }
     statRow->addChild(bmin::UniquePtr<ui::UiElement>(buttonHelp));
     leftX += buttonSize + linePadding;

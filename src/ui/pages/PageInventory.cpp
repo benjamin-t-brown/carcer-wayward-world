@@ -10,7 +10,8 @@
 #include "ui/elements/buttons/ButtonClose.h"
 #include "ui/helpers/modalLayoutFit.h"
 #include "ui/layouts/ModalStandard.h"
-#include "ui/observers/ObserverRemoveLayer.hpp"
+#include "ui/observers/ActionObserver.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
 #include <algorithm>
 
 namespace ui {
@@ -118,7 +119,8 @@ void PageInventory::build() {
   auto closeButton = modal->getCloseButtonElement();
   if (closeButton) {
     closeButton->addEventObserver(
-        bmin::UniquePtr<ui::UiEventObserver>(new ObserverRemoveLayer(state::LayerId::Inventory)));
+        ui::makeActionObserver<state::actions::UiRemoveLayer>(
+            state::LayerId::Inventory));
   }
 
   auto [contentW, contentH] = modal->getContentDims();

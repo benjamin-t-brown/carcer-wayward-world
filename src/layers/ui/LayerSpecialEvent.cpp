@@ -11,8 +11,9 @@
 #include "ui/elements/buttons/ButtonGroup.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/elements/buttons/ButtonTextWrap.h"
-#include "ui/observers/ObserverSpecialEventChoice.hpp"
-#include "ui/observers/ObserverSpecialEventContinue.hpp"
+#include "ui/observers/ActionObserver.hpp"
+#include "actions/navigation/UiSelectSpecialEventChoice.hpp"
+#include "actions/navigation/UiContinueSpecialEvent.hpp"
 #include "ui/pages/PageModalEvent.h"
 #include "ui/pages/PageTalkChoice.h"
 #include <string_view>
@@ -204,7 +205,8 @@ void LayerSpecialEvent::attachChoiceObservers() {
       if (!choice) {
         continue;
       }
-      choice->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverSpecialEventChoice(i)));
+      choice->addEventObserver(
+          ui::makeActionObserver<state::actions::UiSelectSpecialEventChoice>(i));
     }
     return;
   }
@@ -220,7 +222,8 @@ void LayerSpecialEvent::attachChoiceObservers() {
     if (!choice) {
       continue;
     }
-    choice->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverSpecialEventChoice(i)));
+    choice->addEventObserver(
+        ui::makeActionObserver<state::actions::UiSelectSpecialEventChoice>(i));
   }
 }
 
@@ -233,7 +236,8 @@ void LayerSpecialEvent::attachModalContinueObserver() {
   if (!button) {
     return;
   }
-  button->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverSpecialEventContinue()));
+  button->addEventObserver(
+      ui::makeActionObserver<state::actions::UiContinueSpecialEvent>());
 }
 
 ui::ButtonModal* LayerSpecialEvent::findModalContinueButton() {

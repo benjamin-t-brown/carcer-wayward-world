@@ -7,7 +7,8 @@
 #include "ui/elements/TextLine.h"
 #include "ui/elements/TextParagraph.h"
 #include "ui/elements/buttons/ButtonClose.h"
-#include "ui/observers/ObserverRemoveLayer.hpp"
+#include "ui/observers/ActionObserver.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
 
 namespace ui {
 
@@ -66,7 +67,8 @@ void PopupSpellInfo::build() {
   closeButton->setScale(style.scale);
   closeButton->setProps(ButtonCloseProps{.closeType = CloseType::POPUP});
   closeButton->addEventObserver(
-      bmin::UniquePtr<ui::UiEventObserver>(new ObserverRemoveLayer(state::LayerId::SpellInfo)));
+      ui::makeActionObserver<state::actions::UiRemoveLayer>(
+          state::LayerId::SpellInfo));
   addChild(bmin::UniquePtr<ui::UiElement>(closeButton));
 
   auto spriteBgQuad = new Quad(window, this);

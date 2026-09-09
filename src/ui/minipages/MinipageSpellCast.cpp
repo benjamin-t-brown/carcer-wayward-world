@@ -7,7 +7,10 @@
 #include "ui/elements/buttons/ButtonGroup.h"
 #include "ui/helpers/modalLayoutFit.h"
 #include "ui/layouts/ModalSmall.h"
-#include "ui/observers/ObserverRemoveLayer.hpp"
+#include "ui/observers/ActionObserver.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
+#include "state/LayerRequest.h"
+#include "bmin/StringInterop.h"
 
 namespace ui {
 
@@ -133,9 +136,10 @@ void MinipageSpellCast::build() {
                    .label = TRANSLATE("Done"),
                    .type = ButtonGroupButtonType::MODAL}},
   });
-  if (!props.doneButtonRemoveLayerId.empty()) {
+  if (auto layerId = state::layerIdFromString(
+          bmin::toStringView(props.doneButtonRemoveLayerId))) {
     buttonGroup->addObserverToButtonAtIndex(
-        0, bmin::UniquePtr<ui::UiEventObserver>(new ObserverRemoveLayer(props.doneButtonRemoveLayerId)));
+        0, ui::makeActionObserver<state::actions::UiRemoveLayer>(*layerId));
   }
   modal->addChild(bmin::UniquePtr<ui::UiElement>(buttonGroup));
 

@@ -9,8 +9,9 @@
 #include "ui/elements/TextLine.h"
 #include "ui/elements/buttons/ButtonClose.h"
 #include "ui/elements/buttons/ButtonModal.h"
+#include "ui/observers/ActionObserver.hpp"
 #include "ui/observers/ObserverGiveInventoryItem.hpp"
-#include "ui/observers/ObserverRemoveLayer.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
 
 namespace ui {
 
@@ -55,7 +56,8 @@ void PopupGive::build() {
   closeButton->setScale(style.scale);
   closeButton->setProps(ButtonCloseProps{.closeType = CloseType::POPUP});
   closeButton->addEventObserver(
-      bmin::UniquePtr<ui::UiEventObserver>(new ObserverRemoveLayer(state::LayerId::GiveContext)));
+      ui::makeActionObserver<state::actions::UiRemoveLayer>(
+          state::LayerId::GiveContext));
   addChild(bmin::UniquePtr<ui::UiElement>(closeButton));
 
   auto title = new TextLine(window, this);

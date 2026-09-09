@@ -101,8 +101,8 @@ model test; it will fail because the particle survives without a window.
 | 3 | Make layer and UI ownership explicit | complete | `69810fe` |
 | 4 | Replace static service locators with explicit dependencies | skipped | — |
 | 5 | Give LayerManager one authoritative stack | complete | `726191c` |
-| 6 | Clarify world simulation and platform-output boundaries | complete | (this commit) |
-| 7 | Replace mechanical observers with reusable bindings | not started | — |
+| 6 | Clarify world simulation and platform-output boundaries | complete | `c5516dc` |
+| 7 | Replace mechanical observers with reusable bindings | complete | (this commit) |
 | 8 | Final verification and documentation | not started | — |
 
 ## Phase 1 notes
@@ -283,6 +283,49 @@ Other platform-output paths already tolerated a null window before this phase:
 the one-shot `soundsToPlay` queue (pinned by `TestSoundQueue`), and
 `updateProjectiles` operates purely on world state. No further changes were
 needed to run the world simulation headless.
+
+Gate: `make -C src test` (43 CTest, 100%), `make -C src ui` (all targets link),
+`make -C src` (CARCER links), `git diff --check` clean.
+
+## Phase 7 notes
+
+Click observers whose only job was to forward one action are gone, replaced by a
+single reusable binding.
+
+- **One reusable observer.** `ui::ActionObserver` (`src/ui/observers/ActionObserver.hpp`)
+  owns a `std::function<UniquePtr<AbstractAction>(StateManager&)>` factory and, on
+  click, builds a fresh action and enqueues it. Returning an empty handle skips
+  enqueue, so the factory expresses guards and live reads uniformly. The
+  `ui::makeActionObserver<T>(args...)` template covers the common case —
+  constructing `state::actions::T(args...)` anew on every click (arguments are
+  captured by value, so repeated clicks produce distinct action objects). Because
+  `getStateManager()` is a protected static, `ActionObserver` derives from
+  `state::StateManagerInterface` just as the old observers did.
+- **24 observer headers removed.** The 22 mechanical forwarders (`ObserverRemoveLayer`,
+  `ObserverDropInventoryItem`, `ObserverReorderInventoryItem`,
+  `ObserverSetCurrentPartyMember{,Inventory,Magic}`, `ObserverInventorySelectItem`,
+  `ObserverPickUpItem`, `ObserverShowLayer{DropContext,GiveContext,InventoryContext,
+  PickUpContext,SpellInfo,EquipRunes,PopupText}`, `ObserverSelectSpellCast`,
+  `ObserverSpecialEvent{Choice,Continue}`, `ObserverCancelEquipRunes`,
+  `ObserverCommitEquipRunes`, `ObserverAdjustEquippedRune`,
+  `ObserverSetSelectedPartyMemberId`) were migrated to `makeActionObserver<T>` or,
+  where a runtime guard exists, an inline `ActionObserver` factory. Two headers
+  (`ObserverSetSpellReady`, `ObserverToggleManaSlotRune`) had no call sites and were
+  simply deleted. `HeaderSelfContainment` globs headers, so no manifest changes were
+  needed.
+- **Kept as classes.** `ObserverWorldAction` and `ObserverCancelWorldActionMode`
+  invoke world-action helpers rather than enqueueing an action;
+  `ObserverGiveInventoryItem` (reads the give-popup quantity at click) and
+  `ObserverUpdateCurrentPartyMember` (computes the wrap-around party index) carry
+  real behavior beyond forwarding. These four remain.
+- **Guards preserved.** Sites whose guard was already at the call site
+  (`!characterPlayerId.empty()`, `!spell.id.empty()`, `!helpDescription.empty()`)
+  migrated to the pure `makeActionObserver<T>` form with identical behavior. The one
+  runtime guard not visible at the call site — locking party switching during combat
+  in `LayerWorld` — became an inline factory that returns an empty handle when
+  `combat.active`. `LayerId`-from-string sites (`LayerPopupText`, the pickup/spell-cast
+  "Done" buttons) resolve the id with `layerIdFromString` and attach the observer only
+  when it resolves, matching the former `!layerId` no-op.
 
 Gate: `make -C src test` (43 CTest, 100%), `make -C src ui` (all targets link),
 `make -C src` (CARCER links), `git diff --check` clean.

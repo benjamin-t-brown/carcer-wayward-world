@@ -1,8 +1,9 @@
 #include "PartyMemberIconSelector.h"
 #include "ui/elements/buttons/ButtonGroup.h"
-#include "ui/observers/ObserverSetCurrentPartyMember.hpp"
-#include "ui/observers/ObserverSetCurrentPartyMemberInventory.hpp"
-#include "ui/observers/ObserverSetCurrentPartyMemberMagic.hpp"
+#include "ui/observers/ActionObserver.hpp"
+#include "actions/navigation/UiSetCurrentPartyMember.hpp"
+#include "actions/navigation/UiSetCurrentPartyMemberInventory.hpp"
+#include "actions/navigation/UiSetCurrentPartyMemberMagic.hpp"
 
 namespace ui {
 
@@ -72,17 +73,20 @@ void PartyMemberIconSelector::build() {
 
   for (size_t i = 0; i < props.members.size(); ++i) {
     if (props.target == PartyMemberIconSelectorTarget::PICKUP) {
-      buttonGroup->addObserverToButtonAtIndex(static_cast<int>(i),
-                                              bmin::UniquePtr<ui::UiEventObserver>(new ObserverSetCurrentPartyMember(
-                                                  static_cast<int>(i))));
+      buttonGroup->addObserverToButtonAtIndex(
+          static_cast<int>(i),
+          ui::makeActionObserver<state::actions::UiSetCurrentPartyMember>(
+              static_cast<int>(i)));
     } else if (props.target == PartyMemberIconSelectorTarget::MAGIC) {
-      buttonGroup->addObserverToButtonAtIndex(static_cast<int>(i),
-                                              bmin::UniquePtr<ui::UiEventObserver>(new ObserverSetCurrentPartyMemberMagic(
-                                                  static_cast<int>(i))));
+      buttonGroup->addObserverToButtonAtIndex(
+          static_cast<int>(i),
+          ui::makeActionObserver<state::actions::UiSetCurrentPartyMemberMagic>(
+              static_cast<int>(i)));
     } else {
-      buttonGroup->addObserverToButtonAtIndex(static_cast<int>(i),
-                                              bmin::UniquePtr<ui::UiEventObserver>(new ObserverSetCurrentPartyMemberInventory(
-                                                  static_cast<int>(i))));
+      buttonGroup->addObserverToButtonAtIndex(
+          static_cast<int>(i),
+          ui::makeActionObserver<state::actions::UiSetCurrentPartyMemberInventory>(
+              static_cast<int>(i)));
     }
   }
 

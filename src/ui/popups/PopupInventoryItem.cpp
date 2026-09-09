@@ -7,9 +7,10 @@
 #include "ui/elements/TextLine.h"
 #include "ui/elements/buttons/ButtonClose.h"
 #include "ui/elements/buttons/ButtonModal.h"
-#include "ui/observers/ObserverRemoveLayer.hpp"
-#include "ui/observers/ObserverShowLayerDropContext.hpp"
-#include "ui/observers/ObserverShowLayerGiveContext.hpp"
+#include "ui/observers/ActionObserver.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
+#include "actions/navigation/UiShowLayerDropContext.hpp"
+#include "actions/navigation/UiShowLayerGiveContext.hpp"
 
 namespace ui {
 
@@ -70,7 +71,8 @@ void PopupInventoryItem::build() {
   closeButton->setScale(style.scale);
   closeButton->setProps(ButtonCloseProps{.closeType = CloseType::POPUP});
   closeButton->addEventObserver(
-      bmin::UniquePtr<ui::UiEventObserver>(new ObserverRemoveLayer(state::LayerId::InventoryContext)));
+      ui::makeActionObserver<state::actions::UiRemoveLayer>(
+          state::LayerId::InventoryContext));
   addChild(bmin::UniquePtr<ui::UiElement>(closeButton));
 
   int actionButtonHeightTotalScaled =
@@ -99,14 +101,16 @@ void PopupInventoryItem::build() {
   };
 
   auto giveButton = createButton(TRANSLATE("Give"), buttonsX, buttonsY);
-  giveButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ObserverShowLayerGiveContext(
-      window, props.characterPlayerId, props.item.id)));
+  giveButton->addEventObserver(
+      ui::makeActionObserver<state::actions::UiShowLayerGiveContext>(
+          window, props.characterPlayerId, props.item.id));
   addChild(bmin::UniquePtr<ui::UiElement>(giveButton));
   buttonsY -= actionButtonHeightTotalScaled;
 
   auto dropButton = createButton(TRANSLATE("Drop"), buttonsX, buttonsY);
-  dropButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ObserverShowLayerDropContext(
-      window, props.characterPlayerId, props.item.id)));
+  dropButton->addEventObserver(
+      ui::makeActionObserver<state::actions::UiShowLayerDropContext>(
+          window, props.characterPlayerId, props.item.id));
   addChild(bmin::UniquePtr<ui::UiElement>(dropButton));
   buttonsY -= actionButtonHeightTotalScaled;
 

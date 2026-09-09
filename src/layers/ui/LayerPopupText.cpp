@@ -7,7 +7,9 @@
 #include "ui/elements/TextLine.h"
 #include "ui/elements/TextParagraph.h"
 #include "ui/elements/buttons/ButtonClose.h"
-#include "ui/observers/ObserverRemoveLayer.hpp"
+#include "ui/observers/ActionObserver.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
+#include "state/LayerRequest.h"
 #include <algorithm>
 
 namespace layers {
@@ -97,7 +99,10 @@ LayerPopupText::LayerPopupText(sdl2w::Window* _window,
       .height = windowHeight,
       .bgColor = ui::Colors::Transparent,
   });
-  backdrop->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverRemoveLayer(LAYER_ID)));
+  if (auto layerId = state::layerIdFromString(LAYER_ID)) {
+    backdrop->addEventObserver(
+        ui::makeActionObserver<state::actions::UiRemoveLayer>(*layerId));
+  }
   root->addChild(bmin::UniquePtr<ui::UiElement>(backdrop));
 
   auto* border = new ui::BorderDropShadow(window, root);
@@ -121,7 +126,10 @@ LayerPopupText::LayerPopupText(sdl2w::Window* _window,
                       popupY + CLOSE_BUTTON_PADDING);
   closeButton->setScale(1.f);
   closeButton->setProps(ui::ButtonCloseProps{.closeType = ui::CloseType::POPUP});
-  closeButton->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverRemoveLayer(LAYER_ID)));
+  if (auto layerId = state::layerIdFromString(LAYER_ID)) {
+    closeButton->addEventObserver(
+        ui::makeActionObserver<state::actions::UiRemoveLayer>(*layerId));
+  }
   root->addChild(bmin::UniquePtr<ui::UiElement>(closeButton));
 
   addUiElement(bmin::UniquePtr<ui::UiElement>(root));

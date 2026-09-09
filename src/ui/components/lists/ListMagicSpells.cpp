@@ -5,8 +5,9 @@
 #include "ui/elements/SpriteElement.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/VerticalList.h"
-#include "ui/observers/ObserverSelectSpellCast.hpp"
-#include "ui/observers/ObserverShowLayerSpellInfo.hpp"
+#include "ui/observers/ActionObserver.hpp"
+#include "actions/navigation/UiSelectSpellCast.hpp"
+#include "actions/navigation/UiShowLayerSpellInfo.hpp"
 
 namespace ui {
 
@@ -47,9 +48,13 @@ UiElement* ListMagicSpells::createSpellElement(const ListMagicSpellsPropsSpell& 
       .bgColor = Colors::Transparent,
   });
   if (props.enableSpellCastOnClick && !spell.id.empty()) {
-    container->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ObserverSelectSpellCast(spell.id, props.casterId)));
+    container->addEventObserver(
+        ui::makeActionObserver<state::actions::UiSelectSpellCast>(
+            spell.id, props.casterId));
   } else if (props.enableSpellInfoOnClick && !spell.id.empty()) {
-    container->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ObserverShowLayerSpellInfo(window, spell.id)));
+    container->addEventObserver(
+        ui::makeActionObserver<state::actions::UiShowLayerSpellInfo>(
+            window, spell.id));
   }
 
   // drawSprite uses native sprite w/h (props width/height are ignored), so center

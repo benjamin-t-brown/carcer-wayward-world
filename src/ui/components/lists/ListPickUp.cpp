@@ -5,8 +5,9 @@
 #include "ui/elements/TextLine.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/elements/buttons/ButtonTextWrap.h"
-#include "ui/observers/ObserverPickUpItem.hpp"
-#include "ui/observers/ObserverShowLayerPickUpContext.hpp"
+#include "ui/observers/ActionObserver.hpp"
+#include "actions/navigation/UiPickUpItem.hpp"
+#include "actions/navigation/UiShowLayerPickupContext.hpp"
 #include <algorithm>
 
 namespace ui {
@@ -114,7 +115,8 @@ UiElement* ListPickUp::createItemElement(const ListPickUpPropsItem& listItem,
       .fontColor = Colors::DarkBlue,
   });
   contextBtn->addEventObserver(
-      bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverShowLayerPickUpContext(window, listItem.item)));
+      ui::makeActionObserver<state::actions::UiShowLayerPickupContext>(
+          window, listItem.item));
   container->addChild(bmin::UniquePtr<ui::UiElement>(contextBtn));
 
   auto weightText = new TextLine(window, this);
@@ -164,7 +166,8 @@ UiElement* ListPickUp::createItemElement(const ListPickUpPropsItem& listItem,
               .fontColor = Colors::Black,
           },
   });
-  label->addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ui::ObserverPickUpItem(listItem.item)));
+  label->addEventObserver(
+      ui::makeActionObserver<state::actions::UiPickUpItem>(listItem.item.id));
   container->addChild(bmin::UniquePtr<ui::UiElement>(label));
 
   return container;
