@@ -5,8 +5,8 @@ import {
 } from './editorEvents';
 import {
   getEditorState,
+  setSoleSelectedTile,
   updateEditorState,
-  updateEditorStateMap,
 } from './editorState';
 import { sortedLayerKeys, tileXY } from '../utils/mapIndex';
 
@@ -154,7 +154,7 @@ export function locateOnCurrentMap(
   }
 
   updateEditorState({ currentLevel: location.level });
-  updateEditorStateMap(mapName, { selectedTileInd: location.tileIndex });
+  setSoleSelectedTile(mapName, location.tileIndex);
 
   const canvas = document.getElementById(MAP_CANVAS_ID);
   if (canvas instanceof HTMLCanvasElement) {

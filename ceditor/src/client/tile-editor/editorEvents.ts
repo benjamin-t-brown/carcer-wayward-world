@@ -15,6 +15,7 @@ import {
   getTileGraphic,
 } from '../utils/mapIndex';
 import {
+  clearAllSelectedTiles,
   EditorState,
   ensureEditorStateMap,
   getCurrentPaintAction,
@@ -22,6 +23,7 @@ import {
   getEditorStateMap,
   markRenderDirty,
   setCurrentPaintAction,
+  setSoleSelectedTile,
   updateEditorState,
   updateEditorStateMap,
   updateEditorStateMapNoReRender,
@@ -349,8 +351,7 @@ const completeGridRightDrag = (mapDataInterface: PaintTargetInterface) => {
         selectedTilesetName: ref.tilesetName,
       });
     }
-    ensureEditorStateMap(target.map.name);
-    updateEditorStateMap(target.map.name, { selectedTileInd: target.tileIndex });
+    setSoleSelectedTile(target.map.name, target.tileIndex);
     return;
   }
 
@@ -377,8 +378,7 @@ const completeGridRightDrag = (mapDataInterface: PaintTargetInterface) => {
 
   const anchor = resolveGridBrushCell(focusedMap, gx0, gy0, grids, mapsByName);
   if (anchor) {
-    ensureEditorStateMap(anchor.map.name);
-    updateEditorStateMap(anchor.map.name, { selectedTileInd: anchor.tileIndex });
+    setSoleSelectedTile(anchor.map.name, anchor.tileIndex);
   }
 };
 
@@ -452,10 +452,10 @@ export const initPanzoom = (mapDataInterface: {
         updateEditorState({ showGrid: !editorState.showGrid });
         ev.preventDefault();
       } else if (ev.key === 'Escape') {
-        const mapName = mapDataInterface.getEditorState().selectedMapName;
         const editorState = mapDataInterface.getEditorState();
-        const mapState = mapName ? getEditorStateMap(mapName) : undefined;
-        const hasSelection = (mapState?.selectedTileInd ?? -1) >= 0;
+        const hasSelection = Object.values(editorState.maps).some(
+          (m) => (m?.selectedTileInd ?? -1) >= 0
+        );
         if (hasSelection || editorState.isSelectDragging) {
           ev.preventDefault();
           if (editorState.isSelectDragging) {
@@ -464,8 +464,8 @@ export const initPanzoom = (mapDataInterface: {
               selectDragSourceTileIndex: -1,
             });
           }
-          if (hasSelection && mapName) {
-            updateEditorStateMap(mapName, { selectedTileInd: -1 });
+          if (hasSelection) {
+            clearAllSelectedTiles();
           }
         }
       }
@@ -691,11 +691,9 @@ export const initPanzoom = (mapDataInterface: {
       if (pick.tileIndex < 0) {
         return;
       }
-      updateEditorStateMap(
+      setSoleSelectedTile(
         pick.mapName || mapDataInterface.getEditorState().selectedMapName,
-        {
-          selectedTileInd: pick.tileIndex,
-        }
+        pick.tileIndex
       );
     }
   };
@@ -846,10 +844,10 @@ export const initPanzoom = (mapDataInterface: {
           mapDataInterface.getEditorState()
         );
       }
-      updateEditorStateMap(paintMapName, {
-        selectedTileInd:
-          getEditorStateMap(paintMapName)?.hoveredTileIndex ?? -1,
-      });
+      setSoleSelectedTile(
+        paintMapName,
+        getEditorStateMap(paintMapName)?.hoveredTileIndex ?? -1
+      );
       updateEditorStateNoReRender({ activePaintMapName: '' });
     }
     // Handle SELECT/CLONE drag completion
@@ -894,13 +892,12 @@ export const initPanzoom = (mapDataInterface: {
         isSelectDragging: false,
         selectDragSourceTileIndex: -1,
       });
-      updateEditorStateMapNoReRender(editorState.selectedMapName, {
-        selectedTileInd:
-          destTileIndex >= 0
-            ? destTileIndex
-            : getEditorStateMap(editorState.selectedMapName)?.selectedTileInd ??
-              -1,
-      });
+      setSoleSelectedTile(
+        editorState.selectedMapName,
+        destTileIndex >= 0
+          ? destTileIndex
+          : getEditorStateMap(editorState.selectedMapName)?.selectedTileInd ?? -1
+      );
     }
     if (mapEditorEventState.isDraggingRight) {
       mapEditorEventState.isDraggingRight = false;
@@ -954,9 +951,7 @@ export const initPanzoom = (mapDataInterface: {
             selectedTilesetName: nextRef.tilesetName,
           });
         }
-        updateEditorStateMap(pickKey, {
-          selectedTileInd: dragSelectedInds[0],
-        });
+        setSoleSelectedTile(pickKey, dragSelectedInds[0]);
         return;
       }
       const mapWidth = dragMap.width ?? 0;
@@ -977,9 +972,7 @@ export const initPanzoom = (mapDataInterface: {
       updateEditorStateNoReRender({
         rectCloneBrushTiles: brush,
       });
-      updateEditorStateMap(pickKey, {
-        selectedTileInd: dragSelectedInds[0],
-      });
+      setSoleSelectedTile(pickKey, dragSelectedInds[0]);
     }
   };
   const handleContextMenu = (ev: MouseEvent) => {

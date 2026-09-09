@@ -256,6 +256,35 @@ export const renameEditorStateMap = (oldName: string, newName: string) => {
   (window as any).reRenderTileEditor();
 };
 
+/**
+ * There is one selected tile across the whole grid. Set it on `mapName` and
+ * clear it on every other block, so a right-click / paint on a neighbour block
+ * doesn't leave a second, un-clearable selection rect behind.
+ */
+export const setSoleSelectedTile = (mapName: string, tileInd: number): void => {
+  const maps = getEditorState().maps;
+  for (const name of Object.keys(maps)) {
+    if (name !== mapName && maps[name].selectedTileInd !== -1) {
+      maps[name].selectedTileInd = -1;
+    }
+  }
+  ensureEditorStateMap(mapName).selectedTileInd = tileInd;
+  markRenderDirty();
+  (window as any).reRenderTileEditor?.();
+};
+
+/** Clear the selected-tile rect on every block (Escape). */
+export const clearAllSelectedTiles = (): void => {
+  const maps = getEditorState().maps;
+  for (const name of Object.keys(maps)) {
+    if (maps[name].selectedTileInd !== -1) {
+      maps[name].selectedTileInd = -1;
+    }
+  }
+  markRenderDirty();
+  (window as any).reRenderTileEditor?.();
+};
+
 export const getCurrentSelectedTileId = () => {
   const selectedTileIndex = getEditorState().selectedTileIndexInTileset ?? -1;
   const selectedTilesetName = getEditorState().selectedTilesetName ?? '';
