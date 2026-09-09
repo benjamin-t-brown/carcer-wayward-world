@@ -51,6 +51,8 @@ class MapEditorEventState {
   pendingGridSlotClick: GridSlotHit | null = null;
   gridSlotClickStartX = 0;
   gridSlotClickStartY = 0;
+  /** Grid block a right-click pick / brush-copy is operating on ('' = focused). */
+  rightDragMapName = '';
 }
 const mapEditorEventState = new MapEditorEventState();
 
@@ -228,6 +230,49 @@ const resolvePaintTargetMapName = (
     return '';
   }
   return hit.mapName;
+};
+
+/**
+ * Block + tile a right-click (pick / brush-copy) should act on: a grid
+ * neighbour when the pointer is over one, otherwise the focused map. `mapName`
+ * is '' for the focused map. `tileIndex` is -1 when there is nothing to pick.
+ */
+const resolveRightPickTarget = (
+  clientX: number,
+  clientY: number,
+  mapDataInterface: PaintTargetInterface
+): { mapName: string; tileIndex: number } => {
+  const es = mapDataInterface.getEditorState();
+  const handlers = gridNavigationHandlers;
+  const focusedMap = mapDataInterface.getMapData();
+  const canvas = mapDataInterface.getCanvas();
+  if (es.gridEditEnabled && handlers && focusedMap && canvas) {
+    const editRadius = Math.min(
+      es.gridEditRadius ?? 1,
+      es.gridRenderRadius ?? 2
+    );
+    const hit = screenCoordsToGridCell(
+      clientX,
+      clientY,
+      focusedMap,
+      canvas,
+      handlers.getMapGrids(),
+      handlers.getMaps(),
+      editRadius
+    );
+    if (
+      hit &&
+      hit.map &&
+      hit.tileIndex >= 0 &&
+      !(hit.cellOffsetX === 0 && hit.cellOffsetY === 0)
+    ) {
+      return { mapName: hit.mapName, tileIndex: hit.tileIndex };
+    }
+  }
+  return {
+    mapName: '',
+    tileIndex: getEditorStateMap(es.selectedMapName)?.hoveredTileIndex ?? -1,
+  };
 };
 
 /** The map a stroke is currently writing to (activePaintMapName, or focused). */
@@ -467,18 +512,21 @@ export const initPanzoom = (mapDataInterface: {
         getCurrentPaintAction() === PaintActionType.FILL ||
         getCurrentPaintAction() === PaintActionType.DELETE_FILL)
     ) {
-      const hoveredTileIndex =
-        getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
-          ?.hoveredTileIndex ?? -1;
-      if (hoveredTileIndex < 0) {
+      const pick = resolveRightPickTarget(
+        ev.clientX,
+        ev.clientY,
+        mapDataInterface
+      );
+      if (pick.tileIndex < 0) {
         return;
       }
 
       mapEditorEventState.isDraggingRight = true;
+      mapEditorEventState.rightDragMapName = pick.mapName;
 
       updateEditorStateNoReRender({
-        rectSelectTileIndStart: hoveredTileIndex,
-        rectSelectTileIndEnd: hoveredTileIndex,
+        rectSelectTileIndStart: pick.tileIndex,
+        rectSelectTileIndEnd: pick.tileIndex,
       });
 
       // setSelectedMapTileIndex(getHoveredTileInd());
@@ -489,15 +537,20 @@ export const initPanzoom = (mapDataInterface: {
         getCurrentPaintAction()
       )
     ) {
-      const hoveredTileIndex =
-        getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
-          ?.hoveredTileIndex ?? -1;
-      if (hoveredTileIndex < 0) {
+      const pick = resolveRightPickTarget(
+        ev.clientX,
+        ev.clientY,
+        mapDataInterface
+      );
+      if (pick.tileIndex < 0) {
         return;
       }
-      updateEditorStateMap(mapDataInterface.getEditorState().selectedMapName, {
-        selectedTileInd: hoveredTileIndex,
-      });
+      updateEditorStateMap(
+        pick.mapName || mapDataInterface.getEditorState().selectedMapName,
+        {
+          selectedTileInd: pick.tileIndex,
+        }
+      );
     }
   };
   const clearHoveredGridSlot = () => {
@@ -673,25 +726,38 @@ export const initPanzoom = (mapDataInterface: {
     }
     if (mapEditorEventState.isDraggingRight) {
       mapEditorEventState.isDraggingRight = false;
-      const ind0 = mapDataInterface.getEditorState().rectSelectTileIndStart;
-      const ind1 = mapDataInterface.getEditorState().rectSelectTileIndEnd;
+      // A right pick / brush-copy can target any grid block, not just the
+      // focused one.
+      const dragMapName = mapEditorEventState.rightDragMapName;
+      mapEditorEventState.rightDragMapName = '';
+      const es = mapDataInterface.getEditorState();
+      const dragMap =
+        (dragMapName
+          ? gridNavigationHandlers
+              ?.getMaps()
+              .find((m) => m.name === dragMapName)
+          : undefined) ?? mapDataInterface.getMapData();
+      const pickKey = dragMapName || es.selectedMapName;
+
+      const ind0 = es.rectSelectTileIndStart;
+      const ind1 = es.rectSelectTileIndEnd;
       const dragSelectedInds = getIndsOfBoundingRect(
         ind0,
         ind1,
-        mapDataInterface.getMapData().width ?? 0
+        dragMap.width ?? 0
       );
       if (dragSelectedInds.length === 0) {
         return;
       }
-      const mapTiles = getTileList(mapDataInterface.getMapData());
+      const mapTiles = getTileList(dragMap);
       const nextRef = mapTiles[dragSelectedInds[0]];
       if (dragSelectedInds.length === 1 && nextRef) {
         // An unpainted cell has graphic (0, 0); picking it up just yields the
         // first tileset's tile 0. Right-clicking a blank cell means "erase",
         // so switch to the erase tool instead of selecting that tile.
         const { tilesetIndex, tileId } = getTileGraphic(
-          mapDataInterface.getMapData(),
-          mapDataInterface.getEditorState().currentLevel,
+          dragMap,
+          es.currentLevel,
           dragSelectedInds[0]
         );
         if (tilesetIndex === 0 && tileId === 0) {
@@ -703,19 +769,12 @@ export const initPanzoom = (mapDataInterface: {
             selectedTilesetName: nextRef.tilesetName,
           });
         }
-        updateEditorStateMap(
-          mapDataInterface.getEditorState().selectedMapName,
-          {
-            selectedTileInd:
-              getEditorStateMap(
-                mapDataInterface.getEditorState().selectedMapName
-              )?.hoveredTileIndex ?? -1,
-          }
-        );
+        updateEditorStateMap(pickKey, {
+          selectedTileInd: dragSelectedInds[0],
+        });
         return;
       }
-      const mapWidth = mapDataInterface.getMapData().width ?? 0;
-      const mapHeight = mapDataInterface.getMapData().height ?? 0;
+      const mapWidth = dragMap.width ?? 0;
       const [topLeftX, topLeftY] = [
         ind0 % mapWidth,
         Math.floor(ind0 / mapWidth),
@@ -730,13 +789,11 @@ export const initPanzoom = (mapDataInterface: {
           },
         };
       });
-      const selectedMapName = mapDataInterface.getEditorState().selectedMapName;
       updateEditorStateNoReRender({
         rectCloneBrushTiles: brush,
       });
-      updateEditorStateMap(selectedMapName, {
-        selectedTileInd:
-          getEditorStateMap(selectedMapName)?.hoveredTileIndex ?? -1,
+      updateEditorStateMap(pickKey, {
+        selectedTileInd: dragSelectedInds[0],
       });
     }
   };
