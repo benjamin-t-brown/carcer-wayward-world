@@ -6,11 +6,19 @@ import {
   GridNavigateStitchOffset,
   GridSlotCreateRequest,
   initPanzoom,
+  isCanvasInteracting,
   setGridNavigationHandlers,
   unInitPanzoom,
 } from './editorEvents';
 import { loop } from './loop';
-import { EditorState, getEditorState } from './editorState';
+import {
+  clearRenderDirty,
+  EditorState,
+  getEditorState,
+  isRenderDirty,
+  markRenderDirty,
+} from './editorState';
+import { getCurrentAction } from './paintTools';
 import { TilePicker } from './react-components/TilePicker';
 import { ToolsPanel } from './react-components/ToolsPanel';
 import { MapToolsOverlay } from './react-components/MapToolsOverlay';
@@ -40,6 +48,12 @@ export interface OpenMapAndSelectTileArgs {
 }
 
 let prevTs = performance.now();
+// The render loop only repaints when something changed; these bound how hard it
+// works when it does (cap the frame rate on high-refresh displays) and how
+// stale an idle canvas can get (a slow heartbeat catches async sprite loads).
+const MIN_FRAME_MS = 1000 / 60;
+const IDLE_HEARTBEAT_MS = 500;
+let lastRenderTs = 0;
 
 export function TileEditor({
   map,
@@ -72,7 +86,10 @@ export function TileEditor({
   // console.log('re render tile editor');
 
   // hack im lazy
-  (window as any).reRenderTileEditor = reRender;
+  (window as any).reRenderTileEditor = () => {
+    markRenderDirty();
+    reRender();
+  };
 
   useEffect(() => {
     mapRef.current = map;
@@ -80,7 +97,23 @@ export function TileEditor({
   useEffect(() => {
     editorState.current = getEditorState();
     editorState.current.tilesets = tilesets;
-  }, [editorState]);
+  }, [tilesets]);
+
+  // Any change to what the canvas draws from must trigger at least one repaint,
+  // since the loop is otherwise idle.
+  useEffect(() => {
+    markRenderDirty();
+  }, [
+    map,
+    tilesets,
+    sprites,
+    spriteMap,
+    characters,
+    items,
+    gameEvents,
+    maps,
+    mapGrids,
+  ]);
 
   useEffect(() => {
     console.log('initPanzoom');
@@ -158,6 +191,22 @@ export function TileEditor({
   }, [onMapUpdate, maps]);
 
   useRenderLoop((ts) => {
+    const active =
+      isRenderDirty() ||
+      isCanvasInteracting() ||
+      getCurrentAction() !== null;
+    // Nothing changed and no heartbeat due: do no work this frame.
+    if (!active && ts - lastRenderTs < IDLE_HEARTBEAT_MS) {
+      return;
+    }
+    // Cap the frame rate so a 144Hz display doesn't burn a core (and other
+    // browser tabs) redrawing far faster than a tile editor needs.
+    if (ts - lastRenderTs < MIN_FRAME_MS) {
+      return;
+    }
+    lastRenderTs = ts;
+    clearRenderDirty();
+
     if (mapCanvasRef.current && mapRef.current && editorState.current) {
       loop(
         {

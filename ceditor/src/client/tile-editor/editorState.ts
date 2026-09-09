@@ -111,8 +111,24 @@ const editorState: EditorState = {
   gridUndoOrder: [],
 };
 export const getEditorState = () => editorState;
+
+/**
+ * The map canvas render loop repaints only when this is set. Input handlers and
+ * deliberate state changes set it; the loop clears it after a frame. Keeps the
+ * editor from pinning a CPU core (and starving other browser tabs) while idle.
+ */
+let renderDirty = true;
+export const markRenderDirty = () => {
+  renderDirty = true;
+};
+export const isRenderDirty = () => renderDirty;
+export const clearRenderDirty = () => {
+  renderDirty = false;
+};
+
 export const updateEditorState = (state: Partial<EditorState>) => {
   Object.assign(editorState, { ...getEditorState(), ...state });
+  markRenderDirty();
   (window as any).reRenderTileEditor();
 };
 export const updateEditorStateNoReRender = (state: Partial<EditorState>) => {
@@ -132,6 +148,7 @@ export const updateEditorStateMap = (
   if (map) {
     // console.log('updateEditorStateMap', mapName, state);
     Object.assign(map, { ...map, ...state });
+    markRenderDirty();
     (window as any).reRenderTileEditor();
   }
 };
@@ -215,6 +232,7 @@ export const bumpMapDataRevision = (mapName: string): void => {
     return;
   }
   updateEditorStateMapNoReRender(mapName, { dataRevision: current + 1 });
+  markRenderDirty();
 };
 
 export const renameEditorStateMap = (oldName: string, newName: string) => {

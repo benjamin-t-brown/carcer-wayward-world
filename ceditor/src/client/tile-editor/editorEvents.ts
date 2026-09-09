@@ -20,6 +20,7 @@ import {
   getCurrentPaintAction,
   getEditorState,
   getEditorStateMap,
+  markRenderDirty,
   setCurrentPaintAction,
   updateEditorState,
   updateEditorStateMap,
@@ -73,6 +74,7 @@ const panZoomEvents: {
   mouseup: (ev: MouseEvent) => void;
   contextmenu: (ev: MouseEvent) => void;
   wheel: (ev: WheelEvent) => void;
+  viewportChange: () => void;
 } = {
   keydown: () => {},
   keyup: () => {},
@@ -81,6 +83,7 @@ const panZoomEvents: {
   mouseup: () => {},
   contextmenu: () => {},
   wheel: () => {},
+  viewportChange: () => {},
 };
 
 const MOUSE_BUTTON_LEFT = 0;
@@ -404,6 +407,7 @@ export const initPanzoom = (mapDataInterface: {
   // }
   // panzoomCanvas = canvas;
   const handleKeyDown = (ev: KeyboardEvent) => {
+    markRenderDirty();
     if (shouldPreventDefault(ev)) {
       ev.preventDefault();
     }
@@ -495,6 +499,7 @@ export const initPanzoom = (mapDataInterface: {
     }
   };
   const handleKeyUp = (ev: KeyboardEvent) => {
+    markRenderDirty();
     const activeElement = document.activeElement;
     const isInputFocused =
       activeElement &&
@@ -509,6 +514,9 @@ export const initPanzoom = (mapDataInterface: {
     }
   };
   const handleMouseDown = (ev: MouseEvent) => {
+    if (isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())) {
+      markRenderDirty();
+    }
     if (
       ev.button === MOUSE_BUTTON_MIDDLE &&
       isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())
@@ -729,6 +737,18 @@ export const initPanzoom = (mapDataInterface: {
     mapEditorEventState.mouseX = ev.clientX;
     mapEditorEventState.mouseY = ev.clientY;
 
+    // Repaint while the pointer is over the canvas or an interaction is running;
+    // stay idle otherwise so the loop doesn't pin a core.
+    if (
+      mapEditorEventState.isDragging ||
+      mapEditorEventState.isDraggingRight ||
+      mapEditorEventState.isPainting ||
+      mapDataInterface.getEditorState().isSelectDragging ||
+      isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())
+    ) {
+      markRenderDirty();
+    }
+
     if (mapEditorEventState.rightDragGridActive) {
       const focusedMap = mapDataInterface.getMapData();
       const canvas = mapDataInterface.getCanvas();
@@ -769,6 +789,7 @@ export const initPanzoom = (mapDataInterface: {
     }
   };
   const handleMouseUp = (ev: MouseEvent) => {
+    markRenderDirty();
     if (mapEditorEventState.pendingGridSlotClick && ev.button === MOUSE_BUTTON_LEFT) {
       const pending = mapEditorEventState.pendingGridSlotClick;
       mapEditorEventState.pendingGridSlotClick = null;
@@ -971,6 +992,7 @@ export const initPanzoom = (mapDataInterface: {
       return;
     }
     ev.preventDefault();
+    markRenderDirty();
 
     const [focalX, focalY] = screenCoordsToCanvasCoords(
       ev.clientX,
@@ -1012,6 +1034,14 @@ export const initPanzoom = (mapDataInterface: {
     mapEditorEventState.translateY = offsetY;
     mapEditorEventState.scale = nextScale;
   };
+  // The canvas rect is cached and only refreshed per rendered frame; when the
+  // loop is idle a scroll/resize can move it, so drop the cache and force one
+  // frame here too.
+  const handleViewportChange = () => {
+    invalidateCanvasRectCache();
+    markRenderDirty();
+  };
+
   lastAppliedCursor = null;
   invalidateCanvasRectCache();
 
@@ -1022,6 +1052,8 @@ export const initPanzoom = (mapDataInterface: {
   window.addEventListener('mouseup', handleMouseUp);
   window.addEventListener('contextmenu', handleContextMenu);
   window.addEventListener('wheel', handleWheel, { passive: false });
+  window.addEventListener('resize', handleViewportChange);
+  window.addEventListener('scroll', handleViewportChange, true);
 
   isPanZoomInitialized = true;
   panZoomEvents.keydown = handleKeyDown;
@@ -1031,6 +1063,7 @@ export const initPanzoom = (mapDataInterface: {
   panZoomEvents.mouseup = handleMouseUp;
   panZoomEvents.contextmenu = handleContextMenu;
   panZoomEvents.wheel = handleWheel;
+  panZoomEvents.viewportChange = handleViewportChange;
 };
 
 export const unInitPanzoom = () => {
@@ -1044,6 +1077,8 @@ export const unInitPanzoom = () => {
   window.removeEventListener('mouseup', panZoomEvents.mouseup);
   window.removeEventListener('contextmenu', panZoomEvents.contextmenu);
   window.removeEventListener('wheel', panZoomEvents.wheel);
+  window.removeEventListener('resize', panZoomEvents.viewportChange);
+  window.removeEventListener('scroll', panZoomEvents.viewportChange, true);
   isPanZoomInitialized = false;
 };
 
@@ -1442,6 +1477,17 @@ export const getScreenMouseCoords = () => {
 
 export const getIsDraggingRight = () => {
   return mapEditorEventState.isDraggingRight;
+};
+
+/** Any pointer interaction that needs the canvas repainted every frame. */
+export const isCanvasInteracting = () => {
+  return (
+    mapEditorEventState.isDragging ||
+    mapEditorEventState.isDraggingRight ||
+    mapEditorEventState.isPainting ||
+    mapEditorEventState.pendingGridSlotClick !== null ||
+    getEditorState().isSelectDragging
+  );
 };
 
 export const getTileList = (mapData: CarcerMapTemplate, level?: number) => {
