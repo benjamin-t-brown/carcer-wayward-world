@@ -108,6 +108,7 @@ import {
   getGridPaintContext,
   getIndsOfBoundingRect,
   getIsDraggingRight,
+  getRightDragGridRect,
   getTileList,
   getTransform,
 } from './editorEvents';
@@ -404,7 +405,25 @@ export const renderToolUi = (
       x: -1,
       y: -1,
     };
-    if (
+    const gridDragRect = getRightDragGridRect();
+    if (gridDragRect) {
+      // Right-drag rect select spanning grid blocks: coords are focused-map
+      // relative, so draw the marquee only in the focused block's pass.
+      if (mapName === editorState.selectedMapName) {
+        for (let gy = gridDragRect.gy0; gy <= gridDragRect.gy1; gy++) {
+          for (let gx = gridDragRect.gx0; gx <= gridDragRect.gx1; gx++) {
+            drawHighlightRect(
+              gx * tileWidth * scale,
+              gy * tileHeight * scale,
+              tileWidth,
+              tileHeight,
+              scale,
+              ctx,
+            );
+          }
+        }
+      }
+    } else if (
       isHoverBlock &&
       getIsDraggingRight() &&
       partialHoveredTileData.x > -1 &&

@@ -33,7 +33,9 @@ import {
 import {
   findMapGridPlacement,
   isGridSlotEditable,
+  resolveGridBrushCell,
 } from '../utils/mapGridIndex';
+import type { FloorBrushData } from './renderState';
 
 class MapEditorEventState {
   isDragging = false;
@@ -53,6 +55,12 @@ class MapEditorEventState {
   gridSlotClickStartY = 0;
   /** Grid block a right-click pick / brush-copy is operating on ('' = focused). */
   rightDragMapName = '';
+  /** Right-drag rect select spanning grid blocks, in focused-map tile space. */
+  rightDragGridActive = false;
+  rightDragStartGX = 0;
+  rightDragStartGY = 0;
+  rightDragEndGX = 0;
+  rightDragEndGY = 0;
 }
 const mapEditorEventState = new MapEditorEventState();
 
@@ -191,6 +199,16 @@ type PaintTargetInterface = {
   getEditorState: () => EditorState;
 };
 
+const mapsByNameOf = (
+  maps: CarcerMapTemplate[]
+): Record<string, CarcerMapTemplate> => {
+  const byName: Record<string, CarcerMapTemplate> = {};
+  for (const m of maps) {
+    byName[m.name] = m;
+  }
+  return byName;
+};
+
 /**
  * Name of the grid block the pointer is over, when grid editing is on and it is
  * a neighbour of the focused map (not the focused map itself, and a real tile).
@@ -273,6 +291,92 @@ const resolveRightPickTarget = (
     mapName: '',
     tileIndex: getEditorStateMap(es.selectedMapName)?.hoveredTileIndex ?? -1,
   };
+};
+
+/**
+ * Finish a right-drag rect select that was tracked in focused-map tile space:
+ * resolve every cell of the rect to its real grid block and either pick a
+ * single tile (or switch to erase for a blank one) or build a clone brush whose
+ * cells carry the tiles from whichever blocks they landed in.
+ */
+const completeGridRightDrag = (mapDataInterface: PaintTargetInterface) => {
+  const es = mapDataInterface.getEditorState();
+  const focusedMap = mapDataInterface.getMapData();
+  const handlers = gridNavigationHandlers;
+  if (!focusedMap || !handlers) {
+    return;
+  }
+  const grids = handlers.getMapGrids();
+  const mapsByName = mapsByNameOf(handlers.getMaps());
+
+  const gx0 = Math.min(
+    mapEditorEventState.rightDragStartGX,
+    mapEditorEventState.rightDragEndGX
+  );
+  const gx1 = Math.max(
+    mapEditorEventState.rightDragStartGX,
+    mapEditorEventState.rightDragEndGX
+  );
+  const gy0 = Math.min(
+    mapEditorEventState.rightDragStartGY,
+    mapEditorEventState.rightDragEndGY
+  );
+  const gy1 = Math.max(
+    mapEditorEventState.rightDragStartGY,
+    mapEditorEventState.rightDragEndGY
+  );
+
+  if (gx0 === gx1 && gy0 === gy1) {
+    const target = resolveGridBrushCell(focusedMap, gx0, gy0, grids, mapsByName);
+    if (!target) {
+      return;
+    }
+    const { tilesetIndex, tileId } = getTileGraphic(
+      target.map,
+      es.currentLevel,
+      target.tileIndex
+    );
+    if (tilesetIndex === 0 && tileId === 0) {
+      setCurrentPaintAction(PaintActionType.ERASE);
+    } else {
+      const ref = getTileList(target.map)[target.tileIndex];
+      updateEditorStateNoReRender({
+        rectCloneBrushTiles: [],
+        selectedTileIndexInTileset: ref.tileId,
+        selectedTilesetName: ref.tilesetName,
+      });
+    }
+    ensureEditorStateMap(target.map.name);
+    updateEditorStateMap(target.map.name, { selectedTileInd: target.tileIndex });
+    return;
+  }
+
+  const brush: FloorBrushData[] = [];
+  for (let gy = gy0; gy <= gy1; gy++) {
+    for (let gx = gx0; gx <= gx1; gx++) {
+      const target = resolveGridBrushCell(focusedMap, gx, gy, grids, mapsByName);
+      if (!target) {
+        continue;
+      }
+      brush.push({
+        xOffset: gx - gx0,
+        yOffset: gy - gy0,
+        originalTile: {
+          ref: structuredClone(getTileList(target.map)[target.tileIndex]),
+        },
+      });
+    }
+  }
+  if (brush.length === 0) {
+    return;
+  }
+  updateEditorStateNoReRender({ rectCloneBrushTiles: brush });
+
+  const anchor = resolveGridBrushCell(focusedMap, gx0, gy0, grids, mapsByName);
+  if (anchor) {
+    ensureEditorStateMap(anchor.map.name);
+    updateEditorStateMap(anchor.map.name, { selectedTileInd: anchor.tileIndex });
+  }
 };
 
 /** The map a stroke is currently writing to (activePaintMapName, or focused). */
@@ -512,6 +616,44 @@ export const initPanzoom = (mapDataInterface: {
         getCurrentPaintAction() === PaintActionType.FILL ||
         getCurrentPaintAction() === PaintActionType.DELETE_FILL)
     ) {
+      mapEditorEventState.rightDragGridActive = false;
+      mapEditorEventState.rightDragMapName = '';
+
+      // Grid maps: track the drag in focused-map tile space so it can span
+      // blocks. resolveGridBrushCell confirms the start is on a real tile.
+      const es = mapDataInterface.getEditorState();
+      const focusedMap = mapDataInterface.getMapData();
+      const canvas = mapDataInterface.getCanvas();
+      const handlers = gridNavigationHandlers;
+      if (es.gridEditEnabled && focusedMap && canvas && handlers) {
+        const g = screenCoordsToGridTile(
+          ev.clientX,
+          ev.clientY,
+          focusedMap,
+          canvas,
+          handlers.getMapGrids()
+        );
+        if (
+          g &&
+          resolveGridBrushCell(
+            focusedMap,
+            g.gx,
+            g.gy,
+            handlers.getMapGrids(),
+            mapsByNameOf(handlers.getMaps())
+          )
+        ) {
+          mapEditorEventState.isDraggingRight = true;
+          mapEditorEventState.rightDragGridActive = true;
+          mapEditorEventState.rightDragStartGX = g.gx;
+          mapEditorEventState.rightDragStartGY = g.gy;
+          mapEditorEventState.rightDragEndGX = g.gx;
+          mapEditorEventState.rightDragEndGY = g.gy;
+          return;
+        }
+      }
+
+      // Non-grid map: single-block rect select.
       const pick = resolveRightPickTarget(
         ev.clientX,
         ev.clientY,
@@ -520,16 +662,12 @@ export const initPanzoom = (mapDataInterface: {
       if (pick.tileIndex < 0) {
         return;
       }
-
       mapEditorEventState.isDraggingRight = true;
       mapEditorEventState.rightDragMapName = pick.mapName;
-
       updateEditorStateNoReRender({
         rectSelectTileIndStart: pick.tileIndex,
         rectSelectTileIndEnd: pick.tileIndex,
       });
-
-      // setSelectedMapTileIndex(getHoveredTileInd());
     } else if (
       ev.button === MOUSE_BUTTON_RIGHT &&
       isEventWithCanvasTarget(ev, mapDataInterface.getCanvas()) &&
@@ -590,6 +728,25 @@ export const initPanzoom = (mapDataInterface: {
   const handleMouseMove = (ev: MouseEvent) => {
     mapEditorEventState.mouseX = ev.clientX;
     mapEditorEventState.mouseY = ev.clientY;
+
+    if (mapEditorEventState.rightDragGridActive) {
+      const focusedMap = mapDataInterface.getMapData();
+      const canvas = mapDataInterface.getCanvas();
+      const handlers = gridNavigationHandlers;
+      if (focusedMap && canvas && handlers) {
+        const g = screenCoordsToGridTile(
+          ev.clientX,
+          ev.clientY,
+          focusedMap,
+          canvas,
+          handlers.getMapGrids()
+        );
+        if (g) {
+          mapEditorEventState.rightDragEndGX = g.gx;
+          mapEditorEventState.rightDragEndGY = g.gy;
+        }
+      }
+    }
 
     // While panning the slot hotspots move with the view, so a hit test against
     // the pre-move transform is stale anyway, and mousemove outruns the frame
@@ -726,11 +883,18 @@ export const initPanzoom = (mapDataInterface: {
     }
     if (mapEditorEventState.isDraggingRight) {
       mapEditorEventState.isDraggingRight = false;
-      // A right pick / brush-copy can target any grid block, not just the
-      // focused one.
       const dragMapName = mapEditorEventState.rightDragMapName;
       mapEditorEventState.rightDragMapName = '';
+      const wasGridDrag = mapEditorEventState.rightDragGridActive;
+      mapEditorEventState.rightDragGridActive = false;
       const es = mapDataInterface.getEditorState();
+
+      if (wasGridDrag) {
+        completeGridRightDrag(mapDataInterface);
+        return;
+      }
+      // A right pick / brush-copy can target any grid block, not just the
+      // focused one.
       const dragMap =
         (dragMapName
           ? gridNavigationHandlers
@@ -1129,6 +1293,65 @@ export const screenCoordsToTileIndex = (
   }
 
   return [tileY * mapData.width + tileX, tileX, tileY, mapX, mapY];
+};
+
+/**
+ * Tile coords for a screen point relative to `focusedMap`'s top-left, allowed to
+ * run negative or past the map's edges — a point over a neighbouring grid cell
+ * yields the continuation of the focused map's tile grid. Null when the focused
+ * map is not in a grid. Pair with resolveGridBrushCell to land on a real block.
+ */
+export const screenCoordsToGridTile = (
+  x: number,
+  y: number,
+  focusedMap: CarcerMapTemplate,
+  panzoomCanvas: HTMLCanvasElement,
+  mapGrids: MapGridTemplate[]
+): { gx: number; gy: number } | null => {
+  if (!panzoomCanvas || !focusedMap) {
+    return null;
+  }
+  if (!findMapGridPlacement(focusedMap.name, mapGrids)) {
+    return null;
+  }
+  const [fx, fy] = screenCoordsToMapCoords(x, y, focusedMap, panzoomCanvas);
+  return {
+    gx: Math.floor(fx / focusedMap.spriteWidth),
+    gy: Math.floor(fy / focusedMap.spriteHeight),
+  };
+};
+
+/** The in-progress right-drag rect select, in focused-map tile space, or null. */
+export const getRightDragGridRect = (): {
+  gx0: number;
+  gy0: number;
+  gx1: number;
+  gy1: number;
+} | null => {
+  if (
+    !mapEditorEventState.isDraggingRight ||
+    !mapEditorEventState.rightDragGridActive
+  ) {
+    return null;
+  }
+  return {
+    gx0: Math.min(
+      mapEditorEventState.rightDragStartGX,
+      mapEditorEventState.rightDragEndGX
+    ),
+    gy0: Math.min(
+      mapEditorEventState.rightDragStartGY,
+      mapEditorEventState.rightDragEndGY
+    ),
+    gx1: Math.max(
+      mapEditorEventState.rightDragStartGX,
+      mapEditorEventState.rightDragEndGX
+    ),
+    gy1: Math.max(
+      mapEditorEventState.rightDragStartGY,
+      mapEditorEventState.rightDragEndGY
+    ),
+  };
 };
 
 export interface GridCellHit {
