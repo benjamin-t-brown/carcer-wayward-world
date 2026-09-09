@@ -12,6 +12,7 @@ import {
   commitMaterializedLayer,
   getAdjacentLayer,
   getMaterializedLayer,
+  getTileGraphic,
 } from '../utils/mapIndex';
 import {
   EditorState,
@@ -102,7 +103,7 @@ export interface GridSlotCreateRequest {
 }
 
 export interface GridNavigateStitchOffset {
-  /** Grid cell offset from current map: -1, 0, or 1 */
+  /** Grid cell offset from the current map (may span more than one cell). */
   offsetX: number;
   offsetY: number;
 }
@@ -158,6 +159,7 @@ const findGridSlotAtScreen = (
     translateX: mapEditorEventState.translateX,
     translateY: mapEditorEventState.translateY,
     scale: mapEditorEventState.scale,
+    radius: getEditorState().gridRenderRadius ?? 2,
   });
 };
 
@@ -586,11 +588,23 @@ export const initPanzoom = (mapDataInterface: {
       const mapTiles = getTileList(mapDataInterface.getMapData());
       const nextRef = mapTiles[dragSelectedInds[0]];
       if (dragSelectedInds.length === 1 && nextRef) {
-        updateEditorStateNoReRender({
-          rectCloneBrushTiles: [],
-          selectedTileIndexInTileset: nextRef.tileId,
-          selectedTilesetName: nextRef.tilesetName,
-        });
+        // An unpainted cell has graphic (0, 0); picking it up just yields the
+        // first tileset's tile 0. Right-clicking a blank cell means "erase",
+        // so switch to the erase tool instead of selecting that tile.
+        const { tilesetIndex, tileId } = getTileGraphic(
+          mapDataInterface.getMapData(),
+          mapDataInterface.getEditorState().currentLevel,
+          dragSelectedInds[0]
+        );
+        if (tilesetIndex === 0 && tileId === 0) {
+          setCurrentPaintAction(PaintActionType.ERASE);
+        } else {
+          updateEditorStateNoReRender({
+            rectCloneBrushTiles: [],
+            selectedTileIndexInTileset: nextRef.tileId,
+            selectedTilesetName: nextRef.tilesetName,
+          });
+        }
         updateEditorStateMap(
           mapDataInterface.getEditorState().selectedMapName,
           {

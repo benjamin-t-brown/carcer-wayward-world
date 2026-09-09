@@ -11,13 +11,13 @@ export interface MapGridPlacement {
 
 export interface GridAdjacentMap {
   map: CarcerMapTemplate;
-  /** Grid cell offset from current: -1, 0, or 1 */
+  /** Grid cell offset from the current cell. */
   offsetX: number;
   offsetY: number;
 }
 
 export interface GridAdjacentSlot {
-  /** Grid cell offset from current: -1, 0, or 1 */
+  /** Grid cell offset from the current cell (magnitude up to the search radius). */
   offsetX: number;
   offsetY: number;
   cellX: number;
@@ -25,18 +25,6 @@ export interface GridAdjacentSlot {
   mapName: string;
   map?: CarcerMapTemplate;
 }
-
-const NEIGHBOR_OFFSETS: ReadonlyArray<{ offsetX: number; offsetY: number }> =
-  [
-    { offsetX: -1, offsetY: -1 },
-    { offsetX: 0, offsetY: -1 },
-    { offsetX: 1, offsetY: -1 },
-    { offsetX: -1, offsetY: 0 },
-    { offsetX: 1, offsetY: 0 },
-    { offsetX: -1, offsetY: 1 },
-    { offsetX: 0, offsetY: 1 },
-    { offsetX: 1, offsetY: 1 },
-  ];
 
 /** All grids that contain this map name (one placement per grid). */
 export function findAllMapGridPlacements(
@@ -75,34 +63,46 @@ export function findMapGridPlacement(
   return findAllMapGridPlacements(mapName, grids)[0] ?? null;
 }
 
+/**
+ * Every in-bounds grid cell within Chebyshev distance `radius` of the placement
+ * (centre excluded). `radius` 1 is the eight immediate neighbours; higher values
+ * add further rings. Each slot carries its map when the cell is assigned.
+ */
 export function getGridAdjacentSlots(
   placement: MapGridPlacement,
   mapsByName: Record<string, CarcerMapTemplate>,
+  radius = 1,
 ): GridAdjacentSlot[] {
   const { grid, cellX, cellY } = placement;
+  const r = Math.max(1, Math.floor(radius));
   const slots: GridAdjacentSlot[] = [];
 
-  for (const { offsetX, offsetY } of NEIGHBOR_OFFSETS) {
-    const neighborCellX = cellX + offsetX;
-    const neighborCellY = cellY + offsetY;
-    if (
-      neighborCellY < 0 ||
-      neighborCellY >= grid.gridHeight ||
-      neighborCellX < 0 ||
-      neighborCellX >= grid.gridWidth
-    ) {
-      continue;
+  for (let offsetY = -r; offsetY <= r; offsetY++) {
+    for (let offsetX = -r; offsetX <= r; offsetX++) {
+      if (offsetX === 0 && offsetY === 0) {
+        continue;
+      }
+      const neighborCellX = cellX + offsetX;
+      const neighborCellY = cellY + offsetY;
+      if (
+        neighborCellY < 0 ||
+        neighborCellY >= grid.gridHeight ||
+        neighborCellX < 0 ||
+        neighborCellX >= grid.gridWidth
+      ) {
+        continue;
+      }
+      const mapName = grid.cells[neighborCellY]?.[neighborCellX]?.trim() ?? '';
+      const map = mapName ? mapsByName[mapName] : undefined;
+      slots.push({
+        offsetX,
+        offsetY,
+        cellX: neighborCellX,
+        cellY: neighborCellY,
+        mapName,
+        map,
+      });
     }
-    const mapName = grid.cells[neighborCellY]?.[neighborCellX]?.trim() ?? '';
-    const map = mapName ? mapsByName[mapName] : undefined;
-    slots.push({
-      offsetX,
-      offsetY,
-      cellX: neighborCellX,
-      cellY: neighborCellY,
-      mapName,
-      map,
-    });
   }
 
   return slots;
@@ -112,11 +112,29 @@ export function isGridSlotEditable(slot: GridAdjacentSlot): boolean {
   return Boolean(slot.mapName && slot.map);
 }
 
-export function getGridAdjacentMaps(
+/**
+ * Whether the editor should show a click target on this slot: any cell holding a
+ * map (so its "Open" rectangle appears wherever that map is drawn), plus the
+ * immediate ring's empty cells (their "+" creates a map there).
+ */
+export function isGridSlotNavigable(slot: GridAdjacentSlot): boolean {
+  return (
+    isGridSlotEditable(slot) ||
+    (Math.abs(slot.offsetX) <= 1 && Math.abs(slot.offsetY) <= 1)
+  );
+}
+
+/**
+ * Every assigned map whose grid cell is within Chebyshev distance `radius` of
+ * the placement (centre excluded). Used to decide how much surrounding context
+ * the editor paints around the current map — a rendering/perf knob.
+ */
+export function getGridMapsWithinRadius(
   placement: MapGridPlacement,
   mapsByName: Record<string, CarcerMapTemplate>,
+  radius: number,
 ): GridAdjacentMap[] {
-  return getGridAdjacentSlots(placement, mapsByName)
+  return getGridAdjacentSlots(placement, mapsByName, radius)
     .filter(isGridSlotEditable)
     .map(({ map, offsetX, offsetY }) => ({
       map: map!,

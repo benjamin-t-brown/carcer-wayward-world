@@ -53,6 +53,13 @@ export interface EditorState {
   maps: Record<string, EditorStateMap>;
   tilesets: TilesetTemplate[];
   hoveredGridAdjacentSlot: { offsetX: number; offsetY: number } | null;
+  /**
+   * How many grid cells out from the current map the editor paints surrounding
+   * maps for. 1 = the eight immediate neighbours; higher shows more context at
+   * a rendering cost. Navigation is unaffected. Tweak live via
+   * `editorState.gridRenderRadius`.
+   */
+  gridRenderRadius: number;
 }
 
 const editorState: EditorState = {
@@ -74,6 +81,7 @@ const editorState: EditorState = {
   maps: {},
   tilesets: [],
   hoveredGridAdjacentSlot: null,
+  gridRenderRadius: 2,
 };
 export const getEditorState = () => editorState;
 export const updateEditorState = (state: Partial<EditorState>) => {

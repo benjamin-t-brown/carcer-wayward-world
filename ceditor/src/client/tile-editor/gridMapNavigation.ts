@@ -4,6 +4,7 @@ import {
   findMapGridPlacement,
   getGridAdjacentSlots,
   GridAdjacentSlot,
+  isGridSlotNavigable,
   MapGridPlacement,
 } from '../utils/mapGridIndex';
 
@@ -87,6 +88,8 @@ export function findAdjacentGridSlotAtCanvasPoint(args: {
   translateX: number;
   translateY: number;
   scale: number;
+  /** How many grid rings out to accept clicks on; matches the render radius. */
+  radius?: number;
 }): GridSlotHit | null {
   const mapsByName: Record<string, CarcerMapTemplate> = {};
   for (const entry of args.maps) {
@@ -114,7 +117,14 @@ export function findAdjacentGridSlotAtCanvasPoint(args: {
     args.scale,
   );
 
-  for (const slot of getGridAdjacentSlots(placement, mapsByName)) {
+  for (const slot of getGridAdjacentSlots(
+    placement,
+    mapsByName,
+    args.radius ?? 1,
+  )) {
+    if (!isGridSlotNavigable(slot)) {
+      continue;
+    }
     const hotspot = getAdjacentSlotHotspotRect(slot, slotWidth, slotHeight);
     if (
       localX >= hotspot.x &&

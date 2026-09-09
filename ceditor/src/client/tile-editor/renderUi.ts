@@ -118,6 +118,7 @@ import {
 import {
   GridAdjacentSlot,
   isGridSlotEditable,
+  isGridSlotNavigable,
 } from '../utils/mapGridIndex';
 
 const drawHighlightRect = (
@@ -428,17 +429,18 @@ export const renderToolUi = (
         }
       }
     } else {
-      if (paintTileSprite) {
-        const tileX =
-          (getEditorStateMap(editorState.selectedMapName)?.hoveredTileData?.x ??
-            -1) *
-          tileWidth *
-          scale;
-        const tileY =
-          (getEditorStateMap(editorState.selectedMapName)?.hoveredTileData?.y ??
-            -1) *
-          tileHeight *
-          scale;
+      const hoverX =
+        getEditorStateMap(editorState.selectedMapName)?.hoveredTileData?.x ?? -1;
+      const hoverY =
+        getEditorStateMap(editorState.selectedMapName)?.hoveredTileData?.y ?? -1;
+      const hoverInBounds =
+        hoverX >= 0 &&
+        hoverY >= 0 &&
+        hoverX < mapData.width &&
+        hoverY < mapData.height;
+      if (paintTileSprite && hoverInBounds) {
+        const tileX = hoverX * tileWidth * scale;
+        const tileY = hoverY * tileHeight * scale;
         drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
         drawHighlightTile(paintTileSprite, tileX, tileY, scale, ctx);
       }
@@ -457,6 +459,9 @@ export const renderGridAdjacentNavigation = (args: {
   const { ctx, slots, slotWidth, slotHeight, hoveredOffset } = args;
 
   for (const slot of slots) {
+    if (!isGridSlotNavigable(slot)) {
+      continue;
+    }
     const slotLeft = slot.offsetX * slotWidth;
     const slotTop = slot.offsetY * slotHeight;
     const editable = isGridSlotEditable(slot);

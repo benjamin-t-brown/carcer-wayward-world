@@ -16,8 +16,8 @@ import {
 } from '../types/assets';
 import {
   findMapGridPlacement,
-  getGridAdjacentMaps,
   getGridAdjacentSlots,
+  getGridMapsWithinRadius,
 } from '../utils/mapGridIndex';
 import { getMapGridSlotDimensions } from './gridMapNavigation';
 import {
@@ -107,13 +107,17 @@ export const loop = (
       data.ind
     );
   }
+  // `data.x`/`data.y` are raw floored tile coords and can land outside the map
+  // when the pointer is over a rendered neighbour map (data.ind is -1 there).
+  // Collapse them to -1 so hover previews only show on the active map.
+  const pointerOnActiveMap = data.ind >= 0;
   updateEditorStateMapNoReRender(
     mapDataInterface.getEditorState().selectedMapName,
     {
       hoveredTileIndex: data.ind,
       hoveredTileData: {
-        x: data.x,
-        y: data.y,
+        x: pointerOnActiveMap ? data.x : -1,
+        y: pointerOnActiveMap ? data.y : -1,
         ind: data.ind,
       },
     }
@@ -231,8 +235,17 @@ export const loop = (
           spriteHeight,
           newScale,
         ));
-        adjacentSlots = getGridAdjacentSlots(placement, mapsByName);
-        const adjacentMaps = getGridAdjacentMaps(placement, mapsByName);
+        const gridRenderRadius = editorState.gridRenderRadius ?? 2;
+        adjacentSlots = getGridAdjacentSlots(
+          placement,
+          mapsByName,
+          gridRenderRadius,
+        );
+        const adjacentMaps = getGridMapsWithinRadius(
+          placement,
+          mapsByName,
+          gridRenderRadius,
+        );
         for (const adjacent of adjacentMaps) {
           const offsetPixelX = adjacent.offsetX * slotWidth;
           const offsetPixelY = adjacent.offsetY * slotHeight;

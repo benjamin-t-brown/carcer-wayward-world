@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
+  MapGridTemplate,
   MAP_TYPES,
   sanitizeMapGridTemplates,
 } from '../types/assets';
@@ -48,10 +49,18 @@ interface NotificationState {
   id: number;
 }
 
+/**
+ * A tab is bound to a map grid (every map in the grid is reached from the one
+ * tab by navigating on the canvas) or, when `gridName` is null, to a single
+ * grid-less map. `activeMapName` is the map currently shown in the tab.
+ */
 interface OpenTab {
-  mapIndex: number;
-  map: CarcerMapTemplate;
+  gridName: string | null;
+  activeMapName: string;
 }
+
+const tabKey = (tab: OpenTab) =>
+  tab.gridName ? `grid:${tab.gridName}` : `map:${tab.activeMapName}`;
 
 const createEditorStateMapForTabIfNotExists = (mapName: string) => {
   if (!mapName) {
@@ -85,6 +94,9 @@ export function Maps({ routeParams }: MapsProps = {}) {
   const [openTabs, _setOpenTabs] = useState<OpenTab[]>([]);
   const [activeTabIndex, _setActiveTabIndex] = useState<number | null>(null);
   const [selectedMapIndex, setSelectedMapIndex] = useState<string>('');
+  // Both header dropdowns act as one-shot pickers: the value stays '' so the
+  // placeholder shows again after each selection.
+  const [selectedGridIndex] = useState<string>('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const notificationIdRef = useRef(0);
   const [deleteConfirm, setDeleteConfirm] = useState<{
@@ -100,69 +112,154 @@ export function Maps({ routeParams }: MapsProps = {}) {
   const consumedMapParamRef = useRef(false);
   const [tabsHydrated, setTabsHydrated] = useState(false);
 
+  const mapByName = (name: string): CarcerMapTemplate | null =>
+    maps.find((m) => m.name === name) ?? null;
+
+  const gridNameForMap = (mapName: string): string | null =>
+    findMapGridPlacement(mapName, mapGrids)?.grid.name ?? null;
+
   const persistOpenTabs = (tabs: OpenTab[], activeIndex: number | null) => {
-    const activeName =
-      activeIndex !== null && tabs[activeIndex]
-        ? tabs[activeIndex].map.name
-        : null;
     savePersistedMapTabs(
-      tabs.map((tab) => tab.map.name),
-      activeName
+      tabs.map((tab) => ({
+        gridName: tab.gridName,
+        activeMapName: tab.activeMapName,
+      })),
+      activeIndex
     );
   };
 
   const setOpenTabs = (tabs: OpenTab[]) => {
     tabs.forEach((tab) => {
-      createEditorStateMapForTabIfNotExists(tab.map.name);
+      createEditorStateMapForTabIfNotExists(tab.activeMapName);
     });
     _setOpenTabs(tabs);
   };
+
+  // Move the editor onto a new map: sync viewport (stitched when navigating
+  // within a grid) and point editor state at it.
+  const applyActiveMapChange = (
+    previousMapName: string,
+    previousMap: CarcerMapTemplate | null,
+    nextMapName: string,
+    stitchOffset?: GridNavigateStitchOffset
+  ) => {
+    if (!nextMapName) {
+      return;
+    }
+    createEditorStateMapForTabIfNotExists(nextMapName);
+    if (previousMapName !== nextMapName) {
+      if (stitchOffset && previousMap) {
+        const placement = findMapGridPlacement(previousMapName, mapGrids);
+        const slotTileW = placement?.grid.mapWidth ?? previousMap.width;
+        const slotTileH = placement?.grid.mapHeight ?? previousMap.height;
+        switchMapViewportPreservingStitch(
+          previousMapName,
+          nextMapName,
+          stitchOffset,
+          slotTileW * previousMap.spriteWidth,
+          slotTileH * previousMap.spriteHeight
+        );
+      } else {
+        switchMapViewport(previousMapName, nextMapName);
+      }
+    }
+    getEditorState().selectedMapName = nextMapName;
+  };
+
   const setActiveTabIndex = (
     index: number | null,
     tabsForLookup: OpenTab[] = openTabs,
     stitchOffset?: GridNavigateStitchOffset
   ) => {
-    const previousMapName =
-      activeTabIndex !== null && tabsForLookup[activeTabIndex]
-        ? tabsForLookup[activeTabIndex].map.name
-        : '';
-    const previousMap =
-      activeTabIndex !== null && tabsForLookup[activeTabIndex]
-        ? tabsForLookup[activeTabIndex].map
-        : null;
+    const previousTab =
+      activeTabIndex !== null ? tabsForLookup[activeTabIndex] : undefined;
+    const previousMapName = previousTab?.activeMapName ?? '';
+    const previousMap = previousMapName ? mapByName(previousMapName) : null;
 
     if (index !== null) {
       const tab = tabsForLookup[index];
       if (tab) {
-        createEditorStateMapForTabIfNotExists(tab.map.name);
-        const nextMapName = tab.map.name;
-        if (previousMapName !== nextMapName) {
-          if (stitchOffset && previousMap) {
-            const placement = findMapGridPlacement(
-              previousMapName,
-              mapGrids
-            );
-            const slotTileW =
-              placement?.grid.mapWidth ?? previousMap.width;
-            const slotTileH =
-              placement?.grid.mapHeight ?? previousMap.height;
-            switchMapViewportPreservingStitch(
-              previousMapName,
-              nextMapName,
-              stitchOffset,
-              slotTileW * previousMap.spriteWidth,
-              slotTileH * previousMap.spriteHeight
-            );
-          } else {
-            switchMapViewport(previousMapName, nextMapName);
-          }
-        }
-        getEditorState().selectedMapName = nextMapName;
+        applyActiveMapChange(
+          previousMapName,
+          previousMap,
+          tab.activeMapName,
+          stitchOffset
+        );
       }
     } else if (previousMapName) {
       saveViewportForMap(previousMapName);
     }
     _setActiveTabIndex(index);
+  };
+
+  // Swap which map a tab shows (grid navigation, or the "open a map" dropdown
+  // landing on a grid that is already open). Returns the next tab list.
+  const setTabActiveMap = (
+    tabIndex: number,
+    mapName: string,
+    tabsForLookup: OpenTab[] = openTabs,
+    stitchOffset?: GridNavigateStitchOffset
+  ): OpenTab[] => {
+    const tab = tabsForLookup[tabIndex];
+    const nextTabs = tabsForLookup.map((t, i) =>
+      i === tabIndex ? { ...t, activeMapName: mapName } : t
+    );
+    setOpenTabs(nextTabs);
+    if (tabIndex === activeTabIndex && tab) {
+      applyActiveMapChange(
+        tab.activeMapName,
+        mapByName(tab.activeMapName),
+        mapName,
+        stitchOffset
+      );
+    }
+    return nextTabs;
+  };
+
+  // Open `mapName` in the tab for its grid (creating that tab if needed). If the
+  // grid tab is already open, replace the map it currently shows. Grid-less maps
+  // get their own single-map tab.
+  const openMap = (
+    mapName: string,
+    stitchOffset?: GridNavigateStitchOffset
+  ) => {
+    if (!mapByName(mapName)) {
+      return;
+    }
+    const gridName = gridNameForMap(mapName);
+    const existingIndex = openTabs.findIndex((tab) =>
+      gridName
+        ? tab.gridName === gridName
+        : tab.gridName === null && tab.activeMapName === mapName
+    );
+
+    if (existingIndex >= 0) {
+      if (openTabs[existingIndex].activeMapName === mapName) {
+        setActiveTabIndex(existingIndex, openTabs, stitchOffset);
+      } else {
+        // Switch to the grid tab and replace its map in one viewport hop.
+        const previousTab =
+          activeTabIndex !== null ? openTabs[activeTabIndex] : undefined;
+        const nextTabs = openTabs.map((tab, i) =>
+          i === existingIndex ? { ...tab, activeMapName: mapName } : tab
+        );
+        setOpenTabs(nextTabs);
+        applyActiveMapChange(
+          previousTab?.activeMapName ?? '',
+          previousTab ? mapByName(previousTab.activeMapName) : null,
+          mapName,
+          stitchOffset
+        );
+        _setActiveTabIndex(existingIndex);
+      }
+      getEditorState().selectedMapName = mapName;
+      return;
+    }
+
+    const newTabs: OpenTab[] = [...openTabs, { gridName, activeMapName: mapName }];
+    setOpenTabs(newTabs);
+    setActiveTabIndex(newTabs.length - 1, newTabs, stitchOffset);
+    getEditorState().selectedMapName = mapName;
   };
 
   // Restore before paint so a direct refresh on #/editor/maps shows tabs immediately
@@ -173,18 +270,18 @@ export function Maps({ routeParams }: MapsProps = {}) {
     hasRestoredTabsRef.current = true;
 
     const { tabs: restoredTabs, activeTabIndex: restoredActiveIndex } =
-      restoreMapTabsFromStorage(maps);
+      restoreMapTabsFromStorage(maps, mapGrids);
 
     if (restoredTabs.length > 0 && restoredActiveIndex !== null) {
       restoredTabs.forEach((tab) => {
-        createEditorStateMapForTabIfNotExists(tab.map.name);
+        createEditorStateMapForTabIfNotExists(tab.activeMapName);
       });
       _setOpenTabs(restoredTabs);
       setActiveTabIndex(restoredActiveIndex, restoredTabs);
     }
 
     setTabsHydrated(true);
-  }, [maps]);
+  }, [maps, mapGrids]);
 
   // Persist tab state after hydration (avoids overwriting storage before restore)
   useEffect(() => {
@@ -195,7 +292,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
       isFirstPersistRef.current = false;
       if (
         openTabs.length === 0 &&
-        (loadPersistedMapTabs()?.openMapNames.length ?? 0) > 0
+        (loadPersistedMapTabs()?.tabs.length ?? 0) > 0
       ) {
         return;
       }
@@ -213,33 +310,16 @@ export function Maps({ routeParams }: MapsProps = {}) {
     }
     consumedMapParamRef.current = true;
 
-    const mapIndex = maps.findIndex((m) => m.name === mapName);
-    if (mapIndex < 0) {
+    if (maps.findIndex((m) => m.name === mapName) < 0) {
       return;
     }
 
-    const existingTabIndex = openTabs.findIndex(
-      (tab) => tab.map.name === mapName
-    );
-    if (existingTabIndex >= 0) {
-      createEditorStateMapForTabIfNotExists(mapName);
-      setActiveTabIndex(existingTabIndex, openTabs);
-    } else {
-      const newTab: OpenTab = {
-        mapIndex,
-        map: maps[mapIndex],
-      };
-      const newTabs = [...openTabs, newTab];
-      createEditorStateMapForTabIfNotExists(mapName);
-      setOpenTabs(newTabs);
-      setActiveTabIndex(newTabs.length - 1, newTabs);
-    }
-    getEditorState().selectedMapName = mapName;
+    openMap(mapName);
 
     if (typeof window !== 'undefined') {
       window.location.hash = '#/editor/maps';
     }
-  }, [tabsHydrated, maps, routeParams, openTabs]);
+  }, [tabsHydrated, maps, mapGrids, routeParams, openTabs]);
 
   const showNotification = (message: string, type: 'success' | 'error') => {
     const id = notificationIdRef.current++;
@@ -255,12 +335,11 @@ export function Maps({ routeParams }: MapsProps = {}) {
     { value: '', label: '-- Open a map --' },
     ...maps.map((map, index) => ({
       value: index.toString(),
-      label: `${map.label} (${map.name})`,
+      label: map.name,
     })),
   ];
 
   const handleMapSelect = (value: string) => {
-    // setSelectedMapIndex(value);
     if (value === '') {
       return;
     }
@@ -270,27 +349,59 @@ export function Maps({ routeParams }: MapsProps = {}) {
       return;
     }
 
-    // Check if this map is already open in a tab
-    const existingTabIndex = openTabs.findIndex(
-      (tab) => tab.mapIndex === mapIndex
-    );
+    // Opens the map in its grid's tab; if that grid tab is already open, the
+    // chosen map replaces whatever it was showing.
+    openMap(maps[mapIndex].name);
+  };
 
-    if (existingTabIndex >= 0) {
-      createEditorStateMapForTabIfNotExists(maps[mapIndex].name);
-      // Switch to existing tab
-      setActiveTabIndex(existingTabIndex);
-    } else {
-      // Open new tab
-      const newTab: OpenTab = {
-        mapIndex,
-        map: maps[mapIndex],
-      };
-      const newTabs = [...openTabs, newTab];
-      createEditorStateMapForTabIfNotExists(maps[mapIndex].name);
-      setOpenTabs(newTabs);
-      setActiveTabIndex(newTabs.length - 1);
+  // Grid options for OptionSelect
+  const gridOptions = [
+    { value: '', label: '-- Open a grid --' },
+    ...mapGrids.map((grid, index) => ({
+      value: index.toString(),
+      label: grid.name,
+    })),
+  ];
+
+  const firstAssignedMapInGrid = (grid: MapGridTemplate): string | null => {
+    for (const row of grid.cells) {
+      for (const cell of row ?? []) {
+        const name = cell?.trim();
+        if (name && mapByName(name)) {
+          return name;
+        }
+      }
     }
-    getEditorState().selectedMapName = maps[mapIndex].name;
+    return null;
+  };
+
+  const handleGridSelect = (value: string) => {
+    if (value === '') {
+      return;
+    }
+    const grid = mapGrids[parseInt(value, 10)];
+    if (!grid) {
+      return;
+    }
+
+    // Already open: just switch to that tab, leaving its current map alone.
+    const existingIndex = openTabs.findIndex(
+      (tab) => tab.gridName === grid.name
+    );
+    if (existingIndex >= 0) {
+      setActiveTabIndex(existingIndex);
+      return;
+    }
+
+    const firstMap = firstAssignedMapInGrid(grid);
+    if (!firstMap) {
+      showNotification(
+        `Map grid "${grid.label || grid.name}" has no maps assigned yet.`,
+        'error'
+      );
+      return;
+    }
+    openMap(firstMap);
   };
 
   // Callback to open a map tab and select a tile
@@ -303,25 +414,8 @@ export function Maps({ routeParams }: MapsProps = {}) {
 
     const mapData = maps[mapIndex];
 
-    // Open the map in a tab (or switch to existing tab)
-    const existingTabIndex = openTabs.findIndex(
-      (tab) => tab.mapIndex === mapIndex
-    );
-
-    let targetTabIndex: number;
-    if (existingTabIndex >= 0) {
-      targetTabIndex = existingTabIndex;
-      setActiveTabIndex(existingTabIndex);
-    } else {
-      const newTab: OpenTab = {
-        mapIndex,
-        map: mapData,
-      };
-      const newTabs = [...openTabs, newTab];
-      setOpenTabs(newTabs);
-      targetTabIndex = newTabs.length - 1;
-      setActiveTabIndex(targetTabIndex);
-    }
+    // Open the map in its grid's tab (or switch to it / replace its map).
+    openMap(mapName);
 
     let location: { level: number; tileIndex: number } | null = null;
 
@@ -351,56 +445,40 @@ export function Maps({ routeParams }: MapsProps = {}) {
 
   const handleCreateMap = (newMap: CarcerMapTemplate) => {
     const prepared = prepareNewMapForEditor(newMap);
-    const newMaps = [...maps, prepared];
-    setMaps(newMaps);
-    const newMapIndex = newMaps.length - 1;
+    setMaps([...maps, prepared]);
 
-    // Open the new map in a tab
-    const newTab: OpenTab = {
-      mapIndex: newMapIndex,
-      map: prepared,
-    };
-    const newTabs = [...openTabs, newTab];
+    // A brand-new map has no grid yet, so it opens in its own single-map tab.
+    const newTabs: OpenTab[] = [
+      ...openTabs,
+      { gridName: null, activeMapName: prepared.name },
+    ];
     setOpenTabs(newTabs);
-    setActiveTabIndex(newTabs.length - 1);
+    setActiveTabIndex(newTabs.length - 1, newTabs);
     setCreateModalOpen(false);
     showNotification('Map created!', 'success');
   };
 
-  const openMapTabByName = (
-    mapName: string,
-    stitchOffset?: GridNavigateStitchOffset
-  ) => {
-    const mapIndex = maps.findIndex((m) => m.name === mapName);
-    if (mapIndex < 0) {
-      return;
-    }
-
-    const existingTabIndex = openTabs.findIndex(
-      (tab) => tab.map.name === mapName
-    );
-
-    if (existingTabIndex >= 0) {
-      createEditorStateMapForTabIfNotExists(mapName);
-      setActiveTabIndex(existingTabIndex, openTabs, stitchOffset);
-    } else {
-      const newTab: OpenTab = {
-        mapIndex,
-        map: maps[mapIndex],
-      };
-      const newTabs = [...openTabs, newTab];
-      createEditorStateMapForTabIfNotExists(mapName);
-      setOpenTabs(newTabs);
-      setActiveTabIndex(newTabs.length - 1, newTabs, stitchOffset);
-    }
-    getEditorState().selectedMapName = mapName;
-  };
-
+  // Canvas grid navigation: move within the active grid tab, keeping the
+  // stitched world fixed under the camera.
   const handleNavigateToGridMap = (
     mapName: string,
     stitchOffset: GridNavigateStitchOffset
   ) => {
-    openMapTabByName(mapName, stitchOffset);
+    if (maps.findIndex((m) => m.name === mapName) < 0) {
+      return;
+    }
+    const activeTab =
+      activeTabIndex !== null ? openTabs[activeTabIndex] : undefined;
+    if (
+      activeTab &&
+      activeTab.gridName &&
+      gridNameForMap(mapName) === activeTab.gridName
+    ) {
+      setTabActiveMap(activeTabIndex!, mapName, openTabs, stitchOffset);
+      getEditorState().selectedMapName = mapName;
+      return;
+    }
+    openMap(mapName, stitchOffset);
   };
 
   const handleCreateGridMap = (request: GridSlotCreateRequest) => {
@@ -437,19 +515,25 @@ export function Maps({ routeParams }: MapsProps = {}) {
       return;
     }
 
-    const newMaps = [...maps, prepared];
-    setMaps(newMaps);
+    setMaps([...maps, prepared]);
     setMapGrids(updatedMapGrids);
 
-    const newMapIndex = newMaps.length - 1;
-    const newTab: OpenTab = {
-      mapIndex: newMapIndex,
-      map: prepared,
-    };
-    const newTabs = [...openTabs, newTab];
+    // The map is now a cell of this grid: focus that grid's tab (opening it if
+    // needed) and show the new map in it.
+    const gridName = gridCreateRequest.gridName;
     createEditorStateMapForTabIfNotExists(prepared.name);
-    setOpenTabs(newTabs);
-    setActiveTabIndex(newTabs.length - 1);
+    const existingIndex = openTabs.findIndex((tab) => tab.gridName === gridName);
+    if (existingIndex >= 0) {
+      const nextTabs = setTabActiveMap(existingIndex, prepared.name, openTabs);
+      setActiveTabIndex(existingIndex, nextTabs);
+    } else {
+      const nextTabs: OpenTab[] = [
+        ...openTabs,
+        { gridName, activeMapName: prepared.name },
+      ];
+      setOpenTabs(nextTabs);
+      setActiveTabIndex(nextTabs.length - 1, nextTabs);
+    }
     getEditorState().selectedMapName = prepared.name;
     setGridCreateRequest(null);
     showNotification('Map created and assigned to grid!', 'success');
@@ -477,35 +561,26 @@ export function Maps({ routeParams }: MapsProps = {}) {
   const confirmDelete = () => {
     if (deleteConfirm.mapIndex !== null) {
       const mapIndex = deleteConfirm.mapIndex;
-      const newMaps = maps.filter((_, index) => index !== mapIndex);
-      setMaps(newMaps);
+      const deletedName = maps[mapIndex]?.name;
+      setMaps(maps.filter((_, index) => index !== mapIndex));
 
-      // Close any tabs that reference this map
-      const newTabs = openTabs
-        .map((tab) => {
-          if (tab.mapIndex === mapIndex) {
-            return null; // Mark for removal
-          }
-          // Adjust mapIndex if it was after the deleted map
-          if (tab.mapIndex > mapIndex) {
-            return { ...tab, mapIndex: tab.mapIndex - 1 };
-          }
-          return tab;
-        })
-        .filter((tab): tab is OpenTab => tab !== null);
-
+      // Close any tab whose current map was the one deleted.
+      const newTabs = openTabs.filter(
+        (tab) => tab.activeMapName !== deletedName
+      );
       setOpenTabs(newTabs);
 
-      // Adjust active tab index
       if (activeTabIndex !== null) {
         if (newTabs.length === 0) {
           setActiveTabIndex(null);
         } else {
-          setActiveTabIndex(Math.min(activeTabIndex, newTabs.length - 1));
+          setActiveTabIndex(
+            Math.min(activeTabIndex, newTabs.length - 1),
+            newTabs
+          );
         }
       }
 
-      // Reset selection if it was the deleted map
       if (selectedMapIndex === mapIndex.toString()) {
         setSelectedMapIndex('');
       }
@@ -520,9 +595,12 @@ export function Maps({ routeParams }: MapsProps = {}) {
       return true;
     }
 
-    const oldName = activeTab.map.name.trim();
+    const oldName = activeTab.activeMapName.trim();
     const newName = updatedMap.name.trim();
-    const mapIndex = activeTab.mapIndex;
+    const mapIndex = maps.findIndex((m) => m.name === activeTab.activeMapName);
+    if (mapIndex < 0) {
+      return true;
+    }
 
     if (oldName && newName && oldName !== newName) {
       const updatedMapGrids = sanitizeMapGridTemplates(
@@ -551,10 +629,14 @@ export function Maps({ routeParams }: MapsProps = {}) {
     updatedMaps[mapIndex] = updatedMap;
     setMaps(updatedMaps);
 
-    const newTabs = openTabs.map((tab) =>
-      tab.mapIndex === mapIndex ? { ...tab, map: updatedMap } : tab
-    );
-    setOpenTabs(newTabs);
+    if (oldName !== newName && newName) {
+      const newTabs = openTabs.map((tab) =>
+        tab.activeMapName === oldName
+          ? { ...tab, activeMapName: newName }
+          : tab
+      );
+      setOpenTabs(newTabs);
+    }
     return true;
   };
 
@@ -577,23 +659,20 @@ export function Maps({ routeParams }: MapsProps = {}) {
       ? `${sourceMap.label} (Copy)`
       : copyName;
 
-    const sourceIndex = activeTab?.mapIndex ?? maps.length - 1;
-    const insertIndex = sourceIndex + 1;
+    const sourceIndex = maps.findIndex((m) => m.name === sourceMap.name);
+    const insertIndex = (sourceIndex >= 0 ? sourceIndex : maps.length - 1) + 1;
 
     const newMaps = [...maps];
     newMaps.splice(insertIndex, 0, duplicated);
     setMaps(newMaps);
 
-    const newTabs = openTabs.map((tab) =>
-      tab.mapIndex >= insertIndex
-        ? { ...tab, mapIndex: tab.mapIndex + 1 }
-        : tab
-    );
-
-    const dupTab: OpenTab = { mapIndex: insertIndex, map: duplicated };
+    // The copy is not assigned to any grid, so it opens in its own tab next to
+    // the current one.
+    const dupTab: OpenTab = { gridName: null, activeMapName: duplicated.name };
     createEditorStateMapForTabIfNotExists(duplicated.name);
     getEditorState().selectedMapName = duplicated.name;
 
+    const newTabs = [...openTabs];
     let newActiveTabIndex: number;
     if (activeTabIndex !== null) {
       newTabs.splice(activeTabIndex + 1, 0, dupTab);
@@ -604,7 +683,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
     }
 
     setOpenTabs(newTabs);
-    setActiveTabIndex(newActiveTabIndex);
+    setActiveTabIndex(newActiveTabIndex, newTabs);
     setEditModalOpen(true);
     showNotification('Map duplicated!', 'success');
   };
@@ -736,8 +815,11 @@ export function Maps({ routeParams }: MapsProps = {}) {
     };
   }, [maps]);
 
-  const activeTab = activeTabIndex !== null ? openTabs[activeTabIndex] : null;
-  const activeMap = activeTab ? maps[activeTab.mapIndex] : null;
+  const activeTab =
+    activeTabIndex !== null ? openTabs[activeTabIndex] ?? null : null;
+  const activeMap = activeTab
+    ? maps.find((m) => m.name === activeTab.activeMapName) ?? null
+    : null;
 
   const gridCreateConstraints: CreateMapConstraints | undefined = (() => {
     if (!gridCreateRequest) {
@@ -778,6 +860,17 @@ export function Maps({ routeParams }: MapsProps = {}) {
               onChange={handleMapSelect}
               options={mapOptions}
             />
+            {mapGrids.length > 0 && (
+              <OptionSelect
+                className="editor-header-control"
+                id="grid-select"
+                name="gridSelect"
+                label=""
+                value={selectedGridIndex}
+                onChange={handleGridSelect}
+                options={gridOptions}
+              />
+            )}
             <Button variant="primary" onClick={() => setCreateModalOpen(true)}>
               + New Map
             </Button>
@@ -787,87 +880,118 @@ export function Maps({ routeParams }: MapsProps = {}) {
 
       {openTabs.length > 0 && (
         <div className="editor-tab-bar">
-          {openTabs.map((tab, index) => (
-            <div
-              key={tab.map.name}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '8px 16px',
-                borderRight: '1px solid #3e3e42',
-                backgroundColor:
-                  activeTabIndex === index ? '#252526' : '#1e1e1e',
-                cursor: 'pointer',
-                minWidth: '150px',
-                maxWidth: '250px',
-              }}
-              onClick={() => setActiveTabIndex(index)}
-            >
-              <span
+          {openTabs.map((tab, index) => {
+            const isActive = activeTabIndex === index;
+            const hasGrid = Boolean(tab.gridName);
+            return (
+              <div
+                key={tabKey(tab)}
                 style={{
-                  color: activeTabIndex === index ? '#4ec9b0' : '#858585',
-                  flex: 1,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  marginRight: '8px',
-                }}
-                title={tab.map.label}
-              >
-                {tab.map.label}
-              </span>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveTabIndex(index);
-                  setEditModalOpen(true);
-                }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#858585',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  padding: '6px 12px',
+                  borderRight: '1px solid #3e3e42',
+                  backgroundColor: isActive ? '#252526' : '#1e1e1e',
                   cursor: 'pointer',
-                  fontSize: '14px',
-                  padding: '0 4px',
-                  lineHeight: '1',
-                  marginRight: '4px',
+                  minWidth: '170px',
+                  maxWidth: '260px',
                 }}
-                title="Edit Map Properties"
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#4ec9b0';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#858585';
-                }}
+                onClick={() => setActiveTabIndex(index)}
               >
-                ✎
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleCloseTab(index);
-                }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#858585',
-                  cursor: 'pointer',
-                  fontSize: '18px',
-                  padding: '0 4px',
-                  lineHeight: '1',
-                }}
-                title="Close Tab"
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#f48771';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#858585';
-                }}
-              >
-                ×
-              </button>
-            </div>
-          ))}
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <span
+                    style={{
+                      color: hasGrid
+                        ? isActive
+                          ? '#c586c0'
+                          : '#7a5c78'
+                        : isActive
+                        ? '#9a9a9a'
+                        : '#5a5a5a',
+                      fontStyle: hasGrid ? 'normal' : 'italic',
+                      fontSize: '11px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em',
+                      flex: 1,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      marginRight: '8px',
+                    }}
+                    title={
+                      hasGrid
+                        ? `Map grid: ${tab.gridName}`
+                        : 'Not in a map grid'
+                    }
+                  >
+                    {tab.gridName ?? '(no grid)'}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveTabIndex(index);
+                      setEditModalOpen(true);
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#858585',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      padding: '0 4px',
+                      lineHeight: '1',
+                      marginRight: '4px',
+                    }}
+                    title="Edit Map Properties"
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = '#4ec9b0';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = '#858585';
+                    }}
+                  >
+                    ✎
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCloseTab(index);
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#858585',
+                      cursor: 'pointer',
+                      fontSize: '18px',
+                      padding: '0 4px',
+                      lineHeight: '1',
+                    }}
+                    title="Close Tab"
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = '#f48771';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = '#858585';
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+                <span
+                  style={{
+                    color: isActive ? '#4ec9b0' : '#858585',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    marginTop: '2px',
+                  }}
+                  title={tab.activeMapName}
+                >
+                  ▸ {tab.activeMapName}
+                </span>
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -920,8 +1044,12 @@ export function Maps({ routeParams }: MapsProps = {}) {
         onCancel={() => setEditModalOpen(false)}
         onDelete={() => {
           if (activeTab) {
-            const mapIndex = activeTab.mapIndex;
-            setDeleteConfirm({ isOpen: true, mapIndex });
+            const mapIndex = maps.findIndex(
+              (m) => m.name === activeTab.activeMapName
+            );
+            if (mapIndex >= 0) {
+              setDeleteConfirm({ isOpen: true, mapIndex });
+            }
           }
         }}
         onDuplicate={handleDuplicateMap}
