@@ -3,10 +3,12 @@ import { CarcerMapTemplate } from '../../types/assets';
 import { createDefaultCarcerMapTile } from '../../components/MapTemplateForm';
 import {
   EditorState,
+  ensureEditorStateMap,
   getEditorStateMap,
   getPaintMapName,
 } from '../editorState';
-import { getTileList } from '../editorEvents';
+import { getGridPaintContext, getTileList } from '../editorEvents';
+import { resolveGridBrushCell } from '../../utils/mapGridIndex';
 import type { PaintAction } from '../paintTools';
 import { MapTool } from './types';
 
@@ -34,29 +36,80 @@ const draw: MapTool = {
     // Draw writes happen in update().
   },
   update(action, map) {
-    const mapTiles = getTileList(map);
-    for (const ind of action.data.tileInds) {
-      const startX = ind % map.width;
-      const startY = Math.floor(ind / map.width);
-      const floorDrawBrush = action.data.floorDrawBrush;
-      if (floorDrawBrush?.length) {
-        for (const bt of floorDrawBrush) {
-          const newX = startX + bt.xOffset;
-          const newY = startY + bt.yOffset;
-          const newInd = newY * map.width + newX;
-
-          if (newX < 0 || newX >= map.width || newY < 0 || newY >= map.height) {
-            continue;
-          }
-
-          Object.assign(mapTiles[newInd], bt.originalTile.ref);
-        }
-      } else {
+    const brush = action.data.floorDrawBrush;
+    if (!brush?.length) {
+      const mapTiles = getTileList(map);
+      for (const ind of action.data.tileInds) {
         Object.assign(mapTiles[ind], action.data.paintTileRef);
+      }
+      return;
+    }
+
+    // Clone brush: each cell is placed relative to the anchor and may fall into
+    // a neighbouring grid block. Resolve every cell to its real block, capture
+    // the tile it overwrites (once) for undo, then write.
+    const ctx = getGridPaintContext();
+    const mapsByName: Record<string, CarcerMapTemplate> = { [map.name]: map };
+    if (ctx) {
+      for (const m of ctx.maps) {
+        mapsByName[m.name] = m;
+      }
+    }
+    const grids = ctx?.mapGrids ?? [];
+    const writes = (action.data.blockWrites ??= []);
+    const seen = new Set(writes.map((w) => `${w.mapName}:${w.ind}`));
+
+    for (const anchorInd of action.data.tileInds) {
+      const startX = anchorInd % map.width;
+      const startY = Math.floor(anchorInd / map.width);
+      for (const bt of brush) {
+        const target = resolveGridBrushCell(
+          map,
+          startX + bt.xOffset,
+          startY + bt.yOffset,
+          grids,
+          mapsByName,
+        );
+        if (!target) {
+          continue;
+        }
+        const targetTiles = getTileList(target.map);
+        const key = `${target.map.name}:${target.tileIndex}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          if (target.map.name !== map.name) {
+            ensureEditorStateMap(target.map.name);
+          }
+          writes.push({
+            mapName: target.map.name,
+            ind: target.tileIndex,
+            prev: structuredClone(targetTiles[target.tileIndex]),
+          });
+        }
+        Object.assign(targetTiles[target.tileIndex], bt.originalTile.ref);
       }
     }
   },
   undo(action, map) {
+    const blockWrites = action.data.blockWrites;
+    if (blockWrites && blockWrites.length > 0) {
+      const ctx = getGridPaintContext();
+      const byName: Record<string, CarcerMapTemplate> = { [map.name]: map };
+      if (ctx) {
+        for (const m of ctx.maps) {
+          byName[m.name] = m;
+        }
+      }
+      for (const write of blockWrites) {
+        const target = byName[write.mapName];
+        if (!target) {
+          continue;
+        }
+        getTileList(target)[write.ind] = structuredClone(write.prev);
+      }
+      return;
+    }
+
     const mapTiles = getTileList(map);
     for (let i = 0; i < action.data.tileInds.length; i++) {
       const ind = action.data.tileInds[i];

@@ -112,6 +112,70 @@ export function isGridSlotEditable(slot: GridAdjacentSlot): boolean {
   return Boolean(slot.mapName && slot.map);
 }
 
+export interface GridBrushCellTarget {
+  map: CarcerMapTemplate;
+  tileIndex: number;
+}
+
+/**
+ * Resolve a tile position given relative to `anchorMap`'s top-left (which may be
+ * negative or past its edges) to the grid block that actually contains it,
+ * walking whole grid cells. Returns null when it falls off the grid, onto an
+ * unassigned/unloaded cell, or into a block too small for that local coord.
+ * With no grid it just bounds-checks against `anchorMap` itself.
+ */
+export function resolveGridBrushCell(
+  anchorMap: CarcerMapTemplate,
+  localX: number,
+  localY: number,
+  mapGrids: MapGridTemplate[],
+  mapsByName: Record<string, CarcerMapTemplate>,
+): GridBrushCellTarget | null {
+  if (
+    localX >= 0 &&
+    localX < anchorMap.width &&
+    localY >= 0 &&
+    localY < anchorMap.height
+  ) {
+    return { map: anchorMap, tileIndex: localY * anchorMap.width + localX };
+  }
+
+  const placement = findMapGridPlacement(anchorMap.name, mapGrids);
+  if (!placement) {
+    return null;
+  }
+  const cellW = placement.grid.mapWidth;
+  const cellH = placement.grid.mapHeight;
+  if (cellW <= 0 || cellH <= 0) {
+    return null;
+  }
+
+  const cellDX = Math.floor(localX / cellW);
+  const cellDY = Math.floor(localY / cellH);
+  const cellX = placement.cellX + cellDX;
+  const cellY = placement.cellY + cellDY;
+  if (
+    cellY < 0 ||
+    cellY >= placement.grid.gridHeight ||
+    cellX < 0 ||
+    cellX >= placement.grid.gridWidth
+  ) {
+    return null;
+  }
+
+  const name = placement.grid.cells[cellY]?.[cellX]?.trim() ?? '';
+  const map = name ? mapsByName[name] : undefined;
+  if (!map) {
+    return null;
+  }
+  const inX = localX - cellDX * cellW;
+  const inY = localY - cellDY * cellH;
+  if (inX < 0 || inX >= map.width || inY < 0 || inY >= map.height) {
+    return null;
+  }
+  return { map, tileIndex: inY * map.width + inX };
+}
+
 /**
  * Whether the editor should show a click target on this slot: any cell holding a
  * map (so its "Open" rectangle appears wherever that map is drawn), plus the

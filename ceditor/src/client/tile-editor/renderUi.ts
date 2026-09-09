@@ -105,6 +105,7 @@ import {
   getTileChangesForPaintingTerrainAt,
 } from './terrainTool';
 import {
+  getGridPaintContext,
   getIndsOfBoundingRect,
   getIsDraggingRight,
   getTileList,
@@ -119,6 +120,7 @@ import {
   GridAdjacentSlot,
   isGridSlotEditable,
   isGridSlotNavigable,
+  resolveGridBrushCell,
 } from '../utils/mapGridIndex';
 
 const drawHighlightRect = (
@@ -398,8 +400,12 @@ export const renderToolUi = (
       }
     }
   } else if (currentPaintAction === PaintActionType.DRAW) {
-    const partialHoveredTileData = getEditorStateMap(mapName)?.hoveredTileData ?? { x: -1, y: -1 };
+    const partialHoveredTileData = getEditorStateMap(mapName)?.hoveredTileData ?? {
+      x: -1,
+      y: -1,
+    };
     if (
+      isHoverBlock &&
       getIsDraggingRight() &&
       partialHoveredTileData.x > -1 &&
       partialHoveredTileData.y > -1
@@ -419,29 +425,40 @@ export const renderToolUi = (
           drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
         }
       }
-    } else if (rectCloneBrushTiles.length) {
+    } else if (
+      rectCloneBrushTiles.length &&
+      isHoverBlock &&
+      partialHoveredTileData.x > -1 &&
+      partialHoveredTileData.y > -1
+    ) {
+      // Preview once, from the block under the pointer. Cells that fall past
+      // this block resolve into the neighbouring grid map and are drawn at
+      // their out-of-range local coords (the block sits at this transform).
+      const gridCtx = getGridPaintContext();
+      const mapsByName: Record<string, CarcerMapTemplate> = {
+        [mapData.name]: mapData,
+      };
+      if (gridCtx) {
+        for (const m of gridCtx.maps) {
+          mapsByName[m.name] = m;
+        }
+      }
+      const grids = gridCtx?.mapGrids ?? [];
       for (const brush of rectCloneBrushTiles) {
-        const newX = partialHoveredTileData.x + brush.xOffset;
-        const newY = partialHoveredTileData.y + brush.yOffset;
-        if (
-          newX < 0 ||
-          newX >= mapData.width ||
-          newY < 0 ||
-          newY >= mapData.height
-        ) {
+        const gx = partialHoveredTileData.x + brush.xOffset;
+        const gy = partialHoveredTileData.y + brush.yOffset;
+        if (!resolveGridBrushCell(mapData, gx, gy, grids, mapsByName)) {
           continue;
         }
-
-        const spriteName = getSpriteNameFromTile(brush.originalTile.ref);
-        const spr = spriteMap[spriteName];
-        const tileX = newX * mapData.spriteWidth * scale;
-        const tileY = newY * mapData.spriteHeight * scale;
+        const spr = spriteMap[getSpriteNameFromTile(brush.originalTile.ref)];
+        const tileX = gx * tileWidth * scale;
+        const tileY = gy * tileHeight * scale;
         drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
         if (spr) {
           drawHighlightTile(spr, tileX, tileY, scale, ctx);
         }
       }
-    } else {
+    } else if (!rectCloneBrushTiles.length) {
       const hoverX =
         getEditorStateMap(mapName)?.hoveredTileData?.x ?? -1;
       const hoverY =

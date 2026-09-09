@@ -16,7 +16,12 @@ import {
   updateEditorStateMapNoReRender,
   updateEditorStateNoReRender,
 } from './editorState';
-import { commitCurrentLayer, getIsDraggingRight, getTileList } from './editorEvents';
+import {
+  commitCurrentLayer,
+  getGridPaintContext,
+  getIsDraggingRight,
+  getTileList,
+} from './editorEvents';
 // import {
 //   buildTerrainLookup,
 //   collectAffectedTileIndices,
@@ -59,6 +64,12 @@ interface PaintActionData {
   extraPrevRefData: CarcerMapTileTemplate[];
 
   prevRefData: CarcerMapTileTemplate[];
+
+  /**
+   * Every tile a clone-brush stroke wrote, tagged with its block. Lets one
+   * stroke span grid maps and one undo restore every block it touched.
+   */
+  blockWrites?: { mapName: string; ind: number; prev: CarcerMapTileTemplate }[];
 }
 
 export interface PaintAction {
@@ -188,40 +199,44 @@ export const onActionUpdate = (
   if (!action.data.tileInds.includes(ind)) {
     action.data.tileInds.push(ind);
     action.data.prevRefData.push(structuredClone(mapTiles[ind]));
-
-    // ensure every tile affected by brush is also in tileInds array
-    if (action.type == PaintActionType.DRAW && action.data.floorDrawBrush) {
-      for (const ind of action.data.tileInds) {
-        const startX = ind % mapData.width;
-        const startY = Math.floor(ind / mapData.width);
-        const floorDrawBrush = action.data.floorDrawBrush;
-        if (floorDrawBrush?.length) {
-          for (const bt of floorDrawBrush) {
-            const newX = startX + bt.xOffset;
-            const newY = startY + bt.yOffset;
-            const newInd = newY * mapData.width + newX;
-
-            if (
-              newX < 0 ||
-              newX >= mapData.width ||
-              newY < 0 ||
-              newY >= mapData.height
-            ) {
-              continue;
-            }
-
-            if (!action.data.extraTileInds.includes(newInd)) {
-              action.data.extraTileInds.push(newInd);
-              action.data.extraPrevRefData.push(
-                structuredClone(mapTiles[newInd]),
-              );
-            }
-          }
-        }
-      }
-    }
-
+    // Clone-brush strokes capture their own per-tile undo state (per block) in
+    // DRAW.update via action.data.blockWrites, so no pre-clone pass here.
     applyActionUpdate(action, mapData, editorState);
+  }
+};
+
+/**
+ * Commit the materialized layer of every block a clone-brush stroke touched
+ * besides `alreadyCommitted`, so writes that landed in neighbouring grid maps
+ * are flushed and their caches invalidated.
+ */
+const commitBlockWriteMaps = (
+  action: PaintAction,
+  alreadyCommitted: string,
+  level: number,
+) => {
+  const writes = action.data.blockWrites;
+  if (!writes || writes.length === 0) {
+    return;
+  }
+  const ctx = getGridPaintContext();
+  if (!ctx) {
+    return;
+  }
+  const byName: Record<string, CarcerMapTemplate> = {};
+  for (const m of ctx.maps) {
+    byName[m.name] = m;
+  }
+  const done = new Set([alreadyCommitted]);
+  for (const write of writes) {
+    if (done.has(write.mapName)) {
+      continue;
+    }
+    done.add(write.mapName);
+    const map = byName[write.mapName];
+    if (map) {
+      commitCurrentLayer(map, level);
+    }
   }
 };
 
@@ -260,10 +275,8 @@ export const onActionComplete = (
   });
   // Grid-wide undo ordering across every block edited this session.
   pushGridUndo(paintMapName);
-  commitCurrentLayer(
-    mapData,
-    editorState.currentLevel
-  );
+  commitCurrentLayer(mapData, editorState.currentLevel);
+  commitBlockWriteMaps(action, mapData.name, editorState.currentLevel);
 };
 
 export const undo = (
@@ -288,6 +301,7 @@ export const undo = (
   // Perform the undo
   undoAction(mapData, actionToUndo);
   commitCurrentLayer(mapData, editorState.currentLevel);
+  commitBlockWriteMaps(actionToUndo, mapData.name, editorState.currentLevel);
 
   // Update undo index and trigger re-render
   const newUndoIndex = undoIndex - 1;

@@ -132,6 +132,22 @@ export const setGridNavigationHandlers = (
 
 const GRID_SLOT_CLICK_DRAG_THRESHOLD = 6;
 
+/**
+ * Maps + grids for grid-aware tools (cross-block brush stamping and its
+ * preview). Backed by the same handlers the canvas navigation uses; null before
+ * they are registered or outside the map editor.
+ */
+export const getGridPaintContext = (): {
+  maps: CarcerMapTemplate[];
+  mapGrids: MapGridTemplate[];
+} | null => {
+  const handlers = gridNavigationHandlers;
+  if (!handlers) {
+    return null;
+  }
+  return { maps: handlers.getMaps(), mapGrids: handlers.getMapGrids() };
+};
+
 const findGridSlotAtScreen = (
   clientX: number,
   clientY: number,
