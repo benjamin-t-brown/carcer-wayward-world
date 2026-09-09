@@ -102,8 +102,8 @@ model test; it will fail because the particle survives without a window.
 | 4 | Replace static service locators with explicit dependencies | skipped | — |
 | 5 | Give LayerManager one authoritative stack | complete | `726191c` |
 | 6 | Clarify world simulation and platform-output boundaries | complete | `c5516dc` |
-| 7 | Replace mechanical observers with reusable bindings | complete | (this commit) |
-| 8 | Final verification and documentation | not started | — |
+| 7 | Replace mechanical observers with reusable bindings | complete | `5a92d91` |
+| 8 | Final verification and documentation | complete | this commit (`Document refined runtime architecture`) |
 
 ## Phase 1 notes
 
@@ -330,9 +330,97 @@ single reusable binding.
 Gate: `make -C src test` (43 CTest, 100%), `make -C src ui` (all targets link),
 `make -C src` (CARCER links), `git diff --check` clean.
 
+## Phase 8 notes
+
+Final native qualification from the documented workflow, on the Phase 0 host,
+compiler, preset, and job count.
+
+### Repeated measurements (same host as Phase 0)
+
+Reproduced with the Phase 0 "Reproduction" commands against `dev-debug`.
+
+| Measurement | Phase 0 baseline | Phase 8 | Delta |
+| --- | --- | --- | --- |
+| Configure | ~2.8 s | ~2.2 s | −0.6 s |
+| Clean build (`CARCER`) | ~18.4 s wall | ~14.7 s wall | −3.7 s (−20%) |
+| Incremental no-op build | ~0.31 s wall | ~0.23 s wall | −0.08 s |
+| Full `make -C src test` | ~78 s wall | ~62 s wall | −16 s |
+| `HeaderSelfContainment` alone | ~45 s | ~30.5 s | −14.5 s |
+| Full `make -C src ui` | ~15.8 s wall | ~12.2 s wall | −3.6 s |
+| Non-UI test sources / CTest tests | 39 / 40 | 42 / 43 | +3 / +3 |
+| UI compile-only targets | 43 | 43 | 0 |
+| Production `.cpp` in `src` | 226 | 227 | +1 |
+| Production `.h`/`.hpp` in `src` | 265 | 238 | −27 |
+| `CARCER` executable size | 4,699,656 B | 5,103,280 B | +403,624 B (+8.6%) |
+
+No timing regression: every wall-clock measurement improved. The clean-build time
+fell ~20%, well on the favorable side of the plan's 10% investigation threshold,
+so no investigation was required. Header count dropped by 27 (24 observers removed
+net of `ActionObserver`, plus the four dormant `.h`/`.hpp` removed in Phase 1); the
+`.cpp` count rose by one (three new regression tests added, `CombatRunner.cpp` and
+`hiscore.cpp` removed). The executable grew 8.6% — attributable to the
+`bmin::UniquePtr` ownership templates and the `std::function`-backed
+`ActionObserver`; this is binary size, not the clean-build time the 10% rule
+governs, and it is recorded here for honesty rather than flagged as a regression.
+
+### Cross-platform qualification
+
+- **Clang debug (`dev-debug`, Apple clang 21.0.0):** full workflow passes — clean
+  `make -C src`, `make -C src test` (43/43 CTest, 100%), `make -C src ui` (all 43
+  UI targets link), `git diff --check` clean.
+- **GCC debug/release, Clang release, MSYS2/UCRT64, Emscripten (`make js`):** not
+  run. These toolchains are unavailable on the implementation host (macOS). The
+  presets and scripts (`gcc-*`, `clang-release`, `Invoke-Ucrt64.ps1`,
+  `emscripten-*`) are unchanged by this work, so cross-platform behavior is
+  expected to be unaffected, but that is asserted, not measured here.
+- **clangd from repo root:** `build/cmake/dev-debug/compile_commands.json` is still
+  generated and the checked-in `.clangd` still selects it; usable from the
+  repository root, unchanged from baseline.
+
+### Documentation
+
+`README.md` and `DEVELOPMENT.md` required no changes. The refactor altered only
+internal mechanics (action allocation via `state::makeAction`, `bmin::UniquePtr`
+ownership at adopters, the `LayerManager` command queue, and the
+`ActionObserver`/`makeActionObserver` binding). None of that appears in the public
+construction, extension, layer, or testing guidance: the quick-start commands, the
+`.h`/`.cpp` vs `.hpp` header convention, the `cmake/carcer_sources.cmake`
+registration step, the `model -> … -> ui -> layers -> app` dependency direction,
+and the test/IDE instructions are all still accurate. Per the plan's "only where
+public guidance changed" instruction, both files are left as-is.
+
+### Acceptance
+
+- Native game, unit suite, and every UI target build from a clean checkout — yes
+  (clean `dev-debug` qualification above).
+- Supported cross-platform results recorded honestly — yes (only the available
+  Clang-debug toolchain was exercised; the rest are declared unrun).
+- Dependency direction unchanged or cleaner — unchanged
+  (`model -> … -> ui -> layers -> app`).
+- No static state/database service locator removed — `StateManagerInterface` and
+  `DatabaseInterface` **remain** by the Phase 4 skip decision; this acceptance
+  item is not met and is recorded as such, not glossed.
+- No hidden raw-pointer ownership boundary in the changed subsystems — met:
+  actions (Phase 2), layers and UI adopters (Phase 3) transfer ownership by value
+  through `bmin::UniquePtr`.
+- Layer state has one source of truth — met: `LayerManager::layers` is
+  authoritative (Phase 5); routing stays front-only and `void` by the descoped
+  Part B decision.
+- Particle playback semantics independent per particle — met (Phase 6).
+- Quick-start commands unchanged — yes.
+
+Gate: `make -C src test` (43 CTest, 100%), `make -C src ui` (all targets link),
+`make -C src` (CARCER links), `git diff --check` clean.
+
 ## Deferred / known items
 
-- Cross-platform qualification (MSYS2/UCRT64, Emscripten) is deferred to Phase 8;
-  those toolchains are unavailable on the implementation host.
+- **Phase 4 (static service locators) skipped by decision.** `StateManagerInterface`
+  and `DatabaseInterface` remain; see the Phase 4 notes. The plan's "no static
+  service locator remains" acceptance item is therefore not satisfied.
+- **Phase 5 Part B (position-based consumed input routing) descoped by decision.**
+  Event handlers stay `void`; routing is front-only. See the Phase 5 notes.
+- **Cross-platform qualification (GCC, Clang release, MSYS2/UCRT64, Emscripten) not
+  run.** Those toolchains are unavailable on the macOS implementation host; the
+  relevant presets and scripts are unchanged by this work.
 </content>
 </invoke>
