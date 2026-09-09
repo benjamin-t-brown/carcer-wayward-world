@@ -3,12 +3,22 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
 LOCK_FILE="${CARCER_DEPS_LOCK:-${ROOT}/deps.lock}"
 DEPS_ROOT="${CARCER_DEPS_ROOT:-${ROOT}/.deps}"
 SDL2W_ROOT="${DEPS_ROOT}/sdl2w"
 BMIN_ROOT="${DEPS_ROOT}/bmin"
 BUNDLE_ROOT="${CARCER_SDL2W_BUNDLE:-${ROOT}/build/compat/dependency-headers}"
 CXX_COMMAND="${CARCER_DEPS_CXX:-${CXX:-c++}}"
+
+# The dependency Makefiles compile with a native g++ through GNU make, whose
+# recipe shell is MSYS2's /bin/sh -- and that shell blanks TMP/TEMP/TMPDIR, so
+# native g++ has no scratch directory and falls through to the unwritable
+# C:\WINDOWS\ ("Cannot create temporary file"). -pipe streams the compiler
+# stages instead of spilling them to a temp file, sidestepping the problem.
+case "$(uname -s 2>/dev/null || echo)" in
+  MINGW* | MSYS* | CYGWIN*) CXX_COMMAND="${CXX_COMMAND} -pipe" ;;
+esac
 TARGET="${CARCER_DEPS_TARGET:-native}"
 MODE="${1:-headers}"
 FORCE="${CARCER_DEPS_FORCE:-0}"

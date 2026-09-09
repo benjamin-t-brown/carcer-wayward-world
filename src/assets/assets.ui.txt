@@ -9,7 +9,7 @@ Pic,ui_action_buttons_half,assets/img/ui/action_buttons.png
 Sprites,ui_action_buttons_half,32,32,16
 
 Pic,ui_move_buttons,assets/img/ui/move_buttons.png
-Sprites,ui_move_buttons,24,44,22
+Sprites,ui_move_buttons,20,44,22
 
 Pic,ui_move_buttons_half,assets/img/ui/move_buttons.png
 Sprites,ui_move_buttons_half,24,22,22
