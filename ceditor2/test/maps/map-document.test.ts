@@ -85,6 +85,23 @@ test('sprite getters apply runtime defaults without writing them to snapshots', 
   assert.equal('spriteHeight' in document.snapshot(), false);
 });
 
+test('parser rejects non-positive explicit sprite dimensions', () => {
+  const zeroWidth = mapFixture();
+  zeroWidth.spriteWidth = 0;
+  assert.throws(
+    () => parseMapRecord(zeroWidth, 'maps[3]'),
+    (error: unknown) => {
+      assert.ok(error instanceof MapParseError);
+      assert.equal(error.path, 'maps[3].spriteWidth');
+      return true;
+    },
+  );
+
+  const negativeHeight = mapFixture();
+  negativeHeight.spriteHeight = -1;
+  assert.throws(() => parseMapRecord(negativeHeight), /positive integer/);
+});
+
 test('coordinate and cell reads are bounded and support negative layers', () => {
   const document = MapDocument.from(mapFixture());
 

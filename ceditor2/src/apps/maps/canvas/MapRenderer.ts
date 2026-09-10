@@ -30,6 +30,18 @@ export interface DrawMapOptions {
   marginTiles?: number;
 }
 
+/** One independently positioned map layer in an ordered canvas composition. */
+export interface RenderMapBlock {
+  readonly document: RenderMapDocument;
+  readonly layer: number;
+  readonly originX: number;
+  readonly originY: number;
+  readonly opacity?: number;
+  readonly background?: string;
+  /** Extra cells for sprites that extend beyond their logical tile. */
+  readonly marginTiles?: number;
+}
+
 export interface MapRenderStats {
   mapBlocks: number;
   visitedTiles: number;
@@ -77,11 +89,60 @@ export class MapRenderer {
   }
 
   drawMap(context: CanvasRenderingContext2D, options: DrawMapOptions): boolean {
-    const document = options.document;
-    const viewport = options.viewport;
-    const originX = options.originX ?? 0;
-    const originY = options.originY ?? 0;
+    return this.drawBlock(
+      context,
+      options.viewport,
+      options.document,
+      options.layer,
+      options.originX ?? 0,
+      options.originY ?? 0,
+      options.opacity,
+      options.background,
+      options.marginTiles,
+    );
+  }
 
+  /**
+   * Draws blocks in iterable order and returns the number intersecting the
+   * current logical canvas. Call `beginFrame` once before composing blocks.
+   */
+  drawMaps(
+    context: CanvasRenderingContext2D,
+    viewport: Viewport,
+    blocks: Iterable<Readonly<RenderMapBlock>>,
+  ): number {
+    let visibleBlocks = 0;
+    for (const block of blocks) {
+      if (
+        this.drawBlock(
+          context,
+          viewport,
+          block.document,
+          block.layer,
+          block.originX,
+          block.originY,
+          block.opacity,
+          block.background,
+          block.marginTiles,
+        )
+      ) {
+        visibleBlocks += 1;
+      }
+    }
+    return visibleBlocks;
+  }
+
+  private drawBlock(
+    context: CanvasRenderingContext2D,
+    viewport: Viewport,
+    document: RenderMapDocument,
+    layer: number,
+    originX: number,
+    originY: number,
+    opacity: number | undefined,
+    background: string | undefined,
+    marginTiles: number | undefined,
+  ): boolean {
     const visible = viewport.writeVisibleTileBounds(this.visibleBounds, {
       originX,
       originY,
@@ -89,29 +150,41 @@ export class MapRenderer {
       mapHeight: document.height,
       tileWidth: document.tileWidth,
       tileHeight: document.tileHeight,
-      canvasWidth: this.canvasWidth || context.canvas.width,
-      canvasHeight: this.canvasHeight || context.canvas.height,
-      marginTiles: options.marginTiles,
+      canvasWidth: this.canvasWidth,
+      canvasHeight: this.canvasHeight,
+      marginTiles,
     });
     if (!visible) {
       return false;
     }
 
     this.stats.mapBlocks += 1;
-    const opacity = clampOpacity(options.opacity ?? 1);
-    if (opacity !== 1) {
+    const blockOpacity = clampOpacity(opacity ?? 1);
+    if (blockOpacity !== 1) {
       context.save();
-      context.globalAlpha *= opacity;
+      context.globalAlpha *= blockOpacity;
     }
 
     try {
-      if (options.background) {
-        context.fillStyle = options.background;
+      if (background) {
+        const backgroundLeft = Math.round(viewport.worldToScreenX(originX));
+        const backgroundTop = Math.round(viewport.worldToScreenY(originY));
+        const backgroundRight = Math.round(
+          viewport.worldToScreenX(
+            originX + document.width * document.tileWidth,
+          ),
+        );
+        const backgroundBottom = Math.round(
+          viewport.worldToScreenY(
+            originY + document.height * document.tileHeight,
+          ),
+        );
+        context.fillStyle = background;
         context.fillRect(
-          Math.round(viewport.worldToScreenX(originX)),
-          Math.round(viewport.worldToScreenY(originY)),
-          Math.round(document.width * document.tileWidth * viewport.scale),
-          Math.round(document.height * document.tileHeight * viewport.scale),
+          backgroundLeft,
+          backgroundTop,
+          backgroundRight - backgroundLeft,
+          backgroundBottom - backgroundTop,
         );
       }
 
@@ -133,7 +206,7 @@ export class MapRenderer {
 
         for (let tileX = minX; tileX <= maxX; tileX += 1, tileIndex += 1) {
           this.stats.visitedTiles += 1;
-          const sprite = document.spriteAt(options.layer, tileIndex);
+          const sprite = document.spriteAt(layer, tileIndex);
           if (sprite === null) {
             this.stats.blankTiles += 1;
             continue;
@@ -188,7 +261,7 @@ export class MapRenderer {
         }
       }
     } finally {
-      if (opacity !== 1) {
+      if (blockOpacity !== 1) {
         context.restore();
       }
     }

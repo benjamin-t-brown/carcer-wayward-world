@@ -63,6 +63,17 @@ function optionalInteger(object: JsonObject, key: string, path: string): void {
   }
 }
 
+function optionalPositiveInteger(
+  object: JsonObject,
+  key: string,
+  path: string,
+): void {
+  if (object[key] === undefined) return;
+  if (requireInteger(object, key, path) <= 0) {
+    fail(`${path}.${key}`, 'expected a positive integer');
+  }
+}
+
 function optionalBoolean(object: JsonObject, key: string, path: string): void {
   const value = object[key];
   if (value !== undefined && typeof value !== 'boolean') {
@@ -241,8 +252,8 @@ export function parseMapRecord(value: unknown, path = 'map'): MapRecord {
   if (height <= 0) {
     fail(`${path}.height`, 'expected a positive integer');
   }
-  optionalInteger(map, 'spriteWidth', path);
-  optionalInteger(map, 'spriteHeight', path);
+  optionalPositiveInteger(map, 'spriteWidth', path);
+  optionalPositiveInteger(map, 'spriteHeight', path);
 
   if (!Array.isArray(map.tilesets)) {
     fail(`${path}.tilesets`, 'expected an array');

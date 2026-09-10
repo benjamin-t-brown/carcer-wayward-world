@@ -1,13 +1,10 @@
-import type { JsonArray, JsonObject } from '../../core/database/index.js';
+import type { JsonArray } from '../../core/database/index.js';
+import { MapGridTopology } from '../../core/domain/mapGrids/index.js';
 import {
   MapDocument,
   parseMapCollection,
 } from '../../core/domain/maps/index.js';
-import {
-  loadMediaCatalog,
-  type MediaCatalog,
-  type SpriteDefinition,
-} from '../../core/media/index.js';
+import { loadMediaCatalog, type MediaCatalog } from '../../core/media/index.js';
 import { element } from '../../core/ui/dom.js';
 import type { DatabasePageContext } from '../../core/ui/index.js';
 import {
@@ -19,7 +16,7 @@ import {
   normalizeWheelDelta,
   wheelZoomFactor,
   writeCanvasMetrics,
-  type RenderMapDocument,
+  type RenderMapBlock,
   type TileBounds,
 } from './canvas/index.js';
 import { BoundedHistory } from './history/BoundedHistory.js';
@@ -33,17 +30,22 @@ import {
   createPencilGesture,
   type PaintGesture,
 } from './tools/paintGesture.js';
+import { translateTileGraphic } from './tools/tileGraphic.js';
+import {
+  MapRenderDocument,
+  parseTilesets,
+  type TilesetInfo,
+} from './MapRenderDocument.js';
+import {
+  createMapScene,
+  hitTestMapScene,
+  isMapSceneBlockEditable,
+  writeMapScene,
+  type MapSceneBlock,
+  type MapSceneHit,
+} from './MapScene.js';
 
 type MapTool = 'select' | 'pencil' | 'erase';
-interface TilesetTile {
-  id: number;
-  description: string;
-}
-interface TilesetInfo {
-  name: string;
-  spriteBase: string;
-  tiles: TilesetTile[];
-}
 
 class MapGraphicAccess implements GraphicCellAccess {
   constructor(private readonly documents: ReadonlyMap<string, MapDocument>) {}
@@ -71,69 +73,17 @@ class MapGraphicAccess implements GraphicCellAccess {
   }
 }
 
-class RenderDocumentAdapter implements RenderMapDocument {
-  private spriteByTileset: readonly (
-    ReadonlyMap<number, SpriteDefinition> | undefined
-  )[] = [];
-  private cachedLayer?: number;
-  private cachedLayerData?: readonly number[];
-  constructor(readonly source: MapDocument) {}
-  get width() {
-    return this.source.width;
-  }
-  get height() {
-    return this.source.height;
-  }
-  get tileWidth() {
-    return this.source.spriteWidth;
-  }
-  get tileHeight() {
-    return this.source.spriteHeight;
-  }
-  rebuildSprites(
-    catalog: MediaCatalog,
-    tilesets: ReadonlyMap<string, TilesetInfo>,
-  ): void {
-    this.spriteByTileset = this.source.tilesetNames.map((name) => {
-      const tileset = tilesets.get(name);
-      if (!tileset) return undefined;
-      const sprites = new Map<number, SpriteDefinition>();
-      for (const tile of tileset.tiles) {
-        const sprite = catalog.spriteByName.get(
-          `${tileset.spriteBase}_${tile.id}`,
-        );
-        if (sprite) sprites.set(tile.id, sprite);
-      }
-      return sprites;
-    });
-  }
-  spriteAt(
-    layer: number,
-    tileIndex: number,
-  ): SpriteDefinition | null | undefined {
-    if (layer !== this.cachedLayer) {
-      this.cachedLayer = layer;
-      this.cachedLayerData = this.source.layerData(layer);
-    }
-    const graphics = this.cachedLayerData;
-    if (!graphics || tileIndex < 0 || tileIndex >= this.source.cellCount)
-      return undefined;
-    const pair = tileIndex * 2;
-    const tilesetIndex = graphics[pair]!;
-    const spriteIndex = graphics[pair + 1]!;
-    if (tilesetIndex === 0 && spriteIndex === 0) return null;
-    return this.spriteByTileset[tilesetIndex]?.get(spriteIndex);
-  }
-}
-
 export class MapEditorController {
   private readonly documents: MapDocument[];
   private readonly documentsByName: Map<string, MapDocument>;
   private readonly access: MapGraphicAccess;
   private readonly history = new BoundedHistory<GraphicCellAccess>();
   private readonly tilesets: Map<string, TilesetInfo>;
+  private readonly gridTopologies: readonly MapGridTopology[];
   private readonly viewports = new Map<string, Viewport>();
   private readonly renderer = new MapRenderer();
+  private readonly renderDocuments = new Map<string, MapRenderDocument>();
+  private readonly renderBlocks: RenderMapBlock[] = [];
   private readonly canvasMetrics = createCanvasMetrics();
   private readonly pointerPoint = { x: 0, y: 0 };
   private readonly canvas = element('canvas', {
@@ -162,10 +112,10 @@ export class MapEditorController {
   };
   private currentIndex: number;
   private currentLayer = 0;
-  private selectedCell = -1;
-  private hoveredCell = -1;
+  private selectedHit?: MapSceneHit;
+  private hoveredHit?: MapSceneHit;
   private tool: MapTool = 'select';
-  private renderDocument?: RenderDocumentAdapter;
+  private readonly scene = createMapScene();
   private media?: MediaCatalog;
   private frameRequest?: number;
   private lastStatusUpdate = 0;
@@ -189,6 +139,10 @@ export class MapEditorController {
     );
     this.access = new MapGraphicAccess(this.documentsByName);
     this.tilesets = parseTilesets(context.session.collection('tilesets'));
+    this.gridTopologies = context.session
+      .collection('mapGrids')
+      .map((value, index) => MapGridTopology.from(value, `mapGrids[${index}]`));
+    this.rebuildRenderDocuments();
     const requested = initialUrl.searchParams.get('map');
     this.currentIndex = requested
       ? this.documents.findIndex((document) => document.name === requested)
@@ -210,7 +164,8 @@ export class MapEditorController {
       (catalog) => {
         if (this.destroyed) return;
         this.media = catalog;
-        this.rebuildRenderDocument();
+        this.rebuildRenderDocuments();
+        this.rebuildScene();
         this.renderStatus.textContent = 'Sprite sheets ready.';
       },
       (error: unknown) => {
@@ -265,7 +220,7 @@ export class MapEditorController {
       }),
     );
     const gridLabel = element('label', { className: 'map-grid-toggle' });
-    gridLabel.append(this.gridToggle, document.createTextNode(' Grid'));
+    gridLabel.append(this.gridToggle, document.createTextNode(' Tile grid'));
     toolbar.append(toolGroup, historyGroup, gridLabel);
     const canvasWrap = element('div', { className: 'map-canvas-wrap' });
     canvasWrap.append(this.canvas);
@@ -275,7 +230,7 @@ export class MapEditorController {
       this.selectionStatus,
       element('p', {
         className: 'muted',
-        text: 'Left-drag paints. Middle-drag pans. Wheel zooms around the pointer.',
+        text: 'Left-drag paints seamlessly across visible grid partitions. Middle-drag pans. Wheel zooms around the pointer.',
       }),
       this.renderStatus,
     );
@@ -293,8 +248,9 @@ export class MapEditorController {
     this.layerSelect.addEventListener('change', () => {
       this.finishGesture();
       this.currentLayer = Number(this.layerSelect.value);
-      this.selectedCell = -1;
-      this.hoveredCell = -1;
+      this.selectedHit = undefined;
+      this.hoveredHit = undefined;
+      this.rebuildRenderBlocks();
       this.updateSelectionStatus();
     });
     this.tilesetSelect.addEventListener('change', () =>
@@ -327,17 +283,19 @@ export class MapEditorController {
     const current = this.currentDocument();
     if (!current) {
       this.mapSelect.selectedIndex = -1;
-      this.renderDocument = undefined;
+      this.scene.blocks.length = 0;
+      this.scene.gridName = undefined;
+      this.renderBlocks.length = 0;
       this.updateSelectionStatus();
       return;
     }
     this.mapSelect.value = current.name;
     this.currentLayer = current.hasLayer(0) ? 0 : (current.layers[0] ?? 0);
-    this.selectedCell = -1;
-    this.hoveredCell = -1;
+    this.selectedHit = undefined;
+    this.hoveredHit = undefined;
     this.populateLayerSelect(current);
     this.populateTilesetSelect(current);
-    this.rebuildRenderDocument();
+    this.rebuildScene();
     if (!this.viewports.has(current.name)) {
       this.viewports.set(current.name, new Viewport());
       this.centerPending = true;
@@ -390,15 +348,82 @@ export class MapEditorController {
     this.tileSelect.selectedIndex = this.tileSelect.options.length ? 0 : -1;
   }
 
-  private rebuildRenderDocument(): void {
+  private rebuildRenderDocuments(): void {
+    this.renderDocuments.clear();
+    for (const document of this.documents) {
+      const adapter = new MapRenderDocument(document);
+      if (this.media) adapter.rebuildSprites(this.media, this.tilesets);
+      this.renderDocuments.set(document.name, adapter);
+    }
+  }
+
+  private rebuildScene(): void {
     const current = this.currentDocument();
     if (!current) {
-      this.renderDocument = undefined;
+      this.scene.blocks.length = 0;
+      this.scene.gridName = undefined;
+      this.renderBlocks.length = 0;
       return;
     }
-    const adapter = new RenderDocumentAdapter(current);
-    if (this.media) adapter.rebuildSprites(this.media, this.tilesets);
-    this.renderDocument = adapter;
+    writeMapScene(
+      this.scene,
+      current,
+      this.documentsByName,
+      this.gridTopologies,
+      {
+        worldBounds: {
+          left: 0,
+          top: 0,
+          right: current.width * current.spriteWidth,
+          bottom: current.height * current.spriteHeight,
+        },
+      },
+    );
+    this.rebuildRenderBlocks();
+  }
+
+  private writeVisibleScene(
+    viewport: Viewport,
+    width: number,
+    height: number,
+  ): void {
+    const current = this.currentDocument();
+    if (!current) return;
+    writeMapScene(
+      this.scene,
+      current,
+      this.documentsByName,
+      this.gridTopologies,
+      {
+        worldBounds: {
+          left: viewport.screenToWorldX(0),
+          top: viewport.screenToWorldY(0),
+          right: viewport.screenToWorldX(width),
+          bottom: viewport.screenToWorldY(height),
+        },
+      },
+    );
+    this.rebuildRenderBlocks();
+  }
+
+  private rebuildRenderBlocks(): void {
+    this.renderBlocks.length = 0;
+    for (const block of this.scene.blocks) {
+      const document = this.renderDocuments.get(block.document.name);
+      if (!document) continue;
+      this.renderBlocks.push({
+        document,
+        layer: this.currentLayer,
+        originX: block.originX,
+        originY: block.originY,
+        opacity: block.focused
+          ? 1
+          : isMapSceneBlockEditable(block, this.currentLayer)
+            ? 0.82
+            : 0.4,
+        background: '#09090b',
+      });
+    }
   }
 
   private currentDocument(): MapDocument | undefined {
@@ -418,23 +443,31 @@ export class MapEditorController {
     }
   }
 
-  private selectedGraphic(): TileGraphic | undefined {
-    const tileset = Number(this.tilesetSelect.value),
-      tile = Number(this.tileSelect.value);
-    return Number.isSafeInteger(tileset) && Number.isSafeInteger(tile)
-      ? [tileset, tile]
-      : undefined;
+  private selectedGraphicFor(document: MapDocument): TileGraphic | undefined {
+    const current = this.currentDocument();
+    const tile = Number(this.tileSelect.value);
+    if (!current || !Number.isSafeInteger(tile)) return undefined;
+    return translateTileGraphic(
+      current,
+      document,
+      Number(this.tilesetSelect.value),
+      tile,
+    );
   }
 
-  private cellAtCanvasPoint(x: number, y: number): number {
-    const current = this.currentDocument(),
-      viewport = this.currentViewport();
-    if (!current || !viewport) return -1;
-    return (
-      current.indexAt(
-        Math.floor(viewport.screenToWorldX(x) / current.spriteWidth),
-        Math.floor(viewport.screenToWorldY(y) / current.spriteHeight),
-      ) ?? -1
+  private hitAtCanvasPoint(x: number, y: number): MapSceneHit | undefined {
+    const viewport = this.currentViewport();
+    if (!viewport) return undefined;
+    this.writeVisibleScene(
+      viewport,
+      this.canvasMetrics.logicalWidth,
+      this.canvasMetrics.logicalHeight,
+    );
+    return hitTestMapScene(
+      this.scene,
+      viewport.screenToWorldX(x),
+      viewport.screenToWorldY(y),
+      this.currentLayer,
     );
   }
 
@@ -460,28 +493,26 @@ export class MapEditorController {
     );
   }
 
-  private startGesture(index: number): void {
-    const current = this.currentDocument();
-    if (!current || index < 0) return;
-    const cell = { documentId: current.name, layer: this.currentLayer, index };
+  private startGesture(hit: MapSceneHit | undefined): void {
+    if (!hit || !this.isHitEditable(hit)) return;
     if (this.tool === 'pencil') {
-      const graphic = this.selectedGraphic();
+      const graphic = this.selectedGraphicFor(hit.block.document);
       if (!graphic) return;
       this.gesture = createPencilGesture(this.access, graphic);
     } else if (this.tool === 'erase')
       this.gesture = createEraseGesture(this.access);
     else return;
-    this.gesture.visit(cell);
+    this.gesture.visit(hit.cell);
   }
 
-  private visitGesture(index: number): void {
-    const current = this.currentDocument();
-    if (this.gesture && current && index >= 0)
-      this.gesture.visit({
-        documentId: current.name,
-        layer: this.currentLayer,
-        index,
-      });
+  private visitGesture(hit: MapSceneHit | undefined): void {
+    if (!this.gesture || !hit || !this.isHitEditable(hit)) return;
+    if (this.tool === 'pencil') {
+      const graphic = this.selectedGraphicFor(hit.block.document);
+      if (graphic) this.gesture.visit(hit.cell, graphic);
+    } else {
+      this.gesture.visit(hit.cell);
+    }
   }
   private finishGesture(): void {
     const gesture = this.gesture;
@@ -524,15 +555,30 @@ export class MapEditorController {
       this.selectionStatus.textContent = 'No maps are available.';
       return;
     }
-    const index = this.selectedCell >= 0 ? this.selectedCell : this.hoveredCell;
-    const position = current.coordinatesOf(index),
-      graphic = current.readCell(this.currentLayer, index);
-    if (!position || !graphic) {
-      this.selectionStatus.textContent = `${current.name} · layer ${this.currentLayer}`;
+    const hit = this.selectedHit ?? this.hoveredHit;
+    const document = hit?.block.document ?? current;
+    const position = hit ? document.coordinatesOf(hit.cell.index) : undefined;
+    const graphic = hit
+      ? document.readCell(this.currentLayer, hit.cell.index)
+      : undefined;
+    if (!position) {
+      this.selectionStatus.textContent = `${current.name} · layer ${this.currentLayer}${this.scene.gridName ? ` · grid ${this.scene.gridName}` : ''}`;
       return;
     }
-    const tileset = current.tilesetNames[graphic.tilesetIndex] || '(empty)';
-    this.selectionStatus.textContent = `${this.selectedCell >= 0 ? 'Selected' : 'Hover'} ${index} (${position.x}, ${position.y}) · ${tileset}:${graphic.tileIndex}`;
+    if (!graphic) {
+      this.selectionStatus.textContent = `${document.name}:${hit?.cell.index} (${position.x}, ${position.y}) · layer ${this.currentLayer} unavailable · context only`;
+      return;
+    }
+    const tileset = document.tilesetNames[graphic.tilesetIndex] || '(empty)';
+    const mode = this.selectedHit ? 'Selected' : 'Hover';
+    const access = this.isHitEditable(hit) ? 'editable' : 'context only';
+    this.selectionStatus.textContent = `${mode} ${document.name}:${hit?.cell.index} (${position.x}, ${position.y}) · ${tileset}:${graphic.tileIndex} · ${access}`;
+  }
+
+  private isHitEditable(hit: MapSceneHit | undefined): boolean {
+    return Boolean(
+      hit && isMapSceneBlockEditable(hit.block, this.currentLayer),
+    );
   }
 
   private readonly handlePointerDown = (event: PointerEvent): void => {
@@ -546,12 +592,12 @@ export class MapEditorController {
       return;
     }
     if (event.button !== 0) return;
-    const cell = this.cellAtCanvasPoint(point.x, point.y);
-    this.hoveredCell = cell;
-    this.selectedCell = cell;
+    const hit = this.hitAtCanvasPoint(point.x, point.y);
+    this.hoveredHit = hit;
+    this.selectedHit = hit;
     if (this.tool !== 'select') {
-      this.startGesture(cell);
-      this.canvas.setPointerCapture(event.pointerId);
+      this.startGesture(hit);
+      if (this.gesture) this.canvas.setPointerCapture(event.pointerId);
     }
     this.updateSelectionStatus();
   };
@@ -567,12 +613,12 @@ export class MapEditorController {
       this.lastPointerY = point.y;
       return;
     }
-    const cell = this.cellAtCanvasPoint(point.x, point.y);
-    if (cell !== this.hoveredCell) {
-      this.hoveredCell = cell;
+    const hit = this.hitAtCanvasPoint(point.x, point.y);
+    if (!sameSceneHit(hit, this.hoveredHit)) {
+      this.hoveredHit = hit;
       this.updateSelectionStatus();
     }
-    if (this.gesture && (event.buttons & 1) !== 0) this.visitGesture(cell);
+    if (this.gesture && (event.buttons & 1) !== 0) this.visitGesture(hit);
   };
 
   private readonly handlePointerUp = (event: PointerEvent): void => {
@@ -642,9 +688,8 @@ export class MapEditorController {
     const height = this.canvasMetrics.logicalHeight;
     this.renderer.beginFrame(context, width, height);
     const current = this.currentDocument(),
-      viewport = this.currentViewport(),
-      rendered = this.renderDocument;
-    if (!current || !viewport || !rendered) return;
+      viewport = this.currentViewport();
+    if (!current || !viewport) return;
     if (this.centerPending) {
       viewport.centerOn(
         (current.width * current.spriteWidth) / 2,
@@ -654,50 +699,35 @@ export class MapEditorController {
       );
       this.centerPending = false;
     }
-    this.renderer.drawMap(context, {
-      document: rendered,
-      layer: this.currentLayer,
-      viewport,
-      background: '#09090b',
-    });
-    if (this.gridToggle.checked)
-      this.drawGrid(context, current, viewport, width, height);
-    this.drawCellOutline(
-      context,
-      current,
-      viewport,
-      this.hoveredCell,
-      '#78b9e8',
-      1,
-    );
-    this.drawCellOutline(
-      context,
-      current,
-      viewport,
-      this.selectedCell,
-      '#72ddc3',
-      2,
-    );
+    this.writeVisibleScene(viewport, width, height);
+    this.renderer.drawMaps(context, viewport, this.renderBlocks);
+    if (this.gridToggle.checked) {
+      for (const block of this.scene.blocks)
+        this.drawGrid(context, block, viewport, width, height);
+    }
+    this.drawCellOutline(context, viewport, this.hoveredHit, '#78b9e8', 1);
+    this.drawCellOutline(context, viewport, this.selectedHit, '#72ddc3', 2);
     if (time - this.lastStatusUpdate > 250) {
       this.lastStatusUpdate = time;
       const stats = this.renderer.stats;
       this.renderStatus.textContent = this.media
-        ? `${stats.drawnTiles} drawn · ${stats.visitedTiles} visible · ${stats.unresolvedSprites} unresolved · zoom ${viewport.scale.toFixed(2)}×`
+        ? `${stats.mapBlocks}/${this.scene.blocks.length} blocks · ${stats.drawnTiles} drawn · ${stats.visitedTiles} visible · ${stats.unresolvedSprites} unresolved · zoom ${viewport.scale.toFixed(2)}×`
         : 'Loading sprite definitions…';
     }
   }
 
   private drawGrid(
     context: CanvasRenderingContext2D,
-    current: MapDocument,
+    block: MapSceneBlock,
     viewport: Viewport,
     width: number,
     height: number,
   ): void {
+    const current = block.document;
     if (
       !viewport.writeVisibleTileBounds(this.visibleBounds, {
-        originX: 0,
-        originY: 0,
+        originX: block.originX,
+        originY: block.originY,
         mapWidth: current.width,
         mapHeight: current.height,
         tileWidth: current.spriteWidth,
@@ -716,15 +746,19 @@ export class MapEditorController {
       x += 1
     ) {
       const sx =
-        Math.round(viewport.worldToScreenX(x * current.spriteWidth)) + 0.5;
+        Math.round(
+          viewport.worldToScreenX(block.originX + x * current.spriteWidth),
+        ) + 0.5;
       context.moveTo(
         sx,
-        viewport.worldToScreenY(this.visibleBounds.minY * current.spriteHeight),
+        viewport.worldToScreenY(
+          block.originY + this.visibleBounds.minY * current.spriteHeight,
+        ),
       );
       context.lineTo(
         sx,
         viewport.worldToScreenY(
-          (this.visibleBounds.maxY + 1) * current.spriteHeight,
+          block.originY + (this.visibleBounds.maxY + 1) * current.spriteHeight,
         ),
       );
     }
@@ -734,14 +768,18 @@ export class MapEditorController {
       y += 1
     ) {
       const sy =
-        Math.round(viewport.worldToScreenY(y * current.spriteHeight)) + 0.5;
+        Math.round(
+          viewport.worldToScreenY(block.originY + y * current.spriteHeight),
+        ) + 0.5;
       context.moveTo(
-        viewport.worldToScreenX(this.visibleBounds.minX * current.spriteWidth),
+        viewport.worldToScreenX(
+          block.originX + this.visibleBounds.minX * current.spriteWidth,
+        ),
         sy,
       );
       context.lineTo(
         viewport.worldToScreenX(
-          (this.visibleBounds.maxX + 1) * current.spriteWidth,
+          block.originX + (this.visibleBounds.maxX + 1) * current.spriteWidth,
         ),
         sy,
       );
@@ -751,23 +789,34 @@ export class MapEditorController {
 
   private drawCellOutline(
     context: CanvasRenderingContext2D,
-    current: MapDocument,
     viewport: Viewport,
-    index: number,
+    hit: MapSceneHit | undefined,
     color: string,
     lineWidth: number,
   ): void {
-    const position = current.coordinatesOf(index);
+    if (!hit) return;
+    const current = hit.block.document;
+    const position = current.coordinatesOf(hit.cell.index);
     if (!position) return;
-    const x = viewport.worldToScreenX(position.x * current.spriteWidth),
-      y = viewport.worldToScreenY(position.y * current.spriteHeight);
+    const x = viewport.worldToScreenX(
+        hit.block.originX + position.x * current.spriteWidth,
+      ),
+      y = viewport.worldToScreenY(
+        hit.block.originY + position.y * current.spriteHeight,
+      ),
+      right = viewport.worldToScreenX(
+        hit.block.originX + (position.x + 1) * current.spriteWidth,
+      ),
+      bottom = viewport.worldToScreenY(
+        hit.block.originY + (position.y + 1) * current.spriteHeight,
+      );
     context.strokeStyle = color;
     context.lineWidth = lineWidth;
     context.strokeRect(
       Math.round(x) + 0.5,
       Math.round(y) + 0.5,
-      Math.round(current.spriteWidth * viewport.scale),
-      Math.round(current.spriteHeight * viewport.scale),
+      Math.round(right) - Math.round(x),
+      Math.round(bottom) - Math.round(y),
     );
   }
 
@@ -787,35 +836,16 @@ export class MapEditorController {
   }
 }
 
-function parseTilesets(values: JsonArray): Map<string, TilesetInfo> {
-  const result = new Map<string, TilesetInfo>();
-  for (const value of values) {
-    if (
-      !isObject(value) ||
-      typeof value.name !== 'string' ||
-      typeof value.spriteBase !== 'string'
-    )
-      continue;
-    const tiles: TilesetTile[] = [];
-    if (Array.isArray(value.tiles))
-      for (const tile of value.tiles)
-        if (isObject(tile) && Number.isSafeInteger(tile.id))
-          tiles.push({
-            id: tile.id as number,
-            description:
-              typeof tile.description === 'string' ? tile.description : '',
-          });
-    result.set(value.name, {
-      name: value.name,
-      spriteBase: value.spriteBase,
-      tiles,
-    });
-  }
-  return result;
-}
-
-function isObject(value: unknown): value is JsonObject {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
+function sameSceneHit(
+  left: MapSceneHit | undefined,
+  right: MapSceneHit | undefined,
+): boolean {
+  return (
+    left?.block === right?.block &&
+    left?.cell.documentId === right?.cell.documentId &&
+    left?.cell.layer === right?.cell.layer &&
+    left?.cell.index === right?.cell.index
+  );
 }
 function isTextInput(target: EventTarget | null): boolean {
   return (

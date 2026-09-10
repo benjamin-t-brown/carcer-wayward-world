@@ -1,6 +1,7 @@
-# Phase 4 Progress: Initial Map Kernel
+# Phase 4 Progress: Map Kernel
 
-Status: Initial milestone complete; full Phase 4 exit gate remains open
+Status: Implementation and automated exit criteria complete; interactive
+browser acceptance remains open
 
 ## Delivered
 
@@ -10,6 +11,12 @@ Status: Initial milestone complete; full Phase 4 exit gate remains open
 - A canvas-independent viewport with pointer-anchored zoom and visible bounds
 - A sprite-sheet image cache that coalesces loads by path
 - A renderer that traverses only the visible tile rectangle
+- Lossless map-grid topology with deterministic placements, neighbor slots, and
+  tile-space origins
+- Viewport-driven grid composition with one-partition overscan and no fixed
+  radius around the focused map
+- Seamless editing across every visible compatible grid partition
+- Cross-block hit testing and map-local tileset dictionary translation
 - High-DPI backing-store sizing with logical CSS-pixel drawing and pointer
   coordinates
 - Continuous `requestAnimationFrame` rendering with per-frame error recovery
@@ -19,6 +26,7 @@ Status: Initial milestone complete; full Phase 4 exit gate remains open
 - Middle-button pan and normalized wheel/trackpad zoom
 - Select, pencil, and erase tools
 - One compact deduplicated patch command per pointer gesture
+- One undo/redo command for a gesture spanning multiple map documents
 - A bounded 100-command undo/redo history
 - A dependency-free, headless map-render benchmark with deterministic small,
   medium, and large compact-map scenarios
@@ -27,6 +35,8 @@ Status: Initial milestone complete; full Phase 4 exit gate remains open
   a keyboard save
 - An isolated paint, undo, redo, Save All, and reload integration test over all
   nine managed database files
+- An isolated cross-grid Save All test that reloads edits in both maps while
+  leaving every other managed file byte-identical
 - Map-owned responsive CSS with no changes to other editor layouts
 
 ## Performance shape
@@ -51,9 +61,22 @@ each visited cell. The complete maps collection is copied into
 flushed before Save All; it is not cloned for each painted cell or animation
 frame.
 
+The scene writer converts the viewport to a clamped grid-cell rectangle each
+frame and reuses its block storage. Enumeration is proportional to visible plus
+overscan partitions, even for a massive grid. Each block still culls its own
+visible tile rectangle, and offscreen grid maps do not traverse their dense
+tile storage.
+
 ## Live integration checks
 
 - All 25 current maps parse, including five maps with preserved negative layers.
+- Both current map grids parse losslessly. The populated Alinea grid resolves
+  every assigned map without missing or duplicate references.
+- A focused-map-sized viewport over `alinea_outsideAlinea1` plus one-partition
+  overscan produces nine editable blocks with exact 30×30-map seams.
+- A synthetic 1,000×1,000 grid inspects exactly nine grid cells for a
+  one-partition viewport plus overscan; it does not scan the million-cell grid
+  during scene enumeration.
 - Full-database validation remains at zero errors and the same seven known
   warnings.
 - The real database API returns 25 maps and four tilesets under a 64-character
@@ -71,6 +94,12 @@ frame.
 - [x] Pencil and erase gestures are compact and undoable.
 - [x] Redo and bounded history are implemented.
 - [x] Active gestures flush into the database session before Save All.
+- [x] Neighboring maps render from grid topology without coupling the renderer
+      to database or grid-domain code.
+- [x] Pencil and erase gestures cross visible map boundaries and remain one
+      compact undo/redo command.
+- [x] Cross-map painting translates tileset names to each map's local compact
+      dictionary index and refuses unavailable tilesets/layers.
 - [x] Map-specific styling remains local to the map app.
 - [x] DPR-aware sizing preserves logical viewport and pointer coordinates.
 - [x] An isolated paint/save/reload cycle changes only `maps.json` and preserves
@@ -79,16 +108,19 @@ frame.
 - [x] Headless frame timings, visible-cell counts, and visual command hashes are
       captured for representative compact maps.
 
-## Remaining Phase 4 work
+## Remaining acceptance work
 
-Before declaring the full Phase 4 gate complete:
+The code-level Phase 4 exit criteria are complete. Before visually accepting the
+kernel for later parity work:
 
 1. Perform an interactive browser visual comparison and browser-profiler run
-   on representative real maps; the headless JavaScript baseline is complete.
-2. Add neighboring grid-map rendering and cross-block editing.
-3. Add the first rectangular brush if it belongs in the kernel milestone.
+   on representative real maps using
+   [phase-4-browser-verification.md](phase-4-browser-verification.md). The
+   headless JavaScript baseline and automated functional checks are complete.
 
-Later map phases still own fill, terrain autotiling, map/grid lifecycle, layers,
-metadata panels, references, tabs, and grid navigation. Those features should
-build on this kernel rather than expanding the controller into a second global
-application state.
+Rectangle/clone brushes, fill, terrain autotiling, map/grid lifecycle, layer
+mutation, metadata panels, references, and workspace navigation remain Phase 6
+work. Those features should build on this kernel rather than expanding the
+controller into a second global application state. The accepted continuous
+workspace design is recorded in
+[map-grid-workspace.md](map-grid-workspace.md).

@@ -20,6 +20,7 @@ export {
   MapRenderer,
   type DrawMapOptions,
   type MapRenderStats,
+  type RenderMapBlock,
   type RenderMapDocument,
 } from './MapRenderer.js';
 export {

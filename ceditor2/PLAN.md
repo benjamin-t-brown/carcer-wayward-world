@@ -796,7 +796,14 @@ Port editors in dependency-aware increments:
 - Implement map create, clone, edit, rename, and delete behavior.
 - Implement open tabs and viewport persistence.
 - Render neighboring grid maps.
-- Implement grid navigation, adjacent-map creation, and cross-map painting.
+- Treat a selected map grid as one continuous workspace with viewport-driven
+  partition enumeration and one-partition overscan; do not use a fixed radius
+  around a focused map.
+- Keep standalone-map workspaces and direct partition metadata editing.
+- Create every blank backing map when a grid is created, using random stable API
+  names, and stage the maps and grid in one Save All transaction.
+- Implement grid navigation and cross-map painting without requiring users to
+  switch the focused partition.
 - Implement grid-wide undo semantics.
 - Complete app-local CSS and keyboard shortcuts.
 - Run the full map parity and performance checklist.
