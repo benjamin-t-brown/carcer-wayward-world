@@ -1,33 +1,8 @@
 [
   {
     "name": "Alinea",
-    "label": "Alinea",
-    "gridWidth": 3,
-    "gridHeight": 3,
-    "mapWidth": 40,
-    "mapHeight": 40,
-    "cells": [
-      [
-        "Alinea2",
-        "",
-        ""
-      ],
-      [
-        "Alinea1",
-        "",
-        ""
-      ],
-      [
-        "",
-        "",
-        ""
-      ]
-    ]
-  },
-  {
-    "name": "OutsideAlinea",
     "label": "Alinea Outside",
-    "gridWidth": 3,
+    "gridWidth": 6,
     "gridHeight": 3,
     "mapWidth": 30,
     "mapHeight": 30,
@@ -35,17 +10,51 @@
       [
         "alinea_outsideAlinea7",
         "alinea_outsideAlinea8",
-        "alinea_outsideAlinea9"
+        "alinea_outsideAlinea9",
+        "alinea_insideAlinea2",
+        "alinea_insideAlinea4",
+        "alinea_insideAlinea9"
       ],
       [
         "alinea_outsideAlinea2",
         "alinea_outsideAlinea1",
-        "alinea_outsideAlinea3"
+        "alinea_outsideAlinea3",
+        "alinea_insideAlinea1",
+        "alinea_insideAlinea3",
+        "alinea_insideAlinea7"
       ],
       [
         "alinea_outsideAlinea4",
         "alinea_outsideAlinea5",
-        "alinea_outsideAlinea6"
+        "alinea_outsideAlinea6",
+        "alinea_insideAlinea5",
+        "alinea_insideAlinea6",
+        "alinea_insideAlinea8"
+      ]
+    ]
+  },
+  {
+    "name": "Alinea1",
+    "label": "Alinea1",
+    "gridWidth": 3,
+    "gridHeight": 3,
+    "mapWidth": 40,
+    "mapHeight": 40,
+    "cells": [
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        ""
       ]
     ]
   }

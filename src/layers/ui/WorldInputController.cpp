@@ -1,5 +1,4 @@
 #include "WorldInputController.h"
-
 #include "bmin/StringInterop.h"
 #include "layers/UiLayer.h"
 #include "model/Combat.h"
