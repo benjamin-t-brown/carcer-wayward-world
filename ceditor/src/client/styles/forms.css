@@ -1,0 +1,689 @@
+/* Shared form layout and form-editor controls. */
+
+.item-form {
+  background: #252526;
+  border: 1px solid #3e3e42;
+  border-radius: 8px;
+  padding: 30px;
+  /* transition: all 0.2s; */
+}
+
+.item-form.new {
+  border-color: #4ec9b0;
+  box-shadow: 0 0 0 3px rgba(78, 201, 176, 0.4);
+}
+
+.item-form h2 {
+  color: #4ec9b0;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 5px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #d4d4d4;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  background: #1e1e1e;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  color: #d4d4d4;
+  font-size: 17px;
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4ec9b0;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 30px;
+}
+
+.form-section {
+  margin-top: 30px;
+  padding-top: 30px;
+  border-top: 1px solid #3e3e42;
+}
+
+.form-section h3 {
+  color: #4ec9b0;
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+.status-effect-item {
+  background: #1e1e1e;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.status-effect-header {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.status-effect-header select {
+  flex: 1;
+}
+
+.form-subsection {
+  margin-bottom: 0px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #2d2d30;
+}
+
+.form-subsection:last-child {
+  border-bottom: none;
+}
+
+.form-subsection h4 {
+  color: #858585;
+  margin-bottom: 15px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.form-subsection label {
+  max-width: 300px;
+}
+
+.status-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.status-item .status-input {
+  flex: 1;
+}
+
+.character-template-form,
+.item-template-form,
+.ability-template-form,
+.spell-template-form,
+.status-effect-template-form,
+.map-grid-template-form {
+  padding: 16px 20px;
+}
+
+.character-template-form h2,
+.item-template-form h2,
+.ability-template-form h2,
+.spell-template-form h2,
+.status-effect-template-form h2,
+.map-grid-template-form h2 {
+  margin-bottom: 12px;
+}
+
+.character-template-form .form-fields-inline,
+.item-template-form .form-fields-inline,
+.ability-template-form .form-fields-inline,
+.spell-template-form .form-fields-inline,
+.status-effect-template-form .form-fields-inline,
+.map-grid-template-form .form-fields-inline,
+.tileset-template-form .form-fields-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: flex-end;
+}
+
+.tileset-template-form > form > .form-fields-inline {
+  margin-bottom: 20px;
+}
+
+.character-template-form .form-fields-inline > .form-group,
+.item-template-form .form-fields-inline > .form-group,
+.ability-template-form .form-fields-inline > .form-group,
+.spell-template-form .form-fields-inline > .form-group,
+.status-effect-template-form .form-fields-inline > .form-group,
+.map-grid-template-form .form-fields-inline > .form-group,
+.tileset-template-form .form-fields-inline > .form-group {
+  margin-bottom: 0;
+  flex: 0 1 auto;
+}
+
+.character-template-form .form-fields-inline .form-group label,
+.item-template-form .form-fields-inline .form-group label,
+.ability-template-form .form-fields-inline .form-group label,
+.spell-template-form .form-fields-inline .form-group label,
+.status-effect-template-form .form-fields-inline .form-group label,
+.map-grid-template-form .form-fields-inline .form-group label,
+.tileset-template-form .form-fields-inline .form-group label {
+  margin-bottom: 3px;
+  font-size: 12px;
+}
+
+.character-template-form .form-fields-inline .form-group input,
+.character-template-form .form-fields-inline .form-group select,
+.item-template-form .form-fields-inline .form-group input,
+.item-template-form .form-fields-inline .form-group select,
+.ability-template-form .form-fields-inline .form-group input,
+.ability-template-form .form-fields-inline .form-group select,
+.spell-template-form .form-fields-inline .form-group input,
+.spell-template-form .form-fields-inline .form-group select,
+.status-effect-template-form .form-fields-inline .form-group input,
+.status-effect-template-form .form-fields-inline .form-group select,
+.map-grid-template-form .form-fields-inline .form-group input,
+.map-grid-template-form .form-fields-inline .form-group select,
+.tileset-template-form .form-fields-inline .form-group input,
+.tileset-template-form .form-fields-inline .form-group select {
+  width: auto;
+  min-width: 120px;
+  max-width: 220px;
+  padding: 6px 8px;
+  font-size: 14px;
+}
+
+.character-template-form .form-fields-inline .form-group.behavior-select-wide {
+  flex: 0 0 280px;
+  width: 280px;
+}
+
+.character-template-form
+  .form-fields-inline
+  .form-group.behavior-select-wide
+  select {
+  width: 280px;
+  min-width: 280px;
+  max-width: 280px;
+}
+
+.character-template-form .form-block,
+.item-template-form .form-block,
+.ability-template-form .form-block,
+.spell-template-form .form-block,
+.status-effect-template-form .form-block,
+.map-grid-template-form .form-block {
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.character-template-form .form-block label,
+.item-template-form .form-block label,
+.ability-template-form .form-block label,
+.spell-template-form .form-block label,
+.status-effect-template-form .form-block label,
+.map-grid-template-form .form-block label {
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.character-template-form .form-section,
+.item-template-form .form-section,
+.ability-template-form .form-section,
+.spell-template-form .form-section,
+.status-effect-template-form .form-section,
+.map-grid-template-form .form-section {
+  margin-top: 14px;
+  padding-top: 10px;
+}
+
+.character-template-form .form-section h3,
+.item-template-form .form-section h3,
+.ability-template-form .form-section h3,
+.spell-template-form .form-section h3,
+.status-effect-template-form .form-section h3,
+.map-grid-template-form .form-section h3 {
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.character-template-form .form-subsection,
+.item-template-form .form-subsection,
+.ability-template-form .form-subsection,
+.spell-template-form .form-subsection,
+.status-effect-template-form .form-subsection,
+.map-grid-template-form .form-subsection {
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+}
+
+.character-template-form .form-subsection h4,
+.item-template-form .form-subsection h4,
+.ability-template-form .form-subsection h4,
+.spell-template-form .form-subsection h4,
+.status-effect-template-form .form-subsection h4,
+.map-grid-template-form .form-subsection h4 {
+  margin-bottom: 6px;
+  font-size: 11px;
+}
+
+.character-template-form .form-subsection > .form-fields-inline,
+.item-template-form .form-subsection > .form-fields-inline,
+.ability-template-form .form-subsection > .form-fields-inline,
+.spell-template-form .form-subsection > .form-fields-inline,
+.status-effect-template-form .form-subsection > .form-fields-inline,
+.map-grid-template-form .form-subsection > .form-fields-inline {
+  margin-bottom: 0;
+}
+
+.character-template-form .talk-fields-inline {
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.character-template-form .talk-event-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 12px;
+  flex: 0 0 auto;
+  width: auto;
+  max-width: 100%;
+}
+
+.character-template-form .talk-event-row .form-group {
+  flex: 0 0 500px;
+  width: 500px;
+  margin-bottom: 0;
+}
+
+.character-template-form .form-fields-inline .talk-event-row .form-group > div {
+  width: 500px;
+}
+
+.character-template-form
+  .form-fields-inline
+  .talk-event-row
+  .form-group
+  .search-select-input {
+  width: 500px;
+  min-width: 500px;
+  max-width: 500px;
+  box-sizing: border-box;
+}
+
+.character-template-form .talk-portrait-field {
+  flex: 0 0 auto;
+  margin-top: 0;
+}
+
+.character-template-form .talk-portrait-picker > div {
+  margin: 0 !important;
+}
+
+.item-template-form .weapon-ability-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 12px;
+}
+
+.item-template-form .weapon-ability-row .form-group {
+  flex: 0 1 500px;
+  max-width: 500px;
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.item-template-form .weapon-ability-row .form-group select,
+.item-template-form .weapon-ability-row .form-group .search-select-input {
+  width: 100%;
+  max-width: 500px;
+  box-sizing: border-box;
+}
+
+.spell-template-form .spell-ability-field {
+  flex: 0 0 250px;
+  width: 250px;
+  max-width: 250px;
+  margin-bottom: 0;
+}
+
+.spell-template-form .spell-ability-field .search-select-input {
+  width: 250px;
+  min-width: 250px;
+  max-width: 250px;
+  box-sizing: border-box;
+}
+
+.template-edit-link {
+  font-size: 12px;
+  color: #4a9eff;
+  text-decoration: none;
+  white-space: nowrap;
+  padding-bottom: 6px;
+}
+
+.template-edit-link:hover {
+  text-decoration: underline;
+}
+
+.item-template-form .weapon-attack-overrides {
+  margin-top: 8px;
+}
+
+.item-template-form .weapon-override-hint {
+  font-size: 12px;
+  color: #858585;
+  margin: 0 0 10px;
+}
+
+.item-template-form .weapon-attack-override {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.item-template-form .weapon-attack-override:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.item-template-form .weapon-attack-override-title {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ccc;
+}
+
+.ability-template-form .depiction-fields .form-fields-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: flex-end;
+}
+
+.ability-template-form
+  .depiction-fields
+  .form-fields-inline
+  + .form-fields-inline {
+  margin-top: 10px;
+}
+
+.ability-template-form .depiction-fields .depiction-preview-field,
+.character-template-form .character-sound-fields .sound-search-field {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.ability-template-form .depiction-fields .depiction-preview-field > .form-group,
+.character-template-form
+  .character-sound-fields
+  .sound-search-field
+  > .form-group {
+  flex: 0 0 220px;
+  width: 220px;
+  margin-bottom: 0;
+}
+
+.character-template-form
+  .character-sound-fields
+  .sound-search-field
+  > .form-group
+  .search-select-input {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+.ability-template-form .depiction-fields .form-group {
+  flex: 0 0 220px;
+  width: 220px;
+  margin-bottom: 0;
+}
+
+.ability-template-form .depiction-fields .form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.ability-template-form .depiction-fields .form-group select {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  padding: 6px 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.ability-template-form .depiction-fields .inline-checkbox {
+  flex: 0 0 auto;
+  width: auto;
+  align-self: flex-end;
+  margin-bottom: 6px;
+}
+
+.ability-template-form .dice-list-field,
+.item-template-form .weapon-dmg-overrides .dice-list-field {
+  margin-bottom: 0;
+  flex: 0 0 auto;
+}
+
+.ability-template-form .dice-list-field > label,
+.item-template-form .weapon-dmg-overrides .dice-list-field > label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.ability-template-form .dice-list-entries,
+.item-template-form .weapon-dmg-overrides .dice-list-entries {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.ability-template-form .dice-list-entry,
+.item-template-form .weapon-dmg-overrides .dice-list-entry {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ability-template-form .dice-list-entry .dice-select-group,
+.item-template-form .weapon-dmg-overrides .dice-list-entry .dice-select-group {
+  margin-bottom: 0;
+}
+
+.ability-template-form .form-fields-inline .dice-select-group select,
+.item-template-form
+  .weapon-dmg-overrides
+  .form-fields-inline
+  .dice-select-group
+  select {
+  width: 52px;
+  min-width: 52px;
+  max-width: 52px;
+  padding: 5px 4px;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.ability-template-form .dice-list-entries .btn-card-action,
+.item-template-form .weapon-dmg-overrides .dice-list-entries .btn-card-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  box-sizing: border-box;
+  padding: 0 6px;
+  line-height: 1;
+  margin: 0;
+}
+
+.item-template-form .weapon-dmg-overrides .form-fields-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 12px;
+}
+
+.item-template-form .weapon-dmg-overrides .form-fields-inline > .form-group {
+  flex: 0 0 auto;
+  margin-bottom: 0;
+}
+
+.character-template-form .status-item,
+.item-template-form .status-item,
+.ability-template-form .combat-list-item,
+.status-effect-template-form .combat-list-item {
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  background: #252526;
+  border-radius: 4px;
+}
+
+.ability-template-form .combat-list-item .form-fields-inline,
+.status-effect-template-form .combat-list-item .form-fields-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: stretch;
+}
+
+.ability-template-form .combat-list-item .combat-list-item-remove.form-group,
+.status-effect-template-form
+  .combat-list-item
+  .combat-list-item-remove.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.ability-template-form .combat-list-item .combat-list-item-remove-label,
+.status-effect-template-form .combat-list-item .combat-list-item-remove-label {
+  visibility: hidden;
+  margin-bottom: 3px;
+  font-size: 12px;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.ability-template-form .combat-list-item .combat-list-item-remove-btn,
+.status-effect-template-form .combat-list-item .combat-list-item-remove-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-height: 0;
+}
+
+.ability-template-form
+  .combat-list-item
+  .combat-list-item-remove-btn
+  .btn-card-action,
+.status-effect-template-form
+  .combat-list-item
+  .combat-list-item-remove-btn
+  .btn-card-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  box-sizing: border-box;
+  padding: 0 6px;
+  line-height: 1;
+  margin: 0;
+}
+
+.character-template-form .status-item .form-group,
+.item-template-form .status-item .form-group,
+.ability-template-form .combat-list-item .form-group,
+.status-effect-template-form .combat-list-item .form-group {
+  margin-bottom: 0;
+}
+
+.ability-template-form .combat-list-item .form-fields-inline,
+.status-effect-template-form .combat-list-item .form-fields-inline {
+  flex: 1;
+}
+
+.status-effect-template-form .invoke-ability-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 12px;
+  flex: 0 1 auto;
+}
+
+.status-effect-template-form .invoke-ability-row .invoke-ability-search {
+  flex: 0 1 320px;
+  min-width: 220px;
+  max-width: 400px;
+  margin-bottom: 0;
+}
+
+.status-effect-template-form
+  .invoke-ability-row
+  .invoke-ability-search
+  .search-select-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ability-template-form .inline-checkbox,
+.status-effect-template-form .inline-checkbox {
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 6px;
+  font-size: 12px;
+  color: #ccc;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.item-template-form .status-effect-item {
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.item-template-form .status-effect-header {
+  margin-bottom: 8px;
+}
+
+.item-template-form .status-effect-item .form-group {
+  margin-bottom: 8px;
+}
+
+.item-template-form .status-effect-item .form-fields-inline .form-group {
+  margin-bottom: 0;
+}
+
+.wide-input {
+  width: 300px !important;
+}
+
+.form-subsection-description {
+  margin: 8px 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}

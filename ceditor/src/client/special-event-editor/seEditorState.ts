@@ -122,7 +122,6 @@ export const updateEditorStateNoReRender = (state: Partial<EditorStateSE>) => {
   //   syncGameEventFromEditorState(gameEvent, editorStateSE);
   // }
 };
-(window as any).editorStateSE = editorStateSE;
 
 // called when a new game event is selected
 export const initEditorStateForGameEvent = (

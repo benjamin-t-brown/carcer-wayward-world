@@ -180,6 +180,11 @@ cross-collection changes together, and canvas drafts are flushed explicitly.
 
 ## Phase 5 — Modular shell and CSS ownership
 
+Status: complete on 2026-09-10. Bootstrap now mounts without eagerly decoding
+every sprite, editor pages are independently lazy-loaded while the database
+session remains shared, and the former inline stylesheet has explicit shared,
+map, and event owners with pixel-identical baseline screenshots.
+
 ### Work
 
 - Split bootstrap into API, load/normalize, root-provider, and route modules.

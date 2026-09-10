@@ -1,0 +1,187 @@
+/* Shared document defaults, home cards, and button primitives. */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+    Cantarell, sans-serif;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  margin: 0px 12px;
+}
+
+.container {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+h1 {
+  color: #4ec9b0;
+  font-size: 20px;
+}
+
+.asset-types {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.asset-card {
+  background: #252526;
+  border: 1px solid #3e3e42;
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.asset-card:hover {
+  border-color: #4ec9b0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(78, 201, 176, 0.2);
+}
+
+.asset-card h2 {
+  color: #4ec9b0;
+  margin-bottom: 10px;
+}
+
+.asset-card p {
+  color: #858585;
+  font-size: 14px;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #858585;
+}
+
+.error {
+  background: #5a1d1d;
+  border: 1px solid #a1260d;
+  color: #f48771;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+/* Pixel-art sprites in forms and lists (nearest-neighbor when scaled) */
+canvas.sprite-render,
+.sprite-picker canvas.sprite-render,
+.generic-modal canvas.sprite-render,
+.item-template-form canvas.sprite-render,
+.character-template-form canvas.sprite-render {
+  image-rendering: -moz-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.btn-back,
+.btn-primary,
+.btn-secondary,
+.btn-small,
+.btn-danger {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-back {
+  background: transparent;
+  color: #d4d4d4;
+}
+
+.btn-back:hover {
+  background: #4e4e52;
+}
+
+.btn-back:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-primary {
+  background: #007acc;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #0098ff;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-secondary {
+  background: #3e3e42;
+  color: #d4d4d4;
+}
+
+.btn-secondary:hover {
+  background: #4e4e52;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 12px;
+  background: #656570;
+  color: #fff;
+}
+
+.btn-small:hover {
+  background: #4e4e52;
+}
+
+.btn-small:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-icon {
+  padding: 2px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s;
+  background: #4e4e52;
+  /* background: transparent; */
+  color: #d4d4d4;
+}
+
+.btn-danger {
+  background: #a1260d;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #c53030;
+}
+
+.btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}

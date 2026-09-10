@@ -1,0 +1,109 @@
+/* Shared animation and audio preview presentation. */
+
+.ability-template-form .depiction-fields .animation-preview {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1px solid #3a3a3a;
+  border-radius: 3px;
+  background: #1e1e1e;
+  overflow: hidden;
+}
+
+.ability-template-form .depiction-fields .animation-preview-empty {
+  background: #2a2a2a;
+}
+
+.ability-template-form .depiction-fields .animation-preview canvas {
+  display: block;
+}
+
+.sound-preview {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1px solid #3a3a3a;
+  border-radius: 3px;
+  background: #1e1e1e;
+}
+
+.sound-preview-empty {
+  background: #2a2a2a;
+}
+
+.sound-preview-play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  line-height: 1;
+  margin: 0;
+  font-size: 12px;
+}
+
+.sound-preview-play:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.editor-page.sound-effects-page .editor-page-body {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sound-effects-body {
+  padding: 12px 16px 32px;
+}
+
+.sound-effects-panel {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.sound-effects-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sound-effects-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 8px;
+  background: #252526;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.sound-effects-name {
+  flex-shrink: 0;
+  color: #4ec9b0;
+  font-weight: 500;
+}
+
+.sound-effects-path {
+  flex: 1;
+  min-width: 0;
+  color: #858585;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sound-effects-row .sound-preview {
+  flex-shrink: 0;
+}

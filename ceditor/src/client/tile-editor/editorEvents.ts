@@ -91,7 +91,6 @@ const panZoomEvents: {
 const MOUSE_BUTTON_LEFT = 0;
 const MOUSE_BUTTON_RIGHT = 2;
 const MOUSE_BUTTON_MIDDLE = 1;
-(window as any).mapEditorEventState = mapEditorEventState;
 // let panzoomCanvas: HTMLCanvasElement | null = null;
 
 const isEventWithCanvasTarget = (

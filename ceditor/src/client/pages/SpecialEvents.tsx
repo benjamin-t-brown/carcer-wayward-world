@@ -801,7 +801,6 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                           gameEvent,
                           gameEvents,
                         );
-                        (window as any).runner = runner;
                         setEventRunner(runner);
                         console.log('run root');
                         runner.advance(runner.currentNodeId, {

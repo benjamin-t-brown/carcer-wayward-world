@@ -1,18 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { readHashRoute } from './utils/hashRoute';
 import { Home } from './pages/Home';
-import { ItemTemplates } from './pages/ItemTemplates';
-import { CharacterTemplates } from './pages/CharacterTemplates';
-import { TilesetTemplates } from './pages/TilesetTemplates';
-import { SpecialEvents } from './pages/SpecialEvents';
-import { AbilityTemplates } from './pages/AbilityTemplates';
-import { SpellTemplates } from './pages/SpellTemplates';
-import { StatusEffectTemplates } from './pages/StatusEffectTemplates';
-import { Maps } from './pages/Maps';
-import { MapGrids } from './pages/MapGrids';
-import { SoundEffects } from './pages/SoundEffects';
-import { assetIdForEditorRoute } from './utils/editorRoutes';
 import { useAssets } from './contexts/AssetsContext';
+import { editorPageForRoute } from './editorPageRoutes';
 
 function App({
   assetTypes,
@@ -58,35 +48,26 @@ function App({
     return <Home assetTypes={assetTypes} />;
   }
 
-  switch (assetIdForEditorRoute(routePath)) {
-    case 'itemTemplates':
-      return <ItemTemplates routeParams={routeParams} />;
-    case 'abilityTemplates':
-      return <AbilityTemplates routeParams={routeParams} />;
-    case 'spellTemplates':
-      return <SpellTemplates routeParams={routeParams} />;
-    case 'statusEffectTemplates':
-      return <StatusEffectTemplates routeParams={routeParams} />;
-    case 'characterTemplates':
-      return <CharacterTemplates routeParams={routeParams} />;
-    case 'tilesetTemplates':
-      return <TilesetTemplates routeParams={routeParams} />;
-    case 'specialEvents':
-      return <SpecialEvents routeParams={routeParams} />;
-    case 'maps':
-      return <Maps routeParams={routeParams} />;
-    case 'mapGrids':
-      return <MapGrids routeParams={routeParams} />;
-    default:
-      if (routePath === '/editor/soundEffects') {
-        return <SoundEffects />;
-      }
-      return (
-        <div className="container">
-          <div className="error">404 - Page not found</div>
-        </div>
-      );
+  const EditorPage = editorPageForRoute(routePath);
+  if (EditorPage) {
+    return (
+      <Suspense
+        fallback={
+          <div className="container">
+            <div>Loading editor...</div>
+          </div>
+        }
+      >
+        <EditorPage routeParams={routeParams} />
+      </Suspense>
+    );
   }
+
+  return (
+    <div className="container">
+      <div className="error">404 - Page not found</div>
+    </div>
+  );
 }
 
 export default App;

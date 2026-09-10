@@ -18,7 +18,7 @@ import {
 import {
   bumpMapDataRevision,
   getMapDataRevision,
-} from '../tile-editor/editorState';
+} from '../tile-editor/mapEditorSignals';
 
 /** Legacy on-disk shape (pre-flat migration). */
 export interface LegacyCarcerMapTemplate {

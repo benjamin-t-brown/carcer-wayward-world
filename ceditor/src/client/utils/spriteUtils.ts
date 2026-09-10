@@ -1,38 +1,35 @@
 import { Sprite } from './assetLoader';
 
-const imageLoaders: Record<string, (() => void)[]> = {};
 const imageCache: Record<string, HTMLImageElement> = {};
+const imagePromiseCache: Partial<Record<string, Promise<HTMLImageElement>>> =
+  {};
 const spriteCanvasCache: Record<string, HTMLCanvasElement> = {};
-
-(window as any).spriteCanvasCache = spriteCanvasCache;
+const spritePromiseCache: Partial<Record<string, Promise<HTMLCanvasElement>>> =
+  {};
 
 export async function loadImage(url: string): Promise<HTMLImageElement> {
   if (imageCache[url]) {
     return imageCache[url];
   }
-  if (imageLoaders[url]) {
-    return new Promise((resolve) => {
-      imageLoaders[url].push(() => {
-        resolve(imageCache[url]);
-      });
-    });
+  if (imagePromiseCache[url]) {
+    return imagePromiseCache[url];
   }
-  const img = new Image();
 
-  return new Promise((resolve, reject) => {
-    imageLoaders[url] = imageLoaders[url] || [];
-    imageLoaders[url].push(() => {
-      resolve(imageCache[url]);
-    });
+  const img = new Image();
+  const loadPromise = new Promise<HTMLImageElement>((resolve, reject) => {
     img.onload = () => {
       imageCache[url] = img;
-      imageLoaders[url]?.forEach((loader) => loader());
+      delete imagePromiseCache[url];
+      resolve(img);
     };
     img.onerror = () => {
+      delete imagePromiseCache[url];
       reject(new Error(`Failed to load image: ${url}`));
     };
     img.src = url;
   });
+  imagePromiseCache[url] = loadPromise;
+  return loadPromise;
 }
 
 function getSpriteSheetUrl(picturePath: string): string {
@@ -52,7 +49,7 @@ export function preparePixelArtCanvas(
   canvas: HTMLCanvasElement,
   ctx: CanvasRenderingContext2D,
   logicalWidth: number,
-  logicalHeight: number
+  logicalHeight: number,
 ): void {
   const dpr = window.devicePixelRatio || 1;
   canvas.width = Math.max(1, Math.floor(logicalWidth * dpr));
@@ -70,36 +67,51 @@ export async function getDrawable(sprite: Sprite): Promise<HTMLCanvasElement> {
   if (spriteCanvasCache[cacheKey]) {
     return spriteCanvasCache[cacheKey];
   }
-  const imageUrl = getSpriteSheetUrl(sprite.picturePath);
-  const image = await loadImage(imageUrl);
-  const numSpritesWide = image.width / sprite.width;
-  const xOffset = (sprite.index % numSpritesWide) * sprite.width;
-  const yOffset = Math.floor(sprite.index / numSpritesWide) * sprite.height;
-
-  const canvas = document.createElement('canvas');
-  canvas.width = sprite.width;
-  canvas.height = sprite.height;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    throw new Error('Failed to get sprite extract context');
+  if (spritePromiseCache[cacheKey]) {
+    return spritePromiseCache[cacheKey];
   }
-  disableCanvasSmoothing(ctx);
-  ctx.drawImage(
-    image,
-    xOffset,
-    yOffset,
-    sprite.width,
-    sprite.height,
-    0,
-    0,
-    sprite.width,
-    sprite.height
-  );
-  spriteCanvasCache[cacheKey] = canvas;
-  return canvas;
+
+  const drawablePromise = (async () => {
+    const imageUrl = getSpriteSheetUrl(sprite.picturePath);
+    const image = await loadImage(imageUrl);
+    const numSpritesWide = image.width / sprite.width;
+    const xOffset = (sprite.index % numSpritesWide) * sprite.width;
+    const yOffset = Math.floor(sprite.index / numSpritesWide) * sprite.height;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = sprite.width;
+    canvas.height = sprite.height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      throw new Error('Failed to get sprite extract context');
+    }
+    disableCanvasSmoothing(ctx);
+    ctx.drawImage(
+      image,
+      xOffset,
+      yOffset,
+      sprite.width,
+      sprite.height,
+      0,
+      0,
+      sprite.width,
+      sprite.height,
+    );
+    spriteCanvasCache[cacheKey] = canvas;
+    return canvas;
+  })();
+
+  spritePromiseCache[cacheKey] = drawablePromise;
+  try {
+    return await drawablePromise;
+  } finally {
+    delete spritePromiseCache[cacheKey];
+  }
 }
 
-export function getCachedDrawable(sprite: Sprite): HTMLCanvasElement | undefined {
+export function getCachedDrawable(
+  sprite: Sprite,
+): HTMLCanvasElement | undefined {
   const cacheKey = `${sprite.name}@${SPRITE_CACHE_VERSION}`;
   return spriteCanvasCache[cacheKey];
 }
