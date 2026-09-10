@@ -1,4 +1,15 @@
 export {
+  MAX_CANVAS_PIXEL_RATIO,
+  boundedPixelRatio,
+  clientToLogicalCanvasPoint,
+  configureCanvasBackingStore,
+  createCanvasMetrics,
+  writeCanvasMetrics,
+  type CanvasClientRect,
+  type CanvasMetrics,
+  type LogicalCanvasPoint,
+} from './CanvasMetrics.js';
+export {
   ImageCache,
   browserImageLoader,
   gameAssetUrl,

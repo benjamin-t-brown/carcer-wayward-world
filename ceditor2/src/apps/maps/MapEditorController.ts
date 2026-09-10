@@ -13,8 +13,12 @@ import type { DatabasePageContext } from '../../core/ui/index.js';
 import {
   MapRenderer,
   Viewport,
+  clientToLogicalCanvasPoint,
+  configureCanvasBackingStore,
+  createCanvasMetrics,
   normalizeWheelDelta,
   wheelZoomFactor,
+  writeCanvasMetrics,
   type RenderMapDocument,
   type TileBounds,
 } from './canvas/index.js';
@@ -71,6 +75,8 @@ class RenderDocumentAdapter implements RenderMapDocument {
   private spriteByTileset: readonly (
     ReadonlyMap<number, SpriteDefinition> | undefined
   )[] = [];
+  private cachedLayer?: number;
+  private cachedLayerData?: readonly number[];
   constructor(readonly source: MapDocument) {}
   get width() {
     return this.source.width;
@@ -105,7 +111,11 @@ class RenderDocumentAdapter implements RenderMapDocument {
     layer: number,
     tileIndex: number,
   ): SpriteDefinition | null | undefined {
-    const graphics = this.source.layerData(layer);
+    if (layer !== this.cachedLayer) {
+      this.cachedLayer = layer;
+      this.cachedLayerData = this.source.layerData(layer);
+    }
+    const graphics = this.cachedLayerData;
     if (!graphics || tileIndex < 0 || tileIndex >= this.source.cellCount)
       return undefined;
     const pair = tileIndex * 2;
@@ -124,6 +134,8 @@ export class MapEditorController {
   private readonly tilesets: Map<string, TilesetInfo>;
   private readonly viewports = new Map<string, Viewport>();
   private readonly renderer = new MapRenderer();
+  private readonly canvasMetrics = createCanvasMetrics();
+  private readonly pointerPoint = { x: 0, y: 0 };
   private readonly canvas = element('canvas', {
     className: 'map-canvas',
     attributes: { tabindex: '0', 'aria-label': 'Map canvas' },
@@ -428,7 +440,24 @@ export class MapEditorController {
 
   private canvasPoint(event: PointerEvent | WheelEvent) {
     const rect = this.canvas.getBoundingClientRect();
-    return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+    if (
+      this.canvasMetrics.logicalWidth <= 0 ||
+      this.canvasMetrics.logicalHeight <= 0
+    ) {
+      writeCanvasMetrics(
+        this.canvasMetrics,
+        rect.width,
+        rect.height,
+        window.devicePixelRatio,
+      );
+    }
+    return clientToLogicalCanvasPoint(
+      this.pointerPoint,
+      event.clientX,
+      event.clientY,
+      rect,
+      this.canvasMetrics,
+    );
   }
 
   private startGesture(index: number): void {
@@ -562,7 +591,7 @@ export class MapEditorController {
     const delta = normalizeWheelDelta(
       event.deltaY,
       event.deltaMode,
-      this.canvas.clientHeight,
+      this.canvasMetrics.logicalHeight,
     );
     this.currentViewport()?.zoomAt(point.x, point.y, wheelZoomFactor(delta));
   };
@@ -591,15 +620,26 @@ export class MapEditorController {
   };
 
   private draw(time: number): void {
-    const width = Math.max(1, Math.floor(this.canvas.clientWidth)),
-      height = Math.max(1, Math.floor(this.canvas.clientHeight));
-    if (this.canvas.width !== width || this.canvas.height !== height) {
-      this.canvas.width = width;
-      this.canvas.height = height;
+    const rect = this.canvas.getBoundingClientRect();
+    const previousWidth = this.canvasMetrics.logicalWidth;
+    const previousHeight = this.canvasMetrics.logicalHeight;
+    writeCanvasMetrics(
+      this.canvasMetrics,
+      rect.width,
+      rect.height,
+      window.devicePixelRatio,
+    );
+    if (
+      previousWidth !== this.canvasMetrics.logicalWidth ||
+      previousHeight !== this.canvasMetrics.logicalHeight
+    ) {
       this.centerPending = true;
     }
     const context = this.canvas.getContext('2d');
     if (!context) return;
+    configureCanvasBackingStore(this.canvas, context, this.canvasMetrics);
+    const width = this.canvasMetrics.logicalWidth;
+    const height = this.canvasMetrics.logicalHeight;
     this.renderer.beginFrame(context, width, height);
     const current = this.currentDocument(),
       viewport = this.currentViewport(),

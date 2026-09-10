@@ -141,7 +141,8 @@ test('renderer visits and draws only visible cells using sheet metadata', async 
     },
   };
   const drawCalls: unknown[][] = [];
-  const context = fakeContext(25, 25, drawCalls);
+  // Backing dimensions model DPR 2; beginFrame still receives 25x25 logical CSS pixels.
+  const context = fakeContext(50, 50, drawCalls);
   const renderer = new MapRenderer(images);
   const viewport = new Viewport({ x: -100, y: -50, scale: 1 });
 

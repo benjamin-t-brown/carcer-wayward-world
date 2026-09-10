@@ -10,6 +10,8 @@ Status: Initial milestone complete; full Phase 4 exit gate remains open
 - A canvas-independent viewport with pointer-anchored zoom and visible bounds
 - A sprite-sheet image cache that coalesces loads by path
 - A renderer that traverses only the visible tile rectangle
+- High-DPI backing-store sizing with logical CSS-pixel drawing and pointer
+  coordinates
 - Continuous `requestAnimationFrame` rendering with per-frame error recovery
 - Independent per-map viewport state
 - Map, numeric-layer, tileset, and tile selection controls
@@ -18,9 +20,13 @@ Status: Initial milestone complete; full Phase 4 exit gate remains open
 - Select, pencil, and erase tools
 - One compact deduplicated patch command per pointer gesture
 - A bounded 100-command undo/redo history
+- A dependency-free, headless map-render benchmark with deterministic small,
+  medium, and large compact-map scenarios
 - Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z, and Ctrl/Cmd+Y shortcuts outside form controls
 - Full-session Save All integration, including flushing an active gesture before
   a keyboard save
+- An isolated paint, undo, redo, Save All, and reload integration test over all
+  nine managed database files
 - Map-owned responsive CSS with no changes to other editor layouts
 
 ## Performance shape
@@ -31,6 +37,12 @@ bounds are written into a reused object, sprite metadata is indexed before the
 loop, images are cached by sheet path, and the renderer draws directly from
 sprite sheets. The renderer test demonstrates nine visits for a 25×25 viewport
 over a 10,000-cell map rather than traversing all 10,000 cells.
+
+The repeatable benchmark in [map-performance-baseline.md](map-performance-baseline.md)
+separates deterministic culling/Canvas2D-command counts from wall-clock timing.
+Its 512×512 scenario visits 9,940 of 262,144 cells per frame. The fake Canvas2D
+context measures JavaScript traversal and command dispatch, not browser
+rasterization, GPU compositing, image decoding, or DOM layout.
 
 Painting changes the active `MapDocument` immediately so the next frame sees
 the result. A gesture stores only the first before pair and final after pair for
@@ -60,19 +72,21 @@ frame.
 - [x] Redo and bounded history are implemented.
 - [x] Active gestures flush into the database session before Save All.
 - [x] Map-specific styling remains local to the map app.
+- [x] DPR-aware sizing preserves logical viewport and pointer coordinates.
+- [x] An isolated paint/save/reload cycle changes only `maps.json` and preserves
+      unknown map data.
 - [x] Unit, lint, type, build, and real-asset HTTP checks pass.
+- [x] Headless frame timings, visible-cell counts, and visual command hashes are
+      captured for representative compact maps.
 
 ## Remaining Phase 4 work
 
 Before declaring the full Phase 4 gate complete:
 
-1. Perform an interactive visual comparison and record frame-time baselines on
-   representative small, medium, and large maps.
-2. Add high-DPI canvas sizing and verify pointer accuracy at non-1 device pixel
-   ratios.
-3. Add neighboring grid-map rendering and cross-block editing.
-4. Add the first rectangular brush if it belongs in the kernel milestone.
-5. Exercise a paint/save/reload cycle on an isolated copy of the real database.
+1. Perform an interactive browser visual comparison and browser-profiler run
+   on representative real maps; the headless JavaScript baseline is complete.
+2. Add neighboring grid-map rendering and cross-block editing.
+3. Add the first rectangular brush if it belongs in the kernel milestone.
 
 Later map phases still own fill, terrain autotiling, map/grid lifecycle, layers,
 metadata panels, references, tabs, and grid navigation. Those features should
