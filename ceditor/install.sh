@@ -24,8 +24,8 @@ if ! command -v npm >/dev/null 2>&1; then
 fi
 
 npm_version="$(npm -v | tr -d '[:space:]')"
-if ! min_version "$npm_version" "11.10.0"; then
-  echo "npm 11.10.0 or newer is required (found $npm_version). .npmrc min-release-age needs npm >= 11.10.0." >&2
+if ! min_version "$npm_version" "10.0.0"; then
+  echo "npm 10.0.0 or newer is required (found $npm_version)." >&2
   exit 1
 fi
 

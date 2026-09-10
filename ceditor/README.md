@@ -1,11 +1,8 @@
 # CEditor
 
-> Deprecated reference implementation. Use
-> [`ceditor2`](../ceditor2/README.md) for new editing work. This directory stays
-> in the repository for migration comparison and should not receive new
-> features; its removal requires a separate explicit change.
-
-Web-based editor for managing game asset JSON files.
+The active web-based editor for managing Carcer game asset JSON files. CEditor
+uses React, TypeScript, Vite, and a small local Express filesystem API. It is
+being simplified incrementally rather than replaced; see [PLAN.md](./PLAN.md).
 
 ## Setup
 
@@ -44,6 +41,12 @@ Open http://localhost:3000 in your browser to use the editor.
 
 ## Asset Types
 
-- Item Templates (`items.json`)
-- Character Templates (`characters.json`)
-- Special Events (`special-events.json`)
+The managed database contains abilities, characters, items, map grids, maps,
+special events, spells, status effects, and tilesets. Save All will be migrated
+to commit those nine collections as one revision-checked transaction.
+
+`feats.json` is not currently a game asset, and the legacy `tiles.json` is not
+managed by the editor. Neither is part of Save All.
+
+The prior `ceditor2` experiment remains in the repository as implementation
+reference material.

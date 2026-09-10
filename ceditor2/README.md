@@ -1,10 +1,10 @@
 # CEditor2
 
-CEditor2 is the lightweight, modular replacement for `ceditor`. Each editor is
-an independent Vite entry point built with TypeScript and native browser APIs.
-It is ready for verification on real editing workflows; the existing editor
-remains available as a deprecated migration reference until default-editor
-approval.
+CEditor2 is a retained rewrite experiment and reference implementation. Each
+editor is an independent Vite entry point built with TypeScript and native
+browser APIs. Active editor development has returned to [`ceditor`](../ceditor/README.md),
+where improvements will be made incrementally while preserving its established
+React workflows.
 
 See [PLAN.md](./PLAN.md) for the phased implementation plan and
 [docs/phase-8-summary.md](./docs/phase-8-summary.md) for implementation and

@@ -21,8 +21,8 @@ opening windows, and `make js` to build the Emscripten release.
 
 ## Game database editor
 
-[`ceditor2`](ceditor2/README.md) is the lightweight TypeScript/Vite editor for
-the JSON game database. It runs each asset editor as an independent native DOM
-application and saves the complete database through one revision-checked
-transaction. The older React editor under `ceditor` is retained only for
-migration comparison.
+[`ceditor`](ceditor/README.md) is the active editor for the JSON game database.
+It is being simplified incrementally while preserving its established React UI
+and editing workflows. See its [phased plan](ceditor/PLAN.md) for the current
+architecture and persistence work. `ceditor2` remains available as a reference
+experiment.
