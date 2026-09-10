@@ -55,6 +55,7 @@ import {
 } from './tools/graphicRegionTools.js';
 import {
   buildTerrainMetadataLookup,
+  computeTerrainPaintPlan,
   terrainTagLabel,
   TerrainPaintStroke,
   type TerrainMetadataLookup,
@@ -156,10 +157,12 @@ export class MapEditorController {
   private media?: MediaCatalog;
   private frameRequest?: number;
   private lastStatusUpdate = 0;
+  private statusOverrideUntil = 0;
   private centerPending = true;
   private gesture?: PaintGesture;
   private rectangleStart?: WorldTilePoint;
   private terrainStroke?: TerrainPaintStroke;
+  private terrainPreviewPoints: readonly WorldTilePoint[] = [];
   private terrainIssueCount = 0;
   private metadataSelectionKey = '';
   private panPointerId?: number;
@@ -168,6 +171,7 @@ export class MapEditorController {
   private destroyed = false;
   private showOverlayLabels = false;
   private readonly terrainLookup?: TerrainMetadataLookup;
+  private readonly terrainConfigurationError?: string;
 
   constructor(
     private readonly root: HTMLElement,
@@ -186,8 +190,10 @@ export class MapEditorController {
       this.terrainLookup = buildTerrainMetadataLookup(
         parseTilesetCollection(context.session.collection('tilesets')),
       );
-    } catch {
+    } catch (error) {
       this.terrainLookup = undefined;
+      this.terrainConfigurationError =
+        error instanceof Error ? error.message : 'invalid terrain metadata';
     }
     this.gridTopologies = context.session
       .collection('mapGrids')
@@ -220,8 +226,9 @@ export class MapEditorController {
       },
       (error: unknown) => {
         if (this.destroyed) return;
-        this.renderStatus.textContent = `Could not load sprite definitions: ${error instanceof Error ? error.message : 'unknown error'}`;
-        this.renderStatus.classList.remove('muted');
+        this.showStatusMessage(
+          `Could not load sprite definitions: ${error instanceof Error ? error.message : 'unknown error'}`,
+        );
       },
     );
   }
@@ -328,6 +335,7 @@ export class MapEditorController {
     );
     this.layerSelect.addEventListener('change', () => {
       this.finishGesture();
+      this.terrainPreviewPoints = [];
       this.currentLayer = Number(this.layerSelect.value);
       this.selectedHit = undefined;
       this.hoveredHit = undefined;
@@ -360,6 +368,7 @@ export class MapEditorController {
 
   private selectMap(index: number): void {
     this.finishGesture();
+    this.terrainPreviewPoints = [];
     this.currentIndex =
       index >= 0 && index < this.documents.length ? index : -1;
     const current = this.currentDocument();
@@ -449,6 +458,18 @@ export class MapEditorController {
       option.value = '';
       this.terrainSelect.append(option);
       this.terrainSelect.disabled = true;
+      this.terrainSelect.title =
+        this.terrainConfigurationError ?? 'No paintable terrain tags found';
+    } else {
+      this.terrainSelect.disabled = false;
+      this.terrainSelect.removeAttribute('title');
+    }
+    const terrainButton = this.toolButtons.get('terrain');
+    if (terrainButton) {
+      terrainButton.disabled = !tags.length;
+      terrainButton.title = tags.length
+        ? ''
+        : (this.terrainConfigurationError ?? 'No paintable terrain tags found');
     }
   }
 
@@ -541,6 +562,7 @@ export class MapEditorController {
   private setTool(tool: MapTool): void {
     this.finishGesture();
     this.rectangleStart = undefined;
+    this.terrainPreviewPoints = [];
     this.tool = tool;
     for (const [value, control] of this.toolButtons) {
       control.classList.toggle('button--primary', value === tool);
@@ -660,8 +682,9 @@ export class MapEditorController {
       ? current.tilesetNames.indexOf(tilesetName)
       : -1;
     if (currentTilesetIndex < 0) {
-      this.renderStatus.textContent = `Cannot pick ${tilesetName ?? 'unknown tileset'}: it is not in ${current.name}.`;
-      this.renderStatus.classList.remove('muted');
+      this.showStatusMessage(
+        `Cannot pick ${tilesetName ?? 'unknown tileset'}: it is not in ${current.name}.`,
+      );
       return;
     }
     this.tilesetSelect.value = String(currentTilesetIndex);
@@ -719,8 +742,9 @@ export class MapEditorController {
       this.terrainStroke = undefined;
       if (this.history.recordApplied(stroke.finish())) this.commitDocuments();
       if (this.terrainIssueCount) {
-        this.renderStatus.textContent = `Terrain stroke completed with ${this.terrainIssueCount} unresolved border variant${this.terrainIssueCount === 1 ? '' : 's'}.`;
-        this.renderStatus.classList.remove('muted');
+        this.showStatusMessage(
+          `Terrain stroke completed with ${this.terrainIssueCount} unresolved terrain issue${this.terrainIssueCount === 1 ? '' : 's'}.`,
+        );
       }
       this.terrainIssueCount = 0;
       this.updateHistoryControls();
@@ -747,23 +771,75 @@ export class MapEditorController {
     const lookup = this.terrainLookup;
     const workspace = this.mapWorkspace;
     const tag = this.terrainSelect.value as TerrainBorderTag;
-    if (!lookup || !workspace || !tag) return;
+    if (!lookup) {
+      this.showStatusMessage(
+        `Terrain unavailable: ${this.terrainConfigurationError ?? 'no paintable terrain metadata found'}`,
+      );
+      return;
+    }
+    if (!workspace || !tag) return;
     this.runLifecycle(() => {
       this.terrainIssueCount = 0;
-      this.terrainStroke = new TerrainPaintStroke(
+      const stroke = new TerrainPaintStroke(
         this.access,
         workspace,
         lookup,
         this.currentLayer,
         tag,
       );
-      this.visitTerrain(point);
+      try {
+        const plan = stroke.paint(point);
+        this.terrainIssueCount += plan.issues.length;
+        this.terrainPreviewPoints = [];
+        this.terrainStroke = stroke;
+      } catch (error) {
+        stroke.cancel();
+        throw error;
+      }
     });
   }
 
   private visitTerrain(point: WorldTilePoint): void {
-    if (!this.terrainStroke) return;
-    this.terrainIssueCount += this.terrainStroke.paint(point).issues.length;
+    const stroke = this.terrainStroke;
+    if (!stroke) return;
+    try {
+      this.terrainIssueCount += stroke.paint(point).issues.length;
+    } catch (error) {
+      this.showStatusMessage(
+        `Terrain paint failed: ${error instanceof Error ? error.message : 'unknown error'}`,
+      );
+    }
+  }
+
+  private updateTerrainPreview(point: WorldTilePoint | undefined): void {
+    const lookup = this.terrainLookup;
+    const workspace = this.mapWorkspace;
+    const tag = this.terrainSelect.value as TerrainBorderTag;
+    if (
+      this.tool !== 'terrain' ||
+      this.terrainStroke ||
+      !point ||
+      !lookup ||
+      !workspace ||
+      !tag
+    ) {
+      this.terrainPreviewPoints = [];
+      return;
+    }
+    try {
+      this.terrainPreviewPoints = computeTerrainPaintPlan(
+        this.access,
+        workspace,
+        lookup,
+        this.currentLayer,
+        point,
+        tag,
+      ).changes.map((change) => change.point);
+    } catch {
+      // Pointer hover may cross a partition without terrain configured. The
+      // actionable error is shown if the user attempts to paint there.
+      this.terrainPreviewPoints = [];
+    }
   }
   private undo(): void {
     this.finishGesture();
@@ -990,8 +1066,7 @@ export class MapEditorController {
     if (value === null) return undefined;
     const match = /^\s*(\d+)\s*[x×,]\s*(\d+)\s*$/i.exec(value);
     if (!match) {
-      this.renderStatus.textContent = 'Dimensions must look like 40x40.';
-      this.renderStatus.classList.remove('muted');
+      this.showStatusMessage('Dimensions must look like 40x40.');
       return undefined;
     }
     return { width: Number(match[1]), height: Number(match[2]) };
@@ -1010,9 +1085,16 @@ export class MapEditorController {
     try {
       action();
     } catch (error) {
-      this.renderStatus.textContent = `Map change failed: ${error instanceof Error ? error.message : 'unknown error'}`;
-      this.renderStatus.classList.remove('muted');
+      this.showStatusMessage(
+        `Map change failed: ${error instanceof Error ? error.message : 'unknown error'}`,
+      );
     }
+  }
+
+  private showStatusMessage(message: string, durationMs = 5_000): void {
+    this.renderStatus.textContent = message;
+    this.renderStatus.classList.remove('muted');
+    this.statusOverrideUntil = performance.now() + durationMs;
   }
   private updateHistoryControls(): void {
     this.undoButton.disabled = !this.history.canUndo;
@@ -1163,6 +1245,8 @@ export class MapEditorController {
     if (this.terrainStroke && (event.buttons & 1) !== 0) {
       const worldTile = this.worldTileAtCanvasPoint(point.x, point.y);
       if (worldTile) this.visitTerrain(worldTile);
+    } else if ((event.buttons & 1) === 0) {
+      this.updateTerrainPreview(this.worldTileAtCanvasPoint(point.x, point.y));
     }
   };
 
@@ -1180,6 +1264,7 @@ export class MapEditorController {
   private readonly handlePointerCancel = (event: PointerEvent): void => {
     if (this.panPointerId === event.pointerId) this.panPointerId = undefined;
     this.rectangleStart = undefined;
+    this.terrainPreviewPoints = [];
     this.cancelGesture();
   };
   private readonly handleWheel = (event: WheelEvent): void => {
@@ -1217,8 +1302,9 @@ export class MapEditorController {
     try {
       this.draw(time);
     } catch (error) {
-      this.renderStatus.textContent = `Render error: ${error instanceof Error ? error.message : 'unknown error'}`;
-      this.renderStatus.classList.remove('muted');
+      this.showStatusMessage(
+        `Render error: ${error instanceof Error ? error.message : 'unknown error'}`,
+      );
     } finally {
       this.frameRequest = requestAnimationFrame(this.renderFrame);
     }
@@ -1275,14 +1361,21 @@ export class MapEditorController {
         showLabels: this.showOverlayLabels,
       },
     );
+    for (const point of this.terrainPreviewPoints) {
+      this.drawWorldTileOutline(context, viewport, point, '#efca72', 2);
+    }
     this.drawCellOutline(context, viewport, this.hoveredHit, '#78b9e8', 1);
     this.drawCellOutline(context, viewport, this.selectedHit, '#72ddc3', 2);
-    if (time - this.lastStatusUpdate > 250) {
+    if (
+      time - this.lastStatusUpdate > 250 &&
+      time >= this.statusOverrideUntil
+    ) {
       this.lastStatusUpdate = time;
       const stats = this.renderer.stats;
       this.renderStatus.textContent = this.media
         ? `${stats.mapBlocks}/${this.scene.blocks.length} blocks · ${stats.drawnTiles} drawn · ${overlays} overlays · ${stats.visitedTiles} visible · ${stats.unresolvedSprites} unresolved · zoom ${viewport.scale.toFixed(2)}×`
         : 'Loading sprite definitions…';
+      this.renderStatus.classList.add('muted');
     }
   }
 
@@ -1380,6 +1473,31 @@ export class MapEditorController {
       bottom = viewport.worldToScreenY(
         hit.block.originY + (position.y + 1) * current.spriteHeight,
       );
+    context.strokeStyle = color;
+    context.lineWidth = lineWidth;
+    context.strokeRect(
+      Math.round(x) + 0.5,
+      Math.round(y) + 0.5,
+      Math.round(right) - Math.round(x),
+      Math.round(bottom) - Math.round(y),
+    );
+  }
+
+  private drawWorldTileOutline(
+    context: CanvasRenderingContext2D,
+    viewport: Viewport,
+    point: WorldTilePoint,
+    color: string,
+    lineWidth: number,
+  ): void {
+    const current = this.currentDocument();
+    if (!current) return;
+    const worldX = point.x * current.spriteWidth;
+    const worldY = point.y * current.spriteHeight;
+    const x = viewport.worldToScreenX(worldX);
+    const y = viewport.worldToScreenY(worldY);
+    const right = viewport.worldToScreenX(worldX + current.spriteWidth);
+    const bottom = viewport.worldToScreenY(worldY + current.spriteHeight);
     context.strokeStyle = color;
     context.lineWidth = lineWidth;
     context.strokeRect(

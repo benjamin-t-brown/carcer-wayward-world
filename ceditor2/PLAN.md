@@ -852,8 +852,9 @@ pass. See [`docs/phase-7-summary.md`](./docs/phase-7-summary.md).
 
 ### Phase 8: Hardening and cutover
 
-Implementation status: in progress. Automated hardening can be completed in
-this project pass; default-editor approval and removal of the old editor remain
+Implementation status: automated hardening complete. See
+[`docs/phase-8-summary.md`](./docs/phase-8-summary.md). Interactive browser
+acceptance, default-editor approval, and removal of the old editor remain
 explicit user decisions.
 
 #### Work

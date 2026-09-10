@@ -1,5 +1,11 @@
 # Form and Special-Event Editor Parity Audit
 
+> Implementation disposition: see the Phase 5 and Phase 7 summaries plus
+> [`legacy-differences.md`](./legacy-differences.md). This original inventory is
+> retained as an audit trail; CEditor2 deliberately keeps some advanced legacy
+> workflows as future usability work rather than hiding them behind checked
+> boxes.
+
 ## Purpose and scope
 
 This document records the user-visible behavior of the current `ceditor` form

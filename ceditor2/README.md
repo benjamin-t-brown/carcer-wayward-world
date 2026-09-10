@@ -2,10 +2,13 @@
 
 CEditor2 is the lightweight, modular replacement for `ceditor`. Each editor is
 an independent Vite entry point built with TypeScript and native browser APIs.
-The existing editor remains available while CEditor2 is developed.
+It is ready for verification on real editing workflows; the existing editor
+remains available as a deprecated migration reference until default-editor
+approval.
 
 See [PLAN.md](./PLAN.md) for the phased implementation plan and
-[docs/phase-0-summary.md](./docs/phase-0-summary.md) for the initial audit.
+[docs/phase-8-summary.md](./docs/phase-8-summary.md) for implementation and
+verification status.
 
 ## Requirements
 
@@ -30,6 +33,12 @@ npm run build        # typecheck and build every HTML entry
 npm run check        # run every verification step
 npm run preview      # preview the production build with the local API
 ```
+
+Open `/pages/maps/` for standalone and continuous map-grid editing. The other
+entries under `/pages/` independently manage abilities, spells, items,
+characters, status effects, tilesets, map grids, special events, and sounds.
+Every page sees one shared in-memory database snapshot; **Save All** validates
+and commits all managed JSON assets together.
 
 ## Dependency rule
 

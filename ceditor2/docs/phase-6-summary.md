@@ -53,7 +53,7 @@ cell undo history.
 
 ## Verification
 
-- 79 focused map tests pass, including the real Alinea grid and real terrain
+- 81 focused map tests pass, including the real Alinea grid and real terrain
   metadata fixtures.
 - A synthetic 1,000 by 1,000 grid inspects only the visible partition and its
   overscan neighbors.

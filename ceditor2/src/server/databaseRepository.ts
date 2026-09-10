@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { isDeepStrictEqual } from 'node:util';
 
 import { ASSET_REGISTRY } from '../core/database/assetRegistry.js';
 import type {
@@ -58,7 +59,18 @@ export class DatabaseRepository implements DatabaseRepositoryContract {
       throw new BadRequestError(`Database validation failed:\n${details}`);
     }
 
-    const outputs = serializeSnapshot(request.assets);
+    const outputs = serializeSnapshot(request.assets).map((output) => {
+      const definition = ASSET_REGISTRY.find(
+        ({ fileName }) => fileName === output.fileName,
+      )!;
+      const original = current.contents.get(output.fileName)!;
+      return isDeepStrictEqual(
+        request.assets[definition.id],
+        current.assets[definition.id],
+      )
+        ? { ...output, content: original }
+        : output;
+    });
     const changedFiles = await commitSaveTransaction({
       databasePath: this.databasePath,
       outputs,

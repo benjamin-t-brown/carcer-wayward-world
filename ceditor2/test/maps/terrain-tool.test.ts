@@ -209,6 +209,22 @@ test('missing neighbor variants are reported and left untouched', () => {
   assert.deepEqual(solo.readCell(0, 1), { tilesetIndex: 0, tileIndex: 0 });
 });
 
+test('plans omit cells whose resolved terrain graphic is already current', () => {
+  const lookup = new TerrainMetadataLookup(uniformTileset(7));
+  const solo = map('solo', ['', 'terrain_borders'], [1, 7]);
+  const documents = new Map([['solo', solo]]);
+  const plan = computeTerrainPaintPlan(
+    new DocumentGraphics(documents),
+    new MapWorkspace(solo, documents, []),
+    lookup,
+    0,
+    { x: 0, y: 0 },
+    'GRASS',
+  );
+
+  assert.deepEqual(plan, { changes: [], issues: [] });
+});
+
 test('configuration failures happen before any map mutation', async () => {
   const lookup = await realLookup();
   const noTerrain = map('plain', ['', 'terrain0'], [1, 13]);
@@ -235,6 +251,33 @@ test('configuration failures happen before any map mutation', async () => {
     () => new TerrainPaintStroke(access, workspace, lookup, 0, 'SNOW'),
     /Base terrain tile not found/,
   );
+});
+
+test('a failed stroke dab stays retryable and does not mutate prior cells', async () => {
+  const lookup = await realLookup();
+  const west = map('west', ['', 'terrain_borders']);
+  const east = map('east', ['', 'terrain0'], [1, 13]);
+  const documents = new Map([
+    ['west', west],
+    ['east', east],
+  ]);
+  const access = new DocumentGraphics(documents);
+  const stroke = new TerrainPaintStroke(
+    access,
+    gridWorkspace(west, documents),
+    lookup,
+    0,
+    'GRASS',
+  );
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    assert.throws(
+      () => stroke.paint({ x: 2, y: 0 }),
+      /does not reference tileset "terrain_borders"/,
+    );
+  }
+  assert.deepEqual(stroke.finish().patches, []);
+  assert.deepEqual(east.readCell(0, 0), { tilesetIndex: 1, tileIndex: 13 });
 });
 
 async function realLookup(): Promise<TerrainMetadataLookup> {

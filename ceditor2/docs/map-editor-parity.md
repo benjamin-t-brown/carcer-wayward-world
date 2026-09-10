@@ -1,5 +1,11 @@
 # CEditor2 map editor parity and performance baseline
 
+> Implementation disposition: see
+> [`phase-6-summary.md`](./phase-6-summary.md) and
+> [`legacy-differences.md`](./legacy-differences.md). This Phase 0 inventory
+> intentionally remains unchanged so unchecked legacy interactions are not
+> mistaken for retained requirements.
+
 ## Purpose
 
 This document is the Phase 0 behavioral inventory for the existing CEditor map

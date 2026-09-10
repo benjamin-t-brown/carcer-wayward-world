@@ -4,11 +4,12 @@ import type {
   TilesetRecord,
 } from '../../../core/domain/tilesets/index.js';
 import type { MapWorkspace, MapWorkspaceCell } from '../MapWorkspace.js';
-import type {
-  CellPatchCommand,
-  GraphicCell,
-  GraphicCellAccess,
-  TileGraphic,
+import {
+  graphicsEqual,
+  type CellPatchCommand,
+  type GraphicCell,
+  type GraphicCellAccess,
+  type TileGraphic,
 } from '../history/cellPatches.js';
 import { PaintGesture } from './paintGesture.js';
 import type { WorldTilePoint } from './graphicRegionTools.js';
@@ -222,7 +223,8 @@ export function computeTerrainPaintPlan(
       continue;
     }
 
-    const corners = currentTerrainCorners(access, resolved, lookup);
+    const currentGraphic = access.getGraphic(resolved.cell);
+    const corners = currentTerrainCorners(currentGraphic, resolved, lookup);
     for (const corner of affected.corners as readonly TerrainCorner[]) {
       corners[corner] = tag;
     }
@@ -236,10 +238,12 @@ export function computeTerrainPaintPlan(
       });
       continue;
     }
+    const graphic: TileGraphic = [tilesetIndex, tileId];
+    if (graphicsEqual(currentGraphic, graphic)) continue;
     changes.push({
       point,
       cell: resolved.cell,
-      graphic: [tilesetIndex, tileId],
+      graphic,
     });
   }
 
@@ -310,7 +314,6 @@ export class TerrainPaintStroke {
     assertPoint(center);
     const key = `${center.x},${center.y}`;
     if (this.#visitedCenters.has(key)) return { changes: [], issues: [] };
-    this.#visitedCenters.add(key);
     const plan = computeTerrainPaintPlan(
       this.access,
       this.workspace,
@@ -319,6 +322,8 @@ export class TerrainPaintStroke {
       center,
       this.tag,
     );
+    // Failed plans do not consume a center, so callers can report/retry them.
+    this.#visitedCenters.add(key);
     for (const change of plan.changes) {
       this.#gesture.visit(change.cell, change.graphic);
     }
@@ -335,7 +340,7 @@ export class TerrainPaintStroke {
 }
 
 function currentTerrainCorners(
-  access: GraphicCellAccess,
+  graphic: TileGraphic,
   resolved: MapWorkspaceCell,
   lookup: TerrainMetadataLookup,
 ): {
@@ -344,7 +349,6 @@ function currentTerrainCorners(
   sw: TerrainBorderTag;
   se: TerrainBorderTag;
 } {
-  const graphic = access.getGraphic(resolved.cell);
   if (resolved.document.tilesetNames[graphic[0]] !== TERRAIN_TILESET_NAME) {
     return mutableNoneCorners();
   }
