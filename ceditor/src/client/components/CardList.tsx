@@ -1,3 +1,4 @@
+import type { Key, ReactNode } from 'react';
 import { SelectableListCard } from '../elements/SelectableListCard';
 import { ListCardActions } from '../elements/ListCardActions';
 
@@ -12,9 +13,11 @@ interface CardListProps<ListItem> {
   onClone: (index: number) => void;
   onDelete: (index: number) => void;
   selectedIndex?: number | null;
-  renderAdditionalInfo?: (item: ListItem) => React.ReactNode;
+  renderMedia?: (item: ListItem, index: number) => ReactNode;
+  renderAdditionalInfo?: (item: ListItem, index: number) => ReactNode;
   emptyMessage?: string;
   getCardId?: (index: number) => string;
+  getItemKey?: (item: ListItem, index: number) => Key;
 }
 
 export function CardList<T extends ListItem>({
@@ -23,9 +26,11 @@ export function CardList<T extends ListItem>({
   onClone,
   onDelete,
   selectedIndex = null,
+  renderMedia,
   renderAdditionalInfo,
   emptyMessage = 'No items found',
   getCardId = (index) => `item-card-${index}`,
+  getItemKey = (_item, index) => index,
 }: CardListProps<T>) {
   if (items.length === 0) {
     return <div className="empty-state">{emptyMessage}</div>;
@@ -38,12 +43,13 @@ export function CardList<T extends ListItem>({
 
         return (
           <SelectableListCard
-            key={index}
+            key={getItemKey(item, index)}
             id={getCardId(index)}
             selected={selectedIndex === index}
             onClick={() => onItemClick(index)}
             title={displayLabel}
             subtitle={item.name}
+            media={renderMedia?.(item, index)}
             actions={
               <ListCardActions
                 onClone={() => onClone(index)}
@@ -51,7 +57,7 @@ export function CardList<T extends ListItem>({
               />
             }
           >
-            {renderAdditionalInfo?.(item)}
+            {renderAdditionalInfo?.(item, index)}
           </SelectableListCard>
         );
       })}

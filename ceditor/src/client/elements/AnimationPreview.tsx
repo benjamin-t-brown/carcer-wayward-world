@@ -6,11 +6,14 @@ const PREVIEW_SIZE = 40;
 interface AnimationPreviewProps {
   animationName: string;
   displaySize?: number;
+  /** Shared elapsed-time clock used by animation picker grids. */
+  clockMs?: number;
 }
 
 export function AnimationPreview({
   animationName,
   displaySize = PREVIEW_SIZE,
+  clockMs,
 }: AnimationPreviewProps) {
   const { animationMap, sprites, spriteMap } = useSDL2WAssets();
   const animation = animationName ? animationMap[animationName] : undefined;
@@ -37,6 +40,7 @@ export function AnimationPreview({
         sprites={sprites}
         spriteMap={spriteMap}
         displaySize={displaySize}
+        clockMs={clockMs}
       />
     </div>
   );

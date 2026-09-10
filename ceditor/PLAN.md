@@ -208,6 +208,12 @@ map, and event owners with pixel-identical baseline screenshots.
 
 ## Phase 6 — Form editor simplification and media polish
 
+Status: complete on 2026-09-10. Items now uses the deliberately narrow common
+form shell, Ability and Character forms are split into presentational domain
+sections, Tilesets remount by selection key, and sprite, picture, animation,
+and sound selection retain visual/playback behavior without discarding unknown
+legacy values. Editor-specific form CSS ships with its lazy editor chunk.
+
 ### Work
 
 - Strengthen `TemplateEditorPage` only for common list/form behavior: stable

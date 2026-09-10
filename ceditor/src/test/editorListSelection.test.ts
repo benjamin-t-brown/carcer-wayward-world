@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   itemAtSourceIndex,
+  recordKeyAtSourceIndex,
   replaceAtSourceIndex,
   sourceIndexFromVisibleIndex,
   visibleIndexFromSourceIndex,
@@ -42,4 +43,28 @@ test('an invalid source selection does not replace another item', () => {
   const next = replaceAtSourceIndex(source, -1, { name: 'wrong' });
   assert.deepEqual(next, source);
   assert.notEqual(next, source);
+});
+
+test('record keys stay with unique ids across filtering and reordering', () => {
+  const breadKey = recordKeyAtSourceIndex(source, 2, (item) => item.name);
+  assert.equal(
+    recordKeyAtSourceIndex(visible, 0, (item) => item.name),
+    breadKey,
+  );
+  assert.equal(
+    recordKeyAtSourceIndex([...source].reverse(), 1, (item) => item.name),
+    breadKey,
+  );
+});
+
+test('record keys disambiguate duplicate and missing ids', () => {
+  const duplicates = [{ name: '' }, { name: '' }];
+  assert.notEqual(
+    recordKeyAtSourceIndex(duplicates, 0, (item) => item.name),
+    recordKeyAtSourceIndex(duplicates, 1, (item) => item.name),
+  );
+  assert.notEqual(
+    recordKeyAtSourceIndex(duplicates, -1, (item) => item.name),
+    recordKeyAtSourceIndex(duplicates, 0, (item) => item.name),
+  );
 });

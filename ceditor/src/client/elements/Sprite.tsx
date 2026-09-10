@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react';
 import type { Sprite as SpriteType } from '../utils/assetLoader';
-import { getCachedDrawable, preparePixelArtCanvas } from '../utils/spriteUtils';
+import { getDrawable, preparePixelArtCanvas } from '../utils/spriteUtils';
 
 /** Largest integer scale that keeps the sprite within optional max dimensions. */
 function clampIntegerScale(
   sprite: SpriteType,
   scale: number,
   maxWidth?: number,
-  maxHeight?: number
+  maxHeight?: number,
 ): number {
   let s = Math.max(1, Math.floor(scale));
   if (maxWidth !== undefined) {
@@ -22,7 +22,7 @@ function clampIntegerScale(
 /** Integer upscale when the sprite fits; otherwise shrink to fit the square. */
 function scaleToDisplaySize(sprite: SpriteType, displaySize: number): number {
   const integerScale = Math.floor(
-    Math.min(displaySize / sprite.width, displaySize / sprite.height)
+    Math.min(displaySize / sprite.width, displaySize / sprite.height),
   );
   if (integerScale >= 1) {
     return integerScale;
@@ -53,6 +53,8 @@ export function Sprite({
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function loadSprite() {
       const canvas = canvasRef.current;
       if (!canvas) {
@@ -78,11 +80,6 @@ export function Sprite({
         return;
       }
 
-      const drawable = getCachedDrawable(sprite);
-      if (!drawable) {
-        throw new Error('Drawable not found');
-      }
-
       if (displaySize !== undefined) {
         preparePixelArtCanvas(canvas, ctx, displaySize, displaySize);
         const fitScale = scaleToDisplaySize(sprite, displaySize);
@@ -92,6 +89,8 @@ export function Sprite({
         const offsetY = Math.floor((displaySize - drawH) / 2);
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(0, 0, displaySize, displaySize);
+        const drawable = await getDrawable(sprite);
+        if (cancelled) return;
         ctx.drawImage(drawable, offsetX, offsetY, drawW, drawH);
       } else {
         const effectiveScale = clampIntegerScale(sprite, scale, maxWidth);
@@ -100,6 +99,8 @@ export function Sprite({
         preparePixelArtCanvas(canvas, ctx, drawW, drawH);
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(0, 0, drawW, drawH);
+        const drawable = await getDrawable(sprite);
+        if (cancelled) return;
         ctx.drawImage(drawable, 0, 0, drawW, drawH);
       }
 
@@ -108,7 +109,15 @@ export function Sprite({
       }
     }
 
-    loadSprite();
+    void loadSprite().catch((error: unknown) => {
+      if (!cancelled) {
+        console.error('Failed to render sprite', error);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [sprite, scale, displaySize, maxWidth, ...(renderDeps || [])]);
 
   return (

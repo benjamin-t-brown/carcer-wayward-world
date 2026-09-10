@@ -53,7 +53,11 @@ test('ability preparation trims a deep copy and sorts by name', () => {
 test('item and character preparation use label as the equal-name tie breaker', () => {
   const items = [
     { name: ' same ', label: ' Zebra ' },
-    { name: ' same ', label: ' Alpha ' },
+    {
+      name: ' same ',
+      label: ' Alpha ',
+      futureItemRule: { note: ' retained ' },
+    },
     { name: ' before ', label: ' Before ' },
   ] as ItemTemplate[];
   const characters = [
@@ -80,6 +84,22 @@ test('item and character preparation use label as the equal-name tie breaker', (
     ],
   );
   assert.equal(items[0]?.name, ' same ');
+  assert.deepEqual(
+    (
+      preparedItems[1] as ItemTemplate & {
+        futureItemRule: { note: string };
+      }
+    ).futureItemRule,
+    { note: 'retained' },
+  );
+  assert.deepEqual(
+    (
+      items[1] as ItemTemplate & {
+        futureItemRule: { note: string };
+      }
+    ).futureItemRule,
+    { note: ' retained ' },
+  );
   assert.equal(characters[0]?.label, ' Zebra ');
 });
 

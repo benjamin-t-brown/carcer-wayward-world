@@ -8,6 +8,9 @@ interface GenericModalProps {
   body: () => React.ReactNode;
   maxWidth?: string;
   disableCancel?: boolean;
+  confirmDisabled?: boolean;
+  confirmLabel?: string;
+  cancelLabel?: string;
   /** Body fills remaining height; scroll is delegated to modal content (e.g. sprite grid). */
   fillBody?: boolean;
 }
@@ -105,16 +108,24 @@ export const GenericModal = (props: GenericModalProps) => {
           }}
         >
           {props.disableCancel ? (
-            <Button variant="primary" onClick={props.onConfirm}>
-              Okay
+            <Button
+              variant="primary"
+              onClick={props.onConfirm}
+              disabled={props.confirmDisabled}
+            >
+              {props.confirmLabel ?? 'Okay'}
             </Button>
           ) : (
             <>
-              <Button variant="primary" onClick={props.onConfirm}>
-                Confirm
+              <Button
+                variant="primary"
+                onClick={props.onConfirm}
+                disabled={props.confirmDisabled}
+              >
+                {props.confirmLabel ?? 'Confirm'}
               </Button>
               <Button variant="danger" onClick={props.onCancel}>
-                Cancel
+                {props.cancelLabel ?? 'Cancel'}
               </Button>
             </>
           )}

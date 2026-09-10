@@ -1,334 +1,75 @@
-import { useState, useRef } from 'react';
-import { CardList } from '../components/CardList';
-import { EditorSidebar } from '../components/EditorSidebar';
-import { ItemTemplate } from '../types/assets';
 import {
   ItemTemplateForm,
   createDefaultItem,
 } from '../components/ItemTemplateForm';
-import { EditorHeader } from '../components/EditorHeader';
-import { Notification } from '../elements/Notification';
-import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { useAssets } from '../contexts/AssetsContext';
+import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { Sprite } from '../elements/Sprite';
+import type { ItemTemplate } from '../types/assets';
 import { prepareItemsForSave } from '../utils/formSavePreparation';
-import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 import {
-  itemAtSourceIndex,
-  sourceIndexFromVisibleIndex,
-  visibleIndexFromSourceIndex,
-} from '../utils/editorListSelection';
-
-interface NotificationState {
-  message: string;
-  type: 'success' | 'error';
-  id: number;
-}
+  TemplateEditorPage,
+  type TemplateEditorDescriptor,
+} from './TemplateEditorPage';
+import { validateItemTemplatesBeforeSave } from './itemTemplatesModel';
 
 interface ItemTemplatesProps {
   routeParams?: URLSearchParams;
 }
 
 export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
-  const {
-    sprites,
-    animations: _animations,
-    pictures: _pictures,
-    spriteMap,
-  } = useSDL2WAssets();
   const { items, setItems, saveItems } = useAssets();
-  const [editItemIndex, setEditItemIndex] = useState<number>(-1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [notifications, setNotifications] = useState<NotificationState[]>([]);
-  const notificationIdRef = useRef(0);
+  const { spriteMap } = useSDL2WAssets();
 
-  const showNotification = (message: string, type: 'success' | 'error') => {
-    const id = notificationIdRef.current++;
-    setNotifications((prev) => [...prev, { message, type, id }]);
-  };
-
-  const removeNotification = (id: number) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  };
-
-  // Filter items based on search term
-  const filteredItems = items.filter(
-    (item) =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.itemType.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
-  // Get the actual index in the full items array for filtered items
-  const getActualIndex = (filteredIndex: number): number => {
-    return sourceIndexFromVisibleIndex(items, filteredItems, filteredIndex);
-  };
-
-  const scrollToTopOfForm = () => {
-    setTimeout(() => {
-      document
-        .getElementById('item-form')
-        ?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
-  };
-
-  const handleItemClick = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
-    setEditItemIndex(actualIndex);
-    scrollToTopOfForm();
-  };
-
-  const handleClone = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
-    const originalItem = items[actualIndex];
-    const clonedItem: ItemTemplate = JSON.parse(JSON.stringify(originalItem));
-    clonedItem.name = clonedItem.name + '_copy';
-    const newItems = items.slice();
-    const clonedIndex = actualIndex + 1;
-    newItems.splice(clonedIndex, 0, clonedItem);
-    setItems(newItems);
-    setEditItemIndex(clonedIndex);
-    showNotification('Item cloned!', 'success');
-    scrollToTopOfForm();
-    setTimeout(() => {
-      const itemCard = document.getElementById(`item-card-${clonedIndex}`);
-      console.log('scrollItemCardIntoView', clonedIndex, itemCard);
-      if (itemCard) {
-        itemCard.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
-  };
-
-  const handleDelete = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
-    if (confirm('Are you sure you want to delete this item?')) {
-      const newItems = items.filter((_, index) => index !== actualIndex);
-      setItems(newItems);
-      if (editItemIndex === actualIndex) {
-        setEditItemIndex(-1);
-      } else if (editItemIndex > actualIndex) {
-        setEditItemIndex(editItemIndex - 1);
-        // scrollItemCardIntoView(filteredIndex);
-      }
-    }
-  };
-
-  const handleCreateNew = () => {
-    const newItemTemplate = createDefaultItem();
-    const newItems = [...items, newItemTemplate];
-    setItems(newItems);
-    const actualIndex = newItems.length - 1;
-    setEditItemIndex(actualIndex);
-    scrollToTopOfForm();
-    setSearchTerm('');
-    setTimeout(() => {
-      const itemCard = document.getElementById(`item-card-${actualIndex}`);
-      console.log('scrollItemCardIntoView', actualIndex, itemCard);
-      if (itemCard) {
-        itemCard.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
-  };
-
-  usePersistedEditorSelection({
+  const descriptor: TemplateEditorDescriptor<ItemTemplate> = {
     editorKey: 'itemTemplates',
-    items,
+    title: 'Item Templates Editor',
+    entityNoun: 'item',
+    entityNounPlural: 'items',
+    searchPlaceholder: 'Search items...',
+    createLabel: '+ New Item',
+    emptyMessage: 'No items found',
     getId: (item) => item.name,
-    selectedIndex: editItemIndex,
-    setSelectedIndex: setEditItemIndex,
-    routeParams,
-    onRestored: () => scrollToTopOfForm(),
-  });
-
-  const updateItem = (item: ItemTemplate) => {
-    if (editItemIndex >= 0 && editItemIndex < items.length) {
-      const updatedItems = [...items];
-      updatedItems[editItemIndex] = item;
-      setItems(updatedItems);
-    }
+    setId: (item, id) => {
+      item.name = id;
+    },
+    getLabel: (item) => item.label,
+    createDefault: createDefaultItem,
+    matchesSearch: (item, term) =>
+      item.name.toLowerCase().includes(term) ||
+      item.label.toLowerCase().includes(term) ||
+      item.itemType.toLowerCase().includes(term),
+    prepareForSave: prepareItemsForSave,
+    validateBeforeSave: validateItemTemplatesBeforeSave,
+    formatSaveError: (error) =>
+      `Error saving: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    deleteConfirmMessage: 'Are you sure you want to delete this item?',
+    formWrapperId: 'item-form',
+    scrollCardIntoView: true,
+    scrollFormIntoView: true,
+    renderCardMedia: (item) => {
+      const sprite = spriteMap[item.icon];
+      return sprite ? (
+        <div style={{ display: 'inline-block' }}>
+          <Sprite sprite={sprite} scale={1.5} />
+        </div>
+      ) : null;
+    },
+    renderCardMeta: (item) => (
+      <span className="item-type">{item.itemType}</span>
+    ),
   };
-
-  const validateItems = (): { isValid: boolean; error?: string } => {
-    const errors: string[] = [];
-    const nameCounts = new Map<string, number>();
-    const itemsWithMissingFields: string[] = [];
-
-    items.forEach((item, index) => {
-      const missingFields: string[] = [];
-
-      // Check required string fields
-      if (!item.itemType || item.itemType.trim() === '') {
-        missingFields.push('itemType');
-      }
-      if (!item.name || item.name.trim() === '') {
-        missingFields.push('name');
-      }
-      if (!item.label || item.label.trim() === '') {
-        missingFields.push('label');
-      }
-      if (!item.icon || item.icon.trim() === '') {
-        missingFields.push('icon');
-      }
-      if (!item.description || item.description.trim() === '') {
-        missingFields.push('description');
-      }
-
-      // Check required number fields
-      if (
-        item.weight === undefined ||
-        item.weight === null ||
-        isNaN(item.weight)
-      ) {
-        missingFields.push('weight');
-      }
-      if (
-        item.value === undefined ||
-        item.value === null ||
-        isNaN(item.value)
-      ) {
-        missingFields.push('value');
-      }
-
-      if (missingFields.length > 0) {
-        const itemIdentifier = item.name || `Item at index ${index}`;
-        itemsWithMissingFields.push(
-          `${itemIdentifier}: missing ${missingFields.join(', ')}`,
-        );
-      }
-
-      // Track names for duplicate checking
-      if (item.name && item.name.trim()) {
-        const count = nameCounts.get(item.name) || 0;
-        nameCounts.set(item.name, count + 1);
-      }
-    });
-
-    // Check for duplicate names
-    const duplicateNames: string[] = [];
-    nameCounts.forEach((count, name) => {
-      if (count > 1) {
-        duplicateNames.push(name);
-      }
-    });
-
-    if (duplicateNames.length > 0) {
-      errors.push(`Duplicate item names found: ${duplicateNames.join(', ')}`);
-    }
-
-    if (itemsWithMissingFields.length > 0) {
-      errors.push(
-        `Items with missing required fields:\n${itemsWithMissingFields.join('\n')}`,
-      );
-    }
-
-    if (errors.length > 0) {
-      return {
-        isValid: false,
-        error: errors.join('\n\n'),
-      };
-    }
-
-    return { isValid: true };
-  };
-
-  const handleSaveAll = async () => {
-    const validation = validateItems();
-    if (!validation.isValid) {
-      showNotification(validation.error || 'Validation failed', 'error');
-      return;
-    }
-
-    const currentItemName = itemAtSourceIndex(items, editItemIndex)?.name;
-
-    const sortedItems = prepareItemsForSave(items);
-
-    try {
-      await saveItems(sortedItems);
-      showNotification('Items saved successfully!', 'success');
-      if (currentItemName) {
-        const nextItemIndex = sortedItems.findIndex(
-          (item) => item.name === currentItemName.trim(),
-        );
-        setEditItemIndex(nextItemIndex);
-      }
-    } catch (err) {
-      showNotification(
-        `Error saving: ${err instanceof Error ? err.message : 'Unknown error'}`,
-        'error',
-      );
-    }
-  };
-
-  const currentItem = items[editItemIndex];
 
   return (
-    <div className="container editor-page">
-      <EditorHeader title="Item Templates Editor" onSave={handleSaveAll} />
-
-      <div className="editor-page-body">
-        <div className="editor-content">
-          <EditorSidebar
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            searchPlaceholder="Search items..."
-            createLabel="+ New Item"
-            onCreate={handleCreateNew}
-          >
-            <CardList
-              items={filteredItems}
-              onItemClick={handleItemClick}
-              onClone={handleClone}
-              onDelete={handleDelete}
-              selectedIndex={
-                editItemIndex !== -1
-                  ? visibleIndexFromSourceIndex(
-                      items,
-                      filteredItems,
-                      editItemIndex,
-                    )
-                  : null
-              }
-              renderAdditionalInfo={(item) => {
-                const sprite = spriteMap[item.icon];
-                return (
-                  <div
-                    className="item-info"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                    }}
-                  >
-                    {sprite && (
-                      <div style={{ display: 'inline-block' }}>
-                        <Sprite sprite={sprite} scale={1.5} />
-                      </div>
-                    )}
-                    <span className="item-type">{item.itemType}</span>
-                  </div>
-                );
-              }}
-              emptyMessage="No items found"
-            />
-          </EditorSidebar>
-
-          <div className="editor-main">
-            <div id="item-form">
-              <ItemTemplateForm item={currentItem} updateItem={updateItem} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Notifications */}
-      {notifications.map((notification) => (
-        <Notification
-          key={notification.id}
-          message={notification.message}
-          type={notification.type}
-          onClose={() => removeNotification(notification.id)}
-        />
-      ))}
-    </div>
+    <TemplateEditorPage
+      descriptor={descriptor}
+      items={items}
+      setItems={setItems}
+      saveItems={saveItems}
+      routeParams={routeParams}
+      renderForm={(item, update) => (
+        <ItemTemplateForm item={item} updateItem={update} />
+      )}
+    />
   );
 }

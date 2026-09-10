@@ -15,16 +15,10 @@ export type StatusEffectCondition =
   | 'CONDITION_FIRST_TIME_ATTACKED';
 
 export type AbilityType =
-  | 'ABILITY_ATTACK'
-  | 'ABILITY_SPELL'
-  | 'ABILITY_SKILL'
-  | 'ABILITY_SUB_ATTACK';
+  'ABILITY_ATTACK' | 'ABILITY_SPELL' | 'ABILITY_SKILL' | 'ABILITY_SUB_ATTACK';
 
 export type TargetSelectType =
-  | 'TARGET_SELF'
-  | 'TARGET_UNIT'
-  | 'TARGET_ZONE'
-  | 'TARGET_ALL_IN_RANGE';
+  'TARGET_SELF' | 'TARGET_UNIT' | 'TARGET_ZONE' | 'TARGET_ALL_IN_RANGE';
 
 export type TargetAllegianceSelectType =
   | 'TARGET_ALLEGIANCE_SAME'
@@ -34,22 +28,10 @@ export type TargetAllegianceSelectType =
   | 'TARGET_ALLEGIANCE_ALL_AND_SELF';
 
 export type Dice =
-  | 'D0'
-  | 'D2'
-  | 'D4'
-  | 'D6'
-  | 'D8'
-  | 'D10'
-  | 'D12'
-  | 'D20'
-  | 'D100';
+  'D0' | 'D2' | 'D4' | 'D6' | 'D8' | 'D10' | 'D12' | 'D20' | 'D100';
 
 export type StatsEnum =
-  | 'STAT_STR'
-  | 'STAT_MND'
-  | 'STAT_CON'
-  | 'STAT_AGI'
-  | 'STAT_LCK';
+  'STAT_STR' | 'STAT_MND' | 'STAT_CON' | 'STAT_AGI' | 'STAT_LCK';
 
 export type StatusEventType =
   | 'STATUS_EVENT_ON_APPLIED'
@@ -156,7 +138,9 @@ export function projectileTypeToAnimBase(projectile: ProjectileType): string {
 }
 
 /** Accept enum values or legacy projectileAnim strings from older JSON. */
-export function normalizeProjectileType(value: string | undefined): ProjectileType {
+export function normalizeProjectileType(
+  value: string | undefined,
+): ProjectileType {
   if (!value) {
     return 'PROJECTILE_NONE';
   }
@@ -579,28 +563,16 @@ export function setAbilityDepictionHasProjectile(
   return depiction;
 }
 
-/** Clear depiction anim/sound fields that are not defined in loaded SDL2W assets. */
+/** Normalize depiction enums without erasing unloaded legacy media names. */
 export function sanitizeAbilityDepiction(
   depiction: AbilityDepiction,
-  animationMap: Record<string, unknown>,
-  soundMap: Record<string, unknown>,
+  _animationMap: Record<string, unknown>,
+  _soundMap: Record<string, unknown>,
 ): AbilityDepiction {
   const projectileType = normalizeProjectileType(depiction.projectileType);
   return {
     ...depiction,
-    dmgAnim:
-      depiction.dmgAnim && depiction.dmgAnim in animationMap
-        ? depiction.dmgAnim
-        : '',
     projectileType,
-    startSound:
-      depiction.startSound && depiction.startSound in soundMap
-        ? depiction.startSound
-        : '',
-    dmgSound:
-      depiction.dmgSound && depiction.dmgSound in soundMap
-        ? depiction.dmgSound
-        : '',
   };
 }
 

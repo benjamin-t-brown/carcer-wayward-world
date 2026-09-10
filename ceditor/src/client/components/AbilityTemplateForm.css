@@ -1,0 +1,41 @@
+.ability-template-form .depiction-fields .form-fields-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: flex-end;
+}
+
+.ability-template-form
+  .depiction-fields
+  .form-fields-inline
+  + .form-fields-inline {
+  margin-top: 10px;
+}
+
+.ability-template-form .depiction-fields .form-group {
+  flex: 0 0 220px;
+  width: 220px;
+  margin-bottom: 0;
+}
+
+.ability-template-form .depiction-fields .form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.ability-template-form .depiction-fields .form-group select {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  padding: 6px 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.ability-template-form .depiction-fields .inline-checkbox {
+  flex: 0 0 auto;
+  width: auto;
+  align-self: flex-end;
+  margin-bottom: 6px;
+}

@@ -11,6 +11,8 @@ export interface SelectableListCardProps {
   subtitle?: string;
   /** Clone, delete, etc. Rendered in the header; clicks do not select the card. */
   actions?: React.ReactNode;
+  /** Optional leading visual, such as an item sprite. */
+  media?: React.ReactNode;
   /** Extra content in the card body (standard layout) or full card content (custom layout). */
   children?: React.ReactNode;
 }
@@ -26,6 +28,7 @@ export function SelectableListCard({
   title,
   subtitle,
   actions,
+  media,
   children,
 }: SelectableListCardProps) {
   const useStandardLayout = title !== undefined;
@@ -38,27 +41,30 @@ export function SelectableListCard({
       onClick={onClick}
     >
       {useStandardLayout ? (
-        <>
-          <div className="item-card-header">
-            <h3>{title}</h3>
-            {actions && (
-              <div
-                className="item-card-actions"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {actions}
-              </div>
-            )}
+        <div className="item-card-layout">
+          {media && <div className="item-card-media">{media}</div>}
+          <div className="item-card-content">
+            <div className="item-card-header">
+              <h3>{title}</h3>
+              {actions && (
+                <div
+                  className="item-card-actions"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {actions}
+                </div>
+              )}
+            </div>
+            <div className="item-card-body">
+              {subtitle !== undefined && subtitle !== '' && (
+                <div className="item-card-subtitle">
+                  <span className="item-name">({subtitle})</span>
+                </div>
+              )}
+              {children}
+            </div>
           </div>
-          <div className="item-card-body">
-            {subtitle !== undefined && subtitle !== '' && (
-              <div className="item-info">
-                <span className="item-name">{subtitle}</span>
-              </div>
-            )}
-            {children}
-          </div>
-        </>
+        </div>
       ) : (
         children
       )}

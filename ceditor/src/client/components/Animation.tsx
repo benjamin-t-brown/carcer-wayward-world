@@ -4,6 +4,7 @@ import {
   Sprite as SpriteType,
 } from '../utils/assetLoader';
 import { Sprite } from '../elements/Sprite';
+import { animationFrameIndexAtTime } from '../utils/mediaPicker';
 
 interface AnimationProps {
   animation: AnimationType;
@@ -14,6 +15,8 @@ interface AnimationProps {
   displaySize?: number;
   className?: string;
   autoPlay?: boolean;
+  /** Shared elapsed-time clock. When supplied, this preview creates no RAF. */
+  clockMs?: number;
 }
 
 export function Animation({
@@ -24,6 +27,7 @@ export function Animation({
   displaySize,
   className = '',
   autoPlay = true,
+  clockMs,
 }: AnimationProps) {
   const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
   const intervalRef = useRef<number | null>(null);
@@ -42,13 +46,17 @@ export function Animation({
     return sprites.find((s) => s.name === name);
   };
 
-  const currentFrame = animation.frames[currentFrameIndex];
+  const displayedFrameIndex =
+    clockMs === undefined
+      ? currentFrameIndex
+      : animationFrameIndexAtTime(animation, clockMs);
+  const currentFrame = animation.frames[displayedFrameIndex];
   const currentSprite = currentFrame
     ? getSpriteByName(currentFrame.spriteName)
     : undefined;
 
   useEffect(() => {
-    if (!autoPlay || !currentFrame) {
+    if (clockMs !== undefined || !autoPlay || !currentFrame) {
       return;
     }
 
@@ -71,8 +79,7 @@ export function Animation({
         setCurrentFrameIndex((prev) => {
           const next = prev + 1;
           if (next >= animation.frames.length) {
-            // Loop or stop
-            return 0;
+            return animation.loop ? 0 : prev;
           }
           return next;
         });
@@ -89,7 +96,7 @@ export function Animation({
         cancelAnimationFrame(intervalRef.current);
       }
     };
-  }, [currentFrameIndex, currentFrame, animation, autoPlay]);
+  }, [currentFrameIndex, currentFrame, animation, autoPlay, clockMs]);
 
   if (!currentSprite) {
     return (
@@ -111,4 +118,3 @@ export function Animation({
     </div>
   );
 }
-

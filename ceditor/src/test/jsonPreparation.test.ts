@@ -80,7 +80,7 @@ test('ability normalization is deterministic, immutable, and forward-compatible'
   assert.notEqual(first, input);
   assert.notEqual(first[0], input[0]);
   assert.equal(first[0].targetSelect.targetType, 'TARGET_UNIT');
-  assert.equal(first[0].depiction.startSound, '');
+  assert.equal(first[0].depiction.startSound, 'missing-sound');
   assert.equal(first[0].depiction.dmgSound, 'known-sound');
   assert.deepEqual(
     (first[0] as AbilityTemplate & { futureAbilityRule: unknown })

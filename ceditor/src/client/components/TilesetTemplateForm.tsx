@@ -12,6 +12,7 @@ import {
 import { TileStepSound, TileMetadata, TilesetTemplate } from '../types/assets';
 import { Button } from '../elements/Button';
 import { EditorEmptyState } from './EditorEmptyState';
+import './TilesetTemplateForm.css';
 
 // Re-export for backward compatibility
 export { TileStepSound };
@@ -50,7 +51,7 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
   const tileset = props.tileset;
   const { pictures } = useSDL2WAssets();
   const [selectedTileIndex, setSelectedTileIndex] = useState<number | null>(
-    null
+    null,
   );
   const [selectedTileIndices, setSelectedTileIndices] = useState<number[]>([]);
   const [isSelecting, setIsSelecting] = useState(false);
@@ -78,7 +79,7 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
 
   const updateField = <K extends keyof TilesetTemplate>(
     field: K,
-    value: TilesetTemplate[K]
+    value: TilesetTemplate[K],
   ) => {
     setFormData({ ...formData, [field]: value });
   };
@@ -86,7 +87,7 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
   const updateTiles = (
     tiles: { tile: TileMetadata; tileIndex: number }[],
     field: keyof TileMetadata,
-    value: any
+    value: any,
   ) => {
     const newTiles = [...formData.tiles];
     for (const tile of tiles) {
@@ -129,7 +130,7 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
     if (!e.ctrlKey && !e.metaKey && selectedTileIndices.length <= 1) {
       // Find the container div that wraps the image
       const container = (e.currentTarget as HTMLElement).closest(
-        'div[style*="position: relative"]'
+        'div[style*="position: relative"]',
       ) as HTMLElement;
       if (container) {
         const rect = container.getBoundingClientRect();
@@ -170,7 +171,7 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
     // Check if we should start dragging from a tile
     if (dragStartPos && !isSelecting) {
       const dragDistance = Math.sqrt(
-        Math.pow(x - dragStartPos.x, 2) + Math.pow(y - dragStartPos.y, 2)
+        Math.pow(x - dragStartPos.x, 2) + Math.pow(y - dragStartPos.y, 2),
       );
       if (dragDistance > 5) {
         // Started dragging - clear selection and start new selection
@@ -253,7 +254,7 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
   const handleSelectPicture = (
     value: string,
     imageWidth: number,
-    imageHeight: number
+    imageHeight: number,
   ) => {
     const numTiles =
       Math.floor(imageWidth / formData.tileWidth) *
@@ -278,7 +279,7 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
       return { x: 0, y: 0 };
     }
     const tilesWide = Math.floor(
-      (formData.imageWidth || 0) / formData.tileWidth
+      (formData.imageWidth || 0) / formData.tileWidth,
     );
     const x = (index % tilesWide) * formData.tileWidth;
     const y = Math.floor(index / tilesWide) * formData.tileHeight;
@@ -474,10 +475,10 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
                         left: `${Math.min(selectionStart.x, selectionEnd.x)}px`,
                         top: `${Math.min(selectionStart.y, selectionEnd.y)}px`,
                         width: `${Math.abs(
-                          selectionEnd.x - selectionStart.x
+                          selectionEnd.x - selectionStart.x,
                         )}px`,
                         height: `${Math.abs(
-                          selectionEnd.y - selectionStart.y
+                          selectionEnd.y - selectionStart.y,
                         )}px`,
                         border: '2px dashed #4ec9b0',
                         backgroundColor: 'rgba(78, 201, 176, 0.1)',
@@ -523,10 +524,10 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
                             border: isSelected
                               ? '2px solid #4ec9b0'
                               : isMultiSelected
-                              ? '2px solid #4ec9b0'
-                              : hasDescription
-                              ? '1px solid rgba(78, 201, 176, 0.3)'
-                              : '1px solid rgba(255, 0, 0, 0.5)',
+                                ? '2px solid #4ec9b0'
+                                : hasDescription
+                                  ? '1px solid rgba(78, 201, 176, 0.3)'
+                                  : '1px solid rgba(255, 0, 0, 0.5)',
                             backgroundColor:
                               isSelected || isMultiSelected
                                 ? 'rgba(78, 201, 176, 0.2)'
@@ -594,7 +595,7 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
                 formData,
                 selection.primaryTerrain,
                 selection.secondaryTerrain,
-                selection.startTileId
+                selection.startTileId,
               );
               if (!result.ok || !result.tileset) {
                 alert(result.error ?? 'Failed to apply terrain meta');

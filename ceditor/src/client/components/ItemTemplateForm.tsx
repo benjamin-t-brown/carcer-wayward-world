@@ -25,6 +25,7 @@ import { ItemWeaponFields } from './ItemWeaponFields';
 import { ItemUseAbilityFields } from './ItemUseAbilityFields';
 import { ItemUseSpecialEventFields } from './ItemUseSpecialEventFields';
 import { EditorEmptyState } from './EditorEmptyState';
+import './ItemTemplateForm.css';
 
 function isSuggestedRuneIcon(icon: string | undefined): boolean {
   return typeof icon === 'string' && /^runes_[0-7]$/.test(icon);
@@ -263,7 +264,10 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
               type="checkbox"
               checked={formData.stackable === true}
               onChange={(e) => updateField('stackable', e.target.checked)}
-              style={{ cursor: 'pointer', transform: 'scale(1.5)translateX(2px)' }}
+              style={{
+                cursor: 'pointer',
+                transform: 'scale(1.5)translateX(2px)',
+              }}
             />
             <label htmlFor="item-stackable" style={{ marginBottom: 0 }}>
               Stackable
@@ -284,7 +288,10 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
               type="checkbox"
               checked={formData.indestructable === true}
               onChange={(e) => updateField('indestructable', e.target.checked)}
-              style={{ cursor: 'pointer', transform: 'scale(1.5)translateX(2px)' }}
+              style={{
+                cursor: 'pointer',
+                transform: 'scale(1.5)translateX(2px)',
+              }}
             />
             <label htmlFor="item-indestructable" style={{ marginBottom: 0 }}>
               Indestructable
@@ -293,7 +300,10 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
 
           <div className="form-subsection">
             <h4>Usability</h4>
-            <div className="form-fields-inline" style={{ marginBottom: '10px' }}>
+            <div
+              className="form-fields-inline"
+              style={{ marginBottom: '10px' }}
+            >
               <OptionSelect
                 id="item-usability"
                 name="itemUsability"

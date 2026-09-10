@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { CardList } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
 import { TilesetTemplate } from '../types/assets';
@@ -17,12 +17,7 @@ import {
   sourceIndexFromVisibleIndex,
   visibleIndexFromSourceIndex,
 } from '../utils/editorListSelection';
-
-interface NotificationState {
-  message: string;
-  type: 'success' | 'error';
-  id: number;
-}
+import { useEditorNotifications } from '../hooks/useEditorNotifications';
 
 interface TilesetTemplatesProps {
   routeParams?: URLSearchParams;
@@ -32,18 +27,8 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
   const { tilesets, setTilesets, saveTilesets } = useAssets();
   const [editTilesetIndex, setEditTilesetIndex] = useState<number>(-1);
   const [searchTerm, setSearchTerm] = useState('');
-  const [notifications, setNotifications] = useState<NotificationState[]>([]);
-  const notificationIdRef = useRef(0);
-  const [showForm, setShowForm] = useState(true);
-
-  const showNotification = (message: string, type: 'success' | 'error') => {
-    const id = notificationIdRef.current++;
-    setNotifications((prev) => [...prev, { message, type, id }]);
-  };
-
-  const removeNotification = (id: number) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  };
+  const { notifications, showNotification, removeNotification } =
+    useEditorNotifications();
 
   // console.log('render tileset templates', tilesets, editTilesetIndex);
 
@@ -75,10 +60,6 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
     const actualIndex = getActualIndex(filteredIndex);
     setEditTilesetIndex(actualIndex);
     scrollToTopOfForm();
-    setShowForm(false);
-    setTimeout(() => {
-      setShowForm(true);
-    }, 100);
   };
 
   const handleClone = (filteredIndex: number) => {
@@ -336,12 +317,11 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
 
           <div className="editor-main">
             <div id="tileset-form">
-              {showForm && (
-                <TilesetTemplateForm
-                  tileset={currentTileset}
-                  updateTileset={updateTileset}
-                />
-              )}
+              <TilesetTemplateForm
+                key={editTilesetIndex}
+                tileset={currentTileset}
+                updateTileset={updateTileset}
+              />
             </div>
           </div>
         </div>

@@ -1,8 +1,3 @@
-import { TextInput } from '../elements/TextInput';
-import { NumberInput } from '../elements/NumberInput';
-import { OptionSelect } from '../elements/OptionSelect';
-import { TextArea } from '../elements/TextArea';
-import { Button } from '../elements/Button';
 import { useEffect, useState } from 'react';
 import {
   AbilityTemplate,
@@ -17,15 +12,10 @@ import {
 } from '../types/ability';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import {
-  TargetSelectFields,
-  AbilityDepictionFields,
-  AbilityAttackEditor,
-  AbilityStatusEditor,
-  AbilityRestoreEditor,
-  AbilityDamageEditor,
-  ABILITY_COST_TYPES,
-  enumOptions,
-} from './ability/AbilityFormFields';
+  AbilityBasicsSection,
+  AbilityEffectsSections,
+  AbilityTargetingSection,
+} from './ability/AbilityTemplateSections';
 import { useAssets } from '../contexts/AssetsContext';
 import {
   applyWeaponAttackDeleteToItems,
@@ -34,6 +24,7 @@ import {
 } from '../types/assets';
 import { AbilityAttackDeleteModal } from './AbilityAttackDeleteModal';
 import { EditorEmptyState } from './EditorEmptyState';
+import './AbilityTemplateForm.css';
 
 export type { AbilityTemplate };
 export { createDefaultAbilityTemplate };
@@ -59,7 +50,7 @@ export function AbilityTemplateForm(props: AbilityTemplateFormProps) {
     const depiction = sanitizeAbilityDepiction(
       ability.depiction,
       animationMap,
-      soundMap
+      soundMap,
     );
     if (
       depiction.dmgAnim !== ability.depiction.dmgAnim ||
@@ -77,7 +68,10 @@ export function AbilityTemplateForm(props: AbilityTemplateFormProps) {
   }
 
   const setFormData = (data: AbilityTemplate) => props.updateAbility(data);
-  const updateField = <K extends keyof AbilityTemplate>(field: K, value: AbilityTemplate[K]) => {
+  const updateField = <K extends keyof AbilityTemplate>(
+    field: K,
+    value: AbilityTemplate[K],
+  ) => {
     setFormData({ ...ability, [field]: value });
   };
 
@@ -169,7 +163,7 @@ export function AbilityTemplateForm(props: AbilityTemplateFormProps) {
   const removeStatus = (index: number) => {
     updateField(
       'statuses',
-      ability.statuses?.filter((_, i) => i !== index) || []
+      ability.statuses?.filter((_, i) => i !== index) || [],
     );
   };
 
@@ -195,7 +189,7 @@ export function AbilityTemplateForm(props: AbilityTemplateFormProps) {
   const removeRestore = (index: number) => {
     updateField(
       'restores',
-      ability.restores?.filter((_, i) => i !== index) || []
+      ability.restores?.filter((_, i) => i !== index) || [],
     );
   };
 
@@ -215,7 +209,7 @@ export function AbilityTemplateForm(props: AbilityTemplateFormProps) {
   const removeDamage = (index: number) => {
     updateField(
       'damages',
-      ability.damages?.filter((_, i) => i !== index) || []
+      ability.damages?.filter((_, i) => i !== index) || [],
     );
   };
 
@@ -223,168 +217,29 @@ export function AbilityTemplateForm(props: AbilityTemplateFormProps) {
     <div className="item-form ability-template-form">
       <h2>Edit Ability</h2>
       <form>
-        <div className="form-subsection">
-          <h4>Identity</h4>
-          <div className="form-fields-inline">
-            <TextInput
-              id="ability-name"
-              name="name"
-              label="Name (ID)"
-              value={ability.name}
-              onChange={(value) => updateField('name', value)}
-              required
-            />
-            <TextInput
-              id="ability-label"
-              name="label"
-              label="Label"
-              value={ability.label}
-              onChange={(value) => updateField('label', value)}
-              required
-            />
-            <TextInput
-              id="ability-icon"
-              name="icon"
-              label="Icon"
-              value={ability.icon}
-              onChange={(value) => updateField('icon', value)}
-            />
-            <OptionSelect
-              id="ability-type"
-              name="type"
-              label="Type"
-              value={ability.type}
-              onChange={(value) => updateField('type', value as AbilityTemplate['type'])}
-              options={enumOptions(ABILITY_TYPES)}
-            />
-          </div>
-        </div>
-
-        <div className="form-subsection">
-          <h4>Cost</h4>
-          <div className="form-fields-inline">
-            <NumberInput
-              id="ability-ap-cost"
-              name="apCost"
-              label="AP Cost"
-              value={ability.apCost}
-              onChange={(value) => updateField('apCost', value ?? 0)}
-              min={0}
-            />
-            <OptionSelect
-              id="ability-cost-type"
-              name="costType"
-              label="Aux Cost Type"
-              value={ability.costType}
-              onChange={(value) => updateField('costType', value as AbilityTemplate['costType'])}
-              options={enumOptions(ABILITY_COST_TYPES)}
-            />
-            <NumberInput
-              id="ability-cost-value"
-              name="costValue"
-              label="Aux Cost Value"
-              value={ability.costValue}
-              onChange={(value) => updateField('costValue', value ?? 0)}
-              min={0}
-            />
-          </div>
-        </div>
-
-        <div className="form-group form-block">
-          <TextArea
-            id="ability-description"
-            name="description"
-            label="Description"
-            value={ability.description}
-            onChange={(value) => updateField('description', value)}
-            rows={3}
-          />
-        </div>
+        <AbilityBasicsSection ability={ability} updateField={updateField} />
 
         <div className="form-section">
-          <div className="form-subsection">
-            <h4>Target Selection</h4>
-            <TargetSelectFields
-              value={ability.targetSelect}
-              onChange={(targetSelect) => updateField('targetSelect', targetSelect)}
-              idPrefix="ability-target"
-            />
-          </div>
-
-          <div className="form-subsection">
-            <h4>Depiction</h4>
-            <AbilityDepictionFields
-              value={ability.depiction}
-              onChange={(depiction) => updateField('depiction', depiction)}
-              idPrefix="ability-depiction"
-              compact
-            />
-          </div>
-
-          <div className="form-subsection">
-            <h4>Attacks</h4>
-            {ability.attacks?.map((attack, index) => (
-              <AbilityAttackEditor
-                key={index}
-                attack={attack}
-                index={index}
-                onChange={(updated) => updateAttack(index, updated)}
-                onRemove={() => removeAttack(index)}
-              />
-            ))}
-            <Button type="button" variant="secondary" onClick={addAttack}>
-              + Add Attack
-            </Button>
-          </div>
-
-          <div className="form-subsection">
-            <h4>Apply Status Effects</h4>
-            {ability.statuses?.map((status, index) => (
-              <AbilityStatusEditor
-                key={index}
-                status={status}
-                index={index}
-                statusEffectOptions={statusEffectOptions}
-                onChange={(updated) => updateStatus(index, updated)}
-                onRemove={() => removeStatus(index)}
-              />
-            ))}
-            <Button type="button" variant="secondary" onClick={addStatus}>
-              + Add Status Apply
-            </Button>
-          </div>
-
-          <div className="form-subsection">
-            <h4>Restores</h4>
-            {ability.restores?.map((restore, index) => (
-              <AbilityRestoreEditor
-                key={index}
-                restore={restore}
-                index={index}
-                onChange={(updated) => updateRestore(index, updated)}
-                onRemove={() => removeRestore(index)}
-              />
-            ))}
-            <Button type="button" variant="secondary" onClick={addRestore}>
-              + Add Restore
-            </Button>
-          </div>
-
-          <div className="form-subsection">
-            <h4>Damages</h4>
-            {ability.damages?.map((damage, index) => (
-              <AbilityDamageEditor
-                key={index}
-                damage={damage}
-                index={index}
-                onChange={(updated) => updateDamage(index, updated)}
-                onRemove={() => removeDamage(index)}
-              />
-            ))}
-            <Button type="button" variant="secondary" onClick={addDamage}>
-              + Add Damage
-            </Button>
-          </div>
+          <AbilityTargetingSection
+            ability={ability}
+            updateField={updateField}
+          />
+          <AbilityEffectsSections
+            ability={ability}
+            statusEffectOptions={statusEffectOptions}
+            onUpdateAttack={updateAttack}
+            onAddAttack={addAttack}
+            onRemoveAttack={removeAttack}
+            onUpdateStatus={updateStatus}
+            onAddStatus={addStatus}
+            onRemoveStatus={removeStatus}
+            onUpdateRestore={updateRestore}
+            onAddRestore={addRestore}
+            onRemoveRestore={removeRestore}
+            onUpdateDamage={updateDamage}
+            onAddDamage={addDamage}
+            onRemoveDamage={removeDamage}
+          />
         </div>
       </form>
 

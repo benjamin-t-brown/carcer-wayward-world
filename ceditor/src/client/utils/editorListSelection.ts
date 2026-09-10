@@ -46,3 +46,24 @@ export function replaceAtSourceIndex<T>(
   next[sourceIndex] = replacement;
   return next;
 }
+
+/** A stable, unique React key for an entity id, including invalid duplicate ids. */
+export function recordKeyAtSourceIndex<T>(
+  source: readonly T[],
+  sourceIndex: number,
+  getId: (item: T) => string,
+): string {
+  const item = source[sourceIndex];
+  if (item === undefined) {
+    return JSON.stringify(['missing', sourceIndex]);
+  }
+
+  const id = getId(item);
+  let occurrence = 0;
+  for (let index = 0; index < sourceIndex; index += 1) {
+    if (getId(source[index]) === id) {
+      occurrence += 1;
+    }
+  }
+  return JSON.stringify([id, occurrence]);
+}

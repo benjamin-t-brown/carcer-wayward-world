@@ -2,10 +2,9 @@ import { useMemo, type ReactNode } from 'react';
 import { NumberInput } from '../../elements/NumberInput';
 import { OptionSelect } from '../../elements/OptionSelect';
 import { Button } from '../../elements/Button';
-import { AnimationPreview } from '../../elements/AnimationPreview';
+import { AnimationPicker } from '../../elements/AnimationPicker';
 import { SoundSearchField } from '../../elements/SoundSearchField';
 import { SearchSelect } from '../../elements/SearchSelect';
-import { useSDL2WAssets } from '../../contexts/SDL2WAssetsContext';
 import { useAssets } from '../../contexts/AssetsContext';
 import {
   TargetSelectInfo,
@@ -167,21 +166,6 @@ function DiceListEditor({
   );
 }
 
-function assetNameOptions(
-  names: string[],
-  currentValue: string,
-  allowEmpty: boolean,
-  emptyLabel = '(none)',
-): { value: string; label: string }[] {
-  const unique = new Set(names);
-  if (currentValue && !unique.has(currentValue)) {
-    unique.add(currentValue);
-  }
-  const sorted = [...unique].sort((a, b) => a.localeCompare(b));
-  const options = allowEmpty ? [{ value: '', label: emptyLabel }] : [];
-  return [...options, ...sorted.map((name) => ({ value: name, label: name }))];
-}
-
 export function TargetSelectFields({
   value,
   onChange,
@@ -320,26 +304,22 @@ function DepictionAnimField({
   name,
   label,
   value,
-  options,
   onChange,
 }: {
   id: string;
   name: string;
   label: string;
   value: string;
-  options: Array<{ value: string | number; label: string }>;
   onChange: (value: string) => void;
 }) {
   return (
     <div className="depiction-preview-field">
-      <AnimationPreview animationName={value} />
-      <OptionSelect
+      <AnimationPicker
         id={id}
         name={name}
         label={label}
         value={value}
         onChange={onChange}
-        options={options}
       />
     </div>
   );
@@ -381,18 +361,6 @@ export function AbilityDepictionFields({
   idPrefix: string;
   compact?: boolean;
 }) {
-  const { animations } = useSDL2WAssets();
-
-  const animationOptions = useMemo(
-    () =>
-      assetNameOptions(
-        animations.map((a) => a.name),
-        value.dmgAnim,
-        false,
-      ),
-    [animations, value.dmgAnim],
-  );
-
   const projectileTypeOptions = useMemo(
     () =>
       enumOptions(
@@ -444,7 +412,9 @@ export function AbilityDepictionFields({
             type="checkbox"
             checked={hasProjectile}
             onChange={(e) =>
-              onChange(setAbilityDepictionHasProjectile(value, e.target.checked))
+              onChange(
+                setAbilityDepictionHasProjectile(value, e.target.checked),
+              )
             }
           />
           Has projectile
@@ -456,7 +426,6 @@ export function AbilityDepictionFields({
             label="Dmg Anim"
             value={value.dmgAnim}
             onChange={(v) => update('dmgAnim', v)}
-            options={animationOptions}
           />
           {projectileFields}
           <DepictionSoundField
@@ -497,7 +466,6 @@ export function AbilityDepictionFields({
           label="Dmg Anim"
           value={value.dmgAnim}
           onChange={(v) => update('dmgAnim', v)}
-          options={animationOptions}
         />
         {projectileFields}
       </div>
@@ -688,7 +656,8 @@ export function AbilityAttackEditor({
           onChange={(v) =>
             onChange({
               ...attack,
-              damageType: (v as AbilityAttack['damageType']) || 'DAMAGE_TYPE_EDGED',
+              damageType:
+                (v as AbilityAttack['damageType']) || 'DAMAGE_TYPE_EDGED',
             })
           }
           options={enumOptions(DAMAGE_TYPES)}
@@ -941,9 +910,7 @@ export function AbilityDamageFields({
         name="damageType"
         label="Damage Type"
         value={value.damageType}
-        onChange={(v) =>
-          update('damageType', v as AbilityDamage['damageType'])
-        }
+        onChange={(v) => update('damageType', v as AbilityDamage['damageType'])}
         options={enumOptions(DAMAGE_TYPES)}
       />
       <DiceListEditor

@@ -1,4 +1,4 @@
-import { useState, useRef, ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { CardList } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
 import { EditorHeader } from '../components/EditorHeader';
@@ -6,21 +6,22 @@ import { Notification } from '../elements/Notification';
 import { prepareTemplateRecordsForSave } from '../utils/formSavePreparation';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 import { EditorSelectionKey } from '../utils/editorSelectionStorage';
-
-interface NotificationState {
-  message: string;
-  type: 'success' | 'error';
-  id: number;
-  duration?: number;
-}
+import {
+  itemAtSourceIndex,
+  recordKeyAtSourceIndex,
+  replaceAtSourceIndex,
+  sourceIndexFromVisibleIndex,
+  visibleIndexFromSourceIndex,
+} from '../utils/editorListSelection';
+import { useEditorNotifications } from '../hooks/useEditorNotifications';
 
 type CardItem = { name: string; label?: string } & Record<string, unknown>;
 
 /**
  * Everything a plain "list + form" template editor page needs. Pages that add
  * tab state, canvas editors, autosave, cascading deletes, or a create menu
- * (Maps, SpecialEvents, Tilesets, MapGrids, Abilities, Items) are intentionally
- * NOT built on this.
+ * (Maps, SpecialEvents, Tilesets, MapGrids, Abilities) are intentionally not
+ * built on this.
  */
 export interface TemplateEditorDescriptor<T> {
   editorKey: EditorSelectionKey;
@@ -38,9 +39,19 @@ export interface TemplateEditorDescriptor<T> {
   matchesSearch(item: T, lowerCaseTerm: string): boolean;
   /** Sort order applied on save. Default: getId localeCompare. */
   compare?(a: T, b: T): number;
+  /** Optional domain preparation replacing the default trim + compare step. */
+  prepareForSave?(items: T[]): T[];
+  /** Validation before any preparation or persistence. Return an error to abort. */
+  validateBeforeSave?(items: T[]): string | null;
+  /** Optional page-specific save failure copy. */
+  formatSaveError?(error: unknown): string;
 
   /** Row passed to CardList. Default: { name: getId, label: getLabel || getId }. */
   toCardItem?(item: T): CardItem;
+  /** Typed card slots for media and short metadata, rendered in that order. */
+  renderCardMedia?(item: T): ReactNode;
+  renderCardMeta?(item: T): ReactNode;
+  /** Legacy CardItem extension point retained for existing descriptors. */
   renderAdditionalInfo?(cardItem: CardItem): ReactNode;
 
   /** Text in the delete confirm(). Default: `Delete this <noun>?`. */
@@ -49,6 +60,8 @@ export interface TemplateEditorDescriptor<T> {
   formWrapperId?: string;
   /** Scroll the affected card into view after clone / create. */
   scrollCardIntoView?: boolean;
+  /** Scroll the selected form into view after select / clone / create / restore. */
+  scrollFormIntoView?: boolean;
 
   /**
    * Extra validation run against the sorted list after a successful save.
@@ -82,26 +95,26 @@ export function TemplateEditorPage<T>({
 }: TemplateEditorPageProps<T>) {
   const [editIndex, setEditIndex] = useState<number>(-1);
   const [searchTerm, setSearchTerm] = useState('');
-  const [notifications, setNotifications] = useState<NotificationState[]>([]);
-  const notificationIdRef = useRef(0);
-
-  const showNotification = (
-    message: string,
-    type: 'success' | 'error',
-    duration?: number,
-  ) => {
-    const id = notificationIdRef.current++;
-    setNotifications((prev) => [...prev, { message, type, id, duration }]);
-  };
-  const removeNotification = (id: number) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  };
+  const { notifications, showNotification, removeNotification } =
+    useEditorNotifications();
 
   const lowerTerm = searchTerm.toLowerCase();
   const filtered = items.filter((item) => d.matchesSearch(item, lowerTerm));
 
   const getActualIndex = (filteredIndex: number) =>
-    items.indexOf(filtered[filteredIndex]);
+    sourceIndexFromVisibleIndex(items, filtered, filteredIndex);
+
+  const scrollFormIntoView = () => {
+    const formWrapperId = d.formWrapperId;
+    if (!d.scrollFormIntoView || !formWrapperId) {
+      return;
+    }
+    setTimeout(() => {
+      document
+        .getElementById(formWrapperId)
+        ?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
 
   const scrollCardIntoView = (index: number) => {
     if (!d.scrollCardIntoView) {
@@ -114,12 +127,18 @@ export function TemplateEditorPage<T>({
     }, 100);
   };
 
-  const handleClick = (filteredIndex: number) =>
+  const handleClick = (filteredIndex: number) => {
     setEditIndex(getActualIndex(filteredIndex));
+    scrollFormIntoView();
+  };
 
   const handleClone = (filteredIndex: number) => {
     const actualIndex = getActualIndex(filteredIndex);
-    const cloned: T = JSON.parse(JSON.stringify(items[actualIndex]));
+    const original = itemAtSourceIndex(items, actualIndex);
+    if (original === undefined) {
+      return;
+    }
+    const cloned: T = JSON.parse(JSON.stringify(original));
     d.setId(cloned, d.getId(cloned) + '_copy');
     const next = items.slice();
     const clonedIndex = actualIndex + 1;
@@ -127,6 +146,7 @@ export function TemplateEditorPage<T>({
     setItems(next);
     setEditIndex(clonedIndex);
     showNotification(`${capitalize(d.entityNoun)} cloned!`, 'success');
+    scrollFormIntoView();
     scrollCardIntoView(clonedIndex);
   };
 
@@ -148,24 +168,31 @@ export function TemplateEditorPage<T>({
     setItems(next);
     setEditIndex(next.length - 1);
     setSearchTerm('');
+    scrollFormIntoView();
     scrollCardIntoView(next.length - 1);
   };
 
   const updateItem = (item: T) => {
-    if (editIndex < 0) {
+    if (editIndex < 0 || editIndex >= items.length) {
       return;
     }
-    const updated = [...items];
-    updated[editIndex] = item;
-    setItems(updated);
+    setItems(replaceAtSourceIndex(items, editIndex, item));
   };
 
   const handleSaveAll = async () => {
-    const currentId = editIndex >= 0 ? d.getId(items[editIndex]) : undefined;
-    const sorted = prepareTemplateRecordsForSave(items, d.getId, d.compare);
+    const validationError = d.validateBeforeSave?.(items);
+    if (validationError) {
+      showNotification(validationError, 'error');
+      return;
+    }
+
+    const current = itemAtSourceIndex(items, editIndex);
+    const currentId = current ? d.getId(current) : undefined;
+    const sorted = d.prepareForSave
+      ? d.prepareForSave(items)
+      : prepareTemplateRecordsForSave(items, d.getId, d.compare);
     try {
       await saveItems(sorted);
-      setItems(sorted);
       const errors = d.validateAfterSave?.(sorted) ?? [];
       if (errors.length > 0) {
         showNotification(
@@ -186,9 +213,10 @@ export function TemplateEditorPage<T>({
       }
     } catch (error) {
       showNotification(
-        error instanceof Error
-          ? error.message
-          : `Failed to save ${d.entityNounPlural}`,
+        d.formatSaveError?.(error) ??
+          (error instanceof Error
+            ? error.message
+            : `Failed to save ${d.entityNounPlural}`),
         'error',
       );
     }
@@ -201,9 +229,10 @@ export function TemplateEditorPage<T>({
     selectedIndex: editIndex,
     setSelectedIndex: setEditIndex,
     routeParams,
+    onRestored: scrollFormIntoView,
   });
 
-  const current = editIndex >= 0 ? items[editIndex] : undefined;
+  const current = itemAtSourceIndex(items, editIndex);
 
   const toCardItem =
     d.toCardItem ??
@@ -212,13 +241,28 @@ export function TemplateEditorPage<T>({
       label: d.getLabel(item) || d.getId(item),
     }));
 
-  const selectedCardIndex =
-    editIndex !== -1
-      ? (() => {
-          const i = filtered.findIndex((x) => items.indexOf(x) === editIndex);
-          return i >= 0 ? i : null;
-        })()
-      : null;
+  const selectedCardIndex = visibleIndexFromSourceIndex(
+    items,
+    filtered,
+    editIndex,
+  );
+
+  const renderCardSlot =
+    (render: ((item: T) => ReactNode) | undefined) =>
+    (_cardItem: CardItem, visibleIndex: number) => {
+      const item = filtered[visibleIndex];
+      if (item === undefined) {
+        return null;
+      }
+      return render?.(item);
+    };
+
+  const renderMedia = d.renderCardMedia
+    ? renderCardSlot(d.renderCardMedia)
+    : undefined;
+  const renderAdditionalInfo = d.renderCardMeta
+    ? renderCardSlot(d.renderCardMeta)
+    : d.renderAdditionalInfo;
 
   const form = renderForm(current, updateItem);
 
@@ -241,8 +285,16 @@ export function TemplateEditorPage<T>({
               onClone={handleClone}
               onDelete={handleDelete}
               selectedIndex={selectedCardIndex}
-              renderAdditionalInfo={d.renderAdditionalInfo}
+              renderMedia={renderMedia}
+              renderAdditionalInfo={renderAdditionalInfo}
               emptyMessage={d.emptyMessage}
+              getCardId={(visibleIndex) =>
+                `item-card-${getActualIndex(visibleIndex)}`
+              }
+              getItemKey={(_cardItem, visibleIndex) => {
+                const sourceIndex = getActualIndex(visibleIndex);
+                return recordKeyAtSourceIndex(items, sourceIndex, d.getId);
+              }}
             />
           </EditorSidebar>
 

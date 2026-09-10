@@ -1,9 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
-import { Sprite } from './Sprite';
+import { useIncrementalMedia } from '../hooks/useIncrementalMedia';
+import { filterMediaChoices } from '../utils/mediaPicker';
+import { MediaPickerModal } from './MediaPickerModal';
 import { OptionSelect } from './OptionSelect';
-import { ModalRowLayout } from './ModalRowLayout';
-import { GenericModal } from './GenericModal';
+import { Sprite } from './Sprite';
 
 interface SpritePickerProps {
   value: string;
@@ -14,9 +15,7 @@ interface SpritePickerProps {
   defaultSpritesheet?: string;
 }
 
-/** Sidebar preview (CSS px); integer upscale inside the canvas. */
 const SPRITE_PICKER_PREVIEW_SIZE = 128;
-/** Grid cell (CSS px); sized so 32px icons get a 2× integer scale. */
 const SPRITE_PICKER_CELL_SIZE = 64;
 
 export function SpritePicker({
@@ -28,319 +27,153 @@ export function SpritePicker({
 }: SpritePickerProps) {
   const { sprites, spriteMap } = useSDL2WAssets();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedSpritesheet, setSelectedSpritesheet] = useState<string>('');
-  const [selectedSpriteName, setSelectedSpriteName] = useState<string>(value);
+  const [selectedSpritesheet, setSelectedSpritesheet] = useState('');
+  const [selectedSpriteName, setSelectedSpriteName] = useState(value);
+  const [searchTerm, setSearchTerm] = useState('');
+  const currentSprite = spriteMap[value];
 
-  // Find the current sprite
-  const currentSprite = useMemo(() => {
-    return spriteMap[value];
-  }, [spriteMap, value]);
-
-  // Group sprites by spritesheet (pictureAlias)
   const spritesBySheet = useMemo(() => {
     const grouped: Record<string, typeof sprites> = {};
-    sprites.forEach((sprite) => {
-      if (!grouped[sprite.pictureAlias]) {
-        grouped[sprite.pictureAlias] = [];
-      }
-      grouped[sprite.pictureAlias].push(sprite);
-    });
+    for (const sprite of sprites) {
+      (grouped[sprite.pictureAlias] ??= []).push(sprite);
+    }
     return grouped;
   }, [sprites]);
-
-  // Get spritesheet options
-  const spritesheetOptions = useMemo(() => {
-    return Object.keys(spritesBySheet).map((alias) => ({
-      value: alias,
-      label: alias,
-    }));
-  }, [spritesBySheet]);
-
-  // Get sprites for the selected spritesheet
-  const sheetSprites = useMemo(() => {
-    if (!selectedSpritesheet) return [];
-    return spritesBySheet[selectedSpritesheet] || [];
-  }, [selectedSpritesheet, spritesBySheet]);
+  const spritesheetOptions = useMemo(
+    () =>
+      Object.keys(spritesBySheet)
+        .sort((left, right) => left.localeCompare(right))
+        .map((alias) => ({ value: alias, label: alias })),
+    [spritesBySheet],
+  );
+  const filteredSprites = useMemo(
+    () =>
+      filterMediaChoices(
+        selectedSpritesheet ? (spritesBySheet[selectedSpritesheet] ?? []) : [],
+        searchTerm,
+        (sprite) => [sprite.name, sprite.pictureAlias, sprite.picturePath],
+      ),
+    [searchTerm, selectedSpritesheet, spritesBySheet],
+  );
+  const { visibleChoices, hasMore, showMore } = useIncrementalMedia(
+    filteredSprites,
+    `${selectedSpritesheet}\u0000${searchTerm}`,
+  );
+  const previewSprite = spriteMap[selectedSpriteName];
+  const legacyValue =
+    selectedSpriteName && !previewSprite ? selectedSpriteName : undefined;
 
   const resolveInitialSpritesheet = () => {
-    if (
-      defaultSpritesheet &&
-      spritesBySheet[defaultSpritesheet]?.length
-    ) {
+    if (defaultSpritesheet && spritesBySheet[defaultSpritesheet]?.length) {
       return defaultSpritesheet;
     }
     return spritesheetOptions[0]?.value ?? '';
   };
 
-  // Initialize modal state when opened
   const handleOpenModal = () => {
+    setSearchTerm('');
+    setSelectedSpriteName(value);
     if (currentSprite) {
       setSelectedSpritesheet(currentSprite.pictureAlias);
-      setSelectedSpriteName(value);
-    } else if (spritesheetOptions.length > 0) {
+    } else {
       const sheet = resolveInitialSpritesheet();
       setSelectedSpritesheet(sheet);
-      setSelectedSpriteName(spritesBySheet[sheet]?.[0]?.name || '');
+      if (!value) {
+        setSelectedSpriteName(spritesBySheet[sheet]?.[0]?.name ?? '');
+      }
     }
     setIsModalOpen(true);
   };
 
-  const handleOk = () => {
+  const handleSpritesheetChange = (spritesheet: string) => {
+    setSelectedSpritesheet(spritesheet);
+    setSearchTerm('');
+    setSelectedSpriteName(spritesBySheet[spritesheet]?.[0]?.name ?? '');
+  };
+
+  const confirm = () => {
     if (selectedSpriteName) {
       onChange(selectedSpriteName);
     }
     setIsModalOpen(false);
   };
 
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-
-  // When spritesheet changes, reset sprite selection
-  const handleSpritesheetChange = (newSpritesheet: string) => {
-    setSelectedSpritesheet(newSpritesheet);
-    const firstSprite = spritesBySheet[newSpritesheet]?.[0];
-    setSelectedSpriteName(firstSprite?.name || '');
-  };
-
-  // Get the selected sprite for preview
-  const previewSprite = useMemo(() => {
-    return spriteMap[selectedSpriteName];
-  }, [spriteMap, selectedSpriteName]);
-
-  if (!currentSprite && !isModalOpen) {
-    return (
-      <div
-        className={className}
-        style={{
-          padding: '10px',
-          backgroundColor: '#2d2d30',
-          border: '1px solid #3e3e42',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          display: 'inline-block',
-        }}
-        onClick={handleOpenModal}
-      >
-        <div style={{ color: '#858585', fontSize: '12px' }}>
-          {value || 'No sprite selected'}
-        </div>
-        <div style={{ color: '#858585', fontSize: '10px', marginTop: '4px' }}>
-          Click to select
-        </div>
-      </div>
-    );
-  }
-
-  const spriteCanvases: React.ReactNode[] = [];
-  for (let i = 0; i < sheetSprites.length; i++) {
-    const sprite = sheetSprites[i];
-    const isSelected = sprite.name === selectedSpriteName;
-    spriteCanvases.push(
-      <div
-        key={`${selectedSpritesheet}-${sprite.name}-${i}`}
-        onClick={() => setSelectedSpriteName(sprite.name)}
-        style={{
-          cursor: 'pointer',
-          padding: '8px',
-          backgroundColor: isSelected ? '#2d2d30' : '#252526',
-          border: isSelected ? '2px solid #4ec9b0' : '2px solid #3e3e42',
-          borderRadius: '4px',
-          transition: 'all 0.2s',
-          textAlign: 'center',
-        }}
-        onMouseEnter={(e) => {
-          if (!isSelected) {
-            e.currentTarget.style.borderColor = '#4ec9b0';
-            e.currentTarget.style.backgroundColor = '#2d2d30';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!isSelected) {
-            e.currentTarget.style.borderColor = '#3e3e42';
-            e.currentTarget.style.backgroundColor = '#252526';
-          }
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginBottom: '6px',
-          }}
-        >
-          <Sprite sprite={sprite} displaySize={SPRITE_PICKER_CELL_SIZE} />
-        </div>
-        <div
-          style={{
-            fontSize: '10px',
-            color: '#858585',
-            wordBreak: 'break-word',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            maxHeight: '30px',
-          }}
-          title={sprite.name}
-        >
-          {sprite.name}
-        </div>
-      </div>
-    );
-    if (i > 255) {
-      break;
-    }
-    // break;
-  }
-
   return (
     <>
-      {currentSprite && (
-        <div
-          className={className}
-          style={{
-            margin: '16px',
-            display: 'inline-block',
-            cursor: 'pointer',
-          }}
-          onClick={handleOpenModal}
-        >
+      <button
+        type="button"
+        className={`media-picker-trigger ${className}`.trim()}
+        onClick={handleOpenModal}
+      >
+        {currentSprite ? (
           <Sprite sprite={currentSprite} scale={scale} />
-        </div>
-      )}
+        ) : (
+          <>
+            <span>{value || 'No sprite selected'}</span>
+            <small>Click to select</small>
+          </>
+        )}
+      </button>
 
-      {isModalOpen && (
-        <GenericModal
+      {isModalOpen ? (
+        <MediaPickerModal
           title="Select Sprite"
-          fillBody
-          maxWidth="900px"
-          onConfirm={handleOk}
-          onCancel={handleCancel}
-          body={() => (
-            <ModalRowLayout
-              className="sprite-picker"
-              sidebar={
-                <div>
-                  <OptionSelect
-                    label="Spritesheet"
-                    value={selectedSpritesheet}
-                    onChange={handleSpritesheetChange}
-                    options={spritesheetOptions}
+          searchTerm={searchTerm}
+          searchPlaceholder="Search sprites..."
+          onSearchTermChange={setSearchTerm}
+          selectedName={selectedSpriteName}
+          legacyValue={legacyValue}
+          resultCount={filteredSprites.length}
+          visibleCount={visibleChoices.length}
+          hasMore={hasMore}
+          onShowMore={showMore}
+          onConfirm={confirm}
+          onCancel={() => setIsModalOpen(false)}
+          sidebar={
+            <>
+              <OptionSelect
+                label="Spritesheet"
+                value={selectedSpritesheet}
+                onChange={handleSpritesheetChange}
+                options={spritesheetOptions}
+              />
+              {previewSprite ? (
+                <div className="media-picker-selected-preview">
+                  <span>Preview</span>
+                  <Sprite
+                    sprite={previewSprite}
+                    displaySize={SPRITE_PICKER_PREVIEW_SIZE}
                   />
-                  {previewSprite && selectedSpriteName && (
-                    <div
-                      style={{
-                        marginTop: '12px',
-                        padding: '12px',
-                        backgroundColor: '#1e1e1e',
-                        borderRadius: '4px',
-                        textAlign: 'center',
-                      }}
-                    >
-                      <div
-                        style={{
-                          marginBottom: '8px',
-                          color: '#d4d4d4',
-                          fontSize: '12px',
-                        }}
-                      >
-                        Preview
-                      </div>
-                      <div
-                        style={{
-                          display: 'inline-block',
-                          padding: '8px',
-                          backgroundColor: '#2d2d30',
-                          borderRadius: '4px',
-                        }}
-                      >
-                        <Sprite
-                          sprite={previewSprite}
-                          displaySize={SPRITE_PICKER_PREVIEW_SIZE}
-                        />
-                      </div>
-                      <div
-                        style={{
-                          marginTop: '8px',
-                          color: '#858585',
-                          fontSize: '11px',
-                          wordBreak: 'break-word',
-                        }}
-                      >
-                        {previewSprite.name}
-                      </div>
-                    </div>
-                  )}
+                  <small>{previewSprite.name}</small>
                 </div>
-              }
-              main={
-                selectedSpritesheet ? (
-                  <>
-                    <label
-                      style={{
-                        display: 'block',
-                        flexShrink: 0,
-                        marginBottom: '8px',
-                        color: '#d4d4d4',
-                        fontSize: '14px',
-                        fontWeight: 500,
-                      }}
-                    >
-                      Sprite
-                    </label>
-                    {sheetSprites.length > 0 ? (
-                      <div
-                        style={{
-                          flex: 1,
-                          minHeight: 0,
-                          overflowY: 'auto',
-                          display: 'grid',
-                          gridTemplateColumns:
-                            'repeat(auto-fill, minmax(80px, 1fr))',
-                          gap: '12px',
-                          padding: '12px',
-                          backgroundColor: '#1e1e1e',
-                          borderRadius: '4px',
-                          alignContent: 'start',
-                        }}
-                      >
-                        {spriteCanvases}
-                      </div>
-                    ) : (
-                      <div
-                        style={{
-                          flex: 1,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          padding: '20px',
-                          textAlign: 'center',
-                          color: '#858585',
-                          backgroundColor: '#1e1e1e',
-                          borderRadius: '4px',
-                        }}
-                      >
-                        No sprites found in this spritesheet
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div
-                    style={{
-                      flex: 1,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#858585',
-                    }}
-                  >
-                    Select a spritesheet
-                  </div>
-                )
-              }
-            />
-          )}
-        />
-      )}
+              ) : null}
+            </>
+          }
+        >
+          {visibleChoices.map((sprite) => (
+            <button
+              type="button"
+              className="media-picker-card"
+              aria-selected={sprite.name === selectedSpriteName}
+              key={`${sprite.pictureAlias}-${sprite.name}`}
+              title={sprite.name}
+              onClick={() => setSelectedSpriteName(sprite.name)}
+              onDoubleClick={() => {
+                onChange(sprite.name);
+                setIsModalOpen(false);
+              }}
+            >
+              <span className="media-picker-card-visual">
+                <Sprite sprite={sprite} displaySize={SPRITE_PICKER_CELL_SIZE} />
+              </span>
+              <small>{sprite.name}</small>
+            </button>
+          ))}
+          {filteredSprites.length === 0 ? (
+            <p className="media-picker-empty">No sprites found</p>
+          ) : null}
+        </MediaPickerModal>
+      ) : null}
     </>
   );
 }
