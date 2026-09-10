@@ -22,3 +22,9 @@ export interface SaveDatabaseResponse {
   revision: string;
   changedFiles: string[];
 }
+
+/** Transport boundary used by the framework-free client database session. */
+export interface DatabaseTransport {
+  loadDatabase(): Promise<DatabaseEnvelope>;
+  saveDatabase(request: SaveDatabaseRequest): Promise<SaveDatabaseResponse>;
+}

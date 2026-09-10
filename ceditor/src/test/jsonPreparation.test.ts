@@ -3,8 +3,12 @@ import test from 'node:test';
 
 import type { AbilityTemplate } from '../client/types/ability';
 import { sanitizeAbilityTemplates } from '../client/types/ability';
-import type { ItemTemplate } from '../client/types/assets';
-import { sanitizeItemTemplates } from '../client/types/assets';
+import type { ItemTemplate, MapGridTemplate } from '../client/types/assets';
+import {
+  normalizeItemUseAbilityConfig,
+  sanitizeItemTemplates,
+  sanitizeMapGridTemplates,
+} from '../client/types/assets';
 import type { SpellTemplate } from '../client/types/spell';
 import { sanitizeSpellTemplates } from '../client/types/spell';
 import { trimStrings } from '../client/utils/jsonUtils';
@@ -127,6 +131,36 @@ test('item normalization removes known legacy data without mutating or dropping 
   assert.deepEqual(
     (prepared[0] as ItemTemplate & { futureItemRule: unknown }).futureItemRule,
     { version: 2 },
+  );
+});
+
+test('item ability normalization omits absent overrides', () => {
+  assert.deepEqual(normalizeItemUseAbilityConfig({ abilityName: 'heal' }), {
+    abilityName: 'heal',
+  });
+});
+
+test('map-grid normalization preserves unknown fields', () => {
+  const grid = {
+    name: 'overworld',
+    label: 'Overworld',
+    gridWidth: 1,
+    gridHeight: 1,
+    mapWidth: 25,
+    mapHeight: 20,
+    cells: [['partition-a']],
+    futureGridRule: { streamingPriority: 2 },
+  } as unknown as MapGridTemplate;
+
+  const [normalized] = sanitizeMapGridTemplates([grid]);
+
+  assert.deepEqual(
+    (
+      normalized as MapGridTemplate & {
+        futureGridRule: { streamingPriority: number };
+      }
+    ).futureGridRule,
+    { streamingPriority: 2 },
   );
 });
 

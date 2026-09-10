@@ -1,4 +1,11 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import {
   ItemTemplate,
   CharacterTemplate,
@@ -10,7 +17,9 @@ import {
 } from '../types/assets';
 import { AbilityTemplate, StatusEffectTemplate } from '../types/ability';
 import { SpellTemplate } from '../types/spell';
-import { AssetId } from '../../shared/assetRegistry';
+import type { AssetId } from '../../shared/assetRegistry';
+import type { JsonArray } from '../../shared/databaseContract';
+import { DatabaseSession } from '../database/DatabaseSession';
 
 interface AssetsContextType {
   items: ItemTemplate[];
@@ -25,6 +34,10 @@ interface AssetsContextType {
   mapGrids: MapGridTemplate[];
   loading: boolean;
   error: string | null;
+  isSaving: boolean;
+  isDirty: boolean;
+  dirtyAssetIds: ReadonlySet<AssetId>;
+  saveError: string | null;
   setItems: (items: ItemTemplate[]) => void;
   setCharacters: (characters: CharacterTemplate[]) => void;
   setAbilities: (abilities: AbilityTemplate[]) => void;
@@ -59,6 +72,7 @@ export function useAssets() {
 
 interface AssetsProviderProps {
   children: ReactNode;
+  session: DatabaseSession;
   initialItems: ItemTemplate[];
   initialCharacters: CharacterTemplate[];
   initialAbilities: AbilityTemplate[];
@@ -71,38 +85,28 @@ interface AssetsProviderProps {
   initialMapGrids: MapGridTemplate[];
 }
 
-async function saveAsset(id: AssetId, data: unknown): Promise<void> {
-  const response = await fetch(`/api/assets/${id}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to save ${id}`);
-  }
-}
+function useSessionCollection<T>(
+  session: DatabaseSession,
+  id: AssetId,
+  initialRecords: T[],
+  notifySessionChanged: () => void,
+): [T[], (records: T[]) => void] {
+  const [records, setRecords] = useState<T[]>(initialRecords);
+  const replaceRecords = useCallback(
+    (nextRecords: T[]) => {
+      session.replaceCollection(id, nextRecords as unknown as JsonArray);
+      setRecords(nextRecords);
+      notifySessionChanged();
+    },
+    [id, notifySessionChanged, session],
+  );
 
-const saveItems = (items: ItemTemplate[]) => saveAsset('itemTemplates', items);
-const saveCharacters = (characters: CharacterTemplate[]) =>
-  saveAsset('characterTemplates', characters);
-const saveAbilities = (abilities: AbilityTemplate[]) =>
-  saveAsset('abilityTemplates', abilities);
-const saveSpells = (spells: SpellTemplate[]) => saveAsset('spellTemplates', spells);
-const saveStatusEffects = (statusEffects: StatusEffectTemplate[]) =>
-  saveAsset('statusEffectTemplates', statusEffects);
-const saveFeats = async (_feats: FeatTemplate[]) => {
-  throw new Error('Feat templates are not an active managed asset type');
-};
-const saveTilesets = (tilesets: TilesetTemplate[]) =>
-  saveAsset('tilesetTemplates', tilesets);
-const saveGameEvents = (gameEvents: GameEvent[]) =>
-  saveAsset('specialEvents', gameEvents);
-const saveMaps = (maps: CarcerMapTemplate[]) => saveAsset('maps', maps);
-const saveMapGrids = (mapGrids: MapGridTemplate[]) =>
-  saveAsset('mapGrids', mapGrids);
+  return [records, replaceRecords];
+}
 
 export function AssetsProvider({
   children,
+  session,
   initialItems,
   initialCharacters,
   initialAbilities,
@@ -114,19 +118,161 @@ export function AssetsProvider({
   initialMaps,
   initialMapGrids,
 }: AssetsProviderProps) {
-  const [items, setItems] = useState<ItemTemplate[]>(initialItems);
-  const [characters, setCharacters] = useState<CharacterTemplate[]>(initialCharacters);
-  const [abilities, setAbilities] = useState<AbilityTemplate[]>(initialAbilities);
-  const [spells, setSpells] = useState<SpellTemplate[]>(initialSpells);
-  const [statusEffects, setStatusEffects] =
-    useState<StatusEffectTemplate[]>(initialStatusEffects);
+  const [, setSessionVersion] = useState(0);
+  const notifySessionChanged = useCallback(() => {
+    setSessionVersion((version) => version + 1);
+  }, []);
+  const [items, setItems] = useSessionCollection(
+    session,
+    'itemTemplates',
+    initialItems,
+    notifySessionChanged,
+  );
+  const [characters, setCharacters] = useSessionCollection(
+    session,
+    'characterTemplates',
+    initialCharacters,
+    notifySessionChanged,
+  );
+  const [abilities, setAbilities] = useSessionCollection(
+    session,
+    'abilityTemplates',
+    initialAbilities,
+    notifySessionChanged,
+  );
+  const [spells, setSpells] = useSessionCollection(
+    session,
+    'spellTemplates',
+    initialSpells,
+    notifySessionChanged,
+  );
+  const [statusEffects, setStatusEffects] = useSessionCollection(
+    session,
+    'statusEffectTemplates',
+    initialStatusEffects,
+    notifySessionChanged,
+  );
   const [feats, setFeats] = useState<FeatTemplate[]>(initialFeats);
-  const [tilesets, setTilesets] = useState<TilesetTemplate[]>(initialTilesets);
-  const [gameEvents, setGameEvents] = useState<GameEvent[]>(initialGameEvents);
-  const [maps, setMaps] = useState<CarcerMapTemplate[]>(initialMaps);
-  const [mapGrids, setMapGrids] = useState<MapGridTemplate[]>(initialMapGrids);
+  const [tilesets, setTilesets] = useSessionCollection(
+    session,
+    'tilesetTemplates',
+    initialTilesets,
+    notifySessionChanged,
+  );
+  const [gameEvents, setGameEvents] = useSessionCollection(
+    session,
+    'specialEvents',
+    initialGameEvents,
+    notifySessionChanged,
+  );
+  const [maps, setMaps] = useSessionCollection(
+    session,
+    'maps',
+    initialMaps,
+    notifySessionChanged,
+  );
+  const [mapGrids, setMapGrids] = useSessionCollection(
+    session,
+    'mapGrids',
+    initialMapGrids,
+    notifySessionChanged,
+  );
   const [loading] = useState(false);
   const [error] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const savingCount = useRef(0);
+
+  const saveSession = useCallback(async () => {
+    savingCount.current += 1;
+    setIsSaving(true);
+    setSaveError(null);
+
+    try {
+      await session.saveAll();
+      setSaveError(null);
+    } catch (caughtError) {
+      setSaveError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : 'Failed to save database',
+      );
+      throw caughtError;
+    } finally {
+      savingCount.current -= 1;
+      if (savingCount.current === 0) {
+        setIsSaving(false);
+      }
+      notifySessionChanged();
+    }
+  }, [notifySessionChanged, session]);
+
+  const saveItems = useCallback(
+    async (nextItems: ItemTemplate[]) => {
+      setItems(nextItems);
+      await saveSession();
+    },
+    [saveSession, setItems],
+  );
+  const saveCharacters = useCallback(
+    async (nextCharacters: CharacterTemplate[]) => {
+      setCharacters(nextCharacters);
+      await saveSession();
+    },
+    [saveSession, setCharacters],
+  );
+  const saveAbilities = useCallback(
+    async (nextAbilities: AbilityTemplate[]) => {
+      setAbilities(nextAbilities);
+      await saveSession();
+    },
+    [saveSession, setAbilities],
+  );
+  const saveSpells = useCallback(
+    async (nextSpells: SpellTemplate[]) => {
+      setSpells(nextSpells);
+      await saveSession();
+    },
+    [saveSession, setSpells],
+  );
+  const saveStatusEffects = useCallback(
+    async (nextStatusEffects: StatusEffectTemplate[]) => {
+      setStatusEffects(nextStatusEffects);
+      await saveSession();
+    },
+    [saveSession, setStatusEffects],
+  );
+  const saveFeats = useCallback(async (_nextFeats: FeatTemplate[]) => {
+    throw new Error('Feat templates are not an active managed asset type');
+  }, []);
+  const saveTilesets = useCallback(
+    async (nextTilesets: TilesetTemplate[]) => {
+      setTilesets(nextTilesets);
+      await saveSession();
+    },
+    [saveSession, setTilesets],
+  );
+  const saveGameEvents = useCallback(
+    async (nextGameEvents: GameEvent[]) => {
+      setGameEvents(nextGameEvents);
+      await saveSession();
+    },
+    [saveSession, setGameEvents],
+  );
+  const saveMaps = useCallback(
+    async (nextMaps: CarcerMapTemplate[]) => {
+      setMaps(nextMaps);
+      await saveSession();
+    },
+    [saveSession, setMaps],
+  );
+  const saveMapGrids = useCallback(
+    async (nextMapGrids: MapGridTemplate[]) => {
+      setMapGrids(nextMapGrids);
+      await saveSession();
+    },
+    [saveSession, setMapGrids],
+  );
 
   return (
     <AssetsContext.Provider
@@ -143,6 +289,10 @@ export function AssetsProvider({
         mapGrids,
         loading,
         error,
+        isSaving,
+        isDirty: session.isDirty,
+        dirtyAssetIds: session.dirtyAssetIds,
+        saveError,
         setItems,
         setCharacters,
         setAbilities,

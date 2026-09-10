@@ -130,6 +130,10 @@ Phase 3 session migration.
 
 ## Phase 3 — Client database session
 
+Status: complete on 2026-09-10. Bootstrap now loads one coherent database
+envelope, while normalized editor views remain separate from the raw clean
+baseline until a collection is actually edited.
+
 ### Work
 
 - Introduce a plain TypeScript database client/session owning the full snapshot,

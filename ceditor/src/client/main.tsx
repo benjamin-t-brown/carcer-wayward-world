@@ -21,30 +21,9 @@ import {
 } from './types/assets';
 import { AbilityTemplate, StatusEffectTemplate } from './types/ability';
 import { SpellTemplate } from './types/spell';
-import { ASSET_TYPES, AssetId } from '../shared/assetRegistry';
+import { ASSET_TYPES } from '../shared/assetRegistry';
 import { normalizeAll } from './utils/assetNormalizers';
-
-interface AssetType {
-  id: string;
-  name: string;
-  file: string;
-}
-
-async function loadAssetTypes(): Promise<AssetType[]> {
-  const response = await fetch('/api/assets/types');
-  if (!response.ok) {
-    throw new Error('Failed to load asset types');
-  }
-  return response.json();
-}
-
-async function fetchAssetList(id: string): Promise<any[]> {
-  const response = await fetch(`/api/assets/${id}`);
-  if (!response.ok) {
-    throw new Error(`Failed to load ${id}`);
-  }
-  return response.json();
-}
+import { DatabaseClient, DatabaseSession } from './database';
 
 async function loadSDL2WAssetFiles(): Promise<any> {
   const response = await fetch('/api/sdl2w-assets');
@@ -55,7 +34,8 @@ async function loadSDL2WAssetFiles(): Promise<any> {
 }
 
 async function load(): Promise<{
-  assetTypes: AssetType[];
+  databaseSession: DatabaseSession;
+  assetTypes: (typeof ASSET_TYPES)[number][];
   sprites: Sprite[];
   spriteMap: Record<string, Sprite>;
   animations: Animation[];
@@ -74,11 +54,13 @@ async function load(): Promise<{
   maps: CarcerMapTemplate[];
   mapGrids: MapGridTemplate[];
 }> {
-  const assetTypes = await loadAssetTypes();
-  const sdl2wAssetFiles = await loadSDL2WAssetFiles();
-  const { sprites, animations, sounds, pictures } = await loadSpritesAndAnimations(
-    sdl2wAssetFiles
-  );
+  const [databaseSession, sdl2wAssetFiles] = await Promise.all([
+    DatabaseSession.load(new DatabaseClient()),
+    loadSDL2WAssetFiles(),
+  ]);
+  const assetTypes = [...ASSET_TYPES];
+  const { sprites, animations, sounds, pictures } =
+    await loadSpritesAndAnimations(sdl2wAssetFiles);
   for (const sprite of sprites) {
     const drawable = await getDrawable(sprite);
     if (!drawable) {
@@ -102,20 +84,20 @@ async function load(): Promise<{
     soundMap[sound.name] = sound;
   }
 
-  // Load every asset list in parallel, then normalize (dependents in a 2nd pass).
-  const rawByType: Partial<Record<AssetId, any[]>> = {};
-  await Promise.all(
-    ASSET_TYPES.map(async (t) => {
-      rawByType[t.id] = await fetchAssetList(t.id);
-    })
+  // Normalize a copy for the editor UI while retaining the raw database baseline.
+  const rawByType = databaseSession.snapshot();
+  const normalized = normalizeAll(
+    rawByType,
+    { animationMap, soundMap },
+    ASSET_TYPES,
   );
-  const normalized = normalizeAll(rawByType, { animationMap, soundMap }, ASSET_TYPES);
 
   const items = normalized.itemTemplates as ItemTemplate[];
   const characters = normalized.characterTemplates as CharacterTemplate[];
   const abilities = normalized.abilityTemplates as AbilityTemplate[];
   const spells = normalized.spellTemplates as SpellTemplate[];
-  const statusEffects = normalized.statusEffectTemplates as StatusEffectTemplate[];
+  const statusEffects =
+    normalized.statusEffectTemplates as StatusEffectTemplate[];
   // Feats have editor prototypes but no managed database file or active route.
   const feats: FeatTemplate[] = [];
   const tilesets = normalized.tilesetTemplates as TilesetTemplate[];
@@ -143,6 +125,7 @@ async function load(): Promise<{
     mapGrids,
   });
   return {
+    databaseSession,
     assetTypes,
     sprites,
     spriteMap,
@@ -176,6 +159,7 @@ async function init() {
   }
   try {
     const {
+      databaseSession,
       assetTypes,
       sprites,
       spriteMap,
@@ -215,6 +199,7 @@ async function init() {
           pictures={pictures}
         >
           <AssetsProvider
+            session={databaseSession}
             initialItems={items}
             initialCharacters={characters}
             initialAbilities={abilities}
@@ -229,7 +214,7 @@ async function init() {
             <App assetTypes={assetTypes} />
           </AssetsProvider>
         </SDL2WAssetsProvider>
-      </React.StrictMode>
+      </React.StrictMode>,
     );
   } catch (error) {
     console.error('Failed to initialize app:', error);
@@ -267,7 +252,7 @@ init();
   document.body.appendChild(canvas);
   let i = 0;
   for (const [name, drawable] of Object.entries(
-    (window as any).spriteCanvasCache
+    (window as any).spriteCanvasCache,
   )) {
     const c = drawable as HTMLCanvasElement;
     const x = (i % 16) * 64;

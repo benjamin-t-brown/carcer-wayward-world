@@ -194,17 +194,26 @@ export function normalizeItemUseAbilityConfig(
     useAbility,
     baseRestores,
   );
+  const nextDmgOverrides =
+    baseAttacks.length > 0 ? dmgOverrides : useAbility.dmgOverrides;
+  const nextRestoreOverrides =
+    baseRestores.length > 0 ? restoreOverrides : useAbility.restoreOverrides;
 
   return {
     abilityName: useAbility.abilityName,
-    dmgOverrides: baseAttacks.length > 0 ? dmgOverrides : useAbility.dmgOverrides,
-    restoreOverrides:
-      baseRestores.length > 0 ? restoreOverrides : useAbility.restoreOverrides,
+    ...(nextDmgOverrides === undefined
+      ? {}
+      : { dmgOverrides: nextDmgOverrides }),
+    ...(nextRestoreOverrides === undefined
+      ? {}
+      : { restoreOverrides: nextRestoreOverrides }),
   };
 }
 
 /** Stored weapon fields compared when detecting item edits. */
-export function weaponStorageSnapshot(weapon: ItemWeaponConfig | undefined): string {
+export function weaponStorageSnapshot(
+  weapon: ItemWeaponConfig | undefined,
+): string {
   if (!weapon) {
     return '';
   }
@@ -247,7 +256,10 @@ export function reconcileWeaponAfterAttackDelete(
   deletedAttackIndex: number,
   newBaseAttacks: AbilityAttack[],
 ): ItemWeaponConfig {
-  const remapped = remapWeaponOverridesAfterAttackDelete(weapon, deletedAttackIndex);
+  const remapped = remapWeaponOverridesAfterAttackDelete(
+    weapon,
+    deletedAttackIndex,
+  );
   return normalizeItemWeaponConfig(remapped, newBaseAttacks);
 }
 
@@ -276,7 +288,9 @@ export interface AbilityDeleteImpact {
 }
 
 /** @deprecated use AbilityDeleteImpact */
-export type WeaponAttackDeleteItemImpact = AbilityDeleteImpact & { kind: 'item' };
+export type WeaponAttackDeleteItemImpact = AbilityDeleteImpact & {
+  kind: 'item';
+};
 
 export function describeWeaponAttackDeleteImpact(
   weapon: ItemWeaponConfig,
@@ -288,10 +302,13 @@ export function describeWeaponAttackDeleteImpact(
 
   const hadOverrideAtDeleted =
     Boolean(weapon.dmgOverrides?.[deletedAttackIndex]) ||
-    (weapon.dmg !== undefined && (weapon.attackIndex ?? 0) === deletedAttackIndex);
+    (weapon.dmg !== undefined &&
+      (weapon.attackIndex ?? 0) === deletedAttackIndex);
 
   if (hadOverrideAtDeleted) {
-    lines.push(`Remove stored damage override for attack ${deletedAttackNumber}.`);
+    lines.push(
+      `Remove stored damage override for attack ${deletedAttackNumber}.`,
+    );
   }
 
   const overrideCount = weapon.dmgOverrides?.length ?? 0;
@@ -300,7 +317,10 @@ export function describeWeaponAttackDeleteImpact(
   }
 
   const newAttackCount = attacksBeforeCount - 1;
-  if (overrideCount > newAttackCount && overrideCount > deletedAttackIndex + 1) {
+  if (
+    overrideCount > newAttackCount &&
+    overrideCount > deletedAttackIndex + 1
+  ) {
     const extra = overrideCount - newAttackCount;
     if (extra > 0 && !lines.some((l) => l.includes('Move attack'))) {
       lines.push(`Drop ${extra} extra override slot(s) no longer used.`);
@@ -334,7 +354,9 @@ export function planWeaponAttackDeleteImpacts(
         deletedAttackIndex,
         newAttacks,
       );
-      if (weaponStorageSnapshot(weapon) !== weaponStorageSnapshot(afterWeapon)) {
+      if (
+        weaponStorageSnapshot(weapon) !== weaponStorageSnapshot(afterWeapon)
+      ) {
         impacts.push({
           kind: 'item',
           name: item.name,
@@ -352,7 +374,10 @@ export function planWeaponAttackDeleteImpacts(
     }
 
     const useAbility = item.useAbility;
-    if (useAbility?.abilityName === abilityName && useAbility.dmgOverrides?.length) {
+    if (
+      useAbility?.abilityName === abilityName &&
+      useAbility.dmgOverrides?.length
+    ) {
       const afterUseAbility = reconcileUseAbilityAfterAttackDelete(
         useAbility,
         deletedAttackIndex,
@@ -405,7 +430,10 @@ export function applyWeaponAttackDeleteToItems(
     }
 
     const useAbility = item.useAbility;
-    if (useAbility?.abilityName === abilityName && useAbility.dmgOverrides?.length) {
+    if (
+      useAbility?.abilityName === abilityName &&
+      useAbility.dmgOverrides?.length
+    ) {
       next = {
         ...next,
         useAbility: reconcileUseAbilityAfterAttackDelete(
@@ -433,7 +461,9 @@ export function clearItemUseAbilityForDeletedAbility(
   return { abilityName: '' };
 }
 
-export function describeItemAbilityDeleteImpact(weapon: ItemWeaponConfig): string[] {
+export function describeItemAbilityDeleteImpact(
+  weapon: ItemWeaponConfig,
+): string[] {
   const lines: string[] = ['Clear weapon base ability reference.'];
   if (weapon.dmgOverrides?.length || weapon.dmg) {
     lines.push('Remove all stored damage overrides.');
@@ -492,7 +522,9 @@ export function planAbilityDeleteImpacts(
     const weapon = item.weapon;
     if (weapon?.abilityName === abilityName) {
       const afterWeapon = clearItemWeaponForDeletedAbility(weapon);
-      if (weaponStorageSnapshot(weapon) !== weaponStorageSnapshot(afterWeapon)) {
+      if (
+        weaponStorageSnapshot(weapon) !== weaponStorageSnapshot(afterWeapon)
+      ) {
         impacts.push({
           kind: 'item',
           name: item.name,
@@ -526,7 +558,9 @@ export function planAbilityDeleteImpacts(
     if (!matchingActions?.length) {
       continue;
     }
-    const after = applyAbilityDeleteToStatusEffects(abilityName, [statusEffect])[0];
+    const after = applyAbilityDeleteToStatusEffects(abilityName, [
+      statusEffect,
+    ])[0];
     if (
       statusEffectStorageSnapshot(statusEffect) ===
       statusEffectStorageSnapshot(after)
@@ -638,8 +672,13 @@ export function normalizeItemWeaponConfig(
   weapon: ItemWeaponConfig,
   baseAttacks: AbilityAttack[] = [],
 ): ItemWeaponConfig {
-  const { attackIndex: _attackIndex, dmg: _dmg, dmgMin: _min, dmgMax: _max, ...rest } =
-    weapon as LegacyItemWeapon;
+  const {
+    attackIndex: _attackIndex,
+    dmg: _dmg,
+    dmgMin: _min,
+    dmgMax: _max,
+    ...rest
+  } = weapon as LegacyItemWeapon;
 
   if (!rest.abilityName) {
     return { abilityName: '' };
@@ -768,10 +807,7 @@ export function sanitizeItemTemplates(
 
 /** Matches model::CharacterTemplateType in CharacterTemplate.h */
 export type CharacterTemplateType =
-  | 'TOWNSPERSON'
-  | 'TOWNSPERSON_STATIC'
-  | 'ENEMY'
-  | 'ENEMY_STATIC';
+  'TOWNSPERSON' | 'TOWNSPERSON_STATIC' | 'ENEMY' | 'ENEMY_STATIC';
 
 export const CHARACTER_TEMPLATE_TYPES: CharacterTemplateType[] = [
   'TOWNSPERSON',
@@ -993,9 +1029,11 @@ export const TERRAIN_BORDER_TAG_LABELS: Record<TileTerrainBorderTag, string> = {
   [TileTerrainBorderTag.SNOW]: 'Snow',
 };
 
-export const PAINTABLE_TERRAIN_BORDER_OPTIONS = PAINTABLE_TERRAIN_BORDER_TAGS.map(
-  (value) => ({ value, label: TERRAIN_BORDER_TAG_LABELS[value] })
-);
+export const PAINTABLE_TERRAIN_BORDER_OPTIONS =
+  PAINTABLE_TERRAIN_BORDER_TAGS.map((value) => ({
+    value,
+    label: TERRAIN_BORDER_TAG_LABELS[value],
+  }));
 
 export const TERRAIN_BORDER_META_OPTIONS: {
   value: TileTerrainBorderTag;
@@ -1121,10 +1159,7 @@ export interface KeywordDataKChild {
 
 // Discriminated union for KeywordData
 export type KeywordData =
-  | KeywordDataK
-  | KeywordDataKDup
-  | KeywordDataKSwitch
-  | KeywordDataKChild;
+  KeywordDataK | KeywordDataKDup | KeywordDataKSwitch | KeywordDataKChild;
 
 export interface ChoiceSwitchText {
   conditionStr: string;
@@ -1233,10 +1268,7 @@ export interface TileOverrides {
 
 /** Overlay icon drawn on the tile in-game. Missing → HIDDEN. */
 export type TileOverlayVisibility =
-  | 'HIDDEN'
-  | 'SHOW_EVENT_ON_TILE'
-  | 'SHOW_TRAVEL_UP'
-  | 'SHOW_TRAVEL_DOWN';
+  'HIDDEN' | 'SHOW_EVENT_ON_TILE' | 'SHOW_TRAVEL_UP' | 'SHOW_TRAVEL_DOWN';
 
 export const TILE_OVERLAY_VISIBILITY_OPTIONS: TileOverlayVisibility[] = [
   'HIDDEN',
@@ -1247,7 +1279,7 @@ export const TILE_OVERLAY_VISIBILITY_OPTIONS: TileOverlayVisibility[] = [
 
 /** Sprite drawn on the tile for overlay visibility; empty when HIDDEN. */
 export function tileOverlayVisibilitySpriteName(
-  visibility: TileOverlayVisibility | undefined
+  visibility: TileOverlayVisibility | undefined,
 ): string {
   switch (visibility) {
     case 'SHOW_EVENT_ON_TILE':
@@ -1323,7 +1355,8 @@ export interface MapMarkerPlacement extends MapTileRef {
   name: string;
 }
 
-export interface MapEventTriggerPlacement extends MapTileRef, TileEventTrigger {}
+export interface MapEventTriggerPlacement
+  extends MapTileRef, TileEventTrigger {}
 
 export interface MapTravelTriggerPlacement extends MapTileRef, TravelTrigger {}
 
@@ -1377,19 +1410,19 @@ export interface MapGridTemplate {
 
 export function createEmptyMapGridCells(
   gridWidth: number,
-  gridHeight: number
+  gridHeight: number,
 ): string[][] {
   const width = Math.max(1, Math.floor(gridWidth));
   const height = Math.max(1, Math.floor(gridHeight));
   return Array.from({ length: height }, () =>
-    Array.from({ length: width }, () => '')
+    Array.from({ length: width }, () => ''),
   );
 }
 
 export function resizeMapGridCells(
   cells: string[][],
   newWidth: number,
-  newHeight: number
+  newHeight: number,
 ): string[][] {
   const width = Math.max(1, Math.floor(newWidth));
   const height = Math.max(1, Math.floor(newHeight));
@@ -1411,7 +1444,7 @@ export function resizeMapGridCells(
 export function shiftMapGridCells(
   cells: string[][],
   offsetX: number,
-  offsetY: number
+  offsetY: number,
 ): string[][] {
   const height = cells.length;
   const width = cells[0]?.length ?? 0;
@@ -1451,13 +1484,17 @@ export function createDefaultMapGridTemplate(): MapGridTemplate {
   };
 }
 
-export function normalizeMapGridTemplate(grid: MapGridTemplate): MapGridTemplate {
+export function normalizeMapGridTemplate(
+  grid: MapGridTemplate,
+): MapGridTemplate {
   const gridWidth = Math.max(1, Math.floor(grid.gridWidth) || 1);
   const gridHeight = Math.max(1, Math.floor(grid.gridHeight) || 1);
   const mapWidth = Math.max(1, Math.floor(grid.mapWidth) || 1);
   const mapHeight = Math.max(1, Math.floor(grid.mapHeight) || 1);
   const cells = resizeMapGridCells(grid.cells ?? [], gridWidth, gridHeight);
   return {
+    // Retain game fields introduced after this editor was built.
+    ...grid,
     name: grid.name ?? '',
     label: grid.label ?? '',
     gridWidth,
@@ -1469,7 +1506,7 @@ export function normalizeMapGridTemplate(grid: MapGridTemplate): MapGridTemplate
 }
 
 export function sanitizeMapGridTemplates(
-  grids: MapGridTemplate[]
+  grids: MapGridTemplate[],
 ): MapGridTemplate[] {
   return grids.map(normalizeMapGridTemplate);
 }

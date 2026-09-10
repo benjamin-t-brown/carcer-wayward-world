@@ -16,7 +16,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check eslint.config.js .prettierrc.json package.json \"src/test/**/*.test.ts\" src/shared/assetRegistry.ts src/shared/databaseContract.ts src/server/**/*.ts src/client/utils/editorListSelection.ts src/client/utils/editorRoutes.ts src/client/tile-editor/viewport.ts",
+    "format:check": "prettier --check eslint.config.js .prettierrc.json package.json \"src/test/**/*.test.ts\" src/shared/*.ts src/server/**/*.ts src/client/database/**/*.ts src/client/contexts/AssetsContext.tsx src/client/main.tsx src/client/types/assets.ts src/client/utils/editorListSelection.ts src/client/utils/editorRoutes.ts src/client/tile-editor/viewport.ts",
     "test": "node --import tsx --test src/test/*.test.ts",
     "check": "npm run lint && npm run format:check && npm run test && npm run build",
     "preview": "vite preview",
