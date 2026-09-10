@@ -102,6 +102,10 @@ mechanical batches as their owning phase touches them.
 
 ## Phase 2 — Coherent database server
 
+Status: complete on 2026-09-10. The coherent API now runs alongside the
+temporary per-file endpoints so the existing client remains usable until the
+Phase 3 session migration.
+
 ### Work
 
 - Split `server/index.ts` into a small listener and a testable Express app.
