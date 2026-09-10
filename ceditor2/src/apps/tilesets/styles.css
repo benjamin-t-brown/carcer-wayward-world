@@ -1,0 +1,72 @@
+.tileset-tile-browser {
+  display: grid;
+  grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+.tileset-tile-list {
+  max-height: 34rem;
+  margin: 0;
+  padding: var(--space-1);
+  overflow: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  list-style: none;
+}
+
+.tileset-tile-list button {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  gap: var(--space-2);
+  padding: var(--space-2);
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: var(--radius-small);
+  background: transparent;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.tileset-tile-list button:hover,
+.tileset-tile-list button[aria-current='true'] {
+  border-color: var(--color-accent);
+  background: var(--color-surface-raised);
+}
+
+.tileset-tile-id {
+  color: var(--color-accent-strong);
+  font-family: var(--font-mono);
+}
+
+.tileset-tile-description {
+  overflow: hidden;
+  color: var(--color-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tileset-tile-editor {
+  min-width: 0;
+}
+
+.tileset-corners {
+  margin-top: var(--space-3);
+}
+
+.tileset-inline-status {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 62rem) {
+  .tileset-tile-browser {
+    grid-template-columns: 1fr;
+  }
+
+  .tileset-tile-list {
+    max-height: 16rem;
+  }
+}

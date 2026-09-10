@@ -1,5 +1,7 @@
 import '../../core/ui/base.css';
 import '../../core/ui/forms.css';
+import { mountDatabasePage } from '../../core/ui/index.js';
+import { CharactersEditor } from './view.js';
 
 const app = document.querySelector<HTMLElement>('#app');
 
@@ -7,5 +9,12 @@ if (!app) {
   throw new Error('Characters app root not found');
 }
 
-app.innerHTML =
-  '<h1>Characters</h1><p>The characters editor is ready to be built.</p>';
+mountDatabasePage({
+  root: app,
+  title: 'Characters',
+  render(content, context) {
+    const editor = new CharactersEditor(content, context);
+    editor.mount();
+    return () => editor.destroy();
+  },
+});
