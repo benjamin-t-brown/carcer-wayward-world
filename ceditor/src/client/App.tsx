@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { readHashRoute } from './utils/hashRoute';
 import { Home } from './pages/Home';
 import { ItemTemplates } from './pages/ItemTemplates';
@@ -12,17 +12,34 @@ import { Maps } from './pages/Maps';
 import { MapGrids } from './pages/MapGrids';
 import { SoundEffects } from './pages/SoundEffects';
 import { assetIdForEditorRoute } from './utils/editorRoutes';
+import { useAssets } from './contexts/AssetsContext';
 
-function App({ assetTypes }: { assetTypes: { id: string; name: string; file: string }[] }) {
+function App({
+  assetTypes,
+}: {
+  assetTypes: { id: string; name: string; file: string }[];
+}) {
+  const { isDirty } = useAssets();
   const initialRoute = readHashRoute();
   const [currentRoute, setCurrentRoute] = useState<string>(initialRoute.path);
   const [routeParams, setRouteParams] = useState<URLSearchParams>(
-    initialRoute.params
+    initialRoute.params,
   );
+  const acceptedHashRef = useRef(window.location.hash || '#/');
 
   useEffect(() => {
     const handleRoute = () => {
       const { path, params } = readHashRoute();
+      if (
+        path !== currentRoute &&
+        isDirty &&
+        !window.confirm('You have unsaved database changes. Leave this editor?')
+      ) {
+        window.history.replaceState(null, '', acceptedHashRef.current);
+        return;
+      }
+
+      acceptedHashRef.current = window.location.hash || '#/';
       setCurrentRoute(path);
       setRouteParams(params);
     };
@@ -33,7 +50,7 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
     return () => {
       window.removeEventListener('hashchange', handleRoute);
     };
-  }, []);
+  }, [currentRoute, isDirty]);
 
   // Route rendering
   const routePath = currentRoute.split('?')[0]; // Ensure we only match on the path part

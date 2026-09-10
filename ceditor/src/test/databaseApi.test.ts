@@ -39,6 +39,20 @@ test('GET /api/database loads exactly nine managed arrays with a stable revision
   });
 });
 
+test('legacy per-collection database endpoints are no longer exposed', async () => {
+  await withFixture(async ({ baseUrl }) => {
+    const getResponse = await fetch(`${baseUrl}/api/assets/itemTemplates`);
+    const postResponse = await fetch(`${baseUrl}/api/assets/itemTemplates`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '[]',
+    });
+
+    assert.equal(getResponse.status, 404);
+    assert.equal(postResponse.status, 404);
+  });
+});
+
 test('PUT /api/database changes only the semantically changed collection', async () => {
   await withFixture(async ({ baseUrl, databasePath }) => {
     const loaded = await loadDatabase(baseUrl);

@@ -28,18 +28,18 @@ export function EventTriggerSection({
   mapName,
   updateTile,
 }: EventTriggerSectionProps) {
-  const { setGameEvents, saveGameEvents } = useAssets();
+  const { saveGameEvents } = useAssets();
   const [isCreateSignOpen, setIsCreateSignOpen] = useState(false);
   const [isCreatingSign, setIsCreatingSign] = useState(false);
 
   const existingEventIds = useMemo(
     () => new Set(gameEvents.map((event) => event.id)),
-    [gameEvents]
+    [gameEvents],
   );
 
   const assignEventToTile = (
     eventId: string,
-    options?: { forceRequiresLook?: boolean }
+    options?: { forceRequiresLook?: boolean },
   ) => {
     const walkable = isMapTileWalkable(selectedTile, tilesets);
     updateTile((tile) => {
@@ -63,21 +63,22 @@ export function EventTriggerSection({
       contents: result.contents,
     });
     const nextEvents = [...gameEvents, newEvent].sort((a, b) =>
-      a.id.localeCompare(b.id)
+      a.id.localeCompare(b.id),
     );
 
     setIsCreatingSign(true);
+    // Stage the tile first. updateTile synchronously updates the shared maps
+    // session, then saveGameEvents adds the event and commits both together.
+    assignEventToTile(result.triggerId, { forceRequiresLook: true });
     try {
       await saveGameEvents(nextEvents);
-      setGameEvents(nextEvents);
-      assignEventToTile(result.triggerId, { forceRequiresLook: true });
       setIsCreateSignOpen(false);
     } catch (err) {
       console.error('Failed to save sign event:', err);
       alert(
-        `Failed to save sign event: ${
+        `Sign and tile assignment are staged locally, but saving failed: ${
           err instanceof Error ? err.message : 'Unknown error'
-        }`
+        }`,
       );
     } finally {
       setIsCreatingSign(false);
@@ -183,7 +184,7 @@ export function EventTriggerSection({
             <div style={{ flex: 1 }}>
               {(() => {
                 const event = gameEvents.find(
-                  (e) => e.id === selectedTile.eventTrigger?.eventId
+                  (e) => e.id === selectedTile.eventTrigger?.eventId,
                 );
                 return (
                   <>
@@ -254,7 +255,7 @@ export function EventTriggerSection({
                     const url = `${window.location.origin}${
                       window.location.pathname
                     }#/editor/specialEvents?event=${encodeURIComponent(
-                      eventId
+                      eventId,
                     )}`;
                     window.open(url, '_blank');
                   }
@@ -363,9 +364,7 @@ export function EventTriggerSection({
                 Tile Overlay Visibility
               </label>
               <select
-                value={
-                  selectedTile.eventTrigger.overlayVisibility ?? 'HIDDEN'
-                }
+                value={selectedTile.eventTrigger.overlayVisibility ?? 'HIDDEN'}
                 onChange={(e) => {
                   const value = e.target.value as TileOverlayVisibility;
                   updateTile((tile) => {

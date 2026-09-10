@@ -1,19 +1,15 @@
 import { useState, useRef, useEffect, useLayoutEffect } from 'react';
-import {
-  CarcerMapTemplate,
-  CarcerMapTileTemplate,
-  MapGridTemplate,
-  MAP_TYPES,
-  sanitizeMapGridTemplates,
-} from '../types/assets';
+import { CarcerMapTemplate, MapGridTemplate, MAP_TYPES } from '../types/assets';
 import { Button } from '../elements/Button';
 import { EditorHeader } from '../components/EditorHeader';
 import { Notification } from '../elements/Notification';
 import { OptionSelect } from '../elements/OptionSelect';
 import { useAssets } from '../contexts/AssetsContext';
-import { trimStrings } from '../utils/jsonUtils';
 import { DeleteModal } from '../elements/DeleteModal';
-import { CreateMapModal, CreateMapConstraints } from '../components/CreateMapModal';
+import {
+  CreateMapModal,
+  CreateMapConstraints,
+} from '../components/CreateMapModal';
 import { EditMapModal } from '../components/EditMapModal';
 import {
   OpenMapAndSelectTileArgs,
@@ -25,13 +21,9 @@ import {
   renameEditorStateMap,
 } from '../tile-editor/editorState';
 import { createTilesForLayer, prepareNewMapForEditor } from '../utils/mapIndex';
+import { findMapGridPlacement, getGridLayerSet } from '../utils/mapGridIndex';
 import {
-  assignMapToGridCell,
-  findMapGridPlacement,
-  getGridLayerSet,
-  renameMapInGrids,
-} from '../utils/mapGridIndex';
-import {
+  commitCurrentLayer,
   GridNavigateStitchOffset,
   GridSlotCreateRequest,
   switchMapViewport,
@@ -39,9 +31,11 @@ import {
   saveViewportForMap,
 } from '../tile-editor/editorEvents';
 import {
-  findMarkerOnMap,
-  locateOnCurrentMap,
-} from '../tile-editor/mapLocate';
+  prepareGridMapCreationCandidates,
+  prepareMapRenameCandidates,
+  prepareMapsSaveCandidate,
+} from '../utils/mapPersistence';
+import { findMarkerOnMap, locateOnCurrentMap } from '../tile-editor/mapLocate';
 import {
   loadPersistedMapTabs,
   restoreMapTabsFromStorage,
@@ -78,7 +72,7 @@ const createEditorStateMapForTabIfNotExists = (mapName: string) => {
 
 const getDuplicateMapName = (
   baseName: string,
-  existingNames: Set<string>
+  existingNames: Set<string>,
 ): string => {
   let candidate = `${baseName}_copy`;
   let n = 2;
@@ -94,7 +88,7 @@ interface MapsProps {
 }
 
 export function Maps({ routeParams }: MapsProps = {}) {
-  const { maps, setMaps, saveMaps, mapGrids, setMapGrids, saveMapGrids } =
+  const { maps, setMaps, mapGrids, setMapGrids, saveDatabaseChanges } =
     useAssets();
   const [openTabs, _setOpenTabs] = useState<OpenTab[]>([]);
   const [activeTabIndex, _setActiveTabIndex] = useState<number | null>(null);
@@ -129,7 +123,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
         gridName: tab.gridName,
         activeMapName: tab.activeMapName,
       })),
-      activeIndex
+      activeIndex,
     );
   };
 
@@ -146,7 +140,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
     previousMapName: string,
     previousMap: CarcerMapTemplate | null,
     nextMapName: string,
-    stitchOffset?: GridNavigateStitchOffset
+    stitchOffset?: GridNavigateStitchOffset,
   ) => {
     if (!nextMapName) {
       return;
@@ -162,7 +156,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
           nextMapName,
           stitchOffset,
           slotTileW * previousMap.spriteWidth,
-          slotTileH * previousMap.spriteHeight
+          slotTileH * previousMap.spriteHeight,
         );
       } else {
         switchMapViewport(previousMapName, nextMapName);
@@ -182,7 +176,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
   const setActiveTabIndex = (
     index: number | null,
     tabsForLookup: OpenTab[] = openTabs,
-    stitchOffset?: GridNavigateStitchOffset
+    stitchOffset?: GridNavigateStitchOffset,
   ) => {
     const previousTab =
       activeTabIndex !== null ? tabsForLookup[activeTabIndex] : undefined;
@@ -196,7 +190,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
           previousMapName,
           previousMap,
           tab.activeMapName,
-          stitchOffset
+          stitchOffset,
         );
       }
     } else if (previousMapName) {
@@ -211,11 +205,11 @@ export function Maps({ routeParams }: MapsProps = {}) {
     tabIndex: number,
     mapName: string,
     tabsForLookup: OpenTab[] = openTabs,
-    stitchOffset?: GridNavigateStitchOffset
+    stitchOffset?: GridNavigateStitchOffset,
   ): OpenTab[] => {
     const tab = tabsForLookup[tabIndex];
     const nextTabs = tabsForLookup.map((t, i) =>
-      i === tabIndex ? { ...t, activeMapName: mapName } : t
+      i === tabIndex ? { ...t, activeMapName: mapName } : t,
     );
     setOpenTabs(nextTabs);
     if (tabIndex === activeTabIndex && tab) {
@@ -223,7 +217,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
         tab.activeMapName,
         mapByName(tab.activeMapName),
         mapName,
-        stitchOffset
+        stitchOffset,
       );
     }
     return nextTabs;
@@ -234,7 +228,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
   // get their own single-map tab.
   const openMap = (
     mapName: string,
-    stitchOffset?: GridNavigateStitchOffset
+    stitchOffset?: GridNavigateStitchOffset,
   ) => {
     if (!mapByName(mapName)) {
       return;
@@ -243,7 +237,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
     const existingIndex = openTabs.findIndex((tab) =>
       gridName
         ? tab.gridName === gridName
-        : tab.gridName === null && tab.activeMapName === mapName
+        : tab.gridName === null && tab.activeMapName === mapName,
     );
 
     if (existingIndex >= 0) {
@@ -254,14 +248,14 @@ export function Maps({ routeParams }: MapsProps = {}) {
         const previousTab =
           activeTabIndex !== null ? openTabs[activeTabIndex] : undefined;
         const nextTabs = openTabs.map((tab, i) =>
-          i === existingIndex ? { ...tab, activeMapName: mapName } : tab
+          i === existingIndex ? { ...tab, activeMapName: mapName } : tab,
         );
         setOpenTabs(nextTabs);
         applyActiveMapChange(
           previousTab?.activeMapName ?? '',
           previousTab ? mapByName(previousTab.activeMapName) : null,
           mapName,
-          stitchOffset
+          stitchOffset,
         );
         _setActiveTabIndex(existingIndex);
       }
@@ -269,7 +263,10 @@ export function Maps({ routeParams }: MapsProps = {}) {
       return;
     }
 
-    const newTabs: OpenTab[] = [...openTabs, { gridName, activeMapName: mapName }];
+    const newTabs: OpenTab[] = [
+      ...openTabs,
+      { gridName, activeMapName: mapName },
+    ];
     setOpenTabs(newTabs);
     setActiveTabIndex(newTabs.length - 1, newTabs, stitchOffset);
     getEditorState().selectedMapName = mapName;
@@ -399,7 +396,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
 
     // Already open: just switch to that tab, leaving its current map alone.
     const existingIndex = openTabs.findIndex(
-      (tab) => tab.gridName === grid.name
+      (tab) => tab.gridName === grid.name,
     );
     if (existingIndex >= 0) {
       setActiveTabIndex(existingIndex);
@@ -410,7 +407,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
     if (!firstMap) {
       showNotification(
         `Map grid "${grid.label || grid.name}" has no maps assigned yet.`,
-        'error'
+        'error',
       );
       return;
     }
@@ -475,7 +472,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
   // stitched world fixed under the camera.
   const handleNavigateToGridMap = (
     mapName: string,
-    stitchOffset: GridNavigateStitchOffset
+    stitchOffset: GridNavigateStitchOffset,
   ) => {
     if (maps.findIndex((m) => m.name === mapName) < 0) {
       return;
@@ -516,52 +513,57 @@ export function Maps({ routeParams }: MapsProps = {}) {
       }
     }
 
-    const updatedMapGrids = sanitizeMapGridTemplates(
-      trimStrings(
-        assignMapToGridCell(
-          mapGrids,
-          gridCreateRequest.gridName,
-          gridCreateRequest.cellX,
-          gridCreateRequest.cellY,
-          prepared.name
-        )
-      )
+    const candidates = prepareGridMapCreationCandidates(
+      maps,
+      mapGrids,
+      prepared,
+      gridCreateRequest,
     );
+    const createdMap = candidates.createdMap;
 
-    try {
-      await saveMapGrids(updatedMapGrids);
-    } catch (err) {
-      showNotification(
-        `Failed to save map grids: ${
-          err instanceof Error ? err.message : 'Unknown error'
-        }`,
-        'error'
-      );
-      return;
-    }
-
-    setMaps([...maps, prepared]);
-    setMapGrids(updatedMapGrids);
+    // The context stages both collections synchronously before its save await.
+    // Keep that one promise while the tabs are reconciled to the same draft.
+    const save = saveDatabaseChanges({
+      maps: candidates.maps,
+      mapGrids: candidates.mapGrids,
+    });
 
     // The map is now a cell of this grid: focus that grid's tab (opening it if
     // needed) and show the new map in it.
     const gridName = gridCreateRequest.gridName;
-    createEditorStateMapForTabIfNotExists(prepared.name);
-    const existingIndex = openTabs.findIndex((tab) => tab.gridName === gridName);
+    createEditorStateMapForTabIfNotExists(createdMap.name);
+    const existingIndex = openTabs.findIndex(
+      (tab) => tab.gridName === gridName,
+    );
     if (existingIndex >= 0) {
-      const nextTabs = setTabActiveMap(existingIndex, prepared.name, openTabs);
+      const nextTabs = setTabActiveMap(
+        existingIndex,
+        createdMap.name,
+        openTabs,
+      );
       setActiveTabIndex(existingIndex, nextTabs);
     } else {
       const nextTabs: OpenTab[] = [
         ...openTabs,
-        { gridName, activeMapName: prepared.name },
+        { gridName, activeMapName: createdMap.name },
       ];
       setOpenTabs(nextTabs);
       setActiveTabIndex(nextTabs.length - 1, nextTabs);
     }
-    getEditorState().selectedMapName = prepared.name;
+    getEditorState().selectedMapName = createdMap.name;
     setGridCreateRequest(null);
-    showNotification('Map created and assigned to grid!', 'success');
+
+    try {
+      await save;
+      showNotification('Map created and assigned to grid!', 'success');
+    } catch (err) {
+      showNotification(
+        `Map created and assigned locally, but the database save failed: ${
+          err instanceof Error ? err.message : 'Unknown error'
+        }`,
+        'error',
+      );
+    }
   };
 
   const handleCloseTab = (tabIndex: number) => {
@@ -591,7 +593,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
 
       // Close any tab whose current map was the one deleted.
       const newTabs = openTabs.filter(
-        (tab) => tab.activeMapName !== deletedName
+        (tab) => tab.activeMapName !== deletedName,
       );
       setOpenTabs(newTabs);
 
@@ -601,7 +603,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
         } else {
           setActiveTabIndex(
             Math.min(activeTabIndex, newTabs.length - 1),
-            newTabs
+            newTabs,
           );
         }
       }
@@ -614,53 +616,66 @@ export function Maps({ routeParams }: MapsProps = {}) {
   };
 
   const updateMapInTabs = async (
-    updatedMap: CarcerMapTemplate
+    updatedMap: CarcerMapTemplate,
   ): Promise<boolean> => {
     if (!activeTab) {
       return true;
     }
 
-    const oldName = activeTab.activeMapName.trim();
-    const newName = updatedMap.name.trim();
-    const mapIndex = maps.findIndex((m) => m.name === activeTab.activeMapName);
-    if (mapIndex < 0) {
+    const candidates = prepareMapRenameCandidates(
+      maps,
+      mapGrids,
+      activeTab.activeMapName,
+      updatedMap,
+    );
+    if (!candidates) {
       return true;
     }
 
-    if (oldName && newName && oldName !== newName) {
-      const updatedMapGrids = sanitizeMapGridTemplates(
-        trimStrings(renameMapInGrids(mapGrids, oldName, newName))
-      );
+    const { oldName, newName, renamed } = candidates;
+    const persistsGridRename =
+      renamed && Boolean(findMapGridPlacement(oldName, mapGrids));
 
-      if (findMapGridPlacement(oldName, mapGrids)) {
-        try {
-          await saveMapGrids(updatedMapGrids);
-        } catch (err) {
-          showNotification(
-            `Failed to save map grids: ${
-              err instanceof Error ? err.message : 'Unknown error'
-            }`,
-            'error'
-          );
-          return false;
-        }
-      }
-
-      setMapGrids(updatedMapGrids);
-      renameEditorStateMap(oldName, newName);
+    const save = persistsGridRename
+      ? saveDatabaseChanges({
+          maps: candidates.maps,
+          mapGrids: candidates.mapGrids,
+        })
+      : null;
+    if (!save) {
+      setMaps(candidates.maps);
     }
 
-    const updatedMaps = [...maps];
-    updatedMaps[mapIndex] = updatedMap;
-    setMaps(updatedMaps);
-
-    if (oldName !== newName && newName) {
+    if (renamed) {
+      if (!persistsGridRename) {
+        setMapGrids(candidates.mapGrids);
+      }
+      renameEditorStateMap(oldName, newName);
       const newTabs = openTabs.map((tab) =>
         tab.activeMapName === oldName
           ? { ...tab, activeMapName: newName }
-          : tab
+          : tab,
       );
       setOpenTabs(newTabs);
+    }
+
+    if (save) {
+      try {
+        await save;
+        showNotification(
+          'Map and grid references saved successfully!',
+          'success',
+        );
+      } catch (err) {
+        // saveDatabaseChanges stages both candidates before the request, so a
+        // failed save remains a coherent local draft that Save All can retry.
+        showNotification(
+          `Map renamed locally, but the database save failed: ${
+            err instanceof Error ? err.message : 'Unknown error'
+          }`,
+          'error',
+        );
+      }
     }
     return true;
   };
@@ -689,13 +704,9 @@ export function Maps({ routeParams }: MapsProps = {}) {
     const existingNames = new Set(maps.map((m) => m.name));
     const copyName = getDuplicateMapName(sourceMap.name, existingNames);
 
-    const duplicated: CarcerMapTemplate = JSON.parse(
-      JSON.stringify(sourceMap)
-    );
+    const duplicated: CarcerMapTemplate = JSON.parse(JSON.stringify(sourceMap));
     duplicated.name = copyName;
-    duplicated.label = sourceMap.label
-      ? `${sourceMap.label} (Copy)`
-      : copyName;
+    duplicated.label = sourceMap.label ? `${sourceMap.label} (Copy)` : copyName;
 
     const sourceIndex = maps.findIndex((m) => m.name === sourceMap.name);
     const insertIndex = (sourceIndex >= 0 ? sourceIndex : maps.length - 1) + 1;
@@ -726,12 +737,14 @@ export function Maps({ routeParams }: MapsProps = {}) {
     showNotification('Map duplicated!', 'success');
   };
 
-  const validateMaps = (): { isValid: boolean; error?: string } => {
+  const validateMaps = (
+    mapsToValidate: CarcerMapTemplate[],
+  ): { isValid: boolean; error?: string } => {
     const errors: string[] = [];
     const nameCounts = new Map<string, number>();
     const mapsWithMissingFields: string[] = [];
 
-    maps.forEach((map, index) => {
+    mapsToValidate.forEach((map, index) => {
       const missingFields: string[] = [];
 
       // Check required string fields
@@ -756,7 +769,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
       if (missingFields.length > 0) {
         const mapIdentifier = map.name || `Map at index ${index}`;
         mapsWithMissingFields.push(
-          `${mapIdentifier}: missing ${missingFields.join(', ')}`
+          `${mapIdentifier}: missing ${missingFields.join(', ')}`,
         );
       }
 
@@ -782,8 +795,8 @@ export function Maps({ routeParams }: MapsProps = {}) {
     if (mapsWithMissingFields.length > 0) {
       errors.push(
         `Maps with missing required fields:\n${mapsWithMissingFields.join(
-          '\n'
-        )}`
+          '\n',
+        )}`,
       );
     }
 
@@ -798,65 +811,37 @@ export function Maps({ routeParams }: MapsProps = {}) {
   };
 
   const handleSaveAll = async () => {
-    const validation = validateMaps();
+    const editorState = getEditorState();
+    const canvasMapName =
+      editorState.activePaintMapName || editorState.selectedMapName;
+    // A grid brush can touch multiple cached map blocks in one stroke. Flush
+    // every materialized block at this level; uncached maps are a cheap no-op.
+    for (const map of maps) {
+      commitCurrentLayer(map, editorState.currentLevel);
+    }
+    const canvasMap = maps.find((map) => map.name === canvasMapName);
+    const mapsCandidate = prepareMapsSaveCandidate(maps, canvasMap);
+    const validation = validateMaps(mapsCandidate);
     if (!validation.isValid) {
       showNotification(validation.error || 'Validation failed', 'error');
       return;
     }
 
-    const trimmedMaps = trimStrings(maps);
-    // const sortedMaps = trimmedMaps.sort((a, b) => {
-    //   return a.name.localeCompare(b.name);
-    // });
-
     try {
-      await saveMaps(trimmedMaps);
-      setMaps(trimmedMaps);
+      await saveDatabaseChanges({ maps: mapsCandidate });
       showNotification('Maps saved successfully!', 'success');
-
-      // Update tab references after sorting
-      // const newTabs = openTabs.map((tab) => {
-      //   const sortedIndex = sortedMaps.findIndex(
-      //     (map) => map.name === tab.map.name
-      //   );
-      //   if (sortedIndex >= 0) {
-      //     return {
-      //       mapIndex: sortedIndex,
-      //       map: sortedMaps[sortedIndex],
-      //     };
-      //   }
-      //   return tab;
-      // });
-      // setOpenTabs(newTabs);
     } catch (err) {
       showNotification(
         `Error saving: ${err instanceof Error ? err.message : 'Unknown error'}`,
-        'error'
+        'error',
       );
     }
   };
 
-  // Global hotkey: Ctrl+S to save
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Check for Ctrl+S (Windows/Linux) or Cmd+S (Mac)
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        e.stopPropagation();
-        handleSaveAll();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [maps]);
-
   const activeTab =
-    activeTabIndex !== null ? openTabs[activeTabIndex] ?? null : null;
+    activeTabIndex !== null ? (openTabs[activeTabIndex] ?? null) : null;
   const activeMap = activeTab
-    ? maps.find((m) => m.name === activeTab.activeMapName) ?? null
+    ? (maps.find((m) => m.name === activeTab.activeMapName) ?? null)
     : null;
 
   const gridCreateConstraints: CreateMapConstraints | undefined = (() => {
@@ -873,7 +858,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
     }
     const defaultName = getDuplicateMapName(
       activeMap.name,
-      new Set(maps.map((m) => m.name))
+      new Set(maps.map((m) => m.name)),
     );
     return {
       ...base,
@@ -944,8 +929,8 @@ export function Maps({ routeParams }: MapsProps = {}) {
                           ? '#c586c0'
                           : '#7a5c78'
                         : isActive
-                        ? '#9a9a9a'
-                        : '#5a5a5a',
+                          ? '#9a9a9a'
+                          : '#5a5a5a',
                       fontStyle: hasGrid ? 'normal' : 'italic',
                       fontSize: '11px',
                       textTransform: 'uppercase',
@@ -1083,7 +1068,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
         onDelete={() => {
           if (activeTab) {
             const mapIndex = maps.findIndex(
-              (m) => m.name === activeTab.activeMapName
+              (m) => m.name === activeTab.activeMapName,
             );
             if (mapIndex >= 0) {
               setDeleteConfirm({ isOpen: true, mapIndex });

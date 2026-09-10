@@ -1,10 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { CardList } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
-import {
-  MapGridTemplate,
-  sanitizeMapGridTemplates,
-} from '../types/assets';
+import { MapGridTemplate } from '../types/assets';
 import {
   MapGridTemplateForm,
   createDefaultMapGridTemplate,
@@ -12,7 +9,7 @@ import {
 import { EditorHeader } from '../components/EditorHeader';
 import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
-import { trimStrings } from '../utils/jsonUtils';
+import { prepareMapGridsForSave } from '../utils/formSavePreparation';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 
 interface NotificationState {
@@ -21,11 +18,7 @@ interface NotificationState {
   id: number;
 }
 
-export function MapGrids({
-  routeParams,
-}: {
-  routeParams?: URLSearchParams;
-}) {
+export function MapGrids({ routeParams }: { routeParams?: URLSearchParams }) {
   const { mapGrids, setMapGrids, saveMapGrids } = useAssets();
   const [editIndex, setEditIndex] = useState<number>(-1);
   const [searchTerm, setSearchTerm] = useState('');
@@ -44,13 +37,14 @@ export function MapGrids({
   const filtered = mapGrids.filter(
     (grid) =>
       grid.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      grid.label.toLowerCase().includes(searchTerm.toLowerCase())
+      grid.label.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const getActualIndex = (filteredIndex: number) =>
     mapGrids.indexOf(filtered[filteredIndex]);
 
-  const handleClick = (filteredIndex: number) => setEditIndex(getActualIndex(filteredIndex));
+  const handleClick = (filteredIndex: number) =>
+    setEditIndex(getActualIndex(filteredIndex));
 
   usePersistedEditorSelection({
     editorKey: 'mapGrids',
@@ -63,7 +57,9 @@ export function MapGrids({
 
   const handleClone = (filteredIndex: number) => {
     const actualIndex = getActualIndex(filteredIndex);
-    const cloned: MapGridTemplate = JSON.parse(JSON.stringify(mapGrids[actualIndex]));
+    const cloned: MapGridTemplate = JSON.parse(
+      JSON.stringify(mapGrids[actualIndex]),
+    );
     cloned.name = cloned.name + '_copy';
     const next = mapGrids.slice();
     next.splice(actualIndex + 1, 0, cloned);
@@ -112,13 +108,12 @@ export function MapGrids({
 
   const handleSaveAll = async () => {
     const currentName = editIndex >= 0 ? mapGrids[editIndex]?.name : undefined;
-    const normalized = sanitizeMapGridTemplates(trimStrings(mapGrids));
-    const validationError = validateBeforeSave(normalized);
+    const sorted = prepareMapGridsForSave(mapGrids);
+    const validationError = validateBeforeSave(sorted);
     if (validationError) {
       showNotification(validationError, 'error');
       return;
     }
-    const sorted = normalized.sort((a, b) => a.name.localeCompare(b.name));
     try {
       await saveMapGrids(sorted);
       setMapGrids(sorted);
@@ -129,21 +124,10 @@ export function MapGrids({
     } catch (error) {
       showNotification(
         error instanceof Error ? error.message : 'Failed to save map grids',
-        'error'
+        'error',
       );
     }
   };
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        handleSaveAll();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mapGrids]);
 
   const current = editIndex >= 0 ? mapGrids[editIndex] : undefined;
 

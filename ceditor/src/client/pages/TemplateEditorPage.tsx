@@ -1,9 +1,9 @@
-import { useState, useRef, useEffect, ReactNode } from 'react';
+import { useState, useRef, ReactNode } from 'react';
 import { CardList } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
 import { EditorHeader } from '../components/EditorHeader';
 import { Notification } from '../elements/Notification';
-import { trimStrings } from '../utils/jsonUtils';
+import { prepareTemplateRecordsForSave } from '../utils/formSavePreparation';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 import { EditorSelectionKey } from '../utils/editorSelectionStorage';
 
@@ -88,7 +88,7 @@ export function TemplateEditorPage<T>({
   const showNotification = (
     message: string,
     type: 'success' | 'error',
-    duration?: number
+    duration?: number,
   ) => {
     const id = notificationIdRef.current++;
     setNotifications((prev) => [...prev, { message, type, id, duration }]);
@@ -132,9 +132,7 @@ export function TemplateEditorPage<T>({
 
   const handleDelete = (filteredIndex: number) => {
     const actualIndex = getActualIndex(filteredIndex);
-    if (
-      confirm(d.deleteConfirmMessage ?? `Delete this ${d.entityNoun}?`)
-    ) {
+    if (confirm(d.deleteConfirmMessage ?? `Delete this ${d.entityNoun}?`)) {
       const next = items.filter((_, i) => i !== actualIndex);
       setItems(next);
       if (editIndex === actualIndex) {
@@ -163,11 +161,8 @@ export function TemplateEditorPage<T>({
   };
 
   const handleSaveAll = async () => {
-    const currentId =
-      editIndex >= 0 ? d.getId(items[editIndex]) : undefined;
-    const compare =
-      d.compare ?? ((a: T, b: T) => d.getId(a).localeCompare(d.getId(b)));
-    const sorted = trimStrings(items).sort(compare);
+    const currentId = editIndex >= 0 ? d.getId(items[editIndex]) : undefined;
+    const sorted = prepareTemplateRecordsForSave(items, d.getId, d.compare);
     try {
       await saveItems(sorted);
       setItems(sorted);
@@ -175,28 +170,26 @@ export function TemplateEditorPage<T>({
       if (errors.length > 0) {
         showNotification(
           `${capitalize(d.entityNounPlural)} saved, but errors:\n${errors.join(
-            '\n'
+            '\n',
           )}`,
           'error',
-          d.afterSaveErrorDuration
+          d.afterSaveErrorDuration,
         );
       } else {
         showNotification(
           `${capitalize(d.entityNounPlural)} saved successfully!`,
-          'success'
+          'success',
         );
       }
       if (currentId) {
-        setEditIndex(
-          sorted.findIndex((x) => d.getId(x) === currentId.trim())
-        );
+        setEditIndex(sorted.findIndex((x) => d.getId(x) === currentId.trim()));
       }
     } catch (error) {
       showNotification(
         error instanceof Error
           ? error.message
           : `Failed to save ${d.entityNounPlural}`,
-        'error'
+        'error',
       );
     }
   };
@@ -209,18 +202,6 @@ export function TemplateEditorPage<T>({
     setSelectedIndex: setEditIndex,
     routeParams,
   });
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        handleSaveAll();
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items]);
 
   const current = editIndex >= 0 ? items[editIndex] : undefined;
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { useState, useLayoutEffect, useRef } from 'react';
 import { CardListAdvanced } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
 import { ListCardActions } from '../elements/ListCardActions';
@@ -13,7 +13,6 @@ import { EditorHeader } from '../components/EditorHeader';
 import { EditorEmptyState } from '../components/EditorEmptyState';
 import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
-import { trimStrings } from '../utils/jsonUtils';
 import {
   centerPanzoomOnNode,
   getEditorState,
@@ -26,10 +25,6 @@ import {
   findGameEventReferences,
   formatGameEventRenameWarning,
   gameEventReferencesTotal,
-  renameGameEventIdInCharacters,
-  renameGameEventIdInGameEventImports,
-  renameGameEventIdInItems,
-  renameGameEventIdInMaps,
 } from '../utils/gameEventReferences';
 import { EventRunnerModal } from '../special-event-editor/eventRunner/EventRunnerModal';
 import { DeleteModal } from '../elements/DeleteModal';
@@ -43,6 +38,10 @@ import {
   resolveSelectionFromRoute,
   saveEditorSelection,
 } from '../utils/editorSelectionStorage';
+import {
+  prepareAtomicGameEventRename,
+  prepareGameEventsForSave,
+} from '../utils/specialEventSavePreparation';
 
 interface NotificationState {
   message: string;
@@ -104,16 +103,10 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const {
     gameEvents,
     setGameEvents,
-    saveGameEvents,
     maps,
-    setMaps,
-    saveMaps,
     characters,
-    setCharacters,
-    saveCharacters,
     items,
-    setItems,
-    saveItems,
+    saveDatabaseChanges,
   } = useAssets();
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
@@ -150,6 +143,22 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
 
   const removeNotification = (id: number) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
+
+  const flushCurrentCanvasInto = (sourceEvents: GameEvent[]): GameEvent[] => {
+    const currentEditorState = getEditorState();
+    const eventIndex = sourceEvents.findIndex(
+      (gameEvent) => gameEvent.id === currentEditorState.gameEventId,
+    );
+    if (eventIndex === -1) {
+      return sourceEvents;
+    }
+
+    const currentGameEvent = structuredClone(sourceEvents[eventIndex]);
+    syncGameEventFromEditorState(currentGameEvent, currentEditorState);
+    const nextGameEvents = [...sourceEvents];
+    nextGameEvents[eventIndex] = currentGameEvent;
+    return nextGameEvents;
   };
 
   const selectGameEvent = (gameEventId: string) => {
@@ -293,75 +302,57 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   ) => {
     const oldId = previousGameEvent.id;
     const newId = updatedGameEvent.id;
-
-    let nextGameEvents = [...gameEvents];
-    const index = nextGameEvents.findIndex(
+    const canvasFlushedEvents = flushCurrentCanvasInto(gameEvents);
+    const index = canvasFlushedEvents.findIndex(
       (gameEvent) => gameEvent.id === oldId,
     );
     if (index === -1) {
       return;
     }
 
-    let nextMaps = maps;
-    let nextCharacters = characters;
-    let nextItems = items;
-    const savedAssets: string[] = [];
+    const flushedCurrentEvent = canvasFlushedEvents[index];
+    const preparedUpdatedGameEvent =
+      getEditorState().gameEventId === oldId
+        ? { ...updatedGameEvent, children: flushedCurrentEvent.children }
+        : updatedGameEvent;
 
     if (oldId !== newId && updateReferences) {
-      const references = findGameEventReferences(
+      const prepared = prepareAtomicGameEventRename({
+        gameEvents: canvasFlushedEvents,
         maps,
         characters,
         items,
-        gameEvents,
-        oldId,
+        previousEventId: oldId,
+        updatedGameEvent: preparedUpdatedGameEvent,
+      });
+      const validation = validateGameEvents(prepared.gameEvents);
+      if (!validation.isValid) {
+        showNotification(validation.error || 'Validation failed', 'error');
+        return;
+      }
+
+      // saveDatabaseChanges stages every supplied collection in the shared
+      // session before issuing one complete-database request. Keep the local
+      // singleton editor identity aligned even when that request fails and the
+      // staged changes remain dirty for retry.
+      renameEditorSaveStateForGameEvent(oldId, newId);
+      saveEditorSelection('specialEvents', newId);
+      setRecentGameEvents((prev) =>
+        prev.map((id) => (id === oldId ? newId : id)),
       );
 
-      if (references.tiles.length > 0) {
-        nextMaps = renameGameEventIdInMaps(maps, oldId, newId);
-      }
-      if (references.characters.length > 0) {
-        nextCharacters = renameGameEventIdInCharacters(
-          characters,
-          oldId,
-          newId,
-        );
-      }
-      if (references.items.length > 0) {
-        nextItems = renameGameEventIdInItems(items, oldId, newId);
-      }
-      if (references.eventImports.length > 0) {
-        nextGameEvents = renameGameEventIdInGameEventImports(
-          nextGameEvents,
-          oldId,
-          newId,
-        );
-      }
-
       try {
-        if (references.tiles.length > 0) {
-          const trimmedMaps = trimStrings(nextMaps);
-          await saveMaps(trimmedMaps);
-          nextMaps = trimmedMaps;
-          setMaps(trimmedMaps);
-          savedAssets.push('maps');
-        }
-        if (references.characters.length > 0) {
-          const trimmedCharacters = trimStrings(nextCharacters);
-          await saveCharacters(trimmedCharacters);
-          nextCharacters = trimmedCharacters;
-          setCharacters(trimmedCharacters);
-          savedAssets.push('characters');
-        }
-        if (references.items.length > 0) {
-          const trimmedItems = trimStrings(nextItems);
-          await saveItems(trimmedItems);
-          nextItems = trimmedItems;
-          setItems(trimmedItems);
-          savedAssets.push('items');
-        }
+        await saveDatabaseChanges({
+          gameEvents: prepared.gameEvents,
+          maps: prepared.maps,
+          characters: prepared.characters,
+          items: prepared.items,
+        });
       } catch (err) {
+        setShowEditGameEventModal(false);
+        setRenameConfirm(null);
         showNotification(
-          `Failed to save renamed event references: ${
+          `Event rename is staged locally but could not be saved: ${
             err instanceof Error ? err.message : 'Unknown error'
           }`,
           'error',
@@ -369,6 +360,21 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
         return;
       }
 
+      setShowEditGameEventModal(false);
+      setRenameConfirm(null);
+      const referencesLabel = prepared.renamedReferenceCollections.join(', ');
+      showNotification(
+        referencesLabel
+          ? `Game event and ${referencesLabel} references saved atomically.`
+          : 'Game event renamed and saved!',
+        'success',
+      );
+      return;
+    }
+
+    const nextGameEvents = [...canvasFlushedEvents];
+    nextGameEvents[index] = preparedUpdatedGameEvent;
+    if (oldId !== newId) {
       renameEditorSaveStateForGameEvent(oldId, newId);
       saveEditorSelection('specialEvents', newId);
       setRecentGameEvents((prev) =>
@@ -376,18 +382,10 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       );
     }
 
-    nextGameEvents[index] = updatedGameEvent;
     setGameEvents(nextGameEvents.sort((a, b) => a.id.localeCompare(b.id)));
     setShowEditGameEventModal(false);
     setRenameConfirm(null);
-    showNotification(
-      updateReferences && oldId !== newId
-        ? savedAssets.length > 0
-          ? `Game event renamed and ${savedAssets.join(', ')} saved.`
-          : 'Game event renamed!'
-        : 'Game event updated!',
-      'success',
-    );
+    showNotification('Game event updated!', 'success');
   };
 
   const handleEditGameEventConfirm = (
@@ -432,13 +430,15 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     applyGameEventEdit(previousGameEvent, updatedGameEvent, false);
   };
 
-  const validateGameEvents = (): { isValid: boolean; error?: string } => {
+  const validateGameEvents = (
+    candidateGameEvents: GameEvent[] = gameEvents,
+  ): { isValid: boolean; error?: string } => {
     const errors: string[] = [];
     const idCounts = new Map<string, number>();
     const gameEventsWithMissingFields: string[] = [];
     const gameEventsWithChildErrors: string[] = [];
 
-    gameEvents.forEach((gameEvent, index) => {
+    candidateGameEvents.forEach((gameEvent, index) => {
       const missingFields: string[] = [];
 
       // Check required string fields
@@ -549,30 +549,16 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   };
 
   const handleSaveAll = async () => {
-    const validation = validateGameEvents();
+    const canvasFlushedEvents = flushCurrentCanvasInto(gameEvents);
+    const preparedGameEvents = prepareGameEventsForSave(canvasFlushedEvents);
+    const validation = validateGameEvents(preparedGameEvents);
     if (!validation.isValid) {
       showNotification(validation.error || 'Validation failed', 'error');
       return;
     }
 
-    const currentEditorState = getEditorState();
-    const currentGameEvent = gameEvents.find(
-      (gameEvent) => gameEvent.id === currentEditorState.gameEventId,
-    );
-    if (currentGameEvent) {
-      syncGameEventFromEditorState(currentGameEvent, currentEditorState);
-    }
-
-    const trimmedGameEvents = trimStrings(gameEvents);
-
-    const sortedGameEvents = trimmedGameEvents.sort((a, b) => {
-      return a.id.localeCompare(b.id);
-    });
-
-    console.log('save game events', currentGameEvent, sortedGameEvents);
-
     try {
-      await saveGameEvents(sortedGameEvents);
+      await saveDatabaseChanges({ gameEvents: preparedGameEvents });
       showNotification('Game events saved successfully!', 'success');
     } catch (err) {
       showNotification(
@@ -581,71 +567,6 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       );
     }
   };
-
-  // Global hotkey: Ctrl+S to save
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Check for Ctrl+S (Windows/Linux) or Cmd+S (Mac)
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        handleSaveAll();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }); // Include dependencies
-
-  // Autosave every 5 minutes
-  useEffect(() => {
-    const autosave = async () => {
-      const currentEditorState = getEditorState();
-      if (!currentEditorState || !currentEditorState.gameEventId) {
-        return;
-      }
-
-      const currentGameEvent = gameEvents.find(
-        (gameEvent) => gameEvent.id === currentEditorState.gameEventId,
-      );
-
-      if (currentGameEvent) {
-        // Create a copy of the game event to avoid mutating the original
-        const updatedGameEvent = { ...currentGameEvent };
-        // Sync editor state to game event
-        syncGameEventFromEditorState(updatedGameEvent, currentEditorState);
-
-        // Update the gameEvents state
-        const newGameEvents = [...gameEvents];
-        const index = newGameEvents.findIndex(
-          (gameEvent) => gameEvent.id === updatedGameEvent.id,
-        );
-        if (index > -1) {
-          newGameEvents[index] = updatedGameEvent;
-        }
-        setGameEvents(newGameEvents);
-
-        // Save to disk
-        try {
-          const trimmedGameEvents = trimStrings(newGameEvents);
-          const sortedGameEvents = trimmedGameEvents.sort((a, b) =>
-            a.id.localeCompare(b.id),
-          );
-          await saveGameEvents(sortedGameEvents);
-          console.log('Autosaved game events');
-        } catch (err) {
-          console.error('Autosave failed:', err);
-        }
-      }
-    };
-
-    const intervalId = setInterval(autosave, 5 * 60 * 1000); // 5 minutes
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [gameEvents, setGameEvents, saveGameEvents]);
 
   const filteredGameEvents = filterGameEvents(gameEvents, {
     searchTerm,

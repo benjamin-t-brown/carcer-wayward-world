@@ -16,7 +16,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check eslint.config.js .prettierrc.json package.json \"src/test/**/*.test.ts\" src/shared/*.ts src/server/**/*.ts src/client/database/**/*.ts src/client/contexts/AssetsContext.tsx src/client/main.tsx src/client/types/assets.ts src/client/utils/editorListSelection.ts src/client/utils/editorRoutes.ts src/client/tile-editor/viewport.ts",
+    "format:check": "prettier --check eslint.config.js .prettierrc.json package.json \"src/test/**/*.test.ts\" src/shared/*.ts src/server/**/*.ts src/client/App.tsx src/client/database/**/*.ts src/client/components/EditorHeader.tsx src/client/contexts/AssetsContext.tsx src/client/main.tsx src/client/pages/AbilityTemplates.tsx src/client/pages/CharacterTemplates.tsx src/client/pages/ItemTemplates.tsx src/client/pages/MapGrids.tsx src/client/pages/Maps.tsx src/client/pages/SpecialEvents.tsx src/client/pages/TemplateEditorPage.tsx src/client/pages/TilesetTemplates.tsx src/client/tile-editor/react-components/SelectedTileInfo/EventTriggerSection.tsx src/client/tile-editor/viewport.ts src/client/types/assets.ts src/client/utils/editorListSelection.ts src/client/utils/editorRoutes.ts src/client/utils/formSavePreparation.ts src/client/utils/mapPersistence.ts src/client/utils/specialEventSavePreparation.ts",
     "test": "node --import tsx --test src/test/*.test.ts",
     "check": "npm run lint && npm run format:check && npm run test && npm run build",
     "preview": "vite preview",

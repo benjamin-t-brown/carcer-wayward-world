@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { CardList } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
 import { AbilityTemplate } from '../types/ability';
@@ -12,7 +12,7 @@ import { validateSpellAbilityRefs } from '../types/spell';
 import { EditorHeader } from '../components/EditorHeader';
 import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
-import { trimStrings } from '../utils/jsonUtils';
+import { prepareAbilitiesForSave } from '../utils/formSavePreparation';
 import {
   applyAbilityDeleteToItems,
   applyAbilityDeleteToStatusEffects,
@@ -71,17 +71,20 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
   const filtered = abilities.filter(
     (ability) =>
       ability.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ability.label.toLowerCase().includes(searchTerm.toLowerCase())
+      ability.label.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const getActualIndex = (filteredIndex: number) =>
     abilities.indexOf(filtered[filteredIndex]);
 
-  const handleClick = (filteredIndex: number) => setEditIndex(getActualIndex(filteredIndex));
+  const handleClick = (filteredIndex: number) =>
+    setEditIndex(getActualIndex(filteredIndex));
 
   const handleClone = (filteredIndex: number) => {
     const actualIndex = getActualIndex(filteredIndex);
-    const cloned: AbilityTemplate = JSON.parse(JSON.stringify(abilities[actualIndex]));
+    const cloned: AbilityTemplate = JSON.parse(
+      JSON.stringify(abilities[actualIndex]),
+    );
     cloned.name = cloned.name + '_copy';
     const next = abilities.slice();
     next.splice(actualIndex + 1, 0, cloned);
@@ -165,7 +168,7 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
 
   const handleSaveAll = async () => {
     const currentName = editIndex >= 0 ? abilities[editIndex]?.name : undefined;
-    const sorted = trimStrings(abilities).sort((a, b) => a.name.localeCompare(b.name));
+    const sorted = prepareAbilitiesForSave(abilities);
     const abilityRefErrors = validateSpellAbilityRefs(
       spells,
       sorted.map((ability) => ability.name),
@@ -188,7 +191,7 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
     } catch (error) {
       showNotification(
         error instanceof Error ? error.message : 'Failed to save abilities',
-        'error'
+        'error',
       );
     }
   };
@@ -202,17 +205,6 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
     routeParams,
   });
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        handleSaveAll();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [abilities]);
-
   const current = editIndex >= 0 ? abilities[editIndex] : undefined;
 
   return (
@@ -221,37 +213,42 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
 
       <div className="editor-page-body">
         <div className="editor-content">
-        <EditorSidebar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          searchPlaceholder="Search abilities..."
-          createMenuLabel="+ New"
-          createMenuItems={[
-            { label: '+ New Ability', onClick: handleCreateNewAbility },
-            { label: '+ New Melee', onClick: handleCreateNewMelee },
-            { label: '+ New Spell', onClick: handleCreateNewSpell },
-          ]}
-        >
-          <CardList
-            items={filtered.map((a) => ({
-              name: a.name,
-              label: a.label || a.name,
-            }))}
-            onItemClick={handleClick}
-            onClone={handleClone}
-            onDelete={handleDelete}
-            selectedIndex={
-              editIndex !== -1
-                ? filtered.findIndex((a) => abilities.indexOf(a) === editIndex)
-                : null
-            }
-            emptyMessage="No abilities found"
-          />
-        </EditorSidebar>
+          <EditorSidebar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchPlaceholder="Search abilities..."
+            createMenuLabel="+ New"
+            createMenuItems={[
+              { label: '+ New Ability', onClick: handleCreateNewAbility },
+              { label: '+ New Melee', onClick: handleCreateNewMelee },
+              { label: '+ New Spell', onClick: handleCreateNewSpell },
+            ]}
+          >
+            <CardList
+              items={filtered.map((a) => ({
+                name: a.name,
+                label: a.label || a.name,
+              }))}
+              onItemClick={handleClick}
+              onClone={handleClone}
+              onDelete={handleDelete}
+              selectedIndex={
+                editIndex !== -1
+                  ? filtered.findIndex(
+                      (a) => abilities.indexOf(a) === editIndex,
+                    )
+                  : null
+              }
+              emptyMessage="No abilities found"
+            />
+          </EditorSidebar>
 
-        <div className="editor-main">
-          <AbilityTemplateForm ability={current} updateAbility={updateAbility} />
-        </div>
+          <div className="editor-main">
+            <AbilityTemplateForm
+              ability={current}
+              updateAbility={updateAbility}
+            />
+          </div>
         </div>
       </div>
 

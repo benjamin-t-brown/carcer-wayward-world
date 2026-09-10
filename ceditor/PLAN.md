@@ -102,9 +102,9 @@ mechanical batches as their owning phase touches them.
 
 ## Phase 2 — Coherent database server
 
-Status: complete on 2026-09-10. The coherent API now runs alongside the
-temporary per-file endpoints so the existing client remains usable until the
-Phase 3 session migration.
+Status: complete on 2026-09-10. The coherent API initially ran alongside the
+temporary per-file endpoints for migration; Phase 4 removed those endpoints
+after the session client had no remaining callers.
 
 ### Work
 
@@ -154,6 +154,10 @@ baseline until a collection is actually edited.
 - A real database load/no-edit/save round trip is semantically identical.
 
 ## Phase 4 — Make Save All truthful everywhere
+
+Status: complete on 2026-09-10. Every editor save now commits one complete
+database transaction; map/grid and event/reference workflows stage their
+cross-collection changes together, and canvas drafts are flushed explicitly.
 
 ### Work
 

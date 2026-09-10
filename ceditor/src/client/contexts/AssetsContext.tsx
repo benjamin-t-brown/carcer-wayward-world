@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useRef,
   useState,
   type ReactNode,
@@ -20,6 +21,18 @@ import { SpellTemplate } from '../types/spell';
 import type { AssetId } from '../../shared/assetRegistry';
 import type { JsonArray } from '../../shared/databaseContract';
 import { DatabaseSession } from '../database/DatabaseSession';
+
+export interface DatabaseChanges {
+  items?: ItemTemplate[];
+  characters?: CharacterTemplate[];
+  abilities?: AbilityTemplate[];
+  spells?: SpellTemplate[];
+  statusEffects?: StatusEffectTemplate[];
+  tilesets?: TilesetTemplate[];
+  gameEvents?: GameEvent[];
+  maps?: CarcerMapTemplate[];
+  mapGrids?: MapGridTemplate[];
+}
 
 interface AssetsContextType {
   items: ItemTemplate[];
@@ -58,6 +71,8 @@ interface AssetsContextType {
   saveGameEvents: (gameEvents: GameEvent[]) => Promise<void>;
   saveMaps: (maps: CarcerMapTemplate[]) => Promise<void>;
   saveMapGrids: (mapGrids: MapGridTemplate[]) => Promise<void>;
+  saveDatabaseChanges: (changes: DatabaseChanges) => Promise<void>;
+  saveAll: () => Promise<void>;
 }
 
 const AssetsContext = createContext<AssetsContextType | undefined>(undefined);
@@ -183,6 +198,18 @@ export function AssetsProvider({
   const [saveError, setSaveError] = useState<string | null>(null);
   const savingCount = useRef(0);
 
+  useEffect(() => {
+    const beforeUnload = (event: BeforeUnloadEvent) => {
+      if (!session.isDirty) return;
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', beforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', beforeUnload);
+    };
+  }, [session]);
+
   const saveSession = useCallback(async () => {
     savingCount.current += 1;
     setIsSaving(true);
@@ -273,6 +300,33 @@ export function AssetsProvider({
     },
     [saveSession, setMapGrids],
   );
+  const saveDatabaseChanges = useCallback(
+    async (changes: DatabaseChanges) => {
+      if (changes.items !== undefined) setItems(changes.items);
+      if (changes.characters !== undefined) setCharacters(changes.characters);
+      if (changes.abilities !== undefined) setAbilities(changes.abilities);
+      if (changes.spells !== undefined) setSpells(changes.spells);
+      if (changes.statusEffects !== undefined)
+        setStatusEffects(changes.statusEffects);
+      if (changes.tilesets !== undefined) setTilesets(changes.tilesets);
+      if (changes.gameEvents !== undefined) setGameEvents(changes.gameEvents);
+      if (changes.maps !== undefined) setMaps(changes.maps);
+      if (changes.mapGrids !== undefined) setMapGrids(changes.mapGrids);
+      await saveSession();
+    },
+    [
+      saveSession,
+      setAbilities,
+      setCharacters,
+      setGameEvents,
+      setItems,
+      setMapGrids,
+      setMaps,
+      setSpells,
+      setStatusEffects,
+      setTilesets,
+    ],
+  );
 
   return (
     <AssetsContext.Provider
@@ -313,6 +367,8 @@ export function AssetsProvider({
         saveGameEvents,
         saveMaps,
         saveMapGrids,
+        saveDatabaseChanges,
+        saveAll: saveSession,
       }}
     >
       {children}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { CardList } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
 import { TilesetTemplate } from '../types/assets';
@@ -9,7 +9,7 @@ import {
 import { EditorHeader } from '../components/EditorHeader';
 import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
-import { trimStrings } from '../utils/jsonUtils';
+import { prepareTilesetsForSave } from '../utils/formSavePreparation';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 import {
   itemAtSourceIndex,
@@ -51,7 +51,7 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
   const filteredTilesets = tilesets.filter(
     (tileset) =>
       tileset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tileset.spriteBase.toLowerCase().includes(searchTerm.toLowerCase())
+      tileset.spriteBase.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // Get the actual index in the full tilesets array for filtered tilesets
@@ -59,7 +59,7 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
     return sourceIndexFromVisibleIndex(
       tilesets,
       filteredTilesets,
-      filteredIndex
+      filteredIndex,
     );
   };
 
@@ -85,7 +85,7 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
     const actualIndex = getActualIndex(filteredIndex);
     const originalTileset = tilesets[actualIndex];
     const clonedTileset: TilesetTemplate = JSON.parse(
-      JSON.stringify(originalTileset)
+      JSON.stringify(originalTileset),
     );
     clonedTileset.name = clonedTileset.name + '_copy';
     const newTilesets = tilesets.slice();
@@ -97,7 +97,7 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
     scrollToTopOfForm();
     setTimeout(() => {
       const tilesetCard = document.getElementById(
-        `tileset-card-${clonedIndex}`
+        `tileset-card-${clonedIndex}`,
       );
       if (tilesetCard) {
         tilesetCard.scrollIntoView({ behavior: 'smooth' });
@@ -128,7 +128,7 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
     setSearchTerm('');
     setTimeout(() => {
       const tilesetCard = document.getElementById(
-        `tileset-card-${actualIndex}`
+        `tileset-card-${actualIndex}`,
       );
       if (tilesetCard) {
         tilesetCard.scrollIntoView({ behavior: 'smooth' });
@@ -191,7 +191,7 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
       if (missingFields.length > 0) {
         const tilesetIdentifier = tileset.name || `Tileset at index ${index}`;
         tilesetsWithMissingFields.push(
-          `${tilesetIdentifier}: missing ${missingFields.join(', ')}`
+          `${tilesetIdentifier}: missing ${missingFields.join(', ')}`,
         );
       }
 
@@ -212,15 +212,15 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
 
     if (duplicateNames.length > 0) {
       errors.push(
-        `Duplicate tileset names found: ${duplicateNames.join(', ')}`
+        `Duplicate tileset names found: ${duplicateNames.join(', ')}`,
       );
     }
 
     if (tilesetsWithMissingFields.length > 0) {
       errors.push(
         `Tilesets with missing required fields:\n${tilesetsWithMissingFields.join(
-          '\n'
-        )}`
+          '\n',
+        )}`,
       );
     }
 
@@ -243,47 +243,27 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
 
     const currentTilesetName = itemAtSourceIndex(
       tilesets,
-      editTilesetIndex
+      editTilesetIndex,
     )?.name;
 
-    const trimmedTilesets = trimStrings(tilesets);
-
-    const sortedTilesets = trimmedTilesets.sort((a, b) => {
-      return a.name.localeCompare(b.name);
-    });
+    const sortedTilesets = prepareTilesetsForSave(tilesets);
 
     try {
       await saveTilesets(sortedTilesets);
       showNotification('Tilesets saved successfully!', 'success');
       if (currentTilesetName) {
         const nextTilesetIndex = sortedTilesets.findIndex(
-          (tileset) => tileset.name === currentTilesetName.trim()
+          (tileset) => tileset.name === currentTilesetName.trim(),
         );
         setEditTilesetIndex(nextTilesetIndex);
       }
     } catch (err) {
       showNotification(
         `Error saving: ${err instanceof Error ? err.message : 'Unknown error'}`,
-        'error'
+        'error',
       );
     }
   };
-
-  // Global hotkey: Ctrl+S to save
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Check for Ctrl+S (Windows/Linux) or Cmd+S (Mac)
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        handleSaveAll();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [tilesets]); // Include dependencies
 
   const currentTileset = tilesets[editTilesetIndex];
 
@@ -293,51 +273,41 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
 
       <div className="editor-page-body">
         <div className="editor-content">
-        <EditorSidebar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          searchPlaceholder="Search tilesets..."
-          createLabel="+ New Tileset"
-          onCreate={handleCreateNew}
-        >
-          <CardList
-            items={filteredTilesets}
-            onItemClick={handleTilesetClick}
-            onClone={handleClone}
-            onDelete={handleDelete}
-            selectedIndex={
-              editTilesetIndex !== -1
-                ? visibleIndexFromSourceIndex(
-                    tilesets,
-                    filteredTilesets,
-                    editTilesetIndex
-                  )
-                : null
-            }
-            renderAdditionalInfo={(tileset) => (
-              <>
-                <div
-                  className="item-info"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                  }}
-                >
-                  <span className="item-type">
-                    {tileset.tileWidth}×{tileset.tileHeight}
-                  </span>
-                </div>
-                <div
-                  style={{
-                    fontSize: '12px',
-                    color: '#858585',
-                    marginTop: '4px',
-                  }}
-                >
-                  {tileset.spriteBase}
-                </div>
-                {tileset.tiles.length > 0 && (
+          <EditorSidebar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchPlaceholder="Search tilesets..."
+            createLabel="+ New Tileset"
+            onCreate={handleCreateNew}
+          >
+            <CardList
+              items={filteredTilesets}
+              onItemClick={handleTilesetClick}
+              onClone={handleClone}
+              onDelete={handleDelete}
+              selectedIndex={
+                editTilesetIndex !== -1
+                  ? visibleIndexFromSourceIndex(
+                      tilesets,
+                      filteredTilesets,
+                      editTilesetIndex,
+                    )
+                  : null
+              }
+              renderAdditionalInfo={(tileset) => (
+                <>
+                  <div
+                    className="item-info"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    <span className="item-type">
+                      {tileset.tileWidth}×{tileset.tileHeight}
+                    </span>
+                  </div>
                   <div
                     style={{
                       fontSize: '12px',
@@ -345,25 +315,35 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
                       marginTop: '4px',
                     }}
                   >
-                    {tileset.tiles.length} tiles
+                    {tileset.spriteBase}
                   </div>
-                )}
-              </>
-            )}
-            emptyMessage="No tilesets found"
-          />
-        </EditorSidebar>
+                  {tileset.tiles.length > 0 && (
+                    <div
+                      style={{
+                        fontSize: '12px',
+                        color: '#858585',
+                        marginTop: '4px',
+                      }}
+                    >
+                      {tileset.tiles.length} tiles
+                    </div>
+                  )}
+                </>
+              )}
+              emptyMessage="No tilesets found"
+            />
+          </EditorSidebar>
 
-        <div className="editor-main">
-          <div id="tileset-form">
-            {showForm && (
-              <TilesetTemplateForm
-                tileset={currentTileset}
-                updateTileset={updateTileset}
-              />
-            )}
+          <div className="editor-main">
+            <div id="tileset-form">
+              {showForm && (
+                <TilesetTemplateForm
+                  tileset={currentTileset}
+                  updateTileset={updateTileset}
+                />
+              )}
+            </div>
           </div>
-        </div>
         </div>
       </div>
 

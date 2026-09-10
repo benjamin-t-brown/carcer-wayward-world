@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { CardList } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
 import { ItemTemplate } from '../types/assets';
@@ -11,7 +11,7 @@ import { Notification } from '../elements/Notification';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { useAssets } from '../contexts/AssetsContext';
 import { Sprite } from '../elements/Sprite';
-import { trimStrings } from '../utils/jsonUtils';
+import { prepareItemsForSave } from '../utils/formSavePreparation';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 import {
   itemAtSourceIndex,
@@ -56,7 +56,7 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
     (item) =>
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.itemType.toLowerCase().includes(searchTerm.toLowerCase())
+      item.itemType.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // Get the actual index in the full items array for filtered items
@@ -174,17 +174,25 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
       }
 
       // Check required number fields
-      if (item.weight === undefined || item.weight === null || isNaN(item.weight)) {
+      if (
+        item.weight === undefined ||
+        item.weight === null ||
+        isNaN(item.weight)
+      ) {
         missingFields.push('weight');
       }
-      if (item.value === undefined || item.value === null || isNaN(item.value)) {
+      if (
+        item.value === undefined ||
+        item.value === null ||
+        isNaN(item.value)
+      ) {
         missingFields.push('value');
       }
 
       if (missingFields.length > 0) {
         const itemIdentifier = item.name || `Item at index ${index}`;
         itemsWithMissingFields.push(
-          `${itemIdentifier}: missing ${missingFields.join(', ')}`
+          `${itemIdentifier}: missing ${missingFields.join(', ')}`,
         );
       }
 
@@ -208,7 +216,9 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
     }
 
     if (itemsWithMissingFields.length > 0) {
-      errors.push(`Items with missing required fields:\n${itemsWithMissingFields.join('\n')}`);
+      errors.push(
+        `Items with missing required fields:\n${itemsWithMissingFields.join('\n')}`,
+      );
     }
 
     if (errors.length > 0) {
@@ -229,46 +239,25 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
     }
 
     const currentItemName = itemAtSourceIndex(items, editItemIndex)?.name;
-    
-    const trimmedItems = trimStrings(items);
-    
-    const sortedItems = trimmedItems.sort((a, b) => {
-      const cmp = a.name.localeCompare(b.name);
-      return cmp === 0 ? a.label.localeCompare(b.label) : cmp;
-    });
-    
+
+    const sortedItems = prepareItemsForSave(items);
+
     try {
       await saveItems(sortedItems);
       showNotification('Items saved successfully!', 'success');
       if (currentItemName) {
         const nextItemIndex = sortedItems.findIndex(
-          (item) => item.name === currentItemName.trim()
+          (item) => item.name === currentItemName.trim(),
         );
         setEditItemIndex(nextItemIndex);
       }
     } catch (err) {
       showNotification(
         `Error saving: ${err instanceof Error ? err.message : 'Unknown error'}`,
-        'error'
+        'error',
       );
     }
   };
-
-  // Global hotkey: Ctrl+S to save
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Check for Ctrl+S (Windows/Linux) or Cmd+S (Mac)
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        handleSaveAll();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [items, showNotification]); // Include dependencies
 
   const currentItem = items[editItemIndex];
 
@@ -278,56 +267,56 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
 
       <div className="editor-page-body">
         <div className="editor-content">
-        <EditorSidebar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          searchPlaceholder="Search items..."
-          createLabel="+ New Item"
-          onCreate={handleCreateNew}
-        >
-          <CardList
-            items={filteredItems}
-            onItemClick={handleItemClick}
-            onClone={handleClone}
-            onDelete={handleDelete}
-            selectedIndex={
-              editItemIndex !== -1
-                ? visibleIndexFromSourceIndex(
-                    items,
-                    filteredItems,
-                    editItemIndex
-                  )
-                : null
-            }
-            renderAdditionalInfo={(item) => {
-              const sprite = spriteMap[item.icon];
-              return (
-                <div
-                  className="item-info"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                  }}
-                >
-                  {sprite && (
-                    <div style={{ display: 'inline-block' }}>
-                      <Sprite sprite={sprite} scale={1.5} />
-                    </div>
-                  )}
-                  <span className="item-type">{item.itemType}</span>
-                </div>
-              );
-            }}
-            emptyMessage="No items found"
-          />
-        </EditorSidebar>
+          <EditorSidebar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchPlaceholder="Search items..."
+            createLabel="+ New Item"
+            onCreate={handleCreateNew}
+          >
+            <CardList
+              items={filteredItems}
+              onItemClick={handleItemClick}
+              onClone={handleClone}
+              onDelete={handleDelete}
+              selectedIndex={
+                editItemIndex !== -1
+                  ? visibleIndexFromSourceIndex(
+                      items,
+                      filteredItems,
+                      editItemIndex,
+                    )
+                  : null
+              }
+              renderAdditionalInfo={(item) => {
+                const sprite = spriteMap[item.icon];
+                return (
+                  <div
+                    className="item-info"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    {sprite && (
+                      <div style={{ display: 'inline-block' }}>
+                        <Sprite sprite={sprite} scale={1.5} />
+                      </div>
+                    )}
+                    <span className="item-type">{item.itemType}</span>
+                  </div>
+                );
+              }}
+              emptyMessage="No items found"
+            />
+          </EditorSidebar>
 
-        <div className="editor-main">
-          <div id="item-form">
-            <ItemTemplateForm item={currentItem} updateItem={updateItem} />
+          <div className="editor-main">
+            <div id="item-form">
+              <ItemTemplateForm item={currentItem} updateItem={updateItem} />
+            </div>
           </div>
-        </div>
         </div>
       </div>
 

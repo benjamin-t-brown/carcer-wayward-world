@@ -9,12 +9,11 @@ import express, {
 import fs, { readdir } from 'fs/promises';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'path';
 import { fileURLToPath } from 'url';
-import { ASSET_TYPES, assetFileForId } from '../shared/assetRegistry';
 import {
   DatabaseRepository,
   type DatabaseRepositoryContract,
 } from './databaseRepository';
-import { BadRequestError, isHttpError } from './httpErrors';
+import { isHttpError } from './httpErrors';
 
 export interface ServerPaths {
   projectRoot: string;
@@ -199,48 +198,6 @@ export function createApp(options: CreateAppOptions = {}): Express {
     '/api/database',
     asyncRoute(async (req, res) => {
       res.json(await repository.save(req.body));
-    }),
-  );
-
-  app.get('/api/assets/types', (_req, res) => {
-    res.json(ASSET_TYPES);
-  });
-
-  // Legacy collection endpoints remain available while clients migrate to the
-  // coherent database envelope.
-  app.get(
-    '/api/assets/:type',
-    asyncRoute(async (req, res) => {
-      const fileName = assetFileForId(req.params.type);
-      if (!fileName) {
-        throw new BadRequestError('Invalid asset type');
-      }
-      const content = await fs.readFile(
-        join(paths.assetsDatabasePath, fileName),
-        'utf-8',
-      );
-      res.json(JSON.parse(content));
-    }),
-  );
-
-  app.post(
-    '/api/assets/:type',
-    asyncRoute(async (req, res) => {
-      const fileName = assetFileForId(req.params.type);
-      if (!fileName) {
-        throw new BadRequestError('Invalid asset type');
-      }
-      await fs.mkdir(paths.assetsDatabasePath, { recursive: true });
-      const content = JSON.stringify(req.body, null, 2);
-      logger.log(
-        `saving asset ${req.params.type} (${Buffer.byteLength(content)} bytes)`,
-      );
-      await fs.writeFile(
-        join(paths.assetsDatabasePath, fileName),
-        content,
-        'utf-8',
-      );
-      res.json({ success: true });
     }),
   );
 

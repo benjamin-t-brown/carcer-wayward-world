@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { CardList } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
 import {
@@ -17,7 +17,7 @@ import { Notification } from '../elements/Notification';
 import { Sprite } from '../elements/Sprite';
 import { useAssets } from '../contexts/AssetsContext';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
-import { trimStrings } from '../utils/jsonUtils';
+import { prepareCharactersForSave } from '../utils/formSavePreparation';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 import {
   itemAtSourceIndex,
@@ -36,9 +36,12 @@ interface CharacterTemplatesProps {
   routeParams?: URLSearchParams;
 }
 
-export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}) {
+export function CharacterTemplates({
+  routeParams,
+}: CharacterTemplatesProps = {}) {
   const { spriteMap } = useSDL2WAssets();
-  const { characters, setCharacters, saveCharacters, maps, setMaps } = useAssets();
+  const { characters, setCharacters, saveCharacters, maps, setMaps } =
+    useAssets();
   const [editCharacterIndex, setEditCharacterIndex] = useState<number>(-1);
   const [characterDeleteConfirm, setCharacterDeleteConfirm] = useState<{
     actualIndex: number;
@@ -64,7 +67,7 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
     (character) =>
       character.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       character.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      character.type.toLowerCase().includes(searchTerm.toLowerCase())
+      character.type.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // Get the actual index in the full characters array for filtered characters
@@ -72,7 +75,7 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
     return sourceIndexFromVisibleIndex(
       characters,
       filteredCharacters,
-      filteredIndex
+      filteredIndex,
     );
   };
 
@@ -94,7 +97,7 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
     const actualIndex = getActualIndex(filteredIndex);
     const originalCharacter = characters[actualIndex];
     const clonedCharacter: CharacterTemplate = JSON.parse(
-      JSON.stringify(originalCharacter)
+      JSON.stringify(originalCharacter),
     );
     clonedCharacter.name = clonedCharacter.name + '_copy';
     const newCharacters = characters.slice();
@@ -106,7 +109,7 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
     scrollToTopOfForm();
     setTimeout(() => {
       const characterCard = document.getElementById(
-        `character-card-${clonedIndex}`
+        `character-card-${clonedIndex}`,
       );
       if (characterCard) {
         characterCard.scrollIntoView({ behavior: 'smooth' });
@@ -118,7 +121,9 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
     const character = characters[actualIndex];
     const characterName = character?.name.trim() ?? '';
 
-    const newCharacters = characters.filter((_, index) => index !== actualIndex);
+    const newCharacters = characters.filter(
+      (_, index) => index !== actualIndex,
+    );
     setCharacters(newCharacters);
 
     if (characterName) {
@@ -183,7 +188,7 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
     setSearchTerm('');
     setTimeout(() => {
       const characterCard = document.getElementById(
-        `character-card-${actualIndex}`
+        `character-card-${actualIndex}`,
       );
       if (characterCard) {
         characterCard.scrollIntoView({ behavior: 'smooth' });
@@ -196,7 +201,7 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
     if (currentCharacter) {
       // Update existing character in real-time
       setCharacters(
-        replaceAtSourceIndex(characters, editCharacterIndex, character)
+        replaceAtSourceIndex(characters, editCharacterIndex, character),
       );
     }
   };
@@ -222,14 +227,18 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
       if (!character.spritesheet || character.spritesheet.trim() === '') {
         missingFields.push('spritesheet');
       }
-      if (character.spriteOffset === undefined || character.spriteOffset === null) {
+      if (
+        character.spriteOffset === undefined ||
+        character.spriteOffset === null
+      ) {
         missingFields.push('spriteOffset');
       }
 
       if (missingFields.length > 0) {
-        const characterIdentifier = character.name || `Character at index ${index}`;
+        const characterIdentifier =
+          character.name || `Character at index ${index}`;
         charactersWithMissingFields.push(
-          `${characterIdentifier}: missing ${missingFields.join(', ')}`
+          `${characterIdentifier}: missing ${missingFields.join(', ')}`,
         );
       }
 
@@ -250,13 +259,13 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
 
     if (duplicateNames.length > 0) {
       errors.push(
-        `Duplicate character names found: ${duplicateNames.join(', ')}`
+        `Duplicate character names found: ${duplicateNames.join(', ')}`,
       );
     }
 
     if (charactersWithMissingFields.length > 0) {
       errors.push(
-        `Characters with missing required fields:\n${charactersWithMissingFields.join('\n')}`
+        `Characters with missing required fields:\n${charactersWithMissingFields.join('\n')}`,
       );
     }
 
@@ -279,15 +288,10 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
 
     const currentCharacterName = itemAtSourceIndex(
       characters,
-      editCharacterIndex
+      editCharacterIndex,
     )?.name;
 
-    const trimmedCharacters = trimStrings(characters);
-
-    const sortedCharacters = trimmedCharacters.sort((a, b) => {
-      const cmp = a.name.localeCompare(b.name);
-      return cmp === 0 ? a.label.localeCompare(b.label) : cmp;
-    });
+    const sortedCharacters = prepareCharactersForSave(characters);
 
     try {
       await saveCharacters(sortedCharacters);
@@ -295,33 +299,19 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
       showNotification('Characters saved successfully!', 'success');
       if (currentCharacterName) {
         const nextCharacterIndex = sortedCharacters.findIndex(
-          (character) => character.name === currentCharacterName.trim()
+          (character) => character.name === currentCharacterName.trim(),
         );
-        setEditCharacterIndex(nextCharacterIndex >= 0 ? nextCharacterIndex : -1);
+        setEditCharacterIndex(
+          nextCharacterIndex >= 0 ? nextCharacterIndex : -1,
+        );
       }
     } catch (err) {
       showNotification(
         `Error saving: ${err instanceof Error ? err.message : 'Unknown error'}`,
-        'error'
+        'error',
       );
     }
   };
-
-  // Global hotkey: Ctrl+S to save
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Check for Ctrl+S (Windows/Linux) or Cmd+S (Mac)
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        handleSaveAll();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [characters]); // Include dependencies
 
   const currentCharacter = characters[editCharacterIndex];
 
@@ -331,56 +321,56 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
 
       <div className="editor-page-body">
         <div className="editor-content">
-        <EditorSidebar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          searchPlaceholder="Search characters..."
-          createLabel="+ New Character"
-          onCreate={handleCreateNew}
-        >
-          <CardList
-            items={filteredCharacters}
-            onItemClick={handleCharacterClick}
-            onClone={handleClone}
-            onDelete={handleDelete}
-            selectedIndex={
-              editCharacterIndex !== -1
-                ? visibleIndexFromSourceIndex(
-                    characters,
-                    filteredCharacters,
-                    editCharacterIndex
-                  )
-                : null
-            }
-            renderAdditionalInfo={(character) => {
-              const spriteName = `${character.spritesheet}_${character.spriteOffset}`;
-              const sprite = spriteMap[spriteName];
-              return (
-                <div
-                  className="item-info"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                  }}
-                >
-                  <Sprite sprite={sprite} displaySize={32} />
-                  <span className="item-type">{character.type}</span>
-                </div>
-              );
-            }}
-            emptyMessage="No characters found"
-          />
-        </EditorSidebar>
-
-        <div className="editor-main">
-          <div id="character-form">
-            <CharacterTemplateForm
-              character={currentCharacter}
-              updateCharacter={updateCharacter}
+          <EditorSidebar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            searchPlaceholder="Search characters..."
+            createLabel="+ New Character"
+            onCreate={handleCreateNew}
+          >
+            <CardList
+              items={filteredCharacters}
+              onItemClick={handleCharacterClick}
+              onClone={handleClone}
+              onDelete={handleDelete}
+              selectedIndex={
+                editCharacterIndex !== -1
+                  ? visibleIndexFromSourceIndex(
+                      characters,
+                      filteredCharacters,
+                      editCharacterIndex,
+                    )
+                  : null
+              }
+              renderAdditionalInfo={(character) => {
+                const spriteName = `${character.spritesheet}_${character.spriteOffset}`;
+                const sprite = spriteMap[spriteName];
+                return (
+                  <div
+                    className="item-info"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    <Sprite sprite={sprite} displaySize={32} />
+                    <span className="item-type">{character.type}</span>
+                  </div>
+                );
+              }}
+              emptyMessage="No characters found"
             />
+          </EditorSidebar>
+
+          <div className="editor-main">
+            <div id="character-form">
+              <CharacterTemplateForm
+                character={currentCharacter}
+                updateCharacter={updateCharacter}
+              />
+            </div>
           </div>
-        </div>
         </div>
       </div>
 
