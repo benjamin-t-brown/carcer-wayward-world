@@ -19,6 +19,12 @@ import { useAssets } from '../contexts/AssetsContext';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
+import {
+  itemAtSourceIndex,
+  replaceAtSourceIndex,
+  sourceIndexFromVisibleIndex,
+  visibleIndexFromSourceIndex,
+} from '../utils/editorListSelection';
 
 interface NotificationState {
   message: string;
@@ -63,8 +69,11 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
 
   // Get the actual index in the full characters array for filtered characters
   const getActualIndex = (filteredIndex: number): number => {
-    const filteredCharacter = filteredCharacters[filteredIndex];
-    return characters.indexOf(filteredCharacter);
+    return sourceIndexFromVisibleIndex(
+      characters,
+      filteredCharacters,
+      filteredIndex
+    );
   };
 
   const scrollToTopOfForm = () => {
@@ -183,13 +192,12 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
   };
 
   const updateCharacter = (character: CharacterTemplate) => {
-    const currentCharacterIndex = getActualIndex(editCharacterIndex);
-    const currentCharacter = characters[currentCharacterIndex];
+    const currentCharacter = itemAtSourceIndex(characters, editCharacterIndex);
     if (currentCharacter) {
       // Update existing character in real-time
-      const updatedCharacters = [...characters];
-      updatedCharacters[currentCharacterIndex] = character;
-      setCharacters(updatedCharacters);
+      setCharacters(
+        replaceAtSourceIndex(characters, editCharacterIndex, character)
+      );
     }
   };
 
@@ -269,8 +277,10 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
       return;
     }
 
-    const currentCharacterIndex = editCharacterIndex >= 0 ? getActualIndex(editCharacterIndex) : -1;
-    const currentCharacterName = currentCharacterIndex >= 0 ? characters[currentCharacterIndex]?.name : undefined;
+    const currentCharacterName = itemAtSourceIndex(
+      characters,
+      editCharacterIndex
+    )?.name;
 
     const trimmedCharacters = trimStrings(characters);
 
@@ -335,13 +345,11 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
             onDelete={handleDelete}
             selectedIndex={
               editCharacterIndex !== -1
-                ? (() => {
-                    const index = filteredCharacters.findIndex(
-                      (character) =>
-                        characters.indexOf(character) === editCharacterIndex
-                    );
-                    return index >= 0 ? index : null;
-                  })()
+                ? visibleIndexFromSourceIndex(
+                    characters,
+                    filteredCharacters,
+                    editCharacterIndex
+                  )
                 : null
             }
             renderAdditionalInfo={(character) => {
@@ -419,4 +427,3 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
     </div>
   );
 }
-

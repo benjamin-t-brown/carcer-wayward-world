@@ -1,6 +1,7 @@
 import { Card } from '../elements/Card';
 import { EditorHeader } from '../components/EditorHeader';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
+import { editorRouteForAssetId } from '../utils/editorRoutes';
 
 export function Home({
   assetTypes,
@@ -13,14 +14,17 @@ export function Home({
     pictures: _pictures,
   } = useSDL2WAssets();
   const handleCardClick = (typeId: string) => {
-    window.location.hash = `/editor/${typeId}`;
+    const route = editorRouteForAssetId(typeId);
+    if (route) {
+      window.location.hash = route;
+    }
   };
 
   return (
     <div className="container">
       <EditorHeader title="CEditor" showBack={false} />
       <div className="asset-types">
-        {assetTypes.map((type) => (
+        {assetTypes.filter((type) => editorRouteForAssetId(type.id)).map((type) => (
           <Card
             key={type.id}
             variant="asset"

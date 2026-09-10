@@ -74,6 +74,10 @@ Status: complete on 2026-09-10.
 
 ## Phase 1 — Tooling and characterization tests
 
+Status: in progress. The initial tooling, managed registry/routes, status-effect
+deep link, and filtered-selection correctness slice landed on 2026-09-10.
+Map/event characterization and controlled Prettier enforcement remain.
+
 ### Work
 
 - Add ESLint flat configuration, Prettier, and Node's built-in test runner via

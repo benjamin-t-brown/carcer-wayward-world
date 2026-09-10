@@ -90,7 +90,9 @@ const saveAbilities = (abilities: AbilityTemplate[]) =>
 const saveSpells = (spells: SpellTemplate[]) => saveAsset('spellTemplates', spells);
 const saveStatusEffects = (statusEffects: StatusEffectTemplate[]) =>
   saveAsset('statusEffectTemplates', statusEffects);
-const saveFeats = (feats: FeatTemplate[]) => saveAsset('featTemplates', feats);
+const saveFeats = async (_feats: FeatTemplate[]) => {
+  throw new Error('Feat templates are not an active managed asset type');
+};
 const saveTilesets = (tilesets: TilesetTemplate[]) =>
   saveAsset('tilesetTemplates', tilesets);
 const saveGameEvents = (gameEvents: GameEvent[]) =>

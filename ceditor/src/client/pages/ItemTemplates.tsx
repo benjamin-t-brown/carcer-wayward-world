@@ -13,6 +13,11 @@ import { useAssets } from '../contexts/AssetsContext';
 import { Sprite } from '../elements/Sprite';
 import { trimStrings } from '../utils/jsonUtils';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
+import {
+  itemAtSourceIndex,
+  sourceIndexFromVisibleIndex,
+  visibleIndexFromSourceIndex,
+} from '../utils/editorListSelection';
 
 interface NotificationState {
   message: string;
@@ -56,8 +61,7 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
 
   // Get the actual index in the full items array for filtered items
   const getActualIndex = (filteredIndex: number): number => {
-    const filteredItem = filteredItems[filteredIndex];
-    return items.indexOf(filteredItem);
+    return sourceIndexFromVisibleIndex(items, filteredItems, filteredIndex);
   };
 
   const scrollToTopOfForm = () => {
@@ -224,8 +228,7 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
       return;
     }
 
-    const currentItemIndex = getActualIndex(editItemIndex);
-    const currentItemName = items[currentItemIndex]?.name;
+    const currentItemName = itemAtSourceIndex(items, editItemIndex)?.name;
     
     const trimmedItems = trimStrings(items);
     
@@ -289,12 +292,11 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
             onDelete={handleDelete}
             selectedIndex={
               editItemIndex !== -1
-                ? (() => {
-                    const index = filteredItems.findIndex(
-                      (item) => items.indexOf(item) === editItemIndex
-                    );
-                    return index >= 0 ? index : null;
-                  })()
+                ? visibleIndexFromSourceIndex(
+                    items,
+                    filteredItems,
+                    editItemIndex
+                  )
                 : null
             }
             renderAdditionalInfo={(item) => {

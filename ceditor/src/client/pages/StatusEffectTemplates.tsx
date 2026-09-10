@@ -9,7 +9,13 @@ import {
   TemplateEditorDescriptor,
 } from './TemplateEditorPage';
 
-export function StatusEffectTemplates() {
+interface StatusEffectTemplatesProps {
+  routeParams?: URLSearchParams;
+}
+
+export function StatusEffectTemplates({
+  routeParams,
+}: StatusEffectTemplatesProps = {}) {
   const { statusEffects, setStatusEffects, saveStatusEffects } = useAssets();
 
   const descriptor: TemplateEditorDescriptor<StatusEffectTemplate> = {
@@ -37,6 +43,7 @@ export function StatusEffectTemplates() {
       items={statusEffects}
       setItems={setStatusEffects}
       saveItems={saveStatusEffects}
+      routeParams={routeParams}
       renderForm={(statusEffect, update) => (
         <StatusEffectTemplateForm
           statusEffect={statusEffect}

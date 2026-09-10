@@ -1,7 +1,7 @@
 import { AssetId, ASSET_ROUTE_PARAM_BY_ID } from '../../shared/assetRegistry';
 
 /** Editor routes / asset-type ids used as localStorage keys. */
-export type EditorSelectionKey = AssetId;
+export type EditorSelectionKey = AssetId | 'featTemplates';
 
 const STORAGE_KEY = 'ceditor.editorSelection';
 

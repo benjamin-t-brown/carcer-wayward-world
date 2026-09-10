@@ -196,11 +196,6 @@ export const initPanzoom = (specialEventEditorInterface: {
         }
       }
     }
-    if (
-      ev.button === 2 &&
-      isEventWithCanvasTarget(ev, specialEventEditorInterface.getCanvas())
-    ) {
-    }
   };
   const handleMouseMove = (ev: MouseEvent) => {
     const editorState = specialEventEditorInterface.getEditorState();

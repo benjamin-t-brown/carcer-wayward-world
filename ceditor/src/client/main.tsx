@@ -116,7 +116,8 @@ async function load(): Promise<{
   const abilities = normalized.abilityTemplates as AbilityTemplate[];
   const spells = normalized.spellTemplates as SpellTemplate[];
   const statusEffects = normalized.statusEffectTemplates as StatusEffectTemplate[];
-  const feats = normalized.featTemplates as FeatTemplate[];
+  // Feats have editor prototypes but no managed database file or active route.
+  const feats: FeatTemplate[] = [];
   const tilesets = normalized.tilesetTemplates as TilesetTemplate[];
   const gameEvents = normalized.specialEvents as GameEvent[];
   const maps = normalized.maps as CarcerMapTemplate[];

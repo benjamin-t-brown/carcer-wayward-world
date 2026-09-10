@@ -11,6 +11,7 @@ import { StatusEffectTemplates } from './pages/StatusEffectTemplates';
 import { Maps } from './pages/Maps';
 import { MapGrids } from './pages/MapGrids';
 import { SoundEffects } from './pages/SoundEffects';
+import { assetIdForEditorRoute } from './utils/editorRoutes';
 
 function App({ assetTypes }: { assetTypes: { id: string; name: string; file: string }[] }) {
   const initialRoute = readHashRoute();
@@ -36,30 +37,33 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
 
   // Route rendering
   const routePath = currentRoute.split('?')[0]; // Ensure we only match on the path part
-  switch (routePath) {
-    case '/':
-      return <Home assetTypes={assetTypes} />;
-    case '/editor/itemTemplates':
+  if (routePath === '/') {
+    return <Home assetTypes={assetTypes} />;
+  }
+
+  switch (assetIdForEditorRoute(routePath)) {
+    case 'itemTemplates':
       return <ItemTemplates routeParams={routeParams} />;
-    case '/editor/abilityTemplates':
+    case 'abilityTemplates':
       return <AbilityTemplates routeParams={routeParams} />;
-    case '/editor/spellTemplates':
+    case 'spellTemplates':
       return <SpellTemplates routeParams={routeParams} />;
-    case '/editor/statusEffectTemplates':
-      return <StatusEffectTemplates />;
-    case '/editor/characterTemplates':
+    case 'statusEffectTemplates':
+      return <StatusEffectTemplates routeParams={routeParams} />;
+    case 'characterTemplates':
       return <CharacterTemplates routeParams={routeParams} />;
-    case '/editor/tilesetTemplates':
+    case 'tilesetTemplates':
       return <TilesetTemplates routeParams={routeParams} />;
-    case '/editor/specialEvents':
+    case 'specialEvents':
       return <SpecialEvents routeParams={routeParams} />;
-    case '/editor/maps':
+    case 'maps':
       return <Maps routeParams={routeParams} />;
-    case '/editor/mapGrids':
+    case 'mapGrids':
       return <MapGrids routeParams={routeParams} />;
-    case '/editor/soundEffects':
-      return <SoundEffects />;
     default:
+      if (routePath === '/editor/soundEffects') {
+        return <SoundEffects />;
+      }
       return (
         <div className="container">
           <div className="error">404 - Page not found</div>
@@ -69,4 +73,3 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
 }
 
 export default App;
-

@@ -11,6 +11,12 @@ import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
+import {
+  itemAtSourceIndex,
+  replaceAtSourceIndex,
+  sourceIndexFromVisibleIndex,
+  visibleIndexFromSourceIndex,
+} from '../utils/editorListSelection';
 
 interface NotificationState {
   message: string;
@@ -50,8 +56,11 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
 
   // Get the actual index in the full tilesets array for filtered tilesets
   const getActualIndex = (filteredIndex: number): number => {
-    const filteredTileset = filteredTilesets[filteredIndex];
-    return tilesets.indexOf(filteredTileset);
+    return sourceIndexFromVisibleIndex(
+      tilesets,
+      filteredTilesets,
+      filteredIndex
+    );
   };
 
   const scrollToTopOfForm = () => {
@@ -139,13 +148,10 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
 
   const updateTileset = (tileset: TilesetTemplate) => {
     if (editTilesetIndex >= 0) {
-      const currentTilesetIndex = getActualIndex(editTilesetIndex);
-      const currentTileset = tilesets[currentTilesetIndex];
+      const currentTileset = itemAtSourceIndex(tilesets, editTilesetIndex);
       if (currentTileset) {
         // Update existing tileset in real-time
-        const updatedTilesets = [...tilesets];
-        updatedTilesets[currentTilesetIndex] = tileset;
-        setTilesets(updatedTilesets);
+        setTilesets(replaceAtSourceIndex(tilesets, editTilesetIndex, tileset));
       }
     }
   };
@@ -235,12 +241,10 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
       return;
     }
 
-    const currentTilesetIndex =
-      editTilesetIndex >= 0 ? getActualIndex(editTilesetIndex) : -1;
-    const currentTilesetName =
-      currentTilesetIndex >= 0
-        ? tilesets[currentTilesetIndex]?.name
-        : undefined;
+    const currentTilesetName = itemAtSourceIndex(
+      tilesets,
+      editTilesetIndex
+    )?.name;
 
     const trimmedTilesets = trimStrings(tilesets);
 
@@ -303,13 +307,11 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
             onDelete={handleDelete}
             selectedIndex={
               editTilesetIndex !== -1
-                ? (() => {
-                    const index = filteredTilesets.findIndex(
-                      (tileset) =>
-                        tilesets.indexOf(tileset) === editTilesetIndex
-                    );
-                    return index >= 0 ? index : null;
-                  })()
+                ? visibleIndexFromSourceIndex(
+                    tilesets,
+                    filteredTilesets,
+                    editTilesetIndex
+                  )
                 : null
             }
             renderAdditionalInfo={(tileset) => (
