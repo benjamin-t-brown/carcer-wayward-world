@@ -24,6 +24,11 @@ export {
   type RenderMapDocument,
 } from './MapRenderer.js';
 export {
+  MapOverlayRenderer,
+  type MapOverlayBlock,
+  type MapOverlayOptions,
+} from './MapOverlayRenderer.js';
+export {
   DEFAULT_MAX_SCALE,
   DEFAULT_MIN_SCALE,
   Viewport,

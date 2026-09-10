@@ -79,6 +79,22 @@
 .map-inspector h2 {
   font-size: 1rem;
 }
+.map-inspector details {
+  display: grid;
+  gap: var(--space-2);
+  margin-block: var(--space-3);
+}
+.map-inspector summary {
+  cursor: pointer;
+  font-weight: 650;
+}
+.map-metadata-editor {
+  box-sizing: border-box;
+  width: 100%;
+  margin-block: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
 .map-selection-status,
 .map-render-status {
   overflow-wrap: anywhere;

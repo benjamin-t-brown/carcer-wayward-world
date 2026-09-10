@@ -779,6 +779,10 @@ Port editors in dependency-aware increments:
 
 ### Phase 6: Complete map and tile editor
 
+Implementation status: delivered. See
+[`docs/phase-6-summary.md`](./docs/phase-6-summary.md). Interactive profiling is
+tracked in Phase 8.
+
 #### Work
 
 - Implement fill, rectangle, clone, and terrain tools.
@@ -818,6 +822,9 @@ Port editors in dependency-aware increments:
 
 ### Phase 7: Special-event/in3 editor
 
+Implementation status: delivered pending the Phase 8 integrated verification
+pass. See [`docs/phase-7-summary.md`](./docs/phase-7-summary.md).
+
 #### Work
 
 - Implement event list, filtering, recent selection, CRUD, and metadata form.
@@ -844,6 +851,10 @@ Port editors in dependency-aware increments:
 - The event parity checklist passes.
 
 ### Phase 8: Hardening and cutover
+
+Implementation status: in progress. Automated hardening can be completed in
+this project pass; default-editor approval and removal of the old editor remain
+explicit user decisions.
 
 #### Work
 
