@@ -12,6 +12,28 @@ import {
   type SaveDatabaseResponse,
 } from '../../src/core/database/index.js';
 
+test('the default client keeps the browser fetch receiver', async () => {
+  const originalFetch = globalThis.fetch;
+  const receivers = new Set<unknown>();
+  globalThis.fetch = function (this: unknown) {
+    receivers.add(this);
+    return Promise.resolve(
+      new Response(
+        JSON.stringify({ revision: 'revision-1', assets: emptySnapshot() }),
+        { headers: { 'content-type': 'application/json' } },
+      ),
+    );
+  };
+  try {
+    const { DatabaseClient } =
+      await import('../../src/core/database/DatabaseClient.js');
+    await new DatabaseClient().loadDatabase();
+    assert.equal(receivers.has(globalThis), true);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 function emptySnapshot(): DatabaseSnapshot {
   return {
     statusEffects: [],

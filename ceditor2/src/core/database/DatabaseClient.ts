@@ -45,7 +45,7 @@ export class DatabaseClient implements DatabaseTransport {
 
   constructor(options: DatabaseClientOptions = {}) {
     this.baseUrl = options.baseUrl?.replace(/\/$/, '') ?? '';
-    this.fetch = options.fetch ?? globalThis.fetch;
+    this.fetch = options.fetch ?? globalThis.fetch?.bind(globalThis);
 
     if (!this.fetch) {
       throw new DatabaseProtocolError('The Fetch API is not available');
