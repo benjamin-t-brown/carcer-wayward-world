@@ -148,6 +148,30 @@ test('PUT /api/database rejects incomplete and non-array snapshots', async () =>
   });
 });
 
+test('PUT /api/database blocks unresolved required references with an actionable path', async () => {
+  await withFixture(async ({ baseUrl, databasePath }) => {
+    const loaded = await loadDatabase(baseUrl);
+    const before = await readManagedContents(databasePath);
+    const next = structuredClone(loaded.assets);
+    next.abilities.push({
+      name: 'BROKEN_REFERENCE',
+      statuses: [{ statusEffect: 'STATUS_THAT_DOES_NOT_EXIST' }],
+    });
+
+    const response = await putDatabase(baseUrl, {
+      baseRevision: loaded.revision,
+      assets: next,
+    });
+
+    assert.equal(response.status, 400);
+    const body = (await response.json()) as { error: string };
+    assert.match(body.error, /Database validation failed/);
+    assert.match(body.error, /abilities\[0\]\.statuses\[0\]\.statusEffect/);
+    assert.match(body.error, /STATUS_THAT_DOES_NOT_EXIST/);
+    assert.deepEqual(await readManagedContents(databasePath), before);
+  });
+});
+
 test('successful Save All never touches unmanaged tiles.json', async () => {
   await withFixture(async ({ baseUrl, databasePath }) => {
     const tilesPath = join(databasePath, 'tiles.json');
@@ -155,7 +179,13 @@ test('successful Save All never touches unmanaged tiles.json', async () => {
 
     const loaded = await loadDatabase(baseUrl);
     const next = structuredClone(loaded.assets);
-    next.statusEffects.push({ name: 'NEW_STATUS' });
+    next.statusEffects.push({
+      name: 'NEW_STATUS',
+      description: '',
+      baseDuration: 1,
+      applyResistances: [],
+      actions: [],
+    });
     const response = await putDatabase(baseUrl, {
       baseRevision: loaded.revision,
       assets: next,

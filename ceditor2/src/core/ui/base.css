@@ -283,6 +283,37 @@ button.button {
   background: var(--color-info-surface);
 }
 
+.database-page__dirty {
+  max-width: min(36rem, 55vw);
+  overflow: hidden;
+  font-size: 0.875rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.database-page__validation,
+.database-page__operation {
+  margin-bottom: var(--space-3);
+}
+
+.database-page__validation summary {
+  cursor: pointer;
+  font-weight: 650;
+}
+
+.database-page__issues {
+  display: grid;
+  gap: var(--space-1);
+  margin: var(--space-3) 0 0;
+  padding-left: var(--space-5);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.database-page__content[aria-busy='true'] {
+  min-height: 10rem;
+}
+
 .empty-state {
   display: grid;
   min-height: 10rem;

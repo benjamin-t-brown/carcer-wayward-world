@@ -137,6 +137,42 @@ test('distinguishes hard unresolved references from existing soft references', (
   );
 });
 
+test('validates status effects against the runtime loader contract', () => {
+  const result = validateDatabase(
+    snapshot({
+      statusEffects: [
+        {
+          name: 'BROKEN_STATUS',
+          description: 'Has a condition the C++ loader cannot parse.',
+          baseDuration: 1,
+          actions: [
+            {
+              statusActionTargetType: 'STATUS_ACTION_TARGET_SELF',
+              abilityName: '',
+              events: [
+                {
+                  type: 'STATUS_EVENT_ON_APPLIED',
+                  condition: 'CONDITION_IS_EVEN_ROUND',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }),
+  );
+
+  assert.equal(result.valid, false);
+  assert.ok(
+    result.errors.some(
+      (issue) =>
+        issue.code === 'statusEffect.schema' &&
+        issue.path === 'statusEffects[0].actions[0].events[0].condition' &&
+        issue.message.includes('unsupported value'),
+    ),
+  );
+});
+
 test('validates map dense arrays and map-grid matrix dimensions', () => {
   const result = validateDatabase(
     snapshot({

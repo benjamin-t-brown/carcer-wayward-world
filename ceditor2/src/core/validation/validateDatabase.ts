@@ -1,5 +1,9 @@
 import { ASSET_IDS, type AssetId } from '../database/assetRegistry.js';
 import type { DatabaseSnapshot } from '../database/types.js';
+import {
+  parseStatusEffectRecord,
+  StatusEffectParseError,
+} from '../domain/statusEffects/index.js';
 import { buildReferenceIndex } from '../references/referenceIndex.js';
 import type { DatabaseReference } from '../references/types.js';
 import type {
@@ -357,6 +361,32 @@ function validateMaps(
   });
 }
 
+function validateStatusEffects(
+  records: unknown[] | undefined,
+  issues: ValidationIssue[],
+): void {
+  records?.forEach((record, index) => {
+    try {
+      parseStatusEffectRecord(record, `statusEffects[${index}]`);
+    } catch (error) {
+      if (!(error instanceof StatusEffectParseError)) {
+        throw error;
+      }
+      const source = isObject(record) ? nonEmptyText(record.name) : null;
+      issues.push(
+        makeIssue(
+          'error',
+          'statusEffect.schema',
+          error.detail,
+          error.path,
+          'statusEffects',
+          source ?? undefined,
+        ),
+      );
+    }
+  });
+}
+
 function validateMapGrids(
   records: unknown[] | undefined,
   issues: ValidationIssue[],
@@ -545,6 +575,7 @@ function isCompleteSnapshot(
 export function validateDatabase(snapshot: unknown): ValidationResult {
   const issues: ValidationIssue[] = [];
   const collections = validateCollections(snapshot, issues);
+  validateStatusEffects(collections.statusEffects, issues);
   validateMaps(collections.maps, issues);
   validateMapGrids(collections.mapGrids, issues);
   validateEventNodes(collections.specialEvents, issues);
