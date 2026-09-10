@@ -10,8 +10,10 @@ import {
   layerKey,
   sortedLayerKeys,
 } from '../../utils/mapIndex';
+import type { MapEditorController } from '../MapEditorController';
 
 interface LayersPanelProps {
+  controller: MapEditorController;
   editorState: EditorState;
   map: CarcerMapTemplate;
   onMapUpdate: (map: CarcerMapTemplate) => void;
@@ -52,7 +54,7 @@ export function LayersPanel(props: LayersPanelProps) {
   };
 
   const handleSelectLayer = (layer: string) => {
-    updateEditorState({ currentLevel: parseInt(layer) });
+    updateEditorState(props.controller, { currentLevel: parseInt(layer) });
   };
 
   const handleDeleteLayer = () => {
@@ -69,7 +71,7 @@ export function LayersPanel(props: LayersPanelProps) {
   const layerRowHeight = 34;
   const layerListMaxHeight = Math.min(
     sortedEntries.length * layerRowHeight,
-    120
+    120,
   );
 
   return (
@@ -88,7 +90,9 @@ export function LayersPanel(props: LayersPanelProps) {
         <input
           type="checkbox"
           checked={props.editorState.showGrid}
-          onChange={(e) => updateEditorState({ showGrid: e.target.checked })}
+          onChange={(e) =>
+            updateEditorState(props.controller, { showGrid: e.target.checked })
+          }
           style={{
             cursor: 'pointer',
             width: '16px',
@@ -113,13 +117,15 @@ export function LayersPanel(props: LayersPanelProps) {
           type="checkbox"
           checked={props.editorState.gridEditEnabled}
           onChange={(e) =>
-            updateEditorState({ gridEditEnabled: e.target.checked })
+            updateEditorState(props.controller, {
+              gridEditEnabled: e.target.checked,
+            })
           }
           style={{ cursor: 'pointer', width: '16px', height: '16px' }}
         />
         Edit whole grid
       </label>
-      <MapSearchAccordion map={props.map} />
+      <MapSearchAccordion controller={props.controller} map={props.map} />
       <div
         style={{
           marginTop: '8px',

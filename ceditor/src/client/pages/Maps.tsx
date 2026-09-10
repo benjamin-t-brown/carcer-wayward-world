@@ -20,6 +20,7 @@ import {
   getEditorState,
   renameEditorStateMap,
 } from '../tile-editor/editorState';
+import { MapEditorController } from '../tile-editor/MapEditorController';
 import { createTilesForLayer, prepareNewMapForEditor } from '../utils/mapIndex';
 import { findMapGridPlacement, getGridLayerSet } from '../utils/mapGridIndex';
 import {
@@ -61,12 +62,15 @@ interface OpenTab {
 const tabKey = (tab: OpenTab) =>
   tab.gridName ? `grid:${tab.gridName}` : `map:${tab.activeMapName}`;
 
-const createEditorStateMapForTabIfNotExists = (mapName: string) => {
+const createEditorStateMapForTabIfNotExists = (
+  controller: MapEditorController,
+  mapName: string,
+) => {
   if (!mapName) {
     return;
   }
-  if (!getEditorState().maps[mapName]) {
-    createEditorStateMap(mapName);
+  if (!getEditorState(controller).maps[mapName]) {
+    createEditorStateMap(controller, mapName);
   }
 };
 
@@ -110,6 +114,21 @@ export function Maps({ routeParams }: MapsProps = {}) {
   const isFirstPersistRef = useRef(true);
   const consumedMapParamRef = useRef(false);
   const [tabsHydrated, setTabsHydrated] = useState(false);
+  const [mapEditorController] = useState(() => new MapEditorController());
+  const controllerLifetimeRef = useRef(0);
+
+  useEffect(() => {
+    const generation = ++controllerLifetimeRef.current;
+    return () => {
+      queueMicrotask(() => {
+        // The generation changes if StrictMode immediately remounts the effect.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        if (controllerLifetimeRef.current === generation) {
+          mapEditorController.destroy();
+        }
+      });
+    };
+  }, [mapEditorController]);
 
   const mapByName = (name: string): CarcerMapTemplate | null =>
     maps.find((m) => m.name === name) ?? null;
@@ -129,7 +148,10 @@ export function Maps({ routeParams }: MapsProps = {}) {
 
   const setOpenTabs = (tabs: OpenTab[]) => {
     tabs.forEach((tab) => {
-      createEditorStateMapForTabIfNotExists(tab.activeMapName);
+      createEditorStateMapForTabIfNotExists(
+        mapEditorController,
+        tab.activeMapName,
+      );
     });
     _setOpenTabs(tabs);
   };
@@ -145,13 +167,14 @@ export function Maps({ routeParams }: MapsProps = {}) {
     if (!nextMapName) {
       return;
     }
-    createEditorStateMapForTabIfNotExists(nextMapName);
+    createEditorStateMapForTabIfNotExists(mapEditorController, nextMapName);
     if (previousMapName !== nextMapName) {
       if (stitchOffset && previousMap) {
         const placement = findMapGridPlacement(previousMapName, mapGrids);
         const slotTileW = placement?.grid.mapWidth ?? previousMap.width;
         const slotTileH = placement?.grid.mapHeight ?? previousMap.height;
         switchMapViewportPreservingStitch(
+          mapEditorController,
           previousMapName,
           nextMapName,
           stitchOffset,
@@ -159,10 +182,10 @@ export function Maps({ routeParams }: MapsProps = {}) {
           slotTileH * previousMap.spriteHeight,
         );
       } else {
-        switchMapViewport(previousMapName, nextMapName);
+        switchMapViewport(mapEditorController, previousMapName, nextMapName);
       }
     }
-    const es = getEditorState();
+    const es = getEditorState(mapEditorController);
     es.selectedMapName = nextMapName;
     // No stroke is in flight across a focus change.
     es.activePaintMapName = '';
@@ -194,7 +217,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
         );
       }
     } else if (previousMapName) {
-      saveViewportForMap(previousMapName);
+      saveViewportForMap(mapEditorController, previousMapName);
     }
     _setActiveTabIndex(index);
   };
@@ -259,7 +282,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
         );
         _setActiveTabIndex(existingIndex);
       }
-      getEditorState().selectedMapName = mapName;
+      getEditorState(mapEditorController).selectedMapName = mapName;
       return;
     }
 
@@ -269,7 +292,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
     ];
     setOpenTabs(newTabs);
     setActiveTabIndex(newTabs.length - 1, newTabs, stitchOffset);
-    getEditorState().selectedMapName = mapName;
+    getEditorState(mapEditorController).selectedMapName = mapName;
   };
 
   // Restore before paint so a direct refresh on #/editor/maps shows tabs immediately
@@ -284,7 +307,10 @@ export function Maps({ routeParams }: MapsProps = {}) {
 
     if (restoredTabs.length > 0 && restoredActiveIndex !== null) {
       restoredTabs.forEach((tab) => {
-        createEditorStateMapForTabIfNotExists(tab.activeMapName);
+        createEditorStateMapForTabIfNotExists(
+          mapEditorController,
+          tab.activeMapName,
+        );
       });
       _setOpenTabs(restoredTabs);
       setActiveTabIndex(restoredActiveIndex, restoredTabs);
@@ -444,11 +470,11 @@ export function Maps({ routeParams }: MapsProps = {}) {
 
     if (location) {
       setTimeout(() => {
-        if (!getEditorState().maps[mapName]) {
-          createEditorStateMap(mapName);
+        if (!getEditorState(mapEditorController).maps[mapName]) {
+          createEditorStateMap(mapEditorController, mapName);
         }
-        getEditorState().selectedMapName = mapName;
-        locateOnCurrentMap(mapData, location!);
+        getEditorState(mapEditorController).selectedMapName = mapName;
+        locateOnCurrentMap(mapEditorController, mapData, location!);
       }, 100);
     }
   };
@@ -485,7 +511,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
       gridNameForMap(mapName) === activeTab.gridName
     ) {
       setTabActiveMap(activeTabIndex!, mapName, openTabs, stitchOffset);
-      getEditorState().selectedMapName = mapName;
+      getEditorState(mapEditorController).selectedMapName = mapName;
       return;
     }
     openMap(mapName, stitchOffset);
@@ -531,7 +557,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
     // The map is now a cell of this grid: focus that grid's tab (opening it if
     // needed) and show the new map in it.
     const gridName = gridCreateRequest.gridName;
-    createEditorStateMapForTabIfNotExists(createdMap.name);
+    createEditorStateMapForTabIfNotExists(mapEditorController, createdMap.name);
     const existingIndex = openTabs.findIndex(
       (tab) => tab.gridName === gridName,
     );
@@ -550,7 +576,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
       setOpenTabs(nextTabs);
       setActiveTabIndex(nextTabs.length - 1, nextTabs);
     }
-    getEditorState().selectedMapName = createdMap.name;
+    getEditorState(mapEditorController).selectedMapName = createdMap.name;
     setGridCreateRequest(null);
 
     try {
@@ -590,6 +616,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
       const mapIndex = deleteConfirm.mapIndex;
       const deletedName = maps[mapIndex]?.name;
       setMaps(maps.filter((_, index) => index !== mapIndex));
+      if (deletedName) mapEditorController.removeMap(deletedName);
 
       // Close any tab whose current map was the one deleted.
       const newTabs = openTabs.filter(
@@ -650,7 +677,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
       if (!persistsGridRename) {
         setMapGrids(candidates.mapGrids);
       }
-      renameEditorStateMap(oldName, newName);
+      renameEditorStateMap(mapEditorController, oldName, newName);
       const newTabs = openTabs.map((tab) =>
         tab.activeMapName === oldName
           ? { ...tab, activeMapName: newName }
@@ -658,6 +685,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
       );
       setOpenTabs(newTabs);
     }
+    mapEditorController.bumpMapRevision(newName);
 
     if (save) {
       try {
@@ -718,8 +746,8 @@ export function Maps({ routeParams }: MapsProps = {}) {
     // The copy is not assigned to any grid, so it opens in its own tab next to
     // the current one.
     const dupTab: OpenTab = { gridName: null, activeMapName: duplicated.name };
-    createEditorStateMapForTabIfNotExists(duplicated.name);
-    getEditorState().selectedMapName = duplicated.name;
+    createEditorStateMapForTabIfNotExists(mapEditorController, duplicated.name);
+    getEditorState(mapEditorController).selectedMapName = duplicated.name;
 
     const newTabs = [...openTabs];
     let newActiveTabIndex: number;
@@ -811,13 +839,13 @@ export function Maps({ routeParams }: MapsProps = {}) {
   };
 
   const handleSaveAll = async () => {
-    const editorState = getEditorState();
+    const editorState = getEditorState(mapEditorController);
     const canvasMapName =
       editorState.activePaintMapName || editorState.selectedMapName;
     // A grid brush can touch multiple cached map blocks in one stroke. Flush
     // every materialized block at this level; uncached maps are a cheap no-op.
     for (const map of maps) {
-      commitCurrentLayer(map, editorState.currentLevel);
+      commitCurrentLayer(mapEditorController, map, editorState.currentLevel);
     }
     const canvasMap = maps.find((map) => map.name === canvasMapName);
     const mapsCandidate = prepareMapsSaveCandidate(maps, canvasMap);
@@ -1020,6 +1048,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
 
       <div className="editor-page-body">
         <TileEditor
+          controller={mapEditorController}
           map={activeMap ?? undefined}
           onMapUpdate={handleMapDataChange}
           onOpenMapAndSelectTile={(args: OpenMapAndSelectTileArgs) => {

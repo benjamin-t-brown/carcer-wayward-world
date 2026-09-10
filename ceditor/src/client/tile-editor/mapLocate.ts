@@ -1,14 +1,12 @@
 import { CarcerMapTemplate } from '../types/assets';
-import {
-  centerViewOnTile,
-  getTileList,
-} from './editorEvents';
+import { centerViewOnTile } from './editorEvents';
 import {
   getEditorState,
   setSoleSelectedTile,
   updateEditorState,
 } from './editorState';
-import { sortedLayerKeys, tileXY } from '../utils/mapIndex';
+import { tileXY } from '../utils/mapIndex';
+import type { MapEditorController } from './MapEditorController';
 
 export interface MapTileLocation {
   level: number;
@@ -24,23 +22,6 @@ export interface MapMarkerReference extends MapTileLocation {
 }
 
 const MAP_CANVAS_ID = 'map-canvas-canvas';
-
-function findOnMap(
-  map: CarcerMapTemplate,
-  predicate: (tile: ReturnType<typeof getTileList>[number]) => boolean
-): MapTileLocation | null {
-  for (const level of sortedLayerKeys(map)) {
-    const tiles = getTileList(map, level);
-    if (!tiles.length) {
-      continue;
-    }
-    const tileIndex = tiles.findIndex(predicate);
-    if (tileIndex >= 0) {
-      return { level, tileIndex };
-    }
-  }
-  return null;
-}
 
 /** Unique character names placed on any layer of the map (sorted). */
 export function collectCharacterNamesOnMap(map: CarcerMapTemplate): string[] {
@@ -70,7 +51,7 @@ export function collectMarkerNamesOnMap(map: CarcerMapTemplate): string[] {
 export function findTravelTriggerReferencesToMarker(
   destinationMap: CarcerMapTemplate,
   markerName: string,
-  allMaps: CarcerMapTemplate[]
+  allMaps: CarcerMapTemplate[],
 ): MapMarkerReference[] {
   const destMapName = destinationMap.name;
   const name = markerName.trim();
@@ -116,7 +97,7 @@ export function findTravelTriggerReferencesToMarker(
 /** First tile on a map that has this marker placed (markers list). */
 export function findMarkerOnMap(
   map: CarcerMapTemplate,
-  markerName: string
+  markerName: string,
 ): MapTileLocation | null {
   const name = markerName.trim();
   if (!name) {
@@ -131,7 +112,7 @@ export function findMarkerOnMap(
 
 export function findCharacterOnMap(
   map: CarcerMapTemplate,
-  characterName: string
+  characterName: string,
 ): MapTileLocation | null {
   const name = characterName.trim();
   if (!name) {
@@ -145,20 +126,21 @@ export function findCharacterOnMap(
 }
 
 export function locateOnCurrentMap(
+  controller: MapEditorController,
   map: CarcerMapTemplate,
-  location: MapTileLocation
+  location: MapTileLocation,
 ): boolean {
-  const mapName = getEditorState().selectedMapName;
+  const mapName = getEditorState(controller).selectedMapName;
   if (!mapName) {
     return false;
   }
 
-  updateEditorState({ currentLevel: location.level });
-  setSoleSelectedTile(mapName, location.tileIndex);
+  updateEditorState(controller, { currentLevel: location.level });
+  setSoleSelectedTile(controller, mapName, location.tileIndex);
 
   const canvas = document.getElementById(MAP_CANVAS_ID);
   if (canvas instanceof HTMLCanvasElement) {
-    centerViewOnTile(canvas, map, location.tileIndex);
+    centerViewOnTile(controller, canvas, map, location.tileIndex);
   }
 
   return true;

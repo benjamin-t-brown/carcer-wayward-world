@@ -17,12 +17,17 @@ import {
   TERRAIN_TILESET_NAME,
   terrainMetaKey,
 } from './terrainTool';
+import type { MapEditorController } from './MapEditorController';
 
 interface TerrainToolPanelProps {
+  controller: MapEditorController;
   editorState: EditorState;
 }
 
-export function TerrainToolPanel({ editorState }: TerrainToolPanelProps) {
+export function TerrainToolPanel({
+  controller,
+  editorState,
+}: TerrainToolPanelProps) {
   const { tilesets } = useAssets();
   const { spriteMap } = useSDL2WAssets();
 
@@ -91,7 +96,9 @@ export function TerrainToolPanel({ editorState }: TerrainToolPanelProps) {
               key={tag}
               type="button"
               title={TERRAIN_BORDER_TAG_LABELS[tag]}
-              onClick={() => updateEditorState({ selectedTerrainTag: tag })}
+              onClick={() =>
+                updateEditorState(controller, { selectedTerrainTag: tag })
+              }
               style={{
                 display: 'flex',
                 alignItems: 'center',

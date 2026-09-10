@@ -10,8 +10,10 @@ import {
   locateOnCurrentMap,
   type MapMarkerReference,
 } from '../../mapLocate';
+import type { MapEditorController } from '../../MapEditorController';
 
 interface MarkersSectionProps {
+  controller: MapEditorController;
   map: CarcerMapTemplate;
   maps: CarcerMapTemplate[];
   selectedTile: CarcerMapTileTemplate;
@@ -21,7 +23,7 @@ interface MarkersSectionProps {
 
 function formatReferenceLabel(
   ref: MapMarkerReference,
-  currentMapName: string
+  currentMapName: string,
 ): string {
   const position = `Layer ${ref.level} · (${ref.x}, ${ref.y})`;
   if (ref.sourceMapName === currentMapName) {
@@ -32,6 +34,7 @@ function formatReferenceLabel(
 
 function MarkerAccordionItem({
   markerName,
+  controller,
   map,
   maps,
   isOpen,
@@ -40,6 +43,7 @@ function MarkerAccordionItem({
   onOpenMapAndSelectTile,
 }: {
   markerName: string;
+  controller: MapEditorController;
   map: CarcerMapTemplate;
   maps: CarcerMapTemplate[];
   isOpen: boolean;
@@ -49,12 +53,12 @@ function MarkerAccordionItem({
 }) {
   const refs = useMemo(
     () => findTravelTriggerReferencesToMarker(map, markerName, maps),
-    [map, markerName, maps]
+    [map, markerName, maps],
   );
 
   const handleLocate = (ref: MapMarkerReference) => {
     if (ref.sourceMapName === map.name) {
-      locateOnCurrentMap(map, ref);
+      locateOnCurrentMap(controller, map, ref);
       return;
     }
     onOpenMapAndSelectTile?.({
@@ -121,8 +125,7 @@ function MarkerAccordionItem({
                   type="button"
                   onClick={() => handleLocate(ref)}
                   disabled={
-                    ref.sourceMapName !== map.name &&
-                    !onOpenMapAndSelectTile
+                    ref.sourceMapName !== map.name && !onOpenMapAndSelectTile
                   }
                 >
                   Locate
@@ -137,6 +140,7 @@ function MarkerAccordionItem({
 }
 
 export function MarkersSection({
+  controller,
   map,
   maps,
   selectedTile,
@@ -236,6 +240,7 @@ export function MarkersSection({
             <MarkerAccordionItem
               key={markerName + selectedTile.tileId}
               markerName={markerName}
+              controller={controller}
               map={map}
               maps={maps}
               isOpen={openMarker === markerName}
@@ -247,7 +252,7 @@ export function MarkersSection({
                 }
                 updateTile((tile) => {
                   tile.markers = (tile.markers || []).filter(
-                    (name) => name !== markerName
+                    (name) => name !== markerName,
                   );
                 });
               }}

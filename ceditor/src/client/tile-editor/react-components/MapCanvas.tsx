@@ -1,55 +1,30 @@
 import React, { useEffect } from 'react';
 
-const useResize = (cb: (width: number, height: number) => void) => {
-  return useEffect(() => {
-    let timeoutId: number | undefined;
-
-    const handleResize = () => {
-      if (timeoutId !== undefined) {
-        clearTimeout(timeoutId);
-      }
-      timeoutId = window.setTimeout(() => {
-        cb(window.innerWidth, window.innerHeight);
-      }, 300);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      if (timeoutId !== undefined) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, []);
-};
-
 export const MapCanvas = (props: {
   width: number;
   height: number;
   canvasRef: React.RefObject<HTMLCanvasElement>;
 }) => {
-  useResize((width, height) => {
-    const canvas = props.canvasRef.current;
-    if (canvas) {
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.imageSmoothingEnabled = false;
-      }
-      canvas.style.imageRendering = 'pixelated';
-    }
-  });
   useEffect(() => {
     const canvas = props.canvasRef.current;
-    if (canvas) {
-      canvas.style.imageRendering = 'pixelated';
+    const container = canvas?.parentElement;
+    if (!canvas || !container) return;
+
+    const resize = () => {
+      const width = container.clientWidth || props.width;
+      const height = container.clientHeight || props.height;
+      if (canvas.width !== width) canvas.width = width;
+      if (canvas.height !== height) canvas.height = height;
       const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.imageSmoothingEnabled = false;
-      }
-    }
-  }, []);
+      if (ctx) ctx.imageSmoothingEnabled = false;
+      canvas.style.imageRendering = 'pixelated';
+    };
+
+    resize();
+    const observer = new ResizeObserver(resize);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [props.canvasRef, props.height, props.width]);
   return (
     <div
       id="map-canvas"
@@ -66,8 +41,8 @@ export const MapCanvas = (props: {
       <canvas
         id="map-canvas-canvas"
         ref={props.canvasRef}
-        width={1600}
-        height={1600}
+        width={props.width}
+        height={props.height}
       />
     </div>
   );

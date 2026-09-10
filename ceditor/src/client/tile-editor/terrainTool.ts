@@ -9,6 +9,7 @@ import {
 } from '../types/assets';
 import { EditorState, EditorStateMap, getEditorStateMap } from './editorState';
 import { getTileList } from './editorEvents';
+import type { MapEditorController } from './MapEditorController';
 
 export const TERRAIN_TILESET_NAME = 'terrain_borders';
 
@@ -226,7 +227,7 @@ function getAdjacentTileInd(
 
   switch (location) {
     case 'nw':
-      adjX = x - 1; 
+      adjX = x - 1;
       adjY = y - 1;
       break;
     case 'ne':
@@ -257,12 +258,7 @@ function getAdjacentTileInd(
       throw new Error(`Invalid location: ${location}`);
   }
 
-  if (
-    adjX < 0 ||
-    adjX >= width ||
-    adjY < 0 ||
-    adjY >= height
-  ) {
+  if (adjX < 0 || adjX >= width || adjY < 0 || adjY >= height) {
     return -1;
   }
 
@@ -275,6 +271,7 @@ export type TerrainPaintTileChange = {
 };
 
 export function getTileChangesForPaintingTerrainAt(
+  controller: MapEditorController,
   mapData: CarcerMapTemplate,
   editorState: EditorState,
   mapState: EditorStateMap,
@@ -288,7 +285,7 @@ export function getTileChangesForPaintingTerrainAt(
     return [];
   }
 
-  const mapTiles = getTileList(mapData, editorState.currentLevel);
+  const mapTiles = getTileList(controller, mapData, editorState.currentLevel);
   const tilesToChange: {
     ind: number;
     tileId: number;

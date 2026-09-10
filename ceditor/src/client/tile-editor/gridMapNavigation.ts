@@ -2,7 +2,6 @@ import { CarcerMapTemplate, MapGridTemplate } from '../types/assets';
 import { snapPixelArtPanOffset } from '../utils/draw';
 import {
   findMapGridPlacement,
-  getGridAdjacentSlots,
   GridAdjacentSlot,
   isGridSlotNavigable,
   MapGridPlacement,
@@ -51,9 +50,7 @@ export function canvasToScaledMapOrigin(
 
   return {
     originX:
-      panX +
-      (canvas.width * scale) / 2 -
-      (map.width * spriteWidth * scale) / 2,
+      panX + (canvas.width * scale) / 2 - (map.width * spriteWidth * scale) / 2,
     originY:
       panY +
       (canvas.height * scale) / 2 -
@@ -85,18 +82,16 @@ export function findAdjacentGridSlotAtCanvasPoint(args: {
   map: CarcerMapTemplate;
   mapGrids: MapGridTemplate[];
   maps: CarcerMapTemplate[];
+  mapsByName?: ReadonlyMap<string, CarcerMapTemplate>;
+  placement?: MapGridPlacement | null;
   translateX: number;
   translateY: number;
   scale: number;
-  /** How many grid rings out to accept clicks on; matches the render radius. */
-  radius?: number;
 }): GridSlotHit | null {
-  const mapsByName: Record<string, CarcerMapTemplate> = {};
-  for (const entry of args.maps) {
-    mapsByName[entry.name] = entry;
-  }
-
-  const placement = findMapGridPlacement(args.map.name, args.mapGrids);
+  const placement =
+    args.placement === undefined
+      ? findMapGridPlacement(args.map.name, args.mapGrids)
+      : args.placement;
   if (!placement) {
     return null;
   }
@@ -117,23 +112,46 @@ export function findAdjacentGridSlotAtCanvasPoint(args: {
     args.scale,
   );
 
-  for (const slot of getGridAdjacentSlots(
-    placement,
-    mapsByName,
-    args.radius ?? 1,
-  )) {
-    if (!isGridSlotNavigable(slot)) {
-      continue;
-    }
-    const hotspot = getAdjacentSlotHotspotRect(slot, slotWidth, slotHeight);
-    if (
-      localX >= hotspot.x &&
-      localX < hotspot.x + hotspot.w &&
-      localY >= hotspot.y &&
-      localY < hotspot.y + hotspot.h
-    ) {
-      return { slot, placement };
-    }
+  const offsetX = Math.floor(localX / slotWidth);
+  const offsetY = Math.floor(localY / slotHeight);
+  if (offsetX === 0 && offsetY === 0) {
+    return null;
+  }
+
+  const cellX = placement.cellX + offsetX;
+  const cellY = placement.cellY + offsetY;
+  if (
+    cellX < 0 ||
+    cellX >= placement.grid.gridWidth ||
+    cellY < 0 ||
+    cellY >= placement.grid.gridHeight
+  ) {
+    return null;
+  }
+
+  const mapName = placement.grid.cells[cellY]?.[cellX]?.trim() ?? '';
+  const map = mapName
+    ? (args.mapsByName?.get(mapName) ??
+      args.maps.find((entry) => entry.name === mapName))
+    : undefined;
+  const slot: GridAdjacentSlot = {
+    offsetX,
+    offsetY,
+    cellX,
+    cellY,
+    mapName,
+    map,
+  };
+  if (!isGridSlotNavigable(slot)) return null;
+
+  const hotspot = getAdjacentSlotHotspotRect(slot, slotWidth, slotHeight);
+  if (
+    localX >= hotspot.x &&
+    localX < hotspot.x + hotspot.w &&
+    localY >= hotspot.y &&
+    localY < hotspot.y + hotspot.h
+  ) {
+    return { slot, placement };
   }
 
   return null;

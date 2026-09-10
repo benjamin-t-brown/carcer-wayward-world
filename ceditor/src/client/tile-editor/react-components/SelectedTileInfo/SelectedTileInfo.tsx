@@ -1,14 +1,12 @@
-import { CarcerMapTemplate, CarcerMapTileTemplate } from '../../../types/assets';
+import {
+  CarcerMapTemplate,
+  CarcerMapTileTemplate,
+} from '../../../types/assets';
 import { useSDL2WAssets } from '../../../contexts/SDL2WAssetsContext';
 import { useAssets } from '../../../contexts/AssetsContext';
 import { getSpriteNameFromTile } from '../../../utils/draw';
 import { Sprite } from '../../../elements/Sprite';
-import {
-  EditorState,
-  getEditorState,
-  getEditorStateMap,
-  bumpMapDataRevision,
-} from '../../editorState';
+import { EditorState, getEditorStateMap } from '../../editorState';
 import { ItemSearchInput } from './ItemSearchInput';
 import { CharacterSearchInput } from './CharacterSearchInput';
 import { MarkersSection } from './MarkersSection';
@@ -20,8 +18,10 @@ import { TileOverridesSection } from './TileOverridesSection';
 import { OpenMapAndSelectTileArgs } from '../../TileEditor';
 import { commitCurrentLayer, getTileList } from '../../editorEvents';
 import { addMapTileItemEntry } from '../../mapTileItems';
+import type { MapEditorController } from '../../MapEditorController';
 
 interface SelectedTileInfoProps {
+  controller: MapEditorController;
   editorState: EditorState;
   map: CarcerMapTemplate;
   onMapUpdate: (map: CarcerMapTemplate) => void;
@@ -29,6 +29,7 @@ interface SelectedTileInfoProps {
 }
 
 export function SelectedTileInfo({
+  controller,
   editorState,
   map,
   onMapUpdate,
@@ -37,8 +38,9 @@ export function SelectedTileInfo({
   const { spriteMap } = useSDL2WAssets();
   const { characters, items, gameEvents, maps, tilesets } = useAssets();
   const selectedTileInd =
-    getEditorStateMap(editorState.selectedMapName)?.selectedTileInd ?? -1;
-  const mapTiles = getTileList(map);
+    getEditorStateMap(controller, editorState.selectedMapName)
+      ?.selectedTileInd ?? -1;
+  const mapTiles = getTileList(controller, map);
 
   const updateTile = (updater: (tile: CarcerMapTileTemplate) => void) => {
     if (selectedTileInd < 0 || selectedTileInd >= mapTiles.length) {
@@ -48,14 +50,16 @@ export function SelectedTileInfo({
     const updatedTile = structuredClone(mapTiles[selectedTileInd]);
     updater(updatedTile);
     mapTiles[selectedTileInd] = updatedTile;
-    commitCurrentLayer(map, getEditorState().currentLevel);
-    bumpMapDataRevision(map.name);
+    commitCurrentLayer(controller, map, editorState.currentLevel);
+    controller.bumpMapRevision(map.name);
     onMapUpdate({
       ...map,
       eventTriggers: map.eventTriggers.map((entry) => ({ ...entry })),
       travelTriggers: map.travelTriggers.map((entry) => ({ ...entry })),
     });
-    (window as unknown as { reRenderTileEditor?: () => void }).reRenderTileEditor?.();
+    (
+      window as unknown as { reRenderTileEditor?: () => void }
+    ).reRenderTileEditor?.();
   };
 
   if (selectedTileInd < 0 || selectedTileInd >= mapTiles.length) {
@@ -182,8 +186,8 @@ export function SelectedTileInfo({
             lineHeight: 1.4,
           }}
         >
-          This tile has both an event trigger and a travel trigger. At runtime the
-          event trigger runs and the travel trigger is ignored.
+          This tile has both an event trigger and a travel trigger. At runtime
+          the event trigger runs and the travel trigger is ignored.
         </div>
       )}
 
@@ -275,7 +279,7 @@ export function SelectedTileInfo({
               tile.items = addMapTileItemEntry(
                 tile.items,
                 itemName,
-                Boolean(template?.stackable)
+                Boolean(template?.stackable),
               );
             });
           }}
@@ -289,6 +293,7 @@ export function SelectedTileInfo({
       </div>
 
       <MarkersSection
+        controller={controller}
         map={map}
         maps={maps}
         selectedTile={selectedTile}

@@ -1,7 +1,4 @@
-import {
-  CarcerMapTemplate,
-  MapGridTemplate,
-} from '../types/assets';
+import { CarcerMapTemplate, MapGridTemplate } from '../types/assets';
 
 export interface MapGridPlacement {
   grid: MapGridTemplate;
@@ -139,6 +136,18 @@ export interface GridBrushCellTarget {
   tileIndex: number;
 }
 
+export type MapByNameLookup =
+  Record<string, CarcerMapTemplate> | ReadonlyMap<string, CarcerMapTemplate>;
+
+function mapFromLookup(
+  mapsByName: MapByNameLookup,
+  name: string,
+): CarcerMapTemplate | undefined {
+  return mapsByName instanceof Map
+    ? mapsByName.get(name)
+    : (mapsByName as Record<string, CarcerMapTemplate>)[name];
+}
+
 /**
  * Resolve a tile position given relative to `anchorMap`'s top-left (which may be
  * negative or past its edges) to the grid block that actually contains it,
@@ -151,7 +160,8 @@ export function resolveGridBrushCell(
   localX: number,
   localY: number,
   mapGrids: MapGridTemplate[],
-  mapsByName: Record<string, CarcerMapTemplate>,
+  mapsByName: MapByNameLookup,
+  knownPlacement?: MapGridPlacement | null,
 ): GridBrushCellTarget | null {
   if (
     localX >= 0 &&
@@ -162,7 +172,10 @@ export function resolveGridBrushCell(
     return { map: anchorMap, tileIndex: localY * anchorMap.width + localX };
   }
 
-  const placement = findMapGridPlacement(anchorMap.name, mapGrids);
+  const placement =
+    knownPlacement === undefined
+      ? findMapGridPlacement(anchorMap.name, mapGrids)
+      : knownPlacement;
   if (!placement) {
     return null;
   }
@@ -186,8 +199,16 @@ export function resolveGridBrushCell(
   }
 
   const name = placement.grid.cells[cellY]?.[cellX]?.trim() ?? '';
-  const map = name ? mapsByName[name] : undefined;
+  const map = name ? mapFromLookup(mapsByName, name) : undefined;
   if (!map) {
+    return null;
+  }
+  if (
+    map.width !== placement.grid.mapWidth ||
+    map.height !== placement.grid.mapHeight ||
+    map.spriteWidth !== anchorMap.spriteWidth ||
+    map.spriteHeight !== anchorMap.spriteHeight
+  ) {
     return null;
   }
   const inX = localX - cellDX * cellW;
@@ -242,8 +263,8 @@ export function assignMapToGridCell(
     }
     const cells = grid.cells.map((row, rowY) =>
       row.map((cell, colX) =>
-        rowY === cellY && colX === cellX ? mapName : cell
-      )
+        rowY === cellY && colX === cellX ? mapName : cell,
+      ),
     );
     return { ...grid, cells };
   });
@@ -269,7 +290,7 @@ export function renameMapInGrids(
           return trimmedNew;
         }
         return cell;
-      })
+      }),
     );
     return changed ? { ...grid, cells } : grid;
   });

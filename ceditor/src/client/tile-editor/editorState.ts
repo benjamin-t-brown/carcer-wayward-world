@@ -1,25 +1,12 @@
 import {
-  CarcerMapTemplate,
-  CarcerMapTileTemplate,
-  TilesetTemplate,
   TileTerrainBorderTag,
+  type CarcerMapTemplate,
+  type CarcerMapTileTemplate,
+  type TilesetTemplate,
 } from '../types/assets';
-import { PaintActionType, PaintAction } from './paintTools';
-import { FloorBrushData } from './renderState';
-import { TerrainPaintTileChange } from './terrainTool';
-import {
-  markRenderDirty,
-  registerMapDataRevision,
-  renameMapDataRevision,
-} from './mapEditorSignals';
-
-export {
-  bumpMapDataRevision,
-  clearRenderDirty,
-  getMapDataRevision,
-  isRenderDirty,
-  markRenderDirty,
-} from './mapEditorSignals';
+import type { PaintActionType, PaintAction } from './paintTools';
+import type { FloorBrushData } from './renderState';
+import type { TerrainPaintTileChange } from './terrainTool';
 
 export interface EditorStateMap {
   selectedTileInd: number;
@@ -59,21 +46,8 @@ export interface EditorState {
   maps: Record<string, EditorStateMap>;
   tilesets: TilesetTemplate[];
   hoveredGridAdjacentSlot: { offsetX: number; offsetY: number } | null;
-  /**
-   * How many grid cells out from the current map the editor paints surrounding
-   * maps for. 1 = the eight immediate neighbours; higher shows more context at
-   * a rendering cost. Navigation is unaffected. Tweak live via
-   * `editorState.gridRenderRadius`.
-   */
-  gridRenderRadius: number;
-  /**
-   * When true, maps within `gridEditRadius` of the focused map are painted in
-   * place and can be edited without switching tabs. Outside that radius (up to
-   * `gridRenderRadius`) maps are still drawn as dimmed, read-only context.
-   */
+  /** When true, every loaded grid partition in view can be edited in place. */
   gridEditEnabled: boolean;
-  /** Chebyshev radius of editable neighbours; must be <= gridRenderRadius. */
-  gridEditRadius: number;
   /**
    * The map a paint stroke is currently writing to. Empty except between
    * mousedown and mouseup of a stroke that landed on a neighbour block; while
@@ -90,7 +64,7 @@ export interface EditorState {
   gridUndoOrder: string[];
 }
 
-const editorState: EditorState = {
+export const createInitialEditorState = (): EditorState => ({
   selectedMapName: '',
   selectedTileIndexInTileset: -1,
   selectedTilesetName: '',
@@ -109,54 +83,59 @@ const editorState: EditorState = {
   maps: {},
   tilesets: [],
   hoveredGridAdjacentSlot: null,
-  gridRenderRadius: 2,
   gridEditEnabled: true,
-  gridEditRadius: 1,
   activePaintMapName: '',
   hoveredGridMapName: '',
   gridUndoOrder: [],
-};
-export const getEditorState = () => editorState;
+});
 
-export const updateEditorState = (state: Partial<EditorState>) => {
-  Object.assign(editorState, { ...getEditorState(), ...state });
-  markRenderDirty();
-  (window as any).reRenderTileEditor();
-};
-export const updateEditorStateNoReRender = (state: Partial<EditorState>) => {
-  Object.assign(editorState, { ...getEditorState(), ...state });
-};
+export interface EditorStateController {
+  getState(): EditorState;
+  notify(): void;
+  update(state: Partial<EditorState>, notify?: boolean): void;
+  getMapState(mapName: string): EditorStateMap | undefined;
+  ensureMap(mapName: string): EditorStateMap;
+  updateMap(
+    mapName: string,
+    state: Partial<EditorStateMap>,
+    notify?: boolean,
+  ): void;
+  renameMap(oldName: string, newName: string): void;
+}
+
+export const getEditorState = (controller: EditorStateController) =>
+  controller.getState();
+
+export const updateEditorState = (
+  controller: EditorStateController,
+  state: Partial<EditorState>,
+) => controller.update(state);
+
+export const updateEditorStateNoReRender = (
+  controller: EditorStateController,
+  state: Partial<EditorState>,
+) => controller.update(state, false);
+
 export const getEditorStateMap = (
-  mapName: string
+  controller: EditorStateController,
+  mapName: string,
 ): EditorStateMap | undefined => {
-  const map = getEditorState().maps[mapName];
-  return map;
+  return controller.getMapState(mapName);
 };
 export const updateEditorStateMap = (
+  controller: EditorStateController,
   mapName: string,
-  state: Partial<EditorStateMap>
-) => {
-  const map = getEditorStateMap(mapName);
-  if (map) {
-    // console.log('updateEditorStateMap', mapName, state);
-    Object.assign(map, { ...map, ...state });
-    markRenderDirty();
-    (window as any).reRenderTileEditor();
-  }
-};
+  state: Partial<EditorStateMap>,
+) => controller.updateMap(mapName, state);
 export const updateEditorStateMapNoReRender = (
+  controller: EditorStateController,
   mapName: string,
-  state: Partial<EditorStateMap>
-) => {
-  const map = getEditorStateMap(mapName);
-  if (map) {
-    Object.assign(map, { ...map, ...state });
-  }
-};
+  state: Partial<EditorStateMap>,
+) => controller.updateMap(mapName, state, false);
 
 export const findEditorStateMap = (
   editorState: EditorState,
-  mapName: string
+  mapName: string,
 ) => {
   const map = editorState.maps[mapName];
   if (!map) {
@@ -165,23 +144,16 @@ export const findEditorStateMap = (
   return map;
 };
 
-export const createEditorStateMap = (mapName: string) => {
-  const map: EditorStateMap = {
-    selectedTileInd: -1,
-    hoveredTileIndex: -1,
-    hoveredTileData: { x: -1, y: -1, ind: -1 },
-    undoHistory: [],
-    undoIndex: 0,
-  };
-  getEditorState().maps[mapName] = map;
-  registerMapDataRevision(mapName);
-  return map;
-};
+export const createEditorStateMap = (
+  controller: EditorStateController,
+  mapName: string,
+) => controller.ensureMap(mapName);
 
 /** Per-map editor state for `mapName`, creating it if it does not exist yet. */
-export const ensureEditorStateMap = (mapName: string): EditorStateMap => {
-  return getEditorState().maps[mapName] ?? createEditorStateMap(mapName);
-};
+export const ensureEditorStateMap = (
+  controller: EditorStateController,
+  mapName: string,
+): EditorStateMap => controller.ensureMap(mapName);
 
 /**
  * The map paint state should be read from / written to right now: the stroke's
@@ -192,11 +164,14 @@ export const getPaintMapName = (state: EditorState): string =>
   state.activePaintMapName || state.selectedMapName;
 
 /** Record that a stroke completed on `mapName` for grid-wide undo ordering. */
-export const pushGridUndo = (mapName: string): void => {
+export const pushGridUndo = (
+  controller: EditorStateController,
+  mapName: string,
+): void => {
   if (!mapName) {
     return;
   }
-  const order = getEditorState().gridUndoOrder;
+  const order = controller.getState().gridUndoOrder;
   order.push(mapName);
   const MAX = 400;
   if (order.length > MAX) {
@@ -204,60 +179,49 @@ export const pushGridUndo = (mapName: string): void => {
   }
 };
 
-export const renameEditorStateMap = (oldName: string, newName: string) => {
-  const trimmedOld = oldName.trim();
-  const trimmedNew = newName.trim();
-  if (!trimmedOld || !trimmedNew || trimmedOld === trimmedNew) {
-    return;
-  }
-
-  const state = getEditorState();
-  const existing = state.maps[trimmedOld];
-  if (!existing) {
-    return;
-  }
-
-  state.maps[trimmedNew] = existing;
-  delete state.maps[trimmedOld];
-  renameMapDataRevision(trimmedOld, trimmedNew);
-  if (state.selectedMapName === trimmedOld) {
-    state.selectedMapName = trimmedNew;
-  }
-  (window as any).reRenderTileEditor();
-};
+export const renameEditorStateMap = (
+  controller: EditorStateController,
+  oldName: string,
+  newName: string,
+) => controller.renameMap(oldName, newName);
 
 /**
  * There is one selected tile across the whole grid. Set it on `mapName` and
  * clear it on every other block, so a right-click / paint on a neighbour block
  * doesn't leave a second, un-clearable selection rect behind.
  */
-export const setSoleSelectedTile = (mapName: string, tileInd: number): void => {
-  const maps = getEditorState().maps;
+export const setSoleSelectedTile = (
+  controller: EditorStateController,
+  mapName: string,
+  tileInd: number,
+): void => {
+  const maps = controller.getState().maps;
   for (const name of Object.keys(maps)) {
     if (name !== mapName && maps[name].selectedTileInd !== -1) {
       maps[name].selectedTileInd = -1;
     }
   }
-  ensureEditorStateMap(mapName).selectedTileInd = tileInd;
-  markRenderDirty();
-  (window as any).reRenderTileEditor?.();
+  controller.ensureMap(mapName).selectedTileInd = tileInd;
+  controller.notify();
 };
 
 /** Clear the selected-tile rect on every block (Escape). */
-export const clearAllSelectedTiles = (): void => {
-  const maps = getEditorState().maps;
+export const clearAllSelectedTiles = (
+  controller: EditorStateController,
+): void => {
+  const maps = controller.getState().maps;
   for (const name of Object.keys(maps)) {
     if (maps[name].selectedTileInd !== -1) {
       maps[name].selectedTileInd = -1;
     }
   }
-  markRenderDirty();
-  (window as any).reRenderTileEditor?.();
+  controller.notify();
 };
 
-export const getCurrentSelectedTileId = () => {
-  const selectedTileIndex = getEditorState().selectedTileIndexInTileset ?? -1;
-  const selectedTilesetName = getEditorState().selectedTilesetName ?? '';
+export const getCurrentSelectedTileId = (controller: EditorStateController) => {
+  const selectedTileIndex =
+    controller.getState().selectedTileIndexInTileset ?? -1;
+  const selectedTilesetName = controller.getState().selectedTilesetName ?? '';
 
   if (!selectedTilesetName || selectedTileIndex === -1) {
     return 0;
@@ -266,12 +230,13 @@ export const getCurrentSelectedTileId = () => {
   return selectedTilesetName + '_' + selectedTileIndex;
 };
 
-export const setCurrentPaintAction = (paintAction: PaintActionType) => {
-  updateEditorState({ currentPaintAction: paintAction });
+export const setCurrentPaintAction = (
+  controller: EditorStateController,
+  paintAction: PaintActionType,
+) => {
+  controller.update({ currentPaintAction: paintAction });
 };
 
-export const getCurrentPaintAction = () => {
-  return getEditorState().currentPaintAction;
+export const getCurrentPaintAction = (controller: EditorStateController) => {
+  return controller.getState().currentPaintAction;
 };
-
-export { createTilesForLayer } from '../utils/mapIndex';

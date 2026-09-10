@@ -1,41 +1,32 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useSyncExternalStore } from 'react';
 import { CarcerMapTemplate } from '../types/assets';
-import { useRenderLoop } from '../hooks/useRenderLoop';
 import { MapCanvas } from './react-components/MapCanvas';
 import {
   GridNavigateStitchOffset,
   GridSlotCreateRequest,
   initPanzoom,
-  isCanvasInteracting,
   setGridNavigationHandlers,
   unInitPanzoom,
 } from './editorEvents';
 import { loop } from './loop';
-import {
-  clearRenderDirty,
-  EditorState,
-  getEditorState,
-  isRenderDirty,
-  markRenderDirty,
-} from './editorState';
-import { getCurrentAction } from './paintTools';
 import { TilePicker } from './react-components/TilePicker';
 import { ToolsPanel } from './react-components/ToolsPanel';
 import { MapToolsOverlay } from './react-components/MapToolsOverlay';
-import { useReRender } from '../hooks/useReRender';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { useAssets } from '../contexts/AssetsContext';
 import { undo } from './paintTools';
 import { LayersPanel } from './react-components/LayersPanel';
 import { TerrainToolPanel } from './TerrainToolPanel';
+import { MapEditorController } from './MapEditorController';
 
 interface TileEditorProps {
+  controller: MapEditorController;
   map?: CarcerMapTemplate;
   onMapUpdate: (map: CarcerMapTemplate) => void;
   onOpenMapAndSelectTile?: (args: OpenMapAndSelectTileArgs) => void;
   onNavigateToGridMap?: (
     mapName: string,
-    stitchOffset: GridNavigateStitchOffset
+    stitchOffset: GridNavigateStitchOffset,
   ) => void;
   onCreateGridMap?: (request: GridSlotCreateRequest) => void;
 }
@@ -47,15 +38,8 @@ export interface OpenMapAndSelectTileArgs {
   pos?: { x: number; y: number };
 }
 
-let prevTs = performance.now();
-// The render loop only repaints when something changed; these bound how hard it
-// works when it does (cap the frame rate on high-refresh displays) and how
-// stale an idle canvas can get (a slow heartbeat catches async sprite loads).
-const MIN_FRAME_MS = 1000 / 60;
-const IDLE_HEARTBEAT_MS = 500;
-let lastRenderTs = 0;
-
 export function TileEditor({
+  controller,
   map,
   onMapUpdate,
   onOpenMapAndSelectTile,
@@ -63,8 +47,6 @@ export function TileEditor({
   onCreateGridMap,
 }: TileEditorProps) {
   const mapCanvasRef = useRef<HTMLCanvasElement>(null);
-  const mapRef = useRef<CarcerMapTemplate | undefined>(undefined);
-  const editorState = useRef<EditorState | undefined>(undefined);
   const { sprites, spriteMap } = useSDL2WAssets();
   const { tilesets, characters, items, gameEvents, maps, mapGrids } =
     useAssets();
@@ -74,7 +56,26 @@ export function TileEditor({
     onNavigateToGridMap,
     onCreateGridMap,
   });
-  const reRender = useReRender();
+  const renderDataRef = useRef({
+    map,
+    sprites,
+    spriteMap,
+    tilesets,
+    characters,
+    items,
+    gameEvents,
+    maps,
+    mapGrids,
+    onMapUpdate,
+  });
+  const hasMap = Boolean(map);
+
+  useSyncExternalStore(
+    controller.subscribe,
+    controller.getSnapshot,
+    controller.getSnapshot,
+  );
+  const editorState = controller.getState();
 
   gridNavigationRef.current = {
     maps,
@@ -82,154 +83,111 @@ export function TileEditor({
     onNavigateToGridMap,
     onCreateGridMap,
   };
-
-  // console.log('re render tile editor');
-
-  // hack im lazy
-  (window as any).reRenderTileEditor = () => {
-    markRenderDirty();
-    reRender();
-  };
-
-  useEffect(() => {
-    mapRef.current = map;
-  }, [map]);
-  useEffect(() => {
-    editorState.current = getEditorState();
-    editorState.current.tilesets = tilesets;
-  }, [tilesets]);
-
-  // Any change to what the canvas draws from must trigger at least one repaint,
-  // since the loop is otherwise idle.
-  useEffect(() => {
-    markRenderDirty();
-  }, [
+  renderDataRef.current = {
     map,
-    tilesets,
     sprites,
     spriteMap,
+    tilesets,
     characters,
     items,
     gameEvents,
     maps,
     mapGrids,
-  ]);
+    onMapUpdate,
+  };
 
   useEffect(() => {
-    console.log('initPanzoom');
-    initPanzoom({
-      getCanvas: () => mapCanvasRef.current as HTMLCanvasElement,
-      getMapData: () => mapRef.current as CarcerMapTemplate,
-      getEditorState: () => editorState.current as EditorState,
-      getTilesets: () => tilesets,
+    if (controller.getState().tilesets !== tilesets) {
+      controller.update({ tilesets });
+    }
+  }, [controller, tilesets]);
+
+  useEffect(() => {
+    const canvas = mapCanvasRef.current;
+    if (!canvas || !renderDataRef.current.map) {
+      return;
+    }
+
+    const getMap = () => renderDataRef.current.map as CarcerMapTemplate;
+    const handleUndo = () => {
+      const state = controller.getState();
+      const order = state.gridUndoOrder;
+      const targetName =
+        order.length > 0
+          ? order[order.length - 1]
+          : (renderDataRef.current.map?.name ?? '');
+      const targetMap =
+        renderDataRef.current.maps.find((entry) => entry.name === targetName) ??
+        renderDataRef.current.map;
+      if (targetMap && undo(controller, targetMap, state, targetMap.name)) {
+        if (order.length > 0) order.pop();
+        renderDataRef.current.onMapUpdate({ ...targetMap });
+      }
+    };
+
+    initPanzoom(controller, {
+      controller,
+      getCanvas: () => canvas,
+      getMapData: getMap,
+      getEditorState: controller.getState,
+      getTilesets: () => renderDataRef.current.tilesets,
+      onUndo: handleUndo,
+      onMapUpdate: (updatedMap) =>
+        renderDataRef.current.onMapUpdate(updatedMap),
     });
-    setGridNavigationHandlers({
+    setGridNavigationHandlers(controller, {
       getMaps: () => gridNavigationRef.current.maps,
       getMapGrids: () => gridNavigationRef.current.mapGrids,
+      getDocumentIndex: () => {
+        const data = renderDataRef.current;
+        return controller.getDocumentIndex({
+          characters: data.characters,
+          items: data.items,
+          tilesets: data.tilesets,
+          gameEvents: data.gameEvents,
+          maps: data.maps,
+          mapGrids: data.mapGrids,
+        });
+      },
       onNavigateToGridMap: (mapName, stitchOffset) => {
-        gridNavigationRef.current.onNavigateToGridMap?.(
-          mapName,
-          stitchOffset
-        );
+        gridNavigationRef.current.onNavigateToGridMap?.(mapName, stitchOffset);
       },
       onCreateGridMap: (request) => {
         gridNavigationRef.current.onCreateGridMap?.(request);
       },
     });
-    return () => {
-      console.log('unInitPanzoom');
-      setGridNavigationHandlers(null);
-      unInitPanzoom();
-    };
-  }, []);
 
-  // Handle Ctrl+Z for undo
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Check if Ctrl+Z (or Cmd+Z on Mac) is pressed
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        // Check if we're not focused on an input field
-        const activeElement = document.activeElement;
-        const isInputFocused =
-          activeElement &&
-          (activeElement.tagName === 'INPUT' ||
-            activeElement.tagName === 'TEXTAREA' ||
-            activeElement.getAttribute('contenteditable') === 'true');
-
-        if (!isInputFocused && editorState.current) {
-          e.preventDefault();
-          // Undo the most recent stroke anywhere in the grid, not just the
-          // focused map. Falls back to the focused map when nothing is logged.
-          const order = editorState.current.gridUndoOrder;
-          const targetName =
-            order.length > 0
-              ? order[order.length - 1]
-              : mapRef.current?.name ?? '';
-          const targetMap =
-            maps.find((m) => m.name === targetName) ?? mapRef.current;
-          if (targetMap) {
-            const success = undo(
-              targetMap,
-              editorState.current,
-              targetMap.name
-            );
-            if (success) {
-              if (order.length > 0) {
-                order.pop();
-              }
-              onMapUpdate({ ...targetMap });
-            }
-          }
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [onMapUpdate, maps]);
-
-  useRenderLoop((ts) => {
-    const active =
-      isRenderDirty() ||
-      isCanvasInteracting() ||
-      getCurrentAction() !== null;
-    // Nothing changed and no heartbeat due: do no work this frame.
-    if (!active && ts - lastRenderTs < IDLE_HEARTBEAT_MS) {
-      return;
-    }
-    // Cap the frame rate so a 144Hz display doesn't burn a core (and other
-    // browser tabs) redrawing far faster than a tile editor needs.
-    if (ts - lastRenderTs < MIN_FRAME_MS) {
-      return;
-    }
-    lastRenderTs = ts;
-    clearRenderDirty();
-
-    if (mapCanvasRef.current && mapRef.current && editorState.current) {
+    controller.start((_timestamp, elapsedMs) => {
+      const data = renderDataRef.current;
+      if (!data.map) return;
       loop(
+        controller,
         {
-          getCanvas: () => mapCanvasRef.current as HTMLCanvasElement,
-          getMapData: () => mapRef.current as CarcerMapTemplate,
-          getEditorState: () => editorState.current as EditorState,
-          getSprites: () => sprites,
-          getSpriteMap: () => spriteMap,
-          getTilesets: () => tilesets,
+          getCanvas: () => canvas,
+          getMapData: () => data.map as CarcerMapTemplate,
+          getEditorState: controller.getState,
+          getSprites: () => data.sprites,
+          getSpriteMap: () => data.spriteMap,
+          getTilesets: () => data.tilesets,
           getAssets: () => ({
-            characters: characters,
-            items: items,
-            tilesets: tilesets,
-            gameEvents: gameEvents,
-            maps: maps,
-            mapGrids: mapGrids,
+            characters: data.characters,
+            items: data.items,
+            tilesets: data.tilesets,
+            gameEvents: data.gameEvents,
+            maps: data.maps,
+            mapGrids: data.mapGrids,
           }),
         },
-        ts - prevTs
+        elapsedMs,
       );
-    }
-    prevTs = ts;
-  });
+    });
+
+    return () => {
+      controller.stop();
+      setGridNavigationHandlers(controller, null);
+      unInitPanzoom(controller);
+    };
+  }, [controller, hasMap]);
 
   if (!map) {
     return (
@@ -258,11 +216,15 @@ export function TileEditor({
       {/* Left Column: Tile-related tools */}
       <div className="tile-editor-sidebar">
         {/* <Minimap map={map} /> */}
-        {editorState.current && editorState.current.selectedMapName && (
+        {editorState.selectedMapName && (
           <>
-            <TerrainToolPanel editorState={editorState.current} />
+            <TerrainToolPanel
+              controller={controller}
+              editorState={editorState}
+            />
             <ToolsPanel
-              editorState={editorState.current}
+              controller={controller}
+              editorState={editorState}
               map={map}
               onMapUpdate={onMapUpdate}
               onOpenMapAndSelectTile={onOpenMapAndSelectTile}
@@ -288,8 +250,11 @@ export function TileEditor({
             overflow: 'hidden',
           }}
         >
-          {editorState.current && editorState.current.selectedMapName && (
-            <MapToolsOverlay editorState={editorState.current} />
+          {editorState.selectedMapName && (
+            <MapToolsOverlay
+              controller={controller}
+              editorState={editorState}
+            />
           )}
           <MapCanvas
             canvasRef={mapCanvasRef}
@@ -297,16 +262,17 @@ export function TileEditor({
             height={map.height * map.spriteHeight}
           />
         </div>
-        {editorState.current && editorState.current.selectedMapName && (
-          <TilePicker editorState={editorState.current} />
+        {editorState.selectedMapName && (
+          <TilePicker controller={controller} editorState={editorState} />
         )}
       </div>
 
       {/* Right Column: Non-tile controls (grid, layers, find on map) */}
       <div className="tile-editor-sidebar tile-editor-sidebar--right">
-        {editorState.current && editorState.current.selectedMapName && (
+        {editorState.selectedMapName && (
           <LayersPanel
-            editorState={editorState.current}
+            controller={controller}
+            editorState={editorState}
             map={map}
             onMapUpdate={onMapUpdate}
           />

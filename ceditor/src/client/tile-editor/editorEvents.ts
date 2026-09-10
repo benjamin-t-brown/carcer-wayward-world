@@ -1,13 +1,15 @@
 import {
   PaintActionType,
   createPaintAction,
-  getCurrentAction,
   onActionComplete,
   onTileHoverIndChange,
-  setCurrentAction,
 } from './paintTools';
 import { TOOL_LIST } from './tools';
-import { CarcerMapTemplate, MapGridTemplate, TilesetTemplate } from '../types/assets';
+import {
+  CarcerMapTemplate,
+  MapGridTemplate,
+  TilesetTemplate,
+} from '../types/assets';
 import {
   commitMaterializedLayer,
   getAdjacentLayer,
@@ -18,10 +20,7 @@ import {
   clearAllSelectedTiles,
   EditorState,
   ensureEditorStateMap,
-  getCurrentPaintAction,
-  getEditorState,
   getEditorStateMap,
-  markRenderDirty,
   setCurrentPaintAction,
   setSoleSelectedTile,
   updateEditorState,
@@ -39,70 +38,18 @@ import {
   resolveGridBrushCell,
 } from '../utils/mapGridIndex';
 import type { FloorBrushData } from './renderState';
-
-class MapEditorEventState {
-  isDragging = false;
-  isPainting = false;
-  isDraggingRight = false;
-  lastClickX = 0;
-  lastClickY = 0;
-  lastTranslateX = 0;
-  lastTranslateY = 0;
-  translateX = 0;
-  translateY = 0;
-  scale = 1;
-  mouseX = 0;
-  mouseY = 0;
-  pendingGridSlotClick: GridSlotHit | null = null;
-  gridSlotClickStartX = 0;
-  gridSlotClickStartY = 0;
-  /** Grid block a right-click pick / brush-copy is operating on ('' = focused). */
-  rightDragMapName = '';
-  /** Right-drag rect select spanning grid blocks, in focused-map tile space. */
-  rightDragGridActive = false;
-  rightDragStartGX = 0;
-  rightDragStartGY = 0;
-  rightDragEndGX = 0;
-  rightDragEndGY = 0;
-}
-const mapEditorEventState = new MapEditorEventState();
-
-let isPanZoomInitialized = false;
-const panZoomEvents: {
-  keydown: (ev: KeyboardEvent) => void;
-  keyup: (ev: KeyboardEvent) => void;
-  mousedown: (ev: MouseEvent) => void;
-  mousemove: (ev: MouseEvent) => void;
-  mouseup: (ev: MouseEvent) => void;
-  contextmenu: (ev: MouseEvent) => void;
-  wheel: (ev: WheelEvent) => void;
-  viewportChange: () => void;
-} = {
-  keydown: () => {},
-  keyup: () => {},
-  mousedown: () => {},
-  mousemove: () => {},
-  mouseup: () => {},
-  contextmenu: () => {},
-  wheel: () => {},
-  viewportChange: () => {},
-};
+import { MapEditorController } from './MapEditorController';
+import type { MapDocumentIndex } from './mapDocumentIndex';
+import type { MapGridPlacement } from '../utils/mapGridIndex';
 
 const MOUSE_BUTTON_LEFT = 0;
 const MOUSE_BUTTON_RIGHT = 2;
 const MOUSE_BUTTON_MIDDLE = 1;
-// let panzoomCanvas: HTMLCanvasElement | null = null;
 
 const isEventWithCanvasTarget = (
   ev: MouseEvent,
-  panzoomCanvas: HTMLCanvasElement | undefined
-) => {
-  const targetId = (ev.target as unknown as HTMLElement)?.id;
-  return (
-    (Boolean(panzoomCanvas) && ev.target === panzoomCanvas) ||
-    targetId === 'map-canvas'
-  );
-};
+  canvas: HTMLCanvasElement | undefined,
+) => Boolean(canvas) && (ev.target === canvas || ev.currentTarget === canvas);
 
 const isEditorActive = (ev: KeyboardEvent) => {
   return true; // TODO check if any modals are open
@@ -129,19 +76,19 @@ export interface GridNavigateStitchOffset {
 export interface GridNavigationHandlers {
   getMaps: () => CarcerMapTemplate[];
   getMapGrids: () => MapGridTemplate[];
+  getDocumentIndex?: () => MapDocumentIndex;
   onNavigateToGridMap: (
     mapName: string,
-    stitchOffset: GridNavigateStitchOffset
+    stitchOffset: GridNavigateStitchOffset,
   ) => void;
   onCreateGridMap: (request: GridSlotCreateRequest) => void;
 }
 
-let gridNavigationHandlers: GridNavigationHandlers | null = null;
-
 export const setGridNavigationHandlers = (
-  handlers: GridNavigationHandlers | null
+  controller: MapEditorController,
+  handlers: GridNavigationHandlers | null,
 ) => {
-  gridNavigationHandlers = handlers;
+  controller.setGridNavigationHandlers(handlers);
 };
 
 const GRID_SLOT_CLICK_DRAG_THRESHOLD = 6;
@@ -151,26 +98,39 @@ const GRID_SLOT_CLICK_DRAG_THRESHOLD = 6;
  * preview). Backed by the same handlers the canvas navigation uses; null before
  * they are registered or outside the map editor.
  */
-export const getGridPaintContext = (): {
+export const getGridPaintContext = (
+  controller: MapEditorController,
+): {
   maps: CarcerMapTemplate[];
   mapGrids: MapGridTemplate[];
+  mapsByName: ReadonlyMap<string, CarcerMapTemplate>;
+  placementsByMapName: MapDocumentIndex['placementsByMapName'];
 } | null => {
-  const handlers = gridNavigationHandlers;
+  const handlers = controller.getGridNavigationHandlers();
   if (!handlers) {
     return null;
   }
-  return { maps: handlers.getMaps(), mapGrids: handlers.getMapGrids() };
+  const maps = handlers.getMaps();
+  const index = handlers.getDocumentIndex?.();
+  return {
+    maps,
+    mapGrids: handlers.getMapGrids(),
+    mapsByName:
+      index?.mapsByName ?? new Map(maps.map((map) => [map.name, map])),
+    placementsByMapName: index?.placementsByMapName ?? new Map(),
+  };
 };
 
 const findGridSlotAtScreen = (
+  controller: MapEditorController,
   clientX: number,
   clientY: number,
   mapDataInterface: {
     getCanvas: () => HTMLCanvasElement;
     getMapData: () => CarcerMapTemplate;
-  }
+  },
 ): GridSlotHit | null => {
-  const handlers = gridNavigationHandlers;
+  const handlers = controller.getGridNavigationHandlers();
   const currentMap = mapDataInterface.getMapData();
   const canvas = mapDataInterface.getCanvas();
   if (!handlers || !currentMap || !canvas) {
@@ -178,33 +138,50 @@ const findGridSlotAtScreen = (
   }
 
   const [canvasX, canvasY] = screenCoordsToCanvasCoords(
+    controller,
     clientX,
     clientY,
-    canvas
+    canvas,
   );
 
-  return findAdjacentGridSlotAtCanvasPoint({
+  const index = handlers.getDocumentIndex?.();
+  const hit = findAdjacentGridSlotAtCanvasPoint({
     canvasX,
     canvasY,
     canvas,
     map: currentMap,
     mapGrids: handlers.getMapGrids(),
     maps: handlers.getMaps(),
-    translateX: mapEditorEventState.translateX,
-    translateY: mapEditorEventState.translateY,
-    scale: mapEditorEventState.scale,
-    radius: getEditorState().gridRenderRadius ?? 2,
+    translateX: controller.input.translateX,
+    translateY: controller.input.translateY,
+    scale: controller.input.scale,
+    mapsByName: index?.mapsByName,
+    placement: index
+      ? (index.placementsByMapName.get(currentMap.name)?.[0] ?? null)
+      : undefined,
   });
+  if (
+    hit?.slot.map &&
+    controller.getState().gridEditEnabled &&
+    hit.slot.map.width === hit.placement.grid.mapWidth &&
+    hit.slot.map.height === hit.placement.grid.mapHeight &&
+    hit.slot.map.spriteWidth === currentMap.spriteWidth &&
+    hit.slot.map.spriteHeight === currentMap.spriteHeight
+  ) {
+    return null;
+  }
+  return hit;
 };
 
 type PaintTargetInterface = {
+  controller: MapEditorController;
   getCanvas: () => HTMLCanvasElement;
   getMapData: () => CarcerMapTemplate;
   getEditorState: () => EditorState;
 };
 
 const mapsByNameOf = (
-  maps: CarcerMapTemplate[]
+  maps: CarcerMapTemplate[],
 ): Record<string, CarcerMapTemplate> => {
   const byName: Record<string, CarcerMapTemplate> = {};
   for (const m of maps) {
@@ -221,31 +198,34 @@ const mapsByNameOf = (
 const resolvePaintTargetMapName = (
   clientX: number,
   clientY: number,
-  mapDataInterface: PaintTargetInterface
+  mapDataInterface: PaintTargetInterface,
 ): string => {
-  const es = mapDataInterface.getEditorState();
-  const handlers = gridNavigationHandlers;
+  const es = mapDataInterface.controller.getState();
+  const { controller } = mapDataInterface;
+  const handlers = controller.getGridNavigationHandlers();
   const focusedMap = mapDataInterface.getMapData();
   const canvas = mapDataInterface.getCanvas();
   if (!es.gridEditEnabled || !handlers || !focusedMap || !canvas) {
     return '';
   }
-  const editRadius = Math.min(
-    es.gridEditRadius ?? 1,
-    es.gridRenderRadius ?? 2
-  );
+  const index = handlers.getDocumentIndex?.();
+  const placement = index
+    ? (index.placementsByMapName.get(focusedMap.name)?.[0] ?? null)
+    : findMapGridPlacement(focusedMap.name, handlers.getMapGrids());
   const hit = screenCoordsToGridCell(
+    controller,
     clientX,
     clientY,
     focusedMap,
     canvas,
-    handlers.getMapGrids(),
-    handlers.getMaps(),
-    editRadius
+    placement,
+    index?.mapsByName ??
+      new Map(handlers.getMaps().map((map) => [map.name, map])),
   );
   if (
     !hit ||
     !hit.map ||
+    !hit.editable ||
     hit.tileIndex < 0 ||
     (hit.cellOffsetX === 0 && hit.cellOffsetY === 0)
   ) {
@@ -262,29 +242,32 @@ const resolvePaintTargetMapName = (
 const resolveRightPickTarget = (
   clientX: number,
   clientY: number,
-  mapDataInterface: PaintTargetInterface
+  mapDataInterface: PaintTargetInterface,
 ): { mapName: string; tileIndex: number } => {
-  const es = mapDataInterface.getEditorState();
-  const handlers = gridNavigationHandlers;
+  const es = mapDataInterface.controller.getState();
+  const { controller } = mapDataInterface;
+  const handlers = controller.getGridNavigationHandlers();
   const focusedMap = mapDataInterface.getMapData();
   const canvas = mapDataInterface.getCanvas();
   if (es.gridEditEnabled && handlers && focusedMap && canvas) {
-    const editRadius = Math.min(
-      es.gridEditRadius ?? 1,
-      es.gridRenderRadius ?? 2
-    );
+    const index = handlers.getDocumentIndex?.();
+    const placement = index
+      ? (index.placementsByMapName.get(focusedMap.name)?.[0] ?? null)
+      : findMapGridPlacement(focusedMap.name, handlers.getMapGrids());
     const hit = screenCoordsToGridCell(
+      controller,
       clientX,
       clientY,
       focusedMap,
       canvas,
-      handlers.getMapGrids(),
-      handlers.getMaps(),
-      editRadius
+      placement,
+      index?.mapsByName ??
+        new Map(handlers.getMaps().map((map) => [map.name, map])),
     );
     if (
       hit &&
       hit.map &&
+      hit.editable &&
       hit.tileIndex >= 0 &&
       !(hit.cellOffsetX === 0 && hit.cellOffsetY === 0)
     ) {
@@ -293,7 +276,8 @@ const resolveRightPickTarget = (
   }
   return {
     mapName: '',
-    tileIndex: getEditorStateMap(es.selectedMapName)?.hoveredTileIndex ?? -1,
+    tileIndex:
+      getEditorStateMap(controller, es.selectedMapName)?.hoveredTileIndex ?? -1,
   };
 };
 
@@ -304,60 +288,79 @@ const resolveRightPickTarget = (
  * cells carry the tiles from whichever blocks they landed in.
  */
 const completeGridRightDrag = (mapDataInterface: PaintTargetInterface) => {
-  const es = mapDataInterface.getEditorState();
+  const { controller } = mapDataInterface;
+  const es = mapDataInterface.controller.getState();
   const focusedMap = mapDataInterface.getMapData();
-  const handlers = gridNavigationHandlers;
+  const handlers = controller.getGridNavigationHandlers();
   if (!focusedMap || !handlers) {
     return;
   }
   const grids = handlers.getMapGrids();
-  const mapsByName = mapsByNameOf(handlers.getMaps());
+  const index = handlers.getDocumentIndex?.();
+  const mapsByName = index?.mapsByName ?? mapsByNameOf(handlers.getMaps());
+  const placement = index
+    ? (index.placementsByMapName.get(focusedMap.name)?.[0] ?? null)
+    : undefined;
 
   const gx0 = Math.min(
-    mapEditorEventState.rightDragStartGX,
-    mapEditorEventState.rightDragEndGX
+    controller.input.rightDragStartGX,
+    controller.input.rightDragEndGX,
   );
   const gx1 = Math.max(
-    mapEditorEventState.rightDragStartGX,
-    mapEditorEventState.rightDragEndGX
+    controller.input.rightDragStartGX,
+    controller.input.rightDragEndGX,
   );
   const gy0 = Math.min(
-    mapEditorEventState.rightDragStartGY,
-    mapEditorEventState.rightDragEndGY
+    controller.input.rightDragStartGY,
+    controller.input.rightDragEndGY,
   );
   const gy1 = Math.max(
-    mapEditorEventState.rightDragStartGY,
-    mapEditorEventState.rightDragEndGY
+    controller.input.rightDragStartGY,
+    controller.input.rightDragEndGY,
   );
 
   if (gx0 === gx1 && gy0 === gy1) {
-    const target = resolveGridBrushCell(focusedMap, gx0, gy0, grids, mapsByName);
+    const target = resolveGridBrushCell(
+      focusedMap,
+      gx0,
+      gy0,
+      grids,
+      mapsByName,
+      placement,
+    );
     if (!target) {
       return;
     }
     const { tilesetIndex, tileId } = getTileGraphic(
       target.map,
       es.currentLevel,
-      target.tileIndex
+      target.tileIndex,
     );
     if (tilesetIndex === 0 && tileId === 0) {
-      setCurrentPaintAction(PaintActionType.ERASE);
+      setCurrentPaintAction(controller, PaintActionType.ERASE);
     } else {
-      const ref = getTileList(target.map)[target.tileIndex];
-      updateEditorStateNoReRender({
+      const ref = getTileList(controller, target.map)[target.tileIndex];
+      updateEditorStateNoReRender(controller, {
         rectCloneBrushTiles: [],
         selectedTileIndexInTileset: ref.tileId,
         selectedTilesetName: ref.tilesetName,
       });
     }
-    setSoleSelectedTile(target.map.name, target.tileIndex);
+    setSoleSelectedTile(controller, target.map.name, target.tileIndex);
     return;
   }
 
   const brush: FloorBrushData[] = [];
   for (let gy = gy0; gy <= gy1; gy++) {
     for (let gx = gx0; gx <= gx1; gx++) {
-      const target = resolveGridBrushCell(focusedMap, gx, gy, grids, mapsByName);
+      const target = resolveGridBrushCell(
+        focusedMap,
+        gx,
+        gy,
+        grids,
+        mapsByName,
+        placement,
+      );
       if (!target) {
         continue;
       }
@@ -365,7 +368,9 @@ const completeGridRightDrag = (mapDataInterface: PaintTargetInterface) => {
         xOffset: gx - gx0,
         yOffset: gy - gy0,
         originalTile: {
-          ref: structuredClone(getTileList(target.map)[target.tileIndex]),
+          ref: structuredClone(
+            getTileList(controller, target.map)[target.tileIndex],
+          ),
         },
       });
     }
@@ -373,40 +378,51 @@ const completeGridRightDrag = (mapDataInterface: PaintTargetInterface) => {
   if (brush.length === 0) {
     return;
   }
-  updateEditorStateNoReRender({ rectCloneBrushTiles: brush });
+  updateEditorStateNoReRender(controller, { rectCloneBrushTiles: brush });
 
-  const anchor = resolveGridBrushCell(focusedMap, gx0, gy0, grids, mapsByName);
+  const anchor = resolveGridBrushCell(
+    focusedMap,
+    gx0,
+    gy0,
+    grids,
+    mapsByName,
+    placement,
+  );
   if (anchor) {
-    setSoleSelectedTile(anchor.map.name, anchor.tileIndex);
+    setSoleSelectedTile(controller, anchor.map.name, anchor.tileIndex);
   }
 };
 
 /** The map a stroke is currently writing to (activePaintMapName, or focused). */
 const getPaintTargetMap = (
-  mapDataInterface: PaintTargetInterface
+  mapDataInterface: PaintTargetInterface,
 ): CarcerMapTemplate => {
   const focused = mapDataInterface.getMapData();
-  const name = mapDataInterface.getEditorState().activePaintMapName;
+  const name = mapDataInterface.controller.getState().activePaintMapName;
   if (!name || name === focused?.name) {
     return focused;
   }
+  const handlers = mapDataInterface.controller.getGridNavigationHandlers();
   return (
-    gridNavigationHandlers?.getMaps().find((m) => m.name === name) ?? focused
+    handlers?.getDocumentIndex?.().mapsByName.get(name) ??
+    handlers?.getMaps().find((map) => map.name === name) ??
+    focused
   );
 };
 
-export const initPanzoom = (mapDataInterface: {
-  getCanvas: () => HTMLCanvasElement;
-  getMapData: () => CarcerMapTemplate;
-  getTilesets: () => TilesetTemplate[];
-  getEditorState: () => EditorState;
-}) => {
-  // if (panzoomCanvas !== null || isPanZoomInitialized) {
-  //   return;
-  // }
-  // panzoomCanvas = canvas;
+export const initPanzoom = (
+  controller: MapEditorController,
+  mapDataInterface: {
+    controller: MapEditorController;
+    getCanvas: () => HTMLCanvasElement;
+    getMapData: () => CarcerMapTemplate;
+    getTilesets: () => TilesetTemplate[];
+    getEditorState: () => EditorState;
+    onUndo?: () => void;
+    onMapUpdate?: (map: CarcerMapTemplate) => void;
+  },
+) => {
   const handleKeyDown = (ev: KeyboardEvent) => {
-    markRenderDirty();
     if (shouldPreventDefault(ev)) {
       ev.preventDefault();
     }
@@ -419,52 +435,62 @@ export const initPanzoom = (mapDataInterface: {
         activeElement.tagName === 'TEXTAREA' ||
         activeElement.getAttribute('contenteditable') === 'true');
 
+    if (
+      !isInputFocused &&
+      (ev.ctrlKey || ev.metaKey) &&
+      ev.key.toLowerCase() === 'z' &&
+      !ev.shiftKey
+    ) {
+      ev.preventDefault();
+      mapDataInterface.onUndo?.();
+      return;
+    }
+
     // keyboard shortcuts - only process if not typing in an input
     if (isEditorActive(ev) && !isInputFocused) {
       const toolForKey = TOOL_LIST.find(
-        (tool) => tool.shortcut !== undefined && tool.shortcut === ev.key
+        (tool) => tool.shortcut !== undefined && tool.shortcut === ev.key,
       );
       if (toolForKey) {
         if (!(toolForKey.shortcutBlockedByCtrl && ev.ctrlKey)) {
-          setCurrentPaintAction(toolForKey.id as PaintActionType);
+          setCurrentPaintAction(controller, toolForKey.id as PaintActionType);
           if (toolForKey.id === PaintActionType.FILL) {
-            // need to wait for a state update or currentPaintAction is not set
-            setTimeout(() => {
-              const ind =
-                getEditorStateMap(
-                  mapDataInterface.getEditorState().selectedMapName
-                )?.hoveredTileIndex ?? -1;
-              if (ind > -1) {
-                onTileHoverIndChange(
-                  mapDataInterface.getMapData(),
-                  mapDataInterface.getEditorState(),
-                  mapDataInterface.getEditorState().currentPaintAction,
-                  -1,
-                  ind
-                );
-              }
-            }, 33);
+            const state = controller.getState();
+            const ind =
+              getEditorStateMap(controller, state.selectedMapName)
+                ?.hoveredTileIndex ?? -1;
+            if (ind > -1) {
+              onTileHoverIndChange(
+                controller,
+                mapDataInterface.getMapData(),
+                state,
+                state.currentPaintAction,
+                -1,
+                ind,
+              );
+            }
           }
         }
       } else if (ev.key === 'g' && !ev.ctrlKey) {
-        const editorState = getEditorState();
-        updateEditorState({ showGrid: !editorState.showGrid });
+        const editorState = controller.getState();
+        updateEditorState(controller, { showGrid: !editorState.showGrid });
         ev.preventDefault();
       } else if (ev.key === 'Escape') {
-        const editorState = mapDataInterface.getEditorState();
+        const editorState = mapDataInterface.controller.getState();
         const hasSelection = Object.values(editorState.maps).some(
-          (m) => (m?.selectedTileInd ?? -1) >= 0
+          (m) => (m?.selectedTileInd ?? -1) >= 0,
         );
         if (hasSelection || editorState.isSelectDragging) {
           ev.preventDefault();
           if (editorState.isSelectDragging) {
-            updateEditorState({
+            updateEditorState(controller, {
               isSelectDragging: false,
               selectDragSourceTileIndex: -1,
+              activePaintMapName: '',
             });
           }
           if (hasSelection) {
-            clearAllSelectedTiles();
+            clearAllSelectedTiles(controller);
           }
         }
       }
@@ -479,11 +505,11 @@ export const initPanzoom = (mapDataInterface: {
           const direction = ev.key === 'ArrowUp' ? 'up' : 'down';
           const nextLevel = getAdjacentLayer(
             currentMap,
-            getEditorState().currentLevel,
+            controller.getState().currentLevel,
             direction,
           );
           if (nextLevel !== null) {
-            updateEditorState({ currentLevel: nextLevel });
+            updateEditorState(controller, { currentLevel: nextLevel });
             ev.preventDefault();
           }
         }
@@ -491,14 +517,13 @@ export const initPanzoom = (mapDataInterface: {
     }
 
     if (!isInputFocused && ev.key === 'Tab') {
-      updateEditorStateNoReRender({
+      updateEditorStateNoReRender(controller, {
         drawOverlayText: true,
       });
       ev.preventDefault();
     }
   };
   const handleKeyUp = (ev: KeyboardEvent) => {
-    markRenderDirty();
     const activeElement = document.activeElement;
     const isInputFocused =
       activeElement &&
@@ -506,103 +531,117 @@ export const initPanzoom = (mapDataInterface: {
         activeElement.tagName === 'TEXTAREA' ||
         activeElement.getAttribute('contenteditable') === 'true');
     if (!isInputFocused && ev.key === 'Tab') {
-      updateEditorStateNoReRender({
+      updateEditorStateNoReRender(controller, {
         drawOverlayText: false,
       });
       ev.preventDefault();
     }
   };
-  const handleMouseDown = (ev: MouseEvent) => {
-    if (isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())) {
-      markRenderDirty();
-    }
+  const handleMouseDown = (ev: PointerEvent) => {
     if (
       ev.button === MOUSE_BUTTON_MIDDLE &&
       isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())
     ) {
-      mapEditorEventState.lastClickX = ev.clientX;
-      mapEditorEventState.lastClickY = ev.clientY;
-      mapEditorEventState.lastTranslateX = mapEditorEventState.translateX;
-      mapEditorEventState.lastTranslateY = mapEditorEventState.translateY;
-      mapEditorEventState.isDragging = true;
+      controller.input.lastClickX = ev.clientX;
+      controller.input.lastClickY = ev.clientY;
+      controller.input.lastTranslateX = controller.input.translateX;
+      controller.input.lastTranslateY = controller.input.translateY;
+      controller.input.isDragging = true;
     }
     if (
       ev.button === MOUSE_BUTTON_LEFT &&
       isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())
     ) {
-      const gridSlotHit = findGridSlotAtScreen(ev.clientX, ev.clientY, mapDataInterface);
+      const gridSlotHit = findGridSlotAtScreen(
+        controller,
+        ev.clientX,
+        ev.clientY,
+        mapDataInterface,
+      );
       if (gridSlotHit) {
-        mapEditorEventState.pendingGridSlotClick = gridSlotHit;
-        mapEditorEventState.gridSlotClickStartX = ev.clientX;
-        mapEditorEventState.gridSlotClickStartY = ev.clientY;
+        controller.input.pendingGridSlotClick = gridSlotHit;
+        controller.input.gridSlotClickStartX = ev.clientX;
+        controller.input.gridSlotClickStartY = ev.clientY;
         return;
       }
 
       const currentPaintAction =
-        mapDataInterface.getEditorState().currentPaintAction;
+        mapDataInterface.controller.getState().currentPaintAction;
       if (currentPaintAction === PaintActionType.NONE) {
         return;
       }
 
       // SELECT action: start dragging to move tile data
       if (currentPaintAction === PaintActionType.SELECT) {
+        const state = controller.getState();
+        const selectionMapName =
+          state.hoveredGridMapName || state.selectedMapName;
         const hoveredTileIndex =
-          getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
-            ?.hoveredTileIndex ?? -1;
+          getEditorStateMap(controller, selectionMapName)?.hoveredTileIndex ??
+          -1;
         if (hoveredTileIndex >= 0) {
-          updateEditorState({
+          updateEditorState(controller, {
             selectDragSourceTileIndex: hoveredTileIndex,
             isSelectDragging: true,
+            activePaintMapName:
+              selectionMapName === state.selectedMapName
+                ? ''
+                : selectionMapName,
           });
-          updateEditorStateMapNoReRender(
-            mapDataInterface.getEditorState().selectedMapName,
-            {
-              selectedTileInd: hoveredTileIndex,
-            }
-          );
+          updateEditorStateMapNoReRender(controller, selectionMapName, {
+            selectedTileInd: hoveredTileIndex,
+          });
         }
         return;
       }
 
       // CLONE action: start dragging to clone tile data
       if (currentPaintAction === PaintActionType.CLONE) {
+        const state = controller.getState();
+        const selectionMapName =
+          state.hoveredGridMapName || state.selectedMapName;
         const hoveredTileIndex =
-          getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
-            ?.hoveredTileIndex ?? -1;
+          getEditorStateMap(controller, selectionMapName)?.hoveredTileIndex ??
+          -1;
         if (hoveredTileIndex >= 0) {
-          updateEditorState({
+          updateEditorState(controller, {
             selectDragSourceTileIndex: hoveredTileIndex,
             isSelectDragging: true,
+            activePaintMapName:
+              selectionMapName === state.selectedMapName
+                ? ''
+                : selectionMapName,
           });
-          updateEditorStateMapNoReRender(
-            mapDataInterface.getEditorState().selectedMapName,
-            {
-              selectedTileInd: hoveredTileIndex,
-            }
-          );
+          updateEditorStateMapNoReRender(controller, selectionMapName, {
+            selectedTileInd: hoveredTileIndex,
+          });
         }
         return;
       }
 
-      mapEditorEventState.isPainting = true;
+      controller.input.isPainting = true;
       // Route the stroke to whichever grid block the pointer landed on. Empty
       // means the focused map; anything else overrides the per-map paint state
       // for the duration of the stroke (cleared on mouseup).
       const paintTargetMapName = resolvePaintTargetMapName(
         ev.clientX,
         ev.clientY,
-        mapDataInterface
+        mapDataInterface,
       );
       if (paintTargetMapName) {
-        ensureEditorStateMap(paintTargetMapName);
+        ensureEditorStateMap(controller, paintTargetMapName);
       }
-      updateEditorStateNoReRender({ activePaintMapName: paintTargetMapName });
+      updateEditorStateNoReRender(controller, {
+        activePaintMapName: paintTargetMapName,
+      });
       const action = createPaintAction(currentPaintAction);
       action.data.paintTileRef = {
-        tilesetName: mapDataInterface.getEditorState().selectedTilesetName,
-        tileId: mapDataInterface.getEditorState().selectedTileIndexInTileset,
+        tilesetName: mapDataInterface.controller.getState().selectedTilesetName,
+        tileId:
+          mapDataInterface.controller.getState().selectedTileIndexInTileset,
       };
-      const floorBrush = mapDataInterface.getEditorState().rectCloneBrushTiles;
+      const floorBrush =
+        mapDataInterface.controller.getState().rectCloneBrushTiles;
       if (floorBrush.length) {
         action.data.floorDrawBrush = floorBrush.map((ft) => {
           return {
@@ -614,31 +653,38 @@ export const initPanzoom = (mapDataInterface: {
           };
         });
       }
-      setCurrentAction(action);
+      controller.setCurrentAction(action);
     }
     if (
       ev.button === MOUSE_BUTTON_RIGHT &&
       isEventWithCanvasTarget(ev, mapDataInterface.getCanvas()) &&
-      (getCurrentPaintAction() === PaintActionType.DRAW ||
-        getCurrentPaintAction() === PaintActionType.FILL ||
-        getCurrentPaintAction() === PaintActionType.DELETE_FILL)
+      (controller.getState().currentPaintAction === PaintActionType.DRAW ||
+        controller.getState().currentPaintAction === PaintActionType.FILL ||
+        controller.getState().currentPaintAction ===
+          PaintActionType.DELETE_FILL)
     ) {
-      mapEditorEventState.rightDragGridActive = false;
-      mapEditorEventState.rightDragMapName = '';
+      controller.input.rightDragGridActive = false;
+      controller.input.rightDragMapName = '';
 
       // Grid maps: track the drag in focused-map tile space so it can span
       // blocks. resolveGridBrushCell confirms the start is on a real tile.
-      const es = mapDataInterface.getEditorState();
+      const es = mapDataInterface.controller.getState();
       const focusedMap = mapDataInterface.getMapData();
       const canvas = mapDataInterface.getCanvas();
-      const handlers = gridNavigationHandlers;
+      const handlers = controller.getGridNavigationHandlers();
       if (es.gridEditEnabled && focusedMap && canvas && handlers) {
+        const index = handlers.getDocumentIndex?.();
+        const placement = index
+          ? (index.placementsByMapName.get(focusedMap.name)?.[0] ?? null)
+          : findMapGridPlacement(focusedMap.name, handlers.getMapGrids());
         const g = screenCoordsToGridTile(
+          controller,
           ev.clientX,
           ev.clientY,
           focusedMap,
           canvas,
-          handlers.getMapGrids()
+          handlers.getMapGrids(),
+          placement,
         );
         if (
           g &&
@@ -647,15 +693,16 @@ export const initPanzoom = (mapDataInterface: {
             g.gx,
             g.gy,
             handlers.getMapGrids(),
-            mapsByNameOf(handlers.getMaps())
+            index?.mapsByName ?? mapsByNameOf(handlers.getMaps()),
+            placement,
           )
         ) {
-          mapEditorEventState.isDraggingRight = true;
-          mapEditorEventState.rightDragGridActive = true;
-          mapEditorEventState.rightDragStartGX = g.gx;
-          mapEditorEventState.rightDragStartGY = g.gy;
-          mapEditorEventState.rightDragEndGX = g.gx;
-          mapEditorEventState.rightDragEndGY = g.gy;
+          controller.input.isDraggingRight = true;
+          controller.input.rightDragGridActive = true;
+          controller.input.rightDragStartGX = g.gx;
+          controller.input.rightDragStartGY = g.gy;
+          controller.input.rightDragEndGX = g.gx;
+          controller.input.rightDragEndGY = g.gy;
           return;
         }
       }
@@ -664,14 +711,14 @@ export const initPanzoom = (mapDataInterface: {
       const pick = resolveRightPickTarget(
         ev.clientX,
         ev.clientY,
-        mapDataInterface
+        mapDataInterface,
       );
       if (pick.tileIndex < 0) {
         return;
       }
-      mapEditorEventState.isDraggingRight = true;
-      mapEditorEventState.rightDragMapName = pick.mapName;
-      updateEditorStateNoReRender({
+      controller.input.isDraggingRight = true;
+      controller.input.rightDragMapName = pick.mapName;
+      updateEditorStateNoReRender(controller, {
         rectSelectTileIndStart: pick.tileIndex,
         rectSelectTileIndEnd: pick.tileIndex,
       });
@@ -679,26 +726,29 @@ export const initPanzoom = (mapDataInterface: {
       ev.button === MOUSE_BUTTON_RIGHT &&
       isEventWithCanvasTarget(ev, mapDataInterface.getCanvas()) &&
       [PaintActionType.CLONE, PaintActionType.SELECT].includes(
-        getCurrentPaintAction()
+        controller.getState().currentPaintAction,
       )
     ) {
       const pick = resolveRightPickTarget(
         ev.clientX,
         ev.clientY,
-        mapDataInterface
+        mapDataInterface,
       );
       if (pick.tileIndex < 0) {
         return;
       }
       setSoleSelectedTile(
-        pick.mapName || mapDataInterface.getEditorState().selectedMapName,
-        pick.tileIndex
+        controller,
+        pick.mapName || mapDataInterface.controller.getState().selectedMapName,
+        pick.tileIndex,
       );
     }
   };
   const clearHoveredGridSlot = () => {
-    if (mapDataInterface.getEditorState().hoveredGridAdjacentSlot) {
-      updateEditorStateNoReRender({ hoveredGridAdjacentSlot: null });
+    if (mapDataInterface.controller.getState().hoveredGridAdjacentSlot) {
+      updateEditorStateNoReRender(controller, {
+        hoveredGridAdjacentSlot: null,
+      });
     }
   };
 
@@ -708,9 +758,10 @@ export const initPanzoom = (mapDataInterface: {
       return;
     }
     const gridSlotHit = findGridSlotAtScreen(
+      controller,
       ev.clientX,
       ev.clientY,
-      mapDataInterface
+      mapDataInterface,
     );
     const nextHovered = gridSlotHit
       ? {
@@ -719,48 +770,39 @@ export const initPanzoom = (mapDataInterface: {
         }
       : null;
     const prevHovered =
-      mapDataInterface.getEditorState().hoveredGridAdjacentSlot;
+      mapDataInterface.controller.getState().hoveredGridAdjacentSlot;
     if (
       nextHovered?.offsetX !== prevHovered?.offsetX ||
       nextHovered?.offsetY !== prevHovered?.offsetY
     ) {
-      updateEditorStateNoReRender({
+      updateEditorStateNoReRender(controller, {
         hoveredGridAdjacentSlot: nextHovered,
       });
     }
   };
 
-  const handleMouseMove = (ev: MouseEvent) => {
-    mapEditorEventState.mouseX = ev.clientX;
-    mapEditorEventState.mouseY = ev.clientY;
+  const handleMouseMove = (ev: PointerEvent) => {
+    controller.input.mouseX = ev.clientX;
+    controller.input.mouseY = ev.clientY;
 
-    // Repaint while the pointer is over the canvas or an interaction is running;
-    // stay idle otherwise so the loop doesn't pin a core.
-    if (
-      mapEditorEventState.isDragging ||
-      mapEditorEventState.isDraggingRight ||
-      mapEditorEventState.isPainting ||
-      mapDataInterface.getEditorState().isSelectDragging ||
-      isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())
-    ) {
-      markRenderDirty();
-    }
-
-    if (mapEditorEventState.rightDragGridActive) {
+    if (controller.input.rightDragGridActive) {
       const focusedMap = mapDataInterface.getMapData();
       const canvas = mapDataInterface.getCanvas();
-      const handlers = gridNavigationHandlers;
+      const handlers = controller.getGridNavigationHandlers();
       if (focusedMap && canvas && handlers) {
+        const index = handlers.getDocumentIndex?.();
         const g = screenCoordsToGridTile(
+          controller,
           ev.clientX,
           ev.clientY,
           focusedMap,
           canvas,
-          handlers.getMapGrids()
+          handlers.getMapGrids(),
+          index?.placementsByMapName.get(focusedMap.name)?.[0] ?? null,
         );
         if (g) {
-          mapEditorEventState.rightDragEndGX = g.gx;
-          mapEditorEventState.rightDragEndGY = g.gy;
+          controller.input.rightDragEndGX = g.gx;
+          controller.input.rightDragEndGY = g.gy;
         }
       }
     }
@@ -768,34 +810,36 @@ export const initPanzoom = (mapDataInterface: {
     // While panning the slot hotspots move with the view, so a hit test against
     // the pre-move transform is stale anyway, and mousemove outruns the frame
     // rate. Skip it here and refresh once on mouseup.
-    if (mapEditorEventState.isDragging) {
+    if (controller.input.isDragging) {
       clearHoveredGridSlot();
     } else {
       refreshHoveredGridSlot(ev);
     }
 
-    if (mapEditorEventState.isDragging) {
-      mapEditorEventState.translateX =
-        mapEditorEventState.lastTranslateX +
+    if (controller.input.isDragging) {
+      controller.input.translateX =
+        controller.input.lastTranslateX +
         ev.clientX -
-        mapEditorEventState.lastClickX;
-      mapEditorEventState.translateY =
-        mapEditorEventState.lastTranslateY +
+        controller.input.lastClickX;
+      controller.input.translateY =
+        controller.input.lastTranslateY +
         ev.clientY -
-        mapEditorEventState.lastClickY;
+        controller.input.lastClickY;
     }
   };
-  const handleMouseUp = (ev: MouseEvent) => {
-    markRenderDirty();
-    if (mapEditorEventState.pendingGridSlotClick && ev.button === MOUSE_BUTTON_LEFT) {
-      const pending = mapEditorEventState.pendingGridSlotClick;
-      mapEditorEventState.pendingGridSlotClick = null;
+  const handleMouseUp = (ev: PointerEvent) => {
+    if (
+      controller.input.pendingGridSlotClick &&
+      ev.button === MOUSE_BUTTON_LEFT
+    ) {
+      const pending = controller.input.pendingGridSlotClick;
+      controller.input.pendingGridSlotClick = null;
       const dragDistance = Math.hypot(
-        ev.clientX - mapEditorEventState.gridSlotClickStartX,
-        ev.clientY - mapEditorEventState.gridSlotClickStartY
+        ev.clientX - controller.input.gridSlotClickStartX,
+        ev.clientY - controller.input.gridSlotClickStartY,
       );
       if (dragDistance <= GRID_SLOT_CLICK_DRAG_THRESHOLD) {
-        const handlers = gridNavigationHandlers;
+        const handlers = controller.getGridNavigationHandlers();
         if (handlers) {
           if (isGridSlotEditable(pending.slot)) {
             handlers.onNavigateToGridMap(pending.slot.mapName, {
@@ -815,46 +859,54 @@ export const initPanzoom = (mapDataInterface: {
       }
     }
 
-    if (mapEditorEventState.isDragging) {
-      mapEditorEventState.translateX =
-        mapEditorEventState.lastTranslateX +
+    if (controller.input.isDragging) {
+      controller.input.translateX =
+        controller.input.lastTranslateX +
         ev.clientX -
-        mapEditorEventState.lastClickX;
-      mapEditorEventState.translateY =
-        mapEditorEventState.lastTranslateY +
+        controller.input.lastClickX;
+      controller.input.translateY =
+        controller.input.lastTranslateY +
         ev.clientY -
-        mapEditorEventState.lastClickY;
-      mapEditorEventState.isDragging = false;
+        controller.input.lastClickY;
+      controller.input.isDragging = false;
       refreshHoveredGridSlot(ev);
     }
-    if (mapEditorEventState.isPainting) {
-      mapEditorEventState.isPainting = false;
-      const currentAction = getCurrentAction();
+    if (controller.input.isPainting) {
+      controller.input.isPainting = false;
+      const currentAction = controller.getCurrentAction();
       const paintMapName =
-        mapDataInterface.getEditorState().activePaintMapName ||
-        mapDataInterface.getEditorState().selectedMapName;
+        mapDataInterface.controller.getState().activePaintMapName ||
+        mapDataInterface.controller.getState().selectedMapName;
       const mapData = getPaintTargetMap(mapDataInterface);
       if (currentAction && mapData) {
         // onActionComplete keys per-map state off activePaintMapName, so leave
         // it set until after this call.
-        onActionComplete(
-          currentAction,
-          mapData,
-          mapDataInterface.getEditorState()
-        );
+        if (
+          onActionComplete(
+            controller,
+            currentAction,
+            mapData,
+            mapDataInterface.controller.getState(),
+          )
+        ) {
+          mapDataInterface.onMapUpdate?.({ ...mapData });
+        }
       }
       setSoleSelectedTile(
+        controller,
         paintMapName,
-        getEditorStateMap(paintMapName)?.hoveredTileIndex ?? -1
+        getEditorStateMap(controller, paintMapName)?.hoveredTileIndex ?? -1,
       );
-      updateEditorStateNoReRender({ activePaintMapName: '' });
+      updateEditorStateNoReRender(controller, { activePaintMapName: '' });
     }
     // Handle SELECT/CLONE drag completion
-    const editorState = mapDataInterface.getEditorState();
+    const editorState = mapDataInterface.controller.getState();
     if (editorState.isSelectDragging && ev.button === 0) {
+      const selectionMapName =
+        editorState.activePaintMapName || editorState.selectedMapName;
       const sourceTileIndex = editorState.selectDragSourceTileIndex;
       const destTileIndex =
-        getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
+        getEditorStateMap(controller, selectionMapName)?.hoveredTileIndex ?? -1;
       const currentPaintAction = editorState.currentPaintAction;
 
       // Only create action if dragging to a different tile
@@ -872,39 +924,44 @@ export const initPanzoom = (mapDataInterface: {
         action.data.endInd = destTileIndex;
         action.data.tileInds = [sourceTileIndex, destTileIndex];
 
-        const mapData = mapDataInterface.getMapData();
+        const mapData = getPaintTargetMap(mapDataInterface);
         if (mapData) {
-          const mapTiles = getTileList(mapData);
+          const mapTiles = getTileList(controller, mapData);
           // Store previous state of both tiles for undo
           action.data.prevRefData.push(
-            structuredClone(mapTiles[sourceTileIndex])
+            structuredClone(mapTiles[sourceTileIndex]),
           );
           action.data.prevRefData.push(
-            structuredClone(mapTiles[destTileIndex])
+            structuredClone(mapTiles[destTileIndex]),
           );
 
-          onActionComplete(action, mapData, editorState);
+          if (onActionComplete(controller, action, mapData, editorState)) {
+            mapDataInterface.onMapUpdate?.({ ...mapData });
+          }
         }
       }
 
-      updateEditorState({
+      updateEditorState(controller, {
         isSelectDragging: false,
         selectDragSourceTileIndex: -1,
+        activePaintMapName: '',
       });
       setSoleSelectedTile(
-        editorState.selectedMapName,
+        controller,
+        selectionMapName,
         destTileIndex >= 0
           ? destTileIndex
-          : getEditorStateMap(editorState.selectedMapName)?.selectedTileInd ?? -1
+          : (getEditorStateMap(controller, selectionMapName)?.selectedTileInd ??
+              -1),
       );
     }
-    if (mapEditorEventState.isDraggingRight) {
-      mapEditorEventState.isDraggingRight = false;
-      const dragMapName = mapEditorEventState.rightDragMapName;
-      mapEditorEventState.rightDragMapName = '';
-      const wasGridDrag = mapEditorEventState.rightDragGridActive;
-      mapEditorEventState.rightDragGridActive = false;
-      const es = mapDataInterface.getEditorState();
+    if (controller.input.isDraggingRight) {
+      controller.input.isDraggingRight = false;
+      const dragMapName = controller.input.rightDragMapName;
+      controller.input.rightDragMapName = '';
+      const wasGridDrag = controller.input.rightDragGridActive;
+      controller.input.rightDragGridActive = false;
+      const es = mapDataInterface.controller.getState();
 
       if (wasGridDrag) {
         completeGridRightDrag(mapDataInterface);
@@ -914,7 +971,8 @@ export const initPanzoom = (mapDataInterface: {
       // focused one.
       const dragMap =
         (dragMapName
-          ? gridNavigationHandlers
+          ? controller
+              .getGridNavigationHandlers()
               ?.getMaps()
               .find((m) => m.name === dragMapName)
           : undefined) ?? mapDataInterface.getMapData();
@@ -925,12 +983,12 @@ export const initPanzoom = (mapDataInterface: {
       const dragSelectedInds = getIndsOfBoundingRect(
         ind0,
         ind1,
-        dragMap.width ?? 0
+        dragMap.width ?? 0,
       );
       if (dragSelectedInds.length === 0) {
         return;
       }
-      const mapTiles = getTileList(dragMap);
+      const mapTiles = getTileList(controller, dragMap);
       const nextRef = mapTiles[dragSelectedInds[0]];
       if (dragSelectedInds.length === 1 && nextRef) {
         // An unpainted cell has graphic (0, 0); picking it up just yields the
@@ -939,18 +997,18 @@ export const initPanzoom = (mapDataInterface: {
         const { tilesetIndex, tileId } = getTileGraphic(
           dragMap,
           es.currentLevel,
-          dragSelectedInds[0]
+          dragSelectedInds[0],
         );
         if (tilesetIndex === 0 && tileId === 0) {
-          setCurrentPaintAction(PaintActionType.ERASE);
+          setCurrentPaintAction(controller, PaintActionType.ERASE);
         } else {
-          updateEditorStateNoReRender({
+          updateEditorStateNoReRender(controller, {
             rectCloneBrushTiles: [],
             selectedTileIndexInTileset: nextRef.tileId,
             selectedTilesetName: nextRef.tilesetName,
           });
         }
-        setSoleSelectedTile(pickKey, dragSelectedInds[0]);
+        setSoleSelectedTile(controller, pickKey, dragSelectedInds[0]);
         return;
       }
       const mapWidth = dragMap.width ?? 0;
@@ -968,10 +1026,10 @@ export const initPanzoom = (mapDataInterface: {
           },
         };
       });
-      updateEditorStateNoReRender({
+      updateEditorStateNoReRender(controller, {
         rectCloneBrushTiles: brush,
       });
-      setSoleSelectedTile(pickKey, dragSelectedInds[0]);
+      setSoleSelectedTile(controller, pickKey, dragSelectedInds[0]);
     }
   };
   const handleContextMenu = (ev: MouseEvent) => {
@@ -984,12 +1042,12 @@ export const initPanzoom = (mapDataInterface: {
       return;
     }
     ev.preventDefault();
-    markRenderDirty();
 
     const [focalX, focalY] = screenCoordsToCanvasCoords(
+      controller,
       ev.clientX,
       ev.clientY,
-      mapDataInterface.getCanvas()
+      mapDataInterface.getCanvas(),
     );
 
     // Normalize delta across mice (lines) and trackpads (pixels).
@@ -1002,101 +1060,81 @@ export const initPanzoom = (mapDataInterface: {
 
     // Multiplicative zoom tracks continuous scroll; ~15% per 100px of delta.
     const zoomFactor = Math.exp(-delta * 0.0015);
-    let nextScale = mapEditorEventState.scale * zoomFactor;
+    let nextScale = controller.input.scale * zoomFactor;
     if (nextScale > 10) {
       nextScale = 10;
     } else if (nextScale < 0.5) {
       nextScale = 0.5;
     }
 
-    if (nextScale === mapEditorEventState.scale) {
+    if (nextScale === controller.input.scale) {
       return;
     }
 
     const offsetX =
       focalX -
-      (nextScale / mapEditorEventState.scale) *
-        (focalX - mapEditorEventState.translateX);
+      (nextScale / controller.input.scale) *
+        (focalX - controller.input.translateX);
     const offsetY =
       focalY -
-      (nextScale / mapEditorEventState.scale) *
-        (focalY - mapEditorEventState.translateY);
+      (nextScale / controller.input.scale) *
+        (focalY - controller.input.translateY);
 
-    mapEditorEventState.translateX = offsetX;
-    mapEditorEventState.translateY = offsetY;
-    mapEditorEventState.scale = nextScale;
+    controller.input.translateX = offsetX;
+    controller.input.translateY = offsetY;
+    controller.input.scale = nextScale;
   };
   // The canvas rect is cached and only refreshed per rendered frame; when the
   // loop is idle a scroll/resize can move it, so drop the cache and force one
   // frame here too.
   const handleViewportChange = () => {
-    invalidateCanvasRectCache();
-    markRenderDirty();
+    invalidateCanvasRectCache(controller);
   };
 
-  lastAppliedCursor = null;
-  invalidateCanvasRectCache();
+  controller.lastAppliedCursor = null;
+  invalidateCanvasRectCache(controller);
 
-  window.addEventListener('keydown', handleKeyDown);
-  window.addEventListener('keyup', handleKeyUp);
-  window.addEventListener('mousedown', handleMouseDown);
-  window.addEventListener('mousemove', handleMouseMove);
-  window.addEventListener('mouseup', handleMouseUp);
-  window.addEventListener('contextmenu', handleContextMenu);
-  window.addEventListener('wheel', handleWheel, { passive: false });
-  window.addEventListener('resize', handleViewportChange);
-  window.addEventListener('scroll', handleViewportChange, true);
-
-  isPanZoomInitialized = true;
-  panZoomEvents.keydown = handleKeyDown;
-  panZoomEvents.keyup = handleKeyUp;
-  panZoomEvents.mousedown = handleMouseDown;
-  panZoomEvents.mousemove = handleMouseMove;
-  panZoomEvents.mouseup = handleMouseUp;
-  panZoomEvents.contextmenu = handleContextMenu;
-  panZoomEvents.wheel = handleWheel;
-  panZoomEvents.viewportChange = handleViewportChange;
+  controller.attach({
+    canvas: mapDataInterface.getCanvas(),
+    handlers: {
+      keydown: handleKeyDown,
+      keyup: handleKeyUp,
+      pointerdown: handleMouseDown,
+      pointermove: handleMouseMove,
+      pointerup: handleMouseUp,
+      pointercancel: handleMouseUp,
+      contextmenu: handleContextMenu,
+      wheel: handleWheel,
+      resize: handleViewportChange,
+    },
+  });
 };
 
-export const unInitPanzoom = () => {
-  if (!isPanZoomInitialized || !panZoomEvents) {
-    return;
-  }
-  window.removeEventListener('keydown', panZoomEvents.keydown);
-  window.removeEventListener('keyup', panZoomEvents.keyup);
-  window.removeEventListener('mousedown', panZoomEvents.mousedown);
-  window.removeEventListener('mousemove', panZoomEvents.mousemove);
-  window.removeEventListener('mouseup', panZoomEvents.mouseup);
-  window.removeEventListener('contextmenu', panZoomEvents.contextmenu);
-  window.removeEventListener('wheel', panZoomEvents.wheel);
-  window.removeEventListener('resize', panZoomEvents.viewportChange);
-  window.removeEventListener('scroll', panZoomEvents.viewportChange, true);
-  isPanZoomInitialized = false;
-};
+export const unInitPanzoom = (controller: MapEditorController) =>
+  controller.detach();
 
-export const getTransform = () => {
+export const getTransform = (controller: MapEditorController) => {
   return {
-    x: mapEditorEventState.translateX,
-    y: mapEditorEventState.translateY,
-    scale: mapEditorEventState.scale,
+    x: controller.input.translateX,
+    y: controller.input.translateY,
+    scale: controller.input.scale,
   };
 };
-
-let lastAppliedCursor: string | null = null;
 
 export const updateMapCanvasCursor = (
+  controller: MapEditorController,
   canvas: HTMLCanvasElement | null,
   paintAction: PaintActionType,
   hoveredTileIndex: number,
   isSelectDragging = false,
-  hoveredGridAdjacentSlot: { offsetX: number; offsetY: number } | null = null
+  hoveredGridAdjacentSlot: { offsetX: number; offsetY: number } | null = null,
 ) => {
   if (!canvas) {
     return;
   }
 
   let cursor = '';
-  if (mapEditorEventState.isDragging || isSelectDragging) {
+  if (controller.input.isDragging || isSelectDragging) {
     cursor = 'grabbing';
   } else if (hoveredGridAdjacentSlot) {
     cursor = 'pointer';
@@ -1108,51 +1146,61 @@ export const updateMapCanvasCursor = (
 
   // This runs every frame; writing the style unconditionally dirties layout and
   // makes the next getBoundingClientRect() a forced reflow.
-  if (cursor !== lastAppliedCursor) {
+  if (cursor !== controller.lastAppliedCursor) {
     canvas.style.cursor = cursor;
-    lastAppliedCursor = cursor;
+    controller.lastAppliedCursor = cursor;
   }
 };
 
-export const resetPanzoom = () => {
-  mapEditorEventState.translateX = 0;
-  mapEditorEventState.translateY = 0;
-  mapEditorEventState.scale = 1;
+export const resetPanzoom = (controller: MapEditorController) => {
+  controller.input.translateX = 0;
+  controller.input.translateY = 0;
+  controller.input.scale = 1;
 };
 
-export const saveViewportForMap = (mapName: string) => {
+export const saveViewportForMap = (
+  controller: MapEditorController,
+  mapName: string,
+) => {
   if (!mapName) {
     return;
   }
-  updateEditorStateMapNoReRender(mapName, {
+  updateEditorStateMapNoReRender(controller, mapName, {
     viewport: {
-      translateX: mapEditorEventState.translateX,
-      translateY: mapEditorEventState.translateY,
-      scale: mapEditorEventState.scale,
+      translateX: controller.input.translateX,
+      translateY: controller.input.translateY,
+      scale: controller.input.scale,
     },
   });
 };
 
-export const restoreViewportForMap = (mapName: string) => {
+export const restoreViewportForMap = (
+  controller: MapEditorController,
+  mapName: string,
+) => {
   if (!mapName) {
-    resetPanzoom();
+    resetPanzoom(controller);
     return;
   }
-  const viewport = getEditorStateMap(mapName)?.viewport;
+  const viewport = getEditorStateMap(controller, mapName)?.viewport;
   if (viewport) {
-    mapEditorEventState.translateX = viewport.translateX;
-    mapEditorEventState.translateY = viewport.translateY;
-    mapEditorEventState.scale = viewport.scale;
+    controller.input.translateX = viewport.translateX;
+    controller.input.translateY = viewport.translateY;
+    controller.input.scale = viewport.scale;
     return;
   }
-  resetPanzoom();
+  resetPanzoom(controller);
 };
 
-export const switchMapViewport = (fromMapName: string, toMapName: string) => {
+export const switchMapViewport = (
+  controller: MapEditorController,
+  fromMapName: string,
+  toMapName: string,
+) => {
   if (fromMapName) {
-    saveViewportForMap(fromMapName);
+    saveViewportForMap(controller, fromMapName);
   }
-  restoreViewportForMap(toMapName);
+  restoreViewportForMap(controller, toMapName);
 };
 
 /**
@@ -1161,30 +1209,30 @@ export const switchMapViewport = (fromMapName: string, toMapName: string) => {
  * by that amount makes the neighbor become current without a visual jump.
  */
 export const switchMapViewportPreservingStitch = (
+  controller: MapEditorController,
   fromMapName: string,
   toMapName: string,
   stitchOffset: GridNavigateStitchOffset,
   mapPixelWidth: number,
-  mapPixelHeight: number
+  mapPixelHeight: number,
 ) => {
   if (fromMapName) {
-    saveViewportForMap(fromMapName);
+    saveViewportForMap(controller, fromMapName);
   }
-  const scale = mapEditorEventState.scale;
-  mapEditorEventState.translateX +=
-    stitchOffset.offsetX * mapPixelWidth * scale;
-  mapEditorEventState.translateY +=
-    stitchOffset.offsetY * mapPixelHeight * scale;
+  const scale = controller.input.scale;
+  controller.input.translateX += stitchOffset.offsetX * mapPixelWidth * scale;
+  controller.input.translateY += stitchOffset.offsetY * mapPixelHeight * scale;
   if (toMapName) {
-    saveViewportForMap(toMapName);
+    saveViewportForMap(controller, toMapName);
   }
 };
 
 /** Pan the map view so the tile center is at the canvas center. */
 export const centerViewOnTile = (
+  controller: MapEditorController,
   canvas: HTMLCanvasElement,
   mapData: CarcerMapTemplate,
-  tileIndex: number
+  tileIndex: number,
 ) => {
   const tileX = tileIndex % mapData.width;
   const tileY = Math.floor(tileIndex / mapData.width);
@@ -1192,20 +1240,20 @@ export const centerViewOnTile = (
   const tileCenterMapY = (tileY + 0.5) * mapData.spriteHeight;
   const mapWidth = mapData.width * mapData.spriteWidth;
   const mapHeight = mapData.height * mapData.spriteHeight;
-  const scale = mapEditorEventState.scale;
+  const scale = controller.input.scale;
   const canvasW = canvas.width;
   const canvasH = canvas.height;
 
-  mapEditorEventState.translateX =
+  controller.input.translateX =
     (canvasW / 2) * (1 - scale) + scale * (mapWidth / 2 - tileCenterMapX);
-  mapEditorEventState.translateY =
+  controller.input.translateY =
     (canvasH / 2) * (1 - scale) + scale * (mapHeight / 2 - tileCenterMapY);
 };
 
 export const getIndsOfBoundingRect = (
   ind0: number,
   ind1: number,
-  width: number
+  width: number,
 ): number[] => {
   if (ind0 === -1) {
     return [];
@@ -1240,31 +1288,32 @@ export const getIndsOfBoundingRect = (
  * loop writes canvas.style.cursor each frame, so measuring per event thrashes
  * layout while panning. Measure at most once per frame instead.
  */
-let cachedCanvasRect: { canvas: HTMLCanvasElement; left: number; top: number } | null =
-  null;
-
-export const invalidateCanvasRectCache = () => {
-  cachedCanvasRect = null;
+export const invalidateCanvasRectCache = (controller: MapEditorController) => {
+  controller.canvasRect = null;
 };
 
-const getCanvasOffset = (panzoomCanvas: HTMLCanvasElement) => {
-  if (cachedCanvasRect && cachedCanvasRect.canvas === panzoomCanvas) {
-    return cachedCanvasRect;
+const getCanvasOffset = (
+  controller: MapEditorController,
+  panzoomCanvas: HTMLCanvasElement,
+) => {
+  if (controller.canvasRect && controller.canvasRect.canvas === panzoomCanvas) {
+    return controller.canvasRect;
   }
   const { left, top } = panzoomCanvas?.getBoundingClientRect() ?? {
     left: 0,
     top: 0,
   };
-  cachedCanvasRect = { canvas: panzoomCanvas, left, top };
-  return cachedCanvasRect;
+  controller.canvasRect = { canvas: panzoomCanvas, left, top };
+  return controller.canvasRect;
 };
 
 export const screenCoordsToCanvasCoords = (
+  controller: MapEditorController,
   x: number,
   y: number,
-  panzoomCanvas: HTMLCanvasElement
+  panzoomCanvas: HTMLCanvasElement,
 ) => {
-  const { left, top } = getCanvasOffset(panzoomCanvas);
+  const { left, top } = getCanvasOffset(controller, panzoomCanvas);
 
   const canvasX = x - left;
   const canvasY = y - top;
@@ -1273,15 +1322,21 @@ export const screenCoordsToCanvasCoords = (
 };
 
 export const screenCoordsToMapCoords = (
+  controller: MapEditorController,
   x: number,
   y: number,
   mapData: CarcerMapTemplate,
-  panzoomCanvas: HTMLCanvasElement
+  panzoomCanvas: HTMLCanvasElement,
 ) => {
   if (!panzoomCanvas) {
     return [0, 0];
   }
-  const [canvasX, canvasY] = screenCoordsToCanvasCoords(x, y, panzoomCanvas);
+  const [canvasX, canvasY] = screenCoordsToCanvasCoords(
+    controller,
+    x,
+    y,
+    panzoomCanvas,
+  );
   const canvas = panzoomCanvas;
 
   const canvasW = canvas.width;
@@ -1289,25 +1344,32 @@ export const screenCoordsToMapCoords = (
 
   const mapX =
     canvasX -
-    mapEditorEventState.translateX -
-    mapEditorEventState.scale *
+    controller.input.translateX -
+    controller.input.scale *
       (canvasW / 2 - (mapData.width * mapData.spriteWidth) / 2);
   const mapY =
     canvasY -
-    mapEditorEventState.translateY -
-    mapEditorEventState.scale *
+    controller.input.translateY -
+    controller.input.scale *
       (canvasH / 2 - (mapData.height * mapData.spriteHeight) / 2);
 
-  return [mapX / mapEditorEventState.scale, mapY / mapEditorEventState.scale];
+  return [mapX / controller.input.scale, mapY / controller.input.scale];
 };
 
 export const screenCoordsToTileIndex = (
+  controller: MapEditorController,
   x: number,
   y: number,
   mapData: CarcerMapTemplate,
-  panzoomCanvas: HTMLCanvasElement
+  panzoomCanvas: HTMLCanvasElement,
 ): [number, number, number, number, number] => {
-  const [mapX, mapY] = screenCoordsToMapCoords(x, y, mapData, panzoomCanvas);
+  const [mapX, mapY] = screenCoordsToMapCoords(
+    controller,
+    x,
+    y,
+    mapData,
+    panzoomCanvas,
+  );
   const tileX = Math.floor(mapX / mapData.spriteWidth);
   const tileY = Math.floor(mapY / mapData.spriteHeight);
   if (
@@ -1329,19 +1391,31 @@ export const screenCoordsToTileIndex = (
  * map is not in a grid. Pair with resolveGridBrushCell to land on a real block.
  */
 export const screenCoordsToGridTile = (
+  controller: MapEditorController,
   x: number,
   y: number,
   focusedMap: CarcerMapTemplate,
   panzoomCanvas: HTMLCanvasElement,
-  mapGrids: MapGridTemplate[]
+  mapGrids: MapGridTemplate[],
+  placement?: MapGridPlacement | null,
 ): { gx: number; gy: number } | null => {
   if (!panzoomCanvas || !focusedMap) {
     return null;
   }
-  if (!findMapGridPlacement(focusedMap.name, mapGrids)) {
+  const resolvedPlacement =
+    placement === undefined
+      ? findMapGridPlacement(focusedMap.name, mapGrids)
+      : placement;
+  if (!resolvedPlacement) {
     return null;
   }
-  const [fx, fy] = screenCoordsToMapCoords(x, y, focusedMap, panzoomCanvas);
+  const [fx, fy] = screenCoordsToMapCoords(
+    controller,
+    x,
+    y,
+    focusedMap,
+    panzoomCanvas,
+  );
   return {
     gx: Math.floor(fx / focusedMap.spriteWidth),
     gy: Math.floor(fy / focusedMap.spriteHeight),
@@ -1349,34 +1423,36 @@ export const screenCoordsToGridTile = (
 };
 
 /** The in-progress right-drag rect select, in focused-map tile space, or null. */
-export const getRightDragGridRect = (): {
+export const getRightDragGridRect = (
+  controller: MapEditorController,
+): {
   gx0: number;
   gy0: number;
   gx1: number;
   gy1: number;
 } | null => {
   if (
-    !mapEditorEventState.isDraggingRight ||
-    !mapEditorEventState.rightDragGridActive
+    !controller.input.isDraggingRight ||
+    !controller.input.rightDragGridActive
   ) {
     return null;
   }
   return {
     gx0: Math.min(
-      mapEditorEventState.rightDragStartGX,
-      mapEditorEventState.rightDragEndGX
+      controller.input.rightDragStartGX,
+      controller.input.rightDragEndGX,
     ),
     gy0: Math.min(
-      mapEditorEventState.rightDragStartGY,
-      mapEditorEventState.rightDragEndGY
+      controller.input.rightDragStartGY,
+      controller.input.rightDragEndGY,
     ),
     gx1: Math.max(
-      mapEditorEventState.rightDragStartGX,
-      mapEditorEventState.rightDragEndGX
+      controller.input.rightDragStartGX,
+      controller.input.rightDragEndGX,
     ),
     gy1: Math.max(
-      mapEditorEventState.rightDragStartGY,
-      mapEditorEventState.rightDragEndGY
+      controller.input.rightDragStartGY,
+      controller.input.rightDragEndGY,
     ),
   };
 };
@@ -1392,6 +1468,8 @@ export interface GridCellHit {
   tileY: number;
   /** tileY * map.width + tileX, or -1 when no map / outside that map's bounds. */
   tileIndex: number;
+  /** Whether this partition shares the grid/focused-map editing geometry. */
+  editable: boolean;
 }
 
 /**
@@ -1399,26 +1477,31 @@ export interface GridCellHit {
  * relative to `focusedMap`'s placement. For cell offset (0, 0) this reproduces
  * `screenCoordsToTileIndex` exactly; neighbours reuse the same transform shifted
  * by whole slots. Returns null when the focused map is not in a grid, or the
- * pointer is outside `radius` / off the grid.
+ * pointer is off the grid.
  */
 export const screenCoordsToGridCell = (
+  controller: MapEditorController,
   x: number,
   y: number,
   focusedMap: CarcerMapTemplate,
   panzoomCanvas: HTMLCanvasElement,
-  mapGrids: MapGridTemplate[],
-  maps: CarcerMapTemplate[],
-  radius: number
+  placement: MapGridPlacement | null,
+  mapsByName: ReadonlyMap<string, CarcerMapTemplate>,
 ): GridCellHit | null => {
   if (!panzoomCanvas || !focusedMap) {
     return null;
   }
-  const placement = findMapGridPlacement(focusedMap.name, mapGrids);
   if (!placement) {
     return null;
   }
 
-  const [fx, fy] = screenCoordsToMapCoords(x, y, focusedMap, panzoomCanvas);
+  const [fx, fy] = screenCoordsToMapCoords(
+    controller,
+    x,
+    y,
+    focusedMap,
+    panzoomCanvas,
+  );
   const slotW = placement.grid.mapWidth * focusedMap.spriteWidth;
   const slotH = placement.grid.mapHeight * focusedMap.spriteHeight;
   if (slotW <= 0 || slotH <= 0) {
@@ -1427,10 +1510,6 @@ export const screenCoordsToGridCell = (
 
   const cellOffsetX = Math.floor(fx / slotW);
   const cellOffsetY = Math.floor(fy / slotH);
-  if (Math.abs(cellOffsetX) > radius || Math.abs(cellOffsetY) > radius) {
-    return null;
-  }
-
   const cellX = placement.cellX + cellOffsetX;
   const cellY = placement.cellY + cellOffsetY;
   if (
@@ -1443,7 +1522,16 @@ export const screenCoordsToGridCell = (
   }
 
   const mapName = placement.grid.cells[cellY]?.[cellX]?.trim() ?? '';
-  const map = mapName ? maps.find((m) => m.name === mapName) ?? null : null;
+  const map = mapName ? (mapsByName.get(mapName) ?? null) : null;
+  const editable = Boolean(
+    map &&
+    (cellOffsetX === 0 && cellOffsetY === 0
+      ? map.name === focusedMap.name
+      : map.width === placement.grid.mapWidth &&
+        map.height === placement.grid.mapHeight &&
+        map.spriteWidth === focusedMap.spriteWidth &&
+        map.spriteHeight === focusedMap.spriteHeight),
+  );
 
   let tileX = -1;
   let tileY = -1;
@@ -1460,35 +1548,57 @@ export const screenCoordsToGridCell = (
     }
   }
 
-  return { mapName, map, cellOffsetX, cellOffsetY, tileX, tileY, tileIndex };
+  return {
+    mapName,
+    map,
+    cellOffsetX,
+    cellOffsetY,
+    tileX,
+    tileY,
+    tileIndex,
+    editable,
+  };
 };
 
-export const getScreenMouseCoords = () => {
-  return [mapEditorEventState.mouseX, mapEditorEventState.mouseY];
+export const getScreenMouseCoords = (controller: MapEditorController) => {
+  return [controller.input.mouseX, controller.input.mouseY];
 };
 
-export const getIsDraggingRight = () => {
-  return mapEditorEventState.isDraggingRight;
+export const getIsDraggingRight = (controller: MapEditorController) => {
+  return controller.input.isDraggingRight;
 };
 
 /** Any pointer interaction that needs the canvas repainted every frame. */
-export const isCanvasInteracting = () => {
+export const isCanvasInteracting = (controller: MapEditorController) => {
   return (
-    mapEditorEventState.isDragging ||
-    mapEditorEventState.isDraggingRight ||
-    mapEditorEventState.isPainting ||
-    mapEditorEventState.pendingGridSlotClick !== null ||
-    getEditorState().isSelectDragging
+    controller.input.isDragging ||
+    controller.input.isDraggingRight ||
+    controller.input.isPainting ||
+    controller.input.pendingGridSlotClick !== null ||
+    controller.getState().isSelectDragging
   );
 };
 
-export const getTileList = (mapData: CarcerMapTemplate, level?: number) => {
-  return getMaterializedLayer(mapData, level ?? getEditorState().currentLevel);
+export const getTileList = (
+  controller: MapEditorController,
+  mapData: CarcerMapTemplate,
+  level?: number,
+) => {
+  return getMaterializedLayer(
+    mapData,
+    level ?? controller.getState().currentLevel,
+    controller,
+  );
 };
 
 export const commitCurrentLayer = (
+  controller: MapEditorController,
   mapData: CarcerMapTemplate,
-  level?: number
+  level?: number,
 ) => {
-  commitMaterializedLayer(mapData, level ?? getEditorState().currentLevel);
+  commitMaterializedLayer(
+    mapData,
+    level ?? controller.getState().currentLevel,
+    controller,
+  );
 };

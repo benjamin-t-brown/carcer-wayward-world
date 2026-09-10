@@ -37,6 +37,7 @@ import {
   getTileChangesForPaintingTerrainAt,
   TERRAIN_TILESET_NAME,
 } from './terrainTool';
+import { MapEditorController } from './MapEditorController';
 
 export enum PaintActionType {
   NONE = '',
@@ -84,12 +85,6 @@ export interface PaintAction {
 /** Cap per-map undo depth; each entry deep-clones every tile it touched. */
 const MAX_UNDO_HISTORY = 100;
 
-let currentAction: PaintAction | null = null;
-export const setCurrentAction = (action: PaintAction) => {
-  currentAction = action;
-};
-export const getCurrentAction = () => currentAction;
-
 export const createPaintAction = (type: PaintActionType) => {
   const paintAction: PaintAction = {
     type,
@@ -109,26 +104,33 @@ export const createPaintAction = (type: PaintActionType) => {
 };
 
 export const applyAction = (
+  controller: MapEditorController,
   action: PaintAction,
   mapData: CarcerMapTemplate,
   editorState: EditorState,
 ) => {
-  TOOLS[action.type]?.apply(action, mapData, editorState);
+  TOOLS[action.type]?.apply(controller, action, mapData, editorState);
 };
 
 export const applyActionUpdate = (
+  controller: MapEditorController,
   action: PaintAction,
   mapData: CarcerMapTemplate,
   editorState: EditorState,
 ) => {
-  TOOLS[action.type]?.update?.(action, mapData, editorState);
+  TOOLS[action.type]?.update?.(controller, action, mapData, editorState);
 };
 
-export const undoAction = (mapData: CarcerMapTemplate, action: PaintAction) => {
-  TOOLS[action.type]?.undo(action, mapData);
+export const undoAction = (
+  controller: MapEditorController,
+  mapData: CarcerMapTemplate,
+  action: PaintAction,
+) => {
+  TOOLS[action.type]?.undo(controller, action, mapData);
 };
 
 function applyTerrainPaintUpdate(
+  controller: MapEditorController,
   action: PaintAction,
   startMap: CarcerMapTemplate,
   editorState: EditorState,
@@ -139,21 +141,14 @@ function applyTerrainPaintUpdate(
   // block (each block sees only its own tiles at the seam).
   const hoveredBlockName =
     editorState.hoveredGridMapName || editorState.selectedMapName;
-  const ind = getEditorStateMap(hoveredBlockName)?.hoveredTileIndex ?? -1;
+  const ind =
+    getEditorStateMap(controller, hoveredBlockName)?.hoveredTileIndex ?? -1;
   if (ind === -1) {
     return;
   }
 
-  const ctx = getGridPaintContext();
-  const byName: Record<string, CarcerMapTemplate> = {
-    [startMap.name]: startMap,
-  };
-  if (ctx) {
-    for (const m of ctx.maps) {
-      byName[m.name] = m;
-    }
-  }
-  const targetMap = byName[hoveredBlockName] ?? startMap;
+  const ctx = getGridPaintContext(controller);
+  const targetMap = ctx?.mapsByName.get(hoveredBlockName) ?? startMap;
 
   const centerKey = `${hoveredBlockName}:${ind}`;
   const centers = (action.data.terrainCenters ??= []);
@@ -163,12 +158,13 @@ function applyTerrainPaintUpdate(
   centers.push(centerKey);
 
   const terrainTileset = getTerrainTileset(tilesets);
-  const mapState = ensureEditorStateMap(hoveredBlockName);
+  const mapState = ensureEditorStateMap(controller, hoveredBlockName);
   const x = ind % targetMap.width;
   const y = Math.floor(ind / targetMap.width);
   const lookup = buildTerrainLookup(terrainTileset);
 
   const tileChanges = getTileChangesForPaintingTerrainAt(
+    controller,
     targetMap,
     editorState,
     mapState,
@@ -179,7 +175,7 @@ function applyTerrainPaintUpdate(
     editorState.selectedTerrainTag,
   );
 
-  const targetTiles = getTileList(targetMap);
+  const targetTiles = getTileList(controller, targetMap);
   const writes = (action.data.blockWrites ??= []);
   const seen = new Set(writes.map((w) => `${w.mapName}:${w.ind}`));
   for (const tileChange of tileChanges) {
@@ -206,6 +202,7 @@ function applyTerrainPaintUpdate(
  * action.data.blockWrites for a single multi-block undo.
  */
 const applyDrawUpdate = (
+  controller: MapEditorController,
   action: PaintAction,
   startMap: CarcerMapTemplate,
   editorState: EditorState,
@@ -213,22 +210,19 @@ const applyDrawUpdate = (
   const hoveredBlockName =
     editorState.hoveredGridMapName || editorState.selectedMapName;
   const hoveredInd =
-    getEditorStateMap(hoveredBlockName)?.hoveredTileIndex ?? -1;
+    getEditorStateMap(controller, hoveredBlockName)?.hoveredTileIndex ?? -1;
   if (hoveredInd === -1) {
     return;
   }
 
-  const ctx = getGridPaintContext();
-  const mapsByName: Record<string, CarcerMapTemplate> = {
-    [startMap.name]: startMap,
-  };
-  if (ctx) {
-    for (const m of ctx.maps) {
-      mapsByName[m.name] = m;
-    }
-  }
+  const ctx = getGridPaintContext(controller);
+  const mapsByName =
+    ctx?.mapsByName ?? new Map([[startMap.name, startMap] as const]);
   const grids = ctx?.mapGrids ?? [];
-  const anchorMap = mapsByName[hoveredBlockName] ?? startMap;
+  const anchorMap = mapsByName.get(hoveredBlockName) ?? startMap;
+  const placement = ctx
+    ? (ctx.placementsByMapName.get(anchorMap.name)?.[0] ?? null)
+    : undefined;
 
   if (action.data.startInd === -1) {
     action.data.startInd = hoveredInd;
@@ -238,14 +232,17 @@ const applyDrawUpdate = (
   const anchorX = hoveredInd % anchorMap.width;
   const anchorY = Math.floor(hoveredInd / anchorMap.width);
   const brush = action.data.floorDrawBrush;
-  const cells: { dx: number; dy: number; ref: Partial<CarcerMapTileTemplate> }[] =
-    brush?.length
-      ? brush.map((bt) => ({
-          dx: bt.xOffset,
-          dy: bt.yOffset,
-          ref: bt.originalTile.ref,
-        }))
-      : [{ dx: 0, dy: 0, ref: action.data.paintTileRef }];
+  const cells: {
+    dx: number;
+    dy: number;
+    ref: Partial<CarcerMapTileTemplate>;
+  }[] = brush?.length
+    ? brush.map((bt) => ({
+        dx: bt.xOffset,
+        dy: bt.yOffset,
+        ref: bt.originalTile.ref,
+      }))
+    : [{ dx: 0, dy: 0, ref: action.data.paintTileRef }];
 
   const writes = (action.data.blockWrites ??= []);
   const seen = new Set(writes.map((w) => `${w.mapName}:${w.ind}`));
@@ -257,6 +254,7 @@ const applyDrawUpdate = (
       anchorY + cell.dy,
       grids,
       mapsByName,
+      placement,
     );
     if (!target) {
       continue;
@@ -267,9 +265,9 @@ const applyDrawUpdate = (
     }
     seen.add(key);
     if (target.map.name !== startMap.name) {
-      ensureEditorStateMap(target.map.name);
+      ensureEditorStateMap(controller, target.map.name);
     }
-    const tiles = getTileList(target.map);
+    const tiles = getTileList(controller, target.map);
     writes.push({
       mapName: target.map.name,
       ind: target.tileIndex,
@@ -280,6 +278,7 @@ const applyDrawUpdate = (
 };
 
 export const onActionUpdate = (
+  controller: MapEditorController,
   action: PaintAction,
   mapData: CarcerMapTemplate,
   editorState: EditorState,
@@ -288,17 +287,18 @@ export const onActionUpdate = (
   // DRAW and TERRAIN follow the pointer across grid blocks, so they must run
   // even when the start block's own hovered tile is now -1.
   if (action.type === PaintActionType.DRAW) {
-    applyDrawUpdate(action, mapData, editorState);
+    applyDrawUpdate(controller, action, mapData, editorState);
     return;
   }
   if (action.type === PaintActionType.TERRAIN && tilesets) {
-    applyTerrainPaintUpdate(action, mapData, editorState, tilesets);
+    applyTerrainPaintUpdate(controller, action, mapData, editorState, tilesets);
     return;
   }
 
-  const mapTiles = getTileList(mapData);
+  const mapTiles = getTileList(controller, mapData);
   const ind =
-    getEditorStateMap(getPaintMapName(editorState))?.hoveredTileIndex ?? -1;
+    getEditorStateMap(controller, getPaintMapName(editorState))
+      ?.hoveredTileIndex ?? -1;
 
   if (ind === -1) {
     return;
@@ -312,7 +312,7 @@ export const onActionUpdate = (
   if (!action.data.tileInds.includes(ind)) {
     action.data.tileInds.push(ind);
     action.data.prevRefData.push(structuredClone(mapTiles[ind]));
-    applyActionUpdate(action, mapData, editorState);
+    applyActionUpdate(controller, action, mapData, editorState);
   }
 };
 
@@ -322,6 +322,7 @@ export const onActionUpdate = (
  * are flushed and their caches invalidated.
  */
 const commitBlockWriteMaps = (
+  controller: MapEditorController,
   action: PaintAction,
   alreadyCommitted: string,
   level: number,
@@ -330,13 +331,9 @@ const commitBlockWriteMaps = (
   if (!writes || writes.length === 0) {
     return;
   }
-  const ctx = getGridPaintContext();
+  const ctx = getGridPaintContext(controller);
   if (!ctx) {
     return;
-  }
-  const byName: Record<string, CarcerMapTemplate> = {};
-  for (const m of ctx.maps) {
-    byName[m.name] = m;
   }
   const done = new Set([alreadyCommitted]);
   for (const write of writes) {
@@ -344,28 +341,36 @@ const commitBlockWriteMaps = (
       continue;
     }
     done.add(write.mapName);
-    const map = byName[write.mapName];
+    const map = ctx.mapsByName.get(write.mapName);
     if (map) {
-      commitCurrentLayer(map, level);
+      commitCurrentLayer(controller, map, level);
     }
   }
 };
 
 export const onActionComplete = (
+  controller: MapEditorController,
   action: PaintAction,
   mapData: CarcerMapTemplate,
   editorState: EditorState,
-) => {
-  currentAction = null;
-  applyAction(action, mapData, editorState);
+): boolean => {
+  applyAction(controller, action, mapData, editorState);
+
+  const hasChanges = Boolean(
+    action.data.tileInds.length || action.data.blockWrites?.length,
+  );
+  if (!hasChanges) {
+    controller.setCurrentAction(null);
+    return false;
+  }
 
   const paintMapName = getPaintMapName(editorState);
 
   // Add action to undo history
   const newUndoHistory = [
-    ...(getEditorStateMap(paintMapName)?.undoHistory ?? []),
+    ...(getEditorStateMap(controller, paintMapName)?.undoHistory ?? []),
   ];
-  const undoIndex = getEditorStateMap(paintMapName)?.undoIndex ?? 0;
+  const undoIndex = getEditorStateMap(controller, paintMapName)?.undoIndex ?? 0;
 
   // If we're not at the end of the history, slice off everything after the current index
   if (undoIndex < newUndoHistory.length - 1) {
@@ -380,23 +385,31 @@ export const onActionComplete = (
   }
   const newUndoIndex = newUndoHistory.length - 1;
 
-  updateEditorStateMapNoReRender(paintMapName, {
+  updateEditorStateMapNoReRender(controller, paintMapName, {
     undoHistory: newUndoHistory,
     undoIndex: newUndoIndex,
   });
   // Grid-wide undo ordering across every block edited this session.
-  pushGridUndo(paintMapName);
-  commitCurrentLayer(mapData, editorState.currentLevel);
-  commitBlockWriteMaps(action, mapData.name, editorState.currentLevel);
+  pushGridUndo(controller, paintMapName);
+  commitCurrentLayer(controller, mapData, editorState.currentLevel);
+  commitBlockWriteMaps(
+    controller,
+    action,
+    mapData.name,
+    editorState.currentLevel,
+  );
+  controller.setCurrentAction(null);
+  return true;
 };
 
 export const undo = (
+  controller: MapEditorController,
   mapData: CarcerMapTemplate,
   editorState: EditorState,
   mapName?: string,
 ): boolean => {
   const key = mapName || getPaintMapName(editorState);
-  const { undoHistory, undoIndex } = getEditorStateMap(key) ?? {
+  const { undoHistory, undoIndex } = getEditorStateMap(controller, key) ?? {
     undoHistory: [],
     undoIndex: 0,
   };
@@ -409,24 +422,36 @@ export const undo = (
   // Get the action to undo
   const actionToUndo = undoHistory[undoIndex];
 
-  // Perform the undo
-  undoAction(mapData, actionToUndo);
-  commitCurrentLayer(mapData, editorState.currentLevel);
-  commitBlockWriteMaps(actionToUndo, mapData.name, editorState.currentLevel);
+  // Restoring a grid-wide action can materialize more blocks than the normal
+  // cache limit. Keep every restored buffer alive until all of them commit.
+  const releaseLayerViews = controller.pinLayerViews();
+  try {
+    undoAction(controller, mapData, actionToUndo);
+    commitCurrentLayer(controller, mapData, editorState.currentLevel);
+    commitBlockWriteMaps(
+      controller,
+      actionToUndo,
+      mapData.name,
+      editorState.currentLevel,
+    );
+  } finally {
+    releaseLayerViews();
+  }
 
   // Update undo index and trigger re-render
   const newUndoIndex = undoIndex - 1;
-  updateEditorStateMapNoReRender(key, {
+  updateEditorStateMapNoReRender(controller, key, {
     undoIndex: newUndoIndex,
   });
 
   // Trigger re-render to show the undo
-  (window as any).reRenderTileEditor?.();
+  controller.notify();
 
   return true;
 };
 
 export const onTileHoverIndChange = (
+  controller: MapEditorController,
   mapData: CarcerMapTemplate,
   editorState: EditorState,
   currentPaintAction: PaintActionType,
@@ -436,6 +461,7 @@ export const onTileHoverIndChange = (
   // `mapData` is whichever block the pointer is over; read its state, not the
   // focused map's, so fill/terrain previews land on the right block.
   const mapState = getEditorStateMap(
+    controller,
     editorState.hoveredGridMapName || editorState.selectedMapName,
   );
   if (nextHoverInd !== -1) {
@@ -444,15 +470,16 @@ export const onTileHoverIndChange = (
       (currentPaintAction === PaintActionType.FILL ||
         currentPaintAction === PaintActionType.DELETE_FILL)
     ) {
-      updateEditorStateNoReRender({
+      updateEditorStateNoReRender(controller, {
         fillIndsFloor: calculateFillIndsFloor(
+          controller,
           nextHoverInd,
           mapData,
           editorState.currentLevel,
         ),
       });
     } else {
-      updateEditorStateNoReRender({
+      updateEditorStateNoReRender(controller, {
         fillIndsFloor: [],
       });
     }
@@ -463,6 +490,7 @@ export const onTileHoverIndChange = (
       const x = nextHoverInd % mapData.width;
       const y = Math.floor(nextHoverInd / mapData.width);
       const changes = getTileChangesForPaintingTerrainAt(
+        controller,
         mapData,
         editorState,
         mapState,
@@ -472,23 +500,23 @@ export const onTileHoverIndChange = (
         y,
         editorState.selectedTerrainTag,
       );
-      updateEditorStateNoReRender({
+      updateEditorStateNoReRender(controller, {
         terrainPaintChanges: changes,
       });
     } else {
-      updateEditorStateNoReRender({
+      updateEditorStateNoReRender(controller, {
         terrainPaintChanges: [],
       });
     }
   } else {
-    updateEditorStateNoReRender({
+    updateEditorStateNoReRender(controller, {
       fillIndsFloor: [],
       terrainPaintChanges: [],
     });
   }
 
-  if (getIsDraggingRight()) {
-    updateEditorStateNoReRender({
+  if (getIsDraggingRight(controller)) {
+    updateEditorStateNoReRender(controller, {
       rectSelectTileIndEnd: nextHoverInd,
     });
   }

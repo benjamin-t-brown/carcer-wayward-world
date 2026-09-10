@@ -15,10 +15,7 @@ import {
   TileOverrides,
   TravelTrigger,
 } from '../types/assets';
-import {
-  bumpMapDataRevision,
-  getMapDataRevision,
-} from '../tile-editor/mapEditorSignals';
+import type { MapEditorController } from '../tile-editor/MapEditorController';
 
 /** Legacy on-disk shape (pre-flat migration). */
 export interface LegacyCarcerMapTemplate {
@@ -36,10 +33,7 @@ export function tileIndex(x: number, y: number, width: number): number {
   return y * width + x;
 }
 
-export function tileXY(
-  i: number,
-  width: number
-): { x: number; y: number } {
+export function tileXY(i: number, width: number): { x: number; y: number } {
   return { x: i % width, y: Math.floor(i / width) };
 }
 
@@ -53,7 +47,7 @@ export function layerKey(l: number): string {
 
 export function createEmptyTileGraphics(
   width: number,
-  height: number
+  height: number,
 ): number[] {
   const pairs = width * height * 2;
   const graphics = new Array<number>(pairs);
@@ -66,7 +60,7 @@ export function createEmptyTileGraphics(
 
 export function getOrAddTilesetIndex(
   map: CarcerMapTemplate,
-  tilesetName: string
+  tilesetName: string,
 ): number {
   const idx = map.tilesets.indexOf(tilesetName);
   if (idx >= 0) {
@@ -79,7 +73,7 @@ export function getOrAddTilesetIndex(
 export function getTileGraphic(
   map: CarcerMapTemplate,
   l: number,
-  i: number
+  i: number,
 ): { tilesetIndex: number; tileId: number } {
   const graphics = map.tiles[layerKey(l)];
   if (!graphics) {
@@ -97,7 +91,7 @@ export function setTileGraphic(
   l: number,
   i: number,
   tilesetIndex: number,
-  tileId: number
+  tileId: number,
 ): void {
   const key = layerKey(l);
   let graphics = map.tiles[key];
@@ -131,10 +125,7 @@ export function ensureMapLayers(map: CarcerMapTemplate): void {
   for (const l of map.layers) {
     const key = layerKey(l);
     const expectedLen = map.width * map.height * 2;
-    if (
-      !map.tiles[key] ||
-      map.tiles[key].length !== expectedLen
-    ) {
+    if (!map.tiles[key] || map.tiles[key].length !== expectedLen) {
       map.tiles[key] = createEmptyTileGraphics(map.width, map.height);
     }
   }
@@ -149,7 +140,7 @@ export function createTilesForLayer(map: CarcerMapTemplate, l: number): void {
 }
 
 export function isLegacyMap(
-  raw: CarcerMapTemplate | LegacyCarcerMapTemplate
+  raw: CarcerMapTemplate | LegacyCarcerMapTemplate,
 ): raw is LegacyCarcerMapTemplate {
   return (
     'levels' in raw &&
@@ -162,7 +153,7 @@ export function isLegacyMap(
 }
 
 export function migrateLegacyMap(
-  legacy: LegacyCarcerMapTemplate
+  legacy: LegacyCarcerMapTemplate,
 ): CarcerMapTemplate {
   const map: CarcerMapTemplate = {
     name: legacy.name,
@@ -185,7 +176,7 @@ export function migrateLegacyMap(
   };
 
   const levelKeys = Object.keys(legacy.levels).sort(
-    (a, b) => parseInt(b, 10) - parseInt(a, 10)
+    (a, b) => parseInt(b, 10) - parseInt(a, 10),
   );
   map.layers = levelKeys.map((k) => parseInt(k, 10));
 
@@ -210,7 +201,7 @@ export function migrateLegacyMap(
 }
 
 export function normalizeMapOnLoad(
-  raw: CarcerMapTemplate | LegacyCarcerMapTemplate
+  raw: CarcerMapTemplate | LegacyCarcerMapTemplate,
 ): CarcerMapTemplate {
   const map = isLegacyMap(raw) ? migrateLegacyMap(raw) : { ...raw };
   ensureMapLayers(map);
@@ -248,7 +239,7 @@ export interface PlacementKind {
  * keeping it out of maps.json.
  */
 function keepOverlayVisibility(
-  visibility: string | undefined
+  visibility: string | undefined,
 ): { overlayVisibility: string } | Record<string, never> {
   return visibility && visibility !== 'HIDDEN'
     ? { overlayVisibility: visibility }
@@ -348,7 +339,7 @@ type PlacementListKey = PlacementKind['listKey'];
 
 function getPlacementList(
   map: CarcerMapTemplate,
-  key: PlacementListKey
+  key: PlacementListKey,
 ): MapTileRef[] {
   return map[key] as unknown as MapTileRef[];
 }
@@ -356,7 +347,7 @@ function getPlacementList(
 function setPlacementList(
   map: CarcerMapTemplate,
   key: PlacementListKey,
-  list: MapTileRef[]
+  list: MapTileRef[],
 ): void {
   (map as unknown as Record<PlacementListKey, MapTileRef[]>)[key] = list;
 }
@@ -364,7 +355,7 @@ function setPlacementList(
 /** One pass over a placement list, bucketed by tile index, for a single layer. */
 function indexByTileIndex<T extends MapTileRef>(
   list: T[] | undefined,
-  l: number
+  l: number,
 ): Map<number, T[]> {
   const byIndex = new Map<number, T[]>();
   for (const entry of list ?? []) {
@@ -385,7 +376,7 @@ function appendTilePlacements(
   map: CarcerMapTemplate,
   l: number,
   i: number,
-  tile: CarcerMapTileTemplate
+  tile: CarcerMapTileTemplate,
 ): void {
   const source = tile as unknown as Record<string, unknown>;
   for (const kind of PLACEMENT_KINDS) {
@@ -400,18 +391,17 @@ function appendTilePlacements(
 
 export function materializeLayer(
   map: CarcerMapTemplate,
-  l: number
+  l: number,
 ): CarcerMapTileTemplate[] {
   ensureMapLayers(map);
   const count = map.width * map.height;
   const graphics =
-    map.tiles[layerKey(l)] ??
-    createEmptyTileGraphics(map.width, map.height);
+    map.tiles[layerKey(l)] ?? createEmptyTileGraphics(map.width, map.height);
   const result: CarcerMapTileTemplate[] = [];
 
   // One pass per kind, bucketed by tile index — O(tiles + placements).
   const indexes = PLACEMENT_KINDS.map((kind) =>
-    indexByTileIndex(getPlacementList(map, kind.listKey), l)
+    indexByTileIndex(getPlacementList(map, kind.listKey), l),
   );
 
   for (let i = 0; i < count; i++) {
@@ -442,7 +432,8 @@ export function materializeLayer(
 export function writeLayerFromTiles(
   map: CarcerMapTemplate,
   l: number,
-  tiles: CarcerMapTileTemplate[]
+  tiles: CarcerMapTileTemplate[],
+  controller?: MapEditorController,
 ): void {
   ensureMapLayers(map);
   const graphics = createEmptyTileGraphics(map.width, map.height);
@@ -451,7 +442,7 @@ export function writeLayerFromTiles(
     setPlacementList(
       map,
       kind.listKey,
-      getPlacementList(map, kind.listKey).filter((entry) => entry.l !== l)
+      getPlacementList(map, kind.listKey).filter((entry) => entry.l !== l),
     );
   }
 
@@ -469,7 +460,7 @@ export function writeLayerFromTiles(
   if (!map.layers.includes(l)) {
     map.layers = [...map.layers, l].sort((a, b) => b - a);
   }
-  bumpMapDataRevision(map.name);
+  controller?.bumpMapRevision(map.name);
 }
 
 /**
@@ -477,49 +468,35 @@ export function writeLayerFromTiles(
  * object identity, so an ordinary React `{ ...map }` spread no longer discards
  * it. Not a WeakMap, so it needs an explicit eviction rule (invariant I6).
  *
- * Sized to keep a whole grid-edit view resident: the focused map plus every
- * neighbour within gridRenderRadius (up to 25 at radius 2), with headroom for a
- * layer switch not evicting the set mid-frame.
+ * The owning controller bounds clean render buffers while pinning an active
+ * stroke until its changed layers have been committed.
  */
-const MAX_CACHED_LAYERS = 96;
-const layerViewCache = new Map<string, CarcerMapTileTemplate[]>();
-
-function layerCacheKey(name: string, l: number): string {
-  return name + '|' + getMapDataRevision(name) + '|' + l;
-}
-
 export function getMaterializedLayer(
   map: CarcerMapTemplate,
-  l: number
+  l: number,
+  controller?: MapEditorController,
 ): CarcerMapTileTemplate[] {
-  const key = layerCacheKey(map.name, l);
-  const hit = layerViewCache.get(key);
+  const hit = controller?.getLayerView(map.name, l);
   if (hit) {
     return hit;
   }
 
   const tiles = materializeLayer(map, l);
-  layerViewCache.set(key, tiles);
-  if (layerViewCache.size > MAX_CACHED_LAYERS) {
-    // Map preserves insertion order; drop the oldest entry.
-    const oldest = layerViewCache.keys().next().value;
-    if (oldest !== undefined) {
-      layerViewCache.delete(oldest);
-    }
-  }
+  controller?.setLayerView(map.name, l, tiles);
   return tiles;
 }
 
 export function commitMaterializedLayer(
   map: CarcerMapTemplate,
-  l: number
+  l: number,
+  controller?: MapEditorController,
 ): void {
   // Read before writeLayerFromTiles bumps the revision out from under the key.
-  const tiles = layerViewCache.get(layerCacheKey(map.name, l));
+  const tiles = controller?.getLayerView(map.name, l);
   if (!tiles) {
     return;
   }
-  writeLayerFromTiles(map, l, tiles);
+  writeLayerFromTiles(map, l, tiles, controller);
 }
 
 export function sortedLayerKeys(map: CarcerMapTemplate): number[] {
@@ -568,7 +545,9 @@ export function createDefaultMapTemplate(): CarcerMapTemplate {
 }
 
 /** Ensure layer-0 tile graphics exist for a newly created map. */
-export function prepareNewMapForEditor(map: CarcerMapTemplate): CarcerMapTemplate {
+export function prepareNewMapForEditor(
+  map: CarcerMapTemplate,
+): CarcerMapTemplate {
   const next: CarcerMapTemplate = { ...map };
   const expectedTileCount = next.width * next.height;
   const level0 = next.tiles['0'];
@@ -584,7 +563,7 @@ export function resizeMaterializedLevelTiles(
   prevHeight: number,
   newWidth: number,
   newHeight: number,
-  createEmpty: () => CarcerMapTileTemplate
+  createEmpty: () => CarcerMapTileTemplate,
 ): CarcerMapTileTemplate[] {
   const existingTiles = new Map<string, CarcerMapTileTemplate>();
   for (let y = 0; y < prevHeight; y++) {
@@ -611,7 +590,7 @@ export function resizeMap(
   prevHeight: number,
   newWidth: number,
   newHeight: number,
-  createEmpty: () => CarcerMapTileTemplate
+  createEmpty: () => CarcerMapTileTemplate,
 ): CarcerMapTemplate {
   const next: CarcerMapTemplate = {
     ...map,
@@ -619,8 +598,6 @@ export function resizeMap(
     height: newHeight,
     tiles: { ...map.tiles },
   };
-  bumpMapDataRevision(map.name);
-
   for (const l of map.layers) {
     const tiles = materializeLayer(map, l);
     const resized = resizeMaterializedLevelTiles(
@@ -629,7 +606,7 @@ export function resizeMap(
       prevHeight,
       newWidth,
       newHeight,
-      createEmpty
+      createEmpty,
     );
     writeLayerFromTiles(next, l, resized);
   }
@@ -640,14 +617,17 @@ export function resizeMap(
     setPlacementList(
       next,
       kind.listKey,
-      getPlacementList(next, kind.listKey).filter(inBounds)
+      getPlacementList(next, kind.listKey).filter(inBounds),
     );
   }
   ensureMapLayers(next);
   return next;
 }
 
-export function deleteMapLayer(map: CarcerMapTemplate, l: number): CarcerMapTemplate {
+export function deleteMapLayer(
+  map: CarcerMapTemplate,
+  l: number,
+): CarcerMapTemplate {
   const next: CarcerMapTemplate = {
     ...map,
     layers: map.layers.filter((layer) => layer !== l),
@@ -658,24 +638,22 @@ export function deleteMapLayer(map: CarcerMapTemplate, l: number): CarcerMapTemp
     setPlacementList(
       next,
       kind.listKey,
-      getPlacementList(next, kind.listKey).filter((entry) => entry.l !== l)
+      getPlacementList(next, kind.listKey).filter((entry) => entry.l !== l),
     );
   }
   if (!next.layers.length) {
     next.layers = [0];
     createTilesForLayer(next, 0);
   }
-  bumpMapDataRevision(map.name);
   return next;
 }
 
 export function addMapLayer(
   map: CarcerMapTemplate,
-  l: number
+  l: number,
 ): CarcerMapTemplate {
   const next = { ...map, tiles: { ...map.tiles } };
   createTilesForLayer(next, l);
-  bumpMapDataRevision(map.name);
   return next;
 }
 

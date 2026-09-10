@@ -7,10 +7,7 @@ import {
   getSpriteNameFromTile,
   getSpriteNameFromTileMetadata,
 } from '../utils/draw';
-import {
-  getVisibleTileRange,
-  VisibleTileRange,
-} from './viewport';
+import { getVisibleTileRange, VisibleTileRange } from './viewport';
 
 export { getVisibleTileRange } from './viewport';
 export type { VisibleTileRange } from './viewport';
@@ -21,6 +18,34 @@ export type OverlayTextEntry = {
   y: number;
   textParams: DrawTextParams;
 };
+
+let fallbackRenderLookups:
+  | {
+      tilesets: readonly TilesetTemplate[];
+      characters: readonly CharacterTemplate[];
+      items: readonly ItemTemplate[];
+      value: MapRenderLookups;
+    }
+  | undefined;
+
+/** Temporary compatibility path until the controller supplies its full index. */
+function getFallbackRenderLookups(
+  tilesets: readonly TilesetTemplate[],
+  characters: readonly CharacterTemplate[],
+  items: readonly ItemTemplate[],
+): MapRenderLookups {
+  if (
+    fallbackRenderLookups?.tilesets === tilesets &&
+    fallbackRenderLookups.characters === characters &&
+    fallbackRenderLookups.items === items
+  ) {
+    return fallbackRenderLookups.value;
+  }
+
+  const value = buildMapRenderLookups(tilesets, characters, items);
+  fallbackRenderLookups = { tilesets, characters, items, value };
+  return value;
+}
 
 export const drawOverlayTextEntries = (
   ctx: CanvasRenderingContext2D,
@@ -55,14 +80,17 @@ import {
 import { Sprite } from '../utils/assetLoader';
 import { getMaterializedLayer } from '../utils/mapIndex';
 import {
-  getAdjacentSlotHotspotRect,
-} from './gridMapNavigation';
+  buildMapRenderLookups,
+  type MapRenderLookups,
+} from './mapDocumentIndex';
+import { getAdjacentSlotHotspotRect } from './gridMapNavigation';
 import {
   GridAdjacentSlot,
   isGridSlotEditable,
   isGridSlotNavigable,
   resolveGridBrushCell,
 } from '../utils/mapGridIndex';
+import type { MapEditorController } from './MapEditorController';
 
 const drawHighlightRect = (
   tileX: number,
@@ -147,6 +175,7 @@ const drawHighlightTile = (
 };
 
 export const renderToolUi = (
+  controller: MapEditorController,
   editorState: EditorState,
   mapData: CarcerMapTemplate,
   ctx: CanvasRenderingContext2D,
@@ -159,6 +188,7 @@ export const renderToolUi = (
   /** Pixel offset of that block from the focused map (grid neighbours). */
   offsetPixelX = 0,
   offsetPixelY = 0,
+  renderLookups?: MapRenderLookups,
 ) => {
   const currentPaintAction = editorState.currentPaintAction;
   const paintTileIndexInTileset = editorState.selectedTileIndexInTileset;
@@ -178,10 +208,10 @@ export const renderToolUi = (
   const tileHeight = mapData.spriteHeight;
   const rectCloneBrushTiles = editorState.rectCloneBrushTiles;
   const selectedTileInd =
-    getEditorStateMap(mapName)?.selectedTileInd ?? -1;
-  const mapTiles = getTileList(mapData);
+    getEditorStateMap(controller, mapName)?.selectedTileInd ?? -1;
+  const mapTiles = getTileList(controller, mapData);
 
-  const { x: transformX, y: transformY, scale } = getTransform();
+  const { x: transformX, y: transformY, scale } = getTransform(controller);
   ctx.save();
   ctx.translate(transformX, transformY);
   ctx.translate(
@@ -230,7 +260,7 @@ export const renderToolUi = (
     }
   } else if (currentPaintAction === PaintActionType.ERASE) {
     const hoveredTileInd =
-      getEditorStateMap(mapName)?.hoveredTileIndex ?? -1;
+      getEditorStateMap(controller, mapName)?.hoveredTileIndex ?? -1;
     if (hoveredTileInd > -1 && paintTileSprite) {
       const tileX = (hoveredTileInd % mapData.width) * tileWidth * scale;
       const tileY =
@@ -239,7 +269,7 @@ export const renderToolUi = (
     }
   } else if (currentPaintAction === PaintActionType.ERASE_META) {
     const hoveredTileInd =
-      getEditorStateMap(mapName)?.hoveredTileIndex ?? -1;
+      getEditorStateMap(controller, mapName)?.hoveredTileIndex ?? -1;
     if (hoveredTileInd > -1) {
       const tileX = (hoveredTileInd % mapData.width) * tileWidth * scale;
       const tileY =
@@ -257,12 +287,12 @@ export const renderToolUi = (
     }
   } else if (currentPaintAction === PaintActionType.TERRAIN) {
     const hoveredTileInd =
-      getEditorStateMap(mapName)?.hoveredTileIndex ?? -1;
+      getEditorStateMap(controller, mapName)?.hoveredTileIndex ?? -1;
     const terrainTileset = getTerrainTileset(tilesets);
     if (hoveredTileInd > -1 && terrainTileset) {
       const paintX = hoveredTileInd % mapData.width;
       const paintY = Math.floor(hoveredTileInd / mapData.width);
-      const mapState = getEditorStateMap(mapName);
+      const mapState = getEditorStateMap(controller, mapName);
       if (!mapState) {
         // Must not early-return past the ctx.restore() below: an unbalanced
         // save() grows the canvas state stack by one entry every frame.
@@ -272,6 +302,7 @@ export const renderToolUi = (
       const lookup = buildTerrainLookup(terrainTileset);
 
       const tileChanges = getTileChangesForPaintingTerrainAt(
+        controller,
         mapData,
         editorState,
         mapState,
@@ -311,7 +342,7 @@ export const renderToolUi = (
     if (editorState.isSelectDragging) {
       const sourceTileIndex = editorState.selectDragSourceTileIndex;
       const destTileIndex =
-        getEditorStateMap(mapName)?.hoveredTileIndex ?? -1;
+        getEditorStateMap(controller, mapName)?.hoveredTileIndex ?? -1;
 
       if (
         sourceTileIndex >= 0 &&
@@ -322,12 +353,8 @@ export const renderToolUi = (
         ctx.globalAlpha = 0.5;
         renderTileAndExtras({
           refTile: mapTiles[sourceTileIndex],
-          x:
-            getEditorStateMap(mapName)?.hoveredTileData.x ??
-            -1,
-          y:
-            getEditorStateMap(mapName)?.hoveredTileData.y ??
-            -1,
+          x: getEditorStateMap(controller, mapName)?.hoveredTileData.x ?? -1,
+          y: getEditorStateMap(controller, mapName)?.hoveredTileData.y ?? -1,
           ctx,
           newScale: scale,
           spriteMap,
@@ -336,16 +363,18 @@ export const renderToolUi = (
           mapSpriteHeight: mapData.spriteHeight,
           characters,
           items,
+          renderLookups,
         });
         ctx.restore();
       }
     }
   } else if (currentPaintAction === PaintActionType.DRAW) {
-    const partialHoveredTileData = getEditorStateMap(mapName)?.hoveredTileData ?? {
+    const partialHoveredTileData = getEditorStateMap(controller, mapName)
+      ?.hoveredTileData ?? {
       x: -1,
       y: -1,
     };
-    const gridDragRect = getRightDragGridRect();
+    const gridDragRect = getRightDragGridRect(controller);
     if (gridDragRect) {
       // Right-drag rect select spanning grid blocks: coords are focused-map
       // relative, so draw the marquee only in the focused block's pass.
@@ -365,7 +394,7 @@ export const renderToolUi = (
       }
     } else if (
       isHoverBlock &&
-      getIsDraggingRight() &&
+      getIsDraggingRight(controller) &&
       partialHoveredTileData.x > -1 &&
       partialHoveredTileData.y > -1
     ) {
@@ -393,20 +422,19 @@ export const renderToolUi = (
       // Preview once, from the block under the pointer. Cells that fall past
       // this block resolve into the neighbouring grid map and are drawn at
       // their out-of-range local coords (the block sits at this transform).
-      const gridCtx = getGridPaintContext();
-      const mapsByName: Record<string, CarcerMapTemplate> = {
-        [mapData.name]: mapData,
-      };
-      if (gridCtx) {
-        for (const m of gridCtx.maps) {
-          mapsByName[m.name] = m;
-        }
-      }
+      const gridCtx = getGridPaintContext(controller);
+      const mapsByName =
+        gridCtx?.mapsByName ?? new Map([[mapData.name, mapData] as const]);
       const grids = gridCtx?.mapGrids ?? [];
+      const placement = gridCtx
+        ? (gridCtx.placementsByMapName.get(mapData.name)?.[0] ?? null)
+        : undefined;
       for (const brush of rectCloneBrushTiles) {
         const gx = partialHoveredTileData.x + brush.xOffset;
         const gy = partialHoveredTileData.y + brush.yOffset;
-        if (!resolveGridBrushCell(mapData, gx, gy, grids, mapsByName)) {
+        if (
+          !resolveGridBrushCell(mapData, gx, gy, grids, mapsByName, placement)
+        ) {
           continue;
         }
         const spr = spriteMap[getSpriteNameFromTile(brush.originalTile.ref)];
@@ -419,9 +447,9 @@ export const renderToolUi = (
       }
     } else if (!rectCloneBrushTiles.length) {
       const hoverX =
-        getEditorStateMap(mapName)?.hoveredTileData?.x ?? -1;
+        getEditorStateMap(controller, mapName)?.hoveredTileData?.x ?? -1;
       const hoverY =
-        getEditorStateMap(mapName)?.hoveredTileData?.y ?? -1;
+        getEditorStateMap(controller, mapName)?.hoveredTileData?.y ?? -1;
       const hoverInBounds =
         hoverX >= 0 &&
         hoverY >= 0 &&
@@ -480,7 +508,15 @@ export const renderGridAdjacentNavigation = (args: {
         ? 'rgba(78, 201, 176, 0.18)'
         : 'rgba(78, 201, 176, 0.28)';
 
-    drawRect(hotspot.x, hotspot.y, hotspot.w, hotspot.h, hotspotFill, false, ctx);
+    drawRect(
+      hotspot.x,
+      hotspot.y,
+      hotspot.w,
+      hotspot.h,
+      hotspotFill,
+      false,
+      ctx,
+    );
 
     if (isHovered) {
       ctx.strokeStyle = '#4ec9b0';
@@ -525,6 +561,7 @@ export const renderGridAdjacentNavigation = (args: {
 };
 
 export const renderMapTilesAtOffset = (args: {
+  controller: MapEditorController;
   map: CarcerMapTemplate;
   ctx: CanvasRenderingContext2D;
   scale: number;
@@ -538,8 +575,10 @@ export const renderMapTilesAtOffset = (args: {
   layer: number;
   overlayTextEntries?: OverlayTextEntry[];
   visibleRange?: VisibleTileRange | null;
+  renderLookups?: MapRenderLookups;
 }) => {
   const {
+    controller,
     map,
     ctx,
     scale,
@@ -553,6 +592,7 @@ export const renderMapTilesAtOffset = (args: {
     layer,
     overlayTextEntries,
     visibleRange,
+    renderLookups = getFallbackRenderLookups(tilesets, characters, items),
   } = args;
 
   if (visibleRange === null) {
@@ -565,7 +605,7 @@ export const renderMapTilesAtOffset = (args: {
     maxY: map.height - 1,
   };
 
-  const mapTiles = getMaterializedLayer(map, layer);
+  const mapTiles = getMaterializedLayer(map, layer, controller);
   ctx.save();
   ctx.globalAlpha = opacity;
   ctx.translate(offsetPixelX, offsetPixelY);
@@ -586,6 +626,7 @@ export const renderMapTilesAtOffset = (args: {
         characters,
         items,
         overlayTextEntries,
+        renderLookups,
       });
     }
   }
@@ -606,6 +647,7 @@ export const renderTileAndExtras = (args: {
   characters: CharacterTemplate[];
   items: ItemTemplate[];
   overlayTextEntries?: OverlayTextEntry[];
+  renderLookups?: MapRenderLookups;
 }) => {
   const {
     refTile,
@@ -620,6 +662,7 @@ export const renderTileAndExtras = (args: {
     characters,
     items,
     overlayTextEntries,
+    renderLookups = getFallbackRenderLookups(tilesets, characters, items),
   } = args;
   if (!refTile) {
     return;
@@ -633,12 +676,12 @@ export const renderTileAndExtras = (args: {
     drawSprite(sprite, tileX, tileY, newScale, ctx);
   }
 
-  const tileTemplate = tilesets
-    .find((t) => t.name === refTile.tilesetName)
-    ?.tiles.find((t) => t.id === refTile.tileId);
+  const tileTemplate = renderLookups.tileDefinitionsByTilesetName
+    .get(refTile.tilesetName)
+    ?.get(refTile.tileId);
 
   for (const characterName of refTile.characters) {
-    const characterTemplate = characters.find((c) => c.name === characterName);
+    const characterTemplate = renderLookups.charactersByName.get(characterName);
     if (characterTemplate) {
       const characterSpriteName = `${characterTemplate.spritesheet}_${characterTemplate.spriteOffset}`;
       const characterSprite = spriteMap[characterSpriteName];
@@ -662,7 +705,7 @@ export const renderTileAndExtras = (args: {
   } else {
     for (const itemEntry of refTile.items) {
       const itemName = itemEntry.name;
-      const itemTemplate = items.find((i) => i.name === itemName);
+      const itemTemplate = renderLookups.itemsByName.get(itemName);
       if (itemTemplate) {
         const itemSpriteName = itemTemplate.icon;
         const itemSprite = spriteMap[itemSpriteName];
@@ -731,7 +774,7 @@ export const renderTileAndExtras = (args: {
     const centerX = tileX + (mapSpriteWidth * newScale) / 2;
     let textI = 0;
     for (const character of refTile.characters) {
-      const characterTemplate = characters.find((c) => c.name === character);
+      const characterTemplate = renderLookups.charactersByName.get(character);
       if (characterTemplate) {
         overlayTextEntries.push({
           text: characterTemplate.name,

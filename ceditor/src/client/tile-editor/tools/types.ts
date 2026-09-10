@@ -1,6 +1,7 @@
 import { CarcerMapTemplate } from '../../types/assets';
 import { EditorState } from '../editorState';
 import type { PaintAction } from '../paintTools';
+import type { MapEditorController } from '../MapEditorController';
 
 /**
  * A map editing tool. Replaces the per-member branches that were spread across
@@ -30,9 +31,23 @@ export interface MapTool {
   row: 'primary' | 'secondary';
 
   /** Mutate the working tile buffer when a stroke starts / completes. */
-  apply(action: PaintAction, map: CarcerMapTemplate, s: EditorState): void;
+  apply(
+    controller: MapEditorController,
+    action: PaintAction,
+    map: CarcerMapTemplate,
+    s: EditorState,
+  ): void;
   /** Mutate the working tile buffer for each tile entered during a drag. */
-  update?(action: PaintAction, map: CarcerMapTemplate, s: EditorState): void;
+  update?(
+    controller: MapEditorController,
+    action: PaintAction,
+    map: CarcerMapTemplate,
+    s: EditorState,
+  ): void;
   /** Restore the tiles this action touched. Every tool must be undoable. */
-  undo(action: PaintAction, map: CarcerMapTemplate): void;
+  undo(
+    controller: MapEditorController,
+    action: PaintAction,
+    map: CarcerMapTemplate,
+  ): void;
 }

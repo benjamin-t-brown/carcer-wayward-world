@@ -8,13 +8,18 @@ import {
 } from '../editorState';
 import { getGridPaintContext, getTileList } from '../editorEvents';
 import type { PaintAction } from '../paintTools';
+import { MapEditorController } from '../MapEditorController';
 import { MapTool } from './types';
 
 export type { MapTool } from './types';
 
 /** Restore mapTiles[tileInds[i]] from prevRefData[i]. The common undo shape. */
-function restorePrevRefData(action: PaintAction, map: CarcerMapTemplate): void {
-  const mapTiles = getTileList(map);
+function restorePrevRefData(
+  controller: MapEditorController,
+  action: PaintAction,
+  map: CarcerMapTemplate,
+): void {
+  const mapTiles = getTileList(controller, map);
   for (let i = 0; i < action.data.tileInds.length; i++) {
     const ind = action.data.tileInds[i];
     if (i < action.data.prevRefData.length) {
@@ -27,12 +32,16 @@ function restorePrevRefData(action: PaintAction, map: CarcerMapTemplate): void {
  * Restore every tile a stroke recorded in action.data.blockWrites, in its own
  * block. Returns false when the stroke has no block writes (pre-grid actions).
  */
-function undoBlockWrites(action: PaintAction, map: CarcerMapTemplate): boolean {
+function undoBlockWrites(
+  controller: MapEditorController,
+  action: PaintAction,
+  map: CarcerMapTemplate,
+): boolean {
   const writes = action.data.blockWrites;
   if (!writes || writes.length === 0) {
     return false;
   }
-  const ctx = getGridPaintContext();
+  const ctx = getGridPaintContext(controller);
   const byName: Record<string, CarcerMapTemplate> = { [map.name]: map };
   if (ctx) {
     for (const m of ctx.maps) {
@@ -42,7 +51,7 @@ function undoBlockWrites(action: PaintAction, map: CarcerMapTemplate): boolean {
   for (const write of writes) {
     const target = byName[write.mapName];
     if (target) {
-      getTileList(target)[write.ind] = structuredClone(write.prev);
+      getTileList(controller, target)[write.ind] = structuredClone(write.prev);
     }
   }
   return true;
@@ -59,12 +68,12 @@ const draw: MapTool = {
     // Draw writes happen in paintTools.applyDrawUpdate (per frame), which routes
     // to whichever grid block the pointer is over and records action.data.blockWrites.
   },
-  undo(action, map) {
-    if (undoBlockWrites(action, map)) {
+  undo(controller, action, map) {
+    if (undoBlockWrites(controller, action, map)) {
       return;
     }
     // Pre-grid draw strokes: restore from tileInds / extraTileInds.
-    const mapTiles = getTileList(map);
+    const mapTiles = getTileList(controller, map);
     for (let i = 0; i < action.data.tileInds.length; i++) {
       const ind = action.data.tileInds[i];
       if (i < action.data.prevRefData.length) {
@@ -90,8 +99,8 @@ const erase: MapTool = {
   apply() {
     // Erase writes happen in update().
   },
-  update(action, map) {
-    const mapTiles = getTileList(map);
+  update(controller, action, map) {
+    const mapTiles = getTileList(controller, map);
     for (const ind of action.data.tileInds) {
       mapTiles[ind] = createDefaultCarcerMapTile();
     }
@@ -107,8 +116,8 @@ const eraseMeta: MapTool = {
   apply() {
     // Erase-metadata writes happen in update().
   },
-  update(action, map) {
-    const mapTiles = getTileList(map);
+  update(controller, action, map) {
+    const mapTiles = getTileList(controller, map);
     for (const ind of action.data.tileInds) {
       const tile = mapTiles[ind];
       tile.characters = [];
@@ -120,8 +129,8 @@ const eraseMeta: MapTool = {
       delete tile.travelTrigger;
     }
   },
-  undo(action, map) {
-    const mapTiles = getTileList(map);
+  undo(controller, action, map) {
+    const mapTiles = getTileList(controller, map);
     for (let i = 0; i < action.data.tileInds.length; i++) {
       const ind = action.data.tileInds[i];
       if (i < action.data.prevRefData.length) {
@@ -161,11 +170,13 @@ const fill: MapTool = {
   shortcut: 'f',
   shortcutBlockedByCtrl: false,
   row: 'primary',
-  apply(action, map, editorState) {
-    const mapTiles = getTileList(map);
+  apply(controller, action, map, editorState) {
+    const mapTiles = getTileList(controller, map);
     const ind =
-      getEditorStateMap(getPaintMapName(editorState))?.hoveredTileIndex ?? -1;
+      getEditorStateMap(controller, getPaintMapName(editorState))
+        ?.hoveredTileIndex ?? -1;
     const fillIndsFloor = calculateFillIndsFloor(
+      controller,
       ind,
       map,
       editorState.currentLevel,
@@ -191,11 +202,13 @@ const deleteFill: MapTool = {
   iconClassName: 'tile-editor-tool-icon-bucket-delete',
   title: 'Delete fill tool',
   row: 'secondary',
-  apply(action, map, editorState) {
-    const mapTiles = getTileList(map);
+  apply(controller, action, map, editorState) {
+    const mapTiles = getTileList(controller, map);
     const ind =
-      getEditorStateMap(getPaintMapName(editorState))?.hoveredTileIndex ?? -1;
+      getEditorStateMap(controller, getPaintMapName(editorState))
+        ?.hoveredTileIndex ?? -1;
     const fillIndsFloor = calculateFillIndsFloor(
+      controller,
       ind,
       map,
       editorState.currentLevel,
@@ -219,8 +232,8 @@ const select: MapTool = {
   shortcut: 's',
   shortcutBlockedByCtrl: true,
   row: 'primary',
-  apply(action, map) {
-    const mapTiles = getTileList(map);
+  apply(controller, action, map) {
+    const mapTiles = getTileList(controller, map);
     if (
       action.data.tileInds.length >= 2 &&
       action.data.prevRefData.length >= 2
@@ -240,7 +253,10 @@ const select: MapTool = {
           ...(destTile.characters || []),
           ...(sourceTile.characters || []),
         ];
-        destTile.items = [...(destTile.items || []), ...(sourceTile.items || [])];
+        destTile.items = [
+          ...(destTile.items || []),
+          ...(sourceTile.items || []),
+        ];
         destTile.markers = [
           ...(destTile.markers || []),
           ...(sourceTile.markers || []),
@@ -275,8 +291,8 @@ const select: MapTool = {
       }
     }
   },
-  undo(action, map) {
-    const mapTiles = getTileList(map);
+  undo(controller, action, map) {
+    const mapTiles = getTileList(controller, map);
     if (
       action.data.tileInds.length >= 2 &&
       action.data.prevRefData.length >= 2
@@ -305,8 +321,8 @@ const clone: MapTool = {
   shortcut: 'c',
   shortcutBlockedByCtrl: true,
   row: 'primary',
-  apply(action, map) {
-    const mapTiles = getTileList(map);
+  apply(controller, action, map) {
+    const mapTiles = getTileList(controller, map);
     if (
       action.data.tileInds.length >= 2 &&
       action.data.prevRefData.length >= 2
@@ -326,7 +342,10 @@ const clone: MapTool = {
           ...(destTile.characters || []),
           ...(sourceTile.characters || []),
         ];
-        destTile.items = [...(destTile.items || []), ...(sourceTile.items || [])];
+        destTile.items = [
+          ...(destTile.items || []),
+          ...(sourceTile.items || []),
+        ];
         destTile.markers = [
           ...(destTile.markers || []),
           ...(sourceTile.markers || []),
@@ -353,8 +372,8 @@ const clone: MapTool = {
       }
     }
   },
-  undo(action, map) {
-    const mapTiles = getTileList(map);
+  undo(controller, action, map) {
+    const mapTiles = getTileList(controller, map);
     if (
       action.data.tileInds.length >= 2 &&
       action.data.prevRefData.length >= 2
@@ -382,11 +401,11 @@ const terrain: MapTool = {
   update() {
     // Terrain writes happen in onActionUpdate -> applyTerrainPaintUpdate.
   },
-  undo(action, map) {
-    if (undoBlockWrites(action, map)) {
+  undo(controller, action, map) {
+    if (undoBlockWrites(controller, action, map)) {
       return;
     }
-    restorePrevRefData(action, map);
+    restorePrevRefData(controller, action, map);
   },
 };
 

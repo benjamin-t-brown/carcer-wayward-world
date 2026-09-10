@@ -1,8 +1,6 @@
-import {
-  CarcerMapTemplate,
-  CarcerMapTileTemplate,
-} from '../types/assets';
+import { CarcerMapTemplate, CarcerMapTileTemplate } from '../types/assets';
 import { getTileList } from './editorEvents';
+import type { MapEditorController } from './MapEditorController';
 
 const getNeighbors = (x: number, y: number, width: number, height: number) => {
   const neighbors: number[] = [];
@@ -32,11 +30,15 @@ const getTileId = (tile: CarcerMapTileTemplate) => {
 };
 
 export const calculateFillIndsFloor = (
+  controller: MapEditorController,
   ind: number,
   mapData: CarcerMapTemplate,
-  level: number
+  level: number,
 ) => {
-  const mapTiles = getTileList(mapData, level);
+  const mapTiles = getTileList(controller, mapData, level);
+  if (ind < 0 || ind >= mapTiles.length) {
+    return [];
+  }
   const tileId = getTileId(mapTiles[ind]);
   const stack: number[] = [ind];
   const visited = new Set<number>();

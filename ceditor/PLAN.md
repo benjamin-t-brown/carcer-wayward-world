@@ -241,6 +241,14 @@ legacy values. Editor-specific form CSS ships with its lazy editor chunk.
 
 ## Phase 7 — Map editor controller and massive-grid performance
 
+Status: complete on 2026-09-10. The map editor now has one instance-owned
+controller for state, input, listeners, layer views, and its continuous frame
+loop. Both standalone maps and map grids use the same viewport planner; grid
+work is bounded to visible partitions and tiles, with indexed database lookups
+and no fixed render radius. Completed strokes stage the maps collection for
+Save All, while controller teardown, map deletion, and dirty-buffer eviction
+have explicit lifecycle coverage.
+
 ### Work
 
 1. Characterize coordinate transforms, selection, paint/fill/terrain behavior,

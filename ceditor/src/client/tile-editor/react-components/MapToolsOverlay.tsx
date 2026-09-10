@@ -1,6 +1,7 @@
 import { EditorState, setCurrentPaintAction } from '../editorState';
 import { PaintActionType } from '../paintTools';
 import { MapTool, TOOL_LIST } from '../tools';
+import type { MapEditorController } from '../MapEditorController';
 
 function ToolButton({
   tool,
@@ -29,7 +30,13 @@ function ToolButton({
 
 const ROWS: Array<MapTool['row']> = ['primary', 'secondary'];
 
-export function MapToolsOverlay({ editorState }: { editorState: EditorState }) {
+export function MapToolsOverlay({
+  controller,
+  editorState,
+}: {
+  controller: MapEditorController;
+  editorState: EditorState;
+}) {
   const currentPaintAction = editorState.currentPaintAction;
 
   return (
@@ -53,7 +60,10 @@ export function MapToolsOverlay({ editorState }: { editorState: EditorState }) {
                 isActive={currentPaintAction === tool.id}
                 onClick={() => {
                   if (currentPaintAction !== tool.id) {
-                    setCurrentPaintAction(tool.id as PaintActionType);
+                    setCurrentPaintAction(
+                      controller,
+                      tool.id as PaintActionType,
+                    );
                   }
                 }}
               />

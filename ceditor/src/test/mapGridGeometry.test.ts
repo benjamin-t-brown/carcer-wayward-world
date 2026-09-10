@@ -226,7 +226,7 @@ test('brush resolution crosses positive and negative grid seams with local tile 
   );
 });
 
-test('brush resolution rejects off-grid, unloaded, and undersized neighbor targets', () => {
+test('brush resolution rejects off-grid, unloaded, and incompatible neighbor targets', () => {
   const documentGrid = grid('world', [['center', 'east', 'missing']]);
   const center = map('center');
   const undersizedEast = map('east', 3, 3);
@@ -245,8 +245,8 @@ test('brush resolution rejects off-grid, unloaded, and undersized neighbor targe
     null,
   );
   assert.equal(
-    resolveGridBrushCell(center, 4, 0, [documentGrid], mapsByName)?.tileIndex,
-    0,
+    resolveGridBrushCell(center, 4, 0, [documentGrid], mapsByName),
+    null,
   );
   assert.equal(resolveGridBrushCell(center, 4, 0, [], { center }), null);
 });

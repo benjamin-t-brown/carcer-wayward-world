@@ -11,8 +11,10 @@ import {
   findMarkerOnMap,
   locateOnCurrentMap,
 } from '../mapLocate';
+import type { MapEditorController } from '../MapEditorController';
 
 interface MapSearchAccordionProps {
+  controller: MapEditorController;
   map: CarcerMapTemplate;
 }
 
@@ -21,6 +23,7 @@ type SearchSectionId = 'markers' | 'characters';
 function LocateSection({
   id,
   title,
+  controller,
   map,
   isOpen,
   onToggle,
@@ -28,6 +31,7 @@ function LocateSection({
 }: {
   id: SearchSectionId;
   title: string;
+  controller: MapEditorController;
   map: CarcerMapTemplate;
   isOpen: boolean;
   onToggle: () => void;
@@ -56,12 +60,12 @@ function LocateSection({
 
     if (!location) {
       setMessage(
-        `No ${id === 'markers' ? 'marker' : 'character'} "${trimmed}" on this map.`
+        `No ${id === 'markers' ? 'marker' : 'character'} "${trimmed}" on this map.`,
       );
       return;
     }
 
-    locateOnCurrentMap(map, location);
+    locateOnCurrentMap(controller, map, location);
     setMessage('');
     setQuery('');
     setInputKey((k) => k + 1);
@@ -110,7 +114,10 @@ function LocateSection({
   );
 }
 
-export function MapSearchAccordion({ map }: MapSearchAccordionProps) {
+export function MapSearchAccordion({
+  controller,
+  map,
+}: MapSearchAccordionProps) {
   const { characters } = useAssets();
   const markerNames = useMemo(() => collectMarkerNamesOnMap(map), [map]);
   const charactersOnMap = useMemo(() => {
@@ -129,6 +136,7 @@ export function MapSearchAccordion({ map }: MapSearchAccordionProps) {
       <LocateSection
         id="markers"
         title="Markers"
+        controller={controller}
         map={map}
         isOpen={openSection === 'markers'}
         onToggle={() => toggle('markers')}
@@ -147,6 +155,7 @@ export function MapSearchAccordion({ map }: MapSearchAccordionProps) {
       <LocateSection
         id="characters"
         title="Characters"
+        controller={controller}
         map={map}
         isOpen={openSection === 'characters'}
         onToggle={() => toggle('characters')}
