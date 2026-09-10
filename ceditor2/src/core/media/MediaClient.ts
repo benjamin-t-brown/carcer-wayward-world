@@ -1,6 +1,8 @@
 import { createMediaCatalog } from './assetFileParser.js';
 import type { MediaCatalog, MediaSourceFiles, SoundFileMode } from './types.js';
 
+let sharedCatalog: Promise<MediaCatalog> | undefined;
+
 export async function loadMediaCatalog(
   options: {
     baseUrl?: string;
@@ -28,6 +30,17 @@ export async function loadMediaCatalog(
   }
 
   return createMediaCatalog(sources, options.soundMode);
+}
+
+/** One catalog request shared by lightweight controls mounted on the page. */
+export function loadSharedMediaCatalog(): Promise<MediaCatalog> {
+  if (!sharedCatalog) {
+    sharedCatalog = loadMediaCatalog().catch((error: unknown) => {
+      sharedCatalog = undefined;
+      throw error;
+    });
+  }
+  return sharedCatalog;
 }
 
 function isMediaSourceFiles(value: unknown): value is MediaSourceFiles {

@@ -13,9 +13,12 @@ import {
   type TileMetadata,
   type TilesetRecord,
 } from '../../core/domain/tilesets/index.js';
-import { loadMediaCatalog } from '../../core/media/index.js';
 import { element } from '../../core/ui/dom.js';
-import type { DatabasePageContext } from '../../core/ui/index.js';
+import {
+  createEntityPicturePreview,
+  createMediaPickerField,
+  type DatabasePageContext,
+} from '../../core/ui/index.js';
 import {
   findDeepLinkedTileset,
   matchesTilesetSearch,
@@ -130,13 +133,9 @@ export class TilesetsEditor {
   private selectedIndex: number;
   private selectedTileIndex = 0;
   private searchTerm = '';
-  private destroyed = false;
   private readonly list = element('ul', { className: 'entity-list' });
   private readonly resultCount = element('p', { className: 'muted' });
   private readonly main = element('section', { className: 'editor-main' });
-  private readonly spriteOptions = element('datalist', {
-    attributes: { id: 'tileset-sprite-options' },
-  });
 
   constructor(
     private readonly root: HTMLElement,
@@ -170,14 +169,12 @@ export class TilesetsEditor {
     );
     sidebar.append(controls, this.list);
     layout.append(sidebar, this.main);
-    this.root.replaceChildren(layout, this.spriteOptions);
+    this.root.replaceChildren(layout);
     this.renderList();
     this.renderForm();
-    void this.loadSpriteOptions();
   }
 
   destroy(): void {
-    this.destroyed = true;
     this.root.replaceChildren();
   }
 
@@ -297,7 +294,7 @@ export class TilesetsEditor {
     for (const { record, index } of matching) {
       const item = element('li', { className: 'entity-list__item' });
       const select = element('button', {
-        className: 'entity-card',
+        className: 'entity-card entity-card--media',
         attributes: {
           type: 'button',
           'aria-current': String(index === this.selectedIndex),
@@ -314,7 +311,7 @@ export class TilesetsEditor {
           text: `${record.spriteBase || 'No sprite'} · ${record.tiles?.length ?? 0} tiles`,
         }),
       );
-      select.append(body);
+      select.append(createEntityPicturePreview(record.spriteBase ?? ''), body);
       select.addEventListener('click', () => this.setSelection(index));
       item.append(select);
       this.list.append(item);
@@ -363,22 +360,20 @@ export class TilesetsEditor {
     name.addEventListener('input', () =>
       this.updateRecord((record) => ({ ...record, name: name.value })),
     );
-    const spriteBase = textInput(current.spriteBase ?? '');
-    spriteBase.setAttribute('list', 'tileset-sprite-options');
-    spriteBase.addEventListener('input', () =>
-      this.updateRecord((record) => ({
-        ...record,
-        spriteBase: spriteBase.value,
-      })),
-    );
     grid.append(
       field('Name (ID)', 'tileset-name', name),
-      field(
-        'Sprite base',
-        'tileset-sprite-base',
-        spriteBase,
-        'Suggestions come from the game picture catalog when available.',
-      ),
+      createMediaPickerField({
+        id: 'tileset-sprite-base',
+        label: 'Sprite base',
+        kind: 'picture',
+        value: current.spriteBase ?? '',
+        help: 'Choose from the game picture catalog or enter a legacy alias.',
+        onChange: (value) =>
+          this.updateRecord((record) => ({
+            ...record,
+            spriteBase: value,
+          })),
+      }),
     );
     for (const [key, label] of [
       ['imageWidth', 'Image width'],
@@ -619,24 +614,5 @@ export class TilesetsEditor {
       Math.min(this.selectedTileIndex, tiles.length - 1),
     );
     this.updateRecord((record) => ({ ...record, tiles }), true);
-  }
-
-  private async loadSpriteOptions(): Promise<void> {
-    try {
-      const catalog = await loadMediaCatalog();
-      if (this.destroyed) return;
-      const names = Object.keys(catalog.pictures).sort((left, right) =>
-        left.localeCompare(right),
-      );
-      this.spriteOptions.replaceChildren(
-        ...names.map((name) => {
-          const option = element('option');
-          option.value = name;
-          return option;
-        }),
-      );
-    } catch {
-      // The database editor remains usable when media sources are unavailable.
-    }
   }
 }

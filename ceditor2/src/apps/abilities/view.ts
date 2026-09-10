@@ -38,7 +38,11 @@ import {
   type TargetSelectType,
 } from '../../core/domain/abilities/index.js';
 import { element } from '../../core/ui/dom.js';
-import type { DatabasePageContext } from '../../core/ui/index.js';
+import {
+  createEntitySpritePreview,
+  createMediaPickerField,
+  type DatabasePageContext,
+} from '../../core/ui/index.js';
 import {
   findDeepLinkedAbility,
   matchesAbilitySearch,
@@ -372,7 +376,7 @@ export class AbilitiesEditor {
     matching.forEach(({ record, index }) => {
       const item = element('li', { className: 'entity-list__item' });
       const select = element('button', {
-        className: 'entity-card',
+        className: 'entity-card entity-card--media',
         attributes: {
           type: 'button',
           'aria-current': String(index === this.selectedIndex),
@@ -386,10 +390,10 @@ export class AbilitiesEditor {
         }),
         element('span', {
           className: 'entity-card__subtitle',
-          text: record.name || 'No ID',
+          text: `(${record.name || 'No ID'})`,
         }),
       );
-      select.append(body);
+      select.append(createEntitySpritePreview(record.icon), body);
       select.addEventListener('click', () => this.setSelection(index));
       item.append(select);
       this.list.append(item);
@@ -448,10 +452,6 @@ export class AbilitiesEditor {
     label.addEventListener('input', () =>
       this.updateRecord((record) => ({ ...record, label: label.value })),
     );
-    const icon = textInput(current.icon);
-    icon.addEventListener('input', () =>
-      this.updateRecord((record) => ({ ...record, icon: icon.value })),
-    );
     const type = selectInput(ABILITY_TYPES, current.type);
     type.addEventListener('change', () =>
       this.updateRecord((record) => ({
@@ -489,7 +489,14 @@ export class AbilitiesEditor {
     grid.append(
       field('Name (ID)', 'ability-name', name),
       field('Label', 'ability-label', label),
-      field('Icon', 'ability-icon', icon),
+      createMediaPickerField({
+        id: 'ability-icon',
+        label: 'Icon sprite',
+        kind: 'sprite',
+        value: current.icon,
+        onChange: (value) =>
+          this.updateRecord((record) => ({ ...record, icon: value })),
+      }),
       field('Type', 'ability-type', type),
       field('AP cost', 'ability-ap-cost', apCost),
       field('Extra cost type', 'ability-cost-type', costType),
@@ -585,8 +592,6 @@ export class AbilitiesEditor {
         ...record,
         depiction: { ...record.depiction, ...change } as AbilityDepiction,
       }));
-    const dmgAnim = textInput(depiction.dmgAnim);
-    dmgAnim.addEventListener('input', () => update({ dmgAnim: dmgAnim.value }));
     const projectileType = selectInput(
       PROJECTILE_TYPES,
       depiction.projectileType ?? 'PROJECTILE_NONE',
@@ -601,20 +606,30 @@ export class AbilitiesEditor {
     projectilePath.addEventListener('change', () =>
       update({ projectilePath: projectilePath.value as ProjectilePath }),
     );
-    const startSound = textInput(depiction.startSound);
-    startSound.addEventListener('input', () =>
-      update({ startSound: startSound.value }),
-    );
-    const dmgSound = textInput(depiction.dmgSound);
-    dmgSound.addEventListener('input', () =>
-      update({ dmgSound: dmgSound.value }),
-    );
     grid.append(
-      field('Damage animation', 'ability-dmg-animation', dmgAnim),
+      createMediaPickerField({
+        id: 'ability-dmg-animation',
+        label: 'Damage animation',
+        kind: 'animation',
+        value: depiction.dmgAnim,
+        onChange: (value) => update({ dmgAnim: value }),
+      }),
       field('Projectile', 'ability-projectile-type', projectileType),
       field('Projectile path', 'ability-projectile-path', projectilePath),
-      field('Start sound', 'ability-start-sound', startSound),
-      field('Damage sound', 'ability-dmg-sound', dmgSound),
+      createMediaPickerField({
+        id: 'ability-start-sound',
+        label: 'Start sound',
+        kind: 'sound',
+        value: depiction.startSound,
+        onChange: (value) => update({ startSound: value }),
+      }),
+      createMediaPickerField({
+        id: 'ability-dmg-sound',
+        label: 'Damage sound',
+        kind: 'sound',
+        value: depiction.dmgSound,
+        onChange: (value) => update({ dmgSound: value }),
+      }),
     );
     result.append(grid);
     return result;

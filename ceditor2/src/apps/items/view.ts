@@ -28,7 +28,11 @@ import {
   type RuneType,
 } from '../../core/domain/items/index.js';
 import { element } from '../../core/ui/dom.js';
-import type { DatabasePageContext } from '../../core/ui/index.js';
+import {
+  createEntitySpritePreview,
+  createMediaPickerField,
+  type DatabasePageContext,
+} from '../../core/ui/index.js';
 import {
   findDeepLinkedItem,
   matchesItemSearch,
@@ -379,7 +383,7 @@ export class ItemsEditor {
     matching.forEach(({ index, record }) => {
       const item = element('li', { className: 'entity-list__item' });
       const select = element('button', {
-        className: 'entity-card',
+        className: 'entity-card entity-card--media',
         attributes: {
           type: 'button',
           'aria-current': String(index === this.selectedIndex),
@@ -393,10 +397,10 @@ export class ItemsEditor {
         }),
         element('span', {
           className: 'entity-card__subtitle',
-          text: `${record.name} · ${record.itemType}`,
+          text: `(${record.name || 'No ID'})`,
         }),
       );
-      select.append(body);
+      select.append(createEntitySpritePreview(record.icon), body);
       select.addEventListener('click', () => this.setSelection(index));
       item.append(select);
       this.list.append(item);
@@ -460,11 +464,6 @@ export class ItemsEditor {
     label.addEventListener('input', () =>
       this.updateRecord((record) => ({ ...record, label: label.value })),
     );
-    const icon = textInput(current.icon);
-    icon.required = true;
-    icon.addEventListener('input', () =>
-      this.updateRecord((record) => ({ ...record, icon: icon.value })),
-    );
     const weight = numberInput(current.weight);
     weight.addEventListener('input', () => {
       if (weight.value !== '') {
@@ -487,7 +486,15 @@ export class ItemsEditor {
       field('Item type', 'item-type', itemType),
       field('Name (ID)', 'item-name', name),
       field('Label', 'item-label', label),
-      field('Icon sprite', 'item-icon', icon),
+      createMediaPickerField({
+        id: 'item-icon',
+        label: 'Icon sprite',
+        kind: 'sprite',
+        value: current.icon,
+        required: true,
+        onChange: (value) =>
+          this.updateRecord((record) => ({ ...record, icon: value })),
+      }),
       field('Weight', 'item-weight', weight),
       field('Value', 'item-value', value),
     );

@@ -10,7 +10,11 @@ import {
   type SpellRuneRequirement,
 } from '../../core/domain/spells/index.js';
 import { element } from '../../core/ui/dom.js';
-import type { DatabasePageContext } from '../../core/ui/index.js';
+import {
+  createEntitySpritePreview,
+  createMediaPickerField,
+  type DatabasePageContext,
+} from '../../core/ui/index.js';
 import {
   findDeepLinkedSpell,
   matchesSpellSearch,
@@ -242,7 +246,7 @@ export class SpellsEditor {
     for (const { index, record } of matching) {
       const item = element('li', { className: 'entity-list__item' });
       const select = element('button', {
-        className: 'entity-card',
+        className: 'entity-card entity-card--media',
         attributes: {
           type: 'button',
           'aria-current': String(index === this.selectedIndex),
@@ -256,10 +260,10 @@ export class SpellsEditor {
         }),
         element('span', {
           className: 'entity-card__subtitle',
-          text: record.name || 'No ID',
+          text: `(${record.name || 'No ID'})`,
         }),
       );
-      select.append(body);
+      select.append(createEntitySpritePreview(record.icon), body);
       select.addEventListener('click', () => this.setSelection(index));
       item.append(select);
       this.list.append(item);
@@ -315,17 +319,18 @@ export class SpellsEditor {
     label.addEventListener('input', () =>
       this.updateRecord((record) => ({ ...record, label: label.value })),
     );
-    const icon = element('input');
-    icon.type = 'text';
-    icon.required = true;
-    icon.value = current.icon;
-    icon.addEventListener('input', () =>
-      this.updateRecord((record) => ({ ...record, icon: icon.value })),
-    );
     grid.append(
       field('Name (ID)', 'spell-name', name),
       field('Display label', 'spell-label', label),
-      field('Icon sprite', 'spell-icon', icon),
+      createMediaPickerField({
+        id: 'spell-icon',
+        label: 'Icon sprite',
+        kind: 'sprite',
+        value: current.icon,
+        required: true,
+        onChange: (value) =>
+          this.updateRecord((record) => ({ ...record, icon: value })),
+      }),
     );
 
     const description = element('textarea');

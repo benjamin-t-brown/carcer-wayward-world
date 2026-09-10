@@ -14,3 +14,15 @@ export type {
 } from './databasePage.js';
 export { clearElement, element, queryRequired } from './dom.js';
 export type { ElementOptions } from './dom.js';
+export {
+  createEntityPicturePreview,
+  createEntitySpritePreview,
+  createMediaPickerField,
+} from './mediaPicker.js';
+export {
+  animationSpriteAt,
+  characterSpriteName,
+  mediaChoiceName,
+  mediaChoices,
+} from './mediaPickerModel.js';
+export type { MediaPickerChoice, MediaPickerKind } from './mediaPickerModel.js';

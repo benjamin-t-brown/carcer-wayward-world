@@ -4,7 +4,7 @@ export {
   parseSoundVolume,
   resolveSoundPath,
 } from './assetFileParser.js';
-export { loadMediaCatalog } from './MediaClient.js';
+export { loadMediaCatalog, loadSharedMediaCatalog } from './MediaClient.js';
 export { mediaAssetUrl } from './mediaAssetUrl.js';
 export type {
   AnimationDefinition,

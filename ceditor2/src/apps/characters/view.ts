@@ -15,7 +15,12 @@ import {
   type CombatBehaviorName,
 } from '../../core/domain/characters/index.js';
 import { element } from '../../core/ui/dom.js';
-import type { DatabasePageContext } from '../../core/ui/index.js';
+import {
+  characterSpriteName,
+  createEntitySpritePreview,
+  createMediaPickerField,
+  type DatabasePageContext,
+} from '../../core/ui/index.js';
 import {
   findDeepLinkedCharacter,
   matchesCharacterSearch,
@@ -408,7 +413,7 @@ export class CharactersEditor {
     matching.forEach(({ record, index }) => {
       const item = element('li', { className: 'entity-list__item' });
       const select = element('button', {
-        className: 'entity-card',
+        className: 'entity-card entity-card--media',
         attributes: {
           type: 'button',
           'aria-current': String(index === this.selectedIndex),
@@ -422,10 +427,15 @@ export class CharactersEditor {
         }),
         element('span', {
           className: 'entity-card__subtitle',
-          text: `${record.name || 'No ID'} · ${record.type}`,
+          text: `(${record.name || 'No ID'})`,
         }),
       );
-      select.append(body);
+      select.append(
+        createEntitySpritePreview(
+          characterSpriteName(record.spritesheet, record.spriteOffset),
+        ),
+        body,
+      );
       select.addEventListener('click', () => this.setSelection(index));
       item.append(select);
       this.list.append(item);
@@ -515,6 +525,25 @@ export class CharactersEditor {
       field('Type', 'character-type', type),
       field('Name (ID)', 'character-name', name),
       field('Label', 'character-label', label),
+      createMediaPickerField({
+        id: 'character-sprite-picker',
+        label: 'Character sprite',
+        kind: 'sprite',
+        value: characterSpriteName(current.spritesheet, current.spriteOffset),
+        readOnly: true,
+        help: 'Choosing a sprite updates the spritesheet and offset fields together.',
+        onChange: (_value, choice) => {
+          if (!choice || !('pictureAlias' in choice)) return;
+          this.updateRecord(
+            (record) => ({
+              ...record,
+              spritesheet: choice.pictureAlias,
+              spriteOffset: choice.index,
+            }),
+            true,
+          );
+        },
+      }),
       field('Spritesheet', 'character-spritesheet', spritesheet),
       field(
         'Sprite offset',
@@ -588,13 +617,6 @@ export class CharactersEditor {
         talkName: talkName.value,
       })),
     );
-    const portrait = textInput(current.talk?.portraitName);
-    portrait.addEventListener('input', () =>
-      this.updateObject('talk', (talk) => ({
-        ...talk,
-        portraitName: portrait.value,
-      })),
-    );
     const datalist = element('datalist', {
       attributes: { id: 'character-talk-events' },
     });
@@ -603,7 +625,17 @@ export class CharactersEditor {
     );
     grid.append(
       field('Talk event', 'character-talk-name', talkName),
-      field('Portrait sprite', 'character-portrait-name', portrait),
+      createMediaPickerField({
+        id: 'character-portrait-name',
+        label: 'Portrait sprite',
+        kind: 'sprite',
+        value: current.talk?.portraitName ?? '',
+        onChange: (value) =>
+          this.updateObject('talk', (talk) => ({
+            ...talk,
+            portraitName: value,
+          })),
+      }),
     );
     result.append(grid, datalist);
     if (current.talk?.talkName)
@@ -735,27 +767,30 @@ export class CharactersEditor {
       'Editing writes current *SoundName fields; legacy aliases remain intact.',
     );
     const grid = element('div', { className: 'form-grid' });
-    const death = textInput(
-      current.sound?.deathSoundName ?? current.sound?.deathSound,
-    );
-    death.addEventListener('input', () =>
-      this.updateObject('sound', (sound) => ({
-        ...sound,
-        deathSoundName: death.value,
-      })),
-    );
-    const weapon = textInput(
-      current.sound?.weaponSoundName ?? current.sound?.weaponSound,
-    );
-    weapon.addEventListener('input', () =>
-      this.updateObject('sound', (sound) => ({
-        ...sound,
-        weaponSoundName: weapon.value,
-      })),
-    );
     grid.append(
-      field('Death sound', 'character-death-sound', death),
-      field('Weapon sound', 'character-weapon-sound', weapon),
+      createMediaPickerField({
+        id: 'character-death-sound',
+        label: 'Death sound',
+        kind: 'sound',
+        value: current.sound?.deathSoundName ?? current.sound?.deathSound ?? '',
+        onChange: (value) =>
+          this.updateObject('sound', (sound) => ({
+            ...sound,
+            deathSoundName: value,
+          })),
+      }),
+      createMediaPickerField({
+        id: 'character-weapon-sound',
+        label: 'Weapon sound',
+        kind: 'sound',
+        value:
+          current.sound?.weaponSoundName ?? current.sound?.weaponSound ?? '',
+        onChange: (value) =>
+          this.updateObject('sound', (sound) => ({
+            ...sound,
+            weaponSoundName: value,
+          })),
+      }),
     );
     result.append(grid);
     if (current.sound)
