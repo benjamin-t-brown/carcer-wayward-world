@@ -1,0 +1,4 @@
+[data-app='events'] .events-placeholder {
+  border: 1px dashed currentColor;
+  padding: 1rem;
+}

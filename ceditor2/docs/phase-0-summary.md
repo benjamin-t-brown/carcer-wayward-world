@@ -15,17 +15,17 @@ are maintained in:
 The baseline was collected from the existing `ceditor` without modifying game
 assets.
 
-| Measurement | Current value |
-| --- | ---: |
-| Client TypeScript/TSX/HTML | 41,313 lines |
-| Client TypeScript/TSX only | 39,288 lines |
-| Tile editor TypeScript/TSX | 9,860 lines |
-| Special-event editor TypeScript/TSX | 8,239 lines |
-| Inline CSS in `index.html` | 1,691 lines |
-| Inline TSX `style` properties | 659 occurrences |
-| React hook calls/imports | 443 occurrences |
-| Current map count | 25 |
-| Current special-event count | 33 |
+| Measurement                         |   Current value |
+| ----------------------------------- | --------------: |
+| Client TypeScript/TSX/HTML          |    41,313 lines |
+| Client TypeScript/TSX only          |    39,288 lines |
+| Tile editor TypeScript/TSX          |     9,860 lines |
+| Special-event editor TypeScript/TSX |     8,239 lines |
+| Inline CSS in `index.html`          |     1,691 lines |
+| Inline TSX `style` properties       | 659 occurrences |
+| React hook calls/imports            | 443 occurrences |
+| Current map count                   |              25 |
+| Current special-event count         |              33 |
 
 These numbers describe the starting point; they are not line-count targets for
 the rewrite. CEditor2 will be judged by dependency direction, explicit state
@@ -66,12 +66,12 @@ them.
 
 Static inspection of the current maps identifies these useful baseline cases:
 
-| Map | Dimensions | Layers | Purpose |
-| --- | ---: | ---: | --- |
-| `Alinea1` | 40x40 | 2 | Largest total editable cell count in the current data |
-| `alinea_outsideAlinea1` | 30x30 | 3 | Outdoor, multi-layer map |
-| `alinea_insideAlinea8` | 30x30 | 3 | Indoor, multi-layer map |
-| `AlineaTest` | 25x20 | 3 | Smaller multi-layer test map |
+| Map                     | Dimensions | Layers | Purpose                                               |
+| ----------------------- | ---------: | -----: | ----------------------------------------------------- |
+| `Alinea1`               |      40x40 |      2 | Largest total editable cell count in the current data |
+| `alinea_outsideAlinea1` |      30x30 |      3 | Outdoor, multi-layer map                              |
+| `alinea_insideAlinea8`  |      30x30 |      3 | Indoor, multi-layer map                               |
+| `AlineaTest`            |      25x20 |      3 | Smaller multi-layer test map                          |
 
 The map audit will add grid membership, feature coverage, and repeatable
 interaction scenarios before these become the accepted benchmark fixtures.

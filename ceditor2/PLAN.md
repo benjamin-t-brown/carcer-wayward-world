@@ -518,13 +518,13 @@ The initial scripts should provide:
 {
   "scripts": {
     "dev": "concurrently \"npm:dev:server\" \"npm:dev:client\"",
-    "dev:server": "tsx watch src/server/index.ts",
+    "dev:server": "node --watch --import tsx src/server/index.ts",
     "dev:client": "vite",
     "build": "tsc --noEmit && vite build",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "node --import tsx --test",
+    "test": "node --import tsx --test test/**/*.test.ts",
     "check": "npm run lint && npm run format:check && npm run test && npm run build"
   }
 }
@@ -665,7 +665,7 @@ advance.
 - One application cannot import another without violating the documented
   dependency policy.
 - Lint, formatting check, tests, typecheck, and build run through `npm run
-  check`.
+check`.
 
 ### Phase 2: Database load, validation, and Save All
 

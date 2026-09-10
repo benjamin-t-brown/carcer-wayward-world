@@ -451,21 +451,21 @@ The following logic is worth porting behind tests. “Port” means preserve the
 contract and simplify the implementation; it does not mean retain module-global
 state, React hooks, `window` escape hatches, or cache ownership.
 
-| Area | Existing source | Candidate pure contract/tests |
-| --- | --- | --- |
-| Compact map indexing | `utils/mapIndex.ts` | `tileIndex`, `tileXY`, layer keys, get/set graphic pairs, normalize/migrate legacy maps, materialize/commit sparse placements, sorted/adjacent layer, add/delete layer, resize map. |
-| Grid math | `utils/mapGridIndex.ts` | Find placements, adjacent slots/maps, shared layer union, cell assignment, map rename, cross-cell brush resolution, slot editability. |
-| Grid data transforms | `types/assets.ts` | Create/resize/shift cell matrices and normalize positive integer dimensions. |
-| Coordinate math | `tile-editor/editorEvents.ts`, `gridMapNavigation.ts`, `utils/draw.ts` | Screen/canvas/map/grid coordinates, bounding rectangles, pointer-centered zoom, stitched viewport offset, pixel-art pan snapping, visible tile range, slot hotspots. |
-| Fill | `tile-editor/fill.ts` | Four-neighbor iterative flood fill keyed by tileset plus tile ID, with invalid-start protection added. |
-| Tool mutations | `tile-editor/tools/index.ts`, `paintTools.ts` | Draw, erase, erase-metadata, fill/delete-fill, move/clone metadata merge rules, brush footprints, before/after patches, cross-map undo. |
-| Terrain | `tile-editor/terrainTool.ts` | Metadata lookup, paintable tags, adjacent indices, neighbor variant calculation, fallback compatibility. Cache must be keyed/owned by database revision. |
-| Map item entries | `tile-editor/mapTileItems.ts` | Legacy coercion, quantity clamp, add/increment, remove, reorder, and quantity update. |
-| Walkability | `tile-editor/mapTileWalkability.ts` | Tile override then tileset metadata fallback. |
-| Location/reference queries | `tile-editor/mapLocate.ts` | Collect/find markers and characters, inbound marker travel references, stable sorting. Keep DOM centering outside these queries. |
-| Tab restoration | `utils/mapTabsStorage.ts` | Parse/validate/migrate persisted tabs, rebind grids, remove stale entries, deduplicate. Keep localStorage access behind an adapter. |
-| Map preview sizing | `utils/mapPreview.ts` | Pixel/draw-size calculations and selected-layer data lookup. Keep Canvas drawing in the map app. |
-| Sign event creation | `SelectedTileInfo/createSignGameEvent.ts` | ID prefix suggestion and deterministic event-node construction. |
+| Area                       | Existing source                                                        | Candidate pure contract/tests                                                                                                                                                       |
+| -------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Compact map indexing       | `utils/mapIndex.ts`                                                    | `tileIndex`, `tileXY`, layer keys, get/set graphic pairs, normalize/migrate legacy maps, materialize/commit sparse placements, sorted/adjacent layer, add/delete layer, resize map. |
+| Grid math                  | `utils/mapGridIndex.ts`                                                | Find placements, adjacent slots/maps, shared layer union, cell assignment, map rename, cross-cell brush resolution, slot editability.                                               |
+| Grid data transforms       | `types/assets.ts`                                                      | Create/resize/shift cell matrices and normalize positive integer dimensions.                                                                                                        |
+| Coordinate math            | `tile-editor/editorEvents.ts`, `gridMapNavigation.ts`, `utils/draw.ts` | Screen/canvas/map/grid coordinates, bounding rectangles, pointer-centered zoom, stitched viewport offset, pixel-art pan snapping, visible tile range, slot hotspots.                |
+| Fill                       | `tile-editor/fill.ts`                                                  | Four-neighbor iterative flood fill keyed by tileset plus tile ID, with invalid-start protection added.                                                                              |
+| Tool mutations             | `tile-editor/tools/index.ts`, `paintTools.ts`                          | Draw, erase, erase-metadata, fill/delete-fill, move/clone metadata merge rules, brush footprints, before/after patches, cross-map undo.                                             |
+| Terrain                    | `tile-editor/terrainTool.ts`                                           | Metadata lookup, paintable tags, adjacent indices, neighbor variant calculation, fallback compatibility. Cache must be keyed/owned by database revision.                            |
+| Map item entries           | `tile-editor/mapTileItems.ts`                                          | Legacy coercion, quantity clamp, add/increment, remove, reorder, and quantity update.                                                                                               |
+| Walkability                | `tile-editor/mapTileWalkability.ts`                                    | Tile override then tileset metadata fallback.                                                                                                                                       |
+| Location/reference queries | `tile-editor/mapLocate.ts`                                             | Collect/find markers and characters, inbound marker travel references, stable sorting. Keep DOM centering outside these queries.                                                    |
+| Tab restoration            | `utils/mapTabsStorage.ts`                                              | Parse/validate/migrate persisted tabs, rebind grids, remove stale entries, deduplicate. Keep localStorage access behind an adapter.                                                 |
+| Map preview sizing         | `utils/mapPreview.ts`                                                  | Pixel/draw-size calculations and selected-layer data lookup. Keep Canvas drawing in the map app.                                                                                    |
+| Sign event creation        | `SelectedTileInfo/createSignGameEvent.ts`                              | ID prefix suggestion and deterministic event-node construction.                                                                                                                     |
 
 Logic not to port as shared core:
 
@@ -484,13 +484,13 @@ Logic not to port as shared core:
 The baseline must use committed database names, not generated maps, so another
 developer can repeat it at the same revision.
 
-| Fixture | Why it is included | Current size |
-| --- | --- | --- |
-| `Alinea1` | Largest single map by tile/layer work | 40×40, 2 layers, 3,200 tile-layer cells, 6,400 graphic numbers, 5 dictionary entries |
-| `alinea_outsideAlinea1` | Largest metadata-rich grid map and a terrain/tool representative | 30×30, 3 layers, 2 characters, 4 items, 3 markers, 3 events, 3 travel triggers, 5 dictionary entries |
-| `AlineaTest` | Smaller isolated multi-layer metadata regression fixture | 25×20, layers `1, 0, -1`, 1 character, 5 items, 4 markers, 3 events, 2 travel triggers |
-| Grid `Alinea` | Worst committed stitched-grid view | 6×3, all 18 cells assigned, each 30×30; 16,200 cells per layer across all blocks and 30,600 tile-layer cells in the source maps |
-| Tileset `terrain_borders` | Terrain/picker stress fixture | 448×512 image, 28×32 tiles, 256 tile metadata entries |
+| Fixture                   | Why it is included                                               | Current size                                                                                                                    |
+| ------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `Alinea1`                 | Largest single map by tile/layer work                            | 40×40, 2 layers, 3,200 tile-layer cells, 6,400 graphic numbers, 5 dictionary entries                                            |
+| `alinea_outsideAlinea1`   | Largest metadata-rich grid map and a terrain/tool representative | 30×30, 3 layers, 2 characters, 4 items, 3 markers, 3 events, 3 travel triggers, 5 dictionary entries                            |
+| `AlineaTest`              | Smaller isolated multi-layer metadata regression fixture         | 25×20, layers `1, 0, -1`, 1 character, 5 items, 4 markers, 3 events, 2 travel triggers                                          |
+| Grid `Alinea`             | Worst committed stitched-grid view                               | 6×3, all 18 cells assigned, each 30×30; 16,200 cells per layer across all blocks and 30,600 tile-layer cells in the source maps |
+| Tileset `terrain_borders` | Terrain/picker stress fixture                                    | 448×512 image, 28×32 tiles, 256 tile metadata entries                                                                           |
 
 The current database contains 25 maps. `maps.json` is about 912 KB,
 `tilesets.json` about 208 KB, and `map-grids.json` about 1 KB. Current sparse
@@ -590,19 +590,19 @@ latency/frame cost, not framework internals.
 
 Fill one row with the median of three runs and retain links/paths to raw profiles.
 
-| Fixture/scenario | First usable (ms) | Median frame (ms) | p95 frame (ms) | FPS | Worst input delay (ms) | Long tasks | Peak heap (MB) | Retained delta (MB) | Operation/undo (ms) | Profile |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| `Alinea1` startup | | | | | | | | | | |
-| `Alinea1` steady | | | | | | | | | | |
-| `Alinea1` pan/zoom | | | | | | | | | | |
-| `Alinea1` draw/undo | | | | | | | | | | |
-| `Alinea1` fill/undo | | | | | | | | | | |
-| `alinea_outsideAlinea1` terrain/undo | | | | | | | | | | |
-| `Alinea` grid steady | | | | | | | | | | |
-| `Alinea` grid pan/zoom | | | | | | | | | | |
-| `Alinea` cross-map draw/undo | | | | | | | | | | |
-| Tab/layer churn | | | | | | | | | | |
-| Save | | | | | | | | | | |
+| Fixture/scenario                     | First usable (ms) | Median frame (ms) | p95 frame (ms) | FPS | Worst input delay (ms) | Long tasks | Peak heap (MB) | Retained delta (MB) | Operation/undo (ms) | Profile |
+| ------------------------------------ | ----------------: | ----------------: | -------------: | --: | ---------------------: | ---------: | -------------: | ------------------: | ------------------: | ------- |
+| `Alinea1` startup                    |                   |                   |                |     |                        |            |                |                     |                     |         |
+| `Alinea1` steady                     |                   |                   |                |     |                        |            |                |                     |                     |         |
+| `Alinea1` pan/zoom                   |                   |                   |                |     |                        |            |                |                     |                     |         |
+| `Alinea1` draw/undo                  |                   |                   |                |     |                        |            |                |                     |                     |         |
+| `Alinea1` fill/undo                  |                   |                   |                |     |                        |            |                |                     |                     |         |
+| `alinea_outsideAlinea1` terrain/undo |                   |                   |                |     |                        |            |                |                     |                     |         |
+| `Alinea` grid steady                 |                   |                   |                |     |                        |            |                |                     |                     |         |
+| `Alinea` grid pan/zoom               |                   |                   |                |     |                        |            |                |                     |                     |         |
+| `Alinea` cross-map draw/undo         |                   |                   |                |     |                        |            |                |                     |                     |         |
+| Tab/layer churn                      |                   |                   |                |     |                        |            |                |                     |                     |         |
+| Save                                 |                   |                   |                |     |                        |            |                |                     |                     |         |
 
 ### CEditor2 performance acceptance
 

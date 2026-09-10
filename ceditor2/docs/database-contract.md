@@ -38,19 +38,19 @@ The proposed classifications below are conservative. “Required” means
 currently exposes it but the game does not load it. “Unmanaged” means neither the
 current registry nor the game database loads it.
 
-| File | Records | Current CEditor registry id | C++ loader / model | Classification for CEditor2 |
-| --- | ---: | --- | --- | --- |
-| `status-effects.json` | 1 | `statusEffectTemplates` | `LoadStatusEffectTemplates.cpp` / `StatusEffects.hpp` | required, managed |
-| `abilities.json` | 8 | `abilityTemplates` | `LoadAbilityTemplates.cpp`, `LoadAbilityJson.cpp` / `Abilities.hpp` | required, managed |
-| `items.json` | 18 | `itemTemplates` | `LoadItemTemplates.cpp` / `Items.h` | required, managed |
-| `spells.json` | 3 | `spellTemplates` | `LoadSpellTemplates.cpp` / `Spells.hpp` | required, managed |
-| `characters.json` | 9 | `characterTemplates` | `LoadCharacterTemplates.cpp` / `CharacterTemplate.h` | required, managed |
-| `maps.json` | 25 | `maps` | `LoadMapTemplates.cpp` / `Maps.h` | required, managed |
-| `map-grids.json` | 2 | `mapGrids` | `LoadMapGridTemplates.cpp` / `MapGrids.hpp` | required, managed |
-| `tilesets.json` | 4 | `tilesetTemplates` | `LoadTilesetTemplates.cpp` / `Tileset.hpp` | required, managed |
-| `special-events.json` | 33 | `specialEvents` | `LoadSpecialEvents.cpp` / `SpecialEvents.hpp` | required, managed |
-| `feats.json` | absent | `featTemplates` | none; editor types explicitly say editor-only | optional/prospective; decision required |
-| `tiles.json` | 1 | none | none found | unmanaged/orphaned; decision required |
+| File                  | Records | Current CEditor registry id | C++ loader / model                                                  | Classification for CEditor2             |
+| --------------------- | ------: | --------------------------- | ------------------------------------------------------------------- | --------------------------------------- |
+| `status-effects.json` |       1 | `statusEffectTemplates`     | `LoadStatusEffectTemplates.cpp` / `StatusEffects.hpp`               | required, managed                       |
+| `abilities.json`      |       8 | `abilityTemplates`          | `LoadAbilityTemplates.cpp`, `LoadAbilityJson.cpp` / `Abilities.hpp` | required, managed                       |
+| `items.json`          |      18 | `itemTemplates`             | `LoadItemTemplates.cpp` / `Items.h`                                 | required, managed                       |
+| `spells.json`         |       3 | `spellTemplates`            | `LoadSpellTemplates.cpp` / `Spells.hpp`                             | required, managed                       |
+| `characters.json`     |       9 | `characterTemplates`        | `LoadCharacterTemplates.cpp` / `CharacterTemplate.h`                | required, managed                       |
+| `maps.json`           |      25 | `maps`                      | `LoadMapTemplates.cpp` / `Maps.h`                                   | required, managed                       |
+| `map-grids.json`      |       2 | `mapGrids`                  | `LoadMapGridTemplates.cpp` / `MapGrids.hpp`                         | required, managed                       |
+| `tilesets.json`       |       4 | `tilesetTemplates`          | `LoadTilesetTemplates.cpp` / `Tileset.hpp`                          | required, managed                       |
+| `special-events.json` |      33 | `specialEvents`             | `LoadSpecialEvents.cpp` / `SpecialEvents.hpp`                       | required, managed                       |
+| `feats.json`          |  absent | `featTemplates`             | none; editor types explicitly say editor-only                       | optional/prospective; decision required |
+| `tiles.json`          |       1 | none                        | none found                                                          | unmanaged/orphaned; decision required   |
 
 The registry contains ten entries because it includes nonexistent `feats.json`
 and omits existing `tiles.json`. A GET for a registered missing file returns
@@ -468,30 +468,30 @@ product/schema decision, not a compatibility requirement.
 
 ## Cross-asset reference matrix
 
-| Source field | Target namespace | Runtime behavior / validation |
-| --- | --- | --- |
-| `abilities[].statuses[].statusEffect` | `status-effects[].name` | hard-validated by `Database::validateCombatReferences()` |
-| `status-effects[].actions[].abilityName` | `abilities[].name` | hard-validated by `Database::validateCombatReferences()` |
-| `items[].statusEffects[]` | `status-effects[].name` | hard-validated by `Database::validateCombatReferences()` |
-| `items[].weapon.abilityName` | `abilities[].name` | consumed by item/combat rules; not validated during database load |
-| `items[].useAbility.abilityName` | `abilities[].name` | consumed on use; not validated during database load |
-| `items[].useSpecialEvent` | `special-events[].id` | consumed on use; not validated during database load |
-| `spells[].abilityName` | `abilities[].name` | hard-validated by `Database::validateCombatReferences()` |
-| `characters[].talk.talkName` | `special-events[].id` | checked at interaction time; missing event logs/falls back |
-| `characters[].statuses[].status` | `status-effects[].name` | loaded as a reference; no database-load validation found |
-| `characters[].startingKnownSpells[]` | `spells[].name` | copied to player; no database-load validation found |
-| `characters[].startingReadySpells[]` | known spell subset / `spells[].name` | only entries also in known list are retained; existence not validated there |
-| `maps[].tilesets[n]` | `tilesets[].name` | map graphics resolve indirectly through numeric `tilesetIndex`; not load-validated |
-| `maps[].characters[].name` | `characters[].name` | becomes `CharacterInstance.templateName`; lookups may fail/fall back later |
-| `maps[].items[].name` | `items[].name` | becomes `ItemInstance.itemTemplateName`; not load-validated |
-| `maps[].eventTriggers[].eventId` | `special-events[].id` | invoked later; not load-validated |
-| `maps[].travelTriggers[].destinationMapName` | `maps[].name` or `map-grids[].name` | resolved at travel time; failure is logged |
-| `maps[].travelTriggers[].destinationMarkerName` | marker name within destination map | resolved at travel time, then falls back to destination coordinates |
-| `map-grids[].cells[][]` | `maps[].name` or empty string | used by active-map orchestration; not load-validated |
-| `special-events[].vars[].importFrom` | `special-events[].id` | resolved while initializing runner variables; current editor supports rename |
-| event-node `next` fields | node `id` in same event | runtime graph edge; should be validated per event |
-| event DSL strings | several domain namespaces | implicit/parsed references; requires DSL-aware analysis |
-| `feats[].requiresFeats[]` | `feats[].id` | prospective only; no runtime |
+| Source field                                    | Target namespace                     | Runtime behavior / validation                                                      |
+| ----------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------- |
+| `abilities[].statuses[].statusEffect`           | `status-effects[].name`              | hard-validated by `Database::validateCombatReferences()`                           |
+| `status-effects[].actions[].abilityName`        | `abilities[].name`                   | hard-validated by `Database::validateCombatReferences()`                           |
+| `items[].statusEffects[]`                       | `status-effects[].name`              | hard-validated by `Database::validateCombatReferences()`                           |
+| `items[].weapon.abilityName`                    | `abilities[].name`                   | consumed by item/combat rules; not validated during database load                  |
+| `items[].useAbility.abilityName`                | `abilities[].name`                   | consumed on use; not validated during database load                                |
+| `items[].useSpecialEvent`                       | `special-events[].id`                | consumed on use; not validated during database load                                |
+| `spells[].abilityName`                          | `abilities[].name`                   | hard-validated by `Database::validateCombatReferences()`                           |
+| `characters[].talk.talkName`                    | `special-events[].id`                | checked at interaction time; missing event logs/falls back                         |
+| `characters[].statuses[].status`                | `status-effects[].name`              | loaded as a reference; no database-load validation found                           |
+| `characters[].startingKnownSpells[]`            | `spells[].name`                      | copied to player; no database-load validation found                                |
+| `characters[].startingReadySpells[]`            | known spell subset / `spells[].name` | only entries also in known list are retained; existence not validated there        |
+| `maps[].tilesets[n]`                            | `tilesets[].name`                    | map graphics resolve indirectly through numeric `tilesetIndex`; not load-validated |
+| `maps[].characters[].name`                      | `characters[].name`                  | becomes `CharacterInstance.templateName`; lookups may fail/fall back later         |
+| `maps[].items[].name`                           | `items[].name`                       | becomes `ItemInstance.itemTemplateName`; not load-validated                        |
+| `maps[].eventTriggers[].eventId`                | `special-events[].id`                | invoked later; not load-validated                                                  |
+| `maps[].travelTriggers[].destinationMapName`    | `maps[].name` or `map-grids[].name`  | resolved at travel time; failure is logged                                         |
+| `maps[].travelTriggers[].destinationMarkerName` | marker name within destination map   | resolved at travel time, then falls back to destination coordinates                |
+| `map-grids[].cells[][]`                         | `maps[].name` or empty string        | used by active-map orchestration; not load-validated                               |
+| `special-events[].vars[].importFrom`            | `special-events[].id`                | resolved while initializing runner variables; current editor supports rename       |
+| event-node `next` fields                        | node `id` in same event              | runtime graph edge; should be validated per event                                  |
+| event DSL strings                               | several domain namespaces            | implicit/parsed references; requires DSL-aware analysis                            |
+| `feats[].requiresFeats[]`                       | `feats[].id`                         | prospective only; no runtime                                                       |
 
 Media references are not JSON-to-JSON references, but must be validated against
 the parsed SDL2W catalog: item/ability/spell/event icons and portraits refer to
@@ -511,14 +511,14 @@ files become `[]`; malformed JSON produces HTTP 500. The browser loads every
 registered collection in parallel, parses the SDL2W media catalog, and then runs
 these normalizers:
 
-| Collection | Current browser normalization |
-| --- | --- |
-| abilities | converts projectile aliases, maps invalid/legacy target types to `TARGET_UNIT`, and clears animation/sound names absent from the media catalog |
-| spells | reconstructs each record from known fields; drops invalid/duplicate rune requirements and floors positive rune counts |
-| items | runs after abilities; removes legacy/inapplicable fields and expands weapon/use damage and restore overrides from referenced base abilities |
-| maps | migrates legacy `levels` to flat arrays; ensures layers, tile dictionaries, placement arrays, and dense graphics; clamps item quantities |
-| map grids | clamps dimensions and resizes cells |
-| status effects, characters, feats, special events, tilesets | raw pass-through |
+| Collection                                                  | Current browser normalization                                                                                                                  |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| abilities                                                   | converts projectile aliases, maps invalid/legacy target types to `TARGET_UNIT`, and clears animation/sound names absent from the media catalog |
+| spells                                                      | reconstructs each record from known fields; drops invalid/duplicate rune requirements and floors positive rune counts                          |
+| items                                                       | runs after abilities; removes legacy/inapplicable fields and expands weapon/use damage and restore overrides from referenced base abilities    |
+| maps                                                        | migrates legacy `levels` to flat arrays; ensures layers, tile dictionaries, placement arrays, and dense graphics; clamps item quantities       |
+| map grids                                                   | clamps dimensions and resizes cells                                                                                                            |
+| status effects, characters, feats, special events, tilesets | raw pass-through                                                                                                                               |
 
 These transformations are not all lossless. In particular, ability media names
 can be cleared merely because the editor's media catalog did not load them,
@@ -609,4 +609,3 @@ These findings should initially be validation diagnostics, not automatic fixes.
 7. Should the character editor expose the runtime-supported starting spell
    fields and legacy-compatible fields, or only preserve them invisibly?
 8. Should deterministic output preserve the current no-final-newline convention?
-
