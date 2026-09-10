@@ -1,0 +1,787 @@
+import type { JsonArray, JsonObject } from '../../core/database/index.js';
+import {
+  MapDocument,
+  parseMapCollection,
+} from '../../core/domain/maps/index.js';
+import {
+  loadMediaCatalog,
+  type MediaCatalog,
+  type SpriteDefinition,
+} from '../../core/media/index.js';
+import { element } from '../../core/ui/dom.js';
+import type { DatabasePageContext } from '../../core/ui/index.js';
+import {
+  MapRenderer,
+  Viewport,
+  normalizeWheelDelta,
+  wheelZoomFactor,
+  type RenderMapDocument,
+  type TileBounds,
+} from './canvas/index.js';
+import { BoundedHistory } from './history/BoundedHistory.js';
+import type {
+  GraphicCell,
+  GraphicCellAccess,
+  TileGraphic,
+} from './history/cellPatches.js';
+import {
+  createEraseGesture,
+  createPencilGesture,
+  type PaintGesture,
+} from './tools/paintGesture.js';
+
+type MapTool = 'select' | 'pencil' | 'erase';
+interface TilesetTile {
+  id: number;
+  description: string;
+}
+interface TilesetInfo {
+  name: string;
+  spriteBase: string;
+  tiles: TilesetTile[];
+}
+
+class MapGraphicAccess implements GraphicCellAccess {
+  constructor(private readonly documents: ReadonlyMap<string, MapDocument>) {}
+  getGraphic(cell: GraphicCell): TileGraphic {
+    const value = this.documents
+      .get(cell.documentId)
+      ?.readCell(cell.layer, cell.index);
+    if (!value)
+      throw new RangeError(
+        `Invalid map cell ${cell.documentId}/${cell.layer}/${cell.index}`,
+      );
+    return [value.tilesetIndex, value.tileIndex];
+  }
+  setGraphic(cell: GraphicCell, graphic: TileGraphic): void {
+    if (
+      !this.documents.get(cell.documentId)?.writeCell(cell.layer, cell.index, {
+        tilesetIndex: graphic[0],
+        tileIndex: graphic[1],
+      })
+    ) {
+      throw new RangeError(
+        `Invalid map cell ${cell.documentId}/${cell.layer}/${cell.index}`,
+      );
+    }
+  }
+}
+
+class RenderDocumentAdapter implements RenderMapDocument {
+  private spriteByTileset: readonly (
+    ReadonlyMap<number, SpriteDefinition> | undefined
+  )[] = [];
+  constructor(readonly source: MapDocument) {}
+  get width() {
+    return this.source.width;
+  }
+  get height() {
+    return this.source.height;
+  }
+  get tileWidth() {
+    return this.source.spriteWidth;
+  }
+  get tileHeight() {
+    return this.source.spriteHeight;
+  }
+  rebuildSprites(
+    catalog: MediaCatalog,
+    tilesets: ReadonlyMap<string, TilesetInfo>,
+  ): void {
+    this.spriteByTileset = this.source.tilesetNames.map((name) => {
+      const tileset = tilesets.get(name);
+      if (!tileset) return undefined;
+      const sprites = new Map<number, SpriteDefinition>();
+      for (const tile of tileset.tiles) {
+        const sprite = catalog.spriteByName.get(
+          `${tileset.spriteBase}_${tile.id}`,
+        );
+        if (sprite) sprites.set(tile.id, sprite);
+      }
+      return sprites;
+    });
+  }
+  spriteAt(
+    layer: number,
+    tileIndex: number,
+  ): SpriteDefinition | null | undefined {
+    const graphics = this.source.layerData(layer);
+    if (!graphics || tileIndex < 0 || tileIndex >= this.source.cellCount)
+      return undefined;
+    const pair = tileIndex * 2;
+    const tilesetIndex = graphics[pair]!;
+    const spriteIndex = graphics[pair + 1]!;
+    if (tilesetIndex === 0 && spriteIndex === 0) return null;
+    return this.spriteByTileset[tilesetIndex]?.get(spriteIndex);
+  }
+}
+
+export class MapEditorController {
+  private readonly documents: MapDocument[];
+  private readonly documentsByName: Map<string, MapDocument>;
+  private readonly access: MapGraphicAccess;
+  private readonly history = new BoundedHistory<GraphicCellAccess>();
+  private readonly tilesets: Map<string, TilesetInfo>;
+  private readonly viewports = new Map<string, Viewport>();
+  private readonly renderer = new MapRenderer();
+  private readonly canvas = element('canvas', {
+    className: 'map-canvas',
+    attributes: { tabindex: '0', 'aria-label': 'Map canvas' },
+  });
+  private readonly mapSelect = element('select');
+  private readonly layerSelect = element('select');
+  private readonly tilesetSelect = element('select');
+  private readonly tileSelect = element('select');
+  private readonly gridToggle = element('input');
+  private readonly toolButtons = new Map<MapTool, HTMLButtonElement>();
+  private readonly undoButton = this.makeButton('Undo', () => this.undo());
+  private readonly redoButton = this.makeButton('Redo', () => this.redo());
+  private readonly selectionStatus = element('p', {
+    className: 'map-selection-status',
+  });
+  private readonly renderStatus = element('p', {
+    className: 'map-render-status muted',
+  });
+  private readonly visibleBounds: TileBounds = {
+    minX: 0,
+    maxX: -1,
+    minY: 0,
+    maxY: -1,
+  };
+  private currentIndex: number;
+  private currentLayer = 0;
+  private selectedCell = -1;
+  private hoveredCell = -1;
+  private tool: MapTool = 'select';
+  private renderDocument?: RenderDocumentAdapter;
+  private media?: MediaCatalog;
+  private frameRequest?: number;
+  private lastStatusUpdate = 0;
+  private centerPending = true;
+  private gesture?: PaintGesture;
+  private panPointerId?: number;
+  private lastPointerX = 0;
+  private lastPointerY = 0;
+  private destroyed = false;
+
+  constructor(
+    private readonly root: HTMLElement,
+    private readonly context: DatabasePageContext,
+    initialUrl = new URL(window.location.href),
+  ) {
+    this.documents = parseMapCollection(context.session.collection('maps')).map(
+      (record, index) => MapDocument.from(record, `maps[${index}]`),
+    );
+    this.documentsByName = new Map(
+      this.documents.map((document) => [document.name, document]),
+    );
+    this.access = new MapGraphicAccess(this.documentsByName);
+    this.tilesets = parseTilesets(context.session.collection('tilesets'));
+    const requested = initialUrl.searchParams.get('map');
+    this.currentIndex = requested
+      ? this.documents.findIndex((document) => document.name === requested)
+      : this.documents.length
+        ? 0
+        : -1;
+  }
+
+  mount(): void {
+    this.root.replaceChildren(this.buildLayout());
+    this.bindEvents();
+    this.context.setBeforeSaveHandler(() => this.finishGesture());
+    this.populateMapSelect();
+    this.selectMap(this.currentIndex);
+    this.setTool('select');
+    this.updateHistoryControls();
+    this.frameRequest = requestAnimationFrame(this.renderFrame);
+    void loadMediaCatalog().then(
+      (catalog) => {
+        if (this.destroyed) return;
+        this.media = catalog;
+        this.rebuildRenderDocument();
+        this.renderStatus.textContent = 'Sprite sheets ready.';
+      },
+      (error: unknown) => {
+        if (this.destroyed) return;
+        this.renderStatus.textContent = `Could not load sprite definitions: ${error instanceof Error ? error.message : 'unknown error'}`;
+        this.renderStatus.classList.remove('muted');
+      },
+    );
+  }
+
+  destroy(): void {
+    if (this.destroyed) return;
+    this.finishGesture();
+    this.destroyed = true;
+    this.context.setBeforeSaveHandler(undefined);
+    if (this.frameRequest !== undefined)
+      cancelAnimationFrame(this.frameRequest);
+    window.removeEventListener('keydown', this.handleKeyDown);
+    this.root.replaceChildren();
+  }
+
+  private buildLayout(): HTMLElement {
+    const toolbar = element('section', {
+      className: 'map-toolbar',
+      attributes: { 'aria-label': 'Map controls' },
+    });
+    this.gridToggle.type = 'checkbox';
+    this.gridToggle.checked = true;
+    toolbar.append(
+      this.makeField('Map', this.mapSelect),
+      this.makeField('Layer', this.layerSelect),
+      this.makeField('Tileset', this.tilesetSelect),
+      this.makeField('Tile', this.tileSelect),
+    );
+    const toolGroup = element('div', { className: 'map-toolbar__group' });
+    for (const [tool, label] of [
+      ['select', 'Select'],
+      ['pencil', 'Pencil'],
+      ['erase', 'Erase'],
+    ] as const) {
+      const control = this.makeButton(label, () => this.setTool(tool));
+      control.dataset.tool = tool;
+      this.toolButtons.set(tool, control);
+      toolGroup.append(control);
+    }
+    const historyGroup = element('div', { className: 'map-toolbar__group' });
+    historyGroup.append(
+      this.undoButton,
+      this.redoButton,
+      this.makeButton('Center', () => {
+        this.centerPending = true;
+      }),
+    );
+    const gridLabel = element('label', { className: 'map-grid-toggle' });
+    gridLabel.append(this.gridToggle, document.createTextNode(' Grid'));
+    toolbar.append(toolGroup, historyGroup, gridLabel);
+    const canvasWrap = element('div', { className: 'map-canvas-wrap' });
+    canvasWrap.append(this.canvas);
+    const sidebar = element('aside', { className: 'map-inspector surface' });
+    sidebar.append(
+      element('h2', { text: 'Current tile' }),
+      this.selectionStatus,
+      element('p', {
+        className: 'muted',
+        text: 'Left-drag paints. Middle-drag pans. Wheel zooms around the pointer.',
+      }),
+      this.renderStatus,
+    );
+    const workspace = element('div', { className: 'map-workspace' });
+    workspace.append(canvasWrap, sidebar);
+    const editor = element('div', { className: 'map-editor' });
+    editor.append(toolbar, workspace);
+    return editor;
+  }
+
+  private bindEvents(): void {
+    this.mapSelect.addEventListener('change', () =>
+      this.selectMap(this.mapSelect.selectedIndex),
+    );
+    this.layerSelect.addEventListener('change', () => {
+      this.finishGesture();
+      this.currentLayer = Number(this.layerSelect.value);
+      this.selectedCell = -1;
+      this.hoveredCell = -1;
+      this.updateSelectionStatus();
+    });
+    this.tilesetSelect.addEventListener('change', () =>
+      this.populateTileSelect(),
+    );
+    this.canvas.addEventListener('pointerdown', this.handlePointerDown);
+    this.canvas.addEventListener('pointermove', this.handlePointerMove);
+    this.canvas.addEventListener('pointerup', this.handlePointerUp);
+    this.canvas.addEventListener('pointercancel', this.handlePointerCancel);
+    this.canvas.addEventListener('wheel', this.handleWheel, { passive: false });
+    this.canvas.addEventListener('contextmenu', (event) =>
+      event.preventDefault(),
+    );
+    window.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  private populateMapSelect(): void {
+    this.mapSelect.replaceChildren();
+    for (const map of this.documents) {
+      const option = element('option', { text: map.name });
+      option.value = map.name;
+      this.mapSelect.append(option);
+    }
+  }
+
+  private selectMap(index: number): void {
+    this.finishGesture();
+    this.currentIndex =
+      index >= 0 && index < this.documents.length ? index : -1;
+    const current = this.currentDocument();
+    if (!current) {
+      this.mapSelect.selectedIndex = -1;
+      this.renderDocument = undefined;
+      this.updateSelectionStatus();
+      return;
+    }
+    this.mapSelect.value = current.name;
+    this.currentLayer = current.hasLayer(0) ? 0 : (current.layers[0] ?? 0);
+    this.selectedCell = -1;
+    this.hoveredCell = -1;
+    this.populateLayerSelect(current);
+    this.populateTilesetSelect(current);
+    this.rebuildRenderDocument();
+    if (!this.viewports.has(current.name)) {
+      this.viewports.set(current.name, new Viewport());
+      this.centerPending = true;
+    }
+    const url = new URL(window.location.href);
+    url.searchParams.set('map', current.name);
+    window.history.replaceState(null, '', url);
+    this.updateSelectionStatus();
+  }
+
+  private populateLayerSelect(current: MapDocument): void {
+    this.layerSelect.replaceChildren();
+    for (const layer of [...current.layers].sort((a, b) => b - a)) {
+      const option = element('option', { text: String(layer) });
+      option.value = String(layer);
+      this.layerSelect.append(option);
+    }
+    this.layerSelect.value = String(this.currentLayer);
+  }
+
+  private populateTilesetSelect(current: MapDocument): void {
+    this.tilesetSelect.replaceChildren();
+    current.tilesetNames.forEach((name, index) => {
+      if (name) {
+        const option = element('option', { text: name });
+        option.value = String(index);
+        this.tilesetSelect.append(option);
+      }
+    });
+    this.tilesetSelect.selectedIndex = this.tilesetSelect.options.length
+      ? 0
+      : -1;
+    this.populateTileSelect();
+  }
+
+  private populateTileSelect(): void {
+    this.tileSelect.replaceChildren();
+    const current = this.currentDocument();
+    if (!current) return;
+    const tileset = this.tilesets.get(
+      current.tilesetNames[Number(this.tilesetSelect.value)] ?? '',
+    );
+    for (const tile of tileset?.tiles ?? []) {
+      const option = element('option', {
+        text: `${tile.id}: ${tile.description || 'tile'}`,
+      });
+      option.value = String(tile.id);
+      this.tileSelect.append(option);
+    }
+    this.tileSelect.selectedIndex = this.tileSelect.options.length ? 0 : -1;
+  }
+
+  private rebuildRenderDocument(): void {
+    const current = this.currentDocument();
+    if (!current) {
+      this.renderDocument = undefined;
+      return;
+    }
+    const adapter = new RenderDocumentAdapter(current);
+    if (this.media) adapter.rebuildSprites(this.media, this.tilesets);
+    this.renderDocument = adapter;
+  }
+
+  private currentDocument(): MapDocument | undefined {
+    return this.documents[this.currentIndex];
+  }
+  private currentViewport(): Viewport | undefined {
+    const name = this.currentDocument()?.name;
+    return name ? this.viewports.get(name) : undefined;
+  }
+
+  private setTool(tool: MapTool): void {
+    this.finishGesture();
+    this.tool = tool;
+    for (const [value, control] of this.toolButtons) {
+      control.classList.toggle('button--primary', value === tool);
+      control.setAttribute('aria-pressed', String(value === tool));
+    }
+  }
+
+  private selectedGraphic(): TileGraphic | undefined {
+    const tileset = Number(this.tilesetSelect.value),
+      tile = Number(this.tileSelect.value);
+    return Number.isSafeInteger(tileset) && Number.isSafeInteger(tile)
+      ? [tileset, tile]
+      : undefined;
+  }
+
+  private cellAtCanvasPoint(x: number, y: number): number {
+    const current = this.currentDocument(),
+      viewport = this.currentViewport();
+    if (!current || !viewport) return -1;
+    return (
+      current.indexAt(
+        Math.floor(viewport.screenToWorldX(x) / current.spriteWidth),
+        Math.floor(viewport.screenToWorldY(y) / current.spriteHeight),
+      ) ?? -1
+    );
+  }
+
+  private canvasPoint(event: PointerEvent | WheelEvent) {
+    const rect = this.canvas.getBoundingClientRect();
+    return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  }
+
+  private startGesture(index: number): void {
+    const current = this.currentDocument();
+    if (!current || index < 0) return;
+    const cell = { documentId: current.name, layer: this.currentLayer, index };
+    if (this.tool === 'pencil') {
+      const graphic = this.selectedGraphic();
+      if (!graphic) return;
+      this.gesture = createPencilGesture(this.access, graphic);
+    } else if (this.tool === 'erase')
+      this.gesture = createEraseGesture(this.access);
+    else return;
+    this.gesture.visit(cell);
+  }
+
+  private visitGesture(index: number): void {
+    const current = this.currentDocument();
+    if (this.gesture && current && index >= 0)
+      this.gesture.visit({
+        documentId: current.name,
+        layer: this.currentLayer,
+        index,
+      });
+  }
+  private finishGesture(): void {
+    const gesture = this.gesture;
+    if (!gesture) return;
+    this.gesture = undefined;
+    if (this.history.recordApplied(gesture.finish())) this.commitDocuments();
+    this.updateHistoryControls();
+  }
+  private cancelGesture(): void {
+    if (this.gesture) {
+      this.gesture.cancel();
+      this.gesture = undefined;
+    }
+  }
+  private undo(): void {
+    this.finishGesture();
+    if (this.history.undo(this.access)) this.commitDocuments();
+    this.updateHistoryControls();
+  }
+  private redo(): void {
+    this.finishGesture();
+    if (this.history.redo(this.access)) this.commitDocuments();
+    this.updateHistoryControls();
+  }
+  private commitDocuments(): void {
+    this.context.session.replaceCollection(
+      'maps',
+      this.documents.map((document) => document.snapshot()) as JsonArray,
+    );
+    this.context.notifyChanged();
+  }
+  private updateHistoryControls(): void {
+    this.undoButton.disabled = !this.history.canUndo;
+    this.redoButton.disabled = !this.history.canRedo;
+  }
+
+  private updateSelectionStatus(): void {
+    const current = this.currentDocument();
+    if (!current) {
+      this.selectionStatus.textContent = 'No maps are available.';
+      return;
+    }
+    const index = this.selectedCell >= 0 ? this.selectedCell : this.hoveredCell;
+    const position = current.coordinatesOf(index),
+      graphic = current.readCell(this.currentLayer, index);
+    if (!position || !graphic) {
+      this.selectionStatus.textContent = `${current.name} · layer ${this.currentLayer}`;
+      return;
+    }
+    const tileset = current.tilesetNames[graphic.tilesetIndex] || '(empty)';
+    this.selectionStatus.textContent = `${this.selectedCell >= 0 ? 'Selected' : 'Hover'} ${index} (${position.x}, ${position.y}) · ${tileset}:${graphic.tileIndex}`;
+  }
+
+  private readonly handlePointerDown = (event: PointerEvent): void => {
+    const point = this.canvasPoint(event);
+    if (event.button === 1) {
+      event.preventDefault();
+      this.panPointerId = event.pointerId;
+      this.lastPointerX = point.x;
+      this.lastPointerY = point.y;
+      this.canvas.setPointerCapture(event.pointerId);
+      return;
+    }
+    if (event.button !== 0) return;
+    const cell = this.cellAtCanvasPoint(point.x, point.y);
+    this.hoveredCell = cell;
+    this.selectedCell = cell;
+    if (this.tool !== 'select') {
+      this.startGesture(cell);
+      this.canvas.setPointerCapture(event.pointerId);
+    }
+    this.updateSelectionStatus();
+  };
+
+  private readonly handlePointerMove = (event: PointerEvent): void => {
+    const point = this.canvasPoint(event);
+    if (this.panPointerId === event.pointerId) {
+      this.currentViewport()?.panBy(
+        point.x - this.lastPointerX,
+        point.y - this.lastPointerY,
+      );
+      this.lastPointerX = point.x;
+      this.lastPointerY = point.y;
+      return;
+    }
+    const cell = this.cellAtCanvasPoint(point.x, point.y);
+    if (cell !== this.hoveredCell) {
+      this.hoveredCell = cell;
+      this.updateSelectionStatus();
+    }
+    if (this.gesture && (event.buttons & 1) !== 0) this.visitGesture(cell);
+  };
+
+  private readonly handlePointerUp = (event: PointerEvent): void => {
+    if (this.panPointerId === event.pointerId) this.panPointerId = undefined;
+    if (event.button === 0) this.finishGesture();
+    if (this.canvas.hasPointerCapture(event.pointerId))
+      this.canvas.releasePointerCapture(event.pointerId);
+  };
+  private readonly handlePointerCancel = (event: PointerEvent): void => {
+    if (this.panPointerId === event.pointerId) this.panPointerId = undefined;
+    this.cancelGesture();
+  };
+  private readonly handleWheel = (event: WheelEvent): void => {
+    event.preventDefault();
+    const point = this.canvasPoint(event);
+    const delta = normalizeWheelDelta(
+      event.deltaY,
+      event.deltaMode,
+      this.canvas.clientHeight,
+    );
+    this.currentViewport()?.zoomAt(point.x, point.y, wheelZoomFactor(delta));
+  };
+  private readonly handleKeyDown = (event: KeyboardEvent): void => {
+    if (isTextInput(event.target)) return;
+    const modifier = event.ctrlKey || event.metaKey;
+    if (modifier && event.key.toLowerCase() === 'z') {
+      event.preventDefault();
+      if (event.shiftKey) this.redo();
+      else this.undo();
+    } else if (modifier && event.key.toLowerCase() === 'y') {
+      event.preventDefault();
+      this.redo();
+    }
+  };
+  private readonly renderFrame = (time: number): void => {
+    if (this.destroyed) return;
+    try {
+      this.draw(time);
+    } catch (error) {
+      this.renderStatus.textContent = `Render error: ${error instanceof Error ? error.message : 'unknown error'}`;
+      this.renderStatus.classList.remove('muted');
+    } finally {
+      this.frameRequest = requestAnimationFrame(this.renderFrame);
+    }
+  };
+
+  private draw(time: number): void {
+    const width = Math.max(1, Math.floor(this.canvas.clientWidth)),
+      height = Math.max(1, Math.floor(this.canvas.clientHeight));
+    if (this.canvas.width !== width || this.canvas.height !== height) {
+      this.canvas.width = width;
+      this.canvas.height = height;
+      this.centerPending = true;
+    }
+    const context = this.canvas.getContext('2d');
+    if (!context) return;
+    this.renderer.beginFrame(context, width, height);
+    const current = this.currentDocument(),
+      viewport = this.currentViewport(),
+      rendered = this.renderDocument;
+    if (!current || !viewport || !rendered) return;
+    if (this.centerPending) {
+      viewport.centerOn(
+        (current.width * current.spriteWidth) / 2,
+        (current.height * current.spriteHeight) / 2,
+        width,
+        height,
+      );
+      this.centerPending = false;
+    }
+    this.renderer.drawMap(context, {
+      document: rendered,
+      layer: this.currentLayer,
+      viewport,
+      background: '#09090b',
+    });
+    if (this.gridToggle.checked)
+      this.drawGrid(context, current, viewport, width, height);
+    this.drawCellOutline(
+      context,
+      current,
+      viewport,
+      this.hoveredCell,
+      '#78b9e8',
+      1,
+    );
+    this.drawCellOutline(
+      context,
+      current,
+      viewport,
+      this.selectedCell,
+      '#72ddc3',
+      2,
+    );
+    if (time - this.lastStatusUpdate > 250) {
+      this.lastStatusUpdate = time;
+      const stats = this.renderer.stats;
+      this.renderStatus.textContent = this.media
+        ? `${stats.drawnTiles} drawn · ${stats.visitedTiles} visible · ${stats.unresolvedSprites} unresolved · zoom ${viewport.scale.toFixed(2)}×`
+        : 'Loading sprite definitions…';
+    }
+  }
+
+  private drawGrid(
+    context: CanvasRenderingContext2D,
+    current: MapDocument,
+    viewport: Viewport,
+    width: number,
+    height: number,
+  ): void {
+    if (
+      !viewport.writeVisibleTileBounds(this.visibleBounds, {
+        originX: 0,
+        originY: 0,
+        mapWidth: current.width,
+        mapHeight: current.height,
+        tileWidth: current.spriteWidth,
+        tileHeight: current.spriteHeight,
+        canvasWidth: width,
+        canvasHeight: height,
+      })
+    )
+      return;
+    context.beginPath();
+    context.strokeStyle = 'rgb(255 255 255 / 18%)';
+    context.lineWidth = 1;
+    for (
+      let x = this.visibleBounds.minX;
+      x <= this.visibleBounds.maxX + 1;
+      x += 1
+    ) {
+      const sx =
+        Math.round(viewport.worldToScreenX(x * current.spriteWidth)) + 0.5;
+      context.moveTo(
+        sx,
+        viewport.worldToScreenY(this.visibleBounds.minY * current.spriteHeight),
+      );
+      context.lineTo(
+        sx,
+        viewport.worldToScreenY(
+          (this.visibleBounds.maxY + 1) * current.spriteHeight,
+        ),
+      );
+    }
+    for (
+      let y = this.visibleBounds.minY;
+      y <= this.visibleBounds.maxY + 1;
+      y += 1
+    ) {
+      const sy =
+        Math.round(viewport.worldToScreenY(y * current.spriteHeight)) + 0.5;
+      context.moveTo(
+        viewport.worldToScreenX(this.visibleBounds.minX * current.spriteWidth),
+        sy,
+      );
+      context.lineTo(
+        viewport.worldToScreenX(
+          (this.visibleBounds.maxX + 1) * current.spriteWidth,
+        ),
+        sy,
+      );
+    }
+    context.stroke();
+  }
+
+  private drawCellOutline(
+    context: CanvasRenderingContext2D,
+    current: MapDocument,
+    viewport: Viewport,
+    index: number,
+    color: string,
+    lineWidth: number,
+  ): void {
+    const position = current.coordinatesOf(index);
+    if (!position) return;
+    const x = viewport.worldToScreenX(position.x * current.spriteWidth),
+      y = viewport.worldToScreenY(position.y * current.spriteHeight);
+    context.strokeStyle = color;
+    context.lineWidth = lineWidth;
+    context.strokeRect(
+      Math.round(x) + 0.5,
+      Math.round(y) + 0.5,
+      Math.round(current.spriteWidth * viewport.scale),
+      Math.round(current.spriteHeight * viewport.scale),
+    );
+  }
+
+  private makeField(label: string, control: HTMLElement): HTMLLabelElement {
+    const wrapper = element('label', { className: 'map-toolbar__field' });
+    wrapper.append(element('span', { text: label }), control);
+    return wrapper;
+  }
+  private makeButton(label: string, onClick: () => void): HTMLButtonElement {
+    const control = element('button', {
+      className: 'button button--small',
+      text: label,
+      attributes: { type: 'button' },
+    });
+    control.addEventListener('click', onClick);
+    return control;
+  }
+}
+
+function parseTilesets(values: JsonArray): Map<string, TilesetInfo> {
+  const result = new Map<string, TilesetInfo>();
+  for (const value of values) {
+    if (
+      !isObject(value) ||
+      typeof value.name !== 'string' ||
+      typeof value.spriteBase !== 'string'
+    )
+      continue;
+    const tiles: TilesetTile[] = [];
+    if (Array.isArray(value.tiles))
+      for (const tile of value.tiles)
+        if (isObject(tile) && Number.isSafeInteger(tile.id))
+          tiles.push({
+            id: tile.id as number,
+            description:
+              typeof tile.description === 'string' ? tile.description : '',
+          });
+    result.set(value.name, {
+      name: value.name,
+      spriteBase: value.spriteBase,
+      tiles,
+    });
+  }
+  return result;
+}
+
+function isObject(value: unknown): value is JsonObject {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+function isTextInput(target: EventTarget | null): boolean {
+  return (
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLSelectElement ||
+    (target instanceof HTMLElement && target.isContentEditable)
+  );
+}

@@ -1,5 +1,6 @@
 import { ASSET_IDS, type AssetId } from '../database/assetRegistry.js';
 import type { DatabaseSnapshot } from '../database/types.js';
+import { MapParseError, parseMapRecord } from '../domain/maps/index.js';
 import {
   parseStatusEffectRecord,
   StatusEffectParseError,
@@ -159,6 +160,23 @@ function validateMaps(
     }
     const path = `maps[${mapIndex}]`;
     const recordId = nonEmptyText(value.name) ?? undefined;
+    try {
+      parseMapRecord(value, path);
+    } catch (error) {
+      if (!(error instanceof MapParseError)) {
+        throw error;
+      }
+      issues.push(
+        makeIssue(
+          'error',
+          'map.schema',
+          error.detail,
+          error.path,
+          'maps',
+          recordId,
+        ),
+      );
+    }
     const width = value.width;
     const height = value.height;
     if (!isPositiveInteger(width)) {

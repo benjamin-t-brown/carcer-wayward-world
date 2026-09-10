@@ -17,6 +17,8 @@ export interface DatabasePageContext {
   readonly session: DatabaseSession;
   /** Refresh shell state after changing the session. */
   notifyChanged(): void;
+  /** Register editor work that must be committed before Save All snapshots. */
+  setBeforeSaveHandler(handler?: () => void): void;
   /** Run client validation and save the complete database snapshot. */
   saveAll(): Promise<boolean>;
 }
@@ -93,6 +95,7 @@ export class DatabasePageController {
   private readonly content: HTMLElement;
   private loadedSession?: DatabaseSession;
   private contentCleanup?: DatabasePageCleanup;
+  private beforeSaveHandler?: () => void;
   private savePromise?: Promise<boolean>;
   private destroyed = false;
   private saving = false;
@@ -207,6 +210,9 @@ export class DatabasePageController {
       const cleanup = this.options.render(this.content, {
         session,
         notifyChanged: () => this.notifyChanged(),
+        setBeforeSaveHandler: (handler) => {
+          this.beforeSaveHandler = handler;
+        },
         saveAll: () => this.saveAll(),
       });
       this.contentCleanup = typeof cleanup === 'function' ? cleanup : undefined;
@@ -238,6 +244,14 @@ export class DatabasePageController {
       return false;
     }
     if (this.destroyed) {
+      return false;
+    }
+    try {
+      this.beforeSaveHandler?.();
+    } catch (error) {
+      this.operationStatus.textContent = `Could not prepare editor changes for saving: ${databasePageErrorMessage(error)}`;
+      this.operationStatus.className =
+        'status status--error database-page__operation';
       return false;
     }
     if (!session.isDirty) {
