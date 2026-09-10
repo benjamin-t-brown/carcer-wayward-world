@@ -16,15 +16,55 @@ export interface AssetTypeDescriptor {
 }
 
 export const ASSET_TYPES = [
-  { id: 'itemTemplates', name: 'Item Templates', file: 'items.json', routeParam: 'item' },
-  { id: 'abilityTemplates', name: 'Ability Templates', file: 'abilities.json', routeParam: 'ability' },
-  { id: 'spellTemplates', name: 'Spell Templates', file: 'spells.json', routeParam: 'spell' },
-  { id: 'statusEffectTemplates', name: 'Status Effect Templates', file: 'status-effects.json', routeParam: 'statusEffect' },
-  { id: 'characterTemplates', name: 'Character Templates', file: 'characters.json', routeParam: 'character' },
-  { id: 'specialEvents', name: 'Special Events', file: 'special-events.json', routeParam: 'event' },
-  { id: 'tilesetTemplates', name: 'Tileset Templates', file: 'tilesets.json', routeParam: 'tileset' },
+  {
+    id: 'itemTemplates',
+    name: 'Item Templates',
+    file: 'items.json',
+    routeParam: 'item',
+  },
+  {
+    id: 'abilityTemplates',
+    name: 'Ability Templates',
+    file: 'abilities.json',
+    routeParam: 'ability',
+  },
+  {
+    id: 'spellTemplates',
+    name: 'Spell Templates',
+    file: 'spells.json',
+    routeParam: 'spell',
+  },
+  {
+    id: 'statusEffectTemplates',
+    name: 'Status Effect Templates',
+    file: 'status-effects.json',
+    routeParam: 'statusEffect',
+  },
+  {
+    id: 'characterTemplates',
+    name: 'Character Templates',
+    file: 'characters.json',
+    routeParam: 'character',
+  },
+  {
+    id: 'specialEvents',
+    name: 'Special Events',
+    file: 'special-events.json',
+    routeParam: 'event',
+  },
+  {
+    id: 'tilesetTemplates',
+    name: 'Tileset Templates',
+    file: 'tilesets.json',
+    routeParam: 'tileset',
+  },
   { id: 'maps', name: 'Maps', file: 'maps.json', routeParam: 'map' },
-  { id: 'mapGrids', name: 'Map Grids', file: 'map-grids.json', routeParam: 'mapGrid' },
+  {
+    id: 'mapGrids',
+    name: 'Map Grids',
+    file: 'map-grids.json',
+    routeParam: 'mapGrid',
+  },
 ] as const satisfies readonly AssetTypeDescriptor[];
 
 export type AssetId = (typeof ASSET_TYPES)[number]['id'];

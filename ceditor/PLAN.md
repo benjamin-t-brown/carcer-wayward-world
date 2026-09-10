@@ -74,9 +74,9 @@ Status: complete on 2026-09-10.
 
 ## Phase 1 — Tooling and characterization tests
 
-Status: in progress. The initial tooling, managed registry/routes, status-effect
-deep link, and filtered-selection correctness slice landed on 2026-09-10.
-Map/event characterization and controlled Prettier enforcement remain.
+Status: complete on 2026-09-10. Prettier enforcement begins with configuration,
+tests, and newly extracted pure modules; legacy files join it in controlled
+mechanical batches as their owning phase touches them.
 
 ### Work
 

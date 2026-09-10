@@ -134,6 +134,9 @@ export function sanitizeSpellTemplates(
   return spells.map((spell) => {
     const defaults = createDefaultSpellTemplate();
     return {
+      // Preserve fields introduced by newer game data even when this editor
+      // does not know how to render them yet.
+      ...spell,
       name: typeof spell?.name === 'string' ? spell.name : defaults.name,
       label: typeof spell?.label === 'string' ? spell.label : defaults.label,
       description:
