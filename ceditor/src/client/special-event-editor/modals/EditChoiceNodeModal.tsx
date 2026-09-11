@@ -11,8 +11,10 @@ import {
   MODAL_ROOT_CLASS,
   useEscapeToClose,
 } from '../../hooks/useEscapeToClose';
+import { SpecialEventEditorController } from '../SpecialEventEditorController';
 
 interface EditChoiceNodeModalProps {
+  controller: SpecialEventEditorController;
   isOpen: boolean;
   node: EditorNodeChoice | undefined;
   gameEvent: GameEvent;
@@ -109,6 +111,7 @@ const UpDownMover = (props: {
 };
 
 export function EditChoiceNodeModal({
+  controller,
   isOpen,
   node,
   gameEvent,
@@ -135,7 +138,7 @@ export function EditChoiceNodeModal({
   const handleEditNodeConfirm = () => {
     node.text = text;
     node.buildFromChoices(choices, ctx);
-    notifyStateUpdated();
+    notifyStateUpdated(controller);
     onCancel();
   };
 

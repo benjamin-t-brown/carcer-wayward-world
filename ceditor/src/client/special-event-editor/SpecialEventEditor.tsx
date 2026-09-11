@@ -1,28 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { GameEvent, GameEventChildType } from '../types/assets';
 import { useRenderLoop } from '../hooks/useRenderLoop';
 import {
-  centerPanzoomOnNode,
-  getEditorState,
   initEditorStateForGameEvent,
   updateEditorState,
 } from './seEditorState';
-import { EditorStateSE } from './seEditorState';
-import {
-  CANVAS_CONTAINER_ID,
-  MapCanvasSE,
-} from './react-components/MapCanvasSE';
+import { MapCanvasSE } from './react-components/MapCanvasSE';
 import {
   initPanzoom,
   unInitPanzoom,
   checkRightClickLineEvents,
 } from './seEditorEvents';
 import { loop } from './seLoop';
-import { useReRender } from '../hooks/useReRender';
 import { ContextMenu } from './react-components/ContextMenu';
 import { EditExecNodeModal } from './modals/EditExecNodeModal';
 import { EditSwitchNodeModal } from './modals/EditSwitchNodeModal';
-import { GameEventChildExec, GameEventChildSwitch } from '../types/assets';
 import { screenToWorldCoords } from './nodeHelpers';
 import { EditorNodeExec } from './cmpts/ExecNodeComponent';
 import { EditorNodeSwitch } from './cmpts/SwitchNodeComponent';
@@ -32,18 +24,34 @@ import { EditChoiceNodeModal } from './modals/EditChoiceNodeModal';
 import { EditEndNodeModal } from './modals/EditEndNodeModal';
 import { EditorNodeComment } from './cmpts/CommentNodeComponent';
 import { EditCommentModal } from './modals/EditCommentModal';
+import { SpecialEventEditorController } from './SpecialEventEditorController';
+import { cloneSpecialEventDocument } from './specialEventDocument';
 
 interface SpecialEventEditorProps {
+  controller: SpecialEventEditorController;
   gameEvent: GameEvent;
-  onUpdateGameEvent: (gameEvent: GameEvent) => void;
 }
 
-let prevTs = performance.now();
-
-export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
+export function SpecialEventEditor({
+  controller,
+  gameEvent,
+}: SpecialEventEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const editorState = useRef<EditorStateSE | undefined>(undefined);
-  const reRender = useReRender();
+  const prevTsRef = useRef(performance.now());
+  const selectedGameEventRef = useRef<GameEvent | null>(null);
+  if (
+    !selectedGameEventRef.current ||
+    selectedGameEventRef.current.id !== gameEvent.id
+  ) {
+    selectedGameEventRef.current = cloneSpecialEventDocument(gameEvent);
+  }
+  const gameEventId = gameEvent.id;
+  useSyncExternalStore(
+    controller.subscribe,
+    controller.getSnapshot,
+    controller.getSnapshot,
+  );
+  const editorState = controller.getState();
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
@@ -65,24 +73,18 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
     EditorNodeEnd | undefined
   >(undefined);
 
-  // hack im lazy
-  (window as any).reRenderSpecialEventEditor = reRender;
-
-  useEffect(() => {
-    editorState.current = getEditorState();
-  }, [editorState]);
-
   // Update editor state when gameEvent changes
   useEffect(() => {
-    const gameEventId = gameEvent?.id;
     const canvas = canvasRef.current;
 
     if (gameEventId && canvas) {
-      initEditorStateForGameEvent(gameEvent, canvas);
-      editorState.current = getEditorState();
-      updateEditorState({ gameEventId: gameEventId });
+      const selectedGameEvent = selectedGameEventRef.current;
+      if (!selectedGameEvent) return;
+      controller.resetDocumentInteraction();
+      initEditorStateForGameEvent(controller, selectedGameEvent, canvas);
+      updateEditorState(controller, { gameEventId });
     }
-  }, [gameEvent?.id]);
+  }, [controller, gameEventId]);
 
   useEffect(() => {
     console.log('initPanzoom SE');
@@ -92,10 +94,11 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
     }
 
     const showContextMenu = (ev: MouseEvent) => {
-      const currentEditorState = editorState.current;
-      if (currentEditorState && currentEditorState.gameEventId) {
+      const currentEditorState = controller.getState();
+      if (currentEditorState.gameEventId) {
         // Check if right-clicking on a line first
         const lineClicked = checkRightClickLineEvents({
+          controller,
           ev,
           canvas,
           editorState: currentEditorState,
@@ -111,7 +114,8 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
           ev.clientY,
           canvas,
           currentEditorState.zoneWidth,
-          currentEditorState.zoneHeight
+          currentEditorState.zoneHeight,
+          currentEditorState,
         );
 
         let clickedNodeId: string | undefined = undefined;
@@ -132,34 +136,15 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
       }
     };
 
-    const handleContextMenu = (ev: MouseEvent) => {
-      const targetId = (ev.target as HTMLElement)?.id;
-      if (ev.target === canvas || targetId.includes(CANVAS_CONTAINER_ID)) {
-        showContextMenu(ev);
-      }
-      ev.preventDefault();
-    };
-    const handleDocumentContextMenu = (ev: MouseEvent) => {
-      const targetId = (ev.target as HTMLElement)?.id;
-      if (targetId.includes('context') && ev.clientX > 300) {
-        ev.preventDefault();
-        showContextMenu(ev);
-        return false;
-      }
-      return true;
-    };
-
-    canvas.addEventListener('contextmenu', handleContextMenu);
-    document.addEventListener('contextmenu', handleDocumentContextMenu);
-    initPanzoom({
+    initPanzoom(controller, {
       getCanvas: () => canvasRef.current as HTMLCanvasElement,
-      getEditorState: () => editorState.current as EditorStateSE,
       getEditorFuncs: () => ({
+        onContextMenu: showContextMenu,
         onNodeDoubleClick: (nodeId: string) => {
           // Find the node and open edit modal
-          const node = editorState.current?.editorNodes.find(
-            (n) => n.id === nodeId
-          );
+          const node = controller
+            .getState()
+            .editorNodes.find((n) => n.id === nodeId);
           if (node) {
             if (node.type === GameEventChildType.EXEC) {
               setEditingExecNode(node as EditorNodeExec);
@@ -178,54 +163,22 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
     });
 
     return () => {
-      canvas.removeEventListener('contextmenu', handleContextMenu);
-      document.removeEventListener('contextmenu', handleDocumentContextMenu);
       console.log('unInitPanzoom SE');
-      unInitPanzoom();
+      unInitPanzoom(controller);
     };
-  }, []);
-
-  // Handle Ctrl+Z for undo TODO later
-  // useEffect(() => {
-  //   const handleKeyDown = (e: KeyboardEvent) => {
-  //     // Check if Ctrl+Z (or Cmd+Z on Mac) is pressed
-  //     if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-  //       // Check if we're not focused on an input field
-  //       const activeElement = document.activeElement;
-  //       const isInputFocused =
-  //         activeElement &&
-  //         (activeElement.tagName === 'INPUT' ||
-  //           activeElement.tagName === 'TEXTAREA' ||
-  //           activeElement.getAttribute('contenteditable') === 'true');
-
-  //       if (!isInputFocused && mapRef.current && editorState.current) {
-  //         e.preventDefault();
-  //         const success = undo(mapRef.current, editorState.current);
-  //         if (success) {
-  //           // Trigger map update to reflect changes
-  //           onMapUpdate({ ...mapRef.current });
-  //         }
-  //       }
-  //     }
-  //   };
-
-  //   window.addEventListener('keydown', handleKeyDown);
-  //   return () => {
-  //     window.removeEventListener('keydown', handleKeyDown);
-  //   };
-  // }, [onMapUpdate]);
+  }, [controller]);
 
   useRenderLoop((ts) => {
-    if (canvasRef.current && editorState.current) {
+    if (canvasRef.current) {
       loop(
         {
           getCanvas: () => canvasRef.current as HTMLCanvasElement,
-          getEditorState: () => editorState.current as EditorStateSE,
+          getEditorState: controller.getState,
         },
-        ts - prevTs
+        ts - prevTsRef.current,
       );
     }
-    prevTs = ts;
+    prevTsRef.current = ts;
   });
 
   if (!gameEvent) {
@@ -262,8 +215,8 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
         >
           <MapCanvasSE
             canvasRef={canvasRef}
-            width={editorState.current?.zoneWidth || 1000}
-            height={editorState.current?.zoneHeight || 1000}
+            width={editorState.zoneWidth || 1000}
+            height={editorState.zoneHeight || 1000}
           />
         </div>
       </div>
@@ -273,14 +226,14 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
           x={contextMenu.x}
           y={contextMenu.y}
           canvasRef={canvasRef}
-          editorStateRef={editorState as React.RefObject<EditorStateSE>}
-          gameEvent={gameEvent}
+          controller={controller}
           clickedNodeId={contextMenu.clickedNodeId}
           onClose={() => setContextMenu(null)}
         />
       )}
 
       <EditExecNodeModal
+        controller={controller}
         isOpen={editingExecNode !== undefined}
         node={editingExecNode}
         gameEvent={gameEvent}
@@ -288,6 +241,7 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
         ctx={canvasRef.current?.getContext('2d') as CanvasRenderingContext2D}
       />
       <EditSwitchNodeModal
+        controller={controller}
         isOpen={editingSwitchNode !== undefined}
         node={editingSwitchNode}
         gameEvent={gameEvent}
@@ -295,6 +249,7 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
         ctx={canvasRef.current?.getContext('2d') as CanvasRenderingContext2D}
       />
       <EditChoiceNodeModal
+        controller={controller}
         isOpen={editingChoiceNode !== undefined}
         node={editingChoiceNode}
         gameEvent={gameEvent}
@@ -302,6 +257,7 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
         ctx={canvasRef.current?.getContext('2d') as CanvasRenderingContext2D}
       />
       <EditCommentModal
+        controller={controller}
         isOpen={editingCommentNode !== undefined}
         node={editingCommentNode}
         gameEvent={gameEvent}
@@ -309,6 +265,7 @@ export function SpecialEventEditor({ gameEvent }: SpecialEventEditorProps) {
         ctx={canvasRef.current?.getContext('2d') as CanvasRenderingContext2D}
       />
       <EditEndNodeModal
+        controller={controller}
         isOpen={editingEndNode !== undefined}
         node={editingEndNode}
         gameEvent={gameEvent}

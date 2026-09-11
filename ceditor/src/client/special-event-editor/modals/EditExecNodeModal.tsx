@@ -7,9 +7,14 @@ import { notifyStateUpdated } from '../seEditorState';
 import { ExecWidget } from '../react-components/ExecWidget';
 import { AudioWidget } from '../react-components/AudioWidget';
 import { ItemTemplateWidget } from '../react-components/ItemTemplateWidget';
-import { MODAL_ROOT_CLASS, useEscapeToClose } from '../../hooks/useEscapeToClose';
+import {
+  MODAL_ROOT_CLASS,
+  useEscapeToClose,
+} from '../../hooks/useEscapeToClose';
+import { SpecialEventEditorController } from '../SpecialEventEditorController';
 
 interface EditExecNodeModalProps {
+  controller: SpecialEventEditorController;
   isOpen: boolean;
   node: EditorNodeExec | undefined;
   gameEvent: GameEvent;
@@ -18,6 +23,7 @@ interface EditExecNodeModalProps {
 }
 
 export function EditExecNodeModal({
+  controller,
   isOpen,
   node,
   gameEvent,
@@ -46,7 +52,7 @@ export function EditExecNodeModal({
     node.execStr = execStr;
     node.autoAdvance = autoAdvance;
     node.build(ctx);
-    notifyStateUpdated();
+    notifyStateUpdated(controller);
     onCancel();
   };
 

@@ -29,7 +29,7 @@ interface TransformState {
 }
 
 interface EditorSaveState {
-  editorNodes: EditorNode[];
+  serializedNodes: SENode[];
   gameEventTransform: TransformState;
 }
 
@@ -98,56 +98,67 @@ export class EditorStateSE {
     nodeId: string;
   }[] = [];
 }
-const editorStateSE = new EditorStateSE();
 
-export const getEditorState = () => editorStateSE;
-export const updateEditorState = (state: Partial<EditorStateSE>, validate: boolean = true) => {
-  Object.assign(editorStateSE, { ...getEditorState(), ...state });
-  // const gameEvent = editorStateSE.gameEventId;
-  // if (gameEvent) {
-  //   syncGameEventFromEditorState(gameEvent, editorStateSE);
-  // }
-  const renderFunc = (window as any).reRenderSpecialEventEditor;
-  if (renderFunc) {
-    renderFunc();
-  }
-  if (validate) {
-    notifyStateUpdated();
-  }
-};
-export const updateEditorStateNoReRender = (state: Partial<EditorStateSE>) => {
-  Object.assign(editorStateSE, { ...getEditorState(), ...state });
-  // const gameEvent = editorStateSE.baseGameEvent;
-  // if (gameEvent) {
-  //   syncGameEventFromEditorState(gameEvent, editorStateSE);
-  // }
-};
+export interface SpecialEventStateController {
+  getState(): EditorStateSE;
+  update(state: Partial<EditorStateSE>, validate?: boolean): void;
+  updateSilent(state: Partial<EditorStateSE>): void;
+  notify(validate?: boolean): void;
+  markValidationRequired(): void;
+}
+
+export const getEditorState = (controller: SpecialEventStateController) =>
+  controller.getState();
+
+export const updateEditorState = (
+  controller: SpecialEventStateController,
+  state: Partial<EditorStateSE>,
+  validate = true,
+) => controller.update(state, validate);
+
+export const updateEditorStateNoReRender = (
+  controller: SpecialEventStateController,
+  state: Partial<EditorStateSE>,
+) => controller.updateSilent(state);
 
 // called when a new game event is selected
 export const initEditorStateForGameEvent = (
+  controller: SpecialEventStateController,
   gameEvent: GameEvent,
-  canvas: HTMLCanvasElement
+  canvas: HTMLCanvasElement,
 ) => {
-  const editorState = getEditorState();
+  const editorState = getEditorState(controller);
   editorState.selectedNodeIds.clear();
   editorState.selectionRect = null;
   console.log('initEditorStateForGameEvent', gameEvent, gameEvent.id);
 
-  const hasSavedEditorState = restoreEditorStateForGameEvent(gameEvent.id);
+  const hasSavedEditorState = restoreEditorStateForGameEvent(
+    controller,
+    gameEvent.id,
+    canvas,
+  );
   if (!hasSavedEditorState) {
-    editorState.editorNodes = createEditorNodesForGameEvent(gameEvent, canvas);
+    editorState.editorNodes = createEditorNodesForGameEvent(
+      controller,
+      gameEvent,
+      canvas,
+    );
 
     // No saved transform, center on first node
     const firstNode = gameEvent?.children?.[0];
     if (firstNode) {
       console.log('centering on node', firstNode.id);
-      centerPanzoomOnNode(canvas, firstNode.id);
+      centerPanzoomOnNode(controller, canvas, firstNode.id);
     }
   }
 };
 
-export const deleteNode = (nodeId: string, ctx: CanvasRenderingContext2D) => {
-  const editorState = getEditorState();
+export const deleteNode = (
+  controller: SpecialEventStateController,
+  nodeId: string,
+  ctx: CanvasRenderingContext2D,
+) => {
+  const editorState = getEditorState(controller);
   const node = editorState.editorNodes.find((node) => node.id === nodeId);
   if (node) {
     editorState.editorNodes.splice(editorState.editorNodes.indexOf(node), 1);
@@ -163,10 +174,15 @@ export const deleteNode = (nodeId: string, ctx: CanvasRenderingContext2D) => {
   }
 };
 
-export const saveEditorStateForGameEvent = (gameEventId: string) => {
-  const editorState = getEditorState();
+export const saveEditorStateForGameEvent = (
+  controller: SpecialEventStateController,
+  gameEventId: string,
+) => {
+  const editorState = getEditorState(controller);
   editorState.editorSaveStates.set(gameEventId, {
-    editorNodes: [...editorState.editorNodes],
+    serializedNodes: editorState.editorNodes.map((node) =>
+      structuredClone(node.toSENode()),
+    ),
     gameEventTransform: {
       translateX: editorState.translateX,
       translateY: editorState.translateY,
@@ -175,11 +191,18 @@ export const saveEditorStateForGameEvent = (gameEventId: string) => {
   });
 };
 
-export const restoreEditorStateForGameEvent = (gameEventId: string) => {
-  const editorState = getEditorState();
+export const restoreEditorStateForGameEvent = (
+  controller: SpecialEventStateController,
+  gameEventId: string,
+  canvas: HTMLCanvasElement,
+) => {
+  const editorState = getEditorState(controller);
   const savedState = editorState.editorSaveStates.get(gameEventId);
   if (savedState) {
-    editorState.editorNodes = savedState.editorNodes;
+    const ctx = canvas.getContext('2d')!;
+    editorState.editorNodes = savedState.serializedNodes.map((node) =>
+      seNodeToEditorNode(structuredClone(node), editorState, ctx),
+    );
     editorState.translateX = savedState.gameEventTransform.translateX;
     editorState.translateY = savedState.gameEventTransform.translateY;
     editorState.scale = savedState.gameEventTransform.scale;
@@ -189,10 +212,11 @@ export const restoreEditorStateForGameEvent = (gameEventId: string) => {
 };
 
 export const renameEditorSaveStateForGameEvent = (
+  controller: SpecialEventStateController,
   oldId: string,
   newId: string,
 ) => {
-  const editorState = getEditorState();
+  const editorState = getEditorState(controller);
   const savedState = editorState.editorSaveStates.get(oldId);
   if (savedState) {
     editorState.editorSaveStates.set(newId, savedState);
@@ -204,20 +228,21 @@ export const renameEditorSaveStateForGameEvent = (
 };
 
 export const createEditorNodesForGameEvent = (
+  controller: SpecialEventStateController,
   gameEvent: GameEvent,
-  canvas: HTMLCanvasElement
+  canvas: HTMLCanvasElement,
 ) => {
-  const editorState = getEditorState();
+  const editorState = getEditorState(controller);
   const ctx = canvas.getContext('2d')!;
   return gameEvent.children.map((child) =>
-    seNodeToEditorNode(child, editorState, ctx)
+    seNodeToEditorNode(structuredClone(child), editorState, ctx),
   );
 };
 
 export const seNodeToEditorNode = (
   child: SENode,
   editorState: EditorStateSE,
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
 ) => {
   if (child.eventChildType === GameEventChildType.EXEC) {
     const node = new EditorNodeExec(child as GameEventChildExec, editorState);
@@ -250,8 +275,8 @@ export const seNodeToEditorNode = (
   throw new Error(`Unknown child type: ${child.eventChildType}`);
 };
 
-export const getTransform = (editorState?: EditorStateSE) => {
-  const s = editorState || getEditorState();
+export const getTransform = (editorState: EditorStateSE) => {
+  const s = editorState;
   return {
     x: s.translateX,
     y: s.translateY,
@@ -259,19 +284,20 @@ export const getTransform = (editorState?: EditorStateSE) => {
   };
 };
 
-export const resetPanzoom = (editorState?: EditorStateSE) => {
-  const s = editorState || getEditorState();
+export const resetPanzoom = (editorState: EditorStateSE) => {
+  const s = editorState;
   s.translateX = 0;
   s.translateY = 0;
   s.scale = 1;
 };
 
 export const centerPanzoomOnNode = (
+  controller: SpecialEventStateController,
   canvas: HTMLCanvasElement,
   nodeId: string,
-  shouldFlash: boolean = false
+  shouldFlash = false,
 ) => {
-  const editorState = getEditorState();
+  const editorState = getEditorState(controller);
 
   const editorNode = editorState.editorNodes.find((node) => node.id === nodeId);
   if (!editorNode) {
@@ -310,31 +336,33 @@ export const centerPanzoomOnNode = (
   editorState.scale = scale;
 };
 
-export const resetSelectedNodes = () => {
-  const editorState = getEditorState();
+export const resetSelectedNodes = (controller: SpecialEventStateController) => {
+  const editorState = getEditorState(controller);
   editorState.selectedNodeIds.clear();
   editorState.selectionRect = null;
 };
 
 export const showDeleteNodeConfirm = (
+  controller: SpecialEventStateController,
   nodeId: string,
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
 ) => {
-  const editorState = getEditorState();
+  const editorState = getEditorState(controller);
   const node = editorState.editorNodes.find((node) => node.id === nodeId);
   if (node) {
     const message = `Are you sure you want to delete this node?`;
     if (confirm(message)) {
-      deleteNode(nodeId, ctx);
-      updateEditorState({});
+      deleteNode(controller, nodeId, ctx);
+      updateEditorState(controller, {});
     }
   }
 };
 
 export const showDeleteSelectedNodesConfirm = (
-  ctx: CanvasRenderingContext2D
+  controller: SpecialEventStateController,
+  ctx: CanvasRenderingContext2D,
 ) => {
-  const editorState = getEditorState();
+  const editorState = getEditorState(controller);
   const nodeCount = editorState.selectedNodeIds.size;
   const message = `Are you sure you want to delete ${nodeCount} node${
     nodeCount > 1 ? 's' : ''
@@ -342,26 +370,28 @@ export const showDeleteSelectedNodesConfirm = (
   if (confirm(message)) {
     const nodeIdsToDelete = Array.from(editorState.selectedNodeIds);
     nodeIdsToDelete.forEach((nodeId) => {
-      deleteNode(nodeId, ctx);
+      deleteNode(controller, nodeId, ctx);
     });
     editorState.selectedNodeIds.clear();
     editorState.selectionRect = null;
-    updateEditorState({});
+    updateEditorState(controller, {});
   }
 };
 
 export const updateSelectionRectangle = (
+  controller: SpecialEventStateController,
   xMouse: number,
   yMouse: number,
-  canvas: HTMLCanvasElement
+  canvas: HTMLCanvasElement,
 ) => {
-  const editorState = getEditorState();
+  const editorState = getEditorState(controller);
   const [worldX, worldY] = screenToWorldCoords(
     xMouse,
     yMouse,
     canvas,
     editorState.zoneWidth,
-    editorState.zoneHeight
+    editorState.zoneHeight,
+    editorState,
   );
   if (editorState.selectionRect) {
     editorState.selectionRect.endX = worldX;
@@ -373,14 +403,15 @@ export const updateDraggedNodePosition = (
   editorState: EditorStateSE,
   xMouse: number,
   yMouse: number,
-  canvas: HTMLCanvasElement
+  canvas: HTMLCanvasElement,
 ) => {
   const [worldX, worldY] = screenToWorldCoords(
     xMouse,
     yMouse,
     canvas,
     editorState.zoneWidth,
-    editorState.zoneHeight
+    editorState.zoneHeight,
+    editorState,
   );
 
   // Moving single node
@@ -388,7 +419,7 @@ export const updateDraggedNodePosition = (
   const newY = worldY - editorState.nodeDragOffsetY;
 
   const child = editorState.editorNodes.find(
-    (c) => c.id === editorState.draggedNodeId
+    (c) => c.id === editorState.draggedNodeId,
   );
   if (child) {
     child.x = newX;
@@ -401,7 +432,7 @@ export const updateDraggedNodePositionsMulti = (
   editorState: EditorStateSE,
   xMouse: number,
   yMouse: number,
-  canvas: HTMLCanvasElement
+  canvas: HTMLCanvasElement,
 ) => {
   // const editorState = getEditorState();
   if (!editorState.draggedNodeId) {
@@ -412,10 +443,11 @@ export const updateDraggedNodePositionsMulti = (
     yMouse,
     canvas,
     editorState.zoneWidth,
-    editorState.zoneHeight
+    editorState.zoneHeight,
+    editorState,
   );
   const initialPos = editorState.selectedNodesInitialPositions.get(
-    editorState.draggedNodeId
+    editorState.draggedNodeId,
   );
   if (initialPos) {
     const deltaX = worldX - editorState.nodeDragOffsetX - initialPos.x;
@@ -435,12 +467,13 @@ export const updateDraggedNodePositionsMulti = (
 };
 
 export const zoomPanzoom = (
+  controller: SpecialEventStateController,
   mouseX: number,
   mouseY: number,
   wheelDelta: number,
-  canvas: HTMLCanvasElement
+  canvas: HTMLCanvasElement,
 ) => {
-  const editorState = getEditorState();
+  const editorState = getEditorState(controller);
   const [focalX, focalY] = screenCoordsToCanvasCoords(mouseX, mouseY, canvas);
 
   let nextScale = editorState.scale;
@@ -475,7 +508,7 @@ export const zoomPanzoom = (
 export const enterLinkingMode = (
   editorState: EditorStateSE,
   sourceNodeId: string,
-  exitIndex: number = 0
+  exitIndex: number = 0,
 ) => {
   editorState.linking.isLinking = true;
   editorState.linking.sourceNodeId = sourceNodeId;
@@ -484,31 +517,36 @@ export const enterLinkingMode = (
 
 export const syncGameEventFromEditorState = (
   gameEvent: GameEvent,
-  editorState?: EditorStateSE
+  editorState: EditorStateSE,
 ) => {
-  const s = editorState || getEditorState();
+  const s = editorState;
   if (gameEvent.id !== s.gameEventId) {
     console.error(
       "syncGameEventFromEditorState rejecting sync since ids don't match.",
       'attempted to sync event',
       `"${gameEvent.id}"`,
       'with current editor state id event',
-      `"${s.gameEventId}"`
+      `"${s.gameEventId}"`,
     );
     return;
   }
-  gameEvent.children = s.editorNodes.map((node) => node.toSENode());
+  gameEvent.children = s.editorNodes.map((node) =>
+    structuredClone(node.toSENode()),
+  );
 };
 
-export const copySelectedNodes = (canvas: HTMLCanvasElement) => {
-  const editorState = getEditorState();
+export const copySelectedNodes = (
+  controller: SpecialEventStateController,
+  canvas: HTMLCanvasElement,
+) => {
+  const editorState = getEditorState(controller);
   if (editorState.selectedNodeIds.size === 0) {
     return;
   }
 
   // Get all selected nodes
   const selectedNodes = editorState.editorNodes.filter((node) =>
-    editorState.selectedNodeIds.has(node.id)
+    editorState.selectedNodeIds.has(node.id),
   );
 
   if (selectedNodes.length === 0) {
@@ -534,7 +572,7 @@ export const copySelectedNodes = (canvas: HTMLCanvasElement) => {
 
   // Store nodes with their relative offsets from center
   const copiedNodes = selectedNodes.map((node) => {
-    const seNode = node.toSENode();
+    const seNode = structuredClone(node.toSENode());
 
     return {
       seNode,
@@ -546,8 +584,11 @@ export const copySelectedNodes = (canvas: HTMLCanvasElement) => {
   editorState.copiedNodes = copiedNodes;
 };
 
-export const pasteNodes = (canvas: HTMLCanvasElement) => {
-  const editorState = getEditorState();
+export const pasteNodes = (
+  controller: SpecialEventStateController,
+  canvas: HTMLCanvasElement,
+) => {
+  const editorState = getEditorState(controller);
   if (!editorState.copiedNodes || editorState.copiedNodes.length === 0) {
     return;
   }
@@ -558,7 +599,8 @@ export const pasteNodes = (canvas: HTMLCanvasElement) => {
     editorState.mouseY,
     canvas,
     editorState.zoneWidth,
-    editorState.zoneHeight
+    editorState.zoneHeight,
+    editorState,
   );
 
   // Clear current selection
@@ -569,7 +611,7 @@ export const pasteNodes = (canvas: HTMLCanvasElement) => {
   const oldIdToNewId = new Map<string, string>();
 
   for (const copiedNode of editorState.copiedNodes) {
-    const seNode = copiedNode.seNode;
+    const seNode = structuredClone(copiedNode.seNode);
     const newId = randomId();
     oldIdToNewId.set(seNode.id, newId);
     const newNode = seNodeToEditorNode(
@@ -580,7 +622,7 @@ export const pasteNodes = (canvas: HTMLCanvasElement) => {
         y: worldY + copiedNode.offsetY,
       },
       editorState,
-      ctx
+      ctx,
     );
     newNodes.push(newNode);
     editorState.selectedNodeIds.add(newId);
@@ -599,14 +641,11 @@ export const pasteNodes = (canvas: HTMLCanvasElement) => {
     }
   }
 
-
   // Add all new nodes to editorNodes
   editorState.editorNodes.push(...newNodes);
 
-  updateEditorState({});
+  updateEditorState(controller, {});
 };
 
-export const notifyStateUpdated = () => {
-  const editorState = getEditorState();
-  editorState.shouldValidate = true;
-};
+export const notifyStateUpdated = (controller: SpecialEventStateController) =>
+  controller.markValidationRequired();

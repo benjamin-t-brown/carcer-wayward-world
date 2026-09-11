@@ -7,7 +7,6 @@ import {
 import {
   centerPanzoomOnNode,
   copySelectedNodes,
-  deleteNode,
   EditorStateSE,
   enterLinkingMode,
   notifyStateUpdated,
@@ -21,42 +20,15 @@ import {
   updateSelectionRectangle,
   zoomPanzoom,
 } from './seEditorState';
+import { SpecialEventEditorController } from './SpecialEventEditorController';
 
-let isPanZoomInitialized = false;
-// Track double-click state
-let lastClickTime = 0;
-let lastClickNodeId: string | null = null;
 const DOUBLE_CLICK_DELAY = 300; // milliseconds
-// Track wheel event throttling
-let lastWheelTime = 0;
 const WHEEL_THROTTLE_DELAY = 125; // milliseconds
-// Defer exiting linking mode on empty-map click until mouseup unless user panned
-let linkingEmptyClickPending = false;
 const LINKING_CANCEL_DRAG_THRESHOLD_SQ = 5 * 5; // pixels squared
-
-const panZoomEvents: {
-  keydown: (ev: KeyboardEvent) => void;
-  keyup: (ev: KeyboardEvent) => void;
-  mousedown: (ev: MouseEvent) => void;
-  mousemove: (ev: MouseEvent) => void;
-  mouseup: (ev: MouseEvent) => void;
-  contextmenu: (ev: MouseEvent) => void;
-  wheel: (ev: WheelEvent) => void;
-  dblclick: (ev: MouseEvent) => void;
-} = {
-  keydown: () => {},
-  keyup: () => {},
-  mousedown: () => {},
-  mousemove: () => {},
-  mouseup: () => {},
-  contextmenu: () => {},
-  wheel: () => {},
-  dblclick: () => {},
-};
 
 const isEventWithCanvasTarget = (
   ev: MouseEvent,
-  panzoomCanvas: HTMLCanvasElement | undefined
+  panzoomCanvas: HTMLCanvasElement | undefined,
 ) => {
   const targetId = (ev.target as unknown as HTMLElement)?.id;
   return (
@@ -69,65 +41,69 @@ const shouldPreventDefault = (ev: KeyboardEvent) => {
   return ev.ctrlKey && (ev.key === 's' || ev.key === 'e');
 };
 
-export const initPanzoom = (specialEventEditorInterface: {
-  getCanvas: () => HTMLCanvasElement;
-  getEditorState: () => EditorStateSE;
-  getEditorFuncs: () => {
-    onNodeDoubleClick: (nodeId: string) => void;
-  };
-}) => {
+export const initPanzoom = (
+  controller: SpecialEventEditorController,
+  specialEventEditorInterface: {
+    getCanvas: () => HTMLCanvasElement;
+    getEditorFuncs: () => {
+      onNodeDoubleClick: (nodeId: string) => void;
+      onContextMenu?: (event: MouseEvent) => void;
+    };
+  },
+) => {
   const handleKeyDown = (ev: KeyboardEvent) => {
     if (shouldPreventDefault(ev)) {
       ev.preventDefault();
     }
     // if a modal window is open, return early
-    if (document.querySelector('.generic-modal')) {
+    if (controller.hasOpenModal()) {
       return;
     }
 
     // Clear selection on ESC
     if (ev.key === 'Escape') {
-      const editorState = specialEventEditorInterface.getEditorState();
+      const editorState = controller.getState();
       // Exit linking mode if active
       if (editorState.linking.isLinking) {
         editorState.linking.isLinking = false;
         editorState.linking.sourceNodeId = '';
         editorState.linking.exitIndex = 0;
-        linkingEmptyClickPending = false;
+        controller.linkingEmptyClickPending = false;
       }
-      resetSelectedNodes();
-      updateEditorState({}, false);
+      resetSelectedNodes(controller);
+      updateEditorState(controller, {}, false);
     }
     // Delete selected nodes on Delete key
     if (ev.key === 'Delete') {
-      const editorState = specialEventEditorInterface.getEditorState();
+      const editorState = controller.getState();
       if (editorState.selectedNodeIds.size > 0) {
         ev.preventDefault();
         showDeleteSelectedNodesConfirm(
-          specialEventEditorInterface.getCanvas().getContext('2d')!
+          controller,
+          specialEventEditorInterface.getCanvas().getContext('2d')!,
         );
       }
     }
     // Copy selected nodes on Ctrl+C
     if ((ev.ctrlKey || ev.metaKey) && ev.key === 'c') {
-      const editorState = specialEventEditorInterface.getEditorState();
+      const editorState = controller.getState();
       if (editorState.selectedNodeIds.size > 0) {
         ev.preventDefault();
-        copySelectedNodes(specialEventEditorInterface.getCanvas());
+        copySelectedNodes(controller, specialEventEditorInterface.getCanvas());
       }
     }
     // Paste nodes on Ctrl+V
     if ((ev.ctrlKey || ev.metaKey) && ev.key === 'v') {
-      const editorState = specialEventEditorInterface.getEditorState();
+      const editorState = controller.getState();
       if (editorState.copiedNodes && editorState.copiedNodes.length > 0) {
         ev.preventDefault();
-        pasteNodes(specialEventEditorInterface.getCanvas());
+        pasteNodes(controller, specialEventEditorInterface.getCanvas());
       }
     }
   };
   const handleKeyUp = (ev: KeyboardEvent) => {};
   const handleMouseDown = (ev: MouseEvent) => {
-    const editorState = specialEventEditorInterface.getEditorState();
+    const editorState = controller.getState();
     if (
       ev.button === 1 &&
       isEventWithCanvasTarget(ev, specialEventEditorInterface.getCanvas())
@@ -143,13 +119,14 @@ export const initPanzoom = (specialEventEditorInterface: {
       isEventWithCanvasTarget(ev, specialEventEditorInterface.getCanvas())
     ) {
       const canvas = specialEventEditorInterface.getCanvas();
-      const editorState = specialEventEditorInterface.getEditorState();
+      const editorState = controller.getState();
 
       // Check if Ctrl is held
       if (ev.ctrlKey || ev.metaKey) {
         // First check if clicking on a node - if so, toggle selection
         // Otherwise start rectangle selection
         const nodeClicked = checkLeftMouseClickEvents({
+          controller,
           ev,
           canvas,
           editorState,
@@ -165,7 +142,8 @@ export const initPanzoom = (specialEventEditorInterface: {
             ev.clientY,
             canvas,
             editorState.zoneWidth,
-            editorState.zoneHeight
+            editorState.zoneHeight,
+            editorState,
           );
           editorState.isSelecting = true;
           editorState.selectionRect = {
@@ -179,6 +157,7 @@ export const initPanzoom = (specialEventEditorInterface: {
       } else {
         // Normal click handling
         const nodeClicked = checkLeftMouseClickEvents({
+          controller,
           ev,
           canvas,
           editorState,
@@ -198,23 +177,24 @@ export const initPanzoom = (specialEventEditorInterface: {
     }
   };
   const handleMouseMove = (ev: MouseEvent) => {
-    const editorState = specialEventEditorInterface.getEditorState();
+    const editorState = controller.getState();
     editorState.mouseX = ev.clientX;
     editorState.mouseY = ev.clientY;
 
     if (editorState.isSelecting && editorState.selectionRect) {
       // Update selection rectangle
       updateSelectionRectangle(
+        controller,
         ev.clientX,
         ev.clientY,
-        specialEventEditorInterface.getCanvas()
+        specialEventEditorInterface.getCanvas(),
       );
-      updateEditorState({}, false);
+      updateEditorState(controller, {}, false);
     } else if (editorState.isDraggingNode) {
       // Dragging node(s)
       // const gameEvent = editorState.gameEvent;
       const draggedNode = editorState.editorNodes.find(
-        (node) => node.id === editorState.draggedNodeId
+        (node) => node.id === editorState.draggedNodeId,
       );
 
       if (draggedNode) {
@@ -224,7 +204,7 @@ export const initPanzoom = (specialEventEditorInterface: {
             editorState,
             ev.clientX,
             ev.clientY,
-            specialEventEditorInterface.getCanvas()
+            specialEventEditorInterface.getCanvas(),
           );
         } else if (editorState.draggedNodeId) {
           // Moving single node
@@ -232,17 +212,17 @@ export const initPanzoom = (specialEventEditorInterface: {
             editorState,
             ev.clientX,
             ev.clientY,
-            specialEventEditorInterface.getCanvas()
+            specialEventEditorInterface.getCanvas(),
           );
         }
       }
     } else if (editorState.isDragging) {
       // Pan dragging
-      if (linkingEmptyClickPending) {
+      if (controller.linkingEmptyClickPending) {
         const dx = ev.clientX - editorState.lastClickX;
         const dy = ev.clientY - editorState.lastClickY;
         if (dx * dx + dy * dy > LINKING_CANCEL_DRAG_THRESHOLD_SQ) {
-          linkingEmptyClickPending = false;
+          controller.linkingEmptyClickPending = false;
         }
       }
       editorState.translateX =
@@ -259,12 +239,12 @@ export const initPanzoom = (specialEventEditorInterface: {
       isEventWithCanvasTarget(ev, specialEventEditorInterface.getCanvas())
     ) {
       const canvas = specialEventEditorInterface.getCanvas();
-      const editorState = specialEventEditorInterface.getEditorState();
+      const editorState = controller.getState();
       checkMouseMoveHoverEvents({ ev, canvas, editorState });
     }
   };
   const handleMouseUp = (ev: MouseEvent) => {
-    const editorState = specialEventEditorInterface.getEditorState();
+    const editorState = controller.getState();
 
     if (editorState.isSelecting && editorState.selectionRect) {
       // Finalize selection - find nodes in rectangle
@@ -301,7 +281,7 @@ export const initPanzoom = (specialEventEditorInterface: {
 
       editorState.isSelecting = false;
       editorState.selectionRect = null;
-      updateEditorState({}, false);
+      updateEditorState(controller, {}, false);
     } else if (editorState.isDraggingNode) {
       // Stop dragging node(s)
       editorState.isDraggingNode = false;
@@ -317,18 +297,22 @@ export const initPanzoom = (specialEventEditorInterface: {
         editorState.lastTranslateY + ev.clientY - editorState.lastClickY;
       editorState.isDragging = false;
 
-      if (linkingEmptyClickPending && editorState.linking.isLinking) {
+      if (
+        controller.linkingEmptyClickPending &&
+        editorState.linking.isLinking
+      ) {
         editorState.linking.isLinking = false;
         editorState.linking.sourceNodeId = '';
         editorState.linking.exitIndex = 0;
-        updateEditorState({});
+        updateEditorState(controller, {});
       }
-      linkingEmptyClickPending = false;
+      controller.linkingEmptyClickPending = false;
     }
   };
   const handleContextMenu = (ev: MouseEvent) => {
     if (isEventWithCanvasTarget(ev, specialEventEditorInterface.getCanvas())) {
       ev.preventDefault();
+      specialEventEditorInterface.getEditorFuncs().onContextMenu?.(ev);
     }
   };
   const handleDoubleClick = (ev: MouseEvent) => {
@@ -345,57 +329,42 @@ export const initPanzoom = (specialEventEditorInterface: {
   const handleWheel = (ev: WheelEvent) => {
     const currentTime = Date.now();
     // Throttle: only process if at least 50ms have passed since last wheel event
-    if (currentTime - lastWheelTime < WHEEL_THROTTLE_DELAY) {
+    if (currentTime - controller.lastWheelTime < WHEEL_THROTTLE_DELAY) {
       return;
     }
-    lastWheelTime = currentTime;
+    controller.lastWheelTime = currentTime;
 
     const mouseX = ev.clientX;
     const mouseY = ev.clientY;
     const wheelDelta = ev.deltaY;
     if (isEventWithCanvasTarget(ev, specialEventEditorInterface.getCanvas())) {
       zoomPanzoom(
+        controller,
         mouseX,
         mouseY,
         wheelDelta,
-        specialEventEditorInterface.getCanvas()
+        specialEventEditorInterface.getCanvas(),
       );
     }
   };
-  window.addEventListener('keydown', handleKeyDown);
-  window.addEventListener('keyup', handleKeyUp);
-  window.addEventListener('mousedown', handleMouseDown);
-  window.addEventListener('mousemove', handleMouseMove);
-  window.addEventListener('mouseup', handleMouseUp);
-  window.addEventListener('contextmenu', handleContextMenu);
-  window.addEventListener('wheel', handleWheel);
-  window.addEventListener('dblclick', handleDoubleClick);
-
-  isPanZoomInitialized = true;
-  panZoomEvents.keydown = handleKeyDown;
-  panZoomEvents.keyup = handleKeyUp;
-  panZoomEvents.mousedown = handleMouseDown;
-  panZoomEvents.mousemove = handleMouseMove;
-  panZoomEvents.mouseup = handleMouseUp;
-  panZoomEvents.contextmenu = handleContextMenu;
-  panZoomEvents.wheel = handleWheel;
-  panZoomEvents.dblclick = handleDoubleClick;
+  controller.attach({
+    canvas: specialEventEditorInterface.getCanvas(),
+    handlers: {
+      keydown: handleKeyDown,
+      keyup: handleKeyUp,
+      pointerdown: handleMouseDown,
+      pointermove: handleMouseMove,
+      pointerup: handleMouseUp,
+      pointercancel: () => controller.abortInteraction(),
+      contextmenu: handleContextMenu,
+      wheel: handleWheel,
+      dblclick: handleDoubleClick,
+    },
+  });
 };
 
-export const unInitPanzoom = () => {
-  if (!isPanZoomInitialized || !panZoomEvents) {
-    return;
-  }
-  window.removeEventListener('keydown', panZoomEvents.keydown);
-  window.removeEventListener('keyup', panZoomEvents.keyup);
-  window.removeEventListener('mousedown', panZoomEvents.mousedown);
-  window.removeEventListener('mousemove', panZoomEvents.mousemove);
-  window.removeEventListener('mouseup', panZoomEvents.mouseup);
-  window.removeEventListener('contextmenu', panZoomEvents.contextmenu);
-  window.removeEventListener('wheel', panZoomEvents.wheel);
-  window.removeEventListener('dblclick', panZoomEvents.dblclick);
-  isPanZoomInitialized = false;
-};
+export const unInitPanzoom = (controller: SpecialEventEditorController) =>
+  controller.detach();
 
 export const checkMouseMoveHoverEvents = (args: {
   ev: MouseEvent;
@@ -409,14 +378,15 @@ export const checkMouseMoveHoverEvents = (args: {
     ev.clientY,
     canvas,
     editorState.zoneWidth,
-    editorState.zoneHeight
+    editorState.zoneHeight,
+    editorState,
   );
 
   // let hoveredExitAnchor: Connector | undefined = undefined;
   const hoveredExitAnchor = getExitAnchorFromWorldCoords(
     worldX,
     worldY,
-    editorState.editorNodes
+    editorState.editorNodes,
   );
   if (hoveredExitAnchor) {
     editorState.hoveredExitAnchor = hoveredExitAnchor;
@@ -427,7 +397,7 @@ export const checkMouseMoveHoverEvents = (args: {
   const hoveredNode = getNodeFromWorldCoords(
     worldX,
     worldY,
-    editorState.editorNodes
+    editorState.editorNodes,
   );
   if (hoveredNode) {
     editorState.hoveredNodeId = hoveredNode.id;
@@ -442,6 +412,7 @@ export const checkMouseMoveHoverEvents = (args: {
 };
 
 const checkLeftMouseClickEvents = (args: {
+  controller: SpecialEventEditorController;
   ev: MouseEvent;
   canvas: HTMLCanvasElement;
   editorState: EditorStateSE;
@@ -449,27 +420,28 @@ const checkLeftMouseClickEvents = (args: {
   isCtrlClick?: boolean;
 }): boolean => {
   // Returns true if a node or line was clicked, false otherwise
-  const { ev, canvas, editorState, onNodeDoubleClick } = args;
+  const { controller, ev, canvas, editorState, onNodeDoubleClick } = args;
 
   const [worldX, worldY] = screenToWorldCoords(
     ev.clientX,
     ev.clientY,
     canvas,
     editorState.zoneWidth,
-    editorState.zoneHeight
+    editorState.zoneHeight,
+    editorState,
   );
 
   const clickedExitAnchor = getExitAnchorFromWorldCoords(
     worldX,
     worldY,
-    editorState.editorNodes
+    editorState.editorNodes,
   );
 
   if (clickedExitAnchor) {
     enterLinkingMode(
       editorState,
       clickedExitAnchor.fromNodeId,
-      clickedExitAnchor.exitIndex
+      clickedExitAnchor.exitIndex,
     );
     return true;
   }
@@ -477,18 +449,23 @@ const checkLeftMouseClickEvents = (args: {
   const clickedNode = getNodeFromWorldCoords(
     worldX,
     worldY,
-    editorState.editorNodes
+    editorState.editorNodes,
   );
 
   const clickedExitAnchorLine = getConnectorFromLineAtPosition(
     worldX,
     worldY,
-    editorState.editorNodes
+    editorState.editorNodes,
   );
 
   if (!clickedNode && clickedExitAnchorLine && clickedExitAnchorLine.toNodeId) {
     console.log('clicked anchor line');
-    centerPanzoomOnNode(canvas, clickedExitAnchorLine.toNodeId, true);
+    centerPanzoomOnNode(
+      controller,
+      canvas,
+      clickedExitAnchorLine.toNodeId,
+      true,
+    );
     return true;
   }
 
@@ -502,7 +479,7 @@ const checkLeftMouseClickEvents = (args: {
 
       // Check if clicking on a node
       const parentNode = editorState.editorNodes.find(
-        (node) => node.id === editorState.linking.sourceNodeId
+        (node) => node.id === editorState.linking.sourceNodeId,
       );
 
       if (
@@ -512,7 +489,7 @@ const checkLeftMouseClickEvents = (args: {
       ) {
         parentNode.updateExitLink(
           clickedNode.id,
-          editorState.linking.exitIndex
+          editorState.linking.exitIndex,
         );
       }
 
@@ -520,39 +497,43 @@ const checkLeftMouseClickEvents = (args: {
       editorState.linking.isLinking = false;
       editorState.linking.sourceNodeId = '';
       editorState.linking.exitIndex = 0;
-      linkingEmptyClickPending = false;
-      updateEditorState({});
+      controller.linkingEmptyClickPending = false;
+      updateEditorState(controller, {});
       ev.preventDefault();
       return true;
     }
 
     // Check for double-click
     const currentTime = Date.now();
-    if (currentTime - lastClickTime < DOUBLE_CLICK_DELAY) {
+    if (currentTime - controller.lastClickTime < DOUBLE_CLICK_DELAY) {
       // Double-click detected - open edit modal
       if (onNodeDoubleClick) {
         console.log('double click', clickedNode.id);
         onNodeDoubleClick(clickedNode.id);
       }
-      lastClickTime = 0;
-      lastClickNodeId = null;
+      controller.lastClickTime = 0;
+      controller.lastClickNodeId = null;
       ev.preventDefault();
       return true;
     }
-    lastClickTime = currentTime;
-    lastClickNodeId = clickedNode.id;
+    controller.lastClickTime = currentTime;
+    controller.lastClickNodeId = clickedNode.id;
 
     const isCloseButtonClicked = clickedNode.isPointInCloseButtonBounds(
       worldX,
-      worldY
+      worldY,
     );
     if (isCloseButtonClicked) {
       console.log('click close button', clickedNode.id);
       const nodeCount = editorState.selectedNodeIds.size;
       if (nodeCount > 0) {
-        showDeleteSelectedNodesConfirm(canvas.getContext('2d')!);
+        showDeleteSelectedNodesConfirm(controller, canvas.getContext('2d')!);
       } else {
-        showDeleteNodeConfirm(clickedNode.id, canvas.getContext('2d')!);
+        showDeleteNodeConfirm(
+          controller,
+          clickedNode.id,
+          canvas.getContext('2d')!,
+        );
       }
       ev.preventDefault();
       return true;
@@ -567,7 +548,7 @@ const checkLeftMouseClickEvents = (args: {
       } else {
         editorState.selectedNodeIds.add(clickedNode.id);
       }
-      updateEditorState({});
+      updateEditorState(controller, {});
       ev.preventDefault();
       return true; // Indicate we handled a node click
     }
@@ -601,12 +582,12 @@ const checkLeftMouseClickEvents = (args: {
   // if you didn't click a node... the following happens
 
   if (editorState.linking.isLinking) {
-    linkingEmptyClickPending = true;
+    controller.linkingEmptyClickPending = true;
   }
 
   // Clicked outside any node - reset double-click tracking
-  lastClickTime = 0;
-  lastClickNodeId = null;
+  controller.lastClickTime = 0;
+  controller.lastClickNodeId = null;
 
   return false; // No node was clicked
 };
@@ -616,30 +597,32 @@ const checkLeftMouseClickEvents = (args: {
  * Returns true if a line was clicked and deleted, false otherwise
  */
 export const checkRightClickLineEvents = (args: {
+  controller: SpecialEventEditorController;
   ev: MouseEvent;
   canvas: HTMLCanvasElement;
   editorState: EditorStateSE;
 }): boolean => {
-  const { ev, canvas, editorState } = args;
+  const { controller, ev, canvas, editorState } = args;
 
   const [worldX, worldY] = screenToWorldCoords(
     ev.clientX,
     ev.clientY,
     canvas,
     editorState.zoneWidth,
-    editorState.zoneHeight
+    editorState.zoneHeight,
+    editorState,
   );
 
   const clickedExitAnchorLine = getConnectorFromLineAtPosition(
     worldX,
     worldY,
-    editorState.editorNodes
+    editorState.editorNodes,
   );
 
   const clickedNode = getNodeFromWorldCoords(
     worldX,
     worldY,
-    editorState.editorNodes
+    editorState.editorNodes,
   );
   if (clickedNode) {
     return false;
@@ -648,7 +631,7 @@ export const checkRightClickLineEvents = (args: {
   if (clickedExitAnchorLine) {
     // centerPanzoomOnNode(canvas, clickedExitAnchorLine.toNodeId);
     clickedExitAnchorLine.toNodeId = '';
-    notifyStateUpdated();
+    notifyStateUpdated(controller);
     return true;
   }
 

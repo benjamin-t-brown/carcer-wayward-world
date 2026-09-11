@@ -4,9 +4,14 @@ import { Button } from '../../elements/Button';
 import { VariableWidget } from '../react-components/VariableWidget';
 import { EditorNodeEnd } from '../cmpts/EndNodeComponent';
 import { notifyStateUpdated } from '../seEditorState';
-import { MODAL_ROOT_CLASS, useEscapeToClose } from '../../hooks/useEscapeToClose';
+import {
+  MODAL_ROOT_CLASS,
+  useEscapeToClose,
+} from '../../hooks/useEscapeToClose';
+import { SpecialEventEditorController } from '../SpecialEventEditorController';
 
 interface EditEndNodeModalProps {
+  controller: SpecialEventEditorController;
   isOpen: boolean;
   node: EditorNodeEnd | undefined;
   gameEvent: GameEvent;
@@ -14,6 +19,7 @@ interface EditEndNodeModalProps {
 }
 
 export function EditEndNodeModal({
+  controller,
   isOpen,
   node,
   gameEvent,
@@ -38,7 +44,7 @@ export function EditEndNodeModal({
     // EndNode doesn't have editable properties beyond next
     // The next field is stored in the SENode but EndNode doesn't use connectors
     // So we'll just close the modal
-    notifyStateUpdated();
+    notifyStateUpdated(controller);
     onCancel();
   };
 

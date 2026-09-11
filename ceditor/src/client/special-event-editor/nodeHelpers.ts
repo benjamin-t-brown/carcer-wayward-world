@@ -1,7 +1,7 @@
 import { GameEvent } from '../types/assets';
 import { Connector } from './cmpts/Connector';
 import { EditorNode } from './cmpts/EditorNode';
-import { getTransform } from './seEditorState';
+import { getTransform, type EditorStateSE } from './seEditorState';
 
 // export const getAnchorCoordinates = (node: SENode) => {
 //   const [nodeWidth] = getNodeDimensions(node);
@@ -81,7 +81,7 @@ export const breakTextIntoLines = (
   availableWidth: number,
   fontSize: number,
   fontFamily: string,
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
 ): string[] => {
   const lines: string[] = [];
 
@@ -129,7 +129,7 @@ export const calculateHeightFromText = (
   fontFamily: string,
   lineHeight: number,
   lineSpacing: number,
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
 ): number => {
   if (lines.length === 0) {
     return 0;
@@ -161,7 +161,7 @@ export const distanceToLineSegment = (
   x1: number,
   y1: number,
   x2: number,
-  y2: number
+  y2: number,
 ): number => {
   const dx = x2 - x1;
   const dy = y2 - y1;
@@ -175,7 +175,7 @@ export const distanceToLineSegment = (
 
   const t = Math.max(
     0,
-    Math.min(1, ((px - x1) * dx + (py - y1) * dy) / lengthSquared)
+    Math.min(1, ((px - x1) * dx + (py - y1) * dy) / lengthSquared),
   );
   const closestX = x1 + t * dx;
   const closestY = y1 + t * dy;
@@ -192,7 +192,7 @@ export interface AccessibleVariable {
 
 export const getVarsFromNode = (
   gameEvent: GameEvent,
-  gameEvents: GameEvent[]
+  gameEvents: GameEvent[],
 ) => {
   const usedNodes: string[] = [];
 
@@ -217,7 +217,7 @@ export const getVarsFromNode = (
     for (const variable of gameEvent.vars) {
       if (variable.importFrom !== '') {
         const sourceEvent = gameEvents.find(
-          (event) => event.id === variable.importFrom
+          (event) => event.id === variable.importFrom,
         );
         if (sourceEvent) {
           vars.push(...innerHelper(sourceEvent));
@@ -238,13 +238,14 @@ export const screenToWorldCoords = (
   screenY: number,
   canvas: HTMLCanvasElement,
   zoneWidth: number,
-  zoneHeight: number
+  zoneHeight: number,
+  editorState: EditorStateSE,
 ): [number, number] => {
   const { left, top } = canvas.getBoundingClientRect();
   const canvasX = screenX - left;
   const canvasY = screenY - top;
 
-  const { x: translateX, y: translateY, scale } = getTransform();
+  const { x: translateX, y: translateY, scale } = getTransform(editorState);
 
   // Reverse the transform applied in seLoop.ts
   // The transform in seLoop is:
@@ -279,7 +280,7 @@ export const screenToWorldCoords = (
 export const screenCoordsToCanvasCoords = (
   x: number,
   y: number,
-  panzoomCanvas: HTMLCanvasElement
+  panzoomCanvas: HTMLCanvasElement,
 ) => {
   const { left, top } = panzoomCanvas?.getBoundingClientRect() || {
     left: 0,
@@ -297,7 +298,7 @@ export const screenCoordsToCanvasCoords = (
 export const getNodeFromWorldCoords = (
   worldX: number,
   worldY: number,
-  nodes: EditorNode[]
+  nodes: EditorNode[],
 ): EditorNode | undefined => {
   let clickedNode: EditorNode | undefined = undefined;
   for (let i = nodes.length - 1; i >= 0; i--) {
@@ -313,7 +314,7 @@ export const getNodeFromWorldCoords = (
 export const getExitAnchorFromWorldCoords = (
   worldX: number,
   worldY: number,
-  nodes: EditorNode[]
+  nodes: EditorNode[],
 ): Connector | undefined => {
   let clickedExitAnchor: Connector | undefined = undefined;
   for (let i = nodes.length - 1; i >= 0; i--) {
@@ -330,7 +331,7 @@ export const getExitAnchorFromWorldCoords = (
 export const getConnectorFromLineAtPosition = (
   worldX: number,
   worldY: number,
-  nodes: EditorNode[]
+  nodes: EditorNode[],
 ): Connector | undefined => {
   let clickedExitAnchor: Connector | undefined = undefined;
   for (let i = nodes.length - 1; i >= 0; i--) {
@@ -346,10 +347,10 @@ export const getConnectorFromLineAtPosition = (
 
 export const getNodeParents = (
   nodeId: string,
-  nodes: EditorNode[]
+  nodes: EditorNode[],
 ): EditorNode[] => {
   return nodes.filter((node) =>
-    node.exits.some((exit: Connector) => exit.toNodeId === nodeId)
+    node.exits.some((exit: Connector) => exit.toNodeId === nodeId),
   );
 };
 

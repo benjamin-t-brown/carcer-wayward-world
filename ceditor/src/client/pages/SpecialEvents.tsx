@@ -1,4 +1,11 @@
-import { useState, useLayoutEffect, useRef } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import { CardListAdvanced } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
 import { ListCardActions } from '../elements/ListCardActions';
@@ -15,11 +22,8 @@ import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
 import {
   centerPanzoomOnNode,
-  getEditorState,
   renameEditorSaveStateForGameEvent,
   saveEditorStateForGameEvent,
-  syncGameEventFromEditorState,
-  updateEditorStateNoReRender,
 } from '../special-event-editor/seEditorState';
 import {
   findGameEventReferences,
@@ -30,7 +34,6 @@ import { EventRunnerModal } from '../special-event-editor/eventRunner/EventRunne
 import { DeleteModal } from '../elements/DeleteModal';
 import { ConfirmModal } from '../elements/ConfirmModal';
 import { ValidationMenuButton } from '../special-event-editor/react-components/ValidationMenuButton';
-import { useReRender } from '../hooks/useReRender';
 import { EventRunner } from '../special-event-editor/eventRunner/EventRunner';
 import { RecentLinks } from '../components/RecentLinks';
 import {
@@ -42,6 +45,11 @@ import {
   prepareAtomicGameEventRename,
   prepareGameEventsForSave,
 } from '../utils/specialEventSavePreparation';
+import { SpecialEventEditorController } from '../special-event-editor/SpecialEventEditorController';
+import {
+  snapshotSpecialEventDocuments,
+  type SpecialEventDocumentSnapshot,
+} from '../special-event-editor/specialEventDocument';
 
 interface NotificationState {
   message: string;
@@ -131,10 +139,31 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const [eventsToShow, setEventsToShow] = useState<
     ('MODAL' | 'TALK' | 'TRAVEL')[]
   >(['MODAL', 'TALK', 'TRAVEL']);
-  const reRender = useReRender();
-
   const notificationIdRef = useRef(0);
   const hasRestoredEventRef = useRef(false);
+  const [specialEventEditorController] = useState(
+    () => new SpecialEventEditorController(),
+  );
+  const controllerLifetimeRef = useRef(0);
+
+  useSyncExternalStore(
+    specialEventEditorController.subscribe,
+    specialEventEditorController.getSnapshot,
+    specialEventEditorController.getSnapshot,
+  );
+
+  useEffect(() => {
+    const generation = ++controllerLifetimeRef.current;
+    return () => {
+      queueMicrotask(() => {
+        // The generation changes if StrictMode immediately remounts the effect.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        if (controllerLifetimeRef.current === generation) {
+          specialEventEditorController.destroy();
+        }
+      });
+    };
+  }, [specialEventEditorController]);
 
   const showNotification = (message: string, type: 'success' | 'error') => {
     const id = notificationIdRef.current++;
@@ -145,32 +174,26 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
-  const flushCurrentCanvasInto = (sourceEvents: GameEvent[]): GameEvent[] => {
-    const currentEditorState = getEditorState();
-    const eventIndex = sourceEvents.findIndex(
-      (gameEvent) => gameEvent.id === currentEditorState.gameEventId,
-    );
-    if (eventIndex === -1) {
-      return sourceEvents;
-    }
+  const getDocumentSnapshot = useCallback(
+    (
+      sourceEvents: readonly GameEvent[] = gameEvents,
+    ): SpecialEventDocumentSnapshot => {
+      const state = specialEventEditorController.getState();
+      return snapshotSpecialEventDocuments(
+        sourceEvents,
+        state.gameEventId
+          ? { eventId: state.gameEventId, nodes: state.editorNodes }
+          : undefined,
+      );
+    },
+    [gameEvents, specialEventEditorController],
+  );
 
-    const currentGameEvent = structuredClone(sourceEvents[eventIndex]);
-    syncGameEventFromEditorState(currentGameEvent, currentEditorState);
-    const nextGameEvents = [...sourceEvents];
-    nextGameEvents[eventIndex] = currentGameEvent;
-    return nextGameEvents;
-  };
+  const flushCurrentCanvasInto = (sourceEvents: GameEvent[]): GameEvent[] =>
+    getDocumentSnapshot(sourceEvents).gameEvents;
 
   const selectGameEvent = (gameEventId: string) => {
-    const prevGameEventId = getEditorState().gameEventId;
-    const prevGameEvent = gameEvents.find(
-      (gameEvent) => gameEvent.id === prevGameEventId,
-    );
-    if (prevGameEvent) {
-      syncGameEventFromEditorState(prevGameEvent);
-    }
-    updateEditorStateNoReRender({ gameEventId: gameEventId });
-    reRender();
+    specialEventEditorController.update({ gameEventId }, false);
   };
 
   const addRecentGameEvent = (gameEventId: string) => {
@@ -185,9 +208,14 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   };
 
   const handleGameEventClick = (gameEventId: string) => {
-    const currentEditorState = getEditorState();
+    const currentEditorState = specialEventEditorController.getState();
     if (currentEditorState.gameEventId) {
-      saveEditorStateForGameEvent(currentEditorState.gameEventId);
+      const snapshot = getDocumentSnapshot();
+      saveEditorStateForGameEvent(
+        specialEventEditorController,
+        currentEditorState.gameEventId,
+      );
+      setGameEvents(snapshot.gameEvents);
     }
 
     // Clear node selection when switching game events
@@ -215,7 +243,8 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   }, [gameEvents, routeParams]);
 
   const handleClone = (gameEventId: string) => {
-    const originalGameEvent = gameEvents.find(
+    const sourceEvents = getDocumentSnapshot().gameEvents;
+    const originalGameEvent = sourceEvents.find(
       (gameEvent) => gameEvent.id === gameEventId,
     );
 
@@ -223,11 +252,9 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       return;
     }
 
-    const clonedGameEvent: GameEvent = JSON.parse(
-      JSON.stringify(originalGameEvent),
-    );
+    const clonedGameEvent = structuredClone(originalGameEvent);
     clonedGameEvent.id = clonedGameEvent.id + '_copy';
-    const newGameEvents = gameEvents.slice();
+    const newGameEvents = sourceEvents.slice();
     newGameEvents.push(clonedGameEvent);
     setGameEvents(newGameEvents);
     selectGameEvent(clonedGameEvent.id);
@@ -235,7 +262,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   };
 
   const deleteGameEvent = (gameEventId: string) => {
-    const newGameEvents = gameEvents.filter(
+    const newGameEvents = getDocumentSnapshot().gameEvents.filter(
       (gameEvent) => gameEvent.id !== gameEventId,
     );
 
@@ -246,7 +273,10 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       );
     }
     setGameEvents(newGameEvents);
-    if (getEditorState().gameEventId === gameEventId) {
+    specialEventEditorController
+      .getState()
+      .editorSaveStates.delete(gameEventId);
+    if (specialEventEditorController.getState().gameEventId === gameEventId) {
       selectGameEvent('');
       saveEditorSelection('specialEvents', null);
     }
@@ -281,9 +311,10 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       return;
     }
 
-    const newGameEvents = [...gameEvents, newGameEvent].sort((a, b) =>
-      a.id.localeCompare(b.id),
-    );
+    const newGameEvents = [
+      ...getDocumentSnapshot().gameEvents,
+      structuredClone(newGameEvent),
+    ].sort((a, b) => a.id.localeCompare(b.id));
     setGameEvents(newGameEvents);
     selectGameEvent(newGameEvent.id);
     setShowCreateModal(false);
@@ -312,9 +343,18 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
 
     const flushedCurrentEvent = canvasFlushedEvents[index];
     const preparedUpdatedGameEvent =
-      getEditorState().gameEventId === oldId
+      specialEventEditorController.getState().gameEventId === oldId
         ? { ...updatedGameEvent, children: flushedCurrentEvent.children }
         : updatedGameEvent;
+
+    if (
+      oldId !== newId &&
+      specialEventEditorController.getState().gameEventId === oldId
+    ) {
+      // Ensure the per-event restore entry cannot overwrite newer canvas edits
+      // when the renamed event remounts under its new id.
+      saveEditorStateForGameEvent(specialEventEditorController, oldId);
+    }
 
     if (oldId !== newId && updateReferences) {
       const prepared = prepareAtomicGameEventRename({
@@ -333,9 +373,13 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
 
       // saveDatabaseChanges stages every supplied collection in the shared
       // session before issuing one complete-database request. Keep the local
-      // singleton editor identity aligned even when that request fails and the
+      // editor identity aligned even when that request fails and the
       // staged changes remain dirty for retry.
-      renameEditorSaveStateForGameEvent(oldId, newId);
+      renameEditorSaveStateForGameEvent(
+        specialEventEditorController,
+        oldId,
+        newId,
+      );
       saveEditorSelection('specialEvents', newId);
       setRecentGameEvents((prev) =>
         prev.map((id) => (id === oldId ? newId : id)),
@@ -375,7 +419,11 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     const nextGameEvents = [...canvasFlushedEvents];
     nextGameEvents[index] = preparedUpdatedGameEvent;
     if (oldId !== newId) {
-      renameEditorSaveStateForGameEvent(oldId, newId);
+      renameEditorSaveStateForGameEvent(
+        specialEventEditorController,
+        oldId,
+        newId,
+      );
       saveEditorSelection('specialEvents', newId);
       setRecentGameEvents((prev) =>
         prev.map((id) => (id === oldId ? newId : id)),
@@ -574,10 +622,12 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   });
 
   const currentGameEvent = gameEvents.find(
-    (gameEvent) => gameEvent.id === getEditorState().gameEventId,
+    (gameEvent) =>
+      gameEvent.id === specialEventEditorController.getState().gameEventId,
   );
   const selectedIndex = filteredGameEvents.findIndex(
-    (gameEvent) => gameEvent.id === getEditorState().gameEventId,
+    (gameEvent) =>
+      gameEvent.id === specialEventEditorController.getState().gameEventId,
   );
 
   return (
@@ -601,7 +651,9 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                     }
                     return {
                       label: ge.id + ' (' + ge.title + ')',
-                      isSelected: ge.id === getEditorState().gameEventId,
+                      isSelected:
+                        ge.id ===
+                        specialEventEditorController.getState().gameEventId,
                       onClick: () => handleGameEventClick(ge.id),
                       onRemove: () => removeRecentGameEvent(ge.id),
                     };
@@ -755,6 +807,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                     variant="small"
                     onClick={() => {
                       centerPanzoomOnNode(
+                        specialEventEditorController,
                         document.getElementById(
                           'special-event-editor-canvas-canvas',
                         ) as HTMLCanvasElement,
@@ -785,21 +838,14 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                   <Button
                     variant="small"
                     onClick={() => {
-                      const currentEditorState = getEditorState();
-                      syncGameEventFromEditorState(
-                        currentGameEvent,
-                        currentEditorState,
-                      );
-                      getEditorState().runnerErrors = [];
-                      const gameEvent = gameEvents.find(
-                        (gameEvent) =>
-                          gameEvent.id === currentEditorState.gameEventId,
-                      );
+                      const snapshot = getDocumentSnapshot();
+                      const gameEvent = snapshot.currentGameEvent;
+                      specialEventEditorController.getState().runnerErrors = [];
                       if (gameEvent) {
                         const runner = new EventRunner(
                           {},
                           gameEvent,
-                          gameEvents,
+                          snapshot.gameEvents,
                         );
                         setEventRunner(runner);
                         console.log('run root');
@@ -820,29 +866,23 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                     </span>
                     Run Event
                   </Button>
-                  <ValidationMenuButton currentGameEvent={currentGameEvent} />
+                  <ValidationMenuButton
+                    controller={specialEventEditorController}
+                    getDocumentSnapshot={getDocumentSnapshot}
+                  />
                 </div>
                 <div className="special-events-editor-content">
                   <SpecialEventEditor
+                    controller={specialEventEditorController}
                     gameEvent={currentGameEvent}
-                    onUpdateGameEvent={(updatedGameEvent) => {
-                      const newGameEvents = [...gameEvents];
-                      const index = newGameEvents.findIndex(
-                        (gameEvent) => gameEvent.id === updatedGameEvent.id,
-                      );
-                      if (index > -1) {
-                        newGameEvents[index] = updatedGameEvent;
-                      }
-                      setGameEvents(newGameEvents);
-                    }}
                   />
                 </div>
                 {showEventRunnerModal && eventRunner && (
                   <EventRunnerModal
+                    controller={specialEventEditorController}
                     isOpen={showEventRunnerModal}
                     eventRunner={eventRunner}
-                    gameEvent={currentGameEvent}
-                    gameEvents={gameEvents}
+                    gameEvent={eventRunner.gameEvent}
                     onCancel={() => {
                       setShowEventRunnerModal(false);
                       setEventRunner(undefined);
@@ -899,7 +939,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       {currentGameEvent && (
         <JsonOutputModal
           isOpen={showJsonOutputModal}
-          gameEvent={currentGameEvent}
+          getDocumentSnapshot={getDocumentSnapshot}
           onCancel={() => setShowJsonOutputModal(false)}
         />
       )}

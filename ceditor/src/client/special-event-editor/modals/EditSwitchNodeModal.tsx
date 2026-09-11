@@ -5,9 +5,14 @@ import { VariableWidget } from '../react-components/VariableWidget';
 import { EditorNodeSwitch } from '../cmpts/SwitchNodeComponent';
 import { notifyStateUpdated } from '../seEditorState';
 import { ExecWidget } from '../react-components/ExecWidget';
-import { MODAL_ROOT_CLASS, useEscapeToClose } from '../../hooks/useEscapeToClose';
+import {
+  MODAL_ROOT_CLASS,
+  useEscapeToClose,
+} from '../../hooks/useEscapeToClose';
+import { SpecialEventEditorController } from '../SpecialEventEditorController';
 
 interface EditSwitchNodeModalProps {
+  controller: SpecialEventEditorController;
   isOpen: boolean;
   node: EditorNodeSwitch | undefined;
   gameEvent: GameEvent;
@@ -16,6 +21,7 @@ interface EditSwitchNodeModalProps {
 }
 
 export function EditSwitchNodeModal({
+  controller,
   isOpen,
   node,
   gameEvent,
@@ -44,7 +50,7 @@ export function EditSwitchNodeModal({
     // node.defaultNext = defaultNext;
     node.defaultNext = defaultNext;
     node.buildFromCases(cases, ctx);
-    notifyStateUpdated();
+    notifyStateUpdated(controller);
     onCancel();
   };
 
@@ -64,7 +70,7 @@ export function EditSwitchNodeModal({
   const handleUpdateCase = (
     index: number,
     field: keyof SwitchCase,
-    value: string
+    value: string,
   ) => {
     const newCases = [...cases];
     newCases[index] = {

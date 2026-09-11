@@ -1,44 +1,40 @@
 import { useState, useEffect } from 'react';
-import { GameEvent } from '../../types/assets';
 import { GenericModal } from '../../elements/GenericModal';
 import { Button } from '../../elements/Button';
 import { trimStrings } from '../../utils/jsonUtils';
-import { syncGameEventFromEditorState, getEditorState } from '../seEditorState';
+import type { SpecialEventDocumentSnapshot } from '../specialEventDocument';
 
 interface JsonOutputModalProps {
   isOpen: boolean;
-  gameEvent: GameEvent | null;
+  getDocumentSnapshot: () => SpecialEventDocumentSnapshot;
   onCancel: () => void;
 }
 
 export function JsonOutputModal({
   isOpen,
-  gameEvent,
+  getDocumentSnapshot,
   onCancel,
 }: JsonOutputModalProps) {
   const [jsonOutput, setJsonOutput] = useState<string>('');
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (isOpen && gameEvent) {
-      // Create a copy to avoid mutating the original
-      const gameEventCopy = JSON.parse(JSON.stringify(gameEvent));
-      
-      // Sync editor state to game event if needed
-      const editorState = getEditorState();
-      if (editorState.gameEventId === gameEvent.id) {
-        syncGameEventFromEditorState(gameEventCopy, editorState);
+    if (isOpen) {
+      const gameEvent = getDocumentSnapshot().currentGameEvent;
+      if (!gameEvent) {
+        setJsonOutput('');
+        return;
       }
-      
+
       // Prepare the game event for JSON output (same as saving)
-      const trimmedGameEvent = trimStrings(gameEventCopy);
-      
+      const trimmedGameEvent = trimStrings(gameEvent);
+
       // Convert to JSON with proper formatting
       const json = JSON.stringify(trimmedGameEvent, null, 2);
       setJsonOutput(json);
       setCopied(false);
     }
-  }, [isOpen, gameEvent]);
+  }, [getDocumentSnapshot, isOpen]);
 
   const handleCopy = async () => {
     try {
@@ -50,7 +46,7 @@ export function JsonOutputModal({
     }
   };
 
-  if (!isOpen || !gameEvent) {
+  if (!isOpen) {
     return null;
   }
 

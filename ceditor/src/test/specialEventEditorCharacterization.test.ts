@@ -15,6 +15,7 @@ type SpecialEventModules = {
   Connector: typeof import('../client/special-event-editor/cmpts/Connector').Connector;
   EditorNodeEnd: typeof import('../client/special-event-editor/cmpts/EndNodeComponent').EditorNodeEnd;
   EditorStateSE: typeof import('../client/special-event-editor/seEditorState').EditorStateSE;
+  SpecialEventEditorController: typeof import('../client/special-event-editor/SpecialEventEditorController').SpecialEventEditorController;
   breakTextIntoLines: typeof import('../client/special-event-editor/nodeHelpers').breakTextIntoLines;
   distanceToLineSegment: typeof import('../client/special-event-editor/nodeHelpers').distanceToLineSegment;
   getNodeFromWorldCoords: typeof import('../client/special-event-editor/nodeHelpers').getNodeFromWorldCoords;
@@ -41,11 +42,14 @@ before(async () => {
     await import('../client/special-event-editor/cmpts/Connector');
   const endModule =
     await import('../client/special-event-editor/cmpts/EndNodeComponent');
+  const controllerModule =
+    await import('../client/special-event-editor/SpecialEventEditorController');
 
   modules = {
     Connector: connectorModule.Connector,
     EditorNodeEnd: endModule.EditorNodeEnd,
     EditorStateSE: stateModule.EditorStateSE,
+    SpecialEventEditorController: controllerModule.SpecialEventEditorController,
     breakTextIntoLines: helperModule.breakTextIntoLines,
     distanceToLineSegment: helperModule.distanceToLineSegment,
     getNodeFromWorldCoords: helperModule.getNodeFromWorldCoords,
@@ -109,7 +113,8 @@ test('connectors retain endpoints and expose collision geometry in both directio
 });
 
 test('screen coordinates reverse the current event-editor transform', () => {
-  const state = modules.getEditorState();
+  const controller = new modules.SpecialEventEditorController();
+  const state = modules.getEditorState(controller);
   state.translateX = 100;
   state.translateY = -50;
   state.scale = 2;
@@ -125,7 +130,7 @@ test('screen coordinates reverse the current event-editor transform', () => {
     [300, 200],
   );
   assert.deepEqual(
-    modules.screenToWorldCoords(310, 220, canvas, 8000, 8000),
+    modules.screenToWorldCoords(310, 220, canvas, 8000, 8000, state),
     [3600, 3875],
   );
 });

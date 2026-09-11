@@ -282,6 +282,14 @@ have explicit lifecycle coverage.
 
 ## Phase 8 — Special-event controller and viewport scaling
 
+Status: complete on 2026-09-10. The special-event editor now owns mutable
+state, transforms, clipboard data, interaction timing, and scoped input in one
+instance controller. Switching, Save All, validation, JSON output, and the
+runner consume the same detached document snapshot, while visible-world
+planning culls node and connector drawing without changing continuous updates
+or z-order. Controller isolation, teardown, deep serialization, every node
+subtype, and large offscreen graphs have focused regression coverage.
+
 ### Work
 
 - Repeat the store/global-removal pattern with a separate

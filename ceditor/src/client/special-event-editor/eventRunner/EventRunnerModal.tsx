@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import {
   GameEvent,
   GameEventChildExec,
@@ -6,19 +6,16 @@ import {
 } from '../../types/assets';
 import { Sprite } from '../../elements/Sprite';
 import { useSDL2WAssets } from '../../contexts/SDL2WAssetsContext';
-import {
-  centerPanzoomOnNode,
-  getEditorState,
-  notifyStateUpdated,
-} from '../seEditorState';
+import { centerPanzoomOnNode, notifyStateUpdated } from '../seEditorState';
 import { EventRunner, EventRunnerLogEntry } from './EventRunner';
 import { useReRender } from '../../hooks/useReRender';
 import { CANVAS_CONTAINER_ID } from '../react-components/MapCanvasSE';
+import type { SpecialEventEditorController } from '../SpecialEventEditorController';
 
 interface EventRunnerModalProps {
+  controller: SpecialEventEditorController;
   isOpen: boolean;
   gameEvent: GameEvent;
-  gameEvents: GameEvent[];
   onCancel: () => void;
   eventRunner?: EventRunner;
 }
@@ -27,8 +24,7 @@ const EVENT_FONT_SIZE = '18px';
 const PANEL_MIN_HEIGHT = 500;
 const PANEL_VERTICAL_PADDING = 24; // matches .special-events-runner-panel padding (12px * 2)
 const HEADER_HEIGHT = 80;
-const BODY_HEIGHT =
-  PANEL_MIN_HEIGHT - PANEL_VERTICAL_PADDING - HEADER_HEIGHT;
+const BODY_HEIGHT = PANEL_MIN_HEIGHT - PANEL_VERTICAL_PADDING - HEADER_HEIGHT;
 const CHOICES_WIDTH = 500;
 const BODY_GAP = 8;
 const PANEL_CONTENT_HEIGHT = HEADER_HEIGHT + BODY_HEIGHT;
@@ -37,7 +33,7 @@ function getPriorChoiceKeys(entries: EventRunnerLogEntry[]) {
   return new Set(
     entries
       .filter((entry) => entry.type === 'choice' && entry.choiceKey)
-      .map((entry) => entry.choiceKey as string)
+      .map((entry) => entry.choiceKey as string),
   );
 }
 
@@ -57,7 +53,7 @@ function findLastSegmentIndex(entries: EventRunnerLogEntry[]) {
 function getLogEntryStyle(
   entry: EventRunnerLogEntry,
   index: number,
-  lastSegmentIndex: number
+  lastSegmentIndex: number,
 ) {
   const base = {
     whiteSpace: 'pre-wrap' as const,
@@ -65,9 +61,7 @@ function getLogEntryStyle(
     cursor: entry.nodeId ? ('pointer' as const) : undefined,
   };
   const isHistoricalText =
-    entry.type === 'text' &&
-    lastSegmentIndex >= 0 &&
-    index <= lastSegmentIndex;
+    entry.type === 'text' && lastSegmentIndex >= 0 && index <= lastSegmentIndex;
   if (entry.type === 'choice' || isHistoricalText) {
     return {
       ...base,
@@ -150,6 +144,7 @@ const ChoiceButton = ({
 };
 
 export function EventRunnerModal({
+  controller,
   isOpen,
   gameEvent,
   onCancel,
@@ -159,24 +154,27 @@ export function EventRunnerModal({
   const logRef = useRef<HTMLDivElement>(null);
   const pauseState = eventRunner?.getPauseState();
 
-  const panToNode = (nodeId: string) => {
-    if (!nodeId) {
-      return;
-    }
-    const canvas = document.getElementById(
-      CANVAS_CONTAINER_ID + '-canvas'
-    ) as HTMLCanvasElement;
-    if (canvas) {
-      centerPanzoomOnNode(canvas, nodeId);
-    }
-  };
+  const panToNode = useCallback(
+    (nodeId: string) => {
+      if (!nodeId) {
+        return;
+      }
+      const canvas = document.getElementById(
+        CANVAS_CONTAINER_ID + '-canvas',
+      ) as HTMLCanvasElement;
+      if (canvas) {
+        centerPanzoomOnNode(controller, canvas, nodeId);
+      }
+    },
+    [controller],
+  );
 
-  const panToCurrentNode = () => {
+  const panToCurrentNode = useCallback(() => {
     if (!eventRunner) {
       return;
     }
     panToNode(eventRunner.currentNodeId);
-  };
+  }, [eventRunner, panToNode]);
 
   const advance = (
     nextNodeId: string,
@@ -186,7 +184,7 @@ export function EventRunnerModal({
     }: { onceKeysToCommit: string[]; execStr: string } = {
       onceKeysToCommit: [],
       execStr: '',
-    }
+    },
   ) => {
     if (nextNodeId === '') {
       onCancel();
@@ -198,8 +196,8 @@ export function EventRunnerModal({
         panToCurrentNode();
       } catch (e) {
         console.error('error advancing event runner:', e);
-        getEditorState().runnerErrors = eventRunner.errors;
-        notifyStateUpdated();
+        controller.getState().runnerErrors = eventRunner.errors;
+        notifyStateUpdated(controller);
       }
       reRender();
     }
@@ -227,13 +225,13 @@ export function EventRunnerModal({
     }
   };
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (eventRunner) {
-      getEditorState().runnerErrors = eventRunner.errors;
-      notifyStateUpdated();
+      controller.getState().runnerErrors = eventRunner.errors;
+      notifyStateUpdated(controller);
     }
     onCancel();
-  };
+  }, [controller, eventRunner, onCancel]);
 
   useEffect(() => {
     const log = logRef.current;
@@ -246,7 +244,7 @@ export function EventRunnerModal({
     if (isOpen && eventRunner) {
       panToCurrentNode();
     }
-  }, [isOpen, eventRunner]);
+  }, [isOpen, eventRunner, panToCurrentNode]);
 
   useEffect(() => {
     if (!isOpen || !eventRunner || pauseState === 'done') {
@@ -263,7 +261,7 @@ export function EventRunnerModal({
 
     window.addEventListener('keydown', handleKeyDown, true);
     return () => window.removeEventListener('keydown', handleKeyDown, true);
-  }, [isOpen, eventRunner, pauseState]);
+  }, [handleClose, isOpen, eventRunner, pauseState]);
 
   if (!isOpen || !eventRunner || pauseState === 'done') {
     return undefined;
@@ -333,7 +331,9 @@ export function EventRunnerModal({
                 <div
                   key={i}
                   style={getLogEntryStyle(entry, i, lastSegmentIndex)}
-                  title={entry.nodeId ? `Go to node ${entry.nodeId}` : undefined}
+                  title={
+                    entry.nodeId ? `Go to node ${entry.nodeId}` : undefined
+                  }
                   onClick={() => {
                     if (entry.nodeId) {
                       panToNode(entry.nodeId);
@@ -342,7 +342,7 @@ export function EventRunnerModal({
                 >
                   {entry.type === 'choice' ? ` - ${entry.text}` : entry.text}
                 </div>
-              )
+              ),
             )}
           </div>
 
@@ -393,8 +393,8 @@ export function EventRunnerModal({
                   }}
                   onClick={() => {
                     if (error.nodeId) {
-                      getEditorState().runnerErrors = eventRunner.errors;
-                      notifyStateUpdated();
+                      controller.getState().runnerErrors = eventRunner.errors;
+                      notifyStateUpdated(controller);
                       panToNode(error.nodeId);
                     }
                   }}

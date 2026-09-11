@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { GameEvent } from '../../types/assets';
 import { EditorNodeComment } from '../cmpts/CommentNodeComponent';
 import { GenericModal } from '../../elements/GenericModal';
-import { getEditorState, notifyStateUpdated } from '../seEditorState';
+import { notifyStateUpdated } from '../seEditorState';
+import { SpecialEventEditorController } from '../SpecialEventEditorController';
 
 interface EditCommentModalProps {
+  controller: SpecialEventEditorController;
   isOpen: boolean;
   node: EditorNodeComment | undefined;
   gameEvent: GameEvent;
@@ -13,6 +15,7 @@ interface EditCommentModalProps {
 }
 
 export function EditCommentModal({
+  controller,
   isOpen,
   node,
   gameEvent,
@@ -35,7 +38,7 @@ export function EditCommentModal({
   const handleEditNodeConfirm = () => {
     node.comment = text;
     node.calculateHeight(ctx);
-    notifyStateUpdated();
+    notifyStateUpdated(controller);
     onCancel();
   };
 

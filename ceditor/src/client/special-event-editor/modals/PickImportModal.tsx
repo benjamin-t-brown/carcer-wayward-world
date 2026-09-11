@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { GameEvent } from '../../types/assets';
 import { GenericModal } from '../../elements/GenericModal';
-import { notifyStateUpdated } from '../seEditorState';
 
 export interface PickImportModalProps {
   isOpen: boolean;
@@ -21,17 +20,16 @@ export function PickImportModal({
   gameEvent,
 }: PickImportModalProps) {
   const selectableEvents = gameEvents.filter(
-    (g) => g.id !== gameEvent.id && !existingImports.includes(g.id)
+    (g) => g.id !== gameEvent.id && !existingImports.includes(g.id),
   );
+  const firstSelectableEventId = selectableEvents[0]?.id || '';
   const [importFromValue, setImportFromValue] = useState<string>(
-    selectableEvents[0]?.id || ''
+    firstSelectableEventId,
   );
 
   useEffect(() => {
-    if (selectableEvents.length > 0) {
-      setImportFromValue(selectableEvents[0].id);
-    }
-  }, [isOpen]);
+    setImportFromValue(firstSelectableEventId);
+  }, [firstSelectableEventId, isOpen]);
 
   if (!isOpen) {
     return null;
@@ -42,7 +40,6 @@ export function PickImportModal({
       return;
     }
     onConfirm(importFromValue);
-    notifyStateUpdated();
     onCancel();
   };
 

@@ -1,16 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '../../elements/Button';
-import {
-  centerPanzoomOnNode,
-  getEditorState,
-  syncGameEventFromEditorState,
-} from '../seEditorState';
+import { centerPanzoomOnNode } from '../seEditorState';
 import { EventValidator } from '../eventRunner/EventValidator';
-import { GameEvent } from '../../types/assets';
 import { CANVAS_CONTAINER_ID } from './MapCanvasSE';
-import { useAssets } from '../../contexts/AssetsContext';
+import type { SpecialEventEditorController } from '../SpecialEventEditorController';
+import type { SpecialEventDocumentSnapshot } from '../specialEventDocument';
 
 interface ValidationErrorsIndicatorProps {
+  controller: SpecialEventEditorController;
   isOpen: boolean;
   handleOpen: () => void;
   handleClose: () => void;
@@ -21,12 +18,17 @@ interface ValidationErrorsIndicatorProps {
 }
 
 export const ValidationErrorsIndicator = (
-  props: ValidationErrorsIndicatorProps
+  props: ValidationErrorsIndicatorProps,
 ) => {
   const handleErrorClick = (childId: string) => {
     const canvas = document.getElementById(CANVAS_CONTAINER_ID + '-canvas');
     if (canvas) {
-      centerPanzoomOnNode(canvas as HTMLCanvasElement, childId, true);
+      centerPanzoomOnNode(
+        props.controller,
+        canvas as HTMLCanvasElement,
+        childId,
+        true,
+      );
     }
   };
 
@@ -118,11 +120,13 @@ export const ValidationErrorsIndicator = (
 };
 
 interface ValidationMenuButtonProps {
-  currentGameEvent: GameEvent;
+  controller: SpecialEventEditorController;
+  getDocumentSnapshot: () => SpecialEventDocumentSnapshot;
 }
 
 export const ValidationMenuButton = ({
-  currentGameEvent,
+  controller,
+  getDocumentSnapshot,
 }: ValidationMenuButtonProps) => {
   const [validationErrors, setValidationErrors] = useState<
     {
@@ -130,7 +134,6 @@ export const ValidationMenuButton = ({
       childId: string;
     }[]
   >([]);
-  const { gameEvents } = useAssets();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleClose = () => {
@@ -141,18 +144,14 @@ export const ValidationMenuButton = ({
     setIsOpen(true);
   };
 
-  const validateCurrentGameEvent = () => {
-    const editorState = getEditorState();
-    const gameEvent = gameEvents.find(
-      (gameEvent) => gameEvent.id === editorState.gameEventId
-    );
+  const validateCurrentGameEvent = useCallback(() => {
+    const gameEvent = getDocumentSnapshot().currentGameEvent;
     if (!gameEvent) {
       return;
     }
-    syncGameEventFromEditorState(gameEvent, editorState);
     const validator = new EventValidator(gameEvent);
     const errors = validator.validate();
-    const runnerErrors = getEditorState().runnerErrors;
+    const runnerErrors = controller.getState().runnerErrors;
     const allErrors = [
       ...errors,
       ...runnerErrors.map((error) => ({
@@ -161,20 +160,23 @@ export const ValidationMenuButton = ({
       })),
     ];
     setValidationErrors(allErrors);
-    // if (runnerErrors.length > 0) {
-    //   setIsOpen(true);
-    // }
-  };
+  }, [controller, getDocumentSnapshot]);
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      if (getEditorState().shouldValidate) {
+    return controller.subscribe(() => {
+      if (controller.getState().shouldValidate) {
         validateCurrentGameEvent();
-        getEditorState().shouldValidate = false;
+        controller.getState().shouldValidate = false;
       }
-    }, 100);
-    return () => clearInterval(intervalId);
-  }, [validationErrors]);
+    });
+  }, [controller, validateCurrentGameEvent]);
+
+  // Metadata changes are committed through React state rather than the canvas
+  // controller. Validate after that new collection has rendered so the
+  // snapshot cannot observe the previous variables or event metadata.
+  useEffect(() => {
+    validateCurrentGameEvent();
+  }, [validateCurrentGameEvent]);
 
   return (
     <div
@@ -198,6 +200,7 @@ export const ValidationMenuButton = ({
         }}
       >
         <ValidationErrorsIndicator
+          controller={controller}
           isOpen={isOpen}
           handleOpen={handleOpen}
           handleClose={handleClose}

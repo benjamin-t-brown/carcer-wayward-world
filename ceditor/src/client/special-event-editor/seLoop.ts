@@ -1,6 +1,8 @@
 import { drawRect } from '../utils/draw';
-import { getTransform } from './seEditorState';
-import { EditorStateSE } from './seEditorState';
+import type { Connector } from './cmpts/Connector';
+import type { EditorNode } from './cmpts/EditorNode';
+import { getTransform, type EditorStateSE } from './seEditorState';
+import { planSpecialEventViewport } from './specialEventViewport';
 
 const COLORS = {
   BACKGROUND1: 'black',
@@ -16,103 +18,105 @@ export const loop = (
     getCanvas: () => HTMLCanvasElement;
     getEditorState: () => EditorStateSE;
   },
-  ms: number
+  ms: number,
 ) => {
-  const ctx = dataInterface.getCanvas().getContext('2d');
+  const canvas = dataInterface.getCanvas();
+  const editorState = dataInterface.getEditorState();
+  const ctx = canvas.getContext('2d');
   if (!ctx) {
     return;
   }
 
-  ctx.clearRect(
-    0,
-    0,
-    dataInterface.getCanvas().width,
-    dataInterface.getCanvas().height
-  );
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawRect(
     0,
     0,
-    dataInterface.getCanvas().width,
-    dataInterface.getCanvas().height,
+    canvas.width,
+    canvas.height,
     getColors().BACKGROUND2,
     false,
-    ctx
+    ctx,
   );
 
-  const { x, y, scale } = getTransform();
+  const { x, y, scale } = getTransform(editorState);
 
   //background rect
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(scale, scale);
-  ctx.translate(
-    dataInterface.getCanvas().width / 2,
-    dataInterface.getCanvas().height / 2
-  );
-  ctx.translate(
-    -dataInterface.getEditorState().zoneWidth / 2,
-    -dataInterface.getEditorState().zoneHeight / 2
-  );
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  ctx.translate(-editorState.zoneWidth / 2, -editorState.zoneHeight / 2);
   drawRect(
     0,
     0,
-    dataInterface.getEditorState().zoneWidth,
-    dataInterface.getEditorState().zoneHeight,
+    editorState.zoneWidth,
+    editorState.zoneHeight,
     getColors().BACKGROUND1,
     false,
-    ctx
+    ctx,
   );
   ctx.restore();
 
   const newScale = scale;
 
-  const focalX = dataInterface.getCanvas().width / 2;
-  const focalY = dataInterface.getCanvas().height / 2;
+  const focalX = canvas.width / 2;
+  const focalY = canvas.height / 2;
 
   const offsetX = focalX - (newScale / scale) * (focalX - x);
   const offsetY = focalY - (newScale / scale) * (focalY - y);
 
   ctx.save();
   ctx.translate(offsetX, offsetY);
+  ctx.translate((canvas.width * newScale) / 2, (canvas.height * newScale) / 2);
   ctx.translate(
-    (dataInterface.getCanvas().width * newScale) / 2,
-    (dataInterface.getCanvas().height * newScale) / 2
-  );
-  ctx.translate(
-    -(dataInterface.getEditorState().zoneWidth * newScale) / 2,
-    -(dataInterface.getEditorState().zoneHeight * newScale) / 2
+    -(editorState.zoneWidth * newScale) / 2,
+    -(editorState.zoneHeight * newScale) / 2,
   );
 
   // Render nodes
-  const hoveredNodeId = dataInterface.getEditorState().hoveredNodeId;
-  const hoveredCloseButtonNodeId =
-    dataInterface.getEditorState().hoveredCloseButtonNodeId;
-  const selectedNodeIds = dataInterface.getEditorState().selectedNodeIds;
-  const linkingExitIndex = dataInterface.getEditorState().linking.exitIndex;
+  const hoveredNodeId = editorState.hoveredNodeId;
+  const hoveredCloseButtonNodeId = editorState.hoveredCloseButtonNodeId;
+  const selectedNodeIds = editorState.selectedNodeIds;
+  const linkingExitIndex = editorState.linking.exitIndex;
 
   // const childNodeIds = new Set<string>();
   // const parentNodeIds = new Set<string>();
 
-  for (const node of dataInterface.getEditorState().editorNodes) {
+  for (const node of editorState.editorNodes) {
     node.update(ms);
-    node.renderConnectors(ctx, newScale);
   }
 
-  for (const node of dataInterface.getEditorState().editorNodes) {
+  const viewportPlan = planSpecialEventViewport<Connector, EditorNode>({
+    canvasWidth: canvas.width,
+    canvasHeight: canvas.height,
+    zoneWidth: editorState.zoneWidth,
+    zoneHeight: editorState.zoneHeight,
+    transform: {
+      translateX: x,
+      translateY: y,
+      scale,
+    },
+    nodes: editorState.editorNodes,
+  });
+
+  for (const connector of viewportPlan.connectors) {
+    connector.render(ctx, newScale);
+  }
+
+  for (const node of viewportPlan.nodes) {
     node.render(ctx, newScale, {
       isHovered: node.id === hoveredNodeId,
       isCloseButtonHovered: node.id === hoveredCloseButtonNodeId,
       isSelected: selectedNodeIds.has(node.id),
       isChildOfHovered: false,
       isParentOfHovered: false,
-      hoveredExitIndex:
-        dataInterface.getEditorState().hoveredExitAnchor?.exitIndex,
+      hoveredExitIndex: editorState.hoveredExitAnchor?.exitIndex,
       linkingExitIndex: linkingExitIndex,
     });
   }
 
   // Draw selection rectangle (already in the correct transform context)
-  const selectionRect = dataInterface.getEditorState().selectionRect;
+  const selectionRect = editorState.selectionRect;
   if (selectionRect) {
     const minX = Math.min(selectionRect.startX, selectionRect.endX);
     const maxX = Math.max(selectionRect.startX, selectionRect.endX);
@@ -126,14 +130,14 @@ export const loop = (
       minX * newScale,
       minY * newScale,
       (maxX - minX) * newScale,
-      (maxY - minY) * newScale
+      (maxY - minY) * newScale,
     );
     ctx.fillStyle = 'rgba(78, 201, 176, 0.1)';
     ctx.fillRect(
       minX * newScale,
       minY * newScale,
       (maxX - minX) * newScale,
-      (maxY - minY) * newScale
+      (maxY - minY) * newScale,
     );
     ctx.setLineDash([]);
   }
@@ -141,7 +145,6 @@ export const loop = (
   ctx.restore();
 
   // Render linking mode text or copy feedback in bottom left (screen coordinates)
-  const editorState = dataInterface.getEditorState();
   ctx.save();
   ctx.resetTransform(); // Use screen coordinates
   ctx.fillStyle = 'white';
@@ -150,7 +153,7 @@ export const loop = (
   ctx.textBaseline = 'bottom';
 
   const padding = 10;
-  const canvasHeight = dataInterface.getCanvas().height;
+  const canvasHeight = canvas.height;
 
   if (editorState.linking.isLinking) {
     let linkText =
@@ -168,7 +171,7 @@ export const loop = (
     ctx.fillText(
       'Node ID copied to clipboard',
       padding,
-      canvasHeight - padding
+      canvasHeight - padding,
     );
   }
 

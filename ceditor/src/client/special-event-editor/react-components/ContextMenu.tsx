@@ -1,5 +1,4 @@
 import {
-  GameEvent,
   GameEventChildType,
   GameEventChildExec,
   GameEventChildSwitch,
@@ -8,11 +7,7 @@ import {
   GameEventChildComment,
 } from '../../types/assets';
 import { randomId } from '../../utils/mathUtils';
-import {
-  EditorStateSE,
-  enterLinkingMode,
-  updateEditorState,
-} from '../seEditorState';
+import { enterLinkingMode, updateEditorState } from '../seEditorState';
 import { screenToWorldCoords } from '../nodeHelpers';
 import { EditorNodeExec } from '../cmpts/ExecNodeComponent';
 import { EditorNode } from '../cmpts/EditorNode';
@@ -20,13 +15,13 @@ import { EditorNodeSwitch } from '../cmpts/SwitchNodeComponent';
 import { EditorNodeChoice } from '../cmpts/ChoiceNodeComponent';
 import { EditorNodeEnd } from '../cmpts/EndNodeComponent';
 import { EditorNodeComment } from '../cmpts/CommentNodeComponent';
+import { SpecialEventEditorController } from '../SpecialEventEditorController';
 
 interface ContextMenuProps {
   x: number;
   y: number;
   canvasRef: React.RefObject<HTMLCanvasElement>;
-  editorStateRef: React.RefObject<EditorStateSE>;
-  gameEvent: GameEvent;
+  controller: SpecialEventEditorController;
   clickedNodeId?: string | null;
   onClose: () => void;
 }
@@ -44,20 +39,18 @@ export function ContextMenu({
   x,
   y,
   canvasRef,
-  editorStateRef,
-  gameEvent,
+  controller,
   clickedNodeId,
   onClose,
 }: ContextMenuProps) {
+  const editorState = controller.getState();
   // Check if clicked node is a switch node
   const clickedNode = clickedNodeId
-    ? gameEvent.children.find((child) => child.id === clickedNodeId)
+    ? editorState.editorNodes.find((node) => node.id === clickedNodeId)
     : null;
-  const isSwitchNode =
-    clickedNode?.eventChildType === GameEventChildType.SWITCH;
-  const isChoiceNode =
-    clickedNode?.eventChildType === GameEventChildType.CHOICE;
-  const isEndNode = clickedNode?.eventChildType === GameEventChildType.END;
+  const isSwitchNode = clickedNode?.type === GameEventChildType.SWITCH;
+  const isChoiceNode = clickedNode?.type === GameEventChildType.CHOICE;
+  const isEndNode = clickedNode?.type === GameEventChildType.END;
 
   const nodeTypes = [
     GameEventChildType.EXEC,
@@ -69,7 +62,7 @@ export function ContextMenu({
   ];
 
   const handleSelectNodeType = (nodeType: GameEventChildType) => {
-    if (!canvasRef.current || !editorStateRef.current) {
+    if (!canvasRef.current) {
       return;
     }
 
@@ -79,8 +72,8 @@ export function ContextMenu({
 
     // If clicking on a node, position new node below it
     if (clickedNodeId) {
-      const clickedNode = editorStateRef.current.editorNodes.find(
-        (node) => node.id === clickedNodeId
+      const clickedNode = editorState.editorNodes.find(
+        (node) => node.id === clickedNodeId,
       );
       if (clickedNode) {
         const { height } = clickedNode.getBounds();
@@ -92,8 +85,9 @@ export function ContextMenu({
           x,
           y,
           canvas,
-          editorStateRef.current.zoneWidth,
-          editorStateRef.current.zoneHeight
+          editorState.zoneWidth,
+          editorState.zoneHeight,
+          editorState,
         );
         newNodeX = worldX;
         newNodeY = worldY;
@@ -104,8 +98,9 @@ export function ContextMenu({
         x,
         y,
         canvas,
-        editorStateRef.current.zoneWidth,
-        editorStateRef.current.zoneHeight
+        editorState.zoneWidth,
+        editorState.zoneHeight,
+        editorState,
       );
       newNodeX = worldX;
       newNodeY = worldY;
@@ -125,7 +120,7 @@ export function ContextMenu({
             y: 0,
             h: 0,
           } as GameEventChildExec,
-          editorStateRef.current
+          editorState,
         );
         n.p = '';
         newNode = n;
@@ -147,7 +142,7 @@ export function ContextMenu({
               },
             ],
           } as GameEventChildChoice,
-          editorStateRef.current
+          editorState,
         );
         newNode = n;
         break;
@@ -163,7 +158,7 @@ export function ContextMenu({
             defaultNext: '',
             cases: [],
           } as GameEventChildSwitch,
-          editorStateRef.current
+          editorState,
         );
         break;
       case GameEventChildType.END:
@@ -176,7 +171,7 @@ export function ContextMenu({
             h: 0,
             next: '',
           } as GameEventChildEnd,
-          editorStateRef.current
+          editorState,
         );
         break;
       case GameEventChildType.COMMENT:
@@ -189,7 +184,7 @@ export function ContextMenu({
             h: 0,
             comment: 'This is a comment node.',
           } as GameEventChildComment,
-          editorStateRef.current
+          editorState,
         );
         break;
       case GameEventChildType.KEYWORD:
@@ -213,22 +208,22 @@ export function ContextMenu({
       newNode.updateExitLink(clickedNodeId);
     }
     newNode.calculateHeight(canvasRef.current.getContext('2d')!);
-    editorStateRef.current.editorNodes.push(newNode);
+    editorState.editorNodes.push(newNode);
 
-    updateEditorState({});
+    updateEditorState(controller, {});
   };
 
   const handleLinkNode = () => {
-    if (!clickedNodeId || !editorStateRef.current) {
+    if (!clickedNodeId) {
       return;
     }
-    enterLinkingMode(editorStateRef.current, clickedNodeId);
-    updateEditorState({});
+    enterLinkingMode(editorState, clickedNodeId);
+    updateEditorState(controller, {});
     onClose();
   };
 
   const handleCopyNodeId = async () => {
-    if (!clickedNodeId || !editorStateRef.current) {
+    if (!clickedNodeId) {
       return;
     }
     try {
@@ -250,7 +245,6 @@ export function ContextMenu({
     }
 
     // Show feedback message
-    const editorState = editorStateRef.current;
     editorState.showCopyFeedback = true;
 
     // Clear any existing timeout
@@ -262,10 +256,10 @@ export function ContextMenu({
     editorState.copyFeedbackTimeout = window.setTimeout(() => {
       editorState.showCopyFeedback = false;
       editorState.copyFeedbackTimeout = null;
-      updateEditorState({});
+      updateEditorState(controller, {});
     }, 2000);
 
-    updateEditorState({});
+    updateEditorState(controller, {});
     onClose();
   };
 
