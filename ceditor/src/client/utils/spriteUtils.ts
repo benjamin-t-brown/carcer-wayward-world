@@ -113,7 +113,21 @@ export function getCachedDrawable(
   sprite: Sprite,
 ): HTMLCanvasElement | undefined {
   const cacheKey = `${sprite.name}@${SPRITE_CACHE_VERSION}`;
-  return spriteCanvasCache[cacheKey];
+  const cached = spriteCanvasCache[cacheKey];
+  if (cached) {
+    return cached;
+  }
+
+  // Canvas render loops must stay synchronous, but cannot rely on a React
+  // <Sprite> preview to have warmed the cache. Queue one extraction per unique
+  // sprite; a subsequent frame will receive the cached drawable.
+  if (!spritePromiseCache[cacheKey]) {
+    void getDrawable(sprite).catch((error: unknown) => {
+      console.error(`Failed to load sprite drawable: ${sprite.name}`, error);
+    });
+  }
+
+  return undefined;
 }
 
 export function getCachedImage(imagePath: string) {

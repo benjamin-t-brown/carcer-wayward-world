@@ -63,6 +63,37 @@ test('image and sprite requests share in-flight work and failed images can retry
   assert.equal(images.length, 4);
   images[3].succeed();
   assert.equal(await retry, images[3]);
+
+  // The synchronous map renderer must hydrate its own sprite cache instead of
+  // depending on a React <Sprite> preview to have rendered each tile first.
+  const { drawSprite } = await import('../client/utils/draw');
+  const mapSprite = {
+    ...sprite,
+    name: 'map-sheet_7',
+    pictureAlias: 'map-sheet',
+    picturePath: 'map-sheet.png',
+    index: 7,
+  };
+  let renderedMapSprites = 0;
+  const mapContext = {
+    drawImage: () => {
+      renderedMapSprites += 1;
+    },
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: 'high',
+  } as unknown as CanvasRenderingContext2D;
+
+  drawSprite(mapSprite, 0, 0, 1, mapContext);
+  drawSprite(mapSprite, 16, 0, 1, mapContext);
+  assert.equal(renderedMapSprites, 0);
+  assert.equal(images.length, 5, 'one sprite-sheet request is queued');
+
+  const pendingMapDrawable = getDrawable(mapSprite);
+  images[4].succeed();
+  await pendingMapDrawable;
+
+  drawSprite(mapSprite, 0, 0, 1, mapContext);
+  assert.equal(renderedMapSprites, 1);
 });
 
 class FakeImage {
