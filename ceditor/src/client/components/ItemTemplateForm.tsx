@@ -43,9 +43,6 @@ function applyRuneType(
   return next;
 }
 
-// Re-export for backward compatibility
-export type { ItemTemplate };
-
 function getStatusEffectName(ref: ItemStatusEffectRef): string {
   return typeof ref === 'string' ? ref : ref.name;
 }

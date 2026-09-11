@@ -14,10 +14,6 @@ import { Button } from '../elements/Button';
 import { EditorEmptyState } from './EditorEmptyState';
 import './TilesetTemplateForm.css';
 
-// Re-export for backward compatibility
-export { TileStepSound };
-export type { TileMetadata, TilesetTemplate };
-
 interface TilesetTemplateFormProps {
   tileset?: TilesetTemplate;
   updateTileset: (tileset: TilesetTemplate) => void;

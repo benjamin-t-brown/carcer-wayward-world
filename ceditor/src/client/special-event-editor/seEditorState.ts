@@ -116,11 +116,6 @@ export const updateEditorState = (
   validate = true,
 ) => controller.update(state, validate);
 
-export const updateEditorStateNoReRender = (
-  controller: SpecialEventStateController,
-  state: Partial<EditorStateSE>,
-) => controller.updateSilent(state);
-
 // called when a new game event is selected
 export const initEditorStateForGameEvent = (
   controller: SpecialEventStateController,
@@ -282,13 +277,6 @@ export const getTransform = (editorState: EditorStateSE) => {
     y: s.translateY,
     scale: s.scale,
   };
-};
-
-export const resetPanzoom = (editorState: EditorStateSE) => {
-  const s = editorState;
-  s.translateX = 0;
-  s.translateY = 0;
-  s.scale = 1;
 };
 
 export const centerPanzoomOnNode = (
@@ -513,26 +501,6 @@ export const enterLinkingMode = (
   editorState.linking.isLinking = true;
   editorState.linking.sourceNodeId = sourceNodeId;
   editorState.linking.exitIndex = exitIndex;
-};
-
-export const syncGameEventFromEditorState = (
-  gameEvent: GameEvent,
-  editorState: EditorStateSE,
-) => {
-  const s = editorState;
-  if (gameEvent.id !== s.gameEventId) {
-    console.error(
-      "syncGameEventFromEditorState rejecting sync since ids don't match.",
-      'attempted to sync event',
-      `"${gameEvent.id}"`,
-      'with current editor state id event',
-      `"${s.gameEventId}"`,
-    );
-    return;
-  }
-  gameEvent.children = s.editorNodes.map((node) =>
-    structuredClone(node.toSENode()),
-  );
 };
 
 export const copySelectedNodes = (

@@ -3,7 +3,8 @@ import { TextInput } from '../elements/TextInput';
 import { OptionSelect } from '../elements/OptionSelect';
 import { SpritePicker } from '../elements/SpritePicker';
 import { Button } from '../elements/Button';
-import { GameEvent, createDefaultGameEvent } from './GameEventForm';
+import { createDefaultGameEvent } from './GameEventForm';
+import type { GameEvent } from '../types/assets';
 import { MODAL_ROOT_CLASS, useEscapeToClose } from '../hooks/useEscapeToClose';
 
 interface CreateGameEventModalProps {
@@ -32,7 +33,12 @@ export function CreateGameEventModal({
 
   const handleConfirm = () => {
     // Basic validation
-    if (!formData.id || !formData.title || !formData.eventType || !formData.icon) {
+    if (
+      !formData.id ||
+      !formData.title ||
+      !formData.eventType ||
+      !formData.icon
+    ) {
       return;
     }
     onConfirm(formData);
@@ -111,7 +117,10 @@ export function CreateGameEventModal({
             label="Event Type"
             value={formData.eventType}
             onChange={(value) =>
-              setFormData({ ...formData, eventType: value as 'MODAL' | 'TALK' | 'TRAVEL' })
+              setFormData({
+                ...formData,
+                eventType: value as 'MODAL' | 'TALK' | 'TRAVEL',
+              })
             }
             options={GAME_EVENT_TYPES.map((type) => ({
               value: type,
@@ -165,4 +174,3 @@ export function CreateGameEventModal({
     </div>
   );
 }
-

@@ -5,7 +5,7 @@
  */
 
 export interface AssetTypeDescriptor {
-  /** Stable id used in the API path (`/api/assets/:id`) and editor routes. */
+  /** Stable id used in database snapshots, editor state, and routes. */
   id: string;
   /** Human label shown on the Home page. */
   name: string;

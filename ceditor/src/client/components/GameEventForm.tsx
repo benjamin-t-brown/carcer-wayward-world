@@ -18,9 +18,6 @@ import {
 import { randomId } from '../utils/mathUtils';
 // import { createRootNode } from '../special-event-editor/nodeCreation';
 
-// Re-export for backward compatibility
-export type { GameEvent };
-
 const GAME_EVENT_TYPES = ['MODAL', 'TALK', 'TRAVEL'];
 
 interface GameEventFormProps {
@@ -53,7 +50,7 @@ export function createDefaultGameEvent(): GameEvent {
 export function GameEventForm(props: GameEventFormProps) {
   const gameEvent = props.gameEvent;
   const [expandedChildren, setExpandedChildren] = useState<Set<number>>(
-    new Set()
+    new Set(),
   );
   const [deleteConfirm, setDeleteConfirm] = useState<{
     isOpen: boolean;
@@ -67,7 +64,7 @@ export function GameEventForm(props: GameEventFormProps) {
 
   const updateField = <K extends keyof GameEvent>(
     field: K,
-    value: GameEvent[K]
+    value: GameEvent[K],
   ) => {
     setFormData({ ...formData, [field]: value });
   };

@@ -40,8 +40,6 @@ import { MapEditorController } from './MapEditorController';
 import { buildMapRenderPlan } from './mapRenderPlan';
 import type { MapRenderLookups } from './mapDocumentIndex';
 
-// let currentMap: MapResponse | null = null;
-// let isLooping = false;
 const getColors = () => {
   return {
     BACKGROUND2: '#421',
@@ -158,11 +156,6 @@ export const loop = (
   },
   _ms: number,
 ) => {
-  // const appState: AppState = (window as any).appState;
-  // if (!appState) {
-  //   return;
-  // }
-
   // The canvas can only move between frames, so one measurement per frame is
   // enough; every mouse event in between reuses it instead of forcing a layout.
   invalidateCanvasRectCache(controller);
@@ -483,10 +476,10 @@ export const loop = (
         tilesets,
         assets.characters,
         assets.items,
-        undefined,
-        undefined,
-        undefined,
         documentIndex,
+        undefined,
+        undefined,
+        undefined,
       );
     }
 
@@ -503,10 +496,10 @@ export const loop = (
         tilesets,
         assets.characters,
         assets.items,
+        documentIndex,
         pass.map.name,
         pass.offsetPixelX,
         pass.offsetPixelY,
-        documentIndex,
       );
     }
   }

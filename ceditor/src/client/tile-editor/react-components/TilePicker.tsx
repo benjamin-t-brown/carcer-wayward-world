@@ -22,7 +22,6 @@ export function TilePicker(props: {
 }) {
   const { tilesets, setTilesets, saveTilesets } = useAssets();
   const { pictures, spriteMap } = useSDL2WAssets();
-  // const [selectedTilesetName, setSelectedTilesetName] = useState<string>('');
   const [scale, setScale] = useState<number>(1);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
@@ -30,7 +29,6 @@ export function TilePicker(props: {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const { editorState } = props;
-  // const reRender = useReRender();
 
   const selectedTileset = tilesets.find(
     (t) => t.name === editorState.selectedTilesetName,

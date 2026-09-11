@@ -12,7 +12,11 @@ import type {
   SaveDatabaseResponse,
 } from '../shared/databaseContract';
 import { BadRequestError, ConflictError } from './httpErrors';
-import { commitSaveTransaction, type SaveOutput } from './saveTransaction';
+import {
+  commitSaveTransaction,
+  type SaveOutput,
+  type SaveTransactionOptions,
+} from './saveTransaction';
 
 interface DiskDatabase {
   assets: DatabaseSnapshot;
@@ -25,10 +29,17 @@ export interface DatabaseRepositoryContract {
   save(request: unknown): Promise<SaveDatabaseResponse>;
 }
 
+export type DatabaseCommit = (
+  options: SaveTransactionOptions,
+) => Promise<string[]>;
+
 export class DatabaseRepository implements DatabaseRepositoryContract {
   private pendingSave: Promise<void> = Promise.resolve();
 
-  constructor(readonly databasePath: string) {}
+  constructor(
+    readonly databasePath: string,
+    private readonly commit: DatabaseCommit = commitSaveTransaction,
+  ) {}
 
   async load(): Promise<DatabaseEnvelope> {
     const disk = await this.readDiskDatabase();
@@ -64,7 +75,7 @@ export class DatabaseRepository implements DatabaseRepositoryContract {
         : output;
     });
 
-    const changedFiles = await commitSaveTransaction({
+    const changedFiles = await this.commit({
       databasePath: this.databasePath,
       outputs,
       currentContents: current.contents,

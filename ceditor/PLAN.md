@@ -311,6 +311,16 @@ subtype, and large offscreen graphs have focused regression coverage.
 
 ## Phase 9 — Hardening and cleanup
 
+Status: complete on 2026-09-10. Golden tests now exercise a temporary copy of
+the real game database, including byte-preserving no-op saves, injected
+multi-file rollback, cleanup, lock release, and retry. Map/grid and event
+reference changes are verified as coherent Save All snapshots through failed
+saves. Obsolete global callbacks, compatibility wrappers, fallback render
+caches, re-exports, and generated Vite artifacts are removed; ownership,
+dependency rationale, API behavior, and recovery are documented. Every
+remaining dependency is directly used, so none were removed, and `ceditor2`
+remains untouched pending a separate decision.
+
 ### Work
 
 - Run real-database golden and failure-path integration tests.

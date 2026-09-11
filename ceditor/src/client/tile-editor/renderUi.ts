@@ -9,43 +9,12 @@ import {
 } from '../utils/draw';
 import { getVisibleTileRange, VisibleTileRange } from './viewport';
 
-export { getVisibleTileRange } from './viewport';
-export type { VisibleTileRange } from './viewport';
-
 export type OverlayTextEntry = {
   text: string;
   x: number;
   y: number;
   textParams: DrawTextParams;
 };
-
-let fallbackRenderLookups:
-  | {
-      tilesets: readonly TilesetTemplate[];
-      characters: readonly CharacterTemplate[];
-      items: readonly ItemTemplate[];
-      value: MapRenderLookups;
-    }
-  | undefined;
-
-/** Temporary compatibility path until the controller supplies its full index. */
-function getFallbackRenderLookups(
-  tilesets: readonly TilesetTemplate[],
-  characters: readonly CharacterTemplate[],
-  items: readonly ItemTemplate[],
-): MapRenderLookups {
-  if (
-    fallbackRenderLookups?.tilesets === tilesets &&
-    fallbackRenderLookups.characters === characters &&
-    fallbackRenderLookups.items === items
-  ) {
-    return fallbackRenderLookups.value;
-  }
-
-  const value = buildMapRenderLookups(tilesets, characters, items);
-  fallbackRenderLookups = { tilesets, characters, items, value };
-  return value;
-}
 
 export const drawOverlayTextEntries = (
   ctx: CanvasRenderingContext2D,
@@ -79,10 +48,7 @@ import {
 } from './editorEvents';
 import { Sprite } from '../utils/assetLoader';
 import { getMaterializedLayer } from '../utils/mapIndex';
-import {
-  buildMapRenderLookups,
-  type MapRenderLookups,
-} from './mapDocumentIndex';
+import type { MapRenderLookups } from './mapDocumentIndex';
 import { getAdjacentSlotHotspotRect } from './gridMapNavigation';
 import {
   GridAdjacentSlot,
@@ -183,12 +149,12 @@ export const renderToolUi = (
   tilesets: TilesetTemplate[],
   characters: CharacterTemplate[],
   items: ItemTemplate[],
+  renderLookups: MapRenderLookups,
   /** Which block this pass is for; drives per-map state lookups. */
   mapName: string = editorState.selectedMapName,
   /** Pixel offset of that block from the focused map (grid neighbours). */
   offsetPixelX = 0,
   offsetPixelY = 0,
-  renderLookups?: MapRenderLookups,
 ) => {
   const currentPaintAction = editorState.currentPaintAction;
   const paintTileIndexInTileset = editorState.selectedTileIndexInTileset;
@@ -575,7 +541,7 @@ export const renderMapTilesAtOffset = (args: {
   layer: number;
   overlayTextEntries?: OverlayTextEntry[];
   visibleRange?: VisibleTileRange | null;
-  renderLookups?: MapRenderLookups;
+  renderLookups: MapRenderLookups;
 }) => {
   const {
     controller,
@@ -592,7 +558,7 @@ export const renderMapTilesAtOffset = (args: {
     layer,
     overlayTextEntries,
     visibleRange,
-    renderLookups = getFallbackRenderLookups(tilesets, characters, items),
+    renderLookups,
   } = args;
 
   if (visibleRange === null) {
@@ -647,7 +613,7 @@ export const renderTileAndExtras = (args: {
   characters: CharacterTemplate[];
   items: ItemTemplate[];
   overlayTextEntries?: OverlayTextEntry[];
-  renderLookups?: MapRenderLookups;
+  renderLookups: MapRenderLookups;
 }) => {
   const {
     refTile,
@@ -662,7 +628,7 @@ export const renderTileAndExtras = (args: {
     characters,
     items,
     overlayTextEntries,
-    renderLookups = getFallbackRenderLookups(tilesets, characters, items),
+    renderLookups,
   } = args;
   if (!refTile) {
     return;

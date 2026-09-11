@@ -24,11 +24,6 @@ type Modules = {
 let modules: Modules;
 
 before(async () => {
-  Object.defineProperty(globalThis, 'window', {
-    configurable: true,
-    value: { reRenderTileEditor: () => {} },
-  });
-
   const paint = await import('../client/tile-editor/paintTools');
   const events = await import('../client/tile-editor/editorEvents');
   const controller = await import('../client/tile-editor/MapEditorController');

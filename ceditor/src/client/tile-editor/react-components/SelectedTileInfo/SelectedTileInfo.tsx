@@ -57,9 +57,6 @@ export function SelectedTileInfo({
       eventTriggers: map.eventTriggers.map((entry) => ({ ...entry })),
       travelTriggers: map.travelTriggers.map((entry) => ({ ...entry })),
     });
-    (
-      window as unknown as { reRenderTileEditor?: () => void }
-    ).reRenderTileEditor?.();
   };
 
   if (selectedTileInd < 0 || selectedTileInd >= mapTiles.length) {

@@ -58,15 +58,17 @@ const TERRAIN_AUTOTILE_KEYS: ReadonlyArray<string> = [
   'SPSS',
 ];
 
-let cachedLookup: Map<string, number> | null = null;
+const terrainLookupByTiles = new WeakMap<
+  TilesetTemplate['tiles'],
+  Map<string, number>
+>();
 
 export function buildTerrainLookup(tileset: TilesetTemplate) {
+  const cachedLookup = terrainLookupByTiles.get(tileset.tiles);
   if (cachedLookup) {
     return cachedLookup;
   }
   const lookup = new Map<string, number>();
-  console.log('building terrain lookup', lookup);
-  cachedLookup = lookup;
   for (const tile of tileset.tiles) {
     if (!tile.tileTerrainBorderMeta) {
       continue;
@@ -167,6 +169,7 @@ export function buildTerrainLookup(tileset: TilesetTemplate) {
     }
   }
 
+  terrainLookupByTiles.set(tileset.tiles, lookup);
   return lookup;
 }
 

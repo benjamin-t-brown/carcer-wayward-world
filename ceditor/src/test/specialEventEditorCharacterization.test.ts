@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import test, { before } from 'node:test';
 import {
   GameEventChildType,
-  type GameEvent,
   type GameEventChildChoice,
   type GameEventChildComment,
   type GameEventChildEnd,
@@ -23,17 +22,11 @@ type SpecialEventModules = {
   screenToWorldCoords: typeof import('../client/special-event-editor/nodeHelpers').screenToWorldCoords;
   getEditorState: typeof import('../client/special-event-editor/seEditorState').getEditorState;
   seNodeToEditorNode: typeof import('../client/special-event-editor/seEditorState').seNodeToEditorNode;
-  syncGameEventFromEditorState: typeof import('../client/special-event-editor/seEditorState').syncGameEventFromEditorState;
 };
 
 let modules: SpecialEventModules;
 
 before(async () => {
-  Object.defineProperty(globalThis, 'window', {
-    configurable: true,
-    value: {},
-  });
-
   const stateModule =
     await import('../client/special-event-editor/seEditorState');
   const helperModule =
@@ -57,7 +50,6 @@ before(async () => {
     screenToWorldCoords: helperModule.screenToWorldCoords,
     getEditorState: stateModule.getEditorState,
     seNodeToEditorNode: stateModule.seNodeToEditorNode,
-    syncGameEventFromEditorState: stateModule.syncGameEventFromEditorState,
   };
 });
 
@@ -250,62 +242,4 @@ test('all supported event node subtypes preserve their serialized data', () => {
     );
     assert.ok(serialized.h > 0);
   }
-});
-
-test('event synchronization serializes editor-node order only for the active event', () => {
-  const ctx = createMeasureContext();
-  const state = new modules.EditorStateSE();
-  state.gameEventId = 'active';
-  state.editorNodes = [
-    modules.seNodeToEditorNode(
-      {
-        id: 'comment',
-        eventChildType: GameEventChildType.COMMENT,
-        x: 10,
-        y: 20,
-        h: 50,
-        comment: 'first',
-      } as GameEventChildComment,
-      state,
-      ctx,
-    ),
-    modules.seNodeToEditorNode(
-      {
-        id: 'end',
-        eventChildType: GameEventChildType.END,
-        x: 30,
-        y: 40,
-        h: 60,
-        next: '',
-      } as GameEventChildEnd,
-      state,
-      ctx,
-    ),
-  ];
-
-  const active: GameEvent = {
-    id: 'active',
-    title: 'Active',
-    eventType: 'MODAL',
-    icon: '',
-    vars: [],
-    children: [],
-  };
-  modules.syncGameEventFromEditorState(active, state);
-  assert.deepEqual(
-    active.children.map((child) => child.id),
-    ['comment', 'end'],
-  );
-
-  const inactive: GameEvent = { ...active, id: 'inactive', children: [] };
-  const errors: unknown[][] = [];
-  const previousConsoleError = console.error;
-  console.error = (...args: unknown[]) => errors.push(args);
-  try {
-    modules.syncGameEventFromEditorState(inactive, state);
-  } finally {
-    console.error = previousConsoleError;
-  }
-  assert.deepEqual(inactive.children, []);
-  assert.equal(errors.length, 1);
 });

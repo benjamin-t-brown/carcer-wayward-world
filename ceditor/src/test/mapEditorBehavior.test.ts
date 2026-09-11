@@ -13,6 +13,7 @@ import type { EditorState } from '../client/tile-editor/editorState';
 type MapEditorModules = {
   MapEditorController: typeof import('../client/tile-editor/MapEditorController').MapEditorController;
   PaintActionType: typeof import('../client/tile-editor/paintTools').PaintActionType;
+  buildTerrainLookup: typeof import('../client/tile-editor/terrainTool').buildTerrainLookup;
   calculateFillIndsFloor: typeof import('../client/tile-editor/fill').calculateFillIndsFloor;
   createPaintAction: typeof import('../client/tile-editor/paintTools').createPaintAction;
   getTileChangesForPaintingTerrainAt: typeof import('../client/tile-editor/terrainTool').getTileChangesForPaintingTerrainAt;
@@ -26,11 +27,6 @@ type MapEditorModules = {
 let modules: MapEditorModules;
 
 before(async () => {
-  Object.defineProperty(globalThis, 'window', {
-    configurable: true,
-    value: { reRenderTileEditor: () => {} },
-  });
-
   const paint = await import('../client/tile-editor/paintTools');
   const fill = await import('../client/tile-editor/fill');
   const events = await import('../client/tile-editor/editorEvents');
@@ -40,6 +36,7 @@ before(async () => {
   modules = {
     MapEditorController: controller.MapEditorController,
     PaintActionType: paint.PaintActionType,
+    buildTerrainLookup: terrain.buildTerrainLookup,
     calculateFillIndsFloor: fill.calculateFillIndsFloor,
     createPaintAction: paint.createPaintAction,
     getTileChangesForPaintingTerrainAt:
@@ -308,6 +305,34 @@ test('terrain painting updates the center and only its in-bounds neighbors', asy
     ),
     [],
   );
+});
+
+test('terrain lookup caching follows the current tiles array', async () => {
+  const { TileTerrainBorderTag } = await import('../client/types/assets');
+  const metadata = {
+    nw: TileTerrainBorderTag.NONE,
+    ne: TileTerrainBorderTag.NONE,
+    sw: TileTerrainBorderTag.NONE,
+    se: TileTerrainBorderTag.NONE,
+  };
+  const first = terrainTileset();
+  const second = terrainTileset();
+  first.tiles = [{ id: 101, tileTerrainBorderMeta: metadata }];
+  second.tiles = [{ id: 202, tileTerrainBorderMeta: metadata }];
+  const previousConsoleError = console.error;
+  console.error = () => {};
+
+  try {
+    const firstLookup = modules.buildTerrainLookup(first);
+    const secondLookup = modules.buildTerrainLookup(second);
+    const key = modules.terrainMetaKey(metadata);
+
+    assert.equal(firstLookup.get(key), 101);
+    assert.equal(secondLookup.get(key), 202);
+    assert.equal(modules.buildTerrainLookup(first), firstLookup);
+  } finally {
+    console.error = previousConsoleError;
+  }
 });
 
 function expectTile(
