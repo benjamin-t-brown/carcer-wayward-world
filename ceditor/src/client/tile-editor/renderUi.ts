@@ -137,7 +137,7 @@ const drawHighlightRect = (
     tileY,
     tileWidth * scale,
     tileHeight * scale,
-    'rgba(67, 67, 255, 0.44)',
+    'rgba(169, 243, 251, 0.54)',
     false,
     ctx,
   );
@@ -170,27 +170,18 @@ const drawSelectedTileRect = (
   scale: number,
   ctx: CanvasRenderingContext2D,
 ) => {
-  // Draw a thicker border to indicate selected tile
-  const borderWidth = 2;
-  drawRect(
-    tileX,
-    tileY,
-    tileWidth * scale,
-    tileHeight * scale,
-    'rgba(255, 255, 255, 0.2)',
-    false,
-    ctx,
+  const lineWidth = 2 * scale;
+  const inset = lineWidth / 2;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(237, 237, 10, 0.31)';
+  ctx.lineWidth = lineWidth;
+  ctx.strokeRect(
+    tileX + inset,
+    tileY + inset,
+    tileWidth * scale - lineWidth,
+    tileHeight * scale - lineWidth,
   );
-  // Draw inner border for better visibility
-  drawRect(
-    tileX + borderWidth,
-    tileY + borderWidth,
-    tileWidth * scale - borderWidth * 2,
-    tileHeight * scale - borderWidth * 2,
-    'rgba(0, 255, 0, 0.1)',
-    false,
-    ctx,
-  );
+  ctx.restore();
 };
 
 const drawHighlightTile = (
@@ -201,7 +192,7 @@ const drawHighlightTile = (
   ctx: CanvasRenderingContext2D,
 ) => {
   ctx.save();
-  ctx.globalAlpha = 0.65;
+  ctx.globalAlpha = 0.85;
   drawSprite(sprite, tileX, tileY, scale, ctx);
   ctx.restore();
 };
