@@ -87,7 +87,7 @@ export class EditorNodeSwitch extends EditorNode {
     );
   }
 
-  buildFromCases(cases: SwitchCase[], ctx: CanvasRenderingContext2D) {
+  buildFromCases(cases: SwitchCase[], _ctx: CanvasRenderingContext2D) {
     this.cases = cases;
     this.exits = [];
     this.exits.push(

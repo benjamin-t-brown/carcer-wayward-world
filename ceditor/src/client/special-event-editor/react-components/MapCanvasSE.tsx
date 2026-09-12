@@ -45,7 +45,7 @@ export const MapCanvasSE = (props: {
   height: number;
   canvasRef: React.RefObject<HTMLCanvasElement>;
 }) => {
-  useResize((width, height) => {
+  useResize((_width, _height) => {
     const canvas = props.canvasRef.current;
     if (canvas) {
       resizeCanvas(canvas, CANVAS_CONTAINER_ID);

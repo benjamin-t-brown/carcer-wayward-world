@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { TextInput } from '../elements/TextInput';
 import { OptionSelect } from '../elements/OptionSelect';
 import { SpritePicker } from '../elements/SpritePicker';
-import { Button } from '../elements/Button';
 // import {
 //   createDefaultChild,
 //   GameEventChild,
@@ -15,7 +14,6 @@ import {
   GameEventChildExec,
   GameEventChildType,
 } from '../types/assets';
-import { randomId } from '../utils/mathUtils';
 // import { createRootNode } from '../special-event-editor/nodeCreation';
 
 // Re-export for backward compatibility
@@ -105,7 +103,7 @@ export function GameEventForm(props: GameEventFormProps) {
     setDeleteConfirm({ isOpen: false, index: null });
   };
 
-  const handleCloneChild = (index: number) => {
+  const _handleCloneChild = (index: number) => {
     const newChildren = [...(formData.children || [])];
     const childToClone = newChildren[index];
     const clonedChild = JSON.parse(JSON.stringify(childToClone));
@@ -122,7 +120,7 @@ export function GameEventForm(props: GameEventFormProps) {
   //   updateField('children', newChildren);
   // };
 
-  const toggleChildExpanded = (index: number) => {
+  const _toggleChildExpanded = (index: number) => {
     const newExpanded = new Set(expandedChildren);
     if (newExpanded.has(index)) {
       newExpanded.delete(index);

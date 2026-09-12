@@ -14,12 +14,12 @@ export default tseslint.config([
 
     plugins: {
       'unused-imports': unusedImports,
+      'react-hooks': reactHooks,
     },
 
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
-      reactHooks.configs.flat['recommended-latest'],
       reactRefresh.configs.vite,
     ],
 
@@ -43,6 +43,12 @@ export default tseslint.config([
           argsIgnorePattern: '^_',
         },
       ],
+
+      // Classic hooks only. Plugin v7 recommended also enables React Compiler
+      // checks (refs, set-state-in-effect, immutability) that false-flag this
+      // editor's canvas loop, mutable module state, and form-reset effects.
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
 
       'react-refresh/only-export-components': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',

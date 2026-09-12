@@ -260,7 +260,7 @@ class ConditionEvaluator {
   }
 
   evalCondition(str: string) {
-    let conditionStr = str.trim();
+    const conditionStr = str.trim();
     if (conditionStr === '') {
       return true;
     }
@@ -271,7 +271,7 @@ class ConditionEvaluator {
       return false;
     }
     if (this.isFunctionCall(str)) {
-      let { funcName, funcArgs } = this.parseFunctionCall(str);
+      const { funcName, funcArgs } = this.parseFunctionCall(str);
       const newFuncArgs: string[] = [];
       for (const arg of funcArgs) {
         if (this.isFunctionCall(arg)) {
@@ -305,15 +305,7 @@ class StringEvaluator {
       return getStorage(this.storage, a);
     },
     SET_BOOL: (a: string, b: string = 'true') => {
-      let v = true;
-      if (b === 'true') {
-        v = true;
-      } else if (b === 'false') {
-        v = false;
-      } else {
-        v = true;
-      }
-      // console.log(`SET_BOOL: "${a}" = "${v}"`, b);
+      const v = b !== 'false';
       setStorage(this.storage, a, String(v));
     },
     SET_NUM: (a: string, b: string) => {
@@ -338,7 +330,7 @@ class StringEvaluator {
     SET_STR: (a: string, b: string) => {
       setStorage(this.storage, a, b);
     },
-    SETUP_DISPOSITION: (characterName: string) => {
+    SETUP_DISPOSITION: (_characterName: string) => {
       // noop
     },
     START_QUEST: (questName: string) => {
@@ -358,22 +350,22 @@ class StringEvaluator {
         'true'
       );
     },
-    SPAWN_CH: (chName: string) => {
+    SPAWN_CH: (_chName: string) => {
       // noop
     },
-    DESPAWN_CH: (chName: string) => {
+    DESPAWN_CH: (_chName: string) => {
       // noop
     },
-    CHANGE_TILE_AT: (x: string, y: string, tileName: string) => {
+    CHANGE_TILE_AT: (_x: string, _y: string, _tileName: string) => {
       // noop
     },
-    TELEPORT_TO: (x: string, y: string, mapName: string) => {
+    TELEPORT_TO: (_x: string, _y: string, _mapName: string) => {
       // noop
     },
-    ADD_ITEM_AT: (x: string, y: string, itemName: string) => {
+    ADD_ITEM_AT: (_x: string, _y: string, _itemName: string) => {
       // noop
     },
-    REMOVE_ITEM_AT: (x: string, y: string, itemName: string) => {
+    REMOVE_ITEM_AT: (_x: string, _y: string, _itemName: string) => {
       // noop
     },
     ADD_ITEM_TO_PLAYER: (itemName: string) => {
@@ -384,7 +376,7 @@ class StringEvaluator {
       const key = 'vars.items.' + itemName;
       this.stringFunctions.MOD_NUM(key, '-1');
     },
-    OPEN_SHOP: (shopName: string) => {
+    OPEN_SHOP: (_shopName: string) => {
       // noop
     },
   };
@@ -404,7 +396,7 @@ class StringEvaluator {
   evalStr(str: string) {
     // console.log('evalStr', str);
     if (this.isFunctionCall(str)) {
-      let { funcName, funcArgs } = this.parseFunctionCall(str);
+      const { funcName, funcArgs } = this.parseFunctionCall(str);
       // console.log('- args', funcName, funcArgs);
       if (funcName in this.stringFunctions) {
         return this.stringFunctions[
@@ -779,7 +771,10 @@ export function getAvailableFuncs(): string[] {
   const conditionEvaluator = new ConditionEvaluator({}, '');
 
   // Helper function to extract parameter names from function source
-  const extractParams = (func: Function): string[] => {
+  const extractParams = (func: {
+    toString(): string;
+    length: number;
+  }): string[] => {
     const funcStr = func.toString();
     // Match arrow function parameters: (a, b) => or (a: string, b: string) => or (...args) =>
     const arrowMatch = funcStr.match(/^\(([^)]*)\)\s*=>/);
@@ -796,7 +791,7 @@ export function getAvailableFuncs(): string[] {
       return paramsStr.split(',').map((p) => {
         const trimmed = p.trim();
         // Extract parameter name, handling type annotations like "a: string"
-        const nameMatch = trimmed.match(/^(\w+)/);
+        const nameMatch = trimmed.match(/^_?(\w+)/);
         return nameMatch ? nameMatch[1] : trimmed;
       });
     }

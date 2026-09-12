@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import {
   CarcerMapTemplate,
-  CarcerMapTileTemplate,
   MapGridTemplate,
   MAP_TYPES,
   sanitizeMapGridTemplates,

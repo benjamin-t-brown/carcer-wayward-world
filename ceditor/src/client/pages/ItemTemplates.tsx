@@ -26,7 +26,7 @@ interface ItemTemplatesProps {
 
 export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
   const {
-    sprites,
+    sprites: _sprites,
     animations: _animations,
     pictures: _pictures,
     spriteMap,

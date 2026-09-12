@@ -122,7 +122,7 @@ export class EditorNode {
     return undefined;
   }
 
-  calculateHeight(ctx: CanvasRenderingContext2D) {
+  calculateHeight(_ctx: CanvasRenderingContext2D) {
     this.height = 20;
   }
 
@@ -194,7 +194,7 @@ export class EditorNode {
     const isHovered = args.isHovered;
     const isLinking = args.isLinking;
     const isEntrance = args.isEntrance;
-    let isConnected = args.isConnected;
+    const isConnected = args.isConnected;
     let radius = isHovered ? HOVERED_EXIT_ANCHOR_RADIUS : EXIT_ANCHOR_RADIUS;
 
     ctx.save();

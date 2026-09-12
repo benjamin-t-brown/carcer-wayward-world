@@ -2,7 +2,6 @@ import { calculateFillIndsFloor } from '../fill';
 import { CarcerMapTemplate } from '../../types/assets';
 import { createDefaultCarcerMapTile } from '../../components/MapTemplateForm';
 import {
-  EditorState,
   getEditorStateMap,
   getPaintMapName,
 } from '../editorState';

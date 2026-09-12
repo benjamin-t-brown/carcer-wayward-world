@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { GameEvent, GameEventChildType } from '../types/assets';
 import { useRenderLoop } from '../hooks/useRenderLoop';
 import {
-  centerPanzoomOnNode,
   getEditorState,
   initEditorStateForGameEvent,
   updateEditorState,
@@ -22,7 +21,6 @@ import { useReRender } from '../hooks/useReRender';
 import { ContextMenu } from './react-components/ContextMenu';
 import { EditExecNodeModal } from './modals/EditExecNodeModal';
 import { EditSwitchNodeModal } from './modals/EditSwitchNodeModal';
-import { GameEventChildExec, GameEventChildSwitch } from '../types/assets';
 import { screenToWorldCoords } from './nodeHelpers';
 import { EditorNodeExec } from './cmpts/ExecNodeComponent';
 import { EditorNodeSwitch } from './cmpts/SwitchNodeComponent';

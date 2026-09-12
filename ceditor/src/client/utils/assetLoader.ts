@@ -89,7 +89,7 @@ export async function parseAssetFile(content: string) {
   const pictures: Record<string, string> = {};
 
   // Track all pictures by alias
-  let nextSpriteIndex: Record<string, number> = {};
+  const nextSpriteIndex: Record<string, number> = {};
   let currentAnimation: Animation | null = null;
 
   for (const line of lines) {

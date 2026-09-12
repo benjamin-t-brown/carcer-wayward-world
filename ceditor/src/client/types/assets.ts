@@ -163,7 +163,7 @@ export function resolveItemUseAbilityRestoreOverrides(
 }
 
 /** Stored use-ability fields compared when detecting item edits. */
-export function useAbilityStorageSnapshot(
+export function getUseAbilityStorageSnapshot(
   useAbility: ItemUseAbilityConfig | undefined,
 ): string {
   if (!useAbility) {
@@ -360,8 +360,8 @@ export function planWeaponAttackDeleteImpacts(
         baseRestores,
       );
       if (
-        useAbilityStorageSnapshot(useAbility) !==
-        useAbilityStorageSnapshot(afterUseAbility)
+        getUseAbilityStorageSnapshot(useAbility) !==
+        getUseAbilityStorageSnapshot(afterUseAbility)
       ) {
         impacts.push({
           kind: 'item',
@@ -506,8 +506,8 @@ export function planAbilityDeleteImpacts(
     if (useAbility?.abilityName === abilityName) {
       const afterUseAbility = clearItemUseAbilityForDeletedAbility(useAbility);
       if (
-        useAbilityStorageSnapshot(useAbility) !==
-        useAbilityStorageSnapshot(afterUseAbility)
+        getUseAbilityStorageSnapshot(useAbility) !==
+        getUseAbilityStorageSnapshot(afterUseAbility)
       ) {
         impacts.push({
           kind: 'item',

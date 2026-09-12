@@ -8,12 +8,9 @@ function testDiceDistribution(
   // numRolls: number
 ) {
   const numRolls = 10000;
-  let rangedLevel = 10;
-  let numDice = 1;
-
+  const rangedLevel = 10;
   const resultMap = new Map<number, number>();
   for (let i = 0; i < numRolls; i++) {
-    const results: number[] = [];
     const result = Math.floor(Math.sqrt(rollDice(rangedLevel * (rangedLevel - 1))));
     resultMap.set(result, (resultMap.get(result) || 0) + 1);
   }

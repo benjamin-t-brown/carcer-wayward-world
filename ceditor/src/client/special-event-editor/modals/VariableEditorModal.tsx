@@ -37,7 +37,7 @@ const VariableEntry = ({
   variableId,
   index,
   handleDeleteVariable,
-  hideErrors,
+  hideErrors: _hideErrors,
   handleMoveUp,
   handleMoveDown,
   handleUpdateVariable,

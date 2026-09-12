@@ -25,7 +25,6 @@ import {
   setCurrentPaintAction,
   setSoleSelectedTile,
   updateEditorState,
-  updateEditorStateMap,
   updateEditorStateMapNoReRender,
   updateEditorStateNoReRender,
 } from './editorState';
@@ -105,7 +104,7 @@ const isEventWithCanvasTarget = (
   );
 };
 
-const isEditorActive = (ev: KeyboardEvent) => {
+const isEditorActive = (_ev: KeyboardEvent) => {
   return true; // TODO check if any modals are open
 };
 

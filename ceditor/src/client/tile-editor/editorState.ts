@@ -1,6 +1,4 @@
 import {
-  CarcerMapTemplate,
-  CarcerMapTileTemplate,
   TilesetTemplate,
   TileTerrainBorderTag,
 } from '../types/assets';

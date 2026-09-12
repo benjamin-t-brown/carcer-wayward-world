@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { GameEvent } from '../../types/assets';
 import { EditorNodeComment } from '../cmpts/CommentNodeComponent';
 import { GenericModal } from '../../elements/GenericModal';
-import { getEditorState, notifyStateUpdated } from '../seEditorState';
+import { notifyStateUpdated } from '../seEditorState';
 
 interface EditCommentModalProps {
   isOpen: boolean;
@@ -15,7 +15,7 @@ interface EditCommentModalProps {
 export function EditCommentModal({
   isOpen,
   node,
-  gameEvent,
+  gameEvent: _gameEvent,
   onCancel,
   ctx,
 }: EditCommentModalProps) {

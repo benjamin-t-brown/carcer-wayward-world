@@ -24,7 +24,6 @@ import {
   EditorState,
   ensureEditorStateMap,
   getEditorStateMap,
-  updateEditorStateMap,
   updateEditorStateMapNoReRender,
   updateEditorStateNoReRender,
 } from './editorState';
@@ -179,7 +178,7 @@ export const loop = (
       mapGrids: MapGridTemplate[];
     };
   },
-  ms: number
+  _ms: number
 ) => {
   // const appState: AppState = (window as any).appState;
   // if (!appState) {
@@ -227,9 +226,9 @@ export const loop = (
 
   let hoverMapName = es.selectedMapName;
   let hoverMap: CarcerMapTemplate | undefined = currentMap;
-  let hoverInd = -1;
-  let hoverX = -1;
-  let hoverY = -1;
+  let hoverInd: number;
+  let hoverX: number;
+  let hoverY: number;
   if (pointerOnNeighbour && gridHit && gridHit.map) {
     hoverMapName = gridHit.mapName;
     hoverMap = gridHit.map;
@@ -383,26 +382,23 @@ export const loop = (
       const overlayTextEntries: OverlayTextEntry[] | undefined =
         editorState.drawOverlayText ? [] : undefined;
       const placement = findMapGridPlacement(currentMap.name, assets.mapGrids);
-      let adjacentSlots: ReturnType<typeof getGridAdjacentSlots> = [];
-      let slotWidth = currentMap.width * spriteWidth * newScale;
-      let slotHeight = currentMap.height * spriteHeight * newScale;
 
       if (placement) {
         const mapsByName: Record<string, CarcerMapTemplate> = {};
         for (const map of assets.maps) {
           mapsByName[map.name] = map;
         }
-        ({ slotWidth, slotHeight } = getMapGridSlotDimensions(
+        const { slotWidth, slotHeight } = getMapGridSlotDimensions(
           placement,
           spriteWidth,
           spriteHeight,
           newScale,
-        ));
+        );
         const gridRenderRadius = editorState.gridRenderRadius ?? 2;
         const gridEditRadius = editorState.gridEditEnabled
           ? Math.min(editorState.gridEditRadius ?? 1, gridRenderRadius)
           : 0;
-        adjacentSlots = getGridAdjacentSlots(
+        const adjacentSlots = getGridAdjacentSlots(
           placement,
           mapsByName,
           gridRenderRadius,

@@ -114,11 +114,11 @@
       },
       {
         "id": "uao9kv68u9g",
-        "x": 636.25,
-        "y": 119,
+        "x": 635.25,
+        "y": 120,
         "eventChildType": "EXEC",
-        "h": 74,
-        "p": "Although she has many creases on her face, and her hair is wiry and gray, this aged woman has a steady hand and a sharp gaze.",
+        "h": 102,
+        "p": "The building in which you stand has a sign outside labeled \"Shrine of Luck.\" At a table in the corner of the room is woman, looking down at a table of herbs and sorting them. \"Yeah, what is it?\" she asks, without looking up.",
         "execStr": "",
         "next": "yfmldyw7qi8",
         "autoAdvance": true
@@ -466,21 +466,24 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "522wgfniolf",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Whatchya got in that bag there, mister?",
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
             "next": "hyab306eudv",
-            "prefixText": "[FAE]"
+            "prefixText": "[FAE]",
+            "switchText": []
           },
           {
             "text": "What are you doing in this rabble, nobleman?",
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
             "next": "vtu8nlbst5",
-            "prefixText": "[DRAGON]"
+            "prefixText": "[DRAGON]",
+            "switchText": []
           }
         ]
       },
@@ -556,35 +559,40 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "j92yhujy8br",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Let's talk about your situation.",
             "conditionStr": "",
             "evalStr": "",
             "next": "i77wtzr4vuj",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Why do you seem so on edge?",
             "conditionStr": "",
             "evalStr": "",
             "next": "t1lau78b16i",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "There's a guy across the bar who doesn't like you.",
             "conditionStr": "IS(vars.ch.alinea_igmund.askedAboutBarto)",
             "evalStr": "",
             "next": "s2420unkzrr",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Nevermind. (Leave.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "8gf16kka8h",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -623,49 +631,56 @@
             "conditionStr": "",
             "evalStr": "SET_BOOL(tmp.mentionedBlockade, true)",
             "next": "tfc8fa0x7op",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Tell me about the blockade.",
             "conditionStr": "IS(tmp.mentionedBlockade)",
             "evalStr": "SET_BOOL(tmp.mentionedBandits, true)",
             "next": "maj0d9pn6g",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Bandits in the north?",
             "conditionStr": "IS(tmp.mentionedBandits)",
             "evalStr": "",
             "next": "xf2htr4g8rm",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Guildimarche?",
             "conditionStr": "",
             "evalStr": "",
             "next": "5jybk4vwo16",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Do you support the Realm?",
             "conditionStr": "",
             "evalStr": "SET_BOOL(tmp.mentionedBandits, true)",
             "next": "80fy9p41qjj",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "What's a Lark?",
             "conditionStr": "IS(tmp.mentionedLark)",
             "evalStr": "",
             "next": "4ml7wqvwklk",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "(Talk about something else.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "fjmrtk1zjsj",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -748,14 +763,16 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "b4hh46opf9j",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "That makes sense.",
             "conditionStr": "",
             "evalStr": "",
             "next": "fjgvg29sat6",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -838,21 +855,24 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "cl72zei5od",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Maybe you could go talk to him.  You could be great friends!",
             "conditionStr": "ONCE(bartoDryad1)",
             "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1)",
             "next": "7xzj7hqaumf",
-            "prefixText": "[DRYAD]"
+            "prefixText": "[DRYAD]",
+            "switchText": []
           },
           {
             "text": "(Talk about something else.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "fjmrtk1zjsj",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -1053,42 +1073,48 @@
             "conditionStr": "",
             "evalStr": "SET_BOOL(tmp.mentionedName)",
             "next": "k3ih6vvdml",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "You are an apprentice?",
             "conditionStr": "IS(tmp.mentionedName)",
             "evalStr": "SET_BOOL(vars.ch.@CHARACTER_ID.magiMentioned)",
             "next": "sp60ipzxqa",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Let's talk about the Magi.",
             "conditionStr": "IS(vars.ch.@CHARACTER_ID.magiMentioned)",
             "evalStr": "",
             "next": "b8pyx3v5rp",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Is this your shop?",
             "conditionStr": "",
             "evalStr": "",
             "next": "m3yaso8m3e",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "I'd like to buy something.",
             "conditionStr": "",
             "evalStr": "OPEN_SHOP(alinea_chemShop)",
             "next": "v05xai14hwf",
-            "prefixText": "[SHOP]"
+            "prefixText": "[SHOP]",
+            "switchText": []
           },
           {
             "text": "Nevermind. (Leave.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "y0op9vmrpx",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -1157,42 +1183,48 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "r64l3d80iop",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "You have a debt?",
             "conditionStr": "",
             "evalStr": "",
             "next": "9rljc6a4noa",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Tell me about your master, Sorcerer Evander.",
             "conditionStr": "",
             "evalStr": "SET_BOOL(tmp.mentionedSapphiron)",
             "next": "ny44kns97ks",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Sapphiron?",
             "conditionStr": "IS(tmp.mentionedSapphiron)",
             "evalStr": "",
             "next": "119uzbddtyub",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Why is the Island so interesting for the Magi to study?",
             "conditionStr": "",
             "evalStr": "",
             "next": "ed6yibt761",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "(Go back.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "da9x3bkzq8n",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -1264,35 +1296,40 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "8s9p14sa74v",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Why does your master study it?",
             "conditionStr": "",
             "evalStr": "",
             "next": "9mnad7ji2s",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Do you have any?",
             "conditionStr": "",
             "evalStr": "SET_BOOL(tmp.mentionedQuest)",
             "next": "56fcr0dc8hs",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "If I find some Sapphiron, I'll be sure to let you know.",
             "conditionStr": "IS(tmp.mentionedQuest)",
             "evalStr": "",
             "next": "hggqkkb0o1i",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "(Go back.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "4ptcv2k839",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -1320,14 +1357,16 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "ql80fjc0tj",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "I suppose it does feel... different.",
             "conditionStr": "",
             "evalStr": "",
             "next": "620er229el6",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -1435,14 +1474,16 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "eb6jz1m59es",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Cool... cool.",
             "conditionStr": "",
             "evalStr": "",
             "next": "da9x3bkzq8n",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -1470,14 +1511,16 @@
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1)",
             "next": "qh74fmdi73",
-            "prefixText": "[DRYAD]"
+            "prefixText": "[DRYAD]",
+            "switchText": []
           },
           {
             "text": "Good luck with that.",
             "conditionStr": "",
             "evalStr": "",
             "next": "s4hl9qdejdl",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -2238,49 +2281,56 @@
             "conditionStr": "",
             "evalStr": "SET_BOOL(vars.@CHARACTER_ID.confirmedMerchantry)",
             "next": "ycmu9lal7yl",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Can I buy something?",
             "conditionStr": "",
             "evalStr": "",
             "next": "haq9m81r01t",
-            "prefixText": "[STORE]"
+            "prefixText": "[STORE]",
+            "switchText": []
           },
           {
             "text": "You said you're a Captain?",
             "conditionStr": "ALL(IS(vars.@CHARACTER_ID.confirmedMerchantry), ONCE())",
             "evalStr": "",
             "next": "lhvgsnooh9g",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Let's talk about the Merchantry.",
             "conditionStr": "",
             "evalStr": "",
             "next": "oe7io3pkdio",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "A man named Scopey mentioned you've had some problems lately.",
             "conditionStr": "IS(vars.ch.alinea_scopey.mentionedElvyosa)",
             "evalStr": "SET_BOOL(vars.ch.@CHARACTER_ID.questAvailable)",
             "next": "a01yz2pnklq",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Let's talk about your problems.",
             "conditionStr": "IS(vars.ch.@CHARACTER_ID.questAvailable)",
             "evalStr": "",
             "next": "pcarrnz5vql",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Nevermind. (Leave.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "ho46a9ovn97",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -2360,42 +2410,48 @@
             "conditionStr": "",
             "evalStr": "START_QUEST(alineaElvyosaShipPassage)",
             "next": "6qk0lretimx",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "How do you get a Writ of Passage?",
             "conditionStr": "QUEST_IS_STARTED(alineaElvyosaShipPassage)",
             "evalStr": "",
             "next": "4o6ear24lwf",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Why is the Realm preventing you from leaving?",
             "conditionStr": "QUEST_IS_STARTED(alineaElvyosaShipPassage)",
             "evalStr": "SET_BOOL(tmp.mentionedRealm)",
             "next": "fvjhnc3iqan",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Not a fan of the Realm?",
             "conditionStr": "IS(tmp.mentionedRealm)",
             "evalStr": "",
             "next": "xwfy8fol0qa",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "How can I help?",
             "conditionStr": "QUEST_IS_STARTED(alineaElvyosaShipPassage)",
             "evalStr": "",
             "next": "qelgrbox5n",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Let's discus something else. (Go back.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "ccjjjp9gio",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -2445,42 +2501,48 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "99mdkh55zzh",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Is your vessel sea worthy?",
             "conditionStr": "",
             "evalStr": "",
             "next": "rhf6vryfz7g",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Why is the Realm preventing you from leaving?",
             "conditionStr": "IS(vars.ch.@CHARACTER_ID.questAvailable)",
             "evalStr": "",
             "next": "d9dzccn2sof",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "You know, you'd look a lot sexier in a proper Captain's hat.",
             "conditionStr": "ONCE(vars.@CHARACTER_ID.d1qi0e8tfb8_fae)",
             "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
             "next": "xatfc1d9eu",
-            "prefixText": "[FAE]"
+            "prefixText": "[FAE]",
+            "switchText": []
           },
           {
             "text": "It is good to meet a fellow leader of men.",
             "conditionStr": "ONCE(vars.@CHARACTER_ID.d1qi0e8tfb8_dragon)",
             "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
             "next": "88vj9qidke",
-            "prefixText": "[DRAGON]"
+            "prefixText": "[DRAGON]",
+            "switchText": []
           },
           {
             "text": "Let's talk about something else. (Go back.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "ccjjjp9gio",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -2574,14 +2636,16 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "vsz3mp274fr",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "We've met.  Wonderful woman.",
             "conditionStr": "",
             "evalStr": "",
             "next": "fjjp2j09ase",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -2664,21 +2728,24 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "ltrxdg4tblq",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "How does one join the Merchantry?",
             "conditionStr": "",
             "evalStr": "",
             "next": "qyh0fxea7zl",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Let's talk about something else.",
             "conditionStr": "",
             "evalStr": "",
             "next": "xv285d2jhrl",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -3478,42 +3545,48 @@
             "conditionStr": "ONCE(@CHARACTER_ID_mentionedJob)",
             "evalStr": "SET_BOOL(vars.ch.@CHARACTER_ID.mentionedJob)",
             "next": "7nqeo7nwxj9",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Let's talk about that job you mentioned.",
             "conditionStr": "IS(vars.ch.@CHARACTER_ID.mentionedJob)",
             "evalStr": "",
             "next": "3yai8xlwc97",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "What's your name?",
             "conditionStr": "",
             "evalStr": "SET_BOOL(vars.@CHARACTER_ID.confirmedMerchantry)",
             "next": "s5zmfu8odg8",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "I could use some combat equipment.",
             "conditionStr": "",
             "evalStr": "",
             "next": "2rmnna4ngot",
-            "prefixText": "[STORE]"
+            "prefixText": "[STORE]",
+            "switchText": []
           },
           {
             "text": "What's the Merchantry?",
             "conditionStr": "IS(vars.@CHARACTER_ID.confirmedMerchantry)",
             "evalStr": "",
             "next": "t8fiz6yj6re",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Nevermind. (Leave.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "a8zya13bj7w",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -3593,49 +3666,56 @@
             "conditionStr": "",
             "evalStr": "SET_BOOL(vars.ch.@CHARACTER_ID.jobExplained)",
             "next": "q09z4b8qbts",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "You need someone like me?",
             "conditionStr": "",
             "evalStr": "",
             "next": "1ndbof7axhc",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "What's in the box that you got apprehended?",
             "conditionStr": "IS(vars.ch.@CHARACTER_ID.jobExplained)",
             "evalStr": "",
             "next": "rg3x2188bde",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Why was this box taken?",
             "conditionStr": "IS(vars.ch.@CHARACTER_ID.jobExplained)",
             "evalStr": "SET_BOOL(tmp.whyBox)",
             "next": "vc24gp7rt5j",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "What did the Realm misunderstand?",
             "conditionStr": "IS(tmp.whyBox)",
             "evalStr": "",
             "next": "skj5loqmp3b",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "This sounds kind of fishy.",
             "conditionStr": "IS(vars.ch.@CHARACTER_ID.jobExplained)",
             "evalStr": "",
             "next": "mkoeia2ni3",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "I'll consider it. (Go back.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "gyxsogeo4ug",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -3848,7 +3928,7 @@
         "y": 133,
         "eventChildType": "EXEC",
         "h": 88,
-        "p": "A middle-aged dockworker sips a tankard of beer.  His eyes are locked on a patron across the bar.  At your approach, he blinks a few times before turning his gaze to you.  \"Yeah?  You want something?\"",
+        "p": "A middle-aged dockworker sips a tankard of beer.  His eyes are locked on something across the bar.  At your approach, he blinks a few times before turning his gaze to you.  \"Yeah?  You want something?\"",
         "execStr": "",
         "next": "jikn0umyx2p",
         "autoAdvance": true
@@ -3866,28 +3946,32 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "aven20grzbn",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Interested in somebody over there?",
             "conditionStr": "ISNOT(vars.ch.@CHARACTER_ID.askedAboutBarto)",
             "evalStr": "",
             "next": "4arfgvx5ge",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Let's talk about that nobleman you don't like.",
             "conditionStr": "IS(vars.ch.@CHARACTER_ID.askedAboutBarto)",
             "evalStr": "",
             "next": "byupj5q716n",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Nevermind. (Leave.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "mwocgykh0xa",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -3948,49 +4032,56 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "lck7tanklv8",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Their type?",
             "conditionStr": "IS(tmp.theirType)",
             "evalStr": "",
             "next": "st2oarxkj6h",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Guildimarche?",
             "conditionStr": "IS(tmp.mentionedGuildimarche)",
             "evalStr": "",
             "next": "rppr41oj69h",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Can you elaborate on the Guildimarche?",
             "conditionStr": "IS(tmp.badNews)",
             "evalStr": "",
             "next": "ohanqvou75c",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "It seems like you talk from experience.",
             "conditionStr": "IS(tmp.elaboratgedGuildimarche)",
             "evalStr": "",
             "next": "7rvv62v5qvp",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "I could play a prank on him if you like!",
             "conditionStr": "ALL(GTE(@ASPECT_FAE, 0),IS_NOT(vars.ch.@CHARACTER_ID.mentionedRockPrank))",
             "evalStr": "",
             "next": "w6s4ssrlai",
-            "prefixText": "[FAE]"
+            "prefixText": "[FAE]",
+            "switchText": []
           },
           {
             "text": "(Talk about something else.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "jikn0umyx2p",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -4117,21 +4208,24 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "5e85yp0gchv",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Knife to the throat?",
             "conditionStr": "ONCE(@CHARACTER_ID.reaper1)",
             "evalStr": "MOD_NUM(@ASPECT_REAPER,1)",
             "next": "h846zngaiq4",
-            "prefixText": "[REAPER]"
+            "prefixText": "[REAPER]",
+            "switchText": []
           },
           {
             "text": "Actually, nevermind.",
             "conditionStr": "",
             "evalStr": "",
             "next": "cbp9a242jee",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -6684,42 +6778,48 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "ch2dugzjb5",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Is this your shop?",
             "conditionStr": "",
             "evalStr": "",
             "next": "6oxqvx13uwc",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "What's the Merchantry?",
             "conditionStr": "IS(tmp.mentionedMerchantry)",
             "evalStr": "",
             "next": "1ogwvyt56tf",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Got any opinions on what's happening in Alinea right now?",
             "conditionStr": "",
             "evalStr": "",
             "next": "aivbwk9kt6n",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Can you show me your wares?",
             "conditionStr": "",
             "evalStr": "OPEN_SHOP(alinea_scopeyShop)",
             "next": "wpysbeh28dd",
-            "prefixText": "[SHOP]"
+            "prefixText": "[SHOP]",
+            "switchText": []
           },
           {
             "text": "Nevermind. (Leave.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "dq8xmfefftw",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
@@ -6810,49 +6910,56 @@
             "conditionStr": "IS(@EXPOSITION_ALINEA_BLOCKADE_KNOWN)",
             "evalStr": "SET_BOOL(tmp.mentionedElvyosa)",
             "next": "u54mnflona",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Who's Elvyosa?",
             "conditionStr": "IS(tmp.mentionedElvyosa)",
             "evalStr": "SET_BOOL(tmp.mentionedElvyosa2)",
             "next": "fi2ytx9ir16",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Why won't the Realm let Elvyosa's ship leave?",
             "conditionStr": "IS(tmp.mentionedElvyosa2)",
             "evalStr": "",
             "next": "gy55tbp48k5",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "What do you think of the Blackrose?",
             "conditionStr": "IS(@EXPOSITION_ALINEA_BLACKROSE_KNOWN)",
             "evalStr": "",
             "next": "vuakk7db5ph",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "What do you think of the Realm?",
             "conditionStr": "",
             "evalStr": "SET_BOOL(tmp.mentionedRealm)",
             "next": "8og5n99vpj",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Why is the Realm necessary?",
             "conditionStr": "IS(tmp.mentionedRealm)",
             "evalStr": "",
             "next": "6r5m7r8ybid",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "(Go back.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "uxitot60di",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },

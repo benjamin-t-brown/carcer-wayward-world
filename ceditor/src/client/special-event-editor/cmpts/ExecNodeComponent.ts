@@ -111,8 +111,8 @@ export class EditorNodeExec extends EditorNode {
       ctx
     );
 
-    this.pHeight = Boolean(this.p) ? pHeight : 0;
-    this.execStrHeight = Boolean(this.execStr) ? execStrHeight : 0;
+    this.pHeight = this.p ? pHeight : 0;
+    this.execStrHeight = this.execStr ? execStrHeight : 0;
     const spacing = P_EXEC_SPACING;
 
     let height = NODE_TITLE_HEIGHT + PADDING * 2 + BORDER_WIDTH * 2;

@@ -1,6 +1,6 @@
 import { GameEventChildComment } from '../../types/assets';
 import { drawText } from '../../utils/draw';
-import { breakTextIntoLines, calculateHeightFromText } from '../nodeHelpers';
+import { breakTextIntoLines } from '../nodeHelpers';
 import { EditorNode, RenderNodeArgs } from './EditorNode';
 import { EditorStateSE } from '../seEditorState';
 

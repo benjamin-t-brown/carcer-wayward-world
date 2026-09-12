@@ -42,7 +42,7 @@ const ItemTemplateDisplay = ({
 };
 
 export function ItemTemplateWidget({ gameEvent }: ItemTemplateWidgetProps) {
-  const { gameEvents, items } = useAssets();
+  const { gameEvents: _gameEvents, items } = useAssets();
   const [copiedItemTemplate, setCopiedItemTemplate] = useState<string | null>(null);
   const [hoverItemTemplate, setHoverItemTemplate] = useState<ItemTemplate | null>(null);
   const [copyTimeoutId, setCopyTimeoutId] = useState<NodeJS.Timeout | null>(

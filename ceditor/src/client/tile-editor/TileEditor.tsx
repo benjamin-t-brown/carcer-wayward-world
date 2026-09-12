@@ -315,25 +315,3 @@ export function TileEditor({
     </div>
   );
 }
-
-// Stub component for Minimap
-function Minimap({ map }: { map: CarcerMapTemplate }) {
-  return (
-    <div
-      style={{
-        height: '200px',
-        padding: '15px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderBottom: '1px solid #3e3e42',
-      }}
-    >
-      <div style={{ color: '#858585', fontSize: '14px', textAlign: 'center' }}>
-        TODO: Minimap
-        <br />
-        Map: {map.label} ({map.width} × {map.height})
-      </div>
-    </div>
-  );
-}

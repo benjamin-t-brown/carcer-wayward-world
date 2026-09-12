@@ -30,7 +30,7 @@ app.use('/terrain-edges.html', express.static(join(__dirname + '/../client/', 't
 app.get('/api/assets/types', async (req, res) => {
   try {
     res.json(ASSET_TYPES);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Failed to load asset types' });
   }
 });

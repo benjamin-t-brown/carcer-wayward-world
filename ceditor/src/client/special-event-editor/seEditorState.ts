@@ -501,7 +501,7 @@ export const syncGameEventFromEditorState = (
   gameEvent.children = s.editorNodes.map((node) => node.toSENode());
 };
 
-export const copySelectedNodes = (canvas: HTMLCanvasElement) => {
+export const copySelectedNodes = (_canvas: HTMLCanvasElement) => {
   const editorState = getEditorState();
   if (editorState.selectedNodeIds.size === 0) {
     return;

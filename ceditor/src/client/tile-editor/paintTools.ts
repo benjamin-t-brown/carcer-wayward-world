@@ -32,7 +32,6 @@ import {
 // } from './terrainTool';
 import {
   buildTerrainLookup,
-  getAdjacentTileInds,
   getTerrainTileset,
   getTileChangesForPaintingTerrainAt,
   TERRAIN_TILESET_NAME,

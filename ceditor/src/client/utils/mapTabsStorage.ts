@@ -101,11 +101,10 @@ export function restoreMapTabsFromStorage(
 
   let sourceTabs: PersistedMapTab[];
   let activeMapNameHint: string | null = null;
-  let activeTabIndexHint: number | null = null;
 
   if (isTabArray(parsed.tabs)) {
     sourceTabs = parsed.tabs;
-    activeTabIndexHint =
+    const activeTabIndexHint =
       typeof parsed.activeTabIndex === 'number' ? parsed.activeTabIndex : null;
     if (activeTabIndexHint !== null) {
       activeMapNameHint = parsed.tabs[activeTabIndexHint]?.activeMapName ?? null;

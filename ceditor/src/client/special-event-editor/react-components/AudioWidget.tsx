@@ -1,6 +1,5 @@
 import { SearchInput } from '../../elements/SearchInput';
 import { useReRender } from '../../hooks/useReRender';
-import { AudioInfo } from '../../types/assets';
 import { EditorNodeChoice } from '../cmpts/ChoiceNodeComponent';
 import { EditorNodeExec } from '../cmpts/ExecNodeComponent';
 

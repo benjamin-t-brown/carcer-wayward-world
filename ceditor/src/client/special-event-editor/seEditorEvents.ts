@@ -7,7 +7,6 @@ import {
 import {
   centerPanzoomOnNode,
   copySelectedNodes,
-  deleteNode,
   EditorStateSE,
   enterLinkingMode,
   notifyStateUpdated,
@@ -25,7 +24,7 @@ import {
 let isPanZoomInitialized = false;
 // Track double-click state
 let lastClickTime = 0;
-let lastClickNodeId: string | null = null;
+let _lastClickNodeId: string | null = null;
 const DOUBLE_CLICK_DELAY = 300; // milliseconds
 // Track wheel event throttling
 let lastWheelTime = 0;
@@ -125,7 +124,7 @@ export const initPanzoom = (specialEventEditorInterface: {
       }
     }
   };
-  const handleKeyUp = (ev: KeyboardEvent) => {};
+  const handleKeyUp = (_ev: KeyboardEvent) => {};
   const handleMouseDown = (ev: MouseEvent) => {
     const editorState = specialEventEditorInterface.getEditorState();
     if (
@@ -195,11 +194,6 @@ export const initPanzoom = (specialEventEditorInterface: {
           editorState.isDragging = true;
         }
       }
-    }
-    if (
-      ev.button === 2 &&
-      isEventWithCanvasTarget(ev, specialEventEditorInterface.getCanvas())
-    ) {
     }
   };
   const handleMouseMove = (ev: MouseEvent) => {
@@ -540,12 +534,12 @@ const checkLeftMouseClickEvents = (args: {
         onNodeDoubleClick(clickedNode.id);
       }
       lastClickTime = 0;
-      lastClickNodeId = null;
+      _lastClickNodeId = null;
       ev.preventDefault();
       return true;
     }
     lastClickTime = currentTime;
-    lastClickNodeId = clickedNode.id;
+    _lastClickNodeId = clickedNode.id;
 
     const isCloseButtonClicked = clickedNode.isPointInCloseButtonBounds(
       worldX,
@@ -611,7 +605,7 @@ const checkLeftMouseClickEvents = (args: {
 
   // Clicked outside any node - reset double-click tracking
   lastClickTime = 0;
-  lastClickNodeId = null;
+  _lastClickNodeId = null;
 
   return false; // No node was clicked
 };

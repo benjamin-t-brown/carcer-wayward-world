@@ -247,7 +247,6 @@ export const renderToolUi = (
 
   // Draw selected tile indicator
   if (selectedTileInd >= 0 && selectedTileInd < mapTiles.length) {
-    const selectedTile = mapTiles[selectedTileInd];
     const x = selectedTileInd % mapData.width;
     const y = Math.floor(selectedTileInd / mapData.width);
     const tileX = x * tileWidth * scale;

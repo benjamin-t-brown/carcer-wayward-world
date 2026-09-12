@@ -6,7 +6,6 @@ import { EditorState, updateEditorState } from './editorState';
 import { PaintActionType } from './paintTools';
 import {
   TERRAIN_BORDER_TAG_LABELS,
-  TileTerrainBorderTag,
 } from '../types/assets';
 import { getSpriteNameFromTileMetadata } from '../utils/draw';
 import {

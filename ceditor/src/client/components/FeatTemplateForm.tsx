@@ -1,13 +1,10 @@
 import { TextInput } from '../elements/TextInput';
-import { NumberInput } from '../elements/NumberInput';
 import { OptionSelect } from '../elements/OptionSelect';
 import { TextArea } from '../elements/TextArea';
-import { Button } from '../elements/Button';
 import {
   FeatTemplate,
   createDefaultFeatTemplate,
 } from '../types/assets';
-import { useAssets } from '../contexts/AssetsContext';
 import { EditorEmptyState } from './EditorEmptyState';
 
 export type { FeatTemplate };
@@ -19,7 +16,6 @@ interface FeatTemplateFormProps {
 }
 
 export function FeatTemplateForm(props: FeatTemplateFormProps) {
-  const { feats: allFeats } = useAssets();
   const feat = props.feat;
 
   if (!feat) {
@@ -67,8 +63,6 @@ export function FeatTemplateForm(props: FeatTemplateFormProps) {
   //     : [...current, featId];
   //   setFormData({ ...feat, requiresFeats: next });
   // };
-
-  const prerequisiteOptions = allFeats.filter((entry) => entry.id !== feat.id);
 
   return (
     <div className="item-form feat-template-form">

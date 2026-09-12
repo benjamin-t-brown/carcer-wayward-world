@@ -1,14 +1,11 @@
 import { CarcerMapTemplate } from '../types/assets';
-import {
-  centerViewOnTile,
-  getTileList,
-} from './editorEvents';
+import { centerViewOnTile } from './editorEvents';
 import {
   getEditorState,
   setSoleSelectedTile,
   updateEditorState,
 } from './editorState';
-import { sortedLayerKeys, tileXY } from '../utils/mapIndex';
+import { tileXY } from '../utils/mapIndex';
 
 export interface MapTileLocation {
   level: number;
@@ -24,23 +21,6 @@ export interface MapMarkerReference extends MapTileLocation {
 }
 
 const MAP_CANVAS_ID = 'map-canvas-canvas';
-
-function findOnMap(
-  map: CarcerMapTemplate,
-  predicate: (tile: ReturnType<typeof getTileList>[number]) => boolean
-): MapTileLocation | null {
-  for (const level of sortedLayerKeys(map)) {
-    const tiles = getTileList(map, level);
-    if (!tiles.length) {
-      continue;
-    }
-    const tileIndex = tiles.findIndex(predicate);
-    if (tileIndex >= 0) {
-      return { level, tileIndex };
-    }
-  }
-  return null;
-}
 
 /** Unique character names placed on any layer of the map (sorted). */
 export function collectCharacterNamesOnMap(map: CarcerMapTemplate): string[] {

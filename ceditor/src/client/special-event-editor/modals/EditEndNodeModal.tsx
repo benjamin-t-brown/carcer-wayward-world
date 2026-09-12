@@ -19,7 +19,7 @@ export function EditEndNodeModal({
   gameEvent,
   onCancel,
 }: EditEndNodeModalProps) {
-  const [next, setNext] = useState('');
+  const [_next, setNext] = useState('');
 
   useEffect(() => {
     if (node) {

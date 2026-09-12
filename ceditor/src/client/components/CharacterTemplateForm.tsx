@@ -68,7 +68,7 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
       }
     }
     return talkOnly;
-  }, [gameEvents, formData?.talk?.talkName]);
+  }, [gameEvents, formData.talk?.talkName]);
 
   const spriteName = `${formData?.spritesheet}_${formData?.spriteOffset}`;
 

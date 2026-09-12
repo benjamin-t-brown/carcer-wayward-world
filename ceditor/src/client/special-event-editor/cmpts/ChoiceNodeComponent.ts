@@ -2,8 +2,6 @@ import {
   AudioInfo,
   Choice,
   GameEventChildChoice,
-  GameEventChildSwitch,
-  SwitchCase,
 } from '../../types/assets';
 import { drawText } from '../../utils/draw';
 import { EditorNode, RenderNodeArgs } from './EditorNode';

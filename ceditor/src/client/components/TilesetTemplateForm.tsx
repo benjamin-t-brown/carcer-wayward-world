@@ -4,7 +4,6 @@ import { NumberInput } from '../elements/NumberInput';
 import { PicturePicker } from '../elements/PicturePicker';
 import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { TileEditModal } from './TileEditModal';
-import { TileEditMultiModal } from './TileEditMultiModal';
 import {
   applyTerrainStripLayout,
   SelectTerrainTileModal,
@@ -66,7 +65,7 @@ export function TilesetTemplateForm(props: TilesetTemplateFormProps) {
     x: number;
     y: number;
   } | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
+  const [_isDragging, setIsDragging] = useState(false);
   const [showTerrainTileModal, setShowTerrainTileModal] = useState(false);
 
   const formData = tileset as TilesetTemplate;

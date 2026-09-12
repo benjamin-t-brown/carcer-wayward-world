@@ -1,6 +1,207 @@
 [
   {
     "type": "TOWNSPERSON",
+    "name": "alinea_Ainsley",
+    "label": "Ainsley",
+    "spritesheet": "actors0",
+    "spriteOffset": 60,
+    "stats": {
+      "generic": {
+        "str": 1,
+        "mnd": 5,
+        "con": 3,
+        "agi": 2,
+        "lck": 3
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 0,
+          "abilityPower": 5,
+          "attunement": 5,
+          "faith": 0,
+          "lore": 5
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 0,
+          "healingEffectiveness": 0,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "portraits0_12",
+      "talkName": "alinea_ainsley"
+    },
+    "combat": {
+      "hp": 15
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "sound": {
+      "deathSoundName": "yell_monster2",
+      "weaponSoundName": "hit_punch1"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "alinea_Barto",
+    "label": "Barto",
+    "spritesheet": "actors0",
+    "spriteOffset": 30,
+    "stats": {
+      "generic": {
+        "str": 1,
+        "mnd": 5,
+        "con": 3,
+        "agi": 2,
+        "lck": 3
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 5,
+          "abilityPower": 5,
+          "attunement": 5,
+          "faith": 5,
+          "lore": 5
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 5,
+          "healingEffectiveness": 5,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "portraits0_1",
+      "talkName": "alinea_barto"
+    },
+    "combat": {
+      "hp": 15
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "sound": {
+      "deathSoundName": "yell_monster2",
+      "weaponSoundName": "hit_punch1"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "alinea_Chem",
+    "label": "Chem",
+    "spritesheet": "actors0",
+    "spriteOffset": 64,
+    "stats": {
+      "generic": {
+        "str": 1,
+        "mnd": 5,
+        "con": 3,
+        "agi": 2,
+        "lck": 3
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 5,
+          "abilityPower": 8,
+          "attunement": 5,
+          "faith": 0,
+          "lore": 3
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 5,
+          "healingEffectiveness": 5,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "special_event_icons_0",
+      "talkName": "alinea_chem"
+    },
+    "combat": {
+      "hp": 15
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "sound": {
+      "deathSoundName": "yell_monster2",
+      "weaponSoundName": "hit_punch1"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
     "name": "alinea_Claire",
     "label": "Dockmaster Claire",
     "spritesheet": "actors0",
@@ -54,6 +255,610 @@
     },
     "combat": {
       "hp": 15
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "sound": {
+      "deathSoundName": "yell_monster2",
+      "weaponSoundName": "hit_punch1"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "alinea_Elvyosa",
+    "label": "Elvyosa",
+    "spritesheet": "actors0",
+    "spriteOffset": 62,
+    "stats": {
+      "generic": {
+        "str": 1,
+        "mnd": 5,
+        "con": 3,
+        "agi": 2,
+        "lck": 3
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 0,
+          "abilityPower": 5,
+          "attunement": 5,
+          "faith": 0,
+          "lore": 5
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 0,
+          "healingEffectiveness": 0,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "portraits0_5",
+      "talkName": "alinea_elvyosa"
+    },
+    "combat": {
+      "hp": 15
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "sound": {
+      "deathSoundName": "yell_monster2",
+      "weaponSoundName": "hit_punch1"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "alinea_Gruff",
+    "label": "Gruff",
+    "spritesheet": "actors0",
+    "spriteOffset": 40,
+    "stats": {
+      "generic": {
+        "str": 1,
+        "mnd": 5,
+        "con": 3,
+        "agi": 2,
+        "lck": 3
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 5,
+          "abilityPower": 8,
+          "attunement": 5,
+          "faith": 0,
+          "lore": 3
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 5,
+          "healingEffectiveness": 5,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "special_event_icons_0",
+      "talkName": "alinea_gruff"
+    },
+    "combat": {
+      "hp": 15
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "sound": {
+      "deathSoundName": "yell_monster2",
+      "weaponSoundName": "hit_punch1"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "alinea_Idoreo",
+    "label": "Idoreo",
+    "spritesheet": "actors0",
+    "spriteOffset": 66,
+    "stats": {
+      "generic": {
+        "str": 1,
+        "mnd": 5,
+        "con": 3,
+        "agi": 2,
+        "lck": 3
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 5,
+          "abilityPower": 5,
+          "attunement": 5,
+          "faith": 5,
+          "lore": 5
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 5,
+          "healingEffectiveness": 5,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "special_event_icons_0",
+      "talkName": "alinea_idoreo"
+    },
+    "combat": {
+      "hp": 15
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "sound": {
+      "deathSoundName": "yell_monster2",
+      "weaponSoundName": "hit_punch1"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "alinea_Igmund",
+    "label": "Igmund",
+    "spritesheet": "actors0",
+    "spriteOffset": 22,
+    "stats": {
+      "generic": {
+        "str": 1,
+        "mnd": 5,
+        "con": 3,
+        "agi": 2,
+        "lck": 3
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 5,
+          "abilityPower": 5,
+          "attunement": 5,
+          "faith": 5,
+          "lore": 5
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 5,
+          "healingEffectiveness": 5,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "special_event_icons_0",
+      "talkName": "alinea_igmund"
+    },
+    "combat": {
+      "hp": 15
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "sound": {
+      "deathSoundName": "yell_monster2",
+      "weaponSoundName": "hit_punch1"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "alinea_Lukili",
+    "label": "Lukili",
+    "spritesheet": "actors0",
+    "spriteOffset": 4,
+    "stats": {
+      "generic": {
+        "str": 5,
+        "mnd": 5,
+        "con": 3,
+        "agi": 2,
+        "lck": 3
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 0,
+          "abilityPower": 5,
+          "attunement": 5,
+          "faith": 0,
+          "lore": 5
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 0,
+          "healingEffectiveness": 0,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "portraits0_17",
+      "talkName": "alinea_lukili"
+    },
+    "combat": {
+      "hp": 15
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "sound": {
+      "deathSoundName": "yell_monster2",
+      "weaponSoundName": "hit_punch1"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "alinea_Mullen",
+    "label": "Lieutenant Mullen",
+    "spritesheet": "actors0",
+    "spriteOffset": 68,
+    "stats": {
+      "generic": {
+        "str": 5,
+        "mnd": 5,
+        "con": 5,
+        "agi": 5,
+        "lck": 5
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 5,
+          "abilityPower": 5,
+          "attunement": 5,
+          "faith": 5,
+          "lore": 5
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 5,
+          "healingEffectiveness": 5,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "portraits0_7",
+      "talkName": "alinea_mullen"
+    },
+    "combat": {
+      "hp": 15
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "sound": {
+      "deathSoundName": "yell1",
+      "weaponSoundName": "hit_metal1"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "alinea_Scopey",
+    "label": "Scopey",
+    "spritesheet": "actors0",
+    "spriteOffset": 44,
+    "stats": {
+      "generic": {
+        "str": 1,
+        "mnd": 5,
+        "con": 3,
+        "agi": 2,
+        "lck": 3
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 5,
+          "abilityPower": 5,
+          "attunement": 5,
+          "faith": 5,
+          "lore": 5
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 5,
+          "healingEffectiveness": 5,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "portraits0_10",
+      "talkName": "alinea_scopey"
+    },
+    "combat": {
+      "hp": 15
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "sound": {
+      "deathSoundName": "yell_monster2",
+      "weaponSoundName": "hit_punch1"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "alinea_Shovan",
+    "label": "Shovan",
+    "spritesheet": "actors0",
+    "spriteOffset": 28,
+    "stats": {
+      "generic": {
+        "str": 1,
+        "mnd": 5,
+        "con": 3,
+        "agi": 2,
+        "lck": 3
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 5,
+          "abilityPower": 5,
+          "attunement": 5,
+          "faith": 5,
+          "lore": 5
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 5,
+          "healingEffectiveness": 5,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "special_event_icons_0",
+      "talkName": "alinea_shovanabivola"
+    },
+    "combat": {
+      "hp": 15
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "sound": {
+      "deathSoundName": "yell_monster2",
+      "weaponSoundName": "hit_punch1"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "alinea_Sol",
+    "label": "Sol",
+    "spritesheet": "actors0",
+    "spriteOffset": 70,
+    "stats": {
+      "generic": {
+        "str": 50,
+        "mnd": 50,
+        "con": 50,
+        "agi": 50,
+        "lck": 50
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 0,
+          "abilityPower": 0,
+          "attunement": 0,
+          "faith": 0,
+          "lore": 0
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 5,
+          "healingEffectiveness": 5,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "portraits0_11",
+      "talkName": "alinea_sol"
+    },
+    "combat": {
+      "hp": 200,
+      "mp": 200
     },
     "vision": {
       "radius": 6

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { TextInput } from '../elements/TextInput';
 import { OptionSelect } from '../elements/OptionSelect';
 import { SpritePicker } from '../elements/SpritePicker';
-import { Button } from '../elements/Button';
 import { GameEvent } from '../types/assets';
 import { GenericModal } from '../elements/GenericModal';
 

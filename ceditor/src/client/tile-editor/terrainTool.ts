@@ -1,13 +1,11 @@
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
-  TileMetadata,
-  TileTerrainBorderMeta,
   PAINTABLE_TERRAIN_BORDER_TAGS,
   TileTerrainBorderTag,
   TilesetTemplate,
 } from '../types/assets';
-import { EditorState, EditorStateMap, getEditorStateMap } from './editorState';
+import { EditorState, EditorStateMap } from './editorState';
 import { getTileList } from './editorEvents';
 
 export const TERRAIN_TILESET_NAME = 'terrain_borders';

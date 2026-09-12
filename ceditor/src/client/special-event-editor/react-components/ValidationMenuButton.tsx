@@ -122,7 +122,7 @@ interface ValidationMenuButtonProps {
 }
 
 export const ValidationMenuButton = ({
-  currentGameEvent,
+  currentGameEvent: _currentGameEvent,
 }: ValidationMenuButtonProps) => {
   const [validationErrors, setValidationErrors] = useState<
     {
