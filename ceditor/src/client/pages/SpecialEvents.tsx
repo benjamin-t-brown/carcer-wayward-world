@@ -8,6 +8,7 @@ import { EditGameEventModal } from '../components/EditGameEventModal';
 import { SpecialEventEditor } from '../special-event-editor/SpecialEventEditor';
 import { VariableEditorModal } from '../special-event-editor/modals/VariableEditorModal';
 import { JsonOutputModal } from '../special-event-editor/modals/JsonOutputModal';
+import { SearchNodesModal } from '../special-event-editor/modals/SearchNodesModal';
 import { Button } from '../elements/Button';
 import { EditorHeader } from '../components/EditorHeader';
 import { EditorEmptyState } from '../components/EditorEmptyState';
@@ -31,6 +32,7 @@ import {
   renameGameEventIdInItems,
   renameGameEventIdInMaps,
 } from '../utils/gameEventReferences';
+import { isGameEventIconRequired } from '../utils/talkEventPortrait';
 import { EventRunnerModal } from '../special-event-editor/eventRunner/EventRunnerModal';
 import { DeleteModal } from '../elements/DeleteModal';
 import { ConfirmModal } from '../elements/ConfirmModal';
@@ -114,6 +116,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     items,
     setItems,
     saveItems,
+    quests,
   } = useAssets();
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
@@ -134,6 +137,8 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     undefined,
   );
   const [findNodeQuery, setFindNodeQuery] = useState('');
+  const [showSearchNodesModal, setShowSearchNodesModal] = useState(false);
+  const [searchNodesQuery, setSearchNodesQuery] = useState('');
   const [recentGameEvents, setRecentGameEvents] = useState<string[]>([]);
   const [eventsToShow, setEventsToShow] = useState<
     ('MODAL' | 'TALK' | 'TRAVEL')[]
@@ -451,7 +456,10 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       if (!gameEvent.eventType || gameEvent.eventType.trim() === '') {
         missingFields.push('eventType');
       }
-      if (!gameEvent.icon || gameEvent.icon.trim() === '') {
+      if (
+        isGameEventIconRequired(gameEvent.eventType) &&
+        (!gameEvent.icon || gameEvent.icon.trim() === '')
+      ) {
         missingFields.push('icon');
       }
 
@@ -863,6 +871,20 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                   </Button>
                   <Button
                     variant="small"
+                    onClick={() => setShowSearchNodesModal(true)}
+                  >
+                    <span
+                      role="img"
+                      aria-label="Search Nodes"
+                      style={{ marginRight: '6px', filter: 'sepia(1)' }}
+                    >
+                      🔎
+                    </span>
+                    Search Nodes
+                  </Button>
+                  <Button
+                    variant="small"
+                    className="btn-confirm"
                     onClick={() => {
                       const currentEditorState = getEditorState();
                       syncGameEventFromEditorState(
@@ -879,6 +901,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                           {},
                           gameEvent,
                           gameEvents,
+                          quests,
                         );
                         (window as any).runner = runner;
                         setEventRunner(runner);
@@ -983,6 +1006,13 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
           onCancel={() => setShowJsonOutputModal(false)}
         />
       )}
+
+      <SearchNodesModal
+        isOpen={showSearchNodesModal}
+        query={searchNodesQuery}
+        onQueryChange={setSearchNodesQuery}
+        onClose={() => setShowSearchNodesModal(false)}
+      />
 
       {/* Notifications */}
       {notifications.map((notification) => (

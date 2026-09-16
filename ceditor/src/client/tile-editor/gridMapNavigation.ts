@@ -23,8 +23,8 @@ export function getMapGridSlotDimensions(
 ): { slotWidth: number; slotHeight: number } {
   const { grid } = placement;
   return {
-    slotWidth: grid.mapWidth * spriteWidth * scale,
-    slotHeight: grid.mapHeight * spriteHeight * scale,
+    slotWidth: Math.round(grid.mapWidth * spriteWidth * scale),
+    slotHeight: Math.round(grid.mapHeight * spriteHeight * scale),
   };
 }
 

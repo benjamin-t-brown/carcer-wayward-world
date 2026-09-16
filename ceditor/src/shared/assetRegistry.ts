@@ -21,6 +21,7 @@ export const ASSET_TYPES = [
   { id: 'spellTemplates', name: 'Spell Templates', file: 'spells.json', routeParam: 'spell' },
   { id: 'statusEffectTemplates', name: 'Status Effect Templates', file: 'status-effects.json', routeParam: 'statusEffect' },
   { id: 'featTemplates', name: 'Feat Templates', file: 'feats.json' },
+  { id: 'questTemplates', name: 'Quests', file: 'quests.json', routeParam: 'quest' },
   { id: 'characterTemplates', name: 'Character Templates', file: 'characters.json', routeParam: 'character' },
   { id: 'specialEvents', name: 'Special Events', file: 'special-events.json', routeParam: 'event' },
   { id: 'tilesetTemplates', name: 'Tileset Templates', file: 'tilesets.json', routeParam: 'tileset' },

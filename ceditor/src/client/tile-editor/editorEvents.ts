@@ -38,6 +38,7 @@ import {
   resolveGridBrushCell,
 } from '../utils/mapGridIndex';
 import type { FloorBrushData } from './renderState';
+import { snapPixelArtScale } from '../utils/draw';
 
 class MapEditorEventState {
   isDragging = false;
@@ -255,6 +256,74 @@ const resolvePaintTargetMapName = (
 };
 
 /**
+ * Neighbour tile under the pointer (a real map, not the focused block).
+ * Used by SELECT to focus that map and select the tile.
+ */
+const resolveNeighborTileHit = (
+  clientX: number,
+  clientY: number,
+  mapDataInterface: PaintTargetInterface
+): GridCellHit | null => {
+  const handlers = gridNavigationHandlers;
+  const focusedMap = mapDataInterface.getMapData();
+  const canvas = mapDataInterface.getCanvas();
+  if (!handlers || !focusedMap || !canvas) {
+    return null;
+  }
+  const es = mapDataInterface.getEditorState();
+  const hit = screenCoordsToGridCell(
+    clientX,
+    clientY,
+    focusedMap,
+    canvas,
+    handlers.getMapGrids(),
+    handlers.getMaps(),
+    es.gridRenderRadius ?? 2
+  );
+  if (
+    !hit ||
+    !hit.map ||
+    hit.tileIndex < 0 ||
+    (hit.cellOffsetX === 0 && hit.cellOffsetY === 0)
+  ) {
+    return null;
+  }
+  return hit;
+};
+
+/** Tile under the pointer on the focused map or an editable neighbour. */
+const resolveAnyTileHit = (
+  clientX: number,
+  clientY: number,
+  mapDataInterface: PaintTargetInterface
+): { mapName: string; tileIndex: number } | null => {
+  const es = mapDataInterface.getEditorState();
+  const handlers = gridNavigationHandlers;
+  const focusedMap = mapDataInterface.getMapData();
+  const canvas = mapDataInterface.getCanvas();
+  if (es.gridEditEnabled && handlers && focusedMap && canvas) {
+    const hit = screenCoordsToGridCell(
+      clientX,
+      clientY,
+      focusedMap,
+      canvas,
+      handlers.getMapGrids(),
+      handlers.getMaps(),
+      Math.min(es.gridEditRadius ?? 1, es.gridRenderRadius ?? 2)
+    );
+    if (hit && hit.map && hit.tileIndex >= 0) {
+      return { mapName: hit.mapName, tileIndex: hit.tileIndex };
+    }
+  }
+  const focusedName = es.selectedMapName;
+  const hovered = getEditorStateMap(focusedName)?.hoveredTileIndex ?? -1;
+  if (hovered >= 0) {
+    return { mapName: focusedName, tileIndex: hovered };
+  }
+  return null;
+};
+
+/**
  * Block + tile a right-click (pick / brush-copy) should act on: a grid
  * neighbour when the pointer is over one, otherwise the focused map. `mapName`
  * is '' for the focused map. `tileIndex` is -1 when there is nothing to pick.
@@ -461,6 +530,7 @@ export const initPanzoom = (mapDataInterface: {
             updateEditorState({
               isSelectDragging: false,
               selectDragSourceTileIndex: -1,
+              selectDragSourceMapName: '',
             });
           }
           if (hasSelection) {
@@ -530,22 +600,44 @@ export const initPanzoom = (mapDataInterface: {
       ev.button === MOUSE_BUTTON_LEFT &&
       isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())
     ) {
-      const gridSlotHit = findGridSlotAtScreen(ev.clientX, ev.clientY, mapDataInterface);
-      if (gridSlotHit) {
-        mapEditorEventState.pendingGridSlotClick = gridSlotHit;
-        mapEditorEventState.gridSlotClickStartX = ev.clientX;
-        mapEditorEventState.gridSlotClickStartY = ev.clientY;
-        return;
-      }
-
       const currentPaintAction =
         mapDataInterface.getEditorState().currentPaintAction;
+      const gridSlotHit = findGridSlotAtScreen(ev.clientX, ev.clientY, mapDataInterface);
+      if (gridSlotHit) {
+        // Select on a filled neighbour is a tile pick (focus + select), not
+        // the center-slot navigate hotspot. Empty slots still create a map.
+        const slotIsEmpty = !isGridSlotEditable(gridSlotHit.slot);
+        if (
+          (currentPaintAction !== PaintActionType.SELECT &&
+            currentPaintAction !== PaintActionType.CLONE) ||
+          slotIsEmpty
+        ) {
+          mapEditorEventState.pendingGridSlotClick = gridSlotHit;
+          mapEditorEventState.gridSlotClickStartX = ev.clientX;
+          mapEditorEventState.gridSlotClickStartY = ev.clientY;
+          return;
+        }
+      }
+
       if (currentPaintAction === PaintActionType.NONE) {
         return;
       }
 
       // SELECT action: start dragging to move tile data
       if (currentPaintAction === PaintActionType.SELECT) {
+        const neighborHit = resolveNeighborTileHit(
+          ev.clientX,
+          ev.clientY,
+          mapDataInterface
+        );
+        if (neighborHit) {
+          gridNavigationHandlers?.onNavigateToGridMap(neighborHit.mapName, {
+            offsetX: neighborHit.cellOffsetX,
+            offsetY: neighborHit.cellOffsetY,
+          });
+          setSoleSelectedTile(neighborHit.mapName, neighborHit.tileIndex);
+          return;
+        }
         const hoveredTileIndex =
           getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
             ?.hoveredTileIndex ?? -1;
@@ -566,20 +658,18 @@ export const initPanzoom = (mapDataInterface: {
 
       // CLONE action: start dragging to clone tile data
       if (currentPaintAction === PaintActionType.CLONE) {
-        const hoveredTileIndex =
-          getEditorStateMap(mapDataInterface.getEditorState().selectedMapName)
-            ?.hoveredTileIndex ?? -1;
-        if (hoveredTileIndex >= 0) {
+        const sourceHit = resolveAnyTileHit(
+          ev.clientX,
+          ev.clientY,
+          mapDataInterface
+        );
+        if (sourceHit) {
           updateEditorState({
-            selectDragSourceTileIndex: hoveredTileIndex,
+            selectDragSourceTileIndex: sourceHit.tileIndex,
+            selectDragSourceMapName: sourceHit.mapName,
             isSelectDragging: true,
           });
-          updateEditorStateMapNoReRender(
-            mapDataInterface.getEditorState().selectedMapName,
-            {
-              selectedTileInd: hoveredTileIndex,
-            }
-          );
+          setSoleSelectedTile(sourceHit.mapName, sourceHit.tileIndex);
         }
         return;
       }
@@ -853,16 +943,20 @@ export const initPanzoom = (mapDataInterface: {
     const editorState = mapDataInterface.getEditorState();
     if (editorState.isSelectDragging && ev.button === 0) {
       const sourceTileIndex = editorState.selectDragSourceTileIndex;
-      const destTileIndex =
-        getEditorStateMap(editorState.selectedMapName)?.hoveredTileIndex ?? -1;
+      const sourceMapName =
+        editorState.selectDragSourceMapName || editorState.selectedMapName;
+      const destHit = resolveAnyTileHit(
+        ev.clientX,
+        ev.clientY,
+        mapDataInterface
+      );
+      const destMapName = destHit?.mapName ?? '';
+      const destTileIndex = destHit?.tileIndex ?? -1;
       const currentPaintAction = editorState.currentPaintAction;
+      const sameCell =
+        sourceMapName === destMapName && sourceTileIndex === destTileIndex;
 
-      // Only create action if dragging to a different tile
-      if (
-        sourceTileIndex >= 0 &&
-        destTileIndex >= 0 &&
-        sourceTileIndex !== destTileIndex
-      ) {
+      if (sourceTileIndex >= 0 && destTileIndex >= 0 && !sameCell) {
         const actionType =
           currentPaintAction === PaintActionType.CLONE
             ? PaintActionType.CLONE
@@ -871,32 +965,39 @@ export const initPanzoom = (mapDataInterface: {
         action.data.startInd = sourceTileIndex;
         action.data.endInd = destTileIndex;
         action.data.tileInds = [sourceTileIndex, destTileIndex];
+        action.data.sourceMapName = sourceMapName;
+        action.data.destMapName = destMapName;
 
-        const mapData = mapDataInterface.getMapData();
-        if (mapData) {
-          const mapTiles = getTileList(mapData);
-          // Store previous state of both tiles for undo
+        const maps = gridNavigationHandlers?.getMaps() ?? [];
+        const focused = mapDataInterface.getMapData();
+        const sourceMap =
+          maps.find((m) => m.name === sourceMapName) ??
+          (focused?.name === sourceMapName ? focused : undefined);
+        const destMap =
+          maps.find((m) => m.name === destMapName) ??
+          (focused?.name === destMapName ? focused : undefined);
+        if (sourceMap && destMap) {
+          const sourceTiles = getTileList(sourceMap);
+          const destTiles = getTileList(destMap);
           action.data.prevRefData.push(
-            structuredClone(mapTiles[sourceTileIndex])
+            structuredClone(sourceTiles[sourceTileIndex])
           );
           action.data.prevRefData.push(
-            structuredClone(mapTiles[destTileIndex])
+            structuredClone(destTiles[destTileIndex])
           );
-
-          onActionComplete(action, mapData, editorState);
+          ensureEditorStateMap(destMapName);
+          onActionComplete(action, destMap, editorState);
         }
       }
 
       updateEditorState({
         isSelectDragging: false,
         selectDragSourceTileIndex: -1,
+        selectDragSourceMapName: '',
       });
-      setSoleSelectedTile(
-        editorState.selectedMapName,
-        destTileIndex >= 0
-          ? destTileIndex
-          : getEditorStateMap(editorState.selectedMapName)?.selectedTileInd ?? -1
-      );
+      if (destMapName && destTileIndex >= 0) {
+        setSoleSelectedTile(destMapName, destTileIndex);
+      }
     }
     if (mapEditorEventState.isDraggingRight) {
       mapEditorEventState.isDraggingRight = false;
@@ -1008,6 +1109,8 @@ export const initPanzoom = (mapDataInterface: {
     } else if (nextScale < 0.5) {
       nextScale = 0.5;
     }
+    const tileSize = mapDataInterface.getMapData()?.spriteWidth || 32;
+    nextScale = snapPixelArtScale(nextScale, tileSize);
 
     if (nextScale === mapEditorEventState.scale) {
       return;
@@ -1080,6 +1183,14 @@ export const getTransform = () => {
     y: mapEditorEventState.translateY,
     scale: mapEditorEventState.scale,
   };
+};
+
+/** Keep the live zoom on a pixel-art scale so restored viewports do not seam. */
+export const ensurePixelArtScale = (tileSize: number) => {
+  const next = snapPixelArtScale(mapEditorEventState.scale, tileSize);
+  if (next !== mapEditorEventState.scale) {
+    mapEditorEventState.scale = next;
+  }
 };
 
 let lastAppliedCursor: string | null = null;

@@ -5,6 +5,7 @@ import {
   GameEventChildSwitch,
   GameEventChildType,
   Choice,
+  QuestTemplate,
 } from '../../types/assets';
 import { getVarsFromNode } from '../nodeHelpers';
 
@@ -73,14 +74,113 @@ const getStorage = (
   return curr;
 };
 
+const QUEST_COMPLETE_STEP_ID = 'complete';
+
+function findQuestTemplate(
+  quests: QuestTemplate[],
+  questName: string,
+): QuestTemplate | undefined {
+  return quests.find((quest) => quest.id === questName);
+}
+
+function isNestedSubStep(quest: QuestTemplate, stepId: string): boolean {
+  return (quest.steps ?? []).some((step) =>
+    (step.subSteps ?? []).some((subStep) => subStep.id === stepId),
+  );
+}
+
+function clearCompletedSteps(storage: Record<string, any>, questName: string) {
+  const questState = storage?.vars?.quests?.[questName];
+  if (questState && typeof questState === 'object') {
+    delete questState.completed;
+  }
+}
+
+function startQuest(
+  storage: Record<string, any>,
+  quests: QuestTemplate[],
+  questName: string,
+) {
+  const quest = findQuestTemplate(quests, questName);
+  const firstStep = quest?.steps?.[0];
+  if (!firstStep?.id) {
+    return;
+  }
+  clearCompletedSteps(storage, questName);
+  setStorage(storage, `vars.quests.${questName}.step`, firstStep.id);
+}
+
+function completeQuestStep(
+  storage: Record<string, any>,
+  quests: QuestTemplate[],
+  questName: string,
+  stepId: string,
+) {
+  setStorage(storage, `vars.quests.${questName}.completed.${stepId}`, 'true');
+  const quest = findQuestTemplate(quests, questName);
+  if (!quest) {
+    setStorage(storage, `vars.quests.${questName}.step`, stepId);
+    return;
+  }
+  const topLevelIndex = (quest.steps ?? []).findIndex((step) => step.id === stepId);
+  if (topLevelIndex < 0) {
+    return;
+  }
+  const nextStep = quest.steps[topLevelIndex + 1];
+  setStorage(
+    storage,
+    `vars.quests.${questName}.step`,
+    nextStep?.id ?? stepId,
+  );
+}
+
+function completeQuest(storage: Record<string, any>, questName: string) {
+  setStorage(storage, `vars.quests.${questName}.step`, QUEST_COMPLETE_STEP_ID);
+}
+
+function questIsStarted(storage: Record<string, any>, questName: string) {
+  const step = getStorage(storage, `vars.quests.${questName}.step`);
+  return Boolean(step && step !== QUEST_COMPLETE_STEP_ID);
+}
+
+function questIsComplete(storage: Record<string, any>, questName: string) {
+  return getStorage(storage, `vars.quests.${questName}.step`) === QUEST_COMPLETE_STEP_ID;
+}
+
+function questStepEq(
+  storage: Record<string, any>,
+  quests: QuestTemplate[],
+  questName: string,
+  stepId: string,
+) {
+  if (getStorage(storage, `vars.quests.${questName}.step`) === stepId) {
+    return true;
+  }
+  const quest = findQuestTemplate(quests, questName);
+  if (!quest || !isNestedSubStep(quest, stepId)) {
+    return false;
+  }
+  const completed = getStorage(
+    storage,
+    `vars.quests.${questName}.completed.${stepId}`,
+  );
+  return Boolean(completed && completed !== '0' && completed !== 'false');
+}
+
 class ConditionEvaluator {
   storage: Record<string, any>;
   baseConditionStr: string;
+  quests: QuestTemplate[];
   onceKeysToCommit: string[] = [];
 
-  constructor(storage: Record<string, any>, baseConditionStr: string) {
+  constructor(
+    storage: Record<string, any>,
+    baseConditionStr: string,
+    quests: QuestTemplate[] = [],
+  ) {
     this.storage = storage;
     this.baseConditionStr = baseConditionStr;
+    this.quests = quests;
   }
 
   parseFunctionCall(str: string) {
@@ -234,19 +334,13 @@ class ConditionEvaluator {
       return true;
     },
     QUEST_IS_STARTED: (questName: string) => {
-      const v = getStorage(this.storage, 'vars.quests.' + questName + '.started');
-      return Boolean(v && v !== '0' && v !== 'false');
+      return questIsStarted(this.storage, questName);
     },
     QUEST_IS_COMPLETE: (questName: string) => {
-      const v = getStorage(
-        this.storage,
-        'vars.quests.' + questName + '.completed'
-      );
-      return Boolean(v && v !== '0' && v !== 'false');
+      return questIsComplete(this.storage, questName);
     },
-    QUEST_STEP_EQ: (questName: string, stepNum: string) => {
-      const v = getStorage(this.storage, 'vars.quests.' + questName + '.step');
-      return v === stepNum;
+    QUEST_STEP_EQ: (questName: string, stepId: string) => {
+      return questStepEq(this.storage, this.quests, questName, stepId);
     },
   };
 
@@ -294,10 +388,16 @@ class ConditionEvaluator {
 class StringEvaluator {
   storage: Record<string, any>;
   baseStringStr: string;
+  quests: QuestTemplate[];
 
-  constructor(storage: Record<string, any>, baseStringStr: string) {
+  constructor(
+    storage: Record<string, any>,
+    baseStringStr: string,
+    quests: QuestTemplate[] = [],
+  ) {
     this.storage = storage;
     this.baseStringStr = baseStringStr;
+    this.quests = quests;
   }
 
   stringFunctions: Record<string, (...args: string[]) => any> = {
@@ -334,21 +434,13 @@ class StringEvaluator {
       // noop
     },
     START_QUEST: (questName: string) => {
-      // noop
-      setStorage(this.storage, 'vars.quests.' + questName + '.step', '1');
-      setStorage(this.storage, 'vars.quests.' + questName + '.started', 'true');
+      startQuest(this.storage, this.quests, questName);
     },
     COMPLETE_QUEST_STEP: (questName: string, stepId: string) => {
-      // noop
-      setStorage(this.storage, 'vars.quests.' + questName + '.step', stepId);
+      completeQuestStep(this.storage, this.quests, questName, stepId);
     },
     COMPLETE_QUEST: (questName: string) => {
-      // noop
-      setStorage(
-        this.storage,
-        'vars.quests.' + questName + '.completed',
-        'true'
-      );
+      completeQuest(this.storage, questName);
     },
     SPAWN_CH: (_chName: string) => {
       // noop
@@ -424,6 +516,7 @@ export class EventRunner {
   storage: Record<string, any>;
   gameEvent: GameEvent;
   gameEvents: GameEvent[];
+  quests: QuestTemplate[];
   currentNodeId: string;
 
   displayText: string = '';
@@ -445,11 +538,13 @@ export class EventRunner {
   constructor(
     initialStorage: Record<string, any> = {},
     gameEvent: GameEvent,
-    gameEvents: GameEvent[]
+    gameEvents: GameEvent[],
+    quests: QuestTemplate[] = [],
   ) {
     this.storage = initialStorage;
     this.gameEvent = gameEvent;
     this.gameEvents = gameEvents;
+    this.quests = quests;
     this.currentNodeId = gameEvent.children.some((node) => node.id === 'root')
       ? 'root'
       : gameEvent.children[0].id;
@@ -496,7 +591,7 @@ export class EventRunner {
       return false;
     }
 
-    const stringEvaluator = new StringEvaluator(this.storage, str);
+    const stringEvaluator = new StringEvaluator(this.storage, str, this.quests);
     try {
       const result = stringEvaluator.evalStr(str);
       return result;
@@ -518,7 +613,8 @@ export class EventRunner {
     // console.log('eval condition', conditionStr);
     const conditionEvaluator = new ConditionEvaluator(
       this.storage,
-      conditionStr
+      conditionStr,
+      this.quests,
     );
     try {
       const result = Boolean(conditionEvaluator.evalCondition(conditionStr));

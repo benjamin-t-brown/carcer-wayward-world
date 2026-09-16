@@ -63,7 +63,7 @@
     },
     "sound": {
       "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch1"
+      "weaponSoundName": "hit_punch3"
     }
   },
   {
@@ -130,7 +130,7 @@
     },
     "sound": {
       "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch1"
+      "weaponSoundName": "hit_punch3"
     }
   },
   {
@@ -197,7 +197,7 @@
     },
     "sound": {
       "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch1"
+      "weaponSoundName": "hit_punch3"
     }
   },
   {
@@ -264,7 +264,7 @@
     },
     "sound": {
       "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch1"
+      "weaponSoundName": "hit_punch3"
     }
   },
   {
@@ -331,7 +331,73 @@
     },
     "sound": {
       "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch1"
+      "weaponSoundName": "hit_punch3"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "alinea_Entimos",
+    "label": "Entimos",
+    "spritesheet": "actors0",
+    "spriteOffset": 6,
+    "stats": {
+      "generic": {
+        "str": 4,
+        "mnd": 6,
+        "con": 2,
+        "agi": 3,
+        "lck": 3
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 0,
+          "abilityPower": 5,
+          "attunement": 5,
+          "faith": 0,
+          "lore": 5
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 0,
+          "healingEffectiveness": 0,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "special_event_icons_0"
+    },
+    "combat": {
+      "hp": 15
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "sound": {
+      "deathSoundName": "yell2",
+      "weaponSoundName": "hit_punch3"
     }
   },
   {
@@ -398,7 +464,7 @@
     },
     "sound": {
       "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch1"
+      "weaponSoundName": "hit_punch3"
     }
   },
   {
@@ -465,7 +531,7 @@
     },
     "sound": {
       "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch1"
+      "weaponSoundName": "hit_punch3"
     }
   },
   {
@@ -518,7 +584,7 @@
       }
     },
     "talk": {
-      "portraitName": "special_event_icons_0",
+      "portraitName": "portraits0_14",
       "talkName": "alinea_igmund"
     },
     "combat": {
@@ -532,7 +598,7 @@
     },
     "sound": {
       "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch1"
+      "weaponSoundName": "hit_punch3"
     }
   },
   {
@@ -671,6 +737,270 @@
   },
   {
     "type": "TOWNSPERSON",
+    "name": "alinea_realmGuardSpearImmobile",
+    "label": "Realm Guard (ISp)",
+    "spritesheet": "actors0",
+    "spriteOffset": 24,
+    "stats": {
+      "generic": {
+        "str": 10,
+        "mnd": 5,
+        "con": 10,
+        "agi": 5,
+        "lck": 1
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 5,
+          "pole": 5,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 1,
+          "abilityPower": 1,
+          "attunement": 1,
+          "faith": 5,
+          "lore": 1
+        },
+        "body": {
+          "resistPhysical": 5,
+          "resistMagical": 5,
+          "healingEffectiveness": 5,
+          "dr": 5,
+          "armorTraining": 5
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "special_event_icons_0"
+    },
+    "combat": {
+      "hp": 75
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "sound": {
+      "deathSoundName": "yell2",
+      "weaponSoundName": "hit_metal2"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "alinea_realmGuardSpearRandom",
+    "label": "Realm Guard (RSp)",
+    "spritesheet": "actors0",
+    "spriteOffset": 24,
+    "stats": {
+      "generic": {
+        "str": 10,
+        "mnd": 5,
+        "con": 10,
+        "agi": 5,
+        "lck": 1
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 5,
+          "pole": 5,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 1,
+          "abilityPower": 1,
+          "attunement": 1,
+          "faith": 5,
+          "lore": 1
+        },
+        "body": {
+          "resistPhysical": 5,
+          "resistMagical": 5,
+          "healingEffectiveness": 5,
+          "dr": 5,
+          "armorTraining": 5
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "special_event_icons_0"
+    },
+    "combat": {
+      "hp": 75
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "MOVE_RANDOMLY"
+    },
+    "sound": {
+      "deathSoundName": "yell2",
+      "weaponSoundName": "hit_metal2"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "alinea_realmGuardSwordImmobile",
+    "label": "Realm Guard (ISw)",
+    "spritesheet": "actors0",
+    "spriteOffset": 26,
+    "stats": {
+      "generic": {
+        "str": 10,
+        "mnd": 5,
+        "con": 10,
+        "agi": 5,
+        "lck": 1
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 5,
+          "pole": 5,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 1,
+          "abilityPower": 1,
+          "attunement": 1,
+          "faith": 5,
+          "lore": 1
+        },
+        "body": {
+          "resistPhysical": 5,
+          "resistMagical": 5,
+          "healingEffectiveness": 5,
+          "dr": 5,
+          "armorTraining": 5
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "special_event_icons_0"
+    },
+    "combat": {
+      "hp": 75
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "sound": {
+      "deathSoundName": "yell2",
+      "weaponSoundName": "hit_metal2"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "alinea_realmGuardSwordRandom",
+    "label": "Realm Guard (RSw)",
+    "spritesheet": "actors0",
+    "spriteOffset": 26,
+    "stats": {
+      "generic": {
+        "str": 10,
+        "mnd": 5,
+        "con": 10,
+        "agi": 5,
+        "lck": 1
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 5,
+          "pole": 5,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 1,
+          "abilityPower": 1,
+          "attunement": 1,
+          "faith": 5,
+          "lore": 1
+        },
+        "body": {
+          "resistPhysical": 5,
+          "resistMagical": 5,
+          "healingEffectiveness": 5,
+          "dr": 5,
+          "armorTraining": 5
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "special_event_icons_0"
+    },
+    "combat": {
+      "hp": 75
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "MOVE_RANDOMLY"
+    },
+    "sound": {
+      "deathSoundName": "yell2",
+      "weaponSoundName": "hit_metal2"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
     "name": "alinea_Scopey",
     "label": "Scopey",
     "spritesheet": "actors0",
@@ -733,7 +1063,7 @@
     },
     "sound": {
       "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch1"
+      "weaponSoundName": "hit_punch3"
     }
   },
   {
@@ -800,7 +1130,7 @@
     },
     "sound": {
       "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch1"
+      "weaponSoundName": "hit_punch3"
     }
   },
   {
@@ -864,11 +1194,11 @@
       "radius": 6
     },
     "behavior": {
-      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+      "behaviorName": "IMMOBILE"
     },
     "sound": {
       "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch1"
+      "weaponSoundName": "hit_punch3"
     }
   },
   {

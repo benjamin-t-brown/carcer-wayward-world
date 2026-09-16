@@ -28,6 +28,7 @@
     "Townsperson",
     "unequip"
   ],
+  "files.eol": "\n",
   "files.exclude": {
     "**/.DS_Store": true,
     "**/.git": true,

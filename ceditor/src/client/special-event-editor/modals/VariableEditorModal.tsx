@@ -6,7 +6,7 @@ import { randomId } from '../../utils/mathUtils';
 import { GenericModal } from '../../elements/GenericModal';
 import { PickImportModal } from './PickImportModal';
 import { notifyStateUpdated } from '../seEditorState';
-import { ExecWidget } from '../react-components/ExecWidget';
+import { AssetSearchWidget } from '../react-components/AssetSearchWidget';
 
 interface VariableEditorModalProps {
   isOpen: boolean;
@@ -350,18 +350,7 @@ export function VariableEditorModal({
       onConfirm={handleConfirm}
       body={() => (
       <>
-        <div
-          style={{
-            display: 'flex',
-            gap: '10px',
-            width: '100%',
-            marginBottom: '20px',
-          }}
-        >
-          <div style={{ width: '50%' }}>
-            <ExecWidget gameEvent={gameEvent} />
-          </div>
-        </div>
+        <AssetSearchWidget gameEvent={gameEvent} />
         <div
           style={{
             maxHeight: '45px',

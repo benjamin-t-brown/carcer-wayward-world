@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { TextInput } from '../elements/TextInput';
 import { OptionSelect } from '../elements/OptionSelect';
-import { SpritePicker } from '../elements/SpritePicker';
+import { GameEventIconField } from './GameEventIconField';
 // import {
 //   createDefaultChild,
 //   GameEventChild,
@@ -173,23 +173,12 @@ export function GameEventForm(props: GameEventFormProps) {
           required
         />
 
-        <div className="form-group">
-          <label htmlFor="game-event-icon">Icon *</label>
-          <div style={{ marginTop: '8px' }}>
-            <SpritePicker
-              value={formData.icon}
-              onChange={(value) => updateField('icon', value)}
-              scale={2}
-            />
-          </div>
-          {formData.icon && (
-            <div
-              style={{ marginTop: '8px', fontSize: '12px', color: '#858585' }}
-            >
-              Selected: {formData.icon}
-            </div>
-          )}
-        </div>
+        <GameEventIconField
+          id="game-event-icon"
+          eventType={formData.eventType}
+          value={formData.icon}
+          onChange={(value) => updateField('icon', value)}
+        />
 
         {/* <div className="form-section" style={{ marginTop: '30px' }}>
           <div

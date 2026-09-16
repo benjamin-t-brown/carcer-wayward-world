@@ -24,13 +24,12 @@ export function CharactersList({
         gap: '6px',
       }}
     >
-      {selectedTile.characters.map((characterName) => {
-        const character = characters.find(
-          (c) => c.name === characterName
-        );
+      {selectedTile.characters.map((entry, index) => {
+        const characterName = entry.name;
+        const character = characters.find((c) => c.name === characterName);
         return (
           <div
-            key={characterName + selectedTile.tileId}
+            key={`${characterName}-${index}-${selectedTile.tileId}`}
             style={{
               display: 'flex',
               justifyContent: 'space-between',
@@ -67,6 +66,32 @@ export function CharactersList({
                   </div>
                 </>
               )}
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  marginTop: '6px',
+                  cursor: 'pointer',
+                  fontSize: '11px',
+                  color: '#d4d4d4',
+                  width: 'fit-content',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={Boolean(entry.flipped)}
+                  onChange={(e) => {
+                    const flipped = e.target.checked;
+                    updateTile((tile) => {
+                      tile.characters = tile.characters.map((placed, i) =>
+                        i === index ? { ...placed, flipped } : placed,
+                      );
+                    });
+                  }}
+                />
+                Flipped
+              </label>
             </div>
             <div
               style={{
@@ -112,7 +137,7 @@ export function CharactersList({
                 onClick={() => {
                   updateTile((tile) => {
                     tile.characters = tile.characters.filter(
-                      (name) => name !== characterName
+                      (_, i) => i !== index,
                     );
                   });
                 }}
@@ -155,4 +180,3 @@ export function CharactersList({
     </div>
   );
 }
-

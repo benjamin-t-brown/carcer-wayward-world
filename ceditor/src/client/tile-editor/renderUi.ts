@@ -6,6 +6,8 @@ import {
   DrawTextParams,
   getSpriteNameFromTile,
   getSpriteNameFromTileMetadata,
+  scaledTileRect,
+  snapPixelArtPanOffset,
 } from '../utils/draw';
 
 export type OverlayTextEntry = {
@@ -125,75 +127,53 @@ import {
 } from '../utils/mapGridIndex';
 
 const drawHighlightRect = (
-  tileX: number,
-  tileY: number,
-  tileWidth: number,
-  tileHeight: number,
-  scale: number,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
   ctx: CanvasRenderingContext2D,
 ) => {
-  drawRect(
-    tileX,
-    tileY,
-    tileWidth * scale,
-    tileHeight * scale,
-    'rgba(169, 243, 251, 0.54)',
-    false,
-    ctx,
-  );
+  drawRect(x, y, w, h, 'rgba(169, 243, 251, 0.54)', false, ctx);
 };
 
 const drawHighlightEraseRect = (
-  tileX: number,
-  tileY: number,
-  tileWidth: number,
-  tileHeight: number,
-  scale: number,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
   ctx: CanvasRenderingContext2D,
 ) => {
-  drawRect(
-    tileX,
-    tileY,
-    tileWidth * scale,
-    tileHeight * scale,
-    'rgba(255, 67, 67, 0.44)',
-    false,
-    ctx,
-  );
+  drawRect(x, y, w, h, 'rgba(255, 67, 67, 0.44)', false, ctx);
 };
 
 const drawSelectedTileRect = (
-  tileX: number,
-  tileY: number,
-  tileWidth: number,
-  tileHeight: number,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
   scale: number,
   ctx: CanvasRenderingContext2D,
 ) => {
-  const lineWidth = 2 * scale;
+  const lineWidth = Math.max(1, 2 * scale);
   const inset = lineWidth / 2;
   ctx.save();
   ctx.strokeStyle = 'rgba(237, 237, 10, 0.31)';
   ctx.lineWidth = lineWidth;
-  ctx.strokeRect(
-    tileX + inset,
-    tileY + inset,
-    tileWidth * scale - lineWidth,
-    tileHeight * scale - lineWidth,
-  );
+  ctx.strokeRect(x + inset, y + inset, w - lineWidth, h - lineWidth);
   ctx.restore();
 };
 
 const drawHighlightTile = (
   sprite: Sprite,
-  tileX: number,
-  tileY: number,
-  scale: number,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
   ctx: CanvasRenderingContext2D,
 ) => {
   ctx.save();
   ctx.globalAlpha = 0.85;
-  drawSprite(sprite, tileX, tileY, scale, ctx);
+  drawSprite(sprite, x, y, 1, ctx, w, h);
   ctx.restore();
 };
 
@@ -233,8 +213,23 @@ export const renderToolUi = (
   const mapTiles = getTileList(mapData);
 
   const { x: transformX, y: transformY, scale } = getTransform();
+  const dest = (tx: number, ty: number) =>
+    scaledTileRect(tx, ty, tileWidth, tileHeight, scale);
+  const destInd = (ind: number) =>
+    dest(ind % mapData.width, Math.floor(ind / mapData.width));
+  const { x: panX, y: panY } = snapPixelArtPanOffset(
+    transformX,
+    transformY,
+    scale,
+    ctx.canvas.width,
+    ctx.canvas.height,
+    mapData.width,
+    mapData.height,
+    tileWidth,
+    tileHeight,
+  );
   ctx.save();
-  ctx.translate(transformX, transformY);
+  ctx.translate(panX, panY);
   ctx.translate(
     (ctx.canvas.width * scale) / 2,
     (ctx.canvas.height * scale) / 2,
@@ -247,11 +242,8 @@ export const renderToolUi = (
 
   // Draw selected tile indicator
   if (selectedTileInd >= 0 && selectedTileInd < mapTiles.length) {
-    const x = selectedTileInd % mapData.width;
-    const y = Math.floor(selectedTileInd / mapData.width);
-    const tileX = x * tileWidth * scale;
-    const tileY = y * tileHeight * scale;
-    drawSelectedTileRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+    const r = destInd(selectedTileInd);
+    drawSelectedTileRect(r.x, r.y, r.w, r.h, scale, ctx);
   }
 
   // fillIndsFloor is global (one hovered block at a time); only draw it on the
@@ -263,43 +255,37 @@ export const renderToolUi = (
     if (isHoverBlock) {
       for (const ind of editorState.fillIndsFloor) {
         if (paintTileSprite) {
-          const tileX = (ind % mapData.width) * tileWidth * scale;
-          const tileY = Math.floor(ind / mapData.width) * tileHeight * scale;
-          drawHighlightTile(paintTileSprite, tileX, tileY, scale, ctx);
-          drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+          const r = destInd(ind);
+          drawHighlightTile(paintTileSprite, r.x, r.y, r.w, r.h, ctx);
+          drawHighlightRect(r.x, r.y, r.w, r.h, ctx);
         }
       }
     }
   } else if (currentPaintAction === PaintActionType.DELETE_FILL) {
     if (isHoverBlock) {
       for (const ind of editorState.fillIndsFloor) {
-        const tileX = (ind % mapData.width) * tileWidth * scale;
-        const tileY = Math.floor(ind / mapData.width) * tileHeight * scale;
-        drawHighlightEraseRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+        const r = destInd(ind);
+        drawHighlightEraseRect(r.x, r.y, r.w, r.h, ctx);
       }
     }
   } else if (currentPaintAction === PaintActionType.ERASE) {
     const hoveredTileInd =
       getEditorStateMap(mapName)?.hoveredTileIndex ?? -1;
     if (hoveredTileInd > -1 && paintTileSprite) {
-      const tileX = (hoveredTileInd % mapData.width) * tileWidth * scale;
-      const tileY =
-        Math.floor(hoveredTileInd / mapData.width) * tileHeight * scale;
-      drawHighlightEraseRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+      const r = destInd(hoveredTileInd);
+      drawHighlightEraseRect(r.x, r.y, r.w, r.h, ctx);
     }
   } else if (currentPaintAction === PaintActionType.ERASE_META) {
     const hoveredTileInd =
       getEditorStateMap(mapName)?.hoveredTileIndex ?? -1;
     if (hoveredTileInd > -1) {
-      const tileX = (hoveredTileInd % mapData.width) * tileWidth * scale;
-      const tileY =
-        Math.floor(hoveredTileInd / mapData.width) * tileHeight * scale;
+      const r = destInd(hoveredTileInd);
       // Use a different color to distinguish from regular erase
       drawRect(
-        tileX,
-        tileY,
-        tileWidth * scale,
-        tileHeight * scale,
+        r.x,
+        r.y,
+        r.w,
+        r.h,
         'rgba(255, 165, 0, 0.44)',
         false,
         ctx,
@@ -346,11 +332,9 @@ export const renderToolUi = (
         if (!previewSprite) {
           continue;
         }
-        const tileX = (tileChange.ind % mapData.width) * tileWidth * scale;
-        const tileY =
-          Math.floor(tileChange.ind / mapData.width) * tileHeight * scale;
-        drawHighlightTile(previewSprite, tileX, tileY, scale, ctx);
-        drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+        const r = destInd(tileChange.ind);
+        drawHighlightTile(previewSprite, r.x, r.y, r.w, r.h, ctx);
+        drawHighlightRect(r.x, r.y, r.w, r.h, ctx);
       }
     }
   } else if (
@@ -360,34 +344,46 @@ export const renderToolUi = (
     // Draw the source tile at the destination when dragging
     if (editorState.isSelectDragging) {
       const sourceTileIndex = editorState.selectDragSourceTileIndex;
+      const sourceMapName =
+        editorState.selectDragSourceMapName || editorState.selectedMapName;
+      const destMapName =
+        editorState.hoveredGridMapName || editorState.selectedMapName;
       const destTileIndex =
         getEditorStateMap(mapName)?.hoveredTileIndex ?? -1;
+      const sameCell =
+        sourceMapName === destMapName && sourceTileIndex === destTileIndex;
 
       if (
+        mapName === destMapName &&
         sourceTileIndex >= 0 &&
         destTileIndex >= 0 &&
-        sourceTileIndex !== destTileIndex
+        !sameCell
       ) {
-        ctx.save();
-        ctx.globalAlpha = 0.5;
-        renderTileAndExtras({
-          refTile: mapTiles[sourceTileIndex],
-          x:
-            getEditorStateMap(mapName)?.hoveredTileData.x ??
-            -1,
-          y:
-            getEditorStateMap(mapName)?.hoveredTileData.y ??
-            -1,
-          ctx,
-          newScale: scale,
-          spriteMap,
-          tilesets,
-          mapSpriteWidth: mapData.spriteWidth,
-          mapSpriteHeight: mapData.spriteHeight,
-          characters,
-          items,
-        });
-        ctx.restore();
+        const sourceMap =
+          sourceMapName === mapData.name
+            ? mapData
+            : getGridPaintContext()?.maps.find((m) => m.name === sourceMapName);
+        const sourceTile = sourceMap
+          ? getTileList(sourceMap)[sourceTileIndex]
+          : undefined;
+        if (sourceTile) {
+          ctx.save();
+          ctx.globalAlpha = 0.5;
+          renderTileAndExtras({
+            refTile: sourceTile,
+            x: getEditorStateMap(mapName)?.hoveredTileData.x ?? -1,
+            y: getEditorStateMap(mapName)?.hoveredTileData.y ?? -1,
+            ctx,
+            newScale: scale,
+            spriteMap,
+            tilesets,
+            mapSpriteWidth: mapData.spriteWidth,
+            mapSpriteHeight: mapData.spriteHeight,
+            characters,
+            items,
+          });
+          ctx.restore();
+        }
       }
     }
   } else if (currentPaintAction === PaintActionType.DRAW) {
@@ -402,14 +398,8 @@ export const renderToolUi = (
       if (mapName === editorState.selectedMapName) {
         for (let gy = gridDragRect.gy0; gy <= gridDragRect.gy1; gy++) {
           for (let gx = gridDragRect.gx0; gx <= gridDragRect.gx1; gx++) {
-            drawHighlightRect(
-              gx * tileWidth * scale,
-              gy * tileHeight * scale,
-              tileWidth,
-              tileHeight,
-              scale,
-              ctx,
-            );
+            const r = dest(gx, gy);
+            drawHighlightRect(r.x, r.y, r.w, r.h, ctx);
           }
         }
       }
@@ -429,9 +419,8 @@ export const renderToolUi = (
       for (const ind of dragSelectedInds) {
         const tile = mapTiles[ind];
         if (tile) {
-          const tileX = (ind % mapData.width) * tileWidth * scale;
-          const tileY = Math.floor(ind / mapData.width) * tileHeight * scale;
-          drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+          const r = destInd(ind);
+          drawHighlightRect(r.x, r.y, r.w, r.h, ctx);
         }
       }
     } else if (
@@ -460,11 +449,10 @@ export const renderToolUi = (
           continue;
         }
         const spr = spriteMap[getSpriteNameFromTile(brush.originalTile.ref)];
-        const tileX = gx * tileWidth * scale;
-        const tileY = gy * tileHeight * scale;
-        drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
+        const r = dest(gx, gy);
+        drawHighlightRect(r.x, r.y, r.w, r.h, ctx);
         if (spr) {
-          drawHighlightTile(spr, tileX, tileY, scale, ctx);
+          drawHighlightTile(spr, r.x, r.y, r.w, r.h, ctx);
         }
       }
     } else if (!rectCloneBrushTiles.length) {
@@ -478,10 +466,9 @@ export const renderToolUi = (
         hoverX < mapData.width &&
         hoverY < mapData.height;
       if (paintTileSprite && hoverInBounds) {
-        const tileX = hoverX * tileWidth * scale;
-        const tileY = hoverY * tileHeight * scale;
-        drawHighlightRect(tileX, tileY, tileWidth, tileHeight, scale, ctx);
-        drawHighlightTile(paintTileSprite, tileX, tileY, scale, ctx);
+        const r = dest(hoverX, hoverY);
+        drawHighlightRect(r.x, r.y, r.w, r.h, ctx);
+        drawHighlightTile(paintTileSprite, r.x, r.y, r.w, r.h, ctx);
       }
     }
   }
@@ -675,25 +662,41 @@ export const renderTileAndExtras = (args: {
     return;
   }
   const controlSprites: string[] = [];
-  const tileX = x * mapSpriteWidth * newScale;
-  const tileY = y * mapSpriteHeight * newScale;
+  const tileRect = scaledTileRect(
+    x,
+    y,
+    mapSpriteWidth,
+    mapSpriteHeight,
+    newScale,
+  );
+  const tileX = tileRect.x;
+  const tileY = tileRect.y;
   const spriteName = getSpriteNameFromTile(refTile);
   const sprite = spriteMap[spriteName];
   if (sprite) {
-    drawSprite(sprite, tileX, tileY, newScale, ctx);
+    drawSprite(sprite, tileX, tileY, newScale, ctx, tileRect.w, tileRect.h);
   }
 
   const tileTemplate = tilesets
     .find((t) => t.name === refTile.tilesetName)
     ?.tiles.find((t) => t.id === refTile.tileId);
 
-  for (const characterName of refTile.characters) {
-    const characterTemplate = characters.find((c) => c.name === characterName);
+  for (const placed of refTile.characters) {
+    const characterTemplate = characters.find((c) => c.name === placed.name);
     if (characterTemplate) {
       const characterSpriteName = `${characterTemplate.spritesheet}_${characterTemplate.spriteOffset}`;
       const characterSprite = spriteMap[characterSpriteName];
       if (characterSprite) {
-        drawSprite(characterSprite, tileX, tileY, newScale, ctx);
+        drawSprite(
+          characterSprite,
+          tileX,
+          tileY,
+          newScale,
+          ctx,
+          tileRect.w,
+          tileRect.h,
+          Boolean(placed.flipped),
+        );
       } else {
         console.error(`Character sprite not found: ${characterSpriteName}`);
       }
@@ -717,13 +720,11 @@ export const renderTileAndExtras = (args: {
         const itemSpriteName = itemTemplate.icon;
         const itemSprite = spriteMap[itemSpriteName];
         if (itemSprite) {
-          const spriteWidth = itemSprite.width;
-          const spriteHeight = itemSprite.height;
-          const spriteX =
-            tileX + ((mapSpriteWidth - spriteWidth) * newScale) / 2;
-          const spriteY =
-            tileY + ((mapSpriteHeight - spriteHeight) * newScale) / 2;
-          drawSprite(itemSprite, spriteX, spriteY, newScale, ctx);
+          const itemW = Math.max(1, Math.round(itemSprite.width * newScale));
+          const itemH = Math.max(1, Math.round(itemSprite.height * newScale));
+          const spriteX = tileX + (tileRect.w - itemW) / 2;
+          const spriteY = tileY + (tileRect.h - itemH) / 2;
+          drawSprite(itemSprite, spriteX, spriteY, newScale, ctx, itemW, itemH);
         } else {
           console.error(`Item sprite not found: ${itemSpriteName}`);
         }
@@ -758,7 +759,15 @@ export const renderTileAndExtras = (args: {
     }
     const overlaySprite = spriteMap[overlaySpriteName];
     if (overlaySprite) {
-      drawSprite(overlaySprite, tileX, tileY, newScale, ctx);
+      drawSprite(
+        overlaySprite,
+        tileX,
+        tileY,
+        newScale,
+        ctx,
+        tileRect.w,
+        tileRect.h,
+      );
     }
   }
 
@@ -766,7 +775,13 @@ export const renderTileAndExtras = (args: {
   for (const spriteName of controlSprites) {
     const sprite = spriteMap[spriteName];
     if (sprite) {
-      drawSprite(sprite, tileX, tileY + controlI * 8 * newScale, newScale, ctx);
+      drawSprite(
+        sprite,
+        tileX,
+        tileY + controlI * Math.max(1, Math.round(8 * newScale)),
+        newScale,
+        ctx,
+      );
     }
     controlI++;
   }
@@ -778,10 +793,10 @@ export const renderTileAndExtras = (args: {
       color: '#ffffff',
       align: 'center',
     };
-    const centerX = tileX + (mapSpriteWidth * newScale) / 2;
+    const centerX = tileX + tileRect.w / 2;
     let textI = 0;
-    for (const character of refTile.characters) {
-      const characterTemplate = characters.find((c) => c.name === character);
+    for (const placed of refTile.characters) {
+      const characterTemplate = characters.find((c) => c.name === placed.name);
       if (characterTemplate) {
         overlayTextEntries.push({
           text: characterTemplate.name,

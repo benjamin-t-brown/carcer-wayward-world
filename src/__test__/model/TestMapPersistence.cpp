@@ -3,6 +3,7 @@
 #include "game/map/MapWalkability.h"
 #include "game/map/TileFields.h"
 #include "game/map/TileTriggers.h"
+#include "model/instances/CharacterInstance.hpp"
 #include "model/templates/CharacterTemplate.h"
 #include "model/templates/MapGrids.hpp"
 #include "model/templates/Tileset.hpp"
@@ -78,6 +79,7 @@ model::CarcerMapTemplate makeMapTemplate() {
   placement.l = 0;
   placement.i = 4;
   placement.name = "slime";
+  placement.flipped = true;
   mapTemplate.characters.pushBack(std::move(placement));
   return mapTemplate;
 }
@@ -123,6 +125,9 @@ int main() {
 
   auto* enemy = findEnemyOnActive(state.world.activeMap);
   ok = assertTrue(enemy != nullptr, "enemy hoisted from template") && ok;
+  ok = assertTrue(enemy != nullptr && enemy->facing == model::CharacterFacing::Left,
+                  "flipped placement spawns facing left") &&
+       ok;
   if (enemy) {
     enemy->x = 2;
     enemy->y = 1;

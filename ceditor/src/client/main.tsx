@@ -18,6 +18,7 @@ import {
   CarcerMapTemplate,
   MapGridTemplate,
   FeatTemplate,
+  QuestTemplate,
 } from './types/assets';
 import { AbilityTemplate, StatusEffectTemplate } from './types/ability';
 import { SpellTemplate } from './types/spell';
@@ -69,6 +70,7 @@ async function load(): Promise<{
   spells: SpellTemplate[];
   statusEffects: StatusEffectTemplate[];
   feats: FeatTemplate[];
+  quests: QuestTemplate[];
   tilesets: TilesetTemplate[];
   gameEvents: GameEvent[];
   maps: CarcerMapTemplate[];
@@ -117,6 +119,7 @@ async function load(): Promise<{
   const spells = normalized.spellTemplates as SpellTemplate[];
   const statusEffects = normalized.statusEffectTemplates as StatusEffectTemplate[];
   const feats = normalized.featTemplates as FeatTemplate[];
+  const quests = normalized.questTemplates as QuestTemplate[];
   const tilesets = normalized.tilesetTemplates as TilesetTemplate[];
   const gameEvents = normalized.specialEvents as GameEvent[];
   const maps = normalized.maps as CarcerMapTemplate[];
@@ -136,6 +139,7 @@ async function load(): Promise<{
     spells,
     statusEffects,
     feats,
+    quests,
     tilesets,
     gameEvents,
     maps,
@@ -156,6 +160,7 @@ async function load(): Promise<{
     spells,
     statusEffects,
     feats,
+    quests,
     tilesets,
     gameEvents,
     maps,
@@ -189,6 +194,7 @@ async function init() {
       spells,
       statusEffects,
       feats,
+      quests,
       tilesets,
       gameEvents,
       maps,
@@ -220,6 +226,7 @@ async function init() {
             initialSpells={spells}
             initialStatusEffects={statusEffects}
             initialFeats={feats}
+            initialQuests={quests}
             initialTilesets={tilesets}
             initialGameEvents={gameEvents}
             initialMaps={maps}

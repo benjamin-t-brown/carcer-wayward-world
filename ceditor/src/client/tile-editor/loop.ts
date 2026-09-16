@@ -5,7 +5,7 @@ import {
   onTileHoverIndChange,
 } from './paintTools';
 import { disableCanvasSmoothing } from '../utils/spriteUtils';
-import { drawLine, drawRect, snapPixelArtPanOffset } from '../utils/draw';
+import { drawRect, scaledTileRect, snapPixelArtPanOffset } from '../utils/draw';
 import {
   CarcerMapTemplate,
   TilesetTemplate,
@@ -28,6 +28,7 @@ import {
   updateEditorStateNoReRender,
 } from './editorState';
 import {
+  ensurePixelArtScale,
   getScreenMouseCoords,
   getTileList,
   getTransform,
@@ -102,15 +103,9 @@ const renderMapBlockTiles = (args: {
   const spriteHeight = map.spriteHeight;
   const mapTiles = getTileList(map, layer);
 
-  drawRect(
-    0,
-    0,
-    map.width * spriteWidth * scale,
-    map.height * spriteHeight * scale,
-    'black',
-    false,
-    ctx
-  );
+  const mapPixelW = Math.round(map.width * spriteWidth * scale);
+  const mapPixelH = Math.round(map.height * spriteHeight * scale);
+  drawRect(0, 0, mapPixelW, mapPixelH, 'black', false, ctx);
 
   const visibleRange = getVisibleTileRange({
     originX,
@@ -142,20 +137,17 @@ const renderMapBlockTiles = (args: {
         overlayTextEntries,
       });
 
-      const x1 = x * spriteWidth * scale;
-      const y1 = y * spriteHeight * scale;
-      const x2 = x1 + spriteWidth * scale;
-      const y2 = y1 + spriteHeight * scale;
+      const tileRect = scaledTileRect(x, y, spriteWidth, spriteHeight, scale);
       if (tileIndex === hoveredTileIndex) {
-        const color = 'rgba(100, 100, 255, 0.5)';
-        drawLine(x1, y1, x2, y1, color, 2, ctx);
-        drawLine(x1, y1, x1, y2, color, 2, ctx);
-        drawLine(x2, y2, x2, y1, color, 2, ctx);
-        drawLine(x2, y2, x1, y2, color, 2, ctx);
+        ctx.fillStyle = 'rgba(100, 100, 255, 0.5)';
+        ctx.fillRect(tileRect.x, tileRect.y, tileRect.w, 2);
+        ctx.fillRect(tileRect.x, tileRect.y, 2, tileRect.h);
+        ctx.fillRect(tileRect.x, tileRect.y + tileRect.h - 2, tileRect.w, 2);
+        ctx.fillRect(tileRect.x + tileRect.w - 2, tileRect.y, 2, tileRect.h);
       } else if (showGrid) {
-        const color = 'rgba(255, 255, 255, 0.25)';
-        drawLine(x1, y1, x2, y1, color, 1, ctx);
-        drawLine(x1, y1, x1, y2, color, 1, ctx);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+        ctx.fillRect(tileRect.x, tileRect.y, tileRect.w, 1);
+        ctx.fillRect(tileRect.x, tileRect.y, 1, tileRect.h);
       }
     }
   }
@@ -199,6 +191,9 @@ export const loop = (
   }
 
   const currentMap = mapDataInterface.getMapData();
+  if (currentMap) {
+    ensurePixelArtScale(currentMap.spriteWidth);
+  }
   const es = mapDataInterface.getEditorState();
   const canvasEl = mapDataInterface.getCanvas();
   const hoverAssets = mapDataInterface.getAssets();
@@ -313,8 +308,8 @@ export const loop = (
   );
 
   if (currentMap) {
-    const { x, y, scale } = getTransform();
     const canvas = mapDataInterface.getCanvas();
+    const { x, y, scale } = getTransform();
     // Hoisted out of the per-tile loops: getAssets() allocates a fresh object
     // on every call, and getTileList() walks the layer cache on every call.
     const assets = mapDataInterface.getAssets();

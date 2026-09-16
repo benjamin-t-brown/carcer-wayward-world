@@ -117,6 +117,7 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       placement.l = entry.value("l", 0);
       placement.i = entry.value("i", 0);
       placement.name = entry.value("name", bmin::String());
+      placement.flipped = entry.value("flipped", false);
       mapTemplate.characters.pushBack(std::move(placement));
     }
   }

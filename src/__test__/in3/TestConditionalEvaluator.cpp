@@ -15,9 +15,8 @@ int main(int argc, char** argv) {
   initialStorage.insert(bmin::String("b"), bmin::String("1"));
   initialStorage.insert(bmin::String("c"), bmin::String("2"));
   initialStorage.insert(bmin::String("d"), bmin::String("3"));
-  initialStorage.insert(bmin::String("vars.quests.WoodThief.started"), bmin::String("true"));
-  initialStorage.insert(bmin::String("vars.quests.WoodThief.completed"), bmin::String("false"));
-  initialStorage.insert(bmin::String("vars.quests.WoodThief.step"), bmin::String("2"));
+  initialStorage.insert(bmin::String("vars.quests.WoodThief.step"), bmin::String("gather-wood"));
+  initialStorage.insert(bmin::String("vars.quests.DoneQuest.step"), bmin::String("complete"));
   initialStorage.insert(bmin::String("vars.items.BeerPappysLager"), bmin::String("1"));
   // z is undefined
   // clang-format on
@@ -83,9 +82,12 @@ int main(int argc, char** argv) {
       {"ANY(EQ(a, b), EQ(c, d))", false},
       {"ANY(EQ(a, b), EQ(c, d), ANY(EQ(a, b), EQ(b, b)))", true},
       {"QUEST_IS_STARTED(WoodThief)", true},
+      {"QUEST_IS_STARTED(MissingQuest)", false},
+      {"QUEST_IS_STARTED(DoneQuest)", false},
       {"QUEST_IS_COMPLETE(WoodThief)", false},
-      {"QUEST_STEP_EQ(WoodThief, 2)", true},
-      {"QUEST_STEP_EQ(WoodThief, 1)", false},
+      {"QUEST_IS_COMPLETE(DoneQuest)", true},
+      {"QUEST_STEP_EQ(WoodThief, gather-wood)", true},
+      {"QUEST_STEP_EQ(WoodThief, deliver-wood)", false},
       {"HAS_ITEM(BeerPappysLager)", true},
       {"HAS_ITEM(MissingItem)", false},
       // clang-format on

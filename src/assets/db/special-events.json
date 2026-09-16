@@ -937,6 +937,370 @@
     ]
   },
   {
+    "id": "alinea_bookkeeper",
+    "title": "Bookkeeper",
+    "eventType": "TALK",
+    "icon": "special_event_icons_1",
+    "vars": [
+      {
+        "id": "akmvzemwuel",
+        "key": "CHARACTER_ID",
+        "value": "alinea_bookkeeper",
+        "importFrom": ""
+      },
+      {
+        "id": "wpayrxl0uh8",
+        "key": "DISPOSITION",
+        "value": "vars.disposition.alinea_bookkeeper",
+        "importFrom": ""
+      },
+      {
+        "id": "gje4dc439hh",
+        "key": "",
+        "value": "",
+        "importFrom": "util_aspect"
+      },
+      {
+        "id": "ral7jyg5hdg",
+        "key": "",
+        "value": "",
+        "importFrom": "util_exposition_alinea"
+      }
+    ],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "yw8cvglk00o",
+        "autoAdvance": true
+      },
+      {
+        "id": "yw8cvglk00o",
+        "x": 148.75,
+        "y": 132.25,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "SETUP_DISPOSITION(@CHARACTER_ID)",
+        "next": "thkxtwu0uf",
+        "autoAdvance": false
+      },
+      {
+        "id": "e9hfqwxqw8i",
+        "x": 225.75,
+        "y": 779.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Please leave.\"",
+        "execStr": "",
+        "next": "yfmldyw7qi8",
+        "autoAdvance": true
+      },
+      {
+        "id": "7go5ge5ymrj",
+        "x": 229.75,
+        "y": 693.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Can I help you?\"",
+        "execStr": "",
+        "next": "yfmldyw7qi8",
+        "autoAdvance": true
+      },
+      {
+        "id": "jmbyu63g93r",
+        "x": 223.75,
+        "y": 602.75,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Can I help you?\"",
+        "execStr": "",
+        "next": "yfmldyw7qi8",
+        "autoAdvance": true
+      },
+      {
+        "id": "thkxtwu0uf",
+        "x": 224.75,
+        "y": 245,
+        "eventChildType": "SWITCH",
+        "h": 156,
+        "cases": [
+          {
+            "conditionStr": "ONCE(hasSpokenTo@CHARACTER_ID)",
+            "next": "uao9kv68u9g"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,5)",
+            "next": "jmbyu63g93r"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,3)",
+            "next": "7go5ge5ymrj"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,1)",
+            "next": "e9hfqwxqw8i"
+          }
+        ],
+        "defaultNext": "7go5ge5ymrj"
+      },
+      {
+        "id": "uao9kv68u9g",
+        "x": 635.25,
+        "y": 120,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "The attendant sitting at the desk perks her head up at your approach.\n\n\"Can I help you?\"",
+        "execStr": "",
+        "next": "yfmldyw7qi8",
+        "autoAdvance": true
+      },
+      {
+        "id": "yfmldyw7qi8",
+        "x": 937.25,
+        "y": 592,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "Is this some kind of library?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "m673bopp76q",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "I'm looking for a book...",
+            "conditionStr": "QUEST_STEP_EQ(que_alinea_EntomenTome, findBook)",
+            "evalStr": "",
+            "next": "0dxlbs81u92g",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Nevermind. (Leave.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "u6sgl0xgrqd",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "u6sgl0xgrqd",
+        "x": 977.25,
+        "y": 852,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "m673bopp76q",
+        "x": 1334.1903381347656,
+        "y": 343.29830169677734,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"This is a registry and ledger for the dealings of the Merchantry for the Alinea chapter.\"",
+        "execStr": "",
+        "next": "yfmldyw7qi8",
+        "autoAdvance": true
+      },
+      {
+        "id": "njmjwpqdaw",
+        "x": 1761.1903381347656,
+        "y": 589.2983016967773,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"What are you looking for?\"",
+        "execStr": "",
+        "next": "5a7rdlystup",
+        "autoAdvance": true
+      },
+      {
+        "id": "5a7rdlystup",
+        "x": 2227.1903381347656,
+        "y": 450.29830169677734,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "You do not need to know.  Grant me access to these records.",
+            "conditionStr": "ONCE(DinNywoJnP)",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "9axr3rftw8",
+            "prefixText": "[DRAGON]",
+            "switchText": []
+          },
+          {
+            "text": "It's a tome of some kind, it doesn't have a title.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "s3m3ksoao6",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Actually, nevermind. (Go back.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "yfmldyw7qi8",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "9axr3rftw8",
+        "x": 2985.1903381347656,
+        "y": 408.29830169677734,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Only members of the Merchantry are allowed access to these records.\"",
+        "execStr": "",
+        "next": "rr46vwc7qq",
+        "autoAdvance": true
+      },
+      {
+        "id": "s3m3ksoao6",
+        "x": 2608.1903381347656,
+        "y": 386.29830169677734,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Wait, you're not affiliated with the Mr. Entomen are you?\"",
+        "execStr": "",
+        "next": "2bmj3z95ulq",
+        "autoAdvance": true
+      },
+      {
+        "id": "2bmj3z95ulq",
+        "x": 2603.1903381347656,
+        "y": 532.2983016967773,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "Um.... no?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "1gbhw2p55e3",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "So what if I was?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "1gbhw2p55e3",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "1gbhw2p55e3",
+        "x": 2967.1903381347656,
+        "y": 552.2983016967773,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Ugh.  I told him we don't have what he wants.  And I'm not giving him direct access to these records.\"",
+        "execStr": "",
+        "next": "9axr3rftw8",
+        "autoAdvance": true
+      },
+      {
+        "id": "rr46vwc7qq",
+        "x": 3412.1903381347656,
+        "y": 412.29830169677734,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "Can't you make an exception?  It's just some dumb book.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "rqynpbtjle",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "How do I join the merchantry?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "8uxhssiau5v",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Fine.  Whatever. (Go back.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "yfmldyw7qi8",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "rqynpbtjle",
+        "x": 3834.1903381347656,
+        "y": 255.29830169677734,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Those are the rules.  I can't break them at your convenience.\"",
+        "execStr": "",
+        "next": "rr46vwc7qq",
+        "autoAdvance": true
+      },
+      {
+        "id": "8uxhssiau5v",
+        "x": 3828.1903381347656,
+        "y": 425.29830169677734,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"You'll have to get approval from several members.  And you don't need to ask me.  You don't have my approval.\"",
+        "execStr": "",
+        "next": "rr46vwc7qq",
+        "autoAdvance": true
+      },
+      {
+        "id": "0dxlbs81u92g",
+        "x": 1382.1903381347656,
+        "y": 595.2983016967773,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "ONCE(TPMgJtf11R)",
+            "next": "njmjwpqdaw"
+          }
+        ],
+        "defaultNext": "oam8hegl4kf"
+      },
+      {
+        "id": "oam8hegl4kf",
+        "x": 1746.1903381347656,
+        "y": 666.2983016967773,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"I told you already.  I won't give you access to these records unless you are a member of the Merchantry.\"",
+        "execStr": "",
+        "next": "rr46vwc7qq",
+        "autoAdvance": true
+      }
+    ]
+  },
+  {
     "id": "alinea_chem",
     "title": "Apprentice Chem",
     "eventType": "TALK",
@@ -1055,7 +1419,7 @@
         "y": 133,
         "eventChildType": "EXEC",
         "h": 88,
-        "p": "A diminutive man in a blue robe sits quietly behind a desk.  He is bald, with patterned tattoos cascading across his scalp.  The word CHEM is also tattooed on an exposed part of his chest.",
+        "p": "A diminutive man in a overlarge robe sits quietly behind a desk.  He is bald, with patterned tattoos cascading across his scalp.  The word CHEM is also tattooed on an exposed part of his chest.",
         "execStr": "",
         "next": "da9x3bkzq8n",
         "autoAdvance": true
@@ -1132,7 +1496,7 @@
         "y": 315.5,
         "eventChildType": "EXEC",
         "h": 60,
-        "p": "\"I am Chem.  Apprentice Chem.  My master is Sorcerer Evander of the Voxi Tower.\"",
+        "p": "\"I am Chem.  Apprentice Chem.  My House is lead by Sorcerer Evander of the Voxi Tower.\"",
         "execStr": "",
         "next": "da9x3bkzq8n",
         "autoAdvance": true
@@ -1172,10 +1536,10 @@
       },
       {
         "id": "4ptcv2k839",
-        "x": 1851,
-        "y": 544.5,
+        "x": 1871,
+        "y": 540.5,
         "eventChildType": "CHOICE",
-        "h": 180,
+        "h": 204,
         "text": "",
         "choices": [
           {
@@ -1204,7 +1568,15 @@
           },
           {
             "text": "Sapphiron?",
-            "conditionStr": "IS(tmp.mentionedSapphiron)",
+            "conditionStr": "ALL(IS(tmp.mentionedSapphiron), ISNOT(@EXPOSITION_ALINEA_SAPPHIRON_KNOWN))",
+            "evalStr": "",
+            "next": "119uzbddtyub",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "I've heard of this Sapphiron before...  What exactly is it?",
+            "conditionStr": "ALL(IS(tmp.mentionedSapphiron), IS(@EXPOSITION_ALINEA_SAPPHIRON_KNOWN), IS(@EXPOSITION_ALINEA_SAPPHIRON_FRAGMENTS_KNOWN))",
             "evalStr": "",
             "next": "119uzbddtyub",
             "prefixText": "",
@@ -1219,9 +1591,9 @@
             "switchText": []
           },
           {
-            "text": "(Go back.)",
+            "text": "Let's talk about something else. (Go back.)",
             "conditionStr": "",
-            "evalStr": "",
+            "evalStr": "SET_BOOL(tmp.mentionedSapphiron, false)",
             "next": "da9x3bkzq8n",
             "prefixText": "",
             "switchText": []
@@ -2585,7 +2957,7 @@
         "y": 264.5,
         "eventChildType": "EXEC",
         "h": 98,
-        "p": "\"It's rearing to go, actually.  But Realm has it's own plans for my ship, and they're keeping me here until this whole Blockade business blows over.\"",
+        "p": "\"It's rearing to go, actually.  But the Realm has it's own plans for my ship, and they're keeping me here until this whole Blockade business blows over.\"",
         "execStr": "SET_BOOL(vars.ch.@CHARACTER_ID.questAvailable)",
         "next": "d1qi0e8tfb8",
         "autoAdvance": true
@@ -2838,6 +3210,1050 @@
     ]
   },
   {
+    "id": "alinea_entomen",
+    "title": "Entomen",
+    "eventType": "TALK",
+    "icon": "special_event_icons_0",
+    "vars": [
+      {
+        "id": "m4sppp7uf",
+        "key": "CHARACTER_ID",
+        "value": "entomen",
+        "importFrom": ""
+      },
+      {
+        "id": "sslxon5ch3i",
+        "key": "DISPOSITION",
+        "value": "vars.disposition.alinea_entomen",
+        "importFrom": ""
+      },
+      {
+        "id": "69l6px95f9o",
+        "key": "MENTIONED_SAPPHIRON",
+        "value": "vars.entomen.mentionedSapphiron",
+        "importFrom": ""
+      },
+      {
+        "id": "7ttbg5entdq",
+        "key": "",
+        "value": "",
+        "importFrom": "util_exposition_alinea"
+      },
+      {
+        "id": "e7eromq7pqc",
+        "key": "",
+        "value": "",
+        "importFrom": "util_aspect"
+      }
+    ],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "7gea9j3oat",
+        "autoAdvance": true
+      },
+      {
+        "id": "7gea9j3oat",
+        "x": 156.81533813476562,
+        "y": 156.48674519856786,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "SETUP_DISPOSITION(@CHARACTER_ID)",
+        "next": "ga656de14ib",
+        "autoAdvance": false
+      },
+      {
+        "id": "p0lq92swqs",
+        "x": 233.81533813476562,
+        "y": 803.9867451985679,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Hello again...\"",
+        "execStr": "",
+        "next": "q2vd7ds0lwm",
+        "autoAdvance": true
+      },
+      {
+        "id": "7a10dc6439i",
+        "x": 235.81533813476562,
+        "y": 719.9867451985679,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Hello again.\"",
+        "execStr": "",
+        "next": "q2vd7ds0lwm",
+        "autoAdvance": true
+      },
+      {
+        "id": "fr8euoflu4u",
+        "x": 239.81533813476562,
+        "y": 628.9867451985679,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Hello again!\"",
+        "execStr": "",
+        "next": "q2vd7ds0lwm",
+        "autoAdvance": true
+      },
+      {
+        "id": "ga656de14ib",
+        "x": 232.81533813476562,
+        "y": 269.23674519856786,
+        "eventChildType": "SWITCH",
+        "h": 156,
+        "cases": [
+          {
+            "conditionStr": "ONCE(hasSpokenTo@CHARACTER_ID)",
+            "next": "c9l2ep66f9v"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,5)",
+            "next": "fr8euoflu4u"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,3)",
+            "next": "7a10dc6439i"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,1)",
+            "next": "p0lq92swqs"
+          }
+        ],
+        "defaultNext": "7a10dc6439i"
+      },
+      {
+        "id": "c9l2ep66f9v",
+        "x": 698.3153381347656,
+        "y": 121.23674519856786,
+        "eventChildType": "EXEC",
+        "h": 102,
+        "p": "A mysterious figure sits alone at a table in this tavern.  You cannot make out a face beneath its tall collar or the comically-oversized hat it wears.  Just a faint light that indicates eyes, directed downwards at an open tome on the table.",
+        "execStr": "",
+        "next": "q2vd7ds0lwm",
+        "autoAdvance": true
+      },
+      {
+        "id": "q2vd7ds0lwm",
+        "x": 929.3153381347656,
+        "y": 595.2367451985679,
+        "eventChildType": "CHOICE",
+        "h": 228,
+        "text": "",
+        "choices": [
+          {
+            "text": "Who are you?",
+            "conditionStr": "",
+            "evalStr": "SET_BOOL(vars.@CHARACTER_ID.introduced);",
+            "next": "e0nxacuh72o",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "What brings you around here?",
+            "conditionStr": "ALL(ONCE(vars.@CHARACTER_ID.askedAroundHere), IS(vars.@CHARACTER_ID.introduced))",
+            "evalStr": "",
+            "next": "7y8aryj83fo",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Why are you hiding your face?",
+            "conditionStr": "ONCE(wvGV2DOdbL)",
+            "evalStr": "SET_BOOL(vars.@CHARACTER_ID.pushFace);SET_BOOL(vars.@CHARACTER_ID.mentionedMagi)",
+            "next": "65jkubuf1jj",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "What, are you too ugly or something? Seriously, it couldn't be that bad...",
+            "conditionStr": "ALL(IS(vars.@CHARACTER_ID.pushFace),ONCE(TVgpeN9Ogy))",
+            "evalStr": "",
+            "next": "3h3ma73ni03",
+            "prefixText": "[FAE]",
+            "switchText": []
+          },
+          {
+            "text": "You mentioned something about Magi?",
+            "conditionStr": "IS(vars.@CHARACTER_ID.mentionedMagi)",
+            "evalStr": "",
+            "next": "w65lx58henp",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Let's talk about Sapphiron Fragments.",
+            "conditionStr": "IS(@MENTIONED_SAPPHIRON)",
+            "evalStr": "",
+            "next": "htytfmkaqw",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Let's talk about that book you wanted to find.",
+            "conditionStr": "QUEST_IS_STARTED(\"Entomen's Tome\")",
+            "evalStr": "",
+            "next": "jopddke7u8",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Nevermind. (Leave.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "1evxii0hk4ah",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "1evxii0hk4ah",
+        "x": 1029.9820048014324,
+        "y": 1039.5700785319013,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "e0nxacuh72o",
+        "x": 1337.0028381347656,
+        "y": 243.29830169677734,
+        "eventChildType": "EXEC",
+        "h": 130,
+        "p": "The figure tilts its head upwards and you can make the faintest outline of an angular, male face.\n\n\"I am Entomen.\"\n\nWhen he speaks you do not see moving lips, like the sound materialized out of thin air just for you to hear.",
+        "execStr": "",
+        "next": "q2vd7ds0lwm",
+        "autoAdvance": true
+      },
+      {
+        "id": "7y8aryj83fo",
+        "x": 1354.0028381347656,
+        "y": 536.2983016967773,
+        "eventChildType": "EXEC",
+        "h": 84,
+        "p": "\"I seek Sapphiron Fragments.\"",
+        "execStr": "SET_BOOL(@MENTIONED_SAPPHIRON)\nSET_BOOL(@EXPOSITION_ALINEA_SAPPHIRON_FRAGMENTS_KNOWN)",
+        "next": "5frdy2femj8",
+        "autoAdvance": true
+      },
+      {
+        "id": "5frdy2femj8",
+        "x": 1804.0028381347656,
+        "y": 556.2983016967773,
+        "eventChildType": "CHOICE",
+        "h": 156,
+        "text": "",
+        "choices": [
+          {
+            "text": "What are 'Sappihron Fragments'?",
+            "conditionStr": "",
+            "evalStr": "SET_BOOL(EXPOSITION_ALINEA_SAPPHIRON_KNOWN)",
+            "next": "g02up5co1gp",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Have you found any?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "9sctr3qqwno",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "How do these Sapphiron Fragments work?",
+            "conditionStr": "IS(EXPOSITION_ALINEA_SAPPHIRON_KNOWN)",
+            "evalStr": "",
+            "next": "jyjs7a6nyam",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Where did they come from?",
+            "conditionStr": "IS(EXPOSITION_ALINEA_SAPPHIRON_KNOWN)",
+            "evalStr": "",
+            "next": "32k0eoah1fw",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Let's talk about something else.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "b2lxvuis5kp",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "b2lxvuis5kp",
+        "x": 510.0028381347656,
+        "y": 926.2983016967773,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Okay.\"",
+        "execStr": "",
+        "next": "q2vd7ds0lwm",
+        "autoAdvance": true
+      },
+      {
+        "id": "htytfmkaqw",
+        "x": 1364.336171468099,
+        "y": 644.2983016967773,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Okay.\"",
+        "execStr": "",
+        "next": "5frdy2femj8",
+        "autoAdvance": true
+      },
+      {
+        "id": "oe4b62116p",
+        "x": 2643.6695048014326,
+        "y": 437.63163503011083,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "He taps the book in front of him.\n\n\"It would be best if you studied them yourself.\"",
+        "execStr": "",
+        "next": "5frdy2femj8",
+        "autoAdvance": true
+      },
+      {
+        "id": "g02up5co1gp",
+        "x": 2239.6695048014326,
+        "y": 423.63163503011083,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"They are items.  When charged with Sapphiron, they allow one to accomplish incredible physical feats: Lift heavy things, jump high, throw far.\"",
+        "execStr": "",
+        "next": "oe4b62116p",
+        "autoAdvance": true
+      },
+      {
+        "id": "tjgcqkfc4w",
+        "x": 2640.002838134766,
+        "y": 698.9649683634442,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"No.\"",
+        "execStr": "",
+        "next": "5frdy2femj8",
+        "autoAdvance": true
+      },
+      {
+        "id": "9sctr3qqwno",
+        "x": 2244.6695048014326,
+        "y": 583.6316350301108,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "ISNOT(@CHARACTER_ID.startSapphironQuest)",
+            "next": "nn389480to8"
+          }
+        ],
+        "defaultNext": "tjgcqkfc4w"
+      },
+      {
+        "id": "nn389480to8",
+        "x": 2641.6695048014326,
+        "y": 544.6316350301108,
+        "eventChildType": "EXEC",
+        "h": 140,
+        "p": "\"No...\"\n\nHe raises a gloved hand up to where you think his chin would be.\n\n\"Perhaps you could assist me?\"",
+        "execStr": "SET_BOOL(@CHARACTER_ID.startSapphironQuest)",
+        "next": "7essix390or",
+        "autoAdvance": true
+      },
+      {
+        "id": "7essix390or",
+        "x": 3021.672342936198,
+        "y": 561.9299367268886,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "What do you need?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "e859oswch3m",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "If you know where to find a powerful artifact, I implore you to tell me immediately.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "sohbp395mcn",
+            "prefixText": "[DRAGON]",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "e859oswch3m",
+        "x": 3628.672342936198,
+        "y": 332.9299367268886,
+        "eventChildType": "EXEC",
+        "h": 186,
+        "p": "\"I am close to discovering the location of a Sapphiron Fragment.  It exists here in Alinea.  But I do not know where it is precisely. I do not know who - if anybody - knows of it.  I have worn out my welcome here inquiring about it.  Most people I have spoken to do not wish to speak to me anymore about the subject.  I require more information.  A book.  It does not have a title.  It is bound in a way that one without knowledge cannot open it.  In the Merchantry Guild in east Alinea.  I believe the book is there.  Would you fetch it for me?\"",
+        "execStr": "",
+        "next": "02gnychhflce",
+        "autoAdvance": true
+      },
+      {
+        "id": "sohbp395mcn",
+        "x": 3487.672342936198,
+        "y": 594.9299367268886,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"I implore you not to be driven by the power of things you do not understand.  But I do appreciate the desire for control...\"",
+        "execStr": "",
+        "next": "e859oswch3m",
+        "autoAdvance": false
+      },
+      {
+        "id": "02gnychhflce",
+        "x": 4041.4723429361984,
+        "y": 504.12993672688856,
+        "eventChildType": "CHOICE",
+        "h": 132,
+        "text": "",
+        "choices": [
+          {
+            "text": "What will you give me to help you?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "rck4vqsgnhd",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Sure!  I'll grab it for you.",
+            "conditionStr": "ONCE(Cz9TyfSnl8)",
+            "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1);START_QUEST(\"Entomen's Tome\")",
+            "next": "h0xtxf0u6y",
+            "prefixText": "[DRYAD]",
+            "switchText": []
+          },
+          {
+            "text": "And this text will reveal the location of a Sapphron Fragment?",
+            "conditionStr": "ONCE(g5In6UXn68)",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "3h09786zd2v",
+            "prefixText": "[DRAGON]",
+            "switchText": []
+          },
+          {
+            "text": "I will think about it.",
+            "conditionStr": "",
+            "evalStr": "START_QUEST(\"Entomen's Tome\")",
+            "next": "b2lxvuis5kp",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "rck4vqsgnhd",
+        "x": 4450.672342936199,
+        "y": 380.929936726889,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"I can provide you fair compensation.  Bring the book here and we will talk.\"",
+        "execStr": "",
+        "next": "02gnychhflce",
+        "autoAdvance": true
+      },
+      {
+        "id": "h0xtxf0u6y",
+        "x": 4441.872342936199,
+        "y": 495.9299367268891,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Good.\"",
+        "execStr": "",
+        "next": "q2vd7ds0lwm",
+        "autoAdvance": true
+      },
+      {
+        "id": "3h09786zd2v",
+        "x": 4442.672342936198,
+        "y": 585.9299367268891,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"I believe so.  If I read it, that is.\"",
+        "execStr": "",
+        "next": "02gnychhflce",
+        "autoAdvance": true
+      },
+      {
+        "id": "jyjs7a6nyam",
+        "x": 2246.6723429361978,
+        "y": 687.9299367268881,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"This Island is special somehow.  These Sapphiron Fragments only function here.  I do not know how they work.  I wish to study them.\"",
+        "execStr": "",
+        "next": "5frdy2femj8",
+        "autoAdvance": true
+      },
+      {
+        "id": "32k0eoah1fw",
+        "x": 2250.6723429361978,
+        "y": 781.2632700602214,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "\"There is some evidence that they were created by inhabitants of the Island many years ago.  Before those of us from the Mainland arrived.  I do not have enough information to fully answer your question.\"",
+        "execStr": "",
+        "next": "5frdy2femj8",
+        "autoAdvance": true
+      },
+      {
+        "id": "65jkubuf1jj",
+        "x": 1353.6723429361982,
+        "y": 723.5966033935547,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"My face is only for me to know.  That is the tenant of my Magi House.\"",
+        "execStr": "",
+        "next": "q2vd7ds0lwm",
+        "autoAdvance": true
+      },
+      {
+        "id": "3h3ma73ni03",
+        "x": 666.3181762695312,
+        "y": 2598.5350468953457,
+        "eventChildType": "EXEC",
+        "h": 102,
+        "p": "At your retort, he perks up, like he's hearing you properly for the first time.\n\n\"Is that mischief I hear?  Why do you push the subject of my attire so thoroughly?\"",
+        "execStr": "",
+        "next": "0okjqkvgn25p",
+        "autoAdvance": true
+      },
+      {
+        "id": "0okjqkvgn25p",
+        "x": 1053.2515096028649,
+        "y": 2609.201713562012,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "A spooky, mysterious figure, hiding his face, acting like a big shot.  'Course I want to know what it looks like!",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
+            "next": "we1ftbj3w9k",
+            "prefixText": "[FAE]",
+            "switchText": []
+          },
+          {
+            "text": "Is it... disfigured?  Are you okay?",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1)",
+            "next": "0bkjykzq9dkr",
+            "prefixText": "[DRYAD]",
+            "switchText": []
+          },
+          {
+            "text": "I apologize sir, no I don't.  I don't know what came over me.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "77nh00cbpu",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "we1ftbj3w9k",
+        "x": 1439.8515096028646,
+        "y": 2575.735046895345,
+        "eventChildType": "EXEC",
+        "h": 102,
+        "p": "He nods slowly to himself.\n\n\"It is unmistakable now.  I am familiar with your ilk. Perhaps if we see each other more often you may come to see my face.\"",
+        "execStr": "",
+        "next": "d9mm7uqwg49",
+        "autoAdvance": true
+      },
+      {
+        "id": "0bkjykzq9dkr",
+        "x": 1430.7848429361975,
+        "y": 2705.3350468953454,
+        "eventChildType": "EXEC",
+        "h": 102,
+        "p": "Something changes in his posture, like a subtle sign of disappointment.\n\n\"I assure you I am not injured.  Let us broach another subject.\"",
+        "execStr": "",
+        "next": "q2vd7ds0lwm",
+        "autoAdvance": true
+      },
+      {
+        "id": "77nh00cbpu",
+        "x": 1429.0515096028646,
+        "y": 2847.0683802286794,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Okay.\"",
+        "execStr": "",
+        "next": "q2vd7ds0lwm",
+        "autoAdvance": true
+      },
+      {
+        "id": "w65lx58henp",
+        "x": 1399.8515096028648,
+        "y": 1092.0017135620124,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Yes.  The Magi.  You wish to speak of them?\"",
+        "execStr": "",
+        "next": "td9ibcerdj",
+        "autoAdvance": true
+      },
+      {
+        "id": "td9ibcerdj",
+        "x": 1857.2515096028649,
+        "y": 1173.8017135620125,
+        "eventChildType": "CHOICE",
+        "h": 156,
+        "text": "",
+        "choices": [
+          {
+            "text": "Who are the 'Magi'?",
+            "conditionStr": "",
+            "evalStr": "SET_BOOL(@EXPOSITION_ALINEA_MAGI_KNOWN)",
+            "next": "a1wibloqc4g",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "What House are you a part of?",
+            "conditionStr": "IS(@EXPOSITION_ALINEA_MAGI_KNOWN)",
+            "evalStr": "SET_BOOL(tmp.entomenHouse)",
+            "next": "j6fi9c45sb",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "You are a House of one?",
+            "conditionStr": "IS(tmp.entomenHouse)",
+            "evalStr": "SET_BOOL(tmp.entomenHouse2)",
+            "next": "mzso8wlrcaq",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Let's talk about your House.",
+            "conditionStr": "IS(tmp.entomenHouse2)",
+            "evalStr": "",
+            "next": "2tbydpuh33n",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Let's talk about something else.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "q2vd7ds0lwm",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "a1wibloqc4g",
+        "x": 2247.0028381347656,
+        "y": 1072.2983016967773,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "\"The Magi are a collection of scholars that reside on the Island.  We assist each other in research.  We also keep an eye on each other.  We are split into different Houses.\"",
+        "execStr": "",
+        "next": "td9ibcerdj",
+        "autoAdvance": true
+      },
+      {
+        "id": "j6fi9c45sb",
+        "x": 2259.0028381347656,
+        "y": 1182.2983016967773,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"My own house.  Entomen House.\"",
+        "execStr": "",
+        "next": "td9ibcerdj",
+        "autoAdvance": true
+      },
+      {
+        "id": "mzso8wlrcaq",
+        "x": 2270.0028381347656,
+        "y": 1242.2983016967773,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "\"Yes.  I have discovered that my ideals and my drive necessitates my own House of study.  The rest of the Magi have agreed.  Should one come along that seeks what I seek, then they may join my house.\"",
+        "execStr": "",
+        "next": "a3n9fdplg4",
+        "autoAdvance": true
+      },
+      {
+        "id": "u5ziqm5yi6",
+        "x": 3189.0028381347656,
+        "y": 1134.2983016967773,
+        "eventChildType": "EXEC",
+        "h": 116,
+        "p": "\"Like all Magi I seek knowledge.  Unlike most Magi, I do not wish to seek it on this Island.  There is something about this place that repels us.  Some force is trying to evict us from this place.  I want to discover what that force is.  I want to bring it before the Magi.  I want us to leave.\"",
+        "execStr": "",
+        "next": "a3n9fdplg4",
+        "autoAdvance": true
+      },
+      {
+        "id": "a3n9fdplg4",
+        "x": 2690.0028381347656,
+        "y": 1308.2983016967773,
+        "eventChildType": "CHOICE",
+        "h": 180,
+        "text": "",
+        "choices": [
+          {
+            "text": "What do you seek?",
+            "conditionStr": "",
+            "evalStr": "SET_BOOL(tmp.whatSeek)",
+            "next": "u5ziqm5yi6",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "You're preaching to the choir.  I just got here and all I want to do is leave.",
+            "conditionStr": "ALL(IS(tmp.whatSeek), ONCE(vRL0ogt8Xy))",
+            "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
+            "next": "31r09pudxyh",
+            "prefixText": "[FAE]",
+            "switchText": []
+          },
+          {
+            "text": "If you believe there is a problem with being here, why haven't you left yet?",
+            "conditionStr": "IS(tmp.whatSeek)",
+            "evalStr": "",
+            "next": "oi7bfevecc9",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Why are you in this city, then?",
+            "conditionStr": "",
+            "evalStr": "SET_BOOL(tmp.whatSeek2)",
+            "next": "boratrnstvl",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "You mentioned 'Sapphiron Fragments'?",
+            "conditionStr": "IS(tmp.whatSeek2)",
+            "evalStr": "",
+            "next": "5thmqiawti3",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Let's move on. (Go back.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "td9ibcerdj",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "31r09pudxyh",
+        "x": 3175.0028381347656,
+        "y": 1286.2983016967773,
+        "eventChildType": "EXEC",
+        "h": 102,
+        "p": "His hat moves up and down, almost like a silent chuckle.\n\n\"That is not precicely the intent of my research.  You will not divert me, mischievous one.\"",
+        "execStr": "",
+        "next": "a3n9fdplg4",
+        "autoAdvance": true
+      },
+      {
+        "id": "oi7bfevecc9",
+        "x": 3181.0028381347656,
+        "y": 1414.2983016967773,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "\"My desire for knowledge supersedes my other desires.  Should I discover what I need, then I will have accomplished something worthwhile.  If I leave, then I have no hope of such a thing.\"",
+        "execStr": "",
+        "next": "a3n9fdplg4",
+        "autoAdvance": true
+      },
+      {
+        "id": "boratrnstvl",
+        "x": 3189.0028381347656,
+        "y": 1642.2983016967773,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"I seek Sapphiron Fragments.  One in particular.  It can be found here.  I do not know exactly where.\"",
+        "execStr": "",
+        "next": "a3n9fdplg4",
+        "autoAdvance": true
+      },
+      {
+        "id": "2tbydpuh33n",
+        "x": 2293.669504801432,
+        "y": 1368.6316350301108,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"You wish to know more of my House?\"",
+        "execStr": "",
+        "next": "a3n9fdplg4",
+        "autoAdvance": true
+      },
+      {
+        "id": "d9mm7uqwg49",
+        "x": 1840.1085144042972,
+        "y": 2628.4333485921234,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "My Ilk?  What are you talking about?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "l6uzyfsszid",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Okay then... let's talk about something else.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "b2lxvuis5kp",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "l6uzyfsszid",
+        "x": 2245.4418477376307,
+        "y": 2528.4333485921234,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "He nods curtly.\n\n\"Pay it no heed.  Let us speak of other things.\"",
+        "execStr": "",
+        "next": "66uk0ib7z8",
+        "autoAdvance": true
+      },
+      {
+        "id": "hwk49jw6yfr",
+        "x": 1848.5265096028645,
+        "y": 1537.5966033935547,
+        "eventChildType": "CHOICE",
+        "h": 60,
+        "text": "",
+        "choices": [
+          {
+            "text": "Nevermind. (Go back.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "b2lxvuis5kp",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "jopddke7u8",
+        "x": 1406.1931762695312,
+        "y": 1576.5966033935547,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"You have news?\"",
+        "execStr": "",
+        "next": "hwk49jw6yfr",
+        "autoAdvance": true
+      },
+      {
+        "id": "5thmqiawti3",
+        "x": 3182.1931762695312,
+        "y": 1543.5966033935547,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Yes.  What do you want to know?\"",
+        "execStr": "",
+        "next": "5frdy2femj8",
+        "autoAdvance": true
+      },
+      {
+        "id": "66uk0ib7z8",
+        "x": 2703.5056762695312,
+        "y": 2481.5350468953457,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "Whoah wait a second.  What just happened there?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "v612g8830w",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Right.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "3zeei62t4kb",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "v612g8830w",
+        "x": 3095.5056762695312,
+        "y": 2438.5350468953457,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"I told you pay it no heed.\"",
+        "execStr": "",
+        "next": "66uk0ib7z8",
+        "autoAdvance": true
+      },
+      {
+        "id": "3zeei62t4kb",
+        "x": 3092.5056762695312,
+        "y": 2530.535046895345,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"What else do you wish to speak of?\"",
+        "execStr": "",
+        "next": "q2vd7ds0lwm",
+        "autoAdvance": true
+      }
+    ]
+  },
+  {
+    "id": "alinea_gateGuardNorth",
+    "title": "Gate Guard",
+    "eventType": "TALK",
+    "icon": "special_event_icons_1",
+    "vars": [
+      {
+        "id": "akmvzemwuel",
+        "key": "CHARACTER_ID",
+        "value": "alinea_bookkeeper",
+        "importFrom": ""
+      },
+      {
+        "id": "wpayrxl0uh8",
+        "key": "DISPOSITION",
+        "value": "vars.disposition.alinea_bookkeeper",
+        "importFrom": ""
+      },
+      {
+        "id": "gje4dc439hh",
+        "key": "",
+        "value": "",
+        "importFrom": "util_aspect"
+      },
+      {
+        "id": "ral7jyg5hdg",
+        "key": "",
+        "value": "",
+        "importFrom": "util_exposition_alinea"
+      }
+    ],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "i0e7c7w674",
+        "autoAdvance": true
+      },
+      {
+        "id": "uao9kv68u9g",
+        "x": 820.25,
+        "y": 128,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "The attendant sitting at the desk perks her head up at your approach.\n\n\"Can I help you?\"",
+        "execStr": "",
+        "next": "yfmldyw7qi8",
+        "autoAdvance": true
+      },
+      {
+        "id": "yfmldyw7qi8",
+        "x": 931.25,
+        "y": 377,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "Is this some kind of library?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "I'm looking for a book...",
+            "conditionStr": "QUEST_STEP_EQ(que_alinea_EntomenTome, findBook)",
+            "evalStr": "",
+            "next": "",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Nevermind. (Leave.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "u6sgl0xgrqd",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "u6sgl0xgrqd",
+        "x": 977.25,
+        "y": 852,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "i0e7c7w674",
+        "x": 424.00965881347656,
+        "y": 90.30169296264648,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "ONCE(7a9bDhSaCo)",
+            "next": "uao9kv68u9g"
+          }
+        ],
+        "defaultNext": ""
+      }
+    ]
+  },
+  {
     "id": "alinea_gruff",
     "title": "Tavernkeeper Gruff",
     "eventType": "TALK",
@@ -2947,10 +4363,10 @@
       {
         "id": "xy1soyjsm9",
         "x": 699,
-        "y": 142.5,
+        "y": 145.5,
         "eventChildType": "EXEC",
         "h": 158,
-        "p": "The man behind the bar is large and imposing, with big shoulders and a wide frame. He quietly listens to patrons orders, and hands out massive tankards of beer with a neutral expression, working with steady calm and efficiency.  He's very busy, as he appears to be working alone.  Patrons fill the bar, and several of them wave their hands or shout for his attention from across the tavern floor.  When he sees you, he says \"My name's Gruff, can I get you something?\"",
+        "p": "The man behind the bar is large and imposing, with big shoulders and a wide frame. He quietly listens to patrons orders, and hands out tall tankards of beer with a neutral expression, working with steady calm and efficiency.  He's very busy, as he appears to be working alone.  Patrons fill the bar, and several of them wave their hands or shout for his attention from across the tavern floor.  When he sees you, he says \"My name's Gruff, can I get you something?\"",
         "execStr": "",
         "next": "qi2qeo4vowo",
         "autoAdvance": true
@@ -3928,7 +5344,7 @@
         "y": 133,
         "eventChildType": "EXEC",
         "h": 88,
-        "p": "A middle-aged dockworker sips a tankard of beer.  His eyes are locked on something across the bar.  At your approach, he blinks a few times before turning his gaze to you.  \"Yeah?  You want something?\"",
+        "p": "A aged dockworker sips a tankard of beer.  His eyes are locked on someone across the bar.  At your approach, he blinks a few times before turning his gaze to you.  \"Yeah?  You want something?\"",
         "execStr": "",
         "next": "jikn0umyx2p",
         "autoAdvance": true
@@ -4014,7 +5430,7 @@
         "y": 752.5,
         "eventChildType": "EXEC",
         "h": 60,
-        "p": "\"That noble over there.  I don't like him.\"  He indicates a lone well-dressed man across the bar,",
+        "p": "\"That noble over there.  I don't like him.\"  He indicates a lone well-dressed man across the bar.",
         "execStr": "",
         "next": "oesc46znepc",
         "autoAdvance": true
@@ -4069,7 +5485,7 @@
           },
           {
             "text": "I could play a prank on him if you like!",
-            "conditionStr": "ALL(GTE(@ASPECT_FAE, 0),IS_NOT(vars.ch.@CHARACTER_ID.mentionedRockPrank))",
+            "conditionStr": "ALL(GTE(@ASPECT_FAE, 0),ISNOT(vars.ch.@CHARACTER_ID.mentionedRockPrank))",
             "evalStr": "",
             "next": "w6s4ssrlai",
             "prefixText": "[FAE]",
@@ -9172,6 +10588,12 @@
         "id": "ja9l9uxj96",
         "key": "EXPOSITION_ALINEA_SAPPHIRON_KNOWN",
         "value": "vars.exposition.alinea.sapphironKnown",
+        "importFrom": ""
+      },
+      {
+        "id": "zcowema2pek",
+        "key": "EXPOSITION_ALINEA_SAPPHIRON_FRAGMENTS_KNOWN",
+        "value": "vars.exposition.alinea.sapphironFragmentsKnown",
         "importFrom": ""
       },
       {

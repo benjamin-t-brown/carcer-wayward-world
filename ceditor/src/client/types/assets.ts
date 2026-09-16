@@ -1039,6 +1039,7 @@ export interface GameEvent {
   id: string;
   title: string;
   eventType: 'MODAL' | 'TALK' | 'TRAVEL';
+  /** Default sprite. TALK events prefer the talking character's portrait. */
   icon: string;
   vars: Variable[];
   children: SENode[];
@@ -1291,9 +1292,14 @@ export interface MapTileItemEntry {
   quantity: number;
 }
 
+export interface MapTileCharacterEntry {
+  name: string;
+  flipped?: boolean;
+}
+
 /** Materialized tile view for editor/runtime; not stored in maps.json. */
 export interface CarcerMapTileTemplate {
-  characters: string[];
+  characters: MapTileCharacterEntry[];
   items: MapTileItemEntry[];
   markers: string[];
   tileOverrides?: TileOverrides;
@@ -1312,6 +1318,7 @@ export interface MapTileRef {
 
 export interface MapCharacterPlacement extends MapTileRef {
   name: string;
+  flipped?: boolean;
 }
 
 export interface MapItemPlacement extends MapTileRef {
@@ -1504,5 +1511,43 @@ export function createDefaultFeatTemplate(): FeatTemplate {
     label: '',
     description: '',
     implementation: 'DATA',
+  };
+}
+
+// ============================================================================
+// Quest Templates
+// ============================================================================
+
+export interface QuestStep {
+  id: string;
+  label: string;
+  description: string;
+  subSteps?: QuestStep[];
+}
+
+export interface QuestTemplate {
+  id: string;
+  label: string;
+  description: string;
+  completedDescription: string;
+  steps: QuestStep[];
+}
+
+export function createDefaultQuestStep(): QuestStep {
+  return {
+    id: '',
+    label: '',
+    description: '',
+    subSteps: [],
+  };
+}
+
+export function createDefaultQuestTemplate(): QuestTemplate {
+  return {
+    id: '',
+    label: '',
+    description: '',
+    completedDescription: '',
+    steps: [],
   };
 }

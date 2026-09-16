@@ -5,8 +5,10 @@ alwaysApply: true
 
 # Line Endings (LF)
 
-All new and edited source files must use **LF** (`\n`) line endings, never **CRLF** (`\r\n`).
+All text in this repo uses **LF** (`\n`). Never **CRLF** (`\r\n`).
 
-Applies to code and config such as `.cpp`, `.h`, `.hpp`, `.c`, `.cc`, `.ts`, `.tsx`, `.js`, `.jsx`, `.json`, `.md`, `.yml`, `.yaml`, `.sh`, `.cmake`, `Makefile`, and similar text sources.
+Applies to code and config such as `.cpp`, `.h`, `.hpp`, `.c`, `.cc`, `.ts`, `.tsx`, `.js`, `.jsx`, `.json`, `.md`, `.yml`, `.yaml`, `.sh`, `.cmake`, `Makefile`, `.html`, `.gitattributes`, and similar text sources.
 
 When creating or rewriting a file, write it with LF only. Do not introduce CRLF on Windows.
+
+If git HEAD or the working tree already has CRLF, convert to LF anyway. Do not restore CRLF to match history, `git diff` cleanliness, or Windows checkout defaults. `.gitattributes` sets `eol=lf` for the whole repo.

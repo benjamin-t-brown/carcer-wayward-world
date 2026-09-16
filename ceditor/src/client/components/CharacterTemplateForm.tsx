@@ -68,7 +68,7 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
       }
     }
     return talkOnly;
-  }, [gameEvents, formData.talk?.talkName]);
+  }, [gameEvents, formData?.talk?.talkName]);
 
   const spriteName = `${formData?.spritesheet}_${formData?.spriteOffset}`;
 
@@ -687,6 +687,10 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
               </div>
               <div className="form-group form-block talk-portrait-field">
                 <label htmlFor="talk-portrait-picker">Portrait Sprite</label>
+                <div style={{ marginTop: '4px', fontSize: '11px', color: '#858585' }}>
+                  Shown on the talk event. If empty, the event's default
+                  icon is used.
+                </div>
                 <div className="talk-portrait-picker">
                   <SpritePicker
                     value={formData.talk?.portraitName || ''}

@@ -31,6 +31,8 @@ export interface SearchInputProps<T> {
   onEnter?: (term: string) => void;
   /** Keeps parent state in sync with the input value (e.g. for a submit button). */
   onSearchTermChange?: (term: string) => void;
+  /** When true, the results list stays closed until the user types a term. */
+  requireSearchTerm?: boolean;
 }
 
 export function shouldOpenAbove(
@@ -63,6 +65,7 @@ export function SearchInput<T>({
   openAboveBelowViewportRatio = 2 / 3,
   onEnter,
   onSearchTermChange,
+  requireSearchTerm = false,
 }: SearchInputProps<T>) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -101,13 +104,14 @@ export function SearchInput<T>({
   }, [isOpen, dropdownPlacement, openAboveBelowViewportRatio]);
 
   const filteredItems = useMemo(() => {
+    if (requireSearchTerm && !searchTerm.trim()) return [];
     if (!searchTerm.trim()) return items;
     const term = searchTerm.toLowerCase();
     return items.filter((item) => {
       const fields = searchFields(item);
       return fields.some((field) => field.toLowerCase().includes(term));
     });
-  }, [items, searchTerm, searchFields]);
+  }, [items, searchTerm, searchFields, requireSearchTerm]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

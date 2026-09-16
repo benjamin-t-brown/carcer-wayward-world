@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { GameEvent, SwitchCase } from '../../types/assets';
 import { Button } from '../../elements/Button';
-import { VariableWidget } from '../react-components/VariableWidget';
 import { EditorNodeSwitch } from '../cmpts/SwitchNodeComponent';
 import { notifyStateUpdated } from '../seEditorState';
-import { ExecWidget } from '../react-components/ExecWidget';
+import { AssetSearchWidget } from '../react-components/AssetSearchWidget';
+import { OnceKeyGenerator } from '../react-components/OnceKeyGenerator';
 import { MODAL_ROOT_CLASS, useEscapeToClose } from '../../hooks/useEscapeToClose';
 
 interface EditSwitchNodeModalProps {
@@ -97,106 +97,41 @@ export function EditSwitchNodeModal({
   return (
     <div
       ref={modalRef}
-      className={MODAL_ROOT_CLASS}
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1001,
-      }}
+      className={`${MODAL_ROOT_CLASS} se-node-modal-overlay`}
     >
-      <div
-        style={{
-          backgroundColor: '#252526',
-          border: '1px solid #3e3e42',
-          borderRadius: '8px',
-          padding: '30px',
-          maxWidth: '90vw',
-          width: '90%',
-          maxHeight: '80vh',
-          overflow: 'auto',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2
-          style={{
-            color: '#4ec9b0',
-            marginBottom: '20px',
-            marginTop: 0,
-          }}
-        >
-          Edit Switch Node
-        </h2>
-
-        <div
-          style={{
-            color: '#999',
-            marginBottom: '20px',
-            fontSize: '14px',
-          }}
-        >
-          GameEvent: <span style={{ color: '#00d4d4' }}>{gameEvent.id}</span> |
-          Node: <span style={{ color: '#d4d400' }}>{node.id}</span>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            gap: '10px',
-            width: '100%',
-            marginBottom: '20px',
-          }}
-        >
-          <div style={{ width: '50%' }}>
-            <VariableWidget gameEvent={gameEvent} />
+      <div className="se-node-modal-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="se-node-modal-chrome">
+          <h2>Edit Switch Node</h2>
+          <div className="se-node-modal-ids">
+            GameEvent: <span style={{ color: '#00d4d4' }}>{gameEvent.id}</span> |
+            Node: <span style={{ color: '#d4d400' }}>{node.id}</span>
           </div>
-          <div style={{ width: '50%' }}>
-            <ExecWidget gameEvent={gameEvent} />
-          </div>
+          <AssetSearchWidget gameEvent={gameEvent} />
+          <OnceKeyGenerator />
         </div>
 
-        <div style={{ marginBottom: '20px' }}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '4px',
-            }}
-          >
-            <label
-              style={{
-                color: '#d4d4d4',
-                fontSize: '14px',
-                fontWeight: 'bold',
-              }}
-            >
-              Cases
-            </label>
-            <Button onClick={handleAddCase}>+ Add Case</Button>
-          </div>
-
-          {cases.length === 0 && (
-            <div
-              style={{
-                color: '#666',
-                fontStyle: 'italic',
-                padding: '20px',
-                textAlign: 'center',
-                border: '1px dashed #3e3e42',
-                borderRadius: '4px',
-              }}
-            >
-              No cases. Click "Add Case" to add one.
+        <div className="se-node-modal-body">
+          <div className="se-node-modal-section">
+            <div className="se-node-modal-section-header">
+              <label>Cases</label>
+              <Button onClick={handleAddCase}>+ Add Case</Button>
             </div>
-          )}
 
-          <div id="switch-node-cases">
+            <div id="switch-node-cases" className="se-node-modal-scroll">
+            {cases.length === 0 && (
+              <div
+                style={{
+                  color: '#666',
+                  fontStyle: 'italic',
+                  padding: '20px',
+                  textAlign: 'center',
+                  border: '1px dashed #3e3e42',
+                  borderRadius: '4px',
+                }}
+              >
+                No cases. Click "Add Case" to add one.
+              </div>
+            )}
             {cases.map((caseItem, index) => (
               <div
                 key={index}
@@ -274,17 +209,11 @@ export function EditSwitchNodeModal({
                 </div>
               </div>
             ))}
+            </div>
           </div>
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: '10px',
-            marginTop: '30px',
-          }}
-        >
+        <div className="se-node-modal-footer">
           <Button onClick={handleEditNodeConfirm}>Save</Button>
           <Button variant="secondary" onClick={onCancel}>
             Cancel

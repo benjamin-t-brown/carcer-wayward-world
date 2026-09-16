@@ -9,6 +9,7 @@
 #include "loaders/LoadSpellTemplates.h"
 #include "loaders/LoadStatusEffectTemplates.h"
 #include "loaders/LoadTilesetTemplates.h"
+#include "loaders/LoadQuestTemplates.h"
 #include <stdexcept>
 
 namespace db {
@@ -101,6 +102,7 @@ void Database::load() {
   loadMapGridTemplates("assets/db/map-grids.json", mapGridTemplates);
   loadTilesetTemplates("assets/db/tilesets.json", tilesetTemplates);
   loadSpecialEvents("assets/db/special-events.json", gameEvents);
+  loadQuestTemplates("assets/db/quests.json", questTemplates);
   validateCombatReferences();
   LOG(INFO) << "Loaded database." << LOG_ENDL;
 }
@@ -120,6 +122,11 @@ Database::getCharacterTemplate(std::string_view templateName) const {
 
 void Database::addCharacterTemplate(const model::CharacterTemplate& characterTemplate) {
   characterTemplates[characterTemplate.name] = characterTemplate;
+}
+
+const bmin::Map<bmin::String, model::CharacterTemplate>&
+Database::getCharacterTemplates() const {
+  return characterTemplates;
 }
 
 const model::AbilityTemplate& Database::getAbilityTemplate(std::string_view abilityName) const {
@@ -228,6 +235,27 @@ Database::findTilesetTemplate(std::string_view tilesetName) const {
 
 void Database::addTilesetTemplate(const model::TilesetTemplate& tilesetTemplate) {
   tilesetTemplates[tilesetTemplate.name] = tilesetTemplate;
+}
+
+const model::QuestTemplate& Database::getQuestTemplate(std::string_view questId) const {
+  return mapGet(questTemplates, questId, "Quest template not found: ");
+}
+
+const model::QuestTemplate* Database::findQuestTemplate(std::string_view questId) const {
+  const auto mapKey = bmin::String(questId.data(), questId.size());
+  auto it = questTemplates.find(mapKey);
+  if (it == questTemplates.end()) {
+    return nullptr;
+  }
+  return &(*it).value;
+}
+
+const bmin::Map<bmin::String, model::QuestTemplate>& Database::getQuestTemplates() const {
+  return questTemplates;
+}
+
+void Database::addQuestTemplate(const model::QuestTemplate& questTemplate) {
+  questTemplates[questTemplate.id] = questTemplate;
 }
 
 } // namespace db

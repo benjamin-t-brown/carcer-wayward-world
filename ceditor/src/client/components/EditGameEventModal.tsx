@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { TextInput } from '../elements/TextInput';
 import { OptionSelect } from '../elements/OptionSelect';
-import { SpritePicker } from '../elements/SpritePicker';
 import { GameEvent } from '../types/assets';
 import { GenericModal } from '../elements/GenericModal';
+import { GameEventIconField } from './GameEventIconField';
+import { isGameEventIconRequired } from '../utils/talkEventPortrait';
 
 interface EditGameEventModalProps {
   isOpen: boolean;
@@ -38,7 +39,7 @@ export function EditGameEventModal({
       !formData.id ||
       !formData.title ||
       !formData.eventType ||
-      !formData.icon
+      (isGameEventIconRequired(formData.eventType) && !formData.icon)
     ) {
       return;
     }
@@ -90,29 +91,12 @@ export function EditGameEventModal({
               }))}
               required
             />
-            <div className="form-group" style={{ marginTop: '15px' }}>
-              <label htmlFor="edit-game-event-icon">Icon *</label>
-              <div style={{ marginTop: '8px' }}>
-                <SpritePicker
-                  value={formData.icon}
-                  onChange={(value) =>
-                    setFormData({ ...formData, icon: value })
-                  }
-                  scale={2}
-                />
-              </div>
-              {formData.icon && (
-                <div
-                  style={{
-                    marginTop: '8px',
-                    fontSize: '12px',
-                    color: '#858585',
-                  }}
-                >
-                  Selected: {formData.icon}
-                </div>
-              )}
-            </div>
+            <GameEventIconField
+              id="edit-game-event-icon"
+              eventType={formData.eventType}
+              value={formData.icon}
+              onChange={(value) => setFormData({ ...formData, icon: value })}
+            />
           </div>
         </>
       )}

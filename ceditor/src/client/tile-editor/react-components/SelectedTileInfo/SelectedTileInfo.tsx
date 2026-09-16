@@ -231,8 +231,8 @@ export function SelectedTileInfo({
           dropdownPlacement="auto"
           onSelect={(characterName) => {
             updateTile((tile) => {
-              if (!tile.characters.includes(characterName)) {
-                tile.characters = [...tile.characters, characterName];
+              if (!tile.characters.some((placed) => placed.name === characterName)) {
+                tile.characters = [...tile.characters, { name: characterName }];
               }
             });
           }}

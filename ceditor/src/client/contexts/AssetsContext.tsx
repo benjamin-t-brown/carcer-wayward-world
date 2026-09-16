@@ -7,6 +7,7 @@ import {
   CarcerMapTemplate,
   MapGridTemplate,
   FeatTemplate,
+  QuestTemplate,
 } from '../types/assets';
 import { AbilityTemplate, StatusEffectTemplate } from '../types/ability';
 import { SpellTemplate } from '../types/spell';
@@ -19,6 +20,7 @@ interface AssetsContextType {
   spells: SpellTemplate[];
   statusEffects: StatusEffectTemplate[];
   feats: FeatTemplate[];
+  quests: QuestTemplate[];
   tilesets: TilesetTemplate[];
   gameEvents: GameEvent[];
   maps: CarcerMapTemplate[];
@@ -31,6 +33,7 @@ interface AssetsContextType {
   setSpells: (spells: SpellTemplate[]) => void;
   setStatusEffects: (statusEffects: StatusEffectTemplate[]) => void;
   setFeats: (feats: FeatTemplate[]) => void;
+  setQuests: (quests: QuestTemplate[]) => void;
   setTilesets: (tilesets: TilesetTemplate[]) => void;
   setGameEvents: (gameEvents: GameEvent[]) => void;
   setMaps: (maps: CarcerMapTemplate[]) => void;
@@ -41,6 +44,7 @@ interface AssetsContextType {
   saveSpells: (spells: SpellTemplate[]) => Promise<void>;
   saveStatusEffects: (statusEffects: StatusEffectTemplate[]) => Promise<void>;
   saveFeats: (feats: FeatTemplate[]) => Promise<void>;
+  saveQuests: (quests: QuestTemplate[]) => Promise<void>;
   saveTilesets: (tilesets: TilesetTemplate[]) => Promise<void>;
   saveGameEvents: (gameEvents: GameEvent[]) => Promise<void>;
   saveMaps: (maps: CarcerMapTemplate[]) => Promise<void>;
@@ -65,6 +69,7 @@ interface AssetsProviderProps {
   initialSpells: SpellTemplate[];
   initialStatusEffects: StatusEffectTemplate[];
   initialFeats: FeatTemplate[];
+  initialQuests: QuestTemplate[];
   initialTilesets: TilesetTemplate[];
   initialGameEvents: GameEvent[];
   initialMaps: CarcerMapTemplate[];
@@ -91,6 +96,7 @@ const saveSpells = (spells: SpellTemplate[]) => saveAsset('spellTemplates', spel
 const saveStatusEffects = (statusEffects: StatusEffectTemplate[]) =>
   saveAsset('statusEffectTemplates', statusEffects);
 const saveFeats = (feats: FeatTemplate[]) => saveAsset('featTemplates', feats);
+const saveQuests = (quests: QuestTemplate[]) => saveAsset('questTemplates', quests);
 const saveTilesets = (tilesets: TilesetTemplate[]) =>
   saveAsset('tilesetTemplates', tilesets);
 const saveGameEvents = (gameEvents: GameEvent[]) =>
@@ -107,6 +113,7 @@ export function AssetsProvider({
   initialSpells,
   initialStatusEffects,
   initialFeats,
+  initialQuests,
   initialTilesets,
   initialGameEvents,
   initialMaps,
@@ -119,6 +126,7 @@ export function AssetsProvider({
   const [statusEffects, setStatusEffects] =
     useState<StatusEffectTemplate[]>(initialStatusEffects);
   const [feats, setFeats] = useState<FeatTemplate[]>(initialFeats);
+  const [quests, setQuests] = useState<QuestTemplate[]>(initialQuests);
   const [tilesets, setTilesets] = useState<TilesetTemplate[]>(initialTilesets);
   const [gameEvents, setGameEvents] = useState<GameEvent[]>(initialGameEvents);
   const [maps, setMaps] = useState<CarcerMapTemplate[]>(initialMaps);
@@ -135,6 +143,7 @@ export function AssetsProvider({
         spells,
         statusEffects,
         feats,
+        quests,
         tilesets,
         gameEvents,
         maps,
@@ -147,6 +156,7 @@ export function AssetsProvider({
         setSpells,
         setStatusEffects,
         setFeats,
+        setQuests,
         setTilesets,
         setGameEvents,
         setMaps,
@@ -157,6 +167,7 @@ export function AssetsProvider({
         saveSpells,
         saveStatusEffects,
         saveFeats,
+        saveQuests,
         saveTilesets,
         saveGameEvents,
         saveMaps,

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "que_alinea_chemSapphiron",
+    "label": "Chem Sapphiron",
+    "description": "",
+    "completedDescription": "",
+    "steps": []
+  },
+  {
+    "id": "que_alinea_ElvyosaShipPassage",
+    "label": "Elvyosa Ship Passage",
+    "description": "",
+    "completedDescription": "",
+    "steps": []
+  },
+  {
+    "id": "que_alinea_EntomenTome",
+    "label": "Entomen's Tome",
+    "description": "The mysterious Magi, Entomen, has asked you to retrieve a certain tome from the Merchantry Guild in East Alinea.  Supposedly this will help him to discover the location of a Sapphiron Fragment, an item which he is seeking to acquire.",
+    "completedDescription": "You helped Entomen by bringing him his tome.",
+    "steps": [
+      {
+        "id": "findBook",
+        "label": "Find Entomen's Tome",
+        "description": "Go to the Merchantry Guild in East Alinea and acquire Entomen's Tome.  It is a titleless book that you supposedly will not be able to open on your own.",
+        "subSteps": []
+      },
+      {
+        "id": "bringBookBack",
+        "label": "Give Entomen's Tome",
+        "description": "Bring Entomen's Tome back to him at the Posh Palfrey Inn in West Alinea.",
+        "subSteps": []
+      }
+    ]
+  },
+  {
+    "id": "que_alinea_NobleRuffian",
+    "label": "Noble Ruffian",
+    "description": "A fisherman, Igmund, dislikes a certain nobleman who is currently residing in the Crawbell Tavern outside of Alinea.  You've offered to play a 'prank' on the nobleman named Barto Caldeburn by assaulting him with a rock from outside the tavern.",
+    "completedDescription": "That did not go well... did it?",
+    "steps": [
+      {
+        "id": "get-rock",
+        "label": "Get a rock",
+        "description": "Find a rock outside the tavern.",
+        "subSteps": []
+      },
+      {
+        "id": "throw-rock",
+        "label": "Throw the rock",
+        "description": "Throw the rock at Barto Caldeburn.",
+        "subSteps": [
+          {
+            "id": "leave-tavern",
+            "label": "Leave the tavern",
+            "description": "Step outside so you have a clear throw."
+          },
+          {
+            "id": "hit-bartolo",
+            "label": "Hit Bartolo",
+            "description": "Land the throw."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "que_alinea_omniflowerHeist",
+    "label": "Omniflower Heist",
+    "description": "",
+    "completedDescription": "",
+    "steps": []
+  }
+]

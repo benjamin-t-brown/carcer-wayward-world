@@ -53,12 +53,45 @@ export const snapPixelArtPanOffset = (
   };
 };
 
+/**
+ * Snap zoom so each tile occupies a whole number of canvas pixels.
+ * Fractional tile sizes plus per-sprite rounding leave black seams when zoomed out.
+ */
+export const snapPixelArtScale = (scale: number, tileSize: number): number => {
+  if (tileSize <= 0 || scale <= 0) {
+    return scale;
+  }
+  const pixels = Math.max(1, Math.round(tileSize * scale));
+  return pixels / tileSize;
+};
+
+/**
+ * Destination rect for one map tile such that adjacent tiles share edges
+ * (no gaps, no overlaps) even when tileSize * scale is not an integer.
+ */
+export const scaledTileRect = (
+  tileX: number,
+  tileY: number,
+  tileWidth: number,
+  tileHeight: number,
+  scale: number,
+): { x: number; y: number; w: number; h: number } => {
+  const x = Math.round(tileX * tileWidth * scale);
+  const y = Math.round(tileY * tileHeight * scale);
+  const w = Math.max(1, Math.round((tileX + 1) * tileWidth * scale) - x);
+  const h = Math.max(1, Math.round((tileY + 1) * tileHeight * scale) - y);
+  return { x, y, w, h };
+};
+
 export const drawSprite = (
   sprite: Sprite,
   x: number,
   y: number,
   scale: number,
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
+  destW?: number,
+  destH?: number,
+  flipped = false,
 ) => {
   scale = scale || 1;
 
@@ -70,9 +103,20 @@ export const drawSprite = (
   }
 
   disableCanvasSmoothing(ctx);
-  const drawW = Math.round(sprite.width * scale);
-  const drawH = Math.round(sprite.height * scale);
-  ctx.drawImage(drawable, Math.round(x), Math.round(y), drawW, drawH);
+  const drawW = destW ?? Math.max(1, Math.round(sprite.width * scale));
+  const drawH = destH ?? Math.max(1, Math.round(sprite.height * scale));
+  const destX = Math.round(x);
+  const destY = Math.round(y);
+  if (flipped) {
+    ctx.save();
+    disableCanvasSmoothing(ctx);
+    ctx.translate(destX + drawW, destY);
+    ctx.scale(-1, 1);
+    ctx.drawImage(drawable, 0, 0, drawW, drawH);
+    ctx.restore();
+    return;
+  }
+  ctx.drawImage(drawable, destX, destY, drawW, drawH);
 };
 
 export const drawRect = (

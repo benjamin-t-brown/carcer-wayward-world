@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { GameEvent } from '../../types/assets';
 import { Button } from '../../elements/Button';
-import { VariableWidget } from '../react-components/VariableWidget';
 import { EditorNodeExec } from '../cmpts/ExecNodeComponent';
 import { notifyStateUpdated } from '../seEditorState';
-import { ExecWidget } from '../react-components/ExecWidget';
 import { AudioWidget } from '../react-components/AudioWidget';
-import { ItemTemplateWidget } from '../react-components/ItemTemplateWidget';
+import { AssetSearchWidget } from '../react-components/AssetSearchWidget';
+import { OnceKeyGenerator } from '../react-components/OnceKeyGenerator';
 import { MODAL_ROOT_CLASS, useEscapeToClose } from '../../hooks/useEscapeToClose';
 
 interface EditExecNodeModalProps {
@@ -53,175 +52,56 @@ export function EditExecNodeModal({
   return (
     <div
       ref={modalRef}
-      className={MODAL_ROOT_CLASS}
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1001,
-      }}
+      className={`${MODAL_ROOT_CLASS} se-node-modal-overlay`}
     >
-      <div
-        style={{
-          backgroundColor: '#252526',
-          border: '1px solid #3e3e42',
-          borderRadius: '8px',
-          padding: '30px',
-          maxWidth: '90vw',
-          width: '90%',
-          maxHeight: '80vh',
-          overflow: 'auto',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2
-          style={{
-            color: '#4ec9b0',
-            marginBottom: '20px',
-            marginTop: 0,
-          }}
-        >
-          Edit Exec Node
-        </h2>
-
-        <div
-          style={{
-            color: '#999',
-            marginBottom: '8px',
-            fontSize: '14px',
-          }}
-        >
-          GameEvent: <span style={{ color: '#00d4d4' }}>{gameEvent.id}</span> |
-          Node: <span style={{ color: '#d4d400' }}>{node.id}</span>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            gap: '10px',
-            width: '100%',
-            marginBottom: '20px',
-          }}
-        >
-          <div style={{ width: '34%' }}>
-            <VariableWidget gameEvent={gameEvent} />
+      <div className="se-node-modal-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="se-node-modal-chrome">
+          <h2>Edit Exec Node</h2>
+          <div className="se-node-modal-ids">
+            GameEvent: <span style={{ color: '#00d4d4' }}>{gameEvent.id}</span> |
+            Node: <span style={{ color: '#d4d400' }}>{node.id}</span>
           </div>
-          <div style={{ width: '33%' }}>
-            <ExecWidget gameEvent={gameEvent} />
+          <AssetSearchWidget gameEvent={gameEvent} />
+          <div className="se-node-modal-check-row">
+            <input
+              id="autoAdvance"
+              type="checkbox"
+              checked={autoAdvance}
+              onChange={(e) => setAutoAdvance(e.target.checked)}
+            />
+            <label htmlFor="autoAdvance">Auto Advance</label>
           </div>
-          <div style={{ width: '33%' }}>
-            <ItemTemplateWidget gameEvent={gameEvent} />
-          </div>
-        </div>
-        <div
-          style={{
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            marginBottom: '20px',
-          }}
-        >
-          <input
-            id="autoAdvance"
-            type="checkbox"
-            checked={autoAdvance}
-            onChange={(e) => setAutoAdvance(e.target.checked)}
-          />
-          <label
-            htmlFor="autoAdvance"
-            style={{
-              color: '#d4d4d4',
-              fontSize: '14px',
-            }}
-          >
-            Auto Advance
-          </label>
+          <OnceKeyGenerator />
         </div>
 
-        <div
-          style={{
-            marginBottom: '20px',
-            display: 'flex',
-            justifyContent: 'space-between',
-          }}
-        >
-          <div style={{ width: '75%' }}>
-            <label
-              style={{
-                display: 'block',
-                color: '#d4d4d4',
-                marginBottom: '8px',
-                fontSize: '14px',
-              }}
-            >
-              Text (p)
-            </label>
+        <div className="se-node-modal-body">
+          <div className="se-node-modal-text-audio">
+            <div className="se-node-modal-field">
+              <label>Text (p)</label>
+              <textarea
+                className="se-node-modal-textarea"
+                value={p}
+                onChange={(e) => setP(e.target.value)}
+                placeholder="Enter text to display..."
+              />
+            </div>
+            <div className="se-node-modal-audio">
+              <AudioWidget node={node} />
+            </div>
+          </div>
+          <div className="se-node-modal-field">
+            <label>Execute Code (execStr)</label>
             <textarea
-              value={p}
-              onChange={(e) => setP(e.target.value)}
-              style={{
-                width: '100%',
-                minHeight: '200px',
-                padding: '8px',
-                backgroundColor: '#1e1e1e',
-                border: '1px solid #3e3e42',
-                borderRadius: '4px',
-                color: '#d4d4d4',
-                fontFamily: 'monospace',
-                fontSize: '14px',
-                resize: 'vertical',
-              }}
-              placeholder="Enter text to display..."
+              className="se-node-modal-textarea"
+              value={execStr}
+              onChange={(e) => setExecStr(e.target.value)}
+              spellCheck={false}
+              placeholder="Enter code to execute..."
             />
           </div>
-          <div style={{ width: '20%' }}>
-            <AudioWidget node={node} />
-          </div>
-        </div>
-        <div style={{ marginBottom: '20px' }}>
-          <label
-            style={{
-              display: 'block',
-              color: '#d4d4d4',
-              marginBottom: '8px',
-              fontSize: '14px',
-            }}
-          >
-            Execute Code (execStr)
-          </label>
-          <textarea
-            value={execStr}
-            onChange={(e) => setExecStr(e.target.value)}
-            style={{
-              width: '100%',
-              minHeight: '200px',
-              padding: '8px',
-              backgroundColor: '#1e1e1e',
-              border: '1px solid #3e3e42',
-              borderRadius: '4px',
-              color: '#d4d4d4',
-              fontFamily: 'monospace',
-              fontSize: '14px',
-              resize: 'vertical',
-            }}
-            spellCheck={false}
-            placeholder="Enter code to execute..."
-          />
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            gap: '10px',
-            justifyContent: 'flex-end',
-          }}
-        >
+        <div className="se-node-modal-footer">
           <Button variant="primary" onClick={() => handleEditNodeConfirm()}>
             Confirm
           </Button>

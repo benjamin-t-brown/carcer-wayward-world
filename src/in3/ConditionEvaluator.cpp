@@ -1,5 +1,6 @@
 #include "ConditionEvaluator.h"
 #include "EventRunnerHelpers.h"
+#include "QuestProgress.h"
 #include <algorithm>
 #include <stdexcept>
 
@@ -146,19 +147,16 @@ bool ConditionEvaluatorFuncs::FUNC_HasItem(const bmin::String& itemName) {
 }
 
 bool ConditionEvaluatorFuncs::FUNC_QuestStarted(const bmin::String& questName) {
-  auto v = getStorage(storage, "vars.quests." + questName + ".started");
-  return v && !v->empty() && *v != "0" && *v != "false";
+  return questIsStarted(storage, questName);
 }
 
 bool ConditionEvaluatorFuncs::FUNC_QuestCompleted(const bmin::String& questName) {
-  auto v = getStorage(storage, "vars.quests." + questName + ".completed");
-  return v && !v->empty() && *v != "0" && *v != "false";
+  return questIsComplete(storage, questName);
 }
 
 bool ConditionEvaluatorFuncs::FUNC_QuestStepEq(const bmin::String& questName,
                                                const bmin::String& stepId) {
-  auto v = getStorage(storage, "vars.quests." + questName + ".step");
-  return v && *v == stepId;
+  return questStepEq(storage, questName, stepId);
 }
 
 ConditionEvaluator::ConditionEvaluator(const bmin::Map<bmin::String, bmin::String>& storage,

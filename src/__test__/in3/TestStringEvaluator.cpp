@@ -4,7 +4,8 @@
 #include "sdl2w/Logger.h"
 #include "in3/EventRunnerHelpers.h"
 #include "in3/StringEvaluator.h"
-#include "bmin/Map.h"
+#include "in3/QuestProgress.h"
+#include "model/templates/Quests.hpp"
 
 #define TEST_NAME "TestStringEvaluator"
 
@@ -91,8 +92,113 @@ int main(int argc, char** argv) {
 
     if (!failedTests.empty()) {
       LOG(ERROR) << "Test failed: " << failedTests.size() << " tests failed" << LOG_ENDL;
+      in3::setQuestTemplates(nullptr);
       return 1;
     }
+
+    LOG(INFO) << "== Running quest tests ==" << LOG_ENDL;
+    model::QuestTemplate rock;
+    rock.id = "alineaBartoRock";
+    model::QuestStep getRock;
+    getRock.id = "get-rock";
+    model::QuestStep throwRock;
+    throwRock.id = "throw-rock";
+    model::QuestStep leaveTavern;
+    leaveTavern.id = "leave-tavern";
+    throwRock.subSteps.pushBack(leaveTavern);
+    rock.steps.pushBack(getRock);
+    rock.steps.pushBack(throwRock);
+
+    model::QuestTemplate emptyQuest;
+    emptyQuest.id = "emptyQuest";
+
+    bmin::Map<bmin::String, model::QuestTemplate> quests;
+    quests[rock.id] = rock;
+    quests[emptyQuest.id] = emptyQuest;
+    in3::setQuestTemplates(&quests);
+
+    bmin::Map<bmin::String, bmin::String> questStorage;
+    {
+      in3::StringEvaluator evaluator(questStorage, "START_QUEST(emptyQuest)");
+      evaluator.evalStr("START_QUEST(emptyQuest)");
+      if (in3::getStorage(questStorage, "vars.quests.emptyQuest.step")) {
+        LOG(ERROR) << "START_QUEST with no steps should be a noop" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+    }
+    {
+      in3::StringEvaluator evaluator(questStorage, "START_QUEST(alineaBartoRock)");
+      evaluator.evalStr("START_QUEST(alineaBartoRock)");
+      auto step = in3::getStorage(questStorage, "vars.quests.alineaBartoRock.step");
+      if (!step || *step != "get-rock") {
+        LOG(ERROR) << "START_QUEST should set the first top-level step" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+    }
+    {
+      in3::StringEvaluator evaluator(questStorage, "COMPLETE_QUEST_STEP(alineaBartoRock, get-rock)");
+      evaluator.evalStr("COMPLETE_QUEST_STEP(alineaBartoRock, get-rock)");
+      auto step = in3::getStorage(questStorage, "vars.quests.alineaBartoRock.step");
+      auto done = in3::getStorage(questStorage, "vars.quests.alineaBartoRock.completed.get-rock");
+      if (!step || *step != "throw-rock") {
+        LOG(ERROR) << "Completing a top-level step should advance to the next" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (!done || *done != "true") {
+        LOG(ERROR) << "COMPLETE_QUEST_STEP should mark the named step complete" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+    }
+    {
+      in3::StringEvaluator evaluator(questStorage,
+                                     "COMPLETE_QUEST_STEP(alineaBartoRock, leave-tavern)");
+      evaluator.evalStr("COMPLETE_QUEST_STEP(alineaBartoRock, leave-tavern)");
+      auto step = in3::getStorage(questStorage, "vars.quests.alineaBartoRock.step");
+      auto done = in3::getStorage(questStorage, "vars.quests.alineaBartoRock.completed.leave-tavern");
+      if (!step || *step != "throw-rock") {
+        LOG(ERROR) << "Completing a sub-step should not change the current top-level step"
+                   << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (!done || *done != "true") {
+        LOG(ERROR) << "Completing a sub-step should mark it complete" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (!in3::questStepEq(questStorage, "alineaBartoRock", "leave-tavern")) {
+        LOG(ERROR) << "QUEST_STEP_EQ should treat a completed sub-step as a separate check"
+                   << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+    }
+    {
+      in3::StringEvaluator evaluator(questStorage, "COMPLETE_QUEST(alineaBartoRock)");
+      evaluator.evalStr("COMPLETE_QUEST(alineaBartoRock)");
+      auto step = in3::getStorage(questStorage, "vars.quests.alineaBartoRock.step");
+      if (!step || *step != "complete") {
+        LOG(ERROR) << "COMPLETE_QUEST should set the step to complete" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (in3::questIsStarted(questStorage, "alineaBartoRock")) {
+        LOG(ERROR) << "A completed quest should not count as started" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (!in3::questIsComplete(questStorage, "alineaBartoRock")) {
+        LOG(ERROR) << "COMPLETE_QUEST should make QUEST_IS_COMPLETE true" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+    }
+
+    in3::setQuestTemplates(nullptr);
     LOG(INFO) << TEST_NAME << " completed successfully" << LOG_ENDL;
     return 0;
   } catch (const std::exception& e) {

@@ -43,6 +43,8 @@ export interface EditorState {
   showGrid: boolean;
   isSelectDragging: boolean;
   selectDragSourceTileIndex: number;
+  /** Map the select/clone drag started on. Empty means the focused map. */
+  selectDragSourceMapName: string;
   rectSelectTileIndStart: number;
   rectSelectTileIndEnd: number;
   rectCloneBrushTiles: FloorBrushData[];
@@ -93,6 +95,7 @@ const editorState: EditorState = {
   showGrid: true,
   isSelectDragging: false,
   selectDragSourceTileIndex: -1,
+  selectDragSourceMapName: '',
   rectSelectTileIndStart: -1,
   rectSelectTileIndEnd: -1,
   rectCloneBrushTiles: [],

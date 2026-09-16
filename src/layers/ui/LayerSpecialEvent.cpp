@@ -1,4 +1,6 @@
 #include "LayerSpecialEvent.h"
+#include "db/Database.h"
+#include "game/TalkEventPortrait.h"
 #include "in3/EventRunnerHelpers.h"
 #include "sdl2w/L10n.h"
 #include "state/State.hpp"
@@ -28,14 +30,16 @@ constexpr int kKeyboardPressFlashMs = 120;
 ui::PageTalkChoiceProps buildTalkProps(in3::SpecialEventRunner& runner,
                                        const bmin::DynArray<ui::TextBlock>& talkHistory,
                                        int windowWidth,
-                                       int windowHeight) {
+                                       int windowHeight,
+                                       const db::Database* database) {
   ui::PageTalkChoiceProps props;
   props.width = windowWidth;
   props.height = windowHeight;
   props.choiceAreaHeight = TALK_CHOICE_AREA_HEIGHT;
   props.title =
       runner.gameEvent.title.empty() ? runner.gameEvent.id : runner.gameEvent.title;
-  props.portraitSpriteName = runner.gameEvent.icon;
+  props.portraitSpriteName =
+      game::resolveTalkEventPortrait(runner.gameEvent, database);
   props.portraitScale = 1.5f;
   props.pinFromBlockIndex = static_cast<int>(talkHistory.size());
   for (const auto& block : talkHistory) {
@@ -117,7 +121,8 @@ LayerSpecialEvent::LayerSpecialEvent(
     pageTalkChoice->setProps(buildTalkProps(runner,
                                             talkHistory,
                                             static_cast<int>(windowWidth / scale),
-                                            static_cast<int>(windowHeight / scale)));
+                                            static_cast<int>(windowHeight / scale),
+                                            getDatabase()));
     addUiElement(bmin::UniquePtr<ui::UiElement>(pageTalkChoice));
   } else {
     auto modalProps = buildModalProps(runner,
@@ -174,7 +179,8 @@ void LayerSpecialEvent::syncUi() {
     pageTalkChoice->setProps(buildTalkProps(runner,
                                             talkHistory,
                                             static_cast<int>(windowWidth),
-                                            static_cast<int>(windowHeight)));
+                                            static_cast<int>(windowHeight),
+                                            getDatabase()));
     attachChoiceObservers();
     return;
   }

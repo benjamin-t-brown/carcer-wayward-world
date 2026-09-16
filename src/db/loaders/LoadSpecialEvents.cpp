@@ -262,10 +262,11 @@ void loadSpecialEvents(const bmin::String& specialEventsFilePath,
     const bmin::String eventTypeStr = eventJson["eventType"].get<bmin::String>();
     gameEvent.eventType = getGameEventTypeFromString(eventTypeStr);
 
-    if (!eventJson.contains("icon") || !eventJson["icon"].is_string()) {
+    if (eventJson.contains("icon") && eventJson["icon"].is_string()) {
+      gameEvent.icon = eventJson["icon"].get<bmin::String>();
+    } else if (gameEvent.eventType != model::GameEventType::TALK) {
       throw std::runtime_error("Event missing required field: icon");
     }
-    gameEvent.icon = eventJson["icon"].get<bmin::String>();
 
     if (eventJson.contains("vars") && eventJson["vars"].is_array()) {
       for (const auto& varJson : eventJson["vars"]) {

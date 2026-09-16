@@ -67,13 +67,12 @@ export class EditorNodeChoice extends EditorNode {
       ...super.toSENode(),
       text: this.text,
       audioInfo: this.audioInfo,
-      choices: this.exits.map((conn, i) => {
-        const choice = this.choices[i];
+      choices: this.choices.map((choice, i) => {
         return {
           text: choice?.text ?? '',
           conditionStr: choice?.conditionStr ?? '',
           evalStr: choice?.evalStr ?? '',
-          next: conn.toNodeId ?? '',
+          next: this.exits[i]?.toNodeId ?? choice?.next ?? '',
           prefixText: choice?.prefixText ?? '',
           switchText: choice?.switchText ?? [],
         };

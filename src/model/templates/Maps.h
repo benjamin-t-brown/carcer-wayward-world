@@ -73,6 +73,7 @@ MapType getMapTypeFromString(const bmin::String& mapTypeString);
 
 struct MapCharacterPlacement : MapTileRef {
   bmin::String name;
+  bool flipped = false;
 };
 
 struct MapItemPlacement : MapTileRef {

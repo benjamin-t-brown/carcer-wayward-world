@@ -39,9 +39,13 @@ int main(int argc, char** argv) {
     ok = assertEqual(static_cast<int>(layer0.size()), 8, "flat_test_map.tiles[0].size") && ok;
     ok = assertEqual(layer0[2], 1, "flat_test_map.tiles[0][2]") && ok;
     ok = assertEqual(layer0[3], 6, "flat_test_map.tiles[0][3]") && ok;
-    ok = assertEqual(static_cast<int>(map.characters.size()), 1, "flat_test_map.characters") && ok;
+    ok = assertEqual(static_cast<int>(map.characters.size()), 2, "flat_test_map.characters") && ok;
     ok = assertEqual(map.characters[0].l, 0, "flat_test_map.characters[0].l") && ok;
     ok = assertEqual(map.characters[0].i, 1, "flat_test_map.characters[0].i") && ok;
+    ok = assertEqual(map.characters[0].flipped ? 1 : 0, 0, "flat_test_map.characters[0].flipped") &&
+         ok;
+    ok = assertEqual(map.characters[1].flipped ? 1 : 0, 1, "flat_test_map.characters[1].flipped") &&
+         ok;
     ok = assertEqual(static_cast<int>(map.items.size()), 1, "flat_test_map.items") && ok;
     ok = assertEqual(map.items[0].quantity, 2, "flat_test_map.items[0].quantity") && ok;
     ok = assertEqual(static_cast<int>(map.markers.size()), 1, "flat_test_map.markers") && ok;

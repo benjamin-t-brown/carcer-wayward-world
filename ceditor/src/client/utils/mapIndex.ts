@@ -7,6 +7,7 @@ import {
   MapLightSourcePlacement,
   MapMarkerPlacement,
   MapTileItemEntry,
+  MapTileCharacterEntry,
   MapTileOverridePlacement,
   MapTileRef,
   MapTravelTriggerPlacement,
@@ -260,9 +261,18 @@ export const PLACEMENT_KINDS: readonly PlacementKind[] = [
     listKey: 'characters',
     tileKey: 'characters',
     cardinality: 'many',
-    toTile: (c) => c.name,
-    fromTile: (names: string[]) =>
-      (names ?? []).filter(Boolean).map((name) => ({ name })),
+    toTile: (c) => ({
+      name: c.name,
+      ...(c.flipped ? { flipped: true } : {}),
+    }),
+    fromTile: (entries: Array<string | MapTileCharacterEntry> | undefined) =>
+      (entries ?? [])
+        .map((entry) => (typeof entry === 'string' ? { name: entry } : entry))
+        .filter((entry) => Boolean(entry?.name))
+        .map((entry) => ({
+          name: entry.name,
+          ...(entry.flipped ? { flipped: true } : {}),
+        })),
   },
   {
     listKey: 'items',

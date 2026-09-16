@@ -59,6 +59,10 @@ interface PaintActionData {
   floorDrawBrush?: FloorBrushData[];
   startInd: number;
   endInd: number;
+  /** Select/clone source block when the drag started on a neighbour. */
+  sourceMapName?: string;
+  /** Select/clone dest block when the drop landed on a neighbour. */
+  destMapName?: string;
   tileInds: number[];
   extraTileInds: number[];
   extraPrevRefData: CarcerMapTileTemplate[];
@@ -358,7 +362,8 @@ export const onActionComplete = (
   currentAction = null;
   applyAction(action, mapData, editorState);
 
-  const paintMapName = getPaintMapName(editorState);
+  const paintMapName =
+    action.data.destMapName || getPaintMapName(editorState);
 
   // Add action to undo history
   const newUndoHistory = [
@@ -387,6 +392,19 @@ export const onActionComplete = (
   pushGridUndo(paintMapName);
   commitCurrentLayer(mapData, editorState.currentLevel);
   commitBlockWriteMaps(action, mapData.name, editorState.currentLevel);
+  const sourceMapName = action.data.sourceMapName;
+  if (
+    action.type === PaintActionType.SELECT &&
+    sourceMapName &&
+    sourceMapName !== mapData.name
+  ) {
+    const sourceMap = getGridPaintContext()?.maps.find(
+      (m) => m.name === sourceMapName,
+    );
+    if (sourceMap) {
+      commitCurrentLayer(sourceMap, editorState.currentLevel);
+    }
+  }
 };
 
 export const undo = (
@@ -412,6 +430,19 @@ export const undo = (
   undoAction(mapData, actionToUndo);
   commitCurrentLayer(mapData, editorState.currentLevel);
   commitBlockWriteMaps(actionToUndo, mapData.name, editorState.currentLevel);
+  const undoSourceMapName = actionToUndo.data.sourceMapName;
+  if (
+    actionToUndo.type === PaintActionType.SELECT &&
+    undoSourceMapName &&
+    undoSourceMapName !== mapData.name
+  ) {
+    const sourceMap = getGridPaintContext()?.maps.find(
+      (m) => m.name === undoSourceMapName,
+    );
+    if (sourceMap) {
+      commitCurrentLayer(sourceMap, editorState.currentLevel);
+    }
+  }
 
   // Update undo index and trigger re-render
   const newUndoIndex = undoIndex - 1;

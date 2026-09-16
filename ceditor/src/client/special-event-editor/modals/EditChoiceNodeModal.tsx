@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Choice, ChoiceSwitchText, GameEvent } from '../../types/assets';
 import { Button } from '../../elements/Button';
-import { VariableWidget } from '../react-components/VariableWidget';
 import { EditorNodeChoice } from '../cmpts/ChoiceNodeComponent';
 import { notifyStateUpdated } from '../seEditorState';
-import { ExecWidget } from '../react-components/ExecWidget';
 import { AudioWidget } from '../react-components/AudioWidget';
-import { ItemTemplateWidget } from '../react-components/ItemTemplateWidget';
+import { AssetSearchWidget } from '../react-components/AssetSearchWidget';
+import { OnceKeyGenerator } from '../react-components/OnceKeyGenerator';
 import {
   MODAL_ROOT_CLASS,
   useEscapeToClose,
@@ -79,6 +78,7 @@ const UpDownMover = (props: {
         alignItems: 'center',
         height: '100%',
         marginBottom: '8px',
+        marginTop: '3px',
         gap: '0px',
       }}
     >
@@ -230,153 +230,55 @@ export function EditChoiceNodeModal({
   return (
     <div
       ref={modalRef}
-      className={MODAL_ROOT_CLASS}
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1001,
-      }}
+      className={`${MODAL_ROOT_CLASS} se-node-modal-overlay`}
     >
-      <div
-        style={{
-          backgroundColor: '#252526',
-          border: '1px solid #3e3e42',
-          borderRadius: '8px',
-          padding: '30px',
-          maxWidth: '90vw',
-          width: '90%',
-          maxHeight: '80vh',
-          overflow: 'auto',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2
-          style={{
-            color: '#4ec9b0',
-            marginBottom: '20px',
-            marginTop: 0,
-          }}
-        >
-          Edit Choice Node
-        </h2>
+      <div className="se-node-modal-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="se-node-modal-chrome">
+          <h2>Edit Choice Node</h2>
+          <div className="se-node-modal-ids">
+            GameEvent: <span style={{ color: '#00d4d4' }}>{gameEvent.id}</span> |
+            Node: <span style={{ color: '#d4d400' }}>{node.id}</span>
+          </div>
+          <AssetSearchWidget gameEvent={gameEvent} />
+          <OnceKeyGenerator />
+        </div>
 
-        <div
-          style={{
-            color: '#999',
-            marginBottom: '20px',
-            fontSize: '14px',
-          }}
-        >
-          GameEvent: <span style={{ color: '#00d4d4' }}>{gameEvent.id}</span> |
-          Node: <span style={{ color: '#d4d400' }}>{node.id}</span>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            gap: '10px',
-            width: '100%',
-            marginBottom: '20px',
-          }}
-        >
-          <div style={{ width: '34%' }}>
-            <VariableWidget gameEvent={gameEvent} />
-          </div>
-          <div style={{ width: '33%' }}>
-            <ExecWidget gameEvent={gameEvent} />
-          </div>
-          <div style={{ width: '33%' }}>
-            <ItemTemplateWidget gameEvent={gameEvent} />
-          </div>
-        </div>
-        <div
-          style={{
-            marginBottom: '20px',
-            display: 'flex',
-            justifyContent: 'space-between',
-          }}
-        >
-          <div style={{ width: '75%' }}>
-            <div
-              style={{
-                color: '#d4d4d4',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                marginBottom: '8px',
-              }}
-            >
-              Text
+        <div className="se-node-modal-body">
+          <div className="se-node-modal-text-audio se-node-modal-text-audio-compact">
+            <div className="se-node-modal-field">
+              <label>Text</label>
+              <textarea
+                className="se-node-modal-textarea se-node-modal-textarea-plain"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+              />
             </div>
-            <textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '6px',
-                backgroundColor: '#1e1e1e',
-                border: '1px solid #3e3e42',
-                borderRadius: '4px',
-                color: '#d4d4d4',
-                fontFamily: 'arial',
-                fontSize: '16px',
-                height: '100px',
-              }}
-            />
-          </div>
-          <div style={{ width: '20%' }}>
-            <AudioWidget node={node} />
-          </div>
-        </div>
-
-        <div style={{ marginBottom: '20px' }}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '4px',
-            }}
-          >
-            <label
-              style={{
-                color: '#d4d4d4',
-                fontSize: '14px',
-                fontWeight: 'bold',
-              }}
-            >
-              Choices
-            </label>
-            <Button onClick={handleAddChoice}>+ Add Choice</Button>
-          </div>
-
-          {choices.length === 0 && (
-            <div
-              style={{
-                color: '#666',
-                fontStyle: 'italic',
-                padding: '20px',
-                textAlign: 'center',
-                border: '1px dashed #3e3e42',
-                borderRadius: '4px',
-              }}
-            >
-              No choices. Click "Add Choice" to add one.
+            <div className="se-node-modal-audio">
+              <AudioWidget node={node} />
             </div>
-          )}
+          </div>
 
-          <div
-            id="choice-node-choices"
-            style={{
-              height: '450px',
-              overflow: 'auto',
-            }}
-          >
+          <div className="se-node-modal-section">
+            <div className="se-node-modal-section-header">
+              <label>Choices</label>
+              <Button onClick={handleAddChoice}>+ Add Choice</Button>
+            </div>
+
+            <div id="choice-node-choices" className="se-node-modal-scroll">
+            {choices.length === 0 && (
+              <div
+                style={{
+                  color: '#666',
+                  fontStyle: 'italic',
+                  padding: '20px',
+                  textAlign: 'center',
+                  border: '1px dashed #3e3e42',
+                  borderRadius: '4px',
+                }}
+              >
+                No choices. Click "Add Choice" to add one.
+              </div>
+            )}
             {choices.map((choiceItem, index) => {
               return (
                 <div
@@ -544,17 +446,11 @@ export function EditChoiceNodeModal({
                 </div>
               );
             })}
+            </div>
           </div>
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: '10px',
-            marginTop: '30px',
-          }}
-        >
+        <div className="se-node-modal-footer">
           <Button onClick={handleEditNodeConfirm}>Save</Button>
           <Button variant="secondary" onClick={onCancel}>
             Cancel

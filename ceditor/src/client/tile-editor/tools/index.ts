@@ -1,5 +1,8 @@
 import { calculateFillIndsFloor } from '../fill';
-import { CarcerMapTemplate } from '../../types/assets';
+import {
+  CarcerMapTemplate,
+  CarcerMapTileTemplate,
+} from '../../types/assets';
 import { createDefaultCarcerMapTile } from '../../components/MapTemplateForm';
 import {
   getEditorStateMap,
@@ -8,6 +11,60 @@ import {
 import { getGridPaintContext, getTileList } from '../editorEvents';
 import type { PaintAction } from '../paintTools';
 import { MapTool } from './types';
+
+const mapByName = (
+  name: string | undefined,
+  fallback: CarcerMapTemplate,
+): CarcerMapTemplate => {
+  if (!name || name === fallback.name) {
+    return fallback;
+  }
+  return getGridPaintContext()?.maps.find((m) => m.name === name) ?? fallback;
+};
+
+const copyTileMetadata = (
+  sourceTile: CarcerMapTileTemplate,
+  destTile: CarcerMapTileTemplate,
+) => {
+  destTile.characters = [
+    ...(destTile.characters || []),
+    ...(sourceTile.characters || []),
+  ];
+  destTile.items = [...(destTile.items || []), ...(sourceTile.items || [])];
+  destTile.markers = [
+    ...(destTile.markers || []),
+    ...(sourceTile.markers || []),
+  ];
+
+  if (sourceTile.tileOverrides) {
+    destTile.tileOverrides = {
+      ...sourceTile.tileOverrides,
+      ...(destTile.tileOverrides || {}),
+    };
+  }
+
+  if (sourceTile.lightSource && !destTile.lightSource) {
+    destTile.lightSource = structuredClone(sourceTile.lightSource);
+  }
+
+  if (sourceTile.eventTrigger && !destTile.eventTrigger) {
+    destTile.eventTrigger = structuredClone(sourceTile.eventTrigger);
+  }
+
+  if (sourceTile.travelTrigger && !destTile.travelTrigger) {
+    destTile.travelTrigger = structuredClone(sourceTile.travelTrigger);
+  }
+};
+
+const clearTileMetadata = (tile: CarcerMapTileTemplate) => {
+  tile.characters = [];
+  tile.items = [];
+  tile.markers = [];
+  delete tile.tileOverrides;
+  delete tile.lightSource;
+  delete tile.eventTrigger;
+  delete tile.travelTrigger;
+};
 
 export type { MapTool } from './types';
 
@@ -219,80 +276,40 @@ const select: MapTool = {
   shortcutBlockedByCtrl: true,
   row: 'primary',
   apply(action, map) {
-    const mapTiles = getTileList(map);
-    if (
-      action.data.tileInds.length >= 2 &&
-      action.data.prevRefData.length >= 2
-    ) {
-      const sourceTileIndex = action.data.startInd;
-      const destTileIndex = action.data.endInd;
-
-      if (
-        sourceTileIndex >= 0 &&
-        destTileIndex >= 0 &&
-        sourceTileIndex !== destTileIndex
-      ) {
-        const sourceTile = mapTiles[sourceTileIndex];
-        const destTile = mapTiles[destTileIndex];
-
-        destTile.characters = [
-          ...(destTile.characters || []),
-          ...(sourceTile.characters || []),
-        ];
-        destTile.items = [...(destTile.items || []), ...(sourceTile.items || [])];
-        destTile.markers = [
-          ...(destTile.markers || []),
-          ...(sourceTile.markers || []),
-        ];
-
-        if (sourceTile.tileOverrides) {
-          destTile.tileOverrides = {
-            ...sourceTile.tileOverrides,
-            ...(destTile.tileOverrides || {}),
-          };
-        }
-
-        if (sourceTile.lightSource && !destTile.lightSource) {
-          destTile.lightSource = sourceTile.lightSource;
-        }
-
-        if (sourceTile.eventTrigger && !destTile.eventTrigger) {
-          destTile.eventTrigger = sourceTile.eventTrigger;
-        }
-
-        if (sourceTile.travelTrigger && !destTile.travelTrigger) {
-          destTile.travelTrigger = structuredClone(sourceTile.travelTrigger);
-        }
-
-        sourceTile.characters = [];
-        sourceTile.items = [];
-        sourceTile.markers = [];
-        delete sourceTile.tileOverrides;
-        delete sourceTile.lightSource;
-        delete sourceTile.eventTrigger;
-        delete sourceTile.travelTrigger;
-      }
+    const sourceMap = mapByName(action.data.sourceMapName, map);
+    const destMap = mapByName(action.data.destMapName, map);
+    const sourceTiles = getTileList(sourceMap);
+    const destTiles = getTileList(destMap);
+    const sourceTileIndex = action.data.startInd;
+    const destTileIndex = action.data.endInd;
+    const sourceTile = sourceTiles[sourceTileIndex];
+    const destTile = destTiles[destTileIndex];
+    if (!sourceTile || !destTile) {
+      return;
     }
+    if (
+      sourceMap.name === destMap.name &&
+      sourceTileIndex === destTileIndex
+    ) {
+      return;
+    }
+    copyTileMetadata(sourceTile, destTile);
+    clearTileMetadata(sourceTile);
   },
   undo(action, map) {
-    const mapTiles = getTileList(map);
-    if (
-      action.data.tileInds.length >= 2 &&
-      action.data.prevRefData.length >= 2
-    ) {
-      const sourceTileIndex = action.data.startInd;
-      const destTileIndex = action.data.endInd;
-
-      if (sourceTileIndex >= 0 && destTileIndex >= 0) {
-        if (0 < action.data.prevRefData.length) {
-          mapTiles[sourceTileIndex] = structuredClone(
-            action.data.prevRefData[0],
-          );
-        }
-        if (1 < action.data.prevRefData.length) {
-          mapTiles[destTileIndex] = structuredClone(action.data.prevRefData[1]);
-        }
-      }
+    const sourceMap = mapByName(action.data.sourceMapName, map);
+    const destMap = mapByName(action.data.destMapName, map);
+    const sourceTileIndex = action.data.startInd;
+    const destTileIndex = action.data.endInd;
+    if (sourceTileIndex >= 0 && action.data.prevRefData[0]) {
+      getTileList(sourceMap)[sourceTileIndex] = structuredClone(
+        action.data.prevRefData[0],
+      );
+    }
+    if (destTileIndex >= 0 && action.data.prevRefData[1]) {
+      getTileList(destMap)[destTileIndex] = structuredClone(
+        action.data.prevRefData[1],
+      );
     }
   },
 };
@@ -305,65 +322,28 @@ const clone: MapTool = {
   shortcutBlockedByCtrl: true,
   row: 'primary',
   apply(action, map) {
-    const mapTiles = getTileList(map);
-    if (
-      action.data.tileInds.length >= 2 &&
-      action.data.prevRefData.length >= 2
-    ) {
-      const sourceTileIndex = action.data.startInd;
-      const destTileIndex = action.data.endInd;
-
-      if (
-        sourceTileIndex >= 0 &&
-        destTileIndex >= 0 &&
-        sourceTileIndex !== destTileIndex
-      ) {
-        const sourceTile = mapTiles[sourceTileIndex];
-        const destTile = mapTiles[destTileIndex];
-
-        destTile.characters = [
-          ...(destTile.characters || []),
-          ...(sourceTile.characters || []),
-        ];
-        destTile.items = [...(destTile.items || []), ...(sourceTile.items || [])];
-        destTile.markers = [
-          ...(destTile.markers || []),
-          ...(sourceTile.markers || []),
-        ];
-
-        if (sourceTile.tileOverrides) {
-          destTile.tileOverrides = {
-            ...sourceTile.tileOverrides,
-            ...(destTile.tileOverrides || {}),
-          };
-        }
-
-        if (sourceTile.lightSource && !destTile.lightSource) {
-          destTile.lightSource = structuredClone(sourceTile.lightSource);
-        }
-
-        if (sourceTile.eventTrigger && !destTile.eventTrigger) {
-          destTile.eventTrigger = structuredClone(sourceTile.eventTrigger);
-        }
-
-        if (sourceTile.travelTrigger && !destTile.travelTrigger) {
-          destTile.travelTrigger = structuredClone(sourceTile.travelTrigger);
-        }
-      }
+    const sourceMap = mapByName(action.data.sourceMapName, map);
+    const destMap = mapByName(action.data.destMapName, map);
+    const sourceTile = getTileList(sourceMap)[action.data.startInd];
+    const destTile = getTileList(destMap)[action.data.endInd];
+    if (!sourceTile || !destTile) {
+      return;
     }
+    if (
+      sourceMap.name === destMap.name &&
+      action.data.startInd === action.data.endInd
+    ) {
+      return;
+    }
+    copyTileMetadata(sourceTile, destTile);
   },
   undo(action, map) {
-    const mapTiles = getTileList(map);
-    if (
-      action.data.tileInds.length >= 2 &&
-      action.data.prevRefData.length >= 2
-    ) {
-      const destTileIndex = action.data.endInd;
-      if (destTileIndex >= 0) {
-        if (1 < action.data.prevRefData.length) {
-          mapTiles[destTileIndex] = structuredClone(action.data.prevRefData[1]);
-        }
-      }
+    const destMap = mapByName(action.data.destMapName, map);
+    const destTileIndex = action.data.endInd;
+    if (destTileIndex >= 0 && action.data.prevRefData[1]) {
+      getTileList(destMap)[destTileIndex] = structuredClone(
+        action.data.prevRefData[1],
+      );
     }
   },
 };

@@ -30,7 +30,7 @@ struct GameEvent {
   bmin::String id;
   bmin::String title;
   GameEventType eventType; // indicates which ui layer to use for the event
-  bmin::String icon;        // name of sprite to use for the event
+  bmin::String icon; // default sprite; TALK prefers a character portrait
   // a mapping from variable name to its original text and it's evaluated value
   bmin::DynArray<Variable> vars;
   bmin::DynArray<GameEventChild> children;

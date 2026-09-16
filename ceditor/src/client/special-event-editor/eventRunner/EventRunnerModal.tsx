@@ -5,7 +5,9 @@ import {
   GameEventChildType,
 } from '../../types/assets';
 import { Sprite } from '../../elements/Sprite';
+import { useAssets } from '../../contexts/AssetsContext';
 import { useSDL2WAssets } from '../../contexts/SDL2WAssetsContext';
+import { resolveTalkEventIcon } from '../../utils/talkEventPortrait';
 import {
   centerPanzoomOnNode,
   getEditorState,
@@ -94,7 +96,8 @@ function getLogEntryStyle(
 
 const EventHeader = ({ gameEvent }: { gameEvent: GameEvent }) => {
   const { spriteMap } = useSDL2WAssets();
-  const sprite = spriteMap[gameEvent.icon ?? ''];
+  const { characters } = useAssets();
+  const sprite = spriteMap[resolveTalkEventIcon(gameEvent, characters)];
   return (
     <div
       style={{

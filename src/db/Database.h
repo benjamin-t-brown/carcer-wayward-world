@@ -11,6 +11,7 @@
 #include "model/templates/Spells.hpp"
 #include "model/templates/StatusEffects.hpp"
 #include "model/templates/Tileset.hpp"
+#include "model/templates/Quests.hpp"
 #include <stdexcept>
 #include <string_view>
 
@@ -36,6 +37,7 @@ private:
   bmin::Map<bmin::String, model::CarcerMapTemplate> mapTemplates;
   bmin::Map<bmin::String, model::MapGridTemplate> mapGridTemplates;
   bmin::Map<bmin::String, model::TilesetTemplate> tilesetTemplates;
+  bmin::Map<bmin::String, model::QuestTemplate> questTemplates;
 
 public:
   Database();
@@ -45,6 +47,7 @@ public:
   void addItemTemplate(const model::ItemTemplate& itemTemplate);
   const model::CharacterTemplate& getCharacterTemplate(std::string_view templateName) const;
   void addCharacterTemplate(const model::CharacterTemplate& characterTemplate);
+  const bmin::Map<bmin::String, model::CharacterTemplate>& getCharacterTemplates() const;
   const model::AbilityTemplate& getAbilityTemplate(std::string_view abilityName) const;
   const model::AbilityTemplate* findAbilityTemplate(std::string_view abilityName) const;
   void addAbilityTemplate(const model::AbilityTemplate& abilityTemplate);
@@ -66,6 +69,10 @@ public:
   const model::TilesetTemplate& getTilesetTemplate(std::string_view tilesetName) const;
   const model::TilesetTemplate* findTilesetTemplate(std::string_view tilesetName) const;
   void addTilesetTemplate(const model::TilesetTemplate& tilesetTemplate);
+  const model::QuestTemplate& getQuestTemplate(std::string_view questId) const;
+  const model::QuestTemplate* findQuestTemplate(std::string_view questId) const;
+  const bmin::Map<bmin::String, model::QuestTemplate>& getQuestTemplates() const;
+  void addQuestTemplate(const model::QuestTemplate& questTemplate);
   void load();
   void validateCombatReferences() const;
 };

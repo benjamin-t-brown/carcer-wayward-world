@@ -12,7 +12,8 @@ set(CARCER_DB_SOURCES
   src/db/loaders/LoadMapTemplates.cpp
   src/db/loaders/LoadMapGridTemplates.cpp
   src/db/loaders/LoadTilesetTemplates.cpp
-  src/db/loaders/LoadSpecialEvents.cpp)
+  src/db/loaders/LoadSpecialEvents.cpp
+  src/db/loaders/LoadQuestTemplates.cpp)
 
 set(CARCER_FOUNDATION_SOURCES
   src/lib/Json.cpp)
@@ -60,6 +61,7 @@ set(CARCER_RULE_SOURCES
   src/game/combat/Damage.cpp
   src/game/combat/EnemyBehavior.cpp
   src/game/diceHelpers.cpp
+  src/game/TalkEventPortrait.cpp
   src/game/inventory/InventoryRules.cpp
   src/game/map/ActiveMapOrchestrator.cpp
   src/game/map/Camera.cpp
@@ -77,6 +79,7 @@ set(CARCER_IN3_SOURCES
   src/in3/SpecialEventRunner.cpp
   src/in3/ConditionEvaluator.cpp
   src/in3/StringEvaluator.cpp
+  src/in3/QuestProgress.cpp
   src/in3/EventRunnerHelpers.cpp)
 
 set(CARCER_STATE_SOURCES

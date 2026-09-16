@@ -1,5 +1,6 @@
 #include "StringEvaluator.h"
 #include "EventRunnerHelpers.h"
+#include "QuestProgress.h"
 #include <cmath>
 #include <stdexcept>
 
@@ -75,16 +76,16 @@ void StringEvaluatorFuncs::SETUP_DISPOSITION(const bmin::String& characterName) 
 }
 
 void StringEvaluatorFuncs::START_QUEST(const bmin::String& questName) {
-  // noop
+  startQuest(storage, questName);
 }
 
 void StringEvaluatorFuncs::COMPLETE_QUEST_STEP(const bmin::String& questName,
                                                const bmin::String& stepId) {
-  // noop
+  completeQuestStep(storage, questName, stepId);
 }
 
 void StringEvaluatorFuncs::COMPLETE_QUEST(const bmin::String& questName) {
-  // noop
+  completeQuest(storage, questName);
 }
 
 void StringEvaluatorFuncs::SPAWN_CH(const bmin::String& chName) {

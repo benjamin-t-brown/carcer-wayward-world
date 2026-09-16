@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { TextInput } from '../elements/TextInput';
 import { OptionSelect } from '../elements/OptionSelect';
-import { SpritePicker } from '../elements/SpritePicker';
 import { Button } from '../elements/Button';
 import { GameEvent, createDefaultGameEvent } from './GameEventForm';
+import { GameEventIconField } from './GameEventIconField';
 import { MODAL_ROOT_CLASS, useEscapeToClose } from '../hooks/useEscapeToClose';
+import { isGameEventIconRequired } from '../utils/talkEventPortrait';
 
 interface CreateGameEventModalProps {
   isOpen: boolean;
@@ -32,7 +33,12 @@ export function CreateGameEventModal({
 
   const handleConfirm = () => {
     // Basic validation
-    if (!formData.id || !formData.title || !formData.eventType || !formData.icon) {
+    if (
+      !formData.id ||
+      !formData.title ||
+      !formData.eventType ||
+      (isGameEventIconRequired(formData.eventType) && !formData.icon)
+    ) {
       return;
     }
     onConfirm(formData);
@@ -120,23 +126,12 @@ export function CreateGameEventModal({
             required
           />
 
-          <div className="form-group" style={{ marginTop: '15px' }}>
-            <label htmlFor="create-game-event-icon">Icon *</label>
-            <div style={{ marginTop: '8px' }}>
-              <SpritePicker
-                value={formData.icon}
-                onChange={(value) => setFormData({ ...formData, icon: value })}
-                scale={2}
-              />
-            </div>
-            {formData.icon && (
-              <div
-                style={{ marginTop: '8px', fontSize: '12px', color: '#858585' }}
-              >
-                Selected: {formData.icon}
-              </div>
-            )}
-          </div>
+          <GameEventIconField
+            id="create-game-event-icon"
+            eventType={formData.eventType}
+            value={formData.icon}
+            onChange={(value) => setFormData({ ...formData, icon: value })}
+          />
         </div>
         <div
           style={{
@@ -152,7 +147,7 @@ export function CreateGameEventModal({
               !formData.id ||
               !formData.title ||
               !formData.eventType ||
-              !formData.icon
+              (isGameEventIconRequired(formData.eventType) && !formData.icon)
             }
           >
             Create

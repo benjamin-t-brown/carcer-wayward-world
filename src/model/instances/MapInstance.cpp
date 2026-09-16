@@ -109,6 +109,7 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
     character.y = tile.y;
     character.spawnX = tile.x;
     character.spawnY = tile.y;
+    character.facing = placement.flipped ? CharacterFacing::Left : CharacterFacing::Right;
     instance.persistentState.characters.pushBack(std::move(character));
   }
 

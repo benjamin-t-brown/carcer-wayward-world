@@ -11,6 +11,7 @@ import { StatusEffectTemplates } from './pages/StatusEffectTemplates';
 import { Maps } from './pages/Maps';
 import { MapGrids } from './pages/MapGrids';
 import { SoundEffects } from './pages/SoundEffects';
+import { QuestTemplates } from './pages/QuestTemplates';
 
 function App({ assetTypes }: { assetTypes: { id: string; name: string; file: string }[] }) {
   const initialRoute = readHashRoute();
@@ -59,6 +60,8 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
       return <MapGrids routeParams={routeParams} />;
     case '/editor/soundEffects':
       return <SoundEffects />;
+    case '/editor/questTemplates':
+      return <QuestTemplates routeParams={routeParams} />;
     default:
       return (
         <div className="container">
