@@ -51,6 +51,9 @@ private:
 
   enum class FooterMode { Continue, ShowMore, Inert };
   FooterMode footerMode = FooterMode::Inert;
+  // Set by Show More; applied in updateKeyboardChrome so retargetFooter cannot
+  // destroy the footer button while its onClick observer is still running.
+  bool footerNeedsSync = false;
 
   static constexpr int SCROLL_TWEEN_DURATION_MS = 400;
 

@@ -359,6 +359,7 @@ void PageTalkChoice::build() {
   addChild(bmin::UniquePtr<ui::UiElement>(buttonGroup));
   // Footer clip is measured at the pin; rewind to the tween start afterward.
   syncFooter(true);
+  footerNeedsSync = false;
 
   const auto pinIncreased = lastPinFromBlockIndex < pinFrom;
   lastPinFromBlockIndex = pinFrom;
@@ -515,12 +516,11 @@ void PageTalkChoice::performShowMore() {
   auto* section = textSection();
   const auto clippedIndex = firstClippedChoiceIndex();
   auto* choice = choiceButton(clippedIndex);
-  if (!section || !choice) {
-    syncFooter(false);
-    return;
+  if (section && choice) {
+    section->scrollTo(choice->getPos().second);
   }
-  section->scrollTo(choice->getPos().second);
-  syncFooter(false);
+  // Defer footer rebuild until after click dispatch / keyboard flash callback.
+  footerNeedsSync = true;
 }
 
 void PageTalkChoice::beginKeyboardChoicePress(int choiceIndex) {
@@ -592,6 +592,10 @@ void PageTalkChoice::updateKeyboardChrome(int deltaTime) {
   keyboardScroll.update(deltaTime, window);
   updateScrollTween(deltaTime);
   keyboardFlash.update(deltaTime);
+  if (footerNeedsSync) {
+    footerNeedsSync = false;
+    syncFooter(false);
+  }
 }
 
 void PageTalkChoice::stopKeyboardChrome() {
