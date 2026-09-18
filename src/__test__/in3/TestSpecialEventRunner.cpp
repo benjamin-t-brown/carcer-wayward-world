@@ -240,7 +240,7 @@ int main(int argc, char** argv) {
       LOG(INFO) << "TALK auto-advance text accumulation test passed" << LOG_ENDL;
     }
 
-    // TALK: non-auto-advance EXEC should expose a synthetic "(Continue.)" choice.
+    // TALK: non-auto-advance EXEC pauses with empty choices (WAITING_TO_CONTINUE).
     {
       model::GameEvent talkEvent;
       talkEvent.id = "talk_continue_choice";
@@ -268,25 +268,20 @@ int main(int argc, char** argv) {
                    << LOG_ENDL;
         return 1;
       }
-      if (talkRunner.displayTextChoices.size() != 1 ||
-          !talkRunner.displayTextChoices[0].isContinue ||
-          !in3::isContinueChoice(talkRunner.displayTextChoices[0]) ||
-          talkRunner.displayTextChoices[0].text != "(Continue.)" ||
-          talkRunner.displayTextChoices[0].choiceKey != "root:continue" ||
-          talkRunner.displayTextChoices[0].next != "end_node") {
-        LOG(ERROR) << "Expected synthetic continue choice to end_node" << LOG_ENDL;
+      if (!talkRunner.displayTextChoices.empty()) {
+        LOG(ERROR) << "TALK EXEC pause should leave displayTextChoices empty" << LOG_ENDL;
         return 1;
       }
       if (talkIface.getState() !=
-          in3::SpecialEventRunnerInterfaceState::WAITING_TO_SELECT_CHOICE) {
-        LOG(ERROR) << "TALK synthetic Continue should wait to select choice, got: "
+          in3::SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE) {
+        LOG(ERROR) << "TALK EXEC pause should wait to continue, got: "
                    << in3::SpecialEventRunnerInterface::stateToString(talkIface.getState())
                    << LOG_ENDL;
         return 1;
       }
-      talkIface.selectChoice(0);
+      talkIface.continueEvent();
       if (!talkRunner.isAtEndNode() || !talkRunner.displayText.empty()) {
-        LOG(ERROR) << "Continue choice should land on END and clear TALK display text"
+        LOG(ERROR) << "continueEvent should land on END and clear TALK display text"
                    << LOG_ENDL;
         return 1;
       }
@@ -297,7 +292,7 @@ int main(int argc, char** argv) {
                    << LOG_ENDL;
         return 1;
       }
-      LOG(INFO) << "TALK synthetic Continue choice test passed" << LOG_ENDL;
+      LOG(INFO) << "TALK EXEC pause continueEvent test passed" << LOG_ENDL;
     }
 
     // Session policy: before startEvent is WAITING_TO_START; MODAL empty-next is FINISHED.

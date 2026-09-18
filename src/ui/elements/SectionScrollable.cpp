@@ -287,6 +287,10 @@ void SectionScrollable::scrollTo(int offset) {
   updateScrollIndicatorPosition();
 }
 
+int SectionScrollable::getScrollOffset() const { return scrollOffset; }
+
+int SectionScrollable::getMaxScrollOffset() const { return maxScrollOffset; }
+
 void SectionScrollable::addChild(bmin::UniquePtr<UiElement> child) {
   if (innerQuad) {
     innerQuad->addChild(bmin::move(child));

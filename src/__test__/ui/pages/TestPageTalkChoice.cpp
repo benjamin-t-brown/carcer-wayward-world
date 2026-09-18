@@ -38,10 +38,52 @@ int main(int argc, char** argv) {
     pageProps.height = static_cast<int>(windowHeight / scale);
     pageProps.title = "Dockmaster Claire";
     pageProps.portraitSpriteName = "";
+    // Unified log: history above the pin, current dialogue + in-flow choices below.
+    // Enough wrapping rows that the last choice should clip at 640x480 (Show More).
     pageProps.choices = {
-        {.nextId = "choice1", .text = "Choice 1", .prefixText = ""},
-        {.nextId = "choice2", .text = "Choice 2", .prefixText = ""},
-        {.nextId = "choice3", .text = "Choice 3", .prefixText = "[Special]"},
+        {.nextId = "choice1",
+         .text = "Ask what the harbor fees are this season, and whether they have gone "
+                 "up again since the last storm.",
+         .prefixText = ""},
+        {.nextId = "choice2",
+         .text = "Mention the missing crate from last week's shipment and watch her "
+                 "reaction closely.",
+         .prefixText = ""},
+        {.nextId = "choice3",
+         .text = "Offer to help unload the barge if she will talk about the night watch.",
+         .prefixText = "[Special]"},
+        {.nextId = "choice4",
+         .text = "Ask whether the eastern quay is still closed to outsiders after dark.",
+         .prefixText = "",
+         .previouslyChosen = true},
+        {.nextId = "choice5",
+         .text = "Inquire about the captain who left without paying his docking bill.",
+         .prefixText = ""},
+        {.nextId = "choice6",
+         .text = "Press her on the rumor that smugglers have been using the south pier "
+                 "after midnight.",
+         .prefixText = ""},
+        {.nextId = "choice7",
+         .text = "Ask if she has seen anyone matching the description of the missing "
+                 "clerk from the counting house.",
+         .prefixText = ""},
+        {.nextId = "choice8",
+         .text = "Change the subject and ask what she thinks of the new lighthouse tax.",
+         .prefixText = ""},
+        {.nextId = "choice9",
+         .text = "Request a berth for three days and ask whether the inner basin still "
+                 "has room for a small cutter.",
+         .prefixText = ""},
+        {.nextId = "choice10",
+         .text = "Thank her for her time and ask if there is anything else a traveler "
+                 "should know before nightfall.",
+         .prefixText = ""},
+        {.nextId = "choice11",
+         .text = "Ask for the name of the watch sergeant who patrols the warehouses.",
+         .prefixText = ""},
+        {.nextId = "choice12",
+         .text = "Wait in silence a moment longer, then ask what she is not telling you.",
+         .prefixText = ""},
     };
     // clang-format off
     pageProps.textBlocks = {
@@ -54,6 +96,7 @@ int main(int argc, char** argv) {
       {.text ="Barry! Breakfast is ready!\n"},
     };
     // clang-format on
+    pageProps.pinFromBlockIndex = 3;
     pageTalkChoice->setProps(pageProps);
 
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(pageTalkChoice));

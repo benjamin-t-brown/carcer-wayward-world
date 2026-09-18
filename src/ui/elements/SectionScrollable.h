@@ -75,6 +75,8 @@ public:
   void scrollUp();
   void scrollDown();
   void scrollTo(int offset);
+  int getScrollOffset() const;
+  int getMaxScrollOffset() const;
 
   void addChild(bmin::UniquePtr<UiElement> child) override;
 

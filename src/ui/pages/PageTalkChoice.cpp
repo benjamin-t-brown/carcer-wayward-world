@@ -1,5 +1,7 @@
 #include "PageTalkChoice.h"
+#include "actions/navigation/UiContinueSpecialEvent.hpp"
 #include "actions/navigation/UiSelectSpecialEventChoice.hpp"
+#include "sdl2w/L10n.h"
 #include "ui/colors.hpp"
 #include "ui/components/borders/BorderModalStandard.h"
 #include "ui/elements/OutsetRectangle.h"
@@ -7,12 +9,27 @@
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/TextParagraph.h"
+#include "ui/elements/buttons/ButtonGroup.h"
+#include "ui/elements/buttons/ButtonModal.h"
 #include "ui/elements/buttons/ButtonTextWrap.h"
 #include "ui/layouts/ModalStandard.h"
 #include "ui/observers/ActionObserver.hpp"
 #include <algorithm>
 
 namespace ui {
+
+class PageTalkChoiceShowMoreObserver : public UiEventObserver {
+  PageTalkChoice* page;
+
+public:
+  explicit PageTalkChoiceShowMoreObserver(PageTalkChoice* _page) : page(_page) {}
+
+  void onClick(int /*mouseX*/, int /*mouseY*/, int /*button*/) override {
+    if (page) {
+      page->performShowMore();
+    }
+  }
+};
 
 bmin::DynArray<TextBlock>
 PageTalkChoice::colorizeDialogueByQuotes(const bmin::DynArray<TextBlock>& blocks,
@@ -151,11 +168,12 @@ void PageTalkChoice::build() {
   auto [scaledContentW, scaledContentH] = modal->getContentDims();
   auto [contentX, contentY] = modal->getContentLocation();
 
-  auto choiceSectionHeight = props.choiceAreaHeight;
+  // Content dims already exclude BorderModalStandard::BOTTOM_BORDER_HEIGHT chrome.
+  // Reserve the 10px separator and thin footer inside the remaining content area.
   auto textSectionHeight =
-      (scaledContentH / style.scale - BorderModalStandard::BOTTOM_BORDER_HEIGHT -
-       choiceSectionHeight);
-  auto borderHeight = BorderModalStandard::BOTTOM_BORDER_HEIGHT;
+      std::max(0,
+               static_cast<int>(scaledContentH / style.scale) - SEP_BORDER_HEIGHT -
+                   FOOTER_AREA_HEIGHT);
   auto scrollBarWidth = 32;
 
   // Create title element
@@ -253,54 +271,11 @@ void PageTalkChoice::build() {
     currentHeightScaled += journalParagraph->getDims().second;
   }
 
-  // Pad so the pinned (current) dialogue can sit at the top of the viewport.
-  if (currentHeightScaled > 0) {
-    const int padHeightScaled =
-        std::max(0, textViewportHeightScaled - currentHeightScaled);
-    if (padHeightScaled > 0) {
-      auto* spacer = new Quad(window, textSection);
-      spacer->setId("textBottomPad");
-      spacer->setPos(0, contentYOffset);
-      spacer->setScale(1.f);
-      spacer->setProps(QuadProps{
-          .width = textScrollableContentWidthScaled,
-          .height = padHeightScaled,
-          .bgColor = Colors::OffWhite,
-      });
-      textSection->addChild(bmin::UniquePtr<ui::UiElement>(spacer));
-    }
-  }
-
-  textSection->build();
-  textSection->scrollTo(historyHeightScaled);
-
-  auto sepBorder = new OutsetRectangle(window, this);
-  sepBorder->setPos(contentX, contentY + textSectionHeight * style.scale);
-  sepBorder->setScale(style.scale);
-  sepBorder->setProps(OutsetRectangleProps{
-      .width = static_cast<int>(scaledContentW / style.scale),
-      .height = 10,
-  });
-  addChild(bmin::UniquePtr<ui::UiElement>(sepBorder));
-
-  auto choiceSection = new SectionScrollable(window, this);
-  choiceSection->setId("choiceSection");
-  choiceSection->setPos(contentX,
-                        contentY + (textSectionHeight + borderHeight) * style.scale);
-  choiceSection->setScale(style.scale);
-  choiceSection->setProps(SectionScrollableProps{
-      .width = static_cast<int>(scaledContentW / style.scale),
-      .height = choiceSectionHeight,
-      .scrollBarWidth = scrollBarWidth,
-      .indicatorHeight = 0,
-  });
-  addChild(bmin::UniquePtr<ui::UiElement>(choiceSection));
-
-  // Create choices (setPos before setProps so ButtonTextWrap builds text at the right
-  // offset)
-  auto choiceYOffset = 0;
+  // Authored choices live in the log after current dialogue (not a reserved pane).
+  int choicesHeightScaled = 0;
+  auto choiceYOffset = contentYOffset;
   for (int i = 0; i < static_cast<int>(props.choices.size()); i++) {
-    auto choiceButton = new ButtonTextWrap(window, choiceSection);
+    auto choiceButton = new ButtonTextWrap(window, textSection);
     choiceButton->setId("choice" + bmin::toString(i));
     TextFontProps choiceFont;
     setBaseFontConfig(choiceFont, BaseFontConfig::MODAL_CHOICE_TEXT);
@@ -315,24 +290,85 @@ void PageTalkChoice::build() {
     choiceButtonProps.isSelected = false;
     choiceButtonProps.textParagraph.textBlocks.pushBack(
         TextBlock{.text = choiceText, .fontColor = choiceColor});
-    choiceButtonProps.textParagraph.width =
-        scaledContentW - 8 * style.scale - scrollBarWidth * style.scale;
+    choiceButtonProps.textParagraph.width = textScrollableContentWidthScaled - 8;
     choiceButtonProps.textParagraph.fontFamily = choiceFont.fontFamily;
     choiceButtonProps.textParagraph.fontSize = choiceFont.fontSize;
     choiceButtonProps.textParagraph.fontColor = choiceColor;
     choiceButtonProps.textParagraph.lineHeightScale = 0.85f;
     choiceButtonProps.verticalPadding = 0;
     choiceButton->setScale(1.f);
-    choiceButton->setPos(4 * style.scale, choiceYOffset);
+    choiceButton->setPos(4, choiceYOffset);
     choiceButton->setProps(choiceButtonProps);
     choiceButton->addEventObserver(
         ui::makeActionObserver<state::actions::UiSelectSpecialEventChoice>(i));
-    auto [choiceWidth, choiceHeight] = choiceButton->getDims();
-    choiceSection->addChild(bmin::UniquePtr<ui::UiElement>(choiceButton));
+    const int choiceHeight = choiceButton->getDims().second;
+    textSection->addChild(bmin::UniquePtr<ui::UiElement>(choiceButton));
     choiceYOffset += choiceHeight;
   }
+  choicesHeightScaled = choiceYOffset - contentYOffset;
+  contentYOffset = choiceYOffset;
 
-  choiceSection->build();
+  // Pad so the pinned stop (current dialogue + notices + in-flow choices) can sit at
+  // the top of the viewport.
+  const int currentStopHeightScaled = currentHeightScaled + choicesHeightScaled;
+  const int padHeightScaled =
+      std::max(0, textViewportHeightScaled - currentStopHeightScaled);
+  if (padHeightScaled > 0) {
+    auto* spacer = new Quad(window, textSection);
+    spacer->setId("textBottomPad");
+    spacer->setPos(0, contentYOffset);
+    spacer->setScale(1.f);
+    spacer->setProps(QuadProps{
+        .width = textScrollableContentWidthScaled,
+        .height = padHeightScaled,
+        .bgColor = Colors::OffWhite,
+    });
+    textSection->addChild(bmin::UniquePtr<ui::UiElement>(spacer));
+  }
+
+  textSection->build();
+  textSection->scrollTo(historyHeightScaled);
+
+  // Eventual: bottom vignette when log content overflows the viewport. No gradient in v1.
+
+  auto sepBorder = new OutsetRectangle(window, this);
+  sepBorder->setPos(contentX, contentY + textSectionHeight * style.scale);
+  sepBorder->setScale(style.scale);
+  sepBorder->setProps(OutsetRectangleProps{
+      .width = static_cast<int>(scaledContentW / style.scale),
+      .height = SEP_BORDER_HEIGHT,
+  });
+  addChild(bmin::UniquePtr<ui::UiElement>(sepBorder));
+
+  const int buttonPadding = 2;
+  const int buttonWidth = 120;
+  auto buttonGroup = new ButtonGroup(window, this);
+  buttonGroup->setId("buttonGroup");
+  buttonGroup->setPos(contentX,
+                      contentY + (textSectionHeight + SEP_BORDER_HEIGHT) * style.scale);
+  buttonGroup->setScale(style.scale);
+  buttonGroup->setProps(ButtonGroupProps{
+      .width = static_cast<int>(scaledContentW / style.scale),
+      .alignment = ButtonGroupAlignment::RIGHT,
+      .buttonWidth = buttonWidth,
+      .buttonHeight = FOOTER_AREA_HEIGHT - 2 * buttonPadding,
+      .padding = buttonPadding,
+      // Continue / Show More / inert modes fill in after layout via syncFooter.
+      .buttons = {{.label = "", .type = ButtonGroupButtonType::MODAL}},
+  });
+  addChild(bmin::UniquePtr<ui::UiElement>(buttonGroup));
+  // Footer clip is measured at the pin; rewind to the tween start afterward.
+  syncFooter(true);
+
+  const auto pinIncreased = lastPinFromBlockIndex < pinFrom;
+  lastPinFromBlockIndex = pinFrom;
+  if (pinIncreased) {
+    const auto startOffset =
+        std::max(0, historyHeightScaled - textViewportHeightScaled);
+    startScrollTween(*textSection, startOffset, historyHeightScaled);
+  } else {
+    cancelScrollTween();
+  }
 }
 
 ButtonTextWrap* PageTalkChoice::choiceButton(int i) {
@@ -347,37 +383,22 @@ SectionScrollable* PageTalkChoice::textSection() {
   return dynamic_cast<SectionScrollable*>(getChildById("textSection"));
 }
 
-SectionScrollable* PageTalkChoice::choiceSection() {
-  return dynamic_cast<SectionScrollable*>(getChildById("choiceSection"));
-}
-
 void PageTalkChoice::render(int dt) { UiElement::render(dt); }
 
 void PageTalkChoice::setupKeyboardScroll() {
   keyboardScroll.clearBindings();
 
-  // Left/right (and numpad) scroll dialogue history; up/down scroll choices.
-  // Section getters resolve live pointers so rebuilds in setProps stay safe.
+  // Unified log: all arrows (and numpad) scroll textSection.
   auto text = [this]() { return textSection(); };
-  auto choices = [this]() { return choiceSection(); };
 
   keyboardScroll.bindSectionKey("Left", text, ScrollDirection::Up);
   keyboardScroll.bindSectionKey("Keypad 4", text, ScrollDirection::Up);
   keyboardScroll.bindSectionKey("Right", text, ScrollDirection::Down);
   keyboardScroll.bindSectionKey("Keypad 6", text, ScrollDirection::Down);
-  keyboardScroll.bindSectionKey("Up", choices, ScrollDirection::Up);
-  keyboardScroll.bindSectionKey("Keypad 8", choices, ScrollDirection::Up);
-  keyboardScroll.bindSectionKey("Down", choices, ScrollDirection::Down);
-  keyboardScroll.bindSectionKey("Keypad 2", choices, ScrollDirection::Down);
-}
-
-int PageTalkChoice::findContinueChoiceIndex() const {
-  for (int i = 0; i < static_cast<int>(props.choices.size()); i++) {
-    if (props.choices[i].isContinue) {
-      return i;
-    }
-  }
-  return -1;
+  keyboardScroll.bindSectionKey("Up", text, ScrollDirection::Up);
+  keyboardScroll.bindSectionKey("Keypad 8", text, ScrollDirection::Up);
+  keyboardScroll.bindSectionKey("Down", text, ScrollDirection::Down);
+  keyboardScroll.bindSectionKey("Keypad 2", text, ScrollDirection::Down);
 }
 
 void PageTalkChoice::enqueueSelectChoice(int choiceIndex) {
@@ -387,6 +408,119 @@ void PageTalkChoice::enqueueSelectChoice(int choiceIndex) {
   }
   stateManager->enqueueAction(
       state::makeAction<state::actions::UiSelectSpecialEventChoice>(choiceIndex), 0);
+}
+
+void PageTalkChoice::enqueueContinue() {
+  auto* stateManager = getStateManager();
+  if (!stateManager) {
+    return;
+  }
+  stateManager->enqueueAction(
+      state::makeAction<state::actions::UiContinueSpecialEvent>(), 0);
+}
+
+ButtonGroup* PageTalkChoice::footerButtonGroup() {
+  return dynamic_cast<ButtonGroup*>(getChildById("buttonGroup"));
+}
+
+ButtonModal* PageTalkChoice::footerButton() {
+  auto* group = footerButtonGroup();
+  if (!group || group->getChildren().empty()) {
+    return nullptr;
+  }
+  return dynamic_cast<ButtonModal*>(group->getChildren()[0].get());
+}
+
+bool PageTalkChoice::isChoiceClipped(int choiceIndex) {
+  auto* section = textSection();
+  auto* choice = choiceButton(choiceIndex);
+  if (!section || !choice) {
+    return false;
+  }
+  const auto choiceTop = choice->getPos().second;
+  const auto choiceHeight = choice->getDims().second;
+  const auto choiceBottom = choiceTop + choiceHeight;
+  const auto viewportBottom =
+      section->getScrollOffset() + section->getContentDims().second;
+  return choiceBottom > viewportBottom;
+}
+
+int PageTalkChoice::firstClippedChoiceIndex() {
+  for (int i = 0; i < static_cast<int>(props.choices.size()); i++) {
+    if (isChoiceClipped(i)) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+PageTalkChoice::FooterMode PageTalkChoice::computeFooterMode() {
+  if (props.showContinue && props.choices.empty()) {
+    return FooterMode::Continue;
+  }
+  if (props.choices.empty()) {
+    return FooterMode::Inert;
+  }
+  if (isChoiceClipped(static_cast<int>(props.choices.size()) - 1)) {
+    return FooterMode::ShowMore;
+  }
+  return FooterMode::Inert;
+}
+
+void PageTalkChoice::retargetFooter(FooterMode mode) {
+  auto* group = footerButtonGroup();
+  if (!group) {
+    footerMode = mode;
+    return;
+  }
+
+  auto groupProps = group->getProps();
+  switch (mode) {
+  case FooterMode::Continue:
+    groupProps.buttons = {
+        {.label = TRANSLATE("Continue"), .type = ButtonGroupButtonType::MODAL}};
+    break;
+  case FooterMode::ShowMore:
+    groupProps.buttons = {
+        {.label = TRANSLATE("Show More"), .type = ButtonGroupButtonType::MODAL}};
+    break;
+  case FooterMode::Inert:
+    groupProps.buttons = {{.label = "", .type = ButtonGroupButtonType::MODAL}};
+    break;
+  }
+  group->setProps(groupProps);
+
+  if (mode == FooterMode::Continue) {
+    group->addObserverToButtonAtIndex(
+        0, ui::makeActionObserver<state::actions::UiContinueSpecialEvent>());
+  } else if (mode == FooterMode::ShowMore) {
+    group->addObserverToButtonAtIndex(
+        0,
+        bmin::UniquePtr<UiEventObserver>(new PageTalkChoiceShowMoreObserver(this)));
+  }
+
+  footerMode = mode;
+}
+
+void PageTalkChoice::syncFooter(bool force) {
+  const auto mode = computeFooterMode();
+  if (!force && mode == footerMode) {
+    return;
+  }
+  retargetFooter(mode);
+}
+
+void PageTalkChoice::performShowMore() {
+  cancelScrollTween();
+  auto* section = textSection();
+  const auto clippedIndex = firstClippedChoiceIndex();
+  auto* choice = choiceButton(clippedIndex);
+  if (!section || !choice) {
+    syncFooter(false);
+    return;
+  }
+  section->scrollTo(choice->getPos().second);
+  syncFooter(false);
 }
 
 void PageTalkChoice::beginKeyboardChoicePress(int choiceIndex) {
@@ -408,15 +542,32 @@ void PageTalkChoice::beginKeyboardChoicePress(int choiceIndex) {
 }
 
 void PageTalkChoice::beginKeyboardContinuePress() {
-  const auto continueIndex = findContinueChoiceIndex();
-  if (continueIndex < 0) {
+  if (keyboardFlash.isBusy()) {
     return;
   }
-  beginKeyboardChoicePress(continueIndex);
+  if (footerMode != FooterMode::Continue && footerMode != FooterMode::ShowMore) {
+    return;
+  }
+  const auto shouldContinue = footerMode == FooterMode::Continue;
+  keyboardFlash.begin(
+      [this]() -> bool* {
+        if (auto* button = footerButton()) {
+          return &button->isActive;
+        }
+        return nullptr;
+      },
+      [this, shouldContinue]() {
+        if (shouldContinue) {
+          enqueueContinue();
+        } else {
+          performShowMore();
+        }
+      });
 }
 
 void PageTalkChoice::onKeyDown(std::string_view key) {
   if (keyboardScroll.onKeyDown(key)) {
+    cancelScrollTween();
     return;
   }
 
@@ -435,13 +586,85 @@ void PageTalkChoice::onKeyDown(std::string_view key) {
 void PageTalkChoice::onKeyUp(std::string_view key) { keyboardScroll.onKeyUp(key); }
 
 void PageTalkChoice::updateKeyboardChrome(int deltaTime) {
+  if (keyboardScroll.isHolding()) {
+    cancelScrollTween();
+  }
   keyboardScroll.update(deltaTime, window);
+  updateScrollTween(deltaTime);
   keyboardFlash.update(deltaTime);
 }
 
 void PageTalkChoice::stopKeyboardChrome() {
   keyboardScroll.stopScroll();
   keyboardFlash.stop();
+  cancelScrollTween();
+}
+
+float PageTalkChoice::easeOutQuad(float t) {
+  const auto clamped = std::clamp(t, 0.f, 1.f);
+  const auto remaining = 1.f - clamped;
+  return 1.f - remaining * remaining;
+}
+
+void PageTalkChoice::cancelScrollTween() { scrollTween.active = false; }
+
+void PageTalkChoice::startScrollTween(SectionScrollable& section,
+                                      int startOffset,
+                                      int targetOffset) {
+  const auto maxOffset = section.getMaxScrollOffset();
+  const auto clampedStart = std::clamp(startOffset, 0, maxOffset);
+  const auto clampedTarget = std::clamp(targetOffset, 0, maxOffset);
+  if (clampedStart == clampedTarget) {
+    section.scrollTo(clampedTarget);
+    scrollTween.active = false;
+    return;
+  }
+
+  section.scrollTo(clampedStart);
+  scrollTween.active = true;
+  scrollTween.startOffset = clampedStart;
+  scrollTween.targetOffset = clampedTarget;
+  scrollTween.elapsedMs = 0;
+  scrollTween.lastAppliedOffset = section.getScrollOffset();
+}
+
+void PageTalkChoice::updateScrollTween(int deltaTime) {
+  if (!scrollTween.active) {
+    return;
+  }
+
+  auto* section = textSection();
+  if (!section) {
+    cancelScrollTween();
+    return;
+  }
+
+  // Wheel, scrollbar drag, or any other user scroll leaves a different offset.
+  if (section->getScrollOffset() != scrollTween.lastAppliedOffset) {
+    cancelScrollTween();
+    return;
+  }
+
+  if (deltaTime <= 0) {
+    return;
+  }
+
+  scrollTween.elapsedMs += deltaTime;
+  if (scrollTween.elapsedMs >= SCROLL_TWEEN_DURATION_MS) {
+    section->scrollTo(scrollTween.targetOffset);
+    cancelScrollTween();
+    return;
+  }
+
+  const auto t = static_cast<float>(scrollTween.elapsedMs) /
+                 static_cast<float>(SCROLL_TWEEN_DURATION_MS);
+  const auto eased = easeOutQuad(t);
+  const auto delta = scrollTween.targetOffset - scrollTween.startOffset;
+  const auto offset =
+      scrollTween.startOffset +
+      static_cast<int>(static_cast<float>(delta) * eased + 0.5f);
+  section->scrollTo(offset);
+  scrollTween.lastAppliedOffset = section->getScrollOffset();
 }
 
 } // namespace ui

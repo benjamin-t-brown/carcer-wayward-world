@@ -20,12 +20,9 @@ struct DisplayTextChoice {
   bmin::String prefix;
   bmin::String next;
   bmin::DynArray<bmin::String> onceKeysToCommit;
-  // Stable id for this conversation: "<nodeId>:<authoredChoiceIndex>" (or ":continue").
+  // Stable id for this conversation: "<nodeId>:<authoredChoiceIndex>".
   bmin::String choiceKey;
-  bool isContinue = false;
 };
-
-bool isContinueChoice(const DisplayTextChoice& choice);
 
 struct ErrorInfo {
   bmin::String nodeId;

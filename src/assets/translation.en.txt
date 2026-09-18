@@ -1,6 +1,5 @@
 [ gp] { gp}
 [ lbs] { lbs}
-[(Continue.)] {(Continue.)}
 [A two-handed weapon cannot be equipped in the off hand.] {A two-handed weapon cannot be equipped in the off hand.}
 [AP: ] {AP: }
 [Ability Power] {Ability Power}
@@ -46,6 +45,7 @@
 [Confirm] {Confirm}
 [Constitution] {Constitution}
 [Container] {Container}
+[Continue] {Continue}
 [Cooking] {Cooking}
 [Damage Reduction] {Damage Reduction}
 [Day: ] {Day: }
@@ -125,6 +125,7 @@
 [Rest] {Rest}
 [Shield Bonus] {Shield Bonus}
 [Shoot] {Shoot}
+[Show More] {Show More}
 [Skills] {Skills}
 [Sneak] {Sneak}
 [Social] {Social}

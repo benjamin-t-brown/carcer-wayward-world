@@ -252,17 +252,6 @@ void SpecialEventRunner::markChoiceChosen(const bmin::String& choiceKey) {
   chosenChoiceKeys.pushBack(choiceKey);
 }
 
-bool isContinueChoice(const DisplayTextChoice& choice) {
-  if (choice.isContinue) {
-    return true;
-  }
-  auto suffix = bmin::String{":continue"};
-  if (choice.choiceKey.size() < suffix.size()) {
-    return false;
-  }
-  return choice.choiceKey.substr(choice.choiceKey.size() - suffix.size()) == suffix;
-}
-
 bmin::String SpecialEventRunner::resolveChoiceText(const model::Choice& choice,
                                              bmin::DynArray<bmin::String>& onceKeysToCommit) {
   for (const auto& switchText : choice.switchText) {
@@ -325,15 +314,6 @@ void SpecialEventRunner::advance(const bmin::String& nodeId,
           } else {
             displayText = joinDisplaySegments(autoAdvancedText, nodeText);
             autoAdvancedText.clear();
-            // TALK has no Continue button — surface a choice so the player can advance.
-            if (gameEvent.eventType == model::GameEventType::TALK && !node.next.empty()) {
-              DisplayTextChoice continueChoice;
-              continueChoice.text = "(Continue.)";
-              continueChoice.next = node.next;
-              continueChoice.choiceKey = currentNodeId + ":continue";
-              continueChoice.isContinue = true;
-              displayTextChoices.pushBack(continueChoice);
-            }
           }
         } else if constexpr (std::is_same_v<T, model::GameEventChildChoice>) {
           const bmin::String choiceDisplayText = replaceVariables(node.text);

@@ -7,10 +7,9 @@ namespace ui {
 PageTalkChoiceItem
 SpecialEventViewMapping::mapChoice(const game::SpecialEventChoiceView& choice) {
   auto item = PageTalkChoiceItem{};
-  item.text = choice.isContinue ? TRANSLATE("(Continue.)") : choice.text;
+  item.text = choice.text;
   item.prefixText = choice.prefix;
   item.previouslyChosen = choice.previouslyChosen;
-  item.isContinue = choice.isContinue;
   return item;
 }
 
@@ -64,11 +63,11 @@ SpecialEventViewMapping::toTalkProps(const game::SpecialEventView& view,
   auto props = PageTalkChoiceProps{};
   props.width = width;
   props.height = height;
-  props.choiceAreaHeight = PageTalkChoice::CHOICE_AREA_HEIGHT;
   props.title = view.title;
   props.portraitSpriteName = view.portraitSpriteName;
   props.portraitScale = view.portraitScale;
   props.pinFromBlockIndex = view.pinFromBlockIndex;
+  props.showContinue = view.showContinue;
   for (const auto& entry : view.history) {
     props.textBlocks.pushBack(mapEntry(entry, true, false));
   }

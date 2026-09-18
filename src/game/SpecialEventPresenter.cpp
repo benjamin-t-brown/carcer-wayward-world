@@ -101,8 +101,8 @@ SpecialEventView SpecialEventPresenter::view(
       runner.gameEvent.title.empty() ? runner.gameEvent.id : runner.gameEvent.title;
   result.isTalk = runner.gameEvent.eventType == model::GameEventType::TALK;
   result.finished = state == in3::SpecialEventRunnerInterfaceState::FINISHED;
-  result.showContinue = !result.isTalk &&
-                        state == in3::SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE;
+  result.showContinue =
+      state == in3::SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE;
   result.portraitScale = kPortraitScale;
   result.history = history;
   result.pinFromBlockIndex = static_cast<int>(history.size());
@@ -124,7 +124,6 @@ SpecialEventView SpecialEventPresenter::view(
     choiceView.text = choice.text;
     choiceView.prefix = choice.prefix;
     choiceView.previouslyChosen = runner.wasChoiceChosen(choice.choiceKey);
-    choiceView.isContinue = in3::isContinueChoice(choice);
     result.choices.pushBack(choiceView);
   }
   return result;

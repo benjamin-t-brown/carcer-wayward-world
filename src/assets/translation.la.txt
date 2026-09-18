@@ -1,6 +1,5 @@
 [ gp] {MISSING!}
 [ lbs] {MISSING!}
-[(Continue.)] {MISSING!}
 [A two-handed weapon cannot be equipped in the off hand.] {MISSING!}
 [AP: ] {MISSING!}
 [Ability Power] {MISSING!}
@@ -46,6 +45,7 @@
 [Confirm] {MISSING!}
 [Constitution] {MISSING!}
 [Container] {MISSING!}
+[Continue] {MISSING!}
 [Cooking] {MISSING!}
 [Damage Reduction] {MISSING!}
 [Day: ] {MISSING!}
@@ -125,6 +125,7 @@
 [Rest] {MISSING!}
 [Shield Bonus] {MISSING!}
 [Shoot] {MISSING!}
+[Show More] {MISSING!}
 [Skills] {MISSING!}
 [Sneak] {MISSING!}
 [Social] {MISSING!}

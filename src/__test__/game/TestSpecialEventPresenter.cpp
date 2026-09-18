@@ -186,10 +186,8 @@ int main(int /*argc*/, char** /*argv*/) {
                     "current dialogue is raw display paragraph") &&
          ok;
     ok = assertTrue(view.pinFromBlockIndex == 0, "empty history pins at 0") && ok;
-    ok = assertTrue(view.choices.size() == 1 && view.choices[0].isContinue,
-                    "synthetic continue choice is flagged isContinue") &&
-         ok;
-    ok = assertTrue(!view.showContinue, "talk wait-to-select does not showContinue") &&
+    ok = assertTrue(view.choices.empty(), "talk EXEC stop has empty choices") && ok;
+    ok = assertTrue(view.showContinue, "talk WAITING_TO_CONTINUE shows continue") &&
          ok;
     ok = assertTrue(!view.finished, "talk continue stop is not finished") && ok;
   }
@@ -251,8 +249,8 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertTrue(view.choices.size() == 2, "two authored choices") && ok;
     ok = assertEqualStr(view.choices[0].text, "First option", "choice 0 text") && ok;
     ok = assertEqualStr(view.choices[0].prefix, "A.", "choice 0 prefix") && ok;
-    ok = assertTrue(!view.choices[0].previouslyChosen && !view.choices[0].isContinue,
-                    "choice 0 is unchosen and not continue") &&
+    ok = assertTrue(!view.choices[0].previouslyChosen,
+                    "choice 0 is unchosen") &&
          ok;
     ok = assertEqualStr(view.choices[1].text, "Second option", "choice 1 text") && ok;
     ok = assertTrue(view.choices[1].prefix.empty(), "choice 1 has empty prefix") && ok;
@@ -324,12 +322,12 @@ int main(int /*argc*/, char** /*argv*/) {
     runner.pendingJournalNotice = true;
     runner.pendingReceivedItemNames.pushBack("BeerPappysLager");
 
-    game::SpecialEventPresenter::commitTalkChoice(runner, talkHistory, 0, &database);
+    game::SpecialEventPresenter::commitTalkCurrent(runner, talkHistory, &database);
     ok = assertTrue(!runner.pendingJournalNotice &&
                         runner.pendingReceivedItemNames.empty(),
                     "talk commit consumes pending notices") &&
          ok;
-    ok = assertTrue(talkHistory.size() == 4, "dialogue, item, journal, player choice") &&
+    ok = assertTrue(talkHistory.size() == 3, "dialogue, item, journal") &&
          ok;
     ok = assertTrue(talkHistory[0].kind == game::SpecialEventTranscriptKind::Dialogue &&
                         talkHistory[0].text == "Hello there.",
@@ -343,9 +341,9 @@ int main(int /*argc*/, char** /*argv*/) {
                         game::SpecialEventTranscriptKind::JournalNotice,
                     "talk commit stores journal kind") &&
          ok;
-    ok = assertTrue(talkHistory[3].kind == game::SpecialEventTranscriptKind::PlayerChoice &&
-                        talkHistory[3].text == "(Continue.)",
-                    "talk choice commit stores prefix+text without > ") &&
+    ok = assertTrue(
+        countKind(talkHistory, game::SpecialEventTranscriptKind::PlayerChoice) == 0,
+        "talk continue commit does not append PlayerChoice") &&
          ok;
 
     auto after = game::SpecialEventPresenter::view(
@@ -420,8 +418,9 @@ int main(int /*argc*/, char** /*argv*/) {
                         talkHistory.back().text == "1. Keep walking",
                     "player choice label is prefix plus text") &&
          ok;
-    ok = assertTrue(view.choices.size() >= 2 && !view.choices.back().isContinue,
-                    "authored choice is not isContinue") &&
+    ok = assertTrue(view.choices.size() == 1 &&
+                        view.choices[0].text == "Keep walking",
+                    "authored choice is mapped without continue") &&
          ok;
   }
 

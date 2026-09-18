@@ -26,7 +26,6 @@ struct SpecialEventChoiceView {
   bmin::String text;
   bmin::String prefix;
   bool previouslyChosen = false;
-  bool isContinue = false;
 };
 
 struct SpecialEventView {
