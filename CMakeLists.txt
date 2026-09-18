@@ -221,7 +221,8 @@ if(BUILD_TESTING AND CARCER_BUILD_TESTS)
   file(GLOB_RECURSE CARCER_NON_UI_TEST_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_SOURCE_DIR}/src/__test__/in3/*.cpp"
     "${CMAKE_SOURCE_DIR}/src/__test__/db/*.cpp"
-    "${CMAKE_SOURCE_DIR}/src/__test__/model/*.cpp")
+    "${CMAKE_SOURCE_DIR}/src/__test__/model/*.cpp"
+    "${CMAKE_SOURCE_DIR}/src/__test__/game/*.cpp")
   add_custom_target(carcer_non_ui_tests)
   foreach(test_source IN LISTS CARCER_NON_UI_TEST_SOURCES)
     carcer_add_test_executable("${test_source}" FALSE)

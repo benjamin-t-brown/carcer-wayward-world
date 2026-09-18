@@ -155,4 +155,6 @@
 [Weight: ] {Weight: }
 [Yes] {Yes}
 [You can't see there.] {You can't see there.}
+[You have received ] {You have received }
 [You need to get closer to look inside.] {You need to get closer to look inside.}
+[Your journal has been updated.] {Your journal has been updated.}

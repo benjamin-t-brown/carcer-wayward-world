@@ -105,6 +105,20 @@ int main(int argc, char** argv) {
       }
     }
 
+    auto finalState = runnerInterface.getState();
+    if (finalState != in3::SpecialEventRunnerInterfaceState::FINISHED ||
+        !runnerInterface.isFinished()) {
+      LOG(ERROR) << "Expected FINISHED after last End. select, got: "
+                 << in3::SpecialEventRunnerInterface::stateToString(finalState)
+                 << LOG_ENDL;
+      return 1;
+    }
+    if (runner.displayText != "End.") {
+      LOG(ERROR) << "Display text should still be End. when FINISHED, got: '"
+                 << runner.displayText << "'" << LOG_ENDL;
+      return 1;
+    }
+
     LOG(INFO) << "Storage: \n" << runner.storageToString() << LOG_ENDL;
 
     LOG(INFO) << TEST_NAME << " completed successfully" << LOG_ENDL;

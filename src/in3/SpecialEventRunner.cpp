@@ -79,6 +79,15 @@ bool SpecialEventRunner::isAtEndNode() const {
   return std::holds_alternative<model::GameEventChildEnd>(*currentNode);
 }
 
+SpecialEventPendingNotices SpecialEventRunner::consumePendingNotices() {
+  auto notices = SpecialEventPendingNotices{};
+  notices.journalUpdated = pendingJournalNotice;
+  notices.receivedItemNames = pendingReceivedItemNames;
+  pendingJournalNotice = false;
+  pendingReceivedItemNames.clear();
+  return notices;
+}
+
 bmin::String SpecialEventRunner::getNextNodeId() {
   auto currentNode = getCurrentNode();
   if (!currentNode) {
@@ -243,6 +252,17 @@ void SpecialEventRunner::markChoiceChosen(const bmin::String& choiceKey) {
   chosenChoiceKeys.pushBack(choiceKey);
 }
 
+bool isContinueChoice(const DisplayTextChoice& choice) {
+  if (choice.isContinue) {
+    return true;
+  }
+  auto suffix = bmin::String{":continue"};
+  if (choice.choiceKey.size() < suffix.size()) {
+    return false;
+  }
+  return choice.choiceKey.substr(choice.choiceKey.size() - suffix.size()) == suffix;
+}
+
 bmin::String SpecialEventRunner::resolveChoiceText(const model::Choice& choice,
                                              bmin::DynArray<bmin::String>& onceKeysToCommit) {
   for (const auto& switchText : choice.switchText) {
@@ -311,6 +331,7 @@ void SpecialEventRunner::advance(const bmin::String& nodeId,
               continueChoice.text = "(Continue.)";
               continueChoice.next = node.next;
               continueChoice.choiceKey = currentNodeId + ":continue";
+              continueChoice.isContinue = true;
               displayTextChoices.pushBack(continueChoice);
             }
           }
@@ -398,6 +419,7 @@ SpecialEventRunnerInterface::SpecialEventRunnerInterface(SpecialEventRunner& run
 
 void SpecialEventRunnerInterface::startEvent() {
   runner.reset();
+  eventStarted = true;
   runner.advance(runner.currentNodeId);
 }
 
@@ -419,26 +441,27 @@ void SpecialEventRunnerInterface::selectChoice(int choiceIndex) {
 }
 
 SpecialEventRunnerInterfaceState SpecialEventRunnerInterface::getState() {
-  if (runner.displayText.empty() && runner.displayTextChoices.empty()) {
+  if (!eventStarted) {
     return SpecialEventRunnerInterfaceState::WAITING_TO_START;
+  }
+
+  if (runner.gameEvent.eventType == model::GameEventType::TALK && runner.isAtEndNode()) {
+    return SpecialEventRunnerInterfaceState::FINISHED;
+  }
+
+  if (runner.displayTextChoices.empty() && runner.getNextNodeId().empty()) {
+    return SpecialEventRunnerInterfaceState::FINISHED;
   }
 
   if (!runner.displayTextChoices.empty()) {
     return SpecialEventRunnerInterfaceState::WAITING_TO_SELECT_CHOICE;
   }
 
-  if (!runner.displayText.empty()) {
-    const bmin::String nextNodeId = runner.getNextNodeId();
-    if (!nextNodeId.empty()) {
-      return SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE;
-    }
-  }
+  return SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE;
+}
 
-  if (!runner.displayText.empty()) {
-    return SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE;
-  }
-
-  return SpecialEventRunnerInterfaceState::WAITING_TO_START;
+bool SpecialEventRunnerInterface::isFinished() {
+  return getState() == SpecialEventRunnerInterfaceState::FINISHED;
 }
 
 bmin::String SpecialEventRunnerInterface::stateToString(SpecialEventRunnerInterfaceState state) {
@@ -449,6 +472,8 @@ bmin::String SpecialEventRunnerInterface::stateToString(SpecialEventRunnerInterf
     return "WAITING_TO_CONTINUE";
   case SpecialEventRunnerInterfaceState::WAITING_TO_SELECT_CHOICE:
     return "WAITING_TO_SELECT_CHOICE";
+  case SpecialEventRunnerInterfaceState::FINISHED:
+    return "FINISHED";
   }
   return "UNKNOWN";
 }

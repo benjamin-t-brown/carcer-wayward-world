@@ -1,4 +1,5 @@
 #include "PageTalkChoice.h"
+#include "actions/navigation/UiSelectSpecialEventChoice.hpp"
 #include "ui/colors.hpp"
 #include "ui/components/borders/BorderModalStandard.h"
 #include "ui/elements/OutsetRectangle.h"
@@ -8,6 +9,7 @@
 #include "ui/elements/TextParagraph.h"
 #include "ui/elements/buttons/ButtonTextWrap.h"
 #include "ui/layouts/ModalStandard.h"
+#include "ui/observers/ActionObserver.hpp"
 #include <algorithm>
 
 namespace ui {
@@ -64,7 +66,7 @@ PageTalkChoice::colorizeDialogueByQuotes(const bmin::DynArray<TextBlock>& blocks
 
 PageTalkChoice::PageTalkChoice(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
-  // Page doesn't need special initialization
+  setupKeyboardScroll();
 }
 
 void PageTalkChoice::setProps(const PageTalkChoiceProps& _props) {
@@ -323,6 +325,8 @@ void PageTalkChoice::build() {
     choiceButton->setScale(1.f);
     choiceButton->setPos(4 * style.scale, choiceYOffset);
     choiceButton->setProps(choiceButtonProps);
+    choiceButton->addEventObserver(
+        ui::makeActionObserver<state::actions::UiSelectSpecialEventChoice>(i));
     auto [choiceWidth, choiceHeight] = choiceButton->getDims();
     choiceSection->addChild(bmin::UniquePtr<ui::UiElement>(choiceButton));
     choiceYOffset += choiceHeight;
@@ -331,6 +335,113 @@ void PageTalkChoice::build() {
   choiceSection->build();
 }
 
+ButtonTextWrap* PageTalkChoice::choiceButton(int i) {
+  if (i < 0) {
+    return nullptr;
+  }
+  const auto choiceId = "choice" + bmin::toString(i);
+  return dynamic_cast<ButtonTextWrap*>(getChildById(choiceId.cStr()));
+}
+
+SectionScrollable* PageTalkChoice::textSection() {
+  return dynamic_cast<SectionScrollable*>(getChildById("textSection"));
+}
+
+SectionScrollable* PageTalkChoice::choiceSection() {
+  return dynamic_cast<SectionScrollable*>(getChildById("choiceSection"));
+}
+
 void PageTalkChoice::render(int dt) { UiElement::render(dt); }
+
+void PageTalkChoice::setupKeyboardScroll() {
+  keyboardScroll.clearBindings();
+
+  // Left/right (and numpad) scroll dialogue history; up/down scroll choices.
+  // Section getters resolve live pointers so rebuilds in setProps stay safe.
+  auto text = [this]() { return textSection(); };
+  auto choices = [this]() { return choiceSection(); };
+
+  keyboardScroll.bindSectionKey("Left", text, ScrollDirection::Up);
+  keyboardScroll.bindSectionKey("Keypad 4", text, ScrollDirection::Up);
+  keyboardScroll.bindSectionKey("Right", text, ScrollDirection::Down);
+  keyboardScroll.bindSectionKey("Keypad 6", text, ScrollDirection::Down);
+  keyboardScroll.bindSectionKey("Up", choices, ScrollDirection::Up);
+  keyboardScroll.bindSectionKey("Keypad 8", choices, ScrollDirection::Up);
+  keyboardScroll.bindSectionKey("Down", choices, ScrollDirection::Down);
+  keyboardScroll.bindSectionKey("Keypad 2", choices, ScrollDirection::Down);
+}
+
+int PageTalkChoice::findContinueChoiceIndex() const {
+  for (int i = 0; i < static_cast<int>(props.choices.size()); i++) {
+    if (props.choices[i].isContinue) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+void PageTalkChoice::enqueueSelectChoice(int choiceIndex) {
+  auto* stateManager = getStateManager();
+  if (!stateManager) {
+    return;
+  }
+  stateManager->enqueueAction(
+      state::makeAction<state::actions::UiSelectSpecialEventChoice>(choiceIndex), 0);
+}
+
+void PageTalkChoice::beginKeyboardChoicePress(int choiceIndex) {
+  if (keyboardFlash.isBusy()) {
+    return;
+  }
+  if (choiceIndex < 0 ||
+      static_cast<size_t>(choiceIndex) >= props.choices.size()) {
+    return;
+  }
+  keyboardFlash.begin(
+      [this, choiceIndex]() -> bool* {
+        if (auto* button = choiceButton(choiceIndex)) {
+          return &button->isActive;
+        }
+        return nullptr;
+      },
+      [this, choiceIndex]() { enqueueSelectChoice(choiceIndex); });
+}
+
+void PageTalkChoice::beginKeyboardContinuePress() {
+  const auto continueIndex = findContinueChoiceIndex();
+  if (continueIndex < 0) {
+    return;
+  }
+  beginKeyboardChoicePress(continueIndex);
+}
+
+void PageTalkChoice::onKeyDown(std::string_view key) {
+  if (keyboardScroll.onKeyDown(key)) {
+    return;
+  }
+
+  if (KeyboardPressFlash::isConfirmKey(key)) {
+    keyboardScroll.stopScroll();
+    beginKeyboardContinuePress();
+    return;
+  }
+
+  if (const auto choiceIndex = KeyboardPressFlash::choiceIndexFromKey(key)) {
+    keyboardScroll.stopScroll();
+    beginKeyboardChoicePress(*choiceIndex);
+  }
+}
+
+void PageTalkChoice::onKeyUp(std::string_view key) { keyboardScroll.onKeyUp(key); }
+
+void PageTalkChoice::updateKeyboardChrome(int deltaTime) {
+  keyboardScroll.update(deltaTime, window);
+  keyboardFlash.update(deltaTime);
+}
+
+void PageTalkChoice::stopKeyboardChrome() {
+  keyboardScroll.stopScroll();
+  keyboardFlash.stop();
+}
 
 } // namespace ui

@@ -1,4 +1,6 @@
 #include "PageModalEvent.h"
+#include "actions/navigation/UiContinueSpecialEvent.hpp"
+#include "actions/navigation/UiSelectSpecialEventChoice.hpp"
 #include "sdl2w/L10n.h"
 #include "ui/colors.hpp"
 #include "ui/components/borders/BorderModalSmall.h"
@@ -7,9 +9,11 @@
 #include "ui/elements/TextLine.h"
 #include "ui/elements/TextParagraph.h"
 #include "ui/elements/buttons/ButtonGroup.h"
+#include "ui/elements/buttons/ButtonModal.h"
 #include "ui/elements/buttons/ButtonTextWrap.h"
 #include "ui/helpers/modalLayoutFit.h"
 #include "ui/layouts/ModalSmall.h"
+#include "ui/observers/ActionObserver.hpp"
 #include <algorithm>
 
 namespace ui {
@@ -145,6 +149,8 @@ void PageModalEvent::build() {
       choiceButton->setScale(1.f);
       choiceButton->setPos(4, choiceYOffset);
       choiceButton->setProps(choiceButtonProps);
+      choiceButton->addEventObserver(
+          ui::makeActionObserver<state::actions::UiSelectSpecialEventChoice>(i));
       auto [__, choiceHeight] = choiceButton->getDims();
       choiceYOffset += choiceHeight;
       scrollableSection->addChild(bmin::UniquePtr<ui::UiElement>(choiceButton));
@@ -188,10 +194,104 @@ void PageModalEvent::build() {
         .padding = buttonPadding,
         .buttons = {{.label = TRANSLATE("Okay"), .type = ButtonGroupButtonType::MODAL}},
     });
+    buttonGroup->addObserverToButtonAtIndex(
+        0, ui::makeActionObserver<state::actions::UiContinueSpecialEvent>());
     modal->addChild(bmin::UniquePtr<ui::UiElement>(buttonGroup));
   }
 }
 
+ButtonTextWrap* PageModalEvent::choiceButton(int i) {
+  if (i < 0) {
+    return nullptr;
+  }
+  const auto choiceId = "choice" + bmin::toString(i);
+  return dynamic_cast<ButtonTextWrap*>(getChildById(choiceId.cStr()));
+}
+
+ButtonModal* PageModalEvent::continueButton() {
+  auto* buttonGroup = dynamic_cast<ButtonGroup*>(getChildById("buttonGroup"));
+  if (!buttonGroup || buttonGroup->getChildren().empty()) {
+    return nullptr;
+  }
+  return dynamic_cast<ButtonModal*>(buttonGroup->getChildren()[0].get());
+}
+
 void PageModalEvent::render(int dt) { UiElement::render(dt); }
+
+void PageModalEvent::enqueueSelectChoice(int choiceIndex) {
+  auto* stateManager = getStateManager();
+  if (!stateManager) {
+    return;
+  }
+  stateManager->enqueueAction(
+      state::makeAction<state::actions::UiSelectSpecialEventChoice>(choiceIndex), 0);
+}
+
+void PageModalEvent::enqueueContinue() {
+  auto* stateManager = getStateManager();
+  if (!stateManager) {
+    return;
+  }
+  stateManager->enqueueAction(
+      state::makeAction<state::actions::UiContinueSpecialEvent>(), 0);
+}
+
+void PageModalEvent::beginKeyboardChoicePress(int choiceIndex) {
+  if (keyboardFlash.isBusy()) {
+    return;
+  }
+  if (choiceIndex < 0 ||
+      static_cast<size_t>(choiceIndex) >= props.choices.size()) {
+    return;
+  }
+  keyboardFlash.begin(
+      [this, choiceIndex]() -> bool* {
+        if (auto* button = choiceButton(choiceIndex)) {
+          return &button->isActive;
+        }
+        return nullptr;
+      },
+      [this, choiceIndex]() { enqueueSelectChoice(choiceIndex); });
+}
+
+void PageModalEvent::beginKeyboardContinuePress() {
+  if (keyboardFlash.isBusy()) {
+    return;
+  }
+  if (!props.choices.empty()) {
+    return;
+  }
+  if (props.showContinueButton) {
+    keyboardFlash.begin(
+        [this]() -> bool* {
+          if (auto* button = continueButton()) {
+            return &button->isActive;
+          }
+          return nullptr;
+        },
+        [this]() { enqueueContinue(); });
+    return;
+  }
+  // No Okay on terminal "End." — Enter still dismisses via the continue action.
+  enqueueContinue();
+}
+
+void PageModalEvent::onKeyDown(std::string_view key) {
+  if (KeyboardPressFlash::isConfirmKey(key)) {
+    beginKeyboardContinuePress();
+    return;
+  }
+  if (const auto choiceIndex = KeyboardPressFlash::choiceIndexFromKey(key)) {
+    beginKeyboardChoicePress(*choiceIndex);
+  }
+}
+
+void PageModalEvent::onKeyUp(std::string_view /*key*/) {}
+
+void PageModalEvent::updateKeyboardChrome(int deltaTime) {
+  keyboardFlash.update(deltaTime);
+}
+
+void PageModalEvent::stopKeyboardChrome() { keyboardFlash.stop(); }
 
 } // namespace ui

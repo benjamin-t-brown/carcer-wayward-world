@@ -269,9 +269,19 @@ int main(int argc, char** argv) {
         return 1;
       }
       if (talkRunner.displayTextChoices.size() != 1 ||
+          !talkRunner.displayTextChoices[0].isContinue ||
+          !in3::isContinueChoice(talkRunner.displayTextChoices[0]) ||
           talkRunner.displayTextChoices[0].text != "(Continue.)" ||
+          talkRunner.displayTextChoices[0].choiceKey != "root:continue" ||
           talkRunner.displayTextChoices[0].next != "end_node") {
-        LOG(ERROR) << "Expected synthetic (Continue.) choice to end_node" << LOG_ENDL;
+        LOG(ERROR) << "Expected synthetic continue choice to end_node" << LOG_ENDL;
+        return 1;
+      }
+      if (talkIface.getState() !=
+          in3::SpecialEventRunnerInterfaceState::WAITING_TO_SELECT_CHOICE) {
+        LOG(ERROR) << "TALK synthetic Continue should wait to select choice, got: "
+                   << in3::SpecialEventRunnerInterface::stateToString(talkIface.getState())
+                   << LOG_ENDL;
         return 1;
       }
       talkIface.selectChoice(0);
@@ -280,7 +290,74 @@ int main(int argc, char** argv) {
                    << LOG_ENDL;
         return 1;
       }
+      if (talkIface.getState() != in3::SpecialEventRunnerInterfaceState::FINISHED ||
+          !talkIface.isFinished()) {
+        LOG(ERROR) << "TALK at END should report FINISHED, got: "
+                   << in3::SpecialEventRunnerInterface::stateToString(talkIface.getState())
+                   << LOG_ENDL;
+        return 1;
+      }
       LOG(INFO) << "TALK synthetic Continue choice test passed" << LOG_ENDL;
+    }
+
+    // Session policy: before startEvent is WAITING_TO_START; MODAL empty-next is FINISHED.
+    {
+      if (in3::SpecialEventRunnerInterface::stateToString(
+              in3::SpecialEventRunnerInterfaceState::FINISHED) != "FINISHED") {
+        LOG(ERROR) << "stateToString(FINISHED) should be FINISHED" << LOG_ENDL;
+        return 1;
+      }
+
+      model::GameEvent modalEvent;
+      modalEvent.id = "modal_end";
+      modalEvent.eventType = model::GameEventType::MODAL;
+
+      model::GameEventChildExec execNode;
+      execNode.eventChildType = model::GameEventChildType::EXEC;
+      execNode.id = "root";
+      execNode.paragraphs = {"Body."};
+      execNode.next = "end_node";
+      execNode.autoAdvance = false;
+      modalEvent.children.pushBack(execNode);
+
+      model::GameEventChildEnd endNode;
+      endNode.eventChildType = model::GameEventChildType::END;
+      endNode.id = "end_node";
+      modalEvent.children.pushBack(endNode);
+
+      in3::SpecialEventRunner modalRunner({}, modalEvent, {});
+      in3::SpecialEventRunnerInterface modalIface(modalRunner);
+      if (modalIface.getState() != in3::SpecialEventRunnerInterfaceState::WAITING_TO_START ||
+          modalIface.isFinished()) {
+        LOG(ERROR) << "Interface should wait to start before startEvent, got: "
+                   << in3::SpecialEventRunnerInterface::stateToString(modalIface.getState())
+                   << LOG_ENDL;
+        return 1;
+      }
+
+      modalIface.startEvent();
+      if (modalIface.getState() != in3::SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE ||
+          modalIface.isFinished()) {
+        LOG(ERROR) << "MODAL with text and next should wait to continue, got: "
+                   << in3::SpecialEventRunnerInterface::stateToString(modalIface.getState())
+                   << LOG_ENDL;
+        return 1;
+      }
+
+      modalIface.continueEvent();
+      if (modalRunner.displayText != "End.") {
+        LOG(ERROR) << "MODAL last advance should keep End. display, got: '"
+                   << modalRunner.displayText << "'" << LOG_ENDL;
+        return 1;
+      }
+      if (modalIface.getState() != in3::SpecialEventRunnerInterfaceState::FINISHED ||
+          !modalIface.isFinished()) {
+        LOG(ERROR) << "MODAL empty-next session should report FINISHED, got: "
+                   << in3::SpecialEventRunnerInterface::stateToString(modalIface.getState())
+                   << LOG_ENDL;
+        return 1;
+      }
+      LOG(INFO) << "Session policy WAITING_TO_START / FINISHED test passed" << LOG_ENDL;
     }
 
     // Chosen choices are tracked and reported as previously chosen on revisit.
@@ -453,6 +530,20 @@ int main(int argc, char** argv) {
         in3::setQuestTemplates(nullptr);
         return 1;
       }
+      auto notices = talkRunner.consumePendingNotices();
+      if (!notices.journalUpdated || !notices.receivedItemNames.empty()) {
+        LOG(ERROR) << "consumePendingNotices should return the journal flag"
+                   << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (talkRunner.pendingJournalNotice ||
+          !talkRunner.pendingReceivedItemNames.empty()) {
+        LOG(ERROR) << "consumePendingNotices should clear pending journal fields"
+                   << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
       in3::setQuestTemplates(nullptr);
       LOG(INFO) << "Same-node quest journal notice is a single pending flag" << LOG_ENDL;
     }
@@ -485,6 +576,20 @@ int main(int argc, char** argv) {
           talkRunner.pendingReceivedItemNames[0] != "BeerPappysLager" ||
           talkRunner.pendingReceivedItemNames[1] != "AlineaCorrespondence1") {
         LOG(ERROR) << "Same-node ADD_ITEM_TO_PLAYER should queue one notice per distinct item"
+                   << LOG_ENDL;
+        return 1;
+      }
+      auto notices = talkRunner.consumePendingNotices();
+      if (notices.journalUpdated || notices.receivedItemNames.size() != 2 ||
+          notices.receivedItemNames[0] != "BeerPappysLager" ||
+          notices.receivedItemNames[1] != "AlineaCorrespondence1") {
+        LOG(ERROR) << "consumePendingNotices should return distinct item names"
+                   << LOG_ENDL;
+        return 1;
+      }
+      if (talkRunner.pendingJournalNotice ||
+          !talkRunner.pendingReceivedItemNames.empty()) {
+        LOG(ERROR) << "consumePendingNotices should clear pending item fields"
                    << LOG_ENDL;
         return 1;
       }

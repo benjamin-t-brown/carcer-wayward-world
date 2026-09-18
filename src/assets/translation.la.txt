@@ -155,4 +155,6 @@
 [Weight: ] {MISSING!}
 [Yes] {MISSING!}
 [You can't see there.] {MISSING!}
+[You have received ] {MISSING!}
 [You need to get closer to look inside.] {MISSING!}
+[Your journal has been updated.] {MISSING!}

@@ -2,18 +2,15 @@
 
 #include "layers/UiLayer.h"
 #include "bmin/Map.h"
+#include "game/SpecialEventPresenter.h"
 #include "model/templates/SpecialEvents.hpp"
 #include "in3/SpecialEventRunner.h"
-#include "ui/KeyboardHeldScroll.h"
-#include "ui/elements/TextLine.h"
-#include <optional>
 #include <string_view>
 
 namespace ui {
-class ButtonModal;
-class ButtonTextWrap;
-class SectionScrollable;
-} // namespace ui
+class PageModalEvent;
+class PageTalkChoice;
+}
 
 namespace layers {
 
@@ -21,27 +18,16 @@ class LayerSpecialEvent : public UiLayer {
 private:
   in3::SpecialEventRunner runner;
   in3::SpecialEventRunnerInterface runnerInterface;
-  bmin::DynArray<ui::TextBlock> talkHistory;
-  ui::KeyboardHeldScroll talkKeyboardScroll;
-  bool eventFinished = false;
+  bmin::DynArray<game::SpecialEventTranscriptEntry> talkHistory;
   bool needsSyncUi = false;
-  int continuePressRemainingMs = 0;
-  int choicePressRemainingMs = 0;
-  std::optional<int> pendingChoiceIndex;
 
-  void appendCurrentTalkTextToHistory();
-  void appendTalkChoiceToHistory(int choiceIndex);
-  void attachChoiceObservers();
-  void attachModalContinueObserver();
-  ui::ButtonModal* findModalContinueButton();
-  ui::ButtonTextWrap* findChoiceButton(int choiceIndex);
-  void beginKeyboardContinuePress();
-  void beginKeyboardChoicePress(int choiceIndex);
+  bool isTalkEvent() const;
+  ui::PageTalkChoice* talkPage();
+  ui::PageModalEvent* modalPage();
   void closeLayer();
   void persistRunnerStorage();
-  void setupTalkKeyboardScroll();
-  ui::SectionScrollable* getTalkTextSection();
-  ui::SectionScrollable* getTalkChoiceSection();
+  void stopEventPageKeyboardChrome();
+  void updateEventPageKeyboardChrome(int deltaTime);
 
 public:
   constexpr static std::string_view LAYER_ID = "layer_special_event";

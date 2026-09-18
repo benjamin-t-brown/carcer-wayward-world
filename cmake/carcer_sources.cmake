@@ -62,6 +62,7 @@ set(CARCER_RULE_SOURCES
   src/game/combat/EnemyBehavior.cpp
   src/game/diceHelpers.cpp
   src/game/TalkEventPortrait.cpp
+  src/game/SpecialEventPresenter.cpp
   src/game/inventory/InventoryRules.cpp
   src/game/map/ActiveMapOrchestrator.cpp
   src/game/map/Camera.cpp
@@ -95,6 +96,7 @@ set(CARCER_UI_SOURCES
   src/ui/UiElement.cpp
   src/ui/FontScale.cpp
   src/ui/KeyboardHeldScroll.cpp
+  src/ui/KeyboardPressFlash.cpp
   src/ui/helpers/worldActions.cpp
   src/ui/helpers/worldCommands.cpp
   src/ui/helpers/keyboardShortcuts.cpp
@@ -158,7 +160,8 @@ set(CARCER_UI_SOURCES
   src/ui/pages/PageInventory.cpp
   src/ui/pages/PageMagicSetup.cpp
   src/ui/pages/PageTalkChoice.cpp
-  src/ui/pages/PageModalEvent.cpp)
+  src/ui/pages/PageModalEvent.cpp
+  src/ui/pages/specialEventViewMapping.cpp)
 
 set(CARCER_SOURCES
   ${CARCER_FOUNDATION_SOURCES}

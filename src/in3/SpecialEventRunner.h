@@ -22,11 +22,19 @@ struct DisplayTextChoice {
   bmin::DynArray<bmin::String> onceKeysToCommit;
   // Stable id for this conversation: "<nodeId>:<authoredChoiceIndex>" (or ":continue").
   bmin::String choiceKey;
+  bool isContinue = false;
 };
+
+bool isContinueChoice(const DisplayTextChoice& choice);
 
 struct ErrorInfo {
   bmin::String nodeId;
   bmin::String message;
+};
+
+struct SpecialEventPendingNotices {
+  bool journalUpdated = false;
+  bmin::DynArray<bmin::String> receivedItemNames; // template names, not labels
 };
 
 class SpecialEventRunner {
@@ -67,6 +75,7 @@ public:
   bool wasChoiceChosen(const bmin::String& choiceKey) const;
   void markChoiceChosen(const bmin::String& choiceKey);
   bool isAtEndNode() const;
+  SpecialEventPendingNotices consumePendingNotices();
 
 private:
   // EXEC text queued while auto-advancing; flushed into displayText at the next stop.
@@ -83,11 +92,13 @@ private:
 enum class SpecialEventRunnerInterfaceState {
   WAITING_TO_START,
   WAITING_TO_CONTINUE,
-  WAITING_TO_SELECT_CHOICE
+  WAITING_TO_SELECT_CHOICE,
+  FINISHED
 };
 
 class SpecialEventRunnerInterface {
   SpecialEventRunner& runner;
+  bool eventStarted = false;
 
 public:
   SpecialEventRunnerInterface(SpecialEventRunner& runner);
@@ -95,6 +106,7 @@ public:
   void continueEvent();
   void selectChoice(int choiceIndex);
   SpecialEventRunnerInterfaceState getState();
+  bool isFinished();
   static bmin::String stateToString(SpecialEventRunnerInterfaceState state);
 };
 
