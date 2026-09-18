@@ -36,6 +36,18 @@ function questStepStorageKey(questId: string, stepId: string): string {
   return `vars.quests.${quest}.step=${step}`;
 }
 
+function questCompletedStorageKey(questId: string, stepId: string): string {
+  const quest = questId.trim() || '<quest id>';
+  const step = stepId.trim() || '<step id>';
+  return `vars.quests.${quest}.completed.${step}`;
+}
+
+function questShownStorageKey(questId: string, stepId: string): string {
+  const quest = questId.trim() || '<quest id>';
+  const step = stepId.trim() || '<step id>';
+  return `vars.quests.${quest}.shown.${step}`;
+}
+
 function CopyableStorageKey({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
 
@@ -83,7 +95,10 @@ function QuestStepEditor({
   canMoveDown: boolean;
 }) {
   const subSteps = step.subSteps ?? [];
-  const updateField = <K extends keyof QuestStep>(field: K, value: QuestStep[K]) => {
+  const updateField = <K extends keyof QuestStep>(
+    field: K,
+    value: QuestStep[K],
+  ) => {
     onChange({ ...step, [field]: value });
   };
 
@@ -101,7 +116,17 @@ function QuestStepEditor({
                 onChange={(value) => updateField('id', value)}
                 required
               />
-              <CopyableStorageKey value={questStepStorageKey(questId, step.id)} />
+              <CopyableStorageKey
+                value={questStepStorageKey(questId, step.id)}
+              />
+              <CopyableStorageKey
+                value={questCompletedStorageKey(questId, step.id)}
+              />
+              {!allowSubSteps ? (
+                <CopyableStorageKey
+                  value={questShownStorageKey(questId, step.id)}
+                />
+              ) : null}
             </div>
             <TextInput
               id={`${idPrefix}-label`}
@@ -181,7 +206,10 @@ function QuestStepEditor({
             onClick={() =>
               updateField('subSteps', [
                 ...subSteps,
-                { ...createDefaultQuestStep(), id: `sub${subSteps.length + 1}` },
+                {
+                  ...createDefaultQuestStep(),
+                  id: `sub${subSteps.length + 1}`,
+                },
               ])
             }
           >
@@ -254,10 +282,8 @@ export function QuestTemplateForm(props: QuestTemplateFormProps) {
         <div className="form-subsection">
           <h4>Steps</h4>
           <p className="form-subsection-description">
-            Current step is vars.quests.&lt;id&gt;.step. START_QUEST sets the
-            first top-level step. COMPLETE_QUEST_STEP marks
-            vars.quests.&lt;id&gt;.completed.&lt;stepId&gt;. COMPLETE_QUEST sets
-            the step to complete.
+            NOTE: Steps are not linear. Shown or completed sub-steps appear in
+            the journal; hidden incomplete ones do not.
           </p>
           {steps.map((step, index) => (
             <QuestStepEditor

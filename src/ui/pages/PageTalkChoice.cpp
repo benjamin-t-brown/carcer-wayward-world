@@ -191,16 +191,23 @@ void PageTalkChoice::build() {
   const int pinFrom =
       std::clamp(props.pinFromBlockIndex, 0, static_cast<int>(props.textBlocks.size()));
   bmin::DynArray<TextBlock> historyBlocksRaw;
-  bmin::DynArray<TextBlock> currentBlocksRaw;
+  bmin::DynArray<TextBlock> currentDialogueRaw;
+  bmin::DynArray<TextBlock> currentSystemRaw;
   for (int i = 0; i < static_cast<int>(props.textBlocks.size()); i++) {
+    const auto& block = props.textBlocks[i];
     if (i < pinFrom) {
-      historyBlocksRaw.pushBack(props.textBlocks[i]);
+      historyBlocksRaw.pushBack(block);
+    } else if (block.fontColor.has_value()) {
+      if (currentSystemRaw.empty() ||
+          currentSystemRaw[currentSystemRaw.size() - 1].text != block.text) {
+        currentSystemRaw.pushBack(block);
+      }
     } else {
-      currentBlocksRaw.pushBack(props.textBlocks[i]);
+      currentDialogueRaw.pushBack(block);
     }
   }
   const auto historyBlocks = colorizeDialogueByQuotes(historyBlocksRaw, Colors::Grey2);
-  const auto currentBlocks = colorizeDialogueByQuotes(currentBlocksRaw, Colors::Grey2);
+  const auto currentBlocks = colorizeDialogueByQuotes(currentDialogueRaw, Colors::Grey2);
 
   int contentYOffset = 0;
   int historyHeightScaled = 0;
@@ -239,6 +246,9 @@ void PageTalkChoice::build() {
   int currentHeightScaled = 0;
   if (auto* currentParagraph = addParagraph(currentBlocks, "textBlocks")) {
     currentHeightScaled = currentParagraph->getDims().second;
+  }
+  if (auto* journalParagraph = addParagraph(currentSystemRaw, "textBlocksJournal")) {
+    currentHeightScaled += journalParagraph->getDims().second;
   }
 
   // Pad so the pinned (current) dialogue can sit at the top of the viewport.

@@ -3,6 +3,8 @@
 #include "model/templates/SpecialEvents.hpp"
 #include "in3/EventRunnerHelpers.h"
 #include "in3/SpecialEventRunner.h"
+#include "in3/QuestProgress.h"
+#include "model/templates/Quests.hpp"
 #include "bmin/String.h"
 #include "bmin/Map.h"
 
@@ -405,6 +407,93 @@ int main(int argc, char** argv) {
         return 1;
       }
       LOG(INFO) << "Dialogue storage persist / tmp clear test passed" << LOG_ENDL;
+    }
+
+    // Several quest execs on one node should raise a single journal notice.
+    {
+      model::QuestTemplate rock;
+      rock.id = "alineaBartoRock";
+      model::QuestStep getRock;
+      getRock.id = "get-rock";
+      model::QuestStep throwRock;
+      throwRock.id = "throw-rock";
+      rock.steps.pushBack(getRock);
+      rock.steps.pushBack(throwRock);
+      bmin::Map<bmin::String, model::QuestTemplate> quests;
+      quests[rock.id] = rock;
+      in3::setQuestTemplates(&quests);
+
+      model::GameEvent talkEvent;
+      talkEvent.id = "talk_journal_once";
+      talkEvent.eventType = model::GameEventType::TALK;
+
+      model::GameEventChildExec execNode;
+      execNode.eventChildType = model::GameEventChildType::EXEC;
+      execNode.id = "root";
+      execNode.paragraphs = {"Several quest updates."};
+      execNode.execStr = "START_QUEST(alineaBartoRock)\n"
+                         "SET_QUEST_STEP_EQ(alineaBartoRock, throw-rock)\n"
+                         "COMPLETE_QUEST_STEP(alineaBartoRock, get-rock)\n"
+                         "COMPLETE_QUEST(alineaBartoRock)";
+      execNode.next = "end_node";
+      execNode.autoAdvance = false;
+      talkEvent.children.pushBack(execNode);
+
+      model::GameEventChildEnd endNode;
+      endNode.eventChildType = model::GameEventChildType::END;
+      endNode.id = "end_node";
+      talkEvent.children.pushBack(endNode);
+
+      in3::SpecialEventRunner talkRunner({}, talkEvent, {});
+      in3::SpecialEventRunnerInterface talkIface(talkRunner);
+      talkIface.startEvent();
+      if (!talkRunner.pendingJournalNotice) {
+        LOG(ERROR) << "Multiple quest calls on one EXEC should set pendingJournalNotice"
+                   << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      in3::setQuestTemplates(nullptr);
+      LOG(INFO) << "Same-node quest journal notice is a single pending flag" << LOG_ENDL;
+    }
+
+    {
+      model::GameEvent talkEvent;
+      talkEvent.id = "talk_item_once";
+      talkEvent.eventType = model::GameEventType::TALK;
+
+      model::GameEventChildExec execNode;
+      execNode.eventChildType = model::GameEventChildType::EXEC;
+      execNode.id = "root";
+      execNode.paragraphs = {"Here, take these."};
+      execNode.execStr = "ADD_ITEM_TO_PLAYER(BeerPappysLager)\n"
+                         "ADD_ITEM_TO_PLAYER(BeerPappysLager)\n"
+                         "ADD_ITEM_TO_PLAYER(AlineaCorrespondence1)";
+      execNode.next = "end_node";
+      execNode.autoAdvance = false;
+      talkEvent.children.pushBack(execNode);
+
+      model::GameEventChildEnd endNode;
+      endNode.eventChildType = model::GameEventChildType::END;
+      endNode.id = "end_node";
+      talkEvent.children.pushBack(endNode);
+
+      in3::SpecialEventRunner talkRunner({}, talkEvent, {});
+      in3::SpecialEventRunnerInterface talkIface(talkRunner);
+      talkIface.startEvent();
+      if (talkRunner.pendingReceivedItemNames.size() != 2 ||
+          talkRunner.pendingReceivedItemNames[0] != "BeerPappysLager" ||
+          talkRunner.pendingReceivedItemNames[1] != "AlineaCorrespondence1") {
+        LOG(ERROR) << "Same-node ADD_ITEM_TO_PLAYER should queue one notice per distinct item"
+                   << LOG_ENDL;
+        return 1;
+      }
+      auto lagerCount = in3::getStorage(talkRunner.storage, "vars.items.BeerPappysLager");
+      if (!lagerCount || *lagerCount != "2") {
+        LOG(ERROR) << "ADD_ITEM_TO_PLAYER should increment vars.items.<name>" << LOG_ENDL;
+        return 1;
+      }
+      LOG(INFO) << "Same-node item receive notices are one per distinct item" << LOG_ENDL;
     }
 
     LOG(INFO) << "TestSpecialEventRunner completed successfully" << LOG_ENDL;

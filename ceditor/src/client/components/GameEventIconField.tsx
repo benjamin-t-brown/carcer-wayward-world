@@ -21,8 +21,8 @@ export function GameEventIconField({
       <label htmlFor={id}>{required ? 'Icon *' : 'Default icon'}</label>
       {!required ? (
         <div style={{ marginTop: '4px', fontSize: '12px', color: '#858585' }}>
-          Talk portraits use the character's portrait first. This icon is
-          the fallback.
+          Talk portraits use the character's portrait first. Call SET_PORT(character)
+          in exec to show an extra speaker's portrait. This icon is the fallback.
         </div>
       ) : null}
       <div style={{ marginTop: '8px' }}>

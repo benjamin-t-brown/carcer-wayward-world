@@ -87,6 +87,27 @@ int main(int /*argc*/, char** /*argv*/) {
                       "null database falls back to event icon") &&
        ok;
 
+  characters["barto"] = makeTalker("barto", "other_talk", "portrait_barto");
+  ok = assertEqualStr(game::resolveTalkEventPortrait(talkEvent, characters, "barto"),
+                      "portrait_barto",
+                      "aux character portrait replaces the talk owner") &&
+       ok;
+  ok = assertEqualStr(
+      game::resolveTalkEventPortrait(talkEvent, characters, "portraits0_9"),
+      "portraits0_9",
+      "unknown aux name is used as a portrait sprite") &&
+       ok;
+  ok = assertEqualStr(game::resolveTalkEventPortrait(talkEvent, characters, ""),
+                      "portrait_claire",
+                      "empty aux keeps the talk owner portrait") &&
+       ok;
+
+  characters["no_art"] = makeTalker("no_art", "unused_talk", "");
+  ok = assertEqualStr(game::resolveTalkEventPortrait(talkEvent, characters, "no_art"),
+                      "portrait_claire",
+                      "aux character without portrait keeps the talk owner") &&
+       ok;
+
   if (!ok) {
     LOG(ERROR) << "TestTalkEventPortrait failed" << LOG_ENDL;
     return 1;

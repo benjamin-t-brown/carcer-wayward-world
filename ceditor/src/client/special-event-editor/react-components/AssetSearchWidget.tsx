@@ -9,6 +9,7 @@ export type AssetSearchKind =
   | 'variable'
   | 'function'
   | 'item'
+  | 'character'
   | 'quest'
   | 'questStep'
   | 'questSubStep';
@@ -17,12 +18,14 @@ const SEARCH_KINDS: { id: AssetSearchKind; label: string; color: string }[] = [
   { id: 'variable', label: 'Variables', color: '#4ec9b0' },
   { id: 'function', label: 'Functions', color: '#c586c0' },
   { id: 'item', label: 'Items', color: '#dcdcaa' },
+  { id: 'character', label: 'Characters', color: '#b5cea8' },
   { id: 'quest', label: 'Quests', color: '#569cd6' },
   { id: 'questStep', label: 'Steps', color: '#9cdcfe' },
   { id: 'questSubStep', label: 'Sub-steps', color: '#ce9178' },
 ];
 
 const KIND_STORAGE_KEY = 'ceditor.seAssetSearch.kinds';
+const CHARACTER_KIND_MIGRATION_KEY = 'ceditor.seAssetSearch.addedCharacterKind';
 
 interface SearchHit {
   kind: AssetSearchKind;
@@ -34,21 +37,28 @@ interface SearchHit {
 }
 
 function loadEnabledKinds(): Set<AssetSearchKind> {
+  const allKinds = SEARCH_KINDS.map((kind) => kind.id);
   try {
     const raw = localStorage.getItem(KIND_STORAGE_KEY);
     if (!raw) {
-      return new Set(SEARCH_KINDS.map((kind) => kind.id));
+      return new Set(allKinds);
     }
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) {
-      return new Set(SEARCH_KINDS.map((kind) => kind.id));
+      return new Set(allKinds);
     }
     const valid = parsed.filter((id): id is AssetSearchKind =>
       SEARCH_KINDS.some((kind) => kind.id === id),
     );
-    return new Set(valid.length > 0 ? valid : SEARCH_KINDS.map((kind) => kind.id));
+    const enabled = new Set(valid.length > 0 ? valid : allKinds);
+    if (!localStorage.getItem(CHARACTER_KIND_MIGRATION_KEY)) {
+      enabled.add('character');
+      localStorage.setItem(CHARACTER_KIND_MIGRATION_KEY, '1');
+      saveEnabledKinds(enabled);
+    }
+    return enabled;
   } catch {
-    return new Set(SEARCH_KINDS.map((kind) => kind.id));
+    return new Set(allKinds);
   }
 }
 
@@ -69,7 +79,7 @@ interface AssetSearchWidgetProps {
 }
 
 export function AssetSearchWidget({ gameEvent }: AssetSearchWidgetProps) {
-  const { gameEvents, items, quests } = useAssets();
+  const { gameEvents, items, characters, quests } = useAssets();
   const [enabledKinds, setEnabledKinds] = useState<Set<AssetSearchKind>>(
     loadEnabledKinds,
   );
@@ -121,6 +131,31 @@ export function AssetSearchWidget({ gameEvent }: AssetSearchWidgetProps) {
           title: item.name,
           detail: item.label && item.label !== item.name ? item.label : '',
           searchFields: [item.name, item.label ?? ''],
+        });
+      }
+    }
+    if (enabledKinds.has('character')) {
+      for (const character of characters) {
+        const talkName = character.talk?.talkName?.trim() ?? '';
+        const portraitName = character.talk?.portraitName?.trim() ?? '';
+        const labelPart =
+          character.label && character.label !== character.name
+            ? character.label
+            : '';
+        const detail = [labelPart, talkName].filter(Boolean).join(' — ');
+        next.push({
+          kind: 'character',
+          key: `character:${character.name}`,
+          copyText: character.name,
+          title: character.name,
+          detail,
+          searchFields: [
+            character.name,
+            character.label ?? '',
+            character.type ?? '',
+            talkName,
+            portraitName,
+          ],
         });
       }
     }
@@ -199,6 +234,7 @@ export function AssetSearchWidget({ gameEvent }: AssetSearchWidgetProps) {
   }, [
     accessibleVars,
     availableFuncs,
+    characters,
     enabledKinds,
     gameEvent?.id,
     items,
@@ -276,7 +312,7 @@ export function AssetSearchWidget({ gameEvent }: AssetSearchWidgetProps) {
       </div>
       <SearchInput
         items={hits}
-        placeholder="Search variables, functions, items, quests..."
+        placeholder="Search variables, functions, items, characters, quests..."
         requireSearchTerm
         onSelect={(hit) => {
           setSelected(hit);

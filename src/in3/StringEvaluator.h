@@ -9,6 +9,9 @@ namespace in3 {
 struct StringEvaluatorFuncs {
   bmin::Map<bmin::String, bmin::String>& storage;
 
+  bool questUpdated = false;
+  bmin::DynArray<bmin::String> receivedItemNames;
+
   StringEvaluatorFuncs(bmin::Map<bmin::String, bmin::String>& storage);
 
   bmin::String GET(const bmin::String& a);
@@ -18,7 +21,14 @@ struct StringEvaluatorFuncs {
   void SET_STR(const bmin::String& a, const bmin::String& b);
   void SETUP_DISPOSITION(const bmin::String& characterName);
   void START_QUEST(const bmin::String& questName);
+  void SET_QUEST_STEP_EQ(const bmin::String& questName, const bmin::String& stepId);
   void COMPLETE_QUEST_STEP(const bmin::String& questName, const bmin::String& stepId);
+  void SHOW_QUEST_SUB_STEP(const bmin::String& questName, const bmin::String& stepId,
+                           const bmin::String& subStepId);
+  void HIDE_QUEST_SUB_STEP(const bmin::String& questName, const bmin::String& stepId,
+                           const bmin::String& subStepId);
+  void COMPLETE_QUEST_SUB_STEP(const bmin::String& questName, const bmin::String& stepId,
+                               const bmin::String& subStepId);
   void COMPLETE_QUEST(const bmin::String& questName);
   void SPAWN_CH(const bmin::String& chName);
   void DESPAWN_CH(const bmin::String& chName);
@@ -29,6 +39,7 @@ struct StringEvaluatorFuncs {
   void ADD_ITEM_TO_PLAYER(const bmin::String& itemName);
   void REMOVE_ITEM_FROM_PLAYER(const bmin::String& itemName);
   void OPEN_SHOP(const bmin::String& shopName);
+  void SET_PORT(const bmin::String& characterName);
 };
 
 class StringEvaluator {

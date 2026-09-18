@@ -44,6 +44,7 @@ public:
   ~Database() = default;
 
   const model::ItemTemplate& getItemTemplate(std::string_view itemName) const;
+  const model::ItemTemplate* findItemTemplate(std::string_view itemName) const;
   void addItemTemplate(const model::ItemTemplate& itemTemplate);
   const model::CharacterTemplate& getCharacterTemplate(std::string_view templateName) const;
   void addCharacterTemplate(const model::CharacterTemplate& characterTemplate);

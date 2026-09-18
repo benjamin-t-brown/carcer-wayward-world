@@ -31,6 +31,9 @@ int main(int argc, char** argv) {
       {"SET_NUM(num3, -10)", {"num3", "-10"}},
       {"SET_STR(str1, hello)", {"str1", "hello"}},
       {"SET_STR(str2, test value)", {"str2", "test value"}},
+      {"SET_PORT(claire)", {"tmp.talk.port", "claire"}},
+      {"SET_PORT()", {"tmp.talk.port", ""}},
+      {"ADD_ITEM_TO_PLAYER(BeerPappysLager)", {"vars.items.BeerPappysLager", "1"}},
       {"MOD_NUM(a, 1)", {"a", "1"}},
       {"MOD_NUM(a, -1)", {"a", "0"}},
       {"MOD_NUM(newNum, 10)", {"newNum", "10"}}, // undefined + 10 = 10
@@ -105,7 +108,10 @@ int main(int argc, char** argv) {
     throwRock.id = "throw-rock";
     model::QuestStep leaveTavern;
     leaveTavern.id = "leave-tavern";
+    model::QuestStep hitBartolo;
+    hitBartolo.id = "hit-bartolo";
     throwRock.subSteps.pushBack(leaveTavern);
+    throwRock.subSteps.pushBack(hitBartolo);
     rock.steps.pushBack(getRock);
     rock.steps.pushBack(throwRock);
 
@@ -136,14 +142,217 @@ int main(int argc, char** argv) {
         in3::setQuestTemplates(nullptr);
         return 1;
       }
+      if (!evaluator.funcs.questUpdated) {
+        LOG(ERROR) << "START_QUEST should flag a journal update" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+    }
+    {
+      bmin::Map<bmin::String, bmin::String> jumpStorage;
+      in3::StringEvaluator startEvaluator(jumpStorage, "START_QUEST(alineaBartoRock)");
+      startEvaluator.evalStr("START_QUEST(alineaBartoRock)");
+      in3::StringEvaluator evaluator(jumpStorage,
+                                     "SET_QUEST_STEP_EQ(alineaBartoRock, throw-rock)");
+      evaluator.evalStr("SET_QUEST_STEP_EQ(alineaBartoRock, throw-rock)");
+      auto step = in3::getStorage(jumpStorage, "vars.quests.alineaBartoRock.step");
+      if (!step || *step != "throw-rock") {
+        LOG(ERROR) << "SET_QUEST_STEP_EQ should set the current quest step" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (!in3::questStepEq(jumpStorage, "alineaBartoRock", "throw-rock")) {
+        LOG(ERROR) << "SET_QUEST_STEP_EQ should satisfy QUEST_STEP_EQ" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (in3::questStepIsCompleted(jumpStorage, "alineaBartoRock", "get-rock")) {
+        LOG(ERROR) << "SET_QUEST_STEP_EQ should not complete skipped steps" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (in3::questStepVisibleInJournal(jumpStorage, "alineaBartoRock", "get-rock")) {
+        LOG(ERROR) << "Skipped incomplete steps should stay hidden from the journal"
+                   << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (!in3::questStepVisibleInJournal(jumpStorage, "alineaBartoRock", "throw-rock")) {
+        LOG(ERROR) << "The current quest step should be visible in the journal" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (!evaluator.funcs.questUpdated) {
+        LOG(ERROR) << "SET_QUEST_STEP_EQ should flag a journal update" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      in3::StringEvaluator completeEvaluator(
+          jumpStorage, "COMPLETE_QUEST_STEP(alineaBartoRock, get-rock)");
+      completeEvaluator.evalStr("COMPLETE_QUEST_STEP(alineaBartoRock, get-rock)");
+      auto visibleAfterComplete =
+          in3::questJournalVisibleStepIds(jumpStorage, "alineaBartoRock");
+      if (visibleAfterComplete.size() != 2 || visibleAfterComplete[0] != "get-rock" ||
+          visibleAfterComplete[1] != "throw-rock") {
+        LOG(ERROR) << "Journal should show completed steps plus the current step" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+    }
+    {
+      bmin::Map<bmin::String, bmin::String> subStorage;
+      in3::StringEvaluator startEvaluator(subStorage, "START_QUEST(alineaBartoRock)");
+      startEvaluator.evalStr("START_QUEST(alineaBartoRock)");
+      in3::StringEvaluator evaluator(
+          subStorage, "COMPLETE_QUEST_SUB_STEP(alineaBartoRock, throw-rock, leave-tavern)");
+      evaluator.evalStr("COMPLETE_QUEST_SUB_STEP(alineaBartoRock, throw-rock, leave-tavern)");
+      auto step = in3::getStorage(subStorage, "vars.quests.alineaBartoRock.step");
+      auto done =
+          in3::getStorage(subStorage, "vars.quests.alineaBartoRock.completed.leave-tavern");
+      if (!step || *step != "get-rock") {
+        LOG(ERROR) << "COMPLETE_QUEST_SUB_STEP should not change the current top-level step"
+                   << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (!done || *done != "true") {
+        LOG(ERROR) << "COMPLETE_QUEST_SUB_STEP should mark the sub-step complete" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (!in3::questStepEq(subStorage, "alineaBartoRock", "leave-tavern")) {
+        LOG(ERROR) << "QUEST_STEP_EQ should treat a completed sub-step as a separate check"
+                   << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+    }
+    {
+      bmin::Map<bmin::String, bmin::String> showStorage;
+      in3::StringEvaluator startEvaluator(showStorage, "START_QUEST(alineaBartoRock)");
+      startEvaluator.evalStr("START_QUEST(alineaBartoRock)");
+      in3::StringEvaluator jumpEvaluator(showStorage,
+                                         "SET_QUEST_STEP_EQ(alineaBartoRock, throw-rock)");
+      jumpEvaluator.evalStr("SET_QUEST_STEP_EQ(alineaBartoRock, throw-rock)");
+      if (in3::questStepVisibleInJournal(showStorage, "alineaBartoRock", "leave-tavern") ||
+          in3::questStepVisibleInJournal(showStorage, "alineaBartoRock", "hit-bartolo")) {
+        LOG(ERROR) << "Incomplete sub-steps should stay hidden until shown or completed"
+                   << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      in3::StringEvaluator showEvaluator(
+          showStorage, "SHOW_QUEST_SUB_STEP(alineaBartoRock, throw-rock, leave-tavern)");
+      showEvaluator.evalStr("SHOW_QUEST_SUB_STEP(alineaBartoRock, throw-rock, leave-tavern)");
+      auto shown =
+          in3::getStorage(showStorage, "vars.quests.alineaBartoRock.shown.leave-tavern");
+      if (!shown || *shown != "true") {
+        LOG(ERROR) << "SHOW_QUEST_SUB_STEP should mark the sub-step shown" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (!in3::questSubStepIsShown(showStorage, "alineaBartoRock", "throw-rock",
+                                    "leave-tavern")) {
+        LOG(ERROR) << "SHOW_QUEST_SUB_STEP should satisfy QUEST_SUB_STEP_SHOWN" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (!in3::questStepVisibleInJournal(showStorage, "alineaBartoRock", "leave-tavern")) {
+        LOG(ERROR) << "A shown sub-step should be visible in the journal" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (in3::questStepVisibleInJournal(showStorage, "alineaBartoRock", "hit-bartolo")) {
+        LOG(ERROR) << "SHOW_QUEST_SUB_STEP should not reveal sibling sub-steps" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (!showEvaluator.funcs.questUpdated) {
+        LOG(ERROR) << "SHOW_QUEST_SUB_STEP should flag a journal update" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      in3::StringEvaluator hideEvaluator(
+          showStorage, "HIDE_QUEST_SUB_STEP(alineaBartoRock, throw-rock, leave-tavern)");
+      hideEvaluator.evalStr("HIDE_QUEST_SUB_STEP(alineaBartoRock, throw-rock, leave-tavern)");
+      if (in3::getStorage(showStorage, "vars.quests.alineaBartoRock.shown.leave-tavern")) {
+        LOG(ERROR) << "HIDE_QUEST_SUB_STEP should clear the shown flag" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (in3::questStepVisibleInJournal(showStorage, "alineaBartoRock", "leave-tavern")) {
+        LOG(ERROR) << "A hidden incomplete sub-step should leave the journal" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (!hideEvaluator.funcs.questUpdated) {
+        LOG(ERROR) << "HIDE_QUEST_SUB_STEP should flag a journal update" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      in3::StringEvaluator showAgainEvaluator(
+          showStorage, "SHOW_QUEST_SUB_STEP(alineaBartoRock, throw-rock, leave-tavern)");
+      showAgainEvaluator.evalStr("SHOW_QUEST_SUB_STEP(alineaBartoRock, throw-rock, leave-tavern)");
+      in3::StringEvaluator completeEvaluator(
+          showStorage, "COMPLETE_QUEST_SUB_STEP(alineaBartoRock, throw-rock, leave-tavern)");
+      completeEvaluator.evalStr(
+          "COMPLETE_QUEST_SUB_STEP(alineaBartoRock, throw-rock, leave-tavern)");
+      in3::StringEvaluator hideCompletedEvaluator(
+          showStorage, "HIDE_QUEST_SUB_STEP(alineaBartoRock, throw-rock, leave-tavern)");
+      hideCompletedEvaluator.evalStr(
+          "HIDE_QUEST_SUB_STEP(alineaBartoRock, throw-rock, leave-tavern)");
+      if (!in3::questStepVisibleInJournal(showStorage, "alineaBartoRock", "leave-tavern")) {
+        LOG(ERROR) << "A completed sub-step should stay in the journal after hide" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+    }
+    {
+      bmin::Map<bmin::String, bmin::String> restartStorage;
+      in3::StringEvaluator startEvaluator(restartStorage, "START_QUEST(alineaBartoRock)");
+      startEvaluator.evalStr("START_QUEST(alineaBartoRock)");
+      in3::StringEvaluator showEvaluator(
+          restartStorage, "SHOW_QUEST_SUB_STEP(alineaBartoRock, throw-rock, leave-tavern)");
+      showEvaluator.evalStr("SHOW_QUEST_SUB_STEP(alineaBartoRock, throw-rock, leave-tavern)");
+      in3::StringEvaluator restartEvaluator(restartStorage, "START_QUEST(alineaBartoRock)");
+      restartEvaluator.evalStr("START_QUEST(alineaBartoRock)");
+      if (in3::getStorage(restartStorage, "vars.quests.alineaBartoRock.shown.leave-tavern")) {
+        LOG(ERROR) << "START_QUEST should clear shown sub-steps" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+    }
+    {
+      bmin::Map<bmin::String, bmin::String> mismatchStorage;
+      in3::StringEvaluator evaluator(
+          mismatchStorage, "COMPLETE_QUEST_SUB_STEP(alineaBartoRock, get-rock, leave-tavern)");
+      evaluator.evalStr("COMPLETE_QUEST_SUB_STEP(alineaBartoRock, get-rock, leave-tavern)");
+      if (in3::getStorage(mismatchStorage, "vars.quests.alineaBartoRock.completed.leave-tavern")) {
+        LOG(ERROR) << "COMPLETE_QUEST_SUB_STEP should ignore a sub-step that is not under "
+                      "the given step"
+                   << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      in3::StringEvaluator showEvaluator(
+          mismatchStorage, "SHOW_QUEST_SUB_STEP(alineaBartoRock, get-rock, leave-tavern)");
+      showEvaluator.evalStr("SHOW_QUEST_SUB_STEP(alineaBartoRock, get-rock, leave-tavern)");
+      if (in3::getStorage(mismatchStorage, "vars.quests.alineaBartoRock.shown.leave-tavern")) {
+        LOG(ERROR) << "SHOW_QUEST_SUB_STEP should ignore a sub-step that is not under "
+                      "the given step"
+                   << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
     }
     {
       in3::StringEvaluator evaluator(questStorage, "COMPLETE_QUEST_STEP(alineaBartoRock, get-rock)");
       evaluator.evalStr("COMPLETE_QUEST_STEP(alineaBartoRock, get-rock)");
       auto step = in3::getStorage(questStorage, "vars.quests.alineaBartoRock.step");
       auto done = in3::getStorage(questStorage, "vars.quests.alineaBartoRock.completed.get-rock");
-      if (!step || *step != "throw-rock") {
-        LOG(ERROR) << "Completing a top-level step should advance to the next" << LOG_ENDL;
+      if (!step || *step != "get-rock") {
+        LOG(ERROR) << "COMPLETE_QUEST_STEP should not advance to the next listed step"
+                   << LOG_ENDL;
         in3::setQuestTemplates(nullptr);
         return 1;
       }
@@ -152,6 +361,25 @@ int main(int argc, char** argv) {
         in3::setQuestTemplates(nullptr);
         return 1;
       }
+      if (!in3::questStepIsCompleted(questStorage, "alineaBartoRock", "get-rock")) {
+        LOG(ERROR) << "COMPLETE_QUEST_STEP should satisfy QUEST_STEP_COMPLETED" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (in3::questStepVisibleInJournal(questStorage, "alineaBartoRock", "throw-rock")) {
+        LOG(ERROR) << "Incomplete non-current steps should stay hidden from the journal"
+                   << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      {
+        auto visible = in3::questJournalVisibleStepIds(questStorage, "alineaBartoRock");
+        if (visible.size() != 1 || visible[0] != "get-rock") {
+          LOG(ERROR) << "Journal should only list the current completed step" << LOG_ENDL;
+          in3::setQuestTemplates(nullptr);
+          return 1;
+        }
+      }
     }
     {
       in3::StringEvaluator evaluator(questStorage,
@@ -159,7 +387,7 @@ int main(int argc, char** argv) {
       evaluator.evalStr("COMPLETE_QUEST_STEP(alineaBartoRock, leave-tavern)");
       auto step = in3::getStorage(questStorage, "vars.quests.alineaBartoRock.step");
       auto done = in3::getStorage(questStorage, "vars.quests.alineaBartoRock.completed.leave-tavern");
-      if (!step || *step != "throw-rock") {
+      if (!step || *step != "get-rock") {
         LOG(ERROR) << "Completing a sub-step should not change the current top-level step"
                    << LOG_ENDL;
         in3::setQuestTemplates(nullptr);
@@ -196,9 +424,30 @@ int main(int argc, char** argv) {
         in3::setQuestTemplates(nullptr);
         return 1;
       }
+      {
+        auto visible = in3::questJournalVisibleStepIds(questStorage, "alineaBartoRock");
+        if (visible.size() != 2 || visible[0] != "get-rock" || visible[1] != "leave-tavern") {
+          LOG(ERROR) << "A finished quest journal should list completed steps only"
+                     << LOG_ENDL;
+          in3::setQuestTemplates(nullptr);
+          return 1;
+        }
+      }
     }
 
     in3::setQuestTemplates(nullptr);
+
+    {
+      bmin::Map<bmin::String, bmin::String> itemStorage;
+      in3::StringEvaluator evaluator(itemStorage, "ADD_ITEM_TO_PLAYER(BeerPappysLager)");
+      evaluator.evalStr("ADD_ITEM_TO_PLAYER(BeerPappysLager)");
+      if (evaluator.funcs.receivedItemNames.size() != 1 ||
+          evaluator.funcs.receivedItemNames[0] != "BeerPappysLager") {
+        LOG(ERROR) << "ADD_ITEM_TO_PLAYER should flag the granted item" << LOG_ENDL;
+        return 1;
+      }
+    }
+
     LOG(INFO) << TEST_NAME << " completed successfully" << LOG_ENDL;
     return 0;
   } catch (const std::exception& e) {

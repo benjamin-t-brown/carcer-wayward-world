@@ -41,6 +41,13 @@ public:
   bmin::DynArray<ErrorInfo> errors;
   // Choice keys selected earlier in this conversation (for dimming repeats).
   bmin::DynArray<bmin::String> chosenChoiceKeys;
+  // Set when START_QUEST / SET_QUEST_STEP_EQ / COMPLETE_QUEST_STEP /
+  // SHOW_QUEST_SUB_STEP / HIDE_QUEST_SUB_STEP / COMPLETE_QUEST_SUB_STEP /
+  // COMPLETE_QUEST run.
+  // TODO: play a Planescape-style journal update sound when this is shown.
+  bool pendingJournalNotice = false;
+  // Distinct item names granted by ADD_ITEM_TO_PLAYER since the last player stop.
+  bmin::DynArray<bmin::String> pendingReceivedItemNames;
 
   SpecialEventRunner(const bmin::Map<bmin::String, bmin::String>& initialStorage,
                      const model::GameEvent& gameEvent,

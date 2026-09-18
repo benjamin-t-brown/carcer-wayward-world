@@ -81,8 +81,8 @@ export class EditorNode {
   toSENode() {
     return {
       id: this.id,
-      x: this.x,
-      y: this.y,
+      x: Math.round(this.x),
+      y: Math.round(this.y),
       eventChildType: this.type,
       h: this.height,
     } as SENode;

@@ -111,6 +111,15 @@ const model::ItemTemplate& Database::getItemTemplate(std::string_view itemName) 
   return mapGet(itemTemplates, itemName, "Item template not found: ");
 }
 
+const model::ItemTemplate* Database::findItemTemplate(std::string_view itemName) const {
+  const auto mapKey = bmin::String(itemName.data(), itemName.size());
+  auto it = itemTemplates.find(mapKey);
+  if (it == itemTemplates.end()) {
+    return nullptr;
+  }
+  return &(*it).value;
+}
+
 void Database::addItemTemplate(const model::ItemTemplate& itemTemplate) {
   itemTemplates[itemTemplate.name] = itemTemplate;
 }

@@ -59330,7 +59330,30 @@
         "requiresLook": true
       }
     ],
-    "travelTriggers": [],
+    "travelTriggers": [
+      {
+        "l": 1,
+        "i": 783,
+        "destinationMapName": "alinea_insideAlinea3",
+        "destinationMarkerName": "",
+        "destinationX": 3,
+        "destinationY": 26,
+        "destinationLayer": 0,
+        "requiresAction": true,
+        "overlayVisibility": "SHOW_TRAVEL_DOWN"
+      },
+      {
+        "l": 0,
+        "i": 783,
+        "destinationMapName": "alinea_insideAlinea3",
+        "destinationMarkerName": "",
+        "destinationX": 3,
+        "destinationY": 26,
+        "destinationLayer": 1,
+        "requiresAction": true,
+        "overlayVisibility": "SHOW_TRAVEL_UP"
+      }
+    ],
     "tileOverrides": [],
     "lightSources": []
   },

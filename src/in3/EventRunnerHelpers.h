@@ -18,6 +18,11 @@ std::optional<bmin::String> getStorage(const bmin::Map<bmin::String, bmin::Strin
 // Drop per-conversation scratch keys (prefix "tmp."). Keeps once.tmp.* and vars.*.
 void clearTmpStorageKeys(bmin::Map<bmin::String, bmin::String>& storage);
 
+// SET_PORT(characterName) stores the extra talk speaker for this conversation.
+inline constexpr const char* kTalkPortStorageKey = "tmp.talk.port";
+inline constexpr const char* kJournalUpdatedMessage =
+    "Your journal has been updated.";
+
 // Split exec/eval strings into statements (newlines or semicolons, not inside parens)
 bmin::DynArray<bmin::String> splitExecStatements(const bmin::String& str);
 

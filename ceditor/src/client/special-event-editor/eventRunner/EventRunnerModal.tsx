@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type CSSProperties } from 'react';
 import {
   GameEvent,
   GameEventChildExec,
@@ -7,7 +7,7 @@ import {
 import { Sprite } from '../../elements/Sprite';
 import { useAssets } from '../../contexts/AssetsContext';
 import { useSDL2WAssets } from '../../contexts/SDL2WAssetsContext';
-import { resolveTalkEventIcon } from '../../utils/talkEventPortrait';
+import { resolveTalkEventIcon, getTalkPortName } from '../../utils/talkEventPortrait';
 import {
   centerPanzoomOnNode,
   getEditorState,
@@ -70,6 +70,14 @@ function getLogEntryStyle(
     entry.type === 'text' &&
     lastSegmentIndex >= 0 &&
     index <= lastSegmentIndex;
+  if (entry.type === 'journal' || entry.type === 'item') {
+    return {
+      ...base,
+      color: '#888',
+      fontFamily: 'arial',
+      fontSize: EVENT_FONT_SIZE,
+    };
+  }
   if (entry.type === 'choice' || isHistoricalText) {
     return {
       ...base,
@@ -82,8 +90,9 @@ function getLogEntryStyle(
     return {
       ...base,
       color: '#aaa',
-      fontFamily: 'monospace',
-      fontSize: '14px',
+      fontFamily: 'arial',
+      fontSize: EVENT_FONT_SIZE,
+      cursor: 'default' as const,
     };
   }
   return {
@@ -94,10 +103,17 @@ function getLogEntryStyle(
   };
 }
 
-const EventHeader = ({ gameEvent }: { gameEvent: GameEvent }) => {
+const EventHeader = ({
+  gameEvent,
+  storage,
+}: {
+  gameEvent: GameEvent;
+  storage?: Record<string, unknown>;
+}) => {
   const { spriteMap } = useSDL2WAssets();
   const { characters } = useAssets();
-  const sprite = spriteMap[resolveTalkEventIcon(gameEvent, characters)];
+  const sprite =
+    spriteMap[resolveTalkEventIcon(gameEvent, characters, getTalkPortName(storage))];
   return (
     <div
       style={{
@@ -116,6 +132,37 @@ const EventHeader = ({ gameEvent }: { gameEvent: GameEvent }) => {
     </div>
   );
 };
+
+function StorageLogEntry({
+  text,
+  style,
+}: {
+  text: string;
+  style: CSSProperties;
+}) {
+  return (
+    <details style={style}>
+      <summary
+        style={{
+          cursor: 'pointer',
+          userSelect: 'none',
+        }}
+      >
+        Storage result
+      </summary>
+      <pre
+        style={{
+          margin: '8px 0 0',
+          whiteSpace: 'pre-wrap',
+          fontFamily: 'monospace',
+          fontSize: '14px',
+        }}
+      >
+        {text}
+      </pre>
+    </details>
+  );
+}
 
 const ChoiceButton = ({
   hasErrors,
@@ -309,7 +356,7 @@ export function EventRunnerModal({
           height: `${PANEL_CONTENT_HEIGHT}px`,
         }}
       >
-        <EventHeader gameEvent={gameEvent} />
+        <EventHeader gameEvent={gameEvent} storage={eventRunner.storage} />
 
         <div
           style={{
@@ -331,11 +378,20 @@ export function EventRunnerModal({
               scrollBehavior: 'smooth',
             }}
           >
-            {eventRunner.logEntries.map((entry, i) =>
-              entry.type === 'continue' ? null : (
+            {eventRunner.logEntries.map((entry, i) => {
+              if (entry.type === 'continue') {
+                return null;
+              }
+              const style = getLogEntryStyle(entry, i, lastSegmentIndex);
+              if (entry.type === 'storage') {
+                return (
+                  <StorageLogEntry key={i} text={entry.text} style={style} />
+                );
+              }
+              return (
                 <div
                   key={i}
-                  style={getLogEntryStyle(entry, i, lastSegmentIndex)}
+                  style={style}
                   title={entry.nodeId ? `Go to node ${entry.nodeId}` : undefined}
                   onClick={() => {
                     if (entry.nodeId) {
@@ -345,8 +401,8 @@ export function EventRunnerModal({
                 >
                   {entry.type === 'choice' ? ` - ${entry.text}` : entry.text}
                 </div>
-              )
-            )}
+              );
+            })}
           </div>
 
           {showChoicesArea && (

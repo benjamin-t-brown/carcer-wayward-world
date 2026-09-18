@@ -159,6 +159,17 @@ bool ConditionEvaluatorFuncs::FUNC_QuestStepEq(const bmin::String& questName,
   return questStepEq(storage, questName, stepId);
 }
 
+bool ConditionEvaluatorFuncs::FUNC_QuestStepCompleted(const bmin::String& questName,
+                                                      const bmin::String& stepId) {
+  return questStepIsCompleted(storage, questName, stepId);
+}
+
+bool ConditionEvaluatorFuncs::FUNC_QuestSubStepShown(const bmin::String& questName,
+                                                     const bmin::String& stepId,
+                                                     const bmin::String& subStepId) {
+  return questSubStepIsShown(storage, questName, stepId, subStepId);
+}
+
 ConditionEvaluator::ConditionEvaluator(const bmin::Map<bmin::String, bmin::String>& storage,
                                        const bmin::String& baseConditionStr)
     : baseConditionStr(baseConditionStr), funcs(storage) {}
@@ -256,6 +267,17 @@ bool ConditionEvaluator::evalFunc(const bmin::String& funcName,
     const bmin::String questName = simplifyArg(funcArgs[0]);
     const bmin::String stepNum = simplifyArg(funcArgs[1]);
     return funcs.FUNC_QuestStepEq(questName, stepNum);
+  } else if (funcName == "QUEST_STEP_COMPLETED") {
+    assertFuncArgs(funcName, funcArgs, 2);
+    const bmin::String questName = simplifyArg(funcArgs[0]);
+    const bmin::String stepId = simplifyArg(funcArgs[1]);
+    return funcs.FUNC_QuestStepCompleted(questName, stepId);
+  } else if (funcName == "QUEST_SUB_STEP_SHOWN") {
+    assertFuncArgs(funcName, funcArgs, 3);
+    const bmin::String questName = simplifyArg(funcArgs[0]);
+    const bmin::String stepId = simplifyArg(funcArgs[1]);
+    const bmin::String subStepId = simplifyArg(funcArgs[2]);
+    return funcs.FUNC_QuestSubStepShown(questName, stepId, subStepId);
   }
   throw std::runtime_error(("Conditional function '" + funcName + "' not found.").cStr());
 }

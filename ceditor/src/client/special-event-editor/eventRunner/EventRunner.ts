@@ -6,8 +6,15 @@ import {
   GameEventChildType,
   Choice,
   QuestTemplate,
+  ItemTemplate,
 } from '../../types/assets';
 import { getVarsFromNode } from '../nodeHelpers';
+
+export const JOURNAL_UPDATED_MESSAGE = 'Your journal has been updated.';
+
+export function itemReceivedNoticeText(itemLabel: string) {
+  return `You have received ${itemLabel}.`;
+}
 
 export function splitExecStatements(str: string): string[] {
   const statements: string[] = [];
@@ -83,16 +90,28 @@ function findQuestTemplate(
   return quests.find((quest) => quest.id === questName);
 }
 
-function isNestedSubStep(quest: QuestTemplate, stepId: string): boolean {
-  return (quest.steps ?? []).some((step) =>
-    (step.subSteps ?? []).some((subStep) => subStep.id === stepId),
+function isNestedSubStepOf(
+  quest: QuestTemplate,
+  stepId: string,
+  subStepId: string,
+): boolean {
+  const parent = (quest.steps ?? []).find((step) => step.id === stepId);
+  return Boolean(
+    parent && (parent.subSteps ?? []).some((subStep) => subStep.id === subStepId),
   );
 }
 
-function clearCompletedSteps(storage: Record<string, any>, questName: string) {
+function isNestedSubStep(quest: QuestTemplate, stepId: string): boolean {
+  return (quest.steps ?? []).some((step) =>
+    isNestedSubStepOf(quest, step.id, stepId),
+  );
+}
+
+function clearQuestRuntimeFlags(storage: Record<string, any>, questName: string) {
   const questState = storage?.vars?.quests?.[questName];
   if (questState && typeof questState === 'object') {
     delete questState.completed;
+    delete questState.shown;
   }
 }
 
@@ -106,32 +125,88 @@ function startQuest(
   if (!firstStep?.id) {
     return;
   }
-  clearCompletedSteps(storage, questName);
+  clearQuestRuntimeFlags(storage, questName);
   setStorage(storage, `vars.quests.${questName}.step`, firstStep.id);
+}
+
+function setQuestStepEq(
+  storage: Record<string, any>,
+  questName: string,
+  stepId: string,
+) {
+  setStorage(storage, `vars.quests.${questName}.step`, stepId);
 }
 
 function completeQuestStep(
   storage: Record<string, any>,
-  quests: QuestTemplate[],
   questName: string,
   stepId: string,
 ) {
   setStorage(storage, `vars.quests.${questName}.completed.${stepId}`, 'true');
+}
+
+function nestedSubStepAllowed(
+  quests: QuestTemplate[],
+  questName: string,
+  stepId: string,
+  subStepId: string,
+) {
   const quest = findQuestTemplate(quests, questName);
-  if (!quest) {
-    setStorage(storage, `vars.quests.${questName}.step`, stepId);
+  if (quest && !isNestedSubStepOf(quest, stepId, subStepId)) {
+    return false;
+  }
+  return true;
+}
+
+function deleteStorage(storage: Record<string, any>, key: string) {
+  const keys = key.split('.');
+  let curr: any = storage;
+  for (let i = 0; i < keys.length - 1; i++) {
+    if (typeof curr[keys[i]] !== 'object' || curr[keys[i]] === null) {
+      return;
+    }
+    curr = curr[keys[i]];
+  }
+  delete curr[keys[keys.length - 1]];
+}
+
+function showQuestSubStep(
+  storage: Record<string, any>,
+  quests: QuestTemplate[],
+  questName: string,
+  stepId: string,
+  subStepId: string,
+) {
+  if (!nestedSubStepAllowed(quests, questName, stepId, subStepId)) {
     return;
   }
-  const topLevelIndex = (quest.steps ?? []).findIndex((step) => step.id === stepId);
-  if (topLevelIndex < 0) {
+  setStorage(storage, `vars.quests.${questName}.shown.${subStepId}`, 'true');
+}
+
+function hideQuestSubStep(
+  storage: Record<string, any>,
+  quests: QuestTemplate[],
+  questName: string,
+  stepId: string,
+  subStepId: string,
+) {
+  if (!nestedSubStepAllowed(quests, questName, stepId, subStepId)) {
     return;
   }
-  const nextStep = quest.steps[topLevelIndex + 1];
-  setStorage(
-    storage,
-    `vars.quests.${questName}.step`,
-    nextStep?.id ?? stepId,
-  );
+  deleteStorage(storage, `vars.quests.${questName}.shown.${subStepId}`);
+}
+
+function completeQuestSubStep(
+  storage: Record<string, any>,
+  quests: QuestTemplate[],
+  questName: string,
+  stepId: string,
+  subStepId: string,
+) {
+  if (!nestedSubStepAllowed(quests, questName, stepId, subStepId)) {
+    return;
+  }
+  setStorage(storage, `vars.quests.${questName}.completed.${subStepId}`, 'true');
 }
 
 function completeQuest(storage: Record<string, any>, questName: string) {
@@ -147,6 +222,10 @@ function questIsComplete(storage: Record<string, any>, questName: string) {
   return getStorage(storage, `vars.quests.${questName}.step`) === QUEST_COMPLETE_STEP_ID;
 }
 
+function isTruthyCompleted(value: any): boolean {
+  return Boolean(value && value !== '0' && value !== 'false');
+}
+
 function questStepEq(
   storage: Record<string, any>,
   quests: QuestTemplate[],
@@ -160,11 +239,34 @@ function questStepEq(
   if (!quest || !isNestedSubStep(quest, stepId)) {
     return false;
   }
-  const completed = getStorage(
-    storage,
-    `vars.quests.${questName}.completed.${stepId}`,
+  return isTruthyCompleted(
+    getStorage(storage, `vars.quests.${questName}.completed.${stepId}`),
   );
-  return Boolean(completed && completed !== '0' && completed !== 'false');
+}
+
+function questStepIsCompleted(
+  storage: Record<string, any>,
+  questName: string,
+  stepId: string,
+) {
+  return isTruthyCompleted(
+    getStorage(storage, `vars.quests.${questName}.completed.${stepId}`),
+  );
+}
+
+function questSubStepIsShown(
+  storage: Record<string, any>,
+  quests: QuestTemplate[],
+  questName: string,
+  stepId: string,
+  subStepId: string,
+) {
+  if (!nestedSubStepAllowed(quests, questName, stepId, subStepId)) {
+    return false;
+  }
+  return isTruthyCompleted(
+    getStorage(storage, `vars.quests.${questName}.shown.${subStepId}`),
+  );
 }
 
 class ConditionEvaluator {
@@ -342,6 +444,22 @@ class ConditionEvaluator {
     QUEST_STEP_EQ: (questName: string, stepId: string) => {
       return questStepEq(this.storage, this.quests, questName, stepId);
     },
+    QUEST_STEP_COMPLETED: (questName: string, stepId: string) => {
+      return questStepIsCompleted(this.storage, questName, stepId);
+    },
+    QUEST_SUB_STEP_SHOWN: (
+      questName: string,
+      stepId: string,
+      subStepId: string,
+    ) => {
+      return questSubStepIsShown(
+        this.storage,
+        this.quests,
+        questName,
+        stepId,
+        subStepId,
+      );
+    },
   };
 
   evalFunc(funcName: keyof typeof this.boolFunctions, ...funcArgs: string[]) {
@@ -389,6 +507,8 @@ class StringEvaluator {
   storage: Record<string, any>;
   baseStringStr: string;
   quests: QuestTemplate[];
+  questUpdated = false;
+  receivedItemNames: string[] = [];
 
   constructor(
     storage: Record<string, any>,
@@ -435,12 +555,49 @@ class StringEvaluator {
     },
     START_QUEST: (questName: string) => {
       startQuest(this.storage, this.quests, questName);
+      this.questUpdated = true;
+    },
+    SET_QUEST_STEP_EQ: (questName: string, stepId: string) => {
+      setQuestStepEq(this.storage, questName, stepId);
+      this.questUpdated = true;
     },
     COMPLETE_QUEST_STEP: (questName: string, stepId: string) => {
-      completeQuestStep(this.storage, this.quests, questName, stepId);
+      completeQuestStep(this.storage, questName, stepId);
+      this.questUpdated = true;
+    },
+    SHOW_QUEST_SUB_STEP: (
+      questName: string,
+      stepId: string,
+      subStepId: string,
+    ) => {
+      showQuestSubStep(this.storage, this.quests, questName, stepId, subStepId);
+      this.questUpdated = true;
+    },
+    HIDE_QUEST_SUB_STEP: (
+      questName: string,
+      stepId: string,
+      subStepId: string,
+    ) => {
+      hideQuestSubStep(this.storage, this.quests, questName, stepId, subStepId);
+      this.questUpdated = true;
+    },
+    COMPLETE_QUEST_SUB_STEP: (
+      questName: string,
+      stepId: string,
+      subStepId: string,
+    ) => {
+      completeQuestSubStep(
+        this.storage,
+        this.quests,
+        questName,
+        stepId,
+        subStepId,
+      );
+      this.questUpdated = true;
     },
     COMPLETE_QUEST: (questName: string) => {
       completeQuest(this.storage, questName);
+      this.questUpdated = true;
     },
     SPAWN_CH: (_chName: string) => {
       // noop
@@ -463,6 +620,7 @@ class StringEvaluator {
     ADD_ITEM_TO_PLAYER: (itemName: string) => {
       const key = 'vars.items.' + itemName;
       this.stringFunctions.MOD_NUM(key, '1');
+      this.receivedItemNames.push(itemName);
     },
     REMOVE_ITEM_FROM_PLAYER: (itemName: string) => {
       const key = 'vars.items.' + itemName;
@@ -470,6 +628,13 @@ class StringEvaluator {
     },
     OPEN_SHOP: (_shopName: string) => {
       // noop
+    },
+    SET_PORT: (characterName: string = '') => {
+      if (!characterName) {
+        setStorage(this.storage, 'tmp.talk.port', '');
+        return;
+      }
+      setStorage(this.storage, 'tmp.talk.port', characterName);
     },
   };
 
@@ -506,7 +671,7 @@ class StringEvaluator {
 }
 
 export type EventRunnerLogEntry = {
-  type: 'text' | 'choice' | 'continue' | 'storage';
+  type: 'text' | 'choice' | 'continue' | 'storage' | 'journal' | 'item';
   text: string;
   nodeId?: string;
   choiceKey?: string;
@@ -517,6 +682,7 @@ export class EventRunner {
   gameEvent: GameEvent;
   gameEvents: GameEvent[];
   quests: QuestTemplate[];
+  items: ItemTemplate[];
   currentNodeId: string;
 
   displayText: string = '';
@@ -534,17 +700,21 @@ export class EventRunner {
     nodeId: string;
     message: string;
   }[] = [];
+  pendingJournalNotice = false;
+  pendingReceivedItemNames: string[] = [];
 
   constructor(
     initialStorage: Record<string, any> = {},
     gameEvent: GameEvent,
     gameEvents: GameEvent[],
     quests: QuestTemplate[] = [],
+    items: ItemTemplate[] = [],
   ) {
     this.storage = initialStorage;
     this.gameEvent = gameEvent;
     this.gameEvents = gameEvents;
     this.quests = quests;
+    this.items = items;
     this.currentNodeId = gameEvent.children.some((node) => node.id === 'root')
       ? 'root'
       : gameEvent.children[0].id;
@@ -594,6 +764,14 @@ export class EventRunner {
     const stringEvaluator = new StringEvaluator(this.storage, str, this.quests);
     try {
       const result = stringEvaluator.evalStr(str);
+      if (stringEvaluator.questUpdated) {
+        this.pendingJournalNotice = true;
+      }
+      for (const itemName of stringEvaluator.receivedItemNames) {
+        if (itemName && !this.pendingReceivedItemNames.includes(itemName)) {
+          this.pendingReceivedItemNames.push(itemName);
+        }
+      }
       return result;
     } catch (error: unknown) {
       this.errors.push({
@@ -662,6 +840,67 @@ export class EventRunner {
     this.logEntries.push({ type: 'text', text: plain, nodeId });
   }
 
+  flushJournalNotice() {
+    if (!this.pendingJournalNotice) {
+      return;
+    }
+    this.pendingJournalNotice = false;
+    // One grey line per player-facing stop, even if several quest calls
+    // ran on this node or earlier in the auto-advance chain.
+    for (let i = this.logEntries.length - 1; i >= 0; i--) {
+      const type = this.logEntries[i].type;
+      if (type === 'journal') {
+        return;
+      }
+      if (type === 'choice' || type === 'continue') {
+        break;
+      }
+    }
+    this.logEntries.push({
+      type: 'journal',
+      text: JOURNAL_UPDATED_MESSAGE,
+      nodeId: this.currentNodeId,
+    });
+  }
+
+  itemReceivedLabel(itemName: string) {
+    const item = this.items.find((entry) => entry.name === itemName);
+    const label = item?.label?.trim();
+    return label || itemName;
+  }
+
+  flushItemNotices() {
+    const names = this.pendingReceivedItemNames;
+    this.pendingReceivedItemNames = [];
+    for (const itemName of names) {
+      const text = itemReceivedNoticeText(this.itemReceivedLabel(itemName));
+      let already = false;
+      for (let i = this.logEntries.length - 1; i >= 0; i--) {
+        const entry = this.logEntries[i];
+        if (entry.type === 'item' && entry.text === text) {
+          already = true;
+          break;
+        }
+        if (entry.type === 'choice' || entry.type === 'continue') {
+          break;
+        }
+      }
+      if (already) {
+        continue;
+      }
+      this.logEntries.push({
+        type: 'item',
+        text,
+        nodeId: this.currentNodeId,
+      });
+    }
+  }
+
+  flushSystemNotices() {
+    this.flushItemNotices();
+    this.flushJournalNotice();
+  }
+
   appendChoiceToLog(
     text: string,
     choiceKey: string,
@@ -699,8 +938,7 @@ export class EventRunner {
     this.appendToLog('End.', this.currentNodeId);
     this.logEntries.push({
       type: 'storage',
-      text:
-        'Storage result:\n' + JSON.stringify(this.storage, null, 2),
+      text: JSON.stringify(this.storage, null, 2),
       nodeId: this.currentNodeId,
     });
   }
@@ -802,6 +1040,7 @@ export class EventRunner {
       if (!text || execNode.autoAdvance) {
         this.advance(execNode.next, { onceKeysToCommit: [], execStr: '' });
       }
+      this.flushSystemNotices();
     } else if (currentNode?.eventChildType === GameEventChildType.CHOICE) {
       const choiceNode = currentNode as GameEventChildChoice;
       const choiceText = this.replaceVariables(choiceNode.text, false);
@@ -809,6 +1048,7 @@ export class EventRunner {
       if (choiceText) {
         this.appendToLog(choiceText);
       }
+      this.flushSystemNotices();
       this.displayTextChoices = choiceNode.choices
         .map((choice, choiceIndex) => {
           const obj = choice.conditionStr
@@ -856,6 +1096,7 @@ export class EventRunner {
         });
       }
     } else if (currentNode?.eventChildType === GameEventChildType.END) {
+      this.flushSystemNotices();
       this.appendEndStorageToLog();
     }
   }

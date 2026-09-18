@@ -6,7 +6,10 @@ import { notifyStateUpdated } from '../seEditorState';
 import { AudioWidget } from '../react-components/AudioWidget';
 import { AssetSearchWidget } from '../react-components/AssetSearchWidget';
 import { OnceKeyGenerator } from '../react-components/OnceKeyGenerator';
-import { MODAL_ROOT_CLASS, useEscapeToClose } from '../../hooks/useEscapeToClose';
+import {
+  MODAL_ROOT_CLASS,
+  useEscapeToClose,
+} from '../../hooks/useEscapeToClose';
 
 interface EditExecNodeModalProps {
   isOpen: boolean;
@@ -50,16 +53,13 @@ export function EditExecNodeModal({
   };
 
   return (
-    <div
-      ref={modalRef}
-      className={`${MODAL_ROOT_CLASS} se-node-modal-overlay`}
-    >
+    <div ref={modalRef} className={`${MODAL_ROOT_CLASS} se-node-modal-overlay`}>
       <div className="se-node-modal-panel" onClick={(e) => e.stopPropagation()}>
         <div className="se-node-modal-chrome">
           <h2>Edit Exec Node</h2>
           <div className="se-node-modal-ids">
-            GameEvent: <span style={{ color: '#00d4d4' }}>{gameEvent.id}</span> |
-            Node: <span style={{ color: '#d4d400' }}>{node.id}</span>
+            GameEvent: <span style={{ color: '#00d4d4' }}>{gameEvent.id}</span>{' '}
+            | Node: <span style={{ color: '#d4d400' }}>{node.id}</span>
           </div>
           <AssetSearchWidget gameEvent={gameEvent} />
           <div className="se-node-modal-check-row">
@@ -93,6 +93,7 @@ export function EditExecNodeModal({
             <label>Execute Code (execStr)</label>
             <textarea
               className="se-node-modal-textarea"
+              style={{ width: 'calc(100% - 4px)' }}
               value={execStr}
               onChange={(e) => setExecStr(e.target.value)}
               spellCheck={false}

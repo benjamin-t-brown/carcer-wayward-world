@@ -16,6 +16,9 @@ int main(int argc, char** argv) {
   initialStorage.insert(bmin::String("c"), bmin::String("2"));
   initialStorage.insert(bmin::String("d"), bmin::String("3"));
   initialStorage.insert(bmin::String("vars.quests.WoodThief.step"), bmin::String("gather-wood"));
+  initialStorage.insert(bmin::String("vars.quests.WoodThief.completed.gather-wood"),
+                        bmin::String("true"));
+  initialStorage.insert(bmin::String("vars.quests.WoodThief.shown.sponsor"), bmin::String("true"));
   initialStorage.insert(bmin::String("vars.quests.DoneQuest.step"), bmin::String("complete"));
   initialStorage.insert(bmin::String("vars.items.BeerPappysLager"), bmin::String("1"));
   // z is undefined
@@ -88,6 +91,10 @@ int main(int argc, char** argv) {
       {"QUEST_IS_COMPLETE(DoneQuest)", true},
       {"QUEST_STEP_EQ(WoodThief, gather-wood)", true},
       {"QUEST_STEP_EQ(WoodThief, deliver-wood)", false},
+      {"QUEST_STEP_COMPLETED(WoodThief, gather-wood)", true},
+      {"QUEST_STEP_COMPLETED(WoodThief, deliver-wood)", false},
+      {"QUEST_SUB_STEP_SHOWN(WoodThief, gather-wood, sponsor)", true},
+      {"QUEST_SUB_STEP_SHOWN(WoodThief, gather-wood, missing)", false},
       {"HAS_ITEM(BeerPappysLager)", true},
       {"HAS_ITEM(MissingItem)", false},
       // clang-format on

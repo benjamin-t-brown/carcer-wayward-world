@@ -26,6 +26,37 @@
         "subSteps": []
       },
       {
+        "id": "joinMerchantry",
+        "label": "Join the Merchantry",
+        "description": "You need to be accepted into the Merchantry to find the tome you seek.  Ask around, maybe somebody will sponsor you?",
+        "subSteps": [
+          {
+            "id": "sub1",
+            "label": "Get accepted by the Merchantry",
+            "description": "Surely there's somebody in Alinea who can sponsor you to become a part of the Merchantry.",
+            "subSteps": []
+          },
+          {
+            "id": "elvyosa",
+            "label": "Elvyosa's Task",
+            "description": "Elvyosa has asked you to speak to Claire on her behalf.",
+            "subSteps": []
+          },
+          {
+            "id": "idoreo",
+            "label": "Idoreo's Task",
+            "description": "Idoreo has asked you to head north to see if his goods will sell up there.  He has given you fliers to hand out.",
+            "subSteps": []
+          },
+          {
+            "id": "scopey",
+            "label": "Scopey's Task",
+            "description": "Scopey has asked you to burn down Elvyosa's ship, or at least destroy its cargo.",
+            "subSteps": []
+          }
+        ]
+      },
+      {
         "id": "bringBookBack",
         "label": "Give Entomen's Tome",
         "description": "Bring Entomen's Tome back to him at the Posh Palfrey Inn in West Alinea.",
@@ -65,10 +96,68 @@
     ]
   },
   {
-    "id": "que_alinea_omniflowerHeist",
+    "id": "que_alinea_OmniflowerHeist",
     "label": "Omniflower Heist",
-    "description": "",
-    "completedDescription": "",
-    "steps": []
+    "description": "An Omniflower is a particular strain of herb that is used to create very potent healing potions.  Ainsley of the Shrine of Luck in Alinea has tasked you with getting her one.  Trouble is, Omniflowers are extremely carefully regulated by the Realm.  They can be quite hard to come by.",
+    "completedDescription": "You got an Omniflower for Ainsley and gave it to her.",
+    "steps": [
+      {
+        "id": "findFlower",
+        "label": "Find an Omniflower",
+        "description": "If you can't find one in the wilderness, perhaps the Realm has one stored away in one of the Alinea warehouses?",
+        "subSteps": []
+      },
+      {
+        "id": "getFlower",
+        "label": "Acquire an Omniflower",
+        "description": "There is an Omniflower inside Alinea Warehouse #2.  Perhaps this is available?",
+        "subSteps": [
+          {
+            "id": "sub1",
+            "label": "Find a way inside Warehouse #2",
+            "description": "You need a reliable way inside the warehouse to get the the Omniflower.",
+            "subSteps": []
+          },
+          {
+            "id": "sub2",
+            "label": "Find the Omniflower",
+            "description": "Now that you're inside, you need to find the Omniflower without getting caught.",
+            "subSteps": []
+          },
+          {
+            "id": "sub3",
+            "label": "Escape the warehouse",
+            "description": "Find a way out without getting caught.",
+            "subSteps": []
+          }
+        ]
+      },
+      {
+        "id": "reteurn",
+        "label": "Return to Ainsley",
+        "description": "Return to Ainsley at the Shrine of Luck in East Alinea",
+        "subSteps": []
+      }
+    ]
+  },
+  {
+    "id": "que_alinea_OutpostCorrespondence",
+    "label": "Outpost Correspondence",
+    "description": "Lieutenant Mullen has given you a correspondence to give to an outpost north of Alinea",
+    "completedDescription": "You have done a small favor for Lieutenant Mullen of the Realm.",
+    "steps": [
+      {
+        "id": "step1",
+        "label": "Deliver the correspondence",
+        "description": "Deliver Lieutenant Mullen's message to the outpost north of Alinea.",
+        "subSteps": []
+      },
+      {
+        "id": "step2",
+        "label": "Return to Mullen",
+        "description": "Return to Lieutenant Mullen with the outpost's report.",
+        "subSteps": []
+      }
+    ]
   }
 ]

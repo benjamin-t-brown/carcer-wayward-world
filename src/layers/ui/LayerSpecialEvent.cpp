@@ -1,11 +1,13 @@
 #include "LayerSpecialEvent.h"
+#include "actions/navigation/UiContinueSpecialEvent.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
+#include "actions/navigation/UiSelectSpecialEventChoice.hpp"
 #include "db/Database.h"
 #include "game/TalkEventPortrait.h"
 #include "in3/EventRunnerHelpers.h"
 #include "sdl2w/L10n.h"
 #include "state/State.hpp"
 #include "state/StateManager.h"
-#include "actions/navigation/UiRemoveLayer.hpp"
 #include "ui/colors.hpp"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/elements/SectionScrollable.h"
@@ -14,10 +16,9 @@
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/elements/buttons/ButtonTextWrap.h"
 #include "ui/observers/ActionObserver.hpp"
-#include "actions/navigation/UiSelectSpecialEventChoice.hpp"
-#include "actions/navigation/UiContinueSpecialEvent.hpp"
 #include "ui/pages/PageModalEvent.h"
 #include "ui/pages/PageTalkChoice.h"
+#include <bmin/StringInterop.h>
 #include <string_view>
 
 namespace layers {
@@ -26,6 +27,72 @@ namespace {
 
 constexpr int TALK_CHOICE_AREA_HEIGHT = 250;
 constexpr int kKeyboardPressFlashMs = 120;
+
+bmin::String journalNoticeText() { return TRANSLATE("Your journal has been updated."); }
+
+bmin::String itemReceivedNoticeText(const bmin::String& itemName,
+                                    const db::Database* database) {
+  bmin::String label = itemName;
+  if (database) {
+    const auto* item = database->findItemTemplate(
+        std::string_view(itemName.cStr(), itemName.size()));
+    if (item && !item->label.empty()) {
+      label = item->label;
+    }
+  }
+  return TRANSLATE("You have received ") + label + ".";
+}
+
+bool blockIsGreyNotice(const ui::TextBlock& block, const bmin::String& notice) {
+  if (!block.fontColor.has_value()) {
+    return false;
+  }
+  return block.text == notice || block.text == notice + "\n\n" ||
+         block.text == bmin::String("\n\n") + notice;
+}
+
+bool hasGreyNoticeFrom(const bmin::DynArray<ui::TextBlock>& blocks,
+                       int fromIndex,
+                       const bmin::String& notice) {
+  for (int i = fromIndex; i < static_cast<int>(blocks.size()); i++) {
+    if (blockIsGreyNotice(blocks[i], notice)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void appendGreyNotice(bmin::DynArray<ui::TextBlock>& blocks,
+                      int fromIndex,
+                      const bmin::String& notice,
+                      bool leadingBlankLine) {
+  if (notice.empty() || hasGreyNoticeFrom(blocks, fromIndex, notice)) {
+    return;
+  }
+  ui::TextBlock block;
+  block.text = leadingBlankLine ? bmin::String("\n\n") + notice : notice;
+  block.fontColor = ui::Colors::Grey;
+  blocks.pushBack(block);
+}
+
+void appendPendingSystemNotices(bmin::DynArray<ui::TextBlock>& blocks,
+                                in3::SpecialEventRunner& runner,
+                                int fromIndex,
+                                bool leadingBlankLine,
+                                const db::Database* database) {
+  bool usedLeadingBlank = false;
+  for (const auto& itemName : runner.pendingReceivedItemNames) {
+    const bmin::String notice = itemReceivedNoticeText(itemName, database);
+    appendGreyNotice(blocks, fromIndex, notice, leadingBlankLine && !usedLeadingBlank);
+    usedLeadingBlank = usedLeadingBlank || leadingBlankLine;
+  }
+  if (runner.pendingJournalNotice) {
+    appendGreyNotice(blocks,
+                     fromIndex,
+                     journalNoticeText(),
+                     leadingBlankLine && !usedLeadingBlank);
+  }
+}
 
 ui::PageTalkChoiceProps buildTalkProps(in3::SpecialEventRunner& runner,
                                        const bmin::DynArray<ui::TextBlock>& talkHistory,
@@ -38,8 +105,10 @@ ui::PageTalkChoiceProps buildTalkProps(in3::SpecialEventRunner& runner,
   props.choiceAreaHeight = TALK_CHOICE_AREA_HEIGHT;
   props.title =
       runner.gameEvent.title.empty() ? runner.gameEvent.id : runner.gameEvent.title;
+  const auto auxName =
+      in3::getStorage(runner.storage, in3::kTalkPortStorageKey).value_or("");
   props.portraitSpriteName =
-      game::resolveTalkEventPortrait(runner.gameEvent, database);
+      game::resolveTalkEventPortrait(runner.gameEvent, database, auxName);
   props.portraitScale = 1.5f;
   props.pinFromBlockIndex = static_cast<int>(talkHistory.size());
   for (const auto& block : talkHistory) {
@@ -50,6 +119,8 @@ ui::PageTalkChoiceProps buildTalkProps(in3::SpecialEventRunner& runner,
     block.text = runner.displayText;
     props.textBlocks.pushBack(block);
   }
+  appendPendingSystemNotices(
+      props.textBlocks, runner, props.pinFromBlockIndex, false, database);
   for (const auto& choice : runner.displayTextChoices) {
     ui::PageTalkChoiceItem item;
     item.nextId = choice.next;
@@ -61,8 +132,10 @@ ui::PageTalkChoiceProps buildTalkProps(in3::SpecialEventRunner& runner,
   return props;
 }
 
-ui::PageModalEventProps
-buildModalProps(in3::SpecialEventRunner& runner, int windowWidth, int windowHeight) {
+ui::PageModalEventProps buildModalProps(in3::SpecialEventRunner& runner,
+                                        int windowWidth,
+                                        int windowHeight,
+                                        const db::Database* database) {
   ui::PageModalEventProps props;
   // Window dims; ModalSmall default CappedCentered sizes/centers the shell.
   props.width = windowWidth;
@@ -74,6 +147,8 @@ buildModalProps(in3::SpecialEventRunner& runner, int windowWidth, int windowHeig
     block.text = runner.displayText;
     props.textBlocks.pushBack(block);
   }
+  appendPendingSystemNotices(
+      props.textBlocks, runner, 0, !runner.displayText.empty(), database);
   for (const auto& choice : runner.displayTextChoices) {
     ui::PageTalkChoiceItem item;
     item.nextId = choice.next;
@@ -127,7 +202,8 @@ LayerSpecialEvent::LayerSpecialEvent(
   } else {
     auto modalProps = buildModalProps(runner,
                                       static_cast<int>(windowWidth / scale),
-                                      static_cast<int>(windowHeight / scale));
+                                      static_cast<int>(windowHeight / scale),
+                                      getDatabase());
     auto pageModalEvent = new ui::PageModalEvent(window);
     pageModalEvent->setId("eventPage");
     pageModalEvent->setPos(0, 0);
@@ -146,12 +222,32 @@ LayerSpecialEvent::LayerSpecialEvent(
 }
 
 void LayerSpecialEvent::appendCurrentTalkTextToHistory() {
-  if (runner.displayText.empty()) {
-    return;
+  if (!runner.displayText.empty()) {
+    ui::TextBlock block;
+    block.text = runner.displayText + "\n\n";
+    talkHistory.pushBack(block);
   }
-  ui::TextBlock block;
-  block.text = runner.displayText + "\n\n";
-  talkHistory.pushBack(block);
+  const auto* database = getDatabase();
+  for (const auto& itemName : runner.pendingReceivedItemNames) {
+    const bmin::String notice = itemReceivedNoticeText(itemName, database);
+    if (talkHistory.empty() || !blockIsGreyNotice(talkHistory.back(), notice)) {
+      ui::TextBlock block;
+      block.text = notice + bmin::String("\n\n");
+      block.fontColor = ui::Colors::Grey;
+      talkHistory.pushBack(block);
+    }
+  }
+  runner.pendingReceivedItemNames.clear();
+  if (runner.pendingJournalNotice) {
+    const bmin::String notice = journalNoticeText();
+    if (talkHistory.empty() || !blockIsGreyNotice(talkHistory.back(), notice)) {
+      ui::TextBlock block;
+      block.text = notice + bmin::String("\n\n");
+      block.fontColor = ui::Colors::Grey;
+      talkHistory.pushBack(block);
+    }
+    runner.pendingJournalNotice = false;
+  }
 }
 
 void LayerSpecialEvent::appendTalkChoiceToHistory(int choiceIndex) {
@@ -190,8 +286,10 @@ void LayerSpecialEvent::syncUi() {
     return;
   }
   auto [windowWidth, windowHeight] = window->getDims();
-  auto modalProps = buildModalProps(
-      runner, static_cast<int>(windowWidth), static_cast<int>(windowHeight));
+  auto modalProps = buildModalProps(runner,
+                                    static_cast<int>(windowWidth),
+                                    static_cast<int>(windowHeight),
+                                    getDatabase());
   pageModalEvent->setPos(0, 0);
   pageModalEvent->setProps(modalProps);
   attachChoiceObservers();
@@ -336,6 +434,9 @@ void LayerSpecialEvent::onChoiceSelected(int choiceIndex) {
   talkKeyboardScroll.stopScroll();
   if (runner.gameEvent.eventType == model::GameEventType::TALK) {
     appendTalkChoiceToHistory(choiceIndex);
+  } else {
+    runner.pendingJournalNotice = false;
+    runner.pendingReceivedItemNames.clear();
   }
   runnerInterface.selectChoice(choiceIndex);
   if (runner.gameEvent.eventType == model::GameEventType::TALK && runner.isAtEndNode()) {
@@ -370,6 +471,9 @@ void LayerSpecialEvent::onContinue() {
 
   if (runner.gameEvent.eventType == model::GameEventType::TALK) {
     appendCurrentTalkTextToHistory();
+  } else {
+    runner.pendingJournalNotice = false;
+    runner.pendingReceivedItemNames.clear();
   }
   runnerInterface.continueEvent();
   if (runner.gameEvent.eventType == model::GameEventType::TALK && runner.isAtEndNode()) {
@@ -405,7 +509,8 @@ void LayerSpecialEvent::closeLayer() {
     remove();
     return;
   }
-  stateManager->enqueueAction(state::makeAction<state::actions::UiRemoveLayer>(bmin::String(LAYER_ID.data(), LAYER_ID.size())),
+  stateManager->enqueueAction(
+      state::makeAction<state::actions::UiRemoveLayer>(bmin::fromStringView(LAYER_ID)),
       0);
 }
 

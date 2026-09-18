@@ -31,6 +31,8 @@ void SpecialEventRunner::reset() {
   displayTextChoices.clear();
   autoAdvancedText.clear();
   chosenChoiceKeys.clear();
+  pendingJournalNotice = false;
+  pendingReceivedItemNames.clear();
   errors.clear();
   currentNodeId = "";
   for (const auto& child : gameEvent.children) {
@@ -155,6 +157,24 @@ bool SpecialEventRunner::evalExecStr(const bmin::String& str) {
   StringEvaluator evaluator(storage, trimmed);
   try {
     evaluator.evalStr(trimmed);
+    if (evaluator.funcs.questUpdated) {
+      pendingJournalNotice = true;
+    }
+    for (const auto& itemName : evaluator.funcs.receivedItemNames) {
+      if (itemName.empty()) {
+        continue;
+      }
+      bool alreadyPending = false;
+      for (const auto& pending : pendingReceivedItemNames) {
+        if (pending == itemName) {
+          alreadyPending = true;
+          break;
+        }
+      }
+      if (!alreadyPending) {
+        pendingReceivedItemNames.pushBack(itemName);
+      }
+    }
     return true;
   } catch (const std::exception& e) {
     errors.pushBack({currentNodeId, e.what()});

@@ -77,15 +77,45 @@ void StringEvaluatorFuncs::SETUP_DISPOSITION(const bmin::String& characterName) 
 
 void StringEvaluatorFuncs::START_QUEST(const bmin::String& questName) {
   startQuest(storage, questName);
+  questUpdated = true;
+}
+
+void StringEvaluatorFuncs::SET_QUEST_STEP_EQ(const bmin::String& questName,
+                                             const bmin::String& stepId) {
+  setQuestStepEq(storage, questName, stepId);
+  questUpdated = true;
 }
 
 void StringEvaluatorFuncs::COMPLETE_QUEST_STEP(const bmin::String& questName,
                                                const bmin::String& stepId) {
   completeQuestStep(storage, questName, stepId);
+  questUpdated = true;
+}
+
+void StringEvaluatorFuncs::SHOW_QUEST_SUB_STEP(const bmin::String& questName,
+                                               const bmin::String& stepId,
+                                               const bmin::String& subStepId) {
+  showQuestSubStep(storage, questName, stepId, subStepId);
+  questUpdated = true;
+}
+
+void StringEvaluatorFuncs::HIDE_QUEST_SUB_STEP(const bmin::String& questName,
+                                               const bmin::String& stepId,
+                                               const bmin::String& subStepId) {
+  hideQuestSubStep(storage, questName, stepId, subStepId);
+  questUpdated = true;
+}
+
+void StringEvaluatorFuncs::COMPLETE_QUEST_SUB_STEP(const bmin::String& questName,
+                                                   const bmin::String& stepId,
+                                                   const bmin::String& subStepId) {
+  completeQuestSubStep(storage, questName, stepId, subStepId);
+  questUpdated = true;
 }
 
 void StringEvaluatorFuncs::COMPLETE_QUEST(const bmin::String& questName) {
   completeQuest(storage, questName);
+  questUpdated = true;
 }
 
 void StringEvaluatorFuncs::SPAWN_CH(const bmin::String& chName) {
@@ -117,7 +147,8 @@ void StringEvaluatorFuncs::REMOVE_ITEM_AT(const bmin::String& x, const bmin::Str
 }
 
 void StringEvaluatorFuncs::ADD_ITEM_TO_PLAYER(const bmin::String& itemName) {
-  // noop
+  MOD_NUM(bmin::String("vars.items.") + itemName, "1");
+  receivedItemNames.pushBack(itemName);
 }
 
 void StringEvaluatorFuncs::REMOVE_ITEM_FROM_PLAYER(const bmin::String& itemName) {
@@ -126,6 +157,14 @@ void StringEvaluatorFuncs::REMOVE_ITEM_FROM_PLAYER(const bmin::String& itemName)
 
 void StringEvaluatorFuncs::OPEN_SHOP(const bmin::String& shopName) {
   // noop
+}
+
+void StringEvaluatorFuncs::SET_PORT(const bmin::String& characterName) {
+  if (characterName.empty()) {
+    storage.erase(bmin::String(kTalkPortStorageKey));
+    return;
+  }
+  setStorage(storage, bmin::String(kTalkPortStorageKey), characterName);
 }
 
 StringEvaluator::StringEvaluator(bmin::Map<bmin::String, bmin::String>& storage,
@@ -171,9 +210,21 @@ void StringEvaluator::evalStr(const bmin::String& str) {
     } else if (call.funcName == "START_QUEST") {
       assertFuncArgs(call.funcName, call.args, 1);
       funcs.START_QUEST(call.args[0]);
+    } else if (call.funcName == "SET_QUEST_STEP_EQ") {
+      assertFuncArgs(call.funcName, call.args, 2);
+      funcs.SET_QUEST_STEP_EQ(call.args[0], call.args[1]);
     } else if (call.funcName == "COMPLETE_QUEST_STEP") {
       assertFuncArgs(call.funcName, call.args, 2);
       funcs.COMPLETE_QUEST_STEP(call.args[0], call.args[1]);
+    } else if (call.funcName == "SHOW_QUEST_SUB_STEP") {
+      assertFuncArgs(call.funcName, call.args, 3);
+      funcs.SHOW_QUEST_SUB_STEP(call.args[0], call.args[1], call.args[2]);
+    } else if (call.funcName == "HIDE_QUEST_SUB_STEP") {
+      assertFuncArgs(call.funcName, call.args, 3);
+      funcs.HIDE_QUEST_SUB_STEP(call.args[0], call.args[1], call.args[2]);
+    } else if (call.funcName == "COMPLETE_QUEST_SUB_STEP") {
+      assertFuncArgs(call.funcName, call.args, 3);
+      funcs.COMPLETE_QUEST_SUB_STEP(call.args[0], call.args[1], call.args[2]);
     } else if (call.funcName == "COMPLETE_QUEST") {
       assertFuncArgs(call.funcName, call.args, 1);
       funcs.COMPLETE_QUEST(call.args[0]);
@@ -195,6 +246,22 @@ void StringEvaluator::evalStr(const bmin::String& str) {
     } else if (call.funcName == "REMOVE_ITEM_AT") {
       assertFuncArgs(call.funcName, call.args, 3);
       funcs.REMOVE_ITEM_AT(call.args[0], call.args[1], call.args[2]);
+    } else if (call.funcName == "ADD_ITEM_TO_PLAYER") {
+      assertFuncArgs(call.funcName, call.args, 1);
+      funcs.ADD_ITEM_TO_PLAYER(call.args[0]);
+    } else if (call.funcName == "REMOVE_ITEM_FROM_PLAYER") {
+      assertFuncArgs(call.funcName, call.args, 1);
+      funcs.REMOVE_ITEM_FROM_PLAYER(call.args[0]);
+    } else if (call.funcName == "OPEN_SHOP") {
+      assertFuncArgs(call.funcName, call.args, 1);
+      funcs.OPEN_SHOP(call.args[0]);
+    } else if (call.funcName == "SET_PORT") {
+      if (call.args.empty()) {
+        funcs.SET_PORT("");
+      } else {
+        assertFuncArgs(call.funcName, call.args, 1);
+        funcs.SET_PORT(call.args[0]);
+      }
     } else {
       throw std::runtime_error(
           ("Function '" + call.funcName + "' not found: " + baseStringStr).cStr());

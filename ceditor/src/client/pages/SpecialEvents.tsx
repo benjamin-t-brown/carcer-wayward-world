@@ -39,6 +39,12 @@ import { ConfirmModal } from '../elements/ConfirmModal';
 import { ValidationMenuButton } from '../special-event-editor/react-components/ValidationMenuButton';
 import { useReRender } from '../hooks/useReRender';
 import { EventRunner } from '../special-event-editor/eventRunner/EventRunner';
+import { EditRunnerStateModal } from '../special-event-editor/modals/EditRunnerStateModal';
+import {
+  cloneRunnerInitialState,
+  loadRunnerInitialStateText,
+  parseRunnerInitialState,
+} from '../special-event-editor/eventRunner/runnerInitialState';
 import { RecentLinks } from '../components/RecentLinks';
 import {
   loadEditorSelection,
@@ -125,6 +131,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const [showJsonOutputModal, setShowJsonOutputModal] = useState(false);
   const [showEditGameEventModal, setShowEditGameEventModal] = useState(false);
   const [showEventRunnerModal, setShowEventRunnerModal] = useState(false);
+  const [showEditStateModal, setShowEditStateModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmMessage, setDeleteConfirmMessage] = useState('');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -884,6 +891,13 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                   </Button>
                   <Button
                     variant="small"
+                    className="btn-warn"
+                    onClick={() => setShowEditStateModal(true)}
+                  >
+                    Edit State
+                  </Button>
+                  <Button
+                    variant="small"
                     className="btn-confirm"
                     onClick={() => {
                       const currentEditorState = getEditorState();
@@ -897,11 +911,22 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                           gameEvent.id === currentEditorState.gameEventId,
                       );
                       if (gameEvent) {
+                        const parsed = parseRunnerInitialState(
+                          loadRunnerInitialStateText(),
+                        );
+                        if (!parsed.ok) {
+                          showNotification(
+                            `Edit State JSON is invalid: ${parsed.error}`,
+                            'error',
+                          );
+                          return;
+                        }
                         const runner = new EventRunner(
-                          {},
+                          cloneRunnerInitialState(parsed.value),
                           gameEvent,
                           gameEvents,
                           quests,
+                          items,
                         );
                         (window as any).runner = runner;
                         setEventRunner(runner);
@@ -1006,6 +1031,11 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
           onCancel={() => setShowJsonOutputModal(false)}
         />
       )}
+
+      <EditRunnerStateModal
+        isOpen={showEditStateModal}
+        onCancel={() => setShowEditStateModal(false)}
+      />
 
       <SearchNodesModal
         isOpen={showSearchNodesModal}

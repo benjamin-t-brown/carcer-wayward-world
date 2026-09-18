@@ -34,6 +34,9 @@ struct ConditionEvaluatorFuncs {
   bool FUNC_QuestStarted(const bmin::String& questName);
   bool FUNC_QuestCompleted(const bmin::String& questName);
   bool FUNC_QuestStepEq(const bmin::String& questName, const bmin::String& stepId);
+  bool FUNC_QuestStepCompleted(const bmin::String& questName, const bmin::String& stepId);
+  bool FUNC_QuestSubStepShown(const bmin::String& questName, const bmin::String& stepId,
+                              const bmin::String& subStepId);
 };
 
 class ConditionEvaluator {

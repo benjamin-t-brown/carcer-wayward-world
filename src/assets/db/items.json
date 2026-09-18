@@ -2,15 +2,16 @@
   {
     "itemType": "UTILITY",
     "name": "AlineaCorrespondence1",
-    "label": "Realm Correspondence",
+    "label": "Outpost Correspondence",
     "icon": "ui_item_icons_6",
     "description": "A sealed scroll that Lieutenant Mullen asked you to deliver to a Realm outpost north of Alinea.",
     "weight": 1,
     "value": 1,
     "stackable": false,
-    "itemUsability": "NOT_USABLE",
+    "itemUsability": "USABLE_EVERYWHERE",
     "statusEffects": [],
-    "indestructable": true
+    "indestructable": true,
+    "useSpecialEvent": "item_useRealmOutpostCorrespondence"
   },
   {
     "itemType": "UTILITY",
@@ -24,9 +25,7 @@
     "itemUsability": "USABLE_EVERYWHERE",
     "statusEffects": [],
     "indestructable": true,
-    "useAbility": {
-      "abilityName": ""
-    }
+    "useSpecialEvent": "item_useEncampmentCorrespondence"
   },
   {
     "itemType": "WEAPON_AMMO",
@@ -93,7 +92,18 @@
     "weight": 1,
     "value": 10,
     "weapon": {
-      "abilityName": ""
+      "abilityName": "MELEE_ATTACK_METAL_KNIFE",
+      "dmgOverrides": [
+        {
+          "dmgDice": [
+            "D4"
+          ],
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 1
+        }
+      ]
     }
   },
   {
@@ -137,6 +147,19 @@
         }
       ]
     }
+  },
+  {
+    "itemType": "UTILITY",
+    "name": "MysteriousPurpleCloak",
+    "label": "Mysterious Purple Cloak",
+    "icon": "ui_item_icons_16",
+    "description": "This is a purple cloak you recovered from the strange man you murdered by the sea in the southern part of Alinea's south-western shore.",
+    "weight": 1,
+    "value": 1,
+    "stackable": false,
+    "indestructable": true,
+    "itemUsability": "NOT_USABLE",
+    "statusEffects": []
   },
   {
     "itemType": "NECKLACE",

@@ -44,8 +44,8 @@
       },
       {
         "id": "yw8cvglk00o",
-        "x": 148.75,
-        "y": 132.25,
+        "x": 146,
+        "y": 138,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "",
@@ -55,8 +55,8 @@
       },
       {
         "id": "e9hfqwxqw8i",
-        "x": 225.75,
-        "y": 779.75,
+        "x": 226,
+        "y": 780,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"What do you want?\"",
@@ -66,8 +66,8 @@
       },
       {
         "id": "7go5ge5ymrj",
-        "x": 229.75,
-        "y": 693.75,
+        "x": 230,
+        "y": 694,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Yeah?\"",
@@ -77,8 +77,8 @@
       },
       {
         "id": "jmbyu63g93r",
-        "x": 223.75,
-        "y": 602.75,
+        "x": 224,
+        "y": 603,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"I see you're still in one piece.\"",
@@ -88,8 +88,8 @@
       },
       {
         "id": "thkxtwu0uf",
-        "x": 224.75,
-        "y": 245,
+        "x": 247,
+        "y": 302,
         "eventChildType": "SWITCH",
         "h": 156,
         "cases": [
@@ -114,18 +114,18 @@
       },
       {
         "id": "uao9kv68u9g",
-        "x": 635.25,
+        "x": 635,
         "y": 120,
         "eventChildType": "EXEC",
         "h": 102,
-        "p": "The building in which you stand has a sign outside labeled \"Shrine of Luck.\" At a table in the corner of the room is woman, looking down at a table of herbs and sorting them. \"Yeah, what is it?\" she asks, without looking up.",
+        "p": "At a table in the corner of the room is woman, looking down at a table of herbs and sorting them.  She speaks without looking up.\n\n\"Yeah, what is it?\"",
         "execStr": "",
         "next": "yfmldyw7qi8",
         "autoAdvance": true
       },
       {
         "id": "yfmldyw7qi8",
-        "x": 936.25,
+        "x": 936,
         "y": 591,
         "eventChildType": "CHOICE",
         "h": 156,
@@ -175,7 +175,7 @@
       },
       {
         "id": "u6sgl0xgrqd",
-        "x": 977.25,
+        "x": 977,
         "y": 852,
         "eventChildType": "END",
         "h": 60,
@@ -183,8 +183,8 @@
       },
       {
         "id": "ximg37eofd",
-        "x": 1332.5,
-        "y": 432.5,
+        "x": 1333,
+        "y": 433,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Yes.  Priestess Ainsley at your service.  You have an ailment?\"",
@@ -194,8 +194,8 @@
       },
       {
         "id": "pmxvk2mmnb",
-        "x": 1334.5,
-        "y": 525.5,
+        "x": 1335,
+        "y": 526,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"So what? Any humble building can be a shrine of anything.  This one happens to be a Shrine of Luck.\"",
@@ -205,8 +205,8 @@
       },
       {
         "id": "vet21e05qj",
-        "x": 1346.5,
-        "y": 630.5,
+        "x": 1347,
+        "y": 631,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Look around, what do you think?  I can heal injuries and cure poison and what not.\"",
@@ -216,8 +216,8 @@
       },
       {
         "id": "lv23zcbvt7",
-        "x": 1723.5,
-        "y": 655.5,
+        "x": 1724,
+        "y": 656,
         "eventChildType": "CHOICE",
         "h": 156,
         "text": "",
@@ -266,8 +266,8 @@
       },
       {
         "id": "kq88r3qgn3",
-        "x": 1348.5,
-        "y": 705.5,
+        "x": 1349,
+        "y": 706,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"What's your ailment?\"",
@@ -277,8 +277,8 @@
       },
       {
         "id": "6g6elzcyb9c",
-        "x": 2149.5,
-        "y": 565.5,
+        "x": 2150,
+        "y": 566,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Yeah, sure.  Screw it.  You want a blessing?  I'll give you one free of charge.\"",
@@ -288,8 +288,8 @@
       },
       {
         "id": "1jq3lhfn29y",
-        "x": 2537.5,
-        "y": 446.5,
+        "x": 2538,
+        "y": 447,
         "eventChildType": "CHOICE",
         "h": 84,
         "text": "",
@@ -314,8 +314,8 @@
       },
       {
         "id": "cz6fs8iseb5",
-        "x": 2620.5,
-        "y": 668.5,
+        "x": 2915,
+        "y": 500,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Good.  Don't bother me with that nonsense again.  Now is there something else I can do?\"",
@@ -325,8 +325,8 @@
       },
       {
         "id": "91pdws3o3b",
-        "x": 2924.5,
-        "y": 384.5,
+        "x": 2925,
+        "y": 385,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"Here, come closer.  I need to be able to touch your head.\"\n\nYou move close to her...",
@@ -336,8 +336,8 @@
       },
       {
         "id": "0y17d9kw1f7h",
-        "x": 3361.5,
-        "y": 397.5,
+        "x": 3362,
+        "y": 398,
         "eventChildType": "EXEC",
         "h": 126,
         "p": "She gives you an abrupt thunk on the top of your head.  You recoil in pain.\n\n\"There's your blessing.  Hope it helps.  Don't ask for another one.  Now is there something else I can do?\"",
@@ -347,16 +347,16 @@
       },
       {
         "id": "82ql7ekhf86",
-        "x": 2090.5,
-        "y": 860.5,
+        "x": 2091,
+        "y": 861,
         "eventChildType": "END",
         "h": 60,
         "next": ""
       },
       {
         "id": "6f62chhbkjo",
-        "x": 2145.5,
-        "y": 699.5,
+        "x": 2146,
+        "y": 700,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"I got you pretty good, didn't I?  Serves you right for asking about nonsense.\"",
@@ -411,8 +411,8 @@
       },
       {
         "id": "gn4vgu2s1ds",
-        "x": 124.5,
-        "y": 142.875,
+        "x": 125,
+        "y": 143,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "",
@@ -422,8 +422,8 @@
       },
       {
         "id": "p5zl27718t",
-        "x": 94.5,
-        "y": 824.375,
+        "x": 95,
+        "y": 824,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Go away.  I don't wish to speak with you.\"",
@@ -433,8 +433,8 @@
       },
       {
         "id": "zslh0uf6zqi",
-        "x": 98.5,
-        "y": 738.375,
+        "x": 99,
+        "y": 738,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Oh, you again.\"",
@@ -444,8 +444,8 @@
       },
       {
         "id": "2fr9r0kwild",
-        "x": 92.5,
-        "y": 647.375,
+        "x": 93,
+        "y": 647,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Good fellow, welcome back.\"",
@@ -455,8 +455,8 @@
       },
       {
         "id": "ibwmw12a02",
-        "x": 611.5,
-        "y": 112.625,
+        "x": 612,
+        "y": 113,
         "eventChildType": "CHOICE",
         "h": 220,
         "text": "In this crowded tavern, a distinctly out-of-place patron hunches over a table, pointedly not interacting with anybody else.  His clothes are silken and expensive, embroidered with flamboyant colors and overlapping layers.  He keeps a twitchy hand near the small satchel at his side, as if he is afraid that somebody is liable take it at any moment.",
@@ -489,8 +489,8 @@
       },
       {
         "id": "i4guqvvm9p",
-        "x": 199.5,
-        "y": 256.625,
+        "x": 200,
+        "y": 257,
         "eventChildType": "SWITCH",
         "h": 156,
         "cases": [
@@ -516,7 +516,7 @@
       {
         "id": "522wgfniolf",
         "x": 1017,
-        "y": 153.5,
+        "y": 154,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Hmph. Make it quick, I'm in no mood for chatter.\"",
@@ -527,7 +527,7 @@
       {
         "id": "hyab306eudv",
         "x": 1010,
-        "y": 221.5,
+        "y": 222,
         "eventChildType": "EXEC",
         "h": 112,
         "p": "He snatches the bag onto his lap.\n\n\"This is my property.  Nothing you should be concerned about.\"",
@@ -538,7 +538,7 @@
       {
         "id": "vtu8nlbst5",
         "x": 1003,
-        "y": 355.5,
+        "y": 356,
         "eventChildType": "EXEC",
         "h": 112,
         "p": "\"Trust me, I'm not here by choice.  I'd have been long gone if not for the damn Blackrose Estate.  But it's the least offensive place in this town right now, if you can believe it.\"",
@@ -549,7 +549,7 @@
       {
         "id": "fjmrtk1zjsj",
         "x": 773,
-        "y": 867.5,
+        "y": 868,
         "eventChildType": "CHOICE",
         "h": 156,
         "text": "",
@@ -598,8 +598,8 @@
       },
       {
         "id": "j92yhujy8br",
-        "x": 1327.5,
-        "y": 673.875,
+        "x": 1328,
+        "y": 674,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"Lord Barto Caldeburn. Apparently, that name doesn't have much sway around here like it does on the Mainland.  But mark my words.  It will soon.\"",
@@ -609,8 +609,8 @@
       },
       {
         "id": "2bs3d7blhqj",
-        "x": 1450.5,
-        "y": 801.875,
+        "x": 1451,
+        "y": 802,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"I'm on a business trip.  I need to visit Boramark in the north to discus trade with the Guildimarche Estate.\"",
@@ -620,8 +620,8 @@
       },
       {
         "id": "53azhmf5kio",
-        "x": 1789.5,
-        "y": 826.875,
+        "x": 1790,
+        "y": 827,
         "eventChildType": "CHOICE",
         "h": 204,
         "text": "",
@@ -686,16 +686,16 @@
       },
       {
         "id": "8gf16kka8h",
-        "x": 929.5,
-        "y": 1216.875,
+        "x": 930,
+        "y": 1217,
         "eventChildType": "END",
         "h": 60,
         "next": ""
       },
       {
         "id": "tfc8fa0x7op",
-        "x": 2219.5,
-        "y": 664.875,
+        "x": 2220,
+        "y": 665,
         "eventChildType": "EXEC",
         "h": 98,
         "p": "\"The blockade, of course!  Nobody in Alinea is going anywhere unless that's been taken care of.  And the Realm sure is taking their sweet time with it.\"",
@@ -705,8 +705,8 @@
       },
       {
         "id": "maj0d9pn6g",
-        "x": 2223.5,
-        "y": 783.875,
+        "x": 2224,
+        "y": 784,
         "eventChildType": "EXEC",
         "h": 116,
         "p": "\"I don't know the details. The Realm guards informed me I can't go to Boramark by way of the east road, and apparently the north road is blocked off by some bothersome bandits so that's no good either.  I am to wait until the situation resolves.  And it's taking an infuriatingly long time.\"",
@@ -716,8 +716,8 @@
       },
       {
         "id": "5jybk4vwo16",
-        "x": 2214.5,
-        "y": 978.875,
+        "x": 2215,
+        "y": 979,
         "eventChildType": "EXEC",
         "h": 140,
         "p": "\"Only a Lark would ask a question like that.  The Guildimmarche Estate is one of the most powerful noble houses on the Island.  They just so happen to control the lands around Boramark to the north, and I just so happen to have business with them.\"",
@@ -727,8 +727,8 @@
       },
       {
         "id": "xf2htr4g8rm",
-        "x": 2199.5,
-        "y": 1199.875,
+        "x": 2200,
+        "y": 1200,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"That's what I've heard, yes.  I'm not about to take any chances with that sort of riff raff.  Me, alone on the road?  I'd be ripe for the picking.\"",
@@ -738,8 +738,8 @@
       },
       {
         "id": "pzs2qto94mk",
-        "x": 2621.5,
-        "y": 910.875,
+        "x": 2622,
+        "y": 911,
         "eventChildType": "SWITCH",
         "h": 84,
         "cases": [
@@ -752,8 +752,8 @@
       },
       {
         "id": "elt7o6x1olw",
-        "x": 3039.5,
-        "y": 864.875,
+        "x": 3040,
+        "y": 865,
         "eventChildType": "CHOICE",
         "h": 84,
         "text": "",
@@ -778,8 +778,8 @@
       },
       {
         "id": "b4hh46opf9j",
-        "x": 3400.5,
-        "y": 678.875,
+        "x": 3401,
+        "y": 679,
         "eventChildType": "EXEC",
         "h": 154,
         "p": "\"Ha, are you referring to yourself?  Pardon my bluntness, but you look like a Lark, and on top of that, hardly the caliber of warrior that would ease my safety.\"\n\n\"No, I'll just wait for the situation to resolve, then I'll be on my way.\"",
@@ -789,8 +789,8 @@
       },
       {
         "id": "fjgvg29sat6",
-        "x": 3373.5,
-        "y": 1005.875,
+        "x": 3374,
+        "y": 1006,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Better to be safe than sorry.\"",
@@ -800,8 +800,8 @@
       },
       {
         "id": "4ml7wqvwklk",
-        "x": 2200.5,
-        "y": 1412.875,
+        "x": 2201,
+        "y": 1413,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"If you have to ask, then you are one.\"",
@@ -812,7 +812,7 @@
       {
         "id": "t1lau78b16i",
         "x": 1333,
-        "y": 1057.5,
+        "y": 1058,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"I fear that I'll be stuck in the damnable tavern for longer than I'll appreciate.\"",
@@ -823,7 +823,7 @@
       {
         "id": "xjc4jcs81yd",
         "x": 461,
-        "y": 729.5,
+        "y": 730,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "",
@@ -834,7 +834,7 @@
       {
         "id": "s2420unkzrr",
         "x": 1285,
-        "y": 1158.5,
+        "y": 1159,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"Of course there is.  If it isn't obvious I stick out here like a sore thumb.  Why do you mention him?  Is he planning to do something to me?\"",
@@ -845,7 +845,7 @@
       {
         "id": "qk9fa1ovjfi",
         "x": 1118,
-        "y": 1391.166666666667,
+        "y": 1391,
         "eventChildType": "CHOICE",
         "h": 108,
         "text": "",
@@ -879,7 +879,7 @@
       {
         "id": "cl72zei5od",
         "x": 1673,
-        "y": 1302.166666666667,
+        "y": 1302,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Well, I thank you for stating the obvious.\"",
@@ -890,7 +890,7 @@
       {
         "id": "7xzj7hqaumf",
         "x": 1665,
-        "y": 1383.166666666667,
+        "y": 1383,
         "eventChildType": "EXEC",
         "h": 84,
         "p": "\"I am in no mood to make friends with a cretin who is openly hostile to me!\"",
@@ -900,8 +900,8 @@
       },
       {
         "id": "i77wtzr4vuj",
-        "x": 1115.5,
-        "y": 807.375,
+        "x": 1116,
+        "y": 807,
         "eventChildType": "SWITCH",
         "h": 84,
         "cases": [
@@ -914,8 +914,8 @@
       },
       {
         "id": "i8ry5a3yfmf",
-        "x": 1447.5,
-        "y": 897.375,
+        "x": 1448,
+        "y": 897,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"What about it?\"",
@@ -981,8 +981,8 @@
       },
       {
         "id": "yw8cvglk00o",
-        "x": 148.75,
-        "y": 132.25,
+        "x": 149,
+        "y": 132,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "",
@@ -992,8 +992,8 @@
       },
       {
         "id": "e9hfqwxqw8i",
-        "x": 225.75,
-        "y": 779.75,
+        "x": 226,
+        "y": 780,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Please leave.\"",
@@ -1003,8 +1003,8 @@
       },
       {
         "id": "7go5ge5ymrj",
-        "x": 229.75,
-        "y": 693.75,
+        "x": 230,
+        "y": 694,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Can I help you?\"",
@@ -1014,8 +1014,8 @@
       },
       {
         "id": "jmbyu63g93r",
-        "x": 223.75,
-        "y": 602.75,
+        "x": 224,
+        "y": 603,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Can I help you?\"",
@@ -1025,7 +1025,7 @@
       },
       {
         "id": "thkxtwu0uf",
-        "x": 224.75,
+        "x": 225,
         "y": 245,
         "eventChildType": "SWITCH",
         "h": 156,
@@ -1051,7 +1051,7 @@
       },
       {
         "id": "uao9kv68u9g",
-        "x": 635.25,
+        "x": 635,
         "y": 120,
         "eventChildType": "EXEC",
         "h": 88,
@@ -1062,7 +1062,7 @@
       },
       {
         "id": "yfmldyw7qi8",
-        "x": 937.25,
+        "x": 937,
         "y": 592,
         "eventChildType": "CHOICE",
         "h": 108,
@@ -1096,7 +1096,7 @@
       },
       {
         "id": "u6sgl0xgrqd",
-        "x": 977.25,
+        "x": 977,
         "y": 852,
         "eventChildType": "END",
         "h": 60,
@@ -1104,8 +1104,8 @@
       },
       {
         "id": "m673bopp76q",
-        "x": 1334.1903381347656,
-        "y": 343.29830169677734,
+        "x": 1334,
+        "y": 343,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"This is a registry and ledger for the dealings of the Merchantry for the Alinea chapter.\"",
@@ -1115,8 +1115,8 @@
       },
       {
         "id": "njmjwpqdaw",
-        "x": 1761.1903381347656,
-        "y": 589.2983016967773,
+        "x": 1761,
+        "y": 589,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"What are you looking for?\"",
@@ -1126,8 +1126,8 @@
       },
       {
         "id": "5a7rdlystup",
-        "x": 2227.1903381347656,
-        "y": 450.29830169677734,
+        "x": 2227,
+        "y": 450,
         "eventChildType": "CHOICE",
         "h": 108,
         "text": "",
@@ -1160,19 +1160,19 @@
       },
       {
         "id": "9axr3rftw8",
-        "x": 2985.1903381347656,
-        "y": 408.29830169677734,
+        "x": 2985,
+        "y": 408,
         "eventChildType": "EXEC",
-        "h": 60,
+        "h": 84,
         "p": "\"Only members of the Merchantry are allowed access to these records.\"",
-        "execStr": "",
+        "execStr": "COMPLETE_QUEST_STEP(que_alinea_EntomenTome, findBook)",
         "next": "rr46vwc7qq",
         "autoAdvance": true
       },
       {
         "id": "s3m3ksoao6",
-        "x": 2608.1903381347656,
-        "y": 386.29830169677734,
+        "x": 2608,
+        "y": 386,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Wait, you're not affiliated with the Mr. Entomen are you?\"",
@@ -1182,8 +1182,8 @@
       },
       {
         "id": "2bmj3z95ulq",
-        "x": 2603.1903381347656,
-        "y": 532.2983016967773,
+        "x": 2603,
+        "y": 532,
         "eventChildType": "CHOICE",
         "h": 84,
         "text": "",
@@ -1208,19 +1208,19 @@
       },
       {
         "id": "1gbhw2p55e3",
-        "x": 2967.1903381347656,
-        "y": 552.2983016967773,
+        "x": 2967,
+        "y": 552,
         "eventChildType": "EXEC",
-        "h": 60,
-        "p": "\"Ugh.  I told him we don't have what he wants.  And I'm not giving him direct access to these records.\"",
+        "h": 74,
+        "p": "\"Ugh.  I told him I can't give him that book.  It's Merchantry property.  And I'm not giving him direct access to these records.\"",
         "execStr": "",
         "next": "9axr3rftw8",
         "autoAdvance": true
       },
       {
         "id": "rr46vwc7qq",
-        "x": 3412.1903381347656,
-        "y": 412.29830169677734,
+        "x": 3412,
+        "y": 412,
         "eventChildType": "CHOICE",
         "h": 108,
         "text": "",
@@ -1253,8 +1253,8 @@
       },
       {
         "id": "rqynpbtjle",
-        "x": 3834.1903381347656,
-        "y": 255.29830169677734,
+        "x": 3834,
+        "y": 255,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Those are the rules.  I can't break them at your convenience.\"",
@@ -1264,19 +1264,19 @@
       },
       {
         "id": "8uxhssiau5v",
-        "x": 3828.1903381347656,
-        "y": 425.29830169677734,
+        "x": 3828,
+        "y": 425,
         "eventChildType": "EXEC",
         "h": 74,
-        "p": "\"You'll have to get approval from several members.  And you don't need to ask me.  You don't have my approval.\"",
+        "p": "\"You'll have to get approval from several members to get a proper badge.  And you don't need to ask me.  You don't have my approval.\"",
         "execStr": "",
         "next": "rr46vwc7qq",
         "autoAdvance": true
       },
       {
         "id": "0dxlbs81u92g",
-        "x": 1382.1903381347656,
-        "y": 595.2983016967773,
+        "x": 1382,
+        "y": 595,
         "eventChildType": "SWITCH",
         "h": 84,
         "cases": [
@@ -1289,8 +1289,8 @@
       },
       {
         "id": "oam8hegl4kf",
-        "x": 1746.1903381347656,
-        "y": 666.2983016967773,
+        "x": 1746,
+        "y": 666,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"I told you already.  I won't give you access to these records unless you are a member of the Merchantry.\"",
@@ -1345,8 +1345,8 @@
       },
       {
         "id": "2wbburm6f4z",
-        "x": 83.25,
-        "y": 146.25,
+        "x": 83,
+        "y": 146,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "",
@@ -1356,8 +1356,8 @@
       },
       {
         "id": "fjtpiqxu4f",
-        "x": 163.25,
-        "y": 797.75,
+        "x": 163,
+        "y": 798,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Do not dally here long, or I will have you removed.\"",
@@ -1367,8 +1367,8 @@
       },
       {
         "id": "t93ww3pmzuk",
-        "x": 165.25,
-        "y": 706.75,
+        "x": 165,
+        "y": 707,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "Chem is still here, sitting quietly in his blue robe.",
@@ -1378,8 +1378,8 @@
       },
       {
         "id": "b61u2tlcpim",
-        "x": 157.25,
-        "y": 616.75,
+        "x": 157,
+        "y": 617,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"I see you have returned.  It is good to see you.\"",
@@ -1389,7 +1389,7 @@
       },
       {
         "id": "k44avmzwx9",
-        "x": 89.25,
+        "x": 89,
         "y": 299,
         "eventChildType": "SWITCH",
         "h": 156,
@@ -1415,18 +1415,18 @@
       },
       {
         "id": "8f2h78h5rmp",
-        "x": 569.75,
+        "x": 570,
         "y": 133,
         "eventChildType": "EXEC",
         "h": 88,
-        "p": "A diminutive man in a overlarge robe sits quietly behind a desk.  He is bald, with patterned tattoos cascading across his scalp.  The word CHEM is also tattooed on an exposed part of his chest.",
+        "p": "A diminutive man in a overlarge robe sits quietly behind a table.  He is bald, with patterned tattoos cascading across his scalp.  The word CHEM is also tattooed on an exposed part of his chest.",
         "execStr": "",
         "next": "da9x3bkzq8n",
         "autoAdvance": true
       },
       {
         "id": "da9x3bkzq8n",
-        "x": 882.75,
+        "x": 883,
         "y": 534,
         "eventChildType": "CHOICE",
         "h": 180,
@@ -1484,7 +1484,7 @@
       },
       {
         "id": "y0op9vmrpx",
-        "x": 911.75,
+        "x": 912,
         "y": 866,
         "eventChildType": "END",
         "h": 60,
@@ -1493,7 +1493,7 @@
       {
         "id": "k3ih6vvdml",
         "x": 1307,
-        "y": 315.5,
+        "y": 316,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"I am Chem.  Apprentice Chem.  My House is lead by Sorcerer Evander of the Voxi Tower.\"",
@@ -1504,7 +1504,7 @@
       {
         "id": "m3yaso8m3e",
         "x": 1352,
-        "y": 395.5,
+        "y": 396,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Yes.  Please do not touch the merchandise unless you intend to purchase.\"",
@@ -1515,7 +1515,7 @@
       {
         "id": "v05xai14hwf",
         "x": 1318,
-        "y": 732.5,
+        "y": 733,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Thank you for your patronage.\"",
@@ -1526,7 +1526,7 @@
       {
         "id": "sp60ipzxqa",
         "x": 1409,
-        "y": 517.5,
+        "y": 518,
         "eventChildType": "EXEC",
         "h": 98,
         "p": "\"Yes, of the Magi on the Island.  I am working off the debt I have to the school before I return home.  If you would like to buy something, please let me know.\"",
@@ -1537,7 +1537,7 @@
       {
         "id": "4ptcv2k839",
         "x": 1871,
-        "y": 540.5,
+        "y": 541,
         "eventChildType": "CHOICE",
         "h": 204,
         "text": "",
@@ -1603,7 +1603,7 @@
       {
         "id": "b8pyx3v5rp",
         "x": 1398,
-        "y": 632.5,
+        "y": 633,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"What would you like to discus?\"",
@@ -1614,7 +1614,7 @@
       {
         "id": "r64l3d80iop",
         "x": 2262,
-        "y": 387.5,
+        "y": 388,
         "eventChildType": "EXEC",
         "h": 112,
         "p": "\"The Magi are a collection of scholars who support each other in efforts to study the peculiarities of the Island.  We have two enclaves, but both are on the Southern Peninsula, quite a fair ways from Alinea.\"",
@@ -1625,7 +1625,7 @@
       {
         "id": "u6qxatahnp8",
         "x": 2700,
-        "y": 141.5,
+        "y": 142,
         "eventChildType": "EXEC",
         "h": 102,
         "p": "\"Yes.  Sorcerer Evander only agreed to my apprenticeship if I could show him my worth.  I promised him a substantial sum of money such that he could continue his research.  I am currently in the process of acquiring that sum.\"",
@@ -1636,7 +1636,7 @@
       {
         "id": "ny44kns97ks",
         "x": 2288,
-        "y": 654.5,
+        "y": 655,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"My master is a high-ranking official of the Magi, and he resides in the southern enclave.  He studies the strange reaction that Sapphiron seems to have when brought to the Island.\"",
@@ -1647,7 +1647,7 @@
       {
         "id": "119uzbddtyub",
         "x": 2305,
-        "y": 775.5,
+        "y": 776,
         "eventChildType": "EXEC",
         "h": 70,
         "p": "\"A somewhat rare material native to the Mainland.\"",
@@ -1657,8 +1657,8 @@
       },
       {
         "id": "w9bj4ggcuvm",
-        "x": 2713.666666666667,
-        "y": 640.5,
+        "x": 2714,
+        "y": 641,
         "eventChildType": "CHOICE",
         "h": 156,
         "text": "",
@@ -1707,8 +1707,8 @@
       },
       {
         "id": "ed6yibt761",
-        "x": 2267.666666666667,
-        "y": 861.8333333333339,
+        "x": 2268,
+        "y": 862,
         "eventChildType": "EXEC",
         "h": 116,
         "p": "\"Can't you feel it? The Island has a strange energy to it, a mystery that's begging to be discovered.  The Realm and the nobility squabble over it for its strategic importance, but they are missing the big picture.  The Island has something about it that we simply MUST discover.\"",
@@ -1718,8 +1718,8 @@
       },
       {
         "id": "y1afxgzqfy",
-        "x": 2699.666666666667,
-        "y": 1080.833333333334,
+        "x": 2700,
+        "y": 1081,
         "eventChildType": "CHOICE",
         "h": 84,
         "text": "",
@@ -1744,8 +1744,8 @@
       },
       {
         "id": "ql80fjc0tj",
-        "x": 3088.666666666667,
-        "y": 1049.833333333334,
+        "x": 3089,
+        "y": 1050,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"A Lark like you might not see it, but stay here a while longer and you'll understand.\"",
@@ -1755,8 +1755,8 @@
       },
       {
         "id": "620er229el6",
-        "x": 3085.333333333334,
-        "y": 1162.833333333334,
+        "x": 3085,
+        "y": 1163,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Keep that feeling in the back of your mind.  It is important and could help you some day.\"",
@@ -1766,8 +1766,8 @@
       },
       {
         "id": "8s9p14sa74v",
-        "x": 3140.333333333334,
-        "y": 488.5000000000009,
+        "x": 3140,
+        "y": 489,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"Its color, its texture...  Benign things, but important. Sorcerer Evander swears it vibrates on its own from time to time.\"",
@@ -1777,8 +1777,8 @@
       },
       {
         "id": "9mnad7ji2s",
-        "x": 3135.333333333334,
-        "y": 592.5000000000009,
+        "x": 3135,
+        "y": 593,
         "eventChildType": "EXEC",
         "h": 102,
         "p": "\"He believes that there is great significance in the changes it exhibits when Sapphiron is brought to the Island.  By now most other of the Magi have disregarded it as unimportant, but he is the only one who continues to study it.\"",
@@ -1788,8 +1788,8 @@
       },
       {
         "id": "lj7fbgpoixr",
-        "x": 3706.333333333334,
-        "y": 690.5000000000009,
+        "x": 3706,
+        "y": 691,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "",
@@ -1799,8 +1799,8 @@
       },
       {
         "id": "hggqkkb0o1i",
-        "x": 3120.333333333334,
-        "y": 857.5000000000009,
+        "x": 3120,
+        "y": 858,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"That would be most appreciated.\"",
@@ -1810,8 +1810,8 @@
       },
       {
         "id": "56fcr0dc8hs",
-        "x": 3309.333333333334,
-        "y": 736.5000000000009,
+        "x": 3309,
+        "y": 737,
         "eventChildType": "SWITCH",
         "h": 84,
         "cases": [
@@ -1825,7 +1825,7 @@
       {
         "id": "ahst91q3iq6",
         "x": 4075,
-        "y": 771.5,
+        "y": 772,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"Alas, no.  It is rare, and expensive.  If only I could get my hands on some, my master would be most pleased!  He might even be willing to reduce my debt if I brought him some.\"",
@@ -1835,8 +1835,8 @@
       },
       {
         "id": "q2hp6rjz0hq",
-        "x": 1712.083333333333,
-        "y": 240.83333333333394,
+        "x": 1712,
+        "y": 241,
         "eventChildType": "CHOICE",
         "h": 84,
         "text": "",
@@ -1861,8 +1861,8 @@
       },
       {
         "id": "eb6jz1m59es",
-        "x": 2116.083333333333,
-        "y": 186.83333333333394,
+        "x": 2116,
+        "y": 187,
         "eventChildType": "EXEC",
         "h": 112,
         "p": "\"Not particularly good.  The Realm and the Blackrose have some disagreement, but it is not my fight.  I will remain steadfast in Alinea regardless of who is in charge, to pay off my debt to the Magi eventually.\"",
@@ -1899,7 +1899,7 @@
       {
         "id": "9rljc6a4noa",
         "x": 2292,
-        "y": 538.5,
+        "y": 539,
         "eventChildType": "SWITCH",
         "h": 84,
         "cases": [
@@ -1913,7 +1913,7 @@
       {
         "id": "xfocylkgu3",
         "x": 2711,
-        "y": 300.5,
+        "y": 301,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Yes.  I am acquiring money for my master, Sorcerer Evander.\"",
@@ -1924,7 +1924,7 @@
       {
         "id": "s4hl9qdejdl",
         "x": 3436,
-        "y": 246.5,
+        "y": 247,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Thank you.\"",
@@ -1934,8 +1934,8 @@
       },
       {
         "id": "qh74fmdi73",
-        "x": 3455.6666666666665,
-        "y": 140.5,
+        "x": 3456,
+        "y": 141,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"I appreciate your concern, but I will handle my problems on my own.\"",
@@ -1946,7 +1946,7 @@
       {
         "id": "1th2ecirqs3",
         "x": 3542,
-        "y": 35.16666666666697,
+        "y": 35,
         "eventChildType": "COMMENT",
         "h": 54,
         "comment": "TODO: Accept donations?"
@@ -3260,8 +3260,8 @@
       },
       {
         "id": "7gea9j3oat",
-        "x": 156.81533813476562,
-        "y": 156.48674519856786,
+        "x": 157,
+        "y": 156,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "",
@@ -3271,8 +3271,8 @@
       },
       {
         "id": "p0lq92swqs",
-        "x": 233.81533813476562,
-        "y": 803.9867451985679,
+        "x": 234,
+        "y": 804,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Hello again...\"",
@@ -3282,8 +3282,8 @@
       },
       {
         "id": "7a10dc6439i",
-        "x": 235.81533813476562,
-        "y": 719.9867451985679,
+        "x": 236,
+        "y": 720,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Hello again.\"",
@@ -3293,8 +3293,8 @@
       },
       {
         "id": "fr8euoflu4u",
-        "x": 239.81533813476562,
-        "y": 628.9867451985679,
+        "x": 240,
+        "y": 629,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Hello again!\"",
@@ -3304,8 +3304,8 @@
       },
       {
         "id": "ga656de14ib",
-        "x": 232.81533813476562,
-        "y": 269.23674519856786,
+        "x": 233,
+        "y": 269,
         "eventChildType": "SWITCH",
         "h": 156,
         "cases": [
@@ -3330,8 +3330,8 @@
       },
       {
         "id": "c9l2ep66f9v",
-        "x": 698.3153381347656,
-        "y": 121.23674519856786,
+        "x": 698,
+        "y": 121,
         "eventChildType": "EXEC",
         "h": 102,
         "p": "A mysterious figure sits alone at a table in this tavern.  You cannot make out a face beneath its tall collar or the comically-oversized hat it wears.  Just a faint light that indicates eyes, directed downwards at an open tome on the table.",
@@ -3341,8 +3341,8 @@
       },
       {
         "id": "q2vd7ds0lwm",
-        "x": 929.3153381347656,
-        "y": 595.2367451985679,
+        "x": 929,
+        "y": 595,
         "eventChildType": "CHOICE",
         "h": 228,
         "text": "",
@@ -3415,16 +3415,16 @@
       },
       {
         "id": "1evxii0hk4ah",
-        "x": 1029.9820048014324,
-        "y": 1039.5700785319013,
+        "x": 1030,
+        "y": 1040,
         "eventChildType": "END",
         "h": 60,
         "next": ""
       },
       {
         "id": "e0nxacuh72o",
-        "x": 1337.0028381347656,
-        "y": 243.29830169677734,
+        "x": 1337,
+        "y": 243,
         "eventChildType": "EXEC",
         "h": 130,
         "p": "The figure tilts its head upwards and you can make the faintest outline of an angular, male face.\n\n\"I am Entomen.\"\n\nWhen he speaks you do not see moving lips, like the sound materialized out of thin air just for you to hear.",
@@ -3434,8 +3434,8 @@
       },
       {
         "id": "7y8aryj83fo",
-        "x": 1354.0028381347656,
-        "y": 536.2983016967773,
+        "x": 1354,
+        "y": 536,
         "eventChildType": "EXEC",
         "h": 84,
         "p": "\"I seek Sapphiron Fragments.\"",
@@ -3445,8 +3445,8 @@
       },
       {
         "id": "5frdy2femj8",
-        "x": 1804.0028381347656,
-        "y": 556.2983016967773,
+        "x": 1804,
+        "y": 556,
         "eventChildType": "CHOICE",
         "h": 156,
         "text": "",
@@ -3495,8 +3495,8 @@
       },
       {
         "id": "b2lxvuis5kp",
-        "x": 510.0028381347656,
-        "y": 926.2983016967773,
+        "x": 510,
+        "y": 926,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Okay.\"",
@@ -3506,8 +3506,8 @@
       },
       {
         "id": "htytfmkaqw",
-        "x": 1364.336171468099,
-        "y": 644.2983016967773,
+        "x": 1364,
+        "y": 644,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Okay.\"",
@@ -3517,8 +3517,8 @@
       },
       {
         "id": "oe4b62116p",
-        "x": 2643.6695048014326,
-        "y": 437.63163503011083,
+        "x": 2644,
+        "y": 438,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "He taps the book in front of him.\n\n\"It would be best if you studied them yourself.\"",
@@ -3528,8 +3528,8 @@
       },
       {
         "id": "g02up5co1gp",
-        "x": 2239.6695048014326,
-        "y": 423.63163503011083,
+        "x": 2240,
+        "y": 424,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"They are items.  When charged with Sapphiron, they allow one to accomplish incredible physical feats: Lift heavy things, jump high, throw far.\"",
@@ -3539,8 +3539,8 @@
       },
       {
         "id": "tjgcqkfc4w",
-        "x": 2640.002838134766,
-        "y": 698.9649683634442,
+        "x": 2640,
+        "y": 699,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"No.\"",
@@ -3550,8 +3550,8 @@
       },
       {
         "id": "9sctr3qqwno",
-        "x": 2244.6695048014326,
-        "y": 583.6316350301108,
+        "x": 2245,
+        "y": 584,
         "eventChildType": "SWITCH",
         "h": 84,
         "cases": [
@@ -3564,8 +3564,8 @@
       },
       {
         "id": "nn389480to8",
-        "x": 2641.6695048014326,
-        "y": 544.6316350301108,
+        "x": 2642,
+        "y": 545,
         "eventChildType": "EXEC",
         "h": 140,
         "p": "\"No...\"\n\nHe raises a gloved hand up to where you think his chin would be.\n\n\"Perhaps you could assist me?\"",
@@ -3575,8 +3575,8 @@
       },
       {
         "id": "7essix390or",
-        "x": 3021.672342936198,
-        "y": 561.9299367268886,
+        "x": 3022,
+        "y": 562,
         "eventChildType": "CHOICE",
         "h": 84,
         "text": "",
@@ -3601,8 +3601,8 @@
       },
       {
         "id": "e859oswch3m",
-        "x": 3628.672342936198,
-        "y": 332.9299367268886,
+        "x": 3629,
+        "y": 333,
         "eventChildType": "EXEC",
         "h": 186,
         "p": "\"I am close to discovering the location of a Sapphiron Fragment.  It exists here in Alinea.  But I do not know where it is precisely. I do not know who - if anybody - knows of it.  I have worn out my welcome here inquiring about it.  Most people I have spoken to do not wish to speak to me anymore about the subject.  I require more information.  A book.  It does not have a title.  It is bound in a way that one without knowledge cannot open it.  In the Merchantry Guild in east Alinea.  I believe the book is there.  Would you fetch it for me?\"",
@@ -3612,8 +3612,8 @@
       },
       {
         "id": "sohbp395mcn",
-        "x": 3487.672342936198,
-        "y": 594.9299367268886,
+        "x": 3488,
+        "y": 595,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"I implore you not to be driven by the power of things you do not understand.  But I do appreciate the desire for control...\"",
@@ -3623,8 +3623,8 @@
       },
       {
         "id": "02gnychhflce",
-        "x": 4041.4723429361984,
-        "y": 504.12993672688856,
+        "x": 4041,
+        "y": 504,
         "eventChildType": "CHOICE",
         "h": 132,
         "text": "",
@@ -3638,6 +3638,14 @@
             "switchText": []
           },
           {
+            "text": "And this text will reveal the location of a Sapphron Fragment?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "3h09786zd2v",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
             "text": "Sure!  I'll grab it for you.",
             "conditionStr": "ONCE(Cz9TyfSnl8)",
             "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1);START_QUEST(\"Entomen's Tome\")",
@@ -3646,18 +3654,10 @@
             "switchText": []
           },
           {
-            "text": "And this text will reveal the location of a Sapphron Fragment?",
-            "conditionStr": "ONCE(g5In6UXn68)",
-            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
-            "next": "3h09786zd2v",
-            "prefixText": "[DRAGON]",
-            "switchText": []
-          },
-          {
             "text": "I will think about it.",
             "conditionStr": "",
             "evalStr": "START_QUEST(\"Entomen's Tome\")",
-            "next": "b2lxvuis5kp",
+            "next": "vleo33bit6e",
             "prefixText": "",
             "switchText": []
           }
@@ -3665,8 +3665,8 @@
       },
       {
         "id": "rck4vqsgnhd",
-        "x": 4450.672342936199,
-        "y": 380.929936726889,
+        "x": 4451,
+        "y": 381,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"I can provide you fair compensation.  Bring the book here and we will talk.\"",
@@ -3676,19 +3676,19 @@
       },
       {
         "id": "h0xtxf0u6y",
-        "x": 4441.872342936199,
-        "y": 495.9299367268891,
+        "x": 4316,
+        "y": 780,
         "eventChildType": "EXEC",
         "h": 50,
-        "p": "\"Good.\"",
+        "p": "\"Good.  Your enthusiasm is appreciated.\"",
         "execStr": "",
         "next": "q2vd7ds0lwm",
         "autoAdvance": true
       },
       {
         "id": "3h09786zd2v",
-        "x": 4442.672342936198,
-        "y": 585.9299367268891,
+        "x": 4443,
+        "y": 586,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"I believe so.  If I read it, that is.\"",
@@ -3698,8 +3698,8 @@
       },
       {
         "id": "jyjs7a6nyam",
-        "x": 2246.6723429361978,
-        "y": 687.9299367268881,
+        "x": 2247,
+        "y": 688,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"This Island is special somehow.  These Sapphiron Fragments only function here.  I do not know how they work.  I wish to study them.\"",
@@ -3709,8 +3709,8 @@
       },
       {
         "id": "32k0eoah1fw",
-        "x": 2250.6723429361978,
-        "y": 781.2632700602214,
+        "x": 2251,
+        "y": 781,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"There is some evidence that they were created by inhabitants of the Island many years ago.  Before those of us from the Mainland arrived.  I do not have enough information to fully answer your question.\"",
@@ -3720,8 +3720,8 @@
       },
       {
         "id": "65jkubuf1jj",
-        "x": 1353.6723429361982,
-        "y": 723.5966033935547,
+        "x": 1354,
+        "y": 724,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"My face is only for me to know.  That is the tenant of my Magi House.\"",
@@ -3731,8 +3731,8 @@
       },
       {
         "id": "3h3ma73ni03",
-        "x": 666.3181762695312,
-        "y": 2598.5350468953457,
+        "x": 666,
+        "y": 2599,
         "eventChildType": "EXEC",
         "h": 102,
         "p": "At your retort, he perks up, like he's hearing you properly for the first time.\n\n\"Is that mischief I hear?  Why do you push the subject of my attire so thoroughly?\"",
@@ -3742,8 +3742,8 @@
       },
       {
         "id": "0okjqkvgn25p",
-        "x": 1053.2515096028649,
-        "y": 2609.201713562012,
+        "x": 1053,
+        "y": 2609,
         "eventChildType": "CHOICE",
         "h": 108,
         "text": "",
@@ -3776,8 +3776,8 @@
       },
       {
         "id": "we1ftbj3w9k",
-        "x": 1439.8515096028646,
-        "y": 2575.735046895345,
+        "x": 1440,
+        "y": 2576,
         "eventChildType": "EXEC",
         "h": 102,
         "p": "He nods slowly to himself.\n\n\"It is unmistakable now.  I am familiar with your ilk. Perhaps if we see each other more often you may come to see my face.\"",
@@ -3787,8 +3787,8 @@
       },
       {
         "id": "0bkjykzq9dkr",
-        "x": 1430.7848429361975,
-        "y": 2705.3350468953454,
+        "x": 1431,
+        "y": 2705,
         "eventChildType": "EXEC",
         "h": 102,
         "p": "Something changes in his posture, like a subtle sign of disappointment.\n\n\"I assure you I am not injured.  Let us broach another subject.\"",
@@ -3798,8 +3798,8 @@
       },
       {
         "id": "77nh00cbpu",
-        "x": 1429.0515096028646,
-        "y": 2847.0683802286794,
+        "x": 1429,
+        "y": 2847,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Okay.\"",
@@ -3809,8 +3809,8 @@
       },
       {
         "id": "w65lx58henp",
-        "x": 1399.8515096028648,
-        "y": 1092.0017135620124,
+        "x": 1400,
+        "y": 1092,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Yes.  The Magi.  You wish to speak of them?\"",
@@ -3820,8 +3820,8 @@
       },
       {
         "id": "td9ibcerdj",
-        "x": 1857.2515096028649,
-        "y": 1173.8017135620125,
+        "x": 1857,
+        "y": 1174,
         "eventChildType": "CHOICE",
         "h": 156,
         "text": "",
@@ -3870,8 +3870,8 @@
       },
       {
         "id": "a1wibloqc4g",
-        "x": 2247.0028381347656,
-        "y": 1072.2983016967773,
+        "x": 2247,
+        "y": 1072,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"The Magi are a collection of scholars that reside on the Island.  We assist each other in research.  We also keep an eye on each other.  We are split into different Houses.\"",
@@ -3881,8 +3881,8 @@
       },
       {
         "id": "j6fi9c45sb",
-        "x": 2259.0028381347656,
-        "y": 1182.2983016967773,
+        "x": 2259,
+        "y": 1182,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"My own house.  Entomen House.\"",
@@ -3892,8 +3892,8 @@
       },
       {
         "id": "mzso8wlrcaq",
-        "x": 2270.0028381347656,
-        "y": 1242.2983016967773,
+        "x": 2270,
+        "y": 1242,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"Yes.  I have discovered that my ideals and my drive necessitates my own House of study.  The rest of the Magi have agreed.  Should one come along that seeks what I seek, then they may join my house.\"",
@@ -3903,8 +3903,8 @@
       },
       {
         "id": "u5ziqm5yi6",
-        "x": 3189.0028381347656,
-        "y": 1134.2983016967773,
+        "x": 3189,
+        "y": 1134,
         "eventChildType": "EXEC",
         "h": 116,
         "p": "\"Like all Magi I seek knowledge.  Unlike most Magi, I do not wish to seek it on this Island.  There is something about this place that repels us.  Some force is trying to evict us from this place.  I want to discover what that force is.  I want to bring it before the Magi.  I want us to leave.\"",
@@ -3914,8 +3914,8 @@
       },
       {
         "id": "a3n9fdplg4",
-        "x": 2690.0028381347656,
-        "y": 1308.2983016967773,
+        "x": 2690,
+        "y": 1308,
         "eventChildType": "CHOICE",
         "h": 180,
         "text": "",
@@ -3972,8 +3972,8 @@
       },
       {
         "id": "31r09pudxyh",
-        "x": 3175.0028381347656,
-        "y": 1286.2983016967773,
+        "x": 3175,
+        "y": 1286,
         "eventChildType": "EXEC",
         "h": 102,
         "p": "His hat moves up and down, almost like a silent chuckle.\n\n\"That is not precicely the intent of my research.  You will not divert me, mischievous one.\"",
@@ -3983,8 +3983,8 @@
       },
       {
         "id": "oi7bfevecc9",
-        "x": 3181.0028381347656,
-        "y": 1414.2983016967773,
+        "x": 3181,
+        "y": 1414,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"My desire for knowledge supersedes my other desires.  Should I discover what I need, then I will have accomplished something worthwhile.  If I leave, then I have no hope of such a thing.\"",
@@ -3994,8 +3994,8 @@
       },
       {
         "id": "boratrnstvl",
-        "x": 3189.0028381347656,
-        "y": 1642.2983016967773,
+        "x": 3189,
+        "y": 1642,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"I seek Sapphiron Fragments.  One in particular.  It can be found here.  I do not know exactly where.\"",
@@ -4005,8 +4005,8 @@
       },
       {
         "id": "2tbydpuh33n",
-        "x": 2293.669504801432,
-        "y": 1368.6316350301108,
+        "x": 2294,
+        "y": 1369,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"You wish to know more of my House?\"",
@@ -4016,8 +4016,8 @@
       },
       {
         "id": "d9mm7uqwg49",
-        "x": 1840.1085144042972,
-        "y": 2628.4333485921234,
+        "x": 1840,
+        "y": 2628,
         "eventChildType": "CHOICE",
         "h": 84,
         "text": "",
@@ -4042,8 +4042,8 @@
       },
       {
         "id": "l6uzyfsszid",
-        "x": 2245.4418477376307,
-        "y": 2528.4333485921234,
+        "x": 2245,
+        "y": 2528,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "He nods curtly.\n\n\"Pay it no heed.  Let us speak of other things.\"",
@@ -4053,8 +4053,8 @@
       },
       {
         "id": "hwk49jw6yfr",
-        "x": 1848.5265096028645,
-        "y": 1537.5966033935547,
+        "x": 1849,
+        "y": 1538,
         "eventChildType": "CHOICE",
         "h": 60,
         "text": "",
@@ -4071,8 +4071,8 @@
       },
       {
         "id": "jopddke7u8",
-        "x": 1406.1931762695312,
-        "y": 1576.5966033935547,
+        "x": 1406,
+        "y": 1577,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"You have news?\"",
@@ -4082,8 +4082,8 @@
       },
       {
         "id": "5thmqiawti3",
-        "x": 3182.1931762695312,
-        "y": 1543.5966033935547,
+        "x": 3182,
+        "y": 1544,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Yes.  What do you want to know?\"",
@@ -4093,8 +4093,8 @@
       },
       {
         "id": "66uk0ib7z8",
-        "x": 2703.5056762695312,
-        "y": 2481.5350468953457,
+        "x": 2704,
+        "y": 2482,
         "eventChildType": "CHOICE",
         "h": 84,
         "text": "",
@@ -4119,8 +4119,8 @@
       },
       {
         "id": "v612g8830w",
-        "x": 3095.5056762695312,
-        "y": 2438.5350468953457,
+        "x": 3096,
+        "y": 2439,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"I told you pay it no heed.\"",
@@ -4130,11 +4130,22 @@
       },
       {
         "id": "3zeei62t4kb",
-        "x": 3092.5056762695312,
-        "y": 2530.535046895345,
+        "x": 3093,
+        "y": 2531,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"What else do you wish to speak of?\"",
+        "execStr": "",
+        "next": "q2vd7ds0lwm",
+        "autoAdvance": true
+      },
+      {
+        "id": "vleo33bit6e",
+        "x": 4265,
+        "y": 876,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Good.  I look forward to it.\"",
         "execStr": "",
         "next": "q2vd7ds0lwm",
         "autoAdvance": true
@@ -4142,7 +4153,7 @@
     ]
   },
   {
-    "id": "alinea_gateGuardNorth",
+    "id": "alinea_gateGuardJerry",
     "title": "Gate Guard",
     "eventType": "TALK",
     "icon": "special_event_icons_1",
@@ -4186,36 +4197,368 @@
       },
       {
         "id": "uao9kv68u9g",
-        "x": 820.25,
-        "y": 128,
+        "x": 841.25,
+        "y": 97,
         "eventChildType": "EXEC",
-        "h": 88,
-        "p": "The attendant sitting at the desk perks her head up at your approach.\n\n\"Can I help you?\"",
-        "execStr": "",
+        "h": 140,
+        "p": "A guard, resplendent in a deep green tabard, thrusts a wicked-looking spear out in front of you to block you from passing through the gate.\n\n\"Hold up.  I don't recognize you.  Do you have a pass?\"",
+        "execStr": "SET_BOOL(vars.hasSpokenToGateGuardJerry)",
         "next": "yfmldyw7qi8",
         "autoAdvance": true
       },
       {
         "id": "yfmldyw7qi8",
-        "x": 931.25,
-        "y": 377,
+        "x": 1264.25,
+        "y": 106,
         "eventChildType": "CHOICE",
         "h": 108,
         "text": "",
         "choices": [
           {
-            "text": "Is this some kind of library?",
+            "text": "I don't have a pass.",
             "conditionStr": "",
             "evalStr": "",
-            "next": "",
+            "next": "l7j8iapkmw",
             "prefixText": "",
             "switchText": []
           },
           {
-            "text": "I'm looking for a book...",
-            "conditionStr": "QUEST_STEP_EQ(que_alinea_EntomenTome, findBook)",
+            "text": "I go where I please.  I do not need a pass.",
+            "conditionStr": "ONCE(hIO71WzQzZ)",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "tnm8odz9x5q",
+            "prefixText": "[DRAGON]",
+            "switchText": []
+          },
+          {
+            "text": "Can't you just let me inside?  I'm just a nobody.  Nope.  Not anyone you need to know or really even care about.",
+            "conditionStr": "ONCE(qAMG75hxgq)",
+            "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
+            "next": "ft9ej1hcwyf",
+            "prefixText": "[FAE]",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "i0e7c7w674",
+        "x": 415.00965881347656,
+        "y": 107.30169296264648,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "ISNOT(vars.hasSpokenToGateGuardJerry)",
+            "next": "uao9kv68u9g"
+          }
+        ],
+        "defaultNext": "9tg2rhey97f"
+      },
+      {
+        "id": "l7j8iapkmw",
+        "x": 1747.5,
+        "y": 50,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"By order of the Realm, you need a pass to enter Alinea.  No pass, no entry.\"",
+        "execStr": "",
+        "next": "xtqozho097n",
+        "autoAdvance": true
+      },
+      {
+        "id": "tnm8odz9x5q",
+        "x": 1748.5,
+        "y": 137,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"What are you, some sort of big shot?  You don't look like a noble to me.  Show me your credentials.\"",
+        "execStr": "",
+        "next": "yfmldyw7qi8",
+        "autoAdvance": true
+      },
+      {
+        "id": "ft9ej1hcwyf",
+        "x": 1743.5,
+        "y": 234,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"No.  I have a job to do here, and I do it to the best of my ability.\"",
+        "execStr": "",
+        "next": "yfmldyw7qi8",
+        "autoAdvance": true
+      },
+      {
+        "id": "xtqozho097n",
+        "x": 2188.5,
+        "y": 132,
+        "eventChildType": "CHOICE",
+        "h": 60,
+        "text": "",
+        "choices": [
+          {
+            "text": "How do I get a pass?",
+            "conditionStr": "",
             "evalStr": "",
-            "next": "",
+            "next": "dwkh92mv0f",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "dwkh92mv0f",
+        "x": 2699.5,
+        "y": 61,
+        "eventChildType": "EXEC",
+        "h": 116,
+        "p": "\"You'll need to go through the proper protocols.  First you'll have to apply for a visa with the Realm clerk's office, then I'll need approval from Lieutenant Mullen and Claire just to be sure.  After a few months you might have enough momentum to get yourself a hearing...\"",
+        "execStr": "",
+        "next": "k19i5nyskwj",
+        "autoAdvance": false
+      },
+      {
+        "id": "9tg2rhey97f",
+        "x": 818.5,
+        "y": 349,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Oh, you again.  What do you want?\"",
+        "execStr": "",
+        "next": "jjqblq26ji",
+        "autoAdvance": true
+      },
+      {
+        "id": "jjqblq26ji",
+        "x": 1227.5,
+        "y": 523,
+        "eventChildType": "CHOICE",
+        "h": 132,
+        "text": "",
+        "choices": [
+          {
+            "text": "There's a blockade happening now?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "3l2ffipw88y",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Can you talk about the Blackrose?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "ez4jy5mxusq",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "You 'Realm' folk really seem so uptight about rules.  What gives?",
+            "conditionStr": "ONCE(W1Ssh2oo66)",
+            "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
+            "next": "aekvwda9tmt",
+            "prefixText": "[FAE]",
+            "switchText": []
+          },
+          {
+            "text": "Good day. (Leave.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "xbe8jimucxl",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "xbe8jimucxl",
+        "x": 1307.5,
+        "y": 808,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "k19i5nyskwj",
+        "x": 3074.75,
+        "y": 64,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "The guard standing across from him clears his throat.\n\n\"Jerry, don't you think this is a little ridiculous?\"",
+        "execStr": "",
+        "next": "w4xfd6u8sn",
+        "autoAdvance": false
+      },
+      {
+        "id": "w4xfd6u8sn",
+        "x": 3442.75,
+        "y": 63,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "Jerry shoots him an irritated glance.\n\n\"What do you mean, Terry?  This is the proper protocol.\"",
+        "execStr": "",
+        "next": "qdeesjhdzbg",
+        "autoAdvance": false
+      },
+      {
+        "id": "qdeesjhdzbg",
+        "x": 3818.4166666666665,
+        "y": 58.33333333333394,
+        "eventChildType": "EXEC",
+        "h": 144,
+        "p": "Terry, the guard who interrupted, lets out a big sigh.\n\n\"Its just that with things the way they are with the blockade... 'proper protocol' doesn't really seem like the right way to do things anymore....  There are so many people around we've definitely not been able to keep track of them all.  Just let the poor soul inside.  It's not like it matters all that much anyway.\"",
+        "execStr": "",
+        "next": "gi8xhi4bdmt",
+        "autoAdvance": false
+      },
+      {
+        "id": "3l2ffipw88y",
+        "x": 1667.416666666666,
+        "y": 374.33333333333394,
+        "eventChildType": "EXEC",
+        "h": 130,
+        "p": "\"Yes.  The Blackrose Estate has declared a formal blockade of the Carrion Mountains to the east.  No travel through them without their permission.  The city's full of merchant rifraf who can't travel now until it gets resolved.  You want more info talk to somebody else, I'm busy.  I'm letting you in Alinea, talk to people inside, they'll fill you in.\"",
+        "execStr": "",
+        "next": "jjqblq26ji",
+        "autoAdvance": true
+      },
+      {
+        "id": "ez4jy5mxusq",
+        "x": 1679.416666666666,
+        "y": 540.3333333333339,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Noble family.  Think they own the Island.  Best stay away from them and their encampment to the east.  We wouldn't want you causing trouble here.\"",
+        "execStr": "",
+        "next": "jjqblq26ji",
+        "autoAdvance": true
+      },
+      {
+        "id": "aekvwda9tmt",
+        "x": 1699.416666666666,
+        "y": 703.3333333333339,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "\"The law is how we live.  Without it we have no guidance.  Proper protocols should be the ideal.  Clearly, this situation merits... different proper protocols.\"",
+        "execStr": "",
+        "next": "jjqblq26ji",
+        "autoAdvance": true
+      },
+      {
+        "id": "gi8xhi4bdmt",
+        "x": 4192.25,
+        "y": 81.00000000000091,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "The guard who stopped you - Jerry apparently - stamps his spear on the ground.\n\n\"We don't need rifraf like this in Alinea!\"",
+        "execStr": "",
+        "next": "hnj1tw6bi7j",
+        "autoAdvance": false
+      },
+      {
+        "id": "hnj1tw6bi7j",
+        "x": 4560.25,
+        "y": 96.00000000000091,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Stop trying so hard.  You're just going to end up dead in an alley.  I mean, when was the last time you even reported to Mullen?\"",
+        "execStr": "",
+        "next": "rfp3doo18g",
+        "autoAdvance": false
+      },
+      {
+        "id": "rfp3doo18g",
+        "x": 4957.25,
+        "y": 108.00000000000091,
+        "eventChildType": "EXEC",
+        "h": 172,
+        "p": "This seems to knock the uptight Jerry down a peg.  He takes a long moment to look over with a shrewd eye.\n\n\"You don't look like a Blackrose.  And I do have better things to think about.  Don't cause any trouble.\"\n\nHe moves back to his position, leaving you a clear path into Alinea.",
+        "execStr": "",
+        "next": "jjqblq26ji",
+        "autoAdvance": true
+      }
+    ]
+  },
+  {
+    "id": "alinea_gateGuardTerry",
+    "title": "Gate Guard",
+    "eventType": "TALK",
+    "icon": "special_event_icons_1",
+    "vars": [
+      {
+        "id": "akmvzemwuel",
+        "key": "CHARACTER_ID",
+        "value": "alinea_bookkeeper",
+        "importFrom": ""
+      },
+      {
+        "id": "wpayrxl0uh8",
+        "key": "DISPOSITION",
+        "value": "vars.disposition.alinea_bookkeeper",
+        "importFrom": ""
+      },
+      {
+        "id": "gje4dc439hh",
+        "key": "",
+        "value": "",
+        "importFrom": "util_aspect"
+      },
+      {
+        "id": "ral7jyg5hdg",
+        "key": "",
+        "value": "",
+        "importFrom": "util_exposition_alinea"
+      }
+    ],
+    "children": [
+      {
+        "id": "root",
+        "x": 24,
+        "y": 38,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "5vetxv9w5jw",
+        "autoAdvance": true
+      },
+      {
+        "id": "5vetxv9w5jw",
+        "x": 422.5,
+        "y": 73,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "IS(vars.hasSpokenToGateGuardJerry)",
+            "next": "5y23l7vi43j"
+          }
+        ],
+        "defaultNext": "vyghck47t1o"
+      },
+      {
+        "id": "vyghck47t1o",
+        "x": 728.5,
+        "y": 305,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "A guard wearing a green tabard stands here.\n\n\"What is it?\"",
+        "execStr": "",
+        "next": "27cgv4xbo28",
+        "autoAdvance": true
+      },
+      {
+        "id": "27cgv4xbo28",
+        "x": 1206.5,
+        "y": 177,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "Thanks for helping me get through this gate.",
+            "conditionStr": "IS(vars.hasSpokenToGateGuardJerry)",
+            "evalStr": "",
+            "next": "l1wd7ujqlr",
             "prefixText": "",
             "switchText": []
           },
@@ -4223,33 +4566,297 @@
             "text": "Nevermind. (Leave.)",
             "conditionStr": "",
             "evalStr": "",
-            "next": "u6sgl0xgrqd",
+            "next": "vawutxabz9",
             "prefixText": "",
             "switchText": []
           }
         ]
       },
       {
-        "id": "u6sgl0xgrqd",
-        "x": 977.25,
-        "y": 852,
+        "id": "5y23l7vi43j",
+        "x": 813.5,
+        "y": 67,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "Terry the Realm Guard stands stoically by the gate.\n\n\"What is it?\"",
+        "execStr": "",
+        "next": "27cgv4xbo28",
+        "autoAdvance": true
+      },
+      {
+        "id": "l1wd7ujqlr",
+        "x": 1663.5,
+        "y": 186,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Don't mention it.  My younger brother Jerry can let his job get to his head sometimes.  We've got bigger things to worry about.\"",
+        "execStr": "",
+        "next": "82hrtjxope",
+        "autoAdvance": true
+      },
+      {
+        "id": "vawutxabz9",
+        "x": 1365.5,
+        "y": 383,
         "eventChildType": "END",
         "h": 60,
         "next": ""
       },
       {
-        "id": "i0e7c7w674",
-        "x": 424.00965881347656,
-        "y": 90.30169296264648,
+        "id": "82hrtjxope",
+        "x": 2054.5,
+        "y": 197,
+        "eventChildType": "CHOICE",
+        "h": 132,
+        "text": "",
+        "choices": [
+          {
+            "text": "Are you close to your brother?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "hr5wibxwbfq",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Can you talk about the blockade?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "la8tjfvglfq",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "What do you know about the Blackrose?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "idqtswtetfl",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Nevermind. (Leave.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "620femx5eh4",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "63yr70bsry",
+        "x": 2275.5,
+        "y": 1096,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "la8tjfvglfq",
+        "x": 2595.5,
+        "y": 77,
+        "eventChildType": "EXEC",
+        "h": 116,
+        "p": "\"It's worrying, that's for sure.  Been going on for a few weeks now.  Alinea is steadily filling up with merchants and travelers who want to get past it, but the Blackrose keeps sending them back here.  They've got an encampment over there with a few soldiers.  Makes you wonder what they're up to.\"",
+        "execStr": "",
+        "next": "lige4jzjw7",
+        "autoAdvance": false
+      },
+      {
+        "id": "lige4jzjw7",
+        "x": 3065.5,
+        "y": 169,
+        "eventChildType": "EXEC",
+        "h": 116,
+        "p": "He clears his throat nervously.\n\n\"Not that I question my post, but I can't tell you why we haven't marched our soldiers out there to take care of it.  Alinea can't support this many people living in it.\"",
+        "execStr": "",
+        "next": "82hrtjxope",
+        "autoAdvance": true
+      },
+      {
+        "id": "hr5wibxwbfq",
+        "x": 2609.5,
+        "y": 259,
+        "eventChildType": "EXEC",
+        "h": 102,
+        "p": "\"Of course I am.  We do everything together, even guarding this gate!  We have different plans for life though.  He wants to be a military commander some day.  Me?  I'm content at this humble city.  That is, when there isn't a blasted blockade choking it off.\"",
+        "execStr": "",
+        "next": "82hrtjxope",
+        "autoAdvance": true
+      },
+      {
+        "id": "idqtswtetfl",
+        "x": 2629,
+        "y": 485.5,
+        "eventChildType": "EXEC",
+        "h": 116,
+        "p": "His face hardens.\n\n\"Nobility.  They hire out their soldiers with promises of riches and money.  They don't care about the law at all.  If the Realm weren't here, they'd take over the whole Island.\"",
+        "execStr": "",
+        "next": "g08iulagsqs",
+        "autoAdvance": true
+      },
+      {
+        "id": "g08iulagsqs",
+        "x": 3104,
+        "y": 490,
         "eventChildType": "SWITCH",
         "h": 84,
         "cases": [
           {
-            "conditionStr": "ONCE(7a9bDhSaCo)",
-            "next": "uao9kv68u9g"
+            "conditionStr": "ONCE(l5fJ1BTynu)",
+            "next": "abrn0jhntgl"
           }
         ],
-        "defaultNext": ""
+        "defaultNext": "82hrtjxope"
+      },
+      {
+        "id": "abrn0jhntgl",
+        "x": 3502,
+        "y": 494,
+        "eventChildType": "CHOICE",
+        "h": 136,
+        "text": "A stirring of voices clashes in your head.",
+        "choices": [
+          {
+            "text": "Your respect of laws is admirable.  You have chosen the correct path.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_AEON, 1)",
+            "next": "kkvljwnqbrk",
+            "prefixText": "[AEON]",
+            "switchText": []
+          },
+          {
+            "text": "Whoever has the power creates the laws.  Why haven't you sought out the riches the Blackrose have promised?",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
+            "next": "1zdljz2b7xq",
+            "prefixText": "[DRAGON]",
+            "switchText": []
+          },
+          {
+            "text": "(Force your teeming mind to calm, and remain silent.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "ut6slqbc6i",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "ut6slqbc6i",
+        "x": 3516,
+        "y": 720,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "Terry the Guard rubs the back of his head ruefully.\n\n\"I guess it's clear I don't like them very much.\"",
+        "execStr": "",
+        "next": "82hrtjxope",
+        "autoAdvance": true
+      },
+      {
+        "id": "kkvljwnqbrk",
+        "x": 3956,
+        "y": 483,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"I appreciate that.  I like there to be some semblance of right and wrong, you know.\"",
+        "execStr": "",
+        "next": "82hrtjxope",
+        "autoAdvance": true
+      },
+      {
+        "id": "1zdljz2b7xq",
+        "x": 3951,
+        "y": 587,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "\"Maybe I think what the Blackrose does isn't worth the money?  What if they change the law to make it so they don't have to pay me?  I'd rather stick with the group that can get held accountable.\"",
+        "execStr": "",
+        "next": "82hrtjxope",
+        "autoAdvance": true
+      },
+      {
+        "id": "ekq022aqkso",
+        "x": 2465,
+        "y": 709,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Before you go, I got a quick word of advice.  You seem like a nice sort.  Just... try to stay out of the alleys in the city.  Lots of desperate people here.\"",
+        "execStr": "",
+        "next": "zfj2f1h6hbi",
+        "autoAdvance": true
+      },
+      {
+        "id": "620femx5eh4",
+        "x": 2092,
+        "y": 704,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "ONCE(QgfXS2BgS4)",
+            "next": "ekq022aqkso"
+          }
+        ],
+        "defaultNext": "63yr70bsry"
+      },
+      {
+        "id": "zfj2f1h6hbi",
+        "x": 2560.6,
+        "y": 901.2,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "Is it dangerous inside Alinea?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "5lorlksfass",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Has something happened?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "ci4zb91t2av",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Got it, thanks for the advice. (Leave.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "63yr70bsry",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "5lorlksfass",
+        "x": 2983.0666666666666,
+        "y": 797.6000000000001,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "\"It's not that... Just there's a lot of people getting desperate in there, and maybe not enough of the Realm to keep them from doing somethings they might regret.\"",
+        "execStr": "",
+        "next": "zfj2f1h6hbi",
+        "autoAdvance": true
+      },
+      {
+        "id": "ci4zb91t2av",
+        "x": 3016.6666666666665,
+        "y": 936,
+        "eventChildType": "EXEC",
+        "h": 102,
+        "p": "He lowers his voice.\n\n\"A week or so back our mother got jumped by some mongrels.  Took all her money.  She's still in bed recovering now.  Like I said, be careful in there.\"",
+        "execStr": "",
+        "next": "zfj2f1h6hbi",
+        "autoAdvance": true
       }
     ]
   },
@@ -4869,8 +5476,8 @@
       },
       {
         "id": "dho0pxk6uof",
-        "x": 85.25,
-        "y": 140.25,
+        "x": 85,
+        "y": 140,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "",
@@ -4880,8 +5487,8 @@
       },
       {
         "id": "qjnapimikzc",
-        "x": 162.25,
-        "y": 787.75,
+        "x": 162,
+        "y": 788,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Don't touch the wares.\"",
@@ -4891,8 +5498,8 @@
       },
       {
         "id": "p8n1uj5jaz",
-        "x": 164.25,
-        "y": 703.75,
+        "x": 164,
+        "y": 704,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"My, my, back again I see.\"",
@@ -4902,8 +5509,8 @@
       },
       {
         "id": "68z4oj97b0c",
-        "x": 160.25,
-        "y": 610.75,
+        "x": 160,
+        "y": 611,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Hello again, my loyal customer.\"",
@@ -4913,7 +5520,7 @@
       },
       {
         "id": "j99mscsu0ym",
-        "x": 161.25,
+        "x": 161,
         "y": 253,
         "eventChildType": "SWITCH",
         "h": 156,
@@ -4939,7 +5546,7 @@
       },
       {
         "id": "pal995gihrp",
-        "x": 571.75,
+        "x": 572,
         "y": 127,
         "eventChildType": "EXEC",
         "h": 158,
@@ -4950,7 +5557,7 @@
       },
       {
         "id": "gyxsogeo4ug",
-        "x": 855.75,
+        "x": 856,
         "y": 614,
         "eventChildType": "CHOICE",
         "h": 180,
@@ -5008,7 +5615,7 @@
       },
       {
         "id": "a8zya13bj7w",
-        "x": 913.75,
+        "x": 914,
         "y": 860,
         "eventChildType": "END",
         "h": 60,
@@ -5017,7 +5624,7 @@
       {
         "id": "s5zmfu8odg8",
         "x": 1368,
-        "y": 470.5,
+        "y": 471,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Idoreo of the Merchantry, at your service.\"",
@@ -5028,7 +5635,7 @@
       {
         "id": "t8fiz6yj6re",
         "x": 1373,
-        "y": 661.5,
+        "y": 662,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"A wonderful collection of friends who help each other out from time to time.\"",
@@ -5039,7 +5646,7 @@
       {
         "id": "2rmnna4ngot",
         "x": 1365,
-        "y": 578.5,
+        "y": 579,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "",
@@ -5050,7 +5657,7 @@
       {
         "id": "0tft02goph5",
         "x": 1766,
-        "y": 598.5,
+        "y": 599,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Thank you for your considerations.\"",
@@ -5060,8 +5667,8 @@
       },
       {
         "id": "7nqeo7nwxj9",
-        "x": 1374.6666666666665,
-        "y": 205.83333333333331,
+        "x": 1375,
+        "y": 206,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Yes.  Oh yes.  I'm in a delicate situation that I need someone like you to help me out with.\"",
@@ -5072,7 +5679,7 @@
       {
         "id": "ffjh4g4w5yd",
         "x": 1858,
-        "y": 264.5,
+        "y": 265,
         "eventChildType": "CHOICE",
         "h": 204,
         "text": "",
@@ -5137,8 +5744,8 @@
       },
       {
         "id": "3yai8xlwc97",
-        "x": 1355.6666666666665,
-        "y": 336.5,
+        "x": 1356,
+        "y": 337,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Certainly.\"",
@@ -5148,8 +5755,8 @@
       },
       {
         "id": "1ndbof7axhc",
-        "x": 2333.666666666667,
-        "y": 252.16666666666788,
+        "x": 2334,
+        "y": 252,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"You are a Lark, are you not?  I have not seen you around.  Perfect.  Nobody will be suspicious of your angle.\"",
@@ -5159,8 +5766,8 @@
       },
       {
         "id": "q09z4b8qbts",
-        "x": 2283.666666666667,
-        "y": 81.16666666666788,
+        "x": 2284,
+        "y": 81,
         "eventChildType": "EXEC",
         "h": 112,
         "p": "\"I have had some difficulties with some of my wares as of late.  The Realm has... apprehended an important package of mine, and I would like to get it back.\"",
@@ -5170,8 +5777,8 @@
       },
       {
         "id": "xq5u8x3nafo",
-        "x": 2617.666666666667,
-        "y": 71.16666666666788,
+        "x": 2618,
+        "y": 71,
         "eventChildType": "EXEC",
         "h": 144,
         "p": "\"I've recently come into some information that my package is being held in Warehouse Five, which happens to be owned by that buffoon, Shovan-Abivola.  That's where you come in.  Convince him to let you inside, and do a little 'scouting' for me.  I just want to know where it is.  The crate is obvious: it's a big wooden box with an intricate flower embossed on the lid.\"",
@@ -5181,8 +5788,8 @@
       },
       {
         "id": "mkoeia2ni3",
-        "x": 2339.0000000000005,
-        "y": 670.8333333333346,
+        "x": 2339,
+        "y": 671,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"I'm just asking you for recon.  Nothing to it.  In and out, you don't have to do anything else.  I assure you this is all just a big misunderstanding, and I'm trying to get it resolved.\"",
@@ -5192,8 +5799,8 @@
       },
       {
         "id": "rg3x2188bde",
-        "x": 2331.666666666667,
-        "y": 578.1666666666679,
+        "x": 2332,
+        "y": 578,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Just something that's important to my business.  An ingredient I promised to deliver to Boramark.\"",
@@ -5203,8 +5810,8 @@
       },
       {
         "id": "vc24gp7rt5j",
-        "x": 2341.666666666667,
-        "y": 346.1666666666679,
+        "x": 2342,
+        "y": 346,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"Typical Realm nonsense.  They misunderstood what was being transported, and by the time I explained the whole thing they had already whisked it away to storage.\"",
@@ -5222,6 +5829,198 @@
         "execStr": "",
         "next": "ffjh4g4w5yd",
         "autoAdvance": true
+      }
+    ]
+  },
+  {
+    "id": "alinea_idoreo_copy",
+    "title": "Idoreo",
+    "eventType": "TALK",
+    "icon": "portraits0_10",
+    "vars": [
+      {
+        "id": "ky6g2t9gjck",
+        "key": "CHARACTER_ID",
+        "value": "alinea_joryn",
+        "importFrom": ""
+      },
+      {
+        "id": "1thxt7kgn44",
+        "key": "DISPOSITION",
+        "value": "vars.disposition.alinea_joryn",
+        "importFrom": ""
+      },
+      {
+        "id": "1ksb1w7021k",
+        "key": "",
+        "value": "",
+        "importFrom": "util_aspect"
+      },
+      {
+        "id": "rc5iv6t1cai",
+        "key": "",
+        "value": "",
+        "importFrom": "util_exposition_alinea"
+      }
+    ],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "dho0pxk6uof",
+        "autoAdvance": true
+      },
+      {
+        "id": "dho0pxk6uof",
+        "x": 85,
+        "y": 140,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "SETUP_DISPOSITION(@CHARACTER_ID)",
+        "next": "j99mscsu0ym",
+        "autoAdvance": false
+      },
+      {
+        "id": "qjnapimikzc",
+        "x": 162,
+        "y": 788,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Don't touch the wares.\"",
+        "execStr": "",
+        "next": "gyxsogeo4ug",
+        "autoAdvance": true
+      },
+      {
+        "id": "p8n1uj5jaz",
+        "x": 164,
+        "y": 704,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"My, my, back again I see.\"",
+        "execStr": "",
+        "next": "gyxsogeo4ug",
+        "autoAdvance": true
+      },
+      {
+        "id": "68z4oj97b0c",
+        "x": 160,
+        "y": 611,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Hello again, my loyal customer.\"",
+        "execStr": "",
+        "next": "gyxsogeo4ug",
+        "autoAdvance": true
+      },
+      {
+        "id": "j99mscsu0ym",
+        "x": 161,
+        "y": 253,
+        "eventChildType": "SWITCH",
+        "h": 156,
+        "cases": [
+          {
+            "conditionStr": "ONCE(hasSpokenTo@CHARACTER_ID)",
+            "next": "pal995gihrp"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,5)",
+            "next": "68z4oj97b0c"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,3)",
+            "next": "p8n1uj5jaz"
+          },
+          {
+            "conditionStr": "GTE(@DISPOSITION,1)",
+            "next": "qjnapimikzc"
+          }
+        ],
+        "defaultNext": "p8n1uj5jaz"
+      },
+      {
+        "id": "pal995gihrp",
+        "x": 572,
+        "y": 127,
+        "eventChildType": "EXEC",
+        "h": 158,
+        "p": "This man hunches over a thick table atop which are old and rusty weapons and armor.  His balding head has only a few greasy hairs wiring across it, and his eyes are wide, almost manic.\n\n\"My, oh my, an opportunity approaches.  You look like you conduct business properly.  Care to do a little job for me?  Or else, perhaps, would you like to buy some combat accoutrements?\"",
+        "execStr": "",
+        "next": "gyxsogeo4ug",
+        "autoAdvance": true
+      },
+      {
+        "id": "gyxsogeo4ug",
+        "x": 856,
+        "y": 614,
+        "eventChildType": "CHOICE",
+        "h": 180,
+        "text": "",
+        "choices": [
+          {
+            "text": "You mentioned a job?",
+            "conditionStr": "ONCE(@CHARACTER_ID_mentionedJob)",
+            "evalStr": "SET_BOOL(vars.ch.@CHARACTER_ID.mentionedJob)",
+            "next": "",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Let's talk about that job you mentioned.",
+            "conditionStr": "IS(vars.ch.@CHARACTER_ID.mentionedJob)",
+            "evalStr": "",
+            "next": "",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "What's your name?",
+            "conditionStr": "",
+            "evalStr": "SET_BOOL(vars.@CHARACTER_ID.confirmedMerchantry)",
+            "next": "",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "I could use some combat equipment.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "",
+            "prefixText": "[STORE]",
+            "switchText": []
+          },
+          {
+            "text": "What's the Merchantry?",
+            "conditionStr": "IS(vars.@CHARACTER_ID.confirmedMerchantry)",
+            "evalStr": "",
+            "next": "",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Nevermind. (Leave.)",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "a8zya13bj7w",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "a8zya13bj7w",
+        "x": 914,
+        "y": 860,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
       }
     ]
   },
@@ -5752,13 +6551,13 @@
       },
       {
         "id": "45ans4ydeds",
-        "x": 867,
-        "y": 153.5,
+        "x": 1009,
+        "y": 70.5,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "You produce the bejeweled dagger and hand it to him.  He lifts it and examines it closely.\n\n\"Yes.  This'll do nicely.  I think I'll take this with me.\"",
         "execStr": "",
-        "next": "okzs584s6yd",
+        "next": "q1ok0jqlscj",
         "autoAdvance": true
       },
       {
@@ -5808,8 +6607,8 @@
       },
       {
         "id": "rljn7to6vv",
-        "x": 867,
-        "y": 282.5,
+        "x": 1571,
+        "y": 623.5,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "He snatches it from you and examines it closely.\n\n\"Yes.  This'll do nicely.  I think I'll take this with me.\"",
@@ -5841,16 +6640,16 @@
       },
       {
         "id": "q1ok0jqlscj",
-        "x": 2001,
-        "y": 289.5,
+        "x": 1861,
+        "y": 79.5,
         "eventChildType": "END",
         "h": 60,
         "next": ""
       },
       {
         "id": "okzs584s6yd",
-        "x": 1347,
-        "y": 176.5,
+        "x": 1688,
+        "y": 883.5,
         "eventChildType": "END",
         "h": 60,
         "next": ""
@@ -5883,8 +6682,8 @@
       },
       {
         "id": "1t3hfsch02j",
-        "x": 1563,
-        "y": 589.5,
+        "x": 1572,
+        "y": 544.5,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "He flashes a malefic grin, and the the two men begin to menacingly approach.",
@@ -6951,7 +7750,7 @@
       {
         "id": "9npvojkx47j",
         "x": 221,
-        "y": 165.75,
+        "y": 166,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "",
@@ -6962,7 +7761,7 @@
       {
         "id": "wz8hhxr99r",
         "x": 298,
-        "y": 813.25,
+        "y": 813,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"What are you doing in my office?\"",
@@ -6973,7 +7772,7 @@
       {
         "id": "bf069w45r3l",
         "x": 302,
-        "y": 727.25,
+        "y": 727,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Did you need something?\"",
@@ -6984,7 +7783,7 @@
       {
         "id": "jh5dxgbo688",
         "x": 296,
-        "y": 636.25,
+        "y": 636,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"It's good to see you again.  How can I assist?\"",
@@ -6995,7 +7794,7 @@
       {
         "id": "nczvtjxn5ep",
         "x": 1068,
-        "y": 148.5,
+        "y": 149,
         "eventChildType": "CHOICE",
         "h": 156,
         "text": "",
@@ -7045,7 +7844,7 @@
       {
         "id": "723ke623qq",
         "x": 1534,
-        "y": 426.5,
+        "y": 427,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"Oh I apologize.  I thought you were one of my soldiers.  I see now that you clearly are not.  Can I do something for you?\"",
@@ -7056,7 +7855,7 @@
       {
         "id": "4gy09zpyk9u",
         "x": 1532,
-        "y": 529.5,
+        "y": 530,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Of course.  I assume you have some interest in the good of Alinea.  What can I do for you?\"",
@@ -7067,7 +7866,7 @@
       {
         "id": "m0gsic3edt",
         "x": 1530,
-        "y": 255.5,
+        "y": 256,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"And who exactly are you?  I see not that you're not a soldier, so I apologize for the supposition.  I am Lieutenant Mullen of the Realm.  Can I assist you?\"",
@@ -7078,7 +7877,7 @@
       {
         "id": "02nzgxo584j",
         "x": 751,
-        "y": 1196.5,
+        "y": 1197,
         "eventChildType": "CHOICE",
         "h": 156,
         "text": "",
@@ -7128,7 +7927,7 @@
       {
         "id": "suasrj15xve",
         "x": 297,
-        "y": 278.5,
+        "y": 279,
         "eventChildType": "SWITCH",
         "h": 156,
         "cases": [
@@ -7154,7 +7953,7 @@
       {
         "id": "q3gzeznv1n",
         "x": 1496,
-        "y": 1048.5,
+        "y": 1049,
         "eventChildType": "CHOICE",
         "h": 204,
         "text": "",
@@ -7225,10 +8024,10 @@
       {
         "id": "4kwcvu4yj04",
         "x": 2310,
-        "y": 608.5,
+        "y": 609,
         "eventChildType": "EXEC",
-        "h": 186,
-        "p": "\"Alinea is the only port on the northern side of the the Island.  There are settlements further into the region, but they are only easily accessible via two trails.  One to the north, and one to the east.\"\n\n\"The Blackrose Estate has brought a corps of mercenaries to camp out on the eastern road, and they are preventing anyone with so much as a one-donkey cart from passing through.  This has left many unhappy merchants and travelers to fester in the streets of Alinea.\"",
+        "h": 214,
+        "p": "\"Alinea is the only port on the northern side of the the Island.  There are settlements further into the region, but they are only easily accessible via two trails.  One to the north, and one to the east.\"\n\nHe grimaces.\n\n\"The Blackrose Estate has brought a corps of mercenaries to camp out on the eastern road, and they are preventing anyone with so much as a one-donkey cart from passing through.  This has left many unhappy merchants and travelers to fester in the streets of Alinea.\"",
         "execStr": "",
         "next": "q3gzeznv1n",
         "autoAdvance": true
@@ -7236,10 +8035,10 @@
       {
         "id": "g65w5duna6f",
         "x": 1501,
-        "y": 912.5,
+        "y": 913,
         "eventChildType": "EXEC",
         "h": 112,
-        "p": "\"Times are tough.  My forces are stretched thin keeping order in this town as the Blackrose blockade continues to exist.\"",
+        "p": "\"Times are tough.  My forces are stretched thin keeping order as the Blackrose blockade continues to bear down on us.\"",
         "execStr": "SET_BOOL(@EXPOSITION_ALINEA_REALM_KNOWN)\nSET_BOOL(@EXPOSITION_ALINEA_BLOCKADE_KNOWN)",
         "next": "q3gzeznv1n",
         "autoAdvance": true
@@ -7247,7 +8046,7 @@
       {
         "id": "5zy0f2llyr7",
         "x": 2307,
-        "y": 832.5,
+        "y": 833,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"Greed.  The Blackrose wants to own Alinea.  It's a strategic port on the north side of the Island.  They don't have the military force to take the town right now, so they're trying to starve us out.\"",
@@ -7258,7 +8057,7 @@
       {
         "id": "60p8o1tmzl4",
         "x": 2299,
-        "y": 964.5,
+        "y": 965,
         "eventChildType": "EXEC",
         "h": 182,
         "p": "\"The Blackrose Estate is a powerful noble family that is always causing trouble on the Island. They are not loyal to the Empress, but due to their immense wealth, they buy allegiance from desperate ne'er-do-wells.\"\n\n\"There are more members of the Blackrose family than I can count.  And they all seem to be out here on the Island in some shape or another.\"",
@@ -7268,8 +8067,8 @@
       },
       {
         "id": "30snuhmfbew",
-        "x": 2300.333333333333,
-        "y": 1178.8333333333333,
+        "x": 2300,
+        "y": 1179,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"Rest assured, the Realm is doing everything it can to alleviate the blockade.  But Aldebeth Blackrose is being stubborn.\"",
@@ -7280,7 +8079,7 @@
       {
         "id": "hz4fd9c0nnp",
         "x": 2195,
-        "y": 1584.5,
+        "y": 1585,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"She's in charge of the Blackrose contingent of the blockade.  Stubborn woman.  She has refused all my offers to talk.\"",
@@ -7438,8 +8237,8 @@
       },
       {
         "id": "4ibu1so4s6h",
-        "x": 2934.000000000001,
-        "y": 1980.666666666667,
+        "x": 2934,
+        "y": 1981,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"The Empress may not be here, but her command lives through us in the Realm.\"",
@@ -7449,8 +8248,8 @@
       },
       {
         "id": "xfjnddl2ah",
-        "x": 2946.000000000001,
-        "y": 2075.666666666667,
+        "x": 2946,
+        "y": 2076,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"No opinion?  You can't remain neutral forever.  Sooner or later you'll need to pick a side.\"",
@@ -7460,16 +8259,16 @@
       },
       {
         "id": "sgei06aepbm",
-        "x": 836.3333333333348,
-        "y": 1374.3333333333335,
+        "x": 836,
+        "y": 1374,
         "eventChildType": "END",
         "h": 60,
         "next": ""
       },
       {
         "id": "s7ywnpkp6se",
-        "x": 1301.3333333333348,
-        "y": 2346.333333333334,
+        "x": 1301,
+        "y": 2346,
         "eventChildType": "SWITCH",
         "h": 84,
         "cases": [
@@ -7482,8 +8281,8 @@
       },
       {
         "id": "tj1b8h4uejr",
-        "x": 1665.0000000000018,
-        "y": 2282.833333333334,
+        "x": 1665,
+        "y": 2283,
         "eventChildType": "EXEC",
         "h": 102,
         "p": "You explain to Mullen about how you arrived to Alinea on a vessel and that you are stranded.\n\n\"You have my sympathies, but I am in no position to do anything for you right now.  Not directly, at least.\"",
@@ -7493,8 +8292,8 @@
       },
       {
         "id": "w7ab5rdd8x",
-        "x": 1648.0000000000018,
-        "y": 2423.833333333334,
+        "x": 1648,
+        "y": 2424,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"What about it?\"",
@@ -7504,8 +8303,8 @@
       },
       {
         "id": "byya0d4vs2n",
-        "x": 2046.0000000000018,
-        "y": 2367.833333333334,
+        "x": 2046,
+        "y": 2368,
         "eventChildType": "CHOICE",
         "h": 156,
         "text": "",
@@ -7554,8 +8353,8 @@
       },
       {
         "id": "dmvfhihzmeu",
-        "x": 2533.000000000002,
-        "y": 2305.833333333334,
+        "x": 2533,
+        "y": 2306,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"Not sure.  Ask around.  If anybody takes you up on that, it won't be cheap.  The trip out here, as you well know, is quite long.\"",
@@ -7565,8 +8364,8 @@
       },
       {
         "id": "9jcqdr4fb77",
-        "x": 2534.000000000002,
-        "y": 2387.833333333334,
+        "x": 2534,
+        "y": 2388,
         "eventChildType": "EXEC",
         "h": 158,
         "p": "\"The Realm teaches its soldiers to always have an objective and to make due with what they have.  You're here now, whether you want to be or not.  You could settle down, get a job, or you could figure out a way to get back where you came from.  Either way, it's something to strive towards.\"\n\nHe grimaces, looking past you.  \"We all have our own problems.\"",
@@ -7576,8 +8375,8 @@
       },
       {
         "id": "lzka77n954d",
-        "x": 2542.000000000002,
-        "y": 2559.833333333334,
+        "x": 2542,
+        "y": 2560,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"The number \"9\"?  No.  Not particularly.\"",
@@ -7588,7 +8387,7 @@
       {
         "id": "ldxyhdqz7a",
         "x": 695,
-        "y": 134.5,
+        "y": 135,
         "eventChildType": "EXEC",
         "h": 242,
         "p": "A slumped man in a green military uniform sits behind a sturdy desk. His head rests in his palm as he reads a scroll, his tired eyes tracking back and forth.  The suit of armor on the rack behind him is dusty and unused, as is the saber mounted above it.  A little metal nameplate at the front of his desk has 'Lieutenant Mullen' etched into it.  It takes a moment before he looks up and acknowledges you.\n\n\"Pardon me. I was lost in reading.  It's been a rough time lately.  Did you have something to report?\"\n\nIt's happening again.  That uncomfortable madness.  Pieces of you are all competing to speak in their own way, and you aren't sure which one is the real you.",
@@ -7612,11 +8411,11 @@
         "x": 2336,
         "y": 2226,
         "eventChildType": "EXEC",
-        "h": 60,
-        "p": "\"I have lots of problems, most involving this town, Alinea.\"  He sighs.",
+        "h": 88,
+        "p": "\"I have lots of problems, most involving this town, Alinea.\"\n\nHe sighs.",
         "execStr": "",
         "next": "g65w5duna6f",
-        "autoAdvance": true
+        "autoAdvance": false
       },
       {
         "id": "ukt2yyw8y09",
@@ -7631,7 +8430,7 @@
       },
       {
         "id": "tp2gwe1a3u",
-        "x": 3027.2,
+        "x": 3027,
         "y": 476,
         "eventChildType": "SWITCH",
         "h": 180,
@@ -7661,8 +8460,8 @@
       },
       {
         "id": "rn9s6qmqy1",
-        "x": 3431.666666666667,
-        "y": 108.83333333333348,
+        "x": 3432,
+        "y": 109,
         "eventChildType": "EXEC",
         "h": 182,
         "p": "\"Looking to help the Realm out?\"  He considers for a moment.  \"I could use a new recruit.\"\n\nHe reaches into a drawer and grabs a scroll, wrapped in twine.  \"The Realm has a small outpost to the north that I haven't had correspondence with for some time.  If you want to be useful, take this message to them, and report back.\"",
@@ -7673,7 +8472,7 @@
       {
         "id": "odhow8ylm4k",
         "x": 3432,
-        "y": 305.5,
+        "y": 306,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"I still need you to deliver that note to the Realm outpost north of Alinea.\"",
@@ -7684,15 +8483,15 @@
       {
         "id": "nmqy5ll4bmk",
         "x": 2947,
-        "y": 350.5,
+        "y": 351,
         "eventChildType": "COMMENT",
         "h": 54,
         "comment": "Quest logic. AlineaRealm"
       },
       {
         "id": "wlkmmeevhf",
-        "x": 4578.4,
-        "y": 1166.6999999999998,
+        "x": 4578,
+        "y": 1167,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "He clasps his hands on the desk.  \"What else do you need?\"",
@@ -7702,8 +8501,8 @@
       },
       {
         "id": "qv47yoz5fdo",
-        "x": 3801.333333333333,
-        "y": 149.16666666666697,
+        "x": 3801,
+        "y": 149,
         "eventChildType": "CHOICE",
         "h": 132,
         "text": "",
@@ -7744,8 +8543,8 @@
       },
       {
         "id": "uk6zs7g1vv",
-        "x": 4181.333333333333,
-        "y": 111.16666666666697,
+        "x": 4181,
+        "y": 111,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"Just follow the road north.  The outpost overlooks a bridge that leads to Boramark in the north.  Don't worry about the blockade, they don't care about travelers going north, only east.\"",
@@ -7755,8 +8554,8 @@
       },
       {
         "id": "yewkq3cwyxs",
-        "x": 4178.333333333333,
-        "y": 221.16666666666697,
+        "x": 4178,
+        "y": 221,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"I haven't been able to spare a patrol to send their way for a while, and I assume they're in the same boat.\"",
@@ -7766,8 +8565,8 @@
       },
       {
         "id": "f88awnet5lk",
-        "x": 3448.333333333333,
-        "y": 535.166666666667,
+        "x": 3448,
+        "y": 535,
         "eventChildType": "EXEC",
         "h": 168,
         "p": "You report what happened at the outpost.  Mullen looks alarmed.  \"They were taken over by a band of ruffians?  Has their training really failed them so hard...?\"  He becomes lost in thought for a moment, then he suddenly breaks out of it.  \"Right, your pay.\"  He rummages around in a drawer, produces a small pouch, and pushes it towards you.",
@@ -7777,8 +8576,8 @@
       },
       {
         "id": "x4vbye8013a",
-        "x": 4172.333333333333,
-        "y": 314.16666666666697,
+        "x": 4172,
+        "y": 314,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Of course.  The standard recruit's wage of @QUEST_REWARD_COINS1 coins.\"",
@@ -7788,8 +8587,8 @@
       },
       {
         "id": "ckyjlmqcgp8",
-        "x": 3778.333333333333,
-        "y": 572.166666666667,
+        "x": 3778,
+        "y": 572,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Are you interested in more work?  I have something for you to do.\"",
@@ -7799,8 +8598,8 @@
       },
       {
         "id": "mczw3flo5u",
-        "x": 4126.333333333333,
-        "y": 570.166666666667,
+        "x": 4126,
+        "y": 570,
         "eventChildType": "CHOICE",
         "h": 84,
         "text": "",
@@ -7825,8 +8624,8 @@
       },
       {
         "id": "g8h0i1jgez9",
-        "x": 4462.333333333333,
-        "y": 613.4333333333328,
+        "x": 4462,
+        "y": 613,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Right,\" he says.  \"You're busy.  The offer is still there, should you come back.\"",
@@ -7836,8 +8635,8 @@
       },
       {
         "id": "izndw6xn4um",
-        "x": 4460.75,
-        "y": 550.9999999999991,
+        "x": 4461,
+        "y": 551,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Good.\"",
@@ -7847,8 +8646,8 @@
       },
       {
         "id": "2vy4h63dv6c",
-        "x": 3433.2,
-        "y": 731.5,
+        "x": 3433,
+        "y": 732,
         "eventChildType": "EXEC",
         "h": 102,
         "p": "\"Since you are not 'officially' affiliated with the Realm, I'm wondering if you can be a valuable liaison for me in regards to the Blackrose blockade.  I'm thinking: perhaps I can send you to their encampment and expect you to come back more or less in one piece.\"",
@@ -7858,8 +8657,8 @@
       },
       {
         "id": "dw93la3xivj",
-        "x": 3793.3999999999996,
-        "y": 715.7,
+        "x": 3793,
+        "y": 716,
         "eventChildType": "CHOICE",
         "h": 160,
         "text": "Your mind stirs.",
@@ -7900,8 +8699,8 @@
       },
       {
         "id": "j022d29a38s",
-        "x": 4168.866666666668,
-        "y": 727.3000000000001,
+        "x": 4169,
+        "y": 727,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Great!  I like the enthusiasm.\"",
@@ -7911,8 +8710,8 @@
       },
       {
         "id": "vww07o4pjuq",
-        "x": 4164.0666666666675,
-        "y": 786.5,
+        "x": 4164,
+        "y": 787,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Of course it's dangerous.  And of course I would compensate you fairly for the risk.\"",
@@ -7922,8 +8721,8 @@
       },
       {
         "id": "9bk39vcqvlb",
-        "x": 4162.466666666666,
-        "y": 864.1,
+        "x": 4162,
+        "y": 864,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"I take it you're willing to try, then...\"",
@@ -7933,8 +8732,8 @@
       },
       {
         "id": "ulcek7hw3qg",
-        "x": 4538.466666666666,
-        "y": 724.1,
+        "x": 4538,
+        "y": 724,
         "eventChildType": "EXEC",
         "h": 210,
         "p": "\"Here's what I need.\"  He pushes another tightly-sealed scroll towards you.  \"It's another message, but this time I need you to bring it to the Blackrose encampment in the east.  They've set up a temporary camp that blocks the road through the mountains.  Bunch of red tents, as my scouts say.  Hard to miss.  They aren't trying to be stealthy.\"\n\nYou pick up the scroll.  It feels somehow, different.  Heavier than it looks, and also... it feels special somehow.",
@@ -7944,8 +8743,8 @@
       },
       {
         "id": "f2yjmy89p2",
-        "x": 5220.866666666669,
-        "y": 754.4999999999999,
+        "x": 5221,
+        "y": 754,
         "eventChildType": "CHOICE",
         "h": 132,
         "text": "",
@@ -7986,8 +8785,8 @@
       },
       {
         "id": "jxr7ylwrodo",
-        "x": 3436.8666666666663,
-        "y": 857.6999999999999,
+        "x": 3437,
+        "y": 858,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"I still need you to deliver my latest message.\"",
@@ -7997,8 +8796,8 @@
       },
       {
         "id": "1ojeiw5o7j4",
-        "x": 4883.800000000001,
-        "y": 765.1666666666664,
+        "x": 4884,
+        "y": 765,
         "eventChildType": "EXEC",
         "h": 102,
         "p": "\"Listen closely.  What I need you to do is to find wherever they eat food in the camp: a mess hall or barracks of some kind.  Put on a yellow-colored hat, and sit down.  Somebody will come to take the message from you.\"",
@@ -8008,8 +8807,8 @@
       },
       {
         "id": "um8ti6kt3kh",
-        "x": 5600.5999999999985,
-        "y": 625.9666666666664,
+        "x": 5601,
+        "y": 626,
         "eventChildType": "EXEC",
         "h": 116,
         "p": "\"I imagine you'll just be able to walk up to it.  They're not interested in travelers, they just want to block trade.  Tell them you want to join them, or better yet, bring them food or something to bribe them with.  However you can figure it out is good, so long as you don't tell them who you're actually working for.\"",
@@ -8019,8 +8818,8 @@
       },
       {
         "id": "v1w4n3xg9kl",
-        "x": 5601.400000000001,
-        "y": 762.7666666666663,
+        "x": 5601,
+        "y": 763,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Trust me, you'll know.  Follow the instructions: it will all work out.\"",
@@ -8030,8 +8829,8 @@
       },
       {
         "id": "wmnesh25mk",
-        "x": 5624.6,
-        "y": 842.4999999999999,
+        "x": 5625,
+        "y": 842,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Yeah.  I'm sure you can find one around here somewhere.\"",
@@ -8041,8 +8840,8 @@
       },
       {
         "id": "ad117ujp9n5",
-        "x": 5620.6,
-        "y": 919.0333333333332,
+        "x": 5621,
+        "y": 919,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Good.\"",
@@ -8052,8 +8851,8 @@
       },
       {
         "id": "cwoi378wfdj",
-        "x": 3027.2,
-        "y": 688.5,
+        "x": 3027,
+        "y": 689,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"I don't have anything for you right now.\"",
@@ -8102,8 +8901,8 @@
       },
       {
         "id": "6tvouqcnicf",
-        "x": 99.25,
-        "y": 153.25,
+        "x": 99,
+        "y": 153,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "",
@@ -8113,8 +8912,8 @@
       },
       {
         "id": "wo9sbzi5p2q",
-        "x": 179.25,
-        "y": 804.75,
+        "x": 179,
+        "y": 805,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"I've got my eye on you.\"",
@@ -8124,8 +8923,8 @@
       },
       {
         "id": "934oal1gn6p",
-        "x": 181.25,
-        "y": 713.75,
+        "x": 181,
+        "y": 714,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Are you interested in my wares?\"",
@@ -8135,8 +8934,8 @@
       },
       {
         "id": "qyutjnjr69",
-        "x": 173.25,
-        "y": 623.75,
+        "x": 173,
+        "y": 624,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Nice to see you.\"",
@@ -8146,7 +8945,7 @@
       },
       {
         "id": "opaskt5iaw",
-        "x": 105.25,
+        "x": 105,
         "y": 306,
         "eventChildType": "SWITCH",
         "h": 156,
@@ -8172,7 +8971,7 @@
       },
       {
         "id": "fnnnt9xtubb",
-        "x": 585.75,
+        "x": 586,
         "y": 140,
         "eventChildType": "EXEC",
         "h": 102,
@@ -8183,7 +8982,7 @@
       },
       {
         "id": "uxitot60di",
-        "x": 894.75,
+        "x": 895,
         "y": 550,
         "eventChildType": "CHOICE",
         "h": 180,
@@ -8241,7 +9040,7 @@
       },
       {
         "id": "dq8xmfefftw",
-        "x": 927.75,
+        "x": 928,
         "y": 873,
         "eventChildType": "END",
         "h": 60,
@@ -8249,8 +9048,8 @@
       },
       {
         "id": "ch2dugzjb5",
-        "x": 1372.5,
-        "y": 451.5,
+        "x": 1373,
+        "y": 452,
         "eventChildType": "EXEC",
         "h": 70,
         "p": "\"Scopey.  Proud member of the Merchantry.\"",
@@ -8260,8 +9059,8 @@
       },
       {
         "id": "6oxqvx13uwc",
-        "x": 1371.5,
-        "y": 543.5,
+        "x": 1372,
+        "y": 544,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"At the moment, yes.  I've got to make do with current circumstances.  I'm sure you've heard about the blockade.  When that's been resolved I'll pack all this up and head east.\"",
@@ -8271,8 +9070,8 @@
       },
       {
         "id": "1ogwvyt56tf",
-        "x": 1372.5,
-        "y": 655.5,
+        "x": 1373,
+        "y": 656,
         "eventChildType": "EXEC",
         "h": 126,
         "p": "\"A collection of us merchants decided to band together to watch each others backs.  Out here on the Island, you need all the allies you can get, especially with the nobility and Realm always throwing their weight around.\"",
@@ -8282,8 +9081,8 @@
       },
       {
         "id": "v1arzdguc9",
-        "x": 1747.5,
-        "y": 696.5,
+        "x": 1748,
+        "y": 697,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"If you've got a letter of acceptance into the Merchantry, you can bet we'll take good care of you.\"",
@@ -8293,8 +9092,8 @@
       },
       {
         "id": "wpysbeh28dd",
-        "x": 1361.5,
-        "y": 919.5,
+        "x": 1362,
+        "y": 920,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Thanks for browsing.\"",
@@ -8304,8 +9103,8 @@
       },
       {
         "id": "aivbwk9kt6n",
-        "x": 1368.5,
-        "y": 820.5,
+        "x": 1369,
+        "y": 821,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Of course I do.  You want to know something in particular?\"",
@@ -8315,8 +9114,8 @@
       },
       {
         "id": "xai3chfzls",
-        "x": 1785.5,
-        "y": 1248.5,
+        "x": 1786,
+        "y": 1249,
         "eventChildType": "CHOICE",
         "h": 204,
         "text": "",
@@ -8381,8 +9180,8 @@
       },
       {
         "id": "u54mnflona",
-        "x": 2305.166666666667,
-        "y": 968.5,
+        "x": 2305,
+        "y": 969,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"Soon, I hope.  I won't have these wares forever.  Of course if it doesn't end soon, I'll cut ties and and leave with Elvyosa.  She owes me that much at least.\"",
@@ -8392,8 +9191,8 @@
       },
       {
         "id": "fi2ytx9ir16",
-        "x": 2314.166666666667,
-        "y": 1092.5,
+        "x": 2314,
+        "y": 1093,
         "eventChildType": "EXEC",
         "h": 98,
         "p": "\"Another fellow Merchantry member.  She's a ship captain of one of the sloops out their on the docks.  Though she's stuck until the Realm lets her leave.\"",
@@ -8403,8 +9202,8 @@
       },
       {
         "id": "gy55tbp48k5",
-        "x": 2319.166666666667,
-        "y": 1200.5,
+        "x": 2319,
+        "y": 1201,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"It's best if you asked her yourself.  Though, tell her I sent you!\"",
@@ -8414,8 +9213,8 @@
       },
       {
         "id": "vuakk7db5ph",
-        "x": 2322.5,
-        "y": 1272.5,
+        "x": 2323,
+        "y": 1273,
         "eventChildType": "EXEC",
         "h": 102,
         "p": "\"I don't have anything against them normally.  In fact, I sell goods to them all the time.  But this whole blockade is bad for business and causing the Merchantry some real issues, so they're not particularly on my good side.\"",
@@ -8425,8 +9224,8 @@
       },
       {
         "id": "8og5n99vpj",
-        "x": 2330.5,
-        "y": 1388.5,
+        "x": 2331,
+        "y": 1389,
         "eventChildType": "EXEC",
         "h": 102,
         "p": "\"They're a group of annoying bureaucrats who think the Empress from the Mainland will eventually pay attention to the Island.  I don't deal with them directly myself, by my fellows of the Merchantry do often.  They are, unfortunately, a necessary annoyance.\"",
@@ -8436,8 +9235,8 @@
       },
       {
         "id": "6r5m7r8ybid",
-        "x": 2338.5,
-        "y": 1523.5,
+        "x": 2339,
+        "y": 1524,
         "eventChildType": "EXEC",
         "h": 116,
         "p": "\"Because without them, this whole place would be decorated in Blackrose red.  As pitiful as their reason is for supporting the Mainland, the Realm still has a bast amount of resources they can throw around.  They keep the power struggle balanced, and as such, keep the Island profitable.\"",
@@ -8543,8 +9342,8 @@
       },
       {
         "id": "yq3txf8chx",
-        "x": 132.25,
-        "y": 164.25,
+        "x": 132,
+        "y": 164,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "",
@@ -8554,8 +9353,8 @@
       },
       {
         "id": "ttowcx9osu",
-        "x": 412.25,
-        "y": 593.75,
+        "x": 412,
+        "y": 594,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Yes?  You need something?\"",
@@ -8565,7 +9364,7 @@
       },
       {
         "id": "kje6qc49bs",
-        "x": 270.25,
+        "x": 270,
         "y": 315,
         "eventChildType": "SWITCH",
         "h": 156,
@@ -8591,7 +9390,7 @@
       },
       {
         "id": "vzabsq6hfi",
-        "x": 711.75,
+        "x": 712,
         "y": 220,
         "eventChildType": "EXEC",
         "h": 130,
@@ -8602,7 +9401,7 @@
       },
       {
         "id": "6fg26mbkd7",
-        "x": 1062.75,
+        "x": 1063,
         "y": 406,
         "eventChildType": "CHOICE",
         "h": 132,
@@ -8613,35 +9412,39 @@
             "conditionStr": "",
             "evalStr": "SET_BOOL(vars.@CHARACTER_ID.mentionedOwningWarehouses)",
             "next": "rwvqzj7tqbj",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "You own all these warehouses?",
             "conditionStr": "IS(vars.@CHARACTER_ID.mentionedOwningWarehouses)",
             "evalStr": "",
             "next": "aq8mqlhm3tb",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Let's talk business.",
             "conditionStr": "",
             "evalStr": "SET_BOOL(tmp.mentionedOwningWarehouses)",
             "next": "mwryj6om9om",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Nevermind. (Leave.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "cqwb71yixc",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
       {
         "id": "00ypjsm2g9jm",
         "x": 1704,
-        "y": 127.5,
+        "y": 128,
         "eventChildType": "EXEC",
         "h": 102,
         "p": "\"Lord Shovan-Abivola, at your service.  My wife and I run these these warehouses in Alinea.\"\n\nHe gestures broadly, indicating several of the warehouses around you.",
@@ -8652,7 +9455,7 @@
       {
         "id": "cqwb71yixc",
         "x": 1123,
-        "y": 718.5,
+        "y": 719,
         "eventChildType": "END",
         "h": 60,
         "next": ""
@@ -8660,7 +9463,7 @@
       {
         "id": "rwvqzj7tqbj",
         "x": 1375,
-        "y": 192.5,
+        "y": 193,
         "eventChildType": "SWITCH",
         "h": 84,
         "cases": [
@@ -8674,7 +9477,7 @@
       {
         "id": "9mr6mpuhfw",
         "x": 1704,
-        "y": 259.5,
+        "y": 260,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Lord Shovan-Abivola, at your service.  My wife and I run these these warehouses in Alinea.\"",
@@ -8685,7 +9488,7 @@
       {
         "id": "aq8mqlhm3tb",
         "x": 1615,
-        "y": 364.5,
+        "y": 365,
         "eventChildType": "EXEC",
         "h": 140,
         "p": "\"Yes, warehouses five through eight.  Good investments from the past.  You can see how useful they are.  Well, usually.  With the blockade we have been scrambling to re-organize and re-negotiate perishable and high-risk items.  It's quite a headache, actually.\"",
@@ -8696,7 +9499,7 @@
       {
         "id": "mwryj6om9om",
         "x": 1611,
-        "y": 562.5,
+        "y": 563,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"What do you need?\"",
@@ -8707,7 +9510,7 @@
       {
         "id": "61o5j1ub9pa",
         "x": 1979,
-        "y": 744.5,
+        "y": 745,
         "eventChildType": "CHOICE",
         "h": 204,
         "text": "",
@@ -8717,56 +9520,63 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "lpwhfx455f",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Does the blockade hinder your operations?",
             "conditionStr": "IS(@EXPOSITION_ALINEA_BLOCKADE_KNOWN)",
             "evalStr": "",
             "next": "vsgesbg1n9",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "What do you think of the Blackrose?",
             "conditionStr": "IS(@EXPOSITION_ALINEA_BLACKROSE_KNOWN)",
             "evalStr": "",
             "next": "qvd1cnj67vm",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Are you part of the Merchantry?",
             "conditionStr": "IS(@EXPOSITION_ALINEA_MERCHANTRY_KNOWN)",
             "evalStr": "",
             "next": "5ja6agpqqb3",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "I spoke to Idoreo, he says you've got a package of his in Warehouse Five.",
             "conditionStr": "ALL(ISNOT(@MENTIONED_IDOREO), QUEST_IS_STARTED(@OMNIFLOWER_QUEST))",
             "evalStr": "",
             "next": "m7268eolje",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Let's talk about Idoreo's package.",
             "conditionStr": "ALL(IS(@MENTIONED_IDOREO), QUEST_IS_STARTED(@OMNIFLOWER_QUEST))",
             "evalStr": "",
             "next": "m7268eolje",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "(Go back.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "6fg26mbkd7",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
       {
         "id": "lpwhfx455f",
         "x": 2456,
-        "y": 321.5,
+        "y": 322,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"That depends.  What do you want to store?\"",
@@ -8777,7 +9587,7 @@
       {
         "id": "peg26tybqwi",
         "x": 2859,
-        "y": 326.5,
+        "y": 327,
         "eventChildType": "CHOICE",
         "h": 60,
         "text": "",
@@ -8787,14 +9597,15 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "lvvol1y4abl",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
       {
         "id": "lvvol1y4abl",
         "x": 3215,
-        "y": 335.5,
+        "y": 336,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Right, right.\"",
@@ -8805,15 +9616,15 @@
       {
         "id": "z7n2poqml",
         "x": 2540,
-        "y": 187.16666666666697,
+        "y": 187,
         "eventChildType": "COMMENT",
         "h": 72,
         "comment": "TODO: Allow storage of important items.  If Blackrose takes over town, these items will remain in storage."
       },
       {
         "id": "vsgesbg1n9",
-        "x": 2461.3333333333335,
-        "y": 538.5,
+        "x": 2461,
+        "y": 539,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"It's both good and bad.  When travel stagnates, so does what we store.  That means profits as we sell space for longer than clients had first anticipated, but other more perishable items do cause us trouble.\"",
@@ -8823,8 +9634,8 @@
       },
       {
         "id": "qvd1cnj67vm",
-        "x": 2469.3333333333335,
-        "y": 664.5,
+        "x": 2469,
+        "y": 665,
         "eventChildType": "EXEC",
         "h": 102,
         "p": "\"Our families go way back from the Mainland.  I deal with them all the time.  Obviously they aren't popular around Alinea nowadays, but I'd never turn down a paying customer, especially one I consider close to family.\"",
@@ -8846,7 +9657,7 @@
       {
         "id": "fgzmh5jdf6",
         "x": 2757,
-        "y": 916.5,
+        "y": 917,
         "eventChildType": "EXEC",
         "h": 84,
         "p": "\"That I do.  Special request from the Realm.  Why do you care?\"",
@@ -8857,7 +9668,7 @@
       {
         "id": "0yotrmk2iayq",
         "x": 3227,
-        "y": 1057.5,
+        "y": 1058,
         "eventChildType": "CHOICE",
         "h": 108,
         "text": "",
@@ -8867,28 +9678,31 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "f7zuuu7u1p6",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Any chance I could see it?",
             "conditionStr": "ONCE(@CHARACTER_ID_askedToSeeIdoreoBox)",
             "evalStr": "",
             "next": "vm627j0s9xc",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Let's talk about something else.",
             "conditionStr": "",
             "evalStr": "",
             "next": "61o5j1ub9pa",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
       {
         "id": "m7268eolje",
         "x": 2401,
-        "y": 911.5,
+        "y": 912,
         "eventChildType": "SWITCH",
         "h": 84,
         "cases": [
@@ -8902,7 +9716,7 @@
       {
         "id": "gwhsj2hwu5",
         "x": 2755,
-        "y": 1019.5,
+        "y": 1020,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"This again?\"",
@@ -8913,7 +9727,7 @@
       {
         "id": "3fvcb5jq1o6",
         "x": 493,
-        "y": 51.5,
+        "y": 52,
         "eventChildType": "COMMENT",
         "h": 54,
         "comment": "Debug: START_QUEST(alinea_omniflowerHeist)"
@@ -8921,7 +9735,7 @@
       {
         "id": "f7zuuu7u1p6",
         "x": 3682,
-        "y": 922.5,
+        "y": 923,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"Of course he did.  He's been asking everybody to do that since the damn thing got put in there.  My advice?  Don't talk to him anymore.  He's trouble.  Forget this whole business.\"",
@@ -8932,7 +9746,7 @@
       {
         "id": "vm627j0s9xc",
         "x": 3688,
-        "y": 1096.5,
+        "y": 1097,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"No, why would I let you do that?\"",
@@ -8943,7 +9757,7 @@
       {
         "id": "9fm4sc1zag",
         "x": 4076,
-        "y": 998.5,
+        "y": 999,
         "eventChildType": "CHOICE",
         "h": 156,
         "text": "",
@@ -8953,42 +9767,47 @@
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_REAPER, 1)",
             "next": "rz9mmp4t3j",
-            "prefixText": "[REAPER]"
+            "prefixText": "[REAPER]",
+            "switchText": []
           },
           {
             "text": "Pretty please?",
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1)",
             "next": "zzkztfq3mot",
-            "prefixText": "[DRYAD]"
+            "prefixText": "[DRYAD]",
+            "switchText": []
           },
           {
             "text": "Because I asked.  You would do well to listen.",
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
             "next": "oq374kewvl",
-            "prefixText": "[DRAGON]"
+            "prefixText": "[DRAGON]",
+            "switchText": []
           },
           {
             "text": "Because I'd just go find it on my own anyway.",
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
             "next": "sym1b6a0xoc",
-            "prefixText": "[FAE]"
+            "prefixText": "[FAE]",
+            "switchText": []
           },
           {
             "text": "Nevermind, I don't care all that much anyway.",
             "conditionStr": "",
             "evalStr": "",
             "next": "2l0xgs6o6eb",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
       {
         "id": "rz9mmp4t3j",
         "x": 4484,
-        "y": 894.5,
+        "y": 895,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"And what exactly do you mean by that?\"",
@@ -8999,7 +9818,7 @@
       {
         "id": "3unllmddd8q",
         "x": 4866,
-        "y": 903.5,
+        "y": 904,
         "eventChildType": "CHOICE",
         "h": 84,
         "text": "",
@@ -9009,21 +9828,23 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "0wv9tcoohgo",
-            "prefixText": "[REAPER]"
+            "prefixText": "[REAPER]",
+            "switchText": []
           },
           {
             "text": "Nothing in particular.  I'd just hate to see things turn violent.",
             "conditionStr": "",
             "evalStr": "",
             "next": "3sx754vms0i",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           }
         ]
       },
       {
         "id": "zzkztfq3mot",
         "x": 4488,
-        "y": 980.5,
+        "y": 981,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Please, be serious.\"",
@@ -9034,7 +9855,7 @@
       {
         "id": "3sx754vms0i",
         "x": 5237,
-        "y": 965.5,
+        "y": 966,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"I see.  Well if it comes to that, I have plenty of hired muscle to maintain mine and my warehouse's safety.  So... no.  You cannot see it.\"",
@@ -9044,8 +9865,8 @@
       },
       {
         "id": "oq374kewvl",
-        "x": 4496.333333333334,
-        "y": 1064.5,
+        "x": 4496,
+        "y": 1065,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"You'd make a great noble, I'll give you that.  But I don't know you or your family, and you aren't my friend.  So the answer is no.",
@@ -9055,8 +9876,8 @@
       },
       {
         "id": "sym1b6a0xoc",
-        "x": 4497.333333333333,
-        "y": 1166.8333333333333,
+        "x": 4497,
+        "y": 1167,
         "eventChildType": "EXEC",
         "h": 84,
         "p": "\"If you try I'll just have to ask my guards to arrest you and turn you over to the Realm.\"",
@@ -9066,8 +9887,8 @@
       },
       {
         "id": "2l0xgs6o6eb",
-        "x": 4068.333333333333,
-        "y": 1240.166666666667,
+        "x": 4068,
+        "y": 1240,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Good.  Any more of this foolishness?\"",
@@ -9077,8 +9898,8 @@
       },
       {
         "id": "0wv9tcoohgo",
-        "x": 5216.333333333333,
-        "y": 727.166666666667,
+        "x": 5216,
+        "y": 727,
         "eventChildType": "EXEC",
         "h": 112,
         "p": "\"I'm going to have to ask you to leave.\"\n\nHe makes a motion with his hand, and a pair of guards approach you.  They pull out their weapons.",
@@ -9088,16 +9909,16 @@
       },
       {
         "id": "hh8017glg4",
-        "x": 6078.333333333333,
-        "y": 712.166666666667,
+        "x": 6078,
+        "y": 712,
         "eventChildType": "END",
         "h": 60,
         "next": ""
       },
       {
         "id": "d6top1u5zx",
-        "x": 5577.333333333333,
-        "y": 708.166666666667,
+        "x": 5577,
+        "y": 708,
         "eventChildType": "CHOICE",
         "h": 84,
         "text": "",
@@ -9107,21 +9928,23 @@
             "conditionStr": "",
             "evalStr": "",
             "next": "hh8017glg4",
-            "prefixText": ""
+            "prefixText": "",
+            "switchText": []
           },
           {
             "text": "Let there be violence!",
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_REAPER, 1)",
             "next": "hh8017glg4",
-            "prefixText": "[REAPER]"
+            "prefixText": "[REAPER]",
+            "switchText": []
           }
         ]
       },
       {
         "id": "zyqgbo9pg9s",
-        "x": 5741.333333333333,
-        "y": 576.166666666667,
+        "x": 5741,
+        "y": 576,
         "eventChildType": "COMMENT",
         "h": 54,
         "comment": "TODO: Teleport outside if peaceful, start fight if not."
@@ -9596,8 +10419,8 @@
       },
       {
         "id": "0bvsks8287x",
-        "x": 155.25,
-        "y": 126.25,
+        "x": 155,
+        "y": 126,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "",
@@ -9607,8 +10430,8 @@
       },
       {
         "id": "ykxfg72ygx",
-        "x": 443.25,
-        "y": 592.75,
+        "x": 443,
+        "y": 593,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"You have returned, I see.\"",
@@ -9618,7 +10441,7 @@
       },
       {
         "id": "piyqbug0ldq",
-        "x": 301.25,
+        "x": 301,
         "y": 314,
         "eventChildType": "SWITCH",
         "h": 156,
@@ -9644,37 +10467,61 @@
       },
       {
         "id": "vmnlpamaht",
-        "x": 742.75,
+        "x": 743,
         "y": 219,
         "eventChildType": "EXEC",
-        "h": 88,
-        "p": "This man is staring out at the ocean unflinchingly.  He wears a peculiar purple robe, tattered at the fringes, and his hood is pulled up enough to obscure most of his face.",
+        "h": 116,
+        "p": "This man is staring unblinkingly out at the ocean.  He wears a peculiar purple robe, tattered at the fringes, and his hood is pulled up enough to obscure most of his face.  He speaks without turning to look at you.\n\n\"A new soul to this place.  A different one.\"",
         "execStr": "",
         "next": "68790kznt8e",
         "autoAdvance": true
       },
       {
         "id": "68790kznt8e",
-        "x": 1078.75,
-        "y": 470,
+        "x": 1086,
+        "y": 343,
         "eventChildType": "CHOICE",
-        "h": 108,
+        "h": 180,
         "text": "",
         "choices": [
           {
-            "text": "What's your name?",
+            "text": "How do you know I'm new here?",
             "conditionStr": "",
-            "evalStr": "",
-            "next": "gat41xkmwp9",
+            "evalStr": "SET_BOOL(tmp.saidIsInteresting)",
+            "next": "ipjtwxcx2a",
             "prefixText": "",
             "switchText": []
           },
           {
-            "text": "What are you doing over here?",
+            "text": "I'm interesting?",
+            "conditionStr": "IS(tmp.saidIsInteresting)",
+            "evalStr": "SET_BOOL(tmp.saidIsInteresting2)",
+            "next": "iz8k848gh4s",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Hey, I don't want you watching me!",
+            "conditionStr": "IS(tmp.saidIsInteresting2)",
+            "evalStr": "",
+            "next": "43n4nwj1rwb",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "What are you doing down here looking out at the ocean?",
             "conditionStr": "",
             "evalStr": "",
             "next": "v8f5ixx6iz",
             "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Hey... so like... what's your deal?  Are you just acting mysterious 'cuz it's cool?",
+            "conditionStr": "ALL(IS(tmp.saidIsInteresting2),ONCE(XQ3Vc7bLWB))",
+            "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
+            "next": "o6djzijf7td",
+            "prefixText": "[FAE]",
             "switchText": []
           },
           {
@@ -9689,27 +10536,16 @@
       },
       {
         "id": "plz3kmgwvbp",
-        "x": 1536.75,
-        "y": 1031,
+        "x": 1629,
+        "y": 2347,
         "eventChildType": "END",
         "h": 60,
         "next": ""
       },
       {
-        "id": "gat41xkmwp9",
-        "x": 1537,
-        "y": 357.5,
-        "eventChildType": "EXEC",
-        "h": 50,
-        "p": "\"Ah yes.  I suppose... you could call me Sol.\"",
-        "execStr": "",
-        "next": "68790kznt8e",
-        "autoAdvance": true
-      },
-      {
         "id": "v8f5ixx6iz",
-        "x": 1538,
-        "y": 468.5,
+        "x": 1511,
+        "y": 528,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"I seek those that are worthy of attention.\"",
@@ -9720,24 +10556,16 @@
       {
         "id": "2h86z1ui70b",
         "x": 2292,
-        "y": 420.5,
+        "y": 421,
         "eventChildType": "CHOICE",
         "h": 132,
         "text": "",
         "choices": [
           {
-            "text": "Worthy of what, exactly?",
+            "text": "Um. Worthy of what, exactly?",
             "conditionStr": "",
             "evalStr": "",
             "next": "4m43o16166a",
-            "prefixText": "",
-            "switchText": []
-          },
-          {
-            "text": "And they come from the ocean?",
-            "conditionStr": "",
-            "evalStr": "",
-            "next": "p28knyfh7hg",
             "prefixText": "",
             "switchText": []
           },
@@ -9750,8 +10578,16 @@
             "switchText": []
           },
           {
+            "text": "And they come from the ocean?  Personally, I'm not a fan.",
+            "conditionStr": "ONCE(tvRBvQxkx7)",
+            "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
+            "next": "p28knyfh7hg",
+            "prefixText": "[FAE]",
+            "switchText": []
+          },
+          {
             "text": "I am worthy of attention.",
-            "conditionStr": "ONCE(vars.ch.@CHARACTER_ID.dragon1)",
+            "conditionStr": "ONCE(SkQWqbOfb1)",
             "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
             "next": "fjf56k1lych",
             "prefixText": "[DRAGON]",
@@ -9762,7 +10598,7 @@
       {
         "id": "p28knyfh7hg",
         "x": 2692,
-        "y": 412.5,
+        "y": 413,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Of course.  Those who are already on the Island have proven to be insufficient.\"",
@@ -9773,7 +10609,7 @@
       {
         "id": "fjf56k1lych",
         "x": 2701,
-        "y": 506.5,
+        "y": 507,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "He gives you a pointed look-over.\n\n\"Perhaps.  I will know more as time passes.\"",
@@ -9784,7 +10620,7 @@
       {
         "id": "eu8vxkgew8m",
         "x": 1924,
-        "y": 430.5,
+        "y": 431,
         "eventChildType": "SWITCH",
         "h": 84,
         "cases": [
@@ -9798,7 +10634,7 @@
       {
         "id": "4m43o16166a",
         "x": 2692,
-        "y": 313.5,
+        "y": 314,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Attention.\"",
@@ -9808,58 +10644,50 @@
       },
       {
         "id": "ya3no0kdh1",
-        "x": 1218,
-        "y": 646.5,
+        "x": 991,
+        "y": 1153,
         "eventChildType": "SWITCH",
         "h": 84,
         "cases": [
           {
             "conditionStr": "ONCE(vars.@CHARACTER_ID.solWarning)",
-            "next": "907wfoq58p9"
+            "next": "n5clsxtstjd"
           }
         ],
         "defaultNext": "plz3kmgwvbp"
       },
       {
         "id": "907wfoq58p9",
-        "x": 1594,
-        "y": 707.5,
+        "x": 2659,
+        "y": 1326,
         "eventChildType": "EXEC",
-        "h": 74,
-        "p": "\"Before you go, you should know that your actions are being watched, and judged.  You should take care to think before you act.\"",
+        "h": 88,
+        "p": "Abruptly, an intense sensation suddenly overcomes you.  Kill him.  Kill him NOW!  This... creature... is dangerous.  It needs to die.  By your hand.  Immediately.",
         "execStr": "",
         "next": "eqrt7sj7fov",
         "autoAdvance": true
       },
       {
         "id": "eqrt7sj7fov",
-        "x": 1838,
-        "y": 845.5,
+        "x": 3106,
+        "y": 1409,
         "eventChildType": "CHOICE",
-        "h": 108,
+        "h": 84,
         "text": "",
         "choices": [
           {
-            "text": "Okay.",
+            "text": "Draw your weapon and end his pitiful existance.",
             "conditionStr": "",
-            "evalStr": "",
-            "next": "plz3kmgwvbp",
-            "prefixText": "",
-            "switchText": []
-          },
-          {
-            "text": "By who?",
-            "conditionStr": "",
-            "evalStr": "SET_BOOL(tmp.annoyed1)",
+            "evalStr": "MOD_NUM(@ASPECT_REAPER, 1)",
             "next": "a5w1pgzwv7o",
-            "prefixText": "",
+            "prefixText": "[REAPER]",
             "switchText": []
           },
           {
-            "text": "Come on, you have to tell me more than that...",
-            "conditionStr": "IS(tmp.annoyed1)",
+            "text": "(Strain as hard as you can to resist the urge.)",
+            "conditionStr": "",
             "evalStr": "",
-            "next": "5dlzm0mo2tb",
+            "next": "1c5qe5of20t",
             "prefixText": "",
             "switchText": []
           }
@@ -9867,25 +10695,225 @@
       },
       {
         "id": "a5w1pgzwv7o",
-        "x": 2225,
-        "y": 867.5,
+        "x": 3566,
+        "y": 1366,
         "eventChildType": "EXEC",
-        "h": 50,
-        "p": "\"The powers the be.\"",
+        "h": 88,
+        "p": "Quick as a flash you pull out your weapon and plunge it into his chest.  He offers no resistance.  He falls to the ground immediately without any noise, or even a last breath.",
         "execStr": "",
-        "next": "eqrt7sj7fov",
+        "next": "4dk7pxu7qq6",
+        "autoAdvance": false
+      },
+      {
+        "id": "ipjtwxcx2a",
+        "x": 1509,
+        "y": 179,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"It is obvious.  You stand out clearly.  Those in this city would call you a 'Lark'.  I would call you, 'interesting'.\"",
+        "execStr": "",
+        "next": "68790kznt8e",
         "autoAdvance": true
       },
       {
-        "id": "5dlzm0mo2tb",
-        "x": 2216,
-        "y": 957.5,
+        "id": "iz8k848gh4s",
+        "x": 1519,
+        "y": 303,
         "eventChildType": "EXEC",
         "h": 60,
-        "p": "\"You would not understand.  Act and your character will be revealed.  You cannot hide it.\"",
+        "p": "\"Yes.  Touched by something I can't define.  I'll have to observe you more.\"",
         "execStr": "",
-        "next": "eqrt7sj7fov",
+        "next": "68790kznt8e",
         "autoAdvance": true
+      },
+      {
+        "id": "43n4nwj1rwb",
+        "x": 1515,
+        "y": 406,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "He gives an unsettling chuckle.\n\n\"Those on this place who are interesting are always being watched.\"",
+        "execStr": "",
+        "next": "68790kznt8e",
+        "autoAdvance": true
+      },
+      {
+        "id": "o6djzijf7td",
+        "x": 1517,
+        "y": 628,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Although you understand little of what is happening, you may have a part to play yet.\"",
+        "execStr": "",
+        "next": "on9tfy6bnb",
+        "autoAdvance": true
+      },
+      {
+        "id": "on9tfy6bnb",
+        "x": 1917,
+        "y": 709,
+        "eventChildType": "CHOICE",
+        "h": 108,
+        "text": "",
+        "choices": [
+          {
+            "text": "Duh!  Is it that obvious!  I'm wondering what you're all about, mister.",
+            "conditionStr": "",
+            "evalStr": "MOD_NUM(@ASPECT_FAE, 1)",
+            "next": "vhqvf5xb8d",
+            "prefixText": "[FAE]",
+            "switchText": []
+          },
+          {
+            "text": "What is happening?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "gbiiwrgibo",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "I'm not sure what got over me.  Don't worry about it.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "zg6x7u16pr",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "zg6x7u16pr",
+        "x": 2331,
+        "y": 961,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"You would be wise to control your... little ticks.\"",
+        "execStr": "",
+        "next": "68790kznt8e",
+        "autoAdvance": true
+      },
+      {
+        "id": "vhqvf5xb8d",
+        "x": 2357,
+        "y": 689,
+        "eventChildType": "EXEC",
+        "h": 116,
+        "p": "\"If you seek to learn more about me, then proceed on your path.  I will be watching, and I will contact you if I find you worthy of attention.\"\n\nHe pauses for a moment, as if wondering if he wants to tell you something.  Then he continues.",
+        "execStr": "",
+        "next": "d5dx62as6g",
+        "autoAdvance": false
+      },
+      {
+        "id": "j8wdgnv1euc",
+        "x": 3092,
+        "y": 1273,
+        "eventChildType": "COMMENT",
+        "h": 90,
+        "comment": "TODO: logistics of weapon stuff (if not weapon equipped should say something like \"since you have no weapon then you'll have to strangle him.\")"
+      },
+      {
+        "id": "4dk7pxu7qq6",
+        "x": 3958,
+        "y": 1385,
+        "eventChildType": "EXEC",
+        "h": 168,
+        "p": "Then something odd happens.  The body just... disappears.  It fades away in only a few moments with only the sea breeze disturbing the remains.  All that's left is his purple cloak.  You pick it up.\n\nIt doesn't seem like anybody saw your nefarious deed.",
+        "execStr": "ADD_ITEM_TO_PLAYER(MysteriousPurpleCloak)\nSTART_QUEST(que_gen_solCloak)",
+        "next": "plz3kmgwvbp",
+        "autoAdvance": true
+      },
+      {
+        "id": "1c5qe5of20t",
+        "x": 3207,
+        "y": 1707,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "With great effort, you prevent yourself from doing something horrible.  You leave this strange man to his oceanic vigil.",
+        "execStr": "",
+        "next": "plz3kmgwvbp",
+        "autoAdvance": true
+      },
+      {
+        "id": "gbiiwrgibo",
+        "x": 2339,
+        "y": 833,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Events are in motion. You will come to find out soon.\"",
+        "execStr": "",
+        "next": "68790kznt8e",
+        "autoAdvance": true
+      },
+      {
+        "id": "d5dx62as6g",
+        "x": 2735,
+        "y": 706,
+        "eventChildType": "EXEC",
+        "h": 98,
+        "p": "\"I am Sol.  Seek me in places of great potential change.  Alinea is one such place.  Crater Lake is another.\"",
+        "execStr": "START_QUEST(que_gen_solCraterLake)",
+        "next": "68790kznt8e",
+        "autoAdvance": true
+      },
+      {
+        "id": "n5clsxtstjd",
+        "x": 1383,
+        "y": 1203,
+        "eventChildType": "EXEC",
+        "h": 116,
+        "p": "As you turn to go, the man suddenly reaches out and clasps your shoulder.\n\n\"Do not ally yourself too closely with the powers on this Island.  They will soon find out who has the real power here.\"",
+        "execStr": "",
+        "next": "b0ls5bv6na5",
+        "autoAdvance": true
+      },
+      {
+        "id": "b0ls5bv6na5",
+        "x": 1806,
+        "y": 1263,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "Hey!  Get off me!",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "9ky2mfladn8",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "What do you mean by that?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "d4jjy31d46",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "9ky2mfladn8",
+        "x": 2221,
+        "y": 1246,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "You slap away his hand and he drops it limply to his side.  He resumes his vigil as if nothing had happened.",
+        "execStr": "",
+        "next": "907wfoq58p9",
+        "autoAdvance": false
+      },
+      {
+        "id": "d4jjy31d46",
+        "x": 2210,
+        "y": 1360,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "He drops his hand limply to his side, and resumes his vigil as if nothing had happened.",
+        "execStr": "",
+        "next": "907wfoq58p9",
+        "autoAdvance": false
       }
     ]
   },
@@ -10104,6 +11132,84 @@
         "execStr": "",
         "next": "tw5pfpewneo",
         "autoAdvance": false
+      }
+    ]
+  },
+  {
+    "id": "item_useEncampmentCorrespondence",
+    "title": "Realm Correspondence",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "7hjpgr0q2a",
+        "autoAdvance": true
+      },
+      {
+        "id": "7hjpgr0q2a",
+        "x": 145,
+        "y": 120,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "This is a sealed paper note that Lieutenant Mullen of Alinea trusted you to deliver to the Realm encampment that overlooks the river crossing north of Alinea.",
+        "execStr": "",
+        "next": "sz3yfk4pn8",
+        "autoAdvance": true
+      },
+      {
+        "id": "sz3yfk4pn8",
+        "x": 365,
+        "y": 270,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
+    "id": "item_useRealmOutpostCorrespondence",
+    "title": "Realm Correspondence",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "7hjpgr0q2a",
+        "autoAdvance": true
+      },
+      {
+        "id": "7hjpgr0q2a",
+        "x": 160,
+        "y": 136,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "This is a sealed paper note that Lieutenant Mullen of Alinea trusted you to deliver to a Realm outpost north of Alinea.",
+        "execStr": "",
+        "next": "sz3yfk4pn8",
+        "autoAdvance": true
+      },
+      {
+        "id": "sz3yfk4pn8",
+        "x": 365,
+        "y": 270,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
       }
     ]
   },
@@ -10527,7 +11633,7 @@
       {
         "id": "ntgqrp5ea3q",
         "x": 439,
-        "y": 131.5,
+        "y": 132,
         "eventChildType": "END",
         "h": 60,
         "next": ""
@@ -10535,7 +11641,7 @@
       {
         "id": "b042uzxzfc",
         "x": 42,
-        "y": 112.5,
+        "y": 113,
         "eventChildType": "COMMENT",
         "h": 54,
         "comment": "Use this event to include all variables for aspects."
