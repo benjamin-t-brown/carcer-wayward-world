@@ -11,6 +11,7 @@
 #include "model/instances/World.hpp"
 #include "sdl2w/Logger.h"
 #include "state/AbstractAction.hpp"
+#include "actions/general/PlaySound.hpp"
 #include "actions/world/TownEnemyAiAfterPlayerMove.hpp"
 #include "state/State.hpp"
 #include "bmin/String.h"
@@ -134,6 +135,9 @@ class WorldMovePlayer : public AbstractAction {
         game::resolveStepTriggersAt(*destMap, destLocal.x, destLocal.y);
     state->triggers.pendingSpecialEventId = triggerResult.specialEventId;
     state->triggers.pendingTravel = triggerResult.travel;
+    if (triggerResult.specialEventId) {
+      PlaySound("event").execute(state);
+    }
     game::updateActiveMapVisibilityFromPlayer(
         world, state->mapInstances, destX, destY, *database);
     if (!world.combat.active) {

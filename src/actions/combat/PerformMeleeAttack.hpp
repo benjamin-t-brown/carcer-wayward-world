@@ -40,7 +40,6 @@ class PerformMeleeAttack : public AbstractAction {
 
     const auto hit = (std::rand() % 100) < model::COMBAT_HIT_CHANCE_PERCENT;
     if (hit) {
-      insertAction(nullptr, 75);
       insertAction(state::makeAction<PlaySound>("hit_punch1"), 0);
       insertAction(state::makeAction<ModifyHP>(victimId, -model::COMBAT_MELEE_DAMAGE), 0);
       insertAction(state::makeAction<WorldSpawnDamageParticle>("splash_attack",

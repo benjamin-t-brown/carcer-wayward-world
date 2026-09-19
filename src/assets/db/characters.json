@@ -1323,7 +1323,7 @@
       "hp": 12
     },
     "sound": {
-      "deathSoundName": "yell_goblin",
+      "deathSoundName": "yell_monster2",
       "weaponSoundName": "hit_punch3"
     },
     "vision": {

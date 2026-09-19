@@ -7,6 +7,7 @@
 #include "model/instances/World.hpp"
 #include "sdl2w/Logger.h"
 #include "state/AbstractAction.hpp"
+#include "actions/general/PlaySound.hpp"
 #include "actions/world/WorldSetCamera.hpp"
 
 namespace state {
@@ -22,6 +23,7 @@ class EndCombat : public AbstractAction {
 
     auto& world = state->world;
     LOG(INFO) << "EndCombat: ending combat, returning to town mode" << LOG_ENDL;
+    PlaySound("combat_end").execute(state);
     world.combat.active = false;
     world.combat.turnOrderIds.clear();
     world.combat.activeTurnIndex = 0;

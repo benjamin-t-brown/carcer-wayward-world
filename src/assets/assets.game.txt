@@ -246,6 +246,9 @@ Sound,fanfare_town,assets/snd/fanfare_town,1,fl studio
 Sound,fanfare_outpost,assets/snd/fanfare_outpost,1,fl studio
 Sound,fanfare_cave,assets/snd/fanfare_cave,1,https://freesound.org/people/chevyskulls/sounds/505642/
 
+Sound,combat_start,assets/snd/combat_start,1,https://www.zedge.net/notification-sounds/37180b45-48d6-3996-beb3-e3386b9a8ff9
+Sound,combat_end,assets/snd/combat_end,1,https://www.zedge.net/notification-sounds/37180b45-48d6-3996-beb3-e3386b9a8ff9 reversed
+
 Sound,step_gravel1,assets/snd/step_gravel1
 Sound,step_gravel2,assets/snd/step_gravel2
 Sound,step_snow1,assets/snd/step_snow1

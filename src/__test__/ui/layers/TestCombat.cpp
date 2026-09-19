@@ -1,4 +1,7 @@
 #include "../../setupTestUi.hpp"
+#include "actions/combat/StartCombat.hpp"
+#include "actions/world/WorldLoadActiveMap.hpp"
+#include "actions/world/WorldSpawnPlayerAtMarker.hpp"
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
@@ -19,9 +22,6 @@
 #include "state/DatabaseInterface.h"
 #include "state/StateManagerInterface.h"
 #include "state/WorldUpdater.h"
-#include "actions/combat/StartCombat.hpp"
-#include "actions/world/WorldLoadActiveMap.hpp"
-#include "actions/world/WorldSpawnPlayerAtMarker.hpp"
 #include "ui/SdlPixels.hpp" // IWYU pragma: keep
 
 namespace {
@@ -152,7 +152,8 @@ int main(int argc, char** argv) {
     auto spawnPlayer = state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer");
     spawnPlayer.execute(&state);
 
-    const bmin::DynArray<bmin::String> enemyTemplates = {"goblinTest"};
+    const bmin::DynArray<bmin::String> enemyTemplates = {
+        "goblinTest", "goblinTest", "goblinTest", "goblinTest", "goblinTest"};
     spawnEnemiesAtMarkers(state, database, enemyTemplates);
 
     // Enqueue so SetActiveCombatCharacter (inserted by StartCombat) runs via update.

@@ -13,6 +13,8 @@ namespace state {
 namespace actions {
 
 class DoCPUCombatTurn : public AbstractAction {
+  const int CPU_TURN_DELAY = 100;
+
   ActionEvent getEvent() const override { return ActionEvent::DoCPUCombatTurn; }
   void act() override {
     if (!state) {
@@ -42,7 +44,7 @@ class DoCPUCombatTurn : public AbstractAction {
     }
     auto* actor = orch.findCharacterById(actorId);
     if (actor == nullptr) {
-      insertAction(nullptr, 300);
+      insertAction(nullptr, CPU_TURN_DELAY);
       insertAction(state::makeAction<DoCombatAction>(actorId, model::CombatActionType::WAIT), 0);
       return;
     }
@@ -52,7 +54,7 @@ class DoCPUCombatTurn : public AbstractAction {
       auto dy = 0;
       if (game::chooseSeekAndMeleeCombatAction(
               world, state->mapInstances, state->player, *actor, *database, dx, dy)) {
-        insertAction(nullptr, 300);
+        insertAction(nullptr, CPU_TURN_DELAY);
         insertAction(state::makeAction<DoCombatAction>(
                          actorId, model::CombatActionType::MOVE, CombatActionContext{.targetLoc = {dx, dy}}),
                      0);
@@ -60,7 +62,7 @@ class DoCPUCombatTurn : public AbstractAction {
       }
     }
 
-    insertAction(nullptr, 300);
+    insertAction(nullptr, CPU_TURN_DELAY);
     insertAction(state::makeAction<DoCombatAction>(actorId, model::CombatActionType::WAIT), 0);
   }
 
