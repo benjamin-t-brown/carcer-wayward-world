@@ -23,6 +23,9 @@ struct Colors {
   static constexpr SDL_Color Brown{160, 91, 83, 255};
   static constexpr SDL_Color DarkGreen{0, 95, 27, 255};
   static constexpr SDL_Color Green{57, 120, 68, 255};
+  static constexpr SDL_Color ButtonShowMore{57, 120, 68, 255};
+  static constexpr SDL_Color ButtonShowMoreLight{90, 155, 100, 255};
+  static constexpr SDL_Color ButtonShowMoreDark{28, 78, 38, 255};
   static constexpr SDL_Color ButtonModalGrey1{75, 75, 75, 255};
   static constexpr SDL_Color ButtonModalGrey2{100, 100, 100, 255};
   static constexpr SDL_Color ButtonModalGrey3{50, 50, 50, 255};

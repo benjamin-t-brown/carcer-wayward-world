@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
     auto& state = stateManager.getState();
     state.mapInstances = game::createMapInstances(database);
 
-    auto loadMap = state::actions::WorldLoadActiveMap("OutsideAlinea");
+    auto loadMap = state::actions::WorldLoadActiveMap("alinea_outsideAlinea1");
     loadMap.execute(&state);
     auto spawnPlayer = state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer");
     spawnPlayer.execute(&state);

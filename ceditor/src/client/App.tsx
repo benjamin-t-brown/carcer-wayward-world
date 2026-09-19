@@ -10,7 +10,7 @@ import { SpellTemplates } from './pages/SpellTemplates';
 import { StatusEffectTemplates } from './pages/StatusEffectTemplates';
 import { Maps } from './pages/Maps';
 import { MapGrids } from './pages/MapGrids';
-import { SoundEffects } from './pages/SoundEffects';
+import { SoundBoard } from './pages/SoundBoard';
 import { QuestTemplates } from './pages/QuestTemplates';
 
 function App({ assetTypes }: { assetTypes: { id: string; name: string; file: string }[] }) {
@@ -58,8 +58,9 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
       return <Maps routeParams={routeParams} />;
     case '/editor/mapGrids':
       return <MapGrids routeParams={routeParams} />;
+    case '/editor/soundBoard':
     case '/editor/soundEffects':
-      return <SoundEffects />;
+      return <SoundBoard />;
     case '/editor/questTemplates':
       return <QuestTemplates routeParams={routeParams} />;
     default:

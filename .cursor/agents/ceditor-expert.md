@@ -60,12 +60,7 @@ On Windows without bash, run `npm ci` inside `ceditor/` (requires Node >= 20, np
 
 ### Development server
 
-```powershell
-cd ceditor
-npm run dev
-```
-
-Starts Vite on http://localhost:3000 (proxies `/api` to Express on http://localhost:3001). Use when manually verifying UI behavior.
+Do **not** start Vite or the Express API (`npm run dev`, `npm start`, `vite`, `dev:client`, `dev:server`) unless the user explicitly asks. If ceditor is already running, you may use that instance. Otherwise verify with the production build below.
 
 ### Typecheck / production build
 
@@ -107,7 +102,7 @@ When a plan changes asset JSON shape:
 ### 3. Verify
 
 - `npm run build` from `ceditor/`.
-- Optionally `npm run dev` and spot-check the affected route.
+- Do not start `npm run dev` to spot-check unless the user asked.
 
 ### 4. Report
 

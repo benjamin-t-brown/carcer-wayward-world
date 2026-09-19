@@ -27,6 +27,8 @@ public:
   void onKeyUp(std::string_view key, int keyCode) override;
   void onMouseDown(int x, int y, int button) override;
   void onMouseHover(int x, int y) override;
+  void onSuspend() override;
+  void onDeactivate() override;
   void syncFromState();
   void setMapScale(float scale);
   void update(int deltaTime) override;

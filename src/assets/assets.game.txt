@@ -214,27 +214,26 @@ EndAnim
 
 Sound,yell1,assets/snd/yell1,1,Mikey Soprano getting hit with a staple gun
 Sound,yell2,assets/snd/yell2
-Sound,yell_goblin,assets/snd/yell_goblin,1,https://freesound.org/people/SnowFightStudios/sounds/643655/
+Sound,yell_goblin,assets/snd/yell_goblin,0.7,https://freesound.org/people/SnowFightStudios/sounds/643655/
 Sound,yell_monster1,assets/snd/yell_monster1,1,https://freesound.org/people/Soundburst/sounds/634005/
 Sound,yell_monster2,assets/snd/yell_monster2,1,https://freesound.org/people/Soundburst/sounds/634005/
 Sound,yell_bug,assets/snd/yell_bug
-Sound,yell_golem,assets/snd/yell_golem,1,zzfx
 
 Sound,hit_punch1,assets/snd/hit_punch1,1,https://freesound.org/people/taylorsyoung@gmail.com/sounds/94778/
 Sound,hit_punch2,assets/snd/hit_punch2,1,https://freesound.org/people/damnsatinist/sounds/493916/
 Sound,hit_punch3,assets/snd/hit_punch3,1,https://freesound.org/people/nebulasnails/sounds/495118/
-
 Sound,hit_icy,assets/snd/hit_icy
 Sound,hit_shock,assets/snd/hit_shock
-Sound,hit_metal1,assets/snd/hit_metal1
-Sound,hit_metal2,assets/snd/hit_metal2
+Sound,hit_metal1,assets/snd/hit_metal1,1,https://www.zedge.net/notification-sounds/4d047cc7-4130-435f-b4ff-403928418b4e
+Sound,hit_metal2,assets/snd/hit_metal2,1,https://www.zedge.net/notification-sounds/c735932f-bf7c-43cd-9330-2e6e041787dd
 Sound,hit_metal3,assets/snd/hit_metal3,1,https://freesound.org/people/davilcol/sounds/404081/
 Sound,hit_arrow,assets/snd/hit_arrow
 Sound,hit_fireball,assets/snd/hit_fireball,1,maelstrom
+Sound,hit_energy,assets/snd/spell_energy,0.8,zzfx
 
 Sound,spell_cure,assets/snd/spell_cure,1,https://freesound.org/people/cormi/sounds/98473/
-Sound,spell_haste,assets/snd/spell_haste,1,zzfx
-Sound,spell_invis,assets/snd/spell_invis,1,zzfx
+Sound,spell_haste,assets/snd/spell_haste,0.3,zzfx
+Sound,spell_invis,assets/snd/spell_invis,0.7,zzfx
 Sound,potion,assets/snd/potion,1,https://freesound.org/people/mikiko850/sounds/848658/
 
 Sound,cast_ahh,assets/snd/cast_ahh,1,https://freesound.org/people/BaDoink/sounds/534114/

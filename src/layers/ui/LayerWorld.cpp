@@ -1,4 +1,5 @@
 #include "LayerWorld.h"
+#include "sdl2w/Window.h"
 #include "state/WorldUpdater.h"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/components/InGameTitleBar.h"
@@ -84,6 +85,18 @@ void LayerWorld::onMouseDown(int x, int y, int button) {
   UiLayer::onMouseDown(x, y, button);
 }
 
+void LayerWorld::onSuspend() {
+  if (window) {
+    window->resetCursor();
+  }
+}
+
+void LayerWorld::onDeactivate() {
+  if (window) {
+    window->resetCursor();
+  }
+}
+
 void LayerWorld::alignMapView() {
   auto inGameLayout = getUiElement<ui::InGameLayout>("inGameLayout");
   auto mapView = getUiElement<ui::MapView>("mapView");
@@ -139,6 +152,7 @@ void LayerWorld::update(int deltaTime) {
 
   viewSync.syncWorldActionModeHighlight();
   viewSync.syncActionModeCancelButton();
+  viewSync.syncActionModeCursor();
   viewSync.syncCombatTitleBar();
 }
 
@@ -146,6 +160,9 @@ void LayerWorld::render(int deltaTime) {
   // World is SUSPENDED while inventory/pickup is open (update does not run); still
   // refresh those action button pressed states before drawing.
   viewSync.syncWorldActionModeHighlight();
+  if (getState() == LayerState::ON) {
+    viewSync.syncActionModeCursor();
+  }
   UiLayer::render(deltaTime);
 }
 

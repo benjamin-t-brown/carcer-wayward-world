@@ -10,6 +10,7 @@
 #include "model/instances/Player.h"
 #include "sdl2w/L10n.h"
 #include "sdl2w/Logger.h"
+#include "sdl2w/Window.h"
 #include "state/LayerRequest.h"
 #include "state/StateManager.h"
 #include "actions/navigation/UiSetSelectedPartyMemberId.hpp"
@@ -193,6 +194,26 @@ void WorldViewSync::syncActionModeCancelButton() {
   }
 }
 
+void WorldViewSync::syncActionModeCursor() {
+  auto* window = owner.getWindow();
+  if (!window || !assertInterfaces()) {
+    return;
+  }
+
+  const auto actionMode = getStateManager()->getState().world.actionMode;
+  auto cursor = sdl2w::SystemCursor::Arrow;
+  if (actionMode == model::WorldActionMode::EXAMINE ||
+      actionMode == model::WorldActionMode::SPELL) {
+    cursor = sdl2w::SystemCursor::Crosshair;
+  } else if (actionMode == model::WorldActionMode::TALK) {
+    cursor = sdl2w::SystemCursor::Hand;
+  }
+  if (!window->hasColorCursor() && window->getSystemCursor() == cursor) {
+    return;
+  }
+  window->setSystemCursor(cursor);
+}
+
 void WorldViewSync::syncCombatTitleBar() {
   auto* inGameLayout = owner.getUiElement<ui::InGameLayout>("inGameLayout");
   if (!inGameLayout) {
@@ -265,6 +286,7 @@ void WorldViewSync::refresh() {
   attachPartyMemberObservers(inGameLayout);
   syncWorldActionModeHighlight();
   syncActionModeCancelButton();
+  syncActionModeCursor();
 
   if (auto* titleBar =
           dynamic_cast<ui::InGameTitleBar*>(inGameLayout->getTitleElement())) {

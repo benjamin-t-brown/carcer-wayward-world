@@ -20,7 +20,7 @@ protected:
   State* state = nullptr;
 
   virtual void act() {
-    sdl2w::Logger().get(sdl2w::WARN) << "AbstractAction::act() called noop";
+    sdl2w::Logger().get(sdl2w::WARN) << "AbstractAction::act() called noop" << sdl2w::endl;
   };
 
 public:

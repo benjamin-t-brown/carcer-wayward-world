@@ -65,7 +65,7 @@ int main(int /*argc*/, char** /*argv*/) {
       loadMap.execute(&state);
     }
     {
-      // World coords on OutsideAlinea for local (1,1) on alinea_outsideAlinea1 → (31,1)
+      // World coords on Alinea for local (1,1) on alinea_outsideAlinea8 → (31,1)
       auto spawn = state::actions::WorldSpawnPlayerAtXY(31, 1);
       spawn.execute(&state);
     }
@@ -107,7 +107,7 @@ int main(int /*argc*/, char** /*argv*/) {
       travel.destinationY = 6;
       state::actions::WorldTravel(travel).execute(&state);
     }
-    ok = assertEqualStr(state.world.activeMap.gridId, "OutsideAlinea",
+    ok = assertEqualStr(state.world.activeMap.gridId, "Alinea",
                         "grid after XY fallback travel") &&
          ok;
     {

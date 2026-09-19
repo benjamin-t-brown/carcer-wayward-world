@@ -35,6 +35,7 @@ public:
   // Cheap per-frame refreshes, also callable independently of a full refresh().
   void syncWorldActionModeHighlight();
   void syncActionModeCancelButton();
+  void syncActionModeCursor();
   void syncCombatTitleBar();
 
 private:

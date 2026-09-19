@@ -55,28 +55,11 @@ private:
   // destroy the footer button while its onClick observer is still running.
   bool footerNeedsSync = false;
 
-  static constexpr int SCROLL_TWEEN_DURATION_MS = 400;
-
-  struct ScrollTween {
-    bool active = false;
-    int startOffset = 0;
-    int targetOffset = 0;
-    int elapsedMs = 0;
-    int lastAppliedOffset = 0;
-  };
-  ScrollTween scrollTween;
-  int lastPinFromBlockIndex = 0;
-
   // Split dialogue on "..." boundaries: outside quotes → outsideColor (narrative);
   // inside quotes → Charcoal (spoken dialogue), unless the source already set a fontColor.
   static bmin::DynArray<TextBlock>
   colorizeDialogueByQuotes(const bmin::DynArray<TextBlock>& blocks,
                            SDL_Color outsideColor);
-
-  static float easeOutQuad(float t);
-  void startScrollTween(SectionScrollable& section, int startOffset, int targetOffset);
-  void cancelScrollTween();
-  void updateScrollTween(int deltaTime);
 
   void setupKeyboardScroll();
   void beginKeyboardContinuePress();
@@ -91,7 +74,9 @@ private:
   int firstClippedChoiceIndex();
   FooterMode computeFooterMode();
   void retargetFooter(FooterMode mode);
+  void styleShowMoreButton();
   void syncFooter(bool force);
+  void renderShowMoreCue();
 
   friend class PageTalkChoiceShowMoreObserver;
 

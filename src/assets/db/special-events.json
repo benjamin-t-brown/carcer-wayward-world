@@ -2034,7 +2034,7 @@
         "cases": [
           {
             "conditionStr": "ONCE(vars.hasSpokenTo@CHARACTER_ID)",
-            "next": "0arn7g6cays"
+            "next": "1651u7924tq"
           },
           {
             "conditionStr": "GTE(@DISPOSITION,5)",
@@ -2054,7 +2054,7 @@
       {
         "id": "reabg2ysail",
         "x": 300,
-        "y": 735.5,
+        "y": 736,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"What do you want now?  I'm busy.\"",
@@ -2065,7 +2065,7 @@
       {
         "id": "mnz0vwcieyd",
         "x": 304,
-        "y": 650.3,
+        "y": 650,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Yes? What can I do for you?\"",
@@ -2076,7 +2076,7 @@
       {
         "id": "2hpskpgd88y",
         "x": 298,
-        "y": 559.3,
+        "y": 559,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Ah, I'm honored that you would approach me.  Did you want something?\"",
@@ -2086,11 +2086,11 @@
       },
       {
         "id": "0arn7g6cays",
-        "x": 746,
-        "y": 32.5,
+        "x": 797,
+        "y": 65,
         "eventChildType": "CHOICE",
-        "h": 210,
-        "text": "A tall woman in a stout, green dress is overseeing the people at the docks. She clutches an official-looking scroll, and her stern eyes flit in irritation between it and you.\n\n\"You there!  Are you the Captain of that vessel?\"  She points towards the horizon where Argow's vessel is anchored.",
+        "h": 84,
+        "text": "",
         "choices": [
           {
             "text": "(Remain silent.)",
@@ -2112,16 +2112,16 @@
       },
       {
         "id": "7wt55yy5y0o",
-        "x": 3403.5,
-        "y": 221.5,
+        "x": 3404,
+        "y": 222,
         "eventChildType": "END",
         "h": 60,
         "next": ""
       },
       {
         "id": "uj1jkcvhv0p",
-        "x": 1616.8333333333335,
-        "y": 110.5,
+        "x": 1617,
+        "y": 111,
         "eventChildType": "CHOICE",
         "h": 226,
         "text": "Suddenly, a shiver passes across your body.  You feel an odd feeling: a contending set of forces battling in your mind, all trying to make their opinion known, all trying to shape who you are.",
@@ -2231,15 +2231,15 @@
       },
       {
         "id": "lk9qky3u42",
-        "x": 1002.8,
-        "y": 1918.3999999999999,
+        "x": 1003,
+        "y": 1918,
         "eventChildType": "END",
         "h": 60,
         "next": ""
       },
       {
         "id": "zxtfea2uc5m",
-        "x": 1124.5,
+        "x": 1125,
         "y": 447,
         "eventChildType": "EXEC",
         "h": 74,
@@ -2250,7 +2250,7 @@
       },
       {
         "id": "ytv6b9ey1co",
-        "x": 1684.5,
+        "x": 1685,
         "y": 1252,
         "eventChildType": "EXEC",
         "h": 50,
@@ -2262,7 +2262,7 @@
       {
         "id": "3h5lr8fowu6",
         "x": 2032,
-        "y": 606.5,
+        "y": 607,
         "eventChildType": "EXEC",
         "h": 140,
         "p": "\"Every day I talk to larks like you.  I have no time to fritter away explaining day-to-day knowledge.  The Realm entrusts me with the smooth operation of Alinea's docks.  You are in the town of Alinea, which itself is on a body of land we call the Island.  That is what I will tell you.\"",
@@ -2273,7 +2273,7 @@
       {
         "id": "gmb7hkxnr0o",
         "x": 793,
-        "y": 1734.5,
+        "y": 1735,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"If you are done with your questions, then move along.\"",
@@ -2283,8 +2283,8 @@
       },
       {
         "id": "ut4rzqdocjc",
-        "x": 2001.3666666666677,
-        "y": 420.90000000000055,
+        "x": 2001,
+        "y": 421,
         "eventChildType": "EXEC",
         "h": 140,
         "p": "\"The Realm is the authority here in Alinea.  That means you need to follow our rules.  I don't have time to sit down and explain society to a lark.  Go bother somebody else if you want to know all this frivolousness.  Lieutenant Mullen might humor you.\"",
@@ -2294,8 +2294,8 @@
       },
       {
         "id": "u24n2mp9sgp",
-        "x": 1673.5,
-        "y": 1136.5,
+        "x": 1674,
+        "y": 1137,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"Yes.  Lieutenant Mullen.  He has command of Alinea at the moment.  For whatever reason he seems to like entertaining larks.  Look for him in the Realm offices in the town proper.\"",
@@ -2305,8 +2305,8 @@
       },
       {
         "id": "myc9tlr8jos",
-        "x": 2063.5,
-        "y": 41.5,
+        "x": 2064,
+        "y": 42,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Are you mute?  Ugh, I can't deal with this right now.\"",
@@ -2330,7 +2330,7 @@
       },
       {
         "id": "awba4c9uu5",
-        "x": 2081.3333333333335,
+        "x": 2081,
         "y": 234,
         "eventChildType": "EXEC",
         "h": 50,
@@ -2341,30 +2341,30 @@
       },
       {
         "id": "puy0jggriig",
-        "x": 1085.333333333334,
-        "y": 271,
+        "x": 1120,
+        "y": 264,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"Argow?  I've never heard of him.  He isn't registered here.\"",
         "execStr": "",
         "next": "znt1b71szsf",
-        "autoAdvance": true
+        "autoAdvance": false
       },
       {
         "id": "znt1b71szsf",
-        "x": 1199.5,
-        "y": 61.5,
+        "x": 1224,
+        "y": 54,
         "eventChildType": "EXEC",
-        "h": 88,
-        "p": "\"There's a fee for using the Alinea docks.\"  She gives you a quick look up and down.  \"Even if it is to drop off a... passenger.  I can have you locked up for negligence if this situation isn't dealt with properly.\"",
+        "h": 130,
+        "p": "\"There's a fee for using the Alinea docks.\"\n\nShe gives you a quick look up and down.\n\n\"Even if it is to drop off a... passenger.  I can have you locked up for negligence if this situation isn't dealt with properly.\"",
         "execStr": "",
         "next": "uj1jkcvhv0p",
         "autoAdvance": true
       },
       {
         "id": "9d7c1vf95da",
-        "x": 2090.5,
-        "y": 313.5,
+        "x": 2091,
+        "y": 314,
         "eventChildType": "EXEC",
         "h": 60,
         "p": "\"I'm glad you want to help, but *you* are the problem.\"",
@@ -2374,8 +2374,8 @@
       },
       {
         "id": "n9n9yk3d4t9",
-        "x": 2070.5,
-        "y": 144.5,
+        "x": 2071,
+        "y": 145,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Ugh, I can't deal with this right now.\"",
@@ -2385,8 +2385,8 @@
       },
       {
         "id": "ji4noamnmxi",
-        "x": 2489.5,
-        "y": 170.5,
+        "x": 2490,
+        "y": 171,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "She taps her foot impatiently and groans in frustration.  \"Ugh.  Just...  Leave the docks and don't bother me.  I've had enough to deal with this morning already.\"",
@@ -2396,8 +2396,8 @@
       },
       {
         "id": "80bdb67qx5u",
-        "x": 2937.5,
-        "y": 101.5,
+        "x": 2938,
+        "y": 102,
         "eventChildType": "CHOICE",
         "h": 84,
         "text": "",
@@ -2422,8 +2422,8 @@
       },
       {
         "id": "30bvgggksqa",
-        "x": 2877.5,
-        "y": 528.5,
+        "x": 2878,
+        "y": 529,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"What do you want?\"",
@@ -2433,7 +2433,7 @@
       },
       {
         "id": "dt36wru6b8g",
-        "x": 460.5,
+        "x": 461,
         "y": 894,
         "eventChildType": "EXEC",
         "h": 50,
@@ -2444,7 +2444,7 @@
       },
       {
         "id": "yvjbd7gvai",
-        "x": 1569.5,
+        "x": 1570,
         "y": 625,
         "eventChildType": "CHOICE",
         "h": 156,
@@ -2495,7 +2495,7 @@
       {
         "id": "dmrwxmfksc",
         "x": 1087,
-        "y": 878.5,
+        "y": 879,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"That is none of your concern.\"",
@@ -2505,13 +2505,24 @@
       },
       {
         "id": "wnoyudbu3f",
-        "x": 2021.5,
-        "y": 944.5,
+        "x": 2022,
+        "y": 945,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Go bother somebody else with frivolous questions.\"",
         "execStr": "",
         "next": "yvjbd7gvai",
+        "autoAdvance": true
+      },
+      {
+        "id": "1651u7924tq",
+        "x": 640,
+        "y": 174,
+        "eventChildType": "EXEC",
+        "h": 158,
+        "p": "A tall woman in a stout, green dress is overseeing the people at the docks. She clutches an official-looking scroll, and her stern eyes flit in irritation between it and you.\n\n\"You there!  Are you the Captain of that vessel?\"\n\nShe points towards the horizon where Argow's vessel is anchored.",
+        "execStr": "",
+        "next": "0arn7g6cays",
         "autoAdvance": true
       }
     ]

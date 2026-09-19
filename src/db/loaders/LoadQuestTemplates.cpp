@@ -42,20 +42,24 @@ model::QuestStep parseQuestStep(const Json& stepJson, bool allowSubSteps, const 
   step.description = optionalString(stepJson, "description");
 
   if (stepJson.contains("subSteps")) {
-    if (!allowSubSteps) {
-      throw std::runtime_error(
-          (bmin::String(context) + " step '" + step.id.cStr() + "' cannot nest subSteps").cStr());
-    }
     if (!stepJson["subSteps"].is_array()) {
       throw std::runtime_error(
           (bmin::String(context) + " step '" + step.id.cStr() + "' subSteps must be an array")
               .cStr());
     }
-    const bmin::String subContext = bmin::String(context) + " step '" + step.id.cStr() + "'";
-    for (const auto& subJson : stepJson["subSteps"]) {
-      step.subSteps.pushBack(parseQuestStep(subJson, false, subContext.cStr()));
+    // Editor saves omit-or-empty `subSteps: []` on nested steps; empty is not nesting.
+    if (stepJson["subSteps"].size() != 0) {
+      if (!allowSubSteps) {
+        throw std::runtime_error(
+            (bmin::String(context) + " step '" + step.id.cStr() + "' cannot nest subSteps")
+                .cStr());
+      }
+      const bmin::String subContext = bmin::String(context) + " step '" + step.id.cStr() + "'";
+      for (const auto& subJson : stepJson["subSteps"]) {
+        step.subSteps.pushBack(parseQuestStep(subJson, false, subContext.cStr()));
+      }
+      assertUniqueIds(step.subSteps, subContext.cStr());
     }
-    assertUniqueIds(step.subSteps, subContext.cStr());
   }
 
   return step;

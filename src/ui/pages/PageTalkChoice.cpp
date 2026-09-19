@@ -2,6 +2,7 @@
 #include "actions/navigation/UiContinueSpecialEvent.hpp"
 #include "actions/navigation/UiSelectSpecialEventChoice.hpp"
 #include "sdl2w/L10n.h"
+#include "ui/FontScale.h"
 #include "ui/colors.hpp"
 #include "ui/components/borders/BorderModalStandard.h"
 #include "ui/elements/OutsetRectangle.h"
@@ -271,6 +272,32 @@ void PageTalkChoice::build() {
     currentHeightScaled += journalParagraph->getDims().second;
   }
 
+  if (!props.choices.empty() && contentYOffset > 0) {
+    int fontScale = 0;
+    if (auto* stateManager = getStateManager()) {
+      fontScale = stateManager->getState().settings.fontScale;
+    }
+    const auto fontName = TextLine::getFontNameFromFamily(textFont.fontFamily);
+    sdl2w::RenderTextParams measureParams;
+    measureParams.fontName = fontName.cStr();
+    measureParams.fontSize = ui::applyFontScale(textFont.fontSize, fontScale);
+    const int lineH = window->getDraw().measureText(" ", measureParams).second;
+    const int choiceGapScaled =
+        std::max(1, static_cast<int>(lineH * props.lineHeightScale));
+    auto* gap = new Quad(window, textSection);
+    gap->setId("textChoiceGap");
+    gap->setPos(0, contentYOffset);
+    gap->setScale(1.f);
+    gap->setProps(QuadProps{
+        .width = textScrollableContentWidthScaled,
+        .height = choiceGapScaled,
+        .bgColor = Colors::OffWhite,
+    });
+    textSection->addChild(bmin::UniquePtr<ui::UiElement>(gap));
+    contentYOffset += choiceGapScaled;
+    currentHeightScaled += choiceGapScaled;
+  }
+
   // Authored choices live in the log after current dialogue (not a reserved pane).
   int choicesHeightScaled = 0;
   auto choiceYOffset = contentYOffset;
@@ -295,6 +322,8 @@ void PageTalkChoice::build() {
     choiceButtonProps.textParagraph.fontSize = choiceFont.fontSize;
     choiceButtonProps.textParagraph.fontColor = choiceColor;
     choiceButtonProps.textParagraph.lineHeightScale = 0.85f;
+    choiceButtonProps.textParagraph.bgColor = Colors::OffWhite;
+    choiceButtonProps.bgColor = Colors::OffWhite;
     choiceButtonProps.verticalPadding = 0;
     choiceButton->setScale(1.f);
     choiceButton->setPos(4, choiceYOffset);
@@ -329,8 +358,6 @@ void PageTalkChoice::build() {
   textSection->build();
   textSection->scrollTo(historyHeightScaled);
 
-  // Eventual: bottom vignette when log content overflows the viewport. No gradient in v1.
-
   auto sepBorder = new OutsetRectangle(window, this);
   sepBorder->setPos(contentX, contentY + textSectionHeight * style.scale);
   sepBorder->setScale(style.scale);
@@ -349,27 +376,16 @@ void PageTalkChoice::build() {
   buttonGroup->setScale(style.scale);
   buttonGroup->setProps(ButtonGroupProps{
       .width = static_cast<int>(scaledContentW / style.scale),
-      .alignment = ButtonGroupAlignment::RIGHT,
+      .alignment = ButtonGroupAlignment::CENTER,
       .buttonWidth = buttonWidth,
       .buttonHeight = FOOTER_AREA_HEIGHT - 2 * buttonPadding,
       .padding = buttonPadding,
       // Continue / Show More / inert modes fill in after layout via syncFooter.
-      .buttons = {{.label = "", .type = ButtonGroupButtonType::MODAL}},
+      .buttons = {},
   });
   addChild(bmin::UniquePtr<ui::UiElement>(buttonGroup));
-  // Footer clip is measured at the pin; rewind to the tween start afterward.
   syncFooter(true);
   footerNeedsSync = false;
-
-  const auto pinIncreased = lastPinFromBlockIndex < pinFrom;
-  lastPinFromBlockIndex = pinFrom;
-  if (pinIncreased) {
-    const auto startOffset =
-        std::max(0, historyHeightScaled - textViewportHeightScaled);
-    startScrollTween(*textSection, startOffset, historyHeightScaled);
-  } else {
-    cancelScrollTween();
-  }
 }
 
 ButtonTextWrap* PageTalkChoice::choiceButton(int i) {
@@ -384,7 +400,10 @@ SectionScrollable* PageTalkChoice::textSection() {
   return dynamic_cast<SectionScrollable*>(getChildById("textSection"));
 }
 
-void PageTalkChoice::render(int dt) { UiElement::render(dt); }
+void PageTalkChoice::render(int dt) {
+  UiElement::render(dt);
+  renderShowMoreCue();
+}
 
 void PageTalkChoice::setupKeyboardScroll() {
   keyboardScroll.clearBindings();
@@ -476,17 +495,20 @@ void PageTalkChoice::retargetFooter(FooterMode mode) {
   }
 
   auto groupProps = group->getProps();
+  groupProps.alignment = ButtonGroupAlignment::CENTER;
   switch (mode) {
   case FooterMode::Continue:
+    groupProps.buttonWidth = 120;
     groupProps.buttons = {
         {.label = TRANSLATE("Continue"), .type = ButtonGroupButtonType::MODAL}};
     break;
   case FooterMode::ShowMore:
+    groupProps.buttonWidth = 160;
     groupProps.buttons = {
         {.label = TRANSLATE("Show More"), .type = ButtonGroupButtonType::MODAL}};
     break;
   case FooterMode::Inert:
-    groupProps.buttons = {{.label = "", .type = ButtonGroupButtonType::MODAL}};
+    groupProps.buttons = {};
     break;
   }
   group->setProps(groupProps);
@@ -498,9 +520,71 @@ void PageTalkChoice::retargetFooter(FooterMode mode) {
     group->addObserverToButtonAtIndex(
         0,
         bmin::UniquePtr<UiEventObserver>(new PageTalkChoiceShowMoreObserver(this)));
+    styleShowMoreButton();
   }
 
   footerMode = mode;
+}
+
+void PageTalkChoice::styleShowMoreButton() {
+  auto* button = footerButton();
+  if (!button) {
+    return;
+  }
+  auto buttonProps = button->getProps();
+  buttonProps.bgColor = Colors::ButtonShowMore;
+  buttonProps.bgColorTopRight = Colors::ButtonShowMoreLight;
+  buttonProps.bgColorBottomLeft = Colors::ButtonShowMoreDark;
+  button->setProps(buttonProps);
+}
+
+void PageTalkChoice::renderShowMoreCue() {
+  if (props.choices.empty() ||
+      !isChoiceClipped(static_cast<int>(props.choices.size()) - 1)) {
+    return;
+  }
+
+  auto* section = textSection();
+  if (!section) {
+    return;
+  }
+
+  const auto [sectionX, sectionY] = section->getPos();
+  const int sectionW = section->getDims().first;
+  const auto [contentW, contentH] = section->getContentDims();
+  if (contentW <= 0 || contentH <= 0 || sectionW <= 0) {
+    return;
+  }
+
+  auto& draw = window->getDraw();
+  const int vignetteH = std::min(72, contentH);
+  constexpr int kBands = 10;
+  const int bandH = std::max(1, vignetteH / kBands);
+  const int fadeTop = sectionY + contentH - vignetteH;
+  for (int i = 0; i < kBands; ++i) {
+    const auto alpha = static_cast<Uint8>(((i + 1) * 230) / kBands);
+    draw.drawRect(sectionX,
+                  fadeTop + i * bandH,
+                  contentW,
+                  bandH,
+                  SDL_Color{Colors::OffWhite.r, Colors::OffWhite.g, Colors::OffWhite.b,
+                            alpha});
+  }
+
+  // Match Continue / Show More, which are centered on the full modal content
+  // (text pane + scrollbar), not the text column alone.
+  const int centerX = sectionX + sectionW / 2;
+  const int centerY = sectionY + contentH - 18;
+  const int arrow = 10;
+  const float stroke = std::max(2.f, style.scale);
+  draw.drawLine({centerX - arrow, centerY - 5},
+                {centerX, centerY + 6},
+                stroke,
+                Colors::Grey2);
+  draw.drawLine({centerX + arrow, centerY - 5},
+                {centerX, centerY + 6},
+                stroke,
+                Colors::Grey2);
 }
 
 void PageTalkChoice::syncFooter(bool force) {
@@ -512,7 +596,6 @@ void PageTalkChoice::syncFooter(bool force) {
 }
 
 void PageTalkChoice::performShowMore() {
-  cancelScrollTween();
   auto* section = textSection();
   const auto clippedIndex = firstClippedChoiceIndex();
   auto* choice = choiceButton(clippedIndex);
@@ -567,7 +650,6 @@ void PageTalkChoice::beginKeyboardContinuePress() {
 
 void PageTalkChoice::onKeyDown(std::string_view key) {
   if (keyboardScroll.onKeyDown(key)) {
-    cancelScrollTween();
     return;
   }
 
@@ -586,14 +668,13 @@ void PageTalkChoice::onKeyDown(std::string_view key) {
 void PageTalkChoice::onKeyUp(std::string_view key) { keyboardScroll.onKeyUp(key); }
 
 void PageTalkChoice::updateKeyboardChrome(int deltaTime) {
-  if (keyboardScroll.isHolding()) {
-    cancelScrollTween();
-  }
   keyboardScroll.update(deltaTime, window);
-  updateScrollTween(deltaTime);
   keyboardFlash.update(deltaTime);
   if (footerNeedsSync) {
     footerNeedsSync = false;
+    syncFooter(false);
+  } else if (!keyboardFlash.isBusy()) {
+    // Wheel / arrow scroll can reveal the last choice; keep the footer in sync.
     syncFooter(false);
   }
 }
@@ -601,74 +682,6 @@ void PageTalkChoice::updateKeyboardChrome(int deltaTime) {
 void PageTalkChoice::stopKeyboardChrome() {
   keyboardScroll.stopScroll();
   keyboardFlash.stop();
-  cancelScrollTween();
-}
-
-float PageTalkChoice::easeOutQuad(float t) {
-  const auto clamped = std::clamp(t, 0.f, 1.f);
-  const auto remaining = 1.f - clamped;
-  return 1.f - remaining * remaining;
-}
-
-void PageTalkChoice::cancelScrollTween() { scrollTween.active = false; }
-
-void PageTalkChoice::startScrollTween(SectionScrollable& section,
-                                      int startOffset,
-                                      int targetOffset) {
-  const auto maxOffset = section.getMaxScrollOffset();
-  const auto clampedStart = std::clamp(startOffset, 0, maxOffset);
-  const auto clampedTarget = std::clamp(targetOffset, 0, maxOffset);
-  if (clampedStart == clampedTarget) {
-    section.scrollTo(clampedTarget);
-    scrollTween.active = false;
-    return;
-  }
-
-  section.scrollTo(clampedStart);
-  scrollTween.active = true;
-  scrollTween.startOffset = clampedStart;
-  scrollTween.targetOffset = clampedTarget;
-  scrollTween.elapsedMs = 0;
-  scrollTween.lastAppliedOffset = section.getScrollOffset();
-}
-
-void PageTalkChoice::updateScrollTween(int deltaTime) {
-  if (!scrollTween.active) {
-    return;
-  }
-
-  auto* section = textSection();
-  if (!section) {
-    cancelScrollTween();
-    return;
-  }
-
-  // Wheel, scrollbar drag, or any other user scroll leaves a different offset.
-  if (section->getScrollOffset() != scrollTween.lastAppliedOffset) {
-    cancelScrollTween();
-    return;
-  }
-
-  if (deltaTime <= 0) {
-    return;
-  }
-
-  scrollTween.elapsedMs += deltaTime;
-  if (scrollTween.elapsedMs >= SCROLL_TWEEN_DURATION_MS) {
-    section->scrollTo(scrollTween.targetOffset);
-    cancelScrollTween();
-    return;
-  }
-
-  const auto t = static_cast<float>(scrollTween.elapsedMs) /
-                 static_cast<float>(SCROLL_TWEEN_DURATION_MS);
-  const auto eased = easeOutQuad(t);
-  const auto delta = scrollTween.targetOffset - scrollTween.startOffset;
-  const auto offset =
-      scrollTween.startOffset +
-      static_cast<int>(static_cast<float>(delta) * eased + 0.5f);
-  section->scrollTo(offset);
-  scrollTween.lastAppliedOffset = section->getScrollOffset();
 }
 
 } // namespace ui

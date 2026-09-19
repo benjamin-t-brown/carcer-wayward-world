@@ -55,7 +55,7 @@ void ButtonTextWrap::build() {
 }
 
 void ButtonTextWrap::render(int dt) {
-  SDL_Color bgColor = Colors::Transparent;
+  SDL_Color bgColor = props.bgColor;
 
   if (isActive) {
     bgColor = SDL_Color{0, 0, 0, 25};

@@ -20,43 +20,59 @@ int main(int argc, char** argv) {
       return 1;
     }
 
-    const auto heistIt = questTemplates.find(bmin::String("alinea_omniflowerHeist"));
+    const auto heistIt = questTemplates.find(bmin::String("que_alinea_OmniflowerHeist"));
     if (heistIt == questTemplates.end()) {
-      LOG(ERROR) << "Missing alinea_omniflowerHeist quest" << LOG_ENDL;
+      LOG(ERROR) << "Missing que_alinea_OmniflowerHeist quest" << LOG_ENDL;
       return 1;
     }
     if (heistIt->value.label != bmin::String("Omniflower Heist")) {
-      LOG(ERROR) << "alinea_omniflowerHeist label mismatch" << LOG_ENDL;
+      LOG(ERROR) << "que_alinea_OmniflowerHeist label mismatch" << LOG_ENDL;
       return 1;
     }
 
-    const auto rockIt = questTemplates.find(bmin::String("alineaBartoRock"));
+    const auto rockIt = questTemplates.find(bmin::String("que_alinea_NobleRuffian"));
     if (rockIt == questTemplates.end()) {
-      LOG(ERROR) << "Missing alineaBartoRock quest" << LOG_ENDL;
+      LOG(ERROR) << "Missing que_alinea_NobleRuffian quest" << LOG_ENDL;
       return 1;
     }
     if (rockIt->value.steps.size() != 2) {
-      LOG(ERROR) << "alineaBartoRock expected 2 steps, got " << rockIt->value.steps.size()
-                 << LOG_ENDL;
+      LOG(ERROR) << "que_alinea_NobleRuffian expected 2 steps, got "
+                 << rockIt->value.steps.size() << LOG_ENDL;
       return 1;
     }
     if (rockIt->value.steps[0].id != bmin::String("get-rock")) {
-      LOG(ERROR) << "alineaBartoRock steps[0].id mismatch" << LOG_ENDL;
+      LOG(ERROR) << "que_alinea_NobleRuffian steps[0].id mismatch" << LOG_ENDL;
       return 1;
     }
     if (rockIt->value.steps[1].subSteps.size() != 2) {
-      LOG(ERROR) << "alineaBartoRock throw-rock expected 2 subSteps, got "
+      LOG(ERROR) << "que_alinea_NobleRuffian throw-rock expected 2 subSteps, got "
                  << rockIt->value.steps[1].subSteps.size() << LOG_ENDL;
       return 1;
     }
     if (rockIt->value.steps[1].subSteps[1].id != bmin::String("hit-bartolo")) {
-      LOG(ERROR) << "alineaBartoRock nested subStep id mismatch" << LOG_ENDL;
+      LOG(ERROR) << "que_alinea_NobleRuffian nested subStep id mismatch" << LOG_ENDL;
       return 1;
     }
 
-    const auto tomeIt = questTemplates.find(bmin::String("Entomen's Tome"));
+    const auto tomeIt = questTemplates.find(bmin::String("que_alinea_EntomenTome"));
     if (tomeIt == questTemplates.end()) {
-      LOG(ERROR) << "Missing Entomen's Tome quest" << LOG_ENDL;
+      LOG(ERROR) << "Missing que_alinea_EntomenTome quest" << LOG_ENDL;
+      return 1;
+    }
+    if (tomeIt->value.steps.size() != 3) {
+      LOG(ERROR) << "que_alinea_EntomenTome expected 3 steps, got "
+                 << tomeIt->value.steps.size() << LOG_ENDL;
+      return 1;
+    }
+    if (tomeIt->value.steps[1].id != bmin::String("joinMerchantry") ||
+        tomeIt->value.steps[1].subSteps.size() != 4) {
+      LOG(ERROR) << "que_alinea_EntomenTome joinMerchantry expected 4 subSteps"
+                 << LOG_ENDL;
+      return 1;
+    }
+    if (!tomeIt->value.steps[1].subSteps[0].subSteps.empty()) {
+      LOG(ERROR) << "que_alinea_EntomenTome nested empty subSteps should be ignored"
+                 << LOG_ENDL;
       return 1;
     }
 

@@ -12,6 +12,7 @@ struct ButtonTextWrapProps {
   int verticalPadding = 0; // Padding added to top and bottom
   int horizontalPadding = 0; // Padding added to left and right
   bool isSelected = false;
+  SDL_Color bgColor = Colors::Transparent;
   // Forwarded to the internal TextParagraph (width wraps text; height grows to fit).
   TextParagraphProps textParagraph;
 };

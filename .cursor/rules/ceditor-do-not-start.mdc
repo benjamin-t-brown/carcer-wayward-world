@@ -1,0 +1,16 @@
+---
+description: Agents must not start ceditor (Vite/API) unless the user asks
+alwaysApply: true
+---
+
+# Do not start ceditor
+
+Agents must **not** start the ceditor dev server on their own.
+
+- Do **not** run `npm run dev`, `npm start`, `npm run dev:client`, `npm run dev:server`, or `vite` under `ceditor/`.
+- Do **not** start Vite or the Express API to "verify in the browser" or because ports look free.
+- Do **not** restart ceditor after killing processes, port conflicts, or a crashed server.
+
+If the user already has ceditor running, you may use that instance. If it is not running, verify with `npm run build` in `ceditor/` and leave starting the server to the user.
+
+Start ceditor only when the user explicitly asks.

@@ -69,7 +69,7 @@ int main(int /*argc*/, char** /*argv*/) {
       auto loadMap = state::actions::WorldLoadActiveMap("alinea_outsideAlinea1");
       loadMap.execute(&state);
     }
-    ok = assertEqualStr(state.world.activeMap.gridId, "OutsideAlinea",
+    ok = assertEqualStr(state.world.activeMap.gridId, "Alinea",
                         "activeMap.gridId after load") &&
          ok;
 

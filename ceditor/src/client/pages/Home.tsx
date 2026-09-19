@@ -32,6 +32,15 @@ export function Home({
             </p>
           </Card>
         ))}
+        <Card
+          variant="asset"
+          onClick={() => {
+            window.location.hash = '/editor/soundBoard';
+          }}
+        >
+          <h2>Sound Board</h2>
+          <p>Play loaded sounds</p>
+        </Card>
       </div>
     </div>
   );

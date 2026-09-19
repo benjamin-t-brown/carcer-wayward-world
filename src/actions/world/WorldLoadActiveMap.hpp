@@ -5,6 +5,7 @@
 #include "game/map/MapPersistence.h"
 #include "model/Combat.h"
 #include "model/instances/World.hpp"
+#include "sdl2w/Logger.h"
 #include "state/AbstractAction.hpp"
 #include "state/State.hpp"
 
@@ -72,6 +73,8 @@ class WorldLoadActiveMap : public AbstractAction {
 
     const auto resolvedGridId = game::resolveGridIdForMapOrGrid(*database, gridId);
     if (resolvedGridId.empty()) {
+      LOG(ERROR) << "WorldLoadActiveMap::act: could not resolve grid for " << gridId
+                 << LOG_ENDL;
       return;
     }
 
