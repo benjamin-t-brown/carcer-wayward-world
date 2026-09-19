@@ -14,6 +14,7 @@ class WorldSpawnDamageParticle : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::WorldSpawnDamageParticle; }
   bmin::String animationName;
   bmin::String text;
+  bmin::String textColor;
   int tileX = 0;
   int tileY = 0;
   int lifetimeMs = 0;
@@ -28,6 +29,7 @@ class WorldSpawnDamageParticle : public AbstractAction {
     particle.tileX = tileX;
     particle.tileY = tileY;
     particle.text = text;
+    particle.textColor = textColor;
     model::timerStructStart(particle.lifetime, lifetimeMs);
     state->world.activeMap.damageParticles.pushBack(std::move(particle));
   }
@@ -37,9 +39,11 @@ public:
                            const bmin::String& _text,
                            int _tileX,
                            int _tileY,
-                           int _lifetimeMs)
+                           int _lifetimeMs,
+                           const bmin::String& _textColor = {})
       : animationName((_animationName)),
         text((_text)),
+        textColor((_textColor)),
         tileX(_tileX),
         tileY(_tileY),
         lifetimeMs(_lifetimeMs) {}

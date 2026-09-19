@@ -212,6 +212,8 @@ expl_30 60
 expl_31 60
 EndAnim
 
+Sound,button,assets/snd/button,1,https://www.zedge.net/notification-sounds/fc99eb5b-d660-31d0-bc8c-41469381fbba
+
 Sound,yell1,assets/snd/yell1,1,Mikey Soprano getting hit with a staple gun
 Sound,yell2,assets/snd/yell2
 Sound,yell_goblin,assets/snd/yell_goblin,0.7,https://freesound.org/people/SnowFightStudios/sounds/643655/

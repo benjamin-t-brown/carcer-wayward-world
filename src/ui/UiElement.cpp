@@ -1,5 +1,6 @@
 #include "UiElement.h"
 #include "bmin/StringInterop.h"
+#include "ui/helpers/uiSounds.h"
 #include "uiUtils.hpp"
 
 namespace ui {
@@ -124,6 +125,9 @@ bool UiElement::checkMouseUpEvent(int mouseX,
     if (isClicked) {
       // click event happens when mouse up occurs inside this element
       // after a mouse down also occurred inside this element.
+      if (playClickSound) {
+        playButtonSound(window);
+      }
       for (auto& observer : eventObservers) {
         observer->onClick(mouseX, mouseY, button);
       }

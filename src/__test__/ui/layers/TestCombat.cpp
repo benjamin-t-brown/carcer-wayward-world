@@ -7,6 +7,7 @@
 #include "bmin/StringInterop.h"
 #include "bmin/UniquePtr.h"
 #include "db/Database.h"
+#include "game/inventory/InventoryRules.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/CharacterConstruction.h"
 #include "game/map/MapPersistence.h"
@@ -38,16 +39,12 @@ constexpr const char* TEST_PARTY_TEMPLATE_NAMES[] = {
 };
 
 const bmin::DynArray<bmin::DynArray<bmin::String>> PARTY_MEMBER_ITEMS = {
-    {"PotionHealing", "DaggerBronze"},
-    {"ShortSwordBronze", "SwordBronze"},
-    {
-        "LongbowOak",
-        "ArrowsStone",
-        "PotionHealing",
-    },
-    {"ShirtSimple0", "PantsSimple0"},
-    {"GlovesLeather", "HatLeather"},
-    {"BootsLeather", "NecklaceSilver", "DaggerBronze"},
+    {"SwordBronze"},
+    {"DaggerBronze"},
+    {"DaggerBronze", "DaggerBronze"},
+    {"LongbowOak"},
+    {},
+    {},
 };
 
 void setupTestParty(model::Player& player, db::Database& database) {
@@ -62,9 +59,14 @@ void setupTestParty(model::Player& player, db::Database& database) {
       model::characterPlayerAddItemToInventory(
           member, database.getItemTemplate(bmin::toStringView(itemName)), 1);
     }
+    for (const auto& item : member.inventory) {
+      game::toggleEquippedInventoryItem(member, item.id, database);
+    }
 
     member.knownSpells.pushBack("FLAME");
-    member.equippedRunes = {model::RuneType::HEAT};
+    member.knownSpells.pushBack("HEAL_ALLY_MINOR");
+    member.knownSpells.pushBack("SINGE");
+    member.equippedRunes = {model::RuneType::HEAT, model::RuneType::REGROWTH};
     if (member.currentMp < 10) {
       member.currentMp = 10;
     }

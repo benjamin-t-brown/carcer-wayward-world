@@ -11,7 +11,7 @@
 #include "sdl2w/Draw.h"
 #include "state/StateManager.h"
 #include "ui/FontScale.h"
-#include "ui/colors.hpp"
+#include "model/ColorHex.h"
 #include <exception>
 
 namespace ui {
@@ -168,12 +168,13 @@ void MapView::renderDamageParticles(state::State& state,
 
     if (!particle.text.empty()) {
       auto& damageText = particle.text;
+      const auto rgb = model::rgbColorFromHex(particle.textColor);
       sdl2w::RenderTextParams textParams;
       textParams.fontName = "text-bold";
       textParams.fontSize = ui::applyFontScale(sdl2w::TEXT_SIZE_14, fontScale);
       textParams.x = centerX;
       textParams.y = centerY;
-      textParams.color = Colors::White;
+      textParams.color = SDL_Color{rgb.r, rgb.g, rgb.b, 255};
       textParams.centered = true;
       textParams.scale = {style.scale, style.scale};
       draw.drawText(bmin::toStringView(damageText), textParams);

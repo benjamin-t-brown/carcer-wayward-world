@@ -91,7 +91,7 @@ std::optional<int> getPartyMemberIndexFromKey(std::string_view key) {
   return static_cast<int>(key[0] - '1');
 }
 
-std::optional<int> getPickUpItemIndexFromKey(std::string_view key) {
+std::optional<int> getAlphabeticShortcutIndexFromKey(std::string_view key) {
   if (key.size() != 1) {
     return std::nullopt;
   }
@@ -103,6 +103,10 @@ std::optional<int> getPickUpItemIndexFromKey(std::string_view key) {
     return std::nullopt;
   }
   return static_cast<int>(c - 'a');
+}
+
+std::optional<int> getPickUpItemIndexFromKey(std::string_view key) {
+  return getAlphabeticShortcutIndexFromKey(key);
 }
 
 } // namespace ui

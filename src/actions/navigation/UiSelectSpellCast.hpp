@@ -15,8 +15,8 @@ namespace state {
 
 namespace actions {
 
-/** Validate a known spell for combat cast; on success close cast list and enter SPELL
- * aim. */
+/** Validate a known spell for combat cast. TARGET_ALLY opens an ally picker over the
+ * spell list; other types close the list and enter SPELL aim. */
 class UiSelectSpellCast : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::UiSelectSpellCast; }
   bmin::String spellId;
@@ -70,13 +70,18 @@ class UiSelectSpellCast : public AbstractAction {
     //   return;
     // }
 
-    // const auto* ability =
-    //     database->findAbilityTemplate(bmin::toStringView(spell->abilityName));
-    // if (ability == nullptr ||
-    //     ability->targetSelect.targetType != model::TargetSelectType::TARGET_ZONE) {
-    //   pushWarning(TRANSLATE("That spell cannot be aimed on the map."));
-    //   return;
-    // }
+    const auto* ability =
+        database->findAbilityTemplate(bmin::toStringView(spell->abilityName));
+    if (ability == nullptr) {
+      pushWarning(TRANSLATE("Cannot cast that spell."));
+      return;
+    }
+
+    if (ability->targetSelect.targetType == model::TargetSelectType::TARGET_ALLY) {
+      pushLayerRequest(*state,
+                       LayerRequest{.id = LayerId::SpellAllyTarget, .a = chId, .b = spellId});
+      return;
+    }
 
     removeLayerRequest(*state, LayerId::SpellCast);
     WorldSetActionMode(model::WorldActionMode::SPELL, {.spellId = spellId, .chId = chId})

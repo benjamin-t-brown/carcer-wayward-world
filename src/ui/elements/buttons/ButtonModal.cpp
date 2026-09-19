@@ -17,6 +17,7 @@ public:
 ButtonModal::ButtonModal(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
   addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ButtonModalDefaultObserver(this)));
+  playClickSound = true;
   TextFontProps font;
   setBaseFontConfig(font, BaseFontConfig::MODAL_BUTTON);
   props.fontFamily = font.fontFamily;

@@ -5,6 +5,7 @@
 #include "sdl2w/Logger.h"
 #include "actions/navigation/UiRemoveLayer.hpp"
 #include "ui/helpers/keyboardShortcuts.h"
+#include "ui/helpers/uiSounds.h"
 #include "ui/popups/PopupSpellInfo.h"
 
 namespace layers {
@@ -92,6 +93,7 @@ void LayerSpellInfo::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (!ui::isCancelActionKey(key)) {
     return;
   }
+  ui::playButtonSound(window);
   stateManager->enqueueAction(state::makeAction<state::actions::UiRemoveLayer>(bmin::String(LAYER_ID.data(), LAYER_ID.size())),
       0);
 }

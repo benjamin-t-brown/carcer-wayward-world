@@ -14,6 +14,7 @@ enum class LayerId {
   InventoryContext,
   Magic,
   SpellCast,
+  SpellAllyTarget,
   SpellInfo,
   EquipRunes,
   PickUp,
@@ -31,6 +32,7 @@ inline std::string_view layerIdString(LayerId id) {
   case LayerId::InventoryContext: return "layer_inventory_context";
   case LayerId::Magic: return "layer_magic";
   case LayerId::SpellCast: return "layer_spell_cast";
+  case LayerId::SpellAllyTarget: return "layer_spell_ally_target";
   case LayerId::SpellInfo: return "layer_spell_info";
   case LayerId::EquipRunes: return "layer_equip_runes";
   case LayerId::PickUp: return "layer_pick_up";
@@ -49,6 +51,7 @@ inline std::optional<LayerId> layerIdFromString(std::string_view value) {
                   LayerId::InventoryContext,
                   LayerId::Magic,
                   LayerId::SpellCast,
+                  LayerId::SpellAllyTarget,
                   LayerId::SpellInfo,
                   LayerId::EquipRunes,
                   LayerId::PickUp,

@@ -28,6 +28,7 @@ set(CARCER_LAYER_SOURCES
   src/layers/ui/LayerInventory.cpp
   src/layers/ui/LayerMagic.cpp
   src/layers/ui/LayerSpellCast.cpp
+  src/layers/ui/LayerSpellAllyTarget.cpp
   src/layers/ui/LayerEquipRunes.cpp
   src/layers/ui/LayerSpellInfo.cpp
   src/layers/ui/LayerPickUpContext.cpp
@@ -59,6 +60,8 @@ set(CARCER_RULE_SOURCES
   src/game/combat/SpellRules.cpp
   src/game/combat/projectileHelpers.cpp
   src/game/combat/Damage.cpp
+  src/game/combat/AbilityOverrideMerge.cpp
+  src/game/combat/MeleeAttackResolve.cpp
   src/game/combat/EnemyBehavior.cpp
   src/game/diceHelpers.cpp
   src/game/TalkEventPortrait.cpp
@@ -141,6 +144,7 @@ set(CARCER_UI_SOURCES
   src/ui/components/lists/ListInventory.cpp
   src/ui/components/lists/ListPickUp.cpp
   src/ui/components/lists/ListMagicSpells.cpp
+  src/ui/components/lists/ListSpellAllyTargets.cpp
   src/ui/components/lists/ListChCompactInfoVertical.cpp
   src/ui/components/lists/ListChCompactInfoHorizontal.cpp
   src/ui/layouts/InGameLayout.cpp
@@ -154,6 +158,7 @@ set(CARCER_UI_SOURCES
   src/ui/popups/PopupInventoryItem.cpp
   src/ui/popups/PopupSpellInfo.cpp
   src/ui/popups/PopupGive.cpp
+  src/ui/popups/PopupSpellAllyTarget.cpp
   src/ui/popups/PopupDropConfirm.cpp
   src/ui/popups/PopupPickupItem.cpp
   src/ui/pages/PageCharacter.cpp

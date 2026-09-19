@@ -44,6 +44,9 @@ int getCharacterHp(const Player& player, const CharacterInstance& character) {
 }
 
 void setCharacterHp(Player& player, CharacterInstance& character, int hp) {
+  if (character.maxHp > 0 && hp > character.maxHp) {
+    hp = character.maxHp;
+  }
   if (isPartyMember(player, character.id)) {
     for (auto& member : player.party) {
       if (member.instanceId == character.id) {
@@ -54,6 +57,17 @@ void setCharacterHp(Player& player, CharacterInstance& character, int hp) {
   }
   character.currentHp = hp;
   character.hpInitialized = true;
+}
+
+int appliedHpDelta(int currentHp, int maxHp, int delta) {
+  if (delta <= 0 || maxHp <= 0) {
+    return delta;
+  }
+  const auto missing = maxHp - currentHp;
+  if (missing <= 0) {
+    return 0;
+  }
+  return delta < missing ? delta : missing;
 }
 
 bool modifyPartyMemberHp(Player& player, const bmin::String& instanceId, int delta) {

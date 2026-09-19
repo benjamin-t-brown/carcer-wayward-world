@@ -12,6 +12,7 @@
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/helpers/keyboardShortcuts.h"
+#include "ui/helpers/uiSounds.h"
 #include "ui/minipages/MinipagePickUp.h"
 
 namespace layers {
@@ -96,6 +97,7 @@ void LayerPickUp::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (const auto partyIndex = ui::getPartyMemberIndexFromKey(key)) {
     if (*partyIndex <
         static_cast<int>(stateManager->getState().player.party.size())) {
+      ui::playButtonSound(window);
       stateManager->enqueueAction(state::makeAction<state::actions::UiSetCurrentPartyMember>(*partyIndex),
           0);
     }
@@ -108,6 +110,7 @@ void LayerPickUp::onKeyDown(std::string_view key, int /*keyCode*/) {
         *itemIndex <
             static_cast<int>(minipagePickUp->getProps().nearbyItems.size())) {
       const auto& item = minipagePickUp->getProps().nearbyItems[*itemIndex];
+      ui::playButtonSound(window);
       stateManager->enqueueAction(state::makeAction<state::actions::UiPickUpItem>(item.id),
                                   0);
     }
@@ -115,6 +118,7 @@ void LayerPickUp::onKeyDown(std::string_view key, int /*keyCode*/) {
   }
 
   if (ui::isCancelActionKey(key) || ui::isConfirmActionKey(key)) {
+    ui::playButtonSound(window);
     beginCloseWithDonePress();
   }
 }

@@ -21,6 +21,8 @@ struct DamageParticle {
   bmin::String animationName;
   std::optional<sdl2w::Animation> animation;
   bmin::String text;
+  /** `#RRGGBB` for `text`. Empty means white. */
+  bmin::String textColor;
   int tileX = 0;
   int tileY = 0;
   TimerStruct lifetime;

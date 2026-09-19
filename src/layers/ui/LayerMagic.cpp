@@ -11,6 +11,7 @@
 #include "actions/navigation/UiSetCurrentPartyMemberMagic.hpp"
 #include "actions/navigation/UiSetSpellReady.hpp"
 #include "ui/helpers/keyboardShortcuts.h"
+#include "ui/helpers/uiSounds.h"
 #include "ui/pages/PageMagicSetup.h"
 
 namespace layers {
@@ -103,6 +104,7 @@ void LayerMagic::onKeyDown(std::string_view key, int /*keyCode*/) {
 
   if (const auto partyIndex = ui::getPartyMemberIndexFromKey(key)) {
     if (*partyIndex < static_cast<int>(stateManager->getState().player.party.size())) {
+      ui::playButtonSound(window);
       stateManager->enqueueAction(state::makeAction<state::actions::UiSetCurrentPartyMemberMagic>(*partyIndex),
           0);
     }
@@ -112,6 +114,7 @@ void LayerMagic::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (!ui::isCancelActionKey(key)) {
     return;
   }
+  ui::playButtonSound(window);
   stateManager->enqueueAction(state::makeAction<state::actions::UiRemoveLayer>(bmin::String(LAYER_ID.data(), LAYER_ID.size())),
       0);
 }

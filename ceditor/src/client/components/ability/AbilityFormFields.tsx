@@ -31,6 +31,7 @@ import {
   PROJECTILE_TYPES,
   abilityDepictionHasProjectile,
   setAbilityDepictionHasProjectile,
+  normalizeDmgTextColor,
   ABILITY_COST_TYPES,
   STATUS_EVENT_TYPES,
   STATUS_EFFECT_CONDITIONS,
@@ -370,6 +371,35 @@ function DepictionSoundField({
   );
 }
 
+function DepictionTextColorField({
+  id,
+  name,
+  label,
+  value,
+  onChange,
+}: {
+  id: string;
+  name: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const hex = normalizeDmgTextColor(value);
+  return (
+    <div className="form-group depiction-preview-field">
+      <label htmlFor={id}>{label}</label>
+      <input
+        id={id}
+        name={name}
+        type="color"
+        value={hex.toLowerCase()}
+        onChange={(e) => onChange(normalizeDmgTextColor(e.target.value))}
+        style={{ width: '48px', height: '32px', padding: 0, border: '1px solid #ccc' }}
+      />
+    </div>
+  );
+}
+
 export function AbilityDepictionFields({
   value,
   onChange,
@@ -458,6 +488,13 @@ export function AbilityDepictionFields({
             onChange={(v) => update('dmgAnim', v)}
             options={animationOptions}
           />
+          <DepictionTextColorField
+            id={`${idPrefix}-dmg-text-color`}
+            name="dmgTextColor"
+            label="Dmg Text Color"
+            value={value.dmgTextColor}
+            onChange={(v) => update('dmgTextColor', v)}
+          />
           {projectileFields}
           <DepictionSoundField
             id={`${idPrefix}-start-sound`}
@@ -498,6 +535,13 @@ export function AbilityDepictionFields({
           value={value.dmgAnim}
           onChange={(v) => update('dmgAnim', v)}
           options={animationOptions}
+        />
+        <DepictionTextColorField
+          id={`${idPrefix}-dmg-text-color`}
+          name="dmgTextColor"
+          label="Dmg Text Color"
+          value={value.dmgTextColor}
+          onChange={(v) => update('dmgTextColor', v)}
         />
         {projectileFields}
       </div>

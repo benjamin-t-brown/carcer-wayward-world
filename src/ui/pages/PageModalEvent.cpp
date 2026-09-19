@@ -12,6 +12,7 @@
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/elements/buttons/ButtonTextWrap.h"
 #include "ui/helpers/modalLayoutFit.h"
+#include "ui/helpers/uiSounds.h"
 #include "ui/layouts/ModalSmall.h"
 #include "ui/observers/ActionObserver.hpp"
 #include <algorithm>
@@ -251,7 +252,8 @@ void PageModalEvent::beginKeyboardChoicePress(int choiceIndex) {
         }
         return nullptr;
       },
-      [this, choiceIndex]() { enqueueSelectChoice(choiceIndex); });
+      [this, choiceIndex]() { enqueueSelectChoice(choiceIndex); },
+      window);
 }
 
 void PageModalEvent::beginKeyboardContinuePress() {
@@ -269,10 +271,12 @@ void PageModalEvent::beginKeyboardContinuePress() {
           }
           return nullptr;
         },
-        [this]() { enqueueContinue(); });
+        [this]() { enqueueContinue(); },
+        window);
     return;
   }
   // No Okay on terminal "End." — Enter still dismisses via the continue action.
+  playButtonSound(window);
   enqueueContinue();
 }
 

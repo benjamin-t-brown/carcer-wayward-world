@@ -11,6 +11,7 @@
 #include "actions/navigation/UiToggleEquipInventoryItem.hpp"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/helpers/keyboardShortcuts.h"
+#include "ui/helpers/uiSounds.h"
 #include "ui/pages/PageInventory.h"
 
 namespace layers {
@@ -68,6 +69,7 @@ void LayerInventory::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (const auto partyIndex = ui::getPartyMemberIndexFromKey(key)) {
     if (*partyIndex <
         static_cast<int>(stateManager->getState().player.party.size())) {
+      ui::playButtonSound(window);
       stateManager->enqueueAction(state::makeAction<state::actions::UiSetCurrentPartyMemberInventory>(*partyIndex),
           0);
     }
@@ -77,6 +79,7 @@ void LayerInventory::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (!ui::isCancelActionKey(key)) {
     return;
   }
+  ui::playButtonSound(window);
   stateManager->enqueueAction(state::makeAction<state::actions::UiRemoveLayer>(bmin::String(LAYER_ID.data(), LAYER_ID.size())),
       0);
 }

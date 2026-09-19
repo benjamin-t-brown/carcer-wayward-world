@@ -183,14 +183,12 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
   };
 
   const updateCharacter = (character: CharacterTemplate) => {
-    const currentCharacterIndex = getActualIndex(editCharacterIndex);
-    const currentCharacter = characters[currentCharacterIndex];
-    if (currentCharacter) {
-      // Update existing character in real-time
-      const updatedCharacters = [...characters];
-      updatedCharacters[currentCharacterIndex] = character;
-      setCharacters(updatedCharacters);
+    if (editCharacterIndex < 0) {
+      return;
     }
+    const updatedCharacters = [...characters];
+    updatedCharacters[editCharacterIndex] = character;
+    setCharacters(updatedCharacters);
   };
 
   const validateCharacters = (): { isValid: boolean; error?: string } => {
@@ -269,8 +267,8 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
       return;
     }
 
-    const currentCharacterIndex = editCharacterIndex >= 0 ? getActualIndex(editCharacterIndex) : -1;
-    const currentCharacterName = currentCharacterIndex >= 0 ? characters[currentCharacterIndex]?.name : undefined;
+    const currentCharacterName =
+      editCharacterIndex >= 0 ? characters[editCharacterIndex]?.name : undefined;
 
     const trimmedCharacters = trimStrings(characters);
 

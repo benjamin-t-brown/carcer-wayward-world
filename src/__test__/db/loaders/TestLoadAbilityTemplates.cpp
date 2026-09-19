@@ -31,6 +31,22 @@ int main(int argc, char** argv) {
       return 1;
     }
 
+    const auto defaultIt = abilityTemplates.find(bmin::String("MELEE_ATTACK_DEFAULT"));
+    if (defaultIt == abilityTemplates.end()) {
+      LOG(ERROR) << "Missing MELEE_ATTACK_DEFAULT ability" << LOG_ENDL;
+      return 1;
+    }
+    if (defaultIt->value.attacks.empty()) {
+      LOG(ERROR) << "MELEE_ATTACK_DEFAULT should have attacks" << LOG_ENDL;
+      return 1;
+    }
+    if (defaultIt->value.depiction.dmgAnim.empty() ||
+        defaultIt->value.depiction.dmgSound.empty()) {
+      LOG(ERROR) << "MELEE_ATTACK_DEFAULT should have depiction anim and sound"
+                 << LOG_ENDL;
+      return 1;
+    }
+
     const auto singeIt = abilityTemplates.find(bmin::String("SPELL_SINGE"));
     if (singeIt == abilityTemplates.end()) {
       LOG(ERROR) << "Missing SPELL_SINGE ability" << LOG_ENDL;
@@ -59,6 +75,10 @@ int main(int argc, char** argv) {
     }
     if (singeDamage.dmgStatMult != 0.25f) {
       LOG(ERROR) << "SPELL_SINGE dmgStatMult should be 0.25" << LOG_ENDL;
+      return 1;
+    }
+    if (singeIt->value.depiction.dmgTextColor != bmin::String("#111111")) {
+      LOG(ERROR) << "SPELL_SINGE dmgTextColor should be #111111" << LOG_ENDL;
       return 1;
     }
 

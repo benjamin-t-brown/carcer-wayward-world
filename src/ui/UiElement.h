@@ -51,6 +51,9 @@ protected:
 public:
   bool isHovered = false;
   bool isClicked = false;
+  // When true, a completed click (mouse-up in bounds after mouse-down) plays
+  // the UI "button" sound. Keyboard equivalents call playButtonSound themselves.
+  bool playClickSound = false;
   // Constructor
   UiElement(sdl2w::Window* _window, UiElement* _parent = nullptr);
   virtual ~UiElement() = default;

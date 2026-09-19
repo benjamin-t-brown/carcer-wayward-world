@@ -233,6 +233,9 @@ model::AbilityDepiction parseAbilityDepiction(const Json& json) {
     throw std::runtime_error("AbilityDepiction missing dmgAnim");
   }
   depiction.dmgAnim = json["dmgAnim"].get<bmin::String>();
+  if (json.contains("dmgTextColor") && json["dmgTextColor"].is_string()) {
+    depiction.dmgTextColor = json["dmgTextColor"].get<bmin::String>();
+  }
   if (json.contains("projectileType") && json["projectileType"].is_string()) {
     depiction.projectileType = model::projectileTypeFromString(json["projectileType"].get<bmin::String>());
   } else if (json.contains("projectileAnim") && json["projectileAnim"].is_string()) {

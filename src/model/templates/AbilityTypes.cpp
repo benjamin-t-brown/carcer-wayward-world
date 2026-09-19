@@ -85,6 +85,9 @@ TargetSelectType targetSelectTypeFromString(const bmin::String& value) {
   if (value == "TARGET_UNIT" || value == "TARGET_MOVE") {
     return TargetSelectType::TARGET_UNIT;
   }
+  if (value == "TARGET_ALLY") {
+    return TargetSelectType::TARGET_ALLY;
+  }
   if (value == "TARGET_ZONE") {
     return TargetSelectType::TARGET_ZONE;
   }
@@ -100,6 +103,8 @@ bmin::String targetSelectTypeToString(TargetSelectType value) {
     return "TARGET_SELF";
   case TargetSelectType::TARGET_UNIT:
     return "TARGET_UNIT";
+  case TargetSelectType::TARGET_ALLY:
+    return "TARGET_ALLY";
   case TargetSelectType::TARGET_ZONE:
     return "TARGET_ZONE";
   case TargetSelectType::TARGET_ALL_IN_RANGE:

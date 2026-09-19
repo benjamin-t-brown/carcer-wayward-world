@@ -1,4 +1,5 @@
 #include "db/Database.h"
+#include "game/map/Camera.h"
 #include "model/instances/CharacterInstance.hpp"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/MapGrids.hpp"
@@ -7,6 +8,7 @@
 #include "state/State.hpp"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
+#include "actions/combat/SetActiveCombatCharacter.hpp"
 #include "actions/world/WorldMoveActionAim.hpp"
 #include "actions/world/WorldSetActionAim.hpp"
 #include "actions/world/WorldSetActionMode.hpp"
@@ -183,6 +185,127 @@ int main(int /*argc*/, char** /*argv*/) {
     setAim.execute(&state);
     ok = assertFalse(state.world.actionAimTile.has_value(),
                      "set aim no-op when mode NONE") &&
+         ok;
+  }
+
+  {
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupGrid(database, state, 5, 5);
+    placeAvatar(state, 2, 2);
+    state.world.camera.viewW = 100;
+    state.world.camera.viewH = 80;
+    state.world.camera.camX = 999;
+    state.world.camera.camY = 999;
+    state.world.camera.cameraMode = model::CameraMode::Follow;
+
+    state::actions::WorldSetActionMode setSpell(model::WorldActionMode::SPELL);
+    setSpell.execute(&state);
+
+    ok = assertTrue(state.world.actionMode == model::WorldActionMode::SPELL,
+                    "spell mode set") &&
+         ok;
+    ok = assertTrue(state.world.camera.cameraMode == model::CameraMode::Aiming,
+                    "spell aim sets Aiming") &&
+         ok;
+    ok = assertTrue(state.world.actionAimTile.has_value(), "spell aim initialized") &&
+         ok;
+    if (state.world.actionAimTile) {
+      ok = assertEqual(state.world.actionAimTile->x, 2, "spell aim x") && ok;
+      ok = assertEqual(state.world.actionAimTile->y, 2, "spell aim y") && ok;
+    }
+    auto expected = game::computeCameraFollow(2, 2, 100, 80);
+    ok = assertEqual(state.world.camera.camX, expected.camX, "spell enter camX") && ok;
+    ok = assertEqual(state.world.camera.camY, expected.camY, "spell enter camY") && ok;
+
+    state::actions::WorldMoveActionAim moveEast(1, 0);
+    moveEast.execute(&state);
+    ok = assertEqual(state.world.actionAimTile->x, 3, "keyboard aim x") && ok;
+    ok = assertEqual(state.world.actionAimTile->y, 2, "keyboard aim y") && ok;
+    expected = game::computeCameraFollow(3, 2, 100, 80);
+    ok = assertEqual(state.world.camera.camX, expected.camX, "keyboard aim camX") && ok;
+    ok = assertEqual(state.world.camera.camY, expected.camY, "keyboard aim camY") && ok;
+
+    const auto keyboardCamX = state.world.camera.camX;
+    const auto keyboardCamY = state.world.camera.camY;
+    state::actions::WorldSetActionAim setAim(0, 1);
+    setAim.execute(&state);
+    ok = assertEqual(state.world.actionAimTile->x, 0, "mouse aim x") && ok;
+    ok = assertEqual(state.world.actionAimTile->y, 1, "mouse aim y") && ok;
+    ok = assertEqual(state.world.camera.camX, keyboardCamX, "mouse aim keeps camX") &&
+         ok;
+    ok = assertEqual(state.world.camera.camY, keyboardCamY, "mouse aim keeps camY") &&
+         ok;
+
+    state::actions::WorldSetActionMode clear(model::WorldActionMode::NONE);
+    clear.execute(&state);
+    ok = assertTrue(state.world.camera.cameraMode == model::CameraMode::Follow,
+                    "town spell cancel restores Follow") &&
+         ok;
+  }
+
+  {
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupGrid(database, state, 5, 5);
+    placeAvatar(state, 2, 2);
+    state.world.combat.active = true;
+    state.world.combat.activeCharacterId = "player1";
+    state.world.camera.viewW = 100;
+    state.world.camera.viewH = 80;
+    state.world.camera.cameraMode = model::CameraMode::Follow;
+
+    state::actions::WorldSetActionMode setSpell(model::WorldActionMode::SPELL);
+    setSpell.execute(&state);
+    state::actions::WorldMoveActionAim moveEast(1, 0);
+    moveEast.execute(&state);
+    auto aimed = game::computeCameraFollow(3, 2, 100, 80);
+    ok = assertEqual(state.world.camera.camX, aimed.camX, "combat aim camX") && ok;
+    ok = assertEqual(state.world.camera.camY, aimed.camY, "combat aim camY") && ok;
+
+    state::actions::WorldSetActionMode clear(model::WorldActionMode::NONE);
+    clear.execute(&state);
+    ok = assertTrue(state.world.camera.cameraMode == model::CameraMode::Aiming,
+                    "combat spell end keeps Aiming") &&
+         ok;
+    ok = assertEqual(state.world.camera.camX, aimed.camX, "combat spell end keeps camX") &&
+         ok;
+    ok = assertEqual(state.world.camera.camY, aimed.camY, "combat spell end keeps camY") &&
+         ok;
+
+    state::actions::SetActiveCombatCharacter nextTurn("player1");
+    nextTurn.execute(&state);
+    auto nextTurnCam = game::computeCameraFollow(2, 2, 100, 80);
+    ok = assertTrue(state.world.camera.cameraMode == model::CameraMode::Follow,
+                    "next turn restores Follow") &&
+         ok;
+    ok = assertEqual(state.world.camera.camX, nextTurnCam.camX, "next turn camX") && ok;
+    ok = assertEqual(state.world.camera.camY, nextTurnCam.camY, "next turn camY") && ok;
+  }
+
+  {
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupGrid(database, state, 5, 5);
+    placeAvatar(state, 2, 2);
+    state.world.camera.viewW = 100;
+    state.world.camera.viewH = 80;
+    auto expected = game::computeCameraFollow(2, 2, 100, 80);
+    state.world.camera.camX = expected.camX;
+    state.world.camera.camY = expected.camY;
+    state.world.camera.cameraMode = model::CameraMode::Follow;
+
+    state::actions::WorldSetActionMode setExamine(model::WorldActionMode::EXAMINE);
+    setExamine.execute(&state);
+    state::actions::WorldMoveActionAim moveEast(1, 0);
+    moveEast.execute(&state);
+    ok = assertTrue(state.world.camera.cameraMode == model::CameraMode::Follow,
+                    "examine camera stays Follow") &&
+         ok;
+    ok = assertEqual(state.world.actionAimTile->x, 3, "examine aim x") && ok;
+    ok = assertEqual(state.world.camera.camX, expected.camX, "examine move keeps camX") &&
+         ok;
+    ok = assertEqual(state.world.camera.camY, expected.camY, "examine move keeps camY") &&
          ok;
   }
 

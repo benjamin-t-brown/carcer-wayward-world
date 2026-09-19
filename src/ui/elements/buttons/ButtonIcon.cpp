@@ -27,6 +27,7 @@ ButtonIcon::ButtonIcon(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {
   addEventObserver(bmin::UniquePtr<ui::UiEventObserver>(new ButtonIconDefaultObserver(this)));
   shouldPropagateEventsToChildren = false;
+  playClickSound = true;
 }
 
 void ButtonIcon::setProps(const ButtonIconProps& _props) {

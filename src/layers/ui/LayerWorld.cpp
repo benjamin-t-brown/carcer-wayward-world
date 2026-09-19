@@ -79,6 +79,12 @@ void LayerWorld::onMouseHover(int x, int y) {
 }
 
 void LayerWorld::onMouseDown(int x, int y, int button) {
+  if (auto* inGameLayout = getUiElement<ui::InGameLayout>("inGameLayout")) {
+    if (inGameLayout->isMapOverlayControlAt(x, y)) {
+      UiLayer::onMouseDown(x, y, button);
+      return;
+    }
+  }
   if (inputController.onMouseDown(x, y, button)) {
     return;
   }
@@ -152,6 +158,7 @@ void LayerWorld::update(int deltaTime) {
 
   viewSync.syncWorldActionModeHighlight();
   viewSync.syncActionModeCancelButton();
+  viewSync.syncSpellAimCameraButtons();
   viewSync.syncActionModeCursor();
   viewSync.syncCombatTitleBar();
 }

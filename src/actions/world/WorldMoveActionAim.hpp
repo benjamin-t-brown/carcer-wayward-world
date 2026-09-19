@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/Camera.h"
 #include "model/instances/World.hpp"
 #include "state/AbstractAction.hpp"
 #include "state/State.hpp"
@@ -50,6 +51,9 @@ class WorldMoveActionAim : public AbstractAction {
     }
     aim.x = nextX;
     aim.y = nextY;
+    if (state->world.actionMode == model::WorldActionMode::SPELL) {
+      game::snapCameraToTile(state->world.camera, aim.x, aim.y);
+    }
   }
 
 public:

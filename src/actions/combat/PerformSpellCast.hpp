@@ -29,50 +29,41 @@ class PerformSpellCast : public AbstractAction {
   bmin::String spellId;
   model::SpellTargetInfo spellTargetInfo;
 
-  void doZoneSpell(const model::AbilityTemplate& ability,
-                   model::CharacterInstance& caster,
-                   game::ActiveMapOrchestrator& orch) {
+  void playSoundIfNamed(const bmin::String& soundName) {
+    if (soundName.empty()) {
+      return;
+    }
+    insertAction(state::makeAction<PlaySound>(soundName), 0);
+  }
+
+  void applySpellToCharacters(const model::AbilityTemplate& ability,
+                              model::CharacterInstance& caster,
+                              const model::CharacterStats& casterStats,
+                              const bmin::DynArray<model::CharacterInstance*>& targets,
+                              int targetTileX,
+                              int targetTileY) {
     const auto& depiction = ability.depiction;
     auto casterX = caster.x;
     auto casterY = caster.y;
-    auto targetTileX = spellTargetInfo.tileX;
-    auto targetTileY = spellTargetInfo.tileY;
-    auto zoneW = ability.targetSelect.zoneSize.x;
-    auto zoneH = ability.targetSelect.zoneSize.y;
-    // ignore attacks/restores
 
-    // TODO status effects
-
-    bmin::DynArray<model::CharacterInstance*> charactersInZone;
-    bmin::DynArray<int> damageDealtToCharactersInZone;
-
-    for (int i = 0; i < zoneW; ++i) {
-      for (int j = 0; j < zoneH; ++j) {
-        const auto tileX = targetTileX + i - zoneW / 2;
-        const auto tileY = targetTileY + j - zoneH / 2;
-        auto chAtTile = orch.findAllCharactersAt(tileX, tileY);
-        for (auto ch : chAtTile) {
-          charactersInZone.pushBack(ch);
-          damageDealtToCharactersInZone.pushBack(0);
-        }
-      }
+    bmin::DynArray<int> hpDeltaToCharacters;
+    for (size_t i = 0; i < targets.size(); i++) {
+      auto* ch = targets[i];
+      const auto rolledHpDelta =
+          game::calculateAbilityTemplateHpDelta(ability, casterStats);
+      const auto currentHp = model::getCharacterHp(state->player, *ch);
+      const auto hpDelta = model::appliedHpDelta(currentHp, ch->maxHp, rolledHpDelta);
+      hpDeltaToCharacters.pushBack(hpDelta);
+      LOG(DEBUG) << "PerformSpellCast: " << spellId << " vs "
+                 << model::formatCharacterLogLabel(state->world.activeMap, ch->id)
+                 << " hpDelta=" << hpDelta << " (rolled=" << rolledHpDelta << ")"
+                 << LOG_ENDL;
     }
 
-    for (size_t i = 0; i < charactersInZone.size(); i++) {
-      auto ch = charactersInZone[i];
-      auto damageDealt = 0;
-      for (const auto& damage : ability.damages) {
-        auto result = game::calculateAbilityDamage(damage, caster, *ch);
-        damageDealt += result.damage;
-      }
-      damageDealtToCharactersInZone[i] = damageDealt;
-    }
-
-    model::updateCharacterFacingToward(
-        caster, spellTargetInfo.tileX, spellTargetInfo.tileY);
+    model::updateCharacterFacingToward(caster, targetTileX, targetTileY);
 
     insertAction(state::makeAction<CharacterSetSpriteIndexOffset>(casterId, 1), 0);
-    insertAction(state::makeAction<PlaySound>(depiction.startSound), 0);
+    playSoundIfNamed(depiction.startSound);
 
     int delayMs = 300;
     if (depiction.projectileType != model::ProjectileType::PROJECTILE_NONE) {
@@ -80,8 +71,8 @@ class PerformSpellCast : public AbstractAction {
       auto animBase = model::projectileTypeToAnimBase(depiction.projectileType);
       if (!animBase.empty()) {
         if (model::projectileTypeHasFacing(depiction.projectileType)) {
-          animBase += game::getProjectileFacingSuffix(spellTargetInfo.tileX - caster.x,
-                                                      spellTargetInfo.tileY - caster.y);
+          animBase += game::getProjectileFacingSuffix(targetTileX - caster.x,
+                                                      targetTileY - caster.y);
         }
         insertAction(state::makeAction<WorldSpawnProjectile>(animBase,
                                               static_cast<float>(casterX),
@@ -97,28 +88,146 @@ class PerformSpellCast : public AbstractAction {
     insertAction(nullptr, delayMs);
 
     const int damageParticleLifetimeMs = 500;
-    if (!depiction.dmgAnim.empty()) {
-      for (size_t i = 0; i < charactersInZone.size(); i++) {
-        auto ch = charactersInZone[i];
-        auto chX = ch->x;
-        auto chY = ch->y;
-        auto damageDealt = damageDealtToCharactersInZone[i];
+    for (size_t i = 0; i < targets.size(); i++) {
+      auto* ch = targets[i];
+      const auto hpDelta = hpDeltaToCharacters[i];
+      if (hpDelta != 0) {
+        insertAction(state::makeAction<ModifyHP>(ch->id, hpDelta), i * 50);
+      }
+      if (!depiction.dmgAnim.empty()) {
+        const auto particleText =
+            hpDelta > 0 ? bmin::toString(hpDelta) : bmin::toString(-hpDelta);
         insertAction(state::makeAction<WorldSpawnDamageParticle>(depiction.dmgAnim,
-                                                  bmin::toString(damageDealt),
-                                                  chX,
-                                                  chY,
-                                                  damageParticleLifetimeMs),
+                                                  particleText,
+                                                  ch->x,
+                                                  ch->y,
+                                                  damageParticleLifetimeMs,
+                                                  depiction.dmgTextColor),
                      i * 50);
-        insertAction(state::makeAction<ModifyHP>(casterId, damageDealt), i * 50);
       }
     }
 
-    if (charactersInZone.size() > 0) {
-      insertAction(state::makeAction<PlaySound>(depiction.dmgSound), 0);
+    if (targets.size() > 0) {
+      playSoundIfNamed(depiction.dmgSound);
       insertAction(nullptr, damageParticleLifetimeMs);
     } else {
       LOG(INFO) << "Missed!" << LOG_ENDL;
     }
+  }
+
+  void doZoneSpell(const model::AbilityTemplate& ability,
+                   model::CharacterInstance& caster,
+                   const model::CharacterStats& casterStats,
+                   game::ActiveMapOrchestrator& orch) {
+    auto targetTileX = spellTargetInfo.tileX;
+    auto targetTileY = spellTargetInfo.tileY;
+    auto zoneW = ability.targetSelect.zoneSize.x;
+    auto zoneH = ability.targetSelect.zoneSize.y;
+
+    bmin::DynArray<model::CharacterInstance*> charactersInZone;
+    for (int i = 0; i < zoneW; ++i) {
+      for (int j = 0; j < zoneH; ++j) {
+        const auto tileX = targetTileX + i - zoneW / 2;
+        const auto tileY = targetTileY + j - zoneH / 2;
+        auto chAtTile = orch.findAllCharactersAt(tileX, tileY);
+        for (auto ch : chAtTile) {
+          charactersInZone.pushBack(ch);
+        }
+      }
+    }
+
+    applySpellToCharacters(
+        ability, caster, casterStats, charactersInZone, targetTileX, targetTileY);
+  }
+
+  bool matchesSpellAllegiance(const model::CharacterInstance& caster,
+                              const model::CharacterInstance& target,
+                              model::TargetAllegianceSelectType allegiance) {
+    const auto isSelf = target.id == caster.id;
+    const auto sameTeam = model::isCharacterAlly(state->player, caster) ==
+                          model::isCharacterAlly(state->player, target);
+    switch (allegiance) {
+    case model::TargetAllegianceSelectType::TARGET_ALLEGIANCE_OTHER:
+      return !isSelf && !sameTeam;
+    case model::TargetAllegianceSelectType::TARGET_ALLEGIANCE_SAME:
+      return !isSelf && sameTeam;
+    case model::TargetAllegianceSelectType::TARGET_ALLEGIANCE_SAME_AND_SELF:
+      return sameTeam;
+    case model::TargetAllegianceSelectType::TARGET_ALLEGIANCE_ALL:
+      return !isSelf;
+    case model::TargetAllegianceSelectType::TARGET_ALLEGIANCE_ALL_AND_SELF:
+      return true;
+    }
+    return false;
+  }
+
+  void addUnitSpellTarget(bmin::DynArray<model::CharacterInstance*>& targets,
+                          model::CharacterInstance* ch,
+                          const model::CharacterInstance& caster,
+                          const model::AbilityTemplate& ability) {
+    if (ch == nullptr) {
+      return;
+    }
+    if (!matchesSpellAllegiance(caster, *ch, ability.targetSelect.allegianceSelectType)) {
+      return;
+    }
+    for (size_t i = 0; i < targets.size(); i++) {
+      if (targets[i]->id == ch->id) {
+        return;
+      }
+    }
+    const auto maxTargets = ability.targetSelect.numTargetableUnits;
+    if (maxTargets > 0 && static_cast<int>(targets.size()) >= maxTargets) {
+      return;
+    }
+    targets.pushBack(ch);
+  }
+
+  void doUnitSpell(const model::AbilityTemplate& ability,
+                   model::CharacterInstance& caster,
+                   const model::CharacterStats& casterStats,
+                   game::ActiveMapOrchestrator& orch) {
+    auto targetTileX = spellTargetInfo.tileX;
+    auto targetTileY = spellTargetInfo.tileY;
+
+    bmin::DynArray<model::CharacterInstance*> targets;
+    if (!spellTargetInfo.targetCharacterId.empty()) {
+      addUnitSpellTarget(targets,
+                         orch.findCharacterById(spellTargetInfo.targetCharacterId),
+                         caster,
+                         ability);
+    }
+    if (targets.empty()) {
+      auto atTile = orch.findAllCharactersAt(targetTileX, targetTileY);
+      for (auto* ch : atTile) {
+        addUnitSpellTarget(targets, ch, caster, ability);
+      }
+    }
+
+    applySpellToCharacters(
+        ability, caster, casterStats, targets, targetTileX, targetTileY);
+  }
+
+  void doAllySpell(const model::AbilityTemplate& ability,
+                   model::CharacterInstance& caster,
+                   const model::CharacterStats& casterStats,
+                   game::ActiveMapOrchestrator& orch) {
+    auto* target = orch.findCharacterById(spellTargetInfo.targetCharacterId);
+    if (target == nullptr) {
+      LOG(ERROR) << "PerformSpellCast: TARGET_ALLY missing map character "
+                 << spellTargetInfo.targetCharacterId << LOG_ENDL;
+      return;
+    }
+    if (!model::isPartyMember(state->player, target->id)) {
+      LOG(ERROR) << "PerformSpellCast: TARGET_ALLY is not a party member "
+                 << target->id << LOG_ENDL;
+      return;
+    }
+
+    bmin::DynArray<model::CharacterInstance*> targets;
+    targets.pushBack(target);
+    applySpellToCharacters(
+        ability, caster, casterStats, targets, target->x, target->y);
   }
 
   bool verifySpellCanBeCast(const model::CharacterInstance& caster,
@@ -174,12 +283,33 @@ class PerformSpellCast : public AbstractAction {
 
     // do
 
+    auto npcStats = model::CharacterStats{};
+    auto casterRef = model::SpellCasterRef{};
+    const model::CharacterStats* casterStats = nullptr;
+    if (model::resolveCombatSpellCaster(
+            state->player, *caster, *database, npcStats, casterRef) &&
+        casterRef.stats != nullptr) {
+      casterStats = casterRef.stats;
+    }
+    auto zeroStats = model::CharacterStats{};
+    if (casterStats == nullptr) {
+      casterStats = &zeroStats;
+    }
+
     if (ability->apCost != 0) {
       insertAction(state::makeAction<ModifyAP>(casterId, -ability->apCost), 0);
     }
 
     if (ability->targetSelect.targetType == model::TargetSelectType::TARGET_ZONE) {
-      doZoneSpell(*ability, *caster, orch);
+      doZoneSpell(*ability, *caster, *casterStats, orch);
+    } else if (ability->targetSelect.targetType == model::TargetSelectType::TARGET_ALLY) {
+      doAllySpell(*ability, *caster, *casterStats, orch);
+    } else if (ability->targetSelect.targetType == model::TargetSelectType::TARGET_UNIT) {
+      doUnitSpell(*ability, *caster, *casterStats, orch);
+    } else {
+      LOG(ERROR) << "PerformSpellCast: unhandled target type "
+                 << model::targetSelectTypeToString(ability->targetSelect.targetType)
+                 << " for " << spellId << LOG_ENDL;
     }
 
     insertAction(state::makeAction<CharacterSetSpriteIndexOffset>(casterId, 0), 0);

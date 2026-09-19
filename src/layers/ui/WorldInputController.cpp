@@ -8,6 +8,7 @@
 #include "actions/world/WorldSetActionAim.hpp"
 #include "ui/components/MapView.h"
 #include "ui/helpers/keyboardShortcuts.h"
+#include "ui/helpers/uiSounds.h"
 #include "ui/helpers/worldActions.h"
 #include "ui/helpers/worldCommands.h"
 
@@ -30,6 +31,7 @@ void WorldInputController::onKeyDown(std::string_view key, int /*keyCode*/) {
         model::WorldActionMode::SPELL,
     };
     if (cancellableActionModes.contains(world.actionMode)) {
+      ui::playButtonSound(owner.getWindow());
       ui::cancelCurrentWorldActionMode(*stateManager);
       return;
     }
@@ -45,15 +47,18 @@ void WorldInputController::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (!world.resolvingTownEnemyAi) {
     // `r` always opens magic setup (not remapped through combat Ability → cast).
     if (ui::isOpenMagicSetupKey(key)) {
+      ui::playButtonSound(owner.getWindow());
       ui::showMagicSetupLayer(*stateManager, owner.getWindow());
       return;
     }
     if (ui::isOpenSpellCastKey(key)) {
+      ui::playButtonSound(owner.getWindow());
       ui::showSpellCastLayer(*stateManager, owner.getWindow());
       return;
     }
     if (auto actionType = ui::getWorldActionFromKeyboardShortcut(
             key, stateManager->getState().turnMode)) {
+      ui::playButtonSound(owner.getWindow());
       ui::activateWorldAction(*stateManager, *actionType, owner.getWindow());
       return;
     }
@@ -65,6 +70,7 @@ void WorldInputController::onKeyDown(std::string_view key, int /*keyCode*/) {
 
   if (isAimMode && ui::isConfirmActionKey(key)) {
     if (!world.resolvingTownEnemyAi && world.actionAimTile) {
+      ui::playButtonSound(owner.getWindow());
       ui::confirmWorldActionAim(*stateManager, owner.getWindow(), getDatabase(),
                                 world.actionAimTile->x, world.actionAimTile->y);
     }

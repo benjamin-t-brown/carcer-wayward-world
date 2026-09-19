@@ -43,8 +43,12 @@ private:
   static constexpr float requiredRuneIconScale = 1.f;
   static constexpr int requiredRuneGap = 2;
   static constexpr int requiredRunesRightPadding = 4;
+  static constexpr int maxShortcutItems = 26;
+  static constexpr int shortcutColumnWidth = 14;
+  static constexpr int shortcutGapAfterLetter = 6;
 
-  UiElement* createSpellElement(const ListMagicSpellsPropsSpell& spell);
+  UiElement* createSpellElement(const ListMagicSpellsPropsSpell& spell, int index);
+  static bmin::String shortcutLetterForIndex(int index);
 
 public:
   ListMagicSpells(sdl2w::Window* _window, UiElement* _parent = nullptr);

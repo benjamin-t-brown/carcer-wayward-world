@@ -621,7 +621,8 @@ void PageTalkChoice::beginKeyboardChoicePress(int choiceIndex) {
         }
         return nullptr;
       },
-      [this, choiceIndex]() { enqueueSelectChoice(choiceIndex); });
+      [this, choiceIndex]() { enqueueSelectChoice(choiceIndex); },
+      window);
 }
 
 void PageTalkChoice::beginKeyboardContinuePress() {
@@ -645,7 +646,8 @@ void PageTalkChoice::beginKeyboardContinuePress() {
         } else {
           performShowMore();
         }
-      });
+      },
+      window);
 }
 
 void PageTalkChoice::onKeyDown(std::string_view key) {

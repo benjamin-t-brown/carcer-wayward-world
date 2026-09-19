@@ -7,10 +7,12 @@
 #include "ui/elements/OutsetRectangle.h"
 #include "ui/elements/Quad.h"
 #include "ui/elements/buttons/ButtonClose.h"
+#include "ui/elements/buttons/ButtonScroll.h"
 #include "ui/elements/buttons/ButtonWorldAction.h"
 #include "ui/elements/TextLine.h"
 #include "ui/components/InGameTitleBar.h"
 #include "ui/colors.hpp"
+#include "ui/uiUtils.hpp"
 
 namespace ui {
 
@@ -207,6 +209,88 @@ void InGameLayout::setActionModeCancelVisible(bool visible,
   }
 }
 
+namespace {
+
+constexpr const char* kSpellAimCameraButtonIds[] = {
+    "spellAimCameraUp",
+    "spellAimCameraDown",
+    "spellAimCameraLeft",
+    "spellAimCameraRight",
+};
+
+void removeSpellAimCameraButtons(InGameLayout& layout) {
+  for (const auto* id : kSpellAimCameraButtonIds) {
+    layout.removeChildById(id);
+  }
+}
+
+} // namespace
+
+void InGameLayout::setSpellAimCameraButtonsVisible(bool visible) {
+  removeSpellAimCameraButtons(*this);
+  if (!visible) {
+    return;
+  }
+
+  constexpr int kPad = 4;
+  constexpr int kBtn = 32;
+  auto [worldX, worldY] = getWorldLocation();
+  auto [worldW, worldH] = getWorldDims();
+  const int btnSize = static_cast<int>(kBtn * style.scale);
+  const int pad = static_cast<int>(kPad * style.scale);
+
+  auto addButton = [&](const char* id, ScrollDirection direction, int x, int y) {
+    auto* button = new ButtonScroll(window, this);
+    button->setId(id);
+    button->setScale(style.scale);
+    button->setPos(x, y);
+    button->playClickSound = true;
+    button->setProps(ButtonScrollProps{
+        .direction = direction,
+        .width = kBtn,
+        .height = kBtn,
+    });
+    addChild(bmin::UniquePtr<ui::UiElement>(button));
+  };
+
+  addButton("spellAimCameraUp",
+            ScrollDirection::UP,
+            worldX + (worldW - btnSize) / 2,
+            worldY + pad);
+  addButton("spellAimCameraDown",
+            ScrollDirection::DOWN,
+            worldX + (worldW - btnSize) / 2,
+            worldY + worldH - btnSize - pad);
+  addButton("spellAimCameraLeft",
+            ScrollDirection::LEFT,
+            worldX + pad,
+            worldY + (worldH - btnSize) / 2);
+  addButton("spellAimCameraRight",
+            ScrollDirection::RIGHT,
+            worldX + worldW - btnSize - pad,
+            worldY + (worldH - btnSize) / 2);
+}
+
+bool InGameLayout::isMapOverlayControlAt(int x, int y) {
+  constexpr const char* overlayIds[] = {
+      "actionModeCancel",
+      "actionModeLabel",
+      "actionModeLabelBg",
+      "spellAimCameraUp",
+      "spellAimCameraDown",
+      "spellAimCameraLeft",
+      "spellAimCameraRight",
+  };
+  for (const auto* id : overlayIds) {
+    if (auto* child = getChildById(id)) {
+      if (isInBoundsScaled(x, y, child)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 const std::pair<int, int> InGameLayout::getWorldDims() {
   auto* border = dynamic_cast<BorderInGame*>(getChildById("border"));
   if (border) {
@@ -238,6 +322,7 @@ void InGameLayout::build() {
   removeChildById("actionModeCancel");
   removeChildById("actionModeLabelBg");
   removeChildById("actionModeLabel");
+  removeSpellAimCameraButtons(*this);
 
   if (props.width > 0) {
     style.width = props.width;

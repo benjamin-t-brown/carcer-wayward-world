@@ -26,6 +26,7 @@ enum class AbilityType {
 enum class TargetSelectType {
   TARGET_SELF,
   TARGET_UNIT,
+  TARGET_ALLY,
   TARGET_ZONE,
   TARGET_ALL_IN_RANGE,
 };
@@ -194,6 +195,8 @@ struct AbilityDamage {
 
 struct AbilityDepiction {
   bmin::String dmgAnim;
+  /** `#RRGGBB` for the floating damage number. Empty means white. */
+  bmin::String dmgTextColor;
   ProjectileType projectileType = ProjectileType::PROJECTILE_NONE;
   ProjectilePath projectilePath = ProjectilePath::PROJECTILE_PATH_NONE;
   bmin::String startSound;

@@ -23,6 +23,7 @@ export type AbilityType =
 export type TargetSelectType =
   | 'TARGET_SELF'
   | 'TARGET_UNIT'
+  | 'TARGET_ALLY'
   | 'TARGET_ZONE'
   | 'TARGET_ALL_IN_RANGE';
 
@@ -228,6 +229,8 @@ export interface StatusEffectEvent {
 
 export interface AbilityDepiction {
   dmgAnim: string;
+  /** `#RRGGBB` for the floating damage number. */
+  dmgTextColor: string;
   projectileType: ProjectileType;
   projectilePath: ProjectilePath;
   startSound: string;
@@ -423,6 +426,7 @@ export const ABILITY_TYPES: AbilityType[] = [
 export const TARGET_SELECT_TYPES: TargetSelectType[] = [
   'TARGET_SELF',
   'TARGET_UNIT',
+  'TARGET_ALLY',
   'TARGET_ZONE',
   'TARGET_ALL_IN_RANGE',
 ];
@@ -530,9 +534,29 @@ export function createDefaultTargetSelectInfo(): TargetSelectInfo {
   };
 }
 
+export const DEFAULT_DMG_TEXT_COLOR = '#FFFFFF';
+
+export function normalizeDmgTextColor(value?: string): string {
+  if (!value) {
+    return DEFAULT_DMG_TEXT_COLOR;
+  }
+  const hex = value.startsWith('#') ? value : `#${value}`;
+  if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+    return hex.toUpperCase();
+  }
+  if (/^#[0-9A-Fa-f]{3}$/.test(hex)) {
+    const r = hex[1];
+    const g = hex[2];
+    const b = hex[3];
+    return `#${r}${r}${g}${g}${b}${b}`.toUpperCase();
+  }
+  return DEFAULT_DMG_TEXT_COLOR;
+}
+
 export function createDefaultAbilityDepiction(): AbilityDepiction {
   return {
     dmgAnim: '',
+    dmgTextColor: DEFAULT_DMG_TEXT_COLOR,
     projectileType: 'PROJECTILE_NONE',
     projectilePath: 'PROJECTILE_PATH_NONE',
     startSound: '',
@@ -593,6 +617,7 @@ export function sanitizeAbilityDepiction(
         ? depiction.dmgAnim
         : '',
     projectileType,
+    dmgTextColor: normalizeDmgTextColor(depiction.dmgTextColor),
     startSound:
       depiction.startSound && depiction.startSound in soundMap
         ? depiction.startSound
@@ -672,6 +697,7 @@ export function createDefaultSpellAbilityTemplate(): AbilityTemplate {
     costValue: 2,
     depiction: {
       dmgAnim: 'expl_fire',
+      dmgTextColor: DEFAULT_DMG_TEXT_COLOR,
       projectileType: 'PROJECTILE_NONE',
       projectilePath: 'PROJECTILE_PATH_NONE',
       startSound: 'whip',
@@ -716,6 +742,7 @@ export function createDefaultMeleeAbilityTemplate(): AbilityTemplate {
     costValue: 0,
     depiction: {
       dmgAnim: 'splash_attack',
+      dmgTextColor: DEFAULT_DMG_TEXT_COLOR,
       projectileType: 'PROJECTILE_NONE',
       projectilePath: 'PROJECTILE_PATH_NONE',
       startSound: '',

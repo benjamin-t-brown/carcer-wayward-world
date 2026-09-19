@@ -1,6 +1,8 @@
 #include "db/Database.h"
 #include "game/map/MapPersistence.h"
 #include "game/combat/SpellRules.h"
+#include "game/combat/Damage.h"
+#include "model/Combat.h"
 #include "model/instances/CharacterInstance.hpp"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/Abilities.hpp"
@@ -15,6 +17,7 @@
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
 #include "actions/combat/DoCombatAction.hpp"
+#include "actions/combat/PerformSpellCast.hpp"
 #include "actions/combat/StartCombat.hpp"
 #include "bmin/String.h"
 
@@ -47,6 +50,17 @@ void addWalkableTileset(db::Database& database) {
   database.addTilesetTemplate(tileset);
 }
 
+void pumpActions(state::StateManager& stateManager, int maxMs = 4000) {
+  for (int elapsed = 0; elapsed < maxMs; elapsed += 50) {
+    stateManager.update(50);
+    const auto& actions = stateManager.getActionData();
+    if (actions.sequentialActions.empty() && actions.sequentialActionsNext.empty() &&
+        actions.insertActions.empty()) {
+      return;
+    }
+  }
+}
+
 void addFlameAbilityAndSpell(db::Database& database) {
   model::AbilityTemplate ability;
   ability.name = "SPELL_FLAME_TEST";
@@ -63,15 +77,13 @@ void addFlameAbilityAndSpell(db::Database& database) {
   ability.depiction.projectileType = model::ProjectileType::PROJECTILE_NONE;
   ability.depiction.projectilePath = model::ProjectilePath::PROJECTILE_PATH_NONE;
 
-  model::AbilityAttack attack;
-  attack.attackClass = model::AttackClass::ATTACK_CLASS_MAGIC;
-  model::AbilityAttackDmg dmg;
+  model::AbilityDamage dmg;
+  dmg.damageType = model::DamageType::DAMAGE_TYPE_HEAT;
   dmg.dmgDice = {model::Dice::D0};
   dmg.dmgBonus = 5;
   dmg.dmgStat = model::StatsEnum::STAT_MND;
   dmg.dmgStatMult = 0.f;
-  attack.dmg = dmg;
-  ability.attacks.pushBack(attack);
+  ability.damages.pushBack(dmg);
   database.addAbilityTemplate(ability);
 
   model::SpellTemplate spell;
@@ -137,6 +149,7 @@ int main(int /*argc*/, char** /*argv*/) {
   ally.currentMp = 10;
   ally.knownSpells = {"FLAME_TEST"};
   ally.equippedRunes = {model::RuneType::HEAT};
+  ally.stats.generic.mnd = 6;
   state.player.party.pushBack(ally);
 
   auto allyInst = model::CharacterInstance{};
@@ -197,7 +210,44 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertEqual(static_cast<int>(success.hits.size()), 1, "one hit") && ok;
     if (!success.hits.empty()) {
       ok = assertTrue(success.hits[0].characterId == "enemy-1", "hit enemy") && ok;
-      ok = assertEqual(success.hits[0].hpDelta, -5, "fixed 5 damage") && ok;
+      ok = assertEqual(success.hits[0].hpDelta, -5, "damages[] D0+5") && ok;
+    }
+  }
+
+  {
+    model::AbilityTemplate mindFlame;
+    mindFlame.name = "SPELL_FLAME_MND";
+    mindFlame.type = model::AbilityType::ABILITY_SPELL;
+    mindFlame.targetSelect.targetType = model::TargetSelectType::TARGET_ZONE;
+    mindFlame.targetSelect.zoneSize = {.x = 1, .y = 1};
+    mindFlame.apCost = 0;
+    mindFlame.costType = model::AbilityCostType::ABILITY_COST_MANA;
+    mindFlame.costValue = 0;
+    model::AbilityDamage dmg;
+    dmg.damageType = model::DamageType::DAMAGE_TYPE_HEAT;
+    dmg.dmgDice = {model::Dice::D0};
+    dmg.dmgBonus = 0;
+    dmg.dmgStat = model::StatsEnum::STAT_MND;
+    dmg.dmgStatMult = 1.f;
+    mindFlame.damages.pushBack(dmg);
+    database.addAbilityTemplate(mindFlame);
+
+    model::SpellTemplate spell;
+    spell.name = "FLAME_MND";
+    spell.abilityName = "SPELL_FLAME_MND";
+    spell.requiredRunes = {model::SpellRuneRequirement{model::RuneType::HEAT, 1}};
+    database.addSpellTemplate(spell);
+
+    auto& caster = state.player.party[0];
+    caster.knownSpells.pushBack("FLAME_MND");
+    caster.currentMp = 10;
+    const auto scaled =
+        model::castCombatZoneSpell(caster, "FLAME_MND", 2, 1, state.world, database);
+    ok = assertTrue(scaled.result == model::CastSpellResult::CAST, "mnd zone cast") &&
+         ok;
+    ok = assertEqual(static_cast<int>(scaled.hits.size()), 1, "mnd one hit") && ok;
+    if (!scaled.hits.empty()) {
+      ok = assertEqual(scaled.hits[0].hpDelta, -6, "damages[] uses party MND") && ok;
     }
   }
 
@@ -243,6 +293,134 @@ int main(int /*argc*/, char** /*argv*/) {
         state.player, npcOnMap, "FLAME_TEST", 2, 1, state.world, database);
     ok = assertTrue(npcFail.result == model::CastSpellResult::CANNOT_CAST,
                     "npc fails without mana") &&
+         ok;
+  }
+
+  {
+    model::CharacterInstance* enemy = nullptr;
+    for (auto& ch : state.world.activeMap.characters) {
+      if (ch.id == "enemy-1") {
+        enemy = &ch;
+        break;
+      }
+    }
+    ok = assertTrue(enemy != nullptr, "enemy for PerformSpellCast") && ok;
+    const auto hpBefore =
+        enemy ? model::getCharacterHp(state.player, *enemy) : 0;
+    const auto casterHpBefore = state.player.party[0].currentHp;
+    ok = assertEqual(state.world.activeMap.characters[0].stats.generic.mnd,
+                     0,
+                     "map instance MND is 0") &&
+         ok;
+
+    model::SpellTargetInfo target;
+    target.tileX = 2;
+    target.tileY = 1;
+    stateManager.enqueueAction(
+        state::makeAction<state::actions::PerformSpellCast>("ally-1", "FLAME_MND", target),
+        0);
+    pumpActions(stateManager);
+
+    enemy = nullptr;
+    for (auto& ch : state.world.activeMap.characters) {
+      if (ch.id == "enemy-1") {
+        enemy = &ch;
+        break;
+      }
+    }
+    if (enemy) {
+      ok = assertEqual(model::getCharacterHp(state.player, *enemy),
+                       hpBefore - 6,
+                       "PerformSpellCast uses ability damages[] + party MND") &&
+           ok;
+    }
+    ok = assertEqual(state.player.party[0].currentHp,
+                     casterHpBefore,
+                     "spell damage applies to the target, not the caster") &&
+         ok;
+  }
+
+  {
+    model::AbilityTemplate singeAbility;
+    singeAbility.name = "SPELL_SINGE_TEST";
+    singeAbility.type = model::AbilityType::ABILITY_SPELL;
+    singeAbility.targetSelect.targetType = model::TargetSelectType::TARGET_UNIT;
+    singeAbility.targetSelect.allegianceSelectType =
+        model::TargetAllegianceSelectType::TARGET_ALLEGIANCE_OTHER;
+    singeAbility.targetSelect.numTargetableUnits = 1;
+    singeAbility.targetSelect.zoneSize = {.x = 1, .y = 1};
+    singeAbility.targetSelect.range = 10;
+    singeAbility.apCost = 0;
+    singeAbility.depiction.dmgAnim = "splash_fire";
+    singeAbility.depiction.dmgTextColor = "#111111";
+    singeAbility.depiction.projectileType = model::ProjectileType::PROJECTILE_NONE;
+    singeAbility.depiction.projectilePath = model::ProjectilePath::PROJECTILE_PATH_NONE;
+    model::AbilityDamage dmg;
+    dmg.damageType = model::DamageType::DAMAGE_TYPE_HEAT;
+    dmg.dmgDice = {model::Dice::D0};
+    dmg.dmgBonus = 4;
+    dmg.dmgStat = model::StatsEnum::STAT_MND;
+    dmg.dmgStatMult = 0.f;
+    singeAbility.damages.pushBack(dmg);
+    database.addAbilityTemplate(singeAbility);
+
+    model::SpellTemplate singeSpell;
+    singeSpell.name = "SINGE_TEST";
+    singeSpell.abilityName = "SPELL_SINGE_TEST";
+    database.addSpellTemplate(singeSpell);
+
+    model::CharacterInstance* enemy = nullptr;
+    for (auto& ch : state.world.activeMap.characters) {
+      if (ch.id == "enemy-1") {
+        enemy = &ch;
+        break;
+      }
+    }
+    ok = assertTrue(enemy != nullptr, "enemy for TARGET_UNIT cast") && ok;
+    const auto enemyHpBefore =
+        enemy ? model::getCharacterHp(state.player, *enemy) : 0;
+    const auto casterHpBefore = state.player.party[0].currentHp;
+
+    model::SpellTargetInfo target;
+    target.tileX = 2;
+    target.tileY = 1;
+    state.world.activeMap.damageParticles.clear();
+    stateManager.enqueueAction(
+        state::makeAction<state::actions::PerformSpellCast>("ally-1", "SINGE_TEST", target),
+        0);
+    bmin::String particleColor;
+    for (int elapsed = 0; elapsed < 4000; elapsed += 50) {
+      stateManager.update(50);
+      const auto& particles = state.world.activeMap.damageParticles;
+      if (!particles.empty() && !particles.back().textColor.empty()) {
+        particleColor = particles.back().textColor;
+      }
+      const auto& actions = stateManager.getActionData();
+      if (actions.sequentialActions.empty() && actions.sequentialActionsNext.empty() &&
+          actions.insertActions.empty()) {
+        break;
+      }
+    }
+
+    enemy = nullptr;
+    for (auto& ch : state.world.activeMap.characters) {
+      if (ch.id == "enemy-1") {
+        enemy = &ch;
+        break;
+      }
+    }
+    if (enemy) {
+      ok = assertEqual(model::getCharacterHp(state.player, *enemy),
+                       enemyHpBefore - 4,
+                       "TARGET_UNIT no-projectile spell damages enemy at tile") &&
+           ok;
+    }
+    ok = assertEqual(state.player.party[0].currentHp,
+                     casterHpBefore,
+                     "TARGET_UNIT OTHER does not damage caster") &&
+         ok;
+    ok = assertTrue(particleColor == "#111111",
+                    "TARGET_UNIT particle uses depiction dmgTextColor") &&
          ok;
   }
 

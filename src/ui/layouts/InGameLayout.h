@@ -53,6 +53,9 @@ public:
 
   // Modal-style X + mode label in the bottom-left of the map area.
   void setActionModeCancelVisible(bool visible, const bmin::String& modeLabel = {});
+  // Cardinal pan buttons at the map-edge centers (combat spell aim only).
+  void setSpellAimCameraButtonsVisible(bool visible);
+  bool isMapOverlayControlAt(int x, int y);
 
   void build() override;
   void render(int dt) override;

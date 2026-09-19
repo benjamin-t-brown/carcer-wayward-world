@@ -1372,7 +1372,7 @@
       },
       "trainable": {
         "weapon": {
-          "edged": 0,
+          "edged": 10,
           "pole": 0,
           "blunt": 0,
           "range": 0,
@@ -1583,7 +1583,7 @@
           "pole": 0,
           "blunt": 0,
           "range": 0,
-          "unarmed": 0
+          "unarmed": 10
         },
         "magic": {
           "mana": 0,
@@ -1656,7 +1656,7 @@
         },
         "magic": {
           "mana": 0,
-          "abilityPower": 0,
+          "abilityPower": 10,
           "attunement": 0,
           "faith": 0,
           "lore": 0
@@ -1727,7 +1727,7 @@
           "mana": 0,
           "abilityPower": 0,
           "attunement": 0,
-          "faith": 0,
+          "faith": 10,
           "lore": 0
         },
         "body": {

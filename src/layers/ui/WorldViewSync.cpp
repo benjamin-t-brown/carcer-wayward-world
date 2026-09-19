@@ -14,6 +14,7 @@
 #include "state/LayerRequest.h"
 #include "state/StateManager.h"
 #include "actions/navigation/UiSetSelectedPartyMemberId.hpp"
+#include "actions/world/WorldNudgeCamera.hpp"
 #include "ui/components/InGameTitleBar.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/buttons/ButtonWorldAction.h"
@@ -129,7 +130,8 @@ void WorldViewSync::syncWorldActionModeHighlight() {
   };
   const bool inventoryOpen = isOpen(state::LayerId::Inventory);
   const bool magicOpen = isOpen(state::LayerId::Magic);
-  const bool spellCastOpen = isOpen(state::LayerId::SpellCast);
+  const bool spellCastOpen =
+      isOpen(state::LayerId::SpellCast) || isOpen(state::LayerId::SpellAllyTarget);
   const bool pickUpOpen = isOpen(state::LayerId::PickUp);
   auto* actionButtons = inGameLayout->getChildById("actionButtons");
   if (!actionButtons) {
@@ -194,6 +196,44 @@ void WorldViewSync::syncActionModeCancelButton() {
   }
 }
 
+void WorldViewSync::syncSpellAimCameraButtons() {
+  auto* inGameLayout = owner.getUiElement<ui::InGameLayout>("inGameLayout");
+  if (!inGameLayout || !assertInterfaces()) {
+    return;
+  }
+
+  const auto& world = getStateManager()->getState().world;
+  const bool shouldShow =
+      world.combat.active && world.actionMode == model::WorldActionMode::SPELL;
+  auto* existing = inGameLayout->getChildById("spellAimCameraUp");
+  if (shouldShow == (existing != nullptr)) {
+    return;
+  }
+
+  inGameLayout->setSpellAimCameraButtonsVisible(shouldShow);
+  if (!shouldShow) {
+    return;
+  }
+
+  struct PanButton {
+    const char* id;
+    int dx;
+    int dy;
+  };
+  const PanButton panButtons[] = {
+      {"spellAimCameraUp", 0, -1},
+      {"spellAimCameraDown", 0, 1},
+      {"spellAimCameraLeft", -1, 0},
+      {"spellAimCameraRight", 1, 0},
+  };
+  for (const auto& pan : panButtons) {
+    if (auto* button = inGameLayout->getChildById(pan.id)) {
+      button->addEventObserver(
+          ui::makeActionObserver<state::actions::WorldNudgeCamera>(pan.dx, pan.dy));
+    }
+  }
+}
+
 void WorldViewSync::syncActionModeCursor() {
   auto* window = owner.getWindow();
   if (!window || !assertInterfaces()) {
@@ -202,8 +242,7 @@ void WorldViewSync::syncActionModeCursor() {
 
   const auto actionMode = getStateManager()->getState().world.actionMode;
   auto cursor = sdl2w::SystemCursor::Arrow;
-  if (actionMode == model::WorldActionMode::EXAMINE ||
-      actionMode == model::WorldActionMode::SPELL) {
+  if (actionMode == model::WorldActionMode::EXAMINE) {
     cursor = sdl2w::SystemCursor::Crosshair;
   } else if (actionMode == model::WorldActionMode::TALK) {
     cursor = sdl2w::SystemCursor::Hand;
@@ -286,6 +325,7 @@ void WorldViewSync::refresh() {
   attachPartyMemberObservers(inGameLayout);
   syncWorldActionModeHighlight();
   syncActionModeCancelButton();
+  syncSpellAimCameraButtons();
   syncActionModeCursor();
 
   if (auto* titleBar =

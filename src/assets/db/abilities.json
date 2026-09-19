@@ -1,5 +1,49 @@
 [
   {
+    "name": "MELEE_ATTACK_DEFAULT",
+    "label": "Melee Attack Default",
+    "description": "A basic melee attack.  Hits one time.",
+    "icon": "",
+    "type": "ABILITY_ATTACK",
+    "targetSelect": {
+      "targetType": "TARGET_UNIT",
+      "allegianceSelectType": "TARGET_ALLEGIANCE_OTHER",
+      "numTargetableUnits": 1,
+      "zoneSize": {
+        "x": 1,
+        "y": 1
+      },
+      "range": 1
+    },
+    "apCost": 5,
+    "costType": "ABILITY_COST_NONE",
+    "costValue": 0,
+    "depiction": {
+      "dmgAnim": "splash_attack",
+      "projectileType": "PROJECTILE_NONE",
+      "projectilePath": "PROJECTILE_PATH_NONE",
+      "startSound": "",
+      "dmgSound": "hit_punch3"
+    },
+    "attacks": [
+      {
+        "attackClass": "ATTACK_CLASS_MELEE",
+        "damageType": "DAMAGE_TYPE_EDGED",
+        "dmg": {
+          "dmgDice": [
+            "D4"
+          ],
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        }
+      }
+    ],
+    "statuses": [],
+    "restores": []
+  },
+  {
     "name": "MELEE_ATTACK_METAL_KNIFE",
     "label": "Melee Attack (Metal Knife)",
     "description": "A basic melee attack.  Hits one time.  Meant for knives.",
@@ -23,7 +67,7 @@
       "projectileType": "PROJECTILE_NONE",
       "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "",
-      "dmgSound": "hit_metal3"
+      "dmgSound": "hit_metal1"
     },
     "attacks": [
       {
@@ -31,7 +75,7 @@
         "damageType": "DAMAGE_TYPE_EDGED",
         "dmg": {
           "dmgDice": [
-            "D6"
+            "D4"
           ],
           "dmgBonus": 0,
           "dmgStat": "STAT_STR",
@@ -266,7 +310,47 @@
         ],
         "dmgBonus": 2,
         "dmgStat": "STAT_MND",
-        "dmgStatMult": 1
+        "dmgStatMult": 0
+      }
+    ]
+  },
+  {
+    "name": "SPELL_HEAL_ALLY",
+    "label": "Minor Heal",
+    "description": "",
+    "icon": "",
+    "type": "ABILITY_SPELL",
+    "targetSelect": {
+      "targetType": "TARGET_ALLY",
+      "allegianceSelectType": "TARGET_ALLEGIANCE_SAME",
+      "numTargetableUnits": 1,
+      "zoneSize": {
+        "x": 1,
+        "y": 1
+      },
+      "range": 1
+    },
+    "apCost": 1,
+    "costType": "ABILITY_COST_MANA",
+    "costValue": 1,
+    "depiction": {
+      "dmgAnim": "expl_buff",
+      "projectileType": "DOT_RED",
+      "projectilePath": "PROJECTILE_PATH_SHORT",
+      "startSound": "cast_ahh",
+      "dmgSound": "spell_cure"
+    },
+    "attacks": [],
+    "statuses": [],
+    "restores": [
+      {
+        "restoreWhich": "CURRENT_STAT_HP",
+        "restoreDice": [
+          "D6"
+        ],
+        "restoreBonus": 10,
+        "restoreStat": "STAT_CON",
+        "restoreStatMult": 0
       }
     ]
   },
@@ -317,7 +401,7 @@
     "icon": "",
     "type": "ABILITY_SPELL",
     "targetSelect": {
-      "targetType": "TARGET_UNIT",
+      "targetType": "TARGET_ZONE",
       "allegianceSelectType": "TARGET_ALLEGIANCE_OTHER",
       "numTargetableUnits": 1,
       "zoneSize": {
@@ -331,8 +415,9 @@
     "costValue": 2,
     "depiction": {
       "dmgAnim": "splash_fire",
-      "projectileType": "DOT_RED",
-      "projectilePath": "PROJECTILE_PATH_SHORT",
+      "dmgTextColor": "#111111",
+      "projectileType": "PROJECTILE_NONE",
+      "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "cast_flame",
       "dmgSound": "hit_punch2"
     },

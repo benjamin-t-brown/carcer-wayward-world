@@ -138,16 +138,12 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
   });
 
   const updateTileset = (tileset: TilesetTemplate) => {
-    if (editTilesetIndex >= 0) {
-      const currentTilesetIndex = getActualIndex(editTilesetIndex);
-      const currentTileset = tilesets[currentTilesetIndex];
-      if (currentTileset) {
-        // Update existing tileset in real-time
-        const updatedTilesets = [...tilesets];
-        updatedTilesets[currentTilesetIndex] = tileset;
-        setTilesets(updatedTilesets);
-      }
+    if (editTilesetIndex < 0) {
+      return;
     }
+    const updatedTilesets = [...tilesets];
+    updatedTilesets[editTilesetIndex] = tileset;
+    setTilesets(updatedTilesets);
   };
 
   const validateTilesets = (): { isValid: boolean; error?: string } => {
@@ -235,12 +231,8 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
       return;
     }
 
-    const currentTilesetIndex =
-      editTilesetIndex >= 0 ? getActualIndex(editTilesetIndex) : -1;
     const currentTilesetName =
-      currentTilesetIndex >= 0
-        ? tilesets[currentTilesetIndex]?.name
-        : undefined;
+      editTilesetIndex >= 0 ? tilesets[editTilesetIndex]?.name : undefined;
 
     const trimmedTilesets = trimStrings(tilesets);
 

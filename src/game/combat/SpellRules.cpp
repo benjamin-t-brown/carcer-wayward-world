@@ -2,6 +2,7 @@
 
 #include "bmin/StringInterop.h"
 #include "db/Database.h"
+#include "game/combat/Damage.h"
 #include "model/templates/AbilityTypes.h"
 // #include "game/map/ActiveMapOrchestrator.h"
 #include "model/Combat.h"
@@ -72,8 +73,7 @@ int statValue(const CharacterStats& stats, StatsEnum which) {
 }
 
 int computeRestoreAmount(const AbilityRestore& restore, const CharacterStats& stats) {
-  return rollDiceList(restore.restoreDice) + restore.restoreBonus +
-         (statValue(stats, restore.restoreStat) * restore.restoreStatMult);
+  return game::calculateAbilityRestoreAmount(restore, stats);
 }
 
 int computeAttackDamage(const AbilityAttack& attack, const CharacterStats& stats) {
@@ -332,6 +332,10 @@ CastSpellOutcome castSpell(const SpellCasterRef& caster,
     }
   }
 
+  for (const auto& abilityDamage : ability->damages) {
+    outcome.effects.hpDelta -=
+        game::calculateAbilityDamage(abilityDamage, *caster.stats).damage;
+  }
   for (const auto& attack : ability->attacks) {
     outcome.effects.hpDelta -= computeAttackDamage(attack, *caster.stats);
   }
@@ -475,6 +479,9 @@ CombatZoneCastOutcome castCombatZoneSpell(const SpellCasterRef& caster,
       if (restore.restoreWhich == CurrentStatEnum::CURRENT_STAT_HP) {
         hpDelta += amount;
       }
+    }
+    for (const auto& abilityDamage : ability->damages) {
+      hpDelta -= game::calculateAbilityDamage(abilityDamage, *caster.stats).damage;
     }
     for (const auto& attack : ability->attacks) {
       hpDelta -= computeAttackDamage(attack, *caster.stats);

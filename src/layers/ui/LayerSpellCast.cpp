@@ -8,8 +8,10 @@
 #include "sdl2w/L10n.h"
 #include "sdl2w/Logger.h"
 #include "actions/navigation/UiRemoveLayer.hpp"
+#include "actions/navigation/UiSelectSpellCast.hpp"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/helpers/keyboardShortcuts.h"
+#include "ui/helpers/uiSounds.h"
 #include "ui/minipages/MinipageSpellCast.h"
 
 namespace layers {
@@ -103,13 +105,29 @@ void LayerSpellCast::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (getState() != LayerState::ON) {
     return;
   }
-  if (!ui::isCancelActionKey(key)) {
-    return;
-  }
   auto stateManager = getStateManager();
   if (!stateManager) {
     return;
   }
+
+  if (const auto spellIndex = ui::getAlphabeticShortcutIndexFromKey(key)) {
+    auto* minipageSpellCast = getUiElement<ui::MinipageSpellCast>("minipageSpellCast");
+    if (minipageSpellCast &&
+        *spellIndex < static_cast<int>(minipageSpellCast->getProps().spells.size())) {
+      const auto& spell = minipageSpellCast->getProps().spells[*spellIndex];
+      if (!spell.id.empty()) {
+        ui::playButtonSound(window);
+        stateManager->enqueueAction(
+            state::makeAction<state::actions::UiSelectSpellCast>(spell.id, chId), 0);
+      }
+    }
+    return;
+  }
+
+  if (!ui::isCancelActionKey(key)) {
+    return;
+  }
+  ui::playButtonSound(window);
   stateManager->enqueueAction(state::makeAction<state::actions::UiRemoveLayer>(bmin::String(LAYER_ID.data(), LAYER_ID.size())),
       0);
 }

@@ -13,6 +13,19 @@
     ]
   },
   {
+    "name": "HEAL_ALLY_MINOR",
+    "label": "Minor Heal",
+    "description": "Heal an ally for a small amount of damage.",
+    "icon": "runes_2",
+    "abilityName": "SPELL_HEAL_ALLY",
+    "requiredRunes": [
+      {
+        "type": "REGROWTH",
+        "count": 1
+      }
+    ]
+  },
+  {
     "name": "HEAL_SELF_MINOR",
     "label": "Minor Heal Self",
     "description": "Heal yourself for a small amount of damage.",

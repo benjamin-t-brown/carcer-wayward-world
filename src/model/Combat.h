@@ -43,6 +43,8 @@ bool isCharacterEnemy(const CharacterInstance& character);
 
 int getCharacterHp(const Player& player, const CharacterInstance& character);
 void setCharacterHp(Player& player, CharacterInstance& character, int hp);
+/** Caps a positive HP delta at missing HP (`maxHp - currentHp`). Damage is unchanged. */
+int appliedHpDelta(int currentHp, int maxHp, int delta);
 /** Updates party member HP by instance id without requiring them on the map. */
 bool modifyPartyMemberHp(Player& player, const bmin::String& instanceId, int delta);
 bool isCharacterDefeated(const Player& player, const CharacterInstance& character);

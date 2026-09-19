@@ -32,6 +32,9 @@ bool isOpenMagicSetupKey(std::string_view key);
 /** Keys "1"-"6" → party index 0-5. */
 std::optional<int> getPartyMemberIndexFromKey(std::string_view key);
 
+/** Keys "a"-"z" / "A"-"Z" → list index 0-25. */
+std::optional<int> getAlphabeticShortcutIndexFromKey(std::string_view key);
+
 /** Keys "a"-"z" / "A"-"Z" → pick-up list index 0-25. */
 std::optional<int> getPickUpItemIndexFromKey(std::string_view key);
 

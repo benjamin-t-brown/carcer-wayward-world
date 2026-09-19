@@ -10,6 +10,7 @@
 #include "layers/ui/LayerPickUpContext.h"
 #include "layers/ui/LayerPopupText.h"
 #include "layers/ui/LayerSpecialEvent.h"
+#include "layers/ui/LayerSpellAllyTarget.h"
 #include "layers/ui/LayerSpellCast.h"
 #include "layers/ui/LayerSpellInfo.h"
 #include "layers/ui/LayerWorld.h"
@@ -327,6 +328,8 @@ bmin::UniquePtr<Layer> LayerManager::createLayer(const state::LayerRequest& requ
     return bmin::UniquePtr<Layer>(new LayerMagic(window));
   case state::LayerId::SpellCast:
     return bmin::UniquePtr<Layer>(new LayerSpellCast(window, request.a));
+  case state::LayerId::SpellAllyTarget:
+    return bmin::UniquePtr<Layer>(new LayerSpellAllyTarget(window, request.a, request.b));
   case state::LayerId::SpellInfo:
     return bmin::UniquePtr<Layer>(new LayerSpellInfo(window, request.a));
   case state::LayerId::EquipRunes:

@@ -4,6 +4,7 @@
 #include "actions/navigation/UiAdjustEquippedRune.hpp"
 #include "actions/navigation/UiCancelEquipRunes.hpp"
 #include "ui/helpers/keyboardShortcuts.h"
+#include "ui/helpers/uiSounds.h"
 #include "ui/minipages/MinipageEquipRunes.h"
 
 namespace layers {
@@ -112,6 +113,7 @@ void LayerEquipRunes::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (!ui::isCancelActionKey(key)) {
     return;
   }
+  ui::playButtonSound(window);
   stateManager->enqueueAction(state::makeAction<state::actions::UiCancelEquipRunes>(),
                               0);
 }

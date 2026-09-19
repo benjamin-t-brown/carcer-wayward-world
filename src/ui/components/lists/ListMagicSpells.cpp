@@ -35,7 +35,15 @@ void ListMagicSpells::setProps(const ListMagicSpellsProps& _props) {
 
 const ListMagicSpellsProps& ListMagicSpells::getProps() const { return props; }
 
-UiElement* ListMagicSpells::createSpellElement(const ListMagicSpellsPropsSpell& spell) {
+bmin::String ListMagicSpells::shortcutLetterForIndex(int index) {
+  if (index < 0 || index >= maxShortcutItems) {
+    return {};
+  }
+  return bmin::String(1, static_cast<char>('a' + index));
+}
+
+UiElement* ListMagicSpells::createSpellElement(const ListMagicSpellsPropsSpell& spell,
+                                               int index) {
   const int rowWidth = static_cast<int>(style.width * style.scale);
   const int rowHeight = static_cast<int>(props.lineHeight * style.scale);
 
@@ -48,13 +56,38 @@ UiElement* ListMagicSpells::createSpellElement(const ListMagicSpellsPropsSpell& 
       .bgColor = Colors::Transparent,
   });
   if (props.enableSpellCastOnClick && !spell.id.empty()) {
+    container->playClickSound = true;
     container->addEventObserver(
         ui::makeActionObserver<state::actions::UiSelectSpellCast>(
             spell.id, props.casterId));
   } else if (props.enableSpellInfoOnClick && !spell.id.empty()) {
+    container->playClickSound = true;
     container->addEventObserver(
         ui::makeActionObserver<state::actions::UiShowLayerSpellInfo>(
             window, spell.id));
+  }
+
+  TextFontProps font;
+  setBaseFontConfig(font, BaseFontConfig::MODAL_TEXT);
+
+  int contentX = 0;
+  const auto shortcutLetter =
+      props.enableSpellCastOnClick ? shortcutLetterForIndex(index) : bmin::String{};
+  if (!shortcutLetter.empty()) {
+    auto shortcutText = new TextLine(window, this);
+    shortcutText->setId("shortcut");
+    shortcutText->setPos(0, rowHeight / 2);
+    shortcutText->setScale(1.0f);
+    TextLineProps shortcutProps;
+    shortcutProps.fontFamily = font.fontFamily;
+    shortcutProps.fontSize = sdl2w::TEXT_SIZE_14;
+    shortcutProps.fontColor = Colors::Grey;
+    shortcutProps.textAlign = TextAlign::LEFT_CENTER;
+    shortcutProps.textBlocks.pushBack({.text = shortcutLetter});
+    shortcutText->setProps(shortcutProps);
+    container->addChild(bmin::UniquePtr<ui::UiElement>(shortcutText));
+    contentX = static_cast<int>(shortcutColumnWidth * style.scale) +
+               static_cast<int>(shortcutGapAfterLetter * style.scale);
   }
 
   // drawSprite uses native sprite w/h (props width/height are ignored), so center
@@ -69,7 +102,7 @@ UiElement* ListMagicSpells::createSpellElement(const ListMagicSpellsPropsSpell& 
 
     auto icon = new SpriteElement(window, this);
     icon->setId("icon");
-    icon->setPos(0, (rowHeight - iconDrawH) / 2);
+    icon->setPos(contentX, (rowHeight - iconDrawH) / 2);
     icon->setScale(iconScale * style.scale);
     icon->setProps(SpriteElementProps{
         .width = sprite.w,
@@ -79,10 +112,8 @@ UiElement* ListMagicSpells::createSpellElement(const ListMagicSpellsPropsSpell& 
     container->addChild(bmin::UniquePtr<ui::UiElement>(icon));
   }
 
-  TextFontProps font;
-  setBaseFontConfig(font, BaseFontConfig::MODAL_TEXT);
-
-  const int labelX = iconDrawW + static_cast<int>(labelGapAfterIcon * style.scale);
+  const int labelX =
+      contentX + iconDrawW + static_cast<int>(labelGapAfterIcon * style.scale);
 
   auto label = new TextLine(window, this);
   label->setId("label");
@@ -148,7 +179,8 @@ void ListMagicSpells::build() {
   list->setScale(1.0f);
 
   for (size_t i = 0; i < props.spells.size(); i++) {
-    list->addChild(bmin::UniquePtr<ui::UiElement>(createSpellElement(props.spells[i])));
+    list->addChild(bmin::UniquePtr<ui::UiElement>(
+        createSpellElement(props.spells[i], static_cast<int>(i))));
   }
 
   list->setProps(VerticalListProps{

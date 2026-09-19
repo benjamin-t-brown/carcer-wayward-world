@@ -224,8 +224,7 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
       return;
     }
 
-    const currentItemIndex = getActualIndex(editItemIndex);
-    const currentItemName = items[currentItemIndex]?.name;
+    const currentItemName = editItemIndex >= 0 ? items[editItemIndex]?.name : undefined;
     
     const trimmedItems = trimStrings(items);
     

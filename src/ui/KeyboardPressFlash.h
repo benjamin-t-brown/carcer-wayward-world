@@ -4,6 +4,10 @@
 #include <optional>
 #include <string_view>
 
+namespace sdl2w {
+class Window;
+}
+
 namespace ui {
 
 // Timed keyboard press highlight. After durationMs, invokes onComplete so the
@@ -24,7 +28,9 @@ public:
 
   bool isBusy() const;
   void stop();
-  void begin(std::function<bool*()> getter, std::function<void()> onComplete);
+  void begin(std::function<bool*()> getter,
+             std::function<void()> onComplete,
+             sdl2w::Window* window = nullptr);
   void update(int deltaTime);
 };
 

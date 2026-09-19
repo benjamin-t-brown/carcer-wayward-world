@@ -5,6 +5,7 @@
 #include "state/State.hpp"
 #include "state/StateManager.h"
 #include "ui/components/FloatingNotificationSection.h"
+#include "ui/helpers/uiSounds.h"
 #include "ui/pages/PageModalEvent.h"
 #include "ui/pages/PageTalkChoice.h"
 #include "ui/pages/specialEventViewMapping.h"
@@ -194,6 +195,7 @@ void LayerSpecialEvent::onKeyDown(std::string_view key, int /*keyCode*/) {
   // Talk must be exited via choices / the modal close control — not Escape.
   if (key == "Escape") {
     if (!isTalkEvent()) {
+      ui::playButtonSound(window);
       closeLayer();
     }
     return;
