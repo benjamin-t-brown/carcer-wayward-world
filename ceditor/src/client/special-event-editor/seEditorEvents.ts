@@ -20,6 +20,11 @@ import {
   updateSelectionRectangle,
   zoomPanzoom,
 } from './seEditorState';
+import {
+  isEditorModalOpen,
+  isSpacePanKey,
+  isTextInputElement,
+} from '../utils/editorHotkeys';
 
 let isPanZoomInitialized = false;
 // Track double-click state
@@ -32,6 +37,8 @@ const WHEEL_THROTTLE_DELAY = 125; // milliseconds
 // Defer exiting linking mode on empty-map click until mouseup unless user panned
 let linkingEmptyClickPending = false;
 const LINKING_CANCEL_DRAG_THRESHOLD_SQ = 5 * 5; // pixels squared
+let spacePanHeld = false;
+let pointerOverCanvas = false;
 
 const panZoomEvents: {
   keydown: (ev: KeyboardEvent) => void;
@@ -80,7 +87,28 @@ export const initPanzoom = (specialEventEditorInterface: {
       ev.preventDefault();
     }
     // if a modal window is open, return early
-    if (document.querySelector('.generic-modal')) {
+    if (isEditorModalOpen()) {
+      return;
+    }
+
+    if (
+      isSpacePanKey(ev) &&
+      !ev.repeat &&
+      !isTextInputElement(document.activeElement) &&
+      pointerOverCanvas
+    ) {
+      ev.preventDefault();
+      const editorState = specialEventEditorInterface.getEditorState();
+      spacePanHeld = true;
+      editorState.lastClickX = editorState.mouseX;
+      editorState.lastClickY = editorState.mouseY;
+      editorState.lastTranslateX = editorState.translateX;
+      editorState.lastTranslateY = editorState.translateY;
+      editorState.isDragging = true;
+      const canvas = specialEventEditorInterface.getCanvas();
+      if (canvas) {
+        canvas.style.cursor = 'grabbing';
+      }
       return;
     }
 
@@ -124,9 +152,24 @@ export const initPanzoom = (specialEventEditorInterface: {
       }
     }
   };
-  const handleKeyUp = (_ev: KeyboardEvent) => {};
+  const handleKeyUp = (ev: KeyboardEvent) => {
+    if (!isSpacePanKey(ev) || !spacePanHeld) {
+      return;
+    }
+    spacePanHeld = false;
+    const editorState = specialEventEditorInterface.getEditorState();
+    editorState.isDragging = false;
+    const canvas = specialEventEditorInterface.getCanvas();
+    if (canvas) {
+      canvas.style.cursor = '';
+    }
+  };
   const handleMouseDown = (ev: MouseEvent) => {
     const editorState = specialEventEditorInterface.getEditorState();
+    if (spacePanHeld) {
+      ev.preventDefault();
+      return;
+    }
     if (
       ev.button === 1 &&
       isEventWithCanvasTarget(ev, specialEventEditorInterface.getCanvas())
@@ -200,6 +243,17 @@ export const initPanzoom = (specialEventEditorInterface: {
     const editorState = specialEventEditorInterface.getEditorState();
     editorState.mouseX = ev.clientX;
     editorState.mouseY = ev.clientY;
+    pointerOverCanvas = isEventWithCanvasTarget(
+      ev,
+      specialEventEditorInterface.getCanvas()
+    );
+    if (spacePanHeld && !editorState.isDragging) {
+      editorState.lastClickX = ev.clientX;
+      editorState.lastClickY = ev.clientY;
+      editorState.lastTranslateX = editorState.translateX;
+      editorState.lastTranslateY = editorState.translateY;
+      editorState.isDragging = true;
+    }
 
     if (editorState.isSelecting && editorState.selectionRect) {
       // Update selection rectangle
@@ -309,6 +363,9 @@ export const initPanzoom = (specialEventEditorInterface: {
       editorState.nodeDragOffsetY = 0;
       editorState.selectedNodesInitialPositions.clear();
     } else if (editorState.isDragging) {
+      if (spacePanHeld) {
+        return;
+      }
       // Stop pan dragging
       editorState.translateX =
         editorState.lastTranslateX + ev.clientX - editorState.lastClickX;
@@ -393,6 +450,8 @@ export const unInitPanzoom = () => {
   window.removeEventListener('contextmenu', panZoomEvents.contextmenu);
   window.removeEventListener('wheel', panZoomEvents.wheel);
   window.removeEventListener('dblclick', panZoomEvents.dblclick);
+  spacePanHeld = false;
+  pointerOverCanvas = false;
   isPanZoomInitialized = false;
 };
 

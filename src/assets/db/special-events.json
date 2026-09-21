@@ -2516,8 +2516,8 @@
       },
       {
         "id": "1651u7924tq",
-        "x": 640,
-        "y": 174,
+        "x": 638,
+        "y": 188,
         "eventChildType": "EXEC",
         "h": 158,
         "p": "A tall woman in a stout, green dress is overseeing the people at the docks. She clutches an official-looking scroll, and her stern eyes flit in irritation between it and you.\n\n\"You there!  Are you the Captain of that vessel?\"\n\nShe points towards the horizon where Argow's vessel is anchored.",
@@ -5656,8 +5656,8 @@
       },
       {
         "id": "2rmnna4ngot",
-        "x": 1365,
-        "y": 579,
+        "x": 1357,
+        "y": 590,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "",

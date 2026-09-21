@@ -39,11 +39,20 @@ import {
 } from '../utils/mapGridIndex';
 import type { FloorBrushData } from './renderState';
 import { snapPixelArtScale } from '../utils/draw';
+import {
+  isEditorModalOpen,
+  isSpacePanKey,
+  isTextInputElement,
+  isTileCopyKey,
+} from '../utils/editorHotkeys';
 
 class MapEditorEventState {
   isDragging = false;
+  spacePanHeld = false;
   isPainting = false;
   isDraggingRight = false;
+  /** True when the in-progress right pick was started with Q, not the mouse. */
+  rightDragFromKey = false;
   lastClickX = 0;
   lastClickY = 0;
   lastTranslateX = 0;
@@ -91,6 +100,16 @@ const panZoomEvents: {
 const MOUSE_BUTTON_LEFT = 0;
 const MOUSE_BUTTON_RIGHT = 2;
 const MOUSE_BUTTON_MIDDLE = 1;
+
+const isRightPickPaintAction = () => {
+  const action = getCurrentPaintAction();
+  return (
+    action === PaintActionType.DRAW ||
+    action === PaintActionType.FILL ||
+    action === PaintActionType.DELETE_FILL
+  );
+};
+let pointerOverCanvas = false;
 (window as any).mapEditorEventState = mapEditorEventState;
 // let panzoomCanvas: HTMLCanvasElement | null = null;
 
@@ -106,7 +125,7 @@ const isEventWithCanvasTarget = (
 };
 
 const isEditorActive = (_ev: KeyboardEvent) => {
-  return true; // TODO check if any modals are open
+  return !isEditorModalOpen();
 };
 
 const shouldPreventDefault = (ev: KeyboardEvent) => {
@@ -474,6 +493,144 @@ export const initPanzoom = (mapDataInterface: {
   //   return;
   // }
   // panzoomCanvas = canvas;
+  const beginRightPickDrag = (clientX: number, clientY: number) => {
+    if (mapEditorEventState.spacePanHeld || mapEditorEventState.isDraggingRight) {
+      return;
+    }
+    if (!isRightPickPaintAction()) {
+      return;
+    }
+
+    mapEditorEventState.rightDragGridActive = false;
+    mapEditorEventState.rightDragMapName = '';
+
+    // Grid maps: track the drag in focused-map tile space so it can span
+    // blocks. resolveGridBrushCell confirms the start is on a real tile.
+    const es = mapDataInterface.getEditorState();
+    const focusedMap = mapDataInterface.getMapData();
+    const canvas = mapDataInterface.getCanvas();
+    const handlers = gridNavigationHandlers;
+    if (es.gridEditEnabled && focusedMap && canvas && handlers) {
+      const g = screenCoordsToGridTile(
+        clientX,
+        clientY,
+        focusedMap,
+        canvas,
+        handlers.getMapGrids()
+      );
+      if (
+        g &&
+        resolveGridBrushCell(
+          focusedMap,
+          g.gx,
+          g.gy,
+          handlers.getMapGrids(),
+          mapsByNameOf(handlers.getMaps())
+        )
+      ) {
+        mapEditorEventState.isDraggingRight = true;
+        mapEditorEventState.rightDragGridActive = true;
+        mapEditorEventState.rightDragStartGX = g.gx;
+        mapEditorEventState.rightDragStartGY = g.gy;
+        mapEditorEventState.rightDragEndGX = g.gx;
+        mapEditorEventState.rightDragEndGY = g.gy;
+        return;
+      }
+    }
+
+    // Non-grid map: single-block rect select.
+    const pick = resolveRightPickTarget(clientX, clientY, mapDataInterface);
+    if (pick.tileIndex < 0) {
+      return;
+    }
+    mapEditorEventState.isDraggingRight = true;
+    mapEditorEventState.rightDragMapName = pick.mapName;
+    updateEditorStateNoReRender({
+      rectSelectTileIndStart: pick.tileIndex,
+      rectSelectTileIndEnd: pick.tileIndex,
+    });
+  };
+
+  const finishRightPickDrag = () => {
+    if (!mapEditorEventState.isDraggingRight) {
+      return;
+    }
+    mapEditorEventState.isDraggingRight = false;
+    mapEditorEventState.rightDragFromKey = false;
+    const dragMapName = mapEditorEventState.rightDragMapName;
+    mapEditorEventState.rightDragMapName = '';
+    const wasGridDrag = mapEditorEventState.rightDragGridActive;
+    mapEditorEventState.rightDragGridActive = false;
+    const es = mapDataInterface.getEditorState();
+
+    if (wasGridDrag) {
+      completeGridRightDrag(mapDataInterface);
+      return;
+    }
+    // A right pick / brush-copy can target any grid block, not just the
+    // focused one.
+    const dragMap =
+      (dragMapName
+        ? gridNavigationHandlers
+            ?.getMaps()
+            .find((m) => m.name === dragMapName)
+        : undefined) ?? mapDataInterface.getMapData();
+    const pickKey = dragMapName || es.selectedMapName;
+
+    const ind0 = es.rectSelectTileIndStart;
+    const ind1 = es.rectSelectTileIndEnd;
+    const dragSelectedInds = getIndsOfBoundingRect(
+      ind0,
+      ind1,
+      dragMap.width ?? 0
+    );
+    if (dragSelectedInds.length === 0) {
+      return;
+    }
+    const mapTiles = getTileList(dragMap);
+    const nextRef = mapTiles[dragSelectedInds[0]];
+    if (dragSelectedInds.length === 1 && nextRef) {
+      // An unpainted cell has graphic (0, 0); picking it up just yields the
+      // first tileset's tile 0. Right-clicking a blank cell means "erase",
+      // so switch to the erase tool instead of selecting that tile.
+      const { tilesetIndex, tileId } = getTileGraphic(
+        dragMap,
+        es.currentLevel,
+        dragSelectedInds[0]
+      );
+      if (tilesetIndex === 0 && tileId === 0) {
+        setCurrentPaintAction(PaintActionType.ERASE);
+      } else {
+        updateEditorStateNoReRender({
+          rectCloneBrushTiles: [],
+          selectedTileIndexInTileset: nextRef.tileId,
+          selectedTilesetName: nextRef.tilesetName,
+        });
+      }
+      setSoleSelectedTile(pickKey, dragSelectedInds[0]);
+      return;
+    }
+    const mapWidth = dragMap.width ?? 0;
+    const [topLeftX, topLeftY] = [
+      ind0 % mapWidth,
+      Math.floor(ind0 / mapWidth),
+    ];
+    const brush = dragSelectedInds.map((ind) => {
+      const [x, y] = [ind % mapWidth, Math.floor(ind / mapWidth)];
+      return {
+        xOffset: x - topLeftX,
+        yOffset: y - topLeftY,
+        originalTile: {
+          ref: structuredClone(mapTiles[ind]),
+        },
+      };
+    });
+    updateEditorStateNoReRender({
+      rectCloneBrushTiles: brush,
+    });
+    setSoleSelectedTile(pickKey, dragSelectedInds[0]);
+  };
+
   const handleKeyDown = (ev: KeyboardEvent) => {
     markRenderDirty();
     if (shouldPreventDefault(ev)) {
@@ -481,12 +638,49 @@ export const initPanzoom = (mapDataInterface: {
     }
 
     // Check if text cursor is focused on an input element
-    const activeElement = document.activeElement;
-    const isInputFocused =
-      activeElement &&
-      (activeElement.tagName === 'INPUT' ||
-        activeElement.tagName === 'TEXTAREA' ||
-        activeElement.getAttribute('contenteditable') === 'true');
+    const isInputFocused = isTextInputElement(document.activeElement);
+
+    if (
+      isSpacePanKey(ev) &&
+      !ev.repeat &&
+      isEditorActive(ev) &&
+      !isInputFocused &&
+      pointerOverCanvas
+    ) {
+      ev.preventDefault();
+      mapEditorEventState.spacePanHeld = true;
+      mapEditorEventState.lastClickX = mapEditorEventState.mouseX;
+      mapEditorEventState.lastClickY = mapEditorEventState.mouseY;
+      mapEditorEventState.lastTranslateX = mapEditorEventState.translateX;
+      mapEditorEventState.lastTranslateY = mapEditorEventState.translateY;
+      mapEditorEventState.isDragging = true;
+      return;
+    }
+
+    if (
+      isTileCopyKey(ev) &&
+      !ev.repeat &&
+      !ev.ctrlKey &&
+      !ev.altKey &&
+      !ev.metaKey &&
+      isEditorActive(ev) &&
+      !isInputFocused &&
+      pointerOverCanvas &&
+      !mapEditorEventState.spacePanHeld &&
+      !mapEditorEventState.isDraggingRight &&
+      !mapEditorEventState.isPainting &&
+      getCurrentPaintAction() === PaintActionType.DRAW
+    ) {
+      ev.preventDefault();
+      beginRightPickDrag(
+        mapEditorEventState.mouseX,
+        mapEditorEventState.mouseY
+      );
+      if (mapEditorEventState.isDraggingRight) {
+        mapEditorEventState.rightDragFromKey = true;
+      }
+      return;
+    }
 
     // keyboard shortcuts - only process if not typing in an input
     if (isEditorActive(ev) && !isInputFocused) {
@@ -569,12 +763,15 @@ export const initPanzoom = (mapDataInterface: {
   };
   const handleKeyUp = (ev: KeyboardEvent) => {
     markRenderDirty();
-    const activeElement = document.activeElement;
-    const isInputFocused =
-      activeElement &&
-      (activeElement.tagName === 'INPUT' ||
-        activeElement.tagName === 'TEXTAREA' ||
-        activeElement.getAttribute('contenteditable') === 'true');
+    const isInputFocused = isTextInputElement(document.activeElement);
+    if (isSpacePanKey(ev) && mapEditorEventState.spacePanHeld) {
+      mapEditorEventState.spacePanHeld = false;
+      mapEditorEventState.isDragging = false;
+    }
+    if (isTileCopyKey(ev) && mapEditorEventState.rightDragFromKey) {
+      ev.preventDefault();
+      finishRightPickDrag();
+    }
     if (!isInputFocused && ev.key === 'Tab') {
       updateEditorStateNoReRender({
         drawOverlayText: false,
@@ -585,6 +782,10 @@ export const initPanzoom = (mapDataInterface: {
   const handleMouseDown = (ev: MouseEvent) => {
     if (isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())) {
       markRenderDirty();
+    }
+    if (mapEditorEventState.spacePanHeld) {
+      ev.preventDefault();
+      return;
     }
     if (
       ev.button === MOUSE_BUTTON_MIDDLE &&
@@ -709,62 +910,9 @@ export const initPanzoom = (mapDataInterface: {
     if (
       ev.button === MOUSE_BUTTON_RIGHT &&
       isEventWithCanvasTarget(ev, mapDataInterface.getCanvas()) &&
-      (getCurrentPaintAction() === PaintActionType.DRAW ||
-        getCurrentPaintAction() === PaintActionType.FILL ||
-        getCurrentPaintAction() === PaintActionType.DELETE_FILL)
+      isRightPickPaintAction()
     ) {
-      mapEditorEventState.rightDragGridActive = false;
-      mapEditorEventState.rightDragMapName = '';
-
-      // Grid maps: track the drag in focused-map tile space so it can span
-      // blocks. resolveGridBrushCell confirms the start is on a real tile.
-      const es = mapDataInterface.getEditorState();
-      const focusedMap = mapDataInterface.getMapData();
-      const canvas = mapDataInterface.getCanvas();
-      const handlers = gridNavigationHandlers;
-      if (es.gridEditEnabled && focusedMap && canvas && handlers) {
-        const g = screenCoordsToGridTile(
-          ev.clientX,
-          ev.clientY,
-          focusedMap,
-          canvas,
-          handlers.getMapGrids()
-        );
-        if (
-          g &&
-          resolveGridBrushCell(
-            focusedMap,
-            g.gx,
-            g.gy,
-            handlers.getMapGrids(),
-            mapsByNameOf(handlers.getMaps())
-          )
-        ) {
-          mapEditorEventState.isDraggingRight = true;
-          mapEditorEventState.rightDragGridActive = true;
-          mapEditorEventState.rightDragStartGX = g.gx;
-          mapEditorEventState.rightDragStartGY = g.gy;
-          mapEditorEventState.rightDragEndGX = g.gx;
-          mapEditorEventState.rightDragEndGY = g.gy;
-          return;
-        }
-      }
-
-      // Non-grid map: single-block rect select.
-      const pick = resolveRightPickTarget(
-        ev.clientX,
-        ev.clientY,
-        mapDataInterface
-      );
-      if (pick.tileIndex < 0) {
-        return;
-      }
-      mapEditorEventState.isDraggingRight = true;
-      mapEditorEventState.rightDragMapName = pick.mapName;
-      updateEditorStateNoReRender({
-        rectSelectTileIndStart: pick.tileIndex,
-        rectSelectTileIndEnd: pick.tileIndex,
-      });
+      beginRightPickDrag(ev.clientX, ev.clientY);
     } else if (
       ev.button === MOUSE_BUTTON_RIGHT &&
       isEventWithCanvasTarget(ev, mapDataInterface.getCanvas()) &&
@@ -823,6 +971,17 @@ export const initPanzoom = (mapDataInterface: {
   const handleMouseMove = (ev: MouseEvent) => {
     mapEditorEventState.mouseX = ev.clientX;
     mapEditorEventState.mouseY = ev.clientY;
+    pointerOverCanvas = isEventWithCanvasTarget(
+      ev,
+      mapDataInterface.getCanvas()
+    );
+    if (mapEditorEventState.spacePanHeld && !mapEditorEventState.isDragging) {
+      mapEditorEventState.lastClickX = ev.clientX;
+      mapEditorEventState.lastClickY = ev.clientY;
+      mapEditorEventState.lastTranslateX = mapEditorEventState.translateX;
+      mapEditorEventState.lastTranslateY = mapEditorEventState.translateY;
+      mapEditorEventState.isDragging = true;
+    }
 
     // Repaint while the pointer is over the canvas or an interaction is running;
     // stay idle otherwise so the loop doesn't pin a core.
@@ -914,8 +1073,10 @@ export const initPanzoom = (mapDataInterface: {
         mapEditorEventState.lastTranslateY +
         ev.clientY -
         mapEditorEventState.lastClickY;
-      mapEditorEventState.isDragging = false;
-      refreshHoveredGridSlot(ev);
+      if (!mapEditorEventState.spacePanHeld) {
+        mapEditorEventState.isDragging = false;
+        refreshHoveredGridSlot(ev);
+      }
     }
     if (mapEditorEventState.isPainting) {
       mapEditorEventState.isPainting = false;
@@ -999,80 +1160,11 @@ export const initPanzoom = (mapDataInterface: {
         setSoleSelectedTile(destMapName, destTileIndex);
       }
     }
-    if (mapEditorEventState.isDraggingRight) {
-      mapEditorEventState.isDraggingRight = false;
-      const dragMapName = mapEditorEventState.rightDragMapName;
-      mapEditorEventState.rightDragMapName = '';
-      const wasGridDrag = mapEditorEventState.rightDragGridActive;
-      mapEditorEventState.rightDragGridActive = false;
-      const es = mapDataInterface.getEditorState();
-
-      if (wasGridDrag) {
-        completeGridRightDrag(mapDataInterface);
-        return;
-      }
-      // A right pick / brush-copy can target any grid block, not just the
-      // focused one.
-      const dragMap =
-        (dragMapName
-          ? gridNavigationHandlers
-              ?.getMaps()
-              .find((m) => m.name === dragMapName)
-          : undefined) ?? mapDataInterface.getMapData();
-      const pickKey = dragMapName || es.selectedMapName;
-
-      const ind0 = es.rectSelectTileIndStart;
-      const ind1 = es.rectSelectTileIndEnd;
-      const dragSelectedInds = getIndsOfBoundingRect(
-        ind0,
-        ind1,
-        dragMap.width ?? 0
-      );
-      if (dragSelectedInds.length === 0) {
-        return;
-      }
-      const mapTiles = getTileList(dragMap);
-      const nextRef = mapTiles[dragSelectedInds[0]];
-      if (dragSelectedInds.length === 1 && nextRef) {
-        // An unpainted cell has graphic (0, 0); picking it up just yields the
-        // first tileset's tile 0. Right-clicking a blank cell means "erase",
-        // so switch to the erase tool instead of selecting that tile.
-        const { tilesetIndex, tileId } = getTileGraphic(
-          dragMap,
-          es.currentLevel,
-          dragSelectedInds[0]
-        );
-        if (tilesetIndex === 0 && tileId === 0) {
-          setCurrentPaintAction(PaintActionType.ERASE);
-        } else {
-          updateEditorStateNoReRender({
-            rectCloneBrushTiles: [],
-            selectedTileIndexInTileset: nextRef.tileId,
-            selectedTilesetName: nextRef.tilesetName,
-          });
-        }
-        setSoleSelectedTile(pickKey, dragSelectedInds[0]);
-        return;
-      }
-      const mapWidth = dragMap.width ?? 0;
-      const [topLeftX, topLeftY] = [
-        ind0 % mapWidth,
-        Math.floor(ind0 / mapWidth),
-      ];
-      const brush = dragSelectedInds.map((ind) => {
-        const [x, y] = [ind % mapWidth, Math.floor(ind / mapWidth)];
-        return {
-          xOffset: x - topLeftX,
-          yOffset: y - topLeftY,
-          originalTile: {
-            ref: structuredClone(mapTiles[ind]),
-          },
-        };
-      });
-      updateEditorStateNoReRender({
-        rectCloneBrushTiles: brush,
-      });
-      setSoleSelectedTile(pickKey, dragSelectedInds[0]);
+    if (
+      mapEditorEventState.isDraggingRight &&
+      !mapEditorEventState.rightDragFromKey
+    ) {
+      finishRightPickDrag();
     }
   };
   const handleContextMenu = (ev: MouseEvent) => {
@@ -1174,6 +1266,9 @@ export const unInitPanzoom = () => {
   window.removeEventListener('wheel', panZoomEvents.wheel);
   window.removeEventListener('resize', panZoomEvents.viewportChange);
   window.removeEventListener('scroll', panZoomEvents.viewportChange, true);
+  mapEditorEventState.spacePanHeld = false;
+  mapEditorEventState.rightDragFromKey = false;
+  pointerOverCanvas = false;
   isPanZoomInitialized = false;
 };
 
