@@ -23,6 +23,7 @@ enum class LayerId {
   GiveContext,
   PopupText,
   SpecialEvent,
+  CharacterExamine,
 };
 
 inline std::string_view layerIdString(LayerId id) {
@@ -41,6 +42,7 @@ inline std::string_view layerIdString(LayerId id) {
   case LayerId::GiveContext: return "layer_give_context";
   case LayerId::PopupText: return "layer_popup_text";
   case LayerId::SpecialEvent: return "layer_special_event";
+  case LayerId::CharacterExamine: return "layer_character_examine";
   }
   return {};
 }
@@ -59,7 +61,8 @@ inline std::optional<LayerId> layerIdFromString(std::string_view value) {
                   LayerId::DropConfirm,
                   LayerId::GiveContext,
                   LayerId::PopupText,
-                  LayerId::SpecialEvent}) {
+                  LayerId::SpecialEvent,
+                  LayerId::CharacterExamine}) {
     if (layerIdString(id) == value) {
       return id;
     }

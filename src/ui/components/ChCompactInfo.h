@@ -19,6 +19,7 @@ struct ChCompactInfoProps {
   int spriteBoxSize = 36;
 
   int statusIconSize = 12;
+  int numStatusRows = 3;
   int numStatusColumns = 2;
 
   int hp = 0;
@@ -27,6 +28,16 @@ struct ChCompactInfoProps {
   int padding = 4;
   sdl2w::TextSize fontSize = sdl2w::TEXT_SIZE_18;
 };
+
+inline int chCompactInfoStatusColumns(int iconCount,
+                                      int minColumns = 2,
+                                      int rows = 3) {
+  if (rows <= 0) {
+    rows = 3;
+  }
+  const int needed = (iconCount + rows - 1) / rows;
+  return needed > minColumns ? needed : minColumns;
+}
 
 // ChCompactInfo component - renders a character sprite, status effect icons,
 // and health/mana values in a bordered box.

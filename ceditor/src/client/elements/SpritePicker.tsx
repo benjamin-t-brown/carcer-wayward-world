@@ -12,6 +12,8 @@ interface SpritePickerProps {
   className?: string;
   /** Spritesheet pre-selected when opening the picker with no current value. */
   defaultSpritesheet?: string;
+  /** If set, only this spritesheet is shown (no sheet dropdown). */
+  spritesheet?: string;
 }
 
 /** Sidebar preview (CSS px); integer upscale inside the canvas. */
@@ -25,6 +27,7 @@ export function SpritePicker({
   scale = 2,
   className = '',
   defaultSpritesheet,
+  spritesheet,
 }: SpritePickerProps) {
   const { sprites, spriteMap } = useSDL2WAssets();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -63,6 +66,9 @@ export function SpritePicker({
   }, [selectedSpritesheet, spritesBySheet]);
 
   const resolveInitialSpritesheet = () => {
+    if (spritesheet && spritesBySheet[spritesheet]?.length) {
+      return spritesheet;
+    }
     if (
       defaultSpritesheet &&
       spritesBySheet[defaultSpritesheet]?.length
@@ -220,12 +226,14 @@ export function SpritePicker({
               className="sprite-picker"
               sidebar={
                 <div>
-                  <OptionSelect
-                    label="Spritesheet"
-                    value={selectedSpritesheet}
-                    onChange={handleSpritesheetChange}
-                    options={spritesheetOptions}
-                  />
+                  {spritesheet ? null : (
+                    <OptionSelect
+                      label="Spritesheet"
+                      value={selectedSpritesheet}
+                      onChange={handleSpritesheetChange}
+                      options={spritesheetOptions}
+                    />
+                  )}
                   {previewSprite && selectedSpriteName && (
                     <div
                       style={{

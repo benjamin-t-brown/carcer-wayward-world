@@ -1,4 +1,5 @@
 #include "LayerPopupText.h"
+#include "bmin/String.h"
 #include "sdl2w/Logger.h"
 #include "ui/colors.hpp"
 #include "ui/components/borders/BorderDropShadow.h"
@@ -7,6 +8,8 @@
 #include "ui/elements/TextLine.h"
 #include "ui/elements/TextParagraph.h"
 #include "ui/elements/buttons/ButtonClose.h"
+#include "ui/helpers/keyboardShortcuts.h"
+#include "ui/helpers/uiSounds.h"
 #include "ui/observers/ActionObserver.hpp"
 #include "actions/navigation/UiRemoveLayer.hpp"
 #include "state/LayerRequest.h"
@@ -19,6 +22,15 @@ namespace {
 constexpr int POPUP_WIDTH = 300;
 constexpr int PADDING = 8;
 constexpr int CLOSE_BUTTON_PADDING = 4;
+
+class PopupTextRoot : public ui::UiElement {
+public:
+  PopupTextRoot(sdl2w::Window* window, int width, int height)
+      : ui::UiElement(window, nullptr) {
+    style.width = width;
+    style.height = height;
+  }
+};
 
 } // namespace
 
@@ -41,8 +53,6 @@ LayerPopupText::LayerPopupText(sdl2w::Window* _window,
   auto [windowWidth, windowHeight] = window->getDims();
   const int closeButtonSize = ui::ButtonClose::closeButtonSize;
   const int headerY = CLOSE_BUTTON_PADDING;
-  const int titleWidth =
-      POPUP_WIDTH - 2 * PADDING - closeButtonSize - CLOSE_BUTTON_PADDING;
   const int bodyWidth = POPUP_WIDTH - 2 * PADDING;
 
   auto* titleLine = new ui::TextLine(window, nullptr);
@@ -85,7 +95,7 @@ LayerPopupText::LayerPopupText(sdl2w::Window* _window,
   const int popupX = (windowWidth - POPUP_WIDTH) / 2;
   const int popupY = (windowHeight - popupHeight) / 2;
 
-  auto* root = new ui::UiElement(window, nullptr);
+  auto* root = new PopupTextRoot(window, windowWidth, windowHeight);
   root->setId("popupTextRoot");
   root->setPos(0, 0);
   root->setScale(1.f);
@@ -137,6 +147,25 @@ LayerPopupText::LayerPopupText(sdl2w::Window* _window,
   auto* floatingNotificationSection = new ui::FloatingNotificationSection(window);
   floatingNotificationSection->setId("floatingNotificationSection");
   addUiElement(bmin::UniquePtr<ui::UiElement>(floatingNotificationSection));
+}
+
+void LayerPopupText::onKeyDown(std::string_view key, int /*keyCode*/) {
+  if (getState() != LayerState::ON) {
+    return;
+  }
+  auto stateManager = getStateManager();
+  if (!stateManager) {
+    remove();
+    return;
+  }
+  if (!ui::isCancelActionKey(key)) {
+    return;
+  }
+  ui::playButtonSound(window);
+  stateManager->enqueueAction(
+      state::makeAction<state::actions::UiRemoveLayer>(
+          bmin::String(LAYER_ID.data(), LAYER_ID.size())),
+      0);
 }
 
 void LayerPopupText::update(int deltaTime) { UiLayer::update(deltaTime); }

@@ -8,6 +8,7 @@
 #include "state/State.hpp"
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
+#include "ui/helpers/worldCommands.h"
 #include "actions/combat/SetActiveCombatCharacter.hpp"
 #include "actions/world/WorldMoveActionAim.hpp"
 #include "actions/world/WorldSetActionAim.hpp"
@@ -281,6 +282,31 @@ int main(int /*argc*/, char** /*argv*/) {
          ok;
     ok = assertEqual(state.world.camera.camX, nextTurnCam.camX, "next turn camX") && ok;
     ok = assertEqual(state.world.camera.camY, nextTurnCam.camY, "next turn camY") && ok;
+  }
+
+  {
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupGrid(database, state, 5, 5);
+    placeAvatar(state, 2, 2);
+    state.world.combat.active = true;
+    state.world.combat.isWaitingForAction = true;
+    state.world.combat.activeCharacterId = "player1";
+    state.turnMode = model::TurnMode::TURN_COMBAT;
+
+    state::actions::WorldSetActionMode setSpell(model::WorldActionMode::SPELL);
+    setSpell.execute(&state);
+    ui::enqueueCombatWait(stateManager);
+
+    const auto& actions = stateManager.getActionData();
+    ok = assertTrue(state.world.actionMode == model::WorldActionMode::SPELL,
+                    "wait during spell aim keeps SPELL mode") &&
+         ok;
+    ok = assertTrue(actions.sequentialActions.empty() &&
+                        actions.sequentialActionsNext.empty() &&
+                        actions.insertActions.empty(),
+                    "wait during spell aim does not enqueue WAIT") &&
+         ok;
   }
 
   {

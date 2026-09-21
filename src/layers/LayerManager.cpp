@@ -1,5 +1,6 @@
 #include "LayerManager.h"
 #include "bmin/StringInterop.h"
+#include "layers/ui/LayerCharacterExamine.h"
 #include "layers/ui/LayerDropConfirm.h"
 #include "layers/ui/LayerEquipRunes.h"
 #include "layers/ui/LayerGiveContext.h"
@@ -356,6 +357,8 @@ bmin::UniquePtr<Layer> LayerManager::createLayer(const state::LayerRequest& requ
     return bmin::UniquePtr<Layer>(new LayerGiveContext(window, request.a, request.b));
   case state::LayerId::PopupText:
     return bmin::UniquePtr<Layer>(new LayerPopupText(window, request.a, request.b));
+  case state::LayerId::CharacterExamine:
+    return bmin::UniquePtr<Layer>(new LayerCharacterExamine(window, request.a));
   case state::LayerId::SpecialEvent: {
     auto* stateManager = getStateManager();
     auto* database = getDatabase();

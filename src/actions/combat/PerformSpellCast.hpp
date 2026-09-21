@@ -3,6 +3,7 @@
 #include "bmin/StringInterop.h"
 #include "game/combat/Damage.h"
 #include "game/combat/SpellRules.h"
+#include "game/combat/StatusRules.h"
 #include "game/combat/projectileHelpers.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/TileDistance.h"
@@ -14,6 +15,7 @@
 #include "actions/combat/CharacterSetSpriteIndexOffset.hpp"
 #include "actions/combat/ModifyAP.hpp"
 #include "actions/combat/ModifyHP.hpp"
+#include "actions/combat/PerformStatusAbility.hpp"
 #include "actions/general/PlaySound.hpp"
 #include "actions/world/WorldSetActionMode.hpp"
 #include "actions/world/WorldSpawnDamageParticle.hpp"
@@ -88,13 +90,14 @@ class PerformSpellCast : public AbstractAction {
     insertAction(nullptr, delayMs);
 
     const int damageParticleLifetimeMs = 500;
+    auto spawnedSpellParticle = false;
     for (size_t i = 0; i < targets.size(); i++) {
       auto* ch = targets[i];
       const auto hpDelta = hpDeltaToCharacters[i];
       if (hpDelta != 0) {
         insertAction(state::makeAction<ModifyHP>(ch->id, hpDelta), i * 50);
       }
-      if (!depiction.dmgAnim.empty()) {
+      if (hpDelta != 0 && !depiction.dmgAnim.empty()) {
         const auto particleText =
             hpDelta > 0 ? bmin::toString(hpDelta) : bmin::toString(-hpDelta);
         insertAction(state::makeAction<WorldSpawnDamageParticle>(depiction.dmgAnim,
@@ -104,14 +107,43 @@ class PerformSpellCast : public AbstractAction {
                                                   damageParticleLifetimeMs,
                                                   depiction.dmgTextColor),
                      i * 50);
+        spawnedSpellParticle = true;
       }
     }
 
     if (targets.size() > 0) {
-      playSoundIfNamed(depiction.dmgSound);
-      insertAction(nullptr, damageParticleLifetimeMs);
+      if (spawnedSpellParticle) {
+        playSoundIfNamed(depiction.dmgSound);
+        insertAction(nullptr, damageParticleLifetimeMs);
+      }
     } else {
       LOG(INFO) << "Missed!" << LOG_ENDL;
+    }
+
+    auto* database = getDatabase();
+    if (database == nullptr || ability.statuses.empty()) {
+      return;
+    }
+    for (size_t i = 0; i < targets.size(); i++) {
+      auto* ch = targets[i];
+      for (const auto& statusApply : ability.statuses) {
+        if (!game::applyStatusEffect(*ch, statusApply, casterStats, *database)) {
+          continue;
+        }
+        const auto* statusTemplate =
+            database->findStatusEffectTemplate(bmin::toStringView(statusApply.statusEffect));
+        if (statusTemplate == nullptr) {
+          continue;
+        }
+        bmin::DynArray<bmin::String> onAppliedAbilities;
+        game::collectStatusActionAbilities(*statusTemplate,
+                                           model::StatusEventType::STATUS_EVENT_ON_APPLIED,
+                                           onAppliedAbilities);
+        for (size_t a = 0; a < onAppliedAbilities.size(); a++) {
+          insertAction(state::makeAction<PerformStatusAbility>(ch->id, onAppliedAbilities[a]),
+                       static_cast<int>(i * 50 + a * 50));
+        }
+      }
     }
   }
 

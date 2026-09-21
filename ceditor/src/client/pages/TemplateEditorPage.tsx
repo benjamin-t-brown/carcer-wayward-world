@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect, ReactNode } from 'react';
+import { useState, useRef, ReactNode } from 'react';
 import { CardList } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
 import { EditorHeader } from '../components/EditorHeader';
 import { Notification } from '../elements/Notification';
 import { trimStrings } from '../utils/jsonUtils';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
+import { useSaveHotkey } from '../hooks/useSaveHotkey';
 import { EditorSelectionKey } from '../utils/editorSelectionStorage';
 
 interface NotificationState {
@@ -210,17 +211,7 @@ export function TemplateEditorPage<T>({
     routeParams,
   });
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        handleSaveAll();
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items]);
+  useSaveHotkey(handleSaveAll);
 
   const current = editIndex >= 0 ? items[editIndex] : undefined;
 

@@ -1,5 +1,18 @@
 [
   {
+    "name": "BLESS_ALLY",
+    "label": "Bless",
+    "description": "",
+    "icon": "runes_4",
+    "abilityName": "SPELL_BLESS",
+    "requiredRunes": [
+      {
+        "type": "EXPAND",
+        "count": 1
+      }
+    ]
+  },
+  {
     "name": "FLAME",
     "label": "Flame",
     "description": "Send a small ball of fire towards an enemy that deals some fire damage.",

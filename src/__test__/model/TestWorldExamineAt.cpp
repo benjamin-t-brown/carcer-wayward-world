@@ -9,6 +9,7 @@
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
 #include "actions/world/WorldExamineAt.hpp"
+#include "state/LayerRequest.h"
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 
@@ -25,6 +26,14 @@ bool assertTrue(bool cond, const char* label) {
 bool assertFalse(bool cond, const char* label) {
   if (cond) {
     LOG(ERROR) << label << " expected false" << LOG_ENDL;
+    return false;
+  }
+  return true;
+}
+
+bool assertEqual(int actual, int expected, const char* label) {
+  if (actual != expected) {
+    LOG(ERROR) << label << " expected " << expected << " but got " << actual << LOG_ENDL;
     return false;
   }
   return true;
@@ -204,6 +213,67 @@ int main(int /*argc*/, char** /*argv*/) {
                         state.world.actionAimTile->x == 4 &&
                         state.world.actionAimTile->y == 4,
                     "aim kept when not visible") &&
+         ok;
+  }
+
+  {
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupState(database, state);
+    state.world.actionMode = model::WorldActionMode::EXAMINE;
+    state.world.actionAimTile = model::TileXY{2, 2};
+
+    model::CharacterInstance character;
+    character.id = "examine-npc";
+    character.name = "Guard";
+    character.x = 2;
+    character.y = 2;
+    character.statusEffects.pushBack(model::AppliedStatusEffect{
+        .statusEffectName = "BURNING",
+        .remainingTurns = 3,
+    });
+    state.world.activeMap.characters.pushBack(std::move(character));
+
+    state::actions::WorldExamineAt examineAt(2, 2);
+    examineAt.execute(&state);
+
+    ok = assertTrue(state.world.actionMode == model::WorldActionMode::NONE,
+                    "examine mode cleared after character sheet") &&
+         ok;
+    ok = assertFalse(state.world.actionAimTile.has_value(),
+                     "aim cleared after character sheet") &&
+         ok;
+    ok = assertEqual(static_cast<int>(state.uiState.layerCommands.size()),
+                     1,
+                     "character examine enqueues one layer command") &&
+         ok;
+    if (!state.uiState.layerCommands.empty()) {
+      const auto& command = state.uiState.layerCommands[0];
+      ok = assertTrue(command.type == state::LayerCommandType::Push,
+                      "character examine pushes a layer") &&
+           ok;
+      ok = assertTrue(command.request.id == state::LayerId::CharacterExamine,
+                      "character examine uses character sheet layer") &&
+           ok;
+      ok = assertEqualStr(command.request.a, "examine-npc",
+                          "character examine carries instance id") &&
+           ok;
+    }
+  }
+
+  {
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupState(database, state);
+    state.world.actionMode = model::WorldActionMode::EXAMINE;
+    state.world.actionAimTile = model::TileXY{1, 1};
+
+    state::actions::WorldExamineAt examineAt(1, 1);
+    examineAt.execute(&state);
+
+    ok = assertEqual(static_cast<int>(state.uiState.layerCommands.size()),
+                     0,
+                     "empty tile does not open character sheet") &&
          ok;
   }
 

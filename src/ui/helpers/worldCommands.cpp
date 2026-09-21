@@ -44,11 +44,15 @@ void enqueueMapMove(state::StateManager& stateManager, int dx, int dy) {
 }
 
 void enqueueCombatWait(state::StateManager& stateManager) {
-  if (!canPlayerIssueCombatMove(stateManager.getState())) {
+  auto& state = stateManager.getState();
+  if (state.world.actionMode != model::WorldActionMode::NONE) {
+    return;
+  }
+  if (!canPlayerIssueCombatMove(state)) {
     return;
   }
   stateManager.enqueueAction(state::makeAction<state::actions::DoCombatAction>(
-                                 stateManager.getState().world.combat.activeCharacterId,
+                                 state.world.combat.activeCharacterId,
                                  model::CombatActionType::WAIT),
                              0);
 }

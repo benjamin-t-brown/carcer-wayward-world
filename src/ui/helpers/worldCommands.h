@@ -29,6 +29,7 @@ bool canPlayerIssueCombatMove(const state::State& state);
 void enqueueMapMove(state::StateManager& stateManager, int dx, int dy);
 
 // Enqueue a combat WAIT for the active party character, if it may act.
+// No-op while aiming (EXAMINE / TALK / SPELL).
 void enqueueCombatWait(state::StateManager& stateManager);
 
 // Ensure uiState.selectedPartyMemberId points at a live party member (or is

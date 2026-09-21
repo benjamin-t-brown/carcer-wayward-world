@@ -38,6 +38,7 @@ import { DeleteModal } from '../elements/DeleteModal';
 import { ConfirmModal } from '../elements/ConfirmModal';
 import { ValidationMenuButton } from '../special-event-editor/react-components/ValidationMenuButton';
 import { useReRender } from '../hooks/useReRender';
+import { useSaveHotkey } from '../hooks/useSaveHotkey';
 import { EventRunner } from '../special-event-editor/eventRunner/EventRunner';
 import { EditRunnerStateModal } from '../special-event-editor/modals/EditRunnerStateModal';
 import {
@@ -597,21 +598,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     }
   };
 
-  // Global hotkey: Ctrl+S to save
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Check for Ctrl+S (Windows/Linux) or Cmd+S (Mac)
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        handleSaveAll();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }); // Include dependencies
+  useSaveHotkey(handleSaveAll);
 
   // Autosave every 5 minutes
   useEffect(() => {

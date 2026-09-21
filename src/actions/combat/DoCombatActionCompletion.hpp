@@ -39,7 +39,10 @@ class DoCombatActionCompletion : public AbstractAction {
     game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
     auto* activeCharacter = orch.findCharacterById(combat.activeCharacterId);
     const auto apRemaining = activeCharacter != nullptr ? activeCharacter->currentAp : 0;
-    const auto turnEnded = apRemaining <= 0;
+    const auto activeDefeated =
+        activeCharacter == nullptr ||
+        model::isCharacterDefeated(state->player, *activeCharacter);
+    const auto turnEnded = apRemaining <= 0 || activeDefeated;
 
     if (turnEnded) {
       LOG(INFO) << "DoCombatActionCompletion: turn ended, advancing to next character"

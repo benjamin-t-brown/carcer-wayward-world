@@ -66,7 +66,9 @@ void setupTestParty(model::Player& player, db::Database& database) {
     member.knownSpells.pushBack("FLAME");
     member.knownSpells.pushBack("HEAL_ALLY_MINOR");
     member.knownSpells.pushBack("SINGE");
-    member.equippedRunes = {model::RuneType::HEAT, model::RuneType::REGROWTH};
+    member.knownSpells.pushBack("BLESS_ALLY");
+    member.equippedRunes = {
+        model::RuneType::HEAT, model::RuneType::REGROWTH, model::RuneType::EXPAND};
     if (member.currentMp < 10) {
       member.currentMp = 10;
     }

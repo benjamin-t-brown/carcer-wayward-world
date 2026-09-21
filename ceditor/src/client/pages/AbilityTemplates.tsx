@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { CardList } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
 import { AbilityTemplate } from '../types/ability';
@@ -21,6 +21,7 @@ import {
 } from '../types/assets';
 import { AbilityDeleteConfirmModal } from '../components/AbilityDeleteConfirmModal';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
+import { useSaveHotkey } from '../hooks/useSaveHotkey';
 
 interface NotificationState {
   message: string;
@@ -202,16 +203,7 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
     routeParams,
   });
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        handleSaveAll();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [abilities]);
+  useSaveHotkey(handleSaveAll);
 
   const current = editIndex >= 0 ? abilities[editIndex] : undefined;
 

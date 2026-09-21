@@ -18,6 +18,16 @@ int main(int argc, char** argv) {
       LOG(ERROR) << "Missing BURNING status effect" << LOG_ENDL;
       return 1;
     }
+    if (burningIt->value.icon != "ui_status_effect_icons_3") {
+      LOG(ERROR) << "BURNING icon should be ui_status_effect_icons_3" << LOG_ENDL;
+      return 1;
+    }
+    if (!burningIt->value.durationScale.has_value() ||
+        burningIt->value.durationScale->durationStat != model::StatsEnum::STAT_MND ||
+        burningIt->value.durationScale->durationStatMult != 0.25f) {
+      LOG(ERROR) << "BURNING durationScale should be STAT_MND * 0.25" << LOG_ENDL;
+      return 1;
+    }
     if (burningIt->value.baseDuration != 3) {
       LOG(ERROR) << "BURNING baseDuration should be 3" << LOG_ENDL;
       return 1;
@@ -26,8 +36,12 @@ int main(int argc, char** argv) {
       LOG(ERROR) << "BURNING should have actions" << LOG_ENDL;
       return 1;
     }
-    if (burningIt->value.actions[0].events.empty()) {
-      LOG(ERROR) << "BURNING action should have events" << LOG_ENDL;
+    if (burningIt->value.actions[0].events.size() != 2 ||
+        burningIt->value.actions[0].events[0].type !=
+            model::StatusEventType::STATUS_EVENT_ON_TURN_START ||
+        burningIt->value.actions[0].events[1].type !=
+            model::StatusEventType::STATUS_EVENT_ON_APPLIED) {
+      LOG(ERROR) << "BURNING should tick ON_TURN_START and ON_APPLIED" << LOG_ENDL;
       return 1;
     }
     if (burningIt->value.applyResistances.empty()) {

@@ -13,7 +13,7 @@ struct StatusEffectEvent {
 
 struct StatusEffectDurationScale {
   StatsEnum durationStat = StatsEnum::STAT_MND;
-  int durationStatMult = 0;
+  float durationStatMult = 0.f;
 };
 
 struct StatusEffectAction {
@@ -26,6 +26,7 @@ struct StatusEffectAction {
 struct StatusEffectTemplate {
   bmin::String name;
   bmin::String description;
+  bmin::String icon;
   // Default turns before apply-time modifiers (applier spellPotency, victim shield, feats).
   int baseDuration = 0;
   std::optional<StatusEffectDurationScale> durationScale;

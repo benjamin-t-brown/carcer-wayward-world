@@ -7,6 +7,7 @@
 #include "sdl2w/Logger.h"
 #include "state/AbstractAction.hpp"
 #include "actions/combat/SetActiveCombatCharacter.hpp"
+#include "actions/combat/TickCombatStatuses.hpp"
 #include "actions/general/PlaySound.hpp"
 
 namespace state {
@@ -44,7 +45,9 @@ class StartCombat : public AbstractAction {
     LOG(INFO) << "StartCombat: turn order has " << world.combat.turnOrderIds.size()
               << " characters" << LOG_ENDL;
     PlaySound("combat_start").execute(state);
-    insertAction(state::makeAction<SetActiveCombatCharacter>(), 0);
+    const auto& firstId = world.combat.turnOrderIds[0];
+    insertAction(state::makeAction<SetActiveCombatCharacter>(firstId, false), 0);
+    insertAction(state::makeAction<TickCombatStatuses>(firstId), 0);
   }
 
 public:

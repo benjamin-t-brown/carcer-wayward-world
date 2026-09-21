@@ -7,6 +7,7 @@
 #include "sdl2w/Window.h"
 #include "state/State.hpp"
 #include "state/StateManager.h"
+#include "actions/combat/DoCombatActionCompletion.hpp"
 #include "actions/combat/DoCPUCombatTurn.hpp"
 #include "actions/navigation/heldMove/UiUpdateHeldMove.hpp"
 #include "actions/navigation/UiShowLayerSpecialEvent.hpp"
@@ -39,14 +40,19 @@ bmin::String resolveFollowCharacterId(const State& state) {
 void enqueueCpuCombatTurn(StateManager& stateManager) {
   auto& state = stateManager.getState();
   auto& combat = state.world.combat;
-  if (combat.activeCharacterId.empty() ||
-      model::isPartyMember(state.player, combat.activeCharacterId)) {
+  if (combat.activeCharacterId.empty()) {
     return;
   }
   game::ActiveMapOrchestrator activeMap(
       state.world.activeMap, state.mapInstances, nullptr);
   const auto* character = activeMap.findCharacterById(combat.activeCharacterId);
-  if (character == nullptr) {
+  if (character == nullptr ||
+      model::isCharacterDefeated(state.player, *character)) {
+    combat.isWaitingForAction = false;
+    stateManager.enqueueAction(state::makeAction<actions::DoCombatActionCompletion>(), 0);
+    return;
+  }
+  if (model::isPartyMember(state.player, combat.activeCharacterId)) {
     return;
   }
 

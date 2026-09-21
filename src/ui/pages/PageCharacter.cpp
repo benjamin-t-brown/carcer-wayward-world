@@ -14,7 +14,9 @@
 #include "ui/helpers/modalLayoutFit.h"
 #include "ui/layouts/ModalStandard.h"
 #include "ui/observers/ActionObserver.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
 #include "actions/navigation/UiShowLayerPopupText.hpp"
+#include "state/LayerRequest.h"
 #include <utility>
 
 namespace ui {
@@ -120,6 +122,24 @@ PageCharacter::buildStatSection(const PageCharacterStatRowSectionArgs& sectionPr
     statRow->addChild(bmin::UniquePtr<ui::UiElement>(buttonHelp));
     leftX += buttonSize + linePadding;
 
+    if (!row.iconSprite.empty()) {
+      const int iconSize = 12;
+      const float iconScale = 2.f;
+      const int drawnSize = static_cast<int>(iconSize * iconScale);
+      const int iconY = (list->getProps().lineHeight - drawnSize) / 2;
+      auto* statusIcon = new Quad(window, statRow);
+      statusIcon->setId("icon_" + row.label);
+      statusIcon->setPos(leftX * style.scale, iconY * style.scale);
+      statusIcon->setScale(iconScale * style.scale);
+      statusIcon->setProps(QuadProps{
+          .width = iconSize,
+          .height = iconSize,
+          .bgSprite = row.iconSprite,
+      });
+      statRow->addChild(bmin::UniquePtr<ui::UiElement>(statusIcon));
+      leftX += drawnSize + linePadding;
+    }
+
     auto* statLine = new TextLine(window, list);
     statLine->setId("item_" + row.label);
     TextFontProps statFont;
@@ -131,7 +151,9 @@ PageCharacter::buildStatSection(const PageCharacterStatRowSectionArgs& sectionPr
     rowProps.fontSize = sdl2w::TEXT_SIZE_20;
     rowProps.fontColor = Colors::Black;
     rowProps.textAlign = TextAlign::LEFT_CENTER;
-    rowProps.textBlocks.pushBack(TextBlock{.text = row.label + ": " + statValueText});
+    const bmin::String rowText =
+        row.displayText.empty() ? row.label + ": " + statValueText : row.displayText;
+    rowProps.textBlocks.pushBack(TextBlock{.text = rowText});
     statLine->setScale(1.f);
     statLine->setProps(rowProps);
     statLine->setPos(leftX * style.scale, list->getProps().lineHeight * style.scale / 2);
@@ -355,6 +377,14 @@ void PageCharacter::build() {
   syncHostStyleToCappedCentered(style);
   addChild(bmin::UniquePtr<ui::UiElement>(modal));
 
+  if (!props.allowStatModification) {
+    if (auto* closeButton = modal->getCloseButtonElement()) {
+      closeButton->addEventObserver(
+          ui::makeActionObserver<state::actions::UiRemoveLayer>(
+              state::LayerId::CharacterExamine));
+    }
+  }
+
   auto [contentW, contentH] = modal->getContentDims();
   auto [contentX, contentY] = modal->getContentLocation();
   const int unscaledContentW = static_cast<int>(contentW / style.scale);
@@ -418,6 +448,45 @@ void PageCharacter::build() {
     yAgg += section->getDims().second;
   }
   {
+    bmin::DynArray<PageCharacterStatRowEntry> statusRows;
+    if (props.statusEffects.empty()) {
+      statusRows.pushBack(PageCharacterStatRowEntry{
+          .label = TRANSLATE("None"),
+          .helpDescription = TRANSLATE("This character has no status effects."),
+          .displayText = TRANSLATE("None"),
+      });
+    } else {
+      for (const auto& status : props.statusEffects) {
+        bmin::String remainingText = bmin::toString(status.remainingTurns);
+        remainingText += " ";
+        remainingText += status.remainingTurns == 1 ? TRANSLATE("turn")
+                                                    : TRANSLATE("turns");
+        bmin::String displayText = "(";
+        displayText += status.name;
+        displayText += ") ";
+        displayText += remainingText;
+        statusRows.pushBack(PageCharacterStatRowEntry{
+            .label = status.name,
+            .helpDescription = status.description,
+            .valueText = remainingText,
+            .iconSprite = status.iconSprite,
+            .displayText = displayText,
+        });
+      }
+    }
+    auto* section = buildStatSection(PageCharacterStatRowSectionArgs{
+        .title = TRANSLATE("Status Effects"),
+        .rows = std::move(statusRows),
+        .width = scrollableContentW,
+        .y = yAgg,
+        .showModButtons = false,
+        .buttonMinusDisabled = true,
+        .buttonPlusDisabled = true,
+    });
+    scrollableStatsSection->addChild(bmin::UniquePtr<ui::UiElement>(section));
+    yAgg += section->getDims().second;
+  }
+  {
     auto* section = buildStatSection(PageCharacterStatRowSectionArgs{
         .title = model::CharacterStatDefinitions::attributesTitle(),
         // clang-format off
@@ -447,7 +516,7 @@ void PageCharacter::build() {
         // clang-format on
         .width = scrollableContentW,
         .y = yAgg,
-        .showModButtons = true,
+        .showModButtons = props.allowStatModification,
         .buttonMinusDisabled = false,
         .buttonPlusDisabled = false,
     });
@@ -483,7 +552,7 @@ void PageCharacter::build() {
         // clang-format on
         .width = scrollableContentW,
         .y = yAgg,
-        .showModButtons = true,
+        .showModButtons = props.allowStatModification,
         .buttonMinusDisabled = false,
         .buttonPlusDisabled = false,
     });
@@ -519,7 +588,7 @@ void PageCharacter::build() {
         // clang-format on
         .width = scrollableContentW,
         .y = yAgg,
-        .showModButtons = true,
+        .showModButtons = props.allowStatModification,
         .buttonMinusDisabled = false,
         .buttonPlusDisabled = false,
     });
@@ -555,7 +624,7 @@ void PageCharacter::build() {
         // clang-format on
         .width = scrollableContentW,
         .y = yAgg,
-        .showModButtons = true,
+        .showModButtons = props.allowStatModification,
         .buttonMinusDisabled = false,
         .buttonPlusDisabled = false,
     });
@@ -607,7 +676,7 @@ void PageCharacter::build() {
         // clang-format on
         .width = scrollableContentW,
         .y = yAgg,
-        .showModButtons = true,
+        .showModButtons = props.allowStatModification,
         .buttonMinusDisabled = false,
         .buttonPlusDisabled = false,
     });

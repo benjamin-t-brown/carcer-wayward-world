@@ -2,6 +2,7 @@ import { TextInput } from '../elements/TextInput';
 import { NumberInput } from '../elements/NumberInput';
 import { TextArea } from '../elements/TextArea';
 import { Button } from '../elements/Button';
+import { SpritePicker } from '../elements/SpritePicker';
 import {
   StatusEffectTemplate,
   createDefaultStatusEffectTemplate,
@@ -125,6 +126,25 @@ export function StatusEffectTemplateForm(props: StatusEffectTemplateFormProps) {
             onChange={(value) => updateField('baseDuration', value ?? 0)}
             min={0}
           />
+        </div>
+
+        <div className="form-group form-block">
+          <label htmlFor="status-icon">Icon *</label>
+          <div style={{ marginTop: '4px' }}>
+            <SpritePicker
+              value={statusEffect.icon}
+              onChange={(value) => updateField('icon', value)}
+              scale={2}
+              spritesheet="ui_status_effect_icons"
+            />
+          </div>
+          {statusEffect.icon ? (
+            <div
+              style={{ marginTop: '4px', fontSize: '11px', color: '#858585' }}
+            >
+              Selected: {statusEffect.icon}
+            </div>
+          ) : null}
         </div>
 
         <p className="form-subsection-description">

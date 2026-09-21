@@ -23,7 +23,8 @@
       "projectileType": "PROJECTILE_NONE",
       "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "",
-      "dmgSound": "hit_punch3"
+      "dmgSound": "hit_punch3",
+      "dmgTextColor": "#FFFFFF"
     },
     "attacks": [
       {
@@ -67,7 +68,8 @@
       "projectileType": "PROJECTILE_NONE",
       "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "",
-      "dmgSound": "hit_metal1"
+      "dmgSound": "hit_metal1",
+      "dmgTextColor": "#FFFFFF"
     },
     "attacks": [
       {
@@ -111,7 +113,8 @@
       "projectileType": "PROJECTILE_NONE",
       "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "",
-      "dmgSound": "hit_metal1"
+      "dmgSound": "hit_metal1",
+      "dmgTextColor": "#FFFFFF"
     },
     "attacks": [
       {
@@ -155,7 +158,8 @@
       "projectileType": "PROJECTILE_NONE",
       "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "",
-      "dmgSound": "hit_metal2"
+      "dmgSound": "hit_metal2",
+      "dmgTextColor": "#FFFFFF"
     },
     "attacks": [
       {
@@ -212,7 +216,8 @@
       "projectileType": "ARROW_NORMAL",
       "projectilePath": "PROJECTILE_PATH_MEDIUM",
       "startSound": "shoot_bow",
-      "dmgSound": "hit_arrow"
+      "dmgSound": "hit_arrow",
+      "dmgTextColor": "#FFFFFF"
     },
     "attacks": [
       {
@@ -256,7 +261,8 @@
       "projectileType": "PROJECTILE_NONE",
       "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "",
-      "dmgSound": "hit_punch2"
+      "dmgSound": "hit_punch2",
+      "dmgTextColor": "#1A1A1A"
     },
     "attacks": [],
     "statuses": [],
@@ -272,6 +278,42 @@
         "dmgStatMult": 0
       }
     ]
+  },
+  {
+    "name": "SPELL_BLESS",
+    "label": "Bless",
+    "description": "",
+    "icon": "",
+    "type": "ABILITY_SPELL",
+    "targetSelect": {
+      "targetType": "TARGET_ALLY",
+      "allegianceSelectType": "TARGET_ALLEGIANCE_OTHER",
+      "numTargetableUnits": 1,
+      "zoneSize": {
+        "x": 1,
+        "y": 1
+      },
+      "range": 10
+    },
+    "apCost": 6,
+    "costType": "ABILITY_COST_MANA",
+    "costValue": 2,
+    "depiction": {
+      "dmgAnim": "splash_positive",
+      "dmgTextColor": "#FFFFFF",
+      "projectileType": "PROJECTILE_NONE",
+      "projectilePath": "PROJECTILE_PATH_NONE",
+      "startSound": "cast_ahh",
+      "dmgSound": "spell_invis"
+    },
+    "attacks": [],
+    "statuses": [
+      {
+        "statusEffect": "BLESSED"
+      }
+    ],
+    "restores": [],
+    "damages": []
   },
   {
     "name": "SPELL_FLAME",
@@ -297,7 +339,8 @@
       "projectileType": "COMET_RED",
       "projectilePath": "PROJECTILE_PATH_MEDIUM",
       "startSound": "cast_flame",
-      "dmgSound": "hit_fireball"
+      "dmgSound": "hit_fireball",
+      "dmgTextColor": "#FFFFFF"
     },
     "attacks": [],
     "statuses": [],
@@ -338,7 +381,8 @@
       "projectileType": "DOT_RED",
       "projectilePath": "PROJECTILE_PATH_SHORT",
       "startSound": "cast_ahh",
-      "dmgSound": "spell_cure"
+      "dmgSound": "spell_cure",
+      "dmgTextColor": "#FFFFFF"
     },
     "attacks": [],
     "statuses": [],
@@ -378,7 +422,8 @@
       "projectileType": "DOT_RED",
       "projectilePath": "PROJECTILE_PATH_SHORT",
       "startSound": "cast_ahh",
-      "dmgSound": "spell_cure"
+      "dmgSound": "spell_cure",
+      "dmgTextColor": "#FFFFFF"
     },
     "attacks": [],
     "statuses": [],
@@ -419,21 +464,15 @@
       "projectileType": "PROJECTILE_NONE",
       "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "cast_flame",
-      "dmgSound": "hit_punch2"
+      "dmgSound": ""
     },
     "attacks": [],
-    "statuses": [],
-    "restores": [],
-    "damages": [
+    "statuses": [
       {
-        "damageType": "DAMAGE_TYPE_HEAT",
-        "dmgDice": [
-          "D4"
-        ],
-        "dmgBonus": 2,
-        "dmgStat": "STAT_MND",
-        "dmgStatMult": 0.25
+        "statusEffect": "BURNING"
       }
-    ]
+    ],
+    "restores": [],
+    "damages": []
   }
 ]

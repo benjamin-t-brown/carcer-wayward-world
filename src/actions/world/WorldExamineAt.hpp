@@ -13,6 +13,7 @@ namespace sdl2w { class Window; }
 #include "sdl2w/Window.h"
 #include "state/AbstractAction.hpp"
 #include "state/State.hpp"
+#include "actions/navigation/UiShowLayerCharacterExamine.hpp"
 #include "actions/navigation/UiShowLayerPickUp.hpp"
 #include <cstdlib>
 
@@ -66,6 +67,16 @@ class WorldExamineAt : public AbstractAction {
     const auto* tile = game::tileAtCurrentLayer(*map, local.x, local.y);
     if (tile && tile->eventTrigger && tile->eventTrigger->requiresLook) {
       state->triggers.pendingSpecialEventId = tile->eventTrigger->eventId;
+      return;
+    }
+
+    for (size_t i = 0; i < world.activeMap.characters.size(); i++) {
+      const auto& character = world.activeMap.characters[i];
+      if (character.x != x || character.y != y) {
+        continue;
+      }
+      UiShowLayerCharacterExamine showCharacter(window, character.id);
+      showCharacter.execute(state);
       return;
     }
 

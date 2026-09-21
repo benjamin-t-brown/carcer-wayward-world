@@ -1,7 +1,27 @@
 [
   {
+    "name": "BLESSED",
+    "description": "STR and MND are increased.",
+    "icon": "ui_status_effect_icons_0",
+    "baseDuration": 3,
+    "applyResistances": [],
+    "actions": [],
+    "applyBonuses": {
+      "STR": 2,
+      "MND": 2,
+      "CON": 0,
+      "AGI": 0,
+      "LCK": 0
+    },
+    "durationScale": {
+      "durationStat": "STAT_MND",
+      "durationStatMult": 0.25
+    }
+  },
+  {
     "name": "BURNING",
-    "description": "Self fire damage at the start of each turn.",
+    "description": "Fire damage is applied at the beginning of each turn.",
+    "icon": "ui_status_effect_icons_3",
     "baseDuration": 3,
     "applyResistances": [
       {
@@ -24,6 +44,10 @@
           }
         ]
       }
-    ]
+    ],
+    "durationScale": {
+      "durationStat": "STAT_MND",
+      "durationStatMult": 0.25
+    }
   }
 ]

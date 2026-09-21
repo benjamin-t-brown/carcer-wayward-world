@@ -2,6 +2,7 @@
 
 #include "bmin/String.h"
 #include "bmin/UniquePtr.h"
+#include "bmin/StringInterop.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "layers/LayerManager.h"
 #include "layers/UiLayer.h"
@@ -318,6 +319,17 @@ void WorldViewSync::refresh() {
     entry.hp = member.currentHp;
     entry.mana = member.currentMp;
     entry.isSelected = (i == layoutProps.selectedPartyMemberIndex);
+    if (const auto* mapCharacter = activeMap.findCharacterById(member.instanceId)) {
+      if (auto* database = getDatabase()) {
+        for (size_t s = 0; s < mapCharacter->statusEffects.size(); s++) {
+          const auto* statusTemplate = database->findStatusEffectTemplate(
+              bmin::toStringView(mapCharacter->statusEffects[s].statusEffectName));
+          if (statusTemplate != nullptr && !statusTemplate->icon.empty()) {
+            entry.statusEffectSpriteNames.pushBack(statusTemplate->icon);
+          }
+        }
+      }
+    }
     layoutProps.partyMembers.pushBack(entry);
   }
   inGameLayout->setProps(layoutProps);

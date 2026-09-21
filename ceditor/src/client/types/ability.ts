@@ -395,6 +395,7 @@ export interface AbilityTemplate {
 export interface StatusEffectTemplate {
   name: string;
   description: string;
+  icon: string;
   baseDuration: number;
   durationScale?: StatusEffectDurationScale;
   applyBonuses?: Stats;
@@ -771,6 +772,7 @@ export function createDefaultStatusEffectTemplate(): StatusEffectTemplate {
   return {
     name: '',
     description: '',
+    icon: 'ui_status_effect_icons_0',
     baseDuration: 1,
     applyResistances: [],
     actions: [],

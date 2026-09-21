@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { CardList } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
 import { TilesetTemplate } from '../types/assets';
@@ -11,6 +11,7 @@ import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
+import { useSaveHotkey } from '../hooks/useSaveHotkey';
 
 interface NotificationState {
   message: string;
@@ -257,21 +258,7 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
     }
   };
 
-  // Global hotkey: Ctrl+S to save
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Check for Ctrl+S (Windows/Linux) or Cmd+S (Mac)
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        handleSaveAll();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [tilesets]); // Include dependencies
+  useSaveHotkey(handleSaveAll);
 
   const currentTileset = tilesets[editTilesetIndex];
 

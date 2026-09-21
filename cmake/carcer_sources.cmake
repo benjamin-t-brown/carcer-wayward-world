@@ -35,6 +35,7 @@ set(CARCER_LAYER_SOURCES
   src/layers/ui/LayerPickUp.cpp
   src/layers/ui/LayerPopupText.cpp
   src/layers/ui/LayerSpecialEvent.cpp
+  src/layers/ui/LayerCharacterExamine.cpp
   src/layers/ui/LayerWorld.cpp
   src/layers/ui/WorldViewSync.cpp
   src/layers/ui/WorldInputController.cpp)
@@ -58,6 +59,7 @@ set(CARCER_MODEL_SOURCES
 set(CARCER_RULE_SOURCES
   src/game/combat/CombatParty.cpp
   src/game/combat/SpellRules.cpp
+  src/game/combat/StatusRules.cpp
   src/game/combat/projectileHelpers.cpp
   src/game/combat/Damage.cpp
   src/game/combat/AbilityOverrideMerge.cpp

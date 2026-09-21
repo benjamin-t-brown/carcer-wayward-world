@@ -7,6 +7,7 @@
 #include "sdl2w/Logger.h"
 #include "state/AbstractAction.hpp"
 #include "actions/combat/SetActiveCombatCharacter.hpp"
+#include "actions/combat/TickCombatStatuses.hpp"
 
 namespace state {
 
@@ -64,7 +65,8 @@ class GoNextCombatTurn : public AbstractAction {
         }
         continue;
       }
-      insertAction(state::makeAction<SetActiveCombatCharacter>(nextId), 0);
+      insertAction(state::makeAction<SetActiveCombatCharacter>(nextId, false), 0);
+      insertAction(state::makeAction<TickCombatStatuses>(nextId), 0);
       LOG(INFO) << "GoNextCombatTurn: next actor is "
                 << model::formatCharacterLogLabel(state->world.activeMap, nextId)
                 << LOG_ENDL;

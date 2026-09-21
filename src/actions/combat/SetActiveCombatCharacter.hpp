@@ -17,6 +17,7 @@ class DoCPUCombatTurn;
 class SetActiveCombatCharacter : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::SetActiveCombatCharacter; }
   bmin::String characterId;
+  bool waitForAction = true;
 
   void act() override {
     if (!state) {
@@ -48,7 +49,7 @@ class SetActiveCombatCharacter : public AbstractAction {
     }
 
     combat.activeCharacterId = characterId;
-    combat.isWaitingForAction = true;
+    combat.isWaitingForAction = waitForAction;
 
     if (model::isPartyMember(state->player, characterId)) {
       // Highlight the acting party member in the HUD only.
@@ -65,8 +66,9 @@ class SetActiveCombatCharacter : public AbstractAction {
   }
 
 public:
-  explicit SetActiveCombatCharacter(bmin::String _characterId = bmin::String{})
-      : characterId(std::move(_characterId)) {}
+  explicit SetActiveCombatCharacter(bmin::String _characterId = bmin::String{},
+                                    bool _waitForAction = true)
+      : characterId(std::move(_characterId)), waitForAction(_waitForAction) {}
 };
 
 } // namespace actions

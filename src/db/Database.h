@@ -56,6 +56,7 @@ public:
   const model::SpellTemplate* findSpellTemplate(std::string_view spellName) const;
   void addSpellTemplate(const model::SpellTemplate& spellTemplate);
   const model::StatusEffectTemplate& getStatusEffectTemplate(std::string_view statusName) const;
+  const model::StatusEffectTemplate* findStatusEffectTemplate(std::string_view statusName) const;
   void addStatusEffectTemplate(const model::StatusEffectTemplate& statusEffectTemplate);
   const model::GameEvent& getGameEvent(std::string_view eventId) const;
   const bmin::Map<bmin::String, model::GameEvent>& getGameEvents() const;

@@ -15,6 +15,7 @@ public:
                           bmin::String text);
   ~LayerPopupText() override = default;
 
+  void onKeyDown(std::string_view key, int keyCode) override;
   void update(int deltaTime) override;
   void render(int deltaTime) override;
 };

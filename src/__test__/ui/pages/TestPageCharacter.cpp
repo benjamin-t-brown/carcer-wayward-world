@@ -26,6 +26,22 @@ public:
         .width = windowWidth,
         .height = windowHeight,
         .characterPlayer = &characterPlayer,
+        .allowStatModification = true,
+        .statusEffects =
+            {
+                ui::PageCharacterStatusEntry{
+                    .name = "BURNING",
+                    .description = "Self fire damage at the start of each turn.",
+                    .iconSprite = "ui_status_effect_icons_3",
+                    .remainingTurns = 3,
+                },
+                ui::PageCharacterStatusEntry{
+                    .name = "BLESSED",
+                    .description = "Strength and mind are increased.",
+                    .iconSprite = "ui_status_effect_icons_0",
+                    .remainingTurns = 1,
+                },
+            },
     });
 
     addUiElement(bmin::UniquePtr<ui::UiElement>(pageCharacter.release()));

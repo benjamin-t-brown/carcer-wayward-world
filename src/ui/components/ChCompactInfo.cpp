@@ -75,10 +75,10 @@ void ChCompactInfo::build() {
 
   int gridX = props.spriteBoxSize;
   int gridY = 0;
-  int seSpritesPerColumn = props.spriteBoxSize / props.statusIconSize;
+  const int numStatusRows = props.numStatusRows > 0 ? props.numStatusRows : 3;
   for (int j = 0; j < props.numStatusColumns; j++) {
-    for (int i = 0; i < seSpritesPerColumn; i++) {
-      const int index = i + j * seSpritesPerColumn;
+    for (int i = 0; i < numStatusRows; i++) {
+      const int index = i + j * numStatusRows;
       if (static_cast<size_t>(index) >= props.statusEffectSpriteNames.size()) {
         break;
       }

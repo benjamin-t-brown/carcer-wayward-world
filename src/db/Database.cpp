@@ -177,6 +177,16 @@ Database::getStatusEffectTemplate(std::string_view statusName) const {
   return mapGet(statusEffectTemplates, statusName, "Status effect template not found: ");
 }
 
+const model::StatusEffectTemplate*
+Database::findStatusEffectTemplate(std::string_view statusName) const {
+  const auto mapKey = bmin::String(statusName.data(), statusName.size());
+  auto it = statusEffectTemplates.find(mapKey);
+  if (it == statusEffectTemplates.end()) {
+    return nullptr;
+  }
+  return &(*it).value;
+}
+
 void Database::addStatusEffectTemplate(const model::StatusEffectTemplate& statusEffectTemplate) {
   statusEffectTemplates[statusEffectTemplate.name] = statusEffectTemplate;
 }

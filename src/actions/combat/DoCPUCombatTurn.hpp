@@ -43,9 +43,8 @@ class DoCPUCombatTurn : public AbstractAction {
       orch.fetchMapGrid(world.activeMap.gridId);
     }
     auto* actor = orch.findCharacterById(actorId);
-    if (actor == nullptr) {
-      insertAction(nullptr, CPU_TURN_DELAY);
-      insertAction(state::makeAction<DoCombatAction>(actorId, model::CombatActionType::WAIT), 0);
+    if (actor == nullptr || model::isCharacterDefeated(state->player, *actor)) {
+      insertAction(state::makeAction<DoCombatActionCompletion>(), 0);
       return;
     }
 

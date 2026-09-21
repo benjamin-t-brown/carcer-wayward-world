@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bmin/String.h"
+#include "bmin/DynArray.h"
 #include "model/stats/CharacterStats.h"
 #include "model/templates/CharacterTemplate.h"
 
@@ -15,6 +16,11 @@ inline CharacterFacing facingFromMoveDelta(int dx, int dy) {
   }
   return CharacterFacing::Right;
 }
+
+struct AppliedStatusEffect {
+  bmin::String statusEffectName;
+  int remainingTurns = 0;
+};
 
 // Map-entity character (player avatar, future NPCs). Distinct from CharacterPlayer
 // (party chrome). Position is tile coords in map space, same as TileInstance.
@@ -59,6 +65,7 @@ struct CharacterInstance {
   CombatBehaviorName combatBehaviorTown = CombatBehaviorName::SEEK_AND_MELEE;
   CombatBehaviorName combatBehaviorCombat = CombatBehaviorName::SEEK_AND_MELEE;
   CharacterStats stats;
+  bmin::DynArray<AppliedStatusEffect> statusEffects;
 };
 
 inline bool characterInstanceIsEnemy(const CharacterInstance& character) {

@@ -34,6 +34,15 @@ void ListChCompactInfoVertical::build() {
 
   int numStatusColumns = 2;
 
+  for (size_t i = 0; i < props.entries.size(); i++) {
+    const auto iconCount =
+        static_cast<int>(props.entries[i].statusEffectSpriteNames.size());
+    const auto columns = chCompactInfoStatusColumns(iconCount);
+    if (columns > numStatusColumns) {
+      numStatusColumns = columns;
+    }
+  }
+
   auto defaultChCompactInfo = ChCompactInfo(window, nullptr);
   defaultChCompactInfo.setScale(style.scale);
   defaultChCompactInfo.setProps(ChCompactInfoProps{

@@ -11,6 +11,7 @@ import { Notification } from '../elements/Notification';
 import { OptionSelect } from '../elements/OptionSelect';
 import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
+import { useSaveHotkey } from '../hooks/useSaveHotkey';
 import { DeleteModal } from '../elements/DeleteModal';
 import { CreateMapModal, CreateMapConstraints } from '../components/CreateMapModal';
 import { EditMapModal } from '../components/EditMapModal';
@@ -835,22 +836,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
     }
   };
 
-  // Global hotkey: Ctrl+S to save
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Check for Ctrl+S (Windows/Linux) or Cmd+S (Mac)
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        e.stopPropagation();
-        handleSaveAll();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [maps]);
+  useSaveHotkey(handleSaveAll);
 
   const activeTab =
     activeTabIndex !== null ? openTabs[activeTabIndex] ?? null : null;

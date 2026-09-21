@@ -52,33 +52,40 @@ int main(int argc, char** argv) {
       LOG(ERROR) << "Missing SPELL_SINGE ability" << LOG_ENDL;
       return 1;
     }
-    if (singeIt->value.damages.empty()) {
-      LOG(ERROR) << "SPELL_SINGE should have damages" << LOG_ENDL;
-      return 1;
-    }
-    const auto& singeDamage = singeIt->value.damages[0];
-    if (singeDamage.damageType != model::DamageType::DAMAGE_TYPE_HEAT) {
-      LOG(ERROR) << "SPELL_SINGE damageType should be DAMAGE_TYPE_HEAT" << LOG_ENDL;
-      return 1;
-    }
-    if (singeDamage.dmgDice.size() != 1 || singeDamage.dmgDice[0] != model::Dice::D4) {
-      LOG(ERROR) << "SPELL_SINGE dmgDice should be one D4" << LOG_ENDL;
-      return 1;
-    }
-    if (singeDamage.dmgBonus != 2) {
-      LOG(ERROR) << "SPELL_SINGE dmgBonus should be 2" << LOG_ENDL;
-      return 1;
-    }
-    if (singeDamage.dmgStat != model::StatsEnum::STAT_MND) {
-      LOG(ERROR) << "SPELL_SINGE dmgStat should be STAT_MND" << LOG_ENDL;
-      return 1;
-    }
-    if (singeDamage.dmgStatMult != 0.25f) {
-      LOG(ERROR) << "SPELL_SINGE dmgStatMult should be 0.25" << LOG_ENDL;
+    if (!singeIt->value.damages.empty()) {
+      LOG(ERROR) << "SPELL_SINGE should have empty damages" << LOG_ENDL;
       return 1;
     }
     if (singeIt->value.depiction.dmgTextColor != bmin::String("#111111")) {
       LOG(ERROR) << "SPELL_SINGE dmgTextColor should be #111111" << LOG_ENDL;
+      return 1;
+    }
+    if (singeIt->value.statuses.empty() ||
+        singeIt->value.statuses[0].statusEffect != bmin::String("BURNING")) {
+      LOG(ERROR) << "SPELL_SINGE should apply BURNING" << LOG_ENDL;
+      return 1;
+    }
+
+    const auto burnIt = abilityTemplates.find(bmin::String("SE_BURNING_1"));
+    if (burnIt == abilityTemplates.end()) {
+      LOG(ERROR) << "Missing SE_BURNING_1 ability" << LOG_ENDL;
+      return 1;
+    }
+    if (burnIt->value.damages.empty()) {
+      LOG(ERROR) << "SE_BURNING_1 should have damages" << LOG_ENDL;
+      return 1;
+    }
+    const auto& burnDamage = burnIt->value.damages[0];
+    if (burnDamage.damageType != model::DamageType::DAMAGE_TYPE_HEAT) {
+      LOG(ERROR) << "SE_BURNING_1 damageType should be DAMAGE_TYPE_HEAT" << LOG_ENDL;
+      return 1;
+    }
+    if (burnDamage.dmgDice.size() != 1 || burnDamage.dmgDice[0] != model::Dice::D6) {
+      LOG(ERROR) << "SE_BURNING_1 dmgDice should be one D6" << LOG_ENDL;
+      return 1;
+    }
+    if (burnDamage.dmgBonus != 1) {
+      LOG(ERROR) << "SE_BURNING_1 dmgBonus should be 1" << LOG_ENDL;
       return 1;
     }
 

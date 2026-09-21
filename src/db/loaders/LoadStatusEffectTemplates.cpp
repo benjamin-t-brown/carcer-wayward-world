@@ -30,10 +30,10 @@ parseStatusEffectDurationScale(const Json& scaleJson) {
   }
   scale.durationStat = model::statsEnumFromString(scaleJson["durationStat"].get<bmin::String>());
   if (!scaleJson.contains("durationStatMult") ||
-      !scaleJson["durationStatMult"].is_number_integer()) {
+      !scaleJson["durationStatMult"].is_number()) {
     throw std::runtime_error("durationScale missing durationStatMult");
   }
-  scale.durationStatMult = scaleJson["durationStatMult"].get<int>();
+  scale.durationStatMult = scaleJson["durationStatMult"].get<float>();
   return scale;
 }
 
@@ -69,6 +69,15 @@ void loadStatusEffectTemplates(
       throw std::runtime_error("Status effect missing required field: description");
     }
     statusTemplate.description = statusJson["description"].get<bmin::String>();
+
+    if (!statusJson.contains("icon") || !statusJson["icon"].is_string() ||
+        statusJson["icon"].get<bmin::String>().empty()) {
+      throw std::runtime_error(
+          (bmin::String("Status effect missing required field: icon: ") +
+           statusTemplate.name)
+              .cStr());
+    }
+    statusTemplate.icon = statusJson["icon"].get<bmin::String>();
 
     if (statusJson.contains("duration")) {
       throw std::runtime_error(

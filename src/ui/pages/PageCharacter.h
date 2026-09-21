@@ -11,10 +11,19 @@ namespace ui {
 
 class SectionScrollable;
 
+struct PageCharacterStatusEntry {
+  bmin::String name;
+  bmin::String description;
+  bmin::String iconSprite;
+  int remainingTurns = 0;
+};
+
 struct PageCharacterProps {
   int width = 0;
   int height = 0;
   model::CharacterPlayer* characterPlayer = nullptr;
+  bool allowStatModification = true;
+  bmin::DynArray<PageCharacterStatusEntry> statusEffects;
 };
 
 struct PageCharacterStatRowEntry {
@@ -22,6 +31,8 @@ struct PageCharacterStatRowEntry {
   bmin::String helpDescription;
   int value = 0;
   bmin::String valueText;
+  bmin::String iconSprite;
+  bmin::String displayText;
 };
 
 struct PageCharacterStatRowSectionArgs {

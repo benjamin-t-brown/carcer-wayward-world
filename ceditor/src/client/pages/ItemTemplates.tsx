@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { CardList } from '../components/CardList';
 import { EditorSidebar } from '../components/EditorSidebar';
 import { ItemTemplate } from '../types/assets';
@@ -13,6 +13,7 @@ import { useAssets } from '../contexts/AssetsContext';
 import { Sprite } from '../elements/Sprite';
 import { trimStrings } from '../utils/jsonUtils';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
+import { useSaveHotkey } from '../hooks/useSaveHotkey';
 
 interface NotificationState {
   message: string;
@@ -250,21 +251,7 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
     }
   };
 
-  // Global hotkey: Ctrl+S to save
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Check for Ctrl+S (Windows/Linux) or Cmd+S (Mac)
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        handleSaveAll();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [items, showNotification]); // Include dependencies
+  useSaveHotkey(handleSaveAll);
 
   const currentItem = items[editItemIndex];
 
