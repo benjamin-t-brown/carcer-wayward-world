@@ -17,6 +17,7 @@ import { CharactersList } from './CharactersList';
 import { TravelTriggerSection } from './TravelTriggerSection';
 import { EventTriggerSection } from './EventTriggerSection';
 import { TileOverridesSection } from './TileOverridesSection';
+import { DoorLockSection } from './DoorLockSection';
 import { OpenMapAndSelectTileArgs } from '../../TileEditor';
 import { commitCurrentLayer, getTileList } from '../../editorEvents';
 import { addMapTileItemEntry } from '../../mapTileItems';
@@ -166,6 +167,13 @@ export function SelectedTileInfo({
 
       <TileOverridesSection
         selectedTile={selectedTile}
+        updateTile={updateTile}
+      />
+
+      <DoorLockSection
+        selectedTile={selectedTile}
+        tilesets={tilesets}
+        items={items}
         updateTile={updateTile}
       />
 

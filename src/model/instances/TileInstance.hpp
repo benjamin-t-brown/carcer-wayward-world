@@ -15,6 +15,7 @@ struct TileInstance {
   int x = 0;
   int y = 0;
   std::optional<TileOverrides> tileOverrides;
+  std::optional<DoorLock> doorLock;
   std::optional<TileLightSource> lightSource;
   std::optional<TileEventTrigger> eventTrigger;
   std::optional<TravelTrigger> travelTrigger;

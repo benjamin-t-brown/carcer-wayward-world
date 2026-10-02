@@ -216,6 +216,7 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
   const updateSkill = (
     field:
       | 'trickery'
+      | 'brutishness'
       | 'stealth'
       | 'social'
       | 'magicItemUse'
@@ -554,6 +555,15 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
                 label="Trickery"
                 value={stats.skills?.trickery || 0}
                 onChange={(value) => updateSkill('trickery', value)}
+                min={0}
+                max={25}
+              />
+              <NumberInput
+                id="skill-brutishness"
+                name="skillBrutishness"
+                label="Brutishness"
+                value={stats.skills?.brutishness || 0}
+                onChange={(value) => updateSkill('brutishness', value)}
                 min={0}
                 max={25}
               />

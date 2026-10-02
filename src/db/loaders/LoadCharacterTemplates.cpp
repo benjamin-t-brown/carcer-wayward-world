@@ -119,6 +119,7 @@ void loadTrainableCombatStats(const Json& json, model::TrainableCombatStats& sta
 
 void loadCharacterSkills(const Json& json, model::CharacterSkills& skills) {
   loadIntField(json, "trickery", skills.trickery);
+  loadIntField(json, "brutishness", skills.brutishness);
   loadIntField(json, "stealth", skills.stealth);
   loadIntField(json, "social", skills.social);
   loadIntField(json, "magicItemUse", skills.magicItemUse);

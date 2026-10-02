@@ -66,6 +66,7 @@ struct ItemTemplate {
   int value = 0;
   bool stackable = false;
   bool indestructable = false;
+  bool isLockTool = false;
   ItemUsability itemUsability = ItemUsability::NOT_USABLE;
   std::optional<ItemUseAbilityConfig> useAbility;
   std::optional<bmin::String> useSpecialEvent;

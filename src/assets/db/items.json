@@ -150,6 +150,19 @@
   },
   {
     "itemType": "UTILITY",
+    "name": "Lockpicks",
+    "label": "Lockpicks",
+    "icon": "ui_item_icons_20",
+    "description": "Tools for opening locks.",
+    "weight": 1,
+    "value": 5,
+    "stackable": true,
+    "isLockTool": true,
+    "itemUsability": "NOT_USABLE",
+    "statusEffects": []
+  },
+  {
+    "itemType": "UTILITY",
     "name": "MysteriousPurpleCloak",
     "label": "Mysterious Purple Cloak",
     "icon": "ui_item_icons_16",

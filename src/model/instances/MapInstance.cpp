@@ -55,6 +55,18 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
     tile->tileOverrides = ov.overrides;
   }
 
+  for (const auto& placement : mapTemplate.doorLocks) {
+    auto [x, y] = tileIndexToXY(placement.i, instance.width);
+    auto* tile = mapInstanceGetTileAt(instance, x, y, placement.l);
+    if (!tile) {
+      continue;
+    }
+    tile->doorLock = DoorLock{
+        .lockLevel = placement.lockLevel,
+        .keyItem = placement.keyItem,
+    };
+  }
+
   for (const auto& et : mapTemplate.eventTriggers) {
     auto [x, y] = tileIndexToXY(et.i, instance.width);
     auto* tile = mapInstanceGetTileAt(instance, x, y, et.l);

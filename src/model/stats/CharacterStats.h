@@ -42,6 +42,7 @@ struct TrainableCombatStats {
 
 struct CharacterSkills {
   int trickery = 0;
+  int brutishness = 0;
   int stealth = 0;
   int social = 0;
   int magicItemUse = 0;

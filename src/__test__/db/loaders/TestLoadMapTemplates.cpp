@@ -1,5 +1,6 @@
 #include "db/Database.h"
 #include "db/loaders/LoadMapTemplates.h"
+#include "model/instances/MapInstance.h"
 #include "sdl2w/Logger.h"
 #include "bmin/String.h"
 #include "bmin/DynArray.h"
@@ -13,6 +14,19 @@ bool assertEqual(int actual, int expected, const char* label) {
     return false;
   }
   return true;
+}
+
+bool assertTrue(bool cond, const char* label) {
+  if (!cond) {
+    LOG(ERROR) << label << " expected true" << LOG_ENDL;
+    return false;
+  }
+  return true;
+}
+
+bool tileHasNoLock(const model::MapInstance& map, int x, int y) {
+  const auto* tile = model::mapInstanceGetTileAt(map, x, y, 0);
+  return tile != nullptr && !tile->doorLock.has_value();
 }
 
 } // namespace
@@ -51,6 +65,81 @@ int main(int argc, char** argv) {
     ok = assertEqual(static_cast<int>(map.markers.size()), 1, "flat_test_map.markers") && ok;
     ok = assertEqual(static_cast<int>(map.eventTriggers.size()), 1, "flat_test_map.eventTriggers") && ok;
     ok = assertEqual(static_cast<int>(map.travelTriggers.size()), 1, "flat_test_map.travelTriggers") && ok;
+    ok = assertEqual(static_cast<int>(map.doorLocks.size()), 0, "flat_test_map.doorLocks") && ok;
+    {
+      auto flatInstance = model::createMapInstanceFromTemplate(map);
+      ok = assertTrue(tileHasNoLock(flatInstance, 0, 0), "flat_test_map tile 0,0 has no lock") && ok;
+      ok = assertTrue(tileHasNoLock(flatInstance, 1, 0), "flat_test_map tile 1,0 has no lock") && ok;
+      ok = assertTrue(tileHasNoLock(flatInstance, 0, 1), "flat_test_map tile 0,1 has no lock") && ok;
+      ok = assertTrue(tileHasNoLock(flatInstance, 1, 1), "flat_test_map tile 1,1 has no lock") && ok;
+    }
+
+    bmin::Map<bmin::String, model::CarcerMapTemplate> doorLockMaps;
+    db::loadMapTemplates("__test__/db/loaders/door-locks-fixture.json", doorLockMaps);
+
+    const auto lockIt = doorLockMaps.find(bmin::String("door_lock_map"));
+    if (lockIt == doorLockMaps.end()) {
+      LOG(ERROR) << "Missing door_lock_map" << LOG_ENDL;
+      return 1;
+    }
+    const model::CarcerMapTemplate& locked = lockIt->value;
+    ok = assertEqual(static_cast<int>(locked.doorLocks.size()), 2, "door_lock_map.doorLocks") && ok;
+    if (locked.doorLocks.size() >= 2) {
+      ok = assertEqual(locked.doorLocks[0].l, 0, "door_lock_map.doorLocks[0].l") && ok;
+      ok = assertEqual(locked.doorLocks[0].i, 0, "door_lock_map.doorLocks[0].i") && ok;
+      ok = assertEqual(locked.doorLocks[0].lockLevel, 0, "door_lock_map.doorLocks[0].lockLevel") &&
+           ok;
+      ok = assertTrue(locked.doorLocks[0].keyItem == "que_realmShedKey",
+                      "door_lock_map.doorLocks[0].keyItem") &&
+           ok;
+      ok = assertEqual(locked.doorLocks[1].l, 0, "door_lock_map.doorLocks[1].l") && ok;
+      ok = assertEqual(locked.doorLocks[1].i, 1, "door_lock_map.doorLocks[1].i") && ok;
+      ok = assertEqual(locked.doorLocks[1].lockLevel, 12, "door_lock_map.doorLocks[1].lockLevel") &&
+           ok;
+      ok = assertTrue(locked.doorLocks[1].keyItem == "",
+                      "door_lock_map.doorLocks[1].keyItem dropped") &&
+           ok;
+    }
+    {
+      auto lockedInstance = model::createMapInstanceFromTemplate(locked);
+      const auto* keyTile = model::mapInstanceGetTileAt(lockedInstance, 0, 0, 0);
+      const auto* levelTile = model::mapInstanceGetTileAt(lockedInstance, 1, 0, 0);
+      ok = assertTrue(keyTile != nullptr && keyTile->doorLock.has_value(),
+                      "door_lock_map tile 0 has lock") &&
+           ok;
+      ok = assertTrue(levelTile != nullptr && levelTile->doorLock.has_value(),
+                      "door_lock_map tile 1 has lock") &&
+           ok;
+      if (keyTile && keyTile->doorLock) {
+        ok = assertEqual(keyTile->doorLock->lockLevel, 0, "door_lock_map tile 0 lockLevel") && ok;
+        ok = assertTrue(keyTile->doorLock->keyItem == "que_realmShedKey",
+                        "door_lock_map tile 0 keyItem") &&
+             ok;
+      }
+      if (levelTile && levelTile->doorLock) {
+        ok = assertEqual(levelTile->doorLock->lockLevel, 12, "door_lock_map tile 1 lockLevel") &&
+             ok;
+        ok = assertTrue(levelTile->doorLock->keyItem == "",
+                        "door_lock_map tile 1 keyItem empty") &&
+             ok;
+      }
+    }
+
+    const auto unlockedIt = doorLockMaps.find(bmin::String("no_door_lock_map"));
+    if (unlockedIt == doorLockMaps.end()) {
+      LOG(ERROR) << "Missing no_door_lock_map" << LOG_ENDL;
+      return 1;
+    }
+    const model::CarcerMapTemplate& unlocked = unlockedIt->value;
+    ok = assertEqual(static_cast<int>(unlocked.doorLocks.size()), 0, "no_door_lock_map.doorLocks") &&
+         ok;
+    {
+      auto unlockedInstance = model::createMapInstanceFromTemplate(unlocked);
+      ok = assertTrue(tileHasNoLock(unlockedInstance, 0, 0), "no_door_lock_map tile 0 has no lock") &&
+           ok;
+      ok = assertTrue(tileHasNoLock(unlockedInstance, 1, 0), "no_door_lock_map tile 1 has no lock") &&
+           ok;
+    }
 
     db::Database database;
     database.load();

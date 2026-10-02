@@ -2,6 +2,7 @@
 #include "bmin/StringInterop.h"
 #include "lib/Json.h"
 #include "sdl2w/AssetLoader.h"
+#include <algorithm>
 #include <stdexcept>
 
 namespace db {
@@ -183,6 +184,22 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
         loadTileOverrides(entry["overrides"], placement.overrides);
       }
       mapTemplate.tileOverrides.pushBack(std::move(placement));
+    }
+  }
+
+  if (mapJson.contains("doorLocks") && mapJson["doorLocks"].is_array()) {
+    for (const auto& entry : mapJson["doorLocks"]) {
+      if (!entry.contains("lockLevel") || !entry["lockLevel"].is_number_integer()) {
+        continue;
+      }
+      model::MapDoorLockPlacement placement;
+      placement.l = entry.value("l", 0);
+      placement.i = entry.value("i", 0);
+      placement.lockLevel = std::clamp(entry["lockLevel"].get<int>(), 0, 100);
+      if (placement.lockLevel == 0) {
+        placement.keyItem = entry.value("keyItem", bmin::String());
+      }
+      mapTemplate.doorLocks.pushBack(std::move(placement));
     }
   }
 

@@ -72,6 +72,7 @@ set(CARCER_RULE_SOURCES
   src/game/map/ActiveMapOrchestrator.cpp
   src/game/map/Camera.cpp
   src/game/map/CharacterConstruction.cpp
+  src/game/map/DoorLock.cpp
   src/game/map/MapWalkability.cpp
   src/game/map/MapVision.cpp
   src/game/map/TileFields.cpp

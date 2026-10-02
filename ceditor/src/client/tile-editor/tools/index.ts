@@ -43,6 +43,10 @@ const copyTileMetadata = (
     };
   }
 
+  if (sourceTile.doorLock && !destTile.doorLock) {
+    destTile.doorLock = structuredClone(sourceTile.doorLock);
+  }
+
   if (sourceTile.lightSource && !destTile.lightSource) {
     destTile.lightSource = structuredClone(sourceTile.lightSource);
   }
@@ -61,6 +65,7 @@ const clearTileMetadata = (tile: CarcerMapTileTemplate) => {
   tile.items = [];
   tile.markers = [];
   delete tile.tileOverrides;
+  delete tile.doorLock;
   delete tile.lightSource;
   delete tile.eventTrigger;
   delete tile.travelTrigger;
@@ -171,6 +176,7 @@ const eraseMeta: MapTool = {
       tile.items = [];
       tile.markers = [];
       delete tile.tileOverrides;
+      delete tile.doorLock;
       delete tile.lightSource;
       delete tile.eventTrigger;
       delete tile.travelTrigger;
@@ -189,6 +195,11 @@ const eraseMeta: MapTool = {
           currentTile.tileOverrides = structuredClone(prevTile.tileOverrides);
         } else {
           delete currentTile.tileOverrides;
+        }
+        if (prevTile.doorLock) {
+          currentTile.doorLock = structuredClone(prevTile.doorLock);
+        } else {
+          delete currentTile.doorLock;
         }
         if (prevTile.lightSource) {
           currentTile.lightSource = structuredClone(prevTile.lightSource);

@@ -663,6 +663,8 @@ export interface ItemTemplate {
   stackable?: boolean;
   /** Quest items and other items that cannot be dropped or destroyed */
   indestructable?: boolean;
+  /** Lock-picking tool. Quantity can be spent to open locks. Default false. */
+  isLockTool?: boolean;
   itemUsability?: ItemUsability;
   /** @deprecated replaced by useAbility */
   itemUsabilityArgs?: {
@@ -844,6 +846,7 @@ export interface TrainableCombatStats {
 
 export interface CharacterSkills {
   trickery?: number;
+  brutishness?: number;
   stealth?: number;
   social?: number;
   magicItemUse?: number;
@@ -876,6 +879,7 @@ export function createDefaultCharacterStats(): CharacterStats {
     },
     skills: {
       trickery: 0,
+      brutishness: 0,
       stealth: 0,
       social: 0,
       magicItemUse: 0,
@@ -1303,6 +1307,8 @@ export interface CarcerMapTileTemplate {
   items: MapTileItemEntry[];
   markers: string[];
   tileOverrides?: TileOverrides;
+  /** Present only while this door is locked. */
+  doorLock?: DoorLock;
   lightSource?: TileLightSource;
   eventTrigger?: TileEventTrigger;
   travelTrigger?: TravelTrigger;
@@ -1338,6 +1344,16 @@ export interface MapTileOverridePlacement extends MapTileRef {
   overrides: TileOverrides;
 }
 
+/** Matches model::DoorLock in Maps.h. keyItem is stored only when lockLevel is 0. */
+export interface DoorLock {
+  /** Integer 0-100. Level 0 opens with keyItem and is not bashable. */
+  lockLevel: number;
+  /** Item template name. Omitted unless lockLevel is 0. */
+  keyItem?: string;
+}
+
+export interface MapDoorLockPlacement extends MapTileRef, DoorLock {}
+
 export interface MapLightSourcePlacement extends MapTileRef, TileLightSource {}
 
 export interface CarcerMapTemplate {
@@ -1364,6 +1380,8 @@ export interface CarcerMapTemplate {
   travelTriggers: MapTravelTriggerPlacement[];
   tileOverrides: MapTileOverridePlacement[];
   lightSources: MapLightSourcePlacement[];
+  /** Locked doors only. An unlocked door has no placement. */
+  doorLocks: MapDoorLockPlacement[];
 }
 
 /** Map names arranged in a grid; used when loading an Area in the game. */

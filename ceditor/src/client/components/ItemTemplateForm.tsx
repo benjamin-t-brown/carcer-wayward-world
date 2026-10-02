@@ -65,6 +65,7 @@ export function createDefaultItem(): ItemTemplate {
     value: 1,
     stackable: false,
     indestructable: false,
+    isLockTool: false,
     itemUsability: 'NOT_USABLE',
     statusEffects: [],
   };
@@ -288,6 +289,27 @@ export function ItemTemplateForm(props: ItemTemplateFormProps) {
             />
             <label htmlFor="item-indestructable" style={{ marginBottom: 0 }}>
               Indestructable
+            </label>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              margin: '8px 0',
+            }}
+          >
+            <input
+              id="item-is-lock-tool"
+              name="isLockTool"
+              type="checkbox"
+              checked={formData.isLockTool === true}
+              onChange={(e) => updateField('isLockTool', e.target.checked)}
+              style={{ cursor: 'pointer', transform: 'scale(1.5)translateX(2px)' }}
+            />
+            <label htmlFor="item-is-lock-tool" style={{ marginBottom: 0 }}>
+              Lock tool
             </label>
           </div>
 

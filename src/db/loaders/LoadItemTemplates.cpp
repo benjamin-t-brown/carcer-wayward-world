@@ -80,6 +80,12 @@ void loadItemTemplates(const bmin::String& itemsFilePath,
       itemTemplate.indestructable = false;
     }
 
+    if (itemJson.contains("isLockTool") && itemJson["isLockTool"].is_boolean()) {
+      itemTemplate.isLockTool = itemJson["isLockTool"].get<bool>();
+    } else {
+      itemTemplate.isLockTool = false;
+    }
+
     if (itemJson.contains("statusEffects") && itemJson["statusEffects"].is_array()) {
       for (const auto& statusJson : itemJson["statusEffects"]) {
         if (statusJson.is_string()) {

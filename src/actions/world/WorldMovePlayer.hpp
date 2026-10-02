@@ -4,6 +4,7 @@
 #include "game/map/ActiveMapCharacters.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/combat/EnemyBehavior.h"
+#include "game/map/DoorLock.h"
 #include "game/map/MapVision.h"
 #include "game/map/MapWalkability.h"
 #include "game/map/MapPersistence.h"
@@ -112,7 +113,21 @@ class WorldMovePlayer : public AbstractAction {
     destMap->tileLayerNumber = world.activeMap.mapLayer;
 
     if (auto* door = game::findClosedDoorAt(*destMap, destLocal.x, destLocal.y, *database)) {
-      door->tileId = door->tileId + 1;
+      const auto opened = game::tryOpenClosedDoor(*door, player.party[0], *database);
+      if (opened == game::ClosedDoorOpenResult::Blocked) {
+        LOG(DEBUG) << " blocked!" << LOG_ENDL;
+        return;
+      }
+      game::upsertOpenedDoor(destMap->persistentState.openedDoors,
+                             destMap->tileLayerNumber,
+                             door->x,
+                             door->y,
+                             door->tileId);
+      if (opened == game::ClosedDoorOpenResult::OpenedLockpick) {
+        PlaySound("lockpick").execute(state);
+      } else if (opened == game::ClosedDoorOpenResult::OpenedBash) {
+        PlaySound("hit_punch1").execute(state);
+      }
       game::updateActiveMapVisibilityFromPlayer(
           world, state->mapInstances, avatar->x, avatar->y, *database);
       return;

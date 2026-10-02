@@ -93,6 +93,16 @@ struct MapTileOverridePlacement : MapTileRef {
   TileOverrides overrides;
 };
 
+struct DoorLock {
+  int lockLevel = 0;
+  bmin::String keyItem;
+};
+
+struct MapDoorLockPlacement : MapTileRef {
+  int lockLevel = 0;
+  bmin::String keyItem;
+};
+
 struct MapLightSourcePlacement : MapTileRef, TileLightSource {};
 
 struct CarcerMapTemplate {
@@ -112,6 +122,7 @@ struct CarcerMapTemplate {
   bmin::DynArray<MapEventTriggerPlacement> eventTriggers;
   bmin::DynArray<MapTravelTriggerPlacement> travelTriggers;
   bmin::DynArray<MapTileOverridePlacement> tileOverrides;
+  bmin::DynArray<MapDoorLockPlacement> doorLocks;
   bmin::DynArray<MapLightSourcePlacement> lightSources;
 };
 

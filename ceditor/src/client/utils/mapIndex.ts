@@ -1,7 +1,9 @@
 import {
   CarcerMapTemplate,
   CarcerMapTileTemplate,
+  DoorLock,
   MapCharacterPlacement,
+  MapDoorLockPlacement,
   MapEventTriggerPlacement,
   MapItemPlacement,
   MapLightSourcePlacement,
@@ -183,6 +185,7 @@ export function migrateLegacyMap(
     travelTriggers: [],
     tileOverrides: [],
     lightSources: [],
+    doorLocks: [],
   };
 
   const levelKeys = Object.keys(legacy.levels).sort(
@@ -232,7 +235,8 @@ export interface PlacementKind {
     | 'eventTriggers'
     | 'travelTriggers'
     | 'tileOverrides'
-    | 'lightSources';
+    | 'lightSources'
+    | 'doorLocks';
   /** Key on CarcerMapTileTemplate holding the materialized value. */
   tileKey: keyof CarcerMapTileTemplate;
   /** 'many' -> array on the tile; 'one' -> single optional value. */
@@ -241,6 +245,24 @@ export interface PlacementKind {
   toTile(entry: any): any;
   /** Tile value -> placement payloads, without l/i (added by the caller). */
   fromTile(value: any): any[];
+}
+
+function clampLockLevel(value: unknown): number | null {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return null;
+  }
+  return Math.max(0, Math.min(100, Math.trunc(value)));
+}
+
+/** keyItem is emitted only for a level-0 lock. */
+function doorLockPlacementFields(
+  lockLevel: number,
+  keyItem: string | undefined
+): { lockLevel: number; keyItem?: string } {
+  if (lockLevel === 0 && keyItem) {
+    return { lockLevel, keyItem };
+  }
+  return { lockLevel };
 }
 
 /**
@@ -340,6 +362,22 @@ export const PLACEMENT_KINDS: readonly PlacementKind[] = [
     cardinality: 'one',
     toTile: (o) => ({ ...o.overrides }),
     fromTile: (v: TileOverrides) => [{ overrides: v }],
+  },
+  {
+    listKey: 'doorLocks',
+    tileKey: 'doorLock',
+    cardinality: 'one',
+    toTile: (entry: MapDoorLockPlacement) => {
+      const lockLevel = clampLockLevel(entry.lockLevel) ?? 0;
+      return doorLockPlacementFields(lockLevel, entry.keyItem);
+    },
+    fromTile: (v: DoorLock) => {
+      const lockLevel = clampLockLevel(v?.lockLevel);
+      if (lockLevel === null) {
+        return [];
+      }
+      return [doorLockPlacementFields(lockLevel, v.keyItem)];
+    },
   },
   {
     listKey: 'lightSources',
@@ -572,6 +610,7 @@ export function createDefaultMapTemplate(): CarcerMapTemplate {
     travelTriggers: [],
     tileOverrides: [],
     lightSources: [],
+    doorLocks: [],
   };
   createTilesForLayer(map, 0);
   return map;
@@ -690,7 +729,9 @@ export function addMapLayer(
 }
 
 export type {
+  DoorLock,
   MapCharacterPlacement,
+  MapDoorLockPlacement,
   MapEventTriggerPlacement,
   MapItemPlacement,
   MapLightSourcePlacement,

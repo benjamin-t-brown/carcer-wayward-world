@@ -1,0 +1,31 @@
+[
+  {
+    "name": "door_lock_map",
+    "label": "Door Lock Map",
+    "type": "TOWN",
+    "width": 2,
+    "height": 1,
+    "tilesets": ["terrain0"],
+    "layers": [0],
+    "tiles": {
+      "0": [0, 2, 0, 2]
+    },
+    "doorLocks": [
+      { "l": 0, "i": 0, "lockLevel": 0, "keyItem": "que_realmShedKey" },
+      { "l": 0, "i": 1, "lockLevel": 12, "keyItem": "shouldDrop" },
+      { "l": 0, "i": 0, "keyItem": "missingLevel" }
+    ]
+  },
+  {
+    "name": "no_door_lock_map",
+    "label": "No Door Lock Map",
+    "type": "TOWN",
+    "width": 2,
+    "height": 1,
+    "tilesets": ["terrain0"],
+    "layers": [0],
+    "tiles": {
+      "0": [0, 2, 0, 2]
+    }
+  }
+]

@@ -188,6 +188,26 @@ void applyOpenedDoors(model::MapInstance& map,
   }
 }
 
+void upsertOpenedDoor(bmin::DynArray<model::OpenedDoorRecord>& doors,
+                      int layer,
+                      int x,
+                      int y,
+                      int tileId) {
+  for (size_t i = 0; i < doors.size(); i++) {
+    auto& record = doors[i];
+    if (record.layer == layer && record.x == x && record.y == y) {
+      record.tileId = tileId;
+      return;
+    }
+  }
+  auto record = model::OpenedDoorRecord{};
+  record.layer = layer;
+  record.x = x;
+  record.y = y;
+  record.tileId = tileId;
+  doors.pushBack(record);
+}
+
 void collectTilesAt(model::MapInstance& map,
                     int x,
                     int y,

@@ -9,4 +9,5 @@ export { CharactersList } from './CharactersList';
 export { TravelTriggerSection } from './TravelTriggerSection';
 export { EventTriggerSection } from './EventTriggerSection';
 export { TileOverridesSection } from './TileOverridesSection';
+export { DoorLockSection } from './DoorLockSection';
 

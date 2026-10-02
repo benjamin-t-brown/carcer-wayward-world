@@ -34,6 +34,12 @@ bmin::DynArray<model::OpenedDoorRecord> captureOpenedDoors(const model::MapInsta
                                                            const db::Database& database);
 void applyOpenedDoors(model::MapInstance& map,
                       const bmin::DynArray<model::OpenedDoorRecord>& doors);
+// Insert or replace the open-door record for layer/x/y. tileId is the open tile.
+void upsertOpenedDoor(bmin::DynArray<model::OpenedDoorRecord>& doors,
+                      int layer,
+                      int x,
+                      int y,
+                      int tileId);
 
 // Non-empty tiles at (x,y) across layers, sorted low→high layer.
 void collectTilesAt(model::MapInstance& map,
