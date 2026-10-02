@@ -11,6 +11,9 @@ struct StringEvaluatorFuncs {
 
   bool questUpdated = false;
   bmin::DynArray<bmin::String> receivedItemNames;
+  // Signed coins actually applied by MODIFY_COINS this eval (0 if none / clamped away).
+  int modifiedCoins = 0;
+  int modifiedExperience = 0;
 
   StringEvaluatorFuncs(bmin::Map<bmin::String, bmin::String>& storage);
 
@@ -30,6 +33,7 @@ struct StringEvaluatorFuncs {
   void COMPLETE_QUEST_SUB_STEP(const bmin::String& questName, const bmin::String& stepId,
                                const bmin::String& subStepId);
   void COMPLETE_QUEST(const bmin::String& questName);
+  void MODIFY_EXPERIENCE(const bmin::String& amount);
   void SPAWN_CH(const bmin::String& chName);
   void DESPAWN_CH(const bmin::String& chName);
   void CHANGE_TILE_AT(const bmin::String& x, const bmin::String& y, const bmin::String& tileName);
@@ -37,7 +41,9 @@ struct StringEvaluatorFuncs {
   void ADD_ITEM_AT(const bmin::String& x, const bmin::String& y, const bmin::String& itemName);
   void REMOVE_ITEM_AT(const bmin::String& x, const bmin::String& y, const bmin::String& itemName);
   void ADD_ITEM_TO_PLAYER(const bmin::String& itemName);
+  void ADD_ITEM_TO_PLAYER(const bmin::String& itemName, const bmin::String& amount);
   void REMOVE_ITEM_FROM_PLAYER(const bmin::String& itemName);
+  void MODIFY_COINS(const bmin::String& amount);
   void OPEN_SHOP(const bmin::String& shopName);
   void SET_PORT(const bmin::String& characterName);
 };

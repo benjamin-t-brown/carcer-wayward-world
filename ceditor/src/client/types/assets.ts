@@ -1525,12 +1525,65 @@ export interface QuestStep {
   subSteps?: QuestStep[];
 }
 
+export interface QuestRewardItem {
+  name: string;
+  amount: number;
+}
+
+export interface QuestRewards {
+  coins: number;
+  experience: number;
+  items: QuestRewardItem[];
+}
+
 export interface QuestTemplate {
   id: string;
   label: string;
   description: string;
   completedDescription: string;
   steps: QuestStep[];
+  rewards?: QuestRewards;
+}
+
+export function createDefaultQuestRewardItem(
+  name = '',
+  amount = 1,
+): QuestRewardItem {
+  return {
+    name,
+    amount: Math.max(1, Math.trunc(amount || 1)),
+  };
+}
+
+export function normalizeQuestRewardItems(
+  items: Array<string | QuestRewardItem> | undefined,
+): QuestRewardItem[] {
+  if (!items) {
+    return [];
+  }
+  const normalized: QuestRewardItem[] = [];
+  for (const entry of items) {
+    if (typeof entry === 'string') {
+      if (entry.trim()) {
+        normalized.push(createDefaultQuestRewardItem(entry, 1));
+      }
+      continue;
+    }
+    const name = entry?.name?.trim() ?? '';
+    if (!name) {
+      continue;
+    }
+    normalized.push(createDefaultQuestRewardItem(name, entry.amount));
+  }
+  return normalized;
+}
+
+export function createDefaultQuestRewards(): QuestRewards {
+  return {
+    coins: 0,
+    experience: 0,
+    items: [],
+  };
 }
 
 export function createDefaultQuestStep(): QuestStep {
@@ -1549,5 +1602,6 @@ export function createDefaultQuestTemplate(): QuestTemplate {
     description: '',
     completedDescription: '',
     steps: [],
+    rewards: createDefaultQuestRewards(),
   };
 }

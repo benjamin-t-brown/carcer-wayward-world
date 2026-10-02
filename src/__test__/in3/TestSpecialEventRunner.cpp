@@ -526,14 +526,17 @@ int main(int argc, char** argv) {
         return 1;
       }
       auto notices = talkRunner.consumePendingNotices();
-      if (!notices.journalUpdated || !notices.receivedItemNames.empty()) {
+      if (!notices.journalUpdated || !notices.receivedItemNames.empty() ||
+          notices.modifiedCoins != 0 || notices.modifiedExperience != 0) {
         LOG(ERROR) << "consumePendingNotices should return the journal flag"
                    << LOG_ENDL;
         in3::setQuestTemplates(nullptr);
         return 1;
       }
       if (talkRunner.pendingJournalNotice ||
-          !talkRunner.pendingReceivedItemNames.empty()) {
+          !talkRunner.pendingReceivedItemNames.empty() ||
+          talkRunner.pendingCoinDelta != 0 ||
+          talkRunner.pendingExperienceDelta != 0) {
         LOG(ERROR) << "consumePendingNotices should clear pending journal fields"
                    << LOG_ENDL;
         in3::setQuestTemplates(nullptr);
@@ -577,13 +580,16 @@ int main(int argc, char** argv) {
       auto notices = talkRunner.consumePendingNotices();
       if (notices.journalUpdated || notices.receivedItemNames.size() != 2 ||
           notices.receivedItemNames[0] != "BeerPappysLager" ||
-          notices.receivedItemNames[1] != "AlineaCorrespondence1") {
+          notices.receivedItemNames[1] != "AlineaCorrespondence1" ||
+          notices.modifiedCoins != 0 || notices.modifiedExperience != 0) {
         LOG(ERROR) << "consumePendingNotices should return distinct item names"
                    << LOG_ENDL;
         return 1;
       }
       if (talkRunner.pendingJournalNotice ||
-          !talkRunner.pendingReceivedItemNames.empty()) {
+          !talkRunner.pendingReceivedItemNames.empty() ||
+          talkRunner.pendingCoinDelta != 0 ||
+          talkRunner.pendingExperienceDelta != 0) {
         LOG(ERROR) << "consumePendingNotices should clear pending item fields"
                    << LOG_ENDL;
         return 1;
@@ -594,6 +600,129 @@ int main(int argc, char** argv) {
         return 1;
       }
       LOG(INFO) << "Same-node item receive notices are one per distinct item" << LOG_ENDL;
+    }
+
+    {
+      model::GameEvent talkEvent;
+      talkEvent.id = "talk_coins";
+      talkEvent.eventType = model::GameEventType::TALK;
+
+      model::GameEventChildExec execNode;
+      execNode.eventChildType = model::GameEventChildType::EXEC;
+      execNode.id = "root";
+      execNode.paragraphs = {"Here's some coin."};
+      execNode.execStr = "MODIFY_COINS(10)\nMODIFY_COINS(-3)\nMODIFY_COINS(-100)";
+      execNode.next = "end_node";
+      execNode.autoAdvance = false;
+      talkEvent.children.pushBack(execNode);
+
+      model::GameEventChildEnd endNode;
+      endNode.eventChildType = model::GameEventChildType::END;
+      endNode.id = "end_node";
+      talkEvent.children.pushBack(endNode);
+
+      in3::SpecialEventRunner talkRunner({}, talkEvent, {});
+      in3::SpecialEventRunnerInterface talkIface(talkRunner);
+      talkIface.startEvent();
+      if (talkRunner.pendingCoinDelta != 0) {
+        LOG(ERROR) << "MODIFY_COINS clamp should net to 0 pending coins" << LOG_ENDL;
+        return 1;
+      }
+      auto coins = in3::getStorage(talkRunner.storage, in3::kPlayerCoinsStorageKey);
+      if (!coins || *coins != "0") {
+        LOG(ERROR) << "MODIFY_COINS should leave vars.player.coins at 0 after clamp"
+                   << LOG_ENDL;
+        return 1;
+      }
+
+      model::GameEvent gainEvent;
+      gainEvent.id = "talk_coins_gain";
+      gainEvent.eventType = model::GameEventType::TALK;
+      model::GameEventChildExec gainExec;
+      gainExec.eventChildType = model::GameEventChildType::EXEC;
+      gainExec.id = "root";
+      gainExec.paragraphs = {"Payment."};
+      gainExec.execStr = "MODIFY_COINS(4)\nMODIFY_COINS(6)";
+      gainExec.next = "end_node";
+      gainExec.autoAdvance = false;
+      gainEvent.children.pushBack(gainExec);
+      gainEvent.children.pushBack(endNode);
+
+      in3::SpecialEventRunner gainRunner({}, gainEvent, {});
+      in3::SpecialEventRunnerInterface gainIface(gainRunner);
+      gainIface.startEvent();
+      if (gainRunner.pendingCoinDelta != 10) {
+        LOG(ERROR) << "MODIFY_COINS should net pending coins across calls" << LOG_ENDL;
+        return 1;
+      }
+      auto notices = gainRunner.consumePendingNotices();
+      if (notices.modifiedCoins != 10 || gainRunner.pendingCoinDelta != 0) {
+        LOG(ERROR) << "consumePendingNotices should return and clear modified coins"
+                   << LOG_ENDL;
+        return 1;
+      }
+      auto gained = in3::getStorage(gainRunner.storage, in3::kPlayerCoinsStorageKey);
+      if (!gained || *gained != "10") {
+        LOG(ERROR) << "MODIFY_COINS should set vars.player.coins" << LOG_ENDL;
+        return 1;
+      }
+      LOG(INFO) << "MODIFY_COINS nets applied deltas and clamps at 0" << LOG_ENDL;
+    }
+
+    {
+      model::QuestTemplate rewardQuest;
+      rewardQuest.id = "rewardQuest";
+      rewardQuest.rewards.coins = 12;
+      rewardQuest.rewards.experience = 8;
+      model::QuestRewardItem lager;
+      lager.name = "BeerPappysLager";
+      lager.amount = 15;
+      rewardQuest.rewards.items.pushBack(lager);
+      bmin::Map<bmin::String, model::QuestTemplate> quests;
+      quests[rewardQuest.id] = rewardQuest;
+      in3::setQuestTemplates(&quests);
+
+      model::GameEvent talkEvent;
+      talkEvent.id = "talk_quest_rewards";
+      talkEvent.eventType = model::GameEventType::TALK;
+
+      model::GameEventChildExec execNode;
+      execNode.eventChildType = model::GameEventChildType::EXEC;
+      execNode.id = "root";
+      execNode.paragraphs = {"Quest complete."};
+      execNode.execStr = "COMPLETE_QUEST(rewardQuest)";
+      execNode.next = "end_node";
+      execNode.autoAdvance = false;
+      talkEvent.children.pushBack(execNode);
+
+      model::GameEventChildEnd endNode;
+      endNode.eventChildType = model::GameEventChildType::END;
+      endNode.id = "end_node";
+      talkEvent.children.pushBack(endNode);
+
+      in3::SpecialEventRunner talkRunner({}, talkEvent, {});
+      in3::SpecialEventRunnerInterface talkIface(talkRunner);
+      talkIface.startEvent();
+      if (!talkRunner.pendingJournalNotice ||
+          talkRunner.pendingReceivedItemNames.size() != 1 ||
+          talkRunner.pendingReceivedItemNames[0] != "BeerPappysLager" ||
+          talkRunner.pendingCoinDelta != 12 ||
+          talkRunner.pendingExperienceDelta != 8) {
+        LOG(ERROR) << "COMPLETE_QUEST should queue journal, item, coin, and experience notices"
+                   << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      auto notices = talkRunner.consumePendingNotices();
+      if (!notices.journalUpdated || notices.receivedItemNames.size() != 1 ||
+          notices.modifiedCoins != 12 || notices.modifiedExperience != 8) {
+        LOG(ERROR) << "consumePendingNotices should return quest reward notices"
+                   << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      in3::setQuestTemplates(nullptr);
+      LOG(INFO) << "COMPLETE_QUEST grants rewards into pending notices" << LOG_ENDL;
     }
 
     LOG(INFO) << "TestSpecialEventRunner completed successfully" << LOG_ENDL;

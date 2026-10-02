@@ -53,6 +53,39 @@ int main(int argc, char** argv) {
       LOG(ERROR) << "que_alinea_NobleRuffian nested subStep id mismatch" << LOG_ENDL;
       return 1;
     }
+    if (rockIt->value.rewards.coins != 0 || rockIt->value.rewards.experience != 0 ||
+        !rockIt->value.rewards.items.empty()) {
+      LOG(ERROR) << "que_alinea_NobleRuffian should have empty default rewards" << LOG_ENDL;
+      return 1;
+    }
+
+    const auto sealIt = questTemplates.find(bmin::String("que_alinea_sealOfApproval"));
+    if (sealIt == questTemplates.end()) {
+      LOG(ERROR) << "Missing que_alinea_sealOfApproval quest" << LOG_ENDL;
+      return 1;
+    }
+    if (sealIt->value.rewards.coins != 50 || sealIt->value.rewards.experience != 5 ||
+        !sealIt->value.rewards.items.empty()) {
+      LOG(ERROR) << "que_alinea_sealOfApproval rewards mismatch" << LOG_ENDL;
+      return 1;
+    }
+
+    bmin::Map<bmin::String, model::QuestTemplate> rewardFixtures;
+    db::loadQuestTemplates("__test__/db/loaders/quest-rewards-fixture.json", rewardFixtures);
+    const auto amountIt = rewardFixtures.find(bmin::String("rewardAmountQuest"));
+    if (amountIt == rewardFixtures.end()) {
+      LOG(ERROR) << "Missing rewardAmountQuest fixture" << LOG_ENDL;
+      return 1;
+    }
+    if (amountIt->value.rewards.items.size() != 2 ||
+        amountIt->value.rewards.items[0].name != "BeerPappysLager" ||
+        amountIt->value.rewards.items[0].amount != 15 ||
+        amountIt->value.rewards.items[1].name != "AlineaCorrespondence1" ||
+        amountIt->value.rewards.items[1].amount != 1) {
+      LOG(ERROR) << "rewardAmountQuest should parse item amounts and string items"
+                 << LOG_ENDL;
+      return 1;
+    }
 
     const auto tomeIt = questTemplates.find(bmin::String("que_alinea_EntomenTome"));
     if (tomeIt == questTemplates.end()) {

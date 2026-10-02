@@ -84,6 +84,9 @@ Shield Bonus: Base 0
 
 Skills Specific
 Each level grants 5 points, thresholds are met at certain levels, capped at 25.  Advance training feat required for level 20, master training feat required for level 25.
+- Brutishness
+  * Each level increases DR by 1
+  * Each 5th level grants ability to bash down more objects: doors, broken walls, boulders
 - Trickery / Lockpick
   * Each level grants 1 less tool required to open locks.
   * Each 5th level grants bonus to sleight of hand checks (stealing/dialogue)

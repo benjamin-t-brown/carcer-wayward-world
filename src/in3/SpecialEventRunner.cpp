@@ -33,6 +33,8 @@ void SpecialEventRunner::reset() {
   chosenChoiceKeys.clear();
   pendingJournalNotice = false;
   pendingReceivedItemNames.clear();
+  pendingCoinDelta = 0;
+  pendingExperienceDelta = 0;
   errors.clear();
   currentNodeId = "";
   for (const auto& child : gameEvent.children) {
@@ -83,8 +85,12 @@ SpecialEventPendingNotices SpecialEventRunner::consumePendingNotices() {
   auto notices = SpecialEventPendingNotices{};
   notices.journalUpdated = pendingJournalNotice;
   notices.receivedItemNames = pendingReceivedItemNames;
+  notices.modifiedCoins = pendingCoinDelta;
+  notices.modifiedExperience = pendingExperienceDelta;
   pendingJournalNotice = false;
   pendingReceivedItemNames.clear();
+  pendingCoinDelta = 0;
+  pendingExperienceDelta = 0;
   return notices;
 }
 
@@ -184,6 +190,8 @@ bool SpecialEventRunner::evalExecStr(const bmin::String& str) {
         pendingReceivedItemNames.pushBack(itemName);
       }
     }
+    pendingCoinDelta += evaluator.funcs.modifiedCoins;
+    pendingExperienceDelta += evaluator.funcs.modifiedExperience;
     return true;
   } catch (const std::exception& e) {
     errors.pushBack({currentNodeId, e.what()});

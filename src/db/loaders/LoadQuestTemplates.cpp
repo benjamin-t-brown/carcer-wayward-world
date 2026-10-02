@@ -21,6 +21,65 @@ bmin::String optionalString(const Json& json, const char* field) {
   return json[field].get<bmin::String>();
 }
 
+int optionalNonNegativeInt(const Json& json, const char* field, const char* context) {
+  if (!json.contains(field)) {
+    return 0;
+  }
+  if (!json[field].is_number_integer()) {
+    throw std::runtime_error(
+        (bmin::String(context) + " field '" + field + "' must be an integer").cStr());
+  }
+  const int value = json[field].get<int>();
+  if (value < 0) {
+    throw std::runtime_error(
+        (bmin::String(context) + " field '" + field + "' must be >= 0").cStr());
+  }
+  return value;
+}
+
+model::QuestRewards parseQuestRewards(const Json& questJson, const char* context) {
+  model::QuestRewards rewards;
+  if (!questJson.contains("rewards")) {
+    return rewards;
+  }
+  if (!questJson["rewards"].is_object()) {
+    throw std::runtime_error((bmin::String(context) + " rewards must be an object").cStr());
+  }
+  const Json& rewardsJson = questJson["rewards"];
+  const bmin::String rewardsContext = bmin::String(context) + " rewards";
+  rewards.coins = optionalNonNegativeInt(rewardsJson, "coins", rewardsContext.cStr());
+  rewards.experience =
+      optionalNonNegativeInt(rewardsJson, "experience", rewardsContext.cStr());
+  if (rewardsJson.contains("items")) {
+    if (!rewardsJson["items"].is_array()) {
+      throw std::runtime_error((rewardsContext + " items must be an array").cStr());
+    }
+    for (const auto& itemJson : rewardsJson["items"]) {
+      model::QuestRewardItem item;
+      if (itemJson.is_string()) {
+        item.name = itemJson.get<bmin::String>();
+        item.amount = 1;
+      } else if (itemJson.is_object()) {
+        item.name = optionalString(itemJson, "name");
+        if (item.name.empty()) {
+          throw std::runtime_error((rewardsContext + " item is missing name").cStr());
+        }
+        item.amount = itemJson.contains("amount")
+                          ? optionalNonNegativeInt(itemJson, "amount",
+                                                   (rewardsContext + " item").cStr())
+                          : 1;
+      } else {
+        throw std::runtime_error(
+            (rewardsContext + " items must be strings or objects").cStr());
+      }
+      if (!item.name.empty() && item.amount > 0) {
+        rewards.items.pushBack(item);
+      }
+    }
+  }
+  return rewards;
+}
+
 void assertUniqueIds(const bmin::DynArray<model::QuestStep>& steps, const char* context) {
   for (size_t i = 0; i < steps.size(); ++i) {
     if (steps[i].id.empty()) {
@@ -90,6 +149,8 @@ void loadQuestTemplates(const bmin::String& questsFilePath,
     questTemplate.label = requireString(questJson, "label", "Quest");
     questTemplate.description = optionalString(questJson, "description");
     questTemplate.completedDescription = optionalString(questJson, "completedDescription");
+    questTemplate.rewards = parseQuestRewards(
+        questJson, (bmin::String("Quest '") + questTemplate.id.cStr() + "'").cStr());
 
     if (questJson.contains("steps")) {
       if (!questJson["steps"].is_array()) {

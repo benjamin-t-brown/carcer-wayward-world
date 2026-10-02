@@ -44,12 +44,33 @@ export function QuestTemplates({
       name: q.id,
       label: q.label || q.id,
       stepCount: q.steps?.length ?? 0,
+      rewardCoins: q.rewards?.coins ?? 0,
+      rewardExperience: q.rewards?.experience ?? 0,
+      rewardItemCount: q.rewards?.items?.length ?? 0,
     }),
-    renderAdditionalInfo: (item) => (
-      <div className="item-info">
-        <span className="item-type">{String(item.stepCount ?? 0)} steps</span>
-      </div>
-    ),
+    renderAdditionalInfo: (item) => {
+      const coins = Number(item.rewardCoins ?? 0);
+      const experience = Number(item.rewardExperience ?? 0);
+      const itemCount = Number(item.rewardItemCount ?? 0);
+      const rewardParts: string[] = [];
+      if (coins > 0) {
+        rewardParts.push(`${coins}c`);
+      }
+      if (experience > 0) {
+        rewardParts.push(`${experience}xp`);
+      }
+      if (itemCount > 0) {
+        rewardParts.push(`${itemCount} item${itemCount === 1 ? '' : 's'}`);
+      }
+      return (
+        <div className="item-info">
+          <span className="item-type">{String(item.stepCount ?? 0)} steps</span>
+          {rewardParts.length > 0 ? (
+            <span className="item-type">{rewardParts.join(' · ')}</span>
+          ) : null}
+        </div>
+      );
+    },
     formWrapperId: 'quest-form',
     scrollCardIntoView: true,
     validateAfterSave: (sorted) => {

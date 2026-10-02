@@ -25,7 +25,10 @@ interface EventRunnerModalProps {
   eventRunner?: EventRunner;
 }
 
-const EVENT_FONT_SIZE = '18px';
+const EVENT_FONT_SIZE = '24px';
+const ACTIVE_DIALOGUE_COLOR = 'white';
+const ACTIVE_NARRATIVE_COLOR = '#b9b9b9';
+const HISTORICAL_TEXT_COLOR = '#888';
 const PANEL_MIN_HEIGHT = 500;
 const PANEL_VERTICAL_PADDING = 24; // matches .special-events-runner-panel padding (12px * 2)
 const HEADER_HEIGHT = 80;
@@ -56,6 +59,68 @@ function findLastSegmentIndex(entries: EventRunnerLogEntry[]) {
   return -1;
 }
 
+function isHistoricalTextEntry(
+  entry: EventRunnerLogEntry,
+  index: number,
+  lastSegmentIndex: number
+) {
+  return (
+    entry.type === 'text' &&
+    lastSegmentIndex >= 0 &&
+    index <= lastSegmentIndex
+  );
+}
+
+/** Split on ASCII `"..."`: quoted speech vs unquoted narrative, matching PageTalkChoice. */
+function splitDialogueByQuotes(text: string) {
+  const spans: { text: string; quoted: boolean }[] = [];
+  let inQuotes = false;
+  let segmentStart = 0;
+  const emit = (end: number, quoted: boolean) => {
+    if (end <= segmentStart) {
+      return;
+    }
+    spans.push({ text: text.slice(segmentStart, end), quoted });
+    segmentStart = end;
+  };
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] !== '"') {
+      continue;
+    }
+    if (inQuotes) {
+      emit(i + 1, true);
+      inQuotes = false;
+    } else {
+      emit(i, false);
+      inQuotes = true;
+    }
+  }
+  emit(text.length, inQuotes);
+  return spans;
+}
+
+function renderLogEntryText(
+  entry: EventRunnerLogEntry,
+  isHistoricalText: boolean
+) {
+  if (entry.type === 'choice') {
+    return ` - ${entry.text}`;
+  }
+  if (entry.type === 'text' && !isHistoricalText) {
+    return splitDialogueByQuotes(entry.text).map((span, j) => (
+      <span
+        key={j}
+        style={{
+          color: span.quoted ? ACTIVE_DIALOGUE_COLOR : ACTIVE_NARRATIVE_COLOR,
+        }}
+      >
+        {span.text}
+      </span>
+    ));
+  }
+  return entry.text;
+}
+
 function getLogEntryStyle(
   entry: EventRunnerLogEntry,
   index: number,
@@ -66,14 +131,15 @@ function getLogEntryStyle(
     marginTop: index === 0 ? 0 : '1em',
     cursor: entry.nodeId ? ('pointer' as const) : undefined,
   };
-  const isHistoricalText =
-    entry.type === 'text' &&
-    lastSegmentIndex >= 0 &&
-    index <= lastSegmentIndex;
-  if (entry.type === 'journal' || entry.type === 'item') {
+  const isHistoricalText = isHistoricalTextEntry(
+    entry,
+    index,
+    lastSegmentIndex
+  );
+  if (entry.type === 'journal' || entry.type === 'item' || entry.type === 'coins' || entry.type === 'experience') {
     return {
       ...base,
-      color: '#888',
+      color: HISTORICAL_TEXT_COLOR,
       fontFamily: 'arial',
       fontSize: EVENT_FONT_SIZE,
     };
@@ -81,7 +147,7 @@ function getLogEntryStyle(
   if (entry.type === 'choice' || isHistoricalText) {
     return {
       ...base,
-      color: '#888',
+      color: HISTORICAL_TEXT_COLOR,
       fontFamily: 'arial',
       fontSize: EVENT_FONT_SIZE,
     };
@@ -97,7 +163,7 @@ function getLogEntryStyle(
   }
   return {
     ...base,
-    color: 'white',
+    color: ACTIVE_DIALOGUE_COLOR,
     fontFamily: 'arial',
     fontSize: EVENT_FONT_SIZE,
   };
@@ -382,6 +448,11 @@ export function EventRunnerModal({
               if (entry.type === 'continue') {
                 return null;
               }
+              const isHistoricalText = isHistoricalTextEntry(
+                entry,
+                i,
+                lastSegmentIndex
+              );
               const style = getLogEntryStyle(entry, i, lastSegmentIndex);
               if (entry.type === 'storage') {
                 return (
@@ -399,7 +470,7 @@ export function EventRunnerModal({
                     }
                   }}
                 >
-                  {entry.type === 'choice' ? ` - ${entry.text}` : entry.text}
+                  {renderLogEntryText(entry, isHistoricalText)}
                 </div>
               );
             })}

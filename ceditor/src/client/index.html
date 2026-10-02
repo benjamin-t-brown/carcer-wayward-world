@@ -811,8 +811,11 @@
       }
 
       .btn-back {
+        display: inline-flex;
+        align-items: center;
         background: transparent;
         color: #d4d4d4;
+        text-decoration: none;
       }
 
       .btn-back:hover {
@@ -1082,6 +1085,14 @@
         margin-bottom: 12px;
       }
 
+      .quest-storage-keys {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        margin: 0 0 12px;
+      }
+
       .quest-template-form .form-fields-inline {
         display: flex;
         flex-wrap: wrap;
@@ -1186,6 +1197,67 @@
 
       .quest-step-substeps .quest-step-item {
         background: #1e1e1e;
+      }
+
+      .quest-reward-items {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 10px;
+        max-width: 520px;
+      }
+
+      .quest-reward-items-label {
+        color: #858585;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .quest-reward-empty {
+        margin: 0;
+        color: #6a6a6a;
+        font-size: 12px;
+      }
+
+      .quest-reward-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        background: #2a2a2a;
+        border: 1px solid #444;
+        border-radius: 4px;
+        padding: 6px 8px;
+        font-size: 13px;
+      }
+
+      .quest-reward-item-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .quest-reward-item-name {
+        color: #858585;
+        font-size: 11px;
+      }
+
+      .quest-reward-item-amount-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #858585;
+        font-size: 11px;
+        flex-shrink: 0;
+      }
+
+      .quest-reward-item-amount {
+        width: 64px;
+        padding: 4px 6px;
+        border: 1px solid #3e3e42;
+        background: #1e1e1e;
+        color: #d4d4d4;
+        border-radius: 4px;
+        font-size: 12px;
       }
 
       .character-template-form,
@@ -1322,7 +1394,8 @@
       .ability-template-form .form-subsection,
       .spell-template-form .form-subsection,
       .status-effect-template-form .form-subsection,
-      .map-grid-template-form .form-subsection {
+      .map-grid-template-form .form-subsection,
+      .quest-template-form .form-subsection {
         margin-bottom: 10px;
         padding-bottom: 8px;
       }
@@ -1332,7 +1405,8 @@
       .ability-template-form .form-subsection h4,
       .spell-template-form .form-subsection h4,
       .status-effect-template-form .form-subsection h4,
-      .map-grid-template-form .form-subsection h4 {
+      .map-grid-template-form .form-subsection h4,
+      .quest-template-form .form-subsection h4 {
         margin-bottom: 6px;
         font-size: 11px;
       }
@@ -1342,7 +1416,8 @@
       .ability-template-form .form-subsection > .form-fields-inline,
       .spell-template-form .form-subsection > .form-fields-inline,
       .status-effect-template-form .form-subsection > .form-fields-inline,
-      .map-grid-template-form .form-subsection > .form-fields-inline {
+      .map-grid-template-form .form-subsection > .form-fields-inline,
+      .quest-template-form .form-subsection > .form-fields-inline {
         margin-bottom: 0;
       }
 

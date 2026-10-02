@@ -43,6 +43,7 @@ Gameplay Guidelines
     - Lockpick Chance: Locked doors should not have a percent chance of breaking lockpicks, as this encourages players to reload if they lose too many.
 - The money economy should not be trivial to circumvent, until later on in the game
   - Lots of rpgs it irks me that it's easy for players to just do some exploit for money.  This should be a real problem to think about, because it makes for more engaging decisions about "what to do next".
+  - Don't be stingy with money all the time: the player should feel rich sometimes and poor sometimes if they don't go out of their way to make money
 
 Combat
 

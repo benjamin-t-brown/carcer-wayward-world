@@ -7,13 +7,39 @@ import {
   Choice,
   QuestTemplate,
   ItemTemplate,
+  normalizeQuestRewardItems,
 } from '../../types/assets';
 import { getVarsFromNode } from '../nodeHelpers';
 
 export const JOURNAL_UPDATED_MESSAGE = 'Your journal has been updated.';
+const PLAYER_COINS_STORAGE_KEY = 'vars.player.coins';
+const PLAYER_EXPERIENCE_STORAGE_KEY = 'vars.player.experience';
 
 export function itemReceivedNoticeText(itemLabel: string) {
   return `You have received ${itemLabel}.`;
+}
+
+export function coinsModifiedNoticeText(delta: number) {
+  const abs = Math.abs(delta);
+  const noun = abs === 1 ? 'coin' : 'coins';
+  if (delta > 0) {
+    return `You have received ${abs} ${noun}.`;
+  }
+  if (delta < 0) {
+    return `You have lost ${abs} ${noun}.`;
+  }
+  return '';
+}
+
+export function experienceModifiedNoticeText(delta: number) {
+  const abs = Math.abs(delta);
+  if (delta > 0) {
+    return `You have received ${abs} experience.`;
+  }
+  if (delta < 0) {
+    return `You have lost ${abs} experience.`;
+  }
+  return '';
 }
 
 export function splitExecStatements(str: string): string[] {
@@ -509,6 +535,8 @@ class StringEvaluator {
   quests: QuestTemplate[];
   questUpdated = false;
   receivedItemNames: string[] = [];
+  modifiedCoins = 0;
+  modifiedExperience = 0;
 
   constructor(
     storage: Record<string, any>,
@@ -596,8 +624,30 @@ class StringEvaluator {
       this.questUpdated = true;
     },
     COMPLETE_QUEST: (questName: string) => {
+      const alreadyComplete = questIsComplete(this.storage, questName);
       completeQuest(this.storage, questName);
       this.questUpdated = true;
+      if (alreadyComplete) {
+        return;
+      }
+      const quest = findQuestTemplate(this.quests, questName);
+      if (!quest) {
+        return;
+      }
+      for (const item of normalizeQuestRewardItems(quest.rewards?.items)) {
+        if (item.name) {
+          this.stringFunctions.ADD_ITEM_TO_PLAYER(
+            item.name,
+            String(item.amount),
+          );
+        }
+      }
+      if ((quest.rewards?.coins ?? 0) > 0) {
+        this.stringFunctions.MODIFY_COINS(String(quest.rewards?.coins));
+      }
+      if ((quest.rewards?.experience ?? 0) > 0) {
+        this.stringFunctions.MODIFY_EXPERIENCE(String(quest.rewards?.experience));
+      }
     },
     SPAWN_CH: (_chName: string) => {
       // noop
@@ -617,10 +667,53 @@ class StringEvaluator {
     REMOVE_ITEM_AT: (_x: string, _y: string, _itemName: string) => {
       // noop
     },
-    ADD_ITEM_TO_PLAYER: (itemName: string) => {
+    ADD_ITEM_TO_PLAYER: (itemName: string, amount: string = '1') => {
+      const qty = amount.trim() === '' ? '1' : amount;
+      const n = parseFloat(qty);
+      if (isNaN(n)) {
+        throw new Error(`Invalid number value: ${qty}`);
+      }
+      const count = Math.trunc(n);
+      if (count <= 0) {
+        return;
+      }
       const key = 'vars.items.' + itemName;
-      this.stringFunctions.MOD_NUM(key, '1');
+      this.stringFunctions.MOD_NUM(key, String(count));
       this.receivedItemNames.push(itemName);
+    },
+    MODIFY_COINS: (amount: string) => {
+      const n = parseFloat(amount);
+      if (isNaN(n)) {
+        throw new Error(`Invalid number value: ${amount}`);
+      }
+      const delta = Math.trunc(n);
+      const current = getStorage(this.storage, PLAYER_COINS_STORAGE_KEY);
+      const currentN = parseFloat(current || '0');
+      if (isNaN(currentN)) {
+        throw new Error('Variable vars.player.coins is not a number');
+      }
+      const currentI = Math.trunc(currentN);
+      const next = Math.max(0, currentI + delta);
+      const applied = next - currentI;
+      setStorage(this.storage, PLAYER_COINS_STORAGE_KEY, String(next));
+      this.modifiedCoins += applied;
+    },
+    MODIFY_EXPERIENCE: (amount: string) => {
+      const n = parseFloat(amount);
+      if (isNaN(n)) {
+        throw new Error(`Invalid number value: ${amount}`);
+      }
+      const delta = Math.trunc(n);
+      const current = getStorage(this.storage, PLAYER_EXPERIENCE_STORAGE_KEY);
+      const currentN = parseFloat(current || '0');
+      if (isNaN(currentN)) {
+        throw new Error('Variable vars.player.experience is not a number');
+      }
+      const currentI = Math.trunc(currentN);
+      const next = Math.max(0, currentI + delta);
+      const applied = next - currentI;
+      setStorage(this.storage, PLAYER_EXPERIENCE_STORAGE_KEY, String(next));
+      this.modifiedExperience += applied;
     },
     REMOVE_ITEM_FROM_PLAYER: (itemName: string) => {
       const key = 'vars.items.' + itemName;
@@ -671,7 +764,7 @@ class StringEvaluator {
 }
 
 export type EventRunnerLogEntry = {
-  type: 'text' | 'choice' | 'continue' | 'storage' | 'journal' | 'item';
+  type: 'text' | 'choice' | 'continue' | 'storage' | 'journal' | 'item' | 'coins' | 'experience';
   text: string;
   nodeId?: string;
   choiceKey?: string;
@@ -702,6 +795,8 @@ export class EventRunner {
   }[] = [];
   pendingJournalNotice = false;
   pendingReceivedItemNames: string[] = [];
+  pendingCoinDelta = 0;
+  pendingExperienceDelta = 0;
 
   constructor(
     initialStorage: Record<string, any> = {},
@@ -772,6 +867,8 @@ export class EventRunner {
           this.pendingReceivedItemNames.push(itemName);
         }
       }
+      this.pendingCoinDelta += stringEvaluator.modifiedCoins;
+      this.pendingExperienceDelta += stringEvaluator.modifiedExperience;
       return result;
     } catch (error: unknown) {
       this.errors.push({
@@ -896,8 +993,42 @@ export class EventRunner {
     }
   }
 
+  flushCoinNotice() {
+    if (this.pendingCoinDelta === 0) {
+      return;
+    }
+    const text = coinsModifiedNoticeText(this.pendingCoinDelta);
+    this.pendingCoinDelta = 0;
+    if (!text) {
+      return;
+    }
+    this.logEntries.push({
+      type: 'coins',
+      text,
+      nodeId: this.currentNodeId,
+    });
+  }
+
+  flushExperienceNotice() {
+    if (this.pendingExperienceDelta === 0) {
+      return;
+    }
+    const text = experienceModifiedNoticeText(this.pendingExperienceDelta);
+    this.pendingExperienceDelta = 0;
+    if (!text) {
+      return;
+    }
+    this.logEntries.push({
+      type: 'experience',
+      text,
+      nodeId: this.currentNodeId,
+    });
+  }
+
   flushSystemNotices() {
     this.flushItemNotices();
+    this.flushCoinNotice();
+    this.flushExperienceNotice();
     this.flushJournalNotice();
   }
 

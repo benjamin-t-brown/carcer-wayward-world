@@ -20,6 +20,8 @@ void clearTmpStorageKeys(bmin::Map<bmin::String, bmin::String>& storage);
 
 // SET_PORT(characterName) stores the extra talk speaker for this conversation.
 inline constexpr const char* kTalkPortStorageKey = "tmp.talk.port";
+inline constexpr const char* kPlayerCoinsStorageKey = "vars.player.coins";
+inline constexpr const char* kPlayerExperienceStorageKey = "vars.player.experience";
 inline constexpr const char* kJournalUpdatedMessage =
     "Your journal has been updated.";
 

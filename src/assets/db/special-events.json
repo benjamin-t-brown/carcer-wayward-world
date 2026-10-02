@@ -1972,34 +1972,16 @@
         "importFrom": ""
       },
       {
-        "id": "uojcb7srl2",
-        "key": "ASPECT_FAE",
-        "value": "vars.aspect.fae",
-        "importFrom": ""
-      },
-      {
-        "id": "zlzxcsnksa",
-        "key": "ASPECT_DRAGON",
-        "value": "vars.aspect.dragon",
-        "importFrom": ""
-      },
-      {
-        "id": "0onpo7a0gu1",
-        "key": "ASPECT_DRYAD",
-        "value": "vars.aspect.dryad",
-        "importFrom": ""
-      },
-      {
-        "id": "dh34zu92qk",
-        "key": "ASPECT_AEON",
-        "value": "vars.aspect.aeon",
-        "importFrom": ""
-      },
-      {
         "id": "1xmadoag23s",
         "key": "",
         "value": "",
         "importFrom": "util_exposition_alinea"
+      },
+      {
+        "id": "kgvg1z648",
+        "key": "",
+        "value": "",
+        "importFrom": "util_aspect"
       }
     ],
     "children": [
@@ -2033,7 +2015,7 @@
         "h": 156,
         "cases": [
           {
-            "conditionStr": "ONCE(vars.hasSpokenTo@CHARACTER_ID)",
+            "conditionStr": "ONCE(Iv4dTdlu6R)",
             "next": "1651u7924tq"
           },
           {
@@ -2093,7 +2075,7 @@
         "text": "",
         "choices": [
           {
-            "text": "(Remain silent.)",
+            "text": "What's it to you?",
             "conditionStr": "",
             "evalStr": "",
             "next": "znt1b71szsf",
@@ -2120,17 +2102,17 @@
       },
       {
         "id": "uj1jkcvhv0p",
-        "x": 1617,
-        "y": 111,
+        "x": 1611,
+        "y": 204,
         "eventChildType": "CHOICE",
-        "h": 226,
-        "text": "Suddenly, a shiver passes across your body.  You feel an odd feeling: a contending set of forces battling in your mind, all trying to make their opinion known, all trying to shape who you are.",
+        "h": 156,
+        "text": "",
         "choices": [
           {
-            "text": "(Remain silent.)",
+            "text": "(Force yourself to suppress these urges, and remain silent)",
             "conditionStr": "",
-            "evalStr": "",
-            "next": "myc9tlr8jos",
+            "evalStr": "MOD_NUM(@ASPECT_RESIST, 1)",
+            "next": "2v4wrqosqdh",
             "prefixText": "",
             "switchText": []
           },
@@ -2143,7 +2125,7 @@
             "switchText": []
           },
           {
-            "text": "Lock me up?  I'd like to see you try.",
+            "text": "Lock me up?  I will not tolerate such a thing.",
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_DRAGON, 1)",
             "next": "awba4c9uu5",
@@ -2159,7 +2141,7 @@
             "switchText": []
           },
           {
-            "text": "If you cannot enforce your laws, then they are not true laws.",
+            "text": "Allow me to pass.  If you cannot enforce your laws, then they are not true laws.",
             "conditionStr": "",
             "evalStr": "MOD_NUM(@ASPECT_AEON, 1)",
             "next": "awba4c9uu5",
@@ -2173,7 +2155,7 @@
         "x": 822,
         "y": 643,
         "eventChildType": "CHOICE",
-        "h": 180,
+        "h": 156,
         "text": "",
         "choices": [
           {
@@ -2201,26 +2183,23 @@
             "switchText": []
           },
           {
-            "text": "You mentioned that you've had a rough morning.  Anything I can do to help?",
-            "conditionStr": "ONCE(rHPNHDTkav)",
+            "text": "About that task you wanted me to do...",
+            "conditionStr": "ISNOT(QUEST_IS_COMPLETE(que_alinea_sealOfApproval))",
             "evalStr": "",
-            "next": "zs8qcx8yzf",
+            "next": "zgj7mbtim1n",
             "prefixText": "",
-            "switchText": []
-          },
-          {
-            "text": "About that task you want me to do...",
-            "conditionStr": "ISNOT(ONCE(rHPNHDTkav))",
-            "evalStr": "",
-            "next": "58zoupi11n",
-            "prefixText": "",
-            "switchText": []
+            "switchText": [
+              {
+                "conditionStr": "ONCE(QN7WY1D9H8)",
+                "text": "You mentioned that you've had a rough morning.  Anything I can do to help?"
+              }
+            ]
           },
           {
             "text": "(Take you leave.)",
             "conditionStr": "",
             "evalStr": "",
-            "next": "757nz6fw6io",
+            "next": "lk9qky3u42",
             "prefixText": "",
             "switchText": []
           }
@@ -2231,16 +2210,16 @@
         "x": 2011,
         "y": 771,
         "eventChildType": "EXEC",
-        "h": 168,
-        "p": "She only half listens to what you tell her, and she interrupts you halfway through.  \"The Realm is not in service of any old lark that gets dropped off at the docks.  You could bother Mullen at the Realm office, he might be more charitable.  But perhaps you'll have some more luck at the local tavern.  That's where larks tend to congregate.\"",
-        "execStr": "SET_BOOL(@EXPOSITION_ALINEA_REALM_KNOWN)\nSET_BOOL(tmp.calledLark)",
+        "h": 196,
+        "p": "She only half listens to what you tell her, and she interrupts you halfway through.\n\n\"The Realm is not in service of any old lark that gets dropped off at the docks.  You could bother Mullen at the Realm office, he might be more charitable.  But perhaps you'll have some more luck at the local tavern.  That's where larks tend to congregate.\"",
+        "execStr": "SET_BOOL(@EXPOSITION_ALINEA_REALM_KNOWN)\nSET_BOOL(tmp.calledLark)\nSHOW_QUEST_SUB_STEP(que_alinea_number9, step1, findMullen)",
         "next": "yvjbd7gvai",
         "autoAdvance": true
       },
       {
         "id": "lk9qky3u42",
-        "x": 1003,
-        "y": 1918,
+        "x": 919,
+        "y": 1692,
         "eventChildType": "END",
         "h": 60,
         "next": ""
@@ -2279,17 +2258,6 @@
         "autoAdvance": true
       },
       {
-        "id": "gmb7hkxnr0o",
-        "x": 793,
-        "y": 1735,
-        "eventChildType": "EXEC",
-        "h": 60,
-        "p": "\"If you are done with your questions, then move along.\"",
-        "execStr": "",
-        "next": "lk9qky3u42",
-        "autoAdvance": false
-      },
-      {
         "id": "ut4rzqdocjc",
         "x": 2001,
         "y": 421,
@@ -2312,34 +2280,9 @@
         "autoAdvance": true
       },
       {
-        "id": "myc9tlr8jos",
-        "x": 2064,
-        "y": 42,
-        "eventChildType": "EXEC",
-        "h": 50,
-        "p": "\"Are you mute?  Ugh, I can't deal with this right now.\"",
-        "execStr": "",
-        "next": "ji4noamnmxi",
-        "autoAdvance": false
-      },
-      {
-        "id": "757nz6fw6io",
-        "x": 360,
-        "y": 1801,
-        "eventChildType": "SWITCH",
-        "h": 84,
-        "cases": [
-          {
-            "conditionStr": "ONCE(@CHARACTER_ID_doneWithQuestions)",
-            "next": "gmb7hkxnr0o"
-          }
-        ],
-        "defaultNext": "lk9qky3u42"
-      },
-      {
         "id": "awba4c9uu5",
-        "x": 2081,
-        "y": 234,
+        "x": 2093,
+        "y": 287,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Don't tempt me.  I'm in a foul mood this morning.\"",
@@ -2363,41 +2306,41 @@
         "x": 1224,
         "y": 54,
         "eventChildType": "EXEC",
-        "h": 130,
-        "p": "\"There's a fee for using the Alinea docks.\"\n\nShe gives you a quick look up and down.\n\n\"Even if it is to drop off a... passenger.  I can have you locked up for negligence if this situation isn't dealt with properly.\"",
+        "h": 116,
+        "p": "She gives you a quick look up and down.\n\n\"There's a fee for using the Alinea docks. Even if it is to drop off a... passenger.  I can have you locked up for negligence if this situation isn't dealt with properly.\"",
         "execStr": "",
-        "next": "uj1jkcvhv0p",
-        "autoAdvance": true
+        "next": "xmg03ny8neo",
+        "autoAdvance": false
       },
       {
         "id": "9d7c1vf95da",
-        "x": 2091,
-        "y": 314,
+        "x": 2083,
+        "y": 343,
         "eventChildType": "EXEC",
-        "h": 60,
-        "p": "\"I'm glad you want to help, but *you* are the problem.\"",
+        "h": 50,
+        "p": "\"The problem is that *you* are the problem.\"",
         "execStr": "",
         "next": "ji4noamnmxi",
         "autoAdvance": false
       },
       {
         "id": "n9n9yk3d4t9",
-        "x": 2071,
-        "y": 145,
+        "x": 2087,
+        "y": 223,
         "eventChildType": "EXEC",
-        "h": 50,
-        "p": "\"Ugh, I can't deal with this right now.\"",
+        "h": 60,
+        "p": "\"A poor destitute refugee dumped on the docks?  That's your story?  I can't deal with this right now.\"",
         "execStr": "",
         "next": "ji4noamnmxi",
         "autoAdvance": false
       },
       {
         "id": "ji4noamnmxi",
-        "x": 2490,
-        "y": 171,
+        "x": 2503,
+        "y": 130,
         "eventChildType": "EXEC",
-        "h": 88,
-        "p": "She taps her foot impatiently and groans in frustration.  \"Ugh.  Just...  Leave the docks and don't bother me.  I've had enough to deal with this morning already.\"",
+        "h": 116,
+        "p": "She considers you for a long moment, a vein twitching at her temple.\n\n\"It is evident that I'm getting nowhere with you.  Just... get out of my sight. I've had enough to deal with this morning already.\"",
         "execStr": "",
         "next": "80bdb67qx5u",
         "autoAdvance": true
@@ -2419,7 +2362,7 @@
             "switchText": []
           },
           {
-            "text": "Okay.",
+            "text": "Okay. (Leave conversation.)",
             "conditionStr": "",
             "evalStr": "",
             "next": "7wt55yy5y0o",
@@ -2502,8 +2445,8 @@
       },
       {
         "id": "wnoyudbu3f",
-        "x": 2022,
-        "y": 945,
+        "x": 2019,
+        "y": 988,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Go bother somebody else with frivolous questions.\"",
@@ -2513,8 +2456,8 @@
       },
       {
         "id": "1651u7924tq",
-        "x": 638,
-        "y": 188,
+        "x": 679,
+        "y": 199,
         "eventChildType": "EXEC",
         "h": 158,
         "p": "A tall woman in a stout, green dress is overseeing the people at the docks. She clutches an official-looking scroll, and her stern eyes flit in irritation between it and you.\n\n\"You there!  Are you the Captain of that vessel?\"\n\nShe points towards the horizon where Argow's vessel is anchored.",
@@ -2524,8 +2467,8 @@
       },
       {
         "id": "zs8qcx8yzf",
-        "x": 1002,
-        "y": 1094,
+        "x": 1160,
+        "y": 1023,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"That is none of your concern...\"\n\nThen she trails off, reconsidering.",
@@ -2535,21 +2478,21 @@
       },
       {
         "id": "dympxeivzo4",
-        "x": 1005,
-        "y": 1180,
+        "x": 1166,
+        "y": 1104,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Would you be willing to do a little task for me?\"",
         "execStr": "",
-        "next": "v8bk404ylh",
+        "next": "rlzphaaqlt",
         "autoAdvance": true
       },
       {
         "id": "v8bk404ylh",
-        "x": 1231,
-        "y": 1688,
+        "x": 1748,
+        "y": 1770,
         "eventChildType": "CHOICE",
-        "h": 156,
+        "h": 180,
         "text": "",
         "choices": [
           {
@@ -2577,8 +2520,16 @@
             "switchText": []
           },
           {
+            "text": "Do you keep all your seals in that shed?",
+            "conditionStr": "IS(tmp.UQhpQTTHLk)",
+            "evalStr": "",
+            "next": "wf9piydqgnd",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
             "text": "You expect me to do this for free?",
-            "conditionStr": "",
+            "conditionStr": "IS(tmp.UQhpQTTHLk)",
             "evalStr": "",
             "next": "4c5u398e5b2",
             "prefixText": "",
@@ -2596,41 +2547,41 @@
       },
       {
         "id": "58zoupi11n",
-        "x": 997,
-        "y": 1265,
+        "x": 1166,
+        "y": 1172,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Yes?  What of it?\"",
         "execStr": "",
-        "next": "v8bk404ylh",
+        "next": "rlzphaaqlt",
         "autoAdvance": true
       },
       {
         "id": "lq46rewz5vr",
-        "x": 1591,
-        "y": 1420,
+        "x": 2113,
+        "y": 1446,
         "eventChildType": "EXEC",
-        "h": 74,
-        "p": "\"I need you to fetch something for me.  From the shed west of the outer docks.  A seal for stamping documents.  It has a symbol of the realm on it.\"",
-        "execStr": "",
+        "h": 154,
+        "p": "\"I need you to fetch something for me. A seal for stamping documents.  It has a symbol of the Realm on it.  It is currently in the shed west of the outer docks.  Use this to get inside.\"\n\nShe hands you a key.",
+        "execStr": "START_QUEST(que_alinea_sealOfApproval)\nADD_ITEM_TO_PLAYER(que_realmShedKey)",
         "next": "v8bk404ylh",
         "autoAdvance": true
       },
       {
         "id": "g8t033pqwh",
-        "x": 1598,
-        "y": 1545,
+        "x": 2116,
+        "y": 1627,
         "eventChildType": "EXEC",
-        "h": 60,
-        "p": "\"They are all busy today with something or another.  Today has been busy for everybody.\"",
+        "h": 74,
+        "p": "\"Soldiers are busy with the defense of Alinea.  And I do not have the luxury of clerks.  I must rely on... others.\"",
         "execStr": "",
         "next": "v8bk404ylh",
         "autoAdvance": true
       },
       {
         "id": "dar2fgjatf",
-        "x": 1607,
-        "y": 1657,
+        "x": 2125,
+        "y": 1739,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Because I need it.  Mind your business.\"",
@@ -2640,8 +2591,8 @@
       },
       {
         "id": "4c5u398e5b2",
-        "x": 1629,
-        "y": 1750,
+        "x": 2145,
+        "y": 2015,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"Might I remind you that you are already on thin ice.  But I suppose I could find a few coins in the coffer for your assistance.\"",
@@ -2651,12 +2602,121 @@
       },
       {
         "id": "vecu9g40j4r",
-        "x": 1585,
-        "y": 1883,
+        "x": 2130,
+        "y": 2151,
         "eventChildType": "EXEC",
         "h": 50,
         "p": "\"Suit yourself.\"",
         "execStr": "",
+        "next": "nexxtdo6ydo",
+        "autoAdvance": true
+      },
+      {
+        "id": "zgj7mbtim1n",
+        "x": 836,
+        "y": 1079,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "ONCE(vWWIuPIG9p)",
+            "next": "zs8qcx8yzf"
+          }
+        ],
+        "defaultNext": "58zoupi11n"
+      },
+      {
+        "id": "wf9piydqgnd",
+        "x": 2138,
+        "y": 1859,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"Of course not! It was taken there by accident and I want it back.\"",
+        "execStr": "",
+        "next": "v8bk404ylh",
+        "autoAdvance": true
+      },
+      {
+        "id": "2v4wrqosqdh",
+        "x": 2083,
+        "y": 26,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "With a great effort, you focus and manage to still your mind.  The urges to speak slowly, but blessedly calm down.",
+        "execStr": "",
+        "next": "3edn2nxl5vl",
+        "autoAdvance": false
+      },
+      {
+        "id": "3edn2nxl5vl",
+        "x": 2087,
+        "y": 109,
+        "eventChildType": "EXEC",
+        "h": 102,
+        "p": "Your effort takes an awkward moment, however, and the woman in front of you furrows her brow yet further.\n\n\"I cannot deal with this today.  I really cannot.\"",
+        "execStr": "",
+        "next": "ji4noamnmxi",
+        "autoAdvance": false
+      },
+      {
+        "id": "xmg03ny8neo",
+        "x": 1618,
+        "y": 86,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "Suddenly, a shiver passes across your body.  You feel an odd feeling: a contending set of forces battling in your mind, all trying to make their opinion known, all trying to... shape you... somehow.",
+        "execStr": "",
+        "next": "uj1jkcvhv0p",
+        "autoAdvance": true
+      },
+      {
+        "id": "rlzphaaqlt",
+        "x": 1353,
+        "y": 2126,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "QUEST_STEP_EQ(que_alinea_sealOfApproval, step2)",
+            "next": "0i211eohytkm"
+          }
+        ],
+        "defaultNext": "v8bk404ylh"
+      },
+      {
+        "id": "0i211eohytkm",
+        "x": 1751,
+        "y": 2463,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "I've got your seal right here.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "ji4alw0nko",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Let's talk about something else.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "dt36wru6b8g",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "ji4alw0nko",
+        "x": 2151,
+        "y": 2368,
+        "eventChildType": "EXEC",
+        "h": 168,
+        "p": "You present the seal and she snatches it from you.  She examines it closely, then gives a small sigh of relief.\n\n\"Thank you.  For your trouble, take this tip.  I'll also take that shed key back, if you please.\"",
+        "execStr": "COMPLETE_QUEST(que_alinea_sealOfApproval)\nMOD_NUM(@DISPOSITION, 1)\nREMOVE_ITEM_FROM_PLAYER(que_realmShedKey)",
         "next": "nexxtdo6ydo",
         "autoAdvance": true
       }
@@ -11762,6 +11822,12 @@
         "key": "ASPECT_REAPER",
         "value": "vars.aspect.reaper",
         "importFrom": ""
+      },
+      {
+        "id": "sdrv8tftyyi",
+        "key": "ASPECT_RESIST",
+        "value": "vars.aspect.resist",
+        "importFrom": ""
       }
     ],
     "children": [
@@ -11870,7 +11936,7 @@
       {
         "id": "ntgqrp5ea3q",
         "x": 439,
-        "y": 131.5,
+        "y": 132,
         "eventChildType": "END",
         "h": 60,
         "next": ""
@@ -11878,7 +11944,7 @@
       {
         "id": "b042uzxzfc",
         "x": 42,
-        "y": 112.5,
+        "y": 113,
         "eventChildType": "COMMENT",
         "h": 90,
         "comment": "Use this event to include all variables for exposition, like if you've asked about or been told about something."

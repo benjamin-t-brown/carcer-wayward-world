@@ -236,12 +236,13 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
     
     try {
       await saveItems(sortedItems);
+      setItems(sortedItems);
       showNotification('Items saved successfully!', 'success');
       if (currentItemName) {
         const nextItemIndex = sortedItems.findIndex(
           (item) => item.name === currentItemName.trim()
         );
-        setEditItemIndex(nextItemIndex);
+        setEditItemIndex(nextItemIndex >= 0 ? nextItemIndex : -1);
       }
     } catch (err) {
       showNotification(

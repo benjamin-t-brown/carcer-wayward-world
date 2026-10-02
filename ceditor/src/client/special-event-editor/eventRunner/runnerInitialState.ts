@@ -62,9 +62,29 @@ function setNestedValue(
   curr[keys[keys.length - 1]] = value;
 }
 
+export function parseRunnerStateValue(rawValue: string): string {
+  const trimmed = rawValue.trim();
+  if (!trimmed) {
+    return 'true';
+  }
+  try {
+    const parsed: unknown = JSON.parse(trimmed);
+    if (typeof parsed === 'string') {
+      return parsed;
+    }
+    if (typeof parsed === 'number' || typeof parsed === 'boolean') {
+      return String(parsed);
+    }
+  } catch {
+    // Non-JSON text is stored as-is (e.g. complete, step1).
+  }
+  return trimmed;
+}
+
 export function addKeyToRunnerInitialState(
   text: string,
   rawKey: string,
+  rawValue = '',
 ): { ok: true; text: string } | { ok: false; error: string } {
   const key = rawKey.trim().replace(/^@/, '');
   if (!key) {
@@ -74,6 +94,6 @@ export function addKeyToRunnerInitialState(
   if (!parsed.ok) {
     return parsed;
   }
-  setNestedValue(parsed.value, key, 'true');
+  setNestedValue(parsed.value, key, parseRunnerStateValue(rawValue));
   return { ok: true, text: `${JSON.stringify(parsed.value, null, 2)}\n` };
 }

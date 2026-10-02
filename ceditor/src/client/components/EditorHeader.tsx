@@ -64,9 +64,16 @@ export function EditorHeader({
     <header className="editor-header">
       {showBack ? (
         <div className="editor-header-start">
-          <Button variant="back" onClick={() => (window.location.hash = backHref)}>
-            {backLabel}
-          </Button>
+          <a
+            className="btn-back"
+            href={
+              backHref.startsWith('#')
+                ? `${window.location.pathname}${window.location.search}${backHref}`
+                : backHref
+            }
+          >
+            <span style={{ userSelect: 'none' }}>{backLabel}</span>
+          </a>
         </div>
       ) : null}
       <h1 className="editor-header-title">{title}</h1>

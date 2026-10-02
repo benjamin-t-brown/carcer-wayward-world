@@ -6,7 +6,30 @@
 
 namespace in3 {
 
-// Helper function to format number as string: integer if no decimal, otherwise keep decimals
+static int applyClampedDelta(bmin::Map<bmin::String, bmin::String>& storage,
+                             const char* key,
+                             const bmin::String& amount) {
+  if (!bmin::isDouble(amount)) {
+    throw std::runtime_error(("Invalid number value: " + amount).cStr());
+  }
+  const int delta = static_cast<int>(bmin::parseDouble(amount));
+  auto current = getStorage(storage, bmin::String(key));
+  int currentN = 0;
+  if (current) {
+    if (!bmin::isDouble(*current)) {
+      throw std::runtime_error((bmin::String("Variable ") + key + " is not a number").cStr());
+    }
+    currentN = static_cast<int>(bmin::parseDouble(*current));
+  }
+  int next = currentN + delta;
+  if (next < 0) {
+    next = 0;
+  }
+  const int applied = next - currentN;
+  setStorage(storage, bmin::String(key), bmin::toString(next));
+  return applied;
+}
+
 static bmin::String formatNumber(double n) {
   double intPart;
   if (std::modf(n, &intPart) == 0.0) {
@@ -114,8 +137,28 @@ void StringEvaluatorFuncs::COMPLETE_QUEST_SUB_STEP(const bmin::String& questName
 }
 
 void StringEvaluatorFuncs::COMPLETE_QUEST(const bmin::String& questName) {
+  const bool alreadyComplete = questIsComplete(storage, questName);
   completeQuest(storage, questName);
   questUpdated = true;
+  if (alreadyComplete) {
+    return;
+  }
+  const model::QuestTemplate* quest = findQuestTemplate(questName);
+  if (!quest) {
+    return;
+  }
+  for (size_t i = 0; i < quest->rewards.items.size(); ++i) {
+    const auto& item = quest->rewards.items[i];
+    if (!item.name.empty() && item.amount > 0) {
+      ADD_ITEM_TO_PLAYER(item.name, bmin::toString(item.amount));
+    }
+  }
+  if (quest->rewards.coins > 0) {
+    MODIFY_COINS(bmin::toString(quest->rewards.coins));
+  }
+  if (quest->rewards.experience > 0) {
+    MODIFY_EXPERIENCE(bmin::toString(quest->rewards.experience));
+  }
 }
 
 void StringEvaluatorFuncs::SPAWN_CH(const bmin::String& chName) {
@@ -147,8 +190,32 @@ void StringEvaluatorFuncs::REMOVE_ITEM_AT(const bmin::String& x, const bmin::Str
 }
 
 void StringEvaluatorFuncs::ADD_ITEM_TO_PLAYER(const bmin::String& itemName) {
-  MOD_NUM(bmin::String("vars.items.") + itemName, "1");
+  ADD_ITEM_TO_PLAYER(itemName, "1");
+}
+
+void StringEvaluatorFuncs::ADD_ITEM_TO_PLAYER(const bmin::String& itemName,
+                                              const bmin::String& amount) {
+  if (itemName.empty()) {
+    return;
+  }
+  const bmin::String qty = amount.empty() ? bmin::String("1") : amount;
+  if (!bmin::isDouble(qty)) {
+    throw std::runtime_error(("Invalid number value: " + qty).cStr());
+  }
+  const int n = static_cast<int>(bmin::parseDouble(qty));
+  if (n <= 0) {
+    return;
+  }
+  MOD_NUM(bmin::String("vars.items.") + itemName, bmin::toString(n));
   receivedItemNames.pushBack(itemName);
+}
+
+void StringEvaluatorFuncs::MODIFY_COINS(const bmin::String& amount) {
+  modifiedCoins += applyClampedDelta(storage, kPlayerCoinsStorageKey, amount);
+}
+
+void StringEvaluatorFuncs::MODIFY_EXPERIENCE(const bmin::String& amount) {
+  modifiedExperience += applyClampedDelta(storage, kPlayerExperienceStorageKey, amount);
 }
 
 void StringEvaluatorFuncs::REMOVE_ITEM_FROM_PLAYER(const bmin::String& itemName) {
@@ -247,8 +314,18 @@ void StringEvaluator::evalStr(const bmin::String& str) {
       assertFuncArgs(call.funcName, call.args, 3);
       funcs.REMOVE_ITEM_AT(call.args[0], call.args[1], call.args[2]);
     } else if (call.funcName == "ADD_ITEM_TO_PLAYER") {
+      if (call.args.size() == 2) {
+        funcs.ADD_ITEM_TO_PLAYER(call.args[0], call.args[1]);
+      } else {
+        assertFuncArgs(call.funcName, call.args, 1);
+        funcs.ADD_ITEM_TO_PLAYER(call.args[0]);
+      }
+    } else if (call.funcName == "MODIFY_COINS") {
       assertFuncArgs(call.funcName, call.args, 1);
-      funcs.ADD_ITEM_TO_PLAYER(call.args[0]);
+      funcs.MODIFY_COINS(call.args[0]);
+    } else if (call.funcName == "MODIFY_EXPERIENCE") {
+      assertFuncArgs(call.funcName, call.args, 1);
+      funcs.MODIFY_EXPERIENCE(call.args[0]);
     } else if (call.funcName == "REMOVE_ITEM_FROM_PLAYER") {
       assertFuncArgs(call.funcName, call.args, 1);
       funcs.REMOVE_ITEM_FROM_PLAYER(call.args[0]);

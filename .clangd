@@ -8,17 +8,17 @@ CompileFlags:
     - C:/progs/carcer-wayward-world/build/cmake/dev-debug/CMakeFiles/carcer_objects.dir/cmake_pch.hxx
   Add:
     - --target=x86_64-w64-windows-gnu
-    - -resource-dir=C:/msys64/ucrt64/lib/clang/21
+    - -resource-dir=C:/progs/msys2/ucrt64/lib/clang/22
     - -isystem
-    - C:/msys64/ucrt64/include/c++/15.2.0
+    - C:/progs/msys2/ucrt64/include/c++/16.1.0
     - -isystem
-    - C:/msys64/ucrt64/include/c++/15.2.0/x86_64-w64-mingw32
+    - C:/progs/msys2/ucrt64/include/c++/16.1.0/x86_64-w64-mingw32
     - -isystem
-    - C:/msys64/ucrt64/include/c++/15.2.0/backward
+    - C:/progs/msys2/ucrt64/include/c++/16.1.0/backward
     - -isystem
-    - C:/msys64/ucrt64/lib/clang/21/include
+    - C:/progs/msys2/ucrt64/lib/clang/22/include
     - -isystem
-    - C:/msys64/ucrt64/include
+    - C:/progs/msys2/ucrt64/include
 
 Index:
   Background: Build

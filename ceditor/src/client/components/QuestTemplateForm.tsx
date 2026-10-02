@@ -5,10 +5,16 @@ import { Button } from '../elements/Button';
 import {
   QuestStep,
   QuestTemplate,
+  createDefaultQuestRewardItem,
+  createDefaultQuestRewards,
   createDefaultQuestStep,
   createDefaultQuestTemplate,
+  normalizeQuestRewardItems,
 } from '../types/assets';
 import { EditorEmptyState } from './EditorEmptyState';
+import { NumberInput } from '../elements/NumberInput';
+import { useAssets } from '../contexts/AssetsContext';
+import { ItemSearchInput } from '../tile-editor/react-components/SelectedTileInfo/ItemSearchInput';
 
 export type { QuestTemplate };
 export { createDefaultQuestTemplate };
@@ -30,25 +36,42 @@ function moveItem<T>(items: T[], index: number, direction: -1 | 1): T[] {
   return next;
 }
 
+function questIdPlaceholder(questId: string): string {
+  return questId.trim() || '<quest id>';
+}
+
+function questStartedStorageKey(questId: string): string {
+  return `vars.quests.${questIdPlaceholder(questId)}.step`;
+}
+
+function questCompleteStorageKey(questId: string): string {
+  return `vars.quests.${questIdPlaceholder(questId)}.step=complete`;
+}
+
 function questStepStorageKey(questId: string, stepId: string): string {
-  const quest = questId.trim() || '<quest id>';
   const step = stepId.trim() || '<step id>';
-  return `vars.quests.${quest}.step=${step}`;
+  return `${questStartedStorageKey(questId)}=${step}`;
 }
 
 function questCompletedStorageKey(questId: string, stepId: string): string {
-  const quest = questId.trim() || '<quest id>';
+  const quest = questIdPlaceholder(questId);
   const step = stepId.trim() || '<step id>';
   return `vars.quests.${quest}.completed.${step}`;
 }
 
 function questShownStorageKey(questId: string, stepId: string): string {
-  const quest = questId.trim() || '<quest id>';
+  const quest = questIdPlaceholder(questId);
   const step = stepId.trim() || '<step id>';
   return `vars.quests.${quest}.shown.${step}`;
 }
 
-function CopyableStorageKey({ value }: { value: string }) {
+function CopyableStorageKey({
+  value,
+  title = 'Copy storage key',
+}: {
+  value: string;
+  title?: string;
+}) {
   const [copied, setCopied] = useState(false);
 
   const copy = async () => {
@@ -68,7 +91,7 @@ function CopyableStorageKey({ value }: { value: string }) {
       title="Copy storage key"
       onClick={() => void copy()}
     >
-      {copied ? 'Copied' : value}
+      {copied ? value + ' Copied!' : value}
     </button>
   );
 }
@@ -221,6 +244,134 @@ function QuestStepEditor({
   );
 }
 
+function QuestRewardsEditor({
+  quest,
+  onChange,
+}: {
+  quest: QuestTemplate;
+  onChange: (rewards: NonNullable<QuestTemplate['rewards']>) => void;
+}) {
+  const { items } = useAssets();
+  const rewards = {
+    ...createDefaultQuestRewards(),
+    ...quest.rewards,
+    coins: Math.max(0, Math.trunc(quest.rewards?.coins ?? 0)),
+    experience: Math.max(0, Math.trunc(quest.rewards?.experience ?? 0)),
+    items: normalizeQuestRewardItems(quest.rewards?.items),
+  };
+
+  const itemLabel = (itemName: string) => {
+    const item = items.find((entry) => entry.name === itemName);
+    return item?.label?.trim() || itemName;
+  };
+
+  const updateItemAmount = (index: number, amount: number) => {
+    const next = rewards.items.map((entry, i) =>
+      i === index ? createDefaultQuestRewardItem(entry.name, amount) : entry,
+    );
+    onChange({ ...rewards, items: next });
+  };
+
+  return (
+    <div className="form-subsection">
+      <h4>Rewards</h4>
+      <p className="form-subsection-description">
+        Granted the first time COMPLETE_QUEST runs. Coins and experience go to
+        the player. Each item is added in the amount you set.
+      </p>
+      <div className="form-fields-inline">
+        <NumberInput
+          id="quest-reward-coins"
+          name="rewardCoins"
+          label="Coins"
+          value={rewards.coins}
+          onChange={(value) =>
+            onChange({ ...rewards, coins: Math.max(0, Math.trunc(value || 0)) })
+          }
+          min={0}
+        />
+        <NumberInput
+          id="quest-reward-experience"
+          name="rewardExperience"
+          label="Experience"
+          value={rewards.experience}
+          onChange={(value) =>
+            onChange({
+              ...rewards,
+              experience: Math.max(0, Math.trunc(value || 0)),
+            })
+          }
+          min={0}
+        />
+      </div>
+      <div className="quest-reward-items">
+        <div className="quest-reward-items-label">Items</div>
+        {rewards.items.length === 0 ? (
+          <p className="quest-reward-empty">No reward items</p>
+        ) : (
+          rewards.items.map((entry, index) => (
+            <div key={`${entry.name}-${index}`} className="quest-reward-item">
+              <span className="quest-reward-item-info">
+                {itemLabel(entry.name)}
+                <span className="quest-reward-item-name"> ({entry.name})</span>
+              </span>
+              <label className="quest-reward-item-amount-label">
+                Amt
+                <input
+                  type="number"
+                  min={1}
+                  className="quest-reward-item-amount"
+                  value={entry.amount}
+                  onChange={(event) =>
+                    updateItemAmount(index, Number(event.target.value))
+                  }
+                />
+              </label>
+              <Button
+                type="button"
+                variant="small"
+                className="btn-danger"
+                onClick={() =>
+                  onChange({
+                    ...rewards,
+                    items: rewards.items.filter((_, i) => i !== index),
+                  })
+                }
+              >
+                Remove
+              </Button>
+            </div>
+          ))
+        )}
+        <ItemSearchInput
+          items={items}
+          placeholder="Add reward item..."
+          dropdownPlacement="auto"
+          onSelect={(itemName) => {
+            if (!itemName.trim()) {
+              return;
+            }
+            const existing = rewards.items.findIndex(
+              (entry) => entry.name === itemName,
+            );
+            if (existing >= 0) {
+              updateItemAmount(existing, rewards.items[existing].amount + 1);
+              return;
+            }
+            onChange({
+              ...rewards,
+              items: [
+                ...rewards.items,
+                createDefaultQuestRewardItem(itemName, 1),
+              ],
+            });
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 export function QuestTemplateForm(props: QuestTemplateFormProps) {
   const quest = props.quest;
 
@@ -245,6 +396,16 @@ export function QuestTemplateForm(props: QuestTemplateFormProps) {
     <div className="item-form quest-template-form">
       <h2>Edit Quest</h2>
       <form>
+        <div className="quest-storage-keys">
+          <CopyableStorageKey
+            value={questStartedStorageKey(quest.id)}
+            title="Copy started storage key (set when START_QUEST runs)"
+          />
+          <CopyableStorageKey
+            value={questCompleteStorageKey(quest.id)}
+            title="Copy completed storage key (vars.quests.<id>.step=complete)"
+          />
+        </div>
         <div className="form-fields-inline">
           <TextInput
             id="quest-id"
@@ -278,6 +439,10 @@ export function QuestTemplateForm(props: QuestTemplateFormProps) {
           value={quest.completedDescription}
           onChange={(value) => updateField('completedDescription', value)}
           rows={3}
+        />
+        <QuestRewardsEditor
+          quest={quest}
+          onChange={(rewards) => updateField('rewards', rewards)}
         />
         <div className="form-subsection">
           <h4>Steps</h4>

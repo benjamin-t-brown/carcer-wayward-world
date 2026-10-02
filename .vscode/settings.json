@@ -42,7 +42,6 @@
     "**/node_modules": true
   },
   "C_Cpp.intelliSenseEngine": "disabled",
-  "clangd.path": "C:/msys64/ucrt64/bin/clangd.exe",
   "clangd.preferBundledClangd": false,
   "cmake.useCMakePresets": "always",
   "cmake.buildTarget": "CARCER",

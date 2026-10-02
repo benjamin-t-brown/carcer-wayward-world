@@ -3165,7 +3165,7 @@
       },
       {
         "id": 37,
-        "description": "",
+        "description": "grass",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3223,7 +3223,7 @@
       },
       {
         "id": 44,
-        "description": "Blackrose flag",
+        "description": "Noble flag",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3231,7 +3231,7 @@
       },
       {
         "id": 45,
-        "description": "Blackrose flag",
+        "description": "Noble flag",
         "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3247,7 +3247,7 @@
       },
       {
         "id": 47,
-        "description": "",
+        "description": "grass",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false,
@@ -3255,24 +3255,27 @@
       },
       {
         "id": 48,
-        "description": "",
-        "isWalkable": false,
-        "isSeeThrough": false,
-        "isDoor": false
+        "description": "dirt",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 49,
-        "description": "",
-        "isWalkable": false,
-        "isSeeThrough": false,
-        "isDoor": false
+        "description": "grass",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 50,
-        "description": "",
-        "isWalkable": false,
-        "isSeeThrough": false,
-        "isDoor": false
+        "description": "rocks",
+        "isWalkable": true,
+        "isSeeThrough": true,
+        "isDoor": false,
+        "stepSound": "1"
       },
       {
         "id": 51,
@@ -3903,59 +3906,67 @@
       },
       {
         "id": 134,
-        "description": "",
+        "description": "dirt",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "2"
       },
       {
         "id": 135,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "2"
       },
       {
         "id": 136,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "2"
       },
       {
         "id": 137,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "2"
       },
       {
         "id": 138,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "2"
       },
       {
         "id": 139,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "2"
       },
       {
         "id": 140,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 141,
         "description": "",
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false
+        "isDoor": false,
+        "stepSound": "0"
       },
       {
         "id": 142,
@@ -4767,7 +4778,7 @@
     "tiles": [
       {
         "id": 0,
-        "description": "",
+        "description": "docks",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -4776,7 +4787,7 @@
       },
       {
         "id": 1,
-        "description": "",
+        "description": "docks",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -4785,7 +4796,7 @@
       },
       {
         "id": 2,
-        "description": "",
+        "description": "docks",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -4794,7 +4805,7 @@
       },
       {
         "id": 3,
-        "description": "",
+        "description": "docks",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -4803,7 +4814,7 @@
       },
       {
         "id": 4,
-        "description": "",
+        "description": "docks",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -4812,7 +4823,7 @@
       },
       {
         "id": 5,
-        "description": "",
+        "description": "docks",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -4821,7 +4832,7 @@
       },
       {
         "id": 6,
-        "description": "",
+        "description": "docks",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -4830,7 +4841,7 @@
       },
       {
         "id": 7,
-        "description": "",
+        "description": "docks",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -4839,7 +4850,7 @@
       },
       {
         "id": 8,
-        "description": "",
+        "description": "docks",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -4848,7 +4859,7 @@
       },
       {
         "id": 9,
-        "description": "",
+        "description": "docks",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -4857,7 +4868,7 @@
       },
       {
         "id": 10,
-        "description": "",
+        "description": "docks",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -4875,7 +4886,7 @@
       },
       {
         "id": 12,
-        "description": "",
+        "description": "docks",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -4884,7 +4895,7 @@
       },
       {
         "id": 13,
-        "description": "",
+        "description": "docks",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -4893,7 +4904,7 @@
       },
       {
         "id": 14,
-        "description": "",
+        "description": "docks",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -4902,7 +4913,7 @@
       },
       {
         "id": 15,
-        "description": "",
+        "description": "docks",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -4911,7 +4922,7 @@
       },
       {
         "id": 16,
-        "description": "",
+        "description": "sign",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -7261,7 +7272,7 @@
       },
       {
         "id": 20,
-        "description": "",
+        "description": "Realm flag",
         "stepSound": 0,
         "isWalkable": false,
         "isSeeThrough": false,
@@ -7270,28 +7281,28 @@
       },
       {
         "id": 21,
-        "description": "",
+        "description": "Noble flag",
         "stepSound": 0,
-        "isWalkable": true,
-        "isSeeThrough": true,
+        "isWalkable": false,
+        "isSeeThrough": false,
         "isDoor": false,
         "isContainer": false
       },
       {
         "id": 22,
-        "description": "",
+        "description": "Merchantry flag",
         "stepSound": 0,
-        "isWalkable": true,
-        "isSeeThrough": true,
+        "isWalkable": false,
+        "isSeeThrough": false,
         "isDoor": false,
         "isContainer": false
       },
       {
         "id": 23,
-        "description": "",
+        "description": "mossy wall",
         "stepSound": 0,
-        "isWalkable": true,
-        "isSeeThrough": true,
+        "isWalkable": false,
+        "isSeeThrough": false,
         "isDoor": false,
         "isContainer": false
       },
@@ -7369,7 +7380,7 @@
       },
       {
         "id": 32,
-        "description": "",
+        "description": "cobblestone",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -7378,7 +7389,7 @@
       },
       {
         "id": 33,
-        "description": "",
+        "description": "cobblestone",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -7387,7 +7398,7 @@
       },
       {
         "id": 34,
-        "description": "",
+        "description": "mossy cobblestone",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -7396,7 +7407,7 @@
       },
       {
         "id": 35,
-        "description": "",
+        "description": "dirt-covered cobblestone",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -7846,7 +7857,7 @@
       },
       {
         "id": 85,
-        "description": "carpet",
+        "description": "rug",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -8089,10 +8100,10 @@
       },
       {
         "id": 112,
-        "description": "",
+        "description": "wall",
         "stepSound": 0,
-        "isWalkable": true,
-        "isSeeThrough": true,
+        "isWalkable": false,
+        "isSeeThrough": false,
         "isDoor": false,
         "isContainer": false
       },
@@ -8125,52 +8136,52 @@
       },
       {
         "id": 116,
-        "description": "",
+        "description": "door",
         "stepSound": 0,
-        "isWalkable": true,
-        "isSeeThrough": true,
-        "isDoor": false,
+        "isWalkable": false,
+        "isSeeThrough": false,
+        "isDoor": true,
         "isContainer": false
       },
       {
         "id": 117,
-        "description": "",
+        "description": "door",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false,
+        "isDoor": true,
         "isContainer": false
       },
       {
         "id": 118,
-        "description": "",
+        "description": "door",
         "stepSound": 0,
-        "isWalkable": true,
-        "isSeeThrough": true,
-        "isDoor": false,
+        "isWalkable": false,
+        "isSeeThrough": false,
+        "isDoor": true,
         "isContainer": false
       },
       {
         "id": 119,
-        "description": "",
+        "description": "door",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
-        "isDoor": false,
+        "isDoor": true,
         "isContainer": false
       },
       {
         "id": 120,
-        "description": "",
+        "description": "gate",
         "stepSound": 0,
-        "isWalkable": true,
+        "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false,
         "isContainer": false
       },
       {
         "id": 121,
-        "description": "",
+        "description": "gate",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,
@@ -8179,19 +8190,19 @@
       },
       {
         "id": 122,
-        "description": "",
+        "description": "sign",
         "stepSound": 0,
-        "isWalkable": true,
-        "isSeeThrough": true,
+        "isWalkable": false,
+        "isSeeThrough": false,
         "isDoor": false,
         "isContainer": false
       },
       {
         "id": 123,
-        "description": "",
+        "description": "broken wall",
         "stepSound": 0,
-        "isWalkable": true,
-        "isSeeThrough": true,
+        "isWalkable": false,
+        "isSeeThrough": false,
         "isDoor": false,
         "isContainer": false
       },

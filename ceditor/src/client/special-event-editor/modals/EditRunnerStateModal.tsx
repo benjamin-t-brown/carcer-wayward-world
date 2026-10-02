@@ -19,6 +19,7 @@ export function EditRunnerStateModal({
 }: EditRunnerStateModalProps) {
   const [jsonText, setJsonText] = useState(loadRunnerInitialStateText);
   const [keyInput, setKeyInput] = useState('');
+  const [valueInput, setValueInput] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -26,6 +27,7 @@ export function EditRunnerStateModal({
       const text = loadRunnerInitialStateText();
       setJsonText(text);
       setKeyInput('');
+      setValueInput('');
       const parsed = parseRunnerInitialState(text);
       setError(parsed.ok ? '' : parsed.error);
     }
@@ -43,14 +45,25 @@ export function EditRunnerStateModal({
   };
 
   const handleAdd = () => {
-    const result = addKeyToRunnerInitialState(jsonText, keyInput);
+    const result = addKeyToRunnerInitialState(jsonText, keyInput, valueInput);
     if (!result.ok) {
       setError(result.error);
       return;
     }
     persistText(result.text);
     setKeyInput('');
+    setValueInput('');
   };
+
+  const inputStyle = {
+    padding: '6px 8px',
+    backgroundColor: '#1e1e1e',
+    border: '1px solid #3e3e42',
+    borderRadius: '4px',
+    color: '#d4d4d4',
+    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+    fontSize: '13px',
+  } as const;
 
   return (
     <GenericModal
@@ -73,7 +86,7 @@ export function EditRunnerStateModal({
         >
           <div style={{ color: '#858585', fontSize: '13px', flexShrink: 0 }}>
             Starting storage for Run Event. Keys use dotted paths like
-            vars.hasSpokenToGateGuardJerry. Add sets the key to "true".
+            vars.quests.myQuest.step. Leave value empty to set "true".
           </div>
           <div
             style={{
@@ -93,18 +106,23 @@ export function EditRunnerStateModal({
                   handleAdd();
                 }
               }}
-              placeholder="vars.hasSpokenToGateGuardJerry"
+              placeholder="Key"
               spellCheck={false}
-              style={{
-                flex: 1,
-                padding: '6px 8px',
-                backgroundColor: '#1e1e1e',
-                border: '1px solid #3e3e42',
-                borderRadius: '4px',
-                color: '#d4d4d4',
-                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
-                fontSize: '13px',
+              style={{ ...inputStyle, flex: 2 }}
+            />
+            <input
+              type="text"
+              value={valueInput}
+              onChange={(event) => setValueInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  handleAdd();
+                }
               }}
+              placeholder='Value (default "true")'
+              spellCheck={false}
+              style={{ ...inputStyle, flex: 1 }}
             />
             <Button variant="small" onClick={handleAdd}>
               Add

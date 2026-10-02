@@ -204,6 +204,19 @@
     }
   },
   {
+    "itemType": "UTILITY",
+    "name": "que_realmShedKey",
+    "label": "Realm Shed Key",
+    "icon": "ui_item_icons_20",
+    "description": "A key given to you by Dockmaster Claire to open the shed west of the outer Alinea docks.",
+    "weight": 1,
+    "value": 1,
+    "stackable": false,
+    "indestructable": true,
+    "itemUsability": "NOT_USABLE",
+    "statusEffects": []
+  },
+  {
     "itemType": "GARB",
     "name": "ShirtSimple0",
     "label": "Shirt",

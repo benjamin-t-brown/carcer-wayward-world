@@ -78,12 +78,26 @@ void SpecialEventPresenter::appendPendingNotices(
     int fromIndex,
     bool journalUpdated,
     const bmin::DynArray<bmin::String>& receivedItemNames,
+    int modifiedCoins,
+    int modifiedExperience,
     const db::Database* database) {
   for (const auto& itemName : receivedItemNames) {
     appendNoticeIfNew(entries,
                       fromIndex,
                       SpecialEventTranscriptKind::ItemReceived,
                       resolveItemLabel(itemName, database));
+  }
+  if (modifiedCoins != 0) {
+    appendNoticeIfNew(entries,
+                      fromIndex,
+                      SpecialEventTranscriptKind::CoinsModified,
+                      bmin::toString(modifiedCoins));
+  }
+  if (modifiedExperience != 0) {
+    appendNoticeIfNew(entries,
+                      fromIndex,
+                      SpecialEventTranscriptKind::ExperienceGained,
+                      bmin::toString(modifiedExperience));
   }
   if (journalUpdated) {
     appendNoticeIfNew(
@@ -117,6 +131,8 @@ SpecialEventView SpecialEventPresenter::view(
                        0,
                        runner.pendingJournalNotice,
                        runner.pendingReceivedItemNames,
+                       runner.pendingCoinDelta,
+                       runner.pendingExperienceDelta,
                        database);
 
   for (const auto& choice : runner.displayTextChoices) {
@@ -148,6 +164,8 @@ void SpecialEventPresenter::commitTalkCurrent(
                        fromIndex,
                        notices.journalUpdated,
                        notices.receivedItemNames,
+                       notices.modifiedCoins,
+                       notices.modifiedExperience,
                        database);
 }
 

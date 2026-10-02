@@ -96,6 +96,33 @@
     ]
   },
   {
+    "id": "que_alinea_number9",
+    "label": "The Number 9",
+    "description": "Dumped alone in Alinea after a long voyage, your only hint at your predicament is a number: 9.  What does it mean?",
+    "completedDescription": "You have discovered Warehouse 9 in Alinea.",
+    "steps": [
+      {
+        "id": "step1",
+        "label": "What does '9' mean?",
+        "description": "Discover what significance the number '9' has with you and Alinea.",
+        "subSteps": [
+          {
+            "id": "findMullen",
+            "label": "Find Mullen",
+            "description": "A certain person, Mullen, of the Realm might be able to assist you in Alinea.",
+            "subSteps": []
+          }
+        ]
+      },
+      {
+        "id": "step2",
+        "label": "Find Warehouse 9",
+        "description": "Find out where Warehouse 9 is in Alinea.",
+        "subSteps": []
+      }
+    ]
+  },
+  {
     "id": "que_alinea_OmniflowerHeist",
     "label": "Omniflower Heist",
     "description": "An Omniflower is a particular strain of herb that is used to create very potent healing potions.  Ainsley of the Shrine of Luck in Alinea has tasked you with getting her one.  Trouble is, Omniflowers are extremely carefully regulated by the Realm.  They can be quite hard to come by.",
@@ -164,20 +191,25 @@
     "id": "que_alinea_sealOfApproval",
     "label": "Realm Seal",
     "description": "Dockmaster Claire of the Realm in Alinea has asked you to retrieve a seal from the shed west of the outer Alinea docks.",
-    "completedDescription": "You have retrieved a seal for Claire in Alinea.",
+    "completedDescription": "You have retrieved a Realm Seal for Claire in Alinea.",
     "steps": [
       {
         "id": "step1",
-        "label": "Retrieve the Seal",
-        "description": "Retrieve a seal from the shed west of the outer Alinea docks",
+        "label": "Retrieve the Realm Seal",
+        "description": "Retrieve a seal from the shed west of the outer Alinea docks.",
         "subSteps": []
       },
       {
         "id": "step2",
-        "label": "Bring the Seal Back",
+        "label": "Bring the Realm Seal Back",
         "description": "Bring the Realm Seal back to Claire in the outer Alinea docks.",
         "subSteps": []
       }
-    ]
+    ],
+    "rewards": {
+      "coins": 50,
+      "experience": 5,
+      "items": []
+    }
   }
 ]

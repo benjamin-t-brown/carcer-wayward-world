@@ -275,10 +275,12 @@ int main(int /*argc*/, char** /*argv*/) {
     runner.pendingReceivedItemNames.pushBack("BeerPappysLager");
     runner.pendingReceivedItemNames.pushBack("BeerPappysLager");
     runner.pendingReceivedItemNames.pushBack("UnknownRelic");
+    runner.pendingCoinDelta = 5;
 
     auto view = game::SpecialEventPresenter::view(runner, history, &database, iface);
     ok = assertTrue(runner.pendingJournalNotice &&
-                        runner.pendingReceivedItemNames.size() == 3,
+                        runner.pendingReceivedItemNames.size() == 3 &&
+                        runner.pendingCoinDelta == 5,
                     "view does not consume pending notices") &&
          ok;
     ok = assertTrue(countKind(view.current, game::SpecialEventTranscriptKind::Dialogue) ==
@@ -310,6 +312,15 @@ int main(int /*argc*/, char** /*argv*/) {
         findKind(view.current, game::SpecialEventTranscriptKind::JournalNotice);
     ok = assertTrue(journal != nullptr && journal->text.empty(),
                     "journal notice text is unused") &&
+         ok;
+    ok = assertTrue(
+        countKind(view.current, game::SpecialEventTranscriptKind::CoinsModified) == 1,
+        "coin notice is a CoinsModified kind") &&
+         ok;
+    const auto* coins =
+        findKind(view.current, game::SpecialEventTranscriptKind::CoinsModified);
+    ok = assertTrue(coins != nullptr && coins->text == "5",
+                    "coin notice stores the applied delta") &&
          ok;
   }
 
@@ -365,6 +376,43 @@ int main(int /*argc*/, char** /*argv*/) {
     in3::SpecialEventRunner runner({}, talkEvent, {});
     in3::SpecialEventRunnerInterface iface(runner);
     iface.startEvent();
+    runner.pendingCoinDelta = -4;
+    game::SpecialEventPresenter::commitTalkCurrent(runner, talkHistory, &database);
+    ok = assertTrue(runner.pendingCoinDelta == 0, "talk commit consumes coin delta") &&
+         ok;
+    ok = assertTrue(talkHistory.size() == 2 &&
+                        talkHistory[1].kind ==
+                            game::SpecialEventTranscriptKind::CoinsModified &&
+                        talkHistory[1].text == "-4",
+                    "talk commit stores signed coin delta") &&
+         ok;
+  }
+
+  {
+    auto talkHistory = bmin::DynArray<game::SpecialEventTranscriptEntry>{};
+    auto talkEvent = makeTalkContinueEvent();
+    in3::SpecialEventRunner runner({}, talkEvent, {});
+    in3::SpecialEventRunnerInterface iface(runner);
+    iface.startEvent();
+    runner.pendingExperienceDelta = 15;
+    game::SpecialEventPresenter::commitTalkCurrent(runner, talkHistory, &database);
+    ok = assertTrue(runner.pendingExperienceDelta == 0,
+                    "talk commit consumes experience delta") &&
+         ok;
+    ok = assertTrue(talkHistory.size() == 2 &&
+                        talkHistory[1].kind ==
+                            game::SpecialEventTranscriptKind::ExperienceGained &&
+                        talkHistory[1].text == "15",
+                    "talk commit stores experience delta") &&
+         ok;
+  }
+
+  {
+    auto talkHistory = bmin::DynArray<game::SpecialEventTranscriptEntry>{};
+    auto talkEvent = makeTalkContinueEvent();
+    in3::SpecialEventRunner runner({}, talkEvent, {});
+    in3::SpecialEventRunnerInterface iface(runner);
+    iface.startEvent();
     runner.pendingJournalNotice = true;
     game::SpecialEventPresenter::commitTalkCurrent(runner, talkHistory, &database);
     ok = assertTrue(talkHistory.size() == 2 &&
@@ -389,7 +437,8 @@ int main(int /*argc*/, char** /*argv*/) {
     const auto historySizeBefore = modalHistory.size();
     game::SpecialEventPresenter::consumeModalNotices(runner);
     ok = assertTrue(!runner.pendingJournalNotice &&
-                        runner.pendingReceivedItemNames.empty(),
+                        runner.pendingReceivedItemNames.empty() &&
+                        runner.pendingCoinDelta == 0,
                     "modal consume clears pending notices") &&
          ok;
     ok = assertTrue(modalHistory.size() == historySizeBefore,

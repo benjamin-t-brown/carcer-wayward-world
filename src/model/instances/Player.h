@@ -9,6 +9,7 @@ struct Player {
   int currentPartyMemberInventoryIndex = 0;
   int currentPartyMemberMagicIndex = 0;
   int gold = 0;
+  int experience = 0;
   int food = 0;
 };
 CharacterPlayer* playerFindPartyMemberById(Player& _player, const bmin::String& _id);

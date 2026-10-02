@@ -14,7 +14,9 @@ enum class SpecialEventTranscriptKind {
   Dialogue,
   PlayerChoice,
   JournalNotice,
-  ItemReceived
+  ItemReceived,
+  CoinsModified,
+  ExperienceGained
 };
 
 struct SpecialEventTranscriptEntry {
@@ -85,6 +87,8 @@ private:
                                    int fromIndex,
                                    bool journalUpdated,
                                    const bmin::DynArray<bmin::String>& receivedItemNames,
+                                   int modifiedCoins,
+                                   int modifiedExperience,
                                    const db::Database* database);
 };
 

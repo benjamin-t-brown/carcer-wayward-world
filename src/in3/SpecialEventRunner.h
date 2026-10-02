@@ -32,6 +32,9 @@ struct ErrorInfo {
 struct SpecialEventPendingNotices {
   bool journalUpdated = false;
   bmin::DynArray<bmin::String> receivedItemNames; // template names, not labels
+  // Net coins actually applied by MODIFY_COINS since the last player stop (0 = none).
+  int modifiedCoins = 0;
+  int modifiedExperience = 0;
 };
 
 class SpecialEventRunner {
@@ -53,6 +56,9 @@ public:
   bool pendingJournalNotice = false;
   // Distinct item names granted by ADD_ITEM_TO_PLAYER since the last player stop.
   bmin::DynArray<bmin::String> pendingReceivedItemNames;
+  // Net coins applied by MODIFY_COINS since the last player stop.
+  int pendingCoinDelta = 0;
+  int pendingExperienceDelta = 0;
 
   SpecialEventRunner(const bmin::Map<bmin::String, bmin::String>& initialStorage,
                      const model::GameEvent& gameEvent,

@@ -1,0 +1,17 @@
+[
+  {
+    "id": "rewardAmountQuest",
+    "label": "Reward Amount",
+    "description": "",
+    "completedDescription": "",
+    "steps": [],
+    "rewards": {
+      "coins": 0,
+      "experience": 0,
+      "items": [
+        { "name": "BeerPappysLager", "amount": 15 },
+        "AlineaCorrespondence1"
+      ]
+    }
+  }
+]

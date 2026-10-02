@@ -1,6 +1,7 @@
 #include "ui/pages/specialEventViewMapping.h"
 #include "sdl2w/L10n.h"
 #include "ui/colors.hpp"
+#include <cstdlib>
 
 namespace ui {
 
@@ -18,12 +19,37 @@ SpecialEventViewMapping::noticeText(const game::SpecialEventTranscriptEntry& ent
   if (entry.kind == game::SpecialEventTranscriptKind::JournalNotice) {
     return TRANSLATE("Your journal has been updated.");
   }
+  if (entry.kind == game::SpecialEventTranscriptKind::CoinsModified) {
+    const int delta = entry.text.empty() ? 0 : std::atoi(entry.text.cStr());
+    const int absDelta = delta < 0 ? -delta : delta;
+    const bmin::String noun = absDelta == 1 ? TRANSLATE("coin") : TRANSLATE("coins");
+    if (delta > 0) {
+      return TRANSLATE("You have received ") + bmin::toString(absDelta) + " " + noun +
+             ".";
+    }
+    if (delta < 0) {
+      return TRANSLATE("You have lost ") + bmin::toString(absDelta) + " " + noun + ".";
+    }
+    return {};
+  }
+  if (entry.kind == game::SpecialEventTranscriptKind::ExperienceGained) {
+    const int delta = entry.text.empty() ? 0 : std::atoi(entry.text.cStr());
+    const int absDelta = delta < 0 ? -delta : delta;
+    if (delta == 0) {
+      return {};
+    }
+    const bmin::String prefix =
+        delta > 0 ? TRANSLATE("You have received ") : TRANSLATE("You have lost ");
+    return prefix + bmin::toString(absDelta) + " " + TRANSLATE("experience") + ".";
+  }
   return TRANSLATE("You have received ") + entry.text + ".";
 }
 
 bool SpecialEventViewMapping::isNotice(game::SpecialEventTranscriptKind kind) {
   return kind == game::SpecialEventTranscriptKind::JournalNotice ||
-         kind == game::SpecialEventTranscriptKind::ItemReceived;
+         kind == game::SpecialEventTranscriptKind::ItemReceived ||
+         kind == game::SpecialEventTranscriptKind::CoinsModified ||
+         kind == game::SpecialEventTranscriptKind::ExperienceGained;
 }
 
 TextBlock SpecialEventViewMapping::mapEntry(
@@ -37,7 +63,9 @@ TextBlock SpecialEventViewMapping::mapEntry(
     block.fontColor = Colors::DarkBlue;
     return block;
   case game::SpecialEventTranscriptKind::JournalNotice:
-  case game::SpecialEventTranscriptKind::ItemReceived: {
+  case game::SpecialEventTranscriptKind::ItemReceived:
+  case game::SpecialEventTranscriptKind::CoinsModified:
+  case game::SpecialEventTranscriptKind::ExperienceGained: {
     const auto notice = noticeText(entry);
     if (historySeparator) {
       block.text = notice + "\n\n";

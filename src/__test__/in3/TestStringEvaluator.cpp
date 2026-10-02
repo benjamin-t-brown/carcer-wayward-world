@@ -34,6 +34,9 @@ int main(int argc, char** argv) {
       {"SET_PORT(claire)", {"tmp.talk.port", "claire"}},
       {"SET_PORT()", {"tmp.talk.port", ""}},
       {"ADD_ITEM_TO_PLAYER(BeerPappysLager)", {"vars.items.BeerPappysLager", "1"}},
+      {"ADD_ITEM_TO_PLAYER(AlineaCorrespondence1, 15)",
+       {"vars.items.AlineaCorrespondence1", "15"}},
+      {"MODIFY_COINS(10)", {"vars.player.coins", "10"}},
       {"MOD_NUM(a, 1)", {"a", "1"}},
       {"MOD_NUM(a, -1)", {"a", "0"}},
       {"MOD_NUM(newNum, 10)", {"newNum", "10"}}, // undefined + 10 = 10
@@ -118,9 +121,23 @@ int main(int argc, char** argv) {
     model::QuestTemplate emptyQuest;
     emptyQuest.id = "emptyQuest";
 
+    model::QuestTemplate rewardQuest;
+    rewardQuest.id = "rewardQuest";
+    rewardQuest.rewards.coins = 25;
+    rewardQuest.rewards.experience = 40;
+    model::QuestRewardItem lager;
+    lager.name = "BeerPappysLager";
+    lager.amount = 15;
+    model::QuestRewardItem letter;
+    letter.name = "AlineaCorrespondence1";
+    letter.amount = 1;
+    rewardQuest.rewards.items.pushBack(lager);
+    rewardQuest.rewards.items.pushBack(letter);
+
     bmin::Map<bmin::String, model::QuestTemplate> quests;
     quests[rock.id] = rock;
     quests[emptyQuest.id] = emptyQuest;
+    quests[rewardQuest.id] = rewardQuest;
     in3::setQuestTemplates(&quests);
 
     bmin::Map<bmin::String, bmin::String> questStorage;
@@ -424,6 +441,13 @@ int main(int argc, char** argv) {
         in3::setQuestTemplates(nullptr);
         return 1;
       }
+      if (in3::getStorage(questStorage, in3::kPlayerCoinsStorageKey) ||
+          in3::getStorage(questStorage, in3::kPlayerExperienceStorageKey)) {
+        LOG(ERROR) << "COMPLETE_QUEST with no rewards should not grant coins or experience"
+                   << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
       {
         auto visible = in3::questJournalVisibleStepIds(questStorage, "alineaBartoRock");
         if (visible.size() != 2 || visible[0] != "get-rock" || visible[1] != "leave-tavern") {
@@ -435,15 +459,87 @@ int main(int argc, char** argv) {
       }
     }
 
+    {
+      bmin::Map<bmin::String, bmin::String> rewardStorage;
+      in3::StringEvaluator evaluator(rewardStorage, "COMPLETE_QUEST(rewardQuest)");
+      evaluator.evalStr("COMPLETE_QUEST(rewardQuest)");
+      auto coins = in3::getStorage(rewardStorage, in3::kPlayerCoinsStorageKey);
+      auto xp = in3::getStorage(rewardStorage, in3::kPlayerExperienceStorageKey);
+      auto lager = in3::getStorage(rewardStorage, "vars.items.BeerPappysLager");
+      auto letter = in3::getStorage(rewardStorage, "vars.items.AlineaCorrespondence1");
+      if (!coins || *coins != "25" || evaluator.funcs.modifiedCoins != 25) {
+        LOG(ERROR) << "COMPLETE_QUEST should grant reward coins" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (!xp || *xp != "40" || evaluator.funcs.modifiedExperience != 40) {
+        LOG(ERROR) << "COMPLETE_QUEST should grant reward experience" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      if (!lager || *lager != "15" || !letter || *letter != "1" ||
+          evaluator.funcs.receivedItemNames.size() != 2) {
+        LOG(ERROR) << "COMPLETE_QUEST should grant reward items" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+      in3::StringEvaluator again(rewardStorage, "COMPLETE_QUEST(rewardQuest)");
+      again.evalStr("COMPLETE_QUEST(rewardQuest)");
+      coins = in3::getStorage(rewardStorage, in3::kPlayerCoinsStorageKey);
+      xp = in3::getStorage(rewardStorage, in3::kPlayerExperienceStorageKey);
+      lager = in3::getStorage(rewardStorage, "vars.items.BeerPappysLager");
+      if (!coins || *coins != "25" || !xp || *xp != "40" || !lager || *lager != "15" ||
+          again.funcs.modifiedCoins != 0 || again.funcs.modifiedExperience != 0 ||
+          !again.funcs.receivedItemNames.empty()) {
+        LOG(ERROR) << "COMPLETE_QUEST should not grant rewards again" << LOG_ENDL;
+        in3::setQuestTemplates(nullptr);
+        return 1;
+      }
+    }
+
     in3::setQuestTemplates(nullptr);
 
     {
       bmin::Map<bmin::String, bmin::String> itemStorage;
       in3::StringEvaluator evaluator(itemStorage, "ADD_ITEM_TO_PLAYER(BeerPappysLager)");
       evaluator.evalStr("ADD_ITEM_TO_PLAYER(BeerPappysLager)");
-      if (evaluator.funcs.receivedItemNames.size() != 1 ||
-          evaluator.funcs.receivedItemNames[0] != "BeerPappysLager") {
-        LOG(ERROR) << "ADD_ITEM_TO_PLAYER should flag the granted item" << LOG_ENDL;
+      evaluator.evalStr("ADD_ITEM_TO_PLAYER(BeerPappysLager, 4)");
+      auto stacked = in3::getStorage(itemStorage, "vars.items.BeerPappysLager");
+      if (!stacked || *stacked != "5" || evaluator.funcs.receivedItemNames.size() != 2) {
+        LOG(ERROR) << "ADD_ITEM_TO_PLAYER should accept an amount" << LOG_ENDL;
+        return 1;
+      }
+    }
+
+    {
+      bmin::Map<bmin::String, bmin::String> coinStorage;
+      in3::StringEvaluator gain(coinStorage, "MODIFY_COINS(10)");
+      gain.evalStr("MODIFY_COINS(10)");
+      auto coins = in3::getStorage(coinStorage, in3::kPlayerCoinsStorageKey);
+      if (!coins || *coins != "10" || gain.funcs.modifiedCoins != 10) {
+        LOG(ERROR) << "MODIFY_COINS should add to vars.player.coins" << LOG_ENDL;
+        return 1;
+      }
+      in3::StringEvaluator spend(coinStorage, "MODIFY_COINS(-3)");
+      spend.evalStr("MODIFY_COINS(-3)");
+      coins = in3::getStorage(coinStorage, in3::kPlayerCoinsStorageKey);
+      if (!coins || *coins != "7" || spend.funcs.modifiedCoins != -3) {
+        LOG(ERROR) << "MODIFY_COINS should subtract from vars.player.coins" << LOG_ENDL;
+        return 1;
+      }
+      in3::StringEvaluator clamp(coinStorage, "MODIFY_COINS(-100)");
+      clamp.evalStr("MODIFY_COINS(-100)");
+      coins = in3::getStorage(coinStorage, in3::kPlayerCoinsStorageKey);
+      if (!coins || *coins != "0" || clamp.funcs.modifiedCoins != -7) {
+        LOG(ERROR) << "MODIFY_COINS should clamp at 0 and report applied delta"
+                   << LOG_ENDL;
+        return 1;
+      }
+      in3::StringEvaluator noop(coinStorage, "MODIFY_COINS(-1)");
+      noop.evalStr("MODIFY_COINS(-1)");
+      coins = in3::getStorage(coinStorage, in3::kPlayerCoinsStorageKey);
+      if (!coins || *coins != "0" || noop.funcs.modifiedCoins != 0) {
+        LOG(ERROR) << "MODIFY_COINS at 0 should apply nothing" << LOG_ENDL;
         return 1;
       }
     }

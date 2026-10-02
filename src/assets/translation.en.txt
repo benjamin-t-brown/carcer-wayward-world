@@ -41,6 +41,8 @@
 [Cannot cast that spell.] {Cannot cast that spell.}
 [Carrying] {Carrying}
 [Cast Spell] {Cast Spell}
+[coin] {coin}
+[coins] {coins}
 [Conditioning] {Conditioning}
 [Confirm] {Confirm}
 [Constitution] {Constitution}
@@ -67,6 +69,7 @@
 [Examine:] {Examine:}
 [Examine] {Examine}
 [Example Text] {Example Text}
+[experience] {experience}
 [Faith] {Faith}
 [First Aid] {First Aid}
 [Flat damage reduction all around.] {Flat damage reduction all around.}
@@ -156,6 +159,7 @@
 [Weight: ] {Weight: }
 [Yes] {Yes}
 [You can't see there.] {You can't see there.}
+[You have lost ] {You have lost }
 [You have received ] {You have received }
 [You need to get closer to look inside.] {You need to get closer to look inside.}
 [Your journal has been updated.] {Your journal has been updated.}
