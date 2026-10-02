@@ -46,35 +46,24 @@ model::MapInstance* ActiveMapOrchestrator::getMapInstanceAtGrid(int gridX, int g
   if (gridX < 0 || gridX >= g.gridWidth || gridY < 0 || gridY >= g.gridHeight) {
     return nullptr;
   }
-  int mapIndex = gridY * g.gridWidth + gridX;
-  if (mapInstanceCache.contains(mapIndex)) {
-    return mapInstanceCache[mapIndex];
-  }
   auto map = g.cells[gridY][gridX];
   if (map.empty()) {
     return nullptr;
   }
-  auto mapInstance = getMapInstanceByName(map);
-  if (!mapInstance) {
-    return nullptr;
-  }
-  mapInstanceCache.insert(mapIndex, mapInstance);
-  return mapInstance;
+  return getMapInstanceByName(map);
 }
 
 ActiveMapOrchestrator::ActiveMapOrchestrator(model::ActiveMap& activeMap,
                                              MapInstanceStore& mapInstances,
                                              const db::Database* database)
-    : activeMap(&activeMap), mapInstances(&mapInstances), database(database) {}
-
-void ActiveMapOrchestrator::fetchMapGrid(const bmin::String& gridName) {
-  if (database == nullptr) {
-    throw std::runtime_error("ActiveMapOrchestrator::fetchMapGrid: database is nullptr");
+    : activeMap(&activeMap), mapInstances(&mapInstances), database(database) {
+  if (this->database == nullptr) {
+    throw std::runtime_error("ActiveMapOrchestrator: database is nullptr");
   }
-  if (gridName.empty()) {
+  if (activeMap.gridId.empty()) {
     grid = &defaultGrid;
   } else {
-    grid = &database->getMapGridTemplate(bmin::toStringView(gridName));
+    grid = &this->database->getMapGridTemplate(bmin::toStringView(activeMap.gridId));
   }
 }
 
@@ -136,53 +125,7 @@ model::MapInstance* ActiveMapOrchestrator::getMapInstanceAt(int worldX, int worl
 
   int gridX = worldX / g.mapWidth;
   int gridY = worldY / g.mapHeight;
-  if (gridX < 0 || gridX >= g.gridWidth || gridY < 0 || gridY >= g.gridHeight) {
-    return nullptr;
-  }
-  int mapIndex = gridY * g.gridWidth + gridX;
-
-  if (mapInstanceCache.contains(mapIndex)) {
-    return mapInstanceCache[mapIndex];
-  }
-
   return getMapInstanceAtGrid(gridX, gridY);
-}
-
-model::CharacterInstance* ActiveMapOrchestrator::findCharacterById(
-    const bmin::String& characterId, int /*mapLayerId*/) {
-  for (auto it = activeMap->characters.begin(); it != activeMap->characters.end(); ++it) {
-    if (it->id == characterId) {
-      return it;
-    }
-  }
-  return nullptr;
-}
-
-model::CharacterInstance* ActiveMapOrchestrator::findCharacterAt(int worldX,
-                                                                 int worldY,
-                                                                 int /*mapLayerId*/) {
-  return findCharacterAt(worldX, worldY, bmin::String{}, USE_WORLD_MAP_LAYER);
-}
-
-bmin::DynArray<model::CharacterInstance*> ActiveMapOrchestrator::findAllCharactersAt(
-    int worldX, int worldY, int /*mapLayerId*/) {
-  bmin::DynArray<model::CharacterInstance*> characters;
-  for (auto it = activeMap->characters.begin(); it != activeMap->characters.end(); ++it) {
-    if (it->x == worldX && it->y == worldY) {
-      characters.pushBack(it);
-    }
-  }
-  return characters;
-}
-
-model::CharacterInstance* ActiveMapOrchestrator::findCharacterAt(
-    int worldX, int worldY, const bmin::String& excludeId, int /*mapLayerId*/) {
-  for (auto it = activeMap->characters.begin(); it != activeMap->characters.end(); ++it) {
-    if (it->x == worldX && it->y == worldY && it->id != excludeId) {
-      return it;
-    }
-  }
-  return nullptr;
 }
 
 model::TileInstance* ActiveMapOrchestrator::findTileAt(int worldX,

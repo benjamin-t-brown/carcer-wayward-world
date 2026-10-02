@@ -63,6 +63,7 @@ fi
 cd "${ROOT}"
 ./scripts/bootstrap-deps.sh
 cmake --preset "${PRESET}"
+./scripts/generate-clangd-config.sh
 cmake --build --preset "${PRESET}" --target CARCER
 
 executable="${ROOT}/build/cmake/${PRESET}/CARCER"
@@ -74,4 +75,5 @@ echo
 echo "Development setup complete."
 echo "  executable: ${executable}"
 echo "  clangd database: ${ROOT}/build/cmake/${PRESET}/compile_commands.json"
+echo "  clangd config: ${ROOT}/.clangd"
 echo "  from src/: make | make run | make test | make js"

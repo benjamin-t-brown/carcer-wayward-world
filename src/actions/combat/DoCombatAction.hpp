@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game/map/ActiveMapCharacters.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapWalkability.h"
 #include "model/Combat.h"
@@ -37,10 +38,7 @@ class DoCombatAction : public AbstractAction {
     auto& world = state->world;
     const auto& actorId = world.combat.activeCharacterId;
     game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
-    if (!world.activeMap.gridId.empty()) {
-      orch.fetchMapGrid(world.activeMap.gridId);
-    }
-    auto* actor = orch.findCharacterById(actorId);
+    auto* actor = game::findCharacterById(world.activeMap, actorId);
     if (actor == nullptr) {
       return;
     }
@@ -56,7 +54,7 @@ class DoCombatAction : public AbstractAction {
       return;
     }
 
-    if (auto* occupant = orch.findCharacterAt(destX, destY, actorId)) {
+    if (auto* occupant = game::findCharacterAt(world.activeMap, destX, destY, actorId)) {
       const auto actorIsEnemy = model::isCharacterEnemy(*actor);
       const auto occupantIsEnemy = model::isCharacterEnemy(*occupant);
       if (actorIsEnemy != occupantIsEnemy) {
@@ -139,9 +137,7 @@ class DoCombatAction : public AbstractAction {
       insertAction(state::makeAction<DoCombatActionCompletion>(), 0);
       break;
     case model::CombatActionType::WAIT: {
-      game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
-      orch.fetchMapGrid(state->world.activeMap.gridId);
-      auto* character = orch.findCharacterById(chId);
+      auto* character = game::findCharacterById(state->world.activeMap, chId);
       if (character != nullptr) {
         insertAction(state::makeAction<ModifyAP>(chId, -character->currentAp), 0);
       }

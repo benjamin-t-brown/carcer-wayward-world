@@ -14,6 +14,7 @@ export function FeatTemplates() {
 
   const descriptor: TemplateEditorDescriptor<FeatTemplate> = {
     editorKey: 'featTemplates',
+    preserveAsset: 'featTemplates',
     title: 'Feat Templates Editor',
     entityNoun: 'feat',
     entityNounPlural: 'feats',

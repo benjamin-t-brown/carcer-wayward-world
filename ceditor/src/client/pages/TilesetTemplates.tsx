@@ -264,7 +264,11 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
 
   return (
     <div className="container editor-page">
-      <EditorHeader title="Tileset Templates Editor" onSave={handleSaveAll} />
+      <EditorHeader
+        title="Tileset Templates Editor"
+        onSave={handleSaveAll}
+        preserveAsset="tilesetTemplates"
+      />
 
       <div className="editor-page-body">
         <div className="editor-content">

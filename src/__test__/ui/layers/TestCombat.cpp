@@ -107,7 +107,6 @@ void spawnEnemiesAtMarkers(state::State& state,
   }
 
   game::ActiveMapOrchestrator orch(world.activeMap, state.mapInstances, &database);
-  orch.fetchMapGrid(world.activeMap.gridId);
 
   auto count = enemyTemplateNames.size();
   if (count > static_cast<size_t>(kMaxEnemyMarkers)) {

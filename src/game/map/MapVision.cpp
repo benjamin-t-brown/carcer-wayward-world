@@ -426,7 +426,6 @@ void updateActiveMapVisibilityFromParty(model::World& world,
     return;
   }
   ActiveMapOrchestrator orch(world.activeMap, mapInstances, &database);
-  orch.fetchMapGrid(world.activeMap.gridId);
   clearAllVisibleInActiveGrid(orch, world.activeMap.mapLayer);
 
   for (const auto& character : world.activeMap.characters) {
@@ -447,7 +446,6 @@ void updateActiveMapVisibilityFromPlayer(model::World& world,
     return;
   }
   ActiveMapOrchestrator orch(world.activeMap, mapInstances, &database);
-  orch.fetchMapGrid(world.activeMap.gridId);
   if (!inWorldBounds(orch, worldX, worldY)) {
     return;
   }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "model/Combat.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/combat/EnemyBehavior.h"
 #include "game/map/MapVision.h"
@@ -74,7 +75,6 @@ class WorldMovePlayer : public AbstractAction {
     }
 
     game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
-    orch.fetchMapGrid(world.activeMap.gridId);
     const auto total = orch.getTotalMapTilesSize();
     if (!total.valid || total.x <= 0 || total.y <= 0) {
       return;
@@ -124,7 +124,7 @@ class WorldMovePlayer : public AbstractAction {
     }
 
     // Town/outdoor: characters occupy tiles. Combat handles collide-to-attack separately.
-    if (orch.findCharacterAt(destX, destY, avatar->id) != nullptr) {
+    if (game::findCharacterAt(world.activeMap, destX, destY, avatar->id) != nullptr) {
       LOG(DEBUG) << " blocked!" << LOG_ENDL;
       return;
     }

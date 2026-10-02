@@ -146,6 +146,23 @@ else()
         INTERFACE_LINK_LIBRARIES "${_sdl2_libs}")
     endif()
     set_property(TARGET PkgConfig::SDL2_STACK PROPERTY INTERFACE_LINK_OPTIONS "")
+
+    # MSYS2's pkg-config reports the toolchain's own default include
+    # directory (e.g. /ucrt64/include) in POSIX form, which does not
+    # string-match the Windows-form path GCC reports as already implicit.
+    # CMake therefore fails to dedupe it, so GCC sees the directory twice
+    # and silently drops the later occurrence -- breaking the
+    # #include_next chain that <cstdlib> relies on to find stdlib.h.
+    # Strip it explicitly since it is always implicitly searched already.
+    pkg_get_variable(_sdl2_base_includedir sdl2 includedir)
+    if(_sdl2_base_includedir)
+      get_target_property(_sdl2_includes PkgConfig::SDL2_STACK INTERFACE_INCLUDE_DIRECTORIES)
+      if(_sdl2_includes)
+        list(REMOVE_ITEM _sdl2_includes "${_sdl2_base_includedir}")
+        set_property(TARGET PkgConfig::SDL2_STACK PROPERTY
+          INTERFACE_INCLUDE_DIRECTORIES "${_sdl2_includes}")
+      endif()
+    endif()
   endif()
   target_link_libraries(carcer_sdl2w INTERFACE PkgConfig::SDL2_STACK)
 endif()

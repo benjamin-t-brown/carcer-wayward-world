@@ -2170,10 +2170,10 @@
       },
       {
         "id": "nexxtdo6ydo",
-        "x": 811,
-        "y": 688,
+        "x": 822,
+        "y": 643,
         "eventChildType": "CHOICE",
-        "h": 156,
+        "h": 180,
         "text": "",
         "choices": [
           {
@@ -2202,9 +2202,17 @@
           },
           {
             "text": "You mentioned that you've had a rough morning.  Anything I can do to help?",
-            "conditionStr": "",
+            "conditionStr": "ONCE(rHPNHDTkav)",
             "evalStr": "",
-            "next": "dmrwxmfksc",
+            "next": "zs8qcx8yzf",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "About that task you want me to do...",
+            "conditionStr": "ISNOT(ONCE(rHPNHDTkav))",
+            "evalStr": "",
+            "next": "58zoupi11n",
             "prefixText": "",
             "switchText": []
           },
@@ -2493,17 +2501,6 @@
         ]
       },
       {
-        "id": "dmrwxmfksc",
-        "x": 1087,
-        "y": 879,
-        "eventChildType": "EXEC",
-        "h": 50,
-        "p": "\"That is none of your concern.\"",
-        "execStr": "",
-        "next": "nexxtdo6ydo",
-        "autoAdvance": true
-      },
-      {
         "id": "wnoyudbu3f",
         "x": 2022,
         "y": 945,
@@ -2523,6 +2520,144 @@
         "p": "A tall woman in a stout, green dress is overseeing the people at the docks. She clutches an official-looking scroll, and her stern eyes flit in irritation between it and you.\n\n\"You there!  Are you the Captain of that vessel?\"\n\nShe points towards the horizon where Argow's vessel is anchored.",
         "execStr": "",
         "next": "0arn7g6cays",
+        "autoAdvance": true
+      },
+      {
+        "id": "zs8qcx8yzf",
+        "x": 1002,
+        "y": 1094,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"That is none of your concern...\"\n\nThen she trails off, reconsidering.",
+        "execStr": "",
+        "next": "dympxeivzo4",
+        "autoAdvance": false
+      },
+      {
+        "id": "dympxeivzo4",
+        "x": 1005,
+        "y": 1180,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Would you be willing to do a little task for me?\"",
+        "execStr": "",
+        "next": "v8bk404ylh",
+        "autoAdvance": true
+      },
+      {
+        "id": "v8bk404ylh",
+        "x": 1231,
+        "y": 1688,
+        "eventChildType": "CHOICE",
+        "h": 156,
+        "text": "",
+        "choices": [
+          {
+            "text": "Explain to me what you need.",
+            "conditionStr": "",
+            "evalStr": "SET_BOOL(tmp.UQhpQTTHLk)",
+            "next": "lq46rewz5vr",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Why not ask a Realm soldier or a clerk to fetch this for you?",
+            "conditionStr": "IS(tmp.UQhpQTTHLk)",
+            "evalStr": "",
+            "next": "g8t033pqwh",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Why do you need this seal?",
+            "conditionStr": "IS(tmp.UQhpQTTHLk)",
+            "evalStr": "",
+            "next": "dar2fgjatf",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "You expect me to do this for free?",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "4c5u398e5b2",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Let's talk about something else.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "vecu9g40j4r",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "58zoupi11n",
+        "x": 997,
+        "y": 1265,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Yes?  What of it?\"",
+        "execStr": "",
+        "next": "v8bk404ylh",
+        "autoAdvance": true
+      },
+      {
+        "id": "lq46rewz5vr",
+        "x": 1591,
+        "y": 1420,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"I need you to fetch something for me.  From the shed west of the outer docks.  A seal for stamping documents.  It has a symbol of the realm on it.\"",
+        "execStr": "",
+        "next": "v8bk404ylh",
+        "autoAdvance": true
+      },
+      {
+        "id": "g8t033pqwh",
+        "x": 1598,
+        "y": 1545,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "\"They are all busy today with something or another.  Today has been busy for everybody.\"",
+        "execStr": "",
+        "next": "v8bk404ylh",
+        "autoAdvance": true
+      },
+      {
+        "id": "dar2fgjatf",
+        "x": 1607,
+        "y": 1657,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Because I need it.  Mind your business.\"",
+        "execStr": "",
+        "next": "v8bk404ylh",
+        "autoAdvance": true
+      },
+      {
+        "id": "4c5u398e5b2",
+        "x": 1629,
+        "y": 1750,
+        "eventChildType": "EXEC",
+        "h": 74,
+        "p": "\"Might I remind you that you are already on thin ice.  But I suppose I could find a few coins in the coffer for your assistance.\"",
+        "execStr": "",
+        "next": "v8bk404ylh",
+        "autoAdvance": true
+      },
+      {
+        "id": "vecu9g40j4r",
+        "x": 1585,
+        "y": 1883,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "\"Suit yourself.\"",
+        "execStr": "",
+        "next": "nexxtdo6ydo",
         "autoAdvance": true
       }
     ]

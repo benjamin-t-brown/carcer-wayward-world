@@ -3,7 +3,7 @@
 #include "bmin/String.h"
 #include "bmin/UniquePtr.h"
 #include "bmin/StringInterop.h"
-#include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "layers/LayerManager.h"
 #include "layers/UiLayer.h"
 #include "model/Combat.h"
@@ -271,14 +271,12 @@ void WorldViewSync::syncCombatTitleBar() {
 
   auto& state = stateManager->getState();
   auto& world = state.world;
-  game::ActiveMapOrchestrator activeMap(
-      world.activeMap, state.mapInstances, getDatabase());
   auto titleProps = titleBar->getProps();
   const bool showAp = world.combat.active;
   int ap = 0;
   if (showAp) {
     if (const auto* character =
-            activeMap.findCharacterById(world.combat.activeCharacterId)) {
+            game::findCharacterById(world.activeMap, world.combat.activeCharacterId)) {
       ap = character->currentAp;
     }
   }
@@ -300,8 +298,6 @@ void WorldViewSync::refresh() {
   auto& state = stateManager->getState();
   auto& player = state.player;
   auto& world = state.world;
-  game::ActiveMapOrchestrator activeMap(
-      world.activeMap, state.mapInstances, getDatabase());
 
   ui::ensureCurrentPartyMemberSelection(state);
 
@@ -319,7 +315,8 @@ void WorldViewSync::refresh() {
     entry.hp = member.currentHp;
     entry.mana = member.currentMp;
     entry.isSelected = (i == layoutProps.selectedPartyMemberIndex);
-    if (const auto* mapCharacter = activeMap.findCharacterById(member.instanceId)) {
+    if (const auto* mapCharacter =
+            game::findCharacterById(world.activeMap, member.instanceId)) {
       if (auto* database = getDatabase()) {
         for (size_t s = 0; s < mapCharacter->statusEffects.size(); s++) {
           const auto* statusTemplate = database->findStatusEffectTemplate(
@@ -349,8 +346,8 @@ void WorldViewSync::refresh() {
     titleProps.food = player.food;
     titleProps.ap = 0;
     if (world.combat.active) {
-      if (const auto* character =
-              activeMap.findCharacterById(world.combat.activeCharacterId)) {
+      if (const auto* character = game::findCharacterById(
+              world.activeMap, world.combat.activeCharacterId)) {
         titleProps.ap = character->currentAp;
       }
     }

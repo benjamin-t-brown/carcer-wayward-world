@@ -18,6 +18,7 @@ export function QuestTemplates({
 
   const descriptor: TemplateEditorDescriptor<QuestTemplate> = {
     editorKey: 'questTemplates',
+    preserveAsset: 'questTemplates',
     title: 'Quests Editor',
     entityNoun: 'quest',
     entityNounPlural: 'quests',

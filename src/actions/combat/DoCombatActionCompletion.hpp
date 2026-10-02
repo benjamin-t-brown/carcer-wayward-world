@@ -6,7 +6,7 @@
 #include "actions/combat/GoNextCombatTurn.hpp"
 #include "actions/combat/PerformCharacterDefeated.hpp"
 #include "actions/combat/SetActiveCombatCharacter.hpp"
-#include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/ActiveMapCharacters.h"
 
 namespace state {
 
@@ -36,8 +36,8 @@ class DoCombatActionCompletion : public AbstractAction {
       insertAction(state::makeAction<PerformCharacterDefeated>(id), 0);
     }
 
-    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
-    auto* activeCharacter = orch.findCharacterById(combat.activeCharacterId);
+    auto* activeCharacter =
+        game::findCharacterById(state->world.activeMap, combat.activeCharacterId);
     const auto apRemaining = activeCharacter != nullptr ? activeCharacter->currentAp : 0;
     const auto activeDefeated =
         activeCharacter == nullptr ||

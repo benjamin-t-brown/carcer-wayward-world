@@ -14,7 +14,6 @@ bool isActiveMapTileContainer(model::ActiveMap& activeMap,
     return false;
   }
   ActiveMapOrchestrator orch(activeMap, mapInstances, &database);
-  orch.fetchMapGrid(activeMap.gridId);
   auto* map = orch.getMapInstanceAt(worldX, worldY);
   const auto local = orch.activeMapCoordToInstanceCoord(worldX, worldY);
   if (!map || !local.valid) {

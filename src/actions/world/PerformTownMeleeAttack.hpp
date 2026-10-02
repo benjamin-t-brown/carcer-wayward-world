@@ -4,7 +4,7 @@
 #include "actions/general/PlaySound.hpp"
 #include "actions/world/ModifyPartyMemberHp.hpp"
 #include "actions/world/WorldSpawnDamageParticle.hpp"
-#include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "game/map/TileTriggers.h"
 #include "model/Combat.h"
 #include "model/instances/CharacterPlayer.h"
@@ -42,9 +42,7 @@ class PerformTownMeleeAttack : public AbstractAction {
       return;
     }
 
-    game::ActiveMapOrchestrator orch(
-        state->world.activeMap, state->mapInstances, getDatabase());
-    auto* attacker = orch.findCharacterById(attackerId);
+    auto* attacker = game::findCharacterById(state->world.activeMap, attackerId);
     auto* avatar =
         game::findPartyAvatarOnActiveMap(state->world.activeMap, state->player);
     if (attacker == nullptr || avatar == nullptr) {

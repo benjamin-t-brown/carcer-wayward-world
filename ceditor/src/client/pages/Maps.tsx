@@ -872,6 +872,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
       <EditorHeader
         title="Maps Editor"
         onSave={handleSaveAll}
+        preserveAsset="maps"
         actions={
           <>
             <OptionSelect

@@ -25,7 +25,6 @@ class WorldInteractAt : public AbstractAction {
     }
 
     game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
-    orch.fetchMapGrid(world.activeMap.gridId);
     auto* map = orch.getMapInstanceAt(avatar->x, avatar->y);
     const auto local = orch.activeMapCoordToInstanceCoord(avatar->x, avatar->y);
     if (!map || !local.valid) {

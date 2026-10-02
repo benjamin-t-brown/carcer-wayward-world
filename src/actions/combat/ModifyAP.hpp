@@ -1,6 +1,6 @@
 #pragma once
 
-#include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "model/Combat.h"
 #include "state/AbstractAction.hpp"
 
@@ -17,8 +17,7 @@ class ModifyAP : public AbstractAction {
     if (!state) {
       return;
     }
-    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
-    auto* character = orch.findCharacterById(characterId);
+    auto* character = game::findCharacterById(state->world.activeMap, characterId);
     if (character == nullptr) {
       return;
     }

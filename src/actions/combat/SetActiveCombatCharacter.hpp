@@ -1,7 +1,7 @@
 #pragma once
 
 #include "model/Combat.h"
-#include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "game/map/Camera.h"
 #include "model/instances/Player.h"
 #include "model/instances/World.hpp"
@@ -42,8 +42,7 @@ class SetActiveCombatCharacter : public AbstractAction {
       characterId = combat.turnOrderIds[static_cast<size_t>(combat.activeTurnIndex)];
     }
 
-    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
-    auto* character = orch.findCharacterById(characterId);
+    auto* character = game::findCharacterById(state->world.activeMap, characterId);
     if (character == nullptr) {
       return;
     }

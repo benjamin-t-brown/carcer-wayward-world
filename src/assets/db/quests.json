@@ -159,5 +159,25 @@
         "subSteps": []
       }
     ]
+  },
+  {
+    "id": "que_alinea_sealOfApproval",
+    "label": "Realm Seal",
+    "description": "Dockmaster Claire of the Realm in Alinea has asked you to retrieve a seal from the shed west of the outer Alinea docks.",
+    "completedDescription": "You have retrieved a seal for Claire in Alinea.",
+    "steps": [
+      {
+        "id": "step1",
+        "label": "Retrieve the Seal",
+        "description": "Retrieve a seal from the shed west of the outer Alinea docks",
+        "subSteps": []
+      },
+      {
+        "id": "step2",
+        "label": "Bring the Seal Back",
+        "description": "Bring the Realm Seal back to Claire in the outer Alinea docks.",
+        "subSteps": []
+      }
+    ]
   }
 ]

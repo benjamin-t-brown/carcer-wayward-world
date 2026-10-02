@@ -17,6 +17,7 @@ export function StatusEffectTemplates() {
 
   const descriptor: TemplateEditorDescriptor<StatusEffectTemplate> = {
     editorKey: 'statusEffectTemplates',
+    preserveAsset: 'statusEffectTemplates',
     title: 'Status Effect Templates Editor',
     entityNoun: 'status effect',
     entityNounPlural: 'status effects',

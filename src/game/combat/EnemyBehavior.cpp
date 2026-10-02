@@ -47,7 +47,6 @@ bool canEnemySpotPartyAvatar(model::World& world,
   }
 
   ActiveMapOrchestrator orch(world.activeMap, mapInstances, &database);
-  orch.fetchMapGrid(world.activeMap.gridId);
   auto* map = orch.getMapInstanceAt(enemy.x, enemy.y);
   const auto local = orch.activeMapCoordToInstanceCoord(enemy.x, enemy.y);
   if (!map || !local.valid) {

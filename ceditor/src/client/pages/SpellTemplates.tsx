@@ -21,6 +21,7 @@ export function SpellTemplates({ routeParams }: SpellTemplatesProps = {}) {
 
   const descriptor: TemplateEditorDescriptor<SpellTemplate> = {
     editorKey: 'spellTemplates',
+    preserveAsset: 'spellTemplates',
     title: 'Spell Templates Editor',
     entityNoun: 'spell',
     entityNounPlural: 'spells',

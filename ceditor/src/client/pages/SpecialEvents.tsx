@@ -663,7 +663,11 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
 
   return (
     <div className="container editor-page" style={{ maxWidth: '100000px' }}>
-      <EditorHeader title="Special Events Editor" onSave={handleSaveAll} />
+      <EditorHeader
+        title="Special Events Editor"
+        onSave={handleSaveAll}
+        preserveAsset="specialEvents"
+      />
 
       <div className="editor-page-body">
         <div className="editor-content">

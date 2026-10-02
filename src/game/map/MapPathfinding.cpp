@@ -60,7 +60,6 @@ bmin::DynArray<PathTile> collectReachableTiles(model::ActiveMap& activeMap,
   }
 
   ActiveMapOrchestrator orch(activeMap, mapInstances, &database);
-  orch.fetchMapGrid(activeMap.gridId);
   const auto total = orch.getTotalMapTilesSize();
   if (!total.valid || total.x <= 0 || total.y <= 0) {
     return reachable;

@@ -112,6 +112,27 @@ export const initPanzoom = (specialEventEditorInterface: {
       return;
     }
 
+    if (
+      !isTextInputElement(document.activeElement) &&
+      !ev.ctrlKey &&
+      !ev.metaKey &&
+      !ev.altKey &&
+      (ev.key === '=' || ev.key === '+' || ev.key === '-')
+    ) {
+      ev.preventDefault();
+      const canvas = specialEventEditorInterface.getCanvas();
+      const editorState = specialEventEditorInterface.getEditorState();
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = pointerOverCanvas
+        ? editorState.mouseX
+        : rect.left + rect.width / 2;
+      const mouseY = pointerOverCanvas
+        ? editorState.mouseY
+        : rect.top + rect.height / 2;
+      zoomPanzoom(mouseX, mouseY, ev.key === '-' ? 1 : -1, canvas);
+      return;
+    }
+
     // Clear selection on ESC
     if (ev.key === 'Escape') {
       const editorState = specialEventEditorInterface.getEditorState();

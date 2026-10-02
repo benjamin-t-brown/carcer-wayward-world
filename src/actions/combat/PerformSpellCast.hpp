@@ -5,7 +5,7 @@
 #include "game/combat/SpellRules.h"
 #include "game/combat/StatusRules.h"
 #include "game/combat/projectileHelpers.h"
-#include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "game/map/TileDistance.h"
 #include "model/Combat.h"
 #include "model/instances/Player.h"
@@ -150,7 +150,7 @@ class PerformSpellCast : public AbstractAction {
   void doZoneSpell(const model::AbilityTemplate& ability,
                    model::CharacterInstance& caster,
                    const model::CharacterStats& casterStats,
-                   game::ActiveMapOrchestrator& orch) {
+                   model::ActiveMap& activeMap) {
     auto targetTileX = spellTargetInfo.tileX;
     auto targetTileY = spellTargetInfo.tileY;
     auto zoneW = ability.targetSelect.zoneSize.x;
@@ -161,7 +161,7 @@ class PerformSpellCast : public AbstractAction {
       for (int j = 0; j < zoneH; ++j) {
         const auto tileX = targetTileX + i - zoneW / 2;
         const auto tileY = targetTileY + j - zoneH / 2;
-        auto chAtTile = orch.findAllCharactersAt(tileX, tileY);
+        auto chAtTile = game::findAllCharactersAt(activeMap, tileX, tileY);
         for (auto ch : chAtTile) {
           charactersInZone.pushBack(ch);
         }
@@ -218,19 +218,19 @@ class PerformSpellCast : public AbstractAction {
   void doUnitSpell(const model::AbilityTemplate& ability,
                    model::CharacterInstance& caster,
                    const model::CharacterStats& casterStats,
-                   game::ActiveMapOrchestrator& orch) {
+                   model::ActiveMap& activeMap) {
     auto targetTileX = spellTargetInfo.tileX;
     auto targetTileY = spellTargetInfo.tileY;
 
     bmin::DynArray<model::CharacterInstance*> targets;
     if (!spellTargetInfo.targetCharacterId.empty()) {
       addUnitSpellTarget(targets,
-                         orch.findCharacterById(spellTargetInfo.targetCharacterId),
+                         game::findCharacterById(activeMap, spellTargetInfo.targetCharacterId),
                          caster,
                          ability);
     }
     if (targets.empty()) {
-      auto atTile = orch.findAllCharactersAt(targetTileX, targetTileY);
+      auto atTile = game::findAllCharactersAt(activeMap, targetTileX, targetTileY);
       for (auto* ch : atTile) {
         addUnitSpellTarget(targets, ch, caster, ability);
       }
@@ -243,8 +243,8 @@ class PerformSpellCast : public AbstractAction {
   void doAllySpell(const model::AbilityTemplate& ability,
                    model::CharacterInstance& caster,
                    const model::CharacterStats& casterStats,
-                   game::ActiveMapOrchestrator& orch) {
-    auto* target = orch.findCharacterById(spellTargetInfo.targetCharacterId);
+                   model::ActiveMap& activeMap) {
+    auto* target = game::findCharacterById(activeMap, spellTargetInfo.targetCharacterId);
     if (target == nullptr) {
       LOG(ERROR) << "PerformSpellCast: TARGET_ALLY missing map character "
                  << spellTargetInfo.targetCharacterId << LOG_ENDL;
@@ -284,10 +284,8 @@ class PerformSpellCast : public AbstractAction {
     if (database == nullptr) {
       return;
     }
-    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
-    orch.fetchMapGrid(state->world.activeMap.gridId);
-
-    auto caster = orch.findCharacterById(casterId);
+    auto& activeMap = state->world.activeMap;
+    auto caster = game::findCharacterById(activeMap, casterId);
     if (caster == nullptr) {
       LOG(ERROR) << "PerformSpellCast: no map character for caster " << casterId
                  << LOG_ENDL;
@@ -333,11 +331,11 @@ class PerformSpellCast : public AbstractAction {
     }
 
     if (ability->targetSelect.targetType == model::TargetSelectType::TARGET_ZONE) {
-      doZoneSpell(*ability, *caster, *casterStats, orch);
+      doZoneSpell(*ability, *caster, *casterStats, activeMap);
     } else if (ability->targetSelect.targetType == model::TargetSelectType::TARGET_ALLY) {
-      doAllySpell(*ability, *caster, *casterStats, orch);
+      doAllySpell(*ability, *caster, *casterStats, activeMap);
     } else if (ability->targetSelect.targetType == model::TargetSelectType::TARGET_UNIT) {
-      doUnitSpell(*ability, *caster, *casterStats, orch);
+      doUnitSpell(*ability, *caster, *casterStats, activeMap);
     } else {
       LOG(ERROR) << "PerformSpellCast: unhandled target type "
                  << model::targetSelectTypeToString(ability->targetSelect.targetType)

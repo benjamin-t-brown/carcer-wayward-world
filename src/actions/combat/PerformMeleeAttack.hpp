@@ -4,7 +4,7 @@
 #include "game/combat/Damage.h"
 #include "game/combat/MeleeAttackResolve.h"
 #include "game/combat/SpellRules.h"
-#include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "model/Combat.h"
 #include "model/instances/CharacterInstance.hpp"
 #include "model/stats/CharacterStats.h"
@@ -124,9 +124,8 @@ class PerformMeleeAttack : public AbstractAction {
       return;
     }
 
-    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
-    auto* attacker = orch.findCharacterById(attackerId);
-    auto* victim = orch.findCharacterById(victimId);
+    auto* attacker = game::findCharacterById(state->world.activeMap, attackerId);
+    auto* victim = game::findCharacterById(state->world.activeMap, victimId);
     if (attacker == nullptr || victim == nullptr) {
       return;
     }

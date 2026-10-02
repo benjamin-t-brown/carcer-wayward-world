@@ -26,7 +26,6 @@ class WorldLoadActiveMap : public AbstractAction {
     }
     game::ActiveMapOrchestrator previousActiveMap(
         localState.world.activeMap, localState.mapInstances, getDatabase());
-    previousActiveMap.fetchMapGrid(previousGridId);
 
     for (auto ch : localState.world.activeMap.characters) {
       if (model::isPartyMember(localState.player, ch.id)) {
@@ -96,7 +95,6 @@ class WorldLoadActiveMap : public AbstractAction {
 
     game::ActiveMapOrchestrator activeMap(
         localState.world.activeMap, localState.mapInstances, database);
-    activeMap.fetchMapGrid(resolvedGridId);
     auto& grid = activeMap.getMapGrid();
     for (int y = 0; y < grid.gridHeight; y++) {
       for (int x = 0; x < grid.gridWidth; x++) {

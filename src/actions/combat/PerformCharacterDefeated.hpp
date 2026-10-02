@@ -3,6 +3,7 @@
 #include "actions/combat/RemoveCharacterFromMap.hpp"
 #include "actions/general/PlaySound.hpp"
 #include "bmin/StringInterop.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/TileFields.h"
 #include "model/Combat.h"
@@ -22,10 +23,7 @@ class PerformCharacterDefeated : public AbstractAction {
       auto* database = getDatabase();
       game::ActiveMapOrchestrator orch(
           state->world.activeMap, state->mapInstances, database);
-      if (!state->world.activeMap.gridId.empty()) {
-        orch.fetchMapGrid(state->world.activeMap.gridId);
-      }
-      if (auto* character = orch.findCharacterById(characterId)) {
+      if (auto* character = game::findCharacterById(state->world.activeMap, characterId)) {
         auto* map = orch.getMapInstanceAt(character->x, character->y);
         const auto local = orch.activeMapCoordToInstanceCoord(character->x, character->y);
         if (map && local.valid) {

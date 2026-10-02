@@ -760,6 +760,28 @@ export const initPanzoom = (mapDataInterface: {
       });
       ev.preventDefault();
     }
+
+    if (
+      isEditorActive(ev) &&
+      !isInputFocused &&
+      !ev.ctrlKey &&
+      !ev.metaKey &&
+      !ev.altKey &&
+      (ev.key === '=' || ev.key === '+' || ev.key === '-')
+    ) {
+      const canvas = mapDataInterface.getCanvas();
+      if (canvas) {
+        ev.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const clientX = pointerOverCanvas
+          ? mapEditorEventState.mouseX
+          : rect.left + rect.width / 2;
+        const clientY = pointerOverCanvas
+          ? mapEditorEventState.mouseY
+          : rect.top + rect.height / 2;
+        zoomMapAt(clientX, clientY, ev.key === '-' ? 100 : -100);
+      }
+    }
   };
   const handleKeyUp = (ev: KeyboardEvent) => {
     markRenderDirty();
@@ -1172,26 +1194,14 @@ export const initPanzoom = (mapDataInterface: {
       ev.preventDefault();
     }
   };
-  const handleWheel = (ev: WheelEvent) => {
-    if (!isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())) {
+  const zoomMapAt = (clientX: number, clientY: number, delta: number) => {
+    const canvas = mapDataInterface.getCanvas();
+    if (!canvas) {
       return;
     }
-    ev.preventDefault();
     markRenderDirty();
 
-    const [focalX, focalY] = screenCoordsToCanvasCoords(
-      ev.clientX,
-      ev.clientY,
-      mapDataInterface.getCanvas()
-    );
-
-    // Normalize delta across mice (lines) and trackpads (pixels).
-    let delta = ev.deltaY;
-    if (ev.deltaMode === 1) {
-      delta *= 16;
-    } else if (ev.deltaMode === 2) {
-      delta *= 100;
-    }
+    const [focalX, focalY] = screenCoordsToCanvasCoords(clientX, clientY, canvas);
 
     // Multiplicative zoom tracks continuous scroll; ~15% per 100px of delta.
     const zoomFactor = Math.exp(-delta * 0.0015);
@@ -1220,6 +1230,22 @@ export const initPanzoom = (mapDataInterface: {
     mapEditorEventState.translateX = offsetX;
     mapEditorEventState.translateY = offsetY;
     mapEditorEventState.scale = nextScale;
+  };
+  const handleWheel = (ev: WheelEvent) => {
+    if (!isEventWithCanvasTarget(ev, mapDataInterface.getCanvas())) {
+      return;
+    }
+    ev.preventDefault();
+
+    // Normalize delta across mice (lines) and trackpads (pixels).
+    let delta = ev.deltaY;
+    if (ev.deltaMode === 1) {
+      delta *= 16;
+    } else if (ev.deltaMode === 2) {
+      delta *= 100;
+    }
+
+    zoomMapAt(ev.clientX, ev.clientY, delta);
   };
   // The canvas rect is cached and only refreshed per rendered frame; when the
   // loop is idle a scroll/resize can move it, so drop the cache and force one

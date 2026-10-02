@@ -1,6 +1,6 @@
 #pragma once
 
-#include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "game/map/MapPersistence.h"
 #include "game/map/TileFields.h"
 #include "model/Combat.h"
@@ -42,7 +42,6 @@ class GoNextCombatTurn : public AbstractAction {
       startNewCombatRound();
     }
 
-    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
     const auto turnCount = static_cast<int>(combat.turnOrderIds.size());
     for (int attempt = 0; attempt < turnCount; attempt++) {
       const auto index = combat.activeTurnIndex;
@@ -50,7 +49,7 @@ class GoNextCombatTurn : public AbstractAction {
         break;
       }
       const auto& nextId = combat.turnOrderIds[static_cast<size_t>(index)];
-      auto* nextCharacter = orch.findCharacterById(nextId);
+      auto* nextCharacter = game::findCharacterById(state->world.activeMap, nextId);
       if (nextCharacter == nullptr) {
         combat.activeTurnIndex += 1;
         if (combat.activeTurnIndex >= turnCount) {

@@ -40,13 +40,13 @@ std::optional<model::TileXY> MapView::screenToTile(int screenX, int screenY) con
     return std::nullopt;
   }
 
-  game::ActiveMapOrchestrator orch(
-      state.world.activeMap, state.mapInstances, getDatabase());
+  std::optional<game::ActiveMapOrchestrator> loaded;
   try {
-    orch.fetchMapGrid(world.activeMap.gridId);
+    loaded.emplace(state.world.activeMap, state.mapInstances, getDatabase());
   } catch (...) {
     return std::nullopt;
   }
+  auto& orch = *loaded;
   const auto total = orch.getTotalMapTilesSize();
   if (!total.valid || total.x <= 0 || total.y <= 0) {
     return std::nullopt;
@@ -132,7 +132,6 @@ void MapView::renderDamageParticles(state::State& state,
 
   game::ActiveMapOrchestrator orch(
       state.world.activeMap, state.mapInstances, getDatabase());
-  orch.fetchMapGrid(world.activeMap.gridId);
 
   for (size_t i = 0; i < world.activeMap.damageParticles.size(); i++) {
     auto& particle = world.activeMap.damageParticles[i];
@@ -254,7 +253,6 @@ void MapView::render(int dt) {
 
   game::ActiveMapOrchestrator orch(
       state.world.activeMap, state.mapInstances, database);
-  orch.fetchMapGrid(world.activeMap.gridId);
 
   const auto total = orch.getTotalMapTilesSize();
   if (!total.valid || total.x <= 0 || total.y <= 0) {

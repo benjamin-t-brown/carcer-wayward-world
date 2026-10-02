@@ -141,7 +141,11 @@ export function MapGrids({
 
   return (
     <div className="container editor-page">
-      <EditorHeader title="Map Grids Editor" onSave={handleSaveAll} />
+      <EditorHeader
+        title="Map Grids Editor"
+        onSave={handleSaveAll}
+        preserveAsset="mapGrids"
+      />
 
       <div className="editor-page-body">
         <div className="editor-content">

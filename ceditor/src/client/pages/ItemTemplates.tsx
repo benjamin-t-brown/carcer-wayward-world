@@ -257,7 +257,11 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
 
   return (
     <div className="container editor-page">
-      <EditorHeader title="Item Templates Editor" onSave={handleSaveAll} />
+      <EditorHeader
+        title="Item Templates Editor"
+        onSave={handleSaveAll}
+        preserveAsset="itemTemplates"
+      />
 
       <div className="editor-page-body">
         <div className="editor-content">

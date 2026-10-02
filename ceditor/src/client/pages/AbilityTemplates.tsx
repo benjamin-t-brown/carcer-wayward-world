@@ -209,7 +209,11 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
 
   return (
     <div className="container editor-page">
-      <EditorHeader title="Ability Templates Editor" onSave={handleSaveAll} />
+      <EditorHeader
+        title="Ability Templates Editor"
+        onSave={handleSaveAll}
+        preserveAsset="abilityTemplates"
+      />
 
       <div className="editor-page-body">
         <div className="editor-content">

@@ -2,7 +2,7 @@
 
 #include "bmin/StringInterop.h"
 #include "game/combat/StatusRules.h"
-#include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "sdl2w/Logger.h"
 #include "state/AbstractAction.hpp"
 #include "actions/combat/PerformStatusAbility.hpp"
@@ -24,9 +24,7 @@ class TickCombatStatuses : public AbstractAction {
     if (database == nullptr) {
       return;
     }
-    game::ActiveMapOrchestrator orch(
-        state->world.activeMap, state->mapInstances, database);
-    auto* character = orch.findCharacterById(characterId);
+    auto* character = game::findCharacterById(state->world.activeMap, characterId);
     if (character == nullptr) {
       return;
     }

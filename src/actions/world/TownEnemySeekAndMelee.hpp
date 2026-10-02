@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/combat/EnemyBehavior.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "game/map/TileDistance.h"
 #include "model/instances/CharacterInstance.hpp"
 #include "sdl2w/Logger.h"
@@ -26,9 +27,7 @@ class TownEnemySeekAndMelee : public AbstractAction {
       return;
     }
 
-    game::ActiveMapOrchestrator orch(
-        state->world.activeMap, state->mapInstances, database);
-    auto* enemy = orch.findCharacterById(enemyId);
+    auto* enemy = game::findCharacterById(state->world.activeMap, enemyId);
     auto* avatar =
         game::findPartyAvatarOnActiveMap(state->world.activeMap, state->player);
     if (!enemy || !avatar) {

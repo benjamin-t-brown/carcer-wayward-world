@@ -2,7 +2,7 @@
 
 #include "bmin/StringInterop.h"
 #include "game/combat/Damage.h"
-#include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "model/Combat.h"
 #include "sdl2w/Logger.h"
 #include "state/AbstractAction.hpp"
@@ -28,9 +28,7 @@ class PerformStatusAbility : public AbstractAction {
     if (database == nullptr) {
       return;
     }
-    game::ActiveMapOrchestrator orch(
-        state->world.activeMap, state->mapInstances, database);
-    auto* character = orch.findCharacterById(characterId);
+    auto* character = game::findCharacterById(state->world.activeMap, characterId);
     if (character == nullptr) {
       return;
     }

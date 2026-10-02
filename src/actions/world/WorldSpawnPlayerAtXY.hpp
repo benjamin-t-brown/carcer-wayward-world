@@ -37,7 +37,6 @@ class WorldSpawnPlayerAtXY : public AbstractAction {
     }
 
     game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
-    orch.fetchMapGrid(world.activeMap.gridId);
     const auto total = orch.getTotalMapTilesSize();
     if (!total.valid || destX < 0 || destY < 0 || destX >= total.x || destY >= total.y) {
       LOG(ERROR) << "WorldSpawnPlayerAtXY::act: destination out of bounds" << LOG_ENDL;

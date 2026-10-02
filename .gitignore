@@ -35,3 +35,5 @@ src/.carcer-bmi/
 src/.sdl2w-bmi/
 src/.bmin-bmi/
 .ai/
+# Machine-local clangd config (paths differ per MSYS2 / toolchain install).
+.clangd

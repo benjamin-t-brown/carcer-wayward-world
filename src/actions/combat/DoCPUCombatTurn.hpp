@@ -1,7 +1,7 @@
 #pragma once
 
 #include "game/combat/EnemyBehavior.h"
-#include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "model/Combat.h"
 #include "model/templates/CharacterTemplate.h"
 #include "sdl2w/Logger.h"
@@ -38,11 +38,7 @@ class DoCPUCombatTurn : public AbstractAction {
     LOG(INFO) << "DoCPUCombatTurn: choosing action for "
               << model::formatCharacterLogLabel(world.activeMap, actorId) << LOG_ENDL;
 
-    game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
-    if (!world.activeMap.gridId.empty()) {
-      orch.fetchMapGrid(world.activeMap.gridId);
-    }
-    auto* actor = orch.findCharacterById(actorId);
+    auto* actor = game::findCharacterById(world.activeMap, actorId);
     if (actor == nullptr || model::isCharacterDefeated(state->player, *actor)) {
       insertAction(state::makeAction<DoCombatActionCompletion>(), 0);
       return;

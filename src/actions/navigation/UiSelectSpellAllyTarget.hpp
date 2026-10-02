@@ -2,7 +2,7 @@
 
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
-#include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "model/Combat.h"
 #include "model/instances/Player.h"
 #include "sdl2w/L10n.h"
@@ -47,8 +47,7 @@ class UiSelectSpellAllyTarget : public AbstractAction {
       return;
     }
 
-    game::ActiveMapOrchestrator orch(world.activeMap, state->mapInstances, getDatabase());
-    auto* target = orch.findCharacterById(targetId);
+    auto* target = game::findCharacterById(world.activeMap, targetId);
     if (target == nullptr) {
       pushWarning(TRANSLATE("That ally is not on the map."));
       return;

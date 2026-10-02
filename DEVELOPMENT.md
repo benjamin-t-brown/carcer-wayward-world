@@ -71,19 +71,22 @@ file.
 
 ## Windows with MSYS2 UCRT64
 
-Install CMake, Ninja, a UCRT64 GCC toolchain, and the UCRT64 SDL packages. From
-PowerShell:
+Open a UCRT64 terminal and install the packages in the README. That shell
+already has the toolchain on `PATH`:
 
-```powershell
-.\scripts\Invoke-Ucrt64.ps1 "./scripts/setup-dev.sh"
-.\scripts\Invoke-Ucrt64.ps1 "make -C src"
-.\scripts\Invoke-Ucrt64.ps1 "make -C src test"
+```sh
+./scripts/setup-dev.sh
+make -C src
+make -C src test
 ```
 
-`ucrt64-release` is the release equivalent. `Invoke-Ucrt64.ps1` discovers
-common MSYS2 installations; set `MSYS2_ROOT` when yours is elsewhere. The
-Windows executable bypasses SDL2main consistently and calls `SDL_SetMainReady`
-through `cmake/win_sdl_main_ready.cpp`.
+`ucrt64-release` is the release equivalent. The Windows executable bypasses
+SDL2main consistently and calls `SDL_SetMainReady` through
+`cmake/win_sdl_main_ready.cpp`.
+
+PowerShell does not start inside that environment. `scripts/Invoke-Ucrt64.ps1`
+opens a UCRT64 shell for callers that need one. Agent instructions use that
+wrapper; a UCRT64 terminal does not.
 
 ## Emscripten
 
@@ -124,11 +127,24 @@ remaining arguments to their executable when run interactively.
 
 ## IDE setup
 
-CMake writes `build/cmake/dev-debug/compile_commands.json` during setup. The
-checked-in `.clangd` selects that database for any clangd-compatible editor.
-VS Code and Cursor recommend clangd and CMake Tools on first open; Microsoft
-C/C++ IntelliSense is disabled to prevent duplicate diagnostics while its
-debugger remains available.
+CMake writes `build/cmake/dev-debug/compile_commands.json` during setup.
+`scripts/generate-clangd-config.sh` (also run by `setup-dev.sh`) writes a
+machine-local `.clangd` that points at that database and, on MSYS2 UCRT64,
+wires Clang's resource directory plus libstdc++ from your current
+`MINGW_PREFIX` (so installs under `C:\msys64`, Scoop, etc. all work without
+hardcoded paths). `.clangd` is gitignored; re-run the generator after moving
+MSYS2 or changing the toolchain.
+
+On Windows, `generate-clangd-config.sh` writes `clangd.path` in
+`.vscode/settings.json` to that install's `ucrt64/bin/clangd.exe`. The editor
+has to spawn that executable directly. A `.cmd` or other wrapper breaks the
+language-server pipe, so go-to-definition never comes up. Linux and macOS
+checkouts should clear `clangd.path` so the editor uses `clangd` from `PATH`.
+
+Install `mingw-w64-ucrt-x86_64-clang` and `mingw-w64-ucrt-x86_64-clang-tools-extra`
+in the UCRT64 environment. VS Code and Cursor recommend clangd and CMake Tools
+on first open; Microsoft C/C++ IntelliSense is disabled to prevent duplicate
+diagnostics while its debugger remains available.
 
 ## Localization and animation tools
 

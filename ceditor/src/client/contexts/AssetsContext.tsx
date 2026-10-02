@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
+import { useSDL2WAssets } from './SDL2WAssetsContext';
+import { normalizeAll } from '../utils/assetNormalizers';
 import {
   ItemTemplate,
   CharacterTemplate,
@@ -11,7 +13,7 @@ import {
 } from '../types/assets';
 import { AbilityTemplate, StatusEffectTemplate } from '../types/ability';
 import { SpellTemplate } from '../types/spell';
-import { AssetId } from '../../shared/assetRegistry';
+import { ASSET_TYPES, AssetId } from '../../shared/assetRegistry';
 
 interface AssetsContextType {
   items: ItemTemplate[];
@@ -49,6 +51,8 @@ interface AssetsContextType {
   saveGameEvents: (gameEvents: GameEvent[]) => Promise<void>;
   saveMaps: (maps: CarcerMapTemplate[]) => Promise<void>;
   saveMapGrids: (mapGrids: MapGridTemplate[]) => Promise<void>;
+  /** Refetch every JSON asset list except the one this page is editing. */
+  reloadOtherAssets: (except: AssetId) => Promise<void>;
 }
 
 const AssetsContext = createContext<AssetsContextType | undefined>(undefined);
@@ -105,6 +109,14 @@ const saveMaps = (maps: CarcerMapTemplate[]) => saveAsset('maps', maps);
 const saveMapGrids = (mapGrids: MapGridTemplate[]) =>
   saveAsset('mapGrids', mapGrids);
 
+async function fetchAssetList(id: AssetId): Promise<unknown[]> {
+  const response = await fetch(`/api/assets/${id}`);
+  if (!response.ok) {
+    throw new Error(`Failed to load ${id}`);
+  }
+  return response.json();
+}
+
 export function AssetsProvider({
   children,
   initialItems,
@@ -131,8 +143,69 @@ export function AssetsProvider({
   const [gameEvents, setGameEvents] = useState<GameEvent[]>(initialGameEvents);
   const [maps, setMaps] = useState<CarcerMapTemplate[]>(initialMaps);
   const [mapGrids, setMapGrids] = useState<MapGridTemplate[]>(initialMapGrids);
-  const [loading] = useState(false);
-  const [error] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { animationMap, soundMap } = useSDL2WAssets();
+
+  const currentById: Record<AssetId, unknown[]> = {
+    itemTemplates: items,
+    characterTemplates: characters,
+    abilityTemplates: abilities,
+    spellTemplates: spells,
+    statusEffectTemplates: statusEffects,
+    featTemplates: feats,
+    questTemplates: quests,
+    tilesetTemplates: tilesets,
+    specialEvents: gameEvents,
+    maps,
+    mapGrids,
+  };
+
+  const reloadOtherAssets = async (except: AssetId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const rawByType: Partial<Record<AssetId, unknown[]>> = {};
+      await Promise.all(
+        ASSET_TYPES.map(async (assetType) => {
+          rawByType[assetType.id] =
+            assetType.id === except
+              ? currentById[assetType.id]
+              : await fetchAssetList(assetType.id);
+        }),
+      );
+      const normalized = normalizeAll(
+        rawByType,
+        { animationMap, soundMap },
+        ASSET_TYPES,
+      );
+      if (except !== 'itemTemplates') setItems(normalized.itemTemplates as ItemTemplate[]);
+      if (except !== 'characterTemplates') {
+        setCharacters(normalized.characterTemplates as CharacterTemplate[]);
+      }
+      if (except !== 'abilityTemplates') {
+        setAbilities(normalized.abilityTemplates as AbilityTemplate[]);
+      }
+      if (except !== 'spellTemplates') setSpells(normalized.spellTemplates as SpellTemplate[]);
+      if (except !== 'statusEffectTemplates') {
+        setStatusEffects(normalized.statusEffectTemplates as StatusEffectTemplate[]);
+      }
+      if (except !== 'featTemplates') setFeats(normalized.featTemplates as FeatTemplate[]);
+      if (except !== 'questTemplates') setQuests(normalized.questTemplates as QuestTemplate[]);
+      if (except !== 'tilesetTemplates') {
+        setTilesets(normalized.tilesetTemplates as TilesetTemplate[]);
+      }
+      if (except !== 'specialEvents') setGameEvents(normalized.specialEvents as GameEvent[]);
+      if (except !== 'maps') setMaps(normalized.maps as CarcerMapTemplate[]);
+      if (except !== 'mapGrids') setMapGrids(normalized.mapGrids as MapGridTemplate[]);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to reload assets';
+      setError(message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <AssetsContext.Provider
@@ -172,6 +245,7 @@ export function AssetsProvider({
         saveGameEvents,
         saveMaps,
         saveMapGrids,
+        reloadOtherAssets,
       }}
     >
       {children}

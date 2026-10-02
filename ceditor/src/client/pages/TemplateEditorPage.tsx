@@ -7,6 +7,7 @@ import { trimStrings } from '../utils/jsonUtils';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 import { useSaveHotkey } from '../hooks/useSaveHotkey';
 import { EditorSelectionKey } from '../utils/editorSelectionStorage';
+import type { AssetId } from '../../shared/assetRegistry';
 
 interface NotificationState {
   message: string;
@@ -25,6 +26,8 @@ type CardItem = { name: string; label?: string } & Record<string, unknown>;
  */
 export interface TemplateEditorDescriptor<T> {
   editorKey: EditorSelectionKey;
+  /** This page's asset list. Reload leaves it untouched. */
+  preserveAsset: AssetId;
   title: string; // 'Spell Templates Editor'
   entityNoun: string; // 'spell' — used in clone/delete copy
   entityNounPlural: string; // 'spells'
@@ -234,7 +237,11 @@ export function TemplateEditorPage<T>({
 
   return (
     <div className="container editor-page">
-      <EditorHeader title={d.title} onSave={handleSaveAll} />
+      <EditorHeader
+        title={d.title}
+        onSave={handleSaveAll}
+        preserveAsset={d.preserveAsset}
+      />
 
       <div className="editor-page-body">
         <div className="editor-content">

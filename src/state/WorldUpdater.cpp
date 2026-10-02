@@ -1,6 +1,6 @@
 #include "state/WorldUpdater.h"
 #include "bmin/StringInterop.h"
-#include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "game/map/Camera.h"
 #include "model/Combat.h"
 #include "model/instances/World.hpp"
@@ -43,9 +43,8 @@ void enqueueCpuCombatTurn(StateManager& stateManager) {
   if (combat.activeCharacterId.empty()) {
     return;
   }
-  game::ActiveMapOrchestrator activeMap(
-      state.world.activeMap, state.mapInstances, nullptr);
-  const auto* character = activeMap.findCharacterById(combat.activeCharacterId);
+  const auto* character =
+      game::findCharacterById(state.world.activeMap, combat.activeCharacterId);
   if (character == nullptr ||
       model::isCharacterDefeated(state.player, *character)) {
     combat.isWaitingForAction = false;
@@ -140,8 +139,6 @@ void worldUpdate(sdl2w::Window* window, StateManager& stateManager, int dt) {
   state.soundsToPlay.clear();
   updateDamageParticles(state.world, window, dt);
   updateProjectiles(state.world, dt);
-  game::ActiveMapOrchestrator activeMap(
-      state.world.activeMap, state.mapInstances, nullptr);
 
   auto& combat = state.world.combat;
   if (combat.active && combat.isWaitingForAction) {
@@ -160,7 +157,7 @@ void worldUpdate(sdl2w::Window* window, StateManager& stateManager, int dt) {
   if (followId.empty()) {
     return;
   }
-  if (const auto* followTarget = activeMap.findCharacterById(followId)) {
+  if (const auto* followTarget = game::findCharacterById(state.world.activeMap, followId)) {
     auto cam = game::computeCameraFollow(
         followTarget->x, followTarget->y, world.camera.viewW, world.camera.viewH);
     world.camera.camX = cam.camX;

@@ -302,7 +302,11 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
 
   return (
     <div className="container editor-page">
-      <EditorHeader title="Character Templates Editor" onSave={handleSaveAll} />
+      <EditorHeader
+        title="Character Templates Editor"
+        onSave={handleSaveAll}
+        preserveAsset="characterTemplates"
+      />
 
       <div className="editor-page-body">
         <div className="editor-content">

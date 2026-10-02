@@ -54,7 +54,6 @@ void markMapCharacterDefeated(model::ActiveMap& activeMap,
   }
 
   ActiveMapOrchestrator orch(activeMap, mapInstances, &database);
-  orch.fetchMapGrid(activeMap.gridId);
   auto* map = orch.getMapInstanceAt(character.x, character.y);
   if (!map) {
     map = orch.getDefaultMapInstance();

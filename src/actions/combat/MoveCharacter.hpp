@@ -2,6 +2,7 @@
 
 #include "model/instances/CharacterInstance.hpp"
 #include "model/Combat.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapVision.h"
 #include "game/map/MapWalkability.h"
@@ -32,8 +33,7 @@ class MoveCharacter : public AbstractAction {
     }
 
     game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
-    orch.fetchMapGrid(world.activeMap.gridId);
-    auto* character = orch.findCharacterById(characterId);
+    auto* character = game::findCharacterById(world.activeMap, characterId);
     if (character == nullptr) {
       return;
     }
@@ -53,7 +53,7 @@ class MoveCharacter : public AbstractAction {
     if (!game::isDestinationWalkable(*destMap, destLocal.x, destLocal.y, *database)) {
       return;
     }
-    if (orch.findCharacterAt(destX, destY, characterId) != nullptr) {
+    if (game::findCharacterAt(world.activeMap, destX, destY, characterId) != nullptr) {
       return;
     }
 

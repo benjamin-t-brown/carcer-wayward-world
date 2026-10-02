@@ -35,7 +35,6 @@ class ActiveMapOrchestrator {
   // class will throw if it doesn't exist.
   const model::MapGridTemplate* grid = nullptr;
   static constexpr int USE_WORLD_MAP_LAYER = 9999;
-  bmin::Map<int, model::MapInstance*> mapInstanceCache;
 
   const model::MapGridTemplate& requireGrid() const;
   int getMapLayerId(int mapLayerId) const;
@@ -49,7 +48,6 @@ public:
                         const db::Database* database);
   ~ActiveMapOrchestrator() = default;
 
-  void fetchMapGrid(const bmin::String& gridName);
   const model::MapGridTemplate& getMapGrid() const;
 
   // return the relative position of the top left that this map
@@ -70,17 +68,6 @@ public:
   model::MapInstance* getDefaultMapInstance();
   model::MapInstance* getMapInstanceAt(int worldX, int worldY);
 
-  model::CharacterInstance* findCharacterById(const bmin::String& characterId,
-                                              int mapLayerId = USE_WORLD_MAP_LAYER);
-  model::CharacterInstance* findCharacterAt(int worldX,
-                                            int worldY,
-                                            int mapLayerId = USE_WORLD_MAP_LAYER);
-  bmin::DynArray<model::CharacterInstance*> findAllCharactersAt(
-      int worldX, int worldY, int mapLayerId = USE_WORLD_MAP_LAYER);
-  model::CharacterInstance* findCharacterAt(int worldX,
-                                            int worldY,
-                                            const bmin::String& excludeId,
-                                            int mapLayerId = USE_WORLD_MAP_LAYER);
   model::TileInstance* findTileAt(int worldX,
                                   int worldY,
                                   int mapLayerId = USE_WORLD_MAP_LAYER);

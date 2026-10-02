@@ -69,6 +69,14 @@ Use the UCRT64 wrapper from the repo root:
 
 `Invoke-Ucrt64.ps1` auto-detects MSYS2 (common install paths / PATH); override with `MSYS2_ROOT` if needed.
 
+Clangd is per-install. After configure, or when the editor cannot resolve symbols, regenerate it (do not hand-write `.clangd` or point `clangd.path` at a wrapper):
+
+```powershell
+.\scripts\Invoke-Ucrt64.ps1 "./scripts/generate-clangd-config.sh"
+```
+
+See `.cursor/rules/windows-msys2-build.mdc`.
+
 ### Linux / macOS / MSYS2 shell
 
 ```bash

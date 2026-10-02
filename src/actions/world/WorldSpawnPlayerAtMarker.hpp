@@ -37,7 +37,6 @@ class WorldSpawnPlayerAtMarker : public AbstractAction {
     }
 
     game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
-    orch.fetchMapGrid(world.activeMap.gridId);
     const auto& grid = orch.getMapGrid();
 
     game::ActiveMapMarker found{};
