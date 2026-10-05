@@ -9,6 +9,7 @@
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
 #include "actions/world/WorldExamineAt.hpp"
+#include "in3/EventRunnerHelpers.h"
 #include "state/LayerRequest.h"
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
@@ -160,6 +161,41 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertFalse(state.world.actionAimTile.has_value(),
                      "aim cleared after look trigger") &&
          ok;
+  }
+
+  {
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupState(database, state);
+    state.world.actionMode = model::WorldActionMode::EXAMINE;
+    state.world.actionAimTile = model::TileXY{3, 2};
+
+    auto& tile = model::mapLayerAt(model::mapInstanceTiles(mapOf(state)), 0)[3 + 2 * 5];
+    tile.eventTrigger = model::TileEventTrigger{
+        .eventId = "gated_look",
+        .requiresLook = true,
+        .condition = "IS(flag)",
+    };
+
+    state::actions::WorldExamineAt blocked(3, 2);
+    blocked.execute(&state);
+    ok = assertFalse(state.triggers.pendingSpecialEventId.has_value(),
+                     "look condition false does not queue event") &&
+         ok;
+
+    state.world.actionMode = model::WorldActionMode::EXAMINE;
+    state.world.actionAimTile = model::TileXY{3, 2};
+    in3::setStorage(state.specialEventStorage, "flag", "1");
+    state::actions::WorldExamineAt allowed(3, 2);
+    allowed.execute(&state);
+    ok = assertTrue(state.triggers.pendingSpecialEventId.has_value(),
+                    "look condition true queues event") &&
+         ok;
+    if (state.triggers.pendingSpecialEventId) {
+      ok = assertEqualStr(*state.triggers.pendingSpecialEventId, "gated_look",
+                          "gated look event id") &&
+           ok;
+    }
   }
 
   {

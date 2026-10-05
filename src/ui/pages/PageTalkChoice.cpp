@@ -13,6 +13,7 @@
 #include "ui/elements/buttons/ButtonGroup.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/elements/buttons/ButtonTextWrap.h"
+#include "ui/helpers/uiSounds.h"
 #include "ui/layouts/ModalStandard.h"
 #include "ui/observers/ActionObserver.hpp"
 #include <algorithm>
@@ -317,7 +318,11 @@ void PageTalkChoice::build() {
     choiceButtonProps.isSelected = false;
     choiceButtonProps.textParagraph.textBlocks.pushBack(
         TextBlock{.text = choiceText, .fontColor = choiceColor});
-    choiceButtonProps.textParagraph.width = textScrollableContentWidthScaled - 8;
+    // Span the scroll content so the row meets the scrollbar. Padding keeps the
+    // label inset; shrinking the button and offsetting it left a gap on the right.
+    choiceButtonProps.horizontalPadding = 4;
+    choiceButtonProps.textParagraph.width =
+        textScrollableContentWidthScaled - choiceButtonProps.horizontalPadding * 2;
     choiceButtonProps.textParagraph.fontFamily = choiceFont.fontFamily;
     choiceButtonProps.textParagraph.fontSize = choiceFont.fontSize;
     choiceButtonProps.textParagraph.fontColor = choiceColor;
@@ -326,7 +331,8 @@ void PageTalkChoice::build() {
     choiceButtonProps.bgColor = Colors::OffWhite;
     choiceButtonProps.verticalPadding = 0;
     choiceButton->setScale(1.f);
-    choiceButton->setPos(4, choiceYOffset);
+    choiceButton->setPos(0, choiceYOffset);
+    choiceButton->clickSoundName = kButtonPageTurnSoundName;
     choiceButton->setProps(choiceButtonProps);
     choiceButton->addEventObserver(
         ui::makeActionObserver<state::actions::UiSelectSpecialEventChoice>(i));
@@ -622,7 +628,8 @@ void PageTalkChoice::beginKeyboardChoicePress(int choiceIndex) {
         return nullptr;
       },
       [this, choiceIndex]() { enqueueSelectChoice(choiceIndex); },
-      window);
+      window,
+      kButtonPageTurnSoundName);
 }
 
 void PageTalkChoice::beginKeyboardContinuePress() {

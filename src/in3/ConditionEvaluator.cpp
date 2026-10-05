@@ -1,6 +1,8 @@
 #include "ConditionEvaluator.h"
 #include "EventRunnerHelpers.h"
 #include "QuestProgress.h"
+#include "model/instances/CharacterPlayer.h"
+#include "model/instances/Player.h"
 #include <algorithm>
 #include <stdexcept>
 
@@ -134,8 +136,9 @@ bool ConditionEvaluatorFuncs::ONCE(const bmin::String& a) {
   if (v && *v == "true") {
     return false;
   }
-  if (std::find(onceKeysToCommit.begin(), onceKeysToCommit.end(), onceKey) ==
-      onceKeysToCommit.end()) {
+  if (!soft &&
+      std::find(onceKeysToCommit.begin(), onceKeysToCommit.end(), onceKey) ==
+          onceKeysToCommit.end()) {
     onceKeysToCommit.pushBack(onceKey);
   }
   return true;
@@ -143,7 +146,19 @@ bool ConditionEvaluatorFuncs::ONCE(const bmin::String& a) {
 
 bool ConditionEvaluatorFuncs::FUNC_HasItem(const bmin::String& itemName) {
   auto v = getStorage(storage, "vars.items." + itemName);
-  return v && !v->empty() && *v != "0" && *v != "false";
+  if (v && !v->empty() && *v != "0" && *v != "false") {
+    return true;
+  }
+  // Destructible grants live in party inventory, not vars.items.
+  if (!player || itemName.empty()) {
+    return false;
+  }
+  for (size_t i = 0; i < player->party.size(); ++i) {
+    if (model::characterPlayerFindItemInInventoryByName(player->party[i], itemName)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 bool ConditionEvaluatorFuncs::FUNC_QuestStarted(const bmin::String& questName) {

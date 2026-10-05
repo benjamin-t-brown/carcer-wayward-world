@@ -260,6 +260,22 @@ int main(int /*argc*/, char** /*argv*/) {
            ok;
     }
 
+    // Standing on opaque tile: treat standing cell as see-through for rays
+    {
+      auto map = makeEmptyMap("test_map", 7, 7);
+      auto* underfoot = tileAt(map, 1, 3);
+      underfoot->tileId = 0;
+      underfoot->tileOverrides = model::TileOverrides{};
+      underfoot->tileOverrides->isSeeThroughOverride = false;
+      game::updateMapVisibilityFromPlayer(map, 1, 3, database);
+
+      ok = assertTrue(tileAt(map, 1, 3)->isVisible, "opaque underfoot still visible") &&
+           ok;
+      ok = assertTrue(tileAt(map, 4, 3)->isVisible,
+                      "beyond opaque underfoot still visible") &&
+           ok;
+    }
+
     // Override true on wall allows seeing past it
     {
       auto map = makeEmptyMap("test_map", 7, 7);

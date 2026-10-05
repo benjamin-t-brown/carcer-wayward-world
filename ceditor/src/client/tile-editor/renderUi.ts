@@ -27,7 +27,7 @@ export type VisibleTileRange = {
 
 /**
  * Tiles outside the canvas still cost a drawImage each, so a 30x30 map with 8
- * stitched neighbours redraws 8100 tiles a frame. Clip to what can be seen.
+ * stitched neighbors redraws 8100 tiles a frame. Clip to what can be seen.
  * The margin covers sprites drawn taller/wider than their tile.
  */
 export const getVisibleTileRange = (args: {
@@ -187,7 +187,7 @@ export const renderToolUi = (
   items: ItemTemplate[],
   /** Which block this pass is for; drives per-map state lookups. */
   mapName: string = editorState.selectedMapName,
-  /** Pixel offset of that block from the focused map (grid neighbours). */
+  /** Pixel offset of that block from the focused map (grid neighbors). */
   offsetPixelX = 0,
   offsetPixelY = 0,
 ) => {
@@ -430,7 +430,7 @@ export const renderToolUi = (
       partialHoveredTileData.y > -1
     ) {
       // Preview once, from the block under the pointer. Cells that fall past
-      // this block resolve into the neighbouring grid map and are drawn at
+      // this block resolve into the neighboring grid map and are drawn at
       // their out-of-range local coords (the block sits at this transform).
       const gridCtx = getGridPaintContext();
       const mapsByName: Record<string, CarcerMapTemplate> = {
@@ -737,7 +737,9 @@ export const renderTileAndExtras = (args: {
   }
 
   if (refTile.eventTrigger) {
-    controlSprites.push('control_0');
+    controlSprites.push(
+      refTile.eventTrigger.condition?.trim() ? 'control_6' : 'control_0'
+    );
   }
 
   if (refTile.travelTrigger) {
@@ -746,6 +748,10 @@ export const renderTileAndExtras = (args: {
 
   if (refTile.markers.length) {
     controlSprites.push('control_4');
+  }
+
+  if (refTile.doorLock) {
+    controlSprites.push('control_5');
   }
 
   // In-game style overlays (extra_4/5/6) for event/travel visibility settings.

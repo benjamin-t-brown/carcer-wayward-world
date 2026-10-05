@@ -49,7 +49,12 @@ int main(int argc, char** argv) {
     ok = assertEqual(map.width, 2, "flat_test_map.width") && ok;
     ok = assertEqual(map.height, 2, "flat_test_map.height") && ok;
     ok = assertEqual(static_cast<int>(map.tilesets.size()), 2, "flat_test_map.tilesets") && ok;
-    const bmin::DynArray<int>& layer0 = map.tiles[0];
+    const auto layer0It = map.tiles.find(0);
+    if (layer0It == map.tiles.end()) {
+      LOG(ERROR) << "flat_test_map missing layer 0 tiles" << LOG_ENDL;
+      return 1;
+    }
+    const bmin::DynArray<int>& layer0 = layer0It->value;
     ok = assertEqual(static_cast<int>(layer0.size()), 8, "flat_test_map.tiles[0].size") && ok;
     ok = assertEqual(layer0[2], 1, "flat_test_map.tiles[0][2]") && ok;
     ok = assertEqual(layer0[3], 6, "flat_test_map.tiles[0][3]") && ok;
@@ -64,6 +69,11 @@ int main(int argc, char** argv) {
     ok = assertEqual(map.items[0].quantity, 2, "flat_test_map.items[0].quantity") && ok;
     ok = assertEqual(static_cast<int>(map.markers.size()), 1, "flat_test_map.markers") && ok;
     ok = assertEqual(static_cast<int>(map.eventTriggers.size()), 1, "flat_test_map.eventTriggers") && ok;
+    if (!map.eventTriggers.empty()) {
+      ok = assertTrue(map.eventTriggers[0].condition == "IS(opened)",
+                      "flat_test_map.eventTriggers[0].condition") &&
+           ok;
+    }
     ok = assertEqual(static_cast<int>(map.travelTriggers.size()), 1, "flat_test_map.travelTriggers") && ok;
     ok = assertEqual(static_cast<int>(map.doorLocks.size()), 0, "flat_test_map.doorLocks") && ok;
     {
@@ -146,6 +156,41 @@ int main(int argc, char** argv) {
     const model::CarcerMapTemplate& loaded = database.getMapTemplate("alinea_outside1");
     ok = assertEqual(loaded.width, 30, "alinea_outside1.width") && ok;
     ok = assertEqual(static_cast<int>(loaded.layers.size()), 2, "alinea_outside1.layers") && ok;
+
+    const model::CarcerMapTemplate& alinea2 =
+        database.getMapTemplate("alinea_outsideAlinea2");
+    ok = assertTrue(alinea2.tiles.contains(-1), "alinea_outsideAlinea2.tiles[-1] loaded") && ok;
+    ok = assertTrue(alinea2.tiles.contains(0), "alinea_outsideAlinea2.tiles[0] loaded") && ok;
+    ok = assertTrue(alinea2.tiles.contains(1), "alinea_outsideAlinea2.tiles[1] loaded") && ok;
+    {
+      auto alinea2Instance = model::createMapInstanceFromTemplate(alinea2);
+      ok = assertTrue(model::mapHasLayer(model::mapInstanceTiles(alinea2Instance), -1),
+                      "alinea_outsideAlinea2 instance layer -1") &&
+           ok;
+      constexpr int basementIndex = 662;
+      constexpr int mapWidth = 30;
+      const int basementX = basementIndex % mapWidth;
+      const int basementY = basementIndex / mapWidth;
+      const auto* basementTile =
+          model::mapInstanceGetTileAt(alinea2Instance, basementX, basementY, -1);
+      ok = assertTrue(basementTile != nullptr, "alinea_outsideAlinea2 basement tile exists") && ok;
+      if (basementTile) {
+        ok = assertTrue(!basementTile->tilesetName.empty(),
+                        "alinea_outsideAlinea2 basement tileset non-empty") &&
+             ok;
+        ok = assertTrue(basementTile->travelTrigger.has_value(),
+                        "alinea_outsideAlinea2 basement travel trigger") &&
+             ok;
+        if (basementTile->travelTrigger) {
+          ok = assertTrue(basementTile->travelTrigger->requiresAction,
+                          "alinea_outsideAlinea2 basement travel requiresAction") &&
+               ok;
+          ok = assertEqual(basementTile->travelTrigger->destinationLayer, 0,
+                           "alinea_outsideAlinea2 basement travel destinationLayer") &&
+               ok;
+        }
+      }
+    }
 
     if (!ok) {
       LOG(ERROR) << "Map template assertions failed" << LOG_ENDL;

@@ -10,6 +10,7 @@ struct ItemInfoProps {
   bmin::String description;
   int weight = 0;
   int value = 0;
+  bool showWeightAndValue = true;
 };
 
 // ItemInfo - description, weight, and value for an item template.

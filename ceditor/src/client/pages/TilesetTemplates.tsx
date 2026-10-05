@@ -242,10 +242,10 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
     });
 
     try {
-      await saveTilesets(sortedTilesets);
+      const savedTilesets = await saveTilesets(sortedTilesets);
       showNotification('Tilesets saved successfully!', 'success');
       if (currentTilesetName) {
-        const nextTilesetIndex = sortedTilesets.findIndex(
+        const nextTilesetIndex = savedTilesets.findIndex(
           (tileset) => tileset.name === currentTilesetName.trim()
         );
         setEditTilesetIndex(nextTilesetIndex);

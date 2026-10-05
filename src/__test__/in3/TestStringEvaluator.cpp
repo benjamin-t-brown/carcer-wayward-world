@@ -1,11 +1,14 @@
 #include "bmin/DynArray.h"
-#include "bmin/String.h"
 #include "bmin/Map.h"
-#include "sdl2w/Logger.h"
+#include "bmin/String.h"
+#include "db/Database.h"
 #include "in3/EventRunnerHelpers.h"
-#include "in3/StringEvaluator.h"
 #include "in3/QuestProgress.h"
+#include "in3/StringEvaluator.h"
+#include "model/instances/CharacterPlayer.h"
+#include "model/instances/Player.h"
 #include "model/templates/Quests.hpp"
+#include "sdl2w/Logger.h"
 
 #define TEST_NAME "TestStringEvaluator"
 
@@ -33,6 +36,7 @@ int main(int argc, char** argv) {
       {"SET_STR(str2, test value)", {"str2", "test value"}},
       {"SET_PORT(claire)", {"tmp.talk.port", "claire"}},
       {"SET_PORT()", {"tmp.talk.port", ""}},
+      // Without item DB context, ADD_ITEM_TO_PLAYER keeps legacy vars.items behavior.
       {"ADD_ITEM_TO_PLAYER(BeerPappysLager)", {"vars.items.BeerPappysLager", "1"}},
       {"ADD_ITEM_TO_PLAYER(AlineaCorrespondence1, 15)",
        {"vars.items.AlineaCorrespondence1", "15"}},
@@ -509,6 +513,38 @@ int main(int argc, char** argv) {
         LOG(ERROR) << "ADD_ITEM_TO_PLAYER should accept an amount" << LOG_ENDL;
         return 1;
       }
+    }
+
+    {
+      db::Database database;
+      database.load();
+      model::Player player;
+      player.party.pushBack(
+          model::CharacterPlayer(database.getCharacterTemplate("testPartyMember1")));
+
+      bmin::Map<bmin::String, bmin::String> itemStorage;
+      in3::StringEvaluator evaluator(itemStorage, "ADD_ITEM_TO_PLAYER(BeerPappysLager)");
+      evaluator.funcs.player = &player;
+      evaluator.funcs.database = &database;
+      evaluator.evalStr("ADD_ITEM_TO_PLAYER(BeerPappysLager, 3)");
+      evaluator.evalStr("ADD_ITEM_TO_PLAYER(AlineaCorrespondence1)");
+
+      if (in3::getStorage(itemStorage, "vars.items.BeerPappysLager")) {
+        LOG(ERROR) << "destructible item should not land in vars.items" << LOG_ENDL;
+        return 1;
+      }
+      auto beer = model::characterPlayerFindItemInInventoryByName(player.party[0],
+                                                                  "BeerPappysLager");
+      if (!beer || beer->quantity != 3) {
+        LOG(ERROR) << "destructible item should go to first party inventory" << LOG_ENDL;
+        return 1;
+      }
+      auto letter = in3::getStorage(itemStorage, "vars.items.AlineaCorrespondence1");
+      if (!letter || *letter != "1") {
+        LOG(ERROR) << "indestructable item should stay in vars.items" << LOG_ENDL;
+        return 1;
+      }
+      LOG(INFO) << "ADD_ITEM_TO_PLAYER inventory vs vars.items branch passed" << LOG_ENDL;
     }
 
     {

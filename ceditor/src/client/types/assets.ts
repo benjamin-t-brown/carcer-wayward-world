@@ -892,6 +892,36 @@ export function createDefaultCharacterStats(): CharacterStats {
   };
 }
 
+/** Baseline townsperson block. Matches alinea_Sharon in characters.json. */
+export function createGenericTownspersonStats(): CharacterStats {
+  return {
+    generic: { str: 1, mnd: 2, con: 3, agi: 1, lck: 1 },
+    trainable: {
+      weapon: { edged: 1, pole: 0, blunt: 0, range: 0, unarmed: 0 },
+      magic: { mana: 0, abilityPower: 0, attunement: 0, faith: 0, lore: 0 },
+      body: {
+        resistPhysical: 0,
+        resistMagical: 0,
+        healingEffectiveness: 0,
+        dr: 0,
+        armorTraining: 0,
+      },
+    },
+    skills: {
+      trickery: 0,
+      brutishness: 0,
+      stealth: 0,
+      social: 0,
+      magicItemUse: 0,
+      cooking: 0,
+      acrobatics: 0,
+      survival: 0,
+      focus: 0,
+      conditioning: 0,
+    },
+  };
+}
+
 export interface CharacterTemplateSound {
   deathSoundName?: string;
   weaponSoundName?: string;
@@ -1272,6 +1302,8 @@ export interface TileEventTrigger {
   requiresLook?: boolean;
   /** Default HIDDEN when omitted from JSON. */
   overlayVisibility?: TileOverlayVisibility;
+  /** Empty or omitted means the event always runs. Otherwise an in3 condition. */
+  condition?: string;
 }
 
 export interface TravelTrigger {

@@ -8,13 +8,56 @@
 #include "sdl2w/L10n.h"
 #include "sdl2w/Logger.h"
 #include "sdl2w/Window.h"
+#include "setupTestState.hpp"
+#include "state/DatabaseInterface.h"
+#include "state/StateManagerInterface.h"
+#include <cstring>
 #include <functional>
 
 struct TestUiParams {
   int width;
   int height;
   bmin::String title = "UI Test";
+  // Optional ceditor-style in3 storage JSON (vars/once/tmp nested objects).
+  // Flattened into state.specialEventStorage before _init. Override with
+  // --state=path. Requires DatabaseInterface + StateManagerInterface set first.
+  bmin::String stateJsonPath;
 };
+
+namespace {
+
+inline bmin::String resolveTestStateJsonPath(int argc,
+                                             char** argv,
+                                             const TestUiParams& params) {
+  for (int i = 1; i < argc; ++i) {
+    const char* arg = argv[i];
+    if (std::strncmp(arg, "--state=", 8) == 0 && arg[8] != '\0') {
+      return bmin::String(arg + 8);
+    }
+  }
+  return params.stateJsonPath;
+}
+
+struct TestUiGlobalAccess : state::StateManagerInterface, state::DatabaseInterface {
+  static state::StateManager* stateManager() { return getStateManager(false); }
+  static db::Database* database() { return getDatabase(); }
+};
+
+inline void maybeLoadTestStateFixture(const bmin::String& path) {
+  if (path.empty()) {
+    return;
+  }
+  auto* database = TestUiGlobalAccess::database();
+  auto* stateManager = TestUiGlobalAccess::stateManager();
+  if (!database || !stateManager) {
+    throw std::runtime_error(
+        "TestUiParams.stateJsonPath / --state= requires DatabaseInterface and "
+        "StateManagerInterface to be set before setupTestUi");
+  }
+  loadTestStateFromJson(path, *database, stateManager->getState());
+}
+
+} // namespace
 
 // Runs after the render loop exits, while window/store are still alive.
 // Clear UI elements here so Quad and other SDL-owned resources are released
@@ -58,6 +101,8 @@ inline void setupTestUi(int argc,
 
     window.setSoundPct(33);
 
+    const auto stateJsonPath = resolveTestStateJsonPath(argc, argv, params);
+
     auto _initializeLoop = [&]() {
       sdl2w::renderSplash(window);
       return true;
@@ -65,6 +110,7 @@ inline void setupTestUi(int argc,
 
     auto _onInitialized = [&]() {
       LOG(INFO) << "Initializing test..." << LOG_ENDL;
+      maybeLoadTestStateFixture(stateJsonPath);
       _init(window, store);
     };
 

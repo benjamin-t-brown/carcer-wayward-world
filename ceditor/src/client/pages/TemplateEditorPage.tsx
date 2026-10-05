@@ -67,7 +67,7 @@ interface TemplateEditorPageProps<T> {
   descriptor: TemplateEditorDescriptor<T>;
   items: T[];
   setItems: (items: T[]) => void;
-  saveItems: (items: T[]) => Promise<void>;
+  saveItems: (items: T[]) => Promise<T[]>;
   renderForm: (item: T | undefined, update: (item: T) => void) => ReactNode;
   routeParams?: URLSearchParams;
 }
@@ -173,9 +173,9 @@ export function TemplateEditorPage<T>({
       d.compare ?? ((a: T, b: T) => d.getId(a).localeCompare(d.getId(b)));
     const sorted = trimStrings(items).sort(compare);
     try {
-      await saveItems(sorted);
-      setItems(sorted);
-      const errors = d.validateAfterSave?.(sorted) ?? [];
+      const saved = await saveItems(sorted);
+      setItems(saved);
+      const errors = d.validateAfterSave?.(saved) ?? [];
       if (errors.length > 0) {
         showNotification(
           `${capitalize(d.entityNounPlural)} saved, but errors:\n${errors.join(
@@ -191,9 +191,7 @@ export function TemplateEditorPage<T>({
         );
       }
       if (currentId) {
-        setEditIndex(
-          sorted.findIndex((x) => d.getId(x) === currentId.trim())
-        );
+        setEditIndex(saved.findIndex((x) => d.getId(x) === currentId.trim()));
       }
     } catch (error) {
       showNotification(

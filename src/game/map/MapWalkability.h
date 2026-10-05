@@ -2,6 +2,7 @@
 
 #include "bmin/DynArray.h"
 #include "db/Database.h"
+#include "game/map/DoorLock.h"
 #include "model/instances/World.hpp"
 #include "model/templates/Tileset.hpp"
 
@@ -41,6 +42,21 @@ void upsertOpenedDoor(bmin::DynArray<model::OpenedDoorRecord>& doors,
                       int y,
                       int tileId);
 
+// Restore cleared door locks after rebuilding from a map template.
+void applyUnlockedDoors(model::MapInstance& map,
+                        const bmin::DynArray<model::UnlockedDoorRecord>& doors);
+void upsertUnlockedDoor(bmin::DynArray<model::UnlockedDoorRecord>& doors,
+                        int layer,
+                        int x,
+                        int y);
+// Record session persistence after tryOpenClosedDoor mutates the tile.
+void persistClosedDoorOpen(model::PersistentMapState& persistentState,
+                           int layer,
+                           int x,
+                           int y,
+                           int tileId,
+                           ClosedDoorOpenResult opened);
+
 // Non-empty tiles at (x,y) across layers, sorted low→high layer.
 void collectTilesAt(model::MapInstance& map,
                     int x,
@@ -51,8 +67,9 @@ void collectTilesAt(const model::MapInstance& map,
                     int y,
                     bmin::DynArray<const model::TileInstance*>& out);
 
-// Highest non-empty tile at (x,y) among layers <= map.tileLayerNumber.
-// Ignores layers above the current layer. Returns nullptr if none / OOB.
+// Highest non-empty tile at (x,y) among layers <= map.tileLayerNumber
+// (including negative layers such as basement -1). Ignores layers above the
+// current layer. Returns nullptr if none / OOB.
 const model::TileInstance*
 resolveTileToRender(const model::MapInstance& map, int x, int y);
 

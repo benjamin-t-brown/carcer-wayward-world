@@ -4,6 +4,7 @@
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapWalkability.h"
 #include "game/map/TileFields.h"
+#include "game/map/TileTriggers.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/CharacterTemplate.h"
 #include "model/templates/Maps.h"
@@ -359,7 +360,14 @@ void MapView::render(int dt) {
             drawMapSprite(overlaySprite, screenX, screenY);
           };
           if (surfaceTile->eventTrigger) {
-            drawOverlay(surfaceTile->eventTrigger->overlayVisibility);
+            const auto& trigger = *surfaceTile->eventTrigger;
+            const bool conditionAllowsOverlay =
+                trigger.overlayVisibility !=
+                    model::TileOverlayVisibility::SHOW_EVENT_ON_TILE ||
+                game::tileEventConditionHolds(trigger, state.specialEventStorage);
+            if (conditionAllowsOverlay) {
+              drawOverlay(trigger.overlayVisibility);
+            }
           }
           if (surfaceTile->travelTrigger) {
             drawOverlay(surfaceTile->travelTrigger->overlayVisibility);

@@ -121,11 +121,11 @@ export function MapGrids({
     }
     const sorted = normalized.sort((a, b) => a.name.localeCompare(b.name));
     try {
-      await saveMapGrids(sorted);
-      setMapGrids(sorted);
+      const saved = await saveMapGrids(sorted);
+      setMapGrids(saved);
       showNotification('Map grids saved successfully!', 'success');
       if (currentName) {
-        setEditIndex(sorted.findIndex((g) => g.name === currentName.trim()));
+        setEditIndex(saved.findIndex((g) => g.name === currentName.trim()));
       }
     } catch (error) {
       showNotification(

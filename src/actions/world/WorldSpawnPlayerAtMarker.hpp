@@ -18,6 +18,7 @@ namespace actions {
 class WorldSpawnPlayerAtMarker : public AbstractAction {
   ActionEvent getEvent() const override { return ActionEvent::WorldSpawnPlayerAtMarker; }
   bmin::String markerName;
+  bmin::String mapName;
 
   void act() override {
     auto* database = getDatabase();
@@ -37,22 +38,27 @@ class WorldSpawnPlayerAtMarker : public AbstractAction {
     }
 
     game::ActiveMapOrchestrator orch(state->world.activeMap, state->mapInstances, getDatabase());
-    const auto& grid = orch.getMapGrid();
 
     game::ActiveMapMarker found{};
-    for (int y = 0; y < grid.gridHeight && !found.valid; ++y) {
-      for (int x = 0; x < grid.gridWidth && !found.valid; ++x) {
-        const auto& mapName = grid.cells[static_cast<size_t>(y)][static_cast<size_t>(x)];
-        if (mapName.empty()) {
-          continue;
+    if (!mapName.empty()) {
+      found = orch.findMarker(mapName, markerName);
+    } else {
+      const auto& grid = orch.getMapGrid();
+      for (int y = 0; y < grid.gridHeight && !found.valid; ++y) {
+        for (int x = 0; x < grid.gridWidth && !found.valid; ++x) {
+          const auto& cellMapName =
+              grid.cells[static_cast<size_t>(y)][static_cast<size_t>(x)];
+          if (cellMapName.empty()) {
+            continue;
+          }
+          found = orch.findMarker(cellMapName, markerName);
         }
-        found = orch.findMarker(mapName, markerName);
       }
     }
 
     if (!found.valid) {
       LOG(ERROR) << "WorldSpawnPlayerAtMarker::act: marker not found: " << markerName
-                 << LOG_ENDL;
+                 << (mapName.empty() ? "" : " on map ") << mapName << LOG_ENDL;
       return;
     }
 
@@ -69,8 +75,9 @@ class WorldSpawnPlayerAtMarker : public AbstractAction {
   }
 
 public:
-  explicit WorldSpawnPlayerAtMarker(bmin::String _markerName = "MarkerPlayer")
-      : markerName(std::move(_markerName)) {}
+  explicit WorldSpawnPlayerAtMarker(bmin::String _markerName = "MarkerPlayer",
+                                    bmin::String _mapName = {})
+      : markerName(std::move(_markerName)), mapName(std::move(_mapName)) {}
 };
 
 } // namespace actions

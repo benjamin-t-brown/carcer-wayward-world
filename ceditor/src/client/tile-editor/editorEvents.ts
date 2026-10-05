@@ -235,7 +235,7 @@ const mapsByNameOf = (
 
 /**
  * Name of the grid block the pointer is over, when grid editing is on and it is
- * a neighbour of the focused map (not the focused map itself, and a real tile).
+ * a neighbor of the focused map (not the focused map itself, and a real tile).
  * Empty string means "paint the focused map as usual".
  */
 const resolvePaintTargetMapName = (
@@ -310,7 +310,7 @@ const resolveNeighborTileHit = (
   return hit;
 };
 
-/** Tile under the pointer on the focused map or an editable neighbour. */
+/** Tile under the pointer on the focused map or an editable neighbor. */
 const resolveAnyTileHit = (
   clientX: number,
   clientY: number,
@@ -344,7 +344,7 @@ const resolveAnyTileHit = (
 
 /**
  * Block + tile a right-click (pick / brush-copy) should act on: a grid
- * neighbour when the pointer is over one, otherwise the focused map. `mapName`
+ * neighbor when the pointer is over one, otherwise the focused map. `mapName`
  * is '' for the focused map. `tileIndex` is -1 when there is nothing to pick.
  */
 const resolveRightPickTarget = (
@@ -827,7 +827,7 @@ export const initPanzoom = (mapDataInterface: {
         mapDataInterface.getEditorState().currentPaintAction;
       const gridSlotHit = findGridSlotAtScreen(ev.clientX, ev.clientY, mapDataInterface);
       if (gridSlotHit) {
-        // Select on a filled neighbour is a tile pick (focus + select), not
+        // Select on a filled neighbor is a tile pick (focus + select), not
         // the center-slot navigate hotspot. Empty slots still create a map.
         const slotIsEmpty = !isGridSlotEditable(gridSlotHit.slot);
         if (
@@ -1556,7 +1556,7 @@ export const screenCoordsToTileIndex = (
 
 /**
  * Tile coords for a screen point relative to `focusedMap`'s top-left, allowed to
- * run negative or past the map's edges — a point over a neighbouring grid cell
+ * run negative or past the map's edges — a point over a neighboring grid cell
  * yields the continuation of the focused map's tile grid. Null when the focused
  * map is not in a grid. Pair with resolveGridBrushCell to land on a real block.
  */
@@ -1629,7 +1629,7 @@ export interface GridCellHit {
 /**
  * Resolve which grid cell (and tile within it) the pointer is over, expressed
  * relative to `focusedMap`'s placement. For cell offset (0, 0) this reproduces
- * `screenCoordsToTileIndex` exactly; neighbours reuse the same transform shifted
+ * `screenCoordsToTileIndex` exactly; neighbors reuse the same transform shifted
  * by whole slots. Returns null when the focused map is not in a grid, or the
  * pointer is outside `radius` / off the grid.
  */

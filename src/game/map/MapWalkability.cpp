@@ -208,6 +208,84 @@ void upsertOpenedDoor(bmin::DynArray<model::OpenedDoorRecord>& doors,
   doors.pushBack(record);
 }
 
+namespace {
+
+void removeUnlockedDoorAt(bmin::DynArray<model::UnlockedDoorRecord>& doors,
+                          int layer,
+                          int x,
+                          int y) {
+  for (size_t i = 0; i < doors.size(); i++) {
+    const auto& record = doors[i];
+    if (record.layer == layer && record.x == x && record.y == y) {
+      doors.erase(i);
+      return;
+    }
+  }
+}
+
+} // namespace
+
+void applyUnlockedDoors(model::MapInstance& map,
+                        const bmin::DynArray<model::UnlockedDoorRecord>& doors) {
+  for (size_t i = 0; i < doors.size(); i++) {
+    const auto& record = doors[i];
+    if (record.x < 0 || record.y < 0 || record.x >= map.width || record.y >= map.height) {
+      continue;
+    }
+    auto* layerTiles = model::mapLayerPtr(model::mapInstanceTiles(map), record.layer);
+    if (!layerTiles) {
+      continue;
+    }
+    const auto index = tileIndex(map, record.x, record.y);
+    if (index < 0 || index >= static_cast<int>(layerTiles->size())) {
+      continue;
+    }
+    auto& tile = (*layerTiles)[static_cast<size_t>(index)];
+    if (tile.tilesetName.empty()) {
+      continue;
+    }
+    tile.doorLock = std::nullopt;
+  }
+}
+
+void upsertUnlockedDoor(bmin::DynArray<model::UnlockedDoorRecord>& doors,
+                          int layer,
+                          int x,
+                          int y) {
+  for (size_t i = 0; i < doors.size(); i++) {
+    const auto& record = doors[i];
+    if (record.layer == layer && record.x == x && record.y == y) {
+      return;
+    }
+  }
+  auto record = model::UnlockedDoorRecord{};
+  record.layer = layer;
+  record.x = x;
+  record.y = y;
+  doors.pushBack(record);
+}
+
+void persistClosedDoorOpen(model::PersistentMapState& persistentState,
+                           int layer,
+                           int x,
+                           int y,
+                           int tileId,
+                           ClosedDoorOpenResult opened) {
+  switch (opened) {
+  case ClosedDoorOpenResult::OpenedSilent:
+  case ClosedDoorOpenResult::OpenedBash:
+    upsertOpenedDoor(persistentState.openedDoors, layer, x, y, tileId);
+    removeUnlockedDoorAt(persistentState.unlockedDoors, layer, x, y);
+    break;
+  case ClosedDoorOpenResult::OpenedKey:
+  case ClosedDoorOpenResult::OpenedLockpick:
+    upsertUnlockedDoor(persistentState.unlockedDoors, layer, x, y);
+    break;
+  case ClosedDoorOpenResult::Blocked:
+    break;
+  }
+}
+
 void collectTilesAt(model::MapInstance& map,
                     int x,
                     int y,
@@ -272,9 +350,12 @@ resolveTileToRender(const model::MapInstance& map, int x, int y) {
     return nullptr;
   }
 
-  const model::TileInstance* best = nullptr;
+  // Include negative layers (e.g. shed basement at -1). Starting at 0 made
+  // tileLayerNumber < 0 resolve nothing → MapView painted the whole view black.
+  const auto minMax = model::mapInstanceGetMinMaxLayer(map);
   const int maxLayer = map.tileLayerNumber;
-  for (int layerKey = 0; layerKey <= maxLayer; ++layerKey) {
+  const model::TileInstance* best = nullptr;
+  for (int layerKey = minMax.x; layerKey <= maxLayer; ++layerKey) {
     const auto* layerTiles = model::mapLayerPtr(model::mapInstanceTiles(map), layerKey);
     if (!layerTiles) {
       continue;

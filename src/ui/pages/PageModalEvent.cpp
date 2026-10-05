@@ -1,16 +1,17 @@
 #include "PageModalEvent.h"
 #include "actions/navigation/UiContinueSpecialEvent.hpp"
 #include "actions/navigation/UiSelectSpecialEventChoice.hpp"
+#include "bmin/StringInterop.h"
+#include "bmin/UniquePtr.h"
+#include "sdl2w/Draw.h"
 #include "sdl2w/L10n.h"
 #include "ui/colors.hpp"
-#include "ui/components/borders/BorderModalSmall.h"
 #include "ui/elements/Quad.h"
 #include "ui/elements/SectionScrollable.h"
 #include "ui/elements/TextLine.h"
 #include "ui/elements/TextParagraph.h"
 #include "ui/elements/buttons/ButtonGroup.h"
 #include "ui/elements/buttons/ButtonModal.h"
-#include "ui/elements/buttons/ButtonTextWrap.h"
 #include "ui/helpers/modalLayoutFit.h"
 #include "ui/helpers/uiSounds.h"
 #include "ui/layouts/ModalSmall.h"
@@ -18,6 +19,19 @@
 #include <algorithm>
 
 namespace ui {
+
+class PageModalEventShowMoreObserver : public UiEventObserver {
+  PageModalEvent* page;
+
+public:
+  explicit PageModalEventShowMoreObserver(PageModalEvent* _page) : page(_page) {}
+
+  void onClick(int /*mouseX*/, int /*mouseY*/, int /*button*/) override {
+    if (page) {
+      page->performShowMore();
+    }
+  }
+};
 
 PageModalEvent::PageModalEvent(sdl2w::Window* _window, UiElement* _parent)
     : UiElement(_window, _parent) {}
@@ -78,21 +92,9 @@ void PageModalEvent::build() {
   title->setProps(titleProps);
   modal->setTitleElement(bmin::UniquePtr<ui::UiElement>(title));
 
-  auto* border = dynamic_cast<BorderModalSmall*>(modal->getChildById("border"));
   auto [contentX, contentY] = modal->getContentLocation();
-  int contentW = 0;
-  int contentH = 0;
-  if (props.showContinueButton && props.choices.empty()) {
-    // Reserve the bottom button strip for Continue.
-    auto [w, h] = modal->getContentDims();
-    contentW = w;
-    contentH = h;
-  } else if (border) {
-    // No Continue row — use the full content area (choices live in the scroll body).
-    auto [w, h] = border->getContentDims();
-    contentW = w;
-    contentH = h;
-  }
+  // Always reserve the button strip for Okay / Show More / choice buttons.
+  auto [contentW, contentH] = modal->getContentDims();
 
   const int unscaledContentW = static_cast<int>(contentW / style.scale);
   const int unscaledContentH = static_cast<int>(contentH / style.scale);
@@ -125,41 +127,9 @@ void PageModalEvent::build() {
   });
   scrollableSection->addChild(bmin::UniquePtr<ui::UiElement>(textBlock));
 
-  int contentBottom = textBlock->getDims().second;
-  if (!props.choices.empty()) {
-    int choiceYOffset = contentBottom;
-    for (int i = 0; i < static_cast<int>(props.choices.size()); i++) {
-      auto choiceButton = new ButtonTextWrap(window, scrollableSection);
-      choiceButton->setId("choice" + bmin::toString(i));
-      TextFontProps choiceFont;
-      setBaseFontConfig(choiceFont, BaseFontConfig::MODAL_CHOICE_TEXT);
-      ButtonTextWrapProps choiceButtonProps;
-      const bmin::String& prefixText = props.choices[i].prefixText;
-      const bmin::String choiceText =
-          bmin::toString(i + 1) + ". " +
-          (prefixText.empty() ? props.choices[i].text
-                              : prefixText + " " + props.choices[i].text);
-      const SDL_Color choiceColor =
-          props.choices[i].previouslyChosen ? Colors::Grey : Colors::DarkBlue;
-      choiceButtonProps.textParagraph.textBlocks.pushBack(
-          TextBlock{.text = choiceText, .fontColor = choiceColor});
-      choiceButtonProps.textParagraph.width = scrollableContentW - 8;
-      choiceButtonProps.textParagraph.fontFamily = choiceFont.fontFamily;
-      choiceButtonProps.textParagraph.fontSize = choiceFont.fontSize;
-      choiceButtonProps.textParagraph.fontColor = choiceColor;
-      choiceButton->setScale(1.f);
-      choiceButton->setPos(4, choiceYOffset);
-      choiceButton->setProps(choiceButtonProps);
-      choiceButton->addEventObserver(
-          ui::makeActionObserver<state::actions::UiSelectSpecialEventChoice>(i));
-      auto [__, choiceHeight] = choiceButton->getDims();
-      choiceYOffset += choiceHeight;
-      scrollableSection->addChild(bmin::UniquePtr<ui::UiElement>(choiceButton));
-    }
-    contentBottom = choiceYOffset;
-  }
+  const int contentBottom = textBlock->getDims().second;
 
-  // Fill remaining viewport so short text reaches the button strip (talk modal pattern).
+  // Fill remaining viewport so short text reaches the button strip.
   const int padHeight = std::max(0, scrollableViewportH - contentBottom);
   if (padHeight > 0) {
     auto* spacer = new Quad(window, scrollableSection);
@@ -177,47 +147,61 @@ void PageModalEvent::build() {
   scrollableSection->build();
   modal->addChild(bmin::UniquePtr<ui::UiElement>(scrollableSection));
 
-  if (props.showContinueButton && props.choices.empty()) {
-    auto [buttonsW, buttonsH] = modal->getButtonsDims();
-    auto [buttonsX, buttonsY] = modal->getButtonsLocation();
-    const int buttonPadding = 2;
-    const int buttonWidth = 120;
+  auto [buttonsW, buttonsH] = modal->getButtonsDims();
+  auto [buttonsX, buttonsY] = modal->getButtonsLocation();
+  const int buttonPadding = 2;
+  const int buttonWidth = 120;
 
-    auto buttonGroup = new ButtonGroup(window, modal);
-    buttonGroup->setId("buttonGroup");
-    buttonGroup->setPos(buttonsX, buttonsY);
-    buttonGroup->setScale(style.scale);
-    buttonGroup->setProps(ButtonGroupProps{
-        .width = static_cast<int>(buttonsW / style.scale),
-        .alignment = ButtonGroupAlignment::RIGHT,
-        .buttonWidth = buttonWidth,
-        .buttonHeight = ModalSmall::BUTTONS_AREA_HEIGHT - 2 * buttonPadding,
-        .padding = buttonPadding,
-        .buttons = {{.label = TRANSLATE("Okay"), .type = ButtonGroupButtonType::MODAL}},
-    });
-    buttonGroup->addObserverToButtonAtIndex(
-        0, ui::makeActionObserver<state::actions::UiContinueSpecialEvent>());
-    modal->addChild(bmin::UniquePtr<ui::UiElement>(buttonGroup));
-  }
+  auto buttonGroup = new ButtonGroup(window, modal);
+  buttonGroup->setId("buttonGroup");
+  buttonGroup->setPos(buttonsX, buttonsY);
+  buttonGroup->setScale(style.scale);
+  buttonGroup->setProps(ButtonGroupProps{
+      .width = static_cast<int>(buttonsW / style.scale),
+      .alignment = ButtonGroupAlignment::RIGHT,
+      .buttonWidth = buttonWidth,
+      .buttonHeight = ModalSmall::BUTTONS_AREA_HEIGHT - 2 * buttonPadding,
+      .padding = buttonPadding,
+      .buttons = {},
+  });
+  modal->addChild(bmin::UniquePtr<ui::UiElement>(buttonGroup));
+  syncFooter(true);
+  footerNeedsSync = false;
 }
 
-ButtonTextWrap* PageModalEvent::choiceButton(int i) {
-  if (i < 0) {
+ButtonModal* PageModalEvent::choiceButton(int i) {
+  auto* buttonGroup = footerButtonGroup();
+  if (!buttonGroup || i < 0 || footerMode != FooterMode::Choices) {
     return nullptr;
   }
-  const auto choiceId = "choice" + bmin::toString(i);
-  return dynamic_cast<ButtonTextWrap*>(getChildById(choiceId.cStr()));
+  const int count = static_cast<int>(props.choices.size());
+  if (i >= count) {
+    return nullptr;
+  }
+  // Choices are pushed in reverse so RIGHT alignment still reads left→right.
+  const auto buttonId = "buttonGroupButton_" + bmin::toString(count - 1 - i);
+  return dynamic_cast<ButtonModal*>(buttonGroup->getChildById(bmin::toStringView(buttonId)));
 }
 
 ButtonModal* PageModalEvent::continueButton() {
-  auto* buttonGroup = dynamic_cast<ButtonGroup*>(getChildById("buttonGroup"));
+  auto* buttonGroup = footerButtonGroup();
   if (!buttonGroup || buttonGroup->getChildren().empty()) {
+    return nullptr;
+  }
+  if (footerMode != FooterMode::Continue && footerMode != FooterMode::ShowMore) {
     return nullptr;
   }
   return dynamic_cast<ButtonModal*>(buttonGroup->getChildren()[0].get());
 }
 
-void PageModalEvent::render(int dt) { UiElement::render(dt); }
+SectionScrollable* PageModalEvent::textSection() {
+  return dynamic_cast<SectionScrollable*>(getChildById("textSection"));
+}
+
+void PageModalEvent::render(int dt) {
+  UiElement::render(dt);
+  renderShowMoreCue();
+}
 
 void PageModalEvent::enqueueSelectChoice(int choiceIndex) {
   auto* stateManager = getStateManager();
@@ -241,6 +225,9 @@ void PageModalEvent::beginKeyboardChoicePress(int choiceIndex) {
   if (keyboardFlash.isBusy()) {
     return;
   }
+  if (footerMode != FooterMode::Choices) {
+    return;
+  }
   if (choiceIndex < 0 ||
       static_cast<size_t>(choiceIndex) >= props.choices.size()) {
     return;
@@ -260,7 +247,19 @@ void PageModalEvent::beginKeyboardContinuePress() {
   if (keyboardFlash.isBusy()) {
     return;
   }
-  if (!props.choices.empty()) {
+  if (footerMode == FooterMode::ShowMore) {
+    keyboardFlash.begin(
+        [this]() -> bool* {
+          if (auto* button = continueButton()) {
+            return &button->isActive;
+          }
+          return nullptr;
+        },
+        [this]() { performShowMore(); },
+        window);
+    return;
+  }
+  if (footerMode == FooterMode::Choices) {
     return;
   }
   if (props.showContinueButton) {
@@ -294,8 +293,188 @@ void PageModalEvent::onKeyUp(std::string_view /*key*/) {}
 
 void PageModalEvent::updateKeyboardChrome(int deltaTime) {
   keyboardFlash.update(deltaTime);
+  if (footerNeedsSync) {
+    footerNeedsSync = false;
+    syncFooter(false);
+  } else if (!keyboardFlash.isBusy()) {
+    // Wheel scroll can reveal the rest of the text; keep the footer in sync.
+    syncFooter(false);
+  }
 }
 
 void PageModalEvent::stopKeyboardChrome() { keyboardFlash.stop(); }
+
+ButtonGroup* PageModalEvent::footerButtonGroup() {
+  return dynamic_cast<ButtonGroup*>(getChildById("buttonGroup"));
+}
+
+bool PageModalEvent::isContentClipped() {
+  auto* section = textSection();
+  if (!section) {
+    return false;
+  }
+  return section->getScrollOffset() < section->getMaxScrollOffset();
+}
+
+PageModalEvent::FooterMode PageModalEvent::computeFooterMode() {
+  if (isContentClipped()) {
+    return FooterMode::ShowMore;
+  }
+  if (!props.choices.empty()) {
+    return FooterMode::Choices;
+  }
+  if (props.showContinueButton) {
+    return FooterMode::Continue;
+  }
+  return FooterMode::Inert;
+}
+
+void PageModalEvent::retargetFooter(FooterMode mode) {
+  auto* group = footerButtonGroup();
+  if (!group) {
+    footerMode = mode;
+    return;
+  }
+
+  auto groupProps = group->getProps();
+  groupProps.alignment = ButtonGroupAlignment::RIGHT;
+  switch (mode) {
+  case FooterMode::Continue:
+    groupProps.buttonWidth = 120;
+    groupProps.buttons = {
+        {.label = TRANSLATE("Okay"), .type = ButtonGroupButtonType::MODAL}};
+    break;
+  case FooterMode::ShowMore:
+    groupProps.buttonWidth = 160;
+    groupProps.buttons = {
+        {.label = TRANSLATE("Show More"), .type = ButtonGroupButtonType::MODAL}};
+    break;
+  case FooterMode::Choices: {
+    const int count = static_cast<int>(props.choices.size());
+    const int spacing = groupProps.buttonSpacing;
+    const int padding = groupProps.padding;
+    const int avail = std::max(1, groupProps.width - 2 * padding);
+    int buttonWidth = 120;
+    if (count > 0) {
+      buttonWidth = (avail - (count - 1) * spacing) / count;
+      buttonWidth = std::clamp(buttonWidth, 48, 160);
+    }
+    groupProps.buttonWidth = buttonWidth;
+    groupProps.buttons.clear();
+    // RIGHT packs index 0 on the far right — push last→first so choice 1
+    // still reads on the left of the right-aligned group.
+    for (int i = count - 1; i >= 0; i--) {
+      const bmin::String& prefixText = props.choices[i].prefixText;
+      const bmin::String label =
+          prefixText.empty() ? props.choices[i].text
+                             : prefixText + " " + props.choices[i].text;
+      groupProps.buttons.pushBack(
+          {.label = label, .type = ButtonGroupButtonType::MODAL});
+    }
+    break;
+  }
+  case FooterMode::Inert:
+    groupProps.buttons = {};
+    break;
+  }
+  group->setProps(groupProps);
+
+  if (mode == FooterMode::Continue) {
+    group->addObserverToButtonAtIndex(
+        0, ui::makeActionObserver<state::actions::UiContinueSpecialEvent>());
+  } else if (mode == FooterMode::ShowMore) {
+    group->addObserverToButtonAtIndex(
+        0,
+        bmin::UniquePtr<UiEventObserver>(new PageModalEventShowMoreObserver(this)));
+    styleShowMoreButton();
+  } else if (mode == FooterMode::Choices) {
+    const int count = static_cast<int>(props.choices.size());
+    for (int buttonIndex = 0; buttonIndex < count; buttonIndex++) {
+      const int choiceIndex = count - 1 - buttonIndex;
+      group->addObserverToButtonAtIndex(
+          buttonIndex,
+          ui::makeActionObserver<state::actions::UiSelectSpecialEventChoice>(
+              choiceIndex));
+    }
+  }
+
+  footerMode = mode;
+}
+
+void PageModalEvent::styleShowMoreButton() {
+  auto* button = continueButton();
+  if (!button) {
+    return;
+  }
+  auto buttonProps = button->getProps();
+  buttonProps.bgColor = Colors::ButtonShowMore;
+  buttonProps.bgColorTopRight = Colors::ButtonShowMoreLight;
+  buttonProps.bgColorBottomLeft = Colors::ButtonShowMoreDark;
+  button->setProps(buttonProps);
+}
+
+void PageModalEvent::renderShowMoreCue() {
+  if (!isContentClipped()) {
+    return;
+  }
+
+  auto* section = textSection();
+  if (!section) {
+    return;
+  }
+
+  const auto [sectionX, sectionY] = section->getPos();
+  const int sectionW = section->getDims().first;
+  const auto [contentW, contentH] = section->getContentDims();
+  if (contentW <= 0 || contentH <= 0 || sectionW <= 0) {
+    return;
+  }
+
+  auto& draw = window->getDraw();
+  const int vignetteH = std::min(72, contentH);
+  constexpr int kBands = 10;
+  const int bandH = std::max(1, vignetteH / kBands);
+  const int fadeTop = sectionY + contentH - vignetteH;
+  for (int i = 0; i < kBands; ++i) {
+    const auto alpha = static_cast<Uint8>(((i + 1) * 230) / kBands);
+    draw.drawRect(sectionX,
+                  fadeTop + i * bandH,
+                  contentW,
+                  bandH,
+                  SDL_Color{Colors::OffWhite.r, Colors::OffWhite.g, Colors::OffWhite.b,
+                            alpha});
+  }
+
+  const int centerX = sectionX + sectionW / 2;
+  const int centerY = sectionY + contentH - 18;
+  const int arrow = 10;
+  const float stroke = std::max(2.f, style.scale);
+  draw.drawLine({centerX - arrow, centerY - 5},
+                {centerX, centerY + 6},
+                stroke,
+                Colors::Grey2);
+  draw.drawLine({centerX + arrow, centerY - 5},
+                {centerX, centerY + 6},
+                stroke,
+                Colors::Grey2);
+}
+
+void PageModalEvent::syncFooter(bool force) {
+  const auto mode = computeFooterMode();
+  if (!force && mode == footerMode) {
+    return;
+  }
+  retargetFooter(mode);
+}
+
+void PageModalEvent::performShowMore() {
+  auto* section = textSection();
+  if (!section) {
+    return;
+  }
+  const auto viewportH = section->getContentDims().second;
+  section->scrollTo(section->getScrollOffset() + viewportH);
+  footerNeedsSync = true;
+}
 
 } // namespace ui

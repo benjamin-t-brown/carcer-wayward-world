@@ -108,6 +108,32 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertTrue(empty == nullptr, "empty cell null") && ok;
   }
 
+  // Negative layers (shed basement): tileLayerNumber -1 must resolve layer -1
+  // and must not show layer 0 tiles through the ceiling.
+  {
+    auto map = model::MapInstance{};
+    map.width = 3;
+    map.height = 3;
+    model::mapLayerAt(model::mapInstanceTiles(map), -1) = makeEmptyLayer(3, 3);
+    model::mapLayerAt(model::mapInstanceTiles(map), 0) = makeEmptyLayer(3, 3);
+    model::mapInstanceTiles(map)[-1][4] = makeTile(1, 1, "terrain2", 7);
+    model::mapInstanceTiles(map)[0][4] = makeTile(1, 1, "terrain2", 4);
+
+    map.tileLayerNumber = -1;
+    const auto* basement = game::resolveTileToRender(map, 1, 1);
+    ok = assertTrue(basement != nullptr, "basement layer present") && ok;
+    if (basement) {
+      ok = assertEqual(basement->tileId, 7, "basement tileId") && ok;
+    }
+
+    map.tileLayerNumber = 0;
+    const auto* ground = game::resolveTileToRender(map, 1, 1);
+    ok = assertTrue(ground != nullptr, "ground over basement present") && ok;
+    if (ground) {
+      ok = assertEqual(ground->tileId, 4, "ground tileId preferred over basement") && ok;
+    }
+  }
+
   // Real map repro: alinea_outsideAlinea1 index 250 (10,8)
   {
     db::Database database;

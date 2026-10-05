@@ -6,6 +6,7 @@
 #include "ui/elements/buttons/ButtonList.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/elements/buttons/ButtonTextWrap.h"
+#include "ui/helpers/uiSounds.h"
 #include "ui/observers/ActionObserver.hpp"
 #include "actions/navigation/UiToggleEquipInventoryItem.hpp"
 #include "actions/navigation/UiReorderInventoryItem.hpp"
@@ -196,6 +197,7 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
                 .fontColor = labelColor,
             },
     });
+    label->clickSoundName = kButton2SoundName;
     label->addEventObserver(
         ui::makeActionObserver<state::actions::UiToggleEquipInventoryItem>(
             props.characterPlayerId, item.itemId));

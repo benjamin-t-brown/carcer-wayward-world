@@ -2,6 +2,7 @@
 
 #include <optional>
 #include "bmin/DynArray.h"
+#include "bmin/Map.h"
 #include "bmin/String.h"
 
 namespace model {
@@ -38,6 +39,8 @@ struct TileEventTrigger {
   bool requiresNonCombat = true;
   bool requiresLook = false;
   TileOverlayVisibility overlayVisibility = TileOverlayVisibility::HIDDEN;
+  /** Empty means the event always runs. Otherwise an in3 condition (IS, ISNOT, ALL, ANY, …). */
+  bmin::String condition;
 };
 
 struct TravelTrigger {
@@ -115,7 +118,7 @@ struct CarcerMapTemplate {
   int spriteHeight = 32;
   bmin::DynArray<bmin::String> tilesets;
   bmin::DynArray<int> layers;
-  bmin::DynArray<bmin::DynArray<int>> tiles;
+  bmin::Map<int, bmin::DynArray<int>> tiles;
   bmin::DynArray<MapCharacterPlacement> characters;
   bmin::DynArray<MapItemPlacement> items;
   bmin::DynArray<MapMarkerPlacement> markers;

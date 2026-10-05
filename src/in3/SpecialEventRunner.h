@@ -7,6 +7,14 @@
 
 #include <optional>
 
+namespace db {
+class Database;
+}
+
+namespace model {
+struct Player;
+}
+
 namespace in3 {
 
 struct ConditionResult {
@@ -64,6 +72,10 @@ public:
                      const model::GameEvent& gameEvent,
                      const bmin::Map<bmin::String, model::GameEvent>& gameEvents);
 
+  // Bind party inventory + item DB for ADD_ITEM_TO_PLAYER / HAS_ITEM. Pointers must
+  // outlive the runner (LayerSpecialEvent owns State + Database).
+  void setExecContext(model::Player* player, const db::Database* database);
+
   void reset();
   std::optional<model::GameEventChild> getCurrentNode() const;
   bmin::String getNextNodeId();
@@ -81,6 +93,9 @@ public:
   SpecialEventPendingNotices consumePendingNotices();
 
 private:
+  model::Player* execPlayer = nullptr;
+  const db::Database* execDatabase = nullptr;
+
   // EXEC text queued while auto-advancing; flushed into displayText at the next stop.
   bmin::String autoAdvancedText;
 

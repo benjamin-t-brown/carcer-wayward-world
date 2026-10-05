@@ -39,12 +39,21 @@ async function loadAssetTypes(): Promise<AssetType[]> {
   return response.json();
 }
 
-async function fetchAssetList(id: string): Promise<any[]> {
-  const response = await fetch(`/api/assets/${id}`);
+async function fetchAssetList(id: string): Promise<{
+  records: any[];
+  mtimeMs: number | null;
+}> {
+  const response = await fetch(`/api/assets/${id}`, { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`Failed to load ${id}`);
   }
-  return response.json();
+  const mtimeHeader = response.headers.get('X-Asset-Mtime');
+  const parsedMtime = mtimeHeader == null ? null : Number(mtimeHeader);
+  return {
+    records: await response.json(),
+    mtimeMs:
+      parsedMtime != null && Number.isFinite(parsedMtime) ? parsedMtime : null,
+  };
 }
 
 async function loadSDL2WAssetFiles(): Promise<any> {
@@ -73,6 +82,7 @@ async function load(): Promise<{
   quests: QuestTemplate[];
   tilesets: TilesetTemplate[];
   gameEvents: GameEvent[];
+  assetMtimes: Partial<Record<AssetId, number | null>>;
   maps: CarcerMapTemplate[];
   mapGrids: MapGridTemplate[];
 }> {
@@ -104,11 +114,13 @@ async function load(): Promise<{
     soundMap[sound.name] = sound;
   }
 
-  // Load every asset list in parallel, then normalize (dependents in a 2nd pass).
   const rawByType: Partial<Record<AssetId, any[]>> = {};
+  const assetMtimes: Partial<Record<AssetId, number | null>> = {};
   await Promise.all(
     ASSET_TYPES.map(async (t) => {
-      rawByType[t.id] = await fetchAssetList(t.id);
+      const loaded = await fetchAssetList(t.id);
+      rawByType[t.id] = loaded.records;
+      assetMtimes[t.id] = loaded.mtimeMs;
     })
   );
   const normalized = normalizeAll(rawByType, { animationMap, soundMap }, ASSET_TYPES);
@@ -163,6 +175,7 @@ async function load(): Promise<{
     quests,
     tilesets,
     gameEvents,
+    assetMtimes,
     maps,
     mapGrids,
   };
@@ -197,6 +210,7 @@ async function init() {
       quests,
       tilesets,
       gameEvents,
+      assetMtimes,
       maps,
       mapGrids,
     } = await load();
@@ -229,6 +243,7 @@ async function init() {
             initialQuests={quests}
             initialTilesets={tilesets}
             initialGameEvents={gameEvents}
+            initialAssetMtimes={assetMtimes}
             initialMaps={maps}
             initialMapGrids={mapGrids}
           >

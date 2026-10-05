@@ -279,11 +279,11 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
     });
 
     try {
-      await saveCharacters(sortedCharacters);
-      setCharacters(sortedCharacters);
+      const savedCharacters = await saveCharacters(sortedCharacters);
+      setCharacters(savedCharacters);
       showNotification('Characters saved successfully!', 'success');
       if (currentCharacterName) {
-        const nextCharacterIndex = sortedCharacters.findIndex(
+        const nextCharacterIndex = savedCharacters.findIndex(
           (character) => character.name === currentCharacterName.trim()
         );
         setEditCharacterIndex(nextCharacterIndex >= 0 ? nextCharacterIndex : -1);

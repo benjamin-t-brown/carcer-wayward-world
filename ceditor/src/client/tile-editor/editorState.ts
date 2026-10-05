@@ -55,7 +55,7 @@ export interface EditorState {
   hoveredGridAdjacentSlot: { offsetX: number; offsetY: number } | null;
   /**
    * How many grid cells out from the current map the editor paints surrounding
-   * maps for. 1 = the eight immediate neighbours; higher shows more context at
+   * maps for. 1 = the eight immediate neighbors; higher shows more context at
    * a rendering cost. Navigation is unaffected. Tweak live via
    * `editorState.gridRenderRadius`.
    */
@@ -66,11 +66,11 @@ export interface EditorState {
    * `gridRenderRadius`) maps are still drawn as dimmed, read-only context.
    */
   gridEditEnabled: boolean;
-  /** Chebyshev radius of editable neighbours; must be <= gridRenderRadius. */
+  /** Chebyshev radius of editable neighbors; must be <= gridRenderRadius. */
   gridEditRadius: number;
   /**
    * The map a paint stroke is currently writing to. Empty except between
-   * mousedown and mouseup of a stroke that landed on a neighbour block; while
+   * mousedown and mouseup of a stroke that landed on a neighbor block; while
    * set it overrides `selectedMapName` for per-map paint state lookups.
    */
   activePaintMapName: string;
@@ -216,7 +216,7 @@ export const pushGridUndo = (mapName: string): void => {
 
 /**
  * Current data revision for a map. Returns 0 for a map with no editor-state
- * entry (e.g. a read-only neighbour rendered through renderMapTilesAtOffset).
+ * entry (e.g. a read-only neighbor rendered through renderMapTilesAtOffset).
  */
 export const getMapDataRevision = (mapName: string): number =>
   getEditorStateMap(mapName)?.dataRevision ?? 0;
@@ -259,7 +259,7 @@ export const renameEditorStateMap = (oldName: string, newName: string) => {
 
 /**
  * There is one selected tile across the whole grid. Set it on `mapName` and
- * clear it on every other block, so a right-click / paint on a neighbour block
+ * clear it on every other block, so a right-click / paint on a neighbor block
  * doesn't leave a second, un-clearable selection rect behind.
  */
 export const setSoleSelectedTile = (mapName: string, tileInd: number): void => {

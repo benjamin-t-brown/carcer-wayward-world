@@ -64,7 +64,8 @@ class WorldExamineAt : public AbstractAction {
     world.actionAimTile.reset();
 
     const auto* tile = game::tileAtCurrentLayer(*map, local.x, local.y);
-    if (tile && tile->eventTrigger && tile->eventTrigger->requiresLook) {
+    if (tile && tile->eventTrigger && tile->eventTrigger->requiresLook &&
+        game::tileEventShouldRun(*tile->eventTrigger, state->specialEventStorage)) {
       state->triggers.pendingSpecialEventId = tile->eventTrigger->eventId;
       return;
     }

@@ -24,22 +24,16 @@ int main(int argc, char** argv) {
   model::GameEvent& testEvent = specialEvents["TestEvent"];
 
   // -1 is advance next node, other numbers are choice indexes.
-  // MODAL events wait on non-empty EXEC text (autoAdvance is ignored).
+  // MODAL honors autoAdvance: EXEC text lands with the following CHOICE in one stop.
   bmin::DynArray<std::pair<int, bmin::String>> inputSteps = {
       // clang-format off
-      {-1, "This should display once."},
-      {-1, "This should display once."}, // continue → choice menu
+      {0, "This should display once."}, // start → exec text + choices
       {0, "You chose choice 1."},
-      {-1, "You chose choice 1."}, // continue → choice menu
       {1, "You selected choice 2."},
-      {-1, "You selected choice 2."},
       {1, "You selected choice 3."},
-      {-1, "You selected choice 3."},
       {2, "You selected choice 4.  This should wait to continue."},
-      {-1, "You have waited for choice 4."},
-      {-1, "You have waited for choice 4."}, // continue → choice menu
+      {-1, "You have waited for choice 4."}, // autoAdvance=false then autoAdvance to choice
       {3, "This should display by default."}, // Restart
-      {-1, "This should display by default."}, // continue → choice menu
       {4, "End."}
       //
       // clang-format on

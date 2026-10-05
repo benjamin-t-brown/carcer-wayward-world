@@ -1,6 +1,9 @@
 #include "game/map/DoorLock.h"
 
+#include "game/inventory/SpecialEventItemsStorage.h"
+#include "in3/EventRunnerHelpers.h"
 #include "bmin/StringInterop.h"
+#include <algorithm>
 
 namespace game {
 namespace {
@@ -26,9 +29,10 @@ int countLockToolQuantity(const model::CharacterPlayer& leader,
   return total;
 }
 
-bool inventoryContainsKey(const model::CharacterPlayer& leader,
-                          const bmin::String& keyItem,
-                          const db::Database& database) {
+bool playerHasKeyItem(const model::CharacterPlayer& leader,
+                      const bmin::Map<bmin::String, bmin::String>& specialEventStorage,
+                      const bmin::String& keyItem,
+                      const db::Database& database) {
   if (keyItem.empty()) {
     return false;
   }
@@ -37,6 +41,12 @@ bool inventoryContainsKey(const model::CharacterPlayer& leader,
   }
   for (const auto& stack : leader.inventory) {
     if (stack.itemName == keyItem && stack.quantity > 0) {
+      return true;
+    }
+  }
+  const auto storageKey = bmin::String(kVarsItemsPrefix) + keyItem;
+  if (const auto value = in3::getStorage(specialEventStorage, storageKey)) {
+    if (specialItemQuantityIsPresent(*value)) {
       return true;
     }
   }
@@ -64,11 +74,62 @@ void consumeLockTools(model::CharacterPlayer& leader,
   }
 }
 
+int toolsRequiredForLock(int lockLevel, int trickery) {
+  return std::max(0, lockLevel - trickery);
+}
+
+int bashMaxForLeader(int brutishness) {
+  return (brutishness / 5) * 5;
+}
+
 } // namespace
 
-ClosedDoorOpenResult tryOpenClosedDoor(model::TileInstance& door,
-                                       model::CharacterPlayer& leader,
-                                       const db::Database& database) {
+ClosedDoorBumpInfo classifyClosedDoorBump(
+    const model::TileInstance& door,
+    const model::CharacterPlayer& leader,
+    const bmin::Map<bmin::String, bmin::String>& specialEventStorage,
+    const db::Database& database) {
+  auto info = ClosedDoorBumpInfo{};
+  if (!door.doorLock.has_value()) {
+    info.outcome = ClosedDoorBumpOutcome::OpenImmediateSilent;
+    return info;
+  }
+
+  const auto& lock = *door.doorLock;
+  if (lock.lockLevel == 0) {
+    if (!playerHasKeyItem(leader, specialEventStorage, lock.keyItem, database)) {
+      info.outcome = ClosedDoorBumpOutcome::InfoMissingKey;
+      return info;
+    }
+    info.outcome = ClosedDoorBumpOutcome::ConfirmKeyUnlock;
+    return info;
+  }
+
+  info.toolsRequired = toolsRequiredForLock(lock.lockLevel, leader.stats.skills.trickery);
+  if (info.toolsRequired <= 0) {
+    info.outcome = ClosedDoorBumpOutcome::OpenImmediateLockpick;
+    return info;
+  }
+
+  if (lock.lockLevel <= bashMaxForLeader(leader.stats.skills.brutishness)) {
+    info.outcome = ClosedDoorBumpOutcome::OpenImmediateBash;
+    return info;
+  }
+
+  if (countLockToolQuantity(leader, database) < info.toolsRequired) {
+    info.outcome = ClosedDoorBumpOutcome::InfoInsufficientTools;
+    return info;
+  }
+
+  info.outcome = ClosedDoorBumpOutcome::ConfirmToolUnlock;
+  return info;
+}
+
+ClosedDoorOpenResult tryOpenClosedDoor(
+    model::TileInstance& door,
+    model::CharacterPlayer& leader,
+    const bmin::Map<bmin::String, bmin::String>& specialEventStorage,
+    const db::Database& database) {
   if (!door.doorLock.has_value()) {
     door.tileId = door.tileId + 1;
     return ClosedDoorOpenResult::OpenedSilent;
@@ -76,21 +137,22 @@ ClosedDoorOpenResult tryOpenClosedDoor(model::TileInstance& door,
 
   const auto& lock = *door.doorLock;
   if (lock.lockLevel == 0) {
-    if (!inventoryContainsKey(leader, lock.keyItem, database)) {
+    if (!playerHasKeyItem(leader, specialEventStorage, lock.keyItem, database)) {
       return ClosedDoorOpenResult::Blocked;
     }
-    door.tileId = door.tileId + 1;
-    return ClosedDoorOpenResult::OpenedLockpick;
+    door.doorLock = std::nullopt;
+    return ClosedDoorOpenResult::OpenedKey;
   }
 
-  const auto toolsRequired = lock.lockLevel - leader.stats.skills.trickery;
+  const auto toolsRequired =
+      toolsRequiredForLock(lock.lockLevel, leader.stats.skills.trickery);
   if (toolsRequired <= 0) {
-    door.tileId = door.tileId + 1;
+    door.doorLock = std::nullopt;
     return ClosedDoorOpenResult::OpenedLockpick;
   }
 
-  const auto bashMax = (leader.stats.skills.brutishness / 5) * 5;
-  if (lock.lockLevel <= bashMax) {
+  if (lock.lockLevel <= bashMaxForLeader(leader.stats.skills.brutishness)) {
+    door.doorLock = std::nullopt;
     door.tileId = door.tileId + 1;
     return ClosedDoorOpenResult::OpenedBash;
   }
@@ -100,7 +162,7 @@ ClosedDoorOpenResult tryOpenClosedDoor(model::TileInstance& door,
   }
 
   consumeLockTools(leader, toolsRequired, database);
-  door.tileId = door.tileId + 1;
+  door.doorLock = std::nullopt;
   return ClosedDoorOpenResult::OpenedLockpick;
 }
 

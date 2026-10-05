@@ -1,8 +1,11 @@
 #include "db/Database.h"
+#include "game/inventory/SpecialEventItemsStorage.h"
 #include "game/map/Camera.h"
+#include "game/map/DoorLock.h"
 #include "game/map/MapPersistence.h"
 #include "game/map/MapWalkability.h"
 #include "game/map/TileTriggers.h"
+#include "in3/EventRunnerHelpers.h"
 #include "model/instances/CharacterInstance.hpp"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/MapInstance.h"
@@ -16,8 +19,11 @@
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
 #include "state/WorldUpdater.h"
+#include "actions/navigation/UiConfirmDoorUnlock.hpp"
+#include "actions/navigation/UiRemoveLayer.hpp"
 #include "actions/world/WorldMovePlayer.hpp"
 #include "bmin/String.h"
+#include "state/LayerRequest.h"
 
 namespace {
 
@@ -197,6 +203,38 @@ bool soundsContain(const state::State& state, const char* name) {
   return false;
 }
 
+bool hasDoorUnlockConfirmPush(const state::State& state) {
+  for (size_t i = 0; i < state.uiState.layerCommands.size(); i++) {
+    const auto& command = state.uiState.layerCommands[i];
+    if (command.type == state::LayerCommandType::Push &&
+        command.request.id == state::LayerId::DoorUnlockConfirm) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool doorUnlockConfirmAt(const state::State& state, int worldX, int worldY) {
+  for (size_t i = 0; i < state.uiState.layerCommands.size(); i++) {
+    const auto& command = state.uiState.layerCommands[i];
+    if (command.type == state::LayerCommandType::Push &&
+        command.request.id == state::LayerId::DoorUnlockConfirm &&
+        command.request.hasPosition && command.request.x == worldX &&
+        command.request.y == worldY) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void confirmDoorUnlock(state::State& state, int worldX, int worldY) {
+  state::actions::UiConfirmDoorUnlock(worldX, worldY).execute(&state);
+}
+
+void dismissDoorUnlock(state::State& state) {
+  state::actions::UiRemoveLayer(state::LayerId::DoorUnlockConfirm).execute(&state);
+}
+
 void setLock(model::TileInstance& door, int lockLevel, const char* keyItem) {
   auto lock = model::DoorLock{};
   lock.lockLevel = lockLevel;
@@ -219,7 +257,12 @@ model::CarcerMapTemplate makeClosedDoorTemplate(int doorX, int doorY) {
       graphics.pushBack(x == doorX && y == doorY ? 2 : 0);
     }
   }
-  tmpl.tiles.pushBack(std::move(graphics));
+  tmpl.tiles[0] = std::move(graphics);
+  auto lock = model::MapDoorLockPlacement{};
+  lock.l = 0;
+  lock.i = doorY * tmpl.width + doorX;
+  lock.lockLevel = 10;
+  tmpl.doorLocks.pushBack(std::move(lock));
   return tmpl;
 }
 
@@ -610,7 +653,79 @@ int main(int /*argc*/, char** /*argv*/) {
            ok;
     }
 
-    // Level 0 opens when the leader holds the named key, and the key is not consumed
+    // DoorLock: vars.items key counts; missing from inventory and storage blocks
+    {
+      auto door = makeTile(3, 2, 2);
+      setLock(door, 0, "ShedKey");
+      auto leader = model::CharacterPlayer{};
+      auto storage = bmin::Map<bmin::String, bmin::String>{};
+
+      auto bump = game::classifyClosedDoorBump(door, leader, storage, database);
+      ok = assertTrue(bump.outcome == game::ClosedDoorBumpOutcome::InfoMissingKey,
+                      "no key in inventory or special storage") &&
+           ok;
+
+      in3::setStorage(storage, "vars.items.ShedKey", "1");
+      bump = game::classifyClosedDoorBump(door, leader, storage, database);
+      ok = assertTrue(bump.outcome == game::ClosedDoorBumpOutcome::ConfirmKeyUnlock,
+                      "special storage key enables confirm") &&
+           ok;
+
+      const auto opened = game::tryOpenClosedDoor(door, leader, storage, database);
+      ok = assertTrue(opened == game::ClosedDoorOpenResult::OpenedKey,
+                      "special storage key opens door") &&
+           ok;
+      ok = assertEqual(door.tileId, 2, "special storage key leaves door closed") && ok;
+      ok = assertFalse(door.doorLock.has_value(), "special storage key clears lock") && ok;
+      const auto keyValue = in3::getStorage(storage, "vars.items.ShedKey");
+      ok = assertTrue(keyValue.has_value() && game::specialItemQuantityIsPresent(*keyValue),
+                      "special storage key not consumed on unlock") &&
+           ok;
+    }
+
+    // Level 0 with key only in specialEventStorage: confirm unlock without inventory key
+    {
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
+      state.world.activeMap.mapLayer = 0;
+      auto* door = tileAt(mapOf(state), 3, 2, 0);
+      door->tileId = 2;
+      setLock(*door, 0, "ShedKey");
+      in3::setStorage(state.specialEventStorage, "vars.items.ShedKey", "1");
+      spawnAvatar(state, 2, 2);
+      auto& leader = state.player.party[0];
+      auto* avatar =
+          game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
+
+      move(state, 1, 0);
+      ok = assertEqual(avatar->x, 2, "special key door bump.x") && ok;
+      ok = assertEqual(door->tileId, 2, "special key door stays closed until confirm") && ok;
+      ok = assertTrue(doorUnlockConfirmAt(state, 3, 2), "special key door queues confirm") &&
+           ok;
+      ok = assertEqual(itemQuantity(leader, "ShedKey"), 0, "special key not in inventory") &&
+           ok;
+
+      confirmDoorUnlock(state, 3, 2);
+      ok = assertEqual(door->tileId, 2, "special key door stays closed after unlock") && ok;
+      ok = assertFalse(door->doorLock.has_value(), "special key door lock cleared") && ok;
+      const auto keyValue = in3::getStorage(state.specialEventStorage, "vars.items.ShedKey");
+      ok = assertTrue(keyValue.has_value() && game::specialItemQuantityIsPresent(*keyValue),
+                      "special key still in storage after unlock") &&
+           ok;
+      ok = assertEqual(static_cast<int>(mapOf(state).persistentState.unlockedDoors.size()),
+                       1,
+                       "special key door recorded unlocked") &&
+           ok;
+      ok = assertTrue(mapOf(state).persistentState.openedDoors.empty(),
+                      "special key door not in openedDoors yet") &&
+           ok;
+
+      move(state, 1, 0);
+      ok = assertEqual(door->tileId, 3, "special key door opens on second bump") && ok;
+    }
+
+    // Level 0 with key: bump shows confirm; Yes unlocks without consuming the key
     {
       auto& state = stateManager.getState();
       state = state::State{};
@@ -631,21 +746,36 @@ int main(int /*argc*/, char** /*argv*/) {
       move(state, 1, 0);
       ok = assertEqual(avatar->x, 2, "key door bump.x") && ok;
       ok = assertEqual(avatar->y, 2, "key door bump.y") && ok;
-      ok = assertEqual(door->tileId, 3, "key door opened tileId") && ok;
-      ok = assertEqual(itemQuantity(leader, "ShedKey"), 2, "key quantity unchanged") && ok;
+      ok = assertEqual(door->tileId, 2, "key door stays closed until confirm") && ok;
+      ok = assertTrue(doorUnlockConfirmAt(state, 3, 2), "key door queues confirm") && ok;
+      ok = assertEqual(itemQuantity(leader, "ShedKey"), 2, "key quantity unchanged on bump") &&
+           ok;
       ok = assertEqual(itemQuantity(leader, "Lockpicks"), 6, "key door does not spend tools") &&
            ok;
-      ok = assertTrue(soundsContain(state, "lockpick"), "key door plays lockpick") && ok;
+      ok = assertFalse(soundsContain(state, "unlock_door"), "key door silent until confirm") &&
+           ok;
+
+      confirmDoorUnlock(state, 3, 2);
+      ok = assertEqual(door->tileId, 2, "key door stays closed after unlock") && ok;
+      ok = assertFalse(door->doorLock.has_value(), "key door lock cleared") && ok;
+      ok = assertEqual(itemQuantity(leader, "ShedKey"), 2, "key quantity unchanged") && ok;
+      ok = assertTrue(soundsContain(state, "unlock_door"), "key door plays unlock_door") && ok;
+      ok = assertFalse(soundsContain(state, "lockpick"), "key door does not play lockpick") &&
+           ok;
+      ok = assertEqual(static_cast<int>(mapOf(state).persistentState.unlockedDoors.size()),
+                       1,
+                       "key door recorded unlocked") &&
+           ok;
+      ok = assertTrue(mapOf(state).persistentState.openedDoors.empty(),
+                      "key door not in openedDoors until open") &&
+           ok;
+
+      move(state, 1, 0);
+      ok = assertEqual(door->tileId, 3, "key door opened on second bump") && ok;
       ok = assertEqual(static_cast<int>(mapOf(state).persistentState.openedDoors.size()),
                        1,
-                       "key door recorded") &&
+                       "key door open recorded") &&
            ok;
-      if (!mapOf(state).persistentState.openedDoors.empty()) {
-        ok = assertEqual(mapOf(state).persistentState.openedDoors[0].tileId,
-                         3,
-                         "key door record is open tile") &&
-             ok;
-      }
 
       move(state, 1, 0);
       ok = assertEqual(avatar->x, 3, "key door walk through.x") && ok;
@@ -680,6 +810,7 @@ int main(int /*argc*/, char** /*argv*/) {
       ok = assertEqual(avatar->x, 2, "missing key stays.x") && ok;
       ok = assertEqual(avatar->y, 2, "missing key stays.y") && ok;
       ok = assertEqual(door->tileId, 2, "missing key tileId unchanged") && ok;
+      ok = assertTrue(doorUnlockConfirmAt(state, 3, 2), "missing key queues info modal") && ok;
       ok = assertEqual(itemQuantity(leader, "Lockpicks"), 9, "missing key does not spend tools") &&
            ok;
       ok = assertEqual(static_cast<int>(mapOf(state).persistentState.openedDoors.size()),
@@ -711,6 +842,7 @@ int main(int /*argc*/, char** /*argv*/) {
       move(state, 1, 0);
       ok = assertEqual(avatar->x, 2, "level 0 bash stays.x") && ok;
       ok = assertEqual(door->tileId, 2, "level 0 bash tileId unchanged") && ok;
+      ok = assertTrue(hasDoorUnlockConfirmPush(state), "level 0 bash queues info modal") && ok;
       ok = assertTrue(mapOf(state).persistentState.openedDoors.empty(),
                       "level 0 bash records nothing") &&
            ok;
@@ -735,11 +867,19 @@ int main(int /*argc*/, char** /*argv*/) {
 
       move(state, 1, 0);
       ok = assertEqual(avatar->x, 2, "trickery cover bump.x") && ok;
-      ok = assertEqual(door->tileId, 3, "trickery cover opened") && ok;
+      ok = assertEqual(door->tileId, 2, "trickery cover unlocks closed") && ok;
+      ok = assertFalse(door->doorLock.has_value(), "trickery cover clears lock") && ok;
       ok = assertEqual(itemQuantity(leader, "Lockpicks"), 4, "trickery cover consumes no tools") &&
            ok;
       ok = assertTrue(soundsContain(state, "lockpick"), "trickery cover plays lockpick") && ok;
       ok = assertFalse(soundsContain(state, "hit_punch1"), "trickery cover is not a bash") && ok;
+      ok = assertEqual(static_cast<int>(mapOf(state).persistentState.unlockedDoors.size()),
+                       1,
+                       "trickery cover recorded unlocked") &&
+           ok;
+
+      move(state, 1, 0);
+      ok = assertEqual(door->tileId, 3, "trickery cover opens on second bump") && ok;
     }
 
     // Partial tools do not open and do not change quantity
@@ -767,6 +907,7 @@ int main(int /*argc*/, char** /*argv*/) {
       move(state, 1, 0);
       ok = assertEqual(avatar->x, 2, "partial tools stay.x") && ok;
       ok = assertEqual(door->tileId, 2, "partial tools stay closed") && ok;
+      ok = assertTrue(doorUnlockConfirmAt(state, 3, 2), "partial tools queues info modal") && ok;
       ok = assertEqual(itemQuantity(leader, "Lockpicks"), 5, "partial tools quantity unchanged") &&
            ok;
       ok = assertEqual(stackQuantityById(leader, "picks"), 5, "partial tools stack unchanged") &&
@@ -800,10 +941,11 @@ int main(int /*argc*/, char** /*argv*/) {
       move(state, 1, 0);
       ok = assertEqual(avatar->x, 2, "non-tool stay.x") && ok;
       ok = assertEqual(door->tileId, 2, "non-tool stay closed") && ok;
+      ok = assertTrue(hasDoorUnlockConfirmPush(state), "non-tool queues info modal") && ok;
       ok = assertEqual(itemQuantity(leader, "Twine"), 6, "non-tool quantity unchanged") && ok;
     }
 
-    // Exact tools consume and open, leaving 0 of that stack
+    // Exact tools: bump shows confirm; Yes consumes and opens, leaving 0 of that stack
     {
       auto& state = stateManager.getState();
       state = state::State{};
@@ -821,23 +963,29 @@ int main(int /*argc*/, char** /*argv*/) {
 
       move(state, 1, 0);
       ok = assertEqual(avatar->x, 2, "exact tools bump.x") && ok;
-      ok = assertEqual(door->tileId, 3, "exact tools opened") && ok;
+      ok = assertEqual(door->tileId, 2, "exact tools stay closed until confirm") && ok;
+      ok = assertTrue(doorUnlockConfirmAt(state, 3, 2), "exact tools queues confirm") && ok;
+      ok = assertEqual(itemQuantity(leader, "Lockpicks"), 6, "exact tools unspent on bump") && ok;
+
+      confirmDoorUnlock(state, 3, 2);
+      ok = assertEqual(door->tileId, 2, "exact tools stay closed after unlock") && ok;
+      ok = assertFalse(door->doorLock.has_value(), "exact tools clear lock") && ok;
       ok = assertEqual(itemQuantity(leader, "Lockpicks"), 0, "exact tools leave 0") && ok;
       ok = assertEqual(stackQuantityById(leader, "picks"), -1, "exact tools stack removed") && ok;
       ok = assertTrue(soundsContain(state, "lockpick"), "exact tools play lockpick") && ok;
-      ok = assertEqual(static_cast<int>(mapOf(state).persistentState.openedDoors.size()),
+      ok = assertEqual(static_cast<int>(mapOf(state).persistentState.unlockedDoors.size()),
                        1,
-                       "exact tools recorded") &&
+                       "exact tools recorded unlocked") &&
            ok;
-      if (!mapOf(state).persistentState.openedDoors.empty()) {
-        ok = assertEqual(mapOf(state).persistentState.openedDoors[0].tileId,
-                         3,
-                         "exact tools record open tile") &&
-             ok;
-      }
+      ok = assertTrue(mapOf(state).persistentState.openedDoors.empty(),
+                      "exact tools not in openedDoors until open") &&
+           ok;
+
+      move(state, 1, 0);
+      ok = assertEqual(door->tileId, 3, "exact tools open on second bump") && ok;
     }
 
-    // A larger stack leaves the exact remainder
+    // A larger stack: confirm Yes leaves the exact remainder
     {
       auto& state = stateManager.getState();
       state = state::State{};
@@ -854,9 +1002,13 @@ int main(int /*argc*/, char** /*argv*/) {
           game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
 
       move(state, 1, 0);
-      ok = assertEqual(door->tileId, 3, "remainder tools opened") && ok;
+      ok = assertEqual(door->tileId, 2, "remainder tools stay closed until confirm") && ok;
       ok = assertEqual(avatar->x, 2, "remainder tools bump.x") && ok;
+      confirmDoorUnlock(state, 3, 2);
+      ok = assertEqual(door->tileId, 2, "remainder tools stay closed after unlock") && ok;
       ok = assertEqual(stackQuantityById(leader, "picks"), 2, "remainder tools leave 2") && ok;
+      move(state, 1, 0);
+      ok = assertEqual(door->tileId, 3, "remainder tools open on second bump") && ok;
     }
 
     // Split stacks consume the required total, or nothing when the sum is short
@@ -879,6 +1031,7 @@ int main(int /*argc*/, char** /*argv*/) {
       move(state, 1, 0);
       ok = assertEqual(door->tileId, 2, "short split stays closed") && ok;
       ok = assertEqual(avatar->x, 2, "short split stays.x") && ok;
+      ok = assertTrue(hasDoorUnlockConfirmPush(state), "short split queues info modal") && ok;
       ok = assertEqual(stackQuantityById(leader, "picks-a"), 2, "short split first unchanged") &&
            ok;
       ok = assertEqual(stackQuantityById(leader, "picks-b"), 3, "short split second unchanged") &&
@@ -905,10 +1058,14 @@ int main(int /*argc*/, char** /*argv*/) {
           game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
 
       move(state, 1, 0);
-      ok = assertEqual(door->tileId, 3, "split tools opened") && ok;
+      ok = assertEqual(door->tileId, 2, "split tools stay closed until confirm") && ok;
       ok = assertEqual(avatar->x, 2, "split tools bump.x") && ok;
+      confirmDoorUnlock(state, 3, 2);
+      ok = assertEqual(door->tileId, 2, "split tools stay closed after unlock") && ok;
       ok = assertEqual(itemQuantity(leader, "Lockpicks"), 0, "split tools consume the total") &&
            ok;
+      move(state, 1, 0);
+      ok = assertEqual(door->tileId, 3, "split tools open on second bump") && ok;
       ok = assertEqual(stackQuantityById(leader, "picks-a"), -1, "split tools first stack gone") &&
            ok;
       ok = assertEqual(stackQuantityById(leader, "picks-b"), -1, "split tools second stack gone") &&
@@ -934,8 +1091,12 @@ int main(int /*argc*/, char** /*argv*/) {
 
       move(state, 1, 0);
       ok = assertEqual(avatar->x, 2, "split remainder bump.x") && ok;
-      ok = assertEqual(door->tileId, 3, "split remainder opened") && ok;
+      ok = assertEqual(door->tileId, 2, "split remainder stay closed until confirm") && ok;
+      confirmDoorUnlock(state, 3, 2);
+      ok = assertEqual(door->tileId, 2, "split remainder stay closed after unlock") && ok;
       ok = assertEqual(itemQuantity(leader, "Lockpicks"), 3, "split remainder total") && ok;
+      move(state, 1, 0);
+      ok = assertEqual(door->tileId, 3, "split remainder open on second bump") && ok;
       ok = assertEqual(stackQuantityById(leader, "picks-a"), -1, "split remainder first consumed") &&
            ok;
       ok = assertEqual(stackQuantityById(leader, "picks-b"), 3, "split remainder second left") &&
@@ -962,6 +1123,9 @@ int main(int /*argc*/, char** /*argv*/) {
       move(state, 1, 0);
       ok = assertEqual(avatar->x, 2, "bash below threshold stays.x") && ok;
       ok = assertEqual(door->tileId, 2, "bash below threshold stays closed") && ok;
+      ok = assertTrue(hasDoorUnlockConfirmPush(state),
+                      "bash below threshold queues info modal") &&
+           ok;
       ok = assertTrue(mapOf(state).persistentState.openedDoors.empty(),
                       "bash below threshold records nothing") &&
            ok;
@@ -1026,8 +1190,37 @@ int main(int /*argc*/, char** /*argv*/) {
       ok = assertFalse(soundsContain(state, "lockpick"), "bash over tools is not lockpick") && ok;
     }
 
-    // A rebuilt instance plus applyOpenedDoors restores the open tile id.
-    // An empty openedDoors list leaves the template tile id unchanged.
+    // Confirm No / dismiss leaves a tool-locked door closed and inventory unchanged
+    {
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
+      state.world.activeMap.mapLayer = 0;
+      auto* door = tileAt(mapOf(state), 3, 2, 0);
+      door->tileId = 2;
+      setLock(*door, 10, "");
+      spawnAvatar(state, 2, 2);
+      auto& leader = state.player.party[0];
+      leader.stats.skills.trickery = 4;
+      giveStack(leader, "Lockpicks", 6, "picks");
+      auto* avatar =
+          game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
+
+      move(state, 1, 0);
+      ok = assertTrue(doorUnlockConfirmAt(state, 3, 2), "dismiss path queues confirm") && ok;
+      dismissDoorUnlock(state);
+      ok = assertEqual(avatar->x, 2, "dismiss path stays.x") && ok;
+      ok = assertEqual(door->tileId, 2, "dismiss path leaves door closed") && ok;
+      ok = assertEqual(itemQuantity(leader, "Lockpicks"), 6, "dismiss path spends no tools") &&
+           ok;
+      ok = assertTrue(mapOf(state).persistentState.openedDoors.empty(),
+                      "dismiss path records nothing") &&
+           ok;
+      ok = assertFalse(soundsContain(state, "lockpick"), "dismiss path is silent") && ok;
+    }
+
+    // Rebuilt instances: applyUnlockedDoors clears template locks; applyOpenedDoors
+    // restores open tile ids. Empty lists leave the template unchanged.
     {
       auto& state = stateManager.getState();
       state = state::State{};
@@ -1041,14 +1234,13 @@ int main(int /*argc*/, char** /*argv*/) {
       leader.stats.skills.trickery = 10;
 
       move(state, 1, 0);
-      ok = assertEqual(door->tileId, 3, "persist open tileId") && ok;
-      const auto& recorded = mapOf(state).persistentState.openedDoors;
-      ok = assertEqual(static_cast<int>(recorded.size()), 1, "persist recorded one door") && ok;
-      if (!recorded.empty()) {
-        ok = assertEqual(recorded[0].tileId, 3, "persist record tileId") && ok;
-        ok = assertEqual(recorded[0].x, 3, "persist record.x") && ok;
-        ok = assertEqual(recorded[0].y, 2, "persist record.y") && ok;
-        ok = assertEqual(recorded[0].layer, 0, "persist record.layer") && ok;
+      ok = assertEqual(door->tileId, 2, "persist unlock leaves closed tileId") && ok;
+      const auto& unlocked = mapOf(state).persistentState.unlockedDoors;
+      ok = assertEqual(static_cast<int>(unlocked.size()), 1, "persist recorded one unlock") && ok;
+      if (!unlocked.empty()) {
+        ok = assertEqual(unlocked[0].x, 3, "persist unlock record.x") && ok;
+        ok = assertEqual(unlocked[0].y, 2, "persist unlock record.y") && ok;
+        ok = assertEqual(unlocked[0].layer, 0, "persist unlock record.layer") && ok;
       }
 
       auto tmpl = makeClosedDoorTemplate(3, 2);
@@ -1057,6 +1249,25 @@ int main(int /*argc*/, char** /*argv*/) {
       ok = assertTrue(rebuiltDoor != nullptr, "rebuilt door exists") && ok;
       if (rebuiltDoor) {
         ok = assertEqual(rebuiltDoor->tileId, 2, "rebuilt template starts closed") && ok;
+        ok = assertTrue(rebuiltDoor->doorLock.has_value(), "rebuilt template has lock") && ok;
+      }
+      rebuilt.persistentState.unlockedDoors = unlocked;
+      game::applyUnlockedDoors(rebuilt, rebuilt.persistentState.unlockedDoors);
+      rebuiltDoor = model::mapInstanceGetTileAt(rebuilt, 3, 2, 0);
+      if (rebuiltDoor) {
+        ok = assertEqual(rebuiltDoor->tileId, 2, "applyUnlockedDoors keeps closed tile") && ok;
+        ok = assertFalse(rebuiltDoor->doorLock.has_value(),
+                         "applyUnlockedDoors clears template lock") &&
+             ok;
+      }
+
+      move(state, 1, 0);
+      ok = assertEqual(door->tileId, 3, "second bump opens for persist open test") && ok;
+      const auto& recorded = mapOf(state).persistentState.openedDoors;
+      ok = assertEqual(static_cast<int>(recorded.size()), 1, "persist recorded one open door") &&
+           ok;
+      if (!recorded.empty()) {
+        ok = assertEqual(recorded[0].tileId, 3, "persist open record tileId") && ok;
       }
       rebuilt.persistentState.openedDoors = recorded;
       game::applyOpenedDoors(rebuilt, rebuilt.persistentState.openedDoors);
@@ -1066,10 +1277,11 @@ int main(int /*argc*/, char** /*argv*/) {
       }
 
       auto fresh = model::createMapInstanceFromTemplate(tmpl);
+      game::applyUnlockedDoors(fresh, fresh.persistentState.unlockedDoors);
       game::applyOpenedDoors(fresh, fresh.persistentState.openedDoors);
       auto* freshDoor = model::mapInstanceGetTileAt(fresh, 3, 2, 0);
       ok = assertTrue(freshDoor != nullptr && freshDoor->tileId == 2,
-                      "empty openedDoors leaves template tile") &&
+                      "empty persistence leaves template tile") &&
            ok;
 
       database.addMapTemplate(tmpl);

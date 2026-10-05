@@ -139,7 +139,7 @@ bmin::String CharacterStatDefinitions::socialDescription() {
       "boost to disposition toward you.");
 }
 bmin::String CharacterStatDefinitions::magicItemUseLabel() {
-  return TRANSLATE("Magic Item Use");
+  return TRANSLATE("Engineering");
 }
 bmin::String CharacterStatDefinitions::magicItemUseDescription() {
   return TRANSLATE(

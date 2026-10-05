@@ -172,8 +172,8 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
       sorted.map((ability) => ability.name),
     );
     try {
-      await saveAbilities(sorted);
-      setAbilities(sorted);
+      const saved = await saveAbilities(sorted);
+      setAbilities(saved);
       if (abilityRefErrors.length > 0) {
         showNotification(
           `Abilities saved, but spell ability reference errors:\n${abilityRefErrors.join('\n')}`,
@@ -184,7 +184,7 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
         showNotification('Abilities saved successfully!', 'success');
       }
       if (currentName) {
-        setEditIndex(sorted.findIndex((a) => a.name === currentName.trim()));
+        setEditIndex(saved.findIndex((a) => a.name === currentName.trim()));
       }
     } catch (error) {
       showNotification(

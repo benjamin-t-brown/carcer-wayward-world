@@ -22,4 +22,10 @@ model::GiveItemResult giveInventoryItem(model::CharacterPlayer& from,
 int inventoryWeight(const model::CharacterPlayer& character,
                     const db::Database& database);
 
+// True if adding quantity of itemTemplate would not exceed weight capacity.
+bool canAddItemToInventory(const model::CharacterPlayer& character,
+                           const model::ItemTemplate& itemTemplate,
+                           int quantity,
+                           const db::Database& database);
+
 } // namespace game

@@ -64,6 +64,12 @@ LayerSpecialEvent::LayerSpecialEvent(
   floatingNotificationSection->setId("floatingNotificationSection");
   addUiElement(bmin::UniquePtr<ui::UiElement>(floatingNotificationSection));
 
+  auto* stateManager = getStateManager();
+  auto* database = getDatabase();
+  if (stateManager && database) {
+    runner.setExecContext(&stateManager->getState().player, database);
+  }
+
   runnerInterface.startEvent();
   syncUi();
 }

@@ -9,6 +9,7 @@
 #include "ui/helpers/worldActions.h"
 #include "actions/combat/DoCombatAction.hpp"
 #include "actions/world/WorldExamineAt.hpp"
+#include "actions/world/WorldInteractAt.hpp"
 #include "actions/world/WorldMovePlayer.hpp"
 #include "actions/world/WorldSetActionMode.hpp"
 #include "actions/world/WorldTalkAt.hpp"
@@ -55,6 +56,22 @@ void enqueueCombatWait(state::StateManager& stateManager) {
                                  state.world.combat.activeCharacterId,
                                  model::CombatActionType::WAIT),
                              0);
+}
+
+void enqueueWait(state::StateManager& stateManager) {
+  auto& state = stateManager.getState();
+  if (state.world.actionMode != model::WorldActionMode::NONE) {
+    return;
+  }
+  setHeldMoveActive(stateManager, false);
+  if (state.world.combat.active) {
+    enqueueCombatWait(stateManager);
+    return;
+  }
+  if (state.world.resolvingTownEnemyAi) {
+    return;
+  }
+  stateManager.enqueueAction(state::makeAction<state::actions::WorldInteractAt>(), 0);
 }
 
 void ensureCurrentPartyMemberSelection(state::State& state) {

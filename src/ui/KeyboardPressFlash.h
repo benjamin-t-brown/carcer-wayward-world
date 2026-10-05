@@ -28,9 +28,11 @@ public:
 
   bool isBusy() const;
   void stop();
+  // soundName null plays the regular button clip.
   void begin(std::function<bool*()> getter,
              std::function<void()> onComplete,
-             sdl2w::Window* window = nullptr);
+             sdl2w::Window* window = nullptr,
+             const char* soundName = nullptr);
   void update(int deltaTime);
 };
 

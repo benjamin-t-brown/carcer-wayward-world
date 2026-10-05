@@ -6,11 +6,24 @@
 
 #include <optional>
 
+namespace db {
+class Database;
+}
+
+namespace model {
+struct Player;
+}
+
 namespace in3 {
 
 struct ConditionEvaluatorFuncs {
   const bmin::Map<bmin::String, bmin::String>& storage;
+  // Optional game context so HAS_ITEM can see party inventory grants.
+  const model::Player* player = nullptr;
+  const db::Database* database = nullptr;
   bmin::DynArray<bmin::String> onceKeysToCommit;
+  /** Read ONCE() against storage without queueing the key for commit. */
+  bool soft = false;
 
   ConditionEvaluatorFuncs(const bmin::Map<bmin::String, bmin::String>& storage);
 

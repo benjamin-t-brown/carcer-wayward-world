@@ -12,6 +12,7 @@ enum class LayerId {
   World,
   Inventory,
   InventoryContext,
+  SpecialItemContext,
   Magic,
   SpellCast,
   SpellAllyTarget,
@@ -20,6 +21,7 @@ enum class LayerId {
   PickUp,
   PickUpContext,
   DropConfirm,
+  DoorUnlockConfirm,
   GiveContext,
   PopupText,
   SpecialEvent,
@@ -31,6 +33,7 @@ inline std::string_view layerIdString(LayerId id) {
   case LayerId::World: return "layer_world";
   case LayerId::Inventory: return "layer_inventory";
   case LayerId::InventoryContext: return "layer_inventory_context";
+  case LayerId::SpecialItemContext: return "layer_special_item_context";
   case LayerId::Magic: return "layer_magic";
   case LayerId::SpellCast: return "layer_spell_cast";
   case LayerId::SpellAllyTarget: return "layer_spell_ally_target";
@@ -39,6 +42,7 @@ inline std::string_view layerIdString(LayerId id) {
   case LayerId::PickUp: return "layer_pick_up";
   case LayerId::PickUpContext: return "layer_pick_up_context";
   case LayerId::DropConfirm: return "layer_drop_confirm";
+  case LayerId::DoorUnlockConfirm: return "layer_door_unlock_confirm";
   case LayerId::GiveContext: return "layer_give_context";
   case LayerId::PopupText: return "layer_popup_text";
   case LayerId::SpecialEvent: return "layer_special_event";
@@ -51,6 +55,7 @@ inline std::optional<LayerId> layerIdFromString(std::string_view value) {
   for (auto id : {LayerId::World,
                   LayerId::Inventory,
                   LayerId::InventoryContext,
+                  LayerId::SpecialItemContext,
                   LayerId::Magic,
                   LayerId::SpellCast,
                   LayerId::SpellAllyTarget,
@@ -59,6 +64,7 @@ inline std::optional<LayerId> layerIdFromString(std::string_view value) {
                   LayerId::PickUp,
                   LayerId::PickUpContext,
                   LayerId::DropConfirm,
+                  LayerId::DoorUnlockConfirm,
                   LayerId::GiveContext,
                   LayerId::PopupText,
                   LayerId::SpecialEvent,

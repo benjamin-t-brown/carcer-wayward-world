@@ -74,7 +74,8 @@ int main(int /*argc*/, char** /*argv*/) {
          ok;
 
     {
-      auto spawn = state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer");
+      auto spawn = state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer",
+                                                            "alinea_outsideAlinea1");
       spawn.execute(&state);
     }
 
@@ -116,7 +117,8 @@ int main(int /*argc*/, char** /*argv*/) {
     const auto countAfterSpawn =
         static_cast<int>(state.world.activeMap.characters.size());
     {
-      auto spawn = state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer");
+      auto spawn = state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer",
+                                                            "alinea_outsideAlinea1");
       spawn.execute(&state);
     }
     ok = assertEqual(static_cast<int>(state.world.activeMap.characters.size()),

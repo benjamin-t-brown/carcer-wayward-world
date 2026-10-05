@@ -213,13 +213,18 @@ expl_31 60
 EndAnim
 
 Sound,button,assets/snd/button,1,https://www.zedge.net/notification-sounds/fc99eb5b-d660-31d0-bc8c-41469381fbba
+Sound,button2,assets/snd/button2,1,https://freesound.org/people/earthsounds/sounds/101496/
+Sound,button_get_item,assets/snd/get_item,1,
+Sound,button_page_turn,assets/snd/page_turn,0.7,https://freesound.org/people/SilverIllusionist/sounds/411175/
 
 Sound,yell1,assets/snd/yell1,1,Mikey Soprano getting hit with a staple gun
 Sound,yell2,assets/snd/yell2
 Sound,yell_goblin,assets/snd/yell_goblin,0.7,https://freesound.org/people/SnowFightStudios/sounds/643655/
 Sound,yell_monster1,assets/snd/yell_monster1,1,https://freesound.org/people/Soundburst/sounds/634005/
 Sound,yell_monster2,assets/snd/yell_monster2,1,https://freesound.org/people/Soundburst/sounds/634005/
+Sound,yell_monster3,assets/snd/yell_monster3,1,https://freesound.org/people/Danilojpbr212./sounds/860245/
 Sound,yell_bug,assets/snd/yell_bug
+Sound,yell_body,assets/snd/yell_body,1,https://freesound.org/people/F.M.Audio/sounds/547583/
 
 Sound,hit_punch1,assets/snd/hit_punch1,1,https://freesound.org/people/taylorsyoung@gmail.com/sounds/94778/
 Sound,hit_punch2,assets/snd/hit_punch2,1,https://freesound.org/people/damnsatinist/sounds/493916/
@@ -262,6 +267,8 @@ Sound,level_up,assets/snd/level_up,1,Maelstrom https://github.com/libsdl-org/Mae
 Sound,miss,assets/snd/miss,1,https://freesound.org/people/plantmonkey/sounds/410751/
 Sound,upgrade,assets/snd/upgrade,1,fl studio
 Sound,imp,assets/snd/imp,1,zzfx
-Sound,event,assets/snd/event,1,zzfx
+Sound,event,assets/snd/event,0.75,fl studio
 Sound,portal,assets/snd/portal
 Sound,lockpick,assets/snd/lockpick
+Sound,unlock_door,assets/snd/unlock_door,1,https://freesound.org/people/arnaud%20coutancier/sounds/275087/
+Sound,open_gate,assets/snd/open_gate,1,https://freesound.org/people/lolamadeus/sounds/161227/

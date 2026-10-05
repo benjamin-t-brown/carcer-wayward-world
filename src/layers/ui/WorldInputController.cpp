@@ -37,12 +37,8 @@ void WorldInputController::onKeyDown(std::string_view key, int /*keyCode*/) {
     }
   }
 
-  if (ui::isCombatWaitKey(key) && world.combat.active) {
-    if (world.actionMode != model::WorldActionMode::NONE) {
-      return;
-    }
-    ui::setHeldMoveActive(*stateManager, false);
-    ui::enqueueCombatWait(*stateManager);
+  if (ui::isWaitKey(key)) {
+    ui::enqueueWait(*stateManager);
     return;
   }
 

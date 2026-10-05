@@ -107,7 +107,7 @@ export function LayersPanel(props: LayersPanelProps) {
           color: '#d4d4d4',
           marginBottom: '8px',
         }}
-        title="Paint neighbouring grid maps in place without switching tabs"
+        title="Paint neighboring grid maps in place without switching tabs"
       >
         <input
           type="checkbox"

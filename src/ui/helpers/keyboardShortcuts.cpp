@@ -32,15 +32,10 @@ getWorldActionFromKeyboardShortcut(std::string_view key, model::TurnMode turnMod
   if (key == " ") {
     return state::WorldActionType::INTERACT;
   }
-  if (key == "Keypad 5" && turnMode != model::TurnMode::TURN_COMBAT) {
-    return state::WorldActionType::INTERACT;
-  }
   return std::nullopt;
 }
 
-bool isCombatWaitKey(std::string_view key) {
-  return key == "Keypad 5";
-}
+bool isWaitKey(std::string_view key) { return key == "Keypad 5"; }
 
 bool isOpenSpellCastKey(std::string_view key) {
   return key == "m" || key == "M";
@@ -90,6 +85,8 @@ std::optional<int> getPartyMemberIndexFromKey(std::string_view key) {
   }
   return static_cast<int>(key[0] - '1');
 }
+
+bool isSpecialItemsKey(std::string_view key) { return key == "0"; }
 
 std::optional<int> getAlphabeticShortcutIndexFromKey(std::string_view key) {
   if (key.size() != 1) {

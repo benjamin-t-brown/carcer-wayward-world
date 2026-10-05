@@ -73,7 +73,7 @@ model::CarcerMapTemplate makeMapTemplate() {
     layer.pushBack(0);
     layer.pushBack(0);
   }
-  mapTemplate.tiles.pushBack(std::move(layer));
+  mapTemplate.tiles[0] = std::move(layer);
 
   auto placement = model::MapCharacterPlacement{};
   placement.l = 0;

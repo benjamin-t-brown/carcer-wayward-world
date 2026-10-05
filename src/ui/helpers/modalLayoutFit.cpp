@@ -9,8 +9,8 @@ static constexpr float portraitMinAspect = 1.25f;
 static constexpr int landscapeVerticalInset = 50;
 
 static constexpr int standardLandscapeWidthCap = 500;
-static constexpr int standardLandscapeHeightCap = 500;
-static constexpr int smallLandscapeWidthCap = 400;
+static constexpr int standardLandscapeHeightCap = 600;
+static constexpr int smallLandscapeWidthCap = 500;
 static constexpr int smallLandscapeHeightCap = 420;
 
 LayoutRect computeCappedCenteredRect(int windowW,

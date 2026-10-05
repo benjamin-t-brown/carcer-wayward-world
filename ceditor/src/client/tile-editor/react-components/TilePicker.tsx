@@ -24,6 +24,7 @@ export function TilePicker(props: { editorState: EditorState }) {
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const notificationIdRef = useRef(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const { editorState } = props;
   // const reRender = useReRender();
@@ -131,6 +132,59 @@ export function TilePicker(props: { editorState: EditorState }) {
     imageRef.current = img;
     drawTileset();
   });
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    const canvas = canvasRef.current;
+    if (
+      !selectedTileset ||
+      !container ||
+      !canvas ||
+      editorState.selectedTileIndexInTileset < 0 ||
+      canvas.width <= 0 ||
+      canvas.height <= 0
+    ) {
+      return;
+    }
+
+    const { tileWidth, tileHeight, imageWidth } = selectedTileset;
+    const tilesWide = Math.floor(imageWidth / tileWidth);
+    if (tilesWide <= 0) {
+      return;
+    }
+
+    const tileIndex = editorState.selectedTileIndexInTileset;
+    const scaledTileWidth = tileWidth * scale;
+    const scaledTileHeight = tileHeight * scale;
+    const tileX = (tileIndex % tilesWide) * scaledTileWidth;
+    const tileY = Math.floor(tileIndex / tilesWide) * scaledTileHeight;
+
+    const canvasRect = canvas.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const scaleX = canvasRect.width / canvas.width;
+    const scaleY = canvasRect.height / canvas.height;
+    const margin = 8;
+    const left = canvasRect.left + tileX * scaleX;
+    const top = canvasRect.top + tileY * scaleY;
+    const right = left + scaledTileWidth * scaleX;
+    const bottom = top + scaledTileHeight * scaleY;
+
+    if (left < containerRect.left + margin) {
+      container.scrollLeft -= containerRect.left + margin - left;
+    } else if (right > containerRect.right - margin) {
+      container.scrollLeft += right - (containerRect.right - margin);
+    }
+    if (top < containerRect.top + margin) {
+      container.scrollTop -= containerRect.top + margin - top;
+    } else if (bottom > containerRect.bottom - margin) {
+      container.scrollTop += bottom - (containerRect.bottom - margin);
+    }
+  }, [
+    editorState.selectedTilesetName,
+    editorState.selectedTileIndexInTileset,
+    scale,
+    selectedTileset,
+  ]);
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!selectedTileset || !canvasRef.current) return;
@@ -498,6 +552,7 @@ export function TilePicker(props: { editorState: EditorState }) {
 
         {/* Right Column: Canvas Container */}
         <div
+          ref={scrollContainerRef}
           style={{
             flex: 1,
             overflow: 'auto',

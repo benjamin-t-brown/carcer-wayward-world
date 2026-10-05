@@ -67,9 +67,9 @@ int main(int argc, char** argv) {
          ok;
     ok = assertEqualStr(instance.label, "Flat Test Map", "instance.label") && ok;
 
-    // Fixture: characters [{l:0,i:1,name:testNpc}] → tile (1,0)
+    // Fixture: two characters on layer 0 (testNpc at i:1, testNpcFlipped at i:0)
     ok = assertEqual(static_cast<int>(instance.persistentState.characters.size()),
-                     1,
+                     2,
                      "instance.persistentState.characters.size") &&
          ok;
     if (!instance.persistentState.characters.empty()) {
@@ -135,6 +135,10 @@ int main(int argc, char** argv) {
       ok = assertEqual(static_cast<int>(layer0[0].eventTrigger->requiresLook),
                        1,
                        "eventTrigger.requiresLook") &&
+           ok;
+      ok = assertEqualStr(layer0[0].eventTrigger->condition,
+                          "IS(opened)",
+                          "eventTrigger.condition") &&
            ok;
     }
     ok = assertTrue(layer0[0].travelTrigger.has_value(), "layer0[0].travelTrigger") && ok;

@@ -59,9 +59,9 @@ interface PaintActionData {
   floorDrawBrush?: FloorBrushData[];
   startInd: number;
   endInd: number;
-  /** Select/clone source block when the drag started on a neighbour. */
+  /** Select/clone source block when the drag started on a neighbor. */
   sourceMapName?: string;
-  /** Select/clone dest block when the drop landed on a neighbour. */
+  /** Select/clone dest block when the drop landed on a neighbor. */
   destMapName?: string;
   tileInds: number[];
   extraTileInds: number[];
@@ -321,7 +321,7 @@ export const onActionUpdate = (
 
 /**
  * Commit the materialized layer of every block a clone-brush stroke touched
- * besides `alreadyCommitted`, so writes that landed in neighbouring grid maps
+ * besides `alreadyCommitted`, so writes that landed in neighboring grid maps
  * are flushed and their caches invalidated.
  */
 const commitBlockWriteMaps = (

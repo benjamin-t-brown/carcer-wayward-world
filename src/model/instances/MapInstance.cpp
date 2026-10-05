@@ -17,8 +17,9 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
   instance.mapType = mapTemplate.type;
 
   auto cellCount = mapTemplate.width * mapTemplate.height;
-  for (size_t layer = 0; layer < mapTemplate.tiles.size(); ++layer) {
-    const auto& flat = mapTemplate.tiles[layer];
+  for (auto it = mapTemplate.tiles.begin(); it != mapTemplate.tiles.end(); ++it) {
+    const int layerId = it->key;
+    const auto& flat = it->value;
     if (flat.empty()) {
       continue;
     }
@@ -42,8 +43,7 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
       }
       layerTiles.pushBack(std::move(tile));
     }
-    mapLayerAt(mapInstanceTiles(instance), static_cast<int>(layer)) =
-        std::move(layerTiles);
+    mapLayerAt(mapInstanceTiles(instance), layerId) = std::move(layerTiles);
   }
 
   for (const auto& ov : mapTemplate.tileOverrides) {
@@ -78,6 +78,7 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
         .requiresNonCombat = et.requiresNonCombat,
         .requiresLook = et.requiresLook,
         .overlayVisibility = et.overlayVisibility,
+        .condition = et.condition,
     };
   }
 

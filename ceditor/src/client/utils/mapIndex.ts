@@ -321,6 +321,7 @@ export const PLACEMENT_KINDS: readonly PlacementKind[] = [
       requiresNonCombat: e.requiresNonCombat,
       requiresLook: e.requiresLook,
       overlayVisibility: e.overlayVisibility ?? 'HIDDEN',
+      ...(e.condition ? { condition: e.condition } : {}),
     }),
     fromTile: (v: TileEventTrigger) => [
       {
@@ -328,6 +329,7 @@ export const PLACEMENT_KINDS: readonly PlacementKind[] = [
         requiresNonCombat: v.requiresNonCombat,
         requiresLook: v.requiresLook,
         ...keepOverlayVisibility(v.overlayVisibility),
+        ...(v.condition?.trim() ? { condition: v.condition.trim() } : {}),
       },
     ],
   },
@@ -526,7 +528,7 @@ export function writeLayerFromTiles(
  * it. Not a WeakMap, so it needs an explicit eviction rule (invariant I6).
  *
  * Sized to keep a whole grid-edit view resident: the focused map plus every
- * neighbour within gridRenderRadius (up to 25 at radius 2), with headroom for a
+ * neighbor within gridRenderRadius (up to 25 at radius 2), with headroom for a
  * layer switch not evicting the set mid-frame.
  */
 const MAX_CACHED_LAYERS = 96;

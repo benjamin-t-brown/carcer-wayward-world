@@ -1,0 +1,26 @@
+{
+  "vars": {
+    "aspect": {
+      "aeon": "1",
+      "resist": "1"
+    },
+    "quests": {
+      "que_alinea_sealOfApproval": {
+        "step": "step1"
+      }
+    },
+    "items": {
+      "que_realmShedKey": "1"
+    }
+  },
+  "once": {
+    "l5fJ1BTynu": "true",
+    "QgfXS2BgS4": "true",
+    "Iv4dTdlu6R": "true",
+    "QN7WY1D9H8": "true",
+    "vWWIuPIG9p": "true"
+  },
+  "tmp": {
+    "UQhpQTTHLk": "true"
+  }
+}

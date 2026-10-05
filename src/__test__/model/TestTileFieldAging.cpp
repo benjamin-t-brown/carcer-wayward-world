@@ -54,7 +54,7 @@ model::CarcerMapTemplate makeMapTemplate(const bmin::String& name) {
     layer.pushBack(0);
     layer.pushBack(0);
   }
-  mapTemplate.tiles.pushBack(std::move(layer));
+  mapTemplate.tiles[0] = std::move(layer);
   return mapTemplate;
 }
 

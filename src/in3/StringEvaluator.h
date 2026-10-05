@@ -4,10 +4,21 @@
 #include "bmin/String.h"
 #include "bmin/Map.h"
 
+namespace db {
+class Database;
+}
+
+namespace model {
+struct Player;
+}
+
 namespace in3 {
 
 struct StringEvaluatorFuncs {
   bmin::Map<bmin::String, bmin::String>& storage;
+  // Optional game context for inventory grants (set by SpecialEventRunner).
+  model::Player* player = nullptr;
+  const db::Database* database = nullptr;
 
   bool questUpdated = false;
   bmin::DynArray<bmin::String> receivedItemNames;

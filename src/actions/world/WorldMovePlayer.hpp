@@ -14,6 +14,7 @@
 #include "sdl2w/Logger.h"
 #include "state/AbstractAction.hpp"
 #include "actions/general/PlaySound.hpp"
+#include "actions/navigation/UiShowLayerDoorUnlockConfirm.hpp"
 #include "actions/world/TownEnemyAiAfterPlayerMove.hpp"
 #include "state/State.hpp"
 #include "bmin/String.h"
@@ -113,17 +114,34 @@ class WorldMovePlayer : public AbstractAction {
     destMap->tileLayerNumber = world.activeMap.mapLayer;
 
     if (auto* door = game::findClosedDoorAt(*destMap, destLocal.x, destLocal.y, *database)) {
-      const auto opened = game::tryOpenClosedDoor(*door, player.party[0], *database);
+      const auto bump = game::classifyClosedDoorBump(
+          *door, player.party[0], state->specialEventStorage, *database);
+      const auto needsModal =
+          bump.outcome == game::ClosedDoorBumpOutcome::ConfirmToolUnlock ||
+          bump.outcome == game::ClosedDoorBumpOutcome::InfoInsufficientTools ||
+          bump.outcome == game::ClosedDoorBumpOutcome::ConfirmKeyUnlock ||
+          bump.outcome == game::ClosedDoorBumpOutcome::InfoMissingKey;
+      if (needsModal) {
+        UiShowLayerDoorUnlockConfirm(nullptr, destX, destY).execute(state);
+        LOG(DEBUG) << " blocked!" << LOG_ENDL;
+        return;
+      }
+
+      const auto opened = game::tryOpenClosedDoor(
+          *door, player.party[0], state->specialEventStorage, *database);
       if (opened == game::ClosedDoorOpenResult::Blocked) {
         LOG(DEBUG) << " blocked!" << LOG_ENDL;
         return;
       }
-      game::upsertOpenedDoor(destMap->persistentState.openedDoors,
-                             destMap->tileLayerNumber,
-                             door->x,
-                             door->y,
-                             door->tileId);
-      if (opened == game::ClosedDoorOpenResult::OpenedLockpick) {
+      game::persistClosedDoorOpen(destMap->persistentState,
+                                  destMap->tileLayerNumber,
+                                  door->x,
+                                  door->y,
+                                  door->tileId,
+                                  opened);
+      if (opened == game::ClosedDoorOpenResult::OpenedKey) {
+        PlaySound("unlock_door").execute(state);
+      } else if (opened == game::ClosedDoorOpenResult::OpenedLockpick) {
         PlaySound("lockpick").execute(state);
       } else if (opened == game::ClosedDoorOpenResult::OpenedBash) {
         PlaySound("hit_punch1").execute(state);
@@ -147,7 +165,8 @@ class WorldMovePlayer : public AbstractAction {
     avatar->x = destX;
     avatar->y = destY;
     const auto triggerResult =
-        game::resolveStepTriggersAt(*destMap, destLocal.x, destLocal.y);
+        game::resolveStepTriggersAt(
+            *destMap, destLocal.x, destLocal.y, state->specialEventStorage);
     state->triggers.pendingSpecialEventId = triggerResult.specialEventId;
     state->triggers.pendingTravel = triggerResult.travel;
     if (triggerResult.specialEventId) {

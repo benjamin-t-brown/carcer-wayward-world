@@ -1,12 +1,14 @@
 [ gp] {MISSING!}
 [ lbs] {MISSING!}
+[ tools to unlock.  Would you like to do so?] {MISSING!}
+[ tools to unlock.  You do not have enough to do so.] {MISSING!}
 [A two-handed weapon cannot be equipped in the off hand.] {MISSING!}
 [AP: ] {MISSING!}
 [Ability Power] {MISSING!}
 [Ability] {MISSING!}
 [Acrobatics] {MISSING!}
 [Action Points] {MISSING!}
-[Affected by Magic Item Use training.] {MISSING!}
+[Affected by Engineering training.] {MISSING!}
 [Affected by Stealth training.] {MISSING!}
 [Affected by Trickery training.] {MISSING!}
 [Agility] {MISSING!}
@@ -65,6 +67,7 @@
 [Edged Weapons] {MISSING!}
 [End Fight] {MISSING!}
 [Enemy Vision Range] {MISSING!}
+[Engineering] {MISSING!}
 [Equip] {MISSING!}
 [Examine:] {MISSING!}
 [Examine] {MISSING!}
@@ -93,10 +96,10 @@
 [Known] {MISSING!}
 [Level up to increase stats and abilities.] {MISSING!}
 [Level] {MISSING!}
+[Locked Door] {MISSING!}
 [Lore] {MISSING!}
 [Luck] {MISSING!}
 [Mage Lore] {MISSING!}
-[Magic Item Use] {MISSING!}
 [Magic Mastery] {MISSING!}
 [Magic/Damage] {MISSING!}
 [Magic] {MISSING!}
@@ -132,6 +135,7 @@
 [Skills] {MISSING!}
 [Sneak] {MISSING!}
 [Social] {MISSING!}
+[Special Items] {MISSING!}
 [Spell Potency] {MISSING!}
 [Spell potency, status effect length, and field length. Base 1.] {MISSING!}
 [Spells use this stat to base their damage on, usually as a ratio.] {MISSING!}
@@ -147,6 +151,10 @@
 [That item is not a rune.] {MISSING!}
 [That spell cannot be aimed on the map.] {MISSING!}
 [That spell cannot be prepared.] {MISSING!}
+[This door is locked.  It requires ] {MISSING!}
+[This door is locked and requires ] {MISSING!}
+[This door is locked and you do not have the key to open it.] {MISSING!}
+[This door is locked, but you have the key to unlock it.  Would you like to do so now?] {MISSING!}
 [Too heavy!] {MISSING!}
 [Tool Use] {MISSING!}
 [Trade Discount] {MISSING!}

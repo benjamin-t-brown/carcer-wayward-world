@@ -353,23 +353,23 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       try {
         if (references.tiles.length > 0) {
           const trimmedMaps = trimStrings(nextMaps);
-          await saveMaps(trimmedMaps);
-          nextMaps = trimmedMaps;
-          setMaps(trimmedMaps);
+          const savedMaps = await saveMaps(trimmedMaps);
+          nextMaps = savedMaps;
+          setMaps(savedMaps);
           savedAssets.push('maps');
         }
         if (references.characters.length > 0) {
           const trimmedCharacters = trimStrings(nextCharacters);
-          await saveCharacters(trimmedCharacters);
-          nextCharacters = trimmedCharacters;
-          setCharacters(trimmedCharacters);
+          const savedCharacters = await saveCharacters(trimmedCharacters);
+          nextCharacters = savedCharacters;
+          setCharacters(savedCharacters);
           savedAssets.push('characters');
         }
         if (references.items.length > 0) {
           const trimmedItems = trimStrings(nextItems);
-          await saveItems(trimmedItems);
-          nextItems = trimmedItems;
-          setItems(trimmedItems);
+          const savedItems = await saveItems(trimmedItems);
+          nextItems = savedItems;
+          setItems(savedItems);
           savedAssets.push('items');
         }
       } catch (err) {

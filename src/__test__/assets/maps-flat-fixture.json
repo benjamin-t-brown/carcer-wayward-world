@@ -23,7 +23,8 @@
         "l": 0,
         "i": 0,
         "eventId": "test_event",
-        "requiresLook": true
+        "requiresLook": true,
+        "condition": "IS(opened)"
       }
     ],
     "travelTriggers": [

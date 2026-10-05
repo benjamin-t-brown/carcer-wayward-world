@@ -68,6 +68,72 @@
   },
   {
     "type": "TOWNSPERSON",
+    "name": "alinea_Anthimos",
+    "label": "Anthimos",
+    "spritesheet": "actors0",
+    "spriteOffset": 6,
+    "stats": {
+      "generic": {
+        "str": 4,
+        "mnd": 6,
+        "con": 2,
+        "agi": 3,
+        "lck": 3
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 0,
+          "abilityPower": 5,
+          "attunement": 5,
+          "faith": 0,
+          "lore": 5
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 0,
+          "healingEffectiveness": 0,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "talk": {
+      "portraitName": "special_event_icons_0"
+    },
+    "combat": {
+      "hp": 15
+    },
+    "vision": {
+      "radius": 6
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "sound": {
+      "deathSoundName": "yell2",
+      "weaponSoundName": "hit_punch3"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
     "name": "alinea_Barto",
     "label": "Barto",
     "spritesheet": "actors0",
@@ -331,72 +397,6 @@
     },
     "sound": {
       "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch3"
-    }
-  },
-  {
-    "type": "TOWNSPERSON",
-    "name": "alinea_Entimos",
-    "label": "Entimos",
-    "spritesheet": "actors0",
-    "spriteOffset": 6,
-    "stats": {
-      "generic": {
-        "str": 4,
-        "mnd": 6,
-        "con": 2,
-        "agi": 3,
-        "lck": 3
-      },
-      "trainable": {
-        "weapon": {
-          "edged": 0,
-          "pole": 0,
-          "blunt": 0,
-          "range": 0,
-          "unarmed": 0
-        },
-        "magic": {
-          "mana": 0,
-          "abilityPower": 5,
-          "attunement": 5,
-          "faith": 0,
-          "lore": 5
-        },
-        "body": {
-          "resistPhysical": 0,
-          "resistMagical": 0,
-          "healingEffectiveness": 0,
-          "dr": 0,
-          "armorTraining": 0
-        }
-      },
-      "skills": {
-        "trickery": 0,
-        "stealth": 0,
-        "social": 0,
-        "magicItemUse": 0,
-        "cooking": 0,
-        "acrobatics": 0,
-        "survival": 0,
-        "focus": 0,
-        "conditioning": 0
-      }
-    },
-    "talk": {
-      "portraitName": "special_event_icons_0"
-    },
-    "combat": {
-      "hp": 15
-    },
-    "vision": {
-      "radius": 6
-    },
-    "behavior": {
-      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
-    },
-    "sound": {
-      "deathSoundName": "yell2",
       "weaponSoundName": "hit_punch3"
     }
   },
@@ -1064,6 +1064,69 @@
     "sound": {
       "deathSoundName": "yell_monster2",
       "weaponSoundName": "hit_punch3"
+    }
+  },
+  {
+    "type": "TOWNSPERSON",
+    "name": "alinea_Sharon",
+    "label": "Sharon",
+    "spritesheet": "actors0",
+    "spriteOffset": 16,
+    "stats": {
+      "generic": {
+        "str": 1,
+        "mnd": 2,
+        "con": 3,
+        "agi": 1,
+        "lck": 1
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 1,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 0,
+          "abilityPower": 0,
+          "attunement": 0,
+          "faith": 0,
+          "lore": 0
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 0,
+          "healingEffectiveness": 0,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "brutishness": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE"
+    },
+    "sound": {
+      "deathSoundName": "yell_body"
+    },
+    "vision": {
+      "radius": 6
+    },
+    "combat": {
+      "hp": 50
     }
   },
   {

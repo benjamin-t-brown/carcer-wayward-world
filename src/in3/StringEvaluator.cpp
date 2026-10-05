@@ -1,6 +1,11 @@
 #include "StringEvaluator.h"
 #include "EventRunnerHelpers.h"
 #include "QuestProgress.h"
+#include "bmin/StringInterop.h"
+#include "db/Database.h"
+#include "game/inventory/InventoryRules.h"
+#include "model/instances/Player.h"
+#include "sdl2w/Logger.h"
 #include <cmath>
 #include <stdexcept>
 
@@ -206,8 +211,49 @@ void StringEvaluatorFuncs::ADD_ITEM_TO_PLAYER(const bmin::String& itemName,
   if (n <= 0) {
     return;
   }
-  MOD_NUM(bmin::String("vars.items.") + itemName, bmin::toString(n));
-  receivedItemNames.pushBack(itemName);
+
+  // No item DB (unit tests): keep legacy vars.items behavior.
+  if (!database) {
+    MOD_NUM(bmin::String("vars.items.") + itemName, bmin::toString(n));
+    receivedItemNames.pushBack(itemName);
+    return;
+  }
+
+  const auto* itemTemplate = database->findItemTemplate(bmin::toStringView(itemName));
+  if (!itemTemplate) {
+    LOG(ERROR) << "ADD_ITEM_TO_PLAYER: unknown item template '" << itemName << "'"
+               << LOG_ENDL;
+    return;
+  }
+
+  // Indestructable (quest/key) items stay in vars.items storage.
+  if (itemTemplate->indestructable) {
+    MOD_NUM(bmin::String("vars.items.") + itemName, bmin::toString(n));
+    receivedItemNames.pushBack(itemName);
+    return;
+  }
+
+  if (!player) {
+    LOG(ERROR) << "ADD_ITEM_TO_PLAYER: no player context for inventory grant of '"
+               << itemName << "'" << LOG_ENDL;
+    return;
+  }
+
+  for (size_t i = 0; i < player->party.size(); ++i) {
+    auto* member = model::playerFindPartyMemberByIndex(*player, static_cast<int>(i));
+    if (!member) {
+      continue;
+    }
+    if (!game::canAddItemToInventory(*member, *itemTemplate, n, *database)) {
+      continue;
+    }
+    model::characterPlayerAddItemToInventory(*member, *itemTemplate, n);
+    receivedItemNames.pushBack(itemName);
+    return;
+  }
+
+  LOG(ERROR) << "ADD_ITEM_TO_PLAYER: no party member can carry '" << itemName << "' x"
+             << n << LOG_ENDL;
 }
 
 void StringEvaluatorFuncs::MODIFY_COINS(const bmin::String& amount) {

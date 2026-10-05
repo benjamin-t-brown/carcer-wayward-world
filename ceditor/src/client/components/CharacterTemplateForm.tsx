@@ -16,6 +16,7 @@ import {
   CombatBehaviorName,
   COMBAT_BEHAVIOR_NAMES,
   createDefaultCharacterStats,
+  createGenericTownspersonStats,
 } from '../types/assets';
 
 const DEFAULT_COMBAT_BEHAVIOR: CombatBehaviorName = 'SEEK_AND_MELEE';
@@ -299,6 +300,26 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
     });
   };
 
+  const applyGenericTownspersonPreset = () => {
+    setFormData({
+      ...formData,
+      stats: createGenericTownspersonStats(),
+      sound: {
+        ...formData.sound,
+        deathSoundName: 'yell_body',
+        deathSound: undefined,
+      },
+      vision: {
+        ...formData.vision,
+        radius: 6,
+      },
+      combat: {
+        ...formData.combat,
+        hp: 50,
+      },
+    });
+  };
+
   if (!character) {
     return <EditorEmptyState message="Select a character to edit" />;
   }
@@ -355,6 +376,17 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
             Spritesheet: {formData.spritesheet || 'Not set'} | Offset:{' '}
             {formData.spriteOffset ?? 'Not set'}
           </div>
+        </div>
+
+        <div className="form-section">
+          <h3>Presets</h3>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={applyGenericTownspersonPreset}
+          >
+            Generic Townsperson
+          </Button>
         </div>
 
         <div className="form-section">
@@ -588,7 +620,7 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
               <NumberInput
                 id="skill-magic-item-use"
                 name="skillMagicItemUse"
-                label="Magic Item Use"
+                label="Engineering"
                 value={stats.skills?.magicItemUse || 0}
                 onChange={(value) => updateSkill('magicItemUse', value)}
                 min={0}
@@ -641,7 +673,6 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
               />
             </div>
           </div>
-
         </div>
 
         <div className="form-section">
@@ -697,7 +728,7 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
               </div>
               <div className="form-group form-block talk-portrait-field">
                 <label htmlFor="talk-portrait-picker">Portrait Sprite</label>
-                <div style={{ marginTop: '4px', fontSize: '11px', color: '#858585' }}>
+                <div style={{ margin: '8px', fontSize: '11px', color: '#858585' }}>
                   Shown on the talk event. If empty, the event's default
                   icon is used.
                 </div>

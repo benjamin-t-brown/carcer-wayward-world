@@ -1,11 +1,13 @@
 #include "LayerManager.h"
 #include "bmin/StringInterop.h"
 #include "layers/ui/LayerCharacterExamine.h"
+#include "layers/ui/LayerDoorUnlockConfirm.h"
 #include "layers/ui/LayerDropConfirm.h"
 #include "layers/ui/LayerEquipRunes.h"
 #include "layers/ui/LayerGiveContext.h"
 #include "layers/ui/LayerInventory.h"
 #include "layers/ui/LayerInventoryContext.h"
+#include "layers/ui/LayerSpecialItemContext.h"
 #include "layers/ui/LayerMagic.h"
 #include "layers/ui/LayerPickUp.h"
 #include "layers/ui/LayerPickUpContext.h"
@@ -325,6 +327,9 @@ bmin::UniquePtr<Layer> LayerManager::createLayer(const state::LayerRequest& requ
     return bmin::UniquePtr<Layer>(new LayerInventory(window));
   case state::LayerId::InventoryContext:
     return bmin::UniquePtr<Layer>(new LayerInventoryContext(window, request.a, request.b));
+  case state::LayerId::SpecialItemContext:
+    return bmin::UniquePtr<Layer>(
+        new LayerSpecialItemContext(window, request.a, request.b));
   case state::LayerId::Magic:
     return bmin::UniquePtr<Layer>(new LayerMagic(window));
   case state::LayerId::SpellCast:
@@ -353,6 +358,11 @@ bmin::UniquePtr<Layer> LayerManager::createLayer(const state::LayerRequest& requ
   }
   case state::LayerId::DropConfirm:
     return bmin::UniquePtr<Layer>(new LayerDropConfirm(window, request.a, request.b));
+  case state::LayerId::DoorUnlockConfirm:
+    return request.hasPosition
+               ? bmin::UniquePtr<Layer>(
+                     new LayerDoorUnlockConfirm(window, request.x, request.y))
+               : bmin::UniquePtr<Layer>();
   case state::LayerId::GiveContext:
     return bmin::UniquePtr<Layer>(new LayerGiveContext(window, request.a, request.b));
   case state::LayerId::PopupText:

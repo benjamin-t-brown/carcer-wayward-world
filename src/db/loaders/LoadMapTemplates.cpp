@@ -102,13 +102,7 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       for (const auto& value : graphicsJson) {
         graphics.pushBack(value.get<int>());
       }
-      if (layer >= 0) {
-        const auto idx = static_cast<size_t>(layer);
-        if (mapTemplate.tiles.size() <= idx) {
-          mapTemplate.tiles.resize(idx + 1);
-        }
-        mapTemplate.tiles[idx] = std::move(graphics);
-      }
+      mapTemplate.tiles[layer] = std::move(graphics);
     }
   }
 
@@ -154,6 +148,7 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       placement.requiresLook = entry.value("requiresLook", false);
       placement.overlayVisibility = model::getTileOverlayVisibilityFromString(
           entry.value("overlayVisibility", bmin::String("HIDDEN")));
+      placement.condition = entry.value("condition", bmin::String());
       mapTemplate.eventTriggers.pushBack(std::move(placement));
     }
   }

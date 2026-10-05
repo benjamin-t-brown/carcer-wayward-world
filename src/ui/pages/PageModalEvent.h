@@ -7,8 +7,9 @@
 
 namespace ui {
 
+class ButtonGroup;
 class ButtonModal;
-class ButtonTextWrap;
+class SectionScrollable;
 
 struct PageModalEventProps {
   int width = 500;
@@ -20,15 +21,33 @@ struct PageModalEventProps {
 };
 
 // Centered small-modal page for MODAL special events (ModalSmall layout).
+// Choices appear as footer modal buttons (replacing Okay), not in-scroll dialogue rows.
 class PageModalEvent : public UiElement {
 private:
   PageModalEventProps props;
   KeyboardPressFlash keyboardFlash;
 
+  enum class FooterMode { Continue, ShowMore, Choices, Inert };
+  FooterMode footerMode = FooterMode::Inert;
+  // Set by Show More; applied in updateKeyboardChrome so retargetFooter cannot
+  // destroy the footer button while its onClick observer is still running.
+  bool footerNeedsSync = false;
+
   void beginKeyboardContinuePress();
   void beginKeyboardChoicePress(int choiceIndex);
   void enqueueSelectChoice(int choiceIndex);
   void enqueueContinue();
+  void performShowMore();
+
+  ButtonGroup* footerButtonGroup();
+  bool isContentClipped();
+  FooterMode computeFooterMode();
+  void retargetFooter(FooterMode mode);
+  void styleShowMoreButton();
+  void syncFooter(bool force);
+  void renderShowMoreCue();
+
+  friend class PageModalEventShowMoreObserver;
 
 public:
   PageModalEvent(sdl2w::Window* _window, UiElement* _parent = nullptr);
@@ -40,8 +59,9 @@ public:
 
   const std::pair<int, int> getDims() const override;
 
-  ButtonTextWrap* choiceButton(int i);
+  ButtonModal* choiceButton(int i);
   ButtonModal* continueButton();
+  SectionScrollable* textSection();
 
   void onKeyDown(std::string_view key);
   void onKeyUp(std::string_view key);

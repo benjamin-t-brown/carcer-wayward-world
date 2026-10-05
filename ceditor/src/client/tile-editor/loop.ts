@@ -61,7 +61,7 @@ const getColors = () => {
 /**
  * Paint one map block's tiles (plus its grid lines and hover box) into the
  * already-translated context. Shared by the focused map and each editable grid
- * neighbour so they render identically; `hoveredTileIndex` is that block's own.
+ * neighbor so they render identically; `hoveredTileIndex` is that block's own.
  */
 const renderMapBlockTiles = (args: {
   map: CarcerMapTemplate;
@@ -335,7 +335,7 @@ export const loop = (
 
     disableCanvasSmoothing(ctx);
 
-    // Editable grid neighbours to run renderToolUi for, once the block loop has
+    // Editable grid neighbors to run renderToolUi for, once the block loop has
     // laid their tiles down. Populated inside the (single-iteration) layer loop.
     const editableNeighbourToolPasses: {
       map: CarcerMapTemplate;
@@ -414,7 +414,7 @@ export const loop = (
           const blockOriginY = originY + offsetPixelY;
 
           if (chebyshev <= gridEditRadius) {
-            // Editable neighbour: same render path as the focused map.
+            // Editable neighbor: same render path as the focused map.
             ctx.save();
             ctx.translate(offsetPixelX, offsetPixelY);
             renderMapBlockTiles({
@@ -441,7 +441,7 @@ export const loop = (
               offsetPixelY,
             });
           } else {
-            // Context-only neighbour: dimmed, read-only.
+            // Context-only neighbor: dimmed, read-only.
             renderMapTilesAtOffset({
               map: adjacent.map,
               ctx,
@@ -514,7 +514,7 @@ export const loop = (
     );
 
     // Tool preview (hover box fill, brush ghost, fill outline) for the editable
-    // neighbour the pointer / active stroke is on. Others no-op: only the block
+    // neighbor the pointer / active stroke is on. Others no-op: only the block
     // with a hoveredTileIndex >= 0 draws anything.
     for (const pass of editableNeighbourToolPasses) {
       renderToolUi(

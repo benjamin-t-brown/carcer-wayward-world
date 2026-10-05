@@ -1,20 +1,49 @@
 #include "LayerInventory.h"
 #include "bmin/String.h"
 #include "game/inventory/InventoryRules.h"
+#include "game/inventory/SpecialEventItemsStorage.h"
 #include "sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
 #include "actions/navigation/UiDropInventoryItem.hpp"
 #include "actions/navigation/UiGiveInventoryItem.hpp"
 #include "actions/navigation/UiRemoveLayer.hpp"
 #include "actions/navigation/UiReorderInventoryItem.hpp"
+#include "actions/navigation/UiReorderSpecialItem.hpp"
 #include "actions/navigation/UiSetCurrentPartyMemberInventory.hpp"
 #include "actions/navigation/UiToggleEquipInventoryItem.hpp"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/helpers/keyboardShortcuts.h"
 #include "ui/helpers/uiSounds.h"
+#include "db/Database.h"
+#include "in3/EventRunnerHelpers.h"
 #include "ui/pages/PageInventory.h"
+#include "bmin/StringInterop.h"
 
 namespace layers {
+
+void LayerInventory::populateSpecialItemsFromStorage(
+    const bmin::Map<bmin::String, bmin::String>& storage,
+    db::Database& database,
+    bmin::DynArray<ui::PageInventorySpecialItem>& out) {
+  out.clear();
+  const auto orderedNames = game::specialEventItemNamesInDisplayOrder(storage);
+  for (const auto& itemName : orderedNames) {
+    const auto storageKey = bmin::String(game::kVarsItemsPrefix) + itemName;
+    const auto quantityValue = in3::getStorage(storage, storageKey);
+    if (!quantityValue || !game::specialItemQuantityIsPresent(*quantityValue)) {
+      continue;
+    }
+    const auto* itemTemplate = database.findItemTemplate(bmin::toStringView(itemName));
+    if (!itemTemplate) {
+      continue;
+    }
+    out.pushBack({.itemName = itemName,
+                  .itemLabel = itemTemplate->label.empty() ? itemTemplate->name
+                                                             : itemTemplate->label,
+                  .itemSprite = itemTemplate->iconSpriteName,
+                  .quantity = game::parseSpecialItemQuantity(*quantityValue)});
+  }
+}
 
 LayerInventory::LayerInventory(sdl2w::Window* _window) : UiLayer(_window, LAYER_ID) {
   if (!assertInterfaces()) {
@@ -45,8 +74,17 @@ LayerInventory::LayerInventory(sdl2w::Window* _window) : UiLayer(_window, LAYER_
   syncInventoryPartyMember();
 
   subscribeAction<state::ActionEvent::UiSetCurrentPartyMemberInventory>(
-      [this](auto&, auto&) { syncInventoryPartyMember(); });
+      [this](auto&, auto&) {
+        // Same index still counts (e.g. press 1 / click first member while on
+        // special items) — always leave the party-wide special-items view.
+        if (auto* pageInventory = getUiElement<ui::PageInventory>("pageInventory")) {
+          pageInventory->exitSpecialItemsView();
+        }
+        syncInventoryPartyMember();
+      });
   subscribeAction<state::ActionEvent::UiReorderInventoryItem>(
+      [this](auto&, auto&) { syncInventoryPartyMember(); });
+  subscribeAction<state::ActionEvent::UiReorderSpecialItem>(
       [this](auto&, auto&) { syncInventoryPartyMember(); });
   subscribeAction<state::ActionEvent::UiToggleEquipInventoryItem>(
       [this](auto&, auto&) { syncInventoryPartyMember(); });
@@ -63,6 +101,14 @@ void LayerInventory::onKeyDown(std::string_view key, int /*keyCode*/) {
   auto stateManager = getStateManager();
   if (!stateManager) {
     remove();
+    return;
+  }
+
+  if (ui::isSpecialItemsKey(key)) {
+    if (auto* pageInventory = getUiElement<ui::PageInventory>("pageInventory")) {
+      ui::playButtonSound(window);
+      pageInventory->selectSpecialItemsView();
+    }
     return;
   }
 
@@ -125,6 +171,9 @@ void LayerInventory::syncInventoryPartyMember() {
   pageProps.gold = player.gold;
   pageProps.inventory = inventoryPartyMember->inventory;
   pageProps.equipment = inventoryPartyMember->equipment;
+  populateSpecialItemsFromStorage(stateManager->getState().specialEventStorage,
+                                  *getDatabase(),
+                                  pageProps.specialItems);
   pageInventory->setProps(pageProps);
 }
 

@@ -528,8 +528,9 @@ export function Maps({ routeParams }: MapsProps = {}) {
       )
     );
 
+    let savedMapGrids = updatedMapGrids;
     try {
-      await saveMapGrids(updatedMapGrids);
+      savedMapGrids = await saveMapGrids(updatedMapGrids);
     } catch (err) {
       showNotification(
         `Failed to save map grids: ${
@@ -541,7 +542,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
     }
 
     setMaps([...maps, prepared]);
-    setMapGrids(updatedMapGrids);
+    setMapGrids(savedMapGrids);
 
     // The map is now a cell of this grid: focus that grid's tab (opening it if
     // needed) and show the new map in it.
@@ -634,7 +635,8 @@ export function Maps({ routeParams }: MapsProps = {}) {
 
       if (findMapGridPlacement(oldName, mapGrids)) {
         try {
-          await saveMapGrids(updatedMapGrids);
+          const savedMapGrids = await saveMapGrids(updatedMapGrids);
+          setMapGrids(savedMapGrids);
         } catch (err) {
           showNotification(
             `Failed to save map grids: ${
@@ -644,9 +646,9 @@ export function Maps({ routeParams }: MapsProps = {}) {
           );
           return false;
         }
+      } else {
+        setMapGrids(updatedMapGrids);
       }
-
-      setMapGrids(updatedMapGrids);
       renameEditorStateMap(oldName, newName);
     }
 
@@ -667,7 +669,7 @@ export function Maps({ routeParams }: MapsProps = {}) {
 
   // Tile-data changes from the editor (paint strokes, undo, layer ops). Unlike
   // updateMapInTabs this targets whatever map identifies itself by name, so grid
-  // neighbours edited in place are flushed to React state and saved by Ctrl+S.
+  // neighbors edited in place are flushed to React state and saved by Ctrl+S.
   const handleMapDataChange = (updatedMap: CarcerMapTemplate) => {
     const idx = maps.findIndex((m) => m.name === updatedMap.name);
     if (idx < 0) {
@@ -810,8 +812,8 @@ export function Maps({ routeParams }: MapsProps = {}) {
     // });
 
     try {
-      await saveMaps(trimmedMaps);
-      setMaps(trimmedMaps);
+      const savedMaps = await saveMaps(trimmedMaps);
+      setMaps(savedMaps);
       showNotification('Maps saved successfully!', 'success');
 
       // Update tab references after sorting

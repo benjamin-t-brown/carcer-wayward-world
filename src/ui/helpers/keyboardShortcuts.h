@@ -21,7 +21,8 @@ bool isCancelActionKey(std::string_view key);
 
 bool isConfirmActionKey(std::string_view key);
 
-bool isCombatWaitKey(std::string_view key);
+/** Keypad 5 — combat wait, or town wait on a requires-action travel tile. */
+bool isWaitKey(std::string_view key);
 
 /** `m` / `M` — open combat spell-cast list (combat-only at call site). */
 bool isOpenSpellCastKey(std::string_view key);
@@ -31,6 +32,9 @@ bool isOpenMagicSetupKey(std::string_view key);
 
 /** Keys "1"-"6" → party index 0-5. */
 std::optional<int> getPartyMemberIndexFromKey(std::string_view key);
+
+/** Key "0" — inventory special-items tab. */
+bool isSpecialItemsKey(std::string_view key);
 
 /** Keys "a"-"z" / "A"-"Z" → list index 0-25. */
 std::optional<int> getAlphabeticShortcutIndexFromKey(std::string_view key);

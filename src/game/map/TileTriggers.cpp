@@ -2,7 +2,10 @@
 #include "bmin/StringInterop.h"
 #include "game/map/CharacterConstruction.h"
 #include "game/map/MapWalkability.h"
+#include "in3/ConditionEvaluator.h"
+#include "in3/EventRunnerHelpers.h"
 #include "sdl2w/L10n.h"
+#include "sdl2w/Logger.h"
 
 namespace game {
 namespace {
@@ -124,14 +127,67 @@ model::CharacterInstance* findDropCharacterOnActiveMap(model::ActiveMap& activeM
       characterId));
 }
 
-StepTriggerResult resolveStepTriggersAt(const model::MapInstance& map, int x, int y) {
+namespace {
+
+struct TileConditionEval {
+  bool passed = false;
+  bmin::DynArray<bmin::String> onceKeysToCommit;
+};
+
+TileConditionEval evalTileEventCondition(const model::TileEventTrigger& trigger,
+                                         const bmin::Map<bmin::String, bmin::String>& storage,
+                                         bool soft) {
+  auto eval = TileConditionEval{};
+  if (trigger.condition.empty()) {
+    eval.passed = true;
+    return eval;
+  }
+
+  in3::ConditionEvaluator evaluator(storage, trigger.condition);
+  evaluator.funcs.soft = soft;
+  try {
+    eval.passed = evaluator.evalCondition(trigger.condition);
+    if (!soft) {
+      eval.onceKeysToCommit = evaluator.funcs.onceKeysToCommit;
+    }
+  } catch (const std::exception& e) {
+    LOG(ERROR) << "Tile event '" << trigger.eventId
+               << "' condition failed: " << e.what() << LOG_ENDL;
+    eval.passed = false;
+  }
+  return eval;
+}
+
+} // namespace
+
+bool tileEventShouldRun(const model::TileEventTrigger& trigger,
+                        bmin::Map<bmin::String, bmin::String>& storage) {
+  const auto eval = evalTileEventCondition(trigger, storage, false);
+  if (eval.passed) {
+    for (const auto& onceKey : eval.onceKeysToCommit) {
+      in3::setStorage(storage, onceKey, "true");
+    }
+  }
+  return eval.passed;
+}
+
+bool tileEventConditionHolds(const model::TileEventTrigger& trigger,
+                             const bmin::Map<bmin::String, bmin::String>& storage) {
+  return evalTileEventCondition(trigger, storage, true).passed;
+}
+
+StepTriggerResult resolveStepTriggersAt(const model::MapInstance& map,
+                                        int x,
+                                        int y,
+                                        bmin::Map<bmin::String, bmin::String>& storage) {
   auto result = StepTriggerResult{};
   const auto* tile = tileAtCurrentLayer(map, x, y);
   if (!tile) {
     return result;
   }
 
-  if (tile->eventTrigger && !tile->eventTrigger->requiresLook) {
+  if (tile->eventTrigger && !tile->eventTrigger->requiresLook &&
+      tileEventShouldRun(*tile->eventTrigger, storage)) {
     result.specialEventId = tile->eventTrigger->eventId;
     return result;
   }

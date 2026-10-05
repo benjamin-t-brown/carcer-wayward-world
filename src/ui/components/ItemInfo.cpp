@@ -46,51 +46,55 @@ void ItemInfo::build() {
   addChild(bmin::UniquePtr<ui::UiElement>(description));
 
   auto [descWidthScaled, descHeightScaled] = description->getDims();
-  auto weightLine = new TextLine(window, this);
-  weightLine->setId("weight");
-  weightLine->setPos(style.x,
-                     style.y + descHeightScaled +
-                         static_cast<int>(kVertSpacerHeight * style.scale));
-  weightLine->setScale(1.f);
-  TextLineProps weightProps;
-  weightProps.fontFamily = font.fontFamily;
-  weightProps.fontSize = font.fontSize;
-  weightProps.fontColor = Colors::DarkBlue;
-  weightProps.textAlign = TextAlign::LEFT_TOP;
-  weightProps.textBlocks.pushBack({
-      .text = TRANSLATE("Weight: ") + bmin::toString(props.weight) +
-              bmin::String(TRANSLATE(" lbs")),
-  });
-  weightLine->setProps(weightProps);
-  addChild(bmin::UniquePtr<ui::UiElement>(weightLine));
-  const auto weightLineHeight = weightLine->getDims().second;
+  int contentHeightPx = descHeightScaled;
 
-  auto valueLine = new TextLine(window, this);
-  valueLine->setId("value");
-  valueLine->setPos(style.x,
-                    style.y + descHeightScaled +
-                        static_cast<int>(kVertSpacerHeight * style.scale) +
-                        weightLineHeight +
-                        static_cast<int>(kVertSpacerHeight * style.scale));
-  valueLine->setScale(1.f);
-  TextLineProps valueProps;
-  valueProps.fontFamily = font.fontFamily;
-  valueProps.fontSize = font.fontSize;
-  valueProps.fontColor = Colors::DarkGrey;
-  valueProps.textAlign = TextAlign::LEFT_TOP;
-  valueProps.textBlocks.pushBack({
-      .text = TRANSLATE("Value: ") + bmin::toString(props.value) +
-              bmin::String(TRANSLATE(" gp")),
-  });
-  valueLine->setProps(valueProps);
-  addChild(bmin::UniquePtr<ui::UiElement>(valueLine));
+  if (props.showWeightAndValue) {
+    auto weightLine = new TextLine(window, this);
+    weightLine->setId("weight");
+    weightLine->setPos(style.x,
+                       style.y + descHeightScaled +
+                           static_cast<int>(kVertSpacerHeight * style.scale));
+    weightLine->setScale(1.f);
+    TextLineProps weightProps;
+    weightProps.fontFamily = font.fontFamily;
+    weightProps.fontSize = font.fontSize;
+    weightProps.fontColor = Colors::DarkBlue;
+    weightProps.textAlign = TextAlign::LEFT_TOP;
+    weightProps.textBlocks.pushBack({
+        .text = TRANSLATE("Weight: ") + bmin::toString(props.weight) +
+                bmin::String(TRANSLATE(" lbs")),
+    });
+    weightLine->setProps(weightProps);
+    addChild(bmin::UniquePtr<ui::UiElement>(weightLine));
+    const auto weightLineHeight = weightLine->getDims().second;
 
-  const auto valueLineHeight = valueLine->getDims().second;
-  const int contentHeightPx = descHeightScaled +
-                              static_cast<int>(kVertSpacerHeight * style.scale) +
-                              weightLineHeight +
-                              static_cast<int>(kVertSpacerHeight * style.scale) +
-                              valueLineHeight;
+    auto valueLine = new TextLine(window, this);
+    valueLine->setId("value");
+    valueLine->setPos(style.x,
+                      style.y + descHeightScaled +
+                          static_cast<int>(kVertSpacerHeight * style.scale) +
+                          weightLineHeight +
+                          static_cast<int>(kVertSpacerHeight * style.scale));
+    valueLine->setScale(1.f);
+    TextLineProps valueProps;
+    valueProps.fontFamily = font.fontFamily;
+    valueProps.fontSize = font.fontSize;
+    valueProps.fontColor = Colors::DarkGrey;
+    valueProps.textAlign = TextAlign::LEFT_TOP;
+    valueProps.textBlocks.pushBack({
+        .text = TRANSLATE("Value: ") + bmin::toString(props.value) +
+                bmin::String(TRANSLATE(" gp")),
+    });
+    valueLine->setProps(valueProps);
+    addChild(bmin::UniquePtr<ui::UiElement>(valueLine));
+
+    const auto valueLineHeight = valueLine->getDims().second;
+    contentHeightPx += static_cast<int>(kVertSpacerHeight * style.scale) +
+                       weightLineHeight +
+                       static_cast<int>(kVertSpacerHeight * style.scale) +
+                       valueLineHeight;
+  }
+
   style.height = std::max(1, static_cast<int>(std::ceil(contentHeightPx / style.scale)));
 }
 

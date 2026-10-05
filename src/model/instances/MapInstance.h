@@ -29,6 +29,13 @@ struct OpenedDoorRecord {
   int tileId = 0;
 };
 
+// Closed door whose map-template lock was cleared (tileId unchanged until opened).
+struct UnlockedDoorRecord {
+  int layer = 0;
+  int x = 0;
+  int y = 0;
+};
+
 // Map-placed character removed for the session (matched on template + spawn tile).
 struct DefeatedCharacterRecord {
   bmin::String templateName;
@@ -48,6 +55,7 @@ struct PersistentMapState {
   int version = 2;
   ExploredMapMask explored;
   bmin::DynArray<OpenedDoorRecord> openedDoors;
+  bmin::DynArray<UnlockedDoorRecord> unlockedDoors;
   bmin::DynArray<DefeatedCharacterRecord> defeatedCharacters;
   bmin::DynArray<PersistentTileFieldRecord> tileFields;
 

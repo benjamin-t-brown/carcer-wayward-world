@@ -150,6 +150,7 @@ void PopupPickupItem::build() {
       .description = props.description,
       .weight = props.weight,
       .value = props.value,
+      .showWeightAndValue = props.showWeightAndValue,
   });
   addChild(bmin::UniquePtr<ui::UiElement>(itemInfo));
 }

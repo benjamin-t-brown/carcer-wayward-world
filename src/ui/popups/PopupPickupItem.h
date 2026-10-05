@@ -13,6 +13,7 @@ struct PopupPickupItemProps {
   bmin::String description;
   int weight = 0;
   int value = 0;
+  bool showWeightAndValue = true;
   PopupOrientation orientation = WIDE;
 };
 

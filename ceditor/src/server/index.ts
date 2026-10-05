@@ -35,6 +35,30 @@ app.get('/api/assets/types', async (req, res) => {
   }
 });
 
+async function assetMtimeMs(filePath: string): Promise<number | null> {
+  try {
+    const stat = await fs.stat(filePath);
+    return stat.mtimeMs;
+  } catch {
+    return null;
+  }
+}
+
+app.get('/api/assets/:type/mtime', async (req, res) => {
+  try {
+    const fileName = assetFileForId(req.params.type);
+    if (!fileName) {
+      return res.status(400).json({ error: 'Invalid asset type' });
+    }
+    const mtimeMs = await assetMtimeMs(join(ASSETS_DB_PATH, fileName));
+    res.set('Cache-Control', 'no-store');
+    res.json({ mtimeMs });
+  } catch (error) {
+    console.error('Error stating asset:', error);
+    res.status(500).json({ error: 'Failed to stat asset file' });
+  }
+});
+
 // Load a specific asset file
 app.get('/api/assets/:type', async (req, res) => {
   try {
@@ -58,6 +82,11 @@ app.get('/api/assets/:type', async (req, res) => {
 
     const content = await fs.readFile(filePath, 'utf-8');
     const data = JSON.parse(content);
+    const mtimeMs = await assetMtimeMs(filePath);
+    res.set('Cache-Control', 'no-store');
+    if (mtimeMs != null) {
+      res.set('X-Asset-Mtime', String(mtimeMs));
+    }
     res.json(data);
   } catch (error) {
     console.error('Error loading asset:', error);
@@ -83,7 +112,8 @@ app.post('/api/assets/:type', async (req, res) => {
     const content = JSON.stringify(req.body, null, 2);
     console.log(`saving asset ${type} (${Buffer.byteLength(content)} bytes)`);
     await fs.writeFile(filePath, content, 'utf-8');
-    res.json({ success: true });
+    const mtimeMs = await assetMtimeMs(filePath);
+    res.json({ success: true, mtimeMs });
   } catch (error) {
     console.error('Error saving asset:', error);
     res.status(500).json({ error: 'Failed to save asset file' });

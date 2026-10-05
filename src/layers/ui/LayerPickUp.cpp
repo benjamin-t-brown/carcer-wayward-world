@@ -110,7 +110,7 @@ void LayerPickUp::onKeyDown(std::string_view key, int /*keyCode*/) {
         *itemIndex <
             static_cast<int>(minipagePickUp->getProps().nearbyItems.size())) {
       const auto& item = minipagePickUp->getProps().nearbyItems[*itemIndex];
-      ui::playButtonSound(window);
+      ui::playButtonGetItemSound(window);
       stateManager->enqueueAction(state::makeAction<state::actions::UiPickUpItem>(item.id),
                                   0);
     }

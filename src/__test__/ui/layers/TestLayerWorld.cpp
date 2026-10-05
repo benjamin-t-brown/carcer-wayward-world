@@ -1,4 +1,6 @@
 #include "../../setupTestUi.hpp"
+#include "actions/world/WorldLoadActiveMap.hpp"
+#include "actions/world/WorldSpawnPlayerAtMarker.hpp"
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
@@ -13,8 +15,6 @@
 #include "sdl2w/Window.h"
 #include "state/DatabaseInterface.h"
 #include "state/StateManagerInterface.h"
-#include "actions/world/WorldLoadActiveMap.hpp"
-#include "actions/world/WorldSpawnPlayerAtMarker.hpp"
 #include "ui/SdlPixels.hpp" // IWYU pragma: keep
 
 namespace {
@@ -71,21 +71,23 @@ int main(int argc, char** argv) {
   state::StateManagerInterface::setStateManager(&stateManager);
   setupTestParty(stateManager.getState().player, database);
 
-  // Load map, spawn player at MarkerPlayer. Default CameraMode::Follow
-  // auto-resolves the party avatar; WorldUpdater + LayerWorld view dims snap cam.
+  // Load map, spawn player at MarkerPlayer on alinea_outsideAlinea2 only
+  // (the Alinea grid has several MarkerPlayer placements).
   {
     auto& state = stateManager.getState();
     state.mapInstances = game::createMapInstances(database);
 
-    auto loadMap = state::actions::WorldLoadActiveMap("alinea_outsideAlinea1");
+    constexpr const char* mapName = "alinea_outsideAlinea2";
+    auto loadMap = state::actions::WorldLoadActiveMap(mapName);
     loadMap.execute(&state);
-    auto spawnPlayer = state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer");
+    auto spawnPlayer =
+        state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer", mapName);
     spawnPlayer.execute(&state);
   }
 
   bmin::UniquePtr<layers::LayerManager> layerManager;
 
-  auto _init = [&](sdl2w::Window& window, sdl2w::Store& store) {
+  auto _init = [&](sdl2w::Window& window, sdl2w::Store& /*store*/) {
     LOG(INFO) << "LayerWorld test initialized" << LOG_ENDL;
 
     layerManager = bmin::makeUnique<layers::LayerManager>(&window);
@@ -114,7 +116,7 @@ int main(int argc, char** argv) {
                             });
   };
 
-  auto _updateRender = [&](sdl2w::Window& window, sdl2w::Store& store) {
+  auto _updateRender = [&](sdl2w::Window& window, sdl2w::Store& /*store*/) {
     // Order matches LayerManager::start(): drain the action queue first so the
     // avatar move lands, then run layer update so worldUpdate()'s camera-follow
     // reads the new position in the same frame (otherwise the camera lags a frame).
@@ -128,10 +130,17 @@ int main(int argc, char** argv) {
     return true;
   };
 
-  setupTestUi(
-      argc, argv, TestUiParams{800, 600, "LayerWorld Test"}, _init, _updateRender, [&]() {
-        layerManager.reset();
-      });
+  setupTestUi(argc,
+              argv,
+              TestUiParams{
+                  800,
+                  600,
+                  "LayerWorld Test",
+                  "__test__/ui/fixtures/layer-world.json",
+              },
+              _init,
+              _updateRender,
+              [&]() { layerManager.reset(); });
 
   LOG(INFO) << "End LayerWorld integration test" << LOG_ENDL;
   return 0;

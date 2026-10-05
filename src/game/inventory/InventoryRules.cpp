@@ -149,6 +149,17 @@ int inventoryWeight(const model::CharacterPlayer& character,
   return weight;
 }
 
+bool canAddItemToInventory(const model::CharacterPlayer& character,
+                           const model::ItemTemplate& itemTemplate,
+                           int quantity,
+                           const db::Database& database) {
+  if (quantity <= 0) {
+    return false;
+  }
+  return inventoryWeight(character, database) + quantity * itemTemplate.weight <=
+         model::characterGetWeightCapacity(character);
+}
+
 model::GiveItemResult giveInventoryItem(model::CharacterPlayer& from,
                                         model::CharacterPlayer& to,
                                         const bmin::String& itemId,

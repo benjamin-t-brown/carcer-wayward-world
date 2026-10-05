@@ -126,7 +126,8 @@ bool UiElement::checkMouseUpEvent(int mouseX,
       // click event happens when mouse up occurs inside this element
       // after a mouse down also occurred inside this element.
       if (playClickSound) {
-        playButtonSound(window);
+        playUiSound(window,
+                    clickSoundName != nullptr ? clickSoundName : kButtonSoundName);
       }
       for (auto& observer : eventObservers) {
         observer->onClick(mouseX, mouseY, button);

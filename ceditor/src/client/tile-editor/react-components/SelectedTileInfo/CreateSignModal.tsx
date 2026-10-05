@@ -3,7 +3,7 @@ import { TextInput } from '../../../elements/TextInput';
 import { TextArea } from '../../../elements/TextArea';
 import { Button } from '../../../elements/Button';
 import { MODAL_ROOT_CLASS, useEscapeToClose } from '../../../hooks/useEscapeToClose';
-import { suggestSignEventIdPrefix } from './createSignGameEvent';
+import { suggestMapEventId } from './suggestMapEventId';
 
 export interface CreateSignModalResult {
   triggerId: string;
@@ -36,10 +36,10 @@ export function CreateSignModal({
     if (!isOpen) {
       return;
     }
-    setTriggerId(suggestSignEventIdPrefix(mapName));
+    setTriggerId(suggestMapEventId(mapName, existingEventIds));
     setContents('');
     setError('');
-  }, [isOpen, mapName]);
+  }, [isOpen, mapName, existingEventIds]);
 
   if (!isOpen) {
     return null;
@@ -61,13 +61,10 @@ export function CreateSignModal({
       return;
     }
 
-    const title =
-      signContents.split('\n')[0].trim().slice(0, 60) || signContents;
-
     onConfirm({
       triggerId: id,
       contents: signContents,
-      title,
+      title: 'Sign',
     });
   };
 
@@ -120,7 +117,7 @@ export function CreateSignModal({
             setTriggerId(value);
             setError('');
           }}
-          placeholder="e.g., alinea_sign_warehouse1"
+          placeholder="e.g., alinea_outsideAlinea1_k3f9a2"
           required
         />
 

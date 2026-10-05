@@ -677,6 +677,8 @@ class StringEvaluator {
       if (count <= 0) {
         return;
       }
+      // Editor has no party inventory: always use vars.items so HAS_ITEM / rewards
+      // preview still work. Runtime grants destructible items to inventory instead.
       const key = 'vars.items.' + itemName;
       this.stringFunctions.MOD_NUM(key, String(count));
       this.receivedItemNames.push(itemName);

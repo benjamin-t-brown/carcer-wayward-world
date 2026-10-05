@@ -35,7 +35,7 @@ class WorldSpawnPlayer : public AbstractAction {
     }
 
     WorldLoadActiveMap(gridId).execute(state);
-    WorldSpawnPlayerAtMarker(markerName).execute(state);
+    WorldSpawnPlayerAtMarker(markerName, mapName).execute(state);
   }
 
 public:

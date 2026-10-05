@@ -34,11 +34,12 @@ void KeyboardPressFlash::stop() {
 
 void KeyboardPressFlash::begin(std::function<bool*()> getter,
                                std::function<void()> onComplete,
-                               sdl2w::Window* window) {
+                               sdl2w::Window* window,
+                               const char* soundName) {
   if (isBusy() || !onComplete) {
     return;
   }
-  playButtonSound(window);
+  playUiSound(window, soundName != nullptr ? soundName : kButtonSoundName);
   activeFlagGetter = std::move(getter);
   pendingComplete = std::move(onComplete);
   remainingMs = durationMs;

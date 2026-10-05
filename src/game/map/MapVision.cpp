@@ -62,6 +62,9 @@ void castVisibilityRay(model::MapInstance& map,
                        int y2,
                        const db::Database& database) {
   auto visibility = true;
+  // Standing on an opaque tile must not block the observer's own rays.
+  const auto originX = x1;
+  const auto originY = y1;
 
   const auto dx = std::abs(x2 - x1);
   const auto sx = x1 < x2 ? 1 : -1;
@@ -79,7 +82,8 @@ void castVisibilityRay(model::MapInstance& map,
       markCellVisibleAndExplored(map, x1, y1);
     }
 
-    if (!isDestinationSeeThrough(map, x1, y1, database)) {
+    const auto atOrigin = x1 == originX && y1 == originY;
+    if (!atOrigin && !isDestinationSeeThrough(map, x1, y1, database)) {
       visibility = false;
     }
 
@@ -152,7 +156,9 @@ void lightOpaqueWallsBesideVisibleFloors(model::MapInstance& map,
           if (!(*layer0)[static_cast<size_t>(nIndex)].isVisible) {
             continue;
           }
-          if (!isDestinationSeeThrough(map, nx, ny, database)) {
+          // Observer standing tile counts as see-through for wall-face lighting.
+          const auto atObserver = nx == playerX && ny == playerY;
+          if (!atObserver && !isDestinationSeeThrough(map, nx, ny, database)) {
             continue;
           }
           besideVisibleFloor = true;
@@ -256,6 +262,9 @@ void castWorldVisibilityRay(ActiveMapOrchestrator& orch,
                             int mapLayer,
                             const db::Database& database) {
   auto visibility = true;
+  // Standing on an opaque tile must not block the observer's own rays.
+  const auto originX = x1;
+  const auto originY = y1;
 
   const auto dx = std::abs(x2 - x1);
   const auto sx = x1 < x2 ? 1 : -1;
@@ -272,7 +281,8 @@ void castWorldVisibilityRay(ActiveMapOrchestrator& orch,
       markWorldCellVisibleAndExplored(orch, x1, y1);
     }
 
-    if (!isWorldCellSeeThrough(orch, x1, y1, mapLayer, database)) {
+    const auto atOrigin = x1 == originX && y1 == originY;
+    if (!atOrigin && !isWorldCellSeeThrough(orch, x1, y1, mapLayer, database)) {
       visibility = false;
     }
 
@@ -327,7 +337,10 @@ void lightOpaqueWallsBesideVisibleFloorsWorld(ActiveMapOrchestrator& orch,
           if (!isWorldCellVisible(orch, nx, ny)) {
             continue;
           }
-          if (!isWorldCellSeeThrough(orch, nx, ny, mapLayer, database)) {
+          // Observer standing tile counts as see-through for wall-face lighting.
+          const auto atObserver = nx == playerX && ny == playerY;
+          if (!atObserver &&
+              !isWorldCellSeeThrough(orch, nx, ny, mapLayer, database)) {
             continue;
           }
           besideVisibleFloor = true;

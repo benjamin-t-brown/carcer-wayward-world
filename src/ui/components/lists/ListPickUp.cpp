@@ -5,6 +5,7 @@
 #include "ui/elements/TextLine.h"
 #include "ui/elements/buttons/ButtonModal.h"
 #include "ui/elements/buttons/ButtonTextWrap.h"
+#include "ui/helpers/uiSounds.h"
 #include "ui/observers/ActionObserver.hpp"
 #include "actions/navigation/UiPickUpItem.hpp"
 #include "actions/navigation/UiShowLayerPickupContext.hpp"
@@ -166,6 +167,7 @@ UiElement* ListPickUp::createItemElement(const ListPickUpPropsItem& listItem,
               .fontColor = Colors::Black,
           },
   });
+  label->clickSoundName = kButtonGetItemSoundName;
   label->addEventObserver(
       ui::makeActionObserver<state::actions::UiPickUpItem>(listItem.item.id));
   container->addChild(bmin::UniquePtr<ui::UiElement>(label));

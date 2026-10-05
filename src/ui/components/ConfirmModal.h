@@ -13,6 +13,9 @@ struct ConfirmModalProps {
   bmin::String message;
   bmin::String confirmButtonLabel = bmin::String(TRANSLATE("Yes"));
   bmin::String cancelButtonLabel = bmin::String(TRANSLATE("No"));
+  // When true, only dismissButtonLabel is shown (no Yes/No pair).
+  bool dismissOnly = false;
+  bmin::String dismissButtonLabel = bmin::String(TRANSLATE("Okay"));
 };
 
 class ConfirmModal : public UiElement {

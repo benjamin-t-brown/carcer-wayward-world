@@ -7,6 +7,7 @@
 #include "model/instances/CharacterPlayer.h"
 #include "state/DatabaseInterface.h"
 #include "state/StateManagerInterface.h"
+#include "in3/EventRunnerHelpers.h"
 #include "ui/SdlPixels.hpp" // IWYU pragma: keep
 #include "ui/UiElement.h"
 #include "ui/pages/PageInventory.h"
@@ -101,6 +102,9 @@ int main(int argc, char** argv) {
     pageInventory->setScale(scale);
 
     player.gold = 1234;
+    in3::setStorage(stateManager.getState().specialEventStorage,
+                    "vars.items.que_realmShedKey",
+                    "1");
 
     ui::PageInventoryProps pageProps;
     pageProps.width = static_cast<int>(windowWidth / scale);
@@ -119,6 +123,15 @@ int main(int argc, char** argv) {
     pageProps.gold = player.gold;
     pageProps.inventory = characterPlayer.inventory;
     pageProps.equipment = characterPlayer.equipment;
+    if (const auto* shedKeyTemplate = database.findItemTemplate("que_realmShedKey")) {
+      ui::PageInventorySpecialItem shedKeyEntry;
+      shedKeyEntry.itemName = shedKeyTemplate->name;
+      shedKeyEntry.itemLabel = shedKeyTemplate->label.empty() ? shedKeyTemplate->name
+                                                                : shedKeyTemplate->label;
+      shedKeyEntry.itemSprite = shedKeyTemplate->iconSpriteName;
+      shedKeyEntry.quantity = 1;
+      pageProps.specialItems.pushBack(shedKeyEntry);
+    }
     pageInventory->setProps(pageProps);
 
     elements.pushBack(bmin::UniquePtr<ui::UiElement>(pageInventory));

@@ -198,7 +198,7 @@ bmin::String CharacterDerivedStatDefinitions::mageLoreLabel() {
   return TRANSLATE("Mage Lore");
 }
 bmin::String CharacterDerivedStatDefinitions::mageLoreDescription() {
-  return TRANSLATE("Affected by Magic Item Use training.");
+  return TRANSLATE("Affected by Engineering training.");
 }
 bmin::String CharacterDerivedStatDefinitions::mageLoreValue(
     const CharacterDerivedStats& derived) {

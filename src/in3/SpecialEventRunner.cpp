@@ -2,6 +2,8 @@
 #include "ConditionEvaluator.h"
 #include "EventRunnerHelpers.h"
 #include "StringEvaluator.h"
+#include "db/Database.h"
+#include "model/instances/Player.h"
 #include <algorithm>
 #include <functional>
 
@@ -23,6 +25,12 @@ SpecialEventRunner::SpecialEventRunner(
     const bmin::Map<bmin::String, model::GameEvent>& gameEvents)
     : storage(initialStorage), gameEvent(gameEvent), gameEvents(gameEvents) {
   reset();
+}
+
+void SpecialEventRunner::setExecContext(model::Player* player,
+                                        const db::Database* database) {
+  execPlayer = player;
+  execDatabase = database;
 }
 
 void SpecialEventRunner::reset() {
@@ -72,6 +80,34 @@ std::optional<model::GameEventChild> SpecialEventRunner::getCurrentNode() const 
   }
   return std::nullopt;
 }
+
+namespace {
+
+bool isEndNodeId(const model::GameEvent& gameEvent, const bmin::String& nodeId) {
+  if (nodeId.empty()) {
+    return false;
+  }
+  for (const auto& child : gameEvent.children) {
+    bool matches = false;
+    bool isEnd = false;
+    std::visit(
+        [&](const auto& node) {
+          if (node.id != nodeId) {
+            return;
+          }
+          matches = true;
+          using T = std::decay_t<decltype(node)>;
+          isEnd = std::is_same_v<T, model::GameEventChildEnd>;
+        },
+        child);
+    if (matches) {
+      return isEnd;
+    }
+  }
+  return false;
+}
+
+} // namespace
 
 bool SpecialEventRunner::isAtEndNode() const {
   auto currentNode = getCurrentNode();
@@ -170,6 +206,8 @@ bool SpecialEventRunner::evalExecStr(const bmin::String& str) {
   }
 
   StringEvaluator evaluator(storage, trimmed);
+  evaluator.funcs.player = execPlayer;
+  evaluator.funcs.database = execDatabase;
   try {
     evaluator.evalStr(trimmed);
     if (evaluator.funcs.questUpdated) {
@@ -201,6 +239,8 @@ bool SpecialEventRunner::evalExecStr(const bmin::String& str) {
 
 ConditionResult SpecialEventRunner::evalCondition(const bmin::String& conditionStr) {
   ConditionEvaluator evaluator(storage, conditionStr);
+  evaluator.funcs.player = execPlayer;
+  evaluator.funcs.database = execDatabase;
   try {
     const bool result = evaluator.evalCondition(conditionStr);
     return {result, evaluator.funcs.onceKeysToCommit};
@@ -308,12 +348,15 @@ void SpecialEventRunner::advance(const bmin::String& nodeId,
             evalExecStr(replaceVariables(strLine));
           }
           const bmin::String nodeText = replaceVariables(joinParagraphs(node.paragraphs));
-          // MODAL: wait for Continue whenever there is text; ignore autoAdvance.
-          // TALK (and others): keep authored autoAdvance behavior, but preserve
-          // non-empty EXEC text across the auto-advance chain until the next stop.
+          // Keep authored autoAdvance for MODAL and TALK: non-empty EXEC text is
+          // preserved across the auto-advance chain until the next stop (e.g. CHOICE).
+          // MODAL must not auto-advance into END while there is text — that would
+          // finish the session immediately and skip the Okay dismiss button.
+          const bool modalWouldSkipOkay =
+              gameEvent.eventType == model::GameEventType::MODAL && !nodeText.empty() &&
+              isEndNodeId(gameEvent, node.next);
           const bool shouldAutoAdvance =
-              nodeText.empty() ||
-              (gameEvent.eventType != model::GameEventType::MODAL && node.autoAdvance);
+              nodeText.empty() || (node.autoAdvance && !modalWouldSkipOkay);
           if (shouldAutoAdvance) {
             if (!nodeText.empty()) {
               autoAdvancedText = joinDisplaySegments(autoAdvancedText, nodeText);

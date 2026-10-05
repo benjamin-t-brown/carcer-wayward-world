@@ -57,15 +57,3 @@ export function createSignGameEvent(args: {
     ] as unknown as SENode[],
   };
 }
-
-/** Suggest `{mapPrefix}_sign_` from a map name like `alinea_outsideAlinea1`. */
-export function suggestSignEventIdPrefix(mapName: string): string {
-  const trimmed = mapName.trim();
-  if (!trimmed) {
-    return 'sign_';
-  }
-  const underscore = trimmed.indexOf('_');
-  const prefix =
-    underscore > 0 ? trimmed.slice(0, underscore) : trimmed;
-  return `${prefix.toLowerCase()}_sign_`;
-}

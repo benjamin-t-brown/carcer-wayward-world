@@ -96,7 +96,7 @@ Each level grants 5 points, thresholds are met at certain levels, capped at 25. 
 - Social
   * Each level grants 1% discount on buying TRADE goods.
   * Every 5th level grants a 10% boost of people's disposition towards you.
-- Magic Item Use / Magic Affinity / Arcana / Mage Lore
+- Engineering
   * Each level grants 1 higher threshold of learning arcane knowledge from runes.
   * Every 5th level doubles potency of magical items (potions, wands)
 - Cooking

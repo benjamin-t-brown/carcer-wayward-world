@@ -12,7 +12,9 @@
 #include "state/StateManager.h"
 #include "state/StateManagerInterface.h"
 #include "actions/world/WorldMovePlayer.hpp"
+#include "bmin/Map.h"
 #include "bmin/String.h"
+#include "in3/EventRunnerHelpers.h"
 
 namespace {
 
@@ -121,7 +123,8 @@ int main(int /*argc*/, char** /*argv*/) {
         .destinationMarkerName = "door",
     };
 
-    const auto result = game::resolveStepTriggersAt(map, 0, 0);
+    auto storage = bmin::Map<bmin::String, bmin::String>{};
+    const auto result = game::resolveStepTriggersAt(map, 0, 0, storage);
     ok = assertTrue(result.specialEventId.has_value(), "event takes precedence") &&
          ok;
     ok = assertEqualStr(*result.specialEventId, "step_event", "event id") && ok;
@@ -139,7 +142,8 @@ int main(int /*argc*/, char** /*argv*/) {
             .destinationY = 4,
         };
 
-    const auto result = game::resolveStepTriggersAt(map, 0, 0);
+    auto storage = bmin::Map<bmin::String, bmin::String>{};
+    const auto result = game::resolveStepTriggersAt(map, 0, 0, storage);
     ok = assertTrue(!result.specialEventId.has_value(), "no event pending") && ok;
     ok = assertTrue(result.travel.has_value(), "travel pending") && ok;
     ok = assertEqualStr(result.travel->destinationMapName, "dest_map",
@@ -155,7 +159,8 @@ int main(int /*argc*/, char** /*argv*/) {
             .requiresAction = true,
         };
 
-    const auto stepResult = game::resolveStepTriggersAt(map, 0, 0);
+    auto storage = bmin::Map<bmin::String, bmin::String>{};
+    const auto stepResult = game::resolveStepTriggersAt(map, 0, 0, storage);
     ok = assertTrue(!stepResult.travel.has_value(),
                     "action travel not queued on step") &&
          ok;
@@ -249,6 +254,114 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertTrue(state.world.activeMap.characters[0].x == 2 &&
                         state.world.activeMap.characters[0].y == 1,
                     "avatar moved east") &&
+         ok;
+  }
+
+  {
+    auto map = makeMap(2, 2);
+    auto& tile = model::mapLayerAt(model::mapInstanceTiles(map), 0)[0];
+    tile.eventTrigger = model::TileEventTrigger{
+        .eventId = "gated_event",
+        .requiresLook = false,
+        .condition = "IS(flag)",
+    };
+    tile.travelTrigger = model::TravelTrigger{
+        .destinationMapName = "fallback",
+    };
+
+    auto storage = bmin::Map<bmin::String, bmin::String>{};
+    const auto blocked = game::resolveStepTriggersAt(map, 0, 0, storage);
+    ok = assertTrue(!blocked.specialEventId.has_value(),
+                    "false condition does not run the event") &&
+         ok;
+    ok = assertTrue(blocked.travel.has_value(),
+                    "travel still runs when the event condition is false") &&
+         ok;
+
+    in3::setStorage(storage, "flag", "1");
+    const auto allowed = game::resolveStepTriggersAt(map, 0, 0, storage);
+    ok = assertTrue(allowed.specialEventId.has_value(),
+                    "true condition runs the event") &&
+         ok;
+    ok = assertEqualStr(*allowed.specialEventId, "gated_event",
+                        "gated event id") &&
+         ok;
+    ok = assertTrue(!allowed.travel.has_value(),
+                    "travel ignored when the event condition passes") &&
+         ok;
+  }
+
+  {
+    auto map = makeMap(2, 2);
+    auto& tile = model::mapLayerAt(model::mapInstanceTiles(map), 0)[0];
+    tile.eventTrigger = model::TileEventTrigger{
+        .eventId = "once_event",
+        .requiresLook = false,
+        .condition = "ONCE(step)",
+    };
+
+    auto storage = bmin::Map<bmin::String, bmin::String>{};
+    const auto first = game::resolveStepTriggersAt(map, 0, 0, storage);
+    ok = assertTrue(first.specialEventId.has_value(), "ONCE runs the first time") &&
+         ok;
+    ok = assertEqualStr(in3::getStorage(storage, "once.step").value_or(""),
+                        "true",
+                        "ONCE commits its key") &&
+         ok;
+
+    const auto second = game::resolveStepTriggersAt(map, 0, 0, storage);
+    ok = assertTrue(!second.specialEventId.has_value(),
+                    "ONCE does not run again") &&
+         ok;
+  }
+
+  {
+    auto trigger = model::TileEventTrigger{
+        .eventId = "overlay_event",
+        .overlayVisibility = model::TileOverlayVisibility::SHOW_EVENT_ON_TILE,
+        .condition = "ONCE(sign)",
+    };
+    auto storage = bmin::Map<bmin::String, bmin::String>{};
+    ok = assertTrue(game::tileEventConditionHolds(trigger, storage),
+                    "soft ONCE is true before the event runs") &&
+         ok;
+    ok = assertTrue(!in3::getStorage(storage, "once.sign").has_value(),
+                    "soft ONCE does not write the key") &&
+         ok;
+    ok = assertTrue(game::tileEventShouldRun(trigger, storage),
+                    "hard ONCE still runs after a soft check") &&
+         ok;
+    ok = assertEqualStr(in3::getStorage(storage, "once.sign").value_or(""),
+                        "true",
+                        "hard ONCE commits after the soft check") &&
+         ok;
+    ok = assertTrue(!game::tileEventConditionHolds(trigger, storage),
+                    "soft ONCE is false after the key is committed") &&
+         ok;
+
+    trigger.condition = "IS(flag)";
+    ok = assertTrue(!game::tileEventConditionHolds(trigger, storage),
+                    "false IS hides the event overlay") &&
+         ok;
+    in3::setStorage(storage, "flag", "1");
+    ok = assertTrue(game::tileEventConditionHolds(trigger, storage),
+                    "true IS shows the event overlay") &&
+         ok;
+  }
+
+  {
+    auto map = makeMap(2, 2);
+    model::mapLayerAt(model::mapInstanceTiles(map), 0)[0].eventTrigger =
+        model::TileEventTrigger{
+            .eventId = "bad_event",
+            .requiresLook = false,
+            .condition = "NOT_A_FUNC(x)",
+        };
+
+    auto storage = bmin::Map<bmin::String, bmin::String>{};
+    const auto result = game::resolveStepTriggersAt(map, 0, 0, storage);
+    ok = assertTrue(!result.specialEventId.has_value(),
+                    "invalid condition does not run the event") &&
          ok;
   }
 

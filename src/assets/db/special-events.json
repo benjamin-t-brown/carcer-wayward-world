@@ -1078,7 +1078,7 @@
           },
           {
             "text": "I'm looking for a book...",
-            "conditionStr": "QUEST_STEP_EQ(que_alinea_EntomenTome, findBook)",
+            "conditionStr": "QUEST_STEP_EQ(que_alinea_AnthimosTome, findBook)",
             "evalStr": "",
             "next": "0dxlbs81u92g",
             "prefixText": "",
@@ -1165,7 +1165,7 @@
         "eventChildType": "EXEC",
         "h": 84,
         "p": "\"Only members of the Merchantry are allowed access to these records.\"",
-        "execStr": "COMPLETE_QUEST_STEP(que_alinea_EntomenTome, findBook)",
+        "execStr": "COMPLETE_QUEST_STEP(que_alinea_AnthimosTome, findBook)",
         "next": "rr46vwc7qq",
         "autoAdvance": true
       },
@@ -1175,7 +1175,7 @@
         "y": 386,
         "eventChildType": "EXEC",
         "h": 60,
-        "p": "\"Wait, you're not affiliated with the Mr. Entomen are you?\"",
+        "p": "\"Wait, you're not affiliated with the Mr. Anthimos are you?\"",
         "execStr": "",
         "next": "2bmj3z95ulq",
         "autoAdvance": true
@@ -2103,7 +2103,7 @@
       {
         "id": "uj1jkcvhv0p",
         "x": 1611,
-        "y": 204,
+        "y": 205,
         "eventChildType": "CHOICE",
         "h": 156,
         "text": "",
@@ -2642,7 +2642,7 @@
         "y": 26,
         "eventChildType": "EXEC",
         "h": 74,
-        "p": "With a great effort, you focus and manage to still your mind.  The urges to speak slowly, but blessedly calm down.",
+        "p": "With a great effort, you focus and manage to still your mind.  The parts of your mind urging you to speak slowly, blessedly calm down.",
         "execStr": "",
         "next": "3edn2nxl5vl",
         "autoAdvance": false
@@ -2660,8 +2660,8 @@
       },
       {
         "id": "xmg03ny8neo",
-        "x": 1618,
-        "y": 86,
+        "x": 1609,
+        "y": 65,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "Suddenly, a shiver passes across your body.  You feel an odd feeling: a contending set of forces battling in your mind, all trying to make their opinion known, all trying to... shape you... somehow.",
@@ -3417,7 +3417,7 @@
   },
   {
     "id": "alinea_entomen",
-    "title": "Entomen",
+    "title": "Anthimos",
     "eventType": "TALK",
     "icon": "special_event_icons_0",
     "vars": [
@@ -3603,7 +3603,7 @@
           },
           {
             "text": "Let's talk about that book you wanted to find.",
-            "conditionStr": "QUEST_IS_STARTED(\"Entomen's Tome\")",
+            "conditionStr": "QUEST_IS_STARTED(\"Anthimos's Tome\")",
             "evalStr": "",
             "next": "jopddke7u8",
             "prefixText": "",
@@ -3633,7 +3633,7 @@
         "y": 243,
         "eventChildType": "EXEC",
         "h": 130,
-        "p": "The figure tilts its head upwards and you can make the faintest outline of an angular, male face.\n\n\"I am Entomen.\"\n\nWhen he speaks you do not see moving lips, like the sound materialized out of thin air just for you to hear.",
+        "p": "The figure tilts its head upwards and you can make the faintest outline of an angular, male face.\n\n\"I am Anthimos.\"\n\nWhen he speaks you do not see moving lips, like the sound materialized out of thin air just for you to hear.",
         "execStr": "",
         "next": "q2vd7ds0lwm",
         "autoAdvance": true
@@ -3854,7 +3854,7 @@
           {
             "text": "Sure!  I'll grab it for you.",
             "conditionStr": "ONCE(Cz9TyfSnl8)",
-            "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1);START_QUEST(\"Entomen's Tome\")",
+            "evalStr": "MOD_NUM(@ASPECT_DRYAD, 1);START_QUEST(\"Anthimos's Tome\")",
             "next": "h0xtxf0u6y",
             "prefixText": "[DRYAD]",
             "switchText": []
@@ -3862,7 +3862,7 @@
           {
             "text": "I will think about it.",
             "conditionStr": "",
-            "evalStr": "START_QUEST(\"Entomen's Tome\")",
+            "evalStr": "START_QUEST(\"Anthimos's Tome\")",
             "next": "vleo33bit6e",
             "prefixText": "",
             "switchText": []
@@ -4091,7 +4091,7 @@
         "y": 1182,
         "eventChildType": "EXEC",
         "h": 50,
-        "p": "\"My own house.  Entomen House.\"",
+        "p": "\"My own house.  Anthimos House.\"",
         "execStr": "",
         "next": "td9ibcerdj",
         "autoAdvance": true
@@ -9069,6 +9069,350 @@
     ]
   },
   {
+    "id": "alinea_outsideAlinea2_aacdxguzm3p",
+    "title": "Event",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "073a4nns8gmf",
+        "autoAdvance": true
+      },
+      {
+        "id": "073a4nns8gmf",
+        "x": 248,
+        "y": 128,
+        "eventChildType": "EXEC",
+        "h": 172,
+        "p": "The basement here is dark and damp, and your feet slap little ponds of water as you take careful steps through the darkness.  It also smells horrible.\n\nA basement so close to the shoreline is a bold - and foolish - choice.  You can almost hear the water permeating the walls around you.  It's best to get what you need from here and leave before some sort of inevitable catastrophic breach happens to these walls, with you caught in the middle.",
+        "execStr": "",
+        "next": "s129jdy6jjk",
+        "autoAdvance": true
+      },
+      {
+        "id": "s129jdy6jjk",
+        "x": 505,
+        "y": 339,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
+    "id": "alinea_outsideAlinea2_av34bv05t8",
+    "title": "Event",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "mx2gda1n0fi",
+        "autoAdvance": true
+      },
+      {
+        "id": "gj5elwbtr9a",
+        "x": 559,
+        "y": 61,
+        "eventChildType": "EXEC",
+        "h": 172,
+        "p": "Somebody has apparently been using this small clearing as a hideout away from the town.  There's a small tent with a spot for a campfire, as well as bits of trash strewn about.  It does not seem to have been used recently.\n\nPoking around for a bit, you find that whoever was here was using this place to stow away their valuables.  You find a small sack with a few coins in it.",
+        "execStr": "",
+        "next": "d0pzum1gayn",
+        "autoAdvance": true
+      },
+      {
+        "id": "z8i6vemqw4p",
+        "x": 935,
+        "y": 665,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "d0pzum1gayn",
+        "x": 555,
+        "y": 393,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "Take the coins.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "vjapis8tyu",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "Leave.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "z8i6vemqw4p",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "mx2gda1n0fi",
+        "x": 172,
+        "y": 157,
+        "eventChildType": "SWITCH",
+        "h": 84,
+        "cases": [
+          {
+            "conditionStr": "ONCE(af6ajp764)",
+            "next": "gj5elwbtr9a"
+          }
+        ],
+        "defaultNext": "qjqewjsw9u"
+      },
+      {
+        "id": "qjqewjsw9u",
+        "x": 562,
+        "y": 259,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "The coins you found before are still in the spot you left them.\n\nDo you take them?",
+        "execStr": "",
+        "next": "d0pzum1gayn",
+        "autoAdvance": true
+      },
+      {
+        "id": "vjapis8tyu",
+        "x": 943,
+        "y": 377,
+        "eventChildType": "EXEC",
+        "h": 98,
+        "p": "Likely you will need this more than whoever put them here.  You pocket the coins.",
+        "execStr": "MODIFY_COINS(100)\nSET_BOOL(vars.alineaGotClearingCoins)",
+        "next": "z8i6vemqw4p",
+        "autoAdvance": true
+      }
+    ]
+  },
+  {
+    "id": "alinea_outsideAlinea2_b1h009ylkqn",
+    "title": "Sign",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "on1jwo60my",
+        "autoAdvance": true
+      },
+      {
+        "id": "on1jwo60my",
+        "x": 248,
+        "y": 128,
+        "eventChildType": "EXEC",
+        "h": 60,
+        "p": "The contents of this sign have been eroded away and are indiscernible.",
+        "execStr": "",
+        "next": "fxyjjd71tje",
+        "autoAdvance": true
+      },
+      {
+        "id": "fxyjjd71tje",
+        "x": 454,
+        "y": 249,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
+    "id": "alinea_outsideAlinea2_e24zx9of7fd",
+    "title": "Event",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "sqcmpbhddse",
+        "autoAdvance": true
+      },
+      {
+        "id": "sqcmpbhddse",
+        "x": 248,
+        "y": 128,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "You peer into this barrel and find that it is full of fowl-smelling soupy mixture of fetidness.  But a glint at the corner of your eye clues you in.  There's something in there.  Do you wish to try to retrieve it?",
+        "execStr": "",
+        "next": "6kvbnrb2l9p",
+        "autoAdvance": true
+      },
+      {
+        "id": "tf1t9is2g7p",
+        "x": 1200,
+        "y": 687,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      },
+      {
+        "id": "6kvbnrb2l9p",
+        "x": 430,
+        "y": 284,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "Yes",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "bigrl9i9crm",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "No",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "jbzpy6cgtp",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "bigrl9i9crm",
+        "x": 832,
+        "y": 193,
+        "eventChildType": "EXEC",
+        "h": 252,
+        "p": "You plunge your hand into the squishy, dirty soup.  It is lukewarm and squelches between your fingers.  It takes a moment of rummaging through the stuff before your fingers clasp something solid, and, with a sticky sucking sound, you pull your arm out of the detritus to find a small, silver ring with an intricate stone carving at the end of it.  This must be the Realm Seal.\n\nWhat it was doing in that fowl barrel, you have no idea.  You are going to smell quite detestable until you get a chance to wash off.",
+        "execStr": "ADD_ITEM_TO_PLAYER(que_alinea_RealmSeal)\nCOMPLETE_QUEST_STEP(que_alinea_sealOfApproval, step1)\nSET_QUEST_STEP_EQ(que_alinea_sealOfApproval, step2)",
+        "next": "tf1t9is2g7p",
+        "autoAdvance": true
+      },
+      {
+        "id": "jbzpy6cgtp",
+        "x": 457,
+        "y": 466,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "That liquid does seem particularly fowl, doesn't it?",
+        "execStr": "",
+        "next": "tf1t9is2g7p",
+        "autoAdvance": true
+      }
+    ]
+  },
+  {
+    "id": "alinea_outsideAlinea2_mipgmxni7ej",
+    "title": "Event",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "z4dfvishhrl",
+        "autoAdvance": true
+      },
+      {
+        "id": "z4dfvishhrl",
+        "x": 248,
+        "y": 128,
+        "eventChildType": "EXEC",
+        "h": 88,
+        "p": "There's just enough space for you to squeeze into the dense foliage here.\n\nInterestingly enough, you see signs that somebody has been through here recently: broken twigs, disturbed grass, and the occasional muddy footprint.",
+        "execStr": "",
+        "next": "d5artn80vt6",
+        "autoAdvance": true
+      },
+      {
+        "id": "d5artn80vt6",
+        "x": 454,
+        "y": 249,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
+    "id": "alinea_outsideAlinea2_xlsk5d2uv8m",
+    "title": "Event",
+    "eventType": "MODAL",
+    "icon": "special_event_icons_0",
+    "vars": [],
+    "children": [
+      {
+        "id": "root",
+        "x": 20,
+        "y": 20,
+        "eventChildType": "EXEC",
+        "h": 50,
+        "p": "",
+        "execStr": "",
+        "next": "dl0u2jwoq8e",
+        "autoAdvance": true
+      },
+      {
+        "id": "dl0u2jwoq8e",
+        "x": 348,
+        "y": 156,
+        "eventChildType": "EXEC",
+        "h": 102,
+        "p": "This odd shed in the middle of a swampy shoreline is dimly lit and musty.  There is nothing in here, save for a precarious set of stairs downwards.  That there would be some sort of official Realm Seal in here is surprising, if not somewhat ridiculous.",
+        "execStr": "",
+        "next": "e1u4koh1a",
+        "autoAdvance": true
+      },
+      {
+        "id": "e1u4koh1a",
+        "x": 648,
+        "y": 312,
+        "eventChildType": "END",
+        "h": 60,
+        "next": ""
+      }
+    ]
+  },
+  {
     "id": "alinea_scopey",
     "title": "Scopey",
     "eventType": "TALK",
@@ -10334,10 +10678,10 @@
       {
         "id": "s0ic15ifjd",
         "x": 68,
-        "y": 119.5,
+        "y": 120,
         "eventChildType": "EXEC",
         "h": 88,
-        "p": "The sign says: \"Warehouse 3\"\n\nBelow that there's a small note that has been tacked on: \"This warehouse has been seized by the Realm.\"",
+        "p": "You cannot read what was originally printed on this sign, as there is a large not note slapped onto it that reads, \"This warehouse has been seized by the Realm.\"",
         "execStr": "",
         "next": "6kl0esf6hyn",
         "autoAdvance": true
@@ -10345,7 +10689,7 @@
       {
         "id": "6kl0esf6hyn",
         "x": 274,
-        "y": 240.5,
+        "y": 241,
         "eventChildType": "END",
         "h": 60,
         "next": ""

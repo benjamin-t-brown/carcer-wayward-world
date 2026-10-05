@@ -13,6 +13,7 @@ MapInstanceStore createMapInstances(const db::Database& database) {
   const auto& templates = database.getMapTemplates();
   for (auto it = templates.begin(); it != templates.end(); ++it) {
     model::MapInstance instance = model::createMapInstanceFromTemplate(it->value);
+    applyUnlockedDoors(instance, instance.persistentState.unlockedDoors);
     applyOpenedDoors(instance, instance.persistentState.openedDoors);
     for (size_t ci = 0; ci < instance.persistentState.characters.size(); ci++) {
       applyCharacterTemplateFromDatabase(instance.persistentState.characters[ci],

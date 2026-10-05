@@ -65,7 +65,7 @@ export function findMapGridPlacement(
 
 /**
  * Every in-bounds grid cell within Chebyshev distance `radius` of the placement
- * (centre excluded). `radius` 1 is the eight immediate neighbours; higher values
+ * (centre excluded). `radius` 1 is the eight immediate neighbors; higher values
  * add further rings. Each slot carries its map when the cell is assigned.
  */
 export function getGridAdjacentSlots(

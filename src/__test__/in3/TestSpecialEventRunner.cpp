@@ -1,12 +1,14 @@
 #include "bmin/Map.h"
-#include "sdl2w/Logger.h"
-#include "model/templates/SpecialEvents.hpp"
-#include "in3/EventRunnerHelpers.h"
-#include "in3/SpecialEventRunner.h"
-#include "in3/QuestProgress.h"
-#include "model/templates/Quests.hpp"
 #include "bmin/String.h"
-#include "bmin/Map.h"
+#include "db/Database.h"
+#include "in3/EventRunnerHelpers.h"
+#include "in3/QuestProgress.h"
+#include "in3/SpecialEventRunner.h"
+#include "model/instances/CharacterPlayer.h"
+#include "model/instances/Player.h"
+#include "model/templates/Quests.hpp"
+#include "model/templates/SpecialEvents.hpp"
+#include "sdl2w/Logger.h"
 
 
 int main(int argc, char** argv) {
@@ -238,6 +240,112 @@ int main(int argc, char** argv) {
         return 1;
       }
       LOG(INFO) << "TALK auto-advance text accumulation test passed" << LOG_ENDL;
+    }
+
+    // MODAL: auto-advanced EXEC text must carry into the following CHOICE (same as TALK).
+    {
+      model::GameEvent modalEvent;
+      modalEvent.id = "modal_auto_advance";
+      modalEvent.eventType = model::GameEventType::MODAL;
+
+      model::GameEventChildExec execNode;
+      execNode.eventChildType = model::GameEventChildType::EXEC;
+      execNode.id = "root";
+      execNode.paragraphs = {"The chest creaks open."};
+      execNode.next = "choice_node";
+      execNode.autoAdvance = true;
+      modalEvent.children.pushBack(execNode);
+
+      model::GameEventChildChoice choiceNode;
+      choiceNode.eventChildType = model::GameEventChildType::CHOICE;
+      choiceNode.id = "choice_node";
+      choiceNode.text = "";
+      model::Choice takeIt;
+      takeIt.text = "Take the coin.";
+      takeIt.next = "end_node";
+      choiceNode.choices.pushBack(takeIt);
+      model::Choice leaveIt;
+      leaveIt.text = "Leave it.";
+      leaveIt.next = "end_node";
+      choiceNode.choices.pushBack(leaveIt);
+      modalEvent.children.pushBack(choiceNode);
+
+      model::GameEventChildEnd endNode;
+      endNode.eventChildType = model::GameEventChildType::END;
+      endNode.id = "end_node";
+      modalEvent.children.pushBack(endNode);
+
+      in3::SpecialEventRunner modalRunner({}, modalEvent, {});
+      in3::SpecialEventRunnerInterface modalIface(modalRunner);
+      modalIface.startEvent();
+
+      if (modalRunner.displayText != "The chest creaks open.") {
+        LOG(ERROR) << "MODAL auto-advance should keep EXEC text. Got: '"
+                   << modalRunner.displayText << "'" << LOG_ENDL;
+        return 1;
+      }
+      if (modalRunner.displayTextChoices.size() != 2) {
+        LOG(ERROR) << "Expected 2 choices after auto-advanced MODAL EXEC" << LOG_ENDL;
+        return 1;
+      }
+      if (modalIface.getState() !=
+          in3::SpecialEventRunnerInterfaceState::WAITING_TO_SELECT_CHOICE) {
+        LOG(ERROR) << "MODAL auto-advance to CHOICE should wait for selection, got: "
+                   << in3::SpecialEventRunnerInterface::stateToString(modalIface.getState())
+                   << LOG_ENDL;
+        return 1;
+      }
+      LOG(INFO) << "MODAL auto-advance text accumulation test passed" << LOG_ENDL;
+    }
+
+    // MODAL: autoAdvance into END still pauses so Okay can dismiss the EXEC text.
+    {
+      model::GameEvent modalEvent;
+      modalEvent.id = "modal_auto_advance_end";
+      modalEvent.eventType = model::GameEventType::MODAL;
+
+      model::GameEventChildExec execNode;
+      execNode.eventChildType = model::GameEventChildType::EXEC;
+      execNode.id = "root";
+      execNode.paragraphs = {"You pick up the coin."};
+      execNode.next = "end_node";
+      execNode.autoAdvance = true;
+      modalEvent.children.pushBack(execNode);
+
+      model::GameEventChildEnd endNode;
+      endNode.eventChildType = model::GameEventChildType::END;
+      endNode.id = "end_node";
+      modalEvent.children.pushBack(endNode);
+
+      in3::SpecialEventRunner modalRunner({}, modalEvent, {});
+      in3::SpecialEventRunnerInterface modalIface(modalRunner);
+      modalIface.startEvent();
+
+      if (modalRunner.displayText != "You pick up the coin.") {
+        LOG(ERROR) << "MODAL autoAdvance→END should show EXEC text, got: '"
+                   << modalRunner.displayText << "'" << LOG_ENDL;
+        return 1;
+      }
+      if (modalIface.getState() !=
+          in3::SpecialEventRunnerInterfaceState::WAITING_TO_CONTINUE) {
+        LOG(ERROR) << "MODAL autoAdvance→END should wait for Okay, got: "
+                   << in3::SpecialEventRunnerInterface::stateToString(modalIface.getState())
+                   << LOG_ENDL;
+        return 1;
+      }
+      modalIface.continueEvent();
+      if (modalRunner.displayText != "End.") {
+        LOG(ERROR) << "continue after MODAL autoAdvance→END should show End., got: '"
+                   << modalRunner.displayText << "'" << LOG_ENDL;
+        return 1;
+      }
+      if (modalIface.getState() != in3::SpecialEventRunnerInterfaceState::FINISHED) {
+        LOG(ERROR) << "MODAL END after Okay should be FINISHED, got: "
+                   << in3::SpecialEventRunnerInterface::stateToString(modalIface.getState())
+                   << LOG_ENDL;
+        return 1;
+      }
+      LOG(INFO) << "MODAL auto-advance to END keeps Okay test passed" << LOG_ENDL;
     }
 
     // TALK: non-auto-advance EXEC pauses with empty choices (WAITING_TO_CONTINUE).
@@ -547,6 +655,13 @@ int main(int argc, char** argv) {
     }
 
     {
+      db::Database database;
+      database.load();
+
+      model::Player player;
+      player.party.pushBack(
+          model::CharacterPlayer(database.getCharacterTemplate("testPartyMember1")));
+
       model::GameEvent talkEvent;
       talkEvent.id = "talk_item_once";
       talkEvent.eventType = model::GameEventType::TALK;
@@ -568,6 +683,7 @@ int main(int argc, char** argv) {
       talkEvent.children.pushBack(endNode);
 
       in3::SpecialEventRunner talkRunner({}, talkEvent, {});
+      talkRunner.setExecContext(&player, &database);
       in3::SpecialEventRunnerInterface talkIface(talkRunner);
       talkIface.startEvent();
       if (talkRunner.pendingReceivedItemNames.size() != 2 ||
@@ -594,9 +710,32 @@ int main(int argc, char** argv) {
                    << LOG_ENDL;
         return 1;
       }
-      auto lagerCount = in3::getStorage(talkRunner.storage, "vars.items.BeerPappysLager");
-      if (!lagerCount || *lagerCount != "2") {
-        LOG(ERROR) << "ADD_ITEM_TO_PLAYER should increment vars.items.<name>" << LOG_ENDL;
+      // Destructible beer goes to party inventory; indestructable correspondence stays
+      // in vars.items.
+      auto lagerInStorage =
+          in3::getStorage(talkRunner.storage, "vars.items.BeerPappysLager");
+      if (lagerInStorage) {
+        LOG(ERROR) << "destructible ADD_ITEM_TO_PLAYER should not use vars.items"
+                   << LOG_ENDL;
+        return 1;
+      }
+      // BeerPappysLager is not stackable: two grants are two inventory rows.
+      int beerQty = 0;
+      for (const auto& invItem : player.party[0].inventory) {
+        if (invItem.itemName == "BeerPappysLager") {
+          beerQty += invItem.quantity;
+        }
+      }
+      if (beerQty != 2) {
+        LOG(ERROR) << "destructible ADD_ITEM_TO_PLAYER should land in party inventory"
+                   << LOG_ENDL;
+        return 1;
+      }
+      auto letterCount =
+          in3::getStorage(talkRunner.storage, "vars.items.AlineaCorrespondence1");
+      if (!letterCount || *letterCount != "1") {
+        LOG(ERROR) << "indestructable ADD_ITEM_TO_PLAYER should use vars.items"
+                   << LOG_ENDL;
         return 1;
       }
       LOG(INFO) << "Same-node item receive notices are one per distinct item" << LOG_ENDL;

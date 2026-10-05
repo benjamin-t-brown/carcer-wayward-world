@@ -81,8 +81,12 @@ void ConfirmModal::build() {
   ButtonGroupProps groupProps;
   groupProps.width = contentWidth;
   groupProps.alignment = ButtonGroupAlignment::RIGHT;
-  groupProps.buttons.pushBack({.label = props.cancelButtonLabel});
-  groupProps.buttons.pushBack({.label = props.confirmButtonLabel});
+  if (props.dismissOnly) {
+    groupProps.buttons.pushBack({.label = props.dismissButtonLabel});
+  } else {
+    groupProps.buttons.pushBack({.label = props.cancelButtonLabel});
+    groupProps.buttons.pushBack({.label = props.confirmButtonLabel});
+  }
   buttonGroup->setProps(groupProps);
   auto [__, buttonGroupHeight] = buttonGroup->getDims();
   addChild(bmin::UniquePtr<ui::UiElement>(buttonGroup));
