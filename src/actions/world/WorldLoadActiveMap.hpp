@@ -3,6 +3,7 @@
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/CharacterConstruction.h"
 #include "game/map/MapPersistence.h"
+#include "bmin/StringInterop.h"
 #include "model/Combat.h"
 #include "model/instances/World.hpp"
 #include "sdl2w/Logger.h"
@@ -43,6 +44,7 @@ class WorldLoadActiveMap : public AbstractAction {
         ch.x = local.x;
         ch.y = local.y;
       }
+      ch.agitated = false;
       map->persistentState.characters.pushBack(std::move(ch));
     }
     for (auto item : localState.world.activeMap.items) {
@@ -81,7 +83,28 @@ class WorldLoadActiveMap : public AbstractAction {
       localState.mapInstances = game::createMapInstances(*database);
     }
 
+    const auto previousGridId = localState.world.activeMap.gridId;
     saveCurrentMapToPersistentState();
+
+    // Leaving a grid: wipe temporary tile mutations; permanent changedTiles reapply.
+    if (!previousGridId.empty() && previousGridId != resolvedGridId) {
+      const auto* prevGrid = database->findMapGridTemplate(bmin::toStringView(previousGridId));
+      if (prevGrid) {
+        for (size_t gy = 0; gy < prevGrid->cells.size(); ++gy) {
+          for (size_t gx = 0; gx < prevGrid->cells[gy].size(); ++gx) {
+            const auto& mapName = prevGrid->cells[gy][gx];
+            if (mapName.empty()) {
+              continue;
+            }
+            auto it = localState.mapInstances.find(mapName);
+            if (it == localState.mapInstances.end()) {
+              continue;
+            }
+            game::restoreMapTilesFromTemplate(it->value, *database);
+          }
+        }
+      }
+    }
 
     localState.world.activeMap = {};
     localState.world.activeMap.gridId = resolvedGridId;
@@ -139,6 +162,7 @@ class WorldLoadActiveMap : public AbstractAction {
             character.x = worldLoc.x;
             character.y = worldLoc.y;
           }
+          character.agitated = false;
           if (database) {
             game::applyCharacterTemplateFromDatabase(character, *database);
           }

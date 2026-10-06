@@ -7,6 +7,8 @@
 #include "model/instances/CharacterInstance.hpp"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/MapInstance.h"
+#include "model/templates/Abilities.hpp"
+#include "model/templates/AbilityTypes.h"
 #include "model/templates/CharacterTemplate.h"
 #include "model/templates/MapGrids.hpp"
 #include "model/templates/Tileset.hpp"
@@ -17,6 +19,7 @@
 #include "state/StateManagerInterface.h"
 #include "state/WorldUpdater.h"
 #include "actions/combat/DoCPUCombatTurn.hpp"
+#include "actions/combat/GoNextCombatTurn.hpp"
 #include "actions/combat/StartCombat.hpp"
 #include "actions/world/TownEnemyAiAfterPlayerMove.hpp"
 #include "actions/world/WorldMovePlayer.hpp"
@@ -73,6 +76,30 @@ void runAndPumpTownEnemyAi(state::StateManager& stateManager, db::Database& data
   pumpTownEnemyAi(stateManager);
 }
 
+model::AbilityAttackDmg makeFixedMeleeDmg(int bonus) {
+  auto dmg = model::AbilityAttackDmg{};
+  dmg.dmgDice = {model::Dice::D0};
+  dmg.dmgBonus = bonus;
+  dmg.dmgStat = model::StatsEnum::STAT_STR;
+  dmg.dmgStatMult = 0.f;
+  dmg.attackBonus = 0;
+  return dmg;
+}
+
+void addDefaultMeleeAbility(db::Database& database) {
+  if (database.findAbilityTemplate("MELEE_ATTACK_DEFAULT") != nullptr) {
+    return;
+  }
+  auto ability = model::AbilityTemplate{};
+  ability.name = "MELEE_ATTACK_DEFAULT";
+  auto attack = model::AbilityAttack{};
+  attack.attackClass = model::AttackClass::ATTACK_CLASS_AUTO_HIT;
+  attack.damageType = model::DamageType::DAMAGE_TYPE_EDGED;
+  attack.dmg = makeFixedMeleeDmg(5);
+  ability.attacks.pushBack(attack);
+  database.addAbilityTemplate(ability);
+}
+
 void addTestTileset(db::Database& database) {
   auto tileset = model::TilesetTemplate{};
   tileset.name = "test_terrain";
@@ -112,6 +139,7 @@ model::MapInstance makeEmptyMap(int width, int height) {
 }
 
 void setupGrid(db::Database& database, state::State& state, int width, int height) {
+  addDefaultMeleeAbility(database);
   addTestTileset(database);
   auto map = makeEmptyMap(width, height);
   state.mapInstances[map.templateName] = std::move(map);
@@ -145,6 +173,26 @@ void addGoblinTemplate(db::Database& database, int visionRadius) {
   goblin.combatBehavior.town = model::CombatBehaviorName::SEEK_AND_MELEE;
   goblin.combatBehavior.combat = model::CombatBehaviorName::SEEK_AND_MELEE;
   database.addCharacterTemplate(goblin);
+}
+
+void addGoblinWithoutImmobileTemplate(db::Database& database, int visionRadius) {
+  auto goblin = model::CharacterTemplate{};
+  goblin.type = model::CharacterTemplateType::ENEMY;
+  goblin.name = "goblinFreeTest";
+  goblin.combat.hp = 12;
+  goblin.vision.radius = visionRadius;
+  goblin.behavior.behaviorName = "SEEK_AND_MELEE";
+  goblin.combatBehavior.town = model::CombatBehaviorName::SEEK_AND_MELEE;
+  goblin.combatBehavior.combat = model::CombatBehaviorName::SEEK_AND_MELEE;
+  database.addCharacterTemplate(goblin);
+}
+
+void addVillagerTemplate(db::Database& database, int visionRadius) {
+  auto villager = model::CharacterTemplate{};
+  villager.type = model::CharacterTemplateType::TOWNSPERSON;
+  villager.name = "villagerTest";
+  villager.vision.radius = visionRadius;
+  database.addCharacterTemplate(villager);
 }
 
 model::CharacterInstance*
@@ -257,12 +305,19 @@ int main(int /*argc*/, char** /*argv*/) {
         "can spot in range + visible") &&
          ok;
 
-    game::updateEnemySpotting(stateManager.getState().world,
-                              stateManager.getState().mapInstances,
-                              stateManager.getState().player,
-                              database);
+    const auto shouldRoar = game::updateAgitation(stateManager.getState().world,
+                                                  stateManager.getState().mapInstances,
+                                                  stateManager.getState().player,
+                                                  database);
     enemy = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
     ok = assertTrue(enemy != nullptr && enemy->agitated, "agitated after spot") && ok;
+    ok = assertTrue(shouldRoar, "roar when first enemy becomes agitated") && ok;
+
+    const auto roarAgain = game::updateAgitation(stateManager.getState().world,
+                                                 stateManager.getState().mapInstances,
+                                                 stateManager.getState().player,
+                                                 database);
+    ok = assertFalse(roarAgain, "no roar when agitation already present") && ok;
   }
 
   {
@@ -285,12 +340,282 @@ int main(int /*argc*/, char** /*argv*/) {
         "cannot spot out of vision radius") &&
          ok;
 
-    game::updateEnemySpotting(stateManager.getState().world,
-                              stateManager.getState().mapInstances,
-                              stateManager.getState().player,
-                              database);
+    game::updateAgitation(stateManager.getState().world,
+                          stateManager.getState().mapInstances,
+                          stateManager.getState().player,
+                          database);
     enemy = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
     ok = assertTrue(enemy != nullptr && !enemy->agitated, "not agitated out of range") &&
+         ok;
+  }
+
+  {
+    db::Database database;
+    addHeroTemplate(database);
+    addGoblinWithoutImmobileTemplate(database, 6);
+    state::DatabaseInterface::setDatabase(&database);
+
+    state::State state;
+    setupGrid(database, state, 12, 12);
+
+    auto leader = model::CharacterPlayer{};
+    leader.instanceId = "ally-1";
+    leader.name = "Hero";
+    leader.templateName = "hero";
+    leader.currentHp = 100;
+    state.player.party.pushBack(std::move(leader));
+
+    auto avatar = model::CharacterInstance{};
+    avatar.id = "ally-1";
+    avatar.templateName = "hero";
+    avatar.x = 2;
+    avatar.y = 2;
+    state.world.activeMap.characters.pushBack(std::move(avatar));
+
+    auto enemy = model::CharacterInstance{};
+    enemy.id = "enemy-1";
+    enemy.templateName = "goblinFreeTest";
+    enemy.x = 4;
+    enemy.y = 2;
+    state.world.activeMap.characters.pushBack(std::move(enemy));
+    for (size_t i = 0; i < state.world.activeMap.characters.size(); i++) {
+      game::applyCharacterTemplateFromDatabase(state.world.activeMap.characters[i],
+                                               database);
+    }
+
+    lightFromAvatar(state, database);
+    game::updateAgitation(state.world, state.mapInstances, state.player, database);
+    auto* spotted = findOnActiveMap(state.world.activeMap, "enemy-1");
+    ok = assertTrue(spotted != nullptr && spotted->agitated,
+                    "non-immobile enemy still agitates on spot") &&
+         ok;
+  }
+
+  {
+    db::Database database;
+    addHeroTemplate(database);
+    addGoblinTemplate(database, 6);
+    addVillagerTemplate(database, 6);
+    state::DatabaseInterface::setDatabase(&database);
+
+    state::State state;
+    setupGrid(database, state, 12, 12);
+
+    auto leader = model::CharacterPlayer{};
+    leader.instanceId = "ally-1";
+    leader.name = "Hero";
+    leader.templateName = "hero";
+    leader.currentHp = 100;
+    state.player.party.pushBack(std::move(leader));
+
+    auto avatar = model::CharacterInstance{};
+    avatar.id = "ally-1";
+    avatar.templateName = "hero";
+    avatar.x = 2;
+    avatar.y = 2;
+    state.world.activeMap.characters.pushBack(std::move(avatar));
+
+    auto enemy = model::CharacterInstance{};
+    enemy.id = "enemy-1";
+    enemy.templateName = "goblinTest";
+    enemy.x = 4;
+    enemy.y = 2;
+    enemy.agitated = true;
+    state.world.activeMap.characters.pushBack(std::move(enemy));
+
+    auto villager = model::CharacterInstance{};
+    villager.id = "villager-1";
+    villager.templateName = "villagerTest";
+    villager.x = 6;
+    villager.y = 2;
+    state.world.activeMap.characters.pushBack(std::move(villager));
+
+    for (size_t i = 0; i < state.world.activeMap.characters.size(); i++) {
+      game::applyCharacterTemplateFromDatabase(state.world.activeMap.characters[i],
+                                               database);
+    }
+
+    lightFromAvatar(state, database);
+    game::updateAgitation(state.world, state.mapInstances, state.player, database);
+    auto* villagerAfter = findOnActiveMap(state.world.activeMap, "villager-1");
+    ok = assertTrue(villagerAfter != nullptr && villagerAfter->agitated,
+                    "townsperson agitated after spotting enemy") &&
+         ok;
+  }
+
+  {
+    // Enemy is agitated and in townsfolk range, but not on the player vision grid.
+    db::Database database;
+    addHeroTemplate(database);
+    addGoblinTemplate(database, 6);
+    addVillagerTemplate(database, 6);
+    state::DatabaseInterface::setDatabase(&database);
+
+    state::State state;
+    setupGrid(database, state, 12, 12);
+
+    auto leader = model::CharacterPlayer{};
+    leader.instanceId = "ally-1";
+    leader.name = "Hero";
+    leader.templateName = "hero";
+    leader.currentHp = 100;
+    state.player.party.pushBack(std::move(leader));
+
+    auto avatar = model::CharacterInstance{};
+    avatar.id = "ally-1";
+    avatar.templateName = "hero";
+    avatar.x = 2;
+    avatar.y = 2;
+    state.world.activeMap.characters.pushBack(std::move(avatar));
+
+    auto enemy = model::CharacterInstance{};
+    enemy.id = "enemy-1";
+    enemy.templateName = "goblinTest";
+    enemy.x = 4;
+    enemy.y = 2;
+    enemy.agitated = true;
+    state.world.activeMap.characters.pushBack(std::move(enemy));
+
+    auto villager = model::CharacterInstance{};
+    villager.id = "villager-1";
+    villager.templateName = "villagerTest";
+    villager.x = 6;
+    villager.y = 2;
+    state.world.activeMap.characters.pushBack(std::move(villager));
+
+    for (size_t i = 0; i < state.world.activeMap.characters.size(); i++) {
+      game::applyCharacterTemplateFromDatabase(state.world.activeMap.characters[i],
+                                               database);
+    }
+
+    // No lightFromAvatar — enemy tile is not player-visible.
+    game::updateAgitation(state.world, state.mapInstances, state.player, database);
+    auto* villagerAfter = findOnActiveMap(state.world.activeMap, "villager-1");
+    ok = assertTrue(villagerAfter != nullptr && !villagerAfter->agitated,
+                    "townsperson does not spot enemy outside player vision") &&
+         ok;
+  }
+
+  {
+    db::Database database;
+    addHeroTemplate(database);
+    addGoblinTemplate(database, 6);
+    addVillagerTemplate(database, 2);
+    state::DatabaseInterface::setDatabase(&database);
+
+    state::State state;
+    setupGrid(database, state, 12, 12);
+
+    auto leader = model::CharacterPlayer{};
+    leader.instanceId = "ally-1";
+    leader.name = "Hero";
+    leader.templateName = "hero";
+    leader.currentHp = 100;
+    state.player.party.pushBack(std::move(leader));
+
+    auto avatar = model::CharacterInstance{};
+    avatar.id = "ally-1";
+    avatar.templateName = "hero";
+    avatar.x = 2;
+    avatar.y = 2;
+    state.world.activeMap.characters.pushBack(std::move(avatar));
+
+    // Living agitated enemy keeps townsfolk from calming during contagion.
+    auto enemy = model::CharacterInstance{};
+    enemy.id = "enemy-1";
+    enemy.templateName = "goblinTest";
+    enemy.x = 4;
+    enemy.y = 2;
+    enemy.agitated = true;
+    state.world.activeMap.characters.pushBack(std::move(enemy));
+
+    auto villagerA = model::CharacterInstance{};
+    villagerA.id = "villager-a";
+    villagerA.templateName = "villagerTest";
+    villagerA.x = 5;
+    villagerA.y = 2;
+    villagerA.agitationGroup = "angry_mob";
+    villagerA.agitated = true;
+    state.world.activeMap.characters.pushBack(std::move(villagerA));
+
+    auto villagerB = model::CharacterInstance{};
+    villagerB.id = "villager-b";
+    villagerB.templateName = "villagerTest";
+    villagerB.x = 10;
+    villagerB.y = 2;
+    villagerB.agitationGroup = "angry_mob";
+    state.world.activeMap.characters.pushBack(std::move(villagerB));
+
+    for (size_t i = 0; i < state.world.activeMap.characters.size(); i++) {
+      game::applyCharacterTemplateFromDatabase(state.world.activeMap.characters[i],
+                                               database);
+    }
+
+    game::updateAgitation(state.world, state.mapInstances, state.player, database);
+    auto* villagerBAfter = findOnActiveMap(state.world.activeMap, "villager-b");
+    ok = assertTrue(villagerBAfter != nullptr && villagerBAfter->agitated,
+                    "agitation group contagion") &&
+         ok;
+  }
+
+  {
+    // Townspeople calm when no living agitated enemies remain.
+    db::Database database;
+    addHeroTemplate(database);
+    addGoblinTemplate(database, 6);
+    addVillagerTemplate(database, 6);
+    state::DatabaseInterface::setDatabase(&database);
+
+    state::State state;
+    setupGrid(database, state, 12, 12);
+
+    auto leader = model::CharacterPlayer{};
+    leader.instanceId = "ally-1";
+    leader.name = "Hero";
+    leader.templateName = "hero";
+    leader.currentHp = 100;
+    state.player.party.pushBack(std::move(leader));
+
+    auto avatar = model::CharacterInstance{};
+    avatar.id = "ally-1";
+    avatar.templateName = "hero";
+    avatar.x = 2;
+    avatar.y = 2;
+    state.world.activeMap.characters.pushBack(std::move(avatar));
+
+    auto enemy = model::CharacterInstance{};
+    enemy.id = "enemy-1";
+    enemy.templateName = "goblinTest";
+    enemy.x = 4;
+    enemy.y = 2;
+    enemy.agitated = true;
+    state.world.activeMap.characters.pushBack(std::move(enemy));
+
+    auto villager = model::CharacterInstance{};
+    villager.id = "villager-1";
+    villager.templateName = "villagerTest";
+    villager.x = 6;
+    villager.y = 2;
+    villager.agitated = true;
+    state.world.activeMap.characters.pushBack(std::move(villager));
+
+    for (size_t i = 0; i < state.world.activeMap.characters.size(); i++) {
+      game::applyCharacterTemplateFromDatabase(state.world.activeMap.characters[i],
+                                               database);
+    }
+
+    auto* enemyAfterTemplate = findOnActiveMap(state.world.activeMap, "enemy-1");
+    ok = assertTrue(enemyAfterTemplate != nullptr, "defeated enemy exists") && ok;
+    if (enemyAfterTemplate) {
+      enemyAfterTemplate->agitated = true;
+      enemyAfterTemplate->currentHp = 0;
+      enemyAfterTemplate->hpInitialized = true;
+    }
+
+    game::updateAgitation(state.world, state.mapInstances, state.player, database);
+    auto* villagerAfter = findOnActiveMap(state.world.activeMap, "villager-1");
+    ok = assertTrue(villagerAfter != nullptr && !villagerAfter->agitated,
+                    "townsperson calms when no living agitated enemies") &&
          ok;
   }
 
@@ -438,7 +763,7 @@ int main(int /*argc*/, char** /*argv*/) {
     state::StateManagerInterface::setStateManager(&stateManager);
     lightFromAvatar(stateManager.getState(), database);
 
-    // Player steps closer; spotting + seek should run via WorldMovePlayer.
+    // Player steps closer; spotting runs, but newly agitated enemies wait a turn.
     stateManager.enqueueAction(state::makeAction<state::actions::WorldMovePlayer>(1, 0), 0);
     pumpTownEnemyAi(stateManager);
 
@@ -448,10 +773,18 @@ int main(int /*argc*/, char** /*argv*/) {
     if (enemy && avatar) {
       ok = assertTrue(enemy->agitated, "spotted after player move") && ok;
       ok = assertEqual(avatar->x, 3, "avatar moved east") && ok;
-      ok = assertTrue(enemy->x < 6, "enemy sought after player move") && ok;
+      ok = assertEqual(enemy->x, 6, "newly agitated enemy does not seek same turn") && ok;
     }
     ok = assertFalse(stateManager.getState().world.resolvingTownEnemyAi,
                      "town AI idle after WorldMovePlayer") &&
+         ok;
+
+    // Next player move: already-agitated enemy may seek.
+    stateManager.enqueueAction(state::makeAction<state::actions::WorldMovePlayer>(1, 0), 0);
+    pumpTownEnemyAi(stateManager);
+    enemy = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
+    ok = assertTrue(enemy != nullptr && enemy->x < 6,
+                    "agitated enemy seeks on following player move") &&
          ok;
   }
 
@@ -585,6 +918,9 @@ int main(int /*argc*/, char** /*argv*/) {
       combat.activeCharacterId = "enemy-1";
       enemyAp = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
       if (enemyAp) {
+        enemyAp->x = 3;
+        enemyAp->y = 2;
+        enemyAp->agitated = true;
         enemyAp->currentAp = model::COMBAT_STARTING_AP;
       }
       combat.isWaitingForAction = false;
@@ -598,6 +934,67 @@ int main(int /*argc*/, char** /*argv*/) {
       }
     }
     ok = assertTrue(hit, "cpu adjacent melee damages party") && ok;
+  }
+
+  {
+    db::Database database;
+    addHeroTemplate(database);
+    addGoblinTemplate(database, 6);
+    state::DatabaseInterface::setDatabase(&database);
+
+    state::State state;
+    setupGrid(database, state, 12, 12);
+
+    auto member = model::CharacterPlayer{};
+    member.instanceId = "ally-1";
+    member.name = "Hero";
+    member.templateName = "hero";
+    member.currentHp = 100;
+    state.player.party.pushBack(std::move(member));
+
+    auto ally = model::CharacterInstance{};
+    ally.id = "ally-1";
+    ally.templateName = "hero";
+    ally.x = 2;
+    ally.y = 2;
+    state.world.activeMap.characters.pushBack(std::move(ally));
+
+    auto enemy = model::CharacterInstance{};
+    enemy.id = "enemy-1";
+    enemy.templateName = "goblinTest";
+    enemy.x = 10;
+    enemy.y = 2;
+    enemy.currentHp = 12;
+    enemy.hpInitialized = true;
+    state.world.activeMap.characters.pushBack(std::move(enemy));
+    for (size_t i = 0; i < state.world.activeMap.characters.size(); i++) {
+      game::applyCharacterTemplateFromDatabase(state.world.activeMap.characters[i],
+                                               database);
+    }
+
+    state::StateManager stateManager;
+    stateManager.getState() = state;
+    state::StateManagerInterface::setStateManager(&stateManager);
+
+    stateManager.getState().world.combat.active = true;
+    stateManager.getState().world.combat.turnOrderIds = {"ally-1", "enemy-1"};
+    stateManager.getState().world.combat.activeTurnIndex = 1;
+    stateManager.getState().world.combat.activeCharacterId = "ally-1";
+
+    stateManager.enqueueAction(state::makeAction<state::actions::GoNextCombatTurn>(), 0);
+    for (int i = 0; i < 20; ++i) {
+      tickState(stateManager, 50);
+    }
+
+    auto& combat = stateManager.getState().world.combat;
+    ok = assertEqual(combat.activeTurnIndex, 0, "skipped calm enemy to new round") && ok;
+    ok = assertTrue(combat.activeCharacterId == "ally-1",
+                    "party member active after skipping calm npc") &&
+         ok;
+    auto* calmEnemy = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
+    ok = assertTrue(calmEnemy != nullptr && !calmEnemy->agitated,
+                    "enemy still calm during combat skip") &&
+         ok;
   }
 
   if (!ok) {

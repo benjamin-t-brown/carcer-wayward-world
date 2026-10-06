@@ -3,6 +3,7 @@
 #include "actions/combat/RemoveCharacterFromMap.hpp"
 #include "actions/general/PlaySound.hpp"
 #include "bmin/StringInterop.h"
+#include "game/combat/DropTables.h"
 #include "game/map/ActiveMapCharacters.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/TileFields.h"
@@ -35,6 +36,13 @@ class PerformCharacterDefeated : public AbstractAction {
             const auto& characterTemplate = database->getCharacterTemplate(
                 bmin::toStringView(character->templateName));
             deathSoundName = characterTemplate.sound.deathSoundName;
+
+            bmin::DynArray<game::DropRollResult> dropRolls;
+            game::rollCharacterDropTables(characterTemplate, *database, dropRolls);
+            for (const auto& roll : dropRolls) {
+              game::appendDropRollToItems(state->world.activeMap.items, roll, character->x,
+                                          character->y);
+            }
           } catch (...) {
           }
         }

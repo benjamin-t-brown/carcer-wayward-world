@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game/combat/EnemyBehavior.h"
 #include "model/Combat.h"
 #include "game/map/MapPersistence.h"
 #include "state/AbstractAction.hpp"
@@ -30,6 +31,11 @@ class RemoveCharacterFromMap : public AbstractAction {
         characters.erase(i);
         if (state->world.combat.active) {
           model::removeCharacterFromCombatTurnOrder(state->world.combat, characterId);
+        }
+        // Townspeople calm when the last agitated enemy leaves the map.
+        if (auto* database = getDatabase()) {
+          game::updateAgitation(
+              state->world, state->mapInstances, state->player, *database);
         }
         return;
       }

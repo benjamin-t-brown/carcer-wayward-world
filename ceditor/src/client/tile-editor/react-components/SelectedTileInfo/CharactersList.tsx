@@ -92,6 +92,41 @@ export function CharactersList({
                 />
                 Flipped
               </label>
+              <label
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px',
+                  marginTop: '6px',
+                  fontSize: '11px',
+                  color: '#d4d4d4',
+                }}
+              >
+                Agitation group
+                <input
+                  type="text"
+                  value={entry.agitationGroup ?? ''}
+                  placeholder="(none)"
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    const agitationGroup = raw.trim() || undefined;
+                    updateTile((tile) => {
+                      tile.characters = tile.characters.map((placed, i) =>
+                        i === index ? { ...placed, agitationGroup } : placed,
+                      );
+                    });
+                  }}
+                  style={{
+                    padding: '4px 6px',
+                    fontSize: '11px',
+                    backgroundColor: '#2d2d2d',
+                    border: '1px solid #3e3e42',
+                    borderRadius: '4px',
+                    color: '#ffffff',
+                    maxWidth: '180px',
+                  }}
+                />
+              </label>
             </div>
             <div
               style={{

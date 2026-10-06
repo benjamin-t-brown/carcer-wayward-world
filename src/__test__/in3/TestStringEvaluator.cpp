@@ -1,7 +1,9 @@
 #include "bmin/DynArray.h"
 #include "bmin/Map.h"
 #include "bmin/String.h"
+#include "actions/world/WorldLoadActiveMap.hpp"
 #include "db/Database.h"
+#include "game/map/ActiveMapOrchestrator.h"
 #include "in3/EventRunnerHelpers.h"
 #include "in3/QuestProgress.h"
 #include "in3/StringEvaluator.h"
@@ -9,6 +11,9 @@
 #include "model/instances/Player.h"
 #include "model/templates/Quests.hpp"
 #include "sdl2w/Logger.h"
+#include "state/DatabaseInterface.h"
+#include "state/StateManager.h"
+#include "state/StateManagerInterface.h"
 
 #define TEST_NAME "TestStringEvaluator"
 
@@ -578,6 +583,154 @@ int main(int argc, char** argv) {
         LOG(ERROR) << "MODIFY_COINS at 0 should apply nothing" << LOG_ENDL;
         return 1;
       }
+    }
+
+    {
+      db::Database database;
+      state::DatabaseInterface::setDatabase(&database);
+      database.load();
+
+      state::StateManager stateManager;
+      state::StateManagerInterface::setStateManager(&stateManager);
+      auto& state = stateManager.getState();
+      state.player.party.pushBack(
+          model::CharacterPlayer(database.getCharacterTemplate("testPartyMember1")));
+      state.player.currentPartyMemberIndex = 0;
+
+      {
+        auto loadMap = state::actions::WorldLoadActiveMap("alinea_outsideAlinea1");
+        loadMap.execute(&state);
+      }
+
+      // MarkerPlayer on alinea_outsideAlinea1: i=337 → local (7,11), world (37,41)
+      game::ActiveMapOrchestrator orch(state.world.activeMap, state.mapInstances,
+                                       &database);
+      const auto marker = orch.findMarker("alinea_outsideAlinea1", "MarkerPlayer");
+      if (!marker.valid) {
+        LOG(ERROR) << "CHANGE_TILE_AT_MARKER setup: MarkerPlayer not found" << LOG_ENDL;
+        return 1;
+      }
+      auto* before = orch.findTileAt(marker.x, marker.y, marker.layer);
+      if (!before) {
+        LOG(ERROR) << "CHANGE_TILE_AT_MARKER setup: no tile at MarkerPlayer" << LOG_ENDL;
+        return 1;
+      }
+      const bmin::String priorTileset = before->tilesetName;
+      const int priorTileId = before->tileId;
+
+      bmin::Map<bmin::String, bmin::String> tileStorage;
+      in3::StringEvaluator evaluator(tileStorage,
+                                     "CHANGE_TILE_AT_MARKER(MarkerPlayer, terrain1_5, "
+                                     "alinea_outsideAlinea1)");
+      evaluator.funcs.database = &database;
+      evaluator.funcs.activeMap = &state.world.activeMap;
+      evaluator.funcs.mapInstances = &state.mapInstances;
+      evaluator.evalStr(
+          "CHANGE_TILE_AT_MARKER(MarkerPlayer, terrain1_5, alinea_outsideAlinea1)");
+
+      auto* after = orch.findTileAt(marker.x, marker.y, marker.layer);
+      if (!after || after->tilesetName != "terrain1" || after->tileId != 5) {
+        LOG(ERROR) << "CHANGE_TILE_AT_MARKER should set tilesetName_tileId at marker"
+                   << LOG_ENDL;
+        return 1;
+      }
+      if (priorTileset == "terrain1" && priorTileId == 5) {
+        LOG(ERROR) << "CHANGE_TILE_AT_MARKER test needs a different prior tile" << LOG_ENDL;
+        return 1;
+      }
+
+      evaluator.evalStr("CHANGE_TILE_AT_MARKER(MarkerPlayer, terrain2_12)");
+      // Without mapName: first MarkerPlayer on the active grid (may not be alinea).
+      game::ActiveMapMarker firstMarker{};
+      const auto& grid = orch.getMapGrid();
+      for (int gy = 0; gy < grid.gridHeight && !firstMarker.valid; ++gy) {
+        for (int gx = 0; gx < grid.gridWidth && !firstMarker.valid; ++gx) {
+          const auto& cellMapName =
+              grid.cells[static_cast<size_t>(gy)][static_cast<size_t>(gx)];
+          if (cellMapName.empty()) {
+            continue;
+          }
+          firstMarker = orch.findMarker(cellMapName, "MarkerPlayer");
+        }
+      }
+      if (!firstMarker.valid) {
+        LOG(ERROR) << "CHANGE_TILE_AT_MARKER without mapName: no MarkerPlayer on grid"
+                   << LOG_ENDL;
+        return 1;
+      }
+      after = orch.findTileAt(firstMarker.x, firstMarker.y, firstMarker.layer);
+      if (!after || after->tilesetName != "terrain2" || after->tileId != 12) {
+        LOG(ERROR) << "CHANGE_TILE_AT_MARKER without mapName should search active grid"
+                   << LOG_ENDL;
+        return 1;
+      }
+
+      state.world.activeMap.mapLayer = marker.layer;
+      evaluator.evalStr("CHANGE_TILE_AT(37, 41, terrain0_3)");
+      after = orch.findTileAt(37, 41);
+      if (!after || after->tilesetName != "terrain0" || after->tileId != 3) {
+        LOG(ERROR) << "CHANGE_TILE_AT should mutate world coords on current layer"
+                   << LOG_ENDL;
+        return 1;
+      }
+
+      // Permanent survives cross-grid load; temporary does not.
+      evaluator.evalStr(
+          "CHANGE_TILE_AT_MARKER_PERMANENT(MarkerPlayer, terrain1_9, "
+          "alinea_outsideAlinea1)");
+      after = orch.findTileAt(marker.x, marker.y, marker.layer);
+      if (!after || after->tilesetName != "terrain1" || after->tileId != 9) {
+        LOG(ERROR) << "CHANGE_TILE_AT_MARKER_PERMANENT should mutate tile" << LOG_ENDL;
+        return 1;
+      }
+      {
+        auto mapIt = state.mapInstances.find("alinea_outsideAlinea1");
+        if (mapIt == state.mapInstances.end() ||
+            mapIt->value.persistentState.changedTiles.empty()) {
+          LOG(ERROR) << "CHANGE_TILE_AT_MARKER_PERMANENT should record changedTiles"
+                     << LOG_ENDL;
+          return 1;
+        }
+        const auto& rec = mapIt->value.persistentState.changedTiles[0];
+        if (rec.tilesetName != "terrain1" || rec.tileId != 9 || rec.x != 7 || rec.y != 11) {
+          LOG(ERROR) << "changedTiles record should match marker local coords" << LOG_ENDL;
+          return 1;
+        }
+      }
+
+      // Temporary change on another cell via CHANGE_TILE_AT — wiped on grid leave.
+      evaluator.evalStr("CHANGE_TILE_AT(38, 41, terrain2_1)");
+      after = orch.findTileAt(38, 41);
+      if (!after || after->tilesetName != "terrain2" || after->tileId != 1) {
+        LOG(ERROR) << "temp CHANGE_TILE_AT setup failed" << LOG_ENDL;
+        return 1;
+      }
+
+      {
+        auto leave = state::actions::WorldLoadActiveMap("AlineaTest");
+        leave.execute(&state);
+      }
+      {
+        auto back = state::actions::WorldLoadActiveMap("alinea_outsideAlinea1");
+        back.execute(&state);
+      }
+
+      game::ActiveMapOrchestrator orchAfter(state.world.activeMap, state.mapInstances,
+                                            &database);
+      after = orchAfter.findTileAt(marker.x, marker.y, marker.layer);
+      if (!after || after->tilesetName != "terrain1" || after->tileId != 9) {
+        LOG(ERROR) << "CHANGE_TILE_AT_MARKER_PERMANENT should survive cross-grid load"
+                   << LOG_ENDL;
+        return 1;
+      }
+      after = orchAfter.findTileAt(38, 41);
+      if (!after || (after->tilesetName == "terrain2" && after->tileId == 1)) {
+        LOG(ERROR) << "temporary CHANGE_TILE_AT should reset after cross-grid load"
+                   << LOG_ENDL;
+        return 1;
+      }
+
+      LOG(INFO) << "CHANGE_TILE_AT_MARKER / PERMANENT / CHANGE_TILE_AT passed" << LOG_ENDL;
     }
 
     LOG(INFO) << TEST_NAME << " completed successfully" << LOG_ENDL;

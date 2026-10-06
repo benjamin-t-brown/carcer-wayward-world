@@ -1,11 +1,29 @@
 #include "game/map/MapPersistence.h"
 #include "bmin/StringInterop.h"
+#include "game/combat/DropTables.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/CharacterConstruction.h"
 #include "game/map/MapWalkability.h"
 #include "game/map/TileFields.h"
+#include "sdl2w/Logger.h"
 
 namespace game {
+
+void materializeMapDropTablePlacements(model::MapInstance& instance,
+                                         const model::CarcerMapTemplate& mapTemplate,
+                                         const db::Database& database) {
+  for (const auto& placement : mapTemplate.items) {
+    if (placement.dropTable.empty()) {
+      continue;
+    }
+    const auto tile = model::tileIndexToXY(placement.i, instance.width);
+    bmin::DynArray<DropRollResult> dropRolls;
+    rollDropTable(bmin::toStringView(placement.dropTable), database, dropRolls);
+    for (const auto& roll : dropRolls) {
+      appendDropRollToItems(instance.persistentState.items, roll, tile.x, tile.y);
+    }
+  }
+}
 
 MapInstanceStore createMapInstances(const db::Database& database) {
   auto mapInstances = MapInstanceStore{};
@@ -13,8 +31,10 @@ MapInstanceStore createMapInstances(const db::Database& database) {
   const auto& templates = database.getMapTemplates();
   for (auto it = templates.begin(); it != templates.end(); ++it) {
     model::MapInstance instance = model::createMapInstanceFromTemplate(it->value);
+    materializeMapDropTablePlacements(instance, it->value, database);
     applyUnlockedDoors(instance, instance.persistentState.unlockedDoors);
     applyOpenedDoors(instance, instance.persistentState.openedDoors);
+    applyChangedTiles(instance, instance.persistentState.changedTiles, &database);
     for (size_t ci = 0; ci < instance.persistentState.characters.size(); ci++) {
       applyCharacterTemplateFromDatabase(instance.persistentState.characters[ci],
                                          database);
@@ -34,6 +54,55 @@ MapInstanceStore createMapInstances(const db::Database& database) {
     mapInstances[instance.templateName] = std::move(instance);
   }
   return mapInstances;
+}
+
+void restoreMapTilesFromTemplate(model::MapInstance& instance, const db::Database& database) {
+  if (instance.templateName.empty()) {
+    return;
+  }
+  const auto& templates = database.getMapTemplates();
+  const auto it = templates.find(instance.templateName);
+  if (it == templates.end()) {
+    LOG(ERROR) << "restoreMapTilesFromTemplate: map template not found: "
+               << instance.templateName << LOG_ENDL;
+    return;
+  }
+
+  model::MapInstance fresh = model::createMapInstanceFromTemplate(it->value);
+
+  auto openedDoors = std::move(instance.persistentState.openedDoors);
+  auto unlockedDoors = std::move(instance.persistentState.unlockedDoors);
+  auto changedTiles = std::move(instance.persistentState.changedTiles);
+  auto explored = std::move(instance.persistentState.explored);
+  auto defeatedCharacters = std::move(instance.persistentState.defeatedCharacters);
+  auto tileFields = std::move(instance.persistentState.tileFields);
+  auto characters = std::move(instance.persistentState.characters);
+  auto items = std::move(instance.persistentState.items);
+  const int version = instance.persistentState.version;
+
+  instance.persistentState.tiles = std::move(fresh.persistentState.tiles);
+  instance.persistentState.openedDoors = std::move(openedDoors);
+  instance.persistentState.unlockedDoors = std::move(unlockedDoors);
+  instance.persistentState.changedTiles = std::move(changedTiles);
+  instance.persistentState.explored = std::move(explored);
+  instance.persistentState.defeatedCharacters = std::move(defeatedCharacters);
+  instance.persistentState.tileFields = std::move(tileFields);
+  instance.persistentState.characters = std::move(characters);
+  instance.persistentState.items = std::move(items);
+  instance.persistentState.version = version;
+
+  applyUnlockedDoors(instance, instance.persistentState.unlockedDoors);
+  applyOpenedDoors(instance, instance.persistentState.openedDoors);
+  applyChangedTiles(instance, instance.persistentState.changedTiles, &database);
+
+  auto& layers = model::mapInstanceTiles(instance);
+  for (auto& layer : layers) {
+    auto& layerTiles = layer.value;
+    for (auto& tile : layerTiles) {
+      tile.isContainer = game::isTileEffectivelyContainer(tile, database);
+      tile.isWalkable = game::isTileEffectivelyWalkable(tile, database);
+    }
+  }
 }
 
 void ageMapInstances(MapInstanceStore& mapInstances, int steps) {

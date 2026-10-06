@@ -11,7 +11,11 @@ import {
   TemplateEditorDescriptor,
 } from './TemplateEditorPage';
 
-export function StatusEffectTemplates() {
+export function StatusEffectTemplates({
+  routeParams,
+}: {
+  routeParams?: URLSearchParams;
+} = {}) {
   const { statusEffects, setStatusEffects, saveStatusEffects } = useAssets();
   const { spriteMap } = useSDL2WAssets();
 
@@ -67,6 +71,7 @@ export function StatusEffectTemplates() {
       items={statusEffects}
       setItems={setStatusEffects}
       saveItems={saveStatusEffects}
+      routeParams={routeParams}
       renderForm={(statusEffect, update) => (
         <StatusEffectTemplateForm
           statusEffect={statusEffect}

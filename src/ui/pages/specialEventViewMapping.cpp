@@ -67,14 +67,19 @@ TextBlock SpecialEventViewMapping::mapEntry(
   case game::SpecialEventTranscriptKind::CoinsModified:
   case game::SpecialEventTranscriptKind::ExperienceGained: {
     const auto notice = noticeText(entry);
+    if (notice.empty()) {
+      return block;
+    }
+    // One notice per line. History keeps a blank line after; live/current notices
+    // trail with a single newline so consecutive item grants don't run together.
     if (historySeparator) {
       block.text = notice + "\n\n";
     } else if (leadingBlankLine) {
-      block.text = bmin::String("\n\n") + notice;
+      block.text = bmin::String("\n\n") + notice + "\n";
     } else {
-      block.text = notice;
+      block.text = notice + "\n";
     }
-    block.fontColor = Colors::Grey;
+    block.fontColor = Colors::DarkBlue;
     return block;
   }
   case game::SpecialEventTranscriptKind::Dialogue:

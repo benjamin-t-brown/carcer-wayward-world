@@ -42,6 +42,8 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
     impacts: AbilityDeleteImpact[];
   } | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showEnemies, setShowEnemies] = useState(true);
+  const [showTownspersons, setShowTownspersons] = useState(true);
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const notificationIdRef = useRef(0);
 
@@ -54,13 +56,26 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
-  // Filter characters based on search term
-  const filteredCharacters = characters.filter(
-    (character) =>
-      character.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      character.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      character.type.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const isEnemyType = (type: string) =>
+    type === 'ENEMY' || type === 'ENEMY_STATIC';
+  const isTownspersonType = (type: string) =>
+    type === 'TOWNSPERSON' || type === 'TOWNSPERSON_STATIC';
+
+  // Filter characters based on search term and type filters
+  const lowerSearch = searchTerm.toLowerCase();
+  const filteredCharacters = characters.filter((character) => {
+    const matchesType =
+      (showEnemies && isEnemyType(character.type)) ||
+      (showTownspersons && isTownspersonType(character.type));
+    if (!matchesType) {
+      return false;
+    }
+    return (
+      character.name.toLowerCase().includes(lowerSearch) ||
+      character.label.toLowerCase().includes(lowerSearch) ||
+      character.type.toLowerCase().includes(lowerSearch)
+    );
+  });
 
   // Get the actual index in the full characters array for filtered characters
   const getActualIndex = (filteredIndex: number): number => {
@@ -316,6 +331,34 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
           searchPlaceholder="Search characters..."
           createLabel="+ New Character"
           onCreate={handleCreateNew}
+          afterSearch={
+            <div className="event-type-filters">
+              <input
+                id="show-enemy-characters"
+                type="checkbox"
+                checked={showEnemies}
+                onChange={(e) => setShowEnemies(e.target.checked)}
+              />
+              <label
+                className="event-type-filter-label"
+                htmlFor="show-enemy-characters"
+              >
+                Enemy
+              </label>
+              <input
+                id="show-townsperson-characters"
+                type="checkbox"
+                checked={showTownspersons}
+                onChange={(e) => setShowTownspersons(e.target.checked)}
+              />
+              <label
+                className="event-type-filter-label"
+                htmlFor="show-townsperson-characters"
+              >
+                Townsperson
+              </label>
+            </div>
+          }
         >
           <CardList
             items={filteredCharacters}
@@ -336,6 +379,9 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
             renderAdditionalInfo={(character) => {
               const spriteName = `${character.spritesheet}_${character.spriteOffset}`;
               const sprite = spriteMap[spriteName];
+              const typeClass = isEnemyType(character.type)
+                ? 'item-type character-type-enemy'
+                : 'item-type character-type-townsperson';
               return (
                 <div
                   className="item-info"
@@ -346,7 +392,7 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
                   }}
                 >
                   <Sprite sprite={sprite} displaySize={32} />
-                  <span className="item-type">{character.type}</span>
+                  <span className={typeClass}>{character.type}</span>
                 </div>
               );
             }}

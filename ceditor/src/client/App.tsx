@@ -8,6 +8,7 @@ import { SpecialEvents } from './pages/SpecialEvents';
 import { AbilityTemplates } from './pages/AbilityTemplates';
 import { SpellTemplates } from './pages/SpellTemplates';
 import { StatusEffectTemplates } from './pages/StatusEffectTemplates';
+import { DropTables } from './pages/DropTables';
 import { Maps } from './pages/Maps';
 import { MapGrids } from './pages/MapGrids';
 import { SoundBoard } from './pages/SoundBoard';
@@ -47,7 +48,9 @@ function App({ assetTypes }: { assetTypes: { id: string; name: string; file: str
     case '/editor/spellTemplates':
       return <SpellTemplates routeParams={routeParams} />;
     case '/editor/statusEffectTemplates':
-      return <StatusEffectTemplates />;
+      return <StatusEffectTemplates routeParams={routeParams} />;
+    case '/editor/dropTables':
+      return <DropTables routeParams={routeParams} />;
     case '/editor/characterTemplates':
       return <CharacterTemplates routeParams={routeParams} />;
     case '/editor/tilesetTemplates':

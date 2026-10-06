@@ -113,6 +113,7 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       placement.i = entry.value("i", 0);
       placement.name = entry.value("name", bmin::String());
       placement.flipped = entry.value("flipped", false);
+      placement.agitationGroup = entry.value("agitationGroup", bmin::String());
       mapTemplate.characters.pushBack(std::move(placement));
     }
   }
@@ -123,6 +124,7 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       placement.l = entry.value("l", 0);
       placement.i = entry.value("i", 0);
       placement.name = entry.value("name", bmin::String());
+      placement.dropTable = entry.value("dropTable", bmin::String());
       placement.quantity = entry.value("quantity", 1);
       mapTemplate.items.pushBack(std::move(placement));
     }

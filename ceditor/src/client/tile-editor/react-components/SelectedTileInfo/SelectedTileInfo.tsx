@@ -10,6 +10,7 @@ import {
   bumpMapDataRevision,
 } from '../../editorState';
 import { ItemSearchInput } from './ItemSearchInput';
+import { DropTableSearchInput } from './DropTableSearchInput';
 import { CharacterSearchInput } from './CharacterSearchInput';
 import { MarkersSection } from './MarkersSection';
 import { ItemsList } from './ItemsList';
@@ -20,7 +21,10 @@ import { TileOverridesSection } from './TileOverridesSection';
 import { DoorLockSection } from './DoorLockSection';
 import { OpenMapAndSelectTileArgs } from '../../TileEditor';
 import { commitCurrentLayer, getTileList } from '../../editorEvents';
-import { addMapTileItemEntry } from '../../mapTileItems';
+import {
+  addMapTileDropTableEntry,
+  addMapTileItemEntry,
+} from '../../mapTileItems';
 
 interface SelectedTileInfoProps {
   editorState: EditorState;
@@ -36,7 +40,8 @@ export function SelectedTileInfo({
   onOpenMapAndSelectTile,
 }: SelectedTileInfoProps) {
   const { spriteMap } = useSDL2WAssets();
-  const { characters, items, gameEvents, maps, tilesets } = useAssets();
+  const { characters, items, dropTables, gameEvents, maps, tilesets } =
+    useAssets();
   const selectedTileInd =
     getEditorStateMap(editorState.selectedMapName)?.selectedTileInd ?? -1;
   const mapTiles = getTileList(map);
@@ -289,9 +294,25 @@ export function SelectedTileInfo({
           }}
         />
 
+        <div style={{ marginTop: '8px' }}>
+          <DropTableSearchInput
+            dropTables={dropTables}
+            dropdownPlacement="above"
+            onSelect={(dropTableName) => {
+              updateTile((tile) => {
+                tile.items = addMapTileDropTableEntry(
+                  tile.items,
+                  dropTableName,
+                );
+              });
+            }}
+          />
+        </div>
+
         <ItemsList
           selectedTile={selectedTile}
           items={items}
+          dropTables={dropTables}
           updateTile={updateTile}
         />
       </div>

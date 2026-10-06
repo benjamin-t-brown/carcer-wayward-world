@@ -19,6 +19,7 @@ import {
   MapGridTemplate,
   FeatTemplate,
   QuestTemplate,
+  DropTable,
 } from './types/assets';
 import { AbilityTemplate, StatusEffectTemplate } from './types/ability';
 import { SpellTemplate } from './types/spell';
@@ -78,6 +79,7 @@ async function load(): Promise<{
   abilities: AbilityTemplate[];
   spells: SpellTemplate[];
   statusEffects: StatusEffectTemplate[];
+  dropTables: DropTable[];
   feats: FeatTemplate[];
   quests: QuestTemplate[];
   tilesets: TilesetTemplate[];
@@ -130,6 +132,7 @@ async function load(): Promise<{
   const abilities = normalized.abilityTemplates as AbilityTemplate[];
   const spells = normalized.spellTemplates as SpellTemplate[];
   const statusEffects = normalized.statusEffectTemplates as StatusEffectTemplate[];
+  const dropTables = normalized.dropTables as DropTable[];
   const feats = normalized.featTemplates as FeatTemplate[];
   const quests = normalized.questTemplates as QuestTemplate[];
   const tilesets = normalized.tilesetTemplates as TilesetTemplate[];
@@ -150,6 +153,7 @@ async function load(): Promise<{
     abilities,
     spells,
     statusEffects,
+    dropTables,
     feats,
     quests,
     tilesets,
@@ -171,6 +175,7 @@ async function load(): Promise<{
     abilities,
     spells,
     statusEffects,
+    dropTables,
     feats,
     quests,
     tilesets,
@@ -206,6 +211,7 @@ async function init() {
       abilities,
       spells,
       statusEffects,
+      dropTables,
       feats,
       quests,
       tilesets,
@@ -239,6 +245,7 @@ async function init() {
             initialAbilities={abilities}
             initialSpells={spells}
             initialStatusEffects={statusEffects}
+            initialDropTables={dropTables}
             initialFeats={feats}
             initialQuests={quests}
             initialTilesets={tilesets}

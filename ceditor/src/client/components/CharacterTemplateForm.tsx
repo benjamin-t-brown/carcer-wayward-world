@@ -49,7 +49,7 @@ export function createDefaultCharacter(): CharacterTemplate {
 
 export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
   const character = props.character;
-  const { gameEvents } = useAssets();
+  const { gameEvents, dropTables, abilities } = useAssets();
   const { spriteMap } = useSDL2WAssets();
 
   const formData = character as CharacterTemplate;
@@ -241,22 +241,57 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
   };
 
   const updateCombat = (
-    field: 'hp' | 'mp' | 'dropTable',
-    value: number | string | undefined
+    field: 'hp' | 'mp' | 'defaultAbility',
+    value: number | string | undefined,
   ) => {
+    const nextCombat = {
+      ...formData.combat,
+      [field]:
+        field === 'defaultAbility'
+          ? (typeof value === 'string' && value.trim() ? value.trim() : undefined)
+          : value,
+    };
+    setFormData({
+      ...formData,
+      combat: nextCombat,
+    });
+  };
+
+  const updateCombatDropTable = (index: number, name: string) => {
+    const current = [...(formData.combat?.dropTables ?? [])];
+    current[index] = name;
     setFormData({
       ...formData,
       combat: {
         ...formData.combat,
-        [field]: value,
+        dropTables: current,
       },
     });
   };
 
-  const updateSound = (
-    field: 'deathSoundName' | 'weaponSoundName',
-    value: string
-  ) => {
+  const addCombatDropTable = () => {
+    setFormData({
+      ...formData,
+      combat: {
+        ...formData.combat,
+        dropTables: [...(formData.combat?.dropTables ?? []), ''],
+      },
+    });
+  };
+
+  const removeCombatDropTable = (index: number) => {
+    const next =
+      formData.combat?.dropTables?.filter((_, i) => i !== index) ?? [];
+    setFormData({
+      ...formData,
+      combat: {
+        ...formData.combat,
+        dropTables: next.length > 0 ? next : undefined,
+      },
+    });
+  };
+
+  const updateSound = (field: 'deathSoundName', value: string) => {
     setFormData({
       ...formData,
       sound: {
@@ -827,14 +862,92 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
                 onChange={(value) => updateCombat('mp', value)}
                 min={0}
               />
-              <TextInput
-                id="combat-drop-table"
-                name="combatDropTable"
-                label="Drop Table"
-                value={formData.combat?.dropTable || ''}
-                onChange={(value) => updateCombat('dropTable', value)}
-                placeholder="e.g., dropTableId"
+            </div>
+            <div
+              className="form-fields-inline combat-default-ability-row"
+              style={{ marginTop: '12px' }}
+            >
+              <SearchSelect
+                id="combat-default-ability"
+                name="combatDefaultAbility"
+                className="combat-default-ability-search"
+                label="Default Ability"
+                value={formData.combat?.defaultAbility || ''}
+                onChange={(value) => updateCombat('defaultAbility', value)}
+                items={abilities}
+                getItemKey={(a) => a.name}
+                getItemLabel={(a) => a.label?.trim() || a.name}
+                searchFields={(a) => [a.name, a.label ?? '', a.type ?? '']}
+                placeholder="Search abilities..."
+                emptyLabel="(punch / MELEE_ATTACK_DEFAULT)"
+                allowEmpty
+                renderItem={(a) => (
+                  <>
+                    <div style={{ fontWeight: 600 }}>
+                      {a.label?.trim() || a.name}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: '10px',
+                        color: '#858585',
+                        marginTop: '2px',
+                      }}
+                    >
+                      {a.name}
+                      {a.type ? ` • ${a.type}` : ''}
+                    </div>
+                  </>
+                )}
               />
+              {formData.combat?.defaultAbility ? (
+                <a
+                  className="template-edit-link"
+                  href={`${window.location.origin}${window.location.pathname}#/editor/abilityTemplates?ability=${encodeURIComponent(formData.combat.defaultAbility)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Edit ability
+                </a>
+              ) : null}
+            </div>
+            <div className="form-subsection" style={{ marginTop: '12px' }}>
+              <h4>Drop Tables</h4>
+              {formData.combat?.dropTables?.map((tableName, index) => (
+                <div key={index} className="status-item combat-drop-table-item">
+                  <SearchSelect
+                    id={`combat-drop-table-${index}`}
+                    name={`combatDropTable${index}`}
+                    className="combat-drop-table-search"
+                    label={`Drop table ${index + 1}`}
+                    value={tableName}
+                    onChange={(value) => updateCombatDropTable(index, value)}
+                    items={dropTables}
+                    getItemKey={(table) => table.name}
+                    getItemLabel={(table) => table.label?.trim() || table.name}
+                    searchFields={(table) => [table.name, table.label ?? '']}
+                    placeholder="Search drop tables..."
+                    emptyLabel="(select drop table)"
+                    allowEmpty
+                  />
+                  <Button
+                    type="button"
+                    variant="small"
+                    className="btn-danger"
+                    onClick={() => removeCombatDropTable(index)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+              <div style={{ marginTop: '6px' }}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={addCombatDropTable}
+                >
+                  + Add Drop Table
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -851,17 +964,6 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
                   ''
                 }
                 onChange={(value) => updateSound('deathSoundName', value)}
-              />
-              <SoundSearchField
-                id="sound-weapon"
-                name="soundWeapon"
-                label="Weapon Sound"
-                value={
-                  formData.sound?.weaponSoundName ||
-                  formData.sound?.weaponSound ||
-                  ''
-                }
-                onChange={(value) => updateSound('weaponSoundName', value)}
               />
             </div>
           </div>

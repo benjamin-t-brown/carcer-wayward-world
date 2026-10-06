@@ -37,6 +37,34 @@
           {
             "type": "STATUS_EVENT_ON_TURN_START",
             "condition": "CONDITION_ALWAYS"
+          }
+        ]
+      }
+    ],
+    "durationScale": {
+      "durationStat": "STAT_MND",
+      "durationStatMult": 0.25
+    }
+  },
+  {
+    "name": "POISONED",
+    "description": "Necrotic damage is applied at the beginning of each turn.",
+    "icon": "ui_status_effect_icons_4",
+    "baseDuration": 3,
+    "applyResistances": [
+      {
+        "attackType": "DAMAGE_TYPE_NECROTIC",
+        "mod": 1
+      }
+    ],
+    "actions": [
+      {
+        "statusActionTargetType": "STATUS_ACTION_TARGET_SELF",
+        "abilityName": "SE_POISONED",
+        "events": [
+          {
+            "type": "STATUS_EVENT_ON_TURN_START",
+            "condition": "CONDITION_ALWAYS"
           },
           {
             "type": "STATUS_EVENT_ON_APPLIED",

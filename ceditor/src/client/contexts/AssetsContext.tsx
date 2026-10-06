@@ -11,6 +11,7 @@ import {
   MapGridTemplate,
   FeatTemplate,
   QuestTemplate,
+  DropTable,
 } from '../types/assets';
 import { AbilityTemplate, StatusEffectTemplate } from '../types/ability';
 import { SpellTemplate } from '../types/spell';
@@ -22,6 +23,7 @@ interface AssetsContextType {
   abilities: AbilityTemplate[];
   spells: SpellTemplate[];
   statusEffects: StatusEffectTemplate[];
+  dropTables: DropTable[];
   feats: FeatTemplate[];
   quests: QuestTemplate[];
   tilesets: TilesetTemplate[];
@@ -35,6 +37,7 @@ interface AssetsContextType {
   setAbilities: (abilities: AbilityTemplate[]) => void;
   setSpells: (spells: SpellTemplate[]) => void;
   setStatusEffects: (statusEffects: StatusEffectTemplate[]) => void;
+  setDropTables: (dropTables: DropTable[]) => void;
   setFeats: (feats: FeatTemplate[]) => void;
   setQuests: (quests: QuestTemplate[]) => void;
   setTilesets: (tilesets: TilesetTemplate[]) => void;
@@ -48,6 +51,7 @@ interface AssetsContextType {
   saveStatusEffects: (
     statusEffects: StatusEffectTemplate[],
   ) => Promise<StatusEffectTemplate[]>;
+  saveDropTables: (dropTables: DropTable[]) => Promise<DropTable[]>;
   saveFeats: (feats: FeatTemplate[]) => Promise<FeatTemplate[]>;
   saveQuests: (quests: QuestTemplate[]) => Promise<QuestTemplate[]>;
   saveTilesets: (tilesets: TilesetTemplate[]) => Promise<TilesetTemplate[]>;
@@ -75,6 +79,7 @@ interface AssetsProviderProps {
   initialAbilities: AbilityTemplate[];
   initialSpells: SpellTemplate[];
   initialStatusEffects: StatusEffectTemplate[];
+  initialDropTables: DropTable[];
   initialFeats: FeatTemplate[];
   initialQuests: QuestTemplate[];
   initialTilesets: TilesetTemplate[];
@@ -152,6 +157,7 @@ export function AssetsProvider({
   initialAbilities,
   initialSpells,
   initialStatusEffects,
+  initialDropTables,
   initialFeats,
   initialQuests,
   initialTilesets,
@@ -166,6 +172,7 @@ export function AssetsProvider({
   const [spells, setSpells] = useState<SpellTemplate[]>(initialSpells);
   const [statusEffects, setStatusEffects] =
     useState<StatusEffectTemplate[]>(initialStatusEffects);
+  const [dropTables, setDropTables] = useState<DropTable[]>(initialDropTables);
   const [feats, setFeats] = useState<FeatTemplate[]>(initialFeats);
   const [quests, setQuests] = useState<QuestTemplate[]>(initialQuests);
   const [tilesets, setTilesets] = useState<TilesetTemplate[]>(initialTilesets);
@@ -196,6 +203,10 @@ export function AssetsProvider({
     statusEffectTemplates: {
       mtimeMs: initialAssetMtimes.statusEffectTemplates ?? null,
       baseline: cloneRecords(initialStatusEffects),
+    },
+    dropTables: {
+      mtimeMs: initialAssetMtimes.dropTables ?? null,
+      baseline: cloneRecords(initialDropTables),
     },
     featTemplates: {
       mtimeMs: initialAssetMtimes.featTemplates ?? null,
@@ -230,6 +241,7 @@ export function AssetsProvider({
     spellTemplates: (records) => setSpells(records as SpellTemplate[]),
     statusEffectTemplates: (records) =>
       setStatusEffects(records as StatusEffectTemplate[]),
+    dropTables: (records) => setDropTables(records as DropTable[]),
     featTemplates: (records) => setFeats(records as FeatTemplate[]),
     questTemplates: (records) => setQuests(records as QuestTemplate[]),
     tilesetTemplates: (records) => setTilesets(records as TilesetTemplate[]),
@@ -252,6 +264,7 @@ export function AssetsProvider({
     abilityTemplates: abilities,
     spellTemplates: spells,
     statusEffectTemplates: statusEffects,
+    dropTables,
     featTemplates: feats,
     questTemplates: quests,
     tilesetTemplates: tilesets,
@@ -345,6 +358,10 @@ export function AssetsProvider({
     (next: StatusEffectTemplate[]) => saveRecords('statusEffectTemplates', next),
     [saveRecords],
   );
+  const saveDropTables = useCallback(
+    (next: DropTable[]) => saveRecords('dropTables', next),
+    [saveRecords],
+  );
   const saveFeats = useCallback(
     (next: FeatTemplate[]) => saveRecords('featTemplates', next),
     [saveRecords],
@@ -378,6 +395,7 @@ export function AssetsProvider({
         abilities,
         spells,
         statusEffects,
+        dropTables,
         feats,
         quests,
         tilesets,
@@ -391,6 +409,7 @@ export function AssetsProvider({
         setAbilities,
         setSpells,
         setStatusEffects,
+        setDropTables,
         setFeats,
         setQuests,
         setTilesets,
@@ -402,6 +421,7 @@ export function AssetsProvider({
         saveAbilities,
         saveSpells,
         saveStatusEffects,
+        saveDropTables,
         saveFeats,
         saveQuests,
         saveTilesets,

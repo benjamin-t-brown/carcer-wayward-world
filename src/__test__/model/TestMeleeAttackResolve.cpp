@@ -156,6 +156,8 @@ int main(int /*argc*/, char** /*argv*/) {
       makeMeleeAbility("MELEE_ATTACK_METAL_KNIFE", makeDmg(model::Dice::D4, 0, 1.f, 0)));
   database.addAbilityTemplate(
       makeMeleeAbility("MELEE_ATTACK_METAL_SWORD", makeDmg(model::Dice::D6, 0, 1.f, 0)));
+  database.addAbilityTemplate(
+      makeMeleeAbility("MELEE_ATTACK_CLAW", makeDmg(model::Dice::D6, 1, 1.f, 0)));
 
   auto knifeOverrides = bmin::DynArray<model::AbilityAttackDmg>{};
   knifeOverrides.pushBack(makeDmg(model::Dice::D4, 0, 1.f, 1));
@@ -201,6 +203,18 @@ int main(int /*argc*/, char** /*argv*/) {
   enemyTemplate.combat.hp = 20;
   database.addCharacterTemplate(enemyTemplate);
 
+  auto clawEnemyTemplate = model::CharacterTemplate{};
+  clawEnemyTemplate.name = "clawBeast";
+  clawEnemyTemplate.type = model::CharacterTemplateType::ENEMY;
+  clawEnemyTemplate.combat.defaultAbility = "MELEE_ATTACK_CLAW";
+  database.addCharacterTemplate(clawEnemyTemplate);
+
+  auto badDefaultEnemyTemplate = model::CharacterTemplate{};
+  badDefaultEnemyTemplate.name = "badDefaultBeast";
+  badDefaultEnemyTemplate.type = model::CharacterTemplateType::ENEMY;
+  badDefaultEnemyTemplate.combat.defaultAbility = "NO_SUCH_DEFAULT_ABILITY";
+  database.addCharacterTemplate(badDefaultEnemyTemplate);
+
   model::Player player;
   model::CharacterPlayer member;
   member.instanceId = "ally-1";
@@ -226,6 +240,16 @@ int main(int /*argc*/, char** /*argv*/) {
   enemy.templateName = "slime";
   enemy.type = model::CharacterTemplateType::ENEMY;
 
+  auto clawEnemy = model::CharacterInstance{};
+  clawEnemy.id = "enemy-claw";
+  clawEnemy.templateName = "clawBeast";
+  clawEnemy.type = model::CharacterTemplateType::ENEMY;
+
+  auto badDefaultEnemy = model::CharacterInstance{};
+  badDefaultEnemy.id = "enemy-bad-default";
+  badDefaultEnemy.templateName = "badDefaultBeast";
+  badDefaultEnemy.type = model::CharacterTemplateType::ENEMY;
+
   {
     const auto resolved = game::resolveMeleeAttackAbilities(player, enemy, database);
     ok = assertEqual(static_cast<int>(resolved.size()), 1, "enemy unarmed size") && ok;
@@ -235,6 +259,34 @@ int main(int /*argc*/, char** /*argv*/) {
            ok;
       ok = assertTrue(!resolved[0].offHand, "enemy not off-hand") && ok;
       ok = assertTrue(resolved[0].unarmed, "enemy unarmed") && ok;
+    }
+  }
+
+  {
+    const auto resolved = game::resolveMeleeAttackAbilities(player, clawEnemy, database);
+    ok = assertEqual(static_cast<int>(resolved.size()), 1, "defaultAbility unarmed size") &&
+         ok;
+    if (!resolved.empty()) {
+      ok = assertTrue(resolved[0].ability.name == "MELEE_ATTACK_CLAW",
+                      "defaultAbility used when unarmed") &&
+           ok;
+      ok = assertTrue(resolved[0].unarmed, "defaultAbility path is unarmed") && ok;
+      ok = assertTrue(!resolved[0].offHand, "defaultAbility not off-hand") && ok;
+    }
+  }
+
+  {
+    const auto resolved =
+        game::resolveMeleeAttackAbilities(player, badDefaultEnemy, database);
+    ok = assertEqual(static_cast<int>(resolved.size()),
+                     1,
+                     "invalid defaultAbility size") &&
+         ok;
+    if (!resolved.empty()) {
+      ok = assertTrue(resolved[0].ability.name == game::kMeleeAttackDefaultName,
+                      "invalid defaultAbility falls back") &&
+           ok;
+      ok = assertTrue(resolved[0].unarmed, "invalid defaultAbility still unarmed") && ok;
     }
   }
 

@@ -4208,35 +4208,35 @@
       },
       {
         "id": 176,
-        "description": "",
+        "description": "cave floor",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false
       },
       {
         "id": 177,
-        "description": "",
-        "isWalkable": true,
+        "description": "rock",
+        "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false
       },
       {
         "id": 178,
-        "description": "",
-        "isWalkable": true,
+        "description": "stalagmite",
+        "isWalkable": false,
         "isSeeThrough": true,
         "isDoor": false
       },
       {
         "id": 179,
-        "description": "",
+        "description": "cave floor",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false
       },
       {
         "id": 180,
-        "description": "",
+        "description": "puddle",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false
@@ -7929,7 +7929,7 @@
       },
       {
         "id": 93,
-        "description": "floor",
+        "description": "puddle",
         "stepSound": 0,
         "isWalkable": true,
         "isSeeThrough": true,

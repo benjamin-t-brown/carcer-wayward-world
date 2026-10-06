@@ -77,11 +77,13 @@ MapType getMapTypeFromString(const bmin::String& mapTypeString);
 struct MapCharacterPlacement : MapTileRef {
   bmin::String name;
   bool flipped = false;
+  bmin::String agitationGroup;
 };
 
 struct MapItemPlacement : MapTileRef {
-  bmin::String name;
-  int quantity = 1;
+  bmin::String name;       // item template; empty if dropTable set
+  bmin::String dropTable;  // drop table name; empty if item
+  int quantity = 1;        // item only
 };
 
 struct MapMarkerPlacement : MapTileRef {

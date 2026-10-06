@@ -3,8 +3,10 @@
 #include "game/combat/EnemyBehavior.h"
 #include "model/templates/CharacterTemplate.h"
 #include "state/AbstractAction.hpp"
+#include "actions/general/PlaySound.hpp"
 #include "actions/world/ClearTownEnemyAiResolving.hpp"
 #include "actions/world/TownEnemySeekAndMelee.hpp"
+#include <unordered_set>
 
 namespace state {
 
@@ -31,8 +33,19 @@ class TownEnemyAiAfterPlayerMove : public AbstractAction {
     world.resolvingTownEnemyAi = true;
     // Held-move stays active; LayerWorld pauses repeats while this flag is set.
 
-    game::updateEnemySpotting(
-        world, state->mapInstances, state->player, *database);
+    // Enemies that become agitated from this player move do not act until the
+    // next player move / town AI pass.
+    std::unordered_set<std::string> alreadyAgitatedEnemyIds;
+    for (const auto& character : world.activeMap.characters) {
+      if (!character.agitated || !model::characterInstanceIsEnemy(character)) {
+        continue;
+      }
+      alreadyAgitatedEnemyIds.insert(character.id.cStr());
+    }
+
+    if (game::updateAgitation(world, state->mapInstances, state->player, *database)) {
+      PlaySound("roar").execute(state);
+    }
 
     for (size_t i = 0; i < world.activeMap.characters.size(); i++) {
       const auto& character = world.activeMap.characters[i];
@@ -40,6 +53,9 @@ class TownEnemyAiAfterPlayerMove : public AbstractAction {
         continue;
       }
       if (!model::characterInstanceIsEnemy(character)) {
+        continue;
+      }
+      if (!alreadyAgitatedEnemyIds.contains(character.id.cStr())) {
         continue;
       }
       if (character.behaviorName != "IMMOBILE_UNTIL_ENEMY_SPOTTED") {

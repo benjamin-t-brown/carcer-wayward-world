@@ -122,11 +122,18 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
     character.y = tile.y;
     character.spawnX = tile.x;
     character.spawnY = tile.y;
+    character.agitationGroup = placement.agitationGroup;
     character.facing = placement.flipped ? CharacterFacing::Left : CharacterFacing::Right;
     instance.persistentState.characters.pushBack(std::move(character));
   }
 
   for (const auto& placement : mapTemplate.items) {
+    if (!placement.dropTable.empty()) {
+      continue;
+    }
+    if (placement.name.empty()) {
+      continue;
+    }
     auto tile = tileIndexToXY(placement.i, instance.width);
     auto item = ItemInstance{};
     item.id = createRandomId();

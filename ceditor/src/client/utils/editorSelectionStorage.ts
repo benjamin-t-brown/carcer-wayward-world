@@ -1,4 +1,5 @@
 import { AssetId, ASSET_ROUTE_PARAM_BY_ID } from '../../shared/assetRegistry';
+import { readHashRoute } from './hashRoute';
 
 /** Editor routes / asset-type ids used as localStorage keys. */
 export type EditorSelectionKey = AssetId;
@@ -61,4 +62,54 @@ export function resolveSelectionFromRoute(
   }
   const value = routeParams.get(paramName);
   return value && value.length > 0 ? value : null;
+}
+
+/** Keep the hash query param in sync with the selected entity (e.g. ?character=). */
+export function syncSelectionToRoute(
+  key: EditorSelectionKey,
+  entityId: string | null,
+  options?: { history?: 'push' | 'replace' }
+): void {
+  const paramName = EDITOR_SELECTION_ROUTE_PARAMS[key];
+  if (!paramName || typeof window === 'undefined') {
+    return;
+  }
+
+  const expectedPath = `/editor/${key}`;
+  const { path, params } = readHashRoute();
+  if (path !== expectedPath) {
+    return;
+  }
+
+  const current = params.get(paramName);
+  if (entityId) {
+    if (current === entityId) {
+      return;
+    }
+    params.set(paramName, entityId);
+  } else if (current !== null) {
+    params.delete(paramName);
+  } else {
+    return;
+  }
+
+  const query = params.toString();
+  const nextHash = `#${path}${query ? `?${query}` : ''}`;
+  if (window.location.hash === nextHash) {
+    return;
+  }
+
+  const historyMode = options?.history ?? 'push';
+  if (historyMode === 'replace') {
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${window.location.pathname}${window.location.search}${nextHash}`
+    );
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+    return;
+  }
+
+  // Assigning hash pushes a history entry and fires hashchange for back/forward.
+  window.location.hash = nextHash;
 }

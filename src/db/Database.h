@@ -4,6 +4,7 @@
 #include "bmin/Map.h"
 #include "model/templates/Abilities.hpp"
 #include "model/templates/CharacterTemplate.h"
+#include "model/templates/DropTables.hpp"
 #include "model/templates/Items.h"
 #include "model/templates/MapGrids.hpp"
 #include "model/templates/Maps.h"
@@ -38,6 +39,7 @@ private:
   bmin::Map<bmin::String, model::MapGridTemplate> mapGridTemplates;
   bmin::Map<bmin::String, model::TilesetTemplate> tilesetTemplates;
   bmin::Map<bmin::String, model::QuestTemplate> questTemplates;
+  bmin::Map<bmin::String, model::DropTableTemplate> dropTables;
 
 public:
   Database();
@@ -47,6 +49,7 @@ public:
   const model::ItemTemplate* findItemTemplate(std::string_view itemName) const;
   void addItemTemplate(const model::ItemTemplate& itemTemplate);
   const model::CharacterTemplate& getCharacterTemplate(std::string_view templateName) const;
+  const model::CharacterTemplate* findCharacterTemplate(std::string_view templateName) const;
   void addCharacterTemplate(const model::CharacterTemplate& characterTemplate);
   const bmin::Map<bmin::String, model::CharacterTemplate>& getCharacterTemplates() const;
   const model::AbilityTemplate& getAbilityTemplate(std::string_view abilityName) const;
@@ -75,6 +78,9 @@ public:
   const model::QuestTemplate* findQuestTemplate(std::string_view questId) const;
   const bmin::Map<bmin::String, model::QuestTemplate>& getQuestTemplates() const;
   void addQuestTemplate(const model::QuestTemplate& questTemplate);
+  const model::DropTableTemplate& getDropTable(std::string_view tableName) const;
+  const model::DropTableTemplate* findDropTable(std::string_view tableName) const;
+  void addDropTable(const model::DropTableTemplate& dropTable);
   void load();
   void validateCombatReferences() const;
 };

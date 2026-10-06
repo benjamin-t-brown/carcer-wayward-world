@@ -13,7 +13,8 @@ set(CARCER_DB_SOURCES
   src/db/loaders/LoadMapGridTemplates.cpp
   src/db/loaders/LoadTilesetTemplates.cpp
   src/db/loaders/LoadSpecialEvents.cpp
-  src/db/loaders/LoadQuestTemplates.cpp)
+  src/db/loaders/LoadQuestTemplates.cpp
+  src/db/loaders/LoadDropTables.cpp)
 
 set(CARCER_FOUNDATION_SOURCES
   src/lib/Json.cpp)
@@ -67,6 +68,7 @@ set(CARCER_RULE_SOURCES
   src/game/combat/AbilityOverrideMerge.cpp
   src/game/combat/MeleeAttackResolve.cpp
   src/game/combat/EnemyBehavior.cpp
+  src/game/combat/DropTables.cpp
   src/game/diceHelpers.cpp
   src/game/TalkEventPortrait.cpp
   src/game/SpecialEventPresenter.cpp

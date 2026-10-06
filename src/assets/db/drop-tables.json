@@ -1,0 +1,56 @@
+[
+  {
+    "name": "drops_alineaCommon",
+    "label": "Alinea Common",
+    "entries": [
+      {
+        "goldMin": 0,
+        "goldMax": 15,
+        "weight": 1
+      },
+      {
+        "foodMin": 0,
+        "foodMax": 6,
+        "weight": 1
+      },
+      {
+        "nothing": true,
+        "weight": 1
+      }
+    ]
+  },
+  {
+    "name": "drops_alineaCommon2",
+    "label": "Alinea Common2",
+    "entries": [
+      {
+        "goldMin": 0,
+        "goldMax": 20,
+        "weight": 1
+      },
+      {
+        "foodMin": 0,
+        "foodMax": 10,
+        "weight": 1
+      },
+      {
+        "nothing": true,
+        "weight": 8
+      }
+    ]
+  },
+  {
+    "name": "dropsEasyMisc",
+    "label": "Easy Misc",
+    "entries": [
+      {
+        "item": "PotionHealing",
+        "weight": 2
+      },
+      {
+        "item": "ArrowsIron",
+        "weight": 1
+      }
+    ]
+  }
+]

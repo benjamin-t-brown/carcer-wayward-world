@@ -9,6 +9,15 @@ namespace game {
 // Create a MapInstance for every map template in the database.
 MapInstanceStore createMapInstances(const db::Database& database);
 
+// Roll map-template dropTable item placements once into persistentState.items.
+void materializeMapDropTablePlacements(model::MapInstance& instance,
+                                         const model::CarcerMapTemplate& mapTemplate,
+                                         const db::Database& database);
+
+// Rebuild map tiles from the map template, then reapply unlocked/opened doors and
+// permanent changedTiles. Session records (explored, defeated, …) are kept.
+void restoreMapTilesFromTemplate(model::MapInstance& instance, const db::Database& database);
+
 // Age tile fields on every MapInstance. Movement-count ownership remains with
 // the orchestration caller.
 void ageMapInstances(MapInstanceStore& mapInstances, int steps);

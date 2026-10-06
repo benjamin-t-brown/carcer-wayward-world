@@ -1,4 +1,5 @@
 #include "MinipagePickUp.h"
+#include "game/combat/DropTables.h"
 #include "sdl2w/L10n.h"
 #include "ui/colors.hpp"
 #include "ui/components/PartyMemberIconSelector.h"
@@ -106,8 +107,7 @@ void MinipagePickUp::build() {
       const auto& itemTemplate = getDatabase()->getItemTemplate(bmin::toStringView(item.itemTemplateName));
       listProps.items.pushBack({
           .item = item,
-          .itemLabel =
-              itemTemplate.label.empty() ? itemTemplate.name : itemTemplate.label,
+          .itemLabel = game::formatMapItemDisplayLabel(*getDatabase(), item),
           .weight = itemTemplate.weight,
           .itemSprite = itemTemplate.iconSpriteName,
       });

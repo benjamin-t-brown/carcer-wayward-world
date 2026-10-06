@@ -61,12 +61,18 @@ int main(int argc, char** argv) {
     ok = assertEqual(static_cast<int>(map.characters.size()), 2, "flat_test_map.characters") && ok;
     ok = assertEqual(map.characters[0].l, 0, "flat_test_map.characters[0].l") && ok;
     ok = assertEqual(map.characters[0].i, 1, "flat_test_map.characters[0].i") && ok;
+    ok = assertTrue(map.characters[0].agitationGroup == "town_mob",
+                    "flat_test_map.characters[0].agitationGroup") &&
+         ok;
     ok = assertEqual(map.characters[0].flipped ? 1 : 0, 0, "flat_test_map.characters[0].flipped") &&
          ok;
     ok = assertEqual(map.characters[1].flipped ? 1 : 0, 1, "flat_test_map.characters[1].flipped") &&
          ok;
-    ok = assertEqual(static_cast<int>(map.items.size()), 1, "flat_test_map.items") && ok;
+    ok = assertEqual(static_cast<int>(map.items.size()), 2, "flat_test_map.items") && ok;
     ok = assertEqual(map.items[0].quantity, 2, "flat_test_map.items[0].quantity") && ok;
+    ok = assertTrue(map.items[1].dropTable == "onlyDagger",
+                    "flat_test_map.items[1].dropTable") &&
+         ok;
     ok = assertEqual(static_cast<int>(map.markers.size()), 1, "flat_test_map.markers") && ok;
     ok = assertEqual(static_cast<int>(map.eventTriggers.size()), 1, "flat_test_map.eventTriggers") && ok;
     if (!map.eventTriggers.empty()) {
@@ -82,6 +88,17 @@ int main(int argc, char** argv) {
       ok = assertTrue(tileHasNoLock(flatInstance, 1, 0), "flat_test_map tile 1,0 has no lock") && ok;
       ok = assertTrue(tileHasNoLock(flatInstance, 0, 1), "flat_test_map tile 0,1 has no lock") && ok;
       ok = assertTrue(tileHasNoLock(flatInstance, 1, 1), "flat_test_map tile 1,1 has no lock") && ok;
+      ok = assertEqual(static_cast<int>(flatInstance.persistentState.characters.size()), 2,
+                       "flat_test_map instance characters") &&
+           ok;
+      if (flatInstance.persistentState.characters.size() >= 1) {
+        ok = assertTrue(flatInstance.persistentState.characters[0].agitationGroup == "town_mob",
+                        "flat_test_map instance agitationGroup") &&
+             ok;
+      }
+      ok = assertEqual(static_cast<int>(flatInstance.persistentState.items.size()), 1,
+                       "flat_test_map instance skips dropTable placements") &&
+           ok;
     }
 
     bmin::Map<bmin::String, model::CarcerMapTemplate> doorLockMaps;

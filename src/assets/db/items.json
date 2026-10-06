@@ -107,6 +107,18 @@
     }
   },
   {
+    "itemType": "UTILITY",
+    "name": "FoodBag",
+    "label": "Food Bag",
+    "icon": "ui_item_icons_2",
+    "description": "Rations dropped on the ground.",
+    "weight": 0,
+    "value": 0,
+    "stackable": false,
+    "itemUsability": "NOT_USABLE",
+    "statusEffects": []
+  },
+  {
     "itemType": "GLOVES",
     "name": "GlovesLeather",
     "label": "Leather Gloves",
@@ -114,6 +126,18 @@
     "description": "A simple pair of leather gloves.",
     "weight": 1,
     "value": 10
+  },
+  {
+    "itemType": "UTILITY",
+    "name": "GoldBag",
+    "label": "Gold Bag",
+    "icon": "ui_item_icons_1",
+    "description": "A pouch of coins dropped on the ground.",
+    "weight": 0,
+    "value": 0,
+    "stackable": false,
+    "itemUsability": "NOT_USABLE",
+    "statusEffects": []
   },
   {
     "itemType": "HAT",
@@ -242,6 +266,29 @@
     "indestructable": true,
     "itemUsability": "NOT_USABLE",
     "statusEffects": []
+  },
+  {
+    "itemType": "WEAPON_MELEE",
+    "name": "SharpDagger",
+    "label": "Sharp Dagger",
+    "icon": "ui_item_icons_8",
+    "description": "A sharp dagger you found in a seashore cave by Alinea.",
+    "weight": 1,
+    "value": 25,
+    "weapon": {
+      "abilityName": "MELEE_ATTACK_METAL_KNIFE",
+      "dmgOverrides": [
+        {
+          "dmgDice": [
+            "D4"
+          ],
+          "dmgBonus": 2,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 1
+        }
+      ]
+    }
   },
   {
     "itemType": "GARB",

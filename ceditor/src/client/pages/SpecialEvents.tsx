@@ -51,6 +51,7 @@ import {
   loadEditorSelection,
   resolveSelectionFromRoute,
   saveEditorSelection,
+  syncSelectionToRoute,
 } from '../utils/editorSelectionStorage';
 
 interface NotificationState {
@@ -201,6 +202,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     selectGameEvent(gameEventId);
     addRecentGameEvent(gameEventId);
     saveEditorSelection('specialEvents', gameEventId);
+    syncSelectionToRoute('specialEvents', gameEventId);
   };
 
   useLayoutEffect(() => {
@@ -382,8 +384,15 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
         return;
       }
 
+    }
+
+    // Keep selection / editor state on the renamed event even when there were
+    // no external references to update (previously only ran inside the
+    // updateReferences branch, which left the UI on the old id → unselected).
+    if (oldId !== newId) {
       renameEditorSaveStateForGameEvent(oldId, newId);
       saveEditorSelection('specialEvents', newId);
+      syncSelectionToRoute('specialEvents', newId, { history: 'replace' });
       setRecentGameEvents((prev) =>
         prev.map((id) => (id === oldId ? newId : id)),
       );
@@ -767,7 +776,8 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
               selectedIndex={selectedIndex > -1 ? selectedIndex : null}
               renderListItem={(gameEvent) => (
                 <div className="special-event-list-card">
-                  <div className="special-event-list-card-main">
+                  <div className="item-id">{gameEvent.id}</div>
+                  <div className="special-event-list-card-meta">
                     <span
                       className="item-type special-event-type-badge"
                       style={{
@@ -781,16 +791,15 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
                     >
                       {gameEvent.eventType}
                     </span>
-                    <div className="item-id">{gameEvent.id}</div>
-                  </div>
-                  <div
-                    className="item-card-actions"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <ListCardActions
-                      onClone={() => handleClone(gameEvent.id)}
-                      onDelete={() => handleDeleteClick(gameEvent.id)}
-                    />
+                    <div
+                      className="item-card-actions"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <ListCardActions
+                        onClone={() => handleClone(gameEvent.id)}
+                        onDelete={() => handleDeleteClick(gameEvent.id)}
+                      />
+                    </div>
                   </div>
                 </div>
               )}

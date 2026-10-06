@@ -22,6 +22,7 @@ import {
   bumpMapDataRevision,
   getMapDataRevision,
 } from '../tile-editor/editorState';
+import { coerceMapTileItemEntry } from '../tile-editor/mapTileItems';
 
 /** Legacy on-disk shape (pre-flat migration). */
 export interface LegacyCarcerMapTemplate {
@@ -286,6 +287,9 @@ export const PLACEMENT_KINDS: readonly PlacementKind[] = [
     toTile: (c) => ({
       name: c.name,
       ...(c.flipped ? { flipped: true } : {}),
+      ...(c.agitationGroup?.trim()
+        ? { agitationGroup: c.agitationGroup.trim() }
+        : {}),
     }),
     fromTile: (entries: Array<string | MapTileCharacterEntry> | undefined) =>
       (entries ?? [])
@@ -294,15 +298,30 @@ export const PLACEMENT_KINDS: readonly PlacementKind[] = [
         .map((entry) => ({
           name: entry.name,
           ...(entry.flipped ? { flipped: true } : {}),
+          ...(entry.agitationGroup?.trim()
+            ? { agitationGroup: entry.agitationGroup.trim() }
+            : {}),
         })),
   },
   {
     listKey: 'items',
     tileKey: 'items',
     cardinality: 'many',
-    toTile: (it) => ({ name: it.name, quantity: it.quantity }),
-    fromTile: (entries: MapTileItemEntry[]) =>
-      (entries ?? []).map((e) => ({ name: e.name, quantity: e.quantity ?? 1 })),
+    toTile: (it: MapItemPlacement) => {
+      const dropTable = it.dropTable?.trim();
+      if (dropTable) {
+        return { dropTable };
+      }
+      return { name: it.name!, quantity: it.quantity ?? 1 };
+    },
+    fromTile: (entries: MapTileItemEntry[] | unknown[]) =>
+      (entries ?? []).map((raw) => {
+        const e = coerceMapTileItemEntry(raw);
+        if (e.dropTable?.trim()) {
+          return { dropTable: e.dropTable.trim() };
+        }
+        return { name: e.name!, quantity: e.quantity ?? 1 };
+      }),
   },
   {
     listKey: 'markers',

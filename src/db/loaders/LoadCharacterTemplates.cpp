@@ -245,8 +245,21 @@ void loadCharacterTemplates(
       if (combatJson.contains("mp")) {
         characterTemplate.combat.mp = combatJson["mp"].get<int>();
       }
-      if (combatJson.contains("dropTable") && combatJson["dropTable"].is_string()) {
-        characterTemplate.combat.dropTable = combatJson["dropTable"].get<bmin::String>();
+      if (combatJson.contains("dropTables") && combatJson["dropTables"].is_array()) {
+        for (const auto& tableJson : combatJson["dropTables"]) {
+          if (!tableJson.is_string()) {
+            continue;
+          }
+          const bmin::String tableName = tableJson.get<bmin::String>();
+          if (!tableName.empty()) {
+            characterTemplate.combat.dropTables.pushBack(tableName);
+          }
+        }
+      }
+      if (combatJson.contains("defaultAbility") &&
+          combatJson["defaultAbility"].is_string()) {
+        characterTemplate.combat.defaultAbility =
+            combatJson["defaultAbility"].get<bmin::String>();
       }
     }
 
@@ -258,13 +271,6 @@ void loadCharacterTemplates(
       } else if (soundJson.contains("deathSound") &&
                  soundJson["deathSound"].is_string()) {
         characterTemplate.sound.deathSoundName = soundJson["deathSound"].get<bmin::String>();
-      }
-      if (soundJson.contains("weaponSoundName") &&
-          soundJson["weaponSoundName"].is_string()) {
-        characterTemplate.sound.weaponSoundName = soundJson["weaponSoundName"].get<bmin::String>();
-      } else if (soundJson.contains("weaponSound") &&
-                 soundJson["weaponSound"].is_string()) {
-        characterTemplate.sound.weaponSoundName = soundJson["weaponSound"].get<bmin::String>();
       }
     }
 

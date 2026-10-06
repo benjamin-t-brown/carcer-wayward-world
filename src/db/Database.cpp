@@ -10,6 +10,7 @@
 #include "loaders/LoadStatusEffectTemplates.h"
 #include "loaders/LoadTilesetTemplates.h"
 #include "loaders/LoadQuestTemplates.h"
+#include "loaders/LoadDropTables.h"
 #include <stdexcept>
 
 namespace db {
@@ -96,6 +97,7 @@ void Database::load() {
   loadStatusEffectTemplates("assets/db/status-effects.json", statusEffectTemplates);
   loadAbilityTemplates("assets/db/abilities.json", abilityTemplates);
   loadItemTemplates("assets/db/items.json", itemTemplates);
+  loadDropTables("assets/db/drop-tables.json", dropTables);
   loadSpellTemplates("assets/db/spells.json", spellTemplates);
   loadCharacterTemplates("assets/db/characters.json", characterTemplates);
   loadMapTemplates("assets/db/maps.json", mapTemplates);
@@ -127,6 +129,16 @@ void Database::addItemTemplate(const model::ItemTemplate& itemTemplate) {
 const model::CharacterTemplate&
 Database::getCharacterTemplate(std::string_view templateName) const {
   return mapGet(characterTemplates, templateName, "Character template not found: ");
+}
+
+const model::CharacterTemplate*
+Database::findCharacterTemplate(std::string_view templateName) const {
+  const auto mapKey = bmin::String(templateName.data(), templateName.size());
+  auto it = characterTemplates.find(mapKey);
+  if (it == characterTemplates.end()) {
+    return nullptr;
+  }
+  return &(*it).value;
 }
 
 void Database::addCharacterTemplate(const model::CharacterTemplate& characterTemplate) {
@@ -275,6 +287,23 @@ const bmin::Map<bmin::String, model::QuestTemplate>& Database::getQuestTemplates
 
 void Database::addQuestTemplate(const model::QuestTemplate& questTemplate) {
   questTemplates[questTemplate.id] = questTemplate;
+}
+
+const model::DropTableTemplate& Database::getDropTable(std::string_view tableName) const {
+  return mapGet(dropTables, tableName, "Drop table not found: ");
+}
+
+const model::DropTableTemplate* Database::findDropTable(std::string_view tableName) const {
+  const auto mapKey = bmin::String(tableName.data(), tableName.size());
+  auto it = dropTables.find(mapKey);
+  if (it == dropTables.end()) {
+    return nullptr;
+  }
+  return &(*it).value;
+}
+
+void Database::addDropTable(const model::DropTableTemplate& dropTable) {
+  dropTables[dropTable.name] = dropTable;
 }
 
 } // namespace db

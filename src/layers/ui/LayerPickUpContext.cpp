@@ -1,4 +1,5 @@
 #include "LayerPickUpContext.h"
+#include "game/combat/DropTables.h"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/popups/PopupPickupItem.h"
 
@@ -31,7 +32,7 @@ LayerPickUpContext::LayerPickUpContext(sdl2w::Window* _window,
 
   ui::PopupPickupItemProps popupProps;
   popupProps.spriteName = itemTemplate.iconSpriteName;
-  popupProps.label = itemTemplate.label.empty() ? itemTemplate.name : itemTemplate.label;
+  popupProps.label = game::formatMapItemDisplayLabel(*database, item);
   popupProps.description = itemTemplate.description;
   popupProps.weight = item.quantity * itemTemplate.weight;
   popupProps.value = item.quantity * itemTemplate.value;

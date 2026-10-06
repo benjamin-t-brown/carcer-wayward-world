@@ -4,6 +4,8 @@
 #include "bmin/StringInterop.h"
 #include "db/Database.h"
 #include "game/inventory/InventoryRules.h"
+#include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/MapWalkability.h"
 #include "model/instances/Player.h"
 #include "sdl2w/Logger.h"
 #include <cmath>
@@ -174,9 +176,180 @@ void StringEvaluatorFuncs::DESPAWN_CH(const bmin::String& chName) {
   // noop
 }
 
+namespace {
+
+struct ParsedTileName {
+  bmin::String tilesetName;
+  int tileId = 0;
+  bool valid = false;
+};
+
+// "tilesetName_tileId" — last '_' separates id. Empty → clear cell (valid).
+ParsedTileName parseTileName(const bmin::String& tileName) {
+  ParsedTileName out;
+  if (tileName.empty()) {
+    out.valid = true;
+    return out;
+  }
+  size_t lastUnderscore = bmin::String::npos;
+  for (size_t i = 0; i < tileName.size(); ++i) {
+    if (tileName[i] == '_') {
+      lastUnderscore = i;
+    }
+  }
+  if (lastUnderscore == bmin::String::npos || lastUnderscore == 0 ||
+      lastUnderscore + 1 >= tileName.size()) {
+    return out;
+  }
+  const bmin::String idStr = tileName.substr(lastUnderscore + 1);
+  if (!bmin::isDouble(idStr)) {
+    return out;
+  }
+  out.tilesetName = tileName.substr(0, lastUnderscore);
+  out.tileId = static_cast<int>(bmin::parseDouble(idStr));
+  out.valid = true;
+  return out;
+}
+
+void applyTileChange(model::TileInstance& tile,
+                     const ParsedTileName& parsed,
+                     const db::Database* database) {
+  tile.tilesetName = parsed.tilesetName;
+  tile.tileId = parsed.tileId;
+  if (database) {
+    tile.isWalkable = game::isTileEffectivelyWalkable(tile, *database);
+    tile.isContainer = game::isTileEffectivelyContainer(tile, *database);
+  }
+}
+
+game::ActiveMapMarker findMarkerOnActiveGrid(game::ActiveMapOrchestrator& orch,
+                                             const bmin::String& markerName,
+                                             const bmin::String& mapName) {
+  if (!mapName.empty()) {
+    return orch.findMarker(mapName, markerName);
+  }
+  game::ActiveMapMarker found{};
+  const auto& grid = orch.getMapGrid();
+  for (int y = 0; y < grid.gridHeight && !found.valid; ++y) {
+    for (int x = 0; x < grid.gridWidth && !found.valid; ++x) {
+      const auto& cellMapName = grid.cells[static_cast<size_t>(y)][static_cast<size_t>(x)];
+      if (cellMapName.empty()) {
+        continue;
+      }
+      found = orch.findMarker(cellMapName, markerName);
+    }
+  }
+  return found;
+}
+
+void changeTileAtMarker(StringEvaluatorFuncs& funcs,
+                        const bmin::String& markerName,
+                        const bmin::String& tileName,
+                        const bmin::String& mapName,
+                        bool permanent) {
+  const char* label =
+      permanent ? "CHANGE_TILE_AT_MARKER_PERMANENT" : "CHANGE_TILE_AT_MARKER";
+  if (!funcs.activeMap || !funcs.mapInstances || !funcs.database) {
+    LOG(ERROR) << label << ": no world/map context" << LOG_ENDL;
+    return;
+  }
+  if (markerName.empty()) {
+    LOG(ERROR) << label << ": empty markerName" << LOG_ENDL;
+    return;
+  }
+  const auto parsed = parseTileName(tileName);
+  if (!parsed.valid) {
+    LOG(ERROR) << label << ": invalid tileName '" << tileName
+               << "' (expected tilesetName_tileId)" << LOG_ENDL;
+    return;
+  }
+  if (funcs.activeMap->gridId.empty()) {
+    LOG(ERROR) << label << ": no active map loaded" << LOG_ENDL;
+    return;
+  }
+  game::ActiveMapOrchestrator orch(*funcs.activeMap, *funcs.mapInstances, funcs.database);
+  const auto found = findMarkerOnActiveGrid(orch, markerName, mapName);
+  if (!found.valid) {
+    LOG(ERROR) << label << ": marker not found: " << markerName
+               << (mapName.empty() ? "" : " on map ") << mapName << LOG_ENDL;
+    return;
+  }
+  auto* tile = orch.findTileAt(found.x, found.y, found.layer);
+  if (!tile) {
+    LOG(ERROR) << label << ": no tile at marker '" << markerName << "' (" << found.x
+               << ", " << found.y << ") layer " << found.layer << LOG_ENDL;
+    return;
+  }
+  applyTileChange(*tile, parsed, funcs.database);
+  if (!permanent) {
+    return;
+  }
+  auto* map = orch.getMapInstanceAt(found.x, found.y);
+  const auto local = orch.activeMapCoordToInstanceCoord(found.x, found.y);
+  if (!map || !local.valid) {
+    LOG(ERROR) << label << ": could not resolve map instance for marker '" << markerName
+               << "'" << LOG_ENDL;
+    return;
+  }
+  game::upsertChangedTile(map->persistentState.changedTiles, found.layer, local.x, local.y,
+                          parsed.tilesetName, parsed.tileId);
+}
+
+} // namespace
+
 void StringEvaluatorFuncs::CHANGE_TILE_AT(const bmin::String& x, const bmin::String& y,
                                           const bmin::String& tileName) {
-  // noop
+  if (!activeMap || !mapInstances || !database) {
+    LOG(ERROR) << "CHANGE_TILE_AT: no world/map context" << LOG_ENDL;
+    return;
+  }
+  if (!bmin::isDouble(x) || !bmin::isDouble(y)) {
+    LOG(ERROR) << "CHANGE_TILE_AT: invalid coordinates '" << x << "', '" << y << "'"
+               << LOG_ENDL;
+    return;
+  }
+  const auto parsed = parseTileName(tileName);
+  if (!parsed.valid) {
+    LOG(ERROR) << "CHANGE_TILE_AT: invalid tileName '" << tileName
+               << "' (expected tilesetName_tileId)" << LOG_ENDL;
+    return;
+  }
+  if (activeMap->gridId.empty()) {
+    LOG(ERROR) << "CHANGE_TILE_AT: no active map loaded" << LOG_ENDL;
+    return;
+  }
+  game::ActiveMapOrchestrator orch(*activeMap, *mapInstances, database);
+  const int worldX = static_cast<int>(bmin::parseDouble(x));
+  const int worldY = static_cast<int>(bmin::parseDouble(y));
+  auto* tile = orch.findTileAt(worldX, worldY);
+  if (!tile) {
+    LOG(ERROR) << "CHANGE_TILE_AT: no tile at (" << worldX << ", " << worldY << ")"
+               << LOG_ENDL;
+    return;
+  }
+  applyTileChange(*tile, parsed, database);
+}
+
+void StringEvaluatorFuncs::CHANGE_TILE_AT_MARKER(const bmin::String& markerName,
+                                                 const bmin::String& tileName) {
+  CHANGE_TILE_AT_MARKER(markerName, tileName, bmin::String{});
+}
+
+void StringEvaluatorFuncs::CHANGE_TILE_AT_MARKER(const bmin::String& markerName,
+                                                 const bmin::String& tileName,
+                                                 const bmin::String& mapName) {
+  changeTileAtMarker(*this, markerName, tileName, mapName, false);
+}
+
+void StringEvaluatorFuncs::CHANGE_TILE_AT_MARKER_PERMANENT(const bmin::String& markerName,
+                                                           const bmin::String& tileName) {
+  CHANGE_TILE_AT_MARKER_PERMANENT(markerName, tileName, bmin::String{});
+}
+
+void StringEvaluatorFuncs::CHANGE_TILE_AT_MARKER_PERMANENT(const bmin::String& markerName,
+                                                           const bmin::String& tileName,
+                                                           const bmin::String& mapName) {
+  changeTileAtMarker(*this, markerName, tileName, mapName, true);
 }
 
 void StringEvaluatorFuncs::TELEPORT_TO(const bmin::String& x, const bmin::String& y,
@@ -350,6 +523,20 @@ void StringEvaluator::evalStr(const bmin::String& str) {
     } else if (call.funcName == "CHANGE_TILE_AT") {
       assertFuncArgs(call.funcName, call.args, 3);
       funcs.CHANGE_TILE_AT(call.args[0], call.args[1], call.args[2]);
+    } else if (call.funcName == "CHANGE_TILE_AT_MARKER") {
+      if (call.args.size() == 3) {
+        funcs.CHANGE_TILE_AT_MARKER(call.args[0], call.args[1], call.args[2]);
+      } else {
+        assertFuncArgs(call.funcName, call.args, 2);
+        funcs.CHANGE_TILE_AT_MARKER(call.args[0], call.args[1]);
+      }
+    } else if (call.funcName == "CHANGE_TILE_AT_MARKER_PERMANENT") {
+      if (call.args.size() == 3) {
+        funcs.CHANGE_TILE_AT_MARKER_PERMANENT(call.args[0], call.args[1], call.args[2]);
+      } else {
+        assertFuncArgs(call.funcName, call.args, 2);
+        funcs.CHANGE_TILE_AT_MARKER_PERMANENT(call.args[0], call.args[1]);
+      }
     } else if (call.funcName == "TELEPORT_TO") {
       assertFuncArgs(call.funcName, call.args, 3);
       funcs.TELEPORT_TO(call.args[0], call.args[1], call.args[2]);

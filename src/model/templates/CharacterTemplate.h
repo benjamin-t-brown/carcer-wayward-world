@@ -41,7 +41,9 @@ struct CharacterTemplateBehavior {
 struct CharacterTemplateCombat {
   int hp = 0;
   int mp = 0;
-  bmin::String dropTable;
+  bmin::DynArray<bmin::String> dropTables;
+  /** Optional unarmed melee ability name; empty = use MELEE_ATTACK_DEFAULT. */
+  bmin::String defaultAbility;
 };
 
 struct CharacterTemplateCombatBehavior {
@@ -51,7 +53,6 @@ struct CharacterTemplateCombatBehavior {
 
 struct CharacterTemplateSound {
   bmin::String deathSoundName;
-  bmin::String weaponSoundName;
 };
 
 struct CharacterTemplateStatus {

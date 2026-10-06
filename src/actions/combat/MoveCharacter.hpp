@@ -4,9 +4,11 @@
 #include "model/Combat.h"
 #include "game/map/ActiveMapCharacters.h"
 #include "game/map/ActiveMapOrchestrator.h"
+#include "game/combat/EnemyBehavior.h"
 #include "game/map/MapVision.h"
 #include "game/map/MapWalkability.h"
 #include "state/AbstractAction.hpp"
+#include "actions/general/PlaySound.hpp"
 
 namespace state {
 
@@ -64,6 +66,9 @@ class MoveCharacter : public AbstractAction {
     if (model::isPartyMember(state->player, character->id)) {
       game::updateActiveMapVisibilityFromParty(
           world, state->mapInstances, state->player, *database);
+      if (game::updateAgitation(world, state->mapInstances, state->player, *database)) {
+        PlaySound("roar").execute(state);
+      }
     }
   }
 

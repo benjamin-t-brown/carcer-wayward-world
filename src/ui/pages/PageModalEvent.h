@@ -1,5 +1,6 @@
 #pragma once
 
+#include "model/templates/UtilityTypes.h"
 #include "ui/KeyboardPressFlash.h"
 #include "ui/UiElement.h"
 #include "ui/pages/PageTalkChoice.h"
@@ -33,19 +34,32 @@ private:
   // destroy the footer button while its onClick observer is still running.
   bool footerNeedsSync = false;
 
+  // Linear Show More scroll over kShowMoreScrollMs.
+  static constexpr int kShowMoreScrollMs = 100;
+  bool showMoreAnimating = false;
+  int showMoreScrollFrom = 0;
+  int showMoreScrollTo = 0;
+  model::TimerStruct showMoreTimer{kShowMoreScrollMs};
+
   void beginKeyboardContinuePress();
   void beginKeyboardChoicePress(int choiceIndex);
   void enqueueSelectChoice(int choiceIndex);
   void enqueueContinue();
   void performShowMore();
+  void updateShowMoreScroll(int deltaTime);
 
   ButtonGroup* footerButtonGroup();
+  // Pixels of real text ink below the fold (excludes empty bottom padding).
+  int clippedTextPx();
   bool isContentClipped();
   FooterMode computeFooterMode();
   void retargetFooter(FooterMode mode);
   void styleShowMoreButton();
   void syncFooter(bool force);
   void renderShowMoreCue();
+
+  // Ignore sub-line overflow from padding / rounding — must have real unread text.
+  static constexpr int kMinShowMorePx = 12;
 
   friend class PageModalEventShowMoreObserver;
 

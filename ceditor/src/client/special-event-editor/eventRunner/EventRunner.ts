@@ -656,7 +656,21 @@ class StringEvaluator {
       // noop
     },
     CHANGE_TILE_AT: (_x: string, _y: string, _tileName: string) => {
-      // noop
+      // noop — runtime mutates active-map tiles (tilesetName_tileId)
+    },
+    CHANGE_TILE_AT_MARKER: (
+      _markerName: string,
+      _tileName: string,
+      _mapName: string = '',
+    ) => {
+      // noop — runtime finds marker then CHANGE_TILE_AT semantics
+    },
+    CHANGE_TILE_AT_MARKER_PERMANENT: (
+      _markerName: string,
+      _tileName: string,
+      _mapName: string = '',
+    ) => {
+      // noop — runtime records changedTiles so the mutation survives map loads
     },
     TELEPORT_TO: (_x: string, _y: string, _mapName: string) => {
       // noop

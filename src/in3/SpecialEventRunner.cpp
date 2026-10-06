@@ -27,10 +27,15 @@ SpecialEventRunner::SpecialEventRunner(
   reset();
 }
 
-void SpecialEventRunner::setExecContext(model::Player* player,
-                                        const db::Database* database) {
+void SpecialEventRunner::setExecContext(
+    model::Player* player,
+    const db::Database* database,
+    model::ActiveMap* activeMap,
+    bmin::Map<bmin::String, model::MapInstance>* mapInstances) {
   execPlayer = player;
   execDatabase = database;
+  execActiveMap = activeMap;
+  execMapInstances = mapInstances;
 }
 
 void SpecialEventRunner::reset() {
@@ -208,6 +213,8 @@ bool SpecialEventRunner::evalExecStr(const bmin::String& str) {
   StringEvaluator evaluator(storage, trimmed);
   evaluator.funcs.player = execPlayer;
   evaluator.funcs.database = execDatabase;
+  evaluator.funcs.activeMap = execActiveMap;
+  evaluator.funcs.mapInstances = execMapInstances;
   try {
     evaluator.evalStr(trimmed);
     if (evaluator.funcs.questUpdated) {

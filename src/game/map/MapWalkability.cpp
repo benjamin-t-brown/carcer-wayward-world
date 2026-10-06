@@ -208,6 +208,55 @@ void upsertOpenedDoor(bmin::DynArray<model::OpenedDoorRecord>& doors,
   doors.pushBack(record);
 }
 
+void applyChangedTiles(model::MapInstance& map,
+                       const bmin::DynArray<model::ChangedTileRecord>& changes,
+                       const db::Database* database) {
+  for (size_t i = 0; i < changes.size(); i++) {
+    const auto& record = changes[i];
+    if (record.x < 0 || record.y < 0 || record.x >= map.width || record.y >= map.height) {
+      continue;
+    }
+    auto* layerTiles = model::mapLayerPtr(model::mapInstanceTiles(map), record.layer);
+    if (!layerTiles) {
+      continue;
+    }
+    const auto index = tileIndex(map, record.x, record.y);
+    if (index < 0 || index >= static_cast<int>(layerTiles->size())) {
+      continue;
+    }
+    auto& tile = (*layerTiles)[static_cast<size_t>(index)];
+    tile.tilesetName = record.tilesetName;
+    tile.tileId = record.tileId;
+    if (database) {
+      tile.isWalkable = isTileEffectivelyWalkable(tile, *database);
+      tile.isContainer = isTileEffectivelyContainer(tile, *database);
+    }
+  }
+}
+
+void upsertChangedTile(bmin::DynArray<model::ChangedTileRecord>& changes,
+                       int layer,
+                       int x,
+                       int y,
+                       const bmin::String& tilesetName,
+                       int tileId) {
+  for (size_t i = 0; i < changes.size(); i++) {
+    auto& record = changes[i];
+    if (record.layer == layer && record.x == x && record.y == y) {
+      record.tilesetName = tilesetName;
+      record.tileId = tileId;
+      return;
+    }
+  }
+  auto record = model::ChangedTileRecord{};
+  record.layer = layer;
+  record.x = x;
+  record.y = y;
+  record.tilesetName = tilesetName;
+  record.tileId = tileId;
+  changes.pushBack(record);
+}
+
 namespace {
 
 void removeUnlockedDoorAt(bmin::DynArray<model::UnlockedDoorRecord>& doors,

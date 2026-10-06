@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/combat/CombatParty.h"
+#include "game/combat/EnemyBehavior.h"
 #include "game/map/MapVision.h"
 #include "model/Combat.h"
 #include "model/instances/World.hpp"
@@ -32,6 +33,9 @@ class StartCombat : public AbstractAction {
     game::addPartyMembersToCombatMap(world, state->player, *database);
     game::updateActiveMapVisibilityFromParty(
         world, state->mapInstances, state->player, *database);
+    if (game::updateAgitation(world, state->mapInstances, state->player, *database)) {
+      PlaySound("roar").execute(state);
+    }
     world.combat = model::createCombatFromWorld(world, state->player);
     model::resetAllCombatAp(world, model::COMBAT_STARTING_AP);
 

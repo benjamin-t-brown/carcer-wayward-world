@@ -6,10 +6,12 @@
 #include "bmin/StringInterop.h"
 #include "bmin/UniquePtr.h"
 #include "db/Database.h"
+#include "game/inventory/InventoryRules.h"
 #include "game/map/MapPersistence.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerWorld.h"
 #include "model/instances/CharacterPlayer.h"
+#include "model/templates/Items.h"
 #include "sdl2w/Draw.h"
 #include "sdl2w/Logger.h"
 #include "sdl2w/Window.h"
@@ -41,6 +43,21 @@ const bmin::DynArray<bmin::DynArray<bmin::String>> PARTY_MEMBER_ITEMS = {
     {"BootsLeather", "NecklaceSilver", "DaggerBronze"},
 };
 
+void equipPartyMemberWeapons(model::CharacterPlayer& member, db::Database& database) {
+  for (const auto& item : member.inventory) {
+    const auto* itemTemplate =
+        database.findItemTemplate(bmin::toStringView(item.itemName));
+    if (itemTemplate == nullptr) {
+      continue;
+    }
+    if (!model::itemTypeUsesWeaponSlots(itemTemplate->itemType) &&
+        itemTemplate->itemType != model::ItemType::WEAPON_AMMO) {
+      continue;
+    }
+    game::toggleEquippedInventoryItem(member, item.id, database);
+  }
+}
+
 void setupTestParty(model::Player& player, db::Database& database) {
   player.party.clear();
   player.currentPartyMemberIndex = 0;
@@ -53,6 +70,7 @@ void setupTestParty(model::Player& player, db::Database& database) {
       model::characterPlayerAddItemToInventory(
           member, database.getItemTemplate(bmin::toStringView(itemName)), 1);
     }
+    equipPartyMemberWeapons(member, database);
 
     player.party.pushBack(std::move(member));
   }

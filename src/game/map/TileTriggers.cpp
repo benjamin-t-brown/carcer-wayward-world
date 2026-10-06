@@ -1,5 +1,6 @@
 #include "game/map/TileTriggers.h"
 #include "bmin/StringInterop.h"
+#include "game/combat/DropTables.h"
 #include "game/map/CharacterConstruction.h"
 #include "game/map/MapWalkability.h"
 #include "in3/ConditionEvaluator.h"
@@ -9,20 +10,6 @@
 
 namespace game {
 namespace {
-
-bmin::String itemLabelAt(const db::Database& database,
-                         const bmin::String& itemTemplateName) {
-  try {
-    const auto& itemTemplate =
-        database.getItemTemplate(bmin::toStringView(itemTemplateName));
-    if (!itemTemplate.label.empty()) {
-      return itemTemplate.label;
-    }
-    return itemTemplate.name;
-  } catch (...) {
-    return itemTemplateName;
-  }
-}
 
 bmin::String characterLabelAt(const db::Database& database,
                               const model::CharacterInstance& character) {
@@ -246,7 +233,7 @@ bmin::String formatExamineMessage(const model::MapInstance& map,
       if (item.x != worldX || item.y != worldY) {
         continue;
       }
-      appendLine(itemLabelAt(database, item.itemTemplateName));
+      appendLine(formatMapItemDisplayLabel(database, item));
     }
   }
 

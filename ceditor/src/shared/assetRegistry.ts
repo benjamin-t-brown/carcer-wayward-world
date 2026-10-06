@@ -22,6 +22,7 @@ export const ASSET_TYPES = [
   { id: 'abilityTemplates', name: 'Ability Templates', file: 'abilities.json', routeParam: 'ability', recordKey: 'name' },
   { id: 'spellTemplates', name: 'Spell Templates', file: 'spells.json', routeParam: 'spell', recordKey: 'name' },
   { id: 'statusEffectTemplates', name: 'Status Effect Templates', file: 'status-effects.json', routeParam: 'statusEffect', recordKey: 'name' },
+  { id: 'dropTables', name: 'Drop Tables', file: 'drop-tables.json', routeParam: 'dropTable', recordKey: 'name' },
   { id: 'featTemplates', name: 'Feat Templates', file: 'feats.json', recordKey: 'id' },
   { id: 'questTemplates', name: 'Quests', file: 'quests.json', routeParam: 'quest', recordKey: 'id' },
   { id: 'characterTemplates', name: 'Character Templates', file: 'characters.json', routeParam: 'character', recordKey: 'name' },

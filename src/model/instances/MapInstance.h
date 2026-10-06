@@ -29,6 +29,15 @@ struct OpenedDoorRecord {
   int tileId = 0;
 };
 
+// IN3 CHANGE_TILE_AT_MARKER_PERMANENT: survives cross-grid map loads / template restore.
+struct ChangedTileRecord {
+  int layer = 0;
+  int x = 0;
+  int y = 0;
+  bmin::String tilesetName;
+  int tileId = 0;
+};
+
 // Closed door whose map-template lock was cleared (tileId unchanged until opened).
 struct UnlockedDoorRecord {
   int layer = 0;
@@ -52,10 +61,11 @@ struct PersistentTileFieldRecord {
 };
 
 struct PersistentMapState {
-  int version = 2;
+  int version = 3;
   ExploredMapMask explored;
   bmin::DynArray<OpenedDoorRecord> openedDoors;
   bmin::DynArray<UnlockedDoorRecord> unlockedDoors;
+  bmin::DynArray<ChangedTileRecord> changedTiles;
   bmin::DynArray<DefeatedCharacterRecord> defeatedCharacters;
   bmin::DynArray<PersistentTileFieldRecord> tileFields;
 

@@ -2,7 +2,9 @@
 
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
+#include "game/combat/DropTables.h"
 #include "game/inventory/InventoryRules.h"
+#include "sdl2w/Logger.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/Player.h"
 #include "model/templates/Items.h"
@@ -58,6 +60,20 @@ class UiPickUpItem : public AbstractAction {
     } catch (...) {
       LOG(WARN) << "UiPickUpItem::act: item template not found "
                 << mapItem->itemTemplateName << LOG_ENDL;
+      return;
+    }
+
+    const int bagAmount =
+        mapItem->amount > 0 ? mapItem->amount : mapItem->quantity;
+    const auto templateNameView = bmin::toStringView(mapItem->itemTemplateName);
+    if (game::isGoldBagItemTemplate(templateNameView)) {
+      localState.player.gold += bagAmount;
+      localState.world.activeMap.items.erase(mapItemIndex);
+      return;
+    }
+    if (game::isFoodBagItemTemplate(templateNameView)) {
+      localState.player.food += bagAmount;
+      localState.world.activeMap.items.erase(mapItemIndex);
       return;
     }
 

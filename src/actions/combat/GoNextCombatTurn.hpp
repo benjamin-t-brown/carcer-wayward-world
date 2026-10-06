@@ -4,6 +4,7 @@
 #include "game/map/MapPersistence.h"
 #include "game/map/TileFields.h"
 #include "model/Combat.h"
+#include "model/instances/Player.h"
 #include "sdl2w/Logger.h"
 #include "state/AbstractAction.hpp"
 #include "actions/combat/SetActiveCombatCharacter.hpp"
@@ -58,6 +59,13 @@ class GoNextCombatTurn : public AbstractAction {
         continue;
       }
       if (model::isCharacterDefeated(state->player, *nextCharacter)) {
+        combat.activeTurnIndex += 1;
+        if (combat.activeTurnIndex >= turnCount) {
+          startNewCombatRound();
+        }
+        continue;
+      }
+      if (!model::isPartyMember(state->player, nextId) && !nextCharacter->agitated) {
         combat.activeTurnIndex += 1;
         if (combat.activeTurnIndex >= turnCount) {
           startNewCombatRound();

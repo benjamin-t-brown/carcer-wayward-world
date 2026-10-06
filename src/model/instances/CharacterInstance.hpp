@@ -53,8 +53,10 @@ struct CharacterInstance {
   int spriteIndexOffset = 0;
   // Default art faces right; left uses horizontal flip at render time.
   CharacterFacing facing = CharacterFacing::Right;
-  // Map AI: set when IMMOBILE_UNTIL_ENEMY_SPOTTED spots the party (not persisted).
+  // Map AI: spotting / contagion (not persisted).
   bool agitated = false;
+  // From map placement; characters with the same non-empty group agitate together.
+  bmin::String agitationGroup;
 
   // Cached from CharacterTemplate at spawn / active-map hoist (for AI without DB
   // lookups).

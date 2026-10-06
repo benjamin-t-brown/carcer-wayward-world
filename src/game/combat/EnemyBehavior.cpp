@@ -11,14 +11,193 @@
 namespace game {
 namespace {
 
-constexpr const char* kImmobileUntilEnemySpotted = "IMMOBILE_UNTIL_ENEMY_SPOTTED";
+bool isCharacterTilePlayerVisible(model::World& world,
+                                  MapInstanceStore& mapInstances,
+                                  const model::CharacterInstance& character,
+                                  const db::Database& database) {
+  if (world.activeMap.gridId.empty()) {
+    return false;
+  }
 
-bool isImmobileUntilEnemySpotted(const model::CharacterInstance& character) {
-  return character.behaviorName == kImmobileUntilEnemySpotted;
+  ActiveMapOrchestrator orch(world.activeMap, mapInstances, &database);
+  auto* map = orch.getMapInstanceAt(character.x, character.y);
+  const auto local = orch.activeMapCoordToInstanceCoord(character.x, character.y);
+  if (!map || !local.valid) {
+    return false;
+  }
+  map->tileLayerNumber = world.activeMap.mapLayer;
+  return isTileCurrentlyVisible(*map, local.x, local.y);
 }
 
-bool isAiEnemy(const model::CharacterInstance& character) {
-  return model::characterInstanceIsEnemy(character) && isImmobileUntilEnemySpotted(character);
+bool isTownsperson(const model::CharacterInstance& character) {
+  return character.type == model::CharacterTemplateType::TOWNSPERSON ||
+         character.type == model::CharacterTemplateType::TOWNSPERSON_STATIC;
+}
+
+bmin::String characterDisplayName(const model::CharacterInstance& character) {
+  if (!character.name.empty()) {
+    return character.name;
+  }
+  if (!character.label.empty()) {
+    return character.label;
+  }
+  return character.id;
+}
+
+void logAgitated(const model::CharacterInstance& character, const char* reason) {
+  LOG(INFO) << "Agitation: " << characterDisplayName(character) << " (" << character.id
+            << ") " << reason << " at (" << character.x << ", " << character.y << ")"
+            << LOG_ENDL;
+}
+
+bool canTownspersonSpotAgitatedEnemy(model::World& world,
+                                     MapInstanceStore& mapInstances,
+                                     const model::CharacterInstance& townsfolk,
+                                     const model::CharacterInstance& enemy,
+                                     const db::Database& database) {
+  if (!isTownsperson(townsfolk)) {
+    return false;
+  }
+  if (!model::characterInstanceIsEnemy(enemy) || !enemy.agitated) {
+    return false;
+  }
+
+  const auto dist = chebyshevDistance(townsfolk.x, townsfolk.y, enemy.x, enemy.y);
+  if (dist > townsfolk.visionRadius) {
+    return false;
+  }
+
+  // Townspersons may only spot enemies the player can also see.
+  return isCharacterTilePlayerVisible(world, mapInstances, enemy, database);
+}
+
+struct EnemySpottingPassResult {
+  bool changed = false;
+  bool firstEnemyAgitation = false;
+};
+
+bool anyCharacterAgitated(const model::ActiveMap& activeMap) {
+  for (size_t i = 0; i < activeMap.characters.size(); i++) {
+    if (activeMap.characters[i].agitated) {
+      return true;
+    }
+  }
+  return false;
+}
+
+EnemySpottingPassResult applyEnemySpottingPass(model::World& world,
+                                               MapInstanceStore& mapInstances,
+                                               const model::Player& player,
+                                               const db::Database& database) {
+  EnemySpottingPassResult result;
+  const auto hadAgitated = anyCharacterAgitated(world.activeMap);
+  for (size_t i = 0; i < world.activeMap.characters.size(); i++) {
+    auto& character = world.activeMap.characters[i];
+    if (character.agitated) {
+      continue;
+    }
+    if (!model::characterInstanceIsEnemy(character)) {
+      continue;
+    }
+    if (!canEnemySpotPartyAvatar(world, mapInstances, player, character, database)) {
+      continue;
+    }
+
+    character.agitated = true;
+    logAgitated(character, "spotted the player");
+    result.changed = true;
+    if (!hadAgitated) {
+      result.firstEnemyAgitation = true;
+    }
+  }
+  return result;
+}
+
+bool applyTownspersonSpottingPass(model::World& world,
+                                  MapInstanceStore& mapInstances,
+                                  const db::Database& database) {
+  auto changed = false;
+  for (size_t i = 0; i < world.activeMap.characters.size(); i++) {
+    auto& townsfolk = world.activeMap.characters[i];
+    if (townsfolk.agitated || !isTownsperson(townsfolk)) {
+      continue;
+    }
+
+    for (size_t j = 0; j < world.activeMap.characters.size(); j++) {
+      const auto& other = world.activeMap.characters[j];
+      if (townsfolk.id == other.id) {
+        continue;
+      }
+      if (!canTownspersonSpotAgitatedEnemy(
+              world, mapInstances, townsfolk, other, database)) {
+        continue;
+      }
+
+      townsfolk.agitated = true;
+      logAgitated(townsfolk, "spotted an agitated enemy");
+      changed = true;
+      break;
+    }
+  }
+  return changed;
+}
+
+bool applyGroupContagionPass(model::ActiveMap& activeMap) {
+  auto changed = false;
+  for (size_t i = 0; i < activeMap.characters.size(); i++) {
+    auto& character = activeMap.characters[i];
+    if (character.agitated || character.agitationGroup.empty()) {
+      continue;
+    }
+
+    for (size_t j = 0; j < activeMap.characters.size(); j++) {
+      const auto& other = activeMap.characters[j];
+      if (other.id == character.id || !other.agitated) {
+        continue;
+      }
+      if (other.agitationGroup != character.agitationGroup) {
+        continue;
+      }
+
+      character.agitated = true;
+      logAgitated(character, "agitated with their group");
+      changed = true;
+      break;
+    }
+  }
+  return changed;
+}
+
+bool anyLivingAgitatedEnemy(const model::World& world, const model::Player& player) {
+  for (size_t i = 0; i < world.activeMap.characters.size(); i++) {
+    const auto& character = world.activeMap.characters[i];
+    if (!model::characterInstanceIsEnemy(character) || !character.agitated) {
+      continue;
+    }
+    if (model::isCharacterDefeated(player, character)) {
+      continue;
+    }
+    return true;
+  }
+  return false;
+}
+
+bool applyTownspersonCalmPass(model::World& world, const model::Player& player) {
+  if (anyLivingAgitatedEnemy(world, player)) {
+    return false;
+  }
+
+  auto changed = false;
+  for (size_t i = 0; i < world.activeMap.characters.size(); i++) {
+    auto& character = world.activeMap.characters[i];
+    if (!character.agitated || !isTownsperson(character)) {
+      continue;
+    }
+    character.agitated = false;
+    logAgitated(character, "calmed; no agitated enemies remain");
+    changed = true;
+  }
+  return changed;
 }
 
 } // namespace
@@ -42,50 +221,30 @@ bool canEnemySpotPartyAvatar(model::World& world,
     return false;
   }
 
-  if (world.activeMap.gridId.empty()) {
-    return false;
-  }
-
-  ActiveMapOrchestrator orch(world.activeMap, mapInstances, &database);
-  auto* map = orch.getMapInstanceAt(enemy.x, enemy.y);
-  const auto local = orch.activeMapCoordToInstanceCoord(enemy.x, enemy.y);
-  if (!map || !local.valid) {
-    return false;
-  }
-  map->tileLayerNumber = world.activeMap.mapLayer;
-  return isTileCurrentlyVisible(*map, local.x, local.y);
+  return isCharacterTilePlayerVisible(world, mapInstances, enemy, database);
 }
 
-void updateEnemySpotting(model::World& world,
-                         MapInstanceStore& mapInstances,
-                         const model::Player& player,
-                         const db::Database& database) {
-  for (size_t i = 0; i < world.activeMap.characters.size(); i++) {
-    auto& character = world.activeMap.characters[i];
-    if (character.agitated) {
-      continue;
+bool updateAgitation(model::World& world,
+                     MapInstanceStore& mapInstances,
+                     const model::Player& player,
+                     const db::Database& database) {
+  auto shouldPlayRoar = false;
+  constexpr auto kMaxPasses = 32;
+  for (auto pass = 0; pass < kMaxPasses; pass++) {
+    const auto enemyResult =
+        applyEnemySpottingPass(world, mapInstances, player, database);
+    if (enemyResult.firstEnemyAgitation) {
+      shouldPlayRoar = true;
     }
-    if (!isAiEnemy(character)) {
-      continue;
+    const auto townChanged =
+        applyTownspersonSpottingPass(world, mapInstances, database);
+    const auto groupChanged = applyGroupContagionPass(world.activeMap);
+    const auto calmChanged = applyTownspersonCalmPass(world, player);
+    if (!enemyResult.changed && !townChanged && !groupChanged && !calmChanged) {
+      break;
     }
-    if (!canEnemySpotPartyAvatar(world, mapInstances, player, character, database)) {
-      continue;
-    }
-
-    character.agitated = true;
-
-    auto displayName = character.name;
-    if (displayName.empty()) {
-      displayName = character.label;
-    }
-    if (displayName.empty()) {
-      displayName = character.id;
-    }
-
-    LOG(INFO) << "EnemySpotting: " << displayName << " (" << character.id
-              << ") spotted the player and became agitated at (" << character.x << ", "
-              << character.y << ")" << LOG_ENDL;
   }
+  return shouldPlayRoar;
 }
 
 bool chooseSeekStepToward(model::ActiveMap& activeMap,

@@ -3,6 +3,8 @@
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "bmin/Map.h"
+#include "model/instances/MapInstance.h"
+#include "model/instances/World.hpp"
 
 namespace db {
 class Database;
@@ -16,9 +18,11 @@ namespace in3 {
 
 struct StringEvaluatorFuncs {
   bmin::Map<bmin::String, bmin::String>& storage;
-  // Optional game context for inventory grants (set by SpecialEventRunner).
+  // Optional game context for inventory grants / world mutations (SpecialEventRunner).
   model::Player* player = nullptr;
   const db::Database* database = nullptr;
+  model::ActiveMap* activeMap = nullptr;
+  bmin::Map<bmin::String, model::MapInstance>* mapInstances = nullptr;
 
   bool questUpdated = false;
   bmin::DynArray<bmin::String> receivedItemNames;
@@ -48,6 +52,16 @@ struct StringEvaluatorFuncs {
   void SPAWN_CH(const bmin::String& chName);
   void DESPAWN_CH(const bmin::String& chName);
   void CHANGE_TILE_AT(const bmin::String& x, const bmin::String& y, const bmin::String& tileName);
+  // tileName is "tilesetName_tileId" (last '_' splits). Empty clears the cell.
+  void CHANGE_TILE_AT_MARKER(const bmin::String& markerName, const bmin::String& tileName);
+  void CHANGE_TILE_AT_MARKER(const bmin::String& markerName, const bmin::String& tileName,
+                             const bmin::String& mapName);
+  // Same as CHANGE_TILE_AT_MARKER, plus a changedTiles record that survives cross-grid loads.
+  void CHANGE_TILE_AT_MARKER_PERMANENT(const bmin::String& markerName,
+                                       const bmin::String& tileName);
+  void CHANGE_TILE_AT_MARKER_PERMANENT(const bmin::String& markerName,
+                                       const bmin::String& tileName,
+                                       const bmin::String& mapName);
   void TELEPORT_TO(const bmin::String& x, const bmin::String& y, const bmin::String& mapName);
   void ADD_ITEM_AT(const bmin::String& x, const bmin::String& y, const bmin::String& itemName);
   void REMOVE_ITEM_AT(const bmin::String& x, const bmin::String& y, const bmin::String& itemName);

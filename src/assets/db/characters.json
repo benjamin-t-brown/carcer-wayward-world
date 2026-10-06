@@ -62,8 +62,7 @@
       "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
     },
     "sound": {
-      "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch3"
+      "deathSoundName": "yell_monster2"
     }
   },
   {
@@ -128,8 +127,7 @@
       "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
     },
     "sound": {
-      "deathSoundName": "yell2",
-      "weaponSoundName": "hit_punch3"
+      "deathSoundName": "yell2"
     }
   },
   {
@@ -195,8 +193,7 @@
       "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
     },
     "sound": {
-      "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch3"
+      "deathSoundName": "yell_monster2"
     }
   },
   {
@@ -262,8 +259,7 @@
       "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
     },
     "sound": {
-      "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch3"
+      "deathSoundName": "yell_monster2"
     }
   },
   {
@@ -329,8 +325,7 @@
       "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
     },
     "sound": {
-      "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch3"
+      "deathSoundName": "yell_body"
     }
   },
   {
@@ -396,8 +391,7 @@
       "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
     },
     "sound": {
-      "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch3"
+      "deathSoundName": "yell_monster2"
     }
   },
   {
@@ -463,8 +457,7 @@
       "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
     },
     "sound": {
-      "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch3"
+      "deathSoundName": "yell_monster2"
     }
   },
   {
@@ -530,8 +523,7 @@
       "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
     },
     "sound": {
-      "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch3"
+      "deathSoundName": "yell_monster2"
     }
   },
   {
@@ -597,8 +589,7 @@
       "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
     },
     "sound": {
-      "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch3"
+      "deathSoundName": "yell_monster2"
     }
   },
   {
@@ -664,8 +655,7 @@
       "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
     },
     "sound": {
-      "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch1"
+      "deathSoundName": "yell_monster2"
     }
   },
   {
@@ -731,8 +721,7 @@
       "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
     },
     "sound": {
-      "deathSoundName": "yell1",
-      "weaponSoundName": "hit_metal1"
+      "deathSoundName": "yell1"
     }
   },
   {
@@ -797,8 +786,7 @@
       "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
     },
     "sound": {
-      "deathSoundName": "yell2",
-      "weaponSoundName": "hit_metal2"
+      "deathSoundName": "yell2"
     }
   },
   {
@@ -863,8 +851,7 @@
       "behaviorName": "MOVE_RANDOMLY"
     },
     "sound": {
-      "deathSoundName": "yell2",
-      "weaponSoundName": "hit_metal2"
+      "deathSoundName": "yell2"
     }
   },
   {
@@ -929,8 +916,7 @@
       "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
     },
     "sound": {
-      "deathSoundName": "yell2",
-      "weaponSoundName": "hit_metal2"
+      "deathSoundName": "yell2"
     }
   },
   {
@@ -995,8 +981,7 @@
       "behaviorName": "MOVE_RANDOMLY"
     },
     "sound": {
-      "deathSoundName": "yell2",
-      "weaponSoundName": "hit_metal2"
+      "deathSoundName": "yell2"
     }
   },
   {
@@ -1062,8 +1047,7 @@
       "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
     },
     "sound": {
-      "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch3"
+      "deathSoundName": "yell_monster2"
     }
   },
   {
@@ -1192,8 +1176,7 @@
       "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
     },
     "sound": {
-      "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch3"
+      "deathSoundName": "yell_monster2"
     }
   },
   {
@@ -1260,8 +1243,135 @@
       "behaviorName": "IMMOBILE"
     },
     "sound": {
-      "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch3"
+      "deathSoundName": "yell_monster2"
+    }
+  },
+  {
+    "type": "ENEMY",
+    "name": "enemy_crolem",
+    "label": "Crolem",
+    "spritesheet": "actors0",
+    "spriteOffset": 72,
+    "stats": {
+      "generic": {
+        "str": 3,
+        "mnd": 1,
+        "con": 2,
+        "agi": 1,
+        "lck": 1
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 0,
+          "abilityPower": 0,
+          "attunement": 0,
+          "faith": 0,
+          "lore": 0
+        },
+        "body": {
+          "resistPhysical": 0,
+          "resistMagical": 0,
+          "healingEffectiveness": 0,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "brutishness": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "combat": {
+      "hp": 12,
+      "defaultAbility": "MELEE_ATTACK_CROLEM"
+    },
+    "sound": {
+      "deathSoundName": "yell_bug"
+    },
+    "vision": {
+      "radius": 5
+    }
+  },
+  {
+    "type": "ENEMY",
+    "name": "enemy_crolemLarge",
+    "label": "Large Crolem",
+    "spritesheet": "actors0",
+    "spriteOffset": 74,
+    "stats": {
+      "generic": {
+        "str": 5,
+        "mnd": 1,
+        "con": 3,
+        "agi": 2,
+        "lck": 1
+      },
+      "trainable": {
+        "weapon": {
+          "edged": 0,
+          "pole": 0,
+          "blunt": 0,
+          "range": 0,
+          "unarmed": 0
+        },
+        "magic": {
+          "mana": 0,
+          "abilityPower": 0,
+          "attunement": 0,
+          "faith": 0,
+          "lore": 0
+        },
+        "body": {
+          "resistPhysical": 1,
+          "resistMagical": 0,
+          "healingEffectiveness": 0,
+          "dr": 0,
+          "armorTraining": 0
+        }
+      },
+      "skills": {
+        "trickery": 0,
+        "brutishness": 0,
+        "stealth": 0,
+        "social": 0,
+        "magicItemUse": 0,
+        "cooking": 0,
+        "acrobatics": 0,
+        "survival": 0,
+        "focus": 0,
+        "conditioning": 0
+      }
+    },
+    "behavior": {
+      "behaviorName": "IMMOBILE_UNTIL_ENEMY_SPOTTED"
+    },
+    "combat": {
+      "hp": 16,
+      "defaultAbility": "MELEE_ATTACK_CROLEM_LARGE"
+    },
+    "sound": {
+      "deathSoundName": "yell_bug"
+    },
+    "vision": {
+      "radius": 5
     }
   },
   {
@@ -1276,14 +1386,11 @@
     },
     "combat": {
       "hp": 25,
-      "mp": 0,
-      "dropTable": ""
+      "mp": 0
     },
     "sound": {
       "deathSound": "soundName",
-      "weaponSound": "soundName",
-      "deathSoundName": "yell2",
-      "weaponSoundName": "hit_punch1"
+      "deathSoundName": "yell2"
     },
     "statuses": [],
     "vision": {
@@ -1383,11 +1490,15 @@
       }
     },
     "combat": {
-      "hp": 12
+      "hp": 12,
+      "dropTables": [
+        "drops_alineaCommon",
+        "drops_alineaCommon2"
+      ],
+      "defaultAbility": "MELEE_ATTACK_DEFAULT"
     },
     "sound": {
-      "deathSoundName": "yell_monster2",
-      "weaponSoundName": "hit_punch3"
+      "deathSoundName": "yell_monster2"
     },
     "vision": {
       "radius": 6
@@ -1398,6 +1509,9 @@
     "combatBehavior": {
       "town": "SEEK_AND_MELEE",
       "combat": "SEEK_AND_MELEE"
+    },
+    "talk": {
+      "talkName": "alinea_ainsley"
     }
   },
   {
@@ -1412,14 +1526,11 @@
     },
     "combat": {
       "hp": 100,
-      "mp": 50,
-      "dropTable": ""
+      "mp": 50
     },
     "sound": {
       "deathSound": "soundName",
-      "weaponSound": "soundName",
-      "deathSoundName": "yell1",
-      "weaponSoundName": "hit_punch1"
+      "deathSoundName": "yell1"
     },
     "statuses": [],
     "vision": {
@@ -1481,14 +1592,11 @@
     },
     "combat": {
       "hp": 100,
-      "mp": 50,
-      "dropTable": ""
+      "mp": 50
     },
     "sound": {
       "deathSound": "soundName",
-      "weaponSound": "soundName",
-      "deathSoundName": "yell1",
-      "weaponSoundName": "hit_punch1"
+      "deathSoundName": "yell1"
     },
     "statuses": [],
     "vision": {
@@ -1504,7 +1612,7 @@
       },
       "trainable": {
         "weapon": {
-          "edged": 0,
+          "edged": 10,
           "pole": 0,
           "blunt": 0,
           "range": 0,
@@ -1550,14 +1658,11 @@
     },
     "combat": {
       "hp": 100,
-      "mp": 50,
-      "dropTable": ""
+      "mp": 50
     },
     "sound": {
       "deathSound": "soundName",
-      "weaponSound": "soundName",
-      "deathSoundName": "yell1",
-      "weaponSoundName": "hit_punch1"
+      "deathSoundName": "yell1"
     },
     "statuses": [],
     "vision": {
@@ -1573,7 +1678,7 @@
       },
       "trainable": {
         "weapon": {
-          "edged": 0,
+          "edged": 10,
           "pole": 0,
           "blunt": 0,
           "range": 0,
@@ -1619,14 +1724,11 @@
     },
     "combat": {
       "hp": 100,
-      "mp": 50,
-      "dropTable": ""
+      "mp": 50
     },
     "sound": {
       "deathSound": "soundName",
-      "weaponSound": "soundName",
-      "deathSoundName": "yell1",
-      "weaponSoundName": "hit_punch1"
+      "deathSoundName": "yell1"
     },
     "statuses": [],
     "vision": {
@@ -1688,14 +1790,11 @@
     },
     "combat": {
       "hp": 100,
-      "mp": 50,
-      "dropTable": ""
+      "mp": 50
     },
     "sound": {
       "deathSound": "soundName",
-      "weaponSound": "soundName",
-      "deathSoundName": "yell1",
-      "weaponSoundName": "hit_punch1"
+      "deathSoundName": "yell1"
     },
     "statuses": [],
     "vision": {
@@ -1757,14 +1856,11 @@
     },
     "combat": {
       "hp": 100,
-      "mp": 50,
-      "dropTable": ""
+      "mp": 50
     },
     "sound": {
       "deathSound": "soundName",
-      "weaponSound": "soundName",
-      "deathSoundName": "yell1",
-      "weaponSoundName": "hit_punch1"
+      "deathSoundName": "yell1"
     },
     "statuses": [],
     "vision": {

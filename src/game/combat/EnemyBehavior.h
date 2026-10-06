@@ -15,10 +15,12 @@ bool canEnemySpotPartyAvatar(model::World& world,
                              const model::CharacterInstance& enemy,
                              const db::Database& database);
 
-void updateEnemySpotting(model::World& world,
-                         MapInstanceStore& mapInstances,
-                         const model::Player& player,
-                         const db::Database& database);
+// Updates spotting / contagion. Returns true when an enemy just became the
+// first agitated character on the map (callers should play "roar").
+bool updateAgitation(model::World& world,
+                     MapInstanceStore& mapInstances,
+                     const model::Player& player,
+                     const db::Database& database);
 
 /**
  * Choose one step (dx, dy) for SEEK_AND_MELEE toward (targetX, targetY).

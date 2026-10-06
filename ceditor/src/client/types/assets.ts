@@ -924,11 +924,145 @@ export function createGenericTownspersonStats(): CharacterStats {
 
 export interface CharacterTemplateSound {
   deathSoundName?: string;
-  weaponSoundName?: string;
   /** @deprecated use deathSoundName — still accepted by game loader */
   deathSound?: string;
-  /** @deprecated use weaponSoundName — still accepted by game loader */
-  weaponSound?: string;
+}
+
+// ============================================================================
+// Drop Tables
+// ============================================================================
+
+export interface DropTableEntry {
+  item?: string;
+  dropTable?: string;
+  goldMin?: number;
+  goldMax?: number;
+  foodMin?: number;
+  foodMax?: number;
+  /** When true, this weighted entry produces no drop. */
+  nothing?: boolean;
+  weight?: number;
+}
+
+export interface DropTable {
+  name: string;
+  label: string;
+  entries: DropTableEntry[];
+}
+
+export function createDefaultDropTableEntry(): DropTableEntry {
+  return { item: '', weight: 1 };
+}
+
+export function createDefaultDropTable(): DropTable {
+  return {
+    name: '',
+    label: '',
+    entries: [],
+  };
+}
+
+function normalizeDropTableIntRange(
+  minRaw: number | undefined,
+  maxRaw: number | undefined,
+): { min: number; max: number } {
+  let min =
+    minRaw != null && Number.isFinite(minRaw) ? Math.round(minRaw) : undefined;
+  let max =
+    maxRaw != null && Number.isFinite(maxRaw) ? Math.round(maxRaw) : undefined;
+  if (min == null && max == null) {
+    min = 0;
+    max = 0;
+  } else if (min == null) {
+    min = max!;
+  } else if (max == null) {
+    max = min;
+  }
+  const minVal = Math.max(0, min as number);
+  const maxVal = Math.max(minVal, max as number);
+  return { min: minVal, max: maxVal };
+}
+
+function normalizeDropTableEntry(raw: DropTableEntry): DropTableEntry {
+  const weight =
+    typeof raw.weight === 'number' && Number.isFinite(raw.weight) && raw.weight > 0
+      ? raw.weight
+      : 1;
+  if (raw.nothing === true) {
+    return { nothing: true, weight };
+  }
+  const dropTable = raw.dropTable?.trim() || undefined;
+  if (dropTable) {
+    return { dropTable, weight };
+  }
+  const hasGold = raw.goldMin != null || raw.goldMax != null;
+  if (hasGold) {
+    const { min, max } = normalizeDropTableIntRange(raw.goldMin, raw.goldMax);
+    return { goldMin: min, goldMax: max, weight };
+  }
+  const hasFood = raw.foodMin != null || raw.foodMax != null;
+  if (hasFood) {
+    const { min, max } = normalizeDropTableIntRange(raw.foodMin, raw.foodMax);
+    return { foodMin: min, foodMax: max, weight };
+  }
+  const item = raw.item?.trim() || undefined;
+  return { item: item ?? '', weight };
+}
+
+export function sanitizeDropTables(tables: DropTable[]): DropTable[] {
+  return tables.map((table) => ({
+    name: table.name ?? '',
+    label: table.label ?? '',
+    entries: Array.isArray(table.entries)
+      ? table.entries.map((entry) => normalizeDropTableEntry(entry))
+      : [],
+  }));
+}
+
+function sanitizeCharacterCombat(
+  combat: CharacterTemplate['combat'],
+): CharacterTemplate['combat'] {
+  if (!combat) {
+    return combat;
+  }
+  const dropTables = combat.dropTables?.filter((name) => name.trim()) ?? [];
+  const defaultAbility = combat.defaultAbility?.trim() || undefined;
+  const next: NonNullable<CharacterTemplate['combat']> & Record<string, unknown> = {
+    ...combat,
+  };
+  if (dropTables.length > 0) {
+    next.dropTables = dropTables;
+  } else {
+    delete next.dropTables;
+  }
+  if (defaultAbility) {
+    next.defaultAbility = defaultAbility;
+  } else {
+    delete next.defaultAbility;
+  }
+  // Strip unused legacy singular field if present in older JSON.
+  delete next.dropTable;
+  return next;
+}
+
+export function sanitizeCharacterTemplates(
+  characters: CharacterTemplate[],
+): CharacterTemplate[] {
+  return characters.map((character) => {
+    const next: CharacterTemplate = { ...character };
+    if (next.combat) {
+      next.combat = sanitizeCharacterCombat(next.combat);
+    }
+    if (next.sound) {
+      const sound: CharacterTemplateSound & Record<string, unknown> = {
+        ...next.sound,
+      };
+      delete sound.weaponSoundName;
+      delete sound.weaponSound;
+      next.sound = sound;
+    }
+    return next;
+  });
 }
 
 export interface CharacterTemplate {
@@ -949,7 +1083,9 @@ export interface CharacterTemplate {
   combat?: {
     hp?: number;
     mp?: number;
-    dropTable?: string;
+    /** Ability used with no weapon; empty falls back to MELEE_ATTACK_DEFAULT (punch). */
+    defaultAbility?: string;
+    dropTables?: string[];
     /** @deprecated legacy path merged into stats.generic by game loader */
     stats?: GenericCombatStats;
   };
@@ -1324,13 +1460,16 @@ export type MapType = 'TOWN' | 'OUTDOOR';
 export const MAP_TYPES: MapType[] = ['TOWN', 'OUTDOOR'];
 
 export interface MapTileItemEntry {
-  name: string;
-  quantity: number;
+  name?: string;
+  /** XOR with name — spawns from drop table instead of a fixed item. */
+  dropTable?: string;
+  quantity?: number;
 }
 
 export interface MapTileCharacterEntry {
   name: string;
   flipped?: boolean;
+  agitationGroup?: string;
 }
 
 /** Materialized tile view for editor/runtime; not stored in maps.json. */
@@ -1357,11 +1496,13 @@ export interface MapTileRef {
 export interface MapCharacterPlacement extends MapTileRef {
   name: string;
   flipped?: boolean;
+  agitationGroup?: string;
 }
 
 export interface MapItemPlacement extends MapTileRef {
-  name: string;
-  quantity: number;
+  name?: string;
+  dropTable?: string;
+  quantity?: number;
 }
 
 export interface MapMarkerPlacement extends MapTileRef {

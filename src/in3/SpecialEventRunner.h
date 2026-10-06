@@ -3,6 +3,8 @@
 #include "bmin/DynArray.h"
 #include "bmin/String.h"
 #include "bmin/Map.h"
+#include "model/instances/MapInstance.h"
+#include "model/instances/World.hpp"
 #include "model/templates/SpecialEvents.hpp"
 
 #include <optional>
@@ -72,9 +74,12 @@ public:
                      const model::GameEvent& gameEvent,
                      const bmin::Map<bmin::String, model::GameEvent>& gameEvents);
 
-  // Bind party inventory + item DB for ADD_ITEM_TO_PLAYER / HAS_ITEM. Pointers must
-  // outlive the runner (LayerSpecialEvent owns State + Database).
-  void setExecContext(model::Player* player, const db::Database* database);
+  // Bind party inventory + item DB + optional active map for world IN3 funcs.
+  // Pointers must outlive the runner (LayerSpecialEvent owns State + Database).
+  void setExecContext(model::Player* player,
+                      const db::Database* database,
+                      model::ActiveMap* activeMap = nullptr,
+                      bmin::Map<bmin::String, model::MapInstance>* mapInstances = nullptr);
 
   void reset();
   std::optional<model::GameEventChild> getCurrentNode() const;
@@ -95,6 +100,8 @@ public:
 private:
   model::Player* execPlayer = nullptr;
   const db::Database* execDatabase = nullptr;
+  model::ActiveMap* execActiveMap = nullptr;
+  bmin::Map<bmin::String, model::MapInstance>* execMapInstances = nullptr;
 
   // EXEC text queued while auto-advancing; flushed into displayText at the next stop.
   bmin::String autoAdvancedText;

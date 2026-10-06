@@ -42,6 +42,17 @@ void upsertOpenedDoor(bmin::DynArray<model::OpenedDoorRecord>& doors,
                       int y,
                       int tileId);
 
+// Permanent IN3 tile mutations (CHANGE_TILE_AT_MARKER_PERMANENT).
+void applyChangedTiles(model::MapInstance& map,
+                       const bmin::DynArray<model::ChangedTileRecord>& changes,
+                       const db::Database* database = nullptr);
+void upsertChangedTile(bmin::DynArray<model::ChangedTileRecord>& changes,
+                       int layer,
+                       int x,
+                       int y,
+                       const bmin::String& tilesetName,
+                       int tileId);
+
 // Restore cleared door locks after rebuilding from a map template.
 void applyUnlockedDoors(model::MapInstance& map,
                         const bmin::DynArray<model::UnlockedDoorRecord>& doors);

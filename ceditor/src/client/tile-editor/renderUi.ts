@@ -714,7 +714,10 @@ export const renderTileAndExtras = (args: {
     controlSprites.push('control_1');
   } else {
     for (const itemEntry of refTile.items) {
-      const itemName = itemEntry.name;
+      const itemName = itemEntry.name ?? '';
+      if (!itemName || itemEntry.dropTable?.trim()) {
+        continue;
+      }
       const itemTemplate = items.find((i) => i.name === itemName);
       if (itemTemplate) {
         const itemSpriteName = itemTemplate.icon;
@@ -804,8 +807,11 @@ export const renderTileAndExtras = (args: {
     for (const placed of refTile.characters) {
       const characterTemplate = characters.find((c) => c.name === placed.name);
       if (characterTemplate) {
+        const group = placed.agitationGroup?.trim();
         overlayTextEntries.push({
-          text: characterTemplate.name,
+          text: group
+            ? `${characterTemplate.name} (${group})`
+            : characterTemplate.name,
           x: centerX,
           y: tileY + textI * 6 * newScale - 3 * newScale,
           textParams,
@@ -818,6 +824,26 @@ export const renderTileAndExtras = (args: {
         text: marker,
         x: centerX,
         y: tileY - textI * 6 * newScale - 3 * newScale,
+        textParams,
+      });
+      textI++;
+    }
+    for (const itemEntry of refTile.items) {
+      const dropTable = itemEntry.dropTable?.trim();
+      const text = dropTable
+        ? `[${dropTable}]`
+        : itemEntry.name
+          ? itemEntry.quantity != null && itemEntry.quantity > 1
+            ? `${itemEntry.name} x${itemEntry.quantity}`
+            : itemEntry.name
+          : null;
+      if (!text) {
+        continue;
+      }
+      overlayTextEntries.push({
+        text,
+        x: centerX,
+        y: tileY + textI * 6 * newScale - 3 * newScale,
         textParams,
       });
       textI++;

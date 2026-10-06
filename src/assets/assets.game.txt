@@ -237,6 +237,8 @@ Sound,hit_metal3,assets/snd/hit_metal3,1,https://freesound.org/people/davilcol/s
 Sound,hit_arrow,assets/snd/hit_arrow
 Sound,hit_fireball,assets/snd/hit_fireball,1,maelstrom
 Sound,hit_energy,assets/snd/spell_energy,0.8,zzfx
+Sound,hit_claw1,assets/snd/claw1,1,https://freesound.org/people/Ali_6868/sounds/384880/
+Sound,hit_claw2,assets/snd/claw2,1,https://freesound.org/people/Ali_6868/sounds/384880/
 
 Sound,spell_cure,assets/snd/spell_cure,1,https://freesound.org/people/cormi/sounds/98473/
 Sound,spell_haste,assets/snd/spell_haste,0.3,zzfx
@@ -272,3 +274,5 @@ Sound,portal,assets/snd/portal
 Sound,lockpick,assets/snd/lockpick
 Sound,unlock_door,assets/snd/unlock_door,1,https://freesound.org/people/arnaud%20coutancier/sounds/275087/
 Sound,open_gate,assets/snd/open_gate,1,https://freesound.org/people/lolamadeus/sounds/161227/
+Sound,roar,assets/snd/roar,1,https://freesound.org/people/LucasDuff/sounds/467694/
+

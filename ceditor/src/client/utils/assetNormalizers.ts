@@ -4,7 +4,12 @@
  * animation / sound maps the server has no notion of.
  */
 import { Animation, Sound } from './assetLoader';
-import { sanitizeItemTemplates, sanitizeMapGridTemplates } from '../types/assets';
+import {
+  sanitizeCharacterTemplates,
+  sanitizeDropTables,
+  sanitizeItemTemplates,
+  sanitizeMapGridTemplates,
+} from '../types/assets';
 import { sanitizeAbilityTemplates } from '../types/ability';
 import { sanitizeSpellTemplates } from '../types/spell';
 import { normalizeMapItemsOnLoad } from '../tile-editor/mapTileItems';
@@ -46,6 +51,12 @@ export const NORMALIZERS: Partial<Record<AssetId, NormalizerEntry>> = {
   },
   mapGrids: {
     normalize: (raw) => sanitizeMapGridTemplates(raw as any),
+  },
+  dropTables: {
+    normalize: (raw) => sanitizeDropTables(raw),
+  },
+  characterTemplates: {
+    normalize: (raw) => sanitizeCharacterTemplates(raw),
   },
 };
 

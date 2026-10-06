@@ -42,6 +42,10 @@ class WorldTravel : public AbstractAction {
       return;
     }
 
+    for (auto& character : state->world.activeMap.characters) {
+      character.agitated = false;
+    }
+
     // Same grid: teleport only. Different grid: unload/reload active map entities.
     if (state->world.activeMap.gridId != gridId) {
       WorldLoadActiveMap(gridId).execute(state);

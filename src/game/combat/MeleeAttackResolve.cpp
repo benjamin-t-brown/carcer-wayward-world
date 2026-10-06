@@ -110,7 +110,24 @@ bmin::DynArray<ResolvedMeleeAbility> resolveMeleeAttackAbilities(
     }
   }
   if (resolved.empty()) {
-    auto ability = copyDefaultMeleeAbility(database);
+    auto ability = std::optional<model::AbilityTemplate>{};
+    const auto* characterTemplate =
+        database.findCharacterTemplate(bmin::toStringView(attacker.templateName));
+    if (characterTemplate != nullptr &&
+        !characterTemplate->combat.defaultAbility.empty()) {
+      const auto* namedAbility = database.findAbilityTemplate(
+          bmin::toStringView(characterTemplate->combat.defaultAbility));
+      if (namedAbility != nullptr) {
+        ability = *namedAbility;
+      } else {
+        LOG(WARN) << "MeleeAttackResolve: missing defaultAbility "
+                  << characterTemplate->combat.defaultAbility << " for character "
+                  << attacker.templateName << LOG_ENDL;
+        ability = copyDefaultMeleeAbility(database);
+      }
+    } else {
+      ability = copyDefaultMeleeAbility(database);
+    }
     if (ability.has_value()) {
       resolved.pushBack(ResolvedMeleeAbility{std::move(*ability), false, true});
     }

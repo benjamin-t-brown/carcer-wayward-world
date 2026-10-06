@@ -1,0 +1,35 @@
+[
+  {
+    "name": "fixtureLeaf",
+    "label": "Leaf Table",
+    "entries": [{ "item": "PotionHealing", "weight": 1 }]
+  },
+  {
+    "name": "fixtureNested",
+    "label": "Nested Table",
+    "entries": [{ "dropTable": "fixtureLeaf", "weight": 1 }]
+  },
+  {
+    "name": "fixtureWeighted",
+    "label": "Weighted Table",
+    "entries": [
+      { "item": "DaggerBronze", "weight": 1 },
+      { "item": "ArrowsIron", "weight": 0 }
+    ]
+  },
+  {
+    "name": "fixtureGoldRange",
+    "label": "Gold Range",
+    "entries": [{ "goldMin": 5, "goldMax": 20, "weight": 1 }]
+  },
+  {
+    "name": "fixtureFoodRange",
+    "label": "Food Range",
+    "entries": [{ "foodMin": 1, "foodMax": 3, "weight": 1 }]
+  },
+  {
+    "name": "fixtureNothing",
+    "label": "Nothing Table",
+    "entries": [{ "nothing": true, "weight": 1 }]
+  }
+]

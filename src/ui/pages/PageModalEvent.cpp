@@ -60,6 +60,7 @@ const std::pair<int, int> PageModalEvent::getDims() const {
 
 void PageModalEvent::build() {
   children.clear();
+  showMoreAnimating = false;
 
   if (props.width > 0) {
     style.width = props.width;
@@ -293,6 +294,11 @@ void PageModalEvent::onKeyUp(std::string_view /*key*/) {}
 
 void PageModalEvent::updateKeyboardChrome(int deltaTime) {
   keyboardFlash.update(deltaTime);
+  updateShowMoreScroll(deltaTime);
+  if (showMoreAnimating) {
+    // Keep Show More until the scroll finishes; avoid mid-animation footer flips.
+    return;
+  }
   if (footerNeedsSync) {
     footerNeedsSync = false;
     syncFooter(false);
@@ -302,19 +308,38 @@ void PageModalEvent::updateKeyboardChrome(int deltaTime) {
   }
 }
 
-void PageModalEvent::stopKeyboardChrome() { keyboardFlash.stop(); }
+void PageModalEvent::stopKeyboardChrome() {
+  keyboardFlash.stop();
+  showMoreAnimating = false;
+}
 
 ButtonGroup* PageModalEvent::footerButtonGroup() {
   return dynamic_cast<ButtonGroup*>(getChildById("buttonGroup"));
 }
 
-bool PageModalEvent::isContentClipped() {
+int PageModalEvent::clippedTextPx() {
   auto* section = textSection();
   if (!section) {
-    return false;
+    return 0;
   }
-  return section->getScrollOffset() < section->getMaxScrollOffset();
+  auto* text = section->getChildById("textBlocks");
+  if (!text) {
+    return std::max(0, section->getMaxScrollOffset() - section->getScrollOffset());
+  }
+
+  // getDims includes empty bottom padding — exclude it so already-visible last
+  // lines don't count as clipped.
+  int textBottom = text->getPos().second + text->getDims().second;
+  if (auto* paragraph = dynamic_cast<TextParagraph*>(text)) {
+    textBottom -= paragraph->getProps().padding;
+  }
+
+  const int viewportBottom =
+      section->getScrollOffset() + section->getContentDims().second;
+  return std::max(0, textBottom - viewportBottom);
 }
+
+bool PageModalEvent::isContentClipped() { return clippedTextPx() > kMinShowMorePx; }
 
 PageModalEvent::FooterMode PageModalEvent::computeFooterMode() {
   if (isContentClipped()) {
@@ -414,7 +439,8 @@ void PageModalEvent::styleShowMoreButton() {
 }
 
 void PageModalEvent::renderShowMoreCue() {
-  if (!isContentClipped()) {
+  const int remaining = clippedTextPx();
+  if (remaining <= kMinShowMorePx) {
     return;
   }
 
@@ -431,7 +457,9 @@ void PageModalEvent::renderShowMoreCue() {
   }
 
   auto& draw = window->getDraw();
-  const int vignetteH = std::min(72, contentH);
+  // Only fade the clipped strip — a fixed 72px fade was washing out already-visible
+  // lines and making a near-fit look like a full page of overflow.
+  const int vignetteH = std::min(72, std::min(contentH, remaining));
   constexpr int kBands = 10;
   const int bandH = std::max(1, vignetteH / kBands);
   const int fadeTop = sectionY + contentH - vignetteH;
@@ -446,7 +474,7 @@ void PageModalEvent::renderShowMoreCue() {
   }
 
   const int centerX = sectionX + sectionW / 2;
-  const int centerY = sectionY + contentH - 18;
+  const int centerY = sectionY + contentH - std::min(18, vignetteH / 2 + 4);
   const int arrow = 10;
   const float stroke = std::max(2.f, style.scale);
   draw.drawLine({centerX - arrow, centerY - 5},
@@ -469,12 +497,46 @@ void PageModalEvent::syncFooter(bool force) {
 
 void PageModalEvent::performShowMore() {
   auto* section = textSection();
-  if (!section) {
+  if (!section || showMoreAnimating) {
     return;
   }
   const auto viewportH = section->getContentDims().second;
-  section->scrollTo(section->getScrollOffset() + viewportH);
-  footerNeedsSync = true;
+  const int remaining = clippedTextPx();
+  showMoreScrollFrom = section->getScrollOffset();
+  // One viewport, or just enough to clear the remaining ink — never into empty pad.
+  const int byRemaining = showMoreScrollFrom + std::max(remaining, 0);
+  const int byViewport = showMoreScrollFrom + viewportH;
+  showMoreScrollTo =
+      std::min(std::min(byRemaining, byViewport), section->getMaxScrollOffset());
+  if (showMoreScrollTo <= showMoreScrollFrom) {
+    footerNeedsSync = true;
+    return;
+  }
+  model::timerStructStart(showMoreTimer, kShowMoreScrollMs);
+  showMoreAnimating = true;
+}
+
+void PageModalEvent::updateShowMoreScroll(int deltaTime) {
+  if (!showMoreAnimating) {
+    return;
+  }
+  auto* section = textSection();
+  if (!section) {
+    showMoreAnimating = false;
+    footerNeedsSync = true;
+    return;
+  }
+  model::timerStructUpdate(showMoreTimer, deltaTime);
+  const double pct = std::min(1.0, model::timerStructGetPct(showMoreTimer));
+  const int offset =
+      showMoreScrollFrom +
+      static_cast<int>((showMoreScrollTo - showMoreScrollFrom) * pct + 0.5);
+  section->scrollTo(offset);
+  if (model::timerStructIsComplete(showMoreTimer) || pct >= 1.0) {
+    section->scrollTo(showMoreScrollTo);
+    showMoreAnimating = false;
+    footerNeedsSync = true;
+  }
 }
 
 } // namespace ui

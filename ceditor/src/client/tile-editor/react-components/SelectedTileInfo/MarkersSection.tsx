@@ -47,6 +47,7 @@ function MarkerAccordionItem({
   onRemove: () => void;
   onOpenMapAndSelectTile?: (args: OpenMapAndSelectTileArgs) => void;
 }) {
+  const [copied, setCopied] = useState(false);
   const refs = useMemo(
     () => findTravelTriggerReferencesToMarker(map, markerName, maps),
     [map, markerName, maps]
@@ -64,42 +65,64 @@ function MarkerAccordionItem({
     });
   };
 
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(markerName);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1200);
+    } catch (err) {
+      console.error('Failed to copy marker name:', err);
+    }
+  };
+
   return (
     <div className="tile-editor-search-section tile-editor-marker-accordion">
       <div className="tile-editor-marker-accordion-header">
-        <button
-          type="button"
-          className="tile-editor-search-section-header tile-editor-marker-accordion-toggle"
-          onClick={onToggle}
-          aria-expanded={isOpen}
+        <div
+          className="tile-editor-marker-accordion-name"
+          title={markerName}
         >
-          <span
-            className="tile-editor-marker-accordion-name"
-            title={markerName}
+          {markerName}
+        </div>
+        <div className="tile-editor-marker-accordion-meta-row">
+          <button
+            type="button"
+            className="tile-editor-search-section-header tile-editor-marker-accordion-toggle"
+            onClick={onToggle}
+            aria-expanded={isOpen}
           >
-            {markerName}
-          </span>
-          <span className="tile-editor-marker-accordion-meta">
-            {refs.length} trigger{refs.length === 1 ? '' : 's'}
-          </span>
-          <span className="tile-editor-search-section-chevron" aria-hidden>
-            {isOpen ? '▾' : '▸'}
-          </span>
-        </button>
-        <button
-          type="button"
-          className="tile-editor-marker-remove"
-          onClick={onRemove}
-          title="Remove marker from this tile"
-        >
-          <span
-            style={{
-              filter: 'grayscale(100%) brightness(1.75) sepia(100%)',
+            <span className="tile-editor-marker-accordion-meta">
+              {refs.length} trigger{refs.length === 1 ? '' : 's'}
+            </span>
+            <span className="tile-editor-search-section-chevron" aria-hidden>
+              {isOpen ? '▾' : '▸'}
+            </span>
+          </button>
+          <button
+            type="button"
+            className="tile-editor-marker-copy"
+            onClick={() => {
+              void handleCopy();
             }}
+            title="Copy marker name"
           >
-            ✖️
-          </span>
-        </button>
+            {copied ? 'Copied' : 'Copy'}
+          </button>
+          <button
+            type="button"
+            className="tile-editor-marker-remove"
+            onClick={onRemove}
+            title="Remove marker from this tile"
+          >
+            <span
+              style={{
+                filter: 'grayscale(100%) brightness(1.75) sepia(100%)',
+              }}
+            >
+              ✖️
+            </span>
+          </button>
+        </div>
       </div>
       {isOpen && (
         <div className="tile-editor-search-section-body tile-editor-marker-refs">
