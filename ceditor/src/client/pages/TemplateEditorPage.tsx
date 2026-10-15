@@ -1,6 +1,8 @@
 import { useState, useRef, ReactNode } from 'react';
-import { CardList } from '../components/CardList';
+import { AssetTree, scrollAssetTreeItemIntoView } from '../components/AssetTree';
 import { EditorSidebar } from '../components/EditorSidebar';
+import { useAssetOrganization } from '../contexts/OrganizationContext';
+import type { OrganizableAssetId } from '../../shared/editorOrganization';
 import { EditorHeader } from '../components/EditorHeader';
 import { Notification } from '../elements/Notification';
 import { trimStrings } from '../utils/jsonUtils';
@@ -16,7 +18,12 @@ interface NotificationState {
   duration?: number;
 }
 
-type CardItem = { name: string; label?: string } & Record<string, unknown>;
+type CardItem = {
+  name: string;
+  label?: string;
+  /** When set (including ''), overrides the default subtitle of `name`. */
+  subtitle?: string;
+} & Record<string, unknown>;
 
 /**
  * Everything a plain "list + form" template editor page needs. Pages that add
@@ -43,7 +50,7 @@ export interface TemplateEditorDescriptor<T> {
   /** Sort order applied on save. Default: getId localeCompare. */
   compare?(a: T, b: T): number;
 
-  /** Row passed to CardList. Default: { name: getId, label: getLabel || getId }. */
+  /** Row passed to the sidebar tree. Default: { name: getId, label: getLabel || getId }. */
   toCardItem?(item: T): CardItem;
   renderAdditionalInfo?(cardItem: CardItem): ReactNode;
 
@@ -88,6 +95,7 @@ export function TemplateEditorPage<T>({
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const notificationIdRef = useRef(0);
+  const org = useAssetOrganization(d.preserveAsset as OrganizableAssetId);
 
   const showNotification = (
     message: string,
@@ -104,41 +112,46 @@ export function TemplateEditorPage<T>({
   const lowerTerm = searchTerm.toLowerCase();
   const filtered = items.filter((item) => d.matchesSearch(item, lowerTerm));
 
-  const getActualIndex = (filteredIndex: number) =>
-    items.indexOf(filtered[filteredIndex]);
-
-  const scrollCardIntoView = (index: number) => {
+  const scrollCardIntoView = (itemId: string) => {
     if (!d.scrollCardIntoView) {
       return;
     }
-    setTimeout(() => {
-      document
-        .getElementById(`item-card-${index}`)
-        ?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+    scrollAssetTreeItemIntoView(itemId);
   };
 
-  const handleClick = (filteredIndex: number) =>
-    setEditIndex(getActualIndex(filteredIndex));
+  const handleClick = (itemId: string) => {
+    const actualIndex = items.findIndex((item) => d.getId(item) === itemId);
+    if (actualIndex >= 0) {
+      setEditIndex(actualIndex);
+    }
+  };
 
-  const handleClone = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
+  const handleClone = (itemId: string) => {
+    const actualIndex = items.findIndex((item) => d.getId(item) === itemId);
+    if (actualIndex < 0) {
+      return;
+    }
     const cloned: T = JSON.parse(JSON.stringify(items[actualIndex]));
     d.setId(cloned, d.getId(cloned) + '_copy');
+    org.copyPlacement(itemId, d.getId(cloned));
     const next = items.slice();
     const clonedIndex = actualIndex + 1;
     next.splice(clonedIndex, 0, cloned);
     setItems(next);
     setEditIndex(clonedIndex);
     showNotification(`${capitalize(d.entityNoun)} cloned!`, 'success');
-    scrollCardIntoView(clonedIndex);
+    scrollCardIntoView(d.getId(cloned));
   };
 
-  const handleDelete = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
+  const handleDelete = (itemId: string) => {
+    const actualIndex = items.findIndex((item) => d.getId(item) === itemId);
+    if (actualIndex < 0) {
+      return;
+    }
     if (
       confirm(d.deleteConfirmMessage ?? `Delete this ${d.entityNoun}?`)
     ) {
+      org.removeItem(itemId);
       const next = items.filter((_, i) => i !== actualIndex);
       setItems(next);
       if (editIndex === actualIndex) {
@@ -150,17 +163,21 @@ export function TemplateEditorPage<T>({
   };
 
   const handleCreateNew = () => {
-    const next = [...items, d.createDefault()];
+    const created = d.createDefault();
+    const selectedId = editIndex >= 0 ? d.getId(items[editIndex]) : null;
+    org.fileNewItem(d.getId(created), selectedId);
+    const next = [...items, created];
     setItems(next);
     setEditIndex(next.length - 1);
     setSearchTerm('');
-    scrollCardIntoView(next.length - 1);
+    scrollCardIntoView(d.getId(created));
   };
 
   const updateItem = (item: T) => {
     if (editIndex < 0) {
       return;
     }
+    org.rekeyItem(d.getId(items[editIndex]), d.getId(item));
     const updated = [...items];
     updated[editIndex] = item;
     setItems(updated);
@@ -223,14 +240,6 @@ export function TemplateEditorPage<T>({
       label: d.getLabel(item) || d.getId(item),
     }));
 
-  const selectedCardIndex =
-    editIndex !== -1
-      ? (() => {
-          const i = filtered.findIndex((x) => items.indexOf(x) === editIndex);
-          return i >= 0 ? i : null;
-        })()
-      : null;
-
   const form = renderForm(current, updateItem);
 
   return (
@@ -250,13 +259,28 @@ export function TemplateEditorPage<T>({
             createLabel={d.createLabel}
             onCreate={handleCreateNew}
           >
-            <CardList
-              items={filtered.map(toCardItem)}
-              onItemClick={handleClick}
+            <AssetTree
+              assetId={d.preserveAsset as OrganizableAssetId}
+              items={filtered.map((item) => {
+                const card = toCardItem(item);
+                const label =
+                  typeof card.label === 'string' && card.label
+                    ? card.label
+                    : card.name;
+                return {
+                  id: d.getId(item),
+                  label,
+                  subtitle:
+                    typeof card.subtitle === 'string' ? card.subtitle : card.name,
+                  extra: d.renderAdditionalInfo?.(card),
+                };
+              })}
+              allItemIds={items.map((item) => d.getId(item))}
+              selectedId={editIndex >= 0 ? d.getId(items[editIndex]) : null}
+              onSelectItem={handleClick}
               onClone={handleClone}
               onDelete={handleDelete}
-              selectedIndex={selectedCardIndex}
-              renderAdditionalInfo={d.renderAdditionalInfo}
+              filterActive={searchTerm.trim() !== ''}
               emptyMessage={d.emptyMessage}
             />
           </EditorSidebar>

@@ -1,6 +1,7 @@
 #include "MapView.h"
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapWalkability.h"
 #include "game/map/TileFields.h"
@@ -91,6 +92,129 @@ void MapView::build() {
   }
   if (props.height > 0) {
     style.height = props.height;
+  }
+}
+
+bool MapView::isUnexploredBlack(game::ActiveMapOrchestrator& orch,
+                                int worldX,
+                                int worldY,
+                                int mapLayer) {
+  auto* map = orch.getMapInstanceAt(worldX, worldY);
+  const auto local = orch.activeMapCoordToInstanceCoord(worldX, worldY);
+  if (!map || !local.valid) {
+    return true;
+  }
+  map->tileLayerNumber = mapLayer;
+  // Fog uses the active-layer cell (incl. empty tilesetName), not fallthrough render.
+  const auto* tile =
+      model::mapInstanceGetTileAt(*map, local.x, local.y, mapLayer);
+  if (!tile) {
+    return true;
+  }
+  return !tile->isExplored;
+}
+
+bool MapView::isNotCurrentlyVisible(game::ActiveMapOrchestrator& orch,
+                                    int worldX,
+                                    int worldY,
+                                    int mapLayer) {
+  auto* map = orch.getMapInstanceAt(worldX, worldY);
+  const auto local = orch.activeMapCoordToInstanceCoord(worldX, worldY);
+  if (!map || !local.valid) {
+    return true;
+  }
+  map->tileLayerNumber = mapLayer;
+  const auto* tile =
+      model::mapInstanceGetTileAt(*map, local.x, local.y, mapLayer);
+  if (!tile || !tile->isExplored) {
+    return true;
+  }
+  return !tile->isVisible;
+}
+
+void MapView::drawFogFrills(
+    game::ActiveMapOrchestrator& orch,
+    sdl2w::Store& store,
+    int worldX,
+    int worldY,
+    int mapLayer,
+    int screenX,
+    int screenY,
+    bool edgeAgainstHidden,
+    const std::function<void(sdl2w::Sprite&, int, int)>& drawSprite) {
+  auto isOutside = [&](int nx, int ny) {
+    return edgeAgainstHidden ? isNotCurrentlyVisible(orch, nx, ny, mapLayer)
+                             : isUnexploredBlack(orch, nx, ny, mapLayer);
+  };
+
+  const auto outsideN = isOutside(worldX, worldY - 1);
+  const auto outsideS = isOutside(worldX, worldY + 1);
+  const auto outsideW = isOutside(worldX - 1, worldY);
+  const auto outsideE = isOutside(worldX + 1, worldY);
+  const auto outsideNW = isOutside(worldX - 1, worldY - 1);
+  const auto outsideNE = isOutside(worldX + 1, worldY - 1);
+  const auto outsideSW = isOutside(worldX - 1, worldY + 1);
+  const auto outsideSE = isOutside(worldX + 1, worldY + 1);
+
+  auto drawFrill = [&](int spriteIndex) {
+    const auto spriteName = bmin::String("frills_") + bmin::toString(spriteIndex);
+    if (!store.hasSprite(bmin::toStringView(spriteName))) {
+      return;
+    }
+    auto& sprite = store.getSprite(bmin::toStringView(spriteName));
+    drawSprite(sprite, screenX, screenY);
+  };
+
+  auto drewTop = false;
+  auto drewBottom = false;
+  auto drewLeft = false;
+  auto drewRight = false;
+
+  if (outsideN && outsideW) {
+    drawFrill(frillOuterTopLeft);
+    drewTop = true;
+    drewLeft = true;
+  }
+  if (outsideN && outsideE) {
+    drawFrill(frillOuterTopRight);
+    drewTop = true;
+    drewRight = true;
+  }
+  if (outsideS && outsideE) {
+    drawFrill(frillOuterBottomRight);
+    drewBottom = true;
+    drewRight = true;
+  }
+  if (outsideS && outsideW) {
+    drawFrill(frillOuterBottomLeft);
+    drewBottom = true;
+    drewLeft = true;
+  }
+
+  if (outsideN && !drewTop) {
+    drawFrill(frillTop);
+  }
+  if (outsideS && !drewBottom) {
+    drawFrill(frillBottom);
+  }
+  if (outsideE && !drewRight) {
+    drawFrill(frillRight);
+  }
+  if (outsideW && !drewLeft) {
+    drawFrill(frillLeft);
+  }
+
+  if (!outsideN && !outsideW && outsideNW) {
+    drawFrill(frillInnerTopLeft);
+  }
+  if (!outsideN && !outsideE && outsideNE) {
+    drawFrill(frillInnerTopRight);
+  }
+  if (!outsideS && !outsideW && outsideSW) {
+    drawFrill(frillInnerBottomLeft);
+  }
+  if (!outsideS && !outsideE && outsideSE) {
+    drawFrill(frillInnerBottomRight);
   }
 }
 
@@ -319,8 +443,20 @@ void MapView::render(int dt) {
       auto screenY =
           contentY + static_cast<int>((y * spriteH - world.camera.camY) * style.scale);
 
+      // Fog flags are per active layer; terrain sprites may fall through layers.
+      const auto* fogTile = model::mapInstanceGetTileAt(
+          *map, local.x, local.y, world.activeMap.mapLayer);
+      if (!fogTile || !fogTile->isExplored) {
+        if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
+            screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
+          draw.drawRect(
+              screenX, screenY, scaledSpriteW, scaledSpriteH, mapUnexploredColor);
+        }
+        continue;
+      }
+
       const auto* tile = game::resolveTileToRender(*map, local.x, local.y);
-      if (!tile || !tile->isExplored) {
+      if (!tile) {
         if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
             screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
           draw.drawRect(
@@ -337,7 +473,7 @@ void MapView::render(int dt) {
       auto& sprite = store.getSprite(bmin::toStringView(spriteName));
       drawMapSprite(sprite, screenX, screenY);
 
-      if (tile->isVisible) {
+      if (fogTile->isVisible) {
         if (const auto* surfaceTile = game::tileAtCurrentLayer(*map, local.x, local.y)) {
           for (size_t fi = 0; fi < surfaceTile->fields.size(); fi++) {
             const auto& field = surfaceTile->fields[fi];
@@ -373,13 +509,40 @@ void MapView::render(int dt) {
             drawOverlay(surfaceTile->travelTrigger->overlayVisibility);
           }
         }
+
+        drawFogFrills(orch,
+                      store,
+                      x,
+                      y,
+                      world.activeMap.mapLayer,
+                      screenX,
+                      screenY,
+                      /*edgeAgainstHidden=*/true,
+                      [&](sdl2w::Sprite& sprite, int sx, int sy) {
+                        drawMapSprite(sprite, sx, sy);
+                      });
       }
 
-      if (!tile->isVisible) {
+      if (!fogTile->isVisible) {
         if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
             screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
           draw.drawRect(screenX, screenY, scaledSpriteW, scaledSpriteH, mapFogColor);
         }
+        // Soft edge into solid black only, at fog alpha.
+        const auto prevAlpha = draw.getGlobalAlpha();
+        draw.setGlobalAlpha(static_cast<int>(mapFogColor.a));
+        drawFogFrills(orch,
+                      store,
+                      x,
+                      y,
+                      world.activeMap.mapLayer,
+                      screenX,
+                      screenY,
+                      /*edgeAgainstHidden=*/false,
+                      [&](sdl2w::Sprite& sprite, int sx, int sy) {
+                        drawMapSprite(sprite, sx, sy);
+                      });
+        draw.setGlobalAlpha(prevAlpha);
       }
     }
   }
@@ -443,6 +606,9 @@ void MapView::render(int dt) {
   }
 
   auto drawCharacter = [&](const model::CharacterInstance& character) {
+    if (!game::isCharacterOnActiveLayer(character, world.activeMap)) {
+      return;
+    }
     auto* map = orch.getMapInstanceAt(character.x, character.y);
     const auto local = orch.activeMapCoordToInstanceCoord(character.x, character.y);
     if (!map || !local.valid) {

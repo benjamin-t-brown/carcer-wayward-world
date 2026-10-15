@@ -2,6 +2,7 @@
 #include "game/combat/Damage.h"
 #include "game/combat/MeleeAttackResolve.h"
 #include "game/combat/SpellRules.h"
+#include "game/diceHelpers.h"
 #include "model/instances/CharacterInstance.hpp"
 #include "model/instances/CharacterPlayer.h"
 #include "model/instances/Player.h"
@@ -12,6 +13,8 @@
 #include "model/templates/Items.h"
 #include "sdl2w/Logger.h"
 #include "bmin/String.h"
+
+#include <cstdlib>
 
 namespace {
 
@@ -92,6 +95,89 @@ int main(int /*argc*/, char** /*argv*/) {
                       model::AttackClass::ATTACK_CLASS_AUTO_HIT, 0, 99, false),
                   "AUTO_HIT always hits") &&
        ok;
+  ok = assertTrue(game::rollMeleeAttackHit(
+                      model::AttackClass::ATTACK_CLASS_AUTO_HIT, 0, 99, true, true),
+                  "AUTO_HIT ignores advantage and off-hand") &&
+       ok;
+
+  {
+    // Seeded rolls: find unequal consecutive d20s so advantage / disadvantage /
+    // cancel paths are distinguishable via hit vs miss.
+    auto foundSeed = unsigned{0};
+    auto rollA = int{0};
+    auto rollB = int{0};
+    for (auto seed = unsigned{1}; seed < 10000; ++seed) {
+      std::srand(static_cast<unsigned>(seed));
+      rollA = game::rollDice(model::Dice::D20);
+      rollB = game::rollDice(model::Dice::D20);
+      if (rollA != rollB && rollA > 1 && rollB > 1 && rollA < 20 && rollB < 20) {
+        foundSeed = seed;
+        break;
+      }
+    }
+    ok = assertTrue(foundSeed != 0, "found seed with unequal mid-range d20s") && ok;
+    const auto higher = rollA > rollB ? rollA : rollB;
+    const auto lower = rollA < rollB ? rollA : rollB;
+    const auto attackBonus = 0;
+    const auto ac = lower + 1;
+    ok = assertTrue(game::meleeAttackHits(higher, attackBonus, ac),
+                    "higher roll would hit") &&
+         ok;
+    ok = assertTrue(!game::meleeAttackHits(lower, attackBonus, ac),
+                    "lower roll would miss") &&
+         ok;
+
+    std::srand(foundSeed);
+    ok = assertTrue(game::rollMeleeAttackHit(model::AttackClass::ATTACK_CLASS_MELEE,
+                                             attackBonus,
+                                             ac,
+                                             false,
+                                             true),
+                    "advantage takes higher of 2d20") &&
+         ok;
+
+    std::srand(foundSeed);
+    ok = assertTrue(!game::rollMeleeAttackHit(model::AttackClass::ATTACK_CLASS_MELEE,
+                                              attackBonus,
+                                              ac,
+                                              true,
+                                              false),
+                    "off-hand disadvantage takes lower of 2d20") &&
+         ok;
+
+    std::srand(foundSeed);
+    const auto cancelHit =
+        game::rollMeleeAttackHit(model::AttackClass::ATTACK_CLASS_MELEE,
+                                 attackBonus,
+                                 ac,
+                                 true,
+                                 true);
+    ok = assertTrue(cancelHit == game::meleeAttackHits(rollA, attackBonus, ac),
+                    "advantage + off-hand cancel uses first d20") &&
+         ok;
+
+    std::srand(foundSeed);
+    game::rollMeleeAttackHit(model::AttackClass::ATTACK_CLASS_MELEE,
+                             attackBonus,
+                             ac,
+                             true,
+                             true);
+    ok = assertEqual(game::rollDice(model::Dice::D20),
+                     rollB,
+                     "advantage + off-hand cancel consumes one d20") &&
+         ok;
+
+    std::srand(foundSeed);
+    const auto normalHit =
+        game::rollMeleeAttackHit(model::AttackClass::ATTACK_CLASS_MELEE,
+                                 attackBonus,
+                                 ac,
+                                 false,
+                                 false);
+    ok = assertTrue(normalHit == game::meleeAttackHits(rollA, attackBonus, ac),
+                    "default (no adv) uses single d20") &&
+         ok;
+  }
 
   {
     auto stats = model::CharacterStats{};

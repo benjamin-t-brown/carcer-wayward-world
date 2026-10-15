@@ -4,6 +4,12 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import fs, { readdir } from 'fs/promises';
 import { ASSET_TYPES, assetFileForId } from '../shared/assetRegistry';
+import {
+  isOrganizableAssetId,
+  normalizeAssetOrganization,
+  normalizeOrganizationFile,
+  type EditorOrganizationFile,
+} from '../shared/editorOrganization';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -14,6 +20,44 @@ const PORT = 3001;
 // Get the project root (two levels up from server directory)
 const PROJECT_ROOT = join(__dirname, '../../..');
 const ASSETS_DB_PATH = join(PROJECT_ROOT, 'src/assets/db');
+const EDITOR_ORGANIZATION_PATH = join(ASSETS_DB_PATH, 'editor-organization.json');
+let organizationQueue: Promise<unknown> = Promise.resolve();
+
+function enqueueOrganization<T>(job: () => Promise<T>): Promise<T> {
+  const run = organizationQueue.then(job, job);
+  organizationQueue = run.then(
+    () => undefined,
+    () => undefined,
+  );
+  return run;
+}
+
+async function readOrganizationFile(): Promise<EditorOrganizationFile> {
+  try {
+    const content = await fs.readFile(EDITOR_ORGANIZATION_PATH, 'utf-8');
+    return normalizeOrganizationFile(JSON.parse(content));
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === 'ENOENT') {
+      return {};
+    }
+    throw error;
+  }
+}
+
+function stringifyOrganization(file: EditorOrganizationFile): string {
+  const sorted: EditorOrganizationFile = {};
+  for (const key of Object.keys(file).sort()) {
+    if (!isOrganizableAssetId(key)) {
+      continue;
+    }
+    const slice = file[key];
+    if (slice) {
+      sorted[key] = slice;
+    }
+  }
+  return `${JSON.stringify(sorted, null, 2)}\n`;
+}
 const ASSETS_PATH = join(PROJECT_ROOT, 'src/assets');
 const SRC_PATH = join(PROJECT_ROOT, 'src');
 
@@ -117,6 +161,42 @@ app.post('/api/assets/:type', async (req, res) => {
   } catch (error) {
     console.error('Error saving asset:', error);
     res.status(500).json({ error: 'Failed to save asset file' });
+  }
+});
+
+app.get('/api/editor-organization', async (_req, res) => {
+  try {
+    const file = await enqueueOrganization(() => readOrganizationFile());
+    res.set('Cache-Control', 'no-store');
+    res.json(file);
+  } catch (error) {
+    console.error('Error loading editor organization:', error);
+    res.status(500).json({ error: 'Failed to load editor organization' });
+  }
+});
+
+app.post('/api/editor-organization/:assetId', async (req, res) => {
+  try {
+    const assetId = req.params.assetId;
+    if (!isOrganizableAssetId(assetId)) {
+      return res.status(400).json({ error: 'Invalid asset type' });
+    }
+    const slice = normalizeAssetOrganization(req.body);
+    const saved = await enqueueOrganization(async () => {
+      const current = await readOrganizationFile();
+      current[assetId] = slice;
+      await fs.mkdir(ASSETS_DB_PATH, { recursive: true });
+      await fs.writeFile(
+        EDITOR_ORGANIZATION_PATH,
+        stringifyOrganization(current),
+        'utf-8',
+      );
+      return slice;
+    });
+    res.json(saved);
+  } catch (error) {
+    console.error('Error saving editor organization:', error);
+    res.status(500).json({ error: 'Failed to save editor organization' });
   }
 });
 

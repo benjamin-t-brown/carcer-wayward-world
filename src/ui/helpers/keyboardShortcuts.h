@@ -21,7 +21,7 @@ bool isCancelActionKey(std::string_view key);
 
 bool isConfirmActionKey(std::string_view key);
 
-/** Keypad 5 — combat wait, or town wait on a requires-action travel tile. */
+/** Keypad 5 — combat wait, or town wait (travel trigger + town AI turn). */
 bool isWaitKey(std::string_view key);
 
 /** `m` / `M` — open combat spell-cast list (combat-only at call site). */

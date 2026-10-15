@@ -1,6 +1,7 @@
 #include "game/map/TileTriggers.h"
 #include "bmin/StringInterop.h"
 #include "game/combat/DropTables.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "game/map/CharacterConstruction.h"
 #include "game/map/MapWalkability.h"
 #include "in3/ConditionEvaluator.h"
@@ -72,6 +73,7 @@ model::CharacterInstance* placePartyAvatarAt(model::ActiveMap& activeMap,
   if (avatar) {
     avatar->x = x;
     avatar->y = y;
+    avatar->mapLayer = activeMap.mapLayer;
     return avatar;
   }
 
@@ -82,6 +84,7 @@ model::CharacterInstance* placePartyAvatarAt(model::ActiveMap& activeMap,
       leader.templateName.empty() ? leader.params.name : leader.templateName;
   instance.x = x;
   instance.y = y;
+  instance.mapLayer = activeMap.mapLayer;
   instance.spawnX = x;
   instance.spawnY = y;
   if (database) {
@@ -220,6 +223,9 @@ bmin::String formatExamineMessage(const model::MapInstance& map,
 
   for (size_t i = 0; i < activeMap.characters.size(); i++) {
     const auto& character = activeMap.characters[i];
+    if (!isCharacterOnActiveLayer(character, activeMap)) {
+      continue;
+    }
     if (character.x != worldX || character.y != worldY) {
       continue;
     }

@@ -226,15 +226,15 @@
     "value": 10,
     "itemUsability": "USABLE_EVERYWHERE",
     "useAbility": {
-      "abilityName": "HEAL_SELF",
+      "abilityName": "POTION_MINOR_HEAL",
       "restoreOverrides": [
         {
           "restoreWhich": "CURRENT_STAT_HP",
           "restoreDice": [
-            "D0"
+            "D6"
           ],
-          "restoreBonus": 10,
-          "restoreStat": "STAT_STR",
+          "restoreBonus": 2,
+          "restoreStat": "STAT_CON",
           "restoreStatMult": 0
         }
       ]
@@ -245,7 +245,7 @@
     "name": "que_alinea_RealmSeal",
     "label": "Realm Seal",
     "icon": "ui_item_icons_22",
-    "description": "This item has no description.",
+    "description": "A Realm Seal that you pulled out of a barrel of fetid mud.",
     "weight": 1,
     "value": 1,
     "stackable": false,

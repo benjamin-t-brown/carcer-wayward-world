@@ -1,5 +1,7 @@
 #include "db/Database.h"
 #include "game/combat/EnemyBehavior.h"
+#include "game/combat/MeleeAttackResolve.h"
+#include "game/diceHelpers.h"
 #include "game/map/TileDistance.h"
 #include "game/map/CharacterConstruction.h"
 #include "game/map/MapVision.h"
@@ -19,10 +21,13 @@
 #include "state/StateManagerInterface.h"
 #include "state/WorldUpdater.h"
 #include "actions/combat/DoCPUCombatTurn.hpp"
+#include "actions/combat/EndCombat.hpp"
 #include "actions/combat/GoNextCombatTurn.hpp"
 #include "actions/combat/StartCombat.hpp"
+#include "actions/world/PerformTownMeleeAttack.hpp"
 #include "actions/world/TownEnemyAiAfterPlayerMove.hpp"
 #include "actions/world/WorldMovePlayer.hpp"
+#include "actions/world/WorldWaitPlayer.hpp"
 #include "bmin/String.h"
 #include <cstdlib>
 
@@ -97,7 +102,35 @@ void addDefaultMeleeAbility(db::Database& database) {
   attack.damageType = model::DamageType::DAMAGE_TYPE_EDGED;
   attack.dmg = makeFixedMeleeDmg(5);
   ability.attacks.pushBack(attack);
+  // Combat-style depiction (not the old flat-10 / 75% town stub).
+  ability.depiction.dmgAnim = "splash_attack";
+  ability.depiction.dmgSound = "hit_punch3";
   database.addAbilityTemplate(ability);
+}
+
+void pumpActionsOnly(state::StateManager& stateManager, int maxMs = 4000) {
+  for (int elapsed = 0; elapsed < maxMs; elapsed += 50) {
+    stateManager.update(50);
+    const auto& actions = stateManager.getActionData();
+    if (actions.sequentialActions.empty() && actions.sequentialActionsNext.empty() &&
+        actions.insertActions.empty()) {
+      return;
+    }
+  }
+}
+
+bool hasDamageParticleAt(const model::ActiveMap& activeMap,
+                         const bmin::String& animationName,
+                         int tileX,
+                         int tileY) {
+  for (size_t i = 0; i < activeMap.damageParticles.size(); i++) {
+    const auto& particle = activeMap.damageParticles[i];
+    if (particle.animationName == animationName && particle.tileX == tileX &&
+        particle.tileY == tileY) {
+      return true;
+    }
+  }
+  return false;
 }
 
 void addTestTileset(db::Database& database) {
@@ -706,6 +739,8 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   {
+    // Adjacent agitated enemy attacks without moving; AUTO_HIT ability damage (5), not
+    // the old flat-10 / 75% stub; does not step onto the avatar tile.
     db::Database database;
     auto state = makeTownState(database, 2, 2, 3, 2, 6);
     state::StateManager stateManager;
@@ -717,24 +752,25 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertTrue(enemy != nullptr, "melee enemy exists") && ok;
     enemy->agitated = true;
     const auto startX = enemy->x;
+    const auto startY = enemy->y;
     const auto hpBefore = partyHpSum(stateManager.getState().player);
 
-    // Force hits so the random 75% chance cannot flake the assertion.
     std::srand(1);
-    auto damaged = false;
-    for (int attempt = 0; attempt < 40; ++attempt) {
-      runAndPumpTownEnemyAi(stateManager, database);
-      if (partyHpSum(stateManager.getState().player) < hpBefore) {
-        damaged = true;
-        break;
-      }
-    }
-    ok = assertTrue(damaged, "town melee eventually damages a party member") && ok;
+    runAndPumpTownEnemyAi(stateManager, database);
+
+    const auto hpAfter = partyHpSum(stateManager.getState().player);
+    ok = assertEqual(hpBefore - hpAfter, 5,
+                     "town melee AUTO_HIT deals ability damage 5 (not flat 10)") &&
+         ok;
 
     enemy = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
     ok = assertTrue(enemy != nullptr, "melee enemy still on map") && ok;
     if (enemy) {
       ok = assertEqual(enemy->x, startX, "adjacent enemy does not step away") && ok;
+      ok = assertEqual(enemy->y, startY, "adjacent enemy y unchanged") && ok;
+      ok = assertTrue(enemy->x != 2 || enemy->y != 2,
+                      "adjacent enemy does not step onto avatar tile") &&
+           ok;
     }
     ok = assertFalse(stateManager.getState().world.resolvingTownEnemyAi,
                      "town AI idle after melee sequence") &&
@@ -753,6 +789,197 @@ int main(int /*argc*/, char** /*argv*/) {
       }
     }
     ok = assertTrue(ally2Hit, "town melee can damage non-avatar party member") && ok;
+  }
+
+  {
+    // Direct PerformTownMeleeAttack: depiction sound + particle on avatar tile.
+    db::Database database;
+    auto state = makeTownState(database, 2, 2, 3, 2, 6);
+    state::StateManager stateManager;
+    stateManager.getState() = state;
+    state::StateManagerInterface::setStateManager(&stateManager);
+    lightFromAvatar(stateManager.getState(), database);
+
+    auto* enemy = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
+    ok = assertTrue(enemy != nullptr, "depiction melee enemy exists") && ok;
+    enemy->agitated = true;
+
+    const auto hpBefore = partyHpSum(stateManager.getState().player);
+    stateManager.getState().soundsToPlay.clear();
+    stateManager.getState().world.activeMap.damageParticles.clear();
+    stateManager.enqueueAction(
+        state::makeAction<state::actions::PerformTownMeleeAttack>("enemy-1"), 0);
+    // update-only so soundsToPlay is not drained by worldUpdate.
+    pumpActionsOnly(stateManager);
+
+    const auto hpAfter = partyHpSum(stateManager.getState().player);
+    ok = assertEqual(hpBefore - hpAfter, 5, "direct town melee deals ability damage 5") &&
+         ok;
+    ok = assertTrue(
+        stateManager.getState().soundsToPlay.contains(bmin::String("hit_punch3")),
+        "town melee queues depiction dmgSound") &&
+         ok;
+    ok = assertTrue(hasDamageParticleAt(stateManager.getState().world.activeMap,
+                                        "splash_attack",
+                                        2,
+                                        2),
+                    "town melee spawns depiction particle on avatar tile") &&
+         ok;
+  }
+
+  {
+    // PerformTownMeleeAttack always rolls withAdvantage=true. Seed so the first
+    // d20 would miss AC but advantage (higher of 2d20) hits and deals damage.
+    db::Database database;
+    auto state = makeTownState(database, 2, 2, 3, 2, 6);
+
+    auto rolledMelee = model::AbilityTemplate{};
+    rolledMelee.name = "MELEE_ATTACK_DEFAULT";
+    auto attack = model::AbilityAttack{};
+    attack.attackClass = model::AttackClass::ATTACK_CLASS_MELEE;
+    attack.damageType = model::DamageType::DAMAGE_TYPE_EDGED;
+    attack.dmg = makeFixedMeleeDmg(7);
+    rolledMelee.attacks.pushBack(attack);
+    rolledMelee.depiction.dmgAnim = "splash_attack";
+    rolledMelee.depiction.dmgSound = "hit_punch3";
+    database.addAbilityTemplate(rolledMelee);
+
+    // One living target: victim pick still consumes one rand, but is deterministic.
+    state.player.party[1].currentHp = 0;
+
+    state::StateManager stateManager;
+    stateManager.getState() = state;
+    state::StateManagerInterface::setStateManager(&stateManager);
+    lightFromAvatar(stateManager.getState(), database);
+
+    auto* enemy = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
+    ok = assertTrue(enemy != nullptr, "town advantage enemy exists") && ok;
+    enemy->agitated = true;
+
+    const auto attackBonus = 0;
+    const auto ac = 10;
+    auto foundSeed = unsigned{0};
+    auto rollA = int{0};
+    auto rollB = int{0};
+    for (auto seed = unsigned{1}; seed < 50000; ++seed) {
+      std::srand(static_cast<unsigned>(seed));
+      (void)(std::rand() % 1);
+      rollA = game::rollDice(model::Dice::D20);
+      rollB = game::rollDice(model::Dice::D20);
+      const auto higher = rollA > rollB ? rollA : rollB;
+      if (rollA > 1 && rollA < 20 && rollB > 1 && rollB < 20 &&
+          !game::meleeAttackHits(rollA, attackBonus, ac) &&
+          game::meleeAttackHits(higher, attackBonus, ac)) {
+        foundSeed = seed;
+        break;
+      }
+    }
+    ok = assertTrue(foundSeed != 0, "found town-advantage seed (miss then adv hit)") &&
+         ok;
+
+    std::srand(foundSeed);
+    (void)(std::rand() % 1);
+    ok = assertTrue(!game::rollMeleeAttackHit(model::AttackClass::ATTACK_CLASS_MELEE,
+                                              attackBonus,
+                                              ac,
+                                              false,
+                                              false),
+                    "same seed without advantage misses") &&
+         ok;
+    std::srand(foundSeed);
+    (void)(std::rand() % 1);
+    ok = assertTrue(game::rollMeleeAttackHit(model::AttackClass::ATTACK_CLASS_MELEE,
+                                             attackBonus,
+                                             ac,
+                                             false,
+                                             true),
+                    "same seed with advantage hits") &&
+         ok;
+
+    std::srand(foundSeed);
+    const auto hpBefore = stateManager.getState().player.party[0].currentHp;
+    stateManager.enqueueAction(
+        state::makeAction<state::actions::PerformTownMeleeAttack>("enemy-1"), 0);
+    pumpActionsOnly(stateManager);
+    const auto hpAfter = stateManager.getState().player.party[0].currentHp;
+    ok = assertEqual(hpBefore - hpAfter,
+                     7,
+                     "town melee withAdvantage turns seeded miss into hit") &&
+         ok;
+  }
+
+  {
+    // EndCombat: town mode, combat inactive, one movement tick, town AI pass.
+    db::Database database;
+    auto state = makeTownState(database, 2, 2, 5, 2, 6);
+    state::StateManager stateManager;
+    stateManager.getState() = state;
+    state::StateManagerInterface::setStateManager(&stateManager);
+    lightFromAvatar(stateManager.getState(), database);
+
+    auto* enemy = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
+    ok = assertTrue(enemy != nullptr, "EndCombat enemy exists") && ok;
+    enemy->agitated = true;
+    const auto enemyStartX = enemy->x;
+
+    stateManager.getState().world.combat.active = true;
+    stateManager.getState().world.combat.turnOrderIds = {"ally-1", "enemy-1"};
+    stateManager.getState().turnMode = model::TurnMode::TURN_COMBAT;
+    stateManager.getState().playerMovementCount = 10;
+
+    stateManager.enqueueAction(state::makeAction<state::actions::EndCombat>(), 0);
+    pumpTownEnemyAi(stateManager);
+
+    ok = assertFalse(stateManager.getState().world.combat.active,
+                     "EndCombat clears combat.active") &&
+         ok;
+    ok = assertEqual(static_cast<int>(stateManager.getState().turnMode),
+                     static_cast<int>(model::TurnMode::TURN_TOWN),
+                     "EndCombat sets turnMode town") &&
+         ok;
+    ok = assertEqual(stateManager.getState().playerMovementCount,
+                     11,
+                     "EndCombat increments playerMovementCount once") &&
+         ok;
+    ok = assertFalse(stateManager.getState().world.resolvingTownEnemyAi,
+                     "town AI idle after EndCombat pass") &&
+         ok;
+
+    enemy = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
+    ok = assertTrue(enemy != nullptr && enemy->x < enemyStartX,
+                    "EndCombat town AI seeks agitated enemy toward avatar") &&
+         ok;
+  }
+
+  {
+    // Town wait counts as one overworld turn (movement tick + town AI).
+    db::Database database;
+    auto state = makeTownState(database, 2, 2, 5, 2, 6);
+    state::StateManager stateManager;
+    stateManager.getState() = state;
+    state::StateManagerInterface::setStateManager(&stateManager);
+    lightFromAvatar(stateManager.getState(), database);
+
+    auto* enemy = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
+    ok = assertTrue(enemy != nullptr, "Wait enemy exists") && ok;
+    enemy->agitated = true;
+    const auto enemyStartX = enemy->x;
+    stateManager.getState().playerMovementCount = 20;
+
+    stateManager.enqueueAction(state::makeAction<state::actions::WorldWaitPlayer>(), 0);
+    pumpTownEnemyAi(stateManager);
+
+    ok = assertEqual(stateManager.getState().playerMovementCount,
+                     21,
+                     "WorldWaitPlayer increments playerMovementCount once") &&
+         ok;
+    ok = assertFalse(stateManager.getState().world.resolvingTownEnemyAi,
+                     "town AI idle after WorldWaitPlayer") &&
+         ok;
+    enemy = findOnActiveMap(stateManager.getState().world.activeMap, "enemy-1");
+    ok = assertTrue(enemy != nullptr && enemy->x < enemyStartX,
+                    "WorldWaitPlayer town AI seeks agitated enemy toward avatar") &&
+         ok;
   }
 
   {

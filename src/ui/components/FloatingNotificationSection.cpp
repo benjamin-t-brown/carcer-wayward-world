@@ -12,6 +12,8 @@ FloatingNotificationSection::FloatingNotificationSection(sdl2w::Window* _window,
     : UiElement(_window, _parent) {
   shouldPropagateEventsToChildren = false;
 
+  // Action subscriptions still refresh immediately when those actions run;
+  // render also polls floatingNotificationRevision for inline pushes / expiry.
   subscribeAction<state::ActionEvent::UiPushFloatingNotification>(
       [this](const auto&, const state::State& state) {
         syncFromState(state);
@@ -50,6 +52,7 @@ const FloatingNotificationSectionProps& FloatingNotificationSection::getProps() 
 }
 
 void FloatingNotificationSection::syncFromState(const state::State& state) {
+  syncedRevision = state.uiState.floatingNotificationRevision;
   children.clear();
 
   for (const auto& notification : state.uiState.floatingNotifications) {
@@ -66,35 +69,41 @@ void FloatingNotificationSection::syncFromState(const state::State& state) {
   layoutNotifications();
 }
 
-void FloatingNotificationSection::layoutNotifications() {
-  auto [windowWidth, windowHeight] = window->getDims();
+void FloatingNotificationSection::syncIfRevisionChanged() {
+  if (!hasStateManager()) {
+    return;
+  }
+  const auto& state = getStateManager()->getState();
+  if (state.uiState.floatingNotificationRevision == syncedRevision) {
+    return;
+  }
+  syncFromState(state);
+}
 
-  int stackHeight = 0;
+void FloatingNotificationSection::layoutNotifications() {
+  const int pad = props.margin;
+  const int originX = props.originX + pad;
+  int currentY = props.originY + pad;
   int maxWidth = 0;
+  int stackHeight = 0;
+
+  // Anchor at the top-left of the game area; oldest first, newer below.
   for (const auto& child : children) {
     if (stackHeight > 0) {
       stackHeight += props.notificationGap;
+      currentY += props.notificationGap;
     }
     auto [childWidth, childHeight] = child->getDims();
     maxWidth = std::max(maxWidth, childWidth);
     stackHeight += childHeight;
-  }
 
-  // Anchor the stack at the bottom of the screen; newest notification sits lowest.
-  int currentY = windowHeight - props.bottomMargin;
-  for (auto it = children.rbegin(); it != children.rend(); ++it) {
-    auto& child = *it;
-    auto [childWidth, childHeight] = child->getDims();
-
-    currentY -= childHeight;
-    child->setPos((windowWidth - childWidth) / 2, currentY);
+    child->setPos(originX, currentY);
     child->build();
-
-    currentY -= props.notificationGap;
+    currentY += childHeight;
   }
 
-  style.x = (windowWidth - maxWidth) / 2;
-  style.y = windowHeight - props.bottomMargin - stackHeight;
+  style.x = originX;
+  style.y = props.originY + pad;
   style.width = maxWidth;
   style.height = stackHeight;
 }
@@ -107,6 +116,9 @@ void FloatingNotificationSection::build() {
   }
 }
 
-void FloatingNotificationSection::render(int dt) { UiElement::render(dt); }
+void FloatingNotificationSection::render(int dt) {
+  syncIfRevisionChanged();
+  UiElement::render(dt);
+}
 
 } // namespace ui

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { CardList } from '../components/CardList';
+import { AssetTree, scrollAssetTreeItemIntoView } from '../components/AssetTree';
 import { EditorSidebar } from '../components/EditorSidebar';
 import {
   AbilityDeleteImpact,
@@ -20,6 +20,7 @@ import { useSDL2WAssets } from '../contexts/SDL2WAssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 import { useSaveHotkey } from '../hooks/useSaveHotkey';
+import { useAssetOrganization } from '../contexts/OrganizationContext';
 
 interface NotificationState {
   message: string;
@@ -29,6 +30,28 @@ interface NotificationState {
 
 interface CharacterTemplatesProps {
   routeParams?: URLSearchParams;
+}
+
+function isEnemyType(type: string) {
+  return type === 'ENEMY' || type === 'ENEMY_STATIC';
+}
+
+function isTownspersonType(type: string) {
+  return type === 'TOWNSPERSON' || type === 'TOWNSPERSON_STATIC';
+}
+
+function CharacterTypeIcon({ type }: { type: string }) {
+  const enemy = isEnemyType(type);
+  return (
+    <span
+      className="character-type-icon"
+      style={{ background: enemy ? '#a1260d' : '#4a7c59' }}
+      title={enemy ? 'Enemy' : 'Townsperson'}
+      aria-label={enemy ? 'Enemy' : 'Townsperson'}
+    >
+      {enemy ? 'E' : 'T'}
+    </span>
+  );
 }
 
 export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}) {
@@ -46,6 +69,7 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
   const [showTownspersons, setShowTownspersons] = useState(true);
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const notificationIdRef = useRef(0);
+  const org = useAssetOrganization('characterTemplates');
 
   const showNotification = (message: string, type: 'success' | 'error') => {
     const id = notificationIdRef.current++;
@@ -55,11 +79,6 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
   const removeNotification = (id: number) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
-
-  const isEnemyType = (type: string) =>
-    type === 'ENEMY' || type === 'ENEMY_STATIC';
-  const isTownspersonType = (type: string) =>
-    type === 'TOWNSPERSON' || type === 'TOWNSPERSON_STATIC';
 
   // Filter characters based on search term and type filters
   const lowerSearch = searchTerm.toLowerCase();
@@ -76,12 +95,9 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
       character.type.toLowerCase().includes(lowerSearch)
     );
   });
-
-  // Get the actual index in the full characters array for filtered characters
-  const getActualIndex = (filteredIndex: number): number => {
-    const filteredCharacter = filteredCharacters[filteredIndex];
-    return characters.indexOf(filteredCharacter);
-  };
+  const characterTypeById = new Map(
+    characters.map((character) => [character.name, character.type]),
+  );
 
   const scrollToTopOfForm = () => {
     setTimeout(() => {
@@ -91,19 +107,30 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
     }, 100);
   };
 
-  const handleCharacterClick = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
+  const handleCharacterClick = (characterId: string) => {
+    const actualIndex = characters.findIndex(
+      (character) => character.name === characterId,
+    );
+    if (actualIndex < 0) {
+      return;
+    }
     setEditCharacterIndex(actualIndex);
     scrollToTopOfForm();
   };
 
-  const handleClone = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
+  const handleClone = (characterId: string) => {
+    const actualIndex = characters.findIndex(
+      (character) => character.name === characterId,
+    );
+    if (actualIndex < 0) {
+      return;
+    }
     const originalCharacter = characters[actualIndex];
     const clonedCharacter: CharacterTemplate = JSON.parse(
       JSON.stringify(originalCharacter)
     );
     clonedCharacter.name = clonedCharacter.name + '_copy';
+    org.copyPlacement(characterId, clonedCharacter.name);
     const newCharacters = characters.slice();
     const clonedIndex = actualIndex + 1;
     newCharacters.splice(clonedIndex, 0, clonedCharacter);
@@ -111,19 +138,15 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
     setEditCharacterIndex(clonedIndex);
     showNotification('Character cloned!', 'success');
     scrollToTopOfForm();
-    setTimeout(() => {
-      const characterCard = document.getElementById(
-        `character-card-${clonedIndex}`
-      );
-      if (characterCard) {
-        characterCard.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
+    scrollAssetTreeItemIntoView(clonedCharacter.name);
   };
 
   const confirmDeleteCharacter = (actualIndex: number) => {
     const character = characters[actualIndex];
     const characterName = character?.name.trim() ?? '';
+    if (character?.name) {
+      org.removeItem(character.name);
+    }
 
     const newCharacters = characters.filter((_, index) => index !== actualIndex);
     setCharacters(newCharacters);
@@ -141,8 +164,13 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
     setCharacterDeleteConfirm(null);
   };
 
-  const handleDelete = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
+  const handleDelete = (characterId: string) => {
+    const actualIndex = characters.findIndex(
+      (character) => character.name === characterId,
+    );
+    if (actualIndex < 0) {
+      return;
+    }
     const character = characters[actualIndex];
     if (!character) {
       return;
@@ -182,26 +210,23 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
 
   const handleCreateNew = () => {
     const newCharacterTemplate = createDefaultCharacter();
+    const selectedId =
+      editCharacterIndex >= 0 ? characters[editCharacterIndex]?.name ?? null : null;
+    org.fileNewItem(newCharacterTemplate.name, selectedId);
     const newCharacters = [...characters, newCharacterTemplate];
     setCharacters(newCharacters);
     const actualIndex = newCharacters.length - 1;
     setEditCharacterIndex(actualIndex);
     scrollToTopOfForm();
     setSearchTerm('');
-    setTimeout(() => {
-      const characterCard = document.getElementById(
-        `character-card-${actualIndex}`
-      );
-      if (characterCard) {
-        characterCard.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
+    scrollAssetTreeItemIntoView(newCharacterTemplate.name);
   };
 
   const updateCharacter = (character: CharacterTemplate) => {
     if (editCharacterIndex < 0) {
       return;
     }
+    org.rekeyItem(characters[editCharacterIndex].name, character.name);
     const updatedCharacters = [...characters];
     updatedCharacters[editCharacterIndex] = character;
     setCharacters(updatedCharacters);
@@ -360,43 +385,43 @@ export function CharacterTemplates({ routeParams }: CharacterTemplatesProps = {}
             </div>
           }
         >
-          <CardList
-            items={filteredCharacters}
-            onItemClick={handleCharacterClick}
-            onClone={handleClone}
-            onDelete={handleDelete}
-            selectedIndex={
-              editCharacterIndex !== -1
-                ? (() => {
-                    const index = filteredCharacters.findIndex(
-                      (character) =>
-                        characters.indexOf(character) === editCharacterIndex
-                    );
-                    return index >= 0 ? index : null;
-                  })()
-                : null
-            }
-            renderAdditionalInfo={(character) => {
+          <AssetTree
+            assetId="characterTemplates"
+            items={filteredCharacters.map((character) => {
               const spriteName = `${character.spritesheet}_${character.spriteOffset}`;
               const sprite = spriteMap[spriteName];
-              const typeClass = isEnemyType(character.type)
-                ? 'item-type character-type-enemy'
-                : 'item-type character-type-townsperson';
-              return (
-                <div
-                  className="item-info"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                  }}
-                >
-                  <Sprite sprite={sprite} displaySize={32} />
-                  <span className={typeClass}>{character.type}</span>
-                </div>
-              );
-            }}
+              const label = character.label || character.name;
+              return {
+                id: character.name,
+                label: `${label} (${character.name})`,
+                icon: <CharacterTypeIcon type={character.type} />,
+                extra: sprite ? (
+                  <div className="item-info character-tree-sprite">
+                    <Sprite sprite={sprite} displaySize={24} />
+                  </div>
+                ) : undefined,
+              };
+            })}
+            allItemIds={characters.map((character) => character.name)}
+            selectedId={
+              editCharacterIndex >= 0
+                ? characters[editCharacterIndex]?.name
+                : null
+            }
+            onSelectItem={handleCharacterClick}
+            onClone={handleClone}
+            onDelete={handleDelete}
+            filterActive={
+              searchTerm.trim() !== '' || !showEnemies || !showTownspersons
+            }
             emptyMessage="No characters found"
+            compareItems={(a, b) => {
+              const typeA = characterTypeById.get(a.id) ?? '';
+              const typeB = characterTypeById.get(b.id) ?? '';
+              const rankA = isEnemyType(typeA) ? 0 : 1;
+              const rankB = isEnemyType(typeB) ? 0 : 1;
+              return rankA - rankB || a.label.localeCompare(b.label) || a.id.localeCompare(b.id);
+            }}
           />
         </EditorSidebar>
 

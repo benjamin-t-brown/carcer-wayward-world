@@ -2,7 +2,13 @@
 
 #include "state/DatabaseInterface.h"
 #include "state/StateManagerInterface.h"
+#include "state/WorldActions.hpp"
+#include "ui/KeyboardPressFlash.h"
 #include <string_view>
+
+namespace ui {
+class ButtonWorldAction;
+}
 
 namespace layers {
 
@@ -35,10 +41,14 @@ public:
 
 private:
   UiLayer& owner;
+  ui::KeyboardPressFlash worldActionFlash;
 
   bool hasLastMousePos = false;
   int lastMouseX = 0;
   int lastMouseY = 0;
+
+  ui::ButtonWorldAction* findWorldActionButton(state::WorldActionType actionType);
+  void beginWorldActionKeyboardPress(state::WorldActionType actionType);
 };
 
 } // namespace layers

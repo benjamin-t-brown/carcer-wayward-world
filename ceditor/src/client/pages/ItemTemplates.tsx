@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { CardList } from '../components/CardList';
+import { AssetTree, scrollAssetTreeItemIntoView } from '../components/AssetTree';
 import { EditorSidebar } from '../components/EditorSidebar';
 import { ItemTemplate } from '../types/assets';
 import {
@@ -14,6 +14,7 @@ import { Sprite } from '../elements/Sprite';
 import { trimStrings } from '../utils/jsonUtils';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 import { useSaveHotkey } from '../hooks/useSaveHotkey';
+import { useAssetOrganization } from '../contexts/OrganizationContext';
 
 interface NotificationState {
   message: string;
@@ -37,6 +38,7 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const notificationIdRef = useRef(0);
+  const org = useAssetOrganization('itemTemplates');
 
   const showNotification = (message: string, type: 'success' | 'error') => {
     const id = notificationIdRef.current++;
@@ -55,12 +57,6 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
       item.itemType.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Get the actual index in the full items array for filtered items
-  const getActualIndex = (filteredIndex: number): number => {
-    const filteredItem = filteredItems[filteredIndex];
-    return items.indexOf(filteredItem);
-  };
-
   const scrollToTopOfForm = () => {
     setTimeout(() => {
       document
@@ -69,17 +65,24 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
     }, 100);
   };
 
-  const handleItemClick = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
+  const handleItemClick = (itemId: string) => {
+    const actualIndex = items.findIndex((item) => item.name === itemId);
+    if (actualIndex < 0) {
+      return;
+    }
     setEditItemIndex(actualIndex);
     scrollToTopOfForm();
   };
 
-  const handleClone = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
+  const handleClone = (itemId: string) => {
+    const actualIndex = items.findIndex((item) => item.name === itemId);
+    if (actualIndex < 0) {
+      return;
+    }
     const originalItem = items[actualIndex];
     const clonedItem: ItemTemplate = JSON.parse(JSON.stringify(originalItem));
     clonedItem.name = clonedItem.name + '_copy';
+    org.copyPlacement(itemId, clonedItem.name);
     const newItems = items.slice();
     const clonedIndex = actualIndex + 1;
     newItems.splice(clonedIndex, 0, clonedItem);
@@ -87,44 +90,37 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
     setEditItemIndex(clonedIndex);
     showNotification('Item cloned!', 'success');
     scrollToTopOfForm();
-    setTimeout(() => {
-      const itemCard = document.getElementById(`item-card-${clonedIndex}`);
-      console.log('scrollItemCardIntoView', clonedIndex, itemCard);
-      if (itemCard) {
-        itemCard.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
+    scrollAssetTreeItemIntoView(clonedItem.name);
   };
 
-  const handleDelete = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
+  const handleDelete = (itemId: string) => {
+    const actualIndex = items.findIndex((item) => item.name === itemId);
+    if (actualIndex < 0) {
+      return;
+    }
     if (confirm('Are you sure you want to delete this item?')) {
+      org.removeItem(itemId);
       const newItems = items.filter((_, index) => index !== actualIndex);
       setItems(newItems);
       if (editItemIndex === actualIndex) {
         setEditItemIndex(-1);
       } else if (editItemIndex > actualIndex) {
         setEditItemIndex(editItemIndex - 1);
-        // scrollItemCardIntoView(filteredIndex);
       }
     }
   };
 
   const handleCreateNew = () => {
     const newItemTemplate = createDefaultItem();
+    const selectedId = editItemIndex >= 0 ? items[editItemIndex]?.name ?? null : null;
+    org.fileNewItem(newItemTemplate.name, selectedId);
     const newItems = [...items, newItemTemplate];
     setItems(newItems);
     const actualIndex = newItems.length - 1;
     setEditItemIndex(actualIndex);
     scrollToTopOfForm();
     setSearchTerm('');
-    setTimeout(() => {
-      const itemCard = document.getElementById(`item-card-${actualIndex}`);
-      console.log('scrollItemCardIntoView', actualIndex, itemCard);
-      if (itemCard) {
-        itemCard.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
+    scrollAssetTreeItemIntoView(newItemTemplate.name);
   };
 
   usePersistedEditorSelection({
@@ -139,6 +135,7 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
 
   const updateItem = (item: ItemTemplate) => {
     if (editItemIndex >= 0 && editItemIndex < items.length) {
+      org.rekeyItem(items[editItemIndex].name, item.name);
       const updatedItems = [...items];
       updatedItems[editItemIndex] = item;
       setItems(updatedItems);
@@ -273,41 +270,39 @@ export function ItemTemplates({ routeParams }: ItemTemplatesProps = {}) {
           createLabel="+ New Item"
           onCreate={handleCreateNew}
         >
-          <CardList
-            items={filteredItems}
-            onItemClick={handleItemClick}
+          <AssetTree
+            assetId="itemTemplates"
+            items={filteredItems.map((item) => {
+              const sprite = spriteMap[item.icon];
+              return {
+                id: item.name,
+                label: item.label || item.name,
+                subtitle: item.name,
+                extra: (
+                  <div
+                    className="item-info"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    {sprite && (
+                      <div style={{ display: 'inline-block' }}>
+                        <Sprite sprite={sprite} scale={1.5} />
+                      </div>
+                    )}
+                    <span className="item-type">{item.itemType}</span>
+                  </div>
+                ),
+              };
+            })}
+            allItemIds={items.map((item) => item.name)}
+            selectedId={editItemIndex >= 0 ? items[editItemIndex]?.name : null}
+            onSelectItem={handleItemClick}
             onClone={handleClone}
             onDelete={handleDelete}
-            selectedIndex={
-              editItemIndex !== -1
-                ? (() => {
-                    const index = filteredItems.findIndex(
-                      (item) => items.indexOf(item) === editItemIndex
-                    );
-                    return index >= 0 ? index : null;
-                  })()
-                : null
-            }
-            renderAdditionalInfo={(item) => {
-              const sprite = spriteMap[item.icon];
-              return (
-                <div
-                  className="item-info"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                  }}
-                >
-                  {sprite && (
-                    <div style={{ display: 'inline-block' }}>
-                      <Sprite sprite={sprite} scale={1.5} />
-                    </div>
-                  )}
-                  <span className="item-type">{item.itemType}</span>
-                </div>
-              );
-            }}
+            filterActive={searchTerm.trim() !== ''}
             emptyMessage="No items found"
           />
         </EditorSidebar>

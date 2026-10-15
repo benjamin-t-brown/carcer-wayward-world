@@ -13,6 +13,7 @@ export const RecentLinks = ({ items }: RecentLinksProps) => {
   }
   return (
     <div
+      className="editor-recent-links"
       style={{
         fontSize: 12,
         background: '#252526',
@@ -20,6 +21,10 @@ export const RecentLinks = ({ items }: RecentLinksProps) => {
         padding: 4,
         lineHeight: '20px',
         cursor: 'pointer',
+        flex: 'none',
+        minHeight: 0,
+        maxHeight: '30%',
+        overflowY: 'auto',
       }}
     >
       {items.map((item, index) => (

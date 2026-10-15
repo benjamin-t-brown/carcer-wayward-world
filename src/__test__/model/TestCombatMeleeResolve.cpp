@@ -180,6 +180,9 @@ state::State makeCombatState(db::Database& database) {
   enemy.y = 2;
   enemy.currentHp = 40;
   enemy.hpInitialized = true;
+  // Agitated so GoNextCombatTurn does not skip the enemy and wrap/reset AP
+  // before AP-spend assertions after a full COMBAT_ATTACK_COST bump.
+  enemy.agitated = true;
   state.world.activeMap.characters.pushBack(std::move(enemy));
 
   for (size_t i = 0; i < state.world.activeMap.characters.size(); i++) {

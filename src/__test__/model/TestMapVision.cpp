@@ -204,27 +204,28 @@ int main(int /*argc*/, char** /*argv*/) {
       ok = assertFalse(tileAt(map, 4, 3)->isExplored, "tile beyond wall not explored") && ok;
     }
 
-    // Continuous wall face beside the player is fully lit
+    // Adjacent wall face is lit; a second wall behind it on the same row is not
     {
       auto map = makeEmptyMap("test_map", 20, 20);
       const auto playerX = 5;
       const auto playerY = 10;
       for (auto y = 0; y < map.height; y++) {
         tileAt(map, playerX + 1, y)->tileId = 1;
+        tileAt(map, playerX + 2, y)->tileId = 1;
       }
       game::updateMapVisibilityFromPlayer(map, playerX, playerY, database);
 
-      for (auto y = playerY - game::kPlayerVisionBoxSize;
-           y <= playerY + game::kPlayerVisionBoxSize; y++) {
-        if (!game::isInPlayerVisionRange(1, y - playerY)) {
-          continue;
-        }
-        ok = assertTrue(tileAt(map, playerX + 1, y)->isVisible,
-                        "wall face tile visible along column") &&
-             ok;
-      }
+      ok = assertTrue(tileAt(map, playerX + 1, playerY)->isVisible,
+                      "adjacent wall face visible") &&
+           ok;
+      ok = assertTrue(tileAt(map, playerX + 1, playerY + 1)->isVisible,
+                      "diagonal-adjacent wall face visible via clear approach") &&
+           ok;
       ok = assertFalse(tileAt(map, playerX + 2, playerY)->isVisible,
-                       "tile beyond wall column not visible") &&
+                       "second wall behind nearer wall not visible") &&
+           ok;
+      ok = assertFalse(tileAt(map, playerX + 2, playerY + 1)->isVisible,
+                       "second wall column not filled past nearer wall") &&
            ok;
     }
 
@@ -375,40 +376,83 @@ int main(int /*argc*/, char** /*argv*/) {
            ok;
     }
 
-    // Flags sync across all layers at a visible cell
+    // Fog flags stay independent across layers at the same (x,y)
     {
       auto map = makeEmptyMap("test_map", 5, 5);
       model::mapLayerAt(model::mapInstanceTiles(map), 1) = makeLayerTiles(5, 5, 0);
+      map.tileLayerNumber = 0;
       game::updateMapVisibilityFromPlayer(map, 2, 2, database);
       ok = assertTrue(tileAt(map, 2, 2, 0)->isVisible, "layer0 player visible") && ok;
-      ok = assertTrue(tileAt(map, 2, 2, 1)->isVisible, "layer1 player visible") && ok;
-      ok = assertTrue(tileAt(map, 2, 2, 1)->isExplored, "layer1 player explored") && ok;
+      ok = assertTrue(tileAt(map, 2, 2, 0)->isExplored, "layer0 player explored") && ok;
+      ok = assertFalse(tileAt(map, 2, 2, 1)->isVisible, "layer1 not visible from layer0") &&
+           ok;
+      ok = assertFalse(tileAt(map, 2, 2, 1)->isExplored, "layer1 not explored from layer0") &&
+           ok;
     }
 
-    // Explored mask capture/apply (MapInstance-local persistence)
+    // Explore basement then switch upstairs: layer 0 stays unexplored outside vision
+    {
+      auto map = makeEmptyMap("basement_map", 20, 20);
+      model::mapLayerAt(model::mapInstanceTiles(map), -1) = makeLayerTiles(20, 20, 0);
+
+      map.tileLayerNumber = -1;
+      game::updateMapVisibilityFromPlayer(map, 2, 2, database);
+      ok = assertTrue(tileAt(map, 2, 2, -1)->isExplored, "basement player explored") && ok;
+      ok = assertTrue(tileAt(map, 3, 2, -1)->isExplored, "basement neighbor explored") &&
+           ok;
+      ok = assertFalse(tileAt(map, 2, 2, 0)->isExplored,
+                       "upstairs not explored while in basement") &&
+           ok;
+
+      map.tileLayerNumber = 0;
+      game::updateMapVisibilityFromPlayer(map, 15, 15, database);
+      ok = assertTrue(tileAt(map, 15, 15, 0)->isVisible, "upstairs player visible") && ok;
+      ok = assertTrue(tileAt(map, 15, 15, 0)->isExplored, "upstairs player explored") && ok;
+      ok = assertFalse(tileAt(map, 2, 2, 0)->isExplored,
+                       "upstairs old basement area stays unexplored") &&
+           ok;
+      ok = assertFalse(tileAt(map, 3, 2, 0)->isExplored,
+                       "upstairs basement-neighbor stays unexplored") &&
+           ok;
+      ok = assertTrue(tileAt(map, 2, 2, -1)->isExplored,
+                     "basement explored memory retained after layer switch") &&
+           ok;
+      ok = assertFalse(tileAt(map, 2, 2, -1)->isVisible,
+                       "basement no longer visible after layer switch clear") &&
+           ok;
+    }
+
+    // Explored mask capture/apply (MapInstance-local persistence, per layer)
     {
       auto map = makeEmptyMap("test_map", 20, 20);
+      model::mapLayerAt(model::mapInstanceTiles(map), -1) = makeLayerTiles(20, 20, 0);
+      map.tileLayerNumber = -1;
       game::updateMapVisibilityFromPlayer(map, 2, 2, database);
-      ok = assertTrue(tileAt(map, 2, 2)->isExplored, "explored before capture") && ok;
-      ok = assertTrue(tileAt(map, 3, 2)->isExplored, "neighbor explored before capture") && ok;
+      ok = assertTrue(tileAt(map, 2, 2, -1)->isExplored, "explored before capture") && ok;
+      ok = assertTrue(tileAt(map, 3, 2, -1)->isExplored, "neighbor explored before capture") &&
+           ok;
 
       const auto mask = game::captureExploredMask(map);
       auto restored = makeEmptyMap("test_map", 20, 20);
-      ok = assertFalse(tileAt(restored, 2, 2)->isExplored,
+      model::mapLayerAt(model::mapInstanceTiles(restored), -1) = makeLayerTiles(20, 20, 0);
+      ok = assertFalse(tileAt(restored, 2, 2, -1)->isExplored,
                        "fresh map not explored before restore") &&
            ok;
       game::applyExploredMask(restored, mask);
 
-      ok = assertTrue(tileAt(restored, 2, 2)->isExplored,
-                      "player cell explored after restore") &&
+      ok = assertTrue(tileAt(restored, 2, 2, -1)->isExplored,
+                      "basement player cell explored after restore") &&
            ok;
-      ok = assertTrue(tileAt(restored, 3, 2)->isExplored,
-                      "neighbor explored after restore") &&
+      ok = assertTrue(tileAt(restored, 3, 2, -1)->isExplored,
+                      "basement neighbor explored after restore") &&
            ok;
-      ok = assertFalse(tileAt(restored, 2, 2)->isVisible,
+      ok = assertFalse(tileAt(restored, 2, 2, 0)->isExplored,
+                       "layer0 not explored from basement-only mask") &&
+           ok;
+      ok = assertFalse(tileAt(restored, 2, 2, -1)->isVisible,
                        "visibility not restored (recomputed on spawn)") &&
            ok;
-      ok = assertFalse(tileAt(restored, 19, 0)->isExplored,
+      ok = assertFalse(tileAt(restored, 19, 0, -1)->isExplored,
                        "never-seen still not explored after restore") &&
            ok;
     }

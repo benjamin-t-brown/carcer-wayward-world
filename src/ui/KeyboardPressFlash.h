@@ -26,13 +26,18 @@ public:
   static bool isConfirmKey(std::string_view key);
   static std::optional<int> choiceIndexFromKey(std::string_view key);
 
+  // True while a deferred onComplete is waiting (blocks further shortcuts).
+  // Visual-only flashes (deferAction=false) do not count as busy.
   bool isBusy() const;
   void stop();
   // soundName null plays the regular button clip.
+  // deferAction=false runs onComplete immediately (mode/UI activates now) while
+  // the pressed highlight still lasts durationMs.
   void begin(std::function<bool*()> getter,
              std::function<void()> onComplete,
              sdl2w::Window* window = nullptr,
-             const char* soundName = nullptr);
+             const char* soundName = nullptr,
+             bool deferAction = true);
   void update(int deltaTime);
 };
 

@@ -288,6 +288,47 @@
     "restores": []
   },
   {
+    "name": "POTION_MINOR_HEAL",
+    "label": "Potion Minor Heal",
+    "description": "Heal yourself for a small amount.",
+    "icon": "",
+    "type": "ABILITY_SKILL",
+    "targetSelect": {
+      "targetType": "TARGET_SELF",
+      "allegianceSelectType": "TARGET_ALLEGIANCE_SAME",
+      "numTargetableUnits": 1,
+      "zoneSize": {
+        "x": 1,
+        "y": 1
+      },
+      "range": 1
+    },
+    "apCost": 1,
+    "costType": "ABILITY_COST_NONE",
+    "costValue": 1,
+    "depiction": {
+      "dmgAnim": "expl_buff",
+      "projectileType": "PROJECTILE_NONE",
+      "projectilePath": "PROJECTILE_PATH_NONE",
+      "startSound": "potion",
+      "dmgSound": "spell_cure",
+      "dmgTextColor": "#FFFFFF"
+    },
+    "attacks": [],
+    "statuses": [],
+    "restores": [
+      {
+        "restoreWhich": "CURRENT_STAT_HP",
+        "restoreDice": [
+          "D6"
+        ],
+        "restoreBonus": 2,
+        "restoreStat": "STAT_CON",
+        "restoreStatMult": 0
+      }
+    ]
+  },
+  {
     "name": "RANGED_ATTACK_BOW",
     "label": "Ranged Attack (Bow)",
     "description": "A basic ranged attack.",

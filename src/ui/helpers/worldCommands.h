@@ -32,8 +32,8 @@ void enqueueMapMove(state::StateManager& stateManager, int dx, int dy);
 // No-op while aiming (EXAMINE / TALK / SPELL).
 void enqueueCombatWait(state::StateManager& stateManager);
 
-// Keypad-5 wait: combat WAIT, or (outside combat) fire a standing
-// requires-action travel trigger. Not a generic Interact.
+// Keypad-5 / wait button: combat WAIT, or (outside combat) town wait —
+// standing requires-action travel trigger plus one town enemy AI turn.
 void enqueueWait(state::StateManager& stateManager);
 
 // Ensure uiState.selectedPartyMemberId points at a live party member (or is

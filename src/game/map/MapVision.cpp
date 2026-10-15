@@ -32,7 +32,8 @@ void clearAllVisible(model::MapInstance& map) {
   }
 }
 
-// Sync isVisible / isExplored across every layer at (x, y), including empty tiles.
+// Mark isVisible / isExplored on the active map.tileLayerNumber cell only
+// (including empty tilesetName cells — holes still carry fog flags).
 void markCellVisibleAndExplored(model::MapInstance& map, int x, int y) {
   if (!inBounds(map, x, y)) {
     return;
@@ -42,17 +43,14 @@ void markCellVisibleAndExplored(model::MapInstance& map, int x, int y) {
     return;
   }
 
-  for (auto it = model::mapInstanceTiles(map).begin();
-       it != model::mapInstanceTiles(map).end();
-       ++it) {
-    auto& layerTiles = it->value;
-    if (index >= static_cast<int>(layerTiles.size())) {
-      continue;
-    }
-    auto& tile = layerTiles[static_cast<size_t>(index)];
-    tile.isVisible = true;
-    tile.isExplored = true;
+  auto* layerTiles =
+      model::mapLayerPtr(model::mapInstanceTiles(map), map.tileLayerNumber);
+  if (!layerTiles || index >= static_cast<int>(layerTiles->size())) {
+    return;
   }
+  auto& tile = (*layerTiles)[static_cast<size_t>(index)];
+  tile.isVisible = true;
+  tile.isExplored = true;
 }
 
 void castVisibilityRay(model::MapInstance& map,
@@ -103,9 +101,51 @@ void castVisibilityRay(model::MapInstance& map,
   }
 }
 
+// True if Bresenham from (ox,oy) to (tx,ty) hits no opaque cell before the target.
+// The target itself may be opaque (first-opaque-on-ray rule for wall-face fill).
+bool approachClearOfOpaque(model::MapInstance& map,
+                           int ox,
+                           int oy,
+                           int tx,
+                           int ty,
+                           const db::Database& database) {
+  const auto dx = std::abs(tx - ox);
+  const auto sx = ox < tx ? 1 : -1;
+  const auto dy = std::abs(ty - oy);
+  const auto sy = oy < ty ? 1 : -1;
+  auto err = (dx > dy ? dx : -dy) / 2;
+  auto x = ox;
+  auto y = oy;
+
+  while (true) {
+    if (!inBounds(map, x, y)) {
+      return false;
+    }
+    const auto atOrigin = x == ox && y == oy;
+    const auto atTarget = x == tx && y == ty;
+    if (!atOrigin && !atTarget && !isDestinationSeeThrough(map, x, y, database)) {
+      return false;
+    }
+    if (atTarget) {
+      return true;
+    }
+
+    const auto e2 = err;
+    if (e2 > -dx) {
+      err -= dy;
+      x += sx;
+    }
+    if (e2 < dy) {
+      err += dx;
+      y += sy;
+    }
+  }
+}
+
 // Perimeter Bresenham leaves gaps along opaque wall faces (a ray that hits one wall
-// tile stops, so neighbors on the same wall never get their own hit). Light any
-// opaque cell in range that touches a visible see-through cell.
+// tile stops, so neighbors on the same wall never get their own hit). Light opaque
+// cells that touch a visible see-through cell, but only if they are the first opaque
+// on the approach from the observer (no nearer wall between).
 void lightOpaqueWallsBesideVisibleFloors(model::MapInstance& map,
                                          int playerX,
                                          int playerY,
@@ -125,15 +165,19 @@ void lightOpaqueWallsBesideVisibleFloors(model::MapInstance& map,
       }
       // Already visible from a ray — nothing to do.
       auto alreadyVisible = false;
-      if (const auto* layer0 = model::mapLayerPtr(model::mapInstanceTiles(map), 0)) {
-        if (index < static_cast<int>(layer0->size())) {
-          alreadyVisible = (*layer0)[static_cast<size_t>(index)].isVisible;
+      if (const auto* layerTiles =
+              model::mapLayerPtr(model::mapInstanceTiles(map), map.tileLayerNumber)) {
+        if (index < static_cast<int>(layerTiles->size())) {
+          alreadyVisible = (*layerTiles)[static_cast<size_t>(index)].isVisible;
         }
       }
       if (alreadyVisible) {
         continue;
       }
       if (isDestinationSeeThrough(map, x, y, database)) {
+        continue;
+      }
+      if (!approachClearOfOpaque(map, playerX, playerY, x, y, database)) {
         continue;
       }
 
@@ -149,11 +193,13 @@ void lightOpaqueWallsBesideVisibleFloors(model::MapInstance& map,
             continue;
           }
           const auto nIndex = tileIndex(map, nx, ny);
-          const auto* layer0 = model::mapLayerPtr(model::mapInstanceTiles(map), 0);
-          if (nIndex < 0 || !layer0 || nIndex >= static_cast<int>(layer0->size())) {
+          const auto* layerTiles =
+              model::mapLayerPtr(model::mapInstanceTiles(map), map.tileLayerNumber);
+          if (nIndex < 0 || !layerTiles ||
+              nIndex >= static_cast<int>(layerTiles->size())) {
             continue;
           }
-          if (!(*layer0)[static_cast<size_t>(nIndex)].isVisible) {
+          if (!(*layerTiles)[static_cast<size_t>(nIndex)].isVisible) {
             continue;
           }
           // Observer standing tile counts as see-through for wall-face lighting.
@@ -214,12 +260,16 @@ void clearAllVisibleInActiveGrid(ActiveMapOrchestrator& orch, int mapLayer) {
   }
 }
 
-void markWorldCellVisibleAndExplored(ActiveMapOrchestrator& orch, int worldX, int worldY) {
+void markWorldCellVisibleAndExplored(ActiveMapOrchestrator& orch,
+                                     int worldX,
+                                     int worldY,
+                                     int mapLayer) {
   auto* map = orch.getMapInstanceAt(worldX, worldY);
   const auto local = orch.activeMapCoordToInstanceCoord(worldX, worldY);
   if (!map || !local.valid) {
     return;
   }
+  map->tileLayerNumber = mapLayer;
   markCellVisibleAndExplored(*map, local.x, local.y);
 }
 
@@ -240,18 +290,22 @@ bool isWorldCellSeeThrough(ActiveMapOrchestrator& orch,
   return isTileEffectivelySeeThrough(*tile, database);
 }
 
-bool isWorldCellVisible(ActiveMapOrchestrator& orch, int worldX, int worldY) {
+bool isWorldCellVisible(ActiveMapOrchestrator& orch,
+                        int worldX,
+                        int worldY,
+                        int mapLayer) {
   auto* map = orch.getMapInstanceAt(worldX, worldY);
   const auto local = orch.activeMapCoordToInstanceCoord(worldX, worldY);
   if (!map || !local.valid || map->width <= 0) {
     return false;
   }
   const auto index = tileIndex(*map, local.x, local.y);
-  const auto* layer0 = model::mapLayerPtr(model::mapInstanceTiles(*map), 0);
-  if (index < 0 || !layer0 || index >= static_cast<int>(layer0->size())) {
+  const auto* layerTiles =
+      model::mapLayerPtr(model::mapInstanceTiles(*map), mapLayer);
+  if (index < 0 || !layerTiles || index >= static_cast<int>(layerTiles->size())) {
     return false;
   }
-  return (*layer0)[static_cast<size_t>(index)].isVisible;
+  return (*layerTiles)[static_cast<size_t>(index)].isVisible;
 }
 
 void castWorldVisibilityRay(ActiveMapOrchestrator& orch,
@@ -278,7 +332,7 @@ void castWorldVisibilityRay(ActiveMapOrchestrator& orch,
     }
 
     if (visibility) {
-      markWorldCellVisibleAndExplored(orch, x1, y1);
+      markWorldCellVisibleAndExplored(orch, x1, y1, mapLayer);
     }
 
     const auto atOrigin = x1 == originX && y1 == originY;
@@ -302,6 +356,47 @@ void castWorldVisibilityRay(ActiveMapOrchestrator& orch,
   }
 }
 
+bool approachClearOfOpaqueWorld(ActiveMapOrchestrator& orch,
+                                int ox,
+                                int oy,
+                                int tx,
+                                int ty,
+                                int mapLayer,
+                                const db::Database& database) {
+  const auto dx = std::abs(tx - ox);
+  const auto sx = ox < tx ? 1 : -1;
+  const auto dy = std::abs(ty - oy);
+  const auto sy = oy < ty ? 1 : -1;
+  auto err = (dx > dy ? dx : -dy) / 2;
+  auto x = ox;
+  auto y = oy;
+
+  while (true) {
+    if (!inWorldBounds(orch, x, y)) {
+      return false;
+    }
+    const auto atOrigin = x == ox && y == oy;
+    const auto atTarget = x == tx && y == ty;
+    if (!atOrigin && !atTarget &&
+        !isWorldCellSeeThrough(orch, x, y, mapLayer, database)) {
+      return false;
+    }
+    if (atTarget) {
+      return true;
+    }
+
+    const auto e2 = err;
+    if (e2 > -dx) {
+      err -= dy;
+      x += sx;
+    }
+    if (e2 < dy) {
+      err += dx;
+      y += sy;
+    }
+  }
+}
+
 void lightOpaqueWallsBesideVisibleFloorsWorld(ActiveMapOrchestrator& orch,
                                               int playerX,
                                               int playerY,
@@ -316,10 +411,14 @@ void lightOpaqueWallsBesideVisibleFloorsWorld(ActiveMapOrchestrator& orch,
       if (!inWorldBounds(orch, x, y)) {
         continue;
       }
-      if (isWorldCellVisible(orch, x, y)) {
+      if (isWorldCellVisible(orch, x, y, mapLayer)) {
         continue;
       }
       if (isWorldCellSeeThrough(orch, x, y, mapLayer, database)) {
+        continue;
+      }
+      if (!approachClearOfOpaqueWorld(
+              orch, playerX, playerY, x, y, mapLayer, database)) {
         continue;
       }
 
@@ -334,7 +433,7 @@ void lightOpaqueWallsBesideVisibleFloorsWorld(ActiveMapOrchestrator& orch,
           if (!inWorldBounds(orch, nx, ny)) {
             continue;
           }
-          if (!isWorldCellVisible(orch, nx, ny)) {
+          if (!isWorldCellVisible(orch, nx, ny, mapLayer)) {
             continue;
           }
           // Observer standing tile counts as see-through for wall-face lighting.
@@ -348,7 +447,7 @@ void lightOpaqueWallsBesideVisibleFloorsWorld(ActiveMapOrchestrator& orch,
         }
       }
       if (besideVisibleFloor) {
-        markWorldCellVisibleAndExplored(orch, x, y);
+        markWorldCellVisibleAndExplored(orch, x, y, mapLayer);
       }
     }
   }
@@ -372,7 +471,7 @@ void addActiveMapVisibilityFromPoint(ActiveMapOrchestrator& orch,
     }
   }
 
-  markWorldCellVisibleAndExplored(orch, worldX, worldY);
+  markWorldCellVisibleAndExplored(orch, worldX, worldY, mapLayer);
   lightOpaqueWallsBesideVisibleFloorsWorld(
       orch, worldX, worldY, boxSize, mapLayer, database);
 }
@@ -477,32 +576,30 @@ model::ExploredMapMask captureExploredMask(const model::MapInstance& map) {
 
   const auto cellCount = static_cast<size_t>(map.width) * static_cast<size_t>(map.height);
   const auto byteCount = (cellCount + 7) / 8;
-  mask.bits.resize(byteCount, 0);
-
-  for (auto y = 0; y < map.height; y++) {
-    for (auto x = 0; x < map.width; x++) {
-      const auto index = tileIndex(map, x, y);
-      if (index < 0) {
-        continue;
-      }
-      auto explored = false;
-      const auto& tiles = model::mapInstanceTiles(map);
-      for (auto it = tiles.begin(); it != tiles.end(); ++it) {
-        const auto& layerTiles = it->value;
-        if (index >= static_cast<int>(layerTiles.size())) {
+  const auto& tiles = model::mapInstanceTiles(map);
+  for (auto it = tiles.begin(); it != tiles.end(); ++it) {
+    const auto layerKey = it->key;
+    const auto& layerTiles = it->value;
+    auto bits = bmin::DynArray<uint8_t>{};
+    bits.resize(byteCount, 0);
+    auto anyExplored = false;
+    for (auto y = 0; y < map.height; y++) {
+      for (auto x = 0; x < map.width; x++) {
+        const auto index = tileIndex(map, x, y);
+        if (index < 0 || index >= static_cast<int>(layerTiles.size())) {
           continue;
         }
-        if (layerTiles[static_cast<size_t>(index)].isExplored) {
-          explored = true;
-          break;
+        if (!layerTiles[static_cast<size_t>(index)].isExplored) {
+          continue;
         }
+        anyExplored = true;
+        const auto bitIndex = static_cast<size_t>(index);
+        bits[bitIndex / 8] =
+            static_cast<uint8_t>(bits[bitIndex / 8] | (1u << (bitIndex % 8)));
       }
-      if (!explored) {
-        continue;
-      }
-      const auto bitIndex = static_cast<size_t>(index);
-      mask.bits[bitIndex / 8] =
-          static_cast<uint8_t>(mask.bits[bitIndex / 8] | (1u << (bitIndex % 8)));
+    }
+    if (anyExplored) {
+      mask.layers[layerKey] = std::move(bits);
     }
   }
   return mask;
@@ -515,30 +612,30 @@ void applyExploredMask(model::MapInstance& map, const model::ExploredMapMask& ma
   }
   const auto cellCount = static_cast<size_t>(map.width) * static_cast<size_t>(map.height);
   const auto byteCount = (cellCount + 7) / 8;
-  if (mask.bits.size() < byteCount) {
-    return;
-  }
 
-  for (auto y = 0; y < map.height; y++) {
-    for (auto x = 0; x < map.width; x++) {
-      const auto index = tileIndex(map, x, y);
-      if (index < 0) {
-        continue;
-      }
-      const auto bitIndex = static_cast<size_t>(index);
-      const auto explored =
-          (mask.bits[bitIndex / 8] & static_cast<uint8_t>(1u << (bitIndex % 8))) != 0;
-      if (!explored) {
-        continue;
-      }
-      for (auto it = model::mapInstanceTiles(map).begin();
-           it != model::mapInstanceTiles(map).end();
-           ++it) {
-        auto& layerTiles = it->value;
-        if (index >= static_cast<int>(layerTiles.size())) {
+  for (auto it = mask.layers.begin(); it != mask.layers.end(); ++it) {
+    const auto layerKey = it->key;
+    const auto& bits = it->value;
+    if (bits.size() < byteCount) {
+      continue;
+    }
+    auto* layerTiles = model::mapLayerPtr(model::mapInstanceTiles(map), layerKey);
+    if (!layerTiles) {
+      continue;
+    }
+    for (auto y = 0; y < map.height; y++) {
+      for (auto x = 0; x < map.width; x++) {
+        const auto index = tileIndex(map, x, y);
+        if (index < 0 || index >= static_cast<int>(layerTiles->size())) {
           continue;
         }
-        layerTiles[static_cast<size_t>(index)].isExplored = true;
+        const auto bitIndex = static_cast<size_t>(index);
+        const auto explored =
+            (bits[bitIndex / 8] & static_cast<uint8_t>(1u << (bitIndex % 8))) != 0;
+        if (!explored) {
+          continue;
+        }
+        (*layerTiles)[static_cast<size_t>(index)].isExplored = true;
       }
     }
   }

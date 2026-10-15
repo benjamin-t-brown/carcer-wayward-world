@@ -860,6 +860,16 @@ export function AbilityStatusEditor({
           onRemove={onRemove}
           ariaLabel="Remove status effect"
         />
+        {status.statusEffect ? (
+          <a
+            className="template-edit-link ability-status-edit-link"
+            href={`${window.location.origin}${window.location.pathname}#/editor/statusEffectTemplates?statusEffect=${encodeURIComponent(status.statusEffect)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Edit status effect
+          </a>
+        ) : null}
       </div>
     </div>
   );

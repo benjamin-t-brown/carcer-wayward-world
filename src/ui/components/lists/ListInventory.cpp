@@ -4,13 +4,14 @@
 #include "ui/elements/TextLine.h"
 #include "ui/elements/VerticalList.h"
 #include "ui/elements/buttons/ButtonList.h"
-#include "ui/elements/buttons/ButtonModal.h"
+#include "ui/elements/buttons/ButtonSprite.h"
 #include "ui/elements/buttons/ButtonTextWrap.h"
 #include "ui/helpers/uiSounds.h"
 #include "ui/observers/ActionObserver.hpp"
 #include "actions/navigation/UiToggleEquipInventoryItem.hpp"
 #include "actions/navigation/UiReorderInventoryItem.hpp"
 #include "actions/navigation/UiShowLayerInventoryContext.hpp"
+#include "actions/navigation/UiUseInventoryItem.hpp"
 
 namespace ui {
 
@@ -149,9 +150,20 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
   });
   container->addChild(bmin::UniquePtr<ui::UiElement>(icon));
 
-  const int scaledContextBtnSize = contextBtnSize * style.scale;
+  // icons_for_buttons sprites are 16x16; padding 8 → 32px button (matches row).
+  constexpr int kActionIconSize = 16;
+  constexpr int kActionBtnPadding = 8;
+  const int actionBtnLogicalSize = kActionIconSize + kActionBtnPadding * 2;
+  const int scaledContextBtnSize =
+      static_cast<int>(actionBtnLogicalSize * style.scale);
   const int labelX = iconX + scaledIconWidth + labelGapAfterIcon;
   const int labelContextGap = static_cast<int>(4 * style.scale);
+  const int useBtnGap = static_cast<int>(4 * style.scale);
+  const auto showUseBtn =
+      item.isUsableNow && !props.characterPlayerId.empty();
+  const int trailingButtonsWidth =
+      scaledContextBtnSize +
+      (showUseBtn ? scaledContextBtnSize + useBtnGap : 0);
   const SDL_Color labelColor = item.isEquipped ? Colors::Blue : Colors::Black;
   auto fontConfig =
       item.isEquipped ? BaseFontConfig::MODAL_TEXT_BOLD : BaseFontConfig::MODAL_TEXT;
@@ -167,8 +179,8 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
   setBaseFontConfig(labelFont, fontConfig);
 
   if (item.isEquippable && !props.characterPlayerId.empty()) {
-    const int labelWidth =
-        static_cast<int>((rowWidth - scaledContextBtnSize - labelX - labelContextGap));
+    const int labelWidth = static_cast<int>(
+        (rowWidth - trailingButtonsWidth - labelX - labelContextGap));
     auto label = new ButtonTextWrap(window, this);
     label->setId("label");
     label->setPos(labelX, 0);
@@ -220,15 +232,35 @@ UiElement* ListInventory::createItemElement(const ListInventoryPropsItem& item,
     container->addChild(bmin::UniquePtr<ui::UiElement>(label));
   }
 
-  auto contextBtn = new ButtonModal(window, this);
+  const int contextBtnX = rowWidth - scaledContextBtnSize;
+  const int rowBtnY = (rowHeight - scaledContextBtnSize) / 2;
+
+  if (showUseBtn) {
+    auto useBtn = new ButtonSprite(window, this);
+    useBtn->setId("useBtn");
+    useBtn->setPos(contextBtnX - useBtnGap - scaledContextBtnSize, rowBtnY);
+    useBtn->setScale(style.scale);
+    useBtn->setProps(ButtonSpriteProps{
+        .spriteName = "icons_for_buttons_1",
+        .spriteWidth = kActionIconSize,
+        .spriteHeight = kActionIconSize,
+        .padding = kActionBtnPadding,
+    });
+    useBtn->addEventObserver(
+        ui::makeParallelActionObserver<state::actions::UiUseInventoryItem>(
+            props.characterPlayerId, item.itemId));
+    container->addChild(bmin::UniquePtr<ui::UiElement>(useBtn));
+  }
+
+  auto contextBtn = new ButtonSprite(window, this);
   contextBtn->setId("contextBtn");
-  contextBtn->setPos(rowWidth - scaledContextBtnSize,
-                     (rowHeight - scaledContextBtnSize) / 2);
-  contextBtn->setScale(1.0f);
-  contextBtn->setProps(ButtonModalProps{
-      .text = "*",
-      .width = scaledContextBtnSize,
-      .height = scaledContextBtnSize,
+  contextBtn->setPos(contextBtnX, rowBtnY);
+  contextBtn->setScale(style.scale);
+  contextBtn->setProps(ButtonSpriteProps{
+      .spriteName = "icons_for_buttons_0",
+      .spriteWidth = kActionIconSize,
+      .spriteHeight = kActionIconSize,
+      .padding = kActionBtnPadding,
   });
   contextBtn->addEventObserver(
       ui::makeActionObserver<state::actions::UiShowLayerInventoryContext>(

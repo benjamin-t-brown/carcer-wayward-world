@@ -2,12 +2,14 @@
 
 #include "model/Combat.h"
 #include "game/map/Camera.h"
+#include "game/map/MapPersistence.h"
 #include "game/map/MapVision.h"
 #include "game/map/TileTriggers.h"
 #include "model/instances/World.hpp"
 #include "sdl2w/Logger.h"
 #include "state/AbstractAction.hpp"
 #include "actions/general/PlaySound.hpp"
+#include "actions/world/TownEnemyAiAfterPlayerMove.hpp"
 #include "actions/world/WorldSetCamera.hpp"
 
 namespace state {
@@ -54,6 +56,11 @@ class EndCombat : public AbstractAction {
         WorldSetCamera(cam.camX, cam.camY).execute(state);
       }
     }
+
+    state->playerMovementCount += 1;
+    game::ageMapInstances(state->mapInstances, 1);
+    world.resolvingTownEnemyAi = true;
+    insertAction(state::makeAction<TownEnemyAiAfterPlayerMove>(), 0);
   }
 
 public:

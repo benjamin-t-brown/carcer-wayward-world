@@ -73,6 +73,7 @@ set(CARCER_RULE_SOURCES
   src/game/TalkEventPortrait.cpp
   src/game/SpecialEventPresenter.cpp
   src/game/inventory/InventoryRules.cpp
+  src/game/inventory/ItemUseRules.cpp
   src/game/inventory/SpecialEventItemsStorage.cpp
   src/game/map/ActiveMapOrchestrator.cpp
   src/game/map/Camera.cpp

@@ -41,7 +41,7 @@ bool isDestinationSeeThrough(const model::MapInstance& map,
 
 // Clear isVisible on all tiles, ray-cast through every cell in the vision octagon,
 // OR into isExplored, then light opaque tiles that share an edge/corner with a visible
-// see-through cell (continuous wall faces).
+// see-through cell when they are the first opaque on the approach from the observer.
 void updateMapVisibilityFromPlayer(model::MapInstance& map,
                                    int playerX,
                                    int playerY,
@@ -68,7 +68,7 @@ void updateActiveMapVisibilityFromPlayer(model::World& world,
                                          int worldY,
                                          const db::Database& database);
 
-// Capture / apply explored bits (not visibility). Used by MapPersistence.
+// Capture / apply explored bits per layer (not visibility). Used by MapPersistence.
 model::ExploredMapMask captureExploredMask(const model::MapInstance& map);
 void applyExploredMask(model::MapInstance& map, const model::ExploredMapMask& mask);
 

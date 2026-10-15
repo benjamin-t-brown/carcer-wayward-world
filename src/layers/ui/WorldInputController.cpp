@@ -7,12 +7,65 @@
 #include "actions/world/WorldMoveActionAim.hpp"
 #include "actions/world/WorldSetActionAim.hpp"
 #include "ui/components/MapView.h"
+#include "ui/elements/buttons/ButtonWorldAction.h"
 #include "ui/helpers/keyboardShortcuts.h"
 #include "ui/helpers/uiSounds.h"
 #include "ui/helpers/worldActions.h"
 #include "ui/helpers/worldCommands.h"
+#include "ui/layouts/InGameLayout.h"
 
 namespace layers {
+
+ui::ButtonWorldAction*
+WorldInputController::findWorldActionButton(state::WorldActionType actionType) {
+  auto* inGameLayout = owner.getUiElement<ui::InGameLayout>("inGameLayout");
+  if (!inGameLayout) {
+    return nullptr;
+  }
+  auto* actionButtons = inGameLayout->getChildById("actionButtons");
+  if (!actionButtons) {
+    return nullptr;
+  }
+  for (auto& childPtr : actionButtons->getChildren()) {
+    auto* button = dynamic_cast<ui::ButtonWorldAction*>(childPtr.get());
+    if (button != nullptr && button->getProps().worldActionType == actionType) {
+      return button;
+    }
+  }
+  return nullptr;
+}
+
+void WorldInputController::beginWorldActionKeyboardPress(
+    state::WorldActionType actionType) {
+  auto* stateManager = getStateManager();
+  if (!stateManager || worldActionFlash.isBusy()) {
+    return;
+  }
+  // Activate immediately (flash is visual-only) for aim modes and Fight (f);
+  // other actions still fire after the flash.
+  const bool activateImmediately =
+      actionType == state::WorldActionType::EXAMINE ||
+      actionType == state::WorldActionType::TALK ||
+      actionType == state::WorldActionType::START_FIGHT ||
+      actionType == state::WorldActionType::END_FIGHT;
+  worldActionFlash.begin(
+      [this, actionType]() -> bool* {
+        if (auto* button = findWorldActionButton(actionType)) {
+          return &button->isActive;
+        }
+        return nullptr;
+      },
+      [this, actionType]() {
+        auto* sm = getStateManager();
+        if (!sm) {
+          return;
+        }
+        ui::activateWorldAction(*sm, actionType, owner.getWindow());
+      },
+      owner.getWindow(),
+      nullptr,
+      !activateImmediately);
+}
 
 void WorldInputController::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (owner.getState() != LayerState::ON) {
@@ -23,6 +76,10 @@ void WorldInputController::onKeyDown(std::string_view key, int /*keyCode*/) {
     return;
   }
   auto& world = stateManager->getState().world;
+
+  if (worldActionFlash.isBusy()) {
+    return;
+  }
 
   if (ui::isCancelActionKey(key)) {
     bmin::List<model::WorldActionMode> cancellableActionModes = {
@@ -57,8 +114,7 @@ void WorldInputController::onKeyDown(std::string_view key, int /*keyCode*/) {
     }
     if (auto actionType = ui::getWorldActionFromKeyboardShortcut(
             key, stateManager->getState().turnMode)) {
-      ui::playButtonSound(owner.getWindow());
-      ui::activateWorldAction(*stateManager, *actionType, owner.getWindow());
+      beginWorldActionKeyboardPress(*actionType);
       return;
     }
   }
@@ -192,6 +248,8 @@ bool WorldInputController::onMouseDown(int x, int y, int button) {
 }
 
 void WorldInputController::updateHeldMoveRepeat(int deltaTime) {
+  worldActionFlash.update(deltaTime);
+
   auto stateManager = getStateManager();
   if (!stateManager) {
     return;

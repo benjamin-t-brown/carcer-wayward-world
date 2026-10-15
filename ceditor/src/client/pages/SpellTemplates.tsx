@@ -36,11 +36,15 @@ export function SpellTemplates({ routeParams }: SpellTemplatesProps = {}) {
     createDefault: createDefaultSpellTemplate,
     matchesSearch: (s, t) =>
       s.name.toLowerCase().includes(t) || s.label.toLowerCase().includes(t),
-    toCardItem: (s) => ({
-      name: s.name,
-      label: s.label || s.name,
-      icon: s.icon,
-    }),
+    toCardItem: (s) => {
+      const label = s.label || s.name;
+      return {
+        name: s.name,
+        label: `${label} (${s.name})`,
+        subtitle: '',
+        icon: s.icon,
+      };
+    },
     renderAdditionalInfo: (item) => {
       const icon = item.icon as string | undefined;
       const sprite = icon ? spriteMap[icon] : undefined;

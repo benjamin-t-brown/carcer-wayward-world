@@ -27,6 +27,7 @@ enum class ActionEvent {
   UiConfirmDoorUnlock,
   UiDropInventoryItem,
   UiGiveInventoryItem,
+  UiUseInventoryItem,
   UiPickUpItem,
   UiPushFloatingNotification,
   UiRemoveFloatingNotification,
@@ -84,6 +85,7 @@ enum class ActionEvent {
   WorldSpawnProjectile,
   WorldTalkAt,
   WorldTravel,
+  WorldWaitPlayer,
 };
 
 } // namespace state

@@ -17,6 +17,10 @@ namespace model {
 struct Player;
 }
 
+namespace state {
+struct State;
+}
+
 namespace in3 {
 
 struct ConditionResult {
@@ -74,12 +78,13 @@ public:
                      const model::GameEvent& gameEvent,
                      const bmin::Map<bmin::String, model::GameEvent>& gameEvents);
 
-  // Bind party inventory + item DB + optional active map for world IN3 funcs.
+  // Bind party inventory + item DB + optional world/state for world IN3 funcs.
   // Pointers must outlive the runner (LayerSpecialEvent owns State + Database).
   void setExecContext(model::Player* player,
                       const db::Database* database,
                       model::ActiveMap* activeMap = nullptr,
-                      bmin::Map<bmin::String, model::MapInstance>* mapInstances = nullptr);
+                      bmin::Map<bmin::String, model::MapInstance>* mapInstances = nullptr,
+                      state::State* state = nullptr);
 
   void reset();
   std::optional<model::GameEventChild> getCurrentNode() const;
@@ -102,6 +107,7 @@ private:
   const db::Database* execDatabase = nullptr;
   model::ActiveMap* execActiveMap = nullptr;
   bmin::Map<bmin::String, model::MapInstance>* execMapInstances = nullptr;
+  state::State* execState = nullptr;
 
   // EXEC text queued while auto-advancing; flushed into displayText at the next stop.
   bmin::String autoAdvancedText;

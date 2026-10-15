@@ -140,6 +140,9 @@ class WorldLoadActiveMap : public AbstractAction {
             if (character.templateName != record.templateName) {
               continue;
             }
+            if (character.mapLayer != record.layer) {
+              continue;
+            }
             const auto spawnX = character.spawnX >= 0 ? character.spawnX : character.x;
             const auto spawnY = character.spawnY >= 0 ? character.spawnY : character.y;
             if (spawnX == record.x && spawnY == record.y) {

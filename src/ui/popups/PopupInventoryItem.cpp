@@ -11,6 +11,7 @@
 #include "actions/navigation/UiRemoveLayer.hpp"
 #include "actions/navigation/UiShowLayerDropContext.hpp"
 #include "actions/navigation/UiShowLayerGiveContext.hpp"
+#include "actions/navigation/UiUseInventoryItem.hpp"
 
 namespace ui {
 
@@ -101,9 +102,15 @@ void PopupInventoryItem::build() {
   };
 
   auto giveButton = createButton(TRANSLATE("Give"), buttonsX, buttonsY);
-  giveButton->addEventObserver(
-      ui::makeActionObserver<state::actions::UiShowLayerGiveContext>(
-          window, props.characterPlayerId, props.item.id));
+  if (!props.canGive) {
+    auto giveProps = giveButton->getProps();
+    giveProps.isDisabled = true;
+    giveButton->setProps(giveProps);
+  } else {
+    giveButton->addEventObserver(
+        ui::makeActionObserver<state::actions::UiShowLayerGiveContext>(
+            window, props.characterPlayerId, props.item.id));
+  }
   addChild(bmin::UniquePtr<ui::UiElement>(giveButton));
   buttonsY -= actionButtonHeightTotalScaled;
 
@@ -114,14 +121,11 @@ void PopupInventoryItem::build() {
   addChild(bmin::UniquePtr<ui::UiElement>(dropButton));
   buttonsY -= actionButtonHeightTotalScaled;
 
-  if (props.equippable) {
-    auto equipButton = createButton(TRANSLATE("Equip"), buttonsX, buttonsY);
-    addChild(bmin::UniquePtr<ui::UiElement>(equipButton));
-    buttonsY -= actionButtonHeightTotalScaled;
-  }
-
   if (props.usable) {
     auto useButton = createButton(TRANSLATE("Use"), buttonsX, buttonsY);
+    useButton->addEventObserver(
+        ui::makeParallelActionObserver<state::actions::UiUseInventoryItem>(
+            props.characterPlayerId, props.item.id));
     addChild(bmin::UniquePtr<ui::UiElement>(useButton));
     buttonsY -= actionButtonHeightTotalScaled;
   }

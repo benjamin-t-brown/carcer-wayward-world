@@ -1,0 +1,128 @@
+{
+  "specialEvents": {
+    "folders": [
+      {
+        "id": "alinea",
+        "name": "alinea",
+        "children": []
+      }
+    ],
+    "placements": {
+      "alinea_ainsley": "alinea",
+      "alinea_anthimos": "alinea",
+      "alinea_barto": "alinea",
+      "alinea_bookkeeper": "alinea",
+      "alinea_chem": "alinea",
+      "alinea_claire": "alinea",
+      "alinea_elvyosa": "alinea",
+      "alinea_encounterShrineOfLuck": "alinea",
+      "alinea_gateGuardJerry": "alinea",
+      "alinea_gateGuardTerry": "alinea",
+      "alinea_gruff": "alinea",
+      "alinea_idoreo": "alinea",
+      "alinea_idoreo_copy": "alinea",
+      "alinea_igmund": "alinea",
+      "alinea_knifeThieves": "alinea",
+      "alinea_lukili": "alinea",
+      "alinea_mullen": "alinea",
+      "alinea_outsideAlinea2_aacdxguzm3p": "alinea",
+      "alinea_outsideAlinea2_av34bv05t8": "alinea",
+      "alinea_outsideAlinea2_b1h009ylkqn": "alinea",
+      "alinea_outsideAlinea2_d1rhbmlxzbb": "alinea",
+      "alinea_outsideAlinea2_e24zx9of7fd": "alinea",
+      "alinea_outsideAlinea2_mipgmxni7ej": "alinea",
+      "alinea_outsideAlinea2_pj01esmgtks": "alinea",
+      "alinea_outsideAlinea2_xlsk5d2uv8m": "alinea",
+      "alinea_outsideAlinea2_y9esnf5z9xd": "alinea",
+      "alinea_scopey": "alinea",
+      "alinea_scopeyShop": "alinea",
+      "alinea_shovanabivola": "alinea",
+      "alinea_sign_claireOffice": "alinea",
+      "alinea_sign_shopPawn": "alinea",
+      "alinea_sign_warehouse1": "alinea",
+      "alinea_sign_warehouse2": "alinea",
+      "alinea_sign_warehouse3": "alinea",
+      "alinea_sign_warehouse4": "alinea",
+      "alinea_sign_warehouse5": "alinea",
+      "alinea_sign_warehouse6": "alinea",
+      "alinea_sign_warehouse7": "alinea",
+      "alinea_sign_warehouse8": "alinea",
+      "alinea_sign_warehouse9": "alinea",
+      "alinea_sol": "alinea",
+      "alinea_start": "alinea"
+    }
+  },
+  "itemTemplates": {
+    "folders": [
+      {
+        "id": "equipable",
+        "name": "equipable",
+        "children": []
+      },
+      {
+        "id": "potions-and-scrolls",
+        "name": "potions-and-scrolls",
+        "children": []
+      },
+      {
+        "id": "quest",
+        "name": "quest",
+        "children": []
+      }
+    ],
+    "placements": {
+      "AlineaCorrespondence1": "quest",
+      "AlineaCorrespondence2": "quest",
+      "ArrowsIron": "equipable",
+      "ArrowsStone": "equipable",
+      "BeerGuildimarcheAle": "potions-and-scrolls",
+      "BeerPappysLager": "potions-and-scrolls",
+      "BootsLeather": "equipable",
+      "DaggerBronze": "equipable",
+      "GlovesLeather": "equipable",
+      "HatLeather": "equipable",
+      "LongbowOak": "equipable",
+      "MysteriousPurpleCloak": "quest",
+      "NecklaceSilver": "equipable",
+      "PantsSimple0": "equipable",
+      "PotionHealing": "potions-and-scrolls",
+      "que_alinea_RealmSeal": "quest",
+      "que_realmShedKey": "quest",
+      "SharpDagger": "equipable",
+      "ShirtSimple0": "equipable",
+      "ShirtSimple1": "equipable",
+      "ShortSwordBronze": "equipable",
+      "SwordBronze": "equipable"
+    }
+  },
+  "characterTemplates": {
+    "folders": [
+      {
+        "id": "alinea",
+        "name": "alinea",
+        "children": []
+      }
+    ],
+    "placements": {
+      "alinea_Ainsley": "alinea",
+      "alinea_Anthimos": "alinea",
+      "alinea_Barto": "alinea",
+      "alinea_Chem": "alinea",
+      "alinea_Claire": "alinea",
+      "alinea_Elvyosa": "alinea",
+      "alinea_Gruff": "alinea",
+      "alinea_Idoreo": "alinea",
+      "alinea_Igmund": "alinea",
+      "alinea_Lukili": "alinea",
+      "alinea_Mullen": "alinea",
+      "alinea_realmGuardSpearImmobile": "alinea",
+      "alinea_realmGuardSpearRandom": "alinea",
+      "alinea_realmGuardSwordImmobile": "alinea",
+      "alinea_realmGuardSwordRandom": "alinea",
+      "alinea_Scopey": "alinea",
+      "alinea_Sharon": "alinea",
+      "alinea_Shovan": "alinea",
+      "alinea_Sol": "alinea"
+    }
+  }
+}

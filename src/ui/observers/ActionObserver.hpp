@@ -53,4 +53,36 @@ bmin::UniquePtr<ui::UiEventObserver> makeActionObserver(Args... args) {
       }));
 }
 
+// Like makeActionObserver, but enqueues on the parallel (pll) queue so the
+// action runs without waiting behind sequential world/combat delays.
+class ParallelActionObserver : public ui::UiEventObserver,
+                               public state::StateManagerInterface {
+public:
+  using Factory = ActionObserver::Factory;
+
+private:
+  Factory factory;
+
+public:
+  explicit ParallelActionObserver(Factory _factory) : factory(std::move(_factory)) {}
+
+  void onClick(int /*mouseX*/, int /*mouseY*/, int /*button*/) override {
+    auto* stateManager = getStateManager();
+    if (!stateManager || !factory) {
+      return;
+    }
+    if (auto action = factory(*stateManager)) {
+      stateManager->parallelAction(std::move(action), 0);
+    }
+  }
+};
+
+template <typename T, typename... Args>
+bmin::UniquePtr<ui::UiEventObserver> makeParallelActionObserver(Args... args) {
+  return bmin::UniquePtr<ui::UiEventObserver>(
+      new ParallelActionObserver([args...](state::StateManager&) {
+        return state::makeAction<T>(args...);
+      }));
+}
+
 } // namespace ui

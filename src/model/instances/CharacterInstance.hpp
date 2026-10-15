@@ -30,6 +30,8 @@ struct CharacterInstance {
   bmin::String templateName;
   int x = 0;
   int y = 0;
+  // Floor / map layer (same space as ActiveMap::mapLayer and placement.l).
+  int mapLayer = 0;
   // Original map spawn tile; used to persist defeated map-placed characters after
   // movement.
   int spawnX = -1;

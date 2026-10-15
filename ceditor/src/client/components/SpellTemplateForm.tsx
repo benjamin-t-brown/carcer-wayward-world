@@ -168,7 +168,9 @@ export function SpellTemplateForm(props: SpellTemplateFormProps) {
             {spell.abilityName ? (
               <a
                 className="template-edit-link"
-                href={`#/editor/abilityTemplates?ability=${encodeURIComponent(spell.abilityName)}`}
+                href={`${window.location.origin}${window.location.pathname}#/editor/abilityTemplates?ability=${encodeURIComponent(spell.abilityName)}`}
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 Edit ability
               </a>
@@ -176,7 +178,7 @@ export function SpellTemplateForm(props: SpellTemplateFormProps) {
           </div>
         </div>
 
-        <div className="form-subsection">
+        <div className="form-subsection" style={{ maxWidth: 300 }}>
           <h4>Required Runes</h4>
           <div id="required-runes-list">
             {RUNE_TYPES.map((type) => {

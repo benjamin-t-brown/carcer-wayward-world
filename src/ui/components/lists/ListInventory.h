@@ -12,6 +12,7 @@ struct ListInventoryPropsItem {
   bmin::String itemLabel;
   bmin::String itemSprite;
   bool isEquippable = false;
+  bool isUsableNow = false;
   bool isEquipped = false;
   bmin::String equippedSlotAbbrev;
   bool isStackable = false;
@@ -32,7 +33,6 @@ class ListInventory : public UiElement {
 private:
   ListInventoryProps props;
 
-  const int contextBtnSize = 32;
   const int iconSpriteSize = 16;
   const int indexColumnWidth = 28;
   const int indexPaddingLeft = 4;

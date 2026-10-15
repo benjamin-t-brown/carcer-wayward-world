@@ -1,4 +1,5 @@
 #include "game/map/MapPathfinding.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapWalkability.h"
 
@@ -34,6 +35,9 @@ bool isTilePathable(ActiveMapOrchestrator& orch,
   }
   for (size_t i = 0; i < activeMap.characters.size(); i++) {
     const auto& other = activeMap.characters[i];
+    if (!isCharacterOnActiveLayer(other, activeMap)) {
+      continue;
+    }
     if (other.x == x && other.y == y && other.id != characterId) {
       return false;
     }

@@ -10,6 +10,7 @@ namespace ui {
 struct ButtonModalProps {
   bmin::String text;
   bool isSelected = false;
+  bool isDisabled = false;
   int width = 80;
   int height = 32;
 
@@ -39,6 +40,15 @@ public:
   void setProps(const ButtonModalProps& _props);
   ButtonModalProps& getProps();
   const ButtonModalProps& getProps() const;
+
+  bool checkMouseDownEvent(int mouseX,
+                           int mouseY,
+                           int button,
+                           bmin::DynArray<UiElement*> additionalElements = {}) override;
+  bool checkMouseUpEvent(int mouseX,
+                         int mouseY,
+                         int button,
+                         bmin::DynArray<UiElement*> additionalElements = {}) override;
 
   void build() override;
   void render(int dt) override;

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { CardList } from '../components/CardList';
+import { AssetTree, scrollAssetTreeItemIntoView } from '../components/AssetTree';
 import { EditorSidebar } from '../components/EditorSidebar';
 import { TilesetTemplate } from '../types/assets';
 import {
@@ -12,6 +12,7 @@ import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 import { useSaveHotkey } from '../hooks/useSaveHotkey';
+import { useAssetOrganization } from '../contexts/OrganizationContext';
 
 interface NotificationState {
   message: string;
@@ -30,6 +31,7 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const notificationIdRef = useRef(0);
   const [showForm, setShowForm] = useState(true);
+  const org = useAssetOrganization('tilesetTemplates');
 
   const showNotification = (message: string, type: 'success' | 'error') => {
     const id = notificationIdRef.current++;
@@ -49,12 +51,6 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
       tileset.spriteBase.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Get the actual index in the full tilesets array for filtered tilesets
-  const getActualIndex = (filteredIndex: number): number => {
-    const filteredTileset = filteredTilesets[filteredIndex];
-    return tilesets.indexOf(filteredTileset);
-  };
-
   const scrollToTopOfForm = () => {
     setTimeout(() => {
       document
@@ -63,8 +59,11 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
     }, 100);
   };
 
-  const handleTilesetClick = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
+  const handleTilesetClick = (tilesetId: string) => {
+    const actualIndex = tilesets.findIndex((tileset) => tileset.name === tilesetId);
+    if (actualIndex < 0) {
+      return;
+    }
     setEditTilesetIndex(actualIndex);
     scrollToTopOfForm();
     setShowForm(false);
@@ -73,13 +72,17 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
     }, 100);
   };
 
-  const handleClone = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
+  const handleClone = (tilesetId: string) => {
+    const actualIndex = tilesets.findIndex((tileset) => tileset.name === tilesetId);
+    if (actualIndex < 0) {
+      return;
+    }
     const originalTileset = tilesets[actualIndex];
     const clonedTileset: TilesetTemplate = JSON.parse(
       JSON.stringify(originalTileset)
     );
     clonedTileset.name = clonedTileset.name + '_copy';
+    org.copyPlacement(tilesetId, clonedTileset.name);
     const newTilesets = tilesets.slice();
     const clonedIndex = actualIndex + 1;
     newTilesets.splice(clonedIndex, 0, clonedTileset);
@@ -87,19 +90,16 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
     setEditTilesetIndex(clonedIndex);
     showNotification('Tileset cloned!', 'success');
     scrollToTopOfForm();
-    setTimeout(() => {
-      const tilesetCard = document.getElementById(
-        `tileset-card-${clonedIndex}`
-      );
-      if (tilesetCard) {
-        tilesetCard.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
+    scrollAssetTreeItemIntoView(clonedTileset.name);
   };
 
-  const handleDelete = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
+  const handleDelete = (tilesetId: string) => {
+    const actualIndex = tilesets.findIndex((tileset) => tileset.name === tilesetId);
+    if (actualIndex < 0) {
+      return;
+    }
     if (confirm('Are you sure you want to delete this tileset?')) {
+      org.removeItem(tilesetId);
       const newTilesets = tilesets.filter((_, index) => index !== actualIndex);
       setTilesets(newTilesets);
       if (editTilesetIndex === actualIndex) {
@@ -112,20 +112,16 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
 
   const handleCreateNew = () => {
     const newTilesetTemplate = createDefaultTileset();
+    const selectedId =
+      editTilesetIndex >= 0 ? tilesets[editTilesetIndex]?.name ?? null : null;
+    org.fileNewItem(newTilesetTemplate.name, selectedId);
     const newTilesets = [...tilesets, newTilesetTemplate];
     setTilesets(newTilesets);
     const actualIndex = newTilesets.length - 1;
     setEditTilesetIndex(actualIndex);
     scrollToTopOfForm();
     setSearchTerm('');
-    setTimeout(() => {
-      const tilesetCard = document.getElementById(
-        `tileset-card-${actualIndex}`
-      );
-      if (tilesetCard) {
-        tilesetCard.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
+    scrollAssetTreeItemIntoView(newTilesetTemplate.name);
   };
 
   usePersistedEditorSelection({
@@ -142,6 +138,7 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
     if (editTilesetIndex < 0) {
       return;
     }
+    org.rekeyItem(tilesets[editTilesetIndex].name, tileset.name);
     const updatedTilesets = [...tilesets];
     updatedTilesets[editTilesetIndex] = tileset;
     setTilesets(updatedTilesets);
@@ -279,46 +276,25 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
           createLabel="+ New Tileset"
           onCreate={handleCreateNew}
         >
-          <CardList
-            items={filteredTilesets}
-            onItemClick={handleTilesetClick}
-            onClone={handleClone}
-            onDelete={handleDelete}
-            selectedIndex={
-              editTilesetIndex !== -1
-                ? (() => {
-                    const index = filteredTilesets.findIndex(
-                      (tileset) =>
-                        tilesets.indexOf(tileset) === editTilesetIndex
-                    );
-                    return index >= 0 ? index : null;
-                  })()
-                : null
-            }
-            renderAdditionalInfo={(tileset) => (
-              <>
-                <div
-                  className="item-info"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                  }}
-                >
-                  <span className="item-type">
-                    {tileset.tileWidth}×{tileset.tileHeight}
-                  </span>
-                </div>
-                <div
-                  style={{
-                    fontSize: '12px',
-                    color: '#858585',
-                    marginTop: '4px',
-                  }}
-                >
-                  {tileset.spriteBase}
-                </div>
-                {tileset.tiles.length > 0 && (
+          <AssetTree
+            assetId="tilesetTemplates"
+            items={filteredTilesets.map((tileset) => ({
+              id: tileset.name,
+              label: tileset.name,
+              extra: (
+                <>
+                  <div
+                    className="item-info"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    <span className="item-type">
+                      {tileset.tileWidth}×{tileset.tileHeight}
+                    </span>
+                  </div>
                   <div
                     style={{
                       fontSize: '12px',
@@ -326,11 +302,30 @@ export function TilesetTemplates({ routeParams }: TilesetTemplatesProps = {}) {
                       marginTop: '4px',
                     }}
                   >
-                    {tileset.tiles.length} tiles
+                    {tileset.spriteBase}
                   </div>
-                )}
-              </>
-            )}
+                  {tileset.tiles.length > 0 && (
+                    <div
+                      style={{
+                        fontSize: '12px',
+                        color: '#858585',
+                        marginTop: '4px',
+                      }}
+                    >
+                      {tileset.tiles.length} tiles
+                    </div>
+                  )}
+                </>
+              ),
+            }))}
+            allItemIds={tilesets.map((tileset) => tileset.name)}
+            selectedId={
+              editTilesetIndex >= 0 ? tilesets[editTilesetIndex]?.name : null
+            }
+            onSelectItem={handleTilesetClick}
+            onClone={handleClone}
+            onDelete={handleDelete}
+            filterActive={searchTerm.trim() !== ''}
             emptyMessage="No tilesets found"
           />
         </EditorSidebar>

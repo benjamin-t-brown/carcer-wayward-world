@@ -44,6 +44,7 @@ class DoCPUCombatTurn : public AbstractAction {
       return;
     }
 
+    // TODO: no enemy spell AI yet; future share with town tryQueueTownEnemySpell.
     if (actor->combatBehaviorCombat == model::CombatBehaviorName::SEEK_AND_MELEE) {
       auto dx = 0;
       auto dy = 0;

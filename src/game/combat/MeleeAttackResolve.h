@@ -40,6 +40,7 @@ bool meleeAttackHits(int d20Roll, int attackBonus, int targetArmorClass);
 bool rollMeleeAttackHit(model::AttackClass attackClass,
                         int attackBonus,
                         int targetArmorClass,
-                        bool applyOffHandPenalty);
+                        bool applyOffHandPenalty,
+                        bool withAdvantage = false);
 
 } // namespace game

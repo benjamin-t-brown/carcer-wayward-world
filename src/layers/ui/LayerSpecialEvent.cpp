@@ -69,7 +69,7 @@ LayerSpecialEvent::LayerSpecialEvent(
   if (stateManager && database) {
     auto& state = stateManager->getState();
     runner.setExecContext(&state.player, database, &state.world.activeMap,
-                          &state.mapInstances);
+                          &state.mapInstances, &state);
   }
 
   runnerInterface.startEvent();

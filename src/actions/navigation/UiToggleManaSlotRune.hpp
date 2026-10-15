@@ -38,6 +38,7 @@ class UiToggleManaSlotRune : public AbstractAction {
       model::timerStructStart(notification.timer,
                               state->settings.floatingNotificationDurationMs);
       localState.uiState.floatingNotifications.pushBack(std::move(notification));
+      ++localState.uiState.floatingNotificationRevision;
       break;
     }
     case model::EquipRuneResult::NO_RUNE_AVAILABLE: {
@@ -48,6 +49,7 @@ class UiToggleManaSlotRune : public AbstractAction {
       model::timerStructStart(notification.timer,
                               state->settings.floatingNotificationDurationMs);
       localState.uiState.floatingNotifications.pushBack(std::move(notification));
+      ++localState.uiState.floatingNotificationRevision;
       break;
     }
     case model::EquipRuneResult::NOT_A_RUNE: {
@@ -58,6 +60,7 @@ class UiToggleManaSlotRune : public AbstractAction {
       model::timerStructStart(notification.timer,
                               state->settings.floatingNotificationDurationMs);
       localState.uiState.floatingNotifications.pushBack(std::move(notification));
+      ++localState.uiState.floatingNotificationRevision;
       break;
     }
     default:

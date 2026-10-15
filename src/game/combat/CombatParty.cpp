@@ -46,6 +46,7 @@ void addPartyMembersToCombatMap(model::World& world,
         member.templateName.empty() ? member.params.name : member.templateName;
     instance.x = spawnX;
     instance.y = spawnY;
+    instance.mapLayer = activeMap.mapLayer;
     instance.spawnX = spawnX;
     instance.spawnY = spawnY;
     instance.currentAp = model::COMBAT_STARTING_AP;

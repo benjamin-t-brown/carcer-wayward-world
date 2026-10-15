@@ -422,7 +422,9 @@ resolveTileToRender(const model::MapInstance& map, int x, int y) {
 }
 
 bool isTileCurrentlyVisible(const model::MapInstance& map, int x, int y) {
-  const auto* tile = resolveTileToRender(map, x, y);
+  // Fog visibility is per map.tileLayerNumber cell (including empty tilesetName).
+  const auto* tile =
+      model::mapInstanceGetTileAt(map, x, y, map.tileLayerNumber);
   return tile != nullptr && tile->isVisible;
 }
 

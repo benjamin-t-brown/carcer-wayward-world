@@ -1,4 +1,5 @@
 #include "game/combat/EnemyBehavior.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapPathfinding.h"
 #include "game/map/MapWalkability.h"
@@ -93,6 +94,9 @@ EnemySpottingPassResult applyEnemySpottingPass(model::World& world,
   const auto hadAgitated = anyCharacterAgitated(world.activeMap);
   for (size_t i = 0; i < world.activeMap.characters.size(); i++) {
     auto& character = world.activeMap.characters[i];
+    if (!isCharacterOnActiveLayer(character, world.activeMap)) {
+      continue;
+    }
     if (character.agitated) {
       continue;
     }
@@ -119,12 +123,18 @@ bool applyTownspersonSpottingPass(model::World& world,
   auto changed = false;
   for (size_t i = 0; i < world.activeMap.characters.size(); i++) {
     auto& townsfolk = world.activeMap.characters[i];
+    if (!isCharacterOnActiveLayer(townsfolk, world.activeMap)) {
+      continue;
+    }
     if (townsfolk.agitated || !isTownsperson(townsfolk)) {
       continue;
     }
 
     for (size_t j = 0; j < world.activeMap.characters.size(); j++) {
       const auto& other = world.activeMap.characters[j];
+      if (!isCharacterOnActiveLayer(other, world.activeMap)) {
+        continue;
+      }
       if (townsfolk.id == other.id) {
         continue;
       }
@@ -146,12 +156,18 @@ bool applyGroupContagionPass(model::ActiveMap& activeMap) {
   auto changed = false;
   for (size_t i = 0; i < activeMap.characters.size(); i++) {
     auto& character = activeMap.characters[i];
+    if (!isCharacterOnActiveLayer(character, activeMap)) {
+      continue;
+    }
     if (character.agitated || character.agitationGroup.empty()) {
       continue;
     }
 
     for (size_t j = 0; j < activeMap.characters.size(); j++) {
       const auto& other = activeMap.characters[j];
+      if (!isCharacterOnActiveLayer(other, activeMap)) {
+        continue;
+      }
       if (other.id == character.id || !other.agitated) {
         continue;
       }
@@ -210,9 +226,15 @@ bool canEnemySpotPartyAvatar(model::World& world,
   if (!model::characterInstanceIsEnemy(enemy)) {
     return false;
   }
+  if (!isCharacterOnActiveLayer(enemy, world.activeMap)) {
+    return false;
+  }
 
   auto* avatar = findPartyAvatarOnActiveMap(world.activeMap, player);
   if (avatar == nullptr) {
+    return false;
+  }
+  if (!isCharacterOnActiveLayer(*avatar, world.activeMap)) {
     return false;
   }
 
@@ -317,6 +339,9 @@ bool chooseSeekAndMeleeCombatAction(model::World& world,
 
   for (size_t i = 0; i < world.activeMap.characters.size(); i++) {
     const auto& other = world.activeMap.characters[i];
+    if (!isCharacterOnActiveLayer(other, world.activeMap)) {
+      continue;
+    }
     if (other.id == actor.id) {
       continue;
     }
@@ -348,6 +373,9 @@ bool chooseSeekAndMeleeCombatAction(model::World& world,
   auto targetY = 0;
   for (size_t i = 0; i < world.activeMap.characters.size(); i++) {
     const auto& other = world.activeMap.characters[i];
+    if (!isCharacterOnActiveLayer(other, world.activeMap)) {
+      continue;
+    }
     if (!model::isPartyMember(player, other.id)) {
       continue;
     }
@@ -382,6 +410,15 @@ bool chooseSeekAndMeleeCombatAction(model::World& world,
       database,
       outDx,
       outDy);
+}
+
+bool tryQueueTownEnemySpell(model::World& /*world*/,
+                            MapInstanceStore& /*mapInstances*/,
+                            const model::Player& /*player*/,
+                            const model::CharacterInstance& /*enemy*/,
+                            const db::Database& /*database*/) {
+  // TODO: share combat spell AI
+  return false;
 }
 
 } // namespace game

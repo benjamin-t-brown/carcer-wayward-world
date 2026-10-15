@@ -24,7 +24,12 @@ import {
 import { AbilityTemplate, StatusEffectTemplate } from './types/ability';
 import { SpellTemplate } from './types/spell';
 import { ASSET_TYPES, AssetId } from '../shared/assetRegistry';
+import {
+  normalizeOrganizationFile,
+  type EditorOrganizationFile,
+} from '../shared/editorOrganization';
 import { normalizeAll } from './utils/assetNormalizers';
+import { OrganizationProvider } from './contexts/OrganizationContext';
 
 interface AssetType {
   id: string;
@@ -87,8 +92,10 @@ async function load(): Promise<{
   assetMtimes: Partial<Record<AssetId, number | null>>;
   maps: CarcerMapTemplate[];
   mapGrids: MapGridTemplate[];
+  organization: EditorOrganizationFile;
 }> {
   const assetTypes = await loadAssetTypes();
+  const organizationPromise = fetchOrganization();
   const sdl2wAssetFiles = await loadSDL2WAssetFiles();
   const { sprites, animations, sounds, pictures } = await loadSpritesAndAnimations(
     sdl2wAssetFiles
@@ -139,6 +146,7 @@ async function load(): Promise<{
   const gameEvents = normalized.specialEvents as GameEvent[];
   const maps = normalized.maps as CarcerMapTemplate[];
   const mapGrids = normalized.mapGrids as MapGridTemplate[];
+  const organization = await organizationPromise;
 
   console.log('loaded', {
     assetTypes,
@@ -183,7 +191,21 @@ async function load(): Promise<{
     assetMtimes,
     maps,
     mapGrids,
+    organization,
   };
+}
+
+async function fetchOrganization(): Promise<EditorOrganizationFile> {
+  try {
+    const response = await fetch('/api/editor-organization', { cache: 'no-store' });
+    if (!response.ok) {
+      return {};
+    }
+    return normalizeOrganizationFile(await response.json());
+  } catch (error) {
+    console.error('Failed to load editor organization', error);
+    return {};
+  }
 }
 
 async function init() {
@@ -219,6 +241,7 @@ async function init() {
       assetMtimes,
       maps,
       mapGrids,
+      organization,
     } = await load();
     const container = document.getElementById('root');
 
@@ -254,7 +277,9 @@ async function init() {
             initialMaps={maps}
             initialMapGrids={mapGrids}
           >
-            <App assetTypes={assetTypes} />
+            <OrganizationProvider initialOrganization={organization}>
+              <App assetTypes={assetTypes} />
+            </OrganizationProvider>
           </AssetsProvider>
         </SDL2WAssetsProvider>
       </React.StrictMode>

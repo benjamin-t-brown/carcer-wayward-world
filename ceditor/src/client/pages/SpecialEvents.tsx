@@ -1,7 +1,6 @@
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
-import { CardListAdvanced } from '../components/CardList';
+import { AssetTree } from '../components/AssetTree';
 import { EditorSidebar } from '../components/EditorSidebar';
-import { ListCardActions } from '../elements/ListCardActions';
 import { GameEvent } from '../types/assets';
 import { CreateGameEventModal } from '../components/CreateGameEventModal';
 import { EditGameEventModal } from '../components/EditGameEventModal';
@@ -14,6 +13,7 @@ import { EditorHeader } from '../components/EditorHeader';
 import { EditorEmptyState } from '../components/EditorEmptyState';
 import { Notification } from '../elements/Notification';
 import { useAssets } from '../contexts/AssetsContext';
+import { useAssetOrganization } from '../contexts/OrganizationContext';
 import { trimStrings } from '../utils/jsonUtils';
 import {
   centerPanzoomOnNode,
@@ -64,6 +64,12 @@ interface SpecialEventsProps {
   routeParams?: URLSearchParams;
 }
 
+const EVENT_TYPE_ORDER: Record<GameEvent['eventType'], number> = {
+  MODAL: 0,
+  TALK: 1,
+  TRAVEL: 2,
+};
+
 const filterGameEvents = (
   gameEvents: GameEvent[],
   args: {
@@ -72,43 +78,44 @@ const filterGameEvents = (
   },
 ) => {
   const { searchTerm, eventTypes } = args;
-  // Filter game events based on search term
-  const _filteredGameEvents = gameEvents
+  const lowerTerm = searchTerm.toLowerCase();
+  return gameEvents
     .filter(
       (gameEvent) =>
-        gameEvent.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        gameEvent.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        gameEvent.eventType.toLowerCase().includes(searchTerm.toLowerCase()),
+        eventTypes.includes(gameEvent.eventType) &&
+        (gameEvent.id.toLowerCase().includes(lowerTerm) ||
+          gameEvent.title.toLowerCase().includes(lowerTerm) ||
+          gameEvent.eventType.toLowerCase().includes(lowerTerm)),
     )
-    .sort((a, b) => a.id.localeCompare(b.id));
-
-  const modalEvents: GameEvent[] = [];
-  const talkEvents: GameEvent[] = [];
-  const travelEvents: GameEvent[] = [];
-  for (let i = 0; i < _filteredGameEvents.length; i++) {
-    const gameEvent = _filteredGameEvents[i];
-    if (gameEvent.eventType === 'MODAL') {
-      modalEvents.push(gameEvent);
-    } else if (gameEvent.eventType === 'TALK') {
-      talkEvents.push(gameEvent);
-    } else if (gameEvent.eventType === 'TRAVEL') {
-      travelEvents.push(gameEvent);
-    }
-  }
-
-  const filteredGameEvents: GameEvent[] = [];
-
-  if (eventTypes.includes('TALK')) {
-    filteredGameEvents.push(...talkEvents);
-  }
-  if (eventTypes.includes('MODAL')) {
-    filteredGameEvents.push(...modalEvents);
-  }
-  if (eventTypes.includes('TRAVEL')) {
-    filteredGameEvents.push(...travelEvents);
-  }
-  return filteredGameEvents;
+    .sort(
+      (a, b) =>
+        EVENT_TYPE_ORDER[a.eventType] - EVENT_TYPE_ORDER[b.eventType] ||
+        a.id.localeCompare(b.id),
+    );
 };
+
+function EventTypeIcon({
+  eventType,
+}: {
+  eventType: GameEvent['eventType'];
+}) {
+  const mark =
+    eventType === 'TALK'
+      ? { letter: 'T', color: '#4a7c59', label: 'Talk' }
+      : eventType === 'TRAVEL'
+        ? { letter: 'R', color: '#a1260d', label: 'Travel' }
+        : { letter: 'M', color: '#4e4980', label: 'Modal' };
+  return (
+    <span
+      className="special-event-type-icon"
+      style={{ background: mark.color }}
+      title={mark.label}
+      aria-label={mark.label}
+    >
+      {mark.letter}
+    </span>
+  );
+}
 
 export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   const {
@@ -126,6 +133,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     saveItems,
     quests,
   } = useAssets();
+  const org = useAssetOrganization('specialEvents');
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -233,6 +241,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
       JSON.stringify(originalGameEvent),
     );
     clonedGameEvent.id = clonedGameEvent.id + '_copy';
+    org.copyPlacement(gameEventId, clonedGameEvent.id);
     const newGameEvents = gameEvents.slice();
     newGameEvents.push(clonedGameEvent);
     setGameEvents(newGameEvents);
@@ -241,6 +250,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
   };
 
   const deleteGameEvent = (gameEventId: string) => {
+    org.removeItem(gameEventId);
     const newGameEvents = gameEvents.filter(
       (gameEvent) => gameEvent.id !== gameEventId,
     );
@@ -290,6 +300,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     const newGameEvents = [...gameEvents, newGameEvent].sort((a, b) =>
       a.id.localeCompare(b.id),
     );
+    org.fileNewItem(newGameEvent.id, getEditorState().gameEventId || null);
     setGameEvents(newGameEvents);
     selectGameEvent(newGameEvent.id);
     setShowCreateModal(false);
@@ -390,6 +401,7 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     // no external references to update (previously only ran inside the
     // updateReferences branch, which left the UI on the old id → unselected).
     if (oldId !== newId) {
+      org.rekeyItem(oldId, newId);
       renameEditorSaveStateForGameEvent(oldId, newId);
       saveEditorSelection('specialEvents', newId);
       syncSelectionToRoute('specialEvents', newId, { history: 'replace' });
@@ -662,11 +674,11 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
     searchTerm,
     eventTypes: eventsToShow,
   });
+  const eventTypeById = new Map(
+    gameEvents.map((gameEvent) => [gameEvent.id, gameEvent.eventType]),
+  );
 
   const currentGameEvent = gameEvents.find(
-    (gameEvent) => gameEvent.id === getEditorState().gameEventId,
-  );
-  const selectedIndex = filteredGameEvents.findIndex(
     (gameEvent) => gameEvent.id === getEditorState().gameEventId,
   );
 
@@ -684,25 +696,6 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
             createFirst
             createLabel="+ New Game Event"
             onCreate={handleCreateNew}
-            afterCreate={
-              <RecentLinks
-                items={recentGameEvents
-                  .slice(0, 10)
-                  .map((gameEventId) => {
-                    const ge = gameEvents.find((ge) => ge.id === gameEventId);
-                    if (!ge) {
-                      return undefined;
-                    }
-                    return {
-                      label: ge.id + ' (' + ge.title + ')',
-                      isSelected: ge.id === getEditorState().gameEventId,
-                      onClick: () => handleGameEventClick(ge.id),
-                      onRemove: () => removeRecentGameEvent(ge.id),
-                    };
-                  })
-                  .filter((item) => item !== undefined)}
-              />
-            }
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
             searchPlaceholder="Search game events..."
@@ -771,41 +764,46 @@ export function SpecialEvents({ routeParams }: SpecialEventsProps = {}) {
               </div>
             }
           >
-            <CardListAdvanced
-              items={filteredGameEvents}
-              selectedIndex={selectedIndex > -1 ? selectedIndex : null}
-              renderListItem={(gameEvent) => (
-                <div className="special-event-list-card">
-                  <div className="item-id">{gameEvent.id}</div>
-                  <div className="special-event-list-card-meta">
-                    <span
-                      className="item-type special-event-type-badge"
-                      style={{
-                        background:
-                          gameEvent.eventType === 'MODAL'
-                            ? '#4e4980'
-                            : gameEvent.eventType === 'TALK'
-                              ? '#4a7c59'
-                              : '#a1260d',
-                      }}
-                    >
-                      {gameEvent.eventType}
-                    </span>
-                    <div
-                      className="item-card-actions"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <ListCardActions
-                        onClone={() => handleClone(gameEvent.id)}
-                        onDelete={() => handleDeleteClick(gameEvent.id)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-              onItemClick={(index) =>
-                handleGameEventClick(filteredGameEvents[index].id)
+            <AssetTree
+              assetId="specialEvents"
+              items={filteredGameEvents.map((gameEvent) => ({
+                id: gameEvent.id,
+                label: gameEvent.id,
+                icon: <EventTypeIcon eventType={gameEvent.eventType} />,
+              }))}
+              allItemIds={gameEvents.map((gameEvent) => gameEvent.id)}
+              selectedId={getEditorState().gameEventId || null}
+              onSelectItem={handleGameEventClick}
+              onClone={handleClone}
+              onDelete={handleDeleteClick}
+              filterActive={
+                searchTerm.trim() !== '' || eventsToShow.length !== 3
               }
+              emptyMessage="No game events found"
+              compareItems={(a, b) => {
+                const typeA = eventTypeById.get(a.id);
+                const typeB = eventTypeById.get(b.id);
+                const rankA = typeA != null ? EVENT_TYPE_ORDER[typeA] : 99;
+                const rankB = typeB != null ? EVENT_TYPE_ORDER[typeB] : 99;
+                return rankA - rankB || a.id.localeCompare(b.id);
+              }}
+            />
+            <RecentLinks
+              items={recentGameEvents
+                .slice(0, 10)
+                .map((gameEventId) => {
+                  const ge = gameEvents.find((ge) => ge.id === gameEventId);
+                  if (!ge) {
+                    return undefined;
+                  }
+                  return {
+                    label: ge.id + ' (' + ge.title + ')',
+                    isSelected: ge.id === getEditorState().gameEventId,
+                    onClick: () => handleGameEventClick(ge.id),
+                    onRemove: () => removeRecentGameEvent(ge.id),
+                  };
+                })
+                .filter((item) => item !== undefined)}
             />
           </EditorSidebar>
 

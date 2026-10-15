@@ -45,6 +45,7 @@ class UiToggleEquipInventoryItem : public AbstractAction {
       model::timerStructStart(notification.timer,
                               state->settings.floatingNotificationDurationMs);
       localState.uiState.floatingNotifications.pushBack(std::move(notification));
+      ++localState.uiState.floatingNotificationRevision;
       break;
     }
     case model::EquipItemResult::TWO_HANDED_OFF_HAND: {
@@ -56,6 +57,7 @@ class UiToggleEquipInventoryItem : public AbstractAction {
       model::timerStructStart(notification.timer,
                               state->settings.floatingNotificationDurationMs);
       localState.uiState.floatingNotifications.pushBack(std::move(notification));
+      ++localState.uiState.floatingNotificationRevision;
       break;
     }
     default:

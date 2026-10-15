@@ -141,7 +141,8 @@ void markMapCharacterDefeated(model::ActiveMap& activeMap,
   const int recordY = local.valid ? local.y : spawnY;
 
   for (const auto& existing : map->persistentState.defeatedCharacters) {
-    if (existing.templateName == character.templateName && existing.x == recordX &&
+    if (existing.templateName == character.templateName &&
+        existing.layer == character.mapLayer && existing.x == recordX &&
         existing.y == recordY) {
       return;
     }
@@ -149,6 +150,7 @@ void markMapCharacterDefeated(model::ActiveMap& activeMap,
 
   auto record = model::DefeatedCharacterRecord{};
   record.templateName = character.templateName;
+  record.layer = character.mapLayer;
   record.x = recordX;
   record.y = recordY;
   map->persistentState.defeatedCharacters.pushBack(std::move(record));

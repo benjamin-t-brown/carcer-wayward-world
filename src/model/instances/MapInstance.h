@@ -14,11 +14,11 @@ namespace model {
 
 enum class TurnMode { TURN_TOWN, TURN_OUTDOOR, TURN_COMBAT };
 
-// Session-scoped fog-of-war memory for a map template (one bit per cell).
+// Session-scoped fog-of-war memory for a map template (one bitset per layer).
 struct ExploredMapMask {
   int width = 0;
   int height = 0;
-  bmin::DynArray<uint8_t> bits;
+  bmin::Map<int, bmin::DynArray<uint8_t>> layers;
 };
 
 // Open-door tileId mutation on a map (closed doors become tileId+1 at runtime).
@@ -48,6 +48,7 @@ struct UnlockedDoorRecord {
 // Map-placed character removed for the session (matched on template + spawn tile).
 struct DefeatedCharacterRecord {
   bmin::String templateName;
+  int layer = 0;
   int x = 0;
   int y = 0;
 };

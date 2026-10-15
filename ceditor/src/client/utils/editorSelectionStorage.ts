@@ -99,17 +99,18 @@ export function syncSelectionToRoute(
     return;
   }
 
-  const historyMode = options?.history ?? 'push';
-  if (historyMode === 'replace') {
-    window.history.replaceState(
-      window.history.state,
-      '',
-      `${window.location.pathname}${window.location.search}${nextHash}`
-    );
-    window.dispatchEvent(new HashChangeEvent('hashchange'));
+  const historyMode = options?.history ?? 'replace';
+  if (historyMode === 'push') {
+    // Assigning hash pushes a history entry and fires hashchange for back/forward.
+    window.location.hash = nextHash;
     return;
   }
 
-  // Assigning hash pushes a history entry and fires hashchange for back/forward.
-  window.location.hash = nextHash;
+  // Default: replace so selection sync / deep-links do not stack history.
+  window.history.replaceState(
+    window.history.state,
+    '',
+    `${window.location.pathname}${window.location.search}${nextHash}`
+  );
+  window.dispatchEvent(new HashChangeEvent('hashchange'));
 }

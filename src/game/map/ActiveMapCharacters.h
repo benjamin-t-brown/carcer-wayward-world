@@ -4,6 +4,11 @@
 
 namespace game {
 
+inline bool isCharacterOnActiveLayer(const model::CharacterInstance& character,
+                                     const model::ActiveMap& activeMap) {
+  return character.mapLayer == activeMap.mapLayer;
+}
+
 // Scans ActiveMap::characters in world coordinates.
 inline model::CharacterInstance*
 findCharacterById(model::ActiveMap& activeMap, const bmin::String& characterId) {
@@ -20,6 +25,9 @@ inline model::CharacterInstance* findCharacterAt(model::ActiveMap& activeMap,
                                                  int worldY,
                                                  const bmin::String& excludeId) {
   for (auto it = activeMap.characters.begin(); it != activeMap.characters.end(); ++it) {
+    if (!isCharacterOnActiveLayer(*it, activeMap)) {
+      continue;
+    }
     if (it->x == worldX && it->y == worldY && it->id != excludeId) {
       return it;
     }
@@ -36,6 +44,9 @@ inline bmin::DynArray<model::CharacterInstance*>
 findAllCharactersAt(model::ActiveMap& activeMap, int worldX, int worldY) {
   bmin::DynArray<model::CharacterInstance*> characters;
   for (auto it = activeMap.characters.begin(); it != activeMap.characters.end(); ++it) {
+    if (!isCharacterOnActiveLayer(*it, activeMap)) {
+      continue;
+    }
     if (it->x == worldX && it->y == worldY) {
       characters.pushBack(it);
     }

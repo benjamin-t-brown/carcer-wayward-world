@@ -122,6 +122,16 @@ void LayerWorld::alignMapView() {
   // Content dims are in map pixels; screen size is content * mapScale.
   world->camera.viewW = static_cast<int>(worldW / mapScale);
   world->camera.viewH = static_cast<int>(worldH / mapScale);
+
+  if (auto* notifications =
+          getUiElement<ui::FloatingNotificationSection>("floatingNotificationSection")) {
+    auto notificationProps = notifications->getProps();
+    if (notificationProps.originX != worldX || notificationProps.originY != worldY) {
+      notificationProps.originX = worldX;
+      notificationProps.originY = worldY;
+      notifications->setProps(notificationProps);
+    }
+  }
 }
 
 void LayerWorld::setMapScale(float scale) {

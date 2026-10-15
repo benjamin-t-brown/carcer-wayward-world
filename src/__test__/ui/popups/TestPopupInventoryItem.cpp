@@ -38,7 +38,6 @@ int main(int argc, char** argv) {
         .weight = 10,
         .value = 100,
         .usable = true,
-        .equippable = true,
         .orientation = orientation,
     });
     auto [popupW, popupH] = popupInventoryItem->getDims();

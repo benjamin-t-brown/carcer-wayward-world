@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/combat/EnemyBehavior.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "model/templates/CharacterTemplate.h"
 #include "state/AbstractAction.hpp"
 #include "actions/general/PlaySound.hpp"
@@ -37,6 +38,9 @@ class TownEnemyAiAfterPlayerMove : public AbstractAction {
     // next player move / town AI pass.
     std::unordered_set<std::string> alreadyAgitatedEnemyIds;
     for (const auto& character : world.activeMap.characters) {
+      if (!game::isCharacterOnActiveLayer(character, world.activeMap)) {
+        continue;
+      }
       if (!character.agitated || !model::characterInstanceIsEnemy(character)) {
         continue;
       }
@@ -49,6 +53,9 @@ class TownEnemyAiAfterPlayerMove : public AbstractAction {
 
     for (size_t i = 0; i < world.activeMap.characters.size(); i++) {
       const auto& character = world.activeMap.characters[i];
+      if (!game::isCharacterOnActiveLayer(character, world.activeMap)) {
+        continue;
+      }
       if (!character.agitated) {
         continue;
       }

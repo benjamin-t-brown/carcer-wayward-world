@@ -1,6 +1,7 @@
 #include "PageInventory.h"
-#include "sdl2w/L10n.h"
+#include "game/inventory/ItemUseRules.h"
 #include "model/templates/Items.h"
+#include "sdl2w/L10n.h"
 #include "ui/colors.hpp"
 #include "ui/components/PartyMemberIconSelector.h"
 #include "ui/components/lists/ListInventory.h"
@@ -55,6 +56,10 @@ void PageInventory::populateInventoryProps(
     return;
   }
   auto& database = *getDatabase();
+  auto& state = getStateManager()->getState();
+  const auto combatActive = state.world.combat.active;
+  const auto mapType = game::resolveActiveMapType(
+      state.world.activeMap, state.mapInstances, &database, state.player);
 
   model::CharacterPlayer equippedCheck;
   equippedCheck.equipment = props.equipment;
@@ -73,6 +78,8 @@ void PageInventory::populateInventoryProps(
                                                                  : itemTemplate.label,
                          .itemSprite = itemTemplate.iconSpriteName,
                          .isEquippable = model::itemTypeIsEquippable(itemTemplate.itemType),
+                         .isUsableNow =
+                             game::isItemUsableNow(itemTemplate, combatActive, mapType),
                          .isEquipped = equippedSlot.has_value(),
                          .equippedSlotAbbrev = equippedSlotAbbrev,
                          .isStackable = itemTemplate.stackable,

@@ -84,8 +84,8 @@ void collectTilesAt(const model::MapInstance& map,
 const model::TileInstance*
 resolveTileToRender(const model::MapInstance& map, int x, int y);
 
-// Same notion MapView uses for "currently visible": resolveTileToRender + isVisible.
-// Missing / empty render tile → not visible. Does not treat isExplored alone as visible.
+// Fog "currently visible": TileInstance at map.tileLayerNumber (including empty
+// tilesetName) with isVisible. Missing layer / OOB → not visible.
 bool isTileCurrentlyVisible(const model::MapInstance& map, int x, int y);
 
 // Non-empty tile on map.tileLayerNumber at (x,y), or nullptr if empty/missing/OOB.

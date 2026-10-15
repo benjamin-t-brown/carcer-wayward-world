@@ -585,6 +585,29 @@ int main(int /*argc*/, char** /*argv*/) {
            ok;
     }
 
+    // Character on another map layer does not block movement
+    {
+      auto& state = stateManager.getState();
+      state = state::State{};
+      setupGrid(database, state, 5, 5);
+      spawnAvatar(state, 2, 2);
+
+      auto basementNpc = model::CharacterInstance{};
+      basementNpc.id = "basement-npc";
+      basementNpc.name = "Basement";
+      basementNpc.templateName = "testNpc";
+      basementNpc.x = 3;
+      basementNpc.y = 2;
+      basementNpc.mapLayer = -1;
+      state.world.activeMap.characters.pushBack(std::move(basementNpc));
+
+      auto* avatar =
+          game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
+      move(state, 1, 0);
+      ok = assertEqual(avatar->x, 3, "other-layer npc allows move.x") && ok;
+      ok = assertEqual(avatar->y, 2, "other-layer npc allows move.y") && ok;
+    }
+
     // Camera follow recenters after successful move
     {
       auto& state = stateManager.getState();

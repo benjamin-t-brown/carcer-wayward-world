@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { CardList } from '../components/CardList';
+import { AssetTree, scrollAssetTreeItemIntoView } from '../components/AssetTree';
 import { EditorSidebar } from '../components/EditorSidebar';
 import { AbilityTemplate } from '../types/ability';
 import { AbilityTemplateForm } from '../components/AbilityTemplateForm';
@@ -22,6 +22,7 @@ import {
 import { AbilityDeleteConfirmModal } from '../components/AbilityDeleteConfirmModal';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 import { useSaveHotkey } from '../hooks/useSaveHotkey';
+import { useAssetOrganization } from '../contexts/OrganizationContext';
 
 interface NotificationState {
   message: string;
@@ -49,6 +50,7 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const notificationIdRef = useRef(0);
+  const org = useAssetOrganization('abilityTemplates');
   const [abilityDeleteConfirm, setAbilityDeleteConfirm] = useState<{
     actualIndex: number;
     abilityName: string;
@@ -75,24 +77,34 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
       ability.label.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getActualIndex = (filteredIndex: number) =>
-    abilities.indexOf(filtered[filteredIndex]);
+  const handleClick = (abilityId: string) => {
+    const actualIndex = abilities.findIndex((ability) => ability.name === abilityId);
+    if (actualIndex >= 0) {
+      setEditIndex(actualIndex);
+    }
+  };
 
-  const handleClick = (filteredIndex: number) => setEditIndex(getActualIndex(filteredIndex));
-
-  const handleClone = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
+  const handleClone = (abilityId: string) => {
+    const actualIndex = abilities.findIndex((ability) => ability.name === abilityId);
+    if (actualIndex < 0) {
+      return;
+    }
     const cloned: AbilityTemplate = JSON.parse(JSON.stringify(abilities[actualIndex]));
     cloned.name = cloned.name + '_copy';
+    org.copyPlacement(abilityId, cloned.name);
     const next = abilities.slice();
     next.splice(actualIndex + 1, 0, cloned);
     setAbilities(next);
     setEditIndex(actualIndex + 1);
     showNotification('Ability cloned!', 'success');
+    scrollAssetTreeItemIntoView(cloned.name);
   };
 
-  const handleDelete = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
+  const handleDelete = (abilityId: string) => {
+    const actualIndex = abilities.findIndex((ability) => ability.name === abilityId);
+    if (actualIndex < 0) {
+      return;
+    }
     const ability = abilities[actualIndex];
     if (!ability) {
       return;
@@ -121,6 +133,9 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
   const confirmDeleteAbility = (actualIndex: number) => {
     const ability = abilities[actualIndex];
     const abilityName = ability?.name.trim() ?? '';
+    if (ability?.name) {
+      org.removeItem(ability.name);
+    }
 
     const next = abilities.filter((_, i) => i !== actualIndex);
     setAbilities(next);
@@ -139,10 +154,13 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
   };
 
   const appendAbility = (ability: AbilityTemplate) => {
+    const selectedId = editIndex >= 0 ? abilities[editIndex]?.name ?? null : null;
+    org.fileNewItem(ability.name, selectedId);
     const next = [...abilities, ability];
     setAbilities(next);
     setEditIndex(next.length - 1);
     setSearchTerm('');
+    scrollAssetTreeItemIntoView(ability.name);
   };
 
   const handleCreateNewAbility = () => {
@@ -159,6 +177,7 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
 
   const updateAbility = (ability: AbilityTemplate) => {
     if (editIndex < 0) return;
+    org.rekeyItem(abilities[editIndex].name, ability.name);
     const updated = [...abilities];
     updated[editIndex] = ability;
     setAbilities(updated);
@@ -228,19 +247,19 @@ export function AbilityTemplates({ routeParams }: AbilityTemplatesProps = {}) {
             { label: '+ New Spell', onClick: handleCreateNewSpell },
           ]}
         >
-          <CardList
-            items={filtered.map((a) => ({
-              name: a.name,
-              label: a.label || a.name,
+          <AssetTree
+            assetId="abilityTemplates"
+            items={filtered.map((ability) => ({
+              id: ability.name,
+              label: ability.label || ability.name,
+              subtitle: ability.name,
             }))}
-            onItemClick={handleClick}
+            allItemIds={abilities.map((ability) => ability.name)}
+            selectedId={editIndex >= 0 ? abilities[editIndex]?.name : null}
+            onSelectItem={handleClick}
             onClone={handleClone}
             onDelete={handleDelete}
-            selectedIndex={
-              editIndex !== -1
-                ? filtered.findIndex((a) => abilities.indexOf(a) === editIndex)
-                : null
-            }
+            filterActive={searchTerm.trim() !== ''}
             emptyMessage="No abilities found"
           />
         </EditorSidebar>

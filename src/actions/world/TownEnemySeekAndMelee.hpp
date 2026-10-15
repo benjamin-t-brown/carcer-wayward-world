@@ -33,6 +33,18 @@ class TownEnemySeekAndMelee : public AbstractAction {
     if (!enemy || !avatar) {
       return;
     }
+    if (!game::isCharacterOnActiveLayer(*enemy, state->world.activeMap) ||
+        !game::isCharacterOnActiveLayer(*avatar, state->world.activeMap)) {
+      return;
+    }
+
+    if (game::tryQueueTownEnemySpell(state->world,
+                                     state->mapInstances,
+                                     state->player,
+                                     *enemy,
+                                     *database)) {
+      return;
+    }
 
     if (game::isChebyshevAdjacent(enemy->x, enemy->y, avatar->x, avatar->y)) {
       insertAction(state::makeAction<PerformTownMeleeAttack>(enemyId), 0);

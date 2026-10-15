@@ -21,6 +21,10 @@
 
 namespace {
 
+// Party size for this UI test — comment one line, uncomment the other.
+constexpr size_t kTestPartySize = 1;
+// constexpr size_t kTestPartySize = 6;
+
 constexpr const char* TEST_PARTY_TEMPLATE_NAMES[] = {
     "testPartyMember1",
     "testPartyMember2",
@@ -62,7 +66,10 @@ void setupTestParty(model::Player& player, db::Database& database) {
   player.party.clear();
   player.currentPartyMemberIndex = 0;
 
-  for (size_t i = 0; i < PARTY_MEMBER_ITEMS.size(); ++i) {
+  const auto partySize =
+      kTestPartySize < PARTY_MEMBER_ITEMS.size() ? kTestPartySize
+                                                 : PARTY_MEMBER_ITEMS.size();
+  for (size_t i = 0; i < partySize; ++i) {
     model::CharacterPlayer member(
         database.getCharacterTemplate(TEST_PARTY_TEMPLATE_NAMES[i]));
 

@@ -29,6 +29,9 @@ Sprites,ui_status_effect_icons,64,12,12
 Pic,ui_overlay_256,assets/img/ui/overlay_texture_256.png
 Sprites,ui_overlay_256,1,256,256
 
+Pic,icons_for_buttons,assets/img/ui/icons_for_buttons.png
+Sprites,icons_for_buttons,16,16,16
+
 # Pic,train0,assets/img/train0.png
 # Sprites,train0,16,40,33
 # Anim,train0_left,loop

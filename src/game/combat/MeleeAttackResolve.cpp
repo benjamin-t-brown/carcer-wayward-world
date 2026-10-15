@@ -174,20 +174,26 @@ bool meleeAttackHits(int d20Roll, int attackBonus, int targetArmorClass) {
 bool rollMeleeAttackHit(model::AttackClass attackClass,
                         int attackBonus,
                         int targetArmorClass,
-                        bool applyOffHandPenalty) {
+                        bool applyOffHandPenalty,
+                        bool withAdvantage) {
   if (attackClass == model::AttackClass::ATTACK_CLASS_AUTO_HIT) {
     LOG(DEBUG) << "MeleeAttack: to-hit AUTO_HIT class="
                << model::attackClassToString(attackClass) << LOG_ENDL;
     return true;
   }
+  // Advantage + off-hand disadvantage cancel to a single d20 (5e-style).
+  const auto rollAdvantage = withAdvantage && !applyOffHandPenalty;
+  const auto rollDisadvantage = applyOffHandPenalty && !withAdvantage;
   const auto rollA = rollDice(model::Dice::D20);
   auto usedRoll = rollA;
-  if (applyOffHandPenalty) {
+  if (rollAdvantage || rollDisadvantage) {
     const auto rollB = rollDice(model::Dice::D20);
-    usedRoll = rollA < rollB ? rollA : rollB;
+    usedRoll = rollAdvantage ? (rollA > rollB ? rollA : rollB)
+                             : (rollA < rollB ? rollA : rollB);
     LOG(DEBUG) << "MeleeAttack: to-hit d20=" << rollA << "," << rollB
-               << " disadvantage=" << usedRoll << " bonus=" << attackBonus
-               << " total=" << (usedRoll + attackBonus) << " vs AC " << targetArmorClass
+               << (rollAdvantage ? " advantage=" : " disadvantage=") << usedRoll
+               << " bonus=" << attackBonus << " total=" << (usedRoll + attackBonus)
+               << " vs AC " << targetArmorClass
                << " class=" << model::attackClassToString(attackClass) << " result="
                << (meleeAttackHits(usedRoll, attackBonus, targetArmorClass) ? "hit"
                                                                             : "miss")
@@ -195,7 +201,9 @@ bool rollMeleeAttackHit(model::AttackClass attackClass,
   } else {
     LOG(DEBUG) << "MeleeAttack: to-hit d20=" << usedRoll << " bonus=" << attackBonus
                << " total=" << (usedRoll + attackBonus) << " vs AC " << targetArmorClass
-               << " class=" << model::attackClassToString(attackClass) << " result="
+               << " class=" << model::attackClassToString(attackClass)
+               << (withAdvantage && applyOffHandPenalty ? " (adv+dis cancel)" : "")
+               << " result="
                << (meleeAttackHits(usedRoll, attackBonus, targetArmorClass) ? "hit"
                                                                             : "miss")
                << LOG_ENDL;

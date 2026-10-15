@@ -14,6 +14,10 @@ namespace model {
 struct Player;
 }
 
+namespace state {
+struct State;
+}
+
 namespace in3 {
 
 struct StringEvaluatorFuncs {
@@ -23,6 +27,8 @@ struct StringEvaluatorFuncs {
   const db::Database* database = nullptr;
   model::ActiveMap* activeMap = nullptr;
   bmin::Map<bmin::String, model::MapInstance>* mapInstances = nullptr;
+  // Required for TELEPORT_* (WorldTravel / WorldSpawnPlayerAtMarker).
+  state::State* state = nullptr;
 
   bool questUpdated = false;
   bmin::DynArray<bmin::String> receivedItemNames;
@@ -62,7 +68,13 @@ struct StringEvaluatorFuncs {
   void CHANGE_TILE_AT_MARKER_PERMANENT(const bmin::String& markerName,
                                        const bmin::String& tileName,
                                        const bmin::String& mapName);
+  // x/y are local to mapName. Optional layer defaults to 0.
   void TELEPORT_TO(const bmin::String& x, const bmin::String& y, const bmin::String& mapName);
+  void TELEPORT_TO(const bmin::String& x, const bmin::String& y, const bmin::String& mapName,
+                   const bmin::String& layer);
+  // Marker on active grid, or on mapName (may switch grids).
+  void TELEPORT_TO_MARKER(const bmin::String& markerName);
+  void TELEPORT_TO_MARKER(const bmin::String& markerName, const bmin::String& mapName);
   void ADD_ITEM_AT(const bmin::String& x, const bmin::String& y, const bmin::String& itemName);
   void REMOVE_ITEM_AT(const bmin::String& x, const bmin::String& y, const bmin::String& itemName);
   void ADD_ITEM_TO_PLAYER(const bmin::String& itemName);

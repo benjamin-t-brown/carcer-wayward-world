@@ -11,6 +11,7 @@
 #include "actions/navigation/UiReorderSpecialItem.hpp"
 #include "actions/navigation/UiSetCurrentPartyMemberInventory.hpp"
 #include "actions/navigation/UiToggleEquipInventoryItem.hpp"
+#include "actions/navigation/UiUseInventoryItem.hpp"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/helpers/keyboardShortcuts.h"
 #include "ui/helpers/uiSounds.h"
@@ -91,6 +92,8 @@ LayerInventory::LayerInventory(sdl2w::Window* _window) : UiLayer(_window, LAYER_
   subscribeAction<state::ActionEvent::UiGiveInventoryItem>(
       [this](auto&, auto&) { syncInventoryPartyMember(); });
   subscribeAction<state::ActionEvent::UiDropInventoryItem>(
+      [this](auto&, auto&) { syncInventoryPartyMember(); });
+  subscribeAction<state::ActionEvent::UiUseInventoryItem>(
       [this](auto&, auto&) { syncInventoryPartyMember(); });
 }
 

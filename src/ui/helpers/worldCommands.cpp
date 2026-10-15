@@ -9,8 +9,8 @@
 #include "ui/helpers/worldActions.h"
 #include "actions/combat/DoCombatAction.hpp"
 #include "actions/world/WorldExamineAt.hpp"
-#include "actions/world/WorldInteractAt.hpp"
 #include "actions/world/WorldMovePlayer.hpp"
+#include "actions/world/WorldWaitPlayer.hpp"
 #include "actions/world/WorldSetActionMode.hpp"
 #include "actions/world/WorldTalkAt.hpp"
 
@@ -71,7 +71,7 @@ void enqueueWait(state::StateManager& stateManager) {
   if (state.world.resolvingTownEnemyAi) {
     return;
   }
-  stateManager.enqueueAction(state::makeAction<state::actions::WorldInteractAt>(), 0);
+  stateManager.enqueueAction(state::makeAction<state::actions::WorldWaitPlayer>(), 0);
 }
 
 void ensureCurrentPartyMemberSelection(state::State& state) {

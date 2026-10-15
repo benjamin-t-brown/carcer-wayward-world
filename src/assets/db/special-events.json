@@ -4403,7 +4403,7 @@
       },
       {
         "id": "uao9kv68u9g",
-        "x": 841.25,
+        "x": 841,
         "y": 97,
         "eventChildType": "EXEC",
         "h": 140,
@@ -4414,7 +4414,7 @@
       },
       {
         "id": "yfmldyw7qi8",
-        "x": 1264.25,
+        "x": 1264,
         "y": 106,
         "eventChildType": "CHOICE",
         "h": 108,
@@ -4448,8 +4448,8 @@
       },
       {
         "id": "i0e7c7w674",
-        "x": 415.00965881347656,
-        "y": 107.30169296264648,
+        "x": 415,
+        "y": 107,
         "eventChildType": "SWITCH",
         "h": 84,
         "cases": [
@@ -4462,7 +4462,7 @@
       },
       {
         "id": "l7j8iapkmw",
-        "x": 1747.5,
+        "x": 1748,
         "y": 50,
         "eventChildType": "EXEC",
         "h": 60,
@@ -4473,7 +4473,7 @@
       },
       {
         "id": "tnm8odz9x5q",
-        "x": 1748.5,
+        "x": 1749,
         "y": 137,
         "eventChildType": "EXEC",
         "h": 60,
@@ -4484,7 +4484,7 @@
       },
       {
         "id": "ft9ej1hcwyf",
-        "x": 1743.5,
+        "x": 1744,
         "y": 234,
         "eventChildType": "EXEC",
         "h": 60,
@@ -4495,7 +4495,7 @@
       },
       {
         "id": "xtqozho097n",
-        "x": 2188.5,
+        "x": 2189,
         "y": 132,
         "eventChildType": "CHOICE",
         "h": 60,
@@ -4513,7 +4513,7 @@
       },
       {
         "id": "dwkh92mv0f",
-        "x": 2699.5,
+        "x": 2700,
         "y": 61,
         "eventChildType": "EXEC",
         "h": 116,
@@ -4524,7 +4524,7 @@
       },
       {
         "id": "9tg2rhey97f",
-        "x": 818.5,
+        "x": 819,
         "y": 349,
         "eventChildType": "EXEC",
         "h": 50,
@@ -4535,7 +4535,7 @@
       },
       {
         "id": "jjqblq26ji",
-        "x": 1227.5,
+        "x": 1228,
         "y": 523,
         "eventChildType": "CHOICE",
         "h": 132,
@@ -4577,7 +4577,7 @@
       },
       {
         "id": "xbe8jimucxl",
-        "x": 1307.5,
+        "x": 1308,
         "y": 808,
         "eventChildType": "END",
         "h": 60,
@@ -4585,7 +4585,7 @@
       },
       {
         "id": "k19i5nyskwj",
-        "x": 3074.75,
+        "x": 3075,
         "y": 64,
         "eventChildType": "EXEC",
         "h": 74,
@@ -4596,7 +4596,7 @@
       },
       {
         "id": "w4xfd6u8sn",
-        "x": 3442.75,
+        "x": 3443,
         "y": 63,
         "eventChildType": "EXEC",
         "h": 88,
@@ -4607,8 +4607,8 @@
       },
       {
         "id": "qdeesjhdzbg",
-        "x": 3818.4166666666665,
-        "y": 58.33333333333394,
+        "x": 3818,
+        "y": 58,
         "eventChildType": "EXEC",
         "h": 144,
         "p": "Terry, the guard who interrupted, lets out a big sigh.\n\n\"Its just that with things the way they are with the blockade... 'proper protocol' doesn't really seem like the right way to do things anymore....  There are so many people around we've definitely not been able to keep track of them all.  Just let the poor soul inside.  It's not like it matters all that much anyway.\"",
@@ -4618,8 +4618,8 @@
       },
       {
         "id": "3l2ffipw88y",
-        "x": 1667.416666666666,
-        "y": 374.33333333333394,
+        "x": 1667,
+        "y": 374,
         "eventChildType": "EXEC",
         "h": 130,
         "p": "\"Yes.  The Blackrose Estate has declared a formal blockade of the Carrion Mountains to the east.  No travel through them without their permission.  The city's full of merchant rifraf who can't travel now until it gets resolved.  You want more info talk to somebody else, I'm busy.  I'm letting you in Alinea, talk to people inside, they'll fill you in.\"",
@@ -4629,8 +4629,8 @@
       },
       {
         "id": "ez4jy5mxusq",
-        "x": 1679.416666666666,
-        "y": 540.3333333333339,
+        "x": 1679,
+        "y": 540,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"Noble family.  Think they own the Island.  Best stay away from them and their encampment to the east.  We wouldn't want you causing trouble here.\"",
@@ -4640,8 +4640,8 @@
       },
       {
         "id": "aekvwda9tmt",
-        "x": 1699.416666666666,
-        "y": 703.3333333333339,
+        "x": 1699,
+        "y": 703,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "\"The law is how we live.  Without it we have no guidance.  Proper protocols should be the ideal.  Clearly, this situation merits... different proper protocols.\"",
@@ -4651,8 +4651,8 @@
       },
       {
         "id": "gi8xhi4bdmt",
-        "x": 4192.25,
-        "y": 81.00000000000091,
+        "x": 4192,
+        "y": 81,
         "eventChildType": "EXEC",
         "h": 88,
         "p": "The guard who stopped you - Jerry apparently - stamps his spear on the ground.\n\n\"We don't need rifraf like this in Alinea!\"",
@@ -4662,8 +4662,8 @@
       },
       {
         "id": "hnj1tw6bi7j",
-        "x": 4560.25,
-        "y": 96.00000000000091,
+        "x": 4560,
+        "y": 96,
         "eventChildType": "EXEC",
         "h": 74,
         "p": "\"Stop trying so hard.  You're just going to end up dead in an alley.  I mean, when was the last time you even reported to Mullen?\"",
@@ -4673,8 +4673,8 @@
       },
       {
         "id": "rfp3doo18g",
-        "x": 4957.25,
-        "y": 108.00000000000091,
+        "x": 4957,
+        "y": 108,
         "eventChildType": "EXEC",
         "h": 172,
         "p": "This seems to knock the uptight Jerry down a peg.  He takes a long moment to look over with a shrewd eye.\n\n\"You don't look like a Blackrose.  And I do have better things to think about.  Don't cause any trouble.\"\n\nHe moves back to his position, leaving you a clear path into Alinea.",
@@ -9435,8 +9435,8 @@
         "x": 248,
         "y": 128,
         "eventChildType": "EXEC",
-        "h": 196,
-        "p": "Suddenly a screech echoes behind you, and you hear a loud thud, followed by the creaking of wood.  Before you can react, the hallway collapses in a heap of mud and rubble.  Out of a new passageway on the side leaps a strange, red creature.  There's no way for you to proceed back the way you came.\n\nIt seems like you've disturbed something's place of living and it is not happy about it.",
+        "h": 182,
+        "p": "Suddenly a screech echoes all around, reverberating off of the wet cave walls. With an ominous creaking, the ceiling in front of you collapses in a heap of mud and rubble, forcing you back into the barrel room.\n\nThere's no way for you to proceed back the way you came.  Behind you, you can hear the clicking and clacking of some kind of pincer-handed creature.",
         "execStr": "CHANGE_TILE_AT_MARKER_PERMANENT(MarkerCrabWall, terrain2_64)\nCHANGE_TILE_AT_MARKER_PERMANENT(MarkerCrabWall2, terrain0_130)",
         "next": "6vc22i9tf4",
         "autoAdvance": true
@@ -9513,19 +9513,56 @@
         "x": 248,
         "y": 128,
         "eventChildType": "EXEC",
-        "h": 88,
-        "p": "The cave slopes sharply up here, and you get a glimpse of sunlight.  With some effort you should be able to climb up and out.",
+        "h": 102,
+        "p": "The cave slopes sharply up here, and you get a glimpse of sunlight.  With some effort you should be able to climb up and out.\n\nDo you wish to leave?",
         "execStr": "",
-        "next": "e2wi7bh0w9i",
+        "next": "5hs3cpevql",
         "autoAdvance": true
       },
       {
         "id": "e2wi7bh0w9i",
-        "x": 454,
-        "y": 249,
+        "x": 710,
+        "y": 431,
         "eventChildType": "END",
         "h": 60,
         "next": ""
+      },
+      {
+        "id": "5hs3cpevql",
+        "x": 470,
+        "y": 281,
+        "eventChildType": "CHOICE",
+        "h": 84,
+        "text": "",
+        "choices": [
+          {
+            "text": "Yes.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "kpshuip85wk",
+            "prefixText": "",
+            "switchText": []
+          },
+          {
+            "text": "No.",
+            "conditionStr": "",
+            "evalStr": "",
+            "next": "e2wi7bh0w9i",
+            "prefixText": "",
+            "switchText": []
+          }
+        ]
+      },
+      {
+        "id": "kpshuip85wk",
+        "x": 823,
+        "y": 262,
+        "eventChildType": "EXEC",
+        "h": 112,
+        "p": "With some effort you manage to make your way up and out.  The muddy walls are fickle and collapse behind you.  You won't be able to get back down there from here.",
+        "execStr": "TELEPORT_TO(11, 13, alinea_outsideAlinea2, 0)",
+        "next": "e2wi7bh0w9i",
+        "autoAdvance": true
       }
     ]
   },

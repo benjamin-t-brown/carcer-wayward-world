@@ -120,6 +120,7 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
     character.templateName = placement.name;
     character.x = tile.x;
     character.y = tile.y;
+    character.mapLayer = placement.l;
     character.spawnX = tile.x;
     character.spawnY = tile.y;
     character.agitationGroup = placement.agitationGroup;

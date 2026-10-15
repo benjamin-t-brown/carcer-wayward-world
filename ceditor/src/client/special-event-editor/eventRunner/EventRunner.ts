@@ -672,8 +672,16 @@ class StringEvaluator {
     ) => {
       // noop — runtime records changedTiles so the mutation survives map loads
     },
-    TELEPORT_TO: (_x: string, _y: string, _mapName: string) => {
-      // noop
+    TELEPORT_TO: (
+      _x: string,
+      _y: string,
+      _mapName: string,
+      _layer: string = '0',
+    ) => {
+      // noop — runtime WorldTravel to local x/y on mapName (layer optional)
+    },
+    TELEPORT_TO_MARKER: (_markerName: string, _mapName: string = '') => {
+      // noop — runtime marker teleport (mapName may switch grids)
     },
     ADD_ITEM_AT: (_x: string, _y: string, _itemName: string) => {
       // noop

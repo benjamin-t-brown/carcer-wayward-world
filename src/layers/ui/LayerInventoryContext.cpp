@@ -1,6 +1,8 @@
 #include "LayerInventoryContext.h"
-#include "sdl2w/Logger.h"
+#include "game/inventory/ItemUseRules.h"
 #include "model/instances/CharacterPlayer.h"
+#include "model/templates/Items.h"
+#include "sdl2w/Logger.h"
 #include "ui/components/FloatingNotificationSection.h"
 #include "ui/popups/PopupInventoryItem.h"
 
@@ -67,6 +69,14 @@ LayerInventoryContext::LayerInventoryContext(sdl2w::Window* _window,
   popupProps.description = itemTemplate.description;
   popupProps.weight = itemInstance.quantity * itemTemplate.weight;
   popupProps.value = itemInstance.quantity * itemTemplate.value;
+  {
+    auto& state = stateManager->getState();
+    const auto mapType = game::resolveActiveMapType(
+        state.world.activeMap, state.mapInstances, database, state.player);
+    popupProps.usable =
+        game::isItemUsableNow(itemTemplate, state.world.combat.active, mapType);
+  }
+  popupProps.canGive = player.party.size() > 1;
   popupProps.orientation = orientation;
   popupInventoryItem->setProps(popupProps);
 

@@ -15,4 +15,12 @@ void mergeAbilityAttackDmgOverrides(
     model::AbilityTemplate& ability,
     const bmin::DynArray<model::AbilityAttackDmg>& dmgOverrides);
 
+// Whole-object replace of restores[i] from restoreOverrides[i].
+// Index-replace only. If ability.restores is empty and overrides are non-empty,
+// set restores from the overrides.
+void mergeAbilityRestoreOverrides(
+    model::AbilityTemplate& ability,
+    const bmin::DynArray<model::AbilityRestore>& restoreOverrides);
+
 } // namespace game
+

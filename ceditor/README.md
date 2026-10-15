@@ -16,9 +16,9 @@ npm run dev
 
 This will start:
 - Express backend server on http://localhost:3001
-- Vite dev server on http://localhost:3000
+- Vite dev server on http://localhost:3071
 
-Open http://localhost:3000 in your browser to use the editor.
+Open http://localhost:3071 in your browser to use the editor.
 
 ## Scripts
 

@@ -87,6 +87,7 @@ class UiPickUpItem : public AbstractAction {
       model::timerStructStart(notification.timer,
                               localState.settings.floatingNotificationDurationMs);
       localState.uiState.floatingNotifications.pushBack(std::move(notification));
+      ++localState.uiState.floatingNotificationRevision;
       return;
     }
 

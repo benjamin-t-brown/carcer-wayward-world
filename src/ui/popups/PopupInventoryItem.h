@@ -16,7 +16,7 @@ struct PopupInventoryItemProps {
   int weight = 0;
   int value = 0;
   bool usable = false;
-  bool equippable = false;
+  bool canGive = true;
   PopupOrientation orientation = WIDE;
 };
 

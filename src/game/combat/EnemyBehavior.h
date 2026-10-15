@@ -49,4 +49,15 @@ bool chooseSeekAndMeleeCombatAction(model::World& world,
                                     int& outDx,
                                     int& outDy);
 
+/**
+ * Town enemy spell cast hook. Returns true if a spell action was queued.
+ * Stub: always false / queues nothing until enemy spell AI exists.
+ * TODO: share combat spell AI with DoCPUCombatTurn.
+ */
+bool tryQueueTownEnemySpell(model::World& world,
+                            MapInstanceStore& mapInstances,
+                            const model::Player& player,
+                            const model::CharacterInstance& enemy,
+                            const db::Database& database);
+
 } // namespace game

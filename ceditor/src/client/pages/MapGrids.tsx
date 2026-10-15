@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { CardList } from '../components/CardList';
+import { AssetTree } from '../components/AssetTree';
 import { EditorSidebar } from '../components/EditorSidebar';
 import {
   MapGridTemplate,
@@ -15,6 +15,7 @@ import { useAssets } from '../contexts/AssetsContext';
 import { trimStrings } from '../utils/jsonUtils';
 import { usePersistedEditorSelection } from '../hooks/usePersistedEditorSelection';
 import { useSaveHotkey } from '../hooks/useSaveHotkey';
+import { useAssetOrganization } from '../contexts/OrganizationContext';
 
 interface NotificationState {
   message: string;
@@ -32,6 +33,7 @@ export function MapGrids({
   const [searchTerm, setSearchTerm] = useState('');
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const notificationIdRef = useRef(0);
+  const org = useAssetOrganization('mapGrids');
 
   const showNotification = (message: string, type: 'success' | 'error') => {
     const id = notificationIdRef.current++;
@@ -48,10 +50,12 @@ export function MapGrids({
       grid.label.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getActualIndex = (filteredIndex: number) =>
-    mapGrids.indexOf(filtered[filteredIndex]);
-
-  const handleClick = (filteredIndex: number) => setEditIndex(getActualIndex(filteredIndex));
+  const handleClick = (gridId: string) => {
+    const actualIndex = mapGrids.findIndex((grid) => grid.name === gridId);
+    if (actualIndex >= 0) {
+      setEditIndex(actualIndex);
+    }
+  };
 
   usePersistedEditorSelection({
     editorKey: 'mapGrids',
@@ -62,10 +66,14 @@ export function MapGrids({
     routeParams,
   });
 
-  const handleClone = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
+  const handleClone = (gridId: string) => {
+    const actualIndex = mapGrids.findIndex((grid) => grid.name === gridId);
+    if (actualIndex < 0) {
+      return;
+    }
     const cloned: MapGridTemplate = JSON.parse(JSON.stringify(mapGrids[actualIndex]));
     cloned.name = cloned.name + '_copy';
+    org.copyPlacement(gridId, cloned.name);
     const next = mapGrids.slice();
     next.splice(actualIndex + 1, 0, cloned);
     setMapGrids(next);
@@ -73,11 +81,15 @@ export function MapGrids({
     showNotification('Map grid cloned!', 'success');
   };
 
-  const handleDelete = (filteredIndex: number) => {
-    const actualIndex = getActualIndex(filteredIndex);
+  const handleDelete = (gridId: string) => {
+    const actualIndex = mapGrids.findIndex((grid) => grid.name === gridId);
+    if (actualIndex < 0) {
+      return;
+    }
     const grid = mapGrids[actualIndex];
     const label = grid?.label || grid?.name || 'this map grid';
     if (confirm(`Delete "${label}"?`)) {
+      org.removeItem(gridId);
       const next = mapGrids.filter((_, i) => i !== actualIndex);
       setMapGrids(next);
       if (editIndex === actualIndex) setEditIndex(-1);
@@ -86,7 +98,10 @@ export function MapGrids({
   };
 
   const handleCreateNew = () => {
-    const next = [...mapGrids, createDefaultMapGridTemplate()];
+    const created = createDefaultMapGridTemplate();
+    const selectedId = editIndex >= 0 ? mapGrids[editIndex]?.name ?? null : null;
+    org.fileNewItem(created.name, selectedId);
+    const next = [...mapGrids, created];
     setMapGrids(next);
     setEditIndex(next.length - 1);
     setSearchTerm('');
@@ -94,6 +109,7 @@ export function MapGrids({
 
   const updateMapGrid = (grid: MapGridTemplate) => {
     if (editIndex < 0) return;
+    org.rekeyItem(mapGrids[editIndex].name, grid.name);
     const next = [...mapGrids];
     next[editIndex] = grid;
     setMapGrids(next);
@@ -156,19 +172,19 @@ export function MapGrids({
             createLabel="+ New Map Grid"
             onCreate={handleCreateNew}
           >
-            <CardList
-              items={filtered.map((g) => ({
-                name: g.name,
-                label: g.label || g.name,
+            <AssetTree
+              assetId="mapGrids"
+              items={filtered.map((grid) => ({
+                id: grid.name,
+                label: grid.label || grid.name,
+                subtitle: grid.name,
               }))}
-              onItemClick={handleClick}
+              allItemIds={mapGrids.map((grid) => grid.name)}
+              selectedId={editIndex >= 0 ? mapGrids[editIndex]?.name : null}
+              onSelectItem={handleClick}
               onClone={handleClone}
               onDelete={handleDelete}
-              selectedIndex={
-                editIndex !== -1
-                  ? filtered.findIndex((g) => mapGrids.indexOf(g) === editIndex)
-                  : null
-              }
+              filterActive={searchTerm.trim() !== ''}
               emptyMessage="No map grids found"
             />
           </EditorSidebar>

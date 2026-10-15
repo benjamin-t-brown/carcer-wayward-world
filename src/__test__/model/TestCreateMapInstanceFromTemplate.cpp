@@ -83,6 +83,10 @@ int main(int argc, char** argv) {
            ok;
       ok = assertEqual(instance.persistentState.characters[0].x, 1, "character.x") && ok;
       ok = assertEqual(instance.persistentState.characters[0].y, 0, "character.y") && ok;
+      ok = assertEqual(instance.persistentState.characters[0].mapLayer,
+                       0,
+                       "character.mapLayer from placement.l") &&
+           ok;
       ok = assertTrue(!instance.persistentState.characters[0].id.empty(),
                      "character.id non-empty") &&
            ok;

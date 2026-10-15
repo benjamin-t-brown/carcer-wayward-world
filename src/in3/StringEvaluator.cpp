@@ -1,12 +1,15 @@
 #include "StringEvaluator.h"
 #include "EventRunnerHelpers.h"
 #include "QuestProgress.h"
+#include "actions/world/WorldSpawnPlayerAtMarker.hpp"
+#include "actions/world/WorldTravel.hpp"
 #include "bmin/StringInterop.h"
 #include "db/Database.h"
 #include "game/inventory/InventoryRules.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapWalkability.h"
 #include "model/instances/Player.h"
+#include "model/templates/Maps.h"
 #include "sdl2w/Logger.h"
 #include <cmath>
 #include <stdexcept>
@@ -354,7 +357,57 @@ void StringEvaluatorFuncs::CHANGE_TILE_AT_MARKER_PERMANENT(const bmin::String& m
 
 void StringEvaluatorFuncs::TELEPORT_TO(const bmin::String& x, const bmin::String& y,
                                        const bmin::String& mapName) {
-  // noop
+  TELEPORT_TO(x, y, mapName, "0");
+}
+
+void StringEvaluatorFuncs::TELEPORT_TO(const bmin::String& x, const bmin::String& y,
+                                       const bmin::String& mapName,
+                                       const bmin::String& layer) {
+  if (!state) {
+    LOG(ERROR) << "TELEPORT_TO: no state context" << LOG_ENDL;
+    return;
+  }
+  if (mapName.empty()) {
+    LOG(ERROR) << "TELEPORT_TO: empty mapName" << LOG_ENDL;
+    return;
+  }
+  if (!bmin::isDouble(x) || !bmin::isDouble(y) || !bmin::isDouble(layer)) {
+    LOG(ERROR) << "TELEPORT_TO: invalid args x='" << x << "' y='" << y << "' layer='"
+               << layer << "'" << LOG_ENDL;
+    return;
+  }
+  auto travel = model::TravelTrigger{};
+  travel.destinationMapName = mapName;
+  travel.destinationX = static_cast<int>(bmin::parseDouble(x));
+  travel.destinationY = static_cast<int>(bmin::parseDouble(y));
+  travel.destinationLayer = static_cast<int>(bmin::parseDouble(layer));
+  state::actions::WorldTravel(travel).execute(state);
+}
+
+void StringEvaluatorFuncs::TELEPORT_TO_MARKER(const bmin::String& markerName) {
+  TELEPORT_TO_MARKER(markerName, bmin::String{});
+}
+
+void StringEvaluatorFuncs::TELEPORT_TO_MARKER(const bmin::String& markerName,
+                                             const bmin::String& mapName) {
+  if (!state) {
+    LOG(ERROR) << "TELEPORT_TO_MARKER: no state context" << LOG_ENDL;
+    return;
+  }
+  if (markerName.empty()) {
+    LOG(ERROR) << "TELEPORT_TO_MARKER: empty markerName" << LOG_ENDL;
+    return;
+  }
+  if (!mapName.empty()) {
+    // May switch grids when the marker's map is outside the active grid.
+    auto travel = model::TravelTrigger{};
+    travel.destinationMapName = mapName;
+    travel.destinationMarkerName = markerName;
+    state::actions::WorldTravel(travel).execute(state);
+    return;
+  }
+  // Search the active grid only (same semantics as WorldSpawnPlayerAtMarker).
+  state::actions::WorldSpawnPlayerAtMarker(markerName).execute(state);
 }
 
 void StringEvaluatorFuncs::ADD_ITEM_AT(const bmin::String& x, const bmin::String& y,
@@ -538,8 +591,19 @@ void StringEvaluator::evalStr(const bmin::String& str) {
         funcs.CHANGE_TILE_AT_MARKER_PERMANENT(call.args[0], call.args[1]);
       }
     } else if (call.funcName == "TELEPORT_TO") {
-      assertFuncArgs(call.funcName, call.args, 3);
-      funcs.TELEPORT_TO(call.args[0], call.args[1], call.args[2]);
+      if (call.args.size() == 4) {
+        funcs.TELEPORT_TO(call.args[0], call.args[1], call.args[2], call.args[3]);
+      } else {
+        assertFuncArgs(call.funcName, call.args, 3);
+        funcs.TELEPORT_TO(call.args[0], call.args[1], call.args[2]);
+      }
+    } else if (call.funcName == "TELEPORT_TO_MARKER") {
+      if (call.args.size() == 2) {
+        funcs.TELEPORT_TO_MARKER(call.args[0], call.args[1]);
+      } else {
+        assertFuncArgs(call.funcName, call.args, 1);
+        funcs.TELEPORT_TO_MARKER(call.args[0]);
+      }
     } else if (call.funcName == "ADD_ITEM_AT") {
       assertFuncArgs(call.funcName, call.args, 3);
       funcs.ADD_ITEM_AT(call.args[0], call.args[1], call.args[2]);

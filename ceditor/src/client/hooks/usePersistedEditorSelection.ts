@@ -6,6 +6,7 @@ import {
   saveEditorSelection,
   syncSelectionToRoute,
 } from '../utils/editorSelectionStorage';
+import { readHashRoute } from '../utils/hashRoute';
 
 interface UsePersistedEditorSelectionOptions<T> {
   editorKey: EditorSelectionKey;
@@ -18,10 +19,22 @@ interface UsePersistedEditorSelectionOptions<T> {
   onRestored?: (index: number) => void;
 }
 
+function routeEntityFor(
+  editorKey: EditorSelectionKey,
+  routeParams?: URLSearchParams,
+): string | null {
+  return (
+    resolveSelectionFromRoute(editorKey, routeParams) ??
+    // Props can lag one frame behind the hash after <a href="#..."> navigation.
+    resolveSelectionFromRoute(editorKey, readHashRoute().params)
+  );
+}
+
 /**
  * Persists the selected list item in localStorage and restores it when the
- * editor page is opened again. Hash query params take precedence over storage,
- * stay in sync with the selection, and participate in browser history.
+ * editor page is opened again. Hash query params take precedence over storage
+ * and stay in sync with the selection via history.replaceState (so deep-links
+ * and in-editor selection changes do not stack extra history entries).
  */
 export function usePersistedEditorSelection<T>({
   editorKey,
@@ -33,14 +46,16 @@ export function usePersistedEditorSelection<T>({
   onRestored,
 }: UsePersistedEditorSelectionOptions<T>): void {
   const hasRestoredRef = useRef(false);
-  const isFirstPersistRef = useRef(true);
   const hydratedRef = useRef(false);
   const lastRouteEntityIdRef = useRef<string | null | undefined>(undefined);
-  const preferReplaceHistoryRef = useRef(true);
   const selectedIndexRef = useRef(selectedIndex);
   const skipNextRouteSyncRef = useRef(false);
+  const getIdRef = useRef(getId);
+  const onRestoredRef = useRef(onRestored);
 
   selectedIndexRef.current = selectedIndex;
+  getIdRef.current = getId;
+  onRestoredRef.current = onRestored;
 
   useLayoutEffect(() => {
     if (hasRestoredRef.current || items.length === 0) {
@@ -48,43 +63,44 @@ export function usePersistedEditorSelection<T>({
     }
     hasRestoredRef.current = true;
 
-    const routeEntityId = resolveSelectionFromRoute(editorKey, routeParams);
+    const routeEntityId = routeEntityFor(editorKey, routeParams);
     lastRouteEntityIdRef.current = routeEntityId;
 
     const entityId = routeEntityId ?? loadEditorSelection(editorKey);
 
     if (entityId) {
-      const index = items.findIndex((item) => getId(item) === entityId);
+      const index = items.findIndex(
+        (item) => getIdRef.current(item) === entityId,
+      );
       if (index >= 0) {
         setSelectedIndex(index);
-        onRestored?.(index);
+        onRestoredRef.current?.(index);
       }
     }
 
     hydratedRef.current = true;
-  }, [editorKey, items, routeParams, getId, setSelectedIndex, onRestored]);
+  }, [editorKey, items, routeParams, setSelectedIndex]);
 
   // Apply selection when the hash query changes (browser back/forward).
   useEffect(() => {
-    // Without live route params we cannot tell clear vs. missing wiring; do not
-    // clobber the current selection.
-    if (!hydratedRef.current || items.length === 0 || !routeParams) {
+    if (!hydratedRef.current || items.length === 0) {
       return;
     }
 
-    const routeEntityId = resolveSelectionFromRoute(editorKey, routeParams);
+    const routeEntityId = routeEntityFor(editorKey, routeParams);
     if (routeEntityId === lastRouteEntityIdRef.current) {
       return;
     }
     lastRouteEntityIdRef.current = routeEntityId;
 
     if (routeEntityId) {
-      const index = items.findIndex((item) => getId(item) === routeEntityId);
+      const index = items.findIndex(
+        (item) => getIdRef.current(item) === routeEntityId,
+      );
       if (index >= 0 && index !== selectedIndexRef.current) {
-        // Selection follows the URL; do not push the stale selection back.
         skipNextRouteSyncRef.current = true;
         setSelectedIndex(index);
-        onRestored?.(index);
+        onRestoredRef.current?.(index);
       }
       return;
     }
@@ -93,23 +109,16 @@ export function usePersistedEditorSelection<T>({
       skipNextRouteSyncRef.current = true;
       setSelectedIndex(-1);
     }
-  }, [editorKey, items, routeParams, getId, setSelectedIndex, onRestored]);
+  }, [editorKey, items, routeParams, setSelectedIndex]);
 
   useEffect(() => {
     if (!hydratedRef.current) {
       return;
     }
 
-    if (isFirstPersistRef.current) {
-      isFirstPersistRef.current = false;
-      if (selectedIndex < 0 && loadEditorSelection(editorKey)) {
-        return;
-      }
-    }
-
     const entityId =
       selectedIndex >= 0 && selectedIndex < items.length
-        ? getId(items[selectedIndex])
+        ? getIdRef.current(items[selectedIndex])
         : null;
 
     saveEditorSelection(editorKey, entityId);
@@ -119,9 +128,19 @@ export function usePersistedEditorSelection<T>({
       return;
     }
 
-    const historyMode = preferReplaceHistoryRef.current ? 'replace' : 'push';
-    preferReplaceHistoryRef.current = false;
-    syncSelectionToRoute(editorKey, entityId, { history: historyMode });
+    // Selection may still be empty for a frame after a deep-link mount. Never
+    // strip ?ability= / ?spell= from the live hash in that window.
+    if (entityId == null) {
+      const live = resolveSelectionFromRoute(
+        editorKey,
+        readHashRoute().params,
+      );
+      if (live) {
+        return;
+      }
+    }
+
+    syncSelectionToRoute(editorKey, entityId, { history: 'replace' });
     lastRouteEntityIdRef.current = entityId;
-  }, [editorKey, items, selectedIndex, getId]);
+  }, [editorKey, items, selectedIndex]);
 }

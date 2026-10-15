@@ -4,6 +4,7 @@
 #include "actions/world/WorldLoadActiveMap.hpp"
 #include "db/Database.h"
 #include "game/map/ActiveMapOrchestrator.h"
+#include "game/map/TileTriggers.h"
 #include "in3/EventRunnerHelpers.h"
 #include "in3/QuestProgress.h"
 #include "in3/StringEvaluator.h"
@@ -731,6 +732,81 @@ int main(int argc, char** argv) {
       }
 
       LOG(INFO) << "CHANGE_TILE_AT_MARKER / PERMANENT / CHANGE_TILE_AT passed" << LOG_ENDL;
+    }
+
+    {
+      db::Database database;
+      state::DatabaseInterface::setDatabase(&database);
+      database.load();
+
+      state::StateManager stateManager;
+      state::StateManagerInterface::setStateManager(&stateManager);
+      auto& state = stateManager.getState();
+      state.player.party.pushBack(
+          model::CharacterPlayer(database.getCharacterTemplate("testPartyMember1")));
+      state.player.currentPartyMemberIndex = 0;
+
+      {
+        auto loadMap = state::actions::WorldLoadActiveMap("alinea_outsideAlinea1");
+        loadMap.execute(&state);
+      }
+
+      bmin::Map<bmin::String, bmin::String> teleportStorage;
+      in3::StringEvaluator evaluator(teleportStorage, "TELEPORT_TO_MARKER(Stairs1)");
+      evaluator.funcs.database = &database;
+      evaluator.funcs.activeMap = &state.world.activeMap;
+      evaluator.funcs.mapInstances = &state.mapInstances;
+      evaluator.funcs.state = &state;
+
+      evaluator.evalStr("TELEPORT_TO_MARKER(Stairs1)");
+      if (state.world.activeMap.mapLayer != 1) {
+        LOG(ERROR) << "TELEPORT_TO_MARKER(Stairs1) should set mapLayer from marker"
+                   << LOG_ENDL;
+        return 1;
+      }
+      {
+        const auto* avatar =
+            game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
+        if (!avatar || avatar->x != 37 || avatar->y != 31) {
+          LOG(ERROR) << "TELEPORT_TO_MARKER(Stairs1) should place avatar at marker"
+                     << LOG_ENDL;
+          return 1;
+        }
+      }
+
+      evaluator.evalStr("TELEPORT_TO_MARKER(MarkerHouseFloor2, AlineaTest)");
+      if (state.world.activeMap.gridId != "AlineaTest" ||
+          state.world.activeMap.mapLayer != 1) {
+        LOG(ERROR) << "TELEPORT_TO_MARKER with mapName should travel grids + layer"
+                   << LOG_ENDL;
+        return 1;
+      }
+      {
+        const auto* avatar =
+            game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
+        if (!avatar || avatar->x != 8 || avatar->y != 8) {
+          LOG(ERROR) << "TELEPORT_TO_MARKER(AlineaTest) should place at marker XY"
+                     << LOG_ENDL;
+          return 1;
+        }
+      }
+
+      // Local (2,3) on AlineaTest 1x1 grid → world (2,3), layer 0.
+      evaluator.evalStr("TELEPORT_TO(2, 3, AlineaTest, 0)");
+      if (state.world.activeMap.mapLayer != 0) {
+        LOG(ERROR) << "TELEPORT_TO should apply destination layer" << LOG_ENDL;
+        return 1;
+      }
+      {
+        const auto* avatar =
+            game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
+        if (!avatar || avatar->x != 2 || avatar->y != 3) {
+          LOG(ERROR) << "TELEPORT_TO should place avatar at local XY on map" << LOG_ENDL;
+          return 1;
+        }
+      }
+
+      LOG(INFO) << "TELEPORT_TO / TELEPORT_TO_MARKER passed" << LOG_ENDL;
     }
 
     LOG(INFO) << TEST_NAME << " completed successfully" << LOG_ENDL;

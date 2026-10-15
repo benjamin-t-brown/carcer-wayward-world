@@ -26,4 +26,22 @@ void mergeAbilityAttackDmgOverrides(
   }
 }
 
+void mergeAbilityRestoreOverrides(
+    model::AbilityTemplate& ability,
+    const bmin::DynArray<model::AbilityRestore>& restoreOverrides) {
+  if (ability.restores.empty()) {
+    if (!restoreOverrides.empty()) {
+      ability.restores = restoreOverrides;
+    }
+    return;
+  }
+  const auto count = ability.restores.size() < restoreOverrides.size()
+                         ? ability.restores.size()
+                         : restoreOverrides.size();
+  for (size_t i = 0; i < count; ++i) {
+    ability.restores[i] = restoreOverrides[i];
+  }
+}
+
 } // namespace game
+
