@@ -296,6 +296,31 @@ int main(int /*argc*/, char** /*argv*/) {
     auto map = makeMap(2, 2);
     auto& tile = model::mapLayerAt(model::mapInstanceTiles(map), 0)[0];
     tile.eventTrigger = model::TileEventTrigger{
+        .eventId = "use_only",
+        .requiresLook = false,
+        .requiresUse = true,
+    };
+    tile.travelTrigger = model::TravelTrigger{
+        .destinationMapName = "use_fallback",
+    };
+
+    auto storage = bmin::Map<bmin::String, bmin::String>{};
+    const auto result = game::resolveStepTriggersAt(map, 0, 0, storage);
+    ok = assertTrue(!result.specialEventId.has_value(),
+                    "requiresUse skips step-on event") &&
+         ok;
+    ok = assertTrue(result.travel.has_value(),
+                    "travel still runs when requiresUse skips event") &&
+         ok;
+    ok = assertEqualStr(result.travel->destinationMapName, "use_fallback",
+                        "use-skip travel map") &&
+         ok;
+  }
+
+  {
+    auto map = makeMap(2, 2);
+    auto& tile = model::mapLayerAt(model::mapInstanceTiles(map), 0)[0];
+    tile.eventTrigger = model::TileEventTrigger{
         .eventId = "gated_event",
         .requiresLook = false,
         .condition = "IS(flag)",

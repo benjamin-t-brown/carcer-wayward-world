@@ -27,6 +27,7 @@
         "i": 0,
         "eventId": "test_event",
         "requiresLook": true,
+        "requiresUse": true,
         "condition": "IS(opened)"
       }
     ],

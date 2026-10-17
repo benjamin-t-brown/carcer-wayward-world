@@ -208,6 +208,19 @@ void upsertOpenedDoor(bmin::DynArray<model::OpenedDoorRecord>& doors,
   doors.pushBack(record);
 }
 
+void removeOpenedDoor(bmin::DynArray<model::OpenedDoorRecord>& doors,
+                      int layer,
+                      int x,
+                      int y) {
+  for (size_t i = 0; i < doors.size(); i++) {
+    const auto& record = doors[i];
+    if (record.layer == layer && record.x == x && record.y == y) {
+      doors.erase(i);
+      return;
+    }
+  }
+}
+
 void applyChangedTiles(model::MapInstance& map,
                        const bmin::DynArray<model::ChangedTileRecord>& changes,
                        const db::Database* database) {
@@ -335,6 +348,17 @@ void persistClosedDoorOpen(model::PersistentMapState& persistentState,
   }
 }
 
+void closeOpenDoor(model::TileInstance& door) {
+  door.tileId = door.tileId - 1;
+}
+
+void persistOpenDoorClose(model::PersistentMapState& persistentState,
+                          int layer,
+                          int x,
+                          int y) {
+  removeOpenedDoor(persistentState.openedDoors, layer, x, y);
+}
+
 void collectTilesAt(model::MapInstance& map,
                     int x,
                     int y,
@@ -446,6 +470,18 @@ findClosedDoorAt(model::MapInstance& map, int x, int y, const db::Database& data
     return nullptr;
   }
   if (isClosedDoorTile(*tile, database)) {
+    return tile;
+  }
+  return nullptr;
+}
+
+model::TileInstance*
+findOpenDoorAt(model::MapInstance& map, int x, int y, const db::Database& database) {
+  auto* tile = tileAtCurrentLayer(map, x, y);
+  if (!tile) {
+    return nullptr;
+  }
+  if (isOpenDoorTile(*tile, database)) {
     return tile;
   }
   return nullptr;

@@ -41,6 +41,11 @@ void upsertOpenedDoor(bmin::DynArray<model::OpenedDoorRecord>& doors,
                       int x,
                       int y,
                       int tileId);
+// Remove the open-door record for layer/x/y if present.
+void removeOpenedDoor(bmin::DynArray<model::OpenedDoorRecord>& doors,
+                      int layer,
+                      int x,
+                      int y);
 
 // Permanent IN3 tile mutations (CHANGE_TILE_AT_MARKER_PERMANENT).
 void applyChangedTiles(model::MapInstance& map,
@@ -67,6 +72,13 @@ void persistClosedDoorOpen(model::PersistentMapState& persistentState,
                            int y,
                            int tileId,
                            ClosedDoorOpenResult opened);
+// Close an open door tile (tileId - 1). Caller must ensure the tile is an open door.
+void closeOpenDoor(model::TileInstance& door);
+// Remove the matching openedDoors row after closeOpenDoor. Does not touch unlockedDoors.
+void persistOpenDoorClose(model::PersistentMapState& persistentState,
+                          int layer,
+                          int x,
+                          int y);
 
 // Non-empty tiles at (x,y) across layers, sorted low→high layer.
 void collectTilesAt(model::MapInstance& map,
@@ -103,5 +115,9 @@ bool isDestinationWalkable(const model::MapInstance& map,
 // Closed door on map.tileLayerNumber at (x,y), or nullptr.
 model::TileInstance*
 findClosedDoorAt(model::MapInstance& map, int x, int y, const db::Database& database);
+
+// Open door on map.tileLayerNumber at (x,y), or nullptr.
+model::TileInstance*
+findOpenDoorAt(model::MapInstance& map, int x, int y, const db::Database& database);
 
 } // namespace game

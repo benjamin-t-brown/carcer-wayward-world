@@ -8,7 +8,6 @@
 #include "actions/navigation/UiShowLayerPickUp.hpp"
 #include "actions/navigation/UiShowLayerSpellCast.hpp"
 #include "actions/navigation/heldMove/UiUpdateHeldMove.hpp"
-#include "actions/world/WorldInteractAt.hpp"
 #include "actions/world/WorldSetActionMode.hpp"
 
 namespace ui {
@@ -21,7 +20,7 @@ void setHeldMoveActive(state::StateManager& stateManager, bool isActive) {
 }
 
 void cancelCurrentWorldActionMode(state::StateManager& stateManager) {
-  // Cancels EXAMINE / TALK / SPELL aim (NONE clears aim tile + pendingSpellId).
+  // Cancels EXAMINE / TALK / SPELL / INTERACT aim (NONE clears aim tile + pendingSpellId).
   if (stateManager.getState().world.actionMode == model::WorldActionMode::NONE) {
     return;
   }
@@ -108,8 +107,13 @@ void activateWorldAction(state::StateManager& stateManager,
     break;
   case state::WorldActionType::INTERACT:
     setHeldMoveActive(stateManager, false);
-    cancelCurrentWorldActionMode(stateManager);
-    stateManager.enqueueAction(state::makeAction<state::actions::WorldInteractAt>(), 0);
+    if (currentMode == model::WorldActionMode::INTERACT) {
+      cancelCurrentWorldActionMode(stateManager);
+      break;
+    }
+    stateManager.parallelAction(
+        state::makeAction<state::actions::WorldSetActionMode>(model::WorldActionMode::INTERACT),
+        0);
     break;
   case state::WorldActionType::START_FIGHT:
     setHeldMoveActive(stateManager, false);

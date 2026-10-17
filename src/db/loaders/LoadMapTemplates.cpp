@@ -148,6 +148,7 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       placement.eventId = entry.value("eventId", bmin::String());
       placement.requiresNonCombat = entry.value("requiresNonCombat", true);
       placement.requiresLook = entry.value("requiresLook", false);
+      placement.requiresUse = entry.value("requiresUse", false);
       placement.overlayVisibility = model::getTileOverlayVisibilityFromString(
           entry.value("overlayVisibility", bmin::String("HIDDEN")));
       placement.condition = entry.value("condition", bmin::String());

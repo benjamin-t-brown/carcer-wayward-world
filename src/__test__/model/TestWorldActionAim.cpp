@@ -131,6 +131,44 @@ int main(int /*argc*/, char** /*argv*/) {
     auto& state = stateManager.getState();
     state = state::State{};
     setupGrid(database, state, 5, 5);
+    state.world.camera.cameraMode = model::CameraMode::Follow;
+    placeAvatar(state, 2, 2);
+
+    state::actions::WorldSetActionMode setInteract(model::WorldActionMode::INTERACT);
+    setInteract.execute(&state);
+
+    ok = assertTrue(state.world.actionMode == model::WorldActionMode::INTERACT,
+                    "interact mode set") &&
+         ok;
+    ok = assertTrue(state.world.actionAimTile.has_value(), "interact aim initialized") &&
+         ok;
+    if (state.world.actionAimTile) {
+      ok = assertEqual(state.world.actionAimTile->x, 2, "interact aim x under avatar") &&
+           ok;
+      ok = assertEqual(state.world.actionAimTile->y, 2, "interact aim y under avatar") &&
+           ok;
+    }
+    ok = assertTrue(state.world.camera.cameraMode == model::CameraMode::Follow,
+                    "camera stays Follow after interact enter") &&
+         ok;
+
+    state::actions::WorldSetActionMode clear(model::WorldActionMode::NONE);
+    clear.execute(&state);
+    ok = assertTrue(state.world.actionMode == model::WorldActionMode::NONE,
+                    "interact mode cleared") &&
+         ok;
+    ok = assertFalse(state.world.actionAimTile.has_value(),
+                     "interact aim cleared on NONE") &&
+         ok;
+    ok = assertTrue(state.world.camera.cameraMode == model::CameraMode::Follow,
+                    "camera stays Follow after interact clear") &&
+         ok;
+  }
+
+  {
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupGrid(database, state, 5, 5);
     state.world.actionMode = model::WorldActionMode::EXAMINE;
     state.world.actionAimTile = model::TileXY{0, 0};
 

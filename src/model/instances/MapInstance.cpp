@@ -77,6 +77,7 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
         .eventId = et.eventId,
         .requiresNonCombat = et.requiresNonCombat,
         .requiresLook = et.requiresLook,
+        .requiresUse = et.requiresUse,
         .overlayVisibility = et.overlayVisibility,
         .condition = et.condition,
         .activationSound = et.activationSound,

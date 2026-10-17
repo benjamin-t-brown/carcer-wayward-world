@@ -9,6 +9,7 @@
 #include "ui/helpers/worldActions.h"
 #include "actions/combat/DoCombatAction.hpp"
 #include "actions/world/WorldExamineAt.hpp"
+#include "actions/world/WorldInteractAt.hpp"
 #include "actions/world/WorldMovePlayer.hpp"
 #include "actions/world/WorldWaitPlayer.hpp"
 #include "actions/world/WorldSetActionMode.hpp"
@@ -107,6 +108,12 @@ void confirmWorldActionAim(state::StateManager& stateManager,
   if (actionMode == model::WorldActionMode::TALK) {
     setHeldMoveActive(stateManager, false);
     stateManager.enqueueAction(state::makeAction<state::actions::WorldTalkAt>(tileX, tileY), 0);
+    return;
+  }
+  if (actionMode == model::WorldActionMode::INTERACT) {
+    setHeldMoveActive(stateManager, false);
+    stateManager.enqueueAction(
+        state::makeAction<state::actions::WorldInteractAt>(tileX, tileY), 0);
     return;
   }
   if (actionMode != model::WorldActionMode::SPELL) {

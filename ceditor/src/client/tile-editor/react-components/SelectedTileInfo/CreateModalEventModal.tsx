@@ -21,6 +21,7 @@ export interface CreateModalEventResult {
   text: string;
   requiresNonCombat: boolean;
   requiresLook: boolean;
+  requiresUse: boolean;
   overlayVisibility: TileOverlayVisibility;
   condition: string;
 }
@@ -47,6 +48,7 @@ export function CreateModalEventModal({
   const [nodeText, setNodeText] = useState(DEFAULT_MODAL_NODE_TEXT);
   const [requiresNonCombat, setRequiresNonCombat] = useState(true);
   const [requiresLook, setRequiresLook] = useState(false);
+  const [requiresUse, setRequiresUse] = useState(false);
   const [overlayVisibility, setOverlayVisibility] =
     useState<TileOverlayVisibility>('HIDDEN');
   const [condition, setCondition] = useState('');
@@ -64,6 +66,7 @@ export function CreateModalEventModal({
     setNodeText(DEFAULT_MODAL_NODE_TEXT);
     setRequiresNonCombat(true);
     setRequiresLook(defaultRequiresLook);
+    setRequiresUse(false);
     setOverlayVisibility('HIDDEN');
     setCondition('');
     setIsConditionModalOpen(false);
@@ -90,6 +93,7 @@ export function CreateModalEventModal({
       text: nodeText,
       requiresNonCombat,
       requiresLook,
+      requiresUse,
       overlayVisibility,
       condition,
     });
@@ -184,6 +188,11 @@ export function CreateModalEventModal({
             value={requiresLook}
             label="Requires Look"
             onChange={(newValue) => setRequiresLook(newValue === true)}
+          />
+          <OverrideCheckbox
+            value={requiresUse}
+            label="Requires Use"
+            onChange={(newValue) => setRequiresUse(newValue === true)}
           />
           <div>
             <label

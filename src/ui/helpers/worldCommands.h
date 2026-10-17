@@ -29,7 +29,7 @@ bool canPlayerIssueCombatMove(const state::State& state);
 void enqueueMapMove(state::StateManager& stateManager, int dx, int dy);
 
 // Enqueue a combat WAIT for the active party character, if it may act.
-// No-op while aiming (EXAMINE / TALK / SPELL).
+// No-op while aiming (EXAMINE / TALK / SPELL / INTERACT).
 void enqueueCombatWait(state::StateManager& stateManager);
 
 // Keypad-5 / wait button: combat WAIT, or (outside combat) town wait —
@@ -40,8 +40,8 @@ void enqueueWait(state::StateManager& stateManager);
 // cleared when the party is empty). UI selection only.
 void ensureCurrentPartyMemberSelection(state::State& state);
 
-// Resolve an EXAMINE / TALK / SPELL aim at the given tile: validates mode,
-// range and pending spell, then enqueues the corresponding action.
+// Resolve an EXAMINE / TALK / INTERACT / SPELL aim at the given tile: validates
+// mode, range and pending spell, then enqueues the corresponding action.
 void confirmWorldActionAim(state::StateManager& stateManager,
                            sdl2w::Window* window,
                            db::Database* database,

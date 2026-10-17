@@ -76,6 +76,12 @@ int main(int argc, char** argv) {
     ok = assertEqual(static_cast<int>(map.markers.size()), 1, "flat_test_map.markers") && ok;
     ok = assertEqual(static_cast<int>(map.eventTriggers.size()), 1, "flat_test_map.eventTriggers") && ok;
     if (!map.eventTriggers.empty()) {
+      ok = assertTrue(map.eventTriggers[0].requiresLook,
+                      "flat_test_map.eventTriggers[0].requiresLook") &&
+           ok;
+      ok = assertTrue(map.eventTriggers[0].requiresUse,
+                      "flat_test_map.eventTriggers[0].requiresUse") &&
+           ok;
       ok = assertTrue(map.eventTriggers[0].condition == "IS(opened)",
                       "flat_test_map.eventTriggers[0].condition") &&
            ok;

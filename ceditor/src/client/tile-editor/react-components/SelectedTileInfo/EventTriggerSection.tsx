@@ -69,6 +69,7 @@ export function EventTriggerSection({
       forceRequiresLook?: boolean;
       requiresNonCombat?: boolean;
       requiresLook?: boolean;
+      requiresUse?: boolean;
       overlayVisibility?: TileOverlayVisibility;
       condition?: string;
       activationSound?: string;
@@ -83,6 +84,7 @@ export function EventTriggerSection({
         requiresLook:
           options?.requiresLook ??
           (options?.forceRequiresLook ? true : !walkable),
+        requiresUse: options?.requiresUse ?? false,
         overlayVisibility: options?.overlayVisibility ?? 'HIDDEN',
         ...(condition ? { condition } : {}),
         activationSound:
@@ -147,6 +149,7 @@ export function EventTriggerSection({
       assignEventToTile(result.triggerId, {
         requiresNonCombat: result.requiresNonCombat,
         requiresLook: result.requiresLook,
+        requiresUse: result.requiresUse,
         overlayVisibility: result.overlayVisibility,
         condition: result.condition,
       });
@@ -194,6 +197,7 @@ export function EventTriggerSection({
         }
         tile.eventTrigger.requiresNonCombat = result.requiresNonCombat;
         tile.eventTrigger.requiresLook = result.requiresLook;
+        tile.eventTrigger.requiresUse = result.requiresUse;
         tile.eventTrigger.activationSound = result.activationSound;
         tile.eventTrigger.overlayVisibility = result.overlayVisibility;
         if (result.condition) {

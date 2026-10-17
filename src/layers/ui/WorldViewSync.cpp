@@ -150,6 +150,8 @@ void WorldViewSync::syncWorldActionModeHighlight() {
          actionMode == model::WorldActionMode::EXAMINE) ||
         (actionType == state::WorldActionType::TALK &&
          actionMode == model::WorldActionMode::TALK) ||
+        (actionType == state::WorldActionType::INTERACT &&
+         actionMode == model::WorldActionMode::INTERACT) ||
         (actionType == state::WorldActionType::INVENTORY && inventoryOpen) ||
         (actionType == state::WorldActionType::ABILITY && (magicOpen || spellCastOpen)) ||
         (actionType == state::WorldActionType::GET && pickUpOpen);
@@ -171,6 +173,8 @@ void WorldViewSync::syncActionModeCancelButton() {
     modeLabel = TRANSLATE("Examine");
   } else if (actionMode == model::WorldActionMode::TALK) {
     modeLabel = TRANSLATE("Talk");
+  } else if (actionMode == model::WorldActionMode::INTERACT) {
+    modeLabel = TRANSLATE("Interact");
   } else if (actionMode == model::WorldActionMode::SPELL) {
     modeLabel = TRANSLATE("Cast Spell");
   }
@@ -247,6 +251,8 @@ void WorldViewSync::syncActionModeCursor() {
     cursor = sdl2w::SystemCursor::Crosshair;
   } else if (actionMode == model::WorldActionMode::TALK) {
     cursor = sdl2w::SystemCursor::Hand;
+  } else if (actionMode == model::WorldActionMode::INTERACT) {
+    cursor = sdl2w::SystemCursor::Crosshair;
   }
   if (!window->hasColorCursor() && window->getSystemCursor() == cursor) {
     return;

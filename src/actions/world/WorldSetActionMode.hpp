@@ -62,7 +62,7 @@ class WorldSetActionMode : public AbstractAction {
     }
 
     if (!placedCombatAim) {
-      // EXAMINE / TALK / SPELL fallback: start aim under the party leader avatar.
+      // EXAMINE / TALK / SPELL / INTERACT fallback: start aim under the party leader avatar.
       const auto* avatar =
           game::findPartyAvatarOnActiveMap(world.activeMap, state->player);
       if (avatar) {

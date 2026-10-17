@@ -19,6 +19,7 @@ export interface EditEventTriggerResult {
   title: string;
   requiresNonCombat: boolean;
   requiresLook: boolean;
+  requiresUse: boolean;
   activationSound: string;
   condition: string;
   overlayVisibility: TileOverlayVisibility;
@@ -46,6 +47,7 @@ export function EditEventTriggerModal({
   const [title, setTitle] = useState(eventTitle);
   const [requiresNonCombat, setRequiresNonCombat] = useState(true);
   const [requiresLook, setRequiresLook] = useState(false);
+  const [requiresUse, setRequiresUse] = useState(false);
   const [activationSound, setActivationSound] = useState('event');
   const [condition, setCondition] = useState('');
   const [overlayVisibility, setOverlayVisibility] =
@@ -61,6 +63,7 @@ export function EditEventTriggerModal({
     setTitle(eventTitle);
     setRequiresNonCombat(trigger.requiresNonCombat ?? true);
     setRequiresLook(trigger.requiresLook ?? false);
+    setRequiresUse(trigger.requiresUse ?? false);
     setActivationSound(trigger.activationSound ?? 'event');
     setCondition(trigger.condition ?? '');
     setOverlayVisibility(trigger.overlayVisibility ?? 'HIDDEN');
@@ -76,6 +79,7 @@ export function EditEventTriggerModal({
       title: title.trim() || trigger.eventId,
       requiresNonCombat,
       requiresLook,
+      requiresUse,
       activationSound,
       condition: condition.trim(),
       overlayVisibility,
@@ -170,6 +174,11 @@ export function EditEventTriggerModal({
             value={requiresLook}
             label="Requires Look"
             onChange={(newValue) => setRequiresLook(newValue === true)}
+          />
+          <OverrideCheckbox
+            value={requiresUse}
+            label="Requires Use"
+            onChange={(newValue) => setRequiresUse(newValue === true)}
           />
           <SoundSearchField
             id="edit-event-trigger-activation-sound"

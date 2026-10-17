@@ -1436,12 +1436,13 @@ export interface TileEventTrigger {
   eventId: string;
   requiresNonCombat?: boolean;
   requiresLook?: boolean;
+  requiresUse?: boolean;
   /** Default HIDDEN when omitted from JSON. */
   overlayVisibility?: TileOverlayVisibility;
   /** Empty or omitted means the event always runs. Otherwise an in3 condition. */
   condition?: string;
   /**
-   * Sound played when the trigger activates (step-on or look).
+   * Sound played when the trigger activates (step-on, look, or use).
    * Default "event" when omitted from JSON. Empty string disables.
    */
   activationSound?: string;

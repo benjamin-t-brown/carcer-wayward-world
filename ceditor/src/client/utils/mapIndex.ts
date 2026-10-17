@@ -339,6 +339,7 @@ export const PLACEMENT_KINDS: readonly PlacementKind[] = [
       eventId: e.eventId,
       requiresNonCombat: e.requiresNonCombat,
       requiresLook: e.requiresLook,
+      requiresUse: e.requiresUse,
       overlayVisibility: e.overlayVisibility ?? 'HIDDEN',
       ...(e.condition ? { condition: e.condition } : {}),
       // Missing → engine default "event"; explicit "" disables.
@@ -349,6 +350,7 @@ export const PLACEMENT_KINDS: readonly PlacementKind[] = [
         eventId: v.eventId,
         requiresNonCombat: v.requiresNonCombat,
         requiresLook: v.requiresLook,
+        requiresUse: v.requiresUse,
         ...keepOverlayVisibility(v.overlayVisibility),
         ...(v.condition?.trim() ? { condition: v.condition.trim() } : {}),
         activationSound: v.activationSound ?? 'event',

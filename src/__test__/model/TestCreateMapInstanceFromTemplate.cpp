@@ -140,6 +140,10 @@ int main(int argc, char** argv) {
                        1,
                        "eventTrigger.requiresLook") &&
            ok;
+      ok = assertEqual(static_cast<int>(layer0[0].eventTrigger->requiresUse),
+                       1,
+                       "eventTrigger.requiresUse") &&
+           ok;
       ok = assertEqualStr(layer0[0].eventTrigger->condition,
                           "IS(opened)",
                           "eventTrigger.condition") &&

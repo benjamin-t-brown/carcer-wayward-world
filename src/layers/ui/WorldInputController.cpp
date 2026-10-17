@@ -46,6 +46,7 @@ void WorldInputController::beginWorldActionKeyboardPress(
   const bool activateImmediately =
       actionType == state::WorldActionType::EXAMINE ||
       actionType == state::WorldActionType::TALK ||
+      actionType == state::WorldActionType::INTERACT ||
       actionType == state::WorldActionType::START_FIGHT ||
       actionType == state::WorldActionType::END_FIGHT;
   worldActionFlash.begin(
@@ -86,6 +87,7 @@ void WorldInputController::onKeyDown(std::string_view key, int /*keyCode*/) {
         model::WorldActionMode::EXAMINE,
         model::WorldActionMode::TALK,
         model::WorldActionMode::SPELL,
+        model::WorldActionMode::INTERACT,
     };
     if (cancellableActionModes.contains(world.actionMode)) {
       ui::playButtonSound(owner.getWindow());
@@ -121,7 +123,8 @@ void WorldInputController::onKeyDown(std::string_view key, int /*keyCode*/) {
 
   const bool isAimMode = world.actionMode == model::WorldActionMode::EXAMINE ||
                          world.actionMode == model::WorldActionMode::TALK ||
-                         world.actionMode == model::WorldActionMode::SPELL;
+                         world.actionMode == model::WorldActionMode::SPELL ||
+                         world.actionMode == model::WorldActionMode::INTERACT;
 
   if (isAimMode && ui::isConfirmActionKey(key)) {
     if (!world.resolvingTownEnemyAi && world.actionAimTile) {
@@ -203,7 +206,8 @@ void WorldInputController::updateAimFromMouse(int x, int y) {
   const auto actionMode = stateManager->getState().world.actionMode;
   if (actionMode != model::WorldActionMode::EXAMINE &&
       actionMode != model::WorldActionMode::TALK &&
-      actionMode != model::WorldActionMode::SPELL) {
+      actionMode != model::WorldActionMode::SPELL &&
+      actionMode != model::WorldActionMode::INTERACT) {
     return;
   }
   auto* mapView = owner.getUiElement<ui::MapView>("mapView");
@@ -231,7 +235,8 @@ bool WorldInputController::onMouseDown(int x, int y, int button) {
       const auto actionMode = stateManager->getState().world.actionMode;
       if (actionMode == model::WorldActionMode::EXAMINE ||
           actionMode == model::WorldActionMode::TALK ||
-          actionMode == model::WorldActionMode::SPELL) {
+          actionMode == model::WorldActionMode::SPELL ||
+          actionMode == model::WorldActionMode::INTERACT) {
         if (auto* mapView = owner.getUiElement<ui::MapView>("mapView")) {
           if (auto tile = mapView->screenToTile(x, y)) {
             stateManager->enqueueAction(state::makeAction<state::actions::WorldSetActionAim>(tile->x, tile->y),

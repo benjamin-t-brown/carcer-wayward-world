@@ -38,6 +38,7 @@ struct TileEventTrigger {
   bmin::String eventId;
   bool requiresNonCombat = true;
   bool requiresLook = false;
+  bool requiresUse = false;
   TileOverlayVisibility overlayVisibility = TileOverlayVisibility::HIDDEN;
   /** Empty means the event always runs. Otherwise an in3 condition (IS, ISNOT, ALL, ANY, …). */
   bmin::String condition;
