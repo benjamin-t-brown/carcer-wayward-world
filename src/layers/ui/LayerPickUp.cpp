@@ -194,7 +194,7 @@ void LayerPickUp::syncCurrentPartyMember() {
           *database);
     }
     if (minipageProps.nearbyItems.empty()) {
-      minipageProps.statusText = TRANSLATE("No items nearby.");
+      minipageProps.statusText = TRANSLATE("Get: No items nearby.");
     } else {
       minipageProps.statusText.clear();
     }

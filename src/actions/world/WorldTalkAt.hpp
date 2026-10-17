@@ -1,5 +1,6 @@
 #pragma once
 
+#include "actions/navigation/UiPushFloatingNotification.hpp"
 #include "bmin/StringInterop.h"
 #include "db/Database.h"
 #include "game/map/ActiveMapOrchestrator.h"
@@ -75,7 +76,9 @@ class WorldTalkAt : public AbstractAction {
     }
 
     if (!target) {
-      LOG(INFO) << TRANSLATE("Talk: there is no one there.") << LOG_ENDL;
+      UiPushFloatingNotification(TRANSLATE("Talk: Nobody there."),
+                                 UiFloatingNotificationType::WARNING)
+          .execute(state);
       return;
     }
 

@@ -278,4 +278,6 @@ Sound,lockpick,assets/snd/lockpick
 Sound,unlock_door,assets/snd/unlock_door,1,https://freesound.org/people/arnaud%20coutancier/sounds/275087/
 Sound,open_gate,assets/snd/open_gate,1,https://freesound.org/people/lolamadeus/sounds/161227/
 Sound,roar,assets/snd/roar,1,https://freesound.org/people/LucasDuff/sounds/467694/
+Sound,open_door,assets/snd/open_door,1,zzfx
+Sound,close_door,assets/snd/close_door,1,zzfx
 

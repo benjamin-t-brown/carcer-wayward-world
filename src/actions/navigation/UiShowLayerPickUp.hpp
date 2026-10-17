@@ -23,13 +23,13 @@ class UiShowLayerPickUp : public AbstractAction {
   void pushNoItemsNearbyWarning() {
     UiFloatingNotification notification;
     notification.id = model::createRandomId();
-    notification.message = TRANSLATE("No items nearby.");
+    notification.message = TRANSLATE("Get: No items nearby.");
     notification.type = UiFloatingNotificationType::WARNING;
     model::timerStructStart(notification.timer,
                             state->settings.floatingNotificationDurationMs);
     state->uiState.floatingNotifications.pushBack(std::move(notification));
     ++state->uiState.floatingNotificationRevision;
-    LOG(INFO) << "UiShowLayerPickUp: No items nearby." << LOG_ENDL;
+    LOG(INFO) << "UiShowLayerPickUp: Get: No items nearby." << LOG_ENDL;
   }
 
   void act() override {

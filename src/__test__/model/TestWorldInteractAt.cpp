@@ -189,6 +189,14 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertFalse(state.world.actionAimTile.has_value(),
                      "non-adjacent clears aim") &&
          ok;
+    ok = assertEqual(static_cast<int>(state.uiState.floatingNotifications.size()), 1,
+                     "non-adjacent shows too-far notification") &&
+         ok;
+    if (!state.uiState.floatingNotifications.empty()) {
+      ok = assertEqualStr(state.uiState.floatingNotifications[0].message,
+                          "Interact: Too far.", "non-adjacent notification text") &&
+           ok;
+    }
   }
 
   // Diagonal adjacency is allowed (Chebyshev ≤ 1)

@@ -82,12 +82,14 @@
 [Food Consumption] {MISSING!}
 [Food: ] {MISSING!}
 [Get] {MISSING!}
+[Get: No items nearby.] {MISSING!}
 [Give] {MISSING!}
 [HP] {MISSING!}
 [Healing Eff.] {MISSING!}
 [Healing Effectiveness] {MISSING!}
 [Ingredient Find Chance] {MISSING!}
 [Interact] {MISSING!}
+[Interact: Too far.] {MISSING!}
 [Inventory] {MISSING!}
 [Item Usage] {MISSING!}
 [Journal] {MISSING!}
@@ -108,7 +110,6 @@
 [Materia Slots] {MISSING!}
 [Might/Damage] {MISSING!}
 [Mind] {MISSING!}
-[No items nearby.] {MISSING!}
 [No known spells.] {MISSING!}
 [No rune available to equip.] {MISSING!}
 [No] {MISSING!}
@@ -145,7 +146,7 @@
 [Stealth] {MISSING!}
 [Strength] {MISSING!}
 [Survival] {MISSING!}
-[Talk: there is no one there.] {MISSING!}
+[Talk: Nobody there.] {MISSING!}
 [Talk: they have nothing to say.] {MISSING!}
 [Talk] {MISSING!}
 [That item is not a rune.] {MISSING!}

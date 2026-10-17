@@ -1,6 +1,7 @@
 #pragma once
 
 #include "actions/general/PlaySound.hpp"
+#include "actions/navigation/UiPushFloatingNotification.hpp"
 #include "db/Database.h"
 #include "game/map/ActiveMapCharacters.h"
 #include "game/map/ActiveMapOrchestrator.h"
@@ -54,7 +55,9 @@ class WorldInteractAt : public AbstractAction {
     if (!isAdjacentOrSame(avatar->x, avatar->y, x, y)) {
       world.actionMode = model::WorldActionMode::NONE;
       world.actionAimTile.reset();
-      LOG(INFO) << TRANSLATE("You need to get closer.") << LOG_ENDL;
+      UiPushFloatingNotification(TRANSLATE("Interact: Too far."),
+                                 UiFloatingNotificationType::WARNING)
+          .execute(state);
       return;
     }
 
@@ -90,6 +93,7 @@ class WorldInteractAt : public AbstractAction {
         game::closeOpenDoor(*door);
         game::persistOpenDoorClose(map->persistentState, map->tileLayerNumber, door->x,
                                    door->y);
+        PlaySound("close_door").execute(state);
         game::updateActiveMapVisibilityFromPlayer(
             world, state->mapInstances, avatar->x, avatar->y, *database);
         return;

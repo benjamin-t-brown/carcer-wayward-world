@@ -29,7 +29,7 @@ getWorldActionFromKeyboardShortcut(std::string_view key, model::TurnMode turnMod
   if (key == "g" || key == "G") {
     return state::WorldActionType::GET;
   }
-  if (key == " ") {
+  if (key == "u" || key == "U") {
     return state::WorldActionType::INTERACT;
   }
   return std::nullopt;

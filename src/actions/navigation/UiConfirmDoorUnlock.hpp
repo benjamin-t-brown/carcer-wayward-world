@@ -79,6 +79,10 @@ class UiConfirmDoorUnlock : public AbstractAction {
     } else if (opened == game::ClosedDoorOpenResult::OpenedBash) {
       PlaySound("hit_punch1").execute(state);
     }
+    if (opened == game::ClosedDoorOpenResult::OpenedSilent ||
+        opened == game::ClosedDoorOpenResult::OpenedBash) {
+      PlaySound("open_door").execute(state);
+    }
 
     if (auto* avatar = game::findPartyAvatarOnActiveMap(world.activeMap, state->player)) {
       game::updateActiveMapVisibilityFromPlayer(

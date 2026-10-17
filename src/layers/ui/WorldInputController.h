@@ -49,6 +49,8 @@ private:
 
   ui::ButtonWorldAction* findWorldActionButton(state::WorldActionType actionType);
   void beginWorldActionKeyboardPress(state::WorldActionType actionType);
+  // Resolve pending INTERACT at an absolute map tile (adjacent-pick, no aim box).
+  void confirmInteractAt(int tileX, int tileY);
 };
 
 } // namespace layers

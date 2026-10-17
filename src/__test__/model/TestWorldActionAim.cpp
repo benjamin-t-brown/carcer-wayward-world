@@ -140,14 +140,10 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertTrue(state.world.actionMode == model::WorldActionMode::INTERACT,
                     "interact mode set") &&
          ok;
-    ok = assertTrue(state.world.actionAimTile.has_value(), "interact aim initialized") &&
+    // Adjacent-pick: no roam aim box — actionAimTile stays empty.
+    ok = assertFalse(state.world.actionAimTile.has_value(),
+                     "interact does not seed actionAimTile") &&
          ok;
-    if (state.world.actionAimTile) {
-      ok = assertEqual(state.world.actionAimTile->x, 2, "interact aim x under avatar") &&
-           ok;
-      ok = assertEqual(state.world.actionAimTile->y, 2, "interact aim y under avatar") &&
-           ok;
-    }
     ok = assertTrue(state.world.camera.cameraMode == model::CameraMode::Follow,
                     "camera stays Follow after interact enter") &&
          ok;
@@ -158,10 +154,29 @@ int main(int /*argc*/, char** /*argv*/) {
                     "interact mode cleared") &&
          ok;
     ok = assertFalse(state.world.actionAimTile.has_value(),
-                     "interact aim cleared on NONE") &&
+                     "interact aim still empty after cancel") &&
          ok;
     ok = assertTrue(state.world.camera.cameraMode == model::CameraMode::Follow,
                     "camera stays Follow after interact clear") &&
+         ok;
+  }
+
+  {
+    // Entering INTERACT after a roam-aim mode clears any leftover aim tile.
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupGrid(database, state, 5, 5);
+    placeAvatar(state, 2, 2);
+    state.world.actionMode = model::WorldActionMode::EXAMINE;
+    state.world.actionAimTile = model::TileXY{3, 3};
+
+    state::actions::WorldSetActionMode setInteract(model::WorldActionMode::INTERACT);
+    setInteract.execute(&state);
+    ok = assertTrue(state.world.actionMode == model::WorldActionMode::INTERACT,
+                    "interact replaces examine mode") &&
+         ok;
+    ok = assertFalse(state.world.actionAimTile.has_value(),
+                     "interact clears leftover examine aim") &&
          ok;
   }
 

@@ -48,6 +48,13 @@ class WorldSetActionMode : public AbstractAction {
       return;
     }
 
+    // INTERACT uses adjacent-pick (direction key / adjacent click), not a roam
+    // aim box — leave actionAimTile empty so MapView does not draw one.
+    if (mode == model::WorldActionMode::INTERACT) {
+      world.actionAimTile.reset();
+      return;
+    }
+
     bool placedCombatAim = false;
     // Combat SPELL: aim under the active combat character (caster).
     if (mode == model::WorldActionMode::SPELL && world.combat.active &&
@@ -62,7 +69,7 @@ class WorldSetActionMode : public AbstractAction {
     }
 
     if (!placedCombatAim) {
-      // EXAMINE / TALK / SPELL / INTERACT fallback: start aim under the party leader avatar.
+      // EXAMINE / TALK / SPELL fallback: start aim under the party leader avatar.
       const auto* avatar =
           game::findPartyAvatarOnActiveMap(world.activeMap, state->player);
       if (avatar) {

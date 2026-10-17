@@ -82,12 +82,14 @@
 [Food Consumption] {Food Consumption}
 [Food: ] {Food: }
 [Get] {Get}
+[Get: No items nearby.] {Get: No items nearby.}
 [Give] {Give}
 [HP] {HP}
 [Healing Eff.] {Healing Eff.}
 [Healing Effectiveness] {Healing Effectiveness}
 [Ingredient Find Chance] {Ingredient Find Chance}
 [Interact] {Interact}
+[Interact: Too far.] {Interact: Too far.}
 [Inventory] {Inventory}
 [Item Usage] {Item Usage}
 [Journal] {Journal}
@@ -108,7 +110,6 @@
 [Materia Slots] {Materia Slots}
 [Might/Damage] {Might/Damage}
 [Mind] {Mind}
-[No items nearby.] {No items nearby.}
 [No known spells.] {No known spells.}
 [No rune available to equip.] {No rune available to equip.}
 [No] {No}
@@ -145,7 +146,7 @@
 [Stealth] {Stealth}
 [Strength] {Strength}
 [Survival] {Survival}
-[Talk: there is no one there.] {Talk: there is no one there.}
+[Talk: Nobody there.] {Talk: Nobody there.}
 [Talk: they have nothing to say.] {Talk: they have nothing to say.}
 [Talk] {Talk}
 [That item is not a rune.] {That item is not a rune.}

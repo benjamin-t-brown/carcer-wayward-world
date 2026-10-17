@@ -146,6 +146,10 @@ class WorldMovePlayer : public AbstractAction {
       } else if (opened == game::ClosedDoorOpenResult::OpenedBash) {
         PlaySound("hit_punch1").execute(state);
       }
+      if (opened == game::ClosedDoorOpenResult::OpenedSilent ||
+          opened == game::ClosedDoorOpenResult::OpenedBash) {
+        PlaySound("open_door").execute(state);
+      }
       game::updateActiveMapVisibilityFromPlayer(
           world, state->mapInstances, avatar->x, avatar->y, *database);
       return;

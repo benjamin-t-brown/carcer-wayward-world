@@ -32,6 +32,14 @@ bool assertFalse(bool cond, const char* label) {
   return true;
 }
 
+bool assertEqual(int actual, int expected, const char* label) {
+  if (actual != expected) {
+    LOG(ERROR) << label << " expected " << expected << " but got " << actual << LOG_ENDL;
+    return false;
+  }
+  return true;
+}
+
 bool assertEqualStr(const bmin::String& actual,
                     const bmin::String& expected,
                     const char* label) {
@@ -224,6 +232,14 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertTrue(state.world.actionMode == model::WorldActionMode::NONE,
                     "talk mode cleared for empty") &&
          ok;
+    ok = assertEqual(static_cast<int>(state.uiState.floatingNotifications.size()), 1,
+                     "empty tile shows nobody-there notification") &&
+         ok;
+    if (!state.uiState.floatingNotifications.empty()) {
+      ok = assertEqualStr(state.uiState.floatingNotifications[0].message,
+                          "Talk: Nobody there.", "empty tile notification text") &&
+           ok;
+    }
   }
 
   {

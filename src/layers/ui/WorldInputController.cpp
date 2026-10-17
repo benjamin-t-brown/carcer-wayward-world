@@ -1,5 +1,6 @@
 #include "WorldInputController.h"
 #include "bmin/StringInterop.h"
+#include "game/map/TileTriggers.h"
 #include "layers/UiLayer.h"
 #include "model/Combat.h"
 #include "state/StateManager.h"
@@ -13,6 +14,7 @@
 #include "ui/helpers/worldActions.h"
 #include "ui/helpers/worldCommands.h"
 #include "ui/layouts/InGameLayout.h"
+#include <cstdlib>
 
 namespace layers {
 
@@ -68,6 +70,16 @@ void WorldInputController::beginWorldActionKeyboardPress(
       !activateImmediately);
 }
 
+void WorldInputController::confirmInteractAt(int tileX, int tileY) {
+  auto* stateManager = getStateManager();
+  if (!stateManager) {
+    return;
+  }
+  ui::setHeldMoveActive(*stateManager, false);
+  ui::confirmWorldActionAim(*stateManager, owner.getWindow(), getDatabase(), tileX,
+                            tileY);
+}
+
 void WorldInputController::onKeyDown(std::string_view key, int /*keyCode*/) {
   if (owner.getState() != LayerState::ON) {
     return;
@@ -121,12 +133,26 @@ void WorldInputController::onKeyDown(std::string_view key, int /*keyCode*/) {
     }
   }
 
-  const bool isAimMode = world.actionMode == model::WorldActionMode::EXAMINE ||
-                         world.actionMode == model::WorldActionMode::TALK ||
-                         world.actionMode == model::WorldActionMode::SPELL ||
-                         world.actionMode == model::WorldActionMode::INTERACT;
+  // Roam-aim modes move a highlight box; INTERACT is adjacent-pick (no aim tile).
+  const bool isRoamAimMode =
+      world.actionMode == model::WorldActionMode::EXAMINE ||
+      world.actionMode == model::WorldActionMode::TALK ||
+      world.actionMode == model::WorldActionMode::SPELL;
+  const bool isInteractPending =
+      world.actionMode == model::WorldActionMode::INTERACT;
 
-  if (isAimMode && ui::isConfirmActionKey(key)) {
+  if (isInteractPending && ui::isConfirmActionKey(key)) {
+    if (!world.resolvingTownEnemyAi) {
+      const auto* avatar =
+          game::findPartyAvatarOnActiveMap(world.activeMap, stateManager->getState().player);
+      if (avatar) {
+        confirmInteractAt(avatar->x, avatar->y);
+      }
+    }
+    return;
+  }
+
+  if (isRoamAimMode && ui::isConfirmActionKey(key)) {
     if (!world.resolvingTownEnemyAi && world.actionAimTile) {
       ui::playButtonSound(owner.getWindow());
       ui::confirmWorldActionAim(*stateManager, owner.getWindow(), getDatabase(),
@@ -140,7 +166,20 @@ void WorldInputController::onKeyDown(std::string_view key, int /*keyCode*/) {
     return;
   }
 
-  if (isAimMode) {
+  if (isInteractPending) {
+    if (world.resolvingTownEnemyAi) {
+      return;
+    }
+    const auto* avatar =
+        game::findPartyAvatarOnActiveMap(world.activeMap, stateManager->getState().player);
+    if (!avatar) {
+      return;
+    }
+    confirmInteractAt(avatar->x + moveDelta->dx, avatar->y + moveDelta->dy);
+    return;
+  }
+
+  if (isRoamAimMode) {
     if (world.resolvingTownEnemyAi) {
       return;
     }
@@ -204,10 +243,10 @@ void WorldInputController::updateAimFromMouse(int x, int y) {
     return;
   }
   const auto actionMode = stateManager->getState().world.actionMode;
+  // INTERACT is adjacent-pick; do not roam the aim highlight with the mouse.
   if (actionMode != model::WorldActionMode::EXAMINE &&
       actionMode != model::WorldActionMode::TALK &&
-      actionMode != model::WorldActionMode::SPELL &&
-      actionMode != model::WorldActionMode::INTERACT) {
+      actionMode != model::WorldActionMode::SPELL) {
     return;
   }
   auto* mapView = owner.getUiElement<ui::MapView>("mapView");
@@ -232,11 +271,21 @@ bool WorldInputController::onMouseDown(int x, int y, int button) {
   if (owner.getState() == LayerState::ON && button == 1) {
     auto* stateManager = getStateManager();
     if (stateManager) {
-      const auto actionMode = stateManager->getState().world.actionMode;
+      const auto& state = stateManager->getState();
+      const auto actionMode = state.world.actionMode;
+      if (actionMode == model::WorldActionMode::INTERACT) {
+        if (auto* mapView = owner.getUiElement<ui::MapView>("mapView")) {
+          if (auto tile = mapView->screenToTile(x, y)) {
+            // Adjacent or not: WorldInteractAt cancels + "Too far." when out of range.
+            confirmInteractAt(tile->x, tile->y);
+            return true;
+          }
+        }
+        return false;
+      }
       if (actionMode == model::WorldActionMode::EXAMINE ||
           actionMode == model::WorldActionMode::TALK ||
-          actionMode == model::WorldActionMode::SPELL ||
-          actionMode == model::WorldActionMode::INTERACT) {
+          actionMode == model::WorldActionMode::SPELL) {
         if (auto* mapView = owner.getUiElement<ui::MapView>("mapView")) {
           if (auto tile = mapView->screenToTile(x, y)) {
             stateManager->enqueueAction(state::makeAction<state::actions::WorldSetActionAim>(tile->x, tile->y),
