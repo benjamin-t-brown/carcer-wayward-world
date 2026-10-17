@@ -13,6 +13,8 @@ import {
   CharacterTemplate,
   CharacterTemplateBehaviorName,
   CHARACTER_TEMPLATE_BEHAVIOR_NAMES,
+  CharacterSpriteLayout,
+  CHARACTER_SPRITE_LAYOUTS,
   CombatBehaviorName,
   COMBAT_BEHAVIOR_NAMES,
   createDefaultCharacterStats,
@@ -410,6 +412,27 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
           <div style={{ marginTop: '4px', fontSize: '11px', color: '#858585' }}>
             Spritesheet: {formData.spritesheet || 'Not set'} | Offset:{' '}
             {formData.spriteOffset ?? 'Not set'}
+          </div>
+          <div style={{ marginTop: '8px' }}>
+            <OptionSelect
+              id="character-sprite-layout"
+              name="spriteLayout"
+              label="Sprite Layout"
+              value={formData.spriteLayout ?? 'default'}
+              onChange={(value) => {
+                const layout = value as CharacterSpriteLayout;
+                if (layout === 'default') {
+                  const { spriteLayout: _layout, ...rest } = formData;
+                  setFormData(rest);
+                  return;
+                }
+                updateField('spriteLayout', layout);
+              }}
+              options={CHARACTER_SPRITE_LAYOUTS.map((layout) => ({
+                value: layout,
+                label: layout === 'weaponCombos' ? 'weaponCombos (equipped weapons)' : layout,
+              }))}
+            />
           </div>
         </div>
 

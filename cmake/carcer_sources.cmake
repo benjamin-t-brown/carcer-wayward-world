@@ -69,6 +69,7 @@ set(CARCER_RULE_SOURCES
   src/game/combat/MeleeAttackResolve.cpp
   src/game/combat/EnemyBehavior.cpp
   src/game/combat/DropTables.cpp
+  src/game/sprites/CharacterSpriteResolve.cpp
   src/game/diceHelpers.cpp
   src/game/TalkEventPortrait.cpp
   src/game/SpecialEventPresenter.cpp

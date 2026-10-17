@@ -57,13 +57,16 @@ class PerformTownMeleeAttack : public AbstractAction {
                      const model::AbilityDepiction& depiction,
                      const bmin::String& abilityName,
                      bool applyOffHandPenalty,
+                     bool offHand,
                      bool unarmed,
                      const model::CharacterStats& attackerStats,
                      int targetArmorClass,
                      const bmin::String& victimInstanceId,
                      int avatarX,
                      int avatarY) {
-    insertAction(state::makeAction<CharacterSetSpriteIndexOffset>(attackerId, 1), 0);
+    const auto attackPose = offHand ? 2 : 1;
+    insertAction(state::makeAction<CharacterSetSpriteIndexOffset>(attackerId, attackPose),
+                 0);
     playSoundIfNamed(depiction.startSound);
 
     const auto abilityBonus = attack.dmg.has_value() ? attack.dmg->attackBonus : 0;
@@ -127,6 +130,7 @@ class PerformTownMeleeAttack : public AbstractAction {
                                    hand.ability.depiction,
                                    hand.ability.name,
                                    applyOffHandPenalty,
+                                   hand.offHand,
                                    hand.unarmed,
                                    attackerStats,
                                    targetArmorClass,

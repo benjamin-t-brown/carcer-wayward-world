@@ -6,6 +6,7 @@
 #include "game/map/MapWalkability.h"
 #include "game/map/TileFields.h"
 #include "game/map/TileTriggers.h"
+#include "game/sprites/CharacterSpriteResolve.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/CharacterTemplate.h"
 #include "model/templates/Maps.h"
@@ -627,15 +628,27 @@ void MapView::render(int dt) {
     }
 
     bmin::String spriteName;
+    const auto inCombat = world.combat.active;
     if (member) {
-      spriteName = model::characterPlayerGetSpriteAtIndexOffset(
-          *member, character.spriteIndexOffset);
+      auto mainHand = model::WeaponVisual::None;
+      auto offHand = model::WeaponVisual::None;
+      if (database) {
+        game::resolveEquippedWeaponVisuals(*member, *database, mainHand, offHand);
+      }
+      spriteName = game::resolveCharacterSpriteName(
+          {.characterTemplate = member->params,
+           .mainHand = mainHand,
+           .offHand = offHand,
+           .inCombat = inCombat,
+           .pose = character.spriteIndexOffset});
     } else if (database) {
       try {
         const auto& characterTemplate =
             database->getCharacterTemplate(bmin::toStringView(character.templateName));
-        spriteName = model::characterGetSpriteAtIndexOffset(characterTemplate,
-                                                            character.spriteIndexOffset);
+        spriteName = game::resolveCharacterSpriteName(
+            {.characterTemplate = characterTemplate,
+             .inCombat = inCombat,
+             .pose = character.spriteIndexOffset});
       } catch (const std::exception&) {
         return;
       }

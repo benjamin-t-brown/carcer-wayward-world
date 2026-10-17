@@ -93,6 +93,7 @@
     "value": 10,
     "weapon": {
       "abilityName": "MELEE_ATTACK_METAL_KNIFE",
+      "weaponVisual": "knife",
       "dmgOverrides": [
         {
           "dmgDice": [
@@ -277,6 +278,7 @@
     "value": 25,
     "weapon": {
       "abilityName": "MELEE_ATTACK_METAL_KNIFE",
+      "weaponVisual": "knife",
       "dmgOverrides": [
         {
           "dmgDice": [
@@ -319,6 +321,7 @@
     "value": 10,
     "weapon": {
       "abilityName": "MELEE_ATTACK_METAL_SWORD",
+      "weaponVisual": "sword",
       "dmgOverrides": [
         {
           "dmgDice": [
@@ -342,6 +345,7 @@
     "value": 10,
     "weapon": {
       "abilityName": "MELEE_ATTACK_METAL_SWORD",
+      "weaponVisual": "sword",
       "dmgOverrides": [
         {
           "dmgDice": [

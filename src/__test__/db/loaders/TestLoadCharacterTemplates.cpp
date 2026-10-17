@@ -26,6 +26,15 @@ int main(int argc, char** argv) {
     ok = assertEqual(member.stats.generic.str, 10, "testPartyMember1.str") && ok;
     ok = assertEqual(member.combat.hp, 100, "testPartyMember1.hp") && ok;
     ok = assertEqual(member.combat.mp, 50, "testPartyMember1.mp") && ok;
+    if (member.spritesheetName != "pc") {
+      LOG(ERROR) << "testPartyMember1.spritesheet expected pc but got "
+                 << member.spritesheetName << LOG_ENDL;
+      ok = false;
+    }
+    if (member.spriteLayout != model::CharacterSpriteLayout::WeaponCombos) {
+      LOG(ERROR) << "testPartyMember1.spriteLayout expected weaponCombos" << LOG_ENDL;
+      ok = false;
+    }
 
     bmin::Map<bmin::String, model::CharacterTemplate> backcompatCharacters;
     db::loadCharacterTemplates("__test__/assets/characters-backcompat.json",

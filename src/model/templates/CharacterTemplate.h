@@ -29,6 +29,17 @@ enum class CombatBehaviorName {
   SEEK_AND_MELEE,
 };
 
+/** Sprite frame layout on the character's spritesheet. */
+enum class CharacterSpriteLayout {
+  /** Idle + attack at spriteOffset / spriteOffset+1 (default). */
+  Default,
+  /** Weapon-combo layout (regular + reserved, singles, duals). */
+  WeaponCombos,
+};
+
+CharacterSpriteLayout characterSpriteLayoutFromString(const bmin::String& value);
+bmin::String getStringFromCharacterSpriteLayout(CharacterSpriteLayout layout);
+
 struct CharacterTemplateTalk {
   bmin::String talkName;
   bmin::String portraitName;
@@ -69,6 +80,7 @@ struct CharacterTemplate {
   bmin::String label;
   bmin::String spritesheetName;
   bmin::String spriteOffset;
+  CharacterSpriteLayout spriteLayout = CharacterSpriteLayout::Default;
   CharacterTemplateTalk talk;
   CharacterTemplateBehavior behavior;
   CharacterStats stats;

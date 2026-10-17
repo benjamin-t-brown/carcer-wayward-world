@@ -75,6 +75,13 @@ void setupTestParty(model::Player& player, db::Database& database) {
     model::CharacterPlayer member(
         database.getCharacterTemplate(TEST_PARTY_TEMPLATE_NAMES[i]));
 
+    // First party member uses the pc weapon-combo spritesheet.
+    if (i == 0) {
+      member.params.spritesheetName = "pc";
+      member.params.spriteOffset = "0";
+      member.params.spriteLayout = model::CharacterSpriteLayout::WeaponCombos;
+    }
+
     for (const auto& itemName : PARTY_MEMBER_ITEMS[i]) {
       model::characterPlayerAddItemToInventory(
           member, database.getItemTemplate(bmin::toStringView(itemName)), 1);

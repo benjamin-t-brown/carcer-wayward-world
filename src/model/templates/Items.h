@@ -45,8 +45,21 @@ enum class ItemUsability {
 
 ItemUsability getItemUsabilityFromString(const bmin::String& value);
 
+/** Visual class for weapon-combo character spritesheets. */
+enum class WeaponVisual {
+  None,
+  Knife,
+  Sword,
+  Staff,
+  Spear,
+};
+
+WeaponVisual weaponVisualFromString(const bmin::String& value);
+bmin::String getStringFromWeaponVisual(WeaponVisual visual);
+
 struct ItemWeaponConfig {
   bmin::String abilityName;
+  WeaponVisual weaponVisual = WeaponVisual::None;
   bmin::DynArray<AbilityAttackDmg> dmgOverrides;
 };
 

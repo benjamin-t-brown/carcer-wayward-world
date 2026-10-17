@@ -73,8 +73,21 @@ export function isWeaponItemType(itemType: string): boolean {
   return itemType.startsWith('WEAPON');
 }
 
+/** Matches model::WeaponVisual in Items.h */
+export type WeaponVisual = 'none' | 'knife' | 'sword' | 'staff' | 'spear';
+
+export const WEAPON_VISUALS: WeaponVisual[] = [
+  'none',
+  'knife',
+  'sword',
+  'staff',
+  'spear',
+];
+
 export interface ItemWeaponConfig {
   abilityName: string;
+  /** Visual class for weapon-combo character spritesheets. */
+  weaponVisual?: WeaponVisual;
   /** Per-attack damage overrides; index matches base ability attacks[]. */
   dmgOverrides?: AbilityAttackDmg[];
   /** @deprecated migrated to dmgOverrides */
@@ -210,6 +223,7 @@ export function weaponStorageSnapshot(weapon: ItemWeaponConfig | undefined): str
   }
   return JSON.stringify({
     abilityName: weapon.abilityName,
+    weaponVisual: weapon.weaponVisual,
     dmgOverrides: weapon.dmgOverrides,
     attackIndex: weapon.attackIndex,
     dmg: weapon.dmg,
@@ -646,10 +660,14 @@ export function normalizeItemWeaponConfig(
   }
 
   const dmgOverrides = resolveItemWeaponDmgOverrides(weapon, baseAttacks);
-  return {
+  const next: ItemWeaponConfig = {
     abilityName: rest.abilityName,
     dmgOverrides: baseAttacks.length > 0 ? dmgOverrides : rest.dmgOverrides,
   };
+  if (rest.weaponVisual && rest.weaponVisual !== 'none') {
+    next.weaponVisual = rest.weaponVisual;
+  }
+  return next;
 }
 
 export interface ItemTemplate {
@@ -780,6 +798,14 @@ export const CHARACTER_TEMPLATE_TYPES: CharacterTemplateType[] = [
   'TOWNSPERSON_STATIC',
   'ENEMY',
   'ENEMY_STATIC',
+];
+
+/** Matches model::CharacterSpriteLayout in CharacterTemplate.h */
+export type CharacterSpriteLayout = 'default' | 'weaponCombos';
+
+export const CHARACTER_SPRITE_LAYOUTS: CharacterSpriteLayout[] = [
+  'default',
+  'weaponCombos',
 ];
 
 /** Matches model::CharacterTemplateBehaviorName in CharacterTemplate.h */
@@ -1072,6 +1098,8 @@ export interface CharacterTemplate {
   spritesheet: string;
   /** Integer index or string offset; game loader accepts both. */
   spriteOffset: number | string;
+  /** Opt-in weapon-combo layout; omit or default = 2-frame. */
+  spriteLayout?: CharacterSpriteLayout;
   stats?: CharacterStats;
   talk?: {
     talkName?: string;

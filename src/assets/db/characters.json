@@ -1518,8 +1518,9 @@
     "type": "TOWNSPERSON",
     "name": "testPartyMember1",
     "label": "Test Party 1",
-    "spritesheet": "actors0",
-    "spriteOffset": 2,
+    "spritesheet": "pc",
+    "spriteOffset": 0,
+    "spriteLayout": "weaponCombos",
     "talk": {
       "talkName": "",
       "portraitName": "portraitSprite"

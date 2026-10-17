@@ -129,4 +129,36 @@ ItemUsability getItemUsabilityFromString(const bmin::String& value) {
   return ItemUsability::NOT_USABLE;
 }
 
+WeaponVisual weaponVisualFromString(const bmin::String& value) {
+  if (value == "knife") {
+    return WeaponVisual::Knife;
+  }
+  if (value == "sword") {
+    return WeaponVisual::Sword;
+  }
+  if (value == "staff") {
+    return WeaponVisual::Staff;
+  }
+  if (value == "spear") {
+    return WeaponVisual::Spear;
+  }
+  return WeaponVisual::None;
+}
+
+bmin::String getStringFromWeaponVisual(WeaponVisual visual) {
+  switch (visual) {
+  case WeaponVisual::Knife:
+    return "knife";
+  case WeaponVisual::Sword:
+    return "sword";
+  case WeaponVisual::Staff:
+    return "staff";
+  case WeaponVisual::Spear:
+    return "spear";
+  case WeaponVisual::None:
+    break;
+  }
+  return "none";
+}
+
 } // namespace model

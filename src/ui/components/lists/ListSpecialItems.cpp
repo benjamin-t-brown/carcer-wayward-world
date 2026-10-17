@@ -6,7 +6,7 @@
 #include "ui/elements/TextLine.h"
 #include "ui/elements/VerticalList.h"
 #include "ui/elements/buttons/ButtonList.h"
-#include "ui/elements/buttons/ButtonModal.h"
+#include "ui/elements/buttons/ButtonSprite.h"
 #include "ui/observers/ActionObserver.hpp"
 
 namespace ui {
@@ -141,19 +141,24 @@ UiElement* ListSpecialItems::createItemElement(const ListSpecialItemsPropsItem& 
   });
   container->addChild(bmin::UniquePtr<ui::UiElement>(icon));
 
-  const int scaledContextBtnSize = contextBtnSize * style.scale;
+  constexpr int kActionIconSize = 16;
+  constexpr int kActionBtnPadding = 8;
+  const int actionBtnLogicalSize = kActionIconSize + kActionBtnPadding * 2;
+  const int scaledContextBtnSize =
+      static_cast<int>(actionBtnLogicalSize * style.scale);
   const int scaledIconWidth = static_cast<int>(iconSpriteSize * iconScale * style.scale);
   const int labelX = iconX + scaledIconWidth + labelGapAfterIcon;
+  const int rowBtnY = (rowHeight - scaledContextBtnSize) / 2;
 
-  auto contextBtn = new ButtonModal(window, this);
+  auto contextBtn = new ButtonSprite(window, this);
   contextBtn->setId("contextBtn");
-  contextBtn->setPos(rowWidth - scaledContextBtnSize,
-                     (rowHeight - scaledContextBtnSize) / 2);
-  contextBtn->setScale(1.0f);
-  contextBtn->setProps(ButtonModalProps{
-      .text = "*",
-      .width = scaledContextBtnSize,
-      .height = scaledContextBtnSize,
+  contextBtn->setPos(rowWidth - scaledContextBtnSize, rowBtnY);
+  contextBtn->setScale(style.scale);
+  contextBtn->setProps(ButtonSpriteProps{
+      .spriteName = "icons_for_buttons_0",
+      .spriteWidth = kActionIconSize,
+      .spriteHeight = kActionIconSize,
+      .padding = kActionBtnPadding,
   });
   contextBtn->addEventObserver(
       ui::makeActionObserver<state::actions::UiShowLayerSpecialItemContext>(

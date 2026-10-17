@@ -1,9 +1,12 @@
 import { useEffect } from 'react';
+import { OptionSelect } from '../elements/OptionSelect';
 import { SearchSelect } from '../elements/SearchSelect';
 import { AbilityAttackDmgFields } from './ability/AbilityFormFields';
 import { useAssets } from '../contexts/AssetsContext';
 import {
   ItemWeaponConfig,
+  WeaponVisual,
+  WEAPON_VISUALS,
   resolveItemWeaponDmgOverrides,
 } from '../types/assets';
 import { AbilityAttackDmg, mergeAbilityAttackDmg } from '../types/ability';
@@ -40,6 +43,7 @@ export function ItemWeaponFields({
     }
     onChange({
       abilityName: weapon.abilityName,
+      weaponVisual: weapon.weaponVisual,
       dmgOverrides: resolveItemWeaponDmgOverrides(weapon, attacks),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -49,6 +53,9 @@ export function ItemWeaponFields({
     const next: ItemWeaponConfig = { ...config, ...patch };
     if (patch.dmgOverrides) {
       next.dmgOverrides = patch.dmgOverrides.map((d) => mergeAbilityAttackDmg(d));
+    }
+    if (next.weaponVisual === 'none') {
+      delete next.weaponVisual;
     }
     onChange(next);
   };
@@ -62,6 +69,7 @@ export function ItemWeaponFields({
     const base = ability?.attacks ?? [];
     onChange({
       abilityName,
+      weaponVisual: config.weaponVisual,
       dmgOverrides:
         base.length > 0
           ? base.map((attack) => mergeAbilityAttackDmg(attack.dmg))
@@ -115,6 +123,21 @@ export function ItemWeaponFields({
             Edit ability
           </a>
         ) : null}
+      </div>
+      <div style={{ marginTop: '8px' }}>
+        <OptionSelect
+          id={`${idPrefix}-weapon-visual`}
+          name="weaponVisual"
+          label="Weapon Visual"
+          value={config.weaponVisual ?? 'none'}
+          onChange={(value) =>
+            setConfig({ weaponVisual: value as WeaponVisual })
+          }
+          options={WEAPON_VISUALS.map((visual) => ({
+            value: visual,
+            label: visual,
+          }))}
+        />
       </div>
       {config.abilityName && attacks.length === 0 ? (
         <p style={{ fontSize: '12px', color: '#858585', margin: '6px 0 0' }}>

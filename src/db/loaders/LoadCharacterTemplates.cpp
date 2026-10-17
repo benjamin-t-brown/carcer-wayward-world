@@ -212,6 +212,11 @@ void loadCharacterTemplates(
     characterTemplate.spritesheetName = characterJson["spritesheet"].get<bmin::String>();
     characterTemplate.spriteOffset = getSpriteOffsetAsString(characterJson);
 
+    if (characterJson.contains("spriteLayout") && characterJson["spriteLayout"].is_string()) {
+      characterTemplate.spriteLayout = model::characterSpriteLayoutFromString(
+          characterJson["spriteLayout"].get<bmin::String>());
+    }
+
     if (characterJson.contains("talk") && characterJson["talk"].is_object()) {
       const auto& talkJson = characterJson["talk"];
       if (talkJson.contains("talkName") && talkJson["talkName"].is_string()) {

@@ -34,7 +34,6 @@ private:
   static constexpr int reorderBtnWidth = 14;
   static constexpr int reorderBtnGap = 2;
   static constexpr int reorderColumnGap = 2;
-  static constexpr int contextBtnSize = 32;
 
   UiElement* createItemElement(const ListSpecialItemsPropsItem& item, int index);
 

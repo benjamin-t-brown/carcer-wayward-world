@@ -32,6 +32,17 @@ int main(int argc, char** argv) {
       LOG(ERROR) << "DaggerBronze should load dmgOverrides" << LOG_ENDL;
       return 1;
     }
+    if (daggerIt->value.weapon->weaponVisual != model::WeaponVisual::Knife) {
+      LOG(ERROR) << "DaggerBronze weapon.weaponVisual should be knife" << LOG_ENDL;
+      return 1;
+    }
+
+    const auto swordIt = itemTemplates.find(bmin::String("SwordBronze"));
+    if (swordIt == itemTemplates.end() || !swordIt->value.weapon.has_value() ||
+        swordIt->value.weapon->weaponVisual != model::WeaponVisual::Sword) {
+      LOG(ERROR) << "SwordBronze weapon.weaponVisual should be sword" << LOG_ENDL;
+      return 1;
+    }
 
     LOG(INFO) << "TestLoadItemTemplates completed successfully" << LOG_ENDL;
     return 0;

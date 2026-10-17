@@ -140,6 +140,11 @@ void loadItemTemplates(const bmin::String& itemsFilePath,
       if (weaponJson.contains("abilityName") && weaponJson["abilityName"].is_string()) {
         model::ItemWeaponConfig weapon;
         weapon.abilityName = weaponJson["abilityName"].get<bmin::String>();
+        if (weaponJson.contains("weaponVisual") &&
+            weaponJson["weaponVisual"].is_string()) {
+          weapon.weaponVisual = model::weaponVisualFromString(
+              weaponJson["weaponVisual"].get<bmin::String>());
+        }
         if (weaponJson.contains("dmgOverrides") &&
             weaponJson["dmgOverrides"].is_array()) {
           for (const auto& dmgJson : weaponJson["dmgOverrides"]) {

@@ -8,6 +8,23 @@
 
 namespace model {
 
+CharacterSpriteLayout characterSpriteLayoutFromString(const bmin::String& value) {
+  if (value == "weaponCombos") {
+    return CharacterSpriteLayout::WeaponCombos;
+  }
+  return CharacterSpriteLayout::Default;
+}
+
+bmin::String getStringFromCharacterSpriteLayout(CharacterSpriteLayout layout) {
+  switch (layout) {
+  case CharacterSpriteLayout::WeaponCombos:
+    return "weaponCombos";
+  case CharacterSpriteLayout::Default:
+    break;
+  }
+  return "default";
+}
+
 namespace {
 
 int parseSpriteOffsetIndex(const bmin::String& spriteOffset) {
