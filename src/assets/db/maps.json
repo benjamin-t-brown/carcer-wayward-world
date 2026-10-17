@@ -13981,14 +13981,16 @@
         "i": 251,
         "eventId": "alinea_sign_warehouse3",
         "requiresNonCombat": true,
-        "requiresLook": true
+        "requiresLook": true,
+        "activationSound": ""
       },
       {
         "l": 0,
         "i": 363,
         "eventId": "alinea_sign_claireOffice",
         "requiresNonCombat": true,
-        "requiresLook": true
+        "requiresLook": true,
+        "activationSound": ""
       },
       {
         "l": 0,
@@ -13996,7 +13998,8 @@
         "eventId": "TestEventModal",
         "requiresNonCombat": true,
         "requiresLook": false,
-        "overlayVisibility": "SHOW_EVENT_ON_TILE"
+        "overlayVisibility": "SHOW_EVENT_ON_TILE",
+        "activationSound": "event"
       }
     ],
     "travelTriggers": [
@@ -18881,7 +18884,7 @@
         1,
         64,
         1,
-        66,
+        64,
         1,
         64,
         1,
@@ -19534,45 +19537,14 @@
     ],
     "eventTriggers": [
       {
-        "l": 0,
-        "i": 33,
-        "eventId": "alinea_outsideAlinea2_av34bv05t8",
-        "requiresNonCombat": true,
-        "requiresLook": false,
-        "overlayVisibility": "SHOW_EVENT_ON_TILE",
-        "condition": "ISNOT(vars.alineaGotClearingCoins)"
-      },
-      {
-        "l": 0,
-        "i": 214,
-        "eventId": "alinea_outsideAlinea2_mipgmxni7ej",
-        "requiresNonCombat": true,
-        "requiresLook": false,
-        "condition": "ONCE(srfKecrKkX)"
-      },
-      {
-        "l": 0,
-        "i": 664,
-        "eventId": "alinea_outsideAlinea2_b1h009ylkqn",
-        "requiresNonCombat": true,
-        "requiresLook": true
-      },
-      {
-        "l": 0,
-        "i": 693,
-        "eventId": "alinea_outsideAlinea2_xlsk5d2uv8m",
-        "requiresNonCombat": false,
-        "requiresLook": false,
-        "condition": "ONCE(dW7ahgg89y)"
-      },
-      {
         "l": -1,
         "i": 204,
         "eventId": "alinea_outsideAlinea2_d1rhbmlxzbb",
         "requiresNonCombat": true,
         "requiresLook": false,
         "overlayVisibility": "SHOW_EVENT_ON_TILE",
-        "condition": "ONCE(AQBhvPFJov)"
+        "condition": "ONCE(AQBhvPFJov)",
+        "activationSound": "event"
       },
       {
         "l": -1,
@@ -19580,7 +19552,8 @@
         "eventId": "alinea_outsideAlinea2_y9esnf5z9xd",
         "requiresNonCombat": true,
         "requiresLook": false,
-        "overlayVisibility": "SHOW_EVENT_ON_TILE"
+        "overlayVisibility": "SHOW_EVENT_ON_TILE",
+        "activationSound": ""
       },
       {
         "l": -1,
@@ -19588,7 +19561,8 @@
         "eventId": "alinea_outsideAlinea2_e24zx9of7fd",
         "requiresNonCombat": true,
         "requiresLook": true,
-        "condition": "QUEST_STEP_EQ(que_alinea_sealOfApproval, step1)"
+        "condition": "QUEST_STEP_EQ(que_alinea_sealOfApproval, step1)",
+        "activationSound": "event"
       },
       {
         "l": -1,
@@ -19596,7 +19570,8 @@
         "eventId": "alinea_outsideAlinea2_pj01esmgtks",
         "requiresNonCombat": true,
         "requiresLook": false,
-        "condition": "ALL(ONCE(pXk9S2YfIe),QUEST_STEP_EQ(que_alinea_sealOfApproval, step2))"
+        "condition": "ALL(ONCE(pXk9S2YfIe),QUEST_STEP_EQ(que_alinea_sealOfApproval, step2))",
+        "activationSound": "event"
       },
       {
         "l": -1,
@@ -19604,21 +19579,56 @@
         "eventId": "alinea_outsideAlinea2_aacdxguzm3p",
         "requiresNonCombat": true,
         "requiresLook": false,
-        "condition": "ONCE(5K9TMn6asq)"
+        "condition": "ONCE(5K9TMn6asq)",
+        "activationSound": "event"
+      },
+      {
+        "l": 0,
+        "i": 33,
+        "eventId": "alinea_outsideAlinea2_av34bv05t8",
+        "requiresNonCombat": true,
+        "requiresLook": false,
+        "overlayVisibility": "SHOW_EVENT_ON_TILE",
+        "condition": "ISNOT(vars.alineaGotClearingCoins)",
+        "activationSound": "event"
+      },
+      {
+        "l": 0,
+        "i": 214,
+        "eventId": "alinea_outsideAlinea2_mipgmxni7ej",
+        "requiresNonCombat": true,
+        "requiresLook": false,
+        "condition": "ONCE(srfKecrKkX)",
+        "activationSound": "event"
+      },
+      {
+        "l": 0,
+        "i": 663,
+        "eventId": "alinea_outsideAlinea2_xlsk5d2uv8m",
+        "requiresNonCombat": false,
+        "requiresLook": false,
+        "condition": "ONCE(dW7ahgg89y)",
+        "activationSound": "event"
+      },
+      {
+        "l": 0,
+        "i": 664,
+        "eventId": "alinea_outsideAlinea2_b1h009ylkqn",
+        "requiresNonCombat": true,
+        "requiresLook": true,
+        "activationSound": ""
+      },
+      {
+        "l": 0,
+        "i": 693,
+        "eventId": "alinea_outsideAlinea2_xlsk5d2uv8m",
+        "requiresNonCombat": false,
+        "requiresLook": false,
+        "condition": "ONCE(dW7ahgg89y)",
+        "activationSound": "event"
       }
     ],
     "travelTriggers": [
-      {
-        "l": 0,
-        "i": 662,
-        "destinationMapName": "alinea_outsideAlinea2",
-        "destinationMarkerName": "",
-        "destinationX": 2,
-        "destinationY": 22,
-        "destinationLayer": -1,
-        "requiresAction": true,
-        "overlayVisibility": "SHOW_TRAVEL_DOWN"
-      },
       {
         "l": -1,
         "i": 662,
@@ -19629,16 +19639,20 @@
         "destinationLayer": 0,
         "requiresAction": true,
         "overlayVisibility": "SHOW_TRAVEL_UP"
+      },
+      {
+        "l": 0,
+        "i": 662,
+        "destinationMapName": "alinea_outsideAlinea2",
+        "destinationMarkerName": "",
+        "destinationX": 2,
+        "destinationY": 22,
+        "destinationLayer": -1,
+        "requiresAction": true,
+        "overlayVisibility": "SHOW_TRAVEL_DOWN"
       }
     ],
     "tileOverrides": [
-      {
-        "l": 0,
-        "i": 214,
-        "overrides": {
-          "isWalkableOverride": true
-        }
-      },
       {
         "l": -1,
         "i": 261,
@@ -19649,6 +19663,13 @@
       {
         "l": -1,
         "i": 262,
+        "overrides": {
+          "isWalkableOverride": true
+        }
+      },
+      {
+        "l": 0,
+        "i": 214,
         "overrides": {
           "isWalkableOverride": true
         }
@@ -19783,7 +19804,7 @@
         3,
         0,
         3,
-        0,
+        12,
         3,
         0,
         1,
@@ -21585,7 +21606,7 @@
         3,
         0,
         3,
-        0,
+        20,
         3,
         0,
         0,
@@ -23338,43 +23359,15 @@
     "eventTriggers": [
       {
         "l": 0,
-        "i": 218,
-        "eventId": "alinea_sign_outsideDirection",
-        "requiresNonCombat": true,
-        "requiresLook": true
-      },
-      {
-        "l": 0,
         "i": 244,
         "eventId": "alinea_sign_shopPawn",
         "requiresNonCombat": true,
-        "requiresLook": true
+        "requiresLook": true,
+        "activationSound": ""
       }
     ],
     "travelTriggers": [
       {
-        "l": 1,
-        "i": 79,
-        "destinationMapName": "alinea_outsideAlinea3",
-        "destinationMarkerName": "",
-        "destinationX": 19,
-        "destinationY": 2,
-        "destinationLayer": 0,
-        "requiresAction": true,
-        "overlayVisibility": "SHOW_TRAVEL_DOWN"
-      },
-      {
-        "l": 1,
-        "i": 616,
-        "destinationMapName": "alinea_outsideAlinea3",
-        "destinationMarkerName": "",
-        "destinationX": 16,
-        "destinationY": 20,
-        "destinationLayer": 0,
-        "requiresAction": true,
-        "overlayVisibility": "SHOW_TRAVEL_DOWN"
-      },
-      {
         "l": 0,
         "i": 79,
         "destinationMapName": "alinea_outsideAlinea3",
@@ -23395,6 +23388,28 @@
         "destinationLayer": 1,
         "requiresAction": true,
         "overlayVisibility": "SHOW_TRAVEL_UP"
+      },
+      {
+        "l": 1,
+        "i": 79,
+        "destinationMapName": "alinea_outsideAlinea3",
+        "destinationMarkerName": "",
+        "destinationX": 19,
+        "destinationY": 2,
+        "destinationLayer": 0,
+        "requiresAction": true,
+        "overlayVisibility": "SHOW_TRAVEL_DOWN"
+      },
+      {
+        "l": 1,
+        "i": 616,
+        "destinationMapName": "alinea_outsideAlinea3",
+        "destinationMarkerName": "",
+        "destinationX": 16,
+        "destinationY": 20,
+        "destinationLayer": 0,
+        "requiresAction": true,
+        "overlayVisibility": "SHOW_TRAVEL_DOWN"
       }
     ],
     "tileOverrides": [],

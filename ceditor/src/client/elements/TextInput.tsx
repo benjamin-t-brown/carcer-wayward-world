@@ -7,6 +7,7 @@ interface TextInputProps {
   value: string;
   onChange: (value: string) => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
@@ -46,6 +47,7 @@ export const TextInput: React.FC<TextInputProps> = ({
   required = false,
   disabled = false,
   onKeyDown,
+  onBlur,
   inputClassName,
 }) => {
   return (
@@ -65,6 +67,7 @@ export const TextInput: React.FC<TextInputProps> = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}
+        onBlur={onBlur}
         placeholder={placeholder}
         required={required}
         disabled={disabled}

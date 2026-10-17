@@ -10657,7 +10657,7 @@
   },
   {
     "id": "alinea_sign_claireOffice",
-    "title": "Office of Dockmaster Claire",
+    "title": "Sign",
     "eventType": "MODAL",
     "icon": "special_event_icons_0",
     "vars": [],
@@ -10813,7 +10813,7 @@
   },
   {
     "id": "alinea_sign_warehouse3",
-    "title": "Warehouse 3",
+    "title": "Sign",
     "eventType": "MODAL",
     "icon": "special_event_icons_0",
     "vars": [],

@@ -25,6 +25,8 @@ namespace {
 constexpr size_t kTestPartySize = 1;
 // constexpr size_t kTestPartySize = 6;
 
+constexpr std::string_view mapName = "alinea_outsideAlinea1";
+
 constexpr const char* TEST_PARTY_TEMPLATE_NAMES[] = {
     "testPartyMember1",
     "testPartyMember2",
@@ -66,9 +68,9 @@ void setupTestParty(model::Player& player, db::Database& database) {
   player.party.clear();
   player.currentPartyMemberIndex = 0;
 
-  const auto partySize =
-      kTestPartySize < PARTY_MEMBER_ITEMS.size() ? kTestPartySize
-                                                 : PARTY_MEMBER_ITEMS.size();
+  const auto partySize = kTestPartySize < PARTY_MEMBER_ITEMS.size()
+                             ? kTestPartySize
+                             : PARTY_MEMBER_ITEMS.size();
   for (size_t i = 0; i < partySize; ++i) {
     model::CharacterPlayer member(
         database.getCharacterTemplate(TEST_PARTY_TEMPLATE_NAMES[i]));
@@ -102,11 +104,11 @@ int main(int argc, char** argv) {
     auto& state = stateManager.getState();
     state.mapInstances = game::createMapInstances(database);
 
-    constexpr const char* mapName = "alinea_outsideAlinea2";
-    auto loadMap = state::actions::WorldLoadActiveMap(mapName);
+    // constexpr const char* mapName = "alinea_outsideAlinea2";
+    auto loadMap = state::actions::WorldLoadActiveMap(bmin::fromStringView(mapName));
     loadMap.execute(&state);
-    auto spawnPlayer =
-        state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer", mapName);
+    auto spawnPlayer = state::actions::WorldSpawnPlayerAtMarker(
+        "MarkerPlayer", bmin::fromStringView(mapName));
     spawnPlayer.execute(&state);
   }
 

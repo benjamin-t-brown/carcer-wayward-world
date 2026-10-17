@@ -17,6 +17,7 @@ import {
 
 export interface CreateModalEventResult {
   triggerId: string;
+  title: string;
   text: string;
   requiresNonCombat: boolean;
   requiresLook: boolean;
@@ -42,6 +43,7 @@ export function CreateModalEventModal({
   onCancel,
 }: CreateModalEventModalProps) {
   const [triggerId, setTriggerId] = useState('');
+  const [title, setTitle] = useState('Event');
   const [nodeText, setNodeText] = useState(DEFAULT_MODAL_NODE_TEXT);
   const [requiresNonCombat, setRequiresNonCombat] = useState(true);
   const [requiresLook, setRequiresLook] = useState(false);
@@ -58,6 +60,7 @@ export function CreateModalEventModal({
       return;
     }
     setTriggerId(suggestMapEventId(mapName, existingEventIds));
+    setTitle('Event');
     setNodeText(DEFAULT_MODAL_NODE_TEXT);
     setRequiresNonCombat(true);
     setRequiresLook(defaultRequiresLook);
@@ -83,6 +86,7 @@ export function CreateModalEventModal({
     }
     onConfirm({
       triggerId: id,
+      title: title.trim() || 'Event',
       text: nodeText,
       requiresNonCombat,
       requiresLook,
@@ -142,6 +146,15 @@ export function CreateModalEventModal({
           }}
           placeholder="e.g., alinea_outsideAlinea1_k3f9a2"
           required
+        />
+
+        <TextInput
+          id="create-modal-title"
+          name="title"
+          label="Title"
+          value={title}
+          onChange={setTitle}
+          placeholder="Shown in the in-game modal header"
         />
 
         <TextArea

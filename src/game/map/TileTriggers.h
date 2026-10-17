@@ -41,6 +41,8 @@ model::CharacterInstance* findDropCharacterOnActiveMap(model::ActiveMap& activeM
 
 struct StepTriggerResult {
   std::optional<bmin::String> specialEventId;
+  /** From the trigger when specialEventId is set; empty means no sound. */
+  bmin::String activationSound;
   std::optional<model::TravelTrigger> travel;
 };
 

@@ -4243,14 +4243,14 @@
       },
       {
         "id": 181,
-        "description": "",
+        "description": "mushrooms",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false
       },
       {
         "id": 182,
-        "description": "",
+        "description": "glowing mushrooms",
         "isWalkable": true,
         "isSeeThrough": true,
         "isDoor": false

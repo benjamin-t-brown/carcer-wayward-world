@@ -1440,6 +1440,11 @@ export interface TileEventTrigger {
   overlayVisibility?: TileOverlayVisibility;
   /** Empty or omitted means the event always runs. Otherwise an in3 condition. */
   condition?: string;
+  /**
+   * Sound played when the trigger activates (step-on or look).
+   * Default "event" when omitted from JSON. Empty string disables.
+   */
+  activationSound?: string;
 }
 
 export interface TravelTrigger {

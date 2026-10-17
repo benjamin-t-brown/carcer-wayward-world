@@ -128,8 +128,43 @@ int main(int /*argc*/, char** /*argv*/) {
     ok = assertTrue(result.specialEventId.has_value(), "event takes precedence") &&
          ok;
     ok = assertEqualStr(*result.specialEventId, "step_event", "event id") && ok;
+    ok = assertEqualStr(result.activationSound, "event",
+                        "default activationSound is event") &&
+         ok;
     ok = assertTrue(!result.travel.has_value(),
                     "travel ignored when event present") &&
+         ok;
+  }
+
+  {
+    auto map = makeMap(2, 2);
+    auto& tile = model::mapLayerAt(model::mapInstanceTiles(map), 0)[0];
+    tile.eventTrigger = model::TileEventTrigger{
+        .eventId = "silent_event",
+        .requiresLook = false,
+        .activationSound = "",
+    };
+    auto storage = bmin::Map<bmin::String, bmin::String>{};
+    const auto result = game::resolveStepTriggersAt(map, 0, 0, storage);
+    ok = assertTrue(result.specialEventId.has_value(), "silent event still queues") &&
+         ok;
+    ok = assertEqualStr(result.activationSound, "",
+                        "empty activationSound disables sound") &&
+         ok;
+  }
+
+  {
+    auto map = makeMap(2, 2);
+    auto& tile = model::mapLayerAt(model::mapInstanceTiles(map), 0)[0];
+    tile.eventTrigger = model::TileEventTrigger{
+        .eventId = "custom_snd",
+        .requiresLook = false,
+        .activationSound = "door_creak",
+    };
+    auto storage = bmin::Map<bmin::String, bmin::String>{};
+    const auto result = game::resolveStepTriggersAt(map, 0, 0, storage);
+    ok = assertEqualStr(result.activationSound, "door_creak",
+                        "custom activationSound returned") &&
          ok;
   }
 

@@ -40,6 +40,15 @@ bool assertEqual(int actual, int expected, const char* label) {
   return true;
 }
 
+bool soundsContain(const state::State& state, const char* name) {
+  for (size_t i = 0; i < state.soundsToPlay.size(); i++) {
+    if (state.soundsToPlay[i] == name) {
+      return true;
+    }
+  }
+  return false;
+}
+
 bool assertEqualStr(const bmin::String& actual,
                     const bmin::String& expected,
                     const char* label) {
@@ -155,11 +164,38 @@ int main(int /*argc*/, char** /*argv*/) {
                           "look event id") &&
            ok;
     }
+    ok = assertTrue(soundsContain(state, "event"),
+                    "look trigger plays default activationSound") &&
+         ok;
     ok = assertTrue(state.world.actionMode == model::WorldActionMode::NONE,
                     "examine mode cleared after look trigger") &&
          ok;
     ok = assertFalse(state.world.actionAimTile.has_value(),
                      "aim cleared after look trigger") &&
+         ok;
+  }
+
+  {
+    auto& state = stateManager.getState();
+    state = state::State{};
+    setupState(database, state);
+    state.world.actionMode = model::WorldActionMode::EXAMINE;
+    state.world.actionAimTile = model::TileXY{3, 2};
+
+    auto& tile = model::mapLayerAt(model::mapInstanceTiles(mapOf(state)), 0)[3 + 2 * 5];
+    tile.eventTrigger = model::TileEventTrigger{
+        .eventId = "silent_look",
+        .requiresLook = true,
+        .activationSound = "",
+    };
+
+    state::actions::WorldExamineAt silentLook(3, 2);
+    silentLook.execute(&state);
+    ok = assertTrue(state.triggers.pendingSpecialEventId.has_value(),
+                    "silent look still queues event") &&
+         ok;
+    ok = assertTrue(state.soundsToPlay.empty(),
+                    "empty activationSound plays nothing on look") &&
          ok;
   }
 

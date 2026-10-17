@@ -144,6 +144,10 @@ int main(int argc, char** argv) {
                           "IS(opened)",
                           "eventTrigger.condition") &&
            ok;
+      ok = assertEqualStr(layer0[0].eventTrigger->activationSound,
+                          "event",
+                          "eventTrigger.activationSound default") &&
+           ok;
     }
     ok = assertTrue(layer0[0].travelTrigger.has_value(), "layer0[0].travelTrigger") && ok;
     if (layer0[0].travelTrigger) {

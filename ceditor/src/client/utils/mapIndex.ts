@@ -341,6 +341,8 @@ export const PLACEMENT_KINDS: readonly PlacementKind[] = [
       requiresLook: e.requiresLook,
       overlayVisibility: e.overlayVisibility ?? 'HIDDEN',
       ...(e.condition ? { condition: e.condition } : {}),
+      // Missing → engine default "event"; explicit "" disables.
+      activationSound: e.activationSound ?? 'event',
     }),
     fromTile: (v: TileEventTrigger) => [
       {
@@ -349,6 +351,7 @@ export const PLACEMENT_KINDS: readonly PlacementKind[] = [
         requiresLook: v.requiresLook,
         ...keepOverlayVisibility(v.overlayVisibility),
         ...(v.condition?.trim() ? { condition: v.condition.trim() } : {}),
+        activationSound: v.activationSound ?? 'event',
       },
     ],
   },

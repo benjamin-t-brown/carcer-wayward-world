@@ -13,6 +13,7 @@ namespace sdl2w { class Window; }
 #include "sdl2w/Window.h"
 #include "state/AbstractAction.hpp"
 #include "state/State.hpp"
+#include "actions/general/PlaySound.hpp"
 #include "actions/navigation/UiShowLayerCharacterExamine.hpp"
 #include "actions/navigation/UiShowLayerPickUp.hpp"
 #include <cstdlib>
@@ -67,6 +68,9 @@ class WorldExamineAt : public AbstractAction {
     if (tile && tile->eventTrigger && tile->eventTrigger->requiresLook &&
         game::tileEventShouldRun(*tile->eventTrigger, state->specialEventStorage)) {
       state->triggers.pendingSpecialEventId = tile->eventTrigger->eventId;
+      if (!tile->eventTrigger->activationSound.empty()) {
+        PlaySound(tile->eventTrigger->activationSound).execute(state);
+      }
       return;
     }
 

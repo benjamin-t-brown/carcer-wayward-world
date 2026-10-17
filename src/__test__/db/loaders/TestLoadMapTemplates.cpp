@@ -79,6 +79,9 @@ int main(int argc, char** argv) {
       ok = assertTrue(map.eventTriggers[0].condition == "IS(opened)",
                       "flat_test_map.eventTriggers[0].condition") &&
            ok;
+      ok = assertTrue(map.eventTriggers[0].activationSound == "event",
+                      "flat_test_map.eventTriggers[0].activationSound default") &&
+           ok;
     }
     ok = assertEqual(static_cast<int>(map.travelTriggers.size()), 1, "flat_test_map.travelTriggers") && ok;
     ok = assertEqual(static_cast<int>(map.doorLocks.size()), 0, "flat_test_map.doorLocks") && ok;

@@ -2,14 +2,12 @@ import { useMemo, useState } from 'react';
 import {
   CarcerMapTileTemplate,
   GameEvent,
-  TILE_OVERLAY_VISIBILITY_OPTIONS,
   TileOverlayVisibility,
   TilesetTemplate,
 } from '../../../types/assets';
 import { useAssets } from '../../../contexts/AssetsContext';
 import { isMapTileWalkable } from '../../mapTileWalkability';
 import { EventSearchInput } from './EventSearchInput';
-import { OverrideCheckbox } from './OverrideCheckbox';
 import { CreateSignModal, CreateSignModalResult } from './CreateSignModal';
 import {
   CreateModalEventModal,
@@ -19,10 +17,12 @@ import { createSignGameEvent } from './createSignGameEvent';
 import { createModalGameEvent } from './createModalGameEvent';
 import { DeleteTileEventModal } from './DeleteTileEventModal';
 import {
-  ConditionEditButton,
-  EditTileEventConditionModal,
-} from './EditTileEventConditionModal';
+  EditEventTriggerModal,
+  EditEventTriggerResult,
+} from './EditEventTriggerModal';
 import { findGameEventReferences } from '../../../utils/gameEventReferences';
+
+const DEFAULT_TRIGGER_ACTIVATION_SOUND = 'event';
 
 interface EventTriggerSectionProps {
   selectedTile: CarcerMapTileTemplate;
@@ -42,8 +42,9 @@ export function EventTriggerSection({
   const { setGameEvents, saveGameEvents, maps, characters, items } = useAssets();
   const [isCreateSignOpen, setIsCreateSignOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isConditionModalOpen, setIsConditionModalOpen] = useState(false);
+  const [isEditTriggerOpen, setIsEditTriggerOpen] = useState(false);
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
+  const [isSavingTrigger, setIsSavingTrigger] = useState(false);
   const [pendingDeleteEventId, setPendingDeleteEventId] = useState<string | null>(
     null
   );
@@ -54,6 +55,14 @@ export function EventTriggerSection({
     [gameEvents]
   );
 
+  const assignedEvent = useMemo(
+    () =>
+      gameEvents.find(
+        (event) => event.id === selectedTile.eventTrigger?.eventId
+      ),
+    [gameEvents, selectedTile.eventTrigger?.eventId]
+  );
+
   const assignEventToTile = (
     eventId: string,
     options?: {
@@ -62,6 +71,7 @@ export function EventTriggerSection({
       requiresLook?: boolean;
       overlayVisibility?: TileOverlayVisibility;
       condition?: string;
+      activationSound?: string;
     }
   ) => {
     const walkable = isMapTileWalkable(selectedTile, tilesets);
@@ -75,6 +85,8 @@ export function EventTriggerSection({
           (options?.forceRequiresLook ? true : !walkable),
         overlayVisibility: options?.overlayVisibility ?? 'HIDDEN',
         ...(condition ? { condition } : {}),
+        activationSound:
+          options?.activationSound ?? DEFAULT_TRIGGER_ACTIVATION_SOUND,
       };
     });
   };
@@ -97,7 +109,10 @@ export function EventTriggerSection({
     try {
       const savedEvents = await saveGameEvents(nextEvents);
       setGameEvents(savedEvents);
-      assignEventToTile(result.triggerId, { forceRequiresLook: true });
+      assignEventToTile(result.triggerId, {
+        forceRequiresLook: true,
+        activationSound: '',
+      });
       setIsCreateSignOpen(false);
     } catch (err) {
       console.error('Failed to save sign event:', err);
@@ -116,7 +131,11 @@ export function EventTriggerSection({
       return;
     }
 
-    const newEvent = createModalGameEvent(result.triggerId, result.text);
+    const newEvent = createModalGameEvent(
+      result.triggerId,
+      result.text,
+      result.title
+    );
     const nextEvents = [...gameEvents, newEvent].sort((a, b) =>
       a.id.localeCompare(b.id)
     );
@@ -149,6 +168,51 @@ export function EventTriggerSection({
       delete tile.eventTrigger;
     });
     setPendingDeleteEventId(null);
+    setIsEditTriggerOpen(false);
+  };
+
+  const handleSaveTrigger = async (result: EditEventTriggerResult) => {
+    if (!selectedTile.eventTrigger || isSavingTrigger) {
+      return;
+    }
+
+    setIsSavingTrigger(true);
+    try {
+      if (assignedEvent && result.title !== assignedEvent.title) {
+        const nextEvents = gameEvents.map((event) =>
+          event.id === assignedEvent.id
+            ? { ...event, title: result.title }
+            : event
+        );
+        const savedEvents = await saveGameEvents(nextEvents);
+        setGameEvents(savedEvents);
+      }
+
+      updateTile((tile) => {
+        if (!tile.eventTrigger) {
+          return;
+        }
+        tile.eventTrigger.requiresNonCombat = result.requiresNonCombat;
+        tile.eventTrigger.requiresLook = result.requiresLook;
+        tile.eventTrigger.activationSound = result.activationSound;
+        tile.eventTrigger.overlayVisibility = result.overlayVisibility;
+        if (result.condition) {
+          tile.eventTrigger.condition = result.condition;
+        } else {
+          delete tile.eventTrigger.condition;
+        }
+      });
+      setIsEditTriggerOpen(false);
+    } catch (err) {
+      console.error('Failed to save event trigger:', err);
+      alert(
+        `Failed to save event trigger: ${
+          err instanceof Error ? err.message : 'Unknown error'
+        }`
+      );
+    } finally {
+      setIsSavingTrigger(false);
+    }
   };
 
   const pendingEvent = pendingDeleteEventId
@@ -230,6 +294,22 @@ export function EventTriggerSection({
       setIsDeletingEvent(false);
     }
   };
+
+  const openSpecialEventsEditor = () => {
+    const eventId = selectedTile.eventTrigger?.eventId;
+    if (!eventId) {
+      return;
+    }
+    const url = `${window.location.origin}${
+      window.location.pathname
+    }#/editor/specialEvents?event=${encodeURIComponent(eventId)}`;
+    window.open(url, '_blank');
+  };
+
+  const triggerDisplayName =
+    assignedEvent?.title ||
+    selectedTile.eventTrigger?.eventId ||
+    'Event trigger';
 
   return (
     <div
@@ -347,92 +427,63 @@ export function EventTriggerSection({
       )}
 
       {selectedTile.eventTrigger && (
-        <>
+        <div
+          style={{
+            minWidth: 0,
+            maxWidth: '100%',
+            boxSizing: 'border-box',
+            padding: '6px 8px',
+            backgroundColor: '#1e1e1e',
+            borderRadius: '4px',
+            border: '1px solid #3e3e42',
+          }}
+        >
           <div
             style={{
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'flex-start',
+              alignItems: 'center',
               gap: '6px',
               minWidth: 0,
-              maxWidth: '100%',
-              boxSizing: 'border-box',
-              padding: '6px 8px',
-              backgroundColor: '#1e1e1e',
-              borderRadius: '4px',
-              border: '1px solid #3e3e42',
-              marginBottom: '10px',
             }}
           >
             <div style={{ flex: '1 1 0', minWidth: 0 }}>
-              {(() => {
-                const event = gameEvents.find(
-                  (e) => e.id === selectedTile.eventTrigger?.eventId
-                );
-                return (
-                  <>
-                    <div
-                      style={{
-                        color: '#ffffff',
-                        fontSize: '12px',
-                        overflowWrap: 'anywhere',
-                      }}
-                    >
-                      {event?.title || selectedTile.eventTrigger.eventId}
-                    </div>
-                    {event && (
-                      <>
-                        <div
-                          style={{
-                            color: '#858585',
-                            fontSize: '10px',
-                            marginTop: '2px',
-                            overflowWrap: 'anywhere',
-                          }}
-                        >
-                          {event.id}
-                        </div>
-                        <div
-                          style={{
-                            color: '#858585',
-                            fontSize: '10px',
-                            marginTop: '2px',
-                          }}
-                        >
-                          {event.eventType}
-                        </div>
-                        {event.eventType !== 'MODAL' && (
-                          <div
-                            style={{
-                              color: '#ff6b6b',
-                              fontSize: '10px',
-                              marginTop: '2px',
-                            }}
-                          >
-                            ⚠️ Only MODAL events are allowed
-                          </div>
-                        )}
-                      </>
-                    )}
-                    {!event && (
-                      <div
-                        style={{
-                          color: '#ff6b6b',
-                          fontSize: '10px',
-                          marginTop: '2px',
-                        }}
-                      >
-                        Event not found
-                      </div>
-                    )}
-                  </>
-                );
-              })()}
+              <div
+                style={{
+                  color: '#ffffff',
+                  fontSize: '12px',
+                  overflowWrap: 'anywhere',
+                }}
+                title={selectedTile.eventTrigger.eventId}
+              >
+                {triggerDisplayName}
+              </div>
+              {!assignedEvent && (
+                <div
+                  style={{
+                    color: '#ff6b6b',
+                    fontSize: '10px',
+                    marginTop: '2px',
+                  }}
+                >
+                  Event not found
+                </div>
+              )}
+              {assignedEvent && assignedEvent.eventType !== 'MODAL' && (
+                <div
+                  style={{
+                    color: '#ff6b6b',
+                    fontSize: '10px',
+                    marginTop: '2px',
+                  }}
+                >
+                  ⚠️ Only MODAL events are allowed
+                </div>
+              )}
             </div>
             <div
               style={{
                 display: 'flex',
-                flexDirection: 'column',
                 gap: '4px',
                 alignItems: 'center',
                 flexShrink: 0,
@@ -441,15 +492,7 @@ export function EventTriggerSection({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  const eventId = selectedTile.eventTrigger?.eventId;
-                  if (eventId) {
-                    const url = `${window.location.origin}${
-                      window.location.pathname
-                    }#/editor/specialEvents?event=${encodeURIComponent(
-                      eventId
-                    )}`;
-                    window.open(url, '_blank');
-                  }
+                  openSpecialEventsEditor();
                 }}
                 style={{
                   padding: '4px 6px',
@@ -472,6 +515,28 @@ export function EventTriggerSection({
                 title="Edit event in new tab"
               >
                 🔗
+              </button>
+              <button
+                onClick={() => setIsEditTriggerOpen(true)}
+                style={{
+                  padding: '4px 8px',
+                  border: '1px solid #3e3e42',
+                  backgroundColor: '#3e3e42',
+                  color: '#ffffff',
+                  cursor: 'pointer',
+                  fontSize: '11px',
+                  borderRadius: '4px',
+                  transition: 'background-color 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#4a4a4a';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#3e3e42';
+                }}
+                title="Edit trigger settings"
+              >
+                Edit
               </button>
               <button
                 onClick={() => {
@@ -517,96 +582,23 @@ export function EventTriggerSection({
               </button>
             </div>
           </div>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '8px',
-            }}
-          >
-            <OverrideCheckbox
-              value={selectedTile.eventTrigger.requiresNonCombat ?? true}
-              label="Requires Non Combat"
-              onChange={(newValue) => {
-                updateTile((tile) => {
-                  if (tile.eventTrigger) {
-                    tile.eventTrigger.requiresNonCombat = newValue;
-                  }
-                });
+          {selectedTile.eventTrigger.condition?.trim() ? (
+            <div
+              style={{
+                color: '#858585',
+                fontSize: '10px',
+                marginTop: '6px',
+                paddingTop: '6px',
+                borderTop: '1px solid #3e3e42',
+                overflowWrap: 'anywhere',
+                width: '100%',
               }}
-            />
-            <OverrideCheckbox
-              value={selectedTile.eventTrigger.requiresLook ?? false}
-              label="Requires Look"
-              onChange={(newValue) => {
-                updateTile((tile) => {
-                  if (tile.eventTrigger) {
-                    tile.eventTrigger.requiresLook = newValue;
-                  }
-                });
-              }}
-            />
-            <div>
-              <div
-                style={{
-                  color: '#858585',
-                  fontSize: '10px',
-                  textTransform: 'uppercase',
-                  fontWeight: 'bold',
-                  marginBottom: '4px',
-                }}
-              >
-                Condition
-              </div>
-              <ConditionEditButton
-                condition={selectedTile.eventTrigger.condition ?? ''}
-                onClick={() => setIsConditionModalOpen(true)}
-              />
+              title={selectedTile.eventTrigger.condition}
+            >
+              {selectedTile.eventTrigger.condition}
             </div>
-            <div>
-              <label
-                style={{
-                  color: '#858585',
-                  fontSize: '10px',
-                  textTransform: 'uppercase',
-                  fontWeight: 'bold',
-                  display: 'block',
-                  marginBottom: '4px',
-                }}
-              >
-                Tile Overlay Visibility
-              </label>
-              <select
-                value={
-                  selectedTile.eventTrigger.overlayVisibility ?? 'HIDDEN'
-                }
-                onChange={(e) => {
-                  const value = e.target.value as TileOverlayVisibility;
-                  updateTile((tile) => {
-                    if (tile.eventTrigger) {
-                      tile.eventTrigger.overlayVisibility = value;
-                    }
-                  });
-                }}
-                style={{
-                  width: '100%',
-                  padding: '4px 6px',
-                  border: '1px solid #3e3e42',
-                  backgroundColor: '#1e1e1e',
-                  color: '#ffffff',
-                  fontSize: '12px',
-                  borderRadius: '4px',
-                }}
-              >
-                {TILE_OVERLAY_VISIBILITY_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </>
+          ) : null}
+        </div>
       )}
 
       <CreateSignModal
@@ -632,29 +624,21 @@ export function EventTriggerSection({
           }
         }}
       />
-      <EditTileEventConditionModal
-        isOpen={isConditionModalOpen}
-        condition={selectedTile.eventTrigger?.condition ?? ''}
-        gameEvent={
-          gameEvents.find(
-            (event) => event.id === selectedTile.eventTrigger?.eventId
-          ) ?? null
-        }
-        onConfirm={(condition) => {
-          updateTile((tile) => {
-            if (!tile.eventTrigger) {
-              return;
+      {selectedTile.eventTrigger && (
+        <EditEventTriggerModal
+          isOpen={isEditTriggerOpen}
+          trigger={selectedTile.eventTrigger}
+          eventTitle={assignedEvent?.title ?? selectedTile.eventTrigger.eventId}
+          gameEvent={assignedEvent ?? null}
+          isSaving={isSavingTrigger}
+          onSave={handleSaveTrigger}
+          onCancel={() => {
+            if (!isSavingTrigger) {
+              setIsEditTriggerOpen(false);
             }
-            if (condition) {
-              tile.eventTrigger.condition = condition;
-            } else {
-              delete tile.eventTrigger.condition;
-            }
-          });
-          setIsConditionModalOpen(false);
-        }}
-        onCancel={() => setIsConditionModalOpen(false)}
-      />
+          }}
+        />
+      )}
       <DeleteTileEventModal
         isOpen={pendingDeleteEventId !== null}
         eventId={pendingDeleteEventId ?? ''}

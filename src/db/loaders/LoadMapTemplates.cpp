@@ -151,6 +151,8 @@ model::CarcerMapTemplate parseFlatMap(const Json& mapJson) {
       placement.overlayVisibility = model::getTileOverlayVisibilityFromString(
           entry.value("overlayVisibility", bmin::String("HIDDEN")));
       placement.condition = entry.value("condition", bmin::String());
+      // Missing key keeps the historical default; explicit "" disables.
+      placement.activationSound = entry.value("activationSound", bmin::String("event"));
       mapTemplate.eventTriggers.pushBack(std::move(placement));
     }
   }

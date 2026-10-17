@@ -79,6 +79,7 @@ MapInstance createMapInstanceFromTemplate(const CarcerMapTemplate& mapTemplate) 
         .requiresLook = et.requiresLook,
         .overlayVisibility = et.overlayVisibility,
         .condition = et.condition,
+        .activationSound = et.activationSound,
     };
   }
 

@@ -7,15 +7,20 @@ import { randomId } from '../../../utils/mathUtils';
 
 export const DEFAULT_MODAL_NODE_TEXT = 'This is the default text.';
 
-export function createModalGameEvent(id: string, text: string): GameEvent {
+export function createModalGameEvent(
+  id: string,
+  text: string,
+  title = 'Event'
+): GameEvent {
   const trimmed = id.trim();
   const textId = randomId();
   const endId = randomId();
   const textHeight = text.length > 80 || text.includes('\n') ? 88 : 50;
+  const trimmedTitle = title.trim() || 'Event';
 
   return {
     id: trimmed,
-    title: 'Event',
+    title: trimmedTitle,
     eventType: 'MODAL',
     icon: 'special_event_icons_0',
     vars: [],

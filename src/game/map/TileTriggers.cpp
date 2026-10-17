@@ -179,6 +179,7 @@ StepTriggerResult resolveStepTriggersAt(const model::MapInstance& map,
   if (tile->eventTrigger && !tile->eventTrigger->requiresLook &&
       tileEventShouldRun(*tile->eventTrigger, storage)) {
     result.specialEventId = tile->eventTrigger->eventId;
+    result.activationSound = tile->eventTrigger->activationSound;
     return result;
   }
 

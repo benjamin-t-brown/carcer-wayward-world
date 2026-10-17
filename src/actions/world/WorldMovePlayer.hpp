@@ -169,8 +169,8 @@ class WorldMovePlayer : public AbstractAction {
             *destMap, destLocal.x, destLocal.y, state->specialEventStorage);
     state->triggers.pendingSpecialEventId = triggerResult.specialEventId;
     state->triggers.pendingTravel = triggerResult.travel;
-    if (triggerResult.specialEventId) {
-      PlaySound("event").execute(state);
+    if (triggerResult.specialEventId && !triggerResult.activationSound.empty()) {
+      PlaySound(triggerResult.activationSound).execute(state);
     }
     game::updateActiveMapVisibilityFromPlayer(
         world, state->mapInstances, destX, destY, *database);

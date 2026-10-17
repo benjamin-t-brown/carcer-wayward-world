@@ -41,6 +41,11 @@ struct TileEventTrigger {
   TileOverlayVisibility overlayVisibility = TileOverlayVisibility::HIDDEN;
   /** Empty means the event always runs. Otherwise an in3 condition (IS, ISNOT, ALL, ANY, …). */
   bmin::String condition;
+  /**
+   * Sound played when the trigger activates (step-on or look). Default "event".
+   * Empty string disables the activation sound.
+   */
+  bmin::String activationSound = "event";
 };
 
 struct TravelTrigger {
