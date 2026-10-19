@@ -52,7 +52,7 @@ cd src
 make
 ```
 
-Carcer is a conventional C++23 header/source project. It relies on two external libs built from source on github both published by myself.
+Carcer is a conventional C++23 header/source project. It relies on two external libs built from source on github both published in the same github account.
   - SDL2W is a wrapper for SDL2 that helps with some windowing/sprite drawing/animation game dev stuff.  It also handles asset loading
   - BMIN is a cpp std library replacement, built to improve upon the standard library for these simple game development purposes.  It's primary function is to compile faster than stl equivalents but provide the same, if better functionality (opinionated).  SDL2W depends on this lib.
 
