@@ -52,16 +52,16 @@ class PerformMeleeAttack : public AbstractAction {
     playSoundIfNamed(depiction.startSound);
 
     const auto abilityBonus = attack.dmg.has_value() ? attack.dmg->attackBonus : 0;
-    const auto mastery = game::weaponMasteryBonus(attackerStats, attack, unarmed);
-    const auto attackBonus = abilityBonus + mastery;
+    const auto attackBonus =
+        game::meleeAttackToHitBonus(attackerStats, attack, unarmed);
     LOG(DEBUG) << "PerformMeleeAttack: "
                << model::formatCharacterLogLabel(state->world.activeMap, attackerId)
                << " vs "
                << model::formatCharacterLogLabel(state->world.activeMap, victimId)
                << " ability=" << abilityName
                << (applyOffHandPenalty ? " off-hand" : " main-hand")
-               << " unarmed=" << unarmed << " mastery=" << mastery
-               << " abilityBonus=" << abilityBonus << LOG_ENDL;
+               << " unarmed=" << unarmed << " abilityBonus=" << abilityBonus
+               << " attackBonus=" << attackBonus << LOG_ENDL;
     const auto hit = game::rollMeleeAttackHit(
         attack.attackClass, attackBonus, targetArmorClass, applyOffHandPenalty);
     auto damage = int{0};
@@ -78,14 +78,14 @@ class PerformMeleeAttack : public AbstractAction {
                                               bmin::toString(damage),
                                               victimX,
                                               victimY,
-                                              kDamageParticleLifetimeMs,
+                                              scaledDelayMs(kDamageParticleLifetimeMs),
                                               depiction.dmgTextColor),
                      0);
       }
-      insertAction(nullptr, kHitRecoverDelayMs);
+      insertAction(nullptr, scaledDelayMs(kHitRecoverDelayMs));
     } else {
       insertAction(state::makeAction<PlaySound>("miss"), 0);
-      insertAction(nullptr, kMissRecoverDelayMs);
+      insertAction(nullptr, scaledDelayMs(kMissRecoverDelayMs));
     }
     insertAction(state::makeAction<CharacterSetSpriteIndexOffset>(attackerId, 0), 0);
     return damage;
@@ -177,7 +177,7 @@ class PerformMeleeAttack : public AbstractAction {
       remainingHp -= performHand(
           resolved[i], dualWield, *attackerStats, targetArmorClass, victimX, victimY);
       if (i + 1 < resolved.size() && remainingHp > 0) {
-        insertAction(nullptr, kInterHandDelayMs);
+        insertAction(nullptr, scaledDelayMs(kInterHandDelayMs));
       }
     }
   }

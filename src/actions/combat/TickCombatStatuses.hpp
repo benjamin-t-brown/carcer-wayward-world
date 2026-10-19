@@ -34,9 +34,10 @@ class TickCombatStatuses : public AbstractAction {
       game::collectTurnStartStatusAbilities(*character, *database, abilityNames);
       LOG(DEBUG) << "TickCombatStatuses: " << characterId << " actions="
                  << static_cast<int>(abilityNames.size()) << LOG_ENDL;
+      const auto staggerMs = scaledDelayMs(50);
       for (size_t i = 0; i < abilityNames.size(); i++) {
         insertAction(state::makeAction<PerformStatusAbility>(characterId, abilityNames[i]),
-                     static_cast<int>(i) * 50);
+                     static_cast<int>(i) * staggerMs);
       }
     }
     // Status ticks (and their depictions) finish before the unit can act.

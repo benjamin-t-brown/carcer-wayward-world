@@ -30,7 +30,8 @@ class StartCombat : public AbstractAction {
     LOG(INFO) << "StartCombat: starting combat on grid " << world.activeMap.gridId
               << LOG_ENDL;
     state->turnMode = model::TurnMode::TURN_COMBAT;
-    game::addPartyMembersToCombatMap(world, state->player, *database);
+    game::addPartyMembersToCombatMap(
+        world, state->player, state->mapInstances, *database);
     game::updateActiveMapVisibilityFromParty(
         world, state->mapInstances, state->player, *database);
     if (game::updateAgitation(world, state->mapInstances, state->player, *database)) {

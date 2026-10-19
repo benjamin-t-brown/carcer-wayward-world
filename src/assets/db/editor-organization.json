@@ -1,4 +1,79 @@
 {
+  "characterTemplates": {
+    "folders": [
+      {
+        "id": "alinea",
+        "name": "alinea",
+        "children": []
+      }
+    ],
+    "placements": {
+      "alinea_Ainsley": "alinea",
+      "alinea_Anthimos": "alinea",
+      "alinea_Barto": "alinea",
+      "alinea_Chem": "alinea",
+      "alinea_Claire": "alinea",
+      "alinea_Elvyosa": "alinea",
+      "alinea_Gruff": "alinea",
+      "alinea_Idoreo": "alinea",
+      "alinea_Igmund": "alinea",
+      "alinea_Lukili": "alinea",
+      "alinea_Mullen": "alinea",
+      "alinea_realmGuardSpearImmobile": "alinea",
+      "alinea_realmGuardSpearRandom": "alinea",
+      "alinea_realmGuardSwordImmobile": "alinea",
+      "alinea_realmGuardSwordRandom": "alinea",
+      "alinea_Scopey": "alinea",
+      "alinea_Sharon": "alinea",
+      "alinea_Shovan": "alinea",
+      "alinea_Sol": "alinea"
+    }
+  },
+  "itemTemplates": {
+    "folders": [
+      {
+        "id": "equipable",
+        "name": "equipable",
+        "children": []
+      },
+      {
+        "id": "potions-and-scrolls",
+        "name": "potions-and-scrolls",
+        "children": []
+      },
+      {
+        "id": "quest",
+        "name": "quest",
+        "children": []
+      }
+    ],
+    "placements": {
+      "AlineaCorrespondence1": "quest",
+      "AlineaCorrespondence2": "quest",
+      "ArrowsIron": "equipable",
+      "ArrowsStone": "equipable",
+      "AxeBronze": "equipable",
+      "BeerGuildimarcheAle": "potions-and-scrolls",
+      "BeerPappysLager": "potions-and-scrolls",
+      "BootsLeather": "equipable",
+      "DaggerBronze": "equipable",
+      "DaggerSharp": "equipable",
+      "GlovesLeather": "equipable",
+      "HatLeather": "equipable",
+      "LongbowOak": "equipable",
+      "MysteriousPurpleCloak": "quest",
+      "NecklaceSilver": "equipable",
+      "PantsSimple0": "equipable",
+      "PotionHealing": "potions-and-scrolls",
+      "que_alinea_RealmSeal": "quest",
+      "que_realmShedKey": "quest",
+      "ShirtSimple0": "equipable",
+      "ShirtSimple1": "equipable",
+      "ShortSwordBronze": "equipable",
+      "SpearBronze": "equipable",
+      "SwordBronze": "equipable"
+    }
+  },
   "specialEvents": {
     "folders": [
       {
@@ -50,79 +125,6 @@
       "alinea_sign_warehouse9": "alinea",
       "alinea_sol": "alinea",
       "alinea_start": "alinea"
-    }
-  },
-  "itemTemplates": {
-    "folders": [
-      {
-        "id": "equipable",
-        "name": "equipable",
-        "children": []
-      },
-      {
-        "id": "potions-and-scrolls",
-        "name": "potions-and-scrolls",
-        "children": []
-      },
-      {
-        "id": "quest",
-        "name": "quest",
-        "children": []
-      }
-    ],
-    "placements": {
-      "AlineaCorrespondence1": "quest",
-      "AlineaCorrespondence2": "quest",
-      "ArrowsIron": "equipable",
-      "ArrowsStone": "equipable",
-      "BeerGuildimarcheAle": "potions-and-scrolls",
-      "BeerPappysLager": "potions-and-scrolls",
-      "BootsLeather": "equipable",
-      "DaggerBronze": "equipable",
-      "GlovesLeather": "equipable",
-      "HatLeather": "equipable",
-      "LongbowOak": "equipable",
-      "MysteriousPurpleCloak": "quest",
-      "NecklaceSilver": "equipable",
-      "PantsSimple0": "equipable",
-      "PotionHealing": "potions-and-scrolls",
-      "que_alinea_RealmSeal": "quest",
-      "que_realmShedKey": "quest",
-      "SharpDagger": "equipable",
-      "ShirtSimple0": "equipable",
-      "ShirtSimple1": "equipable",
-      "ShortSwordBronze": "equipable",
-      "SwordBronze": "equipable"
-    }
-  },
-  "characterTemplates": {
-    "folders": [
-      {
-        "id": "alinea",
-        "name": "alinea",
-        "children": []
-      }
-    ],
-    "placements": {
-      "alinea_Ainsley": "alinea",
-      "alinea_Anthimos": "alinea",
-      "alinea_Barto": "alinea",
-      "alinea_Chem": "alinea",
-      "alinea_Claire": "alinea",
-      "alinea_Elvyosa": "alinea",
-      "alinea_Gruff": "alinea",
-      "alinea_Idoreo": "alinea",
-      "alinea_Igmund": "alinea",
-      "alinea_Lukili": "alinea",
-      "alinea_Mullen": "alinea",
-      "alinea_realmGuardSpearImmobile": "alinea",
-      "alinea_realmGuardSpearRandom": "alinea",
-      "alinea_realmGuardSwordImmobile": "alinea",
-      "alinea_realmGuardSwordRandom": "alinea",
-      "alinea_Scopey": "alinea",
-      "alinea_Sharon": "alinea",
-      "alinea_Shovan": "alinea",
-      "alinea_Sol": "alinea"
     }
   }
 }

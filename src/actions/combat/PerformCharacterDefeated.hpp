@@ -50,7 +50,8 @@ class PerformCharacterDefeated : public AbstractAction {
     }
 
     insertAction(state::makeAction<PlaySound>(deathSoundName), 0);
-    insertAction(state::makeAction<RemoveCharacterFromMap>(characterId), 300);
+    insertAction(state::makeAction<RemoveCharacterFromMap>(characterId),
+                 scaledDelayMs(300));
   }
 
 public:

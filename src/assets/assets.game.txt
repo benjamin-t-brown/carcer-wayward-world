@@ -240,11 +240,16 @@ Sound,hit_shock,assets/snd/hit_shock
 Sound,hit_metal1,assets/snd/hit_metal1,1,https://www.zedge.net/notification-sounds/4d047cc7-4130-435f-b4ff-403928418b4e
 Sound,hit_metal2,assets/snd/hit_metal2,1,https://www.zedge.net/notification-sounds/c735932f-bf7c-43cd-9330-2e6e041787dd
 Sound,hit_metal3,assets/snd/hit_metal3,1,https://freesound.org/people/davilcol/sounds/404081/
+Sound,hit_metal4,assets/snd/hit_metal4,1,https://freesound.org/people/qubodup/sounds/442769/
+Sound,hit_metal5,assets/snd/hit_metal5,1,https://freesound.org/people/Timbre/sounds/103219/
 Sound,hit_arrow,assets/snd/hit_arrow
 Sound,hit_fireball,assets/snd/hit_fireball,1,maelstrom
 Sound,hit_energy,assets/snd/spell_energy,0.8,zzfx
 Sound,hit_claw1,assets/snd/claw1,1,https://freesound.org/people/Ali_6868/sounds/384880/
 Sound,hit_claw2,assets/snd/claw2,1,https://freesound.org/people/Ali_6868/sounds/384880/
+Sound,hit_flesh,assets/snd/hit_flesh,1,https://freesound.org/people/Rob_Marion/sounds/541990/
+Sound,hit_knock,assets/snd/hit_knock,1,https://freesound.org/people/marb7e/sounds/620355/
+Sound,hit_spear,assets/snd/hit_spear,1,https://freesound.org/people/BBoz87/sounds/816450/
 
 Sound,spell_cure,assets/snd/spell_cure,1,https://freesound.org/people/cormi/sounds/98473/
 Sound,spell_haste,assets/snd/spell_haste,0.3,zzfx

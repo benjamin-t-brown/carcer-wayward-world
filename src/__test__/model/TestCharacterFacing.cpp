@@ -41,11 +41,20 @@ int main(int /*argc*/, char** /*argv*/) {
     auto character = model::CharacterInstance{};
     ok = assertTrue(character.facing == model::CharacterFacing::Right, "default facing right") &&
          ok;
+    ok = assertTrue(character.lastMoveDx == 1 && character.lastMoveDy == 0,
+                    "default last move east") &&
+         ok;
     model::updateCharacterFacingFromMove(character, 0, 1);
     ok = assertTrue(character.facing == model::CharacterFacing::Left, "update facing from move") &&
          ok;
+    ok = assertTrue(character.lastMoveDx == 0 && character.lastMoveDy == 1,
+                    "update last move from move") &&
+         ok;
     model::updateCharacterFacingFromMove(character, 0, 0);
     ok = assertTrue(character.facing == model::CharacterFacing::Left, "zero delta keeps facing") &&
+         ok;
+    ok = assertTrue(character.lastMoveDx == 0 && character.lastMoveDy == 1,
+                    "zero delta keeps last move") &&
          ok;
   }
 

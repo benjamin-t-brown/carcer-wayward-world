@@ -17,7 +17,7 @@ CharacterDerivedStats computeCharacterDerivedStats(const CharacterStats& stats,
   derived.attackHitChancePercent = 50;
   derived.abilityPower = trainable.magic.abilityPower;
   derived.damageReduction = trainable.body.dr;
-  derived.armorClass = 10;
+  derived.armorClass = 10 + generic.agi;
   derived.spellPotency = 1;
   derived.maxMana = 10 + trainable.magic.mana + skills.focus * 4;
   derived.jumpDistance = 2;

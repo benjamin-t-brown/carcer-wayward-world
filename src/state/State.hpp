@@ -9,6 +9,7 @@
 #include "model/templates/UtilityTypes.h"
 #include "state/Triggers.hpp"
 #include "state/LayerRequest.h"
+#include <cmath>
 #include <cstdint>
 
 namespace state {
@@ -16,7 +17,22 @@ namespace state {
 struct UserSettings {
   int fontScale = 0;
   int floatingNotificationDurationMs = 3000;
+  /** Scales attack/FX presentation waits. 0.5 = faster, 2 = slower. */
+  float actionDelayMult = 1.f;
 };
+
+/** Apply UserSettings::actionDelayMult to a base delay/lifetime in ms. */
+inline int scaleActionDelayMs(int baseMs, float mult) {
+  if (baseMs <= 0) {
+    return 0;
+  }
+  if (mult <= 0.f) {
+    return 0;
+  }
+  const auto scaled =
+      static_cast<int>(std::lround(static_cast<double>(baseMs) * static_cast<double>(mult)));
+  return scaled < 0 ? 0 : scaled;
+}
 
 enum class UiFloatingNotificationType {
   INFO,

@@ -33,6 +33,10 @@ int weaponMasteryBonus(const model::CharacterStats& stats,
                        const model::AbilityAttack& attack,
                        bool unarmed);
 
+int meleeAttackToHitBonus(const model::CharacterStats& stats,
+                          const model::AbilityAttack& attack,
+                          bool unarmed);
+
 int meleeTargetArmorClass(const model::CharacterStats& defenderStats);
 
 bool meleeAttackHits(int d20Roll, int attackBonus, int targetArmorClass);

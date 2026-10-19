@@ -67,9 +67,10 @@ class PerformSpellCast : public AbstractAction {
     insertAction(state::makeAction<CharacterSetSpriteIndexOffset>(casterId, 1), 0);
     playSoundIfNamed(depiction.startSound);
 
-    int delayMs = 300;
+    int delayMs = scaledDelayMs(300);
     if (depiction.projectileType != model::ProjectileType::PROJECTILE_NONE) {
-      delayMs = game::getProjectileTravelDurationMs(depiction.projectilePath);
+      delayMs =
+          scaledDelayMs(game::getProjectileTravelDurationMs(depiction.projectilePath));
       auto animBase = model::projectileTypeToAnimBase(depiction.projectileType);
       if (!animBase.empty()) {
         if (model::projectileTypeHasFacing(depiction.projectileType)) {
@@ -89,13 +90,15 @@ class PerformSpellCast : public AbstractAction {
 
     insertAction(nullptr, delayMs);
 
-    const int damageParticleLifetimeMs = 500;
+    const int damageParticleLifetimeMs = scaledDelayMs(500);
+    const int targetStaggerMs = scaledDelayMs(50);
     auto spawnedSpellParticle = false;
     for (size_t i = 0; i < targets.size(); i++) {
       auto* ch = targets[i];
       const auto hpDelta = hpDeltaToCharacters[i];
       if (hpDelta != 0) {
-        insertAction(state::makeAction<ModifyHP>(ch->id, hpDelta), i * 50);
+        insertAction(state::makeAction<ModifyHP>(ch->id, hpDelta),
+                     static_cast<int>(i) * targetStaggerMs);
       }
       if (hpDelta != 0 && !depiction.dmgAnim.empty()) {
         const auto particleText =
@@ -106,7 +109,7 @@ class PerformSpellCast : public AbstractAction {
                                                   ch->y,
                                                   damageParticleLifetimeMs,
                                                   depiction.dmgTextColor),
-                     i * 50);
+                     static_cast<int>(i) * targetStaggerMs);
         spawnedSpellParticle = true;
       }
     }
@@ -141,7 +144,7 @@ class PerformSpellCast : public AbstractAction {
                                            onAppliedAbilities);
         for (size_t a = 0; a < onAppliedAbilities.size(); a++) {
           insertAction(state::makeAction<PerformStatusAbility>(ch->id, onAppliedAbilities[a]),
-                       static_cast<int>(i * 50 + a * 50));
+                       static_cast<int>(i + a) * targetStaggerMs);
         }
       }
     }

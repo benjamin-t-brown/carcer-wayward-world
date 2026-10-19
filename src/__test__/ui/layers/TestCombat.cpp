@@ -11,6 +11,7 @@
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/CharacterConstruction.h"
 #include "game/map/MapPersistence.h"
+#include "game/map/TileTriggers.h"
 #include "layers/LayerManager.h"
 #include "layers/ui/LayerWorld.h"
 #include "model/instances/CharacterInstance.hpp"
@@ -39,13 +40,54 @@ constexpr const char* TEST_PARTY_TEMPLATE_NAMES[] = {
 };
 
 const bmin::DynArray<bmin::DynArray<bmin::String>> PARTY_MEMBER_ITEMS = {
-    {"SwordBronze"},
+    {"SwordBronze", "DaggerBronze"},
     {"DaggerBronze"},
     {"DaggerBronze", "DaggerBronze"},
     {"LongbowOak"},
     {},
     {},
 };
+
+// ---------------------------------------------------------------------------
+// Stat overrides for this UI test.
+// Defaults come from characters.json (testPartyMember* / goblinTest).
+// Edit the bodies below to experiment without changing assets.
+// ---------------------------------------------------------------------------
+void applyPartyStatOverrides(model::CharacterPlayer& member, size_t index) {
+  (void)index;
+  member.stats.generic.str = 1;
+  member.stats.generic.mnd = 1;
+  member.stats.generic.con = 1;
+  member.stats.generic.agi = 1;
+  member.stats.generic.lck = 1;
+
+  member.stats.trainable.weapon.edged = 0;
+  member.stats.trainable.weapon.pole = 0;
+  member.stats.trainable.weapon.blunt = 0;
+  member.stats.trainable.weapon.range = 0;
+  member.stats.trainable.weapon.unarmed = 0;
+
+  member.stats.trainable.magic.mana = 0;
+  member.stats.trainable.magic.abilityPower = 0;
+  member.stats.trainable.magic.attunement = 0;
+  member.stats.trainable.magic.faith = 0;
+  member.stats.trainable.magic.lore = 0;
+
+  member.stats.trainable.body.resistPhysical = 0;
+  member.stats.trainable.body.resistMagical = 0;
+  member.stats.trainable.body.healingEffectiveness = 0;
+  member.stats.trainable.body.dr = 0;
+  member.stats.trainable.body.armorTraining = 0;
+}
+
+void applyEnemyStatOverrides(model::CharacterInstance& enemy, size_t index) {
+  (void)enemy;
+  (void)index;
+  // Examples:
+  // enemy.stats.generic.str = 1;
+  // enemy.stats.trainable.weapon.edged = 0;
+  // enemy.stats.trainable.body.armorTraining = 5;
+}
 
 void setupTestParty(model::Player& player, db::Database& database) {
   player.party.clear();
@@ -73,6 +115,7 @@ void setupTestParty(model::Player& player, db::Database& database) {
       member.currentMp = 10;
     }
 
+    applyPartyStatOverrides(member, i);
     player.party.pushBack(std::move(member));
   }
 }
@@ -129,6 +172,7 @@ void spawnEnemiesAtMarkers(state::State& state,
     enemy.spawnX = found.x;
     enemy.spawnY = found.y;
     game::applyCharacterTemplateFromDatabase(enemy, database);
+    applyEnemyStatOverrides(enemy, i);
     world.activeMap.characters.pushBack(std::move(enemy));
   }
 }
@@ -148,12 +192,19 @@ int main(int argc, char** argv) {
 
   {
     auto& state = stateManager.getState();
+    stateManager.getState().settings.actionDelayMult = 0.5f;
     state.mapInstances = game::createMapInstances(database);
 
     auto loadMap = state::actions::WorldLoadActiveMap("combat_test1");
     loadMap.execute(&state);
     auto spawnPlayer = state::actions::WorldSpawnPlayerAtMarker("MarkerPlayer");
     spawnPlayer.execute(&state);
+
+    // Face north so combat formation fans south behind the leader.
+    if (auto* avatar =
+            game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player)) {
+      model::updateCharacterFacingFromMove(*avatar, 0, -1);
+    }
 
     const bmin::DynArray<bmin::String> enemyTemplates = {
         "goblinTest", "goblinTest", "goblinTest", "goblinTest", "goblinTest"};

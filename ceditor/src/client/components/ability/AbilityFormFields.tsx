@@ -638,6 +638,14 @@ export function AbilityAttackDmgFields({
 
   return (
     <div className="form-fields-inline">
+      <NumberInput
+        id={`${idPrefix}-attack-bonus`}
+        name="attackBonus"
+        label="Attack Bonus"
+        value={value.attackBonus}
+        onChange={(v) => update('attackBonus', v ?? 0)}
+        disabled={!attackBonusEnabled}
+      />
       <DiceListEditor
         idPrefix={`${idPrefix}-dmg`}
         label="Dice"
@@ -659,14 +667,6 @@ export function AbilityAttackDmgFields({
         value={value.dmgStatMult}
         onChange={(v) => update('dmgStatMult', v ?? 0)}
       /> */}
-      <NumberInput
-        id={`${idPrefix}-attack-bonus`}
-        name="attackBonus"
-        label="Attack Bonus"
-        value={value.attackBonus}
-        onChange={(v) => update('attackBonus', v ?? 0)}
-        disabled={!attackBonusEnabled}
-      />
       <OptionSelect
         id={`${idPrefix}-dmg-stat`}
         name="dmgStat"

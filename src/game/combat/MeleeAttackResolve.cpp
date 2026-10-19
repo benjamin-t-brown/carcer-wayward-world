@@ -157,6 +157,17 @@ int weaponMasteryBonus(const model::CharacterStats& stats,
   }
 }
 
+int meleeAttackToHitBonus(const model::CharacterStats& stats,
+                          const model::AbilityAttack& attack,
+                          bool unarmed) {
+  const auto abilityBonus = attack.dmg.has_value() ? attack.dmg->attackBonus : 0;
+  const auto mastery = weaponMasteryBonus(stats, attack, unarmed);
+  const auto agiBonus =
+      attack.attackClass != model::AttackClass::ATTACK_CLASS_RANGED ? stats.generic.agi
+                                                                   : 0;
+  return abilityBonus + mastery + agiBonus;
+}
+
 int meleeTargetArmorClass(const model::CharacterStats& defenderStats) {
   return model::computeCharacterDerivedStats(defenderStats).armorClass;
 }
@@ -171,6 +182,41 @@ bool meleeAttackHits(int d20Roll, int attackBonus, int targetArmorClass) {
   return (d20Roll + attackBonus) >= targetArmorClass;
 }
 
+namespace {
+
+// Exact hit rate for the same d20 / adv / dis rules as rollMeleeAttackHit.
+int meleeHitChancePercent(int attackBonus,
+                          int targetArmorClass,
+                          bool rollAdvantage,
+                          bool rollDisadvantage) {
+  auto hits = 0;
+  auto total = 0;
+  if (!rollAdvantage && !rollDisadvantage) {
+    for (int r = 1; r <= 20; ++r) {
+      ++total;
+      if (meleeAttackHits(r, attackBonus, targetArmorClass)) {
+        ++hits;
+      }
+    }
+  } else {
+    for (int a = 1; a <= 20; ++a) {
+      for (int b = 1; b <= 20; ++b) {
+        const auto used = rollAdvantage ? (a > b ? a : b) : (a < b ? a : b);
+        ++total;
+        if (meleeAttackHits(used, attackBonus, targetArmorClass)) {
+          ++hits;
+        }
+      }
+    }
+  }
+  if (total <= 0) {
+    return 0;
+  }
+  return (hits * 100 + total / 2) / total;
+}
+
+} // namespace
+
 bool rollMeleeAttackHit(model::AttackClass attackClass,
                         int attackBonus,
                         int targetArmorClass,
@@ -178,37 +224,38 @@ bool rollMeleeAttackHit(model::AttackClass attackClass,
                         bool withAdvantage) {
   if (attackClass == model::AttackClass::ATTACK_CLASS_AUTO_HIT) {
     LOG(DEBUG) << "MeleeAttack: to-hit AUTO_HIT class="
-               << model::attackClassToString(attackClass) << LOG_ENDL;
+               << model::attackClassToString(attackClass) << " result=hit (100%)"
+               << LOG_ENDL;
     return true;
   }
   // Advantage + off-hand disadvantage cancel to a single d20 (5e-style).
   const auto rollAdvantage = withAdvantage && !applyOffHandPenalty;
   const auto rollDisadvantage = applyOffHandPenalty && !withAdvantage;
+  const auto hitChancePercent = meleeHitChancePercent(
+      attackBonus, targetArmorClass, rollAdvantage, rollDisadvantage);
   const auto rollA = rollDice(model::Dice::D20);
   auto usedRoll = rollA;
   if (rollAdvantage || rollDisadvantage) {
     const auto rollB = rollDice(model::Dice::D20);
     usedRoll = rollAdvantage ? (rollA > rollB ? rollA : rollB)
                              : (rollA < rollB ? rollA : rollB);
+    const auto hit = meleeAttackHits(usedRoll, attackBonus, targetArmorClass);
     LOG(DEBUG) << "MeleeAttack: to-hit d20=" << rollA << "," << rollB
                << (rollAdvantage ? " advantage=" : " disadvantage=") << usedRoll
                << " bonus=" << attackBonus << " total=" << (usedRoll + attackBonus)
                << " vs AC " << targetArmorClass
                << " class=" << model::attackClassToString(attackClass) << " result="
-               << (meleeAttackHits(usedRoll, attackBonus, targetArmorClass) ? "hit"
-                                                                            : "miss")
-               << LOG_ENDL;
-  } else {
-    LOG(DEBUG) << "MeleeAttack: to-hit d20=" << usedRoll << " bonus=" << attackBonus
-               << " total=" << (usedRoll + attackBonus) << " vs AC " << targetArmorClass
-               << " class=" << model::attackClassToString(attackClass)
-               << (withAdvantage && applyOffHandPenalty ? " (adv+dis cancel)" : "")
-               << " result="
-               << (meleeAttackHits(usedRoll, attackBonus, targetArmorClass) ? "hit"
-                                                                            : "miss")
-               << LOG_ENDL;
+               << (hit ? "hit" : "miss") << " (" << hitChancePercent << "%)" << LOG_ENDL;
+    return hit;
   }
-  return meleeAttackHits(usedRoll, attackBonus, targetArmorClass);
+  const auto hit = meleeAttackHits(usedRoll, attackBonus, targetArmorClass);
+  LOG(DEBUG) << "MeleeAttack: to-hit d20=" << usedRoll << " bonus=" << attackBonus
+             << " total=" << (usedRoll + attackBonus) << " vs AC " << targetArmorClass
+             << " class=" << model::attackClassToString(attackClass)
+             << (withAdvantage && applyOffHandPenalty ? " (adv+dis cancel)" : "")
+             << " result=" << (hit ? "hit" : "miss") << " (" << hitChancePercent << "%)"
+             << LOG_ENDL;
+  return hit;
 }
 
 } // namespace game

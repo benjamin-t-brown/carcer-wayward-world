@@ -55,6 +55,10 @@ struct CharacterInstance {
   int spriteIndexOffset = 0;
   // Default art faces right; left uses horizontal flip at render time.
   CharacterFacing facing = CharacterFacing::Right;
+  // Last non-zero move delta (tile space). Waits leave this unchanged.
+  // Default matches default facing Right.
+  int lastMoveDx = 1;
+  int lastMoveDy = 0;
   // Map AI: spotting / contagion (not persisted).
   bool agitated = false;
   // From map placement; characters with the same non-empty group agitate together.
@@ -80,6 +84,8 @@ inline bool characterInstanceIsEnemy(const CharacterInstance& character) {
 inline void updateCharacterFacingFromMove(CharacterInstance& character, int dx, int dy) {
   if (dx != 0 || dy != 0) {
     character.facing = facingFromMoveDelta(dx, dy);
+    character.lastMoveDx = dx;
+    character.lastMoveDy = dy;
   }
 }
 

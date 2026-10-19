@@ -1,5 +1,50 @@
 [
   {
+    "name": "MELEE_ATTACK_CLUB",
+    "label": "Melee Attack (Club)",
+    "description": "A basic melee attack.  Hits one time.  Meant for club.",
+    "icon": "",
+    "type": "ABILITY_ATTACK",
+    "targetSelect": {
+      "targetType": "TARGET_UNIT",
+      "allegianceSelectType": "TARGET_ALLEGIANCE_OTHER",
+      "numTargetableUnits": 1,
+      "zoneSize": {
+        "x": 1,
+        "y": 1
+      },
+      "range": 1
+    },
+    "apCost": 5,
+    "costType": "ABILITY_COST_NONE",
+    "costValue": 0,
+    "depiction": {
+      "dmgAnim": "splash_attack",
+      "projectileType": "PROJECTILE_NONE",
+      "projectilePath": "PROJECTILE_PATH_NONE",
+      "startSound": "",
+      "dmgSound": "hit_punch1",
+      "dmgTextColor": "#FFFFFF"
+    },
+    "attacks": [
+      {
+        "attackClass": "ATTACK_CLASS_MELEE",
+        "damageType": "DAMAGE_TYPE_BASHING",
+        "dmg": {
+          "dmgDice": [
+            "D6"
+          ],
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        }
+      }
+    ],
+    "statuses": [],
+    "restores": []
+  },
+  {
     "name": "MELEE_ATTACK_CROLEM",
     "label": "Melee Attack Crolem",
     "description": "A basic melee attack.  Hits one time.",
@@ -163,7 +208,7 @@
       "projectileType": "PROJECTILE_NONE",
       "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "",
-      "dmgSound": "hit_metal1",
+      "dmgSound": "hit_metal4",
       "dmgTextColor": "#FFFFFF"
     },
     "attacks": [
@@ -185,9 +230,99 @@
     "restores": []
   },
   {
+    "name": "MELEE_ATTACK_METAL_SHORT_SWORD",
+    "label": "Melee Attack (Metal Short Sword)",
+    "description": "A basic melee attack.  Hits one time.  Meant for spears.",
+    "icon": "",
+    "type": "ABILITY_ATTACK",
+    "targetSelect": {
+      "targetType": "TARGET_UNIT",
+      "allegianceSelectType": "TARGET_ALLEGIANCE_OTHER",
+      "numTargetableUnits": 1,
+      "zoneSize": {
+        "x": 1,
+        "y": 1
+      },
+      "range": 1
+    },
+    "apCost": 5,
+    "costType": "ABILITY_COST_NONE",
+    "costValue": 0,
+    "depiction": {
+      "dmgAnim": "splash_attack",
+      "projectileType": "PROJECTILE_NONE",
+      "projectilePath": "PROJECTILE_PATH_NONE",
+      "startSound": "",
+      "dmgSound": "hit_metal4",
+      "dmgTextColor": "#FFFFFF"
+    },
+    "attacks": [
+      {
+        "attackClass": "ATTACK_CLASS_MELEE",
+        "damageType": "DAMAGE_TYPE_PIERCING",
+        "dmg": {
+          "dmgDice": [
+            "D6"
+          ],
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        }
+      }
+    ],
+    "statuses": [],
+    "restores": []
+  },
+  {
+    "name": "MELEE_ATTACK_METAL_SPEAR",
+    "label": "Melee Attack (Metal Spear)",
+    "description": "A basic melee attack.  Hits one time.  Meant for spears.",
+    "icon": "",
+    "type": "ABILITY_ATTACK",
+    "targetSelect": {
+      "targetType": "TARGET_UNIT",
+      "allegianceSelectType": "TARGET_ALLEGIANCE_OTHER",
+      "numTargetableUnits": 1,
+      "zoneSize": {
+        "x": 1,
+        "y": 1
+      },
+      "range": 1
+    },
+    "apCost": 5,
+    "costType": "ABILITY_COST_NONE",
+    "costValue": 0,
+    "depiction": {
+      "dmgAnim": "splash_attack",
+      "projectileType": "PROJECTILE_NONE",
+      "projectilePath": "PROJECTILE_PATH_NONE",
+      "startSound": "",
+      "dmgSound": "hit_spear",
+      "dmgTextColor": "#FFFFFF"
+    },
+    "attacks": [
+      {
+        "attackClass": "ATTACK_CLASS_MELEE",
+        "damageType": "DAMAGE_TYPE_EDGED",
+        "dmg": {
+          "dmgDice": [
+            "D6"
+          ],
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        }
+      }
+    ],
+    "statuses": [],
+    "restores": []
+  },
+  {
     "name": "MELEE_ATTACK_METAL_SWORD",
     "label": "Melee Attack (Metal Sword)",
-    "description": "A basic melee attack.  Hits one time.  Meant for knives.",
+    "description": "A basic melee attack.  Hits one time.  Meant for swords.",
     "icon": "",
     "type": "ABILITY_ATTACK",
     "targetSelect": {
@@ -273,6 +408,51 @@
       {
         "attackClass": "ATTACK_CLASS_MELEE",
         "damageType": "DAMAGE_TYPE_EDGED",
+        "dmg": {
+          "dmgDice": [
+            "D6"
+          ],
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        }
+      }
+    ],
+    "statuses": [],
+    "restores": []
+  },
+  {
+    "name": "MELEE_ATTACK_STAFF",
+    "label": "Melee Attack (Staff)",
+    "description": "A basic melee attack.  Hits one time.  Meant for staff.",
+    "icon": "",
+    "type": "ABILITY_ATTACK",
+    "targetSelect": {
+      "targetType": "TARGET_UNIT",
+      "allegianceSelectType": "TARGET_ALLEGIANCE_OTHER",
+      "numTargetableUnits": 1,
+      "zoneSize": {
+        "x": 1,
+        "y": 1
+      },
+      "range": 1
+    },
+    "apCost": 5,
+    "costType": "ABILITY_COST_NONE",
+    "costValue": 0,
+    "depiction": {
+      "dmgAnim": "splash_attack",
+      "projectileType": "PROJECTILE_NONE",
+      "projectilePath": "PROJECTILE_PATH_NONE",
+      "startSound": "",
+      "dmgSound": "hit_knock",
+      "dmgTextColor": "#FFFFFF"
+    },
+    "attacks": [
+      {
+        "attackClass": "ATTACK_CLASS_MELEE",
+        "damageType": "DAMAGE_TYPE_BASHING",
         "dmg": {
           "dmgDice": [
             "D6"

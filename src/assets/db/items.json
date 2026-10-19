@@ -55,6 +55,30 @@
     }
   },
   {
+    "itemType": "WEAPON_MELEE",
+    "name": "AxeBronze",
+    "label": "Bronze Axe",
+    "icon": "ui_item_icons_13",
+    "description": "A bronze axe.",
+    "weight": 1,
+    "value": 10,
+    "weapon": {
+      "abilityName": "MELEE_ATTACK_METAL_SHORT_SWORD",
+      "weaponVisual": "sword",
+      "dmgOverrides": [
+        {
+          "dmgDice": [
+            "D6"
+          ],
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        }
+      ]
+    }
+  },
+  {
     "itemType": "POTION",
     "name": "BeerGuildimarcheAle",
     "label": "Guildimarche Ale",
@@ -100,6 +124,30 @@
             "D4"
           ],
           "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 1
+        }
+      ]
+    }
+  },
+  {
+    "itemType": "WEAPON_MELEE",
+    "name": "DaggerSharp",
+    "label": "Sharp Dagger",
+    "icon": "ui_item_icons_8",
+    "description": "A sharp dagger you found in a seashore cave by Alinea.",
+    "weight": 1,
+    "value": 25,
+    "weapon": {
+      "abilityName": "MELEE_ATTACK_METAL_KNIFE",
+      "weaponVisual": "knife",
+      "dmgOverrides": [
+        {
+          "dmgDice": [
+            "D4"
+          ],
+          "dmgBonus": 2,
           "dmgStat": "STAT_STR",
           "dmgStatMult": 1,
           "attackBonus": 1
@@ -269,30 +317,6 @@
     "statusEffects": []
   },
   {
-    "itemType": "WEAPON_MELEE",
-    "name": "SharpDagger",
-    "label": "Sharp Dagger",
-    "icon": "ui_item_icons_8",
-    "description": "A sharp dagger you found in a seashore cave by Alinea.",
-    "weight": 1,
-    "value": 25,
-    "weapon": {
-      "abilityName": "MELEE_ATTACK_METAL_KNIFE",
-      "weaponVisual": "knife",
-      "dmgOverrides": [
-        {
-          "dmgDice": [
-            "D4"
-          ],
-          "dmgBonus": 2,
-          "dmgStat": "STAT_STR",
-          "dmgStatMult": 1,
-          "attackBonus": 1
-        }
-      ]
-    }
-  },
-  {
     "itemType": "GARB",
     "name": "ShirtSimple0",
     "label": "Shirt",
@@ -320,14 +344,38 @@
     "weight": 1,
     "value": 10,
     "weapon": {
-      "abilityName": "MELEE_ATTACK_METAL_SWORD",
+      "abilityName": "MELEE_ATTACK_METAL_SHORT_SWORD",
       "weaponVisual": "sword",
       "dmgOverrides": [
         {
           "dmgDice": [
             "D6"
           ],
-          "dmgBonus": 1,
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        }
+      ]
+    }
+  },
+  {
+    "itemType": "WEAPON_MELEE",
+    "name": "SpearBronze",
+    "label": "Bronze Spear",
+    "icon": "ui_item_icons_11",
+    "description": "A bronze spear.",
+    "weight": 1,
+    "value": 10,
+    "weapon": {
+      "abilityName": "MELEE_ATTACK_METAL_SPEAR",
+      "weaponVisual": "sword",
+      "dmgOverrides": [
+        {
+          "dmgDice": [
+            "D10"
+          ],
+          "dmgBonus": 2,
           "dmgStat": "STAT_STR",
           "dmgStatMult": 1,
           "attackBonus": 1

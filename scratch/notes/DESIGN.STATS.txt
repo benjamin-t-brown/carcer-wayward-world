@@ -6,14 +6,9 @@ MND - magic damage
   - Each point grants 1 additional base damage to magic spells
 CON - health
   - Each point grants 5 hp per level
-AGI - efficiency
-  - Each point reduces cost of actions by 1 (to minimum of 1)
-    - each action has some action cost:
-      - Move: 1
-      - Equip Item: 5
-      - Swing Sword: 5
-      - Cast Spell: 10
-      - etc
+AGI - defense and melee accuracy
+  - Each point grants +1 Armor Class
+  - Each point grants +1 to melee attack rolls (not ranged)
 LCK - rolls
   - Each point raises the minimum of every COMBAT dice roll that is made by 1d2 - 1
 
@@ -72,7 +67,7 @@ HP - Base 10
 Attack Hit Chance - Base 50%
 Ability Power - Base 0
 Damage Reduction - Base 0
-Armor Class - Base 10
+Armor Class - Base 10, plus Agility
 Spell Potency/Status Effect Length/Field Length - Base 1
 Mana - Base 10
 Resistances - Base (none)

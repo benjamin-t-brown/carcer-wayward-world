@@ -66,6 +66,7 @@ void applyCharacterTemplateToInstance(CharacterInstance& character,
   character.combatBehaviorCombat = characterTemplate.combatBehavior.combat;
   character.maxHp = characterTemplate.combat.hp;
   character.maxMp = characterTemplate.combat.mp;
+  initCharacterStatsFromTemplate(character.stats, characterTemplate);
   if (character.name.empty()) {
     character.name = characterTemplate.label.empty() ? characterTemplate.name
                                                      : characterTemplate.label;

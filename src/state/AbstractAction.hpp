@@ -5,14 +5,13 @@
 #include "sdl2w/Logger.h"
 #include "state/DatabaseInterface.h"
 #include "state/ActionEvent.hpp"
+#include "state/State.hpp"
 #include "state/StateManagerInterface.h"
 #ifdef __GNUG__
 #include <cxxabi.h>
 #endif
 
 namespace state {
-
-struct State;
 
 class AbstractAction : public state::DatabaseInterface,
                        public state::StateManagerInterface {
@@ -22,6 +21,12 @@ protected:
   virtual void act() {
     sdl2w::Logger().get(sdl2w::WARN) << "AbstractAction::act() called noop" << sdl2w::endl;
   };
+
+  /** Scale presentation delays by state->settings.actionDelayMult (1 if no state). */
+  int scaledDelayMs(int baseMs) const {
+    const float mult = state != nullptr ? state->settings.actionDelayMult : 1.f;
+    return scaleActionDelayMs(baseMs, mult);
+  }
 
 public:
   virtual ActionEvent getEvent() const { return ActionEvent::None; }

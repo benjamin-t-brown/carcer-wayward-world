@@ -1490,7 +1490,7 @@
       }
     },
     "combat": {
-      "hp": 12,
+      "hp": 25,
       "dropTables": [
         "drops_alineaCommon",
         "drops_alineaCommon2"
@@ -1510,9 +1510,7 @@
       "town": "SEEK_AND_MELEE",
       "combat": "SEEK_AND_MELEE"
     },
-    "talk": {
-      "talkName": "alinea_ainsley"
-    }
+    "talk": {}
   },
   {
     "type": "TOWNSPERSON",

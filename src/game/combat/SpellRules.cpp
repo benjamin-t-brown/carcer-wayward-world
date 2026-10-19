@@ -237,10 +237,11 @@ bool resolveCombatSpellCaster(Player& player,
       mapCharacter.currentMp = mapCharacter.maxMp;
       mapCharacter.mpInitialized = true;
     }
-    initCharacterStatsFromTemplate(npcStatsStorage, characterTemplate);
+    // Prefer runtime instance stats (template copy at spawn, test/runtime overrides).
+    (void)npcStatsStorage;
     out = SpellCasterRef{.id = &mapCharacter.id,
                          .currentMp = &mapCharacter.currentMp,
-                         .stats = &npcStatsStorage,
+                         .stats = &mapCharacter.stats,
                          .partySheet = nullptr};
     return true;
   } catch (...) {

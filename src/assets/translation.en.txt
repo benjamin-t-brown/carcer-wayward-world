@@ -29,8 +29,8 @@
 [Base 1.] {Base 1.}
 [Base 10%, plus Survival training.] {Base 10%, plus Survival training.}
 [Base 10, plus 5 per Constitution.] {Base 10, plus 5 per Constitution.}
+[Base 10, plus Agility.] {Base 10, plus Agility.}
 [Base 10, plus Magic Mastery and Focus.] {Base 10, plus Magic Mastery and Focus.}
-[Base 10.] {Base 10.}
 [Base 100%.] {Base 100%.}
 [Base 100, reduced by Cooking training.] {Base 100, reduced by Cooking training.}
 [Base 100.] {Base 100.}
@@ -58,12 +58,12 @@
 [Derived] {Derived}
 [Done] {Done}
 [Drop] {Drop}
+[Each point grants +1 Armor Class and +1 to melee attack rolls.] {Each point grants +1 Armor Class and +1 to melee attack rolls.}
 [Each point grants 1 additional base damage to magic spells.] {Each point grants 1 additional base damage to magic spells.}
 [Each point grants 1 additional base damage to melee weapons.] {Each point grants 1 additional base damage to melee weapons.}
 [Each point grants 5 HP per level.] {Each point grants 5 HP per level.}
 [Each point raises amount healed from outside sources by 1.] {Each point raises amount healed from outside sources by 1.}
 [Each point raises the minimum of every combat dice roll by 1d2 - 1.] {Each point raises the minimum of every combat dice roll by 1d2 - 1.}
-[Each point reduces cost of actions by 1 (to a minimum of 1).] {Each point reduces cost of actions by 1 (to a minimum of 1).}
 [Edged Weapons] {Edged Weapons}
 [End Fight] {End Fight}
 [Enemy Vision Range] {Enemy Vision Range}

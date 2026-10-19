@@ -50,7 +50,7 @@ class DoCPUCombatTurn : public AbstractAction {
       auto dy = 0;
       if (game::chooseSeekAndMeleeCombatAction(
               world, state->mapInstances, state->player, *actor, *database, dx, dy)) {
-        insertAction(nullptr, CPU_TURN_DELAY);
+        insertAction(nullptr, scaledDelayMs(CPU_TURN_DELAY));
         insertAction(state::makeAction<DoCombatAction>(
                          actorId, model::CombatActionType::MOVE, CombatActionContext{.targetLoc = {dx, dy}}),
                      0);
@@ -58,7 +58,7 @@ class DoCPUCombatTurn : public AbstractAction {
       }
     }
 
-    insertAction(nullptr, CPU_TURN_DELAY);
+    insertAction(nullptr, scaledDelayMs(CPU_TURN_DELAY));
     insertAction(state::makeAction<DoCombatAction>(actorId, model::CombatActionType::WAIT), 0);
   }
 

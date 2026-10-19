@@ -61,14 +61,14 @@ class PerformStatusAbility : public AbstractAction {
                                                 particleText,
                                                 character->x,
                                                 character->y,
-                                                500,
+                                                scaledDelayMs(500),
                                                 depiction.dmgTextColor),
                    0);
     }
     if (!depiction.dmgSound.empty()) {
       insertAction(state::makeAction<PlaySound>(depiction.dmgSound), 0);
     }
-    insertAction(nullptr, 500);
+    insertAction(nullptr, scaledDelayMs(500));
   }
 
 public:

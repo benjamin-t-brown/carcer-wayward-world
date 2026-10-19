@@ -213,7 +213,42 @@ int main(int /*argc*/, char** /*argv*/) {
                      7,
                      "ranged class uses range") &&
          ok;
-    ok = assertEqual(game::meleeTargetArmorClass(stats), 10, "default AC 10") && ok;
+    ok = assertEqual(game::meleeTargetArmorClass(stats), 10, "default AC 10 when agi=0") &&
+         ok;
+    stats.generic.agi = 3;
+    ok = assertEqual(game::meleeTargetArmorClass(stats), 13, "AC is 10+agi") && ok;
+  }
+
+  {
+    auto stats = model::CharacterStats{};
+    stats.generic.agi = 2;
+    stats.trainable.weapon.edged = 4;
+    stats.trainable.weapon.range = 7;
+    auto attack = model::AbilityAttack{};
+    attack.attackClass = model::AttackClass::ATTACK_CLASS_MELEE;
+    attack.damageType = model::DamageType::DAMAGE_TYPE_EDGED;
+    attack.dmg = makeDmg(model::Dice::D4, 0, 1.f, 1);
+    ok = assertEqual(game::meleeAttackToHitBonus(stats, attack, false),
+                     7,
+                     "melee to-hit = ability + mastery + agi") &&
+         ok;
+    ok = assertEqual(game::meleeAttackToHitBonus(stats, attack, true),
+                     3,
+                     "unarmed to-hit = ability + unarmed mastery + agi") &&
+         ok;
+    attack.attackClass = model::AttackClass::ATTACK_CLASS_RANGED;
+    attack.damageType = model::DamageType::DAMAGE_TYPE_PIERCING;
+    ok = assertEqual(game::meleeAttackToHitBonus(stats, attack, false),
+                     8,
+                     "ranged to-hit excludes agi") &&
+         ok;
+    stats.generic.agi = 0;
+    attack.attackClass = model::AttackClass::ATTACK_CLASS_MELEE;
+    attack.damageType = model::DamageType::DAMAGE_TYPE_EDGED;
+    ok = assertEqual(game::meleeAttackToHitBonus(stats, attack, false),
+                     5,
+                     "melee to-hit without agi") &&
+         ok;
   }
 
   {
@@ -560,20 +595,23 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   {
+    // Resolver prefers runtime instance stats (copied from template at spawn).
+    enemy.stats.generic.str = 4;
     auto npcStats = model::CharacterStats{};
     auto caster = model::SpellCasterRef{};
     ok = assertTrue(model::resolveCombatSpellCaster(
                         player, enemy, database, npcStats, caster) &&
                         caster.stats != nullptr && caster.stats->generic.str == 4,
-                    "enemy STR from template") &&
+                    "enemy STR from instance") &&
          ok;
     auto attack = model::AbilityAttack{};
     attack.dmg = makeDmg(model::Dice::D0, 0, 1.f, 0);
     ok = assertEqual(game::calculateAttackDamage(attack, *caster.stats).damage,
                      4,
-                     "enemy template STR damage") &&
+                     "enemy instance STR damage") &&
          ok;
-    ok = assertEqual(enemy.stats.generic.str, 0, "enemy instance stats unused") && ok;
+    ok = assertTrue(caster.stats == &enemy.stats, "enemy caster uses instance stats") &&
+         ok;
   }
 
   {

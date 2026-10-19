@@ -91,7 +91,7 @@ bmin::String CharacterDerivedStatDefinitions::armorClassLabel() {
   return TRANSLATE("Armor Class");
 }
 bmin::String CharacterDerivedStatDefinitions::armorClassDescription() {
-  return TRANSLATE("Base 10.");
+  return TRANSLATE("Base 10, plus Agility.");
 }
 bmin::String CharacterDerivedStatDefinitions::armorClassValue(
     const CharacterDerivedStats& derived) {

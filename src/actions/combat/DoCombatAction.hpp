@@ -89,7 +89,7 @@ class DoCombatAction : public AbstractAction {
       return;
     }
     insertAction(state::makeAction<PerformSpellCast>(chId, ctx.abilityId, spellTargetInfo), 0);
-    insertAction(nullptr, 150);
+    insertAction(nullptr, scaledDelayMs(150));
   }
 
   void act() override {

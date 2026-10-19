@@ -11,7 +11,8 @@ bmin::String CharacterStatDefinitions::strengthDescription() {
 }
 bmin::String CharacterStatDefinitions::agilityLabel() { return TRANSLATE("Agility"); }
 bmin::String CharacterStatDefinitions::agilityDescription() {
-  return TRANSLATE("Each point reduces cost of actions by 1 (to a minimum of 1).");
+  return TRANSLATE(
+      "Each point grants +1 Armor Class and +1 to melee attack rolls.");
 }
 bmin::String CharacterStatDefinitions::constitutionLabel() {
   return TRANSLATE("Constitution");
