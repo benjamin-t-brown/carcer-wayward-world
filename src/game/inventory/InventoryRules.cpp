@@ -62,8 +62,8 @@ void unequipWeaponByItemId(model::CharacterPlayerEquipment& equipment,
 
 model::EquipItemResult equipWeapon(model::CharacterPlayerEquipment& equipment,
                                    const bmin::String& itemId,
-                                   model::ItemType itemType) {
-  const bool isTwoHanded = model::itemTypeIsTwoHandedWeapon(itemType);
+                                   const model::ItemTemplate& itemTemplate) {
+  const bool isTwoHanded = model::itemIsTwoHandedWeapon(itemTemplate);
   if (isTwoHanded) {
     if (!equipment.weapon1Id.empty()) {
       return model::EquipItemResult::SLOT_OCCUPIED;
@@ -133,7 +133,7 @@ model::EquipItemResult toggleEquippedInventoryItem(
     return model::EquipItemResult::UNEQUIPPED;
   }
   if (model::itemTypeUsesWeaponSlots(itemTemplate.itemType)) {
-    return equipWeapon(character.equipment, itemId, itemTemplate.itemType);
+    return equipWeapon(character.equipment, itemId, itemTemplate);
   }
   return equipSingleSlot(character.equipment, itemId, itemTemplate.itemType);
 }

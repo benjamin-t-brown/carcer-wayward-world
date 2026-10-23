@@ -88,6 +88,8 @@ export interface ItemWeaponConfig {
   abilityName: string;
   /** Visual class for weapon-combo character spritesheets. */
   weaponVisual?: WeaponVisual;
+  /** Occupies both hand slots; cannot be equipped as an off-hand. */
+  twoHanded?: boolean;
   /** Per-attack damage overrides; index matches base ability attacks[]. */
   dmgOverrides?: AbilityAttackDmg[];
   /** @deprecated migrated to dmgOverrides */
@@ -224,6 +226,7 @@ export function weaponStorageSnapshot(weapon: ItemWeaponConfig | undefined): str
   return JSON.stringify({
     abilityName: weapon.abilityName,
     weaponVisual: weapon.weaponVisual,
+    twoHanded: weapon.twoHanded,
     dmgOverrides: weapon.dmgOverrides,
     attackIndex: weapon.attackIndex,
     dmg: weapon.dmg,
@@ -250,10 +253,17 @@ export function remapWeaponOverridesAfterAttackDelete(
     }
   }
 
-  return {
+  const next: ItemWeaponConfig = {
     abilityName: weapon.abilityName,
     dmgOverrides: overrides.length > 0 ? overrides : undefined,
   };
+  if (weapon.weaponVisual && weapon.weaponVisual !== 'none') {
+    next.weaponVisual = weapon.weaponVisual;
+  }
+  if (weapon.twoHanded) {
+    next.twoHanded = true;
+  }
+  return next;
 }
 
 export function reconcileWeaponAfterAttackDelete(
@@ -666,6 +676,9 @@ export function normalizeItemWeaponConfig(
   };
   if (rest.weaponVisual && rest.weaponVisual !== 'none') {
     next.weaponVisual = rest.weaponVisual;
+  }
+  if (rest.twoHanded) {
+    next.twoHanded = true;
   }
   return next;
 }

@@ -3,6 +3,7 @@
 #include "bmin/StringInterop.h"
 #include "game/combat/Damage.h"
 #include "game/combat/SpellRules.h"
+#include "game/combat/SpellZone.h"
 #include "game/combat/StatusRules.h"
 #include "game/combat/projectileHelpers.h"
 #include "game/map/ActiveMapCharacters.h"
@@ -94,6 +95,18 @@ class PerformSpellCast : public AbstractAction {
     const int targetStaggerMs = scaledDelayMs(50);
     auto spawnedSpellParticle = false;
     for (size_t i = 0; i < targets.size(); i++) {
+      if (hpDeltaToCharacters[i] != 0 && !depiction.dmgAnim.empty()) {
+        spawnedSpellParticle = true;
+        break;
+      }
+    }
+    if (spawnedSpellParticle) {
+      playSoundIfNamed(depiction.dmgSound);
+    } else if (targets.empty()) {
+      LOG(INFO) << "Missed!" << LOG_ENDL;
+    }
+
+    for (size_t i = 0; i < targets.size(); i++) {
       auto* ch = targets[i];
       const auto hpDelta = hpDeltaToCharacters[i];
       if (hpDelta != 0) {
@@ -110,17 +123,11 @@ class PerformSpellCast : public AbstractAction {
                                                   damageParticleLifetimeMs,
                                                   depiction.dmgTextColor),
                      static_cast<int>(i) * targetStaggerMs);
-        spawnedSpellParticle = true;
       }
     }
 
-    if (targets.size() > 0) {
-      if (spawnedSpellParticle) {
-        playSoundIfNamed(depiction.dmgSound);
-        insertAction(nullptr, damageParticleLifetimeMs);
-      }
-    } else {
-      LOG(INFO) << "Missed!" << LOG_ENDL;
+    if (spawnedSpellParticle) {
+      insertAction(nullptr, damageParticleLifetimeMs);
     }
 
     auto* database = getDatabase();
@@ -162,8 +169,8 @@ class PerformSpellCast : public AbstractAction {
     bmin::DynArray<model::CharacterInstance*> charactersInZone;
     for (int i = 0; i < zoneW; ++i) {
       for (int j = 0; j < zoneH; ++j) {
-        const auto tileX = targetTileX + i - zoneW / 2;
-        const auto tileY = targetTileY + j - zoneH / 2;
+        const auto tileX = game::zoneTileCoord(targetTileX, zoneW, i);
+        const auto tileY = game::zoneTileCoord(targetTileY, zoneH, j);
         auto chAtTile = game::findAllCharactersAt(activeMap, tileX, tileY);
         for (auto ch : chAtTile) {
           charactersInZone.pushBack(ch);

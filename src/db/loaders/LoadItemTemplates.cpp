@@ -145,6 +145,9 @@ void loadItemTemplates(const bmin::String& itemsFilePath,
           weapon.weaponVisual = model::weaponVisualFromString(
               weaponJson["weaponVisual"].get<bmin::String>());
         }
+        if (weaponJson.contains("twoHanded") && weaponJson["twoHanded"].is_boolean()) {
+          weapon.twoHanded = weaponJson["twoHanded"].get<bool>();
+        }
         if (weaponJson.contains("dmgOverrides") &&
             weaponJson["dmgOverrides"].is_array()) {
           for (const auto& dmgJson : weaponJson["dmgOverrides"]) {

@@ -208,7 +208,7 @@
       "projectileType": "PROJECTILE_NONE",
       "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "",
-      "dmgSound": "hit_metal4",
+      "dmgSound": "hit_metal1",
       "dmgTextColor": "#FFFFFF"
     },
     "attacks": [
@@ -253,7 +253,7 @@
       "projectileType": "PROJECTILE_NONE",
       "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "",
-      "dmgSound": "hit_metal4",
+      "dmgSound": "hit_metal1",
       "dmgTextColor": "#FFFFFF"
     },
     "attacks": [
@@ -343,7 +343,7 @@
       "projectileType": "PROJECTILE_NONE",
       "projectilePath": "PROJECTILE_PATH_NONE",
       "startSound": "",
-      "dmgSound": "hit_metal1",
+      "dmgSound": "hit_metal5",
       "dmgTextColor": "#FFFFFF"
     },
     "attacks": [
@@ -672,6 +672,49 @@
     ],
     "restores": [],
     "damages": []
+  },
+  {
+    "name": "SPELL_FIREBALL",
+    "label": "Fireball",
+    "description": "",
+    "icon": "",
+    "type": "ABILITY_SPELL",
+    "targetSelect": {
+      "targetType": "TARGET_ZONE",
+      "allegianceSelectType": "TARGET_ALLEGIANCE_OTHER",
+      "numTargetableUnits": 1,
+      "zoneSize": {
+        "x": 3,
+        "y": 3
+      },
+      "range": 10
+    },
+    "apCost": 6,
+    "costType": "ABILITY_COST_MANA",
+    "costValue": 5,
+    "depiction": {
+      "dmgAnim": "expl_fire",
+      "projectileType": "COMET_RED",
+      "projectilePath": "PROJECTILE_PATH_MEDIUM",
+      "startSound": "cast_flame",
+      "dmgSound": "hit_fireball",
+      "dmgTextColor": "#FFFFFF"
+    },
+    "attacks": [],
+    "statuses": [],
+    "restores": [],
+    "damages": [
+      {
+        "damageType": "DAMAGE_TYPE_HEAT",
+        "dmgDice": [
+          "D6",
+          "D6"
+        ],
+        "dmgBonus": 4,
+        "dmgStat": "STAT_MND",
+        "dmgStatMult": 1
+      }
+    ]
   },
   {
     "name": "SPELL_FLAME",

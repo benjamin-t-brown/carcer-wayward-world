@@ -92,6 +92,14 @@ bmin::String characterEquipmentSlotAbbrev(CharacterEquipmentSlot slot) {
   }
 }
 
+bmin::String characterEquipmentSlotAbbrevForItem(CharacterEquipmentSlot slot,
+                                                 const ItemTemplate& item) {
+  if (itemIsTwoHandedWeapon(item)) {
+    return "2h";
+  }
+  return characterEquipmentSlotAbbrev(slot);
+}
+
 bool characterPlayerIsItemEquippedById(const CharacterPlayer& characterPlayer,
                                        const bmin::String& itemId) {
   return characterPlayerGetEquipmentSlotForItemId(characterPlayer, itemId).has_value();

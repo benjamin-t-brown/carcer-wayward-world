@@ -449,6 +449,32 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
 
         <div className="form-section">
           <h3>Stats</h3>
+          <div className="form-fields-inline" style={{ marginBottom: '16px' }}>
+            <NumberInput
+              id="combat-hp"
+              name="combatHp"
+              label="HP"
+              value={formData.combat?.hp || 0}
+              onChange={(value) => updateCombat('hp', value)}
+              min={0}
+            />
+            <NumberInput
+              id="combat-mp"
+              name="combatMp"
+              label="MP"
+              value={formData.combat?.mp || 0}
+              onChange={(value) => updateCombat('mp', value)}
+              min={0}
+            />
+            <NumberInput
+              id="vision-radius"
+              name="visionRadius"
+              label="Vision"
+              value={formData.vision?.radius || 0}
+              onChange={(value) => updateVision('radius', value)}
+              min={0}
+            />
+          </div>
 
           <div className="form-subsection">
             <h4>Generic Combat</h4>
@@ -867,29 +893,7 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
           </div>
 
           <div className="form-subsection">
-            <h4>Combat Resources</h4>
-            <div className="form-fields-inline">
-              <NumberInput
-                id="combat-hp"
-                name="combatHp"
-                label="HP"
-                value={formData.combat?.hp || 0}
-                onChange={(value) => updateCombat('hp', value)}
-                min={0}
-              />
-              <NumberInput
-                id="combat-mp"
-                name="combatMp"
-                label="MP"
-                value={formData.combat?.mp || 0}
-                onChange={(value) => updateCombat('mp', value)}
-                min={0}
-              />
-            </div>
-            <div
-              className="form-fields-inline combat-default-ability-row"
-              style={{ marginTop: '12px' }}
-            >
+            <div className="form-fields-inline combat-default-ability-row">
               <SearchSelect
                 id="combat-default-ability"
                 name="combatDefaultAbility"
@@ -933,8 +937,10 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
                 </a>
               ) : null}
             </div>
-            <div className="form-subsection" style={{ marginTop: '12px' }}>
-              <h4>Drop Tables</h4>
+          </div>
+
+          <div className="form-subsection">
+            <h4>Drop Tables</h4>
               {formData.combat?.dropTables?.map((tableName, index) => (
                 <div key={index} className="status-item combat-drop-table-item">
                   <SearchSelect
@@ -971,7 +977,6 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
                   + Add Drop Table
                 </Button>
               </div>
-            </div>
           </div>
 
           <div className="form-subsection">
@@ -987,20 +992,6 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
                   ''
                 }
                 onChange={(value) => updateSound('deathSoundName', value)}
-              />
-            </div>
-          </div>
-
-          <div className="form-subsection">
-            <h4>Vision</h4>
-            <div className="form-fields-inline">
-              <NumberInput
-                id="vision-radius"
-                name="visionRadius"
-                label="Radius"
-                value={formData.vision?.radius || 0}
-                onChange={(value) => updateVision('radius', value)}
-                min={0}
               />
             </div>
           </div>

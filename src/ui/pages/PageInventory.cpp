@@ -70,7 +70,8 @@ void PageInventory::populateInventoryProps(
         model::characterPlayerGetEquipmentSlotForItemId(equippedCheck, item.id);
     bmin::String equippedSlotAbbrev;
     if (equippedSlot.has_value()) {
-      equippedSlotAbbrev = model::characterEquipmentSlotAbbrev(*equippedSlot);
+      equippedSlotAbbrev =
+          model::characterEquipmentSlotAbbrevForItem(*equippedSlot, itemTemplate);
     }
     listProps.pushBack({.itemId = item.id,
                          .itemName = item.itemName,

@@ -90,6 +90,8 @@ std::optional<CharacterEquipmentSlot>
 characterPlayerGetEquipmentSlotForItemId(const CharacterPlayer& characterPlayer,
                                          const bmin::String& itemId);
 bmin::String characterEquipmentSlotAbbrev(CharacterEquipmentSlot slot);
+bmin::String characterEquipmentSlotAbbrevForItem(CharacterEquipmentSlot slot,
+                                                 const ItemTemplate& item);
 bool characterPlayerIsItemEquippedById(const CharacterPlayer& characterPlayer,
                                        const bmin::String& itemId);
 

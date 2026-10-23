@@ -61,6 +61,8 @@ struct ItemWeaponConfig {
   bmin::String abilityName;
   WeaponVisual weaponVisual = WeaponVisual::None;
   bmin::DynArray<AbilityAttackDmg> dmgOverrides;
+  /** Occupies both hand slots; cannot be equipped as an off-hand. */
+  bool twoHanded = false;
 };
 
 struct ItemUseAbilityConfig {
@@ -87,5 +89,7 @@ struct ItemTemplate {
   std::optional<ItemWeaponConfig> weapon;
   std::optional<RuneType> runeType;
 };
+
+bool itemIsTwoHandedWeapon(const ItemTemplate& item);
 
 } // namespace model

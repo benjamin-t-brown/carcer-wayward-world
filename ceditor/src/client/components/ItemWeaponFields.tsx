@@ -44,6 +44,7 @@ export function ItemWeaponFields({
     onChange({
       abilityName: weapon.abilityName,
       weaponVisual: weapon.weaponVisual,
+      twoHanded: weapon.twoHanded,
       dmgOverrides: resolveItemWeaponDmgOverrides(weapon, attacks),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -56,6 +57,9 @@ export function ItemWeaponFields({
     }
     if (next.weaponVisual === 'none') {
       delete next.weaponVisual;
+    }
+    if (!next.twoHanded) {
+      delete next.twoHanded;
     }
     onChange(next);
   };
@@ -70,6 +74,7 @@ export function ItemWeaponFields({
     onChange({
       abilityName,
       weaponVisual: config.weaponVisual,
+      twoHanded: config.twoHanded,
       dmgOverrides:
         base.length > 0
           ? base.map((attack) => mergeAbilityAttackDmg(attack.dmg))
@@ -138,6 +143,26 @@ export function ItemWeaponFields({
             label: visual,
           }))}
         />
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          margin: '8px 0',
+        }}
+      >
+        <input
+          id={`${idPrefix}-two-handed`}
+          name="twoHanded"
+          type="checkbox"
+          checked={config.twoHanded === true}
+          onChange={(e) => setConfig({ twoHanded: e.target.checked })}
+          style={{ cursor: 'pointer', transform: 'scale(1.5)translateX(2px)' }}
+        />
+        <label htmlFor={`${idPrefix}-two-handed`} style={{ marginBottom: 0 }}>
+          Two-handed
+        </label>
       </div>
       {config.abilityName && attacks.length === 0 ? (
         <p style={{ fontSize: '12px', color: '#858585', margin: '6px 0 0' }}>

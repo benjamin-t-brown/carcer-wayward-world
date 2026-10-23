@@ -13,6 +13,19 @@
     ]
   },
   {
+    "name": "FIREBALL",
+    "label": "Fireball",
+    "description": "Lobs a huge fireball to a target.",
+    "icon": "runes_0",
+    "abilityName": "SPELL_FIREBALL",
+    "requiredRunes": [
+      {
+        "type": "HEAT",
+        "count": 1
+      }
+    ]
+  },
+  {
     "name": "FLAME",
     "label": "Flame",
     "description": "Send a small ball of fire towards an enemy that deals some fire damage.",

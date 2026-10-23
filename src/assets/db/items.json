@@ -109,6 +109,30 @@
   },
   {
     "itemType": "WEAPON_MELEE",
+    "name": "ClubHeavy",
+    "label": "Heavy Club",
+    "icon": "ui_item_icons_13",
+    "description": "A heavy club.",
+    "weight": 1,
+    "value": 10,
+    "weapon": {
+      "abilityName": "MELEE_ATTACK_CLUB",
+      "weaponVisual": "sword",
+      "dmgOverrides": [
+        {
+          "dmgDice": [
+            "D6"
+          ],
+          "dmgBonus": 2,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
+        }
+      ]
+    }
+  },
+  {
+    "itemType": "WEAPON_MELEE",
     "name": "DaggerBronze",
     "label": "Bronze Dagger",
     "icon": "ui_item_icons_8",
@@ -379,6 +403,31 @@
           "dmgStat": "STAT_STR",
           "dmgStatMult": 1,
           "attackBonus": 1
+        }
+      ]
+    }
+  },
+  {
+    "itemType": "WEAPON_MELEE",
+    "name": "StaffSimple",
+    "label": "Simple Staff",
+    "icon": "ui_item_icons_11",
+    "description": "A simple staff.",
+    "weight": 1,
+    "value": 10,
+    "weapon": {
+      "abilityName": "MELEE_ATTACK_STAFF",
+      "weaponVisual": "sword",
+      "twoHanded": true,
+      "dmgOverrides": [
+        {
+          "dmgDice": [
+            "D6"
+          ],
+          "dmgBonus": 0,
+          "dmgStat": "STAT_STR",
+          "dmgStatMult": 1,
+          "attackBonus": 0
         }
       ]
     }

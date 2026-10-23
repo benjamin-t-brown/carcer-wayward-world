@@ -3,6 +3,7 @@
 #include "bmin/StringInterop.h"
 #include "db/Database.h"
 #include "game/combat/Damage.h"
+#include "game/combat/SpellZone.h"
 #include "model/templates/AbilityTypes.h"
 // #include "game/map/ActiveMapOrchestrator.h"
 #include "model/Combat.h"
@@ -465,9 +466,12 @@ CombatZoneCastOutcome castCombatZoneSpell(const SpellCasterRef& caster,
       ability->targetSelect.zoneSize.y > 0 ? ability->targetSelect.zoneSize.y : 1;
 
   for (const auto& character : world.activeMap.characters) {
-    if (character.x < originX || character.y < originY ||
-        character.x >= originX + outcome.zoneW ||
-        character.y >= originY + outcome.zoneH) {
+    if (!game::tileInCenteredZone(character.x,
+                                  character.y,
+                                  originX,
+                                  originY,
+                                  outcome.zoneW,
+                                  outcome.zoneH)) {
       continue;
     }
     if (character.id == *caster.id) {

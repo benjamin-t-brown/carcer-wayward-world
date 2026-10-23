@@ -1,4 +1,20 @@
 {
+  "abilityTemplates": {
+    "folders": [
+      {
+        "id": "d6a90faa-c309-46c5-a44e-e5b85134e744",
+        "name": "Spells",
+        "children": []
+      }
+    ],
+    "placements": {
+      "SPELL_BLESS": "d6a90faa-c309-46c5-a44e-e5b85134e744",
+      "SPELL_FIREBALL": "d6a90faa-c309-46c5-a44e-e5b85134e744",
+      "SPELL_FLAME": "d6a90faa-c309-46c5-a44e-e5b85134e744",
+      "SPELL_HEAL_ALLY": "d6a90faa-c309-46c5-a44e-e5b85134e744",
+      "SPELL_SINGE": "d6a90faa-c309-46c5-a44e-e5b85134e744"
+    }
+  },
   "characterTemplates": {
     "folders": [
       {
@@ -56,6 +72,7 @@
       "BeerGuildimarcheAle": "potions-and-scrolls",
       "BeerPappysLager": "potions-and-scrolls",
       "BootsLeather": "equipable",
+      "ClubHeavy": "equipable",
       "DaggerBronze": "equipable",
       "DaggerSharp": "equipable",
       "GlovesLeather": "equipable",
@@ -71,6 +88,7 @@
       "ShirtSimple1": "equipable",
       "ShortSwordBronze": "equipable",
       "SpearBronze": "equipable",
+      "StaffSimple": "equipable",
       "SwordBronze": "equipable"
     }
   },

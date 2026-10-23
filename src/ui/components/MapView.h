@@ -34,6 +34,7 @@ private:
   SDL_Color mapUnexploredColor{0, 0, 0, 255};
   SDL_Color actionAimFillColor{66, 202, 253, 64};
   SDL_Color actionAimOutlineColor{66, 202, 253, 220};
+  SDL_Color combatTurnOutlineColor{160, 160, 160, 220};
 
   // Fog frill sprite indices into frills.png (frills_0 unused).
   static constexpr int frillTop = 1;

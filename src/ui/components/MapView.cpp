@@ -1,6 +1,7 @@
 #include "MapView.h"
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
+#include "game/combat/SpellZone.h"
 #include "game/map/ActiveMapCharacters.h"
 #include "game/map/ActiveMapOrchestrator.h"
 #include "game/map/MapWalkability.h"
@@ -684,6 +685,29 @@ void MapView::render(int dt) {
   // draw the active ch on the top
   if (activeCharacter != nullptr) {
     drawCharacter(*activeCharacter);
+    if (game::isCharacterOnActiveLayer(*activeCharacter, world.activeMap)) {
+      const auto screenX = contentX + static_cast<int>(
+          (activeCharacter->x * spriteW - world.camera.camX) * style.scale);
+      const auto screenY = contentY + static_cast<int>(
+          (activeCharacter->y * spriteH - world.camera.camY) * style.scale);
+      if (screenX + scaledSpriteW > contentX && screenX < contentX + contentW &&
+          screenY + scaledSpriteH > contentY && screenY < contentY + contentH) {
+        const auto border = 2;
+        draw.drawRect(
+            screenX, screenY, scaledSpriteW, border, combatTurnOutlineColor);
+        draw.drawRect(screenX,
+                      screenY + scaledSpriteH - border,
+                      scaledSpriteW,
+                      border,
+                      combatTurnOutlineColor);
+        draw.drawRect(screenX, screenY, border, scaledSpriteH, combatTurnOutlineColor);
+        draw.drawRect(screenX + scaledSpriteW - border,
+                      screenY,
+                      border,
+                      scaledSpriteH,
+                      combatTurnOutlineColor);
+      }
+    }
   }
 
   renderDamageParticles(
@@ -719,8 +743,8 @@ void MapView::render(int dt) {
 
     for (int zy = 0; zy < zoneH; ++zy) {
       for (int zx = 0; zx < zoneW; ++zx) {
-        const auto tileX = aimX + zx;
-        const auto tileY = aimY + zy;
+        const auto tileX = game::zoneTileCoord(aimX, zoneW, zx);
+        const auto tileY = game::zoneTileCoord(aimY, zoneH, zy);
         const auto screenX =
             contentX +
             static_cast<int>((tileX * spriteW - world.camera.camX) * style.scale);
@@ -747,6 +771,29 @@ void MapView::render(int dt) {
                         actionAimOutlineColor);
         }
       }
+    }
+
+    if (world.combat.active && activeCharacter != nullptr &&
+        world.actionMode == model::WorldActionMode::SPELL) {
+      const auto fromX = contentX +
+                         static_cast<int>((activeCharacter->x * spriteW -
+                                           world.camera.camX) *
+                                          style.scale) +
+                         scaledSpriteW / 2;
+      const auto fromY = contentY +
+                         static_cast<int>((activeCharacter->y * spriteH -
+                                           world.camera.camY) *
+                                          style.scale) +
+                         scaledSpriteH / 2;
+      const auto toX =
+          contentX +
+          static_cast<int>((aimX * spriteW - world.camera.camX) * style.scale) +
+          scaledSpriteW / 2;
+      const auto toY =
+          contentY +
+          static_cast<int>((aimY * spriteH - world.camera.camY) * style.scale) +
+          scaledSpriteH / 2;
+      draw.drawLine({fromX, fromY}, {toX, toY}, 2.f, combatTurnOutlineColor);
     }
   }
 }

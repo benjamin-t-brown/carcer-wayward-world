@@ -95,6 +95,13 @@ bool itemTypeIsTwoHandedWeapon(ItemType itemType) {
   return itemType == ItemType::WEAPON_MELEE_2H;
 }
 
+bool itemIsTwoHandedWeapon(const ItemTemplate& item) {
+  if (itemTypeIsTwoHandedWeapon(item.itemType)) {
+    return true;
+  }
+  return item.weapon.has_value() && item.weapon->twoHanded;
+}
+
 bool itemTypeUsesWeaponSlots(ItemType itemType) {
   switch (itemType) {
   case ItemType::WEAPON_MELEE:

@@ -36,6 +36,10 @@ int main(int argc, char** argv) {
       LOG(ERROR) << "DaggerBronze weapon.weaponVisual should be knife" << LOG_ENDL;
       return 1;
     }
+    if (daggerIt->value.weapon->twoHanded) {
+      LOG(ERROR) << "DaggerBronze should default twoHanded=false" << LOG_ENDL;
+      return 1;
+    }
 
     const auto swordIt = itemTemplates.find(bmin::String("SwordBronze"));
     if (swordIt == itemTemplates.end() || !swordIt->value.weapon.has_value() ||

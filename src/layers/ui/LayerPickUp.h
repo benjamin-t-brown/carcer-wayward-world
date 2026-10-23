@@ -12,7 +12,7 @@ class ButtonModal;
 namespace layers {
 
 class LayerPickUp : public UiLayer {
-  static constexpr int donePressDurationMs = 200;
+  static constexpr int donePressDurationMs = 100;
 
   bool isClosing = false;
   bool closeEnqueued = false;

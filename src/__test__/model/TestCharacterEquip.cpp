@@ -36,6 +36,14 @@ int main(int argc, char** argv) {
   db::Database database;
   addItemTemplate(database, "DaggerOne", model::ItemType::WEAPON_MELEE);
   addItemTemplate(database, "SwordTwoHand", model::ItemType::WEAPON_MELEE_2H);
+  {
+    model::ItemTemplate staff;
+    staff.name = "StaffTwoHandFlag";
+    staff.itemType = model::ItemType::WEAPON_MELEE;
+    staff.weapon = model::ItemWeaponConfig{};
+    staff.weapon->twoHanded = true;
+    database.addItemTemplate(staff);
+  }
   addItemTemplate(database, "HatA", model::ItemType::HAT);
   addItemTemplate(database, "HatB", model::ItemType::HAT);
 
@@ -45,6 +53,7 @@ int main(int argc, char** argv) {
       makeInventoryItem("dagger2", "DaggerOne"),
       makeInventoryItem("dagger3", "DaggerOne"),
       makeInventoryItem("sword2h", "SwordTwoHand"),
+      makeInventoryItem("staff2h", "StaffTwoHandFlag"),
       makeInventoryItem("hatA", "HatA"),
       makeInventoryItem("hatB", "HatB"),
   };
@@ -73,6 +82,14 @@ int main(int argc, char** argv) {
          "f");
   assert(model::characterEquipmentSlotAbbrev(model::CharacterEquipmentSlot::SHIELD) ==
          "o");
+  {
+    const auto& staffTemplate = database.getItemTemplate("StaffTwoHandFlag");
+    assert(model::characterEquipmentSlotAbbrevForItem(
+               model::CharacterEquipmentSlot::WEAPON0, staffTemplate) == "2h");
+    const auto& daggerTemplate = database.getItemTemplate("DaggerOne");
+    assert(model::characterEquipmentSlotAbbrevForItem(
+               model::CharacterEquipmentSlot::WEAPON0, daggerTemplate) == "m");
+  }
 
   assertResult(game::toggleEquippedInventoryItem(character, "dagger3", database),
                model::EquipItemResult::SLOT_OCCUPIED);
@@ -116,6 +133,19 @@ int main(int argc, char** argv) {
   assertResult(game::toggleEquippedInventoryItem(character, "sword2h", database),
                model::EquipItemResult::EQUIPPED);
   assert(character.equipment.weapon0Id == "sword2h");
+
+  character.equipment = {};
+  assertResult(game::toggleEquippedInventoryItem(character, "daggerOff", database),
+               model::EquipItemResult::EQUIPPED);
+  assertResult(game::toggleEquippedInventoryItem(character, "staff2h", database),
+               model::EquipItemResult::TWO_HANDED_OFF_HAND);
+  assert(character.equipment.weapon0Id == "daggerOff");
+
+  character.equipment = {};
+  assertResult(game::toggleEquippedInventoryItem(character, "staff2h", database),
+               model::EquipItemResult::EQUIPPED);
+  assert(character.equipment.weapon0Id == "staff2h");
+  assert(character.equipment.weapon1Id.empty());
 
   LOG(INFO) << "Finished " << TEST_NAME << LOG_ENDL;
   return 0;

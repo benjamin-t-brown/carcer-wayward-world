@@ -1,5 +1,6 @@
 #include "WorldInputController.h"
 #include "bmin/StringInterop.h"
+#include "game/map/MapPickup.h"
 #include "game/map/TileTriggers.h"
 #include "layers/UiLayer.h"
 #include "model/Combat.h"
@@ -37,20 +38,43 @@ WorldInputController::findWorldActionButton(state::WorldActionType actionType) {
   return nullptr;
 }
 
+bool WorldInputController::partyHasNearbyPickupItems() {
+  auto* stateManager = getStateManager();
+  auto* database = getDatabase();
+  if (stateManager == nullptr || database == nullptr) {
+    return false;
+  }
+  auto& state = stateManager->getState();
+  const auto* avatar =
+      game::findPartyAvatarOnActiveMap(state.world.activeMap, state.player);
+  if (avatar == nullptr) {
+    return false;
+  }
+  return !game::collectItemsWithinPickupRange(state.world.activeMap,
+                                             state.mapInstances,
+                                             *avatar,
+                                             game::PICKUP_PATH_RANGE,
+                                             *database)
+              .empty();
+}
+
 void WorldInputController::beginWorldActionKeyboardPress(
     state::WorldActionType actionType) {
   auto* stateManager = getStateManager();
   if (!stateManager || worldActionFlash.isBusy()) {
     return;
   }
-  // Activate immediately (flash is visual-only) for aim modes and Fight (f);
-  // other actions still fire after the flash.
+  // Flash is visual-only for these. Get waits for the flash only when there is
+  // nothing nearby (button press + "no items" notice, no window).
   const bool activateImmediately =
       actionType == state::WorldActionType::EXAMINE ||
       actionType == state::WorldActionType::TALK ||
       actionType == state::WorldActionType::INTERACT ||
       actionType == state::WorldActionType::START_FIGHT ||
-      actionType == state::WorldActionType::END_FIGHT;
+      actionType == state::WorldActionType::END_FIGHT ||
+      actionType == state::WorldActionType::INVENTORY ||
+      actionType == state::WorldActionType::ABILITY ||
+      (actionType == state::WorldActionType::GET && partyHasNearbyPickupItems());
   worldActionFlash.begin(
       [this, actionType]() -> bool* {
         if (auto* button = findWorldActionButton(actionType)) {

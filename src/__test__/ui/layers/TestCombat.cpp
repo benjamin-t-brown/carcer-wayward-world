@@ -41,9 +41,9 @@ constexpr const char* TEST_PARTY_TEMPLATE_NAMES[] = {
 
 const bmin::DynArray<bmin::DynArray<bmin::String>> PARTY_MEMBER_ITEMS = {
     {"SwordBronze", "DaggerBronze"},
-    {"DaggerBronze"},
-    {"DaggerBronze", "DaggerBronze"},
-    {"LongbowOak"},
+    {"StaffSimple"},
+    {"SpearBronze"},
+    {"ClubHeavy"},
     {},
     {},
 };
@@ -106,6 +106,7 @@ void setupTestParty(model::Player& player, db::Database& database) {
     }
 
     member.knownSpells.pushBack("FLAME");
+    member.knownSpells.pushBack("FIREBALL");
     member.knownSpells.pushBack("HEAL_ALLY_MINOR");
     member.knownSpells.pushBack("SINGE");
     member.knownSpells.pushBack("BLESS_ALLY");

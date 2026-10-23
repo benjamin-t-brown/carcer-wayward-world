@@ -48,6 +48,7 @@ private:
   int lastMouseY = 0;
 
   ui::ButtonWorldAction* findWorldActionButton(state::WorldActionType actionType);
+  bool partyHasNearbyPickupItems();
   void beginWorldActionKeyboardPress(state::WorldActionType actionType);
   // Resolve pending INTERACT at an absolute map tile (adjacent-pick, no aim box).
   void confirmInteractAt(int tileX, int tileY);

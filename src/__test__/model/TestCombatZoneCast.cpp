@@ -424,6 +424,77 @@ int main(int /*argc*/, char** /*argv*/) {
          ok;
   }
 
+  {
+    model::AbilityTemplate fireball;
+    fireball.name = "SPELL_FIREBALL_ZONE";
+    fireball.type = model::AbilityType::ABILITY_SPELL;
+    fireball.targetSelect.targetType = model::TargetSelectType::TARGET_ZONE;
+    fireball.targetSelect.zoneSize = {.x = 3, .y = 3};
+    fireball.targetSelect.range = 10;
+    fireball.apCost = 0;
+    fireball.depiction.projectileType = model::ProjectileType::PROJECTILE_NONE;
+    fireball.depiction.projectilePath = model::ProjectilePath::PROJECTILE_PATH_NONE;
+    model::AbilityDamage dmg;
+    dmg.damageType = model::DamageType::DAMAGE_TYPE_HEAT;
+    dmg.dmgDice = {model::Dice::D0};
+    dmg.dmgBonus = 3;
+    dmg.dmgStat = model::StatsEnum::STAT_MND;
+    dmg.dmgStatMult = 0.f;
+    fireball.damages.pushBack(dmg);
+    database.addAbilityTemplate(fireball);
+
+    model::SpellTemplate fireballSpell;
+    fireballSpell.name = "FIREBALL_ZONE";
+    fireballSpell.abilityName = "SPELL_FIREBALL_ZONE";
+    database.addSpellTemplate(fireballSpell);
+
+    auto nearEnemy = model::CharacterInstance{};
+    nearEnemy.id = "enemy-near";
+    nearEnemy.name = "Near";
+    nearEnemy.type = model::CharacterTemplateType::ENEMY;
+    nearEnemy.x = 3;
+    nearEnemy.y = 2;
+    nearEnemy.currentHp = 20;
+    nearEnemy.maxHp = 20;
+    nearEnemy.hpInitialized = true;
+    state.world.activeMap.characters.pushBack(std::move(nearEnemy));
+
+    auto farEnemy = model::CharacterInstance{};
+    farEnemy.id = "enemy-far";
+    farEnemy.name = "Far";
+    farEnemy.type = model::CharacterTemplateType::ENEMY;
+    farEnemy.x = 4;
+    farEnemy.y = 4;
+    farEnemy.currentHp = 20;
+    farEnemy.maxHp = 20;
+    farEnemy.hpInitialized = true;
+    state.world.activeMap.characters.pushBack(std::move(farEnemy));
+
+    const auto hpAt = [&](const char* id) {
+      for (auto& ch : state.world.activeMap.characters) {
+        if (ch.id == id) {
+          return model::getCharacterHp(state.player, ch);
+        }
+      }
+      return -1;
+    };
+    const auto centerHp = hpAt("enemy-1");
+    const auto nearHp = hpAt("enemy-near");
+    const auto farHp = hpAt("enemy-far");
+
+    model::SpellTargetInfo target;
+    target.tileX = 2;
+    target.tileY = 1;
+    stateManager.enqueueAction(state::makeAction<state::actions::PerformSpellCast>(
+                                   "ally-1", "FIREBALL_ZONE", target),
+                               0);
+    pumpActions(stateManager);
+
+    ok = assertEqual(hpAt("enemy-1"), centerHp - 3, "3x3 hits center tile") && ok;
+    ok = assertEqual(hpAt("enemy-near"), nearHp - 3, "3x3 hits nearby tile") && ok;
+    ok = assertEqual(hpAt("enemy-far"), farHp, "3x3 misses tile outside zone") && ok;
+  }
+
   if (!ok) {
     LOG(ERROR) << "TestCombatZoneCast assertions failed" << LOG_ENDL;
     return 1;
