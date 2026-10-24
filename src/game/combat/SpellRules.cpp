@@ -159,6 +159,27 @@ bool canEquipSpell(const SpellEquipContext& context, std::string_view spellName)
   return true;
 }
 
+bool matchesSpellAllegiance(const Player& player,
+                            const CharacterInstance& caster,
+                            const CharacterInstance& target,
+                            TargetAllegianceSelectType allegiance) {
+  const auto isSelf = target.id == caster.id;
+  const auto sameTeam = isCharacterAlly(player, caster) == isCharacterAlly(player, target);
+  switch (allegiance) {
+  case TargetAllegianceSelectType::TARGET_ALLEGIANCE_OTHER:
+    return !isSelf && !sameTeam;
+  case TargetAllegianceSelectType::TARGET_ALLEGIANCE_SAME:
+    return !isSelf && sameTeam;
+  case TargetAllegianceSelectType::TARGET_ALLEGIANCE_SAME_AND_SELF:
+    return sameTeam;
+  case TargetAllegianceSelectType::TARGET_ALLEGIANCE_ALL:
+    return !isSelf;
+  case TargetAllegianceSelectType::TARGET_ALLEGIANCE_ALL_AND_SELF:
+    return true;
+  }
+  return false;
+}
+
 int spellAbilityManaCost(const SpellTemplate& spell, const db::Database& database) {
   const auto* ability =
       database.findAbilityTemplate(bmin::toStringView(spell.abilityName));

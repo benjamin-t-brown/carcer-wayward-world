@@ -73,6 +73,7 @@ enum class AbilityCostType {
   ABILITY_COST_MANA,
   ABILITY_COST_COOLDOWN,
   ABILITY_COST_HP,
+  ABILITY_COST_AMMO,
 };
 
 enum class AttackClass {

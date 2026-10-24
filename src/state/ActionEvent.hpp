@@ -16,6 +16,7 @@ enum class ActionEvent {
   PerformCharacterDefeated,
   PerformMeleeAttack,
   PerformSpellCast,
+  PerformShoot,
   PerformStatusAbility,
   RemoveCharacterFromMap,
   SetActiveCombatCharacter,

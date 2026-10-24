@@ -69,6 +69,13 @@ int main(int /*argc*/, char** /*argv*/) {
     model::updateCharacterFacingToward(attacker, 1, 4);
     ok = assertTrue(attacker.facing == model::CharacterFacing::Left, "face toward victim south") &&
          ok;
+    ok = assertTrue(attacker.lastMoveDx == -1 && attacker.lastMoveDy == 1,
+                    "face toward stores a unit step") &&
+         ok;
+    model::updateCharacterFacingToward(attacker, 6, 2);
+    ok = assertTrue(attacker.lastMoveDx == 1 && attacker.lastMoveDy == 0,
+                    "long-range face toward stays one step") &&
+         ok;
   }
 
   if (ok) {

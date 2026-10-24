@@ -35,6 +35,20 @@ model::AppliedStatusEffect* findAppliedStatus(model::CharacterInstance& characte
 
 } // namespace
 
+bool hasAppliedStatus(const model::CharacterInstance& character,
+                      const bmin::String& statusName) {
+  if (statusName.empty()) {
+    return false;
+  }
+  for (size_t i = 0; i < character.statusEffects.size(); i++) {
+    const auto& applied = character.statusEffects[i];
+    if (applied.statusEffectName == statusName && applied.remainingTurns > 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
 int calculateStatusDuration(const model::AbilityStatus& apply,
                             const model::StatusEffectTemplate& statusTemplate,
                             const model::CharacterStats& casterStats) {

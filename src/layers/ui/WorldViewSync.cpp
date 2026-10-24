@@ -152,6 +152,8 @@ void WorldViewSync::syncWorldActionModeHighlight() {
          actionMode == model::WorldActionMode::TALK) ||
         (actionType == state::WorldActionType::INTERACT &&
          actionMode == model::WorldActionMode::INTERACT) ||
+        (actionType == state::WorldActionType::SHOOT &&
+         actionMode == model::WorldActionMode::SHOOT) ||
         (actionType == state::WorldActionType::INVENTORY && inventoryOpen) ||
         (actionType == state::WorldActionType::ABILITY && (magicOpen || spellCastOpen)) ||
         (actionType == state::WorldActionType::GET && pickUpOpen);
@@ -177,6 +179,8 @@ void WorldViewSync::syncActionModeCancelButton() {
     modeLabel = TRANSLATE("Interact");
   } else if (actionMode == model::WorldActionMode::SPELL) {
     modeLabel = TRANSLATE("Cast Spell");
+  } else if (actionMode == model::WorldActionMode::SHOOT) {
+    modeLabel = TRANSLATE("Shoot");
   }
 
   const bool shouldShow = !modeLabel.empty();
@@ -209,7 +213,8 @@ void WorldViewSync::syncSpellAimCameraButtons() {
 
   const auto& world = getStateManager()->getState().world;
   const bool shouldShow =
-      world.combat.active && world.actionMode == model::WorldActionMode::SPELL;
+      world.combat.active && (world.actionMode == model::WorldActionMode::SPELL ||
+                              world.actionMode == model::WorldActionMode::SHOOT);
   auto* existing = inGameLayout->getChildById("spellAimCameraUp");
   if (shouldShow == (existing != nullptr)) {
     return;

@@ -29,6 +29,8 @@ class TickCombatStatuses : public AbstractAction {
       return;
     }
 
+    character->combatTurnsTaken += 1;
+
     if (!character->statusEffects.empty()) {
       bmin::DynArray<bmin::String> abilityNames;
       game::collectTurnStartStatusAbilities(*character, *database, abilityNames);

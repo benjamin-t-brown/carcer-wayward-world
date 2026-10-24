@@ -17,6 +17,9 @@ int calculateStatusDuration(const model::AbilityStatus& apply,
                             const model::StatusEffectTemplate& statusTemplate,
                             const model::CharacterStats& casterStats);
 
+bool hasAppliedStatus(const model::CharacterInstance& character,
+                      const bmin::String& statusName);
+
 /** Adds or refreshes `apply.statusEffect` on `target`. Returns false if the
  * template is missing or duration is not positive. */
 bool applyStatusEffect(model::CharacterInstance& target,

@@ -27,7 +27,64 @@ enum class CharacterTemplateBehaviorName {
 
 enum class CombatBehaviorName {
   SEEK_AND_MELEE,
+  SPELLCASTER,
 };
+
+enum class CombatSpellAiSelection {
+  FIRST,
+  RANDOM,
+};
+
+enum class CombatSpellAiZoneTargeting {
+  DEFAULT,
+  /** Center on a random hostile whose tile is in range. */
+  RANDOM_IN_RANGE,
+  ONLY_PC,
+};
+
+enum class CombatSpellAiConditionType {
+  ALWAYS,
+  SELF_HP_BELOW_PERCENT,
+  SELF_HP_ABOVE_PERCENT,
+  ZONE_HOSTILE_COUNT_AT_LEAST,
+  HAS_STATUS,
+  LACKS_STATUS,
+  OWN_TURN_AT_MOST,
+};
+
+struct CombatSpellAiCondition {
+  CombatSpellAiConditionType type = CombatSpellAiConditionType::ALWAYS;
+  int value = 0;
+  bmin::String status;
+};
+
+struct CombatSpellAiRule {
+  bmin::String spell;
+  int weight = 1;
+  CombatSpellAiZoneTargeting zoneTargeting = CombatSpellAiZoneTargeting::DEFAULT;
+  bmin::DynArray<CombatSpellAiCondition> conditions;
+};
+
+struct CombatSpellAiTurnMode {
+  CombatBehaviorName behavior = CombatBehaviorName::SPELLCASTER;
+  int weight = 1;
+};
+
+struct CharacterTemplateCombatSpellAi {
+  CombatSpellAiSelection selection = CombatSpellAiSelection::FIRST;
+  CombatSpellAiZoneTargeting zoneTargeting = CombatSpellAiZoneTargeting::DEFAULT;
+  int skipChance = 0;
+  bmin::DynArray<CombatSpellAiTurnMode> turnModes;
+  bmin::DynArray<bmin::String> spells;
+  bmin::DynArray<CombatSpellAiRule> rules;
+};
+
+CombatSpellAiSelection combatSpellAiSelectionFromString(const bmin::String& value);
+bmin::String getStringFromCombatSpellAiSelection(CombatSpellAiSelection selection);
+CombatSpellAiZoneTargeting combatSpellAiZoneTargetingFromString(const bmin::String& value);
+bmin::String getStringFromCombatSpellAiZoneTargeting(CombatSpellAiZoneTargeting targeting);
+CombatSpellAiConditionType combatSpellAiConditionTypeFromString(const bmin::String& value);
+bmin::String getStringFromCombatSpellAiConditionType(CombatSpellAiConditionType type);
 
 /** Sprite frame layout on the character's spritesheet. */
 enum class CharacterSpriteLayout {
@@ -89,6 +146,7 @@ struct CharacterTemplate {
   CharacterTemplateSound sound;
   bmin::DynArray<CharacterTemplateStatus> statuses;
   CharacterTemplateVision vision;
+  CharacterTemplateCombatSpellAi combatSpellAi;
   /** SpellTemplate.name values applied when constructing a CharacterPlayer. */
   bmin::DynArray<bmin::String> startingKnownSpells;
   /** Optional prepared subset; only names also in known after apply are kept. */

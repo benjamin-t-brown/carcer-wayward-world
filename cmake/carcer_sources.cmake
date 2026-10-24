@@ -67,6 +67,7 @@ set(CARCER_RULE_SOURCES
   src/game/combat/Damage.cpp
   src/game/combat/AbilityOverrideMerge.cpp
   src/game/combat/MeleeAttackResolve.cpp
+  src/game/combat/ShootRules.cpp
   src/game/combat/EnemyBehavior.cpp
   src/game/combat/DropTables.cpp
   src/game/sprites/CharacterSpriteResolve.cpp

@@ -81,6 +81,11 @@ bool canEquipSpell(const SpellEquipContext& context, std::string_view spellName)
  */
 int spellAbilityManaCost(const SpellTemplate& spell, const db::Database& database);
 
+bool matchesSpellAllegiance(const Player& player,
+                            const CharacterInstance& caster,
+                            const CharacterInstance& target,
+                            TargetAllegianceSelectType allegiance);
+
 /**
  * false if missing template / insufficient MP (always check MP from linked ability).
  * if !playerControlled: require known + equipped rune requirements (Ready).

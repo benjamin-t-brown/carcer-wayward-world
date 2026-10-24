@@ -1,4 +1,5 @@
 import React from 'react';
+import { InputTinge, tingeClassName } from './inputTinge';
 
 interface TextAreaProps {
   id?: string;
@@ -10,6 +11,7 @@ interface TextAreaProps {
   rows?: number;
   required?: boolean;
   disabled?: boolean;
+  tinge?: InputTinge;
 }
 
 export const TextArea: React.FC<TextAreaProps> = ({
@@ -22,9 +24,10 @@ export const TextArea: React.FC<TextAreaProps> = ({
   rows = 3,
   required = false,
   disabled = false,
+  tinge,
 }) => {
   return (
-    <div className="form-group">
+    <div className={['form-group', tingeClassName(tinge)].filter(Boolean).join(' ')}>
       {label && (
         <label htmlFor={id}>
           {label}

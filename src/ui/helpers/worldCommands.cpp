@@ -2,6 +2,8 @@
 
 #include "bmin/StringInterop.h"
 #include "db/Database.h"
+#include "game/combat/ShootRules.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "game/map/TileDistance.h"
 #include "model/Combat.h"
 #include "model/instances/Player.h"
@@ -114,6 +116,45 @@ void confirmWorldActionAim(state::StateManager& stateManager,
     setHeldMoveActive(stateManager, false);
     stateManager.enqueueAction(
         state::makeAction<state::actions::WorldInteractAt>(tileX, tileY), 0);
+    return;
+  }
+  if (actionMode == model::WorldActionMode::SHOOT) {
+    auto& state = stateManager.getState();
+    auto& world = state.world;
+    if (!canPlayerIssueCombatMove(state) || database == nullptr) {
+      return;
+    }
+    const model::CharacterInstance* shooter = nullptr;
+    for (const auto& character : world.activeMap.characters) {
+      if (character.id == world.combat.activeCharacterId) {
+        shooter = &character;
+        break;
+      }
+    }
+    if (shooter == nullptr) {
+      return;
+    }
+    const auto resolved = game::resolveEquippedShootAbility(state.player, *shooter, *database);
+    if (!resolved.has_value() || shooter->currentAp <= 0 ||
+        !game::canPayShootAuxCost(state.player, *shooter, resolved->ability)) {
+      return;
+    }
+    const int distance =
+        game::chebyshevDistance(shooter->x, shooter->y, tileX, tileY);
+    if (distance > resolved->ability.targetSelect.range) {
+      return;
+    }
+    setHeldMoveActive(stateManager, false);
+    stateManager.enqueueAction(
+        state::makeAction<state::actions::DoCombatAction>(
+            world.combat.activeCharacterId,
+            model::CombatActionType::SHOOT,
+            state::actions::CombatActionContext{.abilityId = resolved->ability.name,
+                                                .targetLoc = {tileX, tileY}}),
+        0);
+    stateManager.parallelAction(
+        state::makeAction<state::actions::WorldSetActionMode>(model::WorldActionMode::NONE),
+        0);
     return;
   }
   if (actionMode != model::WorldActionMode::SPELL) {

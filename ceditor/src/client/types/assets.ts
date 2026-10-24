@@ -841,9 +841,76 @@ export const CHARACTER_TEMPLATE_BEHAVIOR_NAMES: CharacterTemplateBehaviorName[] 
   ];
 
 /** Matches model::CombatBehaviorName in CharacterTemplate.h */
-export type CombatBehaviorName = 'SEEK_AND_MELEE';
+export type CombatBehaviorName = 'SEEK_AND_MELEE' | 'SPELLCASTER';
 
-export const COMBAT_BEHAVIOR_NAMES: CombatBehaviorName[] = ['SEEK_AND_MELEE'];
+export const COMBAT_BEHAVIOR_NAMES: CombatBehaviorName[] = [
+  'SEEK_AND_MELEE',
+  'SPELLCASTER',
+];
+
+export type CombatSpellAiSelection = 'FIRST' | 'RANDOM';
+
+export const COMBAT_SPELL_AI_SELECTIONS: CombatSpellAiSelection[] = [
+  'FIRST',
+  'RANDOM',
+];
+
+export type CombatSpellAiZoneTargeting =
+  | 'DEFAULT'
+  | 'RANDOM_IN_RANGE'
+  | 'ONLY_PC';
+
+export const COMBAT_SPELL_AI_ZONE_TARGETINGS: CombatSpellAiZoneTargeting[] = [
+  'DEFAULT',
+  'RANDOM_IN_RANGE',
+  'ONLY_PC',
+];
+
+export type CombatSpellAiConditionType =
+  | 'ALWAYS'
+  | 'SELF_HP_BELOW_PERCENT'
+  | 'SELF_HP_ABOVE_PERCENT'
+  | 'ZONE_HOSTILE_COUNT_AT_LEAST'
+  | 'HAS_STATUS'
+  | 'LACKS_STATUS'
+  | 'OWN_TURN_AT_MOST';
+
+export const COMBAT_SPELL_AI_CONDITION_TYPES: CombatSpellAiConditionType[] = [
+  'ALWAYS',
+  'SELF_HP_BELOW_PERCENT',
+  'SELF_HP_ABOVE_PERCENT',
+  'ZONE_HOSTILE_COUNT_AT_LEAST',
+  'HAS_STATUS',
+  'LACKS_STATUS',
+  'OWN_TURN_AT_MOST',
+];
+
+export interface CombatSpellAiCondition {
+  type: CombatSpellAiConditionType;
+  value?: number;
+  status?: string;
+}
+
+export interface CombatSpellAiRule {
+  spell: string;
+  weight?: number;
+  zoneTargeting?: CombatSpellAiZoneTargeting;
+  conditions?: CombatSpellAiCondition[];
+}
+
+export interface CombatSpellAiTurnMode {
+  behavior: CombatBehaviorName;
+  weight?: number;
+}
+
+export interface CombatSpellAi {
+  selection?: CombatSpellAiSelection;
+  zoneTargeting?: CombatSpellAiZoneTargeting;
+  skipChance?: number;
+  turnModes?: CombatSpellAiTurnMode[];
+  spells?: string[];
+  rules?: CombatSpellAiRule[];
+}
 
 export interface GenericCombatStats {
   str?: number;
@@ -1084,6 +1151,84 @@ function sanitizeCharacterCombat(
   return next;
 }
 
+function sanitizeCombatSpellAi(
+  ai: CombatSpellAi | undefined,
+): CombatSpellAi | undefined {
+  if (!ai) {
+    return undefined;
+  }
+  const spells = (ai.spells ?? []).map((name) => name.trim()).filter(Boolean);
+  const rules = (ai.rules ?? [])
+    .map((rule) => {
+      const spell = rule.spell?.trim() ?? '';
+      if (!spell) {
+        return undefined;
+      }
+      const conditions = (rule.conditions ?? []).map((condition) => {
+        const next: CombatSpellAiCondition = { type: condition.type };
+        if (
+          condition.type === 'SELF_HP_BELOW_PERCENT' ||
+          condition.type === 'SELF_HP_ABOVE_PERCENT' ||
+          condition.type === 'ZONE_HOSTILE_COUNT_AT_LEAST' ||
+          condition.type === 'OWN_TURN_AT_MOST'
+        ) {
+          next.value = condition.value ?? 0;
+        }
+        if (condition.type === 'HAS_STATUS' || condition.type === 'LACKS_STATUS') {
+          next.status = condition.status?.trim() || undefined;
+        }
+        return next;
+      });
+      const sanitized: CombatSpellAiRule = { spell };
+      if (rule.weight != null && rule.weight !== 1) {
+        sanitized.weight = rule.weight;
+      }
+      if (rule.zoneTargeting && rule.zoneTargeting !== 'DEFAULT') {
+        sanitized.zoneTargeting = rule.zoneTargeting;
+      }
+      if (conditions.length > 0) {
+        sanitized.conditions = conditions;
+      }
+      return sanitized;
+    })
+    .filter((rule): rule is CombatSpellAiRule => rule != null);
+  const turnModes = (ai.turnModes ?? [])
+    .map((mode) => {
+      if (!COMBAT_BEHAVIOR_NAMES.includes(mode.behavior)) {
+        return undefined;
+      }
+      const sanitized: CombatSpellAiTurnMode = { behavior: mode.behavior };
+      if (mode.weight != null && mode.weight !== 1) {
+        sanitized.weight = mode.weight;
+      }
+      return sanitized;
+    })
+    .filter((mode): mode is CombatSpellAiTurnMode => mode != null);
+  if (spells.length === 0 && rules.length === 0 && turnModes.length === 0) {
+    return undefined;
+  }
+  const next: CombatSpellAi = {};
+  if (ai.selection && ai.selection !== 'FIRST') {
+    next.selection = ai.selection;
+  }
+  if (ai.zoneTargeting && ai.zoneTargeting !== 'DEFAULT') {
+    next.zoneTargeting = ai.zoneTargeting;
+  }
+  if (ai.skipChance != null && ai.skipChance !== 0) {
+    next.skipChance = ai.skipChance;
+  }
+  if (turnModes.length > 0) {
+    next.turnModes = turnModes;
+  }
+  if (spells.length > 0) {
+    next.spells = spells;
+  }
+  if (rules.length > 0) {
+    next.rules = rules;
+  }
+  return Object.keys(next).length > 0 ? next : undefined;
+}
+
 export function sanitizeCharacterTemplates(
   characters: CharacterTemplate[],
 ): CharacterTemplate[] {
@@ -1092,6 +1237,7 @@ export function sanitizeCharacterTemplates(
     if (next.combat) {
       next.combat = sanitizeCharacterCombat(next.combat);
     }
+    next.combatSpellAi = sanitizeCombatSpellAi(next.combatSpellAi);
     if (next.sound) {
       const sound: CharacterTemplateSound & Record<string, unknown> = {
         ...next.sound,
@@ -1141,6 +1287,7 @@ export interface CharacterTemplate {
   vision?: {
     radius?: number;
   };
+  combatSpellAi?: CombatSpellAi;
 }
 
 // ============================================================================

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "bmin/String.h"
+#include "game/combat/ShootRules.h"
+#include "game/map/ActiveMapCharacters.h"
 #include "game/map/Camera.h"
 #include "game/map/TileTriggers.h"
 #include "model/instances/World.hpp"
@@ -43,6 +45,19 @@ class WorldSetActionMode : public AbstractAction {
         world.camera.cameraMode = model::CameraMode::Follow;
       }
     }
+    if (mode == model::WorldActionMode::SHOOT) {
+      auto* database = getDatabase();
+      model::CharacterInstance* shooter = nullptr;
+      if (world.combat.active && !world.combat.activeCharacterId.empty()) {
+        shooter = game::findCharacterById(world.activeMap, world.combat.activeCharacterId);
+      }
+      if (database == nullptr || shooter == nullptr ||
+          !game::canStartShoot(state->player, *shooter, *database)) {
+        world.actionMode = model::WorldActionMode::NONE;
+        world.actionAimTile.reset();
+        return;
+      }
+    }
     if (mode == model::WorldActionMode::NONE) {
       world.actionAimTile.reset();
       return;
@@ -56,9 +71,9 @@ class WorldSetActionMode : public AbstractAction {
     }
 
     bool placedCombatAim = false;
-    // Combat SPELL: aim under the active combat character (caster).
-    if (mode == model::WorldActionMode::SPELL && world.combat.active &&
-        !world.combat.activeCharacterId.empty()) {
+    // Combat SPELL / SHOOT: aim under the active combat character.
+    if ((mode == model::WorldActionMode::SPELL || mode == model::WorldActionMode::SHOOT) &&
+        world.combat.active && !world.combat.activeCharacterId.empty()) {
       for (const auto& character : world.activeMap.characters) {
         if (character.id == world.combat.activeCharacterId) {
           world.actionAimTile = model::TileXY{character.x, character.y};
@@ -79,7 +94,7 @@ class WorldSetActionMode : public AbstractAction {
       }
     }
 
-    if (mode == model::WorldActionMode::SPELL) {
+    if (mode == model::WorldActionMode::SPELL || mode == model::WorldActionMode::SHOOT) {
       world.camera.cameraMode = model::CameraMode::Aiming;
       if (world.actionAimTile) {
         game::snapCameraToTile(world.camera, world.actionAimTile->x,

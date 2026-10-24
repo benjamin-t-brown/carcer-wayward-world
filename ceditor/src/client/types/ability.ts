@@ -78,7 +78,8 @@ export type AbilityCostType =
   | 'ABILITY_COST_NONE'
   | 'ABILITY_COST_MANA'
   | 'ABILITY_COST_COOLDOWN'
-  | 'ABILITY_COST_HP';
+  | 'ABILITY_COST_HP'
+  | 'ABILITY_COST_AMMO';
 
 export type AttackClass =
   | 'ATTACK_CLASS_MELEE'
@@ -490,6 +491,7 @@ export const ABILITY_COST_TYPES: AbilityCostType[] = [
   'ABILITY_COST_MANA',
   'ABILITY_COST_COOLDOWN',
   'ABILITY_COST_HP',
+  'ABILITY_COST_AMMO',
 ];
 
 export const ATTACK_CLASSES: AttackClass[] = [

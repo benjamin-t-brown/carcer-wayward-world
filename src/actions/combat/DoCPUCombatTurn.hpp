@@ -44,8 +44,32 @@ class DoCPUCombatTurn : public AbstractAction {
       return;
     }
 
-    // TODO: no enemy spell AI yet; future share with town tryQueueTownEnemySpell.
-    if (actor->combatBehaviorCombat == model::CombatBehaviorName::SEEK_AND_MELEE) {
+    if (actor->currentAp <= 0) {
+      insertAction(nullptr, scaledDelayMs(CPU_TURN_DELAY));
+      insertAction(state::makeAction<DoCombatAction>(actorId, model::CombatActionType::WAIT),
+                   0);
+      return;
+    }
+
+    const auto turnBehavior = game::resolveCombatTurnBehavior(*actor);
+    if (turnBehavior == model::CombatBehaviorName::SPELLCASTER) {
+      game::EnemySpellAction spellAction;
+      if (game::chooseEnemySpellAction(
+              world, state->mapInstances, state->player, *actor, *database, spellAction)) {
+        insertAction(nullptr, scaledDelayMs(CPU_TURN_DELAY));
+        insertAction(state::makeAction<DoCombatAction>(
+                         actorId,
+                         model::CombatActionType::SPELL,
+                         CombatActionContext{.targetChId = spellAction.targetChId,
+                                             .abilityId = spellAction.spellName,
+                                             .targetLoc = spellAction.targetLoc}),
+                     0);
+        return;
+      }
+    }
+
+    if (turnBehavior == model::CombatBehaviorName::SEEK_AND_MELEE ||
+        turnBehavior == model::CombatBehaviorName::SPELLCASTER) {
       auto dx = 0;
       auto dy = 0;
       if (game::chooseSeekAndMeleeCombatAction(

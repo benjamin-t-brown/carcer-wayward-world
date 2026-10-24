@@ -20,6 +20,16 @@
         margin: 0px 12px;
       }
 
+      :root {
+        --tinge-red: rgba(232, 72, 72, 0.08);
+        --tinge-orange: rgba(232, 140, 48, 0.08);
+        --tinge-yellow: rgba(220, 196, 48, 0.08);
+        --tinge-green: rgba(64, 196, 96, 0.08);
+        --tinge-blue: rgba(64, 140, 232, 0.09);
+        --tinge-indigo: rgba(88, 80, 216, 0.09);
+        --tinge-violet: rgba(176, 80, 216, 0.09);
+      }
+
       .container {
         max-width: 2200px;
         margin: 0 auto;
@@ -990,6 +1000,35 @@
         border-color: #4ec9b0;
       }
 
+      .form-group.tinged-red {
+        --tinge: var(--tinge-red);
+      }
+      .form-group.tinged-orange {
+        --tinge: var(--tinge-orange);
+      }
+      .form-group.tinged-yellow {
+        --tinge: var(--tinge-yellow);
+      }
+      .form-group.tinged-green {
+        --tinge: var(--tinge-green);
+      }
+      .form-group.tinged-blue {
+        --tinge: var(--tinge-blue);
+      }
+      .form-group.tinged-indigo {
+        --tinge: var(--tinge-indigo);
+      }
+      .form-group.tinged-violet {
+        --tinge: var(--tinge-violet);
+      }
+
+      .form-group.tinged input,
+      .form-group.tinged select,
+      .form-group.tinged textarea {
+        background: linear-gradient(var(--tinge), var(--tinge)), #1e1e1e;
+        border-color: color-mix(in srgb, var(--tinge) 40%, #3e3e42);
+      }
+
       .form-actions {
         display: flex;
         gap: 10px;
@@ -1694,6 +1733,28 @@
         width: 280px;
         min-width: 280px;
         max-width: 280px;
+      }
+
+      .character-template-form .character-sprite-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 14px;
+        margin-top: 10px;
+      }
+
+      .character-template-form .character-sprite-row .form-block {
+        margin-top: 0;
+      }
+
+      .character-template-form .character-sprite-row .character-sprite-layout {
+        max-width: 300px;
+        flex: 0 1 300px;
+      }
+
+      .character-template-form .character-sprite-row .character-sprite-layout select {
+        max-width: 300px;
+        width: 100%;
       }
 
       .character-template-form .form-block,

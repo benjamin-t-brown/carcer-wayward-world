@@ -50,7 +50,8 @@ class WorldMoveActionAim : public AbstractAction {
     }
     aim.x = nextX;
     aim.y = nextY;
-    if (state->world.actionMode == model::WorldActionMode::SPELL) {
+    if (state->world.actionMode == model::WorldActionMode::SPELL ||
+        state->world.actionMode == model::WorldActionMode::SHOOT) {
       game::snapCameraToTile(state->world.camera, aim.x, aim.y);
     }
   }

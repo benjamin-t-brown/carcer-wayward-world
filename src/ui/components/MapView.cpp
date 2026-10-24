@@ -1,6 +1,7 @@
 #include "MapView.h"
 #include "bmin/String.h"
 #include "bmin/StringInterop.h"
+#include "game/combat/ShootRules.h"
 #include "game/combat/SpellZone.h"
 #include "game/map/ActiveMapCharacters.h"
 #include "game/map/ActiveMapOrchestrator.h"
@@ -8,6 +9,7 @@
 #include "game/map/TileFields.h"
 #include "game/map/TileTriggers.h"
 #include "game/sprites/CharacterSpriteResolve.h"
+#include "model/Combat.h"
 #include "model/instances/CharacterPlayer.h"
 #include "model/templates/CharacterTemplate.h"
 #include "model/templates/Maps.h"
@@ -685,7 +687,10 @@ void MapView::render(int dt) {
   // draw the active ch on the top
   if (activeCharacter != nullptr) {
     drawCharacter(*activeCharacter);
-    if (game::isCharacterOnActiveLayer(*activeCharacter, world.activeMap)) {
+    const auto showTurnOutline =
+        model::shouldShowCombatTurnOutline(world, state.player);
+    if (showTurnOutline &&
+        game::isCharacterOnActiveLayer(*activeCharacter, world.activeMap)) {
       const auto screenX = contentX + static_cast<int>(
           (activeCharacter->x * spriteW - world.camera.camX) * style.scale);
       const auto screenY = contentY + static_cast<int>(
@@ -739,6 +744,18 @@ void MapView::render(int dt) {
           }
         }
       }
+    } else if (world.actionMode == model::WorldActionMode::SHOOT &&
+               activeCharacter != nullptr) {
+      const auto resolved =
+          game::resolveEquippedShootAbility(state.player, *activeCharacter, *database);
+      if (resolved.has_value()) {
+        zoneW = resolved->ability.targetSelect.zoneSize.x > 0
+                    ? resolved->ability.targetSelect.zoneSize.x
+                    : 1;
+        zoneH = resolved->ability.targetSelect.zoneSize.y > 0
+                    ? resolved->ability.targetSelect.zoneSize.y
+                    : 1;
+      }
     }
 
     for (int zy = 0; zy < zoneH; ++zy) {
@@ -774,7 +791,8 @@ void MapView::render(int dt) {
     }
 
     if (world.combat.active && activeCharacter != nullptr &&
-        world.actionMode == model::WorldActionMode::SPELL) {
+        (world.actionMode == model::WorldActionMode::SPELL ||
+         world.actionMode == model::WorldActionMode::SHOOT)) {
       const auto fromX = contentX +
                          static_cast<int>((activeCharacter->x * spriteW -
                                            world.camera.camX) *

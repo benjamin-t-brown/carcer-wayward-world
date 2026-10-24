@@ -17,6 +17,16 @@ import {
   CHARACTER_SPRITE_LAYOUTS,
   CombatBehaviorName,
   COMBAT_BEHAVIOR_NAMES,
+  CombatSpellAi,
+  CombatSpellAiCondition,
+  CombatSpellAiConditionType,
+  CombatSpellAiRule,
+  CombatSpellAiSelection,
+  CombatSpellAiTurnMode,
+  CombatSpellAiZoneTargeting,
+  COMBAT_SPELL_AI_CONDITION_TYPES,
+  COMBAT_SPELL_AI_SELECTIONS,
+  COMBAT_SPELL_AI_ZONE_TARGETINGS,
   createDefaultCharacterStats,
   createGenericTownspersonStats,
 } from '../types/assets';
@@ -51,7 +61,7 @@ export function createDefaultCharacter(): CharacterTemplate {
 
 export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
   const character = props.character;
-  const { gameEvents, dropTables, abilities } = useAssets();
+  const { gameEvents, dropTables, abilities, spells } = useAssets();
   const { spriteMap } = useSDL2WAssets();
 
   const formData = character as CharacterTemplate;
@@ -337,6 +347,139 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
     });
   };
 
+  const updateCombatSpellAi = (next: CombatSpellAi | undefined) => {
+    setFormData({
+      ...formData,
+      combatSpellAi: next,
+    });
+  };
+
+  const knownSpells = formData?.combatSpellAi?.spells ?? [];
+  const spellRules = formData?.combatSpellAi?.rules ?? [];
+  const turnModes = formData?.combatSpellAi?.turnModes ?? [];
+  const usesTurnModes = turnModes.length > 0;
+  const isSpellcasterAi =
+    formData?.combatBehavior?.town === 'SPELLCASTER' ||
+    formData?.combatBehavior?.combat === 'SPELLCASTER' ||
+    turnModes.some((mode) => mode.behavior === 'SPELLCASTER');
+
+  const setKnownSpell = (index: number, name: string) => {
+    const nextSpells = [...knownSpells];
+    nextSpells[index] = name;
+    updateCombatSpellAi({
+      ...formData.combatSpellAi,
+      spells: nextSpells,
+    });
+  };
+
+  const addKnownSpell = () => {
+    updateCombatSpellAi({
+      ...formData.combatSpellAi,
+      spells: [...knownSpells, ''],
+    });
+  };
+
+  const removeKnownSpell = (index: number) => {
+    const nextSpells = knownSpells.filter((_, i) => i !== index);
+    updateCombatSpellAi({
+      ...formData.combatSpellAi,
+      spells: nextSpells,
+    });
+  };
+
+  const setTurnMode = (index: number, mode: CombatSpellAiTurnMode) => {
+    const nextModes = [...turnModes];
+    nextModes[index] = mode;
+    updateCombatSpellAi({
+      ...formData.combatSpellAi,
+      turnModes: nextModes,
+    });
+  };
+
+  const addTurnMode = () => {
+    const seedBehavior =
+      turnModes.length === 0
+        ? formData.combatBehavior?.combat || DEFAULT_COMBAT_BEHAVIOR
+        : 'SPELLCASTER';
+    updateCombatSpellAi({
+      ...formData.combatSpellAi,
+      turnModes: [...turnModes, { behavior: seedBehavior, weight: 1 }],
+    });
+  };
+
+  const removeTurnMode = (index: number) => {
+    updateCombatSpellAi({
+      ...formData.combatSpellAi,
+      turnModes: turnModes.filter((_, i) => i !== index),
+    });
+  };
+
+  const setSpellRule = (index: number, rule: CombatSpellAiRule) => {
+    const nextRules = [...spellRules];
+    nextRules[index] = rule;
+    updateCombatSpellAi({
+      ...formData.combatSpellAi,
+      rules: nextRules,
+    });
+  };
+
+  const addSpellRule = () => {
+    updateCombatSpellAi({
+      ...formData.combatSpellAi,
+      rules: [
+        ...spellRules,
+        {
+          spell: '',
+          conditions: [{ type: 'ALWAYS' }],
+          zoneTargeting: formData.combatSpellAi?.zoneTargeting,
+        },
+      ],
+    });
+  };
+
+  const removeSpellRule = (index: number) => {
+    updateCombatSpellAi({
+      ...formData.combatSpellAi,
+      rules: spellRules.filter((_, i) => i !== index),
+    });
+  };
+
+  const setSpellRuleCondition = (
+    ruleIndex: number,
+    conditionIndex: number,
+    condition: CombatSpellAiCondition,
+  ) => {
+    const rule = spellRules[ruleIndex];
+    const conditions = [...(rule.conditions ?? [])];
+    conditions[conditionIndex] = condition;
+    setSpellRule(ruleIndex, { ...rule, conditions });
+  };
+
+  const addSpellRuleCondition = (ruleIndex: number) => {
+    const rule = spellRules[ruleIndex];
+    setSpellRule(ruleIndex, {
+      ...rule,
+      conditions: [...(rule.conditions ?? []), { type: 'ALWAYS' }],
+    });
+  };
+
+  const removeSpellRuleCondition = (ruleIndex: number, conditionIndex: number) => {
+    const rule = spellRules[ruleIndex];
+    setSpellRule(ruleIndex, {
+      ...rule,
+      conditions: (rule.conditions ?? []).filter((_, i) => i !== conditionIndex),
+    });
+  };
+
+  const conditionNeedsValue = (type: CombatSpellAiConditionType) =>
+    type === 'SELF_HP_BELOW_PERCENT' ||
+    type === 'SELF_HP_ABOVE_PERCENT' ||
+    type === 'ZONE_HOSTILE_COUNT_AT_LEAST' ||
+    type === 'OWN_TURN_AT_MOST';
+
+  const conditionNeedsStatus = (type: CombatSpellAiConditionType) =>
+    type === 'HAS_STATUS' || type === 'LACKS_STATUS';
+
   const applyGenericTownspersonPreset = () => {
     setFormData({
       ...formData,
@@ -400,40 +543,41 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
           />
         </div>
 
-        <div className="form-group form-block">
-          <label htmlFor="character-sprite-picker">Sprite</label>
-          <div style={{ marginTop: '4px' }}>
-            <SpritePicker
-              value={spriteName}
-              onChange={handleSpriteChange}
-              scale={2}
-            />
+        <div className="character-sprite-row">
+          <div className="form-group form-block">
+            <label htmlFor="character-sprite-picker">Sprite</label>
+            <div style={{ marginTop: '4px' }}>
+              <SpritePicker
+                value={spriteName}
+                onChange={handleSpriteChange}
+                scale={2}
+              />
+            </div>
+            <div style={{ marginTop: '4px', fontSize: '11px', color: '#858585' }}>
+              Spritesheet: {formData.spritesheet || 'Not set'} | Offset:{' '}
+              {formData.spriteOffset ?? 'Not set'}
+            </div>
           </div>
-          <div style={{ marginTop: '4px', fontSize: '11px', color: '#858585' }}>
-            Spritesheet: {formData.spritesheet || 'Not set'} | Offset:{' '}
-            {formData.spriteOffset ?? 'Not set'}
-          </div>
-          <div style={{ marginTop: '8px' }}>
-            <OptionSelect
-              id="character-sprite-layout"
-              name="spriteLayout"
-              label="Sprite Layout"
-              value={formData.spriteLayout ?? 'default'}
-              onChange={(value) => {
-                const layout = value as CharacterSpriteLayout;
-                if (layout === 'default') {
-                  const { spriteLayout: _layout, ...rest } = formData;
-                  setFormData(rest);
-                  return;
-                }
-                updateField('spriteLayout', layout);
-              }}
-              options={CHARACTER_SPRITE_LAYOUTS.map((layout) => ({
-                value: layout,
-                label: layout === 'weaponCombos' ? 'weaponCombos (equipped weapons)' : layout,
-              }))}
-            />
-          </div>
+          <OptionSelect
+            id="character-sprite-layout"
+            name="spriteLayout"
+            label="Sprite Layout"
+            className="character-sprite-layout"
+            value={formData.spriteLayout ?? 'default'}
+            onChange={(value) => {
+              const layout = value as CharacterSpriteLayout;
+              if (layout === 'default') {
+                const { spriteLayout: _layout, ...rest } = formData;
+                setFormData(rest);
+                return;
+              }
+              updateField('spriteLayout', layout);
+            }}
+            options={CHARACTER_SPRITE_LAYOUTS.map((layout) => ({
+              value: layout,
+              label: layout === 'weaponCombos' ? 'weaponCombos (equipped weapons)' : layout,
+            }))}
+          />
         </div>
 
         <div className="form-section">
@@ -457,6 +601,7 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
               value={formData.combat?.hp || 0}
               onChange={(value) => updateCombat('hp', value)}
               min={0}
+              tinge="green"
             />
             <NumberInput
               id="combat-mp"
@@ -465,6 +610,7 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
               value={formData.combat?.mp || 0}
               onChange={(value) => updateCombat('mp', value)}
               min={0}
+              tinge="blue"
             />
             <NumberInput
               id="vision-radius"
@@ -486,6 +632,7 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
                 value={stats.generic?.str || 0}
                 onChange={(value) => updateGenericStat('str', value)}
                 min={0}
+                tinge="indigo"
               />
               <NumberInput
                 id="stat-mnd"
@@ -494,6 +641,7 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
                 value={stats.generic?.mnd || 0}
                 onChange={(value) => updateGenericStat('mnd', value)}
                 min={0}
+                tinge="indigo"
               />
               <NumberInput
                 id="stat-con"
@@ -502,6 +650,7 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
                 value={stats.generic?.con || 0}
                 onChange={(value) => updateGenericStat('con', value)}
                 min={0}
+                tinge="indigo"
               />
               <NumberInput
                 id="stat-agi"
@@ -510,6 +659,7 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
                 value={stats.generic?.agi || 0}
                 onChange={(value) => updateGenericStat('agi', value)}
                 min={0}
+                tinge="indigo"
               />
               <NumberInput
                 id="stat-lck"
@@ -518,6 +668,7 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
                 value={stats.generic?.lck || 0}
                 onChange={(value) => updateGenericStat('lck', value)}
                 min={0}
+                tinge="indigo"
               />
             </div>
           </div>
@@ -875,22 +1026,313 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
                   label: behavior,
                 }))}
               />
-              <OptionSelect
-                id="combat-behavior-combat"
-                name="combatBehaviorCombat"
-                label="Combat"
-                value={
-                  formData.combatBehavior?.combat || DEFAULT_COMBAT_BEHAVIOR
-                }
-                onChange={(value) => updateCombatBehavior('combat', value)}
-                className="behavior-select-wide"
-                options={COMBAT_BEHAVIOR_NAMES.map((behavior) => ({
-                  value: behavior,
-                  label: behavior,
-                }))}
-              />
+              {!usesTurnModes ? (
+                <OptionSelect
+                  id="combat-behavior-combat"
+                  name="combatBehaviorCombat"
+                  label="Combat"
+                  value={
+                    formData.combatBehavior?.combat || DEFAULT_COMBAT_BEHAVIOR
+                  }
+                  onChange={(value) => updateCombatBehavior('combat', value)}
+                  className="behavior-select-wide"
+                  options={COMBAT_BEHAVIOR_NAMES.map((behavior) => ({
+                    value: behavior,
+                    label: behavior,
+                  }))}
+                />
+              ) : null}
+              {turnModes.map((mode, index) => (
+                <div key={index} className="form-fields-inline">
+                  <OptionSelect
+                    id={`combat-spell-ai-turn-mode-${index}`}
+                    name={`combatSpellAiTurnMode${index}`}
+                    label={index === 0 ? 'Combat turn mode' : 'Turn mode'}
+                    value={mode.behavior}
+                    onChange={(value) =>
+                      setTurnMode(index, {
+                        ...mode,
+                        behavior: value as CombatBehaviorName,
+                      })
+                    }
+                    className="behavior-select-wide"
+                    options={COMBAT_BEHAVIOR_NAMES.map((behavior) => ({
+                      value: behavior,
+                      label: behavior,
+                    }))}
+                  />
+                  <NumberInput
+                    id={`combat-spell-ai-turn-weight-${index}`}
+                    name={`combatSpellAiTurnWeight${index}`}
+                    label="Weight"
+                    value={mode.weight ?? 1}
+                    onChange={(value) =>
+                      setTurnMode(index, { ...mode, weight: value })
+                    }
+                    min={0}
+                  />
+                  <Button
+                    type="button"
+                    variant="small"
+                    className="btn-danger"
+                    onClick={() => removeTurnMode(index)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+              <Button type="button" variant="secondary" onClick={addTurnMode}>
+                + Add turn mode
+              </Button>
             </div>
           </div>
+
+          {isSpellcasterAi ? (
+          <div className="form-subsection">
+            <h4>Spell AI</h4>
+            <div className="form-fields-inline">
+              <OptionSelect
+                id="combat-spell-ai-selection"
+                name="combatSpellAiSelection"
+                label="Selection"
+                value={formData.combatSpellAi?.selection || 'FIRST'}
+                onChange={(value) =>
+                  updateCombatSpellAi({
+                    ...formData.combatSpellAi,
+                    selection: value as CombatSpellAiSelection,
+                  })
+                }
+                options={COMBAT_SPELL_AI_SELECTIONS.map((selection) => ({
+                  value: selection,
+                  label: selection === 'FIRST' ? 'First match' : 'Random',
+                }))}
+              />
+              <OptionSelect
+                id="combat-spell-ai-zone-targeting"
+                name="combatSpellAiZoneTargeting"
+                label="Zone targeting"
+                value={formData.combatSpellAi?.zoneTargeting || 'DEFAULT'}
+                onChange={(value) =>
+                  updateCombatSpellAi({
+                    ...formData.combatSpellAi,
+                    zoneTargeting: value as CombatSpellAiZoneTargeting,
+                  })
+                }
+                options={COMBAT_SPELL_AI_ZONE_TARGETINGS.map((targeting) => ({
+                  value: targeting,
+                  label:
+                    targeting === 'RANDOM_IN_RANGE'
+                      ? 'Random character in range'
+                      : targeting === 'ONLY_PC'
+                        ? 'Only PC'
+                        : 'Default',
+                }))}
+              />
+              <NumberInput
+                id="combat-spell-ai-skip"
+                name="combatSpellAiSkip"
+                label="Skip chance %"
+                value={formData.combatSpellAi?.skipChance || 0}
+                onChange={(value) =>
+                  updateCombatSpellAi({
+                    ...formData.combatSpellAi,
+                    skipChance: value,
+                  })
+                }
+                min={0}
+                max={100}
+              />
+            </div>
+            <h4 style={{ marginTop: '12px' }}>Known Spells</h4>
+            {knownSpells.map((spellName, index) => (
+              <div key={index} className="status-item combat-drop-table-item">
+                <SearchSelect
+                  id={`combat-spell-ai-spell-${index}`}
+                  name={`combatSpellAiSpell${index}`}
+                  label={`Spell ${index + 1}`}
+                  value={spellName}
+                  onChange={(value) => setKnownSpell(index, value)}
+                  items={spells}
+                  getItemKey={(spell) => spell.name}
+                  getItemLabel={(spell) => spell.label?.trim() || spell.name}
+                  searchFields={(spell) => [spell.name, spell.label ?? '']}
+                  placeholder="Search spells..."
+                  emptyLabel="(select spell)"
+                  allowEmpty
+                />
+                {spellName ? (
+                  <a
+                    className="template-edit-link"
+                    href={`${window.location.origin}${window.location.pathname}#/editor/spellTemplates?spell=${encodeURIComponent(spellName)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Edit spell
+                  </a>
+                ) : null}
+                <Button
+                  type="button"
+                  variant="small"
+                  className="btn-danger"
+                  onClick={() => removeKnownSpell(index)}
+                >
+                  Remove
+                </Button>
+              </div>
+            ))}
+            <div style={{ marginTop: '6px' }}>
+              <Button type="button" variant="secondary" onClick={addKnownSpell}>
+                + Add Known Spell
+              </Button>
+            </div>
+            <h4 style={{ marginTop: '12px' }}>Rules</h4>
+            {spellRules.map((rule, ruleIndex) => (
+              <div key={ruleIndex} className="form-subsection" style={{ marginTop: '8px' }}>
+                <div className="form-fields-inline">
+                  <SearchSelect
+                    id={`combat-spell-ai-rule-spell-${ruleIndex}`}
+                    name={`combatSpellAiRuleSpell${ruleIndex}`}
+                    label="Cast"
+                    value={rule.spell}
+                    onChange={(value) => setSpellRule(ruleIndex, { ...rule, spell: value })}
+                    items={spells.filter(
+                      (spell) =>
+                        knownSpells.includes(spell.name) || spell.name === rule.spell,
+                    )}
+                    getItemKey={(spell) => spell.name}
+                    getItemLabel={(spell) => spell.label?.trim() || spell.name}
+                    searchFields={(spell) => [spell.name, spell.label ?? '']}
+                    placeholder="Search known spells..."
+                    emptyLabel="(select spell)"
+                    allowEmpty
+                  />
+                  <NumberInput
+                    id={`combat-spell-ai-rule-weight-${ruleIndex}`}
+                    name={`combatSpellAiRuleWeight${ruleIndex}`}
+                    label="Weight"
+                    value={rule.weight ?? 1}
+                    onChange={(value) =>
+                      setSpellRule(ruleIndex, { ...rule, weight: value })
+                    }
+                    min={1}
+                  />
+                  <OptionSelect
+                    id={`combat-spell-ai-rule-zone-${ruleIndex}`}
+                    name={`combatSpellAiRuleZone${ruleIndex}`}
+                    label="Zone targeting"
+                    value={rule.zoneTargeting || 'DEFAULT'}
+                    onChange={(value) =>
+                      setSpellRule(ruleIndex, {
+                        ...rule,
+                        zoneTargeting: value as CombatSpellAiZoneTargeting,
+                      })
+                    }
+                    options={COMBAT_SPELL_AI_ZONE_TARGETINGS.map((targeting) => ({
+                      value: targeting,
+                      label:
+                        targeting === 'RANDOM_IN_RANGE'
+                          ? 'Random character in range'
+                          : targeting === 'ONLY_PC'
+                            ? 'Only PC'
+                            : 'Default',
+                    }))}
+                  />
+                  <Button
+                    type="button"
+                    variant="small"
+                    className="btn-danger"
+                    onClick={() => removeSpellRule(ruleIndex)}
+                  >
+                    Remove rule
+                  </Button>
+                </div>
+                {(rule.conditions ?? []).map((condition, conditionIndex) => (
+                  <div
+                    key={conditionIndex}
+                    className="form-fields-inline"
+                    style={{ marginTop: '8px' }}
+                  >
+                    <OptionSelect
+                      id={`combat-spell-ai-cond-type-${ruleIndex}-${conditionIndex}`}
+                      name={`combatSpellAiCondType${ruleIndex}_${conditionIndex}`}
+                      label="When"
+                      value={condition.type}
+                      onChange={(value) =>
+                        setSpellRuleCondition(ruleIndex, conditionIndex, {
+                          type: value as CombatSpellAiConditionType,
+                          value: conditionNeedsValue(value as CombatSpellAiConditionType)
+                            ? condition.value ?? 0
+                            : undefined,
+                          status: conditionNeedsStatus(value as CombatSpellAiConditionType)
+                            ? condition.status
+                            : undefined,
+                        })
+                      }
+                      options={COMBAT_SPELL_AI_CONDITION_TYPES.map((type) => ({
+                        value: type,
+                        label: type,
+                      }))}
+                    />
+                    {conditionNeedsValue(condition.type) ? (
+                      <NumberInput
+                        id={`combat-spell-ai-cond-value-${ruleIndex}-${conditionIndex}`}
+                        name={`combatSpellAiCondValue${ruleIndex}_${conditionIndex}`}
+                        label="Value"
+                        value={condition.value ?? 0}
+                        onChange={(value) =>
+                          setSpellRuleCondition(ruleIndex, conditionIndex, {
+                            ...condition,
+                            value,
+                          })
+                        }
+                        min={0}
+                      />
+                    ) : null}
+                    {conditionNeedsStatus(condition.type) ? (
+                      <TextInput
+                        id={`combat-spell-ai-cond-status-${ruleIndex}-${conditionIndex}`}
+                        name={`combatSpellAiCondStatus${ruleIndex}_${conditionIndex}`}
+                        label="Status"
+                        value={condition.status ?? ''}
+                        onChange={(value) =>
+                          setSpellRuleCondition(ruleIndex, conditionIndex, {
+                            ...condition,
+                            status: value,
+                          })
+                        }
+                        placeholder="e.g. BLESSED"
+                      />
+                    ) : null}
+                    <Button
+                      type="button"
+                      variant="small"
+                      className="btn-danger"
+                      onClick={() =>
+                        removeSpellRuleCondition(ruleIndex, conditionIndex)
+                      }
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+                <div style={{ marginTop: '6px' }}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => addSpellRuleCondition(ruleIndex)}
+                  >
+                    + Add Condition
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <div style={{ marginTop: '6px' }}>
+              <Button type="button" variant="secondary" onClick={addSpellRule}>
+                + Add Rule
+              </Button>
+            </div>
+          </div>
+          ) : null}
 
           <div className="form-subsection">
             <div className="form-fields-inline combat-default-ability-row">

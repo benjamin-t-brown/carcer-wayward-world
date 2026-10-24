@@ -1,4 +1,5 @@
 import React from 'react';
+import { InputTinge, tingeClassName } from './inputTinge';
 
 interface NumberInputProps {
   id?: string;
@@ -11,6 +12,7 @@ interface NumberInputProps {
   max?: number;
   required?: boolean;
   disabled?: boolean;
+  tinge?: InputTinge;
 }
 
 export const NumberInput: React.FC<NumberInputProps> = ({
@@ -24,6 +26,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   max,
   required = false,
   disabled = false,
+  tinge,
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const numValue = parseFloat(e.target.value);
@@ -36,7 +39,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
 
   return (
     <div
-      className="form-group"
+      className={['form-group', tingeClassName(tinge)].filter(Boolean).join(' ')}
       style={{
         filter: disabled
           ? 'grayscale(100%) brightness(0.5) sepia(100%)'

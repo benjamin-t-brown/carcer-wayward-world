@@ -8,6 +8,7 @@
 #include "actions/navigation/UiShowLayerPickUp.hpp"
 #include "actions/navigation/UiShowLayerSpellCast.hpp"
 #include "actions/navigation/heldMove/UiUpdateHeldMove.hpp"
+#include "ui/helpers/worldCommands.h"
 #include "actions/world/WorldSetActionMode.hpp"
 
 namespace ui {
@@ -124,6 +125,19 @@ void activateWorldAction(state::StateManager& stateManager,
     setHeldMoveActive(stateManager, false);
     cancelCurrentWorldActionMode(stateManager);
     stateManager.enqueueAction(state::makeAction<state::actions::EndCombat>(), 0);
+    break;
+  case state::WorldActionType::SHOOT:
+    setHeldMoveActive(stateManager, false);
+    if (currentMode == model::WorldActionMode::SHOOT) {
+      cancelCurrentWorldActionMode(stateManager);
+      break;
+    }
+    if (!canPlayerIssueCombatMove(stateManager.getState())) {
+      break;
+    }
+    stateManager.parallelAction(
+        state::makeAction<state::actions::WorldSetActionMode>(model::WorldActionMode::SHOOT),
+        0);
     break;
   default:
     break;

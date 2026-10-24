@@ -224,6 +224,38 @@ void placeStackedOnLeader(model::World& world,
   }
 }
 
+void copyLeaderFacingToParty(model::ActiveMap& activeMap, const model::Player& player) {
+  if (player.party.empty()) {
+    return;
+  }
+  const auto& leaderId = player.party[0].instanceId;
+  model::CharacterInstance* leader = nullptr;
+  for (auto& character : activeMap.characters) {
+    if (character.id == leaderId) {
+      leader = &character;
+      break;
+    }
+  }
+  if (leader == nullptr) {
+    return;
+  }
+
+  int forwardDx = 0;
+  int forwardDy = 0;
+  model::unitStepFromDelta(leader->lastMoveDx, leader->lastMoveDy, forwardDx, forwardDy);
+  if (forwardDx == 0 && forwardDy == 0) {
+    forwardDx = 1;
+    forwardDy = 0;
+  }
+
+  for (auto& character : activeMap.characters) {
+    if (!model::isPartyMember(player, character.id)) {
+      continue;
+    }
+    model::updateCharacterFacingFromMove(character, forwardDx, forwardDy);
+  }
+}
+
 } // namespace
 
 void addPartyMembersToCombatMap(model::World& world,
@@ -256,8 +288,9 @@ void addPartyMembersToCombatMap(model::World& world,
     const int leaderX = leader->x;
     const int leaderY = leader->y;
     const bmin::String leaderId = leader->id;
-    int forwardDx = leader->lastMoveDx;
-    int forwardDy = leader->lastMoveDy;
+    int forwardDx = 0;
+    int forwardDy = 0;
+    model::unitStepFromDelta(leader->lastMoveDx, leader->lastMoveDy, forwardDx, forwardDy);
     if (forwardDx == 0 && forwardDy == 0) {
       forwardDx = 1;
       forwardDy = 0;
@@ -302,6 +335,8 @@ void addPartyMembersToCombatMap(model::World& world,
       character.currentHp = character.maxHp;
     }
   }
+
+  copyLeaderFacingToParty(activeMap, player);
 }
 
 } // namespace game

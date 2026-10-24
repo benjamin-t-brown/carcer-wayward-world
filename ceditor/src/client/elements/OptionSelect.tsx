@@ -1,4 +1,5 @@
 import React from 'react';
+import { InputTinge, tingeClassName } from './inputTinge';
 
 interface OptionSelectProps {
   id?: string;
@@ -12,6 +13,7 @@ interface OptionSelectProps {
   style?: React.CSSProperties;
   className?: string;
   inputStyle?: React.CSSProperties;
+  tinge?: InputTinge;
 }
 
 export const OptionSelect: React.FC<OptionSelectProps> = ({
@@ -26,8 +28,11 @@ export const OptionSelect: React.FC<OptionSelectProps> = ({
   required = false,
   disabled = false,
   className = '',
+  tinge,
 }) => {
-  const groupClass = `form-group ${className}`.trim();
+  const groupClass = ['form-group', className, tingeClassName(tinge)]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <div className={groupClass} style={style}>

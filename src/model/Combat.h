@@ -16,6 +16,7 @@ struct ActiveMap;
 inline constexpr int COMBAT_STARTING_AP = 4;
 inline constexpr int COMBAT_MOVE_COST = 1;
 inline constexpr int COMBAT_ATTACK_COST = 4;
+inline constexpr int COMBAT_SHOOT_COST = 3;
 inline constexpr int COMBAT_MELEE_DAMAGE = 10;
 inline constexpr int COMBAT_HIT_CHANCE_PERCENT = 75;
 
@@ -38,10 +39,13 @@ struct Combat {
 void removeCharacterFromCombatTurnOrder(Combat& combat, const bmin::String& characterId);
 
 bool isPartyMember(const Player& player, const bmin::String& characterId);
+/** Player: only while waiting to act. AI: whenever they are the active combatant. */
+bool shouldShowCombatTurnOutline(const World& world, const Player& player);
 bool isCharacterAlly(const Player& player, const CharacterInstance& character);
 bool isCharacterEnemy(const CharacterInstance& character);
 
 int getCharacterHp(const Player& player, const CharacterInstance& character);
+int getCharacterMaxHp(const Player& player, const CharacterInstance& character);
 void setCharacterHp(Player& player, CharacterInstance& character, int hp);
 /** Caps a positive HP delta at missing HP (`maxHp - currentHp`). Damage is unchanged. */
 int appliedHpDelta(int currentHp, int maxHp, int delta);

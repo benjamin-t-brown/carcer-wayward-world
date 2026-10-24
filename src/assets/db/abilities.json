@@ -522,7 +522,7 @@
         "x": 1,
         "y": 1
       },
-      "range": 1
+      "range": 8
     },
     "apCost": 2,
     "costType": "ABILITY_COST_NONE",

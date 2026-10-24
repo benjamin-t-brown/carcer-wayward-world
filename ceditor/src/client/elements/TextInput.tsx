@@ -1,4 +1,5 @@
 import React from 'react';
+import { InputTinge, tingeClassName } from './inputTinge';
 
 interface TextInputProps {
   id?: string;
@@ -12,6 +13,7 @@ interface TextInputProps {
   required?: boolean;
   disabled?: boolean;
   inputClassName?: string;
+  tinge?: InputTinge;
 }
 
 function isWideNameOrLabelField(name?: string, label?: string): boolean {
@@ -49,9 +51,12 @@ export const TextInput: React.FC<TextInputProps> = ({
   onKeyDown,
   onBlur,
   inputClassName,
+  tinge,
 }) => {
   return (
-    <div className="form-group" style={{
+    <div
+      className={['form-group', tingeClassName(tinge)].filter(Boolean).join(' ')}
+      style={{
       filter: disabled ? 'grayscale(100%) brightness(1.5)' : 'none',
     }}>
       {label && (

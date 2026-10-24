@@ -49,10 +49,32 @@ bool chooseSeekAndMeleeCombatAction(model::World& world,
                                     int& outDx,
                                     int& outDy);
 
+struct EnemySpellAction {
+  bmin::String spellName;
+  bmin::String targetChId;
+  model::TileXY targetLoc{};
+};
+
+/**
+ * Choose this actor's combat AI mode for the current turn. Empty turnModes
+ * uses combatBehaviorCombat. The pick is cached until combatTurnsTaken changes.
+ */
+model::CombatBehaviorName resolveCombatTurnBehavior(model::CharacterInstance& actor);
+
+/**
+ * Pick a combat spell from actor.combatSpellAi. Returns false if no
+ * MP-affordable matching rule (caller should SEEK_AND_MELEE).
+ */
+bool chooseEnemySpellAction(model::World& world,
+                            MapInstanceStore& mapInstances,
+                            model::Player& player,
+                            model::CharacterInstance& actor,
+                            const db::Database& database,
+                            EnemySpellAction& out);
+
 /**
  * Town enemy spell cast hook. Returns true if a spell action was queued.
- * Stub: always false / queues nothing until enemy spell AI exists.
- * TODO: share combat spell AI with DoCPUCombatTurn.
+ * v1: always false / queues nothing. Combat uses chooseEnemySpellAction.
  */
 bool tryQueueTownEnemySpell(model::World& world,
                             MapInstanceStore& mapInstances,

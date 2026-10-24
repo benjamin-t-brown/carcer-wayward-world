@@ -362,6 +362,9 @@ AbilityCostType abilityCostTypeFromString(const bmin::String& value) {
   if (value == "ABILITY_COST_HP") {
     return AbilityCostType::ABILITY_COST_HP;
   }
+  if (value == "ABILITY_COST_AMMO") {
+    return AbilityCostType::ABILITY_COST_AMMO;
+  }
   throw std::runtime_error(("Invalid AbilityCostType: " + value).cStr());
 }
 
@@ -375,6 +378,8 @@ bmin::String abilityCostTypeToString(AbilityCostType value) {
     return "ABILITY_COST_COOLDOWN";
   case AbilityCostType::ABILITY_COST_HP:
     return "ABILITY_COST_HP";
+  case AbilityCostType::ABILITY_COST_AMMO:
+    return "ABILITY_COST_AMMO";
   }
   throw std::runtime_error("Unknown AbilityCostType");
 }

@@ -14,7 +14,7 @@ namespace model {
 
 enum class CameraMode { Follow, Aiming, Dragging, Controlled };
 
-enum class WorldActionMode { NONE, EXAMINE, TALK, SPELL, INTERACT };
+enum class WorldActionMode { NONE, EXAMINE, TALK, SPELL, SHOOT, INTERACT };
 
 // Map-space hit feedback: splash animation plus a numeric label (not UI floating text).
 struct DamageParticle {

@@ -26,6 +26,25 @@ int main(int argc, char** argv) {
     ok = assertEqual(member.stats.generic.str, 10, "testPartyMember1.str") && ok;
     ok = assertEqual(member.combat.hp, 100, "testPartyMember1.hp") && ok;
     ok = assertEqual(member.combat.mp, 50, "testPartyMember1.mp") && ok;
+
+    const model::CharacterTemplate& mage = database.getCharacterTemplate("goblinTestMage");
+    ok = assertEqual(mage.combat.mp, 20, "goblinTestMage.mp") && ok;
+    ok = assertEqual(static_cast<int>(mage.combatBehavior.combat),
+                     static_cast<int>(model::CombatBehaviorName::SPELLCASTER),
+                     "goblinTestMage combat SPELLCASTER") &&
+         ok;
+    ok = assertEqual(static_cast<int>(mage.combatSpellAi.spells.size()),
+                     3,
+                     "goblinTestMage.spell count") &&
+         ok;
+    if (!mage.combatSpellAi.spells.empty() && mage.combatSpellAi.spells[0] != "FLAME") {
+      LOG(ERROR) << "goblinTestMage.spells[0] expected FLAME" << LOG_ENDL;
+      ok = false;
+    }
+    ok = assertEqual(static_cast<int>(mage.combatSpellAi.zoneTargeting),
+                     static_cast<int>(model::CombatSpellAiZoneTargeting::DEFAULT),
+                     "goblinTestMage zone targeting default") &&
+         ok;
     if (member.spritesheetName != "pc") {
       LOG(ERROR) << "testPartyMember1.spritesheet expected pc but got "
                  << member.spritesheetName << LOG_ENDL;

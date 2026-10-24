@@ -37,6 +37,10 @@
           {
             "type": "STATUS_EVENT_ON_TURN_START",
             "condition": "CONDITION_ALWAYS"
+          },
+          {
+            "type": "STATUS_EVENT_ON_APPLIED",
+            "condition": "CONDITION_ALWAYS"
           }
         ]
       }

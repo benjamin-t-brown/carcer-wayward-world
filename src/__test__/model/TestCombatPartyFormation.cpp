@@ -378,6 +378,27 @@ bool testWaitPreservesDirection() {
   return ok;
 }
 
+bool testLongRangeFacingKeepsCompactFormation() {
+  LOG(INFO) << "testLongRangeFacingKeepsCompactFormation" << LOG_ENDL;
+  db::Database database;
+  auto state = makeBaseState(database, 9, 9);
+  // Flame-at-a-distance leftover: lastMove is the raw tile delta, not a unit step.
+  placeLeader(state, 4, 4, 0, -5);
+  addMissingPartyMembers(state, 1);
+
+  state::StateManager stateManager;
+  stateManager.getState() = state;
+  state::StateManagerInterface::setStateManager(&stateManager);
+  stateManager.enqueueAction(state::makeAction<state::actions::StartCombat>(), 0);
+  tickState(stateManager, 1);
+
+  auto& world = stateManager.getState().world;
+  auto ok = positionsMatch(world.activeMap, "ally-1", 4, 4, "long-range leader");
+  ok = positionsMatch(world.activeMap, "ally-2", 4, 5, "long-range ally one tile south") &&
+       ok;
+  return ok;
+}
+
 bool testLineFallbackWhenFormationBlocked() {
   LOG(INFO) << "testLineFallbackWhenFormationBlocked" << LOG_ENDL;
   db::Database database;
@@ -495,6 +516,72 @@ bool testNoTeleportOverWall() {
   return ok;
 }
 
+bool facingMatches(model::ActiveMap& activeMap,
+                   const char* id,
+                   model::CharacterFacing facing,
+                   int lastDx,
+                   int lastDy,
+                   const char* label) {
+  auto* ch = findOnActiveMap(activeMap, id);
+  if (!ch) {
+    LOG(ERROR) << label << " missing character " << id << LOG_ENDL;
+    return false;
+  }
+  return assertTrue(ch->facing == facing, label) &&
+         assertEqual(ch->lastMoveDx, lastDx, label) &&
+         assertEqual(ch->lastMoveDy, lastDy, label);
+}
+
+bool testPartyFacesLeaderOnCombatStart() {
+  LOG(INFO) << "testPartyFacesLeaderOnCombatStart" << LOG_ENDL;
+  db::Database database;
+  auto state = makeBaseState(database, 9, 9);
+  // Leader faces west. One ally already on the map faces the other way.
+  placeLeader(state, 4, 4, -1, 0);
+  addMissingPartyMembers(state, 2);
+
+  auto allyOnMap = model::CharacterInstance{};
+  allyOnMap.id = "ally-2";
+  allyOnMap.name = "Ally2";
+  allyOnMap.templateName = "hero";
+  allyOnMap.x = 5;
+  allyOnMap.y = 4;
+  allyOnMap.facing = model::CharacterFacing::Right;
+  allyOnMap.lastMoveDx = 1;
+  allyOnMap.lastMoveDy = 0;
+  state.world.activeMap.characters.pushBack(std::move(allyOnMap));
+
+  state::StateManager stateManager;
+  stateManager.getState() = state;
+  state::StateManagerInterface::setStateManager(&stateManager);
+  stateManager.enqueueAction(state::makeAction<state::actions::StartCombat>(), 0);
+  tickState(stateManager, 1);
+
+  auto& world = stateManager.getState().world;
+  auto ok =
+      facingMatches(world.activeMap,
+                    "ally-1",
+                    model::CharacterFacing::Left,
+                    -1,
+                    0,
+                    "leader keeps west facing");
+  ok = facingMatches(world.activeMap,
+                     "ally-2",
+                     model::CharacterFacing::Left,
+                     -1,
+                     0,
+                     "on-map ally matches leader facing") &&
+       ok;
+  ok = facingMatches(world.activeMap,
+                     "ally-3",
+                     model::CharacterFacing::Left,
+                     -1,
+                     0,
+                     "spawned ally matches leader facing") &&
+       ok;
+  return ok;
+}
+
 } // namespace
 
 int main(int /*argc*/, char** /*argv*/) {
@@ -502,10 +589,12 @@ int main(int /*argc*/, char** /*argv*/) {
   auto ok = true;
   ok = testOpenFormationShapes() && ok;
   ok = testWaitPreservesDirection() && ok;
+  ok = testLongRangeFacingKeepsCompactFormation() && ok;
   ok = testLineFallbackWhenFormationBlocked() && ok;
   ok = testStackFallbackWhenLineBlocked() && ok;
   ok = testEnemyBlocksFormationAndLine() && ok;
   ok = testNoTeleportOverWall() && ok;
+  ok = testPartyFacesLeaderOnCombatStart() && ok;
 
   if (ok) {
     LOG(INFO) << TEST_NAME << " PASSED" << LOG_ENDL;

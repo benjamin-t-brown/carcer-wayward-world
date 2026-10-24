@@ -15,6 +15,99 @@ CharacterSpriteLayout characterSpriteLayoutFromString(const bmin::String& value)
   return CharacterSpriteLayout::Default;
 }
 
+CombatSpellAiSelection combatSpellAiSelectionFromString(const bmin::String& value) {
+  if (value == "RANDOM") {
+    return CombatSpellAiSelection::RANDOM;
+  }
+  if (value == "FIRST" || value.empty()) {
+    return CombatSpellAiSelection::FIRST;
+  }
+  throw std::runtime_error(
+      (bmin::String("Invalid combatSpellAi selection: ") + value).cStr());
+}
+
+bmin::String getStringFromCombatSpellAiSelection(CombatSpellAiSelection selection) {
+  switch (selection) {
+  case CombatSpellAiSelection::RANDOM:
+    return "RANDOM";
+  case CombatSpellAiSelection::FIRST:
+    break;
+  }
+  return "FIRST";
+}
+
+CombatSpellAiZoneTargeting combatSpellAiZoneTargetingFromString(const bmin::String& value) {
+  if (value == "RANDOM_IN_RANGE") {
+    return CombatSpellAiZoneTargeting::RANDOM_IN_RANGE;
+  }
+  if (value == "ONLY_PC") {
+    return CombatSpellAiZoneTargeting::ONLY_PC;
+  }
+  if (value == "DEFAULT" || value.empty()) {
+    return CombatSpellAiZoneTargeting::DEFAULT;
+  }
+  throw std::runtime_error(
+      (bmin::String("Invalid combatSpellAi zone targeting: ") + value).cStr());
+}
+
+bmin::String getStringFromCombatSpellAiZoneTargeting(CombatSpellAiZoneTargeting targeting) {
+  switch (targeting) {
+  case CombatSpellAiZoneTargeting::RANDOM_IN_RANGE:
+    return "RANDOM_IN_RANGE";
+  case CombatSpellAiZoneTargeting::ONLY_PC:
+    return "ONLY_PC";
+  case CombatSpellAiZoneTargeting::DEFAULT:
+    break;
+  }
+  return "DEFAULT";
+}
+
+CombatSpellAiConditionType combatSpellAiConditionTypeFromString(const bmin::String& value) {
+  if (value == "ALWAYS") {
+    return CombatSpellAiConditionType::ALWAYS;
+  }
+  if (value == "SELF_HP_BELOW_PERCENT") {
+    return CombatSpellAiConditionType::SELF_HP_BELOW_PERCENT;
+  }
+  if (value == "SELF_HP_ABOVE_PERCENT") {
+    return CombatSpellAiConditionType::SELF_HP_ABOVE_PERCENT;
+  }
+  if (value == "ZONE_HOSTILE_COUNT_AT_LEAST") {
+    return CombatSpellAiConditionType::ZONE_HOSTILE_COUNT_AT_LEAST;
+  }
+  if (value == "HAS_STATUS") {
+    return CombatSpellAiConditionType::HAS_STATUS;
+  }
+  if (value == "LACKS_STATUS") {
+    return CombatSpellAiConditionType::LACKS_STATUS;
+  }
+  if (value == "OWN_TURN_AT_MOST") {
+    return CombatSpellAiConditionType::OWN_TURN_AT_MOST;
+  }
+  throw std::runtime_error(
+      (bmin::String("Invalid combatSpellAi condition type: ") + value).cStr());
+}
+
+bmin::String getStringFromCombatSpellAiConditionType(CombatSpellAiConditionType type) {
+  switch (type) {
+  case CombatSpellAiConditionType::SELF_HP_BELOW_PERCENT:
+    return "SELF_HP_BELOW_PERCENT";
+  case CombatSpellAiConditionType::SELF_HP_ABOVE_PERCENT:
+    return "SELF_HP_ABOVE_PERCENT";
+  case CombatSpellAiConditionType::ZONE_HOSTILE_COUNT_AT_LEAST:
+    return "ZONE_HOSTILE_COUNT_AT_LEAST";
+  case CombatSpellAiConditionType::HAS_STATUS:
+    return "HAS_STATUS";
+  case CombatSpellAiConditionType::LACKS_STATUS:
+    return "LACKS_STATUS";
+  case CombatSpellAiConditionType::OWN_TURN_AT_MOST:
+    return "OWN_TURN_AT_MOST";
+  case CombatSpellAiConditionType::ALWAYS:
+    break;
+  }
+  return "ALWAYS";
+}
+
 bmin::String getStringFromCharacterSpriteLayout(CharacterSpriteLayout layout) {
   switch (layout) {
   case CharacterSpriteLayout::WeaponCombos:
@@ -64,6 +157,7 @@ void applyCharacterTemplateToInstance(CharacterInstance& character,
   character.visionRadius = characterTemplate.vision.radius;
   character.combatBehaviorTown = characterTemplate.combatBehavior.town;
   character.combatBehaviorCombat = characterTemplate.combatBehavior.combat;
+  character.combatSpellAi = characterTemplate.combatSpellAi;
   character.maxHp = characterTemplate.combat.hp;
   character.maxMp = characterTemplate.combat.mp;
   initCharacterStatsFromTemplate(character.stats, characterTemplate);

@@ -11,6 +11,7 @@
 #include "actions/combat/ModifyAP.hpp"
 #include "actions/combat/MoveCharacter.hpp"
 #include "actions/combat/PerformMeleeAttack.hpp"
+#include "actions/combat/PerformShoot.hpp"
 #include "actions/combat/PerformSpellCast.hpp"
 
 namespace state {
@@ -92,6 +93,14 @@ class DoCombatAction : public AbstractAction {
     insertAction(nullptr, scaledDelayMs(150));
   }
 
+  void handleShoot() {
+    model::SpellTargetInfo shootTarget;
+    shootTarget.targetCharacterId = ctx.targetChId;
+    shootTarget.tileX = ctx.targetLoc.x;
+    shootTarget.tileY = ctx.targetLoc.y;
+    insertAction(state::makeAction<PerformShoot>(chId, shootTarget), 0);
+  }
+
   void act() override {
     if (!state || !state->world.combat.active) {
       return;
@@ -134,7 +143,7 @@ class DoCombatAction : public AbstractAction {
       handleSpell();
       break;
     case model::CombatActionType::SHOOT:
-      insertAction(state::makeAction<DoCombatActionCompletion>(), 0);
+      handleShoot();
       break;
     case model::CombatActionType::WAIT: {
       auto* character = game::findCharacterById(state->world.activeMap, chId);

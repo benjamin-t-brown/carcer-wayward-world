@@ -63,6 +63,9 @@ model::CombatBehaviorName getCombatBehaviorNameFromString(const bmin::String& be
   if (behaviorStr == "SEEK_AND_MELEE") {
     return model::CombatBehaviorName::SEEK_AND_MELEE;
   }
+  if (behaviorStr == "SPELLCASTER") {
+    return model::CombatBehaviorName::SPELLCASTER;
+  }
   throw std::runtime_error(
       (bmin::String("Invalid combat behavior: ") + behaviorStr).cStr());
 }
@@ -307,6 +310,91 @@ void loadCharacterTemplates(
         characterTemplate.combatBehavior.combat =
             getCombatBehaviorNameFromString(
                 combatBehaviorJson["combat"].get<bmin::String>());
+      }
+    }
+
+    if (characterJson.contains("combatSpellAi") &&
+        characterJson["combatSpellAi"].is_object()) {
+      const auto& aiJson = characterJson["combatSpellAi"];
+      if (aiJson.contains("selection") && aiJson["selection"].is_string()) {
+        characterTemplate.combatSpellAi.selection =
+            model::combatSpellAiSelectionFromString(
+                aiJson["selection"].get<bmin::String>());
+      }
+      if (aiJson.contains("zoneTargeting") && aiJson["zoneTargeting"].is_string()) {
+        characterTemplate.combatSpellAi.zoneTargeting =
+            model::combatSpellAiZoneTargetingFromString(
+                aiJson["zoneTargeting"].get<bmin::String>());
+      }
+      if (aiJson.contains("skipChance")) {
+        characterTemplate.combatSpellAi.skipChance = aiJson["skipChance"].get<int>();
+      }
+      if (aiJson.contains("turnModes") && aiJson["turnModes"].is_array()) {
+        for (const auto& modeJson : aiJson["turnModes"]) {
+          if (!modeJson.is_object()) {
+            continue;
+          }
+          model::CombatSpellAiTurnMode mode;
+          if (modeJson.contains("behavior") && modeJson["behavior"].is_string()) {
+            mode.behavior = getCombatBehaviorNameFromString(
+                modeJson["behavior"].get<bmin::String>());
+          }
+          if (modeJson.contains("weight")) {
+            mode.weight = modeJson["weight"].get<int>();
+          }
+          characterTemplate.combatSpellAi.turnModes.pushBack(mode);
+        }
+      }
+      if (aiJson.contains("spells") && aiJson["spells"].is_array()) {
+        for (const auto& spellJson : aiJson["spells"]) {
+          if (!spellJson.is_string()) {
+            continue;
+          }
+          const auto spellName = spellJson.get<bmin::String>();
+          if (!spellName.empty()) {
+            characterTemplate.combatSpellAi.spells.pushBack(spellName);
+          }
+        }
+      }
+      if (aiJson.contains("rules") && aiJson["rules"].is_array()) {
+        for (const auto& ruleJson : aiJson["rules"]) {
+          if (!ruleJson.is_object()) {
+            continue;
+          }
+          model::CombatSpellAiRule rule;
+          if (ruleJson.contains("spell") && ruleJson["spell"].is_string()) {
+            rule.spell = ruleJson["spell"].get<bmin::String>();
+          }
+          if (ruleJson.contains("weight")) {
+            rule.weight = ruleJson["weight"].get<int>();
+          }
+          if (ruleJson.contains("zoneTargeting") && ruleJson["zoneTargeting"].is_string()) {
+            rule.zoneTargeting = model::combatSpellAiZoneTargetingFromString(
+                ruleJson["zoneTargeting"].get<bmin::String>());
+          }
+          if (ruleJson.contains("conditions") && ruleJson["conditions"].is_array()) {
+            for (const auto& condJson : ruleJson["conditions"]) {
+              if (!condJson.is_object()) {
+                continue;
+              }
+              model::CombatSpellAiCondition condition;
+              if (condJson.contains("type") && condJson["type"].is_string()) {
+                condition.type = model::combatSpellAiConditionTypeFromString(
+                    condJson["type"].get<bmin::String>());
+              }
+              if (condJson.contains("value")) {
+                condition.value = condJson["value"].get<int>();
+              }
+              if (condJson.contains("status") && condJson["status"].is_string()) {
+                condition.status = condJson["status"].get<bmin::String>();
+              }
+              rule.conditions.pushBack(condition);
+            }
+          }
+          if (!rule.spell.empty()) {
+            characterTemplate.combatSpellAi.rules.pushBack(rule);
+          }
+        }
       }
     }
 

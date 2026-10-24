@@ -15,6 +15,16 @@ bool isPartyMember(const Player& player, const bmin::String& characterId) {
   return false;
 }
 
+bool shouldShowCombatTurnOutline(const World& world, const Player& player) {
+  if (!world.combat.active || world.combat.activeCharacterId.empty()) {
+    return false;
+  }
+  if (!isPartyMember(player, world.combat.activeCharacterId)) {
+    return true;
+  }
+  return world.combat.isWaitingForAction;
+}
+
 bool isCharacterEnemy(const CharacterInstance& character) {
   return characterInstanceIsEnemy(character);
 }
@@ -39,6 +49,20 @@ int getCharacterHp(const Player& player, const CharacterInstance& character) {
   }
   if (character.currentHp > 0) {
     return character.currentHp;
+  }
+  return character.maxHp;
+}
+
+int getCharacterMaxHp(const Player& player, const CharacterInstance& character) {
+  if (isPartyMember(player, character.id)) {
+    for (const auto& member : player.party) {
+      if (member.instanceId == character.id) {
+        if (member.params.combat.hp > 0) {
+          return member.params.combat.hp;
+        }
+        break;
+      }
+    }
   }
   return character.maxHp;
 }

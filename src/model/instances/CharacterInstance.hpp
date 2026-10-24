@@ -9,6 +9,12 @@ namespace model {
 
 enum class CharacterFacing { Right, Left };
 
+// Clamp a tile delta to one 8-way step. (0, 0) stays (0, 0).
+inline void unitStepFromDelta(int dx, int dy, int& outDx, int& outDy) {
+  outDx = dx > 0 ? 1 : (dx < 0 ? -1 : 0);
+  outDy = dy > 0 ? 1 : (dy < 0 ? -1 : 0);
+}
+
 // Up, up-right, right, down-right → Right; left, up-left, down-left, down → Left.
 inline CharacterFacing facingFromMoveDelta(int dx, int dy) {
   if (dx < 0 || (dx == 0 && dy > 0)) {
@@ -55,7 +61,7 @@ struct CharacterInstance {
   int spriteIndexOffset = 0;
   // Default art faces right; left uses horizontal flip at render time.
   CharacterFacing facing = CharacterFacing::Right;
-  // Last non-zero move delta (tile space). Waits leave this unchanged.
+  // Last non-zero facing step (one 8-way tile). Waits leave this unchanged.
   // Default matches default facing Right.
   int lastMoveDx = 1;
   int lastMoveDy = 0;
@@ -72,6 +78,13 @@ struct CharacterInstance {
   int visionRadius = 0;
   CombatBehaviorName combatBehaviorTown = CombatBehaviorName::SEEK_AND_MELEE;
   CombatBehaviorName combatBehaviorCombat = CombatBehaviorName::SEEK_AND_MELEE;
+  CharacterTemplateCombatSpellAi combatSpellAi;
+  // Mode chosen for the current combat turn (see resolveCombatTurnBehavior).
+  CombatBehaviorName combatBehaviorThisTurn = CombatBehaviorName::SEEK_AND_MELEE;
+  // combatTurnsTaken value when combatBehaviorThisTurn was last chosen.
+  int combatBehaviorChosenTurn = -1;
+  // Incremented at the start of each of this actor's combat turns.
+  int combatTurnsTaken = 0;
   CharacterStats stats;
   bmin::DynArray<AppliedStatusEffect> statusEffects;
 };
@@ -82,11 +95,15 @@ inline bool characterInstanceIsEnemy(const CharacterInstance& character) {
 }
 
 inline void updateCharacterFacingFromMove(CharacterInstance& character, int dx, int dy) {
-  if (dx != 0 || dy != 0) {
-    character.facing = facingFromMoveDelta(dx, dy);
-    character.lastMoveDx = dx;
-    character.lastMoveDy = dy;
+  if (dx == 0 && dy == 0) {
+    return;
   }
+  int unitDx = 0;
+  int unitDy = 0;
+  unitStepFromDelta(dx, dy, unitDx, unitDy);
+  character.facing = facingFromMoveDelta(unitDx, unitDy);
+  character.lastMoveDx = unitDx;
+  character.lastMoveDy = unitDy;
 }
 
 inline void updateCharacterFacingToward(CharacterInstance& character,

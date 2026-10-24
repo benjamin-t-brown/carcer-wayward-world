@@ -29,6 +29,7 @@
 namespace {
 
 constexpr int kMaxEnemyMarkers = 7;
+constexpr auto COMBAT_SPEED = 0.5f;
 
 constexpr const char* TEST_PARTY_TEMPLATE_NAMES[] = {
     "testPartyMember1",
@@ -43,10 +44,11 @@ const bmin::DynArray<bmin::DynArray<bmin::String>> PARTY_MEMBER_ITEMS = {
     {"SwordBronze", "DaggerBronze"},
     {"StaffSimple"},
     {"SpearBronze"},
-    {"ClubHeavy"},
+    {"LongbowOak", "ArrowsIron"},
     {},
     {},
 };
+
 
 // ---------------------------------------------------------------------------
 // Stat overrides for this UI test.
@@ -98,8 +100,9 @@ void setupTestParty(model::Player& player, db::Database& database) {
         database.getCharacterTemplate(TEST_PARTY_TEMPLATE_NAMES[i]));
 
     for (const auto& itemName : PARTY_MEMBER_ITEMS[i]) {
-      model::characterPlayerAddItemToInventory(
-          member, database.getItemTemplate(bmin::toStringView(itemName)), 1);
+      const auto& itemTemplate = database.getItemTemplate(bmin::toStringView(itemName));
+      const auto quantity = itemTemplate.itemType == model::ItemType::WEAPON_AMMO ? 10 : 1;
+      model::characterPlayerAddItemToInventory(member, itemTemplate, quantity);
     }
     for (const auto& item : member.inventory) {
       game::toggleEquippedInventoryItem(member, item.id, database);
@@ -193,7 +196,7 @@ int main(int argc, char** argv) {
 
   {
     auto& state = stateManager.getState();
-    stateManager.getState().settings.actionDelayMult = 0.5f;
+    stateManager.getState().settings.actionDelayMult = COMBAT_SPEED;
     state.mapInstances = game::createMapInstances(database);
 
     auto loadMap = state::actions::WorldLoadActiveMap("combat_test1");
@@ -207,8 +210,7 @@ int main(int argc, char** argv) {
       model::updateCharacterFacingFromMove(*avatar, 0, -1);
     }
 
-    const bmin::DynArray<bmin::String> enemyTemplates = {
-        "goblinTest", "goblinTest", "goblinTest", "goblinTest", "goblinTest"};
+    const bmin::DynArray<bmin::String> enemyTemplates = {"goblinTestMage"};
     spawnEnemiesAtMarkers(state, database, enemyTemplates);
 
     // Enqueue so SetActiveCombatCharacter (inserted by StartCombat) runs via update.

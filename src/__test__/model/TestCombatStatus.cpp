@@ -474,6 +474,29 @@ int main() {
 
   ok = testLethalBurnSkipsEnemyTurn() && ok;
 
+  {
+    model::World world;
+    model::Player player;
+    model::CharacterPlayer member;
+    member.instanceId = "ally-1";
+    player.party.pushBack(std::move(member));
+    world.combat.active = true;
+    world.combat.activeCharacterId = "ally-1";
+    world.combat.isWaitingForAction = false;
+    ok = assertTrue(!model::shouldShowCombatTurnOutline(world, player),
+                    "hide turn outline during player status or action") &&
+         ok;
+    world.combat.isWaitingForAction = true;
+    ok = assertTrue(model::shouldShowCombatTurnOutline(world, player),
+                    "show turn outline when player is ready") &&
+         ok;
+    world.combat.activeCharacterId = "enemy-1";
+    world.combat.isWaitingForAction = false;
+    ok = assertTrue(model::shouldShowCombatTurnOutline(world, player),
+                    "AI turn outline always shows") &&
+         ok;
+  }
+
   if (!ok) {
     LOG(ERROR) << "TestCombatStatus failed" << LOG_ENDL;
     return 1;

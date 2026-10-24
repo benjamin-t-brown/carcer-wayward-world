@@ -7,6 +7,7 @@
 #include "game/combat/StatusRules.h"
 #include "game/combat/projectileHelpers.h"
 #include "game/map/ActiveMapCharacters.h"
+#include "game/map/Camera.h"
 #include "game/map/TileDistance.h"
 #include "model/Combat.h"
 #include "model/instances/Player.h"
@@ -19,6 +20,8 @@
 #include "actions/combat/PerformStatusAbility.hpp"
 #include "actions/general/PlaySound.hpp"
 #include "actions/world/WorldSetActionMode.hpp"
+#include "actions/world/WorldSetCamera.hpp"
+#include "actions/world/WorldSetCameraMode.hpp"
 #include "actions/world/WorldSpawnDamageParticle.hpp"
 #include "actions/world/WorldSpawnProjectile.hpp"
 
@@ -91,7 +94,20 @@ class PerformSpellCast : public AbstractAction {
 
     insertAction(nullptr, delayMs);
 
+    const auto shouldPanHit =
+        state->world.combat.active && !model::isPartyMember(state->player, casterId) &&
+        (targetTileX != casterX || targetTileY != casterY) &&
+        state->world.camera.viewW > 0 && state->world.camera.viewH > 0;
+    const auto casterTurnEnds = caster.currentAp - ability.apCost <= 0;
+    if (shouldPanHit) {
+      const auto hitCam = game::computeCameraFollow(
+          targetTileX, targetTileY, state->world.camera.viewW, state->world.camera.viewH);
+      insertAction(state::makeAction<WorldSetCameraMode>(model::CameraMode::Controlled), 0);
+      insertAction(state::makeAction<WorldSetCamera>(hitCam.camX, hitCam.camY), 0);
+    }
+
     const int damageParticleLifetimeMs = scaledDelayMs(500);
+    const int cameraHoldMs = scaledDelayMs(250);
     const int targetStaggerMs = scaledDelayMs(50);
     auto spawnedSpellParticle = false;
     for (size_t i = 0; i < targets.size(); i++) {
@@ -126,34 +142,42 @@ class PerformSpellCast : public AbstractAction {
       }
     }
 
-    if (spawnedSpellParticle) {
-      insertAction(nullptr, damageParticleLifetimeMs);
-    }
-
     auto* database = getDatabase();
-    if (database == nullptr || ability.statuses.empty()) {
-      return;
-    }
-    for (size_t i = 0; i < targets.size(); i++) {
-      auto* ch = targets[i];
-      for (const auto& statusApply : ability.statuses) {
-        if (!game::applyStatusEffect(*ch, statusApply, casterStats, *database)) {
-          continue;
-        }
-        const auto* statusTemplate =
-            database->findStatusEffectTemplate(bmin::toStringView(statusApply.statusEffect));
-        if (statusTemplate == nullptr) {
-          continue;
-        }
-        bmin::DynArray<bmin::String> onAppliedAbilities;
-        game::collectStatusActionAbilities(*statusTemplate,
-                                           model::StatusEventType::STATUS_EVENT_ON_APPLIED,
-                                           onAppliedAbilities);
-        for (size_t a = 0; a < onAppliedAbilities.size(); a++) {
-          insertAction(state::makeAction<PerformStatusAbility>(ch->id, onAppliedAbilities[a]),
-                       static_cast<int>(i + a) * targetStaggerMs);
+    if (database != nullptr && !ability.statuses.empty()) {
+      for (size_t i = 0; i < targets.size(); i++) {
+        auto* ch = targets[i];
+        for (const auto& statusApply : ability.statuses) {
+          if (!game::applyStatusEffect(*ch, statusApply, casterStats, *database)) {
+            continue;
+          }
+          const auto* statusTemplate =
+              database->findStatusEffectTemplate(
+                  bmin::toStringView(statusApply.statusEffect));
+          if (statusTemplate == nullptr) {
+            continue;
+          }
+          bmin::DynArray<bmin::String> onAppliedAbilities;
+          game::collectStatusActionAbilities(*statusTemplate,
+                                             model::StatusEventType::STATUS_EVENT_ON_APPLIED,
+                                             onAppliedAbilities);
+          for (size_t a = 0; a < onAppliedAbilities.size(); a++) {
+            insertAction(state::makeAction<PerformStatusAbility>(ch->id, onAppliedAbilities[a]),
+                         static_cast<int>(i + a) * targetStaggerMs);
+          }
         }
       }
+    }
+
+    if (shouldPanHit) {
+      insertAction(nullptr, cameraHoldMs);
+    } else if (spawnedSpellParticle) {
+      insertAction(nullptr, damageParticleLifetimeMs);
+    }
+    if (shouldPanHit && !casterTurnEnds) {
+      const auto returnCam = game::computeCameraFollow(
+          casterX, casterY, state->world.camera.viewW, state->world.camera.viewH);
+      insertAction(state::makeAction<WorldSetCameraMode>(model::CameraMode::Follow), 0);
+      insertAction(state::makeAction<WorldSetCamera>(returnCam.camX, returnCam.camY), 0);
     }
   }
 
@@ -185,22 +209,7 @@ class PerformSpellCast : public AbstractAction {
   bool matchesSpellAllegiance(const model::CharacterInstance& caster,
                               const model::CharacterInstance& target,
                               model::TargetAllegianceSelectType allegiance) {
-    const auto isSelf = target.id == caster.id;
-    const auto sameTeam = model::isCharacterAlly(state->player, caster) ==
-                          model::isCharacterAlly(state->player, target);
-    switch (allegiance) {
-    case model::TargetAllegianceSelectType::TARGET_ALLEGIANCE_OTHER:
-      return !isSelf && !sameTeam;
-    case model::TargetAllegianceSelectType::TARGET_ALLEGIANCE_SAME:
-      return !isSelf && sameTeam;
-    case model::TargetAllegianceSelectType::TARGET_ALLEGIANCE_SAME_AND_SELF:
-      return sameTeam;
-    case model::TargetAllegianceSelectType::TARGET_ALLEGIANCE_ALL:
-      return !isSelf;
-    case model::TargetAllegianceSelectType::TARGET_ALLEGIANCE_ALL_AND_SELF:
-      return true;
-    }
-    return false;
+    return model::matchesSpellAllegiance(state->player, caster, target, allegiance);
   }
 
   void addUnitSpellTarget(bmin::DynArray<model::CharacterInstance*>& targets,
@@ -260,8 +269,12 @@ class PerformSpellCast : public AbstractAction {
                  << spellTargetInfo.targetCharacterId << LOG_ENDL;
       return;
     }
-    if (!model::isPartyMember(state->player, target->id)) {
-      LOG(ERROR) << "PerformSpellCast: TARGET_ALLY is not a party member "
+    if (!model::matchesSpellAllegiance(
+            state->player,
+            caster,
+            *target,
+            model::TargetAllegianceSelectType::TARGET_ALLEGIANCE_SAME_AND_SELF)) {
+      LOG(ERROR) << "PerformSpellCast: TARGET_ALLY is not same faction "
                  << target->id << LOG_ENDL;
       return;
     }
@@ -314,15 +327,6 @@ class PerformSpellCast : public AbstractAction {
       return;
     }
 
-    // verify
-
-    // if (!verifySpellCanBeCast(*caster, *ability)) {
-    //   LOG(ERROR) << "PerformSpellCast: spell not allowed to be cast" << LOG_ENDL;
-    //   return;
-    // }
-
-    // do
-
     auto npcStats = model::CharacterStats{};
     auto casterRef = model::SpellCasterRef{};
     const model::CharacterStats* casterStats = nullptr;
@@ -336,6 +340,13 @@ class PerformSpellCast : public AbstractAction {
       casterStats = &zeroStats;
     }
 
+    const auto manaCost = model::spellAbilityManaCost(*spell, *database);
+    if (casterRef.currentMp == nullptr || *casterRef.currentMp < manaCost) {
+      LOG(ERROR) << "PerformSpellCast: not enough MP for " << spellId << LOG_ENDL;
+      return;
+    }
+    *casterRef.currentMp -= manaCost;
+
     if (ability->apCost != 0) {
       insertAction(state::makeAction<ModifyAP>(casterId, -ability->apCost), 0);
     }
@@ -346,6 +357,11 @@ class PerformSpellCast : public AbstractAction {
       doAllySpell(*ability, *caster, *casterStats, activeMap);
     } else if (ability->targetSelect.targetType == model::TargetSelectType::TARGET_UNIT) {
       doUnitSpell(*ability, *caster, *casterStats, activeMap);
+    } else if (ability->targetSelect.targetType == model::TargetSelectType::TARGET_SELF) {
+      bmin::DynArray<model::CharacterInstance*> targets;
+      targets.pushBack(caster);
+      applySpellToCharacters(
+          *ability, *caster, *casterStats, targets, caster->x, caster->y);
     } else {
       LOG(ERROR) << "PerformSpellCast: unhandled target type "
                  << model::targetSelectTypeToString(ability->targetSelect.targetType)
