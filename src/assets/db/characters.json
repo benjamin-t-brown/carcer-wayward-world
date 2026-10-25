@@ -1570,25 +1570,19 @@
       ],
       "defaultAbility": "MELEE_ATTACK_DEFAULT"
     },
-    "combatSpellAi": {
-      "selection": "RANDOM",
-      "zoneTargeting": "RANDOM_IN_RANGE",
-      "turnModes": [
-        {
-          "behavior": "SPELLCASTER",
-          "weight": 10
-        },
-        {
-          "behavior": "SEEK_AND_MELEE",
-          "weight": 0
-        }
-      ],
-      "spells": [
-        "FLAME",
-        "SINGE"
-      ],
-      "skipChance": 25
-    },
+    "shootTargeting": "RANDOM",
+    "startingInventory": [
+      {
+        "itemName": "LongbowOak",
+        "quantity": 1,
+        "equipSlot": "WEAPON0"
+      },
+      {
+        "itemName": "ArrowsIron",
+        "quantity": 10,
+        "equipSlot": "AMMO"
+      }
+    ],
     "sound": {
       "deathSoundName": "yell_monster2"
     },
@@ -1600,7 +1594,7 @@
     },
     "combatBehavior": {
       "town": "SEEK_AND_MELEE",
-      "combat": "SPELLCASTER"
+      "combat": "SEEK_AND_SHOOT"
     },
     "talk": {}
   },
@@ -1665,6 +1659,7 @@
     "combatSpellAi": {
       "selection": "RANDOM",
       "zoneTargeting": "RANDOM_IN_RANGE",
+      "skipChance": 25,
       "turnModes": [
         {
           "behavior": "SPELLCASTER",
@@ -1678,8 +1673,7 @@
       "spells": [
         "FLAME",
         "SINGE"
-      ],
-      "skipChance": 25
+      ]
     },
     "sound": {
       "deathSoundName": "yell_monster2"

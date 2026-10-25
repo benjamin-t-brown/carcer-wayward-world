@@ -1,5 +1,6 @@
 #include "game/combat/EnemyBehavior.h"
 #include "bmin/StringInterop.h"
+#include "game/combat/ShootRules.h"
 #include "game/combat/SpellRules.h"
 #include "game/combat/SpellZone.h"
 #include "game/combat/StatusRules.h"
@@ -883,6 +884,130 @@ bool chooseEnemySpellAction(model::World& world,
   }
   out = eligible[static_cast<size_t>(index)];
   return true;
+}
+
+namespace {
+
+struct LivingPartyTarget {
+  const model::CharacterInstance* map = nullptr;
+  int hp = 0;
+};
+
+bmin::DynArray<LivingPartyTarget> livingPartyTargets(model::World& world,
+                                                     const model::Player& player) {
+  bmin::DynArray<LivingPartyTarget> targets;
+  for (size_t i = 0; i < world.activeMap.characters.size(); i++) {
+    const auto& other = world.activeMap.characters[i];
+    if (!isCharacterOnActiveLayer(other, world.activeMap)) {
+      continue;
+    }
+    if (!model::isPartyMember(player, other.id)) {
+      continue;
+    }
+    if (model::isCharacterDefeated(player, other)) {
+      continue;
+    }
+    LivingPartyTarget target;
+    target.map = &other;
+    target.hp = model::getCharacterHp(player, other);
+    targets.pushBack(target);
+  }
+  return targets;
+}
+
+const LivingPartyTarget* pickShootTarget(model::World& world,
+                                         const model::Player& player,
+                                         const model::CharacterInstance& actor,
+                                         const bmin::DynArray<LivingPartyTarget>& targets) {
+  if (targets.empty()) {
+    return nullptr;
+  }
+  if (actor.shootTargeting == model::ShootTargeting::ONLY_PC) {
+    const auto* avatar = findPartyAvatarOnActiveMap(world.activeMap, player);
+    if (avatar == nullptr || model::isCharacterDefeated(player, *avatar)) {
+      return nullptr;
+    }
+    for (size_t i = 0; i < targets.size(); i++) {
+      if (targets[i].map != nullptr && targets[i].map->id == avatar->id) {
+        return &targets[i];
+      }
+    }
+    return nullptr;
+  }
+  if (actor.shootTargeting == model::ShootTargeting::LOWEST_HEALTH) {
+    const LivingPartyTarget* best = nullptr;
+    auto bestDist = 0;
+    for (size_t i = 0; i < targets.size(); i++) {
+      if (targets[i].map == nullptr) {
+        continue;
+      }
+      const auto dist =
+          chebyshevDistance(actor.x, actor.y, targets[i].map->x, targets[i].map->y);
+      if (best == nullptr || targets[i].hp < best->hp ||
+          (targets[i].hp == best->hp && dist < bestDist)) {
+        best = &targets[i];
+        bestDist = dist;
+      }
+    }
+    return best;
+  }
+  const auto index = static_cast<size_t>(std::rand() % static_cast<int>(targets.size()));
+  return &targets[index];
+}
+
+} // namespace
+
+EnemyShootDecision chooseSeekAndShootCombatAction(model::World& world,
+                                                  MapInstanceStore& mapInstances,
+                                                  const model::Player& player,
+                                                  const model::CharacterInstance& actor,
+                                                  const db::Database& database) {
+  EnemyShootDecision decision;
+  const auto resolved = resolveEquippedShootAbility(player, actor, database);
+  if (!resolved.has_value() || !canPayShootAuxCost(player, actor, resolved->ability)) {
+    return decision;
+  }
+  const auto targets = livingPartyTargets(world, player);
+  const auto* target = pickShootTarget(world, player, actor, targets);
+  if (target == nullptr || target->map == nullptr) {
+    if (actor.shootTargeting == model::ShootTargeting::ONLY_PC) {
+      return decision;
+    }
+    decision.choice = EnemyShootChoice::Wait;
+    return decision;
+  }
+
+  decision.targetChId = target->map->id;
+  decision.targetX = target->map->x;
+  decision.targetY = target->map->y;
+  decision.range = resolved->ability.targetSelect.range;
+  const auto dist = chebyshevDistance(actor.x, actor.y, decision.targetX, decision.targetY);
+  if (decision.range > 0 && dist > 0 && dist <= decision.range) {
+    decision.choice = EnemyShootChoice::Shoot;
+    return decision;
+  }
+
+  auto dx = 0;
+  auto dy = 0;
+  if (!chooseSeekStepToward(world.activeMap,
+                            mapInstances,
+                            actor,
+                            decision.targetX,
+                            decision.targetY,
+                            database,
+                            dx,
+                            dy)) {
+    decision.choice = EnemyShootChoice::Wait;
+    return decision;
+  }
+  if (actor.x + dx == decision.targetX && actor.y + dy == decision.targetY) {
+    decision.choice = EnemyShootChoice::Wait;
+    return decision;
+  }
+  decision.choice = EnemyShootChoice::Move;
+  decision.dx = dx;
+  decision.dy = dy;
+  return decision;
 }
 
 bool tryQueueTownEnemySpell(model::World& /*world*/,

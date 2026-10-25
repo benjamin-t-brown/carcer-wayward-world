@@ -210,7 +210,7 @@ int main(int argc, char** argv) {
       model::updateCharacterFacingFromMove(*avatar, 0, -1);
     }
 
-    const bmin::DynArray<bmin::String> enemyTemplates = {"goblinTestMage"};
+    const bmin::DynArray<bmin::String> enemyTemplates = {"goblinTestBow"};
     spawnEnemiesAtMarkers(state, database, enemyTemplates);
 
     // Enqueue so SetActiveCombatCharacter (inserted by StartCombat) runs via update.

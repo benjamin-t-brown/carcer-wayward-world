@@ -841,12 +841,36 @@ export const CHARACTER_TEMPLATE_BEHAVIOR_NAMES: CharacterTemplateBehaviorName[] 
   ];
 
 /** Matches model::CombatBehaviorName in CharacterTemplate.h */
-export type CombatBehaviorName = 'SEEK_AND_MELEE' | 'SPELLCASTER';
+export type CombatBehaviorName = 'SEEK_AND_MELEE' | 'SPELLCASTER' | 'SEEK_AND_SHOOT';
 
 export const COMBAT_BEHAVIOR_NAMES: CombatBehaviorName[] = [
   'SEEK_AND_MELEE',
   'SPELLCASTER',
+  'SEEK_AND_SHOOT',
 ];
+
+export type ShootTargeting = 'RANDOM' | 'LOWEST_HEALTH' | 'ONLY_PC';
+
+export const SHOOT_TARGETINGS: ShootTargeting[] = [
+  'RANDOM',
+  'LOWEST_HEALTH',
+  'ONLY_PC',
+];
+
+export type CharacterStartingEquipSlot = 'NONE' | 'WEAPON0' | 'WEAPON1' | 'AMMO';
+
+export const CHARACTER_STARTING_EQUIP_SLOTS: CharacterStartingEquipSlot[] = [
+  'NONE',
+  'WEAPON0',
+  'WEAPON1',
+  'AMMO',
+];
+
+export interface CharacterStartingItem {
+  itemName: string;
+  quantity: number;
+  equipSlot: CharacterStartingEquipSlot;
+}
 
 export type CombatSpellAiSelection = 'FIRST' | 'RANDOM';
 
@@ -1280,6 +1304,8 @@ export interface CharacterTemplate {
     town?: CombatBehaviorName;
     combat?: CombatBehaviorName;
   };
+  shootTargeting?: ShootTargeting;
+  startingInventory?: CharacterStartingItem[];
   sound?: CharacterTemplateSound;
   statuses?: Array<{
     status: string;

@@ -17,6 +17,11 @@ import {
   CHARACTER_SPRITE_LAYOUTS,
   CombatBehaviorName,
   COMBAT_BEHAVIOR_NAMES,
+  ShootTargeting,
+  SHOOT_TARGETINGS,
+  CharacterStartingEquipSlot,
+  CharacterStartingItem,
+  CHARACTER_STARTING_EQUIP_SLOTS,
   CombatSpellAi,
   CombatSpellAiCondition,
   CombatSpellAiConditionType,
@@ -61,7 +66,7 @@ export function createDefaultCharacter(): CharacterTemplate {
 
 export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
   const character = props.character;
-  const { gameEvents, dropTables, abilities, spells } = useAssets();
+  const { gameEvents, dropTables, abilities, spells, items } = useAssets();
   const { spriteMap } = useSDL2WAssets();
 
   const formData = character as CharacterTemplate;
@@ -124,6 +129,13 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
       behavior: {
         behaviorName: value as CharacterTemplateBehaviorName,
       },
+    });
+  };
+
+  const updateStartingInventory = (next: CharacterStartingItem[]) => {
+    setFormData({
+      ...formData,
+      startingInventory: next.length > 0 ? next : undefined,
     });
   };
 
@@ -1042,6 +1054,23 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
                   }))}
                 />
               ) : null}
+              <OptionSelect
+                id="shoot-targeting"
+                name="shootTargeting"
+                label="Shoot Targeting"
+                value={formData.shootTargeting || 'RANDOM'}
+                onChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    shootTargeting: (value || 'RANDOM') as ShootTargeting,
+                  })
+                }
+                className="behavior-select-wide"
+                options={SHOOT_TARGETINGS.map((targeting) => ({
+                  value: targeting,
+                  label: targeting,
+                }))}
+              />
               {turnModes.map((mode, index) => (
                 <div key={index} className="form-fields-inline">
                   <OptionSelect
@@ -1085,6 +1114,87 @@ export function CharacterTemplateForm(props: CharacterTemplateFormProps) {
                 + Add turn mode
               </Button>
             </div>
+          </div>
+
+          <div className="form-subsection">
+            <h4>Starting Inventory</h4>
+            {(formData.startingInventory ?? []).map((entry, index) => (
+              <div key={index} className="form-fields-inline">
+                <SearchSelect
+                  id={`starting-item-${index}`}
+                  name={`startingItem${index}`}
+                  label={index === 0 ? 'Item' : 'Item'}
+                  value={entry.itemName}
+                  onChange={(value) => {
+                    const next = [...(formData.startingInventory ?? [])];
+                    next[index] = { ...entry, itemName: value };
+                    updateStartingInventory(next);
+                  }}
+                  items={items}
+                  getItemKey={(item) => item.name}
+                  getItemLabel={(item) => item.label?.trim() || item.name}
+                  searchFields={(item) => [item.name, item.label ?? '']}
+                  placeholder="Search items..."
+                  emptyLabel="(choose item)"
+                  allowEmpty
+                />
+                <NumberInput
+                  id={`starting-item-qty-${index}`}
+                  name={`startingItemQty${index}`}
+                  label="Quantity"
+                  value={entry.quantity}
+                  onChange={(value) => {
+                    const next = [...(formData.startingInventory ?? [])];
+                    next[index] = { ...entry, quantity: value ?? 1 };
+                    updateStartingInventory(next);
+                  }}
+                  min={1}
+                />
+                <OptionSelect
+                  id={`starting-item-slot-${index}`}
+                  name={`startingItemSlot${index}`}
+                  label="Equip"
+                  value={entry.equipSlot}
+                  onChange={(value) => {
+                    const next = [...(formData.startingInventory ?? [])];
+                    next[index] = {
+                      ...entry,
+                      equipSlot: (value || 'NONE') as CharacterStartingEquipSlot,
+                    };
+                    updateStartingInventory(next);
+                  }}
+                  options={CHARACTER_STARTING_EQUIP_SLOTS.map((slot) => ({
+                    value: slot,
+                    label: slot,
+                  }))}
+                />
+                <Button
+                  type="button"
+                  variant="small"
+                  className="btn-danger"
+                  onClick={() => {
+                    const next = (formData.startingInventory ?? []).filter(
+                      (_, itemIndex) => itemIndex !== index
+                    );
+                    updateStartingInventory(next);
+                  }}
+                >
+                  Remove
+                </Button>
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() =>
+                updateStartingInventory([
+                  ...(formData.startingInventory ?? []),
+                  { itemName: '', quantity: 1, equipSlot: 'NONE' },
+                ])
+              }
+            >
+              + Add item
+            </Button>
           </div>
 
           {isSpellcasterAi ? (

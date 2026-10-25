@@ -41,6 +41,34 @@ bool chooseSeekStepToward(model::ActiveMap& activeMap,
  * else step toward the nearest living party member on the map.
  * database is used only for walkability / pathfinding.
  */
+enum class EnemyShootChoice {
+  Unavailable,
+  Wait,
+  Move,
+  Shoot,
+};
+
+struct EnemyShootDecision {
+  EnemyShootChoice choice = EnemyShootChoice::Unavailable;
+  int dx = 0;
+  int dy = 0;
+  bmin::String targetChId;
+  int targetX = 0;
+  int targetY = 0;
+  int range = 0;
+};
+
+/**
+ * SEEK_AND_SHOOT: shoot the chosen party member when they are in weapon range,
+ * otherwise step toward them. Unavailable means the actor cannot fire (no
+ * ranged weapon or unpaid aux cost) and the caller should seek-and-melee.
+ */
+EnemyShootDecision chooseSeekAndShootCombatAction(model::World& world,
+                                                  MapInstanceStore& mapInstances,
+                                                  const model::Player& player,
+                                                  const model::CharacterInstance& actor,
+                                                  const db::Database& database);
+
 bool chooseSeekAndMeleeCombatAction(model::World& world,
                                     MapInstanceStore& mapInstances,
                                     const model::Player& player,

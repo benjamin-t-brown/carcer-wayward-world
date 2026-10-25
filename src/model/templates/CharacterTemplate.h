@@ -28,7 +28,33 @@ enum class CharacterTemplateBehaviorName {
 enum class CombatBehaviorName {
   SEEK_AND_MELEE,
   SPELLCASTER,
+  SEEK_AND_SHOOT,
 };
+
+/** How a SEEK_AND_SHOOT actor picks the party member to fire at or approach. */
+enum class ShootTargeting {
+  RANDOM,
+  LOWEST_HEALTH,
+  ONLY_PC,
+};
+
+enum class CharacterStartingEquipSlot {
+  NONE,
+  WEAPON0,
+  WEAPON1,
+  AMMO,
+};
+
+struct CharacterTemplateStartingItem {
+  bmin::String itemName;
+  int quantity = 1;
+  CharacterStartingEquipSlot equipSlot = CharacterStartingEquipSlot::NONE;
+};
+
+ShootTargeting shootTargetingFromString(const bmin::String& value);
+bmin::String getStringFromShootTargeting(ShootTargeting targeting);
+CharacterStartingEquipSlot characterStartingEquipSlotFromString(const bmin::String& value);
+bmin::String getStringFromCharacterStartingEquipSlot(CharacterStartingEquipSlot slot);
 
 enum class CombatSpellAiSelection {
   FIRST,
@@ -143,6 +169,8 @@ struct CharacterTemplate {
   CharacterStats stats;
   CharacterTemplateCombat combat;
   CharacterTemplateCombatBehavior combatBehavior;
+  ShootTargeting shootTargeting = ShootTargeting::RANDOM;
+  bmin::DynArray<CharacterTemplateStartingItem> startingInventory;
   CharacterTemplateSound sound;
   bmin::DynArray<CharacterTemplateStatus> statuses;
   CharacterTemplateVision vision;

@@ -2,6 +2,7 @@
 
 #include "bmin/String.h"
 #include "bmin/DynArray.h"
+#include "model/instances/CharacterPlayer.h"
 #include "model/stats/CharacterStats.h"
 #include "model/templates/CharacterTemplate.h"
 
@@ -78,6 +79,13 @@ struct CharacterInstance {
   int visionRadius = 0;
   CombatBehaviorName combatBehaviorTown = CombatBehaviorName::SEEK_AND_MELEE;
   CombatBehaviorName combatBehaviorCombat = CombatBehaviorName::SEEK_AND_MELEE;
+  ShootTargeting shootTargeting = ShootTargeting::RANDOM;
+  /** Copied once from the template. Later applies do not refill spent ammo. */
+  bool inventorySeeded = false;
+  bmin::DynArray<CharacterInventoryItem> inventory;
+  bmin::String weapon0Id;
+  bmin::String weapon1Id;
+  bmin::String ammoId;
   CharacterTemplateCombatSpellAi combatSpellAi;
   // Mode chosen for the current combat turn (see resolveCombatTurnBehavior).
   CombatBehaviorName combatBehaviorThisTurn = CombatBehaviorName::SEEK_AND_MELEE;

@@ -2,6 +2,7 @@
 #include "bmin/StringInterop.h"
 #include "model/instances/CharacterInstance.hpp"
 #include "model/instances/CharacterPlayer.h"
+#include "model/templates/UtilityTypes.h"
 #include <charconv>
 #include <stdexcept>
 #include <system_error>
@@ -34,6 +35,62 @@ bmin::String getStringFromCombatSpellAiSelection(CombatSpellAiSelection selectio
     break;
   }
   return "FIRST";
+}
+
+ShootTargeting shootTargetingFromString(const bmin::String& value) {
+  if (value == "LOWEST_HEALTH") {
+    return ShootTargeting::LOWEST_HEALTH;
+  }
+  if (value == "ONLY_PC") {
+    return ShootTargeting::ONLY_PC;
+  }
+  if (value == "RANDOM" || value.empty()) {
+    return ShootTargeting::RANDOM;
+  }
+  throw std::runtime_error((bmin::String("Invalid shoot targeting: ") + value).cStr());
+}
+
+bmin::String getStringFromShootTargeting(ShootTargeting targeting) {
+  switch (targeting) {
+  case ShootTargeting::LOWEST_HEALTH:
+    return "LOWEST_HEALTH";
+  case ShootTargeting::ONLY_PC:
+    return "ONLY_PC";
+  case ShootTargeting::RANDOM:
+    break;
+  }
+  return "RANDOM";
+}
+
+CharacterStartingEquipSlot characterStartingEquipSlotFromString(const bmin::String& value) {
+  if (value == "WEAPON0") {
+    return CharacterStartingEquipSlot::WEAPON0;
+  }
+  if (value == "WEAPON1") {
+    return CharacterStartingEquipSlot::WEAPON1;
+  }
+  if (value == "AMMO") {
+    return CharacterStartingEquipSlot::AMMO;
+  }
+  if (value == "NONE" || value.empty()) {
+    return CharacterStartingEquipSlot::NONE;
+  }
+  throw std::runtime_error(
+      (bmin::String("Invalid starting equip slot: ") + value).cStr());
+}
+
+bmin::String getStringFromCharacterStartingEquipSlot(CharacterStartingEquipSlot slot) {
+  switch (slot) {
+  case CharacterStartingEquipSlot::WEAPON0:
+    return "WEAPON0";
+  case CharacterStartingEquipSlot::WEAPON1:
+    return "WEAPON1";
+  case CharacterStartingEquipSlot::AMMO:
+    return "AMMO";
+  case CharacterStartingEquipSlot::NONE:
+    break;
+  }
+  return "NONE";
 }
 
 CombatSpellAiZoneTargeting combatSpellAiZoneTargetingFromString(const bmin::String& value) {
@@ -149,9 +206,48 @@ bmin::String characterGetSprite(const CharacterTemplate& characterTemplate) {
   return characterGetSpriteAtIndexOffset(characterTemplate, 0);
 }
 
+namespace {
+
+void seedStartingInventory(CharacterInstance& character,
+                           const CharacterTemplate& characterTemplate) {
+  if (character.inventorySeeded) {
+    return;
+  }
+  character.inventorySeeded = true;
+  for (size_t i = 0; i < characterTemplate.startingInventory.size(); ++i) {
+    const auto& starting = characterTemplate.startingInventory[i];
+    if (starting.itemName.empty()) {
+      continue;
+    }
+    CharacterInventoryItem item;
+    item.itemName = starting.itemName;
+    item.id = createRandomId();
+    item.quantity = starting.quantity < 1 ? 1 : starting.quantity;
+    const auto itemId = item.id;
+    character.inventory.pushBack(item);
+    switch (starting.equipSlot) {
+    case CharacterStartingEquipSlot::WEAPON0:
+      character.weapon0Id = itemId;
+      break;
+    case CharacterStartingEquipSlot::WEAPON1:
+      character.weapon1Id = itemId;
+      break;
+    case CharacterStartingEquipSlot::AMMO:
+      character.ammoId = itemId;
+      break;
+    case CharacterStartingEquipSlot::NONE:
+      break;
+    }
+  }
+}
+
+} // namespace
+
 void applyCharacterTemplateToInstance(CharacterInstance& character,
                                       const CharacterTemplate& characterTemplate) {
   character.type = characterTemplate.type;
+  character.shootTargeting = characterTemplate.shootTargeting;
+  seedStartingInventory(character, characterTemplate);
   character.label = characterTemplate.label;
   character.behaviorName = characterTemplate.behavior.behaviorName;
   character.visionRadius = characterTemplate.vision.radius;

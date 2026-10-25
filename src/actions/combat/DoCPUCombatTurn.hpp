@@ -68,8 +68,39 @@ class DoCPUCombatTurn : public AbstractAction {
       }
     }
 
+    if (turnBehavior == model::CombatBehaviorName::SEEK_AND_SHOOT) {
+      const auto decision = game::chooseSeekAndShootCombatAction(
+          world, state->mapInstances, state->player, *actor, *database);
+      if (decision.choice == game::EnemyShootChoice::Shoot) {
+        insertAction(nullptr, scaledDelayMs(CPU_TURN_DELAY));
+        insertAction(state::makeAction<DoCombatAction>(
+                         actorId,
+                         model::CombatActionType::SHOOT,
+                         CombatActionContext{.targetChId = decision.targetChId,
+                                             .targetLoc = {decision.targetX, decision.targetY}}),
+                     0);
+        return;
+      }
+      if (decision.choice == game::EnemyShootChoice::Move) {
+        insertAction(nullptr, scaledDelayMs(CPU_TURN_DELAY));
+        insertAction(state::makeAction<DoCombatAction>(
+                         actorId,
+                         model::CombatActionType::MOVE,
+                         CombatActionContext{.targetLoc = {decision.dx, decision.dy}}),
+                     0);
+        return;
+      }
+      if (decision.choice == game::EnemyShootChoice::Wait) {
+        insertAction(nullptr, scaledDelayMs(CPU_TURN_DELAY));
+        insertAction(state::makeAction<DoCombatAction>(actorId, model::CombatActionType::WAIT),
+                     0);
+        return;
+      }
+    }
+
     if (turnBehavior == model::CombatBehaviorName::SEEK_AND_MELEE ||
-        turnBehavior == model::CombatBehaviorName::SPELLCASTER) {
+        turnBehavior == model::CombatBehaviorName::SPELLCASTER ||
+        turnBehavior == model::CombatBehaviorName::SEEK_AND_SHOOT) {
       auto dx = 0;
       auto dy = 0;
       if (game::chooseSeekAndMeleeCombatAction(

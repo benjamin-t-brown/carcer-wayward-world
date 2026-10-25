@@ -7,6 +7,7 @@
 #include "actions/general/PlaySound.hpp"
 #include "actions/world/ClearTownEnemyAiResolving.hpp"
 #include "actions/world/TownEnemySeekAndMelee.hpp"
+#include "actions/world/TownEnemySeekAndShoot.hpp"
 #include <unordered_set>
 
 namespace state {
@@ -66,6 +67,10 @@ class TownEnemyAiAfterPlayerMove : public AbstractAction {
         continue;
       }
       if (character.behaviorName != "IMMOBILE_UNTIL_ENEMY_SPOTTED") {
+        continue;
+      }
+      if (character.combatBehaviorTown == model::CombatBehaviorName::SEEK_AND_SHOOT) {
+        insertAction(state::makeAction<TownEnemySeekAndShoot>(character.id), 0);
         continue;
       }
       if (character.combatBehaviorTown != model::CombatBehaviorName::SEEK_AND_MELEE) {

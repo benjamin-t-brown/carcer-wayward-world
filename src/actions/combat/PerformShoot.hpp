@@ -282,7 +282,8 @@ class PerformShoot : public AbstractAction {
       LOG(INFO) << "PerformShoot: out of range for " << ability.name << LOG_ENDL;
       return;
     }
-    if (shooter->currentAp <= 0) {
+    const auto inCombat = state->world.combat.active;
+    if (inCombat && shooter->currentAp <= 0) {
       LOG(INFO) << "PerformShoot: no AP remaining for " << ability.name << LOG_ENDL;
       return;
     }
@@ -292,7 +293,9 @@ class PerformShoot : public AbstractAction {
       return;
     }
 
-    insertAction(state::makeAction<ModifyAP>(shooterId, -model::COMBAT_SHOOT_COST), 0);
+    if (inCombat) {
+      insertAction(state::makeAction<ModifyAP>(shooterId, -model::COMBAT_SHOOT_COST), 0);
+    }
     if (spent.hpCost > 0) {
       insertAction(state::makeAction<ModifyHP>(shooterId, -spent.hpCost), 0);
     }
@@ -317,7 +320,8 @@ class PerformShoot : public AbstractAction {
     const auto shouldPanHit =
         state->world.combat.active && (targetX != shooterX || targetY != shooterY) &&
         state->world.camera.viewW > 0 && state->world.camera.viewH > 0;
-    const auto turnEnds = shooter->currentAp - model::COMBAT_SHOOT_COST <= 0;
+    const auto turnEnds =
+        inCombat && shooter->currentAp - model::COMBAT_SHOOT_COST <= 0;
     if (shouldPanHit) {
       const auto hitCam = game::computeCameraFollow(
           targetX, targetY, state->world.camera.viewW, state->world.camera.viewH);

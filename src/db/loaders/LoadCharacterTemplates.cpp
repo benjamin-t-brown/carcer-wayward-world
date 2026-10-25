@@ -66,6 +66,9 @@ model::CombatBehaviorName getCombatBehaviorNameFromString(const bmin::String& be
   if (behaviorStr == "SPELLCASTER") {
     return model::CombatBehaviorName::SPELLCASTER;
   }
+  if (behaviorStr == "SEEK_AND_SHOOT") {
+    return model::CombatBehaviorName::SEEK_AND_SHOOT;
+  }
   throw std::runtime_error(
       (bmin::String("Invalid combat behavior: ") + behaviorStr).cStr());
 }
@@ -394,6 +397,35 @@ void loadCharacterTemplates(
           if (!rule.spell.empty()) {
             characterTemplate.combatSpellAi.rules.pushBack(rule);
           }
+        }
+      }
+    }
+
+    if (characterJson.contains("shootTargeting") &&
+        characterJson["shootTargeting"].is_string()) {
+      characterTemplate.shootTargeting = model::shootTargetingFromString(
+          characterJson["shootTargeting"].get<bmin::String>());
+    }
+
+    if (characterJson.contains("startingInventory") &&
+        characterJson["startingInventory"].is_array()) {
+      for (const auto& itemJson : characterJson["startingInventory"]) {
+        if (!itemJson.is_object()) {
+          continue;
+        }
+        model::CharacterTemplateStartingItem starting;
+        if (itemJson.contains("itemName") && itemJson["itemName"].is_string()) {
+          starting.itemName = itemJson["itemName"].get<bmin::String>();
+        }
+        if (itemJson.contains("quantity")) {
+          starting.quantity = itemJson["quantity"].get<int>();
+        }
+        if (itemJson.contains("equipSlot") && itemJson["equipSlot"].is_string()) {
+          starting.equipSlot = model::characterStartingEquipSlotFromString(
+              itemJson["equipSlot"].get<bmin::String>());
+        }
+        if (!starting.itemName.empty()) {
+          characterTemplate.startingInventory.pushBack(starting);
         }
       }
     }

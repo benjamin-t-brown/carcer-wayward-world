@@ -31,13 +31,14 @@ model::CharacterPlayer* findPartyMember(model::Player& player, const bmin::Strin
 }
 
 const model::CharacterInventoryItem*
-findInventoryItemById(const model::CharacterPlayer& character, const bmin::String& itemId) {
+findInventoryItemById(const bmin::DynArray<model::CharacterInventoryItem>& inventory,
+                      const bmin::String& itemId) {
   if (itemId.empty()) {
     return nullptr;
   }
-  for (size_t i = 0; i < character.inventory.size(); ++i) {
-    if (character.inventory[i].id == itemId) {
-      return &character.inventory[i];
+  for (size_t i = 0; i < inventory.size(); ++i) {
+    if (inventory[i].id == itemId) {
+      return &inventory[i];
     }
   }
   return nullptr;
@@ -51,13 +52,13 @@ int shooterMana(const model::Player& player, const model::CharacterInstance& sho
 }
 
 std::optional<model::AbilityTemplate>
-resolveRangedSlot(const model::CharacterPlayer& member,
+resolveRangedSlot(const bmin::DynArray<model::CharacterInventoryItem>& inventory,
                   const bmin::String& weaponId,
                   const db::Database& database) {
   if (weaponId.empty()) {
     return std::nullopt;
   }
-  const auto* inventoryItem = findInventoryItemById(member, weaponId);
+  const auto* inventoryItem = findInventoryItemById(inventory, weaponId);
   if (inventoryItem == nullptr) {
     return std::nullopt;
   }
@@ -79,12 +80,46 @@ resolveRangedSlot(const model::CharacterPlayer& member,
   return resolved;
 }
 
-bool ammoStackCoversCost(const model::CharacterPlayer& member, int costValue) {
+bool ammoStackCoversCost(const bmin::DynArray<model::CharacterInventoryItem>& inventory,
+                        const bmin::String& ammoId,
+                        int costValue) {
   if (costValue <= 0) {
     return true;
   }
-  const auto* ammo = findInventoryItemById(member, member.equipment.ammoId);
+  const auto* ammo = findInventoryItemById(inventory, ammoId);
   return ammo != nullptr && ammo->quantity >= costValue;
+}
+
+void consumeAmmoStack(bmin::DynArray<model::CharacterInventoryItem>& inventory,
+                      bmin::String& ammoId,
+                      int costValue) {
+  for (size_t i = 0; i < inventory.size(); ++i) {
+    if (inventory[i].id != ammoId) {
+      continue;
+    }
+    if (inventory[i].quantity > costValue) {
+      inventory[i].quantity -= costValue;
+    } else {
+      inventory.erase(i);
+      ammoId.clear();
+    }
+    return;
+  }
+  ammoId.clear();
+}
+
+std::optional<ResolvedShootAbility>
+resolveLoadout(const bmin::DynArray<model::CharacterInventoryItem>& inventory,
+               const bmin::String& weapon0Id,
+               const bmin::String& weapon1Id,
+               const db::Database& database) {
+  if (auto mainHand = resolveRangedSlot(inventory, weapon0Id, database)) {
+    return ResolvedShootAbility{std::move(*mainHand)};
+  }
+  if (auto offHand = resolveRangedSlot(inventory, weapon1Id, database)) {
+    return ResolvedShootAbility{std::move(*offHand)};
+  }
+  return std::nullopt;
 }
 
 } // namespace
@@ -93,17 +128,13 @@ std::optional<ResolvedShootAbility> resolveEquippedShootAbility(
     const model::Player& player,
     const model::CharacterInstance& shooter,
     const db::Database& database) {
-  const auto* member = findPartyMember(player, shooter.id);
-  if (member == nullptr) {
-    return std::nullopt;
+  if (const auto* member = findPartyMember(player, shooter.id)) {
+    return resolveLoadout(member->inventory,
+                          member->equipment.weapon0Id,
+                          member->equipment.weapon1Id,
+                          database);
   }
-  if (auto mainHand = resolveRangedSlot(*member, member->equipment.weapon0Id, database)) {
-    return ResolvedShootAbility{std::move(*mainHand)};
-  }
-  if (auto offHand = resolveRangedSlot(*member, member->equipment.weapon1Id, database)) {
-    return ResolvedShootAbility{std::move(*offHand)};
-  }
-  return std::nullopt;
+  return resolveLoadout(shooter.inventory, shooter.weapon0Id, shooter.weapon1Id, database);
 }
 
 bool canPayShootAuxCost(const model::Player& player,
@@ -119,8 +150,10 @@ bool canPayShootAuxCost(const model::Player& player,
     if (cost <= 0) {
       return true;
     }
-    const auto* member = findPartyMember(player, shooter.id);
-    return member != nullptr && ammoStackCoversCost(*member, cost);
+    if (const auto* member = findPartyMember(player, shooter.id)) {
+      return ammoStackCoversCost(member->inventory, member->equipment.ammoId, cost);
+    }
+    return ammoStackCoversCost(shooter.inventory, shooter.ammoId, cost);
   }
   case model::AbilityCostType::ABILITY_COST_HP:
     return cost <= 0 || model::getCharacterHp(player, shooter) >= cost;
@@ -171,15 +204,10 @@ ShootAuxSpendResult spendShootAuxCost(model::Player& player,
     return result;
   }
   case model::AbilityCostType::ABILITY_COST_AMMO: {
-    auto* member = findPartyMember(player, shooter.id);
-    if (member == nullptr) {
-      result.ok = false;
-      return result;
-    }
-    const auto ammoId = member->equipment.ammoId;
-    model::characterPlayerRemoveItemFromInventoryById(*member, ammoId, cost);
-    if (findInventoryItemById(*member, ammoId) == nullptr) {
-      member->equipment.ammoId.clear();
+    if (auto* member = findPartyMember(player, shooter.id)) {
+      consumeAmmoStack(member->inventory, member->equipment.ammoId, cost);
+    } else {
+      consumeAmmoStack(shooter.inventory, shooter.ammoId, cost);
     }
     return result;
   }

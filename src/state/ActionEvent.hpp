@@ -69,6 +69,7 @@ enum class ActionEvent {
   PerformTownMeleeAttack,
   TownEnemyAiAfterPlayerMove,
   TownEnemySeekAndMelee,
+  TownEnemySeekAndShoot,
   WorldExamineAt,
   WorldInteractAt,
   WorldLoadActiveMap,
